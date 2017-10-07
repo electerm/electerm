@@ -1,0 +1,50 @@
+.tabs
+  position relative
+  background #ccc
+.tabs-bg
+  position absolute
+  left 0
+  top 0
+  bottom 0
+  right 0
+  z-index 1
+.tabs-inner
+  position relative
+  z-index 2
+  padding 0 30px 0 10px
+  display inline-block
+
+.tab
+  display inline-block
+  cursor pointer
+  position relative
+  width 120px
+  line-height 36px
+  margin 5px 3px 5px 0
+  border-radius 3px
+  background #eee
+  text-align center
+  color #555
+  &.active
+    color #fff
+    background #08c
+  &:hover
+    .tab-close
+      display block
+
+.tab-close
+  position absolute
+  right 5px
+  cursor pointer
+  top 50%
+  margin-top -6px
+  display none
+  &:hover
+    color #08c
+
+.tabs-add-btn
+  position absolute
+  z-index 5
+  right 10px
+  top 50%
+  margin-top -8px

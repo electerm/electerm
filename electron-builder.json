@@ -1,0 +1,6 @@
+{
+  "directories": {
+    "buildResources": "work/app",
+    "output": "dist"
+  }
+}

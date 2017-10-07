@@ -1,0 +1,17 @@
+{
+  "presets": [
+    "stage-0",
+    "react",
+    "node8"
+  ],
+  "plugins": [
+    "transform-decorators-legacy",
+    [
+      "transform-runtime",
+      {
+        "polyfill": false,
+        "regenerator": false
+      }
+    ]
+  ]
+}

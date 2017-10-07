@@ -1,0 +1,10 @@
+- var cdn = cdn ? cdn : ''
+include includes/head1
+title #{siteName}
+link(rel='stylesheet', href=cdn + '/css/essh.styles.css?' + version)
+include includes/head2
+#container
+
+include includes/footer-js
+script(src=cdn + '/js/essh.bundle.js' + '?' + version)
+include includes/footer-end

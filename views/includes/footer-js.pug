@@ -1,0 +1,34 @@
+script.
+  window.sugo = !{JSON.stringify(_global)}
+
+- if (env === 'development')
+  script.
+    window.debug = function () {
+      var args = Array.prototype.slice.call(arguments);
+      if (window.sugo.env === 'development') return console.log.apply(null, args);
+    }
+- var tail = env !== 'development'?'.min':''
+script(src=cdn + '/_bc/moment/min/moment.min.js')
+script(src=cdn + '/_bc/moment/locale/zh-cn.js')
+script(src=cdn + '/_bc/react/umd/react.production.min.js')
+script(src=cdn + '/_bc/react-dom/umd/react-dom.production.min.js')
+script(src=cdn + '/_bc/antd/dist/antd-with-locales' + tail + '.js')
+script(src=cdn + '/_bc/lodash/lodash' + tail + '.js')
+script(src=cdn + '/_bc/crypto-js/crypto-js.js')
+script(src=cdn + '/_bc/xterm/dist/xterm.js')
+script(src=cdn + '/_bc/xterm/dist/addons/attach/attach.js')
+script(src=cdn + '/_bc/xterm/dist/addons/fit/fit.js')
+script(src=cdn + '/_bc/xterm/dist/addons/fullscreen/fullscreen.js')
+script(src=cdn + '/_bc/xterm/dist/addons/search/search.js')
+script.
+  window.sugo.onload = function() {
+    document.body.removeChild(document.getElementById('content-loading'));
+  };
+  window.getGlobal = function(str) {
+    try {
+      return require('electron').remote.getGlobal(str)
+    } catch(e) {
+      console.log(e.stack)
+      return false
+    }
+  }
