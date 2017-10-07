@@ -38,10 +38,11 @@ mkdir('-p', dir + '/installers')
 
 echo('building win32')
 exec(`${bin}/electron-packager ./work/app --overwrite --platform=win32 --arch=ia32 --out=${dir} --icon=app/static/icons/icons.ico`)
-cp('app/config.sample.js', `${dir}/${name}-win32-ia32/`)
+//cp('app/config.sample.js', `${dir}/${name}-win32-ia32/`)
 
 echo('building linux')
 exec(`${bin}/electron-packager ./work/app --overwrite --platform=linux --arch=x64 --out=${dir}`)
+//cp('app/config.sample.js', `${dir}/${name}-linux-x64/`)
 
 // echo('building armv7l')
 // exec(`${bin}/electron-builder --armv7l --dir --config electron-builder.json`)
@@ -50,6 +51,7 @@ exec(`${bin}/electron-packager ./work/app --overwrite --platform=linux --arch=x6
 
 echo('building mac')
 exec(`${bin}/electron-packager ./work/app --overwrite --platform=darwin --arch=x64 --out=${dir} --icon=app/static/icons/icons.icns`)
+//cp('app/config.sample.js', `${dir}/${name}-darwin-x64/electerm.app/`)
 
 echo('building win32 installer')
 exec(`cd ${dir} && tar czf installers/${name}-win32-${version}.tar.gz ${name}-win32-ia32 && cd ${cwd}`)

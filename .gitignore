@@ -20,6 +20,7 @@ test/e2e/reports
 /pm2
 package-lock.json
 /app/config.js
+/app/*.json
 /work/
 
 # Runtime data
