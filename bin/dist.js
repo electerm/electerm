@@ -52,24 +52,24 @@ echo('building mac')
 exec(`${bin}/electron-packager ./work/app --overwrite --platform=darwin --arch=x64 --out=${dir} --icon=app/static/icons/icons.icns`)
 
 echo('building win32 installer')
-exec(`cd ${dir} && tar czf installers/${name}-win32-latest.tar.gz ${name}-win32-ia32 && cd ${cwd}`)
+exec(`cd ${dir} && tar czf installers/${name}-win32-${version}.tar.gz ${name}-win32-ia32 && cd ${cwd}`)
 
 echo('building linux debian installer')
 exec(`${bin}/electron-installer-debian --src ${dir}/${name}-linux-x64 --dest ${dir}/installers/ --arch amd64`)
-exec(`mv ${dir}/installers/*.deb ${dir}/installers/${name}-latest.deb`)
+exec(`mv ${dir}/installers/*.deb ${dir}/installers/${name}-${version}.deb`)
 
 echo('building linux redhat installer')
 exec(`${bin}/electron-installer-redhat --src ${dir}/${name}-linux-x64 --dest ${dir}/installers/ --arch amd64`)
-exec(`mv ${dir}/installers/*.rpm ${dir}/installers/${name}-latest.rpm`)
+exec(`mv ${dir}/installers/*.rpm ${dir}/installers/${name}-${version}.rpm`)
 
 echo('building linux tar.gz')
-exec(`cd ${dir} && tar czf installers/${name}-linux-x64-latest.tar.gz ${name}-linux-x64 && cd ${cwd}`)
+exec(`cd ${dir} && tar czf installers/${name}-linux-x64-${version}.tar.gz ${name}-linux-x64 && cd ${cwd}`)
 
 // echo('building armv7l tar.gz')
-// exec(`cd ${dir} && tar czf installers/${name}-armv7l-latest.tar.gz ${name}-armv7l && cd ${cwd}`)
+// exec(`cd ${dir} && tar czf installers/${name}-armv7l-${version}.tar.gz ${name}-armv7l && cd ${cwd}`)
 
 echo('building mac tar.gz')
-exec(`cd ${dir} && tar czf installers/${name}-darwin-x64-latest.tar.gz ${name}-darwin-x64/${name}.app && cd ${cwd}`)
+exec(`cd ${dir} && tar czf installers/${name}-darwin-x64-${version}.tar.gz ${name}-darwin-x64/${name}.app && cd ${cwd}`)
 
 cp('-r', `${dir}/installers/*`, 'dist/latest/')
 

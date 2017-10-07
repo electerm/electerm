@@ -5,10 +5,22 @@
 </h1>
 
 # electerm
-ssh/sftp client(mac, win, linux) based on electron/node-pty/xterm...
+cmd/ssh/sftp client(mac, win, linux) based on electron/node-pty/xterm...
+
+## dowload
+https://github.com/electerm/electerm/releases
+
+
+## feature
+- work as a terminal
+- work as a ssh/sftp client similar to xshell
+- dist in multi platform(mac, win, linux)
+
+## issues/todo/roadmap
+https://github.com/electerm/electerm/releases
 
 ## dev
-```
+```bash
 # with node 8.6+
 
 git clone git@github.com:electerm/electerm.git
@@ -23,6 +35,12 @@ npm run c
 
 # app
 npm run dev
+```
+
+## build
+```bash
+npm run dist
+# visit dist/
 ```
 
 ## License
