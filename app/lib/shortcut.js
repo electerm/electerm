@@ -11,11 +11,12 @@ let shortcut
  * @param {object} config
  */
 exports.init = (globalShortcut, win, config) => {
-  shortcut = globalShortcut.register(config.hotkey, () => {
+  shortcut = config.hotkey
+  globalShortcut.register(shortcut, () => {
     win.show()
   })
-
-  if (!shortcut) {
+  let ok = globalShortcut.isRegistered(shortcut)
+  if (!ok) {
     console.log('shortcut Registration failed.')
   }
 }
@@ -23,9 +24,13 @@ exports.init = (globalShortcut, win, config) => {
 exports.changeHotkeyReg = (globalShortcut, win) => {
   return newHotkey => {
     globalShortcut.unregister(shortcut)
-    shortcut = globalShortcut.register(newHotkey, () => {
+    globalShortcut.register(newHotkey, () => {
       win.show()
     })
-    return shortcut ? true : false
+    let ok = globalShortcut.isRegistered(newHotkey)
+    if (ok) {
+      shortcut = newHotkey
+    }
+    return ok
   }
 }

@@ -18,7 +18,7 @@ export default class IndexControl extends React.Component {
     item: {
       id: ''
     },
-    type: 'bookmarks'
+    tab: 'bookmarks'
   }
 
   onDup = tab => {
@@ -42,7 +42,7 @@ export default class IndexControl extends React.Component {
 
   onNewSsh = () => {
     this.setState({
-      type: 'bookmarks',
+      tab: 'bookmarks',
       item: {
         id: ''
       }
@@ -67,10 +67,9 @@ export default class IndexControl extends React.Component {
 
   openSetting = () => {
     this.setState({
-      type: 'setting',
+      tab: 'setting',
       item: {
-        id: 'all',
-        title: 'all'
+        id: ''
       }
     }, this.openModal)
   }
@@ -84,11 +83,11 @@ export default class IndexControl extends React.Component {
       tabs,
       currentTabId
     } = this.props
-    let {item, type} = this.state
+    let {item, tab} = this.state
     let props = {
       tabs,
       item,
-      type,
+      tab,
       currentTabId,
       ..._.pick(this, [
         'onAdd', 'onChange', 'onClose',

@@ -161,7 +161,7 @@ export default class ItemList extends React.Component {
               />
             </Col>
             <Col span={18}>
-              <Setting />
+              <Setting {...this.props} />
             </Col>
           </Row>
         </TabPane>
