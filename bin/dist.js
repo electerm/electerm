@@ -31,6 +31,7 @@ cp('-r', [
   'version'
 ], 'work/app/')
 rm('-rf',  'work/app/config.js')
+rm('-rf',  'work/app/*.json')
 rm('-rf',  'work/app/assets/js/common-css.bundle.js')
 exec(`cd work/app && npm prune --production && cd ${cwd}`)
 
