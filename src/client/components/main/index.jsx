@@ -14,6 +14,7 @@ const initTabs = () => [
     title: 'new terminal'
   }
 ]
+const {getGlobal} = window
 
 export default class Index extends React.Component {
 
@@ -24,7 +25,8 @@ export default class Index extends React.Component {
       tabs,
       currentTabId: tabs[0].id,
       history: ls.get('history') || [],
-      bookmarks: ls.get('bookmarks') || []
+      bookmarks: ls.get('bookmarks') || [],
+      config: getGlobal('_config') || {}
     }
   }
 

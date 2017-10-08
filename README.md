@@ -5,16 +5,16 @@
 </h1>
 
 # electerm
-cmd/ssh/sftp client(mac, win, linux) based on electron/node-pty/xterm...
+terminal/ssh/sftp client(mac, win, linux) based on electron/node-pty/xterm and more, I hope it works as a combination of `guake` and `xshell`
 
 ## dowload
 https://github.com/electerm/electerm/releases
 
 
 ## feature
-- work as a terminal
-- work as a ssh/sftp client similar to xshell
-- dist in multi platform(mac, win, linux)
+- work as a terminal or ssh/sftp client(similar to xshell)
+- hotkey to bring window back to front(simliar to guake)
+- support multi platform(mac, win, linux)
 
 ## issues/todo/roadmap
 https://github.com/electerm/electerm/releases

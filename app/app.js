@@ -4,36 +4,19 @@ global.Promise = require('bluebird')
 
 const {app, BrowserWindow, Menu, globalShortcut} = require('electron')
 const getConf = require('./config.default')
-const runServer = require('./server')
+const runServer = require('./lib/server')
 const os = require('os')
 const {resolve} = require('path')
-const Ftp = require('ssh2-sftp-client')
+const Ftp = require('./lib/sftp')
 const fs = require('fs')
+const {saveUserConfig} = require('./lib/user-config-controller')
+const {init, changeHotkeyReg} = require('./lib/shortcut')
 
 let version = +new Date()
 try {
   version = require('fs').readFileSync('./version').toString()
 } catch(e) {
   console.log('no version file created')
-}
-
-Ftp.prototype.getFile = function(remotePath, localPath, useCompression, encoding) {
-  let options = this.getOptions(useCompression, encoding)
-  return new Promise((resolve, reject) => {
-    let sftp = this.sftp
-    let streamRead = sftp.createReadStream(remotePath, options)
-    let streamWrite = fs.createWriteStream(localPath, options)
-    streamRead.on('data', data => {
-      streamWrite.write(data)
-    })
-    streamRead.on('close', () => {
-      streamWrite.close()
-      resolve()
-    })
-    streamRead.on('error', err => {
-      reject(err)
-    })
-  })
 }
 
 // Keep a global reference of the window object, if you don't, the window will
@@ -98,16 +81,21 @@ async function createWindow () {
     //shouldShowMenu: (event, params) => !params.isEditable
   })
 
-  global.autoVisitTime = config.timer
-  global._config = config
-  global.Ftp = Ftp
-  global.fs = Promise.promisifyAll(fs)
-  global.resolve = resolve
-  global.version = version
-  global.homeOrtmp = os.homedir() || os.tmpdir()
-  global.closeApp = () => {
-    win.close()
-  }
+  Object.assign(global, {
+    autoVisitTime: config.timer,
+    _config: config,
+    Ftp,
+    fs: Promise.promisifyAll(fs),
+    resolve,
+    version,
+    homeOrtmp: os.homedir() || os.tmpdir(),
+    closeApp: () => {
+      win.close()
+    },
+    saveUserConfig,
+    changeHotkey: changeHotkeyReg(globalShortcut, win)
+  })
+
 
   let opts = `http://localhost:${config.port}/index.html`
   if (isDev) {
@@ -119,16 +107,10 @@ async function createWindow () {
   win.maximize()
 
   // Open the DevTools.
-
   if(isDev) win.webContents.openDevTools()
 
-  const shortcut = globalShortcut.register('Control+2', () => {
-    win.show()
-  })
-
-  if (!shortcut) {
-    console.log('shortcut Registration failed.')
-  }
+  //init hotkey
+  init(globalShortcut, win, config)
 
   // Emitted when the window is closed.
   win.on('close', event => {

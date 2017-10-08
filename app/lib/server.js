@@ -6,9 +6,9 @@ const {log} = require('./log')
 const {resolve} = require('path')
 const terminals = {}
 const logs = {}
-const staticPath = resolve(__dirname, 'static')
-const pubPath = resolve(__dirname, 'assets')
-const modPath = resolve(__dirname, 'node_modules')
+const staticPath = resolve(__dirname, '../static')
+const pubPath = resolve(__dirname, '../assets')
+const modPath = resolve(__dirname, '../node_modules')
 app.use(cors())
 
 require('express-ws')(app)
