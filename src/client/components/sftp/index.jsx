@@ -1,7 +1,7 @@
 
 import React from 'react'
 import {generate} from 'shortid'
-import {Col, Row, Input, Icon, Tooltip, Spin} from  'antd'
+import {Col, Row, Input, Icon, Tooltip, Spin, notification} from  'antd'
 import _ from 'lodash'
 import classnames from 'classnames'
 import moment from 'moment'
@@ -43,6 +43,17 @@ export default class Sftp extends React.Component {
     this.localList()
   }
 
+  onError = e => {
+    console.log(e.stack)
+    notification.error({
+      message: 'error',
+      description: e.stack
+    })
+    this.setState({
+      remoteLoading: false
+    })
+  }
+
   remoteList = async () => {
     let Client = getGlobal('Ftp')
     if (!Client) return
@@ -81,10 +92,7 @@ export default class Sftp extends React.Component {
       }
       this.setState(update)
     } catch(e) {
-      console.log(e.stack)
-      this.setState({
-        remoteLoading: false
-      })
+      this.onError(e)
     }
   }
 
@@ -121,10 +129,7 @@ export default class Sftp extends React.Component {
       }
       this.setState(update)
     } catch(e) {
-      console.log(e.stack)
-      this.setState({
-        localLoading: false
-      })
+      this.onError(e)
     }
 
   }
