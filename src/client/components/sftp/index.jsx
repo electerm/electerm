@@ -19,6 +19,7 @@ const getOtherType = type => {
     ? 'local'
     : 'remote'
 }
+
 export default class Sftp extends React.Component {
 
   constructor(props) {
@@ -30,7 +31,8 @@ export default class Sftp extends React.Component {
       localLoading: false,
       remoteLoading: false,
       localPath: '',
-      remotePath: ''
+      remotePath: '',
+      transports: []
     }
   }
 
