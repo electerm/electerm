@@ -3,6 +3,7 @@
  */
 
 let {Client} = require('ssh2')
+let _ = require('lodash')
 
 class Sftp {
 
@@ -93,7 +94,7 @@ class Sftp {
    * @param {Function} onData function(< integer >total_transferred, < integer >chunk, < integer >total) - Called every time a part of a file was transferred
    * @return {Promise}
    */
-  download (remotePath, localPath, options = {}, onData) {
+  download (remotePath, localPath, options = {}, onData = _.noop) {
     return new Promise((resolve, reject) => {
       let {sftp} = this
       let opts = Object({}, options, {
@@ -123,7 +124,7 @@ class Sftp {
    * @param {Function} onData function(< integer >total_transferred, < integer >chunk, < integer >total) - Called every time a part of a file was transferred
    * @return {Promise}
    */
-  upload (remotePath, localPath, options = {}, onData) {
+  upload (remotePath, localPath, options = {}, onData = _.noop) {
     return new Promise((resolve, reject) => {
       let {sftp} = this
       let opts = Object({}, options, {
