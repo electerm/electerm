@@ -171,9 +171,9 @@ export default class Sftp extends React.Component {
     let fr = resolve(rPAth, name)
     let fl = resolve(lPath, name)
     if (type === 'remote') {
-      await this.sftp.getFile(f, fl)
+      await this.sftp.download(f, fl)
     } else {
-      await this.sftp.put(f, fr)
+      await this.sftp.upload(fr, f)
     }
     await this[`${otherType}List`]()
   }

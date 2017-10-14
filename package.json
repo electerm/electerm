@@ -109,7 +109,7 @@
     "react-dom": "16.0.0",
     "recursive-assign": "0.1.0",
     "shortid": "2.2.8",
-    "ssh2-sftp-client": "2.0.1",
+    "ssh2": "0.5.5",
     "xterm": "2.9.2"
   }
 }

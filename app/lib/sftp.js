@@ -4,333 +4,296 @@
 
 let {Client} = require('ssh2')
 
-let SftpClient = function(){
-    this.client = new Client();
-};
+class Sftp {
 
-/**
- * Retrieves a directory listing
- *
- * @param {String} path, a string containing the path to a directory
- * @return {Promise} data, list info
- */
-SftpClient.prototype.list = function(path) {
-    let reg = /-/gi;
+  constructor() {
+    this.client = new Client()
+  }
 
+  /**
+   * connect to server
+   * @return {Promise} sftp inst
+   */
+  connect() {
+    let {client} = this
     return new Promise((resolve, reject) => {
-        let sftp = this.sftp;
-
-        if (sftp) {
-            sftp.readdir(path, (err, list) => {
-                if (err) {
-                    reject(err);
-                    return false;
-                }
-                // reset file info
-                list.forEach((item, i) => {
-                    list[i] = {
-                        type: item.longname.substr(0, 1),
-                        name: item.filename,
-                        size: item.attrs.size,
-                        modifyTime: item.attrs.mtime * 1000,
-                        accessTime: item.attrs.atime * 1000,
-                        rights: {
-                            user: item.longname.substr(1, 3).replace(reg, ''),
-                            group: item.longname.substr(4,3).replace(reg, ''),
-                            other: item.longname.substr(7, 3).replace(reg, '')
-                        },
-                        owner: item.attrs.uid,
-                        group: item.attrs.gid
-                    }
-                });
-                resolve(list);
-            });
-        } else {
-            reject(Error('sftp connect error'));
-        }
-    });
-};
-
-/**
- * get file
- *
- * @param {String} path, path
- * @param {Object} useCompression, config options
- * @param {String} encoding. Encoding for the ReadStream, can be any value supported by node streams. Use 'null' for binary (https://nodejs.org/api/stream.html#stream_readable_setencoding_encoding)
- * @return {Promise} stream, readable stream
- */
-SftpClient.prototype.get = function(path, useCompression, encoding) {
-    let options = this.getOptions(useCompression, encoding)
-
-    return new Promise((resolve, reject) => {
-        let sftp = this.sftp;
-
-        if (sftp) {
-            try {
-                let stream = sftp.createReadStream(path, options);
-
-                stream.on('error', (err) => {
-                    reject(err);
-                });
-                stream.on('readable', () => {
-                    resolve(stream);
-                });
-            } catch(err) {
-                reject(err);
+        this.client.on('ready', () => {
+          this.client.sftp((err, sftp) => {
+            if (err) {
+              reject(err)
             }
-        } else {
-            reject(Error('sftp connect error'));
-        }
-    });
-};
-
-/**
- * Create file
- *
- * @param  {String|Buffer|stream} input
- * @param  {String} remotePath,
- * @param  {Object} useCompression [description]
- * @param  {String} encoding. Encoding for the WriteStream, can be any value supported by node streams.
- * @return {[type]}                [description]
- */
-SftpClient.prototype.put = function(input, remotePath, useCompression, encoding) {
-    let options = this.getOptions(useCompression, encoding)
-
-    return new Promise((resolve, reject) => {
-        let sftp = this.sftp;
-
-        if (sftp) {
-            if (typeof input === 'string') {
-                sftp.fastPut(input, remotePath, options, (err) => {
-                    if (err) {
-                        reject(err);
-                        return false;
-                    }
-                    resolve();
-                });
-                return false;
-            }
-            let stream = sftp.createWriteStream(remotePath, options);
-            let data;
-
-            stream.on('error', reject);
-            stream.on('close', resolve);
-
-            if (input instanceof Buffer) {
-                data = stream.end(input);
-                return false;
-            }
-            data = input.pipe(stream);
-        } else {
-            reject(Error('sftp connect error'));
-        }
-    });
-};
-
-SftpClient.prototype.mkdir = function(path, recursive) {
-    recursive = recursive || false;
-
-    return new Promise((resolve, reject) => {
-        let sftp = this.sftp;
-
-        if (sftp) {
-            if (!recursive) {
-                sftp.mkdir(path, (err) => {
-                    if (err) {
-                        reject(err);
-                        return false;
-                    }
-                    resolve();
-                });
-                return false;
-            }
-
-            let tokens = path.split(/\//g);
-            let p = '';
-
-            let mkdir = () => {
-                let token = tokens.shift();
-
-                if (!token && !tokens.length) {
-                    resolve();
-                    return false;
-                }
-                token += '/';
-                p = p + token;
-                sftp.mkdir(p, (err) => {
-                    if (err && err.code !== 4) {
-                        reject(err);
-                    }
-                    mkdir();
-                });
-            };
-            return mkdir();
-        } else {
-            reject(Error('sftp connect error'));
-        }
-    });
-};
-
-SftpClient.prototype.rmdir = function(path, recursive) {
-    recursive = recursive || false;
-
-    return new Promise((resolve, reject) => {
-        let sftp = this.sftp;
-
-        if (sftp) {
-            if (!recursive) {
-                return sftp.rmdir(path, (err) => {
-                    if (err) {
-                        reject(err);
-                    }
-                    resolve();
-                });
-            }
-            let rmdir = (p) => {
-                return this.list(p).then((list) => {
-                    if (list.length > 0) {
-                        let promises = [];
-
-                        list.forEach((item) => {
-                            let name = item.name;
-                            let promise;
-                            var subPath;
-
-                            if (name[0] === '/') {
-                                subPath = name;
-                            } else {
-                                if (p[p.length - 1] === '/') {
-                                    subPath = p + name;
-                                } else {
-                                    subPath = p + '/' + name;
-                                }
-                            }
-
-                            if (item.type === 'd') {
-                                if (name !== '.' || name !== '..') {
-                                    promise = rmdir(subPath);
-                                }
-                            } else {
-                                promise = this.delete(subPath);
-                            }
-                            promises.push(promise);
-                        });
-                        if (promises.length) {
-                            return Promise.all(promises).then(() => {
-                                return rmdir(p);
-                            });
-                        }
-                    } else {
-                        return new Promise((resolve, reject) => {
-                            return sftp.rmdir(p, (err) => {
-                                if (err) {
-                                    reject(err);
-                                }
-                                else {
-                                    resolve();
-                                }
-                            });
-                        });
-                    }
-                });
-            };
-            return rmdir(path).then(() => {resolve()})
-                        .catch((err) => {reject(err)});
-        } else {
-            reject(Error('sftp connect error'));
-        }
-    });
-};
-
-SftpClient.prototype.delete = function(path) {
-    return new Promise((resolve, reject) => {
-        let sftp = this.sftp;
-
-        if (sftp) {
-            sftp.unlink(path, (err) => {
-                if (err) {
-                    reject(err);
-                    return false;
-                }
-                resolve();
-            });
-        } else {
-            reject(Error('sftp connect error'));
-        }
-    });
-};
-
-SftpClient.prototype.rename = function(srcPath, remotePath) {
-    return new Promise((resolve, reject) => {
-        let sftp = this.sftp;
-
-        if (sftp) {
-            sftp.rename(srcPath, remotePath, (err) => {
-                if (err) {
-                    reject(err);
-                    return false;
-                }
-                resolve();
-            });
-        } else {
-            reject(Error('sftp connect error'));
-        }
-    });
-}
-
-SftpClient.prototype.chmod = function(remotePath, mode) {
-    return new Promise((resolve, reject) => {
-        let sftp = this.sftp;
-
-        if (sftp) {
-            sftp.chmod(remotePath, mode, (err) => {
-                if (err) {
-                    reject(err);
-                    return false;
-                }
-                resolve();
-            });
-        } else {
-            reject(Error('sftp connect error'));
-        }
-    });
-}
-
-SftpClient.prototype.connect = function(config, connectMethod) {
-    connectMethod = connectMethod || 'on'
-    var c = this.client;
-
-    return new Promise((resolve, reject) => {
-        this.client[connectMethod]('ready', () => {
-            this.client.sftp((err, sftp) => {
-                if (err) {
-                    reject(err);
-                }
-                this.sftp = sftp;
-                resolve(sftp);
-            });
+            this.sftp = sftp
+            resolve(sftp)
+          })
         }).on('error', (err) => {
-            reject(err);
-        }).connect(config);
-    });
-};
+          reject(err)
+        }).connect(config)
+    })
+  }
 
-SftpClient.prototype.end = function() {
-    return new Promise((resolve) => {
-        this.client.end();
-        resolve();
-    });
-};
+  /**
+   * end connection
+   */
+  end () {
+    this.client.end()
+  }
 
-SftpClient.prototype.getOptions = function(useCompression, encoding){
-    if(encoding === undefined){
-        encoding = 'utf8';
-    }
-    let options = Object.assign({}, {encoding: encoding}, useCompression);
-    return options;
-};
+  /**
+   * list remote directory
+   *
+   * @param {String} remotePath
+   * @return {Promise} list
+   */
+  list (remotePath) {
+    return new Promise((resolve, reject) => {
+      let {sftp} = this
+      let reg = /-/g
 
-module.exports = SftpClient;
+      sftp.readdir(path, (err, list) => {
+        if (err) {
+          return reject(err)
+        }
+        resolve(list.map(item => {
+          let {
+            filename,
+            longname,
+            attrs: {
+              size, mtime, atime, uid, gid
+            }
+          } = item
+          //from https://github.com/jyu213/ssh2-sftp-client/blob/master/src/index.js
+          return {
+            type: longname.substr(0, 1),
+            name: filename,
+            size,
+            modifyTime: mtime * 1000,
+            accessTime: atime * 1000,
+            rights: {
+                user: longname.substr(1, 3).replace(reg, ''),
+                group: longname.substr(4,3).replace(reg, ''),
+                other: longname.substr(7, 3).replace(reg, '')
+            },
+            owner: uid,
+            group: gid
+          }
+        }))
+      })
+    })
+  }
+
+  /**
+   * download remote file
+   *
+   * @param {String} remotePath
+   * @param {String} localPath
+   * @param {Object} options
+   * https://github.com/mscdex/ssh2-streams/blob/master/SFTPStream.md
+   * options.concurrency - integer - Number of concurrent reads Default: 64
+   * options.chunkSize - integer - Size of each read in bytes Default: 32768
+   * @param {Function} onData function(< integer >total_transferred, < integer >chunk, < integer >total) - Called every time a part of a file was transferred
+   * @return {Promise}
+   */
+  download (remotePath, localPath, options = {}, onData) {
+    return new Promise((resolve, reject) => {
+      let {sftp} = this
+      let opts = Object({}, options, {
+        step: (total_transferred, chunk, total) => {
+          onData(total_transferred, chunk, total)
+          if (total_transferred >= total) {
+            resolve()
+          }
+        }
+      })
+      sftp.fastGet(remotePath, localPath, options, err => {
+        reject(err)
+      })
+    })
+  }
+
+  /**
+   * upload file
+   *
+   * @param {String} remotePath
+   * @param {String} localPath
+   * @param {Object} options
+   * https://github.com/mscdex/ssh2-streams/blob/master/SFTPStream.md
+   * options.concurrency - integer - Number of concurrent reads Default: 64
+   * options.chunkSize - integer - Size of each read in bytes Default: 32768
+   * options.mode - mixed - Integer or string representing the file mode to set for the uploaded file.
+   * @param {Function} onData function(< integer >total_transferred, < integer >chunk, < integer >total) - Called every time a part of a file was transferred
+   * @return {Promise}
+   */
+  upload (remotePath, localPath, options = {}, onData) {
+    return new Promise((resolve, reject) => {
+      let {sftp} = this
+      let opts = Object({}, options, {
+        step: (total_transferred, chunk, total) => {
+          onData(total_transferred, chunk, total)
+        }
+      })
+      sftp.fastPut(remotePath, localPath, options, err => {
+        if (err) reject(err)
+        else resolve()
+      })
+    })
+  }
+
+  /**
+   * mkdir
+   *
+   * @param {String} remotePath
+   * @param {Object} attributes
+   * An object with the following valid properties:
+
+      mode - integer - Mode/permissions for the resource.
+      uid - integer - User ID of the resource.
+      gid - integer - Group ID of the resource.
+      size - integer - Resource size in bytes.
+      atime - integer - UNIX timestamp of the access time of the resource.
+      mtime - integer - UNIX timestamp of the modified time of the resource.
+
+      When supplying an ATTRS object to one of the SFTP methods:
+      atime and mtime can be either a Date instance or a UNIX timestamp.
+      mode can either be an integer or a string containing an octal number.
+   * https://github.com/mscdex/ssh2-streams/blob/master/SFTPStream.md
+   * @return {Promise}
+   */
+  mkdir (remotePath, options = {}) {
+    return new Promise((resolve, reject) => {
+      let {sftp} = this
+      sftp.mkdir(remotePath, options, err => {
+        if (err) reject(err)
+        else resolve()
+      })
+    })
+  }
+
+  /**
+   * rmdir
+   *
+   * @param {String} remotePath
+   * https://github.com/mscdex/ssh2-streams/blob/master/SFTPStream.md
+   * @return {Promise}
+   */
+  rmdir (remotePath) {
+    return new Promise((resolve, reject) => {
+      let {sftp} = this
+      sftp.rmdir(remotePath, err => {
+        if (err) reject(err)
+        else resolve()
+      })
+    })
+  }
+
+  /**
+   * stat
+   *
+   * @param {String} remotePath
+   * https://github.com/mscdex/ssh2-streams/blob/master/SFTPStream.md
+   * @return {Promise} stat
+   *  stats.isDirectory()
+      stats.isFile()
+      stats.isBlockDevice()
+      stats.isCharacterDevice()
+      stats.isSymbolicLink()
+      stats.isFIFO()
+      stats.isSocket()
+   */
+  stat (remotePath) {
+    return new Promise((resolve, reject) => {
+      let {sftp} = this
+      sftp.stat(remotePath, (err, stat) => {
+        if (err) reject(err)
+        else resolve(stat)
+      })
+    })
+  }
+
+  /**
+   * lstat
+   *
+   * @param {String} remotePath
+   * https://github.com/mscdex/ssh2-streams/blob/master/SFTPStream.md
+   * @return {Promise} stat
+   *  stats.isDirectory()
+      stats.isFile()
+      stats.isBlockDevice()
+      stats.isCharacterDevice()
+      stats.isSymbolicLink()
+      stats.isFIFO()
+      stats.isSocket()
+   */
+  lstat (remotePath) {
+    return new Promise((resolve, reject) => {
+      let {sftp} = this
+      sftp.lstat(remotePath, (err, stat) => {
+        if (err) reject(err)
+        else resolve(stat)
+      })
+    })
+  }
+
+  /**
+   * chmod
+   *
+   * @param {String} remotePath
+   * https://github.com/mscdex/ssh2-streams/blob/master/SFTPStream.md
+   * @return {Promise} stat
+   *  stats.isDirectory()
+      stats.isFile()
+      stats.isBlockDevice()
+      stats.isCharacterDevice()
+      stats.isSymbolicLink()
+      stats.isFIFO()
+      stats.isSocket()
+   */
+  chmod (remotePath) {
+    return new Promise((resolve, reject) => {
+      let {sftp} = this
+      sftp.chmod(remotePath, (err) => {
+        if (err) reject(err)
+        else resolve()
+      })
+    })
+  }
+
+  /**
+   * mv
+   *
+   * @param {String} remotePath
+   * @param {String} remotePathNew
+   * https://github.com/mscdex/ssh2-streams/blob/master/SFTPStream.md
+   * @return {Promise}
+   */
+  mv (remotePath, remotePathNew) {
+    return new Promise((resolve, reject) => {
+      let {sftp} = this
+      sftp.rename(remotePath, remotePathNew, (err) => {
+        if (err) reject(err)
+        else resolve()
+      })
+    })
+  }
+
+  /**
+   * rm delete single file
+   *
+   * @param {String} remotePath
+   * https://github.com/mscdex/ssh2-streams/blob/master/SFTPStream.md
+   * @return {Promise}
+   */
+  rm (remotePath, remotePathNew) {
+    return new Promise((resolve, reject) => {
+      let {sftp} = this
+      sftp.rm(remotePath, (err) => {
+        if (err) reject(err)
+        else resolve()
+      })
+    })
+  }
+
+  //end
+}
 
 
-module.exports = Ftp
+module.exports = Sftp
