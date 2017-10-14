@@ -4,6 +4,7 @@
 
 const {version, name} = require('../package.json')
 const {mkdir, rm, exec, echo, cp} = require('shelljs')
+const {readdirSync} = require('fs')
 const dir = 'dist/v' + version
 const bin = './node_modules/.bin'
 const cwd = process.cwd()
@@ -74,7 +75,13 @@ exec(`cd ${dir} && tar czf installers/${name}-linux-x64-${version}.tar.gz ${name
 echo('building mac tar.gz')
 exec(`cd ${dir} && tar czf installers/${name}-darwin-x64-${version}.tar.gz ${name}-darwin-x64/${name}.app && cd ${cwd}`)
 
-cp('-r', `${dir}/installers/*`, 'dist/latest/')
+//copy to latest
+echo('copy to latest')
+let arr = readdirSync(`${dir}/installers`)
+for (let f of arr) {
+  let newf = f.replace(version, 'latest')
+  cp('-f', `${dir}/installers/${f}`, `dist/latest/${newf}`)
+}
 
 const endTime = +new Date()
 echo(`done in ${(endTime - timeStart)/1000} s`)
