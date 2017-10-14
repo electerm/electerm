@@ -15,20 +15,20 @@ class Sftp {
    * connect to server
    * @return {Promise} sftp inst
    */
-  connect() {
+  connect(config) {
     let {client} = this
     return new Promise((resolve, reject) => {
-        this.client.on('ready', () => {
-          this.client.sftp((err, sftp) => {
-            if (err) {
-              reject(err)
-            }
-            this.sftp = sftp
-            resolve(sftp)
-          })
-        }).on('error', (err) => {
-          reject(err)
-        }).connect(config)
+      client.on('ready', () => {
+        client.sftp((err, sftp) => {
+          if (err) {
+            reject(err)
+          }
+          this.sftp = sftp
+          resolve(sftp)
+        })
+      }).on('error', (err) => {
+        reject(err)
+      }).connect(config)
     })
   }
 
@@ -50,7 +50,7 @@ class Sftp {
       let {sftp} = this
       let reg = /-/g
 
-      sftp.readdir(path, (err, list) => {
+      sftp.readdir(remotePath, (err, list) => {
         if (err) {
           return reject(err)
         }
@@ -70,9 +70,9 @@ class Sftp {
             modifyTime: mtime * 1000,
             accessTime: atime * 1000,
             rights: {
-                user: longname.substr(1, 3).replace(reg, ''),
-                group: longname.substr(4,3).replace(reg, ''),
-                other: longname.substr(7, 3).replace(reg, '')
+              user: longname.substr(1, 3).replace(reg, ''),
+              group: longname.substr(4,3).replace(reg, ''),
+              other: longname.substr(7, 3).replace(reg, '')
             },
             owner: uid,
             group: gid
@@ -98,15 +98,11 @@ class Sftp {
     return new Promise((resolve, reject) => {
       let {sftp} = this
       let opts = Object({}, options, {
-        step: (total_transferred, chunk, total) => {
-          onData(total_transferred, chunk, total)
-          if (total_transferred >= total) {
-            resolve()
-          }
-        }
+        step: onData
       })
-      sftp.fastGet(remotePath, localPath, options, err => {
-        reject(err)
+      sftp.fastGet(remotePath, localPath, opts, err => {
+        if (err) reject(err)
+        else resolve()
       })
     })
   }
@@ -114,8 +110,8 @@ class Sftp {
   /**
    * upload file
    *
-   * @param {String} remotePath
    * @param {String} localPath
+   * @param {String} remotePath
    * @param {Object} options
    * https://github.com/mscdex/ssh2-streams/blob/master/SFTPStream.md
    * options.concurrency - integer - Number of concurrent reads Default: 64
@@ -124,15 +120,13 @@ class Sftp {
    * @param {Function} onData function(< integer >total_transferred, < integer >chunk, < integer >total) - Called every time a part of a file was transferred
    * @return {Promise}
    */
-  upload (remotePath, localPath, options = {}, onData = _.noop) {
+  upload (localPath, remotePath, options = {}, onData = _.noop) {
     return new Promise((resolve, reject) => {
       let {sftp} = this
       let opts = Object({}, options, {
-        step: (total_transferred, chunk, total) => {
-          onData(total_transferred, chunk, total)
-        }
+        step: onData
       })
-      sftp.fastPut(remotePath, localPath, options, err => {
+      sftp.fastPut(localPath, remotePath, opts, err => {
         if (err) reject(err)
         else resolve()
       })
@@ -283,7 +277,7 @@ class Sftp {
    * https://github.com/mscdex/ssh2-streams/blob/master/SFTPStream.md
    * @return {Promise}
    */
-  rm (remotePath, remotePathNew) {
+  rm (remotePath) {
     return new Promise((resolve, reject) => {
       let {sftp} = this
       sftp.rm(remotePath, (err) => {

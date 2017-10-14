@@ -5,6 +5,7 @@ import {Col, Row, Input, Icon, Tooltip, Spin, notification} from  'antd'
 import _ from 'lodash'
 import classnames from 'classnames'
 import moment from 'moment'
+import Tranports from './tarnsports'
 import './sftp.styl'
 
 const {getGlobal} = window
@@ -43,6 +44,11 @@ export default class Sftp extends React.Component {
   initData = () => {
     this.remoteList()
     this.localList()
+  }
+
+  computeListHeight = () => {
+    let hasTransports = this.state.transports.length
+    return this.props.height - 15 - (hasTransports ? 300 : 0)
   }
 
   onError = e => {
@@ -173,7 +179,7 @@ export default class Sftp extends React.Component {
     if (type === 'remote') {
       await this.sftp.download(f, fl)
     } else {
-      await this.sftp.upload(fr, f)
+      await this.sftp.upload(f, fr)
     }
     await this[`${otherType}List`]()
   }
@@ -324,14 +330,24 @@ export default class Sftp extends React.Component {
   }
 
   render() {
-    let {id} = this.state
+    let {id, transports} = this.state
     let {height} = this.props
+    let props = {
+      transports,
+      ..._.pick(this, [
+        'sftp',
+        'onError'
+      ])
+    }
     return (
       <div className="sftp-wrap overhide" id={id} style={{height}}>
         <Row>
           {this.renderSection('local')}
           {this.renderSection('remote')}
         </Row>
+        <Tranports
+          {...props}
+        />
       </div>
     )
   }
