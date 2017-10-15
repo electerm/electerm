@@ -5,7 +5,7 @@ import {Col, Row, Input, Icon, Tooltip, Spin, notification} from  'antd'
 import _ from 'lodash'
 import classnames from 'classnames'
 import moment from 'moment'
-import Tranports from './tarnsports'
+import Tranports from './transports'
 import './sftp.styl'
 
 const {getGlobal} = window
