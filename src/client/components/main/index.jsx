@@ -7,6 +7,7 @@ import _ from 'lodash'
 import copy from 'json-deep-copy'
 import classnames from 'classnames'
 import * as ls from '../../common/ls'
+import {notification} from 'antd'
 
 const initTabs = () => [
   {
@@ -54,6 +55,14 @@ export default class Index extends React.Component {
 
   modifier = (...args) => {
     this.setState(...args)
+  }
+
+  onError = e => {
+    console.log(e.stack)
+    notification.error({
+      message: 'error',
+      description: e.stack
+    })
   }
 
   addItem = (item, type) => {
@@ -118,6 +127,7 @@ export default class Index extends React.Component {
       ...this.state,
       ..._.pick(this, [
         'modifier', 'delTab', 'addTab', 'editTab',
+        'onError',
         'modifyLs', 'addItem', 'editItem', 'delItem'
       ])
     }

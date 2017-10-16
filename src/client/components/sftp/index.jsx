@@ -46,17 +46,17 @@ export default class Sftp extends React.Component {
     this.localList()
   }
 
+  modifier = (...args) => {
+    this.setState(...args)
+  }
+
   computeListHeight = () => {
     let hasTransports = this.state.transports.length
     return this.props.height - 15 - (hasTransports ? 300 : 0)
   }
 
   onError = e => {
-    console.log(e.stack)
-    notification.error({
-      message: 'error',
-      description: e.stack
-    })
+    this.props.onError(e)
     this.setState({
       remoteLoading: false
     })
@@ -331,12 +331,13 @@ export default class Sftp extends React.Component {
 
   render() {
     let {id, transports} = this.state
-    let {height} = this.props
+    let {height, onError} = this.props
     let props = {
       transports,
+      onError,
       ..._.pick(this, [
         'sftp',
-        'onError'
+        'modifier'
       ])
     }
     return (

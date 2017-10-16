@@ -8,24 +8,23 @@ import _ from 'lodash'
 
 export default class Tranports extends React.Component {
 
-  state = {
-    currentTarnsport: null
+  constructor(props) {
+    super(props)
+    this.state = {
+      currentTarnsport: props.transports[0] || null
+    }
   }
 
-  componentWillMount() {
-
+  componentWillReceiveProps(nextProps) {
+    if (
+      !_.isEqual(this.props.transports, nextProps.transports)
+    ) {
+      this.initState(nextProps)
+    }
   }
 
-  componentWillUnmount() {
-
-  }
-
-  computePercent = () => {
-    return 75
-  }
-
-  computeStatus = () => {
-
+  initState = nextProps => {
+    
   }
 
   renderContent = () => {
@@ -38,6 +37,7 @@ export default class Tranports extends React.Component {
             return (
               <Transport
                 transport={t}
+                {...this.props}
                 index={i}
                 currentTarnsportId={currentTarnsport.id}
               />
