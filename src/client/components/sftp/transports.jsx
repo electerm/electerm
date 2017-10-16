@@ -3,8 +3,14 @@
  */
 import React from 'react'
 import {Progress, Popover} from 'antd'
+import {Transport} from './transport'
+import _ from 'lodash'
 
 export default class Tranports extends React.Component {
+
+  state = {
+    currentTarnsport: null
+  }
 
   componentWillMount() {
 
@@ -23,11 +29,30 @@ export default class Tranports extends React.Component {
   }
 
   renderContent = () => {
-
+    let {transports} = this.props
+    let {currentTarnsport} = this.state
+    return (
+      <div className="transports-content">
+        {
+          transports.map((t ,i) => {
+            return (
+              <Transport
+                transport={t}
+                index={i}
+                currentTarnsportId={currentTarnsport.id}
+              />
+            )
+          })
+        }
+      </div>
+    )
   }
 
   render() {
     let {transports} = this.props
+    let {currentTarnsport} = this.state
+    let percent = _.get(currentTarnsport, 'percent')
+    let status = _.get(currentTarnsport, 'status')
     if (!transports.length) {
       return null
     }
@@ -39,8 +64,9 @@ export default class Tranports extends React.Component {
         >
           <Progress
             type="circle"
-            percent={this.computePercent()}
-            status={this.computeStatus()}
+            width={60}
+            percent={percent}
+            status={status}
           />
         </Popover>
       </div>
