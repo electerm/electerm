@@ -11,7 +11,7 @@ export default class Tranports extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
-      currentTarnsport: props.transports[0] || null
+      currentTransport: props.transports[0] || null
     }
   }
 
@@ -19,17 +19,24 @@ export default class Tranports extends React.Component {
     if (
       !_.isEqual(this.props.transports, nextProps.transports)
     ) {
-      this.initState(nextProps)
+      this.rebuildState(nextProps)
     }
   }
 
-  initState = nextProps => {
-    
+  rebuildState = nextProps => {
+    let {transports} = nextProps
+    let {currentTransport} = this.state
+    let has = _.find(transports, t => t.id === currentTransport.id)
+    if (!has) {
+      this.setState({
+        currentTransport: transports[0] || null
+      })
+    }
   }
 
   renderContent = () => {
     let {transports} = this.props
-    let {currentTarnsport} = this.state
+    let {currentTransport} = this.state
     return (
       <div className="transports-content">
         {
@@ -37,9 +44,10 @@ export default class Tranports extends React.Component {
             return (
               <Transport
                 transport={t}
+                key={t.id}
                 {...this.props}
                 index={i}
-                currentTarnsportId={currentTarnsport.id}
+                currentTransport={currentTransport}
               />
             )
           })
@@ -50,9 +58,9 @@ export default class Tranports extends React.Component {
 
   render() {
     let {transports} = this.props
-    let {currentTarnsport} = this.state
-    let percent = _.get(currentTarnsport, 'percent')
-    let status = _.get(currentTarnsport, 'status')
+    let {currentTransport} = this.state
+    let percent = _.get(currentTransport, 'percent')
+    let status = _.get(currentTransport, 'status')
     if (!transports.length) {
       return null
     }

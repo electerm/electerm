@@ -120,7 +120,7 @@ class Sftp {
    * @param {Function} onData function(< integer >total_transferred, < integer >chunk, < integer >total) - Called every time a part of a file was transferred
    * @return {Promise}
    */
-  upload (localPath, remotePath, options = {}, onData = _.noop) {
+  upload (remotePath, localPath, options = {}, onData = _.noop) {
     return new Promise((resolve, reject) => {
       let {sftp} = this
       let opts = Object({}, options, {
