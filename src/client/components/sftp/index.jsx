@@ -1,11 +1,12 @@
 
 import React from 'react'
 import {generate} from 'shortid'
-import {Col, Row, Input, Icon, Tooltip, Spin, notification} from  'antd'
+import {Col, Row, Input, Icon, Tooltip, Spin} from  'antd'
 import _ from 'lodash'
 import classnames from 'classnames'
 import moment from 'moment'
 import Tranports from './transports'
+import copy from 'json-deep-copy'
 import './sftp.styl'
 
 const {getGlobal} = window
@@ -14,11 +15,6 @@ const sorter = (a, b) => {
   let aa = (a.isDirectory ? 0 : 1) + a.name
   let bb = (b.isDirectory ? 0 : 1) + b.name
   return bb > aa ? -1 : 1
-}
-const getOtherType = type => {
-  return type === 'remote'
-    ? 'local'
-    : 'remote'
 }
 
 export default class Sftp extends React.Component {
@@ -166,22 +162,27 @@ export default class Sftp extends React.Component {
     })
   }
 
+  addTransport = t => {
+    let transports = copy(this.state.transports)
+    transports.push(t)
+    this.setState({
+      transports
+    })
+  }
+
   transfer = async (item) => {
     let {type, name} = item
-    let otherType = getOtherType(type)
-    let path = this.state[`${type}Path`]
     let rPAth = this.state.remotePath
     let lPath = this.state.localPath
     let resolve = getGlobal('resolve')
-    let f = resolve(path, name)
     let fr = resolve(rPAth, name)
     let fl = resolve(lPath, name)
-    if (type === 'remote') {
-      await this.sftp.download(f, fl)
-    } else {
-      await this.sftp.upload(f, fr)
-    }
-    await this[`${otherType}List`]()
+    this.addTransport({
+      localPath: fl,
+      remotePath: fr,
+      percent: 0,
+      type: type === 'remote' ? 'download' : 'upload'
+    })
   }
 
   onGoto = (type) => {
@@ -341,7 +342,7 @@ export default class Sftp extends React.Component {
       ])
     }
     return (
-      <div className="sftp-wrap overhide" id={id} style={{height}}>
+      <div className="sftp-wrap overhide relative" id={id} style={{height}}>
         <Row>
           {this.renderSection('local')}
           {this.renderSection('remote')}

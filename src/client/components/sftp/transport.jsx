@@ -18,7 +18,7 @@ const typeIconMap2 = {
 export default class Tranporter extends React.Component {
 
   componentWillMount() {
-    this.startTransfer()
+    //this.startTransfer()
   }
 
   componentWillReceiveProps(nextProps) {

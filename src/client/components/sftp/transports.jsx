@@ -69,9 +69,11 @@ export default class Tranports extends React.Component {
         <Popover
           title="file transfers"
           content={this.renderContent()}
+          placement="bottom"
         >
           <Progress
             type="circle"
+            className="transport-circle"
             width={60}
             percent={percent}
             status={status}
