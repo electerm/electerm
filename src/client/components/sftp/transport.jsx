@@ -18,7 +18,7 @@ const typeIconMap2 = {
 export default class Tranporter extends React.Component {
 
   componentWillMount() {
-    //this.startTransfer()
+    this.startTransfer()
   }
 
   componentWillReceiveProps(nextProps) {
@@ -32,7 +32,7 @@ export default class Tranporter extends React.Component {
   componentWillUnmount() {
     let {id} = this.props.transport
     let {currentTransport} = this.props
-    if (id === currentTransport.id) {
+    if (id === _.get(currentTransport, 'id')) {
       this.props.sftp.close()
     }
   }
@@ -47,7 +47,9 @@ export default class Tranporter extends React.Component {
   }
 
   onData = (transferred, chunk, total) => {
-    let percent = transferred / total
+    let percent = total === 0
+      ? 0
+      : (100 * transferred / total).toFixed(1)
     let transport = copy(this.props.transport)
     transport.percent = percent
     transport.status = 'active'
@@ -64,18 +66,18 @@ export default class Tranporter extends React.Component {
   startTransfer = async () => {
     let {id} = this.props.transport
     let {currentTransport} = this.props
-    if (currentTransport.id === id) {
+    if (_.get(currentTransport, 'id') === id) {
       let {
         type,
         localPath,
         remotePath
-      } = this.props
-      await this.sftp[type](remotePath, localPath, {}, this.onData).catch(this.onError)
+      } = this.props.transport
+      await this.props.sftp[type](remotePath, localPath, {}, this.onData).catch(this.onError)
     }
   }
 
   cancel = () => {
-    this.sftp.close()
+    this.props.sftp.end()
     let {id} = this.props.transport
     let transports = copy(this.props.transports).filter(t => {
       return t.id !== id
@@ -90,21 +92,27 @@ export default class Tranporter extends React.Component {
     let icon = typeIconMap[type]
     let icon2 = typeIconMap2[type]
     return (
-      <div className="sftp-transport">
-        <Icon type={icon} className="sftp-type-icon" />
-        <span className="sftp-file sftp-local-file">{localPath}</span>
-        <Icon type={icon2} className="sftp-direction-icon" />
-        <span className="sftp-file sftp-remote-file">{remotePath}</span>
+      <div className="sftp-transport mg1b pd1x">
+        <Icon type={icon} className="sftp-type-icon iblock mg1r color-blue" />
+        <span
+          className="sftp-file sftp-local-file elli width200 iblock"
+          title={localPath}
+        >{localPath}</span>
+        <Icon type={icon2} className="sftp-direction-icon mg1x iblock" />
+        <span
+          className="sftp-file sftp-remote-file elli mg1r width200 iblock"
+          title={localPath}
+        >{remotePath}</span>
         <Progress
           type="circle"
-          className="sftp-file-percent"
+          className="sftp-file-percent iblock mg1r"
           width={30}
           percent={percent}
           status={status}
         />
         <Icon
           type="close-circle"
-          className="sftp-stop-icon"
+          className="sftp-stop-icon iblock pointer hover-black"
           onClick={this.cancel}
           title="cancel"
         />

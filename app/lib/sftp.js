@@ -33,10 +33,10 @@ class Sftp {
   }
 
   /**
-   * end connection
+   * pause transfer
    */
-  end () {
-    this.client.end()
+  pause () {
+
   }
 
   /**

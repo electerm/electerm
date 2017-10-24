@@ -164,6 +164,12 @@ export default class Sftp extends React.Component {
 
   addTransport = t => {
     let transports = copy(this.state.transports)
+    if (_.some(transports, x => {
+      return x.localPath === t.localPath &&
+        x.remotePath === t.remotePath
+    })) {
+      return
+    }
     transports.push(t)
     this.setState({
       transports
@@ -180,6 +186,7 @@ export default class Sftp extends React.Component {
     this.addTransport({
       localPath: fl,
       remotePath: fr,
+      id: generate(),
       percent: 0,
       type: type === 'remote' ? 'download' : 'upload'
     })
@@ -228,6 +235,7 @@ export default class Sftp extends React.Component {
     return (
       <div
         className={cls}
+        key={i + 'itd' + name}
         onDoubleClick={(e) => this.transferOrEnterDirectory(item, e)}
       >
         <Tooltip
