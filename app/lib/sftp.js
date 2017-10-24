@@ -4,6 +4,7 @@
 
 let {Client} = require('ssh2')
 let _ = require('lodash')
+let Transfer = require('./transfer')
 
 class Sftp {
 
@@ -89,21 +90,28 @@ class Sftp {
    * @param {String} localPath
    * @param {Object} options
    * https://github.com/mscdex/ssh2-streams/blob/master/SFTPStream.md
-   * options.concurrency - integer - Number of concurrent reads Default: 64
-   * options.chunkSize - integer - Size of each read in bytes Default: 32768
-   * @param {Function} onData function(< integer >total_transferred, < integer >chunk, < integer >total) - Called every time a part of a file was transferred
-   * @return {Promise}
+   * @param {Function} onData function(< integer >total_transferred, < integer >chunk) - Called every time a part of a file was transferred
+   * @param {Function} onEnd function() - Called when transfer finished
+   * @param {Function} onError function(<Error>) - Called when Error
+   * @return {Transfer}
    */
-  download (remotePath, localPath, options = {}, onData = _.noop) {
-    return new Promise((resolve, reject) => {
-      let {sftp} = this
-      let opts = Object({}, options, {
-        step: onData
-      })
-      sftp.fastGet(remotePath, localPath, opts, err => {
-        if (err) reject(err)
-        else resolve()
-      })
+  download ({
+    remotePath,
+    localPath,
+    options = {},
+    onData = _.noop,
+    onEnd = _.noop,
+    onError = _.noop
+  }) {
+    return new Transfer({
+      remotePath,
+      localPath,
+      options,
+      onData,
+      onEnd,
+      onError,
+      type: 'download',
+      sftp: this.sftp
     })
   }
 
@@ -114,22 +122,28 @@ class Sftp {
    * @param {String} remotePath
    * @param {Object} options
    * https://github.com/mscdex/ssh2-streams/blob/master/SFTPStream.md
-   * options.concurrency - integer - Number of concurrent reads Default: 64
-   * options.chunkSize - integer - Size of each read in bytes Default: 32768
-   * options.mode - mixed - Integer or string representing the file mode to set for the uploaded file.
-   * @param {Function} onData function(< integer >total_transferred, < integer >chunk, < integer >total) - Called every time a part of a file was transferred
-   * @return {Promise}
+   * @param {Function} onData function(< integer >total_transferred, < integer >chunk) - Called every time a part of a file was transferred
+   * @param {Function} onEnd function() - Called when transfer finished
+   * @param {Function} onError function(<Error>) - Called when Error
+   * @return {Transfer}
    */
-  upload (remotePath, localPath, options = {}, onData = _.noop) {
-    return new Promise((resolve, reject) => {
-      let {sftp} = this
-      let opts = Object({}, options, {
-        step: onData
-      })
-      sftp.fastPut(localPath, remotePath, opts, err => {
-        if (err) reject(err)
-        else resolve()
-      })
+  upload ({
+    remotePath,
+    localPath,
+    options = {},
+    onData = _.noop,
+    onEnd = _.noop,
+    onError = _.noop
+  }) {
+    return new Transfer({
+      remotePath,
+      localPath,
+      options,
+      onData,
+      onEnd,
+      onError,
+      type: 'upload',
+      sftp: this.sftp
     })
   }
 

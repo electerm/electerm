@@ -29,6 +29,8 @@ export default class Sftp extends React.Component {
       remoteLoading: false,
       localPath: '',
       remotePath: '',
+      localPathTemp: '',
+      remotePathTemp: '',
       transports: []
     }
   }
@@ -148,8 +150,10 @@ export default class Sftp extends React.Component {
       let n = `${type}Path`
       let path = this.state[n]
       let np = resolve(path, name)
+      debug(np, 'np')
       this.setState({
-        [n]: np
+        [n]: np,
+        [n + 'Temp']: np
       }, this[`${type}List`])
     } else {
       this.transfer(item, e)
@@ -164,10 +168,12 @@ export default class Sftp extends React.Component {
 
   addTransport = t => {
     let transports = copy(this.state.transports)
-    if (_.some(transports, x => {
-      return x.localPath === t.localPath &&
-        x.remotePath === t.remotePath
-    })) {
+    if (
+      _.some(transports, x => {
+        return x.localPath === t.localPath &&
+          x.remotePath === t.remotePath
+      })
+    ) {
       return
     }
     transports.push(t)
@@ -176,8 +182,8 @@ export default class Sftp extends React.Component {
     })
   }
 
-  transfer = async (item) => {
-    let {type, name} = item
+  transfer = async (file) => {
+    let {type, name} = file
     let rPAth = this.state.remotePath
     let lPath = this.state.localPath
     let resolve = getGlobal('resolve')
@@ -188,6 +194,7 @@ export default class Sftp extends React.Component {
       remotePath: fr,
       id: generate(),
       percent: 0,
+      file,
       type: type === 'remote' ? 'download' : 'upload'
     })
   }
@@ -346,7 +353,9 @@ export default class Sftp extends React.Component {
       onError,
       ..._.pick(this, [
         'sftp',
-        'modifier'
+        'modifier',
+        'localList',
+        'remoteList'
       ])
     }
     return (

@@ -19,8 +19,12 @@ const commonSelectProps = {
 export default function Btns(props) {
 
   let {
-    onNewSsh, onSelectHistory, openSetting,
-    onSelectBookmark, bookmarks, history,
+    onNewSsh,
+    onSelectHistory,
+    openSetting,
+    onSelectBookmark,
+    bookmarks,
+    history = [],
     onEditBookmark
   } = props
   return (

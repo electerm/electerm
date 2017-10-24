@@ -2,7 +2,7 @@
  * tranporter
  */
 import React from 'react'
-import {Progress, Icon} from 'antd'
+import {Icon} from 'antd'
 import copy from 'json-deep-copy'
 import _ from 'lodash'
 
@@ -30,11 +30,8 @@ export default class Tranporter extends React.Component {
   }
 
   componentWillUnmount() {
-    let {id} = this.props.transport
-    let {currentTransport} = this.props
-    if (id === _.get(currentTransport, 'id')) {
-      this.props.sftp.close()
-    }
+    this.transport && this.transport.destroy && this.transport.destroy()
+    clearTimeout(this.timer)
   }
 
   update = transport => {
@@ -46,11 +43,26 @@ export default class Tranporter extends React.Component {
     })
   }
 
-  onData = (transferred, chunk, total) => {
+  pause = () => {
+    let transport = copy(this.props.transport)
+    transport.pausing = true
+    this.update(transport)
+    this.transport.pause()
+  }
+
+  resume = () => {
+    let transport = copy(this.props.transport)
+    transport.pausing = false
+    this.update(transport)
+    this.transport.resume()
+  }
+
+  onData = (transferred) => {
+    let transport = copy(this.props.transport)
+    let total = transport.file.size
     let percent = total === 0
       ? 0
-      : (100 * transferred / total).toFixed(1)
-    let transport = copy(this.props.transport)
+      : Math.floor(100 * transferred / total)
     transport.percent = percent
     transport.status = 'active'
     this.update(transport)
@@ -63,6 +75,16 @@ export default class Tranporter extends React.Component {
     this.props.onError(e)
   }
 
+  onEnd = () => {
+    let {type} = this.props.transport
+    type = type === 'download' ? 'local' : 'remote'
+    let cb = this.props[type + 'List']
+    this.timer = setTimeout(
+      () => this.cancel(cb),
+      100
+    )
+  }
+
   startTransfer = async () => {
     let {id} = this.props.transport
     let {currentTransport} = this.props
@@ -72,23 +94,40 @@ export default class Tranporter extends React.Component {
         localPath,
         remotePath
       } = this.props.transport
-      await this.props.sftp[type](remotePath, localPath, {}, this.onData).catch(this.onError)
+      this.transport = this.props.sftp[type]({
+        remotePath,
+        localPath,
+        ..._.pick(this, [
+          'onData',
+          'onError',
+          'onEnd'
+        ])
+      })
     }
   }
 
-  cancel = () => {
-    this.props.sftp.end()
+  cancel = (callback) => {
     let {id} = this.props.transport
     let transports = copy(this.props.transports).filter(t => {
       return t.id !== id
     })
     this.props.modifier({
       transports
-    })
+    }, callback)
   }
 
   render() {
-    let {localPath, remotePath, type, percent, status} = this.props.transport
+    let {
+      localPath,
+      remotePath,
+      type,
+      percent,
+      status,
+      pausing = false
+    } = this.props.transport
+    let pauseIcon = pausing ? 'play-circle' : 'pause-circle'
+    let pauseTitle = pausing ? 'resume' : 'pause'
+    let pauseFunc = pausing ? this.resume : this.pause
     let icon = typeIconMap[type]
     let icon2 = typeIconMap2[type]
     return (
@@ -103,16 +142,19 @@ export default class Tranporter extends React.Component {
           className="sftp-file sftp-remote-file elli mg1r width200 iblock"
           title={localPath}
         >{remotePath}</span>
-        <Progress
-          type="circle"
-          className="sftp-file-percent iblock mg1r"
-          width={30}
-          percent={percent}
-          status={status}
+        <span
+          className={`sftp-file-percent mg1r iblock sftp-status-${status}`}
+          title={localPath}
+        >{percent}%</span>
+        <Icon
+          type={pauseIcon}
+          className="sftp-control-icon iblock pointer mg1r hover-black"
+          onClick={pauseFunc}
+          title={pauseTitle}
         />
         <Icon
           type="close-circle"
-          className="sftp-stop-icon iblock pointer hover-black"
+          className="sftp-control-icon iblock pointer hover-black"
           onClick={this.cancel}
           title="cancel"
         />

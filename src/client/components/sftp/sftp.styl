@@ -1,3 +1,5 @@
+@require '../../css/includes/constants'
+
 .sftp-title
   margin 0 24px
   padding 5px
@@ -34,14 +36,17 @@
   top 33px
   left 50%
   margin-left -30px
-.sftp-stop-icon
-  visibility hidden
+
 .sftp-transport
   &:hover
     background #fafafa
-    .sftp-stop-icon
-      visibility visible
 
 .transports-content
   max-height 300px
-  
+
+.sftp-status-success
+  color colorGreen
+.sftp-status-exception
+  color colorRed
+.sftp-status-active
+  color colorBlue

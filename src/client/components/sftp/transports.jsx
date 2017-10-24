@@ -31,6 +31,10 @@ export default class Transports extends React.Component {
       this.setState({
         currentTransport: transports[0] || null
       })
+    } else {
+      this.setState({
+        currentTransport: has
+      })
     }
   }
 
