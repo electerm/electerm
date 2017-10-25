@@ -294,7 +294,7 @@ class Sftp {
   rm (remotePath) {
     return new Promise((resolve, reject) => {
       let {sftp} = this
-      sftp.rm(remotePath, (err) => {
+      sftp.unlink(remotePath, (err) => {
         if (err) reject(err)
         else resolve()
       })

@@ -7,6 +7,7 @@ import _ from 'lodash'
 import copy from 'json-deep-copy'
 import classnames from 'classnames'
 import * as ls from '../../common/ls'
+import ContextMenu from '../common/context-menu'
 import {notification} from 'antd'
 
 const initTabs = () => [
@@ -27,7 +28,9 @@ export default class Index extends React.Component {
       currentTabId: tabs[0].id,
       history: ls.get('history') || [],
       bookmarks: ls.get('bookmarks') || [],
-      config: getGlobal('_config') || {}
+      config: getGlobal('_config') || {},
+      contextMenuProps: {},
+      contextMenuVisible: false
     }
   }
 
@@ -55,6 +58,27 @@ export default class Index extends React.Component {
 
   modifier = (...args) => {
     this.setState(...args)
+  }
+
+  initEvent = () => {
+    let dom = document.getElementById('outside-context')
+    this.dom = dom
+    dom.addEventListener('click', this.closeContextMenu)
+  }
+
+  openContextMenu = (contextMenuProps) => {
+    this.setState({
+      contextMenuProps,
+      contextMenuVisible: true
+    })
+    this.initEvent()
+  }
+
+  closeContextMenu = () => {
+    this.setState({
+      contextMenuVisible: false
+    })
+    this.dom.removeEventListener('click', this.closeContextMenu)
   }
 
   onError = e => {
@@ -122,38 +146,44 @@ export default class Index extends React.Component {
   }
 
   render() {
-    let {tabs, currentTabId} = this.state
+    let {tabs, currentTabId, contextMenuProps, contextMenuVisible} = this.state
     let controlProps = {
       ...this.state,
       ..._.pick(this, [
         'modifier', 'delTab', 'addTab', 'editTab',
-        'onError',
+        'onError', 'openContextMenu', 'closeContextMenu',
         'modifyLs', 'addItem', 'editItem', 'delItem'
       ])
     }
     return (
       <div>
-        <Control
-          {...controlProps}
+        <ContextMenu
+          {...contextMenuProps}
+          visible={contextMenuVisible}
         />
-        <div className="ui-outer">
-          {
-            tabs.map((tab) => {
-              let {id} = tab
-              let cls = classnames({
-                hide: id !== currentTabId
+        <div id="outside-context">
+          <Control
+            {...controlProps}
+          />
+          <div className="ui-outer">
+            {
+              tabs.map((tab) => {
+                let {id} = tab
+                let cls = classnames({
+                  hide: id !== currentTabId
+                })
+                return (
+                  <div className={cls} key={id}>
+                    <Wrapper
+                      {...controlProps}
+                      tab={tab}
+                      ref={ref => this[`term_${id}`] = ref}
+                    />
+                  </div>
+                )
               })
-              return (
-                <div className={cls} key={id}>
-                  <Wrapper
-                    {...controlProps}
-                    tab={tab}
-                    ref={ref => this[`term_${id}`] = ref}
-                  />
-                </div>
-              )
-            })
-          }
+            }
+          </div>
         </div>
       </div>
     )

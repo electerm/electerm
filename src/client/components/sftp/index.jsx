@@ -3,10 +3,9 @@ import React from 'react'
 import {generate} from 'shortid'
 import {Col, Row, Input, Icon, Tooltip, Spin} from  'antd'
 import _ from 'lodash'
-import classnames from 'classnames'
-import moment from 'moment'
 import Tranports from './transports'
 import copy from 'json-deep-copy'
+import FileSection from './file'
 import './sftp.styl'
 
 const {getGlobal} = window
@@ -78,7 +77,10 @@ export default class Sftp extends React.Component {
       remoteLoading: true
     })
     try {
-      await sftp.connect(tab)
+      await sftp.connect({
+        ...tab,
+        readyTimeout: 50000
+      })
       let remote = await sftp.list(remotePath)
       this.sftp = sftp
       remote = remote.map(r => {
@@ -220,62 +222,28 @@ export default class Sftp extends React.Component {
   }
 
   renderItem = (item, i, type) => {
-    let {
-      name,
-      size,
-      isDirectory,
-      modifyTime
-    } = item
-    let cls = classnames('sftp-item', type, {
-      directory: isDirectory
-    })
-    let pm = type === 'remote'
-      ? 'left'
-      : 'right'
-    let title = (
-      <div>
-        <p>{name}</p>
-        <p>modifyTime: {moment(modifyTime).format()}</p>
-      </div>
-    )
     return (
-      <div
-        className={cls}
+      <FileSection
+        {...this.props}
+        file={item}
+        type={type}
+        {
+        ..._.pick(this, [
+          'transfer',
+          'sftp',
+          'localList',
+          'remoteList',
+          'transferOrEnterDirectory'
+        ])
+        }
+        {
+        ..._.pick(this.state, [
+          'localPath',
+          'remotePath'
+        ])
+        }
         key={i + 'itd' + name}
-        onDoubleClick={(e) => this.transferOrEnterDirectory(item, e)}
-      >
-        <Tooltip
-          title={title}
-          placement={pm}
-        >
-          <div className="sftp-item-title elli iblock">
-            {
-              isDirectory
-                ? <Icon type="folder" />
-                : <Icon type="file" />
-            }
-            <span className="mg1l">{name}</span>
-          </div>
-        </Tooltip>
-        {
-          isDirectory
-            ? null
-            : <div className="sftp-item-size elli iblock">{size}</div>
-        }
-        {
-          isDirectory
-            ? null
-            : (
-              <Tooltip title="transfer">
-                <Icon
-                  type={`double-${pm}`}
-                  className="transport-icon"
-                  onClick={(e) => this.transfer(item, e)}
-                />
-              </Tooltip>
-            )
-        }
-      </div>
+      />
     )
   }
 
