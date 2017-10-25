@@ -5,13 +5,15 @@ import React from 'react'
 import {Progress, Popover} from 'antd'
 import Transport from './transport'
 import _ from 'lodash'
+import copy from 'json-deep-copy'
 
 export default class Transports extends React.Component {
 
   constructor(props) {
     super(props)
     this.state = {
-      currentTransport: props.transports[0] || null
+      currentTransport: props.transports[0] || null,
+      showList: false
     }
   }
 
@@ -23,17 +25,26 @@ export default class Transports extends React.Component {
     }
   }
 
+  onVisibleChange = showList => {
+    this.setState({
+      showList
+    })
+  }
+
   rebuildState = nextProps => {
     let {transports} = nextProps
     let {currentTransport} = this.state
     let has = _.find(transports, t => t.id === _.get(currentTransport, 'id'))
     if (!has) {
       this.setState({
-        currentTransport: transports[0] || null
+        currentTransport: copy(transports[0] || null),
+        showList: true
       })
     } else {
+      let showList = !_.isEqual(currentTransport, has)
       this.setState({
-        currentTransport: has
+        currentTransport: copy(has),
+        showList
       })
     }
   }
@@ -48,9 +59,8 @@ export default class Transports extends React.Component {
             return (
               <Transport
                 transport={t}
-                key={t.id + 'tr' + i}
+                key={t.id + ':tr:' + i}
                 {...this.props}
-                index={i}
                 currentTransport={currentTransport}
               />
             )
@@ -62,7 +72,7 @@ export default class Transports extends React.Component {
 
   render() {
     let {transports} = this.props
-    let {currentTransport} = this.state
+    let {currentTransport, showList} = this.state
     let percent = _.get(currentTransport, 'percent')
     let status = _.get(currentTransport, 'status')
     if (!transports.length) {
@@ -74,6 +84,8 @@ export default class Transports extends React.Component {
           title="file transfers"
           content={this.renderContent()}
           placement="bottom"
+          visible={showList}
+          onVisibleChange={this.onVisibleChange}
         >
           <Progress
             type="circle"

@@ -22,9 +22,9 @@ export default class Tranporter extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    let before = _.get(this.props, 'currentTransport.id')
-    let after = _.get(nextProps, 'currentTransport.id')
-    if (before !== after) {
+    let before = this.props.currentTransport
+    let after = nextProps.currentTransport
+    if (!_.isEqual(before, after)) {
       this.startTransfer()
     }
   }
@@ -57,7 +57,7 @@ export default class Tranporter extends React.Component {
     this.transport.resume()
   }
 
-  onData = (transferred) => {
+  onData = _.throttle((transferred) => {
     let transport = copy(this.props.transport)
     let total = transport.file.size
     let percent = total === 0
@@ -66,7 +66,7 @@ export default class Tranporter extends React.Component {
     transport.percent = percent
     transport.status = 'active'
     this.update(transport)
-  }
+  }, 100)
 
   onError = e => {
     let transport = copy(this.props.transport)
@@ -76,6 +76,9 @@ export default class Tranporter extends React.Component {
   }
 
   onEnd = () => {
+    if (this.onCancel) {
+      return
+    }
     let {type} = this.props.transport
     type = type === 'download' ? 'local' : 'remote'
     let cb = this.props[type + 'List']
@@ -88,7 +91,10 @@ export default class Tranporter extends React.Component {
   startTransfer = async () => {
     let {id} = this.props.transport
     let {currentTransport} = this.props
-    if (_.get(currentTransport, 'id') === id) {
+    if (
+      _.get(currentTransport, 'id') === id && !this.started
+    ) {
+      this.started = true
       let {
         type,
         localPath,
@@ -111,9 +117,10 @@ export default class Tranporter extends React.Component {
     let transports = copy(this.props.transports).filter(t => {
       return t.id !== id
     })
+    this.onCancel = true
     this.props.modifier({
       transports
-    }, callback)
+    }, _.isFunction(callback) ? callback : undefined)
   }
 
   render() {

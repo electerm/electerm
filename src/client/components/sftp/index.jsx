@@ -150,7 +150,6 @@ export default class Sftp extends React.Component {
       let n = `${type}Path`
       let path = this.state[n]
       let np = resolve(path, name)
-      debug(np, 'np')
       this.setState({
         [n]: np,
         [n + 'Temp']: np
@@ -192,7 +191,7 @@ export default class Sftp extends React.Component {
     this.addTransport({
       localPath: fl,
       remotePath: fr,
-      id: generate(),
+      id: fl + ':' +  fr,
       percent: 0,
       file,
       type: type === 'remote' ? 'download' : 'upload'
