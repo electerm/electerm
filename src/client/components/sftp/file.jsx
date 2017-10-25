@@ -6,6 +6,7 @@ import React from 'react'
 import {Icon, Tooltip} from 'antd'
 import classnames from 'classnames'
 import moment from 'moment'
+const resolve = window.getGlobal('resolve')
 
 export default class FileSection extends React.Component {
 
@@ -21,8 +22,35 @@ export default class FileSection extends React.Component {
     )
   }
 
+  localDel = async (file) => {
+    let {localPath} = this.props
+    let {name, isDirectory} = file
+    let fs = window.getGlobal('fs')
+    let func = !isDirectory
+      ? fs.unlinkAsync
+      : fs.rmdirAsync
+    let p = resolve(localPath, name)
+    await func(p).catch(this.props.onError)
+    this.props.localList()
+  }
+
+  remoteDel = async (file) => {
+    let {remotePath} = this.props
+    let {name, isDirectory} = file
+    let {sftp} = this.props
+    let func = isDirectory
+      ? sftp.rmdir
+      : sftp.rm
+    let p = resolve(remotePath, name)
+    await func(p).catch(this.props.onError)
+    this.props.remoteList()
+  }
+
   del = () => {
     this.props.closeContextMenu()
+    let {file} = this.props
+    let {type} = file
+    this[type + 'Del'](file)
   }
 
   doTranfer = () => {
@@ -38,7 +66,7 @@ export default class FileSection extends React.Component {
         type,
         isDirectory
       }
-    } = this.props.file
+    } = this.props
     let transferText = type === 'local'
       ? 'upload'
       : 'download'
@@ -49,7 +77,7 @@ export default class FileSection extends React.Component {
             ? null
             : (
               <div
-                className="pd2x pd1y pointer"
+                className="pd2x pd1y context-item pointer"
                 onClick={this.doTranfer}
               >
                 {transferText}
@@ -57,7 +85,7 @@ export default class FileSection extends React.Component {
             )
         }
         <div
-          className="pd2x pd1y pointer"
+          className="pd2x pd1y context-item pointer"
           onClick={this.del}
         >
           delete
@@ -70,10 +98,13 @@ export default class FileSection extends React.Component {
     e.preventDefault()
     let {target} = e
     let rect = target.getBoundingClientRect()
-    debug(rect, 'rect')
     let content = this.renderContext()
     this.props.openContextMenu({
-      content
+      content,
+      pos: {
+        left: rect.left,
+        top: rect.top + 15
+      }
     })
   }
 

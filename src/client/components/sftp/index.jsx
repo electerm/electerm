@@ -3,8 +3,6 @@ import React from 'react'
 import {generate} from 'shortid'
 import {Col, Row, Input, Icon, Tooltip, Spin} from  'antd'
 import _ from 'lodash'
-import classnames from 'classnames'
-import moment from 'moment'
 import Tranports from './transports'
 import copy from 'json-deep-copy'
 import FileSection from './file'
@@ -79,7 +77,10 @@ export default class Sftp extends React.Component {
       remoteLoading: true
     })
     try {
-      await sftp.connect(tab)
+      await sftp.connect({
+        ...tab,
+        readyTimeout: 50000
+      })
       let remote = await sftp.list(remotePath)
       this.sftp = sftp
       remote = remote.map(r => {
@@ -226,6 +227,21 @@ export default class Sftp extends React.Component {
         {...this.props}
         file={item}
         type={type}
+        {
+        ..._.pick(this, [
+          'transfer',
+          'sftp',
+          'localList',
+          'remoteList',
+          'transferOrEnterDirectory'
+        ])
+        }
+        {
+        ..._.pick(this.state, [
+          'localPath',
+          'remotePath'
+        ])
+        }
         key={i + 'itd' + name}
       />
     )

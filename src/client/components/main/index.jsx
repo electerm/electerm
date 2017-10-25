@@ -60,17 +60,25 @@ export default class Index extends React.Component {
     this.setState(...args)
   }
 
+  initEvent = () => {
+    let dom = document.getElementById('outside-context')
+    this.dom = dom
+    dom.addEventListener('click', this.closeContextMenu)
+  }
+
   openContextMenu = (contextMenuProps) => {
     this.setState({
       contextMenuProps,
       contextMenuVisible: true
     })
+    this.initEvent()
   }
 
   closeContextMenu = () => {
     this.setState({
       contextMenuVisible: false
     })
+    this.dom.removeEventListener('click', this.closeContextMenu)
   }
 
   onError = e => {
