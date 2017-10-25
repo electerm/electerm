@@ -5,6 +5,8 @@ import {Col, Row, Input, Icon, Tooltip, Spin} from  'antd'
 import _ from 'lodash'
 import classnames from 'classnames'
 import moment from 'moment'
+import Tranports from './transports'
+import copy from 'json-deep-copy'
 import './sftp.styl'
 
 const {getGlobal} = window
@@ -14,11 +16,7 @@ const sorter = (a, b) => {
   let bb = (b.isDirectory ? 0 : 1) + b.name
   return bb > aa ? -1 : 1
 }
-const getOtherType = type => {
-  return type === 'remote'
-    ? 'local'
-    : 'remote'
-}
+
 export default class Sftp extends React.Component {
 
   constructor(props) {
@@ -30,7 +28,10 @@ export default class Sftp extends React.Component {
       localLoading: false,
       remoteLoading: false,
       localPath: '',
-      remotePath: ''
+      remotePath: '',
+      localPathTemp: '',
+      remotePathTemp: '',
+      transports: []
     }
   }
 
@@ -41,6 +42,22 @@ export default class Sftp extends React.Component {
   initData = () => {
     this.remoteList()
     this.localList()
+  }
+
+  modifier = (...args) => {
+    this.setState(...args)
+  }
+
+  computeListHeight = () => {
+    let hasTransports = this.state.transports.length
+    return this.props.height - 15 - (hasTransports ? 300 : 0)
+  }
+
+  onError = e => {
+    this.props.onError(e)
+    this.setState({
+      remoteLoading: false
+    })
   }
 
   remoteList = async () => {
@@ -81,10 +98,7 @@ export default class Sftp extends React.Component {
       }
       this.setState(update)
     } catch(e) {
-      console.log(e.stack)
-      this.setState({
-        remoteLoading: false
-      })
+      this.onError(e)
     }
   }
 
@@ -121,10 +135,7 @@ export default class Sftp extends React.Component {
       }
       this.setState(update)
     } catch(e) {
-      console.log(e.stack)
-      this.setState({
-        localLoading: false
-      })
+      this.onError(e)
     }
 
   }
@@ -140,7 +151,8 @@ export default class Sftp extends React.Component {
       let path = this.state[n]
       let np = resolve(path, name)
       this.setState({
-        [n]: np
+        [n]: np,
+        [n + 'Temp']: np
       }, this[`${type}List`])
     } else {
       this.transfer(item, e)
@@ -153,22 +165,37 @@ export default class Sftp extends React.Component {
     })
   }
 
-  transfer = async (item) => {
-    let {type, name} = item
-    let otherType = getOtherType(type)
-    let path = this.state[`${type}Path`]
+  addTransport = t => {
+    let transports = copy(this.state.transports)
+    if (
+      _.some(transports, x => {
+        return x.localPath === t.localPath &&
+          x.remotePath === t.remotePath
+      })
+    ) {
+      return
+    }
+    transports.push(t)
+    this.setState({
+      transports
+    })
+  }
+
+  transfer = async (file) => {
+    let {type, name} = file
     let rPAth = this.state.remotePath
     let lPath = this.state.localPath
     let resolve = getGlobal('resolve')
-    let f = resolve(path, name)
     let fr = resolve(rPAth, name)
     let fl = resolve(lPath, name)
-    if (type === 'remote') {
-      await this.sftp.getFile(f, fl)
-    } else {
-      await this.sftp.put(f, fr)
-    }
-    await this[`${otherType}List`]()
+    this.addTransport({
+      localPath: fl,
+      remotePath: fr,
+      id: fl + ':' +  fr,
+      percent: 0,
+      file,
+      type: type === 'remote' ? 'download' : 'upload'
+    })
   }
 
   onGoto = (type) => {
@@ -214,6 +241,7 @@ export default class Sftp extends React.Component {
     return (
       <div
         className={cls}
+        key={i + 'itd' + name}
         onDoubleClick={(e) => this.transferOrEnterDirectory(item, e)}
       >
         <Tooltip
@@ -317,14 +345,27 @@ export default class Sftp extends React.Component {
   }
 
   render() {
-    let {id} = this.state
-    let {height} = this.props
+    let {id, transports} = this.state
+    let {height, onError} = this.props
+    let props = {
+      transports,
+      onError,
+      ..._.pick(this, [
+        'sftp',
+        'modifier',
+        'localList',
+        'remoteList'
+      ])
+    }
     return (
-      <div className="sftp-wrap overhide" id={id} style={{height}}>
+      <div className="sftp-wrap overhide relative" id={id} style={{height}}>
         <Row>
           {this.renderSection('local')}
           {this.renderSection('remote')}
         </Row>
+        <Tranports
+          {...props}
+        />
       </div>
     )
   }

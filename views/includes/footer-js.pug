@@ -7,13 +7,13 @@ script.
       var args = Array.prototype.slice.call(arguments);
       if (window.sugo.env === 'development') return console.log.apply(null, args);
     }
-- var tail = env !== 'development'?'.min':''
+- var tail = env !== 'development' ? '.production.min' : '.development'
 script(src=cdn + '/_bc/moment/min/moment.min.js')
 script(src=cdn + '/_bc/moment/locale/zh-cn.js')
-script(src=cdn + '/_bc/react/umd/react.production.min.js')
-script(src=cdn + '/_bc/react-dom/umd/react-dom.production.min.js')
-script(src=cdn + '/_bc/antd/dist/antd-with-locales' + tail + '.js')
-script(src=cdn + '/_bc/lodash/lodash' + tail + '.js')
+script(src=cdn + '/_bc/react/umd/react' + tail + '.js')
+script(src=cdn + '/_bc/react-dom/umd/react-dom' + tail + '.js')
+script(src=cdn + '/_bc/antd/dist/antd-with-locales.min.js')
+script(src=cdn + '/_bc/lodash/lodash.min.js')
 script(src=cdn + '/_bc/crypto-js/crypto-js.js')
 script(src=cdn + '/_bc/xterm/dist/xterm.js')
 script(src=cdn + '/_bc/xterm/dist/addons/attach/attach.js')

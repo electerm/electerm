@@ -42,7 +42,7 @@ export default function init() {
   app.use(etag())
 
   //static
-  app.use(serve(cwd + '/app/assets', staticOption()))
+  //app.use(serve(cwd + '/app/assets', staticOption()))
   app.use(mount('/_bc', serve(cwd + '/node_modules', staticOption())))
   app.use(mount('/static', serve(cwd + '/app/static', staticOption())))
 

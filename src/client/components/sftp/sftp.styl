@@ -1,3 +1,5 @@
+@require '../../css/includes/constants'
+
 .sftp-title
   margin 0 24px
   padding 5px
@@ -29,3 +31,22 @@
   top 50%
   margin-top -6px
   z-index 12
+.transport-circle
+  position absolute
+  top 33px
+  left 50%
+  margin-left -30px
+
+.sftp-transport
+  &:hover
+    background #fafafa
+
+.transports-content
+  max-height 300px
+
+.sftp-status-success
+  color colorGreen
+.sftp-status-exception
+  color colorRed
+.sftp-status-active
+  color colorBlue

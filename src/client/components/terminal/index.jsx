@@ -32,7 +32,7 @@ export default class Term extends React.Component {
   initTerminal = async () => {
     let {id} = this.state
     let term = new Terminal()
-    term.open(document.getElementById(id))
+    term.open(document.getElementById(id), true)
     await this.remoteInit(term)
     term.focus()
     term.fit()
