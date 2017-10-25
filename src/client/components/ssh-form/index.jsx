@@ -58,7 +58,8 @@ export default class SshForm extends React.Component {
       return
     }
     if (obj.id) {
-      let tar = _.without(obj, 'id')
+      let tar = copy(obj)
+      delete tar.id
       editItem(obj.id, tar, 'bookmarks')
     } else {
       obj.id = generate()
