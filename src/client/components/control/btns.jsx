@@ -23,7 +23,7 @@ export default function Btns(props) {
     onSelectHistory,
     openSetting,
     onSelectBookmark,
-    bookmarks,
+    bookmarks = [],
     history = [],
     onEditBookmark
   } = props
