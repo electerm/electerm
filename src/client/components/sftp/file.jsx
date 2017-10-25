@@ -21,8 +21,49 @@ export default class FileSection extends React.Component {
     )
   }
 
+  del = () => {
+    this.props.closeContextMenu()
+  }
+
+  doTranfer = () => {
+    this.props.closeContextMenu()
+    return this.props.transfer(
+      this.props.file
+    )
+  }
+
   renderContext() {
-    return <div />
+    let {
+      file: {
+        type,
+        isDirectory
+      }
+    } = this.props.file
+    let transferText = type === 'local'
+      ? 'upload'
+      : 'download'
+    return (
+      <div>
+        {
+          isDirectory
+            ? null
+            : (
+              <div
+                className="pd2x pd1y pointer"
+                onClick={this.doTranfer}
+              >
+                {transferText}
+              </div>
+            )
+        }
+        <div
+          className="pd2x pd1y pointer"
+          onClick={this.del}
+        >
+          delete
+        </div>
+      </div>
+    )
   }
 
   onContextMenu = e => {
