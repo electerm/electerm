@@ -34,13 +34,6 @@ class Sftp {
   }
 
   /**
-   * pause transfer
-   */
-  pause () {
-
-  }
-
-  /**
    * list remote directory
    *
    * @param {String} remotePath
@@ -182,12 +175,14 @@ class Sftp {
    *
    * @param {String} remotePath
    * https://github.com/mscdex/ssh2-streams/blob/master/SFTPStream.md
+   * only support rm -rf
    * @return {Promise}
    */
   rmdir (remotePath) {
     return new Promise((resolve, reject) => {
-      let {sftp} = this
-      sftp.rmdir(remotePath, err => {
+      let {client} = this
+      let cmd = `rm -rf ${remotePath}`
+      client.exec(cmd, err => {
         if (err) reject(err)
         else resolve()
       })
@@ -267,14 +262,14 @@ class Sftp {
   }
 
   /**
-   * mv
+   * rename
    *
    * @param {String} remotePath
    * @param {String} remotePathNew
    * https://github.com/mscdex/ssh2-streams/blob/master/SFTPStream.md
    * @return {Promise}
    */
-  mv (remotePath, remotePathNew) {
+  rename (remotePath, remotePathNew) {
     return new Promise((resolve, reject) => {
       let {sftp} = this
       sftp.rename(remotePath, remotePathNew, (err) => {
@@ -295,6 +290,24 @@ class Sftp {
     return new Promise((resolve, reject) => {
       let {sftp} = this
       sftp.unlink(remotePath, (err) => {
+        if (err) reject(err)
+        else resolve()
+      })
+    })
+  }
+
+  /**
+   * touch a file
+   *
+   * @param {String} remotePath
+   * https://github.com/mscdex/ssh2-streams/blob/master/SFTPStream.md
+   * @return {Promise}
+   */
+  touch (remotePath) {
+    return new Promise((resolve, reject) => {
+      let {client} = this
+      let cmd = `touch ${remotePath}`
+      client.exec(cmd, err => {
         if (err) reject(err)
         else resolve()
       })

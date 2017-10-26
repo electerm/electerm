@@ -3,12 +3,140 @@
  */
 
 import React from 'react'
-import {Icon, Tooltip} from 'antd'
+import {Icon, Tooltip, Popconfirm} from 'antd'
 import classnames from 'classnames'
 import moment from 'moment'
-const resolve = window.getGlobal('resolve')
+import copy from 'json-deep-copy'
+import _ from 'lodash'
+import Input from '../common/input-auto-focus'
+
+const {getGlobal} = window
+const resolve = getGlobal('resolve')
 
 export default class FileSection extends React.Component {
+
+  constructor(props) {
+    super(props)
+    this.state = {
+      file: copy(props.file)
+    }
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (!_.isEqual(nextProps.file, this.props.file)) {
+      this.setState({
+        file: copy(nextProps.file)
+      })
+    }
+  }
+
+  doRename = () => {
+    let file = copy(this.state.file)
+    file.nameTemp = file.name
+    file.isEditting = true
+    this.props.closeContextMenu()
+    this.setState({
+      file
+    })
+  }
+
+  cancelNew = (type) => {
+    let list = this.props[type]
+    list = list.filter(p => p.modifyTime)
+    this.props.modifier({
+      [type]: list
+    })
+  }
+
+  localCreateNew = async file => {
+    let {nameTemp, isDirectory} = file
+    let {localPath} = this.props
+    let p = resolve(localPath, nameTemp)
+    let fs = getGlobal('fs')
+    let func = isDirectory
+      ? fs.mkdirAsync
+      : fs.touch
+    let res = await func(p)
+      .then(() => true)
+      .catch(this.props.onError)
+    if (res) {
+      this.props.localList()
+    }
+  }
+
+  remoteCreateNew = async file => {
+    let {nameTemp, isDirectory} = file
+    let {remotePath, sftp} = this.props
+    let p = resolve(remotePath, nameTemp)
+    let func = isDirectory
+      ? sftp.mkdir
+      : sftp.touch
+    let res = await func(p)
+      .then(() => true)
+      .catch(this.props.onError)
+    if (res) {
+      this.props.remoteList()
+    }
+  }
+
+  createNew = file => {
+    let {type} = file
+    return this[`${type}CreateNew`](file)
+  }
+
+  onBlur = () => {
+    let file = copy(this.state.file)
+    let {nameTemp, name, modifyTime, type} = this.state.file
+    if (name === nameTemp) {
+      if (!modifyTime) {
+        return this.cancelNew(type)
+      }
+      delete file.nameTemp
+      delete file.isEditting
+      return this.setState({
+        file
+      })
+    }
+    if (!modifyTime) {
+      return this.createNew(file)
+    }
+    this.rename(name, nameTemp)
+  }
+
+  rename = (oldname, newname) => {
+    let {type} = this.props.file
+    return this[`${type}Rename`](oldname, newname)
+  }
+
+  localRename = async (oldname, newname) => {
+    let {localPath} = this.props
+    let fs = getGlobal('fs')
+    let p1 = resolve(localPath, oldname)
+    let p2 = resolve(localPath, newname)
+    await fs.renameAsync(p1, p2).catch(this.props.onError)
+    this.props.localList()
+  }
+
+  remoteRename = async (oldname, newname) => {
+    let {remotePath, sftp} = this.props
+    let p1 = resolve(remotePath, oldname)
+    let p2 = resolve(remotePath, newname)
+    let res = await sftp.rename(p1, p2)
+      .catch(this.props.onError)
+      .then(() => true)
+    if (res) {
+      this.props.remoteList()
+    }
+  }
+
+  onChange = e => {
+    let nameTemp = e.target.value
+    let file = copy(this.state.file)
+    file.nameTemp = nameTemp
+    this.setState({
+      file
+    })
+  }
 
   transferOrEnterDirectory = e => {
     return this.props.transferOrEnterDirectory(
@@ -25,10 +153,10 @@ export default class FileSection extends React.Component {
   localDel = async (file) => {
     let {localPath} = this.props
     let {name, isDirectory} = file
-    let fs = window.getGlobal('fs')
+    let fs = getGlobal('fs')
     let func = !isDirectory
       ? fs.unlinkAsync
-      : fs.rmdirAsync
+      : fs.rmrf
     let p = resolve(localPath, name)
     await func(p).catch(this.props.onError)
     this.props.localList()
@@ -60,35 +188,100 @@ export default class FileSection extends React.Component {
     )
   }
 
+  newFile = () => {
+    return this.newItem(false)
+  }
+
+  newDirectory = () => {
+    return this.newItem(true)
+  }
+
+  newItem = (isDirectory) => {
+    let {type} = this.state.file
+    let list = this.props[type]
+    list.unshift({
+      name: '',
+      nameTemp: '',
+      isDirectory,
+      isEditting: true,
+      type
+    })
+    this.props.closeContextMenu()
+    this.props.modifier({
+      [type]: list
+    })
+  }
+
   renderContext() {
     let {
       file: {
         type,
-        isDirectory
+        isDirectory,
+        name,
+        modifyTime
       }
     } = this.props
     let transferText = type === 'local'
       ? 'upload'
       : 'download'
+    let icon = type === 'local'
+      ? 'cloud-upload-o'
+      : 'cloud-download-o'
+    let title = `are you sure? this will delete ${isDirectory ? 'directory' : 'file'} "${name}"` +
+      (isDirectory ? ' and all the file/directory in it' : '')
     return (
       <div>
         {
-          isDirectory
+          isDirectory || !modifyTime
             ? null
             : (
               <div
                 className="pd2x pd1y context-item pointer"
                 onClick={this.doTranfer}
               >
-                {transferText}
+                <Icon type={icon} /> {transferText}
               </div>
             )
         }
+        {
+          modifyTime
+            ? (
+              <Popconfirm
+                title={title}
+                onConfirm={this.del}
+              >
+                <div
+                  className="pd2x pd1y context-item pointer"
+                >
+                  <Icon type="close-circle" /> delete
+                </div>
+              </Popconfirm>
+            )
+            : null
+        }
+        {
+          modifyTime
+            ? (
+              <div
+                className="pd2x pd1y context-item pointer"
+                onClick={this.doRename}
+              >
+                <Icon type="edit" /> rename
+              </div>
+            )
+            : null
+        }
         <div
           className="pd2x pd1y context-item pointer"
-          onClick={this.del}
+          onClick={this.newFile}
         >
-          delete
+          <Icon type="file-add" /> new file
+        </div>
+        <div
+          className="pd2x pd1y context-item pointer"
+          onClick={this.newDirectory}
+        >
+          <Icon type="folder-add" /> new directory
         </div>
       </div>
     )
@@ -97,25 +290,52 @@ export default class FileSection extends React.Component {
   onContextMenu = e => {
     e.preventDefault()
     let {target} = e
+    let {modifyTime} = this.props.file
     let rect = target.getBoundingClientRect()
+    let {clientX, clientY} = e
     let content = this.renderContext()
     this.props.openContextMenu({
       content,
       pos: {
-        left: rect.left,
-        top: rect.top + 15
+        left: modifyTime ? rect.left : clientX,
+        top: modifyTime ? rect.top + 15 : clientY
       }
     })
   }
 
+  renderEditting(file) {
+    let {
+      nameTemp,
+      isDirectory
+    } = file
+    let icon = isDirectory ? 'folder' : 'file'
+    let pre = <Icon type={icon} />
+    return (
+      <div className="sftp-item">
+        <Input
+          value={nameTemp}
+          addonBefore={pre}
+          onChange={this.onChange}
+          onBlur={this.onBlur}
+          onPressEnter={this.onBlur}
+        />
+      </div>
+    )
+  }
+
   render() {
-    let {type, file} = this.props
+    let {type} = this.props
+    let {file} = this.state
     let {
       name,
       size,
       isDirectory,
-      modifyTime
+      modifyTime,
+      isEditting
     } = file
+    if (isEditting) {
+      return this.renderEditting(file)
+    }
     let cls = classnames('sftp-item', type, {
       directory: isDirectory
     })
