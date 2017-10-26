@@ -11,6 +11,7 @@ const Ftp = require('./lib/sftp')
 const fs = require('fs')
 const {saveUserConfig} = require('./lib/user-config-controller')
 const {init, changeHotkeyReg} = require('./lib/shortcut')
+const rmrf = require('./lib/rm-rf')
 
 let version = +new Date()
 try {
@@ -89,6 +90,7 @@ async function createWindow () {
     resolve,
     version,
     homeOrtmp: os.homedir() || os.tmpdir(),
+    rmrf,
     closeApp: () => {
       win.close()
     },
