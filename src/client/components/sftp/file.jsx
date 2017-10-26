@@ -42,7 +42,7 @@ export default class FileSection extends React.Component {
 
   cancelNew = (type) => {
     let list = this.props[type]
-    list = list.filter(p => p.id)
+    list = list.filter(p => p.modifyTime)
     this.props.modifier({
       [type]: list
     })
@@ -53,7 +53,7 @@ export default class FileSection extends React.Component {
     let {localPath} = this.props
     let p = resolve(localPath, nameTemp)
     let fs = getGlobal('fs')
-    let func = !isDirectory
+    let func = isDirectory
       ? fs.mkdirAsync
       : fs.touch
     let res = await func(p)
@@ -68,7 +68,7 @@ export default class FileSection extends React.Component {
     let {nameTemp, isDirectory} = file
     let {remotePath, sftp} = this.props
     let p = resolve(remotePath, nameTemp)
-    let func = !isDirectory
+    let func = isDirectory
       ? sftp.mkdir
       : sftp.touch
     let res = await func(p)
@@ -86,9 +86,9 @@ export default class FileSection extends React.Component {
 
   onBlur = () => {
     let file = copy(this.state.file)
-    let {nameTemp, name, id, type} = this.state.file
+    let {nameTemp, name, modifyTime, type} = this.state.file
     if (name === nameTemp) {
-      if (!id) {
+      if (!modifyTime) {
         return this.cancelNew(type)
       }
       delete file.nameTemp
@@ -97,7 +97,7 @@ export default class FileSection extends React.Component {
         file
       })
     }
-    if (!id) {
+    if (!modifyTime) {
       return this.createNew(file)
     }
     this.rename(name, nameTemp)
@@ -156,14 +156,8 @@ export default class FileSection extends React.Component {
     let fs = getGlobal('fs')
     let func = !isDirectory
       ? fs.unlinkAsync
-      : fs.rmdirAsync
+      : fs.rmrf
     let p = resolve(localPath, name)
-
-    //if isDirectory, delete files in it fisrt
-    let files = await fs.readdirAsync(p)
-    if (files.length) {
-      func = fs.rmrf
-    }
     await func(p).catch(this.props.onError)
     this.props.localList()
   }
@@ -194,6 +188,14 @@ export default class FileSection extends React.Component {
     )
   }
 
+  newFile = () => {
+    return this.newItem(false)
+  }
+
+  newDirectory = () => {
+    return this.newItem(true)
+  }
+
   newItem = (isDirectory) => {
     let {type} = this.state.file
     let list = this.props[type]
@@ -215,7 +217,8 @@ export default class FileSection extends React.Component {
       file: {
         type,
         isDirectory,
-        name
+        name,
+        modifyTime
       }
     } = this.props
     let transferText = type === 'local'
@@ -229,7 +232,7 @@ export default class FileSection extends React.Component {
     return (
       <div>
         {
-          isDirectory
+          isDirectory || !modifyTime
             ? null
             : (
               <div
@@ -240,22 +243,34 @@ export default class FileSection extends React.Component {
               </div>
             )
         }
-        <Popconfirm
-          title={title}
-          onConfirm={this.del}
-        >
-          <div
-            className="pd2x pd1y context-item pointer"
-          >
-            <Icon type="close-circle" /> delete
-          </div>
-        </Popconfirm>
-        <div
-          className="pd2x pd1y context-item pointer"
-          onClick={this.doRename}
-        >
-          <Icon type="edit" /> rename
-        </div>
+        {
+          modifyTime
+            ? (
+              <Popconfirm
+                title={title}
+                onConfirm={this.del}
+              >
+                <div
+                  className="pd2x pd1y context-item pointer"
+                >
+                  <Icon type="close-circle" /> delete
+                </div>
+              </Popconfirm>
+            )
+            : null
+        }
+        {
+          modifyTime
+            ? (
+              <div
+                className="pd2x pd1y context-item pointer"
+                onClick={this.doRename}
+              >
+                <Icon type="edit" /> rename
+              </div>
+            )
+            : null
+        }
         <div
           className="pd2x pd1y context-item pointer"
           onClick={this.newFile}
@@ -275,13 +290,15 @@ export default class FileSection extends React.Component {
   onContextMenu = e => {
     e.preventDefault()
     let {target} = e
+    let {modifyTime} = this.props.file
     let rect = target.getBoundingClientRect()
+    let {clientX, clientY} = e
     let content = this.renderContext()
     this.props.openContextMenu({
       content,
       pos: {
-        left: rect.left,
-        top: rect.top + 15
+        left: modifyTime ? rect.left : clientX,
+        top: modifyTime ? rect.top + 15 : clientY
       }
     })
   }
@@ -300,7 +317,7 @@ export default class FileSection extends React.Component {
           addonBefore={pre}
           onChange={this.onChange}
           onBlur={this.onBlur}
-          onEnter={this.onBlur}
+          onPressEnter={this.onBlur}
         />
       </div>
     )

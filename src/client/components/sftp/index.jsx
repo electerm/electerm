@@ -221,32 +221,49 @@ export default class Sftp extends React.Component {
     }
   }
 
+  getFileProps = (file, type) => {
+    return {
+      ...this.props,
+      file,
+      type,
+      ..._.pick(this, [
+        'transfer',
+        'sftp',
+        'modifier',
+        'localList',
+        'remoteList',
+        'transferOrEnterDirectory'
+      ]),
+      ..._.pick(this.state, [
+        'localPath',
+        'remotePath',
+        'local',
+        'remote'
+      ])
+    }
+  }
+
   renderItem = (item, i, type) => {
     return (
       <FileSection
-        {...this.props}
-        file={item}
-        type={type}
-        {
-        ..._.pick(this, [
-          'transfer',
-          'sftp',
-          'modifier',
-          'localList',
-          'remoteList',
-          'transferOrEnterDirectory'
-        ])
-        }
-        {
-        ..._.pick(this.state, [
-          'localPath',
-          'remotePath',
-          'local',
-          'remote'
-        ])
-        }
+        {...this.getFileProps(item, type)}
         key={i + 'itd' + name}
       />
+    )
+  }
+
+  renderEmptyFile(type) {
+    let item = {
+      type,
+      name: '',
+      isDirectory: true
+    }
+    return (
+      <div className={`virtual-file virtual-file-${type}`}>
+        <FileSection
+          {...this.getFileProps(item, type)}
+        />
+      </div>
     )
   }
 
@@ -303,6 +320,7 @@ export default class Sftp extends React.Component {
               className="file-list pd1 overscroll-y"
               style={{height: height - 15}}
             >
+              {this.renderEmptyFile(type)}
               {
                 arr.map((item, i) => {
                   return this.renderItem(item, i, type)

@@ -45,8 +45,10 @@ const touch = (localFilePath) => {
   })
 }
 
-module.exports = {
-  ...Promise.promisifyAll(fs),
-  rmrf,
-  touch
-}
+module.exports = Object.assign(
+  Promise.promisifyAll(fs),
+  {
+    rmrf,
+    touch
+  }
+)

@@ -12,6 +12,7 @@
   position relative
 .sftp-item
   position relative
+  z-index 3
   padding 5px
   &:hover
     background #f2f2f2
@@ -50,3 +51,13 @@
   color colorRed
 .sftp-status-active
   color colorBlue
+
+.virtual-file
+  .sftp-item
+    position absolute
+    left 0
+    right 0
+    bottom 0
+    top 0
+    z-index 1
+    opacity 0
