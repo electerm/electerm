@@ -231,6 +231,7 @@ export default class Sftp extends React.Component {
         ..._.pick(this, [
           'transfer',
           'sftp',
+          'modifier',
           'localList',
           'remoteList',
           'transferOrEnterDirectory'
@@ -239,7 +240,9 @@ export default class Sftp extends React.Component {
         {
         ..._.pick(this.state, [
           'localPath',
-          'remotePath'
+          'remotePath',
+          'local',
+          'remote'
         ])
         }
         key={i + 'itd' + name}

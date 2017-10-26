@@ -262,14 +262,14 @@ class Sftp {
   }
 
   /**
-   * mv
+   * rename
    *
    * @param {String} remotePath
    * @param {String} remotePathNew
    * https://github.com/mscdex/ssh2-streams/blob/master/SFTPStream.md
    * @return {Promise}
    */
-  mv (remotePath, remotePathNew) {
+  rename (remotePath, remotePathNew) {
     return new Promise((resolve, reject) => {
       let {sftp} = this
       sftp.rename(remotePath, remotePathNew, (err) => {

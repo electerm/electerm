@@ -11,11 +11,11 @@ const Ftp = require('./lib/sftp')
 const fs = require('fs')
 const {saveUserConfig} = require('./lib/user-config-controller')
 const {init, changeHotkeyReg} = require('./lib/shortcut')
-const rmrf = require('./lib/rm-rf')
+const fsExport = require('./lib/fs')
 
 let version = +new Date()
 try {
-  version = require('fs').readFileSync('./version').toString()
+  version = fs.readFileSync('./version').toString()
 } catch(e) {
   console.log('no version file created')
 }
@@ -86,11 +86,10 @@ async function createWindow () {
     autoVisitTime: config.timer,
     _config: config,
     Ftp,
-    fs: Promise.promisifyAll(fs),
+    fs: fsExport,
     resolve,
     version,
     homeOrtmp: os.homedir() || os.tmpdir(),
-    rmrf,
     closeApp: () => {
       win.close()
     },
