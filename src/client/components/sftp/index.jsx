@@ -270,10 +270,14 @@ export default class Sftp extends React.Component {
   renderSection(type) {
     let n = `${type}PathTemp`
     let path = this.state[n]
+    let realPath = this.state[`${type}Path`]
     let arr = this.state[type]
     let loading = this.state[`${type}Loading`]
     let {host, username} = this.props.tab
     let {height} = this.props
+    let goIcon = realPath === path
+      ? 'reload'
+      : 'arrow-right'
     return (
       <Col span={12}>
         <Spin spinning={loading}>
@@ -299,7 +303,7 @@ export default class Sftp extends React.Component {
                   onPressEnter={() => this.onGoto(type)}
                   addonAfter={
                     <Icon
-                      type="arrow-right"
+                      type={goIcon}
                       onClick={() => this.onGoto(type)}
                     />
                   }
