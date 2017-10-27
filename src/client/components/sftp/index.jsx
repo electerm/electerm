@@ -317,7 +317,7 @@ export default class Sftp extends React.Component {
               </Tooltip>
             </div>
             <div
-              className="file-list pd1 overscroll-y"
+              className="file-list pd1 overscroll-y relative"
               style={{height: height - 15}}
             >
               {this.renderEmptyFile(type)}
