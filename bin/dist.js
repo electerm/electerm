@@ -34,6 +34,12 @@ cp('-r', [
 rm('-rf',  'work/app/config.js')
 rm('-rf',  'work/app/user-config.json')
 rm('-rf',  'work/app/assets/js/common-css.bundle.js')
+cp('-rf', 'work/app/node_modules/antd/dist/antd.min.js', 'work/')
+rm('-rf', 'work/app/node_modules/antd')
+mkdir('-p', 'work/app/node_modules/antd/dist')
+cp('-rf', 'work/antd.min.js', 'work/app/node_modules/antd/dist/')
+rm('-rf',  'work/antd.min.js')
+
 exec(`cd work/app && npm prune --production && cd ${cwd}`)
 
 mkdir('-p', dir + '/installers')
@@ -59,11 +65,11 @@ echo('building win32 installer')
 exec(`cd ${dir} && tar czf installers/${name}-win32-${version}.tar.gz ${name}-win32-ia32 && cd ${cwd}`)
 
 echo('building linux debian installer')
-exec(`${bin}/electron-installer-debian --src ${dir}/${name}-linux-x64 --dest ${dir}/installers/ --arch amd64`)
+exec(`${bin}/electron-installer-debian --src ${dir}/${name}-linux-x64 --dest ${dir}/installers/ --arch amd64 --icon ${dir}/${name}-linux-x64/resources/app/static/images/electerm-round-128.png`)
 exec(`mv ${dir}/installers/*.deb ${dir}/installers/${name}-${version}.deb`)
 
 echo('building linux redhat installer')
-exec(`${bin}/electron-installer-redhat --src ${dir}/${name}-linux-x64 --dest ${dir}/installers/ --arch amd64`)
+exec(`${bin}/electron-installer-redhat --src ${dir}/${name}-linux-x64 --dest ${dir}/installers/ --arch amd64 --icon ${dir}/${name}-linux-x64/resources/app/static/images/electerm-round-128.png`)
 exec(`mv ${dir}/installers/*.rpm ${dir}/installers/${name}-${version}.rpm`)
 
 echo('building linux tar.gz')
