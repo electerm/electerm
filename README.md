@@ -18,7 +18,7 @@ https://github.com/electerm/electerm/releases
 - support multi platform(mac, win, linux)
 
 ## issues/todo/roadmap
-https://github.com/electerm/electerm/releases
+https://github.com/electerm/electerm/issues
 
 ## dev
 ```bash
