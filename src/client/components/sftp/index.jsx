@@ -26,6 +26,8 @@ export default class Sftp extends React.Component {
       remote: [],
       localLoading: false,
       remoteLoading: false,
+      localShowHiddenFile: false,
+      remoteShowHiddenFile: false,
       localPath: '',
       remotePath: '',
       localPathTemp: '',
@@ -56,6 +58,22 @@ export default class Sftp extends React.Component {
     this.props.onError(e)
     this.setState({
       remoteLoading: false
+    })
+  }
+
+  getFileList = type => {
+    let showHide = this.state[`${type}ShowHiddenFile`]
+    if (showHide) {
+      return this.state[type]
+    }
+    return this.state[type].filter(f => !/^\./.test(f.name))
+  }
+
+  toggleShowHiddenFile = type => {
+    let prop = `${type}ShowHiddenFile`
+    let b = this.state[prop]
+    this.setState({
+      [prop]: !b
     })
   }
 
@@ -267,11 +285,42 @@ export default class Sftp extends React.Component {
     )
   }
 
+  renderAddonBefore = (type) => {
+    let isShow = this.state[`${type}ShowHiddenFile`]
+    let title = `${isShow ? 'hide' : 'show'} hidden files and directories`
+    let icon = isShow ? 'eye' : 'eye-o'
+    return (
+      <div>
+        <Tooltip
+          title="goto parent folder"
+          arrowPointAtCenter
+        >
+          <Icon
+            type="arrow-up"
+            placement="topLeft"
+            onClick={() => this.goParent(type)}
+          />
+        </Tooltip>
+        <Tooltip
+          title={title}
+          placement="topLeft"
+          arrowPointAtCenter
+        >
+          <Icon
+            type={icon}
+            className="mg1l"
+            onClick={() => this.toggleShowHiddenFile(type)}
+          />
+        </Tooltip>
+      </div>
+    )
+  }
+
   renderSection(type) {
     let n = `${type}PathTemp`
     let path = this.state[n]
     let realPath = this.state[`${type}Path`]
-    let arr = this.state[type]
+    let arr = this.getFileList(type)
     let loading = this.state[`${type}Loading`]
     let {host, username} = this.props.tab
     let {height} = this.props
@@ -285,12 +334,12 @@ export default class Sftp extends React.Component {
             {
               type === 'remote'
                 ? (
-                  <div className="pd1t pd1x">
+                  <div className="pd2t pd1b pd1x alignright">
                     remote: {username}@{host}
                   </div>
                 )
                 : (
-                  <div className="pd1t pd1x">
+                  <div className="pd2t pd1b pd1x">
                     local
                   </div>
                 )
@@ -301,6 +350,7 @@ export default class Sftp extends React.Component {
                   value={path}
                   onChange={e => this.onChange(e, n)}
                   onPressEnter={() => this.onGoto(type)}
+                  addonBefore={this.renderAddonBefore(type)}
                   addonAfter={
                     <Icon
                       type={goIcon}
@@ -309,16 +359,6 @@ export default class Sftp extends React.Component {
                   }
                 />
               </div>
-              <Tooltip
-                title="goto parent folder"
-                arrowPointAtCenter
-              >
-                <Icon
-                  type="arrow-up"
-                  className="sftp-go-parent-icon"
-                  onClick={() => this.goParent(type)}
-                />
-              </Tooltip>
             </div>
             <div
               className="file-list pd1 overscroll-y relative"

@@ -89,6 +89,7 @@ export default class Tranporter extends React.Component {
   }
 
   startTransfer = async () => {
+    return
     let {id} = this.props.transport
     let {currentTransport} = this.props
     if (
