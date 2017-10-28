@@ -23,7 +23,8 @@ module.exports = function() {
       let conf = {
         port: freePort,
         host: '127.0.0.1',
-        hotkey: 'Control+2'
+        hotkey: 'Control+2',
+        showMenu: true
       }
       extend(conf, override)
       extend(conf, userConfig)
