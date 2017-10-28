@@ -372,19 +372,6 @@ export default class FileSection extends React.Component {
             ? null
             : <div className="sftp-item-size elli iblock">{size}</div>
         }
-        {
-          isDirectory
-            ? null
-            : (
-              <Tooltip title="transfer">
-                <Icon
-                  type={`double-${pm}`}
-                  className="transport-icon"
-                  onClick={this.transfer}
-                />
-              </Tooltip>
-            )
-        }
       </div>
     )
   }

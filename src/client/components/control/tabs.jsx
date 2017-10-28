@@ -12,7 +12,7 @@ import './tabs.styl'
 
 export default function Tabs(props) {
 
-  let {tabs, onAdd} = props
+  let {tabs = [], onAdd} = props
   return (
     <div className="tabs">
       <div className="tabs-bg" onDoubleClick={onAdd} />
