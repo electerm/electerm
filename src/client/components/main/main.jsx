@@ -142,7 +142,7 @@ export default class Index extends React.Component {
   }
 
   editTab = (id, update) => {
-    this.editItem(id, update, 'type', this.setState)
+    this.editItem(id, update, 'tabs', this.modifier)
   }
 
   delTab = ({id}) => {
