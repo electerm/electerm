@@ -3,52 +3,38 @@
  * @param {array} props.tabs {id, title}
  */
 
-import {Icon, Popover, Tooltip} from 'antd'
-import classnames from 'classnames'
-import createName from '../../common/create-title'
+import {Icon, Tooltip} from 'antd'
+import Tab from './tab'
 import './tabs.styl'
 
 //todo: scroll controll and keyboard controll
-//todo: click tabs-bg to add new
 //todo: drag and drop
 
 export default function Tabs(props) {
 
-  let {tabs, currentTabId, onChange, onDup, onClose, onAdd} = props
+  let {tabs, onAdd} = props
   return (
     <div className="tabs">
       <div className="tabs-bg" onDoubleClick={onAdd} />
       <div className="tabs-inner">
         {
-          tabs.map((tab, index) => {
-            let {id} = tab
-            let active = id === currentTabId
-            let cls = classnames('tab', {active})
-            let title = createName(tab)
+          tabs.map((tab, i) => {
             return (
-              <Popover
-                title={title}
-                content="double click to duplicate"
-                trigger="hover"
-                key={id + 'tab' + index}
-              >
-                <div className={cls}>
-                  <div
-                    className="tab-title elli pd1x"
-                    onClick={() => onChange(id)}
-                    onDoubleClick={() => onDup(tab)}
-                  >
-                    {title}
-                  </div>
-                  <Icon className="pointer tab-close" type="close" onClick={() => onClose(id)} />
-                </div>
-              </Popover>
+              <Tab
+                {...props}
+                tab={tab}
+                key={i + 'tab'}
+              />
             )
           })
         }
       </div>
       <Tooltip title="open new terminal" placement="rightTop">
-        <Icon type="plus-circle-o" className="pointer tabs-add-btn font16" onClick={onAdd} />
+        <Icon
+          type="plus-circle-o"
+          className="pointer tabs-add-btn font16"
+          onClick={onAdd}
+        />
       </Tooltip>
     </div>
   )

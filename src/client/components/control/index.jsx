@@ -79,16 +79,11 @@ export default class IndexControl extends React.Component {
   }
 
   render() {
-    let {
-      tabs,
-      currentTabId
-    } = this.props
     let {item, tab} = this.state
     let props = {
-      tabs,
+      ...this.props,
       item,
       tab,
-      currentTabId,
       ..._.pick(this, [
         'onAdd', 'onChange', 'onClose',
         'onDup', 'onNewSsh', 'openSetting',

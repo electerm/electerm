@@ -1,6 +1,7 @@
 .tabs
   position relative
   background #ccc
+  min-height 46px
 .tabs-bg
   position absolute
   left 0
@@ -16,6 +17,7 @@
 
 .tab
   display inline-block
+  vertical-align middle
   cursor pointer
   position relative
   width 120px
@@ -27,7 +29,7 @@
   color #555
   &.active
     color #fff
-    background #08c
+    background #333
   &:hover
     .tab-close
       display block
