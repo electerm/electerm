@@ -34,11 +34,6 @@ cp('-r', [
 rm('-rf',  'work/app/config.js')
 rm('-rf',  'work/app/user-config.json')
 rm('-rf',  'work/app/assets/js/common-css.bundle.js')
-cp('-rf', 'work/app/node_modules/antd/dist/antd.min.js', 'work/')
-rm('-rf', 'work/app/node_modules/antd')
-mkdir('-p', 'work/app/node_modules/antd/dist')
-cp('-rf', 'work/antd.min.js', 'work/app/node_modules/antd/dist/')
-rm('-rf',  'work/antd.min.js')
 
 exec(`cd work/app && npm prune --production && cd ${cwd}`)
 
