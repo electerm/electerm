@@ -1,6 +1,6 @@
 {
   "name": "electerm",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "electerm",
   "main": "app.js",
   "scripts": {
@@ -31,6 +31,7 @@
     "node": "8.5"
   },
   "devDependencies": {
+    "antd": "2.13.3",
     "babel-cli": "6.26.0",
     "babel-core": "6.26.0",
     "babel-eslint": "7.2.3",
@@ -94,7 +95,6 @@
     "webpack-dev-server": "2.7.1"
   },
   "dependencies": {
-    "antd": "2.13.3",
     "bluebird": "3.5.0",
     "cors": "2.8.4",
     "electron-context-menu": "0.9.1",
