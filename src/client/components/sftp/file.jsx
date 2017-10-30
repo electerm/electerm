@@ -143,6 +143,52 @@ export default class FileSection extends React.Component {
       this.props.file, e
     )
   }
+  downloadCheckExist = async transport => {
+    let {localPath} = transport
+    let fs = getGlobal('fs')
+    return await fs.accessAsync(localPath)
+      .then(() => true)
+      .catch(() => false)
+  }
+
+  uploadCheckExist = async transport => {
+    let {remotePath} = transport
+    let {sftp} = this.props
+    return await sftp.lstat(remotePath)
+      .then(() => true)
+      .catch(() => false)
+  }
+
+  checkExist = async (transport) => {
+    let {type} = transport
+    return await this[type + 'CheckExist'](transport)
+  }
+
+  checkOverwrite = async transport => {
+    let {overwriteMethod = 'confirm'} = transport
+    let exist = await this.checkExist(transport)
+    return exist && overwriteMethod === 'confirm'
+  }
+
+  renderConfirmBody = (transport) => {
+    return ' '
+  }
+
+  onConfirm = () => {
+
+  }
+
+  openOverwriteConfirm = transport => {
+    confirm({
+      title: 'overwrite?',
+      content: this.renderConfirmBody(),
+      okText: 'Yes',
+      okType: 'danger',
+      cancelText: 'cancel',
+      onOk: this.onConfirm,
+      onCancel: this.cancel
+    })
+  }
 
   transfer = e => {
     return this.props.transfer(

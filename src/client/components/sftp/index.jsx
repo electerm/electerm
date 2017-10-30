@@ -211,7 +211,8 @@ export default class Sftp extends React.Component {
     this.addTransport({
       localPath: fl,
       remotePath: fr,
-      id: fl + ':' +  fr,
+      id: generate(),
+      groupId: generate(),
       percent: 0,
       file,
       type: type === 'remote' ? 'download' : 'upload'
