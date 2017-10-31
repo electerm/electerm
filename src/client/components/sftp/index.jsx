@@ -6,10 +6,12 @@ import _ from 'lodash'
 import Tranports from './transports'
 import copy from 'json-deep-copy'
 import FileSection from './file'
+import Confirms from './confirm-list'
 import './sftp.styl'
 
 const {getGlobal} = window
 const fs = getGlobal('fs')
+let resolve = getGlobal('resolve')
 const sorter = (a, b) => {
   let aa = (a.isDirectory ? 0 : 1) + a.name
   let bb = (b.isDirectory ? 0 : 1) + b.name
@@ -32,7 +34,8 @@ export default class Sftp extends React.Component {
       remotePath: '',
       localPathTemp: '',
       remotePathTemp: '',
-      transports: []
+      transports: [],
+      filesToConfirm: []
     }
   }
 
@@ -77,7 +80,7 @@ export default class Sftp extends React.Component {
     })
   }
 
-  remoteList = async () => {
+  remoteList = async (returnList = false, remotePathReal) => {
     let Client = getGlobal('Ftp')
     if (!Client) return
 
@@ -87,13 +90,15 @@ export default class Sftp extends React.Component {
     let remotePath = username === 'root'
       ? '/root'
       : `/home/${tab.username}`
-    let noPathInit = this.state.remotePath
+    let noPathInit = remotePathReal || this.state.remotePath
     if (noPathInit) {
       remotePath = noPathInit
     }
-    this.setState({
-      remoteLoading: true
-    })
+    if (!returnList) {
+      this.setState({
+        remoteLoading: true
+      })
+    }
     try {
       await sftp.connect({
         ...tab,
@@ -105,7 +110,8 @@ export default class Sftp extends React.Component {
         return {
           ..._.pick(r, ['name', 'size', 'accessTime', 'modifyTime']),
           isDirectory: r.type === 'd',
-          type: 'remote'
+          type: 'remote',
+          path: resolve(remotePath, r.name)
         }
       }).sort(sorter)
       let update = {
@@ -116,20 +122,25 @@ export default class Sftp extends React.Component {
         update.remotePath = remotePath
         update.remotePathTemp = remotePath
       }
+      if (returnList) {
+        return remote
+      }
       this.setState(update)
     } catch(e) {
       this.onError(e)
     }
   }
 
-  localList = async () => {
+  localList = async (returnList = false, localPathReal) => {
     if (!fs) return
-    this.setState({
-      localLoading: true
-    })
+    if (!returnList) {
+      this.setState({
+        localLoading: true
+      })
+    }
     try {
-      let resolve = getGlobal('resolve')
-      let noPathInit = this.state.localPath
+
+      let noPathInit = localPathReal || this.state.localPath
       let localPath = noPathInit || getGlobal('homeOrtmp')
       let locals = await fs.readdirAsync(localPath)
       let local = []
@@ -141,6 +152,7 @@ export default class Sftp extends React.Component {
           accessTime: stat.atime,
           modifyTime: stat.mtime,
           type: 'local',
+          path: resolve(localPath, name),
           isDirectory: stat.isDirectory()
         })
       }
@@ -152,6 +164,9 @@ export default class Sftp extends React.Component {
       if (!noPathInit) {
         update.localPath = localPath
         update.localPathTemp = localPath
+      }
+      if (returnList) {
+        return local
       }
       this.setState(update)
     } catch(e) {
@@ -245,6 +260,7 @@ export default class Sftp extends React.Component {
       ...this.props,
       file,
       type,
+      rootModifier: this.props.modifier,
       ..._.pick(this, [
         'transfer',
         'sftp',
@@ -379,16 +395,26 @@ export default class Sftp extends React.Component {
   }
 
   render() {
-    let {id, transports} = this.state
+    let {
+      id,
+      transports,
+      filesToConfirm,
+      remotePath,
+      localPath
+    } = this.state
     let {height, onError} = this.props
     let props = {
       transports,
       onError,
+      localPath,
+      remotePath,
       ..._.pick(this, [
         'sftp',
         'modifier',
         'localList',
-        'remoteList'
+        'remoteList',
+        'remotePath',
+        'localPath'
       ])
     }
     return (
@@ -398,6 +424,10 @@ export default class Sftp extends React.Component {
           {this.renderSection('remote')}
         </Row>
         <Tranports
+          {...props}
+        />
+        <Confirms
+          files={filesToConfirm}
           {...props}
         />
       </div>

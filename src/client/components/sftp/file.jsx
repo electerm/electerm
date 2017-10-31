@@ -18,7 +18,8 @@ export default class FileSection extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
-      file: copy(props.file)
+      file: copy(props.file),
+      overwriteStrategy: ''
     }
   }
 
@@ -28,6 +29,12 @@ export default class FileSection extends React.Component {
         file: copy(nextProps.file)
       })
     }
+  }
+
+  setStateAsync = (props) => {
+    return new Promise((resolve) => {
+      this.setState(props, resolve)
+    })
   }
 
   doRename = () => {
@@ -143,34 +150,36 @@ export default class FileSection extends React.Component {
       this.props.file, e
     )
   }
-  downloadCheckExist = async transport => {
-    let {localPath} = transport
+
+  localCheckExist = async () => {
+    let {localPath} = this.props
     let fs = getGlobal('fs')
-    return await fs.accessAsync(localPath)
+    let {name} = this.props.file
+    let p = resolve(localPath, name)
+    return await fs.accessAsync(p)
       .then(() => true)
       .catch(() => false)
   }
 
-  uploadCheckExist = async transport => {
-    let {remotePath} = transport
+  remoteCheckExist = async () => {
+    let {remotePath} = this.props
+    let {name} = this.props.file
+    let p = resolve(remotePath, name)
     let {sftp} = this.props
-    return await sftp.lstat(remotePath)
+    return await sftp.lstat(p)
       .then(() => true)
       .catch(() => false)
   }
 
-  checkExist = async (transport) => {
-    let {type} = transport
-    return await this[type + 'CheckExist'](transport)
+  checkExist = async () => {
+    let {type} = this.props.file
+    let otherType = type === 'local'
+      ? 'remote'
+      : 'local'
+    return await this[otherType + 'CheckExist']()
   }
 
-  checkOverwrite = async transport => {
-    let {overwriteMethod = 'confirm'} = transport
-    let exist = await this.checkExist(transport)
-    return exist && overwriteMethod === 'confirm'
-  }
-
-  renderConfirmBody = (transport) => {
+  renderConfirmBody = () => {
     return ' '
   }
 
@@ -178,21 +187,59 @@ export default class FileSection extends React.Component {
 
   }
 
-  openOverwriteConfirm = transport => {
-    confirm({
-      title: 'overwrite?',
-      content: this.renderConfirmBody(),
-      okText: 'Yes',
-      okType: 'danger',
-      cancelText: 'cancel',
-      onOk: this.onConfirm,
-      onCancel: this.cancel
+  cancel = () => {
+
+  }
+
+
+
+  checkConfirm = async () => {
+
+  }
+
+  setModalPropsAsync = (confirmModalProps) => {
+    return new Promise((resolve) => {
+      this.props.rootModifier({
+        confirmModalProps
+      }, resolve)
     })
   }
 
-  transfer = e => {
-    return this.props.transfer(
-      this.props.file, e
+  closeConfirmModal = () => {
+    this.setModalPropsAsync({})
+  }
+
+  getTransferList = async (file) => {
+    let {isDirectory, name, path, type} = file
+    if (!isDirectory) {
+      return [file]
+    }
+    let p = resolve(p, name)
+    let files = await this.props[`${type}List`](true, path)
+    let res = []
+    for (let f of files) {
+      let cs = await this.getTransferList(f)
+      res = [...res, ...cs]
+    }
+    return res
+  }
+
+  openOverwriteConfirm = async () => {
+    let filesToConfirm = await this.getTransferList(
+      this.state.file
+    )
+    this.modifier({
+      filesToConfirm
+    })
+  }
+
+  transfer = async () => {
+    let shouldShouConfirm = await this.checkExist()
+    if (shouldShouConfirm) {
+      return this.checkConfirm(this.state.file)
+    }
+    this.props.transfer(
+      this.props.file
     )
   }
 
@@ -227,11 +274,9 @@ export default class FileSection extends React.Component {
     this[type + 'Del'](file)
   }
 
-  doTranfer = () => {
+  doTransfer = () => {
     this.props.closeContextMenu()
-    return this.props.transfer(
-      this.props.file
-    )
+    this.transfer()
   }
 
   newFile = () => {
@@ -278,12 +323,12 @@ export default class FileSection extends React.Component {
     return (
       <div>
         {
-          isDirectory || !modifyTime
+          !modifyTime
             ? null
             : (
               <div
                 className="pd2x pd1y context-item pointer"
-                onClick={this.doTranfer}
+                onClick={this.doTransfer}
               >
                 <Icon type={icon} /> {transferText}
               </div>
