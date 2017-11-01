@@ -267,6 +267,7 @@ export default class Sftp extends React.Component {
         'modifier',
         'localList',
         'remoteList',
+        'onGoto',
         'transferOrEnterDirectory'
       ]),
       ..._.pick(this.state, [

@@ -243,6 +243,11 @@ export default class FileSection extends React.Component {
     )
   }
 
+  doTransferOrEnterDirectory = (e) => {
+    this.props.closeContextMenu()
+    this.transferOrEnterDirectory(e)
+  }
+
   localDel = async (file) => {
     let {localPath} = this.props
     let {name, isDirectory} = file
@@ -265,6 +270,11 @@ export default class FileSection extends React.Component {
     let p = resolve(remotePath, name)
     await func(p).catch(this.props.onError)
     this.props.remoteList()
+  }
+
+  refresh = () => {
+    this.props.closeContextMenu()
+    this.props.onGoto(this.props.file.type)
   }
 
   del = () => {
@@ -323,6 +333,18 @@ export default class FileSection extends React.Component {
     return (
       <div>
         {
+          isDirectory && modifyTime
+            ? (
+              <div
+                className="pd2x pd1y context-item pointer"
+                onClick={this.doTransferOrEnterDirectory}
+              >
+                <Icon type="enter" /> enter
+              </div>
+            )
+            : null
+        }
+        {
           !modifyTime
             ? null
             : (
@@ -373,6 +395,12 @@ export default class FileSection extends React.Component {
           onClick={this.newDirectory}
         >
           <Icon type="folder-add" /> new directory
+        </div>
+        <div
+          className="pd2x pd1y context-item pointer"
+          onClick={this.refresh}
+        >
+          <Icon type="reload" /> refresh
         </div>
       </div>
     )
