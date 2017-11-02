@@ -3,9 +3,10 @@
  */
 
 import React from 'react'
-import {Modal, Icon, Input, Button} from 'antd'
+import {Modal, Icon, Button} from 'antd'
 import _ from 'lodash'
 import copy from 'json-deep-copy'
+import {generate} from 'shortid'
 
 export default class Confirms extends React.Component {
 
@@ -14,7 +15,9 @@ export default class Confirms extends React.Component {
     this.state = {
       currentFile: props.files[0] || null,
       files: [],
-      overwriteStrategy: null
+      index: 0,
+      transferList: [],
+      renameFunctions: []
     }
   }
 
@@ -24,6 +27,84 @@ export default class Confirms extends React.Component {
     ) {
       this.rebuildState(nextProps)
     }
+  }
+
+  submit = () => {
+
+  }
+
+  checkNextFile = () => {
+
+  }
+
+  skip = () => {
+    let {index, files} = this.state
+    index ++
+    let currentFile = files[index]
+    if (!currentFile) {
+      this.setState({
+        currentFile
+      }, this.submit)
+    }
+  }
+
+  cancel = () => {
+    this.rebuildState({files: []})
+  }
+
+  getNewName = (path) => {
+    let {renameFunctions} = this.state
+    return renameFunctions.reduce((prev, curr) => {
+      return curr[prev]
+    }, path)
+  }
+
+  buildNewName = (name, isDirectory) => {
+    if (isDirectory) {
+      return name + '__renamed__' + generate()
+    }
+    return 'renamed__' + generate() + '__' + name
+  }
+
+  rename = () => {
+    let {
+      name,
+      type,
+      path,
+      isDirectory
+    } = this.state.currentFile
+    let newName = this.getNewName(path)
+    let renameFunctions = copy(this.state.renameFunctions)
+    let reg = new RegExp(`${name}$`)
+    let str1 = newName.replace(
+      reg, this.buildNewName(name, isDirectory)
+    )
+    renameFunctions.push(n => {
+      return n.replace(newName, str1)
+    })
+    /*
+    {
+      localPath: fl,
+      remotePath: fr,
+      id: generate(),
+      percent: 0,
+      file,
+      type: type === 'remote' ? 'download' : 'upload'
+    }
+    */
+
+  }
+
+  renameAll = () => {
+
+  }
+
+  mergeOrOverwrite = () => {
+
+  }
+
+  mergeOrOverwriteAll = () => {
+
   }
 
   onVisibleChange = showList => {
@@ -36,7 +117,9 @@ export default class Confirms extends React.Component {
     let {files} = nextProps
     this.setState({
       currentFile: copy(files[0] || null),
-      files
+      files,
+      index: 0,
+      transferList: []
     })
   }
 
@@ -45,13 +128,12 @@ export default class Confirms extends React.Component {
     if (!currentFile) {
       return null
     }
-    let {isDirectory, name} = currentFile
+    let {isDirectory} = currentFile
     return (
       <div className="bordert mgq1t pd1y alignright">
         <Button
           type="ghost"
           className="mg1l"
-          title="cancel this transfer"
           onClick={this.cancel}
         >
           cancel
@@ -67,19 +149,44 @@ export default class Confirms extends React.Component {
           type="primary"
           className="mg1l"
           onClick={
-            isDirectory ? this.merge : this.overwrite
+            this.overwriteOrOverwrite
           }
         >
           {isDirectory ? 'merge' : 'overwrite'}
         </Button>
         <Button
-          type="ghost"
+          type="primary"
           className="mg1l"
           onClick={
-            isDirectory ? this.mergeAll : this.overwriteAll
+            this.rename
+          }
+        >
+          rename
+        </Button>
+        <div className="pd1t" />
+        <Button
+          type="ghost"
+          className="mg1l"
+          title={
+            isDirectory
+              ? 'merge rest conflict folders'
+              : 'overwrite rest conflict files'
+          }
+          onClick={
+            this.mergeOrOverwriteAll
           }
         >
           {isDirectory ? 'merge all' : 'overwrite all'}
+        </Button>
+        <Button
+          type="primary"
+          className="mg1l"
+          title="rename rest files/folders"
+          onClick={
+            this.renameAll
+          }
+        >
+          rename all
         </Button>
       </div>
     )
