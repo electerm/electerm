@@ -9,9 +9,9 @@ import moment from 'moment'
 import copy from 'json-deep-copy'
 import _ from 'lodash'
 import Input from '../common/input-auto-focus'
+import resolve from '../../common/resolve'
 
 const {getGlobal} = window
-const resolve = getGlobal('resolve')
 
 export default class FileSection extends React.Component {
 
