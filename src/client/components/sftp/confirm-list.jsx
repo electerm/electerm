@@ -8,6 +8,9 @@ import _ from 'lodash'
 import copy from 'json-deep-copy'
 import {generate} from 'shortid'
 
+const {getGlobal} = window
+let resolve = getGlobal('resolve')
+
 export default class Confirms extends React.Component {
 
   constructor(props) {
@@ -16,8 +19,7 @@ export default class Confirms extends React.Component {
       currentFile: props.files[0] || null,
       files: [],
       index: 0,
-      transferList: [],
-      renameFunctions: []
+      transferList: []
     }
   }
 
@@ -29,27 +31,25 @@ export default class Confirms extends React.Component {
     }
   }
 
+  setStateAsync = (props) => {
+    return new Promise((resolve) => {
+      this.setState(props, resolve)
+    })
+  }
+
   submit = () => {
 
   }
 
-  checkNextFile = () => {
-
-  }
-
-  skip = () => {
-    let {index, files} = this.state
-    index ++
-    let currentFile = files[index]
-    if (!currentFile) {
-      this.setState({
-        currentFile
-      }, this.submit)
-    }
+  skip = async () => {
+    let update = await this.getNextIndex(this.state.index)
+    this.setState(update)
   }
 
   cancel = () => {
-    this.rebuildState({files: []})
+    this.props.modifier({
+      filesToConfirm: []
+    })
   }
 
   getNewName = (path) => {
@@ -66,21 +66,124 @@ export default class Confirms extends React.Component {
     return 'renamed__' + generate() + '__' + name
   }
 
-  rename = () => {
+  localCheckExist = async (path) => {
+    let fs = getGlobal('fs')
+    return await fs.accessAsync(path)
+      .then(() => true)
+      .catch(() => false)
+  }
+
+  remoteCheckExist = async (path) => {
+    let {sftp} = this.props
+    return await sftp.lstat(path)
+      .then(() => true)
+      .catch(() => false)
+  }
+
+  checkExist = async (type, path) => {
+    let otherType = type === 'local'
+      ? 'remote'
+      : 'local'
+    return await this[otherType + 'CheckExist'](path)
+  }
+
+  checkFileExist = async file => {
+    let {
+      type,
+      path
+    } = file
+    let otherType = type === 'local'
+      ? 'remote'
+      : 'local'
+    let basePath = this.props[type + 'Path']
+    let beforePath = resolve(path, name)
+    let reg = new RegExp('^' + basePath)
+    let otherPath = this.props[otherType + 'Path']
+    let targetPath = beforePath.replace(reg, otherPath)
+    return await this.checkExist(type, targetPath)
+  }
+
+  getNextIndex = async (currentIndex) => {
+    let index = currentIndex + 1
+    let currentFile = this.state.files[index] || null
+    if (!currentFile) {
+      return {index, currentFile}
+    }
+    let {
+      type,
+      path
+    } = currentFile
+    let otherType = type === 'local'
+      ? 'remote'
+      : 'local'
+    let basePath = this.props[type + 'Path']
+    let beforePath = resolve(path, name)
+    let reg = new RegExp('^' + basePath)
+    let otherPath = this.props[otherType + 'Path']
+    let targetPath = beforePath.replace(reg, otherPath)
+    let exist = await this.checkExist(type, targetPath)
+    if (exist) {
+      return {index, currentFile}
+    } else {
+      let i = currentIndex + 1
+      let {files} = this.state
+      for (;;) {
+        let f = files[i]
+        let {path} = f
+        if (path.startWith(beforePath)) {
+          i++
+        } else {
+          break
+        }
+      }
+      return this.getNextIndex(i)
+    }
+  }
+
+  rename = async () => {
     let {
       name,
       type,
-      path,
-      isDirectory
+      isDirectory,
+      path
     } = this.state.currentFile
-    let newName = this.getNewName(path)
-    let renameFunctions = copy(this.state.renameFunctions)
-    let reg = new RegExp(`${name}$`)
-    let str1 = newName.replace(
-      reg, this.buildNewName(name, isDirectory)
-    )
-    renameFunctions.push(n => {
-      return n.replace(newName, str1)
+    let {index, files} = this.state
+    let newName = this.buildNewName(name, isDirectory)
+    let otherType = type === 'local'
+      ? 'remote'
+      : 'local'
+    let basePath = this.props[type + 'Path']
+    let targetPath = this.props[otherType + 'Path']
+    let beforePath = resolve(path, name)
+    let newPath = resolve(path, newName)
+    let reg = new RegExp('^' + basePath)
+    let reg1 = new RegExp('^' + beforePath)
+    let i = index + 0
+    let transferList = copy(this.state.transferList)
+    for (;;i ++) {
+      let f = files[i]
+      let {path, name, type} = f
+      if (!path.startWith(path)) {
+        break
+      }
+      let p = resolve(path, name)
+      let np = p.replace(reg1, newPath)
+      let t = np.replace(reg, targetPath)
+      let isLocal = type === 'local'
+      transferList.push({
+        localPath: isLocal ? p : t,
+        remotePath: isLocal ? t : p,
+        id: generate(),
+        percent: 0,
+        file: f,
+        type: type === 'remote' ? 'download' : 'upload'
+      })
+    }
+
+    let update = await this.getNextIndex(i)
+    this.setState({
+      ...update,
+      transferList
     })
     /*
     {
@@ -113,13 +216,33 @@ export default class Confirms extends React.Component {
     })
   }
 
-  rebuildState = nextProps => {
+  rebuildState = async nextProps => {
     let {files} = nextProps
-    this.setState({
-      currentFile: copy(files[0] || null),
-      files,
-      index: 0,
+    let firstFile = files[0] || null
+    if (!firstFile) {
+      return this.setState({
+        currentFile: null
+      })
+    }
+    let exist = await this.checkFileExist(firstFile)
+    if (exist) {
+      return this.setState({
+        currentFile: firstFile,
+        files,
+        index: 0,
+        transferList: []
+      })
+    }
+
+    await this.setStateAsync({
       transferList: []
+    })
+
+    let update = this.getNextIndex(0)
+
+    this.setState({
+      ...update,
+      files
     })
   }
 

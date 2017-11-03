@@ -111,7 +111,7 @@ export default class Sftp extends React.Component {
           ..._.pick(r, ['name', 'size', 'accessTime', 'modifyTime']),
           isDirectory: r.type === 'd',
           type: 'remote',
-          path: resolve(remotePath, r.name)
+          path: remotePath
         }
       }).sort(sorter)
       let update = {
@@ -177,60 +177,9 @@ export default class Sftp extends React.Component {
 
   timers = {}
 
-  transferOrEnterDirectory = (item, e) => {
-    if (item.isDirectory) {
-      e.stopPropagation()
-      let {type, name} = item
-      let resolve = getGlobal('resolve')
-      let n = `${type}Path`
-      let path = this.state[n]
-      let np = resolve(path, name)
-      this.setState({
-        [n]: np,
-        [n + 'Temp']: np
-      }, this[`${type}List`])
-    } else {
-      this.transfer(item, e)
-    }
-  }
-
   onChange = (e, prop) => {
     this.setState({
       [prop]: e.target.value
-    })
-  }
-
-  addTransport = t => {
-    let transports = copy(this.state.transports)
-    if (
-      _.some(transports, x => {
-        return x.localPath === t.localPath &&
-          x.remotePath === t.remotePath
-      })
-    ) {
-      return
-    }
-    transports.push(t)
-    this.setState({
-      transports
-    })
-  }
-
-  transfer = async (file) => {
-    let {type, name} = file
-    let rPAth = this.state.remotePath
-    let lPath = this.state.localPath
-    let resolve = getGlobal('resolve')
-    let fr = resolve(rPAth, name)
-    let fl = resolve(lPath, name)
-    this.addTransport({
-      localPath: fl,
-      remotePath: fr,
-      id: generate(),
-      groupId: generate(),
-      percent: 0,
-      file,
-      type: type === 'remote' ? 'download' : 'upload'
     })
   }
 
@@ -262,13 +211,11 @@ export default class Sftp extends React.Component {
       type,
       rootModifier: this.props.modifier,
       ..._.pick(this, [
-        'transfer',
         'sftp',
         'modifier',
         'localList',
         'remoteList',
-        'onGoto',
-        'transferOrEnterDirectory'
+        'onGoto'
       ]),
       ..._.pick(this.state, [
         'localPath',

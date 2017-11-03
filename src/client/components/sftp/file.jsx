@@ -31,12 +31,6 @@ export default class FileSection extends React.Component {
     }
   }
 
-  setStateAsync = (props) => {
-    return new Promise((resolve) => {
-      this.setState(props, resolve)
-    })
-  }
-
   doRename = () => {
     let file = copy(this.state.file)
     file.nameTemp = file.name
@@ -145,68 +139,25 @@ export default class FileSection extends React.Component {
     })
   }
 
-  transferOrEnterDirectory = e => {
-    return this.props.transferOrEnterDirectory(
-      this.props.file, e
-    )
+  enterDirectory = e => {
+    e.stopPropagation()
+    let {type, name} = this.state.file
+    let resolve = getGlobal('resolve')
+    let n = `${type}Path`
+    let path = this.props[n]
+    let np = resolve(path, name)
+    this.props.modifier({
+      [n]: np,
+      [n + 'Temp']: np
+    }, this.props[`${type}List`])
   }
 
-  localCheckExist = async () => {
-    let {localPath} = this.props
-    let fs = getGlobal('fs')
-    let {name} = this.props.file
-    let p = resolve(localPath, name)
-    return await fs.accessAsync(p)
-      .then(() => true)
-      .catch(() => false)
-  }
-
-  remoteCheckExist = async () => {
-    let {remotePath} = this.props
-    let {name} = this.props.file
-    let p = resolve(remotePath, name)
-    let {sftp} = this.props
-    return await sftp.lstat(p)
-      .then(() => true)
-      .catch(() => false)
-  }
-
-  checkExist = async () => {
-    let {type} = this.props.file
-    let otherType = type === 'local'
-      ? 'remote'
-      : 'local'
-    return await this[otherType + 'CheckExist']()
-  }
-
-  renderConfirmBody = () => {
-    return ' '
-  }
-
-  onConfirm = () => {
-
-  }
-
-  cancel = () => {
-
-  }
-
-
-
-  checkConfirm = async () => {
-
-  }
-
-  setModalPropsAsync = (confirmModalProps) => {
-    return new Promise((resolve) => {
-      this.props.rootModifier({
-        confirmModalProps
-      }, resolve)
-    })
-  }
-
-  closeConfirmModal = () => {
-    this.setModalPropsAsync({})
+  transferOrEnterDirectory = (e) => {
+    let {isDirectory} = this.state.file
+    if (isDirectory) {
+      return this.enterDirectory(e)
+    }
+    this.transfer()
   }
 
   getTransferList = async (file) => {
@@ -224,28 +175,16 @@ export default class FileSection extends React.Component {
     return res
   }
 
-  openOverwriteConfirm = async () => {
-    let filesToConfirm = await this.getTransferList(
-      this.state.file
-    )
-    this.modifier({
-      filesToConfirm
+  transfer = async () => {
+    let arr = await this.getTransferList(this.state.file)
+    this.props.modifier({
+      filesToConfirm: arr
     })
   }
 
-  transfer = async () => {
-    let shouldShouConfirm = await this.checkExist()
-    if (shouldShouConfirm) {
-      return this.checkConfirm(this.state.file)
-    }
-    this.props.transfer(
-      this.props.file
-    )
-  }
-
-  doTransferOrEnterDirectory = (e) => {
+  doEnterDirectory = (e) => {
     this.props.closeContextMenu()
-    this.transferOrEnterDirectory(e)
+    this.enterDirectory(e)
   }
 
   localDel = async (file) => {
@@ -337,7 +276,7 @@ export default class FileSection extends React.Component {
             ? (
               <div
                 className="pd2x pd1y context-item pointer"
-                onClick={this.doTransferOrEnterDirectory}
+                onClick={this.doEnterDirectory}
               >
                 <Icon type="enter" /> enter
               </div>
