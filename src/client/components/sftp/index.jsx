@@ -6,6 +6,7 @@ import _ from 'lodash'
 import Tranports from './transports'
 import copy from 'json-deep-copy'
 import FileSection from './file'
+import resolve from '../../common/resolve'
 import './sftp.styl'
 
 const {getGlobal} = window
@@ -128,7 +129,6 @@ export default class Sftp extends React.Component {
       localLoading: true
     })
     try {
-      let resolve = getGlobal('resolve')
       let noPathInit = this.state.localPath
       let localPath = noPathInit || getGlobal('homeOrtmp')
       let locals = await fs.readdirAsync(localPath)
@@ -166,7 +166,6 @@ export default class Sftp extends React.Component {
     if (item.isDirectory) {
       e.stopPropagation()
       let {type, name} = item
-      let resolve = getGlobal('resolve')
       let n = `${type}Path`
       let path = this.state[n]
       let np = resolve(path, name)
@@ -205,7 +204,6 @@ export default class Sftp extends React.Component {
     let {type, name} = file
     let rPAth = this.state.remotePath
     let lPath = this.state.localPath
-    let resolve = getGlobal('resolve')
     let fr = resolve(rPAth, name)
     let fl = resolve(lPath, name)
     this.addTransport({
@@ -227,7 +225,6 @@ export default class Sftp extends React.Component {
   }
 
   goParent = (type) => {
-    let resolve = getGlobal('resolve')
     let n = `${type}Path`
     let p = this.state[n]
     let np = resolve(p, '..')
