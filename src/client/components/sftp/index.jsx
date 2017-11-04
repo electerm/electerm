@@ -4,14 +4,15 @@ import {generate} from 'shortid'
 import {Col, Row, Input, Icon, Tooltip, Spin} from  'antd'
 import _ from 'lodash'
 import Tranports from './transports'
-import copy from 'json-deep-copy'
 import FileSection from './file'
 import Confirms from './confirm-list'
+import resolve from '../../common/resolve'
+
 import './sftp.styl'
 
 const {getGlobal} = window
 const fs = getGlobal('fs')
-let resolve = getGlobal('resolve')
+
 const sorter = (a, b) => {
   let aa = (a.isDirectory ? 0 : 1) + a.name
   let bb = (b.isDirectory ? 0 : 1) + b.name
@@ -84,7 +85,7 @@ export default class Sftp extends React.Component {
     let Client = getGlobal('Ftp')
     if (!Client) return
 
-    let sftp = new Client()
+    let sftp = this.sftp || new Client()
     let {tab} = this.props
     let {username} = tab
     let remotePath = username === 'root'
@@ -139,7 +140,6 @@ export default class Sftp extends React.Component {
       })
     }
     try {
-
       let noPathInit = localPathReal || this.state.localPath
       let localPath = noPathInit || getGlobal('homeOrtmp')
       let locals = await fs.readdirAsync(localPath)
@@ -192,7 +192,6 @@ export default class Sftp extends React.Component {
   }
 
   goParent = (type) => {
-    let resolve = getGlobal('resolve')
     let n = `${type}Path`
     let p = this.state[n]
     let np = resolve(p, '..')
