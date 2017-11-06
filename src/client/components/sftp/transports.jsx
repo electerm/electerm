@@ -31,7 +31,7 @@ export default class Transports extends React.Component {
     })
   }
 
-  rebuildState = nextProps => {
+  rebuildState = (nextProps = this.props) => {
     let {transports} = nextProps
     let {currentTransport} = this.state
     let has = _.find(transports, t => t.id === _.get(currentTransport, 'id'))
@@ -62,6 +62,7 @@ export default class Transports extends React.Component {
                 key={t.id + ':tr:' + i}
                 {...this.props}
                 currentTransport={currentTransport}
+                index={i}
               />
             )
           })

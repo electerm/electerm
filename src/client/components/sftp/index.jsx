@@ -152,7 +152,7 @@ export default class Sftp extends React.Component {
           accessTime: stat.atime,
           modifyTime: stat.mtime,
           type: 'local',
-          path: resolve(localPath, name),
+          path: localPath,
           isDirectory: stat.isDirectory()
         })
       }

@@ -7,6 +7,7 @@ import {Modal, Icon, Button} from 'antd'
 import _ from 'lodash'
 import copy from 'json-deep-copy'
 import {generate} from 'shortid'
+import Trigger from './file-transfer-trigger'
 
 const {getGlobal} = window
 let resolve = getGlobal('resolve')
@@ -23,7 +24,12 @@ export default class Confirms extends React.Component {
     }
   }
 
+  componentWillMount() {
+    this.rebuildState()
+  }
+
   componentWillReceiveProps(nextProps) {
+    debug(nextProps.files, 'nextProps.files')
     if (
       !_.isEqual(this.props.files, nextProps.files)
     ) {
@@ -39,6 +45,7 @@ export default class Confirms extends React.Component {
 
   submit = () => {
     this.props.modifier({
+      filesToConfirm: [],
       transports: this.state.transferList
     })
   }
@@ -77,9 +84,10 @@ export default class Confirms extends React.Component {
 
   remoteCheckExist = async (path) => {
     let {sftp} = this.props
-    return await sftp.lstat(path)
+    let res = await sftp.lstat(path)
       .then(() => true)
       .catch(() => false)
+    return res
   }
 
   checkExist = async (type, path) => {
@@ -92,7 +100,8 @@ export default class Confirms extends React.Component {
   checkFileExist = async file => {
     let {
       type,
-      path
+      path,
+      name
     } = file
     let otherType = type === 'local'
       ? 'remote'
@@ -115,6 +124,18 @@ export default class Confirms extends React.Component {
       file,
       type: type === 'remote' ? 'download' : 'upload'
     }
+  }
+
+  createTransfer = file => {
+    let {name, path, type} = file
+    let startPath = resolve(path, name)
+    let targetPath = this.getTargetPath(file)
+    let isLocal = type === 'local'
+    return this.buildTransfer({
+      file,
+      localPath: isLocal ? startPath : targetPath,
+      remotePath: isLocal ? targetPath : startPath
+    })
   }
 
   getNextIndex = async (currentIndex = this.state.index) => {
@@ -145,15 +166,7 @@ export default class Confirms extends React.Component {
       for (;;) {
         let f = files[i]
         if (path.startWith(beforePath)) {
-          let {path, name} = f
-          let targetPath = this.getTargetPath(f)
-          let isLocal = type === 'local'
-          let pathStart = resolve(path, name)
-          transferList.push(this.buildTransfer({
-            file: f,
-            localPath: isLocal ? pathStart : targetPath,
-            remotePath: isLocal ? targetPath : pathStart
-          }))
+          transferList.push(this.createTransfer(f))
           i++
         } else {
           break
@@ -321,8 +334,9 @@ export default class Confirms extends React.Component {
     })
   }
 
-  rebuildState = async nextProps => {
+  rebuildState = async (nextProps = this.props) => {
     let {files} = nextProps
+    debug(files, 'files in rebuildState')
     let firstFile = files[0] || null
     if (!firstFile) {
       return this.setState({
@@ -340,7 +354,7 @@ export default class Confirms extends React.Component {
     }
 
     await this.setStateAsync({
-      transferList: []
+      transferList: [this.createTransfer(firstFile)]
     })
 
     let update = await this.getNextIndex(0)
@@ -429,29 +443,59 @@ export default class Confirms extends React.Component {
       type,
       isDirectory,
       name,
-      path
+      path,
+      targetPath
     } = currentFile
+    let from = resolve(path, name)
+    let action = isDirectory ? 'merge' : 'replace'
+    let typeTxt = isDirectory ? 'folder' : 'file'
+    let typeTitle = type === 'local' ? 'remote' : 'local'
     return (
-      <div className="confirms-content">
-        <Icon type="info-circle-o" className="confirm-icon-bg" />
+      <div className="confirms-content-wrap">
+        <Icon type={typeTxt} className="confirm-icon-bg" />
+        <div className="confirms-content">
+          <p>
+            {action}
+          </p>
+          <p className="bold">
+            {typeTitle} {typeTxt}: {name} ({targetPath})
+          </p>
+          <p>
+            with
+          </p>
+          <p className="bold">
+            {from}
+          </p>
+        </div>
       </div>
     )
   }
 
   render() {
-    let {currentFile} = this.state
+    let {currentFile, index, files} = this.state
     let props = {
       visible: !!currentFile,
       width: 500,
       title: 'file conflict',
-      footer: this.renderFooter()
+      footer: this.renderFooter(),
+      onCancel: this.onCancel
+    }
+    let triggerProps = {
+      submit: this.submit,
+      index,
+      files
     }
     return (
-      <Modal
-        {...props}
-      >
-        {this.renderContent()}
-      </Modal>
+      <div>
+        <Modal
+          {...props}
+        >
+          {this.renderContent()}
+        </Modal>
+        <Trigger
+          {...triggerProps}
+        />
+      </div>
     )
   }
 }
