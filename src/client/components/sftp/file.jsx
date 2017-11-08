@@ -165,9 +165,9 @@ export default class FileSection extends React.Component {
     if (!isDirectory) {
       return [file]
     }
-    let p = resolve(p, name)
-    let files = await this.props[`${type}List`](true, path)
-    let res = []
+    let p = resolve(path, name)
+    let files = await this.props[`${type}List`](true, p)
+    let res = [file]
     for (let f of files) {
       let cs = await this.getTransferList(f)
       res = [...res, ...cs]

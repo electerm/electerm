@@ -101,10 +101,12 @@ export default class Sftp extends React.Component {
       })
     }
     try {
-      await sftp.connect({
-        ...tab,
-        readyTimeout: 50000
-      })
+      if (!this.sftp) {
+        await sftp.connect({
+          ...tab,
+          readyTimeout: 50000
+        })
+      }
       let remote = await sftp.list(remotePath)
       this.sftp = sftp
       remote = remote.map(r => {

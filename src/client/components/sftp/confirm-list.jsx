@@ -44,9 +44,13 @@ export default class Confirms extends React.Component {
   }
 
   submit = () => {
+    let {transports} = this.props
     this.props.modifier({
       filesToConfirm: [],
-      transports: this.state.transferList
+      transports: [
+        ...transports,
+        ...this.state.transferList
+      ]
     })
   }
 
@@ -165,7 +169,7 @@ export default class Confirms extends React.Component {
       let {files} = this.state
       for (;;) {
         let f = files[i]
-        if (path.startWith(beforePath)) {
+        if (path.startsWith(beforePath)) {
           transferList.push(this.createTransfer(f))
           i++
         } else {
@@ -224,9 +228,9 @@ export default class Confirms extends React.Component {
     let i = index + 0
     let transferList = copy(this.state.transferList)
     for (;;i ++) {
-      let f = files[i]
+      let f = files[i] || {}
       let {path, name, type} = f
-      if (!path.startWith(path)) {
+      if (!path || !path.startsWith(path)) {
         break
       }
       let p = resolve(path, name)
