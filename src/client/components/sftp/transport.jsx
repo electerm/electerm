@@ -5,9 +5,9 @@ import React from 'react'
 import {Icon} from 'antd'
 import copy from 'json-deep-copy'
 import _ from 'lodash'
+import resolve from '../../common/resolve'
 
 const {getGlobal} = window
-let resolve = getGlobal('resolve')
 
 const typeIconMap = {
   upload: 'arrow-up',
@@ -102,7 +102,7 @@ export default class Tranporter extends React.Component {
       let fs = getGlobal('fs')
       return fs.mkdirAsync(localPath)
     }
-    return this.sftp.mkdir(remotePath)
+    return this.props.sftp.mkdir(remotePath)
   }
 
   startTransfer = async () => {
@@ -159,7 +159,7 @@ export default class Tranporter extends React.Component {
       let pp = resolve(p, name)
       let isDirectory = _.get(t, 'file.isDirectory')
       if (
-        path.startWith(pp) &&
+        path.startsWith(pp) &&
         isDirectory &&
         currentTransport.id !== t.id
       ) {

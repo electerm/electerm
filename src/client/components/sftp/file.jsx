@@ -142,7 +142,6 @@ export default class FileSection extends React.Component {
   enterDirectory = e => {
     e.stopPropagation()
     let {type, name} = this.state.file
-    let resolve = getGlobal('resolve')
     let n = `${type}Path`
     let path = this.props[n]
     let np = resolve(path, name)
