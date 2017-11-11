@@ -130,6 +130,9 @@ export default class Sftp extends React.Component {
       }
       this.setState(update)
     } catch(e) {
+      this.setState({
+        remoteLoading: false
+      })
       this.onError(e)
     }
   }

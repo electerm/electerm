@@ -101,8 +101,10 @@ export default class Tranporter extends React.Component {
     if (isDown) {
       let fs = getGlobal('fs')
       return fs.mkdirAsync(localPath)
+        .catch(this.onError)
     }
     return this.props.sftp.mkdir(remotePath)
+      .catch(this.onError)
   }
 
   startTransfer = async () => {

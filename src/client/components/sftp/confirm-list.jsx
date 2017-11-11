@@ -30,7 +30,6 @@ export default class Confirms extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    debug(nextProps.files, 'nextProps.files')
     if (
       !_.isEqual(this.props.files, nextProps.files)
     ) {
@@ -64,13 +63,18 @@ export default class Confirms extends React.Component {
 
   submit = () => {
     let {transports} = this.props
-    this.props.modifier({
-      filesToConfirm: [],
-      transports: [
-        ...transports,
-        ...this.state.transferList
-      ]
+    this.setStateProxy({
+      files: []
+    }, () => {
+      this.props.modifier({
+        filesToConfirm: [],
+        transports: [
+          ...transports,
+          ...this.state.transferList
+        ]
+      })
     })
+
   }
 
   skip = async () => {
@@ -167,7 +171,7 @@ export default class Confirms extends React.Component {
     let len = transferList.length
     for(let i = len - 1;i >= 0;i --) {
       let t = transferList[i]
-      if (path.startsWith(t.file.path)) {
+      if (path === resolve(t.file.path, t.file.name)) {
         return t
       }
     }
@@ -182,7 +186,7 @@ export default class Confirms extends React.Component {
     }
     let {
       type,
-      path
+      name
     } = currentFile
     let transferList = copy(this.state.transferList)
     let otherType = type === 'local'
@@ -191,8 +195,7 @@ export default class Confirms extends React.Component {
     let transport = this.findParentTransport(currentFile)
     let targetPath
     if (transport) {
-      let rest = path.replace(transport.file.path, '')
-      targetPath = transport[otherType + 'Path'] + rest
+      targetPath = resolve(transport[otherType + 'Path'], name)
     } else {
       targetPath = this.getTargetPath(currentFile)
     }
@@ -244,7 +247,7 @@ export default class Confirms extends React.Component {
       ? 'remote'
       : 'local'
     let basePath = this.props[type + 'Path']
-    let targetPath = this.props[otherType + 'Path']
+    let repPath = this.props[otherType + 'Path']
     let beforePath = resolve(bp, name)
     let newPath = resolve(bp, newName)
     let reg = new RegExp('^' + basePath)
@@ -254,12 +257,15 @@ export default class Confirms extends React.Component {
     for (;;i ++) {
       let f = files[i] || {}
       let {path, name, type} = f
-      if (!path || !path.startsWith(bp)) {
+      if (
+        !path ||
+        (!path.startsWith(beforePath) && i > index)
+      ) {
         break
       }
       let p = resolve(path, name)
       let np = p.replace(reg1, newPath)
-      let t = np.replace(reg, targetPath)
+      let t = np.replace(reg, repPath)
       let isLocal = type === 'local'
       transferList.push({
         localPath: isLocal ? p : t,
@@ -271,8 +277,7 @@ export default class Confirms extends React.Component {
       })
     }
     await this.setStateAsync({
-      transferList,
-      index: i
+      transferList
     })
     let update = await this.getNextIndex(i)
     if (shouldReturn) {
@@ -307,18 +312,17 @@ export default class Confirms extends React.Component {
   }
 
   mergeOrOverwrite = async () => {
-    let {currentFile} = this.state
+    let {currentFile, index} = this.state
     let {isDirectory} = currentFile
     let transferList = copy(this.state.transferList)
-    let exist = await this.checkFileExist(currentFile)
-    if (!exist || !isDirectory) {
+    if (!isDirectory) {
       transferList.push(this.createTransfer(currentFile))
+      await this.setStateAsync({
+        transferList
+      })
     }
-    await this.setStateAsync({
-      transferList
-    })
-    let update = await this.getNextIndex()
-    await this.setStateAsync(update)
+    let update = await this.getNextIndex(index)
+    this.setStateAsync(update)
   }
 
   mergeOrOverwriteAll = async () => {
@@ -349,7 +353,6 @@ export default class Confirms extends React.Component {
 
   rebuildState = async (nextProps = this.props) => {
     let {files} = nextProps
-    debug(files, 'files in rebuildState')
     let firstFile = files[0] || null
     if (!firstFile) {
       return this.setStateProxy({
@@ -377,13 +380,14 @@ export default class Confirms extends React.Component {
   }
 
   renderFooter() {
-    let {currentFile} = this.state
+    let {currentFile, index, files} = this.state
     if (!currentFile) {
       return null
     }
     let {isDirectory} = currentFile
+    let hasMoreFile = index < files.length - 1
     return (
-      <div className="bordert mgq1t pd1y alignright">
+      <div className="mgq1t pd1y alignright">
         <Button
           type="ghost"
           className="mg1l"
@@ -402,7 +406,7 @@ export default class Confirms extends React.Component {
           type="primary"
           className="mg1l"
           onClick={
-            this.overwriteOrOverwrite
+            this.mergeOrOverwrite
           }
         >
           {isDirectory ? 'merge' : 'overwrite'}
@@ -417,30 +421,42 @@ export default class Confirms extends React.Component {
           rename
         </Button>
         <div className="pd1t" />
-        <Button
-          type="ghost"
-          className="mg1l"
-          title={
-            isDirectory
-              ? 'merge rest conflict folders'
-              : 'overwrite rest conflict files'
-          }
-          onClick={
-            this.mergeOrOverwriteAll
-          }
-        >
-          {isDirectory ? 'merge all' : 'overwrite all'}
-        </Button>
-        <Button
-          type="primary"
-          className="mg1l"
-          title="rename rest files/folders"
-          onClick={
-            this.renameAll
-          }
-        >
-          rename all
-        </Button>
+        {
+          hasMoreFile
+            ? (
+              <Button
+                type="ghost"
+                className="mg1l"
+                title={
+                  isDirectory
+                    ? 'merge rest conflict folders'
+                    : 'overwrite rest conflict files'
+                }
+                onClick={
+                  this.mergeOrOverwriteAll
+                }
+              >
+                {isDirectory ? 'merge all' : 'overwrite all'}
+              </Button>
+            )
+            : null
+        }
+        {
+          hasMoreFile
+            ? (
+              <Button
+                type="primary"
+                className="mg1l"
+                title="rename rest files/folders"
+                onClick={
+                  this.renameAll
+                }
+              >
+                rename all
+              </Button>
+            )
+            : null
+        }
       </div>
     )
   }
@@ -454,30 +470,38 @@ export default class Confirms extends React.Component {
       type,
       isDirectory,
       name,
-      path,
-      targetPath
+      path
     } = currentFile
+    let otherType = type === 'local' ? 'remote' : 'local'
+    let targetPath = this.createTransfer(currentFile)[otherType + 'Path']
     let from = resolve(path, name)
     let action = isDirectory ? 'merge' : 'replace'
     let typeTxt = isDirectory ? 'folder' : 'file'
     let typeTitle = type === 'local' ? 'remote' : 'local'
+    let otherTypeTitle = type === 'remote' ? 'remote' : 'local'
     return (
       <div className="confirms-content-wrap">
-        <Icon type={typeTxt} className="confirm-icon-bg" />
-        <div className="confirms-content">
-          <p>
-            {action}
-          </p>
-          <p className="bold">
-            {typeTitle} {typeTxt}: {name} ({targetPath})
-          </p>
-          <p>
-            with
-          </p>
-          <p className="bold">
-            {from}
-          </p>
-        </div>
+        <p className="pd1b color-red font13">
+          {action}
+        </p>
+        <p className="bold font14">
+          {typeTitle} {typeTxt}: <Icon type={typeTxt} className="mg1r" />{name}
+        </p>
+        <p className="pd1b">
+          ({targetPath})
+        </p>
+        <p>
+          with
+        </p>
+        <p className="bold font14">
+          {otherTypeTitle} {typeTxt}: <Icon type={typeTxt} className="mg1r" />{name}
+        </p>
+        <p className="pd1b">
+          ({from})
+        </p>
+        <p className="bold font14">
+          {from}
+        </p>
       </div>
     )
   }

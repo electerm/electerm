@@ -10,6 +10,7 @@ import copy from 'json-deep-copy'
 import _ from 'lodash'
 import Input from '../common/input-auto-focus'
 import resolve from '../../common/resolve'
+import wait from '../../common/wait'
 
 const {getGlobal} = window
 
@@ -76,7 +77,9 @@ export default class FileSection extends React.Component {
       .then(() => true)
       .catch(this.props.onError)
     if (res) {
-      this.props.remoteList()
+      //await this.props.remoteList()
+      await wait(500)
+      await this.props.remoteList()
     }
   }
 
@@ -207,7 +210,8 @@ export default class FileSection extends React.Component {
       : sftp.rm
     let p = resolve(remotePath, name)
     await func(p).catch(this.props.onError)
-    this.props.remoteList()
+    await wait(500)
+    await this.props.remoteList()
   }
 
   refresh = () => {
