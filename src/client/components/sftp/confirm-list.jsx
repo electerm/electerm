@@ -99,7 +99,7 @@ export default class Confirms extends React.Component {
     if (isDirectory) {
       return name + '__renamed__' + generate()
     }
-    return 'renamed__' + generate() + '__' + name
+    return generate() + '__' + 'renamed__' + name
   }
 
   localCheckExist = async (path) => {
