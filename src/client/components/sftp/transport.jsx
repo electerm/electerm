@@ -5,6 +5,9 @@ import React from 'react'
 import {Icon} from 'antd'
 import copy from 'json-deep-copy'
 import _ from 'lodash'
+import resolve from '../../common/resolve'
+
+const {getGlobal} = window
 
 const typeIconMap = {
   upload: 'arrow-up',
@@ -88,6 +91,22 @@ export default class Tranporter extends React.Component {
     )
   }
 
+  mkdir = async (transport) => {
+    let {
+      type,
+      localPath,
+      remotePath
+    } = transport
+    let isDown = type === 'download'
+    if (isDown) {
+      let fs = getGlobal('fs')
+      return fs.mkdirAsync(localPath)
+        .catch(this.onError)
+    }
+    return this.props.sftp.mkdir(remotePath)
+      .catch(this.onError)
+  }
+
   startTransfer = async () => {
     let {id} = this.props.transport
     let {currentTransport} = this.props
@@ -98,8 +117,16 @@ export default class Tranporter extends React.Component {
       let {
         type,
         localPath,
-        remotePath
+        remotePath,
+        file: {
+          isDirectory
+        }
       } = this.props.transport
+      if (isDirectory) {
+        return this.mkdir(this.props.transport)
+          .then(this.onEnd)
+          .catch(this.onError)
+      }
       this.transport = this.props.sftp[type]({
         remotePath,
         localPath,
@@ -123,6 +150,27 @@ export default class Tranporter extends React.Component {
     }, _.isFunction(callback) ? callback : undefined)
   }
 
+  buildCls(file = {}) {
+    let {index, transports, currentTransport} = this.props
+    let {path} = file
+    let shouldHide = false
+    for (let i = index - 1;i >= 0;i --) {
+      let t = transports[i] || {}
+      let p = _.get(t, 'file.path') || ''
+      let name = _.get(t, 'file.name') || ''
+      let pp = resolve(p, name)
+      let isDirectory = _.get(t, 'file.isDirectory')
+      if (
+        path.startsWith(pp) &&
+        isDirectory &&
+        currentTransport.id !== t.id
+      ) {
+        shouldHide = false
+      }
+    }
+    return `sftp-transport mg1b pd1x ${shouldHide ? 'hide' : ''}`
+  }
+
   render() {
     let {
       localPath,
@@ -130,15 +178,17 @@ export default class Tranporter extends React.Component {
       type,
       percent,
       status,
-      pausing = false
+      pausing = false,
+      file
     } = this.props.transport
     let pauseIcon = pausing ? 'play-circle' : 'pause-circle'
     let pauseTitle = pausing ? 'resume' : 'pause'
     let pauseFunc = pausing ? this.resume : this.pause
     let icon = typeIconMap[type]
     let icon2 = typeIconMap2[type]
+    let cls = this.buildCls(file)
     return (
-      <div className="sftp-transport mg1b pd1x">
+      <div className={cls}>
         <Icon type={icon} className="sftp-type-icon iblock mg1r color-blue" />
         <span
           className="sftp-file sftp-local-file elli width200 iblock"
