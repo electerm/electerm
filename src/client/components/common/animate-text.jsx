@@ -1,0 +1,45 @@
+
+/**
+ * animate text when text change
+ */
+
+import {Component} from 'react'
+import PropTypes from 'prop-types'
+import ReactDOM from 'react-dom'
+import './animate-text.styl'
+
+export default class AnimateText extends Component {
+
+  static propTypes = {
+    className: PropTypes.string
+  }
+
+  static defaultProps = {
+    className: 'animate-text-wrap'
+  }
+
+  componentDidUpdate() {
+    let dom = ReactDOM.findDOMNode(this)
+    dom.className = this.props.className + ' animated bounceIn'
+    this.timer = setTimeout(() => {
+      if (dom) {
+        dom.className = this.props.className
+      }
+    }, 450)
+  }
+
+  componentWillUnmount() {
+    clearTimeout(this.timer)
+  }
+
+
+  render () {
+    let {children, className} = this.props
+    return (
+      <div className={className}>
+        {children}
+      </div>
+    )
+
+  }
+}
