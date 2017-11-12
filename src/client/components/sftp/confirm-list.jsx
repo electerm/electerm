@@ -9,6 +9,7 @@ import copy from 'json-deep-copy'
 import {generate} from 'shortid'
 import Trigger from './file-transfer-trigger'
 import resolve from '../../common/resolve'
+import AnimateText from '../common/animate-text'
 
 const {getGlobal} = window
 
@@ -481,27 +482,29 @@ export default class Confirms extends React.Component {
     let otherTypeTitle = type === 'remote' ? 'remote' : 'local'
     return (
       <div className="confirms-content-wrap">
-        <p className="pd1b color-red font13">
-          {action}
-        </p>
-        <p className="bold font14">
-          {typeTitle} {typeTxt}: <Icon type={typeTxt} className="mg1r" />{name}
-        </p>
-        <p className="pd1b">
-          ({targetPath})
-        </p>
-        <p>
-          with
-        </p>
-        <p className="bold font14">
-          {otherTypeTitle} {typeTxt}: <Icon type={typeTxt} className="mg1r" />{name}
-        </p>
-        <p className="pd1b">
-          ({from})
-        </p>
-        <p className="bold font14">
-          {from}
-        </p>
+        <AnimateText>
+          <p className="pd1b color-red font13">
+            {action}
+          </p>
+          <p className="bold font14">
+            {typeTitle} {typeTxt}: <Icon type={typeTxt} className="mg1r" />{name}
+          </p>
+          <p className="pd1b">
+            ({targetPath})
+          </p>
+          <p>
+            with
+          </p>
+          <p className="bold font14">
+            {otherTypeTitle} {typeTxt}: <Icon type={typeTxt} className="mg1r" />{name}
+          </p>
+          <p className="pd1b">
+            ({from})
+          </p>
+          <p className="bold font14">
+            {from}
+          </p>
+        </AnimateText>
       </div>
     )
   }
