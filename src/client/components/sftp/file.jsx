@@ -13,6 +13,19 @@ import resolve from '../../common/resolve'
 import wait from '../../common/wait'
 
 const {getGlobal} = window
+const computePos = (e, isBg, height) => {
+  let {target} = e
+  let rect = target.getBoundingClientRect()
+  let {clientX, clientY} = e
+  let res = {
+    left: isBg ? rect.left : clientX,
+    top: isBg ? rect.top + 15 : clientY
+  }
+  if (window.innerHeight < res.top + height + 10) {
+    res.top = res.top - height
+  }
+  return res
+} 
 
 export default class FileSection extends React.Component {
 
@@ -77,7 +90,6 @@ export default class FileSection extends React.Component {
       .then(() => true)
       .catch(this.props.onError)
     if (res) {
-      //await this.props.remoteList()
       await wait(500)
       await this.props.remoteList()
     }
@@ -350,17 +362,14 @@ export default class FileSection extends React.Component {
 
   onContextMenu = e => {
     e.preventDefault()
-    let {target} = e
     let {modifyTime} = this.props.file
-    let rect = target.getBoundingClientRect()
-    let {clientX, clientY} = e
     let content = this.renderContext()
+    console.log(content, 'ct')
+    //todo get rid of magic numbers...
+    let height = content.props.children.length * 28 + 10 * 2
     this.props.openContextMenu({
       content,
-      pos: {
-        left: modifyTime ? rect.left : clientX,
-        top: modifyTime ? rect.top + 15 : clientY
-      }
+      pos: computePos(e, modifyTime, height)
     })
   }
 
