@@ -161,7 +161,12 @@ export default class Index extends React.Component {
   }
 
   render() {
-    let {tabs, currentTabId, contextMenuProps, contextMenuVisible} = this.state
+    let {
+      tabs,
+      currentTabId,
+      contextMenuProps,
+      contextMenuVisible
+    } = this.state
     let controlProps = {
       ...this.state,
       ..._.pick(this, [

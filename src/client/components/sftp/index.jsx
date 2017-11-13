@@ -4,13 +4,15 @@ import {generate} from 'shortid'
 import {Col, Row, Input, Icon, Tooltip, Spin} from  'antd'
 import _ from 'lodash'
 import Tranports from './transports'
-import copy from 'json-deep-copy'
 import FileSection from './file'
+import Confirms from './confirm-list'
 import resolve from '../../common/resolve'
+
 import './sftp.styl'
 
 const {getGlobal} = window
 const fs = getGlobal('fs')
+
 const sorter = (a, b) => {
   let aa = (a.isDirectory ? 0 : 1) + a.name
   let bb = (b.isDirectory ? 0 : 1) + b.name
@@ -33,7 +35,8 @@ export default class Sftp extends React.Component {
       remotePath: '',
       localPathTemp: '',
       remotePathTemp: '',
-      transports: []
+      transports: [],
+      filesToConfirm: []
     }
   }
 
@@ -78,35 +81,40 @@ export default class Sftp extends React.Component {
     })
   }
 
-  remoteList = async () => {
+  remoteList = async (returnList = false, remotePathReal) => {
     let Client = getGlobal('Ftp')
     if (!Client) return
 
-    let sftp = new Client()
+    let sftp = this.sftp || new Client()
     let {tab} = this.props
     let {username} = tab
     let remotePath = username === 'root'
       ? '/root'
       : `/home/${tab.username}`
-    let noPathInit = this.state.remotePath
+    let noPathInit = remotePathReal || this.state.remotePath
     if (noPathInit) {
       remotePath = noPathInit
     }
-    this.setState({
-      remoteLoading: true
-    })
-    try {
-      await sftp.connect({
-        ...tab,
-        readyTimeout: 50000
+    if (!returnList) {
+      this.setState({
+        remoteLoading: true
       })
+    }
+    try {
+      if (!this.sftp) {
+        await sftp.connect({
+          ...tab,
+          readyTimeout: 50000
+        })
+      }
       let remote = await sftp.list(remotePath)
       this.sftp = sftp
       remote = remote.map(r => {
         return {
           ..._.pick(r, ['name', 'size', 'accessTime', 'modifyTime']),
           isDirectory: r.type === 'd',
-          type: 'remote'
+          type: 'remote',
+          path: remotePath
         }
       }).sort(sorter)
       let update = {
@@ -117,19 +125,27 @@ export default class Sftp extends React.Component {
         update.remotePath = remotePath
         update.remotePathTemp = remotePath
       }
+      if (returnList) {
+        return remote
+      }
       this.setState(update)
     } catch(e) {
+      this.setState({
+        remoteLoading: false
+      })
       this.onError(e)
     }
   }
 
-  localList = async () => {
+  localList = async (returnList = false, localPathReal) => {
     if (!fs) return
-    this.setState({
-      localLoading: true
-    })
+    if (!returnList) {
+      this.setState({
+        localLoading: true
+      })
+    }
     try {
-      let noPathInit = this.state.localPath
+      let noPathInit = localPathReal || this.state.localPath
       let localPath = noPathInit || getGlobal('homeOrtmp')
       let locals = await fs.readdirAsync(localPath)
       let local = []
@@ -141,6 +157,7 @@ export default class Sftp extends React.Component {
           accessTime: stat.atime,
           modifyTime: stat.mtime,
           type: 'local',
+          path: localPath,
           isDirectory: stat.isDirectory()
         })
       }
@@ -153,6 +170,9 @@ export default class Sftp extends React.Component {
         update.localPath = localPath
         update.localPathTemp = localPath
       }
+      if (returnList) {
+        return local
+      }
       this.setState(update)
     } catch(e) {
       this.onError(e)
@@ -162,57 +182,9 @@ export default class Sftp extends React.Component {
 
   timers = {}
 
-  transferOrEnterDirectory = (item, e) => {
-    if (item.isDirectory) {
-      e.stopPropagation()
-      let {type, name} = item
-      let n = `${type}Path`
-      let path = this.state[n]
-      let np = resolve(path, name)
-      this.setState({
-        [n]: np,
-        [n + 'Temp']: np
-      }, this[`${type}List`])
-    } else {
-      this.transfer(item, e)
-    }
-  }
-
   onChange = (e, prop) => {
     this.setState({
       [prop]: e.target.value
-    })
-  }
-
-  addTransport = t => {
-    let transports = copy(this.state.transports)
-    if (
-      _.some(transports, x => {
-        return x.localPath === t.localPath &&
-          x.remotePath === t.remotePath
-      })
-    ) {
-      return
-    }
-    transports.push(t)
-    this.setState({
-      transports
-    })
-  }
-
-  transfer = async (file) => {
-    let {type, name} = file
-    let rPAth = this.state.remotePath
-    let lPath = this.state.localPath
-    let fr = resolve(rPAth, name)
-    let fl = resolve(lPath, name)
-    this.addTransport({
-      localPath: fl,
-      remotePath: fr,
-      id: fl + ':' +  fr,
-      percent: 0,
-      file,
-      type: type === 'remote' ? 'download' : 'upload'
     })
   }
 
@@ -241,14 +213,13 @@ export default class Sftp extends React.Component {
       ...this.props,
       file,
       type,
+      rootModifier: this.props.modifier,
       ..._.pick(this, [
-        'transfer',
         'sftp',
         'modifier',
         'localList',
         'remoteList',
-        'onGoto',
-        'transferOrEnterDirectory'
+        'onGoto'
       ]),
       ..._.pick(this.state, [
         'localPath',
@@ -376,16 +347,26 @@ export default class Sftp extends React.Component {
   }
 
   render() {
-    let {id, transports} = this.state
+    let {
+      id,
+      transports,
+      filesToConfirm,
+      remotePath,
+      localPath
+    } = this.state
     let {height, onError} = this.props
     let props = {
       transports,
       onError,
+      localPath,
+      remotePath,
       ..._.pick(this, [
         'sftp',
         'modifier',
         'localList',
-        'remoteList'
+        'remoteList',
+        'remotePath',
+        'localPath'
       ])
     }
     return (
@@ -395,6 +376,10 @@ export default class Sftp extends React.Component {
           {this.renderSection('remote')}
         </Row>
         <Tranports
+          {...props}
+        />
+        <Confirms
+          files={filesToConfirm}
           {...props}
         />
       </div>

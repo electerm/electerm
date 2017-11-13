@@ -10,15 +10,30 @@ import copy from 'json-deep-copy'
 import _ from 'lodash'
 import Input from '../common/input-auto-focus'
 import resolve from '../../common/resolve'
+import wait from '../../common/wait'
 
 const {getGlobal} = window
+const computePos = (e, isBg, height) => {
+  let {target} = e
+  let rect = target.getBoundingClientRect()
+  let {clientX, clientY} = e
+  let res = {
+    left: isBg ? rect.left : clientX,
+    top: isBg ? rect.top + 15 : clientY
+  }
+  if (window.innerHeight < res.top + height + 10) {
+    res.top = res.top - height
+  }
+  return res
+} 
 
 export default class FileSection extends React.Component {
 
   constructor(props) {
     super(props)
     this.state = {
-      file: copy(props.file)
+      file: copy(props.file),
+      overwriteStrategy: ''
     }
   }
 
@@ -75,7 +90,8 @@ export default class FileSection extends React.Component {
       .then(() => true)
       .catch(this.props.onError)
     if (res) {
-      this.props.remoteList()
+      await wait(500)
+      await this.props.remoteList()
     }
   }
 
@@ -138,21 +154,51 @@ export default class FileSection extends React.Component {
     })
   }
 
-  transferOrEnterDirectory = e => {
-    return this.props.transferOrEnterDirectory(
-      this.props.file, e
-    )
+  enterDirectory = e => {
+    e.stopPropagation()
+    let {type, name} = this.state.file
+    let n = `${type}Path`
+    let path = this.props[n]
+    let np = resolve(path, name)
+    this.props.modifier({
+      [n]: np,
+      [n + 'Temp']: np
+    }, this.props[`${type}List`])
   }
 
-  doTransferOrEnterDirectory = (e) => {
+  transferOrEnterDirectory = (e) => {
+    let {isDirectory} = this.state.file
+    if (isDirectory) {
+      return this.enterDirectory(e)
+    }
+    this.transfer()
+  }
+
+  getTransferList = async (file) => {
+    let {isDirectory, name, path, type} = file
+    if (!isDirectory) {
+      return [file]
+    }
+    let p = resolve(path, name)
+    let files = await this.props[`${type}List`](true, p)
+    let res = [file]
+    for (let f of files) {
+      let cs = await this.getTransferList(f)
+      res = [...res, ...cs]
+    }
+    return res
+  }
+
+  transfer = async () => {
+    let arr = await this.getTransferList(this.state.file)
+    this.props.modifier({
+      filesToConfirm: arr
+    })
+  }
+
+  doEnterDirectory = (e) => {
     this.props.closeContextMenu()
-    this.transferOrEnterDirectory(e)
-  }
-
-  transfer = e => {
-    return this.props.transfer(
-      this.props.file, e
-    )
+    this.enterDirectory(e)
   }
 
   localDel = async (file) => {
@@ -176,7 +222,8 @@ export default class FileSection extends React.Component {
       : sftp.rm
     let p = resolve(remotePath, name)
     await func(p).catch(this.props.onError)
-    this.props.remoteList()
+    await wait(500)
+    await this.props.remoteList()
   }
 
   refresh = () => {
@@ -191,11 +238,9 @@ export default class FileSection extends React.Component {
     this[type + 'Del'](file)
   }
 
-  doTranfer = () => {
+  doTransfer = () => {
     this.props.closeContextMenu()
-    return this.props.transfer(
-      this.props.file
-    )
+    this.transfer()
   }
 
   newFile = () => {
@@ -246,7 +291,7 @@ export default class FileSection extends React.Component {
             ? (
               <div
                 className="pd2x pd1y context-item pointer"
-                onClick={this.doTransferOrEnterDirectory}
+                onClick={this.doEnterDirectory}
               >
                 <Icon type="enter" /> enter
               </div>
@@ -254,12 +299,12 @@ export default class FileSection extends React.Component {
             : null
         }
         {
-          isDirectory || !modifyTime
+          !modifyTime
             ? null
             : (
               <div
                 className="pd2x pd1y context-item pointer"
-                onClick={this.doTranfer}
+                onClick={this.doTransfer}
               >
                 <Icon type={icon} /> {transferText}
               </div>
@@ -317,17 +362,14 @@ export default class FileSection extends React.Component {
 
   onContextMenu = e => {
     e.preventDefault()
-    let {target} = e
     let {modifyTime} = this.props.file
-    let rect = target.getBoundingClientRect()
-    let {clientX, clientY} = e
     let content = this.renderContext()
+    console.log(content, 'ct')
+    //todo get rid of magic numbers...
+    let height = content.props.children.length * 28 + 10 * 2
     this.props.openContextMenu({
       content,
-      pos: {
-        left: modifyTime ? rect.left : clientX,
-        top: modifyTime ? rect.top + 15 : clientY
-      }
+      pos: computePos(e, modifyTime, height)
     })
   }
 
