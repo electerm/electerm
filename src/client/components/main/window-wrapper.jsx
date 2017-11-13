@@ -32,12 +32,13 @@ export default class WindowWrapper extends React.Component  {
 
   render() {
     let {height} = this.state
-    let {props} =this
+    let {props} = this
     let th = height + 17
+    let host = _.get(props, 'tab.host')
     return (
       <div className="ui-wrapper">
         {
-          props.tab.host
+          host
             ? (
               <Tabs defaultActiveKey="ssh">
                 <TabPane

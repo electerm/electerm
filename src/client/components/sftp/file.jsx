@@ -375,12 +375,18 @@ export default class FileSection extends React.Component {
         >
           <Icon type="reload" /> refresh
         </div>
-        <div
-          className="pd2x pd1y context-item pointer"
-          onClick={this.showInfo}
-        >
-          <Icon type="info-circle-o" /> info
-        </div>
+        {
+          id
+            ? (
+              <div
+                className="pd2x pd1y context-item pointer"
+                onClick={this.showInfo}
+              >
+                <Icon type="info-circle-o" /> info
+              </div>
+            )
+            : null
+        }
       </div>
     )
   }
