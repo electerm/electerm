@@ -57,10 +57,8 @@ export default function FileProps (props) {
         <div className="file-props">
           <p className="bold">{iconType} name:</p>
           <p className="pd1b">{name}</p>
-          <p className="bold">location:</p>
+          <p className="bold">full path:</p>
           <p className="pd1b">{ffp}</p>
-          <p className="bold">path:</p>
-          <p className="pd1b">{name}</p>
           <p className="bold">size:</p>
           <p className="pd1b">{size}</p>
           <p className="bold">access time:</p>
