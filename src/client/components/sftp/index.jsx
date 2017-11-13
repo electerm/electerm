@@ -114,7 +114,8 @@ export default class Sftp extends React.Component {
           ..._.pick(r, ['name', 'size', 'accessTime', 'modifyTime']),
           isDirectory: r.type === 'd',
           type: 'remote',
-          path: remotePath
+          path: remotePath,
+          id: generate()
         }
       }).sort(sorter)
       let update = {
@@ -158,6 +159,7 @@ export default class Sftp extends React.Component {
           modifyTime: stat.mtime,
           type: 'local',
           path: localPath,
+          id: generate(),
           isDirectory: stat.isDirectory()
         })
       }

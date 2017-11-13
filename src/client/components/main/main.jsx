@@ -8,6 +8,7 @@ import copy from 'json-deep-copy'
 import classnames from 'classnames'
 import * as ls from '../../common/ls'
 import ContextMenu from '../common/context-menu'
+import FileInfoModal from '../sftp/file-props-modal'
 import {notification} from 'antd'
 
 const initTabs = () => [
@@ -30,7 +31,8 @@ export default class Index extends React.Component {
       bookmarks: ls.get('bookmarks') || [],
       config: getGlobal('_config') || {},
       contextMenuProps: {},
-      contextMenuVisible: false
+      contextMenuVisible: false,
+      fileInfoModalProps: {}
     }
   }
 
@@ -165,7 +167,8 @@ export default class Index extends React.Component {
       tabs,
       currentTabId,
       contextMenuProps,
-      contextMenuVisible
+      contextMenuVisible,
+      fileInfoModalProps
     } = this.state
     let controlProps = {
       ...this.state,
@@ -180,6 +183,9 @@ export default class Index extends React.Component {
         <ContextMenu
           {...contextMenuProps}
           visible={contextMenuVisible}
+        />
+        <FileInfoModal
+          {...fileInfoModalProps}
         />
         <div id="outside-context">
           <Control
