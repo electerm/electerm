@@ -11,6 +11,7 @@ import _ from 'lodash'
 import Input from '../common/input-auto-focus'
 import resolve from '../../common/resolve'
 import wait from '../../common/wait'
+import {contextMenuHeight, contextMenuPaddingTop} from '../../common/constants'
 
 const {getGlobal} = window
 const computePos = (e, isBg, height) => {
@@ -55,9 +56,27 @@ export default class FileSection extends React.Component {
     })
   }
 
+  onCloseFileInfo = () => {
+    this.props.rootModifier({
+      fileInfoModalProps: {}
+    })
+  }
+
+  showInfo = () => {
+    this.props.closeContextMenu()
+    this.props.rootModifier({
+      fileInfoModalProps: {
+        file: this.state.file,
+        tab: this.props.tab,
+        visible: true,
+        onClose: this.onCloseFileInfo
+      }
+    })
+  }
+
   cancelNew = (type) => {
     let list = this.props[type]
-    list = list.filter(p => p.modifyTime)
+    list = list.filter(p => p.id)
     this.props.modifier({
       [type]: list
     })
@@ -102,9 +121,9 @@ export default class FileSection extends React.Component {
 
   onBlur = () => {
     let file = copy(this.state.file)
-    let {nameTemp, name, modifyTime, type} = this.state.file
+    let {nameTemp, name, id, type} = this.state.file
     if (name === nameTemp) {
-      if (!modifyTime) {
+      if (!id) {
         return this.cancelNew(type)
       }
       delete file.nameTemp
@@ -113,7 +132,7 @@ export default class FileSection extends React.Component {
         file
       })
     }
-    if (!modifyTime) {
+    if (!id) {
       return this.createNew(file)
     }
     this.rename(name, nameTemp)
@@ -273,7 +292,7 @@ export default class FileSection extends React.Component {
         type,
         isDirectory,
         name,
-        modifyTime
+        id
       }
     } = this.props
     let transferText = type === 'local'
@@ -287,7 +306,7 @@ export default class FileSection extends React.Component {
     return (
       <div>
         {
-          isDirectory && modifyTime
+          isDirectory && id
             ? (
               <div
                 className="pd2x pd1y context-item pointer"
@@ -299,7 +318,7 @@ export default class FileSection extends React.Component {
             : null
         }
         {
-          !modifyTime
+          !id
             ? null
             : (
               <div
@@ -311,7 +330,7 @@ export default class FileSection extends React.Component {
             )
         }
         {
-          modifyTime
+          id
             ? (
               <Popconfirm
                 title={title}
@@ -327,7 +346,7 @@ export default class FileSection extends React.Component {
             : null
         }
         {
-          modifyTime
+          id
             ? (
               <div
                 className="pd2x pd1y context-item pointer"
@@ -356,20 +375,25 @@ export default class FileSection extends React.Component {
         >
           <Icon type="reload" /> refresh
         </div>
+        <div
+          className="pd2x pd1y context-item pointer"
+          onClick={this.showInfo}
+        >
+          <Icon type="info-circle-o" /> info
+        </div>
       </div>
     )
   }
 
   onContextMenu = e => {
     e.preventDefault()
-    let {modifyTime} = this.props.file
+    let {id} = this.props.file
     let content = this.renderContext()
-    console.log(content, 'ct')
-    //todo get rid of magic numbers...
-    let height = content.props.children.length * 28 + 10 * 2
+    let height = content.props.children.filter(_.identity)
+      .length * contextMenuHeight + contextMenuPaddingTop * 2
     this.props.openContextMenu({
       content,
-      pos: computePos(e, modifyTime, height)
+      pos: computePos(e, id, height)
     })
   }
 
