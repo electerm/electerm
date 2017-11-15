@@ -6,6 +6,7 @@ import {Progress, Popover, Icon} from 'antd'
 import Transport from './transport'
 import _ from 'lodash'
 import copy from 'json-deep-copy'
+import wait from '../../common/wait'
 
 export default class Transports extends React.Component {
 
@@ -45,6 +46,14 @@ export default class Transports extends React.Component {
   resume = () => {
     let {id} = this.state.currentTransport
     this[`ref__${id}`].resume()
+  }
+
+  cancelAll = async () => {
+    this.pause()
+    await wait(120)
+    this.props.modifier({
+      transports: []
+    })
   }
 
   rebuildState = (nextProps = this.props) => {
@@ -102,6 +111,24 @@ export default class Transports extends React.Component {
     )
   }
 
+  renderTitle() {
+    return (
+      <div className="fix">
+        <div className="fleft">
+          file transfers
+        </div>
+        <div className="fright">
+          <span
+            className="poninter"
+            onClick={this.cancelAll}
+          >
+            cancel all
+          </span>
+        </div>
+      </div>
+    )
+  }
+
   render() {
     let {transports} = this.props
     let {currentTransport, showList} = this.state
@@ -117,7 +144,7 @@ export default class Transports extends React.Component {
     return (
       <div className="tranports-wrap">
         <Popover
-          title="file transfers"
+          title={this.renderTitle()}
           content={this.renderContent()}
           placement="bottom"
           visible={showList}
