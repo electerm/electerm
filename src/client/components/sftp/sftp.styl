@@ -24,11 +24,31 @@
   top 50%
   margin-top -6px
   z-index 12
+.tranports-circle-wrap
+  position absolute
+  left 50%
+  margin-left -20px
+  top 0
+  width 40px
+  height 40px
+.tranports-control
+  position absolute
+  top 5px
+  left 50%
+  width 40px
+  height 40px
+  border-radius 40px
+  margin-left -20px
+  z-index 12
+  font-size 34px
+  line-height 40px
+  text-align center
 .transport-circle
   position absolute
   top 5px
   left 50%
   margin-left -20px
+  z-index 10
 
 .sftp-transport
   &:hover
@@ -61,3 +81,11 @@
   font-size 50px
 .file-props
   margin-left 70px
+
+.opacity-loop
+  opacity 0.3
+  animation: blinker 5s linear infinite
+
+@keyframes blinker
+  50%
+    opacity .8

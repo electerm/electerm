@@ -65,7 +65,8 @@ export default class Confirms extends React.Component {
   submit = () => {
     let {transports} = this.props
     this.setStateProxy({
-      files: []
+      files: [],
+      index: 0
     }, () => {
       this.props.modifier({
         filesToConfirm: [],
