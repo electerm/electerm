@@ -6,6 +6,7 @@ import {Icon} from 'antd'
 import copy from 'json-deep-copy'
 import _ from 'lodash'
 import resolve from '../../common/resolve'
+import wait from '../../common/wait'
 
 const {getGlobal} = window
 
@@ -34,6 +35,7 @@ export default class Tranporter extends React.Component {
 
   componentWillUnmount() {
     this.transport && this.transport.destroy && this.transport.destroy()
+    this.props.onChildDestroy(this.props.transport.id)
     clearTimeout(this.timer)
   }
 
@@ -139,9 +141,14 @@ export default class Tranporter extends React.Component {
     }
   }
 
-  cancel = (callback) => {
+  cancel = async (callback) => {
     let {id} = this.props.transport
-    let transports = copy(this.props.transports).filter(t => {
+    let oldTrans = copy(this.props.transports)
+    if (oldTrans.length === 1) {
+      await this.transport.pause()
+      await wait(150)
+    }
+    let transports = oldTrans.filter(t => {
       return t.id !== id
     })
     this.onCancel = true

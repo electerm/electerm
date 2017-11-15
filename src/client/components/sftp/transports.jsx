@@ -2,7 +2,7 @@
  * tranporters
  */
 import React from 'react'
-import {Progress, Popover} from 'antd'
+import {Progress, Popover, Icon} from 'antd'
 import Transport from './transport'
 import _ from 'lodash'
 import copy from 'json-deep-copy'
@@ -25,10 +25,26 @@ export default class Transports extends React.Component {
     }
   }
 
+  refs = {}
+
+  onChildDestroy = id => {
+    delete this[`ref__${id}`]
+  }
+
   onVisibleChange = showList => {
     this.setState({
       showList
     })
+  }
+
+  pause = () => {
+    let {id} = this.state.currentTransport
+    this[`ref__${id}`].pause()
+  }
+
+  resume = () => {
+    let {id} = this.state.currentTransport
+    this[`ref__${id}`].resume()
   }
 
   rebuildState = (nextProps = this.props) => {
@@ -36,16 +52,20 @@ export default class Transports extends React.Component {
     let {currentTransport} = this.state
     let has = _.find(transports, t => t.id === _.get(currentTransport, 'id'))
     if (!has) {
+      let cur = transports[0] || null
       this.setState({
-        currentTransport: copy(transports[0] || null),
-        showList: true
+        currentTransport: copy(cur),
+        showList: !!cur
       })
     } else {
-      let showList = !_.isEqual(currentTransport, has)
-      this.setState({
-        currentTransport: copy(has),
-        showList
-      })
+      let showList = currentTransport.id !== has.id
+      let update = {
+        currentTransport: copy(has)
+      }
+      if (showList) {
+        update.showList = true
+      }
+      this.setState(update)
     }
   }
 
@@ -56,12 +76,15 @@ export default class Transports extends React.Component {
       <div className="transports-content overscroll-y">
         {
           transports.map((t ,i) => {
+            let {id} = t
             return (
               <Transport
                 transport={t}
-                key={t.id + ':tr:' + i}
+                key={id + ':tr:' + i}
                 {...this.props}
+                onChildDestroy={this.onChildDestroy}
                 currentTransport={currentTransport}
+                ref={ref => this[`ref__${id}`] = ref}
                 index={i}
               />
             )
@@ -71,11 +94,23 @@ export default class Transports extends React.Component {
     )
   }
 
+  renderTransportIcon() {
+    let {pausing} = this.state.currentTransport
+    let icon = pausing ? 'play-circle' : 'pause-circle'
+    return (
+      <Icon type={icon} />
+    )
+  }
+
   render() {
     let {transports} = this.props
     let {currentTransport, showList} = this.state
     let percent = _.get(currentTransport, 'percent')
     let status = _.get(currentTransport, 'status')
+    let pausing = _.get(currentTransport, 'pausing')
+    let func = pausing
+      ? this.resume
+      : this.pause
     if (!transports.length) {
       return null
     }
@@ -88,13 +123,21 @@ export default class Transports extends React.Component {
           visible={showList}
           onVisibleChange={this.onVisibleChange}
         >
-          <Progress
-            type="circle"
-            className="transport-circle"
-            width={40}
-            percent={percent}
-            status={status}
-          />
+          <div className="tranports-circle-wrap">
+            <Progress
+              type="circle"
+              className="transport-circle"
+              width={40}
+              percent={percent}
+              status={status}
+            />
+            <div
+              className="tranports-control opacity-loop pointer"
+              onClick={func}
+            >
+              {this.renderTransportIcon()}
+            </div>
+          </div>
         </Popover>
       </div>
     )
