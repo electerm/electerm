@@ -6,7 +6,6 @@ import {Progress, Popover, Icon} from 'antd'
 import Transport from './transport'
 import _ from 'lodash'
 import copy from 'json-deep-copy'
-import wait from '../../common/wait'
 
 export default class Transports extends React.Component {
 
@@ -26,6 +25,20 @@ export default class Transports extends React.Component {
     }
   }
 
+  componentDidUpdate(prevProps, prevState) {
+    if (this.onCancel && this.props.transports.length) {
+      this.props.modifier({
+        transports: []
+      })
+    } else {
+      this.onCancel = false
+    }
+  }
+
+  componentWillUnmount() {
+    clearTimeout(this.timer)
+  }
+
   refs = {}
 
   onChildDestroy = id => {
@@ -38,9 +51,9 @@ export default class Transports extends React.Component {
     })
   }
 
-  pause = () => {
+  pause = (e, cb) => {
     let {id} = this.state.currentTransport
-    this[`ref__${id}`].pause()
+    this[`ref__${id}`].pause(e, cb)
   }
 
   resume = () => {
@@ -50,10 +63,15 @@ export default class Transports extends React.Component {
 
   cancelAll = async () => {
     this.pause()
-    await wait(120)
+    this.onCancel = true
     this.props.modifier({
       transports: []
     })
+    this.timer = setTimeout(() => {
+      this.props.modifier({
+        transports: []
+      })
+    }, 500)
   }
 
   rebuildState = (nextProps = this.props) => {
@@ -104,7 +122,7 @@ export default class Transports extends React.Component {
   }
 
   renderTransportIcon() {
-    let {pausing} = this.state.currentTransport
+    let pausing = _.get(this.state.currentTransport, 'pausing')
     let icon = pausing ? 'play-circle' : 'pause-circle'
     return (
       <Icon type={icon} />
@@ -119,7 +137,7 @@ export default class Transports extends React.Component {
         </div>
         <div className="fright">
           <span
-            className="poninter"
+            className="pointer"
             onClick={this.cancelAll}
           >
             cancel all

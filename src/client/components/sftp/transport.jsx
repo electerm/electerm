@@ -39,26 +39,26 @@ export default class Tranporter extends React.Component {
     clearTimeout(this.timer)
   }
 
-  update = transport => {
+  update = (transport, cb) => {
     let transports = copy(this.props.transports)
     let index = _.findIndex(transports, t => t.id === transport.id)
     transports.splice(index, 1, transport)
     this.props.modifier({
       transports
-    })
+    }, cb)
   }
 
-  pause = () => {
+  pause = (e, cb) => {
     let transport = copy(this.props.transport)
     transport.pausing = true
-    this.update(transport)
     this.transport.pause()
+    this.update(transport, cb)
   }
 
-  resume = () => {
+  resume = (e, cb) => {
     let transport = copy(this.props.transport)
     transport.pausing = false
-    this.update(transport)
+    this.update(transport, cb)
     this.transport.resume()
   }
 
