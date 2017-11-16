@@ -41,9 +41,9 @@ export default class Transports extends React.Component {
     })
   }
 
-  pause = (e, cb) => {
+  pause = () => {
     let {id} = this.state.currentTransport
-    this[`ref__${id}`].pause(e, cb)
+    this[`ref__${id}`].pause()
   }
 
   resume = () => {
