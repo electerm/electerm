@@ -6,7 +6,6 @@ import {Progress, Popover, Icon} from 'antd'
 import Transport from './transport'
 import _ from 'lodash'
 import copy from 'json-deep-copy'
-import { setTimeout } from 'timers';
 
 export default class Transports extends React.Component {
 
