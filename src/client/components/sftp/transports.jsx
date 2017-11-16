@@ -25,6 +25,10 @@ export default class Transports extends React.Component {
     }
   }
 
+  componentWillUnmount() {
+    clearTimeout(this.timer)
+  }
+
   refs = {}
 
   onChildDestroy = id => {
@@ -45,6 +49,25 @@ export default class Transports extends React.Component {
   resume = () => {
     let {id} = this.state.currentTransport
     this[`ref__${id}`].resume()
+  }
+
+  modifyAsync = (data) => {
+    return new Promise(resolve => {
+      this.props.modifier(data, resolve)
+    })
+  }
+
+  cancelAll = async () => {
+    this.pause()
+    Object.keys(this).filter(k => k.includes('ref__'))
+      .forEach(k => {
+        this[k].onCancel = true
+      })
+    this.timer = setTimeout(() => {
+      this.props.modifier({
+        transports: []
+      })
+    }, 300)
   }
 
   rebuildState = (nextProps = this.props) => {
@@ -95,10 +118,28 @@ export default class Transports extends React.Component {
   }
 
   renderTransportIcon() {
-    let {pausing} = this.state.currentTransport
+    let pausing = _.get(this.state.currentTransport, 'pausing')
     let icon = pausing ? 'play-circle' : 'pause-circle'
     return (
       <Icon type={icon} />
+    )
+  }
+
+  renderTitle() {
+    return (
+      <div className="fix">
+        <div className="fleft">
+          file transfers
+        </div>
+        <div className="fright">
+          <span
+            className="pointer"
+            onClick={this.cancelAll}
+          >
+            cancel all
+          </span>
+        </div>
+      </div>
     )
   }
 
@@ -117,7 +158,7 @@ export default class Transports extends React.Component {
     return (
       <div className="tranports-wrap">
         <Popover
-          title="file transfers"
+          title={this.renderTitle()}
           content={this.renderContent()}
           placement="bottom"
           visible={showList}
