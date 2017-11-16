@@ -6,6 +6,7 @@ import {Progress, Popover, Icon} from 'antd'
 import Transport from './transport'
 import _ from 'lodash'
 import copy from 'json-deep-copy'
+import { setTimeout } from 'timers';
 
 export default class Transports extends React.Component {
 
@@ -22,16 +23,6 @@ export default class Transports extends React.Component {
       !_.isEqual(this.props.transports, nextProps.transports)
     ) {
       this.rebuildState(nextProps)
-    }
-  }
-
-  componentDidUpdate(prevProps, prevState) {
-    if (this.onCancel && this.props.transports.length) {
-      this.props.modifier({
-        transports: []
-      })
-    } else {
-      this.onCancel = false
     }
   }
 
@@ -61,17 +52,23 @@ export default class Transports extends React.Component {
     this[`ref__${id}`].resume()
   }
 
+  modifyAsync = (data) => {
+    return new Promise(resolve => {
+      this.props.modifier(data, resolve)
+    })
+  }
+
   cancelAll = async () => {
     this.pause()
-    this.onCancel = true
-    this.props.modifier({
-      transports: []
-    })
+    Object.keys(this).filter(k => k.includes('ref__'))
+      .forEach(k => {
+        this[k].onCancel = true
+      })
     this.timer = setTimeout(() => {
       this.props.modifier({
         transports: []
       })
-    }, 500)
+    }, 300)
   }
 
   rebuildState = (nextProps = this.props) => {
