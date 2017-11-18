@@ -119,6 +119,81 @@ export default class FileSection extends React.Component {
     return this[`${type}CreateNew`](file)
   }
 
+  getIndex = (file) => {
+    let {type} = file
+    return _.findIndex(this.props[type], f => f.id === file.id)
+  }
+
+  getShiftSelected(file, type) {
+    let {lastMataKey} = this.props
+    if (lastMataKey !== 'shift') {
+      let index1 = this.getIndex(
+        this.props.lastClickedFile || file
+      )
+      let cindex = this.getIndex(file)
+      let [start, end] = [index1, cindex].sort()
+      return this.props[type].slice(start, end + 1)
+    }
+    let indexs = this.props.selectedFiles.map(
+      this.getIndex
+    )
+    let i = this.getIndex(file)
+    let lastI = this.getIndex(this.props.lastClickedFile)
+    let arr = [...indexs, i].sort()
+    let last = arr.length - 1
+    let from = arr[0]
+    let to = arr[last]
+    let [start, end] = [from, to]
+    if (indexs.includes(i)) {
+      let other = lastI > i ? from : to
+      ;[start, end] = [other, i].sort()
+    }
+    return this.props[type].slice(start, end + 1)
+  }
+
+  onClick = e => {
+    let {file} = this.state
+    let {
+      id,
+      type
+    } = file
+    if (!id) {
+      return
+    }
+    let selectedFilesOld = copy(
+      this.props.selectedFiles
+    )
+    let isSameSide = selectedFilesOld.length
+      && type === selectedFilesOld[0].type
+    let selectedFiles = [file]
+    if (isSameSide) {
+      if (e.ctrlKey) {
+        let isSelected = _.some(
+          selectedFilesOld,
+          s => s.id === id
+        )
+        selectedFiles = isSelected
+          ? selectedFilesOld.filter(s => s.id !== id)
+          : [
+            ...copy(selectedFilesOld),
+            file
+          ]
+      } else if (e.shiftKey) {
+        selectedFiles = this.getShiftSelected(file, type)
+      }
+    }
+    let lastMataKey = e.ctrlKey
+      ? 'ctrl'
+      : e.shiftKey
+        ? 'shift'
+        : null
+    this.props.modifier({
+      selectedFiles,
+      lastMataKey,
+      lastClickedFile: file
+    })
+  }
+
   onBlur = () => {
     let file = copy(this.state.file)
     let {nameTemp, name, id, type} = this.state.file
@@ -424,21 +499,23 @@ export default class FileSection extends React.Component {
   }
 
   render() {
-    let {type} = this.props
+    let {type, selectedFiles} = this.props
     let {file} = this.state
     let {
       name,
       size,
       isDirectory,
       modifyTime,
+      id,
       isEditting
     } = file
     if (isEditting) {
       return this.renderEditting(file)
     }
+    let selected = _.some(selectedFiles, s => s.id === id)
     let cls = classnames('sftp-item', type, {
       directory: isDirectory
-    })
+    }, {selected})
     let pm = type === 'remote'
       ? 'left'
       : 'right'
@@ -453,6 +530,7 @@ export default class FileSection extends React.Component {
         className={cls}
         onDoubleClick={this.transferOrEnterDirectory}
         onContextMenu={this.onContextMenu}
+        onClick={this.onClick}
       >
         <Tooltip
           title={title}

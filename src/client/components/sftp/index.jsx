@@ -36,6 +36,9 @@ export default class Sftp extends React.Component {
       localPathTemp: '',
       remotePathTemp: '',
       transports: [],
+      selectedFiles: [],
+      lastClickedFile: null,
+      lastMataKey: null,
       filesToConfirm: []
     }
   }
@@ -227,7 +230,10 @@ export default class Sftp extends React.Component {
         'localPath',
         'remotePath',
         'local',
-        'remote'
+        'remote',
+        'lastClickedFile',
+        'lastMataKey',
+        'selectedFiles'
       ])
     }
   }
