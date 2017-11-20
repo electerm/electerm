@@ -283,6 +283,22 @@ export default class FileSection extends React.Component {
     return res
   }
 
+  doTransferSelected = async () => {
+    this.props.closeContextMenu()
+    let {selectedFiles} = this.props
+    let filesToConfirm = []
+    for (let f of selectedFiles) {
+      let arr = await this.getTransferList(f)
+      filesToConfirm = [
+        ...filesToConfirm,
+        ...arr
+      ]
+    }
+    this.props.modifier({
+      filesToConfirm
+    })
+  }
+
   transfer = async () => {
     let arr = await this.getTransferList(this.state.file)
     this.props.modifier({
@@ -368,7 +384,8 @@ export default class FileSection extends React.Component {
         isDirectory,
         name,
         id
-      }
+      },
+      selectedFiles
     } = this.props
     let transferText = type === 'local'
       ? 'upload'
@@ -378,16 +395,32 @@ export default class FileSection extends React.Component {
       : 'cloud-download-o'
     let title = `are you sure? this will delete ${isDirectory ? 'directory' : 'file'} "${name}"` +
       (isDirectory ? ' and all the file/directory in it' : '')
+    let shouldShowSelectedMenu = id
+      && selectedFiles.length > 1
+      && _.some(selectedFiles, d => d.id === id)
+    let cls = 'pd2x pd1y context-item pointer'
     return (
       <div>
         {
           isDirectory && id
             ? (
               <div
-                className="pd2x pd1y context-item pointer"
+                className={cls}
                 onClick={this.doEnterDirectory}
               >
                 <Icon type="enter" /> enter
+              </div>
+            )
+            : null
+        }
+        {
+          shouldShowSelectedMenu
+            ? (
+              <div
+                className={cls}
+                onClick={this.doTransferSelected}
+              >
+                <Icon type={icon} /> {transferText} selected
               </div>
             )
             : null
@@ -397,7 +430,7 @@ export default class FileSection extends React.Component {
             ? null
             : (
               <div
-                className="pd2x pd1y context-item pointer"
+                className={cls}
                 onClick={this.doTransfer}
               >
                 <Icon type={icon} /> {transferText}
@@ -412,7 +445,7 @@ export default class FileSection extends React.Component {
                 onConfirm={this.del}
               >
                 <div
-                  className="pd2x pd1y context-item pointer"
+                  className={cls}
                 >
                   <Icon type="close-circle" /> delete
                 </div>
@@ -424,7 +457,7 @@ export default class FileSection extends React.Component {
           id
             ? (
               <div
-                className="pd2x pd1y context-item pointer"
+                className={cls}
                 onClick={this.doRename}
               >
                 <Icon type="edit" /> rename
@@ -433,19 +466,19 @@ export default class FileSection extends React.Component {
             : null
         }
         <div
-          className="pd2x pd1y context-item pointer"
+          className={cls}
           onClick={this.newFile}
         >
           <Icon type="file-add" /> new file
         </div>
         <div
-          className="pd2x pd1y context-item pointer"
+          className={cls}
           onClick={this.newDirectory}
         >
           <Icon type="folder-add" /> new directory
         </div>
         <div
-          className="pd2x pd1y context-item pointer"
+          className={cls}
           onClick={this.refresh}
         >
           <Icon type="reload" /> refresh
@@ -454,7 +487,7 @@ export default class FileSection extends React.Component {
           id
             ? (
               <div
-                className="pd2x pd1y context-item pointer"
+                className={cls}
                 onClick={this.showInfo}
               >
                 <Icon type="info-circle-o" /> info
