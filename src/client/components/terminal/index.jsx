@@ -42,7 +42,7 @@ export default class Term extends React.Component {
 
   initData = () => {
     let base = 'cd ~\rclear\r'
-    let {tab} = this.props
+    let {tab = {}} = this.props
     let {host, port, username, password} = tab
     if (tab.host) {
       base = `${base}\rssh -p ${port} ${username}@${host}\r`
