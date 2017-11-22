@@ -26,7 +26,8 @@ const computePos = (e, isBg, height) => {
     res.top = res.top - height
   }
   return res
-} 
+}
+const sorter = (a, b) => a - b
 
 export default class FileSection extends React.Component {
 
@@ -119,6 +120,66 @@ export default class FileSection extends React.Component {
     return this[`${type}CreateNew`](file)
   }
 
+  getIndex = (file) => {
+    let {type} = file
+    return _.findIndex(this.props[type], f => f.id === file.id)
+  }
+
+  getShiftSelected(file, type) {
+    let indexs = this.props.selectedFiles.map(
+      this.getIndex
+    )
+    let i = this.getIndex(file)
+    let lastI = this.getIndex(this.props.lastClickedFile)
+    let arr = [...indexs, i].sort(sorter)
+    let last = arr.length - 1
+    let from = arr[0]
+    let to = arr[last]
+    let [start, end] = [from, to]
+    if (indexs.includes(i)) {
+      let other = lastI > i ? from : to
+      ;[start, end] = [other, i].sort(sorter)
+    }
+    return this.props[type].slice(start, end + 1)
+  }
+
+  onClick = e => {
+    let {file} = this.state
+    let {
+      id,
+      type
+    } = file
+    if (!id) {
+      return
+    }
+    let selectedFilesOld = copy(
+      this.props.selectedFiles
+    )
+    let isSameSide = selectedFilesOld.length
+      && type === selectedFilesOld[0].type
+    let selectedFiles = [file]
+    if (isSameSide) {
+      if (e.ctrlKey) {
+        let isSelected = _.some(
+          selectedFilesOld,
+          s => s.id === id
+        )
+        selectedFiles = isSelected
+          ? selectedFilesOld.filter(s => s.id !== id)
+          : [
+            ...copy(selectedFilesOld),
+            file
+          ]
+      } else if (e.shiftKey) {
+        selectedFiles = this.getShiftSelected(file, type)
+      }
+    }
+    this.props.modifier({
+      selectedFiles,
+      lastClickedFile: file
+    })
+  }
+
   onBlur = () => {
     let file = copy(this.state.file)
     let {nameTemp, name, id, type} = this.state.file
@@ -208,6 +269,22 @@ export default class FileSection extends React.Component {
     return res
   }
 
+  doTransferSelected = async () => {
+    this.props.closeContextMenu()
+    let {selectedFiles} = this.props
+    let filesToConfirm = []
+    for (let f of selectedFiles) {
+      let arr = await this.getTransferList(f)
+      filesToConfirm = [
+        ...filesToConfirm,
+        ...arr
+      ]
+    }
+    this.props.modifier({
+      filesToConfirm
+    })
+  }
+
   transfer = async () => {
     let arr = await this.getTransferList(this.state.file)
     this.props.modifier({
@@ -229,7 +306,6 @@ export default class FileSection extends React.Component {
       : fs.rmrf
     let p = resolve(localPath, name)
     await func(p).catch(this.props.onError)
-    this.props.localList()
   }
 
   remoteDel = async (file) => {
@@ -241,8 +317,6 @@ export default class FileSection extends React.Component {
       : sftp.rm
     let p = resolve(remotePath, name)
     await func(p).catch(this.props.onError)
-    await wait(500)
-    await this.props.remoteList()
   }
 
   refresh = () => {
@@ -250,11 +324,21 @@ export default class FileSection extends React.Component {
     this.props.onGoto(this.props.file.type)
   }
 
-  del = () => {
+  del = async (delSelected) => {
     this.props.closeContextMenu()
-    let {file} = this.props
+    let {file, selectedFiles} = this.props
     let {type} = file
-    this[type + 'Del'](file)
+    let files = delSelected
+      ? selectedFiles
+      : [file]
+    let func = this[type + 'Del']
+    for (let f of files) {
+      await func(f)
+    }
+    if (type === 'remote') {
+      await wait(500)
+    }
+    this.props[type + 'List']()
   }
 
   doTransfer = () => {
@@ -286,14 +370,34 @@ export default class FileSection extends React.Component {
     })
   }
 
+  renderDelConfirmTitle(shouldShowSelectedMenu) {
+    let {file, selectedFiles} = this.props
+    let files = shouldShowSelectedMenu
+      ? selectedFiles
+      : [file]
+    let hasDirectory = _.some(files, f => f.isDirectory)
+    let names = hasDirectory ? 'files/folders' : 'files'
+    return (
+      <div className="width400">
+        are you sure? this will delete these
+        <b className="mg1x">{files.length}</b>{names}
+        {
+          hasDirectory
+            ? 'and all the file/directory in them'
+            : ''
+        }
+      </div>
+    )
+  }
+
   renderContext() {
     let {
       file: {
         type,
         isDirectory,
-        name,
         id
-      }
+      },
+      selectedFiles
     } = this.props
     let transferText = type === 'local'
       ? 'upload'
@@ -301,18 +405,34 @@ export default class FileSection extends React.Component {
     let icon = type === 'local'
       ? 'cloud-upload-o'
       : 'cloud-download-o'
-    let title = `are you sure? this will delete ${isDirectory ? 'directory' : 'file'} "${name}"` +
-      (isDirectory ? ' and all the file/directory in it' : '')
+    let len = selectedFiles.length
+    let shouldShowSelectedMenu = id
+      && len > 1
+      && _.some(selectedFiles, d => d.id === id)
+    let cls = 'pd2x pd1y context-item pointer'
+    let delTxt = shouldShowSelectedMenu ? `delete all(${len})` : 'delete'
     return (
       <div>
         {
           isDirectory && id
             ? (
               <div
-                className="pd2x pd1y context-item pointer"
+                className={cls}
                 onClick={this.doEnterDirectory}
               >
                 <Icon type="enter" /> enter
+              </div>
+            )
+            : null
+        }
+        {
+          shouldShowSelectedMenu
+            ? (
+              <div
+                className={cls}
+                onClick={this.doTransferSelected}
+              >
+                <Icon type={icon} /> {transferText} selected({len})
               </div>
             )
             : null
@@ -322,7 +442,7 @@ export default class FileSection extends React.Component {
             ? null
             : (
               <div
-                className="pd2x pd1y context-item pointer"
+                className={cls}
                 onClick={this.doTransfer}
               >
                 <Icon type={icon} /> {transferText}
@@ -333,13 +453,13 @@ export default class FileSection extends React.Component {
           id
             ? (
               <Popconfirm
-                title={title}
-                onConfirm={this.del}
+                title={this.renderDelConfirmTitle(shouldShowSelectedMenu)}
+                onConfirm={() => this.del(shouldShowSelectedMenu)}
               >
                 <div
-                  className="pd2x pd1y context-item pointer"
+                  className={cls}
                 >
-                  <Icon type="close-circle" /> delete
+                  <Icon type="close-circle" /> {delTxt}
                 </div>
               </Popconfirm>
             )
@@ -349,7 +469,7 @@ export default class FileSection extends React.Component {
           id
             ? (
               <div
-                className="pd2x pd1y context-item pointer"
+                className={cls}
                 onClick={this.doRename}
               >
                 <Icon type="edit" /> rename
@@ -358,19 +478,19 @@ export default class FileSection extends React.Component {
             : null
         }
         <div
-          className="pd2x pd1y context-item pointer"
+          className={cls}
           onClick={this.newFile}
         >
           <Icon type="file-add" /> new file
         </div>
         <div
-          className="pd2x pd1y context-item pointer"
+          className={cls}
           onClick={this.newDirectory}
         >
           <Icon type="folder-add" /> new directory
         </div>
         <div
-          className="pd2x pd1y context-item pointer"
+          className={cls}
           onClick={this.refresh}
         >
           <Icon type="reload" /> refresh
@@ -379,7 +499,7 @@ export default class FileSection extends React.Component {
           id
             ? (
               <div
-                className="pd2x pd1y context-item pointer"
+                className={cls}
                 onClick={this.showInfo}
               >
                 <Icon type="info-circle-o" /> info
@@ -424,21 +544,23 @@ export default class FileSection extends React.Component {
   }
 
   render() {
-    let {type} = this.props
+    let {type, selectedFiles} = this.props
     let {file} = this.state
     let {
       name,
       size,
       isDirectory,
       modifyTime,
+      id,
       isEditting
     } = file
     if (isEditting) {
       return this.renderEditting(file)
     }
+    let selected = _.some(selectedFiles, s => s.id === id)
     let cls = classnames('sftp-item', type, {
       directory: isDirectory
-    })
+    }, {selected})
     let pm = type === 'remote'
       ? 'left'
       : 'right'
@@ -453,6 +575,7 @@ export default class FileSection extends React.Component {
         className={cls}
         onDoubleClick={this.transferOrEnterDirectory}
         onContextMenu={this.onContextMenu}
+        onClick={this.onClick}
       >
         <Tooltip
           title={title}
