@@ -1,5 +1,6 @@
 
 import React from 'react'
+import ReactDOM from 'react-dom'
 import {generate} from 'shortid'
 import {Col, Row, Input, Icon, Tooltip, Spin} from  'antd'
 import _ from 'lodash'
@@ -38,7 +39,6 @@ export default class Sftp extends React.Component {
       transports: [],
       selectedFiles: [],
       lastClickedFile: null,
-      lastMataKey: null,
       filesToConfirm: []
     }
   }
