@@ -26,7 +26,8 @@ const computePos = (e, isBg, height) => {
     res.top = res.top - height
   }
   return res
-} 
+}
+const sorter = (a, b) => a - b
 
 export default class FileSection extends React.Component {
 
@@ -125,28 +126,19 @@ export default class FileSection extends React.Component {
   }
 
   getShiftSelected(file, type) {
-    let {lastMataKey} = this.props
-    if (lastMataKey !== 'shift') {
-      let index1 = this.getIndex(
-        this.props.lastClickedFile || file
-      )
-      let cindex = this.getIndex(file)
-      let [start, end] = [index1, cindex].sort()
-      return this.props[type].slice(start, end + 1)
-    }
     let indexs = this.props.selectedFiles.map(
       this.getIndex
     )
     let i = this.getIndex(file)
     let lastI = this.getIndex(this.props.lastClickedFile)
-    let arr = [...indexs, i].sort()
+    let arr = [...indexs, i].sort(sorter)
     let last = arr.length - 1
     let from = arr[0]
     let to = arr[last]
     let [start, end] = [from, to]
     if (indexs.includes(i)) {
       let other = lastI > i ? from : to
-      ;[start, end] = [other, i].sort()
+      ;[start, end] = [other, i].sort(sorter)
     }
     return this.props[type].slice(start, end + 1)
   }
@@ -182,14 +174,8 @@ export default class FileSection extends React.Component {
         selectedFiles = this.getShiftSelected(file, type)
       }
     }
-    let lastMataKey = e.ctrlKey
-      ? 'ctrl'
-      : e.shiftKey
-        ? 'shift'
-        : null
     this.props.modifier({
       selectedFiles,
-      lastMataKey,
       lastClickedFile: file
     })
   }
@@ -320,7 +306,6 @@ export default class FileSection extends React.Component {
       : fs.rmrf
     let p = resolve(localPath, name)
     await func(p).catch(this.props.onError)
-    this.props.localList()
   }
 
   remoteDel = async (file) => {
@@ -332,8 +317,6 @@ export default class FileSection extends React.Component {
       : sftp.rm
     let p = resolve(remotePath, name)
     await func(p).catch(this.props.onError)
-    await wait(500)
-    await this.props.remoteList()
   }
 
   refresh = () => {
@@ -341,11 +324,21 @@ export default class FileSection extends React.Component {
     this.props.onGoto(this.props.file.type)
   }
 
-  del = () => {
+  del = async (delSelected) => {
     this.props.closeContextMenu()
-    let {file} = this.props
+    let {file, selectedFiles} = this.props
     let {type} = file
-    this[type + 'Del'](file)
+    let files = delSelected
+      ? selectedFiles
+      : [file]
+    let func = this[type + 'Del']
+    for (let f of files) {
+      await func(f)
+    }
+    if (type === 'remote') {
+      await wait(500)
+    }
+    this.props[type + 'List']()
   }
 
   doTransfer = () => {
@@ -377,12 +370,31 @@ export default class FileSection extends React.Component {
     })
   }
 
+  renderDelConfirmTitle(shouldShowSelectedMenu) {
+    let {file, selectedFiles} = this.props
+    let files = shouldShowSelectedMenu
+      ? selectedFiles
+      : [file]
+    let hasDirectory = _.some(files, f => f.isDirectory)
+    let names = hasDirectory ? 'files/folders' : 'files'
+    return (
+      <div className="width400">
+        are you sure? this will delete these
+        <b className="mg1x">{files.length}</b>{names}
+        {
+          hasDirectory
+            ? 'and all the file/directory in them'
+            : ''
+        }
+      </div>
+    )
+  }
+
   renderContext() {
     let {
       file: {
         type,
         isDirectory,
-        name,
         id
       },
       selectedFiles
@@ -393,12 +405,12 @@ export default class FileSection extends React.Component {
     let icon = type === 'local'
       ? 'cloud-upload-o'
       : 'cloud-download-o'
-    let title = `are you sure? this will delete ${isDirectory ? 'directory' : 'file'} "${name}"` +
-      (isDirectory ? ' and all the file/directory in it' : '')
+    let len = selectedFiles.length
     let shouldShowSelectedMenu = id
-      && selectedFiles.length > 1
+      && len > 1
       && _.some(selectedFiles, d => d.id === id)
     let cls = 'pd2x pd1y context-item pointer'
+    let delTxt = shouldShowSelectedMenu ? `delete all(${len})` : 'delete'
     return (
       <div>
         {
@@ -420,7 +432,7 @@ export default class FileSection extends React.Component {
                 className={cls}
                 onClick={this.doTransferSelected}
               >
-                <Icon type={icon} /> {transferText} selected
+                <Icon type={icon} /> {transferText} selected({len})
               </div>
             )
             : null
@@ -441,13 +453,13 @@ export default class FileSection extends React.Component {
           id
             ? (
               <Popconfirm
-                title={title}
-                onConfirm={this.del}
+                title={this.renderDelConfirmTitle(shouldShowSelectedMenu)}
+                onConfirm={() => this.del(shouldShowSelectedMenu)}
               >
                 <div
                   className={cls}
                 >
-                  <Icon type="close-circle" /> delete
+                  <Icon type="close-circle" /> {delTxt}
                 </div>
               </Popconfirm>
             )
