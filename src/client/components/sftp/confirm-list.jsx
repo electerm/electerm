@@ -263,6 +263,7 @@ export default class Confirms extends React.Component {
         !path ||
         (!path.startsWith(beforePath) && i > index)
       ) {
+        i = i - 1
         break
       }
       let p = resolve(path, name)

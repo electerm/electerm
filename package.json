@@ -1,6 +1,6 @@
 {
   "name": "electerm",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "description": "electerm",
   "main": "app.js",
   "scripts": {
@@ -78,6 +78,7 @@
     "koa-pug-global": "3.0.0-2",
     "koa-router": "7.2.1",
     "koa-static": "4.0.1",
+    "n-prune": "1.0.2",
     "nodemon": "1.12.0",
     "npm-run-all": "4.0.2",
     "open-browser-webpack-plugin": "0.0.5",
