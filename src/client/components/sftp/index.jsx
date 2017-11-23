@@ -401,6 +401,7 @@ export default class Sftp extends React.Component {
         'remoteDel',
         'delFiles',
         'getIndex',
+        'selectAll',
         'onGoto',
         'renderDelConfirmTitle'
       ]),

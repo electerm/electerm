@@ -115,6 +115,12 @@ export default class FileSection extends React.Component {
     }
   }
 
+  selectAll = (e) => {
+    let {type} = this.props.file
+    this.props.closeContextMenu()
+    this.props.selectAll(type, e)
+  }
+
   createNew = file => {
     let {type} = file
     return this[`${type}CreateNew`](file)
@@ -442,6 +448,12 @@ export default class FileSection extends React.Component {
           onClick={this.newDirectory}
         >
           <Icon type="folder-add" /> new directory
+        </div>
+        <div
+          className={cls}
+          onClick={this.selectAll}
+        >
+          <Icon type="check-square-o" /> select all
         </div>
         <div
           className={cls}
