@@ -11,7 +11,8 @@ const {TabPane} = Tabs
 export default class WindowWrapper extends React.Component  {
 
   state = {
-    height: 500
+    height: 500,
+    pane: 'ssh'
   }
 
   componentDidMount() {
@@ -30,8 +31,12 @@ export default class WindowWrapper extends React.Component  {
     return window.innerHeight - 39 - 46 - (hasHost ? 37 : 0)
   }
 
+  onChange = pane => {
+    this.setState({pane})
+  }
+
   render() {
-    let {height} = this.state
+    let {height, pane} = this.state
     let {props} = this
     let th = height + 17
     let host = _.get(props, 'tab.host')
@@ -40,7 +45,10 @@ export default class WindowWrapper extends React.Component  {
         {
           host
             ? (
-              <Tabs defaultActiveKey="ssh">
+              <Tabs
+                activeKey={pane}
+                onChange={this.onChange}
+              >
                 <TabPane
                   tab="ssh"
                   key="ssh"
@@ -51,7 +59,11 @@ export default class WindowWrapper extends React.Component  {
                   tab="sftp"
                   key="sftp"
                 >
-                  <Sftp {...props} height={height} />
+                  <Sftp
+                    {...props}
+                    height={height}
+                    pane={pane}
+                  />
                 </TabPane>
               </Tabs>
             )

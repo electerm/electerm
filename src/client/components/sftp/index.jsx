@@ -2,13 +2,14 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 import {generate} from 'shortid'
-import {Col, Row, Input, Icon, Tooltip, Spin} from  'antd'
+import {Col, Row, Input, Icon, Tooltip, Spin, Modal} from  'antd'
 import _ from 'lodash'
 import Tranports from './transports'
 import FileSection from './file'
 import Confirms from './confirm-list'
 import resolve from '../../common/resolve'
-
+import wait from '../../common/wait'
+import sorterIndex from '../../common/index-sorter'
 import './sftp.styl'
 
 const {getGlobal} = window
@@ -45,6 +46,178 @@ export default class Sftp extends React.Component {
 
   componentWillMount() {
     this.initData()
+  }
+  
+  componentDidMount() {
+    this.initEvent()
+  }
+
+  componentWillUnmount() {
+    this.destroyEvent()
+  }
+
+  initEvent() {
+    let root = ReactDOM.findDOMNode(this)
+    window.addEventListener('keydown', this.handleEvent)
+    this.dom = root
+  }
+
+  destroyEvent() {
+    window.removeEventListener('keypress', this.handleEvent)
+  }
+
+  isActive() {
+    return this.props.currentTabId === this.props.tab.id &&
+      this.props.pane === 'sftp'
+  }
+
+  getIndex = (file) => {
+    let {type} = file
+    return _.findIndex(this.getFileList(type), f => f.id === file.id)
+  }
+
+  selectAll = (type, e) => {
+    e.preventDefault()
+    this.setState({
+      selectedFiles: this.state[type]
+    })
+  }
+
+  selectNext = type => {
+    let {selectedFiles} = this.state
+    let sorted = selectedFiles.map(f => this.getIndex(f))
+      .sort(sorterIndex)
+    let last = _.last(sorted)
+    let list = this.getFileList(type)
+    if (!list.length) {
+      return
+    }
+    let next = 0
+    if (_.isNumber(last)) {
+      next = (last + 1) % list.length
+    }
+    let nextFile = list[next]
+    if (nextFile) {
+      this.setState({
+        selectedFiles: [nextFile]
+      })
+    }
+  }
+
+  selectPrev = type => {
+    let {selectedFiles} = this.state
+    let sorted = selectedFiles.map(f => this.getIndex(f))
+      .sort(sorterIndex)
+    let last = sorted[0]
+    let list = this.getFileList(type)
+    if (!list.length) {
+      return
+    }
+    let next = 0
+    let len = list.length
+    if (_.isNumber(last)) {
+      next = (last - 1 + len) % len
+    }
+    let nextFile = list[next]
+    if (nextFile) {
+      this.setState({
+        selectedFiles: [nextFile]
+      })
+    }
+  }
+
+  localDel = async (file) => {
+    let {localPath} = this.state
+    let {name, isDirectory} = file
+    let fs = getGlobal('fs')
+    let func = !isDirectory
+      ? fs.unlinkAsync
+      : fs.rmrf
+    let p = resolve(localPath, name)
+    await func(p).catch(this.props.onError)
+  }
+
+  remoteDel = async (file) => {
+    let {remotePath} = this.state
+    let {name, isDirectory} = file
+    let {sftp} = this
+    let func = isDirectory
+      ? sftp.rmdir
+      : sftp.rm
+    let p = resolve(remotePath, name)
+    await func(p).catch(this.props.onError)
+  }
+
+  delFiles = async (type, files = this.state.selectedFiles) => {
+    let func = this[type + 'Del']
+    for (let f of files) {
+      await func(f)
+    }
+    if (type === 'remote') {
+      await wait(500)
+    }
+    this[type + 'List']()
+  }
+
+  renderDelConfirmTitle(files = this.state.selectedFiles) {
+    let hasDirectory = _.some(files, f => f.isDirectory)
+    let names = hasDirectory ? 'files/folders' : 'files'
+    return (
+      <div className="width400 wordbreak">
+        are you sure? this will delete these
+        <b className="mg1x">{files.length}</b>{names}
+        {
+          hasDirectory
+            ? 'and all the file/directory in them'
+            : ''
+        }
+      </div>
+    )
+  }
+
+  onDel = (type, files) => {
+    Modal.confirm({
+      title: this.renderDelConfirmTitle(files),
+      onOk: () => this.delFiles(type, files)
+    })
+  }
+
+  enter = (type, e) => {
+    let {selectedFiles} = this.state
+    if (selectedFiles.length !== 1) {
+      return
+    }
+    let file = selectedFiles[0]
+    let {isDirectory} = file
+    if (isDirectory) {
+      this[type + 'Dom'].enterDirectory(e, file)
+    } else {
+      this.setState({
+        filesToConfirm: [file]
+      })
+    }
+
+  }
+
+  handleEvent = (e) => {
+    if (!this.isActive()) {
+      return
+    }
+    let lastClickedFile = this.state.lastClickedFile || {
+      type: 'local'
+    }
+    let {type} = lastClickedFile
+    if (e.ctrlKey && e.code === 'KeyA') {
+      this.selectAll(type, e)
+    } else if (e.code === 'ArrowDown') {
+      this.selectNext(type)
+    } else if (e.code === 'ArrowUp') {
+      this.selectPrev(type)
+    } else if (e.code === 'Delete') {
+      this.onDel(type)
+    } else if (e.code === 'Enter') {
+      this.enter(type, e)
+    }
   }
 
   initData = () => {
@@ -224,7 +397,12 @@ export default class Sftp extends React.Component {
         'modifier',
         'localList',
         'remoteList',
-        'onGoto'
+        'localDel',
+        'remoteDel',
+        'delFiles',
+        'getIndex',
+        'onGoto',
+        'renderDelConfirmTitle'
       ]),
       ..._.pick(this.state, [
         'localPath',
@@ -257,6 +435,7 @@ export default class Sftp extends React.Component {
       <div className={`virtual-file virtual-file-${type}`}>
         <FileSection
           {...this.getFileProps(item, type)}
+          ref={ref => this[type + 'Dom'] = ref}
         />
       </div>
     )

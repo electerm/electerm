@@ -503,9 +503,6 @@ export default class Confirms extends React.Component {
           <p className="pd1b">
             ({from})
           </p>
-          <p className="bold font14">
-            {from}
-          </p>
         </AnimateText>
       </div>
     )
@@ -518,7 +515,7 @@ export default class Confirms extends React.Component {
       width: 500,
       title: 'file conflict',
       footer: this.renderFooter(),
-      onCancel: this.onCancel
+      onCancel: this.cancel
     }
     let triggerProps = {
       submit: this.submit,
