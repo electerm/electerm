@@ -1,10 +1,16 @@
 {
   "presets": [
-    "stage-0",
     "react",
-    "node8"
+    ["env", {
+      "targets": {
+        "chrome": 58,
+        "node": "current"
+      }
+    }]
   ],
   "plugins": [
+    "transform-class-properties",
+    "transform-object-rest-spread",
     "transform-decorators-legacy",
     [
       "transform-runtime",
