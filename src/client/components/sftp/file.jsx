@@ -12,6 +12,7 @@ import Input from '../common/input-auto-focus'
 import resolve from '../../common/resolve'
 import wait from '../../common/wait'
 import {contextMenuHeight, contextMenuPaddingTop} from '../../common/constants'
+import sorter from '../../common/index-sorter'
 
 const {getGlobal} = window
 const computePos = (e, isBg, height) => {
@@ -27,7 +28,6 @@ const computePos = (e, isBg, height) => {
   }
   return res
 }
-const sorter = (a, b) => a - b
 
 export default class FileSection extends React.Component {
 
@@ -120,17 +120,12 @@ export default class FileSection extends React.Component {
     return this[`${type}CreateNew`](file)
   }
 
-  getIndex = (file) => {
-    let {type} = file
-    return _.findIndex(this.props[type], f => f.id === file.id)
-  }
-
   getShiftSelected(file, type) {
     let indexs = this.props.selectedFiles.map(
-      this.getIndex
+      this.props.getIndex
     )
-    let i = this.getIndex(file)
-    let lastI = this.getIndex(this.props.lastClickedFile)
+    let i = this.props.getIndex(file)
+    let lastI = this.props.getIndex(this.props.lastClickedFile)
     let arr = [...indexs, i].sort(sorter)
     let last = arr.length - 1
     let from = arr[0]
@@ -234,9 +229,9 @@ export default class FileSection extends React.Component {
     })
   }
 
-  enterDirectory = e => {
+  enterDirectory = (e, file) => {
     e.stopPropagation()
-    let {type, name} = this.state.file
+    let {type, name} = file || this.state.file
     let n = `${type}Path`
     let path = this.props[n]
     let np = resolve(path, name)
@@ -297,28 +292,6 @@ export default class FileSection extends React.Component {
     this.enterDirectory(e)
   }
 
-  localDel = async (file) => {
-    let {localPath} = this.props
-    let {name, isDirectory} = file
-    let fs = getGlobal('fs')
-    let func = !isDirectory
-      ? fs.unlinkAsync
-      : fs.rmrf
-    let p = resolve(localPath, name)
-    await func(p).catch(this.props.onError)
-  }
-
-  remoteDel = async (file) => {
-    let {remotePath} = this.props
-    let {name, isDirectory} = file
-    let {sftp} = this.props
-    let func = isDirectory
-      ? sftp.rmdir
-      : sftp.rm
-    let p = resolve(remotePath, name)
-    await func(p).catch(this.props.onError)
-  }
-
   refresh = () => {
     this.props.closeContextMenu()
     this.props.onGoto(this.props.file.type)
@@ -331,14 +304,7 @@ export default class FileSection extends React.Component {
     let files = delSelected
       ? selectedFiles
       : [file]
-    let func = this[type + 'Del']
-    for (let f of files) {
-      await func(f)
-    }
-    if (type === 'remote') {
-      await wait(500)
-    }
-    this.props[type + 'List']()
+    await this.props.delFiles(type, files)
   }
 
   doTransfer = () => {
@@ -375,19 +341,7 @@ export default class FileSection extends React.Component {
     let files = shouldShowSelectedMenu
       ? selectedFiles
       : [file]
-    let hasDirectory = _.some(files, f => f.isDirectory)
-    let names = hasDirectory ? 'files/folders' : 'files'
-    return (
-      <div className="width400">
-        are you sure? this will delete these
-        <b className="mg1x">{files.length}</b>{names}
-        {
-          hasDirectory
-            ? 'and all the file/directory in them'
-            : ''
-        }
-      </div>
-    )
+    return this.props.renderDelConfirmTitle(files)
   }
 
   renderContext() {
