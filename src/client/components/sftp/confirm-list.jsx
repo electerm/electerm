@@ -70,6 +70,7 @@ export default class Confirms extends React.Component {
     }, () => {
       this.props.modifier({
         filesToConfirm: [],
+        pathFix: '',
         transports: [
           ...transports,
           ...this.state.transferList
@@ -86,8 +87,16 @@ export default class Confirms extends React.Component {
 
   cancel = () => {
     this.props.modifier({
-      filesToConfirm: []
+      filesToConfirm: [],
+      pathFix: ''
     })
+  }
+
+  getBasePath = type => {
+    let {pathFix} = this.props
+    return pathFix
+      ? resolve(this.props[type + 'Path'], pathFix)
+      : this.props[type + 'Path']
   }
 
   getNewName = (path) => {
@@ -135,7 +144,7 @@ export default class Confirms extends React.Component {
     let otherType = type === 'local'
       ? 'remote'
       : 'local'
-    let basePath = this.props[type + 'Path']
+    let basePath = this.getBasePath(type)
     let beforePath = resolve(path, name)
     let reg = new RegExp('^' + basePath)
     let otherPath = this.props[otherType + 'Path']
@@ -221,7 +230,7 @@ export default class Confirms extends React.Component {
     let otherType = type === 'local'
       ? 'remote'
       : 'local'
-    let basePath = this.props[type + 'Path']
+    let basePath = this.getBasePath(type)
     let otherBasePath = this.props[otherType + 'Path']
     let regBase = new RegExp('^' + basePath)
     let targetPath = path.replace(regBase, otherBasePath)
@@ -248,7 +257,7 @@ export default class Confirms extends React.Component {
     let otherType = type === 'local'
       ? 'remote'
       : 'local'
-    let basePath = this.props[type + 'Path']
+    let basePath = this.getBasePath(type)
     let repPath = this.props[otherType + 'Path']
     let beforePath = resolve(bp, name)
     let newPath = resolve(bp, newName)

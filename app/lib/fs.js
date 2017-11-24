@@ -4,16 +4,12 @@ const isWin = os.platform() === 'win32'
 const fs = require('fs')
 
 /**
- * rm -rf directory
- * @param {string} localFolderPath absolute path of directory
+ * run cmd
+ * @param {string} cmd
  */
-const rmrf = (localFolderPath) => {
-  let str = `rm -rf ${localFolderPath}`
-  if (isWin) {
-    str = `Remove-Item ${localFolderPath} -Force -Recurse -ErrorAction SilentlyContinue`
-  }
+const run = (cmd) => {
   return new Promise((resolve, reject) => {
-    exec(str, (err, stdout, stderr) => {
+    exec(cmd, (err, stdout, stderr) => {
       if (err) {
         reject(err)
       } else if (stderr) {
@@ -22,6 +18,28 @@ const rmrf = (localFolderPath) => {
       resolve(stdout)
     })
   })
+}
+
+/**
+ * rm -rf directory
+ * @param {string} localFolderPath absolute path of directory
+ */
+const rmrf = (localFolderPath) => {
+  let cmd = isWin
+    ? `Remove-Item ${localFolderPath} -Force -Recurse -ErrorAction SilentlyContinue`
+    : `rm -rf ${localFolderPath}`
+  return run(cmd)
+}
+
+/**
+ * rm -rf directory
+ * @param {string} localFolderPath absolute path of directory
+ */
+const mv = (from, to) => {
+  let cmd = isWin
+    ? `Move-Item ${from} ${to}`
+    : `mv ${from} ${to}`
+  return run(cmd)
 }
 
 /**
@@ -49,6 +67,7 @@ module.exports = Object.assign(
   Promise.promisifyAll(fs),
   {
     rmrf,
-    touch
+    touch,
+    mv
   }
 )
