@@ -52,14 +52,35 @@ export default class Confirms extends React.Component {
     document.addEventListener('mouseup', this.onMouseup)
   }
 
-  onMousedown = e => {
+  mousemove = e => {
+    let endPoint = {
+      x: e.pageX,
+      y: e.pageY
+    }
     this.setState({
-      onDrag: true
+      endPoint
     })
   }
 
-  onMouseup = e => {
+  onMousedown = e => {
+    let startPoint = {
+      x: e.pageX,
+      y: e.pageY
+    }
+    this.setState({
+      onDrag: true,
+      startPoint
+    })
+    document.addEventListener('mousemove', this.mousemove)
+  }
 
+  onMouseup = e => {
+    document.removeEventListener('mousemove', this.mousemove)
+    this.setState({
+      onDrag: false,
+      startPoint: null,
+      endPoint: null
+    })
   }
 
   render() {
