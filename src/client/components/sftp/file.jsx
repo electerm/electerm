@@ -58,7 +58,7 @@ export default class FileSection extends React.Component {
     }
   }
 
-  onDrag = e => {
+  onDrag = () => {
     //debug('on drag')
     //debug(e.target)
     addClass(this.dom, onDragCls)
@@ -76,7 +76,7 @@ export default class FileSection extends React.Component {
     addClass(target, onDragOverCls)
   }
 
-  onDragExit = e => {
+  onDragExit = () => {
     //debug('ondragexit')
     //let {target} = e
     //removeClass(target, 'sftp-dragover')
@@ -103,7 +103,6 @@ export default class FileSection extends React.Component {
   }
 
   onDrop = e => {
-    debug('ondrop')
     e.preventDefault()
     let {target} = e
     if (!target) {
@@ -126,6 +125,7 @@ export default class FileSection extends React.Component {
   }
 
   onDragEnd = e => {
+    removeClass(this.dom, onDragCls)
     document.querySelectorAll('.' + onDragOverCls).forEach((d) => {
       removeClass(d, onDragOverCls)
     })
@@ -282,7 +282,7 @@ export default class FileSection extends React.Component {
       let other = lastI > i ? from : to
       ;[start, end] = [other, i].sort(sorter)
     }
-    return this.props[type].slice(start, end + 1)
+    return this.props.getFileList(type).slice(start, end + 1)
   }
 
   onClick = e => {
