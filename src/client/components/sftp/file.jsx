@@ -160,7 +160,7 @@ export default class FileSection extends React.Component {
       : [fromFile]
     let {isDirectory, name} = toFile
     let pathFix = isDirectory ? name : ''
-    return this.doTransferSelected(files, pathFix)
+    return this.doTransferSelected(null, files, pathFix)
   }
 
   mv = async (fromFile, toFile) => {
@@ -412,6 +412,7 @@ export default class FileSection extends React.Component {
   }
 
   doTransferSelected = async (
+    e,
     selectedFiles = this.props.selectedFiles,
     pathFix = ''
   ) => {
