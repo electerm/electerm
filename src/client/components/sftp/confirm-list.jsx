@@ -70,6 +70,7 @@ export default class Confirms extends React.Component {
     }, () => {
       this.props.modifier({
         filesToConfirm: [],
+        pathFix: '',
         transports: [
           ...transports,
           ...this.state.transferList
@@ -86,8 +87,16 @@ export default class Confirms extends React.Component {
 
   cancel = () => {
     this.props.modifier({
-      filesToConfirm: []
+      filesToConfirm: [],
+      pathFix: ''
     })
+  }
+
+  getBasePath = (type, isOtherType) => {
+    let {pathFix} = this.props
+    return pathFix && isOtherType
+      ? resolve(this.props[type + 'Path'], pathFix)
+      : this.props[type + 'Path']
   }
 
   getNewName = (path) => {
@@ -135,10 +144,10 @@ export default class Confirms extends React.Component {
     let otherType = type === 'local'
       ? 'remote'
       : 'local'
-    let basePath = this.props[type + 'Path']
+    let basePath = this.getBasePath(type)
     let beforePath = resolve(path, name)
     let reg = new RegExp('^' + basePath)
-    let otherPath = this.props[otherType + 'Path']
+    let otherPath = this.getBasePath(otherType, true)
     let targetPath = beforePath.replace(reg, otherPath)
     return await this.checkExist(type, targetPath)
   }
@@ -221,8 +230,8 @@ export default class Confirms extends React.Component {
     let otherType = type === 'local'
       ? 'remote'
       : 'local'
-    let basePath = this.props[type + 'Path']
-    let otherBasePath = this.props[otherType + 'Path']
+    let basePath = this.getBasePath(type)
+    let otherBasePath = this.getBasePath(otherType, true)
     let regBase = new RegExp('^' + basePath)
     let targetPath = path.replace(regBase, otherBasePath)
     let newName = shouldRename
@@ -248,8 +257,8 @@ export default class Confirms extends React.Component {
     let otherType = type === 'local'
       ? 'remote'
       : 'local'
-    let basePath = this.props[type + 'Path']
-    let repPath = this.props[otherType + 'Path']
+    let basePath = this.getBasePath(type)
+    let repPath = this.getBasePath(otherType, true)
     let beforePath = resolve(bp, name)
     let newPath = resolve(bp, newName)
     let reg = new RegExp('^' + basePath)

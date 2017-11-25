@@ -3,6 +3,7 @@
  */
 
 import React from 'react'
+import ReactDOM from 'react-dom'
 import {Icon, Tooltip, Popconfirm} from 'antd'
 import classnames from 'classnames'
 import moment from 'moment'
@@ -10,11 +11,13 @@ import copy from 'json-deep-copy'
 import _ from 'lodash'
 import Input from '../common/input-auto-focus'
 import resolve from '../../common/resolve'
+import {addClass, removeClass, hasClass} from '../../common/class'
 import wait from '../../common/wait'
 import {contextMenuHeight, contextMenuPaddingTop} from '../../common/constants'
 import sorter from '../../common/index-sorter'
 
 const {getGlobal} = window
+let fs = getGlobal('fs')
 const computePos = (e, isBg, height) => {
   let {target} = e
   let rect = target.getBoundingClientRect()
@@ -29,6 +32,10 @@ const computePos = (e, isBg, height) => {
   return res
 }
 
+const fileItemCls = 'sftp-item'
+const onDragCls = 'sftp-ondrag'
+const onDragOverCls = 'sftp-dragover'
+
 export default class FileSection extends React.Component {
 
   constructor(props) {
@@ -39,12 +46,147 @@ export default class FileSection extends React.Component {
     }
   }
 
+  componentDidMount() {
+    this.dom = ReactDOM.findDOMNode(this)
+  }
+
   componentWillReceiveProps(nextProps) {
     if (!_.isEqual(nextProps.file, this.props.file)) {
       this.setState({
         file: copy(nextProps.file)
       })
     }
+  }
+
+  onDrag = () => {
+    //debug('on drag')
+    //debug(e.target)
+    addClass(this.dom, onDragCls)
+  }
+
+  onDragEnter = e => {
+    //debug('ondrag enter')
+    let {target} = e
+    if (
+      !hasClass(target, fileItemCls)
+    ) {
+      return e.preventDefault()
+    }
+    this.dropTarget = target
+    addClass(target, onDragOverCls)
+  }
+
+  onDragExit = () => {
+    //debug('ondragexit')
+    //let {target} = e
+    //removeClass(target, 'sftp-dragover')
+  }
+
+  onDragLeave = e => {
+    //debug('ondragleave')
+    let {target} = e
+    removeClass(target, onDragOverCls)
+  }
+
+  onDragOver = e => {
+    //debug('ondragover')
+    //debug(e.target)
+    //removeClass(this.dom, 'sftp-dragover')
+    e.preventDefault()
+  }
+
+  onDragStart = e => {
+    //debug('ondragstart')
+    //debug(e.target)
+    e.dataTransfer.setData('fromFile', JSON.stringify(this.props.file))
+    //e.effectAllowed = 'copyMove'
+  }
+
+  onDrop = e => {
+    e.preventDefault()
+    let {target} = e
+    if (!target) {
+      return
+    }
+    let fromFile = JSON.parse(e.dataTransfer.getData('fromFile'))
+    while (!target.className.includes(fileItemCls)) {
+      target = target.parentNode
+    }
+    let id = target.getAttribute('data-id')
+    let type = target.getAttribute('data-type')
+    if (!type) {
+      return
+    }
+    let toFile = this.props[type + 'FileTree'][id] || {
+      type,
+      isDirectory: false
+    }
+    this.onDropFile(fromFile, toFile)
+  }
+
+  onDragEnd = e => {
+    removeClass(this.dom, onDragCls)
+    document.querySelectorAll('.' + onDragOverCls).forEach((d) => {
+      removeClass(d, onDragOverCls)
+    })
+    e && e.dataTransfer && e.dataTransfer.clearData()
+  }
+
+  onDropFile = (fromFile, toFile) => {
+    let {type: fromType} = fromFile
+    let {
+      type: toType,
+      isDirectory: isDirectoryTo
+    } = toFile
+
+    //same side and drop to file, do nothing
+    if (fromType === toType && !isDirectoryTo) {
+      return
+    }
+
+    //same side and drop to folder, do mv
+    if (fromType === toType && isDirectoryTo) {
+      return this.mv(fromFile, toFile)
+    }
+
+    //other side, do transfer
+    this.transferDrop(fromFile, toFile)
+
+  }
+
+  transferDrop = (fromFile, toFile) => {
+    let files = this.isSelected(fromFile)
+      ? this.props.selectedFiles
+      : [fromFile]
+    let {isDirectory, name} = toFile
+    let pathFix = isDirectory ? name : ''
+    return this.doTransferSelected(null, files, pathFix)
+  }
+
+  mv = async (fromFile, toFile) => {
+    let files = this.isSelected(fromFile)
+      ? this.props.selectedFiles
+      : [fromFile]
+    let {type} = fromFile
+    let mv = type === 'local'
+      ? fs.mv
+      : this.props.sftp.mv
+    let targetPath = resolve(toFile.path, toFile.name)
+    for (let f of files) {
+      let {path, name} = f
+      let from = resolve(path, name)
+      let to = resolve(targetPath, name)
+      await mv(from, to).catch(err => console.log(err))
+    }
+    await wait(500)
+    this.props[type + 'List']()
+  }
+
+  isSelected = file => {
+    return _.some(
+      this.props.selectedFiles,
+      f => f.id === file.id
+    )
   }
 
   doRename = () => {
@@ -87,7 +229,6 @@ export default class FileSection extends React.Component {
     let {nameTemp, isDirectory} = file
     let {localPath} = this.props
     let p = resolve(localPath, nameTemp)
-    let fs = getGlobal('fs')
     let func = isDirectory
       ? fs.mkdirAsync
       : fs.touch
@@ -141,7 +282,7 @@ export default class FileSection extends React.Component {
       let other = lastI > i ? from : to
       ;[start, end] = [other, i].sort(sorter)
     }
-    return this.props[type].slice(start, end + 1)
+    return this.props.getFileList(type).slice(start, end + 1)
   }
 
   onClick = e => {
@@ -150,6 +291,7 @@ export default class FileSection extends React.Component {
       id,
       type
     } = file
+    this.onDragEnd(e)
     if (!id) {
       return
     }
@@ -207,7 +349,6 @@ export default class FileSection extends React.Component {
 
   localRename = async (oldname, newname) => {
     let {localPath} = this.props
-    let fs = getGlobal('fs')
     let p1 = resolve(localPath, oldname)
     let p2 = resolve(localPath, newname)
     await fs.renameAsync(p1, p2).catch(this.props.onError)
@@ -270,9 +411,12 @@ export default class FileSection extends React.Component {
     return res
   }
 
-  doTransferSelected = async () => {
+  doTransferSelected = async (
+    e,
+    selectedFiles = this.props.selectedFiles,
+    pathFix = ''
+  ) => {
     this.props.closeContextMenu()
-    let {selectedFiles} = this.props
     let filesToConfirm = []
     for (let f of selectedFiles) {
       let arr = await this.getTransferList(f)
@@ -282,7 +426,8 @@ export default class FileSection extends React.Component {
       ]
     }
     this.props.modifier({
-      filesToConfirm
+      filesToConfirm,
+      pathFix
     })
   }
 
@@ -524,7 +669,7 @@ export default class FileSection extends React.Component {
       return this.renderEditting(file)
     }
     let selected = _.some(selectedFiles, s => s.id === id)
-    let cls = classnames('sftp-item', type, {
+    let className = classnames('sftp-item', type, {
       directory: isDirectory
     }, {selected})
     let pm = type === 'remote'
@@ -536,12 +681,28 @@ export default class FileSection extends React.Component {
         <p>modifyTime: {moment(modifyTime).format()}</p>
       </div>
     )
+    let props = {
+      className,
+      draggable: true,
+      onDoubleClick: this.transferOrEnterDirectory,
+      ..._.pick(this, [
+        'onContextMenu',
+        'onClick',
+        'onDrag',
+        'onDragEnter',
+        'onDragExit',
+        'onDragLeave',
+        'onDragOver',
+        'onDragStart',
+        'onDrop',
+        'onDragEnd'
+      ])
+    }
     return (
       <div
-        className={cls}
-        onDoubleClick={this.transferOrEnterDirectory}
-        onContextMenu={this.onContextMenu}
-        onClick={this.onClick}
+        {...props}
+        data-id={id}
+        data-type={type}
       >
         <Tooltip
           title={title}

@@ -21,6 +21,15 @@ const sorter = (a, b) => {
   return bb > aa ? -1 : 1
 }
 
+const buildTree = arr => {
+  return arr.reduce((prev, curr) => {
+    return {
+      ...prev,
+      [curr.id]: curr
+    }
+  }, {})
+}
+
 export default class Sftp extends React.Component {
 
   constructor(props) {
@@ -29,6 +38,8 @@ export default class Sftp extends React.Component {
       id: props.id || generate(),
       local: [],
       remote: [],
+      localFileTree: {},
+      remoteFileTree: {},
       localLoading: false,
       remoteLoading: false,
       localShowHiddenFile: false,
@@ -40,6 +51,7 @@ export default class Sftp extends React.Component {
       transports: [],
       selectedFiles: [],
       lastClickedFile: null,
+      pathFix: '',
       filesToConfirm: []
     }
   }
@@ -296,6 +308,7 @@ export default class Sftp extends React.Component {
       }).sort(sorter)
       let update = {
         remote,
+        remoteFileTree: buildTree(remote),
         remoteLoading: false
       }
       if (!noPathInit) {
@@ -342,6 +355,7 @@ export default class Sftp extends React.Component {
       local.sort(sorter)
       let update = {
         local,
+        localFileTree: buildTree(local),
         localLoading: false
       }
       if (!noPathInit) {
@@ -402,12 +416,15 @@ export default class Sftp extends React.Component {
         'delFiles',
         'getIndex',
         'selectAll',
+        'getFileList',
         'onGoto',
         'renderDelConfirmTitle'
       ]),
       ..._.pick(this.state, [
         'localPath',
         'remotePath',
+        'localFileTree',
+        'remoteFileTree',
         'local',
         'remote',
         'lastClickedFile',
@@ -540,13 +557,15 @@ export default class Sftp extends React.Component {
       transports,
       filesToConfirm,
       remotePath,
-      localPath
+      localPath,
+      pathFix
     } = this.state
     let {height, onError} = this.props
     let props = {
       transports,
       onError,
       localPath,
+      pathFix,
       remotePath,
       ..._.pick(this, [
         'sftp',

@@ -80,7 +80,7 @@ export default class Index extends React.Component {
     this.setState({
       contextMenuVisible: false
     })
-    this.dom.removeEventListener('click', this.closeContextMenu)
+    this.dom && this.dom.removeEventListener('click', this.closeContextMenu)
   }
 
   onError = e => {

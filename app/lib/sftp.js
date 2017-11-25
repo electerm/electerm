@@ -315,6 +315,25 @@ class Sftp {
     })
   }
 
+  /**
+   * mv
+   *
+   * @param {String} from
+   * @param {String} to
+   * https://github.com/mscdex/ssh2-streams/blob/master/SFTPStream.md
+   * @return {Promise}
+   */
+  mv (from, to) {
+    return new Promise((resolve, reject) => {
+      let {client} = this
+      let cmd = `mv ${from} ${to}`
+      client.exec(cmd, (err) => {
+        if (err) reject(err)
+        else resolve()
+      })
+    })
+  }
+
   //end
 }
 
