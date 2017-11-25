@@ -32,6 +32,7 @@ const computePos = (e, isBg, height) => {
   return res
 }
 
+const fileItemCls = 'sftp-item'
 const onDragCls = 'sftp-ondrag'
 const onDragOverCls = 'sftp-dragover'
 
@@ -67,7 +68,7 @@ export default class FileSection extends React.Component {
     //debug('ondrag enter')
     let {target} = e
     if (
-      !hasClass(target, 'sftp-item')
+      !hasClass(target, fileItemCls)
     ) {
       return e.preventDefault()
     }
@@ -97,7 +98,7 @@ export default class FileSection extends React.Component {
   onDragStart = e => {
     //debug('ondragstart')
     //debug(e.target)
-    e.dataTransfer.setData('fromFile', this.props.file)
+    e.dataTransfer.setData('fromFile', JSON.stringify(this.props.file))
     //e.effectAllowed = 'copyMove'
   }
 
@@ -108,9 +109,15 @@ export default class FileSection extends React.Component {
     if (!target) {
       return
     }
-    let fromFile = e.dataTransfer.getData('fromFile')
+    let fromFile = JSON.parse(e.dataTransfer.getData('fromFile'))
+    while (!target.className.includes(fileItemCls)) {
+      target = target.parentNode
+    }
     let id = target.getAttribute('data-id')
     let type = target.getAttribute('data-type')
+    if (!type) {
+      return
+    }
     let toFile = this.props[type + 'FileTree'][id] || {
       type,
       isDirectory: false
@@ -119,8 +126,10 @@ export default class FileSection extends React.Component {
   }
 
   onDragEnd = e => {
-    removeClass(this.dom, onDragCls)
-    e.dataTransfer.clearData()
+    document.querySelectorAll('.' + onDragOverCls).forEach((d) => {
+      removeClass(d, onDragOverCls)
+    })
+    e && e.dataTransfer && e.dataTransfer.clearData()
   }
 
   onDropFile = (fromFile, toFile) => {
@@ -137,7 +146,7 @@ export default class FileSection extends React.Component {
 
     //same side and drop to folder, do mv
     if (fromType === toType && isDirectoryTo) {
-      this.mv(fromFile, toFile)
+      return this.mv(fromFile, toFile)
     }
 
     //other side, do transfer
@@ -161,7 +170,7 @@ export default class FileSection extends React.Component {
     let {type} = fromFile
     let mv = type === 'local'
       ? fs.mv
-      : this.sftp.mv
+      : this.props.sftp.mv
     let targetPath = resolve(toFile.path, toFile.name)
     for (let f of files) {
       let {path, name} = f
@@ -169,6 +178,8 @@ export default class FileSection extends React.Component {
       let to = resolve(targetPath, name)
       await mv(from, to).catch(err => console.log(err))
     }
+    await wait(500)
+    this.props[type + 'List']()
   }
 
   isSelected = file => {
@@ -280,6 +291,7 @@ export default class FileSection extends React.Component {
       id,
       type
     } = file
+    this.onDragEnd(e)
     if (!id) {
       return
     }
@@ -401,7 +413,7 @@ export default class FileSection extends React.Component {
 
   doTransferSelected = async (
     selectedFiles = this.props.selectedFiles,
-    pathFix
+    pathFix = ''
   ) => {
     this.props.closeContextMenu()
     let filesToConfirm = []

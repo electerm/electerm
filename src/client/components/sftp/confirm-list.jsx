@@ -92,9 +92,9 @@ export default class Confirms extends React.Component {
     })
   }
 
-  getBasePath = type => {
+  getBasePath = (type, isOtherType) => {
     let {pathFix} = this.props
-    return pathFix
+    return pathFix && isOtherType
       ? resolve(this.props[type + 'Path'], pathFix)
       : this.props[type + 'Path']
   }
@@ -147,7 +147,7 @@ export default class Confirms extends React.Component {
     let basePath = this.getBasePath(type)
     let beforePath = resolve(path, name)
     let reg = new RegExp('^' + basePath)
-    let otherPath = this.props[otherType + 'Path']
+    let otherPath = this.getBasePath(otherType, true)
     let targetPath = beforePath.replace(reg, otherPath)
     return await this.checkExist(type, targetPath)
   }
@@ -231,7 +231,7 @@ export default class Confirms extends React.Component {
       ? 'remote'
       : 'local'
     let basePath = this.getBasePath(type)
-    let otherBasePath = this.props[otherType + 'Path']
+    let otherBasePath = this.getBasePath(otherType, true)
     let regBase = new RegExp('^' + basePath)
     let targetPath = path.replace(regBase, otherBasePath)
     let newName = shouldRename
@@ -258,7 +258,7 @@ export default class Confirms extends React.Component {
       ? 'remote'
       : 'local'
     let basePath = this.getBasePath(type)
-    let repPath = this.props[otherType + 'Path']
+    let repPath = this.getBasePath(otherType, true)
     let beforePath = resolve(bp, name)
     let newPath = resolve(bp, newName)
     let reg = new RegExp('^' + basePath)
