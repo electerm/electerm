@@ -6,7 +6,6 @@ import {generate} from 'shortid'
 import _ from 'lodash'
 import copy from 'json-deep-copy'
 import classnames from 'classnames'
-import * as ls from '../../common/ls'
 import ContextMenu from '../common/context-menu'
 import FileInfoModal from '../sftp/file-props-modal'
 import {notification} from 'antd'
@@ -18,6 +17,7 @@ const initTabs = () => [
   }
 ]
 const {getGlobal} = window
+const ls = getGlobal('ls')
 
 export default class Index extends React.Component {
 

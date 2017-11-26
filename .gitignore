@@ -22,7 +22,7 @@ package-lock.json
 /app/config.js
 /app/*.json
 /work/
-
+localstorage.json
 # Runtime data
 #pids
 
