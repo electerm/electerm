@@ -12,6 +12,7 @@ const fs = require('fs')
 const {saveUserConfig} = require('./lib/user-config-controller')
 const {init, changeHotkeyReg} = require('./lib/shortcut')
 const fsExport = require('./lib/fs')
+const ls = require('./lib/ls')
 
 let version = +new Date()
 try {
@@ -161,6 +162,7 @@ async function createWindow () {
     _config: config,
     Ftp,
     fs: fsExport,
+    ls,
     resolve,
     version,
     homeOrtmp: os.homedir() || os.tmpdir(),
