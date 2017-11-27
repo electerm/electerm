@@ -10,6 +10,7 @@ import Confirms from './confirm-list'
 import resolve from '../../common/resolve'
 import wait from '../../common/wait'
 import sorterIndex from '../../common/index-sorter'
+import DragSelect from './drag-select'
 import './sftp.styl'
 
 const {getGlobal} = window
@@ -192,6 +193,10 @@ export default class Sftp extends React.Component {
       title: this.renderDelConfirmTitle(files),
       onOk: () => this.delFiles(type, files)
     })
+  }
+
+  onDragSelect = (ids, type) => {
+    console.log(ids, type)
   }
 
   enter = (type, e) => {
@@ -492,6 +497,9 @@ export default class Sftp extends React.Component {
   }
 
   renderSection(type) {
+    let {
+      id
+    } = this.state
     let n = `${type}PathTemp`
     let path = this.state[n]
     let realPath = this.state[`${type}Path`]
@@ -546,6 +554,11 @@ export default class Sftp extends React.Component {
                 })
               }
             </div>
+            <DragSelect
+              targetSelector={`#${id} .sftp-item.${type}`}
+              wrapperSelector={`#${id} .virtual-file.${type}`}
+              onSelect={(ids) => this.onDragSelect(ids, type)}
+            />
           </div>
         </Spin>
       </Col>
