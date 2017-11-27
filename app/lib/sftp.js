@@ -53,7 +53,7 @@ class Sftp {
             filename,
             longname,
             attrs: {
-              size, mtime, atime, uid, gid
+              size, mtime, atime, uid, gid, mode
             }
           } = item
           //from https://github.com/jyu213/ssh2-sftp-client/blob/master/src/index.js
@@ -63,6 +63,7 @@ class Sftp {
             size,
             modifyTime: mtime * 1000,
             accessTime: atime * 1000,
+            mode,
             rights: {
               user: longname.substr(1, 3).replace(reg, ''),
               group: longname.substr(4,3).replace(reg, ''),

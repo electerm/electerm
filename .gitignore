@@ -21,8 +21,9 @@ test/e2e/reports
 package-lock.json
 /app/config.js
 /app/*.json
+/app/version
 /work/
-
+localstorage.json
 # Runtime data
 #pids
 

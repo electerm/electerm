@@ -299,7 +299,7 @@ export default class Sftp extends React.Component {
       this.sftp = sftp
       remote = remote.map(r => {
         return {
-          ..._.pick(r, ['name', 'size', 'accessTime', 'modifyTime']),
+          ..._.pick(r, ['name', 'size', 'accessTime', 'modifyTime', 'mode']),
           isDirectory: r.type === 'd',
           type: 'remote',
           path: remotePath,
@@ -346,6 +346,7 @@ export default class Sftp extends React.Component {
           size: stat.size,
           accessTime: stat.atime,
           modifyTime: stat.mtime,
+          mode: stat.mode,
           type: 'local',
           path: localPath,
           id: generate(),

@@ -12,115 +12,13 @@ const fs = require('fs')
 const {saveUserConfig} = require('./lib/user-config-controller')
 const {init, changeHotkeyReg} = require('./lib/shortcut')
 const fsExport = require('./lib/fs')
-
-let version = +new Date()
-try {
-  version = fs.readFileSync('./version').toString()
-} catch(e) {
-  console.log('no version file created')
-}
+const ls = require('./lib/ls')
+const version = require('./lib/version')
+const menu = require('./lib/menu')
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let win
-const template = [
-  {
-    label: 'Edit',
-    submenu: [
-      {role: 'undo'},
-      {role: 'redo'},
-      {type: 'separator'},
-      {role: 'cut'},
-      {role: 'copy'},
-      {role: 'paste'},
-      {role: 'pasteandmatchstyle'},
-      {role: 'delete'},
-      {role: 'selectall'}
-    ]
-  },
-  {
-    label: 'View',
-    submenu: [
-      {role: 'reload'},
-      {role: 'forcereload'},
-      {role: 'toggledevtools'},
-      {type: 'separator'},
-      {role: 'resetzoom'},
-      {role: 'zoomin'},
-      {role: 'zoomout'},
-      {type: 'separator'},
-      {role: 'togglefullscreen'}
-    ]
-  },
-  {
-    role: 'window',
-    submenu: [
-      {role: 'minimize'},
-      {role: 'close'}
-    ]
-  },
-  {
-    role: 'help',
-    label: 'help',
-    submenu: [
-      {
-        label: 'report issue',
-        click () {
-          require('electron')
-            .shell
-            .openExternal('https://github.com/electerm/electerm/issues/new')
-        }
-      },
-      {
-        label: 'github',
-        click () {
-          require('electron')
-            .shell
-            .openExternal('https://github.com/electerm/electerm')
-        }
-      }
-    ]
-  }
-]
-
-if (process.platform === 'darwin') {
-  template.unshift({
-    label: app.getName(),
-    submenu: [
-      {role: 'about'},
-      {type: 'separator'},
-      {role: 'services', submenu: []},
-      {type: 'separator'},
-      {role: 'hide'},
-      {role: 'hideothers'},
-      {role: 'unhide'},
-      {type: 'separator'},
-      {role: 'quit'}
-    ]
-  })
-
-  // Edit menu
-  template[1].submenu.push(
-    {type: 'separator'},
-    {
-      label: 'Speech',
-      submenu: [
-        {role: 'startspeaking'},
-        {role: 'stopspeaking'}
-      ]
-    }
-  )
-
-  // Window menu
-  template[3].submenu = [
-    {role: 'close'},
-    {role: 'minimize'},
-    {role: 'zoom'},
-    {type: 'separator'},
-    {role: 'front'}
-  ]
-}
-const menu = Menu.buildFromTemplate(template)
 let {NODE_ENV} = process.env
 const isDev = NODE_ENV === 'development'
 
@@ -161,6 +59,7 @@ async function createWindow () {
     _config: config,
     Ftp,
     fs: fsExport,
+    ls,
     resolve,
     version,
     homeOrtmp: os.homedir() || os.tmpdir(),

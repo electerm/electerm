@@ -121,7 +121,8 @@ export default class Tranporter extends React.Component {
         localPath,
         remotePath,
         file: {
-          isDirectory
+          isDirectory,
+          mode
         }
       } = this.props.transport
       if (isDirectory) {
@@ -132,6 +133,7 @@ export default class Tranporter extends React.Component {
       this.transport = this.props.sftp[type]({
         remotePath,
         localPath,
+        options: {mode},
         ..._.pick(this, [
           'onData',
           'onError',
