@@ -2,9 +2,12 @@
 import React from 'react'
 import fetch from '../../common/fetch'
 import {generate} from 'shortid'
+import _ from 'lodash'
 
 const {Terminal, getGlobal} = window
 let config = getGlobal('_config')
+let passEnd = /password: /
+let yesnoEnd = /\(yes\/no\)\? /
 
 export default class Term extends React.Component {
 
@@ -17,6 +20,15 @@ export default class Term extends React.Component {
 
   componentDidMount() {
     this.initTerminal()
+  }
+
+  componentDidUpdate(prevProps) {
+    if (
+      prevProps.height !== this.props.height ||
+      prevProps.width !== this.props.width
+    ) {
+      this.onResize()
+    }
   }
 
   componentWillUnmount() {
@@ -40,40 +52,57 @@ export default class Term extends React.Component {
     this.timers.timer1 = setTimeout(this.initData, 10)
   }
 
+  count = 0
+
   initData = () => {
+    let base = this.getBaseText()
+    let {tab = {}} = this.props
+    this.term._sendData(base)
+    if (tab.host) {
+      this.term.socket.addEventListener('message', this.handler1)
+    }
+  }
+
+  getBaseText = () => {
     let base = 'cd ~\rclear\r'
     let {tab = {}} = this.props
-    let {host, port, username, password} = tab
+    let {host, port, username} = tab
     if (tab.host) {
       base = `${base}\rssh -p ${port} ${username}@${host}\r`
     }
+    return base
+  }
+
+  getPassText = () => {
+    this.count ++
+    let {tab = {}} = this.props
+    let {password} = tab
+    let passTxt = `${password}\r`
+    return passTxt
+  }
+
+  handler1 = d => {
+    this.count ++
+    let base = this.getBaseText()
     let len = base.length
-    let count = 0
-    this.term._sendData(base)
-    let passEnd = /password: /
-    let yesnoEnd = /\(yes\/no\)\? /
-    if (tab.host) {
-      let passTxt = `${password}\r`
-      let handler2 = d => {
-        if (passEnd.test(d.data)) {
-          this.term._sendData(passTxt)
-          this.term.socket.removeEventListener('message', handler2)
-        }
-      }
-      let handler1 = d => {
-        count ++
-        if (yesnoEnd.test(d.data)) {
-          this.term._sendData('yes\r')
-          this.term.socket.addEventListener('message', handler2)
-          this.term.socket.removeEventListener('message', handler1)
-        } else if (passEnd.test(d.data)) {
-          this.term._sendData(passTxt)
-          this.term.socket.removeEventListener('message', handler1)
-        } else if (count > len * 2) {
-          this.term.socket.removeEventListener('message', handler1)
-        }
-      }
-      this.term.socket.addEventListener('message', handler1)
+    let passTxt = this.getPassText()
+    if (yesnoEnd.test(d.data)) {
+      this.term._sendData('yes\r')
+      this.term.socket.addEventListener('message', this.handler2)
+      this.term.socket.removeEventListener('message', this.handler1)
+    } else if (passEnd.test(d.data)) {
+      this.term._sendData(passTxt)
+      this.term.socket.removeEventListener('message', this.handler1)
+    } else if (this.count > len * 2) {
+      this.term.socket.removeEventListener('message', this.handler1)
+    }
+  }
+
+  handler2 = d => {
+    let passTxt = this.getPassText()
+    if (passEnd.test(d.data)) {
+      this.term._sendData(passTxt)
+      this.term.socket.removeEventListener('message', this.handler2)
     }
   }
 
@@ -99,18 +128,28 @@ export default class Term extends React.Component {
     term.on('resize', this.onResizeTerminal)
   }
 
+  onResize = () => {
+    let cid = _.get(this.props, 'currentTabId')
+    let tid = _.get(this.props, 'tab.id')
+    if (cid === tid && this.term) {
+      let {cols, rows} = this.term.proposeGeometry()
+      this.term.resize(cols, rows)
+    }
+  }
+
   onerrorSocket = err => {
     console.log(err.stack)
   }
 
   oncloseSocket = () => {
-    //todo
+    console.log('socket closed, pid:', this.pid)
   }
 
   onResizeTerminal = size => {
     let {cols, rows} = size
     let {host, port} = config
-    let url = `http://${host}:${port}/terminals?cols=${cols}&rows=${rows}`
+    let {pid} = this
+    let url = `http://${host}:${port}/terminals/${pid}/size?cols=${cols}&rows=${rows}`
     fetch.post(url)
   }
 

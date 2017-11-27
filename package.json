@@ -1,6 +1,6 @@
 {
   "name": "electerm",
-  "version": "0.5.1",
+  "version": "0.6.0",
   "description": "electerm",
   "main": "app.js",
   "scripts": {

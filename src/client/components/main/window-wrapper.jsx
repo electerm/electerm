@@ -12,6 +12,7 @@ export default class WindowWrapper extends React.Component  {
 
   state = {
     height: 500,
+    width: window.innerWidth,
     pane: 'ssh'
   }
 
@@ -20,11 +21,12 @@ export default class WindowWrapper extends React.Component  {
     this.onResize()
   }
 
-  onResize = _.throttle(() => {
+  onResize = () => {
     this.setState({
-      height: this.computeHeight()
+      height: this.computeHeight(),
+      width: window.innerWidth
     })
-  }, 300)
+  }
 
   computeHeight = () => {
     let hasHost = _.get(this.props, 'tab.host')
@@ -36,10 +38,14 @@ export default class WindowWrapper extends React.Component  {
   }
 
   render() {
-    let {height, pane} = this.state
+    let {height, pane, width} = this.state
     let {props} = this
-    let th = height + 17
     let host = _.get(props, 'tab.host')
+    let propsAll = {
+      ...props,
+      height,
+      width
+    }
     return (
       <div className="ui-wrapper">
         {
@@ -53,7 +59,7 @@ export default class WindowWrapper extends React.Component  {
                   tab="ssh"
                   key="ssh"
                 >
-                  <Term {...props} height={th} />
+                  <Term {...propsAll} />
                 </TabPane>
                 <TabPane
                   tab="sftp"
@@ -67,7 +73,7 @@ export default class WindowWrapper extends React.Component  {
                 </TabPane>
               </Tabs>
             )
-            : <Term {...props} height={th} />
+            : <Term {...propsAll} />
         }
       </div>
     )
