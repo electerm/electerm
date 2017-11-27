@@ -460,6 +460,7 @@ export default class Sftp extends React.Component {
         <FileSection
           {...this.getFileProps(item, type)}
           ref={ref => this[type + 'Dom'] = ref}
+          draggable={false}
         />
       </div>
     )

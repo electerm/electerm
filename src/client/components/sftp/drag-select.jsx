@@ -65,7 +65,7 @@ export default class DragSelect extends React.Component {
   }
 
   onMousedown = e => {
-    debug('md', e)
+    debug('md', e.target)
     let startPoint = {
       x: e.pageX,
       y: e.pageY

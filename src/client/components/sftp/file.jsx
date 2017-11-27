@@ -655,7 +655,7 @@ export default class FileSection extends React.Component {
   }
 
   render() {
-    let {type, selectedFiles} = this.props
+    let {type, selectedFiles, draggable = true} = this.props
     let {file} = this.state
     let {
       name,
@@ -683,7 +683,7 @@ export default class FileSection extends React.Component {
     )
     let props = {
       className,
-      draggable: true,
+      draggable,
       onDoubleClick: this.transferOrEnterDirectory,
       ..._.pick(this, [
         'onContextMenu',
