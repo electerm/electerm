@@ -3,8 +3,9 @@
  */
 
 import React from 'react'
+import ReactDOM from 'react-dom'
 import PropTypes from 'prop-types'
-import _ from 'lodash'
+//import _ from 'lodash'
 
 export default class DragSelect extends React.Component {
 
@@ -12,7 +13,7 @@ export default class DragSelect extends React.Component {
     className: PropTypes.string,
     wrapperSelector: PropTypes.string,
     targetSelector: PropTypes.string,
-    onSelect: PropTypes.func, // (fileIds: [string]) => ...
+    onSelect: PropTypes.func, // (fileIds: [string], e: Event) => ...
     style: PropTypes.object
   }
 
@@ -44,20 +45,20 @@ export default class DragSelect extends React.Component {
   }
 
   initEvents() {
-    debug('init')
-    // let root = document.querySelector(this.props.wrapperSelector)
-    // if (!root) {
-    //   return
-    // }
-    //this.root = root
-    window.addEventListener('mousedown', this.onMousedown)
-    window.addEventListener('mouseup', this.onMouseup)
+    let root = document.querySelector(this.props.wrapperSelector)
+    if (!root) {
+      return
+    }
+    this.root = root
+    this.root.addEventListener('mousedown', this.onMousedown)
+    this.root.addEventListener('mouseup', this.onMouseup)
   }
 
   mousemove = e => {
+    let rect = this.root.getBoundingClientRect()
     let endPoint = {
-      x: e.pageX,
-      y: e.pageY
+      x: e.pageX - rect.left,
+      y: e.pageY - rect.top
     }
     this.setState({
       endPoint
@@ -65,22 +66,28 @@ export default class DragSelect extends React.Component {
   }
 
   onMousedown = e => {
-    debug('md', e.target)
+    let rect = this.root.getBoundingClientRect()
     let startPoint = {
-      x: e.pageX,
-      y: e.pageY
+      x: e.pageX - rect.left,
+      y: e.pageY - rect.top
     }
     this.setState({
       onDrag: true,
       startPoint
     })
-    window.addEventListener('mousemove', this.mousemove)
+    this.root.addEventListener('mousemove', this.mousemove)
   }
 
-  onMouseup = () => {
-    window.removeEventListener('mousemove', this.mousemove)
-    let style = this.computeMaskPosition()
-    this.computeSelectedFiles(style)
+  onMouseup = (e) => {
+    this.root.removeEventListener('mousemove', this.mousemove)
+    if (
+      !this.state.onDrag ||
+      !this.state.endPoint ||
+      !this.state.startPoint
+    ) {
+      return
+    }
+    this.computeSelectedFiles(e)
     this.setState({
       onDrag: false,
       startPoint: null,
@@ -89,33 +96,37 @@ export default class DragSelect extends React.Component {
   }
 
   checkIntersects = (arr1, arr2) => {
-    return arr1[1] > arr2[0] || arr1[0] < arr2[1]
+    return arr1[0] > arr2[0]
+      ? arr1[0] < arr2[1]
+      : arr1[1] > arr2[0]
   }
 
-  checkInSelect = (rect, style) => {
-    let xs1 = [rect.left, rect.left + rect.width]
-    let ys1 = [rect.top, rect.top + rect.height]
-    let xs2 = [style.left, style.left + rect.width]
-    let ys2 = [style.top, style.top + rect.height]
+  checkInSelect = (rect, maskReact) => {
+    let xs1 = [rect.left, rect.right]
+    let ys1 = [rect.top, rect.bottom]
+    let xs2 = [maskReact.left, maskReact.right]
+    let ys2 = [maskReact.top, maskReact.bottom]
     return this.checkIntersects(xs1, xs2) &&
       this.checkIntersects(ys1, ys2)
   }
 
-  computeSelectedFiles = (style) => {
+  computeSelectedFiles = (e) => {
     let {targetSelector} = this.props
     let doms = Array.from(document.querySelectorAll(targetSelector))
+    let maskDom = ReactDOM.findDOMNode(this)
+    let maskReact = maskDom.getBoundingClientRect()
     let ids = doms
       .filter(dom => {
         let rect = dom.getBoundingClientRect()
-        return this.checkInSelect(rect, style)
+        return this.checkInSelect(rect, maskReact)
       })
-      .map(dom => dom.getAttribute('id'))
-    this.props.onSelect(ids)
+      .map(dom => dom.getAttribute('data-id'))
+      .filter(d => d)
+    this.props.onSelect(ids, e)
   }
 
   computeMaskPosition = () => {
     let {startPoint, endPoint} = this.state
-    debug(startPoint, endPoint)
     if (!startPoint || !endPoint) {
       return {}
     }
@@ -143,10 +154,13 @@ export default class DragSelect extends React.Component {
       ...maskStyle,
       ...style
     }
-    if (!this.state.onDrag || !this.state.endPoint || !this.state.startPoint) {
+    if (
+      !this.state.onDrag ||
+      !this.state.endPoint ||
+      !this.state.startPoint
+    ) {
       return null
     }
-    debug('rendeering', styles)
     return (
       <div className={className} style={styles} />
     )

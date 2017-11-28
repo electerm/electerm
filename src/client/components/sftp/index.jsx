@@ -195,8 +195,34 @@ export default class Sftp extends React.Component {
     })
   }
 
-  onDragSelect = (ids, type) => {
-    console.log(ids, type)
+  onDragSelect = (ids, e, type) => {
+    if (!ids.length) {
+      return
+    }
+    let {shiftKey, ctrlKey} = e
+    let {selectedFiles} = this.state
+    let tree = this.state[type + 'FileTree']
+    let sels = []
+    let sids = selectedFiles.map(d => d.id)
+    let map2obj = id => tree[id]
+    if (shiftKey) {
+      sels = _.uniq([
+        ...sids,
+        ...ids
+      ]).map(map2obj)
+    } else if (ctrlKey) {
+      sels = [
+        ...selectedFiles.filter(s => !ids.includes(s.id)),
+        ...ids
+          .filter(id => !sids.includes(id))
+          .map(map2obj)
+      ]
+    } else {
+      sels = ids.map(map2obj)
+    }
+    this.setState({
+      selectedFiles: sels
+    })
   }
 
   enter = (type, e) => {
@@ -545,7 +571,7 @@ export default class Sftp extends React.Component {
               </div>
             </div>
             <div
-              className="file-list pd1 overscroll-y relative"
+              className={`file-list ${type} pd1 overscroll-y relative`}
               style={{height: height - 15}}
             >
               {this.renderEmptyFile(type)}
@@ -554,12 +580,12 @@ export default class Sftp extends React.Component {
                   return this.renderItem(item, i, type)
                 })
               }
+              <DragSelect
+                targetSelector={`#${id} .sftp-item.${type}`}
+                wrapperSelector={`#${id} .file-list.${type}`}
+                onSelect={(ids, e) => this.onDragSelect(ids, e, type)}
+              />
             </div>
-            <DragSelect
-              targetSelector={`#${id} .sftp-item.${type}`}
-              wrapperSelector={`#${id} .virtual-file.${type}`}
-              onSelect={(ids) => this.onDragSelect(ids, type)}
-            />
           </div>
         </Spin>
       </Col>
