@@ -12,7 +12,9 @@
     "icon": "node bin/icon",
     "ver": "node bin/generate-version.js",
     "clean": "rm -rf app/assets/js && rm -rf app/assets/css && rm -rf app/assets/images && rm -rf app/assets/index.html",
-    "dist": "node bin/dist",
+    "pack": "node bin/pack",
+    "compile": "node bin/build",
+    "dist": "npm run compile && npm run pack",
     "bat": "npm run dist",
     "postinstall": "./node_modules/.bin/electron-rebuild",
     "preinstall": "rm -rf package-lock.json"

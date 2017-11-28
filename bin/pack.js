@@ -1,5 +1,5 @@
 /**
- * 打包程序
+ * pack
  */
 
 const {version, name} = require('../package.json')
@@ -9,15 +9,10 @@ const dir = 'dist/v' + version
 const bin = './node_modules/.bin'
 const cwd = process.cwd()
 
-echo('start build')
+echo('start pack')
 
 const timeStart = + new Date()
 
-echo('clean')
-exec('npm run clean')
-exec('npm run ver')
-exec('npm run gulp')
-exec('npm run build')
 rm('-rf', dir)
 rm('-rf', 'dist/latest')
 rm('-rf', 'work')
@@ -88,4 +83,4 @@ for (let f of arr) {
 }
 
 const endTime = +new Date()
-echo(`done in ${(endTime - timeStart)/1000} s`)
+echo(`done pack in ${(endTime - timeStart)/1000} s`)
