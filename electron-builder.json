@@ -1,6 +1,34 @@
 {
+  "appId": "org.electerm.electerm",
   "directories": {
-    "buildResources": "work/app",
+    "app": "work/app",
     "output": "dist"
+  },
+  "files": [
+    "out"
+  ],
+  "mac": {
+    "category": "public.app-category.graphics-design"
+  },
+  "dmg": {
+    "contents": [
+      {
+        "x": 110,
+        "y": 150
+      },
+      {
+        "x": 240,
+        "y": 150,
+        "type": "link",
+        "path": "/Applications"
+      }
+    ]
+  },
+  "linux": {
+    "category": "Graphics",
+    "target": [
+      "rpm",
+      "deb"
+    ]
   }
 }
