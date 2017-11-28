@@ -3,10 +3,12 @@
  */
 
 const fs = require('fs')
+const {resolve} = require('path')
 let version = (+new Date()).toString()
+let path = resolve(__dirname, '../version')
 
 try {
-  version = fs.readFileSync('../version').toString()
+  version = fs.readFileSync(path).toString()
 } catch(e) {
   console.log('no version file created')
 }
