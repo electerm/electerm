@@ -8,6 +8,10 @@
 - terminal/ssh/sftp client(mac, win, linux) based on electron/node-pty/xterm and more, I hope it works as a combination of `guake` and `xshell`
 - it is still on its early stage, more features will be added.
 
+<div align="center">
+  <img src="https://github.com/electerm/electerm-resource/raw/master/static/images/electerm.gif", alt="" />
+</div>
+
 ## dowload
 https://github.com/electerm/electerm/releases
 
