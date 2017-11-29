@@ -1,6 +1,6 @@
 <h1 align="center">
     <a href="https://github.com/electerm/electerm">
-        <img src="https://raw.githubusercontent.com/electerm/electerm/master/app/static/images/electerm.png", alt="" />
+        <img src="https://github.com/electerm/electerm-resource/raw/master/static/images/electerm.png", alt="" />
     </a>
 </h1>
 
