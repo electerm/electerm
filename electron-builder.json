@@ -32,7 +32,8 @@
     "icon": "app/static/images",
     "target": [
       "rpm",
-      "deb"
+      "deb",
+      "tar.gz"
     ]
   }
 }

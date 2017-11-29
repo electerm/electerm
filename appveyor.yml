@@ -16,7 +16,6 @@ build_script:
 test: off
 skip_tags: true
 cache:
-  - node_modules                        # local npm modules
   - $LOCALAPPDATA/electron/Cache
   - '%USERPROFILE%\.electron'
 
