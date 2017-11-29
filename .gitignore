@@ -24,6 +24,7 @@ package-lock.json
 /app/version
 /work/
 /local-electron-builder.json
+user-config.json
 localstorage.json
 # Runtime data
 #pids
