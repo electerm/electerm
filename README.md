@@ -43,11 +43,10 @@ npm run c
 npm run dev
 ```
 
-## build
+## test build
 ```bash
-# in ubutnu 16.04 need rpm and Wine 1.6 or later to be installed
-# see https://github.com/electron-userland/electron-packager
-npm run dist
+# build linux only with -l
+npm run release -l
 # visit dist/
 ```
 

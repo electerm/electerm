@@ -21,6 +21,26 @@ const run = (cmd) => {
 }
 
 /**
+ * run windows cmd
+ * @param {string} cmd
+ */
+const runWinCmd = (cmd) => {
+  return new Promise((resolve, reject) => {
+    exec(
+      'powershell.exe',
+      [`-command "${cmd}"`],
+      (err, stdout, stderr) => {
+        if (err) {
+          reject(err)
+        } else if (stderr) {
+          reject(stderr)
+        }
+        resolve(stdout)
+      })
+  })
+}
+
+/**
  * rm -rf directory
  * @param {string} localFolderPath absolute path of directory
  */
@@ -28,7 +48,7 @@ const rmrf = (localFolderPath) => {
   let cmd = isWin
     ? `Remove-Item ${localFolderPath} -Force -Recurse -ErrorAction SilentlyContinue`
     : `rm -rf ${localFolderPath}`
-  return run(cmd)
+  return isWin ? runWinCmd(cmd) : run(cmd)
 }
 
 /**
@@ -39,7 +59,7 @@ const mv = (from, to) => {
   let cmd = isWin
     ? `Move-Item ${from} ${to}`
     : `mv ${from} ${to}`
-  return run(cmd)
+  return isWin ? runWinCmd(cmd) : run(cmd)
 }
 
 /**
@@ -47,20 +67,10 @@ const mv = (from, to) => {
  * @param {string} localFolderPath absolute path
  */
 const touch = (localFilePath) => {
-  let str = `touch ${localFilePath}`
-  if (isWin) {
-    str = `New-Item -ItemType file ${localFilePath}`
-  }
-  return new Promise((resolve, reject) => {
-    exec(str, (err, stdout, stderr) => {
-      if (err) {
-        reject(err)
-      } else if (stderr) {
-        reject(stderr)
-      }
-      resolve(stdout)
-    })
-  })
+  let cmd = isWin
+    ? `New-Item -ItemType file ${localFilePath}`
+    : `touch ${localFilePath}`
+  isWin ? runWinCmd(cmd) : run(cmd)
 }
 
 module.exports = Object.assign(
