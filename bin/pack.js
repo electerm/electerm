@@ -3,7 +3,7 @@
  */
 
 const {version} = require('../package.json')
-const {mkdir, exec, echo} = require('shelljs')
+const {exec, echo} = require('shelljs')
 //const {readdirSync} = require('fs')
 const dir = 'dist/v' + version
 const bin = './node_modules/.bin'
@@ -12,8 +12,6 @@ const bin = './node_modules/.bin'
 echo('start pack')
 
 const timeStart = + new Date()
-
-mkdir('-p', dir + '/installers')
 
 // echo('building win32')
 // exec(`${bin}/electron-packager ./work/app --overwrite --platform=win32 --arch=ia32 --out=${dir} --icon=app/static/icons/icons.ico`)
