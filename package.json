@@ -17,8 +17,8 @@
     "prepare-file": "node bin/prepare",
     "dist-test": "npm run compile && npm run prepare-file && npm run pack",
     "output": "./node_modules/.bin/electron-builder",
+    "output-cn": "./node_modules/.bin/electron-builder -c local-electron-builder.json",
     "release": "npm run compile && npm run prepare-file && npm run output",
-    "bat": "npm run dist",
     "preinstall": "rm -rf package-lock.json"
   },
   "license": "MIT",

@@ -32,7 +32,7 @@
   },
   "linux": {
     "category": "Development",
-    "icon": "app/static/images/electerm-round-128x128.png",
+    "icon": "app/static/images",
     "target": [
       "rpm",
       "deb"
