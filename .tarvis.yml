@@ -25,5 +25,4 @@ script:
   npm run release
 
 branches:
-  - master
-  - test
+  - release

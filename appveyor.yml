@@ -18,3 +18,8 @@ build_script:
   - npm run release
 
 test: off
+skip_tags: true
+branches:
+  # whitelist
+  only:
+    - release
