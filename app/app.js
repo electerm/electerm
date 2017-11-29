@@ -39,7 +39,7 @@ async function createWindow () {
     height,
     fullscreenable: true,
     //fullscreen: true,
-    icon: resolve(__dirname, 'static/images/electerm-round-128.png')
+    icon: resolve(__dirname, 'static/images/electerm-round-128x128.png')
   })
 
   win.setAutoHideMenuBar(true)
