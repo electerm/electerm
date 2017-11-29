@@ -4,9 +4,6 @@
     "app": "work/app",
     "output": "dist"
   },
-  "files": [
-    "out"
-  ],
   "win": {
     "target": ["tar.gz"],
     "icon": "build/icon.ico"
