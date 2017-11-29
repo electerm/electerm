@@ -1,10 +1,13 @@
 <h1 align="center">
-    <a href="http://jade-press.org">
-        <img src="https://raw.githubusercontent.com/electerm/electerm/master/app/static/images/electerm.png", alt="" />
+    <a href="https://github.com/electerm/electerm">
+        <img src="https://github.com/electerm/electerm-resource/raw/master/static/images/electerm.png", alt="" />
     </a>
 </h1>
 
 # electerm
+[![Build status](https://ci.appveyor.com/api/projects/status/33ckbqln02utekxd?svg=true)](https://ci.appveyor.com/project/zxdong262/electerm)
+[![Build Status](https://travis-ci.org/electerm/electerm.svg?branch=release)](https://travis-ci.org/electerm/electerm)
+
 - terminal/ssh/sftp client(mac, win, linux) based on electron/node-pty/xterm and more, I hope it works as a combination of `guake` and `xshell`
 - it is still on its early stage, more features will be added.
 
