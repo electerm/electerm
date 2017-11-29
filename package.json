@@ -97,6 +97,7 @@
   },
   "dependencies": {
     "bluebird": "3.5.1",
+    "body-parser": "1.18.2",
     "cors": "2.8.4",
     "electron-context-menu": "0.9.1",
     "express": "4.16.2",

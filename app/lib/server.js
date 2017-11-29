@@ -9,7 +9,15 @@ const logs = {}
 const staticPath = resolve(__dirname, '../static')
 const pubPath = resolve(__dirname, '../assets')
 const modPath = resolve(__dirname, '../node_modules')
+const bodyParser = require('body-parser')
+
 app.use(cors())
+
+// parse application/x-www-form-urlencoded
+app.use(bodyParser.urlencoded({ extended: false }))
+
+// parse application/json
+app.use(bodyParser.json())
 
 require('express-ws')(app)
 
@@ -20,7 +28,7 @@ app.use('/static', express.static(staticPath))
 app.post('/terminals', function (req, res) {
   let cols = parseInt(req.query.cols, 10)
   let rows = parseInt(req.query.rows, 10)
-  let exe = process.platform === 'win32' ? 'cmd.exe' : 'bash'
+  let exe = process.platform === 'win32' ? 'powershell.exe' : 'bash'
   let term = pty.spawn(exe, [], {
     name: 'xterm-color',
     cols: cols || 80,
