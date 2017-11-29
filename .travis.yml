@@ -11,7 +11,12 @@ matrix:
     - os: linux
       language: node_js
       node_js: "8"
-
+      dist: trusty
+      sudo: required
+      addons:
+        apt:
+          packages:
+            - rpm
 cache:
   directories:
   - node_modules

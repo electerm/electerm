@@ -3,10 +3,6 @@ image: Visual Studio 2017
 platform:
   - x64
 
-cache:
-  - node_modules
-  - '%USERPROFILE%\.electron'
-
 init:
   - git config --global core.autocrlf input
 
@@ -23,6 +19,8 @@ cache:
   - node_modules                        # local npm modules
   - '%APPDATA%\npm-cache'               # npm cache
   - $LOCALAPPDATA/electron/Cache
+  - '%USERPROFILE%\.electron'
+
 branches:
   # whitelist
   only:
