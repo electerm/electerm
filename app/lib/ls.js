@@ -5,7 +5,7 @@
 const {writeFileSync, readFileSync} = require('fs')
 const _ = require('lodash')
 const {resolve} = require('path')
-const savePath = resolve(__dirname, '../localstorage.json')
+const savePath = resolve(__dirname, '../../localstorage.json')
 const copy = require('json-deep-copy')
 
 let cache = {}

@@ -12,7 +12,7 @@ try {
 }
 
 try {
-  userConfig = require(resolve(__dirname, '/user-config.json'))
+  userConfig = require(resolve(__dirname, '../user-config.json'))
 } catch(e) {
   console.log('no user-config.json, but it is ok')
 }
