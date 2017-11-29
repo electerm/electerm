@@ -7,8 +7,14 @@
   "files": [
     "out"
   ],
+  "win": {
+    "target": ["tar.gz"],
+    "icon": "build/icon.ico"
+  },
   "mac": {
-    "category": "public.app-category.graphics-design"
+    "category": "public.app-category.developer-tools",
+    "target": ["dmg"],
+    "icon": "build/icons.icns"
   },
   "dmg": {
     "contents": [
@@ -25,7 +31,7 @@
     ]
   },
   "linux": {
-    "category": "Graphics",
+    "category": "Development",
     "target": [
       "rpm",
       "deb"

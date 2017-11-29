@@ -18,9 +18,12 @@ cache:
   - $HOME/.cache/electron
   - $HOME/.cache/electron-builder
 
+before_script:
+  npm run prepare
 
 script:
   npm run release
 
 branches:
   - master
+  - test
