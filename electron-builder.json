@@ -1,6 +1,38 @@
 {
+  "appId": "org.electerm.electerm",
   "directories": {
-    "buildResources": "work/app",
+    "app": "work/app",
     "output": "dist"
+  },
+  "win": {
+    "target": ["tar.gz"],
+    "icon": "build/icons.ico"
+  },
+  "mac": {
+    "category": "public.app-category.developer-tools",
+    "target": ["dmg"],
+    "icon": "build/icons.icns"
+  },
+  "dmg": {
+    "contents": [
+      {
+        "x": 110,
+        "y": 150
+      },
+      {
+        "x": 240,
+        "y": 150,
+        "type": "link",
+        "path": "/Applications"
+      }
+    ]
+  },
+  "linux": {
+    "category": "Development",
+    "icon": "app/static/images",
+    "target": [
+      "rpm",
+      "deb"
+    ]
   }
 }

@@ -8,7 +8,6 @@ const runServer = require('./lib/server')
 const os = require('os')
 const {resolve} = require('path')
 const Ftp = require('./lib/sftp')
-const fs = require('fs')
 const {saveUserConfig} = require('./lib/user-config-controller')
 const {init, changeHotkeyReg} = require('./lib/shortcut')
 const fsExport = require('./lib/fs')
@@ -39,7 +38,7 @@ async function createWindow () {
     height,
     fullscreenable: true,
     //fullscreen: true,
-    icon: resolve(__dirname, 'static/images/electerm-round-128.png')
+    icon: resolve(__dirname, 'static/images/electerm-round-128x128.png')
   })
 
   win.setAutoHideMenuBar(true)

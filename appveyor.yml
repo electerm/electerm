@@ -1,0 +1,26 @@
+image: Visual Studio 2017
+
+platform:
+  - x64
+
+init:
+  - git config --global core.autocrlf input
+
+install:
+  - ps: Install-Product node 8 x64
+  - npm i
+
+build_script:
+  - npm run release -w
+
+test: off
+skip_tags: true
+cache:
+  - node_modules                        # local npm modules
+  - $LOCALAPPDATA/electron/Cache
+  - '%USERPROFILE%\.electron'
+
+branches:
+  # whitelist
+  only:
+    - release
