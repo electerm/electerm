@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "cd app && NODE_ENV=development ../node_modules/.bin/electron ./app",
     "gulp": "./node_modules/.bin/gulp",
-    "build": "NODE_ENV=production ./node_modules/.bin/webpack --progress",
+    "build": "./node_modules/.bin/cross-env NODE_ENV=production ./node_modules/.bin/webpack --progress",
     "s": "./node_modules/.bin/nodemon --expose-gc --config nodemon.json ./bin/www",
     "c": "./node_modules/.bin/webpack-dev-server --progress --colors --content-base app/assets/",
     "icon": "node bin/icon",
@@ -19,7 +19,6 @@
     "output": "./node_modules/.bin/electron-builder",
     "release": "npm run compile && npm run prepare-file && npm run output",
     "bat": "npm run dist",
-    "postinstall": "electron-builder install-app-deps",
     "preinstall": "rm -rf package-lock.json"
   },
   "license": "MIT",
@@ -50,6 +49,7 @@
     "babel-runtime": "6.26.0",
     "babili-webpack-plugin": "0.1.2",
     "classnames": "2.2.5",
+    "cross-env": "5.1.1",
     "css-loader": "0.28.7",
     "electron": "1.7.9",
     "electron-builder": "19.45.5",
