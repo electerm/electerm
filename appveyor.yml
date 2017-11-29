@@ -1,13 +1,13 @@
 image: Visual Studio 2017
 
 platform:
-  - x32
+  - x64
 
 init:
   - git config --global core.autocrlf input
 
 install:
-  - ps: Install-Product node 8 x32
+  - ps: Install-Product node 8 x64
   - npm i
 
 build_script:
