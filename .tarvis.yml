@@ -22,7 +22,12 @@ before_script:
   npm run prepare
 
 script:
-  npm run release
+  - |
+    if [ "$TRAVIS_OS_NAME" == "linux" ]; then
+      npm run release -l
+    else
+      npm run release -m
+    fi
 
 branches:
   - release

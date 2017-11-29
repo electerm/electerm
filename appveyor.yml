@@ -15,7 +15,7 @@ install:
   - npm i
 
 build_script:
-  - npm run release
+  - npm run release -w
 
 test: off
 skip_tags: true
