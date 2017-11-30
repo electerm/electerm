@@ -14,6 +14,7 @@ const fsExport = require('./lib/fs')
 const ls = require('./lib/ls')
 const version = require('./lib/version')
 const menu = require('./lib/menu')
+const {setWin} = require('./lib/win')
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -92,6 +93,8 @@ async function createWindow () {
       win.hide()
     }
   })
+
+  setWin(win)
 }
 
 // This method will be called when Electron has finished

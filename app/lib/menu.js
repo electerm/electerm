@@ -1,7 +1,7 @@
 /**
  * app system menu config
  */
-const {app, Menu} = require('electron')
+const {app, Menu, shell} = require('electron')
 const version = require('./version')
 let tag = version.includes('-')
   ? version.split('-')[0]
@@ -53,25 +53,28 @@ const template = [
       {
         label: 'about',
         click () {
-          require('electron')
-            .shell
+          shell
             .openExternal(realeaseUrl)
         }
       },
       {
         label: 'report issue',
         click () {
-          require('electron')
-            .shell
+          shell
             .openExternal('https://github.com/electerm/electerm/issues/new')
         }
       },
       {
         label: 'github',
         click () {
-          require('electron')
-            .shell
+          shell
             .openExternal('https://github.com/electerm/electerm')
+        }
+      },
+      {
+        label: 'toggle developer tool',
+        click() {
+          require('./win').win.webContents.openDevTools()
         }
       }
     ]
