@@ -6,7 +6,7 @@
   },
   "artifactName": "${productName}-${version}-${os}-${arch}.${ext}",
   "win": {
-    "target": ["nsis", "tar.gz"],
+    "target": ["tar.gz"],
     "icon": "build/icons.ico"
   },
   "mac": {
