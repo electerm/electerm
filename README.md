@@ -18,7 +18,6 @@
 ## dowload
 https://github.com/electerm/electerm/releases
 
-
 ## feature
 - work as a terminal or ssh/sftp client(similar to xshell)
 - hotkey to bring window back to front(simliar to guake)
