@@ -1,6 +1,6 @@
 {
   "name": "electerm",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "description": "electerm",
   "main": "app.js",
   "scripts": {
@@ -53,7 +53,6 @@
     "css-loader": "0.28.7",
     "electron": "1.7.9",
     "electron-builder": "19.45.5",
-    "electron-packager": "10.1.0",
     "eslint": "4.11.0",
     "eslint-config-airbnb": "16.1.0",
     "eslint-config-standard": "10.2.1",
@@ -97,6 +96,7 @@
   },
   "dependencies": {
     "bluebird": "3.5.1",
+    "body-parser": "1.18.2",
     "cors": "2.8.4",
     "electron-context-menu": "0.9.1",
     "express": "4.16.2",

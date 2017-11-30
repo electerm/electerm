@@ -5,7 +5,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 import PropTypes from 'prop-types'
-//import _ from 'lodash'
 
 export default class DragSelect extends React.Component {
 
@@ -44,6 +43,11 @@ export default class DragSelect extends React.Component {
     this.destroyEvents()
   }
 
+  destroyEvents() {
+    this.root.removeEventListener('mousedown', this.onMousedown)
+    clearTimeout(this.mousedownTimer)
+  }
+
   initEvents() {
     let root = document.querySelector(this.props.wrapperSelector)
     if (!root) {
@@ -52,6 +56,7 @@ export default class DragSelect extends React.Component {
     this.root = root
     this.root.addEventListener('mousedown', this.onMousedown)
     this.root.addEventListener('mouseup', this.onMouseup)
+    this.root.addEventListener('contextmenu', this.onContextmenu)
   }
 
   mousemove = e => {
@@ -66,6 +71,11 @@ export default class DragSelect extends React.Component {
   }
 
   onMousedown = e => {
+    clearTimeout(this.mousedownTimer)
+    this.mousedownTimer = setTimeout(() => this.doMouseDown(e), 300)
+  }
+
+  doMouseDown = (e) => {
     let rect = this.root.getBoundingClientRect()
     let startPoint = {
       x: e.pageX - rect.left,
@@ -79,6 +89,7 @@ export default class DragSelect extends React.Component {
   }
 
   onMouseup = (e) => {
+    clearTimeout(this.mousedownTimer)
     this.root.removeEventListener('mousemove', this.mousemove)
     if (
       !this.state.onDrag ||
@@ -88,6 +99,16 @@ export default class DragSelect extends React.Component {
       return
     }
     this.computeSelectedFiles(e)
+    this.setState({
+      onDrag: false,
+      startPoint: null,
+      endPoint: null
+    })
+  }
+
+  onContextmenu = () => {
+    clearTimeout(this.mousedownTimer)
+    this.root.removeEventListener('mousemove', this.mousemove)
     this.setState({
       onDrag: false,
       startPoint: null,

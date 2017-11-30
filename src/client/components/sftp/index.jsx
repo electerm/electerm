@@ -227,7 +227,10 @@ export default class Sftp extends React.Component {
 
   enter = (type, e) => {
     let {selectedFiles} = this.state
-    if (selectedFiles.length !== 1) {
+    let isEditting = _.some(this.state[type], f => {
+      return f.isEditting
+    })
+    if (isEditting || selectedFiles.length !== 1) {
       return
     }
     let file = selectedFiles[0]

@@ -49,69 +49,23 @@ export default class Term extends React.Component {
     term.focus()
     term.fit()
     this.term = term
-    this.timers.timer1 = setTimeout(this.initData, 10)
   }
 
   count = 0
-
-  initData = () => {
-    let base = this.getBaseText()
-    let {tab = {}} = this.props
-    this.term._sendData(base)
-    if (tab.host) {
-      this.term.socket.addEventListener('message', this.handler1)
-    }
-  }
-
-  getBaseText = () => {
-    let base = 'cd ~\rclear\r'
-    let {tab = {}} = this.props
-    let {host, port, username} = tab
-    if (tab.host) {
-      base = `${base}\rssh -p ${port} ${username}@${host}\r`
-    }
-    return base
-  }
-
-  getPassText = () => {
-    this.count ++
-    let {tab = {}} = this.props
-    let {password} = tab
-    let passTxt = `${password}\r`
-    return passTxt
-  }
-
-  handler1 = d => {
-    this.count ++
-    let base = this.getBaseText()
-    let len = base.length
-    let passTxt = this.getPassText()
-    if (yesnoEnd.test(d.data)) {
-      this.term._sendData('yes\r')
-      this.term.socket.addEventListener('message', this.handler2)
-      this.term.socket.removeEventListener('message', this.handler1)
-    } else if (passEnd.test(d.data)) {
-      this.term._sendData(passTxt)
-      this.term.socket.removeEventListener('message', this.handler1)
-    } else if (this.count > len * 2) {
-      this.term.socket.removeEventListener('message', this.handler1)
-    }
-  }
-
-  handler2 = d => {
-    let passTxt = this.getPassText()
-    if (passEnd.test(d.data)) {
-      this.term._sendData(passTxt)
-      this.term.socket.removeEventListener('message', this.handler2)
-    }
-  }
 
   remoteInit = async (term) => {
     let {cols, rows} = term
     let {host, port} = config
     let wsUrl
-    let url = `http://${host}:${port}/terminals?cols=${cols}&rows=${rows}`
-    let pid = await fetch.post(url)
+    let url = `http://${host}:${port}/terminals`
+    let {tab = {}} = this.props
+    let pid = await fetch.post(url, {
+      cols,
+      rows,
+      mode: 'VINTR',
+      ...tab,
+      type: tab.host ? 'remote' : 'local'
+    })
     if (!pid) return
 
     term.pid = pid
@@ -157,7 +111,7 @@ export default class Term extends React.Component {
     let {id} = this.state
     let {height} = this.props
     return (
-      <div id={id} style={{height}}/>
+      <div id={id} style={{height}} className="bg-black" />
     )
   }
 

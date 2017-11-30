@@ -4,7 +4,7 @@ global.Promise = require('bluebird')
 
 const {app, BrowserWindow, Menu, globalShortcut} = require('electron')
 const getConf = require('./config.default')
-const runServer = require('./lib/server')
+const {runServer, quitServer} = require('./lib/server')
 const os = require('os')
 const {resolve} = require('path')
 const Ftp = require('./lib/sftp')
@@ -14,12 +14,20 @@ const fsExport = require('./lib/fs')
 const ls = require('./lib/ls')
 const version = require('./lib/version')
 const menu = require('./lib/menu')
+const {setWin} = require('./lib/win')
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let win
 let {NODE_ENV} = process.env
 const isDev = NODE_ENV === 'development'
+
+function onClose() {
+  win = null
+  setWin(win)
+  quitServer()
+  process.exit(0)
+}
 
 async function createWindow () {
 
@@ -86,12 +94,9 @@ async function createWindow () {
   init(globalShortcut, win, config)
 
   // Emitted when the window is closed.
-  win.on('close', event => {
-    event && event.preventDefault()
-    if (typeof win !== undefined && win.hide) {
-      win.hide()
-    }
-  })
+  win.on('close', onClose)
+
+  setWin(win)
 }
 
 // This method will be called when Electron has finished
@@ -100,9 +105,7 @@ async function createWindow () {
 app.on('ready', createWindow)
 
 // Quit when all windows are closed.
-app.on('window-all-closed', event => {
-  event.preventDefault()
-})
+app.on('window-all-closed', onClose)
 
 app.on('activate', () => {
 
