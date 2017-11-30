@@ -49,7 +49,7 @@ export default class Term extends React.Component {
     term.focus()
     term.fit()
     this.term = term
-    this.timers.timer1 = setTimeout(this.initData, 10)
+    //this.timers.timer1 = setTimeout(this.initData, 10)
   }
 
   count = 0
@@ -58,9 +58,9 @@ export default class Term extends React.Component {
     let base = this.getBaseText()
     let {tab = {}} = this.props
     this.term._sendData(base)
-    if (tab.host) {
-      this.term.socket.addEventListener('message', this.handler1)
-    }
+    // if (tab.host) {
+    //   this.term.socket.addEventListener('message', this.handler1)
+    // }
   }
 
   getBaseText = () => {
@@ -110,8 +110,15 @@ export default class Term extends React.Component {
     let {cols, rows} = term
     let {host, port} = config
     let wsUrl
-    let url = `http://${host}:${port}/terminals?cols=${cols}&rows=${rows}`
-    let pid = await fetch.post(url)
+    let url = `http://${host}:${port}/terminals`
+    let {tab = {}} = this.props
+    let pid = await fetch.post(url, {
+      cols,
+      rows,
+      mode: 'VINTR',
+      ...tab,
+      type: tab.host ? 'remote' : 'local'
+    })
     if (!pid) return
 
     term.pid = pid
@@ -157,7 +164,7 @@ export default class Term extends React.Component {
     let {id} = this.state
     let {height} = this.props
     return (
-      <div id={id} style={{height}}/>
+      <div id={id} style={{height}} className="bg-black" />
     )
   }
 

@@ -6,7 +6,7 @@ const {writeFileSync, readFileSync} = require('fs')
 const _ = require('lodash')
 const {resolve} = require('path')
 const appPath = require('./app-path')
-const savePath = resolve(appPath, 'localstorage.json')
+const savePath = resolve(appPath, 'electerm-localstorage.json')
 const copy = require('json-deep-copy')
 
 let cache = {}
@@ -23,6 +23,7 @@ const get = (key) => {
 }
 
 const set = (key, value) => {
+  console.log(key, value)
   try {
     let newdb = copy(cache)
     if (_.isUndefined(value) || _.isNull(value)) {
@@ -30,6 +31,7 @@ const set = (key, value) => {
     } else {
       newdb[key] = value
     }
+    cache = newdb
     writeFileSync(savePath, JSON.stringify(newdb))
   } catch(e) {
     console.log(e)

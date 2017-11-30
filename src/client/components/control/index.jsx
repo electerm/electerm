@@ -63,6 +63,8 @@ export default class IndexControl extends React.Component {
       ...item,
       id: generate()
     })
+    item.id = generate()
+    this.props.addItem(item, 'history')
   }
 
   openSetting = () => {
