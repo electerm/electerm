@@ -4,8 +4,9 @@
     "app": "work/app",
     "output": "dist"
   },
+  "artifactName": "${productName}-${version}-${os}-${arch}.${ext}",
   "win": {
-    "target": ["tar.gz"],
+    "target": ["nsis", "tar.gz"],
     "icon": "build/icons.ico"
   },
   "mac": {
