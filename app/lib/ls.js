@@ -23,7 +23,6 @@ const get = (key) => {
 }
 
 const set = (key, value) => {
-  console.log(key, value)
   try {
     let newdb = copy(cache)
     if (_.isUndefined(value) || _.isNull(value)) {

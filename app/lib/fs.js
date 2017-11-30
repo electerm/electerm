@@ -70,7 +70,7 @@ const touch = (localFilePath) => {
   let cmd = isWin
     ? `New-Item -ItemType file ${localFilePath}`
     : `touch ${localFilePath}`
-  isWin ? runWinCmd(cmd) : run(cmd)
+  return isWin ? runWinCmd(cmd) : run(cmd)
 }
 
 module.exports = Object.assign(

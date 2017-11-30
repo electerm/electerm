@@ -184,7 +184,6 @@ class Sftp {
       let {client} = this
       let cmd = `rm -rf ${remotePath}`
       client.exec(cmd, err => {
-        console.log(arguments.length, err)
         if (err) reject(err)
         else resolve()
       })

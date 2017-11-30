@@ -87,8 +87,14 @@ app.ws('/terminals/:pid', function (ws, req) {
   })
 })
 
-module.exports = function({port, host, siteName}) {
+exports.runServer = function({port, host, siteName}) {
   app.listen(port, host, () => {
     log(siteName || 'server', 'runs on', host, port)
+  })
+}
+
+exports.quitServer = () => {
+  Object.keys(terminals).forEach(k => {
+    terminals[k].kill()
   })
 }
