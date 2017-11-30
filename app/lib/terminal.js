@@ -6,6 +6,7 @@ const {Client} = require('ssh2')
 const _ = require('lodash')
 const {generate} = require('shortid')
 
+
 class Terminal {
 
   constructor(initOptions) {
