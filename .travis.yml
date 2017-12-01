@@ -27,7 +27,7 @@ cache:
 
 before_install:
   - if echo "$TRAVIS_COMMIT_MESSAGE" | grep -F -q "[skip travis]" ; then echo "[skip travis] has been found, exiting" && exit 0 ; else echo "[skip travis] has not been found, continuing" ; fi
-  - npm install --g yarn
+  - npm install -g yarn
 
 script:
   - |
