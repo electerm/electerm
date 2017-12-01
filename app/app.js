@@ -2,7 +2,7 @@
 //use bluebird for performance
 global.Promise = require('bluebird')
 
-const {app, BrowserWindow, Menu, globalShortcut} = require('electron')
+const {app, BrowserWindow, Menu, globalShortcut, shell} = require('electron')
 const getConf = require('./config.default')
 const {runServer, quitServer} = require('./lib/server')
 const os = require('os')
@@ -21,6 +21,7 @@ const {setWin} = require('./lib/win')
 let win
 let {NODE_ENV} = process.env
 const isDev = NODE_ENV === 'development'
+const packInfo = require(isDev ? '../package.json' : './package.json')
 
 function onClose() {
   win = null
@@ -69,10 +70,14 @@ async function createWindow () {
     ls,
     resolve,
     version,
+    env: process.env,
+    openExternal: shell.openExternal,
     homeOrtmp: os.homedir() || os.tmpdir(),
     closeApp: () => {
       win.close()
     },
+    packInfo,
+    os,
     saveUserConfig,
     changeHotkey: changeHotkeyReg(globalShortcut, win)
   })
