@@ -5,8 +5,8 @@
 </h1>
 
 # electerm
-[![Build status](https://ci.appveyor.com/api/projects/status/33ckbqln02utekxd?svg=true)](https://ci.appveyor.com/project/zxdong262/electerm)
 [![Build Status](https://travis-ci.org/electerm/electerm.svg?branch=release)](https://travis-ci.org/electerm/electerm)
+[![Build status](https://ci.appveyor.com/api/projects/status/33ckbqln02utekxd/branch/release?svg=true)](https://ci.appveyor.com/project/zxdong262/electerm/branch/release)
 
 - terminal/ssh/sftp client(mac, win, linux) based on electron/node-pty/xterm and more, I hope it works as a combination of `guake` and `xshell`
 - it is still on its early stage, more features will be added.
@@ -47,6 +47,9 @@ npm run dev
 
 ## test build
 ```bash
+# install yarn first(to do yarn autoclean)
+# see https://yarnpkg.com/en/docs/install
+
 # build linux only with -l
 npm run release -l
 # visit dist/

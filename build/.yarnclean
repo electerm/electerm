@@ -1,0 +1,41 @@
+# files
+Makefile
+Gulpfile.js
+Gruntfile.js
+.tern-project
+.gitattributes
+.editorconfig
+.eslintrc
+.jshintrc
+.flowconfig
+.documentup.json
+.yarn-metadata.json
+.travis.yml
+appveyor.yml
+LICENSE.txt
+LICENSE
+AUTHORS
+CONTRIBUTORS
+.yarn-integrity
+*.md
+*.ts
+*.jst
+*.coffee
+
+# folders
+__tests__
+test
+tests
+powered-test
+docs
+doc
+website
+images
+assets
+example
+examples
+coverage
+.nyc_output
+
+# ignores
+!*.d.ts

@@ -32,9 +32,13 @@ rm('-rf',  'work/app/localstorage.json')
 rm('-rf',  'work/app/assets/js/common-css.bundle.js')
 
 exec(`cd work/app && npm prune --production && cd ${cwd}`)
-if (!isWin) {
-  exec(`cd work/app && ../../node_modules/.bin/n-prune && cd ${cwd}`)
-}
+
+//yarn auto clean
+cp('-r', 'build/.yarnclean', 'work/app/')
+exec(`cd work/app && yarn generate-lock-entry > yarn.lock && yarn autoclean --force && cd ${cwd}`)
+rm('-rf',  'work/app/.yarnclean')
+rm('-rf',  'work/app/package-lock.json')
+rm('-rf',  'work/app/yarn.lock')
 
 const endTime = +new Date()
 echo(`done pack prepare in ${(endTime - timeStart)/1000} s`)
