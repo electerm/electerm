@@ -47,6 +47,9 @@ npm run dev
 
 ## test build
 ```bash
+# install yarn first(to do yarn autoclean)
+# see https://yarnpkg.com/en/docs/install
+
 # build linux only with -l
 npm run release -l
 # visit dist/

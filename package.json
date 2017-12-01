@@ -78,7 +78,6 @@
     "koa-pug-global": "3.0.0-2",
     "koa-router": "7.3.0",
     "koa-static": "4.0.2",
-    "n-prune": "1.0.2",
     "nodemon": "1.12.1",
     "npm-run-all": "4.1.2",
     "open-browser-webpack-plugin": "0.0.5",

@@ -11,7 +11,6 @@ matrix:
     - os: linux
       language: node_js
       node_js: "8"
-      dist: trusty
       sudo: required
       addons:
         apt:
@@ -19,6 +18,7 @@ matrix:
             - rpm
 
 cache:
+  yarn: true
   directories:
   - node_modules
   - $HOME/.cache/electron
@@ -26,6 +26,10 @@ cache:
 
 before_install:
   - if echo "$TRAVIS_COMMIT_MESSAGE" | grep -F -q "[skip travis]" ; then echo "[skip travis] has been found, exiting" && exit 0 ; else echo "[skip travis] has not been found, continuing" ; fi
+  - sudo apt-key adv --keyserver pgp.mit.edu --recv D101F7899D41F3C3
+  - echo "deb http://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
+  - sudo apt-get update -qq
+  - sudo apt-get install -y -qq yarn
 
 script:
   - |
@@ -37,3 +41,4 @@ script:
 
 branches:
   - release
+  - test
