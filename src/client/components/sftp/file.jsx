@@ -18,6 +18,7 @@ import sorter from '../../common/index-sorter'
 
 const {getGlobal} = window
 let fs = getGlobal('fs')
+let platform = getGlobal('os').platform()
 const computePos = (e, isBg, height) => {
   let {target} = e
   let rect = target.getBoundingClientRect()
@@ -199,6 +200,17 @@ export default class FileSection extends React.Component {
     })
   }
 
+  editPermission = () => {
+    this.props.closeContextMenu()
+    this.openFileModeModal(this.state.file)
+  }
+
+  onCloseFileMode = () => {
+    this.props.rootModifier({
+      fileModeModalProps: {}
+    })
+  }
+
   onCloseFileInfo = () => {
     this.props.rootModifier({
       fileInfoModalProps: {}
@@ -320,6 +332,30 @@ export default class FileSection extends React.Component {
     this.props.modifier({
       selectedFiles,
       lastClickedFile: file
+    })
+  }
+
+  changeFileMode = async file => {
+    this.onCloseFileMode()
+    let {permission, type, path, name} = file
+    let func = type === 'local'
+      ? fs.chmodAsync
+      : this.props.sftp.chmod
+    let p = resolve(path, name)
+    await func(p, permission).catch(this.props.onError)
+    this.props[type + 'List']()
+  }
+
+  openFileModeModal = () => {
+    this.props.closeContextMenu()
+    this.props.rootModifier({
+      fileModeModalProps: {
+        file: this.state.file,
+        tab: this.props.tab,
+        visible: true,
+        onClose: this.onCloseFileMode,
+        changeFileMode: this.changeFileMode
+      }
     })
   }
 
@@ -495,6 +531,16 @@ export default class FileSection extends React.Component {
     return this.props.renderDelConfirmTitle(files)
   }
 
+  showModeEdit(type, id) {
+    if (!id) {
+      return false
+    }
+    if (type === 'remote') {
+      return true
+    }
+    return !platform.startsWith('win')
+  }
+
   renderContext() {
     let {
       file: {
@@ -606,6 +652,18 @@ export default class FileSection extends React.Component {
         >
           <Icon type="reload" /> refresh
         </div>
+        {
+          this.showModeEdit(type, id)
+            ? (
+              <div
+                className={cls}
+                onClick={this.editPermission}
+              >
+                <Icon type="lock" /> edit permission
+              </div>
+            )
+            : null
+        }
         {
           id
             ? (

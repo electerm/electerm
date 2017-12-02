@@ -4,7 +4,9 @@
 
 import {Icon, Modal} from 'antd'
 import resolve from '../../common/resolve'
+import {mode2permission} from '../../common/mode2permission'
 import moment from 'moment'
+import renderPermission from './permission-render'
 
 const formatTime = time => {
   return moment(time).format()
@@ -28,6 +30,7 @@ export default function FileProps (props) {
     modifyTime,
     isDirectory,
     path,
+    mode,
     type
   } = file
   let {
@@ -47,7 +50,7 @@ export default function FileProps (props) {
   let ffp = type === 'local'
     ? fp
     : `${username}@${host}:${port}:${fp}`
-
+  let perms = mode2permission(mode)
   return (
     <Modal
       {...ps}
@@ -65,6 +68,12 @@ export default function FileProps (props) {
           <p className="pd1b">{formatTime(accessTime)}</p>
           <p className="bold">modify time:</p>
           <p className="pd1b">{formatTime(modifyTime)}</p>
+          <p className="bold">mode:</p>
+          <div className="pd1b">
+            {
+              perms.map(renderPermission)
+            }
+          </div>
         </div>
       </div>
     </Modal>
