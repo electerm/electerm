@@ -2,6 +2,7 @@
 import React from 'react'
 import Wrapper from './window-wrapper'
 import Control from '../control'
+import Updater from './update-check'
 import {generate} from 'shortid'
 import _ from 'lodash'
 import copy from 'json-deep-copy'
@@ -183,6 +184,7 @@ export default class Index extends React.Component {
     }
     return (
       <div>
+        <Updater />
         <ContextMenu
           {...contextMenuProps}
           visible={contextMenuVisible}
