@@ -15,6 +15,8 @@ const ls = require('./lib/ls')
 const version = require('./lib/version')
 const menu = require('./lib/menu')
 const {setWin} = require('./lib/win')
+const log = require('electron-log')
+const {autoUpdater} = require('electron-updater')
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -29,6 +31,39 @@ function onClose() {
   quitServer()
   process.exit(0)
 }
+
+autoUpdater.logger = log
+autoUpdater.logger.transports.file.level = 'info'
+log.info('App starting...')
+
+function sendStatusToWindow(text) {
+  log.info(text)
+  win.webContents.send('message', text)
+}
+autoUpdater.on('checking-for-update', () => {
+  sendStatusToWindow('Checking for update...')
+})
+autoUpdater.on('update-available', (info) => {
+  console.log(info)
+  sendStatusToWindow('Update available.')
+})
+autoUpdater.on('update-not-available', (info) => {
+  console.log(info)
+  sendStatusToWindow('Update not available.')
+})
+autoUpdater.on('error', (err) => {
+  sendStatusToWindow('Error in auto-updater. ' + err);
+})
+autoUpdater.on('download-progress', (progressObj) => {
+  let msg = 'Download speed: ' + progressObj.bytesPerSecond
+  msg = msg + ' - Downloaded ' + progressObj.percent + '%'
+  msg = msg + ' (' + progressObj.transferred + '/' + progressObj.total + ')'
+  sendStatusToWindow(msg)
+})
+autoUpdater.on('update-downloaded', (info) => {
+  console.log(info)
+  sendStatusToWindow('Update downloaded')
+})
 
 async function createWindow () {
 
