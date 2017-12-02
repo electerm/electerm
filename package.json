@@ -99,7 +99,6 @@
     "cors": "2.8.4",
     "electron-context-menu": "0.9.1",
     "electron-log": "2.2.11",
-    "electron-updater": "2.16.1",
     "express": "4.16.2",
     "express-ws": "3.0.0",
     "find-free-port": "1.0.2",
