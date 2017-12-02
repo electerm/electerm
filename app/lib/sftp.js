@@ -243,19 +243,12 @@ class Sftp {
    *
    * @param {String} remotePath
    * https://github.com/mscdex/ssh2-streams/blob/master/SFTPStream.md
-   * @return {Promise} stat
-   *  stats.isDirectory()
-      stats.isFile()
-      stats.isBlockDevice()
-      stats.isCharacterDevice()
-      stats.isSymbolicLink()
-      stats.isFIFO()
-      stats.isSocket()
+   * @return {Promise}
    */
-  chmod (remotePath) {
+  chmod (remotePath, mode) {
     return new Promise((resolve, reject) => {
       let {sftp} = this
-      sftp.chmod(remotePath, (err) => {
+      sftp.chmod(remotePath, mode, (err) => {
         if (err) reject(err)
         else resolve()
       })

@@ -8,6 +8,7 @@ import copy from 'json-deep-copy'
 import classnames from 'classnames'
 import ContextMenu from '../common/context-menu'
 import FileInfoModal from '../sftp/file-props-modal'
+import FileModeModal from '../sftp/file-mode-modal'
 import {notification} from 'antd'
 
 const initTabs = () => [
@@ -32,7 +33,8 @@ export default class Index extends React.Component {
       config: getGlobal('_config') || {},
       contextMenuProps: {},
       contextMenuVisible: false,
-      fileInfoModalProps: {}
+      fileInfoModalProps: {},
+      fileModeModalProps: {}
     }
   }
 
@@ -168,7 +170,8 @@ export default class Index extends React.Component {
       currentTabId,
       contextMenuProps,
       contextMenuVisible,
-      fileInfoModalProps
+      fileInfoModalProps,
+      fileModeModalProps
     } = this.state
     let controlProps = {
       ...this.state,
@@ -186,6 +189,9 @@ export default class Index extends React.Component {
         />
         <FileInfoModal
           {...fileInfoModalProps}
+        />
+        <FileModeModal
+          {...fileModeModalProps}
         />
         <div id="outside-context">
           <Control
