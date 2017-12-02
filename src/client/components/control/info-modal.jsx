@@ -21,14 +21,14 @@ export default function() {
     }
   } = getGlobal('packInfo')
   let version = getGlobal('version')
-  let link = url.replace('git+', '')
+  let link = url.replace('git+', '').replace('.git', '')
   let os = getGlobal('os')
   let env = getGlobal('env')
   let deps = {
     ...devDependencies,
     ...dependencies
   }
-
+  let logoPath = window.sugo.cdn + '/static/images/electerm.png'
   Modal.info({
     title: 'about ' + name,
     width: window.innerWidth - 100,
@@ -38,6 +38,9 @@ export default function() {
       <div className="about-wrap">
         <Tabs defaultActiveKey="1">
           <TabPane tab="about" key="1">
+            <div className="pd1y aligncenter">
+              <img src={logoPath} className="iblock" />
+            </div>
             <h1 className="mg2b">
               {name}
             </h1>
