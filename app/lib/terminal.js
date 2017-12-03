@@ -24,7 +24,7 @@ class Terminal {
       cols,
       rows
     } = initOptions
-    let exe = process.platform.includes('win') ? 'powershell.exe' : 'bash'
+    let exe = process.platform.startsWith('win') ? 'powershell.exe' : 'bash'
     this.term = pty.spawn(exe, [], {
       name: 'xterm-color',
       cols: cols || 80,
