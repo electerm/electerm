@@ -15,6 +15,7 @@ const ls = require('./lib/ls')
 const version = require('./lib/version')
 const menu = require('./lib/menu')
 const {setWin} = require('./lib/win')
+const log = require('electron-log')
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -29,6 +30,8 @@ function onClose() {
   quitServer()
   process.exit(0)
 }
+
+log.info('App starting...')
 
 async function createWindow () {
 

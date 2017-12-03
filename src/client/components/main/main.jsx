@@ -9,6 +9,7 @@ import classnames from 'classnames'
 import ContextMenu from '../common/context-menu'
 import FileInfoModal from '../sftp/file-props-modal'
 import FileModeModal from '../sftp/file-mode-modal'
+import UpdateCheck from './update-check'
 import {notification} from 'antd'
 
 const initTabs = () => [
@@ -183,6 +184,7 @@ export default class Index extends React.Component {
     }
     return (
       <div>
+        <UpdateCheck />
         <ContextMenu
           {...contextMenuProps}
           visible={contextMenuVisible}
