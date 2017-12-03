@@ -2,7 +2,6 @@
 import React from 'react'
 import Wrapper from './window-wrapper'
 import Control from '../control'
-import Updater from './update-check'
 import {generate} from 'shortid'
 import _ from 'lodash'
 import copy from 'json-deep-copy'
@@ -10,6 +9,7 @@ import classnames from 'classnames'
 import ContextMenu from '../common/context-menu'
 import FileInfoModal from '../sftp/file-props-modal'
 import FileModeModal from '../sftp/file-mode-modal'
+import UpdateCheck from './update-check'
 import {notification} from 'antd'
 
 const initTabs = () => [
@@ -184,7 +184,7 @@ export default class Index extends React.Component {
     }
     return (
       <div>
-        <Updater />
+        <UpdateCheck />
         <ContextMenu
           {...contextMenuProps}
           visible={contextMenuVisible}

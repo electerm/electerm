@@ -19,7 +19,8 @@
     "output": "./node_modules/.bin/electron-builder",
     "output-cn": "./node_modules/.bin/electron-builder -c local-electron-builder.json",
     "release": "npm run compile && npm run prepare-file && npm run output",
-    "preinstall": "rm -rf package-lock.json"
+    "preinstall": "rm -rf package-lock.json",
+    "postinstall": "./node_modules/.bin/electron-rebuild"
   },
   "license": "MIT",
   "repository": {
@@ -53,6 +54,7 @@
     "css-loader": "0.28.7",
     "electron": "1.7.9",
     "electron-builder": "19.45.5",
+    "electron-rebuild": "1.6.0",
     "eslint": "4.11.0",
     "eslint-config-airbnb": "16.1.0",
     "eslint-config-standard": "10.2.1",
