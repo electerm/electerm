@@ -10,8 +10,20 @@ export default class FileMode extends React.Component {
     this.getLatestReleaseInfo()
   }
 
+  componentDidUpdate(prevProps) {
+    if (prevProps.shouldCheckUpdate !== this.props.shouldCheckUpdate) {
+      this.getLatestReleaseInfo()
+    }
+  }
+
   getLatestReleaseInfo = async () => {
+    this.props.modifier({
+      onCheckUpdating: true
+    })
     let releaseInfo = await getLatestReleaseInfo()
+    this.props.modifier({
+      onCheckUpdating: false
+    })
     if (!releaseInfo) {
       return this.notifyUpdateFail()
     }
@@ -19,6 +31,12 @@ export default class FileMode extends React.Component {
     let latestVer = releaseInfo.tag_name
     if (compare(currentVer, latestVer) < 0) {
       this.showUpdateInfo(releaseInfo)
+    } else if (this.props.shouldCheckUpdate) {
+      notification.info({
+        message: 'no need to update',
+        description: 'you are using the latest release',
+        duration: 5
+      })
     }
   }
 

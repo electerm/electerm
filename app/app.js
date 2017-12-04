@@ -2,7 +2,10 @@
 //use bluebird for performance
 global.Promise = require('bluebird')
 
-const {app, BrowserWindow, Menu, globalShortcut, shell} = require('electron')
+const {
+  app, BrowserWindow, Menu,
+  globalShortcut, shell
+} = require('electron')
 const getConf = require('./config.default')
 const {runServer, quitServer} = require('./lib/server')
 const os = require('os')

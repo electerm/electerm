@@ -25,7 +25,9 @@ export default function Btns(props) {
     onSelectBookmark,
     bookmarks = [],
     history = [],
-    onEditBookmark
+    onEditBookmark,
+    onCheckUpdating,
+    onCheckUpdate
   } = props
   return (
     <div className="btns pd1 borderb fix">
@@ -91,7 +93,10 @@ export default function Btns(props) {
           type="info-circle-o"
           title="about"
           className="pointer mg1l mg2r font14"
-          onClick={openInfoModal}
+          onClick={() => openInfoModal({
+            onCheckUpdate,
+            onCheckUpdating
+          })}
         />
       </div>
     </div>

@@ -2,13 +2,16 @@
  * output app and system info
  */
 
-import {Icon, Modal, Tabs} from 'antd'
+import {Icon, Modal, Tabs, Button, Tag} from 'antd'
 import Link from '../common/external-link'
 import _ from 'lodash'
 
 const {TabPane} = Tabs
 
-export default function() {
+export default function({
+  onCheckUpdate,
+  onCheckUpdating
+}) {
   const {getGlobal} = window
   let {
     name,
@@ -18,9 +21,13 @@ export default function() {
     author,
     repository: {
       url
-    }
+    },
+    bugs: {
+      url: bugReportLink
+    },
+    version: packVer
   } = getGlobal('packInfo')
-  let version = getGlobal('version')
+  let version = 'v' + packVer
   let link = url.replace('git+', '').replace('.git', '')
   let os = getGlobal('os')
   let env = getGlobal('env')
@@ -29,6 +36,7 @@ export default function() {
     ...dependencies
   }
   let logoPath = window.sugo.cdn + '/static/images/electerm.png'
+  let releasesLink = link + '/releases'
   Modal.info({
     title: 'about ' + name,
     width: window.innerWidth - 100,
@@ -38,11 +46,12 @@ export default function() {
       <div className="about-wrap">
         <Tabs defaultActiveKey="1">
           <TabPane tab="about" key="1">
-            <div className="pd1y aligncenter">
+            <div className="pd2y aligncenter">
               <img src={logoPath} className="iblock" />
             </div>
-            <h1 className="mg2b">
-              {name}
+            <h1 className="mg2b font50">
+              <span className="iblock mg1r">{name}</span>
+              <Tag color="#08c">{version}</Tag>
             </h1>
             <p className="mg1b">{description}</p>
             <p className="mg1b">
@@ -50,14 +59,31 @@ export default function() {
               {author}
             </p>
             <p className="mg1b">
-              <b>github:</b>
+              <b>homepage:</b>
               <Link to={link} className="mg1l">
                 <Icon type="github" /> {link}
               </Link>
             </p>
             <p className="mg1b">
-              <b className="mg1r">version:</b>
-              {version}
+              <b className="mg1r">download:</b>
+              <Link to={releasesLink} className="mg1l">
+                <Icon type="github" /> {releasesLink}
+              </Link>
+            </p>
+            <p className="mg1b">
+              <b className="mg1r">bug report:</b>
+              <Link to={bugReportLink} className="mg1l">
+                <Icon type="github" /> {bugReportLink}
+              </Link>
+            </p>
+            <p className="mg1y">
+              <Button
+                type="primary"
+                loading={onCheckUpdating}
+                onClick={onCheckUpdate}
+              >
+                check for update
+              </Button>
             </p>
           </TabPane>
           <TabPane tab="dependencies" key="4">

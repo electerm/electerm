@@ -58,6 +58,12 @@ const template = [
         }
       },
       {
+        label: 'check update',
+        click() {
+          require('./win').win.webContents.send('checkupdate', null)
+        }
+      },
+      {
         label: 'report issue',
         click () {
           shell
