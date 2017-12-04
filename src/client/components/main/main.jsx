@@ -35,8 +35,14 @@ export default class Index extends React.Component {
       contextMenuProps: {},
       contextMenuVisible: false,
       fileInfoModalProps: {},
-      fileModeModalProps: {}
+      fileModeModalProps: {},
+      shouldCheckUpdate: 0,
+      onCheckUpdating: false
     }
+  }
+
+  componentDidMount() {
+    window._require('electron').ipcRenderer.on('checkupdate', this.onCheckUpdate)
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -69,6 +75,15 @@ export default class Index extends React.Component {
     let dom = document.getElementById('outside-context')
     this.dom = dom
     dom.addEventListener('click', this.closeContextMenu)
+  }
+
+  onCheckUpdate = () => {
+    if (this.state.onCheckUpdating) {
+      return
+    }
+    this.setState({
+      shouldCheckUpdate: +new Date()
+    })
   }
 
   openContextMenu = (contextMenuProps) => {
@@ -172,19 +187,24 @@ export default class Index extends React.Component {
       contextMenuProps,
       contextMenuVisible,
       fileInfoModalProps,
-      fileModeModalProps
+      fileModeModalProps,
+      shouldCheckUpdate
     } = this.state
     let controlProps = {
       ...this.state,
       ..._.pick(this, [
         'modifier', 'delTab', 'addTab', 'editTab',
         'onError', 'openContextMenu', 'closeContextMenu',
-        'modifyLs', 'addItem', 'editItem', 'delItem'
+        'modifyLs', 'addItem', 'editItem', 'delItem',
+        'onCheckUpdate'
       ])
     }
     return (
       <div>
-        <UpdateCheck />
+        <UpdateCheck
+          modifier={this.modifier}
+          shouldCheckUpdate={shouldCheckUpdate}
+        />
         <ContextMenu
           {...contextMenuProps}
           visible={contextMenuVisible}
