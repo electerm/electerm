@@ -3,9 +3,9 @@
  */
 
 const {resolve} = require('path')
-const {mkdir, rm, exec, echo} = require('shelljs')
-const dir = resolve('app/static/icons')
-const src = resolve('app/static/images/electerm-white.png')
+const {exec, echo} = require('shelljs')
+const dir = resolve('build')
+const src = resolve(__dirname, '../../electerm-resource/static/images/electerm-grey-1024x1024.png')
 const bin = './node_modules/.bin'
 
 
@@ -14,11 +14,6 @@ echo('start build')
 const timeStart = + new Date()
 
 echo('clean')
-rm('-rf', dir)
-
-
-mkdir('-p', dir)
-
 
 echo('building icons')
 exec(`${bin}/png2icons ${src} ${dir}/icons -allp`)
