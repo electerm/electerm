@@ -34,7 +34,10 @@
     "sourceType": "module"
   },
   "plugins": [
-    "react"
+    "react",
+    "import",
+    "promise",
+    "compat"
   ],
   "rules": {
     "indent": [
