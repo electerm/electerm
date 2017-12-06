@@ -27,6 +27,7 @@ export default function({
     },
     version: packVer
   } = getGlobal('packInfo')
+  let cdn = window.location.origin
   let version = 'v' + packVer
   let link = url.replace('git+', '').replace('.git', '')
   let os = getGlobal('os')
@@ -35,7 +36,7 @@ export default function({
     ...devDependencies,
     ...dependencies
   }
-  let logoPath = window.sugo.cdn + '/static/images/electerm.png'
+  let logoPath = cdn + '/static/images/electerm.png'
   let releasesLink = link + '/releases'
   Modal.info({
     title: 'about ' + name,
@@ -47,7 +48,7 @@ export default function({
         <Tabs defaultActiveKey="1">
           <TabPane tab="about" key="1">
             <div className="pd2y aligncenter">
-              <img src={logoPath} className="iblock" />
+              <img src={logoPath} className="iblock mw-100" />
             </div>
             <h1 className="mg2b font50">
               <span className="iblock mg1r">{name}</span>
