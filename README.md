@@ -20,7 +20,7 @@ https://github.com/electerm/electerm/releases
 
 ## feature
 - work as a terminal or ssh/sftp client(similar to xshell)
-- hotkey to bring window back to front(simliar to guake)
+- hotkey to bring window back to front(simliar to guake, default is `ctrl + 2`)
 - support multi platform(mac, win, linux)
 
 ## issues/todo/roadmap
@@ -47,6 +47,7 @@ npm run dev
 
 ## test build
 ```bash
+# tested only in ubuntu 16.04 x64
 # install yarn first(to do yarn autoclean)
 # see https://yarnpkg.com/en/docs/install
 
