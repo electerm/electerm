@@ -20,7 +20,8 @@
     "output-cn": "./node_modules/.bin/electron-builder -c local-electron-builder.json",
     "release": "npm run compile && npm run prepare-file && npm run output",
     "preinstall": "rm -rf package-lock.json",
-    "postinstall": "./node_modules/.bin/electron-rebuild"
+    "postinstall": "./node_modules/.bin/electron-rebuild",
+    "test-dev": "./node_modules/.bin/mocha test/e2e/*"
   },
   "license": "MIT",
   "repository": {
@@ -49,6 +50,7 @@
     "babel-register": "6.26.0",
     "babel-runtime": "6.26.0",
     "babili-webpack-plugin": "0.1.2",
+    "chai": "4.1.2",
     "classnames": "2.2.5",
     "cross-env": "5.1.1",
     "css-loader": "0.28.7",
@@ -83,6 +85,7 @@
     "koa-pug-global": "3.0.0-2",
     "koa-router": "7.3.0",
     "koa-static": "4.0.2",
+    "mocha": "4.0.1",
     "nodemon": "1.12.1",
     "npm-run-all": "4.1.2",
     "open-browser-webpack-plugin": "0.0.5",
