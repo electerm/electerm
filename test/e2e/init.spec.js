@@ -31,23 +31,6 @@ describe('main window', function () {
     const title = await browserWindow.getTitle()
     console.log(title, 'title')
     expect(title).equal('electerm')
-  })
-
-  it('should haven\'t any logs in console of main window', async function() {
-    const { client } = this.app
-    const logs = await client.getRenderProcessLogs()
-    // Print renderer process logs
-    logs.forEach(log => {
-      console.log(log.message)
-      console.log(log.source)
-      console.log(log.level)
-    })
-    expect(logs).to.have.lengthOf(0)
-  })
-
-  it('dom should be ready', async function () {
-    const { client } = this.app
-
     let wrap = await  client.element('#outside-context')
     expect(!!wrap.value).equal(true)
     let tabs = await client.element('.tabs')
