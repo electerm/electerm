@@ -29,7 +29,6 @@ describe('main window', function () {
     await client.waitUntilWindowLoaded()
     await delay(500)
     const title = await browserWindow.getTitle()
-    console.log(title, 'title')
     expect(title).equal('electerm')
     let wrap = await  client.element('#outside-context')
     expect(!!wrap.value).equal(true)
