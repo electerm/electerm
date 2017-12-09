@@ -21,7 +21,8 @@
     "release": "npm run compile && npm run prepare-file && npm run output",
     "preinstall": "rm -rf package-lock.json",
     "postinstall": "./node_modules/.bin/electron-rebuild",
-    "test-dev": "./node_modules/.bin/mocha test/e2e/*"
+    "test": "./node_modules/.bin/mocha test/e2e/*",
+    "pre-test": "npm run compile && npm run prepare-file"
   },
   "license": "MIT",
   "repository": {

@@ -6,8 +6,6 @@ const {version} = require('../package.json')
 const {mkdir, rm, exec, echo, cp} = require('shelljs')
 const dir = 'dist/v' + version
 const cwd = process.cwd()
-const os = require('os')
-const isWin = os.platform() === 'win32'
 
 echo('start pack prepare')
 
