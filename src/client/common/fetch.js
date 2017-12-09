@@ -1,26 +1,7 @@
 // the final fetch
 import _ from 'lodash'
 import parseJson from './parse-json-safe'
-
-const updateLoadingState = (index) => {
-  let id = `loading-bar${index}`
-  let dom = document.getElementById(id)
-
-  if (dom) {
-    return dom.parentNode && dom.parentNode.removeChild(dom)
-  }
-
-  let html = document.createElement('div')
-  html.className = 'loading-bar loading'
-  html.id = id
-  document.body.appendChild(html)
-  //`<div id="${id}" className="loading-bar"></div>`
-}
-
-//正在取数据计数
-window.__fetchCount = 0
-
-let fetchIndex = 0
+import {notification} from 'antd'
 
 const jsonHeader = {
   'Accept': 'application/json',
@@ -52,7 +33,11 @@ export async function handleErr(res) {
   } catch (e) {
     console.log('not a json error')
   }
-
+  notification.error({
+    message: 'error',
+    description: text,
+    duration: 55
+  })
 }
 
 export default class Fetch {
@@ -90,13 +75,6 @@ export default class Fetch {
       timeout: 180000,
       ...options
     }
-    let index = fetchIndex + 0
-    fetchIndex ++
-    if (fetchIndex > 1<<29) {
-      fetchIndex = 0
-    }
-    window.__fetchCount ++
-    updateLoadingState(index)
     return fetch(url, body)
       .then(res => {
         window.__fetchCount --
