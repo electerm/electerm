@@ -35,8 +35,8 @@ before_install:
   - npm install -g yarn
 
 script:
-  npm run pre-test
-  npm run test
+  - npm run pre-test
+  - npm run test
   - |
     if [ "$TRAVIS_OS_NAME" == "linux" ]; then
       npm run output -l
