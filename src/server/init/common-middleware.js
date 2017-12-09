@@ -18,7 +18,7 @@ export default async (ctx, next) => {
     serialize,
     serverTime: +new Date()
   }
-console.log(ctx.local, 'ctx.local')
+
   if (!local.cdn) ctx.local.cdn = host
 
   await next()
