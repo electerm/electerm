@@ -2,7 +2,9 @@ const { Application } = require('spectron')
 const electronPath = require('electron')
 const {resolve} = require('path')
 const {expect} = require('chai')
+const {exec} = require('child_process')
 const cwd = process.cwd()
+const appPath = resolve(__dirname, 'work/app/app.js')
 
 const delay = time => new Promise(resolve => setTimeout(resolve, time))
 
@@ -18,9 +20,7 @@ describe('main window', function () {
   })
 
   afterEach(function() {
-    if (this.app && this.app.isRunning()) {
-      return this.app.stop()
-    }
+    return this.app.stop()
   })
 
   it('should open window', async function() {
