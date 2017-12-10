@@ -6,7 +6,11 @@
     "node": true
   },
   "globals": {
-    "debug": true
+    "debug": true,
+    "describe": true,
+    "beforeEach": true,
+    "afterEach": true,
+    "it": true
   },
   "extends": "eslint:recommended",
   "parser": "babel-eslint",
@@ -34,7 +38,10 @@
     "sourceType": "module"
   },
   "plugins": [
-    "react"
+    "react",
+    "import",
+    "promise",
+    "compat"
   ],
   "rules": {
     "indent": [

@@ -1,5 +1,5 @@
 image: Visual Studio 2017
-
+os: unstable
 platform:
   - x64
 
@@ -12,9 +12,10 @@ install:
   - npm i
 
 build_script:
-  - npm run release -w
+  - npm run pre-test
+  - npm run output -w
 
-test: off
+# test: off
 skip_tags: true
 cache:
   - $LOCALAPPDATA/electron/Cache
