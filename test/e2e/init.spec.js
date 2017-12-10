@@ -20,7 +20,9 @@ describe('main window', function () {
   })
 
   afterEach(function() {
-    return this.app.stop()
+    if (this.app && this.app.isRunning()) {
+      return this.app.stop()
+    }
   })
 
   it('should open window', async function() {
