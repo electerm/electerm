@@ -15,7 +15,7 @@ build_script:
   - npm run pre-test
   - npm run output -w
 
-# test: off
+test: off
 skip_tags: true
 cache:
   - $LOCALAPPDATA/electron/Cache
