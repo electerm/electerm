@@ -35,6 +35,7 @@ assets
 example
 examples
 coverage
+electerm-resource/build
 .nyc_output
 
 # ignores

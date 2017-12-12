@@ -5,7 +5,6 @@ const {log} = require('./log')
 const {resolve} = require('path')
 const terminals = {}
 const logs = {}
-const staticPath = resolve(__dirname, '../static')
 const pubPath = resolve(__dirname, '../assets')
 const modPath = resolve(__dirname, '../node_modules')
 const bodyParser = require('body-parser')
@@ -23,7 +22,6 @@ require('express-ws')(app)
 
 app.use('/', express.static(pubPath))
 app.use('/_bc', express.static(modPath))
-app.use('/static', express.static(staticPath))
 
 app.post('/terminals', async function (req, res) {
   let body = JSON.parse(req.body.q)

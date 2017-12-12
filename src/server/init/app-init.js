@@ -44,7 +44,6 @@ export default function init() {
   //static
   //app.use(serve(cwd + '/app/assets', staticOption()))
   app.use(mount('/_bc', serve(cwd + '/node_modules', staticOption())))
-  app.use(mount('/static', serve(cwd + '/app/static', staticOption())))
 
   // body解析
   app.use(bodyparser)

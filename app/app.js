@@ -26,6 +26,11 @@ let win
 let {NODE_ENV} = process.env
 const isDev = NODE_ENV === 'development'
 const packInfo = require(isDev ? '../package.json' : './package.json')
+const iconPath = resolve(
+  __dirname,
+  (isDev ? '../' : '') +
+  'node_modules/electerm-resource/res/imgs/electerm-round-128x128.png'
+)
 
 function onClose() {
   win = null
@@ -53,7 +58,7 @@ async function createWindow () {
     height,
     fullscreenable: true,
     //fullscreen: true,
-    icon: resolve(__dirname, 'static/images/electerm-round-128x128.png')
+    icon: iconPath
   })
 
   win.setAutoHideMenuBar(true)

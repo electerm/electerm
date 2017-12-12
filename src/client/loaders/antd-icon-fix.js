@@ -7,9 +7,9 @@ module.exports = exports.default = function (source) {
   this.cacheable()
 
   return source
-    .replace(/'[^']+\.eot'/, `'../../static/fonts/iconfont.eot?t=${version}'`)
-    .replace(/'[^']+\.eot\?#iefix'/, `'../../static/fonts/iconfont.eot?t=${version}#iefix'`)
-    .replace(/'[^']+\.woff'/, `'../../static/fonts/iconfont.woff?t=${version}'`)
-    .replace(/'[^']+\.ttf'/, `'../../static/fonts/iconfont.ttf?t=${version}'`)
-    .replace(/'[^']+\.svg#iconfont'/, `'../../static/fonts/iconfont.svg?t=${version}#iconfont'`)
+    .replace(/'[^']+\.eot'/, `'../../_bc/electerm-resource/res/fonts/iconfont.eot?t=${version}'`)
+    .replace(/'[^']+\.eot\?#iefix'/, `'../../_bc/electerm-resource/res/fonts/iconfont.eot?t=${version}#iefix'`)
+    .replace(/'[^']+\.woff'/, `'../../_bc/electerm-resource/res/fonts/iconfont.woff?t=${version}'`)
+    .replace(/'[^']+\.ttf'/, `'../../_bc/electerm-resource/res/fonts/iconfont.ttf?t=${version}'`)
+    .replace(/'[^']+\.svg#iconfont'/, `'../../_bc/electerm-resource/res/fonts/iconfont.svg?t=${version}#iconfont'`)
 }

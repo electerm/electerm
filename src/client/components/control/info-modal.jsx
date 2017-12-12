@@ -36,7 +36,7 @@ export default function({
     ...devDependencies,
     ...dependencies
   }
-  let logoPath = cdn + '/static/images/electerm.png'
+  let logoPath = cdn + '/_bc/electerm-resource/res/imgs/electerm.png'
   let releasesLink = link + '/releases'
   Modal.info({
     title: 'about ' + name,
