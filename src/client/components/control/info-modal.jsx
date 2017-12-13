@@ -48,7 +48,7 @@ export default function({
         <Tabs defaultActiveKey="1">
           <TabPane tab="about" key="1">
             <div className="pd2y aligncenter">
-              <img src={logoPath} className="iblock mw-100" />
+              <img src={logoPath} className="iblock mwm-100" />
             </div>
             <h1 className="mg2b font50">
               <span className="iblock mg1r">{name}</span>
