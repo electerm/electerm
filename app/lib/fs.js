@@ -68,7 +68,7 @@ const mv = (from, to) => {
  */
 const touch = (localFilePath) => {
   let cmd = isWin
-    ? `New-Item -ItemType file ${localFilePath}`
+    ? `$null > ${localFilePath}`
     : `touch ${localFilePath}`
   return isWin ? runWinCmd(cmd) : run(cmd)
 }
