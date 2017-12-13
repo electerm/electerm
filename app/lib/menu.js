@@ -53,8 +53,7 @@ const template = [
       {
         label: 'about',
         click () {
-          shell
-            .openExternal(realeaseUrl)
+          require('./win').win.webContents.send('open-about', null)
         }
       },
       {

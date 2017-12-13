@@ -11,6 +11,7 @@ import FileInfoModal from '../sftp/file-props-modal'
 import FileModeModal from '../sftp/file-mode-modal'
 import UpdateCheck from './update-check'
 import {notification} from 'antd'
+import openInfoModal from '../control/info-modal'
 
 const initTabs = () => [
   {
@@ -42,7 +43,9 @@ export default class Index extends React.Component {
   }
 
   componentDidMount() {
-    window._require('electron').ipcRenderer.on('checkupdate', this.onCheckUpdate)
+    window._require('electron')
+      .ipcRenderer.on('checkupdate', this.onCheckUpdate)
+      .on('open-about', this.openAbout)
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -75,6 +78,13 @@ export default class Index extends React.Component {
     let dom = document.getElementById('outside-context')
     this.dom = dom
     dom.addEventListener('click', this.closeContextMenu)
+  }
+
+  openAbout = () => {
+    openInfoModal({
+      onCheckUpdatingo: this.nCheckUpdating,
+      onCheckUpdate: this.onCheckUpdate
+    })
   }
 
   onCheckUpdate = () => {
@@ -196,7 +206,7 @@ export default class Index extends React.Component {
         'modifier', 'delTab', 'addTab', 'editTab',
         'onError', 'openContextMenu', 'closeContextMenu',
         'modifyLs', 'addItem', 'editItem', 'delItem',
-        'onCheckUpdate'
+        'onCheckUpdate', 'openAbout'
       ])
     }
     return (
