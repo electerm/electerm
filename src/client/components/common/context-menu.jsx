@@ -21,6 +21,8 @@ export default class ContextMenu extends React.Component {
     className: 'context-menu'
   }
 
+  state = {}
+
   render () {
     let {visible, pos, content, className} = this.props
     let cls = `${className} ${visible ? 'show' : 'hide'}`

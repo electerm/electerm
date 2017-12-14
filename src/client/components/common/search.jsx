@@ -8,7 +8,7 @@ import {Input, Icon} from 'antd'
 const {Search} = Input
 
 export default class CommonSearch extends React.Component {
-  componentDidUpdate(prevProps, prevState) {
+  componentDidUpdate() {
     let root = ReactDOM.findDOMNode(this)
     root.querySelector('input').focus()
   }

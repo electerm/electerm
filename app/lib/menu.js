@@ -2,14 +2,7 @@
  * app system menu config
  */
 const {app, Menu, shell} = require('electron')
-const version = require('./version')
-let tag = version.includes('-')
-  ? version.split('-')[0]
-  : ''
-let baseUrl = 'https://github.com/electerm/electerm/releases'
-let realeaseUrl = tag
-  ? `${baseUrl}/tag/v${tag}`
-  : baseUrl
+
 const template = [
   {
     label: 'Edit',
