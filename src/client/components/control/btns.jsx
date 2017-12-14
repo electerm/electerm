@@ -2,7 +2,7 @@
  * btns
  */
 
-import {Button, Select, Icon, Tooltip, Modal} from 'antd'
+import {Button, Select, Icon, Tooltip} from 'antd'
 import createName from '../../common/create-title'
 
 const {Option} = Select

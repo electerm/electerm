@@ -6,9 +6,6 @@ import _ from 'lodash'
 
 const {Terminal, getGlobal} = window
 let config = getGlobal('_config')
-let passEnd = /password: /
-let yesnoEnd = /\(yes\/no\)\? /
-
 export default class Term extends React.Component {
 
   constructor(props) {
