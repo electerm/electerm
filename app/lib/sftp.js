@@ -182,7 +182,7 @@ class Sftp {
   rmdir (remotePath) {
     return new Promise((resolve, reject) => {
       let {client} = this
-      let cmd = `rm -rf ${remotePath}`
+      let cmd = `rm -rf "${remotePath}"`
       client.exec(cmd, err => {
         if (err) reject(err)
         else resolve()
@@ -300,7 +300,7 @@ class Sftp {
   touch (remotePath) {
     return new Promise((resolve, reject) => {
       let {client} = this
-      let cmd = `touch ${remotePath}`
+      let cmd = `touch "${remotePath}"`
       client.exec(cmd, err => {
         if (err) reject(err)
         else resolve()
@@ -319,7 +319,7 @@ class Sftp {
   mv (from, to) {
     return new Promise((resolve, reject) => {
       let {client} = this
-      let cmd = `mv ${from} ${to}`
+      let cmd = `mv "${from}" "${to}"`
       client.exec(cmd, (err) => {
         if (err) reject(err)
         else resolve()

@@ -2,7 +2,7 @@ const {exec} = require('child_process')
 const os = require('os')
 const isWin = os.platform() === 'win32'
 const fs = require('fs')
-
+const fss = Promise.promisifyAll(fs)
 /**
  * run cmd
  * @param {string} cmd
@@ -46,8 +46,8 @@ const runWinCmd = (cmd) => {
  */
 const rmrf = (localFolderPath) => {
   let cmd = isWin
-    ? `Remove-Item ${localFolderPath} -Force -Recurse -ErrorAction SilentlyContinue`
-    : `rm -rf ${localFolderPath}`
+    ? `Remove-Item "${localFolderPath}" -Force -Recurse -ErrorAction SilentlyContinue`
+    : `rm -rf "${localFolderPath}"`
   return isWin ? runWinCmd(cmd) : run(cmd)
 }
 
@@ -57,8 +57,8 @@ const rmrf = (localFolderPath) => {
  */
 const mv = (from, to) => {
   let cmd = isWin
-    ? `Move-Item ${from} ${to}`
-    : `mv ${from} ${to}`
+    ? `Move-Item "${from}" "${to}"`
+    : `mv "${from}" "${to}"`
   return isWin ? runWinCmd(cmd) : run(cmd)
 }
 
@@ -67,14 +67,11 @@ const mv = (from, to) => {
  * @param {string} localFolderPath absolute path
  */
 const touch = (localFilePath) => {
-  let cmd = isWin
-    ? `$null > ${localFilePath}`
-    : `touch ${localFilePath}`
-  return isWin ? runWinCmd(cmd) : run(cmd)
+  return fss.writeFileAsync(localFilePath, '')
 }
 
 module.exports = Object.assign(
-  Promise.promisifyAll(fs),
+  fss,
   {
     rmrf,
     touch,
