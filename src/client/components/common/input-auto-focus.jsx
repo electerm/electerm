@@ -5,6 +5,7 @@
 import {Input} from 'antd'
 import React from 'react'
 import ReactDOM from 'react-dom'
+import _ from 'lodash'
 
 export default class InputAutoFocus extends React.Component {
 
@@ -18,7 +19,18 @@ export default class InputAutoFocus extends React.Component {
 
   doFocus = () => {
     let dom = this.getDom()
-    dom && dom.focus && dom.select()
+    if (dom && dom.focus) {
+      let {value} = this.props
+      let index = _.findLastIndex(value, v => v === '.')
+      let hasExt = index > 0
+      if (value && hasExt) {
+        dom.focus()
+        dom.setSelectionRange(0, index)
+      }
+      else {
+        dom.select()
+      }
+    }
   }
 
   getDom() {
