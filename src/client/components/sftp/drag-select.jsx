@@ -76,6 +76,9 @@ export default class DragSelect extends React.Component {
   }
 
   doMouseDown = (e) => {
+    if (!e.target.className.includes('sftp-item')) {
+      return
+    }
     let rect = this.root.getBoundingClientRect()
     let startPoint = {
       x: e.pageX - rect.left,
