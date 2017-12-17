@@ -424,10 +424,18 @@ export default class FileSection extends React.Component {
     }, this.props[`${type}List`])
   }
 
+  openFile = file => {
+    let filePath = resolve(file.path, file.name)
+    fs.openFile(filePath)
+  }
+
   transferOrEnterDirectory = (e) => {
-    let {isDirectory} = this.state.file
+    let {isDirectory, type} = this.state.file
     if (isDirectory) {
       return this.enterDirectory(e)
+    }
+    if (type === 'local') {
+      return this.openFile(this.state.file)
     }
     this.transfer()
   }

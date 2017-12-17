@@ -1,6 +1,7 @@
 const {exec} = require('child_process')
 const os = require('os')
 const isWin = os.platform() === 'win32'
+const isMac = os.platform() === 'darwin'
 const fs = require('fs')
 const fss = Promise.promisifyAll(fs)
 /**
@@ -28,7 +29,7 @@ const runWinCmd = (cmd) => {
   return new Promise((resolve, reject) => {
     exec(
       'powershell.exe',
-      [`-command "${cmd}"`],
+      [`-command ${cmd}`],
       (err, stdout, stderr) => {
         if (err) {
           reject(err)
@@ -70,11 +71,29 @@ const touch = (localFilePath) => {
   return fss.writeFileAsync(localFilePath, '')
 }
 
+/**
+ * oepn file
+ * @param {string} localFolderPath absolute path
+ */
+const openFile = (localFilePath) => {
+  let cmd
+  if (isWin) {
+    cmd = `Invoke-Item "${localFilePath}"`
+    return runWinCmd(cmd)
+  }
+  cmd = (isMac
+    ? 'open'
+    : 'xdg-open') +
+    ` "${localFilePath}"`
+  return run(cmd)
+}
+
 module.exports = Object.assign(
   fss,
   {
     rmrf,
     touch,
-    mv
+    mv,
+    openFile
   }
 )
