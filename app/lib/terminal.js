@@ -107,3 +107,18 @@ exports.terminal = async function(initOptions) {
   return term
 }
 
+/**
+ * test ssh connection
+ * @param {object} options
+ */
+exports.testConnection = (options) => {
+  return new Promise((resolve, reject) => {
+    const conn = new Client()
+    conn.on('ready', () => {
+      conn.end()
+      resolve()
+    }).on('error', err => {
+      reject(err)
+    }).connect(options)
+  })
+}

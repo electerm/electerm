@@ -1,6 +1,6 @@
 
 import React from 'react'
-import {Form, Button, Input, InputNumber} from 'antd'
+import {Form, Button, Input, InputNumber, message} from 'antd'
 import {validateFieldsAndScroll} from '../../common/dec-validate-and-scroll'
 import _ from 'lodash'
 import copy from 'json-deep-copy'
@@ -68,17 +68,38 @@ export default class SshForm extends React.Component {
     }
   }
 
+  test = async (options) => {
+    let testConnection = window.getGlobal('testConnection')
+    let msg = ''
+    let res = await testConnection(options)
+      .then(() => true)
+      .catch((e) => {
+        msg = e.message
+        return false
+      })
+    if (res) {
+      message.success('connection ok')
+    } else {
+      let err = 'connection fails' +
+        (msg ? `: ${msg}` : '')
+      message.error(err)
+    }
+  }
+
   reset = () => {
     this.props.form.resetFields()
   }
 
-  handleSubmit = async (e) => {
+  handleSubmit = async (e, isTest = false) => {
     e && e.preventDefault && e.preventDefault()
     let res = await this.validateFieldsAndScroll()
     if (!res) return
     let obj = {
       ...this.state.formData,
       ...res
+    }
+    if (isTest) {
+      return await this.test(obj)
     }
     e && this.submit(obj)
     if (e !== 'save') {
@@ -175,13 +196,29 @@ export default class SshForm extends React.Component {
           )}
         </FormItem>
         <FormItem {...tailFormItemLayout}>
-          <Button type="primary" htmlType="submit" className="mg1r">save and connect</Button>
-          <Button
-            type="primary"
-            className="mg1r"
-            onClick={() => this.handleSubmit('save')}
-          >save</Button>
-          <Button type="primary" onClick={this.handleSubmit}>connect</Button>
+          <p>
+            <Button
+              type="primary"
+              htmlType="submit"
+              className="mg1r"
+            >save and connect</Button>
+            <Button
+              type="ghost"
+              className="mg1r"
+              onClick={() => this.handleSubmit('save')}
+            >save</Button>
+            <Button
+              type="ghost"
+              onClick={this.handleSubmit}
+              className="mg2r"
+            >connect</Button>
+          </p>
+          <p>
+            <Button
+              type="ghost"
+              onClick={e => this.handleSubmit(e, true)}
+            >test connection</Button>
+          </p>
         </FormItem>
       </Form>
     )
