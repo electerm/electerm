@@ -1,5 +1,5 @@
 /**
- * hisotry list
+ * hisotry/bookmark list
  */
 import React from 'react'
 import {Modal, Tabs, Col, Row} from 'antd'

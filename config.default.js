@@ -6,7 +6,7 @@ let config = {
 
     env: process.env.NODE_ENV || 'development',
 
-    siteName: 'essh page server'
+    siteName: 'electerm'
 
   },
 
