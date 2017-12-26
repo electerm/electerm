@@ -52,6 +52,7 @@
     "babel-register": "6.26.0",
     "babel-runtime": "6.26.0",
     "babili-webpack-plugin": "0.1.2",
+    "badges": "^1.2.4",
     "chai": "4.1.2",
     "classnames": "2.2.5",
     "cross-env": "5.1.1",
