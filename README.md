@@ -11,8 +11,8 @@
 
 <span class="badge-daviddm"><a href="https://david-dm.org/electerm/electerm" title="View the status of this project's dependencies on DavidDM"><img src="https://img.shields.io/david/electerm/electerm.svg" alt="Dependency Status" /></a></span>
 <span class="badge-daviddmdev"><a href="https://david-dm.org/electerm/electerm#info=devDependencies" title="View the status of this project's development dependencies on DavidDM"><img src="https://img.shields.io/david/dev/electerm/electerm.svg" alt="Dev Dependency Status" /></a></span>
-<span class="badge-nodeico"><a href="https://www.npmjs.com/package/electerm" title="Nodei.co badge"><img src="https://nodei.co/npm/electerm.png" alt="Nodei.co badge" /></a></span>
-<span class="badge-githubstar"><iframe src="https://ghbtns.com/github-btn.html?user=electerm&amp;repo=electerm&amp;type=watch&amp;count=true" allowtransparency="true" frameborder="0" scrolling="0" width="110" height="20"></iframe></span>
+<span class="badge-githubstar">
+<iframe src="https://ghbtns.com/github-btn.html?user=electerm&amp;repo=electerm&amp;type=watch&amp;count=true" allowtransparency="true" frameborder="0" scrolling="0" width="110" height="20"></iframe></span>
 
 - terminal/ssh/sftp client(mac, win, linux) based on electron/node-pty/xterm and more, I hope it works as a combination of `guake` and `xshell`
 - it is still on its early stage, more features will be added.
