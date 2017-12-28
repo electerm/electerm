@@ -19,6 +19,10 @@ import sorter from '../../common/index-sorter'
 const {getGlobal} = window
 let fs = getGlobal('fs')
 let platform = getGlobal('os').platform()
+const isWin = platform.startsWith('win')
+let fileReg = isWin
+  ? /^\w:\\.+/
+  : /^\/.+/
 const computePos = (e, isBg, height) => {
   let {target} = e
   let rect = target.getBoundingClientRect()
@@ -57,6 +61,17 @@ export default class FileSection extends React.Component {
         file: copy(nextProps.file)
       })
     }
+  }
+
+  getClipboardText = () => {
+    return window._require('electron').clipboard.readText()
+  }
+
+  hasFileInClipboardText = (text) => {
+    let arr = text.split('\n')
+    return arr.reduce((prev, t) => {
+      return prev && fileReg.test(t)
+    }, true)
   }
 
   onDrag = () => {
@@ -546,7 +561,7 @@ export default class FileSection extends React.Component {
     if (type === 'remote') {
       return true
     }
-    return !platform.startsWith('win')
+    return !isWin
   }
 
   renderContext() {
@@ -570,6 +585,7 @@ export default class FileSection extends React.Component {
       && _.some(selectedFiles, d => d.id === id)
     let cls = 'pd2x pd1y context-item pointer'
     let delTxt = shouldShowSelectedMenu ? `delete all(${len})` : 'delete'
+    let clipboardText = this.getClipboardText()
     return (
       <div>
         {
@@ -621,6 +637,18 @@ export default class FileSection extends React.Component {
                   <Icon type="close-circle" /> {delTxt}
                 </div>
               </Popconfirm>
+            )
+            : null
+        }
+        {
+          this.hasFileInClipboardText(clipboardText)
+            ? (
+              <div
+                className={cls}
+                onClick={this.onPaste}
+              >
+                <Icon type="copy" /> paste
+              </div>
             )
             : null
         }
