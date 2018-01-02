@@ -41,16 +41,19 @@ export default class FileMode extends React.Component {
   }
 
   notifyUpdateFail() {
-    let releaseUrl = 'https://electerm.html5beta.com'
+    const {getGlobal} = window
+    let {
+      homepage
+    } = getGlobal('packInfo')
     notification.info({
       message: 'check update fails',
       description: (
         <div>
           you can visit
           <Link
-            to={releaseUrl}
+            to={homepage}
             className="mg1x"
-          >{releaseUrl}</Link>
+          >{homepage}</Link>
           to check latest release
         </div>
       ),
