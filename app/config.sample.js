@@ -10,6 +10,9 @@ module.exports = {
 
   // hotkey, systerm hotkey to bring window back to front,default is 'Control+2'
   // hotkey: 'Control+2'
+
+  //ssh/sftp timeout(in millisecond)
+  // sshReadyTimeout: 50000
 }
 
 

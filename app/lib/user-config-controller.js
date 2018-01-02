@@ -1,15 +1,26 @@
+
+
 /**
  * user-controll.json controll
  */
 const fs = require('fs')
 const {resolve} = require('path')
 const appPath = require('./app-path')
+let userConfig = {}
+const userConfigPath = resolve(appPath, 'electerm-user-config.json')
+
+try {
+  userConfig = require(userConfigPath)
+} catch (e) {
+  console.log('no user config, but it is ok')
+}
 
 exports.saveUserConfig = (conf) => {
   Object.assign(global._config, conf)
+  Object.assign(userConfig, conf)
   fs.writeFileSync(
-    resolve(appPath, 'user-config.json'),
-    JSON.stringify(conf)
+    userConfigPath,
+    JSON.stringify(userConfig)
   )
 }
 

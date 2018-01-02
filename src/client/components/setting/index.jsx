@@ -1,6 +1,6 @@
 
 import React from 'react'
-import {message, Select} from 'antd'
+import {message, Select, InputNumber} from 'antd'
 
 const {Option} = Select
 const {getGlobal} = window
@@ -24,6 +24,12 @@ export default class Setting extends React.Component {
     let key = hotkey.split('+')[1]
     return this.saveConfig({
       hotkey: `${modifier}+${key}`
+    })
+  }
+
+  onChangeTimeout = sshReadyTimeout => {
+    return this.saveConfig({
+      sshReadyTimeout: sshReadyTimeout
     })
   }
 
@@ -64,7 +70,7 @@ export default class Setting extends React.Component {
   }
 
   render() {
-    let {hotkey} = this.props.config
+    let {hotkey, sshReadyTimeout} = this.props.config
     let [modifier, key] = hotkey.split('+')
     return (
       <div className="form-wrap pd1y pd2x">
@@ -92,6 +98,15 @@ export default class Setting extends React.Component {
               keys.map(this.renderOption)
             }
           </Select>
+        </div>
+        <div className="pd1b">ssh timeout(in millisecond)</div>
+        <div className="pd2b">
+          <InputNumber
+            onChange={this.onChangeTimeout}
+            step={1000}
+            min={100}
+            value={sshReadyTimeout}
+          />
         </div>
       </div>
     )
