@@ -1,5 +1,5 @@
 <h1 align="center">
-    <a href="https://github.com/electerm/electerm">
+    <a href="http://electerm.html5beta.com">
         <img src="https://github.com/electerm/electerm-resource/raw/master/static/images/electerm.png", alt="" />
     </a>
 </h1>
@@ -21,7 +21,7 @@
 </div>
 
 ## dowload
-https://github.com/electerm/electerm/releases
+http://electerm.html5beta.com
 
 ## feature
 - work as a terminal or ssh/sftp client(similar to xshell)
