@@ -41,7 +41,7 @@ export default class FileMode extends React.Component {
   }
 
   notifyUpdateFail() {
-    let releaseUrl = 'https://github.com/electerm/electerm/releases'
+    let releaseUrl = 'https://electerm.html5beta.com'
     notification.info({
       message: 'check update fails',
       description: (
