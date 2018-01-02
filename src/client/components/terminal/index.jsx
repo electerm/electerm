@@ -3,6 +3,8 @@ import React from 'react'
 import fetch from '../../common/fetch'
 import {generate} from 'shortid'
 import _ from 'lodash'
+import {Spin} from 'antd'
+import './terminal.styl'
 
 const {Terminal, getGlobal} = window
 let config = getGlobal('_config')
@@ -11,7 +13,8 @@ export default class Term extends React.Component {
   constructor(props) {
     super()
     this.state = {
-      id: props.id || generate()
+      id: props.id || generate(),
+      loading: false
     }
   }
 
@@ -51,6 +54,9 @@ export default class Term extends React.Component {
   count = 0
 
   remoteInit = async (term) => {
+    this.setState({
+      loading: true
+    })
     let {cols, rows} = term
     let {host, port} = config
     let wsUrl
@@ -62,6 +68,9 @@ export default class Term extends React.Component {
       mode: 'VINTR',
       ...tab,
       type: tab.host ? 'remote' : 'local'
+    })
+    this.setState({
+      loading: false
     })
     if (!pid) return
 
@@ -105,10 +114,12 @@ export default class Term extends React.Component {
   }
 
   render() {
-    let {id} = this.state
+    let {id, loading} = this.state
     let {height} = this.props
     return (
-      <div id={id} style={{height}} className="bg-black" />
+      <Spin spinning={loading} wrapperClassName="loading-wrapper">
+        <div id={id} style={{height}} className="bg-black" />
+      </Spin>
     )
   }
 
