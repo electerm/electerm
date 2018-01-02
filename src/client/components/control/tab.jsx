@@ -3,7 +3,7 @@
  */
 
 import React from 'react'
-import {Icon, Tooltip, message} from 'antd'
+import {Icon, Tooltip, message, Badge} from 'antd'
 import classnames from 'classnames'
 import copy from 'json-deep-copy'
 import _ from 'lodash'
@@ -146,7 +146,7 @@ export default class Tab extends React.Component {
       onClose
     } = this.props
     let {tab} = this.state
-    let {id, isEditting} = tab
+    let {id, isEditting, status} = tab
     let active = id === currentTabId
     let cls = classnames('tab', {active})
     let title = createName(tab)
@@ -165,6 +165,7 @@ export default class Tab extends React.Component {
             onDoubleClick={() => onDup(tab)}
             onContextMenu={this.onContextMenu}
           >
+            <Badge status={status} />
             {title}
           </div>
           <Icon
