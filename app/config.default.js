@@ -27,6 +27,7 @@ module.exports = function() {
         port: freePort,
         host: '127.0.0.1',
         hotkey: 'Control+2',
+        sshReadyTimeout: 50000,
         showMenu: true
       }
       extend(conf, override)

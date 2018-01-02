@@ -6,7 +6,6 @@ const {Client} = require('ssh2')
 const _ = require('lodash')
 const {generate} = require('shortid')
 
-
 class Terminal {
 
   constructor(initOptions) {
@@ -38,12 +37,18 @@ class Terminal {
   remoteInit(initOptions) {
     return new Promise((resolve, reject) => {
       const conn = new Client()
-      let opts = _.pick(initOptions, [
-        'host',
-        'port',
-        'username',
-        'password'
-      ])
+      let opts = Object.assign(
+        {},
+        {
+          readyTimeout: _.get(global, '_config.sshReadyTimeout')
+        },
+        _.pick(initOptions, [
+          'host',
+          'port',
+          'username',
+          'password'
+        ])
+      )
       conn.on('ready', () => {
         conn.shell(
           _.pick(initOptions, ['rows', 'cols', 'mode']),
