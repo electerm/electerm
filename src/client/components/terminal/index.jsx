@@ -109,6 +109,7 @@ export default class Term extends React.Component {
   }
 
   onerrorSocket = err => {
+    this.setStatus(statusMap.error)
     console.log(err.stack)
   }
 
