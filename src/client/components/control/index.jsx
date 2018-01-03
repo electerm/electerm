@@ -71,7 +71,16 @@ export default class IndexControl extends React.Component {
       id: generate()
     })
     item.id = generate()
-    this.props.addItem(item, 'history')
+    if (!_.some(this.props.history, j => {
+      let keysj = Object.keys(j)
+      let keysi = Object.keys(item)
+      return _.isEqual(
+        _.pick(item, _.without(keysi, 'id')),
+        _.pick(j, _.without(keysj, 'id'))
+      )
+    })) {
+      this.props.addItem(item, 'history')
+    }
   }
 
   openSetting = () => {

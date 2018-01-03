@@ -3,6 +3,7 @@
  */
 export const contextMenuHeight = 28
 export const contextMenuPaddingTop = 10
+export const maxHistory = 50
 export const statusMap = {
   default: 'default',
   success: 'success',

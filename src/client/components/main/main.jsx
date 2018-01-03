@@ -12,6 +12,7 @@ import FileModeModal from '../sftp/file-mode-modal'
 import UpdateCheck from './update-check'
 import {notification} from 'antd'
 import openInfoModal from '../control/info-modal'
+import {maxHistory} from '../../common/constants'
 
 const initTabs = () => [
   {
@@ -137,6 +138,9 @@ export default class Index extends React.Component {
   addItem = (item, type) => {
     let items = copy(this.state[type])
     items.unshift(item)
+    if (type === 'history' && items.length > maxHistory) {
+      items = items.slice(0, maxHistory)
+    }
     this.setStateLs({
       [type]: items
     })
