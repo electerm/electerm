@@ -4,6 +4,7 @@ import fetch from '../../common/fetch'
 import {generate} from 'shortid'
 import _ from 'lodash'
 import {Spin} from 'antd'
+import {statusMap} from '../../common/constants'
 import './terminal.styl'
 
 const {Terminal, getGlobal} = window
@@ -53,6 +54,13 @@ export default class Term extends React.Component {
 
   count = 0
 
+  setStatus = status => {
+    let id = _.get(this.props, 'tab.id')
+    this.props.editTab(id, {
+      status
+    })
+  }
+
   remoteInit = async (term) => {
     this.setState({
       loading: true
@@ -72,8 +80,11 @@ export default class Term extends React.Component {
     this.setState({
       loading: false
     })
-    if (!pid) return
-
+    if (!pid) {
+      this.setStatus(statusMap.error)
+      return
+    }
+    this.setStatus(statusMap.success)
     term.pid = pid
     this.pid = pid
     wsUrl = `ws://${host}:${port}/terminals/${pid}`
@@ -98,6 +109,7 @@ export default class Term extends React.Component {
   }
 
   onerrorSocket = err => {
+    this.setStatus(statusMap.error)
     console.log(err.stack)
   }
 

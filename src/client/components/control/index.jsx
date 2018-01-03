@@ -5,10 +5,13 @@ import Btns from './btns'
 import Modal from './modal'
 import {generate} from 'shortid'
 import _ from 'lodash'
+import {statusMap} from '../../common/constants'
 import './control.styl'
 
+const defaultStatus = statusMap.processing
 const newTerm = () => ({
   id: generate(),
+  status: defaultStatus,
   title: 'new terminal'
 })
 
@@ -22,8 +25,10 @@ export default class IndexControl extends React.Component {
   }
 
   onDup = tab => {
+    delete tab.status
     this.props.addTab({
       ...tab,
+      status: defaultStatus,
       id: generate()
     })
   }
@@ -53,6 +58,7 @@ export default class IndexControl extends React.Component {
     let item = _.find(this.props.history, it => it.id === id)
     this.props.addTab({
       ...item,
+      status: defaultStatus,
       id: generate()
     })
   }
@@ -61,6 +67,7 @@ export default class IndexControl extends React.Component {
     let item = _.find(this.props.bookmarks, it => it.id === id)
     this.props.addTab({
       ...item,
+      status: defaultStatus,
       id: generate()
     })
     item.id = generate()
