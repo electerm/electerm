@@ -29,6 +29,9 @@ export default class Tab extends React.Component {
 
   close = () => {
     this.props.onClose(this.state.tab.id)
+    if (this.props.tabs.length <= 1) {
+      setTimeout(this.add, 1)
+    }
     this.props.closeContextMenu()
   }
 
@@ -44,7 +47,7 @@ export default class Tab extends React.Component {
 
   doRename = () => {
     let tab = copy(this.state.tab)
-    tab.titleTemp = tab.title
+    tab.titleTemp = tab.title || ''
     tab.isEditting = true
     this.props.closeContextMenu()
     this.setState({
@@ -77,29 +80,82 @@ export default class Tab extends React.Component {
     })
   }
 
+  closeOther = () => {
+    this.props.modifier({
+      tabs: [this.props.tab],
+      currentTabId: this.props.tab.id
+    })
+    this.props.closeContextMenu()
+  }
+
+  closeTabsRight = () => {
+    let {tabs, tab, currentTabId} = this.props
+    let index = _.findIndex(tabs, t => t.id === tab.id)
+    tabs = tabs.slice(0, index + 1)
+    let update = {
+      tabs
+    }
+    if (!_.some(tabs, t => t.id === currentTabId)) {
+      update.currentTabId = tabs[0].id
+    }
+    this.props.modifier(update)
+    this.props.closeContextMenu()
+  }
+
   renderContext() {
+    let {tabs, tab} = this.props
+    let len = tabs.length
+    let index = _.findIndex(tabs, t => t.id === tab.id)
+    let nother = len === 1
+    let noRight = index >= len - 1
+    let cls = 'pd2x pd1y context-item pointer'
     return (
       <div>
         <div
-          className="pd2x pd1y context-item pointer"
+          className={cls}
           onClick={this.close}
         >
           <Icon type="close" /> close
         </div>
+        {
+          nother
+            ? null
+            : (
+              <div
+                className={cls}
+                onClick={this.closeOther}
+              >
+                <Icon type="close" /> close other tabs
+              </div>
+            )
+        }
+        {
+          noRight
+            ? null
+            : (
+              <div
+                className={cls}
+                onClick={this.closeTabsRight}
+              >
+                <Icon type="close" /> close tabs on the right
+              </div>
+            )
+        }
+
         <div
-          className="pd2x pd1y context-item pointer"
+          className={cls}
           onClick={this.add}
         >
           <Icon type="code-o" /> new tab
         </div>
         <div
-          className="pd2x pd1y context-item pointer"
+          className={cls}
           onClick={this.dup}
         >
           <Icon type="copy" /> duplicate
         </div>
         <div
-          className="pd2x pd1y context-item pointer"
+          className={cls}
           onClick={this.doRename}
         >
           <Icon type="edit" /> rename
@@ -142,8 +198,7 @@ export default class Tab extends React.Component {
     let {
       currentTabId,
       onChange,
-      onDup,
-      onClose
+      onDup
     } = this.props
     let {tab} = this.state
     let {id, isEditting, status} = tab
@@ -171,7 +226,7 @@ export default class Tab extends React.Component {
           <Icon
             className="pointer tab-close"
             type="close-circle"
-            onClick={() => onClose(id)}
+            onClick={this.close}
           />
         </div>
       </Tooltip>
