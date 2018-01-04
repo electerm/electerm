@@ -1,6 +1,6 @@
 {
   "name": "electerm",
-  "version": "0.11.0",
+  "version": "0.11.1",
   "description": "terminal/ssh/sftp client(mac, win, linux) based on electron/node-pty/xterm and more",
   "main": "app.js",
   "scripts": {
@@ -34,7 +34,7 @@
   "bugs": {
     "url": "https://github.com/electerm/electerm/issues"
   },
-  "homepage": "https://electerm.html5beta.com",
+  "homepage": "http://electerm.html5beta.com",
   "engines": {
     "node": ">=8.9.1"
   },
