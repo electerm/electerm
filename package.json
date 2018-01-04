@@ -1,6 +1,6 @@
 {
   "name": "electerm",
-  "version": "0.11.1",
+  "version": "0.11.3",
   "description": "terminal/ssh/sftp client(mac, win, linux) based on electron/node-pty/xterm and more",
   "main": "app.js",
   "scripts": {
@@ -30,7 +30,11 @@
     "type": "git",
     "url": "git+https://github.com/electerm/electerm.git"
   },
-  "author": "ZHAO Xudong <zxdong@gmail.com>",
+  "author": {
+    "name": "ZHAO Xudong",
+    "email": "zxdong@gmail.com",
+    "url" : "http://html5beta.com"
+  },
   "bugs": {
     "url": "https://github.com/electerm/electerm/issues"
   },

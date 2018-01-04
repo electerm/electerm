@@ -4,6 +4,11 @@ import {getLatestReleaseInfo} from '../../common/update-check'
 import compare from '../../common/version-compare'
 import Link from '../common/external-link'
 
+const {getGlobal} = window
+let {
+  homepage
+} = getGlobal('packInfo')
+
 export default class FileMode extends React.Component {
 
   componentDidMount() {
@@ -41,10 +46,6 @@ export default class FileMode extends React.Component {
   }
 
   notifyUpdateFail() {
-    const {getGlobal} = window
-    let {
-      homepage
-    } = getGlobal('packInfo')
     notification.info({
       message: 'check update fails',
       description: (
@@ -67,7 +68,7 @@ export default class FileMode extends React.Component {
       <div>
         <p className="pd1b wordbreak">
           go get it!
-          <Link to={html_url} className="mg1l">{html_url}</Link>
+          <Link to={html_url} className="mg1l">{homepage}</Link>
         </p>
       </div>
     )
