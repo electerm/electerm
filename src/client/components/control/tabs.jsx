@@ -5,7 +5,7 @@
 
 import React from 'react'
 import _ from 'lodash'
-import {Icon, Tooltip, Button, Dropdown, Menu} from 'antd'
+import {Icon, Button, Dropdown, Menu} from 'antd'
 import Tab from './tab'
 import './tabs.styl'
 import {tabWidth, tabMargin} from '../../common/constants'
