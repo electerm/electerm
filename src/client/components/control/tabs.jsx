@@ -29,6 +29,13 @@ export default class Tabs extends React.Component {
     this.adjustScroll()
   }
 
+  onAdd = e => {
+    if (!e.target.className.includes('tabs-wrapper')) {
+      return
+    }
+    this.props.onAdd()
+  }
+
   adjustScroll = () => {
     let {width, tabs, currentTabId} = this.props
     let index = _.findIndex(tabs, t => t.id === currentTabId)
@@ -117,7 +124,7 @@ export default class Tabs extends React.Component {
   }
 
   render() {
-    let {tabs = [], onAdd, width} = this.props
+    let {tabs = [], width} = this.props
     let len = tabs.length
     let addBtnWidth = 22
     let tabsWidthAll = (tabMargin + tabWidth) * len + 10
@@ -125,7 +132,6 @@ export default class Tabs extends React.Component {
     //let extraw = overflow ? extraWidth : 0
     return (
       <div className="tabs">
-        <div className="tabs-bg" onDoubleClick={onAdd} />
         <div
           className="tabs-inner"
           style={{
@@ -137,6 +143,7 @@ export default class Tabs extends React.Component {
             style={{
               width: tabsWidthAll + extraWidth + 10
             }}
+            onDoubleClick={this.onAdd}
           >
             {
               tabs.map((tab, i) => {
