@@ -16,7 +16,7 @@ export default class WindowWrapper extends React.Component  {
 
   computeHeight = () => {
     let hasHost = _.get(this.props, 'tab.host')
-    return window.innerHeight - 39 - 46 - (hasHost ? 37 : 0)
+    return window.innerHeight - 39 - 46 - (hasHost ? 36 : 0)
   }
 
   onChange = pane => {
@@ -33,7 +33,7 @@ export default class WindowWrapper extends React.Component  {
       height
     }
     return (
-      <div className="ui-wrapper">
+      <div className={'ui-wrapper ' + pane}>
         {
           host
             ? (
