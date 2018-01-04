@@ -30,7 +30,11 @@
     "type": "git",
     "url": "git+https://github.com/electerm/electerm.git"
   },
-  "author": "ZHAO Xudong <zxdong@gmail.com>",
+  "author": {
+    "name": "ZHAO Xudong",
+    "email": "zxdong@gmail.com",
+    "url" : "http://html5beta.com"
+  },
   "bugs": {
     "url": "https://github.com/electerm/electerm/issues"
   },

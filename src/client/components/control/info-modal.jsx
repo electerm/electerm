@@ -18,7 +18,11 @@ export default function({
     description,
     devDependencies,
     dependencies,
-    author,
+    author: {
+      name: authorName,
+      email,
+      url: authorUrl
+    },
     homepage,
     repository: {
       url
@@ -57,8 +61,8 @@ export default function({
             <p className="mg1b">{description}</p>
             <p className="mg1b">
               <b className="mg1r">author:</b>
-              <Link to="http://html5beta.com" className="mg1l">
-                {author}
+              <Link to={authorUrl} className="mg1l">
+                {authorName} ({email})
               </Link>
             </p>
             <p className="mg1b">
