@@ -21,7 +21,7 @@
     "release": "npm run compile && npm run prepare-file && npm run output",
     "preinstall": "rm -rf package-lock.json",
     "postinstall": "node bin/post-install",
-    "lint": "./node_modules/.bin/eslint --max-warnings 0 --ext .js --ext .jsx src app bin",
+    "lint": "./node_modules/.bin/eslint --max-warnings 0 --ext .js --ext .jsx src app bin test",
     "test": "./node_modules/.bin/mocha test/e2e/*",
     "pre-test": "npm run compile && npm run prepare-file"
   },
