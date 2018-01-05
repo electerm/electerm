@@ -10,7 +10,6 @@ import _ from 'lodash'
 import copy from 'json-deep-copy'
 import {generate} from 'shortid'
 import {authTypeMap} from '../../common/constants'
-import './ssh-form.styl'
 
 const {TextArea} = Input
 const authTypes = Object.keys(authTypeMap).map(k => {
