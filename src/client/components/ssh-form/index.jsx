@@ -1,11 +1,23 @@
 
 import React from 'react'
-import {Form, Button, Input, InputNumber, message} from 'antd'
+import {
+  Form, Button, Input,
+  InputNumber, message,
+  Radio, Upload
+} from 'antd'
 import {validateFieldsAndScroll} from '../../common/dec-validate-and-scroll'
 import _ from 'lodash'
 import copy from 'json-deep-copy'
 import {generate} from 'shortid'
+import {authTypeMap} from '../../common/constants'
+import './ssh-form.styl'
 
+const {TextArea} = Input
+const authTypes = Object.keys(authTypeMap).map(k => {
+  return k
+})
+const RadioButton = Radio.Button
+const RadioGroup = Radio.Group
 const FormItem = Form.Item
 const formItemLayout = {
   labelCol: {
@@ -111,9 +123,115 @@ export default class SshForm extends React.Component {
     }
   }
 
+  beforeUpload = (file) => {
+    let privateKey = window.getGlobal('fs')
+      .readFileSync(file.path).toString()
+    this.props.form.setFieldsValue({
+      privateKey
+    })
+    return false
+  }
+
+  renderAuth() {
+    let authType = this.props.form.getFieldValue('authType')
+      || authTypeMap.password
+    return this[authType + 'Render']()
+  }
+
+  passwordRender() {
+    const {getFieldDecorator} = this.props.form
+    const {
+      password
+    } = this.state.formData
+    return (
+      <FormItem
+        {...formItemLayout}
+        label="password"
+        hasFeedback
+      >
+        {getFieldDecorator('password', {
+          rules: [{
+            max: 40, message: '40 chars max'
+          }],
+          initialValue: password
+        })(
+          <Input
+            type="password"
+            placeholder="password"
+          />
+        )}
+      </FormItem>
+    )
+  }
+
+  privateKeyRender() {
+    const {getFieldDecorator} = this.props.form
+    const {
+      privatekey,
+      passphrase
+    } = this.state.formData
+    return [
+      <FormItem
+        {...formItemLayout}
+        label="privateKey"
+        hasFeedback
+        key="privateKey"
+        className="mg1b"
+      >
+        {getFieldDecorator('privateKey', {
+          rules: [{
+            max: 13000, message: '13000 chars max'
+          }],
+          initialValue: privatekey
+        })(
+          <TextArea
+            placeholder="private key string"
+            rows={2}
+          />
+        )}
+        <Upload
+          beforeUpload={this.beforeUpload}
+          fileList={[]}
+          className="mg1b"
+        >
+          <Button
+            type="ghost"
+          >
+            import from file
+          </Button>
+        </Upload>
+      </FormItem>,
+      <FormItem
+        key="passphrase"
+        {...formItemLayout}
+        label="passphrase"
+        hasFeedback
+      >
+        {getFieldDecorator('passphrase', {
+          rules: [{
+            max: 100, message: '100 chars max'
+          }],
+          initialValue: passphrase
+        })(
+          <Input
+            type="password"
+            placeholder="passphrase for privateKey"
+          />
+        )}
+      </FormItem>
+    ]
+  }
+
   render() {
     const {getFieldDecorator} = this.props.form
-    const {host, port = 22, password, title, username} = this.state.formData
+    const {
+      host,
+      port = 22,
+      title,
+      authType = authTypeMap.password,
+      username
+    } = this.state.formData
+
     return (
       <Form onSubmit={this.handleSubmit} className="form-wrap">
         <FormItem
@@ -148,23 +266,24 @@ export default class SshForm extends React.Component {
             <Input />
           )}
         </FormItem>
-        <FormItem
-          {...formItemLayout}
-          label="password"
-          hasFeedback
-        >
-          {getFieldDecorator('password', {
-            rules: [{
-              max: 40, message: '40 chars max'
-            }],
-            initialValue: password
+        <FormItem {...tailFormItemLayout} className="mg1b">
+          {getFieldDecorator('authType', {
+            initialValue: authType
           })(
-            <Input
-              type="password"
-              placeholder="password"
-            />
+            <RadioGroup size="small">
+              {
+                authTypes.map(t => {
+                  return (
+                    <RadioButton value={t} key={t}>
+                      {t}
+                    </RadioButton>
+                  )
+                })
+              }
+            </RadioGroup>
           )}
         </FormItem>
+        {this.renderAuth()}
         <FormItem
           {...formItemLayout}
           label="port"
