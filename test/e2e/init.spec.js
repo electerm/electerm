@@ -53,7 +53,7 @@ describe('main window', function () {
       document.querySelector('.ant-modal .ant-modal-close').click()
     })
     //await client.click('.ant-modal-close')
-    await delay(500)
+    await delay(900)
     let isVisible = await client.isVisible('.ant-modal')
     expect(isVisible).equal(false)
 
@@ -62,7 +62,19 @@ describe('main window', function () {
     let c = await client.element('.ant-modal.ant-confirm')
     expect(!!c.value).equal(true)
 
+    log('button:close info modal')
+    await client.execute(function() {
+      document.querySelector('.ant-modal.ant-confirm .ant-confirm-btns button').click()
+    })
+    await delay(900)
+    let isVisible2 = await client.isVisible('.ant-modal.ant-confirm')
+    expect(isVisible2).equal(false)
 
+    log('button:add new tab')
+    await client.click('.tabs .tabs-add-btn')
+    await delay(900)
+    let count = await client.elements('.tabs .tab')
+    expect(count.value.length).equal(2)
   })
 
 
