@@ -11,26 +11,12 @@ const {TabPane} = Tabs
 export default class WindowWrapper extends React.Component  {
 
   state = {
-    height: 500,
-    width: window.innerWidth,
     pane: 'ssh'
-  }
-
-  componentDidMount() {
-    window.addEventListener('resize', this.onResize)
-    this.onResize()
-  }
-
-  onResize = () => {
-    this.setState({
-      height: this.computeHeight(),
-      width: window.innerWidth
-    })
   }
 
   computeHeight = () => {
     let hasHost = _.get(this.props, 'tab.host')
-    return window.innerHeight - 39 - 46 - (hasHost ? 37 : 0)
+    return window.innerHeight - 39 - 46 - (hasHost ? 36 : 0)
   }
 
   onChange = pane => {
@@ -38,16 +24,16 @@ export default class WindowWrapper extends React.Component  {
   }
 
   render() {
-    let {height, pane, width} = this.state
+    let {pane} = this.state
     let {props} = this
+    let height = this.computeHeight()
     let host = _.get(props, 'tab.host')
     let propsAll = {
       ...props,
-      height,
-      width
+      height
     }
     return (
-      <div className="ui-wrapper">
+      <div className={'ui-wrapper ' + pane}>
         {
           host
             ? (

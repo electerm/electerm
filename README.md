@@ -1,11 +1,11 @@
 <h1 align="center">
-    <a href="https://github.com/electerm/electerm">
+    <a href="http://electerm.html5beta.com">
         <img src="https://github.com/electerm/electerm-resource/raw/master/static/images/electerm.png", alt="" />
     </a>
 </h1>
 
 # electerm
-[![GitHub version](https://badge.fury.io/gh/electerm%2Felecterm.svg)](https://badge.fury.io/gh/electerm%2Felecterm)
+[![GitHub version](https://img.shields.io/github/release/electerm/electerm/all.svg)](https://github.com/electerm/electerm/releases)
 [![Build Status](https://travis-ci.org/electerm/electerm.svg?branch=release)](https://travis-ci.org/electerm/electerm)
 [![Build status](https://ci.appveyor.com/api/projects/status/33ckbqln02utekxd/branch/release?svg=true)](https://ci.appveyor.com/project/zxdong262/electerm/branch/release)
 <span class="badge-daviddm"><a href="https://david-dm.org/electerm/electerm" title="View the status of this project's dependencies on DavidDM"><img src="https://img.shields.io/david/electerm/electerm.svg" alt="Dependency Status" /></a></span>
@@ -21,7 +21,7 @@
 </div>
 
 ## dowload
-https://github.com/electerm/electerm/releases
+http://electerm.html5beta.com
 
 ## feature
 - work as a terminal or ssh/sftp client(similar to xshell)

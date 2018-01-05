@@ -1,6 +1,6 @@
 {
   "name": "electerm",
-  "version": "0.11.0",
+  "version": "0.11.3",
   "description": "terminal/ssh/sftp client(mac, win, linux) based on electron/node-pty/xterm and more",
   "main": "app.js",
   "scripts": {
@@ -21,7 +21,7 @@
     "release": "npm run compile && npm run prepare-file && npm run output",
     "preinstall": "rm -rf package-lock.json",
     "postinstall": "node bin/post-install",
-    "lint": "./node_modules/.bin/eslint --max-warnings 0 --ext .js --ext .jsx src app bin",
+    "lint": "./node_modules/.bin/eslint --max-warnings 0 --ext .js --ext .jsx src app bin test",
     "test": "./node_modules/.bin/mocha test/e2e/*",
     "pre-test": "npm run compile && npm run prepare-file"
   },
@@ -30,11 +30,15 @@
     "type": "git",
     "url": "git+https://github.com/electerm/electerm.git"
   },
-  "author": "ZHAO Xudong <zxdong@gmail.com>",
+  "author": {
+    "name": "ZHAO Xudong",
+    "email": "zxdong@gmail.com",
+    "url": "http://html5beta.com"
+  },
   "bugs": {
     "url": "https://github.com/electerm/electerm/issues"
   },
-  "homepage": "https://github.com/electerm/electerm#readme",
+  "homepage": "http://electerm.html5beta.com",
   "engines": {
     "node": ">=8.9.1"
   },
@@ -109,7 +113,7 @@
     "bluebird": "3.5.1",
     "body-parser": "1.18.2",
     "cors": "2.8.4",
-    "electerm-resource": "1.0.2",
+    "electerm-resource": "1.1.1",
     "electron-context-menu": "0.9.1",
     "electron-log": "2.2.13",
     "express": "4.16.2",

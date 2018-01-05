@@ -4,6 +4,11 @@ import {getLatestReleaseInfo} from '../../common/update-check'
 import compare from '../../common/version-compare'
 import Link from '../common/external-link'
 
+const {getGlobal} = window
+let {
+  homepage
+} = getGlobal('packInfo')
+
 export default class FileMode extends React.Component {
 
   componentDidMount() {
@@ -41,16 +46,15 @@ export default class FileMode extends React.Component {
   }
 
   notifyUpdateFail() {
-    let releaseUrl = 'https://github.com/electerm/electerm/releases'
     notification.info({
       message: 'check update fails',
       description: (
         <div>
           you can visit
           <Link
-            to={releaseUrl}
+            to={homepage}
             className="mg1x"
-          >{releaseUrl}</Link>
+          >{homepage}</Link>
           to check latest release
         </div>
       ),
@@ -64,7 +68,7 @@ export default class FileMode extends React.Component {
       <div>
         <p className="pd1b wordbreak">
           go get it!
-          <Link to={html_url} className="mg1l">{html_url}</Link>
+          <Link to={html_url} className="mg1l">{homepage}</Link>
         </p>
       </div>
     )

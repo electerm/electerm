@@ -1,20 +1,15 @@
 .tabs
   position relative
-  background #ccc
-  min-height 46px
-.tabs-bg
-  position absolute
-  left 0
-  top 0
-  bottom 0
-  right 0
-  z-index 1
+  height 46px
+  overflow hidden
 .tabs-inner
   position relative
   z-index 2
-  padding 0 30px 0 10px
+  padding 0 5px
   display inline-block
-
+  height 63px
+  overflow-x scroll
+  overflow-y hidden
 .tab
   display inline-block
   vertical-align middle
@@ -24,7 +19,7 @@
   line-height 36px
   margin 5px 3px 5px 0
   border-radius 3px
-  background #eee
+  background #ddd
   text-align center
   color #555
   &.active
@@ -45,8 +40,14 @@
     color #08c
 
 .tabs-add-btn
+  display inline-block
+  margin 0 3px
+.tabs-extra
   position absolute
-  z-index 5
-  right 10px
-  top 50%
-  margin-top -8px
+  height 46px
+  top 0
+  right 0
+  box-shadow -3px 0px 3px 0px rgba(0,0,0,0.15)
+  background #fff
+  line-height 46px
+  z-index 20

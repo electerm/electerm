@@ -18,7 +18,12 @@ export default function({
     description,
     devDependencies,
     dependencies,
-    author,
+    author: {
+      name: authorName,
+      email,
+      url: authorUrl
+    },
+    homepage,
     repository: {
       url
     },
@@ -37,7 +42,6 @@ export default function({
     ...dependencies
   }
   let logoPath = cdn + '/_bc/electerm-resource/res/imgs/electerm.png'
-  let releasesLink = link + '/releases'
   Modal.info({
     title: 'about ' + name,
     width: window.innerWidth - 100,
@@ -57,18 +61,26 @@ export default function({
             <p className="mg1b">{description}</p>
             <p className="mg1b">
               <b className="mg1r">author:</b>
-              {author}
+              <Link to={authorUrl} className="mg1l">
+                {authorName} ({email})
+              </Link>
             </p>
             <p className="mg1b">
               <b>homepage:</b>
-              <Link to={link} className="mg1l">
-                <Icon type="github" /> {link}
+              <Link to={homepage} className="mg1l">
+                <Icon type="home" /> {homepage}
               </Link>
             </p>
             <p className="mg1b">
               <b className="mg1r">download:</b>
-              <Link to={releasesLink} className="mg1l">
-                <Icon type="github" /> {releasesLink}
+              <Link to={homepage} className="mg1l">
+                <Icon type="github" /> {homepage}
+              </Link>
+            </p>
+            <p className="mg1b">
+              <b className="mg1r">github:</b>
+              <Link to={link} className="mg1l">
+                <Icon type="github" /> {link}
               </Link>
             </p>
             <p className="mg1b">

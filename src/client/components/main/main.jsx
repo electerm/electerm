@@ -12,6 +12,7 @@ import FileModeModal from '../sftp/file-mode-modal'
 import UpdateCheck from './update-check'
 import {notification} from 'antd'
 import openInfoModal from '../control/info-modal'
+import {maxHistory} from '../../common/constants'
 
 const initTabs = () => [
   {
@@ -29,6 +30,8 @@ export default class Index extends React.Component {
     let tabs = initTabs()
     this.state = {
       tabs,
+      height: 500,
+      width: window.innerWidth,
       currentTabId: tabs[0].id,
       history: ls.get('history') || [],
       bookmarks: ls.get('bookmarks') || [],
@@ -43,6 +46,8 @@ export default class Index extends React.Component {
   }
 
   componentDidMount() {
+    window.addEventListener('resize', this.onResize)
+    this.onResize()
     window._require('electron')
       .ipcRenderer.on('checkupdate', this.onCheckUpdate)
       .on('open-about', this.openAbout)
@@ -57,6 +62,13 @@ export default class Index extends React.Component {
       let term = _.get(this, `term_${currentTabId}.term`)
       term && term.focus()
     }
+  }
+
+  onResize = () => {
+    this.setState({
+      height: window.innerHeight,
+      width: window.innerWidth
+    })
   }
 
   setStateLs = (update) => {
@@ -137,6 +149,9 @@ export default class Index extends React.Component {
   addItem = (item, type) => {
     let items = copy(this.state[type])
     items.unshift(item)
+    if (type === 'history' && items.length > maxHistory) {
+      items = items.slice(0, maxHistory)
+    }
     this.setStateLs({
       [type]: items
     })
