@@ -46,7 +46,9 @@ class Terminal {
           'host',
           'port',
           'username',
-          'password'
+          'password',
+          'privateKey',
+          'passphrase'
         ])
       )
       conn.on('ready', () => {

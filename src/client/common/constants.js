@@ -14,4 +14,8 @@ export const statusMap = {
   processing: 'processing',
   warning: 'warning'
 }
+export const authTypeMap = {
+  password: 'password',
+  privateKey: 'privateKey'
+}
 
