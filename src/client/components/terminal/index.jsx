@@ -226,7 +226,13 @@ export default class Term extends React.Component {
     let {height} = this.props
     return (
       <Spin spinning={loading} wrapperClassName="loading-wrapper">
-        <div id={id} style={{height}} className="bg-black" />
+        <div
+          id={id}
+          className="bg-black"
+          style={{
+            height
+          }}
+        />
       </Spin>
     )
   }
