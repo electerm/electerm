@@ -48,3 +48,4 @@ export function removeClass (elem, ...classes) {
 
   elem.className = cls
 }
+
