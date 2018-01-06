@@ -1,3 +1,6 @@
+/**
+ * context menu
+ */
 import React from 'react'
 import PropTypes from 'prop-types'
 import './context-menu.styl'

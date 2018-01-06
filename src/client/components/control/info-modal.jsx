@@ -41,7 +41,8 @@ export default function({
     ...devDependencies,
     ...dependencies
   }
-  let logoPath = cdn + '/_bc/electerm-resource/res/imgs/electerm.png'
+  let logoPath = cdn + '/_bc/electerm-resource/res/imgs/' +
+    (Math.random() > 0.5 ? 'electerm-round-128x128.png' : 'electerm.png')
   Modal.info({
     title: 'about ' + name,
     width: window.innerWidth - 100,

@@ -6,6 +6,7 @@ import Sftp from '../sftp'
 import {Tabs} from 'antd'
 import _ from 'lodash'
 import './wrapper.styl'
+import {topMenuHeight, tabsHeight, sshTabHeight} from '../../common/constants'
 
 const {TabPane} = Tabs
 export default class WindowWrapper extends React.Component  {
@@ -16,7 +17,7 @@ export default class WindowWrapper extends React.Component  {
 
   computeHeight = () => {
     let hasHost = _.get(this.props, 'tab.host')
-    return window.innerHeight - 39 - 46 - (hasHost ? 36 : 0)
+    return window.innerHeight - topMenuHeight - tabsHeight - (hasHost ? sshTabHeight : 0)
   }
 
   onChange = pane => {
