@@ -28,6 +28,14 @@
   &:hover
     .tab-close
       display block
+  &.dragover-tab::after
+    position absolute
+    content ''
+    left -2px
+    top 0
+    width 1px
+    border 1px dashed #777
+    height 36px
 
 .tab-close
   position absolute
