@@ -166,7 +166,7 @@ export default class Term extends React.Component {
   }
 
   extractPath = text => {
-    //zxd@zxd-Q85M-D2A:~/dev$
+    //only support path like zxd@zxd-Q85M-D2A:~/dev$
     let reg = /^[^@]{1,}@[^:]{1,}:([^$]{1,})\$$/
     let mat = text.match(reg)
     let startPath = mat && mat[1] ? mat[1] : ''
