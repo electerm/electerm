@@ -607,7 +607,7 @@ export default class FileSection extends React.Component {
       && _.some(selectedFiles, d => d.id === id)
     let cls = 'pd2x pd1y context-item pointer'
     let delTxt = shouldShowSelectedMenu ? `delete all(${len})` : 'delete'
-    let clipboardText = this.getClipboardText()
+    //let clipboardText = this.getClipboardText()
     return (
       <div>
         {
@@ -663,7 +663,7 @@ export default class FileSection extends React.Component {
             : null
         }
         {
-          this.hasFileInClipboardText(clipboardText)
+          /*this.hasFileInClipboardText(clipboardText)
             ? (
               <div
                 className={cls}
@@ -673,6 +673,7 @@ export default class FileSection extends React.Component {
               </div>
             )
             : null
+            */
         }
         {
           id
