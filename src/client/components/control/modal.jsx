@@ -1,5 +1,5 @@
 /**
- * hisotry/bookmark list
+ * hisotry/bookmark/setting modal
  */
 import React from 'react'
 import {Modal, Tabs, Col, Row} from 'antd'
@@ -21,7 +21,7 @@ const getInitItem = (arr, tab) => {
   }
 }
 
-export default class ItemList extends React.Component {
+export default class SettingModal extends React.Component {
 
   constructor(props) {
     super(props)
@@ -35,7 +35,7 @@ export default class ItemList extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    let oldProps = _.pick(this.props, props)
+    let oldProps = _.pick(this.state, props)
     let newProps = _.pick(nextProps, props)
     if (!_.isEqual(oldProps, newProps)) {
       this.setState(copy(newProps))

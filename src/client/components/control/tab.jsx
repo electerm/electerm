@@ -9,6 +9,10 @@ import copy from 'json-deep-copy'
 import _ from 'lodash'
 import Input from '../common/input-auto-focus'
 import createName from '../../common/create-title'
+import {addClass, removeClass} from '../../common/class'
+
+const onDragCls = 'ondrag-tab'
+const onDragOverCls = 'dragover-tab'
 
 export default class Tab extends React.Component {
 
@@ -19,12 +23,93 @@ export default class Tab extends React.Component {
     }
   }
 
+  componentDidMount() {
+    this.dom = document.getElementById('id' + this.state.tab.id)
+  }
+
   componentWillReceiveProps(nextProps) {
     if (!_.isEqual(nextProps.tab, this.props.tab)) {
       this.setState({
         tab: copy(nextProps.tab)
       })
     }
+  }
+
+  clearCls = () => {
+    document.querySelectorAll('.' + onDragOverCls).forEach((d) => {
+      removeClass(d, onDragOverCls)
+    })
+  }
+
+  onDrag = () => {
+    addClass(this.dom, onDragCls)
+  }
+
+  onDragEnter = () => {
+    this.clearCls()
+    addClass(this.dom, onDragOverCls)
+  }
+
+  onDragExit = () => {
+    //debug('ondragexit')
+    //let {target} = e
+    //removeClass(target, 'sftp-dragover')
+  }
+
+  onDragLeave = e => {
+    //debug('ondragleave')
+    let {target} = e
+    removeClass(target, onDragOverCls)
+  }
+
+  onDragOver = e => {
+    //debug('ondragover')
+    //debug(e.target)
+    //removeClass(this.dom, 'sftp-dragover')
+    e.preventDefault()
+  }
+
+  onDragStart = e => {
+    //debug('ondragstart')
+    //debug(e.target)
+    e.dataTransfer.setData('fromFile', JSON.stringify(this.state.tab))
+    //e.effectAllowed = 'copyMove'
+  }
+
+  onDrop = e => {
+    e.preventDefault()
+    let {target} = e
+    if (!target) {
+      return
+    }
+    // debug('target drop', target)
+    let fromTab = JSON.parse(e.dataTransfer.getData('fromFile'))
+    let onDropTab = document.querySelector('.' + onDragOverCls)
+    if (!onDropTab || !fromTab) {
+      return
+    }
+    let dropId = onDropTab.getAttribute('data-id')
+    if (!dropId || dropId === fromTab.id) {
+      return
+    }
+    let {id} = fromTab
+    let {tabs} = this.props
+    let indexFrom = _.findIndex(tabs, t => t.id === id)
+    let indexDrop = _.findIndex(tabs, t => t.id === dropId)
+    if (indexDrop > indexFrom) {
+      indexDrop = indexDrop - 1
+    }
+    tabs.splice(indexFrom, 1)
+    tabs.splice(indexDrop, 0, fromTab)
+    this.props.modifier({
+      tabs
+    })
+  }
+
+  onDragEnd = e => {
+    removeClass(this.dom, onDragCls)
+    this.clearCls()
+    e && e.dataTransfer && e.dataTransfer.clearData()
   }
 
   close = () => {
@@ -213,7 +298,22 @@ export default class Tab extends React.Component {
         title={title}
         placement="top"
       >
-        <div className={cls}>
+        <div
+          className={cls}
+          draggable
+          id={'id' + id}
+          data-id={id}
+          {..._.pick(this, [
+            'onDrag',
+            'onDragEnter',
+            'onDragExit',
+            'onDragLeave',
+            'onDragOver',
+            'onDragStart',
+            'onDrop',
+            'onDragEnd'
+          ])}
+        >
           <div
             className="tab-title elli pd1x"
             onClick={() => onChange(id)}

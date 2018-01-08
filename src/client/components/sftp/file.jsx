@@ -771,7 +771,7 @@ export default class FileSection extends React.Component {
       : 'right'
     let title = (
       <div>
-        <p>{name}</p>
+        <p className="wordbreak">{name}</p>
         <p>modifyTime: {moment(modifyTime).format()}</p>
       </div>
     )

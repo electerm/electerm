@@ -1,5 +1,5 @@
 /**
- * 替换antd
+ * replace antd icon font resource
  */
 const git = require('git-rev-sync')
 const version = git.long()

@@ -14,10 +14,6 @@ import createName from '../../common/create-title'
 const ButtonGroup = Button.Group
 const MenuItem = Menu.Item
 const extraWidth = 113
-//todo: scroll controll and keyboard controll
-//todo: drag and drop
-
-
 
 export default class Tabs extends React.Component {
 
