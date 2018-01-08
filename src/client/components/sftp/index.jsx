@@ -178,7 +178,7 @@ export default class Sftp extends React.Component {
     let hasDirectory = _.some(files, f => f.isDirectory)
     let names = hasDirectory ? 'files/folders' : 'files'
     return (
-      <div className="width400 wordbreak">
+      <div className="wordbreak">
         are you sure? this will delete these
         <b className="mg1x">{files.length}</b>{names}
         {
