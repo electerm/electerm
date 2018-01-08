@@ -100,6 +100,22 @@ export default function({
               </Button>
             </p>
           </TabPane>
+          <TabPane tab="user tips" key="0">
+            <ul>
+              <li className="pd1b">
+                <span className="bold color-red">double click</span> a ssh tab will duplicate a same tab, and enter same path as original tab(limited support)
+              </li>
+              <li className="pd1b">
+                <span className="bold color-red">double click</span> blank area of tab bar will open a new ssh terminal too
+              </li>
+              <li className="pd1b">
+                <span className="bold color-red">right click</span> a ssh tab you can open context menu, from context menu there are <span className="bold color-red">close other tabs</span>, <span className="bold color-red">close tabs on the right</span>, and more function
+              </li>
+              <li className="pd1b">
+                by default, <span className="bold color-red">Ctrl + 2</span> will bring electerm window to front, hotkey can be set in <span className="bold color-red">setting</span> menu
+              </li>
+            </ul>
+          </TabPane>
           <TabPane tab="dependencies" key="4">
             {
               Object.keys(deps).map((k, i) => {
