@@ -140,12 +140,41 @@ export default class Term extends React.Component {
 
   initTerminal = async () => {
     let {id} = this.state
+    let {startPath} = this.props.tab
     let term = new Terminal()
     term.open(document.getElementById(id), true)
     await this.remoteInit(term)
     term.focus()
     term.fit()
     this.term = term
+    this.startPath = startPath
+    if (startPath) {
+      this.startPath = startPath
+      this.timers.timer1 = setTimeout(this.initData, 10)
+    }
+    this.term.on('refresh', this.onRefresh)
+  }
+
+  initData = () => {
+    this.term._sendData(`cd ${this.startPath}\r`)
+  }
+
+  onRefresh = (data) => {
+    let div = Array.from(data.element.querySelectorAll('.xterm-rows > div'))[data.end]
+    let text = div.textContent.trim()
+    this.extractPath(text)
+  }
+
+  extractPath = text => {
+    //only support path like zxd@zxd-Q85M-D2A:~/dev$
+    let reg = /^[^@]{1,}@[^:]{1,}:([^$]{1,})\$$/
+    let mat = text.match(reg)
+    let startPath = mat && mat[1] ? mat[1] : ''
+    if (startPath.startsWith('~') || startPath.startsWith('/')) {
+      this.props.editTab(this.props.tab.id, {
+        startPath
+      })
+    }
   }
 
   count = 0
