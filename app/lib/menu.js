@@ -2,6 +2,9 @@
  * app system menu config
  */
 const {app, Menu, shell} = require('electron')
+let {NODE_ENV} = process.env
+const isDev = NODE_ENV === 'development'
+const packInfo = require(isDev ? '../../package.json' : '../package.json')
 
 const template = [
   {
@@ -67,6 +70,13 @@ const template = [
         click () {
           shell
             .openExternal('https://github.com/electerm/electerm')
+        }
+      },
+      {
+        label: 'homepage',
+        click () {
+          shell
+            .openExternal(packInfo.homepage)
         }
       },
       {

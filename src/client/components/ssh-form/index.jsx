@@ -166,7 +166,7 @@ export default class SshForm extends React.Component {
   privateKeyRender() {
     const {getFieldDecorator} = this.props.form
     const {
-      privatekey,
+      privateKey,
       passphrase
     } = this.state.formData
     return [
@@ -181,7 +181,7 @@ export default class SshForm extends React.Component {
           rules: [{
             max: 13000, message: '13000 chars max'
           }],
-          initialValue: privatekey
+          initialValue: privateKey
         })(
           <TextArea
             placeholder="private key string"
