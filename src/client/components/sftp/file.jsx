@@ -15,10 +15,15 @@ import {addClass, removeClass, hasClass} from '../../common/class'
 import wait from '../../common/wait'
 import {contextMenuHeight, contextMenuPaddingTop} from '../../common/constants'
 import sorter from '../../common/index-sorter'
+import {getLocalFileInfo, getFolderFromFilePath} from './file-read'
 
 const {getGlobal} = window
 let fs = getGlobal('fs')
 let platform = getGlobal('os').platform()
+const isWin = platform.startsWith('win')
+let fileReg = isWin
+  ? /^\w:\\.+/
+  : /^\/.+/
 const computePos = (e, isBg, height) => {
   let {target} = e
   let rect = target.getBoundingClientRect()
@@ -59,14 +64,22 @@ export default class FileSection extends React.Component {
     }
   }
 
+  getClipboardText = () => {
+    return window._require('electron').clipboard.readText()
+  }
+
+  hasFileInClipboardText = (text) => {
+    let arr = text.split('\n')
+    return arr.reduce((prev, t) => {
+      return prev && fileReg.test(t)
+    }, true)
+  }
+
   onDrag = () => {
-    //debug('on drag')
-    //debug(e.target)
     addClass(this.dom, onDragCls)
   }
 
   onDragEnter = e => {
-    //debug('ondrag enter')
     let {target} = e
     if (
       !hasClass(target, fileItemCls)
@@ -78,38 +91,52 @@ export default class FileSection extends React.Component {
   }
 
   onDragExit = () => {
-    //debug('ondragexit')
-    //let {target} = e
-    //removeClass(target, 'sftp-dragover')
+
   }
 
   onDragLeave = e => {
-    //debug('ondragleave')
     let {target} = e
     removeClass(target, onDragOverCls)
   }
 
   onDragOver = e => {
-    //debug('ondragover')
-    //debug(e.target)
-    //removeClass(this.dom, 'sftp-dragover')
     e.preventDefault()
   }
 
   onDragStart = e => {
-    //debug('ondragstart')
-    //debug(e.target)
     e.dataTransfer.setData('fromFile', JSON.stringify(this.props.file))
-    //e.effectAllowed = 'copyMove'
   }
 
-  onDrop = e => {
+  getDropFileList = async data => {
+    let fromFile = data.getData('fromFile')
+    if (fromFile) {
+      return JSON.parse(fromFile)
+    }
+    let {files} = data
+    let res = []
+    for (let i = 0, len = files.length; i < len; i++) {
+      let item = files[i]
+      if (!item) {
+        continue
+      }
+      //let file = item.getAsFile()
+      let fileObj = await getLocalFileInfo(item.path)
+      res.push(fileObj)
+    }
+    return new Promise((resolve) => {
+      this.props.modifier({
+        selectedFiles: res
+      }, () => resolve(res[0]))
+    })
+  }
+
+  onDrop = async e => {
     e.preventDefault()
     let {target} = e
     if (!target) {
       return
     }
-    let fromFile = JSON.parse(e.dataTransfer.getData('fromFile'))
+    let fromFile = await this.getDropFileList(e.dataTransfer)
     while (!target.className.includes(fileItemCls)) {
       target = target.parentNode
     }
@@ -120,6 +147,7 @@ export default class FileSection extends React.Component {
     }
     let toFile = this.props[type + 'FileTree'][id] || {
       type,
+      ...getFolderFromFilePath(this.props[type + 'Path']),
       isDirectory: false
     }
     this.onDropFile(fromFile, toFile)
@@ -130,7 +158,16 @@ export default class FileSection extends React.Component {
     document.querySelectorAll('.' + onDragOverCls).forEach((d) => {
       removeClass(d, onDragOverCls)
     })
-    e && e.dataTransfer && e.dataTransfer.clearData()
+    if (e && e.dataTransfer) {
+      let dt = e.dataTransfer
+      if (dt.items) {
+        // Use DataTransferItemList interface to remove the drag data
+        for (var i = 0, len = dt.items.length; i < len;i++ ) {
+          dt.items.remove(i)
+        }
+      }
+      dt.clearData()
+    }
   }
 
   onDropFile = (fromFile, toFile) => {
@@ -546,7 +583,7 @@ export default class FileSection extends React.Component {
     if (type === 'remote') {
       return true
     }
-    return !platform.startsWith('win')
+    return !isWin
   }
 
   renderContext() {
@@ -570,6 +607,7 @@ export default class FileSection extends React.Component {
       && _.some(selectedFiles, d => d.id === id)
     let cls = 'pd2x pd1y context-item pointer'
     let delTxt = shouldShowSelectedMenu ? `delete all(${len})` : 'delete'
+    //let clipboardText = this.getClipboardText()
     return (
       <div>
         {
@@ -623,6 +661,19 @@ export default class FileSection extends React.Component {
               </Popconfirm>
             )
             : null
+        }
+        {
+          /*this.hasFileInClipboardText(clipboardText)
+            ? (
+              <div
+                className={cls}
+                onClick={this.onPaste}
+              >
+                <Icon type="copy" /> paste
+              </div>
+            )
+            : null
+            */
         }
         {
           id

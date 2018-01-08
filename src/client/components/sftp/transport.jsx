@@ -147,7 +147,9 @@ export default class Tranporter extends React.Component {
     let {id} = this.props.transport
     let oldTrans = copy(this.props.transports)
     if (oldTrans.length === 1) {
-      await this.transport.pause()
+      if (this.transport) {
+        await this.transport.pause()
+      }
       await wait(150)
     }
     let transports = oldTrans.filter(t => {
