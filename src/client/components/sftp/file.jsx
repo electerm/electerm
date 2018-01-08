@@ -116,7 +116,6 @@ export default class FileSection extends React.Component {
     let res = []
     for (let i = 0, len = files.length; i < len; i++) {
       let item = files[i]
-      debug(item, files[0])
       if (!item) {
         continue
       }
@@ -125,7 +124,6 @@ export default class FileSection extends React.Component {
       res.push(fileObj)
     }
     return new Promise((resolve) => {
-      debug('rte', res)
       this.props.modifier({
         selectedFiles: res
       }, () => resolve(res[0]))
@@ -150,7 +148,7 @@ export default class FileSection extends React.Component {
     let toFile = this.props[type + 'FileTree'][id] || {
       type,
       ...getFolderFromFilePath(this.props[type + 'Path']),
-      isDirectory: true
+      isDirectory: false
     }
     this.onDropFile(fromFile, toFile)
   }
