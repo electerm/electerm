@@ -15,6 +15,7 @@ import {addClass, removeClass, hasClass} from '../../common/class'
 import wait from '../../common/wait'
 import {contextMenuHeight, contextMenuPaddingTop} from '../../common/constants'
 import sorter from '../../common/index-sorter'
+import {getLocalFileInfo, getFolderFromFilePath} from './file-read'
 
 const {getGlobal} = window
 let fs = getGlobal('fs')
@@ -75,13 +76,10 @@ export default class FileSection extends React.Component {
   }
 
   onDrag = () => {
-    //debug('on drag')
-    //debug(e.target)
     addClass(this.dom, onDragCls)
   }
 
   onDragEnter = e => {
-    //debug('ondrag enter')
     let {target} = e
     if (
       !hasClass(target, fileItemCls)
@@ -93,38 +91,54 @@ export default class FileSection extends React.Component {
   }
 
   onDragExit = () => {
-    //debug('ondragexit')
-    //let {target} = e
-    //removeClass(target, 'sftp-dragover')
+
   }
 
   onDragLeave = e => {
-    //debug('ondragleave')
     let {target} = e
     removeClass(target, onDragOverCls)
   }
 
   onDragOver = e => {
-    //debug('ondragover')
-    //debug(e.target)
-    //removeClass(this.dom, 'sftp-dragover')
     e.preventDefault()
   }
 
   onDragStart = e => {
-    //debug('ondragstart')
-    //debug(e.target)
     e.dataTransfer.setData('fromFile', JSON.stringify(this.props.file))
-    //e.effectAllowed = 'copyMove'
   }
 
-  onDrop = e => {
+  getDropFileList = async data => {
+    let fromFile = data.getData('fromFile')
+    if (fromFile) {
+      return JSON.parse(fromFile)
+    }
+    let {files} = data
+    let res = []
+    for (let i = 0, len = files.length; i < len; i++) {
+      let item = files[i]
+      debug(item, files[0])
+      if (!item) {
+        continue
+      }
+      //let file = item.getAsFile()
+      let fileObj = await getLocalFileInfo(item.path)
+      res.push(fileObj)
+    }
+    return new Promise((resolve) => {
+      debug('rte', res)
+      this.props.modifier({
+        selectedFiles: res
+      }, () => resolve(res[0]))
+    })
+  }
+
+  onDrop = async e => {
     e.preventDefault()
     let {target} = e
     if (!target) {
       return
     }
-    let fromFile = JSON.parse(e.dataTransfer.getData('fromFile'))
+    let fromFile = await this.getDropFileList(e.dataTransfer)
     while (!target.className.includes(fileItemCls)) {
       target = target.parentNode
     }
@@ -135,7 +149,8 @@ export default class FileSection extends React.Component {
     }
     let toFile = this.props[type + 'FileTree'][id] || {
       type,
-      isDirectory: false
+      ...getFolderFromFilePath(this.props[type + 'Path']),
+      isDirectory: true
     }
     this.onDropFile(fromFile, toFile)
   }
@@ -145,7 +160,16 @@ export default class FileSection extends React.Component {
     document.querySelectorAll('.' + onDragOverCls).forEach((d) => {
       removeClass(d, onDragOverCls)
     })
-    e && e.dataTransfer && e.dataTransfer.clearData()
+    if (e && e.dataTransfer) {
+      let dt = e.dataTransfer
+      if (dt.items) {
+        // Use DataTransferItemList interface to remove the drag data
+        for (var i = 0, len = dt.items.length; i < len;i++ ) {
+          dt.items.remove(i)
+        }
+      }
+      dt.clearData()
+    }
   }
 
   onDropFile = (fromFile, toFile) => {

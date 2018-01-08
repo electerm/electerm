@@ -11,6 +11,7 @@ import resolve from '../../common/resolve'
 import wait from '../../common/wait'
 import sorterIndex from '../../common/index-sorter'
 import DragSelect from './drag-select'
+import {getLocalFileInfo} from './file-read'
 import './sftp.styl'
 
 const {getGlobal} = window
@@ -332,7 +333,6 @@ export default class Sftp extends React.Component {
     }
     try {
       if (!this.sftp) {
-        debug(tab, 'tab')
         await sftp.connect({
           ...tab,
           readyTimeout: config.readyTimeout
@@ -383,18 +383,9 @@ export default class Sftp extends React.Component {
       let locals = await fs.readdirAsync(localPath)
       let local = []
       for(let name of locals) {
-        let stat = await fs.statAsync(resolve(localPath, name))
-        local.push({
-          name,
-          size: stat.size,
-          accessTime: stat.atime,
-          modifyTime: stat.mtime,
-          mode: stat.mode,
-          type: 'local',
-          path: localPath,
-          id: generate(),
-          isDirectory: stat.isDirectory()
-        })
+        let p = resolve(localPath, name)
+        let fileObj = await getLocalFileInfo(p)
+        local.push(fileObj)
       }
       local.sort(sorter)
       let update = {
