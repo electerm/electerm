@@ -35,7 +35,7 @@ export default class SettingModal extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    let oldProps = _.pick(this.props, props)
+    let oldProps = _.pick(this.state, props)
     let newProps = _.pick(nextProps, props)
     if (!_.isEqual(oldProps, newProps)) {
       this.setState(copy(newProps))

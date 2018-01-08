@@ -15,6 +15,7 @@ import './sftp.styl'
 
 const {getGlobal} = window
 const fs = getGlobal('fs')
+const config = getGlobal('_config')
 
 const sorter = (a, b) => {
   let aa = (a.isDirectory ? 0 : 1) + a.name
@@ -309,13 +310,20 @@ export default class Sftp extends React.Component {
 
     let sftp = this.sftp || new Client()
     let {tab} = this.props
-    let {username} = tab
-    let remotePath = username === 'root'
-      ? '/root'
-      : `/home/${tab.username}`
+    let {username, startPath} = tab
+    let remotePath
     let noPathInit = remotePathReal || this.state.remotePath
     if (noPathInit) {
       remotePath = noPathInit
+    } else {
+      remotePath = username === 'root'
+        ? '/root'
+        : `/home/${tab.username}`
+      if (startPath && startPath.startsWith('~')) {
+        remotePath = remotePath + startPath.replace(/^~/, '')
+      } else if (startPath) {
+        remotePath = startPath
+      }
     }
     if (!returnList) {
       this.setState({
@@ -324,9 +332,10 @@ export default class Sftp extends React.Component {
     }
     try {
       if (!this.sftp) {
+        debug(tab, 'tab')
         await sftp.connect({
           ...tab,
-          readyTimeout: 50000
+          readyTimeout: config.readyTimeout
         })
       }
       let remote = await sftp.list(remotePath)
