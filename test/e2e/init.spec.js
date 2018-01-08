@@ -77,23 +77,4 @@ describe('main window', function () {
     expect(count.value.length).equal(2)
   })
 
-
-
-  //terminal xterm xterm-theme-default xterm-cursor-style-block
-
-  // it('can add new terminal', async function () {
-  //   const { client } = this.app
-
-  //   let edit = await client.element('.btns .anticon-edit')
-  //   console.log(edit)
-  //   expect(!!edit.value).equal(true)
-  //   await client.elementIdClick(edit)
-  //   let modal = await client.element('.ant-modal')
-  //   expect(!!modal.value).equal(true)
-  //   let active = await client.element('.ant-modal .ant-tabs-tab-active')
-  //   expect(!!active.value).equal(true)
-  //   let label = await active.getText()
-  //   expect(label).equal('bookmarks')
-  // })
-
 })
