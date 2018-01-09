@@ -10,10 +10,10 @@ init:
 install:
   - ps: Install-Product node 8 x64
   - npm i
+  - ./node_modules/.bin/electron-builder install-app-deps
 
 build_script:
   - npm run pre-test
-  - cp node_modules/electerm-resource/build/icons.ico build/icon.ico
   - npm run output -w
 
 test: off
