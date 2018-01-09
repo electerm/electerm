@@ -12,6 +12,8 @@ import wait from '../../common/wait'
 import sorterIndex from '../../common/index-sorter'
 import DragSelect from './drag-select'
 import {getLocalFileInfo} from './file-read'
+import {isMac} from '../../common/constants'
+import {hasFileInClipboardText} from '../../common/clipboard'
 import './sftp.styl'
 
 const {getGlobal} = window
@@ -52,6 +54,7 @@ export default class Sftp extends React.Component {
       localPathTemp: '',
       remotePathTemp: '',
       transports: [],
+      liveBasePath: null,
       selectedFiles: [],
       lastClickedFile: null,
       pathFix: '',
@@ -247,6 +250,23 @@ export default class Sftp extends React.Component {
 
   }
 
+  doCopy = (type) => {
+    this[type + 'Dom'].onCopy(true)
+  }
+
+  doPaste = (type) => {
+    if (!hasFileInClipboardText()) {
+      return
+    }
+    this[type + 'Dom'].onPaste()
+  }
+
+  keyControlPressed = e => {
+    return isMac
+      ? e.metaKey
+      : e.ctrlKey
+  }
+
   handleEvent = (e) => {
     if (!this.isActive()) {
       return
@@ -255,7 +275,7 @@ export default class Sftp extends React.Component {
       type: 'local'
     }
     let {type} = lastClickedFile
-    if (e.ctrlKey && e.code === 'KeyA') {
+    if (this.keyControlPressed(e) && e.code === 'KeyA') {
       this.selectAll(type, e)
     } else if (e.code === 'ArrowDown') {
       this.selectNext(type)
@@ -265,6 +285,10 @@ export default class Sftp extends React.Component {
       this.onDel(type)
     } else if (e.code === 'Enter') {
       this.enter(type, e)
+    } else if (this.keyControlPressed(e) && e.code === 'KeyC') {
+      this.doCopy(type, e)
+    } else if (this.keyControlPressed(e) && e.code === 'KeyV') {
+      this.doPaste(type, e)
     }
   }
 
@@ -598,19 +622,22 @@ export default class Sftp extends React.Component {
   render() {
     let {
       id,
-      transports,
-      filesToConfirm,
-      remotePath,
-      localPath,
-      pathFix
+      filesToConfirm
     } = this.state
-    let {height, onError} = this.props
+    let {height} = this.props
     let props = {
-      transports,
-      onError,
-      localPath,
-      pathFix,
-      remotePath,
+      id,
+      height,
+      ..._.pick(this.props, [
+        'onError'
+      ]),
+      ..._.pick(this.state, [
+        'transports',
+        'remotePath',
+        'localPath',
+        'pathFix',
+        'liveBasePath'
+      ]),
       ..._.pick(this, [
         'sftp',
         'modifier',
