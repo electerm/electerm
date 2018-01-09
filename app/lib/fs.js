@@ -53,13 +53,24 @@ const rmrf = (localFolderPath) => {
 }
 
 /**
- * rm -rf directory
+ * mv from to
  * @param {string} localFolderPath absolute path of directory
  */
 const mv = (from, to) => {
   let cmd = isWin
     ? `Move-Item "${from}" "${to}"`
     : `mv "${from}" "${to}"`
+  return isWin ? runWinCmd(cmd) : run(cmd)
+}
+
+/**
+ * cp from to
+ * @param {string} localFolderPath absolute path of directory
+ */
+const cp = (from, to) => {
+  let cmd = isWin
+    ? `Copy-Item "${from}" -Destination "${to}" -Recurse`
+    : `cp -r "${from}" "${to}"`
   return isWin ? runWinCmd(cmd) : run(cmd)
 }
 
@@ -93,6 +104,7 @@ module.exports = Object.assign(
   {
     rmrf,
     touch,
+    cp,
     mv,
     openFile
   }

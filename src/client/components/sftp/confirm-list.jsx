@@ -34,6 +34,7 @@ export default class Confirms extends React.Component {
     if (
       !_.isEqual(this.props.files, nextProps.files)
     ) {
+      this.liveBasePath = nextProps.liveBasePath
       this.rebuildState(nextProps)
     }
   }
@@ -71,6 +72,7 @@ export default class Confirms extends React.Component {
       this.props.modifier({
         filesToConfirm: [],
         pathFix: '',
+        liveBasePath: '',
         transports: [
           ...transports,
           ...this.state.transferList
@@ -94,9 +96,12 @@ export default class Confirms extends React.Component {
 
   getBasePath = (type, isOtherType) => {
     let {pathFix} = this.props
-    return pathFix && isOtherType
-      ? resolve(this.props[type + 'Path'], pathFix)
+    let base = type === 'local'
+      ? this.liveBasePath || this.props[type + 'Path']
       : this.props[type + 'Path']
+    return pathFix && isOtherType
+      ? resolve(base, pathFix)
+      : base
   }
 
   getNewName = (path) => {

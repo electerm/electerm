@@ -78,12 +78,6 @@ const template = [
           shell
             .openExternal(packInfo.homepage)
         }
-      },
-      {
-        label: 'toggle developer tool',
-        click() {
-          require('./win').win.webContents.openDevTools()
-        }
       }
     ]
   }

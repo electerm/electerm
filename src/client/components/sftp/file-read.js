@@ -30,3 +30,17 @@ export const getLocalFileInfo = async (filePath) => {
     isDirectory: stat.isDirectory()
   }
 }
+
+export const getRemoteFileInfo = async (sftp, filePath) => {
+  let stat = await sftp.stat(filePath)
+  return {
+    //size: stat.size,
+    //accessTime: stat.atime,
+    //modifyTime: stat.mtime,
+    //mode: stat.mode,
+    type: 'remote',
+    ...getFolderFromFilePath(filePath),
+    id: generate(),
+    isDirectory: stat.isDirectory()
+  }
+}

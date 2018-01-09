@@ -5,6 +5,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 import {Icon, Tooltip, Popconfirm} from 'antd'
+import {generate} from 'shortid'
 import classnames from 'classnames'
 import moment from 'moment'
 import copy from 'json-deep-copy'
@@ -13,17 +14,14 @@ import Input from '../common/input-auto-focus'
 import resolve from '../../common/resolve'
 import {addClass, removeClass, hasClass} from '../../common/class'
 import wait from '../../common/wait'
-import {contextMenuHeight, contextMenuPaddingTop} from '../../common/constants'
+import {contextMenuHeight, contextMenuPaddingTop, isWin} from '../../common/constants'
 import sorter from '../../common/index-sorter'
-import {getLocalFileInfo, getFolderFromFilePath} from './file-read'
+import {getLocalFileInfo, getFolderFromFilePath, getRemoteFileInfo} from './file-read'
+import {readClipboard, copy as copyToClipboard, hasFileInClipboardText} from '../../common/clipboard'
 
 const {getGlobal} = window
 let fs = getGlobal('fs')
-let platform = getGlobal('os').platform()
-const isWin = platform.startsWith('win')
-let fileReg = isWin
-  ? /^\w:\\.+/
-  : /^\/.+/
+
 const computePos = (e, isBg, height) => {
   let {target} = e
   let rect = target.getBoundingClientRect()
@@ -64,15 +62,89 @@ export default class FileSection extends React.Component {
     }
   }
 
-  getClipboardText = () => {
-    return window._require('electron').clipboard.readText()
+  duplicate = async (fromFile, toFile) => {
+    let {type, path, name} = toFile
+    let base = resolve(path, name)
+    let {selectedFiles} = this.props
+    for(let f of selectedFiles) {
+      let from = resolve(f.path, f.name)
+      let exist = _.some(
+        this.props[type],
+        ff => {
+          return ff.name === f.name && ff.isDirectory === f.isDirectory
+        }
+      )
+      let to = exist
+        ? resolve(
+          base,
+          'copy_' + generate() + '_' + f.name
+        )
+        : resolve(base, f.name)
+      let func = type === 'remote'
+        ? this.props.sftp.cp
+        : fs.cp
+      await func(from, to)
+        .catch(this.props.onError)
+    }
+    this.props[type + 'List']()
   }
 
-  hasFileInClipboardText = (text) => {
-    let arr = text.split('\n')
-    return arr.reduce((prev, t) => {
-      return prev && fileReg.test(t)
-    }, true)
+  onCopy = (targetFiles) => {
+    let {file} = this.state
+    let selected = this.isSelected(file)
+    let files = targetFiles || selected
+      ? this.props.selectedFiles
+      : [file]
+    let prefix = file.type === 'remote'
+      ? 'remote:'
+      : ''
+    let textToCopy = files.map(f => {
+      return prefix + resolve(f.path, f.name)
+    }).join('\n')
+    copyToClipboard(textToCopy)
+    this.props.closeContextMenu()
+  }
+
+  onPaste = async () => {
+    this.props.closeContextMenu()
+    let clickBoardText = readClipboard()
+    let fileNames = clickBoardText.split('\n')
+    let res = []
+    for (let i = 0, len = fileNames.length; i < len; i++) {
+      let item = fileNames[i]
+      let isRemote = item.startsWith('remote:')
+      let path = isRemote
+        ? item.replace(/^remote:/, '')
+        : item
+      let fileObj = isRemote
+        ? await getRemoteFileInfo(this.props.sftp, path)
+        : await getLocalFileInfo(path)
+      res.push(fileObj)
+    }
+    await new Promise((resolve) => {
+      this.props.modifier({
+        selectedFiles: res
+      }, resolve)
+    })
+    let {type} = this.state.file
+    let toFile = {
+      type,
+      ...getFolderFromFilePath(this.props[type + 'Path']),
+      isDirectory: false
+    }
+    let fromFile = res[0]
+    let {type: fromType} = fromFile
+    let {
+      type: toType
+    } = toFile
+
+    //same side and drop to file, do nothing
+    if (fromType === toType) {
+      return this.duplicate(fromFile, toFile)
+    }
+
+    //other side, do transfer
+    this.transferDrop(fromFile, toFile)
   }
 
   onDrag = () => {
@@ -198,7 +270,7 @@ export default class FileSection extends React.Component {
       : [fromFile]
     let {isDirectory, name} = toFile
     let pathFix = isDirectory ? name : ''
-    return this.doTransferSelected(null, files, pathFix)
+    return this.doTransferSelected(null, files, pathFix, fromFile.path)
   }
 
   mv = async (fromFile, toFile) => {
@@ -340,6 +412,9 @@ export default class FileSection extends React.Component {
       id,
       type
     } = file
+    this.props.modifier({
+      lastClickedFile: file
+    })
     this.onDragEnd(e)
     if (!id) {
       return
@@ -495,7 +570,8 @@ export default class FileSection extends React.Component {
   doTransferSelected = async (
     e,
     selectedFiles = this.props.selectedFiles,
-    pathFix = ''
+    pathFix = '',
+    liveBasePath
   ) => {
     this.props.closeContextMenu()
     let filesToConfirm = []
@@ -508,7 +584,8 @@ export default class FileSection extends React.Component {
     }
     this.props.modifier({
       filesToConfirm,
-      pathFix
+      pathFix,
+      liveBasePath
     })
   }
 
@@ -607,7 +684,10 @@ export default class FileSection extends React.Component {
       && _.some(selectedFiles, d => d.id === id)
     let cls = 'pd2x pd1y context-item pointer'
     let delTxt = shouldShowSelectedMenu ? `delete all(${len})` : 'delete'
-    //let clipboardText = this.getClipboardText()
+    let canPaste = hasFileInClipboardText()
+    let clsPaste = canPaste
+      ? cls
+      : cls + ' disabled'
     return (
       <div>
         {
@@ -663,18 +743,24 @@ export default class FileSection extends React.Component {
             : null
         }
         {
-          /*this.hasFileInClipboardText(clipboardText)
+          id
             ? (
               <div
                 className={cls}
-                onClick={this.onPaste}
+                onClick={this.onCopy}
               >
-                <Icon type="copy" /> paste
+                <Icon type="copy" /> copy
               </div>
             )
             : null
-            */
+
         }
+        <div
+          className={clsPaste}
+          onClick={canPaste ? this.onPaste : _.noop}
+        >
+          <Icon type="copy" /> paste
+        </div>
         {
           id
             ? (

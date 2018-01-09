@@ -30,3 +30,8 @@ export const authTypeMap = {
 export const topMenuHeight = 39
 export const tabsHeight = 46
 export const sshTabHeight = 36
+
+export const platform = window.getGlobal('os').platform()
+export const isWin = platform.startsWith('win')
+export const isMac = platform.startsWith('darwin')
+
