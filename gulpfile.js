@@ -7,7 +7,7 @@ try {
   console.log('no version file created')
 }
 
-gulp.task('pug', function() {
+gulp.task('pug', gulp.series(function(done) {
   gulp.src([
     './views/*.pug'
   ])
@@ -18,6 +18,7 @@ gulp.task('pug', function() {
       }
     }))
     .pipe(gulp.dest('./app/assets'))
-})
+  done()
+}))
 
-gulp.task('default', ['pug'])
+gulp.task('default', gulp.series('pug'))
