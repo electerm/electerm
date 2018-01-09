@@ -105,6 +105,7 @@ var config = {
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept'
     },
+    contentBase: path.join(__dirname, 'app/assets/'),
     historyApiFallback: true,
     hot: true,
     inline: true,
