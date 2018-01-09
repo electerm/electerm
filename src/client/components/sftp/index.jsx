@@ -622,21 +622,22 @@ export default class Sftp extends React.Component {
   render() {
     let {
       id,
-      transports,
-      filesToConfirm,
-      remotePath,
-      localPath,
-      pathFix,
-      liveBasePath
+      filesToConfirm
     } = this.state
-    let {height, onError} = this.props
+    let {height} = this.props
     let props = {
-      transports,
-      onError,
-      localPath,
-      pathFix,
-      remotePath,
-      liveBasePath,
+      id,
+      height,
+      ..._.pick(this.props, [
+        'onError'
+      ]),
+      ..._.pick(this.state, [
+        'transports',
+        'remotePath',
+        'localPath',
+        'pathFix',
+        'liveBasePath'
+      ]),
       ..._.pick(this, [
         'sftp',
         'modifier',
