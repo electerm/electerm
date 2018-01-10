@@ -1,11 +1,11 @@
 script.
-  window.sugo = !{JSON.stringify(_global)}
+  window.et = !{JSON.stringify(_global)}
 
 - if (env === 'development')
   script.
     window.debug = function () {
       var args = Array.prototype.slice.call(arguments);
-      if (window.sugo.env === 'development') return console.log.apply(null, args);
+      if (window.et.env === 'development') return console.log.apply(null, args);
     }
 - var tail = env !== 'development' ? '.production.min' : '.development'
 script(src=cdn + '/_bc/moment/min/moment.min.js')
@@ -13,7 +13,7 @@ script(src=cdn + '/_bc/react/umd/react' + tail + '.js')
 script(src=cdn + '/_bc/react-dom/umd/react-dom' + tail + '.js')
 script(src=cdn + '/_bc/lodash/lodash.min.js')
 script.
-  window.sugo.onload = function() {
+  window.et.onload = function() {
     document.body.removeChild(document.getElementById('content-loading'));
   };
   window.getGlobal = function(str) {
