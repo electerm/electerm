@@ -1,5 +1,5 @@
 /**
- * title create rule
+ * tab title create rule
  */
 export default (res) => {
   let {host, port, username, title} = res

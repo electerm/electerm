@@ -9,7 +9,7 @@ import {validateFieldsAndScroll} from '../../common/dec-validate-and-scroll'
 import _ from 'lodash'
 import copy from 'json-deep-copy'
 import {generate} from 'shortid'
-import {authTypeMap} from '../../common/constants'
+import {authTypeMap, settingMap} from '../../common/constants'
 
 const {TextArea} = Input
 const authTypes = Object.keys(authTypeMap).map(k => {
@@ -63,19 +63,19 @@ export default class SshForm extends React.Component {
   submit = (item, type = this.props.type) => {
     let obj = item
     let {addItem, editItem} = this.props
-    if (type === 'history') {
+    if (type === settingMap.history) {
       obj.id = generate()
-      addItem(obj, 'bookmarks')
+      addItem(obj, settingMap.bookmarks)
       return
     }
     if (obj.id) {
       let tar = copy(obj)
       delete tar.id
-      editItem(obj.id, tar, 'bookmarks')
+      editItem(obj.id, tar, settingMap.bookmarks)
     } else {
       obj.id = generate()
-      addItem(obj, 'history')
-      addItem(obj, 'bookmarks')
+      addItem(obj, settingMap.history)
+      addItem(obj, settingMap.bookmarks)
     }
   }
 

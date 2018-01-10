@@ -1,4 +1,4 @@
-// the final fetch
+// the final fetch wrapper
 import _ from 'lodash'
 import parseJson from './parse-json-safe'
 import {notification} from 'antd'

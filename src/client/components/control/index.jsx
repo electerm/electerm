@@ -5,7 +5,7 @@ import Btns from './btns'
 import Modal from './modal'
 import {generate} from 'shortid'
 import _ from 'lodash'
-import {statusMap} from '../../common/constants'
+import {statusMap, settingMap} from '../../common/constants'
 import './control.styl'
 
 const defaultStatus = statusMap.processing
@@ -21,7 +21,7 @@ export default class IndexControl extends React.Component {
     item: {
       id: ''
     },
-    tab: 'bookmarks'
+    tab: settingMap.bookmarks
   }
 
   onDup = tab => {
@@ -47,7 +47,7 @@ export default class IndexControl extends React.Component {
 
   onNewSsh = () => {
     this.setState({
-      tab: 'bookmarks',
+      tab: settingMap.bookmarks,
       item: {
         id: ''
       }
@@ -79,7 +79,7 @@ export default class IndexControl extends React.Component {
         _.pick(j, _.without(keysj, 'id'))
       )
     })) {
-      this.props.addItem(item, 'history')
+      this.props.addItem(item, settingMap.history)
     }
   }
 
