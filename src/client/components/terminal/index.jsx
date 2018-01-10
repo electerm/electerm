@@ -162,7 +162,6 @@ export default class Term extends React.Component {
       this.startPath = startPath
       this.timers.timer1 = setTimeout(this.initData, 10)
     }
-    this.term.on('data', this.onRefresh)
   }
 
   initData = () => {
@@ -170,12 +169,8 @@ export default class Term extends React.Component {
   }
 
   onRefresh = (data) => {
-    debug(data)
-    let div = Array.from(document.querySelectorAll('.xterm-rows > div') || [])[data.end] || {
-      textContent: ''
-    }
-    let text = div.textContent.trim()
-    this.extractPath(text)
+    let text = this.term.buffer.translateBufferLineToString(data.end)
+    this.extractPath(text.trim())
   }
 
   extractPath = text => {
@@ -233,8 +228,8 @@ export default class Term extends React.Component {
       term.attach(socket)
       term._initialized = true
     }
-    //term.on('data', this.onRefresh)
     this.socket = socket
+    term.on('refresh', this.onRefresh)
     term.on('resize', this.onResizeTerminal)
   }
 
