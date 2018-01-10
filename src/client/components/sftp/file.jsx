@@ -879,9 +879,9 @@ export default class FileSection extends React.Component {
       ? 'left'
       : 'right'
     let title = (
-      <div>
-        <p className="wordbreak">{name}</p>
-        <p>modifyTime: {moment(modifyTime).format()}</p>
+      <div className="mw350 pd1">
+        <div className="wordbreak">{name}</div>
+        <div className="font12">modify time: {moment(modifyTime).format()}</div>
       </div>
     )
     let props = {
