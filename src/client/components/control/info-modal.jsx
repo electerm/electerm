@@ -27,9 +27,6 @@ export default function({
     repository: {
       url
     },
-    bugs: {
-      url: bugReportLink
-    },
     version: packVer
   } = getGlobal('packInfo')
   let cdn = window.location.origin
@@ -41,6 +38,7 @@ export default function({
     ...devDependencies,
     ...dependencies
   }
+  let bugReportLink = link + '/issues'
   let logoPath = cdn + '/_bc/electerm-resource/res/imgs/' +
     (Math.random() > 0.5 ? 'electerm-round-128x128.png' : 'electerm.png')
   Modal.info({
