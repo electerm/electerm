@@ -16,7 +16,7 @@ try {
 }
 
 exports.saveUserConfig = (conf) => {
-  Object.assign(global._config, conf)
+  Object.assign(global.et._config, conf)
   Object.assign(userConfig, conf)
   fs.writeFileSync(
     userConfigPath,

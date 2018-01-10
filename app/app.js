@@ -74,7 +74,8 @@ async function createWindow () {
     //shouldShowMenu: (event, params) => !params.isEditable
   })
 
-  Object.assign(global, {
+  global.et = {}
+  Object.assign(global.et, {
     autoVisitTime: config.timer,
     _config: config,
     Ftp,

@@ -85,7 +85,7 @@ export default class IndexControl extends React.Component {
 
   openSetting = () => {
     this.setState({
-      tab: 'setting',
+      tab: settingMap.setting,
       item: {
         id: ''
       }

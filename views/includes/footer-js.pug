@@ -18,7 +18,7 @@ script.
   };
   window.getGlobal = function(str) {
     try {
-      return require('electron').remote.getGlobal(str)
+      return require('electron').remote.getGlobal('et')[str]
     } catch(e) {
       console.log(e.stack)
       return false
