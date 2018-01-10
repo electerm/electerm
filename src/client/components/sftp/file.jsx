@@ -14,7 +14,7 @@ import Input from '../common/input-auto-focus'
 import resolve from '../../common/resolve'
 import {addClass, removeClass, hasClass} from '../../common/class'
 import wait from '../../common/wait'
-import {contextMenuHeight, contextMenuPaddingTop, isWin} from '../../common/constants'
+import {contextMenuHeight, contextMenuPaddingTop, isWin, transferTypeMap, typeMap} from '../../common/constants'
 import sorter from '../../common/index-sorter'
 import {getLocalFileInfo, getFolderFromFilePath, getRemoteFileInfo} from './file-read'
 import {readClipboard, copy as copyToClipboard, hasFileInClipboardText} from '../../common/clipboard'
@@ -80,7 +80,7 @@ export default class FileSection extends React.Component {
           'copy_' + generate() + '_' + f.name
         )
         : resolve(base, f.name)
-      let func = type === 'remote'
+      let func = type === typeMap.remote
         ? this.props.sftp.cp
         : fs.cp
       await func(from, to)
@@ -95,7 +95,7 @@ export default class FileSection extends React.Component {
     let files = targetFiles || selected
       ? this.props.selectedFiles
       : [file]
-    let prefix = file.type === 'remote'
+    let prefix = file.type === typeMap.remote
       ? 'remote:'
       : ''
     let textToCopy = files.map(f => {
@@ -278,7 +278,7 @@ export default class FileSection extends React.Component {
       ? this.props.selectedFiles
       : [fromFile]
     let {type} = fromFile
-    let mv = type === 'local'
+    let mv = type === typeMap.local
       ? fs.mv
       : this.props.sftp.mv
     let targetPath = resolve(toFile.path, toFile.name)
@@ -450,7 +450,7 @@ export default class FileSection extends React.Component {
   changeFileMode = async file => {
     this.onCloseFileMode()
     let {permission, type, path, name} = file
-    let func = type === 'local'
+    let func = type === typeMap.local
       ? fs.chmodAsync
       : this.props.sftp.chmod
     let p = resolve(path, name)
@@ -546,7 +546,7 @@ export default class FileSection extends React.Component {
     if (isDirectory) {
       return this.enterDirectory(e)
     }
-    if (type === 'local') {
+    if (type === typeMap.local) {
       return this.openFile(this.state.file)
     }
     this.transfer()
@@ -657,7 +657,7 @@ export default class FileSection extends React.Component {
     if (!id) {
       return false
     }
-    if (type === 'remote') {
+    if (type === typeMap.remote) {
       return true
     }
     return !isWin
@@ -672,10 +672,10 @@ export default class FileSection extends React.Component {
       },
       selectedFiles
     } = this.props
-    let transferText = type === 'local'
-      ? 'upload'
-      : 'download'
-    let icon = type === 'local'
+    let transferText = type === typeMap.local
+      ? transferTypeMap.upload
+      : transferTypeMap.download
+    let icon = type === typeMap.local
       ? 'cloud-upload-o'
       : 'cloud-download-o'
     let len = selectedFiles.length
@@ -875,7 +875,7 @@ export default class FileSection extends React.Component {
     let className = classnames('sftp-item', type, {
       directory: isDirectory
     }, {selected})
-    let pm = type === 'remote'
+    let pm = type === typeMap.remote
       ? 'left'
       : 'right'
     let title = (

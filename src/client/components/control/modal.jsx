@@ -8,6 +8,7 @@ import List from './list'
 import _ from 'lodash'
 import Setting from '../setting'
 import copy from 'json-deep-copy'
+import {settingMap} from '../../common/constants'
 
 const props = ['tab', 'item']
 const {TabPane} = Tabs
@@ -27,7 +28,7 @@ export default class SettingModal extends React.Component {
     super(props)
     this.state = {
       visible: false,
-      tab: props.type || 'bookmarks',
+      tab: props.type || settingMap.bookmarks,
       item: props.item || {
         id: ''
       }
@@ -78,12 +79,12 @@ export default class SettingModal extends React.Component {
       item
     } = this.state
     let list = copy(this.props[tab]) || []
-    if (tab === 'bookmarks') {
+    if (tab === settingMap.bookmarks) {
       list.unshift({
         title: 'new',
         id: ''
       })
-    } else if (tab === 'setting') {
+    } else if (tab === settingMap.setting) {
       list.unshift({
         title: 'common',
         id: ''
@@ -110,8 +111,8 @@ export default class SettingModal extends React.Component {
         onChange={this.onChangeTab}
       >
         <TabPane
-          tab="history"
-          key="history"
+          tab={settingMap.history}
+          key={settingMap.history}
         >
           <Row>
             <Col span={6}>
@@ -134,8 +135,8 @@ export default class SettingModal extends React.Component {
           </Row>
         </TabPane>
         <TabPane
-          tab="bookmarks"
-          key="bookmarks"
+          tab={settingMap.bookmarks}
+          key={settingMap.bookmarks}
         >
           <Row>
             <Col span={6}>
@@ -151,8 +152,8 @@ export default class SettingModal extends React.Component {
           </Row>
         </TabPane>
         <TabPane
-          tab="setting"
-          key="setting"
+          tab={settingMap.setting}
+          key={settingMap.setting}
         >
           <Row>
             <Col span={6}>

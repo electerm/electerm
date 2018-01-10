@@ -12,7 +12,7 @@ import FileModeModal from '../sftp/file-mode-modal'
 import UpdateCheck from './update-check'
 import {notification} from 'antd'
 import openInfoModal from '../control/info-modal'
-import {maxHistory} from '../../common/constants'
+import {maxHistory, settingMap} from '../../common/constants'
 
 const initTabs = () => [
   {
@@ -33,8 +33,8 @@ export default class Index extends React.Component {
       height: 500,
       width: window.innerWidth,
       currentTabId: tabs[0].id,
-      history: ls.get('history') || [],
-      bookmarks: ls.get('bookmarks') || [],
+      history: ls.get(settingMap.history) || [],
+      bookmarks: ls.get(settingMap.bookmarks) || [],
       config: getGlobal('_config') || {},
       contextMenuProps: {},
       contextMenuVisible: false,
@@ -149,7 +149,7 @@ export default class Index extends React.Component {
   addItem = (item, type) => {
     let items = copy(this.state[type])
     items.unshift(item)
-    if (type === 'history' && items.length > maxHistory) {
+    if (type === settingMap.history && items.length > maxHistory) {
       items = items.slice(0, maxHistory)
     }
     this.setStateLs({

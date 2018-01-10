@@ -7,6 +7,7 @@ import copy from 'json-deep-copy'
 import _ from 'lodash'
 import resolve from '../../common/resolve'
 import wait from '../../common/wait'
+import {typeMap, transferTypeMap} from '../../common/constants'
 
 const {getGlobal} = window
 
@@ -85,7 +86,7 @@ export default class Tranporter extends React.Component {
       return
     }
     let {type} = this.props.transport
-    type = type === 'download' ? 'local' : 'remote'
+    type = type === transferTypeMap.download ? typeMap.local : typeMap.remote
     let cb = this.props[type + 'List']
     this.timer = setTimeout(
       () => this.cancel(cb),
@@ -99,7 +100,7 @@ export default class Tranporter extends React.Component {
       localPath,
       remotePath
     } = transport
-    let isDown = type === 'download'
+    let isDown = type === transferTypeMap.download
     if (isDown) {
       let fs = getGlobal('fs')
       return fs.mkdirAsync(localPath)

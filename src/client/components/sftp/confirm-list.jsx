@@ -10,6 +10,7 @@ import {generate} from 'shortid'
 import Trigger from './file-transfer-trigger'
 import resolve from '../../common/resolve'
 import AnimateText from '../common/animate-text'
+import {typeMap, transferTypeMap} from '../../common/constants'
 
 const {getGlobal} = window
 
@@ -43,10 +44,10 @@ export default class Confirms extends React.Component {
     if (data.transferList) {
       let tree = data.transferList.reduce((prev, t) => {
         let {localPath, remotePath, type} = t
-        let startPath = type === 'local'
+        let startPath = type === typeMap.local
           ? localPath
           : remotePath
-        let targetPath = type === 'local'
+        let targetPath = type === typeMap.local
           ? remotePath
           : localPath
         prev[startPath] = targetPath
@@ -96,7 +97,7 @@ export default class Confirms extends React.Component {
 
   getBasePath = (type, isOtherType) => {
     let {pathFix} = this.props
-    let base = type === 'local'
+    let base = type === typeMap.local
       ? this.liveBasePath || this.props[type + 'Path']
       : this.props[type + 'Path']
     return pathFix && isOtherType
@@ -134,9 +135,9 @@ export default class Confirms extends React.Component {
   }
 
   checkExist = async (type, path) => {
-    let otherType = type === 'local'
-      ? 'remote'
-      : 'local'
+    let otherType = type === typeMap.local
+      ? typeMap.remote
+      : typeMap.local
     return await this[otherType + 'CheckExist'](path)
   }
 
@@ -146,9 +147,9 @@ export default class Confirms extends React.Component {
       path,
       name
     } = file
-    let otherType = type === 'local'
-      ? 'remote'
-      : 'local'
+    let otherType = type === typeMap.local
+      ? typeMap.remote
+      : typeMap.local
     let basePath = this.getBasePath(type)
     let beforePath = resolve(path, name)
     let reg = new RegExp('^' + basePath)
@@ -165,7 +166,7 @@ export default class Confirms extends React.Component {
       id: generate(),
       percent: 0,
       file,
-      type: type === 'remote' ? 'download' : 'upload'
+      type: type === typeMap.remote ? transferTypeMap.download : transferTypeMap.upload
     }
   }
 
@@ -173,7 +174,7 @@ export default class Confirms extends React.Component {
     let {name, path, type} = file
     let startPath = resolve(path, name)
     let targetPath0 = targetPath || this.getTargetPath(file)
-    let isLocal = type === 'local'
+    let isLocal = type === typeMap.local
     return this.buildTransfer({
       file,
       localPath: isLocal ? startPath : targetPath0,
@@ -205,9 +206,9 @@ export default class Confirms extends React.Component {
       name
     } = currentFile
     let transferList = copy(this.state.transferList)
-    let otherType = type === 'local'
-      ? 'remote'
-      : 'local'
+    let otherType = type === typeMap.local
+      ? typeMap.remote
+      : typeMap.local
     let transport = this.findParentTransport(currentFile)
     let targetPath
     if (transport) {
@@ -232,9 +233,9 @@ export default class Confirms extends React.Component {
       type,
       isDirectory
     } = file
-    let otherType = type === 'local'
-      ? 'remote'
-      : 'local'
+    let otherType = type === typeMap.local
+      ? typeMap.remote
+      : typeMap.local
     let basePath = this.getBasePath(type)
     let otherBasePath = this.getBasePath(otherType, true)
     let regBase = new RegExp('^' + basePath)
@@ -259,9 +260,9 @@ export default class Confirms extends React.Component {
     } = file
     let {files} = this.state
     let newName = this.buildNewName(name, isDirectory)
-    let otherType = type === 'local'
-      ? 'remote'
-      : 'local'
+    let otherType = type === typeMap.local
+      ? typeMap.remote
+      : typeMap.local
     let basePath = this.getBasePath(type)
     let repPath = this.getBasePath(otherType, true)
     let beforePath = resolve(bp, name)
@@ -283,14 +284,14 @@ export default class Confirms extends React.Component {
       let p = resolve(path, name)
       let np = p.replace(reg1, newPath)
       let t = np.replace(reg, repPath)
-      let isLocal = type === 'local'
+      let isLocal = type === typeMap.local
       transferList.push({
         localPath: isLocal ? p : t,
         remotePath: isLocal ? t : p,
         id: generate(),
         percent: 0,
         file: f,
-        type: type === 'remote' ? 'download' : 'upload'
+        type: type === typeMap.remote ? transferTypeMap.download : transferTypeMap.upload
       })
     }
     await this.setStateAsync({
@@ -489,13 +490,13 @@ export default class Confirms extends React.Component {
       name,
       path
     } = currentFile
-    let otherType = type === 'local' ? 'remote' : 'local'
+    let otherType = type === typeMap.local ? typeMap.remote : typeMap.local
     let targetPath = this.createTransfer(currentFile)[otherType + 'Path']
     let from = resolve(path, name)
     let action = isDirectory ? 'merge' : 'replace'
     let typeTxt = isDirectory ? 'folder' : 'file'
-    let typeTitle = type === 'local' ? 'remote' : 'local'
-    let otherTypeTitle = type === 'remote' ? 'remote' : 'local'
+    let typeTitle = type === typeMap.local ? typeMap.remote : typeMap.local
+    let otherTypeTitle = type === typeMap.remote ? typeMap.remote : typeMap.local
     return (
       <div className="confirms-content-wrap">
         <AnimateText>

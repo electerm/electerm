@@ -35,3 +35,18 @@ export const platform = window.getGlobal('os').platform()
 export const isWin = platform.startsWith('win')
 export const isMac = platform.startsWith('darwin')
 
+export const typeMap = {
+  remote: 'remote',
+  local: 'local'
+}
+
+export const settingMap = {
+  setting: 'setting',
+  bookmarks: 'bookmarks',
+  history: 'history'
+}
+
+export const transferTypeMap = {
+  download: 'download',
+  upload: 'upload'
+}

@@ -12,7 +12,7 @@ import wait from '../../common/wait'
 import sorterIndex from '../../common/index-sorter'
 import DragSelect from './drag-select'
 import {getLocalFileInfo} from './file-read'
-import {isMac} from '../../common/constants'
+import {isMac, typeMap} from '../../common/constants'
 import {hasFileInClipboardText} from '../../common/clipboard'
 import './sftp.styl'
 
@@ -171,7 +171,7 @@ export default class Sftp extends React.Component {
     for (let f of files) {
       await func(f)
     }
-    if (type === 'remote') {
+    if (type === typeMap.remote) {
       await wait(500)
     }
     this[type + 'List']()
@@ -272,7 +272,7 @@ export default class Sftp extends React.Component {
       return
     }
     let lastClickedFile = this.state.lastClickedFile || {
-      type: 'local'
+      type: typeMap.local
     }
     let {type} = lastClickedFile
     if (this.keyControlPressed(e) && e.code === 'KeyA') {
@@ -368,7 +368,7 @@ export default class Sftp extends React.Component {
         return {
           ..._.pick(r, ['name', 'size', 'accessTime', 'modifyTime', 'mode']),
           isDirectory: r.type === 'd',
-          type: 'remote',
+          type: typeMap.remote,
           path: remotePath,
           id: generate()
         }
@@ -484,8 +484,8 @@ export default class Sftp extends React.Component {
         'remotePath',
         'localFileTree',
         'remoteFileTree',
-        'local',
-        'remote',
+        typeMap.local,
+        typeMap.remote,
         'lastClickedFile',
         'lastMataKey',
         'selectedFiles'
@@ -569,7 +569,7 @@ export default class Sftp extends React.Component {
         <Spin spinning={loading}>
           <div className="pd1 sftp-panel">
             {
-              type === 'remote'
+              type === typeMap.remote
                 ? (
                   <div className="pd2t pd1b pd1x alignright">
                     remote: {username}@{host}
@@ -650,8 +650,8 @@ export default class Sftp extends React.Component {
     return (
       <div className="sftp-wrap overhide relative" id={id} style={{height}}>
         <Row>
-          {this.renderSection('local')}
-          {this.renderSection('remote')}
+          {this.renderSection(typeMap.local)}
+          {this.renderSection(typeMap.remote)}
         </Row>
         <Tranports
           {...props}

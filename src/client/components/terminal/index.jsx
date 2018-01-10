@@ -6,10 +6,20 @@ import _ from 'lodash'
 import {Spin, Icon} from 'antd'
 import {statusMap} from '../../common/constants'
 import './terminal.styl'
-import {contextMenuHeight, contextMenuPaddingTop} from '../../common/constants'
+import {contextMenuHeight, contextMenuPaddingTop, typeMap} from '../../common/constants'
 import {readClipboard, copy} from '../../common/clipboard'
+import * as fit from 'xterm/lib/addons/fit/fit'
+import * as attach from 'xterm/lib/addons/attach/attach'
+import * as fullscreen from 'xterm/lib/addons/fullscreen/fullscreen'
+import * as search from 'xterm/lib/addons/search/search'
+import { Terminal } from 'xterm'
 
-const {Terminal, getGlobal} = window
+Terminal.applyAddon(fit)
+Terminal.applyAddon(attach)
+Terminal.applyAddon(fullscreen)
+Terminal.applyAddon(search)
+
+const {getGlobal} = window
 let config = getGlobal('_config')
 const computePos = (e, height) => {
   let {clientX, clientY} = e
@@ -152,7 +162,7 @@ export default class Term extends React.Component {
       this.startPath = startPath
       this.timers.timer1 = setTimeout(this.initData, 10)
     }
-    this.term.on('refresh', this.onRefresh)
+    this.term.on('data', this.onRefresh)
   }
 
   initData = () => {
@@ -160,7 +170,10 @@ export default class Term extends React.Component {
   }
 
   onRefresh = (data) => {
-    let div = Array.from(data.element.querySelectorAll('.xterm-rows > div'))[data.end]
+    debug(data)
+    let div = Array.from(document.querySelectorAll('.xterm-rows > div') || [])[data.end] || {
+      textContent: ''
+    }
     let text = div.textContent.trim()
     this.extractPath(text)
   }
@@ -200,7 +213,7 @@ export default class Term extends React.Component {
       rows,
       mode: 'VINTR',
       ...tab,
-      type: tab.host ? 'remote' : 'local'
+      type: tab.host ? typeMap.remote : typeMap.local
     })
     this.setState({
       loading: false
@@ -220,6 +233,7 @@ export default class Term extends React.Component {
       term.attach(socket)
       term._initialized = true
     }
+    //term.on('data', this.onRefresh)
     this.socket = socket
     term.on('resize', this.onResizeTerminal)
   }
