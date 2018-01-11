@@ -7,6 +7,10 @@ import Transport from './transport'
 import _ from 'lodash'
 import copy from 'json-deep-copy'
 
+
+const {prefix} = window
+const e = prefix('sftp')
+
 export default class Transports extends React.Component {
 
   constructor(props) {
@@ -129,14 +133,14 @@ export default class Transports extends React.Component {
     return (
       <div className="fix">
         <div className="fleft">
-          file transfers
+          {e('fileTransfers')}
         </div>
         <div className="fright">
           <span
             className="pointer"
             onClick={this.cancelAll}
           >
-            cancel all
+            {e('cancelAll')}
           </span>
         </div>
       </div>

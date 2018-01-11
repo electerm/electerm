@@ -17,14 +17,14 @@ const formatTime = time => {
 export default function FileProps (props) {
 
   let {
-    visible = false,
-    file = {
-      path: '',
-      name: ''
-    },
-    tab = {},
+    visible,
+    file,
+    tab,
     onClose
   } = props
+  if (!visible) {
+    return null
+  }
   let {
     name,
     size,

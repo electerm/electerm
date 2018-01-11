@@ -19,7 +19,9 @@ import sorter from '../../common/index-sorter'
 import {getLocalFileInfo, getFolderFromFilePath, getRemoteFileInfo} from './file-read'
 import {readClipboard, copy as copyToClipboard, hasFileInClipboardText} from '../../common/clipboard'
 
-const {getGlobal} = window
+const {getGlobal, prefix} = window
+const e = prefix('sftp')
+const m = prefix('menu')
 let fs = getGlobal('fs')
 
 const computePos = (e, isBg, height) => {
@@ -673,8 +675,8 @@ export default class FileSection extends React.Component {
       selectedFiles
     } = this.props
     let transferText = type === typeMap.local
-      ? transferTypeMap.upload
-      : transferTypeMap.download
+      ? e(transferTypeMap.upload)
+      : e(transferTypeMap.download)
     let icon = type === typeMap.local
       ? 'cloud-upload-o'
       : 'cloud-download-o'
@@ -683,7 +685,7 @@ export default class FileSection extends React.Component {
       && len > 1
       && _.some(selectedFiles, d => d.id === id)
     let cls = 'pd2x pd1y context-item pointer'
-    let delTxt = shouldShowSelectedMenu ? `delete all(${len})` : 'delete'
+    let delTxt = shouldShowSelectedMenu ? `${e('deleteAll')}(${len})` : m('del')
     let canPaste = hasFileInClipboardText()
     let clsPaste = canPaste
       ? cls
@@ -697,7 +699,7 @@ export default class FileSection extends React.Component {
                 className={cls}
                 onClick={this.doEnterDirectory}
               >
-                <Icon type="enter" /> enter
+                <Icon type="enter" /> {e('enter')}
               </div>
             )
             : null
@@ -709,7 +711,7 @@ export default class FileSection extends React.Component {
                 className={cls}
                 onClick={this.doTransferSelected}
               >
-                <Icon type={icon} /> {transferText} selected({len})
+                <Icon type={icon} /> {transferText} {e('selected')}({len})
               </div>
             )
             : null
@@ -749,7 +751,7 @@ export default class FileSection extends React.Component {
                 className={cls}
                 onClick={this.onCopy}
               >
-                <Icon type="copy" /> copy
+                <Icon type="copy" /> {m('copy')}
               </div>
             )
             : null
@@ -759,7 +761,7 @@ export default class FileSection extends React.Component {
           className={clsPaste}
           onClick={canPaste ? this.onPaste : _.noop}
         >
-          <Icon type="copy" /> paste
+          <Icon type="copy" /> {m('paste')}
         </div>
         {
           id
@@ -768,7 +770,7 @@ export default class FileSection extends React.Component {
                 className={cls}
                 onClick={this.doRename}
               >
-                <Icon type="edit" /> rename
+                <Icon type="edit" /> {e('rename')}
               </div>
             )
             : null
@@ -777,25 +779,25 @@ export default class FileSection extends React.Component {
           className={cls}
           onClick={this.newFile}
         >
-          <Icon type="file-add" /> new file
+          <Icon type="file-add" /> {e('newFile')}
         </div>
         <div
           className={cls}
           onClick={this.newDirectory}
         >
-          <Icon type="folder-add" /> new directory
+          <Icon type="folder-add" /> {e('newFolder')}
         </div>
         <div
           className={cls}
           onClick={this.selectAll}
         >
-          <Icon type="check-square-o" /> select all
+          <Icon type="check-square-o" /> {e('selectAll')}
         </div>
         <div
           className={cls}
           onClick={this.refresh}
         >
-          <Icon type="reload" /> refresh
+          <Icon type="reload" /> {e('refresh')}
         </div>
         {
           this.showModeEdit(type, id)
@@ -804,7 +806,7 @@ export default class FileSection extends React.Component {
                 className={cls}
                 onClick={this.editPermission}
               >
-                <Icon type="lock" /> edit permission
+                <Icon type="lock" /> {e('editPermission')}
               </div>
             )
             : null
@@ -816,7 +818,7 @@ export default class FileSection extends React.Component {
                 className={cls}
                 onClick={this.showInfo}
               >
-                <Icon type="info-circle-o" /> info
+                <Icon type="info-circle-o" /> {e('info')}
               </div>
             )
             : null
@@ -881,7 +883,7 @@ export default class FileSection extends React.Component {
     let title = (
       <div className="mw350 pd1">
         <div className="wordbreak">{name}</div>
-        <div className="font12">modify time: {moment(modifyTime).format()}</div>
+        <div className="font12">{e('modifyTime')}: {moment(modifyTime).format()}</div>
       </div>
     )
     let props = {
