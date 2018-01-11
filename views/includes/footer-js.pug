@@ -18,7 +18,7 @@ script.
   };
   window.getGlobal = function(str) {
     try {
-      return require('electron').remote.getGlobal(str)
+      return require('electron').remote.getGlobal('et')[str]
     } catch(e) {
       console.log(e.stack)
       return false
@@ -30,5 +30,20 @@ script.
     } catch(e) {
       console.log(e.stack)
       return false
+    }
+  }
+  window.lang = window.getGlobal('lang')
+
+  /**
+  * string translate
+  * @param {string} id eg: 'menu.cut'
+  */
+  window.e = id => {
+    return _.get(window.lang, id) || id
+  }
+
+  window.prefix = prefix => {
+    return (id) => {
+      return _.get(window.lang, `${prefix}.${id}`) || id
     }
   }

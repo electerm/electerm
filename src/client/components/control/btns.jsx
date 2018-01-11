@@ -6,11 +6,15 @@ import {Button, Select, Icon, Tooltip} from 'antd'
 import createName from '../../common/create-title'
 
 const {Option} = Select
+const {prefix} = window
+const e = prefix('control')
+const c = prefix('common')
+const m = prefix('menu')
 
 const commonSelectProps = {
   showSearch: true,
   optionFilterProp: 'children',
-  notFoundContent: 'not found',
+  notFoundContent: e('notFoundContent'),
   dropdownMatchSelectWidth: false,
   className: 'iblock width120 mg1r'
 }
@@ -35,11 +39,11 @@ export default function Btns(props) {
           type="ghost"
           icon="plus"
           onClick={onNewSsh}
-        >new ssh</Button>
+        >{e('newSsh')}</Button>
         <Select
           className="mg1r iblock"
           onSelect={onSelectHistory}
-          placeholder="history"
+          placeholder={c('history')}
           {...commonSelectProps}
         >
           {
@@ -54,7 +58,7 @@ export default function Btns(props) {
         <Select
           onSelect={onSelectBookmark}
           className="iblock"
-          placeholder="bookmarks"
+          placeholder={c('bookmarks')}
           {...commonSelectProps}
         >
           {
@@ -78,18 +82,18 @@ export default function Btns(props) {
           type="ghost"
           icon="setting"
           onClick={openSetting}
-        >setting</Button>
+        >{c('setting')}</Button>
       </div>
       <div className="fright line-height28">
         <Icon
           type="reload"
           className="pointer mg1x font14"
-          title="reload"
+          title={m('reload')}
           onClick={() => location.reload()}
         />
         <Icon
           type="info-circle-o"
-          title="about"
+          title={m('about')}
           className="pointer mg1l mg2r font14"
           onClick={openAbout}
         />

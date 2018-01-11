@@ -1,5 +1,8 @@
 import React from 'react'
 
+const {prefix} = window
+const e = prefix('main')
+
 export default class ErrorBoundary extends React.Component {
   constructor(props) {
     super(props)
@@ -22,7 +25,7 @@ export default class ErrorBoundary extends React.Component {
       let {stack, message} = this.state.error
       return (
         <div className="pd3 aligncenter">
-          <h1>Something went wrong.</h1>
+          <h1>{e('error')}</h1>
           <div className="pd1y">{message}</div>
           <div className="pd1y">{stack}</div>
         </div>

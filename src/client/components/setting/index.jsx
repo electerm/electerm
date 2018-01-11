@@ -1,9 +1,10 @@
 
 import React from 'react'
-import {message, Select, InputNumber} from 'antd'
+import {message, Select, InputNumber, Alert, Button} from 'antd'
 
 const {Option} = Select
-const {getGlobal} = window
+const {getGlobal, prefix} = window
+const e = prefix('setting')
 const modifiers = [
   'Command',
   'Control',
@@ -18,6 +19,14 @@ const keys = [
 ]
 
 export default class Setting extends React.Component {
+
+  state = {
+    languageChanged: false
+  }
+
+  restart = () => {
+    getGlobal('restart')()
+  }
 
   onChangeModifier = modifier => {
     let {hotkey} = this.props.config
@@ -41,6 +50,15 @@ export default class Setting extends React.Component {
     })
   }
 
+  onChangeLang = language => {
+    this.setState({
+      languageChanged: true
+    })
+    return this.saveConfig({
+      language
+    })
+  }
+
   saveConfig = (_ext) => {
     let {config} = this.props
     let ext = _ext
@@ -52,11 +70,11 @@ export default class Setting extends React.Component {
       const changeHotkey = getGlobal('changeHotkey')
       let res = changeHotkey(ext.hotkey)
       if (!res) {
-        message.warn('hotkey can not be registe, please use another one')
+        message.warn(e('hotkeyNotOk'))
         update.config.hotkey = config.hotkey
         ext.hotkey = config.hotkey
       } else {
-        message.success('saved')
+        message.success(e('saved'))
       }
     }
     saveUserConfig && saveUserConfig(ext)
@@ -69,13 +87,38 @@ export default class Setting extends React.Component {
     )
   }
 
+  renderLanguageChangeTip = () => {
+    if (!this.state.languageChanged) {
+      return null
+    }
+    return (
+      <div className="pd1t">
+        <Alert
+          message={
+            <div>
+              {e('saveLang')}
+              <Button
+                onClick={this.restart}
+                className="mg1l"
+              >
+                {e('restartNow')}
+              </Button>
+            </div>
+          }
+          type="success"
+        />
+      </div>
+    )
+  }
+
   render() {
-    let {hotkey, sshReadyTimeout} = this.props.config
+    let {hotkey, sshReadyTimeout, language} = this.props.config
+    let langs = getGlobal('langs')
     let [modifier, key] = hotkey.split('+')
     return (
       <div className="form-wrap pd1y pd2x">
         <h3>settings</h3>
-        <div className="pd1b">system hotkey(bring window back to front)</div>
+        <div className="pd1b">{e('hotkeyDesc')}</div>
         <div className="pd2b">
           <Select
             value={modifier}
@@ -99,7 +142,7 @@ export default class Setting extends React.Component {
             }
           </Select>
         </div>
-        <div className="pd1b">ssh timeout(in millisecond)</div>
+        <div className="pd1b">{e('timeoutDesc')}</div>
         <div className="pd2b">
           <InputNumber
             onChange={this.onChangeTimeout}
@@ -108,6 +151,23 @@ export default class Setting extends React.Component {
             value={sshReadyTimeout}
           />
         </div>
+        <div className="pd1b">{e('language')}</div>
+        <div className="pd2b">
+          <Select
+            onChange={this.onChangeLang}
+            value={language}
+          >
+            {
+              langs.map(l => {
+                let {id, name} = l
+                return (
+                  <Option key={id} value={id}>{name}</Option>
+                )
+              })
+            }
+          </Select>
+        </div>
+        {this.renderLanguageChangeTip()}
       </div>
     )
   }

@@ -11,6 +11,8 @@ import Input from '../common/input-auto-focus'
 import createName from '../../common/create-title'
 import {addClass, removeClass} from '../../common/class'
 
+const {prefix} = window
+const e = prefix('tabs')
 const onDragCls = 'ondrag-tab'
 const onDragOverCls = 'dragover-tab'
 
@@ -144,7 +146,7 @@ export default class Tab extends React.Component {
     let tab = copy(this.state.tab)
     let {titleTemp, title, id, host} = tab
     if (!titleTemp && !host) {
-      return message.warn('title can not be empty')
+      return message.warn(e('titleEmptyWarn'))
     }
     if (title === titleTemp) {
       delete tab.titleTemp
@@ -200,7 +202,7 @@ export default class Tab extends React.Component {
           className={cls}
           onClick={this.close}
         >
-          <Icon type="close" /> close
+          <Icon type="close" /> {e('close')}
         </div>
         {
           nother
@@ -210,7 +212,7 @@ export default class Tab extends React.Component {
                 className={cls}
                 onClick={this.closeOther}
               >
-                <Icon type="close" /> close other tabs
+                <Icon type="close" /> {e('closeOtherTabs')}
               </div>
             )
         }
@@ -222,7 +224,7 @@ export default class Tab extends React.Component {
                 className={cls}
                 onClick={this.closeTabsRight}
               >
-                <Icon type="close" /> close tabs on the right
+                <Icon type="close" /> {e('closeTabRight')}
               </div>
             )
         }
@@ -231,19 +233,19 @@ export default class Tab extends React.Component {
           className={cls}
           onClick={this.add}
         >
-          <Icon type="code-o" /> new tab
+          <Icon type="code-o" /> {e('newTab')}
         </div>
         <div
           className={cls}
           onClick={this.dup}
         >
-          <Icon type="copy" /> duplicate
+          <Icon type="copy" /> {e('duplicate')}
         </div>
         <div
           className={cls}
           onClick={this.doRename}
         >
-          <Icon type="edit" /> rename
+          <Icon type="edit" /> {e('rename')}
         </div>
       </div>
     )

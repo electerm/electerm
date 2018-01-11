@@ -9,7 +9,8 @@ import resolve from '../../common/resolve'
 import wait from '../../common/wait'
 import {typeMap, transferTypeMap} from '../../common/constants'
 
-const {getGlobal} = window
+const {getGlobal, prefix} = window
+const e = prefix('sftp')
 
 const typeIconMap = {
   upload: 'arrow-up',
@@ -194,7 +195,7 @@ export default class Tranporter extends React.Component {
       file
     } = this.props.transport
     let pauseIcon = pausing ? 'play-circle' : 'pause-circle'
-    let pauseTitle = pausing ? 'resume' : 'pause'
+    let pauseTitle = pausing ? e('resume') : e('pause')
     let pauseFunc = pausing ? this.resume : this.pause
     let icon = typeIconMap[type]
     let icon2 = typeIconMap2[type]

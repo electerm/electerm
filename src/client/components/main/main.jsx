@@ -1,8 +1,7 @@
 
 import React from 'react'
 import Wrapper from './window-wrapper'
-import Control from '../control'
-import {generate} from 'shortid'
+import Control, {newTerm} from '../control'
 import _ from 'lodash'
 import copy from 'json-deep-copy'
 import classnames from 'classnames'
@@ -14,12 +13,6 @@ import {notification} from 'antd'
 import openInfoModal from '../control/info-modal'
 import {maxHistory, settingMap} from '../../common/constants'
 
-const initTabs = () => [
-  {
-    id: generate(),
-    title: 'new terminal'
-  }
-]
 const {getGlobal} = window
 const ls = getGlobal('ls')
 
@@ -27,7 +20,7 @@ export default class Index extends React.Component {
 
   constructor(props) {
     super(props)
-    let tabs = initTabs()
+    let tabs = [newTerm()]
     this.state = {
       tabs,
       height: 500,

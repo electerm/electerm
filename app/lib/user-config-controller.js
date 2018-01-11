@@ -6,21 +6,21 @@
 const fs = require('fs')
 const {resolve} = require('path')
 const appPath = require('./app-path')
-let userConfig = {}
+exports.userConfig = {}
 const userConfigPath = resolve(appPath, 'electerm-user-config.json')
 
 try {
-  userConfig = require(userConfigPath)
+  exports.userConfig = require(userConfigPath)
 } catch (e) {
   console.log('no user config, but it is ok')
 }
 
 exports.saveUserConfig = (conf) => {
-  Object.assign(global._config, conf)
-  Object.assign(userConfig, conf)
+  Object.assign(global.et._config, conf)
+  Object.assign(exports.userConfig, conf)
   fs.writeFileSync(
     userConfigPath,
-    JSON.stringify(userConfig)
+    JSON.stringify(exports.userConfig)
   )
 }
 

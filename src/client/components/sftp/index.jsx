@@ -16,7 +16,8 @@ import {isMac, typeMap} from '../../common/constants'
 import {hasFileInClipboardText} from '../../common/clipboard'
 import './sftp.styl'
 
-const {getGlobal} = window
+const {getGlobal, prefix} = window
+const e = prefix('sftp')
 const fs = getGlobal('fs')
 const config = getGlobal('_config')
 
@@ -182,11 +183,11 @@ export default class Sftp extends React.Component {
     let names = hasDirectory ? 'files/folders' : 'files'
     return (
       <div className="wordbreak">
-        are you sure? this will delete these
+        {e('delTip')}
         <b className="mg1x">{files.length}</b>{names}
         {
           hasDirectory
-            ? 'and all the file/directory in them'
+            ? e('delTip1')
             : ''
         }
       </div>
@@ -521,12 +522,12 @@ export default class Sftp extends React.Component {
 
   renderAddonBefore = (type) => {
     let isShow = this.state[`${type}ShowHiddenFile`]
-    let title = `${isShow ? 'hide' : 'show'} hidden files and directories`
+    let title = `${isShow ? e('hide') : e('show')} ${e('hfd')}`
     let icon = isShow ? 'eye' : 'eye-o'
     return (
       <div>
         <Tooltip
-          title="goto parent folder"
+          title={e('goParent')}
           arrowPointAtCenter
         >
           <Icon
@@ -572,12 +573,12 @@ export default class Sftp extends React.Component {
               type === typeMap.remote
                 ? (
                   <div className="pd2t pd1b pd1x alignright">
-                    remote: {username}@{host}
+                    {e('remote')}: {username}@{host}
                   </div>
                 )
                 : (
                   <div className="pd2t pd1b pd1x">
-                    local
+                    {e('local')}
                   </div>
                 )
             }

@@ -12,7 +12,8 @@ import resolve from '../../common/resolve'
 import AnimateText from '../common/animate-text'
 import {typeMap, transferTypeMap} from '../../common/constants'
 
-const {getGlobal} = window
+const {getGlobal, prefix} = window
+const e = prefix('sftp')
 
 export default class Confirms extends React.Component {
 
@@ -411,14 +412,14 @@ export default class Confirms extends React.Component {
           className="mg1l"
           onClick={this.cancel}
         >
-          cancel
+          {e('cancel')}
         </Button>
         <Button
           type="ghost"
           className="mg1l"
           onClick={this.skip}
         >
-          skip
+          {e('skip')}
         </Button>
         <Button
           type="primary"
@@ -427,7 +428,7 @@ export default class Confirms extends React.Component {
             this.mergeOrOverwrite
           }
         >
-          {isDirectory ? 'merge' : 'overwrite'}
+          {isDirectory ? e('merge') : e('overwrite')}
         </Button>
         <Button
           type="primary"
@@ -436,7 +437,7 @@ export default class Confirms extends React.Component {
             this.rename
           }
         >
-          rename
+          {e('rename')}
         </Button>
         <div className="pd1t" />
         {
@@ -447,14 +448,14 @@ export default class Confirms extends React.Component {
                 className="mg1l"
                 title={
                   isDirectory
-                    ? 'merge rest conflict folders'
-                    : 'overwrite rest conflict files'
+                    ? e('mergeDesc')
+                    : e('overwriteDesc')
                 }
                 onClick={
                   this.mergeOrOverwriteAll
                 }
               >
-                {isDirectory ? 'merge all' : 'overwrite all'}
+                {isDirectory ? e('mergeAll') : e('overwriteAll')}
               </Button>
             )
             : null
@@ -465,12 +466,12 @@ export default class Confirms extends React.Component {
               <Button
                 type="primary"
                 className="mg1l"
-                title="rename rest files/folders"
+                title={e('renameDesc')}
                 onClick={
                   this.renameAll
                 }
               >
-                rename all
+                {e('renameAll')}
               </Button>
             )
             : null
@@ -493,9 +494,9 @@ export default class Confirms extends React.Component {
     let otherType = type === typeMap.local ? typeMap.remote : typeMap.local
     let targetPath = this.createTransfer(currentFile)[otherType + 'Path']
     let from = resolve(path, name)
-    let action = isDirectory ? 'merge' : 'replace'
-    let typeTxt = isDirectory ? 'folder' : 'file'
-    let typeTitle = type === typeMap.local ? typeMap.remote : typeMap.local
+    let action = isDirectory ? e('merge') : e('replace')
+    let typeTxt = isDirectory ? e('folder') : e('file')
+    let typeTitle = type === typeMap.local ? e(typeMap.remote) : e(typeMap.local)
     let otherTypeTitle = type === typeMap.remote ? typeMap.remote : typeMap.local
     return (
       <div className="confirms-content-wrap">
@@ -528,7 +529,7 @@ export default class Confirms extends React.Component {
     let props = {
       visible: !!currentFile,
       width: 500,
-      title: 'file conflict',
+      title: e('fileConflict'),
       footer: this.renderFooter(),
       onCancel: this.cancel
     }
