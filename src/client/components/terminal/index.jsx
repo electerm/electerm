@@ -19,7 +19,9 @@ Terminal.applyAddon(attach)
 Terminal.applyAddon(fullscreen)
 Terminal.applyAddon(search)
 
-const {getGlobal} = window
+const {getGlobal, prefix} = window
+const e = prefix('ssh')
+const m = prefix('menu')
 let config = getGlobal('_config')
 const computePos = (e, height) => {
   let {clientX, clientY} = e
@@ -124,25 +126,25 @@ export default class Term extends React.Component {
           className={clsCopy}
           onClick={hasSlected ? this.onCopy : _.noop}
         >
-          <Icon type="copy" /> copy
+          <Icon type="copy" /> {m('copy')}
         </div>
         <div
           className={clsPaste}
           onClick={copyed ? this.onPaste : _.noop}
         >
-          <Icon type="switcher" /> paste
+          <Icon type="switcher" /> {m('paste')}
         </div>
         <div
           className={cls}
           onClick={this.onClear}
         >
-          <Icon type="reload" /> clear
+          <Icon type="reload" /> {e('clear')}
         </div>
         <div
           className={cls}
           onClick={this.onSelectAll}
         >
-          <Icon type="select" /> select all
+          <Icon type="select" /> {e('selectAll')}
         </div>
       </div>
     )

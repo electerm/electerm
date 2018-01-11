@@ -40,6 +40,8 @@ const tailFormItemLayout = {
     }
   }
 }
+const {prefix} = window
+const e = prefix('form')
 
 @Form.create()
 @validateFieldsAndScroll
@@ -145,7 +147,7 @@ export default class SshForm extends React.Component {
     return (
       <FormItem
         {...formItemLayout}
-        label="password"
+        label={e('password')}
         hasFeedback
       >
         {getFieldDecorator('password', {
@@ -156,7 +158,7 @@ export default class SshForm extends React.Component {
         })(
           <Input
             type="password"
-            placeholder="password"
+            placeholder={e('password')}
           />
         )}
       </FormItem>
@@ -172,7 +174,7 @@ export default class SshForm extends React.Component {
     return [
       <FormItem
         {...formItemLayout}
-        label="privateKey"
+        label={e('privateKey')}
         hasFeedback
         key="privateKey"
         className="mg1b"
@@ -184,7 +186,7 @@ export default class SshForm extends React.Component {
           initialValue: privateKey
         })(
           <TextArea
-            placeholder="private key string"
+            placeholder={e('privateKeyDesc')}
             rows={2}
           />
         )}
@@ -196,14 +198,14 @@ export default class SshForm extends React.Component {
           <Button
             type="ghost"
           >
-            import from file
+            {e('importFromFile')}
           </Button>
         </Upload>
       </FormItem>,
       <FormItem
         key="passphrase"
         {...formItemLayout}
-        label="passphrase"
+        label={e('passphrase')}
         hasFeedback
       >
         {getFieldDecorator('passphrase', {
@@ -214,7 +216,7 @@ export default class SshForm extends React.Component {
         })(
           <Input
             type="password"
-            placeholder="passphrase for privateKey"
+            placeholder={e('passphraseDesc')}
           />
         )}
       </FormItem>
@@ -235,7 +237,7 @@ export default class SshForm extends React.Component {
       <Form onSubmit={this.handleSubmit} className="form-wrap">
         <FormItem
           {...formItemLayout}
-          label="host"
+          label={e('host')}
           hasFeedback
         >
           {getFieldDecorator('host', {
@@ -251,7 +253,7 @@ export default class SshForm extends React.Component {
         </FormItem>
         <FormItem
           {...formItemLayout}
-          label="username"
+          label={e('username')}
           hasFeedback
         >
           {getFieldDecorator('username', {
@@ -274,7 +276,7 @@ export default class SshForm extends React.Component {
                 authTypes.map(t => {
                   return (
                     <RadioButton value={t} key={t}>
-                      {t}
+                      {e(t)}
                     </RadioButton>
                   )
                 })
@@ -285,7 +287,7 @@ export default class SshForm extends React.Component {
         {this.renderAuth()}
         <FormItem
           {...formItemLayout}
-          label="port"
+          label={e('port')}
           hasFeedback
         >
           {getFieldDecorator('port', {
@@ -295,7 +297,7 @@ export default class SshForm extends React.Component {
             initialValue: port
           })(
             <InputNumber
-              placeholder="port"
+              placeholder={e('port')}
               min={1}
               max={65535}
               step={1}
@@ -304,7 +306,7 @@ export default class SshForm extends React.Component {
         </FormItem>
         <FormItem
           {...formItemLayout}
-          label="title"
+          label={e('title')}
           hasFeedback
         >
           {getFieldDecorator('title', {
@@ -319,23 +321,23 @@ export default class SshForm extends React.Component {
               type="primary"
               htmlType="submit"
               className="mg1r"
-            >save and connect</Button>
+            >{e('saveAndConnect')}</Button>
             <Button
               type="ghost"
               className="mg1r"
               onClick={() => this.handleSubmit('save')}
-            >save</Button>
+            >{e('save')}</Button>
             <Button
               type="ghost"
               onClick={this.handleSubmit}
               className="mg2r"
-            >connect</Button>
+            >{e('connect')}</Button>
           </p>
           <p>
             <Button
               type="ghost"
               onClick={e => this.handleSubmit(e, true)}
-            >test connection</Button>
+            >{e('testConnection')}</Button>
           </p>
         </FormItem>
       </Form>
