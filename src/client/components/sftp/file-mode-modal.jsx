@@ -26,8 +26,19 @@ export default class FileMode extends React.Component {
       !_.isEqual(nextProps.file, this.props.file)
     ) {
       this.setState({
-        file: nextProps.file
+        file: this.addPermission(nextProps.file)
       })
+    }
+  }
+
+  addPermission = file => {
+    let perms = mode2permission(file.mode)
+    let permission = permission2mode(perms)
+    let mode = new Number('0o' + '10' + permission)
+    return {
+      ...file,
+      permission,
+      mode
     }
   }
 
@@ -51,15 +62,18 @@ export default class FileMode extends React.Component {
     })
   }
 
+  onSubmit = () => {
+    this.props.changeFileMode(
+      this.state.file
+    )
+  }
+
   renderFooter() {
+    
     return (
       <Button
         type="primary"
-        onClick={
-          () => this.props.changeFileMode(
-            this.state.file
-          )
-        }
+        onClick={this.onSubmit}
       >
         submit
       </Button>
@@ -97,7 +111,7 @@ export default class FileMode extends React.Component {
       width: 500,
       title: 'edit ' + iconType + ' permission',
       footer: this.renderFooter(),
-      onClose
+      onCancel: onClose
     }
     let fp = resolve(path, name)
     let ffp = type === 'local'
