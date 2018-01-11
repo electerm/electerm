@@ -4,10 +4,11 @@ import {getLatestReleaseInfo} from '../../common/update-check'
 import compare from '../../common/version-compare'
 import Link from '../common/external-link'
 
-const {getGlobal} = window
+const {getGlobal, prefix} = window
 let {
   homepage
 } = getGlobal('packInfo')
+const e = prefix('updater')
 
 export default class FileMode extends React.Component {
 
@@ -38,8 +39,8 @@ export default class FileMode extends React.Component {
       this.showUpdateInfo(releaseInfo)
     } else if (this.props.shouldCheckUpdate) {
       notification.info({
-        message: 'no need to update',
-        description: 'you are using the latest release',
+        message: e('noNeed'),
+        description: e('noNeedDesc'),
         duration: 5
       })
     }
@@ -47,7 +48,7 @@ export default class FileMode extends React.Component {
 
   notifyUpdateFail() {
     notification.info({
-      message: 'check update fails',
+      message: e('fail'),
       description: (
         <div>
           you can visit
@@ -55,7 +56,7 @@ export default class FileMode extends React.Component {
             to={homepage}
             className="mg1x"
           >{homepage}</Link>
-          to check latest release
+          {e('fail')}
         </div>
       ),
       duration: 10
@@ -67,14 +68,14 @@ export default class FileMode extends React.Component {
     let description = (
       <div>
         <p className="pd1b wordbreak">
-          go get it!
+          {e('goGetIt')}
           <Link to={html_url} className="mg1l">{homepage}</Link>
         </p>
       </div>
     )
     notification.info({
       message: (
-        <p className="pd1b">new version found <b>{tag_name}</b></p>
+        <p className="pd1b">{e('newVersion')} <b>{tag_name}</b></p>
       ),
       description,
       duration: 15

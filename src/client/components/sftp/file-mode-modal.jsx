@@ -10,6 +10,8 @@ import _ from 'lodash'
 import {mode2permission, permission2mode} from '../../common/mode2permission'
 import renderPermission from './permission-render'
 
+const {prefix} = window
+const e = prefix('sftp')
 const formatTime = time => {
   return moment(time).format()
 }
@@ -61,7 +63,7 @@ export default class FileMode extends React.Component {
           )
         }
       >
-        submit
+        {e('submit')}
       </Button>
     )
   }
@@ -95,7 +97,7 @@ export default class FileMode extends React.Component {
     let ps = {
       visible,
       width: 500,
-      title: 'edit ' + iconType + ' permission',
+      title: `${e('edit')} ` + iconType + ` ${e('permission')}`,
       footer: this.renderFooter(),
       onClose
     }
@@ -114,9 +116,9 @@ export default class FileMode extends React.Component {
         <div className="file-props-wrap relative">
           <Icon type={iconType} className="file-icon" />
           <div className="file-props">
-            <p className="bold">{iconType} name:</p>
+            <p className="bold">{iconType} {e('name')}:</p>
             <p className="pd1b">{name}</p>
-            <p className="bold">mode: ({permission})</p>
+            <p className="bold">{e('mode')}: ({permission})</p>
             <div className="pd1b">
               {
                 perms.map((perm) => {
@@ -127,13 +129,13 @@ export default class FileMode extends React.Component {
                 })
               }
             </div>
-            <p className="bold">full path:</p>
+            <p className="bold">{e('fullPath')}:</p>
             <p className="pd1b">{ffp}</p>
-            <p className="bold">size:</p>
+            <p className="bold">{e('size')}:</p>
             <p className="pd1b">{size}</p>
-            <p className="bold">access time:</p>
+            <p className="bold">{e('accessTime')}:</p>
             <p className="pd1b">{formatTime(accessTime)}</p>
-            <p className="bold">modify time:</p>
+            <p className="bold">{e('modifyTime')}:</p>
             <p className="pd1b">{formatTime(modifyTime)}</p>
           </div>
         </div>

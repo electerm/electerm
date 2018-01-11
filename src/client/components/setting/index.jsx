@@ -3,7 +3,8 @@ import React from 'react'
 import {message, Select, InputNumber, Alert, Button} from 'antd'
 
 const {Option} = Select
-const {getGlobal} = window
+const {getGlobal, prefix} = window
+const e = prefix('setting')
 const modifiers = [
   'Command',
   'Control',
@@ -69,11 +70,11 @@ export default class Setting extends React.Component {
       const changeHotkey = getGlobal('changeHotkey')
       let res = changeHotkey(ext.hotkey)
       if (!res) {
-        message.warn('hotkey can not be registe, please use another one')
+        message.warn(e('hotkeyNotOk'))
         update.config.hotkey = config.hotkey
         ext.hotkey = config.hotkey
       } else {
-        message.success('saved')
+        message.success(e('saved'))
       }
     }
     saveUserConfig && saveUserConfig(ext)
@@ -95,12 +96,12 @@ export default class Setting extends React.Component {
         <Alert
           message={
             <div>
-              saved, restart to take effect
+              {e('saveLang')}
               <Button
                 onClick={this.restart}
                 className="mg1l"
               >
-                restart now
+                {e('restartNow')}
               </Button>
             </div>
           }
@@ -117,7 +118,7 @@ export default class Setting extends React.Component {
     return (
       <div className="form-wrap pd1y pd2x">
         <h3>settings</h3>
-        <div className="pd1b">system hotkey(bring window back to front)</div>
+        <div className="pd1b">{e('hotkeyDesc')}</div>
         <div className="pd2b">
           <Select
             value={modifier}
@@ -141,7 +142,7 @@ export default class Setting extends React.Component {
             }
           </Select>
         </div>
-        <div className="pd1b">ssh timeout(in millisecond)</div>
+        <div className="pd1b">{e('timeoutDesc')}</div>
         <div className="pd2b">
           <InputNumber
             onChange={this.onChangeTimeout}
@@ -150,7 +151,7 @@ export default class Setting extends React.Component {
             value={sshReadyTimeout}
           />
         </div>
-        <div className="pd1b">language</div>
+        <div className="pd1b">{e('language')}</div>
         <div className="pd2b">
           <Select
             onChange={this.onChangeLang}

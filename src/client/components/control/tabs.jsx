@@ -11,6 +11,8 @@ import './tabs.styl'
 import {tabWidth, tabMargin} from '../../common/constants'
 import createName from '../../common/create-title'
 
+const {prefix} = window
+const e = prefix('tabs')
 const ButtonGroup = Button.Group
 const MenuItem = Menu.Item
 const extraWidth = 113
@@ -87,7 +89,7 @@ export default class Tabs extends React.Component {
     return (
       <Icon
         type="plus-circle-o"
-        title="open new terminal"
+        title={e('openNewTerm')}
         className="pointer tabs-add-btn font16"
         onClick={this.props.onAdd}
       />

@@ -6,6 +6,10 @@ import {Icon, Modal, Tabs, Button, Tag} from 'antd'
 import Link from '../common/external-link'
 import _ from 'lodash'
 
+const {prefix} = window
+const e = prefix('control')
+const m = prefix('menu')
+
 const {TabPane} = Tabs
 
 export default function({
@@ -42,14 +46,14 @@ export default function({
   let logoPath = cdn + '/_bc/electerm-resource/res/imgs/' +
     (Math.random() > 0.5 ? 'electerm-round-128x128.png' : 'electerm.png')
   Modal.info({
-    title: 'about ' + name,
+    title: `${m('about')} ` + name,
     width: window.innerWidth - 100,
     maskClosable: true,
     okText: 'OK',
     content: (
       <div className="about-wrap">
         <Tabs defaultActiveKey="1">
-          <TabPane tab="about" key="1">
+          <TabPane tab={m('about')} key="1">
             <div className="pd2y aligncenter">
               <img src={logoPath} className="iblock mwm-100" />
             </div>
@@ -59,19 +63,19 @@ export default function({
             </h1>
             <p className="mg1b">{description}</p>
             <p className="mg1b">
-              <b className="mg1r">author:</b>
+              <b className="mg1r">{e('author')}:</b>
               <Link to={authorUrl} className="mg1l">
                 {authorName} ({email})
               </Link>
             </p>
             <p className="mg1b">
-              <b>homepage:</b>
+              <b>{e('homepage')}:</b>
               <Link to={homepage} className="mg1l">
                 <Icon type="home" /> {homepage}
               </Link>
             </p>
             <p className="mg1b">
-              <b className="mg1r">download:</b>
+              <b className="mg1r">{e('download')}:</b>
               <Link to={homepage} className="mg1l">
                 <Icon type="github" /> {homepage}
               </Link>
@@ -83,7 +87,7 @@ export default function({
               </Link>
             </p>
             <p className="mg1b">
-              <b className="mg1r">bug report:</b>
+              <b className="mg1r">{e('bugReport')}:</b>
               <Link to={bugReportLink} className="mg1l">
                 <Icon type="github" /> {bugReportLink}
               </Link>
@@ -94,11 +98,11 @@ export default function({
                 loading={onCheckUpdating}
                 onClick={onCheckUpdate}
               >
-                check for update
+                {e('checkForUpdate')}
               </Button>
             </p>
           </TabPane>
-          <TabPane tab="user tips" key="0">
+          <TabPane tab={e('userTips')} key="0">
             <ul>
               <li className="pd1b">
                 <span className="bold color-red">double click</span> a ssh tab will duplicate a same tab, and enter same path as original tab(limited support)
@@ -114,7 +118,7 @@ export default function({
               </li>
             </ul>
           </TabPane>
-          <TabPane tab="dependencies" key="4">
+          <TabPane tab={e('dependencies')} key="4">
             {
               Object.keys(deps).map((k, i) => {
                 let v = deps[k]
@@ -129,7 +133,7 @@ export default function({
               })
             }
           </TabPane>
-          <TabPane tab="env" key="3">
+          <TabPane tab={e('env')} key="3">
             {
               Object.keys(env).map((k, i) => {
                 let v = env[k]
@@ -145,7 +149,7 @@ export default function({
             }
             }
           </TabPane>
-          <TabPane tab="os" key="2">
+          <TabPane tab={e('os')} key="2">
             {
               Object.keys(os).map((k, i) => {
                 let vf = os[k]

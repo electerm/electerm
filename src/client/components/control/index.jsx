@@ -8,11 +8,14 @@ import _ from 'lodash'
 import {statusMap, settingMap} from '../../common/constants'
 import './control.styl'
 
+const {prefix} = window
+const e = prefix('control')
+
 const defaultStatus = statusMap.processing
-const newTerm = () => ({
+export const newTerm = () => ({
   id: generate(),
   status: defaultStatus,
-  title: 'new terminal'
+  title: e('newTerminal')
 })
 
 export default class IndexControl extends React.Component {

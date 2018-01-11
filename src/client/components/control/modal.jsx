@@ -13,11 +13,11 @@ import {settingMap} from '../../common/constants'
 const props = ['tab', 'item']
 const {TabPane} = Tabs
 const getInitItem = (arr, tab) => {
-  if (tab === 'history') {
+  if (tab === settingMap.history) {
     return arr[0] || {}
-  } else if (tab === 'bookmarks') {
+  } else if (tab === settingMap.bookmarks) {
     return {id: ''}
-  } else if (tab === 'setting') {
+  } else if (tab === settingMap.setting) {
     return {id: ''}
   }
 }
