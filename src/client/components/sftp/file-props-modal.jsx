@@ -46,7 +46,7 @@ export default function FileProps (props) {
     width: 500,
     title: iconType + ` ${e('attributes')}`,
     footer: null,
-    onClose
+    onCancel: onClose
   }
   let fp = resolve(path, name)
   let ffp = type === 'local'
