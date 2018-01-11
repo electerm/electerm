@@ -13,7 +13,6 @@ let path = (isDev
   : '') +
   '../node_modules/electerm-locales/locales'
 let localeFolder = resolve(__dirname, path)
-let lang
 
 //languages array
 const langs = fs.readdirSync(localeFolder)
@@ -31,20 +30,32 @@ const langMap = langs.reduce((prev, l) => {
   return prev
 }, {})
 
-let language = userConfig.language || defaultLang
-exports.lang = require(langMap[language].path)
+const getLang = () => {
+  if (userConfig.language) {
+    return userConfig.language
+  }
+  let languageEnv = process.env.LANGUAGE.toLowerCase()
+  if (langMap[languageEnv]) {
+    return languageEnv
+  }
+  return defaultLang
+}
+
+let language = getLang()
+
+exports.lang = require(langMap[language].path).lang
 
 /**
  * string translate
  * @param {string} id eg: 'menu.cut'
  */
 exports.e = id => {
-  return _.get(lang, id) || id
+  return _.get(exports.lang, id) || id
 }
 
 exports.prefix = prefix => {
   return (id) => {
-    return _.get(lang, `${prefix}.${id}`) || id
+    return _.get(exports.lang, `${prefix}.${id}`) || id
   }
 }
 

@@ -1,6 +1,6 @@
 
 import React from 'react'
-import {message, Select, InputNumber} from 'antd'
+import {message, Select, InputNumber, Alert, Button} from 'antd'
 
 const {Option} = Select
 const {getGlobal} = window
@@ -18,6 +18,14 @@ const keys = [
 ]
 
 export default class Setting extends React.Component {
+
+  state = {
+    languageChanged: false
+  }
+
+  restart = () => {
+    getGlobal('restart')()
+  }
 
   onChangeModifier = modifier => {
     let {hotkey} = this.props.config
@@ -38,6 +46,15 @@ export default class Setting extends React.Component {
     let modifier = hotkey.split('+')[0]
     return this.saveConfig({
       hotkey: `${modifier}+${key}`
+    })
+  }
+
+  onChangeLang = language => {
+    this.setState({
+      languageChanged: true
+    })
+    return this.saveConfig({
+      language
     })
   }
 
@@ -69,8 +86,33 @@ export default class Setting extends React.Component {
     )
   }
 
+  renderLanguageChangeTip = () => {
+    if (!this.state.languageChanged) {
+      return null
+    }
+    return (
+      <div className="pd1t">
+        <Alert
+          message={
+            <div>
+              saved, restart to take effect
+              <Button
+                onClick={this.restart}
+                className="mg1l"
+              >
+                restart now
+              </Button>
+            </div>
+          }
+          type="success"
+        />
+      </div>
+    )
+  }
+
   render() {
-    let {hotkey, sshReadyTimeout} = this.props.config
+    let {hotkey, sshReadyTimeout, language} = this.props.config
+    let langs = getGlobal('langs')
     let [modifier, key] = hotkey.split('+')
     return (
       <div className="form-wrap pd1y pd2x">
@@ -108,6 +150,23 @@ export default class Setting extends React.Component {
             value={sshReadyTimeout}
           />
         </div>
+        <div className="pd1b">language</div>
+        <div className="pd2b">
+          <Select
+            onChange={this.onChangeLang}
+            value={language}
+          >
+            {
+              langs.map(l => {
+                let {id, name} = l
+                return (
+                  <Option key={id} value={id}>{name}</Option>
+                )
+              })
+            }
+          </Select>
+        </div>
+        {this.renderLanguageChangeTip()}
       </div>
     )
   }

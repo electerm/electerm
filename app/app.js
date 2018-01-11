@@ -20,7 +20,7 @@ const menu = require('./lib/menu')
 const {setWin} = require('./lib/win')
 const log = require('electron-log')
 const {testConnection} = require('./lib/terminal')
-const {saveLangConfig, lang} = require('./lib/locales')
+const {saveLangConfig, lang, langs} = require('./lib/locales')
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -93,7 +93,12 @@ async function createWindow () {
     closeApp: () => {
       win.close()
     },
+    restart: () => {
+      win.close()
+      app.relaunch()
+    },
     lang,
+    langs,
     packInfo,
     os,
     saveUserConfig,

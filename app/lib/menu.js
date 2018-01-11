@@ -12,56 +12,56 @@ const template = [
   {
     label: e('edit'),
     submenu: [
-      {role: 'undo'},
-      {role: 'redo'},
+      {role: 'undo', label: e('undo')},
+      {role: 'redo', label: e('redo')},
       {type: 'separator'},
-      {role: 'cut'},
-      {role: 'copy'},
-      {role: 'paste'},
-      {role: 'pasteandmatchstyle'},
-      {role: 'delete'},
-      {role: 'selectall'}
+      {role: 'cut', label: e('cut')},
+      {role: 'copy', label: e('copy')},
+      {role: 'paste', label: e('paste')},
+      {role: 'pasteandmatchstyle', label: e('pasteandmatchstyle')},
+      {role: 'delete', label: e('del')},
+      {role: 'selectall', label: e('selectall')}
     ]
   },
   {
-    label: 'View',
+    label: e('view'),
     submenu: [
-      {role: 'reload'},
-      {role: 'forcereload'},
-      {role: 'toggledevtools'},
+      {role: 'reload', label: e('reload')},
+      {role: 'forcereload', label: e('forcereload')},
+      {role: 'toggledevtools', label: e('toggledevtools')},
       {type: 'separator'},
-      {role: 'resetzoom'},
-      {role: 'zoomin'},
-      {role: 'zoomout'},
+      {role: 'resetzoom', label: e('resetzoom')},
+      {role: 'zoomin', label: e('zoomin')},
+      {role: 'zoomout', label: e('zoomout')},
       {type: 'separator'},
-      {role: 'togglefullscreen'}
+      {role: 'togglefullscreen', label: e('togglefullscreen')}
     ]
   },
   {
-    role: 'window',
+    role: e('window'),
     submenu: [
-      {role: 'minimize'},
-      {role: 'close'}
+      {role: 'minimize', label: e('minimize')},
+      {role: 'close', label: e('close')}
     ]
   },
   {
     role: 'help',
-    label: 'help',
+    label: e('help'),
     submenu: [
       {
-        label: 'about',
+        label: e('about'),
         click () {
           require('./win').win.webContents.send('open-about', null)
         }
       },
       {
-        label: 'check update',
+        label: e('checkUpdate'),
         click() {
           require('./win').win.webContents.send('checkupdate', null)
         }
       },
       {
-        label: 'report issue',
+        label: e('reportIssue'),
         click () {
           shell
             .openExternal('https://github.com/electerm/electerm/issues/new')
@@ -75,7 +75,7 @@ const template = [
         }
       },
       {
-        label: 'homepage',
+        label: e('homepage'),
         click () {
           shell
             .openExternal(packInfo.homepage)
@@ -91,11 +91,11 @@ if (process.platform === 'darwin') {
     submenu: [
       {role: 'services', submenu: []},
       {type: 'separator'},
-      {role: 'hide'},
-      {role: 'hideothers'},
-      {role: 'unhide'},
+      {role: 'hide', label: e('hide')},
+      {role: 'hideothers', label: e('hideothers')},
+      {role: 'unhide', label: e('unhide')},
       {type: 'separator'},
-      {role: 'quit'}
+      {role: 'quit', label: e('quit')}
     ]
   })
 
@@ -105,19 +105,19 @@ if (process.platform === 'darwin') {
     {
       label: 'Speech',
       submenu: [
-        {role: 'startspeaking'},
-        {role: 'stopspeaking'}
+        {role: 'startspeaking', label: e('startspeaking')},
+        {role: 'stopspeaking', label: e('stopspeaking')}
       ]
     }
   )
 
   // Window menu
   template[3].submenu = [
-    {role: 'close'},
-    {role: 'minimize'},
-    {role: 'zoom'},
+    {role: 'close', label: e('close')},
+    {role: 'minimize', label: e('minimize')},
+    {role: 'zoom', label: e('zoom')},
     {type: 'separator'},
-    {role: 'front'}
+    {role: 'front', label: e('front')}
   ]
 }
 
