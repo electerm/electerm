@@ -5,10 +5,12 @@ const {app, Menu, shell} = require('electron')
 let {NODE_ENV} = process.env
 const isDev = NODE_ENV === 'development'
 const packInfo = require(isDev ? '../../package.json' : '../package.json')
+const {prefix} = require('./locales')
+const e = prefix('menu')
 
 const template = [
   {
-    label: 'Edit',
+    label: e('edit'),
     submenu: [
       {role: 'undo'},
       {role: 'redo'},

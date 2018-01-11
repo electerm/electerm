@@ -11,7 +11,7 @@ const {runServer, quitServer} = require('./lib/server')
 const os = require('os')
 const {resolve} = require('path')
 const Ftp = require('./lib/sftp')
-const {saveUserConfig} = require('./lib/user-config-controller')
+const {saveUserConfig, userConfig} = require('./lib/user-config-controller')
 const {init, changeHotkeyReg} = require('./lib/shortcut')
 const fsExport = require('./lib/fs')
 const ls = require('./lib/ls')
@@ -20,10 +20,12 @@ const menu = require('./lib/menu')
 const {setWin} = require('./lib/win')
 const log = require('electron-log')
 const {testConnection} = require('./lib/terminal')
+const {saveLangConfig, lang} = require('./lib/locales')
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let win
+let timer
 let {NODE_ENV} = process.env
 const isDev = NODE_ENV === 'development'
 const packInfo = require(isDev ? '../package.json' : './package.json')
@@ -34,6 +36,7 @@ const iconPath = resolve(
 )
 
 function onClose() {
+  clearTimeout(timer)
   win = null
   setWin(win)
   quitServer()
@@ -90,12 +93,16 @@ async function createWindow () {
     closeApp: () => {
       win.close()
     },
+    lang,
     packInfo,
     os,
     saveUserConfig,
     changeHotkey: changeHotkeyReg(globalShortcut, win)
   })
 
+  timer = setTimeout(() => {
+    saveLangConfig(saveUserConfig, userConfig)
+  }, 100)
 
   let opts = `http://localhost:${config.port}/index.html`
   if (isDev) {
