@@ -168,19 +168,15 @@ export default class Sftp extends React.Component {
   }
 
   delFiles = async (_type, files = this.state.selectedFiles) => {
-    try {
-      let type = files[0].type || _type
-      let func = this[type + 'Del']
-      for (let f of files) {
-        await func(f)
-      }
-      if (type === typeMap.remote) {
-        await wait(500)
-      }
-      this[type + 'List']()
-    } catch(e) {
-      this.props.onError(e)
+    let type = files[0].type || _type
+    let func = this[type + 'Del']
+    for (let f of files) {
+      await func(f)
     }
+    if (type === typeMap.remote) {
+      await wait(500)
+    }
+    this[type + 'List']()
   }
 
   renderDelConfirmTitle(files = this.state.selectedFiles) {
