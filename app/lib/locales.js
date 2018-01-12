@@ -34,7 +34,7 @@ const getLang = () => {
   if (userConfig.language) {
     return userConfig.language
   }
-  let languageEnv = process.env.LANGUAGE.toLowerCase()
+  let languageEnv = (_.get(process.env, 'LANGUAGE') || '').toLowerCase()
   if (langMap[languageEnv]) {
     return languageEnv
   }
