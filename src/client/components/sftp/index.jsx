@@ -153,7 +153,7 @@ export default class Sftp extends React.Component {
       ? fs.unlinkAsync
       : fs.rmrf
     let p = resolve(localPath, name)
-    await func(p)
+    await func(p).catch(this.props.onError)
   }
 
   remoteDel = async (file) => {
@@ -164,7 +164,7 @@ export default class Sftp extends React.Component {
       ? sftp.rmdir
       : sftp.rm
     let p = resolve(remotePath, name)
-    await func(p)
+    await func(p).catch(this.props.onError)
   }
 
   delFiles = async (_type, files = this.state.selectedFiles) => {
