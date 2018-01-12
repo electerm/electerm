@@ -829,7 +829,11 @@ export default class FileSection extends React.Component {
 
   onContextMenu = e => {
     e.preventDefault()
-    let {id} = this.props.file
+    let {file} = this.state
+    let {id} = file
+    this.props.modifier({
+      lastClickedFile: file
+    })
     let content = this.renderContext()
     let height = content.props.children.filter(_.identity)
       .length * contextMenuHeight + contextMenuPaddingTop * 2
