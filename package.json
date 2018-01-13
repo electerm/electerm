@@ -1,7 +1,7 @@
 {
   "name": "electerm",
   "version": "0.14.0",
-  "description": "terminal/ssh/sftp client(mac, win, linux) based on electron/node-pty/xterm and more",
+  "description": "terminal/ssh/sftp client(linux, mac, win) based on electron/node-pty/xterm and other libs",
   "main": "app.js",
   "scripts": {
     "dev": "cd app && NODE_ENV=development ../node_modules/.bin/electron ./app",
@@ -113,8 +113,8 @@
     "bluebird": "3.5.1",
     "body-parser": "1.18.2",
     "cors": "2.8.4",
-    "electerm-resource": "1.1.2",
     "electerm-locales": "0.0.1",
+    "electerm-resource": "1.1.2",
     "electron-context-menu": "0.9.1",
     "electron-log": "2.2.13",
     "express": "4.16.2",
@@ -124,6 +124,7 @@
     "lodash": "4.17.4",
     "moment": "2.20.1",
     "node-pty": "0.7.4",
+    "os-locale": "2.1.0",
     "react": "16.2.0",
     "react-dom": "16.2.0",
     "recursive-assign": "0.2.0",
