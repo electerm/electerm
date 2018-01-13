@@ -7,6 +7,7 @@ const fs = require('fs')
 const _ = require('lodash')
 const {resolve} = require('path')
 const {userConfig} = require('./user-config-controller')
+const {sync} = require('os-locale')
 
 let path = (isDev
   ? '../'
@@ -34,11 +35,7 @@ const getLang = () => {
   if (userConfig.language) {
     return userConfig.language
   }
-  let languageEnv = process.env.LANGUAGE.toLowerCase()
-  if (langMap[languageEnv]) {
-    return languageEnv
-  }
-  return defaultLang
+  return sync().toLowerCase() || defaultLang
 }
 
 let language = getLang()
