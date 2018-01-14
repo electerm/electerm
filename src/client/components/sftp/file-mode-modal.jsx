@@ -111,7 +111,7 @@ export default class FileMode extends React.Component {
     let ps = {
       visible,
       width: 500,
-      title: `${e('edit')} ` + iconType + ` ${e('permission')}`,
+      title: `${e('edit')} ` + e(iconType) + ` ${e('permission')}`,
       footer: this.renderFooter(),
       onCancel: onClose
     }
@@ -130,7 +130,7 @@ export default class FileMode extends React.Component {
         <div className="file-props-wrap relative">
           <Icon type={iconType} className="file-icon" />
           <div className="file-props">
-            <p className="bold">{iconType} {e('name')}:</p>
+            <p className="bold">{e(iconType)} {e('name')}:</p>
             <p className="pd1b">{name}</p>
             <p className="bold">{e('mode')}: ({permission})</p>
             <div className="pd1b">

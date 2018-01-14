@@ -117,7 +117,7 @@ export default class Setting extends React.Component {
     let [modifier, key] = hotkey.split('+')
     return (
       <div className="form-wrap pd1y pd2x">
-        <h3>settings</h3>
+        <h3>{e('settings')}</h3>
         <div className="pd1b">{e('hotkeyDesc')}</div>
         <div className="pd2b">
           <Select
