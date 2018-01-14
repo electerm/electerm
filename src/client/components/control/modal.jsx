@@ -38,7 +38,7 @@ export default class SettingModal extends React.Component {
   componentWillReceiveProps(nextProps) {
     let oldProps = _.pick(this.state, props)
     let newProps = _.pick(nextProps, props)
-    if (!_.isEqual(oldProps, newProps)) {
+    if (!_.isEqual(oldProps, newProps) && !this.state.tab) {
       this.setState(copy(newProps))
     }
   }
@@ -60,7 +60,8 @@ export default class SettingModal extends React.Component {
 
   hide = () => {
     this.setState({
-      visible: false
+      visible: false,
+      tab: ''
     })
   }
 
