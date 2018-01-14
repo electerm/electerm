@@ -59,6 +59,7 @@ export default class Sftp extends React.Component {
       selectedFiles: [],
       lastClickedFile: null,
       pathFix: '',
+      onDrag: false,
       filesToConfirm: []
     }
   }
@@ -554,7 +555,7 @@ export default class Sftp extends React.Component {
 
   renderSection(type) {
     let {
-      id
+      id, onDrag
     } = this.state
     let n = `${type}PathTemp`
     let path = this.state[n]
@@ -612,6 +613,7 @@ export default class Sftp extends React.Component {
               <DragSelect
                 targetSelector={`#${id} .sftp-item.${type}`}
                 wrapperSelector={`#${id} .file-list.${type}`}
+                onDrag={onDrag}
                 onSelect={(ids, e) => this.onDragSelect(ids, e, type)}
               />
             </div>
