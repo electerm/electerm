@@ -35,7 +35,7 @@ const getLang = () => {
   if (userConfig.language) {
     return userConfig.language
   }
-  return sync().toLowerCase() || defaultLang
+  return (process.env.LANGUAGE || sync()).toLowerCase() || defaultLang
 }
 
 let language = getLang()
