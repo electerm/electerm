@@ -178,6 +178,9 @@ export default class FileSection extends React.Component {
   }
 
   onDragStart = e => {
+    this.props.modifier({
+      onDrag: true
+    })
     e.dataTransfer.setData('fromFile', JSON.stringify(this.props.file))
   }
 
@@ -228,6 +231,9 @@ export default class FileSection extends React.Component {
   }
 
   onDragEnd = e => {
+    this.props.modifier({
+      onDrag: false
+    })
     removeClass(this.dom, onDragCls)
     document.querySelectorAll('.' + onDragOverCls).forEach((d) => {
       removeClass(d, onDragOverCls)
