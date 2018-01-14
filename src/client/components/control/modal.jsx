@@ -10,6 +10,9 @@ import Setting from '../setting'
 import copy from 'json-deep-copy'
 import {settingMap} from '../../common/constants'
 
+const {prefix} = window
+const e = prefix('setting')
+const m = prefix('common')
 const props = ['tab', 'item']
 const {TabPane} = Tabs
 const getInitItem = (arr, tab) => {
@@ -82,12 +85,12 @@ export default class SettingModal extends React.Component {
     let list = copy(this.props[tab]) || []
     if (tab === settingMap.bookmarks) {
       list.unshift({
-        title: 'new',
+        title: e('new'),
         id: ''
       })
     } else if (tab === settingMap.setting) {
       list.unshift({
-        title: 'common',
+        title: e('common'),
         id: ''
       })
     }
@@ -112,7 +115,7 @@ export default class SettingModal extends React.Component {
         onChange={this.onChangeTab}
       >
         <TabPane
-          tab={settingMap.history}
+          tab={m(settingMap.history)}
           key={settingMap.history}
         >
           <Row>
@@ -129,14 +132,14 @@ export default class SettingModal extends React.Component {
                       {...formProps}
                     />
                   )
-                  : <div className="form-wrap pd2 aligncenter">no history</div>
+                  : <div className="form-wrap pd2 aligncenter">c('notFoundContent')</div>
               }
 
             </Col>
           </Row>
         </TabPane>
         <TabPane
-          tab={settingMap.bookmarks}
+          tab={m(settingMap.bookmarks)}
           key={settingMap.bookmarks}
         >
           <Row>
@@ -153,7 +156,7 @@ export default class SettingModal extends React.Component {
           </Row>
         </TabPane>
         <TabPane
-          tab={settingMap.setting}
+          tab={m(settingMap.setting)}
           key={settingMap.setting}
         >
           <Row>

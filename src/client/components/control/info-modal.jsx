@@ -77,7 +77,7 @@ export default function({
             <p className="mg1b">
               <b className="mg1r">{e('download')}:</b>
               <Link to={homepage} className="mg1l">
-                <Icon type="github" /> {homepage}
+                <Icon type="download" /> {homepage}
               </Link>
             </p>
             <p className="mg1b">

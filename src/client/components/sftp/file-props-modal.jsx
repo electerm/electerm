@@ -44,7 +44,7 @@ export default function FileProps (props) {
   let ps = {
     visible,
     width: 500,
-    title: iconType + ` ${e('attributes')}`,
+    title: e(iconType) + ` ${e('attributes')}`,
     footer: null,
     onCancel: onClose
   }
