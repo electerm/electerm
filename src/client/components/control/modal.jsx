@@ -12,7 +12,6 @@ import {settingMap} from '../../common/constants'
 
 const {prefix} = window
 const e = prefix('setting')
-const c = prefix('control')
 const m = prefix('common')
 const props = ['tab', 'item']
 const {TabPane} = Tabs
