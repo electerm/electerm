@@ -419,7 +419,9 @@ export default class FileSection extends React.Component {
     })
     this.onDragEnd(e)
     if (!id) {
-      return
+      return this.props.modifier({
+        selectedFiles: []
+      })
     }
     let selectedFilesOld = copy(
       this.props.selectedFiles
