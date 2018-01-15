@@ -35,7 +35,11 @@ const getLang = () => {
   if (userConfig.language) {
     return userConfig.language
   }
-  return sync().toLowerCase() || defaultLang
+  let l = sync().toLowerCase() || defaultLang
+  if (langMap[language]) {
+    return l
+  }
+  return defaultLang
 }
 
 let language = getLang()
