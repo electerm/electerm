@@ -296,6 +296,8 @@ export default class Sftp extends React.Component {
       this.doCopy(type, e)
     } else if (this.keyControlPressed(e) && e.code === 'KeyV') {
       this.doPaste(type, e)
+    } else if (e.code === 'F5') {
+      this.onGoto(type)
     }
   }
 
