@@ -22,6 +22,7 @@ import {readClipboard, copy as copyToClipboard, hasFileInClipboardText} from '..
 const {getGlobal, prefix} = window
 const e = prefix('sftp')
 const m = prefix('menu')
+const c = prefix('common')
 let fs = getGlobal('fs')
 
 const computePos = (e, isBg, height) => {
@@ -740,6 +741,8 @@ export default class FileSection extends React.Component {
           id
             ? (
               <Popconfirm
+                cancelText={c('cancel')}
+                okText={c('ok')}
                 title={this.renderDelConfirmTitle(shouldShowSelectedMenu)}
                 onConfirm={() => this.del(shouldShowSelectedMenu)}
               >
