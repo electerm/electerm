@@ -38,7 +38,8 @@ const template = [
     ]
   },
   {
-    role: e('window'),
+    role: 'window',
+    label: e('window'),
     submenu: [
       {role: 'minimize', label: e('minimize')},
       {role: 'close', label: e('close')}
@@ -79,6 +80,12 @@ const template = [
         click () {
           shell
             .openExternal(packInfo.homepage)
+        }
+      },
+      {
+        label: 'toggle developer tool',
+        click() {
+          require('./win').win.webContents.openDevTools()
         }
       }
     ]
