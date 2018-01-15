@@ -83,7 +83,7 @@ const template = [
         }
       },
       {
-        label: 'toggle developer tool',
+        label: e('toggledevtools'),
         click() {
           require('./win').win.webContents.openDevTools()
         }

@@ -86,12 +86,6 @@ export default function Btns(props) {
       </div>
       <div className="fright line-height28">
         <Icon
-          type="reload"
-          className="pointer mg1x font14"
-          title={m('reload')}
-          onClick={() => location.reload()}
-        />
-        <Icon
           type="info-circle-o"
           title={m('about')}
           className="pointer mg1l mg2r font14"
