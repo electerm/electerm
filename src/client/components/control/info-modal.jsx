@@ -9,7 +9,7 @@ import _ from 'lodash'
 const {prefix} = window
 const e = prefix('control')
 const m = prefix('menu')
-
+const c = prefix('common')
 const {TabPane} = Tabs
 
 export default function({
@@ -49,7 +49,7 @@ export default function({
     title: `${m('about')} ` + name,
     width: window.innerWidth - 100,
     maskClosable: true,
-    okText: 'OK',
+    okText: c('ok'),
     content: (
       <div className="about-wrap">
         <Tabs defaultActiveKey="1">
