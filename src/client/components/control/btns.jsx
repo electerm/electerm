@@ -70,7 +70,7 @@ export default function Btns(props) {
             })
           }
         </Select>
-        <Tooltip title="edit bookmarks">
+        <Tooltip title={`${m('edit')} ${c('bookmarks')}`}>
           <Icon
             type="edit"
             className="font16 mg1x pointer iblock"

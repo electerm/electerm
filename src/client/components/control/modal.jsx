@@ -176,7 +176,7 @@ export default class SettingModal extends React.Component {
 
   render() {
     let props = {
-      title: 'settings',
+      title: e('settings'),
       onCancel: this.hide,
       footer: null,
       width: 800,

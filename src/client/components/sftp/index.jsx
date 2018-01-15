@@ -18,6 +18,7 @@ import './sftp.styl'
 
 const {getGlobal, prefix} = window
 const e = prefix('sftp')
+const c = prefix('common')
 const fs = getGlobal('fs')
 const config = getGlobal('_config')
 
@@ -182,22 +183,25 @@ export default class Sftp extends React.Component {
 
   renderDelConfirmTitle(files = this.state.selectedFiles) {
     let hasDirectory = _.some(files, f => f.isDirectory)
-    let names = hasDirectory ? 'files/folders' : 'files'
+    let names = hasDirectory ? e('filesAndFolders') : e('files')
     return (
       <div className="wordbreak">
         {e('delTip')}
-        <b className="mg1x">{files.length}</b>{names}
+        {names}
         {
           hasDirectory
             ? e('delTip1')
             : ''
         }
+        (<b className="mg1x">{files.length}</b>)
       </div>
     )
   }
 
   onDel = (type, files) => {
     Modal.confirm({
+      cancelText: c('cancel'),
+      okText: c('ok'),
       title: this.renderDelConfirmTitle(files),
       onOk: () => this.delFiles(type, files)
     })
