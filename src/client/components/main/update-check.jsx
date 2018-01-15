@@ -64,12 +64,12 @@ export default class FileMode extends React.Component {
   }
 
   showUpdateInfo = (releaseInfo) => {
-    let {html_url, tag_name} = releaseInfo
+    let {tag_name} = releaseInfo
     let description = (
       <div>
         <p className="pd1b wordbreak">
           {e('goGetIt')}
-          <Link to={html_url} className="mg1l">{homepage}</Link>
+          <Link to={homepage} className="mg1l">{homepage}</Link>
         </p>
       </div>
     )
