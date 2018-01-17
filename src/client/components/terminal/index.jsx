@@ -51,11 +51,16 @@ export default class Term extends React.Component {
   }
 
   componentDidUpdate(prevProps) {
+    let shouldChange = prevProps.currentTabId !== this.props.currentTabId && this.props.tab.id === this.props.currentTabId
     if (
       prevProps.height !== this.props.height ||
-      prevProps.width !== this.props.width
+      prevProps.width !== this.props.width ||
+      shouldChange
     ) {
       this.onResize()
+    }
+    if (shouldChange) {
+      this.term.focus()
     }
   }
 
@@ -267,12 +272,20 @@ export default class Term extends React.Component {
     return (
       <Spin spinning={loading} wrapperClassName="loading-wrapper">
         <div
-          id={id}
           className="bg-black"
           style={{
-            height
+            height: height,
+            padding: '10px 0 10px 3px'
           }}
-        />
+        >
+          <div
+            id={id}
+            className="bg-black"
+            style={{
+              height: height - 20
+            }}
+          />
+        </div>
       </Spin>
     )
   }
