@@ -42,7 +42,12 @@ export default function init() {
   app.use(etag())
 
   //static
-  //app.use(serve(cwd + '/app/assets', staticOption()))
+  app.use(async (ctx, next) => {
+    ctx.set('Cache-Control', 'private, no-cache, no-store, must-revalidate')
+    ctx.set('Expires', '-1')
+    ctx.set('Pragma', 'no-cache')
+    await next()
+  })
   app.use(mount('/_bc', serve(cwd + '/node_modules', staticOption())))
 
   // body解析
