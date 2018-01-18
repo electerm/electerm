@@ -14,6 +14,13 @@ const happyConf = {
   threadPool: happyThreadPool,
   verbose: true
 }
+let version = '' + new Date()
+try {
+  version = require('fs').readFileSync('./version').toString()
+} catch(e) {
+  //
+  console.log(e)
+}
 // const commonsChunkPlugin = new webpack.optimize.CommonsChunkPlugin({
 //   // name: 'vender', // Move dependencies to our vender file
 //   children: true, // Look for common dependencies in all children,
@@ -21,9 +28,24 @@ const happyConf = {
 //   minChunks: 2 // How many times a dependency must come up before being extracted
 // })
 
-const extractTextPlugin = new ExtractTextPlugin({
+const extractTextPlugin1 = new ExtractTextPlugin({
   filename: 'css/[name].styles.css'
 })
+
+const extractTextPlugin2 = new ExtractTextPlugin({
+  filename: 'index.html'
+})
+
+const pug = {
+  loader: 'pug-loader',
+  options: {
+    globals: {
+      version,
+      _global: {}
+    }
+  }
+}
+
 const stylusSettingPlugin =  new webpack.LoaderOptionsPlugin({
   test: /\.styl$/,
   stylus: {
@@ -34,7 +56,8 @@ const stylusSettingPlugin =  new webpack.LoaderOptionsPlugin({
 var config = {
   entry: {
     essh: './src/client/entry/index.jsx',
-    'common-css': './src/client/entry/common-css.jsx'
+    'common-css': './src/client/entry/common-css.jsx',
+    index: './src/client/entry/html.js'
   },
   output: {
     path: __dirname + '/app/assets', // 输出文件目录
@@ -72,7 +95,7 @@ var config = {
       },
       {
         test: /\.styl$/,
-        use: ExtractTextPlugin.extract({
+        use: extractTextPlugin1.extract({
           fallback: 'style-loader',
           publicPath: '../',
           use: ['css-loader', 'stylus-loader']
@@ -80,7 +103,7 @@ var config = {
       },
       {
         test: /antd\.css$/,
-        use: ExtractTextPlugin.extract({
+        use: extractTextPlugin1.extract({
           fallback: 'style-loader',
           publicPath: '../',
           use: ['antd-icon-fix', 'css-loader']
@@ -89,6 +112,16 @@ var config = {
       {
         test: /\.(png|jpg|svg)$/,
         use: ['url-loader?limit=10192&name=images/[hash].[ext]']
+      },
+      {
+        test: /html\.js$/,
+        use: extractTextPlugin2.extract({
+          use: ['apply-loader']
+        })
+      },
+      {
+        test: /\.pug$/,
+        use: [pug]
       }
     ]
   },
@@ -98,7 +131,8 @@ var config = {
     //commonsChunkPlugin,
     stylusSettingPlugin,
     packThreadCount === 0 ? null : new HappyPack(happyConf),
-    extractTextPlugin
+    extractTextPlugin1,
+    extractTextPlugin2
   ].filter(identity),
   devServer: {
     headers: {
@@ -149,7 +183,8 @@ if (env === 'production') {
     //   name: 'manifest',
     //   minChunks: Infinity
     // }),
-    extractTextPlugin,
+    extractTextPlugin1,
+    extractTextPlugin2,
     stylusSettingPlugin,
     //new webpack.optimize.OccurenceOrderPlugin(),
     // new webpack.optimize.MinChunkSizePlugin({

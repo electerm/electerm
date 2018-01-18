@@ -93,7 +93,7 @@ export default function init() {
 
   //pug template
   new Pug({
-    viewPath: cwd + '/views',
+    viewPath: cwd + '/src/views',
     debug: !isProduction,
     pretty: !isProduction,
     compileDebug: !isProduction,
