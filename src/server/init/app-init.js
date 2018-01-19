@@ -4,7 +4,6 @@ import Bodyparser from 'koa-bodyparser'
 import logger from 'koa-logger'
 import serve from 'koa-static'
 import CONFIG from '../config'
-import router from '../routes'
 import Pug from 'koa-pug-global'
 import conditional from 'koa-conditional-get'
 import etag from 'koa-etag'
@@ -50,10 +49,9 @@ export default function init() {
   })
   app.use(mount('/_bc', serve(cwd + '/node_modules', staticOption())))
 
-  // body解析
+  // body
   app.use(bodyparser)
 
-  // 记录所用方式与时间
   if (env === 'development') {
     app.use(logger())
   }
@@ -61,7 +59,7 @@ export default function init() {
   //ua
   app.use(ua)
 
-  //全局错误处理 输出到body
+  //global error handle
   app.use(async (ctx, next) => {
     try {
       await next()
@@ -88,12 +86,12 @@ export default function init() {
     }
   })
 
-  //通用加工，获取host等
+  //common middleware
   app.use(commonMiddleware)
 
   //pug template
   new Pug({
-    viewPath: cwd + '/views',
+    viewPath: cwd + '/src/views',
     debug: !isProduction,
     pretty: !isProduction,
     compileDebug: !isProduction,
@@ -101,8 +99,6 @@ export default function init() {
     app: app // equals to pug.use(app) and app.use(pug.middleware)
   })
 
-  //路由处理
-  router(app)
 
   return app
 }
