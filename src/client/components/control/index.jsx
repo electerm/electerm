@@ -5,6 +5,7 @@ import Btns from './btns'
 import Modal from './modal'
 import {generate} from 'shortid'
 import _ from 'lodash'
+import copy from 'json-deep-copy'
 import {statusMap, settingMap} from '../../common/constants'
 import './control.styl'
 
@@ -67,22 +68,31 @@ export default class IndexControl extends React.Component {
   }
 
   onSelectBookmark = id => {
-    let item = _.find(this.props.bookmarks, it => it.id === id)
+    let {history, bookmarks} = this.props
+    let item = _.find(bookmarks, it => it.id === id)
     this.props.addTab({
       ...item,
       status: defaultStatus,
       id: generate()
     })
     item.id = generate()
-    if (!_.some(this.props.history, j => {
+
+    let existItem = _.find(history, j => {
       let keysj = Object.keys(j)
       let keysi = Object.keys(item)
       return _.isEqual(
         _.pick(item, _.without(keysi, 'id')),
         _.pick(j, _.without(keysj, 'id'))
       )
-    })) {
+    })
+    if (!existItem) {
       this.props.addItem(item, settingMap.history)
+    } else {
+      let historyNew = copy(history)
+      let index = _.findIndex(historyNew, f => f.id === existItem.id)
+      historyNew.splice(index, 1)
+      historyNew.unshift(existItem)
+      this.props.modifier({history: historyNew})
     }
   }
 
