@@ -5,7 +5,6 @@
   "main": "app.js",
   "scripts": {
     "dev": "cd app && NODE_ENV=development ../node_modules/.bin/electron ./app",
-    "gulp": "./node_modules/.bin/gulp",
     "build": "./node_modules/.bin/cross-env NODE_ENV=production ./node_modules/.bin/webpack --progress",
     "s": "./node_modules/.bin/nodemon --expose-gc --config nodemon.json ./bin/www",
     "c": "./node_modules/.bin/webpack-dev-server --progress --colors --content-base app/assets/",
@@ -44,7 +43,6 @@
   },
   "devDependencies": {
     "antd": "3.1.1",
-    "apply-loader": "2.0.0",
     "babel-cli": "6.26.0",
     "babel-core": "6.26.0",
     "babel-eslint": "8.2.1",
@@ -81,8 +79,6 @@
     "extract-text-webpack-plugin": "3.0.2",
     "file-loader": "1.1.6",
     "git-rev-sync": "1.9.1",
-    "gulp": "4.0.0",
-    "gulp-pug": "3.3.0",
     "happypack": "4.0.0",
     "html-loader": "0.5.5",
     "koa": "2.4.1",
@@ -102,8 +98,6 @@
     "png2icons": "0.9.1",
     "prop-types": "15.6.0",
     "pug-html-loader": "1.1.5",
-    "pug-loader": "2.3.0",
-    "raw-loader": "0.5.1",
     "serialize-javascript": "1.4.0",
     "shelljs": "0.7.8",
     "spectron": "3.7.2",

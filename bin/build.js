@@ -11,7 +11,6 @@ const timeStart = + new Date()
 echo('clean')
 exec('npm run clean')
 exec('npm run ver')
-exec('npm run gulp')
 exec('npm run build')
 
 const endTime = +new Date()
