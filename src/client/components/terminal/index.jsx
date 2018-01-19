@@ -6,7 +6,7 @@ import _ from 'lodash'
 import {Spin, Icon} from 'antd'
 import {statusMap} from '../../common/constants'
 import './terminal.styl'
-import {contextMenuHeight, contextMenuPaddingTop, typeMap} from '../../common/constants'
+import {contextMenuHeight, contextMenuPaddingTop, typeMap, contextMenuWidth} from '../../common/constants'
 import {readClipboard, copy} from '../../common/clipboard'
 import * as fit from 'xterm/lib/addons/fit/fit'
 import * as attach from 'xterm/lib/addons/attach/attach'
@@ -31,6 +31,9 @@ const computePos = (e, height) => {
   }
   if (window.innerHeight < res.top + height + 10) {
     res.top = res.top - height
+  }
+  if (window.innerWidth < clientX + contextMenuWidth + 10) {
+    res.left = window.innerWidth - contextMenuWidth
   }
   return res
 }
