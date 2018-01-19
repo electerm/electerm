@@ -21,25 +21,18 @@ try {
   //
   console.log(e)
 }
-// const commonsChunkPlugin = new webpack.optimize.CommonsChunkPlugin({
-//   // name: 'vender', // Move dependencies to our vender file
-//   children: true, // Look for common dependencies in all children,
-//   async: true,
-//   minChunks: 2 // How many times a dependency must come up before being extracted
-// })
 
 const extractTextPlugin1 = new ExtractTextPlugin({
   filename: 'css/[name].styles.css'
 })
-
 const extractTextPlugin2 = new ExtractTextPlugin({
   filename: 'index.html'
 })
 
 const pug = {
-  loader: 'pug-loader',
+  loader: 'pug-html-loader',
   options: {
-    globals: {
+    data: {
       version,
       _global: {}
     }
@@ -57,7 +50,7 @@ var config = {
   entry: {
     essh: './src/client/entry/index.jsx',
     'common-css': './src/client/entry/common-css.jsx',
-    index: './src/client/entry/html.js'
+    index: './src/views/index.pug'
   },
   output: {
     path: __dirname + '/app/assets', // 输出文件目录
@@ -114,14 +107,13 @@ var config = {
         use: ['url-loader?limit=10192&name=images/[hash].[ext]']
       },
       {
-        test: /html\.js$/,
-        use: extractTextPlugin2.extract({
-          use: ['apply-loader']
-        })
-      },
-      {
         test: /\.pug$/,
-        use: [pug]
+        use: [
+          'file-loader?name=index.html',
+          'extract-loader',
+          'html-loader',
+          pug
+        ]
       }
     ]
   },
@@ -131,8 +123,7 @@ var config = {
     //commonsChunkPlugin,
     stylusSettingPlugin,
     packThreadCount === 0 ? null : new HappyPack(happyConf),
-    extractTextPlugin1,
-    extractTextPlugin2
+    extractTextPlugin1
   ].filter(identity),
   devServer: {
     headers: {
