@@ -8,18 +8,21 @@ const HappyPack = require('happypack')
 const happyThreadPool = packThreadCount === 0 ? null : HappyPack.ThreadPool({ size: packThreadCount })
 const ExtractTextPlugin = require('extract-text-webpack-plugin')
 const path = require('path')
+const pack = require('./package.json')
 const env = process.env.NODE_ENV
 const happyConf = {
   loaders: ['babel-loader'],
   threadPool: happyThreadPool,
   verbose: true
 }
-let version = '' + new Date()
-try {
-  version = require('fs').readFileSync('./version').toString()
-} catch(e) {
-  //
-  console.log(e)
+let version = pack.version + '-' + (+new Date())
+if (env === 'production') {
+  try {
+    version = require('fs').readFileSync('./version').toString()
+  } catch(e) {
+    //
+    console.log(e)
+  }
 }
 
 const extractTextPlugin1 = new ExtractTextPlugin({
