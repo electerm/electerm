@@ -73,7 +73,7 @@ export default class Tranporter extends React.Component {
     transport.percent = percent
     transport.status = 'active'
     this.update(transport)
-  }, 100)
+  }, 1000)
 
   onError = e => {
     let transport = copy(this.props.transport)
