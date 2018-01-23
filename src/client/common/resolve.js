@@ -15,7 +15,10 @@ export default (basePath, nameOrDot) => {
     if (length === 1) {
       return basePath
     }
-    return arr.slice(0, length - 1).join(sep)
+    let res = arr.slice(0, length - 1).join(sep)
+    return res ? res : '/'
   }
-  return basePath + sep + nameOrDot
+  return basePath +
+    (basePath === '/' ? '' : sep) +
+    nameOrDot
 }
