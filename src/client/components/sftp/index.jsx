@@ -56,6 +56,7 @@ export default class Sftp extends React.Component {
       localPathTemp: '',
       remotePathTemp: '',
       transports: [],
+      inputFocus: false,
       liveBasePath: null,
       selectedFiles: [],
       lastClickedFile: null,
@@ -257,6 +258,18 @@ export default class Sftp extends React.Component {
 
   }
 
+  onInputFocus = () => {
+    this.setState({
+      inputFocus: true
+    })
+  }
+
+  onInputBlur = () => {
+    this.setState({
+      inputFocus: blur
+    })
+  }
+
   doCopy = (type) => {
     this[type + 'Dom'].onCopy(true)
   }
@@ -282,6 +295,7 @@ export default class Sftp extends React.Component {
       type: typeMap.local
     }
     let {type} = lastClickedFile
+    let {inputFocus} = this.state
     if (this.keyControlPressed(e) && e.code === 'KeyA') {
       this.selectAll(type, e)
     } else if (e.code === 'ArrowDown') {
@@ -290,7 +304,7 @@ export default class Sftp extends React.Component {
       this.selectPrev(type)
     } else if (e.code === 'Delete') {
       this.onDel(type)
-    } else if (e.code === 'Enter') {
+    } else if (e.code === 'Enter' && !inputFocus) {
       this.enter(type, e)
     } else if (this.keyControlPressed(e) && e.code === 'KeyC') {
       this.doCopy(type, e)
@@ -448,7 +462,8 @@ export default class Sftp extends React.Component {
     })
   }
 
-  onGoto = (type) => {
+  onGoto = (type, e) => {
+    e && e.preventDefault()
     let n = `${type}Path`
     let nt = n + 'Temp'
     this.setState({
@@ -595,8 +610,10 @@ export default class Sftp extends React.Component {
                 <Input
                   value={path}
                   onChange={e => this.onChange(e, n)}
-                  onPressEnter={() => this.onGoto(type)}
+                  onPressEnter={e => this.onGoto(type, e)}
                   addonBefore={this.renderAddonBefore(type)}
+                  onFocus={this.onInputFocus}
+                  onBlur={this.onInputBlur}
                   addonAfter={
                     <Icon
                       type={goIcon}
