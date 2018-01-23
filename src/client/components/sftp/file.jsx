@@ -36,6 +36,7 @@ const computePos = (e, isBg, height) => {
   if (window.innerHeight < res.top + height + 10) {
     res.top = res.top - height
   }
+  res.top = res.top > 0 ? res.top : 0
   return res
 }
 
