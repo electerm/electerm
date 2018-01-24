@@ -57,7 +57,6 @@ export default class Sftp extends React.Component {
       localPathTemp: '',
       remotePathTemp: '',
       transports: [],
-      inputFocus: false,
       liveBasePath: null,
       selectedFiles: [],
       lastClickedFile: null,
@@ -173,6 +172,7 @@ export default class Sftp extends React.Component {
   }
 
   delFiles = async (_type, files = this.state.selectedFiles) => {
+    this.onDelete = false
     let type = files[0].type || _type
     let func = this[type + 'Del']
     for (let f of files) {
@@ -202,6 +202,7 @@ export default class Sftp extends React.Component {
   }
 
   onDel = (type, files) => {
+    this.onDelete = true
     Modal.confirm({
       cancelText: c('cancel'),
       okText: c('ok'),
@@ -261,15 +262,11 @@ export default class Sftp extends React.Component {
   }
 
   onInputFocus = () => {
-    this.setState({
-      inputFocus: true
-    })
+    this.inputFocus = true
   }
 
   onInputBlur = () => {
-    this.setState({
-      inputFocus: blur
-    })
+    this.inputFocus = false
   }
 
   doCopy = (type) => {
@@ -297,7 +294,7 @@ export default class Sftp extends React.Component {
       type: typeMap.local
     }
     let {type} = lastClickedFile
-    let {inputFocus} = this.state
+    let {inputFocus, onDelete} = this
     if (this.keyControlPressed(e) && e.code === 'KeyA') {
       this.selectAll(type, e)
     } else if (e.code === 'ArrowDown') {
@@ -306,7 +303,7 @@ export default class Sftp extends React.Component {
       this.selectPrev(type)
     } else if (e.code === 'Delete') {
       this.onDel(type)
-    } else if (e.code === 'Enter' && !inputFocus) {
+    } else if (e.code === 'Enter' && !inputFocus && !onDelete) {
       this.enter(type, e)
     } else if (this.keyControlPressed(e) && e.code === 'KeyC') {
       this.doCopy(type, e)
