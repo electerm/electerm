@@ -2,7 +2,6 @@
  * sftp through ipc
  */
 
-import _ from 'lodash'
 import {generate} from 'shortid'
 import Transfer from './transfer'
 import {transferTypeMap} from './constants'
