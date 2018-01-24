@@ -14,6 +14,7 @@ import DragSelect from './drag-select'
 import {getLocalFileInfo} from './file-read'
 import {isMac, typeMap} from '../../common/constants'
 import {hasFileInClipboardText} from '../../common/clipboard'
+import Client from '../../common/sftp'
 import './sftp.styl'
 
 const {getGlobal, prefix} = window
@@ -76,6 +77,7 @@ export default class Sftp extends React.Component {
 
   componentWillUnmount() {
     this.destroyEvent()
+    this.sftp && this.sftp.destroy()
   }
 
   initEvent() {
@@ -353,9 +355,6 @@ export default class Sftp extends React.Component {
   }
 
   remoteList = async (returnList = false, remotePathReal) => {
-    let Client = getGlobal('Ftp')
-    if (!Client) return
-
     let sftp = this.sftp || new Client()
     let {tab} = this.props
     let {username, startPath} = tab
@@ -655,6 +654,7 @@ export default class Sftp extends React.Component {
     let props = {
       id,
       height,
+      isActive: this.isActive(),
       ..._.pick(this.props, [
         'onError'
       ]),

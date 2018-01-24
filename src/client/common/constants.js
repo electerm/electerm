@@ -10,7 +10,7 @@ export const maxHistory = 50
 
 //export const maxTabs = 20
 
-export const tabWidth = 120
+export const tabWidth = 160
 
 export const tabMargin = 3
 
