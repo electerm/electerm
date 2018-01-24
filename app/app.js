@@ -10,7 +10,8 @@ const getConf = require('./config.default')
 const {runServer, quitServer} = require('./lib/server')
 const os = require('os')
 const {resolve} = require('path')
-const Ftp = require('./lib/sftp')
+const {instSftpKeys} = require('./lib/sftp')
+const {transferKeys} = require('./lib/transfer')
 const {saveUserConfig, userConfig} = require('./lib/user-config-controller')
 const {init, changeHotkeyReg} = require('./lib/shortcut')
 const fsExport = require('./lib/fs')
@@ -21,6 +22,7 @@ const {setWin} = require('./lib/win')
 const log = require('electron-log')
 const {testConnection} = require('./lib/terminal')
 const {saveLangConfig, lang, langs} = require('./lib/locales')
+require('./lib/ipc')
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -81,7 +83,8 @@ async function createWindow () {
   Object.assign(global.et, {
     autoVisitTime: config.timer,
     _config: config,
-    Ftp,
+    instSftpKeys,
+    transferKeys,
     fs: fsExport,
     ls,
     resolve,

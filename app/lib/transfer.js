@@ -2,7 +2,7 @@
  * transfer class
  */
 
-const  _ = require('lodash')
+
 const fs = require('fs')
 
 class Transfer {
@@ -11,13 +11,11 @@ class Transfer {
     remotePath,
     localPath,
     options = {},
-    onData = _.noop,
-    onEnd = _.noop,
-    onError = _.noop,
+    id,
     type = 'download',
     sftp
   }) {
-
+    this.id = id
     let readSteam = type === 'download'
       ? sftp.createReadStream(remotePath, options)
       : fs.createReadStream(localPath, options)
@@ -26,19 +24,31 @@ class Transfer {
       : sftp.createWriteStream(remotePath, options)
 
     let count = 0
-
+    let th = this
     readSteam.on('data', chunk => {
       count += chunk.length
-      onData(count, chunk)
+      th.onData(count, id)
       writeSteam.write(chunk)
     })
 
-    readSteam.on('close', onEnd)
+    readSteam.on('close', () => this.onEnd(id))
 
-    readSteam.on('error', onError)
+    readSteam.on('error', (err) => this.onError(err, id))
 
     this.readSteam = readSteam
     this.writeSteam = writeSteam
+  }
+
+  onData (count, id) {
+    require('./win').win.webContents.send('transfer:data:' + id, count)
+  }
+
+  onEnd (id) {
+    require('./win').win.webContents.send('transfer:end:' + id, null)
+  }
+
+  onError(err, id) {
+    require('./win').win.webContents.send('transfer:err:' + id, err.message)
   }
 
   pause () {
@@ -58,4 +68,11 @@ class Transfer {
 }
 
 
-module.exports = Transfer
+module.exports = {
+  Transfer,
+  transferKeys: [
+    'pause',
+    'resume',
+    'destroy'
+  ]
+}

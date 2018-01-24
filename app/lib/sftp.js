@@ -3,8 +3,6 @@
  */
 
 let {Client} = require('ssh2')
-let _ = require('lodash')
-let Transfer = require('./transfer')
 
 class Sftp {
 
@@ -89,25 +87,25 @@ class Sftp {
    * @param {Function} onError function(<Error>) - Called when Error
    * @return {Transfer}
    */
-  download ({
-    remotePath,
-    localPath,
-    options = {},
-    onData = _.noop,
-    onEnd = _.noop,
-    onError = _.noop
-  }) {
-    return new Transfer({
-      remotePath,
-      localPath,
-      options,
-      onData,
-      onEnd,
-      onError,
-      type: 'download',
-      sftp: this.sftp
-    })
-  }
+  // download ({
+  //   remotePath,
+  //   localPath,
+  //   options = {},
+  //   onData = _.noop,
+  //   onEnd = _.noop,
+  //   onError = _.noop
+  // }) {
+  //   return new Transfer({
+  //     remotePath,
+  //     localPath,
+  //     options,
+  //     onData,
+  //     onEnd,
+  //     onError,
+  //     type: 'download',
+  //     sftp: this.sftp
+  //   })
+  // }
 
   /**
    * upload file
@@ -121,25 +119,25 @@ class Sftp {
    * @param {Function} onError function(<Error>) - Called when Error
    * @return {Transfer}
    */
-  upload ({
-    remotePath,
-    localPath,
-    options = {},
-    onData = _.noop,
-    onEnd = _.noop,
-    onError = _.noop
-  }) {
-    return new Transfer({
-      remotePath,
-      localPath,
-      options,
-      onData,
-      onEnd,
-      onError,
-      type: 'upload',
-      sftp: this.sftp
-    })
-  }
+  // upload ({
+  //   remotePath,
+  //   localPath,
+  //   options = {},
+  //   onData = _.noop,
+  //   onEnd = _.noop,
+  //   onError = _.noop
+  // }) {
+  //   return new Transfer({
+  //     remotePath,
+  //     localPath,
+  //     options,
+  //     onData,
+  //     onEnd,
+  //     onError,
+  //     type: 'upload',
+  //     sftp: this.sftp
+  //   })
+  // }
 
   /**
    * mkdir
@@ -349,5 +347,22 @@ class Sftp {
   //end
 }
 
-
-module.exports = Sftp
+module.exports = {
+  Sftp,
+  instSftpKeys: [
+    'connect',
+    'list',
+    'download',
+    'upload',
+    'mkdir',
+    'rmdir',
+    'stat',
+    'lstat',
+    'chmod',
+    'rename',
+    'rm',
+    'touch',
+    'mv',
+    'cp'
+  ]
+}

@@ -29,6 +29,13 @@ export default class Transports extends React.Component {
     }
   }
 
+  shouldComponentUpdate(nextProps, nextState) {
+    return !_.isEqual(nextState, this.state) || !_.isEqual(
+      nextProps.transports,
+      this.props.transports
+    ) || nextProps.isActive !== this.props.isActive
+  }
+
   componentWillUnmount() {
     clearTimeout(this.timer)
   }
@@ -148,7 +155,7 @@ export default class Transports extends React.Component {
   }
 
   render() {
-    let {transports} = this.props
+    let {transports, isActive} = this.props
     let {currentTransport, showList} = this.state
     let percent = _.get(currentTransport, 'percent')
     let status = _.get(currentTransport, 'status')
@@ -165,7 +172,7 @@ export default class Transports extends React.Component {
           title={this.renderTitle()}
           content={this.renderContent()}
           placement="bottom"
-          visible={showList}
+          visible={showList && isActive}
           onVisibleChange={this.onVisibleChange}
         >
           <div className="tranports-circle-wrap">

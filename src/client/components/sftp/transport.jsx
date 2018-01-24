@@ -65,6 +65,9 @@ export default class Tranporter extends React.Component {
   }
 
   onData = _.throttle((transferred) => {
+    if (this.onCancel) {
+      return
+    }
     let transport = copy(this.props.transport)
     let total = transport.file.size
     let percent = total === 0
@@ -73,7 +76,7 @@ export default class Tranporter extends React.Component {
     transport.percent = percent
     transport.status = 'active'
     this.update(transport)
-  }, 100)
+  }, 1100)
 
   onError = e => {
     let transport = copy(this.props.transport)
@@ -146,6 +149,7 @@ export default class Tranporter extends React.Component {
   }
 
   cancel = async (callback) => {
+    this.onCancel = true
     let {id} = this.props.transport
     let oldTrans = copy(this.props.transports)
     if (oldTrans.length === 1) {
@@ -157,7 +161,6 @@ export default class Tranporter extends React.Component {
     let transports = oldTrans.filter(t => {
       return t.id !== id
     })
-    this.onCancel = true
     this.props.modifier({
       transports
     }, _.isFunction(callback) ? callback : undefined)
