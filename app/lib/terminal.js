@@ -28,6 +28,7 @@ class Terminal {
       name: 'xterm-color',
       cols: cols || 80,
       rows: rows || 24,
+      scrollback: global.et.scrollback,
       cwd: process.env.HOME,
       env: process.env
     })
