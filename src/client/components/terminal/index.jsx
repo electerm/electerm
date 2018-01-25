@@ -161,7 +161,9 @@ export default class Term extends React.Component {
   initTerminal = async () => {
     let {id} = this.state
     let {startPath} = this.props.tab
-    let term = new Terminal()
+    let term = new Terminal({
+      scrollback: config.scrollback
+    })
     term.open(document.getElementById(id), true)
     await this.remoteInit(term)
     term.focus()

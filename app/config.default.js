@@ -28,6 +28,7 @@ module.exports = function() {
         host: '127.0.0.1',
         hotkey: 'Control+2',
         sshReadyTimeout: 50000,
+        scrollback: 3000,
         showMenu: true
       }
       extend(conf, override)

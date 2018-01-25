@@ -59,6 +59,15 @@ export default class Setting extends React.Component {
     })
   }
 
+  onChangeScrollBack = scrollback => {
+    this.setState({
+      scrollback
+    })
+    return this.saveConfig({
+      scrollback
+    })
+  }
+
   saveConfig = (_ext) => {
     let {config} = this.props
     let ext = _ext
@@ -112,7 +121,7 @@ export default class Setting extends React.Component {
   }
 
   render() {
-    let {hotkey, sshReadyTimeout, language} = this.props.config
+    let {hotkey, sshReadyTimeout, language, scrollback} = this.props.config
     let langs = getGlobal('langs')
     let [modifier, key] = hotkey.split('+')
     return (
@@ -141,6 +150,15 @@ export default class Setting extends React.Component {
               keys.map(this.renderOption)
             }
           </Select>
+        </div>
+        <div className="pd1b">{e('scrollBackDesc')}</div>
+        <div className="pd2b">
+          <InputNumber
+            onChange={this.onChangeScrollBack}
+            step={200}
+            min={1000}
+            value={scrollback}
+          />
         </div>
         <div className="pd1b">{e('timeoutDesc')}</div>
         <div className="pd2b">
