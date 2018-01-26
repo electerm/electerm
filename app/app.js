@@ -6,8 +6,9 @@ const {
   app, BrowserWindow, Menu,
   globalShortcut, shell
 } = require('electron')
+const {fork} = require('child_process')
+const _ = require('lodash')
 const getConf = require('./config.default')
-const {runServer, quitServer} = require('./lib/server')
 const os = require('os')
 const {resolve} = require('path')
 const {instSftpKeys} = require('./lib/sftp')
@@ -41,7 +42,6 @@ function onClose() {
   clearTimeout(timer)
   win = null
   setWin(win)
-  quitServer()
   process.exit(0)
 }
 
@@ -52,7 +52,19 @@ async function createWindow () {
   let config = await getConf()
 
   //start server
-  runServer(config)
+  fork(resolve(__dirname, './lib/server.js'), {
+    env: Object.assign(
+      {},
+      process.env,
+      _.pick(config, ['port', 'host'])
+    ),
+    cwd: process.cwd()
+  }, (error, stdout, stderr) => {
+    if (error || stderr) {
+      throw error || stderr
+    }
+    console.log(stdout)
+  })
 
   if (config.showMenu) Menu.setApplicationMenu(menu)
 

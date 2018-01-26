@@ -132,7 +132,6 @@ export default class Confirms extends React.Component {
     let res = await sftp.lstat(path)
       .then(() => true)
       .catch(() => false)
-    console.log(res, 'ls')
     return res
   }
 

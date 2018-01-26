@@ -4,6 +4,7 @@
 
 
 const fs = require('fs')
+const _ = require('lodash')
 
 class Transfer {
 
@@ -24,6 +25,9 @@ class Transfer {
       : sftp.createWriteStream(remotePath, options)
 
     let count = 0
+    this.onData = _.throttle((count, id) => {
+      require('./win').win.webContents.send('transfer:data:' + id, count)
+    }, 1000)
     let th = this
     readSteam.on('data', chunk => {
       count += chunk.length
@@ -37,10 +41,6 @@ class Transfer {
 
     this.readSteam = readSteam
     this.writeSteam = writeSteam
-  }
-
-  onData (count, id) {
-    require('./win').win.webContents.send('transfer:data:' + id, count)
   }
 
   onEnd (id) {

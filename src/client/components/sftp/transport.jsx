@@ -11,6 +11,7 @@ import {typeMap, transferTypeMap} from '../../common/constants'
 
 const {getGlobal, prefix} = window
 const e = prefix('sftp')
+const baseFileSize = 30000000
 
 const typeIconMap = {
   upload: 'arrow-up',
@@ -64,19 +65,21 @@ export default class Tranporter extends React.Component {
     this.transport.resume()
   }
 
-  onData = _.throttle((transferred) => {
-    if (this.onCancel) {
-      return
-    }
-    let transport = copy(this.props.transport)
-    let total = transport.file.size
-    let percent = total === 0
-      ? 0
-      : Math.floor(100 * transferred / total)
-    transport.percent = percent
-    transport.status = 'active'
-    this.update(transport)
-  }, 1100)
+  onData = size => {
+    return _.throttle((transferred) => {
+      if (this.onCancel) {
+        return
+      }
+      let transport = copy(this.props.transport)
+      let total = transport.file.size
+      let percent = total === 0
+        ? 0
+        : Math.floor(100 * transferred / total)
+      transport.percent = percent
+      transport.status = 'active'
+      this.update(transport)
+    }, size / baseFileSize)
+  }
 
   onError = e => {
     let transport = copy(this.props.transport)
@@ -127,7 +130,8 @@ export default class Tranporter extends React.Component {
         remotePath,
         file: {
           isDirectory,
-          mode
+          mode,
+          size
         }
       } = this.props.transport
       if (isDirectory) {
@@ -143,7 +147,8 @@ export default class Tranporter extends React.Component {
           'onData',
           'onError',
           'onEnd'
-        ])
+        ]),
+        onData: this.onData(size)
       })
     }
   }

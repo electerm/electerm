@@ -41,13 +41,11 @@ app.post('/terminals', async function (req, res) {
     terminals[pid] = term
     logs[pid] = ''
     term.on('data', function(data) {
-      logs[term.pid] += data.toString()
+      logs[pid] += data.toString()
     })
-    res.send(term.pid)
-    res.end()
+    res.end(pid)
   } else {
     res.status(500)
-    res.send(term)
     res.end()
   }
 })
@@ -69,7 +67,7 @@ app.ws('/terminals/:pid', function (ws, req) {
   let {pid} = term
   log('Connected to terminal', pid)
 
-  ws.send(logs[term.pid])
+  ws.send(logs[pid])
 
   term.on('data', function(data) {
     try {
@@ -85,21 +83,29 @@ app.ws('/terminals/:pid', function (ws, req) {
 
   ws.on('close', function () {
     term.kill()
-    log('Closed terminal ' + term.pid)
+    log('Closed terminal ' + pid)
     // Clean things up
-    delete terminals[term.pid]
-    delete logs[term.pid]
+    delete terminals[pid]
+    delete logs[pid]
   })
 })
 
-exports.runServer = function({port, host, siteName}) {
+const runServer = function() {
+  let {port, host} = process.env
   app.listen(port, host, () => {
-    log(siteName || 'server', 'runs on', host, port)
+    log('server', 'runs on', host, port)
   })
 }
 
-exports.quitServer = () => {
+const quitServer = () => {
   Object.keys(terminals).forEach(k => {
     terminals[k].kill()
   })
 }
+
+process.on('exit', quitServer)
+
+//start
+runServer()
+
+
