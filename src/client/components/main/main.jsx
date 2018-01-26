@@ -38,6 +38,17 @@ export default class Index extends React.Component {
     }
   }
 
+  // componentWillMount() {
+  //   //init gloabl ws
+  //   let {host, port} = getGlobal('config')
+  //   let wsUrl = `ws://${host}:${port}/ws`
+  //   let ws = new WebSocket(wsUrl)
+  //   ws.s = msg => {
+  //     ws.send(JSON.stringify(msg))
+  //   }
+  //   window.sugo.ws = ws
+  // }
+
   componentDidMount() {
     window.addEventListener('resize', this.onResize)
     this.onResize()

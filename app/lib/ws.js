@@ -5,97 +5,65 @@
 
 const {Sftp} = require('./sftp')
 const {Transfer} = require('./transfer')
-const {log} = require('./log')
+//const {log} = require('./log')
 
 const sftpInsts = {}
 const transferInsts = {}
-const parsed = (func) => {
-  return (msg) => {
-    func(JSON.parse(msg))
-  }
-}
 
 const initWs = function (app) {
 
-  //new sftp
-  app.post('/ws/sftp-new/:id', (req, res) => {
-    let {id} = req.params
-    sftpInsts[id] = new Sftp()
-    res.end('')
-  })
-
   //sftp function
-  app.ws('/ws/sftp-func/:id', (ws, req) => {
-    let {id} = req.params
-    ws.on('message', parsed((msg) => {
-      let {id, args, func} = msg
-      let name = 'sftp-func:' + id
-      sftpInsts[id][func](...args)
-        .then(res => {
-          event.sender.send(name, res)
-        })
-        .catch(err => {
-          ws.send(name, {
-            message: err.message,
-            stack: err.stack
+  app.ws('/ws', (ws) => {
+    ws.s = msg => {
+      ws.send(JSON.stringify(msg))
+    }
+    ws.on('message', (message) => {
+      let msg = JSON.parse(message)
+      let {action} = msg
+
+      if (action === 'sftp-new') {
+        let {id} = msg
+        sftpInsts[id] = new Sftp()
+      } else if (action === 'sftp-func') {
+        let {id, args, func} = msg
+        sftpInsts[id][func](...args)
+          .then(data => {
+            ws.s({
+              id,
+              action,
+              func,
+              data
+            })
           })
+          .catch(err => {
+            ws.s({
+              id,
+              action,
+              func,
+              error: {
+                message: err.message,
+                stack: err.stack
+              }
+            })
+          })
+      } else if (action === 'transfer-new') {
+        let {sftpId, id} = msg
+        let opts = Object.assign({}, msg, {
+          sftp: sftpInsts[sftpId].sftp,
+          ws
         })
-    }))
+        transferInsts[id] = new Transfer(opts)
+      } else if (action === 'transfer-func') {
+        let {id, func, args} = msg
+        transferInsts[id][func](...args)
+      }
 
-    ws.on('close', function () {
-      log('close sftp ' + id)
-      // Clean things up
-      delete sftpInsts[id]
     })
-  })
 
-  //new transfer
-  app.post('/ws/transfer-new', async function (req, res) {
-    let options = JSON.parse(req.body.q)
-    let {sftpId, id} = options
-    let opts = Object.assign({}, options, {
-      sftp: sftpInsts[sftpId].sftp
-    })
-    transferInsts[id] = new Transfer(opts)
-    res.end()
-  })
-
-  //transfer function
-  app.ws('/ws/transfer-func/:id', (ws, req) => {
-    let {id} = req.params
-    let trans = transferInsts[id]
-    ws.on('message', parsed((msg) => {
-      let {id, args, func} = msg
-      transferInsts[id][func](...args)
-    }))
-
-    ws.on('close', function () {
-      log('close transfer ' + id)
-      // Clean things up
-      delete transferInsts[id]
-    })
+    //end
   })
 
 }
 
 
-ipcMain.on('transfer-new', (event, options) => {
-  let {sftpId, id} = options
-  let opts = Object.assign({}, options, {
-    sftp: sftpInsts[sftpId].sftp
-  })
-  transferInsts[id] = new Transfer(opts)
-  event.returnValue = ''
-})
-
-ipcMain.on('transfer-func', (event, {
-  id, args, func
-}) => {
-  transferInsts[id][func](...args)
-  if (func === 'destroy') {
-    delete transferInsts[id]
-  }
-  event.returnValue = ''
-})
-
-
+module.exports = initWs

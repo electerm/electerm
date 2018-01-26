@@ -9,6 +9,7 @@ const pubPath = resolve(__dirname, '../assets')
 const modPath = resolve(__dirname, '../node_modules')
 const bodyParser = require('body-parser')
 const {terminal} = require('./terminal')
+require('./ipc')
 
 app.use(cors())
 
