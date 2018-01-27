@@ -11,7 +11,6 @@ import {typeMap, transferTypeMap} from '../../common/constants'
 
 const {getGlobal, prefix} = window
 const e = prefix('sftp')
-const baseFileSize = 30000000
 
 const typeIconMap = {
   upload: 'arrow-up',
