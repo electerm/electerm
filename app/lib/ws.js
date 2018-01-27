@@ -15,7 +15,13 @@ const initWs = function (app) {
   //sftp function
   app.ws('/ws', (ws) => {
     ws.s = msg => {
-      ws.send(JSON.stringify(msg))
+      try {
+        ws.send(JSON.stringify(msg))
+      } catch(e) {
+        console.log('ws send error')
+        console.log(e)
+      }
+
     }
     ws.on('message', (message) => {
       let msg = JSON.parse(message)
@@ -26,10 +32,11 @@ const initWs = function (app) {
         sftpInsts[id] = new Sftp()
       } else if (action === 'sftp-func') {
         let {id, args, func} = msg
+        let uid = func + ':' + id
         sftpInsts[id][func](...args)
           .then(data => {
             ws.s({
-              id,
+              id: uid,
               action,
               func,
               data
@@ -37,7 +44,7 @@ const initWs = function (app) {
           })
           .catch(err => {
             ws.s({
-              id,
+              id: uid,
               action,
               func,
               error: {
@@ -56,6 +63,9 @@ const initWs = function (app) {
       } else if (action === 'transfer-func') {
         let {id, func, args} = msg
         transferInsts[id][func](...args)
+      } else if (action === 'sftp-destroy') {
+        let {id} = msg
+        delete sftpInsts[id]
       }
 
     })

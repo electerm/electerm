@@ -3,13 +3,15 @@
  */
 
 import {generate} from 'shortid'
+import initWs from './ws'
 
 const keys = window.getGlobal('transferKeys')
-const {ipcRenderer} = window._require('electron')
 
-export default class Transfer {
+class Transfer {
 
-  constructor({
+  constructor() {}
+
+  async init ({
     onData,
     onEnd,
     onError,
@@ -18,38 +20,53 @@ export default class Transfer {
     let id = generate()
     this.id = id
     let th = this
-    ipcRenderer.sendSync('transfer-new', {
+    let ws = await initWs()
+    ws.s({
+      action: 'transfer-new',
       ...rest,
       id
     })
     keys.forEach(func => {
       th[func] = (...args) => {
-        ipcRenderer.sendSync('transfer-func', {
+        ws.s({
+          action: 'transfer-func',
           id: th.id,
           func,
           args
         })
         if (func === 'destroy') {
-          th.onDestroy()
+          th.onDestroy(ws)
         }
       }
     })
-    ipcRenderer.on('transfer:data:' + id, (event, arg) => {
-      onData(arg)
-    })
-    ipcRenderer.on('transfer:end:' + id, (event, arg) => {
+
+    let did = 'transfer:data:' + id
+    this.onData = (evt) => {
+      let arg = JSON.parse(evt.data)
+      if (did === arg.id) {
+        onData(arg.data)
+      }
+    }
+    ws.addEventListener('message', this.onData)
+    ws.once((arg) => {
       onEnd(arg)
-    })
-    ipcRenderer.on('transfer:err:' + id, (event, arg) => {
-      onError(new Error(arg))
-    })
+    }, 'transfer:end:' + id)
+    ws.once((arg) => {
+      console.log(arg.error.stack)
+      onError(new Error(arg.error.message))
+    }, 'transfer:err:' + id)
+
   }
 
-  onDestroy() {
-    let {id} = this
-    ipcRenderer.removeAllListeners('transfer:data:' + id)
-    ipcRenderer.removeAllListeners('transfer:end:' + id)
-    ipcRenderer.removeAllListeners('transfer:err:' + id)
+  onDestroy(ws) {
+    ws.removeEventListener('message', this.onData)
+    ws.close()
   }
 
+}
+
+export default async (props) => {
+  let transfer = new Transfer()
+  await transfer.init(props)
+  return transfer
 }

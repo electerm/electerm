@@ -62,7 +62,7 @@ async function createWindow () {
     if (error || stderr) {
       throw error || stderr
     }
-    console.log(stdout)
+    log(stdout)
   })
 
   if (config.showMenu) Menu.setApplicationMenu(menu)

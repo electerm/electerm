@@ -352,7 +352,7 @@ export default class Sftp extends React.Component {
   }
 
   remoteList = async (returnList = false, remotePathReal) => {
-    let sftp = this.sftp || new Client()
+    let sftp = this.sftp || await Client()
     let {tab} = this.props
     let {username, startPath} = tab
     let remotePath

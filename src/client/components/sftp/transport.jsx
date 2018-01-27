@@ -65,20 +65,18 @@ export default class Tranporter extends React.Component {
     this.transport.resume()
   }
 
-  onData = size => {
-    return _.throttle((transferred) => {
-      if (this.onCancel) {
-        return
-      }
-      let transport = copy(this.props.transport)
-      let total = transport.file.size
-      let percent = total === 0
-        ? 0
-        : Math.floor(100 * transferred / total)
-      transport.percent = percent
-      transport.status = 'active'
-      this.update(transport)
-    }, size / baseFileSize)
+  onData = (transferred) => {
+    if (this.onCancel) {
+      return
+    }
+    let transport = copy(this.props.transport)
+    let total = transport.file.size
+    let percent = total === 0
+      ? 0
+      : Math.floor(100 * transferred / total)
+    transport.percent = percent
+    transport.status = 'active'
+    this.update(transport)
   }
 
   onError = e => {
@@ -130,8 +128,7 @@ export default class Tranporter extends React.Component {
         remotePath,
         file: {
           isDirectory,
-          mode,
-          size
+          mode
         }
       } = this.props.transport
       if (isDirectory) {
@@ -139,7 +136,7 @@ export default class Tranporter extends React.Component {
           .then(this.onEnd)
           .catch(this.onError)
       }
-      this.transport = this.props.sftp[type]({
+      this.transport = await this.props.sftp[type]({
         remotePath,
         localPath,
         options: {mode},
@@ -147,8 +144,7 @@ export default class Tranporter extends React.Component {
           'onData',
           'onError',
           'onEnd'
-        ]),
-        onData: this.onData(size)
+        ])
       })
     }
   }

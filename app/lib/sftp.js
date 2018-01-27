@@ -23,7 +23,7 @@ class Sftp {
             reject(err)
           }
           this.sftp = sftp
-          resolve(sftp)
+          resolve('')
         })
       }).on('error', (err) => {
         reject(err)

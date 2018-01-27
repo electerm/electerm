@@ -9,7 +9,7 @@ const pubPath = resolve(__dirname, '../assets')
 const modPath = resolve(__dirname, '../node_modules')
 const bodyParser = require('body-parser')
 const {terminal} = require('./terminal')
-require('./ipc')
+const initWs = require('./ws')
 
 app.use(cors())
 
@@ -90,6 +90,8 @@ app.ws('/terminals/:pid', function (ws, req) {
     delete logs[pid]
   })
 })
+
+initWs(app)
 
 const runServer = function() {
   let {port, host} = process.env
