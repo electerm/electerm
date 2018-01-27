@@ -23,11 +23,13 @@ const {setWin} = require('./lib/win')
 const log = require('electron-log')
 const {testConnection} = require('./lib/terminal')
 const {saveLangConfig, lang, langs} = require('./lib/locales')
+const delay = require('./lib/wait')
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let win
 let timer
+let childPid
 let {NODE_ENV} = process.env
 const isDev = NODE_ENV === 'development'
 const packInfo = require(isDev ? '../package.json' : './package.json')
@@ -40,6 +42,7 @@ const iconPath = resolve(
 function onClose() {
   clearTimeout(timer)
   win = null
+  process.kill(childPid)
   setWin(win)
   process.exit(0)
 }
@@ -51,7 +54,7 @@ async function createWindow () {
   let config = await getConf()
 
   //start server
-  fork(resolve(__dirname, './lib/server.js'), {
+  let child = fork(resolve(__dirname, './lib/server.js'), {
     env: Object.assign(
       {},
       process.env,
@@ -62,8 +65,10 @@ async function createWindow () {
     if (error || stderr) {
       throw error || stderr
     }
-    log(stdout)
+    log.info(stdout)
   })
+
+  childPid = child.pid
 
   if (config.showMenu) Menu.setApplicationMenu(menu)
 
@@ -128,7 +133,7 @@ async function createWindow () {
     let conf = require('../config.default')
     opts = `http://localhost:${conf.devPort}`
   }
-
+  await delay(300)
   win.loadURL(opts)
   win.maximize()
 

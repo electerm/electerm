@@ -4,7 +4,6 @@ import Wrapper from './window-wrapper'
 import Control, {newTerm} from '../control'
 import _ from 'lodash'
 import copy from 'json-deep-copy'
-import classnames from 'classnames'
 import ContextMenu from '../common/context-menu'
 import FileInfoModal from '../sftp/file-props-modal'
 import FileModeModal from '../sftp/file-mode-modal'
@@ -241,9 +240,9 @@ export default class Index extends React.Component {
             {
               tabs.map((tab) => {
                 let {id} = tab
-                let cls = classnames({
-                  hide: id !== currentTabId
-                })
+                let cls = id !== currentTabId
+                  ? 'hide'
+                  : 'ssh-wrap-show'
                 return (
                   <div className={cls} key={id}>
                     <Wrapper
