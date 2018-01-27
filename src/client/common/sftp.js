@@ -5,45 +5,69 @@
 import {generate} from 'shortid'
 import Transfer from './transfer'
 import {transferTypeMap} from './constants'
+import initWs from './ws'
 
 const keys = window.getGlobal('instSftpKeys')
-const {ipcRenderer} = window._require('electron')
 const transferKeys = Object.keys(transferTypeMap)
 
-export default class Sftp {
+class Sftp {
 
-  constructor() {
-    this.id = generate()
-    ipcRenderer.sendSync('sftp-new', this.id)
+  constructor() {}
+
+  async init () {
+    let ws = await initWs()
+    this.ws = ws
+    let id = generate()
+    this.id = id
+    ws.s({
+      action: 'sftp-new',
+      id
+    })
     let th = this
     keys.forEach(func => {
-      th[func] = (...args) => {
+      th[func] = async (...args) => {
         if (transferKeys.includes(func)) {
-          return new Transfer({
-            sftpId: th.id,
+          return Transfer({
+            sftpId: id,
             ...args[0],
             type: func
           })
         }
+        let uid = func + ':' + id
+        let ws = await initWs()
         return new Promise((resolve, reject) => {
-          ipcRenderer.send('sftp-func', {
-            id: th.id,
+          ws.s({
+            action: 'sftp-func',
+            id,
             func,
             args
           })
-          ipcRenderer.once('sftp-func:' + th.id, (event, arg) => {
-            if (arg && arg.stack) {
-              return reject(new Error(arg.message))
+          ws.once((arg) => {
+            if (arg.error) {
+              console.log(arg.error.message)
+              console.log(arg.error.stack)
+              return reject(new Error(arg.error.message))
             }
-            resolve(arg)
-          })
+            resolve(arg.data)
+          }, uid)
         })
       }
     })
   }
 
-  destroy() {
-    ipcRenderer.send('sftp-destroy', this.id)
+  async destroy() {
+    let ws = await initWs()
+    ws.s({
+      action: 'sftp-destroy',
+      id: this.id
+    })
+    ws.close()
   }
 
+}
+
+export default async (props) => {
+  let sftp = new Sftp()
+  await sftp.init(props)
+  return sftp
 }

@@ -4,6 +4,7 @@
 
 
 const fs = require('fs')
+const _ = require('lodash')
 
 class Transfer {
 
@@ -13,7 +14,8 @@ class Transfer {
     options = {},
     id,
     type = 'download',
-    sftp
+    sftp,
+    ws
   }) {
     this.id = id
     let readSteam = type === 'download'
@@ -24,14 +26,20 @@ class Transfer {
       : sftp.createWriteStream(remotePath, options)
 
     let count = 0
+    this.onData = _.throttle((count) => {
+      ws.s({
+        id: 'transfer:data:' + id,
+        data: count
+      })
+    }, 1000)
     let th = this
     readSteam.on('data', chunk => {
       count += chunk.length
-      th.onData(count, id)
+      th.onData(count)
       writeSteam.write(chunk)
     })
 
-    readSteam.on('close', () => this.onEnd(id))
+    readSteam.on('close', () => this.onEnd(id, ws))
 
     readSteam.on('error', (err) => this.onError(err, id))
 
@@ -39,16 +47,21 @@ class Transfer {
     this.writeSteam = writeSteam
   }
 
-  onData (count, id) {
-    require('./win').win.webContents.send('transfer:data:' + id, count)
+  onEnd (id, ws) {
+    ws.s({
+      id: 'transfer:end:' + id,
+      data: null
+    })
   }
 
-  onEnd (id) {
-    require('./win').win.webContents.send('transfer:end:' + id, null)
-  }
-
-  onError(err, id) {
-    require('./win').win.webContents.send('transfer:err:' + id, err.message)
+  onError(err, id, ws) {
+    ws.s({
+      wid: 'transfer:err:' + id,
+      error: {
+        message: err.message,
+        stack: err.stack
+      }
+    })
   }
 
   pause () {

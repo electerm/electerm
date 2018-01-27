@@ -64,7 +64,7 @@ export default class Tranporter extends React.Component {
     this.transport.resume()
   }
 
-  onData = _.throttle((transferred) => {
+  onData = (transferred) => {
     if (this.onCancel) {
       return
     }
@@ -76,7 +76,7 @@ export default class Tranporter extends React.Component {
     transport.percent = percent
     transport.status = 'active'
     this.update(transport)
-  }, 1100)
+  }
 
   onError = e => {
     let transport = copy(this.props.transport)
@@ -135,7 +135,7 @@ export default class Tranporter extends React.Component {
           .then(this.onEnd)
           .catch(this.onError)
       }
-      this.transport = this.props.sftp[type]({
+      this.transport = await this.props.sftp[type]({
         remotePath,
         localPath,
         options: {mode},
