@@ -41,7 +41,7 @@ describe('ssh', function () {
     }
   })
 
-  it('should open window and local terminal ls/dir command works', async function() {
+  it('should open window and basic ls/dir command works', async function() {
     const {client} = this.app
     let cmd = 'ls'
     await client.waitUntilWindowLoaded()
@@ -93,7 +93,7 @@ describe('ssh', function () {
       document.querySelectorAll('.context-menu .context-item')[0].click()
     })
     let text2 = await this.app.electron.clipboard.readText()
-    expect(text1.trim().length * 2).lessThan(text2.trim().length)
+    expect(text1.trim().length).lessThan(text2.trim().length)
 
   })
 
