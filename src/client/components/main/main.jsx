@@ -241,9 +241,9 @@ export default class Index extends React.Component {
             {
               tabs.map((tab) => {
                 let {id} = tab
-                let cls = classnames({
-                  hide: id !== currentTabId
-                })
+                let cls = id !== currentTabId
+                  ? 'hide'
+                  : 'ssh-wrap-show'
                 return (
                   <div className={cls} key={id}>
                     <Wrapper
