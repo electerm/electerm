@@ -41,7 +41,7 @@ describe('ssh', function () {
     }
   })
 
-  it('should open window and basic ssh ls/dir command works', async function() {
+  it('should open window and basic ssh ls command works', async function() {
     const {client} = this.app
     let cmd = 'ls'
     await client.waitUntilWindowLoaded()
