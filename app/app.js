@@ -133,7 +133,11 @@ async function createWindow () {
     let conf = require('../config.default')
     opts = `http://localhost:${conf.devPort}`
   }
-  await delay(300)
+
+  if (process.env.TESTING === 'YES') {
+    await delay(800)
+  }
+
   win.loadURL(opts)
   win.maximize()
 

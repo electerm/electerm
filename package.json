@@ -1,6 +1,6 @@
 {
   "name": "electerm",
-  "version": "0.15.0",
+  "version": "0.15.1",
   "description": "terminal/ssh/sftp client(linux, mac, win) based on electron/node-pty/xterm and other libs",
   "main": "app.js",
   "scripts": {
@@ -21,7 +21,7 @@
     "preinstall": "rm -rf package-lock.json",
     "postinstall": "node bin/post-install",
     "lint": "./node_modules/.bin/eslint --max-warnings 0 --ext .js --ext .jsx src app bin test",
-    "test": "./node_modules/.bin/mocha test/e2e/*",
+    "test": "TESTING=YES ./node_modules/.bin/mocha test/e2e/*",
     "pre-test": "npm run compile && npm run prepare-file"
   },
   "license": "MIT",
