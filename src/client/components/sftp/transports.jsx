@@ -189,6 +189,9 @@ export default class Transports extends React.Component {
             >
               {this.renderTransportIcon()}
             </div>
+            <div className="transports-count">
+              1 / {transports.length}
+            </div>
           </div>
         </Popover>
       </div>

@@ -23,7 +23,7 @@ const {setWin} = require('./lib/win')
 const log = require('electron-log')
 const {testConnection} = require('./lib/terminal')
 const {saveLangConfig, lang, langs} = require('./lib/locales')
-const delay = require('./lib/wait')
+const rp = require('phin').promisified
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -45,6 +45,20 @@ function onClose() {
   process.kill(childPid)
   setWin(win)
   process.exit(0)
+}
+
+async function waitUntilServerStart(url) {
+  let serverStarted = false
+  while (!serverStarted) {
+    await rp({
+      url,
+      timeout: 100
+    })
+      .then(() => {
+        serverStarted = true
+      })
+      .catch(() => null)
+  }
 }
 
 log.info('App starting...')
@@ -129,14 +143,13 @@ async function createWindow () {
   }, 100)
 
   let opts = `http://localhost:${config.port}/index.html`
+  let childServerUrl = opts + ''
   if (isDev) {
     let conf = require('../config.default')
     opts = `http://localhost:${conf.devPort}`
   }
 
-  if (process.env.TESTING === 'YES') {
-    await delay(800)
-  }
+  await waitUntilServerStart(childServerUrl)
 
   win.loadURL(opts)
   win.maximize()
