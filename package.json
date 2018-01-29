@@ -108,7 +108,8 @@
     "useragent": "2.2.1",
     "webpack": "3.10.0",
     "webpack-cli": "2.0.4",
-    "webpack-dev-server": "2.11.1"
+    "webpack-dev-server": "2.11.1",
+    "xterm": "3.0.1"
   },
   "dependencies": {
     "bluebird": "3.5.1",
@@ -130,7 +131,6 @@
     "react-dom": "16.2.0",
     "recursive-assign": "0.2.0",
     "shortid": "2.2.8",
-    "ssh2": "0.5.5",
-    "xterm": "3.0.1"
+    "ssh2": "0.5.5"
   }
 }

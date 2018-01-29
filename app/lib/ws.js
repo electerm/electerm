@@ -13,7 +13,7 @@ const transferInsts = {}
 const initWs = function (app) {
 
   //sftp function
-  app.ws('/ws', (ws) => {
+  app.ws('/sftp/:id', (ws) => {
     ws.s = msg => {
       try {
         ws.send(JSON.stringify(msg))
@@ -53,7 +53,32 @@ const initWs = function (app) {
               }
             })
           })
-      } else if (action === 'transfer-new') {
+      } else if (action === 'sftp-destroy') {
+        let {id} = msg
+        ws.close()
+        delete sftpInsts[id]
+      }
+
+    })
+
+    //end
+  })
+
+  //transfer function
+  app.ws('/transfer/:id', (ws) => {
+    ws.s = msg => {
+      try {
+        ws.send(JSON.stringify(msg))
+      } catch(e) {
+        console.log('ws send error')
+        console.log(e)
+      }
+    }
+    ws.on('message', (message) => {
+      let msg = JSON.parse(message)
+      let {action} = msg
+
+      if (action === 'transfer-new') {
         let {sftpId, id} = msg
         let opts = Object.assign({}, msg, {
           sftp: sftpInsts[sftpId].sftp,
@@ -63,9 +88,6 @@ const initWs = function (app) {
       } else if (action === 'transfer-func') {
         let {id, func, args} = msg
         transferInsts[id][func](...args)
-      } else if (action === 'sftp-destroy') {
-        let {id} = msg
-        delete sftpInsts[id]
       }
 
     })

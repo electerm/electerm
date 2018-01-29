@@ -2,10 +2,10 @@
  * ws function for sftp/file transfer communication
  */
 
-export default () => {
+export default (type, id) => {
   //init gloabl ws
   let {host, port} = window.getGlobal('_config')
-  let wsUrl = `ws://${host}:${port}/ws`
+  let wsUrl = `ws://${host}:${port}/${type}/${id}`
   let ws = new WebSocket(wsUrl)
   ws.s = msg => {
     ws.send(JSON.stringify(msg))

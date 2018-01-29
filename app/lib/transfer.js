@@ -45,6 +45,7 @@ class Transfer {
 
     this.readSteam = readSteam
     this.writeSteam = writeSteam
+    this.ws = ws
   }
 
   onEnd (id, ws) {
@@ -75,6 +76,7 @@ class Transfer {
   destroy () {
     this.readSteam.destroy()
     this.writeSteam.destroy()
+    this.ws.close()
   }
 
   //end

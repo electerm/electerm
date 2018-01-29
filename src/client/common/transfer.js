@@ -20,7 +20,7 @@ class Transfer {
     let id = generate()
     this.id = id
     let th = this
-    let ws = await initWs()
+    let ws = await initWs('transfer', id)
     ws.s({
       action: 'transfer-new',
       ...rest,

@@ -15,15 +15,16 @@ class Sftp {
   constructor() {}
 
   async init () {
-    let ws = await initWs()
-    this.ws = ws
     let id = generate()
+    let ws = await initWs('sftp', id)
+    this.ws = ws
     this.id = id
     ws.s({
       action: 'sftp-new',
       id
     })
     let th = this
+    this.ws = ws
     keys.forEach(func => {
       th[func] = async (...args) => {
         if (transferKeys.includes(func)) {
@@ -34,7 +35,7 @@ class Sftp {
           })
         }
         let uid = func + ':' + id
-        let ws = await initWs()
+        //let ws = await initWs()
         return new Promise((resolve, reject) => {
           ws.s({
             action: 'sftp-func',
@@ -56,7 +57,7 @@ class Sftp {
   }
 
   async destroy() {
-    let ws = await initWs()
+    let {ws} = this
     ws.s({
       action: 'sftp-destroy',
       id: this.id
