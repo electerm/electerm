@@ -1,5 +1,5 @@
 /**
- * sftp through ipc
+ * sftp through ws
  */
 
 import {generate} from 'shortid'
@@ -45,6 +45,7 @@ class Sftp {
           })
           ws.once((arg) => {
             if (arg.error) {
+              console.log('sftp error')
               console.log(arg.error.message)
               console.log(arg.error.stack)
               return reject(new Error(arg.error.message))

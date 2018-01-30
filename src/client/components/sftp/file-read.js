@@ -3,9 +3,9 @@
  */
 
 import {generate} from 'shortid'
+import fs from '../../common/fs'
 
-const {getGlobal, _require} = window
-const fs = getGlobal('fs')
+const {_require} = window
 
 export const getFolderFromFilePath = filePath => {
   let {sep} = _require('path')
@@ -27,7 +27,7 @@ export const getLocalFileInfo = async (filePath) => {
     type: 'local',
     ...getFolderFromFilePath(filePath),
     id: generate(),
-    isDirectory: stat.isDirectory()
+    isDirectory: stat.isDirectory
   }
 }
 
@@ -41,6 +41,6 @@ export const getRemoteFileInfo = async (sftp, filePath) => {
     type: 'remote',
     ...getFolderFromFilePath(filePath),
     id: generate(),
-    isDirectory: stat.isDirectory()
+    isDirectory: stat.isDirectory
   }
 }

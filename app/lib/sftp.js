@@ -207,7 +207,11 @@ class Sftp {
       let {sftp} = this
       sftp.stat(remotePath, (err, stat) => {
         if (err) reject(err)
-        else resolve(stat)
+        else resolve(
+          Object.assign(stat, {
+            isDirectory: stat.isDirectory()
+          })
+        )
       })
     })
   }

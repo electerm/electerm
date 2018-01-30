@@ -12,7 +12,7 @@ import {notification} from 'antd'
 import openInfoModal from '../control/info-modal'
 import {maxHistory, settingMap} from '../../common/constants'
 
-const {getGlobal} = window
+const {getGlobal, _config} = window
 const ls = getGlobal('ls')
 
 export default class Index extends React.Component {
@@ -27,7 +27,7 @@ export default class Index extends React.Component {
       currentTabId: tabs[0].id,
       history: ls.get(settingMap.history) || [],
       bookmarks: ls.get(settingMap.bookmarks) || [],
-      config: getGlobal('_config') || {},
+      config: _config || {},
       contextMenuProps: {},
       contextMenuVisible: false,
       fileInfoModalProps: {},
