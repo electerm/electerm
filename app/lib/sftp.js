@@ -170,6 +170,26 @@ class Sftp {
   }
 
   /**
+   * getHomeDir
+   *
+   * https://github.com/mscdex/ssh2-streams/blob/master/SFTPStream.md
+   * only support linux / mac
+   * @return {Promise}
+   */
+  getHomeDir () {
+    return new Promise((resolve, reject) => {
+      let {client} = this
+      let cmd = 'eval echo "~$different_user"'
+      client.exec(cmd, (err, stream) => {
+        if (err) reject(err)
+        stream.on('data', function(data) {
+          resolve(data.toString())
+        })
+      })
+    })
+  }
+
+  /**
    * rmdir
    *
    * @param {String} remotePath
@@ -359,6 +379,7 @@ module.exports = {
     'download',
     'upload',
     'mkdir',
+    'getHomeDir',
     'rmdir',
     'stat',
     'lstat',
