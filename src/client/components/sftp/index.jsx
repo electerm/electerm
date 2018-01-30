@@ -12,7 +12,7 @@ import wait from '../../common/wait'
 import sorterIndex from '../../common/index-sorter'
 import DragSelect from './drag-select'
 import {getLocalFileInfo} from './file-read'
-import {isMac, typeMap} from '../../common/constants'
+import {isMac, typeMap, sftpControlHeight} from '../../common/constants'
 import {hasFileInClipboardText} from '../../common/clipboard'
 import Client from '../../common/sftp'
 import fs from '../../common/fs'
@@ -619,7 +619,7 @@ export default class Sftp extends React.Component {
             </div>
             <div
               className={`file-list ${type} pd1 overscroll-y relative`}
-              style={{height: height - 15}}
+              style={{height: height - 15 - sftpControlHeight}}
             >
               {this.renderEmptyFile(type)}
               {
