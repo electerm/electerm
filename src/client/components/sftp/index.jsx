@@ -268,7 +268,7 @@ export default class Sftp extends React.Component {
   }
 
   doCopy = (type) => {
-    this[type + 'Dom'].onCopy(true)
+    this[type + 'Dom'].onCopy(null, true)
   }
 
   doPaste = (type) => {

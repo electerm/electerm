@@ -93,7 +93,7 @@ export default class FileSection extends React.Component {
     this.props[type + 'List']()
   }
 
-  onCopy = (targetFiles) => {
+  onCopy = (e, targetFiles) => {
     let {file} = this.state
     let selected = this.isSelected(file)
     let files = targetFiles || selected
