@@ -15,13 +15,12 @@ import {getLocalFileInfo} from './file-read'
 import {isMac, typeMap} from '../../common/constants'
 import {hasFileInClipboardText} from '../../common/clipboard'
 import Client from '../../common/sftp'
+import fs from '../../common/fs'
 import './sftp.styl'
 
-const {getGlobal, prefix} = window
+const {getGlobal, prefix, _config: config} = window
 const e = prefix('sftp')
 const c = prefix('common')
-const fs = getGlobal('fs')
-const config = getGlobal('_config')
 
 const sorter = (a, b) => {
   let aa = (a.isDirectory ? 0 : 1) + a.name
@@ -152,7 +151,6 @@ export default class Sftp extends React.Component {
   localDel = async (file) => {
     let {localPath} = this.state
     let {name, isDirectory} = file
-    let fs = getGlobal('fs')
     let func = !isDirectory
       ? fs.unlinkAsync
       : fs.rmrf

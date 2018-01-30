@@ -1,5 +1,5 @@
 /**
- * transfer through ipc
+ * transfer through ws
  */
 
 import {generate} from 'shortid'
@@ -52,6 +52,7 @@ class Transfer {
       onEnd(arg)
     }, 'transfer:end:' + id)
     ws.once((arg) => {
+      console.log('sftp transfer error')
       console.log(arg.error.stack)
       onError(new Error(arg.error.message))
     }, 'transfer:err:' + id)

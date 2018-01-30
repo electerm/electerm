@@ -19,10 +19,10 @@ Terminal.applyAddon(attach)
 Terminal.applyAddon(fullscreen)
 Terminal.applyAddon(search)
 
-const {getGlobal, prefix} = window
+const {prefix, _config: config} = window
 const e = prefix('ssh')
 const m = prefix('menu')
-let config = getGlobal('_config')
+
 const computePos = (e, height) => {
   let {clientX, clientY} = e
   let res = {

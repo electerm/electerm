@@ -1,28 +1,35 @@
 /**
- * do file op in seprate process
- * notify though ws
+ * communication between webview and app
+ * run functions in seprate process, avoid using electron.remote directly
  */
 
 const {Sftp} = require('./sftp')
 const {Transfer} = require('./transfer')
-//const {log} = require('./log')
+const {fsExport: fs, syncFsFunctions} = require('./fs')
 
 const sftpInsts = {}
 const transferInsts = {}
+
+/**
+ * add ws.s function
+ * @param {*} ws
+ */
+const wsDec = (ws) => {
+  ws.s = msg => {
+    try {
+      ws.send(JSON.stringify(msg))
+    } catch(e) {
+      console.log('ws send error')
+      console.log(e)
+    }
+  }
+}
 
 const initWs = function (app) {
 
   //sftp function
   app.ws('/sftp/:id', (ws) => {
-    ws.s = msg => {
-      try {
-        ws.send(JSON.stringify(msg))
-      } catch(e) {
-        console.log('ws send error')
-        console.log(e)
-      }
-
-    }
+    wsDec(ws)
     ws.on('message', (message) => {
       let msg = JSON.parse(message)
       let {action} = msg
@@ -37,16 +44,12 @@ const initWs = function (app) {
           .then(data => {
             ws.s({
               id: uid,
-              action,
-              func,
               data
             })
           })
           .catch(err => {
             ws.s({
               id: uid,
-              action,
-              func,
               error: {
                 message: err.message,
                 stack: err.stack
@@ -66,14 +69,7 @@ const initWs = function (app) {
 
   //transfer function
   app.ws('/transfer/:id', (ws) => {
-    ws.s = msg => {
-      try {
-        ws.send(JSON.stringify(msg))
-      } catch(e) {
-        console.log('ws send error')
-        console.log(e)
-      }
-    }
+    wsDec(ws)
     ws.on('message', (message) => {
       let msg = JSON.parse(message)
       let {action} = msg
@@ -89,9 +85,38 @@ const initWs = function (app) {
         let {id, func, args} = msg
         transferInsts[id][func](...args)
       }
-
     })
+    //end
+  })
 
+  //transfer function
+  app.ws('/fs/:id', (ws) => {
+    wsDec(ws)
+    ws.on('message', (message) => {
+      let msg = JSON.parse(message)
+      let {id, args, func} = msg
+      let uid = func + ':' + id
+      if (syncFsFunctions.includes(func)) {
+        ws.close()
+        return fs[func](...args)
+      }
+      fs[func](...args)
+        .then(data => {
+          ws.s({
+            id: uid,
+            data
+          })
+        })
+        .catch(err => {
+          ws.s({
+            id: uid,
+            error: {
+              message: err.message,
+              stack: err.stack
+            }
+          })
+        })
+    })
     //end
   })
 

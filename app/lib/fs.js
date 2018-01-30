@@ -1,3 +1,5 @@
+global.Promise = require('bluebird')
+
 const {exec} = require('child_process')
 const os = require('os')
 const isWin = os.platform() === 'win32'
@@ -99,7 +101,8 @@ const openFile = (localFilePath) => {
   return run(cmd)
 }
 
-module.exports = Object.assign(
+const fsExport = Object.assign(
+  {},
   fss,
   {
     rmrf,
@@ -107,5 +110,40 @@ module.exports = Object.assign(
     cp,
     mv,
     openFile
+  },
+  {
+    statAsync: (...args) => {
+      return fss.statAsync(...args)
+        .then(res => {
+          return Promise.resolve(Object.assign(res, {
+            isDirectory: res.isDirectory()
+          }))
+        })
+    }
   }
 )
+
+const fsFunctions = [
+  'accessAsync',
+  'statAsync',
+  'cp',
+  'mv',
+  'mkdirAsync',
+  'touch',
+  'chmodAsync',
+  'renameAsync',
+  'unlinkAsync',
+  'rmrf',
+  'readdirAsync',
+  'openFile'
+]
+
+const syncFsFunctions = [
+  'openFile'
+]
+
+module.exports = {
+  fsExport,
+  fsFunctions,
+  syncFsFunctions
+}

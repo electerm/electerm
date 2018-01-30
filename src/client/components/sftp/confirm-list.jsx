@@ -10,9 +10,10 @@ import {generate} from 'shortid'
 import Trigger from './file-transfer-trigger'
 import resolve from '../../common/resolve'
 import AnimateText from '../common/animate-text'
+import fs from '../../common/fs'
 import {typeMap, transferTypeMap} from '../../common/constants'
 
-const {getGlobal, prefix} = window
+const {prefix} = window
 const e = prefix('sftp')
 
 export default class Confirms extends React.Component {
@@ -121,7 +122,6 @@ export default class Confirms extends React.Component {
   }
 
   localCheckExist = async (path) => {
-    let fs = getGlobal('fs')
     return await fs.accessAsync(path)
       .then(() => true)
       .catch(() => false)

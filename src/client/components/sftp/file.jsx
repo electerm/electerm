@@ -18,12 +18,12 @@ import {contextMenuHeight, contextMenuPaddingTop, isWin, transferTypeMap, typeMa
 import sorter from '../../common/index-sorter'
 import {getLocalFileInfo, getFolderFromFilePath, getRemoteFileInfo} from './file-read'
 import {readClipboard, copy as copyToClipboard, hasFileInClipboardText} from '../../common/clipboard'
+import fs from '../../common/fs'
 
-const {getGlobal, prefix} = window
+const {prefix} = window
 const e = prefix('sftp')
 const m = prefix('menu')
 const c = prefix('common')
-let fs = getGlobal('fs')
 
 const computePos = (e, isBg, height) => {
   let {target} = e

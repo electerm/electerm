@@ -9,7 +9,7 @@ const pubPath = resolve(__dirname, '../assets')
 const modPath = resolve(__dirname, '../node_modules')
 const bodyParser = require('body-parser')
 const {terminal} = require('./terminal')
-const initWs = require('./ws')
+const initWs = require('./dispatch-center')
 
 app.use(cors())
 

@@ -8,6 +8,7 @@ import _ from 'lodash'
 import resolve from '../../common/resolve'
 import wait from '../../common/wait'
 import {typeMap, transferTypeMap} from '../../common/constants'
+import fs from '../../common/fs'
 
 const {getGlobal, prefix} = window
 const e = prefix('sftp')
@@ -106,7 +107,6 @@ export default class Tranporter extends React.Component {
     } = transport
     let isDown = type === transferTypeMap.download
     if (isDown) {
-      let fs = getGlobal('fs')
       return fs.mkdirAsync(localPath)
         .catch(this.onError)
     }
