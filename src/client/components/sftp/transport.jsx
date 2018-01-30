@@ -10,7 +10,7 @@ import wait from '../../common/wait'
 import {typeMap, transferTypeMap} from '../../common/constants'
 import fs from '../../common/fs'
 
-const {getGlobal, prefix} = window
+const {prefix} = window
 const e = prefix('sftp')
 
 const typeIconMap = {
