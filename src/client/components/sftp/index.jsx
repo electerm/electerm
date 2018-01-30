@@ -370,25 +370,28 @@ export default class Sftp extends React.Component {
           readyTimeout: config.readyTimeout
         })
       }
-      let home = await sftp.getHomeDir()
-        .then(r => r)
-        .catch(err => {
-          this.props.onError(err)
-          return ''
-        })
 
-      if (home) {
-        remotePath = home.trim()
-      } else {
-        remotePath = username === 'root'
-          ? '/root'
-          : `/home/${tab.username}`
+      if (!remotePath) {
+        let home = await sftp.getHomeDir()
+          .then(r => r)
+          .catch(err => {
+            this.props.onError(err)
+            return ''
+          })
+        if (home) {
+          remotePath = home.trim()
+        } else {
+          remotePath = username === 'root'
+            ? '/root'
+            : `/home/${tab.username}`
+        }
+        if (startPath && startPath.startsWith('~')) {
+          remotePath = remotePath + startPath.replace(/^~/, '')
+        } else if (startPath) {
+          remotePath = startPath
+        }
       }
-      if (startPath && startPath.startsWith('~')) {
-        remotePath = remotePath + startPath.replace(/^~/, '')
-      } else if (startPath) {
-        remotePath = startPath
-      }
+
       let remote = await sftp.list(remotePath)
       this.sftp = sftp
       remote = remote.map(r => {
