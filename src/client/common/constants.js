@@ -5,6 +5,7 @@
 export const contextMenuHeight = 28
 export const contextMenuWidth = 120
 export const contextMenuPaddingTop = 10
+export const sftpControlHeight = 42 + 42
 
 export const maxHistory = 50
 
