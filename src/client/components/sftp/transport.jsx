@@ -8,6 +8,7 @@ import _ from 'lodash'
 import resolve from '../../common/resolve'
 import wait from '../../common/wait'
 import {typeMap, transferTypeMap} from '../../common/constants'
+import format from './transfer-speed-format'
 import fs from '../../common/fs'
 
 const {prefix} = window
@@ -76,6 +77,7 @@ export default class Tranporter extends React.Component {
       : Math.floor(100 * transferred / total)
     transport.percent = percent
     transport.status = 'active'
+    transport.speed = format(transferred, this.startTime)
     this.update(transport)
   }
 
@@ -121,6 +123,7 @@ export default class Tranporter extends React.Component {
       _.get(currentTransport, 'id') === id && !this.started
     ) {
       this.started = true
+      this.startTime = +new Date()
       let {
         type,
         localPath,
@@ -194,6 +197,7 @@ export default class Tranporter extends React.Component {
       type,
       percent,
       status,
+      speed,
       pausing = false,
       file
     } = this.props.transport
@@ -218,7 +222,10 @@ export default class Tranporter extends React.Component {
         <span
           className={`sftp-file-percent mg1r iblock sftp-status-${status}`}
           title={localPath}
-        >{percent}%</span>
+        >
+          {percent}%
+          {speed ? `(${speed})` : null}
+        </span>
         <Icon
           type={pauseIcon}
           className="sftp-control-icon iblock pointer mg1r hover-black"
