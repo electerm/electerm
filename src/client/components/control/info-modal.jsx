@@ -6,10 +6,11 @@ import {Icon, Modal, Tabs, Button, Tag} from 'antd'
 import Link from '../common/external-link'
 import _ from 'lodash'
 
-const {prefix} = window
+const {prefix, lang} = window
 const e = prefix('control')
 const m = prefix('menu')
 const c = prefix('common')
+const a = prefix('app')
 const {TabPane} = Tabs
 
 export default function({
@@ -19,7 +20,7 @@ export default function({
   const {getGlobal} = window
   let {
     name,
-    description,
+    //description,
     devDependencies,
     dependencies,
     author: {
@@ -61,7 +62,7 @@ export default function({
               <span className="iblock mg1r">{name}</span>
               <Tag color="#08c">{version}</Tag>
             </h1>
-            <p className="mg1b">{description}</p>
+            <p className="mg1b">{a('desc')}</p>
             <p className="mg1b">
               <b className="mg1r">{e('author')}:</b>
               <Link to={authorUrl} className="mg1l">
@@ -104,18 +105,17 @@ export default function({
           </TabPane>
           <TabPane tab={e('userTips')} key="0">
             <ul>
-              <li className="pd1b">
-                <span className="bold color-red">double click</span> a ssh tab will duplicate a same tab, and enter same path as original tab(limited support)
-              </li>
-              <li className="pd1b">
-                <span className="bold color-red">double click</span> blank area of tab bar will open a new ssh terminal too
-              </li>
-              <li className="pd1b">
-                <span className="bold color-red">right click</span> a ssh tab you can open context menu, from context menu there are <span className="bold color-red">close other tabs</span>, <span className="bold color-red">close tabs on the right</span>, and more function
-              </li>
-              <li className="pd1b">
-                by default, <span className="bold color-red">Ctrl + 2</span> will bring electerm window to front, hotkey can be set in <span className="bold color-red">setting</span> menu
-              </li>
+              {
+                lang.userTips.map(t => {
+                  return (
+                    <li
+                      dangerouslySetInnerHTML={{
+                        __html: t
+                      }}
+                    />
+                  )
+                })
+              }
             </ul>
           </TabPane>
           <TabPane tab={e('dependencies')} key="4">
