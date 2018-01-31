@@ -14,7 +14,7 @@
 [![license](https://img.shields.io/github/license/electerm/electerm.svg)](https://github.com/electerm/electerm/blob/master/LICENSE)
 
 
-- terminal/ssh/sftp client(linux, mac, win) based on electron/node-pty/xterm and other libs, it works as a combination of `guake` and `xshell`
+- terminal/ssh/sftp client(linux, mac, win) based on electron/node-pty/xterm/antd and other libs, it works as a combination of `guake` and `xshell`
 - it is still on its early stage, more feature/test will be added.
 
 <div align="center">
@@ -30,7 +30,7 @@ http://electerm.html5beta.com
 - support multi platform(linux, mac, win)
 - support multi-language(https://github.com/electerm/electerm-locales)
 
-## issues/todo/roadmap
+## issues/todo/roadmap/tell me what you think
 https://github.com/electerm/electerm/issues
 
 ## dev

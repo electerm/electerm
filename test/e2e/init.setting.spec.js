@@ -1,11 +1,11 @@
 const { Application } = require('spectron')
 const electronPath = require('electron')
 const {resolve} = require('path')
-const {expect} = require('chai')
+const delay = require('./common/wait')
 const cwd = process.cwd()
 const _ = require('lodash')
 const {log} = console
-const delay = time => new Promise(resolve => setTimeout(resolve, time))
+const {expect} = require('chai')
 
 describe('init setting buttons', function () {
 

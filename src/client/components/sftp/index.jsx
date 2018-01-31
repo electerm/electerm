@@ -596,7 +596,7 @@ export default class Sftp extends React.Component {
       ? 'reload'
       : 'arrow-right'
     return (
-      <Col span={12}>
+      <Col span={12} className={'sftp-' + type + '-section'}>
         <Spin spinning={loading}>
           <div className="pd1 sftp-panel">
             {

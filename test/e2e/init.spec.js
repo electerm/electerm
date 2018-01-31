@@ -1,10 +1,10 @@
 const { Application } = require('spectron')
 const electronPath = require('electron')
 const {resolve} = require('path')
+const delay = require('./common/wait')
 const {expect} = require('chai')
 const cwd = process.cwd()
 const {log} = console
-const delay = time => new Promise(resolve => setTimeout(resolve, time))
 
 describe('main window', function () {
   this.timeout(100000)
