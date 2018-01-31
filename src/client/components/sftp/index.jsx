@@ -349,7 +349,7 @@ export default class Sftp extends React.Component {
     })
   }
 
-  remoteList = async (returnList = false, remotePathReal) => {
+  remoteList = async (returnList = false, remotePathReal, oldPath) => {
     let sftp = this.sftp || await Client()
     let {tab} = this.props
     let {username, startPath} = tab
@@ -417,14 +417,19 @@ export default class Sftp extends React.Component {
       }
       this.setState(update)
     } catch(e) {
-      this.setState({
+      let update = {
         remoteLoading: false
-      })
+      }
+      if (oldPath) {
+        update.remotePath = oldPath
+        update.remotePathTemp = oldPath
+      }
+      this.setState(update)
       this.onError(e)
     }
   }
 
-  localList = async (returnList = false, localPathReal) => {
+  localList = async (returnList = false, localPathReal, oldPath) => {
     if (!fs) return
     if (!returnList) {
       this.setState({
@@ -456,6 +461,14 @@ export default class Sftp extends React.Component {
       }
       this.setState(update)
     } catch(e) {
+      let update = {
+        localLoading: false
+      }
+      if (oldPath) {
+        update.localPath = oldPath
+        update.localPathTemp = oldPath
+      }
+      this.setState(update)
       this.onError(e)
     }
 
@@ -473,9 +486,10 @@ export default class Sftp extends React.Component {
     e && e.preventDefault()
     let n = `${type}Path`
     let nt = n + 'Temp'
+    let oldPath = this.state[type + 'Path']
     this.setState({
       [n]: this.state[nt]
-    }, this[`${type}List`])
+    }, () => this[`${type}List`](undefined, undefined, oldPath))
   }
 
   goParent = (type) => {
