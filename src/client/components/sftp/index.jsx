@@ -9,10 +9,11 @@ import FileSection from './file'
 import Confirms from './confirm-list'
 import resolve from '../../common/resolve'
 import wait from '../../common/wait'
+import classnames from 'classnames'
 import sorterIndex from '../../common/index-sorter'
 import DragSelect from './drag-select'
 import {getLocalFileInfo} from './file-read'
-import {isMac, typeMap, sftpControlHeight} from '../../common/constants'
+import {isMac, typeMap, sftpControlHeight, maxSftpHistory} from '../../common/constants'
 import {hasFileInClipboardText} from '../../common/clipboard'
 import Client from '../../common/sftp'
 import fs from '../../common/fs'
@@ -49,12 +50,16 @@ export default class Sftp extends React.Component {
       remoteFileTree: {},
       localLoading: false,
       remoteLoading: false,
+      localInputFocus: false,
+      remoteInputFocus: false,
       localShowHiddenFile: false,
       remoteShowHiddenFile: false,
       localPath: '',
       remotePath: '',
       localPathTemp: '',
       remotePathTemp: '',
+      localPathHistory: [],
+      remotePathHistory: [],
       transports: [],
       liveBasePath: null,
       selectedFiles: [],
@@ -76,6 +81,7 @@ export default class Sftp extends React.Component {
   componentWillUnmount() {
     this.destroyEvent()
     this.sftp && this.sftp.destroy()
+    clearTimeout(this.timer4)
   }
 
   initEvent() {
@@ -259,12 +265,20 @@ export default class Sftp extends React.Component {
 
   }
 
-  onInputFocus = () => {
+  onInputFocus = (type) => {
+    this.setState({
+      [type + 'InputFocus']: true
+    })
     this.inputFocus = true
   }
 
-  onInputBlur = () => {
+  onInputBlur = (type) => {
     this.inputFocus = false
+    this.timer4 = setTimeout(() => {
+      this.setState({
+        [type + 'InputFocus']: false
+      })
+    }, 200)
   }
 
   doCopy = (type) => {
@@ -415,6 +429,12 @@ export default class Sftp extends React.Component {
       if (returnList) {
         return remote
       }
+      if (oldPath) {
+        update.remotePathHistory = _.uniq([
+          oldPath,
+          ...this.state.remotePathHistory
+        ]).slice(0, maxSftpHistory)
+      }
       this.setState(update)
     } catch(e) {
       let update = {
@@ -459,6 +479,12 @@ export default class Sftp extends React.Component {
       if (returnList) {
         return local
       }
+      if (oldPath) {
+        update.localPathHistory = _.uniq([
+          oldPath,
+          ...this.state.localPathHistory
+        ]).slice(0, maxSftpHistory)
+      }
       this.setState(update)
     } catch(e) {
       let update = {
@@ -471,7 +497,6 @@ export default class Sftp extends React.Component {
       this.setState(update)
       this.onError(e)
     }
-
   }
 
   timers = {}
@@ -480,6 +505,15 @@ export default class Sftp extends React.Component {
     this.setState({
       [prop]: e.target.value
     })
+  }
+
+  onClickHistory = (type, path) => {
+    let n = `${type}Path`
+    let oldPath = this.state[type + 'Path']
+    this.setState({
+      [n]: path,
+      [`${n}Temp`]: path
+    }, () => this[`${type}List`](undefined, undefined, oldPath))
   }
 
   onGoto = (type, e) => {
@@ -500,7 +534,11 @@ export default class Sftp extends React.Component {
       this.setState({
         [n]: np,
         [n + 'Temp']: np
-      }, this[`${type}List`])
+      }, () => this[`${type}List`](
+        undefined,
+        undefined,
+        this.state[n]
+      ))
     }
   }
 
@@ -571,26 +609,61 @@ export default class Sftp extends React.Component {
     return (
       <div>
         <Tooltip
-          title={e('goParent')}
-          arrowPointAtCenter
-        >
-          <Icon
-            type="arrow-up"
-            placement="topLeft"
-            onClick={() => this.goParent(type)}
-          />
-        </Tooltip>
-        <Tooltip
           title={title}
           placement="topLeft"
           arrowPointAtCenter
         >
           <Icon
             type={icon}
-            className="mg1l"
+            className="mg1r"
             onClick={() => this.toggleShowHiddenFile(type)}
           />
         </Tooltip>
+        <Tooltip
+          title={e('goParent')}
+          arrowPointAtCenter
+          placement="topLeft"
+        >
+          <Icon
+            type="arrow-up"
+            onClick={() => this.goParent(type)}
+          />
+        </Tooltip>
+      </div>
+    )
+  }
+
+  renderHistory = (type) => {
+    let currentPath = this.state[type + 'Path']
+    let options = this.state[type + 'PathHistory']
+      .filter(o => o !== currentPath)
+    let focused = this.state[type + 'InputFocus']
+    if (!options.length) {
+      return null
+    }
+    let cls = classnames(
+      'sftp-history',
+      'animated',
+      `sftp-history-${type}`,
+      {focused}
+    )
+    return (
+      <div
+        className={cls}
+      >
+        {
+          options.map(o => {
+            return (
+              <div
+                key={o}
+                className="sftp-history-item"
+                onClick={() => this.onClickHistory(type, o)}
+              >
+                {o}
+              </div>
+            )
+          })
+        }
       </div>
     )
   }
@@ -633,8 +706,8 @@ export default class Sftp extends React.Component {
                   onChange={e => this.onChange(e, n)}
                   onPressEnter={e => this.onGoto(type, e)}
                   addonBefore={this.renderAddonBefore(type)}
-                  onFocus={this.onInputFocus}
-                  onBlur={this.onInputBlur}
+                  onFocus={() => this.onInputFocus(type)}
+                  onBlur={() => this.onInputBlur(type)}
                   addonAfter={
                     <Icon
                       type={goIcon}
@@ -642,6 +715,7 @@ export default class Sftp extends React.Component {
                     />
                   }
                 />
+                {this.renderHistory(type)}
               </div>
             </div>
             <div

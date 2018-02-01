@@ -56,12 +56,12 @@ export default class Index extends React.Component {
     }
   }
 
-  onResize = () => {
+  onResize = _.throttle(() => {
     this.setState({
       height: window.innerHeight,
       width: window.innerWidth
     })
-  }
+  }, 100)
 
   setStateLs = (update) => {
     Object.keys(update).forEach(k => {
