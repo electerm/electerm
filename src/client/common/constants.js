@@ -9,6 +9,8 @@ export const sftpControlHeight = 42 + 42
 
 export const maxHistory = 50
 
+export const maxSftpHistory = 20
+
 //export const maxTabs = 20
 
 export const tabWidth = 160

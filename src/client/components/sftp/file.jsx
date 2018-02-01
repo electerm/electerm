@@ -545,7 +545,11 @@ export default class FileSection extends React.Component {
     this.props.modifier({
       [n]: np,
       [n + 'Temp']: np
-    }, this.props[`${type}List`])
+    }, () => this.props[`${type}List`](
+      undefined,
+      undefined,
+      this.props[type + 'Path']
+    ))
   }
 
   openFile = file => {
