@@ -17,6 +17,7 @@ import {isMac, typeMap, sftpControlHeight, maxSftpHistory} from '../../common/co
 import {hasFileInClipboardText} from '../../common/clipboard'
 import Client from '../../common/sftp'
 import fs from '../../common/fs'
+import sorters, {ordersMap} from './sorters'
 import './sftp.styl'
 
 const {getGlobal, prefix, _config: config} = window
@@ -66,6 +67,8 @@ export default class Sftp extends React.Component {
       lastClickedFile: null,
       pathFix: '',
       onDrag: false,
+      order: 'DESC',
+      sortBy: 'modifyTime',
       filesToConfirm: []
     }
   }
@@ -152,6 +155,18 @@ export default class Sftp extends React.Component {
         selectedFiles: [nextFile]
       })
     }
+  }
+
+  onSort = sortBy => {
+    let oldSortBy = this.state.sortBy
+    let {order} = this.state
+    this.setState({
+      sortBy,
+      order: sortBy === oldSortBy
+        ? order === ordersMap.DESC ? ordersMap.ASC : ordersMap.DESC
+        : ordersMap.DESC
+    })
+    this.props.closeContextMenu()
   }
 
   localDel = async (file) => {
@@ -352,7 +367,10 @@ export default class Sftp extends React.Component {
     if (showHide) {
       return this.state[type]
     }
-    return this.state[type].filter(f => !/^\./.test(f.name))
+    let {sortBy, order} = this.state
+    return this.state[type]
+      .filter(f => !/^\./.test(f.name))
+      .sort(sorters(sortBy, order))
   }
 
   toggleShowHiddenFile = type => {
@@ -550,6 +568,7 @@ export default class Sftp extends React.Component {
       rootModifier: this.props.modifier,
       ..._.pick(this, [
         'sftp',
+        'onSort',
         'modifier',
         'localList',
         'remoteList',
@@ -567,6 +586,9 @@ export default class Sftp extends React.Component {
         'remotePath',
         'localFileTree',
         'remoteFileTree',
+        'sortBy',
+        'order',
+        'sortData',
         typeMap.local,
         typeMap.remote,
         'lastClickedFile',

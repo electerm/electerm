@@ -19,6 +19,7 @@ import sorter from '../../common/index-sorter'
 import {getLocalFileInfo, getFolderFromFilePath, getRemoteFileInfo} from './file-read'
 import {readClipboard, copy as copyToClipboard, hasFileInClipboardText} from '../../common/clipboard'
 import fs from '../../common/fs'
+import {sortBys, ordersMap} from './sorters'
 
 const {prefix} = window
 const e = prefix('sftp')
@@ -679,6 +680,42 @@ export default class FileSection extends React.Component {
     return !isWin
   }
 
+  renderSorters = (cls) => {
+    let {sortBy, order} = this.props
+    return (
+      <div
+        className={cls + ' bordert'}
+      >
+        {
+          sortBys.map((sort, i) => {
+            let active = sortBy === sort
+            let icon = 'arrow-down'
+            if (active) {
+              icon = order === ordersMap.DESC
+                ? 'arrow-down'
+                : 'arrow-up'
+            }
+            let c = classnames(
+              'sftp-sort-btn',
+              {mg1l: i},
+              {active}
+            )
+            return (
+              <span
+                className={c}
+                key={sort}
+                onClick={() => this.props.onSort(sort)}
+              >
+                {e(sort)} <Icon type={icon} />
+              </span>
+            )
+          })
+        }
+      </div>
+    )
+
+  }
+
   renderContext() {
     let {
       file: {
@@ -839,6 +876,7 @@ export default class FileSection extends React.Component {
             )
             : null
         }
+        {this.renderSorters(cls)}
       </div>
     )
   }
