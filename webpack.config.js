@@ -106,6 +106,14 @@ var config = {
         })
       },
       {
+        test: /xterm\.css$/,
+        use: extractTextPlugin1.extract({
+          fallback: 'style-loader',
+          publicPath: '../',
+          use: ['css-loader']
+        })
+      },
+      {
         test: /\.(png|jpg|svg)$/,
         use: ['url-loader?limit=10192&name=images/[hash].[ext]']
       },
