@@ -1,0 +1,14 @@
+/app/
+/bin/
+/build/
+/src/
+/test/
+/appveyor.yml
+/.babelrc
+/config.default.js
+/electron-builder.json
+/.eslintignore
+/.eslintrc
+/.gitignore
+/.travis.yml
+/webpack.config.js
