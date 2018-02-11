@@ -5,7 +5,6 @@
 const os = require('os')
 const {resolve} = require('path')
 const {exec} = require('shelljs')
-const pack = require('../package.json')
 const rp = require('phin').promisified
 const download = require('download')
 const isWin = os.platform() === 'win32'
