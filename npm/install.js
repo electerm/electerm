@@ -11,6 +11,7 @@ const download = require('download')
 const isWin = os.platform() === 'win32'
 const isMac = os.platform() === 'darwin'
 const releaseInfoUrl = 'https://raw.githubusercontent.com/electerm/electerm.html5beta.com/gh-pages/data/electerm-github-release.json'
+const versionUrl = 'http://electerm.html5beta.com/version'
 
 //todo support mac/windows install
 if (isMac || isWin) {
@@ -27,7 +28,13 @@ function down (url) {
 }
 
 async function run() {
-  let target = resolve(__dirname, `../electerm-${pack.version}-linux-x64`)
+  let ver = await rp({
+    url: versionUrl,
+    timeout: 15000
+  })
+    .then(res => res.body.toString())
+
+  let target = resolve(__dirname, `../electerm-${ver.replace('v', '')}-linux-x64`)
   let targetNew = resolve(__dirname, '../electerm')
   exec(`rm -rf ${target} ${targetNew}`)
   let releaseInfo = await rp({
