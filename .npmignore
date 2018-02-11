@@ -12,3 +12,6 @@
 /.gitignore
 /.travis.yml
 /webpack.config.js
+/work/
+/package-bak.json
+/temp/

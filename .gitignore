@@ -19,6 +19,7 @@ test/e2e/reports
 /*.yaml
 /pm2
 /electerm/
+/package-bak.json
 package-lock.json
 /app/config.js
 /app/*.json
