@@ -41,9 +41,8 @@ async function run() {
   //await down('http://192.168.0.67:7500/electerm-0.16.1.tar.gz')
   let target = resolve(__dirname, `../electerm-${pack.version}-linux-x64`)
   let targetNew = resolve(__dirname, '../electerm')
-  let str = `mv ${target} ${targetNew}`
-  console.log(str)
-  exec(str)
+  exec(`rm -rf ${target} ${targetNew}`)
+  exec(`mv ${target} ${targetNew}`)
   exec('electerm')
 }
 
