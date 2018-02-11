@@ -27,6 +27,9 @@ function down (url) {
 }
 
 async function run() {
+  let target = resolve(__dirname, `../electerm-${pack.version}-linux-x64`)
+  let targetNew = resolve(__dirname, '../electerm')
+  exec(`rm -rf ${target} ${targetNew}`)
   let releaseInfo = await rp({
     url: releaseInfoUrl,
     timeout: 15000
@@ -39,9 +42,6 @@ async function run() {
     })
   await down(releaseInfo.browser_download_url)
   //await down('http://192.168.0.67:7500/electerm-0.16.1.tar.gz')
-  let target = resolve(__dirname, `../electerm-${pack.version}-linux-x64`)
-  let targetNew = resolve(__dirname, '../electerm')
-  exec(`rm -rf ${target} ${targetNew}`)
   exec(`mv ${target} ${targetNew}`)
   exec('electerm')
 }
