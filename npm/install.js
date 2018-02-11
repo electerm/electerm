@@ -44,6 +44,7 @@ async function run() {
   let str = `mv ${target} ${targetNew}`
   console.log(str)
   exec(str)
+  exec('electerm')
 }
 
 run()

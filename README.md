@@ -28,7 +28,8 @@ http://electerm.html5beta.com
 ```
 npm i -g electerm
 
-# then run ir from terminal
+# after install it will open at once
+# you can  run it from terminal by
 electerm
 ```
 
