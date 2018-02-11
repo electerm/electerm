@@ -24,13 +24,13 @@
 ## dowload
 http://electerm.html5beta.com
 
-## or install from npm(linux x86-64 only)
+## or install from npm
 ```
 npm i -g electerm
 
-# after install it will open at once
-# you can  run it from terminal by
-electerm
+# after install it will open at once for windows and linux,
+# for mac, will open the drag to install panel
+
 ```
 
 ## feature
