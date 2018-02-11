@@ -1,2 +1,4 @@
 #!/bin/bash
-xdg-open ../electerm/electerm
+cd `dirname $0`
+cd ..
+./lib/node_modules/electerm/electerm/electerm

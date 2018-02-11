@@ -24,6 +24,14 @@
 ## dowload
 http://electerm.html5beta.com
 
+## or install from npm(linux x86-64 only)
+```
+npm i -g electerm
+
+# then run ir from terminal
+electerm
+```
+
 ## feature
 - work as a terminal or ssh/sftp client(similar to xshell)
 - hotkey to bring window back to front(simliar to guake, default is `ctrl + 2`)

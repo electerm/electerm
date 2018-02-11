@@ -37,8 +37,8 @@ async function run() {
         .assets
         .filter(r => /electerm-\d+\.\d+\.\d+\.tar\.gz/.test(r.name))[0]
     })
-  //await down(releaseInfo.browser_download_url)
-  await down('http://192.168.0.67:7500/electerm-0.16.1.tar.gz')
+  await down(releaseInfo.browser_download_url)
+  //await down('http://192.168.0.67:7500/electerm-0.16.1.tar.gz')
   let target = resolve(__dirname, `../electerm-${pack.version}-linux-x64`)
   let targetNew = resolve(__dirname, '../electerm')
   let str = `mv ${target} ${targetNew}`
