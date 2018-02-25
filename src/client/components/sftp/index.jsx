@@ -65,6 +65,7 @@ export default class Sftp extends React.Component {
       liveBasePath: null,
       selectedFiles: [],
       lastClickedFile: null,
+      onEditFile: false,
       pathFix: '',
       onDrag: false,
       order: 'DESC',
@@ -261,11 +262,8 @@ export default class Sftp extends React.Component {
   }
 
   enter = (type, e) => {
-    let {selectedFiles} = this.state
-    let isEditting = _.some(this.state[type], f => {
-      return f.isEditting
-    })
-    if (isEditting || selectedFiles.length !== 1) {
+    let {selectedFiles, onEditFile} = this.state
+    if (onEditFile || selectedFiles.length !== 1) {
       return
     }
     let file = selectedFiles[0]
@@ -446,6 +444,8 @@ export default class Sftp extends React.Component {
       }
       if (returnList) {
         return remote
+      } else {
+        update.onEditFile = false
       }
       if (oldPath) {
         update.remotePathHistory = _.uniq([
@@ -496,6 +496,8 @@ export default class Sftp extends React.Component {
       }
       if (returnList) {
         return local
+      } else {
+        update.onEditFile = false
       }
       if (oldPath) {
         update.localPathHistory = _.uniq([

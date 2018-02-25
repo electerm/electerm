@@ -315,6 +315,9 @@ export default class FileSection extends React.Component {
     file.nameTemp = file.name
     file.isEditting = true
     this.props.closeContextMenu()
+    this.props.modifier({
+      onEditFile: true
+    })
     this.setState({
       file
     })
@@ -658,7 +661,8 @@ export default class FileSection extends React.Component {
     })
     this.props.closeContextMenu()
     this.props.modifier({
-      [type]: list
+      [type]: list,
+      onEditFile: true
     })
   }
 
