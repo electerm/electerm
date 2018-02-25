@@ -99,9 +99,9 @@ export default class Confirms extends React.Component {
 
   getBasePath = (type, isOtherType) => {
     let {pathFix} = this.props
-    let base = type === typeMap.local
-      ? this.liveBasePath || this.props[type + 'Path']
-      : this.props[type + 'Path']
+    let base = isOtherType
+      ? this.props[type + 'Path']
+      : this.liveBasePath || this.props[type + 'Path']
     return pathFix && isOtherType
       ? resolve(base, pathFix)
       : base
@@ -153,7 +153,7 @@ export default class Confirms extends React.Component {
       : typeMap.local
     let basePath = this.getBasePath(type)
     let beforePath = resolve(path, name)
-    let reg = new RegExp('^' + basePath)
+    let reg = new RegExp('^' + basePath.replace(/\\/g, '\\\\'))
     let otherPath = this.getBasePath(otherType, true)
     let targetPath = beforePath.replace(reg, otherPath)
     return await this.checkExist(type, targetPath)
