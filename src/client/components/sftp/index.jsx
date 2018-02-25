@@ -68,8 +68,10 @@ export default class Sftp extends React.Component {
       onEditFile: false,
       pathFix: '',
       onDrag: false,
-      order: 'DESC',
-      sortBy: 'modifyTime',
+      localOrder: 'DESC',
+      remoteOrder: 'DESC',
+      localSortBy: 'modifyTime',
+      remoteSortBy: 'modifyTime',
       filesToConfirm: []
     }
   }
@@ -158,12 +160,12 @@ export default class Sftp extends React.Component {
     }
   }
 
-  onSort = sortBy => {
-    let oldSortBy = this.state.sortBy
-    let {order} = this.state
+  onSort = (sortBy, type) => {
+    let oldSortBy = this.state[`${type}SortBy`]
+    let order = this.state[`${type}Order`]
     this.setState({
-      sortBy,
-      order: sortBy === oldSortBy
+      [`${type}SortBy`]: sortBy,
+      [`${type}Order`]: sortBy === oldSortBy
         ? order === ordersMap.DESC ? ordersMap.ASC : ordersMap.DESC
         : ordersMap.DESC
     })
@@ -361,11 +363,12 @@ export default class Sftp extends React.Component {
   }
 
   getFileList = type => {
+    let sortBy = this.state[`${type}SortBy`]
+    let order = this.state[`${type}Order`]
     let showHide = this.state[`${type}ShowHiddenFile`]
     if (showHide) {
-      return this.state[type]
+      return this.state[type].sort(sorters(sortBy, order))
     }
-    let {sortBy, order} = this.state
     return this.state[type]
       .filter(f => !/^\./.test(f.name))
       .sort(sorters(sortBy, order))
@@ -588,8 +591,10 @@ export default class Sftp extends React.Component {
         'remotePath',
         'localFileTree',
         'remoteFileTree',
-        'sortBy',
-        'order',
+        'localOrder',
+        'remoteOrder',
+        'localSortBy',
+        'remoteSortBy',
         'sortData',
         typeMap.local,
         typeMap.remote,

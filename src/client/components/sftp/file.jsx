@@ -685,7 +685,9 @@ export default class FileSection extends React.Component {
   }
 
   renderSorters = (cls) => {
-    let {sortBy, order} = this.props
+    let {type} = this.state.file
+    let sortBy = this.props[`${type}SortBy`]
+    let order = this.props[`${type}Order`]
     return (
       <div
         className={cls + ' bordert'}
@@ -708,7 +710,7 @@ export default class FileSection extends React.Component {
               <span
                 className={c}
                 key={sort}
-                onClick={() => this.props.onSort(sort)}
+                onClick={() => this.props.onSort(sort, type)}
               >
                 {e(sort)} <Icon type={icon} />
               </span>
