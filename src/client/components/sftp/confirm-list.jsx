@@ -239,7 +239,7 @@ export default class Confirms extends React.Component {
       : typeMap.local
     let basePath = this.getBasePath(type)
     let otherBasePath = this.getBasePath(otherType, true)
-    let regBase = new RegExp('^' + basePath)
+    let regBase = new RegExp('^' + basePath.replace(/\\/g, '\\\\'))
     let targetPath = path.replace(regBase, otherBasePath)
     let newName = shouldRename
       ? this.buildNewName(name, isDirectory)
@@ -268,8 +268,8 @@ export default class Confirms extends React.Component {
     let repPath = this.getBasePath(otherType, true)
     let beforePath = resolve(bp, name)
     let newPath = resolve(bp, newName)
-    let reg = new RegExp('^' + basePath)
-    let reg1 = new RegExp('^' + beforePath)
+    let reg = new RegExp('^' + basePath.replace(/\\/g, '\\\\'))
+    let reg1 = new RegExp('^' + beforePath.replace(/\\/g, '\\\\'))
     let i = index + 0
     let transferList = copy(this.state.transferList)
     for (;;i ++) {
