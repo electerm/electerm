@@ -119,6 +119,7 @@ export default class Term extends React.Component {
     let selected = readClipboard()
     this.term._sendData(selected)
     this.props.closeContextMenu()
+    this.term.focus()
   }
 
   renderContext = () => {
