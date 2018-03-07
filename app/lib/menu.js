@@ -7,11 +7,18 @@ const isDev = NODE_ENV === 'development'
 const packInfo = require(isDev ? '../../package.json' : '../package.json')
 const {prefix} = require('./locales')
 const e = prefix('menu')
+const c = prefix('control')
 
 const template = [
   {
     label: e('edit'),
     submenu: [
+      {
+        label: c('newSsh'),
+        click () {
+          require('./win').win.webContents.send('new-ssh', null)
+        }
+      },
       {role: 'undo', label: e('undo')},
       {role: 'redo', label: e('redo')},
       {type: 'separator'},
@@ -29,6 +36,12 @@ const template = [
       {role: 'reload', label: e('reload')},
       {role: 'forcereload', label: e('forcereload')},
       {role: 'toggledevtools', label: e('toggledevtools')},
+      {
+        label: e('toggleControl'),
+        click () {
+          require('./win').win.webContents.send('toggle-control', null)
+        }
+      },
       {type: 'separator'},
       {role: 'resetzoom', label: e('resetzoom')},
       {role: 'zoomin', label: e('zoomin')},

@@ -29,10 +29,14 @@ export default function Btns(props) {
     bookmarks = [],
     history = [],
     onEditBookmark,
-    openAbout
+    openAbout,
+    showControl
   } = props
   return (
-    <div className="btns pd1 borderb fix">
+    <div className={
+      `btns pd1 borderb fix${showControl ? '' : ' hide'}`
+    }
+    >
       <div className="fleft">
         <Button
           className="mg1r iblock"
