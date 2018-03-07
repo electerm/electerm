@@ -29,6 +29,7 @@ export default class Index extends React.Component {
       bookmarks: ls.get(settingMap.bookmarks) || [],
       config: _config || {},
       contextMenuProps: {},
+      showControl: true,
       contextMenuVisible: false,
       fileInfoModalProps: {},
       fileModeModalProps: {},
@@ -41,8 +42,10 @@ export default class Index extends React.Component {
     window.addEventListener('resize', this.onResize)
     this.onResize()
     window._require('electron')
-      .ipcRenderer.on('checkupdate', this.onCheckUpdate)
+      .ipcRenderer
+      .on('checkupdate', this.onCheckUpdate)
       .on('open-about', this.openAbout)
+      .on('toggle-control', this.toggleControl)
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -88,6 +91,13 @@ export default class Index extends React.Component {
     openInfoModal({
       onCheckUpdatingo: this.nCheckUpdating,
       onCheckUpdate: this.onCheckUpdate
+    })
+  }
+
+  toggleControl = () => {
+    this.setState(old => {
+      old.showControl = !old.showControl
+      return old
     })
   }
 

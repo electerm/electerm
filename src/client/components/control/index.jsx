@@ -28,6 +28,12 @@ export default class IndexControl extends React.Component {
     tab: settingMap.bookmarks
   }
 
+  componentDidMount() {
+    window._require('electron')
+      .ipcRenderer
+      .on('new-ssh', this.onNewSsh)
+  }
+
   onDup = tab => {
     delete tab.status
     this.props.addTab({
