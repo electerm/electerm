@@ -2,8 +2,8 @@
  * format transfer speed
  */
 
-let m1 = 1024 * 1024
-let k1 = 1024
+let m1 = 1000 * 1000
+let k1 = 1000
 
 export default (bytes, startTime) => {
   let now = +new Date()
@@ -12,8 +12,8 @@ export default (bytes, startTime) => {
   }
   let speed = bytes / ((now - startTime) / 1000)
   if (speed > m1) {
-    return (speed / m1).toFixed(1) + 'MiB/s'
+    return (speed / m1).toFixed(1) + 'MB/s'
   } else {
-    return (speed / k1).toFixed(1) + 'KiB/s'
+    return (speed / k1).toFixed(1) + 'KB/s'
   }
 }
