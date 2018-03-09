@@ -89,7 +89,7 @@ const initWs = function (app) {
     //end
   })
 
-  //transfer function
+  //fs function
   app.ws('/fs/:id', (ws) => {
     wsDec(ws)
     ws.on('message', (message) => {

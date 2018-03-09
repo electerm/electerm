@@ -35,13 +35,24 @@ class Transfer {
     let th = this
     readSteam.on('data', chunk => {
       count += chunk.length
-      th.onData(count)
-      writeSteam.write(chunk)
+      writeSteam.write(chunk, () => {
+        th.onData(count)
+      })
     })
 
-    readSteam.on('close', () => this.onEnd(id, ws))
+    readSteam.on('close', () => {
+      writeSteam.end('', () => this.onEnd(id, ws))
+    })
 
     readSteam.on('error', (err) => this.onError(err, id))
+
+    // writeSteam.on('drain', () => {
+    //   ///chunkcount --
+    //   console.log('chunkcount', chunkcount)
+    //   if (this.readEnd) {
+    //     this.onEnd(id, ws)
+    //   }
+    // })
 
     this.readSteam = readSteam
     this.writeSteam = writeSteam
@@ -75,7 +86,6 @@ class Transfer {
 
   destroy () {
     this.readSteam.destroy()
-    this.writeSteam.destroy()
     this.ws.close()
   }
 
