@@ -46,14 +46,6 @@ class Transfer {
 
     readSteam.on('error', (err) => this.onError(err, id))
 
-    // writeSteam.on('drain', () => {
-    //   ///chunkcount --
-    //   console.log('chunkcount', chunkcount)
-    //   if (this.readEnd) {
-    //     this.onEnd(id, ws)
-    //   }
-    // })
-
     this.readSteam = readSteam
     this.writeSteam = writeSteam
     this.ws = ws
