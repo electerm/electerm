@@ -3,6 +3,7 @@
  */
 
 let {Client} = require('ssh2')
+const _ = require('lodash')
 
 class Sftp {
 
@@ -16,6 +17,14 @@ class Sftp {
    */
   connect(config) {
     let {client} = this
+    let confs = Object.assign(
+      {},
+      {
+        readyTimeout: _.get(global, 'et._config.sshReadyTimeout'),
+        keepaliveInterval: _.get(global, 'et._config.keepaliveInterval')
+      },
+      config
+    )
     return new Promise((resolve, reject) => {
       client.on('ready', () => {
         client.sftp((err, sftp) => {
@@ -27,7 +36,7 @@ class Sftp {
         })
       }).on('error', (err) => {
         reject(err)
-      }).connect(config)
+      }).connect(confs)
     })
   }
 

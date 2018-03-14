@@ -398,10 +398,7 @@ export default class Sftp extends React.Component {
     }
     try {
       if (!this.sftp) {
-        await sftp.connect({
-          ...tab,
-          readyTimeout: config.readyTimeout
-        })
+        await sftp.connect(tab)
       }
 
       if (!remotePath) {
