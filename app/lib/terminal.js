@@ -40,7 +40,8 @@ class Terminal {
       let opts = Object.assign(
         {},
         {
-          readyTimeout: _.get(global, 'et._config.sshReadyTimeout')
+          readyTimeout: _.get(global, 'et._config.sshReadyTimeout'),
+          keepaliveInterval: _.get(global, 'et._config.keepaliveInterval')
         },
         _.pick(initOptions, [
           'host',
