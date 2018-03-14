@@ -30,6 +30,7 @@ export default function Btns(props) {
     history = [],
     onEditBookmark,
     openAbout,
+    openHistory,
     showControl
   } = props
   return (
@@ -43,7 +44,8 @@ export default function Btns(props) {
           type="ghost"
           icon="plus"
           onClick={onNewSsh}
-        >{e('newSsh')}</Button>
+          title={e('newSsh')}
+        />
         <Select
           className="mg1r iblock"
           onSelect={onSelectHistory}
@@ -86,7 +88,15 @@ export default function Btns(props) {
           type="ghost"
           icon="setting"
           onClick={openSetting}
-        >{c('setting')}</Button>
+          title={c('setting')}
+        />
+        <Button
+          className="mg2l iblock"
+          type="ghost"
+          icon="table"
+          onClick={openHistory}
+          title={c('transferHistory')}
+        />
       </div>
       <div className="fright line-height28">
         <Icon

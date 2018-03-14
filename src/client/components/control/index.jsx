@@ -2,7 +2,7 @@
 import React from 'react'
 import Tabs from './tabs'
 import Btns from './btns'
-import Modal from './modal'
+import SettingModal from './setting-modal'
 import {generate} from 'shortid'
 import _ from 'lodash'
 import copy from 'json-deep-copy'
@@ -130,7 +130,7 @@ export default class IndexControl extends React.Component {
     }
     return (
       <div>
-        <Modal
+        <SettingModal
           {...this.props}
           {...props}
           ref={ref => this.modal = ref}
