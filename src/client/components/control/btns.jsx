@@ -30,7 +30,7 @@ export default function Btns(props) {
     history = [],
     onEditBookmark,
     openAbout,
-    openHistory,
+    openTransferHistory,
     showControl
   } = props
   return (
@@ -93,8 +93,8 @@ export default function Btns(props) {
         <Button
           className="mg2l iblock"
           type="ghost"
-          icon="table"
-          onClick={openHistory}
+          icon="swap"
+          onClick={openTransferHistory}
           title={c('transferHistory')}
         />
       </div>

@@ -3,6 +3,7 @@ import React from 'react'
 import Tabs from './tabs'
 import Btns from './btns'
 import SettingModal from './setting-modal'
+import TransferHistoryModal from './transfer-history-modal'
 import {generate} from 'shortid'
 import _ from 'lodash'
 import copy from 'json-deep-copy'
@@ -135,6 +136,7 @@ export default class IndexControl extends React.Component {
           {...props}
           ref={ref => this.modal = ref}
         />
+        <TransferHistoryModal {...this.props} />
         <Btns
           {...this.props}
           {...props}

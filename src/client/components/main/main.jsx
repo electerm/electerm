@@ -29,6 +29,7 @@ export default class Index extends React.Component {
       bookmarks: ls.get(settingMap.bookmarks) || [],
       config: _config || {},
       contextMenuProps: {},
+      transferHistory: [],
       showControl: true,
       contextMenuVisible: false,
       fileInfoModalProps: {},
@@ -92,6 +93,10 @@ export default class Index extends React.Component {
       onCheckUpdatingo: this.nCheckUpdating,
       onCheckUpdate: this.onCheckUpdate
     })
+  }
+
+  openTransferHistory = () => {
+
   }
 
   toggleControl = () => {
