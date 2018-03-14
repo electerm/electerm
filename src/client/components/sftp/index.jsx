@@ -20,7 +20,7 @@ import fs from '../../common/fs'
 import sorters, {ordersMap} from './sorters'
 import './sftp.styl'
 
-const {getGlobal, prefix, _config: config} = window
+const {getGlobal, prefix} = window
 const e = prefix('sftp')
 const c = prefix('common')
 
