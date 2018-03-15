@@ -10,7 +10,7 @@ import FileModeModal from '../sftp/file-mode-modal'
 import UpdateCheck from './update-check'
 import {notification} from 'antd'
 import openInfoModal from '../control/info-modal'
-import {maxHistory, settingMap} from '../../common/constants'
+import {maxHistory, settingMap, maxTransferHistory} from '../../common/constants'
 
 const {getGlobal, _config} = window
 const ls = getGlobal('ls')
@@ -29,11 +29,13 @@ export default class Index extends React.Component {
       bookmarks: ls.get(settingMap.bookmarks) || [],
       config: _config || {},
       contextMenuProps: {},
+      transferHistory: [],
       showControl: true,
       contextMenuVisible: false,
       fileInfoModalProps: {},
       fileModeModalProps: {},
       shouldCheckUpdate: 0,
+      transferHistoryModalVisible: false,
       onCheckUpdating: false
     }
   }
@@ -91,6 +93,35 @@ export default class Index extends React.Component {
     openInfoModal({
       onCheckUpdatingo: this.nCheckUpdating,
       onCheckUpdate: this.onCheckUpdate
+    })
+  }
+
+  openTransferHistory = () => {
+    this.setState({
+      transferHistoryModalVisible: true
+    })
+  }
+
+  closeTransferHistory = () => {
+    this.setState({
+      transferHistoryModalVisible: false
+    })
+  }
+
+  clearTransferHistory = () => {
+    this.setState({
+      transferHistory: [],
+      transferHistoryModalVisible: false
+    })
+  }
+
+  addTransferHistory = (item) => {
+    let transferHistory = [
+      item,
+      ...copy(this.state.transferHistory)
+    ].slice(0, maxTransferHistory)
+    this.setState({
+      transferHistory
     })
   }
 
@@ -221,6 +252,10 @@ export default class Index extends React.Component {
       ...this.state,
       ..._.pick(this, [
         'modifier', 'delTab', 'addTab', 'editTab',
+        'openTransferHistory',
+        'clearTransferHistory',
+        'closeTransferHistory',
+        'addTransferHistory',
         'onError', 'openContextMenu', 'closeContextMenu',
         'modifyLs', 'addItem', 'editItem', 'delItem',
         'onCheckUpdate', 'openAbout'

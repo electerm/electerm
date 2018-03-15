@@ -30,6 +30,7 @@ export const authTypeMap = {
   privateKey: 'privateKey'
 }
 
+export const maxTransferHistory = 100
 export const topMenuHeight = 39
 export const tabsHeight = 46
 export const sshTabHeight = 36
