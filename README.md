@@ -22,7 +22,7 @@
 </div>
 
 ## dowload
-http://electerm.html5beta.com
+https://electerm.html5beta.com
 
 ## or install from npm
 ```
@@ -59,6 +59,12 @@ npm run c
 
 # app
 npm run dev
+```
+
+# test
+```bash
+npm run pre-test
+npm run test
 ```
 
 ## test build
