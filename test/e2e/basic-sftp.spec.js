@@ -96,6 +96,32 @@ describe('ssh', function () {
     let localFileList0 = await client.elements('.ssh-wrap-show .file-list.local .sftp-item')
     expect(localFileList0.value.length).equal(1)
 
+    //new file
+    await client.rightClick('.ssh-wrap-show .virtual-file-local', 10, 10)
+    await client.execute(function() {
+      document.querySelector('.context-menu .anticon-file-add').click()
+    })
+    await delay(200)
+    let fname00 = '00000test-electerm' + generate()
+    await client.setValue('.ssh-wrap-show .sftp-item input', fname00)
+    await client.doubleClick('.ssh-wrap-show .sftp-title-wrap')
+    await delay(2500)
+    let localFileList00 = await client.elements('.ssh-wrap-show .file-list.local .sftp-item')
+    expect(localFileList00.value.length).equal(2)
+
+    //select all and del Control
+    await client.rightClick('.ssh-wrap-show .virtual-file-local', 10, 10)
+    await client.execute(function() {
+      document.querySelector('.context-menu .anticon-check-square-o').click()
+    })
+    await delay(20)
+    await client.keys(['Delete'])
+    await delay(20)
+    await client.keys(['Enter'])
+    await delay(2000)
+    let localFileList11 = await client.elements('.ssh-wrap-show .file-list.local .sftp-item')
+    expect(localFileList11.value.length).equal(1)
+
     //goto parent
     await client.execute(function() {
       document.querySelector('.ssh-wrap-show .sftp-local-section .anticon-arrow-up').click()
@@ -103,6 +129,8 @@ describe('ssh', function () {
     await delay(2000)
     let localFileList1 = await client.elements('.ssh-wrap-show .file-list.local .sftp-item')
     expect(localFileList1.value.length).equal(localFileList.value.length)
+
+
 
     //del folder
     await client.execute(function() {
