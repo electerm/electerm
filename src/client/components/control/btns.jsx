@@ -10,6 +10,7 @@ const {prefix} = window
 const e = prefix('control')
 const c = prefix('common')
 const m = prefix('menu')
+const h = prefix('transferHistory')
 
 const commonSelectProps = {
   showSearch: true,
@@ -30,7 +31,9 @@ export default function Btns(props) {
     history = [],
     onEditBookmark,
     openAbout,
-    showControl
+    openTransferHistory,
+    showControl,
+    transferHistory
   } = props
   return (
     <div className={
@@ -43,7 +46,8 @@ export default function Btns(props) {
           type="ghost"
           icon="plus"
           onClick={onNewSsh}
-        >{e('newSsh')}</Button>
+          title={e('newSsh')}
+        />
         <Select
           className="mg1r iblock"
           onSelect={onSelectHistory}
@@ -86,7 +90,21 @@ export default function Btns(props) {
           type="ghost"
           icon="setting"
           onClick={openSetting}
-        >{c('setting')}</Button>
+          title={c('setting')}
+        />
+        {
+          transferHistory.length
+            ? (
+              <Button
+                className="mg2l iblock"
+                type="ghost"
+                icon="swap"
+                onClick={openTransferHistory}
+                title={h('transferHistory')}
+              />
+            )
+            : null
+        }
       </div>
       <div className="fright line-height28">
         <Icon

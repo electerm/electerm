@@ -92,9 +92,22 @@ export default class Tranporter extends React.Component {
     if (this.onCancel) {
       return
     }
-    let {type} = this.props.transport
-    type = type === transferTypeMap.download ? typeMap.local : typeMap.remote
-    let cb = this.props[type + 'List']
+    let {type, id, localPath, remotePath, file} = this.props.transport
+    let type0 = type === transferTypeMap.download ? typeMap.local : typeMap.remote
+    let cb = this.props[type0 + 'List']
+    let {startTime} = this
+    let finishTime = +new Date()
+    let {size} = file
+    this.props.addTransferHistory({
+      id,
+      localPath,
+      remotePath,
+      startTime,
+      finishTime,
+      type,
+      size: file.size,
+      speed: format(size, startTime)
+    })
     this.timer = setTimeout(
       () => this.cancel(cb),
       100

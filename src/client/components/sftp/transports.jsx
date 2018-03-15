@@ -104,7 +104,7 @@ export default class Transports extends React.Component {
   }
 
   renderContent = () => {
-    let {transports} = this.props
+    let {transports, addTransferHistory} = this.props
     let {currentTransport} = this.state
     return (
       <div className="transports-content overscroll-y">
@@ -116,6 +116,7 @@ export default class Transports extends React.Component {
                 transport={t}
                 key={id + ':tr:' + i}
                 {...this.props}
+                addTransferHistory={addTransferHistory}
                 onChildDestroy={this.onChildDestroy}
                 currentTransport={currentTransport}
                 ref={ref => this[`ref__${id}`] = ref}
