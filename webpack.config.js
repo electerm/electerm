@@ -50,6 +50,7 @@ const stylusSettingPlugin =  new webpack.LoaderOptionsPlugin({
 })
 
 var config = {
+  mode: 'development',
   entry: {
     essh: './src/client/entry/index.jsx',
     'common-css': './src/client/entry/common-css.jsx',
@@ -121,7 +122,12 @@ var config = {
         test: /\.pug$/,
         use: [
           'file-loader?name=index.html',
-          'extract-loader',
+          {
+            loader: 'extract-loader',
+            options: {
+              publicPath: ''
+            }
+          },
           'html-loader',
           pug
         ]
@@ -175,7 +181,7 @@ if (env === 'production') {
   config.plugins = [
     new webpack.DefinePlugin({
       'process.env': {
-        'NODE_ENV': '\'production\''
+        'NODE_ENV': JSON.stringify('production')
       }
     }),
     packThreadCount === 0 ? null : new HappyPack(happyConf),
@@ -194,7 +200,7 @@ if (env === 'production') {
     // }),
     new BabiliPlugin()
   ]
-
+  config.mode = 'production'
   delete config.watch
   delete config.devtool
   delete config.devServer
