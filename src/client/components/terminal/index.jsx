@@ -1,9 +1,10 @@
 
 import React from 'react'
-import fetch from '../../common/fetch'
+import fetch, {handleErr} from '../../common/fetch'
 import {generate} from 'shortid'
 import _ from 'lodash'
-import {Spin, Icon} from 'antd'
+import {Spin, Icon, Modal, Button, Checkbox} from 'antd'
+import Input from '../common/input-auto-focus'
 import {statusMap} from '../../common/constants'
 import './terminal.styl'
 import {contextMenuHeight, contextMenuPaddingTop, typeMap, contextMenuWidth} from '../../common/constants'
@@ -22,6 +23,10 @@ Terminal.applyAddon(search)
 const {prefix, _config: config} = window
 const e = prefix('ssh')
 const m = prefix('menu')
+const f = prefix('form')
+const c = prefix('common')
+
+const authFailMsg = 'All configured authentication methods failed'
 
 const computePos = (e, height) => {
   let {clientX, clientY} = e
@@ -44,7 +49,10 @@ export default class Term extends React.Component {
     super()
     this.state = {
       id: props.id || 'id' + generate(),
-      loading: false
+      loading: false,
+      promoteModalVisible: false,
+      savePassword: false,
+      tempPassword: ''
     }
   }
 
@@ -72,8 +80,8 @@ export default class Term extends React.Component {
       clearTimeout(this.timers[k])
     })
     clearTimeout(this.timers)
-    this.socket.close()
-    this.term.destroy()
+    this.socket && this.socket.close()
+    this.term && this.term.destroy()
   }
 
   timers = {}
@@ -162,20 +170,16 @@ export default class Term extends React.Component {
 
   initTerminal = async () => {
     let {id} = this.state
-    let {startPath} = this.props.tab
+    let {password, privateKey, host} = this.props.tab
     let term = new Terminal({
       scrollback: config.scrollback
     })
     term.open(document.getElementById(id), true)
-    await this.remoteInit(term)
-    term.focus()
-    term.fit()
     this.term = term
-    this.startPath = startPath
-    if (startPath) {
-      this.startPath = startPath
-      this.timers.timer1 = setTimeout(this.initData, 10)
+    if (host && !password && !privateKey) {
+      return this.promote()
     }
+    await this.remoteInit(term)
   }
 
   initData = () => {
@@ -208,7 +212,7 @@ export default class Term extends React.Component {
     })
   }
 
-  remoteInit = async (term) => {
+  remoteInit = async (term = this.term) => {
     this.setState({
       loading: true
     })
@@ -217,13 +221,36 @@ export default class Term extends React.Component {
     let wsUrl
     let url = `http://${host}:${port}/terminals`
     let {tab = {}} = this.props
+    let {startPath, srcId, from = 'bookmarks'} = tab
+    let {tempPassword, savePassword} = this.state
+    let extra = tempPassword
+      ? {password: tempPassword}
+      : {}
     let pid = await fetch.post(url, {
       cols,
       rows,
       mode: 'VINTR',
       ...tab,
+      ...extra,
       type: tab.host ? typeMap.remote : typeMap.local
+    }, {
+      handleErr: async response => {
+        let text = _.isFunction(response.text)
+          ? await response.text()
+          : _.isPlainObject(response) ? JSON.stringify(response) : response
+        if (text.includes(authFailMsg)) {
+          return 'fail'
+        } else {
+          handleErr(response)
+        }
+      }
     })
+    if (pid === 'fail') {
+      return this.promote()
+    }
+    if (savePassword) {
+      this.props.editItem(srcId, extra, from)
+    }
     this.setState({
       loading: false
     })
@@ -245,6 +272,14 @@ export default class Term extends React.Component {
     this.socket = socket
     term.on('refresh', this.onRefresh)
     term.on('resize', this.onResizeTerminal)
+    term.focus()
+    term.fit()
+    this.term = term
+    this.startPath = startPath
+    if (startPath) {
+      this.startPath = startPath
+      this.timers.timer1 = setTimeout(this.initData, 10)
+    }
   }
 
   onResize = () => {
@@ -273,11 +308,103 @@ export default class Term extends React.Component {
     fetch.post(url)
   }
 
+  promote = () => {
+    this.setState({
+      promoteModalVisible: true,
+      tempPassword: ''
+    })
+  }
+
+  onCancel = () => {
+    let {id} = this.props.tab
+    this.props.delTab({id})
+  }
+
+  onToggleSavePass = () => {
+    this.setState({
+      savePassword: !this.state.savePassword
+    })
+  }
+
+  renderPasswordForm = () => {
+    let {tempPassword, savePassword} = this.state
+    return (
+      <div>
+        <Input
+          value={tempPassword}
+          onChange={this.onChangePass}
+          onPressEnter={this.onClickConfirmPass}
+        />
+        <div className="pd1t">
+          <Checkbox
+            checked={savePassword}
+            onChange={this.onToggleSavePass}
+          >{e('savePassword')}</Checkbox>
+        </div>
+      </div>
+    )
+  }
+
+  onChangePass = e => {
+    this.setState({
+      tempPassword: e.target.value
+    })
+  }
+
+  onClickConfirmPass = () => {
+    this.setState({
+      promoteModalVisible: false
+    }, this.remoteInit)
+  }
+
+  renderPromoteModal = () => {
+    let props = {
+      title: f('password') + '?',
+      content: this.renderPasswordForm(),
+      onCancel: this.onCancel,
+      visible: this.state.promoteModalVisible,
+      footer: this.renderModalFooter(),
+      cancelText: c('cancel')
+    }
+    return (
+      <Modal
+        {...props}
+      >
+        {this.renderPasswordForm()}
+      </Modal>
+    )
+  }
+
+  renderModalFooter = () => {
+    let disabled = !this.state.tempPassword
+    return (
+      <div className="alignright pd1">
+        <Button
+          type="primary"
+          icon="check-circle"
+          disabled={disabled}
+          onClick={this.onClickConfirmPass}
+          className="mg1r"
+        >
+          {c('ok')}
+        </Button>
+        <Button
+          type="ghost"
+          className="mg1r"
+          onClick={this.onCancel}
+        >
+          {c('cancel')}
+        </Button>
+      </div>
+    )
+  }
+
   render() {
     let {id, loading} = this.state
     let {height} = this.props
     return (
       <Spin spinning={loading} wrapperClassName="loading-wrapper">
+        {this.renderPromoteModal()}
         <div
           className="bg-black"
           style={{
