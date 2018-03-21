@@ -69,6 +69,8 @@ export default class IndexControl extends React.Component {
     let item = _.find(this.props.history, it => it.id === id)
     this.props.addTab({
       ...item,
+      from: 'history',
+      srcId: item.id,
       status: defaultStatus,
       id: generate()
     })
@@ -76,9 +78,11 @@ export default class IndexControl extends React.Component {
 
   onSelectBookmark = id => {
     let {history, bookmarks} = this.props
-    let item = _.find(bookmarks, it => it.id === id)
+    let item = copy(_.find(bookmarks, it => it.id === id))
     this.props.addTab({
       ...item,
+      from: 'bookmarks',
+      srcId: item.id,
       status: defaultStatus,
       id: generate()
     })
