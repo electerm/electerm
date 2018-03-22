@@ -1,6 +1,6 @@
 {
   "name": "electerm",
-  "version": "0.17.0",
+  "version": "0.17.1",
   "description": "terminal/ssh/sftp client(linux, mac, win) based on electron/node-pty/xterm and other libs",
   "main": "app.js",
   "bin": "npm/electerm",
@@ -35,12 +35,12 @@
   "author": {
     "name": "ZHAO Xudong",
     "email": "zxdong@gmail.com",
-    "url": "http://html5beta.com"
+    "url": "https://html5beta.com"
   },
   "bugs": {
     "url": "https://github.com/electerm/electerm/issues"
   },
-  "homepage": "http://electerm.html5beta.com",
+  "homepage": "https://electerm.html5beta.com",
   "engines": {
     "node": ">=8.9.1"
   },
