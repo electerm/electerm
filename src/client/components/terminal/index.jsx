@@ -7,17 +7,15 @@ import {Spin, Icon, Modal, Button, Checkbox} from 'antd'
 import Input from '../common/input-auto-focus'
 import {statusMap} from '../../common/constants'
 import './terminal.styl'
-import {contextMenuHeight, contextMenuPaddingTop, typeMap, contextMenuWidth} from '../../common/constants'
+import {contextMenuHeight, contextMenuPaddingTop, typeMap, contextMenuWidth, isMac} from '../../common/constants'
 import {readClipboard, copy} from '../../common/clipboard'
 import * as fit from 'xterm/lib/addons/fit/fit'
 import * as attach from 'xterm/lib/addons/attach/attach'
-import * as fullscreen from 'xterm/lib/addons/fullscreen/fullscreen'
 import * as search from 'xterm/lib/addons/search/search'
 import { Terminal } from 'xterm'
 
 Terminal.applyAddon(fit)
 Terminal.applyAddon(attach)
-Terminal.applyAddon(fullscreen)
 Terminal.applyAddon(search)
 
 const {prefix, _config: config} = window
@@ -52,7 +50,9 @@ export default class Term extends React.Component {
       loading: false,
       promoteModalVisible: false,
       savePassword: false,
-      tempPassword: ''
+      tempPassword: '',
+      searchVisible: false,
+      searchInput: ''
     }
   }
 
@@ -93,6 +93,18 @@ export default class Term extends React.Component {
     dom.addEventListener('contextmenu', this.onContextMenu)
   }
 
+  keyControlPressed = e => {
+    return isMac
+      ? e.metaKey
+      : e.ctrlKey
+  }
+
+  handleEvent = (e) => {
+    if (this.keyControlPressed(e) && e.code === 'KeyF') {
+      this.openSearch()
+    }
+  }
+
   onContextMenu = e => {
     e.preventDefault()
     if (this.state.loading) {
@@ -130,6 +142,37 @@ export default class Term extends React.Component {
     this.term.focus()
   }
 
+  openSearch = () => {
+    this.props.closeContextMenu()
+    this.setState({
+      searchVisible: true
+    })
+  }
+
+  onChangeSearch = (e) => {
+    this.setState({
+      searchInput: e.target.value
+    })
+  }
+
+  searchPrev = () => {
+    this.term.findPrevious(
+      this.state.searchInput
+    )
+  }
+
+  searchNext = () => {
+    this.term.findNext(
+      this.state.searchInput
+    )
+  }
+
+  searchClose = () => {
+    this.setState({
+      searchVisible: false
+    })
+  }
+
   renderContext = () => {
     let cls = 'pd2x pd1y context-item pointer'
     let hasSlected = this.term.hasSelection()
@@ -163,6 +206,12 @@ export default class Term extends React.Component {
           onClick={this.onSelectAll}
         >
           <Icon type="select" /> {e('selectAll')}
+        </div>
+        <div
+          className={cls}
+          onClick={this.openSearch}
+        >
+          <Icon type="search" /> {e('search')}
         </div>
       </div>
     )
@@ -274,6 +323,7 @@ export default class Term extends React.Component {
     term.on('resize', this.onResizeTerminal)
     term.focus()
     term.fit()
+    term.attachCustomKeyEventHandler(this.handleEvent)
     this.term = term
     this.startPath = startPath
     if (startPath) {
@@ -399,6 +449,44 @@ export default class Term extends React.Component {
     )
   }
 
+  renderSearchBox = () => {
+    let {searchInput, searchVisible} = this.state
+    if (!searchVisible) {
+      return null
+    }
+    return (
+      <div className="term-search-box">
+        <Input
+          value={searchInput}
+          onChange={this.onChangeSearch}
+          onPressEnter={this.searchNext}
+          addonAfter={
+            <span>
+              <Icon
+                type="left"
+                className="pointer mg1r"
+                title={e('prevMatch')}
+                onClick={this.searchPrev}
+              />
+              <Icon
+                type="right"
+                className="pointer mg1r"
+                title={e('nextMatch')}
+                onClick={this.searchNext}
+              />
+              <Icon
+                type="close"
+                className="pointer"
+                title={m('close')}
+                onClick={this.searchClose}
+              />
+            </span>
+          }
+        />
+      </div>
+    )
+  }
+
   render() {
     let {id, loading} = this.state
     let {height} = this.props
@@ -412,6 +500,7 @@ export default class Term extends React.Component {
             padding: '10px 0 10px 3px'
           }}
         >
+          {this.renderSearchBox()}
           <div
             id={id}
             className="bg-black"
