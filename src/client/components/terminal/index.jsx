@@ -137,7 +137,7 @@ export default class Term extends React.Component {
 
   onPaste = () => {
     let selected = readClipboard()
-    this.term._sendData(selected)
+    this.term.write(selected)
     this.props.closeContextMenu()
     this.term.focus()
   }
@@ -232,7 +232,7 @@ export default class Term extends React.Component {
   }
 
   initData = () => {
-    this.term._sendData(`cd ${this.startPath}\r`)
+    this.term.write(`cd ${this.startPath}\r`)
   }
 
   onRefresh = (data) => {
