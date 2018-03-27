@@ -1,6 +1,6 @@
 {
   "name": "electerm",
-  "version": "0.17.4",
+  "version": "0.18.0",
   "description": "terminal/ssh/sftp client(linux, mac, win) based on electron/node-pty/xterm and other libs",
   "main": "app.js",
   "bin": "npm/electerm",
@@ -45,7 +45,7 @@
     "node": ">=8.9.1"
   },
   "devDependencies": {
-    "antd": "3.3.0",
+    "antd": "3.3.3",
     "babel-cli": "6.26.0",
     "babel-core": "6.26.0",
     "babel-eslint": "8.2.2",
@@ -62,11 +62,11 @@
     "chai": "4.1.2",
     "classnames": "2.2.5",
     "cross-env": "5.1.4",
-    "css-loader": "0.28.10",
-    "electron": "1.8.3",
-    "electron-builder": "20.5.1",
+    "css-loader": "0.28.11",
+    "electron": "2.0.0-beta.5",
+    "electron-builder": "20.8.0",
     "electron-rebuild": "1.7.3",
-    "eslint": "4.18.2",
+    "eslint": "4.19.1",
     "eslint-config-airbnb": "16.1.0",
     "eslint-config-standard": "11.0.0",
     "eslint-formatter-pretty": "1.3.0",
@@ -94,6 +94,8 @@
     "koa-pug-global": "3.0.0-2",
     "koa-router": "7.4.0",
     "koa-static": "4.0.2",
+    "less": "3.0.1",
+    "less-loader": "4.1.0",
     "mocha": "5.0.4",
     "nodemon": "1.17.2",
     "npm-run-all": "4.1.2",
@@ -115,6 +117,7 @@
     "xterm": "3.2.0"
   },
   "dependencies": {
+    "antd-icon-loader": "file:../antd-icon-loader",
     "bluebird": "3.5.1",
     "body-parser": "1.18.2",
     "cors": "2.8.4",

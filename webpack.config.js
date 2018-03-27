@@ -53,7 +53,6 @@ var config = {
   mode: 'development',
   entry: {
     essh: './src/client/entry/index.jsx',
-    'common-css': './src/client/entry/common-css.jsx',
     index: './src/views/index.pug'
   },
   output: {
@@ -99,11 +98,32 @@ var config = {
         })
       },
       {
-        test: /antd\.css$/,
+        test: /\.less$/,
         use: extractTextPlugin1.extract({
           fallback: 'style-loader',
           publicPath: '../',
-          use: ['antd-icon-fix', 'css-loader']
+          use: [
+            {
+              loader: 'antd-icon-loader',
+              options: {
+
+                //relative path to your css path
+                path: '../../_bc/electerm-resource/res/fonts',
+
+                //version, will add to icon source url to help clear cache
+                version: '13212sdf'
+              }
+            },
+            {
+              loader: 'css-loader'
+            },
+            {
+              loader: 'less-loader',
+              options: {
+                javascriptEnabled: true
+              }
+            }
+          ]
         })
       },
       {

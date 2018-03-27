@@ -49,7 +49,7 @@ export default function Btns(props) {
           title={e('newSsh')}
         />
         <Select
-          className="mg1r iblock"
+          className="mg1r iblock btn-select"
           onSelect={onSelectHistory}
           placeholder={c('history')}
           {...commonSelectProps}
@@ -65,7 +65,7 @@ export default function Btns(props) {
         </Select>
         <Select
           onSelect={onSelectBookmark}
-          className="iblock"
+          className="iblock btn-select"
           placeholder={c('bookmarks')}
           {...commonSelectProps}
         >
@@ -81,7 +81,7 @@ export default function Btns(props) {
         <Tooltip title={`${m('edit')} ${c('bookmarks')}`}>
           <Icon
             type="edit"
-            className="font16 mg1x pointer iblock"
+            className="font16 mg1x pointer iblock icon-do-edit"
             onClick={onEditBookmark}
           />
         </Tooltip>
@@ -110,7 +110,7 @@ export default function Btns(props) {
         <Icon
           type="info-circle-o"
           title={m('about')}
-          className="pointer mg1l mg2r font14"
+          className="pointer mg1l mg2r font14 open-about-icon"
           onClick={openAbout}
         />
       </div>
