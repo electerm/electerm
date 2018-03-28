@@ -26,7 +26,7 @@ cp('-r', [
 ], 'work/app/')
 rm('-rf',  'work/app/user-config.json')
 rm('-rf',  'work/app/localstorage.json')
-rm('-rf',  'work/app/assets/js/common-css.bundle.js')
+rm('-rf',  'work/app/assets/js/basic.bundle.js')
 rm('-rf',  'work/app/assets/js/index.bundle.js')
 
 exec(`cd work/app && npm prune --production && cd ${cwd}`)

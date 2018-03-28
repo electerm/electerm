@@ -115,7 +115,7 @@ export default class Tabs extends React.Component {
           placement="bottomRight"
           overlay={this.renderList()}
         >
-          <Icon type="down" />
+          <Icon type="down" className="tabs-dd-icon" />
         </Dropdown>
       </div>
     )
