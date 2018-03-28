@@ -55,7 +55,7 @@ describe('ssh', function () {
     await client.execute(function() {
       document.querySelector('.ant-modal .ant-tabs-tabpane-active .ant-btn-primary').click()
     })
-    await delay(500000)
+    await delay(500)
     let tabsCount = await client.elements('.tabs .tabs-wrapper .tab')
 
     expect(tabsCount.value.length).equal(2)
