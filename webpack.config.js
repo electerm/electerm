@@ -53,6 +53,7 @@ var config = {
   mode: 'development',
   entry: {
     essh: './src/client/entry/index.jsx',
+    basic: './src/client/entry/basic.jsx',
     index: './src/views/index.pug'
   },
   output: {

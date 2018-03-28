@@ -64,7 +64,7 @@
     "classnames": "2.2.5",
     "cross-env": "5.1.4",
     "css-loader": "0.28.11",
-    "electron": "2.0.0-beta.5",
+    "electron": "1.8.4",
     "electron-builder": "20.8.0",
     "electron-rebuild": "1.7.3",
     "eslint": "4.19.1",
