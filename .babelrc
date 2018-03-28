@@ -13,6 +13,13 @@
     "transform-object-rest-spread",
     "transform-decorators-legacy",
     [
+      "import",
+      {
+        "libraryName": "antd",
+        "style": true
+      }
+    ],
+    [
       "transform-runtime",
       {
         "polyfill": false,
