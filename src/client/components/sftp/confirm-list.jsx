@@ -97,11 +97,11 @@ export default class Confirms extends React.Component {
     })
   }
 
-  getBasePath = (type, isOtherType) => {
-    let {pathFix} = this.props
+  getBasePath = (type, isOtherType, props = this.props) => {
+    let {pathFix} = props
     let base = isOtherType
-      ? this.props[type + 'Path']
-      : this.liveBasePath || this.props[type + 'Path']
+      ? props[type + 'Path']
+      : this.liveBasePath || props[type + 'Path']
     return pathFix && isOtherType
       ? resolve(base, pathFix)
       : base
@@ -142,7 +142,7 @@ export default class Confirms extends React.Component {
     return await this[otherType + 'CheckExist'](path)
   }
 
-  checkFileExist = async (file) => {
+  checkFileExist = async (file, props = this.props) => {
     let {
       type,
       path,
@@ -151,12 +151,12 @@ export default class Confirms extends React.Component {
     let otherType = type === typeMap.local
       ? typeMap.remote
       : typeMap.local
-    let basePath = this.getBasePath(type)
+    let basePath = this.getBasePath(type, false, props)
     let beforePath = resolve(path, name)
     let reg = new RegExp('^' + basePath.replace(/\\/g, '\\\\'))
-    let otherPath = this.getBasePath(otherType, true)
+    let otherPath = this.getBasePath(otherType, true, props)
     let targetPath = beforePath.replace(reg, otherPath)
-    return await this.checkExist(type, targetPath)
+    return await this.checkExist(type, targetPath, props)
   }
 
   buildTransfer = ({file, localPath, remotePath}) => {
@@ -378,7 +378,7 @@ export default class Confirms extends React.Component {
         currentFile: null
       })
     }
-    let exist = await this.checkFileExist(firstFile)
+    let exist = await this.checkFileExist(firstFile, nextProps)
     if (exist) {
       return this.setStateProxy({
         currentFile: firstFile,
