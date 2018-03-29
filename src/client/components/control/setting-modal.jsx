@@ -179,7 +179,8 @@ export default class SettingModal extends React.Component {
       title: e('settings'),
       onCancel: this.hide,
       footer: null,
-      width: 800,
+      width: '94%',
+      height: '94%',
       visible: this.state.visible
     }
     return (
