@@ -21,7 +21,8 @@ class Sftp {
       {},
       {
         readyTimeout: _.get(global, 'et._config.sshReadyTimeout'),
-        keepaliveInterval: _.get(global, 'et._config.keepaliveInterval')
+        keepaliveInterval: _.get(global, 'et._config.keepaliveInterval'),
+        agent: process.env.SSH_AUTH_SOCK
       },
       config
     )
