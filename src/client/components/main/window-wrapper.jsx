@@ -34,7 +34,7 @@ export default class WindowWrapper extends React.Component  {
       height
     }
     return (
-      <div className={'ui-wrapper ' + pane}>
+      <div className={'term-sftp-box ' + pane}>
         {
           host
             ? (

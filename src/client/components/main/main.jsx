@@ -1,6 +1,6 @@
 
 import React from 'react'
-import Wrapper from './window-wrapper'
+import Wrapper from '../termminal'
 import Control, {newTerm} from '../control'
 import _ from 'lodash'
 import copy from 'json-deep-copy'
@@ -11,6 +11,7 @@ import UpdateCheck from './update-check'
 import {notification} from 'antd'
 import openInfoModal from '../control/info-modal'
 import {maxHistory, settingMap, maxTransferHistory} from '../../common/constants'
+import './wrapper.styl'
 
 const {getGlobal, _config} = window
 const ls = getGlobal('ls')
