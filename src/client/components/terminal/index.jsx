@@ -43,7 +43,7 @@ export default class WindowWrapper extends React.Component  {
   }
 
   doSplit = (e, index) => {
-
+    console.log(index)
   }
 
   delSplit = () => {
