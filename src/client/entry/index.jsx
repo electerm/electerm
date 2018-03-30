@@ -1,7 +1,6 @@
 import { render } from 'react-dom'
 import '../../../node_modules/xterm/dist/xterm.css'
 import Main from '../components/main'
-import '../css/theme.styl'
 
 const rootElement = document.getElementById('container')
 render(
