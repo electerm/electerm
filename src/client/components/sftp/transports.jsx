@@ -2,7 +2,7 @@
  * tranporters
  */
 import React from 'react'
-import {Progress, Popover, Icon} from 'antd'
+import {Popover, Icon} from 'antd'
 import Transport from './transport'
 import _ from 'lodash'
 import copy from 'json-deep-copy'
@@ -159,7 +159,7 @@ export default class Transports extends React.Component {
     let {transports, isActive} = this.props
     let {currentTransport, showList} = this.state
     let percent = _.get(currentTransport, 'percent')
-    let status = _.get(currentTransport, 'status')
+    //let status = _.get(currentTransport, 'status')
     let pausing = _.get(currentTransport, 'pausing')
     let func = pausing
       ? this.resume
@@ -177,21 +177,14 @@ export default class Transports extends React.Component {
           onVisibleChange={this.onVisibleChange}
         >
           <div className="tranports-circle-wrap">
-            <Progress
-              type="circle"
-              className="transport-circle"
-              width={40}
-              percent={percent}
-              status={status}
-            />
             <div
-              className="tranports-control opacity-loop pointer"
+              className="opacity-loop pointer"
               onClick={func}
             >
-              {this.renderTransportIcon()}
-            </div>
-            <div className="transports-count">
-              1 / {transports.length}
+              {this.renderTransportIcon()} {percent}%
+              <span className="mg1l">
+                [1 / {transports.length}]
+              </span>
             </div>
           </div>
         </Popover>

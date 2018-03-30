@@ -75,6 +75,7 @@ export default class Tranporter extends React.Component {
     let percent = total === 0
       ? 0
       : Math.floor(100 * transferred / total)
+    percent = percent >= 100 ? 99 : percent
     transport.percent = percent
     transport.status = 'active'
     transport.speed = format(transferred, this.startTime)
