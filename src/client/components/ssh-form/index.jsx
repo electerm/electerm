@@ -67,6 +67,7 @@ export default class SshForm extends React.Component {
     let {addItem, editItem} = this.props
     if (type === settingMap.history) {
       obj.id = generate()
+      delete obj.type
       addItem(obj, settingMap.bookmarks)
       return
     }

@@ -9,6 +9,7 @@ const {
 const {fork} = require('child_process')
 const _ = require('lodash')
 const getConf = require('./config.default')
+const sshConfigItems = require('./lib/ssh-config')
 const os = require('os')
 const {resolve} = require('path')
 const {instSftpKeys} = require('./lib/sftp')
@@ -119,6 +120,7 @@ async function createWindow () {
     ls,
     resolve,
     version,
+    sshConfigItems,
     testConnection,
     env: process.env,
     fsFunctions,

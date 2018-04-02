@@ -6,7 +6,7 @@ import {Button, Select, Icon, Tooltip} from 'antd'
 import createName from '../../common/create-title'
 
 const {Option} = Select
-const {prefix} = window
+const {prefix, getGlobal} = window
 const e = prefix('control')
 const c = prefix('common')
 const m = prefix('menu')
@@ -19,6 +19,7 @@ const commonSelectProps = {
   dropdownMatchSelectWidth: false,
   className: 'iblock width120 mg1r'
 }
+const sshConfigItems = getGlobal('sshConfigItems')
 
 export default function Btns(props) {
 
@@ -70,7 +71,10 @@ export default function Btns(props) {
           {...commonSelectProps}
         >
           {
-            bookmarks.map((tab, i) => {
+            [
+              ...bookmarks,
+              ...sshConfigItems
+            ].map((tab, i) => {
               let {id} = tab
               return (
                 <Option value={id} key={id + 'bm' + i}>{createName(tab)}</Option>
