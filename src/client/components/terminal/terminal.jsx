@@ -214,6 +214,12 @@ export default class Term extends React.Component {
         >
           <Icon type="search" /> {e('search')}
         </div>
+        <div
+          className={cls}
+          onClick={this.split}
+        >
+          <Icon type="minus-square-o" /> {e('split')}
+        </div>
       </div>
     )
   }
