@@ -10,8 +10,9 @@ import copy from 'json-deep-copy'
 import {statusMap, settingMap} from '../../common/constants'
 import './control.styl'
 
-const {prefix} = window
+const {prefix, getGlobal} = window
 const e = prefix('control')
+const sshConfigItems = getGlobal('sshConfigItems')
 
 const defaultStatus = statusMap.processing
 export const newTerm = () => ({
@@ -78,7 +79,10 @@ export default class IndexControl extends React.Component {
 
   onSelectBookmark = id => {
     let {history, bookmarks} = this.props
-    let item = copy(_.find(bookmarks, it => it.id === id))
+    let item = copy(
+      _.find(bookmarks, it => it.id === id) ||
+      _.find(sshConfigItems, it => it.id === id)
+    )
     this.props.addTab({
       ...item,
       from: 'bookmarks',
