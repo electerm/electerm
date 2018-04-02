@@ -25,6 +25,7 @@ const f = prefix('form')
 const c = prefix('common')
 
 const authFailMsg = 'All configured authentication methods failed'
+const typeSshConfig = 'ssh-config'
 
 const computePos = (e, height) => {
   let {clientX, clientY} = e
@@ -219,15 +220,15 @@ export default class Term extends React.Component {
 
   initTerminal = async () => {
     let {id} = this.state
-    let {password, privateKey, host} = this.props.tab
+    //let {password, privateKey, host} = this.props.tab
     let term = new Terminal({
       scrollback: config.scrollback
     })
     term.open(document.getElementById(id), true)
     this.term = term
-    if (host && !password && !privateKey) {
-      return this.promote()
-    }
+    // if (host && !password && !privateKey) {
+    //   return this.promote()
+    // }
     await this.remoteInit(term)
   }
 
@@ -378,6 +379,7 @@ export default class Term extends React.Component {
 
   renderPasswordForm = () => {
     let {tempPassword, savePassword} = this.state
+    let {type} = this.props.tab
     return (
       <div>
         <Input
@@ -385,12 +387,18 @@ export default class Term extends React.Component {
           onChange={this.onChangePass}
           onPressEnter={this.onClickConfirmPass}
         />
-        <div className="pd1t">
-          <Checkbox
-            checked={savePassword}
-            onChange={this.onToggleSavePass}
-          >{e('savePassword')}</Checkbox>
-        </div>
+        {
+          type !== typeSshConfig
+            ? (
+              <div className="pd1t">
+                <Checkbox
+                  checked={savePassword}
+                  onChange={this.onToggleSavePass}
+                >{e('savePassword')}</Checkbox>
+              </div>
+            )
+            : null
+        }
       </div>
     )
   }
