@@ -54,3 +54,5 @@ export const transferTypeMap = {
   download: 'download',
   upload: 'upload'
 }
+
+export const terminalSshConfigType = 'ssh-config'
