@@ -7,7 +7,14 @@ import {Spin, Icon, Modal, Button, Checkbox} from 'antd'
 import Input from '../common/input-auto-focus'
 import {statusMap} from '../../common/constants'
 import './terminal.styl'
-import {contextMenuHeight, contextMenuPaddingTop, typeMap, contextMenuWidth, isMac} from '../../common/constants'
+import {
+  contextMenuHeight,
+  contextMenuPaddingTop,
+  typeMap,
+  contextMenuWidth,
+  isMac,
+  terminalSshConfigType
+} from '../../common/constants'
 import {readClipboard, copy} from '../../common/clipboard'
 import * as fit from 'xterm/lib/addons/fit/fit'
 import * as attach from 'xterm/lib/addons/attach/attach'
@@ -142,7 +149,7 @@ export default class Term extends React.Component {
 
   onPaste = () => {
     let selected = readClipboard()
-    this.term.write(selected)
+    this.term.__sendData(selected)
     this.props.closeContextMenu()
     this.term.focus()
   }
@@ -243,7 +250,11 @@ export default class Term extends React.Component {
   }
 
   initData = () => {
-    this.term.write(`cd ${this.startPath}\r`)
+    let {type, title} = this.props.tab
+    let cmd = type === terminalSshConfigType
+      ? `ssh ${title}\r`
+      : `cd ${this.startPath}\r`
+    this.term.__sendData(cmd)
   }
 
   onRefresh = (data) => {
@@ -281,8 +292,9 @@ export default class Term extends React.Component {
     let wsUrl
     let url = `http://${host}:${port}/terminals`
     let {tab = {}} = this.props
-    let {startPath, srcId, from = 'bookmarks'} = tab
+    let {startPath, srcId, from = 'bookmarks', type} = tab
     let {tempPassword, savePassword} = this.state
+    let isSshConfig = type === terminalSshConfigType
     let extra = tempPassword
       ? {password: tempPassword}
       : {}
@@ -292,7 +304,9 @@ export default class Term extends React.Component {
       mode: 'VINTR',
       ...tab,
       ...extra,
-      type: tab.host ? typeMap.remote : typeMap.local
+      type: tab.host && !isSshConfig
+        ? typeMap.remote
+        : typeMap.local
     }, {
       handleErr: async response => {
         let text = _.isFunction(response.text)
@@ -337,7 +351,7 @@ export default class Term extends React.Component {
     term.attachCustomKeyEventHandler(this.handleEvent)
     this.term = term
     this.startPath = startPath
-    if (startPath) {
+    if (startPath || isSshConfig) {
       this.startPath = startPath
       this.timers.timer1 = setTimeout(this.initData, 10)
     }
