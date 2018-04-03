@@ -13,24 +13,15 @@ try {
   const configStr = require('fs').readFileSync(
     resolve(home, '.ssh', 'config')
   ).toString()
-  config = sshConfig.parse(configStr).map((c, i) => {
-    let {param, value, config} = c
-    if (param !== 'Host') {
-      return null
-    }
-    let host = (_.find(config, f => f.param === 'HostName') || {}).value
-    if (!host) {
-      return null
-    }
-    let port = (_.find(config, f => f.param === 'Port') || { value: defaultPort }).value
-    let username = (_.find(config, f => f.param === 'User') || {}).value
-    if (!username) {
-      return null
-    }
+  let sshConf = sshConfig.parse(configStr)
+  config = sshConf.map((c, i) => {
+    let {value} = c
+    let obj = sshConf.compute(value)
+    let {HostName, User, Port = defaultPort} = obj
     return {
-      host,
-      username,
-      port,
+      host: HostName,
+      username: User,
+      port: Port,
       title: value,
       type: 'ssh-config',
       id: 'ssh' + i
@@ -38,7 +29,9 @@ try {
   }).filter(d => d)
 
 } catch (e) {
-  console.log('no $HOME/.ssh/config, but it is ok')
+  console.log('error parsing $HOME/.ssh/config')
+  console.log(e)
+  console.log('maybe no $HOME/.ssh/config, but it is ok')
 }
 
 module.exports = config
