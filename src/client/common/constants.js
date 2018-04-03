@@ -70,3 +70,4 @@ export const terminalSplitDirectionMap = buildConst([
   'vertical'
 ])
 
+export const terminalSshConfigType = 'ssh-config'

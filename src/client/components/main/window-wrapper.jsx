@@ -6,7 +6,10 @@ import Sftp from '../sftp'
 import {Tabs} from 'antd'
 import _ from 'lodash'
 import './wrapper.styl'
-import {topMenuHeight, tabsHeight, sshTabHeight} from '../../common/constants'
+import {
+  topMenuHeight, tabsHeight,
+  sshTabHeight, terminalSshConfigType
+} from '../../common/constants'
 
 const {TabPane} = Tabs
 export default class WindowWrapper extends React.Component  {
@@ -29,6 +32,7 @@ export default class WindowWrapper extends React.Component  {
     let {props} = this
     let height = this.computeHeight()
     let host = _.get(props, 'tab.host')
+    let type = _.get(props, 'tab.type')
     let propsAll = {
       ...props,
       height
@@ -36,7 +40,7 @@ export default class WindowWrapper extends React.Component  {
     return (
       <div className={'term-sftp-box ' + pane}>
         {
-          host
+          host && type !== terminalSshConfigType
             ? (
               <Tabs
                 activeKey={pane}
