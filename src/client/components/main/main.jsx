@@ -1,6 +1,6 @@
 
 import React from 'react'
-import Wrapper from '../termminal'
+import Wrapper from '../terminal'
 import Control, {newTerm} from '../control'
 import _ from 'lodash'
 import copy from 'json-deep-copy'

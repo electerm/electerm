@@ -106,6 +106,10 @@ export default class Term extends React.Component {
     }
   }
 
+  split = () => {
+    this.props.doSplit(null, this.props.id)
+  }
+
   onContextMenu = e => {
     e.preventDefault()
     if (this.state.loading) {
@@ -218,7 +222,7 @@ export default class Term extends React.Component {
           className={cls}
           onClick={this.split}
         >
-          <Icon type="minus-square-o" /> {e('split')}
+          <Icon type="minus-square-o" className="spin-90" /> {e('split')}
         </div>
       </div>
     )
