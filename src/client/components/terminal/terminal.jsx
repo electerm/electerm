@@ -71,9 +71,17 @@ export default class Term extends React.Component {
 
   componentDidUpdate(prevProps) {
     let shouldChange = prevProps.currentTabId !== this.props.currentTabId && this.props.tab.id === this.props.currentTabId
+    let names = [
+      'width',
+      'height',
+      'left',
+      'top'
+    ]
     if (
-      prevProps.height !== this.props.height ||
-      prevProps.width !== this.props.width ||
+      !_.isEqual(
+        _.pick(this.props, names),
+        _.pick(prevProps, names)
+      ) ||
       shouldChange
     ) {
       this.onResize()
@@ -521,27 +529,35 @@ export default class Term extends React.Component {
 
   render() {
     let {id, loading} = this.state
-    let {height} = this.props
+    let {height, width, left, top} = this.props
     return (
-      <Spin spinning={loading} wrapperClassName="loading-wrapper">
+      <div
+        className="term-wrap"
+        style={{
+          height, width, left, top
+        }}
+      >
         {this.renderPromoteModal()}
         <div
           className="bg-black"
           style={{
-            height: height,
+            height,
             padding: '10px 0 10px 3px'
           }}
         >
           {this.renderSearchBox()}
-          <div
-            id={id}
-            className="bg-black"
-            style={{
-              height: height - 20
-            }}
-          />
+          <Spin spinning={loading} wrapperClassName="loading-wrapper">
+            <div
+              id={id}
+              className="bg-black"
+              style={{
+                height: height - 20,
+                width: width - 3
+              }}
+            />
+          </Spin>
         </div>
-      </Spin>
+      </div>
     )
   }
 

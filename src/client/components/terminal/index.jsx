@@ -5,7 +5,7 @@
 import React from 'react'
 import Term from './terminal'
 import Sftp from '../sftp'
-import {Tabs, Radio, Icon} from 'antd'
+import {Radio, Icon} from 'antd'
 import _ from 'lodash'
 import {generate} from 'shortid'
 import copy from 'json-deep-copy'
@@ -14,8 +14,8 @@ import {topMenuHeight, tabsHeight, sshTabHeight, terminalSplitDirectionMap} from
 
 const RadioButton = Radio.Button
 const RadioGroup = Radio.Group
-const {TabPane} = Tabs
 
+const termControlHeight = 32
 const getNextIndex = terminals => {
   let indexs = terminals.map(t => t.index)
   indexs.sort()
@@ -44,6 +44,11 @@ const getPrevTerminal = terminals => {
   return _.find(terminals, t => t.index === max)
 }
 
+
+const {prefix} = window
+const e = prefix('ssh')
+const m = prefix('menu')
+
 export default class WindowWrapper extends React.Component  {
 
   constructor(props) {
@@ -51,7 +56,7 @@ export default class WindowWrapper extends React.Component  {
     let id = generate()
     this.state = {
       pane: 'ssh',
-      splitDirection: terminalSplitDirectionMap.horizontal,
+      splitDirection: terminalSplitDirectionMap.vertical,
       activeSplitId: id,
       terminals: [
         {
@@ -64,7 +69,11 @@ export default class WindowWrapper extends React.Component  {
 
   computeHeight = () => {
     let hasHost = _.get(this.props, 'tab.host')
-    return window.innerHeight - topMenuHeight - tabsHeight - (hasHost ? sshTabHeight : 0)
+    let {showControl} = this.props
+    return this.props.height -
+      (showControl ? topMenuHeight : 0) -
+      tabsHeight -
+      (hasHost ? sshTabHeight : 0)
   }
 
   onChange = e => {
@@ -110,15 +119,85 @@ export default class WindowWrapper extends React.Component  {
     })
   }
 
-  render() {
-    let {pane, splitDirection} = this.state
+  computePosition = (index) => {
+    let len = this.state.terminals.length || 1
+    let {width: windowWidth} = this.props
+    let {splitDirection} = this.state
+    let isHori = splitDirection === terminalSplitDirectionMap.horizontal
+    let heightAll = this.computeHeight()
+    let width = isHori
+      ? windowWidth / len
+      : windowWidth
+    let height = isHori
+      ? heightAll
+      : heightAll / len
+    let left = isHori
+      ? index * width
+      : 0
+    let top = isHori
+      ? 0
+      : index * height
+    return {
+      height,
+      width,
+      left,
+      top
+    }
+  }
+
+  renderTerminals = () => {
+    let {pane, terminals} = this.state
+    let cls = pane === 'ssh'
+      ? 'terms-box'
+      : 'terms-box hide'
     let {props} = this
     let height = this.computeHeight()
+    let {width} = props
+    return (
+      <div
+        className={cls}
+        style={{
+          width,
+          height: height - termControlHeight
+        }}
+      >
+        {
+          terminals.map((t, i) => {
+            return (
+              <Term
+                {...props}
+                {...t}
+                {...this.computePosition(i)}
+              />
+            )
+          })
+        }
+      </div>
+    )
+  }
+
+  renderSftp = () => {
+    let {pane} = this.state
+    let height = this.computeHeight()
+    let {props} = this
+    let cls = pane === 'ssh'
+      ? 'hide'
+      : ''
+    return (
+      <div className={cls}>
+        <Sftp
+          {...props}
+          height={height}
+          pane={pane}
+        />
+      </div>
+    )
+  }
+
+  render() {
+    let {pane, splitDirection, terminals} = this.state
+    let {props} = this
     let host = _.get(props, 'tab.host')
-    let propsAll = {
-      ...props,
-      height
-    }
     let tabs = host
       ? (
         <div className="term-sftp-tabs sftp">
@@ -130,64 +209,60 @@ export default class WindowWrapper extends React.Component  {
       )
       : null
     let cls1 = classnames(
-      'mg1r icon-split pointer',
+      'mg1r icon-split pointer iblock',
       {
-        'spin-90': splitDirection === terminalSplitDirectionMap.horizontal
+        'spin-90 mg-fix-2': splitDirection === terminalSplitDirectionMap.horizontal
       }
     )
     let cls2 = classnames(
-      'icon-direction pointer',
+      'icon-direction pointer iblock',
       {
-        'spin-90': splitDirection === terminalSplitDirectionMap.vertical
+        'spin-90 mg-fix-2': splitDirection === terminalSplitDirectionMap.vertical
       }
     )
+    let hide = terminals.length < 2
     return (
-      <div className={'term-sftp-box ' + pane}>
-        <div className="terminal-control fix">
+      <div
+        className={'term-sftp-box ' + pane}
+      >
+        <div
+          className="terminal-control fix"
+        >
           {tabs}
           <div className="fright term-controls">
             <Icon
               type="minus-square-o"
               className={cls1}
               onClick={this.doSplit}
+              title={e('split')}
             />
-            <Icon
-              type="trash"
-              className="mg1r icon-trash pointer"
-              onClick={this.delSplit}
-            />
+            {
+              hide
+                ? null
+                : (
+                  <Icon
+                    type="delete"
+                    className="mg1r icon-trash iblock pointer"
+                    onClick={this.delSplit}
+                    title={m('delete')}
+                  />
+                )
+            }
             <Icon
               type="minus-square-o"
               className={cls2}
+              title={e('changeDirection')}
               onClick={this.changeDirection}
             />
           </div>
         </div>
         {
+          this.renderTerminals()
+        }
+        {
           host
-            ? (
-              <Tabs
-                activeKey={pane}
-              >
-                <TabPane
-                  tab="ssh"
-                  key="ssh"
-                >
-                  <Term {...propsAll} />
-                </TabPane>
-                <TabPane
-                  tab="sftp"
-                  key="sftp"
-                >
-                  <Sftp
-                    {...props}
-                    height={height}
-                    pane={pane}
-                  />
-                </TabPane>
-              </Tabs>
-            )
-            : <Term {...propsAll} />
+            ? this.renderSftp()
+            : null
         }
       </div>
     )
