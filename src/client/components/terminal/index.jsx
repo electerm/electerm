@@ -27,7 +27,7 @@ const rebuildIndex = terminals => {
   let indexMap = indexs.reduce((prev, i, index) => {
     return {
       ...prev,
-      i: index
+      [i]: index
     }
   }, {})
   return terminals.map(t => {
@@ -84,7 +84,11 @@ export default class WindowWrapper extends React.Component  {
 
   doSplit = (e, id) => {
     let terminals = copy(this.state.terminals)
-    let index = _.findIndex(terminals, t => t.id === id) || terminals.length - 1
+    let index = _.findIndex(terminals, t => t.id === id)
+    if (index === -1) {
+      index = terminals.length
+    }
+    console.log(index, 'index')
     terminals.splice(index, 0, {
       id: generate(),
       index: getNextIndex(terminals)
@@ -163,11 +167,15 @@ export default class WindowWrapper extends React.Component  {
       >
         {
           terminals.map((t, i) => {
+            let pops = {
+              ...props,
+              ...t,
+              ...this.computePosition(i)
+            }
+            console.log(pops, t)
             return (
               <Term
-                {...props}
-                {...t}
-                {...this.computePosition(i)}
+                {...pops}
               />
             )
           })

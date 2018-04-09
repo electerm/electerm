@@ -53,6 +53,7 @@ export default class Term extends React.Component {
 
   constructor(props) {
     super()
+    console.log(props.id, 'props.id')
     this.state = {
       id: props.id || 'id' + generate(),
       loading: false,
@@ -65,6 +66,7 @@ export default class Term extends React.Component {
   }
 
   componentDidMount() {
+    console.log(this.state.id)
     this.initTerminal()
     this.initEvt()
   }
