@@ -194,14 +194,18 @@ export default class WindowWrapper extends React.Component  {
     )
   }
 
-  render() {
+  renderControl = () => {
     let {pane, splitDirection, terminals} = this.state
     let {props} = this
     let host = _.get(props, 'tab.host')
     let tabs = host
       ? (
-        <div className="term-sftp-tabs sftp">
-          <RadioGroup value={pane} onChange={this.onChange}>
+        <div className="term-sftp-tabs fleft">
+          <RadioGroup
+            value={pane}
+            onChange={this.onChange}
+            size="small"
+          >
             <RadioButton value="ssh">ssh</RadioButton>
             <RadioButton value="sftp">sftp</RadioButton>
           </RadioGroup>
@@ -223,39 +227,54 @@ export default class WindowWrapper extends React.Component  {
     let hide = terminals.length < 2
     return (
       <div
+        className="terminal-control fix"
+      >
+        {tabs}
+        {
+          pane === 'ssh'
+            ? (
+              <div className="fright term-controls">
+                <Icon
+                  type="minus-square-o"
+                  className={cls1}
+                  onClick={this.doSplit}
+                  title={e('split')}
+                />
+                {
+                  hide
+                    ? null
+                    : (
+                      <Icon
+                        type="delete"
+                        className="mg1r icon-trash iblock pointer"
+                        onClick={this.delSplit}
+                        title={m('delete')}
+                      />
+                    )
+                }
+                <Icon
+                  type="minus-square-o"
+                  className={cls2}
+                  title={e('changeDirection')}
+                  onClick={this.changeDirection}
+                />
+              </div>
+            )
+            : null
+        }
+      </div>
+    )
+  }
+
+  render() {
+    let {pane} = this.state
+    let {props} = this
+    let host = _.get(props, 'tab.host')
+    return (
+      <div
         className={'term-sftp-box ' + pane}
       >
-        <div
-          className="terminal-control fix"
-        >
-          {tabs}
-          <div className="fright term-controls">
-            <Icon
-              type="minus-square-o"
-              className={cls1}
-              onClick={this.doSplit}
-              title={e('split')}
-            />
-            {
-              hide
-                ? null
-                : (
-                  <Icon
-                    type="delete"
-                    className="mg1r icon-trash iblock pointer"
-                    onClick={this.delSplit}
-                    title={m('delete')}
-                  />
-                )
-            }
-            <Icon
-              type="minus-square-o"
-              className={cls2}
-              title={e('changeDirection')}
-              onClick={this.changeDirection}
-            />
-          </div>
-        </div>
+        {this.renderControl()}
         {
           this.renderTerminals()
         }
