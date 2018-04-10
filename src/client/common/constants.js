@@ -2,6 +2,16 @@
  * constants
  */
 
+
+const buildConst = (props) => {
+  return props.reduce((prev, key) => {
+    return {
+      ...prev,
+      [key]: key
+    }
+  }, {})
+}
+
 export const contextMenuHeight = 28
 export const contextMenuWidth = 120
 export const contextMenuPaddingTop = 10
@@ -17,18 +27,18 @@ export const tabWidth = 160
 
 export const tabMargin = 3
 
-export const statusMap = {
-  default: 'default',
-  success: 'success',
-  error: 'error',
-  processing: 'processing',
-  warning: 'warning'
-}
+export const statusMap = buildConst([
+  'default',
+  'success',
+  'error',
+  'processing',
+  'warning'
+])
 
-export const authTypeMap = {
-  password: 'password',
-  privateKey: 'privateKey'
-}
+export const authTypeMap = buildConst([
+  'password',
+  'privateKey'
+])
 
 export const maxTransferHistory = 100
 export const topMenuHeight = 39
@@ -39,20 +49,25 @@ export const platform = window.getGlobal('os').platform()
 export const isWin = platform.startsWith('win')
 export const isMac = platform.startsWith('darwin')
 
-export const typeMap = {
-  remote: 'remote',
-  local: 'local'
-}
+export const typeMap = buildConst([
+  'remote',
+  'local'
+])
 
-export const settingMap = {
-  setting: 'setting',
-  bookmarks: 'bookmarks',
-  history: 'history'
-}
+export const settingMap = buildConst([
+  'setting',
+  'bookmarks',
+  'history'
+])
 
-export const transferTypeMap = {
-  download: 'download',
-  upload: 'upload'
-}
+export const transferTypeMap = buildConst([
+  'download',
+  'upload'
+])
+
+export const terminalSplitDirectionMap = buildConst([
+  'horizontal',
+  'vertical'
+])
 
 export const terminalSshConfigType = 'ssh-config'
