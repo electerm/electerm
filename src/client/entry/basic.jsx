@@ -3,4 +3,4 @@
  */
 
 import '../css/basic.styl'
-//import '../css/theme.styl'
+import '../css/theme.styl'

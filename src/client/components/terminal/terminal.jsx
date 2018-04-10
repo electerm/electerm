@@ -6,6 +6,7 @@ import _ from 'lodash'
 import {Spin, Icon, Modal, Button, Checkbox} from 'antd'
 import Input from '../common/input-auto-focus'
 import {statusMap} from '../../common/constants'
+import classnames from 'classnames'
 import './terminal.styl'
 import {
   contextMenuHeight,
@@ -53,7 +54,6 @@ export default class Term extends React.Component {
 
   constructor(props) {
     super()
-    console.log(props.id, 'props.id')
     this.state = {
       id: props.id || 'id' + generate(),
       loading: false,
@@ -66,7 +66,6 @@ export default class Term extends React.Component {
   }
 
   componentDidMount() {
-    console.log(this.state.id)
     this.initTerminal()
     this.initEvt()
   }
@@ -125,6 +124,7 @@ export default class Term extends React.Component {
 
   split = () => {
     this.props.doSplit(null, this.props.id)
+    this.props.closeContextMenu()
   }
 
   onContextMenu = e => {
@@ -252,11 +252,16 @@ export default class Term extends React.Component {
       scrollback: config.scrollback
     })
     term.open(document.getElementById(id), true)
+    term.on('focus', this.setActive)
     this.term = term
     // if (host && !password && !privateKey) {
     //   return this.promote()
     // }
     await this.remoteInit(term)
+  }
+
+  setActive = () => {
+    this.props.setActive(this.props.id)
   }
 
   initData = () => {
@@ -531,12 +536,16 @@ export default class Term extends React.Component {
 
   render() {
     let {id, loading} = this.state
-    let {height, width, left, top} = this.props
+    let {height, width, left, top, position, id: pid} = this.props
+    let cls = classnames('term-wrap', {
+      'not-first-term': !!position
+    }, pid)
     return (
       <div
-        className="term-wrap"
+        className={cls}
         style={{
-          height, width, left, top
+          height, width, left, top,
+          zIndex: position / 10
         }}
       >
         {this.renderPromoteModal()}

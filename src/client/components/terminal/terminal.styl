@@ -23,9 +23,39 @@
   background #000
   line-height 32px
   padding 0 10px
+.sftp
+  .terminal-control
+    background #fff
+  .type-tab
+    &:hover
+    &.active
+      color #444
+    &.active
+      border-bottom 1px solid #444
+
 .terms-box
   position relative
 .term-wrap
   position absolute
 .mg-fix-2
   margin-top -2px
+
+.vertical
+  .term-wrap.not-first-term
+    border-top 1px solid #222
+.horizontal
+  .term-wrap.not-first-term
+    border-left 1px solid #222
+.type-tab
+  display inline-block
+  vertical-align middle
+  line-height 30px
+  color #777
+  margin-right 20px
+  font-size 14px
+  cursor pointer
+  &:hover
+  &.active
+    color #aaa
+  &.active
+    border-bottom 1px solid #777

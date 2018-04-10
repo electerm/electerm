@@ -38,8 +38,10 @@ body
   .ant-select-dropdown-menu-item
     color #ccc
     &:hover
+    &.ant-select-dropdown-menu-item-selected
     &.ant-select-dropdown-menu-item-active
       background #222
+      color #eee
 
 
   //btns
@@ -118,3 +120,13 @@ body
     transform none
   .transports-count
     color #ccc
+
+  .sftp
+    .terminal-control
+      background #333
+    .type-tab
+      &:hover
+      &.active
+        color #999
+      &.active
+        border-bottom 1px solid #999

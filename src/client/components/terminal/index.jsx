@@ -5,43 +5,33 @@
 import React from 'react'
 import Term from './terminal'
 import Sftp from '../sftp'
-import {Radio, Icon} from 'antd'
+import {Icon} from 'antd'
 import _ from 'lodash'
 import {generate} from 'shortid'
 import copy from 'json-deep-copy'
 import classnames from 'classnames'
 import {topMenuHeight, tabsHeight, sshTabHeight, terminalSplitDirectionMap} from '../../common/constants'
 
-const RadioButton = Radio.Button
-const RadioGroup = Radio.Group
-
 const termControlHeight = 32
-const getNextIndex = terminals => {
-  let indexs = terminals.map(t => t.index)
-  indexs.sort()
-  return _.last(indexs) + 1
-}
 
-const rebuildIndex = terminals => {
-  let indexs = terminals.map(t => t.index)
-  let indexMap = indexs.reduce((prev, i, index) => {
+const rebuildPosition = terminals => {
+  let indexs = terminals.map(t => t.position).sort((a, b) => a - b)
+  let indexMap = indexs.reduce((prev, pos, index) => {
     return {
       ...prev,
-      [i]: index
+      [pos]: index * 10
     }
   }, {})
   return terminals.map(t => {
     return {
       ...t,
-      index: indexMap[t.index]
+      position: indexMap[t.position]
     }
   })
 }
 
 const getPrevTerminal = terminals => {
-  let indexs = terminals.map(t => t.index)
-  let max = _.max(indexs)
-  return _.find(terminals, t => t.index === max)
+  return _.last(terminals)
 }
 
 
@@ -56,12 +46,12 @@ export default class WindowWrapper extends React.Component  {
     let id = generate()
     this.state = {
       pane: 'ssh',
-      splitDirection: terminalSplitDirectionMap.vertical,
+      splitDirection: terminalSplitDirectionMap.horizontal,
       activeSplitId: id,
       terminals: [
         {
-          id: generate(),
-          index: 0
+          id,
+          position: 0
         }
       ]
     }
@@ -76,9 +66,9 @@ export default class WindowWrapper extends React.Component  {
       (hasHost ? sshTabHeight : 0)
   }
 
-  onChange = e => {
+  onChangePane = pane => {
     this.setState({
-      pane: e.target.value
+      pane
     })
   }
 
@@ -87,13 +77,14 @@ export default class WindowWrapper extends React.Component  {
     let index = _.findIndex(terminals, t => t.id === id)
     if (index === -1) {
       index = terminals.length
+    } else {
+      index = index + 1
     }
-    console.log(index, 'index')
-    terminals.splice(index, 0, {
+    terminals.push({
       id: generate(),
-      index: getNextIndex(terminals)
+      position: terminals[index - 1].position + 5
     })
-    terminals = rebuildIndex(terminals)
+    terminals = rebuildPosition(terminals)
     this.setState({
       terminals
     })
@@ -103,10 +94,9 @@ export default class WindowWrapper extends React.Component  {
     let {activeSplitId, terminals} = this.state
     let newTerms = terminals.filter(t => t.id !== activeSplitId)
     if (!newTerms.length) {
-      return this.props.delTab({
-        id: this.props.tab.id
-      })
+      return
     }
+    newTerms = rebuildPosition(newTerms)
     let newActiveId = getPrevTerminal(newTerms).id
     this.setState({
       terminals: newTerms,
@@ -120,6 +110,12 @@ export default class WindowWrapper extends React.Component  {
       splitDirection: splitDirection === terminalSplitDirectionMap.horizontal
         ? terminalSplitDirectionMap.vertical
         : terminalSplitDirectionMap.horizontal
+    })
+  }
+
+  setActive = activeSplitId => {
+    this.setState({
+      activeSplitId
     })
   }
 
@@ -166,15 +162,19 @@ export default class WindowWrapper extends React.Component  {
         }}
       >
         {
-          terminals.map((t, i) => {
+          terminals.map((t) => {
             let pops = {
               ...props,
               ...t,
-              ...this.computePosition(i)
+              ..._.pick(
+                this,
+                ['setActive', 'doSplit']
+              ),
+              ...this.computePosition(t.position / 10)
             }
-            console.log(pops, t)
             return (
               <Term
+                key={t.id}
                 {...pops}
               />
             )
@@ -209,14 +209,26 @@ export default class WindowWrapper extends React.Component  {
     let tabs = host
       ? (
         <div className="term-sftp-tabs fleft">
-          <RadioGroup
-            value={pane}
-            onChange={this.onChange}
-            size="small"
-          >
-            <RadioButton value="ssh">ssh</RadioButton>
-            <RadioButton value="sftp">sftp</RadioButton>
-          </RadioGroup>
+          {
+            ['ssh', 'sftp'].map((type, i) => {
+              let cls = classnames(
+                'type-tab',
+                type,
+                {
+                  active: type === pane
+                }
+              )
+              return (
+                <span
+                  className={cls}
+                  key={type + '_' + i}
+                  onClick={() => this.onChangePane(type)}
+                >
+                  {type}
+                </span>
+              )
+            })
+          }
         </div>
       )
       : null
@@ -242,12 +254,6 @@ export default class WindowWrapper extends React.Component  {
           pane === 'ssh'
             ? (
               <div className="fright term-controls">
-                <Icon
-                  type="minus-square-o"
-                  className={cls1}
-                  onClick={this.doSplit}
-                  title={e('split')}
-                />
                 {
                   hide
                     ? null
@@ -256,10 +262,16 @@ export default class WindowWrapper extends React.Component  {
                         type="delete"
                         className="mg1r icon-trash iblock pointer"
                         onClick={this.delSplit}
-                        title={m('delete')}
+                        title={m('del')}
                       />
                     )
                 }
+                <Icon
+                  type="minus-square-o"
+                  className={cls1}
+                  onClick={this.doSplit}
+                  title={e('split')}
+                />
                 <Icon
                   type="minus-square-o"
                   className={cls2}
@@ -275,17 +287,15 @@ export default class WindowWrapper extends React.Component  {
   }
 
   render() {
-    let {pane} = this.state
+    let {pane, splitDirection} = this.state
     let {props} = this
     let host = _.get(props, 'tab.host')
     return (
       <div
-        className={'term-sftp-box ' + pane}
+        className={'term-sftp-box ' + pane + ' ' + splitDirection}
       >
         {this.renderControl()}
-        {
-          this.renderTerminals()
-        }
+        {this.renderTerminals()}
         {
           host
             ? this.renderSftp()
