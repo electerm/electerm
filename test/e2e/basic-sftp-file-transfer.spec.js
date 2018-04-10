@@ -63,7 +63,7 @@ describe('ssh', function () {
 
     //click sftp tab
     await client.execute(function() {
-      document.querySelectorAll('.ssh-wrap-show .ant-tabs-nav .ant-tabs-tab')[1].click()
+      document.querySelectorAll('.ssh-wrap-show .term-sftp-tabs .type-tab')[1].click()
     })
     await delay(2500)
 
