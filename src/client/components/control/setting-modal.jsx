@@ -31,7 +31,7 @@ export default class SettingModal extends React.Component {
     super(props)
     this.state = {
       visible: false,
-      tab: props.type || settingMap.bookmarks,
+      tab: props.tab || settingMap.bookmarks,
       item: props.item || {
         id: ''
       }
@@ -41,7 +41,7 @@ export default class SettingModal extends React.Component {
   componentWillReceiveProps(nextProps) {
     let oldProps = _.pick(this.state, props)
     let newProps = _.pick(nextProps, props)
-    if (!_.isEqual(oldProps, newProps) && !this.state.tab) {
+    if (!_.isEqual(oldProps, newProps)) {
       this.setState(copy(newProps))
     }
   }
@@ -107,7 +107,7 @@ export default class SettingModal extends React.Component {
       type: tab,
       hide: this.hide
     }
-
+    console.log(tab, 'tab')
     return (
       <Tabs
         activeKey={tab}
