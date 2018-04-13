@@ -715,12 +715,12 @@ export default class Sftp extends React.Component {
             {
               type === typeMap.remote
                 ? (
-                  <div className="pd2t pd1b pd1x alignright">
+                  <div className="pd1t pd1b pd1x alignright">
                     {e('remote')}: {username}@{host}
                   </div>
                 )
                 : (
-                  <div className="pd2t pd1b pd1x">
+                  <div className="pd1t pd1b pd1x">
                     {e('local')}
                   </div>
                 )
@@ -746,7 +746,7 @@ export default class Sftp extends React.Component {
             </div>
             <div
               className={`file-list ${type} pd1 overscroll-y relative`}
-              style={{height: height - 15 - sftpControlHeight}}
+              style={{height: height  - sftpControlHeight}}
             >
               {this.renderEmptyFile(type)}
               {

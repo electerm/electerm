@@ -12,7 +12,7 @@ import copy from 'json-deep-copy'
 import classnames from 'classnames'
 import {topMenuHeight, tabsHeight, sshTabHeight, terminalSplitDirectionMap} from '../../common/constants'
 
-const termControlHeight = 32
+const termControlHeight = 33
 
 const rebuildPosition = terminals => {
   let indexs = terminals.map(t => t.position).sort((a, b) => a - b)
