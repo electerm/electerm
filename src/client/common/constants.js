@@ -15,7 +15,7 @@ const buildConst = (props) => {
 export const contextMenuHeight = 28
 export const contextMenuWidth = 120
 export const contextMenuPaddingTop = 10
-export const sftpControlHeight = 42 + 42
+export const sftpControlHeight = 28 + 42
 
 export const maxHistory = 50
 
@@ -41,9 +41,9 @@ export const authTypeMap = buildConst([
 ])
 
 export const maxTransferHistory = 100
-export const topMenuHeight = 39
+export const topMenuHeight = 43
 export const tabsHeight = 46
-export const sshTabHeight = 36
+export const sshTabHeight = 33
 
 export const platform = window.getGlobal('os').platform()
 export const isWin = platform.startsWith('win')
