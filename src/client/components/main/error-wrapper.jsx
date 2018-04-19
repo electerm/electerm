@@ -1,7 +1,9 @@
 import React from 'react'
+import {Icon, Button} from 'antd'
 
 const {prefix} = window
 const e = prefix('main')
+const m = prefix('menu')
 
 export default class ErrorBoundary extends React.Component {
   constructor(props) {
@@ -20,12 +22,26 @@ export default class ErrorBoundary extends React.Component {
     })
   }
 
+  reload = () => {
+    location.reload()
+  }
+
   render() {
     if (this.state.hasError) {
       let {stack, message} = this.state.error
       return (
         <div className="pd3 aligncenter">
-          <h1>{e('error')}</h1>
+          <h1>
+            <Icon type="frown-o" className="mg1r iblock" />
+            <span className="iblock mg1r">{e('error')}</span>
+            <Button
+              onClick={this.reload}
+              className="iblock"
+              icon="reload"
+            >
+              {m('reload')}
+            </Button>
+          </h1>
           <div className="pd1y">{message}</div>
           <div className="pd1y">{stack}</div>
         </div>
