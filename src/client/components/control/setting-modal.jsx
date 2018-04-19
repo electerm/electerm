@@ -107,7 +107,6 @@ export default class SettingModal extends React.Component {
       type: tab,
       hide: this.hide
     }
-    console.log(tab, 'tab')
     return (
       <Tabs
         activeKey={tab}

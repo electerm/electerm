@@ -562,7 +562,7 @@ export default class Term extends React.Component {
               id={id}
               className="bg-black"
               style={{
-                height: height - 20,
+                height: height - 40,
                 width: width - 3
               }}
             />
