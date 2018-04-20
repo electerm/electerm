@@ -11,6 +11,7 @@ import {generate} from 'shortid'
 import copy from 'json-deep-copy'
 import classnames from 'classnames'
 import {topMenuHeight, tabsHeight, sshTabHeight, terminalSplitDirectionMap} from '../../common/constants'
+import ResizeWrap from '../common/resize-wrap'
 
 const termControlHeight = 33
 
@@ -146,7 +147,7 @@ export default class WindowWrapper extends React.Component  {
   }
 
   renderTerminals = () => {
-    let {pane, terminals} = this.state
+    let {pane, terminals, splitDirection} = this.state
     let cls = pane === 'ssh'
       ? 'terms-box'
       : 'terms-box hide'
@@ -161,25 +162,27 @@ export default class WindowWrapper extends React.Component  {
           height: height - termControlHeight
         }}
       >
-        {
-          terminals.map((t) => {
-            let pops = {
-              ...props,
-              ...t,
-              ..._.pick(
-                this,
-                ['setActive', 'doSplit']
-              ),
-              ...this.computePosition(t.position / 10)
-            }
-            return (
-              <Term
-                key={t.id}
-                {...pops}
-              />
-            )
-          })
-        }
+        <ResizeWrap direction={splitDirection}>
+          {
+            terminals.map((t) => {
+              let pops = {
+                ...props,
+                ...t,
+                ..._.pick(
+                  this,
+                  ['setActive', 'doSplit']
+                ),
+                ...this.computePosition(t.position / 10)
+              }
+              return (
+                <Term
+                  key={t.id}
+                  {...pops}
+                />
+              )
+            })
+          }
+        </ResizeWrap>
       </div>
     )
   }
