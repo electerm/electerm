@@ -7,7 +7,7 @@ import {Component} from 'react'
 import PropTypes from 'prop-types'
 import classnames from 'classnames'
 import _ from 'lodash'
-import {terminalSplitDirectionMap, minTerminalWidth} from '../../common/constants'
+import {terminalSplitDirectionMap, minTerminalWidth, maxDragMove} from '../../common/constants'
 import './resize-wrap.styl'
 
 export default class ResizeWrap extends Component {
@@ -31,6 +31,9 @@ export default class ResizeWrap extends Component {
     let next = dom.nextSibling
     let {direction} = this.props
     let {startPosition} = this
+    if (_.isNull(e.pageX)) {
+      return
+    }
     let currentPosition = {
       x: e.pageX,
       y: e.pageY
@@ -56,41 +59,13 @@ export default class ResizeWrap extends Component {
         }
       }, {})
     })
-    doms.forEach((d, i) => {
-      this.changePosition(d, direction, startPosition, currentPosition, types[i], styles)
-    })
-  }
-
-  onDragStart = (e) => {
-    this.startPosition = {
-      x: e.pageX,
-      y: e.pageY
+    let xDiff = currentPosition.x - startPosition.x
+    let yDiff = currentPosition.y - startPosition.y
+    if (Math.abs(xDiff) > maxDragMove) {
+      return
     }
-  }
-
-  changePosition = (
-    dom,
-    direction,
-    start,
-    end,
-    type,
-    styles
-  ) => {
-    let style = styles[type]
-    let prevStyle = styles.prev
-    let nextStyle = styles.next
-    let {
-      left,
-      top,
-      width,
-      height
-    } = style
-    let xDiff = end.x - start.x
-    let yDiff = end.y - start.y
-    let realHeight = parseInt(height.replace('px', ''), 10)
-    let realWidth = parseInt(width.replace('px', ''), 10)
-    let realTop = parseInt(top.replace('px', ''), 10)
-    let realLeft = parseInt(left.replace('px', ''), 10)
+    let prevStyle = styles[1]
+    let nextStyle = styles[2]
     if (direction === terminalSplitDirectionMap.vertical) {
       if (yDiff > 0 && yDiff > nextStyle.height - minTerminalWidth) {
         yDiff = nextStyle.height - minTerminalWidth
@@ -104,6 +79,31 @@ export default class ResizeWrap extends Component {
         xDiff = - (prevStyle.width - minTerminalWidth)
       }
     }
+    doms.forEach((d, i) => {
+      this.changePosition(d, direction, xDiff, yDiff, types[i], styles[i])
+    })
+    this.startPosition = currentPosition
+  }
+
+  onDragStart = (e) => {
+    this.startPosition = {
+      x: e.pageX,
+      y: e.pageY
+    }
+  }
+
+  changePosition = (
+    dom,
+    direction,
+    xDiff,
+    yDiff,
+    type,
+    style
+  ) => {
+    let realHeight = style.height
+    let realWidth = style.width
+    let realTop = style.top
+    let realLeft = style.left
     if (type === 'prev' && direction === terminalSplitDirectionMap.vertical) {
       dom.style.height = (realHeight + yDiff) + 'px'
     } else if (type === 'prev') {
@@ -116,17 +116,13 @@ export default class ResizeWrap extends Component {
       dom.style.top = (realTop + yDiff) + 'px'
       dom.style.height = (realHeight - yDiff) + 'px'
     } else {
-      dom.style.width = (realWidth + xDiff) + 'px'
-      dom.style.left = (realLeft - xDiff) + 'px'
+      dom.style.width = (realWidth - xDiff) + 'px'
+      dom.style.left = (realLeft + xDiff) + 'px'
     }
   }
 
-
-  onDragEnd = (e) => {
-    this.startPosition = {
-      x: e.pageX,
-      y: e.pageY
-    }
+  onDragEnd = () => {
+    window.dispatchEvent(new CustomEvent('resize'))
   }
 
   onDoubleClick = () => {

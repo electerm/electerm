@@ -108,6 +108,10 @@ export default class Term extends React.Component {
     let dom = document.getElementById(id)
     this.dom = dom
     dom.addEventListener('contextmenu', this.onContextMenu)
+    window.addEventListener(
+      'resize',
+      _.throttle(this.onResize, 100)
+    )
   }
 
   keyControlPressed = e => {
@@ -537,7 +541,7 @@ export default class Term extends React.Component {
   render() {
     let {id, loading} = this.state
     let {height, width, left, top, position, id: pid} = this.props
-    let cls = classnames('term-wrap', {
+    let cls = classnames('term-wrap bg-black', {
       'not-first-term': !!position
     }, pid)
     return (
@@ -550,23 +554,25 @@ export default class Term extends React.Component {
       >
         {this.renderPromoteModal()}
         <div
-          className="bg-black"
+          className="bg-black absolute"
           style={{
-            height,
-            padding: '10px 0 10px 3px'
+            left: '3px',
+            top: '10px',
+            right: 0,
+            bottom: '20px'
           }}
         >
           {this.renderSearchBox()}
-          <Spin spinning={loading} wrapperClassName="loading-wrapper">
-            <div
-              id={id}
-              className="bg-black"
-              style={{
-                height: height - 40,
-                width: width - 3
-              }}
-            />
-          </Spin>
+          <div
+            id={id}
+            className="absolute"
+            style={{
+              left: 0,
+              top: 0,
+              height: '100%',
+              width: '100%'
+            }}
+          />
         </div>
       </div>
     )

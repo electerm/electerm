@@ -149,8 +149,8 @@ export default class WindowWrapper extends React.Component  {
   renderTerminals = () => {
     let {pane, terminals, splitDirection} = this.state
     let cls = pane === 'ssh'
-      ? 'terms-box'
-      : 'terms-box hide'
+      ? 'terms-box bg-black'
+      : 'terms-box bg-black hide'
     let {props} = this
     let height = this.computeHeight()
     let {width} = props

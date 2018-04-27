@@ -11,7 +11,7 @@ const buildConst = (props) => {
     }
   }, {})
 }
-
+export const maxDragMove = 30
 export const minTerminalWidth = 90
 export const contextMenuHeight = 28
 export const contextMenuWidth = 120
