@@ -22,8 +22,8 @@ export default class ResizeWrap extends Component {
     splitIds: []
   }
 
-  componentWillReceiveProps(nextProps) {
-    
+  componentWillReceiveProps() {
+
   }
 
   componentDidUpdate() {
