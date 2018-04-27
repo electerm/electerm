@@ -574,6 +574,7 @@ export default class Term extends React.Component {
             }}
           />
         </div>
+        <Spin className="loading-wrapper" spinning={loading} />
       </div>
     )
   }
