@@ -10,9 +10,8 @@ import _ from 'lodash'
 import {generate} from 'shortid'
 import copy from 'json-deep-copy'
 import classnames from 'classnames'
-import {topMenuHeight, tabsHeight, sshTabHeight, terminalSplitDirectionMap} from '../../common/constants'
-
-const termControlHeight = 33
+import {topMenuHeight, tabsHeight, sshTabHeight, terminalSplitDirectionMap, termControlHeight} from '../../common/constants'
+import ResizeWrap from '../common/resize-wrap'
 
 const rebuildPosition = terminals => {
   let indexs = terminals.map(t => t.position).sort((a, b) => a - b)
@@ -48,6 +47,7 @@ export default class WindowWrapper extends React.Component  {
       pane: 'ssh',
       splitDirection: terminalSplitDirectionMap.horizontal,
       activeSplitId: id,
+      key: Math.random(),
       terminals: [
         {
           id,
@@ -146,10 +146,10 @@ export default class WindowWrapper extends React.Component  {
   }
 
   renderTerminals = () => {
-    let {pane, terminals} = this.state
+    let {pane, terminals, splitDirection, key} = this.state
     let cls = pane === 'ssh'
-      ? 'terms-box'
-      : 'terms-box hide'
+      ? 'terms-box bg-black'
+      : 'terms-box bg-black hide'
     let {props} = this
     let height = this.computeHeight()
     let {width} = props
@@ -161,25 +161,30 @@ export default class WindowWrapper extends React.Component  {
           height: height - termControlHeight
         }}
       >
-        {
-          terminals.map((t) => {
-            let pops = {
-              ...props,
-              ...t,
-              ..._.pick(
-                this,
-                ['setActive', 'doSplit']
-              ),
-              ...this.computePosition(t.position / 10)
-            }
-            return (
-              <Term
-                key={t.id}
-                {...pops}
-              />
-            )
-          })
-        }
+        <ResizeWrap
+          direction={splitDirection}
+        >
+          {
+            terminals.map((t) => {
+              let pops = {
+                ...props,
+                ...t,
+                ..._.pick(
+                  this,
+                  ['setActive', 'doSplit']
+                ),
+                ...this.computePosition(t.position / 10)
+              }
+              return (
+                <Term
+                  key={t.id}
+                  updateKey={key}
+                  {...pops}
+                />
+              )
+            })
+          }
+        </ResizeWrap>
       </div>
     )
   }
