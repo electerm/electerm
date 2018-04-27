@@ -10,10 +10,8 @@ import _ from 'lodash'
 import {generate} from 'shortid'
 import copy from 'json-deep-copy'
 import classnames from 'classnames'
-import {topMenuHeight, tabsHeight, sshTabHeight, terminalSplitDirectionMap} from '../../common/constants'
+import {topMenuHeight, tabsHeight, sshTabHeight, terminalSplitDirectionMap, termControlHeight} from '../../common/constants'
 import ResizeWrap from '../common/resize-wrap'
-
-const termControlHeight = 33
 
 const rebuildPosition = terminals => {
   let indexs = terminals.map(t => t.position).sort((a, b) => a - b)
@@ -49,6 +47,7 @@ export default class WindowWrapper extends React.Component  {
       pane: 'ssh',
       splitDirection: terminalSplitDirectionMap.horizontal,
       activeSplitId: id,
+      key: Math.random(),
       terminals: [
         {
           id,
@@ -147,7 +146,7 @@ export default class WindowWrapper extends React.Component  {
   }
 
   renderTerminals = () => {
-    let {pane, terminals, splitDirection} = this.state
+    let {pane, terminals, splitDirection, key} = this.state
     let cls = pane === 'ssh'
       ? 'terms-box bg-black'
       : 'terms-box bg-black hide'
@@ -162,7 +161,9 @@ export default class WindowWrapper extends React.Component  {
           height: height - termControlHeight
         }}
       >
-        <ResizeWrap direction={splitDirection}>
+        <ResizeWrap
+          direction={splitDirection}
+        >
           {
             terminals.map((t) => {
               let pops = {
@@ -177,6 +178,7 @@ export default class WindowWrapper extends React.Component  {
               return (
                 <Term
                   key={t.id}
+                  updateKey={key}
                   {...pops}
                 />
               )

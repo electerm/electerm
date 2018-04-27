@@ -3,7 +3,6 @@
  */
 
 import {Component} from 'react'
-//import ReactDOM from 'react-dom'
 import PropTypes from 'prop-types'
 import classnames from 'classnames'
 import _ from 'lodash'
@@ -16,14 +15,6 @@ export default class ResizeWrap extends Component {
     direction: PropTypes.oneOf(['horizontal', 'vertical']).isRequired,
     children: PropTypes.arrayOf(PropTypes.element).isRequired
   }
-
-  // static defaultProps = {
-
-  // }
-
-  // componentDidMount() {
-  //   //this.initDnD()
-  // }
 
   onDrag = (e) => {
     let dom = e.target
@@ -126,7 +117,7 @@ export default class ResizeWrap extends Component {
   }
 
   onDoubleClick = () => {
-
+    //todo
   }
 
   buildHandleComponent = (prevComponent, direction, index) => {
@@ -165,10 +156,6 @@ export default class ResizeWrap extends Component {
         {...props}
       />
     )
-  }
-
-  resizeComponent = (prevComponent) => {
-    return prevComponent
   }
 
   render() {
