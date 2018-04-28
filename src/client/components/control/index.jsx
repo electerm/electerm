@@ -37,12 +37,15 @@ export default class IndexControl extends React.Component {
   }
 
   onDup = tab => {
-    delete tab.status
+    let index = _.findIndex(
+      this.props.tabs,
+      d => d.id === tab.id
+    )
     this.props.addTab({
       ...tab,
       status: defaultStatus,
       id: generate()
-    })
+    }, index + 1)
   }
 
   onAdd = () => {
