@@ -22,16 +22,26 @@ export default class ResizeWrap extends Component {
     splitIds: []
   }
 
-  componentWillReceiveProps() {
-
+  componentWillReceiveProps(nextProps) {
+    let old = this.props.children.map(c => c.props.id)
+    let n = nextProps.children.map(c => c.props.id)
+    if (
+      !_.isEqual(old, n)
+    ) {
+      let len = n.length - 1
+      this.setState({
+        childIds: n,
+        splitIds: new Array(len).fill(8).map(() => generate())
+      })
+    }
   }
 
-  componentDidUpdate() {
-    if (!this.ids.length) {
+  componentDidUpdate(prevProps, prevState) {
+    if (this.state.childIds.length < 2) {
       return
     }
     if (
-      !_.isEqual(this.ids, this.oldIds)
+      !_.isEqual(prevState.childIds, this.state.childIds)
     ) {
       this.saveOldStyle()
     }
@@ -45,7 +55,11 @@ export default class ResizeWrap extends Component {
   ]
 
   saveOldStyle() {
-    let {ids} = this
+    let {childIds, splitIds} = this.state
+    let ids = [
+      ...splitIds,
+      ...childIds
+    ]
     this.oldStyles = ids.reduce((prev, id) => {
       return {
         ...prev,
@@ -55,10 +69,7 @@ export default class ResizeWrap extends Component {
         )
       }
     }, {})
-    console.log(this.oldStyles)
   }
-
-  ids = []
 
   onDrag = (e) => {
     let dom = e.target
@@ -157,8 +168,12 @@ export default class ResizeWrap extends Component {
 
   //reset
   onDoubleClick = () => {
-    this.ids.forEach((id) => {
-      console.log(this.oldStyles[id])
+    let {childIds, splitIds} = this.state
+    let ids = [
+      ...splitIds,
+      ...childIds
+    ]
+    ids.forEach((id) => {
       Object.assign(
         document.querySelector(`.tw-${id}`).style,
         this.oldStyles[id]
@@ -214,16 +229,13 @@ export default class ResizeWrap extends Component {
     if (len < 2) {
       return children
     }
-    let ids = []
+    let splitIndex = 0
+    let {splitIds} = this.state
     let newArr = children.reduce((prev, c, i) => {
-      ids.push(
-        c.props.id
-      )
       let split = null
       if (i !== len - 1) {
-        let splitId = generate()
-        split = this.buildHandleComponent(c, direction, i, splitId)
-        ids.push(splitId)
+        split = this.buildHandleComponent(c, direction, i, splitIds[splitIndex])
+        splitIndex ++
       }
       return [
         ...prev,
@@ -231,8 +243,6 @@ export default class ResizeWrap extends Component {
         split
       ].filter(d => d)
     }, [])
-    this.oldIds = this.ids
-    this.ids = ids
     return newArr
   }
 }
