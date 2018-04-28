@@ -16,7 +16,10 @@ try {
   config = sshConf.map((c, i) => {
     let {value} = c
     let obj = sshConf.compute(value)
-    let {HostName, User, Port = defaultPort} = obj
+    let {HostName, User, Port = defaultPort, Host} = obj
+    if (!Host) {
+      return null
+    }
     return {
       host: HostName,
       username: User,
