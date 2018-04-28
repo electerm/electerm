@@ -146,7 +146,7 @@ export default class WindowWrapper extends React.Component  {
   }
 
   renderTerminals = () => {
-    let {pane, terminals, splitDirection, key} = this.state
+    let {pane, terminals, splitDirection} = this.state
     let cls = pane === 'ssh'
       ? 'terms-box bg-black'
       : 'terms-box bg-black hide'
@@ -178,7 +178,6 @@ export default class WindowWrapper extends React.Component  {
               return (
                 <Term
                   key={t.id}
-                  updateKey={key}
                   {...pops}
                 />
               )

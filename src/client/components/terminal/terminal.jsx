@@ -543,7 +543,7 @@ export default class Term extends React.Component {
     let {height, width, left, top, position, id: pid} = this.props
     let cls = classnames('term-wrap bg-black', {
       'not-first-term': !!position
-    }, pid)
+    }, 'tw-' + pid)
     return (
       <div
         className={cls}
