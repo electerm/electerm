@@ -211,9 +211,9 @@ export default class Index extends React.Component {
     })
   }
 
-  addTab = tab => {
+  addTab = (tab, index = this.state.tabs.length) => {
     let tabs = copy(this.state.tabs)
-    tabs.push(tab)
+    tabs.splice(index, 0, tab)
     this.setState({
       tabs,
       currentTabId: tab.id
