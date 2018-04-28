@@ -6,6 +6,7 @@ import {Component} from 'react'
 import PropTypes from 'prop-types'
 import classnames from 'classnames'
 import _ from 'lodash'
+import {generate} from 'shortid'
 import {terminalSplitDirectionMap, minTerminalWidth, maxDragMove} from '../../common/constants'
 import './resize-wrap.styl'
 
@@ -14,6 +15,60 @@ export default class ResizeWrap extends Component {
   static propTypes = {
     direction: PropTypes.oneOf(['horizontal', 'vertical']).isRequired,
     children: PropTypes.arrayOf(PropTypes.element).isRequired
+  }
+
+  state = {
+    childIds: [],
+    splitIds: []
+  }
+
+  componentWillReceiveProps(nextProps) {
+    let old = this.props.children.map(c => c.props.id)
+    let n = nextProps.children.map(c => c.props.id)
+    if (
+      !_.isEqual(old, n)
+    ) {
+      let len = n.length - 1
+      this.setState({
+        childIds: n,
+        splitIds: new Array(len).fill(8).map(() => generate())
+      })
+    }
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (this.state.childIds.length < 2) {
+      return
+    }
+    if (
+      !_.isEqual(prevState.childIds, this.state.childIds)
+    ) {
+      this.saveOldStyle()
+    }
+  }
+
+  positionProps = [
+    'width',
+    'height',
+    'left',
+    'top'
+  ]
+
+  saveOldStyle() {
+    let {childIds, splitIds} = this.state
+    let ids = [
+      ...splitIds,
+      ...childIds
+    ]
+    this.oldStyles = ids.reduce((prev, id) => {
+      return {
+        ...prev,
+        [id]: _.pick(
+          document.querySelector(`.tw-${id}`).style,
+          this.positionProps
+        )
+      }
+    }, {})
   }
 
   onDrag = (e) => {
@@ -34,12 +89,7 @@ export default class ResizeWrap extends Component {
     let doms = [dom, prev, next]
     let styles = doms.map(d => {
       let {style} = d
-      let obj = _.pick(style, [
-        'left',
-        'top',
-        'width',
-        'height'
-      ])
+      let obj = _.pick(style, this.positionProps)
       return Object.keys(obj).reduce((prev, k) => {
         let v = obj[k]
         return {
@@ -116,13 +166,25 @@ export default class ResizeWrap extends Component {
     window.dispatchEvent(new CustomEvent('resize'))
   }
 
+  //reset
   onDoubleClick = () => {
-    //todo
+    let {childIds, splitIds} = this.state
+    let ids = [
+      ...splitIds,
+      ...childIds
+    ]
+    ids.forEach((id) => {
+      Object.assign(
+        document.querySelector(`.tw-${id}`).style,
+        this.oldStyles[id]
+      )
+    })
   }
 
-  buildHandleComponent = (prevComponent, direction, index) => {
+  buildHandleComponent = (prevComponent, direction, index, tid) => {
     let zIndex = this.props.children.length + 10
     let cls = classnames(
+      `tw-${tid}`,
       'term-dragger',
       `term-dragger-${index}`,
       `term-dragger-${direction}`
@@ -167,13 +229,18 @@ export default class ResizeWrap extends Component {
     if (len < 2) {
       return children
     }
+    let splitIndex = 0
+    let {splitIds} = this.state
     let newArr = children.reduce((prev, c, i) => {
+      let split = null
+      if (i !== len - 1) {
+        split = this.buildHandleComponent(c, direction, i, splitIds[splitIndex])
+        splitIndex ++
+      }
       return [
         ...prev,
         c,
-        i === len - 1
-          ? null
-          : this.buildHandleComponent(c, direction, i)
+        split
       ].filter(d => d)
     }, [])
     return newArr
