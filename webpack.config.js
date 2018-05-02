@@ -66,7 +66,7 @@ var config = {
   externals: {
     'react': 'React',
     'react-dom': 'ReactDOM',
-    'moment': 'moment',
+    'dayjs': 'dayjs',
     'crypto-js': 'CryptoJS',
     'lodash': '_'
   },
