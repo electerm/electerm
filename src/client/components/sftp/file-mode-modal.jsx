@@ -5,7 +5,7 @@
 import React from 'react'
 import {Icon, Modal, Button} from 'antd'
 import resolve from '../../common/resolve'
-import moment from 'moment'
+import dayjs from 'dayjs'
 import _ from 'lodash'
 import {mode2permission, permission2mode} from '../../common/mode2permission'
 import renderPermission from './permission-render'
@@ -13,7 +13,7 @@ import renderPermission from './permission-render'
 const {prefix} = window
 const e = prefix('sftp')
 const formatTime = time => {
-  return moment(time).format()
+  return dayjs(time).format()
 }
 
 export default class FileMode extends React.Component {

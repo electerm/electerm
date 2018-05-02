@@ -7,7 +7,7 @@ import ReactDOM from 'react-dom'
 import {Icon, Tooltip, Popconfirm} from 'antd'
 import {generate} from 'shortid'
 import classnames from 'classnames'
-import moment from 'moment'
+import dayjs from 'dayjs'
 import copy from 'json-deep-copy'
 import _ from 'lodash'
 import Input from '../common/input-auto-focus'
@@ -947,7 +947,7 @@ export default class FileSection extends React.Component {
     let title = (
       <div className="mw350 pd1">
         <div className="wordbreak">{name}</div>
-        <div className="font12">{e('modifyTime')}: {moment(modifyTime).format()}</div>
+        <div className="font12">{e('modifyTime')}: {dayjs(modifyTime).format()}</div>
       </div>
     )
     let props = {
