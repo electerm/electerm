@@ -13,11 +13,12 @@ import classnames from 'classnames'
 import sorterIndex from '../../common/index-sorter'
 import DragSelect from './drag-select'
 import {getLocalFileInfo} from './file-read'
-import {isMac, typeMap, sftpControlHeight, maxSftpHistory} from '../../common/constants'
+import {typeMap, sftpControlHeight, maxSftpHistory} from '../../common/constants'
 import {hasFileInClipboardText} from '../../common/clipboard'
 import Client from '../../common/sftp'
 import fs from '../../common/fs'
 import sorters, {ordersMap} from './sorters'
+import keyControlPressed from '../../common/key-control-pressed'
 import './sftp.styl'
 
 const {getGlobal, prefix} = window
@@ -97,7 +98,7 @@ export default class Sftp extends React.Component {
   }
 
   destroyEvent() {
-    window.removeEventListener('keypress', this.handleEvent)
+    window.removeEventListener('keydown', this.handleEvent)
   }
 
   isActive() {
@@ -307,12 +308,6 @@ export default class Sftp extends React.Component {
     this[type + 'Dom'].onPaste()
   }
 
-  keyControlPressed = e => {
-    return isMac
-      ? e.metaKey
-      : e.ctrlKey
-  }
-
   handleEvent = (e) => {
     if (!this.isActive()) {
       return
@@ -322,7 +317,7 @@ export default class Sftp extends React.Component {
     }
     let {type} = lastClickedFile
     let {inputFocus, onDelete} = this
-    if (this.keyControlPressed(e) && e.code === 'KeyA') {
+    if (keyControlPressed(e) && e.code === 'KeyA') {
       this.selectAll(type, e)
     } else if (e.code === 'ArrowDown') {
       this.selectNext(type)
@@ -332,9 +327,9 @@ export default class Sftp extends React.Component {
       this.onDel(type)
     } else if (e.code === 'Enter' && !inputFocus && !onDelete) {
       this.enter(type, e)
-    } else if (this.keyControlPressed(e) && e.code === 'KeyC') {
+    } else if (keyControlPressed(e) && e.code === 'KeyC') {
       this.doCopy(type, e)
-    } else if (this.keyControlPressed(e) && e.code === 'KeyV') {
+    } else if (keyControlPressed(e) && e.code === 'KeyV') {
       this.doPaste(type, e)
     } else if (e.code === 'F5') {
       this.onGoto(type)
