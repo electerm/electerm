@@ -80,11 +80,9 @@ export default class WindowWrapper extends React.Component  {
   }
 
   handleEvent = (e) => {
-    console.log(e, 'e1')
     if (!this.isActive()) {
       return
     }
-    console.log(e, 'e2')
     if (keyControlPressed(e) && e.code === 'Slash') {
       this.doSplit()
     }
