@@ -12,6 +12,7 @@ import copy from 'json-deep-copy'
 import classnames from 'classnames'
 import {topMenuHeight, tabsHeight, sshTabHeight, terminalSplitDirectionMap, termControlHeight} from '../../common/constants'
 import ResizeWrap from '../common/resize-wrap'
+import keyControlPressed from '../../common/key-control-pressed'
 
 const rebuildPosition = terminals => {
   let indexs = terminals.map(t => t.position).sort((a, b) => a - b)
@@ -54,6 +55,38 @@ export default class WindowWrapper extends React.Component  {
           position: 0
         }
       ]
+    }
+  }
+
+  componentDidMount() {
+    this.initEvent()
+  }
+
+  componentWillUnmount() {
+    this.destroyEvent()
+  }
+
+  initEvent() {
+    window.addEventListener('keydown', this.handleEvent)
+  }
+
+  destroyEvent() {
+    window.removeEventListener('keypress', this.handleEvent)
+  }
+
+  isActive() {
+    return this.props.currentTabId === this.props.tab.id &&
+      this.state.pane === 'ssh'
+  }
+
+  handleEvent = (e) => {
+    console.log(e, 'e1')
+    if (!this.isActive()) {
+      return
+    }
+    console.log(e, 'e2')
+    if (keyControlPressed(e) && e.code === 'Slash') {
+      this.doSplit()
     }
   }
 
@@ -274,7 +307,7 @@ export default class WindowWrapper extends React.Component  {
                   type="minus-square-o"
                   className={cls1}
                   onClick={this.doSplit}
-                  title={e('split')}
+                  title={e('split') + '(Ctrl + /)'}
                 />
                 <Icon
                   type="minus-square-o"
