@@ -89,12 +89,9 @@ export default class WindowWrapper extends React.Component  {
   }
 
   computeHeight = () => {
-    let hasHost = _.get(this.props, 'tab.host')
     let {showControl} = this.props
     return this.props.height -
-      (showControl ? topMenuHeight : 0) -
-      tabsHeight -
-      (hasHost ? sshTabHeight : 0)
+      (showControl ? topMenuHeight : 0) - tabsHeight
   }
 
   onChangePane = pane => {

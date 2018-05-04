@@ -559,7 +559,7 @@ export default class Term extends React.Component {
             left: '3px',
             top: '10px',
             right: 0,
-            bottom: '20px'
+            bottom: '30px'
           }}
         >
           {this.renderSearchBox()}
