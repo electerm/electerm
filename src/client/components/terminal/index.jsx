@@ -10,7 +10,7 @@ import _ from 'lodash'
 import {generate} from 'shortid'
 import copy from 'json-deep-copy'
 import classnames from 'classnames'
-import {topMenuHeight, tabsHeight, sshTabHeight, terminalSplitDirectionMap, termControlHeight} from '../../common/constants'
+import {topMenuHeight, tabsHeight, terminalSplitDirectionMap, termControlHeight} from '../../common/constants'
 import ResizeWrap from '../common/resize-wrap'
 import keyControlPressed from '../../common/key-control-pressed'
 
@@ -89,12 +89,9 @@ export default class WindowWrapper extends React.Component  {
   }
 
   computeHeight = () => {
-    let hasHost = _.get(this.props, 'tab.host')
     let {showControl} = this.props
     return this.props.height -
-      (showControl ? topMenuHeight : 0) -
-      tabsHeight -
-      (hasHost ? sshTabHeight : 0)
+      (showControl ? topMenuHeight : 0) - tabsHeight
   }
 
   onChangePane = pane => {
