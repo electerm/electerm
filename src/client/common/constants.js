@@ -46,7 +46,6 @@ export const authTypeMap = buildConst([
 export const maxTransferHistory = 100
 export const topMenuHeight = 43
 export const tabsHeight = 46
-export const sshTabHeight = 33
 
 export const platform = window.getGlobal('os').platform()
 export const isWin = platform.startsWith('win')

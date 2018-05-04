@@ -10,7 +10,7 @@ import _ from 'lodash'
 import {generate} from 'shortid'
 import copy from 'json-deep-copy'
 import classnames from 'classnames'
-import {topMenuHeight, tabsHeight, sshTabHeight, terminalSplitDirectionMap, termControlHeight} from '../../common/constants'
+import {topMenuHeight, tabsHeight, terminalSplitDirectionMap, termControlHeight} from '../../common/constants'
 import ResizeWrap from '../common/resize-wrap'
 import keyControlPressed from '../../common/key-control-pressed'
 
