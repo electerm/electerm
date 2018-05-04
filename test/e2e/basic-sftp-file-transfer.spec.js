@@ -141,10 +141,32 @@ describe('ssh', function () {
 
     //transfer local to remote
     await client.rightClick('.ssh-wrap-show .sftp-item.local', 20, 22)
-    await delay(1000)
+    await delay(200)
     await client.execute(function() {
       document.querySelector('.context-menu .anticon-cloud-upload-o').click()
     })
+
+    //transfer remote to local
+    await delay(500)
+    await client.execute(function() {
+      document.querySelectorAll('.ssh-wrap-show .file-list.local .sftp-item')[1].click()
+    })
+    await delay(20)
+
+    await client.keys(['Delete'])
+    await delay(20)
+    await client.keys(['Enter'])
+    await delay(800)
+
+    await client.rightClick('.ssh-wrap-show .sftp-item.remote', 20, 22)
+    await delay(200)
+    await client.execute(function() {
+      document.querySelector('.context-menu .anticon-cloud-download-o').click()
+    })
+
+    await delay(1000)
+    let localFileList001 = await client.elements('.ssh-wrap-show .file-list.local .sftp-item')
+    expect(localFileList001.value.length).equal(2)
 
     await delay(1000)
     let remoteFileList01 = await client.elements('.ssh-wrap-show .file-list.remote .sftp-item')
