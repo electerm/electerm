@@ -1,6 +1,6 @@
 {
   "name": "electerm",
-  "version": "0.20.0",
+  "version": "0.20.1",
   "description": "terminal/ssh/sftp client(linux, mac, win) based on electron/node-pty/xterm and other libs",
   "main": "app.js",
   "bin": "npm/electerm",
@@ -20,7 +20,7 @@
     "dist-test": "npm run compile && npm run prepare-file && npm run pack",
     "output": "./node_modules/.bin/electron-builder",
     "output-cn": "./node_modules/.bin/electron-builder -c local-electron-builder.json",
-    "release": "npm run compile && npm run prepare-file && npm run output",
+    "release": "npm run pre-test && npm run output",
     "preinstall": "rm -rf package-lock.json",
     "postinstall": "node bin/post-install",
     "lint": "./node_modules/.bin/eslint --max-warnings 0 --ext .js --ext .jsx src app bin test",
@@ -115,7 +115,7 @@
     "webpack": "4.1.1",
     "webpack-cli": "2.0.12",
     "webpack-dev-server": "3.1.1",
-    "xterm": "3.2.0"
+    "xterm": "3.3.0"
   },
   "dependencies": {
     "bluebird": "3.5.1",

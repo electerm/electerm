@@ -20,6 +20,7 @@ import {readClipboard, copy} from '../../common/clipboard'
 import * as fit from 'xterm/lib/addons/fit/fit'
 import * as attach from 'xterm/lib/addons/attach/attach'
 import * as search from 'xterm/lib/addons/search/search'
+
 import { Terminal } from 'xterm'
 
 Terminal.applyAddon(fit)
@@ -253,7 +254,10 @@ export default class Term extends React.Component {
     let {id} = this.state
     //let {password, privateKey, host} = this.props.tab
     let term = new Terminal({
-      scrollback: config.scrollback
+      scrollback: config.scrollback,
+      fontFamily: 'mono, courier-new, courier, monospace'
+      // lineHeight: 1.2,
+      // fontSize: 14
     })
     term.open(document.getElementById(id), true)
     term.on('focus', this.setActive)
