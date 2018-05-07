@@ -20,11 +20,14 @@ import {readClipboard, copy} from '../../common/clipboard'
 import * as fit from 'xterm/lib/addons/fit/fit'
 import * as attach from 'xterm/lib/addons/attach/attach'
 import * as search from 'xterm/lib/addons/search/search'
+import * as webfontLoader from 'xterm-webfont'
+
 import { Terminal } from 'xterm'
 
 Terminal.applyAddon(fit)
 Terminal.applyAddon(attach)
 Terminal.applyAddon(search)
+Terminal.applyAddon(webfontLoader)
 
 const {prefix, _config: config} = window
 const e = prefix('ssh')
@@ -253,7 +256,10 @@ export default class Term extends React.Component {
     let {id} = this.state
     //let {password, privateKey, host} = this.props.tab
     let term = new Terminal({
-      scrollback: config.scrollback
+      scrollback: config.scrollback,
+      fontFamily: 'monospace',
+      lineHeight: 1.2,
+      fontSize: 14
     })
     term.open(document.getElementById(id), true)
     term.on('focus', this.setActive)
