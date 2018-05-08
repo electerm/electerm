@@ -23,7 +23,7 @@ const {resolve} = require('path')
 const {expect} = require('chai')
 const cwd = process.cwd()
 const delay = require('./common/wait')
-const {generate} = require('shortid')
+const generate = require('./common/uid')
 
 describe('ssh', function () {
   this.timeout(100000)
