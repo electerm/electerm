@@ -13,13 +13,13 @@ import {
   contextMenuPaddingTop,
   typeMap,
   contextMenuWidth,
-  isMac,
   terminalSshConfigType
 } from '../../common/constants'
 import {readClipboard, copy} from '../../common/clipboard'
 import * as fit from 'xterm/lib/addons/fit/fit'
 import * as attach from 'xterm/lib/addons/attach/attach'
 import * as search from 'xterm/lib/addons/search/search'
+import keyControlPressed from '../../common/key-control-pressed'
 
 import { Terminal } from 'xterm'
 
@@ -115,15 +115,17 @@ export default class Term extends React.Component {
     )
   }
 
-  keyControlPressed = e => {
-    return isMac
-      ? e.metaKey
-      : e.ctrlKey
-  }
-
   handleEvent = (e) => {
-    if (this.keyControlPressed(e) && e.code === 'KeyF') {
+    if (keyControlPressed(e) && e.code === 'KeyF') {
       this.openSearch()
+    } else if (
+      e.shiftKey && keyControlPressed(e) && e.code === 'KeyC'
+    ) {
+      this.onCopy()
+    } else if (
+      e.shiftKey && keyControlPressed(e) && e.code === 'KeyV'
+    ) {
+      this.onPaste()
     }
   }
 
