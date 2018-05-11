@@ -5,7 +5,6 @@
 import React from 'react'
 import {Tooltip, Icon} from 'antd'
 import Search from '../common/search'
-import createName from '../../common/create-title'
 import classnames from 'classnames'
 
 export default class ThemeList extends React.Component {
