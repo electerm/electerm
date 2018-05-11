@@ -217,12 +217,14 @@ export default class Term extends React.Component {
           onClick={hasSlected ? this.onCopy : _.noop}
         >
           <Icon type="copy" /> {m('copy')}
+          <span className="color-grey mg1l">(ctrl+shift+C)</span>
         </div>
         <div
           className={clsPaste}
           onClick={copyed ? this.onPaste : _.noop}
         >
           <Icon type="switcher" /> {m('paste')}
+          <span className="color-grey mg1l">(ctrl+shift+V)</span>
         </div>
         <div
           className={cls}
