@@ -99,16 +99,6 @@ async function createWindow () {
   })
 
   win.setAutoHideMenuBar(true)
-  require('electron-context-menu')({
-    prepend: (params) => [{
-      label: 'Rainbow',
-      // Only show it when right-clicking images
-      visible: params.mediaType === 'image'
-    }],
-    window: win,
-    showInspectElement: isDev
-    //shouldShowMenu: (event, params) => !params.isEditable
-  })
 
   global.et = {}
   Object.assign(global.et, {
