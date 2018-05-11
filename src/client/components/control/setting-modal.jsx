@@ -169,6 +169,21 @@ export default class SettingModal extends React.Component {
             </Col>
           </Row>
         </TabPane>
+        <TabPane
+          tab={m(settingMap.themes)}
+          key={settingMap.themes}
+        >
+          <Row>
+            <Col span={6}>
+              <List
+                {...props}
+              />
+            </Col>
+            <Col span={18}>
+              todo
+            </Col>
+          </Row>
+        </TabPane>
       </Tabs>
     )
   }

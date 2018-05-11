@@ -10,6 +10,7 @@ import FileModeModal from '../sftp/file-mode-modal'
 import UpdateCheck from './update-check'
 import {notification} from 'antd'
 import openInfoModal from '../control/info-modal'
+import {getThemes, getCurrentTheme} from '../../common/theme'
 import {maxHistory, settingMap, maxTransferHistory} from '../../common/constants'
 import './wrapper.styl'
 
@@ -31,6 +32,8 @@ export default class Index extends React.Component {
       config: _config || {},
       contextMenuProps: {},
       transferHistory: [],
+      themes: getThemes(),
+      theme: getCurrentTheme(),
       showControl: true,
       contextMenuVisible: false,
       fileInfoModalProps: {},
