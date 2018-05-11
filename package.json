@@ -104,6 +104,7 @@
     "png2icons": "0.9.1",
     "prop-types": "15.6.1",
     "pug-html-loader": "1.1.5",
+    "react-color": "2.14.1",
     "serialize-javascript": "1.4.0",
     "shelljs": "0.8.1",
     "spectron": "3.8.0",
