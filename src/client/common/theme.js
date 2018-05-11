@@ -33,7 +33,7 @@ const getThemes = () => {
   let themes = ls.get('themes') || {
     default: defaultTheme
   }
-  return themes.reduce((prev, k) => {
+  return Object.keys(themes).reduce((prev, k) => {
     return [
       ...prev,
       {
@@ -97,7 +97,7 @@ const editTheme = (themeName, update) => {
   ls.set('themes', themes)
 }
 
-export default {
+export {
   getCurrentTheme,
   setTheme,
   verifyTheme,
