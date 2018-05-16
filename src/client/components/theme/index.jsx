@@ -2,8 +2,8 @@
 import React from 'react'
 import {
   Form, Button, Input,
-  InputNumber, message,
-  Radio, Upload
+  message,
+  Upload
 } from 'antd'
 import {validateFieldsAndScroll} from '../../common/dec-validate-and-scroll'
 import _ from 'lodash'
@@ -12,11 +12,6 @@ import {generate} from 'shortid'
 import {authTypeMap, settingMap} from '../../common/constants'
 
 const {TextArea} = Input
-const authTypes = Object.keys(authTypeMap).map(k => {
-  return k
-})
-const RadioButton = Radio.Button
-const RadioGroup = Radio.Group
 const FormItem = Form.Item
 const formItemLayout = {
   labelCol: {
@@ -45,7 +40,7 @@ const e = prefix('form')
 
 @Form.create()
 @validateFieldsAndScroll
-export default class SshForm extends React.Component {
+export default class ThemeForm extends React.Component {
 
   constructor(props) {
     super(props)
