@@ -227,27 +227,24 @@ export default class SshForm extends React.Component {
   render() {
     const {getFieldDecorator} = this.props.form
     const {
-      host,
-      port = 22,
-      title,
-      authType = authTypeMap.password,
-      username
+      themeText,
+      themeName
     } = this.state.formData
 
     return (
       <Form onSubmit={this.handleSubmit} className="form-wrap">
         <FormItem
           {...formItemLayout}
-          label={e('host')}
+          label={e('name')}
           hasFeedback
         >
-          {getFieldDecorator('host', {
+          {getFieldDecorator('name', {
             rules: [{
-              max: 130, message: '130 chars max'
+              max: 30, message: '30 chars max'
             }, {
-              required: true, message: 'host required'
+              required: true, message: 'theme name required'
             }],
-            initialValue: host
+            initialValue: themeName
           })(
             <Input />
           )}
@@ -259,70 +256,23 @@ export default class SshForm extends React.Component {
         >
           {getFieldDecorator('username', {
             rules: [{
-              max: 30, message: '30 chars max'
+              max: 1000, message: '1000 chars max'
             }, {
               required: true, message: 'username required'
             }],
-            initialValue: username
+            initialValue: themeText
           })(
             <Input />
           )}
         </FormItem>
-        <FormItem {...tailFormItemLayout} className="mg1b">
-          {getFieldDecorator('authType', {
-            initialValue: authType
-          })(
-            <RadioGroup size="small">
-              {
-                authTypes.map(t => {
-                  return (
-                    <RadioButton value={t} key={t}>
-                      {e(t)}
-                    </RadioButton>
-                  )
-                })
-              }
-            </RadioGroup>
-          )}
-        </FormItem>
-        {this.renderAuth()}
-        <FormItem
-          {...formItemLayout}
-          label={e('port')}
-          hasFeedback
-        >
-          {getFieldDecorator('port', {
-            rules: [{
-              required: true, message: 'port required'
-            }],
-            initialValue: port
-          })(
-            <InputNumber
-              placeholder={e('port')}
-              min={1}
-              max={65535}
-              step={1}
-            />
-          )}
-        </FormItem>
-        <FormItem
-          {...formItemLayout}
-          label={e('title')}
-          hasFeedback
-        >
-          {getFieldDecorator('title', {
-            initialValue: title
-          })(
-            <Input />
-          )}
-        </FormItem>
+
         <FormItem {...tailFormItemLayout}>
           <p>
             <Button
               type="primary"
               htmlType="submit"
               className="mg1r"
-            >{e('saveAndConnect')}</Button>
+            >{e('saveAndApply')}</Button>
             <Button
               type="ghost"
               className="mg1r"

@@ -108,7 +108,6 @@
     "serialize-javascript": "1.4.0",
     "shelljs": "0.8.1",
     "spectron": "3.8.0",
-    "ssh2-shell-server": "2.2.1",
     "style-loader": "0.20.3",
     "stylus": "0.54.5",
     "stylus-loader": "3.0.2",
