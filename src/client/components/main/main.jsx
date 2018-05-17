@@ -10,7 +10,7 @@ import FileModeModal from '../sftp/file-mode-modal'
 import UpdateCheck from './update-check'
 import {notification} from 'antd'
 import openInfoModal from '../control/info-modal'
-import terminalThemes from '../../common/terminal-theme'
+import * as terminalThemes from '../../common/terminal-theme'
 import {maxHistory, settingMap, maxTransferHistory} from '../../common/constants'
 import './wrapper.styl'
 
@@ -33,7 +33,7 @@ export default class Index extends React.Component {
       contextMenuProps: {},
       transferHistory: [],
       themes: terminalThemes.getThemes(),
-      theme: terminalThemes.getCurrentTheme(),
+      theme: terminalThemes.getCurrentTheme().id,
       showControl: true,
       contextMenuVisible: false,
       fileInfoModalProps: {},

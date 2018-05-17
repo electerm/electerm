@@ -6,6 +6,7 @@ import React from 'react'
 import {Tooltip, Icon} from 'antd'
 import Search from '../common/search'
 import classnames from 'classnames'
+import './terminal-theme-list.styl'
 
 export default class ThemeList extends React.Component {
 
@@ -22,11 +23,6 @@ export default class ThemeList extends React.Component {
   del = (item, e) => {
     e.stopPropagation()
     this.props.delTheme(item)
-  }
-
-  del = (item, e) => {
-    e.stopPropagation()
-    this.props.applyTheme(item)
   }
 
   renderSearch = () => {
@@ -78,23 +74,27 @@ export default class ThemeList extends React.Component {
     )
   }
 
+  onClickTheme = item => {
+    this.props.onClickItem(item)
+  }
+
   renderItem = (item, i) => {
-    let {onClickTheme, activeThemeName, currentThemeName} = this.props
-    let {name} = item
+    let {activeItemId, theme} = this.props
+    let {name, id} = item
     let cls = classnames(
       'item-list-unit',
       {
-        current: currentThemeName === name
+        current: theme === id
       },
       {
-        active: activeThemeName === name
+        active: activeItemId === id
       }
     )
     return (
       <div
         key={i + name}
         className={cls}
-        onClick={() => onClickTheme(item)}
+        onClick={() => this.onClickTheme(item)}
       >
         <Tooltip
           title={name}

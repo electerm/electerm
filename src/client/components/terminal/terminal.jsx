@@ -257,9 +257,12 @@ export default class Term extends React.Component {
   initTerminal = async () => {
     let {id} = this.state
     //let {password, privateKey, host} = this.props.tab
+    let {themes, theme} = this.props
+    let themeObj = themes[theme] || {}
     let term = new Terminal({
       scrollback: config.scrollback,
-      fontFamily: 'mono, courier-new, courier, monospace'
+      fontFamily: 'mono, courier-new, courier, monospace',
+      theme: themeObj
       // lineHeight: 1.2,
       // fontSize: 14
     })

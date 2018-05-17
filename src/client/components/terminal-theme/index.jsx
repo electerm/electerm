@@ -1,12 +1,12 @@
 
 import React from 'react'
 import {
-  Form, Button, Input//,
+  Form, Button, Input,
   //message,
-  //Upload
+  Upload
 } from 'antd'
 import {validateFieldsAndScroll} from '../../common/dec-validate-and-scroll'
-import {convertTheme, convertThemeToText} from '../../common/terminal-theme'
+import {convertTheme, convertThemeToText, exportTheme, defaultTheme} from '../../common/terminal-theme'
 import _ from 'lodash'
 import copy from 'json-deep-copy'
 import {generate} from 'shortid'
@@ -38,6 +38,10 @@ export default class ThemeForm extends React.Component {
 
   reset = () => {
     this.props.form.resetFields()
+  }
+
+  export = () => {
+    exportTheme(this.state.formData.id)
   }
 
   handleSubmit = async (e) => {
@@ -74,10 +78,12 @@ export default class ThemeForm extends React.Component {
   render() {
     const {getFieldDecorator} = this.props.form
     const {
-      themeText,
-      themeName
+      themeConfig,
+      id,
+      name: themeName
     } = this.state.formData
-
+    let themeText = convertThemeToText({themeConfig, name})
+    let isDefaultTheme = id === defaultTheme.id
     return (
       <Form onSubmit={this.handleSubmit} className="form-wrap">
         <FormItem
@@ -93,13 +99,12 @@ export default class ThemeForm extends React.Component {
             }],
             initialValue: themeName
           })(
-            <Input />
+            <Input disabled={isDefaultTheme} />
           )}
         </FormItem>
         <FormItem
           {...formItemLayout}
           label={e('themeConfig')}
-          hasFeedback
         >
           {getFieldDecorator('themeText', {
             rules: [{
@@ -109,10 +114,35 @@ export default class ThemeForm extends React.Component {
             }],
             initialValue: themeText
           })(
-            <TextArea rows={18} />
+            <TextArea rows={18} disabled={isDefaultTheme} />
           )}
+          <div className="pd1t">
+            <Upload
+              beforeUpload={this.beforeUpload}
+              fileList={[]}
+              className="mg1b"
+            >
+              <Button
+                type="ghost"
+                disabled={isDefaultTheme}
+              >
+                {e('importFromFile')}
+              </Button>
+            </Upload>
+            {
+              id
+                ? (
+                  <Button
+                    type="ghost"
+                    onClick={this.export}
+                  >
+                    {e('export')}
+                  </Button>
+                )
+                : null
+            }
+          </div>
         </FormItem>
-
         <FormItem {...tailFormItemLayout}>
           <p>
             <Button

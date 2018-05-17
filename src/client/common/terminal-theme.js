@@ -4,6 +4,7 @@
 
 import {defaultTheme} from './constants'
 import download from './download'
+import copy from 'json-deep-copy'
 
 /**
  * build default themes
@@ -14,6 +15,19 @@ const buildDefaultThemes = () => {
   }
 }
 
+/**
+ * build new theme
+ */
+const buildNewTheme = () => {
+  return Object.assign(
+    copy(defaultTheme),
+    {
+      id: '',
+      name: 'new Theme'
+    }
+  )
+}
+
 
 /**
  * convert theme object to themeText
@@ -22,13 +36,14 @@ const buildDefaultThemes = () => {
  * @return {string}
  */
 const convertThemeToText = (themeObj, withName = false) => {
-  let theme = themeObj
+  let theme = themeObj || {}
   let {themeConfig, name} = theme
   if (withName) {
     themeConfig.themeName = name
   }
   return Object.keys(themeConfig).reduce((prev, key) => {
-    return prev + '\n' +
+    return prev +
+      (prev ? '\n' : '') +
       key + '=' + themeConfig[key]
   }, '')
 }
@@ -186,5 +201,6 @@ export {
   getThemes,
   convertThemeToText,
   addTheme,
-  delTheme
+  delTheme,
+  buildNewTheme
 }

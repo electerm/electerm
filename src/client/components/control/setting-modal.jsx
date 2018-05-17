@@ -3,12 +3,15 @@
  */
 import React from 'react'
 import {Modal, Tabs, Col, Row} from 'antd'
+import TerminalThemeForm from '../terminal-theme'
+import TerminalThemeList from '../terminal-theme/theme-list'
 import SshForm from '../ssh-form'
 import List from './list'
 import _ from 'lodash'
 import Setting from '../setting'
 import copy from 'json-deep-copy'
-import {settingMap} from '../../common/constants'
+import {settingMap, defaultTheme} from '../../common/constants'
+import {buildNewTheme} from '../../common/terminal-theme'
 
 const {prefix} = window
 const e = prefix('setting')
@@ -22,6 +25,8 @@ const getInitItem = (arr, tab) => {
     return {id: ''}
   } else if (tab === settingMap.setting) {
     return {id: ''}
+  } else if (tab === settingMap.terminalThemes) {
+    return buildNewTheme()
   }
 }
 
@@ -29,12 +34,14 @@ export default class SettingModal extends React.Component {
 
   constructor(props) {
     super(props)
+    let {tab} = props
     this.state = {
       visible: false,
-      tab: props.tab || settingMap.bookmarks,
-      item: props.item || {
-        id: ''
-      }
+      tab: tab || settingMap.bookmarks,
+      item: props.item || getInitItem(
+        this.getItems(tab, props),
+        props.tab
+      )
     }
   }
 
@@ -44,6 +51,12 @@ export default class SettingModal extends React.Component {
     if (!_.isEqual(oldProps, newProps)) {
       this.setState(copy(newProps))
     }
+  }
+
+  getItems = (tab, props = this.props) => {
+    return props.tab === settingMap.terminalThemes
+      ? props.themes
+      : props[props.tab] || []
   }
 
   onChangeTab = tab => {
@@ -82,7 +95,7 @@ export default class SettingModal extends React.Component {
       tab,
       item
     } = this.state
-    let list = copy(this.props[tab]) || []
+    let list = this.getItems()
     if (tab === settingMap.bookmarks) {
       list.unshift({
         title: e('new'),
@@ -93,6 +106,14 @@ export default class SettingModal extends React.Component {
         title: e('common'),
         id: ''
       })
+    } else if (tab === settingMap.terminalThemes) {
+      let newTheme = copy(defaultTheme)
+      newTheme.name = 'new theme'
+      newTheme.id = ''
+      list = [
+        newTheme,
+        ...this.props.themes
+      ]
     }
     let props = {
       ...this.props,
@@ -170,17 +191,17 @@ export default class SettingModal extends React.Component {
           </Row>
         </TabPane>
         <TabPane
-          tab={m(settingMap.themes)}
-          key={settingMap.themes}
+          tab={m(settingMap.terminalThemes)}
+          key={settingMap.terminalThemes}
         >
           <Row>
             <Col span={6}>
-              <List
+              <TerminalThemeList
                 {...props}
               />
             </Col>
             <Col span={18}>
-              todo
+              <TerminalThemeForm {...formProps} />
             </Col>
           </Row>
         </TabPane>

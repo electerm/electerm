@@ -77,7 +77,7 @@ export const terminalSshConfigType = 'ssh-config'
 
 export const defaultTheme = {
   id: 'default',
-  themeName: 'default',
+  name: 'default',
   themeConfig: {
     foreground: '#ffffff',
     background: '#000000',
