@@ -18,6 +18,7 @@ const buildDefaultThemes = () => {
 /**
  * convert theme object to themeText
  * @param {object} themeObj
+ * @param {boolean} withName
  * @return {string}
  */
 const convertThemeToText = (themeObj, withName = false) => {

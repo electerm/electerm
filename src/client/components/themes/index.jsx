@@ -6,35 +6,14 @@ import {
   //Upload
 } from 'antd'
 import {validateFieldsAndScroll} from '../../common/dec-validate-and-scroll'
-//import {convertTheme, convertThemeToText} from '../../common/terminal-theme'
+import {convertTheme, convertThemeToText} from '../../common/terminal-theme'
 import _ from 'lodash'
 import copy from 'json-deep-copy'
 import {generate} from 'shortid'
+import {formItemLayout, tailFormItemLayout} from '../../common/form-layout'
 
 const {TextArea} = Input
 const FormItem = Form.Item
-const formItemLayout = {
-  labelCol: {
-    xs: { span: 24 },
-    sm: { span: 6 }
-  },
-  wrapperCol: {
-    xs: { span: 24 },
-    sm: { span: 14 }
-  }
-}
-const tailFormItemLayout = {
-  wrapperCol: {
-    xs: {
-      span: 24,
-      offset: 0
-    },
-    sm: {
-      span: 14,
-      offset: 6
-    }
-  }
-}
 const {prefix} = window
 const e = prefix('form')
 
@@ -80,10 +59,14 @@ export default class ThemeForm extends React.Component {
   }
 
   beforeUpload = (file) => {
-    let privateKey = window.getGlobal('fs')
+    let txt = window.getGlobal('fs')
       .readFileSync(file.path).toString()
+    let {name, themeConfig} = convertTheme(txt)
     this.props.form.setFieldsValue({
-      privateKey
+      themeName: name,
+      themeText: convertThemeToText({
+        name, themeConfig
+      })
     })
     return false
   }
