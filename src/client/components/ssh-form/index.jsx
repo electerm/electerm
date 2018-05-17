@@ -22,9 +22,7 @@ const FormItem = Form.Item
 const {prefix} = window
 const e = prefix('form')
 
-@Form.create()
-@validateFieldsAndScroll
-export default class SshForm extends React.Component {
+export class SshForm extends React.Component {
 
   constructor(props) {
     super(props)
@@ -325,3 +323,8 @@ export default class SshForm extends React.Component {
   }
 
 }
+
+@Form.create()
+@validateFieldsAndScroll
+export default class SshFormExport extends SshForm {}
+

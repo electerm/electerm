@@ -1,5 +1,5 @@
 
-import React from 'react'
+import {SshForm} from '../ssh-form'
 import {
   Form, Button, Input,
   //message,
@@ -19,46 +19,41 @@ const e = prefix('form')
 
 @Form.create()
 @validateFieldsAndScroll
-export default class ThemeForm extends React.Component {
-
-  constructor(props) {
-    super(props)
-    this.state = {
-      formData: props.formData || {}
-    }
-  }
-
-  componentWillReceiveProps(nextProps) {
-    if (!_.isEqual(nextProps.formData, this.props.formData)) {
-      this.setState({
-        formData: copy(nextProps.formData)
-      }, this.reset)
-    }
-  }
-
-  reset = () => {
-    this.props.form.resetFields()
-  }
+export default class ThemeForm extends SshForm {
 
   export = () => {
     exportTheme(this.state.formData.id)
   }
 
-  handleSubmit = async (e) => {
-    e && e.preventDefault && e.preventDefault()
+  handleSubmit = async (e, saveOnly = false) => {
+    e.preventDefault()
     let res = await this.validateFieldsAndScroll()
     if (!res) return
-    let obj = {
-      ...this.state.formData,
-      ...res
+    let {formData} = this.state
+    let {
+      themeName,
+      themeText
+    } = res
+    let update = {
+      name: themeName,
+      themeConfig: convertTheme(themeText).themeConfig
     }
-    e && this.submit(obj)
-    if (e !== 'save') {
-      this.props.addTab({
-        ...res,
+    let update1 = {
+      ...update,
+      id: generate()
+    }
+    if (formData.id) {
+      this.props.editTheme(formData.id, update)
+    } else {
+      this.props.addTheme({
+        ...update,
         id: generate()
       })
-      this.props.hide()
+    }
+    if (!saveOnly) {
+      this.props.setTheme(
+        formData.id || update1.id
+      )
     }
   }
 
@@ -153,7 +148,7 @@ export default class ThemeForm extends React.Component {
             <Button
               type="ghost"
               className="mg1r"
-              onClick={() => this.handleSubmit('save')}
+              onClick={e => this.handleSubmit(e, true)}
             >{e('save')}</Button>
           </p>
         </FormItem>

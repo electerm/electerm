@@ -16,7 +16,7 @@ import {buildNewTheme} from '../../common/terminal-theme'
 const {prefix} = window
 const e = prefix('setting')
 const m = prefix('common')
-const props = ['tab', 'item']
+const props = ['item']
 const {TabPane} = Tabs
 const getInitItem = (arr, tab) => {
   if (tab === settingMap.history) {
@@ -37,7 +37,6 @@ export default class SettingModal extends React.Component {
     let {tab} = props
     this.state = {
       visible: false,
-      tab: tab || settingMap.bookmarks,
       item: props.item || getInitItem(
         this.getItems(tab, props),
         props.tab
@@ -45,27 +44,27 @@ export default class SettingModal extends React.Component {
     }
   }
 
-  componentWillReceiveProps(nextProps) {
-    let oldProps = _.pick(this.state, props)
-    let newProps = _.pick(nextProps, props)
-    if (!_.isEqual(oldProps, newProps)) {
-      this.setState(copy(newProps))
-    }
-  }
+  // componentWillReceiveProps(nextProps) {
+  //   let oldProps = _.pick(this.state, props)
+  //   let newProps = _.pick(nextProps, props)
+  //   if (!_.isEqual(oldProps, newProps)) {
+  //     this.setState(copy(newProps))
+  //   }
+  // }
 
   getItems = (tab, props = this.props) => {
-    return props.tab === settingMap.terminalThemes
-      ? props.themes
-      : props[props.tab] || []
+    return tab === settingMap.terminalThemes
+      ? copy(props.themes)
+      : copy(props[tab]) || []
   }
 
   onChangeTab = tab => {
-    let arr = this.props[tab] || []
+    let arr = this.getItems(tab)
     let item = getInitItem(arr, tab)
     this.setState({
-      tab,
       item
     })
+    this.props.onChangeTab(tab)
   }
 
   show = () => {
@@ -92,10 +91,10 @@ export default class SettingModal extends React.Component {
 
   renderTabs() {
     let {
-      tab,
       item
     } = this.state
-    let list = this.getItems()
+    let {tab} = this.props
+    let list = this.getItems(tab)
     if (tab === settingMap.bookmarks) {
       list.unshift({
         title: e('new'),

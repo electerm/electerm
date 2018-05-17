@@ -291,8 +291,11 @@ export default class Index extends React.Component {
       fileModeModalProps,
       shouldCheckUpdate
     } = this.state
+    let {themes, theme} = this.state
+    let themeObj = _.find(themes, d => d.id === theme) || {}
     let controlProps = {
       ...this.state,
+      themeConfig: themeObj.themeConfig,
       ..._.pick(this, [
         'modifier', 'delTab', 'addTab', 'editTab',
         'openTransferHistory',

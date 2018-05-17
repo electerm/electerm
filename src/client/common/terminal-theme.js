@@ -35,9 +35,9 @@ const buildNewTheme = () => {
  * @param {boolean} withName
  * @return {string}
  */
-const convertThemeToText = (themeObj, withName = false) => {
+const convertThemeToText = (themeObj = {}, withName = false) => {
   let theme = themeObj || {}
-  let {themeConfig, name} = theme
+  let {themeConfig = {}, name} = theme
   if (withName) {
     themeConfig.themeName = name
   }

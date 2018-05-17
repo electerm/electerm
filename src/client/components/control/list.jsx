@@ -47,7 +47,6 @@ export default class ItemList extends React.Component {
       >
         <Icon
           type="close"
-          title="delete"
           className="pointer list-item-remove"
           onClick={e => this.del(item, e)}
         />

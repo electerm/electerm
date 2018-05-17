@@ -36,6 +36,12 @@ export default class IndexControl extends React.Component {
       .on('new-ssh', this.onNewSsh)
   }
 
+  onChangeTab = tab => {
+    this.setState({
+      tab
+    })
+  }
+
   onDup = tab => {
     let index = _.findIndex(
       this.props.tabs,
@@ -136,6 +142,7 @@ export default class IndexControl extends React.Component {
       ..._.pick(this, [
         'onAdd', 'onChange', 'onClose',
         'onDup', 'onNewSsh', 'openSetting',
+        'onChangeTab',
         'onEditBookmark', 'onSelectHistory', 'onSelectBookmark'
       ]),
       onEditBookmark: this.onNewSsh
