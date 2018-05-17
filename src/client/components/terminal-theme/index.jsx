@@ -7,8 +7,6 @@ import {
 } from 'antd'
 import {validateFieldsAndScroll} from '../../common/dec-validate-and-scroll'
 import {convertTheme, convertThemeToText, exportTheme, defaultTheme} from '../../common/terminal-theme'
-import _ from 'lodash'
-import copy from 'json-deep-copy'
 import {generate} from 'shortid'
 import {formItemLayout, tailFormItemLayout} from '../../common/form-layout'
 

@@ -7,7 +7,6 @@ import TerminalThemeForm from '../terminal-theme'
 import TerminalThemeList from '../terminal-theme/theme-list'
 import SshForm from '../ssh-form'
 import List from './list'
-import _ from 'lodash'
 import Setting from '../setting'
 import copy from 'json-deep-copy'
 import {settingMap, defaultTheme} from '../../common/constants'
@@ -16,7 +15,6 @@ import {buildNewTheme} from '../../common/terminal-theme'
 const {prefix} = window
 const e = prefix('setting')
 const m = prefix('common')
-const props = ['item']
 const {TabPane} = Tabs
 const getInitItem = (arr, tab) => {
   if (tab === settingMap.history) {
