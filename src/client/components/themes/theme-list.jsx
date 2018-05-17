@@ -24,6 +24,11 @@ export default class ThemeList extends React.Component {
     this.props.delTheme(item)
   }
 
+  del = (item, e) => {
+    e.stopPropagation()
+    this.props.applyTheme(item)
+  }
+
   renderSearch = () => {
     return (
       <div className="pd1y pd2r">
@@ -54,6 +59,25 @@ export default class ThemeList extends React.Component {
     )
   }
 
+  renderApplyBtn = item => {
+    if (!item.id) {
+      return null
+    }
+    return (
+      <Tooltip
+        title="apply"
+        placement="top"
+      >
+        <Icon
+          type="check-circle-o"
+          title="apply"
+          className="pointer list-item-apply"
+          onClick={e => this.apply(item, e)}
+        />
+      </Tooltip>
+    )
+  }
+
   renderItem = (item, i) => {
     let {onClickTheme, activeThemeName, currentThemeName} = this.props
     let {name} = item
@@ -79,6 +103,7 @@ export default class ThemeList extends React.Component {
           <div className="elli pd1y pd2x">{name}</div>
         </Tooltip>
         {this.renderDelBtn(item)}
+        {this.renderApplyBtn(item)}
       </div>
     )
   }

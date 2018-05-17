@@ -10,7 +10,7 @@ import FileModeModal from '../sftp/file-mode-modal'
 import UpdateCheck from './update-check'
 import {notification} from 'antd'
 import openInfoModal from '../control/info-modal'
-import {getThemes, getCurrentTheme} from '../../common/theme'
+import terminalThemes from '../../common/terminal-theme'
 import {maxHistory, settingMap, maxTransferHistory} from '../../common/constants'
 import './wrapper.styl'
 
@@ -32,8 +32,8 @@ export default class Index extends React.Component {
       config: _config || {},
       contextMenuProps: {},
       transferHistory: [],
-      themes: getThemes(),
-      theme: getCurrentTheme(),
+      themes: terminalThemes.getThemes(),
+      theme: terminalThemes.getCurrentTheme(),
       showControl: true,
       contextMenuVisible: false,
       fileInfoModalProps: {},
@@ -242,6 +242,45 @@ export default class Index extends React.Component {
     this.setState(update)
   }
 
+  addTheme = (theme) => {
+    let themes = copy(this.state.themes)
+    themes = [
+      theme,
+      ...themes
+    ]
+    this.setState({
+      themes
+    })
+    terminalThemes.addTheme(theme)
+  }
+
+  editTheme = (id, update) => {
+    this.editItem(id, update, 'themes', this.modifier)
+    terminalThemes.updateTheme(id, update)
+  }
+
+  delTheme = ({id}) => {
+    let themes = copy(this.state.themes).filter(t => {
+      return t.id !== id
+    })
+    let {theme} = this.state
+    let update = {
+      themes
+    }
+    if (theme === id) {
+      update.theme = terminalThemes.defaultTheme.id
+    }
+    this.setState(update)
+    terminalThemes.delTheme(id)
+  }
+
+  setTheme = id => {
+    this.setState({
+      theme: id
+    })
+    terminalThemes.setTheme(id)
+  }
+
   render() {
     let {
       tabs,
@@ -262,7 +301,8 @@ export default class Index extends React.Component {
         'addTransferHistory',
         'onError', 'openContextMenu', 'closeContextMenu',
         'modifyLs', 'addItem', 'editItem', 'delItem',
-        'onCheckUpdate', 'openAbout'
+        'onCheckUpdate', 'openAbout',
+        'setTheme', 'addTheme', 'editTheme', 'delTheme'
       ])
     }
     return (
