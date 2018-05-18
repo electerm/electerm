@@ -102,7 +102,6 @@ async function createWindow () {
 
   global.et = {}
   Object.assign(global.et, {
-    autoVisitTime: config.timer,
     _config: config,
     instSftpKeys,
     transferKeys,

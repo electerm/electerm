@@ -91,6 +91,13 @@ export default class Term extends React.Component {
     if (shouldChange) {
       this.term.focus()
     }
+    let themeChanged = !_.isEqual(
+      this.props.themeConfig,
+      prevProps.themeConfig
+    )
+    if (themeChanged) {
+      this.term.setOption('theme', this.props.themeConfig)
+    }
   }
 
   componentWillUnmount() {
@@ -257,9 +264,11 @@ export default class Term extends React.Component {
   initTerminal = async () => {
     let {id} = this.state
     //let {password, privateKey, host} = this.props.tab
+    let {themeConfig} = this.props
     let term = new Terminal({
       scrollback: config.scrollback,
-      fontFamily: 'mono, courier-new, courier, monospace'
+      fontFamily: 'mono, courier-new, courier, monospace',
+      theme: themeConfig
       // lineHeight: 1.2,
       // fontSize: 14
     })

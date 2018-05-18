@@ -59,7 +59,8 @@ export const typeMap = buildConst([
 export const settingMap = buildConst([
   'setting',
   'bookmarks',
-  'history'
+  'history',
+  'terminalThemes'
 ])
 
 export const transferTypeMap = buildConst([
@@ -73,3 +74,31 @@ export const terminalSplitDirectionMap = buildConst([
 ])
 
 export const terminalSshConfigType = 'ssh-config'
+
+export const defaultTheme = {
+  id: 'default',
+  name: 'default',
+  themeConfig: {
+    foreground: '#ffffff',
+    background: '#000000',
+    cursor: '#ffffff',
+    cursorAccent: '#000000',
+    selection: 'rgba(255, 255, 255, 0.3)',
+    black: '#2e3436',
+    red: '#cc0000',
+    green: '#4e9a06',
+    yellow: '#c4a000',
+    blue: '#3465a4',
+    magenta: '#75507b',
+    cyan: '#06989a',
+    white: '#d3d7cf',
+    brightBlack: '#555753',
+    brightRed: '#ef2929',
+    brightGreen: '#8ae234',
+    brightYellow: '#fce94f',
+    brightBlue: '#729fcf',
+    brightMagenta: '#ad7fa8',
+    brightCyan: '#34e2e2',
+    brightWhite: '#eeeeec'
+  }
+}
