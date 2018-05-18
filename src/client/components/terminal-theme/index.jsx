@@ -43,10 +43,7 @@ export default class ThemeForm extends SshForm {
     if (formData.id) {
       this.props.editTheme(formData.id, update)
     } else {
-      this.props.addTheme({
-        ...update,
-        id: generate()
-      })
+      this.props.addTheme(update1)
     }
     if (!saveOnly) {
       this.props.setTheme(

@@ -27,8 +27,8 @@ export default class Index extends React.Component {
       height: 500,
       width: window.innerWidth,
       currentTabId: tabs[0].id,
-      history: ls.get(settingMap.history) || [],
-      bookmarks: ls.get(settingMap.bookmarks) || [],
+      history: copy(ls.get(settingMap.history) || []),
+      bookmarks: copy(ls.get(settingMap.bookmarks) || []),
       config: _config || {},
       contextMenuProps: {},
       transferHistory: [],
@@ -255,7 +255,14 @@ export default class Index extends React.Component {
   }
 
   editTheme = (id, update) => {
-    this.editItem(id, update, 'themes', this.modifier)
+    let items = copy(this.state.themes)
+    let item = _.find(items, t => t.id === id)
+    let index = _.findIndex(items, t => t.id === id)
+    Object.assign(item, update)
+    items.splice(index, 1, item)
+    this.setState({
+      themes: items
+    })
     terminalThemes.updateTheme(id, update)
   }
 
@@ -292,10 +299,10 @@ export default class Index extends React.Component {
       shouldCheckUpdate
     } = this.state
     let {themes, theme} = this.state
-    let themeObj = _.find(themes, d => d.id === theme) || {}
+    let themeConfig = (_.find(themes, d => d.id === theme) || {}).themeConfig || {}
     let controlProps = {
       ...this.state,
-      themeConfig: themeObj.themeConfig,
+      themeConfig,
       ..._.pick(this, [
         'modifier', 'delTab', 'addTab', 'editTab',
         'openTransferHistory',

@@ -5,6 +5,7 @@
 import List from '../control/list'
 import {Tooltip, Icon} from 'antd'
 import classnames from 'classnames'
+import {defaultTheme} from '../../common/terminal-theme'
 import './terminal-theme-list.styl'
 
 export default class ThemeList extends List {
@@ -27,7 +28,7 @@ export default class ThemeList extends List {
           type="check-circle-o"
           title="apply"
           className="pointer list-item-apply"
-          onClick={e => this.apply(item, e)}
+          onClick={() => this.props.setTheme(item.id)}
         />
       </Tooltip>
     )
@@ -61,7 +62,11 @@ export default class ThemeList extends List {
         >
           <div className="elli pd1y pd2x">{name}</div>
         </Tooltip>
-        {this.renderDelBtn(item)}
+        {
+          id === defaultTheme.id
+            ? null
+            : this.renderDelBtn(item)
+        }
         {this.renderApplyBtn(item)}
       </div>
     )

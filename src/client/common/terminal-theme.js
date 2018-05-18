@@ -84,7 +84,7 @@ const convertTheme = (themeTxt) => {
 const getCurrentTheme = () => {
   const ls = window.getGlobal('ls')
   let config = window.getGlobal('_config')
-  let themes = ls.get('themes') || buildDefaultThemes()
+  let themes = copy(ls.get('themes') || buildDefaultThemes())
   let themeId = config.theme || defaultTheme.id
   let themeObj = themes[themeId] || defaultTheme
   return themeObj
@@ -96,7 +96,7 @@ const getCurrentTheme = () => {
  */
 const getThemes = () => {
   const ls = window.getGlobal('ls')
-  let themes = ls.get('themes') || buildDefaultThemes()
+  let themes = copy(ls.get('themes') || buildDefaultThemes())
   return Object.keys(themes).reduce((prev, k) => {
     return [
       ...prev,
@@ -134,7 +134,7 @@ const verifyTheme = (themeConfig) => {
  */
 const addTheme = (themeObj) => {
   const ls = window.getGlobal('ls')
-  let themes = ls.get('themes') || buildDefaultThemes()
+  let themes = copy(ls.get('themes') || buildDefaultThemes())
   themes[themeObj.id] = themeObj
   ls.set('themes', themes)
 }
@@ -145,7 +145,7 @@ const addTheme = (themeObj) => {
  */
 const exportTheme = (themeId) => {
   const ls = window.getGlobal('ls')
-  let themes = ls.get('themes') || buildDefaultThemes()
+  let themes = copy(ls.get('themes') || buildDefaultThemes())
   let theme = themes[themeId]
   let text = convertThemeToText(theme, true)
   download(
@@ -163,7 +163,7 @@ const delTheme = (themeId) => {
     throw new Error('default theme can not be deleted')
   }
   const ls = window.getGlobal('ls')
-  let themes = ls.get('themes') || buildDefaultThemes()
+  let themes = copy(ls.get('themes') || buildDefaultThemes())
   delete themes[themeId]
   ls.set('themes', themes)
   let config = window.getGlobal('_config')
@@ -185,7 +185,7 @@ const updateTheme = (themeId, update) => {
     throw new Error('default theme can not be updated')
   }
   const ls = window.getGlobal('ls')
-  let themes = ls.get('themes') || buildDefaultThemes()
+  let themes = copy(ls.get('themes') || buildDefaultThemes())
   Object.assign(themes[themeId], update)
   ls.set('themes', themes)
 }
