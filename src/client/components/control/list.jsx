@@ -81,17 +81,21 @@ export default class ItemList extends React.Component {
     )
   }
 
+  filter = list => {
+    let {keyword} = this.state
+    return keyword
+      ? list.filter(item => {
+        return createName(item).toLowerCase().includes(keyword.toLowerCase())
+      })
+      : list
+  }
+
   render() {
     let {
       list,
       type
     } = this.props
-    let {keyword} = this.state
-    list = keyword
-      ? list.filter(item => {
-        return createName(item).toLowerCase().includes(keyword.toLowerCase())
-      })
-      : list
+    list = this.filter(list)
     return (
       <div className={`item-list item-type-${type}`}>
         {this.renderSearch()}

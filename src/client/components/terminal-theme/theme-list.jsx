@@ -72,5 +72,13 @@ export default class ThemeList extends List {
     )
   }
 
+  filter = list => {
+    let {keyword} = this.state
+    return keyword
+      ? list.filter(item => {
+        return item.name.toLowerCase().includes(keyword.toLowerCase())
+      })
+      : list
+  }
 }
 

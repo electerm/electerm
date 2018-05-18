@@ -5,6 +5,8 @@
 import {defaultTheme} from './constants'
 import download from './download'
 import copy from 'json-deep-copy'
+const {prefix} = window
+const t = prefix('terminalThemes')
 
 /**
  * build default themes
@@ -23,7 +25,7 @@ const buildNewTheme = () => {
     copy(defaultTheme),
     {
       id: '',
-      name: 'new Theme'
+      name: t('newTheme')
     }
   )
 }
@@ -149,7 +151,7 @@ const exportTheme = (themeId) => {
   let theme = themes[themeId]
   let text = convertThemeToText(theme, true)
   download(
-    `${name}.txt`,
+    `${theme.name}.txt`,
     text
   )
 }
