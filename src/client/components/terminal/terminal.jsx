@@ -3,7 +3,7 @@ import React from 'react'
 import fetch, {handleErr} from '../../common/fetch'
 import {generate} from 'shortid'
 import _ from 'lodash'
-import {Spin, Icon, Modal, Button, Checkbox} from 'antd'
+import {Spin, Icon, Modal, Button, Checkbox, Select} from 'antd'
 import Input from '../common/input-auto-focus'
 import {statusMap} from '../../common/constants'
 import classnames from 'classnames'
@@ -32,6 +32,8 @@ const e = prefix('ssh')
 const m = prefix('menu')
 const f = prefix('form')
 const c = prefix('common')
+const t = prefix('terminalThemes')
+const {Option} = Select
 
 const authFailMsg = 'All configured authentication methods failed'
 const typeSshConfig = 'ssh-config'
@@ -209,6 +211,39 @@ export default class Term extends React.Component {
     })
   }
 
+  onSelectTheme = id => {
+    this.props.setTheme(id)
+    this.props.closeContextMenu()
+  }
+
+  renderThemeSelect = () => {
+    let {theme, themes} = this.props
+    return (
+      <div>
+        <div className="pd1b">
+          {t('terminalThemes')}
+        </div>
+        <Select
+          value={theme}
+          onChange={this.onSelectTheme}
+        >
+          {
+            themes.map(({id, name}) => {
+              return (
+                <Option
+                  key={id}
+                  value={id}
+                >
+                  {name}
+                </Option>
+              )
+            })
+          }
+        </Select>
+      </div>
+    )
+  }
+
   renderContext = () => {
     let cls = 'pd2x pd1y context-item pointer'
     let hasSlected = this.term.hasSelection()
@@ -256,6 +291,11 @@ export default class Term extends React.Component {
           onClick={this.split}
         >
           <Icon type="minus-square-o" className="spin-90" /> {e('split')}
+        </div>
+        <div
+          className={cls}
+        >
+          {this.renderThemeSelect()}
         </div>
       </div>
     )
