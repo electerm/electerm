@@ -15,6 +15,7 @@ import {buildNewTheme} from '../../common/terminal-theme'
 const {prefix} = window
 const e = prefix('setting')
 const m = prefix('common')
+const t = prefix('terminalThemes')
 const {TabPane} = Tabs
 const getInitItem = (arr, tab) => {
   if (tab === settingMap.history) {
@@ -188,7 +189,7 @@ export default class SettingModal extends React.Component {
           </Row>
         </TabPane>
         <TabPane
-          tab={m(settingMap.terminalThemes)}
+          tab={t(settingMap.terminalThemes)}
           key={settingMap.terminalThemes}
         >
           <Row>

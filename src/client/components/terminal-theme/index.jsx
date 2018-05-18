@@ -14,6 +14,7 @@ const {TextArea} = Input
 const FormItem = Form.Item
 const {prefix} = window
 const e = prefix('form')
+const t = prefix('terminalThemes')
 
 @Form.create()
 @validateFieldsAndScroll
@@ -76,9 +77,21 @@ export default class ThemeForm extends SshForm {
     let isDefaultTheme = id === defaultTheme.id
     return (
       <Form onSubmit={this.handleSubmit} className="form-wrap">
+        <FormItem {...tailFormItemLayout}>
+          {
+            id
+              ? (
+                <Button
+                  type="ghost"
+                  onClick={this.export}
+                >{t('export')}</Button>
+              )
+              : null
+          }
+        </FormItem>
         <FormItem
           {...formItemLayout}
-          label={e('name')}
+          label={t('themeName')}
           hasFeedback
         >
           {getFieldDecorator('themeName', {
@@ -94,7 +107,7 @@ export default class ThemeForm extends SshForm {
         </FormItem>
         <FormItem
           {...formItemLayout}
-          label={e('themeConfig')}
+          label={t('themeConfig')}
         >
           {getFieldDecorator('themeText', {
             rules: [{
@@ -119,34 +132,27 @@ export default class ThemeForm extends SshForm {
                 {e('importFromFile')}
               </Button>
             </Upload>
-            {
-              id
-                ? (
-                  <Button
-                    type="ghost"
-                    onClick={this.export}
-                  >
-                    {e('export')}
-                  </Button>
-                )
-                : null
-            }
           </div>
         </FormItem>
-        <FormItem {...tailFormItemLayout}>
-          <p>
-            <Button
-              type="primary"
-              htmlType="submit"
-              className="mg1r"
-            >{e('saveAndApply')}</Button>
-            <Button
-              type="ghost"
-              className="mg1r"
-              onClick={e => this.handleSubmit(e, true)}
-            >{e('save')}</Button>
-          </p>
-        </FormItem>
+        {
+          isDefaultTheme
+            ? null
+            : (
+              <FormItem {...tailFormItemLayout}>
+                <p>
+                  <Button
+                    type="primary"
+                    htmlType="submit"
+                    className="mg1r"
+                  >{t('saveAndApply')}</Button>
+                  <Button
+                    type="ghost"
+                    onClick={e => this.handleSubmit(e, true)}
+                  >{e('save')}</Button>
+                </p>
+              </FormItem>
+            )
+        }
       </Form>
     )
   }
