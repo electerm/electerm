@@ -3,17 +3,18 @@
  */
 import React from 'react'
 import {Modal, Tabs, Col, Row} from 'antd'
+import TerminalThemeForm from '../terminal-theme'
+import TerminalThemeList from '../terminal-theme/theme-list'
 import SshForm from '../ssh-form'
 import List from './list'
-import _ from 'lodash'
 import Setting from '../setting'
 import copy from 'json-deep-copy'
-import {settingMap} from '../../common/constants'
+import {settingMap, defaultTheme} from '../../common/constants'
+import {buildNewTheme} from '../../common/terminal-theme'
 
 const {prefix} = window
 const e = prefix('setting')
 const m = prefix('common')
-const props = ['tab', 'item']
 const {TabPane} = Tabs
 const getInitItem = (arr, tab) => {
   if (tab === settingMap.history) {
@@ -22,6 +23,8 @@ const getInitItem = (arr, tab) => {
     return {id: ''}
   } else if (tab === settingMap.setting) {
     return {id: ''}
+  } else if (tab === settingMap.terminalThemes) {
+    return buildNewTheme()
   }
 }
 
@@ -29,30 +32,37 @@ export default class SettingModal extends React.Component {
 
   constructor(props) {
     super(props)
+    let {tab} = props
     this.state = {
       visible: false,
-      tab: props.tab || settingMap.bookmarks,
-      item: props.item || {
-        id: ''
-      }
+      item: props.item || getInitItem(
+        this.getItems(tab, props),
+        props.tab
+      )
     }
   }
 
-  componentWillReceiveProps(nextProps) {
-    let oldProps = _.pick(this.state, props)
-    let newProps = _.pick(nextProps, props)
-    if (!_.isEqual(oldProps, newProps)) {
-      this.setState(copy(newProps))
-    }
+  // componentWillReceiveProps(nextProps) {
+  //   let oldProps = _.pick(this.state, props)
+  //   let newProps = _.pick(nextProps, props)
+  //   if (!_.isEqual(oldProps, newProps)) {
+  //     this.setState(copy(newProps))
+  //   }
+  // }
+
+  getItems = (tab, props = this.props) => {
+    return tab === settingMap.terminalThemes
+      ? copy(props.themes)
+      : copy(props[tab]) || []
   }
 
   onChangeTab = tab => {
-    let arr = this.props[tab] || []
+    let arr = this.getItems(tab)
     let item = getInitItem(arr, tab)
     this.setState({
-      tab,
       item
     })
+    this.props.onChangeTab(tab)
   }
 
   show = () => {
@@ -79,10 +89,10 @@ export default class SettingModal extends React.Component {
 
   renderTabs() {
     let {
-      tab,
       item
     } = this.state
-    let list = copy(this.props[tab]) || []
+    let {tab} = this.props
+    let list = this.getItems(tab)
     if (tab === settingMap.bookmarks) {
       list.unshift({
         title: e('new'),
@@ -93,6 +103,14 @@ export default class SettingModal extends React.Component {
         title: e('common'),
         id: ''
       })
+    } else if (tab === settingMap.terminalThemes) {
+      let newTheme = copy(defaultTheme)
+      newTheme.name = 'new theme'
+      newTheme.id = ''
+      list = [
+        newTheme,
+        ...this.props.themes
+      ]
     }
     let props = {
       ...this.props,
@@ -166,6 +184,21 @@ export default class SettingModal extends React.Component {
             </Col>
             <Col span={18}>
               <Setting {...this.props} />
+            </Col>
+          </Row>
+        </TabPane>
+        <TabPane
+          tab={m(settingMap.terminalThemes)}
+          key={settingMap.terminalThemes}
+        >
+          <Row>
+            <Col span={6}>
+              <TerminalThemeList
+                {...props}
+              />
+            </Col>
+            <Col span={18}>
+              <TerminalThemeForm {...formProps} />
             </Col>
           </Row>
         </TabPane>

@@ -47,7 +47,6 @@ export default class ItemList extends React.Component {
       >
         <Icon
           type="close"
-          title="delete"
           className="pointer list-item-remove"
           onClick={e => this.del(item, e)}
         />
@@ -90,7 +89,7 @@ export default class ItemList extends React.Component {
     let {keyword} = this.state
     list = keyword
       ? list.filter(item => {
-        return createName(item).includes(keyword)
+        return createName(item).toLowerCase().includes(keyword.toLowerCase())
       })
       : list
     return (

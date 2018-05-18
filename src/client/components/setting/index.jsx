@@ -68,6 +68,10 @@ export default class Setting extends React.Component {
     })
   }
 
+  onChangeTerminalTheme = id => {
+    this.props.setTheme(id)
+  }
+
   saveConfig = (_ext) => {
     let {config} = this.props
     let ext = _ext
@@ -121,7 +125,13 @@ export default class Setting extends React.Component {
   }
 
   render() {
-    let {hotkey, sshReadyTimeout, language, scrollback} = this.props.config
+    let {
+      hotkey,
+      sshReadyTimeout,
+      language,
+      scrollback
+    } = this.props.config
+    let {themes, theme} = this.props
     let langs = getGlobal('langs')
     let [modifier, key] = hotkey.split('+')
     return (
@@ -133,6 +143,7 @@ export default class Setting extends React.Component {
             value={modifier}
             onChange={this.onChangeModifier}
             className="iblock width100"
+            dropdownMatchSelectWidth={false}
             showSearch
           >
             {
@@ -144,6 +155,7 @@ export default class Setting extends React.Component {
             value={key}
             className="iblock width100"
             onChange={this.onChangeKey}
+            dropdownMatchSelectWidth={false}
             showSearch
           >
             {
@@ -169,11 +181,29 @@ export default class Setting extends React.Component {
             value={sshReadyTimeout}
           />
         </div>
+        <div className="pd1b">{e('terminalTheme')}</div>
+        <div className="pd2b">
+          <Select
+            onChange={this.onChangeTerminalTheme}
+            dropdownMatchSelectWidth={false}
+            value={theme}
+          >
+            {
+              themes.map(l => {
+                let {id, name} = l
+                return (
+                  <Option key={id} value={id}>{name}</Option>
+                )
+              })
+            }
+          </Select>
+        </div>
         <div className="pd1b">{e('language')}</div>
         <div className="pd2b">
           <Select
             onChange={this.onChangeLang}
             value={language}
+            dropdownMatchSelectWidth={false}
           >
             {
               langs.map(l => {

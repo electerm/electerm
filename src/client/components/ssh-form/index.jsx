@@ -10,6 +10,7 @@ import _ from 'lodash'
 import copy from 'json-deep-copy'
 import {generate} from 'shortid'
 import {authTypeMap, settingMap} from '../../common/constants'
+import {formItemLayout, tailFormItemLayout} from '../../common/form-layout'
 
 const {TextArea} = Input
 const authTypes = Object.keys(authTypeMap).map(k => {
@@ -18,34 +19,10 @@ const authTypes = Object.keys(authTypeMap).map(k => {
 const RadioButton = Radio.Button
 const RadioGroup = Radio.Group
 const FormItem = Form.Item
-const formItemLayout = {
-  labelCol: {
-    xs: { span: 24 },
-    sm: { span: 6 }
-  },
-  wrapperCol: {
-    xs: { span: 24 },
-    sm: { span: 14 }
-  }
-}
-const tailFormItemLayout = {
-  wrapperCol: {
-    xs: {
-      span: 24,
-      offset: 0
-    },
-    sm: {
-      span: 14,
-      offset: 6
-    }
-  }
-}
 const {prefix} = window
 const e = prefix('form')
 
-@Form.create()
-@validateFieldsAndScroll
-export default class SshForm extends React.Component {
+export class SshForm extends React.Component {
 
   constructor(props) {
     super(props)
@@ -346,3 +323,8 @@ export default class SshForm extends React.Component {
   }
 
 }
+
+@Form.create()
+@validateFieldsAndScroll
+export default class SshFormExport extends SshForm {}
+
