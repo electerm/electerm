@@ -30,7 +30,6 @@ const buildNewTheme = () => {
   )
 }
 
-
 /**
  * convert theme object to themeText
  * @param {object} themeObj
