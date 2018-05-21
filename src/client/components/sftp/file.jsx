@@ -559,6 +559,7 @@ export default class FileSection extends React.Component {
   openFile = file => {
     let filePath = resolve(file.path, file.name)
     fs.openFile(filePath)
+    this.props.closeContextMenu()
   }
 
   transferOrEnterDirectory = (e) => {
@@ -784,6 +785,18 @@ export default class FileSection extends React.Component {
                 <Icon type={icon} /> {transferText}
               </div>
             )
+        }
+        {
+          !isDirectory && id && type === typeMap.local
+            ? (
+              <div
+                className={cls}
+                onClick={this.transferOrEnterDirectory}
+              >
+                <Icon type="arrow-right" /> {e('open')}
+              </div>
+            )
+            : null
         }
         {
           id
