@@ -9,8 +9,9 @@ import {validateFieldsAndScroll} from '../../common/dec-validate-and-scroll'
 import _ from 'lodash'
 import copy from 'json-deep-copy'
 import {generate} from 'shortid'
-import {authTypeMap, settingMap} from '../../common/constants'
+import {authTypeMap, settingMap, defaultUserName} from '../../common/constants'
 import {formItemLayout, tailFormItemLayout} from '../../common/form-layout'
+import InputAutoFocus from '../common/input-auto-focus'
 
 const {TextArea} = Input
 const authTypes = Object.keys(authTypeMap).map(k => {
@@ -226,7 +227,7 @@ export class SshForm extends React.Component {
             }],
             initialValue: host
           })(
-            <Input />
+            <InputAutoFocus />
           )}
         </FormItem>
         <FormItem
@@ -240,7 +241,7 @@ export class SshForm extends React.Component {
             }, {
               required: true, message: 'username required'
             }],
-            initialValue: username
+            initialValue: username || defaultUserName
           })(
             <Input />
           )}
