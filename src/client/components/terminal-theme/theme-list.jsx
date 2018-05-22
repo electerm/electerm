@@ -8,6 +8,9 @@ import classnames from 'classnames'
 import {defaultTheme} from '../../common/terminal-theme'
 import './terminal-theme-list.styl'
 
+const {prefix} = window
+const e = prefix('terminalThemes')
+
 export default class ThemeList extends List {
 
   del = (item, e) => {
@@ -21,12 +24,11 @@ export default class ThemeList extends List {
     }
     return (
       <Tooltip
-        title="apply"
+        title={e('apply')}
         placement="top"
       >
         <Icon
           type="check-circle-o"
-          title="apply"
           className="pointer list-item-apply"
           onClick={() => this.props.setTheme(item.id)}
         />
