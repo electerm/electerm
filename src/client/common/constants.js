@@ -2,7 +2,6 @@
  * constants
  */
 
-
 const buildConst = (props) => {
   return props.reduce((prev, key) => {
     return {
@@ -12,6 +11,7 @@ const buildConst = (props) => {
   }, {})
 }
 
+export const defaultUserName = 'root'
 export const termControlHeight = 33
 export const maxDragMove = 30
 export const minTerminalWidth = 90
