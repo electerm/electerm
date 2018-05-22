@@ -9,6 +9,7 @@ import {validateFieldsAndScroll} from '../../common/dec-validate-and-scroll'
 import {convertTheme, convertThemeToText, exportTheme, defaultTheme} from '../../common/terminal-theme'
 import {generate} from 'shortid'
 import {formItemLayout, tailFormItemLayout} from '../../common/form-layout'
+import InputAutoFocus from '../common/input-auto-focus'
 
 const {TextArea} = Input
 const FormItem = Form.Item
@@ -21,14 +22,14 @@ const t = prefix('terminalThemes')
 export default class ThemeForm extends SshForm {
 
   export = () => {
-    exportTheme(this.state.formData.id)
+    exportTheme(this.props.formData.id)
   }
 
   handleSubmit = async (e, saveOnly = false) => {
     e.preventDefault()
     let res = await this.validateFieldsAndScroll()
     if (!res) return
-    let {formData} = this.state
+    let {formData} = this.props
     let {
       themeName,
       themeText
@@ -72,7 +73,7 @@ export default class ThemeForm extends SshForm {
       themeConfig,
       id,
       name: themeName
-    } = this.state.formData
+    } = this.props.formData
     let themeText = convertThemeToText({themeConfig, name})
     let isDefaultTheme = id === defaultTheme.id
     return (
@@ -102,7 +103,7 @@ export default class ThemeForm extends SshForm {
             }],
             initialValue: themeName
           })(
-            <Input disabled={isDefaultTheme} />
+            <InputAutoFocus selectAll disabled={isDefaultTheme} />
           )}
         </FormItem>
         <FormItem
