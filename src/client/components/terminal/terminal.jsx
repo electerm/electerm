@@ -127,14 +127,6 @@ export default class Term extends React.Component {
   handleEvent = (e) => {
     if (keyControlPressed(e) && e.code === 'KeyF') {
       this.openSearch()
-    } else if (
-      e.shiftKey && keyControlPressed(e) && e.code === 'KeyC'
-    ) {
-      this.onCopy()
-    } else if (
-      e.shiftKey && keyControlPressed(e) && e.code === 'KeyV'
-    ) {
-      this.onPaste()
     }
   }
 
