@@ -53,7 +53,7 @@ describe('init setting buttons', function () {
 
     log('open setting')
     await client.execute(function() {
-      document.querySelector('.btns .anticon-setting').parentNode.click()
+      document.querySelector('.btns .anticon-setting').click()
     })
     await delay(1500)
     let active1 = await client.element(sel)
@@ -68,7 +68,7 @@ describe('init setting buttons', function () {
 
     log('button:new ssh')
     await client.execute(function() {
-      document.querySelector('.btns .anticon-plus').click()
+      document.querySelector('.btns .anticon-plus').parentNode.click()
     })
     await delay(1000)
     let active2 = await client.element(sel)
