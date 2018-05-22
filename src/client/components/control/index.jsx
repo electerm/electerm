@@ -3,6 +3,7 @@ import React from 'react'
 import Tabs from './tabs'
 import Btns from './btns'
 import SettingModal from './setting-modal'
+import {buildNewTheme} from '../../common/terminal-theme'
 import TransferHistoryModal from './transfer-history-modal'
 import {generate} from 'shortid'
 import _ from 'lodash'
@@ -129,6 +130,13 @@ export default class IndexControl extends React.Component {
     }, this.openModal)
   }
 
+  openTerminalThemes = () => {
+    this.setState({
+      tab: settingMap.terminalThemes,
+      item: buildNewTheme()
+    }, this.openModal)
+  }
+
   openModal = () => {
     this.modal.show()
   }
@@ -142,7 +150,7 @@ export default class IndexControl extends React.Component {
       ..._.pick(this, [
         'onAdd', 'onChange', 'onClose',
         'onDup', 'onNewSsh', 'openSetting',
-        'onChangeTab',
+        'onChangeTab', 'openTerminalThemes',
         'onEditBookmark', 'onSelectHistory', 'onSelectBookmark'
       ]),
       onEditBookmark: this.onNewSsh
