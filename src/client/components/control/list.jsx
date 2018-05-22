@@ -8,6 +8,9 @@ import createName from '../../common/create-title'
 import classnames from 'classnames'
 import './list.styl'
 
+const {prefix} = window
+const e = prefix('menu')
+
 export default class ItemList extends React.Component {
 
   state = {
@@ -42,8 +45,8 @@ export default class ItemList extends React.Component {
     }
     return (
       <Tooltip
-        title="delete"
-        placement="right"
+        title={e('del')}
+        placement="top"
       >
         <Icon
           type="close"
