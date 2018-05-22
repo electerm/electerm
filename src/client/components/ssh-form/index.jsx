@@ -25,18 +25,9 @@ const e = prefix('form')
 
 export class SshForm extends React.Component {
 
-  constructor(props) {
-    super(props)
-    this.state = {
-      formData: props.formData || {}
-    }
-  }
-
   componentWillReceiveProps(nextProps) {
     if (!_.isEqual(nextProps.formData, this.props.formData)) {
-      this.setState({
-        formData: copy(nextProps.formData)
-      }, this.reset)
+      this.reset()
     }
   }
 
@@ -87,7 +78,7 @@ export class SshForm extends React.Component {
     let res = await this.validateFieldsAndScroll()
     if (!res) return
     let obj = {
-      ...this.state.formData,
+      ...this.props.formData,
       ...res
     }
     if (isTest) {
@@ -122,7 +113,7 @@ export class SshForm extends React.Component {
     const {getFieldDecorator} = this.props.form
     const {
       password
-    } = this.state.formData
+    } = this.props.formData
     return (
       <FormItem
         {...formItemLayout}
@@ -149,7 +140,7 @@ export class SshForm extends React.Component {
     const {
       privateKey,
       passphrase
-    } = this.state.formData
+    } = this.state.props
     return [
       <FormItem
         {...formItemLayout}
@@ -210,7 +201,7 @@ export class SshForm extends React.Component {
       title,
       authType = authTypeMap.password,
       username
-    } = this.state.formData
+    } = this.props.formData
 
     return (
       <Form onSubmit={this.handleSubmit} className="form-wrap">
@@ -227,7 +218,7 @@ export class SshForm extends React.Component {
             }],
             initialValue: host
           })(
-            <InputAutoFocus />
+            <InputAutoFocus selectAll />
           )}
         </FormItem>
         <FormItem
