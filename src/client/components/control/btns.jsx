@@ -34,6 +34,7 @@ export default function Btns(props) {
     openAbout,
     openTransferHistory,
     showControl,
+    openTerminalThemes,
     transferHistory
   } = props
   return (
@@ -85,14 +86,18 @@ export default function Btns(props) {
         <Tooltip title={`${m('edit')} ${c('bookmarks')}`}>
           <Icon
             type="edit"
-            className="font16 mg1x pointer iblock icon-do-edit"
+            className="font16 mg1x pointer iblock control-icon icon-do-edit"
             onClick={onEditBookmark}
           />
         </Tooltip>
-        <Button
-          className="mg2l iblock"
-          type="ghost"
-          icon="setting"
+        <Icon
+          type="picture"
+          className="font16 mg2l iblock pointer control-icon"
+          onClick={openTerminalThemes}
+        />
+        <Icon
+          className="mg2l iblock pointer font16 control-icon"
+          type="setting"
           onClick={openSetting}
           title={c('setting')}
         />
