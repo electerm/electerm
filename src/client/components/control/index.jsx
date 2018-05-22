@@ -14,8 +14,19 @@ import './control.styl'
 const {prefix, getGlobal} = window
 const e = prefix('control')
 const sshConfigItems = getGlobal('sshConfigItems')
-
 const defaultStatus = statusMap.processing
+const getInitItem = (arr, tab) => {
+  if (tab === settingMap.history) {
+    return arr[0] || {}
+  } else if (tab === settingMap.bookmarks) {
+    return {id: '', title: e('new')}
+  } else if (tab === settingMap.setting) {
+    return {id: '', title: e('common')}
+  } else if (tab === settingMap.terminalThemes) {
+    return buildNewTheme()
+  }
+}
+
 export const newTerm = () => ({
   id: generate(),
   status: defaultStatus,
@@ -25,9 +36,7 @@ export const newTerm = () => ({
 export default class IndexControl extends React.Component {
 
   state = {
-    item: {
-      id: ''
-    },
+    item: getInitItem([], settingMap.bookmarks),
     tab: settingMap.bookmarks
   }
 
@@ -35,12 +44,6 @@ export default class IndexControl extends React.Component {
     window._require('electron')
       .ipcRenderer
       .on('new-ssh', this.onNewSsh)
-  }
-
-  onChangeTab = tab => {
-    this.setState({
-      tab
-    })
   }
 
   onDup = tab => {
@@ -70,9 +73,7 @@ export default class IndexControl extends React.Component {
   onNewSsh = () => {
     this.setState({
       tab: settingMap.bookmarks,
-      item: {
-        id: ''
-      }
+      item: getInitItem([], settingMap.bookmarks)
     }, this.openModal)
   }
 
@@ -124,9 +125,7 @@ export default class IndexControl extends React.Component {
   openSetting = () => {
     this.setState({
       tab: settingMap.setting,
-      item: {
-        id: ''
-      }
+      item: getInitItem([], settingMap.setting)
     }, this.openModal)
   }
 
@@ -141,17 +140,37 @@ export default class IndexControl extends React.Component {
     this.modal.show()
   }
 
+  getItems = (tab, props = this.props) => {
+    return tab === settingMap.terminalThemes
+      ? copy(props.themes)
+      : copy(props[tab]) || []
+  }
+
+  onChangeTab = tab => {
+    let arr = this.getItems(tab)
+    let item = getInitItem(arr, tab)
+    this.setState({
+      item,
+      tab
+    })
+  }
+
   render() {
     let {item, tab} = this.state
+    let list = [
+      copy(item),
+      ...this.getItems(tab)
+    ]
     let props = {
       ...this.props,
       item,
+      list,
       tab,
       ..._.pick(this, [
         'onAdd', 'onChange', 'onClose',
         'onDup', 'onNewSsh', 'openSetting',
         'onChangeTab', 'openTerminalThemes',
-        'onEditBookmark', 'onSelectHistory', 'onSelectBookmark'
+        'onEditBookmark', 'onSelectHistory', 'onSelectBookmark', 'onChangeTab'
       ]),
       onEditBookmark: this.onNewSsh
     }
