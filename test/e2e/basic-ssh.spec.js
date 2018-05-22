@@ -7,16 +7,7 @@ const {
   TEST_HOST,
   TEST_PASS,
   TEST_USER
-} = process.env
-
-if (!TEST_HOST || !TEST_PASS || !TEST_USER) {
-  throw new Error(`
-    basic ssh test need TEST_HOST TEST_PASS TEST_USER env set,
-    you can run theselines(replace xxxx with real ones) to set env:
-    export TEST_HOST=xxxx.xxx && export TEST_PASS=xxxxxx && export TEST_USER=xxxxxx
-  `)
-}
-
+} = require('./common/env')
 const { Application } = require('spectron')
 const electronPath = require('electron')
 const {resolve} = require('path')

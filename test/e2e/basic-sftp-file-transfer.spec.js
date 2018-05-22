@@ -3,20 +3,6 @@
  * need TEST_HOST TEST_PASS TEST_USER env set
  */
 
-const {
-  TEST_HOST,
-  TEST_PASS,
-  TEST_USER
-} = process.env
-
-if (!TEST_HOST || !TEST_PASS || !TEST_USER) {
-  throw new Error(`
-    basic sftp test need TEST_HOST TEST_PASS TEST_USER env set,
-    you can run theselines(replace xxxx with real ones) to set env:
-    export TEST_HOST=xxxx.xxx && export TEST_PASS=xxxxxx && export TEST_USER=xxxxxx
-  `)
-}
-
 const { Application } = require('spectron')
 const electronPath = require('electron')
 const {resolve} = require('path')
@@ -24,6 +10,11 @@ const {expect} = require('chai')
 const cwd = process.cwd()
 const delay = require('./common/wait')
 const generate = require('./common/uid')
+const {
+  TEST_HOST,
+  TEST_PASS,
+  TEST_USER
+} = require('./common/env')
 
 describe('ssh', function () {
   this.timeout(100000)
