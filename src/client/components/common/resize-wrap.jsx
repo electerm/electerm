@@ -14,7 +14,8 @@ export default class ResizeWrap extends Component {
 
   static propTypes = {
     direction: PropTypes.oneOf(['horizontal', 'vertical']).isRequired,
-    children: PropTypes.arrayOf(PropTypes.element).isRequired
+    children: PropTypes.arrayOf(PropTypes.element).isRequired,
+    minWidth: PropTypes.number
   }
 
   state = {
@@ -107,17 +108,18 @@ export default class ResizeWrap extends Component {
     }
     let prevStyle = styles[1]
     let nextStyle = styles[2]
+    let minW = this.props.minWidth || minTerminalWidth
     if (direction === terminalSplitDirectionMap.vertical) {
-      if (yDiff > 0 && yDiff > nextStyle.height - minTerminalWidth) {
-        yDiff = nextStyle.height - minTerminalWidth
-      } else if (yDiff < 0 && yDiff < - (prevStyle.height - minTerminalWidth)) {
-        yDiff = - (prevStyle.height - minTerminalWidth)
+      if (yDiff > 0 && yDiff > nextStyle.height - minW) {
+        yDiff = nextStyle.height - minW
+      } else if (yDiff < 0 && yDiff < - (prevStyle.height - minW)) {
+        yDiff = - (prevStyle.height - minW)
       }
     } else {
-      if (xDiff > 0 && xDiff > nextStyle.width - minTerminalWidth) {
-        xDiff = nextStyle.width - minTerminalWidth
-      } else if (xDiff < 0 && xDiff < - (prevStyle.width - minTerminalWidth)) {
-        xDiff = - (prevStyle.width - minTerminalWidth)
+      if (xDiff > 0 && xDiff > nextStyle.width - minW) {
+        xDiff = nextStyle.width - minW
+      } else if (xDiff < 0 && xDiff < - (prevStyle.width - minW)) {
+        xDiff = - (prevStyle.width - minW)
       }
     }
     doms.forEach((d, i) => {
