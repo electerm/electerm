@@ -19,7 +19,7 @@ const t = prefix('terminalThemes')
 
 @Form.create()
 @validateFieldsAndScroll
-export default class ThemeForm extends SshForm {
+class ThemeForm extends SshForm {
 
   export = () => {
     exportTheme(this.props.formData.id)
@@ -159,3 +159,5 @@ export default class ThemeForm extends SshForm {
   }
 
 }
+
+export default ThemeForm
