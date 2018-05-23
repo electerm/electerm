@@ -2,9 +2,9 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 import {generate} from 'shortid'
-import {Col, Row, Input, Icon, Tooltip, Spin, Modal} from  'antd'
+import {Input, Icon, Tooltip, Spin, Modal} from  'antd'
 import _ from 'lodash'
-import Tranports from './transports'
+import Transports from './transports'
 import FileSection from './file'
 import Confirms from './confirm-list'
 import resolve from '../../common/resolve'
@@ -18,6 +18,7 @@ import {hasFileInClipboardText} from '../../common/clipboard'
 import Client from '../../common/sftp'
 import fs from '../../common/fs'
 import sorters, {ordersMap} from './sorters'
+import ResizeWrap from '../common/resize-wrap'
 import keyControlPressed from '../../common/key-control-pressed'
 import './sftp.styl'
 
@@ -689,7 +690,7 @@ export default class Sftp extends React.Component {
     )
   }
 
-  renderSection(type) {
+  renderSection(type, style) {
     let {
       id, onDrag
     } = this.state
@@ -704,7 +705,12 @@ export default class Sftp extends React.Component {
       ? 'reload'
       : 'arrow-right'
     return (
-      <Col span={12} className={'sftp-' + type + '-section'}>
+      <div
+        className={`sftp-section sftp-${type}-section tw-${type}`}
+        style={style}
+        id={type}
+        {...style}
+      >
         <Spin spinning={loading}>
           <div className="pd1 sftp-panel">
             {
@@ -758,7 +764,35 @@ export default class Sftp extends React.Component {
             </div>
           </div>
         </Spin>
-      </Col>
+      </div>
+    )
+  }
+
+  renderSections () {
+    let arr = [
+      typeMap.local,
+      typeMap.remote
+    ]
+    let {
+      width, height
+    } = this.props
+    return (
+      <ResizeWrap
+        direction="horizontal"
+        minWidth={300}
+      >
+        {
+          arr.map((t, i) => {
+            let style = {
+              width: width / 2,
+              left: i * width / 2,
+              top: 0,
+              height
+            }
+            return this.renderSection(t, style)
+          })
+        }
+      </ResizeWrap>
     )
   }
 
@@ -793,11 +827,10 @@ export default class Sftp extends React.Component {
     }
     return (
       <div className="sftp-wrap overhide relative" id={id} style={{height}}>
-        <Row>
-          {this.renderSection(typeMap.local)}
-          {this.renderSection(typeMap.remote)}
-        </Row>
-        <Tranports
+        {
+          this.renderSections()
+        }
+        <Transports
           {...props}
         />
         <Confirms
