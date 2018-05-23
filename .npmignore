@@ -16,3 +16,4 @@
 /package-bak.json
 /temp/
 /dist/
+*.log
