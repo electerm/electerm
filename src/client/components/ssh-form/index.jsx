@@ -318,5 +318,7 @@ export class SshForm extends React.Component {
 
 @Form.create()
 @validateFieldsAndScroll
-export default class SshFormExport extends SshForm {}
+class SshFormExport extends SshForm {}
+
+export default SshFormExport
 
