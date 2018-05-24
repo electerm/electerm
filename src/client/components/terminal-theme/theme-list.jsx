@@ -57,7 +57,7 @@ export default class ThemeList extends List {
       : name
     return (
       <div
-        key={i + name}
+        key={i + id}
         className={cls}
         onClick={() => this.onClickTheme(item)}
       >

@@ -69,7 +69,7 @@ export default class ItemList extends React.Component {
     )
     return (
       <div
-        key={i + type + id}
+        key={i + '__' + id}
         className={cls}
         onClick={() => onClickItem(item, type)}
       >
