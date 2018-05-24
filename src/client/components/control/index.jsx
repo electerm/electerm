@@ -46,6 +46,10 @@ export default class IndexControl extends React.Component {
       .on('new-ssh', this.onNewSsh)
   }
 
+  modifier = (...args) => {
+    this.setState(...args)
+  }
+
   onDup = tab => {
     let index = _.findIndex(
       this.props.tabs,
@@ -157,10 +161,14 @@ export default class IndexControl extends React.Component {
 
   render() {
     let {item, tab} = this.state
-    let list = [
-      copy(item),
-      ...this.getItems(tab)
-    ]
+    let arr = this.getItems(tab)
+    let initItem = getInitItem(arr, tab)
+    let list = tab === settingMap.history
+      ? arr
+      : [
+        copy(initItem),
+        ...arr
+      ]
     let props = {
       ...this.props,
       item,
@@ -172,7 +180,8 @@ export default class IndexControl extends React.Component {
         'onChangeTab', 'openTerminalThemes',
         'onEditBookmark', 'onSelectHistory', 'onSelectBookmark', 'onChangeTab'
       ]),
-      onEditBookmark: this.onNewSsh
+      onEditBookmark: this.onNewSsh,
+      modifier2: this.modifier
     }
     return (
       <div>
