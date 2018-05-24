@@ -140,7 +140,7 @@ export class SshForm extends React.Component {
     const {
       privateKey,
       passphrase
-    } = this.state.props
+    } = this.props.formData
     return [
       <FormItem
         {...formItemLayout}

@@ -33,18 +33,12 @@ export default class SettingModal extends React.Component {
 
   hide = () => {
     this.setState({
-      visible: false,
-      tab: ''
+      visible: false
     })
   }
 
-  selectItem = (item, type) => {
-    let oldItem = this.state.item
-    let oldType = this.state.type
-    if (oldItem.id === item.id && oldType === type) {
-      return
-    }
-    this.setState({item, type})
+  selectItem = (item) => {
+    this.props.modifier2({item})
   }
 
   renderTabs() {
