@@ -120,7 +120,7 @@
     "body-parser": "1.18.3",
     "cors": "2.8.4",
     "dayjs": "1.6.3",
-    "electerm-locales": "0.2.7",
+    "electerm-locales": "0.2.8",
     "electerm-resource": "1.1.3",
     "electron-log": "2.2.14",
     "express": "4.16.3",
