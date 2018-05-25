@@ -37,7 +37,8 @@ export default class IndexControl extends React.Component {
 
   state = {
     item: getInitItem([], settingMap.bookmarks),
-    tab: settingMap.bookmarks
+    tab: settingMap.bookmarks,
+    autoFocusTrigger: + new Date()
   }
 
   componentDidMount() {
@@ -77,7 +78,8 @@ export default class IndexControl extends React.Component {
   onNewSsh = () => {
     this.setState({
       tab: settingMap.bookmarks,
-      item: getInitItem([], settingMap.bookmarks)
+      item: getInitItem([], settingMap.bookmarks),
+      autoFocusTrigger: + new Date()
     }, this.openModal)
   }
 
@@ -155,12 +157,13 @@ export default class IndexControl extends React.Component {
     let item = getInitItem(arr, tab)
     this.setState({
       item,
+      autoFocusTrigger: + new Date(),
       tab
     })
   }
 
   render() {
-    let {item, tab} = this.state
+    let {item, tab, autoFocusTrigger} = this.state
     let arr = this.getItems(tab)
     let initItem = getInitItem(arr, tab)
     let list = tab === settingMap.history
@@ -172,6 +175,7 @@ export default class IndexControl extends React.Component {
     let props = {
       ...this.props,
       item,
+      autoFocusTrigger,
       list,
       tab,
       ..._.pick(this, [
