@@ -238,32 +238,6 @@ export default class WindowWrapper extends React.Component  {
     let {pane, splitDirection, terminals} = this.state
     let {props} = this
     let host = _.get(props, 'tab.host')
-    let tabs = host
-      ? (
-        <div className="term-sftp-tabs fleft">
-          {
-            ['ssh', 'sftp'].map((type, i) => {
-              let cls = classnames(
-                'type-tab',
-                type,
-                {
-                  active: type === pane
-                }
-              )
-              return (
-                <span
-                  className={cls}
-                  key={type + '_' + i}
-                  onClick={() => this.onChangePane(type)}
-                >
-                  {type}
-                </span>
-              )
-            })
-          }
-        </div>
-      )
-      : null
     let cls1 = classnames(
       'mg1r icon-split pointer iblock',
       {
@@ -281,7 +255,31 @@ export default class WindowWrapper extends React.Component  {
       <div
         className="terminal-control fix"
       >
-        {tabs}
+        <div className="term-sftp-tabs fleft">
+          {
+            [
+              'ssh',
+              host ? 'sftp' : 'fileManager'
+            ].map((type, i) => {
+              let cls = classnames(
+                'type-tab',
+                type,
+                {
+                  active: type === pane
+                }
+              )
+              return (
+                <span
+                  className={cls}
+                  key={type + '_' + i}
+                  onClick={() => this.onChangePane(type)}
+                >
+                  {e(type)}
+                </span>
+              )
+            })
+          }
+        </div>
         {
           pane === 'ssh'
             ? (
@@ -320,19 +318,13 @@ export default class WindowWrapper extends React.Component  {
 
   render() {
     let {pane, splitDirection} = this.state
-    let {props} = this
-    let host = _.get(props, 'tab.host')
     return (
       <div
         className={'term-sftp-box ' + pane + ' ' + splitDirection}
       >
         {this.renderControl()}
         {this.renderTerminals()}
-        {
-          host
-            ? this.renderSftp()
-            : null
-        }
+        {this.renderSftp()}
       </div>
     )
   }
