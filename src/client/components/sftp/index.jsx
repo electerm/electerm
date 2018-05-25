@@ -103,8 +103,13 @@ export default class Sftp extends React.Component {
   }
 
   isActive() {
-    return this.props.currentTabId === this.props.tab.id &&
-      this.props.pane === 'sftp'
+    let {
+      currentTabId,
+      tab: {id},
+      pane
+    } = this.props
+    return currentTabId === id &&
+      pane === 'sftp' || pane === 'fileManager'
   }
 
   getIndex = (file) => {
