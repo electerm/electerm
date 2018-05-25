@@ -310,7 +310,7 @@ export default class Sftp extends React.Component {
   }
 
   handleEvent = (e) => {
-    if (!this.isActive()) {
+    if (!this.isActive() || this.state.onEditFile) {
       return
     }
     let lastClickedFile = this.state.lastClickedFile || {
