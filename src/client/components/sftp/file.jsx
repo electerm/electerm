@@ -570,7 +570,9 @@ export default class FileSection extends React.Component {
     if (type === typeMap.local) {
       return this.openFile(this.state.file)
     }
-    this.transfer()
+    if (_.get(this.props, 'tab.host')) {
+      this.transfer()
+    }
   }
 
   getTransferList = async (file) => {
@@ -730,8 +732,10 @@ export default class FileSection extends React.Component {
         isDirectory,
         id
       },
-      selectedFiles
+      selectedFiles,
+      tab
     } = this.props
+    let hasHost = !!_.get(tab, 'host')
     let transferText = type === typeMap.local
       ? e(transferTypeMap.upload)
       : e(transferTypeMap.download)
@@ -763,7 +767,7 @@ export default class FileSection extends React.Component {
             : null
         }
         {
-          shouldShowSelectedMenu
+          shouldShowSelectedMenu && hasHost
             ? (
               <div
                 className={cls}
@@ -775,7 +779,7 @@ export default class FileSection extends React.Component {
             : null
         }
         {
-          !id
+          !id || !hasHost
             ? null
             : (
               <div
