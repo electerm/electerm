@@ -5,7 +5,7 @@ import {generate} from 'shortid'
 import _ from 'lodash'
 import {Spin, Icon, Modal, Button, Checkbox, Select} from 'antd'
 import Input from '../common/input-auto-focus'
-import {statusMap} from '../../common/constants'
+import {statusMap, paneMap} from '../../common/constants'
 import classnames from 'classnames'
 import './terminal.styl'
 import {
@@ -74,7 +74,13 @@ export default class Term extends React.Component {
   }
 
   componentDidUpdate(prevProps) {
-    let shouldChange = prevProps.currentTabId !== this.props.currentTabId && this.props.tab.id === this.props.currentTabId
+    let shouldChange = (
+      prevProps.currentTabId !== this.props.currentTabId &&
+      this.props.tab.id === this.props.currentTabId
+    ) || (
+      this.props.pane !== prevProps.pane &&
+      this.props.pane === paneMap.terminal
+    )
     let names = [
       'width',
       'height',
@@ -120,7 +126,7 @@ export default class Term extends React.Component {
     dom.addEventListener('contextmenu', this.onContextMenu)
     window.addEventListener(
       'resize',
-      _.throttle(this.onResize, 100)
+      this.onResize
     )
   }
 

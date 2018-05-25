@@ -794,6 +794,7 @@ export default class Sftp extends React.Component {
     return (
       <ResizeWrap
         direction="horizontal"
+        noResizeEvent
         minWidth={300}
       >
         {
