@@ -114,7 +114,7 @@ export default class Term extends React.Component {
     })
     clearTimeout(this.timers)
     this.socket && this.socket.close()
-    this.term && this.term.destroy()
+    this.term && this.term.dispose()
   }
 
   timers = {}
