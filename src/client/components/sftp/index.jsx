@@ -13,7 +13,7 @@ import classnames from 'classnames'
 import sorterIndex from '../../common/index-sorter'
 import DragSelect from './drag-select'
 import {getLocalFileInfo} from './file-read'
-import {typeMap, sftpControlHeight, maxSftpHistory} from '../../common/constants'
+import {typeMap, sftpControlHeight, maxSftpHistory, paneMap} from '../../common/constants'
 import {hasFileInClipboardText} from '../../common/clipboard'
 import Client from '../../common/sftp'
 import fs from '../../common/fs'
@@ -104,7 +104,7 @@ export default class Sftp extends React.Component {
 
   isActive() {
     return this.props.currentTabId === this.props.tab.id &&
-      this.props.pane === 'sftp'
+      this.props.pane === paneMap.fileManager
   }
 
   getIndex = (file) => {

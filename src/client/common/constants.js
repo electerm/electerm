@@ -56,6 +56,13 @@ export const typeMap = buildConst([
   'local'
 ])
 
+export const paneMap = buildConst([
+  'ssh',
+  'sftp',
+  'terminal',
+  'fileManager'
+])
+
 export const settingMap = buildConst([
   'setting',
   'bookmarks',
