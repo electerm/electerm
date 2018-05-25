@@ -18,16 +18,21 @@ export const getFolderFromFilePath = filePath => {
 }
 
 export const getLocalFileInfo = async (filePath) => {
-  let stat = await fs.statAsync(filePath)
-  return {
-    size: stat.size,
-    accessTime: stat.atime,
-    modifyTime: stat.mtime,
-    mode: stat.mode,
-    type: 'local',
-    ...getFolderFromFilePath(filePath),
-    id: generate(),
-    isDirectory: stat.isDirectory
+  try {
+    let stat = await fs.statAsync(filePath)
+    return {
+      size: stat.size,
+      accessTime: stat.atime,
+      modifyTime: stat.mtime,
+      mode: stat.mode,
+      type: 'local',
+      ...getFolderFromFilePath(filePath),
+      id: generate(),
+      isDirectory: stat.isDirectory
+    }
+  } catch (e) {
+    console.log(e)
+    return null
   }
 }
 
