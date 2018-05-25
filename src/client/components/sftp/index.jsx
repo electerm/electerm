@@ -482,7 +482,9 @@ export default class Sftp extends React.Component {
       for(let name of locals) {
         let p = resolve(localPath, name)
         let fileObj = await getLocalFileInfo(p)
-        local.push(fileObj)
+        if (fileObj) {
+          local.push(fileObj)
+        }
       }
       local.sort(sorter)
       let update = {
