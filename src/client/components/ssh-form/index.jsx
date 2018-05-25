@@ -202,6 +202,7 @@ export class SshForm extends React.Component {
       authType = authTypeMap.password,
       username
     } = this.props.formData
+    let {autoFocusTrigger} = this.props
 
     return (
       <Form onSubmit={this.handleSubmit} className="form-wrap">
@@ -218,7 +219,7 @@ export class SshForm extends React.Component {
             }],
             initialValue: host
           })(
-            <InputAutoFocus selectAll />
+            <InputAutoFocus autoFocusTrigger={autoFocusTrigger} selectAll />
           )}
         </FormItem>
         <FormItem

@@ -74,6 +74,7 @@ class ThemeForm extends SshForm {
       id,
       name: themeName
     } = this.props.formData
+    let {autoFocusTrigger} = this.props
     let themeText = convertThemeToText({themeConfig, name})
     let isDefaultTheme = id === defaultTheme.id
     return (
@@ -103,7 +104,7 @@ class ThemeForm extends SshForm {
             }],
             initialValue: themeName
           })(
-            <InputAutoFocus selectAll disabled={isDefaultTheme} />
+            <InputAutoFocus selectAll disabled={isDefaultTheme} autoFocusTrigger={autoFocusTrigger} />
           )}
         </FormItem>
         <FormItem
