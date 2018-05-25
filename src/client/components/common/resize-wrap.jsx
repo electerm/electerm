@@ -165,6 +165,9 @@ export default class ResizeWrap extends Component {
   }
 
   onDragEnd = () => {
+    if (this.props.noResizeEvent) {
+      return
+    }
     window.dispatchEvent(new CustomEvent('resize'))
   }
 
