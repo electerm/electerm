@@ -338,7 +338,11 @@ export default class Sftp extends React.Component {
   }
 
   initData = () => {
-    this.remoteList()
+    let {props} = this
+    let host = _.get(props, 'tab.host')
+    if (host) {
+      this.remoteList()
+    }
     this.localList()
   }
 
@@ -774,8 +778,19 @@ export default class Sftp extends React.Component {
       typeMap.remote
     ]
     let {
-      width, height
+      width, height, tab
     } = this.props
+    let host = _.get(tab, 'host')
+    if (!host) {
+      return (
+        this.renderSection(arr[0], {
+          width,
+          left: 0,
+          top: 0,
+          height
+        })
+      )
+    }
     return (
       <ResizeWrap
         direction="horizontal"
