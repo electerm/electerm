@@ -13,17 +13,6 @@ export default class InputAutoFocus extends React.Component {
     this.timer = setTimeout(this.doFocus, 50)
   }
 
-  componentDidUpdate(prevProps) {
-    if (!prevProps.selectAll) {
-      return
-    }
-    let prev = _.isUndefined(prevProps.value) ? '' : prevProps.value
-    let curr = _.isUndefined(this.props.value) ? '' : this.props.value
-    if (prev === curr) {
-      this.timer = setTimeout(this.doFocus, 50)
-    }
-  }
-
   componentWillUnmount() {
     clearTimeout(this.timer)
   }
