@@ -10,7 +10,11 @@ import _ from 'lodash'
 import {generate} from 'shortid'
 import copy from 'json-deep-copy'
 import classnames from 'classnames'
-import {topMenuHeight, tabsHeight, terminalSplitDirectionMap, termControlHeight} from '../../common/constants'
+import {
+  topMenuHeight, tabsHeight,
+  terminalSplitDirectionMap, termControlHeight,
+  paneMap
+} from '../../common/constants'
 import ResizeWrap from '../common/resize-wrap'
 import keyControlPressed from '../../common/key-control-pressed'
 
@@ -45,7 +49,7 @@ export default class WindowWrapper extends React.Component  {
     super(props)
     let id = generate()
     this.state = {
-      pane: 'ssh',
+      pane: paneMap.terminal,
       splitDirection: terminalSplitDirectionMap.horizontal,
       activeSplitId: id,
       key: Math.random(),
@@ -76,7 +80,7 @@ export default class WindowWrapper extends React.Component  {
 
   isActive() {
     return this.props.currentTabId === this.props.tab.id &&
-      this.state.pane === 'ssh'
+      this.state.pane === paneMap.terminal
   }
 
   handleEvent = (e) => {
@@ -175,7 +179,7 @@ export default class WindowWrapper extends React.Component  {
 
   renderTerminals = () => {
     let {pane, terminals, splitDirection} = this.state
-    let cls = pane === 'ssh'
+    let cls = pane === paneMap.terminal
       ? 'terms-box bg-black'
       : 'terms-box bg-black hide'
     let {props} = this
@@ -220,7 +224,7 @@ export default class WindowWrapper extends React.Component  {
     let {pane} = this.state
     let height = this.computeHeight()
     let {props} = this
-    let cls = pane === 'ssh'
+    let cls = pane === paneMap.terminal
       ? 'hide'
       : ''
     return (
@@ -251,6 +255,10 @@ export default class WindowWrapper extends React.Component  {
       }
     )
     let hide = terminals.length < 2
+    let types = [
+      paneMap.terminal,
+      paneMap.fileManager
+    ]
     return (
       <div
         className="terminal-control fix"
@@ -258,21 +266,21 @@ export default class WindowWrapper extends React.Component  {
         <div className="term-sftp-tabs fleft">
           {
             [
-              'ssh',
-              host ? 'sftp' : 'fileManager'
+              host ? paneMap.ssh : paneMap.terminal,
+              host ? paneMap.sftp : paneMap.fileManager
             ].map((type, i) => {
               let cls = classnames(
                 'type-tab',
                 type,
                 {
-                  active: type === pane
+                  active: types[i] === pane
                 }
               )
               return (
                 <span
                   className={cls}
                   key={type + '_' + i}
-                  onClick={() => this.onChangePane(type)}
+                  onClick={() => this.onChangePane(types[i])}
                 >
                   {e(type)}
                 </span>
@@ -281,7 +289,7 @@ export default class WindowWrapper extends React.Component  {
           }
         </div>
         {
-          pane === 'ssh'
+          pane === paneMap.terminal
             ? (
               <div className="fright term-controls">
                 {
