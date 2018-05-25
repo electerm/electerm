@@ -1,6 +1,5 @@
 import _ from 'lodash'
 import CONFIG from '../config'
-import serialize from 'serialize-javascript'
 
 const {site: local} = CONFIG
 
@@ -15,7 +14,6 @@ export default async (ctx, next) => {
     href,
     _,
     path,
-    serialize,
     serverTime: +new Date()
   }
 
