@@ -18,7 +18,7 @@ export const minTerminalWidth = 90
 export const contextMenuHeight = 28
 export const contextMenuWidth = 120
 export const contextMenuPaddingTop = 10
-export const sftpControlHeight = 28 + 42
+export const sftpControlHeight = 28 + 42 + 6 + 33
 
 export const maxHistory = 50
 
