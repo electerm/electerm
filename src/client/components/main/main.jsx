@@ -52,6 +52,14 @@ export default class Index extends React.Component {
       .on('checkupdate', this.onCheckUpdate)
       .on('open-about', this.openAbout)
       .on('toggle-control', this.toggleControl)
+    document.addEventListener('drop', function(e) {
+      e.preventDefault()
+      e.stopPropagation()
+    })
+    document.addEventListener('dragover', function(e) {
+      e.preventDefault()
+      e.stopPropagation()
+    })
   }
 
   componentDidUpdate(prevProps, prevState) {

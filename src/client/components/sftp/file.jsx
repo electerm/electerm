@@ -94,6 +94,46 @@ export default class FileSection extends React.Component {
     this.props[type + 'List']()
   }
 
+  cp = async (fromFile, toFile) => {
+    let {type, path, name} = toFile
+    let base = resolve(path, name)
+    let {selectedFiles} = this.props
+    let baseInfo = type === typeMap.local
+      ? await getLocalFileInfo(base)
+      : await getRemoteFileInfo(this.props.sftp, base)
+    if (!baseInfo) {
+      return
+    }
+    let p = baseInfo.isDirectory
+      ? base
+      : getFolderFromFilePath(base).path
+    let fileList = await this.props[type + 'List'](
+      true,
+      p
+    )
+    for(let f of selectedFiles) {
+      let from = resolve(f.path, f.name)
+      let exist = _.some(
+        fileList,
+        ff => {
+          return ff.name === f.name && ff.isDirectory === f.isDirectory
+        }
+      )
+      let to = exist
+        ? resolve(
+          p,
+          'copy_' + generate() + '_' + f.name
+        )
+        : resolve(p, f.name)
+      let func = type === typeMap.remote
+        ? this.props.sftp.cp
+        : fs.cp
+      await func(from, to)
+        .catch(this.props.onError)
+    }
+    this.props[type + 'List']()
+  }
+
   onCopy = (e, targetFiles) => {
     let {file} = this.state
     let selected = this.isSelected(file)
@@ -212,6 +252,7 @@ export default class FileSection extends React.Component {
 
   onDrop = async e => {
     e.preventDefault()
+    let fromFileManager = !!_.get(e, 'dataTransfer.files.length')
     let {target} = e
     if (!target) {
       return
@@ -230,7 +271,7 @@ export default class FileSection extends React.Component {
       ...getFolderFromFilePath(this.props[type + 'Path']),
       isDirectory: false
     }
-    this.onDropFile(fromFile, toFile)
+    this.onDropFile(fromFile, toFile, fromFileManager)
   }
 
   onDragEnd = e => {
@@ -253,12 +294,17 @@ export default class FileSection extends React.Component {
     }
   }
 
-  onDropFile = (fromFile, toFile) => {
+  onDropFile = (fromFile, toFile, fromFileManager) => {
     let {type: fromType} = fromFile
     let {
       type: toType,
       isDirectory: isDirectoryTo
     } = toFile
+
+    //drop from file manager
+    if (fromFileManager && toType === typeMap.local) {
+      return this.cp(fromFile, toFile)
+    }
 
     //same side and drop to file, do nothing
     if (fromType === toType && !isDirectoryTo) {
@@ -275,7 +321,15 @@ export default class FileSection extends React.Component {
 
   }
 
-  transferDrop = (fromFile, toFile) => {
+  transferDrop = (fromFile, _toFile) => {
+    let toFile = _toFile.id
+      ? {
+        ..._toFile,
+        ...getFolderFromFilePath(
+          _toFile.path
+        )
+      }
+      : _toFile
     let files = this.isSelected(fromFile)
       ? this.props.selectedFiles
       : [fromFile]
