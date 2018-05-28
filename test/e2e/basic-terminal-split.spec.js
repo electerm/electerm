@@ -10,7 +10,7 @@ const {expect} = require('chai')
 const cwd = process.cwd()
 const delay = require('./common/wait')
 
-describe('ssh', function () {
+describe('terminal split', function () {
   this.timeout(100000)
 
   beforeEach(async function() {
