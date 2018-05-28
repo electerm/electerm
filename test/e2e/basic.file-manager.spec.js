@@ -3,11 +3,6 @@
  * need TEST_HOST TEST_PASS TEST_USER env set
  */
 
-const {
-  TEST_HOST,
-  TEST_PASS,
-  TEST_USER
-} = require('./common/env')
 const { Application } = require('spectron')
 const electronPath = require('electron')
 const {resolve} = require('path')
