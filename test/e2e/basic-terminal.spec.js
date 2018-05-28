@@ -8,7 +8,7 @@ const basicTermTest = require('./common/basic-terminal-test')
 const platform = os.platform()
 const isWin = platform.startsWith('win')
 
-describe('ssh', function () {
+describe('terminal', function () {
   this.timeout(100000)
 
   beforeEach(async function() {

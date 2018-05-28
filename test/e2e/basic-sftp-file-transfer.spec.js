@@ -16,7 +16,7 @@ const {
   TEST_USER
 } = require('./common/env')
 
-describe('ssh', function () {
+describe('sftp file transfer', function () {
   this.timeout(100000)
 
   beforeEach(async function() {
