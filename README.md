@@ -14,8 +14,7 @@
 [![license](https://img.shields.io/github/license/electerm/electerm.svg)](https://github.com/electerm/electerm/blob/master/LICENSE)
 
 
-- terminal/ssh/sftp client(linux, mac, win) based on electron/node-pty/xterm/antd and other libs, it works as a combination of `guake` and `xshell`
-- it is still on its early stage, more feature/test will be added.
+- terminal/ssh/sftp client(linux, mac, win) based on electron/node-pty/xterm/antd and other libs.
 
 <div align="center">
   <img src="https://github.com/electerm/electerm-resource/raw/master/static/images/electerm.gif", alt="" />
@@ -34,7 +33,7 @@ npm i -g electerm
 ```
 
 ## feature
-- work as a terminal or ssh/sftp client(similar to xshell)
+- work as a terminal/file manager or ssh/sftp client(similar to xshell)
 - hotkey to bring window back to front(simliar to guake, default is `ctrl + 2`)
 - support multi platform(linux, mac, win)
 - support multi-language(https://github.com/electerm/electerm-locales)
