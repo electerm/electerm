@@ -14,7 +14,11 @@ import Input from '../common/input-auto-focus'
 import resolve from '../../common/resolve'
 import {addClass, removeClass, hasClass} from '../../common/class'
 import wait from '../../common/wait'
-import {contextMenuHeight, contextMenuPaddingTop, isWin, transferTypeMap, typeMap} from '../../common/constants'
+import {
+  contextMenuHeight, contextMenuPaddingTop,
+  isWin, transferTypeMap, typeMap,
+  contextMenuWidth
+} from '../../common/constants'
 import sorter from '../../common/index-sorter'
 import {getLocalFileInfo, getFolderFromFilePath, getRemoteFileInfo} from './file-read'
 import {readClipboard, copy as copyToClipboard, hasFileInClipboardText} from '../../common/clipboard'
@@ -26,16 +30,17 @@ const e = prefix('sftp')
 const m = prefix('menu')
 const c = prefix('common')
 
-const computePos = (e, isBg, height) => {
-  let {target} = e
-  let rect = target.getBoundingClientRect()
+const computePos = (e, isBg, height, ) => {
   let {clientX, clientY} = e
   let res = {
-    left: isBg ? rect.left : clientX,
-    top: isBg ? rect.top + 15 : clientY
+    left: clientX,
+    top: clientY
   }
   if (window.innerHeight < res.top + height + 10) {
     res.top = res.top - height
+  }
+  if (window.innerWidth < res.left + contextMenuWidth + 10) {
+    res.left = res.left - contextMenuWidth
   }
   res.top = res.top > 0 ? res.top : 0
   return res
@@ -960,6 +965,7 @@ export default class FileSection extends React.Component {
 
   onContextMenu = e => {
     e.preventDefault()
+    this.onClick(e)
     let {file} = this.state
     let {id} = file
     this.props.modifier({
