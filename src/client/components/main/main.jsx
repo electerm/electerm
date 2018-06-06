@@ -45,6 +45,8 @@ export default class Index extends React.Component {
   }
 
   componentDidMount() {
+    window.lang = copy(window.lang)
+    window._config = copy(window._config)
     window.addEventListener('resize', this.onResize)
     this.onResize()
     window._require('electron')
