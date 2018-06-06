@@ -1,6 +1,6 @@
 
 import React from 'react'
-import Tabs from './tabs'
+import Tabs from '../tabs'
 import Btns from './btns'
 import SettingModal from './setting-modal'
 import {buildNewTheme} from '../../common/terminal-theme'
