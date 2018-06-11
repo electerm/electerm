@@ -99,7 +99,7 @@ export default class ResizeWrap extends Component {
     )
   }
 
-  renderHeaderItem = (item, i) => {
+  renderHeaderItem = (item) => {
     let {
       name,
       id,
