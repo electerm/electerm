@@ -14,7 +14,9 @@ const buildConst = (props) => {
 export const defaultUserName = 'root'
 export const termControlHeight = 33
 export const maxDragMove = 30
+export const splitDraggerWidth = 5
 export const minTerminalWidth = 90
+export const filePropMinWidth = 1
 export const contextMenuHeight = 28
 export const contextMenuWidth = 120
 export const contextMenuPaddingTop = 10
