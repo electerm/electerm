@@ -21,7 +21,7 @@
 </div>
 
 ## dowload
-https://electerm.html5beta.com
+https://electerm.html5beta.com or https://github.com/electerm/electerm/releases
 
 ## or install from npm
 ```
@@ -76,6 +76,9 @@ npm run test
 npm run release -l
 # visit dist/
 ```
+
+## changelog
+visit https://github.com/electerm/electerm/releases
 
 ## License
 MIT

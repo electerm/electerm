@@ -14,7 +14,16 @@ import {Component} from 'react'
 import classnames from 'classnames'
 import _ from 'lodash'
 import {generate} from 'shortid'
-import {splitDraggerWidth, filePropMinWidth, maxDragMove} from '../../common/constants'
+import {
+  splitDraggerWidth,
+  filePropMinWidth,
+  maxDragMove,
+  contextMenuHeight,
+  contextMenuPaddingTop,
+  contextMenuWidth
+} from '../../common/constants'
+import {Icon} from 'antd'
+import FileSection from './file'
 
 export default class ResizeWrap extends Component {
 
@@ -27,8 +36,7 @@ export default class ResizeWrap extends Component {
     }
   }
 
-  initFromProps = () => {
-    let pps = this.getPropsDefault()
+  initFromProps = (pps = this.getPropsDefault()) => {
     let {width, length} = pps
     let w = width / length
     let properties = pps.map((name, i) => {
@@ -41,7 +49,7 @@ export default class ResizeWrap extends Component {
         }
       }
     })
-    let splitHandles = properties.reduce((prev, name, i) => {
+    let splitHandles = properties.reduce((prev, {name}, i) => {
       if (i === length - 1) {
         return prev
       }
@@ -49,6 +57,8 @@ export default class ResizeWrap extends Component {
         ...prev,
         {
           id: generate(),
+          prevProp: name,
+          nextProp: properties[i + 1].name,
           style: {
             left: w * (i + 1) - (splitDraggerWidth / 2),
             width: splitDraggerWidth
@@ -91,7 +101,10 @@ export default class ResizeWrap extends Component {
       ]
     }, []).filter(d => d)
     return (
-      <div className="sftp-file-table-header">
+      <div
+        className="sftp-file-table-header"
+        onContextMenu={this.onContextMenu}
+      >
         {
           arr.map(this.renderHeaderItem)
         }
@@ -111,6 +124,7 @@ export default class ResizeWrap extends Component {
     let cls = classnames(
       'sftp-header-item',
       `shi-${id}`,
+      isHandle ? `shi-${id}` : `shi-${name}`,
       {
         'sftp-header-handle': isHandle
       },
@@ -136,10 +150,90 @@ export default class ResizeWrap extends Component {
       <div
         className={cls}
         style={style}
+        id={id}
+        key={id}
         draggable={isHandle}
         {...props}
       >
         {name || ''}
+      </div>
+    )
+  }
+
+  computePos = (e, height, ) => {
+    let {clientX, clientY} = e
+    let res = {
+      left: clientX,
+      top: clientY
+    }
+    if (window.innerHeight < res.top + height + 10) {
+      res.top = res.top - height
+    }
+    if (window.innerWidth < res.left + contextMenuWidth + 10) {
+      res.left = res.left - contextMenuWidth
+    }
+    res.top = res.top > 0 ? res.top : 0
+    return res
+  }
+
+  onToggleProp = name => {
+    let properties = this.state
+    let names = properties.map(d => d.name)
+    let all = this.getPropsAll()
+    let newProps = names.includes(name)
+      ? names.filter(d => d!== name)
+      : [...names, name]
+    let props = all.filter(g => newProps.includes(g))
+    let update = this.initFromProps(props)
+    this.setState(update)
+  }
+
+  onContextMenu = e => {
+    e.preventDefault()
+    let content = this.renderContext()
+    let height = content.props.children.filter(_.identity)
+      .length * contextMenuHeight + contextMenuPaddingTop * 2
+    this.props.openContextMenu({
+      content,
+      pos: this.computePos(e, height)
+    })
+  }
+
+  renderContext = () => {
+    let clsBase = 'pd2x pd1y context-item pointer'
+    let {properties} = this.state
+    let all = this.getPropsAll()
+    let selectedNames = properties.map(d => d.name)
+    return (
+      <div>
+        {
+          all.map((p, i) => {
+            let selected = selectedNames.includes(p)
+            let disabled = !i
+            let cls = classnames(
+              clsBase,
+              {selected},
+              {unselected: !selected},
+              {disabled}
+            )
+            let onClick = disabled
+              ? _.noop
+              : this.onToggleProp
+            return (
+              <div
+                className={cls}
+                onClick={() => onClick(name)}
+              >
+                {
+                  disabled || selected
+                    ? <Icon type="check" className="mg1r" />
+                    : <span className="icon-holder mg1r" />
+                }
+                {name}
+              </div>
+            )
+          })
+        }
       </div>
     )
   }
@@ -155,11 +249,13 @@ export default class ResizeWrap extends Component {
       ...properties,
       ...splitHandles
     ]
-    this.oldStyles = ids.reduce((prev, {id}) => {
+    let {type} = this.props
+    this.oldStyles = ids.reduce((prev, {id, name}) => {
+      let sel = `.ssh-wrap-show .tw-${type} .sftp-file-table-header .shi-${name ? name : id}`
       return {
         ...prev,
-        [id]: _.pick(
-          document.querySelector(`.shi-${id}`).style,
+        [name || id]: _.pick(
+          document.querySelector(sel).style,
           this.positionProps
         )
       }
@@ -167,22 +263,34 @@ export default class ResizeWrap extends Component {
   }
 
   onDrag = (e) => {
-    let dom = e.target
-    let prev = dom.previousSibling
-    let next = dom.nextSibling
-    let {startPosition} = this
     if (_.isNull(e.pageX)) {
       return
     }
+    let dom = e.target
+    let {splitHandles} = this.state
+    let {type} = this.props
+    let id = dom.getAttribute('id')
+    let splitHandle = _.find(
+      splitHandles,
+      s => s.id === id
+    )
+    let {
+      prevProp,
+      nextProp
+    } = splitHandle
+    let selPrev = `.ssh-wrap-show .tw-${type} .shi-${prevProp}`
+    let selNext = `.ssh-wrap-show .tw-${type} .shi-${nextProp}`
+    let prev = Array.from(document.querySelectorAll(selPrev))
+    let next = Array.from(document.querySelectorAll(selNext))
+    let {startPosition} = this
     let currentPosition = {
-      x: e.pageX,
-      y: e.pageY
+      x: e.pageX
     }
 
     let types = ['dom', 'prev', 'next']
     let doms = [dom, prev, next]
     let styles = doms.map(d => {
-      let {style} = d
+      let {style} = _.isArray(d) ? d[0] : d
       let obj = _.pick(style, this.positionProps)
       return Object.keys(obj).reduce((prev, k) => {
         let v = obj[k]
@@ -195,7 +303,6 @@ export default class ResizeWrap extends Component {
       }, {})
     })
     let xDiff = currentPosition.x - startPosition.x
-    let yDiff = currentPosition.y - startPosition.y
     if (Math.abs(xDiff) > maxDragMove) {
       return
     }
@@ -208,34 +315,36 @@ export default class ResizeWrap extends Component {
       xDiff = - (prevStyle.width - minW)
     }
     doms.forEach((d, i) => {
-      this.changePosition(d, xDiff, yDiff, types[i], styles[i])
+      this.changePosition(d, xDiff, types[i], styles[i])
     })
     this.startPosition = currentPosition
   }
 
   onDragStart = (e) => {
     this.startPosition = {
-      x: e.pageX,
-      y: e.pageY
+      x: e.pageX
     }
   }
 
   changePosition = (
     dom,
     xDiff,
-    yDiff,
     type,
     style
   ) => {
     let realWidth = style.width
     let realLeft = style.left
     if (type === 'prev') {
-      dom.style.width = (realWidth + xDiff) + 'px'
+      dom.forEach(d => {
+        d.style.width = (realWidth + xDiff) + 'px'
+      })
     } else if (type === 'dom') {
       dom.style.left = (realLeft + xDiff) + 'px'
     } else {
-      dom.style.width = (realWidth - xDiff) + 'px'
-      dom.style.left = (realLeft + xDiff) + 'px'
+      dom.forEach(d => {
+        d.style.width = (realWidth - xDiff) + 'px'
+        d.style.left = (realLeft + xDiff) + 'px'
+      })
     }
   }
 
@@ -243,20 +352,45 @@ export default class ResizeWrap extends Component {
 
   //reset
   onDoubleClick = () => {
-    let {childIds, splitIds} = this.state
+    let {properties, splitHandles} = this.state
     let ids = [
-      ...splitIds,
-      ...childIds
+      ...properties,
+      ...splitHandles
     ]
-    ids.forEach((id) => {
-      Object.assign(
-        document.querySelector(`.shi-${id}`).style,
-        this.oldStyles[id]
+    let {type} = this.props
+    ids.forEach(({id, name}) => {
+      let sel = `.ssh-wrap-show .tw-${type} .shi-${name ? name : id}`
+      let arr = Array.from(
+        document.querySelectorAll(sel)
       )
+      arr.forEach(d => {
+        Object.assign(
+          d.style,
+          this.oldStyles[name || id] || {}
+        )
+      })
     })
   }
 
+  renderItem = (item, i) => {
+    let {type} = this.props
+    return (
+      <FileSection
+        {...this.props.getFileProps(item, type)}
+        key={i + 'itd' + name}
+      />
+    )
+  }
+
   render() {
-    return null
+    let {list} = this.props
+    return (
+      <div className="sftp-table">
+        {this.renderTableHeader()}
+        {
+          list.map(this.renderItem)
+        }
+      </div>
+    )
   }
 }
