@@ -31,7 +31,7 @@ export default class ResizeWrap extends Component {
     super(props)
     this.state = {
       sortProp: 'modifyTime',
-      sortDirection: 'desc',
+      sortDirection: this.defaultDirection(),
       ...this.initFromProps()
     }
   }
@@ -91,6 +91,21 @@ export default class ResizeWrap extends Component {
     ]
   }
 
+  directions = [
+    'desc',
+    'asc'
+  ]
+
+  defaultDirection = () => {
+    return this.directions[0]
+  }
+
+  otherDirection = (direction) => {
+    return direction === this.directions[0]
+      ? this.directions[1]
+      : this.directions[0]
+  }
+
   renderTableHeader = () => {
     let {properties, splitHandles} = this.state
     let arr = properties.reduce((prev, p, i) => {
@@ -143,9 +158,9 @@ export default class ResizeWrap extends Component {
         'onDragStart',
         'onDragEnd'
       ])
-      : _.pick(this, [
-        'onClickName'
-      ])
+      : {
+        onClick: this.onClickName
+      }
     return (
       <div
         className={cls}
@@ -196,6 +211,27 @@ export default class ResizeWrap extends Component {
     this.props.openContextMenu({
       content,
       pos: this.computePos(e, height)
+    })
+  }
+
+  onClickName = (e) => {
+    let id = e.target.getAttribute('id')
+    let {properties} = this.state
+    let propObj = _.find(
+      properties,
+      p => p.id === id
+    )
+    if (!propObj) {
+      return
+    }
+    let {name} = propObj
+    let {sortDirection, sortProp} = this.state
+    let sortDirectionNew = sortProp === name
+      ? this.otherDirection(sortDirection)
+      : this.defaultDirection()
+    this.setState({
+      sortDirection: sortDirectionNew,
+      sortProp: name
     })
   }
 
