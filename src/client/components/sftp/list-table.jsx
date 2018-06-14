@@ -6,10 +6,6 @@
  * - click header to sort
  */
 
-/**
- * make child component resizable by drag the horizontal or vertical handle
- */
-
 import {Component} from 'react'
 import classnames from 'classnames'
 import _ from 'lodash'
@@ -37,15 +33,16 @@ export default class ResizeWrap extends Component {
   }
 
   initFromProps = (pps = this.getPropsDefault()) => {
-    let {width, length} = pps
+    let {length} = pps
+    let {width} = this.props
     let w = width / length
     let properties = pps.map((name, i) => {
       return {
         name,
         id: generate(),
         style: {
-          width: w,
-          left: w * i
+          width: w + 'px',
+          left: (w * i) + 'px'
         }
       }
     })
@@ -60,8 +57,8 @@ export default class ResizeWrap extends Component {
           prevProp: name,
           nextProp: properties[i + 1].name,
           style: {
-            left: w * (i + 1) - (splitDraggerWidth / 2),
-            width: splitDraggerWidth
+            left: (w * (i + 1) - (splitDraggerWidth / 2)) + 'px',
+            width: splitDraggerWidth + 'px'
           }
         }
       ]
@@ -138,7 +135,6 @@ export default class ResizeWrap extends Component {
     let isSorting = !isHandle && sortProp === name
     let cls = classnames(
       'sftp-header-item',
-      `shi-${id}`,
       isHandle ? `shi-${id}` : `shi-${name}`,
       {
         'sftp-header-handle': isHandle
@@ -192,7 +188,7 @@ export default class ResizeWrap extends Component {
   }
 
   onToggleProp = name => {
-    let properties = this.state
+    let {properties} = this.state
     let names = properties.map(d => d.name)
     let all = this.getPropsAll()
     let newProps = names.includes(name)
@@ -200,17 +196,21 @@ export default class ResizeWrap extends Component {
       : [...names, name]
     let props = all.filter(g => newProps.includes(g))
     let update = this.initFromProps(props)
-    this.setState(update)
+    this.setState(update, this.onContextMenu)
   }
 
   onContextMenu = e => {
-    e.preventDefault()
+    e && e.preventDefault()
     let content = this.renderContext()
     let height = content.props.children.filter(_.identity)
       .length * contextMenuHeight + contextMenuPaddingTop * 2
+    let pos = e
+      ? this.computePos(e, height)
+      : this.pos
+    this.pos = pos
     this.props.openContextMenu({
       content,
-      pos: this.computePos(e, height)
+      pos
     })
   }
 
@@ -258,14 +258,14 @@ export default class ResizeWrap extends Component {
             return (
               <div
                 className={cls}
-                onClick={() => onClick(name)}
+                onClick={() => onClick(p)}
               >
                 {
                   disabled || selected
                     ? <Icon type="check" className="mg1r" />
                     : <span className="icon-holder mg1r" />
                 }
-                {name}
+                {p}
               </div>
             )
           })
@@ -421,11 +421,13 @@ export default class ResizeWrap extends Component {
   render() {
     let {list} = this.props
     return (
-      <div className="sftp-table">
+      <div className="sftp-table relative">
         {this.renderTableHeader()}
-        {
-          list.map(this.renderItem)
-        }
+        <div className="sftp-table-content">
+          {
+            list.map(this.renderItem)
+          }
+        </div>
       </div>
     )
   }

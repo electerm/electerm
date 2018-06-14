@@ -20,6 +20,7 @@ import fs from '../../common/fs'
 import sorters, {ordersMap} from './sorters'
 import ResizeWrap from '../common/resize-wrap'
 import keyControlPressed from '../../common/key-control-pressed'
+import ListTable from './list-table'
 import './sftp.styl'
 
 const {getGlobal, prefix} = window
@@ -756,11 +757,12 @@ export default class Sftp extends React.Component {
               style={{height: height  - sftpControlHeight}}
             >
               {this.renderEmptyFile(type)}
-              {
-                arr.map((item, i) => {
-                  return this.renderItem(item, i, type)
-                })
-              }
+              <ListTable
+                list={arr}
+                type={type}
+                {...this.props}
+                getFileProps={this.getFileProps}
+              />
               <DragSelect
                 targetSelector={`#${id} .sftp-item.${type}`}
                 wrapperSelector={`#${id} .file-list.${type}`}
