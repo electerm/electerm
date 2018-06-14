@@ -21,7 +21,8 @@
 </div>
 
 ## dowload
-https://electerm.html5beta.com
+- https://electerm.html5beta.com
+- https://github.com/electerm/electerm/releases
 
 ## or install from npm
 ```
@@ -32,7 +33,7 @@ npm i -g electerm
 
 ```
 
-## feature
+## features
 - work as a terminal/file manager or ssh/sftp client(similar to xshell)
 - hotkey to bring window back to front(simliar to guake, default is `ctrl + 2`)
 - support multi platform(linux, mac, win)
@@ -60,7 +61,7 @@ npm run c
 npm run dev
 ```
 
-# test
+## test
 ```bash
 npm run pre-test
 npm run test
@@ -77,5 +78,8 @@ npm run release -l
 # visit dist/
 ```
 
-## License
+## changelog
+visit https://github.com/electerm/electerm/releases
+
+## license
 MIT
