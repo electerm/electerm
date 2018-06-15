@@ -17,7 +17,6 @@ import {typeMap, maxSftpHistory, paneMap} from '../../common/constants'
 import {hasFileInClipboardText} from '../../common/clipboard'
 import Client from '../../common/sftp'
 import fs from '../../common/fs'
-import sorters, {ordersMap} from './sorters'
 import ResizeWrap from '../common/resize-wrap'
 import keyControlPressed from '../../common/key-control-pressed'
 import ListTable from './list-table'
@@ -71,10 +70,6 @@ export default class Sftp extends React.Component {
       onEditFile: false,
       pathFix: '',
       onDrag: false,
-      localOrder: 'DESC',
-      remoteOrder: 'DESC',
-      localSortBy: 'modifyTime',
-      remoteSortBy: 'modifyTime',
       filesToConfirm: []
     }
   }
@@ -161,18 +156,6 @@ export default class Sftp extends React.Component {
         selectedFiles: [nextFile]
       })
     }
-  }
-
-  onSort = (sortBy, type) => {
-    let oldSortBy = this.state[`${type}SortBy`]
-    let order = this.state[`${type}Order`]
-    this.setState({
-      [`${type}SortBy`]: sortBy,
-      [`${type}Order`]: sortBy === oldSortBy
-        ? order === ordersMap.DESC ? ordersMap.ASC : ordersMap.DESC
-        : ordersMap.DESC
-    })
-    this.props.closeContextMenu()
   }
 
   localDel = async (file) => {
@@ -364,15 +347,12 @@ export default class Sftp extends React.Component {
   }
 
   getFileList = type => {
-    let sortBy = this.state[`${type}SortBy`]
-    let order = this.state[`${type}Order`]
     let showHide = this.state[`${type}ShowHiddenFile`]
     if (showHide) {
-      return this.state[type].sort(sorters(sortBy, order))
+      return this.state[type]
     }
     return this.state[type]
       .filter(f => !/^\./.test(f.name))
-      .sort(sorters(sortBy, order))
   }
 
   toggleShowHiddenFile = type => {
@@ -593,8 +573,6 @@ export default class Sftp extends React.Component {
         'remoteFileTree',
         'localOrder',
         'remoteOrder',
-        'localSortBy',
-        'remoteSortBy',
         'sortData',
         typeMap.local,
         typeMap.remote,
@@ -697,7 +675,7 @@ export default class Sftp extends React.Component {
     )
   }
 
-  renderSection(type, style) {
+  renderSection(type, style, width) {
     let {
       id, onDrag
     } = this.state
@@ -760,9 +738,10 @@ export default class Sftp extends React.Component {
                 {...this.props}
                 renderEmptyFile={this.renderEmptyFile}
                 getFileProps={this.getFileProps}
+                width={width}
               />
               <DragSelect
-                targetSelector={`#${id} .sftp-item.${type}`}
+                targetSelector={`#${id} .file-list.${type} .sftp-table-content .sftp-item`}
                 wrapperSelector={`#${id} .file-list.${type} .sftp-table-content`}
                 onDrag={onDrag}
                 onSelect={(ids, e) => this.onDragSelect(ids, e, type)}
@@ -790,7 +769,7 @@ export default class Sftp extends React.Component {
           left: 0,
           top: 0,
           height
-        })
+        }, width)
       )
     }
     return (
@@ -807,7 +786,7 @@ export default class Sftp extends React.Component {
               top: 0,
               height
             }
-            return this.renderSection(t, style)
+            return this.renderSection(t, style, width / 2)
           })
         }
       </ResizeWrap>

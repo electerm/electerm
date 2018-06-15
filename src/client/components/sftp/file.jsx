@@ -12,6 +12,10 @@ import _ from 'lodash'
 import Input from '../common/input-auto-focus'
 import resolve from '../../common/resolve'
 import {addClass, removeClass, hasClass} from '../../common/class'
+import {
+  mode2permission,
+  permission2mode
+} from '../../common/mode2permission'
 import wait from '../../common/wait'
 import {
   contextMenuHeight, contextMenuPaddingTop,
@@ -22,7 +26,6 @@ import sorter from '../../common/index-sorter'
 import {getLocalFileInfo, getFolderFromFilePath, getRemoteFileInfo} from './file-read'
 import {readClipboard, copy as copyToClipboard, hasFileInClipboardText} from '../../common/clipboard'
 import fs from '../../common/fs'
-import {sortBys, ordersMap} from './sorters'
 
 const {prefix} = window
 const e = prefix('sftp')
@@ -745,44 +748,6 @@ export default class FileSection extends React.Component {
     return !isWin
   }
 
-  renderSorters = (cls) => {
-    let {type} = this.state.file
-    let sortBy = this.props[`${type}SortBy`]
-    let order = this.props[`${type}Order`]
-    return (
-      <div
-        className={cls + ' bordert'}
-      >
-        {
-          sortBys.map((sort, i) => {
-            let active = sortBy === sort
-            let icon = 'arrow-down'
-            if (active) {
-              icon = order === ordersMap.DESC
-                ? 'arrow-down'
-                : 'arrow-up'
-            }
-            let c = classnames(
-              'sftp-sort-btn',
-              {mg1l: i},
-              {active}
-            )
-            return (
-              <span
-                className={c}
-                key={sort}
-                onClick={() => this.props.onSort(sort, type)}
-              >
-                {e(sort)} <Icon type={icon} />
-              </span>
-            )
-          })
-        }
-      </div>
-    )
-
-  }
-
   renderContext() {
     let {
       file: {
@@ -957,7 +922,6 @@ export default class FileSection extends React.Component {
             )
             : null
         }
-        {this.renderSorters(cls)}
       </div>
     )
   }
@@ -1017,6 +981,8 @@ export default class FileSection extends React.Component {
         ? 'folder'
         : 'file'
       pre = <Icon type={type} className="mg1r" />
+    } else if (name === 'mode') {
+      value = permission2mode(mode2permission(value))
     }
     return (
       <div

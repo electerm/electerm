@@ -11,15 +11,13 @@
   line-height 26px
   height 32px
   user-select none
-  border 1px solid #fff
   margin-bottom 1px
-  border-radius 3px
   &:nth-child(even)
     .sftp-file-prop
       background #f4f4f4
   &:hover
     .sftp-file-prop
-      background #f2f2f2
+      background #000
   &.selected
     .sftp-file-prop
       background #333
@@ -124,7 +122,9 @@
   width 100px
   padding 0 5px
   background #fff
-
+  overflow hidden
+  white-space nowrap
+  text-overflow ellipsis
 .sftp-header-item
   height 28px
   line-height 25px
@@ -135,6 +135,9 @@
   border-right none
   padding 0 5px
   background #fff
+  overflow hidden
+  white-space nowrap
+  text-overflow ellipsis
   &:last-child
     border-right 1px solid #ddd
   // &.is-sorting
@@ -164,10 +167,7 @@
   &::-webkit-scrollbar-thumb
     background-color #fff
     outline none
-.sftp-table:hover
-    .sftp-table-content
-      &::-webkit-scrollbar
-        background #aaa
 
-      &::-webkit-scrollbar-thumb
-        background-color #777
+.icon-holder
+  width 1em
+  display inline-block

@@ -22,6 +22,9 @@ import {
 import {Icon} from 'antd'
 import FileSection from './file'
 
+const {prefix} = window
+const e = prefix('sftp')
+
 export default class ResizeWrap extends Component {
 
   constructor(props) {
@@ -106,6 +109,30 @@ export default class ResizeWrap extends Component {
       : this.directions[0]
   }
 
+  sort = list => {
+    let {
+      sortDirection,
+      sortProp
+    } = this.state
+    let l0 = _.find(list, g => !g.id)
+    let l1 = list.filter(g => g.id && g.isDirectory)
+    let l2 = list.filter(g => g.id && !g.isDirectory)
+    let sorter = (a, b) => {
+      let va = a[sortProp]
+      let vb = b[sortProp]
+      if (sortDirection === 'desc') {
+        return va > vb ? -1 : 1
+      } else {
+        return va > vb ? 1 : -1
+      }
+    }
+    return [
+      l0,
+      ...l1.sort(sorter),
+      ...l2.sort(sorter)
+    ].filter(d => d)
+  }
+
   renderTableHeader = () => {
     let {properties, splitHandles} = this.state
     let arr = properties.reduce((prev, p, i) => {
@@ -117,7 +144,7 @@ export default class ResizeWrap extends Component {
     }, []).filter(d => d)
     return (
       <div
-        className="sftp-file-table-header"
+        className="sftp-file-table-header relative"
         onContextMenu={this.onContextMenu}
       >
         {
@@ -160,6 +187,7 @@ export default class ResizeWrap extends Component {
       : {
         onClick: this.onClickName
       }
+    let text = e(name || '')
     return (
       <div
         className={cls}
@@ -168,8 +196,9 @@ export default class ResizeWrap extends Component {
         key={id}
         draggable={isHandle}
         {...props}
+        title={text}
       >
-        {name || ''}
+        {text}
       </div>
     )
   }
@@ -268,7 +297,7 @@ export default class ResizeWrap extends Component {
                     ? <Icon type="check" className="mg1r" />
                     : <span className="icon-holder mg1r" />
                 }
-                {p}
+                {e(p)}
               </div>
             )
           })
@@ -436,7 +465,7 @@ export default class ResizeWrap extends Component {
         >
           {this.props.renderEmptyFile(type)}
           {
-            list.map(this.renderItem)
+            this.sort(list).map(this.renderItem)
           }
         </div>
       </div>
