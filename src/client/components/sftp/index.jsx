@@ -755,16 +755,16 @@ export default class Sftp extends React.Component {
             <div
               className={`file-list ${type} relative`}
             >
-              {this.renderEmptyFile(type)}
               <ListTable
                 list={arr}
                 type={type}
                 {...this.props}
+                renderEmptyFile={this.renderEmptyFile}
                 getFileProps={this.getFileProps}
               />
               <DragSelect
                 targetSelector={`#${id} .sftp-item.${type}`}
-                wrapperSelector={`#${id} .file-list.${type}`}
+                wrapperSelector={`#${id} .file-list.${type} .sftp-table-content`}
                 onDrag={onDrag}
                 onSelect={(ids, e) => this.onDragSelect(ids, e, type)}
               />

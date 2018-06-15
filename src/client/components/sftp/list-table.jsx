@@ -423,17 +423,18 @@ export default class ResizeWrap extends Component {
   }
 
   render() {
-    let {list, height} = this.props
+    let {list, height, type} = this.props
     const tableHeaderHeight = 30
     return (
       <div className="sftp-table relative">
         {this.renderTableHeader()}
         <div
-          className="sftp-table-content overscroll-y"
+          className="sftp-table-content overscroll-y relative"
           style={{
             height: height - sftpControlHeight - tableHeaderHeight
           }}
         >
+          {this.props.renderEmptyFile(type)}
           {
             list.map(this.renderItem)
           }
