@@ -13,7 +13,7 @@ import classnames from 'classnames'
 import sorterIndex from '../../common/index-sorter'
 import DragSelect from './drag-select'
 import {getLocalFileInfo} from './file-read'
-import {typeMap, sftpControlHeight, maxSftpHistory, paneMap} from '../../common/constants'
+import {typeMap, maxSftpHistory, paneMap} from '../../common/constants'
 import {hasFileInClipboardText} from '../../common/clipboard'
 import Client from '../../common/sftp'
 import fs from '../../common/fs'
@@ -753,8 +753,7 @@ export default class Sftp extends React.Component {
               </div>
             </div>
             <div
-              className={`file-list ${type} pd1 overscroll-y relative`}
-              style={{height: height  - sftpControlHeight}}
+              className={`file-list ${type} relative`}
             >
               {this.renderEmptyFile(type)}
               <ListTable

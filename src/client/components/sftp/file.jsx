@@ -4,7 +4,7 @@
 
 import React from 'react'
 import ReactDOM from 'react-dom'
-import {Icon, Tooltip, Popconfirm} from 'antd'
+import {Icon, Popconfirm} from 'antd'
 import {generate} from 'shortid'
 import classnames from 'classnames'
 import dayjs from 'dayjs'
@@ -1000,14 +1000,40 @@ export default class FileSection extends React.Component {
     )
   }
 
+  renderProp = ({name, style}) => {
+    let {file} = this.state
+    let value = file[name]
+    let pre = null
+    let {
+      isDirectory
+    } = file
+    if (isDirectory && name === 'size') {
+      value = null
+    }
+    if (name === 'name') {
+      let type = isDirectory
+        ? 'folder'
+        : 'file'
+      pre = <Icon type={type} className="mg1r" />
+    }
+    return (
+      <div
+        key={name}
+        title={value}
+        className={`sftp-file-prop shi-${name}`}
+        style={style}
+      >
+        {pre}
+        {value}
+      </div>
+    )
+  }
+
   render() {
-    let {type, selectedFiles, draggable = true} = this.props
+    let {type, selectedFiles, draggable = true, properties = []} = this.props
     let {file} = this.state
     let {
-      name,
-      size,
       isDirectory,
-      modifyTime,
       id,
       isEditting
     } = file
@@ -1018,15 +1044,7 @@ export default class FileSection extends React.Component {
     let className = classnames('sftp-item', type, {
       directory: isDirectory
     }, {selected})
-    let pm = type === typeMap.remote
-      ? 'left'
-      : 'right'
-    let title = (
-      <div className="mw350 pd1">
-        <div className="wordbreak">{name}</div>
-        <div className="font12">{e('modifyTime')}: {dayjs(modifyTime).format()}</div>
-      </div>
-    )
+
     let props = {
       className,
       draggable,
@@ -1050,23 +1068,8 @@ export default class FileSection extends React.Component {
         data-id={id}
         data-type={type}
       >
-        <Tooltip
-          title={title}
-          placement={pm}
-        >
-          <div className="sftp-item-title elli iblock">
-            {
-              isDirectory
-                ? <Icon type="folder" />
-                : <Icon type="file" />
-            }
-            <span className="mg1l">{name}</span>
-          </div>
-        </Tooltip>
         {
-          isDirectory
-            ? null
-            : <div className="sftp-item-size elli iblock">{size}</div>
+          properties.map(this.renderProp)
         }
       </div>
     )

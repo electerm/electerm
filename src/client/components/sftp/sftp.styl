@@ -7,15 +7,22 @@
 .sftp-item
   position relative
   z-index 3
-  padding 4px 5px
+  padding 0
+  line-height 26px
+  height 32px
   user-select none
   border 1px solid #fff
-  margin 1px 6px
+  margin 0
   border-radius 3px
+  &:nth-child(even)
+    .sftp-file-prop
+      background #f4f4f4
   &:hover
-    background #f2f2f2
+    .sftp-file-prop
+      background #f2f2f2
   &.selected
-    background #ceddcf
+    .sftp-file-prop
+      background #ceddcf
 .sftp-history
   position absolute
   left 0
@@ -30,7 +37,7 @@
   border-radius 3px
   &.focused
     height auto
-    border 1px solid #eee
+    border 1px solid #ddd
     box-shadow 0px 0px 3px 3px rgba(0,0,0,0.05)
 
 .sftp-history-item
@@ -38,7 +45,7 @@
   cursor pointer
   border-bottom 1px solid #fefefe
   &:hover
-    background #eee
+    background #ddd
 
 .sftp-item-title
   width 100%
@@ -107,23 +114,58 @@
     color #555
 
 //list table
-.sftp-header-item
-  display block
-  height 30px
+.sftp-file-prop
+  height 32px
+  line-height 28px
   position absolute
   left 0
   width 100px
-  z-index 3
-.sftp-header-handle
-  z-index 4
-  cursor ew-resize
-.sftp-file-table-header
+  padding 0 5px
+  background #fff
+
+.sftp-header-item
+  height 28px
+  line-height 25px
   position absolute
   left 0
-  top 0
+  width 100px
+  border 1px solid #ddd
+  border-right none
+  padding 0 5px
+  background #fff
+  &:last-child
+    border-right 1px solid #ddd
+  // &.is-sorting
+  //   background #ddd
+  &.desc
+    background linear-gradient(to bottom, #dddddd 0%,#ffffff 100%)
+  &.asc
+    background linear-gradient(to bottom, #ffffff 0%,#dddddd 100%)
+.sftp-header-handle
+  z-index 20
+  cursor ew-resize
+  border none
+  background none
+.sftp-file-table-header
   height 30px
-  right 0
-.sftp-table-content
-  padding-top 30px
 .sftp-table
   z-index 2
+.sftp-table-content
+  overflow-x hidden
+  &::-webkit-scrollbar
+    width 5px
+    background #fff
+
+  &::-webkit-scrollbar-track
+    -webkit-box-shadow none
+
+  &::-webkit-scrollbar-thumb
+    background-color #fff
+    outline none
+.sftp-table:hover
+    .sftp-table-content
+      &::-webkit-scrollbar
+        background #aaa
+
+      &::-webkit-scrollbar-thumb
+        background-color #777

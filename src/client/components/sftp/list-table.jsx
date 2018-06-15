@@ -14,6 +14,7 @@ import {
   splitDraggerWidth,
   filePropMinWidth,
   maxDragMove,
+  sftpControlHeight,
   contextMenuHeight,
   contextMenuPaddingTop,
   contextMenuWidth
@@ -35,14 +36,16 @@ export default class ResizeWrap extends Component {
   initFromProps = (pps = this.getPropsDefault()) => {
     let {length} = pps
     let {width} = this.props
-    let w = width / length
+    let padding = 5
+    let w = (width - padding * 2) / length
     let properties = pps.map((name, i) => {
       return {
         name,
         id: generate(),
         style: {
           width: w + 'px',
-          left: (w * i) + 'px'
+          left: (w * i) + 'px',
+          zIndex: 3 + i
         }
       }
     })
@@ -414,16 +417,23 @@ export default class ResizeWrap extends Component {
       <FileSection
         {...this.props.getFileProps(item, type)}
         key={i + 'itd' + name}
+        properties={this.state.properties}
       />
     )
   }
 
   render() {
-    let {list} = this.props
+    let {list, height} = this.props
+    const tableHeaderHeight = 30
     return (
       <div className="sftp-table relative">
         {this.renderTableHeader()}
-        <div className="sftp-table-content">
+        <div
+          className="sftp-table-content overscroll-y"
+          style={{
+            height: height - sftpControlHeight - tableHeaderHeight
+          }}
+        >
           {
             list.map(this.renderItem)
           }
