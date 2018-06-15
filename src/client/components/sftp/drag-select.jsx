@@ -63,7 +63,7 @@ export default class DragSelect extends React.Component {
     let rect = this.root.getBoundingClientRect()
     let endPoint = {
       x: e.pageX - rect.left,
-      y: e.pageY - rect.top
+      y: e.pageY - rect.top + 30
     }
     this.setState({
       endPoint
@@ -157,7 +157,10 @@ export default class DragSelect extends React.Component {
     if (!startPoint || !endPoint) {
       return {}
     }
-    let left = Math.min(startPoint.x, endPoint.x)
+    let fix = startPoint.x > endPoint.x
+      ? 1
+      : -1
+    let left = Math.min(startPoint.x, endPoint.x) + fix
     let top = Math.min(startPoint.y, endPoint.y)
     let width = Math.abs(startPoint.x - endPoint.x)
     let height = Math.abs(startPoint.y - endPoint.y)
