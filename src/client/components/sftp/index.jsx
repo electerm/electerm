@@ -707,7 +707,6 @@ export default class Sftp extends React.Component {
     let arr = this.getFileList(type)
     let loading = this.state[`${type}Loading`]
     let {host, username} = this.props.tab
-    let {height} = this.props
     let goIcon = realPath === path
       ? 'reload'
       : 'arrow-right'
