@@ -965,8 +965,11 @@ export default class FileSection extends React.Component {
 
   onContextMenu = e => {
     e.preventDefault()
-    this.onClick(e)
     let {file} = this.state
+    let selected = this.isSelected(file)
+    if (!selected) {
+      this.onClick(e)
+    }
     let {id} = file
     this.props.modifier({
       lastClickedFile: file
