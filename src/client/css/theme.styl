@@ -82,13 +82,15 @@ body
       outline 1px solid #222
 
   .sftp-item
-    background #444
-    color #eee
-    border-color #555
+    &:nth-child(even)
+      .sftp-file-prop
+        background #383838
     &:hover
-      background #222
+      .sftp-file-prop
+        background #222
     &.selected
-      background #111
+      .sftp-file-prop
+        background #111
   .sftp-history
     background #333
     overflow hidden
@@ -105,8 +107,6 @@ body
 
   .sftp-dragover
     border 1px dashed #08c
-    border-radius 3px
-    color #eee
   .sftp-sort-btn
     color #aaa
     &.active
@@ -120,8 +120,9 @@ body
     transform none
   .transports-count
     color #ccc
-
-  .sftp
+  .terminal-control
+    background #000
+  .fileManager
     .terminal-control
       background #333
     .type-tab
@@ -130,3 +131,42 @@ body
         color #999
       &.active
         border-bottom 1px solid #999
+  .type-tab
+    color #777
+    &:hover
+    &.active
+      color #aaa
+    &.active
+      border-bottom 1px solid #777
+
+
+  //list table
+  .sftp-file-prop
+    background #333
+    color #fff
+    &:last-child
+      right 0 !important
+      width auto !important
+  .sftp-header-item
+    border 1px solid #333
+    background #222
+    color #eee
+    &:last-child
+      border-right 1px solid #333
+      right 0 !important
+      width auto !important
+    &.desc
+      background linear-gradient(to bottom, #000 0%,#444 100%)
+    &.asc
+      background linear-gradient(to bottom, #444 0%,#000 100%)
+  .sftp-header-handle
+    border none
+    background none
+
+  .sftp-table-content
+    &::-webkit-scrollbar
+      background rgba(0,0,0,.5)
+
+    &::-webkit-scrollbar-thumb
+      background-color rgba(0,0,0,.9)
+
