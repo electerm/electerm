@@ -76,10 +76,14 @@ export default class Index extends React.Component {
   }
 
   onResize = _.throttle(() => {
-    this.setState({
+    let update = {
       height: window.innerHeight,
       width: window.innerWidth
-    })
+    }
+    this.setState(update)
+    window
+      .getGlobal('lastStateManager')
+      .set('windowSize', update)
   }, 100)
 
   setStateLs = (update) => {
