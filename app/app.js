@@ -25,6 +25,7 @@ const log = require('electron-log')
 const {testConnection} = require('./lib/terminal')
 const {saveLangConfig, lang, langs} = require('./lib/locales')
 const rp = require('phin').promisified
+const lastStateManager = require('./lib/last-state')
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -87,7 +88,10 @@ async function createWindow () {
 
   if (config.showMenu) Menu.setApplicationMenu(menu)
 
-  const {width, height} = require('electron').screen.getPrimaryDisplay().workAreaSize
+  let windowSizeLastState = lastStateManager.get('windowSize')
+  const {width, height} = windowSizeLastState
+    ? windowSizeLastState
+    : require('electron').screen.getPrimaryDisplay().workAreaSize
 
   // Create the browser window.
   win = new BrowserWindow({
@@ -126,6 +130,7 @@ async function createWindow () {
     lang,
     langs,
     packInfo,
+    lastStateManager,
     os,
     saveUserConfig,
     changeHotkey: changeHotkeyReg(globalShortcut, win)
@@ -145,7 +150,7 @@ async function createWindow () {
   await waitUntilServerStart(childServerUrl)
 
   win.loadURL(opts)
-  win.maximize()
+  //win.maximize()
 
   // Open the DevTools.
   if(isDev) win.webContents.openDevTools()
