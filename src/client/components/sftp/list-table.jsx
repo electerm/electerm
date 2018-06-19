@@ -36,6 +36,21 @@ export default class ResizeWrap extends Component {
     }
   }
 
+  componentDidMount() {
+    this.saveOldStyle()
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (this.state.properties.length < 2) {
+      return
+    }
+    if (
+      !_.isEqual(prevState.properties, this.state.properties)
+    ) {
+      this.saveOldStyle()
+    }
+  }
+
   initFromProps = (pps = this.getPropsDefault()) => {
     let {length} = pps
     let {width} = this.props
@@ -311,7 +326,7 @@ export default class ResizeWrap extends Component {
     'left'
   ]
 
-  saveOldStyle() {
+  saveOldStyle = () => {
     let {properties, splitHandles} = this.state
     let ids = [
       ...properties,
@@ -358,9 +373,11 @@ export default class ResizeWrap extends Component {
     let types = ['dom', 'prev', 'next']
     let doms = [dom, prev, next]
     let styles = doms.map(d => {
-      let {style} = _.isArray(d) ? d[0] : d
+      let dd = _.isArray(d) ? d[0] : d
+      let {style} = dd
+      let rect = dd.getBoundingClientRect()
       let obj = _.pick(style, this.positionProps)
-      return Object.keys(obj).reduce((prev, k) => {
+      let res = Object.keys(obj).reduce((prev, k) => {
         let v = obj[k]
         return {
           ...prev,
@@ -369,6 +386,8 @@ export default class ResizeWrap extends Component {
             : parseInt(obj[k].replace('px', ''), 10)
         }
       }, {})
+      res.width = rect.right - rect.left
+      return res
     })
     let xDiff = currentPosition.x - startPosition.x
     if (Math.abs(xDiff) > maxDragMove) {
