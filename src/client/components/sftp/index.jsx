@@ -20,6 +20,7 @@ import fs from '../../common/fs'
 import ResizeWrap from '../common/resize-wrap'
 import keyControlPressed from '../../common/key-control-pressed'
 import ListTable from './list-table'
+import deepCopy from 'json-deep-copy'
 import './sftp.styl'
 
 const {getGlobal, prefix} = window
@@ -379,7 +380,14 @@ export default class Sftp extends React.Component {
     }
     try {
       if (!this.sftp) {
-        await sftp.connect(tab)
+        let config = deepCopy(
+          window.getGlobal('_config')
+        )
+        await sftp.connect({
+          ...tab,
+          readyTimeout: _.get(config, 'sshReadyTimeout'),
+          keepaliveInterval: _.get(config, 'keepaliveInterval')
+        })
       }
 
       if (!remotePath) {
