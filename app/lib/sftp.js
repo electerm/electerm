@@ -20,8 +20,8 @@ class Sftp {
     let confs = Object.assign(
       {},
       {
-        readyTimeout: _.get(global, 'et._config.sshReadyTimeout'),
-        keepaliveInterval: _.get(global, 'et._config.keepaliveInterval'),
+        readyTimeout: _.get(config, 'sshReadyTimeout'),
+        keepaliveInterval: _.get(config, 'keepaliveInterval'),
         agent: process.env.SSH_AUTH_SOCK
       },
       config
