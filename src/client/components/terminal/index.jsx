@@ -201,6 +201,7 @@ export default class WindowWrapper extends React.Component  {
               let pops = {
                 ...props,
                 ...t,
+                pane,
                 ..._.pick(
                   this,
                   ['setActive', 'doSplit']
