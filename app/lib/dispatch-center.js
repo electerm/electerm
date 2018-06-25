@@ -23,6 +23,7 @@ const wsDec = (ws) => {
       console.log(e)
     }
   }
+  ws.on('error', e => console.log(e))
   ws._socket.setKeepAlive(true, 5 * 60 * 1000)
 }
 

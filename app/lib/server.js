@@ -82,6 +82,8 @@ app.ws('/terminals/:pid', function (ws, req) {
     term.write(msg)
   })
 
+  ws.on('error', e => console.log(e))
+
   ws.on('close', function () {
     term.kill()
     log('Closed terminal ' + pid)

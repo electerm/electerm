@@ -68,8 +68,8 @@ class Sftp {
 
 }
 
-export default async (props) => {
+export default async () => {
   let sftp = new Sftp()
-  await sftp.init(props)
+  await sftp.init()
   return sftp
 }

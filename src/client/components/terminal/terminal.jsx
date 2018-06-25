@@ -15,6 +15,7 @@ import {
   contextMenuWidth,
   terminalSshConfigType
 } from '../../common/constants'
+import deepCopy from 'json-deep-copy'
 import {readClipboard, copy} from '../../common/clipboard'
 import * as fit from 'xterm/lib/addons/fit/fit'
 import * as attach from 'xterm/lib/addons/attach/attach'
@@ -27,7 +28,7 @@ Terminal.applyAddon(fit)
 Terminal.applyAddon(attach)
 Terminal.applyAddon(search)
 
-const {prefix, _config: config} = window
+const {prefix} = window
 const e = prefix('ssh')
 const m = prefix('menu')
 const f = prefix('form')
@@ -303,6 +304,9 @@ export default class Term extends React.Component {
     let {id} = this.state
     //let {password, privateKey, host} = this.props.tab
     let {themeConfig} = this.props
+    let config = deepCopy(
+      window.getGlobal('_config')
+    )
     let term = new Terminal({
       scrollback: config.scrollback,
       fontFamily: 'mono, courier-new, courier, monospace',
@@ -362,6 +366,9 @@ export default class Term extends React.Component {
       loading: true
     })
     let {cols, rows} = term
+    let config = deepCopy(
+      window.getGlobal('_config')
+    )
     let {host, port} = config
     let wsUrl
     let url = `http://${host}:${port}/terminals`
@@ -378,6 +385,8 @@ export default class Term extends React.Component {
       mode: 'VINTR',
       ...tab,
       ...extra,
+      readyTimeout: _.get(config, 'sshReadyTimeout'),
+      keepaliveInterval: _.get(config, 'keepaliveInterval'),
       type: tab.host && !isSshConfig
         ? typeMap.remote
         : typeMap.local
@@ -451,6 +460,9 @@ export default class Term extends React.Component {
 
   onResizeTerminal = size => {
     let {cols, rows} = size
+    let config = deepCopy(
+      window.getGlobal('_config')
+    )
     let {host, port} = config
     let {pid} = this
     let url = `http://${host}:${port}/terminals/${pid}/size?cols=${cols}&rows=${rows}`
