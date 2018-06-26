@@ -77,7 +77,8 @@ export default class Term extends React.Component {
   componentDidUpdate(prevProps) {
     let shouldChange = (
       prevProps.currentTabId !== this.props.currentTabId &&
-      this.props.tab.id === this.props.currentTabId
+      this.props.tab.id === this.props.currentTabId &&
+      this.props.pane === paneMap.terminal
     ) || (
       this.props.pane !== prevProps.pane &&
       this.props.pane === paneMap.terminal
@@ -430,8 +431,13 @@ export default class Term extends React.Component {
     this.socket = socket
     term.on('refresh', this.onRefresh)
     term.on('resize', this.onResizeTerminal)
-    term.focus()
-    term.fit()
+
+    let cid = _.get(this.props, 'currentTabId')
+    let tid = _.get(this.props, 'tab.id')
+    if (cid === tid && this.props.tab.status === statusMap.success) {
+      term.focus()
+      term.fit()
+    }
     term.attachCustomKeyEventHandler(this.handleEvent)
     this.term = term
     this.startPath = startPath
@@ -444,9 +450,17 @@ export default class Term extends React.Component {
   onResize = () => {
     let cid = _.get(this.props, 'currentTabId')
     let tid = _.get(this.props, 'tab.id')
-    if (cid === tid && this.term) {
-      let {cols, rows} = this.term.proposeGeometry()
-      this.term.resize(cols, rows)
+    if (
+      this.props.tab.status === statusMap.success &&
+      cid === tid &&
+      this.term
+    ) {
+      try {
+        let {cols, rows} = this.term.proposeGeometry()
+        this.term.resize(cols, rows)
+      } catch (e) {
+        console.log('resize failed')
+      }
     }
   }
 
