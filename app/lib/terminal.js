@@ -98,7 +98,11 @@ class Terminal {
   }
 
   write(data) {
-    (this.term || this.channel).write(data)
+    try {
+      (this.term || this.channel).write(data)
+    } catch (e) {
+      console.log(e)
+    }
   }
 
   kill() {
