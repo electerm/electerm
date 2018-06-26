@@ -114,6 +114,7 @@ export default class Term extends React.Component {
       clearTimeout(this.timers[k])
     })
     clearTimeout(this.timers)
+    this.onClose = true
     this.socket && this.socket.close()
     this.term && this.term.dispose()
   }
@@ -455,6 +456,9 @@ export default class Term extends React.Component {
   }
 
   oncloseSocket = () => {
+    if (this.onClose) {
+      return
+    }
     this.props.editTab(
       this.props.tab.id,
       {
