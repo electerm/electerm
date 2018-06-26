@@ -455,6 +455,12 @@ export default class Term extends React.Component {
   }
 
   oncloseSocket = () => {
+    this.props.editTab(
+      this.props.tab.id,
+      {
+        status: statusMap.error
+      }
+    )
     console.log('socket closed, pid:', this.pid)
   }
 
