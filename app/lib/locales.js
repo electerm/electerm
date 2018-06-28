@@ -65,9 +65,8 @@ exports.langs = langs
 exports.saveLangConfig = (saveUserConfig, userConfig) => {
   if (!userConfig.language) {
     saveUserConfig({
-      language: defaultLang
+      language
     })
-    language = defaultLang
   }
 }
 
