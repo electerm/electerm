@@ -32,6 +32,11 @@ export const tabWidth = 160
 
 export const tabMargin = 3
 
+export const fileTypeMap = {
+  link: 'l',
+  directory: 'd'
+}
+
 export const statusMap = buildConst([
   'default',
   'success',

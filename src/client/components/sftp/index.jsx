@@ -12,8 +12,8 @@ import wait from '../../common/wait'
 import classnames from 'classnames'
 import sorterIndex from '../../common/index-sorter'
 import DragSelect from './drag-select'
-import {getLocalFileInfo} from './file-read'
-import {typeMap, maxSftpHistory, paneMap} from '../../common/constants'
+import {getLocalFileInfo, getRemoteFileInfo} from './file-read'
+import {typeMap, maxSftpHistory, paneMap, fileTypeMap} from '../../common/constants'
 import {hasFileInClipboardText} from '../../common/clipboard'
 import Client from '../../common/sftp'
 import fs from '../../common/fs'
@@ -416,15 +416,31 @@ export default class Sftp extends React.Component {
 
       let remote = await sftp.list(remotePath)
       this.sftp = sftp
-      remote = remote.map(r => {
-        return {
+      let remotes = deepCopy(remote)
+      remote = []
+      for (let _r of remotes) {
+        let r = _r
+        let {type, name} = r
+        let f = {
           ..._.pick(r, ['name', 'size', 'accessTime', 'modifyTime', 'mode']),
-          isDirectory: r.type === 'd',
+          isDirectory: r.type === fileTypeMap.directory,
           type: typeMap.remote,
           path: remotePath,
           id: generate()
         }
-      }).sort(sorter)
+        if (type === fileTypeMap.link) {
+          let linkPath = resolve(remotePath, name)
+          let realPath = await sftp.readlink(linkPath)
+          let realFileInfo = await getRemoteFileInfo(
+            sftp,
+            resolve(remotePath, realPath)
+          )
+          f.realFileInfo = realFileInfo
+          f.isDirectory = realFileInfo.isDirectory
+        }
+        remote.push(f)
+      }
+      remote.sort(sorter)
       let update = {
         remote,
         remoteFileTree: buildTree(remote),
