@@ -378,6 +378,9 @@ export default class Sftp extends React.Component {
         remoteLoading: true
       })
     }
+    let oldRemote = deepCopy(
+      this.state.remote
+    )
     try {
       if (!this.sftp) {
         let config = deepCopy(
@@ -445,7 +448,8 @@ export default class Sftp extends React.Component {
       this.setState(update)
     } catch(e) {
       let update = {
-        remoteLoading: false
+        remoteLoading: false,
+        remote: oldRemote
       }
       if (oldPath) {
         update.remotePath = oldPath
@@ -463,6 +467,9 @@ export default class Sftp extends React.Component {
         localLoading: true
       })
     }
+    let oldLocal = deepCopy(
+      this.state.local
+    )
     try {
       let noPathInit = localPathReal || this.state.localPath
       let localPath = noPathInit || getGlobal('homeOrtmp')
@@ -499,7 +506,8 @@ export default class Sftp extends React.Component {
       this.setState(update)
     } catch(e) {
       let update = {
-        localLoading: false
+        localLoading: false,
+        local: oldLocal
       }
       if (oldPath) {
         update.localPath = oldPath
@@ -541,6 +549,7 @@ export default class Sftp extends React.Component {
     let n = `${type}Path`
     let p = this.state[n]
     let np = resolve(p, '..')
+    let op = this.state[n]
     if (np !== p) {
       this.setState({
         [n]: np,
@@ -548,7 +557,7 @@ export default class Sftp extends React.Component {
       }, () => this[`${type}List`](
         undefined,
         undefined,
-        this.state[n]
+        op
       ))
     }
   }
