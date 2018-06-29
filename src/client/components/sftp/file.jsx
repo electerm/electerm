@@ -608,13 +608,14 @@ export default class FileSection extends React.Component {
     let n = `${type}Path`
     let path = this.props[n]
     let np = resolve(path, name)
+    let op = this.props[type + 'Path']
     this.props.modifier({
       [n]: np,
       [n + 'Temp']: np
     }, () => this.props[`${type}List`](
       undefined,
       undefined,
-      this.props[type + 'Path']
+      op
     ))
   }
 
