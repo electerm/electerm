@@ -352,7 +352,7 @@ export default class Sftp extends React.Component {
     if (showHide) {
       return this.state[type]
     }
-    return this.state[type]
+    return (this.state[type] || [])
       .filter(f => !/^\./.test(f.name))
   }
 
@@ -429,11 +429,11 @@ export default class Sftp extends React.Component {
           id: generate()
         }
         if (type === fileTypeMap.link) {
-          let linkPath = resolve(remotePath, name)
+          let linkPath = window.getGlobal('resolve')(remotePath, name)
           let realPath = await sftp.readlink(linkPath)
           let realFileInfo = await getRemoteFileInfo(
             sftp,
-            resolve(remotePath, realPath)
+            window.getGlobal('resolve')(remotePath, realPath)
           )
           f.realFileInfo = realFileInfo
           f.isDirectory = realFileInfo.isDirectory
