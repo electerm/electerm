@@ -971,9 +971,11 @@ export default class FileSection extends React.Component {
   renderProp = ({name, style}) => {
     let {file} = this.state
     let value = file[name]
-    let pre = null
+    let typeIcon = null
+    let symbolicLinkText = null
     let {
-      isDirectory
+      isDirectory,
+      isSymbolicLink
     } = file
     if (isDirectory && name === 'size') {
       value = null
@@ -982,7 +984,10 @@ export default class FileSection extends React.Component {
       let type = isDirectory
         ? 'folder'
         : 'file'
-      pre = <Icon type={type} className="mg1r" />
+      typeIcon = <Icon type={type} className="mg1r" />
+      symbolicLinkText = isSymbolicLink
+        ? <sup className="color-blue symbolic-link-icon">*</sup>
+        : null
     } else if (name === 'mode') {
       value = permission2mode(mode2permission(value))
     } else if (name.toLowerCase().includes('time')) {
@@ -995,7 +1000,8 @@ export default class FileSection extends React.Component {
         className={`sftp-file-prop shi-${name}`}
         style={style}
       >
-        {pre}
+        {typeIcon}
+        {symbolicLinkText}
         {value}
       </div>
     )

@@ -98,6 +98,7 @@ export default class FileMode extends React.Component {
       accessTime,
       modifyTime,
       isDirectory,
+      isSymbolicLink,
       path,
       mode,
       type
@@ -131,7 +132,14 @@ export default class FileMode extends React.Component {
           <Icon type={iconType} className="file-icon" />
           <div className="file-props">
             <p className="bold">{e(iconType)} {e('name')}:</p>
-            <p className="pd1b">{name}</p>
+            <p className="pd1b">
+              {
+                isSymbolicLink
+                  ? <sup className="color-blue symbolic-link-icon">*</sup>
+                  : null
+              }
+              {name}
+            </p>
             <p className="bold">{e('mode')}: ({permission})</p>
             <div className="pd1b">
               {
