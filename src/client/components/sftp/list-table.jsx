@@ -29,11 +29,7 @@ export default class ResizeWrap extends Component {
 
   constructor(props) {
     super(props)
-    this.state = {
-      sortProp: 'modifyTime',
-      sortDirection: this.defaultDirection(),
-      ...this.initFromProps()
-    }
+    this.state = this.initFromProps()
   }
 
   componentDidMount() {
@@ -114,38 +110,10 @@ export default class ResizeWrap extends Component {
     'asc'
   ]
 
-  defaultDirection = () => {
-    return this.directions[0]
-  }
-
   otherDirection = (direction) => {
-    return direction === this.directions[0]
-      ? this.directions[1]
-      : this.directions[0]
-  }
-
-  sort = list => {
-    let {
-      sortDirection,
-      sortProp
-    } = this.state
-    let l0 = _.find(list, g => !g.id)
-    let l1 = list.filter(g => g.id && g.isDirectory)
-    let l2 = list.filter(g => g.id && !g.isDirectory)
-    let sorter = (a, b) => {
-      let va = a[sortProp]
-      let vb = b[sortProp]
-      if (sortDirection === 'desc') {
-        return va > vb ? -1 : 1
-      } else {
-        return va > vb ? 1 : -1
-      }
-    }
-    return [
-      l0,
-      ...l1.sort(sorter),
-      ...l2.sort(sorter)
-    ].filter(d => d)
+    return direction === this.props.directions[0]
+      ? this.props.directions[1]
+      : this.props.directions[0]
   }
 
   renderTableHeader = () => {
@@ -176,7 +144,7 @@ export default class ResizeWrap extends Component {
       style
     } = item
     let isHandle = !name
-    let {sortDirection, sortProp} = this.state
+    let {sortDirection, sortProp} = this.props
     let isSorting = !isHandle && sortProp === name
     let cls = classnames(
       'sftp-header-item',
@@ -272,11 +240,11 @@ export default class ResizeWrap extends Component {
       return
     }
     let {name} = propObj
-    let {sortDirection, sortProp} = this.state
+    let {sortDirection, sortProp} = this.props
     let sortDirectionNew = sortProp === name
       ? this.otherDirection(sortDirection)
-      : this.defaultDirection()
-    this.setState({
+      : this.props.defaultDirection()
+    this.props.modifier({
       sortDirection: sortDirectionNew,
       sortProp: name
     })
@@ -484,7 +452,7 @@ export default class ResizeWrap extends Component {
         >
           {this.props.renderEmptyFile(type)}
           {
-            this.sort(list).map(this.renderItem)
+            this.props.sort(list).map(this.renderItem)
           }
         </div>
       </div>
