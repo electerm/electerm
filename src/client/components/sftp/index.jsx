@@ -437,6 +437,8 @@ export default class Sftp extends React.Component {
           )
           f.isSymbolicLink = true
           f.isDirectory = realFileInfo.isDirectory
+        } else {
+          f.isSymbolicLink = false
         }
         remote.push(f)
       }
