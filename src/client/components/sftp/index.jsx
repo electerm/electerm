@@ -71,6 +71,8 @@ export default class Sftp extends React.Component {
       onEditFile: false,
       pathFix: '',
       onDrag: false,
+      sortProp: 'modifyTime',
+      sortDirection: this.defaultDirection(),
       filesToConfirm: []
     }
   }
@@ -87,6 +89,39 @@ export default class Sftp extends React.Component {
     this.destroyEvent()
     this.sftp && this.sftp.destroy()
     clearTimeout(this.timer4)
+  }
+
+  directions = [
+    'desc',
+    'asc'
+  ]
+
+  defaultDirection = () => {
+    return this.directions[0]
+  }
+
+  sort = list => {
+    let {
+      sortDirection,
+      sortProp
+    } = this.state
+    let l0 = _.find(list, g => !g.id)
+    let l1 = list.filter(g => g.id && g.isDirectory)
+    let l2 = list.filter(g => g.id && !g.isDirectory)
+    let sorter = (a, b) => {
+      let va = a[sortProp]
+      let vb = b[sortProp]
+      if (sortDirection === 'desc') {
+        return va > vb ? -1 : 1
+      } else {
+        return va > vb ? 1 : -1
+      }
+    }
+    return [
+      l0,
+      ...l1.sort(sorter),
+      ...l2.sort(sorter)
+    ].filter(d => d)
   }
 
   initEvent() {
@@ -349,11 +384,13 @@ export default class Sftp extends React.Component {
 
   getFileList = type => {
     let showHide = this.state[`${type}ShowHiddenFile`]
-    if (showHide) {
-      return this.state[type]
-    }
-    return (this.state[type] || [])
-      .filter(f => !/^\./.test(f.name))
+    let list = showHide
+      ? this.state[type]
+      : (this.state[type] || [])
+        .filter(f => !/^\./.test(f.name))
+    return this.sort(
+      list
+    )
   }
 
   toggleShowHiddenFile = type => {
@@ -627,7 +664,7 @@ export default class Sftp extends React.Component {
     )
   }
 
-  renderEmptyFile(type) {
+  renderEmptyFile = (type) => {
     let item = {
       type,
       name: '',
@@ -723,6 +760,30 @@ export default class Sftp extends React.Component {
     let goIcon = realPath === path
       ? 'reload'
       : 'arrow-right'
+
+    let listProps = {
+      list: arr,
+      type,
+      ...this.props,
+      ..._.pick(
+        this,
+        [
+          'directions',
+          'renderEmptyFile',
+          'getFileProps',
+          'modifier',
+          'sort'
+        ]
+      ),
+      ..._.pick(
+        this.state,
+        [
+          'sortProp',
+          'sortDirection'
+        ]
+      ),
+      width
+    }
     return (
       <div
         className={`sftp-section sftp-${type}-section tw-${type}`}
@@ -768,12 +829,7 @@ export default class Sftp extends React.Component {
               className={`file-list ${type} relative`}
             >
               <ListTable
-                list={arr}
-                type={type}
-                {...this.props}
-                renderEmptyFile={this.renderEmptyFile}
-                getFileProps={this.getFileProps}
-                width={width}
+                {...listProps}
               />
               <DragSelect
                 targetSelector={`#${id} .file-list.${type} .sftp-table-content .sftp-item`}
