@@ -13,7 +13,12 @@ let shortcut
 exports.init = (globalShortcut, win, config) => {
   shortcut = config.hotkey
   globalShortcut.register(shortcut, () => {
-    win.show()
+    if (win.isFocused()) {
+      win.hide()
+    }
+    else {
+      win.show()
+    }
   })
   let ok = globalShortcut.isRegistered(shortcut)
   if (!ok) {

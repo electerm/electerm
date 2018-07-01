@@ -35,7 +35,7 @@ npm i -g electerm
 
 ## features
 - work as a terminal/file manager or ssh/sftp client(similar to xshell)
-- hotkey to bring window back to front(simliar to guake, default is `ctrl + 2`)
+- global hotkey to toggle window visibility (simliar to guake, default is `ctrl + 2`)
 - support multi platform(linux, mac, win)
 - support multi-language(https://github.com/electerm/electerm-locales)
 
