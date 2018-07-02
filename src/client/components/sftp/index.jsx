@@ -27,12 +27,6 @@ const {getGlobal, prefix} = window
 const e = prefix('sftp')
 const c = prefix('common')
 
-const sorter = (a, b) => {
-  let aa = (a.isDirectory ? 0 : 1) + a.name
-  let bb = (b.isDirectory ? 0 : 1) + b.name
-  return bb > aa ? -1 : 1
-}
-
 const buildTree = arr => {
   return arr.reduce((prev, curr) => {
     return {
@@ -48,22 +42,6 @@ export default class Sftp extends React.Component {
     super(props)
     this.state = {
       id: props.id || generate(),
-      local: [],
-      remote: [],
-      localFileTree: {},
-      remoteFileTree: {},
-      localLoading: false,
-      remoteLoading: false,
-      localInputFocus: false,
-      remoteInputFocus: false,
-      localShowHiddenFile: false,
-      remoteShowHiddenFile: false,
-      localPath: '',
-      remotePath: '',
-      localPathTemp: '',
-      remotePathTemp: '',
-      localPathHistory: [],
-      remotePathHistory: [],
       transports: [],
       liveBasePath: null,
       selectedFiles: [],
@@ -71,8 +49,7 @@ export default class Sftp extends React.Component {
       onEditFile: false,
       pathFix: '',
       onDrag: false,
-      sortProp: 'modifyTime',
-      sortDirection: this.defaultDirection(),
+      ...this.defaultState(),
       filesToConfirm: []
     }
   }
@@ -100,11 +77,27 @@ export default class Sftp extends React.Component {
     return this.directions[0]
   }
 
-  sort = list => {
-    let {
-      sortDirection,
-      sortProp
-    } = this.state
+  defaultState = () => {
+    return Object.keys(typeMap).reduce((prev, k) => {
+      Object.assign(prev, {
+        [`sortProp.${k}`]: 'modifyTime',
+        [`sortDirection.${k}`]: this.defaultDirection(),
+        [k]: [],
+        [`${k}FileTree`]: {},
+        [`${k}Loading`]: false,
+        [`${k}InputFocus`]: false,
+        [`${k}ShowHiddenFile`]: false,
+        [`${k}Path`]: '',
+        [`${k}PathTemp`]: '',
+        [`${k}PathHistory`]: []
+      })
+      return prev
+    }, {})
+  }
+
+  sort = (list, type) => {
+    let sortDirection = this.state[`sortDirection.${type}`]
+    let sortProp = this.state[`sortProp.${type}`]
     let l0 = _.find(list, g => !g.id)
     let l1 = list.filter(g => g.id && g.isDirectory)
     let l2 = list.filter(g => g.id && !g.isDirectory)
@@ -389,7 +382,7 @@ export default class Sftp extends React.Component {
       : (this.state[type] || [])
         .filter(f => !/^\./.test(f.name))
     return this.sort(
-      list
+      list, type
     )
   }
 
@@ -479,7 +472,6 @@ export default class Sftp extends React.Component {
         }
         remote.push(f)
       }
-      remote.sort(sorter)
       let update = {
         remote,
         remoteFileTree: buildTree(remote),
@@ -537,7 +529,6 @@ export default class Sftp extends React.Component {
           local.push(fileObj)
         }
       }
-      local.sort(sorter)
       let update = {
         local,
         localFileTree: buildTree(local),
@@ -771,17 +762,13 @@ export default class Sftp extends React.Component {
           'directions',
           'renderEmptyFile',
           'getFileProps',
+          'defaultDirection',
           'modifier',
           'sort'
         ]
       ),
-      ..._.pick(
-        this.state,
-        [
-          'sortProp',
-          'sortDirection'
-        ]
-      ),
+      sortProp: this.state[`sortProp.${type}`],
+      sortDirection: this.state[`sortDirection.${type}`],
       width
     }
     return (
