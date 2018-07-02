@@ -105,11 +105,6 @@ export default class ResizeWrap extends Component {
     ]
   }
 
-  directions = [
-    'desc',
-    'asc'
-  ]
-
   otherDirection = (direction) => {
     return direction === this.props.directions[0]
       ? this.props.directions[1]
@@ -244,9 +239,10 @@ export default class ResizeWrap extends Component {
     let sortDirectionNew = sortProp === name
       ? this.otherDirection(sortDirection)
       : this.props.defaultDirection()
+    let {type} = this.props
     this.props.modifier({
-      sortDirection: sortDirectionNew,
-      sortProp: name
+      [`sortDirection.${type}`]: sortDirectionNew,
+      [`sortProp.${type}`]: name
     })
   }
 
