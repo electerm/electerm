@@ -73,7 +73,9 @@ export default class Sftp extends React.Component {
       onDrag: false,
       sortProp: 'modifyTime',
       sortDirection: this.defaultDirection(),
-      filesToConfirm: []
+      filesToConfirm: [],
+      targetTransferPath: null,
+      targetTransferType: null
     }
   }
 

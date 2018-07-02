@@ -102,6 +102,7 @@ export default class Confirms extends React.Component {
     let base = isOtherType
       ? props[type + 'Path']
       : this.liveBasePath || props[type + 'Path']
+    console.log(pathFix)
     return pathFix && isOtherType
       ? resolve(base, pathFix)
       : base

@@ -668,8 +668,15 @@ export default class FileSection extends React.Component {
         ...arr
       ]
     }
+    let {type} = this.state.file
+    let otherType = type === typeMap.local
+      ? typeMap.remote
+      : typeMap.local
+    let targetTransferPath = this.props[type + 'Path']
     this.props.modifier({
       filesToConfirm,
+      targetTransferPath,
+      targetTransferType: otherType,
       pathFix,
       liveBasePath
     })
@@ -678,7 +685,9 @@ export default class FileSection extends React.Component {
   transfer = async () => {
     let arr = await this.getTransferList(this.state.file)
     this.props.modifier({
-      filesToConfirm: arr
+      filesToConfirm: arr,
+      targetTransferPath: null,
+      targetTransferType: null
     })
   }
 
