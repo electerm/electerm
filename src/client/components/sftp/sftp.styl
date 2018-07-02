@@ -17,7 +17,8 @@
       background #f4f4f4
   &:hover
     .sftp-file-prop
-      background #000
+      background #e3e3e3
+      color #000
   &.selected
     .sftp-file-prop
       background #333
@@ -103,10 +104,6 @@
   50%
     opacity .8
 
-.sftp-dragover
-  border 1px dashed #08c
-  border-radius 3px
-  color #000
 .sftp-sort-btn
   color #aaa
   &.active
@@ -125,6 +122,7 @@
   overflow hidden
   white-space nowrap
   text-overflow ellipsis
+  pointer-events none
 .sftp-header-item
   height 28px
   line-height 25px
@@ -167,7 +165,10 @@
   &::-webkit-scrollbar-thumb
     background-color #fff
     outline none
-
+.sftp-item.sftp-dragover
+  .sftp-file-prop
+    background #08c
+    color #fff
 .icon-holder
   width 1em
   display inline-block
