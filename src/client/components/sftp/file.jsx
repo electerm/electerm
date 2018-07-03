@@ -178,7 +178,12 @@ export default class FileSection extends React.Component {
       let fileObj = isRemote
         ? await getRemoteFileInfo(this.props.sftp, path)
         : await getLocalFileInfo(path)
-      res.push(fileObj)
+      if (fileObj) {
+        res.push(fileObj)
+      }
+    }
+    if (!res.length) {
+      return
     }
     await new Promise((resolve) => {
       this.props.modifier({
@@ -1063,7 +1068,7 @@ export default class FileSection extends React.Component {
     if (isEditting) {
       return this.renderEditting(file)
     }
-    let selected = _.some(selectedFiles, s => s.id === id)
+    let selected = _.some(selectedFiles.filter(d => d), s => s.id === id)
     let className = classnames('sftp-item', type, {
       directory: isDirectory
     }, {selected})
