@@ -11,7 +11,7 @@ import Trigger from './file-transfer-trigger'
 import resolve from '../../common/resolve'
 import AnimateText from '../common/animate-text'
 import fs from '../../common/fs'
-import {typeMap, transferTypeMap} from '../../common/constants'
+import {typeMap} from '../../common/constants'
 
 const {prefix} = window
 const e = prefix('sftp')
@@ -73,8 +73,7 @@ export default class Confirms extends React.Component {
     }, () => {
       this.props.modifier({
         filesToConfirm: [],
-        targetTransferPath: null,
-        targetTransferType: null,
+        transferType: null,
         transports: [
           ...transports,
           ...this.state.transferList
@@ -92,18 +91,16 @@ export default class Confirms extends React.Component {
   cancel = () => {
     this.props.modifier({
       filesToConfirm: [],
-      targetTransferPath: null,
-      targetTransferType: null
+      transferType: null
     })
   }
 
   getBasePath = (type, props = this.props) => {
     let {
-      srcTransferType,
       srcTransferPath,
       targetTransferPath
     } = props
-    return type === srcTransferType
+    return type === 'from'
       ? srcTransferPath
       : targetTransferPath
   }
@@ -135,15 +132,14 @@ export default class Confirms extends React.Component {
 
   checkFileExist = async (file, props = this.props) => {
     let {
-      type,
       path,
       name
     } = file
     let toType = props.targetTransferType
-    let basePath = this.getBasePath(type, props)
+    let basePath = this.getBasePath('from', props)
     let beforePath = resolve(path, name)
     let reg = new RegExp('^' + basePath.replace(/\\/g, '\\\\'))
-    let otherPath = this.getBasePath(toType, props)
+    let otherPath = this.getBasePath('to', props)
     let targetPath = beforePath.replace(reg, otherPath)
     return await this.checkExist(toType, targetPath, props)
   }
@@ -227,12 +223,10 @@ export default class Confirms extends React.Component {
     let {
       name,
       path,
-      type,
       isDirectory
     } = file
-    let {targetTransferType} = this.props
-    let basePath = this.getBasePath(type)
-    let toBasePath = this.getBasePath(targetTransferType)
+    let basePath = this.getBasePath('from')
+    let toBasePath = this.getBasePath('to')
     let regBase = new RegExp('^' + basePath.replace(/\\/g, '\\\\'))
     let targetPath = path.replace(regBase, toBasePath)
     let newName = shouldRename
@@ -249,15 +243,13 @@ export default class Confirms extends React.Component {
   ) => {
     let {
       name,
-      type,
       isDirectory,
       path: bp
     } = file
     let {files} = this.state
     let newName = this.buildNewName(name, isDirectory)
-    let {targetTransferType} = this.props
-    let basePath = this.getBasePath(type)
-    let repPath = this.getBasePath(targetTransferType)
+    let basePath = this.getBasePath('from')
+    let repPath = this.getBasePath('to')
     let beforePath = resolve(bp, name)
     let newPath = resolve(bp, newName)
     let reg = new RegExp('^' + basePath.replace(/\\/g, '\\\\'))
@@ -480,17 +472,31 @@ export default class Confirms extends React.Component {
       return null
     }
     let {
-      type,
       isDirectory,
-      name,
-      path
+      name
     } = currentFile
-    let targetPath = this.createTransfer(currentFile)['toPath']
-    let from = resolve(path, name)
+    let {targetTransferPath} = this.props
+    let transport = this.findParentTransport(currentFile)
+    let targetPath
+    if (transport) {
+      targetPath = resolve(targetTransferPath, name)
+    } else {
+      targetPath = this.getTargetPath(currentFile)
+    }
+    let {
+      srcTransferType,
+      targetTransferType,
+      fromPath,
+      toPath
+    } = this.createTransfer(currentFile, targetPath)
     let action = isDirectory ? e('merge') : e('replace')
     let typeTxt = isDirectory ? e('folder') : e('file')
-    let typeTitle = type === typeMap.local ? e(typeMap.remote) : e(typeMap.local)
-    let otherTypeTitle = type === typeMap.remote ? typeMap.remote : typeMap.local
+    let typeTitle = srcTransferType === typeMap.local
+      ? e(typeMap.local)
+      : e(typeMap.remote)
+    let otherTypeTitle = targetTransferType === typeMap.remote
+      ? e(typeMap.remote)
+      : e(typeMap.local)
     return (
       <div className="confirms-content-wrap">
         <AnimateText>
@@ -501,7 +507,7 @@ export default class Confirms extends React.Component {
             {typeTitle} {typeTxt}: <Icon type={typeTxt} className="mg1r" />{name}
           </p>
           <p className="pd1b">
-            ({targetPath})
+            ({toPath})
           </p>
           <p>
             with
@@ -510,7 +516,7 @@ export default class Confirms extends React.Component {
             {otherTypeTitle} {typeTxt}: <Icon type={typeTxt} className="mg1r" />{name}
           </p>
           <p className="pd1b">
-            ({from})
+            ({fromPath})
           </p>
         </AnimateText>
       </div>

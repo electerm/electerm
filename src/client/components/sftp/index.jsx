@@ -5,6 +5,7 @@ import {generate} from 'shortid'
 import {Input, Icon, Tooltip, Spin, Modal} from  'antd'
 import _ from 'lodash'
 import Transports from './transports'
+import FileOps from './file-ops'
 import FileSection from './file'
 import Confirms from './confirm-list'
 import resolve from '../../common/resolve'
@@ -13,7 +14,11 @@ import classnames from 'classnames'
 import sorterIndex from '../../common/index-sorter'
 import DragSelect from './drag-select'
 import {getLocalFileInfo, getRemoteFileInfo} from './file-read'
-import {typeMap, maxSftpHistory, paneMap, fileTypeMap} from '../../common/constants'
+import {
+  typeMap, maxSftpHistory, paneMap,
+  fileOpTypeMap,
+  fileTypeMap, transferTypeMap
+} from '../../common/constants'
 import {hasFileInClipboardText} from '../../common/clipboard'
 import Client from '../../common/sftp'
 import fs from '../../common/fs'
@@ -315,6 +320,9 @@ export default class Sftp extends React.Component {
   }
 
   doCopy = (type) => {
+    this.setState({
+      transferType: fileOpTypeMap.copy
+    })
     this[type + 'Dom'].onCopy(null, true)
   }
 
@@ -644,6 +652,11 @@ export default class Sftp extends React.Component {
         typeMap.remote,
         'lastClickedFile',
         'lastMataKey',
+        'targetTransferPath',
+        'srcTransferPath',
+        'targetTransferType',
+        'srcTransferType',
+        'transferType',
         'selectedFiles'
       ])
     }
@@ -906,6 +919,14 @@ export default class Sftp extends React.Component {
         'localPath'
       ])
     }
+    let {transports} = this.state
+    let keys = Object.keys(transferTypeMap)
+    let transports1 = transports.filter(f => {
+      return keys.includes(f.transferType)
+    })
+    let transports2 = transports.filter(f => {
+      return !keys.includes(f.transferType)
+    })
     return (
       <div className="sftp-wrap overhide relative" id={id} style={{height}}>
         {
@@ -913,6 +934,11 @@ export default class Sftp extends React.Component {
         }
         <Transports
           {...props}
+          transports={transports1}
+        />
+        <FileOps
+          {...props}
+          transports={transports2}
         />
         <Confirms
           files={filesToConfirm}

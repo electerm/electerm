@@ -20,7 +20,7 @@ import wait from '../../common/wait'
 import {
   contextMenuHeight, contextMenuPaddingTop,
   isWin, transferTypeMap, typeMap,
-  contextMenuWidth
+  contextMenuWidth, fileOpTypeMap
 } from '../../common/constants'
 import sorter from '../../common/index-sorter'
 import {getLocalFileInfo, getFolderFromFilePath, getRemoteFileInfo} from './file-read'
@@ -158,6 +158,12 @@ export default class FileSection extends React.Component {
     this.props.closeContextMenu()
   }
 
+  getTransferType = fileType => {
+    return fileType !== typeMap.local
+      ? transferTypeMap.upload
+      : transferTypeMap.download
+  }
+
   onPaste = async () => {
     this.props.closeContextMenu()
     let clickBoardText = readClipboard()
@@ -191,13 +197,15 @@ export default class FileSection extends React.Component {
       type: toType
     } = toFile
 
+    let transferType = this.getTransferType(toType)
+
     //same side and drop to file, do nothing
     if (fromType === toType) {
-      return this.duplicate(fromFile, toFile)
+      transferType = this.props.transferType || fileOpTypeMap.copy
     }
 
     //other side, do transfer
-    this.transferDrop(fromFile, toFile)
+    this.transferDrop(fromFile, toFile, transferType)
   }
 
   onDrag = () => {
@@ -312,9 +320,11 @@ export default class FileSection extends React.Component {
       isDirectory: isDirectoryTo
     } = toFile
 
+    let transferType = this.getTransferType(toType)
+
     //drop from file manager
     if (fromFileManager && toType === typeMap.local) {
-      return this.cp(fromFile, toFile)
+      transferType = fileOpTypeMap.copy
     }
 
     //same side and drop to file, do nothing
@@ -324,15 +334,15 @@ export default class FileSection extends React.Component {
 
     //same side and drop to folder, do mv
     if (fromType === toType && isDirectoryTo) {
-      return this.mv(fromFile, toFile)
+      transferType = fileOpTypeMap.mv
     }
 
     //other side, do transfer
-    this.transferDrop(fromFile, toFile)
+    this.transferDrop(fromFile, toFile, transferType)
 
   }
 
-  transferDrop = (fromFile, toFile) => {
+  transferDrop = (fromFile, toFile, transferType) => {
     let files = this.isSelected(fromFile)
       ? this.props.selectedFiles
       : [fromFile]
@@ -340,7 +350,9 @@ export default class FileSection extends React.Component {
       null,
       files,
       fromFile.path,
-      resolve(toFile.path, toFile.name)
+      resolve(toFile.path, toFile.name),
+      toFile.type,
+      transferType
     )
   }
 
@@ -655,17 +667,15 @@ export default class FileSection extends React.Component {
     file,
     _srcTransferPath,
     _targetTransferPath,
-    _transferType
+    _targetTransferType,
+    transferType
   ) => {
     let {type} = file
-    let otherType = type === typeMap.local
+    let otherType = _targetTransferType || (type === typeMap.local
       ? typeMap.remote
-      : typeMap.local
+      : typeMap.local)
     let targetTransferPath = _targetTransferPath || this.props[otherType + 'Path']
     let srcTransferPath = _srcTransferPath || this.props[type + 'Path']
-    let transferType = _transferType || (type === typeMap.local
-      ? transferTypeMap.upload
-      : transferTypeMap.download)
     return {
       targetTransferPath,
       transferType,
@@ -679,7 +689,9 @@ export default class FileSection extends React.Component {
     e,
     selectedFiles = this.props.selectedFiles,
     srcTransferPath,
-    targetTransferPath
+    targetTransferPath,
+    targetTransferType,
+    transferType
   ) => {
     this.props.closeContextMenu()
     let filesToConfirm = []
@@ -692,7 +704,13 @@ export default class FileSection extends React.Component {
     }
     this.props.modifier({
       filesToConfirm,
-      ...this.getTransferProps(selectedFiles[0], srcTransferPath, targetTransferPath)
+      ...this.getTransferProps(
+        selectedFiles[0],
+        srcTransferPath,
+        targetTransferPath,
+        targetTransferType,
+        transferType
+      )
     })
   }
 
@@ -705,8 +723,7 @@ export default class FileSection extends React.Component {
       : transferTypeMap.download
     this.props.modifier({
       filesToConfirm: arr,
-      transferType,
-      ...this.getTransferProps(file)
+      ...this.getTransferProps(file, '', '', '', transferType)
     })
   }
 

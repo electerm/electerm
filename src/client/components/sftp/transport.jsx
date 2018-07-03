@@ -7,7 +7,7 @@ import copy from 'json-deep-copy'
 import _ from 'lodash'
 import resolve from '../../common/resolve'
 import wait from '../../common/wait'
-import {typeMap, transferTypeMap} from '../../common/constants'
+import {transferTypeMap} from '../../common/constants'
 import format from './transfer-speed-format'
 import fs from '../../common/fs'
 

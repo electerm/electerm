@@ -82,6 +82,12 @@ export const transferTypeMap = buildConst([
   'upload'
 ])
 
+export const fileOpTypeMap = buildConst([
+  'copy',
+  'mv'
+])
+
+
 export const terminalSplitDirectionMap = buildConst([
   'horizontal',
   'vertical'
