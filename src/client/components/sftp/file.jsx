@@ -274,10 +274,13 @@ export default class FileSection extends React.Component {
     if (!type) {
       return
     }
-    let toFile = this.props[type + 'FileTree'][id] || {
-      type,
-      ...getFolderFromFilePath(this.props[type + 'Path']),
-      isDirectory: false
+    let toFile = this.props[type + 'FileTree'][id] || {}
+    if (!toFile.id || !toFile.isDirectory) {
+      toFile = {
+        type,
+        ...getFolderFromFilePath(this.props[type + 'Path']),
+        isDirectory: false
+      }
     }
     this.onDropFile(fromFile, toFile, fromFileManager)
   }
@@ -329,21 +332,16 @@ export default class FileSection extends React.Component {
 
   }
 
-  transferDrop = (fromFile, _toFile) => {
-    let toFile = _toFile.id
-      ? {
-        ..._toFile,
-        ...getFolderFromFilePath(
-          _toFile.path
-        )
-      }
-      : _toFile
+  transferDrop = (fromFile, toFile) => {
     let files = this.isSelected(fromFile)
       ? this.props.selectedFiles
       : [fromFile]
-    let {isDirectory, name} = toFile
-    let pathFix = isDirectory ? name : ''
-    return this.doTransferSelected(null, files, pathFix, fromFile.path)
+    return this.doTransferSelected(
+      null,
+      files,
+      fromFile.path,
+      resolve(toFile.path, toFile.name)
+    )
   }
 
   mv = async (fromFile, toFile) => {
@@ -653,11 +651,35 @@ export default class FileSection extends React.Component {
     return res
   }
 
+  getTransferProps = (
+    file,
+    _srcTransferPath,
+    _targetTransferPath,
+    _transferType
+  ) => {
+    let {type} = file
+    let otherType = type === typeMap.local
+      ? typeMap.remote
+      : typeMap.local
+    let targetTransferPath = _targetTransferPath || this.props[otherType + 'Path']
+    let srcTransferPath = _srcTransferPath || this.props[type + 'Path']
+    let transferType = _transferType || (type === typeMap.local
+      ? transferTypeMap.upload
+      : transferTypeMap.download)
+    return {
+      targetTransferPath,
+      transferType,
+      targetTransferType: otherType,
+      srcTransferType: type,
+      srcTransferPath
+    }
+  }
+
   doTransferSelected = async (
     e,
     selectedFiles = this.props.selectedFiles,
-    pathFix = '',
-    liveBasePath
+    srcTransferPath,
+    targetTransferPath
   ) => {
     this.props.closeContextMenu()
     let filesToConfirm = []
@@ -668,26 +690,23 @@ export default class FileSection extends React.Component {
         ...arr
       ]
     }
-    let {type} = this.state.file
-    let otherType = type === typeMap.local
-      ? typeMap.remote
-      : typeMap.local
-    let targetTransferPath = this.props[type + 'Path']
     this.props.modifier({
       filesToConfirm,
-      targetTransferPath,
-      targetTransferType: otherType,
-      pathFix,
-      liveBasePath
+      ...this.getTransferProps(selectedFiles[0], srcTransferPath, targetTransferPath)
     })
   }
 
   transfer = async () => {
+    let {file} = this.state
     let arr = await this.getTransferList(this.state.file)
+    let {type} = file
+    let transferType = type === typeMap.local
+      ? transferTypeMap.upload
+      : transferTypeMap.download
     this.props.modifier({
       filesToConfirm: arr,
-      targetTransferPath: null,
-      targetTransferType: null
+      transferType,
+      ...this.getTransferProps(file)
     })
   }
 

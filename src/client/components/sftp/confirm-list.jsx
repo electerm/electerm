@@ -37,7 +37,6 @@ export default class Confirms extends React.Component {
     if (
       !_.isEqual(this.props.files, nextProps.files)
     ) {
-      this.liveBasePath = nextProps.liveBasePath
       this.rebuildState(nextProps)
     }
   }
@@ -74,8 +73,8 @@ export default class Confirms extends React.Component {
     }, () => {
       this.props.modifier({
         filesToConfirm: [],
-        pathFix: '',
-        liveBasePath: '',
+        targetTransferPath: null,
+        targetTransferType: null,
         transports: [
           ...transports,
           ...this.state.transferList
@@ -93,26 +92,20 @@ export default class Confirms extends React.Component {
   cancel = () => {
     this.props.modifier({
       filesToConfirm: [],
-      pathFix: ''
+      targetTransferPath: null,
+      targetTransferType: null
     })
   }
 
-  getBasePath = (type, isOtherType, props = this.props) => {
-    let {pathFix} = props
-    let base = isOtherType
-      ? props[type + 'Path']
-      : this.liveBasePath || props[type + 'Path']
-    console.log(pathFix)
-    return pathFix && isOtherType
-      ? resolve(base, pathFix)
-      : base
-  }
-
-  getNewName = (path) => {
-    let {renameFunctions} = this.state
-    return renameFunctions.reduce((prev, curr) => {
-      return curr[prev]
-    }, path)
+  getBasePath = (type, props = this.props) => {
+    let {
+      srcTransferType,
+      srcTransferPath,
+      targetTransferPath
+    } = props
+    return type === srcTransferType
+      ? srcTransferPath
+      : targetTransferPath
   }
 
   buildNewName = (name, isDirectory) => {
@@ -137,10 +130,7 @@ export default class Confirms extends React.Component {
   }
 
   checkExist = async (type, path) => {
-    let otherType = type === typeMap.local
-      ? typeMap.remote
-      : typeMap.local
-    return await this[otherType + 'CheckExist'](path)
+    return await this[type + 'CheckExist'](path)
   }
 
   checkFileExist = async (file, props = this.props) => {
@@ -149,38 +139,45 @@ export default class Confirms extends React.Component {
       path,
       name
     } = file
-    let otherType = type === typeMap.local
-      ? typeMap.remote
-      : typeMap.local
-    let basePath = this.getBasePath(type, false, props)
+    let toType = props.targetTransferType
+    let basePath = this.getBasePath(type, props)
     let beforePath = resolve(path, name)
     let reg = new RegExp('^' + basePath.replace(/\\/g, '\\\\'))
-    let otherPath = this.getBasePath(otherType, true, props)
+    let otherPath = this.getBasePath(toType, props)
     let targetPath = beforePath.replace(reg, otherPath)
-    return await this.checkExist(type, targetPath, props)
+    return await this.checkExist(toType, targetPath, props)
   }
 
-  buildTransfer = ({file, localPath, remotePath}) => {
-    let {type} = file
+  transferProps = [
+    'targetTransferPath',
+    'srcTransferPath',
+    'targetTransferType',
+    'srcTransferType',
+    'transferType'
+  ]
+
+  buildTransfer = ({file, fromPath, toPath}) => {
     return {
-      localPath,
-      remotePath,
+      fromPath,
+      toPath,
       id: generate(),
       percent: 0,
       file,
-      type: type === typeMap.remote ? transferTypeMap.download : transferTypeMap.upload
+      ..._.pick(
+        this.props,
+        this.transferProps
+      )
     }
   }
 
   createTransfer = (file, targetPath) => {
-    let {name, path, type} = file
-    let startPath = resolve(path, name)
-    let targetPath0 = targetPath || this.getTargetPath(file)
-    let isLocal = type === typeMap.local
+    let {name, path} = file
+    let fromPath = resolve(path, name)
+    let toPath = targetPath || this.getTargetPath(file)
     return this.buildTransfer({
       file,
-      localPath: isLocal ? startPath : targetPath0,
-      remotePath: isLocal ? targetPath0 : startPath
+      fromPath,
+      toPath
     })
   }
 
@@ -204,21 +201,19 @@ export default class Confirms extends React.Component {
       return {index, currentFile}
     }
     let {
-      type,
       name
     } = currentFile
     let transferList = copy(this.state.transferList)
-    let otherType = type === typeMap.local
-      ? typeMap.remote
-      : typeMap.local
+    let {targetTransferPath} = this.props
     let transport = this.findParentTransport(currentFile)
     let targetPath
     if (transport) {
-      targetPath = resolve(transport[otherType + 'Path'], name)
+      targetPath = resolve(targetTransferPath, name)
     } else {
       targetPath = this.getTargetPath(currentFile)
     }
-    let exist = await this.checkExist(type, targetPath)
+    let {targetTransferType} = this.props
+    let exist = await this.checkExist(targetTransferType, targetPath)
     if (exist) {
       return {index, currentFile}
     }
@@ -235,13 +230,11 @@ export default class Confirms extends React.Component {
       type,
       isDirectory
     } = file
-    let otherType = type === typeMap.local
-      ? typeMap.remote
-      : typeMap.local
+    let {targetTransferType} = this.props
     let basePath = this.getBasePath(type)
-    let otherBasePath = this.getBasePath(otherType, true)
+    let toBasePath = this.getBasePath(targetTransferType)
     let regBase = new RegExp('^' + basePath.replace(/\\/g, '\\\\'))
-    let targetPath = path.replace(regBase, otherBasePath)
+    let targetPath = path.replace(regBase, toBasePath)
     let newName = shouldRename
       ? this.buildNewName(name, isDirectory)
       : name
@@ -262,11 +255,9 @@ export default class Confirms extends React.Component {
     } = file
     let {files} = this.state
     let newName = this.buildNewName(name, isDirectory)
-    let otherType = type === typeMap.local
-      ? typeMap.remote
-      : typeMap.local
+    let {targetTransferType} = this.props
     let basePath = this.getBasePath(type)
-    let repPath = this.getBasePath(otherType, true)
+    let repPath = this.getBasePath(targetTransferType)
     let beforePath = resolve(bp, name)
     let newPath = resolve(bp, newName)
     let reg = new RegExp('^' + basePath.replace(/\\/g, '\\\\'))
@@ -275,7 +266,7 @@ export default class Confirms extends React.Component {
     let transferList = copy(this.state.transferList)
     for (;;i ++) {
       let f = files[i] || {}
-      let {path, name, type} = f
+      let {path, name} = f
       if (
         !path ||
         (!path.startsWith(beforePath) && i > index)
@@ -286,14 +277,16 @@ export default class Confirms extends React.Component {
       let p = resolve(path, name)
       let np = p.replace(reg1, newPath)
       let t = np.replace(reg, repPath)
-      let isLocal = type === typeMap.local
       transferList.push({
-        localPath: isLocal ? p : t,
-        remotePath: isLocal ? t : p,
+        fromPath: p,
+        toPath: t,
         id: generate(),
         percent: 0,
         file: f,
-        type: type === typeMap.remote ? transferTypeMap.download : transferTypeMap.upload
+        ..._.pick(
+          this.props,
+          this.transferProps
+        )
       })
     }
     await this.setStateAsync({
@@ -492,8 +485,7 @@ export default class Confirms extends React.Component {
       name,
       path
     } = currentFile
-    let otherType = type === typeMap.local ? typeMap.remote : typeMap.local
-    let targetPath = this.createTransfer(currentFile)[otherType + 'Path']
+    let targetPath = this.createTransfer(currentFile)['toPath']
     let from = resolve(path, name)
     let action = isDirectory ? e('merge') : e('replace')
     let typeTxt = isDirectory ? e('folder') : e('file')

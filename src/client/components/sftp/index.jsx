@@ -43,15 +43,16 @@ export default class Sftp extends React.Component {
     this.state = {
       id: props.id || generate(),
       transports: [],
-      liveBasePath: null,
       selectedFiles: [],
       lastClickedFile: null,
       onEditFile: false,
-      pathFix: '',
       onDrag: false,
       ...this.defaultState(),
       targetTransferPath: null,
+      srcTransferPath: null,
       targetTransferType: null,
+      srcTransferType: null,
+      transferType: null,
       filesToConfirm: []
     }
   }
@@ -890,8 +891,11 @@ export default class Sftp extends React.Component {
         'transports',
         'remotePath',
         'localPath',
-        'pathFix',
-        'liveBasePath'
+        'targetTransferPath',
+        'srcTransferPath',
+        'targetTransferType',
+        'transferType',
+        'srcTransferType'
       ]),
       ..._.pick(this, [
         'sftp',
