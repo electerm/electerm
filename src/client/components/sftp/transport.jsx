@@ -7,7 +7,7 @@ import copy from 'json-deep-copy'
 import _ from 'lodash'
 import resolve from '../../common/resolve'
 import wait from '../../common/wait'
-import {typeMap, transferTypeMap} from '../../common/constants'
+import {transferTypeMap} from '../../common/constants'
 import format from './transfer-speed-format'
 import fs from '../../common/fs'
 
@@ -93,19 +93,27 @@ export default class Tranporter extends React.Component {
     if (this.onCancel) {
       return
     }
-    let {type, id, localPath, remotePath, file} = this.props.transport
-    let type0 = type === transferTypeMap.download ? typeMap.local : typeMap.remote
-    let cb = this.props[type0 + 'List']
+    let {
+      transferType, id,
+      fromPath,
+      toPath,
+      file,
+      targetTransferType,
+      srcTransferType
+    } = this.props.transport
+    let cb = this.props[targetTransferType + 'List']
     let {startTime} = this
     let finishTime = +new Date()
     let {size} = file
     this.props.addTransferHistory({
       id,
-      localPath,
-      remotePath,
+      fromPath,
+      toPath,
+      targetTransferType,
+      srcTransferType,
       startTime,
       finishTime,
-      type,
+      type: transferType,
       size: file.size,
       speed: format(size, startTime)
     })
@@ -117,16 +125,16 @@ export default class Tranporter extends React.Component {
 
   mkdir = async (transport) => {
     let {
-      type,
-      localPath,
-      remotePath
+      transferType,
+      fromPath,
+      toPath
     } = transport
-    let isDown = type === transferTypeMap.download
+    let isDown = transferType === transferTypeMap.download
     if (isDown) {
-      return fs.mkdirAsync(localPath)
+      return fs.mkdirAsync(toPath)
         .catch(this.onError)
     }
-    return this.props.sftp.mkdir(remotePath)
+    return this.props.sftp.mkdir(fromPath)
       .catch(this.onError)
   }
 
@@ -139,9 +147,9 @@ export default class Tranporter extends React.Component {
       this.started = true
       this.startTime = +new Date()
       let {
-        type,
-        localPath,
-        remotePath,
+        transferType,
+        fromPath,
+        toPath,
         file: {
           isDirectory,
           mode
@@ -152,7 +160,14 @@ export default class Tranporter extends React.Component {
           .then(this.onEnd)
           .catch(this.onError)
       }
-      this.transport = await this.props.sftp[type]({
+      let isDown = transferType === transferTypeMap.download
+      let localPath = isDown
+        ? toPath
+        : fromPath
+      let remotePath = isDown
+        ? fromPath
+        : toPath
+      this.transport = await this.props.sftp[transferType]({
         remotePath,
         localPath,
         options: {mode},
@@ -206,9 +221,9 @@ export default class Tranporter extends React.Component {
 
   render() {
     let {
-      localPath,
-      remotePath,
-      type,
+      fromPath,
+      toPath,
+      transferType,
       percent,
       status,
       speed,
@@ -218,24 +233,23 @@ export default class Tranporter extends React.Component {
     let pauseIcon = pausing ? 'play-circle' : 'pause-circle'
     let pauseTitle = pausing ? e('resume') : e('pause')
     let pauseFunc = pausing ? this.resume : this.pause
-    let icon = typeIconMap[type]
-    let icon2 = typeIconMap2[type]
+    let icon = typeIconMap[transferType]
+    let icon2 = typeIconMap2[transferType]
     let cls = this.buildCls(file)
     return (
       <div className={cls}>
         <Icon type={icon} className="sftp-type-icon iblock mg1r color-blue" />
         <span
           className="sftp-file sftp-local-file elli width200 iblock"
-          title={localPath}
-        >{localPath}</span>
+          title={fromPath}
+        >{fromPath}</span>
         <Icon type={icon2} className="sftp-direction-icon mg1x iblock" />
         <span
           className="sftp-file sftp-remote-file elli mg1r width200 iblock"
-          title={localPath}
-        >{remotePath}</span>
+          title={toPath}
+        >{toPath}</span>
         <span
           className={`sftp-file-percent mg1r iblock sftp-status-${status}`}
-          title={localPath}
         >
           {percent}%
           {speed ? `(${speed})` : null}
