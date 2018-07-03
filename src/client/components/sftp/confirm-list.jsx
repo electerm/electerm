@@ -491,10 +491,10 @@ export default class Confirms extends React.Component {
     } = this.createTransfer(currentFile, targetPath)
     let action = isDirectory ? e('merge') : e('replace')
     let typeTxt = isDirectory ? e('folder') : e('file')
-    let typeTitle = srcTransferType === typeMap.local
+    let typeTitle = targetTransferType === typeMap.local
       ? e(typeMap.local)
       : e(typeMap.remote)
-    let otherTypeTitle = targetTransferType === typeMap.remote
+    let otherTypeTitle = srcTransferType === typeMap.remote
       ? e(typeMap.remote)
       : e(typeMap.local)
     return (
