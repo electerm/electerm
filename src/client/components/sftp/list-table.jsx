@@ -448,7 +448,7 @@ export default class ResizeWrap extends Component {
         >
           {this.props.renderEmptyFile(type)}
           {
-            this.props.sort(list).map(this.renderItem)
+            list.map(this.renderItem)
           }
         </div>
       </div>
