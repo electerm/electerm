@@ -251,7 +251,7 @@ export default class Tranporter extends React.Component {
         <span
           className={`sftp-file-percent mg1r iblock sftp-status-${status}`}
         >
-          {percent}%
+          {percent || 0}%
           {speed ? `(${speed})` : null}
         </span>
         <Icon
