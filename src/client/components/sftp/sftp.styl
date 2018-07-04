@@ -169,10 +169,25 @@
   &::-webkit-scrollbar-thumb
     background-color #fff
     outline none
-.sftp-item.sftp-dragover
-  .sftp-file-prop
-    background #08c !important
-    color #fff !important
+.sftp-item
+  &.sftp-dragover
+    .sftp-file-prop
+      background #08c !important
+      color #fff !important
+  &.sftp-dragover-multi
+    &:after
+    &:before
+      position absolute
+      left 2px
+      top 2px
+      width 100%
+      height 100%
+      background #033
+      content ''
+      z-index -1
+    &:after
+      left 4px
+      top 4px
 .icon-holder
   width 1em
   display inline-block
