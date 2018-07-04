@@ -1,6 +1,6 @@
 {
   "name": "electerm",
-  "version": "0.22.30",
+  "version": "0.23.0",
   "description": "terminal/ssh/sftp client(linux, mac, win) based on electron/node-pty/xterm and other libs",
   "main": "app.js",
   "bin": "npm/electerm",
@@ -120,7 +120,7 @@
     "body-parser": "1.18.3",
     "cors": "2.8.4",
     "dayjs": "1.6.3",
-    "electerm-locales": "0.3.2",
+    "electerm-locales": "0.3.4",
     "electerm-resource": "1.1.3",
     "electron-log": "2.2.14",
     "express": "4.16.3",
