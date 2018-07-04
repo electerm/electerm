@@ -445,6 +445,7 @@ export default class ResizeWrap extends Component {
           style={{
             height: height - sftpControlHeight - tableHeaderHeight
           }}
+          draggable={false}
         >
           {this.props.renderEmptyFile(type)}
           {

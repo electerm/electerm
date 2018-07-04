@@ -678,7 +678,9 @@ export default class Sftp extends React.Component {
       isDirectory: true
     }
     return (
-      <div className={`virtual-file virtual-file-${type}`}>
+      <div
+        className={`virtual-file virtual-file-${type}`}
+      >
         <FileSection
           {...this.getFileProps(item, type)}
           ref={ref => this[type + 'Dom'] = ref}

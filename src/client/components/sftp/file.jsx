@@ -279,6 +279,9 @@ export default class FileSection extends React.Component {
       return
     }
     let fromFile = await this.getDropFileList(e.dataTransfer)
+    if (!fromFile) {
+      return
+    }
     while (!target.className.includes(fileItemCls)) {
       target = target.parentNode
     }
@@ -1058,7 +1061,7 @@ export default class FileSection extends React.Component {
   }
 
   render() {
-    let {type, selectedFiles, draggable = true, properties = []} = this.props
+    let {type, selectedFiles, draggable = true, properties = [], onDragStart} = this.props
     let {file} = this.state
     let {
       isDirectory,
@@ -1085,10 +1088,10 @@ export default class FileSection extends React.Component {
         'onDragExit',
         'onDragLeave',
         'onDragOver',
-        'onDragStart',
         'onDrop',
         'onDragEnd'
-      ])
+      ]),
+      onDragStart: onDragStart || this.onDragStart
     }
     return (
       <div
