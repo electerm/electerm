@@ -5,7 +5,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 import {Icon, Popconfirm} from 'antd'
-import {generate} from 'shortid'
 import classnames from 'classnames'
 import copy from 'json-deep-copy'
 import _ from 'lodash'
@@ -52,6 +51,7 @@ const computePos = (e, isBg, height, ) => {
 const fileItemCls = 'sftp-item'
 const onDragCls = 'sftp-ondrag'
 const onDragOverCls = 'sftp-dragover'
+const onMultiDragCls = 'sftp-dragover-multi'
 
 export default class FileSection extends React.Component {
 
@@ -73,73 +73,6 @@ export default class FileSection extends React.Component {
         file: copy(nextProps.file)
       })
     }
-  }
-
-  duplicate = async (fromFile, toFile) => {
-    let {type, path, name} = toFile
-    let base = resolve(path, name)
-    let {selectedFiles} = this.props
-    for(let f of selectedFiles) {
-      let from = resolve(f.path, f.name)
-      let exist = _.some(
-        this.props[type],
-        ff => {
-          return ff.name === f.name && ff.isDirectory === f.isDirectory
-        }
-      )
-      let to = exist
-        ? resolve(
-          base,
-          'copy_' + generate() + '_' + f.name
-        )
-        : resolve(base, f.name)
-      let func = type === typeMap.remote
-        ? this.props.sftp.cp
-        : fs.cp
-      await func(from, to)
-        .catch(this.props.onError)
-    }
-    this.props[type + 'List']()
-  }
-
-  cp = async (fromFile, toFile) => {
-    let {type, path, name} = toFile
-    let base = resolve(path, name)
-    let {selectedFiles} = this.props
-    let baseInfo = type === typeMap.local
-      ? await getLocalFileInfo(base)
-      : await getRemoteFileInfo(this.props.sftp, base)
-    if (!baseInfo) {
-      return
-    }
-    let p = baseInfo.isDirectory
-      ? base
-      : getFolderFromFilePath(base).path
-    let fileList = await this.props[type + 'List'](
-      true,
-      p
-    )
-    for(let f of selectedFiles) {
-      let from = resolve(f.path, f.name)
-      let exist = _.some(
-        fileList,
-        ff => {
-          return ff.name === f.name && ff.isDirectory === f.isDirectory
-        }
-      )
-      let to = exist
-        ? resolve(
-          p,
-          'copy_' + generate() + '_' + f.name
-        )
-        : resolve(p, f.name)
-      let func = type === typeMap.remote
-        ? this.props.sftp.cp
-        : fs.cp
-      await func(from, to)
-        .catch(this.props.onError)
-    }
-    this.props[type + 'List']()
   }
 
   onCopy = (e, targetFiles) => {
@@ -213,9 +146,7 @@ export default class FileSection extends React.Component {
     this.transferDrop(fromFile, toFile, transferType)
   }
 
-  onDrag = () => {
-    addClass(this.dom, onDragCls)
-  }
+  onDrag = () => {}
 
   onDragEnter = e => {
     let {target} = e
@@ -228,9 +159,7 @@ export default class FileSection extends React.Component {
     addClass(target, onDragOverCls)
   }
 
-  onDragExit = () => {
-
-  }
+  onDragExit = () => {}
 
   onDragLeave = e => {
     let {target} = e
@@ -245,6 +174,10 @@ export default class FileSection extends React.Component {
     this.props.modifier({
       onDrag: true
     })
+    let cls = this.props.selectedFiles.length > 1
+      ? onDragCls + ' ' + onMultiDragCls
+      : onDragCls
+    addClass(this.dom, cls)
     e.dataTransfer.setData('fromFile', JSON.stringify(this.props.file))
   }
 
@@ -305,7 +238,7 @@ export default class FileSection extends React.Component {
     this.props.modifier({
       onDrag: false
     })
-    removeClass(this.dom, onDragCls)
+    removeClass(this.dom, onDragCls, onMultiDragCls)
     document.querySelectorAll('.' + onDragOverCls).forEach((d) => {
       removeClass(d, onDragOverCls)
     })
@@ -362,25 +295,6 @@ export default class FileSection extends React.Component {
       toFile.type,
       transferType
     )
-  }
-
-  mv = async (fromFile, toFile) => {
-    let files = this.isSelected(fromFile)
-      ? this.props.selectedFiles
-      : [fromFile]
-    let {type} = fromFile
-    let mv = type === typeMap.local
-      ? fs.mv
-      : this.props.sftp.mv
-    let targetPath = resolve(toFile.path, toFile.name)
-    for (let f of files) {
-      let {path, name} = f
-      let from = resolve(path, name)
-      let to = resolve(targetPath, name)
-      await mv(from, to).catch(err => console.log(err))
-    }
-    await wait(500)
-    this.props[type + 'List']()
   }
 
   isSelected = file => {
