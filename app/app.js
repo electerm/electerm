@@ -4,6 +4,7 @@ global.Promise = require('bluebird')
 
 const {
   app, BrowserWindow, Menu,
+  Notification,
   globalShortcut, shell
 } = require('electron')
 const {fork} = require('child_process')
@@ -26,11 +27,16 @@ const {testConnection} = require('./lib/terminal')
 const {saveLangConfig, lang, langs} = require('./lib/locales')
 const rp = require('phin').promisified
 const lastStateManager = require('./lib/last-state')
+const {
+  prefix
+} = require('./lib/locales')
+const a = prefix('app')
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let win
 let timer
+let timer1
 let childPid
 let {NODE_ENV} = process.env
 const isDev = NODE_ENV === 'development'
@@ -43,6 +49,7 @@ const iconPath = resolve(
 
 function onClose() {
   clearTimeout(timer)
+  clearTimeout(timer1)
   win = null
   process.kill(childPid)
   setWin(win)
@@ -103,6 +110,17 @@ async function createWindow () {
   })
 
   win.setAutoHideMenuBar(true)
+
+  //handle autohide flag
+  if (process.argv.includes('--autohide')) {
+    timer1 = setTimeout(() => win.hide(), 500)
+    if (Notification.isSupported()) {
+      let notice = new Notification({
+        title: `${packInfo.name} ${a('isRunning')}, ${a('press')} ${config.hotkey} ${a('toShow')}`
+      })
+      notice.show()
+    }
+  }
 
   global.et = {}
   Object.assign(global.et, {
