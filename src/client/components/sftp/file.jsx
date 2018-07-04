@@ -146,13 +146,7 @@ export default class FileSection extends React.Component {
     this.transferDrop(fromFile, toFile, transferType)
   }
 
-  onDrag = () => {
-    // let cls = this.props.selectedFiles.length > 1
-    //   ? onDragCls + ' ' + onMultiDragCls
-    //   : onDragCls
-    // console.log(cls)
-    // addClass(this.dom, cls)
-  }
+  onDrag = () => {}
 
   onDragEnter = e => {
     let {target} = e
@@ -165,9 +159,7 @@ export default class FileSection extends React.Component {
     addClass(target, onDragOverCls)
   }
 
-  onDragExit = () => {
-
-  }
+  onDragExit = () => {}
 
   onDragLeave = e => {
     let {target} = e
@@ -185,7 +177,6 @@ export default class FileSection extends React.Component {
     let cls = this.props.selectedFiles.length > 1
       ? onDragCls + ' ' + onMultiDragCls
       : onDragCls
-    console.log(cls)
     addClass(this.dom, cls)
     e.dataTransfer.setData('fromFile', JSON.stringify(this.props.file))
   }
