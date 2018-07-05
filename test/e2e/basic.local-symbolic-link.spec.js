@@ -43,11 +43,15 @@ describe('symbolic links support', function () {
     })
     await delay(1500)
     await client.execute(function() {
-      document.querySelector('.ssh-wrap-show .sftp-table-content .sftp-item.local.directory .sftp-file-prop').click()
+      let event = new MouseEvent('dblclick', {
+        'view': window,
+        'bubbles': true,
+        'cancelable': true
+      })
+      document.querySelector('.ssh-wrap-show .sftp-table-content .sftp-item.local.directory .sftp-file-prop').dispatchEvent(event)
     })
 
-    await client.keys(['Enter'])
-    await delay(100)
+    await delay(3000)
 
     let localFileList = await client.elements('.ssh-wrap-show .file-list.local .sftp-item')
     expect(localFileList.value.length).equal(5)
