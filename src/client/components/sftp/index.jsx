@@ -388,10 +388,11 @@ export default class Sftp extends React.Component {
 
   getFileList = type => {
     let showHide = this.state[`${type}ShowHiddenFile`]
-    let list = showHide
-      ? this.state[type]
-      : (this.state[type] || [])
-        .filter(f => !/^\./.test(f.name))
+    let list = this.state[type]
+    list = _.isArray(list) ? list : []
+    if (!showHide) {
+      list = list.filter(f => !/^\./.test(f.name))
+    }
     return this.sort(
       list, type
     )

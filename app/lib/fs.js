@@ -112,14 +112,14 @@ const fsExport = Object.assign(
     openFile
   },
   {
-    // statAsync: (...args) => {
-    //   return fss.statAsync(...args)
-    //     .then(res => {
-    //       return Promise.resolve(Object.assign(res, {
-    //         isDirectory: res.isDirectory()
-    //       }))
-    //     })
-    // },
+    statAsync: (...args) => {
+      return fss.statAsync(...args)
+        .then(res => {
+          return Promise.resolve(Object.assign(res, {
+            isDirectory: res.isDirectory()
+          }))
+        })
+    },
     lstatAsync: (...args) => {
       return fss.lstatAsync(...args)
         .then(res => {
@@ -134,7 +134,7 @@ const fsExport = Object.assign(
 
 const fsFunctions = [
   'accessAsync',
-  //'statAsync',
+  'statAsync',
   'lstatAsync',
   'cp',
   'mv',
