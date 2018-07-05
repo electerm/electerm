@@ -19,7 +19,7 @@ export const getFolderFromFilePath = filePath => {
 
 export const getLocalFileInfo = async (filePath) => {
   try {
-    //let stat = await fs.statAsync(filePath)
+    let statr = await fs.statAsync(filePath)
     let stat = await fs.lstatAsync(filePath)
     return {
       size: stat.size,
@@ -29,7 +29,7 @@ export const getLocalFileInfo = async (filePath) => {
       type: 'local',
       ...getFolderFromFilePath(filePath),
       id: generate(),
-      isDirectory: stat.isDirectory,
+      isDirectory: statr.isDirectory,
       isSymbolicLink: stat.isSymbolicLink
     }
   } catch (e) {

@@ -14,6 +14,9 @@ describe('terminal themes', function () {
   beforeEach(async function() {
     this.app = new Application({
       path: electronPath,
+      webdriverOptions: {
+        deprecationWarnings: false
+      },
       args: [resolve(cwd, 'work/app')]
     })
     return this.app.start()

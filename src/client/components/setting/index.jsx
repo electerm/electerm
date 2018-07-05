@@ -173,7 +173,7 @@ export default class Setting extends React.Component {
           />
         </div>
         <div className="pd1b">{e('timeoutDesc')}</div>
-        <div className="pd2b">
+        <div className="pd2b timeout-desc">
           <InputNumber
             onChange={this.onChangeTimeout}
             step={1000}

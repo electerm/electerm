@@ -14,6 +14,7 @@ const {resolve} = require('path')
 const {expect} = require('chai')
 const cwd = process.cwd()
 const delay = require('./common/wait')
+const {log} = console
 const generate = require('./common/uid')
 
 describe('sftp basic', function () {
@@ -22,7 +23,10 @@ describe('sftp basic', function () {
   beforeEach(async function() {
     this.app = new Application({
       path: electronPath,
-      args: [resolve(cwd, 'work/app')]
+      args: [resolve(cwd, 'work/app')],
+      webdriverOptions: {
+        deprecationWarnings: false
+      }
     })
     return this.app.start()
   })
@@ -114,13 +118,13 @@ describe('sftp basic', function () {
     expect(localFileList11.value.length).equal(1)
 
     //goto parent
+    log('toto')
     await client.execute(function() {
       document.querySelector('.ssh-wrap-show .sftp-local-section .anticon-arrow-up').click()
     })
     await delay(2000)
     let localFileList1 = await client.elements('.ssh-wrap-show .file-list.local .sftp-item')
     expect(localFileList1.value.length).equal(localFileList.value.length)
-
 
 
     //del folder
@@ -164,6 +168,7 @@ describe('sftp basic', function () {
     let pathCurrentRemote = await client.getAttribute('.ssh-wrap-show .sftp-remote-section .sftp-title input', 'value')
     expect(pathCurrentRemote.includes(fname0)).equal(true)
     let remoteFileList0 = await client.elements('.ssh-wrap-show .file-list.remote .sftp-item')
+
     expect(remoteFileList0.value.length).equal(1)
 
     //goto parent
@@ -176,15 +181,16 @@ describe('sftp basic', function () {
 
     //del folder
     await client.execute(function() {
-      document.querySelectorAll('.ssh-wrap-show .file-list.remote .sftp-item')[1].click()
+      document.querySelectorAll('.ssh-wrap-show .file-list.remote .sftp-item .sftp-file-prop')[0].click()
     })
     await delay(20)
 
     await client.keys(['Delete'])
     await delay(20)
     await client.keys(['Enter'])
-    await delay(2000)
+    await delay(3000)
     let remoteFileList2 = await client.elements('.ssh-wrap-show .file-list.remote .sftp-item')
+    log('to parent3')
     expect(remoteFileList2.value.length).equal(remoteFileListBefore.value.length)
 
   })
