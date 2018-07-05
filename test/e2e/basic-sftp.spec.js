@@ -14,7 +14,6 @@ const {resolve} = require('path')
 const {expect} = require('chai')
 const cwd = process.cwd()
 const delay = require('./common/wait')
-const {log} = console
 const generate = require('./common/uid')
 
 describe('sftp basic', function () {
@@ -118,7 +117,6 @@ describe('sftp basic', function () {
     expect(localFileList11.value.length).equal(1)
 
     //goto parent
-    log('toto')
     await client.execute(function() {
       document.querySelector('.ssh-wrap-show .sftp-local-section .anticon-arrow-up').click()
     })
@@ -190,7 +188,6 @@ describe('sftp basic', function () {
     await client.keys(['Enter'])
     await delay(3000)
     let remoteFileList2 = await client.elements('.ssh-wrap-show .file-list.remote .sftp-item')
-    log('to parent3')
     expect(remoteFileList2.value.length).equal(remoteFileListBefore.value.length)
 
   })

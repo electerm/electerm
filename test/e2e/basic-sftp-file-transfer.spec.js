@@ -84,7 +84,7 @@ describe('sftp file transfer', function () {
       })
       document.querySelectorAll('.ssh-wrap-show .file-list.local .sftp-item')[1].dispatchEvent(event)
     })
-    await delay(2000)
+    await delay(3000)
     let pathCurrentLocal = await client.getAttribute('.ssh-wrap-show .sftp-local-section .sftp-title input', 'value')
     expect(pathCurrentLocal.includes(fname)).equal(true)
     let localFileList0 = await client.elements('.ssh-wrap-show .file-list.local .sftp-item')
@@ -143,22 +143,26 @@ describe('sftp file transfer', function () {
     //transfer remote to local
     await delay(500)
     await client.execute(function() {
-      document.querySelectorAll('.ssh-wrap-show .file-list.local .sftp-item')[1].click()
+      document.querySelectorAll('.ssh-wrap-show .file-list.local .sftp-item .sftp-file-prop')[0].click()
     })
     await delay(20)
 
     await client.keys(['Delete'])
     await delay(20)
     await client.keys(['Enter'])
-    await delay(800)
-
-    await client.rightClick('.ssh-wrap-show .sftp-item.remote', 20, 22)
-    await delay(200)
+    await delay(1800)
+    //await client.rightClick('.ssh-wrap-show .sftp-item.remote', 15, 15)
+    await delay(323)
     await client.execute(function() {
-      document.querySelector('.context-menu .anticon-cloud-download-o').click()
+      let event = new MouseEvent('dblclick', {
+        'view': window,
+        'bubbles': true,
+        'cancelable': true
+      })
+      document.querySelector('.ssh-wrap-show .file-list.remote .sftp-item .sftp-file-prop').dispatchEvent(event)
     })
 
-    await delay(1000)
+    await delay(2000)
     let localFileList001 = await client.elements('.ssh-wrap-show .file-list.local .sftp-item')
     expect(localFileList001.value.length).equal(2)
 
@@ -173,8 +177,7 @@ describe('sftp file transfer', function () {
     await client.execute(function() {
       document.querySelector('.ssh-wrap-show .sftp-remote-section .anticon-arrow-up').click()
     })
-    await delay(2000)
-
+    await delay(3000)
     //del folder
     await client.execute(function() {
       document.querySelectorAll('.ssh-wrap-show .file-list.local .sftp-item')[1].click()
@@ -187,7 +190,7 @@ describe('sftp file transfer', function () {
 
     await delay(500)
     await client.execute(function() {
-      document.querySelectorAll('.ssh-wrap-show .file-list.remote .sftp-item')[1].click()
+      document.querySelectorAll('.ssh-wrap-show .file-list.remote .sftp-item .sftp-file-prop')[0].click()
     })
     await delay(20)
 
