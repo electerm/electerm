@@ -13,13 +13,13 @@ import './control.styl'
 
 const {prefix, getGlobal} = window
 const e = prefix('control')
-const sshConfigItems = getGlobal('sshConfigItems')
+const sshConfigItems = copy(getGlobal('sshConfigItems'))
 const defaultStatus = statusMap.processing
 const getInitItem = (arr, tab) => {
   if (tab === settingMap.history) {
     return arr[0] || {}
   } else if (tab === settingMap.bookmarks) {
-    return {id: '', title: e('new')}
+    return {id: '', title: ''}
   } else if (tab === settingMap.setting) {
     return {id: '', title: e('common')}
   } else if (tab === settingMap.terminalThemes) {
