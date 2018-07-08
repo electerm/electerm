@@ -44,14 +44,12 @@ describe('local file manager', function () {
 
     //click sftp tab
     await client.execute(function() {
-      console.log('click1')
       document.querySelectorAll('.ssh-wrap-show .term-sftp-tabs .type-tab')[1].click()
     })
     await delay(2500)
 
     //make a local folder
     let localFileListBefore = await client.elements('.ssh-wrap-show .file-list.local .sftp-item')
-    console.log('click2')
     await client.rightClick('.ssh-wrap-show .virtual-file-local', 10, 10)
     await client.execute(function() {
       document.querySelector('.context-menu .anticon-folder-add').click()
@@ -82,7 +80,6 @@ describe('local file manager', function () {
     //new file
     await client.rightClick('.ssh-wrap-show .virtual-file-local', 10, 10)
     await client.execute(function() {
-      console.log('click3')
       document.querySelector('.context-menu .anticon-file-add').click()
     })
     await delay(200)
@@ -96,7 +93,6 @@ describe('local file manager', function () {
     //select all and del Control
     await client.rightClick('.ssh-wrap-show .virtual-file-local', 10, 10)
     await client.execute(function() {
-      console.log('click4')
       document.querySelector('.context-menu .anticon-check-square-o').click()
     })
     await delay(20)
@@ -109,7 +105,6 @@ describe('local file manager', function () {
 
     //goto parent
     await client.execute(function() {
-      console.log('click5')
       document.querySelector('.ssh-wrap-show .sftp-local-section .anticon-arrow-up').click()
     })
     await delay(2000)
@@ -120,7 +115,6 @@ describe('local file manager', function () {
 
     //del folder
     await client.execute(function() {
-      console.log('click6')
       document.querySelectorAll('.ssh-wrap-show .file-list.local .sftp-item')[1].click()
     })
     await delay(20)
