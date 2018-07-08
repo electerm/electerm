@@ -4,6 +4,11 @@ const {resolve} = require('path')
 const cwd = process.cwd()
 const delay = require('./common/wait')
 const {expect} = require('chai')
+const isOs = require('./common/is-os')
+
+if (!isOs('darwin')) {
+  return
+}
 
 describe('symbolic links support', function () {
   this.timeout(100000)

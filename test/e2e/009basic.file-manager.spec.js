@@ -10,6 +10,11 @@ const {expect} = require('chai')
 const cwd = process.cwd()
 const delay = require('./common/wait')
 const generate = require('./common/uid')
+const isOs = require('./common/is-os')
+
+if (!isOs('darwin')) {
+  return
+}
 
 describe('local file manager', function () {
   this.timeout(100000)
