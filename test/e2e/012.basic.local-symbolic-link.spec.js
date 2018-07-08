@@ -41,7 +41,8 @@ describe('symbolic links support', function () {
     await client.execute(function() {
       document.querySelector('.ssh-wrap-show .anticon-reload').click()
     })
-    await delay(1500)
+    await delay(2500)
+    console.log('symbolic links click1')
     await client.execute(function() {
       let event = new MouseEvent('dblclick', {
         'view': window,
@@ -52,7 +53,7 @@ describe('symbolic links support', function () {
     })
 
     await delay(3000)
-
+    console.log('symbolic links click2')
     let localFileList = await client.elements('.ssh-wrap-show .file-list.local .sftp-item')
     expect(localFileList.value.length).equal(5)
     await client.execute(function() {
