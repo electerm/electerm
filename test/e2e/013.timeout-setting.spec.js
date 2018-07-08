@@ -64,7 +64,7 @@ describe('timeout setting', function () {
     await client.execute(function() {
       document.querySelector('.ant-modal .ant-tabs-tabpane-active .ant-btn-primary').click()
     })
-    await delay(500)
+    await delay(1000)
     let txt = await client.getText('.ant-notification .ant-notification-notice-message div')
     expect(txt.includes('Timed out')).equal(true)
     await client.execute(function() {

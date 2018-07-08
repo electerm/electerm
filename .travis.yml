@@ -38,7 +38,9 @@ script:
   - npm run pre-test
   - npm run test
   - |
-    if [ "$TRAVIS_OS_NAME" == "linux" ]; then
+    if echo "$TRAVIS_COMMIT_MESSAGE" | grep -F -q "[skip build]" ; then
+      echo "[skip travis] has been found, exiting" && exit 0 ;
+    elif [ "$TRAVIS_OS_NAME" == "linux" ]; then
       npm run output -l
     else
       npm run output -m
