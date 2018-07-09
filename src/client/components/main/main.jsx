@@ -11,6 +11,7 @@ import UpdateCheck from './update-check'
 import {notification} from 'antd'
 import openInfoModal from '../control/info-modal'
 import * as terminalThemes from '../../common/terminal-theme'
+import createTitlte from '../../common/create-title'
 import {maxHistory, settingMap, maxTransferHistory} from '../../common/constants'
 import './wrapper.styl'
 
@@ -42,6 +43,8 @@ export default class Index extends React.Component {
       transferHistoryModalVisible: false,
       onCheckUpdating: false
     }
+    let title = createTitlte(tabs[0])
+    window.getGlobal('setTitle')(title)
   }
 
   componentDidMount() {
@@ -98,6 +101,15 @@ export default class Index extends React.Component {
   }
 
   modifier = (...args) => {
+    let update = args[0]
+    let changed = (update.currentTabId && update.currentTabId !== this.state.currentTabId) || update.tabs
+    if (changed) {
+      let currentTabId = update.currentTabId || this.state.currentTabId
+      let tabs = update.tabs || this.state.tabs
+      let tab = _.find(tabs, t => t.id === currentTabId) || {}
+      let title = createTitlte(tab)
+      window.getGlobal('setTitle')(title)
+    }
     this.setState(...args)
   }
 
@@ -231,7 +243,7 @@ export default class Index extends React.Component {
   addTab = (tab, index = this.state.tabs.length) => {
     let tabs = copy(this.state.tabs)
     tabs.splice(index, 0, tab)
-    this.setState({
+    this.modifier({
       tabs,
       currentTabId: tab.id
     })
@@ -253,7 +265,7 @@ export default class Index extends React.Component {
       let next = tabs[0] || {}
       update.currentTabId = next.id
     }
-    this.setState(update)
+    this.modifier(update)
   }
 
   addTheme = (theme) => {
