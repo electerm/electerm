@@ -106,6 +106,7 @@ async function createWindow () {
     height,
     fullscreenable: true,
     //fullscreen: true,
+    title: packInfo.name,
     icon: iconPath
   })
 
@@ -151,6 +152,9 @@ async function createWindow () {
     lastStateManager,
     os,
     saveUserConfig,
+    setTitle: (title) => {
+      win.setTitle(packInfo.name + ' - ' +title)
+    },
     changeHotkey: changeHotkeyReg(globalShortcut, win)
   })
 
