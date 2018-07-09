@@ -75,7 +75,7 @@ export default class FileSection extends React.Component {
     }
   }
 
-  onCopy = (e, targetFiles) => {
+  onCopy = (e, targetFiles, isCut) => {
     let {file} = this.state
     let selected = this.isSelected(file)
     let files = targetFiles || selected
@@ -88,7 +88,16 @@ export default class FileSection extends React.Component {
       return prefix + resolve(f.path, f.name)
     }).join('\n')
     copyToClipboard(textToCopy)
+    if (isCut) {
+      this.props.modifier({
+        transferType: fileOpTypeMap.mv
+      })
+    }
     this.props.closeContextMenu()
+  }
+
+  onCut = (e, targetFiles) => {
+    this.onCopy(e, targetFiles, true)
   }
 
   getTransferType = fileType => {
@@ -820,6 +829,19 @@ export default class FileSection extends React.Component {
                 onClick={this.onCopy}
               >
                 <Icon type="copy" /> {m('copy')}
+              </div>
+            )
+            : null
+
+        }
+        {
+          id
+            ? (
+              <div
+                className={cls}
+                onClick={this.onCut}
+              >
+                <Icon type="file-excel" /> {m('cut')}
               </div>
             )
             : null

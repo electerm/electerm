@@ -326,6 +326,13 @@ export default class Sftp extends React.Component {
     this[type + 'Dom'].onCopy(null, true)
   }
 
+  doCut = (type) => {
+    this.setState({
+      transferType: fileOpTypeMap.mv
+    })
+    this[type + 'Dom'].onCopy(null, true)
+  }
+
   doPaste = (type) => {
     if (!hasFileInClipboardText()) {
       return
@@ -354,6 +361,8 @@ export default class Sftp extends React.Component {
       this.enter(type, e)
     } else if (keyControlPressed(e) && e.code === 'KeyC') {
       this.doCopy(type, e)
+    } else if (keyControlPressed(e) && e.code === 'KeyX') {
+      this.doCut(type, e)
     } else if (keyControlPressed(e) && e.code === 'KeyV') {
       this.doPaste(type, e)
     } else if (e.code === 'F5') {
