@@ -2,15 +2,16 @@
  * hisotry/bookmark list
  */
 import React from 'react'
-import {Tooltip, Icon} from 'antd'
+import {Tooltip, Icon, Popconfirm} from 'antd'
 import Search from '../common/search'
 import createName from '../../common/create-title'
 import classnames from 'classnames'
+import _ from 'lodash'
 import './list.styl'
 
 const {prefix} = window
 const e = prefix('menu')
-const c = prefix('menu')
+const c = prefix('common')
 
 export default class ItemList extends React.Component {
 
@@ -44,18 +45,33 @@ export default class ItemList extends React.Component {
     if (!item.id) {
       return null
     }
-    return (
-      <Tooltip
+    let {shouldComfirmDel} = this.props
+    let icon = (
+      <Icon
+        type="close"
         title={e('del')}
-        placement="top"
-      >
-        <Icon
-          type="close"
-          className="pointer list-item-remove"
-          onClick={e => this.del(item, e)}
-        />
-      </Tooltip>
+        className="pointer list-item-remove"
+        onClick={
+          shouldComfirmDel
+            ? _.noop
+            : e => this.del(item, e)
+        }
+      />
     )
+    if (shouldComfirmDel) {
+      return (
+        <Popconfirm
+          title={e('del') + '?'}
+          onConfirm={e => this.del(item, e)}
+          okText={e('del')}
+          cancelText={c('cancel')}
+          placement="top"
+        >
+          {icon}
+        </Popconfirm>
+      )
+    }
+    return icon
   }
 
   renderItem = (item, i) => {
