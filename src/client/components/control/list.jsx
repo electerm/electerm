@@ -12,6 +12,7 @@ import './list.styl'
 const {prefix} = window
 const e = prefix('menu')
 const c = prefix('common')
+const s = prefix('setting')
 
 export default class ItemList extends React.Component {
 
@@ -94,7 +95,7 @@ export default class ItemList extends React.Component {
           title={title}
           placement="right"
         >
-          <div className="elli pd1y pd2x">{title || c('new')}</div>
+          <div className="elli pd1y pd2x">{title || s('new')}</div>
         </Tooltip>
         {this.renderDelBtn(item)}
       </div>
