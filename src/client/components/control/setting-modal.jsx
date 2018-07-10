@@ -41,6 +41,11 @@ export default class SettingModal extends React.Component {
     this.props.modifier2({item})
   }
 
+  tabsShouldConfirmDel = [
+    settingMap.bookmarks,
+    settingMap.terminalThemes
+  ]
+
   renderTabs() {
     let {tab, item, list} = this.props
     let props = {
@@ -48,6 +53,7 @@ export default class SettingModal extends React.Component {
       activeItemId: item.id,
       type: tab,
       onClickItem: this.selectItem,
+      shouldComfirmDel: this.tabsShouldConfirmDel.includes(tab),
       list
     }
     let formProps = {
