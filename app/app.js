@@ -110,7 +110,7 @@ async function createWindow () {
     icon: iconPath
   })
 
-  win.setAutoHideMenuBar(true)
+  //win.setAutoHideMenuBar(true)
 
   //handle autohide flag
   if (process.argv.includes('--autohide')) {

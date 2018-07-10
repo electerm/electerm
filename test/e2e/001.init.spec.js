@@ -4,6 +4,7 @@ const {resolve} = require('path')
 const delay = require('./common/wait')
 const {expect} = require('chai')
 const cwd = process.cwd()
+const packInfo = require('../../package.json')
 const {log} = console
 
 describe('main window', function () {
@@ -34,7 +35,7 @@ describe('main window', function () {
 
     log('title')
     const title = await browserWindow.getTitle()
-    expect(title).equal('electerm')
+    expect(title).includes(packInfo.name)
 
     log('elements')
     let wrap = await  client.element('#outside-context')
