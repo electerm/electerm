@@ -485,7 +485,14 @@ export default class Sftp extends React.Component {
           let realFileInfo = await getRemoteFileInfo(
             sftp,
             window.getGlobal('resolve')(remotePath, realPath)
-          )
+          ).catch(e => {
+            console.log('seems a bad symbolic link')
+            console.log(e)
+            return null
+          })
+          if (!realFileInfo) {
+            continue
+          }
           f.isSymbolicLink = true
           f.isDirectory = realFileInfo.isDirectory
         } else {
