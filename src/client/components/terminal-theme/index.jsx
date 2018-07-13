@@ -1,5 +1,5 @@
 
-import {SshForm} from '../ssh-form'
+import {BookmarkForm} from '../bookmark-form'
 import {
   Form, Button, Input,
   //message,
@@ -19,7 +19,14 @@ const t = prefix('terminalThemes')
 
 @Form.create()
 @validateFieldsAndScroll
-class ThemeForm extends SshForm {
+class ThemeForm extends BookmarkForm {
+  componentWillReceiveProps(nextProps) {
+    if (
+      !_.isEqual(nextProps.formData, this.props.formData)
+    ) {
+      this.reset()
+    }
+  }
 
   export = () => {
     exportTheme(this.props.formData.id)

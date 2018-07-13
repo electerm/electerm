@@ -1,5 +1,5 @@
 /**
- * hisotry/bookmark list
+ * history list
  */
 import React from 'react'
 import {Tooltip, Icon, Popconfirm} from 'antd'

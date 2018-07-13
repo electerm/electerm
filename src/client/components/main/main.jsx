@@ -12,24 +12,36 @@ import {notification} from 'antd'
 import openInfoModal from '../control/info-modal'
 import * as terminalThemes from '../../common/terminal-theme'
 import createTitlte from '../../common/create-title'
-import {maxHistory, settingMap, maxTransferHistory} from '../../common/constants'
+import {
+  maxHistory,
+  settingMap,
+  defaultookmarkGroupId,
+  maxTransferHistory
+} from '../../common/constants'
 import './wrapper.styl'
 
 const {getGlobal, _config} = window
 const ls = getGlobal('ls')
+const {prefix} = window
+const t = prefix('terminalThemes')
 
 export default class Index extends React.Component {
 
   constructor(props) {
     super(props)
     let tabs = [newTerm()]
+    let bookmarks = copy(ls.get(settingMap.bookmarks) || [])
     this.state = {
       tabs,
       height: 500,
       width: window.innerWidth,
       currentTabId: tabs[0].id,
       history: copy(ls.get(settingMap.history) || []),
-      bookmarks: copy(ls.get(settingMap.bookmarks) || []),
+      bookmarks,
+      bookmarkGroups: copy(
+        ls.get(settingMap.bookmarkGroups) ||
+        this.getDefaultBookmarkGroups(bookmarks)
+      ),
       config: _config || {},
       contextMenuProps: {},
       transferHistory: [],
@@ -39,6 +51,7 @@ export default class Index extends React.Component {
       contextMenuVisible: false,
       fileInfoModalProps: {},
       fileModeModalProps: {},
+      currentBookmarkGroupId: defaultookmarkGroupId,
       shouldCheckUpdate: 0,
       transferHistoryModalVisible: false,
       onCheckUpdating: false
@@ -117,6 +130,16 @@ export default class Index extends React.Component {
     let dom = document.getElementById('outside-context')
     this.dom = dom
     dom.addEventListener('click', this.closeContextMenu)
+  }
+
+  getDefaultBookmarkGroups = (bookmarks) => {
+    return [
+      {
+        title: t(defaultookmarkGroupId),
+        id: defaultookmarkGroupId,
+        bookmarkIds: bookmarks.map(d => d.id)
+      }
+    ]
   }
 
   openAbout = () => {
@@ -307,6 +330,60 @@ export default class Index extends React.Component {
     terminalThemes.delTheme(id)
   }
 
+  addBookmarkGroup = (group) => {
+    let bookmarkGroups = copy(this.state.bookmarkGroups)
+    bookmarkGroups = [
+      ...bookmarkGroups,
+      group
+    ]
+    this.setStateLs({
+      bookmarkGroups
+    })
+  }
+
+  editBookmarkGroup = (id, update) => {
+    let items = copy(this.state.bookmarkGroups)
+    let item = _.find(items, t => t.id === id)
+    let index = _.findIndex(items, t => t.id === id)
+    Object.assign(item, update)
+    items.splice(index, 1, item)
+    this.setStateLs({
+      bookmarkGroups: items
+    })
+  }
+
+  delBookmarkGroup = ({id}) => {
+    if (id === defaultookmarkGroupId) {
+      return
+    }
+    let bookmarkGroups = copy(this.state.bookmarkGroups)
+    let tobeDel = _.find(bookmarkGroups, bg => bg.id == id)
+    if (!tobeDel) {
+      return
+    }
+    if (tobeDel.bookmarkIds.length) {
+      let defaultCatIndex = _.findIndex(
+        bookmarkGroups,
+        g => g.id === defaultookmarkGroupId
+      )
+      let def = bookmarkGroups[defaultCatIndex]
+      def.bookmarkIds = [
+        ...tobeDel.bookmarkIds,
+        ...def.bookmarkIds
+      ]
+    }
+    bookmarkGroups = bookmarkGroups.filter(t => {
+      return t.id !== id
+    })
+    let update = {
+      bookmarkGroups
+    }
+    if (id === this.state.currentBookmarkGroupId) {
+      update.currentBookmarkGroupId = ''
+    }
+    this.setStateLs(update)
+  }
+
   setTheme = id => {
     this.setState({
       theme: id
@@ -338,7 +415,10 @@ export default class Index extends React.Component {
         'onError', 'openContextMenu', 'closeContextMenu',
         'modifyLs', 'addItem', 'editItem', 'delItem',
         'onCheckUpdate', 'openAbout',
-        'setTheme', 'addTheme', 'editTheme', 'delTheme'
+        'setTheme', 'addTheme', 'editTheme', 'delTheme',
+        'addBookmarkGroup',
+        'editBookmarkGroup',
+        'delBookmarkGroup'
       ])
     }
     return (

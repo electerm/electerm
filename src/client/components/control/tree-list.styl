@@ -1,0 +1,36 @@
+.tree-list
+  .ant-tree li
+    > .ant-tree-node-content-wrapper
+      width calc(100% - 24px)
+    .ant-tree-child-tree
+      span.ant-tree-switcher.ant-tree-switcher-noop
+        display none
+      .ant-tree-node-content-wrapper
+        display block
+        padding-left 8px
+        width 100%
+        overflow hidden
+        white-space nowrap
+        text-overflow ellipsis
+.tree-item
+  position relative
+  &.is-category
+    .tree-item-title
+      width calc(100% - 45px)
+      padding-left 0
+      font-weight bold
+  &:hover
+    .list-item-del
+    .list-item-edit
+      display inline-block
+      margin-right 5px
+      position static
+      vertical-align middle
+.tree-item-title
+  width calc(100% - 20px)
+  padding-left 8px
+  display inline-block
+  vertical-align middle
+.list-item-edit
+.list-item-del
+  display none
