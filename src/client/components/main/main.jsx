@@ -357,7 +357,7 @@ export default class Index extends React.Component {
       return
     }
     let bookmarkGroups = copy(this.state.bookmarkGroups)
-    let tobeDel = _.find(bookmarkGroups, bg => bg.id == id)
+    let tobeDel = _.find(bookmarkGroups, bg => bg.id === id)
     if (!tobeDel) {
       return
     }

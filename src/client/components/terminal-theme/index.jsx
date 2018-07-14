@@ -10,6 +10,7 @@ import {convertTheme, convertThemeToText, exportTheme, defaultTheme} from '../..
 import {generate} from 'shortid'
 import {formItemLayout, tailFormItemLayout} from '../../common/form-layout'
 import InputAutoFocus from '../common/input-auto-focus'
+import _ from 'lodash'
 
 const {TextArea} = Input
 const FormItem = Form.Item
