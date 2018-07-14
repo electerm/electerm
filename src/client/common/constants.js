@@ -12,6 +12,8 @@ const buildConst = (props) => {
 }
 
 export const defaultUserName = 'root'
+export const defaultookmarkGroupId = 'default'
+export const maxBookmarkGroupTitleLength = 33
 export const termControlHeight = 33
 export const maxDragMove = 30
 export const splitDraggerWidth = 5
@@ -74,7 +76,8 @@ export const settingMap = buildConst([
   'setting',
   'bookmarks',
   'history',
-  'terminalThemes'
+  'terminalThemes',
+  'bookmarkGroups'
 ])
 
 export const transferTypeMap = buildConst([

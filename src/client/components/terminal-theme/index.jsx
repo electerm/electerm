@@ -1,5 +1,5 @@
 
-import {SshForm} from '../ssh-form'
+import {BookmarkForm} from '../bookmark-form'
 import {
   Form, Button, Input,
   //message,
@@ -10,6 +10,7 @@ import {convertTheme, convertThemeToText, exportTheme, defaultTheme} from '../..
 import {generate} from 'shortid'
 import {formItemLayout, tailFormItemLayout} from '../../common/form-layout'
 import InputAutoFocus from '../common/input-auto-focus'
+import _ from 'lodash'
 
 const {TextArea} = Input
 const FormItem = Form.Item
@@ -19,7 +20,14 @@ const t = prefix('terminalThemes')
 
 @Form.create()
 @validateFieldsAndScroll
-class ThemeForm extends SshForm {
+class ThemeForm extends BookmarkForm {
+  componentWillReceiveProps(nextProps) {
+    if (
+      !_.isEqual(nextProps.formData, this.props.formData)
+    ) {
+      this.reset()
+    }
+  }
 
   export = () => {
     exportTheme(this.props.formData.id)

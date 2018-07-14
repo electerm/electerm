@@ -5,8 +5,9 @@ import React from 'react'
 import {Modal, Tabs, Col, Row} from 'antd'
 import TerminalThemeForm from '../terminal-theme'
 import TerminalThemeList from '../terminal-theme/theme-list'
-import SshForm from '../ssh-form'
+import BookmarkForm from '../bookmark-form'
 import List from './list'
+import TreeList from './tree-list'
 import Setting from '../setting'
 import {settingMap} from '../../common/constants'
 
@@ -82,7 +83,7 @@ export default class SettingModal extends React.Component {
               {
                 item.id
                   ? (
-                    <SshForm
+                    <BookmarkForm
                       {...formProps}
                     />
                   )
@@ -97,13 +98,13 @@ export default class SettingModal extends React.Component {
           key={settingMap.bookmarks}
         >
           <Row>
-            <Col span={6}>
-              <List
+            <Col span={10}>
+              <TreeList
                 {...props}
               />
             </Col>
-            <Col span={18}>
-              <SshForm
+            <Col span={14}>
+              <BookmarkForm
                 {...formProps}
               />
             </Col>

@@ -1,15 +1,23 @@
-
+/**
+ * bookmark form
+ */
 import React from 'react'
 import {
   Form, Button, Input,
   InputNumber, message,
-  Radio, Upload
+  Radio, Upload,
+  Select
 } from 'antd'
 import {validateFieldsAndScroll} from '../../common/dec-validate-and-scroll'
 import _ from 'lodash'
 import copy from 'json-deep-copy'
 import {generate} from 'shortid'
-import {authTypeMap, settingMap, defaultUserName} from '../../common/constants'
+import {
+  authTypeMap,
+  settingMap,
+  defaultUserName,
+  defaultookmarkGroupId
+} from '../../common/constants'
 import {formItemLayout, tailFormItemLayout} from '../../common/form-layout'
 import InputAutoFocus from '../common/input-auto-focus'
 
@@ -20,34 +28,112 @@ const authTypes = Object.keys(authTypeMap).map(k => {
 const RadioButton = Radio.Button
 const RadioGroup = Radio.Group
 const FormItem = Form.Item
+const {Option} = Select
 const {prefix} = window
 const e = prefix('form')
+const c = prefix('common')
+const m = prefix('menu')
+const s = prefix('setting')
 
-export class SshForm extends React.Component {
+export class BookmarkForm extends React.Component {
 
   componentWillReceiveProps(nextProps) {
-    if (!_.isEqual(nextProps.formData, this.props.formData)) {
+    let initBookmarkGroupId = this.getBookmarkGroupId(nextProps)
+    let initBookmarkGroupIdOld = this.getBookmarkGroupId(this.props)
+    if (
+      !_.isEqual(nextProps.formData, this.props.formData) ||
+      initBookmarkGroupId !== initBookmarkGroupIdOld
+    ) {
       this.reset()
     }
+  }
+
+  getBookmarkGroupId = (props = this.props) => {
+    const {
+      id
+    } = props.formData
+    let {
+      bookmarkGroups,
+      currentBookmarkGroupId
+    } = props
+    return id
+      ? this.findBookmarkGroupId(bookmarkGroups, id)
+      : currentBookmarkGroupId
+  }
+
+  findBookmarkGroupId = (bookmarkGroups, id) => {
+    let obj = _.find(bookmarkGroups, bg => {
+      return bg.bookmarkIds.includes(id)
+    })
+    return obj ? obj.id : defaultookmarkGroupId
+  }
+
+  updateBookmarkGroups = (bookmarkGroups, bookmark, categoryId) => {
+    let index = _.findIndex(
+      bookmarkGroups,
+      bg => bg.id === categoryId
+    )
+    if (index < 0) {
+      index = _.findIndex(
+        bookmarkGroups,
+        bg => bg.id === defaultookmarkGroupId
+      )
+    }
+    let bg = bookmarkGroups[index]
+    let bid = bookmark.id
+    bg.bookmarkIds.unshift(bid)
+    bg.bookmarkIds = _.uniq(bg.bookmarkIds)
+    bookmarkGroups = bookmarkGroups.map((bg, i) => {
+      if (i === index) {
+        return bg
+      }
+      bg.bookmarkIds = bg.bookmarkIds.filter(
+        g => g !== bid
+      )
+      return bg
+    })
+    this.props.modifyLs({
+      bookmarkGroups
+    })
   }
 
   submit = (item, type = this.props.type) => {
     let obj = item
     let {addItem, editItem} = this.props
+    let categoryId = obj.category
+    delete obj.category
+    let bookmarkGroups = copy(
+      this.props.bookmarkGroups
+    )
     if (type === settingMap.history) {
       obj.id = generate()
       delete obj.type
       addItem(obj, settingMap.bookmarks)
+      this.updateBookmarkGroups(
+        bookmarkGroups,
+        obj,
+        categoryId
+      )
       return
     }
     if (obj.id) {
       let tar = copy(obj)
       delete tar.id
       editItem(obj.id, tar, settingMap.bookmarks)
+      this.updateBookmarkGroups(
+        bookmarkGroups,
+        obj,
+        categoryId
+      )
     } else {
       obj.id = generate()
       addItem(obj, settingMap.history)
       addItem(obj, settingMap.bookmarks)
+      this.updateBookmarkGroups(
+        bookmarkGroups,
+        obj,
+        categoryId
+      )
     }
   }
 
@@ -193,6 +279,22 @@ export class SshForm extends React.Component {
     ]
   }
 
+  renderTitle(type, id) {
+    if (type !== settingMap.bookmarks) {
+      return null
+    }
+    return (
+      <FormItem {...tailFormItemLayout} className="mg0 font14">
+        {
+          (id
+            ? m('edit')
+            : s('new')
+          ) + c(settingMap.bookmarks)
+        }
+      </FormItem>
+    )
+  }
+
   render() {
     const {getFieldDecorator} = this.props.form
     const {
@@ -200,12 +302,23 @@ export class SshForm extends React.Component {
       port = 22,
       title,
       authType = authTypeMap.password,
-      username
+      username,
+      id
     } = this.props.formData
-    let {autoFocusTrigger} = this.props
+    let {
+      autoFocusTrigger,
+      bookmarkGroups,
+      currentBookmarkGroupId,
+      type
+    } = this.props
+
+    let initBookmarkGroupId = id
+      ? this.findBookmarkGroupId(bookmarkGroups, id)
+      : currentBookmarkGroupId
 
     return (
-      <Form onSubmit={this.handleSubmit} className="form-wrap">
+      <Form onSubmit={this.handleSubmit} className="form-wrap pd1x">
+        {this.renderTitle(type, id)}
         <FormItem
           {...formItemLayout}
           label={e('host')}
@@ -277,6 +390,29 @@ export class SshForm extends React.Component {
         </FormItem>
         <FormItem
           {...formItemLayout}
+          label={c('bookmarkCategory')}
+        >
+          {getFieldDecorator('category', {
+            initialValue: initBookmarkGroupId
+          })(
+            <Select>
+              {
+                bookmarkGroups.map(bg => {
+                  return (
+                    <Option
+                      value={bg.id}
+                      key={bg.id}
+                    >
+                      {bg.title}
+                    </Option>
+                  )
+                })
+              }
+            </Select>
+          )}
+        </FormItem>
+        <FormItem
+          {...formItemLayout}
           label={e('title')}
           hasFeedback
         >
@@ -319,7 +455,7 @@ export class SshForm extends React.Component {
 
 @Form.create()
 @validateFieldsAndScroll
-class SshFormExport extends SshForm {}
+class BookmarkFormExport extends BookmarkForm {}
 
-export default SshFormExport
+export default BookmarkFormExport
 
