@@ -2,8 +2,15 @@
  * btns
  */
 
-import {Button, Select, Icon, Tooltip} from 'antd'
+import {
+  Button,
+  Select,
+  Icon,
+  Tooltip,
+  TreeSelect
+} from 'antd'
 import createName from '../../common/create-title'
+import copy from 'json-deep-copy'
 
 const {Option} = Select
 const {prefix, getGlobal} = window
@@ -11,7 +18,7 @@ const e = prefix('control')
 const c = prefix('common')
 const m = prefix('menu')
 const h = prefix('transferHistory')
-
+const s = prefix('ssh')
 const commonSelectProps = {
   showSearch: true,
   optionFilterProp: 'children',
@@ -19,7 +26,7 @@ const commonSelectProps = {
   dropdownMatchSelectWidth: false,
   className: 'iblock width120 mg1r'
 }
-const sshConfigItems = getGlobal('sshConfigItems')
+const sshConfigItems = copy(getGlobal('sshConfigItems'))
 
 export default function Btns(props) {
 
@@ -29,6 +36,7 @@ export default function Btns(props) {
     openSetting,
     onSelectBookmark,
     bookmarks = [],
+    bookmarkGroups = [],
     history = [],
     onEditBookmark,
     openAbout,
@@ -37,6 +45,48 @@ export default function Btns(props) {
     openTerminalThemes,
     transferHistory
   } = props
+  let bookmarkMap = bookmarks.reduce((prev, b) => {
+    return {
+      ...prev,
+      [b.id]: b
+    }
+  }, {})
+  let treeData = bookmarkGroups.map(bg => {
+    return {
+      label: bg.title,
+      value: bg.id,
+      key: bg.id,
+      children: bg.bookmarkIds.reduce((p, id) => {
+        let bm = bookmarkMap[id]
+        if (!bm) {
+          return p
+        }
+        return [
+          ...p,
+          {
+            label: createName(bm),
+            value: bm.id,
+            key: bm.id
+          }
+        ]
+      }, [])
+    }
+  })
+  if (sshConfigItems.length) {
+    treeData = [
+      ...treeData,
+      {
+        label: 'ssh-config',
+        children: sshConfigItems.map(bm => {
+          return {
+            label: createName(bm),
+            value: bm.id,
+            key: bm.id
+          }
+        })
+      }
+    ]
+  }
   return (
     <div className={
       `btns pd1 borderb fix${showControl ? '' : ' hide'}`
@@ -65,28 +115,26 @@ export default function Btns(props) {
             })
           }
         </Select>
-        <Select
-          onSelect={onSelectBookmark}
-          className="iblock btn-select"
+        <TreeSelect
           placeholder={c('bookmarks')}
-          {...commonSelectProps}
-        >
-          {
-            [
-              ...bookmarks,
-              ...sshConfigItems
-            ].map((tab, i) => {
-              let {id} = tab
-              return (
-                <Option value={id} key={id + 'bm' + i}>{createName(tab)}</Option>
-              )
-            })
-          }
-        </Select>
+          className="iblock btn-select"
+          onSelect={onSelectBookmark}
+          showSearch
+          treeDefaultExpandAll
+          dropdownMatchSelectWidth={false}
+          dropdownStyle={{
+            maxHeight: 400,
+            maxWidth: 500,
+            overflow: 'auto'
+          }}
+          treeData={treeData}
+          treeNodeFilterProp="label"
+          searchPlaceholder={s('search')}
+        />
         <Tooltip title={`${m('edit')} ${c('bookmarks')}`}>
           <Icon
             type="edit"
-            className="font16 mg1x pointer iblock control-icon icon-do-edit"
+            className="font16 mg1x mg2l pointer iblock control-icon icon-do-edit"
             onClick={onEditBookmark}
           />
         </Tooltip>

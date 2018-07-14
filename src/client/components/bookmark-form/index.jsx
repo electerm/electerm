@@ -32,6 +32,8 @@ const {Option} = Select
 const {prefix} = window
 const e = prefix('form')
 const c = prefix('common')
+const m = prefix('menu')
+const s = prefix('setting')
 
 export class BookmarkForm extends React.Component {
 
@@ -46,7 +48,7 @@ export class BookmarkForm extends React.Component {
     }
   }
 
-  getBookmarkGroupId = (props) => {
+  getBookmarkGroupId = (props = this.props) => {
     const {
       id
     } = props.formData
@@ -78,9 +80,20 @@ export class BookmarkForm extends React.Component {
       )
     }
     let bg = bookmarkGroups[index]
-    bg.bookmarkIds.unshift(bookmark.id)
-    this.props.editBookmarkGroup(bg.id, {
-      bookmarkIds: bg.bookmarkIds
+    let bid = bookmark.id
+    bg.bookmarkIds.unshift(bid)
+    bg.bookmarkIds = _.uniq(bg.bookmarkIds)
+    bookmarkGroups = bookmarkGroups.map((bg, i) => {
+      if (i === index) {
+        return bg
+      }
+      bg.bookmarkIds = bg.bookmarkIds.filter(
+        g => g !== bid
+      )
+      return bg
+    })
+    this.props.modifyLs({
+      bookmarkGroups
     })
   }
 
@@ -107,6 +120,11 @@ export class BookmarkForm extends React.Component {
       let tar = copy(obj)
       delete tar.id
       editItem(obj.id, tar, settingMap.bookmarks)
+      this.updateBookmarkGroups(
+        bookmarkGroups,
+        obj,
+        categoryId
+      )
     } else {
       obj.id = generate()
       addItem(obj, settingMap.history)
@@ -261,6 +279,22 @@ export class BookmarkForm extends React.Component {
     ]
   }
 
+  renderTitle(type, id) {
+    if (type !== settingMap.bookmarks) {
+      return null
+    }
+    return (
+      <FormItem {...tailFormItemLayout} className="mg0 font14">
+        {
+          (id
+            ? m('edit')
+            : s('new')
+          ) + c(settingMap.bookmarks)
+        }
+      </FormItem>
+    )
+  }
+
   render() {
     const {getFieldDecorator} = this.props.form
     const {
@@ -284,6 +318,7 @@ export class BookmarkForm extends React.Component {
 
     return (
       <Form onSubmit={this.handleSubmit} className="form-wrap pd1x">
+        {this.renderTitle(type, id)}
         <FormItem
           {...formItemLayout}
           label={e('host')}
