@@ -62,20 +62,23 @@ describe('bookmarks', function () {
 
     log('save it')
     await client.setValue('.ant-modal .ant-tabs-tabpane-active #host', '0.0.0.0')
-    let list0 = await client.elements('.ant-modal .ant-tabs-tabpane-active .item-list-unit')
+    let list0 = await client.elements('.ant-modal .ant-tabs-tabpane-active .tree-item')
     await client.execute(function() {
       document.querySelectorAll('.ant-modal .ant-tabs-tabpane-active .ant-form-item-children .ant-btn.ant-btn-ghost')[0].click()
     })
-    let list = await client.elements('.ant-modal .ant-tabs-tabpane-active .item-list-unit')
+    let list = await client.elements('.ant-modal .ant-tabs-tabpane-active .tree-item')
     await delay(100)
     expect(list.value.length).equal(list0.value.length + 1)
 
     log('list tab')
     await client.execute(function() {
-      document.querySelectorAll('.ant-modal .ant-tabs-tabpane-active .item-list-unit')[1].click()
+      document.querySelectorAll('.ant-modal .ant-tabs-tabpane-active .ant-tree-child-tree-open .tree-item')[0].click()
     })
-    let list1 = await client.getAttribute('.ant-modal .ant-tabs-tabpane-active .item-list-unit:nth-child(1)', 'class')
-    expect(list1.includes('active'))
+    //await delay(55555555)
+    let list1 = await client.getAttribute('.ant-modal .ant-tabs-tabpane-active .ant-tree-child-tree-open .ant-tree-node-content-wrapper', 'class')
+    expect(list1.includes('ant-tree-node-selected'))
+
+    //await delay(55555555)
 
     log('tab it')
     await client.execute(function() {
