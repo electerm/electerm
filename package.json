@@ -45,7 +45,7 @@
     "node": ">=8.9.1"
   },
   "devDependencies": {
-    "antd": "^3.6.6",
+    "antd": "3.6.6",
     "antd-icon-loader": "1.0.0",
     "babel-cli": "6.26.0",
     "babel-core": "6.26.3",
