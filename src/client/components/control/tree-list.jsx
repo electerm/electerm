@@ -19,8 +19,10 @@ import {
   maxBookmarkGroupTitleLength,
   defaultookmarkGroupId
 } from '../../common/constants'
-import './tree-list.styl'
+import highlight from '../common/highlight'
 import copy from 'json-deep-copy'
+//import Search from '../common/search'
+import './tree-list.styl'
 
 const {Search} = Input
 const {TreeNode} = Tree
@@ -374,6 +376,10 @@ export default class ItemList extends React.Component {
     let title = isGroup
       ? item.title
       : createName(item)
+    title = highlight(
+      title,
+      this.state.keyword
+    )
     return (
       <div className={cls} key={item.id} title={title}>
         <div className="tree-item-title elli">

@@ -2,13 +2,15 @@
  * history list
  */
 import React from 'react'
-import {Tooltip, Icon, Popconfirm} from 'antd'
-import Search from '../common/search'
+import {Tooltip, Icon, Popconfirm, Input} from 'antd'
+//import Search from '../common/search'
 import createName from '../../common/create-title'
 import classnames from 'classnames'
 import _ from 'lodash'
+import highlight from '../common/highlight'
 import './list.styl'
 
+const {Search} = Input
 const {prefix} = window
 const e = prefix('menu')
 const c = prefix('common')
@@ -84,6 +86,10 @@ export default class ItemList extends React.Component {
       {
         active: activeItemId === id
       }
+    )
+    title = highlight(
+      title,
+      this.state.keyword
     )
     return (
       <div
