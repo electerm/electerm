@@ -6,6 +6,7 @@ import List from '../control/list'
 import {Tooltip, Icon} from 'antd'
 import classnames from 'classnames'
 import {defaultTheme} from '../../common/terminal-theme'
+import highlight from '../common/highlight'
 import './terminal-theme-list.styl'
 
 const {prefix} = window
@@ -55,6 +56,10 @@ export default class ThemeList extends List {
     let title = id === defaultTheme.id
       ? e(id)
       : name
+    title = highlight(
+      title,
+      this.state.keyword
+    )
     return (
       <div
         key={i + id}
