@@ -211,19 +211,18 @@ export default class Index extends React.Component {
 
   onError = e => {
     let {message = 'error', stack} = e
-    console.log(new Date + '', stack, _.isString(stack))
+    console.log(new Date + '', stack)
     let msg = (
       <div className="mw240 elli wordbreak" title={message}>
         {message}
       </div>
     )
     let description = (
-      <pre
+      <div
         className="mw300 elli common-err-desc wordbreak"
-        title={stack}
       >
         {stack}
-      </pre>
+      </div>
     )
     notification.error({
       message: msg,
