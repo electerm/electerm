@@ -78,6 +78,9 @@ npm run release -l
 # visit dist/
 ```
 
+## use
+- [set autorun when login to os](https://github.com/electerm/electerm/wiki/autorun-electerm-when-login-to-os)
+
 ## changelog
 visit https://github.com/electerm/electerm/releases
 
