@@ -301,6 +301,7 @@ export class BookmarkForm extends React.Component {
       host,
       port = 22,
       title,
+      loginScript,
       authType = authTypeMap.password,
       username,
       id
@@ -420,6 +421,20 @@ export class BookmarkForm extends React.Component {
             initialValue: title
           })(
             <Input />
+          )}
+        </FormItem>
+        <FormItem
+          {...formItemLayout}
+          label={e('loginScript')}
+          hasFeedback
+        >
+          {getFieldDecorator('loginScript', {
+            initialValue: loginScript
+          })(
+            <div>
+              <Input.TextArea rows={1} />
+              <div>* {e('loginScriptTip')}</div>
+            </div>
           )}
         </FormItem>
         <FormItem {...tailFormItemLayout}>
