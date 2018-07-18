@@ -330,10 +330,14 @@ export default class Term extends React.Component {
   }
 
   initData = () => {
-    let {type, title} = this.props.tab
+    let {type, title, loginScript} = this.props.tab
     let cmd = type === terminalSshConfigType
       ? `ssh ${title}\r`
-      : `cd ${this.startPath}\r`
+      : (
+        loginScript
+          ? loginScript + '\r'
+          : `cd ${this.startPath}\r`
+      )
     this.term.__sendData(cmd)
   }
 
@@ -375,7 +379,7 @@ export default class Term extends React.Component {
     let wsUrl
     let url = `http://${host}:${port}/terminals`
     let {tab = {}} = this.props
-    let {startPath, srcId, from = 'bookmarks', type} = tab
+    let {startPath, srcId, from = 'bookmarks', type, loginScript} = tab
     let {tempPassword, savePassword} = this.state
     let isSshConfig = type === terminalSshConfigType
     let extra = tempPassword
@@ -441,7 +445,7 @@ export default class Term extends React.Component {
     term.attachCustomKeyEventHandler(this.handleEvent)
     this.term = term
     this.startPath = startPath
-    if (startPath || isSshConfig) {
+    if (startPath || loginScript || isSshConfig) {
       this.startPath = startPath
       this.timers.timer1 = setTimeout(this.initData, 10)
     }
