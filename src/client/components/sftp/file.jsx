@@ -19,7 +19,8 @@ import wait from '../../common/wait'
 import {
   contextMenuHeight, contextMenuPaddingTop,
   isWin, transferTypeMap, typeMap,
-  contextMenuWidth, fileOpTypeMap
+  contextMenuWidth, fileOpTypeMap,
+  platform
 } from '../../common/constants'
 import sorter from '../../common/index-sorter'
 import {getLocalFileInfo, getFolderFromFilePath, getRemoteFileInfo} from './file-read'
@@ -829,6 +830,14 @@ export default class FileSection extends React.Component {
                 onClick={this.onCopy}
               >
                 <Icon type="copy" /> {m('copy')}
+                <span className="context-sub-text">
+                  {
+                    platform === 'darwin'
+                      ? 'cmd'
+                      : 'ctrl'
+                  }
+                  +c
+                </span>
               </div>
             )
             : null
@@ -842,6 +851,14 @@ export default class FileSection extends React.Component {
                 onClick={this.onCut}
               >
                 <Icon type="file-excel" /> {m('cut')}
+                <span className="context-sub-text">
+                  {
+                    platform === 'darwin'
+                      ? 'cmd'
+                      : 'ctrl'
+                  }
+                  +x
+                </span>
               </div>
             )
             : null
@@ -852,6 +869,14 @@ export default class FileSection extends React.Component {
           onClick={canPaste ? this.onPaste : _.noop}
         >
           <Icon type="copy" /> {m('paste')}
+          <span className="context-sub-text">
+            {
+              platform === 'darwin'
+                ? 'cmd'
+                : 'ctrl'
+            }
+            +v
+          </span>
         </div>
         {
           id
@@ -882,6 +907,14 @@ export default class FileSection extends React.Component {
           onClick={this.selectAll}
         >
           <Icon type="check-square-o" /> {e('selectAll')}
+          <span className="context-sub-text">
+            {
+              platform === 'darwin'
+                ? 'cmd'
+                : 'ctrl'
+            }
+            +a
+          </span>
         </div>
         <div
           className={cls}
