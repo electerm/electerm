@@ -8,7 +8,7 @@ import TerminalThemeList from '../terminal-theme/theme-list'
 import BookmarkForm from '../bookmark-form'
 import List from './list'
 import TreeList from './tree-list'
-import Setting from '../setting'
+import Setting from './setting'
 import {settingMap} from '../../common/constants'
 
 const {prefix} = window

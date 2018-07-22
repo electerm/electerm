@@ -2,7 +2,7 @@
  * theme list render
  */
 
-import List from '../control/list'
+import List from '../setting-panel/list'
 import {Tooltip, Icon} from 'antd'
 import classnames from 'classnames'
 import {defaultTheme} from '../../common/terminal-theme'
