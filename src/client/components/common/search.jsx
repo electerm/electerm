@@ -9,9 +9,11 @@ const {Search} = Input
 
 export default class CommonSearch extends React.Component {
 
-  componentDidUpdate() {
-    let root = ReactDOM.findDOMNode(this)
-    root.querySelector('input').focus()
+  componentDidUpdate(prevProps) {
+    if (prevProps.value !== this.props.value) {
+      let root = ReactDOM.findDOMNode(this)
+      root.querySelector('input').focus()
+    }
   }
 
   clear = () => {
