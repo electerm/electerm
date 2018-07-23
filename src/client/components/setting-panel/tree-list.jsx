@@ -7,7 +7,6 @@ import {
   Icon,
   Popconfirm,
   Tree,
-  Input,
   Button
 } from 'antd'
 import createName from '../../common/create-title'
@@ -21,11 +20,10 @@ import {
 } from '../../common/constants'
 import highlight from '../common/highlight'
 import copy from 'json-deep-copy'
-//import Search from '../common/search'
+import Search from '../common/search'
 import Btns from './bookmark-transport'
 import './tree-list.styl'
 
-const {Search} = Input
 const {TreeNode} = Tree
 const {prefix} = window
 const e = prefix('menu')
