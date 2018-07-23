@@ -136,6 +136,12 @@ export default class Term extends React.Component {
   handleEvent = (e) => {
     if (keyControlPressed(e) && e.code === 'KeyF') {
       this.openSearch()
+    } else if (
+      e.ctrlKey &&
+      e.shiftKey &&
+      e.code === 'KeyC'
+    ) {
+      this.onCopy()
     }
   }
 
@@ -342,7 +348,7 @@ export default class Term extends React.Component {
   }
 
   onRefresh = (data) => {
-    let text = this.term.buffer.translateBufferLineToString(data.end)
+    let text = this.term._core.buffer.translateBufferLineToString(data.end)
     this.extractPath(text.trim())
   }
 
