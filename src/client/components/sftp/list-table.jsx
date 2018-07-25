@@ -143,7 +143,7 @@ export default class ResizeWrap extends Component {
     let isSorting = !isHandle && sortProp === name
     let cls = classnames(
       'sftp-header-item',
-      isHandle ? `shi-${id}` : `shi-${name}`,
+      isHandle ? `shi-${id}` : `sftp-header-box shi-${name}`,
       {
         'sftp-header-handle': isHandle
       },
