@@ -66,6 +66,7 @@ export default class FileSection extends React.Component {
 
   componentDidMount() {
     this.dom = ReactDOM.findDOMNode(this)
+    this.applyStyle()
   }
 
   componentWillReceiveProps(nextProps) {
@@ -74,6 +75,32 @@ export default class FileSection extends React.Component {
         file: copy(nextProps.file)
       })
     }
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (
+      !prevState.file.id &&
+      this.state.file.id
+    ) {
+      this.applyStyle()
+    }
+  }
+
+  applyStyle = () => {
+    let {
+      id,
+      type
+    } = this.props
+    let headers = document.querySelectorAll(
+      `#${id} .${type} .sftp-file-table-header .sftp-header-box`
+    )
+    this.dom.childNodes.forEach((n, i) => {
+      let h = headers[i]
+      if (h) {
+        let s = _.pick(h.style, ['width', 'left'])
+        Object.assign(n.style, s)
+      }
+    })
   }
 
   onCopy = (e, targetFiles, isCut) => {

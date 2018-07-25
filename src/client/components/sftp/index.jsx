@@ -658,6 +658,7 @@ export default class Sftp extends React.Component {
         'renderDelConfirmTitle'
       ]),
       ..._.pick(this.state, [
+        'id',
         'localPath',
         'remotePath',
         'localFileTree',
