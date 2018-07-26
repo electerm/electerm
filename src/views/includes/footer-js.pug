@@ -11,7 +11,6 @@ script.
 script(src=cdn + '/_bc/dayjs/dayjs.min.js?' + version)
 script(src=cdn + '/_bc/react/umd/react' + tail + '.js?' + version)
 script(src=cdn + '/_bc/react-dom/umd/react-dom' + tail + '.js?' + version)
-script(src=cdn + '/_bc/lodash/lodash.min.js?' + version)
 script.
   window.et.onload = function() {
     document.body.removeChild(document.getElementById('content-loading'));
@@ -39,12 +38,12 @@ script.
   * @param {string} id eg: 'menu.cut'
   */
   window.e = id => {
-    return _.get(window.lang, id) || id
+    return window.lang.id || id
   }
 
   window.prefix = prefix => {
     return (id) => {
-      return _.get(window.lang, `${prefix}.${id}`) || id
+      return window.lang[`${prefix}.${id}`] || id
     }
   }
 

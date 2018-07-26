@@ -1,7 +1,7 @@
 /**
  * hisotry/bookmark/setting modal
  */
-import React from 'react'
+
 import {Modal, Tabs, Col, Row} from 'antd'
 import TerminalThemeForm from '../terminal-theme'
 import TerminalThemeList from '../terminal-theme/theme-list'
@@ -17,57 +17,38 @@ const m = prefix('common')
 const t = prefix('terminalThemes')
 const {TabPane} = Tabs
 
-export default class SettingModal extends React.Component {
+export default (props) => {
 
-  constructor(props) {
-    super(props)
-    this.state = {
-      visible: false
-    }
+  const selectItem = (item) => {
+    props.modifier2({item})
   }
 
-  show = () => {
-    this.setState({
-      visible: true
-    })
-  }
-
-  hide = () => {
-    this.setState({
-      visible: false
-    })
-  }
-
-  selectItem = (item) => {
-    this.props.modifier2({item})
-  }
-
-  tabsShouldConfirmDel = [
+  const tabsShouldConfirmDel = [
     settingMap.bookmarks,
     settingMap.terminalThemes
   ]
 
-  renderTabs() {
-    let {tab, item, list} = this.props
-    let props = {
-      ...this.props,
+  const renderTabs = () => {
+    let {tab, item, list} = props
+    let props0 = {
+      ...props,
       activeItemId: item.id,
       type: tab,
-      onClickItem: this.selectItem,
-      shouldComfirmDel: this.tabsShouldConfirmDel.includes(tab),
+      onClickItem: selectItem,
+      shouldComfirmDel: tabsShouldConfirmDel.includes(tab),
       list
     }
     let formProps = {
-      ...this.props,
+      ...props,
       formData: item,
       type: tab,
-      hide: this.hide
+      hide: props.hideModal
     }
     return (
       <Tabs
         activeKey={tab}
         animated={false}
-        onChange={this.props.onChangeTab}
+        onChange={props.onChangeTab}
       >
         <TabPane
           tab={m(settingMap.history)}
@@ -76,7 +57,7 @@ export default class SettingModal extends React.Component {
           <Row>
             <Col span={6}>
               <List
-                {...props}
+                {...props0}
               />
             </Col>
             <Col span={18}>
@@ -100,7 +81,7 @@ export default class SettingModal extends React.Component {
           <Row>
             <Col span={10}>
               <TreeList
-                {...props}
+                {...props0}
               />
             </Col>
             <Col span={14}>
@@ -117,11 +98,11 @@ export default class SettingModal extends React.Component {
           <Row>
             <Col span={6}>
               <List
-                {...props}
+                {...props0}
               />
             </Col>
             <Col span={18}>
-              <Setting {...this.props} />
+              <Setting {...props0} />
             </Col>
           </Row>
         </TabPane>
@@ -132,7 +113,7 @@ export default class SettingModal extends React.Component {
           <Row>
             <Col span={6}>
               <TerminalThemeList
-                {...props}
+                {...props0}
               />
             </Col>
             <Col span={18}>
@@ -144,23 +125,20 @@ export default class SettingModal extends React.Component {
     )
   }
 
-  render() {
-    let props = {
-      title: e('settings'),
-      onCancel: this.hide,
-      footer: null,
-      width: '94%',
-      height: '94%',
-      visible: this.state.visible
-    }
-    return (
-      <Modal
-        {...props}
-      >
-        {this.renderTabs()}
-      </Modal>
-    )
-  }
+  return (
+    <Modal
+      {...{
+        title: e('settings'),
+        onCancel: props.hideModal,
+        footer: null,
+        width: '94%',
+        height: '94%',
+        visible: props.showModal
+      }}
+    >
+      {renderTabs()}
+    </Modal>
+  )
 
 }
 

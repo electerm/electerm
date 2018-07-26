@@ -9,6 +9,7 @@ const happyThreadPool = packThreadCount === 0 ? null : HappyPack.ThreadPool({ si
 const ExtractTextPlugin = require('extract-text-webpack-plugin')
 const path = require('path')
 const pack = require('./package.json')
+const LodashModuleReplacementPlugin = require('lodash-webpack-plugin')
 const env = process.env.NODE_ENV
 const happyConf = {
   loaders: ['babel-loader'],
@@ -67,8 +68,7 @@ var config = {
     'react': 'React',
     'react-dom': 'ReactDOM',
     'dayjs': 'dayjs',
-    'crypto-js': 'CryptoJS',
-    'lodash': '_'
+    'crypto-js': 'CryptoJS'
   },
   watch: true,
   resolve: {
@@ -155,10 +155,16 @@ var config = {
       }
     ]
   },
+  // optimization: {
+  //   splitChunks: {
+  //     chunks: 'all'
+  //   }
+  // },
   devtool: '#eval-source-map',
   plugins: [
     new webpack.HotModuleReplacementPlugin(),
     //commonsChunkPlugin,
+    new LodashModuleReplacementPlugin(),
     stylusSettingPlugin,
     packThreadCount === 0 ? null : new HappyPack(happyConf),
     extractTextPlugin1
@@ -215,6 +221,7 @@ if (env === 'production') {
     extractTextPlugin1,
     extractTextPlugin2,
     stylusSettingPlugin,
+    new LodashModuleReplacementPlugin(),
     //new webpack.optimize.OccurenceOrderPlugin(),
     // new webpack.optimize.MinChunkSizePlugin({
     //   minChunkSize: 51200 // ~50kb
