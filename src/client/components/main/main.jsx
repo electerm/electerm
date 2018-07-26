@@ -1,7 +1,7 @@
 
 import React from 'react'
 import Wrapper from '../terminal'
-import Control, {newTerm} from '../control'
+import newTerm from '../../common/new-terminal'
 import _ from 'lodash'
 import copy from 'json-deep-copy'
 import ContextMenu from '../common/context-menu'
@@ -18,6 +18,7 @@ import {
   defaultookmarkGroupId,
   maxTransferHistory
 } from '../../common/constants'
+import Control from '../control'
 import './wrapper.styl'
 
 const {getGlobal, _config} = window

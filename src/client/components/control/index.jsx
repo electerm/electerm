@@ -2,15 +2,24 @@
 import React from 'react'
 import Tabs from '../tabs'
 import Btns from './btns'
-import SettingModal from '../setting-panel/setting-modal'
 import {buildNewTheme} from '../../common/terminal-theme'
-import TransferHistoryModal from './transfer-history-modal'
 import {generate} from 'shortid'
 import _ from 'lodash'
 import copy from 'json-deep-copy'
 import {statusMap, settingMap} from '../../common/constants'
 import './control.styl'
+import Loadable from 'react-loadable'
+import Loading from '../common/loading'
+import newTerm from '../../common/new-terminal'
 
+const SettingModal = Loadable({
+  loader: () => import('../setting-panel/setting-modal'),
+  loading: Loading
+})
+const TransferHistoryModal = Loadable({
+  loader: () => import('./transfer-history-modal'),
+  loading: Loading
+})
 const {prefix, getGlobal} = window
 const e = prefix('control')
 const sshConfigItems = copy(getGlobal('sshConfigItems'))
@@ -27,18 +36,13 @@ const getInitItem = (arr, tab) => {
   }
 }
 
-export const newTerm = () => ({
-  id: generate(),
-  status: defaultStatus,
-  title: e('newTerminal')
-})
-
 export default class IndexControl extends React.Component {
 
   state = {
     item: getInitItem([], settingMap.bookmarks),
     tab: settingMap.bookmarks,
-    autoFocusTrigger: + new Date()
+    autoFocusTrigger: + new Date(),
+    showModal: false
   }
 
   componentDidMount() {
@@ -143,7 +147,15 @@ export default class IndexControl extends React.Component {
   }
 
   openModal = () => {
-    this.modal.show()
+    this.setState({
+      showModal: true
+    })
+  }
+
+  hideModal = () => {
+    this.setState({
+      showModal: false
+    })
   }
 
   getItems = (tab, props = this.props) => {
@@ -163,7 +175,7 @@ export default class IndexControl extends React.Component {
   }
 
   render() {
-    let {item, tab, autoFocusTrigger} = this.state
+    let {item, tab, autoFocusTrigger, showModal} = this.state
     let arr = this.getItems(tab)
     let initItem = getInitItem(arr, tab)
     let list = tab === settingMap.history
@@ -180,21 +192,35 @@ export default class IndexControl extends React.Component {
       tab,
       ..._.pick(this, [
         'onAdd', 'onChange', 'onClose',
+        'hideModal',
         'onDup', 'onNewSsh', 'openSetting',
         'onChangeTab', 'openTerminalThemes',
         'onEditBookmark', 'onSelectHistory', 'onSelectBookmark', 'onChangeTab'
       ]),
+      showModal,
       onEditBookmark: this.onNewSsh,
       modifier2: this.modifier
     }
+    let {transferHistory} = this.props
     return (
       <div>
-        <SettingModal
-          {...this.props}
-          {...props}
-          ref={ref => this.modal = ref}
-        />
-        <TransferHistoryModal {...this.props} />
+        {
+          showModal
+            ? (
+              <SettingModal
+                {...this.props}
+                {...props}
+              />
+            )
+            : null
+        }
+        {
+          transferHistory.length
+            ? (
+              <TransferHistoryModal {...this.props} />
+            )
+            : null
+        }
         <Btns
           {...this.props}
           {...props}
