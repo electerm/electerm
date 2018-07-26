@@ -12,6 +12,8 @@
     "transform-class-properties",
     "transform-object-rest-spread",
     "transform-decorators-legacy",
+    "lodash",
+    "syntax-dynamic-import",
     [
       "import",
       {
