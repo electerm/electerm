@@ -1,7 +1,8 @@
 const cwd = process.cwd()
 const pack = require(cwd + '/package.json')
 const config = require(cwd + '/config.default.js')
-let version = pack.version + '-' + (+new Date())
+const git = require('git-rev-sync')
+let version = pack.version + '-' + git.long()
 
 config.site.version = version
 

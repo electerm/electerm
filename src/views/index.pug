@@ -1,12 +1,12 @@
 - var cdn = cdn ? cdn : ''
 include includes/head1
 title #{siteName}
-link(rel='stylesheet', href=cdn + '/css/essh.styles.css?' + version)
+link(rel='stylesheet', href=cdn + '/css/electerm.styles.css?' + version)
 link(rel='stylesheet', href=cdn + '/css/basic.styles.css?' + version)
 include includes/head2
 #container
 #content-loading
 
 include includes/footer-js
-script(src=cdn + '/js/essh.bundle.js' + '?' + version, onload='window.et.onload()')
+script(src=cdn + '/js/electerm.bundle.js' + '?' + version, onload='window.et.onload()')
 include includes/footer-end
