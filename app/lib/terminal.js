@@ -3,6 +3,7 @@
  */
 const pty = require('node-pty')
 const {Client} = require('ssh2')
+const proxySock = require('./socks')
 const _ = require('lodash')
 const {generate} = require('shortid')
 
@@ -53,21 +54,35 @@ class Terminal {
           'passphrase'
         ])
       )
-      conn.on('ready', () => {
-        conn.shell(
-          _.pick(initOptions, ['rows', 'cols', 'mode']),
-          (err, channel) => {
-            if (err) {
-              return reject(err)
+      const run = (info) => {
+        if (info && info.socket) {
+          delete opts.host
+          delete opts.port
+          opts.sock = info.socket
+        }
+        conn.on('ready', () => {
+          conn.shell(
+            _.pick(initOptions, ['rows', 'cols', 'mode']),
+            (err, channel) => {
+              if (err) {
+                return reject(err)
+              }
+              this.channel = channel
+              resolve(true)
             }
-            this.channel = channel
-            resolve(true)
-          }
-        )
-      }).on('error', err => {
-        reject(err)
-      }).connect(opts)
-
+          )
+        }).on('error', err => {
+          reject(err)
+        }).connect(opts)
+      }
+      if (
+        initOptions.proxy &&
+        initOptions.proxy.proxyHost
+      ) {
+        proxySock(initOptions).then(run)
+      } else {
+        run()
+      }
       this.conn = conn
     })
   }
