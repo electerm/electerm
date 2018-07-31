@@ -6,31 +6,23 @@ const packThreadCount = sysConfigDefault.devCPUCount // number
 const BabiliPlugin = require('babili-webpack-plugin')
 const HappyPack = require('happypack')
 const happyThreadPool = packThreadCount === 0 ? null : HappyPack.ThreadPool({ size: packThreadCount })
-const ExtractTextPlugin = require('extract-text-webpack-plugin')
+const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const path = require('path')
 const pack = require('./package.json')
 const LodashModuleReplacementPlugin = require('lodash-webpack-plugin')
+const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin')
 const env = process.env.NODE_ENV
+const git = require('git-rev-sync')
+
 const happyConf = {
   loaders: ['babel-loader'],
   threadPool: happyThreadPool,
   verbose: true
 }
-let version = pack.version + '-' + (+new Date())
-if (env === 'production') {
-  try {
-    version = require('fs').readFileSync('./version').toString()
-  } catch(e) {
-    //
-    console.log(e)
-  }
-}
+let version = pack.version + '-' + git.long()
 
-const extractTextPlugin1 = new ExtractTextPlugin({
+const extractTextPlugin1 = new MiniCssExtractPlugin({
   filename: 'css/[name].styles.css'
-})
-const extractTextPlugin2 = new ExtractTextPlugin({
-  filename: 'index.html'
 })
 
 const pug = {
@@ -38,7 +30,9 @@ const pug = {
   options: {
     data: {
       version,
-      _global: {}
+      _global: {
+        version
+      }
     }
   }
 }
@@ -53,7 +47,7 @@ const stylusSettingPlugin =  new webpack.LoaderOptionsPlugin({
 var config = {
   mode: 'development',
   entry: {
-    essh: './src/client/entry/index.jsx',
+    electerm: './src/client/entry/index.jsx',
     basic: './src/client/entry/basic.jsx',
     index: './src/views/index.pug'
   },
@@ -61,7 +55,7 @@ var config = {
     path: __dirname + '/app/assets', // 输出文件目录
     filename: 'js/[name].bundle.js', // 输出文件名
     publicPath: '/',
-    chunkFilename: 'js/[id].[name].[hash].bundle.js',
+    chunkFilename: 'js/[name].' + version + '.js',
     libraryTarget: 'var'
   },
   externals: {
@@ -92,48 +86,65 @@ var config = {
       },
       {
         test: /\.styl$/,
-        use: extractTextPlugin1.extract({
-          fallback: 'style-loader',
-          publicPath: '../',
-          use: ['css-loader', 'stylus-loader']
-        })
+        use: [
+          {
+            loader: MiniCssExtractPlugin.loader,
+            options: {
+              // you can specify a publicPath here
+              // by default it use publicPath in webpackOptions.output
+              publicPath: '../'
+            }
+          },
+          'css-loader',
+          'stylus-loader'
+        ]
       },
       {
         test: /\.less$/,
-        use: extractTextPlugin1.extract({
-          fallback: 'style-loader',
-          publicPath: '../',
-          use: [
-            {
-              loader: 'antd-icon-loader',
-              options: {
-
-                //relative path to your css path
-                path: '../../_bc/electerm-resource/res/fonts',
-
-                //version, will add to icon source url to help clear cache
-                version: '13212sdf'
-              }
-            },
-            {
-              loader: 'css-loader'
-            },
-            {
-              loader: 'less-loader',
-              options: {
-                javascriptEnabled: true
-              }
+        use: [
+          {
+            loader: MiniCssExtractPlugin.loader,
+            options: {
+              // you can specify a publicPath here
+              // by default it use publicPath in webpackOptions.output
+              publicPath: '../'
             }
-          ]
-        })
+          },
+          {
+            loader: 'antd-icon-loader',
+            options: {
+
+              //relative path to your css path
+              path: '../../_bc/electerm-resource/res/fonts',
+
+              //version, will add to icon source url to help clear cache
+              version: pack.devDependencies.antd
+            }
+          },
+          {
+            loader: 'css-loader'
+          },
+          {
+            loader: 'less-loader',
+            options: {
+              javascriptEnabled: true
+            }
+          }
+        ]
       },
       {
         test: /xterm\.css$/,
-        use: extractTextPlugin1.extract({
-          fallback: 'style-loader',
-          publicPath: '../',
-          use: ['css-loader']
-        })
+        use: [
+          {
+            loader: MiniCssExtractPlugin.loader,
+            options: {
+              // you can specify a publicPath here
+              // by default it use publicPath in webpackOptions.output
+              publicPath: '../'
+            }
+          },
+          'css-loader'
+        ]
       },
       {
         test: /\.(png|jpg|svg)$/,
@@ -143,23 +154,19 @@ var config = {
         test: /\.pug$/,
         use: [
           'file-loader?name=index.html',
-          {
-            loader: 'extract-loader',
-            options: {
-              publicPath: ''
-            }
-          },
+          'concat-loader',
+          'extract-loader',
           'html-loader',
           pug
         ]
       }
     ]
   },
-  // optimization: {
-  //   splitChunks: {
-  //     chunks: 'all'
-  //   }
-  // },
+  optimization: {
+    minimizer: [
+      new OptimizeCSSAssetsPlugin({})
+    ]
+  },
   devtool: '#eval-source-map',
   plugins: [
     new webpack.HotModuleReplacementPlugin(),
@@ -206,11 +213,6 @@ var config = {
 
 if (env === 'production') {
   config.plugins = [
-    new webpack.DefinePlugin({
-      'process.env': {
-        'NODE_ENV': JSON.stringify('production')
-      }
-    }),
     packThreadCount === 0 ? null : new HappyPack(happyConf),
     //new webpack.optimize.DedupePlugin(),
     // commonsChunkPlugin,
@@ -219,7 +221,6 @@ if (env === 'production') {
     //   minChunks: Infinity
     // }),
     extractTextPlugin1,
-    extractTextPlugin2,
     stylusSettingPlugin,
     new LodashModuleReplacementPlugin(),
     //new webpack.optimize.OccurenceOrderPlugin(),

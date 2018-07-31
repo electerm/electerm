@@ -49,7 +49,7 @@ describe('main window', function () {
 
     log('button:edit')
     await client.click('.btns .anticon-edit')
-    let active = await client.element('.ant-modal .ant-tabs-tab-active')
+    let active = await client.element('.ant-modal .ant-tabs-line > .ant-tabs-bar .ant-tabs-tab-active')
     expect(!!active.value).equal(true)
 
     log('button:close modal')
