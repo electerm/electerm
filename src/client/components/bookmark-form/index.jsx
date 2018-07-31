@@ -5,7 +5,7 @@ import React from 'react'
 import {
   Form, Button, Input,
   InputNumber, message,
-  Radio, Upload,
+  Radio, Upload, Tabs,
   Select
 } from 'antd'
 import {validateFieldsAndScroll} from '../../common/dec-validate-and-scroll'
@@ -20,7 +20,9 @@ import {
 } from '../../common/constants'
 import {formItemLayout, tailFormItemLayout} from '../../common/form-layout'
 import InputAutoFocus from '../common/input-auto-focus'
+import './bookmark-form.styl'
 
+const {TabPane} = Tabs
 const {TextArea} = Input
 const authTypes = Object.keys(authTypeMap).map(k => {
   return k
@@ -289,13 +291,66 @@ export class BookmarkForm extends React.Component {
           (id
             ? m('edit')
             : s('new')
-          ) + c(settingMap.bookmarks)
+          ) + ' ' + c(settingMap.bookmarks)
         }
       </FormItem>
     )
   }
 
-  render() {
+  renderProxy() {
+    const {getFieldDecorator} = this.props.form
+    const {
+      proxy = {}
+    } = this.props.formData
+    let {proxyIp, proxyPort, proxyType = '5'} = proxy
+    return [
+      <FormItem
+        {...formItemLayout}
+        label={e('proxyIp')}
+      >
+        {getFieldDecorator('proxy.proxyIp', {
+          rules: [{
+            max: 130, message: '130 chars max'
+          }],
+          initialValue: proxyIp
+        })(
+          <Input
+            placeholder="proxy ip"
+          />
+        )}
+      </FormItem>,
+      <FormItem
+        {...formItemLayout}
+        label={e('proxyPort')}
+      >
+        {getFieldDecorator('proxy.proxyPort', {
+          initialValue: proxyPort
+        })(
+          <InputNumber
+            placeholder={e('proxy port')}
+            min={1}
+            max={65535}
+            step={1}
+          />
+        )}
+      </FormItem>,
+      <FormItem
+        {...formItemLayout}
+        label={e('proxyType')}
+      >
+        {getFieldDecorator('proxy.proxyType', {
+          initialValue: proxyType
+        })(
+          <Select>
+            <Option value="5">SOCKS5</Option>
+            <Option value="4">SOCKS4</Option>
+          </Select>
+        )}
+      </FormItem>
+    ]
+  }
+
+  renderCommon() {
     const {getFieldDecorator} = this.props.form
     const {
       host,
@@ -309,8 +364,7 @@ export class BookmarkForm extends React.Component {
     let {
       autoFocusTrigger,
       bookmarkGroups,
-      currentBookmarkGroupId,
-      type
+      currentBookmarkGroupId
     } = this.props
 
     let initBookmarkGroupId = id
@@ -318,8 +372,7 @@ export class BookmarkForm extends React.Component {
       : currentBookmarkGroupId
 
     return (
-      <Form onSubmit={this.handleSubmit} className="form-wrap pd1x">
-        {this.renderTitle(type, id)}
+      <div>
         <FormItem
           {...formItemLayout}
           label={e('host')}
@@ -437,6 +490,34 @@ export class BookmarkForm extends React.Component {
             </div>
           )}
         </FormItem>
+      </div>
+    )
+  }
+
+  renderTabs() {
+    return (
+      <Tabs type="card">
+        <TabPane tab="auth" key="auth" forceRender>
+          {this.renderCommon()}
+        </TabPane>
+        <TabPane tab="proxy" key="proxy" forceRender>
+          {this.renderProxy()}
+        </TabPane>
+      </Tabs>
+    )
+  }
+
+  render() {
+    const {
+      id
+    } = this.props.formData
+    let {
+      type
+    } = this.props
+    return (
+      <Form onSubmit={this.handleSubmit} className="form-wrap pd1x">
+        {this.renderTitle(type, id)}
+        {this.renderTabs()}
         <FormItem {...tailFormItemLayout}>
           <p>
             <Button

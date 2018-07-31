@@ -3,6 +3,7 @@
  */
 
 let {Client} = require('ssh2')
+const proxySock = require('./socks')
 const _ = require('lodash')
 
 class Sftp {
@@ -27,19 +28,61 @@ class Sftp {
       config
     )
     return new Promise((resolve, reject) => {
-      client.on('ready', () => {
-        client.sftp((err, sftp) => {
-          if (err) {
-            reject(err)
-          }
-          this.sftp = sftp
-          resolve('')
-        })
-      }).on('error', (err) => {
-        reject(err)
-      }).connect(confs)
+      const run = (info) => {
+        if (info && info.socket) {
+          delete confs.host
+          delete confs.port
+          delete confs.proxy
+          confs.sock = info.socket
+        }
+        client.on('ready', () => {
+          client.sftp((err, sftp) => {
+            if (err) {
+              reject(err)
+            }
+            this.sftp = sftp
+            resolve('')
+          })
+        }).on('error', (err) => {
+          reject(err)
+        }).connect(confs)
+      }
+      if (
+        config.proxy &&
+        config.proxy.proxyHost
+      ) {
+        proxySock(config).then(run)
+      } else {
+        run()
+      }
     })
   }
+
+  // /**
+  //  * connect to socks5 proxy
+  //  */
+  // proxy(config) {
+  //   const socks = socksv5.connect({
+  //     host: options.host,
+  //     port: options.port,
+  //     proxyHost: options.proxyHost,
+  //     proxyPort: options.proxyPort,
+  //     auths: options.auths || [ socksv5.auth.None() ]
+  //   }, (socket) => {
+  //     let sshOptions = Object.assign({
+  //       sock: socket
+  //     }, options)
+  //     delete sshOptions.host
+  //     delete sshOptions.port
+  //     delete sshOptions.proxyHost
+  //     delete sshOptions.proxyPort
+  //     return super.connect(sshOptions)
+  //   });
+  //   socks.on('error', (error) => {
+  //     error.level = 'socks'
+  //     this.emit('error', error)
+  //   })
+  // }
 
   /**
    * list remote directory
