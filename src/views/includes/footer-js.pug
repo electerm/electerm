@@ -43,7 +43,7 @@ script.
 
   window.prefix = prefix => {
     return (id) => {
-      return window.lang[`${prefix}.${id}`] || id
+      return window.lang[prefix][id] || id
     }
   }
 
