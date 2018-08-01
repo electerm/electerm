@@ -15,6 +15,11 @@ const {expect} = require('chai')
 const cwd = process.cwd()
 const delay = require('./common/wait')
 const generate = require('./common/uid')
+const isOs = require('./common/is-os')
+
+if (!isOs('linux')) {
+  return
+}
 
 describe('sftp basic', function () {
   this.timeout(100000)
