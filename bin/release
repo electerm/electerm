@@ -1,0 +1,7 @@
+#!/bin/bash
+cd `dirname $0`
+cd ..
+git co master
+git pull
+git delete-branch release
+git create-branch release
