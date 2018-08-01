@@ -315,7 +315,7 @@ export class BookmarkForm extends React.Component {
           initialValue: proxyIp
         })(
           <Input
-            placeholder="proxy ip"
+            placeholder={e('proxyIpPlaceholder')}
           />
         )}
       </FormItem>,
@@ -327,7 +327,7 @@ export class BookmarkForm extends React.Component {
           initialValue: proxyPort
         })(
           <InputNumber
-            placeholder={e('proxy port')}
+            placeholder={e('proxyPort')}
             min={1}
             max={65535}
             step={1}
@@ -497,10 +497,10 @@ export class BookmarkForm extends React.Component {
   renderTabs() {
     return (
       <Tabs type="card">
-        <TabPane tab="auth" key="auth" forceRender>
+        <TabPane tab={e('auth')} key="auth" forceRender>
           {this.renderCommon()}
         </TabPane>
-        <TabPane tab="proxy" key="proxy" forceRender>
+        <TabPane tab={e('proxy')} key="proxy" forceRender>
           {this.renderProxy()}
         </TabPane>
       </Tabs>
