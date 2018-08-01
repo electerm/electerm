@@ -42,6 +42,8 @@ export default function Btns(props) {
     openAbout,
     openTransferHistory,
     showControl,
+    bookmarkId,
+    modifier2,
     openTerminalThemes,
     transferHistory
   } = props
@@ -118,7 +120,13 @@ export default function Btns(props) {
         <TreeSelect
           placeholder={c('bookmarks')}
           className="iblock btn-select"
-          onSelect={onSelectBookmark}
+          value={bookmarkId}
+          onSelect={bookmarkId => {
+            onSelectBookmark(bookmarkId)
+            modifier2({
+              bookmarkId
+            })
+          }}
           showSearch
           treeDefaultExpandAll
           dropdownMatchSelectWidth={false}
@@ -126,6 +134,14 @@ export default function Btns(props) {
             maxHeight: 400,
             maxWidth: 500,
             overflow: 'auto'
+          }}
+          onChange={(value, label, extra) => {
+            if (!value) {
+              onSelectBookmark(extra.triggerValue)
+            }
+            modifier2({
+              bookmarkId: extra.triggerValue
+            })
           }}
           treeData={treeData}
           treeNodeFilterProp="label"
