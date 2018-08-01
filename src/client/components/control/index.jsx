@@ -42,6 +42,7 @@ export default class IndexControl extends React.Component {
     item: getInitItem([], settingMap.bookmarks),
     tab: settingMap.bookmarks,
     autoFocusTrigger: + new Date(),
+    bookmarkId: undefined,
     showModal: false
   }
 
@@ -175,7 +176,7 @@ export default class IndexControl extends React.Component {
   }
 
   render() {
-    let {item, tab, autoFocusTrigger, showModal} = this.state
+    let {item, tab, autoFocusTrigger, showModal, bookmarkId} = this.state
     let arr = this.getItems(tab)
     let initItem = getInitItem(arr, tab)
     let list = tab === settingMap.history
@@ -198,6 +199,7 @@ export default class IndexControl extends React.Component {
         'onEditBookmark', 'onSelectHistory', 'onSelectBookmark', 'onChangeTab'
       ]),
       showModal,
+      bookmarkId,
       onEditBookmark: this.onNewSsh,
       modifier2: this.modifier
     }
@@ -222,7 +224,6 @@ export default class IndexControl extends React.Component {
             : null
         }
         <Btns
-          {...this.props}
           {...props}
         />
         <Tabs
