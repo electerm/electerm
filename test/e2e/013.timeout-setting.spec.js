@@ -15,6 +15,11 @@ const {
   TEST_PASS,
   TEST_USER
 } = require('./common/env')
+const isOs = require('./common/is-os')
+
+if (!isOs('darwin')) {
+  return
+}
 
 describe('timeout setting', function () {
   this.timeout(100000)
