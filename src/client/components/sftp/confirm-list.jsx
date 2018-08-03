@@ -200,11 +200,10 @@ export default class Confirms extends React.Component {
       name
     } = currentFile
     let transferList = copy(this.state.transferList)
-    let {targetTransferPath} = this.props
     let transport = this.findParentTransport(currentFile)
     let targetPath
     if (transport) {
-      targetPath = resolve(targetTransferPath, name)
+      targetPath = resolve(transport.toPath, name)
     } else {
       targetPath = this.getTargetPath(currentFile)
     }
