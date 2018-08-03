@@ -126,7 +126,6 @@ export default class Tranporter extends React.Component {
   mkdir = async (transport) => {
     let {
       transferType,
-      fromPath,
       toPath
     } = transport
     let isDown = transferType === transferTypeMap.download
@@ -134,7 +133,7 @@ export default class Tranporter extends React.Component {
       return fs.mkdirAsync(toPath)
         .catch(this.onError)
     }
-    return this.props.sftp.mkdir(fromPath)
+    return this.props.sftp.mkdir(toPath)
       .catch(this.onError)
   }
 
