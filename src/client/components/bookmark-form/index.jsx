@@ -161,10 +161,20 @@ export class BookmarkForm extends React.Component {
     this.props.form.resetFields()
   }
 
-  handleSubmit = async (e, isTest = false) => {
-    e && e.preventDefault && e.preventDefault()
+  handleSubmit = async (evt, isTest = false) => {
+    evt && evt.preventDefault && evt.preventDefault()
     let res = await this.validateFieldsAndScroll()
     if (!res) return
+    if (
+      res.proxy && (
+        !res.proxy.proxyIp && res.proxy.proxyPort ||
+        !res.proxy.proxyPort && res.proxy.proxyIp
+      )
+    ) {
+      return message.error(
+        `${e('proxyIp')} and ${e('proxyPort')} ${e('required')}`
+      )
+    }
     let obj = {
       ...this.props.formData,
       ...res
