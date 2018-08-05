@@ -35,7 +35,7 @@ class Terminal {
     return Promise.resolve()
   }
 
-  remoteInit(initOptions) {
+  remoteInit(initOptions, isTest) {
     return new Promise((resolve, reject) => {
       const conn = new Client()
       let opts = Object.assign(
@@ -61,6 +61,10 @@ class Terminal {
           opts.sock = info.socket
         }
         conn.on('ready', () => {
+          if (isTest) {
+            conn.end()
+            return resolve(true)
+          }
           conn.shell(
             _.pick(initOptions, ['rows', 'cols', 'mode']),
             (err, channel) => {
@@ -77,9 +81,12 @@ class Terminal {
       }
       if (
         initOptions.proxy &&
-        initOptions.proxy.proxyHost
+        initOptions.proxy.proxyIp &&
+        initOptions.proxy.proxyPort
       ) {
-        proxySock(initOptions).then(run)
+        proxySock(initOptions)
+          .then(run)
+          .catch(reject)
       } else {
         run()
       }
@@ -140,13 +147,5 @@ exports.terminal = async function(initOptions) {
  * @param {object} options
  */
 exports.testConnection = (options) => {
-  return new Promise((resolve, reject) => {
-    const conn = new Client()
-    conn.on('ready', () => {
-      conn.end()
-      resolve()
-    }).on('error', err => {
-      reject(err)
-    }).connect(options)
-  })
+  return (new Terminal(options)).remoteInit(options, true)
 }
