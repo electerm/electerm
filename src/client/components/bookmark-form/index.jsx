@@ -161,6 +161,17 @@ export class BookmarkForm extends React.Component {
     this.props.form.resetFields()
   }
 
+  onSelectProxy = proxy => {
+    let obj = Object.keys(proxy).
+      reduce((prev, c) => {
+        return {
+          ...prev,
+          [`proxy.${c}`]: proxy[c]
+        }
+      }, {})
+    this.props.form.setFieldsValue(obj)
+  }
+
   handleSubmit = async (evt, isTest = false) => {
     evt && evt.preventDefault && evt.preventDefault()
     let res = await this.validateFieldsAndScroll()
@@ -182,8 +193,8 @@ export class BookmarkForm extends React.Component {
     if (isTest) {
       return await this.test(obj)
     }
-    e && this.submit(obj)
-    if (e !== 'save') {
+    evt && this.submit(obj)
+    if (evt !== 'save') {
       this.props.addTab({
         ...res,
         id: generate()
@@ -307,6 +318,54 @@ export class BookmarkForm extends React.Component {
     )
   }
 
+  renderProxySelect = () => {
+    let proxyList = this.props.bookmarks.
+      reduce((prev, current) => {
+        let {proxy} = current
+        let {
+          proxyIp,
+          proxyPort,
+          proxyType
+        } = proxy || {}
+        if (!proxy || !proxyIp || !proxyPort) {
+          return prev
+        }
+        let id = `socks${proxyType}://${proxyIp}:${proxyPort}`
+        return {
+          ...prev,
+          [id]: proxy
+        }
+      }, {})
+    let keys = Object.keys(proxyList)
+    if (!keys.length) {
+      return null
+    }
+    return (
+      <FormItem {...tailFormItemLayout} className="mg0">
+        <Select
+          placeholder={e('selectProxy')}
+          value={undefined}
+          onSelect={
+            v => this.onSelectProxy(proxyList[v])
+          }
+        >
+          {
+            keys.map(k => {
+              return (
+                <Option
+                  value={k}
+                  key={k}
+                >
+                  {k}
+                </Option>
+              )
+            })
+          }
+        </Select>
+      </FormItem>
+    )
+  }
+
   renderProxy() {
     const {getFieldDecorator} = this.props.form
     const {
@@ -314,6 +373,7 @@ export class BookmarkForm extends React.Component {
     } = this.props.formData
     let {proxyIp, proxyPort, proxyType = '5'} = proxy
     return [
+      this.renderProxySelect(),
       <FormItem
         {...formItemLayout}
         label={e('proxyIp')}
