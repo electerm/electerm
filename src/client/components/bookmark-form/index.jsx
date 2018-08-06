@@ -39,6 +39,10 @@ const s = prefix('setting')
 
 export class BookmarkForm extends React.Component {
 
+  state = {
+    testing: false
+  }
+
   componentWillReceiveProps(nextProps) {
     let initBookmarkGroupId = this.getBookmarkGroupId(nextProps)
     let initBookmarkGroupIdOld = this.getBookmarkGroupId(this.props)
@@ -142,12 +146,18 @@ export class BookmarkForm extends React.Component {
   test = async (options) => {
     let testConnection = window.getGlobal('testConnection')
     let msg = ''
+    this.setState({
+      testing: true
+    })
     let res = await testConnection(options)
       .then(() => true)
       .catch((e) => {
         msg = e.message
         return false
       })
+    this.setState({
+      testing: false
+    })
     if (res) {
       message.success('connection ok')
     } else {
@@ -609,6 +619,7 @@ export class BookmarkForm extends React.Component {
           <p>
             <Button
               type="ghost"
+              loading={this.state.testing}
               onClick={e => this.handleSubmit(e, true)}
             >{e('testConnection')}</Button>
           </p>
