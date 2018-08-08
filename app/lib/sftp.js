@@ -49,9 +49,13 @@ class Sftp {
       }
       if (
         config.proxy &&
-        config.proxy.proxyHost
+        config.proxy.proxyIp &&
+        config.proxy.proxyPort
       ) {
-        proxySock(config).then(run)
+        proxySock({
+          ...config,
+          ...confs
+        }).then(run)
       } else {
         run()
       }
