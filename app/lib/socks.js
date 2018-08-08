@@ -11,6 +11,7 @@ module.exports = (initOptions) => {
       proxyPort,
       proxyType
     },
+    readyTimeout,
     host,
     port
   } = initOptions
@@ -22,6 +23,7 @@ module.exports = (initOptions) => {
     },
 
     command: 'connect',
+    timeout: readyTimeout,
 
     destination: {
       host,

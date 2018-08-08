@@ -84,7 +84,10 @@ class Terminal {
         initOptions.proxy.proxyIp &&
         initOptions.proxy.proxyPort
       ) {
-        proxySock(initOptions)
+        proxySock({
+          ...initOptions,
+          ...opts
+        })
           .then(run)
           .catch(reject)
       } else {
