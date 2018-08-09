@@ -79,6 +79,7 @@ export default class Index extends React.Component {
       e.preventDefault()
       e.stopPropagation()
     })
+    this.checkLastSession()
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -141,6 +142,16 @@ export default class Index extends React.Component {
         bookmarkIds: bookmarks.map(d => d.id)
       }
     ]
+  }
+
+  checkLastSession = () => {
+    let sessions = copy(
+      ls.get('sessions')
+    )
+    if (!sessions) {
+      return
+    }
+    this.showLastSessions()
   }
 
   openAbout = () => {

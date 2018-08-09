@@ -3,9 +3,12 @@
 global.Promise = require('bluebird')
 
 const {
-  app, BrowserWindow, Menu,
+  app,
+  BrowserWindow,
+  Menu,
   Notification,
-  globalShortcut, shell
+  globalShortcut,
+  shell
 } = require('electron')
 const {fork} = require('child_process')
 const _ = require('lodash')
@@ -27,6 +30,7 @@ const {testConnection} = require('./lib/terminal')
 const {saveLangConfig, lang, langs} = require('./lib/locales')
 const rp = require('phin').promisified
 const lastStateManager = require('./lib/last-state')
+const sessionManager = require('./lib/session-control')
 const {
   prefix
 } = require('./lib/locales')
@@ -53,6 +57,7 @@ function onClose() {
   win = null
   process.kill(childPid)
   setWin(win)
+  sessionManager.clear()
   process.exit(0)
 }
 
