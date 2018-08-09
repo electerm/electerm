@@ -37,7 +37,7 @@ npm i -g electerm
 - work as a terminal/file manager or ssh/sftp client(similar to xshell)
 - global hotkey to toggle window visibility (simliar to guake, default is `ctrl + 2`)
 - support multi platform(linux, mac, win)
-- support multi-language(https://github.com/electerm/electerm-locales)
+- support multi-language(https://github.com/electerm/electerm-locales, contribute welcome)
 
 ## issues/todo/roadmap/tell me what you think
 https://github.com/electerm/electerm/issues
