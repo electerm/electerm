@@ -30,8 +30,8 @@ export default class ErrorBoundary extends React.Component {
     if (this.state.hasError) {
       let {stack, message} = this.state.error
       return (
-        <div className="pd3 aligncenter">
-          <h1>
+        <div className="pd3 aligncenter color-white">
+          <h1 className="color-white">
             <Icon type="frown-o" className="mg1r iblock" />
             <span className="iblock mg1r">{e('error')}</span>
             <Button

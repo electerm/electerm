@@ -19,12 +19,14 @@ import {
   maxTransferHistory
 } from '../../common/constants'
 import Control from '../control'
+import SessionControl from '../session-control'
 import './wrapper.styl'
 
 const {getGlobal, _config} = window
 const ls = getGlobal('ls')
 const {prefix} = window
 const t = prefix('terminalThemes')
+let sessionsGlob = copy(ls.get('sessions'))
 
 export default class Index extends React.Component {
 
@@ -55,7 +57,9 @@ export default class Index extends React.Component {
       currentBookmarkGroupId: defaultookmarkGroupId,
       shouldCheckUpdate: 0,
       transferHistoryModalVisible: false,
-      onCheckUpdating: false
+      onCheckUpdating: false,
+      selectedSessions: [],
+      sessionModalVisible: false
     }
     let title = createTitlte(tabs[0])
     window.getGlobal('setTitle')(title)
@@ -79,6 +83,7 @@ export default class Index extends React.Component {
       e.preventDefault()
       e.stopPropagation()
     })
+    this.checkLastSession()
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -125,6 +130,9 @@ export default class Index extends React.Component {
       window.getGlobal('setTitle')(title)
     }
     this.setState(...args)
+    if (update.tabs) {
+      ls.set('sessions', update.tabs)
+    }
   }
 
   initEvent = () => {
@@ -141,6 +149,25 @@ export default class Index extends React.Component {
         bookmarkIds: bookmarks.map(d => d.id)
       }
     ]
+  }
+
+  checkLastSession = () => {
+    let status = getGlobal('getExitStatus')()
+    if (status === 'ok') {
+      return
+    }
+    this.showLastSessions(sessionsGlob)
+  }
+
+  showLastSessions = sessions => {
+    this.setState({
+      selectedSessions: copy(sessions).map(s => ({
+        id: s.id,
+        tab: s,
+        checked: true
+      })),
+      sessionModalVisible: true
+    })
   }
 
   openAbout = () => {
@@ -421,8 +448,18 @@ export default class Index extends React.Component {
         'delBookmarkGroup'
       ])
     }
+    let sessProps = {
+      ..._.pick(this, [
+        'modifier', 'addTab'
+      ]),
+      ..._.pick(this.state, [
+        'sessionModalVisible',
+        'selectedSessions'
+      ])
+    }
     return (
       <div>
+        <SessionControl {...sessProps} />
         <UpdateCheck
           modifier={this.modifier}
           shouldCheckUpdate={shouldCheckUpdate}

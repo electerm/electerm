@@ -3,9 +3,12 @@
 global.Promise = require('bluebird')
 
 const {
-  app, BrowserWindow, Menu,
+  app,
+  BrowserWindow,
+  Menu,
   Notification,
-  globalShortcut, shell
+  globalShortcut,
+  shell
 } = require('electron')
 const {fork} = require('child_process')
 const _ = require('lodash')
@@ -48,12 +51,18 @@ const iconPath = resolve(
 )
 
 function onClose() {
-  clearTimeout(timer)
-  clearTimeout(timer1)
-  win = null
-  process.kill(childPid)
-  setWin(win)
-  process.exit(0)
+  ls.set({
+    exitStatus: 'ok',
+    sessions: null
+  })
+  process.nextTick(() => {
+    clearTimeout(timer)
+    clearTimeout(timer1)
+    win = null
+    process.kill(childPid)
+    setWin(win)
+    process.exit(0)
+  })
 }
 
 async function waitUntilServerStart(url) {
@@ -123,13 +132,19 @@ async function createWindow () {
     }
   }
 
-  global.et = {}
+  global.et = {
+    exitStatus: ls.get('exitStatus')
+  }
   Object.assign(global.et, {
     _config: config,
     instSftpKeys,
     transferKeys,
     fs: fsExport,
     ls,
+    getExitStatus: () => global.et.exitStatus,
+    setExitStatus: (status) => {
+      global.et.exitStatus = status
+    },
     resolve,
     version,
     sshConfigItems,
@@ -159,6 +174,7 @@ async function createWindow () {
   })
 
   timer = setTimeout(() => {
+    ls.set('exitStatus', 'unknown')
     saveLangConfig(saveUserConfig, userConfig)
   }, 100)
 
@@ -181,7 +197,7 @@ async function createWindow () {
   init(globalShortcut, win, config)
 
   // Emitted when the window is closed.
-  win.on('close', onClose)
+  // win.on('close', onClose)
 
   setWin(win)
 }
