@@ -4,17 +4,18 @@
  */
 
 import {Modal, Button, Checkbox} from 'antd'
+import copy from 'json-deep-copy'
 import _ from 'lodash'
+import createName from '../../common/create-title'
 
 const {prefix} = window
 const c = prefix('common')
 
 export default (props) => {
   let {
-    onConfirmLoadSession,
-    onCancelLoadSession,
     sessionModalVisible,
-    sessions,
+    modifier,
+    addTab,
     selectedSessions
   } = props
 
@@ -22,18 +23,54 @@ export default (props) => {
     return null
   }
 
+  let onConfirmLoadSession = () => {
+    modifier({
+      sessionModalVisible: false,
+      selectedSessions: []
+    })
+    let saved = copy(
+      selectedSessions
+        .filter(s => s.checked)
+    )
+      .map(s => s.tab)
+    for (let s of saved) {
+      setTimeout(() => {
+        addTab(s)
+      }, 100)
+    }
+    window.getGlobal('setExitStatus')('ok')
+  }
+
+  let onCancelLoadSession = () => {
+    modifier({
+      sessionModalVisible: false
+    })
+    window.getGlobal('setExitStatus')('ok')
+  }
+
+  let toggoleSelection = (e, id) => {
+    let {checked} = e.target
+    let ss = copy(selectedSessions)
+    let s = _.find(ss, s => s.id === id)
+    s.checked = checked
+    modifier({
+      selectedSessions: ss
+    })
+  }
+
   let content = (
     <div>
       {
-        sessions.map(s => {
-          let {id} = s
+        selectedSessions.map(s => {
+          let {id, tab, checked} = s
+          let title = createName(tab)
           return (
             <div key={id}>
               <Checkbox
-                onChange={this.onCheckAllChange}
-                checked={this.state.checkAll}
+                onChange={v => toggoleSelection(v, id)}
+                checked={checked}
               >
-                Check all
+                {title}
               </Checkbox>
             </div>
           )
@@ -45,7 +82,7 @@ export default (props) => {
     <div>
       <Button
         type="primary"
-        disabled={!selectedSessions.length}
+        disabled={!selectedSessions.filter(s => s.checked).length}
         onClick={onConfirmLoadSession}
         className="mg1r"
       >
@@ -64,12 +101,11 @@ export default (props) => {
       width={500}
       maskClosable={false}
       closable={false}
+      title={c('restoreSessions')}
       visible={sessionModalVisible}
       footer={footer}
     >
-      <div>
-        {content}
-      </div>
+      {content}
     </Modal>
   )
 }

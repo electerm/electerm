@@ -22,13 +22,16 @@ const get = (key) => {
   }
 }
 
-const set = (key, value) => {
+const set = (keyOrObject, value) => {
   try {
     let newdb = copy(cache)
-    if (_.isUndefined(value) || _.isNull(value)) {
-      delete cache[key]
+    if (_.isPlainObject(keyOrObject)) {
+      Object.assign(newdb, keyOrObject)
+    }
+    else if (_.isUndefined(value) || _.isNull(value)) {
+      delete newdb[keyOrObject]
     } else {
-      newdb[key] = value
+      newdb[keyOrObject] = value
     }
     cache = newdb
     writeFileSync(savePath, JSON.stringify(newdb))
