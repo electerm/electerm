@@ -455,7 +455,7 @@ export default class Index extends React.Component {
       ..._.pick(this.state, [
         'sessionModalVisible',
         'selectedSessions'
-      ]),
+      ])
     }
     return (
       <div>
