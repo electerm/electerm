@@ -270,7 +270,7 @@ export default class Tab extends React.Component {
       titleTemp
     } = tab
     return (
-      <div className={cls + 'pd1x'}>
+      <div className={cls + ' pd1x'}>
         <Input
           value={titleTemp}
           onChange={this.onChange}
