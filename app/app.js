@@ -133,7 +133,8 @@ async function createWindow () {
   }
 
   global.et = {
-    exitStatus: ls.get('exitStatus')
+    exitStatus: process.argv.includes('--no-session-restore')
+      ? 'ok' : ls.get('exitStatus')
   }
   Object.assign(global.et, {
     _config: config,
@@ -197,7 +198,7 @@ async function createWindow () {
   init(globalShortcut, win, config)
 
   // Emitted when the window is closed.
-  // win.on('close', onClose)
+  win.on('close', onClose)
 
   setWin(win)
 }

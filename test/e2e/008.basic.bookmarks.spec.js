@@ -6,11 +6,6 @@ const cwd = process.cwd()
 const _ = require('lodash')
 const {log} = console
 const {expect} = require('chai')
-const isOs = require('./common/is-os')
-
-if (!isOs('linux')) {
-  return
-}
 
 describe('bookmarks', function () {
 
@@ -22,7 +17,7 @@ describe('bookmarks', function () {
       webdriverOptions: {
         deprecationWarnings: false
       },
-      args: [resolve(cwd, 'work/app')]
+      args: [resolve(cwd, 'work/app'), '--no-session-restore']
     })
     return this.app.start()
   })
@@ -47,6 +42,7 @@ describe('bookmarks', function () {
 
     log('button:edit')
     await client.click('.btns .anticon-edit')
+    await delay(500)
     let sel = '.ant-modal .ant-tabs-line > .ant-tabs-bar .ant-tabs-tab-active'
     let active = await client.element(sel)
     expect(!!active.value).equal(true)
