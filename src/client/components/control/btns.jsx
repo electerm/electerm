@@ -89,6 +89,60 @@ export default function Btns(props) {
       }
     ]
   }
+
+  let bookmarkSelect = bookmarkGroups.length > 1
+    ? (
+      <TreeSelect
+        placeholder={c('bookmarks')}
+        className="iblock btn-select"
+        value={bookmarkId}
+        onSelect={bookmarkId => {
+          onSelectBookmark(bookmarkId)
+          modifier2({
+            bookmarkId
+          })
+        }}
+        showSearch
+        treeDefaultExpandAll
+        dropdownMatchSelectWidth={false}
+        dropdownStyle={{
+          maxHeight: 400,
+          maxWidth: 500,
+          overflow: 'auto'
+        }}
+        onChange={(value, label, extra) => {
+          if (!value) {
+            onSelectBookmark(extra.triggerValue)
+          }
+          modifier2({
+            bookmarkId: extra.triggerValue
+          })
+        }}
+        treeData={treeData}
+        treeNodeFilterProp="label"
+        searchPlaceholder={s('search')}
+      />
+    )
+    : (
+      <Select
+        onSelect={onSelectBookmark}
+        placeholder={c('bookmarks')}
+        {...commonSelectProps}
+        className="iblock btn-select mg1r"
+      >
+        {
+          [
+            ...bookmarks,
+            ...sshConfigItems
+          ].map((tab, i) => {
+            let {id} = tab
+            return (
+              <Option value={id} key={id + 'bm' + i}>{createName(tab)}</Option>
+            )
+          })
+        }
+      </Select>
+    )
   return (
     <div className={
       `btns pd1 borderb fix${showControl ? '' : ' hide'}`
@@ -117,36 +171,7 @@ export default function Btns(props) {
             })
           }
         </Select>
-        <TreeSelect
-          placeholder={c('bookmarks')}
-          className="iblock btn-select"
-          value={bookmarkId}
-          onSelect={bookmarkId => {
-            onSelectBookmark(bookmarkId)
-            modifier2({
-              bookmarkId
-            })
-          }}
-          showSearch
-          treeDefaultExpandAll
-          dropdownMatchSelectWidth={false}
-          dropdownStyle={{
-            maxHeight: 400,
-            maxWidth: 500,
-            overflow: 'auto'
-          }}
-          onChange={(value, label, extra) => {
-            if (!value) {
-              onSelectBookmark(extra.triggerValue)
-            }
-            modifier2({
-              bookmarkId: extra.triggerValue
-            })
-          }}
-          treeData={treeData}
-          treeNodeFilterProp="label"
-          searchPlaceholder={s('search')}
-        />
+        {bookmarkSelect}
         <Tooltip title={`${m('edit')} ${c('bookmarks')}`}>
           <Icon
             type="edit"
