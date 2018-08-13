@@ -19,7 +19,7 @@ describe('symbolic links support', function () {
       webdriverOptions: {
         deprecationWarnings: false
       },
-      args: [resolve(cwd, 'work/app')]
+      args: [resolve(cwd, 'work/app'), '--no-session-restore']
     })
     return this.app.start()
   })

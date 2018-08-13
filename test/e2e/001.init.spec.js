@@ -6,11 +6,6 @@ const {expect} = require('chai')
 const cwd = process.cwd()
 const packInfo = require('../../package.json')
 const {log} = console
-const isOs = require('./common/is-os')
-
-if (!isOs('linux')) {
-  return
-}
 
 describe('main window', function () {
   this.timeout(100000)
@@ -21,7 +16,7 @@ describe('main window', function () {
       webdriverOptions: {
         deprecationWarnings: false
       },
-      args: [resolve(cwd, 'work/app')]
+      args: [resolve(cwd, 'work/app'), '--no-session-restore']
     })
     return this.app.start()
   })
@@ -54,6 +49,7 @@ describe('main window', function () {
 
     log('button:edit')
     await client.click('.btns .anticon-edit')
+    await delay(500)
     let active = await client.element('.ant-modal .ant-tabs-line > .ant-tabs-bar .ant-tabs-tab-active')
     expect(!!active.value).equal(true)
 
