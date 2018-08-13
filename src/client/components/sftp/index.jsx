@@ -107,8 +107,8 @@ export default class Sftp extends React.Component {
   sort = memoizeOne((
     list,
     type,
-    sortDirection = this.state[`sortDirection.${type}`],
-    sortProp = this.state[`sortProp.${type}`]
+    sortDirection,
+    sortProp
   ) => {
     let l0 = _.find(list, g => !g.id)
     let l1 = list.filter(g => g.id && g.isDirectory)
@@ -127,7 +127,7 @@ export default class Sftp extends React.Component {
       ...l1.sort(sorter),
       ...l2.sort(sorter)
     ].filter(d => d)
-  })
+  }, _.isEqual)
 
   initEvent() {
     let root = ReactDOM.findDOMNode(this)
@@ -407,7 +407,10 @@ export default class Sftp extends React.Component {
       list = list.filter(f => !/^\./.test(f.name))
     }
     return this.sort(
-      list, type
+      list,
+      type,
+      this.state[`sortDirection.${type}`],
+      this.state[`sortProp.${type}`]
     )
   }
 
