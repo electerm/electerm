@@ -21,11 +21,11 @@ export default class Transports extends React.Component {
     this.mvOrCp()
   }
 
-  componentWillReceiveProps(nextProps) {
+  componentDidUpdate(prevProps) {
     if (
-      !_.isEqual(this.props.transports, nextProps.transports)
+      !_.isEqual(this.props.transports, prevProps.transports)
     ) {
-      this.mvOrCp(nextProps)
+      this.mvOrCp()
     }
   }
 
