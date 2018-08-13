@@ -472,6 +472,7 @@ export default class Index extends React.Component {
           {...fileInfoModalProps}
         />
         <FileModeModal
+          key={_.get(fileModeModalProps, 'file.id') || ''}
           {...fileModeModalProps}
         />
         <div id="outside-context">

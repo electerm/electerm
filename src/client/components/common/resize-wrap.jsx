@@ -7,6 +7,7 @@ import PropTypes from 'prop-types'
 import classnames from 'classnames'
 import _ from 'lodash'
 import {generate} from 'shortid'
+import memoizeOne from 'memoize-one'
 import {terminalSplitDirectionMap, minTerminalWidth, maxDragMove} from '../../common/constants'
 import './resize-wrap.styl'
 
@@ -18,35 +19,27 @@ export default class ResizeWrap extends Component {
     minWidth: PropTypes.number
   }
 
-  state = {
-    childIds: [],
-    splitIds: []
-  }
-
-  componentWillReceiveProps(nextProps) {
-    let old = this.props.children.map(c => c.props.id)
-    let n = nextProps.children.map(c => c.props.id)
-    if (
-      !_.isEqual(old, n)
-    ) {
-      let len = n.length - 1
-      this.setState({
-        childIds: n,
-        splitIds: new Array(len).fill(8).map(() => generate())
-      })
-    }
-  }
-
-  componentDidUpdate(prevProps, prevState) {
-    if (this.state.childIds.length < 2) {
+  componentDidUpdate(prevProps) {
+    let childIds = this.getChildIds()
+    let oldChildIds = this.getChildIds(prevProps)
+    if (childIds.length < 2) {
       return
     }
     if (
-      !_.isEqual(prevState.childIds, this.state.childIds)
+      !_.isEqual(oldChildIds, childIds)
     ) {
       this.saveOldStyle()
     }
   }
+
+  getChildIds = memoizeOne((props = this.props) => {
+    return props.children.map(c => c.props.id)
+  })
+
+  getSplitIds = memoizeOne(() => {
+    return new Array(this.props.children.length - 1)
+      .fill(8).map(() => generate())
+  })
 
   positionProps = [
     'width',
@@ -56,7 +49,8 @@ export default class ResizeWrap extends Component {
   ]
 
   saveOldStyle() {
-    let {childIds, splitIds} = this.state
+    let childIds = this.getChildIds()
+    let splitIds = this.getSplitIds()
     let ids = [
       ...splitIds,
       ...childIds
@@ -173,7 +167,8 @@ export default class ResizeWrap extends Component {
 
   //reset
   onDoubleClick = () => {
-    let {childIds, splitIds} = this.state
+    let childIds = this.getChildIds()
+    let splitIds = this.getSplitIds()
     let ids = [
       ...splitIds,
       ...childIds
@@ -184,6 +179,7 @@ export default class ResizeWrap extends Component {
         this.oldStyles[id]
       )
     })
+    window.dispatchEvent(new CustomEvent('resize'))
   }
 
   buildHandleComponent = (prevComponent, direction, index, tid) => {
@@ -235,7 +231,7 @@ export default class ResizeWrap extends Component {
       return children
     }
     let splitIndex = 0
-    let {splitIds} = this.state
+    let splitIds = this.getSplitIds()
     let newArr = children.reduce((prev, c, i) => {
       let split = null
       if (i !== len - 1) {

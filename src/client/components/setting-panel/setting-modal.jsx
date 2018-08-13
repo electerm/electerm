@@ -65,6 +65,7 @@ export default (props) => {
                 item.id
                   ? (
                     <BookmarkForm
+                      key={item.id}
                       {...formProps}
                     />
                   )
@@ -117,7 +118,7 @@ export default (props) => {
               />
             </Col>
             <Col span={18}>
-              <TerminalThemeForm {...formProps} />
+              <TerminalThemeForm {...formProps} key={item.id} />
             </Col>
           </Row>
         </TabPane>

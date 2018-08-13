@@ -21,19 +21,12 @@ export default class Transports extends React.Component {
     }
   }
 
-  componentWillReceiveProps(nextProps) {
+  componentDidUpdate(prevProps) {
     if (
-      !_.isEqual(this.props.transports, nextProps.transports)
+      !_.isEqual(this.props.transports, prevProps.transports)
     ) {
-      this.rebuildState(nextProps)
+      this.rebuildState()
     }
-  }
-
-  shouldComponentUpdate(nextProps, nextState) {
-    return !_.isEqual(nextState, this.state) || !_.isEqual(
-      nextProps.transports,
-      this.props.transports
-    ) || nextProps.isActive !== this.props.isActive
   }
 
   componentWillUnmount() {

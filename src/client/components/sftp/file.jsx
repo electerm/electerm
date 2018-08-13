@@ -69,14 +69,6 @@ export default class FileSection extends React.Component {
     this.applyStyle()
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (!_.isEqual(nextProps.file, this.props.file)) {
-      this.setState({
-        file: copy(nextProps.file)
-      })
-    }
-  }
-
   componentDidUpdate(prevProps, prevState) {
     if (
       !prevState.file.id &&

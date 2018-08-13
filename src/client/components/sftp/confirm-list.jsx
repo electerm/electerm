@@ -33,11 +33,11 @@ export default class Confirms extends React.Component {
     this.rebuildState()
   }
 
-  componentWillReceiveProps(nextProps) {
+  componentDidUpdate(prevProps) {
     if (
-      !_.isEqual(this.props.files, nextProps.files)
+      !_.isEqual(this.props.files, prevProps.files)
     ) {
-      this.rebuildState(nextProps)
+      this.rebuildState()
     }
   }
 
