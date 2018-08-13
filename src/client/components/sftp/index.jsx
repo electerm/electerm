@@ -680,15 +680,6 @@ export default class Sftp extends React.Component {
     }
   }
 
-  renderItem = (item, i, type) => {
-    return (
-      <FileSection
-        {...this.getFileProps(item, type)}
-        key={i + 'itd' + name}
-      />
-    )
-  }
-
   renderEmptyFile = (type) => {
     let item = {
       type,
@@ -703,6 +694,7 @@ export default class Sftp extends React.Component {
           {...this.getFileProps(item, type)}
           ref={ref => this[type + 'Dom'] = ref}
           draggable={false}
+          key={'empty' + type}
         />
       </div>
     )

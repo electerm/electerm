@@ -29,9 +29,9 @@ export default class Tranporter extends React.Component {
     this.startTransfer()
   }
 
-  componentWillReceiveProps(nextProps) {
+  componentDidUpdate(prevProps) {
     let before = this.props.currentTransport
-    let after = nextProps.currentTransport
+    let after = prevProps.currentTransport
     if (!_.isEqual(before, after)) {
       this.startTransfer()
     }
