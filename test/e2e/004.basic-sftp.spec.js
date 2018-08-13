@@ -27,7 +27,7 @@ describe('sftp basic', function () {
   beforeEach(async function() {
     this.app = new Application({
       path: electronPath,
-      args: [resolve(cwd, 'work/app')],
+      args: [resolve(cwd, 'work/app'), '--no-session-restore'],
       webdriverOptions: {
         deprecationWarnings: false
       }

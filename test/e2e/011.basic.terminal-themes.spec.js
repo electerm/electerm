@@ -22,7 +22,7 @@ describe('terminal themes', function () {
       webdriverOptions: {
         deprecationWarnings: false
       },
-      args: [resolve(cwd, 'work/app')]
+      args: [resolve(cwd, 'work/app'), '--no-session-restore']
     })
     return this.app.start()
   })
@@ -48,6 +48,7 @@ describe('terminal themes', function () {
 
     log('button:edit')
     await client.click('.btns .anticon-picture')
+    await delay(500)
     let sel = '.ant-modal .ant-tabs-line > .ant-tabs-bar .ant-tabs-tab-active'
     let active = await client.element(sel)
     expect(!!active.value).equal(true)
