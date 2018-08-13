@@ -32,12 +32,17 @@ export default class ResizeWrap extends Component {
     }
   }
 
-  getChildIds = memoizeOne((props = this.props) => {
+  getChildIds = (props = this.props) => {
     return props.children.map(c => c.props.id)
-  })
+  }
 
-  getSplitIds = memoizeOne(() => {
-    return new Array(this.props.children.length - 1)
+  getSplitIds = () => {
+    let len = this.props.children.length - 1
+    return this.getSplitIdsCache(len)
+  }
+
+  getSplitIdsCache = memoizeOne((len) => {
+    return new Array(len)
       .fill(8).map(() => generate())
   })
 
