@@ -22,17 +22,6 @@ export default class FileMode extends React.Component {
     file: null
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (
-      nextProps.file &&
-      !_.isEqual(nextProps.file, this.props.file)
-    ) {
-      this.setState({
-        file: this.addPermission(nextProps.file)
-      })
-    }
-  }
-
   addPermission = file => {
     let perms = mode2permission(file.mode)
     let permission = permission2mode(perms)

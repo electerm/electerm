@@ -43,17 +43,6 @@ export class BookmarkForm extends React.Component {
     testing: false
   }
 
-  componentWillReceiveProps(nextProps) {
-    let initBookmarkGroupId = this.getBookmarkGroupId(nextProps)
-    let initBookmarkGroupIdOld = this.getBookmarkGroupId(this.props)
-    if (
-      !_.isEqual(nextProps.formData, this.props.formData) ||
-      initBookmarkGroupId !== initBookmarkGroupIdOld
-    ) {
-      this.reset()
-    }
-  }
-
   getBookmarkGroupId = (props = this.props) => {
     const {
       id

@@ -428,7 +428,7 @@ export default class ResizeWrap extends Component {
     return (
       <FileSection
         {...this.props.getFileProps(item, type)}
-        key={i + 'itd' + name}
+        key={i + '*f*' + item.id}
         properties={this.state.properties}
       />
     )

@@ -21,13 +21,6 @@ const t = prefix('terminalThemes')
 @Form.create()
 @validateFieldsAndScroll
 class ThemeForm extends BookmarkForm {
-  componentWillReceiveProps(nextProps) {
-    if (
-      !_.isEqual(nextProps.formData, this.props.formData)
-    ) {
-      this.reset()
-    }
-  }
 
   export = () => {
     exportTheme(this.props.formData.id)

@@ -1,6 +1,6 @@
 {
   "name": "electerm",
-  "version": "0.23.35",
+  "version": "0.23.36",
   "description": "terminal/ssh/sftp client(linux, mac, win) based on electron/node-pty/xterm and other libs",
   "main": "app.js",
   "bin": "npm/electerm",
@@ -100,6 +100,7 @@
     "less": "3.0.4",
     "less-loader": "4.1.0",
     "lodash-webpack-plugin": "0.11.5",
+    "memoize-one": "4.0.0",
     "mini-css-extract-plugin": "0.4.1",
     "mocha": "5.2.0",
     "nodemon": "1.17.5",
@@ -116,9 +117,9 @@
     "stylus": "0.54.5",
     "stylus-loader": "3.0.2",
     "useragent": "2.3.0",
-    "webpack": "^4.16.3",
+    "webpack": "^4.16.5",
     "webpack-cli": "2.1.4",
-    "webpack-dev-server": "3.1.4",
+    "webpack-dev-server": "3.1.5",
     "xterm": "3.5.1"
   },
   "dependencies": {
@@ -137,8 +138,8 @@
     "node-pty": "0.7.4",
     "os-locale": "2.1.0",
     "phin": "2.9.0",
-    "react": "16.3.2",
-    "react-dom": "16.3.2",
+    "react": "16.4.2",
+    "react-dom": "16.4.2",
     "recursive-assign": "0.2.0",
     "shortid": "2.2.8",
     "socks": "2.2.1",
