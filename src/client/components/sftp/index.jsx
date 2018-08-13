@@ -26,6 +26,7 @@ import ResizeWrap from '../common/resize-wrap'
 import keyControlPressed from '../../common/key-control-pressed'
 import ListTable from './list-table'
 import deepCopy from 'json-deep-copy'
+import memoizeOne from 'memoize-one'
 import './sftp.styl'
 
 const {getGlobal, prefix} = window
@@ -103,9 +104,12 @@ export default class Sftp extends React.Component {
     }, {})
   }
 
-  sort = (list, type) => {
-    let sortDirection = this.state[`sortDirection.${type}`]
-    let sortProp = this.state[`sortProp.${type}`]
+  sort = memoizeOne((
+    list,
+    type,
+    sortDirection = this.state[`sortDirection.${type}`],
+    sortProp = this.state[`sortProp.${type}`]
+  ) => {
     let l0 = _.find(list, g => !g.id)
     let l1 = list.filter(g => g.id && g.isDirectory)
     let l2 = list.filter(g => g.id && !g.isDirectory)
@@ -123,7 +127,7 @@ export default class Sftp extends React.Component {
       ...l1.sort(sorter),
       ...l2.sort(sorter)
     ].filter(d => d)
-  }
+  })
 
   initEvent() {
     let root = ReactDOM.findDOMNode(this)
