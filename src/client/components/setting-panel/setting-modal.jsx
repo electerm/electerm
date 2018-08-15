@@ -87,6 +87,7 @@ export default (props) => {
             </Col>
             <Col span={14}>
               <BookmarkForm
+                key={item.id}
                 {...formProps}
               />
             </Col>

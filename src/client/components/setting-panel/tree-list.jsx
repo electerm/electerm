@@ -253,6 +253,7 @@ export default class ItemList extends React.Component {
       return this.props.delBookmarkGroup(item)
     }
     this.props.delItem(item, this.props.type)
+    this.props.onDelItem(item, this.props.type)
   }
 
   onExpand = (expandedKeys) => {
@@ -509,7 +510,8 @@ export default class ItemList extends React.Component {
   render() {
     let {
       bookmarkGroups,
-      type
+      type,
+      activeItemId
     } = this.props
     let {expandedKeys, keyword} = this.state
     return (
@@ -524,6 +526,7 @@ export default class ItemList extends React.Component {
             autoExpandParent={!!keyword}
             onSelect={this.onSelect}
             draggable
+            selectedKeys={[activeItemId]}
             onDrop={this.onDrop}
           >
             {bookmarkGroups.map(this.renderItem)}
