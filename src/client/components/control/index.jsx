@@ -56,6 +56,18 @@ export default class IndexControl extends React.Component {
     this.setState(...args)
   }
 
+  onDelItem = (item, type) => {
+    if (item.id === this.state.item.id) {
+      this.setState((old, props) => {
+        old.item = getInitItem(
+          props[type],
+          type
+        )
+        return old
+      })
+    }
+  }
+
   onDup = tab => {
     let index = _.findIndex(
       this.props.tabs,
@@ -176,7 +188,13 @@ export default class IndexControl extends React.Component {
   }
 
   render() {
-    let {item, tab, autoFocusTrigger, showModal, bookmarkId} = this.state
+    let {
+      item,
+      tab,
+      autoFocusTrigger,
+      showModal,
+      bookmarkId
+    } = this.state
     let arr = this.getItems(tab)
     let initItem = getInitItem(arr, tab)
     let list = tab === settingMap.history
@@ -193,7 +211,7 @@ export default class IndexControl extends React.Component {
       tab,
       ..._.pick(this, [
         'onAdd', 'onChange', 'onClose',
-        'hideModal',
+        'hideModal', 'onDelItem',
         'onDup', 'onNewSsh', 'openSetting',
         'onChangeTab', 'openTerminalThemes',
         'onEditBookmark', 'onSelectHistory', 'onSelectBookmark', 'onChangeTab'

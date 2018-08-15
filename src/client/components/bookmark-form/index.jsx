@@ -92,7 +92,7 @@ export class BookmarkForm extends React.Component {
     })
   }
 
-  submit = (item, type = this.props.type) => {
+  submit = (evt, item, type = this.props.type) => {
     let obj = item
     let {addItem, editItem} = this.props
     let categoryId = obj.category
@@ -109,6 +109,7 @@ export class BookmarkForm extends React.Component {
         obj,
         categoryId
       )
+      message.success('OK', 3)
       return
     }
     if (obj.id) {
@@ -122,13 +123,18 @@ export class BookmarkForm extends React.Component {
       )
     } else {
       obj.id = generate()
-      addItem(obj, settingMap.history)
+      if (evt !== 'save') {
+        addItem(obj, settingMap.history)
+      }
       addItem(obj, settingMap.bookmarks)
       this.updateBookmarkGroups(
         bookmarkGroups,
         obj,
         categoryId
       )
+      this.props.modifier2({
+        item: obj
+      })
     }
   }
 
@@ -192,7 +198,7 @@ export class BookmarkForm extends React.Component {
     if (isTest) {
       return await this.test(obj)
     }
-    evt && this.submit(obj)
+    evt && this.submit(evt, obj)
     if (evt !== 'save') {
       this.props.addTab({
         ...res,
