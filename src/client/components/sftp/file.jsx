@@ -26,7 +26,7 @@ import sorter from '../../common/index-sorter'
 import {getLocalFileInfo, getFolderFromFilePath, getRemoteFileInfo} from './file-read'
 import {readClipboard, copy as copyToClipboard, hasFileInClipboardText} from '../../common/clipboard'
 import fs from '../../common/fs'
-import dayjs from 'dayjs'
+import time from '../../common/time'
 
 const {prefix} = window
 const e = prefix('sftp')
@@ -1032,7 +1032,7 @@ export default class FileSection extends React.Component {
     } else if (name === 'mode') {
       value = permission2mode(mode2permission(value))
     } else if (name.toLowerCase().includes('time')) {
-      value = dayjs(value).format()
+      value = time(value)
     }
     return (
       <div
