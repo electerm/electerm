@@ -4,7 +4,7 @@
 
 import {Upload, Button} from 'antd'
 import download from '../../common/download'
-import dayjs from 'dayjs'
+import time from '../../common/time'
 import copy from 'json-deep-copy'
 import _ from 'lodash'
 
@@ -24,7 +24,7 @@ export default (props) => {
       bookmarkGroups,
       bookmarks
     }, null, 2)
-    let stamp = dayjs().format('YYYY-MM-DD-HH-mm-ss')
+    let stamp = time(undefined, 'YYYY-MM-DD-HH-mm-ss')
     download('bookmarks-' + stamp + '.json', txt)
   }
 
