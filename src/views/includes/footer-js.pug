@@ -8,7 +8,6 @@ script.
       if (window.et.env === 'development') return console.log.apply(null, args);
     }
 - var tail = env !== 'development' ? '.production.min' : '.development'
-script(src=cdn + '/_bc/dayjs/dayjs.min.js?' + version)
 script(src=cdn + '/_bc/react/umd/react' + tail + '.js?' + version)
 script(src=cdn + '/_bc/react-dom/umd/react-dom' + tail + '.js?' + version)
 script.

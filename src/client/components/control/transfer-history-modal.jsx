@@ -3,12 +3,12 @@
  */
 
 import {Modal, Table, Icon} from 'antd'
-import dayjs from 'dayjs'
+import time from '../../common/time'
 
 const {prefix} = window
 const e = prefix('transferHistory')
 const f = prefix('sftp')
-const timeRender = time => dayjs(time).format()
+const timeRender = time
 const sorterFactory = prop => {
   return (a, b) => {
     return a[prop] > b[prop] ? 1 : -1

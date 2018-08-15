@@ -5,14 +5,12 @@
 import {Icon, Modal} from 'antd'
 import resolve from '../../common/resolve'
 import {mode2permission} from '../../common/mode2permission'
-import dayjs from 'dayjs'
+import time from '../../common/time'
 import renderPermission from './permission-render'
 
 const {prefix} = window
 const e = prefix('sftp')
-const formatTime = time => {
-  return dayjs(time).format()
-}
+const formatTime = time
 
 export default function FileProps (props) {
 
