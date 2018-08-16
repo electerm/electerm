@@ -4,11 +4,12 @@
 
 import {Modal, Table, Icon} from 'antd'
 import time from '../../common/time'
+import {transferTypeMap} from '../../common/constants'
 
 const {prefix} = window
 const e = prefix('transferHistory')
 const f = prefix('sftp')
-const timeRender = time
+const timeRender = t => time(t)
 const sorterFactory = prop => {
   return (a, b) => {
     return a[prop] > b[prop] ? 1 : -1
@@ -21,6 +22,7 @@ export default ({
   clearTransferHistory,
   closeTransferHistory
 }) => {
+
   const columns = [{
     title: e('startTime'),
     dataIndex: 'startTime',
@@ -47,12 +49,26 @@ export default ({
     title: e('localPath'),
     dataIndex: 'localPath',
     key: 'localPath',
-    sorter: sorterFactory('localPath')
+    sorter: sorterFactory('localPath'),
+    render: (x, obj) => {
+      if (obj.type === transferTypeMap.upload) {
+        return obj.fromPath
+      } else {
+        return obj.toPath
+      }
+    }
   }, {
     title: e('remotePath'),
     dataIndex: 'remotePath',
     key: 'remotePath',
-    sorter: sorterFactory('remotePath')
+    sorter: sorterFactory('remotePath'),
+    render: (x, obj) => {
+      if (obj.type === transferTypeMap.download) {
+        return obj.fromPath
+      } else {
+        return obj.toPath
+      }
+    }
   }, {
     title: f('size'),
     dataIndex: 'size',
