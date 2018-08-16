@@ -44,6 +44,12 @@ export default class Transports extends React.Component {
     })
   }
 
+  hide = () => {
+    this.setState({
+      showList: false
+    })
+  }
+
   pause = () => {
     let {id} = this.state.currentTransport
     this[`ref__${id}`].pause()
@@ -137,7 +143,13 @@ export default class Transports extends React.Component {
         </div>
         <div className="fright">
           <span
-            className="pointer"
+            className="pointer mg1r"
+            onClick={this.hide}
+          >
+            {e('hide')}
+          </span>
+          <span
+            className="color-red pointer"
             onClick={this.cancelAll}
           >
             {e('cancelAll')}
