@@ -235,8 +235,9 @@ export default class Tranporter extends React.Component {
     let icon = typeIconMap[transferType]
     let icon2 = typeIconMap2[transferType]
     let cls = this.buildCls(file)
+    let title = `${e(transferType)}: ${fromPath} -> ${toPath} ${speed || ''} ${percent || 0}%`
     return (
-      <div className={cls}>
+      <div className={cls} title={title}>
         <Icon type={icon} className="sftp-type-icon iblock mg1r color-blue" />
         <span
           className="sftp-file sftp-local-file elli width200 iblock"
@@ -245,7 +246,6 @@ export default class Tranporter extends React.Component {
         <Icon type={icon2} className="sftp-direction-icon mg1x iblock" />
         <span
           className="sftp-file sftp-remote-file elli mg1r width200 iblock"
-          title={toPath}
         >{toPath}</span>
         <span
           className={`sftp-file-percent mg1r iblock sftp-status-${status}`}
@@ -263,7 +263,7 @@ export default class Tranporter extends React.Component {
           type="close-circle"
           className="sftp-control-icon iblock pointer hover-black"
           onClick={this.cancel}
-          title="cancel"
+          title={e('cancel')}
         />
       </div>
     )
