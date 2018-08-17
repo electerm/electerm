@@ -20,24 +20,40 @@ class Transfer {
     this.id = id
     let readSteam = type === 'download'
       ? sftp.createReadStream(remotePath, options)
-      : fs.createReadStream(localPath, options)
+      : fs.createReadStream(localPath, {
+        ...options,
+        highWaterMark: 64 * 1024 * 4 * 4
+      })
     let writeSteam = type === 'download'
       ? fs.createWriteStream(localPath, options)
       : sftp.createWriteStream(remotePath, options)
 
     let count = 0
+
+    this.pausing = false
+
     this.onData = _.throttle((count) => {
       ws.s({
         id: 'transfer:data:' + id,
         data: count
       })
     }, 1000)
-    let th = this
+
     readSteam.on('data', chunk => {
-      count += chunk.length
-      writeSteam.write(chunk, () => {
-        th.onData(count)
-      })
+      let res = writeSteam.write(chunk)
+      if (res) {
+        count += chunk.length
+        this.onData(count)
+      } else {
+        readSteam.pause()
+        writeSteam.once('drain', () => {
+          count += chunk.length
+          this.onData(count)
+          if (!this.pausing) {
+            readSteam.resume()
+          }
+        })
+      }
     })
 
     readSteam.on('close', () => {
@@ -69,10 +85,12 @@ class Transfer {
   }
 
   pause () {
+    this.pausing = true
     this.readSteam.pause()
   }
 
   resume () {
+    this.pausing = false
     this.readSteam.resume()
   }
 
