@@ -14,6 +14,7 @@ const {fork} = require('child_process')
 const _ = require('lodash')
 const getConf = require('./config.default')
 const sshConfigItems = require('./lib/ssh-config')
+const lookup = require('./lib/lookup')
 const os = require('os')
 const {resolve} = require('path')
 const {instSftpKeys} = require('./lib/sftp')
@@ -162,6 +163,7 @@ async function createWindow () {
       win.close()
       app.relaunch()
     },
+    lookup,
     lang,
     langs,
     packInfo,
