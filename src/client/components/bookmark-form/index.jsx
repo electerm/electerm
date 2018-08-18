@@ -20,6 +20,7 @@ import {
 } from '../../common/constants'
 import {formItemLayout, tailFormItemLayout} from '../../common/form-layout'
 import InputAutoFocus from '../common/input-auto-focus'
+import isIp from '../../common/is-ip'
 import './bookmark-form.styl'
 
 const {TabPane} = Tabs
@@ -40,7 +41,31 @@ const s = prefix('setting')
 export class BookmarkForm extends React.Component {
 
   state = {
-    testing: false
+    testing: false,
+    dns: ''
+  }
+
+  useIp = () => {
+    this.props.form.setFieldsValue({
+      host: this.state.dns
+    })
+    this.setState({
+      dns: ''
+    })
+  }
+
+  onBlur = async e => {
+    let {value} = e.target
+    if (!value || /\s/.test(value) || isIp(value)) {
+      return
+    }
+    let ip = await window.getGlobal('lookup')(value)
+      .catch(err => {
+        console.log(err)
+      })
+    this.setState({
+      dns: ip ? ip : ''
+    })
   }
 
   getBookmarkGroupId = (props = this.props) => {
@@ -441,7 +466,7 @@ export class BookmarkForm extends React.Component {
       bookmarkGroups,
       currentBookmarkGroupId
     } = this.props
-
+    let {dns} = this.state
     let initBookmarkGroupId = id
       ? this.findBookmarkGroupId(bookmarkGroups, id)
       : currentBookmarkGroupId
@@ -453,6 +478,21 @@ export class BookmarkForm extends React.Component {
           label={e('host')}
           hasFeedback
         >
+          {
+            dns
+              ? (
+                <div>
+                  ip: {dns}
+                  <span
+                    className="color-blue pointer mg1l"
+                    onClick={this.useIp}
+                  >
+                    {e('use')}
+                  </span>
+                </div>
+              )
+              : null
+          }
           {getFieldDecorator('host', {
             rules: [{
               max: 130, message: '130 chars max'
@@ -461,7 +501,11 @@ export class BookmarkForm extends React.Component {
             }],
             initialValue: host
           })(
-            <InputAutoFocus autoFocusTrigger={autoFocusTrigger} selectAll />
+            <InputAutoFocus
+              autoFocusTrigger={autoFocusTrigger}
+              selectAll
+              onBlur={this.onBlur}
+            />
           )}
         </FormItem>
         <FormItem
