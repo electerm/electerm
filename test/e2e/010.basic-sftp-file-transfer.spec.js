@@ -160,7 +160,7 @@ describe('sftp file transfer', function () {
         'bubbles': true,
         'cancelable': true
       })
-      document.querySelector('.ssh-wrap-show .file-list.remote .sftp-item .sftp-file-prop').dispatchEvent(event)
+      document.querySelectorAll('.ssh-wrap-show .file-list.remote .sftp-item')[1].dispatchEvent(event)
     })
 
     await delay(2000)
