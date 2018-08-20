@@ -19,6 +19,7 @@ const c = prefix('common')
 const m = prefix('menu')
 const h = prefix('transferHistory')
 const s = prefix('ssh')
+const t = prefix('terminalThemes')
 const commonSelectProps = {
   showSearch: true,
   optionFilterProp: 'children',
@@ -183,6 +184,7 @@ export default function Btns(props) {
           type="picture"
           className="font16 mg2l iblock pointer control-icon"
           onClick={openTerminalThemes}
+          title={t('terminalThemes')}
         />
         <Icon
           className="mg2l iblock pointer font16 control-icon"
