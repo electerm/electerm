@@ -6,11 +6,15 @@ import {generate} from 'shortid'
 import initWs from './ws'
 
 const fsFunctions = window.getGlobal('fsFunctions')
+let id = generate()
+let ws
+
+export const initFS = async () => {
+  ws = await initWs('fs', id)
+}
 
 export default fsFunctions.reduce((prev, func) => {
   prev[func] = async (...args) => {
-    let id = generate()
-    let ws = await initWs('fs', id)
     let uid = func + ':' + id
     return new Promise((resolve, reject) => {
       ws.s({
@@ -25,7 +29,6 @@ export default fsFunctions.reduce((prev, func) => {
           console.log(arg.error.stack)
           return reject(new Error(arg.error.message))
         }
-        ws.close()
         resolve(arg.data)
       }, uid)
     })
