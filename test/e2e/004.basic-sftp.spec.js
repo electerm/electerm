@@ -16,7 +16,7 @@ const cwd = process.cwd()
 const delay = require('./common/wait')
 const generate = require('./common/uid')
 const isOs = require('./common/is-os')
-
+const {log} = console
 if (!isOs('linux')) {
   return
 }
@@ -62,6 +62,7 @@ describe('sftp basic', function () {
     await delay(2010)
 
     //click sftp tab
+    log('click sftp tab')
     await client.execute(function() {
       document.querySelectorAll('.ssh-wrap-show .term-sftp-tabs .type-tab')[1].click()
     })
@@ -71,6 +72,7 @@ describe('sftp basic', function () {
     let localFileListBefore = await client.elements('.ssh-wrap-show .file-list.local .sftp-item')
     await client.rightClick('.ssh-wrap-show .virtual-file-local', 10, 10)
     await delay(200)
+    log('add folder')
     await client.execute(function() {
       document.querySelector('.context-menu .anticon-folder-add').click()
     })
@@ -100,6 +102,7 @@ describe('sftp basic', function () {
     //new file
     await client.rightClick('.ssh-wrap-show .virtual-file-local', 10, 10)
     await delay(200)
+    log('add file')
     await client.execute(function() {
       document.querySelector('.context-menu .anticon-file-add').click()
     })
@@ -114,6 +117,7 @@ describe('sftp basic', function () {
     //select all and del Control
     await client.rightClick('.ssh-wrap-show .virtual-file-local', 10, 10)
     await delay(200)
+    log('select all')
     await client.execute(function() {
       document.querySelector('.context-menu .anticon-check-square-o').click()
     })
@@ -126,6 +130,8 @@ describe('sftp basic', function () {
     expect(localFileList11.value.length).equal(1)
 
     //goto parent
+    await delay(20)
+    log('goto parent')
     await client.execute(function() {
       document.querySelector('.ssh-wrap-show .sftp-local-section .anticon-arrow-up').click()
     })
@@ -135,6 +141,7 @@ describe('sftp basic', function () {
 
 
     //del folder
+    log('del folder')
     await client.execute(function() {
       document.querySelectorAll('.ssh-wrap-show .file-list.local .sftp-item')[1].click()
     })

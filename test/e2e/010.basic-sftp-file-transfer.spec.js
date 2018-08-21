@@ -15,7 +15,7 @@ const {
   TEST_PASS,
   TEST_USER
 } = require('./common/env')
-
+const {log} = console
 
 describe('sftp file transfer', function () {
   this.timeout(100000)
@@ -58,6 +58,7 @@ describe('sftp file transfer', function () {
     await delay(2010)
 
     //click sftp tab
+    log('click sftp tab')
     await client.execute(function() {
       document.querySelectorAll('.ssh-wrap-show .term-sftp-tabs .type-tab')[1].click()
     })
@@ -67,6 +68,7 @@ describe('sftp file transfer', function () {
     let localFileListBefore = await client.elements('.ssh-wrap-show .file-list.local .sftp-item')
     await client.rightClick('.ssh-wrap-show .virtual-file-local', 10, 10)
     await delay(200)
+    log('add folder')
     await client.execute(function() {
       document.querySelector('.context-menu .anticon-folder-add').click()
     })
@@ -96,6 +98,7 @@ describe('sftp file transfer', function () {
     //new file
     await client.rightClick('.ssh-wrap-show .virtual-file-local', 10, 10)
     await delay(200)
+    log('add file')
     await client.execute(function() {
       document.querySelector('.context-menu .anticon-file-add').click()
     })
@@ -112,6 +115,7 @@ describe('sftp file transfer', function () {
     let remoteFileListBefore = await client.elements('.ssh-wrap-show .file-list.remote .sftp-item')
     await client.rightClick('.ssh-wrap-show .virtual-file-remote', 10, 10)
     await delay(200)
+    log('add folder2')
     await client.execute(function() {
       document.querySelector('.context-menu .anticon-folder-add').click()
     })
@@ -141,12 +145,14 @@ describe('sftp file transfer', function () {
     //transfer local to remote
     await client.rightClick('.ssh-wrap-show .sftp-item.local', 20, 22)
     await delay(200)
+    log('do upload')
     await client.execute(function() {
       document.querySelector('.context-menu .anticon-cloud-upload-o').click()
     })
 
     //transfer remote to local
     await delay(500)
+    log('del')
     await client.execute(function() {
       document.querySelectorAll('.ssh-wrap-show .file-list.local .sftp-item .sftp-file-prop')[0].click()
     })
@@ -176,6 +182,7 @@ describe('sftp file transfer', function () {
     expect(remoteFileList01.value.length).equal(2)
 
     //goto parent
+    log('goto parent1')
     await client.execute(function() {
       document.querySelector('.ssh-wrap-show .sftp-local-section .anticon-arrow-up').click()
     })
@@ -185,6 +192,7 @@ describe('sftp file transfer', function () {
     })
     await delay(3000)
     //del folder
+    log('del all')
     await client.execute(function() {
       document.querySelectorAll('.ssh-wrap-show .file-list.local .sftp-item')[1].click()
     })
@@ -195,6 +203,7 @@ describe('sftp file transfer', function () {
     await client.keys(['Enter'])
 
     await delay(500)
+    log('del all2')
     await client.execute(function() {
       document.querySelectorAll('.ssh-wrap-show .file-list.remote .sftp-item .sftp-file-prop')[0].click()
     })
