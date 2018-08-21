@@ -56,7 +56,7 @@ describe('history', function () {
 
     log('tab it')
     await client.execute(function() {
-      document.querySelectorAll('.ant-modal .ant-tabs-tab')[0].click()
+      document.querySelectorAll('.ant-modal .ant-tabs-bar .ant-tabs-tab')[0].click()
     })
 
     await delay(100)
