@@ -71,7 +71,7 @@ describe('sftp basic', function () {
     //make a local folder
     let localFileListBefore = await client.elements('.ssh-wrap-show .file-list.local .sftp-item')
     await client.rightClick('.ssh-wrap-show .virtual-file-local', 10, 10)
-    await delay(200)
+    await delay(300)
     log('add folder')
     await client.execute(function() {
       document.querySelector('.context-menu .anticon-folder-add').click()

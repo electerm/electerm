@@ -67,7 +67,7 @@ describe('sftp file transfer', function () {
     //make a local folder
     let localFileListBefore = await client.elements('.ssh-wrap-show .file-list.local .sftp-item')
     await client.rightClick('.ssh-wrap-show .virtual-file-local', 10, 10)
-    await delay(200)
+    await delay(300)
     log('add folder')
     await client.execute(function() {
       document.querySelector('.context-menu .anticon-folder-add').click()
@@ -143,6 +143,7 @@ describe('sftp file transfer', function () {
     expect(remoteFileList0.value.length).equal(1)
 
     //transfer local to remote
+    await delay(200)
     await client.rightClick('.ssh-wrap-show .sftp-item.local', 20, 22)
     await delay(200)
     log('do upload')
