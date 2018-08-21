@@ -47,6 +47,7 @@ describe('sftp file transfer', function () {
     await client.setValue('#host', TEST_HOST)
     await client.setValue('#username', TEST_USER)
     await client.setValue('#password', TEST_PASS)
+    await delay(100)
     await client.execute(function() {
       document.querySelector('.ant-modal .ant-tabs-tabpane-active .ant-btn-primary').click()
     })
@@ -65,6 +66,7 @@ describe('sftp file transfer', function () {
     //make a local folder
     let localFileListBefore = await client.elements('.ssh-wrap-show .file-list.local .sftp-item')
     await client.rightClick('.ssh-wrap-show .virtual-file-local', 10, 10)
+    await delay(200)
     await client.execute(function() {
       document.querySelector('.context-menu .anticon-folder-add').click()
     })
@@ -93,6 +95,7 @@ describe('sftp file transfer', function () {
 
     //new file
     await client.rightClick('.ssh-wrap-show .virtual-file-local', 10, 10)
+    await delay(200)
     await client.execute(function() {
       document.querySelector('.context-menu .anticon-file-add').click()
     })
@@ -108,6 +111,7 @@ describe('sftp file transfer', function () {
     //make a remote folder
     let remoteFileListBefore = await client.elements('.ssh-wrap-show .file-list.remote .sftp-item')
     await client.rightClick('.ssh-wrap-show .virtual-file-remote', 10, 10)
+    await delay(200)
     await client.execute(function() {
       document.querySelector('.context-menu .anticon-folder-add').click()
     })
@@ -175,6 +179,7 @@ describe('sftp file transfer', function () {
     await client.execute(function() {
       document.querySelector('.ssh-wrap-show .sftp-local-section .anticon-arrow-up').click()
     })
+    await delay(100)
     await client.execute(function() {
       document.querySelector('.ssh-wrap-show .sftp-remote-section .anticon-arrow-up').click()
     })
