@@ -22,7 +22,7 @@
 
 ## dowload
 - https://electerm.html5beta.com
-- https://github.com/electerm/electerm/releases
+- or from release: https://github.com/electerm/electerm/releases
 
 ## or install from npm
 ```
@@ -32,6 +32,11 @@ npm i -g electerm
 # for mac, will open the drag to install panel
 
 ```
+
+## upgrade
+
+- if you downloaded it, then just download the latest edition, reinstall.
+- if you install from npm, just run `npm i -g electerm` again.
 
 ## features
 - work as a terminal/file manager or ssh/sftp client(similar to xshell)
