@@ -394,7 +394,6 @@ export default class Term extends React.Component {
     let pid = await fetch.post(url, {
       cols,
       rows,
-      mode: 'VINTR',
       ...tab,
       ...extra,
       readyTimeout: _.get(config, 'sshReadyTimeout'),

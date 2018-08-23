@@ -67,6 +67,9 @@ class Terminal {
           }
           conn.shell(
             _.pick(initOptions, ['rows', 'cols', 'mode']),
+            // {
+            //   env: process.env
+            // },
             (err, channel) => {
               if (err) {
                 return reject(err)

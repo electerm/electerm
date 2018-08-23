@@ -1,6 +1,6 @@
 {
   "name": "electerm",
-  "version": "0.24.0",
+  "version": "0.24.1",
   "description": "terminal/ssh/sftp client(linux, mac, win) based on electron/node-pty/xterm and other libs",
   "main": "app.js",
   "bin": "npm/electerm",
@@ -120,7 +120,7 @@
     "webpack": "4.16.5",
     "webpack-cli": "2.1.4",
     "webpack-dev-server": "3.1.5",
-    "xterm": "3.5.1"
+    "xterm": "3.6.0"
   },
   "dependencies": {
     "bluebird": "3.5.1",
