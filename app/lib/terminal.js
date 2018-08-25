@@ -66,7 +66,7 @@ class Terminal {
             return resolve(true)
           }
           conn.shell(
-            _.pick(initOptions, ['rows', 'cols', 'mode']),
+            _.pick(initOptions, ['rows', 'cols', 'term']),
             // {
             //   env: process.env
             // },
