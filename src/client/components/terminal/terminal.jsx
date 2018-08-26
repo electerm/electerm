@@ -185,7 +185,7 @@ export default class Term extends React.Component {
   onPaste = () => {
     let selected = readClipboard()
     if (this.isWin) {
-      selected = selected.replace(/\\r\\n/g, '\n')
+      selected = selected.replace(/\r\n/g, '\n')
     }
     this.term.__sendData(selected)
     this.props.closeContextMenu()
