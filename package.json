@@ -1,6 +1,6 @@
 {
   "name": "electerm",
-  "version": "0.24.1",
+  "version": "0.24.2",
   "description": "terminal/ssh/sftp client(linux, mac, win) based on electron/node-pty/xterm and other libs",
   "main": "app.js",
   "bin": "npm/electerm",
@@ -67,7 +67,7 @@
     "concat-loader": "0.1.0",
     "cross-env": "5.1.6",
     "css-loader": "0.28.11",
-    "electron": "2.0.2",
+    "electron": "2.0.8",
     "electron-builder": "20.14.7",
     "electron-rebuild": "1.7.3",
     "eslint": "4.19.1",
