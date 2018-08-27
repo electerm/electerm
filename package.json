@@ -44,6 +44,7 @@
   "engines": {
     "node": ">=8.9.1"
   },
+  "preferGlobal": true,
   "devDependencies": {
     "antd": "3.6.6",
     "antd-icon-loader": "1.0.0",
