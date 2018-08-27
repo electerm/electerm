@@ -147,6 +147,15 @@ export default class Term extends React.Component {
     }
   }
 
+  onSelection = () => {
+    if (this.props.config.copyWhenSelect) {
+      let txt = this.term.getSelection()
+      if (txt) {
+        copy(txt)
+      }
+    }
+  }
+
   split = () => {
     this.props.doSplit(null, this.props.id)
     this.props.closeContextMenu()
@@ -156,6 +165,9 @@ export default class Term extends React.Component {
     e.preventDefault()
     if (this.state.loading) {
       return
+    }
+    if (this.props.config.pasteWhenContextMenu) {
+      return this.onPaste()
     }
     let content = this.renderContext()
     let height = content.props.children.filter(_.identity)
@@ -329,6 +341,7 @@ export default class Term extends React.Component {
     })
     term.open(document.getElementById(id), true)
     term.on('focus', this.setActive)
+    term.on('selection', this.onSelection)
     this.term = term
     // if (host && !password && !privateKey) {
     //   return this.promote()
