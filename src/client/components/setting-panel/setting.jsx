@@ -1,10 +1,14 @@
 
 import React from 'react'
-import {message, Select, InputNumber, Alert, Button} from 'antd'
+import {
+  message, Select, Switch,
+  InputNumber, Alert, Button
+} from 'antd'
 
 const {Option} = Select
 const {getGlobal, prefix} = window
 const e = prefix('setting')
+const s = prefix('ssh')
 const modifiers = [
   'Command',
   'Control',
@@ -72,6 +76,12 @@ export default class Setting extends React.Component {
     this.props.setTheme(id)
   }
 
+  onToggle = (value, name) => {
+    this.saveConfig({
+      [name]: value
+    })
+  }
+
   saveConfig = (_ext) => {
     let {config} = this.props
     let ext = _ext
@@ -97,6 +107,20 @@ export default class Setting extends React.Component {
   renderOption = (m, i) => {
     return (
       <Option value={m} key={m + 'opt' + i}>{m}</Option>
+    )
+  }
+
+  renderToggle = name => {
+    let checked = !!this.props.config[name]
+    return (
+      <div className="pd2b">
+        <Switch
+          checked={checked}
+          checkedChildren={e(name)}
+          unCheckedChildren={e(name)}
+          onChange={v => this.onToggle(v, name)}
+        />
+      </div>
     )
   }
 
@@ -216,6 +240,11 @@ export default class Setting extends React.Component {
           </Select>
         </div>
         {this.renderLanguageChangeTip()}
+        <div className="pd1b">
+          {s('terminal')} {e('settings')} 
+        </div>
+        {this.renderToggle('copyWhenSelect')}
+        {this.renderToggle('pasteWhenContextMenu')}
       </div>
     )
   }
