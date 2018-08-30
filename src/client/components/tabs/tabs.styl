@@ -2,6 +2,12 @@
   position relative
   height 46px
   overflow hidden
+  .menu-control
+    position absolute
+    left 5px
+    top 7px
+    z-index 3
+
 .tabs-inner
   position relative
   z-index 2
@@ -10,6 +16,14 @@
   height 63px
   overflow-x scroll
   overflow-y hidden
+.hide-control
+  .tabs-inner
+  .tabs-wrapper
+    -webkit-app-region drag
+  .tabs-wrapper  > *
+    -webkit-app-region no-drag
+  .tabs-inner
+    margin-left 37px
 .tab
   display inline-block
   vertical-align middle
@@ -60,3 +74,4 @@
   background #fff
   line-height 46px
   z-index 20
+  -webkit-app-region no-drag

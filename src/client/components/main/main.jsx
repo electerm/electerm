@@ -426,7 +426,8 @@ export default class Index extends React.Component {
       contextMenuVisible,
       fileInfoModalProps,
       fileModeModalProps,
-      shouldCheckUpdate
+      shouldCheckUpdate,
+      showControl
     } = this.state
     let {themes, theme} = this.state
     let themeConfig = (_.find(themes, d => d.id === theme) || {}).themeConfig || {}
@@ -475,7 +476,10 @@ export default class Index extends React.Component {
           key={_.get(fileModeModalProps, 'file.id') || ''}
           {...fileModeModalProps}
         />
-        <div id="outside-context">
+        <div
+          id="outside-context"
+          className={showControl ? 'show-control' : 'hide-control'}
+        >
           <Control
             {...controlProps}
           />
