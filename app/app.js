@@ -117,6 +117,7 @@ async function createWindow () {
     fullscreenable: true,
     //fullscreen: true,
     title: packInfo.name,
+    frame: false,
     icon: iconPath
   })
 
@@ -146,6 +147,9 @@ async function createWindow () {
     getExitStatus: () => global.et.exitStatus,
     setExitStatus: (status) => {
       global.et.exitStatus = status
+    },
+    popup: (options) => {
+      Menu.getApplicationMenu().popup(options)
     },
     resolve,
     version,

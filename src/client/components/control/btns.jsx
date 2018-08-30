@@ -48,6 +48,15 @@ export default function Btns(props) {
     openTerminalThemes,
     transferHistory
   } = props
+  const onOpenMenu = e => {
+    let {right: x, bottom: y} = e.currentTarget.getBoundingClientRect()
+    x = Math.ceil(x - 15)
+    y = Math.ceil(x - 12)
+    window.getGlobal('popup')({
+      x,
+      y
+    })
+  }
   let bookmarkMap = bookmarks.reduce((prev, b) => {
     return {
       ...prev,
@@ -151,7 +160,14 @@ export default function Btns(props) {
     >
       <div className="fleft">
         <Button
-          className="mg1r iblock"
+          className="mg2r iblock"
+          type="ghost"
+          icon="bars"
+          onClick={onOpenMenu}
+          title={e('menu')}
+        />
+        <Button
+          className="mg1r iblock add-bookmark"
           type="ghost"
           icon="plus"
           onClick={onNewSsh}

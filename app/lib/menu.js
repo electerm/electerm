@@ -16,6 +16,7 @@ const {
 } = require('./locales')
 const e = prefix('menu')
 const c = prefix('control')
+const s = prefix('setting')
 
 const template = [
   {
@@ -61,6 +62,15 @@ const template = [
       {
         role: 'selectall',
         label: e('selectall')
+      },
+      {
+        type: 'separator'
+      },
+      {
+        label: s('settings'),
+        click() {
+          require('./win').win.webContents.send('openSettings', null)
+        }
       }
     ]
   },
