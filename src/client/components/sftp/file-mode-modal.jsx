@@ -9,6 +9,7 @@ import time from '../../common/time'
 import _ from 'lodash'
 import {mode2permission, permission2mode} from '../../common/mode2permission'
 import renderPermission from './permission-render'
+import copy from 'json-deep-copy'
 
 const {prefix} = window
 const e = prefix('sftp')
@@ -16,8 +17,11 @@ const formatTime = time
 
 export default class FileMode extends React.Component {
 
-  state = {
-    file: null
+  constructor(props) {
+    super(props)
+    this.state = {
+      file: copy(props.file)
+    }
   }
 
   addPermission = file => {
@@ -58,7 +62,6 @@ export default class FileMode extends React.Component {
   }
 
   renderFooter() {
-    
     return (
       <Button
         type="primary"
