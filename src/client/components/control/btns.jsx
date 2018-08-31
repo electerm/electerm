@@ -46,13 +46,17 @@ export default function Btns(props) {
     bookmarkId,
     modifier2,
     openTerminalThemes,
-    transferHistory
+    transferHistory,
+    isMaximized
   } = props
   let minimize = () => {
     window.getGlobal('minimize')()
   }
   let maximize = () => {
     window.getGlobal('maximize')()
+  }
+  let unmaximize = () => {
+    window.getGlobal('unmaximize')()
   }
   let closeApp = () => {
     window.getGlobal('closeApp')()
@@ -220,9 +224,16 @@ export default function Btns(props) {
           onClick={minimize}
         />
         <span
-          title={m('maximize')}
-          className="mg2r iblock pointer font16 icon-maximize widnow-control-icon"
-          onClick={maximize}
+          title={
+            isMaximized ? m('unmaximize') : m('maximize')
+          }
+          className={
+            'mg2r iblock pointer font16 icon-maximize widnow-control-icon ' +
+              (isMaximized ? 'is-max' : 'not-max')
+          }
+          onClick={
+            isMaximized ? unmaximize : maximize
+          }
         />
         <Icon
           type="close"

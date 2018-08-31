@@ -45,6 +45,7 @@ export default class Index extends React.Component {
         ls.get(settingMap.bookmarkGroups) ||
         this.getDefaultBookmarkGroups(bookmarks)
       ),
+      isMaximized: window.getGlobal('isMaximized')(),
       config: _config || {},
       contextMenuProps: {},
       transferHistory: [],
@@ -100,7 +101,8 @@ export default class Index extends React.Component {
   onResize = _.throttle(() => {
     let update = {
       height: window.innerHeight,
-      width: window.innerWidth
+      width: window.innerWidth,
+      isMaximized: window.getGlobal('isMaximized')()
     }
     this.setState(update)
     window
@@ -135,6 +137,10 @@ export default class Index extends React.Component {
     }
   }
 
+  maximize = () => {
+
+  }
+
   initEvent = () => {
     let dom = document.getElementById('outside-context')
     this.dom = dom
@@ -152,7 +158,7 @@ export default class Index extends React.Component {
   }
 
   checkLastSession = () => {
-    let status = getGlobal('getExitStatus')()
+    let status = window.getGlobal('getExitStatus')()
     if (status === 'ok') {
       return
     }

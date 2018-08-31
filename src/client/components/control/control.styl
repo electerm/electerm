@@ -35,5 +35,19 @@
   width 12px
   height 10px
   border 1px solid #ccc
+  &.is-max
+    height 8px
+    position relative
+    &:after
+      position absolute
+      content ''
+      left -3px
+      top 2px
+      width 12px
+      height 8px
+      border 1px solid #ccc
+      border-top none
+      border-right none
+
 .control-icon:hover
   color #08c

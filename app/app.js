@@ -173,6 +173,12 @@ async function createWindow () {
     maximize: () => {
       win.maximize()
     },
+    unmaximize: () => {
+      win.unmaximize()
+    },
+    isMaximized: () => {
+      return win.isMaximized()
+    },
     lookup,
     lang,
     langs,
