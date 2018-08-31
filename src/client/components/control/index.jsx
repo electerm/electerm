@@ -50,6 +50,7 @@ export default class IndexControl extends React.Component {
     window._require('electron')
       .ipcRenderer
       .on('new-ssh', this.onNewSsh)
+      .on('openSettings', this.openSetting)
   }
 
   modifier = (...args) => {

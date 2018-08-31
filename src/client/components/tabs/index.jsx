@@ -7,6 +7,7 @@ import React from 'react'
 import _ from 'lodash'
 import {Icon, Button, Dropdown, Menu} from 'antd'
 import Tab from './tab'
+import MenuBtn from '../control/menu-btn'
 import './tabs.styl'
 import {tabWidth, tabMargin} from '../../common/constants'
 import createName from '../../common/create-title'
@@ -16,6 +17,7 @@ const e = prefix('tabs')
 const ButtonGroup = Button.Group
 const MenuItem = Menu.Item
 const extraWidth = 113
+const menuWidth = 37
 
 export default class Tabs extends React.Component {
 
@@ -35,11 +37,11 @@ export default class Tabs extends React.Component {
   }
 
   adjustScroll = () => {
-    let {width, tabs, currentTabId} = this.props
+    let {width, tabs, currentTabId, showControl} = this.props
     let index = _.findIndex(tabs, t => t.id === currentTabId)
     let w = (index + 1) * (tabMargin + tabWidth) + 5
     let scrollLeft = w > width - extraWidth
-      ? w - width + extraWidth
+      ? w - width + extraWidth - (showControl ? 0 : menuWidth)
       : 0
     this.dom.scrollLeft = scrollLeft
   }
@@ -122,7 +124,7 @@ export default class Tabs extends React.Component {
   }
 
   render() {
-    let {tabs = [], width} = this.props
+    let {tabs = [], width, showControl} = this.props
     let len = tabs.length
     let addBtnWidth = 22
     let tabsWidthAll = (tabMargin + tabWidth) * len + 10
@@ -137,7 +139,7 @@ export default class Tabs extends React.Component {
           }}
         >
           <div
-            className="tabs-wrapper"
+            className="tabs-wrapper relative"
             style={{
               width: tabsWidthAll + extraWidth + 10
             }}
@@ -161,6 +163,13 @@ export default class Tabs extends React.Component {
             }
           </div>
         </div>
+        {
+          !showControl
+            ? (
+              <MenuBtn />
+            )
+            : null
+        }
         {
           overflow
             ? this.renderExtra()

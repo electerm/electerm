@@ -117,6 +117,7 @@ async function createWindow () {
     fullscreenable: true,
     //fullscreen: true,
     title: packInfo.name,
+    frame: false,
     icon: iconPath
   })
 
@@ -147,6 +148,9 @@ async function createWindow () {
     setExitStatus: (status) => {
       global.et.exitStatus = status
     },
+    popup: (options) => {
+      Menu.getApplicationMenu().popup(options)
+    },
     resolve,
     version,
     sshConfigItems,
@@ -162,6 +166,18 @@ async function createWindow () {
     restart: () => {
       win.close()
       app.relaunch()
+    },
+    minimize: () => {
+      win.minimize()
+    },
+    maximize: () => {
+      win.maximize()
+    },
+    unmaximize: () => {
+      win.unmaximize()
+    },
+    isMaximized: () => {
+      return win.isMaximized()
     },
     lookup,
     lang,

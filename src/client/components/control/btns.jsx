@@ -11,6 +11,7 @@ import {
 } from 'antd'
 import createName from '../../common/create-title'
 import copy from 'json-deep-copy'
+import MenuBtn from './menu-btn'
 
 const {Option} = Select
 const {prefix, getGlobal} = window
@@ -32,7 +33,7 @@ const sshConfigItems = copy(getGlobal('sshConfigItems'))
 export default function Btns(props) {
 
   let {
-    onNewSsh,
+    //onNewSsh,
     onSelectHistory,
     openSetting,
     onSelectBookmark,
@@ -42,12 +43,24 @@ export default function Btns(props) {
     onEditBookmark,
     openAbout,
     openTransferHistory,
-    showControl,
     bookmarkId,
     modifier2,
     openTerminalThemes,
-    transferHistory
+    transferHistory,
+    isMaximized
   } = props
+  let minimize = () => {
+    window.getGlobal('minimize')()
+  }
+  let maximize = () => {
+    window.getGlobal('maximize')()
+  }
+  let unmaximize = () => {
+    window.getGlobal('unmaximize')()
+  }
+  let closeApp = () => {
+    window.getGlobal('closeApp')()
+  }
   let bookmarkMap = bookmarks.reduce((prev, b) => {
     return {
       ...prev,
@@ -145,18 +158,9 @@ export default function Btns(props) {
       </Select>
     )
   return (
-    <div className={
-      `btns pd1 borderb fix${showControl ? '' : ' hide'}`
-    }
-    >
+    <div className="btns pd1 borderb fix">
       <div className="fleft">
-        <Button
-          className="mg1r iblock"
-          type="ghost"
-          icon="plus"
-          onClick={onNewSsh}
-          title={e('newSsh')}
-        />
+        <MenuBtn />
         <Select
           className="mg1r iblock btn-select"
           onSelect={onSelectHistory}
@@ -205,13 +209,37 @@ export default function Btns(props) {
             )
             : null
         }
-      </div>
-      <div className="fright line-height28">
         <Icon
           type="info-circle-o"
           title={m('about')}
-          className="pointer mg1l mg2r font14 open-about-icon"
+          className="mg2l iblock pointer font16 control-icon open-about-icon"
           onClick={openAbout}
+        />
+      </div>
+      <div className="fright line-height28">
+        <Icon
+          type="minus"
+          title={m('minimize')}
+          className="mg2r iblock pointer font16 widnow-control-icon"
+          onClick={minimize}
+        />
+        <span
+          title={
+            isMaximized ? m('unmaximize') : m('maximize')
+          }
+          className={
+            'mg2r iblock pointer font16 icon-maximize widnow-control-icon ' +
+              (isMaximized ? 'is-max' : 'not-max')
+          }
+          onClick={
+            isMaximized ? unmaximize : maximize
+          }
+        />
+        <Icon
+          type="close"
+          title={m('close')}
+          className="mg2r iblock pointer font16 widnow-control-icon"
+          onClick={closeApp}
         />
       </div>
     </div>
