@@ -48,6 +48,15 @@ export default function Btns(props) {
     openTerminalThemes,
     transferHistory
   } = props
+  let minimize = () => {
+    window.getGlobal('minimize')()
+  }
+  let maximize = () => {
+    window.getGlobal('maximize')()
+  }
+  let closeApp = () => {
+    window.getGlobal('closeApp')()
+  }
   let bookmarkMap = bookmarks.reduce((prev, b) => {
     return {
       ...prev,
@@ -208,18 +217,18 @@ export default function Btns(props) {
           type="minus"
           title={m('minimize')}
           className="mg2r iblock pointer font16 widnow-control-icon"
-          onClick={openAbout}
+          onClick={minimize}
         />
         <span
           title={m('maximize')}
           className="mg2r iblock pointer font16 icon-maximize widnow-control-icon"
-          onClick={openAbout}
+          onClick={maximize}
         />
         <Icon
           type="close"
           title={m('close')}
           className="mg2r iblock pointer font16 widnow-control-icon"
-          onClick={openAbout}
+          onClick={closeApp}
         />
       </div>
     </div>

@@ -167,6 +167,12 @@ async function createWindow () {
       win.close()
       app.relaunch()
     },
+    minimize: () => {
+      win.minimize()
+    },
+    maximize: () => {
+      win.maximize()
+    },
     lookup,
     lang,
     langs,
