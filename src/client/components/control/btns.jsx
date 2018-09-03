@@ -41,6 +41,7 @@ export default function Btns(props) {
     bookmarkGroups = [],
     history = [],
     onEditBookmark,
+    onNewSsh,
     openAbout,
     openTransferHistory,
     bookmarkId,
@@ -161,6 +162,13 @@ export default function Btns(props) {
     <div className="btns pd1 borderb fix">
       <div className="fleft">
         <MenuBtn />
+        <Button
+          className="mg1r iblock"
+          type="ghost"
+          icon="plus"
+          onClick={onNewSsh}
+          title={e('newSsh')}
+        />
         <Select
           className="mg1r iblock btn-select"
           onSelect={onSelectHistory}

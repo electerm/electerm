@@ -5,10 +5,10 @@ platform:
 
 init:
   - git config --global core.autocrlf input
-  - yarn
 
 install:
   - ps: Install-Product node 8 x64
+  - npm i -g yarn
   - npm i
 
 build_script:
