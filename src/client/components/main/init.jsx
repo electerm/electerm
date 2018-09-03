@@ -25,7 +25,7 @@ export default class Init extends React.Component {
   render() {
     if (this.state.loading) {
       return (
-        <div>loading...</div>
+        <div className="pd3 aligncenter">loading...</div>
       )
     }
     return <Main />
