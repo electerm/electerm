@@ -159,8 +159,8 @@ export default function Btns(props) {
       </Select>
     )
   return (
-    <div className="btns pd1 borderb fix">
-      <div className="fleft">
+    <div className="btns relative pd1 borderb fix">
+      <div className="left-btns relative">
         <MenuBtn />
         <Button
           className="mg1r iblock"
@@ -224,7 +224,7 @@ export default function Btns(props) {
           onClick={openAbout}
         />
       </div>
-      <div className="fright line-height28">
+      <div className="right-btns">
         <Icon
           type="minus"
           title={m('minimize')}
