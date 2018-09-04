@@ -86,7 +86,7 @@ export default class FileSection extends React.Component {
     let headers = document.querySelectorAll(
       `#${id} .${type} .sftp-file-table-header .sftp-header-box`
     )
-    this.dom.childNodes.forEach((n, i) => {
+    this.dom.querySelectorAll('.sftp-file-prop').forEach((n, i) => {
       let h = headers[i]
       if (h) {
         let s = _.pick(h.style, ['width', 'left'])
@@ -1087,9 +1087,12 @@ export default class FileSection extends React.Component {
         data-id={id}
         data-type={type}
       >
-        {
-          properties.map(this.renderProp)
-        }
+        <div className="file-bg" />
+        <div className="file-props">
+          {
+            properties.map(this.renderProp)
+          }
+        </div>
       </div>
     )
   }
