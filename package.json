@@ -1,6 +1,6 @@
 {
   "name": "electerm",
-  "version": "0.24.11",
+  "version": "0.24.12",
   "description": "terminal/ssh/sftp client(linux, mac, win) based on electron/node-pty/xterm and other libs",
   "main": "app.js",
   "bin": "npm/electerm",
@@ -111,7 +111,6 @@
     "prop-types": "15.6.1",
     "pug-html-loader": "1.1.5",
     "react-loadable": "5.4.0",
-    "react-table": "6.8.6",
     "shelljs": "0.8.2",
     "spectron": "3.8.0",
     "style-loader": "0.21.0",

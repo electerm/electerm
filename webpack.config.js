@@ -52,17 +52,15 @@ var config = {
     index: './src/views/index.pug'
   },
   output: {
-    path: __dirname + '/app/assets', // 输出文件目录
-    filename: 'js/[name].bundle.js', // 输出文件名
+    path: __dirname + '/app/assets',
+    filename: 'js/[name].bundle.js',
     publicPath: '/',
     chunkFilename: 'js/[name].' + version + '.js',
     libraryTarget: 'var'
   },
   externals: {
     'react': 'React',
-    'react-dom': 'ReactDOM',
-    'dayjs': 'dayjs',
-    'crypto-js': 'CryptoJS'
+    'react-dom': 'ReactDOM'
   },
   watch: true,
   resolve: {
