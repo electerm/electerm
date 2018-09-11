@@ -53,7 +53,7 @@ export const authTypeMap = buildConst([
 ])
 
 export const maxTransferHistory = 100
-export const topMenuHeight = 43
+export const topMenuHeight = 48
 export const tabsHeight = 46
 
 export const platform = window.getGlobal('os').platform()
