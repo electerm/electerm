@@ -239,14 +239,7 @@ if (process.platform === 'darwin') {
 
   // Window menu
   template[3].submenu = [
-    {
-      role: 'close',
-      label: e('close')
-    },
-    {
-      role: 'minimize',
-      label: e('minimize')
-    },
+    ...template[3].submenu,
     {
       role: 'zoom',
       label: e('zoom')
