@@ -20,7 +20,7 @@ const onOpenMenu = e => {
 export default function MenuBtn() {
   return (
     <span
-      className="mg2r iblock menu-control"
+      className="mg2r mg1l iblock menu-control"
       onClick={onOpenMenu}
       title={e('menu')}
     >

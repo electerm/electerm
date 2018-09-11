@@ -159,7 +159,7 @@ export default function Btns(props) {
       </Select>
     )
   return (
-    <div className="btns relative pd1 borderb fix">
+    <div className="btns relative borderb fix">
       <div className="left-btns relative">
         <MenuBtn />
         <Button
