@@ -21,7 +21,7 @@ const {instSftpKeys} = require('./lib/sftp')
 const {transferKeys} = require('./lib/transfer')
 const {saveUserConfig, userConfig} = require('./lib/user-config-controller')
 const {init, changeHotkeyReg} = require('./lib/shortcut')
-const {fsExport, fsFunctions, syncFsFunctions} = require('./lib/fs')
+const {fsExport, fsFunctions} = require('./lib/fs')
 const ls = require('./lib/ls')
 const version = require('./lib/version')
 const menu = require('./lib/menu')
@@ -157,7 +157,6 @@ async function createWindow () {
     testConnection,
     env: process.env,
     fsFunctions,
-    syncFsFunctions,
     openExternal: shell.openExternal,
     homeOrtmp: os.homedir() || os.tmpdir(),
     closeApp: () => {
