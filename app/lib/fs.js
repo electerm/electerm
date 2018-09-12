@@ -17,8 +17,9 @@ const run = (cmd) => {
         reject(err)
       } else if (stderr) {
         reject(stderr)
+      } else {
+        resolve(stdout)
       }
-      resolve(stdout)
     })
   })
 }
@@ -148,12 +149,7 @@ const fsFunctions = [
   'openFile'
 ]
 
-const syncFsFunctions = [
-  'openFile'
-]
-
 module.exports = {
   fsExport,
-  fsFunctions,
-  syncFsFunctions
+  fsFunctions
 }
