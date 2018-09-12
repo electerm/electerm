@@ -5,7 +5,7 @@
 
 const {Sftp} = require('./sftp')
 const {Transfer} = require('./transfer')
-const {fsExport: fs, syncFsFunctions} = require('./fs')
+const {fsExport: fs} = require('./fs')
 
 const sftpInsts = {}
 const transferInsts = {}
@@ -98,10 +98,6 @@ const initWs = function (app) {
       let msg = JSON.parse(message)
       let {id, args, func} = msg
       let uid = func + ':' + id
-      if (syncFsFunctions.includes(func)) {
-        ws.close()
-        return fs[func](...args)
-      }
       fs[func](...args)
         .then(data => {
           ws.s({
