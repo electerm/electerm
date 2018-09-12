@@ -583,6 +583,7 @@ export default class FileSection extends React.Component {
   openFile = file => {
     let filePath = resolve(file.path, file.name)
     fs.openFile(filePath)
+      .catch(this.props.onError)
     this.props.closeContextMenu()
   }
 
