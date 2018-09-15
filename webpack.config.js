@@ -109,17 +109,6 @@ var config = {
             }
           },
           {
-            loader: 'antd-icon-loader',
-            options: {
-
-              //relative path to your css path
-              path: '../../_bc/electerm-resource/res/fonts',
-
-              //version, will add to icon source url to help clear cache
-              version: pack.devDependencies.antd
-            }
-          },
-          {
             loader: 'css-loader'
           },
           {
