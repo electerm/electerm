@@ -40,13 +40,13 @@ export default function init() {
   // add etags
   app.use(etag())
 
-  //static
-  app.use(async (ctx, next) => {
-    ctx.set('Cache-Control', 'private, no-cache, no-store, must-revalidate')
-    ctx.set('Expires', '-1')
-    ctx.set('Pragma', 'no-cache')
-    await next()
-  })
+  // //static
+  // app.use(async (ctx, next) => {
+  //   ctx.set('Cache-Control', 'private, no-cache, no-store, must-revalidate')
+  //   ctx.set('Expires', '-1')
+  //   ctx.set('Pragma', 'no-cache')
+  //   await next()
+  // })
   app.use(mount('/_bc', serve(cwd + '/node_modules', staticOption())))
 
   // body
