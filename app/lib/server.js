@@ -28,8 +28,8 @@ require('express-ws')(app)
 //   next()
 // })
 
-app.use('/', express.static(pubPath, {maxAge: '7d'}))
-app.use('/_bc', express.static(modPath, {maxAge: '7d'}))
+app.use('/', express.static(pubPath, {maxAge: '170d'}))
+app.use('/_bc', express.static(modPath, {maxAge: '170d'}))
 
 app.post('/terminals', async function (req, res) {
   let body = JSON.parse(req.body.q)
