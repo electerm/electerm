@@ -217,8 +217,9 @@ export default class Index extends React.Component {
 
   toggleControl = () => {
     this.setState(old => {
-      old.showControl = !old.showControl
-      return old
+      return {
+        showControl: !old.showControl
+      }
     })
   }
 
