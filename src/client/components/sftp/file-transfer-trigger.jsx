@@ -4,7 +4,7 @@
 
 import React from 'react'
 
-export default class FileTransferTrigger extends React.Component {
+export default class FileTransferTrigger extends React.PureComponent {
 
   componentDidUpdate(prevProps) {
     let filesLen = (this.props.files || []).length

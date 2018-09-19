@@ -10,7 +10,7 @@ let {
 } = getGlobal('packInfo')
 const e = prefix('updater')
 
-export default class FileMode extends React.Component {
+export default class FileMode extends React.PureComponent {
 
   componentDidMount() {
     this.getLatestReleaseInfo()

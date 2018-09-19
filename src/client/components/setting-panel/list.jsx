@@ -15,7 +15,7 @@ const e = prefix('menu')
 const c = prefix('common')
 const s = prefix('setting')
 
-export default class ItemList extends React.Component {
+export default class ItemList extends React.PureComponent {
 
   state = {
     keyword: ''

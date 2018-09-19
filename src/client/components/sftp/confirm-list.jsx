@@ -16,7 +16,7 @@ import {typeMap} from '../../common/constants'
 const {prefix} = window
 const e = prefix('sftp')
 
-export default class Confirms extends React.Component {
+export default class Confirms extends React.PureComponent {
 
   constructor(props) {
     super(props)

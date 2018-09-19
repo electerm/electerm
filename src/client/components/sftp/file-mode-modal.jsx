@@ -15,7 +15,7 @@ const {prefix} = window
 const e = prefix('sftp')
 const formatTime = time
 
-export default class FileMode extends React.Component {
+export default class FileMode extends React.PureComponent {
 
   constructor(props) {
     super(props)

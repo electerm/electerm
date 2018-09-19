@@ -7,7 +7,7 @@ import {Input, Icon} from 'antd'
 
 const {Search} = Input
 
-export default class CommonSearch extends React.Component {
+export default class CommonSearch extends React.PureComponent {
 
   componentDidUpdate(prevProps) {
     if (prevProps.value !== this.props.value) {

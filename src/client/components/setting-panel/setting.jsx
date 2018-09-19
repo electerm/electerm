@@ -22,7 +22,7 @@ const keys = [
   })
 ]
 
-export default class Setting extends React.Component {
+export default class Setting extends React.PureComponent {
 
   state = {
     languageChanged: false

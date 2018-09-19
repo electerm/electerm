@@ -2,7 +2,7 @@
  * make child component resizable by drag the horizontal or vertical handle
  */
 
-import {Component} from 'react'
+import React from 'react'
 import PropTypes from 'prop-types'
 import classnames from 'classnames'
 import _ from 'lodash'
@@ -11,7 +11,7 @@ import memoizeOne from 'memoize-one'
 import {terminalSplitDirectionMap, minTerminalWidth, maxDragMove} from '../../common/constants'
 import './resize-wrap.styl'
 
-export default class ResizeWrap extends Component {
+export default class ResizeWrap extends React.PureComponent {
 
   static propTypes = {
     direction: PropTypes.oneOf(['horizontal', 'vertical']).isRequired,

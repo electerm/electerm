@@ -5,7 +5,7 @@ const {prefix} = window
 const e = prefix('main')
 const m = prefix('menu')
 
-export default class ErrorBoundary extends React.Component {
+export default class ErrorBoundary extends React.PureComponent {
   constructor(props) {
     super(props)
     this.state = {
