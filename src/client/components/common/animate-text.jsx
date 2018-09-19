@@ -3,12 +3,12 @@
  * animate text when text change
  */
 
-import {Component} from 'react'
+import React from 'react'
 import PropTypes from 'prop-types'
 import ReactDOM from 'react-dom'
 import './animate-text.styl'
 
-export default class AnimateText extends Component {
+export default class AnimateText extends React.PureComponent {
 
   static propTypes = {
     className: PropTypes.string

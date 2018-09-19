@@ -42,7 +42,7 @@ const buildTree = arr => {
   }, {})
 }
 
-export default class Sftp extends React.Component {
+export default class Sftp extends React.PureComponent {
 
   constructor(props) {
     super(props)

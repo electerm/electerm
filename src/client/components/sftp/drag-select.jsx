@@ -6,7 +6,7 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 import PropTypes from 'prop-types'
 
-export default class DragSelect extends React.Component {
+export default class DragSelect extends React.PureComponent {
 
   static propTypes = {
     className: PropTypes.string,

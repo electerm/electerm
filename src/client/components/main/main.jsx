@@ -28,7 +28,7 @@ const {prefix} = window
 const t = prefix('terminalThemes')
 let sessionsGlob = copy(ls.get('sessions'))
 
-export default class Index extends React.Component {
+export default class Index extends React.PureComponent {
 
   constructor(props) {
     super(props)

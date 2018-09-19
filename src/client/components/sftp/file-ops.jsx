@@ -7,7 +7,7 @@ import fs from '../../common/fs'
 import {typeMap} from '../../common/constants'
 import wait from '../../common/wait'
 
-export default class Transports extends React.Component {
+export default class Transports extends React.PureComponent {
 
   constructor(props) {
     super(props)

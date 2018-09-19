@@ -6,7 +6,7 @@
  * - click header to sort
  */
 
-import {Component} from 'react'
+import React from 'react'
 import classnames from 'classnames'
 import _ from 'lodash'
 import {generate} from 'shortid'
@@ -25,7 +25,7 @@ import FileSection from './file'
 const {prefix} = window
 const e = prefix('sftp')
 
-export default class ResizeWrap extends Component {
+export default class ResizeWrap extends React.PureComponent {
 
   constructor(props) {
     super(props)

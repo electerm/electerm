@@ -10,7 +10,7 @@ import copy from 'json-deep-copy'
 const {prefix} = window
 const e = prefix('sftp')
 
-export default class Transports extends React.Component {
+export default class Transports extends React.PureComponent {
 
   constructor(props) {
     super(props)
