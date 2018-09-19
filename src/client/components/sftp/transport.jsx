@@ -23,7 +23,7 @@ const typeIconMap2 = {
   download: 'swap-left'
 }
 
-export default class Tranporter extends React.Component {
+export default class Tranporter extends React.PureComponent {
 
   componentWillMount() {
     this.startTransfer()

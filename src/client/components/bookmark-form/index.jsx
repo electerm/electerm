@@ -38,7 +38,7 @@ const c = prefix('common')
 const m = prefix('menu')
 const s = prefix('setting')
 
-export class BookmarkForm extends React.Component {
+export class BookmarkForm extends React.PureComponent {
 
   state = {
     testing: false,

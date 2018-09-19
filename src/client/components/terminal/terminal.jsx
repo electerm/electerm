@@ -54,7 +54,7 @@ const computePos = (e, height) => {
   return res
 }
 
-export default class Term extends React.Component {
+export default class Term extends React.PureComponent {
 
   constructor(props) {
     super()

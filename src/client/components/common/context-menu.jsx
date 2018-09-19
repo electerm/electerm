@@ -5,7 +5,7 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import './context-menu.styl'
 
-export default class ContextMenu extends React.Component {
+export default class ContextMenu extends React.PureComponent {
 
   static propTypes = {
     content: PropTypes.element.isRequired,

@@ -19,7 +19,7 @@ const MenuItem = Menu.Item
 const extraWidth = 113
 const menuWidth = 37
 
-export default class Tabs extends React.Component {
+export default class Tabs extends React.PureComponent {
 
   componentDidMount() {
     this.dom = document.querySelector('.tabs-inner')

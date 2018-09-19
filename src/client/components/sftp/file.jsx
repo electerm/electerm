@@ -54,7 +54,7 @@ const onDragCls = 'sftp-ondrag'
 const onDragOverCls = 'sftp-dragover'
 const onMultiDragCls = 'sftp-dragover-multi'
 
-export default class FileSection extends React.Component {
+export default class FileSection extends React.PureComponent {
 
   constructor(props) {
     super(props)
@@ -643,8 +643,13 @@ export default class FileSection extends React.Component {
     srcTransferPath,
     targetTransferPath,
     targetTransferType,
-    transferType
+    _transferType
   ) => {
+    let {type} = selectedFiles[0]
+    let transferType = type === typeMap.local
+      ? transferTypeMap.upload
+      : transferTypeMap.download
+    transferType = _transferType ? _transferType : transferType
     this.props.closeContextMenu()
     let filesToConfirm = []
     for (let f of selectedFiles) {

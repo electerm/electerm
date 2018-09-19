@@ -7,7 +7,7 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 import _ from 'lodash'
 
-export default class InputAutoFocus extends React.Component {
+export default class InputAutoFocus extends React.PureComponent {
 
   componentDidMount() {
     this.timer = setTimeout(this.doFocus, 50)
