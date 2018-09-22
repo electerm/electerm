@@ -84,7 +84,7 @@ export default class FileSection extends React.PureComponent {
       type
     } = this.props
     let headers = document.querySelectorAll(
-      `#${id} .${type} .sftp-file-table-header .sftp-header-box`
+      `#id-${id} .${type} .sftp-file-table-header .sftp-header-box`
     )
     this.dom.querySelectorAll('.sftp-file-prop').forEach((n, i) => {
       let h = headers[i]

@@ -17,8 +17,11 @@ import {
   sftpControlHeight,
   contextMenuHeight,
   contextMenuPaddingTop,
-  contextMenuWidth
+  contextMenuWidth,
+  eventTypes,
+  paneMap
 } from '../../common/constants'
+import copy from 'json-deep-copy'
 import {Icon} from 'antd'
 import FileSection from './file'
 
@@ -34,6 +37,7 @@ export default class ResizeWrap extends React.PureComponent {
 
   componentDidMount() {
     this.saveOldStyle()
+    window.addEventListener('message', this.onMsg)
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -41,9 +45,41 @@ export default class ResizeWrap extends React.PureComponent {
       return
     }
     if (
-      !_.isEqual(prevState.properties, this.state.properties)
+      !_.isEqual(prevState.properties, this.state.properties) ||
+      (
+        this.toVisible(prevProps, this.props) &&
+        !this.inited
+      )
     ) {
+      if (!this.inited) {
+        this.inited = true
+      }
       this.saveOldStyle()
+    }
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('message', this.onMsg)
+  }
+
+  toVisible = (prevProps, props) => {
+    return (
+      prevProps.pane === paneMap.ssh ||
+      prevProps.pane === paneMap.terminal
+    ) &&
+    (
+      props.pane === paneMap.sftp ||
+      props.pane === paneMap.fileManager
+    )
+  }
+
+  onMsg = e => {
+    let {type, data} = e.data || {}
+    if (
+      type === eventTypes.resetFileListTable &&
+      data.id === this.props.id
+    ) {
+      this.resetWidth()
     }
   }
 
@@ -296,15 +332,21 @@ export default class ResizeWrap extends React.PureComponent {
       ...properties,
       ...splitHandles
     ]
-    let {type} = this.props
+    let {type, id} = this.props
+    let parentWidth = document.querySelector(
+      `#id-${id} .tw-${type} .sftp-table`
+    ).clientWidth
     this.oldStyles = ids.reduce((prev, {id, name}) => {
       let sel = `.ssh-wrap-show .tw-${type} .sftp-file-table-header .shi-${name ? name : id}`
       return {
         ...prev,
-        [name || id]: _.pick(
-          document.querySelector(sel).style,
-          this.positionProps
-        )
+        [name || id]: {
+          style: _.pick(
+            document.querySelector(sel).style,
+            this.positionProps
+          ),
+          parentWidth
+        }
       }
     }, {})
   }
@@ -399,10 +441,27 @@ export default class ResizeWrap extends React.PureComponent {
     }
   }
 
-  //onDragEnd = () => {}
+  // onDragEnd = () => {}
+
+  onDoubleClick = () => this.resetWidth()
+
+  rebuildStyle = (name) => {
+    let {style, parentWidth} = this.oldStyles[name]
+    style = copy(style)
+    let {
+      type,
+      id
+    } = this.props
+    let currentParentWidth = document.querySelector(
+      `#id-${id} .tw-${type} .sftp-table`
+    ).clientWidth
+    style.width = (parseFloat(style.width) * currentParentWidth / parentWidth) + 'px'
+    style.left = (parseFloat(style.left) * currentParentWidth / parentWidth) + 'px'
+    return style
+  }
 
   //reset
-  onDoubleClick = () => {
+  resetWidth = () => {
     let {properties, splitHandles} = this.state
     let ids = [
       ...properties,
@@ -417,7 +476,9 @@ export default class ResizeWrap extends React.PureComponent {
       arr.forEach(d => {
         Object.assign(
           d.style,
-          this.oldStyles[name || id] || {}
+          this.rebuildStyle(
+            name || id
+          )
         )
       })
     })
