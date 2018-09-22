@@ -125,3 +125,7 @@ export const defaultTheme = {
     brightWhite: '#eeeeec'
   }
 }
+
+export const eventTypes = {
+  resetFileListTable: 'reset-file-list-table'
+}

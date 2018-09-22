@@ -16,7 +16,9 @@ export default class ResizeWrap extends React.PureComponent {
   static propTypes = {
     direction: PropTypes.oneOf(['horizontal', 'vertical']).isRequired,
     children: PropTypes.arrayOf(PropTypes.element).isRequired,
-    minWidth: PropTypes.number
+    minWidth: PropTypes.number,
+    onEndDrag: PropTypes.func,
+    noResizeEvent: PropTypes.bool
   }
 
   componentDidUpdate(prevProps) {
@@ -164,14 +166,23 @@ export default class ResizeWrap extends React.PureComponent {
   }
 
   onDragEnd = () => {
-    if (this.props.noResizeEvent) {
+    let {
+      noResizeEvent,
+      onDragEnd
+    } = this.props
+    if (onDragEnd) {
+      onDragEnd()
+    }
+    if (noResizeEvent) {
       return
     }
     window.dispatchEvent(new CustomEvent('resize'))
   }
 
   //reset
-  onDoubleClick = () => {
+  onDoubleClick = this.resetWith
+
+  resetWith = () => {
     let childIds = this.getChildIds()
     let splitIds = this.getSplitIds()
     let ids = [
