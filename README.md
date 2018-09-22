@@ -49,7 +49,7 @@ https://github.com/electerm/electerm/issues
 
 ## dev
 ```bash
-# tested on ubuntu16.04 only
+# tested in ubuntu16.04/mac os 10.13 only
 # need nodejs/npm, suggest using nvm to install nodejs/npm
 # https://github.com/creationix/nvm
 # with node 8.6+
