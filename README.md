@@ -50,6 +50,8 @@ https://github.com/electerm/electerm/issues
 ## dev
 ```bash
 # tested on ubuntu16.04 only
+# need nodejs/npm, suggest using nvm to install nodejs/npm
+# https://github.com/creationix/nvm
 # with node 8.6+
 
 git clone git@github.com:electerm/electerm.git
@@ -79,6 +81,8 @@ npm run test
 # see https://yarnpkg.com/en/docs/install
 
 # build linux only with -l
+npm i
+npm run pre-test
 npm run release -l
 # visit dist/
 ```
