@@ -16,7 +16,7 @@ import DragSelect from './drag-select'
 import {getLocalFileInfo, getRemoteFileInfo} from './file-read'
 import {
   typeMap, maxSftpHistory, paneMap,
-  fileOpTypeMap,
+  fileOpTypeMap, eventTypes,
   fileTypeMap, transferTypeMap
 } from '../../common/constants'
 import {hasFileInClipboardText} from '../../common/clipboard'
@@ -147,6 +147,15 @@ export default class Sftp extends React.PureComponent {
   getIndex = (file) => {
     let {type} = file
     return _.findIndex(this.getFileList(type), f => f.id === file.id)
+  }
+
+  onResizeDragEnd = () => {
+    window.postMessage({
+      type: eventTypes.resetFileListTable,
+      data: {
+        id: this.state.id
+      }
+    }, '*')
   }
 
   selectAll = (type, e) => {
@@ -789,6 +798,7 @@ export default class Sftp extends React.PureComponent {
 
     let listProps = {
       list: arr,
+      id,
       type,
       ...this.props,
       ..._.pick(
@@ -810,7 +820,6 @@ export default class Sftp extends React.PureComponent {
       <div
         className={`sftp-section sftp-${type}-section tw-${type}`}
         style={style}
-        id={type}
         {...style}
       >
         <Spin spinning={loading}>
@@ -854,8 +863,8 @@ export default class Sftp extends React.PureComponent {
                 {...listProps}
               />
               <DragSelect
-                targetSelector={`#${id} .file-list.${type} .sftp-table-content .sftp-item`}
-                wrapperSelector={`#${id} .file-list.${type} .sftp-table-content`}
+                targetSelector={`#id-${id} .file-list.${type} .sftp-table-content .sftp-item`}
+                wrapperSelector={`#id-${id} .file-list.${type} .sftp-table-content`}
                 onDrag={onDrag}
                 onSelect={(ids, e) => this.onDragSelect(ids, e, type)}
               />
@@ -889,6 +898,7 @@ export default class Sftp extends React.PureComponent {
       <ResizeWrap
         direction="horizontal"
         noResizeEvent
+        onDragEnd={this.onResizeDragEnd}
         minWidth={300}
       >
         {
@@ -947,7 +957,7 @@ export default class Sftp extends React.PureComponent {
       return !keys.includes(f.transferType)
     })
     return (
-      <div className="sftp-wrap overhide relative" id={id} style={{height}}>
+      <div className="sftp-wrap overhide relative" id={`id-${id}`} style={{height}}>
         {
           this.renderSections()
         }
