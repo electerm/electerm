@@ -75,7 +75,7 @@ export default class WindowWrapper extends React.PureComponent  {
   }
 
   destroyEvent() {
-    window.removeEventListener('keypress', this.handleEvent)
+    window.removeEventListener('keydown', this.handleEvent)
   }
 
   isActive() {
@@ -184,7 +184,7 @@ export default class WindowWrapper extends React.PureComponent  {
       : 'terms-box bg-black hide'
     let {props} = this
     let height = this.computeHeight()
-    let {width} = props
+    let {width, tab} = props
     return (
       <div
         className={cls}
@@ -195,6 +195,7 @@ export default class WindowWrapper extends React.PureComponent  {
       >
         <ResizeWrap
           direction={splitDirection}
+          tab={tab}
         >
           {
             terminals.map((t) => {
@@ -244,15 +245,15 @@ export default class WindowWrapper extends React.PureComponent  {
     let {props} = this
     let host = _.get(props, 'tab.host')
     let cls1 = classnames(
-      'mg1r icon-split pointer iblock',
+      'mg1r icon-split pointer iblock spliter',
       {
-        'spin-90 mg-fix-2': splitDirection === terminalSplitDirectionMap.horizontal
+        'spin-90': splitDirection === terminalSplitDirectionMap.horizontal
       }
     )
     let cls2 = classnames(
-      'icon-direction pointer iblock',
+      'icon-direction pointer iblock spliter',
       {
-        'spin-90 mg-fix-2': splitDirection === terminalSplitDirectionMap.vertical
+        'spin-90': splitDirection === terminalSplitDirectionMap.vertical
       }
     )
     let hide = terminals.length < 2
@@ -330,6 +331,7 @@ export default class WindowWrapper extends React.PureComponent  {
     return (
       <div
         className={'term-sftp-box ' + pane + ' ' + splitDirection}
+        id={`is-${this.props.tab.id}`}
       >
         {this.renderControl()}
         {this.renderTerminals()}

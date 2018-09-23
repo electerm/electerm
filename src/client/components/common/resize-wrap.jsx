@@ -8,7 +8,11 @@ import classnames from 'classnames'
 import _ from 'lodash'
 import {generate} from 'shortid'
 import memoizeOne from 'memoize-one'
-import {terminalSplitDirectionMap, minTerminalWidth, maxDragMove} from '../../common/constants'
+import {
+  terminalSplitDirectionMap,
+  minTerminalWidth,
+  maxDragMove
+} from '../../common/constants'
 import './resize-wrap.styl'
 
 export default class ResizeWrap extends React.PureComponent {
@@ -19,19 +23,6 @@ export default class ResizeWrap extends React.PureComponent {
     minWidth: PropTypes.number,
     onEndDrag: PropTypes.func,
     noResizeEvent: PropTypes.bool
-  }
-
-  componentDidUpdate(prevProps) {
-    let childIds = this.getChildIds()
-    let oldChildIds = this.getChildIds(prevProps)
-    if (childIds.length < 2) {
-      return
-    }
-    if (
-      !_.isEqual(oldChildIds, childIds)
-    ) {
-      this.saveOldStyle()
-    }
   }
 
   getChildIds = (props = this.props) => {
@@ -54,24 +45,6 @@ export default class ResizeWrap extends React.PureComponent {
     'left',
     'top'
   ]
-
-  saveOldStyle() {
-    let childIds = this.getChildIds()
-    let splitIds = this.getSplitIds()
-    let ids = [
-      ...splitIds,
-      ...childIds
-    ]
-    this.oldStyles = ids.reduce((prev, id) => {
-      return {
-        ...prev,
-        [id]: _.pick(
-          document.querySelector(`.tw-${id}`).style,
-          this.positionProps
-        )
-      }
-    }, {})
-  }
 
   onDrag = (e) => {
     let dom = e.target
@@ -179,24 +152,6 @@ export default class ResizeWrap extends React.PureComponent {
     window.dispatchEvent(new CustomEvent('resize'))
   }
 
-  //reset
-  onDoubleClick = this.resetWith
-
-  resetWith = () => {
-    let childIds = this.getChildIds()
-    let splitIds = this.getSplitIds()
-    let ids = [
-      ...splitIds,
-      ...childIds
-    ]
-    ids.forEach((id) => {
-      Object.assign(
-        document.querySelector(`.tw-${id}`).style,
-        this.oldStyles[id]
-      )
-    })
-    window.dispatchEvent(new CustomEvent('resize'))
-  }
 
   buildHandleComponent = (prevComponent, direction, index, tid) => {
     let zIndex = this.props.children.length + 10
