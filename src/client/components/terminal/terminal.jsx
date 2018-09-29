@@ -196,7 +196,7 @@ export default class Term extends React.PureComponent {
 
   onPaste = () => {
     let selected = readClipboard()
-    if (this.isWin) {
+    if (this.isWin && _.get(this.props, 'tab.host')) {
       selected = selected.replace(/\r\n/g, '\n')
     }
     this.term.__sendData(selected)
