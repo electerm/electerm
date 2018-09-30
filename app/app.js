@@ -196,7 +196,7 @@ async function createWindow () {
     saveLangConfig(saveUserConfig, userConfig)
   }, 100)
 
-  let opts = `http://localhost:${config.port}/index.html`
+  let opts = `http://localhost:${config.port}/index.html?v=` + version
   let childServerUrl = opts + ''
   if (isDev) {
     let conf = require('../config.default')
