@@ -36,7 +36,7 @@ const getInitItem = (arr, tab) => {
   }
 }
 
-export default class IndexControl extends React.PureComponent {
+export default class IndexControl extends React.Component {
 
   state = {
     item: getInitItem([], settingMap.bookmarks),

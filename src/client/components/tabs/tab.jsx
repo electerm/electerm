@@ -16,7 +16,7 @@ const e = prefix('tabs')
 const onDragCls = 'ondrag-tab'
 const onDragOverCls = 'dragover-tab'
 
-export default class Tab extends React.PureComponent {
+export default class Tab extends React.Component {
 
   constructor(props) {
     super(props)
