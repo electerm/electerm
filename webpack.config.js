@@ -53,7 +53,7 @@ var config = {
   },
   output: {
     path: __dirname + '/app/assets',
-    filename: 'js/[name].bundle.js',
+    filename: 'js/[name].' + version + '.js',
     publicPath: '/',
     chunkFilename: 'js/[name].' + version + '.js',
     libraryTarget: 'var'
