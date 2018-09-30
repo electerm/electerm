@@ -28,7 +28,7 @@ const {prefix} = window
 const t = prefix('terminalThemes')
 let sessionsGlob = copy(ls.get('sessions'))
 
-export default class Index extends React.PureComponent {
+export default class Index extends React.Component {
 
   constructor(props) {
     super(props)
@@ -135,10 +135,6 @@ export default class Index extends React.PureComponent {
     if (update.tabs) {
       ls.set('sessions', update.tabs)
     }
-  }
-
-  maximize = () => {
-
   }
 
   initEvent = () => {
