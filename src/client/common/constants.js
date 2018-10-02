@@ -11,6 +11,8 @@ const buildConst = (props) => {
   }, {})
 }
 
+export const defaultFontFamily = 'mono, courier-new, courier, monospace'
+export const defaultFontSize = undefined
 export const defaultUserName = 'root'
 export const defaultookmarkGroupId = 'default'
 export const maxBookmarkGroupTitleLength = 33

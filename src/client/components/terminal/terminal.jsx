@@ -12,6 +12,8 @@ import {
   contextMenuHeight,
   contextMenuPaddingTop,
   typeMap,
+  defaultFontFamily,
+  defaultFontSize,
   contextMenuWidth,
   terminalSshConfigType
 } from '../../common/constants'
@@ -328,16 +330,16 @@ export default class Term extends React.PureComponent {
   initTerminal = async () => {
     let {id} = this.state
     //let {password, privateKey, host} = this.props.tab
-    let {themeConfig} = this.props
+    let {themeConfig, tab = {}} = this.props
     let config = deepCopy(
       window.getGlobal('_config')
     )
     let term = new Terminal({
       scrollback: config.scrollback,
-      fontFamily: 'mono, courier-new, courier, monospace',
-      theme: themeConfig
+      fontFamily: tab.fontFamily || defaultFontFamily,
+      theme: themeConfig,
       // lineHeight: 1.2,
-      // fontSize: 14
+      fontSize: tab.fontSize || defaultFontSize
     })
     term.open(document.getElementById(id), true)
     term.on('focus', this.setActive)
