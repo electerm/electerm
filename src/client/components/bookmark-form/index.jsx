@@ -16,6 +16,7 @@ import {
   authTypeMap,
   settingMap,
   defaultUserName,
+  defaultFontFamily,
   defaultookmarkGroupId
 } from '../../common/constants'
 import {formItemLayout, tailFormItemLayout} from '../../common/form-layout'
@@ -613,6 +614,43 @@ export class BookmarkForm extends React.PureComponent {
     )
   }
 
+  renderUI = () => {
+    const {getFieldDecorator} = this.props.form
+    const {
+      fontFamily = defaultFontFamily,
+      fontSize
+    } = this.props.formData
+    return [
+      <FormItem
+        {...formItemLayout}
+        label={e('fontFamily')}
+      >
+        {getFieldDecorator('fontFamily', {
+          rules: [{
+            max: 130, message: '130 chars max'
+          }],
+          initialValue: fontFamily
+        })(
+          <Input />
+        )}
+      </FormItem>,
+      <FormItem
+        {...formItemLayout}
+        label={e('fontSize')}
+      >
+        {getFieldDecorator('fontSize', {
+          initialValue: fontSize
+        })(
+          <InputNumber
+            min={9}
+            max={65535}
+            step={1}
+          />
+        )}
+      </FormItem>
+    ]
+  }
+
   renderTabs() {
     return (
       <Tabs type="card">
@@ -621,6 +659,9 @@ export class BookmarkForm extends React.PureComponent {
         </TabPane>
         <TabPane tab={e('proxy')} key="proxy" forceRender>
           {this.renderProxy()}
+        </TabPane>
+        <TabPane tab={e('UI')} key="UI" forceRender>
+          {this.renderUI()}
         </TabPane>
       </Tabs>
     )
