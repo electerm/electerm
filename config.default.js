@@ -21,8 +21,9 @@ let config = {
 try {
   extend(config, require('./config.js'))
 } catch (e) {
-  console.log(e.stack)
-  console.warn('warn:no custom config file, use "cp config.sample.js config.js" to create one')
+  if (!e.stack.includes('Cannot find module \'./config.js\'')) {
+    console.log (e.stack)
+  }
 }
 
 module.exports = config
