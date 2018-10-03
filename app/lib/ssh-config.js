@@ -32,7 +32,6 @@ try {
 
 } catch (e) {
   console.log('error parsing $HOME/.ssh/config')
-  console.log(e)
   console.log('maybe no $HOME/.ssh/config, but it is ok')
 }
 

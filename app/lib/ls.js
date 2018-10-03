@@ -17,7 +17,7 @@ const get = (key) => {
     cache = db
     return db[key]
   } catch(e) {
-    console.log(e)
+    console.log('no electerm-localstorage.json, but it is ok.')
     return null
   }
 }
