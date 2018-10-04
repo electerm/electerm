@@ -719,7 +719,7 @@ export default class Sftp extends React.PureComponent {
   renderAddonBefore = (type) => {
     let isShow = this.state[`${type}ShowHiddenFile`]
     let title = `${isShow ? e('hide') : e('show')} ${e('hfd')}`
-    let icon = isShow ? 'eye' : 'eye-o'
+    let theme = isShow ? 'filled' : 'outlined'
     return (
       <div>
         <Tooltip
@@ -728,7 +728,8 @@ export default class Sftp extends React.PureComponent {
           arrowPointAtCenter
         >
           <Icon
-            type={icon}
+            type="eye"
+            theme={theme}
             className="mg1r"
             onClick={() => this.toggleShowHiddenFile(type)}
           />
