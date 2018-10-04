@@ -328,6 +328,7 @@ export default class Tab extends React.Component {
           <Icon
             className="pointer tab-close"
             type="close-circle"
+            theme="filled"
             onClick={this.close}
           />
         </div>
