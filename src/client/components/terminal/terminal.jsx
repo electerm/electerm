@@ -103,6 +103,10 @@ export default class Term extends React.PureComponent {
     if (shouldChange) {
       this.term.focus()
     }
+    this.checkConfigChange(
+      deepCopy(prevProps.config),
+      deepCopy(this.props.config)
+    )
     let themeChanged = !_.isEqual(
       this.props.themeConfig,
       prevProps.themeConfig
@@ -120,6 +124,21 @@ export default class Term extends React.PureComponent {
     this.onClose = true
     this.socket && this.socket.close()
     this.term && this.term.dispose()
+  }
+
+  terminalConfigProps = [
+    'rightClickSelectsWord'
+  ]
+
+  checkConfigChange = (prev, curr) => {
+    for (let k of this.terminalConfigProps) {
+      let c = curr[k]
+      if (
+        prev[k] !== c
+      ) {
+        this.term.setOption(k, c)
+      }
+    }
   }
 
   timers = {}
@@ -330,12 +349,10 @@ export default class Term extends React.PureComponent {
   initTerminal = async () => {
     let {id} = this.state
     //let {password, privateKey, host} = this.props.tab
-    let {themeConfig, tab = {}} = this.props
-    let config = deepCopy(
-      window.getGlobal('_config')
-    )
+    let {themeConfig, tab = {}, config = {}} = this.props
     let term = new Terminal({
       scrollback: config.scrollback,
+      rightClickSelectsWord: config.rightClickSelectsWord || false,
       fontFamily: tab.fontFamily || defaultFontFamily,
       theme: themeConfig,
       // lineHeight: 1.2,

@@ -4,6 +4,7 @@ import {
   message, Select, Switch,
   InputNumber, Alert, Button
 } from 'antd'
+import deepCopy from 'json-deep-copy'
 
 const {Option} = Select
 const {getGlobal, prefix} = window
@@ -83,10 +84,10 @@ export default class Setting extends React.PureComponent {
   }
 
   saveConfig = (_ext) => {
-    let {config} = this.props
-    let ext = _ext
+    let config = deepCopy(this.props.config)
+    let ext = deepCopy(_ext)
     let update = {
-      config: Object.assign({}, config, ext)
+      config: Object.assign({}, config, deepCopy(_ext))
     }
     const saveUserConfig = getGlobal('saveUserConfig')
     if (ext.hotkey && ext.hotkey !== config.hotkey) {
@@ -243,6 +244,7 @@ export default class Setting extends React.PureComponent {
         <div className="pd1b">
           {s('terminal')} {e('settings')} 
         </div>
+        {this.renderToggle('rightClickSelectsWord')}
         {this.renderToggle('copyWhenSelect')}
         {this.renderToggle('pasteWhenContextMenu')}
       </div>
