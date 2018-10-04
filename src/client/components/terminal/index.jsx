@@ -43,7 +43,7 @@ const {prefix} = window
 const e = prefix('ssh')
 const m = prefix('menu')
 
-export default class WindowWrapper extends React.PureComponent  {
+export default class WindowWrapper extends React.Component  {
 
   constructor(props) {
     super(props)

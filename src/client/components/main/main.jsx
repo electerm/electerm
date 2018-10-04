@@ -46,7 +46,7 @@ export default class Index extends React.Component {
         this.getDefaultBookmarkGroups(bookmarks)
       ),
       isMaximized: window.getGlobal('isMaximized')(),
-      config: _config || {},
+      config: copy(_config) || {},
       contextMenuProps: {},
       transferHistory: [],
       themes: terminalThemes.getThemes(),
