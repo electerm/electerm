@@ -30,6 +30,7 @@ module.exports = function() {
         sshReadyTimeout: 50000,
         keepaliveInterval: 20 * 1000,
         scrollback: 3000,
+        rightClickSelectsWord: false,
         showMenu: true
       }
       extend(conf, override)
