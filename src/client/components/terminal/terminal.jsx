@@ -12,8 +12,6 @@ import {
   contextMenuHeight,
   contextMenuPaddingTop,
   typeMap,
-  defaultFontFamily,
-  defaultFontSize,
   contextMenuWidth,
   terminalSshConfigType
 } from '../../common/constants'
