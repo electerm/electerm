@@ -31,7 +31,9 @@ module.exports = function() {
         keepaliveInterval: 20 * 1000,
         scrollback: 3000,
         rightClickSelectsWord: false,
-        showMenu: true
+        showMenu: true,
+        fontSize: 16,
+        fontFamily: 'mono, courier-new, courier, monospace'
       }
       extend(conf, override)
       extend(conf, userConfig)

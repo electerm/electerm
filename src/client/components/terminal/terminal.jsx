@@ -104,8 +104,8 @@ export default class Term extends React.PureComponent {
       this.term.focus()
     }
     this.checkConfigChange(
-      deepCopy(prevProps.config),
-      deepCopy(this.props.config)
+      prevProps,
+      this.props
     )
     let themeChanged = !_.isEqual(
       this.props.themeConfig,
@@ -127,16 +127,35 @@ export default class Term extends React.PureComponent {
   }
 
   terminalConfigProps = [
-    'rightClickSelectsWord'
+    {
+      name: 'rightClickSelectsWord',
+      type: 'glob'
+    },
+    {
+      name: 'fontSize',
+      type: 'glob_local'
+    },
+    {
+      name: 'fontFmaily',
+      type: 'glob_local'
+    }
   ]
 
-  checkConfigChange = (prev, curr) => {
+  getValue = (props, type, name) => {
+    return type === 'glob'
+      ? props.config[name]
+      : props.tab[name] || props.config[name]
+  }
+
+  checkConfigChange = (prevProps, props) => {
     for (let k of this.terminalConfigProps) {
-      let c = curr[k]
+      let {name, type} = k
+      let prev = this.getValue(prevProps, type, name)
+      let curr = this.getValue(props, type, name)
       if (
-        prev[k] !== c
+        prev !== curr
       ) {
-        this.term.setOption(k, c)
+        this.term.setOption(name, curr)
       }
     }
   }
@@ -353,10 +372,10 @@ export default class Term extends React.PureComponent {
     let term = new Terminal({
       scrollback: config.scrollback,
       rightClickSelectsWord: config.rightClickSelectsWord || false,
-      fontFamily: tab.fontFamily || defaultFontFamily,
+      fontFamily: tab.fontFamily || config.fontFamily,
       theme: themeConfig,
       // lineHeight: 1.2,
-      fontSize: tab.fontSize || defaultFontSize
+      fontSize: tab.fontSize || config.fontSize
     })
     term.open(document.getElementById(id), true)
     term.on('focus', this.setActive)

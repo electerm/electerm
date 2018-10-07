@@ -16,7 +16,6 @@ import {
   authTypeMap,
   settingMap,
   defaultUserName,
-  defaultFontFamily,
   defaultookmarkGroupId
 } from '../../common/constants'
 import {formItemLayout, tailFormItemLayout} from '../../common/form-layout'
@@ -617,13 +616,17 @@ export class BookmarkForm extends React.PureComponent {
   renderUI = () => {
     const {getFieldDecorator} = this.props.form
     const {
+      fontFamily: defaultFontFamily,
+      fontSize: defaultFontSize
+    } = this.props.config || {}
+    const {
       fontFamily = defaultFontFamily,
-      fontSize
+      fontSize = defaultFontSize
     } = this.props.formData
     return [
       <FormItem
         {...formItemLayout}
-        label={e('fontFamily')}
+        label={s('fontFamily')}
       >
         {getFieldDecorator('fontFamily', {
           rules: [{
@@ -636,7 +639,7 @@ export class BookmarkForm extends React.PureComponent {
       </FormItem>,
       <FormItem
         {...formItemLayout}
-        label={e('fontSize')}
+        label={s('fontSize')}
       >
         {getFieldDecorator('fontSize', {
           initialValue: fontSize
