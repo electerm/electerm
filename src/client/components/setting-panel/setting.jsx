@@ -2,6 +2,7 @@
 import React from 'react'
 import {
   message, Select, Switch,
+  Input, Icon,
   InputNumber, Alert, Button
 } from 'antd'
 import deepCopy from 'json-deep-copy'
@@ -10,6 +11,7 @@ const {Option} = Select
 const {getGlobal, prefix} = window
 const e = prefix('setting')
 const s = prefix('ssh')
+const t = prefix('terminalThemes')
 const modifiers = [
   'Command',
   'Control',
@@ -64,20 +66,11 @@ export default class Setting extends React.PureComponent {
     })
   }
 
-  onChangeScrollBack = scrollback => {
-    this.setState({
-      scrollback
-    })
-    return this.saveConfig({
-      scrollback
-    })
-  }
-
   onChangeTerminalTheme = id => {
     this.props.setTheme(id)
   }
 
-  onToggle = (value, name) => {
+  onChangeValue = (value, name) => {
     this.saveConfig({
       [name]: value
     })
@@ -119,7 +112,7 @@ export default class Setting extends React.PureComponent {
           checked={checked}
           checkedChildren={e(name)}
           unCheckedChildren={e(name)}
-          onChange={v => this.onToggle(v, name)}
+          onChange={v => this.onChangeValue(v, name)}
         />
       </div>
     )
@@ -149,19 +142,55 @@ export default class Setting extends React.PureComponent {
     )
   }
 
+  renderNumber = (name, options) => {
+    let value = this.props.config[name]
+    let {
+      step = 1,
+      min,
+      max,
+      cls,
+      onChange = (v) => this.onChangeValue(v, name)
+    } = options
+    let opts = {
+      step,
+      value,
+      min,
+      max,
+      onChange
+    }
+    return (
+      <div className={`pd2b ${cls}`}>
+        <InputNumber
+          {...opts}
+        />
+      </div>
+    )
+  }
+
+  renderText = (name) => {
+    let value = this.props.config[name]
+    let onChange = (v) => this.onChangeValue(v, name)
+    return (
+      <div className="pd2b">
+        <Input
+          value={value}
+          onChange={onChange}
+        />
+      </div>
+    )
+  }
+
   render() {
     let {
       hotkey,
-      sshReadyTimeout,
-      language,
-      scrollback
+      language
     } = this.props.config
     let {themes, theme} = this.props
     let langs = getGlobal('langs')
     let [modifier, key] = hotkey.split('+')
     return (
       <div className="form-wrap pd1y pd2x">
-        <h3>{e('settings')}</h3>
+        <h2>{e('settings')}</h2>
         <div className="pd1b">{e('hotkeyDesc')}</div>
         <div className="pd2b">
           <Select
@@ -189,23 +218,20 @@ export default class Setting extends React.PureComponent {
           </Select>
         </div>
         <div className="pd1b">{e('scrollBackDesc')}</div>
-        <div className="pd2b">
-          <InputNumber
-            onChange={this.onChangeScrollBack}
-            step={200}
-            min={1000}
-            value={scrollback}
-          />
-        </div>
+        {
+          this.renderNumber('scrollback', {
+            step: 200,
+            min: 1000
+          })
+        }
         <div className="pd1b">{e('timeoutDesc')}</div>
-        <div className="pd2b timeout-desc">
-          <InputNumber
-            onChange={this.onChangeTimeout}
-            step={1000}
-            min={100}
-            value={sshReadyTimeout}
-          />
-        </div>
+        {
+          this.renderNumber('sshReadyTimeout', {
+            step: 200,
+            min: 100,
+            cls: 'timeout-desc'
+          })
+        }
         <div className="pd1b">{e('terminalTheme')}</div>
         <div className="pd2b">
           <Select
@@ -241,11 +267,24 @@ export default class Setting extends React.PureComponent {
           </Select>
         </div>
         {this.renderLanguageChangeTip()}
-        <div className="pd1b">
-          {s('terminal')} {e('settings')} 
+        <div className="pd1y font16 bold">
+          <Icon type="code" theme="outlined" className="mg1r" />
+          {s('terminal')} {e('settings')}
         </div>
+        <div className="pd1b">{t('default')} {e('fontSize')}</div>
+        {
+          this.renderNumber('fontSize', {
+            step: 1,
+            min: 9
+          })
+        }
+        <div className="pd1b">{t('default')} {e('fontFamily')}</div>
+        {
+          this.renderText('fontFamily')
+        }
         {this.renderToggle('rightClickSelectsWord')}
         {this.renderToggle('copyWhenSelect')}
+        {this.renderToggle('pasteWhenContextMenu')}
         {this.renderToggle('pasteWhenContextMenu')}
       </div>
     )
