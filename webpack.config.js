@@ -3,7 +3,7 @@ const webpack = require('webpack')
 const {identity} = require('lodash')
 const sysConfigDefault = require('./src/server/config')
 const packThreadCount = sysConfigDefault.devCPUCount // number
-const BabiliPlugin = require('babili-webpack-plugin')
+const MinifyPlugin = require('babel-minify-webpack-plugin')
 const HappyPack = require('happypack')
 const happyThreadPool = packThreadCount === 0 ? null : HappyPack.ThreadPool({ size: packThreadCount })
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
@@ -214,7 +214,7 @@ if (env === 'production') {
     // new webpack.optimize.MinChunkSizePlugin({
     //   minChunkSize: 51200 // ~50kb
     // }),
-    new BabiliPlugin()
+    new MinifyPlugin()
   ]
   config.mode = 'production'
   delete config.watch
