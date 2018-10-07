@@ -1,7 +1,7 @@
 {
   "presets": [
-    "react",
-    ["env", {
+    "@babel/react",
+    ["@babel/env", {
       "targets": {
         "chrome": 58,
         "node": "current"
@@ -9,11 +9,9 @@
     }]
   ],
   "plugins": [
-    "transform-class-properties",
-    "transform-object-rest-spread",
-    "transform-decorators-legacy",
+    "@babel/plugin-proposal-class-properties",
     "lodash",
-    "syntax-dynamic-import",
+    "@babel/plugin-syntax-dynamic-import",
     [
       "import",
       {
@@ -21,10 +19,10 @@
         "style": true
       }
     ],
+    ["@babel/plugin-proposal-decorators", { "legacy": true }],
     [
-      "transform-runtime",
+      "@babel/plugin-transform-runtime",
       {
-        "polyfill": false,
         "regenerator": false
       }
     ]
