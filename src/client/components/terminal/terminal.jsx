@@ -134,7 +134,7 @@ export default class Term extends React.PureComponent {
       type: 'glob_local'
     },
     {
-      name: 'fontFmaily',
+      name: 'fontFamily',
       type: 'glob_local'
     }
   ]

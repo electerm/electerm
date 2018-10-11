@@ -169,7 +169,7 @@ export default class Setting extends React.PureComponent {
 
   renderText = (name) => {
     let value = this.props.config[name]
-    let onChange = (v) => this.onChangeValue(v, name)
+    let onChange = (e) => this.onChangeValue(e.target.value, name)
     return (
       <div className="pd2b">
         <Input

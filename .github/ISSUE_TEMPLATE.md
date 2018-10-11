@@ -1,8 +1,8 @@
 
 <!--- Provide some basic info -->
-## electerm version:
+## Electerm version:
 
-## operating system(linux, macos, or windows?):
+## Operating system(linux, macos, or windows?):
 
 ## Expected Behavior
 <!--- Tell me what should happen -->
