@@ -56,7 +56,7 @@ export const maxTransferHistory = 100
 export const topMenuHeight = 48
 export const tabsHeight = 46
 
-export const platform = window.getGlobal('os').platform()
+const platform = window.getGlobal('os').platform()
 export const isWin = platform.startsWith('win')
 export const isMac = platform.startsWith('darwin')
 
