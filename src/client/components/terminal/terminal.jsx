@@ -12,6 +12,7 @@ import {
   contextMenuHeight,
   contextMenuPaddingTop,
   typeMap,
+  isWin,
   contextMenuWidth,
   terminalSshConfigType
 } from '../../common/constants'
@@ -160,8 +161,6 @@ export default class Term extends React.PureComponent {
 
   timers = {}
 
-  isWin = window.getGlobal('os').platform() === 'win32'
-
   initEvt = () => {
     let {id} = this.state
     let dom = document.getElementById(id)
@@ -234,7 +233,7 @@ export default class Term extends React.PureComponent {
 
   onPaste = () => {
     let selected = readClipboard()
-    if (this.isWin && _.get(this.props, 'tab.host')) {
+    if (isWin && _.get(this.props, 'tab.host')) {
       selected = selected.replace(/\r\n/g, '\n')
     }
     this.term.__sendData(selected)
