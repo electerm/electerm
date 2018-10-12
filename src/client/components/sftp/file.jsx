@@ -20,7 +20,7 @@ import {
   contextMenuHeight, contextMenuPaddingTop,
   isWin, transferTypeMap, typeMap,
   contextMenuWidth, fileOpTypeMap,
-  platform
+  isMac
 } from '../../common/constants'
 import sorter from '../../common/index-sorter'
 import {getLocalFileInfo, getFolderFromFilePath, getRemoteFileInfo} from './file-read'
@@ -54,7 +54,7 @@ const onDragCls = 'sftp-ondrag'
 const onDragOverCls = 'sftp-dragover'
 const onMultiDragCls = 'sftp-dragover-multi'
 
-export default class FileSection extends React.PureComponent {
+export default class FileSection extends React.Component {
 
   constructor(props) {
     super(props)
@@ -465,7 +465,10 @@ export default class FileSection extends React.PureComponent {
       && type === selectedFilesOld[0].type
     let selectedFiles = [file]
     if (isSameSide) {
-      if (e.ctrlKey) {
+      if (
+        (e.ctrlKey && !isMac) ||
+        (e.metaKey && isMac)
+      ) {
         let isSelected = _.some(
           selectedFilesOld,
           s => s.id === id
@@ -857,7 +860,7 @@ export default class FileSection extends React.PureComponent {
                 <Icon type="copy" /> {m('copy')}
                 <span className="context-sub-text">
                   {
-                    platform === 'darwin'
+                    isMac
                       ? 'cmd'
                       : 'ctrl'
                   }
@@ -878,7 +881,7 @@ export default class FileSection extends React.PureComponent {
                 <Icon type="file-excel" /> {m('cut')}
                 <span className="context-sub-text">
                   {
-                    platform === 'darwin'
+                    isMac
                       ? 'cmd'
                       : 'ctrl'
                   }
@@ -896,7 +899,7 @@ export default class FileSection extends React.PureComponent {
           <Icon type="copy" /> {m('paste')}
           <span className="context-sub-text">
             {
-              platform === 'darwin'
+              isMac
                 ? 'cmd'
                 : 'ctrl'
             }
@@ -934,7 +937,7 @@ export default class FileSection extends React.PureComponent {
           <Icon type="check-square-o" /> {e('selectAll')}
           <span className="context-sub-text">
             {
-              platform === 'darwin'
+              isMac
                 ? 'cmd'
                 : 'ctrl'
             }
@@ -1067,8 +1070,9 @@ export default class FileSection extends React.PureComponent {
     }
     let selected = _.some(selectedFiles.filter(d => d), s => s.id === id)
     let className = classnames('sftp-item', type, {
-      directory: isDirectory
-    }, {selected})
+      directory: isDirectory,
+      selected
+    })
 
     let props = {
       className,
