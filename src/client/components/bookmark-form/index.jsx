@@ -604,7 +604,7 @@ export class BookmarkForm extends React.PureComponent {
             initialValue: loginScript
           })(
             <div>
-              <Input.TextArea rows={1} />
+                <Input.TextArea rows={1} >{loginScript}</Input.TextArea>
               <div>* {e('loginScriptTip')}</div>
             </div>
           )}
