@@ -620,8 +620,8 @@ export class BookmarkForm extends React.PureComponent {
       fontSize: defaultFontSize
     } = this.props.config || {}
     const {
-      fontFamily = defaultFontFamily,
-      fontSize = defaultFontSize
+      fontFamily,
+      fontSize
     } = this.props.formData
     return [
       <FormItem
@@ -634,7 +634,7 @@ export class BookmarkForm extends React.PureComponent {
           }],
           initialValue: fontFamily
         })(
-          <Input />
+          <Input placeholder={defaultFontFamily + ''} />
         )}
       </FormItem>,
       <FormItem
@@ -648,6 +648,7 @@ export class BookmarkForm extends React.PureComponent {
             min={9}
             max={65535}
             step={1}
+            placeholder={defaultFontSize}
           />
         )}
       </FormItem>
