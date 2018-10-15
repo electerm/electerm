@@ -14,17 +14,17 @@
 [![license](https://img.shields.io/github/license/electerm/electerm.svg)](https://github.com/electerm/electerm/blob/master/LICENSE)
 
 
-- terminal/ssh/sftp client(linux, mac, win) based on electron/node-pty/xterm/antd and other libs.
+- Terminal/ssh/sftp client(linux, mac, win) based on electron/node-pty/xterm/antd and other libs.
 
 <div align="center">
   <img src="https://github.com/electerm/electerm-resource/raw/master/static/images/electerm.gif", alt="" />
 </div>
 
-## dowload
+## Dowload
 - https://electerm.html5beta.com
 - or from release: https://github.com/electerm/electerm/releases
 
-## or install from npm
+## Or install from npm
 ```
 npm i -g electerm
 
@@ -33,21 +33,21 @@ npm i -g electerm
 
 ```
 
-## upgrade
+## Upgrade
 
 - if you downloaded it, then just download the latest edition, reinstall.
 - if you install from npm, just run `npm i -g electerm` again.
 
-## features
+## Features
 - work as a terminal/file manager or ssh/sftp client(similar to xshell)
 - global hotkey to toggle window visibility (simliar to guake, default is `ctrl + 2`)
 - support multi platform(linux, mac, win)
 - support multi-language(https://github.com/electerm/electerm-locales, contribute welcome)
 
-## issues/todo/roadmap/tell me what you think
+## Issues/todo/roadmap/tell me what you think
 https://github.com/electerm/electerm/issues
 
-## dev
+## Dev
 ```bash
 # tested in ubuntu16.04/mac os 10.13 only
 # need nodejs/npm, suggest using nvm to install nodejs/npm
@@ -68,13 +68,13 @@ npm run c
 npm run dev
 ```
 
-## test
+## Test
 ```bash
 npm run pre-test
 npm run test
 ```
 
-## test build
+## Test build
 ```bash
 # tested only in ubuntu 16.04 x64
 # install yarn first(to do yarn autoclean)
@@ -87,11 +87,11 @@ npm run release -l
 # visit dist/
 ```
 
-## use
+## Use
 - [set autorun when login to os](https://github.com/electerm/electerm/wiki/autorun-electerm-when-login-to-os)
 
-## changelog
+## Changelog
 visit https://github.com/electerm/electerm/releases
 
-## license
+## License
 MIT
