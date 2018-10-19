@@ -114,7 +114,10 @@ var config = {
           {
             loader: 'less-loader',
             options: {
-              javascriptEnabled: true
+              javascriptEnabled: true,
+              modifyVars: {
+                'border-radius-base': '3px'
+              }
             }
           }
         ]
