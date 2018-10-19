@@ -35,6 +35,12 @@ export default class Setting extends React.PureComponent {
     getGlobal('restart')()
   }
 
+  resetAll = () => {
+    this.saveConfig(
+      deepCopy(this.props.config.defaultSettings)
+    )
+  }
+
   onChangeModifier = modifier => {
     let {hotkey} = this.props.config
     let key = hotkey.split('+')[1]
@@ -144,6 +150,7 @@ export default class Setting extends React.PureComponent {
 
   renderNumber = (name, options) => {
     let value = this.props.config[name]
+    let defaultValue = this.props.config.defaultSettings[name]
     let {
       step = 1,
       min,
@@ -156,7 +163,8 @@ export default class Setting extends React.PureComponent {
       value,
       min,
       max,
-      onChange
+      onChange,
+      placeholder: defaultValue
     }
     return (
       <div className={`pd2b ${cls}`}>
@@ -169,13 +177,27 @@ export default class Setting extends React.PureComponent {
 
   renderText = (name) => {
     let value = this.props.config[name]
+    let defaultValue = this.props.config.defaultSettings[name]
     let onChange = (e) => this.onChangeValue(e.target.value, name)
     return (
       <div className="pd2b">
         <Input
           value={value}
           onChange={onChange}
+          placeholder={defaultValue}
         />
+      </div>
+    )
+  }
+
+  renderReset = () => {
+    return (
+      <div className="pd1b pd1t">
+        <Button
+          onClick={this.resetAll}
+        >
+          {e('resetAllToDefault')}
+        </Button>
       </div>
     )
   }
@@ -286,6 +308,7 @@ export default class Setting extends React.PureComponent {
         {this.renderToggle('copyWhenSelect')}
         {this.renderToggle('pasteWhenContextMenu')}
         {this.renderToggle('pasteWhenContextMenu')}
+        {this.renderReset()}
       </div>
     )
   }

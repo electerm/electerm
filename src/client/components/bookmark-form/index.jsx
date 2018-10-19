@@ -618,7 +618,7 @@ export class BookmarkForm extends React.PureComponent {
     const {
       fontFamily: defaultFontFamily,
       fontSize: defaultFontSize
-    } = this.props.config || {}
+    } = this.props.config.defaultSettings || {}
     const {
       fontFamily,
       fontSize
