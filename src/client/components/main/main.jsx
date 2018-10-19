@@ -162,11 +162,11 @@ export default class Index extends React.Component {
   }
 
   showLastSessions = sessions => {
-    if (_.isUndefined(sessions)) {
+    if (!sessions) {
       return
     }
     this.setState({
-      selectedSessions: copy(sessions || []).map(s => ({
+      selectedSessions: copy(sessions).map(s => ({
         id: s.id,
         tab: s,
         checked: true
