@@ -166,7 +166,7 @@ export default class Index extends React.Component {
       return
     }
     this.setState({
-      selectedSessions: copy(sessions).map(s => ({
+      selectedSessions: copy(sessions || []).map(s => ({
         id: s.id,
         tab: s,
         checked: true

@@ -23,17 +23,22 @@ module.exports = function() {
 
   return new Promise((resolve) => {
     fp(3000, function(err, freePort){
+
+      let defaultSettings = {
+        hotkey: 'Control+2',
+        sshReadyTimeout: 50000,
+        scrollback: 3000,
+        fontSize: 16,
+        fontFamily: 'mono, courier-new, courier, monospace'
+      }
       let conf = {
         port: freePort,
         host: '127.0.0.1',
-        hotkey: 'Control+2',
-        sshReadyTimeout: 50000,
         keepaliveInterval: 20 * 1000,
-        scrollback: 3000,
         rightClickSelectsWord: false,
         showMenu: true,
-        fontSize: 16,
-        fontFamily: 'mono, courier-new, courier, monospace'
+        ...defaultSettings,
+        defaultSettings
       }
       extend(conf, override)
       extend(conf, userConfig)
