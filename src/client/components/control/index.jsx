@@ -118,6 +118,9 @@ export default class IndexControl extends React.Component {
       _.find(bookmarks, it => it.id === id) ||
       _.find(sshConfigItems, it => it.id === id)
     )
+    if (!item) {
+      return
+    }
     this.props.addTab({
       ...item,
       from: 'bookmarks',

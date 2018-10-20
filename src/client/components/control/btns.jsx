@@ -127,9 +127,7 @@ export default class Btns extends React.PureComponent {
             overflow: 'auto'
           }}
           onChange={(value, label, extra) => {
-            if (!value) {
-              onSelectBookmark(extra.triggerValue)
-            }
+            onSelectBookmark(extra.triggerValue)
             modifier2({
               bookmarkId: extra.triggerValue
             })
