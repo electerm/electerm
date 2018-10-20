@@ -151,7 +151,6 @@ async function createWindow () {
     popup: (options) => {
       Menu.getApplicationMenu().popup(options)
     },
-    resolve,
     version,
     sshConfigItems,
     testConnection,

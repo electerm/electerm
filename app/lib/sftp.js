@@ -247,6 +247,23 @@ class Sftp {
   }
 
   /**
+   * realpath
+   *
+   * @param {String} remotePath
+   * https://github.com/mscdex/ssh2-streams/blob/master/SFTPStream.md
+   * @return {Promise} target
+   */
+  realpath (remotePath) {
+    return new Promise((resolve, reject) => {
+      let {sftp} = this
+      sftp.realpath(remotePath, (err, target) => {
+        if (err) reject(err)
+        else resolve(target)
+      })
+    })
+  }
+
+  /**
    * lstat
    *
    * @param {String} remotePath
@@ -398,6 +415,7 @@ module.exports = {
     'rm',
     'touch',
     'readlink',
+    'realpath',
     'mv',
     'cp'
   ]
