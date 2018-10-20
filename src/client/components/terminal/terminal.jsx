@@ -536,12 +536,7 @@ export default class Term extends React.PureComponent {
     if (this.onClose) {
       return
     }
-    this.props.editTab(
-      this.props.tab.id,
-      {
-        status: statusMap.error
-      }
-    )
+    this.setStatus(statusMap.error)
     console.log('socket closed, pid:', this.pid)
   }
 
