@@ -64,15 +64,15 @@ describe('main window', function () {
 
     log('button:about')
     await client.click('.btns .anticon-info-circle-o')
-    let c = await client.element('.ant-modal.ant-confirm')
+    let c = await client.element('.ant-modal.ant-modal-confirm')
     expect(!!c.value).equal(true)
 
     log('button:close info modal')
     await client.execute(function() {
-      document.querySelector('.ant-modal.ant-confirm .ant-confirm-btns button').click()
+      document.querySelector('.ant-modal.ant-modal-confirm .ant-modal-confirm-btns button').click()
     })
     await delay(900)
-    let isVisible2 = await client.isVisible('.ant-modal.ant-confirm')
+    let isVisible2 = await client.isVisible('.ant-modal.ant-modal-confirm')
     expect(isVisible2).equal(false)
 
     log('button:add new tab')
