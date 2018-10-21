@@ -10,6 +10,7 @@ import FileSection from './file'
 import Confirms from './confirm-list'
 import resolve from '../../common/resolve'
 import wait from '../../common/wait'
+import isAbsPath from '../../common/is-absolute-path'
 import classnames from 'classnames'
 import sorterIndex from '../../common/index-sorter'
 import DragSelect from './drag-select'
@@ -498,8 +499,10 @@ export default class Sftp extends React.Component {
         if (type === fileTypeMap.link) {
           let linkPath = resolve(remotePath, name)
           let realpath = await sftp.readlink(linkPath)
-          realpath = resolve(remotePath, realpath)
-          realpath = await sftp.realpath(realpath)
+          if (!isAbsPath(realpath)) {
+            realpath = resolve(remotePath, realpath)
+            realpath = await sftp.realpath(realpath)
+          }
           let realFileInfo = await getRemoteFileInfo(
             sftp,
             realpath
