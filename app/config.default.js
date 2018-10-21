@@ -22,8 +22,7 @@ module.exports = function() {
   }
 
   return new Promise((resolve) => {
-    fp(3000, function(err, freePort){
-
+    fp(3075, '127.0.0.1', function(err, freePort){
       let defaultSettings = {
         hotkey: 'Control+2',
         sshReadyTimeout: 50000,
