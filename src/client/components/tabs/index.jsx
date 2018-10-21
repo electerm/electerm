@@ -1,5 +1,5 @@
 /**
- * tabs component
+ * session tabs component
  * @param {array} props.tabs {id, title}
  */
 
@@ -23,10 +23,15 @@ export default class Tabs extends React.Component {
 
   componentDidMount() {
     this.dom = document.querySelector('.tabs-inner')
+    window.addEventListener('keydown', this.handleTabHotkey)
   }
 
   componentDidUpdate() {
     this.adjustScroll()
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('keydown', this.handleTabHotkey)
   }
 
   onAdd = e => {
