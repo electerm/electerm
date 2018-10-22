@@ -143,6 +143,19 @@ export default class Index extends React.Component {
     dom.addEventListener('click', this.closeContextMenu)
   }
 
+  clickNextTab = _.debounce(() => {
+    let tab = document.querySelector('.tabs-wrapper .tab.active')
+    if (tab) {
+      let next = tab.nextSibling
+      if (!next || !next.classList.contains('tab')) {
+        next = document.querySelector('.tabs-wrapper .tab')
+      }
+      next &&
+      next.querySelector('.tab-title') &&
+      next.querySelector('.tab-title').click()
+    }
+  }, 100)
+
   getDefaultBookmarkGroups = (bookmarks) => {
     return [
       {
@@ -452,6 +465,7 @@ export default class Index extends React.Component {
         'setTheme', 'addTheme', 'editTheme', 'delTheme',
         'addBookmarkGroup',
         'editBookmarkGroup',
+        'clickNextTab',
         'delBookmarkGroup'
       ])
     }
