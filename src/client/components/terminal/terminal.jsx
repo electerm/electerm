@@ -14,7 +14,8 @@ import {
   typeMap,
   isWin,
   contextMenuWidth,
-  terminalSshConfigType
+  terminalSshConfigType,
+  isMac
 } from '../../common/constants'
 import deepCopy from 'json-deep-copy'
 import {readClipboard, copy} from '../../common/clipboard'
@@ -181,6 +182,14 @@ export default class Term extends React.PureComponent {
       e.code === 'KeyC'
     ) {
       this.onCopy()
+    } else if (
+      (
+        (e.ctrlKey && !isMac) ||
+        (e.metaKey && isMac)
+      ) &&
+      e.code === 'Tab'
+    ) {
+      this.props.clickNextTab()
     }
   }
 
@@ -377,6 +386,7 @@ export default class Term extends React.PureComponent {
     term.open(document.getElementById(id), true)
     term.on('focus', this.setActive)
     term.on('selection', this.onSelection)
+    term.on('keydown', this.handleEvent)
     this.term = term
     // if (host && !password && !privateKey) {
     //   return this.promote()

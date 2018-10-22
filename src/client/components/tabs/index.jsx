@@ -1,5 +1,5 @@
 /**
- * tabs component
+ * session tabs component
  * @param {array} props.tabs {id, title}
  */
 
@@ -9,7 +9,7 @@ import {Icon, Button, Dropdown, Menu} from 'antd'
 import Tab from './tab'
 import MenuBtn from '../control/menu-btn'
 import './tabs.styl'
-import {tabWidth, tabMargin} from '../../common/constants'
+import {tabWidth, tabMargin, isMac} from '../../common/constants'
 import createName from '../../common/create-title'
 
 const {prefix} = window
@@ -23,10 +23,27 @@ export default class Tabs extends React.Component {
 
   componentDidMount() {
     this.dom = document.querySelector('.tabs-inner')
+    window.addEventListener('keydown', this.handleTabHotkey)
   }
 
   componentDidUpdate() {
     this.adjustScroll()
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('keydown', this.handleTabHotkey)
+  }
+
+  handleTabHotkey = e => {
+    if (
+      (
+        (e.ctrlKey && !isMac) ||
+        (e.metaKey && isMac)
+      ) &&
+      e.code === 'Tab'
+    ) {
+      this.props.clickNextTab()
+    }
   }
 
   onAdd = e => {
