@@ -98,7 +98,7 @@ export default class Index extends React.Component {
     }
   }
 
-  onResize = _.throttle(() => {
+  onResize = _.debounce(() => {
     let update = {
       height: window.innerHeight,
       width: window.innerWidth,
