@@ -147,7 +147,6 @@ export default function({
                 )
               })
             }
-            }
           </TabPane>
           <TabPane tab={e('os')} key="2">
             {
