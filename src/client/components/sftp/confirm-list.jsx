@@ -141,6 +141,13 @@ export default class Confirms extends React.PureComponent {
     let reg = new RegExp('^' + basePath.replace(/\\/g, '\\\\'))
     let otherPath = this.getBasePath('to', props)
     let targetPath = beforePath.replace(reg, otherPath)
+    let targetSep = otherPath.includes('\\')
+      ? '\\'
+      : '/'
+    let fromSep = basePath.includes('\\')
+      ? '\\'
+      : '/'
+    targetPath = targetPath.replace(fromSep, targetSep)
     return await this.checkExist(toType, targetPath, props)
   }
 
@@ -228,6 +235,13 @@ export default class Confirms extends React.PureComponent {
     let toBasePath = this.getBasePath('to')
     let regBase = new RegExp('^' + basePath.replace(/\\/g, '\\\\'))
     let targetPath = path.replace(regBase, toBasePath)
+    let targetSep = toBasePath.includes('\\')
+      ? '\\'
+      : '/'
+    let fromSep = basePath.includes('\\')
+      ? '\\'
+      : '/'
+    targetPath = targetPath.replace(fromSep, targetSep)
     let newName = shouldRename
       ? this.buildNewName(name, isDirectory)
       : name
@@ -268,6 +282,13 @@ export default class Confirms extends React.PureComponent {
       let p = resolve(path, name)
       let np = p.replace(reg1, newPath)
       let t = np.replace(reg, repPath)
+      let targetSep = repPath.includes('\\')
+        ? '\\'
+        : '/'
+      let fromSep = basePath.includes('\\')
+        ? '\\'
+        : '/'
+      t = t.replace(fromSep, targetSep)
       transferList.push({
         fromPath: p,
         toPath: t,
