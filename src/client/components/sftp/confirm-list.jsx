@@ -147,7 +147,7 @@ export default class Confirms extends React.PureComponent {
     let fromSep = basePath.includes('\\')
       ? '\\'
       : '/'
-    targetPath = targetPath.replace(targetSep, fromSep)
+    targetPath = targetPath.replace(fromSep, targetSep)
     return await this.checkExist(toType, targetPath, props)
   }
 
@@ -241,7 +241,7 @@ export default class Confirms extends React.PureComponent {
     let fromSep = basePath.includes('\\')
       ? '\\'
       : '/'
-    targetPath = targetPath.replace(targetSep, fromSep)
+    targetPath = targetPath.replace(fromSep, targetSep)
     let newName = shouldRename
       ? this.buildNewName(name, isDirectory)
       : name
@@ -288,7 +288,7 @@ export default class Confirms extends React.PureComponent {
       let fromSep = basePath.includes('\\')
         ? '\\'
         : '/'
-      t = t.replace(targetSep, fromSep)
+      t = t.replace(fromSep, targetSep)
       transferList.push({
         fromPath: p,
         toPath: t,
