@@ -244,18 +244,15 @@ export default class WindowWrapper extends React.PureComponent  {
     let {pane, splitDirection, terminals} = this.state
     let {props} = this
     let host = _.get(props, 'tab.host')
-    let cls1 = classnames(
-      'mg1r icon-split pointer iblock spliter',
-      {
-        'spin-90': splitDirection === terminalSplitDirectionMap.horizontal
-      }
-    )
-    let cls2 = classnames(
-      'icon-direction pointer iblock spliter',
-      {
-        'spin-90': splitDirection === terminalSplitDirectionMap.vertical
-      }
-    )
+    let isHori = splitDirection === terminalSplitDirectionMap.horizontal
+    let cls1 = 'mg1r icon-split pointer iblock spliter'
+    let cls2 = 'icon-direction pointer iblock spliter'
+    let icon1 = isHori
+      ? 'border-horizontal'
+      : 'border-verticle'
+    let icon2 = !isHori
+      ? 'border-horizontal'
+      : 'border-verticle'
     let hide = terminals.length < 2
     let types = [
       paneMap.terminal,
@@ -299,21 +296,22 @@ export default class WindowWrapper extends React.PureComponent  {
                     ? null
                     : (
                       <Icon
-                        type="delete"
-                        className="mg1r icon-trash iblock pointer"
+                        type="close-circle"
+                        theme="filled"
+                        className="mg1r icon-trash font16 iblock pointer"
                         onClick={this.delSplit}
                         title={m('del')}
                       />
                     )
                 }
                 <Icon
-                  type="minus-square-o"
+                  type={icon1}
                   className={cls1}
                   onClick={this.doSplit}
                   title={e('split') + '(Ctrl + /)'}
                 />
                 <Icon
-                  type="minus-square-o"
+                  type={icon2}
                   className={cls2}
                   title={e('changeDirection')}
                   onClick={this.changeDirection}
