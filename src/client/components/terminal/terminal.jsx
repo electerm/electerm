@@ -360,7 +360,7 @@ export default class Term extends React.PureComponent {
           className={cls}
           onClick={this.split}
         >
-          <Icon type="minus-square-o" className="spin-90" /> {e('split')}
+          <Icon type="border-horizontal" /> {e('split')}
         </div>
         <div
           className={cls}
