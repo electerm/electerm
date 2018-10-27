@@ -90,6 +90,13 @@ describe('local file manager', function () {
     let localFileList00 = await client.elements('.ssh-wrap-show .file-list.local .sftp-item')
     expect(localFileList00.value.length).equal(2)
 
+    //left click to highlight selection
+    let selectedBefore = await client.elements('.ssh-wrap-show .sftp-item.selected')
+    expect(selectedBefore.value.length).equal(0)
+    await client.click('.ssh-wrap-show .sftp-table-content > .sftp-item', 10, 10)
+    let selected = await client.elements('.ssh-wrap-show .sftp-table-content > .sftp-item.selected')
+    expect(selected.value.length).equal(1)
+
     //select all and del Control
     await client.rightClick('.ssh-wrap-show .virtual-file-local', 10, 10)
     await client.execute(function() {
