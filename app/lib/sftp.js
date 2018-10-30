@@ -395,6 +395,39 @@ class Sftp {
     })
   }
 
+  /**
+   * readFile single file
+   *
+   * @param {String} remotePath
+   * https://github.com/mscdex/ssh2-streams/blob/master/SFTPStream.md
+   * @return {Promise}
+   */
+  readFile (remotePath) {
+    return new Promise((resolve, reject) => {
+      let {sftp} = this
+      sftp.unlink(remotePath, (err) => {
+        if (err) reject(err)
+        else resolve()
+      })
+    })
+  }
+
+  /**
+   * writeFile single file
+   *
+   * @param {String} remotePath
+   * https://github.com/mscdex/ssh2-streams/blob/master/SFTPStream.md
+   * @return {Promise}
+   */
+  writeFile (remotePath, content) {
+    return new Promise((resolve, reject) => {
+      let {sftp} = this
+      sftp.unlink(remotePath, (err) => {
+        if (err) reject(err)
+        else resolve()
+      })
+    })
+  }
   //end
 }
 
