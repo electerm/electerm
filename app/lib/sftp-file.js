@@ -2,7 +2,7 @@
  * sftp read/write file
  */
 
-
+/*
 const fs = require('fs')
 const _ = require('lodash')
 const {Readable, Writable} = require('stream')
@@ -27,3 +27,4 @@ class FakeWrite extends Writable {
     done()
   }
 }
+*/
