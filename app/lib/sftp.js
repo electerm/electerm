@@ -419,7 +419,7 @@ class Sftp {
    * https://github.com/mscdex/ssh2-streams/blob/master/SFTPStream.md
    * @return {Promise}
    */
-  writeFile (remotePath, content) {
+  writeFile (remotePath) {
     return new Promise((resolve, reject) => {
       let {sftp} = this
       sftp.unlink(remotePath, (err) => {
