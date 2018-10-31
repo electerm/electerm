@@ -2,9 +2,6 @@
  * sftp read/write file
  */
 
-/*
-const fs = require('fs')
-const _ = require('lodash')
 const {Readable, Writable} = require('stream')
 
 function createReadStreamFromString(str) {
@@ -14,7 +11,6 @@ function createReadStreamFromString(str) {
   s.push(null)
   return s
 }
-
 
 class FakeWrite extends Writable {
   constructor (opts) {
@@ -27,4 +23,51 @@ class FakeWrite extends Writable {
     done()
   }
 }
-*/
+
+function writeRemoteFile(sftp, path, str) {
+  return new Promise((resolve, reject) => {
+    let final = new Buffer.alloc(0)
+    let writeStream = sftp.createWriteStream(path, {
+      highWaterMark: 64 * 1024 * 4 * 4
+    })
+    writeStream.on('data', data => {
+      final = Buffer.concat(
+        [final, data]
+      )
+    })
+    writeStream.on('finish', () => {
+      resolve(final.toString())
+    })
+    writeStream.on('error', (e) => {
+      reject(e)
+    })
+    createReadStreamFromString(str).pipe(writeStream)
+  })
+}
+
+function readRemoteFile(sftp, path) {
+  return new Promise((resolve, reject) => {
+    let final = new Buffer.alloc(0)
+    let writeStream = new FakeWrite({
+      onData: data => {
+        final = Buffer.concat(
+          [final, data]
+        )
+      }
+    })
+    writeStream.on('finish', () => {
+      resolve(final.toString())
+    })
+    writeStream.on('error', (e) => {
+      reject(e)
+    })
+    sftp.createReadStream(path, {
+      highWaterMark: 64 * 1024 * 4 * 4
+    }).pipe(writeStream)
+  })
+}
+
+module.exports = {
+  readRemoteFile,
+  writeRemoteFile
+}

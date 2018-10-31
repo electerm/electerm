@@ -590,8 +590,8 @@ export default class FileSection extends React.Component {
     this.props.closeContextMenu()
   }
 
-  transferOrEnterDirectory = (e) => {
-    let {isDirectory, type} = this.state.file
+  transferOrEnterDirectory = async (e) => {
+    let {isDirectory, type, name, path} = this.state.file
     if (isDirectory) {
       return this.enterDirectory(e)
     }
@@ -599,7 +599,9 @@ export default class FileSection extends React.Component {
       return this.openFile(this.state.file)
     }
     if (_.get(this.props, 'tab.host')) {
-      this.transfer()
+      let p = resolve(path, name)
+      let x = await this.props.sftp.readFile(p)
+      console.log(x)
     }
   }
 
