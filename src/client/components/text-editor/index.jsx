@@ -15,6 +15,7 @@ const FormItem = Form.Item
 const {prefix} = window
 const e = prefix('form')
 const c = prefix('common')
+const s = prefix('sftp')
 
 export class TextEditorForm extends React.PureComponent {
 
@@ -49,7 +50,7 @@ export class TextEditorForm extends React.PureComponent {
     this.setState({
       text: text || '',
       loading: false
-    }, this.props.form.reset)
+    }, this.props.form.resetFields)
   }
 
   handleSubmit = async (evt) => {
@@ -86,17 +87,13 @@ export class TextEditorForm extends React.PureComponent {
     return (
       <Form
         onSubmit={this.handleSubmit}
-        className="form-wrap pd1x"
         layout="vertical"
       >
-        <FormItem
-          label={e('loginScript')}
-          hasFeedback
-        >
+        <FormItem>
           {getFieldDecorator('text', {
             initialValue: text
           })(
-            <Input.TextArea rows={10}>{text}</Input.TextArea>
+            <Input.TextArea rows={20}>{text}</Input.TextArea>
           )}
         </FormItem>
       </Form>
@@ -114,8 +111,8 @@ export class TextEditorForm extends React.PureComponent {
         <Button
           type="ghost"
           className="mg1r"
-          onClick={this.props.form.reset}
-        >{e('reset')}</Button>
+          onClick={() => this.props.form.resetFields()}
+        >{s('reset')}</Button>
         <Button
           type="ghost"
           onClick={this.cancel}
@@ -131,11 +128,13 @@ export class TextEditorForm extends React.PureComponent {
       return null
     }
     const {path, loading} = this.state
+    const title = `${s('edit')} ${s('remote')} ${s('file')}: ${path}`
     let props = {
       footer: this.renderFooter(),
-      title: path,
+      title,
       maskClosable: false,
       onCancel: this.cancel,
+      width: '90%',
       visible
     }
     return (

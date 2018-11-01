@@ -484,7 +484,11 @@ export default class Index extends React.Component {
     return (
       <div>
         <SessionControl {...sessProps} />
-        <TextEditor key={textEditorProps.id} {...textEditorProps} />
+        <TextEditor
+          key={textEditorProps.id}
+          {...textEditorProps}
+          modifier={this.modifier}
+        />
         <UpdateCheck
           modifier={this.modifier}
           shouldCheckUpdate={shouldCheckUpdate}
