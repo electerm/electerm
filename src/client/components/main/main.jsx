@@ -12,6 +12,7 @@ import {notification} from 'antd'
 import openInfoModal from '../control/info-modal'
 import * as terminalThemes from '../../common/terminal-theme'
 import createTitlte from '../../common/create-title'
+import TextEditor from '../text-editor'
 import {
   maxHistory,
   settingMap,
@@ -60,7 +61,8 @@ export default class Index extends React.Component {
       transferHistoryModalVisible: false,
       onCheckUpdating: false,
       selectedSessions: [],
-      sessionModalVisible: false
+      sessionModalVisible: false,
+      textEditorProps: {}
     }
     let title = createTitlte(tabs[0])
     window.getGlobal('setTitle')(title)
@@ -446,7 +448,8 @@ export default class Index extends React.Component {
       fileInfoModalProps,
       fileModeModalProps,
       shouldCheckUpdate,
-      showControl
+      showControl,
+      textEditorProps
     } = this.state
     let {themes, theme} = this.state
     let themeConfig = (_.find(themes, d => d.id === theme) || {}).themeConfig || {}
@@ -481,6 +484,7 @@ export default class Index extends React.Component {
     return (
       <div>
         <SessionControl {...sessProps} />
+        <TextEditor key={textEditorProps.id} {...textEditorProps} />
         <UpdateCheck
           modifier={this.modifier}
           shouldCheckUpdate={shouldCheckUpdate}

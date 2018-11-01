@@ -20,7 +20,7 @@ import {
   contextMenuHeight, contextMenuPaddingTop,
   isWin, transferTypeMap, typeMap,
   contextMenuWidth, fileOpTypeMap,
-  isMac
+  isMac, maxEditFileSize
 } from '../../common/constants'
 import sorter from '../../common/index-sorter'
 import {getLocalFileInfo, getFolderFromFilePath, getRemoteFileInfo} from './file-read'
@@ -591,7 +591,8 @@ export default class FileSection extends React.Component {
   }
 
   transferOrEnterDirectory = async (e) => {
-    let {isDirectory, type, name, path} = this.state.file
+    let {file} = this.state
+    let {isDirectory, type, id, size} = file
     if (isDirectory) {
       return this.enterDirectory(e)
     }
@@ -599,9 +600,18 @@ export default class FileSection extends React.Component {
       return this.openFile(this.state.file)
     }
     if (_.get(this.props, 'tab.host')) {
-      let p = resolve(path, name)
-      let x = await this.props.sftp.readFile(p)
-      console.log(x)
+      if (size > maxEditFileSize) {
+        return this.transfer()
+      }
+      this.props.rootModifier({
+        textEditorProps: {
+          visible: true,
+          id,
+          sftp: this.props.sftp,
+          file,
+          afterWrite: this.props.remoteList
+        }
+      })
     }
   }
 
