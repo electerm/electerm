@@ -5,6 +5,7 @@
 let {Client} = require('ssh2')
 const proxySock = require('./socks')
 const _ = require('lodash')
+const {readRemoteFile, writeRemoteFile} = require('./sftp-file')
 
 class Sftp {
 
@@ -395,6 +396,27 @@ class Sftp {
     })
   }
 
+  /**
+   * readFile single file
+   *
+   * @param {String} remotePath
+   * https://github.com/mscdex/ssh2-streams/blob/master/SFTPStream.md
+   * @return {Promise}
+   */
+  readFile (remotePath) {
+    return readRemoteFile(this.sftp, remotePath)
+  }
+
+  /**
+   * writeFile single file
+   *
+   * @param {String} remotePath
+   * https://github.com/mscdex/ssh2-streams/blob/master/SFTPStream.md
+   * @return {Promise}
+   */
+  writeFile (remotePath, str) {
+    return writeRemoteFile(this.sftp, remotePath, str)
+  }
   //end
 }
 
@@ -417,6 +439,8 @@ module.exports = {
     'readlink',
     'realpath',
     'mv',
-    'cp'
+    'cp',
+    'readFile',
+    'writeFile'
   ]
 }
