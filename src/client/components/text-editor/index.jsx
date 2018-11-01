@@ -69,8 +69,8 @@ export class TextEditorForm extends React.PureComponent {
       this.state.path,
       res.text
     )
-    this.cancel()
     r && this.props.afterWrite()
+    this.cancel()
   }
 
   cancel = () => {
