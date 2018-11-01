@@ -101,21 +101,25 @@ export class TextEditorForm extends React.PureComponent {
   }
 
   renderFooter() {
+    let {loading} = this.state
     return (
       <div>
         <Button
           type="primary"
           className="mg1r"
+          disabled={loading}
           onClick={this.handleSubmit}
         >{e('save')}</Button>
         <Button
           type="ghost"
           className="mg1r"
+          disabled={loading}
           onClick={() => this.props.form.resetFields()}
         >{s('reset')}</Button>
         <Button
           type="ghost"
           onClick={this.cancel}
+          disabled={loading}
           className="mg2r"
         >{c('cancel')}</Button>
       </div>

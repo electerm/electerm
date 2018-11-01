@@ -772,6 +772,7 @@ export default class FileSection extends React.Component {
       file: {
         type,
         isDirectory,
+        size,
         id
       },
       selectedFiles,
@@ -840,6 +841,20 @@ export default class FileSection extends React.Component {
                 onClick={this.transferOrEnterDirectory}
               >
                 <Icon type="arrow-right" /> {e('open')}
+              </div>
+            )
+            : null
+        }
+        {
+          !isDirectory && id &&
+          type === typeMap.remote &&
+          size < maxEditFileSize
+            ? (
+              <div
+                className={cls}
+                onClick={this.transferOrEnterDirectory}
+              >
+                <Icon type="edit" /> {e('edit')}
               </div>
             )
             : null
