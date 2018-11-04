@@ -17,7 +17,8 @@ import {
   maxHistory,
   settingMap,
   defaultookmarkGroupId,
-  maxTransferHistory
+  maxTransferHistory,
+  statusMap
 } from '../../common/constants'
 import Control from '../control'
 import SessionControl from '../session-control'
@@ -87,6 +88,7 @@ export default class Index extends React.Component {
       e.stopPropagation()
     })
     this.checkLastSession()
+    window.addEventListener('offline',  this.setOffline)
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -98,6 +100,19 @@ export default class Index extends React.Component {
       let term = _.get(this, `term_${currentTabId}.term`)
       term && term.focus()
     }
+  }
+
+  setOffline = () => {
+    let tabs = copy(this.state.tabs)
+      .map(t => {
+        return {
+          ...t,
+          status: t.host ? statusMap.error: t.status
+        }
+      })
+    this.modifier({
+      tabs
+    })
   }
 
   onResize = _.debounce(() => {
