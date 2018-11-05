@@ -342,7 +342,7 @@ export default class ResizeWrap extends React.Component {
         ...prev,
         [name || id]: {
           style: _.pick(
-            document.querySelector(sel).style,
+            _.get(document.querySelector(sel), 'style') || {},
             this.positionProps
           ),
           parentWidth
