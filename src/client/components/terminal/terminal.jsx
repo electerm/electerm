@@ -120,6 +120,7 @@ export default class Term extends React.PureComponent {
     Object.keys(this.timers).forEach(k => {
       clearTimeout(this.timers[k])
     })
+    clearTimeout(this.timeoutHandler)
     clearTimeout(this.timers)
     this.onClose = true
     this.socket && this.socket.close()
@@ -371,6 +372,18 @@ export default class Term extends React.PureComponent {
     )
   }
 
+  onSocketData = () => {
+    clearTimeout(this.timeoutHandler)
+  }
+
+  listenTimeout = () => {
+    clearTimeout(this.timeoutHandler)
+    this.timeoutHandler = setTimeout(
+      () => this.setStatus('error'),
+      window._config.terminalTimeout
+    )
+  }
+
   initTerminal = async () => {
     let {id} = this.state
     //let {password, privateKey, host} = this.props.tab
@@ -499,6 +512,12 @@ export default class Term extends React.PureComponent {
     socket.onerror = this.onerrorSocket
     socket.onopen = () => {
       term.attach(socket)
+      let old = socket.send
+      socket.send = (...args) => {
+        this.listenTimeout()
+        return old.apply(socket, args)
+      }
+      socket.addEventListener('message', this.onSocketData)
       term._initialized = true
     }
     this.socket = socket
