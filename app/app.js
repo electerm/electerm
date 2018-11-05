@@ -198,7 +198,7 @@ async function createWindow () {
   let opts = `http://localhost:${config.port}/index.html?v=` + version
   let childServerUrl = opts + ''
   if (isDev) {
-    let {devPort = 4570} = process.env
+    let {devPort = 5570} = process.env
     opts = `http://localhost:${devPort}`
   }
 

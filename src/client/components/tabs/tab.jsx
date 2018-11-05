@@ -8,11 +8,15 @@ import classnames from 'classnames'
 import copy from 'json-deep-copy'
 import _ from 'lodash'
 import Input from '../common/input-auto-focus'
+import wait from '../../common/wait'
 import createName from '../../common/create-title'
 import {addClass, removeClass} from '../../common/class'
+import {generate} from 'shortid'
+import newTerm from '../../common/new-terminal'
 
 const {prefix} = window
 const e = prefix('tabs')
+const m = prefix('menu')
 const onDragCls = 'ondrag-tab'
 const onDragOverCls = 'dragover-tab'
 
@@ -95,7 +99,7 @@ export default class Tab extends React.Component {
       return
     }
     let {id} = fromTab
-    let {tabs} = this.props
+    let tabs = copy(this.props.tabs)
     let indexFrom = _.findIndex(tabs, t => t.id === id)
     let indexDrop = _.findIndex(tabs, t => t.id === dropId)
     if (indexDrop > indexFrom) {
@@ -106,6 +110,20 @@ export default class Tab extends React.Component {
     this.props.modifier({
       tabs
     })
+  }
+
+  reloadTab = async () => {
+    let tab = copy(
+      this.state.tab
+    )
+    let {id} = tab
+    tab.id = generate()
+    tab.status = newTerm().status
+    let tabs = copy(this.props.tabs)
+    let index = _.findIndex(tabs, t => t.id === id)
+    this.close()
+    await wait(30)
+    this.props.addTab(tab, index)
   }
 
   onDragEnd = e => {
@@ -246,6 +264,12 @@ export default class Tab extends React.Component {
           onClick={this.doRename}
         >
           <Icon type="edit" /> {e('rename')}
+        </div>
+        <div
+          className={cls}
+          onClick={this.reloadTab}
+        >
+          <Icon type="loading-3-quarters" theme="outlined" /> {m('reload')}
         </div>
       </div>
     )
