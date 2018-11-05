@@ -1,5 +1,5 @@
 
-import React from 'react'
+import React, {lazy, Suspense} from 'react'
 import Tabs from '../tabs'
 import Btns from './btns'
 import {buildNewTheme} from '../../common/terminal-theme'
@@ -8,18 +8,11 @@ import _ from 'lodash'
 import copy from 'json-deep-copy'
 import {statusMap, settingMap} from '../../common/constants'
 import './control.styl'
-import Loadable from 'react-loadable'
 import Loading from '../common/loading'
 import newTerm from '../../common/new-terminal'
+const SettingModalBasic = lazy(() => import('../setting-panel/setting-modal'))
+const TransferHistoryModalBasic = lazy(() => import('./transfer-history-modal'))
 
-const SettingModal = Loadable({
-  loader: () => import('../setting-panel/setting-modal'),
-  loading: Loading
-})
-const TransferHistoryModal = Loadable({
-  loader: () => import('./transfer-history-modal'),
-  loading: Loading
-})
 const {prefix, getGlobal} = window
 const e = prefix('control')
 const sshConfigItems = copy(getGlobal('sshConfigItems'))
@@ -231,17 +224,23 @@ export default class IndexControl extends React.Component {
         {
           showModal
             ? (
-              <SettingModal
-                {...this.props}
-                {...props}
-              />
+              <Suspense fallback={Loading}>
+                <SettingModalBasic
+                  {...this.props}
+                  {...props}
+                />
+              </Suspense>
             )
             : null
         }
         {
           transferHistory.length
             ? (
-              <TransferHistoryModal {...this.props} />
+              <Suspense fallback={Loading}>
+                <TransferHistoryModalBasic
+                  {...this.props}
+                />
+              </Suspense>
             )
             : null
         }
