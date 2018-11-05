@@ -1,18 +1,25 @@
 
 const webpack = require('webpack')
+const os = require('os')
 const {identity} = require('lodash')
-const sysConfigDefault = require('./src/server/config')
-const packThreadCount = sysConfigDefault.devCPUCount // number
 const MinifyPlugin = require('babel-minify-webpack-plugin')
 const HappyPack = require('happypack')
-const happyThreadPool = packThreadCount === 0 ? null : HappyPack.ThreadPool({ size: packThreadCount })
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const path = require('path')
 const pack = require('./package.json')
 const LodashModuleReplacementPlugin = require('lodash-webpack-plugin')
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin')
-const env = process.env.NODE_ENV
+const {env} = process
 const git = require('git-rev-sync')
+const packThreadCount = env.packThreadCount
+  ? parseInt(env.packThreadCount)
+  : os.cpus().length
+const devPort = env.devPort || 5570
+const port = env.port || 4570
+const host = env.host || 'localhost'
+const happyThreadPool = packThreadCount === 0
+  ? null
+  : HappyPack.ThreadPool({ size: packThreadCount })
 
 const happyConf = {
   loaders: ['babel-loader'],
@@ -175,11 +182,11 @@ var config = {
     historyApiFallback: true,
     hot: true,
     inline: true,
-    host: '0.0.0.0',
-    port: sysConfigDefault.devPort,
+    host,
+    port: devPort,
     proxy: {
       '*': {
-        target: 'http://localhost:' + sysConfigDefault.port,
+        target: 'http://localhost:' + port,
         secure: false,
         ws: false,
         bypass: function (req) {
@@ -201,7 +208,7 @@ var config = {
   }
 }
 
-if (env === 'production') {
+if (env.NODE_ENV === 'production') {
   config.plugins = [
     packThreadCount === 0 ? null : new HappyPack(happyConf),
     //new webpack.optimize.DedupePlugin(),

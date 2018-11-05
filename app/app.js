@@ -198,8 +198,8 @@ async function createWindow () {
   let opts = `http://localhost:${config.port}/index.html?v=` + version
   let childServerUrl = opts + ''
   if (isDev) {
-    let conf = require('../config.default')
-    opts = `http://localhost:${conf.devPort}`
+    let {devPort = 4570} = process.env
+    opts = `http://localhost:${devPort}`
   }
 
   await waitUntilServerStart(childServerUrl)
