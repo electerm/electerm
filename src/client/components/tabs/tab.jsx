@@ -121,7 +121,8 @@ export default class Tab extends React.Component {
     tab.status = newTerm().status
     let tabs = copy(this.props.tabs)
     let index = _.findIndex(tabs, t => t.id === id)
-    this.close()
+    this.props.onClose(this.state.tab.id)
+    this.props.closeContextMenu()
     await wait(30)
     this.props.addTab(tab, index)
   }
