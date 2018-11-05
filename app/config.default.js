@@ -32,7 +32,7 @@ module.exports = function() {
       }
       let conf = {
         port: freePort,
-        host: '127.0.0.1',
+        host: 'localhost',
         keepaliveInterval: 20 * 1000,
         rightClickSelectsWord: false,
         showMenu: true,
