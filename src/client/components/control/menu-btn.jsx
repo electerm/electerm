@@ -2,7 +2,7 @@
  * btns
  */
 
-import React from 'react'
+import {memo} from 'react'
 import {
   Icon
 } from 'antd'
@@ -18,16 +18,14 @@ const onOpenMenu = e => {
   })
 }
 
-export default class MenuBtns extends React.PureComponent {
-  render() {
-    return (
-      <span
-        className="mg2r mg1l iblock menu-control"
-        onClick={onOpenMenu}
-        title={e('menu')}
-      >
-        <Icon type="bars" />
-      </span>
-    )
-  }
-}
+export default memo(() => {
+  return (
+    <span
+      className="mg2r mg1l iblock menu-control"
+      onClick={onOpenMenu}
+      title={e('menu')}
+    >
+      <Icon type="bars" />
+    </span>
+  )
+})
