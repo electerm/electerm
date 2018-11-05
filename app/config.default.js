@@ -37,7 +37,8 @@ module.exports = function() {
         rightClickSelectsWord: false,
         showMenu: true,
         ...defaultSettings,
-        defaultSettings
+        defaultSettings,
+        terminalTimeout: 10000
       }
       extend(conf, override)
       extend(conf, userConfig)
