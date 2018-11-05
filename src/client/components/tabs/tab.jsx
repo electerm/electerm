@@ -314,7 +314,7 @@ export default class Tab extends React.Component {
     let {tab} = this.state
     let {id, isEditting, status} = tab
     let active = id === currentTabId
-    let cls = classnames('tab', {active})
+    let cls = classnames('tab', {active}, status)
     let title = createName(tab)
     if (isEditting) {
       return this.renderEditting(tab, cls)
@@ -347,6 +347,13 @@ export default class Tab extends React.Component {
             onContextMenu={this.onContextMenu}
           >
             <Badge status={status} />
+            <Icon
+              className="pointer tab-reload mg1r"
+              type="loading-3-quarters"
+              theme="outlined"
+              onClick={this.reloadTab}
+              title={m('reload')}
+            />
             {title}
           </div>
           <Icon

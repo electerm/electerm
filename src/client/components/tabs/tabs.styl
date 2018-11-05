@@ -36,6 +36,7 @@
   background #ddd
   text-align center
   color #555
+  .tab-reload
   .tab-close
     display none
   &.active
@@ -52,6 +53,10 @@
     width 1px
     border 1px dashed #777
     height 36px
+  &.error
+    .tab-reload
+      display inline-block
+      color #fff
 
 .tab-close
   position absolute
