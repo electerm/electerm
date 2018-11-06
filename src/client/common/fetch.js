@@ -1,6 +1,5 @@
 // the final fetch wrapper
 import _ from 'lodash'
-import parseJson from './parse-json-safe'
 import {notification} from 'antd'
 
 const jsonHeader = {
@@ -10,7 +9,7 @@ const jsonHeader = {
 
 function parseResponse(response) {
   let contentType = response.headers.get('content-type') || ''
-  let isJsonResult = contentType.toLowerCase().indexOf('application/json') !== -1
+  let isJsonResult = contentType.toLowerCase().includes('application/json')
 
   return isJsonResult ? response.json() : response.text()
 }
@@ -23,16 +22,15 @@ export function serialized(data) {
 
 export async function handleErr(res) {
   console.log(res)
-  let text = _.isFunction(res.text)
-    ? await res.text()
-    : _.isPlainObject(res) ? JSON.stringify(res) : res
-
-  console.log(text, 'err info')
+  let text = res.message
   try {
-    text = parseJson(text).error || text
-  } catch (e) {
-    console.log('not a json error')
+    text = _.isFunction(res.text)
+      ? await res.text()
+      : res.message
+  } catch(e) {
+    console.log('res.text fails')
   }
+  console.log(text, 'err info')
   notification.error({
     message: 'error',
     description: text,
@@ -62,7 +60,6 @@ export default class Fetch {
     return Fetch.connect(url, 'patch', data, options)
   }
 
-  //todo jsonp if needed
   static connect(url, method, data, options = {}) {
     let body = {
       method,
