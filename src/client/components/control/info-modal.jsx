@@ -43,6 +43,11 @@ export default function({
     ...devDependencies,
     ...dependencies
   }
+  let versions = getGlobal('versions')
+  let envs = {
+    ...versions,
+    ...env
+  }
   let bugReportLink = link + '/issues'
   let logoPath = cdn + '/_bc/electerm-resource/res/imgs/' +
     (Math.random() > 0.5 ? 'electerm-round-128x128.png' : 'electerm.png')
@@ -135,8 +140,8 @@ export default function({
           </TabPane>
           <TabPane tab={e('env')} key="3">
             {
-              Object.keys(env).map((k, i) => {
-                let v = env[k]
+              Object.keys(envs).map((k, i) => {
+                let v = envs[k]
                 return (
                   <div className="pd1b" key={i + '_env_' + k}>
                     <b className="bold">{k}</b>:
