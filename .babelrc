@@ -3,7 +3,7 @@
     "@babel/react",
     ["@babel/env", {
       "targets": {
-        "chrome": 66,
+        "chrome": 58,
         "node": "current"
       }
     }]
