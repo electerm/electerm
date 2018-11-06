@@ -152,6 +152,7 @@ async function createWindow () {
       Menu.getApplicationMenu().popup(options)
     },
     version,
+    versions: process.versions,
     sshConfigItems,
     testConnection,
     env: process.env,
