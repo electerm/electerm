@@ -2,11 +2,13 @@
  * prepare the files to be packed
  */
 
-const {version} = require('../package.json')
+let pack = require('../package.json')
+const {resolve} = require('path')
+const {version} = pack
 const {mkdir, rm, exec, echo, cp} = require('shelljs')
 const dir = 'dist/v' + version
 const cwd = process.cwd()
-
+pack.main = 'app.js'
 echo('start pack prepare')
 
 const timeStart = + new Date()
@@ -20,14 +22,20 @@ mkdir('-p', 'dist/latest')
 mkdir('-p', 'work')
 cp('-r', 'app', 'work/')
 cp('-r', [
-  'package.json',
   'node_modules',
   'version'
 ], 'work/app/')
+rm('-rf',  'work/app/dev-app.js')
 rm('-rf',  'work/app/user-config.json')
 rm('-rf',  'work/app/localstorage.json')
 rm('-rf',  'work/app/assets/js/basic.bundle.js')
 rm('-rf',  'work/app/assets/js/index.bundle.js')
+require('fs').writeFileSync(
+  resolve(__dirname, '../work/app/package.json'),
+  JSON.stringify(
+    pack, null, 2
+  )
+)
 
 exec(`cd work/app && npm prune --production && cd ${cwd}`)
 
