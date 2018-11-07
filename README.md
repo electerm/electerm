@@ -58,19 +58,18 @@ git clone git@github.com:electerm/electerm.git
 cd electerm
 npm i
 
-# server
-npm run s
+# start webpack dev server
+npm start
 
-# client
-npm run c
-
-# app
-npm run dev
+# run app
+npm run app
 ```
 
 ## Test
 ```bash
 npm run pre-test
+cp .sample.env .env
+# then edit .env, fill your test host/username/password
 npm run test
 ```
 
