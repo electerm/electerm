@@ -1,10 +1,11 @@
-
+require('dotenv').config()
 const webpack = require('webpack')
 const os = require('os')
 const {identity} = require('lodash')
 const MinifyPlugin = require('babel-minify-webpack-plugin')
 const HappyPack = require('happypack')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
+const express = require('express')
 const path = require('path')
 const pack = require('./package.json')
 const LodashModuleReplacementPlugin = require('lodash-webpack-plugin')
@@ -15,7 +16,6 @@ const packThreadCount = env.packThreadCount
   ? parseInt(env.packThreadCount)
   : os.cpus().length
 const devPort = env.devPort || 5570
-const port = env.port || 4570
 const host = env.host || 'localhost'
 const happyThreadPool = packThreadCount === 0
   ? null
@@ -184,26 +184,10 @@ var config = {
     inline: true,
     host,
     port: devPort,
-    proxy: {
-      '*': {
-        target: 'http://localhost:' + port,
-        secure: false,
-        ws: false,
-        bypass: function (req) {
-          let pth = req.path
-          if (
-            (
-              /(\.json|\.jpg|\.png|\.css)$/.test(pth) &&
-              !/^\/static\//.test(pth) &&
-              !/^\/_bc\//.test(pth)
-            ) ||
-            /\.bundle\.js/.test(pth)
-          ) {
-            console.log('bypass', pth)
-            return req.path
-          }
-        }
-      }
+    before: (app) => {
+      app.use('/_bc', express.static(
+        path.resolve(__dirname, './node_modules'), {maxAge: '170d'})
+      )
     }
   }
 }

@@ -1,7 +1,7 @@
 /**
  * export test username/password/host/port
  */
-
+require('dotenv').config()
 const os = require('os').platform()
 const {
   env
@@ -14,8 +14,7 @@ const TEST_USER = env[`TEST_USER_${os}`] || env.TEST_USER
 if (!TEST_HOST || !TEST_PASS || !TEST_USER) {
   throw new Error(`
     basic sftp test need TEST_HOST TEST_PASS TEST_USER env set,
-    you can run theselines(replace xxxx with real ones) to set env:
-    export TEST_HOST=xxxx.xxx && export TEST_PASS=xxxxxx && export TEST_USER=xxxxxx
+    you can run "cp .sample.env .env" to create env file, then edit .env, fill all required field
   `)
 }
 
