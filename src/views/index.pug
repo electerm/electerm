@@ -21,8 +21,8 @@ body
         if (window.et.env === 'development') return console.log.apply(null, args);
       }
   - var tail = env !== 'development' ? '.production.min' : '.development'
-  script(src=nodeModulePath + '/react/umd/react' + tail + '.js?' + version)
-  script(src=nodeModulePath + '/react-dom/umd/react-dom' + tail + '.js?' + version)
+  script(src='../node_modules/react/umd/react' + tail + '.js?' + version)
+  script(src='../node_modules/react-dom/umd/react-dom' + tail + '.js?' + version)
   script.
     window.et.onload = function() {
       document.body.removeChild(document.getElementById('content-loading'));

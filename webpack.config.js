@@ -28,7 +28,6 @@ const happyConf = {
 }
 let version = pack.version + '-' + git.long()
 let isProd = env.NODE_ENV === 'production'
-let nodeModulePath = '../node_modules'
 const extractTextPlugin1 = new MiniCssExtractPlugin({
   filename: 'css/[name].styles.css'
 })
@@ -37,9 +36,7 @@ const pug = {
   options: {
     data: {
       version,
-      nodeModulePath,
       _global: {
-        nodeModulePath,
         version
       }
     }
@@ -148,7 +145,7 @@ var config = {
       },
       {
         test: /\.(png|jpg|svg)$/,
-        use: ['url-loader?limit=10192&name=images/[hash].[ext]']
+        use: ['url-loader?limit=90192&name=images/[hash].[ext]']
       },
       {
         test: /\.pug$/,

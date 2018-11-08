@@ -1,5 +1,5 @@
 /**
- * 各系统图标生成程序
+ * system icon generator
  */
 
 const {resolve} = require('path')
