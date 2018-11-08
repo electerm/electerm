@@ -6,6 +6,8 @@ import {Icon, Modal, Tabs, Button, Tag} from 'antd'
 import Link from '../common/external-link'
 import _ from 'lodash'
 
+let logoPath1 = require('node_modules/electerm-resource/res/imgs/electerm-round-128x128.png')
+let logoPath2 = require('node_modules/electerm-resource/res/imgs/electerm.png')
 const {prefix, lang} = window
 const e = prefix('control')
 const m = prefix('menu')
@@ -43,14 +45,17 @@ export default function({
     ...dependencies
   }
   let versions = getGlobal('versions')
-  let {nodeModulePath} = window.et
   let envs = {
     ...versions,
     ...env
   }
   let bugReportLink = link + '/issues'
-  let logoPath = nodeModulePath + '/electerm-resource/res/imgs/' +
-    (Math.random() > 0.5 ? 'electerm-round-128x128.png' : 'electerm.png')
+  let cls1 = Math.random() > 0.5
+    ? 'hide'
+    : ''
+  let cls2 = cls1
+    ? ''
+    : 'hide'
   Modal.info({
     title: `${m('about')} ` + name,
     width: window.innerWidth - 100,
@@ -61,7 +66,8 @@ export default function({
         <Tabs defaultActiveKey="1">
           <TabPane tab={m('about')} key="1">
             <div className="pd2y aligncenter">
-              <img src={logoPath} className="iblock mwm-100" />
+              <img src={logoPath1} className={`iblock mwm-100 ${cls1}`} />
+              <img src={logoPath2} className={`iblock mwm-100 ${cls2}`} />
             </div>
             <h1 className="mg2b font50">
               <span className="iblock mg1r">{name}</span>
