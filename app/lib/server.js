@@ -2,11 +2,8 @@ const express = require('express')
 const app = express()
 const cors = require('cors')
 const {log} = require('./log')
-const {resolve} = require('path')
 const terminals = {}
 const logs = {}
-const pubPath = resolve(__dirname, '../assets')
-const modPath = resolve(__dirname, '../node_modules')
 const bodyParser = require('body-parser')
 const {terminal} = require('./terminal')
 const initWs = require('./dispatch-center')
@@ -20,16 +17,6 @@ app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 
 require('express-ws')(app)
-
-// app.use(function (req, res, next) {
-//   res.header('Cache-Control', 'private, no-cache, no-store, must-revalidate')
-//   res.header('Expires', '-1')
-//   res.header('Pragma', 'no-cache')
-//   next()
-// })
-
-app.use('/', express.static(pubPath, {maxAge: '170d'}))
-app.use('/_bc', express.static(modPath, {maxAge: '170d'}))
 
 app.post('/terminals', async function (req, res) {
   let body = JSON.parse(req.body.q)
