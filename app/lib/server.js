@@ -21,16 +21,6 @@ app.use(bodyParser.json())
 
 require('express-ws')(app)
 
-// app.use(function (req, res, next) {
-//   res.header('Cache-Control', 'private, no-cache, no-store, must-revalidate')
-//   res.header('Expires', '-1')
-//   res.header('Pragma', 'no-cache')
-//   next()
-// })
-
-app.use('/', express.static(pubPath, {maxAge: '170d'}))
-app.use('/_bc', express.static(modPath, {maxAge: '170d'}))
-
 app.post('/terminals', async function (req, res) {
   let body = JSON.parse(req.body.q)
   let term = await terminal(body)
