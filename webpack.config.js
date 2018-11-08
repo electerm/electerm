@@ -27,28 +27,30 @@ const happyConf = {
   verbose: true
 }
 let version = pack.version + '-' + git.long()
-
+let isProd = env.NODE_ENV === 'production'
+let nodeModulePath = '../node_modules'
 const extractTextPlugin1 = new MiniCssExtractPlugin({
   filename: 'css/[name].styles.css'
 })
-
 const pug = {
   loader: 'pug-html-loader',
   options: {
     data: {
       version,
+      nodeModulePath,
       _global: {
+        nodeModulePath,
         version
       }
     }
   }
 }
-
 const stylusSettingPlugin =  new webpack.LoaderOptionsPlugin({
   test: /\.styl$/,
   stylus: {
     preferPathResolver: 'webpack'
-  }
+  },
+  'resolve url': false
 })
 
 var config = {
@@ -73,7 +75,8 @@ var config = {
   resolve: {
     extensions: ['.js', '.jsx', '.ts', '.json'],
     alias: {
-      'client': path.resolve(__dirname, 'src/client')
+      'client': path.resolve(__dirname, 'src/client'),
+      'node_modules': path.resolve(__dirname, 'node_modules')
     }
   },
   resolveLoader: {
@@ -167,7 +170,6 @@ var config = {
   devtool: '#eval-source-map',
   plugins: [
     new webpack.HotModuleReplacementPlugin(),
-    //commonsChunkPlugin,
     new LodashModuleReplacementPlugin(),
     stylusSettingPlugin,
     packThreadCount === 0 ? null : new HappyPack(happyConf),
@@ -185,14 +187,14 @@ var config = {
     host,
     port: devPort,
     before: (app) => {
-      app.use('/_bc', express.static(
+      app.use('/node_modules', express.static(
         path.resolve(__dirname, './node_modules'), {maxAge: '170d'})
       )
     }
   }
 }
 
-if (env.NODE_ENV === 'production') {
+if (isProd) {
   config.plugins = [
     packThreadCount === 0 ? null : new HappyPack(happyConf),
     //new webpack.optimize.DedupePlugin(),

@@ -196,8 +196,13 @@ async function createWindow () {
     saveLangConfig(saveUserConfig, userConfig)
   }, 100)
 
-  let opts = `http://localhost:${config.port}/index.html?v=` + version
-  let childServerUrl = opts + ''
+  let opts = require('url').format({
+    protocol: 'file',
+    slashes: true,
+    pathname: resolve(__dirname, 'assets', 'index.html')
+  })
+
+  let childServerUrl = `http://localhost:${config.port}/run`
   if (isDev) {
     let {devPort = 5570} = process.env
     opts = `http://localhost:${devPort}`
@@ -237,5 +242,3 @@ app.on('activate', () => {
   }
 })
 
-// In this file you can include the rest of your app's specific main process
-// code. You can also put them in separate files and require them here.
