@@ -34,7 +34,6 @@ export default function({
     },
     version: packVer
   } = getGlobal('packInfo')
-  let cdn = window.location.origin
   let version = 'v' + packVer
   let link = url.replace('git+', '').replace('.git', '')
   let os = getGlobal('os')
@@ -44,12 +43,13 @@ export default function({
     ...dependencies
   }
   let versions = getGlobal('versions')
+  let {nodeModulePath} = window.et
   let envs = {
     ...versions,
     ...env
   }
   let bugReportLink = link + '/issues'
-  let logoPath = cdn + '/_bc/electerm-resource/res/imgs/' +
+  let logoPath = nodeModulePath + '/electerm-resource/res/imgs/' +
     (Math.random() > 0.5 ? 'electerm-round-128x128.png' : 'electerm.png')
   Modal.info({
     title: `${m('about')} ` + name,

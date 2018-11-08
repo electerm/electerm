@@ -97,6 +97,10 @@ app.ws('/terminals/:pid', function (ws, req) {
   })
 })
 
+app.get('/run', function (req, res) {
+  res.send('ok')
+})
+
 initWs(app)
 
 const runServer = function() {
