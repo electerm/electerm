@@ -18,8 +18,8 @@ build_script:
 test: off
 skip_tags: true
 cache:
-  - $LOCALAPPDATA/electron/Cache
-  - '%USERPROFILE%\.electron'
+  # - $LOCALAPPDATA/electron/Cache
+  # - '%USERPROFILE%\.electron'
 
 branches:
   # whitelist
