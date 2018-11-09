@@ -1,5 +1,5 @@
 
-import React, {lazy, Suspense} from 'react'
+import React from 'react'
 import Tabs from '../tabs'
 import Btns from './btns'
 import {buildNewTheme} from '../../common/terminal-theme'
