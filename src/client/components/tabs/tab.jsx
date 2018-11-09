@@ -122,7 +122,6 @@ export default class Tab extends React.Component {
     let tabs = copy(this.props.tabs)
     let index = _.findIndex(tabs, t => t.id === id)
     this.props.onClose(this.state.tab.id)
-    this.props.closeContextMenu()
     await wait(30)
     this.props.addTab(tab, index)
   }
@@ -138,24 +137,20 @@ export default class Tab extends React.Component {
     if (this.props.tabs.length <= 1) {
       setTimeout(this.add, 1)
     }
-    this.props.closeContextMenu()
   }
 
   dup = () => {
     this.props.onDup(this.props.tab)
-    this.props.closeContextMenu()
   }
 
   add = () => {
     this.props.onAdd()
-    this.props.closeContextMenu()
   }
 
   doRename = () => {
     let tab = copy(this.state.tab)
     tab.titleTemp = tab.title || ''
     tab.isEditting = true
-    this.props.closeContextMenu()
     this.setState({
       tab
     })
@@ -191,7 +186,6 @@ export default class Tab extends React.Component {
       tabs: [this.props.tab],
       currentTabId: this.props.tab.id
     })
-    this.props.closeContextMenu()
   }
 
   closeTabsRight = () => {
@@ -205,7 +199,6 @@ export default class Tab extends React.Component {
       update.currentTabId = tabs[0].id
     }
     this.props.modifier(update)
-    this.props.closeContextMenu()
   }
 
   renderContext() {

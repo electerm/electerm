@@ -113,7 +113,6 @@ export default class FileSection extends React.Component {
         transferType: fileOpTypeMap.mv
       })
     }
-    this.props.closeContextMenu()
   }
 
   onCut = (e, targetFiles) => {
@@ -127,7 +126,6 @@ export default class FileSection extends React.Component {
   }
 
   onPaste = async () => {
-    this.props.closeContextMenu()
     let clickBoardText = readClipboard()
     let fileNames = clickBoardText.split('\n')
     let res = []
@@ -337,7 +335,6 @@ export default class FileSection extends React.Component {
     let file = copy(this.state.file)
     file.nameTemp = file.name
     file.isEditting = true
-    this.props.closeContextMenu()
     this.props.modifier({
       onEditFile: true
     })
@@ -347,7 +344,6 @@ export default class FileSection extends React.Component {
   }
 
   editPermission = () => {
-    this.props.closeContextMenu()
     this.openFileModeModal(this.state.file)
   }
 
@@ -364,7 +360,6 @@ export default class FileSection extends React.Component {
   }
 
   showInfo = () => {
-    this.props.closeContextMenu()
     this.props.rootModifier({
       fileInfoModalProps: {
         file: this.state.file,
@@ -416,7 +411,6 @@ export default class FileSection extends React.Component {
 
   selectAll = (e) => {
     let {type} = this.props.file
-    this.props.closeContextMenu()
     this.props.selectAll(type, e)
   }
 
@@ -501,7 +495,6 @@ export default class FileSection extends React.Component {
   }
 
   openFileModeModal = () => {
-    this.props.closeContextMenu()
     this.props.rootModifier({
       fileModeModalProps: {
         file: this.state.file,
@@ -587,7 +580,6 @@ export default class FileSection extends React.Component {
     let filePath = resolve(file.path, file.name)
     fs.openFile(filePath)
       .catch(this.props.onError)
-    this.props.closeContextMenu()
   }
 
   transferOrEnterDirectory = async (e) => {
@@ -665,7 +657,6 @@ export default class FileSection extends React.Component {
       ? transferTypeMap.upload
       : transferTypeMap.download
     transferType = _transferType ? _transferType : transferType
-    this.props.closeContextMenu()
     let filesToConfirm = []
     for (let f of selectedFiles) {
       let arr = await this.getTransferList(f)
@@ -700,27 +691,26 @@ export default class FileSection extends React.Component {
   }
 
   doEnterDirectory = (e) => {
-    this.props.closeContextMenu()
     this.enterDirectory(e)
   }
 
   refresh = () => {
-    this.props.closeContextMenu()
     this.props.onGoto(this.props.file.type)
   }
 
   del = async (delSelected) => {
-    this.props.closeContextMenu()
     let {file, selectedFiles} = this.props
     let {type} = file
     let files = delSelected
       ? selectedFiles
       : [file]
+    window.postMessage({
+      type: 'close-context-menu'
+    }, '*')
     await this.props.delFiles(type, files)
   }
 
   doTransfer = () => {
-    this.props.closeContextMenu()
     this.transfer()
   }
 
@@ -742,7 +732,6 @@ export default class FileSection extends React.Component {
       isEditting: true,
       type
     })
-    this.props.closeContextMenu()
     this.props.modifier({
       [type]: list,
       onEditFile: true
@@ -869,7 +858,7 @@ export default class FileSection extends React.Component {
                 onConfirm={() => this.del(shouldShowSelectedMenu)}
               >
                 <div
-                  className={cls}
+                  className={cls + ' no-auto-close-context'}
                 >
                   <Icon type="close-circle" /> {delTxt}
                 </div>

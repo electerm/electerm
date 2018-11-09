@@ -2,8 +2,10 @@
  * context menu
  */
 import React from 'react'
+import ReactDOM from 'react-dom'
 import PropTypes from 'prop-types'
 import './context-menu.styl'
+import findParent from '../../common/find-parent'
 
 export default class ContextMenu extends React.PureComponent {
 
@@ -11,7 +13,8 @@ export default class ContextMenu extends React.PureComponent {
     content: PropTypes.element.isRequired,
     visible: PropTypes.bool,
     position: PropTypes.object,
-    className: PropTypes.string
+    className: PropTypes.string,
+    closeContext: PropTypes.func
   }
 
   static defaultProps = {
@@ -24,7 +27,24 @@ export default class ContextMenu extends React.PureComponent {
     className: 'context-menu'
   }
 
-  state = {}
+  componentDidMount() {
+    ReactDOM.findDOMNode(this)
+      .addEventListener('click', e => {
+        let {target} = e
+        let p = findParent(target, '.context-item')
+        if (
+          p &&
+          !p.classList.contains('no-auto-close-context')
+        ) {
+          this.props.closeContextMenu()
+        }
+      })
+    window.addEventListener('message', e => {
+      if (e.data && e.data.type && e.data.type === 'close-context-menu') {
+        this.props.closeContextMenu()
+      }
+    })
+  }
 
   render () {
     let {visible, pos, content, className} = this.props

@@ -205,7 +205,6 @@ export default class Term extends React.PureComponent {
 
   split = () => {
     this.props.doSplit(null, this.props.id)
-    this.props.closeContextMenu()
   }
 
   onContextMenu = e => {
@@ -228,17 +227,14 @@ export default class Term extends React.PureComponent {
   onCopy = () => {
     let selected = this.term.getSelection()
     copy(selected)
-    this.props.closeContextMenu()
   }
 
   onSelectAll = () => {
     this.term.selectAll()
-    this.props.closeContextMenu()
   }
 
   onClear = () => {
     this.term.clear()
-    this.props.closeContextMenu()
   }
 
   onPaste = () => {
@@ -247,12 +243,10 @@ export default class Term extends React.PureComponent {
       selected = selected.replace(/\r\n/g, '\n')
     }
     this.term.__sendData(selected)
-    this.props.closeContextMenu()
     this.term.focus()
   }
 
   openSearch = () => {
-    this.props.closeContextMenu()
     this.setState({
       searchVisible: true
     })
@@ -284,7 +278,6 @@ export default class Term extends React.PureComponent {
 
   onSelectTheme = id => {
     this.props.setTheme(id)
-    this.props.closeContextMenu()
   }
 
   renderThemeSelect = () => {
