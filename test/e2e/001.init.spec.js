@@ -6,6 +6,11 @@ const {expect} = require('chai')
 const cwd = process.cwd()
 const packInfo = require('../../package.json')
 const {log} = console
+const isOs = require('./common/is-os')
+
+if (!isOs('linux')) {
+  return
+}
 
 describe('main window', function () {
   this.timeout(100000)
