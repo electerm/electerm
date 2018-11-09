@@ -108,6 +108,7 @@
     "style-loader": "0.23.1",
     "stylus": "0.54.5",
     "stylus-loader": "3.0.2",
+    "subx": "0.7.2",
     "url-loader": "1.1.2",
     "useragent": "2.3.0",
     "webpack": "4.21.0",

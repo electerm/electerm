@@ -6,6 +6,7 @@
 import Subx from 'subx'
 import newTerm from '../common/new-terminal'
 import copy from 'json-deep-copy'
+import * as terminalThemes from '../common/terminal-theme'
 import {
   maxHistory,
   settingMap,
@@ -33,7 +34,9 @@ let getDefaultBookmarkGroups = (bookmarks) => {
 }
 
 const store = Subx.create({
-  tabs,
+
+  //states
+  tabs: [newTerm()],
   height: 500,
   width: window.innerWidth,
   currentTabId: tabs[0].id,
@@ -57,5 +60,13 @@ const store = Subx.create({
   onCheckUpdating: false,
   selectedSessions: [],
   sessionModalVisible: false,
-  textEditorProps: {}
+  textEditorProps: {},
+
+  // actions
+  setState (update) {
+    Object.assign(this, update)
+  }
+
 })
+
+export default store
