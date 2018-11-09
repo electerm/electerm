@@ -6,8 +6,8 @@ import {Icon, Modal, Tabs, Button, Tag} from 'antd'
 import Link from '../common/external-link'
 import _ from 'lodash'
 
-let logoPath1 = require('node_modules/electerm-resource/res/imgs/electerm-round-128x128.png')
-let logoPath2 = require('node_modules/electerm-resource/res/imgs/electerm.png')
+let logoPath1 = require('node_modules/electerm-resource/res/imgs/electerm-round-128x128.png').replace(/^\//, '')
+let logoPath2 = require('node_modules/electerm-resource/res/imgs/electerm.png').replace(/^\//, '')
 const {prefix, lang} = window
 const e = prefix('control')
 const m = prefix('menu')
