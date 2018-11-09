@@ -34,15 +34,16 @@ npm i -g electerm
 ```
 
 ## Upgrade
-
-- if you downloaded it, then just download the latest edition, reinstall.
-- if you install from npm, just run `npm i -g electerm` again.
+- When new version released, you will get upgrade notification after you start electerm again.
+- If you downloaded it, then just download the latest edition, reinstall.
+- If you install from npm, just run `npm i -g electerm` again.
 
 ## Features
-- work as a terminal/file manager or ssh/sftp client(similar to xshell)
-- global hotkey to toggle window visibility (simliar to guake, default is `ctrl + 2`)
-- support multi platform(linux, mac, win)
-- support multi-language(https://github.com/electerm/electerm-locales, contribute welcome)
+- Work as a terminal/file manager or ssh/sftp client(similar to xshell)
+- Global hotkey to toggle window visibility (simliar to guake, default is `ctrl + 2`)
+- Support multi platform(linux, mac, win)
+- Support multi-language(https://github.com/electerm/electerm-locales, contribute welcome)
+- Double click to directly edit remote file(small ones).
 
 ## Issues/todo/roadmap/tell me what you think
 https://github.com/electerm/electerm/issues
@@ -87,10 +88,10 @@ npm run release -l
 ```
 
 ## Use
-- [set autorun when login to os](https://github.com/electerm/electerm/wiki/autorun-electerm-when-login-to-os)
+- [Set autorun when login to os](https://github.com/electerm/electerm/wiki/autorun-electerm-when-login-to-os)
 
 ## Changelog
-visit https://github.com/electerm/electerm/releases
+Visit https://github.com/electerm/electerm/releases
 
 ## License
 MIT
