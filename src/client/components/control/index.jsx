@@ -10,8 +10,8 @@ import {statusMap, settingMap} from '../../common/constants'
 import './control.styl'
 import Loading from '../common/loading'
 import newTerm from '../../common/new-terminal'
-const SettingModalBasic = lazy(() => import('../setting-panel/setting-modal'))
-const TransferHistoryModalBasic = lazy(() => import('./transfer-history-modal'))
+import SettingModal from '../setting-panel/setting-modal'
+import TransferHistoryModal from './transfer-history-modal'
 
 const {prefix, getGlobal} = window
 const e = prefix('control')
@@ -224,23 +224,19 @@ export default class IndexControl extends React.Component {
         {
           showModal
             ? (
-              <Suspense fallback={Loading}>
-                <SettingModalBasic
-                  {...this.props}
-                  {...props}
-                />
-              </Suspense>
+              <SettingModal
+                {...this.props}
+                {...props}
+              />
             )
             : null
         }
         {
           transferHistory.length
             ? (
-              <Suspense fallback={Loading}>
-                <TransferHistoryModalBasic
-                  {...this.props}
-                />
-              </Suspense>
+              <TransferHistoryModal
+                {...this.props}
+              />
             )
             : null
         }
