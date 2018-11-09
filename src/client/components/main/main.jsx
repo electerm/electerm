@@ -477,7 +477,7 @@ export default class Index extends React.Component {
         'clearTransferHistory',
         'closeTransferHistory',
         'addTransferHistory',
-        'onError', 'openContextMenu', 'closeContextMenu',
+        'onError', 'openContextMenu',
         'modifyLs', 'addItem', 'editItem', 'delItem',
         'onCheckUpdate', 'openAbout',
         'setTheme', 'addTheme', 'editTheme', 'delTheme',
@@ -511,6 +511,7 @@ export default class Index extends React.Component {
         <ContextMenu
           {...contextMenuProps}
           visible={contextMenuVisible}
+          closeContextMenu={this.closeContextMenu}
         />
         <FileInfoModal
           {...fileInfoModalProps}
