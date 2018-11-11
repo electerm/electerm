@@ -2,7 +2,7 @@
  * file props
  */
 
-import {Component} from 'react-subx'
+import {Component} from '../common/react-subx'
 import {Icon, Modal} from 'antd'
 import resolve from '../../common/resolve'
 import {mode2permission} from '../../common/mode2permission'

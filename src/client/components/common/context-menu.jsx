@@ -1,7 +1,7 @@
 /**
  * context menu
  */
-import {Component} from 'react-subx'
+import {Component} from './react-subx'
 import ReactDOM from 'react-dom'
 import './context-menu.styl'
 import findParent from '../../common/find-parent'

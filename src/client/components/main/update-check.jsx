@@ -1,4 +1,4 @@
-import {Component} from 'react-subx'
+import {Component} from '../common/react-subx'
 import {notification} from 'antd'
 import {getLatestReleaseInfo} from '../../common/update-check'
 import compare from '../../common/version-compare'

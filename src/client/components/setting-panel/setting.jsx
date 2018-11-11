@@ -1,5 +1,5 @@
 
-import {Component} from 'react-subx'
+import {Component} from '../common/react-subx'
 import {
   message, Select, Switch,
   Input, Icon,
@@ -111,7 +111,7 @@ export default class Setting extends Component {
   }
 
   renderToggle = name => {
-    let checked = !!this.props.config[name]
+    let checked = !!this.props.store.config[name]
     return (
       <div className="pd2b">
         <Switch

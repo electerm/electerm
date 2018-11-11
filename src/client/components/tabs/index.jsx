@@ -3,7 +3,7 @@
  * @param {array} props.tabs {id, title}
  */
 
-import {Component} from 'react-subx'
+import {Component} from '../common/react-subx'
 import _ from 'lodash'
 import {Icon, Button, Dropdown, Menu} from 'antd'
 import Tab from './tab'

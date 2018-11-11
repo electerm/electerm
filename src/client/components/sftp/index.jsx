@@ -1,5 +1,5 @@
 
-import {Component} from 'react-subx'
+import {Component} from '../common/react-subx'
 import ReactDOM from 'react-dom'
 import {generate} from 'shortid'
 import {Input, Icon, Tooltip, Spin, Modal} from  'antd'
@@ -383,7 +383,7 @@ export default class Sftp extends Component {
 
   initData = () => {
     let {props} = this
-    let host = _.get(props, 'tab.host')
+    let {host} = props.tab
     if (host) {
       this.remoteList()
     }

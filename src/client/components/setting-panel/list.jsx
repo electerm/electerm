@@ -1,7 +1,7 @@
 /**
  * history list
  */
-import {Component} from 'react-subx'
+import {Component} from '../common/react-subx'
 import {Tooltip, Icon, Popconfirm} from 'antd'
 import Search from '../common/search'
 import createName from '../../common/create-title'

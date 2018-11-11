@@ -2,7 +2,7 @@
  * default text editor for remote file
  */
 
-import {Component} from 'react-subx'
+import {Component} from '../common/react-subx'
 import {
   Form, Button, Input,
   Spin,

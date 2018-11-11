@@ -3,7 +3,7 @@
  * show last sessions for user to recover
  */
 
-import {Component} from 'react-subx'
+import {Component} from '../common/react-subx'
 import {Modal, Button, Checkbox} from 'antd'
 import copy from 'json-deep-copy'
 import _ from 'lodash'

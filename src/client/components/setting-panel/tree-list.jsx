@@ -2,7 +2,7 @@
  * tree list for bookmarks
  */
 
-import {Component} from 'react-subx'
+import {Component} from '../common/react-subx'
 import {
   Icon,
   Popconfirm,
@@ -22,7 +22,6 @@ import highlight from '../common/highlight'
 import copy from 'json-deep-copy'
 import Search from '../common/search'
 import Btns from './bookmark-transport'
-import recToJSON from '../../common/rec-to-json'
 import './tree-list.styl'
 
 const {TreeNode} = Tree

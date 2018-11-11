@@ -2,7 +2,7 @@
 /**
  * terminal/sftp wrapper
  */
-import {Component} from 'react-subx'
+import {Component} from '../common/react-subx'
 import Term from './terminal'
 import Sftp from '../sftp'
 import {Icon} from 'antd'

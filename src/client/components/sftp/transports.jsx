@@ -1,7 +1,7 @@
 /**
  * tranporters
  */
-import {Component} from 'react-subx'
+import {Component} from '../common/react-subx'
 import {Popover, Icon} from 'antd'
 import Transport from './transport'
 import _ from 'lodash'

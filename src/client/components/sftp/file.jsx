@@ -2,7 +2,7 @@
  * file section
  */
 
-import {Component} from 'react-subx'
+import {Component} from '../common/react-subx'
 import ReactDOM from 'react-dom'
 import {Icon, Popconfirm} from 'antd'
 import classnames from 'classnames'

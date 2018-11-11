@@ -1,7 +1,7 @@
 /**
  * bookmark form
  */
-import {Component} from 'react-subx'
+import {Component} from 'react'
 import {
   Form, Button, Input,
   InputNumber, message,

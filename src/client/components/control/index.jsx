@@ -1,5 +1,5 @@
 
-import {Component} from 'react-subx'
+import {Component} from '../common/react-subx'
 import Tabs from '../tabs'
 import Btns from './btns'
 import {buildNewTheme} from '../../common/terminal-theme'

@@ -1,4 +1,4 @@
-import {Component} from 'react-subx'
+import {Component} from '../common/react-subx'
 import fetch, {handleErr} from '../../common/fetch'
 import {generate} from 'shortid'
 import _ from 'lodash'

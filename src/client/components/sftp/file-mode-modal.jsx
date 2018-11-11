@@ -2,7 +2,7 @@
  * file props
  */
 
-import {Component} from 'react-subx'
+import {Component} from 'react'
 import {Icon, Modal, Button} from 'antd'
 import resolve from '../../common/resolve'
 import time from '../../common/time'
@@ -22,6 +22,7 @@ export default class FileMode extends Component {
     this.state = {
       file: copy(props.store.fileModeModalProps.file)
     }
+    console.log(this.state)
   }
 
   addPermission = file => {
@@ -39,10 +40,19 @@ export default class FileMode extends Component {
     let {file} = this.state
     let perms = mode2permission(file.mode)
     let i = _.findIndex(perms, p => p.name === name)
+    //let lo = _
+    console.log(
+      _.get(
+        perms,
+        `[${i}].permission.${permName}`
+      )
+    )
     _.update(
       perms,
       `[${i}].permission.${permName}`,
-      b => !b
+      b => {
+        return !b
+      }
     )
     let permission = permission2mode(perms)
     let mode = new Number('0o' + '10' + permission)
@@ -82,6 +92,9 @@ export default class FileMode extends Component {
       return null
     }
     let {file} = this.state
+    if (!file) {
+      return null
+    }
     let {
       name,
       size,

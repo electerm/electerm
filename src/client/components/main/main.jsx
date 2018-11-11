@@ -1,5 +1,5 @@
 
-import {Component} from 'react-subx'
+import {Component} from '../common/react-subx'
 import Wrapper from '../terminal'
 import _ from 'lodash'
 import copy from 'json-deep-copy'
@@ -11,7 +11,6 @@ import TextEditor from '../text-editor'
 import Control from '../control'
 import SessionControl from '../session-control'
 import store from '../../store'
-import recToJSON from '../../common/rec-to-json'
 import './wrapper.styl'
 
 const {getGlobal} = window
@@ -116,7 +115,11 @@ export default class Index extends Component {
           store={store}
         />
         <FileModeModal
-          key={_.get(store.fileModeModalProps, 'file.id') || ''}
+          key={
+            store.fileModeModalProps.file
+              ? store.fileModeModalProps.file.id
+              : ''
+          }
           store={store}
         />
         <div

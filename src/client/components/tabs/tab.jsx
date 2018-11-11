@@ -2,7 +2,7 @@
  * file section
  */
 
-import {Component} from 'react-subx'
+import {Component} from '../common/react-subx'
 import {Icon, Tooltip, message, Badge} from 'antd'
 import classnames from 'classnames'
 import copy from 'json-deep-copy'
