@@ -276,6 +276,9 @@ export default class Term extends Component {
 
   onSelectTheme = id => {
     this.props.store.setTheme(id)
+    window.postMessage({
+      type: 'close-context-menu'
+    }, '*')
   }
 
   renderThemeSelect = () => {
@@ -355,7 +358,7 @@ export default class Term extends Component {
           <Icon type="border-horizontal" /> {e('split')}
         </div>
         <div
-          className={cls}
+          className={cls + ' no-auto-close-context'}
         >
           {this.renderThemeSelect()}
         </div>
@@ -561,7 +564,7 @@ export default class Term extends Component {
 
   onResizeTerminal = size => {
     let {cols, rows} = size
-    let config = this.props.store
+    let {config} = this.props.store
     let {host, port} = config
     let {pid} = this
     let url = `http://${host}:${port}/terminals/${pid}/size?cols=${cols}&rows=${rows}`

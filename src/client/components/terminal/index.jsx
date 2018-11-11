@@ -153,7 +153,7 @@ export default class WindowWrapper extends Component {
 
   computePosition = (index) => {
     let len = this.state.terminals.length || 1
-    let {width: windowWidth} = this.props
+    let {width: windowWidth} = this.props.store
     let {splitDirection} = this.state
     let isHori = splitDirection === terminalSplitDirectionMap.horizontal
     let heightAll = this.computeHeight()
@@ -184,7 +184,8 @@ export default class WindowWrapper extends Component {
       : 'terms-box bg-black hide'
     let {props} = this
     let height = this.computeHeight()
-    let {width, tab} = props
+    let {tab} = props
+    let {width} = props.store
     return (
       <div
         className={cls}

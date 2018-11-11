@@ -253,7 +253,7 @@ export default class ItemList extends Component {
       return this.props.store.delBookmarkGroup(item)
     }
     this.props.store.delItem(item, this.props.type)
-    this.props.store.onDelItem(item, this.props.type)
+    this.props.onDelItem(item, this.props.type)
   }
 
   onExpand = (expandedKeys) => {

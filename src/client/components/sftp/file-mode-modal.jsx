@@ -14,7 +14,7 @@ import copy from 'json-deep-copy'
 const {prefix} = window
 const e = prefix('sftp')
 const formatTime = time
-
+console.log(_, '_____fddf')
 export default class FileMode extends Component {
 
   constructor(props) {
@@ -40,13 +40,6 @@ export default class FileMode extends Component {
     let {file} = this.state
     let perms = mode2permission(file.mode)
     let i = _.findIndex(perms, p => p.name === name)
-    //let lo = _
-    console.log(
-      _.get(
-        perms,
-        `[${i}].permission.${permName}`
-      )
-    )
     _.update(
       perms,
       `[${i}].permission.${permName}`,
