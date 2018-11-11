@@ -1,5 +1,5 @@
 
-import React from 'react'
+import {Component} from 'react-subx'
 import {
   message, Select, Switch,
   Input, Icon,
@@ -25,7 +25,7 @@ const keys = [
   })
 ]
 
-export default class Setting extends React.PureComponent {
+export default class Setting extends Component {
 
   state = {
     languageChanged: false
@@ -37,12 +37,12 @@ export default class Setting extends React.PureComponent {
 
   resetAll = () => {
     this.saveConfig(
-      deepCopy(this.props.config.defaultSettings)
+      deepCopy(this.props.store.config.defaultSettings)
     )
   }
 
   onChangeModifier = modifier => {
-    let {hotkey} = this.props.config
+    let {hotkey} = this.props.store.config
     let key = hotkey.split('+')[1]
     return this.saveConfig({
       hotkey: `${modifier}+${key}`
@@ -56,7 +56,7 @@ export default class Setting extends React.PureComponent {
   }
 
   onChangeKey = key => {
-    let {hotkey} = this.props.config
+    let {hotkey} = this.props.store.config
     let modifier = hotkey.split('+')[0]
     return this.saveConfig({
       hotkey: `${modifier}+${key}`
@@ -73,7 +73,7 @@ export default class Setting extends React.PureComponent {
   }
 
   onChangeTerminalTheme = id => {
-    this.props.setTheme(id)
+    this.props.store.setTheme(id)
   }
 
   onChangeValue = (value, name) => {
@@ -83,7 +83,7 @@ export default class Setting extends React.PureComponent {
   }
 
   saveConfig = (_ext) => {
-    let config = deepCopy(this.props.config)
+    let config = deepCopy(this.props.store.config)
     let ext = deepCopy(_ext)
     let update = {
       config: Object.assign({}, config, deepCopy(_ext))
@@ -101,7 +101,7 @@ export default class Setting extends React.PureComponent {
       }
     }
     saveUserConfig && saveUserConfig(ext)
-    this.props.modifier(update)
+    this.props.store.modifier(update)
   }
 
   renderOption = (m, i) => {
@@ -149,8 +149,8 @@ export default class Setting extends React.PureComponent {
   }
 
   renderNumber = (name, options) => {
-    let value = this.props.config[name]
-    let defaultValue = this.props.config.defaultSettings[name]
+    let value = this.props.store.config[name]
+    let defaultValue = this.props.store.config.defaultSettings[name]
     let {
       step = 1,
       min,
@@ -176,8 +176,8 @@ export default class Setting extends React.PureComponent {
   }
 
   renderText = (name) => {
-    let value = this.props.config[name]
-    let defaultValue = this.props.config.defaultSettings[name]
+    let value = this.props.store.config[name]
+    let defaultValue = this.props.store.config.defaultSettings[name]
     let onChange = (e) => this.onChangeValue(e.target.value, name)
     return (
       <div className="pd2b">
@@ -206,8 +206,8 @@ export default class Setting extends React.PureComponent {
     let {
       hotkey,
       language
-    } = this.props.config
-    let {themes, theme} = this.props
+    } = this.props.store.config
+    let {themes, theme} = this.props.store
     let langs = getGlobal('langs')
     let [modifier, key] = hotkey.split('+')
     return (

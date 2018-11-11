@@ -254,7 +254,7 @@ export default class ResizeWrap extends React.Component {
       ? this.computePos(e, height)
       : this.pos
     this.pos = pos
-    this.props.openContextMenu({
+    this.props.store.openContextMenu({
       content,
       pos
     })

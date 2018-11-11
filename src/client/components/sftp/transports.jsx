@@ -1,7 +1,7 @@
 /**
  * tranporters
  */
-import React from 'react'
+import {Component} from 'react-subx'
 import {Popover, Icon} from 'antd'
 import Transport from './transport'
 import _ from 'lodash'
@@ -10,7 +10,7 @@ import copy from 'json-deep-copy'
 const {prefix} = window
 const e = prefix('sftp')
 
-export default class Transports extends React.PureComponent {
+export default class Transports extends Component {
 
   constructor(props) {
     super(props)
@@ -22,7 +22,7 @@ export default class Transports extends React.PureComponent {
 
   componentDidUpdate(prevProps) {
     if (
-      !_.isEqual(this.props.transports, prevProps.transports)
+      !_.isEqual(this.props.store.transports, prevProps.store.transports)
     ) {
       this.rebuildState()
     }
@@ -80,7 +80,7 @@ export default class Transports extends React.PureComponent {
   }
 
   rebuildState = (nextProps = this.props) => {
-    let {transports} = nextProps
+    let {transports} = nextProps.store
     let {currentTransport} = this.state
     let has = _.find(transports, t => t.id === _.get(currentTransport, 'id'))
     if (!has) {
@@ -102,7 +102,8 @@ export default class Transports extends React.PureComponent {
   }
 
   renderContent = () => {
-    let {transports, addTransferHistory} = this.props
+    let {transports} = this.props
+    let {addTransferHistory} = this.props.store
     let {currentTransport} = this.state
     return (
       <div className="transports-content overscroll-y">

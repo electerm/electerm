@@ -1,5 +1,5 @@
 
-import React from 'react'
+import {Component} from 'react-subx'
 import ReactDOM from 'react-dom'
 import {generate} from 'shortid'
 import {Input, Icon, Tooltip, Spin, Modal} from  'antd'
@@ -43,7 +43,7 @@ const buildTree = arr => {
   }, {})
 }
 
-export default class Sftp extends React.Component {
+export default class Sftp extends Component {
 
   constructor(props) {
     super(props)
@@ -64,11 +64,8 @@ export default class Sftp extends React.Component {
     }
   }
 
-  componentWillMount() {
-    this.initData()
-  }
-  
   componentDidMount() {
+    this.initData()
     this.initEvent()
   }
 
@@ -141,7 +138,7 @@ export default class Sftp extends React.Component {
   }
 
   isActive() {
-    return this.props.currentTabId === this.props.tab.id &&
+    return this.props.store.currentTabId === this.props.tab.id &&
       this.props.pane === paneMap.fileManager
   }
 
@@ -227,7 +224,7 @@ export default class Sftp extends React.Component {
       ? sftp.rmdir
       : sftp.rm
     let p = resolve(remotePath, name)
-    await func(p).catch(this.props.onError)
+    await func(p).catch(this.props.store.onError)
   }
 
   delFiles = async (_type, files = this.state.selectedFiles) => {
@@ -403,7 +400,7 @@ export default class Sftp extends React.Component {
   }
 
   onError = e => {
-    this.props.onError(e)
+    this.props.store.onError(e)
     this.setState({
       remoteLoading: false
     })
@@ -451,9 +448,7 @@ export default class Sftp extends React.Component {
     )
     try {
       if (!this.sftp) {
-        let config = deepCopy(
-          window.getGlobal('_config')
-        )
+        let {config} = this.props.store
         await sftp.connect({
           ...tab,
           readyTimeout: _.get(config, 'sshReadyTimeout'),
@@ -662,7 +657,7 @@ export default class Sftp extends React.Component {
       ...this.props,
       file,
       type,
-      rootModifier: this.props.modifier,
+      rootModifier: this.props.store.modifier,
       ..._.pick(this, [
         'sftp',
         'onSort',
@@ -933,7 +928,7 @@ export default class Sftp extends React.Component {
       height,
       isActive: this.isActive(),
       ..._.pick(this.props, [
-        'onError', 'addTransferHistory'
+        'store'
       ]),
       ..._.pick(this.state, [
         'transports',

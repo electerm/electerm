@@ -2,7 +2,7 @@
  * file section
  */
 
-import React from 'react'
+import {Component} from 'react-subx'
 import ReactDOM from 'react-dom'
 import {Icon, Popconfirm} from 'antd'
 import classnames from 'classnames'
@@ -54,7 +54,7 @@ const onDragCls = 'sftp-ondrag'
 const onDragOverCls = 'sftp-dragover'
 const onMultiDragCls = 'sftp-dragover-multi'
 
-export default class FileSection extends React.Component {
+export default class FileSection extends Component {
 
   constructor(props) {
     super(props)
@@ -348,19 +348,19 @@ export default class FileSection extends React.Component {
   }
 
   onCloseFileMode = () => {
-    this.props.rootModifier({
+    this.props.store.modifier({
       fileModeModalProps: {}
     })
   }
 
   onCloseFileInfo = () => {
-    this.props.rootModifier({
+    this.props.store.modifier({
       fileInfoModalProps: {}
     })
   }
 
   showInfo = () => {
-    this.props.rootModifier({
+    this.props.store.modifier({
       fileInfoModalProps: {
         file: this.state.file,
         tab: this.props.tab,
@@ -495,7 +495,7 @@ export default class FileSection extends React.Component {
   }
 
   openFileModeModal = () => {
-    this.props.rootModifier({
+    this.props.store.modifier({
       fileModeModalProps: {
         file: this.state.file,
         tab: this.props.tab,
@@ -595,7 +595,7 @@ export default class FileSection extends React.Component {
       if (size > maxEditFileSize) {
         return this.transfer()
       }
-      this.props.rootModifier({
+      this.props.store.modifier({
         textEditorProps: {
           visible: true,
           id,
@@ -1008,7 +1008,7 @@ export default class FileSection extends React.Component {
     let content = this.renderContext()
     let height = content.props.children.filter(_.identity)
       .length * contextMenuHeight + contextMenuPaddingTop * 2
-    this.props.openContextMenu({
+    this.props.store.openContextMenu({
       content,
       pos: computePos(e, id, height)
     })

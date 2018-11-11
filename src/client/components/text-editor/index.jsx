@@ -2,7 +2,7 @@
  * default text editor for remote file
  */
 
-import React from 'react'
+import {Component} from 'react-subx'
 import {
   Form, Button, Input,
   Spin,
@@ -17,7 +17,7 @@ const e = prefix('form')
 const c = prefix('common')
 const s = prefix('sftp')
 
-export class TextEditorForm extends React.PureComponent {
+export class TextEditorForm extends Component {
 
   state = {
     text: '',
@@ -26,7 +26,7 @@ export class TextEditorForm extends React.PureComponent {
   }
 
   componentDidMount() {
-    if (this.props.visible) {
+    if (this.props.store.textEditorProps.visible) {
       this.fetchText()
     }
   }
@@ -69,12 +69,12 @@ export class TextEditorForm extends React.PureComponent {
       this.state.path,
       res.text
     )
-    r && this.props.afterWrite()
+    r && this.props.textEditorProps.afterWrite()
     this.cancel()
   }
 
   cancel = () => {
-    this.props.modifier({
+    this.props.store.modifier({
       textEditorProps: {}
     })
   }
@@ -127,7 +127,7 @@ export class TextEditorForm extends React.PureComponent {
   }
 
   render() {
-    const {visible} = this.props
+    const {visible} = this.props.store.textEditorProps
     if (!visible) {
       return null
     }

@@ -1,5 +1,4 @@
-
-import React from 'react'
+import {Component} from 'react-subx'
 import fetch, {handleErr} from '../../common/fetch'
 import {generate} from 'shortid'
 import _ from 'lodash'
@@ -17,7 +16,6 @@ import {
   terminalSshConfigType,
   isMac
 } from '../../common/constants'
-import deepCopy from 'json-deep-copy'
 import {readClipboard, copy} from '../../common/clipboard'
 import * as fit from 'xterm/lib/addons/fit/fit'
 import * as attach from 'xterm/lib/addons/attach/attach'
@@ -56,7 +54,7 @@ const computePos = (e, height) => {
   return res
 }
 
-export default class Term extends React.PureComponent {
+export default class Term extends Component {
 
   constructor(props) {
     super()
@@ -78,8 +76,8 @@ export default class Term extends React.PureComponent {
 
   componentDidUpdate(prevProps) {
     let shouldChange = (
-      prevProps.currentTabId !== this.props.currentTabId &&
-      this.props.tab.id === this.props.currentTabId &&
+      prevProps.store.currentTabId !== this.props.store.currentTabId &&
+      this.props.tab.id === this.props.store.currentTabId &&
       this.props.pane === paneMap.terminal
     ) || (
       this.props.pane !== prevProps.pane &&
@@ -108,11 +106,11 @@ export default class Term extends React.PureComponent {
       this.props
     )
     let themeChanged = !_.isEqual(
-      this.props.themeConfig,
-      prevProps.themeConfig
+      this.props.store.getThemeConfig(),
+      prevProps.store.getThemeConfig()
     )
     if (themeChanged) {
-      this.term.setOption('theme', this.props.themeConfig)
+      this.term.setOption('theme', this.props.store.getThemeConfig())
     }
   }
 
@@ -144,8 +142,8 @@ export default class Term extends React.PureComponent {
 
   getValue = (props, type, name) => {
     return type === 'glob'
-      ? props.config[name]
-      : props.tab[name] || props.config[name]
+      ? props.store.config[name]
+      : props.tab[name] || props.store.config[name]
   }
 
   checkConfigChange = (prevProps, props) => {
@@ -190,12 +188,12 @@ export default class Term extends React.PureComponent {
       ) &&
       e.code === 'Tab'
     ) {
-      this.props.clickNextTab()
+      this.props.store.clickNextTab()
     }
   }
 
   onSelection = () => {
-    if (this.props.config.copyWhenSelect) {
+    if (this.props.store.config.copyWhenSelect) {
       let txt = this.term.getSelection()
       if (txt) {
         copy(txt)
@@ -212,13 +210,13 @@ export default class Term extends React.PureComponent {
     if (this.state.loading) {
       return
     }
-    if (this.props.config.pasteWhenContextMenu) {
+    if (this.props.store.config.pasteWhenContextMenu) {
       return this.onPaste()
     }
     let content = this.renderContext()
     let height = content.props.children.filter(_.identity)
       .length * contextMenuHeight + contextMenuPaddingTop * 2
-    this.props.openContextMenu({
+    this.props.store.openContextMenu({
       content,
       pos: computePos(e, height)
     })
@@ -277,11 +275,11 @@ export default class Term extends React.PureComponent {
   }
 
   onSelectTheme = id => {
-    this.props.setTheme(id)
+    this.props.store.setTheme(id)
   }
 
   renderThemeSelect = () => {
-    let {theme, themes} = this.props
+    let {theme, themes} = this.props.store
     return (
       <div>
         <div className="pd1b">
@@ -373,14 +371,15 @@ export default class Term extends React.PureComponent {
     clearTimeout(this.timeoutHandler)
     this.timeoutHandler = setTimeout(
       () => this.setStatus('error'),
-      window._config.terminalTimeout
+      this.props.store.config.terminalTimeout
     )
   }
 
   initTerminal = async () => {
     let {id} = this.state
     //let {password, privateKey, host} = this.props.tab
-    let {themeConfig, tab = {}, config = {}} = this.props
+    let { tab = {} } = this.props
+    let {themeConfig, config = {}} = this.props.store
     let term = new Terminal({
       scrollback: config.scrollback,
       rightClickSelectsWord: config.rightClickSelectsWord || false,
@@ -427,7 +426,7 @@ export default class Term extends React.PureComponent {
     let mat = text.match(reg)
     let startPath = mat && mat[1] ? mat[1] : ''
     if (startPath.startsWith('~') || startPath.startsWith('/')) {
-      this.props.editTab(this.props.tab.id, {
+      this.props.store.editTab(this.props.tab.id, {
         startPath
       })
     }
@@ -436,8 +435,8 @@ export default class Term extends React.PureComponent {
   count = 0
 
   setStatus = status => {
-    let id = _.get(this.props, 'tab.id')
-    this.props.editTab(id, {
+    let {id} = this.props.tab
+    this.props.store.editTab(id, {
       status
     })
   }
@@ -447,9 +446,7 @@ export default class Term extends React.PureComponent {
       loading: true
     })
     let {cols, rows} = term
-    let config = deepCopy(
-      window.getGlobal('_config')
-    )
+    let {config} = this.props.store
     let {host, port} = config
     let wsUrl
     let url = `http://${host}:${port}/terminals`
@@ -467,7 +464,7 @@ export default class Term extends React.PureComponent {
       ...tab,
       ...extra,
       readyTimeout: _.get(config, 'sshReadyTimeout'),
-      keepaliveInterval: _.get(config, 'keepaliveInterval'),
+      keepaliveInterval: config.keepaliveInterval,
       type: tab.host && !isSshConfig
         ? typeMap.remote
         : typeMap.local
@@ -487,7 +484,7 @@ export default class Term extends React.PureComponent {
       return this.promote()
     }
     if (savePassword) {
-      this.props.editItem(srcId, extra, from)
+      this.props.store.editItem(srcId, extra, from)
     }
     this.setState({
       loading: false
@@ -517,7 +514,7 @@ export default class Term extends React.PureComponent {
     term.on('refresh', this.onRefresh)
     term.on('resize', this.onResizeTerminal)
 
-    let cid = _.get(this.props, 'currentTabId')
+    let cid = _.get(this.props.store, 'currentTabId')
     let tid = _.get(this.props, 'tab.id')
     if (cid === tid && this.props.tab.status === statusMap.success) {
       term.focus()
@@ -533,7 +530,7 @@ export default class Term extends React.PureComponent {
   }
 
   onResize = () => {
-    let cid = _.get(this.props, 'currentTabId')
+    let cid = _.get(this.props.store, 'currentTabId')
     let tid = _.get(this.props, 'tab.id')
     if (
       this.props.tab.status === statusMap.success &&
@@ -564,9 +561,7 @@ export default class Term extends React.PureComponent {
 
   onResizeTerminal = size => {
     let {cols, rows} = size
-    let config = deepCopy(
-      window.getGlobal('_config')
-    )
+    let config = this.props.store
     let {host, port} = config
     let {pid} = this
     let url = `http://${host}:${port}/terminals/${pid}/size?cols=${cols}&rows=${rows}`
@@ -582,7 +577,7 @@ export default class Term extends React.PureComponent {
 
   onCancel = () => {
     let {id} = this.props.tab
-    this.props.delTab({id})
+    this.props.store.delTab({id})
   }
 
   onToggleSavePass = () => {

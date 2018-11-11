@@ -1,5 +1,5 @@
 
-import React from 'react'
+import {Component} from 'react-subx'
 import Tabs from '../tabs'
 import Btns from './btns'
 import {buildNewTheme} from '../../common/terminal-theme'
@@ -11,6 +11,7 @@ import './control.styl'
 import newTerm from '../../common/new-terminal'
 import SettingModal from '../setting-panel/setting-modal'
 import TransferHistoryModal from './transfer-history-modal'
+import store from '../../store'
 
 const {prefix, getGlobal} = window
 const e = prefix('control')
@@ -28,7 +29,7 @@ const getInitItem = (arr, tab) => {
   }
 }
 
-export default class IndexControl extends React.Component {
+export default class IndexControl extends Component {
 
   state = {
     item: getInitItem([], settingMap.bookmarks),
@@ -63,10 +64,10 @@ export default class IndexControl extends React.Component {
 
   onDup = tab => {
     let index = _.findIndex(
-      this.props.tabs,
+      this.props.store.tabs,
       d => d.id === tab.id
     )
-    this.props.addTab({
+    this.props.store.addTab({
       ...tab,
       status: defaultStatus,
       id: generate()
@@ -74,15 +75,15 @@ export default class IndexControl extends React.Component {
   }
 
   onAdd = () => {
-    this.props.addTab(newTerm())
+    this.props.store.addTab(newTerm())
   }
 
   onChange = currentTabId => {
-    this.props.modifier({currentTabId})
+    this.props.store.modifier({currentTabId})
   }
 
   onClose = id => {
-    this.props.delTab({id})
+    this.props.store.delTab({id})
   }
 
   onNewSsh = () => {
@@ -94,8 +95,8 @@ export default class IndexControl extends React.Component {
   }
 
   onSelectHistory = id => {
-    let item = _.find(this.props.history, it => it.id === id)
-    this.props.addTab({
+    let item = _.find(this.props.store.history, it => it.id === id)
+    this.props.store.addTab({
       ...item,
       from: 'history',
       srcId: item.id,
@@ -105,7 +106,7 @@ export default class IndexControl extends React.Component {
   }
 
   onSelectBookmark = id => {
-    let {history, bookmarks} = this.props
+    let {history, bookmarks} = this.props.store
     let item = copy(
       _.find(bookmarks, it => it.id === id) ||
       _.find(sshConfigItems, it => it.id === id)
@@ -113,7 +114,7 @@ export default class IndexControl extends React.Component {
     if (!item) {
       return
     }
-    this.props.addTab({
+    this.props.store.addTab({
       ...item,
       from: 'bookmarks',
       srcId: item.id,
@@ -131,13 +132,12 @@ export default class IndexControl extends React.Component {
       )
     })
     if (!existItem) {
-      this.props.addItem(item, settingMap.history)
+      this.props.store.addItem(item, settingMap.history)
     } else {
-      let historyNew = copy(history)
-      let index = _.findIndex(historyNew, f => f.id === existItem.id)
-      historyNew.splice(index, 1)
-      historyNew.unshift(existItem)
-      this.props.modifier({history: historyNew})
+      let index = _.findIndex(history, f => f.id === existItem.id)
+      history.splice(index, 1)
+      history.unshift(existItem)
+      this.props.store.modifier({history: history})
     }
   }
 
@@ -167,7 +167,7 @@ export default class IndexControl extends React.Component {
     })
   }
 
-  getItems = (tab, props = this.props) => {
+  getItems = (tab, props = this.props.store) => {
     return tab === settingMap.terminalThemes
       ? copy(props.themes)
       : copy(props[tab]) || []
@@ -200,7 +200,6 @@ export default class IndexControl extends React.Component {
         ...arr
       ]
     let props = {
-      ...this.props,
       item,
       autoFocusTrigger,
       list,
@@ -217,14 +216,14 @@ export default class IndexControl extends React.Component {
       onEditBookmark: this.onNewSsh,
       modifier2: this.modifier
     }
-    let {transferHistory} = this.props
+    let {transferHistory} = this.props.store
     return (
       <div>
         {
           showModal
             ? (
               <SettingModal
-                {...this.props}
+                store={store}
                 {...props}
               />
             )
@@ -234,15 +233,17 @@ export default class IndexControl extends React.Component {
           transferHistory.length
             ? (
               <TransferHistoryModal
-                {...this.props}
+                store={store}
               />
             )
             : null
         }
         <Btns
+          store={store}
           {...props}
         />
         <Tabs
+          store={store}
           {...props}
         />
       </div>

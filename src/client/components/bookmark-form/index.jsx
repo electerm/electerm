@@ -1,7 +1,7 @@
 /**
  * bookmark form
  */
-import React from 'react'
+import {Component} from 'react-subx'
 import {
   Form, Button, Input,
   InputNumber, message,
@@ -38,7 +38,7 @@ const c = prefix('common')
 const m = prefix('menu')
 const s = prefix('setting')
 
-export class BookmarkForm extends React.PureComponent {
+export class BookmarkForm extends Component {
 
   state = {
     testing: false,
@@ -75,7 +75,7 @@ export class BookmarkForm extends React.PureComponent {
     let {
       bookmarkGroups,
       currentBookmarkGroupId
-    } = props
+    } = props.store
     return id
       ? this.findBookmarkGroupId(bookmarkGroups, id)
       : currentBookmarkGroupId
@@ -112,18 +112,18 @@ export class BookmarkForm extends React.PureComponent {
       )
       return bg
     })
-    this.props.modifyLs({
+    this.props.store.modifyLs({
       bookmarkGroups
     })
   }
 
   submit = (evt, item, type = this.props.type) => {
     let obj = item
-    let {addItem, editItem} = this.props
+    let {addItem, editItem} = this.props.store
     let categoryId = obj.category
     delete obj.category
     let bookmarkGroups = copy(
-      this.props.bookmarkGroups
+      this.props.store.bookmarkGroups
     )
     if (type === settingMap.history) {
       obj.id = generate()
@@ -225,7 +225,7 @@ export class BookmarkForm extends React.PureComponent {
     }
     evt && this.submit(evt, obj)
     if (evt !== 'save') {
-      this.props.addTab({
+      this.props.store.addTab({
         ...res,
         id: generate()
       })
@@ -349,7 +349,7 @@ export class BookmarkForm extends React.PureComponent {
   }
 
   renderProxySelect = () => {
-    let proxyList = this.props.bookmarks.
+    let proxyList = this.props.store.bookmarks.
       reduce((prev, current) => {
         let {proxy} = current
         let {
@@ -462,9 +462,11 @@ export class BookmarkForm extends React.PureComponent {
       id
     } = this.props.formData
     let {
-      autoFocusTrigger,
       bookmarkGroups,
       currentBookmarkGroupId
+    } = this.props.store
+    let {
+      autoFocusTrigger
     } = this.props
     let {dns} = this.state
     let initBookmarkGroupId = id
@@ -618,7 +620,7 @@ export class BookmarkForm extends React.PureComponent {
     const {
       fontFamily: defaultFontFamily,
       fontSize: defaultFontSize
-    } = this.props.config.defaultSettings || {}
+    } = this.props.store.config.defaultSettings || {}
     const {
       fontFamily,
       fontSize

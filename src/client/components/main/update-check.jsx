@@ -1,4 +1,4 @@
-import React from 'react'
+import {Component} from 'react-subx'
 import {notification} from 'antd'
 import {getLatestReleaseInfo} from '../../common/update-check'
 import compare from '../../common/version-compare'
@@ -10,24 +10,23 @@ let {
 } = getGlobal('packInfo')
 const e = prefix('updater')
 
-export default class FileMode extends React.PureComponent {
+export default class UpdateCheck extends Component {
 
   componentDidMount() {
-    this.getLatestReleaseInfo()
+    this.getLatestReleaseInfo(true)
+    window.addEventListener('message', e => {
+      if (e.data && e.data.type && e.data.type === 'check-update') {
+        this.getLatestReleaseInfo()
+      }
+    })
   }
 
-  componentDidUpdate(prevProps) {
-    if (prevProps.shouldCheckUpdate !== this.props.shouldCheckUpdate) {
-      this.getLatestReleaseInfo()
-    }
-  }
-
-  getLatestReleaseInfo = async () => {
-    this.props.modifier({
+  getLatestReleaseInfo = async (autoCheck) => {
+    this.props.store.modifier({
       onCheckUpdating: true
     })
     let releaseInfo = await getLatestReleaseInfo()
-    this.props.modifier({
+    this.props.store.modifier({
       onCheckUpdating: false
     })
     if (!releaseInfo) {
@@ -37,7 +36,7 @@ export default class FileMode extends React.PureComponent {
     let latestVer = releaseInfo.tag_name
     if (compare(currentVer, latestVer) < 0) {
       this.showUpdateInfo(releaseInfo)
-    } else if (this.props.shouldCheckUpdate) {
+    } else if (!autoCheck) {
       notification.info({
         message: e('noNeed'),
         description: e('noNeedDesc'),

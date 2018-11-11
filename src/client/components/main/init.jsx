@@ -5,6 +5,7 @@
 import React from 'react'
 import Main from './main'
 import {initFS} from '../../common/fs'
+import store from '../../store'
 
 export default class Init extends React.PureComponent {
   constructor(props) {
@@ -28,6 +29,6 @@ export default class Init extends React.PureComponent {
         <div className="pd3 aligncenter">loading...</div>
       )
     }
-    return <Main />
+    return <Main store={store} />
   }
 }

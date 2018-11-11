@@ -2,7 +2,7 @@
  * file section
  */
 
-import React from 'react'
+import {Component} from 'react-subx'
 import {Icon, Tooltip, message, Badge} from 'antd'
 import classnames from 'classnames'
 import copy from 'json-deep-copy'
@@ -20,7 +20,7 @@ const m = prefix('menu')
 const onDragCls = 'ondrag-tab'
 const onDragOverCls = 'dragover-tab'
 
-export default class Tab extends React.Component {
+export default class Tab extends Component {
 
   constructor(props) {
     super(props)
@@ -31,14 +31,6 @@ export default class Tab extends React.Component {
 
   componentDidMount() {
     this.dom = document.getElementById('id' + this.state.tab.id)
-  }
-
-  componentWillReceiveProps(nextProps) {
-    if (!_.isEqual(nextProps.tab, this.props.tab)) {
-      this.setState({
-        tab: copy(nextProps.tab)
-      })
-    }
   }
 
   clearCls = () => {
@@ -99,7 +91,7 @@ export default class Tab extends React.Component {
       return
     }
     let {id} = fromTab
-    let tabs = copy(this.props.tabs)
+    let tabs = copy(this.props.store.tabs)
     let indexFrom = _.findIndex(tabs, t => t.id === id)
     let indexDrop = _.findIndex(tabs, t => t.id === dropId)
     if (indexDrop > indexFrom) {
@@ -107,7 +99,7 @@ export default class Tab extends React.Component {
     }
     tabs.splice(indexFrom, 1)
     tabs.splice(indexDrop, 0, fromTab)
-    this.props.modifier({
+    this.props.store.modifier({
       tabs
     })
   }
@@ -119,11 +111,11 @@ export default class Tab extends React.Component {
     let {id} = tab
     tab.id = generate()
     tab.status = newTerm().status
-    let tabs = copy(this.props.tabs)
+    let tabs = copy(this.props.store.tabs)
     let index = _.findIndex(tabs, t => t.id === id)
     this.props.onClose(this.state.tab.id)
     await wait(30)
-    this.props.addTab(tab, index)
+    this.props.store.addTab(tab, index)
   }
 
   onDragEnd = e => {
@@ -134,7 +126,7 @@ export default class Tab extends React.Component {
 
   close = () => {
     this.props.onClose(this.state.tab.id)
-    if (this.props.tabs.length <= 1) {
+    if (this.props.store.tabs.length <= 1) {
       setTimeout(this.add, 1)
     }
   }
@@ -169,7 +161,7 @@ export default class Tab extends React.Component {
         tab
       })
     }
-    this.props.editTab(id, {title: titleTemp})
+    this.props.store.editTab(id, {title: titleTemp})
   }
 
   onChange = e => {
@@ -182,14 +174,15 @@ export default class Tab extends React.Component {
   }
 
   closeOther = () => {
-    this.props.modifier({
-      tabs: [this.props.tab],
-      currentTabId: this.props.tab.id
+    this.props.store.modifier({
+      tabs: [this.state.tab],
+      currentTabId: this.state.tab.id
     })
   }
 
   closeTabsRight = () => {
-    let {tabs, tab, currentTabId} = this.props
+    let {tabs, currentTabId} = this.props.store
+    let {tab} = this.state
     let index = _.findIndex(tabs, t => t.id === tab.id)
     tabs = tabs.slice(0, index + 1)
     let update = {
@@ -202,7 +195,8 @@ export default class Tab extends React.Component {
   }
 
   renderContext() {
-    let {tabs, tab} = this.props
+    let {tabs} = this.props.store
+    let {tab} = this.state
     let len = tabs.length
     let index = _.findIndex(tabs, t => t.id === tab.id)
     let nother = len === 1
@@ -274,7 +268,7 @@ export default class Tab extends React.Component {
     let {target} = e
     let rect = target.getBoundingClientRect()
     let content = this.renderContext()
-    this.props.openContextMenu({
+    this.props.store.openContextMenu({
       content,
       pos: {
         left: rect.left,
@@ -301,7 +295,9 @@ export default class Tab extends React.Component {
 
   render() {
     let {
-      currentTabId,
+      currentTabId
+    } = this.props.store
+    let {
       onChange,
       onDup
     } = this.props

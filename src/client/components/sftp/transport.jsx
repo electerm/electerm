@@ -25,7 +25,7 @@ const typeIconMap2 = {
 
 export default class Tranporter extends React.PureComponent {
 
-  componentWillMount() {
+  componentDidMount() {
     this.startTransfer()
   }
 
@@ -105,7 +105,7 @@ export default class Tranporter extends React.PureComponent {
     let {startTime} = this
     let finishTime = +new Date()
     let {size} = file
-    this.props.addTransferHistory({
+    this.props.store.addTransferHistory({
       id,
       fromPath,
       toPath,
