@@ -35,7 +35,7 @@ export default class ContextMenu extends Component {
           left: 0,
           top: 0
         },
-        content = <div />,
+        contentRender = () => null,
         className = 'context-menu'
       }
     } = this.props.store
@@ -45,7 +45,7 @@ export default class ContextMenu extends Component {
         className={cls}
         style={pos}
       >
-        {content}
+        {contentRender()}
       </div>
     )
   }

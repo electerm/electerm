@@ -11,7 +11,7 @@ import * as terminalThemes from '../common/terminal-theme'
 import {
   maxHistory,
   settingMap,
-  defaultookmarkGroupId,
+  defaultBookmarkGroupId,
   maxTransferHistory,
   statusMap
 } from '../common/constants'
@@ -33,8 +33,8 @@ window.getGlobal('setTitle')(title)
 let getDefaultBookmarkGroups = (bookmarks) => {
   return [
     {
-      title: t(defaultookmarkGroupId),
-      id: defaultookmarkGroupId,
+      title: t(defaultBookmarkGroupId),
+      id: defaultBookmarkGroupId,
       bookmarkIds: bookmarks.map(d => d.id)
     }
   ]
@@ -63,7 +63,7 @@ const store = Subx.create({
   contextMenuVisible: false,
   fileInfoModalProps: {},
   fileModeModalProps: {},
-  currentBookmarkGroupId: defaultookmarkGroupId,
+  currentBookmarkGroupId: defaultBookmarkGroupId,
   transferHistoryModalVisible: false,
   onCheckUpdating: false,
   selectedSessions: [],
@@ -164,7 +164,6 @@ const store = Subx.create({
       contextMenuVisible: true
     })
     let dom = document.getElementById('outside-context')
-    store.dom = dom
     dom.addEventListener('click', store.closeContextMenu)
   },
 
@@ -172,7 +171,8 @@ const store = Subx.create({
     store.setState({
       contextMenuVisible: false
     })
-    store.dom && store.dom.removeEventListener('click', store.closeContextMenu)
+    let dom = document.getElementById('outside-context')
+    dom && dom.removeEventListener('click', store.closeContextMenu)
   },
 
   onError (e) {
@@ -318,7 +318,7 @@ const store = Subx.create({
   },
 
   delBookmarkGroup ({id}) {
-    if (id === defaultookmarkGroupId) {
+    if (id === defaultBookmarkGroupId) {
       return
     }
     let {bookmarkGroups} = store
@@ -329,7 +329,7 @@ const store = Subx.create({
     if (tobeDel.bookmarkIds.length) {
       let defaultCatIndex = _.findIndex(
         bookmarkGroups,
-        g => g.id === defaultookmarkGroupId
+        g => g.id === defaultBookmarkGroupId
       )
       let def = bookmarkGroups[defaultCatIndex]
       def.bookmarkIds = [

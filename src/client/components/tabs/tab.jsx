@@ -269,7 +269,7 @@ export default class Tab extends Component {
     let rect = target.getBoundingClientRect()
     let content = this.renderContext()
     this.props.store.openContextMenu({
-      content,
+      contentRender: () => content,
       pos: {
         left: rect.left,
         top: rect.top + 20

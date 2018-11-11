@@ -255,7 +255,7 @@ export default class ResizeWrap extends React.Component {
       : this.pos
     this.pos = pos
     this.props.store.openContextMenu({
-      content,
+      contentRender: () => content,
       pos
     })
   }

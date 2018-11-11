@@ -11,6 +11,7 @@ import TextEditor from '../text-editor'
 import Control from '../control'
 import SessionControl from '../session-control'
 import store from '../../store'
+import recToJSON from '../../common/rec-to-json'
 import './wrapper.styl'
 
 const {getGlobal} = window
@@ -136,7 +137,7 @@ export default class Index extends Component {
                   <div className={cls} key={id}>
                     <Wrapper
                       store={store}
-                      tab={tab}
+                      tab={copy(tab)}
                       ref={ref => this[`term_${id}`] = ref}
                     />
                   </div>

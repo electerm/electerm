@@ -16,12 +16,13 @@ import InputAutoFocus from '../common/input-auto-focus'
 import _ from 'lodash'
 import {
   maxBookmarkGroupTitleLength,
-  defaultookmarkGroupId
+  defaultBookmarkGroupId
 } from '../../common/constants'
 import highlight from '../common/highlight'
 import copy from 'json-deep-copy'
 import Search from '../common/search'
 import Btns from './bookmark-transport'
+import recToJSON from '../../common/rec-to-json'
 import './tree-list.styl'
 
 const {TreeNode} = Tree
@@ -34,7 +35,7 @@ export default class ItemList extends Component {
 
   state = {
     keyword: '',
-    expandedKeys: [defaultookmarkGroupId],
+    expandedKeys: [defaultBookmarkGroupId],
     showNewBookmarkGroupForm: false,
     bookmarkGroupTitle: '',
     categoryTitle: '',
@@ -280,6 +281,7 @@ export default class ItemList extends Component {
       d => d.id === id
     )
     if (bookmark) {
+      bookmark = copy(bookmark)
       this.props.onClickItem(bookmark)
     }
   }
@@ -296,7 +298,7 @@ export default class ItemList extends Component {
   }
 
   renderDelBtn = item => {
-    if (item.id === defaultookmarkGroupId) {
+    if (item.id === defaultBookmarkGroupId) {
       return null
     }
     return (

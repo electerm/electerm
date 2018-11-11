@@ -217,7 +217,7 @@ export default class Term extends Component {
     let height = content.props.children.filter(_.identity)
       .length * contextMenuHeight + contextMenuPaddingTop * 2
     this.props.store.openContextMenu({
-      content,
+      contentRender: () => content,
       pos: computePos(e, height)
     })
   }

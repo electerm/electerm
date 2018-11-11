@@ -16,7 +16,7 @@ import {
   authTypeMap,
   settingMap,
   defaultUserName,
-  defaultookmarkGroupId
+  defaultBookmarkGroupId
 } from '../../common/constants'
 import {formItemLayout, tailFormItemLayout} from '../../common/form-layout'
 import InputAutoFocus from '../common/input-auto-focus'
@@ -85,7 +85,7 @@ export class BookmarkForm extends Component {
     let obj = _.find(bookmarkGroups, bg => {
       return bg.bookmarkIds.includes(id)
     })
-    return obj ? obj.id : defaultookmarkGroupId
+    return obj ? obj.id : defaultBookmarkGroupId
   }
 
   updateBookmarkGroups = (bookmarkGroups, bookmark, categoryId) => {
@@ -96,7 +96,7 @@ export class BookmarkForm extends Component {
     if (index < 0) {
       index = _.findIndex(
         bookmarkGroups,
-        bg => bg.id === defaultookmarkGroupId
+        bg => bg.id === defaultBookmarkGroupId
       )
     }
     let bg = bookmarkGroups[index]

@@ -10,6 +10,7 @@ import Tab from './tab'
 import MenuBtn from '../control/menu-btn'
 import './tabs.styl'
 import {tabWidth, tabMargin, isMac} from '../../common/constants'
+import copy from 'json-deep-copy'
 import createName from '../../common/create-title'
 
 const {prefix} = window
@@ -167,7 +168,7 @@ export default class Tabs extends Component {
                 return (
                   <Tab
                     {...this.props}
-                    tab={tab}
+                    tab={copy(tab)}
                     key={i + '##' + tab.id}
                   />
                 )
