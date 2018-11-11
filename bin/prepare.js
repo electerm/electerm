@@ -40,7 +40,7 @@ require('fs').writeFileSync(
 exec(`cd work/app && npm prune --production && cd ${cwd}`)
 
 //yarn auto clean
-cp('-r', 'build/.yarnclean', 'work/app/')
+cp('-r', 'bin/.yarnclean', 'work/app/')
 exec(`cd work/app && yarn generate-lock-entry > yarn.lock && yarn autoclean --force && cd ${cwd}`)
 rm('-rf',  'work/app/.yarnclean')
 rm('-rf',  'work/app/package-lock.json')
