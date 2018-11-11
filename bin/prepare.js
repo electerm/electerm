@@ -25,14 +25,14 @@ cp('-r', [
   'node_modules',
   'version'
 ], 'work/app/')
-mkdir('-p', 'work/app/assets/icons')
-cp(
-  [
-    'node_modules/electerm-resource/res/imgs/electerm-round-128x128.png',
-    'node_modules/electerm-resource/res/imgs/electerm.png'
-  ],
-  'work/app/assets/icons/'
-)
+// mkdir('-p', 'work/app/assets/icons')
+// cp(
+//   [
+//     'node_modules/electerm-resource/res/imgs/electerm-round-128x128.png',
+//     'node_modules/electerm-resource/res/imgs/electerm.png'
+//   ],
+//   'work/app/assets/icons/'
+// )
 rm('-rf',  'work/app/dev-app.js')
 rm('-rf',  'work/app/user-config.json')
 rm('-rf',  'work/app/localstorage.json')
