@@ -20,7 +20,7 @@
   <img src="https://github.com/electerm/electerm-resource/raw/master/static/images/electerm.gif", alt="" />
 </div>
 
-## Dowload
+## Download
 - https://electerm.html5beta.com
 - or from release: https://github.com/electerm/electerm/releases
 
@@ -62,7 +62,7 @@ npm i
 # start webpack dev server
 npm start
 
-# run app
+# in a separate terminal session run app
 npm run app
 ```
 
