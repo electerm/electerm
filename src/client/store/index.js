@@ -379,7 +379,14 @@ store.$.subscribe((event) => {
 
   else if (path.includes('themes') || path.includes('theme')) {
     window.postMessage({
-      type: 'theme-change'
+      type: 'theme-change',
+      id: 'all'
+    }, '*')
+  }
+  else if (path.includes('config')) {
+    window.postMessage({
+      type: 'config-change',
+      id: 'all'
     }, '*')
   }
 })

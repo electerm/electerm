@@ -76,11 +76,7 @@ export default class Term extends Component {
 
   componentDidUpdate(prevProps) {
     let shouldChange = (
-      prevProps.store.currentTabId !== this.props.store.currentTabId &&
       this.props.tab.id === this.props.store.currentTabId &&
-      this.props.pane === paneMap.terminal
-    ) || (
-      this.props.pane !== prevProps.pane &&
       this.props.pane === paneMap.terminal
     )
     let names = [
@@ -101,17 +97,6 @@ export default class Term extends Component {
     if (shouldChange) {
       this.term.focus()
     }
-    this.checkConfigChange(
-      prevProps,
-      this.props
-    )
-    let themeChanged = !_.isEqual(
-      this.props.store.getThemeConfig(),
-      prevProps.store.getThemeConfig()
-    )
-    if (themeChanged) {
-      this.term.setOption('theme', this.props.store.getThemeConfig())
-    }
   }
 
   componentWillUnmount() {
@@ -125,8 +110,8 @@ export default class Term extends Component {
     this.term && this.term.dispose()
     this.dom.removeEventListener('contextmenu', this.onContextMenu)
     window.removeEventListener(
-      'resize',
-      this.onResize
+      'message',
+      this.onMsg
     )
   }
 
@@ -151,16 +136,30 @@ export default class Term extends Component {
       : props.tab[name] || props.store.config[name]
   }
 
-  checkConfigChange = (prevProps, props) => {
+  onConfigChange = () => {
     for (let k of this.terminalConfigProps) {
       let {name, type} = k
-      let prev = this.getValue(prevProps, type, name)
-      let curr = this.getValue(props, type, name)
-      if (
-        prev !== curr
-      ) {
-        this.term.setOption(name, curr)
-      }
+      let curr = this.getValue(this.props, type, name)
+      this.term.setOption(name, curr)
+    }
+  }
+
+  onMsg = e => {
+    if (!e.data) {
+      return
+    }
+    let {
+      type,
+      id
+    } = e.data
+    if (id !== 'all' && id !== this.props.id) {
+      return
+    }
+    if (type === 'theme-change') {
+      this.setOption('theme', this.props.store.getThemeConfig())
+    }
+    else if (type === 'config-change') {
+      this.onConfigChange()
     }
   }
 
@@ -172,8 +171,8 @@ export default class Term extends Component {
     this.dom = dom
     dom.addEventListener('contextmenu', this.onContextMenu)
     window.addEventListener(
-      'resize',
-      this.onResize
+      'message',
+      this.onMsg
     )
   }
 
