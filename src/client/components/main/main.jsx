@@ -99,6 +99,9 @@ export default class Index extends Component {
       currentTabId,
       showControl
     } = store
+    let end = + new Date()
+    console.log('enter render', end)
+    console.log('use time', end - (window.start1 || end))
     return (
       <div>
         <SessionControl store={store} />

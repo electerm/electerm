@@ -63,6 +63,8 @@ export default class IndexControl extends Component {
   }
 
   onDup = tab => {
+    window.start = + new Date()
+    console.log('start double click', window.start)
     let index = _.findIndex(
       this.props.store.tabs,
       d => d.id === tab.id
@@ -79,6 +81,8 @@ export default class IndexControl extends Component {
   }
 
   onChange = currentTabId => {
+    window.start1 = + new Date()
+    console.log('start click', window.start1)
     this.props.store.modifier({currentTabId})
   }
 

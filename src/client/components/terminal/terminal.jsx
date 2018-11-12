@@ -438,6 +438,7 @@ export default class Term extends Component {
   count = 0
 
   setStatus = status => {
+    console.log('status', status)
     let {id} = this.props.tab
     this.props.store.editTab(id, {
       status

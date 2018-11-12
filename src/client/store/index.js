@@ -151,7 +151,7 @@ const store = Subx.create({
   addTransferHistory (item) {
     let transferHistory = [
       item,
-      ...store.transferHistory
+      ...copy(store.transferHistory)
     ].slice(0, maxTransferHistory)
     store.setState({
       transferHistory
@@ -198,7 +198,7 @@ const store = Subx.create({
   },
 
   addItem (item, type) {
-    let items = store[type]
+    let items = copy(store[type])
     items.unshift(item)
     if (type === settingMap.history && items.length > maxHistory) {
       items = items.slice(0, maxHistory)
@@ -209,7 +209,7 @@ const store = Subx.create({
   },
 
   editItem (id, update, type, mod = store.setStateLs) {
-    let items = store[type]
+    let items = copy(store[type])
     let item = _.find(items, t => t.id === id)
     let index = _.findIndex(items, t => t.id === id)
     Object.assign(item, update)
@@ -220,7 +220,7 @@ const store = Subx.create({
   },
 
   delItem ({id}, type) {
-    let items = store[type].filter(t => {
+    let items = copy(store[type]).filter(t => {
       return t.id !== id
     })
     store.setStateLs({
@@ -229,7 +229,7 @@ const store = Subx.create({
   },
 
   addTab (tab, index = store.tabs.length)  {
-    let tabs = store.tabs
+    let tabs = copy(store.tabs)
     tabs.splice(index, 0, tab)
     store.modifier({
       tabs,
@@ -242,7 +242,7 @@ const store = Subx.create({
   },
 
   delTab ({id}) {
-    let tabs = store.tabs.filter(t => {
+    let tabs = copy(store.tabs).filter(t => {
       return t.id !== id
     })
     let {currentTabId} = store
@@ -257,7 +257,7 @@ const store = Subx.create({
   },
 
   addTheme (theme) {
-    let {themes} = store
+    let themes = copy(store.themes)
     themes = [
       theme,
       ...themes
@@ -269,7 +269,7 @@ const store = Subx.create({
   },
 
   editTheme (id, update) {
-    let items = store.themes
+    let items = copy(store.themes)
     let item = _.find(items, t => t.id === id)
     let index = _.findIndex(items, t => t.id === id)
     Object.assign(item, update)
@@ -281,7 +281,7 @@ const store = Subx.create({
   },
 
   delTheme ({id}) {
-    let themes = store.themes.filter(t => {
+    let themes = copy(store.themes).filter(t => {
       return t.id !== id
     })
     let {theme} = store
@@ -296,7 +296,7 @@ const store = Subx.create({
   },
 
   addBookmarkGroup (group) {
-    let {bookmarkGroups} = store
+    let bookmarkGroups = copy(store.bookmarkGroups)
     bookmarkGroups = [
       ...bookmarkGroups,
       group
@@ -307,7 +307,7 @@ const store = Subx.create({
   },
 
   editBookmarkGroup (id, update) {
-    let items = store.bookmarkGroups
+    let items = copy(store.bookmarkGroups)
     let item = _.find(items, t => t.id === id)
     let index = _.findIndex(items, t => t.id === id)
     Object.assign(item, update)
@@ -321,7 +321,7 @@ const store = Subx.create({
     if (id === defaultBookmarkGroupId) {
       return
     }
-    let {bookmarkGroups} = store
+    let bookmarkGroups = copy(store.bookmarkGroups)
     let tobeDel = _.find(bookmarkGroups, bg => bg.id === id)
     if (!tobeDel) {
       return
@@ -356,10 +356,9 @@ const store = Subx.create({
     terminalThemes.setTheme(id)
   }
   //end
-})
+}, true)
 
-store.set$.subscribe((event) => {
-  console.log(event)
+store.$.subscribe((event) => {
   let {type, path} = event
   if (
     type === 'SET' &&

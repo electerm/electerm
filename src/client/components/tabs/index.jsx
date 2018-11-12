@@ -48,7 +48,7 @@ export default class Tabs extends Component {
   }
 
   onAdd = e => {
-    if (!e.target.className.includes('tabs-wrapper')) {
+    if (!e.target.classList.contains('tabs-wrapper')) {
       return
     }
     this.props.onAdd()

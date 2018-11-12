@@ -18,7 +18,7 @@ export default memo(props => {
     let {
       bookmarkGroups,
       bookmarks
-    } = props
+    } = props.store
     let txt = JSON.stringify({
       bookmarkGroups,
       bookmarks
@@ -36,8 +36,8 @@ export default memo(props => {
         bookmarkGroups: bookmarkGroups1,
         bookmarks: bookmarks1
       } = content
-      let bookmarkGroups = copy(props.bookmarkGroups)
-      let bookmarks = copy(props.bookmarks)
+      let bookmarkGroups = copy(props.store.bookmarkGroups)
+      let bookmarks = copy(props.store.bookmarks)
       let bmTree = bookmarks.reduce((p, v) => {
         return {
           ...p,
@@ -73,13 +73,13 @@ export default memo(props => {
           )
         }
       })
-      props.modifier({
+      props.store.modifier({
         bookmarkGroups,
         bookmarks
       })
     } catch(e) {
       console.log(e.stack)
-      props.onError(e)
+      props.store.onError(e)
     }
     return false
   }

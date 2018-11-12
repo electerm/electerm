@@ -3,7 +3,7 @@ import SubX from 'subx'
 import * as R from 'ramda'
 
 export class Component extends React.Component {
-  constructor (props) {
+  constructor (props = {}) {
     super(props)
     const clearSubscription = () => {
       if (this.__subscription__) {
@@ -14,7 +14,7 @@ export class Component extends React.Component {
     const render = this.render.bind(this)
     this.render = () => {
       clearSubscription()
-      const { result, stream$ } = SubX.runAndMonitor(SubX.create(props), render)
+      const { result, stream$ } = SubX.runAndMonitor(props.store || SubX.create(props), render)
       this.__subscription__ = stream$.subscribe(event => {
         if (event.type === 'STALE' && R.equals(R.path(event.path, props), event.cache)) {
           return
