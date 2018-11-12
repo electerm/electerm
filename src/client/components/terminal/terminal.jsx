@@ -123,6 +123,11 @@ export default class Term extends Component {
     this.onClose = true
     this.socket && this.socket.close()
     this.term && this.term.dispose()
+    this.dom.removeEventListener('contextmenu', this.onContextMenu)
+    window.removeEventListener(
+      'resize',
+      this.onResize
+    )
   }
 
   terminalConfigProps = [
@@ -382,7 +387,8 @@ export default class Term extends Component {
     let {id} = this.state
     //let {password, privateKey, host} = this.props.tab
     let { tab = {} } = this.props
-    let {themeConfig, config = {}} = this.props.store
+    let {config = {}} = this.props.store
+    let themeConfig = this.props.store.getThemeConfig()
     let term = new Terminal({
       scrollback: config.scrollback,
       rightClickSelectsWord: config.rightClickSelectsWord || false,

@@ -140,27 +140,29 @@ export default class Tab extends Component {
   }
 
   doRename = () => {
-    let tab = copy(this.state.tab)
-    tab.titleTemp = tab.title || ''
-    tab.isEditting = true
-    this.setState({
-      tab
+    this.setState(s => {
+      return {
+        tab: {
+          ...copy(s.tab),
+          isEditting: true,
+          titleTemp: s.tab.title || ''
+        }
+      }
     })
   }
 
   onBlur = () => {
     let tab = copy(this.state.tab)
-    let {titleTemp, title, id, host} = tab
+    let {titleTemp, id, host} = tab
     if (!titleTemp && !host) {
       return message.warn(e('titleEmptyWarn'))
     }
-    if (title === titleTemp) {
-      delete tab.titleTemp
-      delete tab.isEditting
-      return this.setState({
-        tab
-      })
-    }
+    tab.title = titleTemp
+    delete tab.titleTemp
+    delete tab.isEditting
+    this.setState({
+      tab
+    })
     this.props.store.editTab(id, {title: titleTemp})
   }
 

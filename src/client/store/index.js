@@ -376,6 +376,12 @@ store.$.subscribe((event) => {
       ls.set('sessions', store.tabs)
     }
   }
+
+  else if (path.includes('themes') || path.includes('theme')) {
+    window.postMessage({
+      type: 'theme-change'
+    }, '*')
+  }
 })
 
 export default store

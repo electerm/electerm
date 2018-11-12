@@ -16,7 +16,7 @@ export class Component extends React.Component {
       clearSubscription()
       const { result, stream$ } = SubX.runAndMonitor(props.store || SubX.create(props), render)
       this.__subscription__ = stream$.subscribe(event => {
-        if (event.type === 'STALE' && R.equals(R.path(event.path, props), event.cache)) {
+        if (event.type === 'STALE' && R.equals(R.path(event.path, props.store || props), event.cache)) {
           return
         }
         clearSubscription()

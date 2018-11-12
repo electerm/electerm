@@ -99,9 +99,6 @@ export default class Index extends Component {
       currentTabId,
       showControl
     } = store
-    let end = + new Date()
-    console.log('enter render', end)
-    console.log('use time', end - (window.start1 || end))
     return (
       <div>
         <SessionControl store={store} />
@@ -143,7 +140,7 @@ export default class Index extends Component {
                   <div className={cls} key={id}>
                     <Wrapper
                       store={store}
-                      tab={copy(tab)}
+                      tab={tab}
                       ref={ref => this[`term_${id}`] = ref}
                     />
                   </div>
