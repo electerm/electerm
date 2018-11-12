@@ -25,14 +25,6 @@ cp('-r', [
   'node_modules',
   'version'
 ], 'work/app/')
-mkdir('-p', 'work/app/assets/icons')
-cp(
-  [
-    'node_modules/electerm-resource/res/imgs/electerm-round-128x128.png',
-    'node_modules/electerm-resource/res/imgs/electerm.png'
-  ],
-  'work/app/assets/icons/'
-)
 rm('-rf',  'work/app/dev-app.js')
 rm('-rf',  'work/app/user-config.json')
 rm('-rf',  'work/app/localstorage.json')
@@ -48,7 +40,7 @@ require('fs').writeFileSync(
 exec(`cd work/app && npm prune --production && cd ${cwd}`)
 
 //yarn auto clean
-cp('-r', 'build/.yarnclean', 'work/app/')
+cp('-r', 'bin/.yarnclean', 'work/app/')
 exec(`cd work/app && yarn generate-lock-entry > yarn.lock && yarn autoclean --force && cd ${cwd}`)
 rm('-rf',  'work/app/.yarnclean')
 rm('-rf',  'work/app/package-lock.json')

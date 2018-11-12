@@ -145,7 +145,7 @@ var config = {
       },
       {
         test: /\.(png|jpg|svg)$/,
-        use: ['url-loader?limit=1&name=images/[hash].[ext]']
+        use: ['url-loader?limit=1&name=images/[name].[ext]']
       },
       {
         test: /\.pug$/,
