@@ -4,6 +4,7 @@
  */
 
 import {notification} from 'antd'
+import {generate} from 'shortid'
 import Subx from 'subx'
 import newTerm from '../common/new-terminal'
 import copy from 'json-deep-copy'
@@ -228,13 +229,25 @@ const store = Subx.create({
     })
   },
 
-  addTab (tab, index = store.tabs.length)  {
+  addTab (tab = newTerm(), index = store.tabs.length)  {
     let tabs = copy(store.tabs)
     tabs.splice(index, 0, tab)
     store.modifier({
       tabs,
       currentTabId: tab.id
     })
+  },
+
+  duplicateTab (tab) {
+    let index = _.findIndex(
+      store.tabs,
+      d => d.id === tab.id
+    )
+    store.addTab({
+      ...tab,
+      status: newTerm().status,
+      id: generate()
+    }, index + 1)
   },
 
   editTab (id, update) {

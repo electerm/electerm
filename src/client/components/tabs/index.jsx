@@ -54,7 +54,7 @@ export default class Tabs extends Component {
     if (!e.target.classList.contains('tabs-wrapper')) {
       return
     }
-    this.props.onAdd()
+    this.props.store.addTab()
   }
 
   adjustScroll = () => {
@@ -114,7 +114,7 @@ export default class Tabs extends Component {
         type="plus-circle-o"
         title={e('openNewTerm')}
         className="pointer tabs-add-btn font16"
-        onClick={this.props.onAdd}
+        onClick={() => this.props.store.addTab()}
       />
     )
   }

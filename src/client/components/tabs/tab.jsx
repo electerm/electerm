@@ -126,16 +126,12 @@ export default class Tab extends Component {
   close = () => {
     this.props.onClose(this.props.tab.id)
     if (this.props.store.tabs.length <= 1) {
-      setTimeout(this.add, 1)
+      setTimeout(() => this.props.store.addTab(), 1)
     }
   }
 
   dup = () => {
-    this.props.onDup(this.props.tab)
-  }
-
-  add = () => {
-    this.props.onAdd()
+    this.props.store.duplicateTab(this.props.tab)
   }
 
   doRename = () => {
@@ -233,7 +229,7 @@ export default class Tab extends Component {
 
         <div
           className={cls}
-          onClick={this.add}
+          onClick={() => this.props.store.addTab}
         >
           <Icon type="code-o" /> {e('newTab')}
         </div>
@@ -291,11 +287,11 @@ export default class Tab extends Component {
 
   render() {
     let {
-      currentTabId
+      currentTabId,
+      duplicateTab
     } = this.props.store
     let {
       onChange,
-      onDup,
       tab
     } = this.props
     let {isEditting} = this.state
@@ -330,7 +326,7 @@ export default class Tab extends Component {
           <div
             className="tab-title elli pd1x"
             onClick={() => onChange(id)}
-            onDoubleClick={() => onDup(tab)}
+            onDoubleClick={() => duplicateTab(tab)}
             onContextMenu={this.onContextMenu}
           >
             <Badge status={status} />

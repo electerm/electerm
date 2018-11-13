@@ -36,6 +36,7 @@ const pug = {
   options: {
     data: {
       version,
+      env: isProd ? 'production' : 'development',
       _global: {
         version
       }

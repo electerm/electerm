@@ -8,7 +8,6 @@ import _ from 'lodash'
 import copy from 'json-deep-copy'
 import {statusMap, settingMap} from '../../common/constants'
 import './control.styl'
-import newTerm from '../../common/new-terminal'
 import SettingModal from '../setting-panel/setting-modal'
 import TransferHistoryModal from './transfer-history-modal'
 import store from '../../store'
@@ -60,24 +59,6 @@ export default class IndexControl extends Component {
         return old
       })
     }
-  }
-
-  onDup = tab => {
-    window.start = + new Date()
-    console.log('start double click', window.start)
-    let index = _.findIndex(
-      this.props.store.tabs,
-      d => d.id === tab.id
-    )
-    this.props.store.addTab({
-      ...tab,
-      status: defaultStatus,
-      id: generate()
-    }, index + 1)
-  }
-
-  onAdd = () => {
-    this.props.store.addTab(newTerm())
   }
 
   onChange = currentTabId => {
@@ -207,9 +188,9 @@ export default class IndexControl extends Component {
       list,
       tab,
       ..._.pick(this, [
-        'onAdd', 'onChange', 'onClose',
+        'onChange', 'onClose',
         'hideModal', 'onDelItem',
-        'onDup', 'onNewSsh', 'openSetting',
+        'onNewSsh', 'openSetting',
         'onChangeTab', 'openTerminalThemes',
         'onEditBookmark', 'onSelectHistory', 'onSelectBookmark', 'onChangeTab'
       ]),

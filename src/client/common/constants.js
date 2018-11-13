@@ -11,6 +11,8 @@ const buildConst = (props) => {
   }, {})
 }
 
+export const logoPath1 = require('node_modules/electerm-resource/res/imgs/electerm-round-128x128.png').replace(/^\//, '')
+export const logoPath2 = require('node_modules/electerm-resource/res/imgs/electerm.png').replace(/^\//, '')
 export const maxEditFileSize = 1024 * 30
 export const defaultUserName = 'root'
 export const defaultBookmarkGroupId = 'default'
