@@ -39,6 +39,7 @@ describe('tabs', function () {
     expect(tabs0.value.length).equal(tabsLenBefore + 1)
     let wraps = await client.elements('.ui-outer > div')
     expect(wraps.value.length).equal(tabsLenBefore + 1)
+    await delay(500)
   })
 
 })
