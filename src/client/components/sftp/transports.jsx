@@ -20,7 +20,7 @@ export default class Transports extends Component {
     }
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate() {
     this.rebuildState()
   }
 
