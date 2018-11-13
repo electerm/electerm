@@ -14,7 +14,7 @@ import copy from 'json-deep-copy'
 const {prefix} = window
 const e = prefix('sftp')
 const formatTime = time
-console.log(_, '_____fddf')
+
 export default class FileMode extends Component {
 
   constructor(props) {
@@ -22,7 +22,6 @@ export default class FileMode extends Component {
     this.state = {
       file: copy(props.store.fileModeModalProps.file)
     }
-    console.log(this.state)
   }
 
   addPermission = file => {

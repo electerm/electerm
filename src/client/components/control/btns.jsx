@@ -48,10 +48,10 @@ export default class Btns extends Component {
       onEditBookmark,
       bookmarkId,
       onNewSsh,
-      openTransferHistory,
       modifier2,
       openTerminalThemes
     } = this.props
+    let {openTransferHistory} = this.props.store
     let minimize = () => {
       window.getGlobal('minimize')()
     }
@@ -207,10 +207,9 @@ export default class Btns extends Component {
           {
             transferHistory.length
               ? (
-                <Button
-                  className="mg2l iblock"
-                  type="ghost"
-                  icon="swap"
+                <Icon
+                  className="mg2l font16 pointer iblock control-icon"
+                  type="swap"
                   onClick={openTransferHistory}
                   title={h('transferHistory')}
                 />

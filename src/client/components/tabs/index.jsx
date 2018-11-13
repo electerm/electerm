@@ -25,14 +25,17 @@ export default class Tabs extends Component {
   componentDidMount() {
     this.dom = document.querySelector('.tabs-inner')
     window.addEventListener('keydown', this.handleTabHotkey)
-  }
-
-  componentDidUpdate() {
-    this.adjustScroll()
+    window.addEventListener('message', this.onAdjustScroll)
   }
 
   componentWillUnmount() {
     window.removeEventListener('keydown', this.handleTabHotkey)
+  }
+
+  onAdjustScroll = (e) => {
+    if (e.data && e.data.type === 'tab-change') {
+      this.adjustScroll()
+    }
   }
 
   handleTabHotkey = e => {

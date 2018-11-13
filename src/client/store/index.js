@@ -375,6 +375,9 @@ store.$.subscribe((event) => {
     if (path.includes('tabs')) {
       ls.set('sessions', store.tabs)
     }
+    window.postMessage({
+      type: 'tab-change'
+    }, '*')
   }
 
   else if (path.includes('themes') || path.includes('theme')) {

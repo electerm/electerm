@@ -21,11 +21,7 @@ export default class Transports extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    if (
-      !_.isEqual(this.props.store.transports, prevProps.store.transports)
-    ) {
-      this.rebuildState()
-    }
+    this.rebuildState()
   }
 
   componentWillUnmount() {
@@ -80,7 +76,7 @@ export default class Transports extends Component {
   }
 
   rebuildState = (nextProps = this.props) => {
-    let {transports} = nextProps.store
+    let {transports} = nextProps
     let {currentTransport} = this.state
     let has = _.find(transports, t => t.id === _.get(currentTransport, 'id'))
     if (!has) {

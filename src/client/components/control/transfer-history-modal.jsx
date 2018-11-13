@@ -94,7 +94,7 @@ export default class TransferHistoryModal extends Component {
               className="iblock pointer"
               onClick={clearTransferHistory}
             >
-              <Icon type="close" className="mg1r" />
+              <Icon type="close-circle" theme="filled" className="mg1r" />
               {e('clear')}
             </span>
           </div>

@@ -81,8 +81,6 @@ export default class IndexControl extends Component {
   }
 
   onChange = currentTabId => {
-    window.start1 = + new Date()
-    console.log('start click', window.start1)
     this.props.store.modifier({currentTabId})
   }
 
