@@ -307,7 +307,6 @@ export default class Setting extends Component {
         {this.renderToggle('rightClickSelectsWord')}
         {this.renderToggle('copyWhenSelect')}
         {this.renderToggle('pasteWhenContextMenu')}
-        {this.renderToggle('pasteWhenContextMenu')}
         {this.renderReset()}
       </div>
     )
