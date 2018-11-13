@@ -2,7 +2,7 @@
  * tree list for bookmarks
  */
 
-import React from 'react'
+import {Component} from '../common/react-subx'
 import {
   Icon,
   Popconfirm,
@@ -16,7 +16,7 @@ import InputAutoFocus from '../common/input-auto-focus'
 import _ from 'lodash'
 import {
   maxBookmarkGroupTitleLength,
-  defaultookmarkGroupId
+  defaultBookmarkGroupId
 } from '../../common/constants'
 import highlight from '../common/highlight'
 import copy from 'json-deep-copy'
@@ -30,11 +30,11 @@ const e = prefix('menu')
 const c = prefix('common')
 const s = prefix('setting')
 
-export default class ItemList extends React.PureComponent {
+export default class ItemList extends Component {
 
   state = {
     keyword: '',
-    expandedKeys: [defaultookmarkGroupId],
+    expandedKeys: [defaultBookmarkGroupId],
     showNewBookmarkGroupForm: false,
     bookmarkGroupTitle: '',
     categoryTitle: '',
@@ -80,7 +80,7 @@ export default class ItemList extends React.PureComponent {
       return
     }
     let bookmarkGroups = copy(
-      this.props.bookmarkGroups
+      this.props.store.bookmarkGroups
     )
     let obj = _.find(
       bookmarkGroups,
@@ -93,7 +93,7 @@ export default class ItemList extends React.PureComponent {
     this.setState({
       categoryId: ''
     })
-    this.props.modifyLs({
+    this.props.store.modifyLs({
       bookmarkGroups
     })
   }
@@ -198,7 +198,7 @@ export default class ItemList extends React.PureComponent {
         )
       }
     }
-    this.props.modifyLs({
+    this.props.store.modifyLs({
       bookmarkGroups
     })
   }
@@ -232,7 +232,7 @@ export default class ItemList extends React.PureComponent {
       showNewBookmarkGroupForm: false
     }, () => {
       this.onSubmit = false
-      this.props.addBookmarkGroup({
+      this.props.store.addBookmarkGroup({
         id: generate(),
         title: this.state.bookmarkGroupTitle,
         bookmarkIds: []
@@ -250,9 +250,9 @@ export default class ItemList extends React.PureComponent {
   del = (item, e) => {
     e.stopPropagation()
     if (item.bookmarkIds) {
-      return this.props.delBookmarkGroup(item)
+      return this.props.store.delBookmarkGroup(item)
     }
-    this.props.delItem(item, this.props.type)
+    this.props.store.delItem(item, this.props.type)
     this.props.onDelItem(item, this.props.type)
   }
 
@@ -270,16 +270,17 @@ export default class ItemList extends React.PureComponent {
   ) => {
     let [id] = selectedKeys
     if (!node.props.isLeaf) {
-      this.props.modifier({
+      this.props.store.modifier({
         currentBookmarkGroupId: id
       })
     }
-    let {bookmarks} = this.props
+    let {bookmarks} = this.props.store
     let bookmark = _.find(
       bookmarks,
       d => d.id === id
     )
     if (bookmark) {
+      bookmark = copy(bookmark)
       this.props.onClickItem(bookmark)
     }
   }
@@ -296,7 +297,7 @@ export default class ItemList extends React.PureComponent {
   }
 
   renderDelBtn = item => {
-    if (item.id === defaultookmarkGroupId) {
+    if (item.id === defaultBookmarkGroupId) {
       return null
     }
     return (
@@ -397,7 +398,7 @@ export default class ItemList extends React.PureComponent {
 
   renderChildNodes = bookmarkIds => {
     let bookmarks = this.filter(
-      this.props.bookmarks
+      this.props.store.bookmarks
     )
     let map = bookmarks.reduce((p, b) => {
       return {
@@ -509,10 +510,12 @@ export default class ItemList extends React.PureComponent {
 
   render() {
     let {
-      bookmarkGroups,
       type,
       activeItemId
-    } = this.props
+    } = this.props.store
+    let {
+      bookmarkGroups
+    } = this.props.store
     let {expandedKeys, keyword} = this.state
     return (
       <div className={`tree-list item-type-${type}`}>

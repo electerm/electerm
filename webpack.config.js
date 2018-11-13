@@ -167,7 +167,9 @@ var config = {
   devtool: '#eval-source-map',
   plugins: [
     new webpack.HotModuleReplacementPlugin(),
-    new LodashModuleReplacementPlugin(),
+    new LodashModuleReplacementPlugin({
+      'paths': true
+    }),
     stylusSettingPlugin,
     packThreadCount === 0 ? null : new HappyPack(happyConf),
     extractTextPlugin1

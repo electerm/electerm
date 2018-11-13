@@ -1,31 +1,12 @@
 /**
  * context menu
  */
-import React from 'react'
+import {Component} from './react-subx'
 import ReactDOM from 'react-dom'
-import PropTypes from 'prop-types'
 import './context-menu.styl'
 import findParent from '../../common/find-parent'
 
-export default class ContextMenu extends React.PureComponent {
-
-  static propTypes = {
-    content: PropTypes.element.isRequired,
-    visible: PropTypes.bool,
-    position: PropTypes.object,
-    className: PropTypes.string,
-    closeContext: PropTypes.func
-  }
-
-  static defaultProps = {
-    content: <div />,
-    visible: false,
-    pos: {
-      left: 0,
-      top: 0
-    },
-    className: 'context-menu'
-  }
+export default class ContextMenu extends Component {
 
   componentDidMount() {
     ReactDOM.findDOMNode(this)
@@ -36,26 +17,35 @@ export default class ContextMenu extends React.PureComponent {
           p &&
           !p.classList.contains('no-auto-close-context')
         ) {
-          this.props.closeContextMenu()
+          this.props.store.closeContextMenu()
         }
       })
     window.addEventListener('message', e => {
       if (e.data && e.data.type && e.data.type === 'close-context-menu') {
-        this.props.closeContextMenu()
+        this.props.store.closeContextMenu()
       }
     })
   }
 
   render () {
-    let {visible, pos, content, className} = this.props
-    let cls = `${className} ${visible ? 'show' : 'hide'}`
-
+    let {
+      contextMenuVisible = false,
+      contextMenuProps: {
+        pos = {
+          left: 0,
+          top: 0
+        },
+        contentRender = () => null,
+        className = 'context-menu'
+      }
+    } = this.props.store
+    let cls = `${className} ${contextMenuVisible ? 'show' : 'hide'}`
     return (
       <div
         className={cls}
         style={pos}
       >
-        {content}
+        {contentRender()}
       </div>
     )
   }

@@ -5,3 +5,4 @@ git co master
 git pull
 git delete-branch release
 git create-branch release
+git push origin release -u

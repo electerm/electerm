@@ -17,7 +17,7 @@ export default class Transports extends React.PureComponent {
     }
   }
 
-  componentWillMount() {
+  componentDidMount() {
     this.mvOrCp()
   }
 

@@ -3,12 +3,12 @@
  */
 
 import {generate} from 'shortid'
-
+import {statusMap} from './constants'
 const {prefix} = window
 const e = prefix('control')
 
 export default () => ({
   id: generate(),
-  status: defaultStatus,
+  status: statusMap.default,
   title: e('newTerminal')
 })

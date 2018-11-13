@@ -2,7 +2,7 @@
 /**
  * terminal/sftp wrapper
  */
-import React from 'react'
+import {Component} from '../common/react-subx'
 import Term from './terminal'
 import Sftp from '../sftp'
 import {Icon} from 'antd'
@@ -43,7 +43,7 @@ const {prefix} = window
 const e = prefix('ssh')
 const m = prefix('menu')
 
-export default class WindowWrapper extends React.PureComponent  {
+export default class WindowWrapper extends Component {
 
   constructor(props) {
     super(props)
@@ -79,7 +79,7 @@ export default class WindowWrapper extends React.PureComponent  {
   }
 
   isActive() {
-    return this.props.currentTabId === this.props.tab.id &&
+    return this.props.store.currentTabId === this.props.tab.id &&
       this.state.pane === paneMap.terminal
   }
 
@@ -93,8 +93,8 @@ export default class WindowWrapper extends React.PureComponent  {
   }
 
   computeHeight = () => {
-    let {showControl} = this.props
-    return this.props.height -
+    let {showControl} = this.props.store
+    return this.props.store.height -
       (showControl ? topMenuHeight : 0) - tabsHeight
   }
 
@@ -153,7 +153,7 @@ export default class WindowWrapper extends React.PureComponent  {
 
   computePosition = (index) => {
     let len = this.state.terminals.length || 1
-    let {width: windowWidth} = this.props
+    let {width: windowWidth} = this.props.store
     let {splitDirection} = this.state
     let isHori = splitDirection === terminalSplitDirectionMap.horizontal
     let heightAll = this.computeHeight()
@@ -184,7 +184,8 @@ export default class WindowWrapper extends React.PureComponent  {
       : 'terms-box bg-black hide'
     let {props} = this
     let height = this.computeHeight()
-    let {width, tab} = props
+    let {tab} = props
+    let {width} = props.store
     return (
       <div
         className={cls}
@@ -234,6 +235,7 @@ export default class WindowWrapper extends React.PureComponent  {
         <Sftp
           {...props}
           height={height}
+          width={props.store.width}
           pane={pane}
         />
       </div>

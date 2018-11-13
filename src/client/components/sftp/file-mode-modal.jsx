@@ -2,7 +2,7 @@
  * file props
  */
 
-import React from 'react'
+import {Component} from 'react'
 import {Icon, Modal, Button} from 'antd'
 import resolve from '../../common/resolve'
 import time from '../../common/time'
@@ -15,12 +15,12 @@ const {prefix} = window
 const e = prefix('sftp')
 const formatTime = time
 
-export default class FileMode extends React.PureComponent {
+export default class FileMode extends Component {
 
   constructor(props) {
     super(props)
     this.state = {
-      file: copy(props.file)
+      file: copy(props.store.fileModeModalProps.file)
     }
   }
 
@@ -42,7 +42,9 @@ export default class FileMode extends React.PureComponent {
     _.update(
       perms,
       `[${i}].permission.${permName}`,
-      b => !b
+      b => {
+        return !b
+      }
     )
     let permission = permission2mode(perms)
     let mode = new Number('0o' + '10' + permission)
@@ -56,7 +58,7 @@ export default class FileMode extends React.PureComponent {
   }
 
   onSubmit = () => {
-    this.props.changeFileMode(
+    this.props.store.fileModeModalProps.changeFileMode(
       this.state.file
     )
   }
@@ -77,11 +79,14 @@ export default class FileMode extends React.PureComponent {
       visible,
       tab,
       onClose
-    } = this.props
+    } = this.props.store.fileModeModalProps
     if (!visible) {
       return null
     }
     let {file} = this.state
+    if (!file) {
+      return null
+    }
     let {
       name,
       size,

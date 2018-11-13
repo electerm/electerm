@@ -2,13 +2,12 @@
  * file section
  */
 
-import React from 'react'
+import {Component} from '../common/react-subx'
 import {Icon, Tooltip, message, Badge} from 'antd'
 import classnames from 'classnames'
 import copy from 'json-deep-copy'
 import _ from 'lodash'
 import Input from '../common/input-auto-focus'
-import wait from '../../common/wait'
 import createName from '../../common/create-title'
 import {addClass, removeClass} from '../../common/class'
 import {generate} from 'shortid'
@@ -20,25 +19,15 @@ const m = prefix('menu')
 const onDragCls = 'ondrag-tab'
 const onDragOverCls = 'dragover-tab'
 
-export default class Tab extends React.Component {
+export default class Tab extends Component {
 
-  constructor(props) {
-    super(props)
-    this.state = {
-      tab: copy(props.tab)
-    }
+  state = {
+    isEditting: false,
+    titleTemp: ''
   }
 
   componentDidMount() {
-    this.dom = document.getElementById('id' + this.state.tab.id)
-  }
-
-  componentWillReceiveProps(nextProps) {
-    if (!_.isEqual(nextProps.tab, this.props.tab)) {
-      this.setState({
-        tab: copy(nextProps.tab)
-      })
-    }
+    this.dom = document.getElementById('id' + this.props.tab.id)
   }
 
   clearCls = () => {
@@ -78,7 +67,7 @@ export default class Tab extends React.Component {
   onDragStart = e => {
     //debug('ondragstart')
     //debug(e.target)
-    e.dataTransfer.setData('fromFile', JSON.stringify(this.state.tab))
+    e.dataTransfer.setData('fromFile', JSON.stringify(this.props.tab))
     //e.effectAllowed = 'copyMove'
   }
 
@@ -99,7 +88,7 @@ export default class Tab extends React.Component {
       return
     }
     let {id} = fromTab
-    let tabs = copy(this.props.tabs)
+    let tabs = copy(this.props.store.tabs)
     let indexFrom = _.findIndex(tabs, t => t.id === id)
     let indexDrop = _.findIndex(tabs, t => t.id === dropId)
     if (indexDrop > indexFrom) {
@@ -107,23 +96,25 @@ export default class Tab extends React.Component {
     }
     tabs.splice(indexFrom, 1)
     tabs.splice(indexDrop, 0, fromTab)
-    this.props.modifier({
+    this.props.store.modifier({
       tabs
     })
   }
 
   reloadTab = async () => {
     let tab = copy(
-      this.state.tab
+      this.props.tab
     )
     let {id} = tab
     tab.id = generate()
     tab.status = newTerm().status
-    let tabs = copy(this.props.tabs)
+    let tabs = copy(this.props.store.tabs)
     let index = _.findIndex(tabs, t => t.id === id)
-    this.props.onClose(this.state.tab.id)
-    await wait(30)
-    this.props.addTab(tab, index)
+    tabs.splice(index, 1, tab)
+    this.props.store.modifier({
+      tabs,
+      currentTabId: tab.id
+    })
   }
 
   onDragEnd = e => {
@@ -133,8 +124,8 @@ export default class Tab extends React.Component {
   }
 
   close = () => {
-    this.props.onClose(this.state.tab.id)
-    if (this.props.tabs.length <= 1) {
+    this.props.onClose(this.props.tab.id)
+    if (this.props.store.tabs.length <= 1) {
       setTimeout(this.add, 1)
     }
   }
@@ -148,48 +139,46 @@ export default class Tab extends React.Component {
   }
 
   doRename = () => {
-    let tab = copy(this.state.tab)
-    tab.titleTemp = tab.title || ''
-    tab.isEditting = true
-    this.setState({
-      tab
+    this.setState((s, props) => {
+      return {
+        isEditting: true,
+        titleTemp: props.tab.title || ''
+      }
     })
   }
 
-  onBlur = () => {
-    let tab = copy(this.state.tab)
-    let {titleTemp, title, id, host} = tab
+  onBlur = (e) => {
+    e.preventDefault()
+    let tab = copy(this.props.tab)
+    let {titleTemp} = this.state
+    let {id, host} = tab
     if (!titleTemp && !host) {
       return message.warn(e('titleEmptyWarn'))
     }
-    if (title === titleTemp) {
-      delete tab.titleTemp
-      delete tab.isEditting
-      return this.setState({
-        tab
-      })
-    }
-    this.props.editTab(id, {title: titleTemp})
+    this.setState({
+      isEditting: false
+    })
+    this.props.store.editTab(id, {title: titleTemp})
   }
 
   onChange = e => {
     let titleTemp = e.target.value
-    let tab = copy(this.state.tab)
-    tab.titleTemp = titleTemp
     this.setState({
-      tab
+      titleTemp
     })
   }
 
   closeOther = () => {
-    this.props.modifier({
+    this.props.store.modifier({
       tabs: [this.props.tab],
       currentTabId: this.props.tab.id
     })
   }
 
   closeTabsRight = () => {
-    let {tabs, tab, currentTabId} = this.props
+    let {currentTabId} = this.props.store
+    let tabs = copy(this.props.store.tabs)
+    let {tab} = this.props
     let index = _.findIndex(tabs, t => t.id === tab.id)
     tabs = tabs.slice(0, index + 1)
     let update = {
@@ -202,7 +191,8 @@ export default class Tab extends React.Component {
   }
 
   renderContext() {
-    let {tabs, tab} = this.props
+    let tabs = copy(this.props.store.tabs)
+    let {tab} = this.props
     let len = tabs.length
     let index = _.findIndex(tabs, t => t.id === tab.id)
     let nother = len === 1
@@ -274,8 +264,8 @@ export default class Tab extends React.Component {
     let {target} = e
     let rect = target.getBoundingClientRect()
     let content = this.renderContext()
-    this.props.openContextMenu({
-      content,
+    this.props.store.openContextMenu({
+      contentRender: () => content,
       pos: {
         left: rect.left,
         top: rect.top + 20
@@ -283,10 +273,10 @@ export default class Tab extends React.Component {
     })
   }
 
-  renderEditting(tab, cls) {
+  renderEditting(cls) {
     let {
       titleTemp
-    } = tab
+    } = this.state
     return (
       <div className={cls + ' pd1x'}>
         <Input
@@ -301,17 +291,20 @@ export default class Tab extends React.Component {
 
   render() {
     let {
-      currentTabId,
+      currentTabId
+    } = this.props.store
+    let {
       onChange,
-      onDup
+      onDup,
+      tab
     } = this.props
-    let {tab} = this.state
-    let {id, isEditting, status} = tab
+    let {isEditting} = this.state
+    let {id, status} = tab
     let active = id === currentTabId
     let cls = classnames('tab', {active}, status)
     let title = createName(tab)
     if (isEditting) {
-      return this.renderEditting(tab, cls)
+      return this.renderEditting(cls)
     }
     return (
       <Tooltip

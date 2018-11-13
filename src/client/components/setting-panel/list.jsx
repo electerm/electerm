@@ -1,7 +1,7 @@
 /**
  * history list
  */
-import React from 'react'
+import {Component} from '../common/react-subx'
 import {Tooltip, Icon, Popconfirm} from 'antd'
 import Search from '../common/search'
 import createName from '../../common/create-title'
@@ -15,7 +15,7 @@ const e = prefix('menu')
 const c = prefix('common')
 const s = prefix('setting')
 
-export default class ItemList extends React.PureComponent {
+export default class ItemList extends Component {
 
   state = {
     keyword: ''
@@ -29,7 +29,7 @@ export default class ItemList extends React.PureComponent {
 
   del = (item, e) => {
     e.stopPropagation()
-    this.props.delItem(item, this.props.type)
+    this.props.store.delItem(item, this.props.type)
   }
 
   renderSearch = () => {

@@ -13,7 +13,7 @@ const buildConst = (props) => {
 
 export const maxEditFileSize = 1024 * 30
 export const defaultUserName = 'root'
-export const defaultookmarkGroupId = 'default'
+export const defaultBookmarkGroupId = 'default'
 export const maxBookmarkGroupTitleLength = 33
 export const termControlHeight = 33
 export const maxDragMove = 30
