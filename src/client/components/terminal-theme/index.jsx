@@ -46,7 +46,7 @@ class ThemeForm extends BookmarkForm {
       this.props.store.editTheme(formData.id, update)
     } else {
       this.props.store.addTheme(update1)
-      this.props.modifier2({
+      this.props.store.modifier({
         item: update1
       })
     }
@@ -77,7 +77,7 @@ class ThemeForm extends BookmarkForm {
       id,
       name: themeName
     } = this.props.formData
-    let {autoFocusTrigger} = this.props
+    let {autofocustrigger} = this.props
     let themeText = convertThemeToText({themeConfig, name})
     let isDefaultTheme = id === defaultTheme.id
     return (
@@ -107,7 +107,7 @@ class ThemeForm extends BookmarkForm {
             }],
             initialValue: themeName
           })(
-            <InputAutoFocus selectAll disabled={isDefaultTheme} autoFocusTrigger={autoFocusTrigger} />
+            <InputAutoFocus selectall="true" disabled={isDefaultTheme} autofocustrigger={autofocustrigger} />
           )}
         </FormItem>
         <FormItem

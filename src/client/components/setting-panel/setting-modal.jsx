@@ -21,8 +21,9 @@ const {TabPane} = Tabs
 export default class SettingModal extends Component {
   render() {
     let {props} = this
+    let {modifier, hideModal, onChangeTab, showModal} = props.store
     const selectItem = (item) => {
-      props.modifier2({item})
+      modifier({item})
     }
 
     const tabsShouldConfirmDel = [
@@ -31,7 +32,8 @@ export default class SettingModal extends Component {
     ]
 
     const renderTabs = () => {
-      let {tab, item, list} = props
+      let {tab, item, getItemList} = props.store
+      let list = getItemList()
       let props0 = {
         ...props,
         activeItemId: item.id,
@@ -44,13 +46,13 @@ export default class SettingModal extends Component {
         ...props,
         formData: item,
         type: tab,
-        hide: props.hideModal
+        hide: hideModal
       }
       return (
         <Tabs
           activeKey={tab}
           animated={false}
-          onChange={props.onChangeTab}
+          onChange={onChangeTab}
         >
           <TabPane
             tab={m(settingMap.history)}
@@ -133,11 +135,11 @@ export default class SettingModal extends Component {
       <Modal
         {...{
           title: e('settings'),
-          onCancel: props.hideModal,
+          onCancel: hideModal,
           footer: null,
           width: '94%',
           height: '94%',
-          visible: props.showModal
+          visible: showModal
         }}
       >
         {renderTabs()}

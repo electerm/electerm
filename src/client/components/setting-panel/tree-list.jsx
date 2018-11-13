@@ -30,7 +30,7 @@ const e = prefix('menu')
 const c = prefix('common')
 const s = prefix('setting')
 
-export default class ItemList extends Component {
+export default class ItemListTree extends Component {
 
   state = {
     keyword: '',
@@ -110,10 +110,6 @@ export default class ItemList extends Component {
       .map(g => Number(g))
     let len = dropPosArr.length
     let dropNodePos = dropPosArr[len - 1]
-
-    // let nodePos = Number(dropPosArr[dropPosArr.length - 1])
-    // only drag from node to category
-    // or change category position
     if (
       (
         !dropToGap &&
@@ -139,7 +135,7 @@ export default class ItemList extends Component {
       : 0
     let {eventKey} = dragNode.props
     let bookmarkGroups = copy(
-      this.props.bookmarkGroups
+      this.props.store.bookmarkGroups
     )
 
     let changeCategoryPos = dropPosArr.length === 2
@@ -253,7 +249,7 @@ export default class ItemList extends Component {
       return this.props.store.delBookmarkGroup(item)
     }
     this.props.store.delItem(item, this.props.type)
-    this.props.onDelItem(item, this.props.type)
+    this.props.store.onDelItem(item, this.props.type)
   }
 
   onExpand = (expandedKeys) => {
@@ -414,7 +410,7 @@ export default class ItemList extends Component {
         ]
         : prev
     }, [])
-    return nodes.map(node => {
+    return nodes.map((node) => {
       return (
         <TreeNode
           key={node.id}
@@ -510,12 +506,12 @@ export default class ItemList extends Component {
 
   render() {
     let {
-      type,
-      activeItemId
-    } = this.props.store
-    let {
       bookmarkGroups
     } = this.props.store
+    let {
+      type,
+      activeItemId
+    } = this.props
     let {expandedKeys, keyword} = this.state
     return (
       <div className={`tree-list item-type-${type}`}>

@@ -87,7 +87,7 @@ export default class Tabs extends Component {
 
   onClickMenu = ({key}) => {
     let id = key.split('##')[1]
-    this.props.onChange(id)
+    this.props.store.modifier({currentTabId: id})
   }
 
   renderList = () => {

@@ -26,6 +26,7 @@ cp('-r', [
   'version'
 ], 'work/app/')
 rm('-rf',  'work/app/dev-app.js')
+rm('-rf',  'work/app/*.out')
 rm('-rf',  'work/app/user-config.json')
 rm('-rf',  'work/app/localstorage.json')
 rm('-rf',  'work/app/assets/js/basic.bundle.js')

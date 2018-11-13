@@ -42,7 +42,8 @@ export default class ThemeList extends List {
   }
 
   renderItem = (item, i) => {
-    let {activeItemId, theme} = this.props.store
+    let {activeItemId} = this.props
+    let {theme} = this.props.store
     let {name, id} = item
     let cls = classnames(
       'item-list-unit',

@@ -39,19 +39,17 @@ export default class Btns extends Component {
       history = [],
       openAbout,
       transferHistory,
-      isMaximized
-    } = this.props.store
-    let {
-      onSelectHistory,
-      openSetting,
-      onSelectBookmark,
-      onEditBookmark,
-      bookmarkId,
+      isMaximized,
       onNewSsh,
-      modifier2,
-      openTerminalThemes
-    } = this.props
-    let {openTransferHistory} = this.props.store
+      openSetting,
+      openTerminalThemes,
+      openTransferHistory,
+      onSelectHistory,
+      onSelectBookmark,
+      modifier,
+      bookmarkId
+    } = this.props.store
+
     let minimize = () => {
       window.getGlobal('minimize')()
     }
@@ -72,7 +70,7 @@ export default class Btns extends Component {
     }, {})
     let treeData = bookmarkGroups.map(bg => {
       return {
-        label: bg.title,
+        title: bg.title,
         value: bg.id,
         key: bg.id,
         children: bg.bookmarkIds.reduce((p, id) => {
@@ -83,7 +81,7 @@ export default class Btns extends Component {
           return [
             ...p,
             {
-              label: createName(bm),
+              title: createName(bm),
               value: bm.id,
               key: bm.id
             }
@@ -95,10 +93,10 @@ export default class Btns extends Component {
       treeData = [
         ...treeData,
         {
-          label: 'ssh-config',
+          title: 'ssh-config',
           children: sshConfigItems.map(bm => {
             return {
-              label: createName(bm),
+              title: createName(bm),
               value: bm.id,
               key: bm.id
             }
@@ -115,7 +113,7 @@ export default class Btns extends Component {
           value={bookmarkId}
           onSelect={bookmarkId => {
             onSelectBookmark(bookmarkId)
-            modifier2({
+            modifier({
               bookmarkId
             })
           }}
@@ -127,14 +125,14 @@ export default class Btns extends Component {
             maxWidth: 500,
             overflow: 'auto'
           }}
-          onChange={(value, label, extra) => {
+          onChange={(value, title, extra) => {
             onSelectBookmark(extra.triggerValue)
-            modifier2({
+            modifier({
               bookmarkId: extra.triggerValue
             })
           }}
           treeData={treeData}
-          treeNodeFilterProp="label"
+          treeNodeFilterProp="value"
           searchPlaceholder={s('search')}
         />
       )
@@ -189,7 +187,7 @@ export default class Btns extends Component {
             <Icon
               type="edit"
               className="font16 mg1x mg2l pointer iblock control-icon icon-do-edit"
-              onClick={onEditBookmark}
+              onClick={onNewSsh}
             />
           </Tooltip>
           <Icon
