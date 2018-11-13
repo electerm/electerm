@@ -156,7 +156,7 @@ export default class Term extends Component {
       return
     }
     if (type === 'theme-change') {
-      this.setOption('theme', this.props.store.getThemeConfig())
+      this.term.setOption('theme', this.props.store.getThemeConfig())
     }
     else if (type === 'config-change') {
       this.onConfigChange()

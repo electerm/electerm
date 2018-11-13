@@ -1,6 +1,17 @@
 import React from 'react'
 import SubX from 'subx'
 import * as R from 'ramda'
+import _ from 'lodash'
+
+function picker(props) {
+  return Object.keys(props).reduce((prev, k) => {
+    let v = props[k]
+    if (k !== 'store' && !_.isFunction(v)) {
+      prev[k] = v
+    }
+    return prev
+  }, {})
+}
 
 export class Component extends React.Component {
   constructor (props = {}) {
@@ -32,6 +43,14 @@ export class Component extends React.Component {
       }
     } else {
       this.componentWillUnmount = () => clearSubscription()
+    }
+    this.shouldComponentUpdate = (nextProps, nextState) => {
+      return !_.isEqual(
+        nextState, this.state
+      ) || !_.isEqual(
+        picker(nextProps),
+        picker(this.props)
+      )
     }
   }
 }
