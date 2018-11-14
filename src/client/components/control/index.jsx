@@ -8,7 +8,6 @@ import TransferHistoryModal from './transfer-history-modal'
 import store from '../../store'
 
 export default class IndexControl extends Component {
-
   render() {
     return (
       <div>
