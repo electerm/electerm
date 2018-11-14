@@ -46,7 +46,7 @@ class ThemeForm extends BookmarkForm {
       this.props.store.editTheme(formData.id, update)
     } else {
       this.props.store.addTheme(update1)
-      this.props.store.modifier({
+      this.props.store.setState({
         item: update1
       })
     }

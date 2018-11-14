@@ -22,11 +22,11 @@ export default class UpdateCheck extends Component {
   }
 
   getLatestReleaseInfo = async (autoCheck) => {
-    this.props.store.modifier({
+    this.props.store.setState({
       onCheckUpdating: true
     })
     let releaseInfo = await getLatestReleaseInfo()
-    this.props.store.modifier({
+    this.props.store.setState({
       onCheckUpdating: false
     })
     if (!releaseInfo) {

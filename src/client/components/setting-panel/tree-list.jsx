@@ -93,7 +93,7 @@ export default class ItemListTree extends Component {
     this.setState({
       categoryId: ''
     })
-    this.props.store.modifyLs({
+    this.props.store.setState({
       bookmarkGroups
     })
   }
@@ -194,7 +194,7 @@ export default class ItemListTree extends Component {
         )
       }
     }
-    this.props.store.modifyLs({
+    this.props.store.setState({
       bookmarkGroups
     })
   }
@@ -266,7 +266,7 @@ export default class ItemListTree extends Component {
   ) => {
     let [id] = selectedKeys
     if (!node.props.isLeaf) {
-      this.props.store.modifier({
+      this.props.store.setState({
         currentBookmarkGroupId: id
       })
     }

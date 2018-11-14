@@ -46,7 +46,7 @@ export default class Btns extends Component {
       openTransferHistory,
       onSelectHistory,
       onSelectBookmark,
-      modifier,
+      setState,
       bookmarkId
     } = this.props.store
 
@@ -113,7 +113,7 @@ export default class Btns extends Component {
           value={bookmarkId}
           onSelect={bookmarkId => {
             onSelectBookmark(bookmarkId)
-            modifier({
+            setState({
               bookmarkId
             })
           }}
@@ -127,7 +127,7 @@ export default class Btns extends Component {
           }}
           onChange={(value, title, extra) => {
             onSelectBookmark(extra.triggerValue)
-            modifier({
+            setState({
               bookmarkId: extra.triggerValue
             })
           }}

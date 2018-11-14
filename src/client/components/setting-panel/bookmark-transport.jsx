@@ -73,7 +73,7 @@ export default memo(props => {
           )
         }
       })
-      props.store.modifier({
+      props.store.setState({
         bookmarkGroups,
         bookmarks
       })

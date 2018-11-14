@@ -74,7 +74,7 @@ export class TextEditorForm extends Component {
   }
 
   cancel = () => {
-    this.props.store.modifier({
+    this.props.store.setState({
       textEditorProps: {}
     })
   }
