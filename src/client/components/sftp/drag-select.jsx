@@ -85,7 +85,7 @@ export default class DragSelect extends React.PureComponent {
     let rect = this.root.getBoundingClientRect()
     let startPoint = {
       x: e.pageX - rect.left,
-      y: e.pageY - rect.top
+      y: e.pageY - rect.top + 30
     }
     this.setState({
       onDrag: true,
