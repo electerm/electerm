@@ -303,15 +303,7 @@ export default class Sftp extends Component {
       return
     }
     let file = selectedFiles[0]
-    let {isDirectory} = file
-    if (isDirectory) {
-      this[type + 'Dom'].enterDirectory(e, file)
-    } else {
-      this.setState({
-        filesToConfirm: [file]
-      })
-    }
-
+    this[type + 'Dom'].transferOrEnterDirectory(e, file)
   }
 
   onInputFocus = (type) => {

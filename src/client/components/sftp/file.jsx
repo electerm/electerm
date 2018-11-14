@@ -582,18 +582,18 @@ export default class FileSection extends Component {
       .catch(this.props.onError)
   }
 
-  transferOrEnterDirectory = async (e) => {
-    let {file} = this.state
+  transferOrEnterDirectory = async (e, _file) => {
+    let file = _file || this.state.file
     let {isDirectory, type, id, size} = file
     if (isDirectory) {
-      return this.enterDirectory(e)
+      return this.enterDirectory(e, file)
     }
     if (type === typeMap.local) {
-      return this.openFile(this.state.file)
+      return this.openFile(file)
     }
     if (_.get(this.props, 'tab.host')) {
       if (size > maxEditFileSize) {
-        return this.transfer()
+        return this.transfer(file)
       }
       this.props.store.setState({
         textEditorProps: {
@@ -677,8 +677,7 @@ export default class FileSection extends Component {
     })
   }
 
-  transfer = async () => {
-    let {file} = this.state
+  transfer = async (file = this.state.file) => {
     let arr = await this.getTransferList(this.state.file)
     let {type} = file
     let transferType = type === typeMap.local
