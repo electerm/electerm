@@ -101,31 +101,32 @@ export const terminalSplitDirectionMap = buildConst([
 
 export const terminalSshConfigType = 'ssh-config'
 
+//from https://github.com/dracula/visual-studio-code/blob/1ed7de8f19dd18223fad8cc495f406742fbbfda6/src/dracula.yml
 export const defaultTheme = {
   id: 'default',
   name: 'default',
   themeConfig: {
-    foreground: '#b5bd68',
+    foreground: '#bbbbbb',
     background: '#000000',
     cursor: '#b5bd68',
     cursorAccent: '#1d1f21',
     selection: 'rgba(255, 255, 255, 0.3)',
-    black: '#1d1f21',
-    red: '#cc6666',
-    green: '#8abeb7',
-    yellow: '#EBEB86',
-    blue: '#3465a4',
-    magenta: '#75507b',
-    cyan: '#06989a',
+    black: '#575757',
+    red: '#FF6E67',
+    green: '#5AF78E',
+    yellow: '#F4F99D',
+    blue: '#CAA9FA',
+    magenta: '#FF92D0',
+    cyan: '#9AEDFE',
     white: '#d3d7cf',
-    brightBlack: '#555753',
+    brightBlack: '#4D4D4D',
     brightRed: '#e04040',
-    brightGreen: '#4d9188',
-    brightYellow: '#fce94f',
-    brightBlue: '#729fcf',
-    brightMagenta: '#ad7fa8',
-    brightCyan: '#34e2e2',
-    brightWhite: '#eeeeec'
+    brightGreen: '#50FA7B',
+    brightYellow: '#F1FA8C',
+    brightBlue: '#BD93F9',
+    brightMagenta: '#FF79C6',
+    brightCyan: '#8BE9FD',
+    brightWhite: '#BFBFBb'
   }
 }
 

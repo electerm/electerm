@@ -3,7 +3,7 @@
  * state management
  */
 
-import {notification} from 'antd'
+import {notification, message} from 'antd'
 import {generate} from 'shortid'
 import Subx from 'subx'
 import newTerm from '../common/new-terminal'
@@ -14,7 +14,8 @@ import {
   settingMap,
   defaultBookmarkGroupId,
   maxTransferHistory,
-  statusMap
+  statusMap,
+  defaultTheme
 } from '../common/constants'
 import _ from 'lodash'
 import createTitlte from '../common/create-title'
@@ -488,6 +489,25 @@ const store = Subx.create({
       theme: id
     })
     terminalThemes.setTheme(id)
+  },
+
+  checkDefaultTheme () {
+    let currentTheme = terminalThemes.getCurrentTheme()
+    console.log(currentTheme, defaultTheme)
+    if (
+      currentTheme.id === defaultTheme.id &&
+      !_.isEqual(currentTheme.themeConfig, defaultTheme.themeConfig)
+    ) {
+      store.editTheme(
+        defaultTheme.id,
+        {
+          themeConfig: defaultTheme.themeConfig
+        }
+      )
+      message.info(
+        `${t('default')} ${t('themeConfig')} ${t('updated')}`
+      )
+    }
   }
   //end
 }, true)

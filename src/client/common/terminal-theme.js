@@ -182,9 +182,6 @@ const delTheme = (themeId) => {
  * @param {object} update
  */
 const updateTheme = (themeId, update) => {
-  if (themeId === defaultTheme.id) {
-    throw new Error('default theme can not be updated')
-  }
   const ls = window.getGlobal('ls')
   let themes = copy(ls.get('themes') || buildDefaultThemes())
   Object.assign(themes[themeId], update)
