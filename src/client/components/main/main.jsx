@@ -41,6 +41,7 @@ export default class Index extends Component {
     })
     this.checkLastSession()
     window.addEventListener('offline',  this.setOffline)
+    this.props.store.checkDefaultTheme()
   }
 
   componentDidUpdate() {
