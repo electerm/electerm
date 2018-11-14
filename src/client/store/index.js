@@ -250,7 +250,7 @@ const store = Subx.create({
       let index = _.findIndex(history, f => f.id === existItem.id)
       history.splice(index, 1)
       history.unshift(existItem)
-      this.props.store.modifier({history: history})
+      store.modifier({history: history})
     }
   },
 

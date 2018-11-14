@@ -90,10 +90,12 @@ export default memo(props => {
       onClick={down}
       className="mg1x mg1t"
       title={t('export')}
+      key="export"
     />,
     <Upload
       beforeUpload={beforeUpload}
       fileList={[]}
+      key="up"
     >
       <Button
         icon="upload"

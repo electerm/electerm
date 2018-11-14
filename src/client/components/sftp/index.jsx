@@ -820,6 +820,7 @@ export default class Sftp extends Component {
     return (
       <div
         className={`sftp-section sftp-${type}-section tw-${type}`}
+        key={type + 'sec'}
         style={style}
         {...style}
       >
