@@ -160,10 +160,9 @@ export default class Btns extends Component {
       <div className="btns relative borderb fix">
         <div className="left-btns relative">
           <MenuBtn />
-          <Button
-            className="mg1r iblock"
-            type="ghost"
-            icon="plus"
+          <Icon
+            className="mg1r font20 pointer iblock control-icon"
+            type="plus-circle"
             onClick={onNewSsh}
             title={e('newSsh')}
           />

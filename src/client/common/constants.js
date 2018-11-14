@@ -11,8 +11,8 @@ const buildConst = (props) => {
   }, {})
 }
 
-export const logoPath1 = require('node_modules/electerm-resource/res/imgs/electerm-round-128x128.png').replace(/^\//, '')
-export const logoPath2 = require('node_modules/electerm-resource/res/imgs/electerm.png').replace(/^\//, '')
+export const logoPath1 = require('node_modules/@electerm/electerm-resource/res/imgs/electerm-round-128x128.png').replace(/^\//, '')
+export const logoPath2 = require('node_modules/@electerm/electerm-resource/res/imgs/electerm.png').replace(/^\//, '')
 export const maxEditFileSize = 1024 * 30
 export const defaultUserName = 'root'
 export const defaultBookmarkGroupId = 'default'
@@ -101,7 +101,7 @@ export const terminalSplitDirectionMap = buildConst([
 
 export const terminalSshConfigType = 'ssh-config'
 
-//from https://github.com/dracula/visual-studio-code/blob/1ed7de8f19dd18223fad8cc495f406742fbbfda6/src/dracula.yml
+// https://github.com/tinkertrain/panda-syntax-vscode/blob/master/themes/workbench.yaml
 export const defaultTheme = {
   id: 'default',
   name: 'default',
@@ -112,21 +112,21 @@ export const defaultTheme = {
     cursorAccent: '#1d1f21',
     selection: 'rgba(255, 255, 255, 0.3)',
     black: '#575757',
-    red: '#FF6E67',
-    green: '#5AF78E',
-    yellow: '#F4F99D',
-    blue: '#CAA9FA',
-    magenta: '#FF92D0',
-    cyan: '#9AEDFE',
-    white: '#d3d7cf',
-    brightBlack: '#4D4D4D',
-    brightRed: '#e04040',
-    brightGreen: '#50FA7B',
-    brightYellow: '#F1FA8C',
-    brightBlue: '#BD93F9',
-    brightMagenta: '#FF79C6',
-    brightCyan: '#8BE9FD',
-    brightWhite: '#BFBFBb'
+    red: '#FF2C6D',
+    green: '#19f9d8',
+    yellow: '#FFB86C',
+    blue: '#45A9F9',
+    magenta: '#FF75B5',
+    cyan: '#B084EB',
+    white: '#CDCDCD',
+    brightBlack: '#757575',
+    brightRed: '#FF2C6D',
+    brightGreen: '#19f9d8',
+    brightYellow: '#FFCC95',
+    brightBlue: '#6FC1FF',
+    brightMagenta: '#FF9AC1',
+    brightCyan: '#BCAAFE',
+    brightWhite: '#E6E6E6'
   }
 }
 

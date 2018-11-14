@@ -493,7 +493,6 @@ const store = Subx.create({
 
   checkDefaultTheme () {
     let currentTheme = terminalThemes.getCurrentTheme()
-    console.log(currentTheme, defaultTheme)
     if (
       currentTheme.id === defaultTheme.id &&
       !_.isEqual(currentTheme.themeConfig, defaultTheme.themeConfig)

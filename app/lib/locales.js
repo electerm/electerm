@@ -12,7 +12,7 @@ const {sync} = require('os-locale')
 let path = (isDev
   ? '../'
   : '') +
-  '../node_modules/electerm-locales/locales'
+  '../node_modules/@electerm/electerm-locales/locales'
 let localeFolder = resolve(__dirname, path)
 
 //languages array
