@@ -19,7 +19,7 @@ app.use(bodyParser.json())
 require('express-ws')(app)
 
 app.post('/terminals', async function (req, res) {
-  let body = JSON.parse(req.body.q)
+  let {body} = req
   let term = await terminal(body)
     .then(r => r)
     .catch(err => err)
