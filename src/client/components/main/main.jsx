@@ -29,6 +29,8 @@ export default class Index extends Component {
       .on('checkupdate', this.props.store.onCheckUpdate)
       .on('open-about', this.props.store.openAbout)
       .on('toggle-control', this.toggleControl)
+      .on('new-ssh', this.props.store.onNewSsh)
+      .on('openSettings', this.props.store.openSetting)
     document.addEventListener('drop', function(e) {
       e.preventDefault()
       e.stopPropagation()

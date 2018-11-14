@@ -9,6 +9,6 @@ const e = prefix('control')
 
 export default () => ({
   id: generate(),
-  status: statusMap.default,
+  status: statusMap.processing,
   title: e('newTerminal')
 })

@@ -1,11 +1,11 @@
 {
   "name": "electerm",
-  "version": "0.25.22",
+  "version": "0.25.23",
   "description": "Terminal/ssh/sftp client(linux, mac, win) based on electron/node-pty/xterm and other libs",
   "main": "dev-app.js",
   "bin": "npm/electerm",
   "scripts": {
-    "app": "cd app && NODE_ENV=development ../node_modules/.bin/electron ./app",
+    "app": "cd app && NODE_ENV=development nohup ../node_modules/.bin/electron ./app",
     "build": "./node_modules/.bin/cross-env NODE_ENV=production ./node_modules/.bin/webpack --progress",
     "start": "./node_modules/.bin/webpack-dev-server --progress --colors --content-base app/assets/",
     "icon": "node bin/icon",
@@ -68,7 +68,7 @@
     "css-loader": "1.0.0",
     "dotenv": "6.1.0",
     "electerm-resource": "1.2.0",
-    "electron": "3.0.6",
+    "electron": "3.0.9",
     "electron-builder": "20.28.4",
     "electron-rebuild": "1.8.2",
     "eslint": "5.7.0",

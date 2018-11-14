@@ -9,15 +9,17 @@ import _ from 'lodash'
 
 export default class InputAutoFocus extends React.PureComponent {
 
+  static stat
+
   componentDidMount() {
     this.timer = setTimeout(this.doFocus, 50)
   }
 
   componentDidUpdate(prevProps) {
-    if (!prevProps.selectAll) {
+    if (!prevProps.selectall) {
       return
     }
-    if (prevProps.autoFocusTrigger !== this.props.autoFocusTrigger) {
+    if (prevProps.autofocustrigger !== this.props.autofocustrigger) {
       this.timer = setTimeout(this.doFocus, 50)
     }
   }
@@ -29,10 +31,10 @@ export default class InputAutoFocus extends React.PureComponent {
   doFocus = () => {
     let dom = this.getDom()
     if (dom && dom.focus) {
-      let {value, selectAll = false} = this.props
+      let {value, selectall = false} = this.props
       let index = _.findLastIndex(value, v => v === '.')
       let hasExt = index > 0
-      if (value && !selectAll && hasExt ) {
+      if (value && !selectall && hasExt ) {
         dom.focus()
         dom.setSelectionRange(0, index)
       }

@@ -4,6 +4,7 @@
  */
 
 import {notification} from 'antd'
+import {generate} from 'shortid'
 import Subx from 'subx'
 import newTerm from '../common/new-terminal'
 import copy from 'json-deep-copy'
@@ -18,15 +19,16 @@ import {
 import _ from 'lodash'
 import createTitlte from '../common/create-title'
 import openInfoModal from '../components/control/info-modal'
-
-const {getGlobal, _config} = window
+import {buildNewTheme} from '../common/terminal-theme'
+const {getGlobal, _config, prefix} = window
 const ls = getGlobal('ls')
-const {prefix} = window
+const e = prefix('control')
 const t = prefix('terminalThemes')
-
+const defaultStatus = statusMap.processing
 let tabs = [newTerm()]
 let bookmarks = copy(ls.get(settingMap.bookmarks) || [])
 let title = createTitlte(tabs[0])
+const sshConfigItems = copy(getGlobal('sshConfigItems'))
 
 window.getGlobal('setTitle')(title)
 
@@ -38,6 +40,17 @@ let getDefaultBookmarkGroups = (bookmarks) => {
       bookmarkIds: bookmarks.map(d => d.id)
     }
   ]
+}
+const getInitItem = (arr, tab) => {
+  if (tab === settingMap.history) {
+    return arr[0] || {}
+  } else if (tab === settingMap.bookmarks) {
+    return {id: '', title: ''}
+  } else if (tab === settingMap.setting) {
+    return {id: '', title: e('common')}
+  } else if (tab === settingMap.terminalThemes) {
+    return buildNewTheme()
+  }
 }
 
 const store = Subx.create({
@@ -69,6 +82,13 @@ const store = Subx.create({
   selectedSessions: [],
   sessionModalVisible: false,
   textEditorProps: {},
+
+  //setting
+  item: getInitItem([], settingMap.bookmarks),
+  tab: settingMap.bookmarks,
+  autofocustrigger: + new Date(),
+  bookmarkId: undefined,
+  showModal: false,
 
   // actions
   setState (update) {
@@ -131,6 +151,123 @@ const store = Subx.create({
       next.querySelector('.tab-title') &&
       next.querySelector('.tab-title').click()
     }
+  },
+
+  hideModal () {
+    store.showModal = false
+  },
+
+  getItemList () {
+    let {tab} = store
+    let arr = store.getItems(tab)
+    let initItem = getInitItem(arr, tab)
+    return tab === settingMap.history
+      ? arr
+      : [
+        copy(initItem),
+        ...arr
+      ]
+  },
+
+  onNewSsh () {
+    store.setState({
+      showModal: true,
+      tab: settingMap.bookmarks,
+      item: getInitItem([], settingMap.bookmarks),
+      autofocustrigger: + new Date()
+    })
+  },
+
+  openSetting () {
+    store.setState({
+      showModal: true,
+      tab: settingMap.setting,
+      item: getInitItem([], settingMap.setting)
+    })
+  },
+
+  openTerminalThemes () {
+    store.setState({
+      showModal: true,
+      tab: settingMap.terminalThemes,
+      item: buildNewTheme(),
+      autofocustrigger: + new Date()
+    })
+  },
+
+  onDelItem (item, type) {
+    if (item.id === store.item.id) {
+      store.setState({
+        item: getInitItem(
+          store[type],
+          type
+        )
+      })
+    }
+  },
+
+  onSelectHistory (id) {
+    let item = _.find(store.history, it => it.id === id)
+    store.addTab({
+      ...item,
+      from: 'history',
+      srcId: item.id,
+      status: defaultStatus,
+      id: generate()
+    })
+  },
+
+  onSelectBookmark (id) {
+    let {bookmarks} = store
+    let history = copy(store.history)
+    let item = copy(
+      _.find(bookmarks, it => it.id === id) ||
+      _.find(sshConfigItems, it => it.id === id)
+    )
+    if (!item) {
+      return
+    }
+    store.addTab({
+      ...item,
+      from: 'bookmarks',
+      srcId: item.id,
+      status: defaultStatus,
+      id: generate()
+    })
+    item.id = generate()
+
+    let existItem = _.find(history, j => {
+      let keysj = Object.keys(j)
+      let keysi = Object.keys(item)
+      return _.isEqual(
+        _.pick(item, _.without(keysi, 'id')),
+        _.pick(j, _.without(keysj, 'id'))
+      )
+    })
+    if (!existItem) {
+      store.addItem(item, settingMap.history)
+    } else {
+      let index = _.findIndex(history, f => f.id === existItem.id)
+      history.splice(index, 1)
+      history.unshift(existItem)
+      store.modifier({history: history})
+    }
+  },
+
+  getItems (tab, props = store) {
+    return tab === settingMap.terminalThemes
+      ? copy(props.themes)
+      : copy(props[tab]) || []
+  },
+
+  onChangeTab (tab) {
+    let arr = store.getItems(tab)
+    let item = getInitItem(arr, tab)
+    store.setState({
+      item,
+      autofocustrigger: + new Date(),
+      tab
+    })
   },
 
   openTransferHistory () {
@@ -228,13 +365,25 @@ const store = Subx.create({
     })
   },
 
-  addTab (tab, index = store.tabs.length)  {
+  addTab (tab = newTerm(), index = store.tabs.length)  {
     let tabs = copy(store.tabs)
     tabs.splice(index, 0, tab)
     store.modifier({
       tabs,
       currentTabId: tab.id
     })
+  },
+
+  duplicateTab (tab) {
+    let index = _.findIndex(
+      store.tabs,
+      d => d.id === tab.id
+    )
+    store.addTab({
+      ...tab,
+      status: newTerm().status,
+      id: generate()
+    }, index + 1)
   },
 
   editTab (id, update) {

@@ -14,12 +14,6 @@ body
   script.
     window.et = !{JSON.stringify(_global)}
 
-  - if (env === 'development')
-    script.
-      window.debug = function () {
-        var args = Array.prototype.slice.call(arguments);
-        if (window.et.env === 'development') return console.log.apply(null, args);
-      }
   - var tail = env !== 'development' ? '.production.min' : '.development'
   script(src='../node_modules/react/umd/react' + tail + '.js?' + version)
   script(src='../node_modules/react-dom/umd/react-dom' + tail + '.js?' + version)

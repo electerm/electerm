@@ -157,7 +157,7 @@ export class BookmarkForm extends Component {
         obj,
         categoryId
       )
-      this.props.modifier2({
+      this.props.store.modifier({
         item: obj
       })
     }
@@ -407,6 +407,7 @@ export class BookmarkForm extends Component {
       <FormItem
         {...formItemLayout}
         label={e('proxyIp')}
+        key="proxyIp"
       >
         {getFieldDecorator('proxy.proxyIp', {
           rules: [{
@@ -422,6 +423,7 @@ export class BookmarkForm extends Component {
       <FormItem
         {...formItemLayout}
         label={e('proxyPort')}
+        key="proxyPort"
       >
         {getFieldDecorator('proxy.proxyPort', {
           initialValue: proxyPort
@@ -437,6 +439,7 @@ export class BookmarkForm extends Component {
       <FormItem
         {...formItemLayout}
         label={e('proxyType')}
+        key="proxyType"
       >
         {getFieldDecorator('proxy.proxyType', {
           initialValue: proxyType
@@ -466,7 +469,7 @@ export class BookmarkForm extends Component {
       currentBookmarkGroupId
     } = this.props.store
     let {
-      autoFocusTrigger
+      autofocustrigger
     } = this.props
     let {dns} = this.state
     let initBookmarkGroupId = id
@@ -504,8 +507,8 @@ export class BookmarkForm extends Component {
             initialValue: host
           })(
             <InputAutoFocus
-              autoFocusTrigger={autoFocusTrigger}
-              selectAll
+              autofocustrigger={autofocustrigger}
+              selectall="true"
               onBlur={this.onBlur}
             />
           )}
@@ -628,6 +631,7 @@ export class BookmarkForm extends Component {
     return [
       <FormItem
         {...formItemLayout}
+        key="fontFamily"
         label={s('fontFamily')}
       >
         {getFieldDecorator('fontFamily', {
@@ -642,6 +646,7 @@ export class BookmarkForm extends Component {
       <FormItem
         {...formItemLayout}
         label={s('fontSize')}
+        key="fontSize"
       >
         {getFieldDecorator('fontSize', {
           initialValue: fontSize
