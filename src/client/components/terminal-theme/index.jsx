@@ -2,7 +2,7 @@
 import {BookmarkForm} from '../bookmark-form'
 import {
   Form, Button, Input,
-  //message,
+  message,
   Upload
 } from 'antd'
 import {validateFieldsAndScroll} from '../../common/dec-validate-and-scroll'
@@ -15,6 +15,7 @@ const {TextArea} = Input
 const FormItem = Form.Item
 const {prefix} = window
 const e = prefix('form')
+const s = prefix('setting')
 const t = prefix('terminalThemes')
 
 @Form.create()
@@ -55,6 +56,7 @@ class ThemeForm extends BookmarkForm {
         formData.id || update1.id
       )
     }
+    message.success(s('saved'))
   }
 
   beforeUpload = (file) => {
