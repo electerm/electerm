@@ -106,6 +106,7 @@ export default class Index extends Component {
       <div>
         <SessionControl store={store} />
         <TextEditor
+          key={store.textEditorProps.id || ''}
           store={store}
         />
         <UpdateCheck
@@ -121,7 +122,7 @@ export default class Index extends Component {
           key={
             store.fileModeModalProps.file
               ? store.fileModeModalProps.file.id
-              : ''
+              : 'em'
           }
           store={store}
         />
