@@ -112,7 +112,7 @@ export class BookmarkForm extends Component {
       )
       return bg
     })
-    this.props.store.modifyLs({
+    this.props.store.setState({
       bookmarkGroups
     })
   }
@@ -157,7 +157,7 @@ export class BookmarkForm extends Component {
         obj,
         categoryId
       )
-      this.props.store.modifier({
+      this.props.store.setState({
         item: obj
       })
     }

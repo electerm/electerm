@@ -108,7 +108,7 @@ async function createWindow () {
   if (config.showMenu) Menu.setApplicationMenu(menu)
 
   let windowSizeLastState = lastStateManager.get('windowSize')
-  const {width, height} = windowSizeLastState
+  const {width, height} = windowSizeLastState && !isDev
     ? windowSizeLastState
     : require('electron').screen.getPrimaryDisplay().workAreaSize
 
@@ -117,7 +117,7 @@ async function createWindow () {
     width,
     height,
     fullscreenable: true,
-    //fullscreen: true,
+    //fullscreen: isDev,
     title: packInfo.name,
     frame: false,
     icon: iconPath

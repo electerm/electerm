@@ -96,7 +96,7 @@ export default class Tab extends Component {
     }
     tabs.splice(indexFrom, 1)
     tabs.splice(indexDrop, 0, fromTab)
-    this.props.store.modifier({
+    this.props.store.setState({
       tabs
     })
   }
@@ -111,7 +111,7 @@ export default class Tab extends Component {
     let tabs = copy(this.props.store.tabs)
     let index = _.findIndex(tabs, t => t.id === id)
     tabs.splice(index, 1, tab)
-    this.props.store.modifier({
+    this.props.store.setState({
       tabs,
       currentTabId: tab.id
     })
@@ -167,7 +167,7 @@ export default class Tab extends Component {
   }
 
   closeOther = () => {
-    this.props.store.modifier({
+    this.props.store.setState({
       tabs: [this.props.tab],
       currentTabId: this.props.tab.id
     })
@@ -293,7 +293,6 @@ export default class Tab extends Component {
       duplicateTab
     } = this.props.store
     let {
-      onChange,
       tab
     } = this.props
     let {isEditting} = this.state
@@ -327,7 +326,7 @@ export default class Tab extends Component {
         >
           <div
             className="tab-title elli pd1x"
-            onClick={() => onChange(id)}
+            onClick={() => this.props.store.currentTabId = id}
             onDoubleClick={() => duplicateTab(tab)}
             onContextMenu={this.onContextMenu}
           >

@@ -348,19 +348,19 @@ export default class FileSection extends Component {
   }
 
   onCloseFileMode = () => {
-    this.props.store.modifier({
+    this.props.store.setState({
       fileModeModalProps: {}
     })
   }
 
   onCloseFileInfo = () => {
-    this.props.store.modifier({
+    this.props.store.setState({
       fileInfoModalProps: {}
     })
   }
 
   showInfo = () => {
-    this.props.store.modifier({
+    this.props.store.setState({
       fileInfoModalProps: {
         file: this.state.file,
         tab: this.props.tab,
@@ -495,7 +495,7 @@ export default class FileSection extends Component {
   }
 
   openFileModeModal = () => {
-    this.props.store.modifier({
+    this.props.store.setState({
       fileModeModalProps: {
         file: this.state.file,
         tab: this.props.tab,
@@ -595,7 +595,7 @@ export default class FileSection extends Component {
       if (size > maxEditFileSize) {
         return this.transfer()
       }
-      this.props.store.modifier({
+      this.props.store.setState({
         textEditorProps: {
           visible: true,
           id,

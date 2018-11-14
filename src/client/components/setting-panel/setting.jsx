@@ -101,7 +101,7 @@ export default class Setting extends Component {
       }
     }
     saveUserConfig && saveUserConfig(ext)
-    this.props.store.modifier(update)
+    this.props.store.setState(update)
   }
 
   renderOption = (m, i) => {

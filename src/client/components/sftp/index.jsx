@@ -657,7 +657,7 @@ export default class Sftp extends Component {
       ...this.props,
       file,
       type,
-      rootModifier: this.props.store.modifier,
+      rootModifier: this.props.store.setState,
       ..._.pick(this, [
         'sftp',
         'onSort',

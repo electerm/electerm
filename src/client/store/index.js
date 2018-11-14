@@ -4,6 +4,9 @@
  */
 
 import {notification} from 'antd'
+import {
+  debounceTime
+} from 'rxjs/operators'
 import {generate} from 'shortid'
 import Subx from 'subx'
 import newTerm from '../common/new-terminal'
@@ -96,21 +99,6 @@ const store = Subx.create({
       ? update(store)
       : update
     Object.assign(store, up)
-  },
-
-  setStateLs (update) {
-    Object.keys(update).forEach(k => {
-      ls.set(k, update[k])
-    })
-    store.setState(update)
-  },
-
-  modifyLs (...args) {
-    store.setStateLs(...args)
-  },
-
-  modifier (...args) {
-    store.setState(...args)
   },
 
   onCheckUpdate () {
@@ -250,7 +238,7 @@ const store = Subx.create({
       let index = _.findIndex(history, f => f.id === existItem.id)
       history.splice(index, 1)
       history.unshift(existItem)
-      store.modifier({history: history})
+      store.setState({history: history})
     }
   },
 
@@ -340,12 +328,12 @@ const store = Subx.create({
     if (type === settingMap.history && items.length > maxHistory) {
       items = items.slice(0, maxHistory)
     }
-    store.setStateLs({
+    store.setState({
       [type]: items
     })
   },
 
-  editItem (id, update, type, mod = store.setStateLs) {
+  editItem (id, update, type, mod = store.setState) {
     let items = copy(store[type])
     let item = _.find(items, t => t.id === id)
     let index = _.findIndex(items, t => t.id === id)
@@ -360,7 +348,7 @@ const store = Subx.create({
     let items = copy(store[type]).filter(t => {
       return t.id !== id
     })
-    store.setStateLs({
+    store.setState({
       [type]: items
     })
   },
@@ -368,7 +356,7 @@ const store = Subx.create({
   addTab (tab = newTerm(), index = store.tabs.length)  {
     let tabs = copy(store.tabs)
     tabs.splice(index, 0, tab)
-    store.modifier({
+    store.setState({
       tabs,
       currentTabId: tab.id
     })
@@ -387,7 +375,7 @@ const store = Subx.create({
   },
 
   editTab (id, update) {
-    store.editItem(id, update, 'tabs', store.modifier)
+    store.editItem(id, update, 'tabs', store.setState)
   },
 
   delTab ({id}) {
@@ -402,7 +390,7 @@ const store = Subx.create({
       let next = tabs[0] || {}
       update.currentTabId = next.id
     }
-    store.modifier(update)
+    store.setState(update)
   },
 
   addTheme (theme) {
@@ -450,7 +438,7 @@ const store = Subx.create({
       ...bookmarkGroups,
       group
     ]
-    store.setStateLs({
+    store.setState({
       bookmarkGroups
     })
   },
@@ -461,7 +449,7 @@ const store = Subx.create({
     let index = _.findIndex(items, t => t.id === id)
     Object.assign(item, update)
     items.splice(index, 1, item)
-    store.setStateLs({
+    store.setState({
       bookmarkGroups: items
     })
   },
@@ -495,7 +483,7 @@ const store = Subx.create({
     if (id === store.currentBookmarkGroupId) {
       update.currentBookmarkGroupId = ''
     }
-    store.setStateLs(update)
+    store.setState(update)
   },
 
   setTheme (id) {
@@ -509,6 +497,7 @@ const store = Subx.create({
 
 store.$.subscribe((event) => {
   let {type, path} = event
+
   if (
     type === 'SET' &&
     path.includes('tabs') ||
@@ -535,12 +524,22 @@ store.$.subscribe((event) => {
       id: 'all'
     }, '*')
   }
+
   else if (path.includes('config')) {
     window.postMessage({
       type: 'config-change',
       id: 'all'
     }, '*')
   }
+
+  if (
+    ['bookmarks', 'history', 'bookmarkGroups'].includes(path[0])
+  ) {
+    ls.set(
+      _.pick(store, ['bookmarks', 'history', 'bookmarkGroups'])
+    )
+  }
+
 })
 
 export default store
