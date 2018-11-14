@@ -2,7 +2,7 @@
  * default text editor for remote file
  */
 
-import {Component} from '../common/react-subx'
+import {Component} from 'react'
 import {
   Form, Button, Input,
   Spin,
@@ -20,7 +20,7 @@ const s = prefix('sftp')
 export class TextEditorForm extends Component {
 
   state = {
-    text: '',
+    text: null,
     path: 'loading...',
     loading: true
   }
@@ -41,7 +41,7 @@ export class TextEditorForm extends Component {
         path,
         name
       }
-    } = this.props
+    } = this.props.store.textEditorProps
     let p = resolve(path, name)
     this.setState({
       path: p
@@ -65,11 +65,11 @@ export class TextEditorForm extends Component {
     if (res.text === this.state.text) {
       return this.cancel()
     }
-    let r = await this.props.sftp.writeFile(
+    let r = await this.props.store.textEditorProps.sftp.writeFile(
       this.state.path,
       res.text
     )
-    r && this.props.textEditorProps.afterWrite()
+    r && this.props.store.textEditorProps.afterWrite()
     this.cancel()
   }
 
