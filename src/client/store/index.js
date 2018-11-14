@@ -4,9 +4,6 @@
  */
 
 import {notification} from 'antd'
-import {
-  debounceTime
-} from 'rxjs/operators'
 import {generate} from 'shortid'
 import Subx from 'subx'
 import newTerm from '../common/new-terminal'

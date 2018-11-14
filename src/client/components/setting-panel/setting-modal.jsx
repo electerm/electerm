@@ -21,9 +21,9 @@ const {TabPane} = Tabs
 export default class SettingModal extends Component {
   render() {
     let {props} = this
-    let {modifier, hideModal, onChangeTab, showModal} = props.store
+    let {setState, hideModal, onChangeTab, showModal} = props.store
     const selectItem = (item) => {
-      modifier({item})
+      setState({item})
     }
 
     const tabsShouldConfirmDel = [

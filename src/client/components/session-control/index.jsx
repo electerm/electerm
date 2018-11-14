@@ -12,12 +12,12 @@ import createName from '../../common/create-title'
 const {prefix} = window
 const c = prefix('common')
 
-export default class SessionCOntrol extends Component {
+export default class SessionControl extends Component {
 
   render() {
     let {
       sessionModalVisible,
-      modifier,
+      setState,
       addTab,
       selectedSessions
     } = this.props.store
@@ -27,7 +27,7 @@ export default class SessionCOntrol extends Component {
     }
 
     let onConfirmLoadSession = () => {
-      modifier({
+      setState({
         sessionModalVisible: false,
         selectedSessions: []
       })
@@ -45,7 +45,7 @@ export default class SessionCOntrol extends Component {
     }
 
     let onCancelLoadSession = () => {
-      modifier({
+      setState({
         sessionModalVisible: false
       })
       window.getGlobal('setExitStatus')('ok')
@@ -56,7 +56,7 @@ export default class SessionCOntrol extends Component {
       let ss = copy(selectedSessions)
       let s = _.find(ss, s => s.id === id)
       s.checked = checked
-      modifier({
+      setState({
         selectedSessions: ss
       })
     }

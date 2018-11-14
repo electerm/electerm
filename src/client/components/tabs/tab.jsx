@@ -185,7 +185,7 @@ export default class Tab extends Component {
     if (!_.some(tabs, t => t.id === currentTabId)) {
       update.currentTabId = tabs[0].id
     }
-    this.props.modifier(update)
+    this.props.store.setState(update)
   }
 
   renderContext() {
