@@ -119,9 +119,10 @@ export default function({
           <TabPane tab={e('userTips')} key="0">
             <ul>
               {
-                lang.userTips.map(t => {
+                lang.userTips.map((t, i) => {
                   return (
                     <li
+                      key={'ht' + i}
                       dangerouslySetInnerHTML={{
                         __html: t
                       }}

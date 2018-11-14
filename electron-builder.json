@@ -7,12 +7,12 @@
   "artifactName": "${productName}-${version}-${os}-${arch}.${ext}",
   "win": {
     "target": ["tar.gz"],
-    "icon": "node_modules/electerm-resource/build/icons.ico"
+    "icon": "node_modules/@electerm/electerm-resource/build/icons.ico"
   },
   "mac": {
     "category": "public.app-category.developer-tools",
     "target": ["dmg"],
-    "icon": "node_modules/electerm-resource/build/icons.icns"
+    "icon": "node_modules/@electerm/electerm-resource/build/icons.icns"
   },
   "dmg": {
     "contents": [
@@ -30,7 +30,7 @@
   },
   "linux": {
     "category": "Development",
-    "icon": "node_modules/electerm-resource/res/imgs",
+    "icon": "node_modules/@electerm/electerm-resource/res/imgs",
     "target": [
       "rpm",
       "deb",

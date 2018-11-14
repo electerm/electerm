@@ -48,7 +48,7 @@ const iconPath = resolve(
   __dirname,
   (
     isDev
-      ? '../node_modules/electerm-resource/res/imgs/electerm-round-128x128.png'
+      ? '../node_modules/@electerm/electerm-resource/res/imgs/electerm-round-128x128.png'
       : 'assets/images/electerm-round-128x128.png'
   )
 )
