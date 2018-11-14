@@ -4,7 +4,6 @@
 
 import {Component} from '../common/react-subx'
 import {
-  Button,
   Select,
   Icon,
   Tooltip,
