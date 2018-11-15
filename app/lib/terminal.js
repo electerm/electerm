@@ -26,12 +26,15 @@ class Terminal {
     } = initOptions
     let {platform} = process
     let exe = platform.startsWith('win') ? 'powershell.exe' : 'bash'
+    let cwd = process.env[
+      platform === 'win32' ? 'USERPROFILE' : 'HOME'
+    ]
     let argv = platform.startsWith('darwin') ? ['--login'] : []
     this.term = pty.spawn(exe, argv, {
       name: 'xterm-color',
       cols: cols || 80,
       rows: rows || 24,
-      cwd: process.env.HOME,
+      cwd,
       env: process.env
     })
     return Promise.resolve()

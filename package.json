@@ -1,11 +1,11 @@
 {
   "name": "electerm",
-  "version": "0.25.21",
+  "version": "0.25.25",
   "description": "Terminal/ssh/sftp client(linux, mac, win) based on electron/node-pty/xterm and other libs",
   "main": "dev-app.js",
   "bin": "npm/electerm",
   "scripts": {
-    "app": "cd app && NODE_ENV=development ../node_modules/.bin/electron ./app",
+    "app": "cd app && NODE_ENV=development nohup ../node_modules/.bin/electron ./app",
     "build": "./node_modules/.bin/cross-env NODE_ENV=production ./node_modules/.bin/webpack --progress",
     "start": "./node_modules/.bin/webpack-dev-server --progress --colors --content-base app/assets/",
     "icon": "node bin/icon",
@@ -67,7 +67,7 @@
     "cross-env": "5.2.0",
     "css-loader": "1.0.0",
     "dotenv": "6.1.0",
-    "electron": "3.0.6",
+    "electron": "3.0.9",
     "electron-builder": "20.28.4",
     "electron-rebuild": "1.8.2",
     "eslint": "5.7.0",
@@ -108,13 +108,13 @@
     "webpack-cli": "3.1.2",
     "webpack-dev-server": "3.1.9",
     "xterm": "3.8.0",
-    "electerm-resource": "1.2.0"
+    "@electerm/electerm-resource": "1.2.1"
   },
   "dependencies": {
     "bluebird": "3.5.2",
     "body-parser": "1.18.3",
     "cors": "2.8.4",
-    "electerm-locales": "0.4.11",
+    "@electerm/electerm-locales": "0.4.12",
     "electron-log": "2.2.17",
     "express": "4.16.4",
     "express-ws": "4.0.0",

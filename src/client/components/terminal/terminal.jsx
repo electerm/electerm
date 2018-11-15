@@ -125,6 +125,11 @@ export default class Term extends React.PureComponent {
     this.onClose = true
     this.socket && this.socket.close()
     this.term && this.term.dispose()
+    window.removeEventListener(
+      'resize',
+      this.onResize
+    )
+    this.dom.removeEventListener('contextmenu', this.onContextMenu)
   }
 
   terminalConfigProps = [
@@ -157,6 +162,9 @@ export default class Term extends React.PureComponent {
         prev !== curr
       ) {
         this.term.setOption(name, curr)
+        if (['fontFamily', 'fontSize'].includes(name)) {
+          this.onResize()
+        }
       }
     }
   }

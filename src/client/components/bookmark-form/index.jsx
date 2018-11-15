@@ -56,7 +56,12 @@ export class BookmarkForm extends React.PureComponent {
 
   onBlur = async e => {
     let {value} = e.target
-    if (!value || /\s/.test(value) || isIp(value)) {
+    let {type} = this.props
+    if (
+      type !== settingMap.bookmarks ||
+      !value || /\s/.test(value) ||
+      isIp(value)
+    ) {
       return
     }
     let ip = await window.getGlobal('lookup')(value)
@@ -481,7 +486,7 @@ export class BookmarkForm extends React.PureComponent {
           {
             dns
               ? (
-                <div>
+                <div className="dns-section">
                   ip: {dns}
                   <span
                     className="color-blue pointer mg1l"
@@ -491,7 +496,11 @@ export class BookmarkForm extends React.PureComponent {
                   </span>
                 </div>
               )
-              : null
+              : (
+                <div className="dns-section">
+                  hostname or ip
+                </div>
+              )
           }
           {getFieldDecorator('host', {
             rules: [{
