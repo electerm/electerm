@@ -10,6 +10,7 @@ const savePath = resolve(appPath, 'electerm-localstorage.json')
 const copy = require('json-deep-copy')
 
 let cache = {}
+let writeFs = _.debounce(writeFileSync, 200)
 
 const get = (key) => {
   try {
@@ -34,7 +35,7 @@ const set = (keyOrObject, value) => {
       newdb[keyOrObject] = value
     }
     cache = newdb
-    writeFileSync(savePath, JSON.stringify(newdb))
+    writeFs(savePath, JSON.stringify(newdb))
   } catch(e) {
     console.log(e)
   }

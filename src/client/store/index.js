@@ -221,6 +221,7 @@ const store = Subx.create({
       id: generate()
     })
     item.id = generate()
+    store.bookmarkId = id
 
     let existItem = _.find(history, j => {
       let keysj = Object.keys(j)

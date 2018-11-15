@@ -143,6 +143,7 @@ export default class Term extends Component {
       let curr = this.getValue(this.props, type, name)
       this.term.setOption(name, curr)
     }
+    setTimeout(this.onResize, 20)
   }
 
   onMsg = e => {
