@@ -74,10 +74,11 @@ export default class Term extends Component {
     this.initEvt()
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps, prevState) {
     let shouldChange = (
       this.props.tab.id === this.props.store.currentTabId &&
-      this.props.pane === paneMap.terminal
+      this.props.pane === paneMap.terminal &&
+      prevState.searchInput === this.state.searchInput
     )
     let names = [
       'width',
@@ -685,6 +686,7 @@ export default class Term extends Component {
           value={searchInput}
           onChange={this.onChangeSearch}
           onPressEnter={this.searchNext}
+          autofocustrigger={+new Date()}
           addonAfter={
             <span>
               <Icon
