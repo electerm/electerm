@@ -45,7 +45,6 @@ export default class Btns extends Component {
       openTransferHistory,
       onSelectHistory,
       onSelectBookmark,
-      setState,
       bookmarkId
     } = this.props.store
 
