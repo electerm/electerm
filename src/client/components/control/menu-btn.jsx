@@ -3,9 +3,7 @@
  */
 
 import {memo} from 'react'
-import {
-  Icon
-} from 'antd'
+
 const {prefix} = window
 const e = prefix('control')
 const onOpenMenu = e => {
@@ -17,6 +15,7 @@ const onOpenMenu = e => {
     y
   })
 }
+const logo = require('node_modules/@electerm/electerm-resource/res/imgs/electerm.svg').replace(/^\//, '')
 
 export default memo(() => {
   return (
@@ -25,7 +24,7 @@ export default memo(() => {
       onClick={onOpenMenu}
       title={e('menu')}
     >
-      <Icon type="bars" />
+      <img src={logo} width={28} height={28} />
     </span>
   )
 })

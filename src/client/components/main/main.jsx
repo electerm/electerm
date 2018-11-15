@@ -1,5 +1,6 @@
 
 import React from 'react'
+import {message} from 'antd'
 import Wrapper from '../terminal'
 import newTerm from '../../common/new-terminal'
 import _ from 'lodash'
@@ -18,7 +19,8 @@ import {
   settingMap,
   defaultookmarkGroupId,
   maxTransferHistory,
-  statusMap
+  statusMap,
+  defaultTheme
 } from '../../common/constants'
 import Control from '../control'
 import SessionControl from '../session-control'
@@ -88,6 +90,7 @@ export default class Index extends React.Component {
       e.stopPropagation()
     })
     this.checkLastSession()
+    this.checkDefaultTheme()
     window.addEventListener('offline',  this.setOffline)
   }
 
@@ -99,6 +102,24 @@ export default class Index extends React.Component {
     ) {
       let term = _.get(this, `term_${currentTabId}.term`)
       term && term.focus()
+    }
+  }
+
+  checkDefaultTheme () {
+    let currentTheme = terminalThemes.getCurrentTheme()
+    if (
+      currentTheme.id === defaultTheme.id &&
+      !_.isEqual(currentTheme.themeConfig, defaultTheme.themeConfig)
+    ) {
+      this.editTheme(
+        defaultTheme.id,
+        {
+          themeConfig: defaultTheme.themeConfig
+        }
+      )
+      message.info(
+        `${t('default')} ${t('themeConfig')} ${t('updated')}`
+      )
     }
   }
 

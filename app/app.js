@@ -49,24 +49,32 @@ const iconPath = resolve(
   __dirname,
   (
     isDev
-      ? '../node_modules/electerm-resource/res/imgs/electerm-round-128x128.png'
+      ? '../node_modules/@electerm/electerm-resource/res/imgs/electerm-round-128x128.png'
       : 'assets/images/electerm-round-128x128.png'
   )
 )
 
-function onClose() {
+/**
+ * wait async
+ */
+function wait(time) {
+  return new Promise(resolve => {
+    setTimeout(resolve, time)
+  })
+}
+
+async function onClose() {
   ls.set({
     exitStatus: 'ok',
     sessions: null
   })
-  process.nextTick(() => {
-    clearTimeout(timer)
-    clearTimeout(timer1)
-    win = null
-    process.kill(childPid)
-    setWin(win)
-    process.exit(0)
-  })
+  await wait(300)
+  clearTimeout(timer)
+  clearTimeout(timer1)
+  win = null
+  process.kill(childPid)
+  setWin(win)
+  process.exit(0)
 }
 
 async function waitUntilServerStart(url) {

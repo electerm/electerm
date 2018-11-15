@@ -10,7 +10,8 @@ const buildConst = (props) => {
     }
   }, {})
 }
-
+export const logoPath1 = require('node_modules/@electerm/electerm-resource/res/imgs/electerm-round-128x128.png').replace(/^\//, '')
+export const logoPath2 = require('node_modules/@electerm/electerm-resource/res/imgs/electerm.png').replace(/^\//, '')
 export const maxEditFileSize = 1024 * 30
 export const defaultUserName = 'root'
 export const defaultookmarkGroupId = 'default'
@@ -99,31 +100,32 @@ export const terminalSplitDirectionMap = buildConst([
 
 export const terminalSshConfigType = 'ssh-config'
 
+// https://github.com/tinkertrain/panda-syntax-vscode/blob/master/themes/workbench.yaml
 export const defaultTheme = {
   id: 'default',
   name: 'default',
   themeConfig: {
-    foreground: '#b5bd68',
+    foreground: '#bbbbbb',
     background: '#000000',
     cursor: '#b5bd68',
     cursorAccent: '#1d1f21',
     selection: 'rgba(255, 255, 255, 0.3)',
-    black: '#1d1f21',
-    red: '#cc6666',
-    green: '#8abeb7',
-    yellow: '#EBEB86',
-    blue: '#3465a4',
-    magenta: '#75507b',
-    cyan: '#06989a',
-    white: '#d3d7cf',
-    brightBlack: '#555753',
-    brightRed: '#e04040',
-    brightGreen: '#4d9188',
-    brightYellow: '#fce94f',
-    brightBlue: '#729fcf',
-    brightMagenta: '#ad7fa8',
-    brightCyan: '#34e2e2',
-    brightWhite: '#eeeeec'
+    black: '#575757',
+    red: '#FF2C6D',
+    green: '#19f9d8',
+    yellow: '#FFB86C',
+    blue: '#45A9F9',
+    magenta: '#FF75B5',
+    cyan: '#B084EB',
+    white: '#CDCDCD',
+    brightBlack: '#757575',
+    brightRed: '#FF2C6D',
+    brightGreen: '#19f9d8',
+    brightYellow: '#FFCC95',
+    brightBlue: '#6FC1FF',
+    brightMagenta: '#FF9AC1',
+    brightCyan: '#BCAAFE',
+    brightWhite: '#E6E6E6'
   }
 }
 

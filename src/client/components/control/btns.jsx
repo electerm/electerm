@@ -4,7 +4,6 @@
 
 import {memo} from 'react'
 import {
-  Button,
   Select,
   Icon,
   Tooltip,
@@ -159,10 +158,9 @@ export default memo(props => {
     <div className="btns relative borderb fix">
       <div className="left-btns relative">
         <MenuBtn />
-        <Button
-          className="mg1r iblock"
-          type="ghost"
-          icon="plus"
+        <Icon
+          className="mg1r font20 pointer iblock control-icon"
+          type="plus-circle"
           onClick={onNewSsh}
           title={e('newSsh')}
         />
@@ -204,10 +202,9 @@ export default memo(props => {
         {
           transferHistory.length
             ? (
-              <Button
-                className="mg2l iblock"
-                type="ghost"
-                icon="swap"
+              <Icon
+                className="mg2l font16 pointer iblock control-icon"
+                type="swap"
                 onClick={openTransferHistory}
                 title={h('transferHistory')}
               />

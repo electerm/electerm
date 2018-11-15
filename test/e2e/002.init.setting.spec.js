@@ -77,7 +77,7 @@ describe('init setting buttons', function () {
 
     log('button:new ssh')
     await client.execute(function() {
-      document.querySelector('.btns .anticon-plus').parentNode.click()
+      document.querySelector('.btns .anticon-plus-circle').click()
     })
     await delay(1000)
     let active2 = await client.element(sel)
