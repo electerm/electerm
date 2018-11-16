@@ -487,7 +487,7 @@ export default class Term extends React.PureComponent {
         if (text.includes(authFailMsg)) {
           return 'fail'
         } else {
-          handleErr(response)
+          handleErr({message: text})
         }
       }
     })
