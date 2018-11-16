@@ -376,7 +376,11 @@ export class BookmarkForm extends React.PureComponent {
       return null
     }
     return (
-      <FormItem {...tailFormItemLayout} className="mg0">
+      <FormItem
+        {...tailFormItemLayout}
+        className="mg0"
+        key="proxy-select"
+      >
         <Select
           placeholder={e('selectProxy')}
           value={undefined}
@@ -412,6 +416,7 @@ export class BookmarkForm extends React.PureComponent {
       <FormItem
         {...formItemLayout}
         label={e('proxyIp')}
+        key="proxyIp"
       >
         {getFieldDecorator('proxy.proxyIp', {
           rules: [{
@@ -427,6 +432,7 @@ export class BookmarkForm extends React.PureComponent {
       <FormItem
         {...formItemLayout}
         label={e('proxyPort')}
+        key="proxyPort"
       >
         {getFieldDecorator('proxy.proxyPort', {
           initialValue: proxyPort
@@ -442,6 +448,7 @@ export class BookmarkForm extends React.PureComponent {
       <FormItem
         {...formItemLayout}
         label={e('proxyType')}
+        key="proxyType"
       >
         {getFieldDecorator('proxy.proxyType', {
           initialValue: proxyType
@@ -467,7 +474,7 @@ export class BookmarkForm extends React.PureComponent {
       id
     } = this.props.formData
     let {
-      autoFocusTrigger,
+      autofocustrigger,
       bookmarkGroups,
       currentBookmarkGroupId
     } = this.props
@@ -511,8 +518,8 @@ export class BookmarkForm extends React.PureComponent {
             initialValue: host
           })(
             <InputAutoFocus
-              autoFocusTrigger={autoFocusTrigger}
-              selectAll
+              autofocustrigger={autofocustrigger}
+              selectall="true"
               onBlur={this.onBlur}
             />
           )}
@@ -528,9 +535,9 @@ export class BookmarkForm extends React.PureComponent {
             }, {
               required: true, message: 'username required'
             }],
-            initialValue: username || defaultUserName
+            initialValue: username
           })(
-            <Input />
+            <Input placeholder={defaultUserName} />
           )}
         </FormItem>
         <FormItem {...tailFormItemLayout} className="mg1b">
@@ -636,6 +643,7 @@ export class BookmarkForm extends React.PureComponent {
       <FormItem
         {...formItemLayout}
         label={s('fontFamily')}
+        key="fontFamily"
       >
         {getFieldDecorator('fontFamily', {
           rules: [{
@@ -647,6 +655,7 @@ export class BookmarkForm extends React.PureComponent {
         )}
       </FormItem>,
       <FormItem
+        key="fontSize"
         {...formItemLayout}
         label={s('fontSize')}
       >

@@ -10,7 +10,9 @@ const savePath = resolve(appPath, 'electerm-localstorage.json')
 const copy = require('json-deep-copy')
 
 let cache = {}
-let writeFs = _.debounce(writeFileSync, 280)
+let writeFs = _.debounce(writeFileSync, 280, {
+  leading: true
+})
 
 const get = (key) => {
   try {

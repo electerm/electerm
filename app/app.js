@@ -54,27 +54,19 @@ const iconPath = resolve(
   )
 )
 
-/**
- * wait async
- */
-function wait(time) {
-  return new Promise(resolve => {
-    setTimeout(resolve, time)
-  })
-}
-
-async function onClose() {
+function onClose() {
   ls.set({
     exitStatus: 'ok',
     sessions: null
   })
-  await wait(300)
-  clearTimeout(timer)
-  clearTimeout(timer1)
-  win = null
-  process.kill(childPid)
-  setWin(win)
-  process.exit(0)
+  process.nextTick(() => {
+    clearTimeout(timer)
+    clearTimeout(timer1)
+    win = null
+    process.kill(childPid)
+    setWin(win)
+    process.exit(0)
+  })
 }
 
 async function waitUntilServerStart(url) {

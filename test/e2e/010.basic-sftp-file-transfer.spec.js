@@ -17,10 +17,6 @@ const {
 } = require('./common/env')
 const {log} = console
 
-if (true) {
-  return
-}
-
 describe('sftp file transfer', function () {
   this.timeout(100000)
 
@@ -167,15 +163,11 @@ describe('sftp file transfer', function () {
     await delay(20)
     await client.keys(['Enter'])
     await delay(1800)
-    //await client.rightClick('.ssh-wrap-show .sftp-item.remote', 15, 15)
+    await client.rightClick('.ssh-wrap-show .file-list.remote .sftp-item .sftp-file-prop', 10, 10)
     await delay(323)
     await client.execute(function() {
-      let event = new MouseEvent('dblclick', {
-        'view': window,
-        'bubbles': true,
-        'cancelable': true
-      })
-      document.querySelectorAll('.ssh-wrap-show .file-list.remote .sftp-item')[1].dispatchEvent(event)
+      document.querySelector('.context-menu .anticon-cloud-download-o').click()
+
     })
 
     await delay(2000)

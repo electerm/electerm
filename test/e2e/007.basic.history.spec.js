@@ -6,11 +6,6 @@ const cwd = process.cwd()
 const _ = require('lodash')
 const {log} = console
 const {expect} = require('chai')
-const isOs = require('./common/is-os')
-
-if (!isOs('linux')) {
-  return
-}
 
 describe('history', function () {
 

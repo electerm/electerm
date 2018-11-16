@@ -12,7 +12,7 @@ import wait from '../../common/wait'
 import createName from '../../common/create-title'
 import {addClass, removeClass} from '../../common/class'
 import {generate} from 'shortid'
-import newTerm from '../../common/new-terminal'
+import {statusMap} from '../../common/constants'
 
 const {prefix} = window
 const e = prefix('tabs')
@@ -118,7 +118,7 @@ export default class Tab extends React.Component {
     )
     let {id} = tab
     tab.id = generate()
-    tab.status = newTerm().status
+    tab.status = statusMap.processing
     let tabs = copy(this.props.tabs)
     let index = _.findIndex(tabs, t => t.id === id)
     this.props.onClose(this.state.tab.id)
