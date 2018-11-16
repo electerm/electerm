@@ -54,7 +54,7 @@ describe('ssh', function () {
 
     expect(tabsCount.value.length).equal(2)
     await delay(2010)
-    basicTermTest(client, cmd)
+    await basicTermTest(this, client, cmd)
 
   })
 

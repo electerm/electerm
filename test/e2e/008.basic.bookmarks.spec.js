@@ -6,11 +6,12 @@ const cwd = process.cwd()
 const _ = require('lodash')
 const {log} = console
 const {expect} = require('chai')
-const isOs = require('./common/is-os')
 
-if (!isOs('linux')) {
-  return
-}
+const {
+  TEST_HOST,
+  TEST_PASS,
+  TEST_USER
+} = require('./common/env')
 
 describe('bookmarks', function () {
 
@@ -58,16 +59,18 @@ describe('bookmarks', function () {
     let focus = await client.hasFocus('.ant-modal .ant-tabs-tabpane-active #host')
     expect(focus).equal(true)
 
-    log('default username = root')
+    log('default username = ""')
     let v = await client.getValue('.ant-modal .ant-tabs-tabpane-active #username')
-    expect(v).equal('root')
+    expect(v).equal('')
 
     log('default port = 22')
     let v1 = await client.getValue('.ant-modal .ant-tabs-tabpane-active #port')
     expect(v1).equal('22')
 
     log('save it')
-    await client.setValue('.ant-modal .ant-tabs-tabpane-active #host', '0.0.0.0')
+    await client.setValue('.ant-modal .ant-tabs-tabpane-active #host', TEST_HOST)
+    await client.setValue('.ant-modal .ant-tabs-tabpane-active #username', TEST_USER)
+    await client.setValue('.ant-modal .ant-tabs-tabpane-active #password', TEST_PASS)
     let list0 = await client.elements('.ant-modal .ant-tabs-tabpane-active .tree-item')
     await client.execute(function() {
       document.querySelectorAll('.ant-modal .ant-tabs-tabpane-active .ant-form-item-children .ant-btn.ant-btn-ghost')[0].click()

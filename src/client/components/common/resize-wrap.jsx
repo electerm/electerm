@@ -187,6 +187,7 @@ export default class ResizeWrap extends React.PureComponent {
     }
     return (
       <span
+        key={tid}
         {...props}
       />
     )

@@ -6,11 +6,6 @@ const {expect} = require('chai')
 const cwd = process.cwd()
 const packInfo = require('../../package.json')
 const {log} = console
-const isOs = require('./common/is-os')
-
-if (!isOs('linux')) {
-  return
-}
 
 describe('main window', function () {
   this.timeout(100000)
@@ -36,10 +31,11 @@ describe('main window', function () {
     const { client, browserWindow } = this.app
 
     await client.waitUntilWindowLoaded()
-    await delay(500)
+    await delay(800)
 
     log('title')
     const title = await browserWindow.getTitle()
+    console.log(title)
     expect(title).includes(packInfo.name)
 
     log('elements')

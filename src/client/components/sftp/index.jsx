@@ -826,6 +826,7 @@ export default class Sftp extends React.Component {
       <div
         className={`sftp-section sftp-${type}-section tw-${type}`}
         style={style}
+        key={type}
         {...style}
       >
         <Spin spinning={loading}>

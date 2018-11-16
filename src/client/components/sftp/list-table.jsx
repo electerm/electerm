@@ -28,7 +28,7 @@ import FileSection from './file'
 const {prefix} = window
 const e = prefix('sftp')
 
-export default class ResizeWrap extends React.Component {
+export default class FileListTable extends React.Component {
 
   constructor(props) {
     super(props)

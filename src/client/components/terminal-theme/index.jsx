@@ -79,7 +79,7 @@ class ThemeForm extends BookmarkForm {
       id,
       name: themeName
     } = this.props.formData
-    let {autoFocusTrigger} = this.props
+    let {autofocustrigger} = this.props
     let themeText = convertThemeToText({themeConfig, name})
     let isDefaultTheme = id === defaultTheme.id
     return (
@@ -109,7 +109,7 @@ class ThemeForm extends BookmarkForm {
             }],
             initialValue: themeName
           })(
-            <InputAutoFocus selectAll disabled={isDefaultTheme} autoFocusTrigger={autoFocusTrigger} />
+            <InputAutoFocus selectall="true" disabled={isDefaultTheme} autofocustrigger={autofocustrigger} />
           )}
         </FormItem>
         <FormItem

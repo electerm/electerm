@@ -68,7 +68,7 @@ export default memo(props => {
   }, {})
   let treeData = bookmarkGroups.map(bg => {
     return {
-      label: bg.title,
+      title: bg.title,
       value: bg.id,
       key: bg.id,
       children: bg.bookmarkIds.reduce((p, id) => {
@@ -79,7 +79,7 @@ export default memo(props => {
         return [
           ...p,
           {
-            label: createName(bm),
+            title: createName(bm),
             value: bm.id,
             key: bm.id
           }
@@ -91,10 +91,10 @@ export default memo(props => {
     treeData = [
       ...treeData,
       {
-        label: 'ssh-config',
+        title: 'ssh-config',
         children: sshConfigItems.map(bm => {
           return {
-            label: createName(bm),
+            title: createName(bm),
             value: bm.id,
             key: bm.id
           }

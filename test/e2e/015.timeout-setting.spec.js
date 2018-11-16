@@ -80,9 +80,11 @@ describe('timeout setting', function () {
       '.ant-modal .ant-tabs-tabpane-active .timeout-desc .ant-input-number-input',
       50000
     )
+    await delay(555)
     await client.execute(function() {
       document.querySelector('.ant-modal .ant-modal-close').click()
     })
+    await delay(400)
   })
 
 })
