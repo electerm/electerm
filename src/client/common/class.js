@@ -24,7 +24,7 @@ export function addClass (elem, ..._classes) {
  * @returns {boolean}
  */
 export function hasClass (elem, clst) {
-  let cls = elem.className
+  let cls = elem.className || ''
   if(!cls) return false
   cls = ' ' + cls.split(/\s+/).join(' ') + ' '
   let reg = new RegExp(' ' + clst + ' ')
@@ -37,8 +37,9 @@ export function hasClass (elem, clst) {
  * @param classes
  */
 export function removeClass (elem, ...classes) {
-  let cls = elem.className
+  let cls = elem.className || ''
   if(!cls) return
+  console.log(cls)
   cls = '  ' + cls.split(/\s+/).join('  ') + '  '
   let clst = classes.join(' ').split(/\s+/)
   let reg = new RegExp(' ' + clst.join(' | ') + ' ', 'g')

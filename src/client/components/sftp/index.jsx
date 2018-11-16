@@ -803,7 +803,6 @@ export default class Sftp extends React.Component {
       : 'arrow-right'
 
     let listProps = {
-      list: arr,
       id,
       type,
       ...this.props,
@@ -820,7 +819,8 @@ export default class Sftp extends React.Component {
       ),
       sortProp: this.state[`sortProp.${type}`],
       sortDirection: this.state[`sortDirection.${type}`],
-      width
+      width,
+      fileList: arr
     }
     return (
       <div

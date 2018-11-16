@@ -33,7 +33,7 @@ export default class FileMode extends React.PureComponent {
     if (!releaseInfo) {
       return this.notifyUpdateFail()
     }
-    let currentVer = 'v' + window.getGlobal('version').split('-')[0]
+    let currentVer = 'v' + window.et.version.split('-')[0]
     let latestVer = releaseInfo.tag_name
     if (compare(currentVer, latestVer) < 0) {
       this.showUpdateInfo(releaseInfo)

@@ -23,7 +23,6 @@ const {saveUserConfig, userConfig} = require('./lib/user-config-controller')
 const {init, changeHotkeyReg} = require('./lib/shortcut')
 const {fsExport, fsFunctions} = require('./lib/fs')
 const ls = require('./lib/ls')
-const version = require('./lib/version')
 const menu = require('./lib/menu')
 const {setWin} = require('./lib/win')
 const log = require('electron-log')
@@ -109,7 +108,7 @@ async function createWindow () {
   if (config.showMenu) Menu.setApplicationMenu(menu)
 
   let windowSizeLastState = lastStateManager.get('windowSize')
-  const {width, height} = windowSizeLastState
+  const {width, height} = windowSizeLastState && !isDev
     ? windowSizeLastState
     : require('electron').screen.getPrimaryDisplay().workAreaSize
 
@@ -154,7 +153,6 @@ async function createWindow () {
     popup: (options) => {
       Menu.getApplicationMenu().popup(options)
     },
-    version,
     versions: process.versions,
     sshConfigItems,
     testConnection,

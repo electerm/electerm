@@ -50,7 +50,7 @@ export default class Tabs extends React.Component {
     if (!e.target.className.includes('tabs-wrapper')) {
       return
     }
-    this.props.onAdd()
+    this.props.addTab()
   }
 
   adjustScroll = () => {
@@ -83,7 +83,7 @@ export default class Tabs extends React.Component {
 
   onClickMenu = ({key}) => {
     let id = key.split('##')[1]
-    this.props.onChange(id)
+    this.props.onChangeTabId(id)
   }
 
   renderList = () => {
@@ -110,7 +110,7 @@ export default class Tabs extends React.Component {
         type="plus-circle-o"
         title={e('openNewTerm')}
         className="pointer tabs-add-btn font16"
-        onClick={this.props.onAdd}
+        onClick={() => this.props.addTab()}
       />
     )
   }

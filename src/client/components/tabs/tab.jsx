@@ -121,7 +121,7 @@ export default class Tab extends React.Component {
     tab.status = statusMap.processing
     let tabs = copy(this.props.tabs)
     let index = _.findIndex(tabs, t => t.id === id)
-    this.props.onClose(this.state.tab.id)
+    this.props.delTab({id: this.state.tab.id})
     await wait(30)
     this.props.addTab(tab, index)
   }
@@ -133,18 +133,14 @@ export default class Tab extends React.Component {
   }
 
   close = () => {
-    this.props.onClose(this.state.tab.id)
+    this.props.delTab({id: this.state.tab.id})
     if (this.props.tabs.length <= 1) {
-      setTimeout(this.add, 1)
+      setTimeout(this.props.addTab, 1)
     }
   }
 
   dup = () => {
-    this.props.onDup(this.props.tab)
-  }
-
-  add = () => {
-    this.props.onAdd()
+    this.props.onDuplicateTab(this.props.tab)
   }
 
   doRename = () => {
@@ -243,7 +239,7 @@ export default class Tab extends React.Component {
 
         <div
           className={cls}
-          onClick={this.add}
+          onClick={() => this.props.addTab()}
         >
           <Icon type="code-o" /> {e('newTab')}
         </div>
@@ -302,8 +298,8 @@ export default class Tab extends React.Component {
   render() {
     let {
       currentTabId,
-      onChange,
-      onDup
+      onChangeTabId,
+      onDuplicateTab
     } = this.props
     let {tab} = this.state
     let {id, isEditting, status} = tab
@@ -336,8 +332,8 @@ export default class Tab extends React.Component {
         >
           <div
             className="tab-title elli pd1x"
-            onClick={() => onChange(id)}
-            onDoubleClick={() => onDup(tab)}
+            onClick={() => onChangeTabId(id)}
+            onDoubleClick={() => onDuplicateTab(tab)}
             onContextMenu={this.onContextMenu}
           >
             <Badge status={status} />
