@@ -286,6 +286,7 @@ export default class Term extends React.PureComponent {
 
   onSelectTheme = id => {
     this.props.setTheme(id)
+    this.props.closeContextMenu()
   }
 
   renderThemeSelect = () => {
@@ -365,7 +366,7 @@ export default class Term extends React.PureComponent {
           <Icon type="border-horizontal" /> {e('split')}
         </div>
         <div
-          className={cls}
+          className={cls + ' no-auto-close-context'}
         >
           {this.renderThemeSelect()}
         </div>

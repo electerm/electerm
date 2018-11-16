@@ -504,6 +504,7 @@ export default class Index extends React.Component {
         'setTheme', 'addTheme', 'editTheme', 'delTheme',
         'addBookmarkGroup',
         'editBookmarkGroup',
+        'closeContextMenu',
         'clickNextTab',
         'delBookmarkGroup'
       ])
