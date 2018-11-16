@@ -4,6 +4,7 @@ import {message} from 'antd'
 import Wrapper from '../terminal'
 import newTerm from '../../common/new-terminal'
 import _ from 'lodash'
+import {generate} from 'shortid'
 import copy from 'json-deep-copy'
 import ContextMenu from '../common/context-menu'
 import FileInfoModal from '../sftp/file-props-modal'
@@ -24,13 +25,28 @@ import {
 } from '../../common/constants'
 import Control from '../control'
 import SessionControl from '../session-control'
+import {buildNewTheme} from '../../common/terminal-theme'
 import './wrapper.styl'
 
 const {getGlobal, _config} = window
 const ls = getGlobal('ls')
 const {prefix} = window
 const t = prefix('terminalThemes')
+const e = prefix('control')
+const defaultStatus = statusMap.processing
 let sessionsGlob = copy(ls.get('sessions'))
+const sshConfigItems = copy(getGlobal('sshConfigItems'))
+const getInitItem = (arr, tab) => {
+  if (tab === settingMap.history) {
+    return arr[0] || {}
+  } else if (tab === settingMap.bookmarks) {
+    return {id: '', title: ''}
+  } else if (tab === settingMap.setting) {
+    return {id: '', title: e('common')}
+  } else if (tab === settingMap.terminalThemes) {
+    return buildNewTheme()
+  }
+}
 
 export default class Index extends React.Component {
 
@@ -65,7 +81,14 @@ export default class Index extends React.Component {
       onCheckUpdating: false,
       selectedSessions: [],
       sessionModalVisible: false,
-      textEditorProps: {}
+      textEditorProps: {},
+      item: getInitItem([], settingMap.bookmarks),
+
+      //for settings related
+      tab: settingMap.bookmarks,
+      autofocustrigger: + new Date(),
+      bookmarkId: undefined,
+      showModal: false
     }
     let title = createTitlte(tabs[0])
     window.getGlobal('setTitle')(title)
@@ -81,6 +104,8 @@ export default class Index extends React.Component {
       .on('checkupdate', this.onCheckUpdate)
       .on('open-about', this.openAbout)
       .on('toggle-control', this.toggleControl)
+      .on('new-ssh', this.onNewSsh)
+      .on('openSettings', this.openSetting)
     document.addEventListener('drop', function(e) {
       e.preventDefault()
       e.stopPropagation()
@@ -347,7 +372,7 @@ export default class Index extends React.Component {
     })
   }
 
-  addTab = (tab, index = this.state.tabs.length) => {
+  addTab = (tab = newTerm(), index = this.state.tabs.length) => {
     let tabs = copy(this.state.tabs)
     tabs.splice(index, 0, tab)
     this.modifier({
@@ -475,6 +500,148 @@ export default class Index extends React.Component {
     terminalThemes.setTheme(id)
   }
 
+  onDelItem = (item, type) => {
+    if (item.id === this.state.item.id) {
+      this.setState((old) => {
+        return {
+          item: getInitItem(
+            old[type],
+            type
+          )
+        }
+      })
+    }
+  }
+
+  onDuplicateTab = tab => {
+    let index = _.findIndex(
+      this.state.tabs,
+      d => d.id === tab.id
+    )
+    this.addTab({
+      ...tab,
+      status: defaultStatus,
+      id: generate()
+    }, index + 1)
+  }
+
+  onChangeTabId = currentTabId => {
+    this.modifier({currentTabId})
+  }
+
+  onNewSsh = () => {
+    this.setState({
+      tab: settingMap.bookmarks,
+      item: getInitItem([], settingMap.bookmarks),
+      autofocustrigger: + new Date()
+    }, this.openModal)
+  }
+
+  onSelectHistory = id => {
+    let item = _.find(this.state.history, it => it.id === id)
+    this.addTab({
+      ...copy(item),
+      from: 'history',
+      srcId: item.id,
+      status: defaultStatus,
+      id: generate()
+    })
+  }
+
+  onSelectBookmark = id => {
+    let {history, bookmarks} = this.state
+    let item = copy(
+      _.find(bookmarks, it => it.id === id) ||
+      _.find(sshConfigItems, it => it.id === id)
+    )
+    if (!item) {
+      return
+    }
+    this.addTab({
+      ...item,
+      from: 'bookmarks',
+      srcId: item.id,
+      status: defaultStatus,
+      id: generate()
+    })
+    item.id = generate()
+
+    let existItem = _.find(history, j => {
+      let keysj = Object.keys(j)
+      let keysi = Object.keys(item)
+      return _.isEqual(
+        _.pick(item, _.without(keysi, 'id')),
+        _.pick(j, _.without(keysj, 'id'))
+      )
+    })
+    if (!existItem) {
+      this.addItem(item, settingMap.history)
+    } else {
+      let historyNew = copy(history)
+      let index = _.findIndex(historyNew, f => f.id === existItem.id)
+      historyNew.splice(index, 1)
+      historyNew.unshift(existItem)
+      this.modifier({history: historyNew})
+    }
+  }
+
+  openSetting = () => {
+    this.setState({
+      tab: settingMap.setting,
+      item: getInitItem([], settingMap.setting)
+    }, this.openModal)
+  }
+
+  openTerminalThemes = () => {
+    this.setState({
+      tab: settingMap.terminalThemes,
+      item: buildNewTheme(),
+      autofocustrigger: + new Date()
+    }, this.openModal)
+  }
+
+  openModal = () => {
+    this.setState({
+      showModal: true
+    })
+  }
+
+  hideModal = () => {
+    this.setState({
+      showModal: false
+    })
+  }
+
+  getItems = (tab, props = this.state) => {
+    return tab === settingMap.terminalThemes
+      ? copy(props.themes)
+      : copy(props[tab]) || []
+  }
+
+  onChangeTab = tab => {
+    let arr = this.getItems(tab)
+    let item = getInitItem(arr, tab)
+    this.setState({
+      item,
+      autofocustrigger: + new Date(),
+      tab
+    })
+  }
+
+  getList = () => {
+    let {
+      tab
+    } = this.state
+    let arr = this.getItems(tab)
+    let initItem = getInitItem(arr, tab)
+    return tab === settingMap.history
+      ? arr
+      : [
+        copy(initItem),
+        ...arr
+      ]
+  }
+
   render() {
     let {
       tabs,
@@ -491,6 +658,7 @@ export default class Index extends React.Component {
     let themeConfig = (_.find(themes, d => d.id === theme) || {}).themeConfig || {}
     let controlProps = {
       ...this.state,
+      list: this.getList(),
       themeConfig,
       ..._.pick(this, [
         'modifier', 'delTab', 'addTab', 'editTab',
@@ -506,7 +674,12 @@ export default class Index extends React.Component {
         'editBookmarkGroup',
         'closeContextMenu',
         'clickNextTab',
-        'delBookmarkGroup'
+        'delBookmarkGroup',
+        'onClose',
+        'hideModal', 'onDelItem',
+        'onNewSsh', 'openSetting',
+        'openTerminalThemes',
+        'onSelectHistory', 'onChangeTabId', 'onDuplicateTab', 'onSelectBookmark', 'onChangeTab'
       ])
     }
     let sessProps = {

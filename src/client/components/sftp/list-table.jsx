@@ -496,7 +496,7 @@ export default class FileListTable extends React.Component {
   }
 
   render() {
-    let {list, height, type} = this.props
+    let {fileList, height, type} = this.props
     const tableHeaderHeight = 30
     return (
       <div className="sftp-table relative">
@@ -510,7 +510,7 @@ export default class FileListTable extends React.Component {
         >
           {this.props.renderEmptyFile(type)}
           {
-            list.map(this.renderItem)
+            fileList.map(this.renderItem)
           }
         </div>
       </div>

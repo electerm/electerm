@@ -38,12 +38,11 @@ export default memo(props => {
     bookmarks = [],
     bookmarkGroups = [],
     history = [],
-    onEditBookmark,
     onNewSsh,
     openAbout,
     openTransferHistory,
     bookmarkId,
-    modifier2,
+    modifier,
     openTerminalThemes,
     transferHistory,
     isMaximized
@@ -111,7 +110,7 @@ export default memo(props => {
         value={bookmarkId}
         onSelect={bookmarkId => {
           onSelectBookmark(bookmarkId)
-          modifier2({
+          modifier({
             bookmarkId
           })
         }}
@@ -125,7 +124,7 @@ export default memo(props => {
         }}
         onChange={(value, label, extra) => {
           onSelectBookmark(extra.triggerValue)
-          modifier2({
+          modifier({
             bookmarkId: extra.triggerValue
           })
         }}
@@ -184,7 +183,7 @@ export default memo(props => {
           <Icon
             type="edit"
             className="font16 mg1x mg2l pointer iblock control-icon icon-do-edit"
-            onClick={onEditBookmark}
+            onClick={onNewSsh}
           />
         </Tooltip>
         <Icon

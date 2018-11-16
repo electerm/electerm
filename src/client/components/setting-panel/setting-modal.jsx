@@ -20,7 +20,7 @@ const {TabPane} = Tabs
 
 export default memo(props => {
   const selectItem = (item) => {
-    props.modifier2({item})
+    props.modifier({item})
   }
 
   const tabsShouldConfirmDel = [

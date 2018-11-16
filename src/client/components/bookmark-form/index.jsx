@@ -15,6 +15,7 @@ import {generate} from 'shortid'
 import {
   authTypeMap,
   settingMap,
+  statusMap,
   defaultUserName,
   defaultookmarkGroupId
 } from '../../common/constants'
@@ -162,7 +163,7 @@ export class BookmarkForm extends React.PureComponent {
         obj,
         categoryId
       )
-      this.props.modifier2({
+      this.props.modifier({
         item: obj
       })
     }
@@ -231,7 +232,9 @@ export class BookmarkForm extends React.PureComponent {
     evt && this.submit(evt, obj)
     if (evt !== 'save') {
       this.props.addTab({
-        ...res,
+        ...copy(obj),
+        srcId: obj.id,
+        status: statusMap.processing,
         id: generate()
       })
       this.props.hide()
