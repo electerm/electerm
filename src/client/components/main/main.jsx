@@ -1,7 +1,7 @@
 
 import React from 'react'
 import {message} from 'antd'
-import Wrapper from '../terminal'
+import Session from '../session'
 import newTerm from '../../common/new-terminal'
 import _ from 'lodash'
 import {generate} from 'shortid'
@@ -731,7 +731,7 @@ export default class Index extends React.Component {
                   : 'ssh-wrap-show'
                 return (
                   <div className={cls} key={id}>
-                    <Wrapper
+                    <Session
                       {...controlProps}
                       tab={tab}
                       ref={ref => this[`term_${id}`] = ref}
