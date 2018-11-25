@@ -4,9 +4,8 @@ const {resolve} = require('path')
 const cwd = process.cwd()
 const delay = require('./common/wait')
 const {expect} = require('chai')
-const isOs = require('./common/is-os')
 
-if (!isOs('darwin')) {
+if (true) {
   return
 }
 
