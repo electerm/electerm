@@ -6,12 +6,13 @@ import {memo} from 'react'
 import {
   Select,
   Icon,
-  Tooltip,
-  TreeSelect
+  Tooltip
 } from 'antd'
 import createName from '../../common/create-title'
 import copy from 'json-deep-copy'
 import MenuBtn from './menu-btn'
+import SelectHover from './hover-select'
+import SelectTreeHover from './hover-tree-select'
 
 const {Option} = Select
 const {prefix, getGlobal} = window
@@ -104,7 +105,7 @@ export default memo(props => {
 
   let bookmarkSelect = bookmarkGroups.length > 1
     ? (
-      <TreeSelect
+      <SelectTreeHover
         placeholder={c('bookmarks')}
         className="iblock btn-select"
         value={bookmarkId}
@@ -134,7 +135,7 @@ export default memo(props => {
       />
     )
     : (
-      <Select
+      <SelectHover
         onSelect={onSelectBookmark}
         placeholder={c('bookmarks')}
         {...commonSelectProps}
@@ -151,7 +152,7 @@ export default memo(props => {
             )
           })
         }
-      </Select>
+      </SelectHover>
     )
   return (
     <div className="btns relative borderb fix">
@@ -163,7 +164,7 @@ export default memo(props => {
           onClick={onNewSsh}
           title={e('newSsh')}
         />
-        <Select
+        <SelectHover
           className="mg1r iblock btn-select"
           onSelect={onSelectHistory}
           placeholder={c('history')}
@@ -177,7 +178,7 @@ export default memo(props => {
               )
             })
           }
-        </Select>
+        </SelectHover>
         {bookmarkSelect}
         <Tooltip title={`${m('edit')} ${c('bookmarks')}`}>
           <Icon
