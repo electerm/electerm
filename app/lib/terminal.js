@@ -6,6 +6,7 @@ const {Client} = require('ssh2')
 const proxySock = require('./socks')
 const _ = require('lodash')
 const {generate} = require('shortid')
+const {resolve} = require('path')
 
 class Terminal {
 
@@ -25,7 +26,12 @@ class Terminal {
       rows
     } = initOptions
     let {platform} = process
-    let exe = platform.startsWith('win') ? 'powershell.exe' : 'bash'
+    let exe = platform.startsWith('win')
+      ? resolve(
+        process.env.windir,
+        'System32/WindowsPowerShell/v1.0/powershell.exe'
+      )
+      : 'bash'
     let cwd = process.env[
       platform === 'win32' ? 'USERPROFILE' : 'HOME'
     ]
