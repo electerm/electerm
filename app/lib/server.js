@@ -34,7 +34,7 @@ app.post('/terminals', async function (req, res) {
     res.end(pid)
   } else {
     res.status(500)
-    res.end(term.message)
+    res.end(term.stack)
   }
 })
 
