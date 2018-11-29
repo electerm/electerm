@@ -39,7 +39,6 @@ export function hasClass (elem, clst) {
 export function removeClass (elem, ...classes) {
   let cls = elem.className || ''
   if(!cls) return
-  console.log(cls)
   cls = '  ' + cls.split(/\s+/).join('  ') + '  '
   let clst = classes.join(' ').split(/\s+/)
   let reg = new RegExp(' ' + clst.join(' | ') + ' ', 'g')

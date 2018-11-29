@@ -67,7 +67,8 @@ export class TextEditorForm extends React.PureComponent {
     }
     let r = await this.props.sftp.writeFile(
       this.state.path,
-      res.text
+      res.text,
+      this.props.file.mode
     )
     r && this.props.afterWrite()
     this.cancel()
