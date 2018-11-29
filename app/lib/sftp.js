@@ -414,8 +414,8 @@ class Sftp {
    * https://github.com/mscdex/ssh2-streams/blob/master/SFTPStream.md
    * @return {Promise}
    */
-  writeFile (remotePath, str) {
-    return writeRemoteFile(this.sftp, remotePath, str)
+  writeFile (remotePath, str, mode) {
+    return writeRemoteFile(this.sftp, remotePath, str, mode)
   }
   //end
 }
