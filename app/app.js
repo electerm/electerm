@@ -63,7 +63,9 @@ function onClose() {
     clearTimeout(timer1)
     win = null
     process.kill(childPid)
-    setWin(win)
+    process.on('uncaughtException', function () {
+      process.exit(0)
+    })
     process.exit(0)
   })
 }
