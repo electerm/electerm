@@ -63,7 +63,7 @@ function onClose() {
     clearTimeout(timer1)
     win = null
     process.kill(childPid)
-    process.exit(0)
+    app.exit()
   })
 }
 
