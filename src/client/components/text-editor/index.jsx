@@ -80,6 +80,10 @@ export class TextEditorForm extends React.PureComponent {
     })
   }
 
+  onPressEnter = e => {
+    e.stopPropagation()
+  }
+
   renderForm() {
     const {
       text
@@ -94,7 +98,7 @@ export class TextEditorForm extends React.PureComponent {
           {getFieldDecorator('text', {
             initialValue: text
           })(
-            <Input.TextArea rows={20}>{text}</Input.TextArea>
+            <Input.TextArea rows={20} onPressEnter={this.onPressEnter}>{text}</Input.TextArea>
           )}
         </FormItem>
       </Form>
