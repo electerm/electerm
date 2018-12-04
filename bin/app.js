@@ -1,7 +1,7 @@
-const {exec} = require('shelljs')
+const {exec, cd} = require('shelljs')
 const os = require('os')
 const platform = os.platform()
-
-let cmd = `cd app && ../node_modules/.bin/cross-env NODE_ENV=development ${platform.startsWith('win') ? '' : 'nohup'} ../node_modules/.bin/electron ./app`
-exec(cmd)
+console.log('platform:', platform)
+cd('app')
+exec('../node_modules/.bin/cross-env NODE_ENV=development ../node_modules/.bin/electron ./app')
 

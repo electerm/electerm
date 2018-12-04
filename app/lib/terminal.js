@@ -65,6 +65,12 @@ class Terminal {
           'passphrase'
         ])
       )
+      if (!opts.password) {
+        delete opts.password
+      }
+      if (!opts.passphrase) {
+        delete opts.passphrase
+      }
       const run = (info) => {
         if (info && info.socket) {
           delete opts.host

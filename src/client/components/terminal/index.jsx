@@ -39,6 +39,7 @@ const t = prefix('terminalThemes')
 const {Option} = Select
 
 const authFailMsg = 'All configured authentication methods failed'
+const privateKeyMsg = 'Encrypted private key detected'
 const typeSshConfig = 'ssh-config'
 
 const computePos = (e, height) => {
@@ -67,7 +68,8 @@ export default class Term extends React.PureComponent {
       savePassword: false,
       tempPassword: '',
       searchVisible: false,
-      searchInput: ''
+      searchInput: '',
+      passType: 'password'
     }
   }
 
@@ -465,11 +467,9 @@ export default class Term extends React.PureComponent {
     let url = `http://${host}:${port}/terminals`
     let {tab = {}} = this.props
     let {startPath, srcId, from = 'bookmarks', type, loginScript} = tab
-    let {tempPassword, savePassword} = this.state
+    let {savePassword} = this.state
     let isSshConfig = type === terminalSshConfigType
-    let extra = tempPassword
-      ? {password: tempPassword}
-      : {}
+    let extra = this.props.sessionOptions
     let pid = await fetch.post(url, {
       cols,
       rows,
@@ -487,13 +487,17 @@ export default class Term extends React.PureComponent {
           ? await response.text()
           : _.isPlainObject(response) ? JSON.stringify(response) : response
         if (text.includes(authFailMsg)) {
+          this.setState(() => ({ passType: 'password' }))
           return 'fail'
+        } else if (text.includes(privateKeyMsg)) {
+          this.setState(() => ({ passType: 'passphrase' }))
+          return 'fail-private'
         } else {
           handleErr({message: text})
         }
       }
     })
-    if (pid === 'fail') {
+    if (pid.includes('fail')) {
       return this.promote()
     }
     if (savePassword) {
@@ -507,6 +511,7 @@ export default class Term extends React.PureComponent {
       return
     }
     this.setStatus(statusMap.success)
+    this.props.setSessionState(extra || {})
     term.pid = pid
     this.pid = pid
     wsUrl = `ws://${host}:${port}/terminals/${pid}`
@@ -634,6 +639,15 @@ export default class Term extends React.PureComponent {
   }
 
   onClickConfirmPass = () => {
+    let {
+      tempPassword,
+      passType
+    }  = this.state
+    this.props.setSessionState({
+      sessionOptions: {
+        [passType]: tempPassword
+      }
+    })
     this.setState({
       promoteModalVisible: false
     }, this.remoteInit)

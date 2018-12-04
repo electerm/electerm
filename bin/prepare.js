@@ -9,6 +9,8 @@ const {mkdir, rm, exec, echo, cp} = require('shelljs')
 const dir = 'dist/v' + version
 const cwd = process.cwd()
 pack.main = 'app.js'
+delete pack.scripts
+pack.devDependencies = {}
 echo('start pack prepare')
 
 const timeStart = + new Date()
@@ -28,6 +30,7 @@ cp('-r', [
 rm('-rf',  'work/app/dev-app.js')
 rm('-rf',  'work/app/user-config.json')
 rm('-rf',  'work/app/localstorage.json')
+rm('-rf',  'work/app/nohup.out')
 rm('-rf',  'work/app/assets/js/basic.bundle.js')
 rm('-rf',  'work/app/assets/js/index.bundle.js')
 require('fs').writeFileSync(
