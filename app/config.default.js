@@ -38,7 +38,7 @@ module.exports = function() {
         showMenu: true,
         ...defaultSettings,
         defaultSettings,
-        terminalTimeout: 10000
+        terminalTimeout: 5000
       }
       extend(conf, override)
       extend(conf, userConfig)
