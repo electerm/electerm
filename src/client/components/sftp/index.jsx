@@ -72,6 +72,16 @@ export default class Sftp extends React.Component {
     this.initEvent()
   }
 
+  componentDidUpdate(prevProps) {
+    if (
+      !_.isEqual(
+        prevProps.sessionOptions, this.props.sessionOptions
+      )
+    ) {
+      this.initData(true)
+    }
+  }
+
   componentWillUnmount() {
     this.destroyEvent()
     this.sftp && this.sftp.destroy()
@@ -384,11 +394,13 @@ export default class Sftp extends React.Component {
     }
   }
 
-  initData = () => {
-    let {props} = this
-    let host = _.get(props, 'tab.host')
-    if (host) {
-      this.remoteList()
+  initData = (remoteInit) => {
+    if (remoteInit) {
+      let {props} = this
+      let host = _.get(props, 'tab.host')
+      if (host) {
+        this.remoteList()
+      }
     }
     this.localList()
   }
@@ -449,6 +461,7 @@ export default class Sftp extends React.Component {
     let oldRemote = deepCopy(
       this.state.remote
     )
+    let {sessionOptions} = this.props
     try {
       if (!this.sftp) {
         let config = deepCopy(
@@ -457,7 +470,8 @@ export default class Sftp extends React.Component {
         await sftp.connect({
           ...tab,
           readyTimeout: _.get(config, 'sshReadyTimeout'),
-          keepaliveInterval: _.get(config, 'keepaliveInterval')
+          keepaliveInterval: _.get(config, 'keepaliveInterval'),
+          ...sessionOptions
         })
       }
 

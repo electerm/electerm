@@ -53,6 +53,7 @@ export default class WindowWrapper extends React.PureComponent  {
       splitDirection: terminalSplitDirectionMap.horizontal,
       activeSplitId: id,
       key: Math.random(),
+      sessionOptions: null,
       terminals: [
         {
           id,
@@ -102,6 +103,10 @@ export default class WindowWrapper extends React.PureComponent  {
     this.setState({
       pane
     })
+  }
+
+  setSessionState = data => {
+    this.setState(data)
   }
 
   doSplit = (e, id) => {
@@ -178,7 +183,7 @@ export default class WindowWrapper extends React.PureComponent  {
   }
 
   renderTerminals = () => {
-    let {pane, terminals, splitDirection} = this.state
+    let {pane, terminals, splitDirection, sessionOptions} = this.state
     let cls = pane === paneMap.terminal
       ? 'terms-box bg-black'
       : 'terms-box bg-black hide'
@@ -205,13 +210,14 @@ export default class WindowWrapper extends React.PureComponent  {
                 pane,
                 ..._.pick(
                   this,
-                  ['setActive', 'doSplit']
+                  ['setActive', 'doSplit', 'setSessionState']
                 ),
                 ...this.computePosition(t.position / 10)
               }
               return (
                 <Term
                   key={t.id}
+                  sessionOptions={sessionOptions}
                   {...pops}
                 />
               )
@@ -223,7 +229,7 @@ export default class WindowWrapper extends React.PureComponent  {
   }
 
   renderSftp = () => {
-    let {pane} = this.state
+    let {pane, sessionOptions} = this.state
     let height = this.computeHeight()
     let {props} = this
     let cls = pane === paneMap.terminal
@@ -233,6 +239,7 @@ export default class WindowWrapper extends React.PureComponent  {
       <div className={cls}>
         <Sftp
           {...props}
+          sessionOptions={sessionOptions}
           height={height}
           pane={pane}
         />
