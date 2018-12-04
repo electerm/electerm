@@ -511,7 +511,9 @@ export default class Term extends React.PureComponent {
       return
     }
     this.setStatus(statusMap.success)
-    this.props.setSessionState(extra || {})
+    this.props.setSessionState({
+      sessionOptions: extra || {}
+    })
     term.pid = pid
     this.pid = pid
     wsUrl = `ws://${host}:${port}/terminals/${pid}`
