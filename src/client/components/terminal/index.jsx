@@ -131,6 +131,7 @@ export default class Term extends React.PureComponent {
       'resize',
       this.onResize
     )
+    window.removeEventListener('message', this.handleEvent)
     this.dom.removeEventListener('contextmenu', this.onContextMenu)
   }
 
@@ -182,10 +183,14 @@ export default class Term extends React.PureComponent {
       'resize',
       this.onResize
     )
+    window.addEventListener('message', this.handleEvent)
   }
 
   handleEvent = (e) => {
-    if (keyControlPressed(e) && e.code === 'KeyF') {
+    if (e.data && e.data.id === this.props.id) {
+      this.term.selectAll()
+    }
+    else if (keyControlPressed(e) && e.code === 'KeyF') {
       this.openSearch()
     } else if (
       e.ctrlKey &&
@@ -210,6 +215,16 @@ export default class Term extends React.PureComponent {
       if (txt) {
         copy(txt)
       }
+    }
+  }
+
+  onBlur = () => {
+    if (
+      this.props.id === this.props.activeTerminalId
+    ) {
+      this.props.modifier({
+        activeTerminalId: ''
+      })
     }
   }
 
@@ -403,6 +418,7 @@ export default class Term extends React.PureComponent {
     })
     term.open(document.getElementById(id), true)
     term.on('focus', this.setActive)
+    term.on('blur', this.onBlur)
     term.on('selection', this.onSelection)
     term.on('keydown', this.handleEvent)
     this.term = term
@@ -414,6 +430,9 @@ export default class Term extends React.PureComponent {
 
   setActive = () => {
     this.props.setActive(this.props.id)
+    this.props.modifier({
+      activeTerminalId: this.props.id
+    })
   }
 
   initData = () => {

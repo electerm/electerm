@@ -15,13 +15,15 @@ import openInfoModal from '../control/info-modal'
 import * as terminalThemes from '../../common/terminal-theme'
 import createTitlte from '../../common/create-title'
 import TextEditor from '../text-editor'
+import keyControlPressed from '../../common/key-control-pressed'
 import {
   maxHistory,
   settingMap,
   defaultookmarkGroupId,
   maxTransferHistory,
   statusMap,
-  defaultTheme
+  defaultTheme,
+  isMac
 } from '../../common/constants'
 import Control from '../control'
 import SessionControl from '../session-control'
@@ -88,7 +90,8 @@ export default class Index extends React.Component {
       tab: settingMap.bookmarks,
       autofocustrigger: + new Date(),
       bookmarkId: undefined,
-      showModal: false
+      showModal: false,
+      activeTerminalId: ''
     }
     let title = createTitlte(tabs[0])
     window.getGlobal('setTitle')(title)
@@ -106,6 +109,7 @@ export default class Index extends React.Component {
       .on('toggle-control', this.toggleControl)
       .on('new-ssh', this.onNewSsh)
       .on('openSettings', this.openSetting)
+      .on('selectall', this.selectall)
     document.addEventListener('drop', function(e) {
       e.preventDefault()
       e.stopPropagation()
@@ -204,6 +208,36 @@ export default class Index extends React.Component {
     let dom = document.getElementById('outside-context')
     this.dom = dom
     dom.addEventListener('click', this.closeContextMenu)
+    document.addEventListener('keydown', e => {
+      if (keyControlPressed(e) && e.code === 'KeyA') {
+        this.selectall()
+      }
+    })
+  }
+
+  selectall = () => {
+    document.activeElement && document.activeElement.select()
+    // window.postMessage({
+    //   event: 'selectall',
+    //   id: this.state.activeTerminalId
+    // }, '*')
+    var keyboardEvent = document.createEvent("KeyboardEvent");
+    var initMethod = typeof keyboardEvent.initKeyboardEvent !== 'undefined' ? "initKeyboardEvent" : "initKeyEvent";
+    
+    
+    keyboardEvent[initMethod](
+                       "keydown", // event type : keydown, keyup, keypress
+                        true, // bubbles
+                        true, // cancelable
+                        window, // viewArg: should be window
+                        isMac ? false : true, // ctrlKeyArg
+                        false, // altKeyArg
+                        false, // shiftKeyArg
+                        isMac ? true : false, // metaKeyArg
+                        "a".charCodeAt(0), // keyCodeArg : unsigned long the virtual key code, else 0
+                        0 // charCodeArgs : unsigned long the Unicode character associated with the depressed key, else 0
+    );
+    document.dispatchEvent(keyboardEvent);
   }
 
   clickNextTab = _.debounce(() => {
