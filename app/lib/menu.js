@@ -61,6 +61,7 @@ const template = [
       },
       {
         label: e('selectall'),
+        accelerator: 'CmdOrCtrl+A',
         click() {
           require('./win').win.webContents.send('selectall', null)
         }

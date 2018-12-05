@@ -208,36 +208,17 @@ export default class Index extends React.Component {
     let dom = document.getElementById('outside-context')
     this.dom = dom
     dom.addEventListener('click', this.closeContextMenu)
-    document.addEventListener('keydown', e => {
-      if (keyControlPressed(e) && e.code === 'KeyA') {
-        this.selectall()
-      }
-    })
   }
 
   selectall = () => {
-    document.activeElement && document.activeElement.select()
-    // window.postMessage({
-    //   event: 'selectall',
-    //   id: this.state.activeTerminalId
-    // }, '*')
-    var keyboardEvent = document.createEvent("KeyboardEvent");
-    var initMethod = typeof keyboardEvent.initKeyboardEvent !== 'undefined' ? "initKeyboardEvent" : "initKeyEvent";
-    
-    
-    keyboardEvent[initMethod](
-                       "keydown", // event type : keydown, keyup, keypress
-                        true, // bubbles
-                        true, // cancelable
-                        window, // viewArg: should be window
-                        isMac ? false : true, // ctrlKeyArg
-                        false, // altKeyArg
-                        false, // shiftKeyArg
-                        isMac ? true : false, // metaKeyArg
-                        "a".charCodeAt(0), // keyCodeArg : unsigned long the virtual key code, else 0
-                        0 // charCodeArgs : unsigned long the Unicode character associated with the depressed key, else 0
-    );
-    document.dispatchEvent(keyboardEvent);
+    document.activeElement &&
+    document.activeElement.select &&
+    document.activeElement.select()
+    window.postMessage({
+      event: 'selectall',
+      id: this.state.activeTerminalId
+    }, '*')
+
   }
 
   clickNextTab = _.debounce(() => {
