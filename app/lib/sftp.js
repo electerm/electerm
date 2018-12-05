@@ -20,7 +20,9 @@ class Sftp {
   connect(config) {
     let {client} = this
     let confs = Object.assign(
-      {},
+      {
+        tryKeyboard: true
+      },
       {
         readyTimeout: _.get(config, 'sshReadyTimeout'),
         keepaliveInterval: _.get(config, 'keepaliveInterval'),
@@ -42,17 +44,29 @@ class Sftp {
           delete confs.proxy
           confs.sock = info.socket
         }
-        client.on('ready', () => {
-          client.sftp((err, sftp) => {
-            if (err) {
-              reject(err)
-            }
-            this.sftp = sftp
-            resolve('')
+        client
+          .on('keyboard-interactive', (
+            name,
+            instructions,
+            instructionsLang,
+            prompts,
+            finish
+          ) => {
+            finish([confs.password])
           })
-        }).on('error', (err) => {
-          reject(err)
-        }).connect(confs)
+          .on('ready', () => {
+            client.sftp((err, sftp) => {
+              if (err) {
+                reject(err)
+              }
+              this.sftp = sftp
+              resolve('')
+            })
+          })
+          .on('error', (err) => {
+            reject(err)
+          })
+          .connect(confs)
       }
       if (
         config.proxy &&
