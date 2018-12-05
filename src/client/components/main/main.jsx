@@ -15,15 +15,13 @@ import openInfoModal from '../control/info-modal'
 import * as terminalThemes from '../../common/terminal-theme'
 import createTitlte from '../../common/create-title'
 import TextEditor from '../text-editor'
-import keyControlPressed from '../../common/key-control-pressed'
 import {
   maxHistory,
   settingMap,
   defaultookmarkGroupId,
   maxTransferHistory,
   statusMap,
-  defaultTheme,
-  isMac
+  defaultTheme
 } from '../../common/constants'
 import Control from '../control'
 import SessionControl from '../session-control'
