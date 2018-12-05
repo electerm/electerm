@@ -634,6 +634,7 @@ export default class Term extends React.PureComponent {
       <div>
         <Input
           value={tempPassword}
+          type="password"
           onChange={this.onChangePass}
           onPressEnter={this.onClickConfirmPass}
         />
