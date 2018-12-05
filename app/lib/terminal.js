@@ -50,7 +50,9 @@ class Terminal {
     return new Promise((resolve, reject) => {
       const conn = new Client()
       let opts = Object.assign(
-        {},
+        {
+          tryKeyboard: true
+        },
         {
           readyTimeout: _.get(initOptions, 'sshReadyTimeout'),
           keepaliveInterval: _.get(initOptions, 'keepaliveInterval'),
@@ -77,27 +79,39 @@ class Terminal {
           delete opts.port
           opts.sock = info.socket
         }
-        conn.on('ready', () => {
-          if (isTest) {
-            conn.end()
-            return resolve(true)
-          }
-          conn.shell(
-            _.pick(initOptions, ['rows', 'cols', 'term']),
-            // {
-            //   env: process.env
-            // },
-            (err, channel) => {
-              if (err) {
-                return reject(err)
-              }
-              this.channel = channel
-              resolve(true)
+        conn
+          .on('keyboard-interactive', (
+            name,
+            instructions,
+            instructionsLang,
+            prompts,
+            finish
+          ) => {
+            finish([opts.password])
+          })
+          .on('ready', () => {
+            if (isTest) {
+              conn.end()
+              return resolve(true)
             }
-          )
-        }).on('error', err => {
-          reject(err)
-        }).connect(opts)
+            conn.shell(
+              _.pick(initOptions, ['rows', 'cols', 'term']),
+              // {
+              //   env: process.env
+              // },
+              (err, channel) => {
+                if (err) {
+                  return reject(err)
+                }
+                this.channel = channel
+                resolve(true)
+              }
+            )
+          })
+          .on('error', err => {
+            reject(err)
+          })
+          .connect(opts)
       }
       if (
         initOptions.proxy &&
