@@ -164,7 +164,7 @@ export default memo(props => {
           onClick={onNewSsh}
           title={e('newSsh')}
         />
-        <SelectHover
+        <Select
           className="mg1r iblock btn-select"
           onSelect={onSelectHistory}
           placeholder={c('history')}
@@ -178,7 +178,7 @@ export default memo(props => {
               )
             })
           }
-        </SelectHover>
+        </Select>
         {bookmarkSelect}
         <Tooltip title={`${m('edit')} ${c('bookmarks')}`}>
           <Icon

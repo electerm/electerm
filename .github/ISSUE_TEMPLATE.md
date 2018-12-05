@@ -2,7 +2,7 @@
 <!--- Provide some basic info -->
 ## Electerm version:
 
-## Operating system(linux, macos, or windows?):
+## Operating system(linux, macos, or windows7/8/10?):
 
 ## Expected Behavior
 <!--- Tell me what should happen -->

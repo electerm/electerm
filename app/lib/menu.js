@@ -60,8 +60,11 @@ const template = [
         label: e('del')
       },
       {
-        role: 'selectall',
-        label: e('selectall')
+        label: e('selectall'),
+        accelerator: 'CmdOrCtrl+A',
+        click() {
+          require('./win').win.webContents.send('selectall', null)
+        }
       },
       {
         type: 'separator'

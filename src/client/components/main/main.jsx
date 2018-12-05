@@ -88,7 +88,8 @@ export default class Index extends React.Component {
       tab: settingMap.bookmarks,
       autofocustrigger: + new Date(),
       bookmarkId: undefined,
-      showModal: false
+      showModal: false,
+      activeTerminalId: ''
     }
     let title = createTitlte(tabs[0])
     window.getGlobal('setTitle')(title)
@@ -106,6 +107,7 @@ export default class Index extends React.Component {
       .on('toggle-control', this.toggleControl)
       .on('new-ssh', this.onNewSsh)
       .on('openSettings', this.openSetting)
+      .on('selectall', this.selectall)
     document.addEventListener('drop', function(e) {
       e.preventDefault()
       e.stopPropagation()
@@ -204,6 +206,17 @@ export default class Index extends React.Component {
     let dom = document.getElementById('outside-context')
     this.dom = dom
     dom.addEventListener('click', this.closeContextMenu)
+  }
+
+  selectall = () => {
+    document.activeElement &&
+    document.activeElement.select &&
+    document.activeElement.select()
+    window.postMessage({
+      event: 'selectall',
+      id: this.state.activeTerminalId
+    }, '*')
+
   }
 
   clickNextTab = _.debounce(() => {
