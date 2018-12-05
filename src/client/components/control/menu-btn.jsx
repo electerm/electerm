@@ -6,7 +6,7 @@ import {memo} from 'react'
 
 const {prefix} = window
 const e = prefix('control')
-const onOpenMenu = e => {
+const onOpenMenu = (e) => {
   let {right: x, bottom: y} = e.currentTarget.getBoundingClientRect()
   x = Math.ceil(x - 15)
   y = Math.ceil(x - 12)
@@ -21,6 +21,7 @@ export default memo(() => {
   return (
     <span
       className="mg2r mg1l iblock menu-control"
+      onMouseDown={evt => evt.preventDefault()}
       onClick={onOpenMenu}
       title={e('menu')}
     >
