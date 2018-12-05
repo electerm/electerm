@@ -24,6 +24,7 @@ const template = [
     submenu: [
       {
         label: c('newSsh'),
+        accelerator: 'CmdOrCtrl+N',
         click() {
           require('./win').win.webContents.send('new-ssh', null)
         }
@@ -45,11 +46,13 @@ const template = [
       },
       {
         role: 'copy',
-        label: e('copy')
+        label: e('copy'),
+        accelerator: 'CmdOrCtrl+C'
       },
       {
         role: 'paste',
-        label: e('paste')
+        label: e('paste'),
+        accelerator: 'CmdOrCtrl+V'
       },
       {
         role: 'pasteandmatchstyle',
