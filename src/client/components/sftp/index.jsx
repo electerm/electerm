@@ -75,7 +75,7 @@ export default class Sftp extends React.Component {
   componentDidUpdate(prevProps) {
     if (
       !_.isEqual(
-        prevProps.sessionOptions, this.props.sessionOptions
+        prevProps.sshConnected, this.props.sshConnected
       )
     ) {
       this.initData(true)
