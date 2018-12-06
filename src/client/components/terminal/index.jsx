@@ -645,7 +645,7 @@ export default class Term extends React.PureComponent {
                 <Checkbox
                   checked={savePassword}
                   onChange={this.onToggleSavePass}
-                >{e('savePassword')}</Checkbox>
+                >{f('save')}</Checkbox>
               </div>
             )
             : null
@@ -676,8 +676,11 @@ export default class Term extends React.PureComponent {
   }
 
   renderPromoteModal = () => {
+    let {
+      passType = 'password'
+    }  = this.state
     let props = {
-      title: f('password') + '?',
+      title: f(passType) + '?',
       content: this.renderPasswordForm(),
       onCancel: this.onCancel,
       visible: this.state.promoteModalVisible,
