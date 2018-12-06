@@ -531,7 +531,7 @@ export default class Term extends React.PureComponent {
     }
     this.setStatus(statusMap.success)
     this.props.setSessionState({
-      sessionOptions: extra || {}
+      sshConnected: true
     })
     term.pid = pid
     this.pid = pid
@@ -628,13 +628,15 @@ export default class Term extends React.PureComponent {
   }
 
   renderPasswordForm = () => {
-    let {tempPassword, savePassword} = this.state
+    let {tempPassword, savePassword, promoteModalVisible} = this.state
     let {type} = this.props.tab
     return (
       <div>
         <Input
           value={tempPassword}
           type="password"
+          autofocustrigger={promoteModalVisible}
+          selectall
           onChange={this.onChangePass}
           onPressEnter={this.onClickConfirmPass}
         />
@@ -665,10 +667,10 @@ export default class Term extends React.PureComponent {
       tempPassword,
       passType
     }  = this.state
-    this.props.setSessionState({
-      sessionOptions: {
-        [passType]: tempPassword
-      }
+    this.props.setSessionState(old => {
+      let sessionOptions = deepCopy(old.sessionOptions) || {}
+      sessionOptions[passType] = tempPassword
+      return {sessionOptions}
     })
     this.setState({
       promoteModalVisible: false

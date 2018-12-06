@@ -54,6 +54,7 @@ export default class WindowWrapper extends React.PureComponent  {
       activeSplitId: id,
       key: Math.random(),
       sessionOptions: null,
+      sshConnected: false,
       terminals: [
         {
           id,
@@ -229,7 +230,7 @@ export default class WindowWrapper extends React.PureComponent  {
   }
 
   renderSftp = () => {
-    let {pane, sessionOptions} = this.state
+    let {pane, sessionOptions, sshConnected} = this.state
     let height = this.computeHeight()
     let {props} = this
     let cls = pane === paneMap.terminal
@@ -240,6 +241,7 @@ export default class WindowWrapper extends React.PureComponent  {
         <Sftp
           {...props}
           sessionOptions={sessionOptions}
+          sshConnected={sshConnected}
           height={height}
           pane={pane}
         />
