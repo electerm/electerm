@@ -1,5 +1,8 @@
 /**
  * sidebar
  */
+import {memo} from 'react'
 
-export default class Z {}
+export default memo(() => {
+
+})
