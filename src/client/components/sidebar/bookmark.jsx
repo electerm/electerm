@@ -26,7 +26,7 @@ export default memo((props) => {
   }
   let props0 = {
     bookamrks: [
-      ...props.bookamrks,
+      ...props.bookamrks || [],
       ...sshConfigItems
     ],
     type: 'bookamrks',
@@ -54,11 +54,12 @@ export default memo((props) => {
     : (
       <ItemList
         {...props0}
+        list={props0.bookamrks}
         onClickItem={item => props.onSelectHistory(item.id)}
       />
     )
   return (
-    <div className="bookamrks-panel">
+    <div className="sidebar-panel bookamrks-panel">
       <div className="pd1y pd2x">
         <div className="fix">
           <div className="fleft">{c('bookamrks')}</div>

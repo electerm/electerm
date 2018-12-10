@@ -15,7 +15,7 @@ const m = prefix('menu')
 
 export default memo((props) => {
   return (
-    <div className="history-panel">
+    <div className="sidebar-panel history-panel">
       <div className="pd1y pd2x">
         <div className="fix">
           <div className="fleft">{c('history')}</div>
@@ -32,7 +32,7 @@ export default memo((props) => {
       </div>
       <ItemList
         type="history"
-        list={props.history}
+        list={props.history || []}
         onClickItem={item => props.onSelectHistory(item.id)}
         activeItemId={props.activeItemId}
       />

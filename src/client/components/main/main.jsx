@@ -17,7 +17,7 @@ import openInfoModal from '../sidebar/info-modal'
 import * as terminalThemes from '../../common/terminal-theme'
 import createTitlte from '../../common/create-title'
 import TextEditor from '../text-editor'
-//import Sidebar from '../sidebar'
+import Sidebar from '../sidebar'
 import {
   maxHistory,
   settingMap,
@@ -728,6 +728,7 @@ export default class Index extends React.Component {
           id="outside-context"
         >
           <Tabs {...controlProps} />
+          <Sidebar {...controlProps} />
           <div className="ui-outer">
             {
               tabs.map((tab) => {
