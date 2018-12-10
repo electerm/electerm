@@ -11,13 +11,14 @@ import MenuBtn from '../control/menu-btn'
 import './tabs.styl'
 import {tabWidth, tabMargin, isMac} from '../../common/constants'
 import createName from '../../common/create-title'
+import WindowControl from './window-control'
 
 const {prefix} = window
 const e = prefix('tabs')
 const ButtonGroup = Button.Group
 const MenuItem = Menu.Item
 const extraWidth = 113
-const menuWidth = 37
+
 
 export default class Tabs extends React.Component {
 
@@ -54,11 +55,11 @@ export default class Tabs extends React.Component {
   }
 
   adjustScroll = () => {
-    let {width, tabs, currentTabId, showControl} = this.props
+    let {width, tabs, currentTabId} = this.props
     let index = _.findIndex(tabs, t => t.id === currentTabId)
     let w = (index + 1) * (tabMargin + tabWidth) + 5
     let scrollLeft = w > width - extraWidth
-      ? w - width + extraWidth - (showControl ? 0 : menuWidth)
+      ? w - width + extraWidth
       : 0
     this.dom.scrollLeft = scrollLeft
   }
@@ -119,10 +120,14 @@ export default class Tabs extends React.Component {
     return (
       <div className="tabs-extra pd1x">
         {this.renderAddBtn()}
-        <ButtonGroup className="iblock mg1x">
+        <ButtonGroup
+          className="iblock mg1x"
+          size="small"
+        >
           <Button
             icon="left"
             onClick={this.scrollLeft}
+
           />
           <Button
             icon="right"
@@ -141,7 +146,7 @@ export default class Tabs extends React.Component {
   }
 
   render() {
-    let {tabs = [], width, showControl} = this.props
+    let {tabs = [], width} = this.props
     let len = tabs.length
     let addBtnWidth = 22
     let tabsWidthAll = (tabMargin + tabWidth) * len + 10
@@ -149,6 +154,10 @@ export default class Tabs extends React.Component {
     //let extraw = overflow ? extraWidth : 0
     return (
       <div className="tabs">
+        <div className="app-drag" />
+        <WindowControl
+          isMaximized={this.props.isMaximized}
+        />
         <div
           className="tabs-inner"
           style={{
@@ -180,13 +189,7 @@ export default class Tabs extends React.Component {
             }
           </div>
         </div>
-        {
-          !showControl
-            ? (
-              <MenuBtn />
-            )
-            : null
-        }
+        <MenuBtn />
         {
           overflow
             ? this.renderExtra()

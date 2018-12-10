@@ -96,12 +96,6 @@ const template = [
         label: e('toggledevtools')
       },
       {
-        label: e('toggleControl'),
-        click() {
-          require('./win').win.webContents.send('toggle-control', null)
-        }
-      },
-      {
         type: 'separator'
       },
       {

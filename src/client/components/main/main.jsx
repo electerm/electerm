@@ -2,6 +2,7 @@
 import React from 'react'
 import {message} from 'antd'
 import Session from '../session'
+import Tabs from '../tabs'
 import newTerm from '../../common/new-terminal'
 import _ from 'lodash'
 import {generate} from 'shortid'
@@ -11,19 +12,21 @@ import FileInfoModal from '../sftp/file-props-modal'
 import FileModeModal from '../sftp/file-mode-modal'
 import UpdateCheck from './update-check'
 import {notification} from 'antd'
-import openInfoModal from '../control/info-modal'
+import SettingModal from '../setting-panel/setting-modal'
+import openInfoModal from '../sidebar/info-modal'
 import * as terminalThemes from '../../common/terminal-theme'
 import createTitlte from '../../common/create-title'
 import TextEditor from '../text-editor'
+//import Sidebar from '../sidebar'
 import {
   maxHistory,
   settingMap,
   defaultookmarkGroupId,
   maxTransferHistory,
+  sidebarWidth,
   statusMap,
   defaultTheme
 } from '../../common/constants'
-import Control from '../control'
 import SessionControl from '../session-control'
 import {buildNewTheme} from '../../common/terminal-theme'
 import './wrapper.styl'
@@ -57,7 +60,7 @@ export default class Index extends React.Component {
     this.state = {
       tabs,
       height: 500,
-      width: window.innerWidth,
+      width: window.innerWidth - sidebarWidth,
       currentTabId: tabs[0].id,
       history: copy(ls.get(settingMap.history) || []),
       bookmarks,
@@ -71,7 +74,6 @@ export default class Index extends React.Component {
       transferHistory: [],
       themes: terminalThemes.getThemes(),
       theme: terminalThemes.getCurrentTheme().id,
-      showControl: true,
       contextMenuVisible: false,
       fileInfoModalProps: {},
       fileModeModalProps: {},
@@ -89,7 +91,10 @@ export default class Index extends React.Component {
       autofocustrigger: + new Date(),
       bookmarkId: undefined,
       showModal: false,
-      activeTerminalId: ''
+      activeTerminalId: '',
+
+      //sidebar
+      openedSideBar: ''
     }
     let title = createTitlte(tabs[0])
     window.getGlobal('setTitle')(title)
@@ -104,7 +109,6 @@ export default class Index extends React.Component {
       .ipcRenderer
       .on('checkupdate', this.onCheckUpdate)
       .on('open-about', this.openAbout)
-      .on('toggle-control', this.toggleControl)
       .on('new-ssh', this.onNewSsh)
       .on('openSettings', this.openSetting)
       .on('selectall', this.selectall)
@@ -166,7 +170,7 @@ export default class Index extends React.Component {
   onResize = _.debounce(() => {
     let update = {
       height: window.innerHeight,
-      width: window.innerWidth,
+      width: window.innerWidth - sidebarWidth,
       isMaximized: window.getGlobal('isMaximized')()
     }
     this.setState(update)
@@ -297,14 +301,6 @@ export default class Index extends React.Component {
     ].slice(0, maxTransferHistory)
     this.setState({
       transferHistory
-    })
-  }
-
-  toggleControl = () => {
-    this.setState(old => {
-      return {
-        showControl: !old.showControl
-      }
     })
   }
 
@@ -664,7 +660,6 @@ export default class Index extends React.Component {
       fileInfoModalProps,
       fileModeModalProps,
       shouldCheckUpdate,
-      showControl,
       textEditorProps
     } = this.state
     let {themes, theme} = this.state
@@ -728,13 +723,11 @@ export default class Index extends React.Component {
           key={_.get(fileModeModalProps, 'file.id') || ''}
           {...fileModeModalProps}
         />
+        <SettingModal {...controlProps} />
         <div
           id="outside-context"
-          className={showControl ? 'show-control' : 'hide-control'}
         >
-          <Control
-            {...controlProps}
-          />
+          <Tabs {...controlProps} />
           <div className="ui-outer">
             {
               tabs.map((tab) => {

@@ -11,7 +11,7 @@ import {generate} from 'shortid'
 import copy from 'json-deep-copy'
 import classnames from 'classnames'
 import {
-  topMenuHeight, tabsHeight,
+  tabsHeight,
   terminalSplitDirectionMap, termControlHeight,
   paneMap
 } from '../../common/constants'
@@ -95,9 +95,7 @@ export default class WindowWrapper extends React.PureComponent  {
   }
 
   computeHeight = () => {
-    let {showControl} = this.props
-    return this.props.height -
-      (showControl ? topMenuHeight : 0) - tabsHeight
+    return this.props.height - tabsHeight
   }
 
   onChangePane = pane => {

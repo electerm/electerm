@@ -25,7 +25,7 @@ export const contextMenuHeight = 28
 export const contextMenuWidth = 120
 export const contextMenuPaddingTop = 10
 export const sftpControlHeight = 28 + 42 + 6 + 33
-
+export const sidebarWidth = 36
 export const maxHistory = 50
 
 export const maxSftpHistory = 20
@@ -56,7 +56,7 @@ export const authTypeMap = buildConst([
 
 export const maxTransferHistory = 100
 export const topMenuHeight = 48
-export const tabsHeight = 46
+export const tabsHeight = 56
 
 const platform = window.getGlobal('os').platform()
 export const isWin = platform.startsWith('win')
