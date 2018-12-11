@@ -478,9 +478,7 @@ export default class Term extends React.PureComponent {
       loading: true
     })
     let {cols, rows} = term
-    let config = deepCopy(
-      window.getGlobal('_config')
-    )
+    let {config} = this.props
     let {host, port} = config
     let wsUrl
     let url = `http://${host}:${port}/terminals`
@@ -516,6 +514,7 @@ export default class Term extends React.PureComponent {
         }
       }
     })
+    pid = pid || ''
     if (pid.includes('fail')) {
       return this.promote()
     }

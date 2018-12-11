@@ -465,7 +465,7 @@ export default class Sftp extends React.Component {
     try {
       if (!this.sftp) {
         let config = deepCopy(
-          window.getGlobal('_config')
+          this.props.config
         )
         await sftp.connect({
           ...tab,
