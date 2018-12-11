@@ -7,7 +7,6 @@ import React from 'react'
 import _ from 'lodash'
 import {Icon, Button, Dropdown, Menu} from 'antd'
 import Tab from './tab'
-import MenuBtn from '../control/menu-btn'
 import './tabs.styl'
 import {tabWidth, tabMargin, isMac} from '../../common/constants'
 import createName from '../../common/create-title'
@@ -189,7 +188,6 @@ export default class Tabs extends React.Component {
             }
           </div>
         </div>
-        <MenuBtn />
         {
           overflow
             ? this.renderExtra()

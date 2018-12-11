@@ -727,8 +727,8 @@ export default class Index extends React.Component {
         <div
           id="outside-context"
         >
-          <Tabs {...controlProps} />
           <Sidebar {...controlProps} />
+          <Tabs {...controlProps} />
           <div className="ui-outer">
             {
               tabs.map((tab) => {

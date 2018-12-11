@@ -26,7 +26,7 @@ export default memo((props) => {
   }
   let props0 = {
     bookamrks: [
-      ...props.bookamrks || [],
+      ...props.bookmarks || [],
       ...sshConfigItems
     ],
     type: 'bookamrks',
@@ -59,8 +59,8 @@ export default memo((props) => {
       />
     )
   return (
-    <div className="sidebar-panel bookamrks-panel">
-      <div className="pd1y pd2x">
+    <div className="sidebar-panel bookmarks-panel animate-fast">
+      <div className="pd1y pd2t pd2x">
         <div className="fix">
           <div className="fleft">{c('bookamrks')}</div>
           <div className="fright">
@@ -81,7 +81,9 @@ export default memo((props) => {
           </div>
         </div>
       </div>
-      {bookmarkSelect}
+      <div className="pd2x">
+        {bookmarkSelect}
+      </div>
     </div>
   )
 })
