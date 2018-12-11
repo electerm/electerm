@@ -15,6 +15,7 @@ import {settingMap} from '../../common/constants'
 const {prefix} = window
 const e = prefix('setting')
 const m = prefix('common')
+const c = prefix('control')
 const t = prefix('terminalThemes')
 const {TabPane} = Tabs
 
@@ -69,7 +70,7 @@ export default memo(props => {
                       {...formProps}
                     />
                   )
-                  : <div className="form-wrap pd2 aligncenter">c('notFoundContent')</div>
+                  : <div className="form-wrap pd2 aligncenter">{c('notFoundContent')}</div>
               }
 
             </Col>
