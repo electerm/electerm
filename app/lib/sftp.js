@@ -24,7 +24,7 @@ class Sftp {
         tryKeyboard: true
       },
       {
-        readyTimeout: _.get(config, 'sshReadyTimeout'),
+        readyTimeout: _.get(config, 'readyTimeout'),
         keepaliveInterval: _.get(config, 'keepaliveInterval'),
         agent: process.env.SSH_AUTH_SOCK
       },
@@ -64,6 +64,7 @@ class Sftp {
             })
           })
           .on('error', (err) => {
+            client.end()
             reject(err)
           })
           .connect(confs)

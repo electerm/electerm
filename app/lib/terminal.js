@@ -54,7 +54,7 @@ class Terminal {
           tryKeyboard: true
         },
         {
-          readyTimeout: _.get(initOptions, 'sshReadyTimeout'),
+          readyTimeout: _.get(initOptions, 'readyTimeout'),
           keepaliveInterval: _.get(initOptions, 'keepaliveInterval'),
           agent: process.env.SSH_AUTH_SOCK
         },
@@ -109,6 +109,8 @@ class Terminal {
             )
           })
           .on('error', err => {
+            console.log('errored term', err)
+            conn.end()
             reject(err)
           })
           .connect(opts)
