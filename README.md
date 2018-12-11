@@ -21,8 +21,8 @@ Terminal/ssh/sftp client(linux, mac, win) based on electron/node-pty/xterm/antd 
 
 ## Download
 
-- https://electerm.html5beta.com
-- From release: https://github.com/electerm/electerm/releases
+- [https://electerm.html5beta.com](https://electerm.html5beta.com)
+- From release: [https://github.com/electerm/electerm/releases](https://github.com/electerm/electerm/releases)
 - Install from npm
 
 ```bash
@@ -47,6 +47,10 @@ npm i -g electerm
 - Support multi-language([electerm-locales](https://github.com/electerm/electerm-locales), contribute welcome)
 - Double click to directly edit remote file(small ones).
 - Support auth with publickey + password
+
+## Support
+
+Without users's feebacks/suggestions, this project would not get this far, would love hear from you, please tell what you think, [submit an issue](https://github.com/electerm/electerm/issues) or [send me an email](mailto:zxdong@gmail.com).
 
 ## Dev
 
