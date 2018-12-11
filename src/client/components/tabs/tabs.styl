@@ -1,29 +1,24 @@
 .tabs
   position relative
-  height 46px
+  height 56px
   overflow hidden
-  .menu-control
-    position absolute
-    left 5px
-    top 7px
-    z-index 3
-
+.app-drag
+  -webkit-app-region drag
+  position absolute
+  left 0
+  top 0
+  right 0
+  height 10px
 .tabs-inner
   position relative
   z-index 2
   padding 0 5px
+  margin-top 10px
   display inline-block
   height 63px
   overflow-x scroll
   overflow-y hidden
-.hide-control
-  .tabs-inner
-  .tabs-wrapper
-    -webkit-app-region drag
-  .tabs-wrapper  > *
-    -webkit-app-region no-drag
-  .tabs-inner
-    margin-left 37px
+  margin-left 42px
 .tab
   display inline-block
   vertical-align middle
@@ -72,11 +67,50 @@
   margin 0 3px
 .tabs-extra
   position absolute
-  height 46px
+  height 56px
   top 0
   right 0
-  box-shadow -3px 0px 3px 0px rgba(0,0,0,0.15)
   background #fff
-  line-height 46px
+  line-height 74px
   z-index 20
   -webkit-app-region no-drag
+  box-shadow -3px 0px 3px 0px rgba(0,0,0,0.15)
+
+
+.form-wrap
+  border-left 1px solid #eee
+  min-height 500px
+.window-controls
+  position absolute
+  right 5px
+  top 0
+  z-index 200
+  border-radius 0 0 3px 3px
+  padding 0 5px
+  background #333
+
+.widnow-control-icon
+  color #ccc
+  &:hover
+    color #08c
+    border-color #08c
+.icon-maximize
+  width 8px
+  height 4px
+  border 1px solid #ccc
+  &.is-max
+    height 3px
+    position relative
+    &:after
+      position absolute
+      content ''
+      left -3px
+      top 0
+      width 8px
+      height 4px
+      border 1px solid #ccc
+      border-top none
+      border-right none
+
+.control-icon:hover
+  color #fff

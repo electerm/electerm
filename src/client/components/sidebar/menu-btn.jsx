@@ -19,13 +19,13 @@ const logo = require('node_modules/@electerm/electerm-resource/res/imgs/electerm
 
 export default memo(() => {
   return (
-    <span
-      className="mg2r mg1l iblock menu-control"
+    <div
+      className="menu-control"
       onMouseDown={evt => evt.preventDefault()}
       onClick={onOpenMenu}
       title={e('menu')}
     >
       <img src={logo} width={28} height={28} />
-    </span>
+    </div>
   )
 })

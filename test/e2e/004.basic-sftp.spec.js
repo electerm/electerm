@@ -42,7 +42,7 @@ describe('sftp basic', function () {
 
     await client.waitUntilWindowLoaded()
     await delay(500)
-    await client.click('.btns .anticon-edit')
+    await client.click('.btns .anticon-plus-circle')
     await delay(500)
     await client.setValue('#host', TEST_HOST)
     await client.setValue('#username', TEST_USER)

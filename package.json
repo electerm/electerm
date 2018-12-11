@@ -1,6 +1,6 @@
 {
   "name": "electerm",
-  "version": "0.25.52",
+  "version": "0.25.53",
   "description": "Terminal/ssh/sftp client(linux, mac, win) based on electron/node-pty/xterm/antd and other libs",
   "main": "dev-app.js",
   "bin": "npm/electerm",
@@ -52,7 +52,8 @@
     "@babel/preset-react": "7.0.0",
     "@babel/register": "7.0.0",
     "@babel/runtime": "7.1.2",
-    "antd": "3.10.7",
+    "@electerm/electerm-resource": "1.2.1",
+    "antd": "3.11.0",
     "babel-eslint": "10.0.1",
     "babel-loader": "8.0.4",
     "babel-minify-webpack-plugin": "0.3.1",
@@ -107,8 +108,7 @@
     "webpack": "4.21.0",
     "webpack-cli": "3.1.2",
     "webpack-dev-server": "3.1.9",
-    "xterm": "3.8.0",
-    "@electerm/electerm-resource": "1.2.1"
+    "xterm": "3.8.0"
   },
   "dependencies": {
     "bluebird": "3.5.2",
@@ -124,8 +124,8 @@
     "node-pty": "0.7.8",
     "os-locale": "3.0.1",
     "phin": "2.9.2",
-    "react": "16.6.0",
-    "react-dom": "16.6.0",
+    "react": "16.7.0-alpha.2",
+    "react-dom": "16.7.0-alpha.2",
     "recursive-assign": "0.2.0",
     "shortid": "2.2.13",
     "socks": "2.2.1",

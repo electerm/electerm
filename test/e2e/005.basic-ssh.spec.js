@@ -41,7 +41,7 @@ describe('ssh', function () {
     let cmd = 'ls'
     await client.waitUntilWindowLoaded()
     await delay(500)
-    await client.click('.btns .anticon-edit')
+    await client.click('.btns .anticon-plus-circle')
     await delay(500)
     await client.setValue('#host', TEST_HOST)
     await client.setValue('#username', TEST_USER)
@@ -49,7 +49,7 @@ describe('ssh', function () {
     await client.execute(function() {
       document.querySelector('.ant-modal .ant-tabs-tabpane-active .ant-btn-primary').click()
     })
-    await delay(500)
+    await delay(1500)
     let tabsCount = await client.elements('.tabs .tabs-wrapper .tab')
 
     expect(tabsCount.value.length).equal(2)

@@ -44,7 +44,7 @@ describe('main window', function () {
     expect(title).includes(packInfo.name)
 
     log('elements')
-    let wrap = await  client.element('#outside-context')
+    let wrap = await client.element('#outside-context')
     expect(!!wrap.value).equal(true)
     let tabs = await client.element('.tabs')
     expect(!!tabs.value).equal(true)
@@ -54,7 +54,7 @@ describe('main window', function () {
     log('button click')
 
     log('button:edit')
-    await client.click('.btns .anticon-edit')
+    await client.click('.btns .anticon-plus-circle')
     await delay(500)
     let active = await client.element('.ant-modal .ant-tabs-line > .ant-tabs-bar .ant-tabs-tab-active')
     expect(!!active.value).equal(true)
