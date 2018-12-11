@@ -546,6 +546,14 @@ export default class Index extends React.Component {
     }, this.openModal)
   }
 
+  onEditHistory = () => {
+    this.setState({
+      tab: settingMap.history,
+      item: this.state.history[0] || getInitItem([], settingMap.history),
+      autofocustrigger: + new Date()
+    }, this.openModal)
+  }
+
   onSelectHistory = id => {
     let item = _.find(this.state.history, it => it.id === id)
     this.addTab({
@@ -685,7 +693,7 @@ export default class Index extends React.Component {
         'delBookmarkGroup',
         'onClose',
         'hideModal', 'onDelItem',
-        'onNewSsh', 'openSetting',
+        'onNewSsh', 'openSetting', 'onEditHistory',
         'openTerminalThemes',
         'onSelectHistory', 'onChangeTabId', 'onDuplicateTab', 'onSelectBookmark', 'onChangeTab'
       ])
