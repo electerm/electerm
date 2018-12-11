@@ -10,7 +10,6 @@ import HistoryWrap from './history'
 import TransferHistoryModal from './transfer-history-modal'
 import MenuBtn from './menu-btn'
 import {sidebarWidth} from '../../common/constants'
-import _ from 'lodash'
 import './sidebar.styl'
 
 const {prefix} = window
