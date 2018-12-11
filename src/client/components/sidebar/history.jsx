@@ -36,6 +36,7 @@ export default memo((props) => {
       </div>
       <div className="pd2x">
         <ItemList
+          {...props}
           type="history"
           list={props.history || []}
           onClickItem={item => props.onSelectHistory(item.id)}

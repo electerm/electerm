@@ -118,7 +118,7 @@ export default class ItemList extends React.PureComponent {
 
   render() {
     let {
-      list,
+      list = [],
       type
     } = this.props
     list = this.filter(list)

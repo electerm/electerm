@@ -4,7 +4,7 @@
 
 import {memo} from 'react'
 import ItemList from '../setting-panel/list'
-import TreeList from '../setting-panel/list'
+import TreeList from '../setting-panel/tree-list'
 import _ from 'lodash'
 import {
   Icon,
@@ -29,13 +29,12 @@ export default memo((props) => {
     props.onSelectBookmark(item.id)
   }
   let props0 = {
-    bookamrks: [
+    bookmarks: [
       ...props.bookmarks || [],
       ...sshConfigItems
     ],
-    type: 'bookamrks',
-    onClickItem,
-    activeItemId: props.activeItemId
+    type: 'bookmarks',
+    onClickItem
   }
   let bookmarkGroupsTotal = sshConfigItems.length
     ? [
@@ -50,16 +49,20 @@ export default memo((props) => {
   let bookmarkSelect = bookmarkGroups.length > 1
     ? (
       <TreeList
+        {...props}
         {...props0}
+        shouldComfirmDel
+        staticList
         bookmarkGroups={bookmarkGroupsTotal}
         onClickItem={onClickItem}
+        expandedKeys={bookmarkGroupsTotal.map(d => d.id)}
       />
     )
     : (
       <ItemList
         {...props0}
-        list={props0.bookamrks}
-        onClickItem={item => props.onSelectHistory(item.id)}
+        list={props0.bookmarks || []}
+        onClickItem={item => props.onSelectBookmark(item.id)}
       />
     )
   return (
@@ -69,7 +72,7 @@ export default memo((props) => {
     >
       <div className="pd1y pd2t pd2x">
         <div className="fix">
-          <div className="fleft">{c('bookamrks')}</div>
+          <div className="fleft">{c('bookmarks')}</div>
           <div className="fright">
             <Tooltip title={e('newSsh')}>
               <Icon
@@ -78,7 +81,7 @@ export default memo((props) => {
                 onClick={props.onNewSsh}
               />
             </Tooltip>
-            <Tooltip title={`${m('edit')} ${c('bookamrks')}`}>
+            <Tooltip title={`${m('edit')} ${c('bookmarks')}`}>
               <Icon
                 type="edit"
                 className="font16 mg1x mg2l pointer iblock control-icon icon-do-edit"

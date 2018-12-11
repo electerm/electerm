@@ -32,13 +32,16 @@ const s = prefix('setting')
 
 export default class ItemListTree extends React.PureComponent {
 
-  state = {
-    keyword: '',
-    expandedKeys: [defaultookmarkGroupId],
-    showNewBookmarkGroupForm: false,
-    bookmarkGroupTitle: '',
-    categoryTitle: '',
-    categoryId: ''
+  constructor(props) {
+    super(props)
+    this.state = {
+      keyword: '',
+      expandedKeys: props.expandedKeys || [defaultookmarkGroupId],
+      showNewBookmarkGroupForm: false,
+      bookmarkGroupTitle: '',
+      categoryTitle: '',
+      categoryId: ''
+    }
   }
 
   onChange = e => {
@@ -296,7 +299,7 @@ export default class ItemListTree extends React.PureComponent {
   }
 
   renderDelBtn = item => {
-    if (item.id === defaultookmarkGroupId) {
+    if (item.id === defaultookmarkGroupId || this.props.staticList) {
       return null
     }
     return (
@@ -325,6 +328,9 @@ export default class ItemListTree extends React.PureComponent {
   }
 
   renderEditBtn = item => {
+    if (this.props.staticList) {
+      return null
+    }
     return (
       <Icon
         type="edit"
@@ -511,21 +517,28 @@ export default class ItemListTree extends React.PureComponent {
     let {
       bookmarkGroups,
       type,
-      activeItemId
+      activeItemId,
+      staticList
     } = this.props
     let {expandedKeys, keyword} = this.state
     return (
       <div className={`tree-list item-type-${type}`}>
-        {this.renderNewButtons()}
-        {this.renderSearch()}
+        {
+          staticList
+            ? null
+            : this.renderNewButtons()
+        }
+        {
+          this.renderSearch()
+        }
         <div className="item-list-wrap pd2r">
           {this.renderNewBookmarkGroup()}
           <Tree
             onExpand={this.onExpand}
             expandedKeys={expandedKeys}
-            autoExpandParent={!!keyword}
+            autoExpandParent={!!keyword || !!staticList}
             onSelect={this.onSelect}
-            draggable
+            draggable={!staticList}
             selectedKeys={[activeItemId]}
             onDrop={this.onDrop}
           >
