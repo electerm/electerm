@@ -61,7 +61,7 @@ describe('timeout setting', function () {
       document.querySelector('.ant-modal .ant-modal-close').click()
     })
     await delay(900)
-    await client.click('.btns .anticon-edit')
+    await client.click('.btns .anticon-plus-circle')
     await delay(500)
     await client.setValue('#host', TEST_HOST)
     await client.setValue('#username', TEST_USER)
@@ -69,8 +69,8 @@ describe('timeout setting', function () {
     await client.execute(function() {
       document.querySelector('.ant-modal .ant-tabs-tabpane-active .ant-btn-primary').click()
     })
-    await delay(1500)
-    let txt = await client.getText('.ant-notification .ant-notification-notice-message div')
+    await delay(3500)
+    let txt = await client.getText('.ant-notification-notice  .ant-notification-notice-content .common-err-desc')
     expect(txt.includes('Timed out')).equal(true)
     await client.execute(function() {
       document.querySelector('.btns .anticon-setting').click()

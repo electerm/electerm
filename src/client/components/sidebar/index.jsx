@@ -10,6 +10,7 @@ import HistoryWrap from './history'
 import TransferHistoryModal from './transfer-history-modal'
 import MenuBtn from './menu-btn'
 import {sidebarWidth} from '../../common/constants'
+import _ from 'lodash'
 import './sidebar.styl'
 
 const {prefix} = window
@@ -31,6 +32,27 @@ export default memo((props) => {
     height,
     openTerminalThemes
   } = props
+  let handler
+  let interval = 400
+  let setOpenedSideBar = (bar) => {
+    return modifier({
+      openedSideBar: bar
+    })
+  }
+  let onMouseLeave = () => {
+    handler = setTimeout(
+      () => setOpenedSideBar(''),
+      interval
+    )
+  }
+  let onMouseEnterBookmark = () => {
+    clearTimeout(handler)
+    setOpenedSideBar('bookmarks')
+  }
+  let onMouseEnterHistory = () => {
+    clearTimeout(handler)
+    setOpenedSideBar('history')
+  }
   return (
     <div
       className={`sidebar type-${openedSideBar}`}
@@ -58,9 +80,8 @@ export default memo((props) => {
         </div>
         <div
           className="control-icon-wrap"
-          onClick={() => modifier({
-            openedSideBar: 'bookmarks'
-          })}
+          onMouseEnter={onMouseEnterBookmark}
+          onMouseLeave={onMouseLeave}
           title={c('bookmarks')}
         >
           <Icon
@@ -70,9 +91,8 @@ export default memo((props) => {
         </div>
         <div
           className="control-icon-wrap"
-          onClick={() => modifier({
-            openedSideBar: 'history'
-          })}
+          onMouseEnter={onMouseEnterHistory}
+          onMouseLeave={onMouseLeave}
           title={c('history')}
         >
           <Icon
@@ -127,9 +147,19 @@ export default memo((props) => {
           />
         </div>
       </div>
-      <div className="sidebar-list">
-        <BookMarksWrap {...props} />
-        <HistoryWrap {...props} />
+      <div
+        className="sidebar-list"
+      >
+        <BookMarksWrap
+          {...props}
+          onMouseEnter={onMouseEnterBookmark}
+          onMouseLeave={onMouseLeave}
+        />
+        <HistoryWrap
+          {...props}
+          onMouseEnter={onMouseEnterHistory}
+          onMouseLeave={onMouseLeave}
+        />
       </div>
     </div>
   )

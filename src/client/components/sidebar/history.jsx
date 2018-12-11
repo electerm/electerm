@@ -4,6 +4,7 @@
 
 import {memo} from 'react'
 import ItemList from '../setting-panel/list'
+import _ from 'lodash'
 import {
   Icon,
   Tooltip
@@ -15,7 +16,10 @@ const m = prefix('menu')
 
 export default memo((props) => {
   return (
-    <div className="sidebar-panel history-panel animate-fast">
+    <div
+      className="sidebar-panel history-panel animate-fast"
+      {..._.pick(props, ['onMouseEnter', 'onMouseLeave'])}
+    >
       <div className="pd1y pd2t pd2x">
         <div className="fix">
           <div className="fleft">{c('history')}</div>

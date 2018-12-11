@@ -5,6 +5,7 @@
 import {memo} from 'react'
 import ItemList from '../setting-panel/list'
 import TreeList from '../setting-panel/list'
+import _ from 'lodash'
 import {
   Icon,
   Tooltip
@@ -22,6 +23,9 @@ export default memo((props) => {
     bookmarkGroups = []
   } = props
   const onClickItem = (item) => {
+    props.modifier({
+      openedSideBar: ''
+    })
     props.onSelectBookmark(item.id)
   }
   let props0 = {
@@ -59,7 +63,10 @@ export default memo((props) => {
       />
     )
   return (
-    <div className="sidebar-panel bookmarks-panel animate-fast">
+    <div
+      className="sidebar-panel bookmarks-panel animate-fast"
+      {..._.pick(props, ['onMouseEnter', 'onMouseLeave'])}
+    >
       <div className="pd1y pd2t pd2x">
         <div className="fix">
           <div className="fleft">{c('bookamrks')}</div>
