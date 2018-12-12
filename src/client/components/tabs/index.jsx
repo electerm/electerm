@@ -36,11 +36,9 @@ export default class Tabs extends React.Component {
 
   handleTabHotkey = e => {
     if (
-      (
-        (e.ctrlKey && !isMac) ||
-        (e.metaKey && isMac)
-      ) &&
-      e.code === 'Tab'
+      e.ctrlKey &&
+      e.code === 'Tab' &&
+      e.shiftKey
     ) {
       this.props.clickNextTab()
     }

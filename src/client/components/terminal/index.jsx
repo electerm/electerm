@@ -199,12 +199,11 @@ export default class Term extends React.PureComponent {
     ) {
       this.onCopy()
     } else if (
-      (
-        (e.ctrlKey && !isMac) ||
-        (e.metaKey && isMac)
-      ) &&
+      e.ctrlKey &&
+      e.shiftKey &&
       e.code === 'Tab'
     ) {
+      e.stopPropagation()
       this.props.clickNextTab()
     }
   }
