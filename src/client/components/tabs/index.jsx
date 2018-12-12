@@ -8,7 +8,7 @@ import _ from 'lodash'
 import {Icon, Button, Dropdown, Menu} from 'antd'
 import Tab from './tab'
 import './tabs.styl'
-import {tabWidth, tabMargin, isMac} from '../../common/constants'
+import {tabWidth, tabMargin} from '../../common/constants'
 import createName from '../../common/create-title'
 import WindowControl from './window-control'
 

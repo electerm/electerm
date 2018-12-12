@@ -14,8 +14,7 @@ import {
   typeMap,
   isWin,
   contextMenuWidth,
-  terminalSshConfigType,
-  isMac
+  terminalSshConfigType
 } from '../../common/constants'
 import deepCopy from 'json-deep-copy'
 import {readClipboard, copy} from '../../common/clipboard'
