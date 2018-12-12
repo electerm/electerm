@@ -8,7 +8,7 @@ import _ from 'lodash'
 import {Icon, Button, Dropdown, Menu} from 'antd'
 import Tab from './tab'
 import './tabs.styl'
-import {tabWidth, tabMargin, isMac} from '../../common/constants'
+import {tabWidth, tabMargin} from '../../common/constants'
 import createName from '../../common/create-title'
 import WindowControl from './window-control'
 
@@ -36,11 +36,9 @@ export default class Tabs extends React.Component {
 
   handleTabHotkey = e => {
     if (
-      (
-        (e.ctrlKey && !isMac) ||
-        (e.metaKey && isMac)
-      ) &&
-      e.code === 'Tab'
+      e.ctrlKey &&
+      e.code === 'Tab' &&
+      e.shiftKey
     ) {
       this.props.clickNextTab()
     }
