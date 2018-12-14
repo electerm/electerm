@@ -6,7 +6,7 @@ import {
   Form, Button, Input,
   InputNumber, message,
   Radio, Upload, Tabs,
-  Select
+  Select, Switch
 } from 'antd'
 import {validateFieldsAndScroll} from '../../common/dec-validate-and-scroll'
 import _ from 'lodash'
@@ -676,11 +676,37 @@ export class BookmarkForm extends React.PureComponent {
     ]
   }
 
+  renderX11 = () => {
+    const {getFieldDecorator} = this.props.form
+    const {
+      x11Enabled = false
+    } = this.props.formData
+    return [
+      <FormItem
+        {...formItemLayout}
+        label="x11"
+        key="x11"
+      >
+        {getFieldDecorator('x11', {
+          initialValue: x11Enabled
+        })(
+          <Switch
+            checkedChildren="x11"
+            unCheckedChildren="x11"
+          />
+        )}
+      </FormItem>
+    ]
+  }
+
   renderTabs() {
     return (
       <Tabs type="card">
         <TabPane tab={e('auth')} key="auth" forceRender>
           {this.renderCommon()}
+        </TabPane>
+        <TabPane tab="x11" key="x11" forceRender>
+          {this.renderX11()}
         </TabPane>
         <TabPane tab={e('proxy')} key="proxy" forceRender>
           {this.renderProxy()}

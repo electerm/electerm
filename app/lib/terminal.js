@@ -7,6 +7,7 @@ const proxySock = require('./socks')
 const _ = require('lodash')
 const {generate} = require('shortid')
 const {resolve} = require('path')
+const net = require('net')
 
 class Terminal {
 
@@ -62,6 +63,7 @@ class Terminal {
           'host',
           'port',
           'username',
+          'x11',
           'password',
           'privateKey',
           'passphrase'
@@ -73,6 +75,7 @@ class Terminal {
       if (!opts.passphrase) {
         delete opts.passphrase
       }
+      opts.x11 = !!opts.x11
       const run = (info) => {
         if (info && info.socket) {
           delete opts.host
@@ -89,13 +92,24 @@ class Terminal {
           ) => {
             finish([opts.password])
           })
+          .on('x11', function (info, accept) {
+            let xserversock = new net.Socket()
+            xserversock
+              .on('connect', function () {
+                let xclientsock = accept()
+                xclientsock.pipe(xserversock).pipe(xclientsock)
+              })
+            xserversock.connect(6010, 'localhost')
+          })
           .on('ready', () => {
             if (isTest) {
               conn.end()
               return resolve(true)
             }
             conn.shell(
-              _.pick(initOptions, ['rows', 'cols', 'term']),
+              _.pick(initOptions, [
+                'rows', 'cols', 'term', 'x11'
+              ]),
               // {
               //   env: process.env
               // },
