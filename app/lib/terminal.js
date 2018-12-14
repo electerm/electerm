@@ -99,6 +99,9 @@ class Terminal {
                 let xclientsock = accept()
                 xclientsock.pipe(xserversock).pipe(xclientsock)
               })
+              .on('error', (e) => {
+                console.log(e)
+              })
             xserversock.connect(6010, 'localhost')
           })
           .on('ready', () => {
