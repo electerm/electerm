@@ -94,15 +94,22 @@ class Terminal {
           })
           .on('x11', function (info, accept) {
             let xserversock = new net.Socket()
+            let xclientsock
             xserversock
               .on('connect', function () {
-                let xclientsock = accept()
+                xclientsock = accept()
                 xclientsock.pipe(xserversock).pipe(xclientsock)
               })
               .on('error', (e) => {
                 console.log(e)
+                xserversock.destroy()
+                xclientsock && xclientsock.destroy()
               })
-            xserversock.connect(6010, 'localhost')
+              .on('close', () => {
+                xserversock.destroy()
+                xclientsock && xclientsock.destroy()
+              })
+            xserversock.connect(info.srcPort, info.srcIP)
           })
           .on('ready', () => {
             if (isTest) {

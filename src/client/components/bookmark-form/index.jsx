@@ -695,6 +695,11 @@ export class BookmarkForm extends React.PureComponent {
             unCheckedChildren="x11"
           />
         )}
+        <div className="x11-tips">
+          Experimental feature: when enabled,
+          still have to add <code className="color-red">-display :10</code> to make x command work,
+          such as <code className="color-red">xeyes -display :10</code>
+        </div>
       </FormItem>
     ]
   }

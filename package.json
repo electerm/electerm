@@ -94,6 +94,7 @@
     "memoize-one": "4.0.2",
     "mini-css-extract-plugin": "0.4.4",
     "mocha": "5.2.0",
+    "node-netstat": "1.5.0",
     "optimize-css-assets-webpack-plugin": "5.0.1",
     "png2icons": "1.0.1",
     "prop-types": "15.6.2",
