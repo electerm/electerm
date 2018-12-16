@@ -113,10 +113,9 @@ class Terminal {
             let xclientsock
             let display = await getDisplay()
               .catch(() => false)
-            let start = 6000
-            let firstTime = true
+            let start = 0
             function retry(displayNum) {
-              if (!displayNum && start >= 65536) {
+              if (!displayNum && start >= 6100) {
                 return
               }
               xserversock
@@ -129,10 +128,7 @@ class Terminal {
                   xserversock.destroy()
                   xclientsock && xclientsock.destroy()
                   if (!displayNum) {
-                    if (!firstTime) {
-                      start ++
-                    }
-                    firstTime = false
+                    start = start === 100 ? 6000 : start + 1
                     retry(displayNum)
                   }
                 })
@@ -140,8 +136,8 @@ class Terminal {
                   xserversock.destroy()
                   xclientsock && xclientsock.destroy()
                 })
-              if (displayNum || firstTime) {
-                xserversock.connect(`/tmp/.X11-unix/X${displayNum || '0'}`)
+              if (displayNum || start < 6000) {
+                xserversock.connect(`/tmp/.X11-unix/X${displayNum || start}`)
               } else {
                 xserversock.connect(start, 'localhost')
               }
