@@ -7,6 +7,7 @@ const proxySock = require('./socks')
 const _ = require('lodash')
 const {generate} = require('shortid')
 const {resolve} = require('path')
+const net = require('net')
 
 class Terminal {
 
@@ -62,6 +63,7 @@ class Terminal {
           'host',
           'port',
           'username',
+          'x11',
           'password',
           'privateKey',
           'passphrase'
@@ -73,6 +75,7 @@ class Terminal {
       if (!opts.passphrase) {
         delete opts.passphrase
       }
+      opts.x11 = _.isBoolean(opts.x11) ? opts.x11 : true
       const run = (info) => {
         if (info && info.socket) {
           delete opts.host
@@ -89,13 +92,49 @@ class Terminal {
           ) => {
             finish([opts.password])
           })
+          .on('x11', async function (info, accept) {
+            let start = 0
+            let maxRetry = 100
+            let portStart = 6000
+            let maxPort = portStart + maxRetry
+            function retry() {
+              if (start >= maxPort) {
+                return
+              }
+              let xserversock = new net.Socket()
+              let xclientsock
+              xserversock
+                .on('connect', function () {
+                  xclientsock = accept()
+                  xclientsock.pipe(xserversock).pipe(xclientsock)
+                })
+                .on('error', (e) => {
+                  console.log(e.message)
+                  xserversock.destroy()
+                  start = start === maxRetry ? portStart : start + 1
+                  retry()
+                })
+                .on('close', () => {
+                  xserversock.destroy()
+                  xclientsock && xclientsock.destroy()
+                })
+              if (start < portStart) {
+                xserversock.connect(`/tmp/.X11-unix/X${start}`)
+              } else {
+                xserversock.connect(start, 'localhost')
+              }
+            }
+            retry()
+          })
           .on('ready', () => {
             if (isTest) {
               conn.end()
               return resolve(true)
             }
             conn.shell(
-              _.pick(initOptions, ['rows', 'cols', 'term']),
+              _.pick(initOptions, [
+                'rows', 'cols', 'term', 'x11'
+              ]),
               // {
               //   env: process.env
               // },

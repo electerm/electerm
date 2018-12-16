@@ -13,7 +13,7 @@
 <span class="badge-githubstar">
 [![license](https://img.shields.io/github/license/electerm/electerm.svg)](https://github.com/electerm/electerm/blob/master/LICENSE)
 
-Terminal/ssh/sftp client(linux, mac, win) based on electron/node-pty/xterm/antd and other libs.
+Terminal/ssh/sftp client(linux, mac, win) based on electron/ssh2/node-pty/xterm/antd and other libs.
 
 <div align="center">
   <img src="https://github.com/electerm/electerm-resource/raw/master/static/images/electerm.gif", alt="" />
