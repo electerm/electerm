@@ -470,7 +470,6 @@ export class BookmarkForm extends React.PureComponent {
     const {
       host,
       port = 22,
-      x11 = false,
       title,
       loginScript,
       authType = authTypeMap.password,
