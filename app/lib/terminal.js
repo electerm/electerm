@@ -93,30 +93,32 @@ class Terminal {
             finish([opts.password])
           })
           .on('x11', async function (info, accept) {
-            let xserversock = new net.Socket()
-            let xclientsock
             let start = 0
+            let maxRetry = 100
+            let portStart = 6000
+            let maxPort = portStart + maxRetry
             function retry() {
-              if (start >= 6100) {
+              if (start >= maxPort) {
                 return
               }
+              let xserversock = new net.Socket()
+              let xclientsock
               xserversock
                 .on('connect', function () {
                   xclientsock = accept()
                   xclientsock.pipe(xserversock).pipe(xclientsock)
                 })
                 .on('error', (e) => {
-                  console.log(e, '')
+                  console.log(e.message)
                   xserversock.destroy()
-                  xclientsock && xclientsock.destroy()
-                  start = start === 100 ? 6000 : start + 1
+                  start = start === maxRetry ? portStart : start + 1
                   retry()
                 })
                 .on('close', () => {
                   xserversock.destroy()
                   xclientsock && xclientsock.destroy()
                 })
-              if (start < 6000) {
+              if (start < portStart) {
                 xserversock.connect(`/tmp/.X11-unix/X${start}`)
               } else {
                 xserversock.connect(start, 'localhost')
