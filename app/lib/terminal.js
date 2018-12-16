@@ -106,7 +106,7 @@ class Terminal {
                   xclientsock.pipe(xserversock).pipe(xclientsock)
                 })
                 .on('error', (e) => {
-                  console.log(e)
+                  console.log(e, '')
                   xserversock.destroy()
                   xclientsock && xclientsock.destroy()
                   start = start === 100 ? 6000 : start + 1
