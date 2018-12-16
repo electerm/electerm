@@ -677,7 +677,7 @@ export class BookmarkForm extends React.PureComponent {
   }
 
   renderX11 = () => {
-    let {x11 = false} = this.props.formData
+    let {x11 = true} = this.props.formData
     const {getFieldDecorator} = this.props.form
     return (
       <FormItem

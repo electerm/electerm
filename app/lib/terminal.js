@@ -75,7 +75,7 @@ class Terminal {
       if (!opts.passphrase) {
         delete opts.passphrase
       }
-      opts.x11 = !!opts.x11
+      opts.x11 = _.isBoolean(opts.x11) ? opts.x11 : true
       const run = (info) => {
         if (info && info.socket) {
           delete opts.host
