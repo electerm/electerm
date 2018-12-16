@@ -8,22 +8,6 @@ const _ = require('lodash')
 const {generate} = require('shortid')
 const {resolve} = require('path')
 const net = require('net')
-const {exec} = require('child_process')
-
-function getDisplay() {
-  return new Promise((resolve, reject) => {
-    return exec('echo $DISPLAY', (err, stdout, stderr) => {
-      if (err || stderr) {
-        return reject(err || stderr)
-      }
-      let arr = stdout.match(/:(\d+)/)
-      if (arr && arr[1]) {
-        return resolve(arr[1])
-      }
-      reject('n')
-    })
-  })
-}
 
 class Terminal {
 
@@ -111,11 +95,9 @@ class Terminal {
           .on('x11', async function (info, accept) {
             let xserversock = new net.Socket()
             let xclientsock
-            let display = await getDisplay()
-              .catch(() => false)
             let start = 0
-            function retry(displayNum) {
-              if (!displayNum && start >= 6100) {
+            function retry() {
+              if (start >= 6100) {
                 return
               }
               xserversock
@@ -127,22 +109,20 @@ class Terminal {
                   console.log(e)
                   xserversock.destroy()
                   xclientsock && xclientsock.destroy()
-                  if (!displayNum) {
-                    start = start === 100 ? 6000 : start + 1
-                    retry(displayNum)
-                  }
+                  start = start === 100 ? 6000 : start + 1
+                  retry()
                 })
                 .on('close', () => {
                   xserversock.destroy()
                   xclientsock && xclientsock.destroy()
                 })
-              if (displayNum || start < 6000) {
-                xserversock.connect(`/tmp/.X11-unix/X${displayNum || start}`)
+              if (start < 6000) {
+                xserversock.connect(`/tmp/.X11-unix/X${start}`)
               } else {
                 xserversock.connect(start, 'localhost')
               }
             }
-            retry(display)
+            retry()
           })
           .on('ready', () => {
             if (isTest) {
