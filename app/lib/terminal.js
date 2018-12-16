@@ -8,6 +8,22 @@ const _ = require('lodash')
 const {generate} = require('shortid')
 const {resolve} = require('path')
 const net = require('net')
+const {exec} = require('child_process')
+
+function getDisplay() {
+  return new Promise((resolve, reject) => {
+    return exec('echo $DISPLAY', (err, stdout, stderr) => {
+      if (err || stderr) {
+        return reject(err || stderr)
+      }
+      let arr = stdout.match(/:(\d+)/)
+      if (arr && arr[1]) {
+        return resolve(arr[1])
+      }
+      reject('n')
+    })
+  })
+}
 
 class Terminal {
 
@@ -92,24 +108,41 @@ class Terminal {
           ) => {
             finish([opts.password])
           })
-          .on('x11', function (info, accept) {
+          .on('x11', async function (info, accept) {
             let xserversock = new net.Socket()
             let xclientsock
-            xserversock
-              .on('connect', function () {
-                xclientsock = accept()
-                xclientsock.pipe(xserversock).pipe(xclientsock)
-              })
-              .on('error', (e) => {
-                console.log(e)
-                xserversock.destroy()
-                xclientsock && xclientsock.destroy()
-              })
-              .on('close', () => {
-                xserversock.destroy()
-                xclientsock && xclientsock.destroy()
-              })
-            xserversock.connect(info.srcPort, info.srcIP)
+            let display = await getDisplay()
+              .catch(() => false)
+            let start = 6000
+            function retry(displayNum) {
+              if (!displayNum && start >= 65536) {
+                return
+              }
+              xserversock
+                .on('connect', function () {
+                  xclientsock = accept()
+                  xclientsock.pipe(xserversock).pipe(xclientsock)
+                })
+                .on('error', (e) => {
+                  console.log(e)
+                  xserversock.destroy()
+                  xclientsock && xclientsock.destroy()
+                  if (!displayNum) {
+                    start ++
+                    retry(displayNum)
+                  }
+                })
+                .on('close', () => {
+                  xserversock.destroy()
+                  xclientsock && xclientsock.destroy()
+                })
+              if (displayNum) {
+                xserversock.connect(`/tmp/.X11-unix/X${displayNum}`)
+              } else {
+                xserversock.connect(start, 'localhost')
+              }
+            }
+            retry(display)
           })
           .on('ready', () => {
             if (isTest) {

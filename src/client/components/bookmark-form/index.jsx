@@ -470,6 +470,7 @@ export class BookmarkForm extends React.PureComponent {
     const {
       host,
       port = 22,
+      x11 = false,
       title,
       loginScript,
       authType = authTypeMap.password,
@@ -677,31 +678,21 @@ export class BookmarkForm extends React.PureComponent {
   }
 
   renderX11 = () => {
+    let {x11 = false} = this.props.formData
     const {getFieldDecorator} = this.props.form
-    const {
-      x11Enabled = false
-    } = this.props.formData
-    return [
+    return (
       <FormItem
         {...formItemLayout}
         label="x11"
-        key="x11"
       >
         {getFieldDecorator('x11', {
-          initialValue: x11Enabled
+          initialValue: x11,
+          valuePropName: 'checked'
         })(
-          <Switch
-            checkedChildren="x11"
-            unCheckedChildren="x11"
-          />
+          <Switch />
         )}
-        <div className="x11-tips">
-          Experimental feature: when enabled,
-          still have to add <code className="color-red">-display :10</code> to make x command work,
-          such as <code className="color-red">xeyes -display :10</code>
-        </div>
       </FormItem>
-    ]
+    )
   }
 
   renderTabs() {
