@@ -8,6 +8,36 @@ const _ = require('lodash')
 const {generate} = require('shortid')
 const {resolve} = require('path')
 const net = require('net')
+const {exec} = require('child_process')
+
+function getDisplay() {
+  return new Promise((resolve) => {
+    exec('echo $DISPLAY', (err, out, e) => {
+      if (err || e) {
+        resolve('')
+      } else {
+        resolve(out || '')
+      }
+    })
+  })
+}
+
+function getX11Cookie() {
+  return new Promise((resolve) => {
+    exec('xauth list', (err, out, e) => {
+      if (err || e) {
+        resolve('')
+      } else {
+        let s = out || ''
+        let reg = /MIT-MAGIC-COOKIE-1 +([\d\w]{1,38})/
+        let arr = s.match(reg)
+        resolve(
+          arr ? arr[1] || '' : ''
+        )
+      }
+    })
+  })
+}
 
 class Terminal {
 
@@ -47,7 +77,11 @@ class Terminal {
     return Promise.resolve()
   }
 
-  remoteInit(initOptions, isTest) {
+  async remoteInit(initOptions, isTest) {
+    let display = await getDisplay()
+    let x11Cookie = await getX11Cookie()
+    console.log(display, 'display')
+    console.log(x11Cookie, 'x11Cookie')
     return new Promise((resolve, reject) => {
       const conn = new Client()
       let opts = Object.assign(
@@ -75,7 +109,12 @@ class Terminal {
       if (!opts.passphrase) {
         delete opts.passphrase
       }
-      opts.x11 = _.isBoolean(opts.x11) ? opts.x11 : true
+      if (opts.x11 !== false) {
+        opts.x11 = {
+          cookie: x11Cookie
+        }
+      }
+      console.log(opts, 'llll')
       const run = (info) => {
         if (info && info.socket) {
           delete opts.host
@@ -119,7 +158,10 @@ class Terminal {
                   xclientsock && xclientsock.destroy()
                 })
               if (start < portStart) {
-                xserversock.connect(`/tmp/.X11-unix/X${start}`)
+                let addr = display.includes('/tmp')
+                  ? display
+                  : `/tmp/.X11-unix/X${start}`
+                xserversock.connect(addr)
               } else {
                 xserversock.connect(start, 'localhost')
               }
@@ -132,7 +174,7 @@ class Terminal {
               return resolve(true)
             }
             conn.shell(
-              _.pick(initOptions, [
+              _.pick(opts, [
                 'rows', 'cols', 'term', 'x11'
               ]),
               // {
