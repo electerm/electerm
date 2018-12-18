@@ -16,7 +16,7 @@ function getDisplay() {
       if (err || e) {
         resolve('')
       } else {
-        resolve(out || '')
+        resolve((out || '').trim())
       }
     })
   })
@@ -24,7 +24,7 @@ function getDisplay() {
 
 function getX11Cookie() {
   return new Promise((resolve) => {
-    exec('xauth list', (err, out, e) => {
+    exec('xauth list :0', (err, out, e) => {
       if (err || e) {
         resolve('')
       } else {
@@ -80,8 +80,6 @@ class Terminal {
   async remoteInit(initOptions, isTest) {
     let display = await getDisplay()
     let x11Cookie = await getX11Cookie()
-    console.log(display, 'display')
-    console.log(x11Cookie, 'x11Cookie')
     return new Promise((resolve, reject) => {
       const conn = new Client()
       let opts = Object.assign(
@@ -120,7 +118,6 @@ class Terminal {
         ]),
         x11
       }
-      console.log(shellOpts, 'llll')
       const run = (info) => {
         if (info && info.socket) {
           delete opts.host
@@ -181,9 +178,6 @@ class Terminal {
             }
             conn.shell(
               shellOpts,
-              // {
-              //   env: process.env
-              // },
               (err, channel) => {
                 if (err) {
                   return reject(err)
