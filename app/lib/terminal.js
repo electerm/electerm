@@ -97,7 +97,6 @@ class Terminal {
           'host',
           'port',
           'username',
-          'x11',
           'password',
           'privateKey',
           'passphrase'
@@ -109,12 +108,19 @@ class Terminal {
       if (!opts.passphrase) {
         delete opts.passphrase
       }
-      if (opts.x11 !== false) {
-        opts.x11 = {
+      let x11 = false
+      if (initOptions.x11 !== false) {
+        x11 = {
           cookie: x11Cookie
         }
       }
-      console.log(opts, 'llll')
+      let shellOpts = {
+        ..._.pick(initOptions, [
+          'rows', 'cols', 'term'
+        ]),
+        x11
+      }
+      console.log(shellOpts, 'llll')
       const run = (info) => {
         if (info && info.socket) {
           delete opts.host
@@ -131,7 +137,7 @@ class Terminal {
           ) => {
             finish([opts.password])
           })
-          .on('x11', async function (info, accept) {
+          .on('x11', function (info, accept) {
             let start = 0
             let maxRetry = 100
             let portStart = 6000
@@ -174,9 +180,7 @@ class Terminal {
               return resolve(true)
             }
             conn.shell(
-              _.pick(opts, [
-                'rows', 'cols', 'term', 'x11'
-              ]),
+              shellOpts,
               // {
               //   env: process.env
               // },
