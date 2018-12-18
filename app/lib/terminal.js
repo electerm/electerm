@@ -2,12 +2,42 @@
  * terminal class
  */
 const pty = require('node-pty')
-const {Client} = require('ssh2')
+const {Client} = require('@electerm/ssh2')
 const proxySock = require('./socks')
 const _ = require('lodash')
 const {generate} = require('shortid')
 const {resolve} = require('path')
 const net = require('net')
+const {exec} = require('child_process')
+
+function getDisplay() {
+  return new Promise((resolve) => {
+    exec('echo $DISPLAY', (err, out, e) => {
+      if (err || e) {
+        resolve('')
+      } else {
+        resolve((out || '').trim())
+      }
+    })
+  })
+}
+
+function getX11Cookie() {
+  return new Promise((resolve) => {
+    exec('xauth list :0', (err, out, e) => {
+      if (err || e) {
+        resolve('')
+      } else {
+        let s = out || ''
+        let reg = /MIT-MAGIC-COOKIE-1 +([\d\w]{1,38})/
+        let arr = s.match(reg)
+        resolve(
+          arr ? arr[1] || '' : ''
+        )
+      }
+    })
+  })
+}
 
 class Terminal {
 
@@ -47,7 +77,9 @@ class Terminal {
     return Promise.resolve()
   }
 
-  remoteInit(initOptions, isTest) {
+  async remoteInit(initOptions, isTest) {
+    let display = await getDisplay()
+    let x11Cookie = await getX11Cookie()
     return new Promise((resolve, reject) => {
       const conn = new Client()
       let opts = Object.assign(
@@ -63,7 +95,6 @@ class Terminal {
           'host',
           'port',
           'username',
-          'x11',
           'password',
           'privateKey',
           'passphrase'
@@ -75,7 +106,18 @@ class Terminal {
       if (!opts.passphrase) {
         delete opts.passphrase
       }
-      opts.x11 = _.isBoolean(opts.x11) ? opts.x11 : true
+      let x11 = false
+      if (initOptions.x11 !== false) {
+        x11 = {
+          cookie: x11Cookie
+        }
+      }
+      let shellOpts = {
+        ..._.pick(initOptions, [
+          'rows', 'cols', 'term'
+        ]),
+        x11
+      }
       const run = (info) => {
         if (info && info.socket) {
           delete opts.host
@@ -92,7 +134,7 @@ class Terminal {
           ) => {
             finish([opts.password])
           })
-          .on('x11', async function (info, accept) {
+          .on('x11', function (info, accept) {
             let start = 0
             let maxRetry = 100
             let portStart = 6000
@@ -119,7 +161,10 @@ class Terminal {
                   xclientsock && xclientsock.destroy()
                 })
               if (start < portStart) {
-                xserversock.connect(`/tmp/.X11-unix/X${start}`)
+                let addr = display.includes('/tmp')
+                  ? display
+                  : `/tmp/.X11-unix/X${start}`
+                xserversock.connect(addr)
               } else {
                 xserversock.connect(start, 'localhost')
               }
@@ -132,12 +177,7 @@ class Terminal {
               return resolve(true)
             }
             conn.shell(
-              _.pick(initOptions, [
-                'rows', 'cols', 'term', 'x11'
-              ]),
-              // {
-              //   env: process.env
-              // },
+              shellOpts,
               (err, channel) => {
                 if (err) {
                   return reject(err)

@@ -2,7 +2,7 @@
  * ssh2 sftp client
  */
 
-let {Client} = require('ssh2')
+let {Client} = require('@electerm/ssh2')
 const proxySock = require('./socks')
 const _ = require('lodash')
 const {readRemoteFile, writeRemoteFile} = require('./sftp-file')
