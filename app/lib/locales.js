@@ -23,7 +23,8 @@ const langs = fs.readdirSync(localeFolder)
     return {
       path: filePath,
       id: fileName.replace('.js', ''),
-      name: lang.name
+      name: lang.name,
+      match: lang.match
     }
   })
 const langMap = langs.reduce((prev, l) => {
@@ -31,15 +32,31 @@ const langMap = langs.reduce((prev, l) => {
   return prev
 }, {})
 
+function findLang(la) {
+  let res = false
+  for (let l of langs) {
+    if (_.isRegExp(l.match)) {
+      res = l.match.test(la)
+    } else if (_.isFunction(l.match)) {
+      res = l.match(la)
+    } else {
+      res = l.id === la
+    }
+    if (res) {
+      res = l.id
+      break
+    }
+  }
+  return res
+}
+
 const getLang = () => {
   if (userConfig.language) {
     return userConfig.language
   }
-  let l = sync().toLowerCase() || defaultLang
-  if (langMap[l]) {
-    return l
-  }
-  return defaultLang
+  let l = sync()
+  l = l ? l.toLowerCase().replace('-', '_') : defaultLang
+  return findLang(l) || defaultLang
 }
 
 let language = getLang()
