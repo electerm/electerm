@@ -27,6 +27,7 @@ export async function handleErr(res) {
   console.log(text, 'err info')
   notification.error({
     message: 'error',
+    placement: 'bottomRight',
     description: (
       <div className="common-err">
         {text}
