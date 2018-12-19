@@ -346,6 +346,7 @@ export default class Index extends React.Component {
     notification.error({
       message: msg,
       description,
+      placement: 'bottomRight',
       duration: 55
     })
   }

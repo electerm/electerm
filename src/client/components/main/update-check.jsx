@@ -40,6 +40,7 @@ export default class FileMode extends React.PureComponent {
     } else if (this.props.shouldCheckUpdate) {
       notification.info({
         message: e('noNeed'),
+        placement: 'bottomRight',
         description: e('noNeedDesc'),
         duration: 5
       })
@@ -49,6 +50,7 @@ export default class FileMode extends React.PureComponent {
   notifyUpdateFail() {
     notification.info({
       message: e('fail'),
+      placement: 'bottomRight',
       description: (
         <div>
           you can visit
@@ -74,6 +76,7 @@ export default class FileMode extends React.PureComponent {
       </div>
     )
     notification.info({
+      placement: 'bottomRight',
       message: (
         <p className="pd1b">{e('newVersion')} <b>{tag_name}</b></p>
       ),
