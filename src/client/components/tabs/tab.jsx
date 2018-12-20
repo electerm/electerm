@@ -12,7 +12,9 @@ import wait from '../../common/wait'
 import createName from '../../common/create-title'
 import {addClass, removeClass} from '../../common/class'
 import {generate} from 'shortid'
-import {statusMap} from '../../common/constants'
+import {
+  statusMap, terminalSshConfigType
+} from '../../common/constants'
 
 const {prefix} = window
 const e = prefix('tabs')
@@ -204,6 +206,7 @@ export default class Tab extends React.Component {
     let nother = len === 1
     let noRight = index >= len - 1
     let cls = 'pd2x pd1y context-item pointer'
+    let isSshConfig = tab.type === terminalSshConfigType
     return (
       <div>
         <div
@@ -250,8 +253,8 @@ export default class Tab extends React.Component {
           <Icon type="copy" /> {e('duplicate')}
         </div>
         <div
-          className={cls}
-          onClick={this.doRename}
+          className={cls + (isSshConfig ? ' disabled' : '')}
+          onClick={isSshConfig ? _.noop : this.doRename}
         >
           <Icon type="edit" /> {e('rename')}
         </div>

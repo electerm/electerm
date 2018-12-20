@@ -119,13 +119,14 @@ export default class ItemList extends React.PureComponent {
   render() {
     let {
       list = [],
-      type
+      type,
+      listStyle = {}
     } = this.props
     list = this.filter(list)
     return (
       <div className={`item-list item-type-${type}`}>
         {this.renderSearch()}
-        <div className="item-list-wrap">
+        <div className="item-list-wrap" style={listStyle}>
           {
             list.map(this.renderItem)
           }

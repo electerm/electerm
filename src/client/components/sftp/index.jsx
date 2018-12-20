@@ -18,7 +18,8 @@ import {getLocalFileInfo, getRemoteFileInfo} from './file-read'
 import {
   typeMap, maxSftpHistory, paneMap,
   fileOpTypeMap, eventTypes,
-  fileTypeMap, transferTypeMap
+  fileTypeMap, transferTypeMap,
+  terminalSshConfigType
 } from '../../common/constants'
 import {hasFileInClipboardText} from '../../common/clipboard'
 import Client from '../../common/sftp'
@@ -397,7 +398,8 @@ export default class Sftp extends React.Component {
   initData = (remoteInit) => {
     if (remoteInit) {
       let {props} = this
-      let host = _.get(props, 'tab.host')
+      let host = _.get(props, 'tab.host') &&
+        _.get(props, 'tab.type') !== terminalSshConfigType
       if (host) {
         this.remoteList()
       }

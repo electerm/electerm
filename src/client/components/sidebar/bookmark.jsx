@@ -20,7 +20,8 @@ const sshConfigItems = copy(getGlobal('sshConfigItems'))
 
 export default memo((props) => {
   let {
-    bookmarkGroups = []
+    bookmarkGroups = [],
+    listStyle
   } = props
   const onClickItem = (item) => {
     props.modifier({
@@ -30,11 +31,12 @@ export default memo((props) => {
   }
   let props0 = {
     bookmarks: [
-      ...props.bookmarks || [],
+      ...(props.bookmarks || []),
       ...sshConfigItems
     ],
     type: 'bookmarks',
-    onClickItem
+    onClickItem,
+    listStyle
   }
   let bookmarkGroupsTotal = sshConfigItems.length
     ? [

@@ -261,9 +261,14 @@ export default class Term extends React.PureComponent {
     this.term.focus()
   }
 
+  isRemote = () => {
+    return _.get(this.props, 'tab.host') &&
+    _.get(this.props, 'tab.type') !== 'ssh-config'
+  }
+
   onPaste = () => {
     let selected = readClipboard()
-    if (isWin && _.get(this.props, 'tab.host')) {
+    if (isWin && this.isRemote()) {
       selected = selected.replace(/\r\n/g, '\n')
     }
     this.term.__sendData(selected)

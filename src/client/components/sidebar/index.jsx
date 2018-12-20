@@ -52,6 +52,9 @@ export default memo((props) => {
     clearTimeout(handler)
     setOpenedSideBar('history')
   }
+  let listStyle = {
+    maxHeight: height - 160
+  }
   return (
     <div
       className={`sidebar type-${openedSideBar}`}
@@ -153,11 +156,13 @@ export default memo((props) => {
           {...props}
           onMouseEnter={onMouseEnterBookmark}
           onMouseLeave={onMouseLeave}
+          listStyle={listStyle}
         />
         <HistoryWrap
           {...props}
           onMouseEnter={onMouseEnterHistory}
           onMouseLeave={onMouseLeave}
+          listStyle={listStyle}
         />
       </div>
     </div>
