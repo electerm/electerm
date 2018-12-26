@@ -522,7 +522,6 @@ export default class ItemListTree extends React.PureComponent {
       listStyle = {}
     } = this.props
     let {expandedKeys, keyword} = this.state
-    console.log(bookmarkGroups, staticList, 'jkjj')
     return (
       <div className={`tree-list item-type-${type}`}>
         {
