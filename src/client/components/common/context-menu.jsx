@@ -34,7 +34,8 @@ export default class ContextMenu extends React.PureComponent {
         let p = findParent(target, '.context-item')
         if (
           p &&
-          !p.classList.contains('no-auto-close-context')
+          !p.classList.contains('no-auto-close-context') &&
+          !p.classList.contains('disabled')
         ) {
           this.props.closeContextMenu()
         }

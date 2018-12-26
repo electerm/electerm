@@ -13,7 +13,7 @@ import classnames from 'classnames'
 import {
   tabsHeight,
   terminalSplitDirectionMap, termControlHeight,
-  paneMap
+  paneMap, terminalSshConfigType
 } from '../../common/constants'
 import ResizeWrap from '../common/resize-wrap'
 import keyControlPressed from '../../common/key-control-pressed'
@@ -250,7 +250,8 @@ export default class WindowWrapper extends React.PureComponent  {
   renderControl = () => {
     let {pane, splitDirection, terminals} = this.state
     let {props} = this
-    let host = _.get(props, 'tab.host')
+    let host = _.get(props, 'tab.host') &&
+      _.get(props, 'tab.type') !== terminalSshConfigType
     let isHori = splitDirection === terminalSplitDirectionMap.horizontal
     let cls1 = 'mg1r icon-split pointer iblock spliter'
     let cls2 = 'icon-direction pointer iblock spliter'

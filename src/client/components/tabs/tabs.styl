@@ -7,9 +7,9 @@
   position absolute
   left 0
   top 0
+  height 15px
   right 0
-  height 10px
-  margin-right 60px
+  z-index 1
 .tabs-inner
   position relative
   z-index 2
@@ -87,22 +87,29 @@
   min-height 500px
 .window-controls
   position absolute
-  right 5px
+  right 10px
+  -webkit-app-region no-drag
   top 0
   z-index 200
   border-radius 0 0 3px 3px
-  padding 0 5px
+  padding 0 0 0 4px
   background #333
 
-.widnow-control-icon
+.window-control-box
+  display inline-block
+  width 16px
+  height 16px
   color #ccc
   &:hover
     color #08c
-    border-color #08c
+    cursor pointer
+    .icon-maximize
+      border-color #08c
 .icon-maximize
   width 10px
   height 7px
   border 1px solid #ccc
+  cursor pointer
   &.is-max
     height 6px
     position relative

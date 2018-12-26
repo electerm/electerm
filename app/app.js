@@ -122,6 +122,7 @@ async function createWindow () {
     //fullscreen: true,
     title: packInfo.name,
     frame: false,
+    titleBarStyle: 'customButtonsOnHover',
     icon: iconPath
   })
 

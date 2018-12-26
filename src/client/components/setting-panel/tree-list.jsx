@@ -518,7 +518,8 @@ export default class ItemListTree extends React.PureComponent {
       bookmarkGroups,
       type,
       activeItemId,
-      staticList
+      staticList,
+      listStyle = {}
     } = this.props
     let {expandedKeys, keyword} = this.state
     return (
@@ -531,7 +532,7 @@ export default class ItemListTree extends React.PureComponent {
         {
           this.renderSearch()
         }
-        <div className="item-list-wrap pd2r">
+        <div className="item-list-wrap pd2r" style={listStyle}>
           {this.renderNewBookmarkGroup()}
           <Tree
             onExpand={this.onExpand}
