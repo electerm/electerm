@@ -1,6 +1,6 @@
 {
   "name": "electerm",
-  "version": "0.25.66",
+  "version": "0.25.67",
   "description": "Terminal/ssh/sftp client(linux, mac, win) based on electron/ssh2/node-pty/xterm/antd and other libs",
   "main": "dev-app.js",
   "bin": "npm/electerm",
@@ -53,7 +53,7 @@
     "@babel/register": "7.0.0",
     "@babel/runtime": "7.1.2",
     "@electerm/electerm-resource": "1.2.1",
-    "antd": "3.11.2",
+    "antd": "3.11.6",
     "babel-eslint": "10.0.1",
     "babel-loader": "8.0.4",
     "babel-minify-webpack-plugin": "0.3.1",
