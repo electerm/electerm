@@ -22,6 +22,7 @@ import {
   contextMenuWidth, fileOpTypeMap,
   isMac, maxEditFileSize
 } from '../../common/constants'
+import findParent from '../../common/find-parent'
 import sorter from '../../common/index-sorter'
 import {getLocalFileInfo, getFolderFromFilePath, getRemoteFileInfo} from './file-read'
 import {readClipboard, copy as copyToClipboard, hasFileInClipboardText} from '../../common/clipboard'
@@ -177,20 +178,23 @@ export default class FileSection extends React.Component {
 
   onDragEnter = e => {
     let {target} = e
-    if (
-      !hasClass(target, fileItemCls)
-    ) {
+    target = findParent(target, '.' + fileItemCls)
+    if (!target) {
       return e.preventDefault()
     }
     this.dropTarget = target
-    addClass(target, onDragOverCls)
+    target.classList.add(onDragOverCls)
   }
 
   onDragExit = () => {}
 
   onDragLeave = e => {
     let {target} = e
-    removeClass(target, onDragOverCls)
+    target = findParent(target, '.' + fileItemCls)
+    if (!target) {
+      return e.preventDefault()
+    }
+    target.classList.remove(onDragOverCls)
   }
 
   onDragOver = e => {
