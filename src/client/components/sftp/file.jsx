@@ -10,7 +10,7 @@ import copy from 'json-deep-copy'
 import _ from 'lodash'
 import Input from '../common/input-auto-focus'
 import resolve from '../../common/resolve'
-import {addClass, removeClass, hasClass} from '../../common/class'
+import {addClass, removeClass} from '../../common/class'
 import {
   mode2permission,
   permission2mode
@@ -288,24 +288,34 @@ export default class FileSection extends React.Component {
   onDropFile = (fromFile, toFile, fromFileManager) => {
     let {type: fromType} = fromFile
     let {
+      id,
       type: toType,
       isDirectory: isDirectoryTo
     } = toFile
 
     let transferType = this.getTransferType(toType)
 
-    //drop from file manager
-    if (fromFileManager && toType === typeMap.local) {
-      transferType = fileOpTypeMap.copy
-    }
-
-    //same side and drop to file, do nothing
-    if (fromType === toType && !isDirectoryTo) {
+    //same side and drop to file = drop to folder
+    if (!fromFileManager && fromType === toType && !isDirectoryTo) {
       return
     }
 
+    //drop from file manager
+    if (fromFileManager && toType === typeMap.local) {
+      transferType = fileOpTypeMap.copy
+      if (id) {
+        toFile = {
+          ...toFile,
+          ...getFolderFromFilePath(
+            resolve(toFile.path, toFile.name)
+          ),
+          id: undefined
+        }
+      }
+    }
+
     //same side and drop to folder, do mv
-    if (fromType === toType && isDirectoryTo) {
+    if (fromType === toType && isDirectoryTo && !fromFileManager) {
       transferType = fileOpTypeMap.mv
     }
 
