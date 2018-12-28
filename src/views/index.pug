@@ -1,64 +1,64 @@
 
 doctype html
 html
-head
-  meta(charset='UTF-8')
-  meta(http-equiv='x-ua-compatible' content='IE=edge')
-  meta(name='viewport', content='width=device-width, initial-scale=1, shrink-to-fit=no')
-  title #{siteName}
-  link(rel='stylesheet', href='css/electerm.styles.css?' + version)
-  link(rel='stylesheet', href='css/basic.styles.css?' + version)
-body
-  #container
-  #content-loading
-  script.
-    window.et = !{JSON.stringify(_global)}
-
-  - if (env === 'development')
+  head
+    meta(charset='UTF-8')
+    meta(http-equiv='x-ua-compatible' content='IE=edge')
+    meta(name='viewport', content='width=device-width, initial-scale=1, shrink-to-fit=no')
+    title #{siteName}
+    link(rel='stylesheet', href='css/electerm.styles.css?' + version)
+    link(rel='stylesheet', href='css/basic.styles.css?' + version)
+  body
+    #container
+    #content-loading
     script.
-      window.debug = function () {
-        var args = Array.prototype.slice.call(arguments);
-        if (window.et.env === 'development') return console.log.apply(null, args);
-      }
-  - var tail = env !== 'development' ? '.production.min' : '.development'
-  script(src='../node_modules/react/umd/react' + tail + '.js?' + version)
-  script(src='../node_modules/react-dom/umd/react-dom' + tail + '.js?' + version)
-  script.
-    window.et.onload = function() {
-      document.body.removeChild(document.getElementById('content-loading'));
-    };
-    window.getGlobal = function(str) {
-      try {
-        return require('electron').remote.getGlobal('et')[str]
-      } catch(e) {
-        console.log(e.stack)
-        return false
-      }
-    }
-    window._require = function(modName) {
-      try {
-        return require(modName)
-      } catch(e) {
-        console.log(e.stack)
-        return false
-      }
-    }
-    window.lang = window.getGlobal('lang')
+      window.et = !{JSON.stringify(_global)}
 
-    /**
-    * string translate
-    * @param {string} id eg: 'menu.cut'
-    */
-    window.e = id => {
-      return window.lang.id || id
-    }
-
-    window.prefix = prefix => {
-      return (id) => {
-        return window.lang[prefix][id] || id
+    - if (env === 'development')
+      script.
+        window.debug = function () {
+          var args = Array.prototype.slice.call(arguments);
+          if (window.et.env === 'development') return console.log.apply(null, args);
+        }
+    - var tail = env !== 'development' ? '.production.min' : '.development'
+    script(src='../node_modules/react/umd/react' + tail + '.js?' + version)
+    script(src='../node_modules/react-dom/umd/react-dom' + tail + '.js?' + version)
+    script.
+      window.et.onload = function() {
+        document.body.removeChild(document.getElementById('content-loading'));
+      };
+      window.getGlobal = function(str) {
+        try {
+          return require('electron').remote.getGlobal('et')[str]
+        } catch(e) {
+          console.log(e.stack)
+          return false
+        }
       }
-    }
+      window._require = function(modName) {
+        try {
+          return require(modName)
+        } catch(e) {
+          console.log(e.stack)
+          return false
+        }
+      }
+      window.lang = window.getGlobal('lang')
 
-    window._config = window.getGlobal('_config')
+      /**
+      * string translate
+      * @param {string} id eg: 'menu.cut'
+      */
+      window.e = id => {
+        return window.lang.id || id
+      }
 
-  script(src='js/electerm.' + version + '.js', onload='window.et.onload()')
+      window.prefix = prefix => {
+        return (id) => {
+          return window.lang[prefix][id] || id
+        }
+      }
+
+      window._config = window.getGlobal('_config')
+
+    script(src='js/electerm.' + version + '.js', onload='window.et.onload()')
