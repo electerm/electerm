@@ -2,6 +2,7 @@
   position relative
   height 56px
   overflow hidden
+  background #000
 .app-drag
   -webkit-app-region drag
   position absolute
@@ -31,15 +32,15 @@
   line-height 36px
   margin 5px 3px 5px 0
   border-radius 3px
-  background #ddd
+  background #333
   text-align center
-  color #555
+  color #aaa
   .tab-reload
   .tab-close
     display none
   &.active
-    color #fff
-    background #333
+    color #aaa
+    background #000
   &:hover
     .tab-close
       display block
@@ -69,17 +70,27 @@
   display inline-block
   margin 0 3px
   -webkit-app-region no-drag
+  color #aaa
+  &:hover
+    color #ccc
 .tabs-extra
   position absolute
   height 56px
   top 0
   right 0
-  background #fff
   line-height 74px
   z-index 20
   -webkit-app-region no-drag
   box-shadow -3px 0px 3px 0px rgba(0,0,0,0.15)
-
+  background #555
+  .ant-btn
+    background #333
+    color #aaa
+    border-color: #333
+    &:hover
+      color #ccc
+  .tabs-dd-icon
+    color #aaa
 
 .form-wrap
   border-left 1px solid #eee

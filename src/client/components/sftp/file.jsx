@@ -1077,7 +1077,7 @@ export default class FileSection extends React.Component {
       <div
         key={name}
         title={value}
-        className={`sftp-file-prop shi-${name}`}
+        className={`sftp-file-prop noise shi-${name}`}
         style={style}
       >
         {typeIcon}

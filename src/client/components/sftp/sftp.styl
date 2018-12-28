@@ -17,14 +17,14 @@
   margin-bottom 4px
   &:nth-child(even)
     .sftp-file-prop
-      background #f4f4f4
+      background #010101
   &:hover
     .sftp-file-prop
-      background #e3e3e3
-      color #000
+      background-color #222
+      color #fff
   &.selected
     .sftp-file-prop
-      background #333
+      background-color #194459
       color #eee
 .sftp-history
   position absolute
@@ -35,20 +35,20 @@
   box-shadow none
   border none
   height 0
-  background #fff
+  background #000
   overflow hidden
   border-radius 3px
   &.focused
     height auto
-    border 1px solid #ddd
+    border 1px solid #555
     box-shadow 0px 0px 3px 3px rgba(0,0,0,0.05)
 
 .sftp-history-item
   padding 5px 10px
   cursor pointer
-  border-bottom 1px solid #fefefe
+  border-bottom 1px solid #555
   &:hover
-    background #ddd
+    background #222
 
 .sftp-item-title
   width 100%
@@ -63,6 +63,7 @@
   margin-left -20px
   line-height 36px
   height 36px
+  color #eee
 
 .sftp-transport
   &:hover
@@ -70,7 +71,8 @@
 
 .transports-content
   max-height 300px
-
+.transports-count
+  color #ccc
 .sftp-status-success
   color colorGreen
 .sftp-status-exception
@@ -121,13 +123,17 @@
   left 0
   width 100px
   padding 0 5px
-  background #fff
+  background #000
   overflow hidden
   white-space nowrap
   text-overflow ellipsis
   pointer-events none
   cursor default
   z-index 4
+  color #bbb
+  &:last-child
+    right 0 !important
+    width auto !important
 .file-bg
   position absolute
   left 0
@@ -142,21 +148,22 @@
   position absolute
   left 0
   width 100px
-  border 1px solid #ddd
+  border 1px solid #000
   border-right none
   padding 0 5px
-  background #fff
+  background #222
   overflow hidden
   white-space nowrap
   text-overflow ellipsis
+  color #aaa
   &:last-child
-    border-right 1px solid #ddd
-  // &.is-sorting
-  //   background #ddd
+    border-right 1px solid #000
+    right 0 !important
+    width auto !important
   &.desc
-    background linear-gradient(to bottom, #dddddd 0%,#ffffff 100%)
+    background linear-gradient(to bottom, #010101 0%,#222 100%)
   &.asc
-    background linear-gradient(to bottom, #ffffff 0%,#dddddd 100%)
+    background linear-gradient(to bottom, #222 0%,#010101 100%)
 .sftp-header-handle
   z-index 20
   cursor ew-resize
@@ -170,13 +177,13 @@
   overflow-x hidden
   &::-webkit-scrollbar
     width 5px
-    background #fff
+    background rgba(0,0,0,.5)
 
   &::-webkit-scrollbar-track
     -webkit-box-shadow none
 
   &::-webkit-scrollbar-thumb
-    background-color #fff
+    background-color #333
     outline none
 .sftp-item
   &.sftp-dragover
@@ -202,3 +209,26 @@
   display inline-block
 .symbolic-link-icon
   margin-right 2px
+
+//sftp
+.sftp-panel
+  background #000
+  color #aaa
+  .ant-input-group-addon
+  .ant-input
+  .ant-input-group
+    color #aaa
+    border-color #333
+    background #000
+
+.file-list
+  &::-webkit-scrollbar
+    width 1em
+    background #000
+
+  &::-webkit-scrollbar-track
+    -webkit-box-shadow inset 0 0 6px rgba(0,0,0,0.6)
+
+  &::-webkit-scrollbar-thumb
+    background-color #222
+    outline 1px solid #222
