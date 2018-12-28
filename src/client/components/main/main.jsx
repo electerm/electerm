@@ -57,6 +57,10 @@ export default class Index extends React.Component {
     super(props)
     let tabs = [newTerm()]
     let bookmarks = copy(ls.get(settingMap.bookmarks) || [])
+    let bookmarkGroups = copy(
+      ls.get(settingMap.bookmarkGroups) ||
+      this.getDefaultBookmarkGroups(bookmarks)
+    )
     this.state = {
       tabs,
       height: 500,
@@ -64,10 +68,7 @@ export default class Index extends React.Component {
       currentTabId: tabs[0].id,
       history: copy(ls.get(settingMap.history) || []),
       bookmarks,
-      bookmarkGroups: copy(
-        ls.get(settingMap.bookmarkGroups) ||
-        this.getDefaultBookmarkGroups(bookmarks)
-      ),
+      bookmarkGroups,
       isMaximized: window.getGlobal('isMaximized')(),
       config: copy(_config) || {},
       contextMenuProps: {},
@@ -94,7 +95,8 @@ export default class Index extends React.Component {
       activeTerminalId: '',
 
       //sidebar
-      openedSideBar: ''
+      openedSideBar: '',
+      openedCategoryIds: ls.get('openedCategoryIds') || bookmarkGroups.map(b => b.id)
     }
     let title = createTitlte(tabs[0])
     window.getGlobal('setTitle')(title)

@@ -521,7 +521,8 @@ export default class ItemListTree extends React.PureComponent {
       staticList,
       listStyle = {}
     } = this.props
-    let {expandedKeys, keyword} = this.state
+    let {keyword} = this.state
+    let expandedKeys = this.props.expandedKeys || this.state.expandedKeys
     return (
       <div className={`tree-list item-type-${type}`}>
         {
@@ -535,7 +536,7 @@ export default class ItemListTree extends React.PureComponent {
         <div className="item-list-wrap pd2r" style={listStyle}>
           {this.renderNewBookmarkGroup()}
           <Tree
-            onExpand={this.onExpand}
+            onExpand={this.props.onExpand || this.onExpand}
             expandedKeys={expandedKeys}
             autoExpandParent={!!keyword || !!staticList}
             onSelect={this.onSelect}
