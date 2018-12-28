@@ -150,7 +150,7 @@ export default class Tabs extends React.Component {
     let overflow = width < (tabsWidthAll + addBtnWidth)
     //let extraw = overflow ? extraWidth : 0
     return (
-      <div className="tabs">
+      <div className="tabs noise">
         <div className="app-drag" />
         <WindowControl
           isMaximized={this.props.isMaximized}
