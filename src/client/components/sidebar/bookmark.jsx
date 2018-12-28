@@ -21,7 +21,8 @@ const sshConfigItems = copy(getGlobal('sshConfigItems'))
 export default memo((props) => {
   let {
     bookmarkGroups = [],
-    listStyle
+    listStyle,
+    openedCategoryIds
   } = props
   const onClickItem = (item) => {
     props.modifier({
@@ -57,7 +58,12 @@ export default memo((props) => {
         staticList
         bookmarkGroups={bookmarkGroupsTotal}
         onClickItem={onClickItem}
-        expandedKeys={bookmarkGroupsTotal.map(d => d.id)}
+        expandedKeys={openedCategoryIds}
+        onExpand={openedCategoryIds => {
+          props.modifyLs({
+            openedCategoryIds
+          })
+        }}
       />
     )
     : (
