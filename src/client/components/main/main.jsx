@@ -671,7 +671,8 @@ export default class Index extends React.Component {
       fileInfoModalProps,
       fileModeModalProps,
       shouldCheckUpdate,
-      textEditorProps
+      textEditorProps,
+      config
     } = this.state
     let {themes, theme} = this.state
     let themeConfig = (_.find(themes, d => d.id === theme) || {}).themeConfig || {}
@@ -737,6 +738,9 @@ export default class Index extends React.Component {
         <SettingModal {...controlProps} />
         <div
           id="outside-context"
+          style={{
+            opacity: config.opacity
+          }}
         >
           <Sidebar {...controlProps} />
           <Tabs {...controlProps} />

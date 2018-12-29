@@ -254,6 +254,15 @@ export default class Setting extends React.PureComponent {
             cls: 'timeout-desc'
           })
         }
+        <div className="pd1b">{e('opacity')}</div>
+        {
+          this.renderNumber('opacity', {
+            step: 0.05,
+            min: 0,
+            max: 1,
+            cls: 'opacity'
+          })
+        }
         <div className="pd1b">{e('terminalTheme')}</div>
         <div className="pd2b">
           <Select
