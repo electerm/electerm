@@ -36,5 +36,11 @@
       "deb",
       "tar.gz"
     ]
+  },
+  "deb": {
+    "afterInstall": "./after-install-deb"
+  },
+  "rpm": {
+    "afterInstall": "./after-install-rpm"
   }
 }
