@@ -5,7 +5,7 @@ const cmd = 'rm -rf dist && ' +
 './node_modules/.bin/electron-builder --linux tar.gz && ' +
 'rm -rf dist && ' +
 'echo "deb" > work/app/install-src.txt && ' +
-'./node_modules/.bin/electron-builder --linux deb' +
+'./node_modules/.bin/electron-builder --linux deb && ' +
 'rm -rf dist && ' +
 'echo "rpm" > work/app/install-src.txt && ' +
 './node_modules/.bin/electron-builder --linux rpm'
