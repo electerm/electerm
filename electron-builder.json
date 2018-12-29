@@ -30,17 +30,12 @@
   },
   "linux": {
     "category": "Development",
+    "afterPack": "./bin/after-pack.js",
     "icon": "node_modules/@electerm/electerm-resource/res/imgs",
     "target": [
       "rpm",
       "deb",
       "tar.gz"
     ]
-  },
-  "deb": {
-    "afterInstall": "./bin/after-install-deb.tpl"
-  },
-  "rpm": {
-    "afterInstall": "./bin/after-install-rpm.tpl"
   }
 }

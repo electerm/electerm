@@ -43,7 +43,7 @@ require('fs').writeFileSync(
 exec(`cd work/app && npm prune --production && cd ${cwd}`)
 
 //yarn auto clean
-cp('-r', 'bin/after-install-*', 'work/app/')
+cp('-r', 'bin/*.tpl', 'work/app/')
 cp('-r', 'bin/.yarnclean', 'work/app/')
 exec(`cd work/app && yarn generate-lock-entry > yarn.lock && yarn autoclean --force && cd ${cwd}`)
 rm('-rf',  'work/app/.yarnclean')
