@@ -114,7 +114,7 @@
     "bluebird": "3.5.2",
     "body-parser": "1.18.3",
     "cors": "2.8.4",
-    "@electerm/electerm-locales": "0.4.14",
+    "@electerm/electerm-locales": "0.4.15",
     "electron-log": "2.2.17",
     "express": "4.16.4",
     "express-ws": "4.0.0",
