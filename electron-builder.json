@@ -30,7 +30,6 @@
   },
   "linux": {
     "category": "Development",
-    "afterPack": "./bin/after-pack.js",
     "icon": "node_modules/@electerm/electerm-resource/res/imgs",
     "target": [
       "rpm",
