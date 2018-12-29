@@ -50,6 +50,7 @@ async function runLinux() {
   await down(releaseInfo.browser_download_url)
   //await down('http://192.168.0.67:7500/electerm-0.16.1.tar.gz')
   exec(`mv ${target} ${targetNew}`)
+  exec(`echo "npm" > ${targetNew}/resources/install-src.txt`)
   exec('electerm')
 }
 
