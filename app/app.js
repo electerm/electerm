@@ -30,6 +30,7 @@ const {testConnection} = require('./lib/terminal')
 const {saveLangConfig, lang, langs} = require('./lib/locales')
 const rp = require('phin').promisified
 const lastStateManager = require('./lib/last-state')
+const installSrc = require('./lib/install-src')
 const {
   prefix
 } = require('./lib/locales')
@@ -146,6 +147,7 @@ async function createWindow () {
   }
   Object.assign(global.et, {
     _config: config,
+    installSrc,
     instSftpKeys,
     transferKeys,
     fs: fsExport,
