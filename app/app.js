@@ -30,19 +30,11 @@ const {testConnection} = require('./lib/terminal')
 const {saveLangConfig, lang, langs} = require('./lib/locales')
 const rp = require('phin').promisified
 const lastStateManager = require('./lib/last-state')
+const installSrc = require('./lib/install-src')
 const {
   prefix
 } = require('./lib/locales')
 const a = prefix('app')
-
-let installSrc = ''
-try {
-  installSrc = require('fs').readFileSync(
-    resolve(__dirname, 'install-src.txt')
-  ).toString()
-} catch(e) {
-  console.log('no install-src file')
-}
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
