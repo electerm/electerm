@@ -107,7 +107,7 @@ class Terminal {
         delete opts.passphrase
       }
       let x11 = undefined
-      if (initOptions.x11 !== false) {
+      if (initOptions.x11 === true) {
         x11 = {
           cookie: x11Cookie
         }
