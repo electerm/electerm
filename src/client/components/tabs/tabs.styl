@@ -68,6 +68,7 @@
 
 .tabs-add-btn
   display inline-block
+  vertical-align middle
   margin 0 3px
   -webkit-app-region no-drag
   color #aaa
@@ -75,14 +76,12 @@
     color #ccc
 .tabs-extra
   position absolute
-  height 56px
-  top 0
+  height 36px
+  top 20px
   right 0
-  line-height 74px
+  line-height 40px
   z-index 20
   -webkit-app-region no-drag
-  box-shadow -3px 0px 3px 0px rgba(0,0,0,0.15)
-  background #555
   .ant-btn
     background #333
     color #aaa
@@ -107,9 +106,10 @@
 
 .window-control-box
   display inline-block
-  width 16px
-  height 16px
+  width 20px
+  height 20px
   color #ccc
+  -webkit-app-region no-drag
   &:hover
     color #08c
     cursor pointer
@@ -136,3 +136,7 @@
 
 .control-icon:hover
   color #fff
+.tab-scroll-icon
+  color #888
+  &:hover
+    color #aaa
