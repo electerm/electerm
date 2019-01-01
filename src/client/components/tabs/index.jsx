@@ -117,20 +117,17 @@ export default class Tabs extends React.Component {
     return (
       <div className="tabs-extra pd1x">
         {this.renderAddBtn()}
-        <ButtonGroup
-          className="iblock mg1x"
-          size="small"
-        >
-          <Button
-            icon="left"
-            onClick={this.scrollLeft}
+        <Icon
+          type="left"
+          className="mg1l iblock pointer font16 tab-scroll-icon"
+          onClick={this.scrollLeft}
 
-          />
-          <Button
-            icon="right"
-            onClick={this.scrollRight}
-          />
-        </ButtonGroup>
+        />
+        <Icon
+          type="right"
+          className="mg1x iblock pointer font16 tab-scroll-icon"
+          onClick={this.scrollRight}
+        />
         <Dropdown
           className="iblock"
           placement="bottomRight"
@@ -151,10 +148,6 @@ export default class Tabs extends React.Component {
     //let extraw = overflow ? extraWidth : 0
     return (
       <div className="tabs noise">
-        <div className="app-drag" />
-        <WindowControl
-          isMaximized={this.props.isMaximized}
-        />
         <div
           className="tabs-inner"
           style={{
@@ -186,6 +179,10 @@ export default class Tabs extends React.Component {
             }
           </div>
         </div>
+        <div className="app-drag" />
+        <WindowControl
+          isMaximized={this.props.isMaximized}
+        />
         {
           overflow
             ? this.renderExtra()
