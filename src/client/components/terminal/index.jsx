@@ -783,7 +783,7 @@ export default class Term extends React.PureComponent {
             left: '3px',
             top: '10px',
             right: 0,
-            bottom: '30px'
+            bottom: '40px'
           }}
         >
           {this.renderSearchBox()}
