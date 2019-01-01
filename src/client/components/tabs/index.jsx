@@ -5,7 +5,7 @@
 
 import React from 'react'
 import _ from 'lodash'
-import {Icon, Button, Dropdown, Menu} from 'antd'
+import {Icon, Dropdown, Menu} from 'antd'
 import Tab from './tab'
 import './tabs.styl'
 import {tabWidth, tabMargin} from '../../common/constants'
@@ -14,7 +14,6 @@ import WindowControl from './window-control'
 
 const {prefix} = window
 const e = prefix('tabs')
-const ButtonGroup = Button.Group
 const MenuItem = Menu.Item
 const extraWidth = 113
 
