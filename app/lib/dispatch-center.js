@@ -6,6 +6,7 @@
 const {Sftp} = require('./sftp')
 const {Transfer} = require('./transfer')
 const {fsExport: fs} = require('./fs')
+const upgrade = require('./upgrade')
 
 const sftpInsts = {}
 const transferInsts = {}
@@ -118,6 +119,31 @@ const initWs = function (app) {
     //end
   })
 
+  //upgrade
+  app.ws('/upgrade/:id', (ws) => {
+    wsDec(ws)
+    ws.on('message', (message) => {
+      let msg = JSON.parse(message)
+      let {id, version} = msg
+      upgrade(version)
+        .then(data => {
+          ws.s({
+            id,
+            data
+          })
+        })
+        .catch(err => {
+          ws.s({
+            id,
+            error: {
+              message: err.message,
+              stack: err.stack
+            }
+          })
+        })
+    })
+    //end
+  })
 }
 
 

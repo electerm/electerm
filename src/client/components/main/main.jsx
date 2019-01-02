@@ -96,7 +96,8 @@ export default class Index extends React.Component {
 
       //sidebar
       openedSideBar: '',
-      openedCategoryIds: ls.get('openedCategoryIds') || bookmarkGroups.map(b => b.id)
+      openedCategoryIds: ls.get('openedCategoryIds') || bookmarkGroups.map(b => b.id),
+      upgrading: false
     }
     let title = createTitlte(tabs[0])
     window.getGlobal('setTitle')(title)

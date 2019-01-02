@@ -18,6 +18,7 @@ const c = prefix('common')
 const m = prefix('menu')
 const h = prefix('transferHistory')
 const t = prefix('terminalThemes')
+const u = prefix('updater')
 
 export default memo((props) => {
   let {
@@ -29,7 +30,8 @@ export default memo((props) => {
     openTransferHistory,
     openAbout,
     height,
-    openTerminalThemes
+    openTerminalThemes,
+    upgrading
   } = props
   let handler
   let interval = 400
@@ -148,6 +150,21 @@ export default memo((props) => {
             type="info-circle-o"
           />
         </div>
+        {
+          !upgrading
+            ? (
+              <div
+                className="control-icon-wrap"
+                title={u('upgrading')}
+              >
+                <Icon
+                  className="iblock pointer font18 control-icon hvr-bob upgrade-icon"
+                  type="up-circle"
+                />
+              </div>
+            )
+            : null
+        }
       </div>
       <div
         className="sidebar-list"

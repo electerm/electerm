@@ -3,6 +3,10 @@
  */
 
 import fetch from './fetch'
+import {generate} from 'shortid'
+import initWs from './ws'
+
+let ws
 
 export async function getLatestReleaseInfo() {
   let url = 'https://electerm.html5beta.com/version.html?_=' + (+new Date())
@@ -17,4 +21,24 @@ export async function getLatestReleaseInfo() {
       tag_name
     }
   }
+}
+
+export async function upgrade(version) {
+  let id = generate()
+  ws = await initWs('upgrade', id)
+  return new Promise((resolve, reject) => {
+    ws.s({
+      id,
+      version
+    })
+    ws.once((arg) => {
+      if (arg.error) {
+        console.log('fs error')
+        console.log(arg.error.message)
+        console.log(arg.error.stack)
+        return reject(new Error(arg.error.message))
+      }
+      resolve(arg.data)
+    }, id)
+  })
 }
