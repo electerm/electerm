@@ -8,8 +8,8 @@ const {resolve} = require('path')
 const {exec, rm, mv} = require('shelljs')
 const rp = require('phin').promisified
 const download = require('download')
-const installSrc = require('./install-src')
-const {fsExport} = require('./fs')
+// const installSrc = require('./install-src')
+// const {fsExport} = require('./fs')
 const isWin = os.platform() === 'win32'
 const isMac = os.platform() === 'darwin'
 const tempDir = os.tmpdir()
