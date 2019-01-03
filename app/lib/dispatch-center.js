@@ -6,10 +6,11 @@
 const {Sftp} = require('./sftp')
 const {Transfer} = require('./transfer')
 const {fsExport: fs} = require('./fs')
-const upgrade = require('./upgrade')
+const Upgrade = require('./download-upgrade')
 
 const sftpInsts = {}
 const transferInsts = {}
+const upgradeInsts = {}
 
 /**
  * add ws.s function
@@ -122,29 +123,24 @@ const initWs = function (app) {
   //upgrade
   app.ws('/upgrade/:id', (ws) => {
     wsDec(ws)
-    ws.on('message', (message) => {
+    ws.on('message', async (message) => {
       let msg = JSON.parse(message)
-      let {id, version} = msg
-      upgrade(version)
-        .then(data => {
-          ws.s({
-            id,
-            data
-          })
+      let {action} = msg
+
+      if (action === 'upgrade-new') {
+        let {id} = msg
+        let opts = Object.assign({}, msg, {
+          ws
         })
-        .catch(err => {
-          ws.s({
-            id,
-            error: {
-              message: err.message,
-              stack: err.stack
-            }
-          })
-        })
+        upgradeInsts[id] = new Upgrade(opts)
+        await upgradeInsts[id].init()
+      } else if (action === 'upgrade-func') {
+        let {id, func, args} = msg
+        upgradeInsts[id][func](...args)
+      }
     })
     //end
   })
 }
-
 
 module.exports = initWs
