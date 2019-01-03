@@ -722,6 +722,7 @@ export default class Index extends React.Component {
         />
         <UpdateCheck
           modifier={this.modifier}
+          upgrading={this.state.upgrading}
           shouldCheckUpdate={shouldCheckUpdate}
         />
         <ContextMenu

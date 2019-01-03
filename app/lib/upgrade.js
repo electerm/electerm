@@ -5,11 +5,11 @@
 
 const os = require('os')
 const {resolve} = require('path')
-const {exec, rm, mv} = require('shelljs')
 const rp = require('phin').promisified
 const download = require('download')
-// const installSrc = require('./install-src')
-// const {fsExport} = require('./fs')
+const installSrc = require('./install-src')
+const {fsExport} = require('./fs')
+const {rmrf, run, openFile} = fsExport
 const isWin = os.platform() === 'win32'
 const isMac = os.platform() === 'darwin'
 const tempDir = os.tmpdir()
@@ -35,15 +35,18 @@ function getReleaseInfo(filter) {
     })
 }
 
-async function runLinux(ver) {
-  let target = resolve(__dirname, `../electerm-${ver.replace('v', '')}-linux-x64`)
-  let targetNew = resolve(__dirname, '../electerm')
-  exec(`rm -rf ${target} ${targetNew}`)
-  let releaseInfo = await getReleaseInfo(r => /linux-x64\.tar\.gz/.test(r.name))
+async function runLinux() {
+  if (installSrc === 'npm') {
+    return run('npm i -g electerm')
+  }
+  let releaseInfo = await getReleaseInfo(r => {
+    return r.name.includes(installSrc) &&
+      r.name.includes('linux')
+  })
   await down(releaseInfo.browser_download_url)
-  exec(`mv ${target} ${targetNew}`)
-  exec(`echo "npm" > ${targetNew}/resources/install-src.txt`)
-  exec('electerm')
+  let target = resolve(tempDir, releaseInfo.name)
+  await rmrf(target)
+  await openFile(target)
 }
 
 async function runMac() {
@@ -51,29 +54,26 @@ async function runMac() {
   await down(releaseInfo.browser_download_url, false)
   //await down('http://192.168.0.67:7500/electerm-0.16.1-mac.dmg', false)
   let target = resolve(tempDir, releaseInfo.name)
-  exec(`open ${target}`)
+  await rmrf(target)
+  await openFile(target)
 }
 
-async function runWin(ver) {
-  let target = resolve(tempDir, `electerm-${ver.replace('v', '')}-win-x64.tar.gz`)
-  let targetNew = resolve(tempDir, 'electerm')
-  rm('-rf', [
-    target,
-    targetNew
-  ])
+async function runWin() {
   let releaseInfo = await getReleaseInfo(r => /electerm-\d+\.\d+\.\d+-win\.tar\.gz/.test(r.name))
   await down(releaseInfo.browser_download_url, false)
   //await down('http://192.168.0.67:7500/electerm-0.16.1-win.tar.gz')
-  await mv(target, targetNew)
-  require('child_process').execFile(`${targetNew}\\electerm.exe`)
+  let {name} = releaseInfo
+  let p = resolve(tempDir, name)
+  await rmrf(p)
+  await openFile(p)
 }
 
 module.exports = function(version) {
   if (isWin) {
-    runWin(version)
+    return runWin(version)
   } else if (isMac) {
-    runMac(version)
+    return runMac(version)
   } else {
-    runLinux(version)
+    return runLinux(version)
   }
 }

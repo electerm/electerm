@@ -3,7 +3,7 @@ import {notification, Button} from 'antd'
 import {getLatestReleaseInfo, upgrade} from '../../common/update-check'
 import compare from '../../common/version-compare'
 import Link from '../common/external-link'
-
+import {isMac, isWin} from '../../common/constants'
 
 const {getGlobal, prefix} = window
 let {
@@ -13,10 +13,6 @@ const e = prefix('updater')
 const installSrc = getGlobal('installSrc')
 
 export default class Upgrade extends React.PureComponent {
-
-  state = {
-    upgrading: false
-  }
 
   componentDidMount() {
     this.getLatestReleaseInfo()
@@ -52,8 +48,9 @@ export default class Upgrade extends React.PureComponent {
     let currentVer = 'v' + window.et.version.split('-')[0]
     let latestVer = releaseInfo.tag_name
     let shouldShowUpdate = compare(currentVer, latestVer) < 0
-    if (installSrc && shouldShowUpdate) {
-      this.showSrcUpdateInfo()
+    let canAutoUpgrade = installSrc || isWin || isMac
+    if (canAutoUpgrade && shouldShowUpdate) {
+      this.showSrcUpdateInfo(releaseInfo)
     }
     else if (shouldShowUpdate) {
       this.showUpdateInfo(releaseInfo)
@@ -106,7 +103,7 @@ export default class Upgrade extends React.PureComponent {
   }
 
   showSrcUpdateInfo = (releaseInfo) => {
-    let {upgrading} = this.state
+    let {upgrading} = this.props
     let {tag_name} = releaseInfo
     let description = (
       <div>

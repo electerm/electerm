@@ -151,7 +151,7 @@ export default memo((props) => {
           />
         </div>
         {
-          !upgrading
+          upgrading
             ? (
               <div
                 className="control-icon-wrap"
