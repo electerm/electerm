@@ -1,5 +1,5 @@
 import React from 'react'
-import {notification, Button} from 'antd'
+import {Icon, Button, notification} from 'antd'
 import {getLatestReleaseInfo, upgrade} from '../../common/update-check'
 import compare from '../../common/version-compare'
 import Link from '../common/external-link'
@@ -12,7 +12,11 @@ let {
 const e = prefix('updater')
 const installSrc = getGlobal('installSrc')
 
-export default class Upgrade extends React.PureComponent {
+export default class Upgrade extends React.Component {
+
+  state = {
+    upgradePercent: 0
+  }
 
   componentDidMount() {
     this.getLatestReleaseInfo()
@@ -32,6 +36,19 @@ export default class Upgrade extends React.PureComponent {
     this.props.modifier({
       upgrading: false
     })
+  }
+
+  onData = (upgradePercent) => {
+    this.setState({
+      upgradePercent
+    })
+  }
+
+  onError = () => {
+    // let transport = copy(this.props.transport)
+    // transport.status = 'exception'
+    // this.update(transport)
+    // this.props.onError(e)
   }
 
   getLatestReleaseInfo = async () => {
@@ -107,9 +124,6 @@ export default class Upgrade extends React.PureComponent {
     let {tag_name} = releaseInfo
     let description = (
       <div>
-        <p className="pd1b wordbreak">
-          {e('goGetIt')}
-        </p>
         <p className="pd1b">
           <Button
             type="primary"
@@ -132,7 +146,38 @@ export default class Upgrade extends React.PureComponent {
   }
 
   render() {
-    return null
+    let {
+      remoteVersion,
+      upgrading,
+      showUpgradeModal
+    } = this.props.upgradeInfo
+    if (!showUpgradeModal) {
+      return null
+    }
+    let canUpgrade = this.checkUpgrade()
+    if (!canUpgrade) {
+      return this.showCanNotUpgrade()
+    }
+    return (
+      <div className="upgrade-panel">
+        <Icon
+          type="minus-square"
+          className="pointer font16 close-upgrade-panel"
+        />
+        <p className="pd1b">
+          {e('newVersion')} <b>{remoteVersion}</b>
+        </p>
+        <p className="pd1b">
+          <Button
+            type="primary"
+            icon="up-circle"
+            loading={upgrading}
+            disabled={upgrading}
+            onClick={() => this.upgrade(remoteVersion)}
+          >{e('upgrade')}</Button>
+        </p>
+      </div>
+    )
   }
 
 }
