@@ -29,11 +29,18 @@ export default class Upgrade extends React.Component {
   }
 
   minimize = () => {
-
+    this.props.modifer(old => {
+      return {
+        ...old.upgradeInfo,
+        showUpgradeModal: true
+      }
+    })
   }
 
   close = () => {
-
+    this.props.modifer({
+      upgradeInfo: {}
+    })
   }
 
   upgrade = async (ver) => {
@@ -165,11 +172,11 @@ export default class Upgrade extends React.Component {
           {e('fail')}
         </p>
         <p className="pd1b">
-          you can visit
+          You can visit
           <Link
             to={homepage}
             className="mg1x"
-          >{homepage}</Link>
+          >{homepage}</Link> to download new version.
         </p>
       </div>
     )
@@ -208,7 +215,7 @@ export default class Upgrade extends React.Component {
     if (!canUpgrade) {
       return this.renderCanNotUpgrade()
     }
-    let cls = `upgrade-panel${showUpgradeModal ? '' : ' upgrade-panel-hide'}`
+    let cls = `animate upgrade-panel${showUpgradeModal ? '' : ' upgrade-panel-hide'}`
     return (
       <div className={cls}>
         <Icon
