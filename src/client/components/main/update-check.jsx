@@ -28,6 +28,14 @@ export default class Upgrade extends React.Component {
     }
   }
 
+  minimize = () => {
+
+  }
+
+  close = () => {
+
+  }
+
   upgrade = async (ver) => {
     this.props.modifier({
       upgrading: true
@@ -145,24 +153,68 @@ export default class Upgrade extends React.Component {
     })
   }
 
+  renderError = () => {
+    return (
+      <div className="upgrade-panel">
+        <Icon
+          type="close"
+          className="pointer font16 close-upgrade-panel"
+          onClick={this.close}
+        />
+        <p className="pd1b bold">
+          {e('fail')}
+        </p>
+        <p className="pd1b">
+          you can visit
+          <Link
+            to={homepage}
+            className="mg1x"
+          >{homepage}</Link>
+        </p>
+      </div>
+    )
+  }
+
+  renderCanNotUpgrade = () => {
+    return (
+      <div className="upgrade-panel">
+        <Icon
+          type="close"
+          className="pointer font16 close-upgrade-panel"
+          onClick={this.close}
+        />
+        <p className="pd1b bold">
+          {e('noNeed')}
+        </p>
+        <p className="pd1b">
+          {e('noNeedDesc')}
+        </p>
+      </div>
+    )
+  }
+
   render() {
     let {
       remoteVersion,
       upgrading,
-      showUpgradeModal
+      checkingRemoteVersion,
+      showUpgradeModal,
+      error
     } = this.props.upgradeInfo
-    if (!showUpgradeModal) {
-      return null
+    if (!error) {
+      return this.renderError()
     }
     let canUpgrade = this.checkUpgrade()
     if (!canUpgrade) {
-      return this.showCanNotUpgrade()
+      return this.renderCanNotUpgrade()
     }
+    let cls = `upgrade-panel${showUpgradeModal ? '' : ' upgrade-panel-hide'}`
     return (
-      <div className="upgrade-panel">
+      <div className={cls}>
         <Icon
           type="minus-square"
           className="pointer font16 close-upgrade-panel"
+          onClick={this.minimize}
         />
         <p className="pd1b">
           {e('newVersion')} <b>{remoteVersion}</b>
@@ -171,8 +223,8 @@ export default class Upgrade extends React.Component {
           <Button
             type="primary"
             icon="up-circle"
-            loading={upgrading}
-            disabled={upgrading}
+            loading={upgrading || checkingRemoteVersion}
+            disabled={upgrading || checkingRemoteVersion}
             onClick={() => this.upgrade(remoteVersion)}
           >{e('upgrade')}</Button>
         </p>
