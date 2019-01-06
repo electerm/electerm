@@ -7,7 +7,7 @@ import initWs from './ws'
 
 const keys = window.getGlobal('upgradeKeys')
 
-class Transfer {
+class Upgrade {
 
   constructor() {}
 
@@ -52,7 +52,7 @@ class Transfer {
       onEnd(arg)
     }, 'upgrade:end:' + id)
     ws.once((arg) => {
-      console.log('sftp upgrade error')
+      console.log('upgrade error')
       console.log(arg.error.stack)
       onError(new Error(arg.error.message))
     }, 'upgrade:err:' + id)
@@ -67,7 +67,7 @@ class Transfer {
 }
 
 export default async (props) => {
-  let upgrade = new Transfer()
+  let upgrade = new Upgrade()
   await upgrade.init(props)
   return upgrade
 }

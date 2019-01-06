@@ -150,6 +150,7 @@ async function createWindow () {
     installSrc,
     instSftpKeys,
     transferKeys,
+    upgradeKeys: transferKeys,
     fs: fsExport,
     ls,
     getExitStatus: () => global.et.exitStatus,

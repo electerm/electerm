@@ -31,8 +31,9 @@ export default memo((props) => {
     openAbout,
     height,
     openTerminalThemes,
-    upgrading
+    upgradeInfo
   } = props
+  let {showUpgradeModal, upgradePercent} = upgradeInfo
   let handler
   let interval = 400
   let setOpenedSideBar = (bar) => {
@@ -56,6 +57,16 @@ export default memo((props) => {
   }
   let listStyle = {
     maxHeight: height - 160
+  }
+  let showUpgrade = () => {
+    modifier(old => {
+      return {
+        upgradeInfo: {
+          ...old.upgradeInfo,
+          showUpgradeModal: true
+        }
+      }
+    })
   }
   return (
     <div
@@ -151,11 +162,12 @@ export default memo((props) => {
           />
         </div>
         {
-          upgrading
+          showUpgradeModal
             ? (
               <div
                 className="control-icon-wrap"
-                title={u('upgrading')}
+                title={`${u('upgrading')} ${upgradePercent}%`}
+                onClick={showUpgrade}
               >
                 <Icon
                   className="iblock pointer font18 control-icon hvr-bob upgrade-icon"
