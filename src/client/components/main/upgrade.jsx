@@ -1,5 +1,5 @@
 import React from 'react'
-import {Icon, Button} from 'antd'
+import {Icon, Button, Card} from 'antd'
 import _ from 'lodash'
 import {getLatestReleaseInfo} from '../../common/update-check'
 import upgrade from '../../common/upgrade'
@@ -7,6 +7,7 @@ import compare from '../../common/version-compare'
 import Link from '../common/external-link'
 import {isMac, isWin} from '../../common/constants'
 import newTerm from '../../common/new-terminal'
+import './upgrade.styl'
 
 const {getGlobal, prefix} = window
 let {
@@ -146,14 +147,18 @@ export default class Upgrade extends React.Component {
   }
 
   renderCanNotUpgrade = () => {
+    let {
+      showUpgradeModal
+    } = this.props.upgradeInfo
+    let cls = `animate upgrade-panel${showUpgradeModal ? '' : ' upgrade-panel-hide'}`
     return (
-      <div className="upgrade-panel">
+      <div className={cls}>
         <Icon
           type="close"
           className="pointer font16 close-upgrade-panel"
           onClick={this.close}
         />
-        <p className="pd1b bold">
+        <p className="pd1b bold font13">
           {e('noNeed')}
         </p>
         <p className="pd1b">
@@ -179,6 +184,9 @@ export default class Upgrade extends React.Component {
     }
     if (shouldUpgrade && !canAutoUpgrade) {
       return this.renderCanNotUpgrade()
+    }
+    if (checkingRemoteVersion) {
+      return null
     }
     let cls = `animate upgrade-panel${showUpgradeModal ? '' : ' upgrade-panel-hide'}`
     let type = upgrading ? 'danger' : 'primary'
