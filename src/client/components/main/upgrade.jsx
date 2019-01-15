@@ -1,5 +1,5 @@
 import React from 'react'
-import {Icon, Button, Card} from 'antd'
+import {Icon, Button} from 'antd'
 import _ from 'lodash'
 import {getLatestReleaseInfo} from '../../common/update-check'
 import upgrade from '../../common/upgrade'
