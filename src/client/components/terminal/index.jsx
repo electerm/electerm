@@ -441,7 +441,7 @@ export default class Term extends React.PureComponent {
   initData = () => {
     let {type, title, loginScript} = this.props.tab
     let cmd = type === terminalSshConfigType
-      ? `ssh ${title.split(' ')[0]}\r`
+      ? `ssh ${title.split(/\s/g)[0]}\r`
       : (
         loginScript
           ? loginScript + '\r'
