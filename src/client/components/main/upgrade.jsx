@@ -53,7 +53,7 @@ export default class Upgrade extends React.Component {
   }
 
   upgrade = async () => {
-    if (!isMac || !isWin) {
+    if (!isMac && !isWin) {
       return this.props.addTab(
         {
           ...newTerm(),
