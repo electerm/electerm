@@ -38,7 +38,7 @@ const t = prefix('terminalThemes')
 const {Option} = Select
 
 const authFailMsg = 'All configured authentication methods failed'
-const privateKeyMsg = 'Encrypted private key detected'
+const privateKeyMsg = 'private key detected'
 const typeSshConfig = 'ssh-config'
 
 const computePos = (e, height) => {
