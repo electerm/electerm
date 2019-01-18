@@ -213,7 +213,7 @@ export default class Upgrade extends React.Component {
           >
             {
               upgrading
-                ? <span>{`${upgradePercent}% ${c('cancel')}`}</span>
+                ? <span>{`${upgradePercent || 0}% ${c('cancel')}`}</span>
                 : e('upgrade')
             }
           </Button>
