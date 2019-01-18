@@ -105,7 +105,7 @@ export default class Upgrade extends React.Component {
     })
     let releaseInfo = await getLatestReleaseInfo()
     this.changeProps({
-      checkingRemoteVersion: true
+      checkingRemoteVersion: false
     })
     if (!releaseInfo) {
       return this.changeProps({

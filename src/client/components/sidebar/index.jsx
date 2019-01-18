@@ -33,7 +33,7 @@ export default memo((props) => {
     openTerminalThemes,
     upgradeInfo
   } = props
-  let {showUpgradeModal, upgradePercent} = upgradeInfo
+  let {showUpgradeModal, upgradePercent, checkingRemoteVersion} = upgradeInfo
   let handler
   let interval = 400
   let setOpenedSideBar = (bar) => {
@@ -162,7 +162,7 @@ export default memo((props) => {
           />
         </div>
         {
-          showUpgradeModal
+          !checkingRemoteVersion && !showUpgradeModal
             ? (
               <div
                 className="control-icon-wrap"
