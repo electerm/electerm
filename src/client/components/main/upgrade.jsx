@@ -127,21 +127,21 @@ export default class Upgrade extends React.Component {
   renderError = (err) => {
     return (
       <div className="upgrade-panel">
-        <Icon
-          type="close"
-          className="pointer font16 close-upgrade-panel"
-          onClick={this.close}
-        />
-        <p className="pd1b bold">
+        <div className="upgrade-panel-title">
+          <Icon
+            type="close"
+            className="pointer font16 close-upgrade-panel"
+            onClick={this.close}
+          />
           {e('fail')}: {err}
-        </p>
-        <p className="pd1b">
+        </div>
+        <div className="upgrade-panel-body">
           You can visit
           <Link
             to={homepage}
             className="mg1x"
           >{homepage}</Link> to download new version.
-        </p>
+        </div>
       </div>
     )
   }
@@ -153,17 +153,17 @@ export default class Upgrade extends React.Component {
     let cls = `animate upgrade-panel${showUpgradeModal ? '' : ' upgrade-panel-hide'}`
     return (
       <div className={cls}>
-        <Icon
-          type="close"
-          className="pointer font16 close-upgrade-panel"
-          onClick={this.close}
-        />
-        <p className="pd1b bold font13">
+        <div className="upgrade-panel-title">
+          <Icon
+            type="close"
+            className="pointer font16 close-upgrade-panel"
+            onClick={this.close}
+          />
           {e('noNeed')}
-        </p>
-        <p className="pd1b">
+        </div>
+        <div className="upgrade-panel-body">
           {e('noNeedDesc')}
-        </p>
+        </div>
       </div>
     )
   }
@@ -201,9 +201,7 @@ export default class Upgrade extends React.Component {
             className="pointer font16 close-upgrade-panel"
             onClick={this.minimize}
           />
-          <p className="pd1b">
-            {e('newVersion')} <b>{remoteVersion}</b>
-          </p>
+          {e('newVersion')} <b>{remoteVersion}</b>
         </div>
         <div className="upgrade-panel-body">
           <Button
