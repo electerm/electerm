@@ -195,15 +195,17 @@ export default class Upgrade extends React.Component {
       : this.upgrade
     return (
       <div className={cls}>
-        <Icon
-          type="minus-square"
-          className="pointer font16 close-upgrade-panel"
-          onClick={this.minimize}
-        />
-        <p className="pd1b">
-          {e('newVersion')} <b>{remoteVersion}</b>
-        </p>
-        <p className="pd1b">
+        <div className="upgrade-panel-title">
+          <Icon
+            type="minus-square"
+            className="pointer font16 close-upgrade-panel"
+            onClick={this.minimize}
+          />
+          <p className="pd1b">
+            {e('newVersion')} <b>{remoteVersion}</b>
+          </p>
+        </div>
+        <div className="upgrade-panel-body">
           <Button
             type={type}
             icon="up-circle"
@@ -217,7 +219,7 @@ export default class Upgrade extends React.Component {
                 : e('upgrade')
             }
           </Button>
-        </p>
+        </div>
       </div>
     )
   }
