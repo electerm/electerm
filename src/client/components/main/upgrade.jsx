@@ -42,7 +42,7 @@ export default class Upgrade extends React.Component {
 
   minimize = () => {
     this.changeProps({
-      showUpgradeModal: true
+      showUpgradeModal: false
     })
   }
 
