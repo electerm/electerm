@@ -8,7 +8,7 @@ const {Transfer} = require('./transfer')
 const {fsExport: fs} = require('./fs')
 
 const sftpInsts = {}
-const transferInsts = {}
+global.transferInsts = {}
 
 /**
  * add ws.s function
@@ -63,9 +63,7 @@ const initWs = function (app) {
         ws.close()
         delete sftpInsts[id]
       }
-
     })
-
     //end
   })
 
@@ -82,10 +80,10 @@ const initWs = function (app) {
           sftp: sftpInsts[sftpId].sftp,
           ws
         })
-        transferInsts[id] = new Transfer(opts)
+        global.transferInsts[id] = new Transfer(opts)
       } else if (action === 'transfer-func') {
         let {id, func, args} = msg
-        transferInsts[id][func](...args)
+        global.transferInsts[id][func](...args)
       }
     })
     //end
