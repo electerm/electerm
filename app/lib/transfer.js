@@ -97,6 +97,7 @@ class Transfer {
   destroy () {
     this.readSteam.destroy()
     this.ws.close()
+    delete global.transferInsts[this.id]
   }
 
   //end
