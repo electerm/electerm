@@ -22,7 +22,7 @@ export default (
   let mm = t.getMinutes()
   let s = t.getSeconds()
   return format.replace('YYYY', prefix(y))
-    .replace('MM', prefix(m))
+    .replace('MM', prefix(m + 1))
     .replace('DD', prefix(d))
     .replace('HH', prefix(h))
     .replace('mm', prefix(mm))

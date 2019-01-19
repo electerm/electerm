@@ -9,8 +9,8 @@ const {fsExport: fs} = require('./fs')
 const Upgrade = require('./download-upgrade')
 
 const sftpInsts = {}
-const transferInsts = {}
-const upgradeInsts = {}
+global.transferInsts = {}
+global.upgradeInsts = {}
 
 /**
  * add ws.s function
@@ -65,9 +65,7 @@ const initWs = function (app) {
         ws.close()
         delete sftpInsts[id]
       }
-
     })
-
     //end
   })
 
@@ -84,10 +82,10 @@ const initWs = function (app) {
           sftp: sftpInsts[sftpId].sftp,
           ws
         })
-        transferInsts[id] = new Transfer(opts)
+        global.transferInsts[id] = new Transfer(opts)
       } else if (action === 'transfer-func') {
         let {id, func, args} = msg
-        transferInsts[id][func](...args)
+        global.transferInsts[id][func](...args)
       }
     })
     //end
@@ -132,11 +130,11 @@ const initWs = function (app) {
         let opts = Object.assign({}, msg, {
           ws
         })
-        upgradeInsts[id] = new Upgrade(opts)
-        await upgradeInsts[id].init()
+        global.upgradeInsts[id] = new Upgrade(opts)
+        await global.upgradeInsts[id].init()
       } else if (action === 'upgrade-func') {
         let {id, func, args} = msg
-        upgradeInsts[id][func](...args)
+        global.upgradeInsts[id][func](...args)
       }
     })
     //end
