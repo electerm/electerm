@@ -114,7 +114,7 @@ export default class Tabs extends React.Component {
 
   renderExtra() {
     return (
-      <div className="tabs-extra pd1x">
+      <div className="tabs-extra noise pd1x">
         {this.renderAddBtn()}
         <Icon
           type="left"
