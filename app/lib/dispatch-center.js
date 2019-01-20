@@ -32,8 +32,15 @@ const wsDec = (ws) => {
 const initWs = function (app) {
 
   //sftp function
-  app.ws('/sftp/:id', (ws) => {
+  app.ws('/sftp/:id', (ws, req) => {
     wsDec(ws)
+    let {id} = req.params
+    ws.on('close', () => {
+      let inst = global.sftpInsts[id]
+      if (inst) {
+        inst.destroy()
+      }
+    })
     ws.on('message', (message) => {
       let msg = JSON.parse(message)
       let {action} = msg
@@ -70,8 +77,15 @@ const initWs = function (app) {
   })
 
   //transfer function
-  app.ws('/transfer/:id', (ws) => {
+  app.ws('/transfer/:id', (ws, req) => {
     wsDec(ws)
+    let {id} = req.params
+    ws.on('close', () => {
+      let inst = global.transferInsts[id]
+      if (inst) {
+        inst.destroy()
+      }
+    })
     ws.on('message', (message) => {
       let msg = JSON.parse(message)
       let {action} = msg
@@ -119,8 +133,15 @@ const initWs = function (app) {
   })
 
   //upgrade
-  app.ws('/upgrade/:id', (ws) => {
+  app.ws('/upgrade/:id', (ws, req) => {
     wsDec(ws)
+    let {id} = req.params
+    ws.on('close', () => {
+      let inst = global.upgradeInsts[id]
+      if (inst) {
+        inst.destroy()
+      }
+    })
     ws.on('message', async (message) => {
       let msg = JSON.parse(message)
       let {action} = msg

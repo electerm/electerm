@@ -4,8 +4,30 @@
 
 
 const fs = require('fs')
+const {resolve} = require('path')
 const _ = require('lodash')
 const rp = require('phin')
+const os = require('os')
+const isWin = os.platform() === 'win32'
+//const isMac = os.platform() === 'darwin'
+const installSrc = require('./install-src')
+const tempDir = os.tmpdir()
+const {fsExport} = require('./fs')
+const {openFile} = fsExport
+
+function getReleaseInfo(filter, releaseInfoUrl) {
+  return rp({
+    url: releaseInfoUrl,
+    timeout: 15000
+  })
+    .then((res) => {
+      return JSON.parse(res.body.toString())
+        .release
+        .assets
+        .filter(filter)[0]
+    })
+}
+
 
 class Upgrade {
 
@@ -15,12 +37,29 @@ class Upgrade {
 
   async init() {
     let {
-      remotePath,
-      localPath,
       id,
       ws
     } = this.options
+    const releaseInfoUrl = 'https://electerm.html5beta.com/data/electerm-github-release.json?_=' + (+new Date())
+    let filter = r => /\.dmg$/.test(r.name)
+    if (isWin) {
+      filter = r => /electerm-\d+\.\d+\.\d+-win\.tar\.gz/.test(r.name)
+    } else {
+      filter = r => {
+        return r.name.includes(installSrc) &&
+          r.name.includes('linux')
+      }
+    }
+    const releaseInfo = await getReleaseInfo(filter, releaseInfoUrl)
+      .catch(this.onError)
+    if (!releaseInfo) {
+      return
+    }
+    let localPath = resolve(tempDir, releaseInfo.name)
+    let remotePath = releaseInfo.browser_download_url
+    let {size} = releaseInfo
     this.id = id
+    this.localPath = localPath
     let readSteam = await rp({
       url: remotePath,
       followRedirects: true,
@@ -33,9 +72,12 @@ class Upgrade {
     this.pausing = false
 
     this.onData = _.throttle((count) => {
+      if (this.onDestroy) {
+        return
+      }
       ws.s({
         id: 'upgrade:data:' + id,
-        data: count
+        data: Math.floor(count * 100 / size)
       })
     }, 1000)
 
@@ -65,13 +107,17 @@ class Upgrade {
     this.readSteam = readSteam
     this.writeSteam = writeSteam
     this.ws = ws
+    this.destroy = this.destroy.bind(this)
   }
 
   onEnd (id, ws) {
-    ws.s({
-      id: 'upgrade:end:' + id,
-      data: null
-    })
+    if (!this.onDestroy) {
+      openFile(this.localPath)
+      ws.s({
+        id: 'transfer:end:' + id,
+        data: null
+      })
+    }
   }
 
   onError(err, id, ws) {
@@ -95,8 +141,10 @@ class Upgrade {
   }
 
   destroy () {
-    this.readSteam.destroy()
-    this.ws.close()
+    this.onDestroy = true
+    this.readSteam && this.readSteam.destroy()
+    this.ws && this.ws.close()
+    delete global.upgradeInsts[this.id]
   }
 
   //end

@@ -166,7 +166,7 @@ export default memo((props) => {
             ? (
               <div
                 className="control-icon-wrap"
-                title={`${u('upgrading')} ${upgradePercent}%`}
+                title={`${u('upgrading')} ${upgradePercent || 0}%`}
                 onClick={showUpgrade}
               >
                 <Icon

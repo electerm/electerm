@@ -53,7 +53,8 @@ export default class Upgrade extends React.Component {
   }
 
   upgrade = async () => {
-    if (!isMac && !isWin) {
+    console.log(installSrc, 'installSrc')
+    if (!isMac && !isWin && installSrc === 'npm') {
       return this.props.addTab(
         {
           ...newTerm(),
@@ -64,39 +65,36 @@ export default class Upgrade extends React.Component {
     this.changeProps({
       upgrading: true
     })
-    let {
-      version
-    } = this.props.upgradeInfo
-    await upgrade({
-      version,
+    this.up = await upgrade({
       ..._.pick(this, [
         'onData',
         'onEnd',
         'onError'
       ])
     })
-    this.props.modifier({
-      upgrading: false
-    })
   }
 
   onData = (upgradePercent) => {
-    this.props.modifier(old => {
-      return {
-        ...old.upgradeInfo,
-        upgradePercent
-      }
+    this.changeProps({
+      upgradePercent
     })
   }
 
   onError = (e) => {
-    this.props.modifier(old => {
-      return {
-        ...old.upgradeInfo,
-        error: e.message
-      }
+    this.changeProps({
+      error: e.message
     })
   }
+
+  cancel = () => {
+    this.up.destroy()
+    this.changeProps({
+      upgrading: false,
+      upgradePercent: 0
+    })
+  }
+
+  onEnd = this.close
 
   getLatestReleaseInfo = async () => {
     this.changeProps({
@@ -204,19 +202,30 @@ export default class Upgrade extends React.Component {
           {e('newVersion')} <b>{remoteVersion}</b>
         </div>
         <div className="upgrade-panel-body">
-          <Button
-            type={type}
-            icon="up-circle"
-            loading={checkingRemoteVersion}
-            disabled={checkingRemoteVersion}
-            onClick={func}
-          >
-            {
-              upgrading
-                ? <span>{`${upgradePercent || 0}% ${c('cancel')}`}</span>
-                : e('upgrade')
-            }
-          </Button>
+          {
+            installSrc
+              ? (
+                <Button
+                  type={type}
+                  icon="up-circle"
+                  loading={checkingRemoteVersion}
+                  disabled={checkingRemoteVersion}
+                  onClick={func}
+                >
+                  {
+                    upgrading
+                      ? <span>{`${upgradePercent || 0}% ${c('cancel')}`}</span>
+                      : e('upgrade')
+                  }
+                </Button>
+              )
+              : (
+                <div>
+                  {e('goGetIt')}
+                  <Link to={homepage} className="mg1l">{homepage}</Link>
+                </div>
+              )
+          }
         </div>
       </div>
     )
