@@ -10,7 +10,7 @@ import copy from 'json-deep-copy'
 import ContextMenu from '../common/context-menu'
 import FileInfoModal from '../sftp/file-props-modal'
 import FileModeModal from '../sftp/file-mode-modal'
-import UpdateCheck from './update-check'
+import UpdateCheck from './upgrade'
 import {notification} from 'antd'
 import SettingModal from '../setting-panel/setting-modal'
 import openInfoModal from '../sidebar/info-modal'
@@ -79,9 +79,7 @@ export default class Index extends React.Component {
       fileInfoModalProps: {},
       fileModeModalProps: {},
       currentBookmarkGroupId: defaultookmarkGroupId,
-      shouldCheckUpdate: 0,
       transferHistoryModalVisible: false,
-      onCheckUpdating: false,
       selectedSessions: [],
       sessionModalVisible: false,
       textEditorProps: {},
@@ -96,7 +94,11 @@ export default class Index extends React.Component {
 
       //sidebar
       openedSideBar: '',
-      openedCategoryIds: ls.get('openedCategoryIds') || bookmarkGroups.map(b => b.id)
+      openedCategoryIds: ls.get('openedCategoryIds') || bookmarkGroups.map(b => b.id),
+
+      //update
+      shouldCheckUpdate: 0,
+      upgradeInfo: {}
     }
     let title = createTitlte(tabs[0])
     window.getGlobal('setTitle')(title)
@@ -721,6 +723,8 @@ export default class Index extends React.Component {
         />
         <UpdateCheck
           modifier={this.modifier}
+          upgradeInfo={this.state.upgradeInfo}
+          addTab={this.addTab}
           shouldCheckUpdate={shouldCheckUpdate}
         />
         <ContextMenu
