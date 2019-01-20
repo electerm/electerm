@@ -13,7 +13,7 @@ const isMac = os.platform() === 'darwin'
 const installSrc = require('./install-src')
 const tempDir = os.tmpdir()
 const {fsExport} = require('./fs')
-const {openFile} = fsExport
+const {openFile, rmrf} = fsExport
 
 function getReleaseInfo(filter, releaseInfoUrl) {
   return rp({
@@ -57,6 +57,7 @@ class Upgrade {
     }
     let localPath = resolve(tempDir, releaseInfo.name)
     let remotePath = releaseInfo.browser_download_url
+    await rmrf(localPath)
     let {size} = releaseInfo
     this.id = id
     this.localPath = localPath
