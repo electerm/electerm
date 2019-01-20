@@ -176,14 +176,13 @@ export default class Upgrade extends React.Component {
       checkingRemoteVersion,
       showUpgradeModal,
       upgradePercent,
-      canAutoUpgrade,
       shouldUpgrade,
       error
     } = this.props.upgradeInfo
     if (error) {
       return this.renderError(error)
     }
-    if (shouldUpgrade && !canAutoUpgrade) {
+    if (!shouldUpgrade) {
       return this.renderCanNotUpgrade()
     }
     if (checkingRemoteVersion) {
