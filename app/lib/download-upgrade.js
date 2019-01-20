@@ -72,10 +72,11 @@ class Upgrade {
 
     this.pausing = false
 
-    this.onData = _.debounce((count) => {
+    this.onData = _.throttle((count) => {
       if (this.onDestroy) {
         return
       }
+
       ws.s({
         id: 'upgrade:data:' + id,
         data: Math.floor(count * 100 / size)
