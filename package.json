@@ -123,7 +123,7 @@
     "find-free-port": "2.0.0",
     "json-deep-copy": "1.0.2",
     "lodash": "4.17.11",
-    "node-pty": "0.7.8",
+    "node-pty": "0.8.0",
     "os-locale": "3.0.1",
     "phin": "3.2.1",
     "react": "16.7.0-alpha.2",
