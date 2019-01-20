@@ -6,7 +6,7 @@ let installSrc = ''
 try {
   installSrc = require('fs').readFileSync(
     resolve(__dirname, '../../install-src.txt')
-  ).toString()
+  ).toString().trim()
 } catch(e) {
   console.log('no ../../install-src file')
 }
