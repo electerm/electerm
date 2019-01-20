@@ -3,7 +3,7 @@
  */
 import {memo} from 'react'
 import {
-  Icon
+  Icon, Tooltip
 } from 'antd'
 import BookMarksWrap from './bookmark'
 import HistoryWrap from './history'
@@ -33,7 +33,7 @@ export default memo((props) => {
     openTerminalThemes,
     upgradeInfo
   } = props
-  let {showUpgradeModal, upgradePercent, checkingRemoteVersion} = upgradeInfo
+  let {showUpgradeModal, upgradePercent, checkingRemoteVersion, shouldUpgrade} = upgradeInfo
   let handler
   let interval = 400
   let setOpenedSideBar = (bar) => {
@@ -162,18 +162,22 @@ export default memo((props) => {
           />
         </div>
         {
-          !checkingRemoteVersion && !showUpgradeModal
+          !checkingRemoteVersion && !showUpgradeModal && shouldUpgrade
             ? (
-              <div
-                className="control-icon-wrap"
+              <Tooltip
                 title={`${u('upgrading')} ${upgradePercent || 0}%`}
-                onClick={showUpgrade}
+                placement="right"
               >
-                <Icon
-                  className="iblock pointer font18 control-icon hvr-bob upgrade-icon"
-                  type="up-circle"
-                />
-              </div>
+                <div
+                  className="control-icon-wrap"
+                  onClick={showUpgrade}
+                >
+                  <Icon
+                    className="iblock pointer font18 control-icon hvr-bob upgrade-icon"
+                    type="up-circle"
+                  />
+                </div>
+              </Tooltip>
             )
             : null
         }

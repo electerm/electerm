@@ -53,7 +53,6 @@ export default class Upgrade extends React.Component {
   }
 
   upgrade = async () => {
-    console.log(installSrc, 'installSrc')
     if (!isMac && !isWin && installSrc === 'npm') {
       return this.props.addTab(
         {
@@ -75,6 +74,10 @@ export default class Upgrade extends React.Component {
   }
 
   onData = (upgradePercent) => {
+    if (upgradePercent >= 100) {
+      this.up.destroy()
+      return this.close()
+    }
     this.changeProps({
       upgradePercent
     })
@@ -187,7 +190,6 @@ export default class Upgrade extends React.Component {
       return null
     }
     let cls = `animate upgrade-panel${showUpgradeModal ? '' : ' upgrade-panel-hide'}`
-    let type = upgrading ? 'danger' : 'primary'
     let func = upgrading
       ? this.cancel
       : this.upgrade
@@ -203,10 +205,10 @@ export default class Upgrade extends React.Component {
         </div>
         <div className="upgrade-panel-body">
           {
-            installSrc
+            installSrc || isWin || isMac
               ? (
                 <Button
-                  type={type}
+                  type="primary"
                   icon="up-circle"
                   loading={checkingRemoteVersion}
                   disabled={checkingRemoteVersion}
@@ -214,7 +216,7 @@ export default class Upgrade extends React.Component {
                 >
                   {
                     upgrading
-                      ? <span>{`${upgradePercent || 0}% ${c('cancel')}`}</span>
+                      ? <span>{`${e('upgrading')}... ${upgradePercent || 0}% ${c('cancel')}`}</span>
                       : e('upgrade')
                   }
                 </Button>

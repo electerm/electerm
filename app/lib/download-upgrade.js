@@ -9,7 +9,7 @@ const _ = require('lodash')
 const rp = require('phin')
 const os = require('os')
 const isWin = os.platform() === 'win32'
-//const isMac = os.platform() === 'darwin'
+const isMac = os.platform() === 'darwin'
 const installSrc = require('./install-src')
 const tempDir = os.tmpdir()
 const {fsExport} = require('./fs')
@@ -41,14 +41,14 @@ class Upgrade {
       ws
     } = this.options
     const releaseInfoUrl = 'https://electerm.html5beta.com/data/electerm-github-release.json?_=' + (+new Date())
-    let filter = r => /\.dmg$/.test(r.name)
+    let filter = r => {
+      return r.name.includes(installSrc) &&
+        r.name.includes('linux')
+    }
     if (isWin) {
       filter = r => /electerm-\d+\.\d+\.\d+-win\.tar\.gz/.test(r.name)
-    } else {
-      filter = r => {
-        return r.name.includes(installSrc) &&
-          r.name.includes('linux')
-      }
+    } else if (isMac) {
+      filter = r => /\.dmg$/.test(r.name)
     }
     const releaseInfo = await getReleaseInfo(filter, releaseInfoUrl)
       .catch(this.onError)
@@ -71,7 +71,7 @@ class Upgrade {
 
     this.pausing = false
 
-    this.onData = _.throttle((count) => {
+    this.onData = _.debounce((count) => {
       if (this.onDestroy) {
         return
       }
