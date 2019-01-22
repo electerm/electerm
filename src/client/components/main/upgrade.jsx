@@ -182,7 +182,10 @@ export default class Upgrade extends React.Component {
     if (error) {
       return this.renderError(error)
     }
-    if (!shouldUpgrade) {
+    if (!shouldUpgrade && !this.props.shouldCheckUpdate) {
+      return null
+    }
+    if (!shouldUpgrade && this.props.shouldCheckUpdate) {
       return this.renderCanNotUpgrade()
     }
     if (checkingRemoteVersion) {
