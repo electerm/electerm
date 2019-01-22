@@ -116,6 +116,7 @@ export default class Index extends React.Component {
       .on('new-ssh', this.onNewSsh)
       .on('openSettings', this.openSetting)
       .on('selectall', this.selectall)
+      .on('focused', this.focus)
     document.addEventListener('drop', function(e) {
       e.preventDefault()
       e.stopPropagation()
@@ -135,9 +136,14 @@ export default class Index extends React.Component {
       prevState.currentTabId !== currentTabId &&
       currentTabId
     ) {
-      let term = _.get(this, `term_${currentTabId}.term`)
-      term && term.focus()
+      this.focus()
     }
+  }
+
+  focus = () => {
+    window.postMessage({
+      type: 'focus'
+    }, '*')
   }
 
   checkDefaultTheme () {
@@ -274,8 +280,10 @@ export default class Index extends React.Component {
 
   openAbout = () => {
     openInfoModal({
-      onCheckUpdatingo: this.nCheckUpdating,
-      onCheckUpdate: this.onCheckUpdate
+      onCheckUpdating: this.state.upgradeInfo.checkingRemoteVersion || this.state.upgradeInfo.upgrading,
+      onCheckUpdate: this.onCheckUpdate,
+      onCancel: this.focus,
+      onOk: this.focus
     })
   }
 
@@ -632,6 +640,7 @@ export default class Index extends React.Component {
     this.setState({
       showModal: false
     })
+    this.focus()
   }
 
   getItems = (tab, props = this.state) => {
@@ -760,7 +769,6 @@ export default class Index extends React.Component {
                     <Session
                       {...controlProps}
                       tab={tab}
-                      ref={ref => this[`term_${id}`] = ref}
                     />
                   </div>
                 )
