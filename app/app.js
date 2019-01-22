@@ -229,6 +229,9 @@ async function createWindow () {
 
   // Emitted when the window is closed.
   win.on('close', onClose)
+  win.on('focus', () => {
+    win.webContents.send('focused', null)
+  })
 
   setWin(win)
 }

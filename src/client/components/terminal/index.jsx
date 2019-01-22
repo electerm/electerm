@@ -186,6 +186,14 @@ export default class Term extends React.PureComponent {
   }
 
   handleEvent = (e) => {
+    if (
+      e.data &&
+      e.data.type === 'focus' &&
+      this.props.tab.id === this.props.currentTabId &&
+      this.props.pane === paneMap.terminal
+    ) {
+      return this.term && this.term.focus()
+    }
     if (e.data && e.data.id === this.props.id) {
       this.term.selectAll()
     }
