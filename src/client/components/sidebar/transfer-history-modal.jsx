@@ -98,7 +98,7 @@ export default memo(props => {
             {e('clear')}
           </span>
         </div>
-        <div className="table-wrap">
+        <div className="table-scroll-wrap">
           <Table
             dataSource={transferHistory}
             columns={columns}
