@@ -6,6 +6,7 @@ import {memo} from 'react'
 import {Modal, Table, Icon} from 'antd'
 import time from '../../common/time'
 import {transferTypeMap} from '../../common/constants'
+import './transfer-history.styl'
 
 const {prefix} = window
 const e = prefix('transferHistory')
@@ -97,14 +98,16 @@ export default memo(props => {
             {e('clear')}
           </span>
         </div>
-        <Table
-          dataSource={transferHistory}
-          columns={columns}
-          bordered
-          pagination={false}
-          size="small"
-          rowKey="id"
-        />
+        <div className="table-scroll-wrap">
+          <Table
+            dataSource={transferHistory}
+            columns={columns}
+            bordered
+            pagination={false}
+            size="small"
+            rowKey="id"
+          />
+        </div>
       </div>
     </Modal>
   )
