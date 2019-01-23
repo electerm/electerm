@@ -150,6 +150,7 @@ async function createWindow () {
     installSrc,
     instSftpKeys,
     transferKeys,
+    upgradeKeys: transferKeys,
     fs: fsExport,
     ls,
     getExitStatus: () => global.et.exitStatus,
@@ -228,6 +229,9 @@ async function createWindow () {
 
   // Emitted when the window is closed.
   win.on('close', onClose)
+  win.on('focus', () => {
+    win.webContents.send('focused', null)
+  })
 
   setWin(win)
 }

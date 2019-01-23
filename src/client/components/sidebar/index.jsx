@@ -3,7 +3,7 @@
  */
 import {memo} from 'react'
 import {
-  Icon
+  Icon, Tooltip
 } from 'antd'
 import BookMarksWrap from './bookmark'
 import HistoryWrap from './history'
@@ -18,6 +18,7 @@ const c = prefix('common')
 const m = prefix('menu')
 const h = prefix('transferHistory')
 const t = prefix('terminalThemes')
+const u = prefix('updater')
 
 export default memo((props) => {
   let {
@@ -29,8 +30,10 @@ export default memo((props) => {
     openTransferHistory,
     openAbout,
     height,
-    openTerminalThemes
+    openTerminalThemes,
+    upgradeInfo
   } = props
+  let {showUpgradeModal, upgradePercent, checkingRemoteVersion, shouldUpgrade} = upgradeInfo
   let handler
   let interval = 400
   let setOpenedSideBar = (bar) => {
@@ -54,6 +57,16 @@ export default memo((props) => {
   }
   let listStyle = {
     maxHeight: height - 160
+  }
+  let showUpgrade = () => {
+    modifier(old => {
+      return {
+        upgradeInfo: {
+          ...old.upgradeInfo,
+          showUpgradeModal: true
+        }
+      }
+    })
   }
   return (
     <div
@@ -148,6 +161,26 @@ export default memo((props) => {
             type="info-circle-o"
           />
         </div>
+        {
+          !checkingRemoteVersion && !showUpgradeModal && shouldUpgrade
+            ? (
+              <Tooltip
+                title={`${u('upgrading')} ${upgradePercent || 0}%`}
+                placement="right"
+              >
+                <div
+                  className="control-icon-wrap"
+                  onClick={showUpgrade}
+                >
+                  <Icon
+                    className="iblock pointer font18 control-icon hvr-bob upgrade-icon"
+                    type="up-circle"
+                  />
+                </div>
+              </Tooltip>
+            )
+            : null
+        }
       </div>
       <div
         className="sidebar-list"

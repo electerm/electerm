@@ -19,7 +19,9 @@ const {TabPane} = Tabs
 
 export default function({
   onCheckUpdate,
-  onCheckUpdating
+  onCheckUpdating,
+  onCancel,
+  onOk
 }) {
   const {getGlobal} = window
   let {
@@ -63,6 +65,8 @@ export default function({
     width: window.innerWidth - 100,
     maskClosable: true,
     okText: c('ok'),
+    onCancel,
+    onOk,
     content: (
       <div className="about-wrap">
         <Tabs defaultActiveKey="1">

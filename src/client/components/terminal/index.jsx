@@ -38,7 +38,7 @@ const t = prefix('terminalThemes')
 const {Option} = Select
 
 const authFailMsg = 'All configured authentication methods failed'
-const privateKeyMsg = 'Encrypted private key detected'
+const privateKeyMsg = 'private key detected'
 const typeSshConfig = 'ssh-config'
 
 const computePos = (e, height) => {
@@ -186,6 +186,14 @@ export default class Term extends React.PureComponent {
   }
 
   handleEvent = (e) => {
+    if (
+      e.data &&
+      e.data.type === 'focus' &&
+      this.props.tab.id === this.props.currentTabId &&
+      this.props.pane === paneMap.terminal
+    ) {
+      return this.term && this.term.focus()
+    }
     if (e.data && e.data.id === this.props.id) {
       this.term.selectAll()
     }
@@ -441,7 +449,7 @@ export default class Term extends React.PureComponent {
   initData = () => {
     let {type, title, loginScript} = this.props.tab
     let cmd = type === terminalSshConfigType
-      ? `ssh ${title}\r`
+      ? `ssh ${title.split(/\s/g)[0]}\r`
       : (
         loginScript
           ? loginScript + '\r'

@@ -10,7 +10,7 @@ import copy from 'json-deep-copy'
 import ContextMenu from '../common/context-menu'
 import FileInfoModal from '../sftp/file-props-modal'
 import FileModeModal from '../sftp/file-mode-modal'
-import UpdateCheck from './update-check'
+import UpdateCheck from './upgrade'
 import {notification} from 'antd'
 import SettingModal from '../setting-panel/setting-modal'
 import openInfoModal from '../sidebar/info-modal'
@@ -79,9 +79,7 @@ export default class Index extends React.Component {
       fileInfoModalProps: {},
       fileModeModalProps: {},
       currentBookmarkGroupId: defaultookmarkGroupId,
-      shouldCheckUpdate: 0,
       transferHistoryModalVisible: false,
-      onCheckUpdating: false,
       selectedSessions: [],
       sessionModalVisible: false,
       textEditorProps: {},
@@ -96,7 +94,11 @@ export default class Index extends React.Component {
 
       //sidebar
       openedSideBar: '',
-      openedCategoryIds: ls.get('openedCategoryIds') || bookmarkGroups.map(b => b.id)
+      openedCategoryIds: ls.get('openedCategoryIds') || bookmarkGroups.map(b => b.id),
+
+      //update
+      shouldCheckUpdate: 0,
+      upgradeInfo: {}
     }
     let title = createTitlte(tabs[0])
     window.getGlobal('setTitle')(title)
@@ -114,6 +116,7 @@ export default class Index extends React.Component {
       .on('new-ssh', this.onNewSsh)
       .on('openSettings', this.openSetting)
       .on('selectall', this.selectall)
+      .on('focused', this.focus)
     document.addEventListener('drop', function(e) {
       e.preventDefault()
       e.stopPropagation()
@@ -133,9 +136,14 @@ export default class Index extends React.Component {
       prevState.currentTabId !== currentTabId &&
       currentTabId
     ) {
-      let term = _.get(this, `term_${currentTabId}.term`)
-      term && term.focus()
+      this.focus()
     }
+  }
+
+  focus = () => {
+    window.postMessage({
+      type: 'focus'
+    }, '*')
   }
 
   checkDefaultTheme () {
@@ -272,8 +280,10 @@ export default class Index extends React.Component {
 
   openAbout = () => {
     openInfoModal({
-      onCheckUpdatingo: this.nCheckUpdating,
-      onCheckUpdate: this.onCheckUpdate
+      onCheckUpdating: this.state.upgradeInfo.checkingRemoteVersion || this.state.upgradeInfo.upgrading,
+      onCheckUpdate: this.onCheckUpdate,
+      onCancel: this.focus,
+      onOk: this.focus
     })
   }
 
@@ -630,6 +640,7 @@ export default class Index extends React.Component {
     this.setState({
       showModal: false
     })
+    this.focus()
   }
 
   getItems = (tab, props = this.state) => {
@@ -721,6 +732,8 @@ export default class Index extends React.Component {
         />
         <UpdateCheck
           modifier={this.modifier}
+          upgradeInfo={this.state.upgradeInfo}
+          addTab={this.addTab}
           shouldCheckUpdate={shouldCheckUpdate}
         />
         <ContextMenu
@@ -756,7 +769,6 @@ export default class Index extends React.Component {
                     <Session
                       {...controlProps}
                       tab={tab}
-                      ref={ref => this[`term_${id}`] = ref}
                     />
                   </div>
                 )
