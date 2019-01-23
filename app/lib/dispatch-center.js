@@ -36,7 +36,7 @@ const initWs = function (app) {
     wsDec(ws)
     let {id} = req.params
     ws.on('close', () => {
-      let inst = global.sftpInsts[id]
+      let inst = sftpInsts[id]
       if (inst) {
         inst.destroy()
       }
