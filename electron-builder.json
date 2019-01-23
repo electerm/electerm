@@ -34,8 +34,8 @@
     "target": [
       "rpm",
       "deb",
-      "tar.gz"
+      "tar.gz",
+      "snap"
     ]
-  },
-  "snap": {}
+  }
 }
