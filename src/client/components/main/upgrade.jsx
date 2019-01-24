@@ -1,7 +1,7 @@
 import React from 'react'
 import {Icon, Button} from 'antd'
 import _ from 'lodash'
-import {getLatestReleaseInfo} from '../../common/update-check'
+import {getLatestReleaseInfo, getLatestReleaseVersion} from '../../common/update-check'
 import upgrade from '../../common/upgrade'
 import compare from '../../common/version-compare'
 import Link from '../common/external-link'
@@ -104,22 +104,27 @@ export default class Upgrade extends React.Component {
       checkingRemoteVersion: true,
       error: ''
     })
-    let releaseInfo = await getLatestReleaseInfo()
+    let releaseVer = await getLatestReleaseVersion()
     this.changeProps({
       checkingRemoteVersion: false
     })
-    if (!releaseInfo) {
+    if (!releaseVer) {
       return this.changeProps({
         error: 'Can not get version info'
       })
     }
     let currentVer = 'v' + window.et.version.split('-')[0]
-    let latestVer = releaseInfo.tag_name
+    let latestVer = releaseVer.tag_name
     let shouldUpgrade = compare(currentVer, latestVer) < 0
     let canAutoUpgrade = installSrc || isWin || isMac
+    let releaseInfo
+    if (canAutoUpgrade) {
+      releaseInfo = await getLatestReleaseInfo()
+    }
     this.changeProps({
       shouldUpgrade,
-      version: latestVer,
+      releaseInfo,
+      remoteVersion: latestVer,
       canAutoUpgrade,
       showUpgradeModal: true
     })
@@ -169,6 +174,26 @@ export default class Upgrade extends React.Component {
     )
   }
 
+  renderChangeLog = () => {
+    let {
+      releaseInfo
+    } = this.props.upgradeInfo
+    if (!releaseInfo) {
+      return null
+    }
+    let arr = releaseInfo.split('/n')
+    return (
+      <div className="pd1t">
+        <div className="bold">Changelog:</div>
+        {
+          arr.map((item, i) => {
+            return <p key={'clo' + i}>{item}</p>
+          })
+        }
+      </div>
+    )
+  }
+
   render() {
     let {
       remoteVersion,
@@ -209,24 +234,32 @@ export default class Upgrade extends React.Component {
           {
             installSrc || isWin || isMac
               ? (
-                <Button
-                  type="primary"
-                  icon="up-circle"
-                  loading={checkingRemoteVersion}
-                  disabled={checkingRemoteVersion}
-                  onClick={func}
-                >
-                  {
-                    upgrading
-                      ? <span>{`${e('upgrading')}... ${upgradePercent || 0}% ${c('cancel')}`}</span>
-                      : e('upgrade')
-                  }
-                </Button>
+                <div>
+                  <Button
+                    type="primary"
+                    icon="up-circle"
+                    loading={checkingRemoteVersion}
+                    disabled={checkingRemoteVersion}
+                    onClick={func}
+                  >
+                    {
+                      upgrading
+                        ? <span>{`${e('upgrading')}... ${upgradePercent || 0}% ${c('cancel')}`}</span>
+                        : e('upgrade')
+                    }
+                  </Button>
+                  <p className="pd1t">
+                    {e('goGetIt')}
+                    <Link to={homepage} className="mg1l">{homepage}</Link>
+                  </p>
+                  {this.renderChangeLog()}
+                </div>
               )
               : (
                 <div>
                   {e('goGetIt')}
                   <Link to={homepage} className="mg1l">{homepage}</Link>
+                  {this.renderChangeLog()}
                 </div>
               )
           }
