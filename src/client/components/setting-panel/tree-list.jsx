@@ -460,17 +460,17 @@ export default class ItemListTree extends React.PureComponent {
       <div className="pd1b pd2r">
         <Button
           className="mg1r mg1t"
-          icon="plus"
           onClick={this.newBookmark}
+          title={`${s('new')} ${c('bookmarks')}`}
         >
-          {s('new')}{c('bookmarks')}
+          <Icon type="book" className="with-plus" />
         </Button>
         <Button
-          icon="plus-circle-o"
           className="mg1t"
           onClick={this.newBookmarkGroup}
+          title={`${s('new')} ${c('bookmarkCategory')}`}
         >
-          {s('new')}{c('bookmarkCategory')}
+          <Icon type="folder"  className="with-plus" />
         </Button>
         <Btns
           {...this.props}
