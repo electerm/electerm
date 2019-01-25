@@ -87,15 +87,9 @@ export default function({
               </Link>
             </p>
             <p className="mg1b">
-              <b>{e('homepage')}:</b>
+              <b>{e('homepage')}/{e('download')}:</b>
               <Link to={homepage} className="mg1l">
                 <Icon type="home" /> {homepage}
-              </Link>
-            </p>
-            <p className="mg1b">
-              <b className="mg1r">{e('download')}:</b>
-              <Link to={homepage} className="mg1l">
-                <Icon type="download" /> {homepage}
               </Link>
             </p>
             <p className="mg1b">

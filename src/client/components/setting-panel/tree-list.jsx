@@ -327,17 +327,25 @@ export default class ItemListTree extends React.PureComponent {
     })
   }
 
-  renderEditBtn = item => {
+  renderGroupBtn = item => {
     if (this.props.staticList) {
       return null
     }
     return (
-      <Icon
-        type="edit"
-        title={e('edit')}
-        onClick={(e) => this.editItem(e, item)}
-        className="pointer list-item-edit"
-      />
+      <span>
+        <Icon
+          type="edit"
+          title={e('edit')}
+          onClick={(e) => this.editItem(e, item)}
+          className="pointer list-item-edit"
+        />
+        <Icon
+          type="plus"
+          title={`${s('new')} ${c('bookmarkCategory')}`}
+          onClick={(e) => this.newGroup(e, item)}
+          className="pointer list-item-add mg1l"
+        />
+      </span>
     )
   }
 
@@ -393,7 +401,7 @@ export default class ItemListTree extends React.PureComponent {
         </div>
         {
           isGroup
-            ? this.renderEditBtn(item)
+            ? this.renderGroupBtn(item)
             : null
         }
         {this.renderDelBtn(item)}
