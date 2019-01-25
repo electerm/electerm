@@ -187,7 +187,7 @@ export default class Upgrade extends React.Component {
         <div className="bold">Changelog:</div>
         {
           arr.map((item, i) => {
-            return <p key={'clo' + i}>{item}</p>
+            return <div key={'clo' + i}>{item}</div>
           })
         }
       </div>
