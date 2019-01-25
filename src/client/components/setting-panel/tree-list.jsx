@@ -448,7 +448,7 @@ export default class ItemListTree extends React.PureComponent {
     })
   }
 
-  renderChildGroupNodes = categoryIds => {
+  renderChildGroupNodes = () => {
     // let categoryIds = this.filterGroup(
     //   this.props.bookmarkGroups
     // )
