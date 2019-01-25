@@ -37,9 +37,10 @@ const initWs = function (app) {
     let {id} = req.params
     ws.on('close', () => {
       let inst = sftpInsts[id]
-      if (inst) {
+      if (inst && inst.destroy) {
         inst.destroy()
       }
+      delete sftpInsts[id]
     })
     ws.on('message', (message) => {
       let msg = JSON.parse(message)
