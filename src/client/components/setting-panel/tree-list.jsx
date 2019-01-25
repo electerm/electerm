@@ -40,7 +40,9 @@ export default class ItemListTree extends React.PureComponent {
       showNewBookmarkGroupForm: false,
       bookmarkGroupTitle: '',
       categoryTitle: '',
-      categoryId: ''
+      categoryId: '',
+      subCategoryTitle: '',
+      subCategoryId: ''
     }
   }
 
@@ -327,6 +329,14 @@ export default class ItemListTree extends React.PureComponent {
     })
   }
 
+  newGroup = (e, item) => {
+    e.stopPropagation()
+    this.setState({
+      subCategoryTitle: '',
+      subCategoryId: item.id + ''
+    })
+  }
+
   renderGroupBtn = item => {
     if (this.props.staticList) {
       return null
@@ -438,13 +448,51 @@ export default class ItemListTree extends React.PureComponent {
     })
   }
 
+  renderChildGroupNodes = categoryIds => {
+    // let categoryIds = this.filterGroup(
+    //   this.props.bookmarkGroups
+    // )
+    // let map = bookmarks.reduce((p, b) => {
+    //   return {
+    //     ...p,
+    //     [b.id]: b
+    //   }
+    // }, {})
+    // let nodes = bookmarkIds.reduce((prev, id) => {
+    //   return map[id]
+    //     ? [
+    //       ...prev,
+    //       map[id]
+    //     ]
+    //     : prev
+    // }, [])
+    return [].map(node => {
+      return (
+        <TreeNode
+          key={node.id}
+          isLeaf
+          title={this.renderItemTitle(node)}
+        />
+      )
+    })
+  }
+
   renderItem = (item) => {
-    let {bookmarkIds = []} = item
+    let {bookmarkIds = [], categoryIds = [], id} = item
+    let {subCategoryId} = this.state
+    if (subCategoryId === id) {
+      categoryIds.push('')
+    }
     return (
       <TreeNode
         key={item.id}
         title={this.renderItemTitle(item, true)}
       >
+        {
+          categoryIds.length
+            ? this.renderChildNodes(categoryIds)
+            : null
+        }
         {
           bookmarkIds.length
             ? this.renderChildNodes(bookmarkIds)
@@ -455,6 +503,15 @@ export default class ItemListTree extends React.PureComponent {
   }
 
   filter = list => {
+    let {keyword} = this.state
+    return keyword
+      ? list.filter(item => {
+        return createName(item).toLowerCase().includes(keyword.toLowerCase())
+      })
+      : list
+  }
+
+  filterGroup = list => {
     let {keyword} = this.state
     return keyword
       ? list.filter(item => {
