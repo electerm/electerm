@@ -75,7 +75,7 @@ class Transfer {
   }
 
   onError(err, id, ws) {
-    ws.s({
+    ws && ws.s({
       wid: 'transfer:err:' + id,
       error: {
         message: err.message,
