@@ -181,7 +181,7 @@ export default class Upgrade extends React.Component {
     if (!releaseInfo) {
       return null
     }
-    let arr = releaseInfo.split('/n')
+    let arr = releaseInfo.split(/[\n\r]+/g)
     return (
       <div className="pd1t">
         <div className="bold">Changelog:</div>
