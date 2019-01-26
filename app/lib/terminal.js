@@ -89,7 +89,10 @@ class Terminal {
         {
           readyTimeout: _.get(initOptions, 'readyTimeout'),
           keepaliveInterval: _.get(initOptions, 'keepaliveInterval'),
-          agent: process.env.SSH_AUTH_SOCK
+          agent: process.env.SSH_AUTH_SOCK,
+          algorithms: {
+            hmac: ['hmac-sha2-256', 'hmac-sha2-512', 'hmac-sha1', 'hmac-sha1-96']
+          }
         },
         _.pick(initOptions, [
           'host',
