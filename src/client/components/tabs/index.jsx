@@ -14,6 +14,7 @@ import WindowControl from './window-control'
 
 const {prefix} = window
 const e = prefix('tabs')
+const c = prefix('control')
 const MenuItem = Menu.Item
 const extraWidth = 113
 
@@ -31,6 +32,14 @@ export default class Tabs extends React.Component {
 
   componentWillUnmount() {
     window.removeEventListener('keydown', this.handleTabHotkey)
+  }
+
+  isOverflow = () => {
+    let {tabs = [], width} = this.props
+    let len = tabs.length
+    let addBtnWidth = 22
+    let tabsWidthAll = (tabMargin + tabWidth) * len + 10
+    return width < (tabsWidthAll + addBtnWidth)
   }
 
   handleTabHotkey = e => {
@@ -101,6 +110,41 @@ export default class Tabs extends React.Component {
     )
   }
 
+  renderAddContext() {
+    let {onNewSsh, addTab} = this.props
+    let cls = 'pd2x pd1y context-item pointer'
+    return (
+      <div>
+        <div
+          className={cls}
+          onClick={() => addTab()}
+        >
+          <Icon type="code-o" /> {e('newTab')}
+        </div>
+        <div
+          className={cls}
+          onClick={onNewSsh}
+        >
+          <Icon type="code-o" /> {c('newSsh')}
+        </div>
+      </div>
+    )
+  }
+
+  onContextMenu = e => {
+    e.preventDefault()
+    let {target} = e
+    let rect = target.getBoundingClientRect()
+    let content = this.renderAddContext()
+    this.props.openContextMenu({
+      content,
+      pos: {
+        left: rect.left,
+        top: rect.top + 20
+      }
+    })
+  }
+
   renderAddBtn = () => {
     return (
       <Icon
@@ -108,6 +152,7 @@ export default class Tabs extends React.Component {
         title={e('openNewTerm')}
         className="pointer tabs-add-btn font16"
         onClick={() => this.props.addTab()}
+        onContextMenu={this.onContextMenu}
       />
     )
   }
@@ -141,9 +186,8 @@ export default class Tabs extends React.Component {
   render() {
     let {tabs = [], width} = this.props
     let len = tabs.length
-    let addBtnWidth = 22
     let tabsWidthAll = (tabMargin + tabWidth) * len + 10
-    let overflow = width < (tabsWidthAll + addBtnWidth)
+    let overflow = this.isOverflow()
     //let extraw = overflow ? extraWidth : 0
     return (
       <div className="tabs noise">
