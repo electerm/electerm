@@ -29,3 +29,23 @@ export default memo(() => {
     </div>
   )
 })
+/*
+new ssh
+new terminal
+---
+history =>
+sessions =>
+---
+about
+settings
+toggole dev tools
+---
+minimize
+maxmize
+reload
+---
+check updates
+more => all other options
+restart
+exit
+*/
