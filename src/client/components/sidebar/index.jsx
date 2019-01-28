@@ -81,7 +81,7 @@ export default memo((props) => {
       />
       <div className="sidebar-bar btns">
         <div className="control-icon-wrap">
-          <MenuBtn />
+          <MenuBtn {...props} />
         </div>
         <div
           className="control-icon-wrap"
