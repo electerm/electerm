@@ -313,6 +313,18 @@ export default class Setting extends React.PureComponent {
         {
           this.renderText('fontFamily')
         }
+        <div className="pd1b">{t('default')} {e('execWindows')}</div>
+        {
+          this.renderText('execWindows')
+        }
+        <div className="pd1b">{t('default')} {e('execMac')}</div>
+        {
+          this.renderText('execMac')
+        }
+        <div className="pd1b">{t('default')} {e('execLinux')}</div>
+        {
+          this.renderText('execLinux')
+        }
         {this.renderToggle('rightClickSelectsWord')}
         {this.renderToggle('copyWhenSelect')}
         {this.renderToggle('pasteWhenContextMenu')}
