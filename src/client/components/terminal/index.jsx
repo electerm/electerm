@@ -504,8 +504,13 @@ export default class Term extends React.PureComponent {
       term: 'xterm-color',
       ...tab,
       ...extra,
-      readyTimeout: _.get(config, 'sshReadyTimeout'),
-      keepaliveInterval: _.get(config, 'keepaliveInterval'),
+      ..._.pick(config, [
+        'sshReadyTimeout',
+        'keepaliveInterval',
+        'execWindows',
+        'execMac',
+        'execLinux'
+      ]),
       type: tab.host && !isSshConfig
         ? typeMap.remote
         : typeMap.local

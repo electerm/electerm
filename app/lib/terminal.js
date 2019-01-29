@@ -54,15 +54,18 @@ class Terminal {
   localInit(initOptions) {
     let {
       cols,
-      rows
+      rows,
+      execWindows,
+      execMac,
+      execLinux
     } = initOptions
     let {platform} = process
     let exe = platform.startsWith('win')
       ? resolve(
         process.env.windir,
-        'System32/WindowsPowerShell/v1.0/powershell.exe'
+        execWindows
       )
-      : 'bash'
+      : platform === 'darwin' ? execMac : execLinux
     let cwd = process.env[
       platform === 'win32' ? 'USERPROFILE' : 'HOME'
     ]
