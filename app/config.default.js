@@ -28,7 +28,10 @@ module.exports = function() {
         sshReadyTimeout: 50000,
         scrollback: 3000,
         fontSize: 16,
-        fontFamily: 'mono, courier-new, courier, monospace'
+        fontFamily: 'mono, courier-new, courier, monospace',
+        execWindows: 'System32/WindowsPowerShell/v1.0/powershell.exe',
+        execMac: 'bash',
+        execLinux: 'bash'
       }
       let conf = {
         port: freePort,
