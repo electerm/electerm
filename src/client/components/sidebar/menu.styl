@@ -1,14 +1,22 @@
 .menus
   hr
     margin 0
-    border-bottom 1px solid #555
-  .sub-context-menu
-    display none
-    width 200px
-    position absolute
-    left 100%
-    top 0
-  .with-sub-menu
-    &:hover
-      .sub-context-menu
-        display block
+    border none
+    border-bottom 1px solid #444
+.sub-context-menu
+  display none
+  width 200px
+  position absolute
+  left 100%
+  top 0
+  background #333
+  box-shadow 0px 0px 3px 3px rgba(90,90,90,0.35)
+.with-sub-menu
+  &:hover
+    .sub-context-menu
+      display block
+.sub-context-menu-item
+  cursor pointer
+  padding 10px 16px
+  &:hover
+    background #000

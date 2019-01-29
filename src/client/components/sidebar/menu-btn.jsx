@@ -49,7 +49,7 @@ function renderTabs(props) {
 
 function renderHistory(props) {
   return (
-    <div className="sub-context-menu-item">
+    <div className="sub-context-menu">
       {
         props.history.map(item => {
           return (
@@ -80,7 +80,7 @@ function renderContext(props) {
       </div>
       <div
         className={cls}
-        onClick={props.addTab}
+        onClick={() => props.addTab()}
       >
         <Icon type="right-square" theme="filled" /> {t('newTab')}
       </div>
@@ -97,7 +97,7 @@ function renderContext(props) {
       <div
         className={cls1}
       >
-        <Icon type="bars" /> {t('tabs')}
+        <Icon type="bars" /> {t('sessions')}
         <span className="context-sub-text">
           <Icon type="right" />
         </span>
@@ -114,52 +114,52 @@ function renderContext(props) {
         className={cls}
         onClick={props.openSetting}
       >
-        <Icon type="info-circle" /> {s('settings')}
+        <Icon type="setting" /> {s('settings')}
       </div>
       <div
         className={cls}
         onClick={() => window.getGlobal('openDevTools')()}
       >
-        <Icon type="left-square" theme="filled" /> {e('toggledevtools')}
+        <Icon type="left-square" theme="filled" /> {m('toggledevtools')}
       </div>
       <hr />
       <div
         className={cls}
         onClick={() => window.getGlobal('minimize')()}
       >
-        <Icon type="switcher" theme="filled" /> {e('minimize')}
+        <Icon type="switcher" theme="filled" /> {m('minimize')}
       </div>
       <div
         className={cls}
         onClick={() => window.getGlobal('maximize')()}
       >
-        <Icon type="layout" theme="filled" /> {e('maximize')}
+        <Icon type="layout" theme="filled" /> {m('maximize')}
       </div>
       <div
         className={cls}
         onClick={() => window.location.reload()}
       >
-        <Icon type="reload" /> {e('maximize')}
+        <Icon type="reload" /> {m('reload')}
       </div>
       <hr />
       <div
         className={cls}
         onClick={props.onCheckUpdate}
       >
-        <Icon type="up-circle" /> {c('checkForUpdate')}
+        <Icon type="up-circle" /> {e('checkForUpdate')}
       </div>
       <hr />
       <div
         className={cls}
         onClick={() => window.getGlobal('restart')()}
       >
-        <Icon type="redo" /> {e('restart')}
+        <Icon type="redo" /> {m('restart')}
       </div>
       <div
         className={cls}
         onClick={() => window.getGlobal('closeApp')()}
       >
-        <Icon type="redo" /> {e('close')}
+        <Icon type="close" /> {m('close')}
       </div>
     </div>
   )
@@ -170,7 +170,7 @@ function onContextMenu (props) {
   props.openContextMenu({
     content,
     pos: {
-      left: 10,
+      left: 40,
       top: 10
     }
   })
