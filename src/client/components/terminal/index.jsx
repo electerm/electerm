@@ -3,7 +3,7 @@ import React from 'react'
 import fetch, {handleErr} from '../../common/fetch'
 import {generate} from 'shortid'
 import _ from 'lodash'
-import {Spin, Icon, Modal, Button, Checkbox, Select} from 'antd'
+import {Spin, Icon, Modal, Button, Checkbox} from 'antd'
 import Input from '../common/input-auto-focus'
 import {statusMap, paneMap} from '../../common/constants'
 import classnames from 'classnames'
@@ -35,7 +35,6 @@ const m = prefix('menu')
 const f = prefix('form')
 const c = prefix('common')
 const t = prefix('terminalThemes')
-const {Option} = Select
 
 const authFailMsg = 'All configured authentication methods failed'
 const privateKeyMsg = 'private key detected'
@@ -321,27 +320,20 @@ export default class Term extends React.PureComponent {
   renderThemeSelect = () => {
     let {theme, themes} = this.props
     return (
-      <div>
-        <div className="pd1b">
-          {t('terminalThemes')}
-        </div>
-        <Select
-          value={theme}
-          onChange={this.onSelectTheme}
-        >
-          {
-            themes.map(({id, name}) => {
-              return (
-                <Option
-                  key={id}
-                  value={id}
-                >
-                  {name}
-                </Option>
-              )
-            })
-          }
-        </Select>
+      <div className="sub-context-menu">
+        {
+          themes.map(item => {
+            let cls = `sub-context-menu-item ${theme === item.id ? 'active' : ''}`
+            return (
+              <div
+                className={cls}
+                onClick={() => this.onSelectTheme(item.id)}
+              >
+                {item.name}
+              </div>
+            )
+          })
+        }
       </div>
     )
   }
@@ -395,8 +387,12 @@ export default class Term extends React.PureComponent {
           <Icon type="border-horizontal" /> {e('split')}
         </div>
         <div
-          className={cls + ' no-auto-close-context'}
+          className={cls + ' with-sub-menu'}
         >
+          {t('terminalThemes')}
+          <span className="context-sub-text">
+            <Icon type="right" />
+          </span>
           {this.renderThemeSelect()}
         </div>
       </div>
