@@ -26,7 +26,20 @@ class Sftp {
       {
         readyTimeout: _.get(config, 'readyTimeout'),
         keepaliveInterval: _.get(config, 'keepaliveInterval'),
-        agent: process.env.SSH_AUTH_SOCK
+        agent: process.env.SSH_AUTH_SOCK,
+        algorithms: {
+          hmac: ['hmac-sha2-256', 'hmac-sha2-512', 'hmac-sha1', 'hmac-sha1-96'],
+          cipher: [
+            'aes128-ctr',
+            'aes192-ctr',
+            'aes256-ctr',
+            'aes128-gcm',
+            'aes128-gcm@openssh.com',
+            'aes256-gcm',
+            'aes256-gcm@openssh.com',
+            'aes256-cbc'
+          ]
+        }
       },
       config
     )

@@ -186,6 +186,9 @@ async function createWindow () {
     isMaximized: () => {
       return win.isMaximized()
     },
+    openDevTools: () => {
+      win.webContents.openDevTools()
+    },
     lookup,
     lang,
     langs,

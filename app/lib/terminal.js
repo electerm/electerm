@@ -54,15 +54,18 @@ class Terminal {
   localInit(initOptions) {
     let {
       cols,
-      rows
+      rows,
+      execWindows,
+      execMac,
+      execLinux
     } = initOptions
     let {platform} = process
     let exe = platform.startsWith('win')
       ? resolve(
         process.env.windir,
-        'System32/WindowsPowerShell/v1.0/powershell.exe'
+        execWindows
       )
-      : 'bash'
+      : platform === 'darwin' ? execMac : execLinux
     let cwd = process.env[
       platform === 'win32' ? 'USERPROFILE' : 'HOME'
     ]
@@ -89,7 +92,20 @@ class Terminal {
         {
           readyTimeout: _.get(initOptions, 'readyTimeout'),
           keepaliveInterval: _.get(initOptions, 'keepaliveInterval'),
-          agent: process.env.SSH_AUTH_SOCK
+          agent: process.env.SSH_AUTH_SOCK,
+          algorithms: {
+            hmac: ['hmac-sha2-256', 'hmac-sha2-512', 'hmac-sha1', 'hmac-sha1-96'],
+            cipher: [
+              'aes128-ctr',
+              'aes192-ctr',
+              'aes256-ctr',
+              'aes128-gcm',
+              'aes128-gcm@openssh.com',
+              'aes256-gcm',
+              'aes256-gcm@openssh.com',
+              'aes256-cbc'
+            ]
+          }
         },
         _.pick(initOptions, [
           'host',
