@@ -33,12 +33,14 @@ function renderTabs(props) {
     <div className="sub-context-menu">
       {
         props.tabs.map(item => {
+          let title = createTitle(item)
           return (
             <div
               className="sub-context-menu-item"
+              title={title}
               onClick={() => props.onChangeTabId(item.id)}
             >
-              {createTitle(item)}
+              {title}
             </div>
           )
         })
@@ -52,12 +54,14 @@ function renderHistory(props) {
     <div className="sub-context-menu">
       {
         props.history.map(item => {
+          let title = createTitle(item)
           return (
             <div
               className="sub-context-menu-item"
+              title={title}
               onClick={() => props.onSelectHistory(item.id)}
             >
-              {createTitle(item)}
+              {title}
             </div>
           )
         })
