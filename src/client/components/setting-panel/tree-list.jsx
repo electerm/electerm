@@ -54,7 +54,7 @@ export default class ItemListTree extends React.PureComponent {
 
   cancelNew = () => {
     this.setState({
-      showNewBookmarkGroupForm: '',
+      showNewBookmarkGroupForm: false,
       bookmarkGroupTitle: ''
     })
   }
@@ -359,10 +359,16 @@ export default class ItemListTree extends React.PureComponent {
   }
 
   addSubCat = (e, item) => {
-    this.setState({
-      showNewBookmarkGroupForm: false,
-      bookmarkGroupTitleSub: '',
-      bookmarkGroupSubParentId: item.id
+    this.setState(old => {
+      return {
+        showNewBookmarkGroupForm: false,
+        bookmarkGroupTitleSub: '',
+        bookmarkGroupSubParentId: item.id,
+        expandedKeys: _.uniq([
+          ...old.expandedKeys,
+          item.id
+        ])
+      }
     })
   }
 

@@ -492,19 +492,41 @@ export default class Index extends React.Component {
     if (!tobeDel) {
       return
     }
-    if (tobeDel.bookmarkIds.length) {
-      let defaultCatIndex = _.findIndex(
+    let groups = [tobeDel]
+    if (
+      tobeDel.level !== 2 &&
+      tobeDel.bookmarkGroupIds &&
+      tobeDel.bookmarkGroupIds.length > 1
+    ) {
+      let childs = bookmarkGroups.filter(
+        bg => tobeDel.bookmarkGroupIds.includes(bg.id)
+      )
+      groups = [
+        ...groups,
+        ...childs
+      ]
+    }
+    let groupIds = groups.map(g => g.id)
+    let defaultCatIndex = tobeDel.level !== 2
+      ? _.findIndex(
         bookmarkGroups,
         g => g.id === defaultookmarkGroupId
       )
-      let def = bookmarkGroups[defaultCatIndex]
-      def.bookmarkIds = [
-        ...tobeDel.bookmarkIds,
-        ...def.bookmarkIds
-      ]
+      : _.findIndex(
+        bookmarkGroups,
+        g => (g.bookmarkGroupIds || []).includes(tobeDel.id)
+      )
+    for (let g of groups) {
+      if (g.bookmarkIds.length) {
+        let def = bookmarkGroups[defaultCatIndex]
+        def.bookmarkIds = [
+          ...g.bookmarkIds,
+          ...def.bookmarkIds
+        ]
+      }
     }
     bookmarkGroups = bookmarkGroups.filter(t => {
-      return t.id !== id
+      return !groupIds.includes(t.id)
     })
     let update = {
       bookmarkGroups
