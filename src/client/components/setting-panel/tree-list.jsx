@@ -113,101 +113,72 @@ export default class ItemListTree extends React.PureComponent {
     let {
       dropToGap,
       dragNode,
-      dropPosition,
       node
     } = info
-    let dropPosArr = node.props.pos
-      .split('-')
-      .map(g => Number(g))
-    let len = dropPosArr.length
-    let dropNodePos = dropPosArr[len - 1]
-
-    // let nodePos = Number(dropPosArr[dropPosArr.length - 1])
-    // only drag from node to category
-    // or change category position
     if (
-      (
-        !dropToGap &&
-        !dragNode.props.isLeaf
-      ) ||
-      (
-        !dropToGap &&
-        dragNode.props.isLeaf &&
-        node.props.isLeaf
-      ) ||
-      (
-        !dragNode.props.isLeaf &&
-        dropPosArr.length > 2
-      )
+      dropToGap ||
+      node.props.isLeaf
     ) {
       return
     }
-    dropPosition = dropPosition > dropNodePos
-      ? dropPosition
-      : dropPosition + 1
-    let targetIndex = dropToGap
-      ? dropPosition
-      : 0
-    let {eventKey} = dragNode.props
+    let fromId = dragNode.props.eventKey
+    let toId = node.props.eventKey
+    let fromLeaf = dragNode.props.isLeaf
+    let from = fromLeaf
+      ? _.find(
+        this.props.bookmarks,
+        d => d.id === fromId
+      )
+      : _.find(
+        this.props.bookmarkGroups,
+        d => d.id === fromId
+      )
+    let to = _.find(
+      this.props.bookmarkGroups,
+      d => d.id === toId
+    )
+    if (!to || !from) {
+      return
+    }
+    if (to.level === 2 && !fromLeaf) {
+      return
+    }
+    if (from.level === 2 && to.level === 2) {
+      return
+    }
+    if (to.bookmarkIds && to.bookmarkIds.includes(from.id)) {
+      return
+    }
+    if (to.bookmarkGroupIds && to.bookmarkGroupIds.includes(from.id)) {
+      return
+    }
     let bookmarkGroups = copy(
       this.props.bookmarkGroups
     )
-
-    let changeCategoryPos = dropPosArr.length === 2
-    if (changeCategoryPos && dropToGap) {
-      let fromObj = _.find(
+    let fromGroup = fromLeaf
+      ? _.find(
         bookmarkGroups,
-        d => d.id === eventKey
+        d => (d.bookmarkIds || []).includes(fromId)
       )
-      if (!fromObj) {
-        return
-      }
-      let oldIndex = _.findIndex(
+      : _.find(
         bookmarkGroups,
-        d => d.id === eventKey
+        d => (d.bookmarkGroupIds || []).includes(fromId)
       )
-      let tobeDelIndex = oldIndex >= targetIndex
-        ? oldIndex + 1
-        : oldIndex
-      bookmarkGroups.splice(targetIndex, 0, fromObj)
-      bookmarkGroups.splice(tobeDelIndex, 1)
+    if (fromLeaf) {
+      _.remove(fromGroup.bookmarkIds, d => d === fromId)
     } else {
-      let fromObj = _.find(
-        bookmarkGroups,
-        d => d.bookmarkIds.includes(eventKey)
-      )
-      let targetObj = bookmarkGroups[dropPosArr[1]]
-      if (!targetObj || !fromObj) {
-        return
-      }
-      let oldIndex = _.findIndex(
-        fromObj.bookmarkIds,
-        d => d === eventKey
-      )
-      if (targetObj.id === fromObj.id) {
-        let tobeDelIndex = oldIndex >= targetIndex
-          ? oldIndex + 1
-          : oldIndex
-        fromObj.bookmarkIds.splice(
-          targetIndex,
-          0,
-          eventKey
-        )
-        fromObj.bookmarkIds.splice(
-          tobeDelIndex,
-          1
-        )
-      } else {
-        fromObj.bookmarkIds.splice(
-          oldIndex,
-          1
-        )
-        targetObj.bookmarkIds.splice(
-          targetIndex,
-          0,
-          eventKey
-        )
-      }
+      _.remove(fromGroup.bookmarkGroupIds, d => d === fromId)
+    }
+    let toGroup = _.find(
+      bookmarkGroups,
+      d => d.id === toId
+    )
+    if (fromLeaf) {
+      toGroup.bookmarkIds = toGroup.bookmarkIds || []
+      toGroup.bookmarkIds.unshift(fromId)
+    } else {
+      toGroup.bookmarkGroupIds = toGroup.bookmarkGroupIds || []
+      toGroup.bookmarkGroupIds.unshift(fromId)
     }
     this.props.modifyLs({
       bookmarkGroups
