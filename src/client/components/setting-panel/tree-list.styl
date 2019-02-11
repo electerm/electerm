@@ -10,20 +10,34 @@
     .ant-tree-child-tree
       span.ant-tree-switcher.ant-tree-switcher-noop
         display none
-      .ant-tree-node-content-wrapper
-        display block
-        padding-left 8px
-        width 100%
-        overflow hidden
-        white-space nowrap
-        text-overflow ellipsis
+      li.ant-tree-treenode-switcher-open
+      li.ant-tree-treenode-switcher-close
+        & > .ant-tree-switcher.ant-tree-switcher-noop
+          display inline-block
+      .ant-tree-node-content-wrapper-open
+      .ant-tree-node-content-wrapper-close
+        width calc(100% - 48px)
+        display inline-block
+      .ant-tree-child-tree
+        .ant-tree-node-content-wrapper
+          display block
+          padding-left 8px
+          width 100%
+          overflow hidden
+          white-space nowrap
+          text-overflow ellipsis
+
+
 .tree-item
   position relative
   &.is-category
     .tree-item-title
-      width calc(100% - 45px)
+      width calc(100% - 60px)
       margin-left 0
       font-weight bold
+  &.level2
+    .tree-item-title
+      width calc(100% - 45px)
   &:hover
     .list-item-del
     .list-item-edit
