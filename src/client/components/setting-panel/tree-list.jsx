@@ -40,7 +40,9 @@ export default class ItemListTree extends React.PureComponent {
       showNewBookmarkGroupForm: false,
       bookmarkGroupTitle: '',
       categoryTitle: '',
-      categoryId: ''
+      categoryId: '',
+      bookmarkGroupTitleSub: '',
+      bookmarkGroupSubParentId: ''
     }
   }
 
@@ -54,6 +56,12 @@ export default class ItemListTree extends React.PureComponent {
     this.setState({
       showNewBookmarkGroupForm: '',
       bookmarkGroupTitle: ''
+    })
+  }
+
+  cancelNewSub = () => {
+    this.setState({
+      bookmarkGroupSubParentId: ''
     })
   }
 
@@ -219,6 +227,16 @@ export default class ItemListTree extends React.PureComponent {
     })
   }
 
+  onChangeBookmarkGroupTitleSub = e => {
+    let {value} = e.target
+    if (value.length > maxBookmarkGroupTitleLength) {
+      value = value.slice(0, maxBookmarkGroupTitleLength)
+    }
+    this.setState({
+      bookmarkGroupTitleSub: value
+    })
+  }
+
   newBookmark = () => {
     this.props.onClickItem({
       id: '',
@@ -243,10 +261,51 @@ export default class ItemListTree extends React.PureComponent {
     })
   }
 
+  submitSub = () => {
+    if (this.onSubmit) {
+      return
+    }
+    this.onSubmit = true
+    let id = this.state.bookmarkGroupSubParentId
+    this.setState({
+      bookmarkGroupSubParentId: ''
+    }, () => {
+      this.onSubmit = false
+      let bookmarkGroups = copy(
+        this.props.bookmarkGroups
+      )
+      let newCat = {
+        id: generate(),
+        title: this.state.bookmarkGroupTitleSub,
+        level: 2,
+        bookmarkIds: []
+      }
+      bookmarkGroups = [
+        newCat,
+        ...bookmarkGroups
+      ]
+      let cat = _.find(
+        bookmarkGroups,
+        d => d.id === id
+      )
+      if (!cat) {
+        return
+      }
+      cat.bookmarkGroupIds = [
+        ...(cat.bookmarkGroupIds || []),
+        newCat.id
+      ]
+      this.props.modifyLs({
+        bookmarkGroups
+      })
+    })
+  }
+
   newBookmarkGroup = () => {
     this.setState({
       showNewBookmarkGroupForm: true,
-      bookmarkGroupTitle: ''
+      bookmarkGroupTitle: '',
+      bookmarkGroupSubParentId: ''
     })
   }
 
@@ -323,8 +382,31 @@ export default class ItemListTree extends React.PureComponent {
     e.stopPropagation()
     this.setState({
       categoryTitle: '' + item.title,
-      categoryId: item.id + ''
+      categoryId: item.id + '',
+      bookmarkGroupSubParentId: ''
     })
+  }
+
+  addSubCat = (e, item) => {
+    this.setState({
+      showNewBookmarkGroupForm: false,
+      bookmarkGroupTitleSub: '',
+      bookmarkGroupSubParentId: item.id
+    })
+  }
+
+  renderAddNewSubGroupBtn = item => {
+    if (this.props.staticList || item.level === 2) {
+      return null
+    }
+    return (
+      <Icon
+        type="folder-add"
+        title={`${s('new')} ${c('bookmarkCategory')}`}
+        onClick={(e) => this.addSubCat(e, item)}
+        className="pointer list-item-edit"
+      />
+    )
   }
 
   renderEditBtn = item => {
@@ -376,7 +458,8 @@ export default class ItemListTree extends React.PureComponent {
     let cls = classnames(
       'tree-item elli',
       {
-        'is-category': isGroup
+        'is-category': isGroup,
+        level2: item.level === 2
       }
     )
     let title = isGroup
@@ -395,11 +478,20 @@ export default class ItemListTree extends React.PureComponent {
         </div>
         {
           isGroup
-            ? this.renderEditBtn(item)
+            ? this.renderGroupBtns(item)
             : null
         }
         {this.renderDelBtn(item)}
       </div>
+    )
+  }
+
+  renderGroupBtns = (item) => {
+    return (
+      <span>
+        {this.renderAddNewSubGroupBtn(item)}
+        {this.renderEditBtn(item)}
+      </span>
     )
   }
 
@@ -463,6 +555,7 @@ export default class ItemListTree extends React.PureComponent {
         key={item.id}
         title={this.renderItemTitle(item, true)}
       >
+        {this.renderNewSubBookmarkGroup(item)}
         {
           bookmarkGroupIds.length
             ? this.renderGroupChildNodes(bookmarkGroupIds)
@@ -507,6 +600,44 @@ export default class ItemListTree extends React.PureComponent {
           {...this.props}
         />
       </div>
+    )
+  }
+
+  renderNewSubBookmarkGroup = item => {
+    let {
+      bookmarkGroupTitleSub,
+      bookmarkGroupSubParentId
+    } = this.state
+    if (!bookmarkGroupSubParentId || item.id !== bookmarkGroupSubParentId) {
+      return null
+    }
+    let confirm = (
+      <span>
+        <Icon
+          type="check"
+          className="pointer"
+          onClick={this.submitSub}
+        />
+        <Icon
+          type="close"
+          className="mg1l pointer"
+          onClick={this.cancelNewSub}
+        />
+      </span>
+    )
+    return (
+      <TreeNode
+        key={bookmarkGroupSubParentId}
+        isLeaf
+        title={(
+          <InputAutoFocus
+            value={bookmarkGroupTitleSub}
+            onPressEnter={this.submitSub}
+            onChange={this.onChangeBookmarkGroupTitleSub}
+            addonAfter={confirm}
+          />
+        )}
+      />
     )
   }
 
