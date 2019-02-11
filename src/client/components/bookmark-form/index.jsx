@@ -587,7 +587,7 @@ export class BookmarkForm extends React.PureComponent {
           {getFieldDecorator('category', {
             initialValue: initBookmarkGroupId
           })(
-            <Select>
+            <Select showSearch>
               {
                 bookmarkGroups.map(bg => {
                   return (
