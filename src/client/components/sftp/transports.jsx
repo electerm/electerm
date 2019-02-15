@@ -163,7 +163,7 @@ export default class Transports extends React.PureComponent {
     let {transports, isActive} = this.props
     let {currentTransport, showList} = this.state
     let percent = _.get(currentTransport, 'percent')
-    //let status = _.get(currentTransport, 'status')
+    let leftTime = _.get(currentTransport, 'leftTime')
     let pausing = _.get(currentTransport, 'pausing')
     let func = pausing
       ? this.resume
@@ -185,7 +185,7 @@ export default class Transports extends React.PureComponent {
               className="opacity-loop pointer"
               onClick={func}
             >
-              {this.renderTransportIcon()} {percent}%
+              {this.renderTransportIcon()} {percent}%({leftTime})
               <span className="mg1l">
                 [1 / {transports.length}]
               </span>
