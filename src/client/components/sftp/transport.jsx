@@ -8,7 +8,7 @@ import _ from 'lodash'
 import resolve from '../../common/resolve'
 import wait from '../../common/wait'
 import {transferTypeMap} from '../../common/constants'
-import format from './transfer-speed-format'
+import format, {leftTime} from './transfer-speed-format'
 import fs from '../../common/fs'
 
 const {prefix} = window
@@ -79,6 +79,7 @@ export default class Tranporter extends React.PureComponent {
     transport.percent = percent
     transport.status = 'active'
     transport.speed = format(transferred, this.startTime)
+    transport.leftTime = leftTime(transferred, total, this.startTime)
     this.update(transport)
   }
 
@@ -227,6 +228,7 @@ export default class Tranporter extends React.PureComponent {
       status,
       speed,
       pausing = false,
+      leftTime,
       file
     } = this.props.transport
     let pauseIcon = pausing ? 'play-circle' : 'pause-circle'
@@ -252,6 +254,11 @@ export default class Tranporter extends React.PureComponent {
         >
           {percent || 0}%
           {speed ? `(${speed})` : null}
+        </span>
+        <span
+          className={`sftp-file-percent mg1r iblock sftp-status-${status}`}
+        >
+          {leftTime || '-'}
         </span>
         <Icon
           type={pauseIcon}
