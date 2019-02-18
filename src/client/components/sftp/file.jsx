@@ -1103,7 +1103,6 @@ export default class FileSection extends React.Component {
       directory: isDirectory,
       selected
     })
-
     let props = {
       className,
       draggable,
@@ -1126,6 +1125,7 @@ export default class FileSection extends React.Component {
         {...props}
         data-id={id}
         data-type={type}
+        title={file.name}
       >
         <div className="file-bg" />
         <div className="file-props">
