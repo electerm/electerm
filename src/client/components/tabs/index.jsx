@@ -26,19 +26,35 @@ export default class Tabs extends React.Component {
     window.addEventListener('keydown', this.handleTabHotkey)
   }
 
-  componentDidUpdate() {
-    this.adjustScroll()
+  componentDidUpdate(prevState, prevProps) {
+    prevProps = prevProps || {}
+    if (
+      prevProps.currentTabId !== this.props.currentTabId ||
+      prevProps.width !== this.props.width ||
+      prevProps.map(d => d.title).join('#') !== this.props.map(d => d.title).join('#')
+    ) {
+      this.adjustScroll()
+    }
   }
 
   componentWillUnmount() {
     window.removeEventListener('keydown', this.handleTabHotkey)
   }
 
+  tabsWidth = () => {
+    return Array.from(
+      document.querySelectorAll('.tab')
+    ).reduce((prev, c) => {
+      return prev + c.clientWidth
+    }, 0)
+  }
+
   isOverflow = () => {
     let {tabs = [], width} = this.props
     let len = tabs.length
     let addBtnWidth = 22
-    let tabsWidthAll = (tabMargin + tabWidth) * len + 10
+    let tabsWidth = this.tabsWidth()
+    let tabsWidthAll = tabMargin * len + 10 + tabsWidth
     return width < (tabsWidthAll + addBtnWidth)
   }
 
@@ -62,7 +78,12 @@ export default class Tabs extends React.Component {
   adjustScroll = () => {
     let {width, tabs, currentTabId} = this.props
     let index = _.findIndex(tabs, t => t.id === currentTabId)
-    let w = (index + 1) * (tabMargin + tabWidth) + 5
+    let tabsDomWith = Array.from(
+      document.querySelectorAll('.tab')
+    ).slice(0, index + 1).reduce((prev, c) => {
+      return prev + c.clientWidth
+    }, 0)
+    let w = (index + 1) * tabMargin + 5 + tabsDomWith
     let scrollLeft = w > width - extraWidth
       ? w - width + extraWidth
       : 0
