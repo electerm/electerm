@@ -80,7 +80,7 @@ export default class Tabs extends React.Component {
     let index = _.findIndex(tabs, t => t.id === currentTabId)
     let tabsDomWith = Array.from(
       document.querySelectorAll('.tab')
-    ).slice(0, index + 1).reduce((prev, c) => {
+    ).slice(0, index + 2).reduce((prev, c) => {
       return prev + c.clientWidth
     }, 0)
     let w = (index + 1) * tabMargin + 5 + tabsDomWith
@@ -207,7 +207,7 @@ export default class Tabs extends React.Component {
   render() {
     let {tabs = [], width} = this.props
     let len = tabs.length
-    let tabsWidthAll = (tabMargin + tabWidth) * len + 10
+    let tabsWidthAll = tabMargin * len + 10 + this.tabsWidth()
     let overflow = this.isOverflow()
     //let extraw = overflow ? extraWidth : 0
     return (
