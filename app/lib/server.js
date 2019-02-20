@@ -65,6 +65,17 @@ app.ws('/terminals/:pid', function (ws, req) {
     }
   })
 
+  function onClose() {
+    term.kill()
+    log('Closed terminal ' + pid)
+    // Clean things up
+    delete terminals[pid]
+    delete logs[pid]
+    ws.close && ws.close()
+  }
+
+  term.on('close', onClose)
+
   ws.on('message', function(msg) {
     try {
       term.write(msg)
@@ -75,13 +86,7 @@ app.ws('/terminals/:pid', function (ws, req) {
 
   ws.on('error', e => console.log(e))
 
-  ws.on('close', function () {
-    term.kill()
-    log('Closed terminal ' + pid)
-    // Clean things up
-    delete terminals[pid]
-    delete logs[pid]
-  })
+  ws.on('close', onClose)
 })
 
 app.get('/run', function (req, res) {
