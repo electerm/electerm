@@ -34,7 +34,6 @@ const e = prefix('ssh')
 const m = prefix('menu')
 const f = prefix('form')
 const c = prefix('common')
-const t = prefix('terminalThemes')
 
 const authFailMsg = 'All configured authentication methods failed'
 const privateKeyMsg = 'private key detected'
@@ -385,15 +384,6 @@ export default class Term extends React.PureComponent {
           onClick={this.split}
         >
           <Icon type="border-horizontal" /> {e('split')}
-        </div>
-        <div
-          className={cls + ' with-sub-menu'}
-        >
-          {t('terminalThemes')}
-          <span className="context-sub-text">
-            <Icon type="right" />
-          </span>
-          {this.renderThemeSelect()}
         </div>
       </div>
     )
