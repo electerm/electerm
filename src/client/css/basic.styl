@@ -7,6 +7,16 @@ body
   overflow hidden
   background rgba(0,0,0,.3)
   font-size 12px
+::-webkit-scrollbar
+  background rgba(0,0,0,.5)
+
+::-webkit-scrollbar-track
+  -webkit-box-shadow none
+
+::-webkit-scrollbar-thumb
+  background-color #08c
+  outline none
+
 #content-loading
   position fixed
   left 0
@@ -28,96 +38,8 @@ body
   transition opacity 0s
 .ant-spin-container:after
   display none
-.ant-select-dropdown-menu
-.ant-dropdown-menu
-  background #555
-.ant-dropdown-menu-item
-.ant-select-dropdown-menu-item
-  color #ccc
-  &:hover
-  &.ant-select-dropdown-menu-item-selected
-  &.ant-select-dropdown-menu-item-active
-    background #222
-    color #eee
-.ant-modal-content
-  background #222
-  box-shadow 0 4px 12px rgba(255, 255, 255, 0.15)
-  h2, h1
-    color #aaa
-.ant-modal-header
-.ant-tabs-bar
-  background none
-  border-color #333
-.ant-modal-title
-.ant-modal-close
-.ant-tabs
-.ant-tree li .ant-tree-node-content-wrapper
-.ant-form-item
-.ant-form-item-control
-.ant-form-item-label label
-.ant-select-arrow
-.ant-modal
-.ant-modal-confirm-body .ant-modal-confirm-title
-  color #aaa
-.ant-input-group-addon
-.ant-input
-.ant-select
-.ant-input-number-input
-.ant-input-group
-.ant-select-selection
-.ant-checkbox-wrapper
-.ant-radio-button-wrapper
-.ant-input-number
-  color #aaa
-  border-color #333
+.ant-tree li .ant-tree-node-content-wrapper.ant-tree-node-selected
   background #000
-.ant-radio-button-wrapper-checked
-  background #1890ff
-  border-color #1890ff
-  color #eee
-.ant-tabs.ant-tabs-card .ant-tabs-card-bar .ant-tabs-tab
-  color #999
-  border-color #333
-  background #555
-.ant-tabs.ant-tabs-card .ant-tabs-card-bar .ant-tabs-tab-active
-  color #fff
-  background #333
-.ant-btn
-  background #444
-  color #bbb
-  border-color #333
-.ant-btn:hover, .ant-btn:focus, .ant-btn:active, .ant-btn.active
-  background #000
-.ant-btn-ghost
-  color #bbb
-  border-color #333
-.ant-btn-primary
-  color #ddd
-  background-color #1890ff
-  border-color #1890ff
-.ant-switch:after
-  background #777
-.ant-switch-inner
-  color #777
-.ant-switch-checked
-  &:after
-    background #fff
-  .ant-switch-inner
-    color #fff
-.ant-tree li .ant-tree-node-content-wrapper:hover
-  background #000
-.ant-modal-close:focus, .ant-modal-close:hover
-  color #eee
-.ant-btn-ghost.disabled, .ant-btn-ghost[disabled], .ant-btn-ghost.disabled:hover, .ant-btn-ghost[disabled]:hover, .ant-btn-ghost.disabled:focus, .ant-btn-ghost[disabled]:focus, .ant-btn-ghost.disabled:active, .ant-btn-ghost[disabled]:active, .ant-btn-ghost.disabled.active, .ant-btn-ghost[disabled].active
-  color #777
-  background-color #555
-  border-color: #666
-.ant-modal-footer
-  border-color #333
-.ant-btn-primary:hover, .ant-btn-primary:focus
-  color #fff
-  background-color #40a9ff
-  border-color #40a9ff
 
 
 // from https://coderwall.com/p/m-uwvg/css-background-noise
