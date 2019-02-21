@@ -3,6 +3,7 @@
  */
 
 import {memo} from 'react'
+import {Icon} from 'antd'
 
 function onClick(e, href) {
   e.preventDefault()
@@ -17,7 +18,7 @@ export default memo(props => {
       onClick={e => onClick(e, to)}
       {...rest}
     >
-      {children}
+      {children} <Icon type="link" />
     </a>
   )
 })
