@@ -7,6 +7,19 @@ body
   overflow hidden
   background rgba(0,0,0,.3)
   font-size 12px
+::-webkit-scrollbar
+  background rgba(0,0,0,.5)
+
+::-webkit-scrollbar-track
+  -webkit-box-shadow none
+
+::-webkit-scrollbar-thumb
+  background-color #08c
+  outline none
+
+.ant-input::placeholder
+  color #777
+
 #content-loading
   position fixed
   left 0
@@ -28,17 +41,9 @@ body
   transition opacity 0s
 .ant-spin-container:after
   display none
-.ant-select-dropdown-menu
-.ant-dropdown-menu
-  background #555
-.ant-dropdown-menu-item
-.ant-select-dropdown-menu-item
-  color #ccc
-  &:hover
-  &.ant-select-dropdown-menu-item-selected
-  &.ant-select-dropdown-menu-item-active
-    background #222
-    color #eee
+.ant-tree li .ant-tree-node-content-wrapper.ant-tree-node-selected
+  background #000
+
 
 // from https://coderwall.com/p/m-uwvg/css-background-noise
 .noise
