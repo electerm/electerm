@@ -43,7 +43,7 @@ export default memo((props) => {
         </div>
       </div>
       <div className="pd2x">
-        <BookmarkSelect props={props} />
+        <BookmarkSelect {...props} />
       </div>
     </div>
   )
