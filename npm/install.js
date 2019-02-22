@@ -14,7 +14,7 @@ const versionUrl = 'https://electerm.html5beta.com/version.html?_=' + (+new Date
 
 function down (url, extract = true) {
   let local = resolve(__dirname, '../')
-  console.log('dowmloading ' + url)
+  console.log('downloading ' + url)
   return download(url, local, {extract}).then(() => {
     console.log('done!')
   })
