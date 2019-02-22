@@ -5,16 +5,18 @@
 
 import React from 'react'
 import _ from 'lodash'
-import {Icon, Dropdown, Menu} from 'antd'
+import {Icon, Dropdown, Menu, Popover} from 'antd'
 import Tab from './tab'
 import './tabs.styl'
 import {tabWidth, tabMargin} from '../../common/constants'
 import createName from '../../common/create-title'
 import WindowControl from './window-control'
+import BookmarksList from '../sidebar/bookmark-select'
 
 const {prefix} = window
 const e = prefix('tabs')
 const c = prefix('control')
+const t = prefix('tabs')
 const MenuItem = Menu.Item
 const extraWidth = 113
 
@@ -131,50 +133,42 @@ export default class Tabs extends React.Component {
     )
   }
 
-  renderAddContext() {
+  renderMenus() {
     let {onNewSsh, addTab} = this.props
     let cls = 'pd2x pd1y context-item pointer'
     return (
-      <div>
+      <div className="add-menu-wrap">
         <div
           className={cls}
           onClick={() => addTab()}
         >
-          <Icon type="code-o" /> {e('newTab')}
+          <Icon type="code" theme="filled" /> {c('newSsh')}
         </div>
         <div
           className={cls}
           onClick={onNewSsh}
         >
-          <Icon type="code-o" /> {c('newSsh')}
+          <Icon type="right-square" theme="filled" /> {t('newTab')}
         </div>
+        <BookmarksList
+          {...this.props}
+        />
       </div>
     )
   }
 
-  onContextMenu = e => {
-    e.preventDefault()
-    let {target} = e
-    let rect = target.getBoundingClientRect()
-    let content = this.renderAddContext()
-    this.props.openContextMenu({
-      content,
-      pos: {
-        left: rect.left,
-        top: rect.top + 20
-      }
-    })
-  }
-
   renderAddBtn = () => {
     return (
-      <Icon
-        type="plus-circle-o"
-        title={e('openNewTerm')}
-        className="pointer tabs-add-btn font16"
-        onClick={() => this.props.addTab()}
-        onContextMenu={this.onContextMenu}
-      />
+      <Popover
+        content={this.renderMenus()}
+      >
+        <Icon
+          type="plus-circle-o"
+          title={e('openNewTerm')}
+          className="pointer tabs-add-btn font16"
+          onClick={() => this.props.addTab()}
+        />
+      </Popover>
     )
   }
 
