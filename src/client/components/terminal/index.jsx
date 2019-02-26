@@ -14,7 +14,8 @@ import {
   typeMap,
   isWin,
   contextMenuWidth,
-  terminalSshConfigType
+  terminalSshConfigType,
+  ctrlOrCmd
 } from '../../common/constants'
 import deepCopy from 'json-deep-copy'
 import {readClipboard, copy} from '../../common/clipboard'
@@ -352,14 +353,14 @@ export default class Term extends React.PureComponent {
           onClick={hasSlected ? this.onCopy : _.noop}
         >
           <Icon type="copy" /> {m('copy')}
-          <span className="context-sub-text">(ctrl+shift+C)</span>
+          <span className="context-sub-text">({ctrlOrCmd}+shift+C)</span>
         </div>
         <div
           className={clsPaste}
           onClick={copyed ? this.onPaste : _.noop}
         >
           <Icon type="switcher" /> {m('paste')}
-          <span className="context-sub-text">(ctrl+shift+V)</span>
+          <span className="context-sub-text">({ctrlOrCmd}+shift+V)</span>
         </div>
         <div
           className={cls}

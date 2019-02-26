@@ -61,7 +61,7 @@ export const tabsHeight = 56
 const platform = window.getGlobal('os').platform()
 export const isWin = platform.startsWith('win')
 export const isMac = platform.startsWith('darwin')
-
+export const ctrlOrCmd = isMac ? 'cmd' : 'ctrl'
 export const typeMap = buildConst([
   'remote',
   'local'

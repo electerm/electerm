@@ -3,7 +3,7 @@
  */
 
 import {Icon} from 'antd'
-import {isMac} from '../../common/constants'
+import {ctrlOrCmd} from '../../common/constants'
 import createTitle from '../../common/create-title'
 import './menu.styl'
 
@@ -25,8 +25,6 @@ const s = prefix('setting')
 // }
 
 const logo = require('node_modules/@electerm/electerm-resource/res/imgs/electerm.svg').replace(/^\//, '')
-
-const ctrolOrCmd = isMac ? 'CMD' : 'Control'
 
 function renderTabs(props) {
   return (
@@ -80,7 +78,7 @@ function renderContext(props) {
         onClick={props.onNewSsh}
       >
         <Icon type="code" theme="filled" /> {e('newSsh')}
-        <span className="context-sub-text">{ctrolOrCmd}+N</span>
+        <span className="context-sub-text">{ctrlOrCmd}+N</span>
       </div>
       <div
         className={cls}
