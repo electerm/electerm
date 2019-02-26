@@ -20,7 +20,7 @@ import {
   contextMenuHeight, contextMenuPaddingTop,
   isWin, transferTypeMap, typeMap,
   contextMenuWidth, fileOpTypeMap,
-  isMac, maxEditFileSize
+  isMac, maxEditFileSize, ctrlOrCmd
 } from '../../common/constants'
 import findParent from '../../common/find-parent'
 import sorter from '../../common/index-sorter'
@@ -889,12 +889,7 @@ export default class FileSection extends React.Component {
               >
                 <Icon type="copy" /> {m('copy')}
                 <span className="context-sub-text">
-                  {
-                    isMac
-                      ? 'cmd'
-                      : 'ctrl'
-                  }
-                  +c
+                  {ctrlOrCmd}+c
                 </span>
               </div>
             )
@@ -910,12 +905,7 @@ export default class FileSection extends React.Component {
               >
                 <Icon type="file-excel" /> {m('cut')}
                 <span className="context-sub-text">
-                  {
-                    isMac
-                      ? 'cmd'
-                      : 'ctrl'
-                  }
-                  +x
+                  {ctrlOrCmd}+x
                 </span>
               </div>
             )
@@ -928,12 +918,7 @@ export default class FileSection extends React.Component {
         >
           <Icon type="copy" /> {m('paste')}
           <span className="context-sub-text">
-            {
-              isMac
-                ? 'cmd'
-                : 'ctrl'
-            }
-            +v
+            {ctrlOrCmd}+v
           </span>
         </div>
         {
@@ -966,12 +951,7 @@ export default class FileSection extends React.Component {
         >
           <Icon type="check-square-o" /> {e('selectAll')}
           <span className="context-sub-text">
-            {
-              isMac
-                ? 'cmd'
-                : 'ctrl'
-            }
-            +a
+            {ctrlOrCmd}+a
           </span>
         </div>
         <div

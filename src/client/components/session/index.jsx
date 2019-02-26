@@ -13,7 +13,7 @@ import classnames from 'classnames'
 import {
   tabsHeight,
   terminalSplitDirectionMap, termControlHeight,
-  paneMap, terminalSshConfigType
+  paneMap, terminalSshConfigType, ctrlOrCmd
 } from '../../common/constants'
 import ResizeWrap from '../common/resize-wrap'
 import keyControlPressed from '../../common/key-control-pressed'
@@ -316,7 +316,7 @@ export default class WindowWrapper extends React.PureComponent  {
                   type={icon1}
                   className={cls1}
                   onClick={this.doSplit}
-                  title={e('split') + '(Ctrl + /)'}
+                  title={`${e('split')}(${ctrlOrCmd} + /)`}
                 />
                 <Icon
                   type={icon2}
