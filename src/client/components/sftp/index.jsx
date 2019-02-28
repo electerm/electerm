@@ -2,6 +2,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 import {generate} from 'shortid'
+import {mergeProxy} from '../../common/merge-proxy'
 import {Input, Icon, Tooltip, Spin, Modal} from  'antd'
 import _ from 'lodash'
 import Transports from './transports'
@@ -473,6 +474,7 @@ export default class Sftp extends React.Component {
           ...tab,
           readyTimeout: _.get(config, 'sshReadyTimeout'),
           keepaliveInterval: _.get(config, 'keepaliveInterval'),
+          proxy: mergeProxy(config, tab),
           ...sessionOptions
         })
       }

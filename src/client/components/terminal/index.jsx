@@ -1,6 +1,7 @@
 
 import React from 'react'
 import fetch, {handleErr} from '../../common/fetch'
+import {mergeProxy} from '../../common/merge-proxy'
 import {generate} from 'shortid'
 import _ from 'lodash'
 import {Spin, Icon, Modal, Button, Checkbox} from 'antd'
@@ -498,6 +499,7 @@ export default class Term extends React.PureComponent {
         'execMac',
         'execLinux'
       ]),
+      proxy: mergeProxy(config, tab),
       type: tab.host && !isSshConfig
         ? typeMap.remote
         : typeMap.local
