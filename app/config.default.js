@@ -31,7 +31,8 @@ module.exports = function() {
         fontFamily: 'mono, courier-new, courier, monospace',
         execWindows: 'System32/WindowsPowerShell/v1.0/powershell.exe',
         execMac: 'bash',
-        execLinux: 'bash'
+        execLinux: 'bash',
+        enableGlobalProxy: false
       }
       let conf = {
         port: freePort,
@@ -42,7 +43,10 @@ module.exports = function() {
         ...defaultSettings,
         defaultSettings,
         terminalTimeout: 5000,
-        opacity: 1
+        opacity: 1,
+        proxyPort: 1080,
+        proxyType: '5',
+        proxyIp: '127.0.0.1'
       }
       extend(conf, override)
       extend(conf, userConfig)

@@ -7,9 +7,11 @@ import {
 } from 'antd'
 import deepCopy from 'json-deep-copy'
 
+const InputGroup = Input.Group
 const {Option} = Select
 const {getGlobal, prefix} = window
 const e = prefix('setting')
+const f = prefix('form')
 const s = prefix('ssh')
 const t = prefix('terminalThemes')
 const modifiers = [
@@ -202,6 +204,65 @@ export default class Setting extends React.PureComponent {
     )
   }
 
+  renderProxy() {
+    let {
+      enableGlobalProxy,
+      proxyPort,
+      proxyType,
+      proxyIp
+    } = this.props.config
+    return (
+      <div className="pd1b">
+        <div className="pd1b">
+          <span className="pd1r">
+            {e('global')} {f('proxy')}
+          </span>
+          <Switch
+            checked={enableGlobalProxy}
+            onChange={v => {
+              this.onChangeValue(v, 'enableGlobalProxy')
+            }}
+          />
+        </div>
+        <div className="pd2b">
+          <InputGroup compact>
+            <Select
+              value={proxyType}
+              disabled={!enableGlobalProxy}
+              onChange={v => {
+                this.onChangeValue(v, 'proxyType')
+              }}
+            >
+              <Option value="5">sock5</Option>
+              <Option value="4">sock4</Option>
+            </Select>
+            <Input
+              style={{ width: '65%' }}
+              value={proxyIp}
+              placeholder={f('proxyIp')}
+              disabled={!enableGlobalProxy}
+              onChange={e => {
+                this.onChangeValue(
+                  e.target.value, 'proxyIp'
+                )
+              }}
+            />
+            <InputNumber
+              value={proxyPort}
+              placeholder={f('proxyPort')}
+              disabled={!enableGlobalProxy}
+              onChange={v => {
+                this.onChangeValue(
+                  v, 'proxyPort'
+                )
+              }}
+            />
+          </InputGroup>
+        </div>
+      </div>
+    )
+  }
+
   render() {
     let {
       hotkey,
@@ -239,6 +300,7 @@ export default class Setting extends React.PureComponent {
             }
           </Select>
         </div>
+        {this.renderProxy()}
         <div className="pd1b">{e('scrollBackDesc')}</div>
         {
           this.renderNumber('scrollback', {
