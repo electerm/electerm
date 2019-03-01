@@ -596,28 +596,33 @@ export default class FileSection extends React.Component {
       .catch(this.props.onError)
   }
 
-  transferOrEnterDirectory = async (e) => {
+  transferOrEnterDirectory = async (e, edit) => {
     let {file} = this.state
     let {isDirectory, type, id, size} = file
     if (isDirectory) {
       return this.enterDirectory(e)
     }
-    if (type === typeMap.local) {
+    if (!edit && type === typeMap.local) {
       return this.openFile(this.state.file)
     }
-    if (_.get(this.props, 'tab.host')) {
-      if (size > maxEditFileSize) {
-        return this.transfer()
-      }
-      this.props.rootModifier({
+    if (
+      edit ||
+      (!edit && type === typeMap.remote && size < maxEditFileSize)
+    ) {
+      return this.props.rootModifier({
         textEditorProps: {
           visible: true,
           id,
           sftp: this.props.sftp,
           file,
-          afterWrite: this.props.remoteList
+          afterWrite: this.props[`${type}List`]
         }
       })
+    }
+    if (
+      _.get(this.props, 'tab.host')
+    ) {
+      this.transfer()
     }
   }
 
@@ -850,12 +855,13 @@ export default class FileSection extends React.Component {
         }
         {
           !isDirectory && id &&
-          type === typeMap.remote &&
           size < maxEditFileSize
             ? (
               <div
                 className={cls}
-                onClick={this.transferOrEnterDirectory}
+                onClick={
+                  e => this.transferOrEnterDirectory(e, true)
+                }
               >
                 <Icon type="edit" /> {e('edit')}
               </div>

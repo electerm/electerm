@@ -129,6 +129,20 @@ const fsExport = Object.assign(
             isSymbolicLink: res.isSymbolicLink()
           }))
         })
+    },
+    readFile: (...args) => {
+      return fss.readFileAsync(...args)
+        .then(res => {
+          return res.toString()
+        })
+    },
+    writeFile: (path, txt, mode) => {
+      return fss.writeFileAsync(path, txt, {mode})
+        .then(() => true)
+        .catch((e) => {
+          console.log(e)
+          return false
+        })
     }
   }
 )
@@ -146,6 +160,8 @@ const fsFunctions = [
   'unlinkAsync',
   'rmrf',
   'readdirAsync',
+  'readFile',
+  'writeFile',
   'openFile'
 ]
 

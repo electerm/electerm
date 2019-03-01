@@ -3,6 +3,7 @@
  */
 
 import React from 'react'
+import fs from '../../common/fs'
 import {
   Form, Button, Input,
   Spin,
@@ -10,6 +11,7 @@ import {
 } from 'antd'
 import {validateFieldsAndScroll} from '../../common/dec-validate-and-scroll'
 import resolve from '../../common/resolve'
+import {typeMap} from '../../common/constants'
 
 const FormItem = Form.Item
 const {prefix} = window
@@ -39,14 +41,17 @@ export class TextEditorForm extends React.PureComponent {
       sftp,
       file: {
         path,
-        name
+        name,
+        type
       }
     } = this.props
     let p = resolve(path, name)
     this.setState({
       path: p
     })
-    let text = await sftp.readFile(p)
+    let text = typeMap.remote === type
+      ? await sftp.readFile(p)
+      : await fs.readFile(p)
     this.setState({
       text: text || '',
       loading: false
@@ -65,11 +70,24 @@ export class TextEditorForm extends React.PureComponent {
     if (res.text === this.state.text) {
       return this.cancel()
     }
-    let r = await this.props.sftp.writeFile(
-      this.state.path,
-      res.text,
-      this.props.file.mode
-    )
+    let {
+      sftp,
+      file: {
+        type,
+        mode
+      }
+    } = this.props
+    let r = typeMap.remote === type
+      ? await sftp.writeFile(
+        this.state.path,
+        res.text,
+        mode
+      )
+      : await fs.writeFile(
+        this.state.path,
+        res.text,
+        mode
+      )
     r && this.props.afterWrite()
     this.cancel()
   }
