@@ -602,22 +602,27 @@ export default class FileSection extends React.Component {
     if (isDirectory) {
       return this.enterDirectory(e)
     }
-    if (_.get(this.props, 'tab.host')) {
-      if (edit || size < maxEditFileSize) {
-        this.props.rootModifier({
-          textEditorProps: {
-            visible: true,
-            id,
-            sftp: this.props.sftp,
-            file,
-            afterWrite: this.props.remoteList
-          }
-        })
-      }
-      return this.transfer()
-    }
-    if (type === typeMap.local) {
+    if (!edit && type === typeMap.local) {
       return this.openFile(this.state.file)
+    }
+    if (
+      edit ||
+      (!edit && type === typeMap.remote && size < maxEditFileSize)
+    ) {
+      return this.props.rootModifier({
+        textEditorProps: {
+          visible: true,
+          id,
+          sftp: this.props.sftp,
+          file,
+          afterWrite: this.props[`${type}List`]
+        }
+      })
+    }
+    if (
+      _.get(this.props, 'tab.host')
+    ) {
+      this.transfer()
     }
   }
 
@@ -850,7 +855,6 @@ export default class FileSection extends React.Component {
         }
         {
           !isDirectory && id &&
-          type === typeMap.remote &&
           size < maxEditFileSize
             ? (
               <div
