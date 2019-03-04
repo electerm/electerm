@@ -41,7 +41,7 @@ export default memo((props) => {
       }
     ]
     : bookmarkGroups
-  return bookmarkGroups.filter(d => !d.level !== 2).length > 1
+  return bookmarkGroups.filter(d => d.level !== 2).length > 1
     ? (
       <TreeList
         {...props}

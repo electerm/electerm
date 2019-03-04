@@ -496,7 +496,7 @@ export default class Index extends React.Component {
     if (
       tobeDel.level !== 2 &&
       tobeDel.bookmarkGroupIds &&
-      tobeDel.bookmarkGroupIds.length > 1
+      tobeDel.bookmarkGroupIds.length > 0
     ) {
       let childs = bookmarkGroups.filter(
         bg => tobeDel.bookmarkGroupIds.includes(bg.id)
