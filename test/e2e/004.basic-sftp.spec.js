@@ -41,6 +41,8 @@ describe('sftp basic', function () {
     const {client} = this.app
 
     await client.waitUntilWindowLoaded()
+    let bookmarkCountPrev = await client.elements('.sidebar-list .bookmarks-panel .item-list-unit')
+    let historyCountPrev = await client.elements('.sidebar-list .history-panel .item-list-unit')
     await delay(500)
     await client.click('.btns .anticon-plus-circle')
     await delay(500)
@@ -63,6 +65,16 @@ describe('sftp basic', function () {
       document.querySelectorAll('.ssh-wrap-show .term-sftp-tabs .type-tab')[1].click()
     })
     await delay(2500)
+
+    //bookmark side panel works
+    let bookmarkCount = await client.elements('.sidebar-list .bookmarks-panel .item-list-unit')
+
+    expect(bookmarkCount.value.length).equal(bookmarkCountPrev.value.length + 1)
+
+    //bookmark side panel works
+    let historyCount = await client.elements('.sidebar-list .history-panel .item-list-unit')
+
+    expect(historyCount.value.length).equal(historyCountPrev.value.length + 1)
 
     //make a local folder
     let localFileListBefore = await client.elements('.ssh-wrap-show .file-list.local .sftp-item')
