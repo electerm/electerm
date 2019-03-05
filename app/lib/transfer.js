@@ -3,7 +3,7 @@
  */
 
 
-const fs = require('fs')
+const fs = require('original-fs')
 const _ = require('lodash')
 
 class Transfer {
