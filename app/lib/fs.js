@@ -4,7 +4,7 @@ const {exec} = require('child_process')
 const os = require('os')
 const isWin = os.platform() === 'win32'
 const isMac = os.platform() === 'darwin'
-const fs = require('fs')
+const fs = require('original-fs')
 const fss = Promise.promisifyAll(fs)
 /**
  * run cmd
