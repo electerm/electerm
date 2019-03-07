@@ -50,7 +50,7 @@ npm i -g electerm
 
 ## Support
 
-Without users's feebacks/suggestions, this project would not get this far, would love to hear from you, please tell me what you think, [submit an issue](https://github.com/electerm/electerm/issues) or [send me an email](mailto:zxdong@gmail.com).
+Without users's feebacks/suggestions, this project would not get this far, would love to hear from you, please tell me what you think, [submit an issue](https://github.com/electerm/electerm/issues), [send me an email](mailto:zxdong@gmail.com), or [create a language file](https://github.com/electerm/electerm-locales).
 
 ## Dev
 
@@ -98,7 +98,7 @@ npm run release -l
 
 - [Set autorun when login to os](https://github.com/electerm/electerm/wiki/autorun-electerm-when-login-to-os)
 
-## Changelog
+## Change log
 
 Visit [Releases](https://github.com/electerm/electerm/releases)
 
