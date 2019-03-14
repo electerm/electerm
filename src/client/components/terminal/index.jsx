@@ -56,6 +56,15 @@ const computePos = (e, height) => {
   return res
 }
 
+function str2ab(str) {
+  var buf = new ArrayBuffer(str.length*2) // 2 bytes for each char
+  var bufView = new Uint16Array(buf)
+  for (var i=0, strLen=str.length; i<strLen; i++) {
+    bufView[i] = str.charCodeAt(i)
+  }
+  return buf
+}
+
 export default class Term extends React.PureComponent {
 
   constructor(props) {
@@ -482,7 +491,10 @@ export default class Term extends React.PureComponent {
     let wsUrl
     let url = `http://${host}:${port}/terminals`
     let {tab = {}} = this.props
-    let {startPath, srcId, from = 'bookmarks', type, loginScript} = tab
+    let {
+      startPath, srcId, from = 'bookmarks', type, loginScript,
+      encode = 'utf-8'
+    } = tab
     let {savePassword} = this.state
     let isSshConfig = type === terminalSshConfigType
     let extra = this.props.sessionOptions
@@ -556,7 +568,6 @@ export default class Term extends React.PureComponent {
     this.socket = socket
     term.on('refresh', this.onRefresh)
     term.on('resize', this.onResizeTerminal)
-
     let cid = _.get(this.props, 'currentTabId')
     let tid = _.get(this.props, 'tab.id')
     if (cid === tid && this.props.tab.status === statusMap.success) {
@@ -566,6 +577,14 @@ export default class Term extends React.PureComponent {
     term.attachCustomKeyEventHandler(this.handleEvent)
     this.term = term
     this.startPath = startPath
+    this.decoder = new TextDecoder('gb18030')
+    console.log('en', encode)
+    let oldWrite = this.term.write
+    this.term.write = (data) => {
+      let buf = str2ab(data)
+      let str = this.decoder.decode(buf)
+      oldWrite.call(this.term, str)
+    }
     if (startPath || loginScript || isSshConfig) {
       this.startPath = startPath
       this.timers.timer1 = setTimeout(this.initData, 10)
