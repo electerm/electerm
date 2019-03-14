@@ -6,16 +6,40 @@ import {Popover, Icon} from 'antd'
 import Transport from './transport'
 import _ from 'lodash'
 import copy from 'json-deep-copy'
+import {maxTransport} from '../../common/constants'
 
 const {prefix} = window
 const e = prefix('sftp')
+
+function getFirstTransports(transports) {
+  let trans = _.isArray(transports)
+    ? transports
+    : []
+  let first = trans[0]
+  if (!first) {
+    return []
+  }
+  if (first.file.isDirectory) {
+    return [first]
+  }
+  let res = []
+  for (let i = 0;i < maxTransport;i ++) {
+    let f = trans[i]
+    if (!f.file.isDirectory) {
+      res.push(f)
+    } else {
+      break
+    }
+  }
+  return res
+}
 
 export default class Transports extends React.PureComponent {
 
   constructor(props) {
     super(props)
     this.state = {
-      currentTransport: props.transports[0] || null,
+      currentTransports: getFirstTransports(props.transports),
       showList: false
     }
   }
@@ -51,13 +75,17 @@ export default class Transports extends React.PureComponent {
   }
 
   pause = () => {
-    let {id} = this.state.currentTransport
-    this[`ref__${id}`].pause()
+    window.postMessage({
+      action: 'pause-transport',
+      ids: this.state.currentTransports.map(d => d.id)
+    }, '*')
   }
 
   resume = () => {
-    let {id} = this.state.currentTransport
-    this[`ref__${id}`].resume()
+    window.postMessage({
+      action: 'resume-transport',
+      ids: this.state.currentTransports.map(d => d.id)
+    }, '*')
   }
 
   modifyAsync = (data) => {
@@ -67,11 +95,10 @@ export default class Transports extends React.PureComponent {
   }
 
   cancelAll = async () => {
-    this.pause()
-    Object.keys(this).filter(k => k.includes('ref__'))
-      .forEach(k => {
-        this[k].onCancel = true
-      })
+    window.postMessage({
+      action: 'cancel-transport',
+      ids: this.state.currentTransports.map(d => d.id)
+    }, '*')
     this.timer = setTimeout(() => {
       this.props.modifier({
         transports: []
@@ -81,8 +108,8 @@ export default class Transports extends React.PureComponent {
 
   rebuildState = (nextProps = this.props) => {
     let {transports} = nextProps
-    let {currentTransport} = this.state
-    let has = _.find(transports, t => t.id === _.get(currentTransport, 'id'))
+    let {currentTransports} = this.state
+    let has = _.find(transports, t => t.id === _.get(currentTransports, 'id'))
     if (!has) {
       let cur = transports[0] || null
       this.setState({
@@ -90,7 +117,7 @@ export default class Transports extends React.PureComponent {
         showList: !!cur
       })
     } else {
-      let showList = currentTransport.id !== has.id
+      let showList = currentTransports.id !== has.id
       let update = {
         currentTransport: copy(has)
       }
