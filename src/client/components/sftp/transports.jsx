@@ -11,7 +11,7 @@ import {maxTransport} from '../../common/constants'
 const {prefix} = window
 const e = prefix('sftp')
 
-function getFirstTransports(transports) {
+function getFirstTransports(transports, max = maxTransport) {
   let trans = _.isArray(transports)
     ? transports
     : []
@@ -23,7 +23,7 @@ function getFirstTransports(transports) {
     return [first]
   }
   let res = []
-  for (let i = 0;i < maxTransport;i ++) {
+  for (let i = 0;i < max;i ++) {
     let f = trans[i]
     if (!f.file.isDirectory) {
       res.push(f)
@@ -107,25 +107,27 @@ export default class Transports extends React.PureComponent {
   }
 
   rebuildState = (nextProps = this.props) => {
-    let {transports} = nextProps
-    let {currentTransports} = this.state
-    let has = _.find(transports, t => t.id === _.get(currentTransports, 'id'))
-    if (!has) {
-      let cur = transports[0] || null
-      this.setState({
-        currentTransport: copy(cur),
-        showList: !!cur
-      })
-    } else {
-      let showList = currentTransports.id !== has.id
-      let update = {
-        currentTransport: copy(has)
+    let transports = copy(nextProps.transports)
+    let currentTransports = copy(this.state.currentTransports)
+    let idsAll = transports.map(d => d.id)
+    currentTransports = currentTransports.filter(c => {
+      return idsAll.includes(c.id)
+    })
+    let cids = currentTransports.map(c => c.id)
+    let max = maxTransport - cids.length
+    transports = transports.filter(t => {
+      return !cids.includes(t.id)
+    })
+    transports = getFirstTransports(transports, max)
+    currentTransports = [
+      ...currentTransports,
+      ...transports
+    ]
+    this.setState(() => {
+      return {
+        currentTransports
       }
-      if (showList) {
-        update.showList = true
-      }
-      this.setState(update)
-    }
+    })
   }
 
   renderContent = () => {
