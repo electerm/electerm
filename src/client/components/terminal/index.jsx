@@ -23,6 +23,9 @@ import {readClipboard, copy} from '../../common/clipboard'
 import * as fit from 'xterm/lib/addons/fit/fit'
 import * as attach from 'xterm/lib/addons/attach/attach'
 import * as search from 'xterm/lib/addons/search/search'
+import * as webLinks from 'xterm/lib/addons/webLinks/webLinks'
+import * as winptyCompat from 'xterm/lib/addons/winptyCompat/winptyCompat'
+//import * as zmodem from 'xterm/lib/addons/zmodem/zmodem'
 import keyControlPressed from '../../common/key-control-pressed'
 
 import { Terminal } from 'xterm'
@@ -30,6 +33,9 @@ import { Terminal } from 'xterm'
 Terminal.applyAddon(fit)
 Terminal.applyAddon(attach)
 Terminal.applyAddon(search)
+Terminal.applyAddon(webLinks)
+Terminal.applyAddon(winptyCompat)
+//Terminal.applyAddon(zmodem)
 
 const {prefix} = window
 const e = prefix('ssh')
@@ -560,6 +566,10 @@ export default class Term extends React.PureComponent {
     let cid = _.get(this.props, 'currentTabId')
     let tid = _.get(this.props, 'tab.id')
     if (cid === tid && this.props.tab.status === statusMap.success) {
+      if (isWin) {
+        term.winptyCompatInit()
+      }
+      term.webLinksInit()
       term.focus()
       term.fit()
     }

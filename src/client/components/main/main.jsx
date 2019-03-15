@@ -377,6 +377,9 @@ export default class Index extends React.Component {
   editItem = (id, update, type, mod = this.setStateLs) => {
     let items = copy(this.state[type])
     let item = _.find(items, t => t.id === id)
+    if (!item) {
+      return
+    }
     let index = _.findIndex(items, t => t.id === id)
     Object.assign(item, update)
     items.splice(index, 1, item)
