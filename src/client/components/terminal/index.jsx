@@ -56,15 +56,6 @@ const computePos = (e, height) => {
   return res
 }
 
-function str2ab(str) {
-  var buf = new ArrayBuffer(str.length*2) // 2 bytes for each char
-  var bufView = new Uint16Array(buf)
-  for (var i=0, strLen=str.length; i<strLen; i++) {
-    bufView[i] = str.charCodeAt(i)
-  }
-  return buf
-}
-
 export default class Term extends React.PureComponent {
 
   constructor(props) {
@@ -492,8 +483,7 @@ export default class Term extends React.PureComponent {
     let url = `http://${host}:${port}/terminals`
     let {tab = {}} = this.props
     let {
-      startPath, srcId, from = 'bookmarks', type, loginScript,
-      encode = 'utf-8'
+      startPath, srcId, from = 'bookmarks', type, loginScript
     } = tab
     let {savePassword} = this.state
     let isSshConfig = type === terminalSshConfigType
@@ -578,13 +568,14 @@ export default class Term extends React.PureComponent {
     this.term = term
     this.startPath = startPath
     this.decoder = new TextDecoder('gb18030')
-    console.log('en', encode)
-    let oldWrite = this.term.write
-    this.term.write = (data) => {
-      let buf = str2ab(data)
-      let str = this.decoder.decode(buf)
-      oldWrite.call(this.term, str)
-    }
+    console.log(this.term)
+    // console.log('en', encode)
+    // let oldWrite = this.term.write
+    // this.term.write = (data) => {
+    //   console.log(typeof data, 'ddd')
+    //   let str = this.decoder.decode(data)
+    //   oldWrite.call(this.term, str)
+    // }
     if (startPath || loginScript || isSshConfig) {
       this.startPath = startPath
       this.timers.timer1 = setTimeout(this.initData, 10)

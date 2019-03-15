@@ -27,9 +27,11 @@ app.post('/terminals', async function (req, res) {
   if (pid) {
     log('Created terminal with PID:', pid)
     terminals[pid] = term
-    logs[pid] = ''
+    logs[pid] = Buffer.from('')
     term.on('data', function(data) {
-      logs[pid] += data.toString()
+      logs[pid] = Buffer.concat([
+        logs[pid], Buffer.from(data)
+      ])
     })
     res.end(pid)
   } else {
@@ -58,8 +60,9 @@ app.ws('/terminals/:pid', function (ws, req) {
   ws.send(logs[pid])
 
   term.on('data', function(data) {
+    console.log(typeof data)
     try {
-      ws.send(data.toString())
+      ws.send(data)
     } catch (ex) {
       // The WebSocket is not open, ignore
     }

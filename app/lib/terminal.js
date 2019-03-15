@@ -199,10 +199,6 @@ class Terminal {
                   return reject(err)
                 }
                 this.channel = channel
-                this.channel.setEncoding('utf8')
-                this.channel.on('data', d => {
-                  console.log(d, '========')
-                })
                 resolve(true)
               }
             )
