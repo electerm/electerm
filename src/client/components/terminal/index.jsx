@@ -25,7 +25,7 @@ import * as attach from 'xterm/lib/addons/attach/attach'
 import * as search from 'xterm/lib/addons/search/search'
 import * as webLinks from 'xterm/lib/addons/webLinks/webLinks'
 import * as winptyCompat from 'xterm/lib/addons/winptyCompat/winptyCompat'
-//import * as zmodem from 'xterm/lib/addons/zmodem/zmodem'
+import * as zmodem from 'xterm/lib/addons/zmodem/zmodem'
 import keyControlPressed from '../../common/key-control-pressed'
 
 import { Terminal } from 'xterm'
@@ -35,7 +35,7 @@ Terminal.applyAddon(attach)
 Terminal.applyAddon(search)
 Terminal.applyAddon(webLinks)
 Terminal.applyAddon(winptyCompat)
-//Terminal.applyAddon(zmodem)
+Terminal.applyAddon(zmodem)
 
 const {prefix} = window
 const e = prefix('ssh')
@@ -74,7 +74,8 @@ export default class Term extends React.PureComponent {
       tempPassword: '',
       searchVisible: false,
       searchInput: '',
-      passType: 'password'
+      passType: 'password',
+      zmodemTransfers: []
     }
   }
 
@@ -572,6 +573,43 @@ export default class Term extends React.PureComponent {
       term.webLinksInit()
       term.focus()
       term.fit()
+      term.zmodemAttach(socket, {
+        noTerminalWriteOutsideSession: true
+      })
+      term.on('zmodemRetract', () => {
+        // todo
+      })
+      // term.on('zmodemDetect', (detection) => {
+      //   function do_zmodem() {
+      //     term.detach()
+      //     let zsession = detection.confirm()
+      //     var promise
+      //     if (zsession.type === 'receive') {
+      //       promise = _handle_receive_session(zsession)
+      //     }
+      //     else {
+      //       promise = _handle_send_session(zsession)
+      //     }
+      //     promise.catch( console.error.bind(console) ).then(() => {
+      //       term.attach(socket)
+      //     })
+      //   }
+      //   if (_auto_zmodem()) {
+      //     do_zmodem()
+      //   }
+      //   else {
+      //     start_form.style.display = ''
+      //     start_form.onsubmit = function(e) {
+      //       start_form.style.display = 'none'
+      //       if (document.getElementById('zmstart_yes').checked) {
+      //         do_zmodem()
+      //       }
+      //       else {
+      //         detection.deny()
+      //       }
+      //     }
+      //   }
+      // })
     }
     term.attachCustomKeyEventHandler(this.handleEvent)
     this.term = term
