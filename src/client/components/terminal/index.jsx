@@ -75,7 +75,7 @@ export default class Term extends React.PureComponent {
       searchVisible: false,
       searchInput: '',
       passType: 'password',
-      zmodemTransfers: []
+      zmodemTransfer: null
     }
   }
 
@@ -239,6 +239,43 @@ export default class Term extends React.PureComponent {
         activeTerminalId: ''
       })
     }
+  }
+
+  onzmodemRetract = () => {
+    console.log('zmodemRetract')
+    // todo
+  }
+
+  onReceiveZmodemSession = sess => {
+    sess.on('offer', this.onOfferReceive)
+  }
+
+  onOfferReceive = xfer => {
+    console.log(xfer)
+  }
+
+  onSendZmodemSession = sess => {
+    sess.on('offer', this.on)
+  }
+
+  onZmodemDetect = detection => {
+    this.term.detach()
+    let zsession = detection.confirm()
+    let promise
+    if (zsession.type === 'receive') {
+      promise = this.onReceiveZmodemSession(zsession)
+    }
+    else {
+      promise = this.onSendZmodemSession(zsession)
+    }
+    promise
+      .then(() => {
+        this.term.attach(this.socket)
+      })
+      .catch(e => {
+        this.props.onError(e)
+        this.term.attach(this.socket)
+      })
   }
 
   split = () => {
@@ -579,37 +616,7 @@ export default class Term extends React.PureComponent {
       term.on('zmodemRetract', () => {
         // todo
       })
-      // term.on('zmodemDetect', (detection) => {
-      //   function do_zmodem() {
-      //     term.detach()
-      //     let zsession = detection.confirm()
-      //     var promise
-      //     if (zsession.type === 'receive') {
-      //       promise = _handle_receive_session(zsession)
-      //     }
-      //     else {
-      //       promise = _handle_send_session(zsession)
-      //     }
-      //     promise.catch( console.error.bind(console) ).then(() => {
-      //       term.attach(socket)
-      //     })
-      //   }
-      //   if (_auto_zmodem()) {
-      //     do_zmodem()
-      //   }
-      //   else {
-      //     start_form.style.display = ''
-      //     start_form.onsubmit = function(e) {
-      //       start_form.style.display = 'none'
-      //       if (document.getElementById('zmstart_yes').checked) {
-      //         do_zmodem()
-      //       }
-      //       else {
-      //         detection.deny()
-      //       }
-      //     }
-      //   }
-      // })
+      term.on('zmodemDetect', this.onZmodemDetect)
     }
     term.attachCustomKeyEventHandler(this.handleEvent)
     this.term = term
