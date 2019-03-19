@@ -248,14 +248,68 @@ export default class Term extends React.PureComponent {
 
   onReceiveZmodemSession = sess => {
     sess.on('offer', this.onOfferReceive)
+    let promise = new Promise((resolve) => {
+      sess.on('session_end', resolve)
+    })
+    sess.start()
+    return promise
+  }
+
+  updateProgress = (xfer) => {
+    let fileInfo = xfer.get_details()
+    console.log(fileInfo, 'fileinfo')
+    // var xfer_opts = xfer.get_options();
+    // ["conversion", "management", "transport", "sparse"].forEach((lbl) => {
+    //   document.getElementById(`zfile_${lbl}`).textContent = xfer_opts[lbl];
+    // });
+  }
+
+  saveToDisk = (xfer, buffer) => {
+    return window.Zmodem.Browser
+      .save_to_disk(buffer, xfer.get_details().name)
   }
 
   onOfferReceive = xfer => {
     console.log(xfer)
+    this.updateProgress(xfer)
+    let FILE_BUFFER = []
+    xfer.on('input', (payload) => {
+      this.updateProgress(xfer)
+      FILE_BUFFER.push(new Uint8Array(payload))
+    })
+    xfer.accept()
+      .then(
+        () => {
+          this.saveToDisk(xfer, FILE_BUFFER)
+        }
+      )
+      .catch(this.props.onError)
   }
 
   onSendZmodemSession = sess => {
-    sess.on('offer', this.on)
+    return new Promise((resolve, reject) => {
+      let el = document.getElementById(`${this.state.id}-file-sel`)
+      el.onchange = () => {
+        let {files} = el
+        if (!files.length) {
+          return
+        }
+        window.Zmodem.Browser.send_files(
+          sess,
+          files, {
+            on_offer_response(obj, xfer) {
+              if (xfer) {
+                this.updateProgress(xfer)
+              }
+            },
+            on_progress(obj, xfer) {
+              this.updateProgress(xfer)
+            }
+          }
+        ).then(resolve).catch(reject)
+      }
+      el.click()
+    })
   }
 
   onZmodemDetect = detection => {
@@ -834,6 +888,12 @@ export default class Term extends React.PureComponent {
         }}
       >
         {this.renderPromoteModal()}
+        <input
+          type="file"
+          multiple
+          id={`${id}-file-sel`}
+          className="hide"
+        />
         <div
           className="bg-black absolute"
           style={{
