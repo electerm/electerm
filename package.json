@@ -25,6 +25,7 @@
     "pre-test": "npm run compile && npm run prepare-file"
   },
   "license": "MIT",
+  "langugeRepo": "https://github.com/electerm/electerm-locales",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/electerm/electerm.git"
