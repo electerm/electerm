@@ -247,6 +247,12 @@ export default class Term extends React.PureComponent {
   }
 
   onReceiveZmodemSession = sess => {
+    console.log('onreceive')
+    /**
+     * zmodem transfer
+     * then run rz to send from your browser or
+     * sz <file> to send from the remote peer.
+     */
     sess.on('offer', this.onOfferReceive)
     let promise = new Promise((resolve) => {
       sess.on('session_end', resolve)
@@ -257,7 +263,21 @@ export default class Term extends React.PureComponent {
 
   updateProgress = (xfer) => {
     let fileInfo = xfer.get_details()
-    console.log(fileInfo, 'fileinfo')
+    let {
+      size
+    } = fileInfo
+    let total = xfer.get_offset() || 0
+    let percent = Math.floor(100 * total / size)
+    console.log(fileInfo, 'fileinfo', percent)
+    this.setState(() => {
+      return {
+        zmodemTransfer: {
+          fileInfo,
+          percent
+        }
+      }
+    })
+
     // var xfer_opts = xfer.get_options();
     // ["conversion", "management", "transport", "sparse"].forEach((lbl) => {
     //   document.getElementById(`zfile_${lbl}`).textContent = xfer_opts[lbl];
@@ -270,7 +290,6 @@ export default class Term extends React.PureComponent {
   }
 
   onOfferReceive = xfer => {
-    console.log(xfer)
     this.updateProgress(xfer)
     let FILE_BUFFER = []
     xfer.on('input', (payload) => {
@@ -287,8 +306,10 @@ export default class Term extends React.PureComponent {
   }
 
   onSendZmodemSession = sess => {
+    console.log('onSendZmodemSession')
+    let el = document.getElementById(`${this.state.id}-file-sel`)
+    el.click()
     return new Promise((resolve, reject) => {
-      let el = document.getElementById(`${this.state.id}-file-sel`)
       el.onchange = () => {
         let {files} = el
         if (!files.length) {
@@ -308,7 +329,6 @@ export default class Term extends React.PureComponent {
           }
         ).then(resolve).catch(reject)
       }
-      el.click()
     })
   }
 
@@ -316,6 +336,7 @@ export default class Term extends React.PureComponent {
     this.term.detach()
     let zsession = detection.confirm()
     let promise
+    console.log(zsession, 'zsession')
     if (zsession.type === 'receive') {
       promise = this.onReceiveZmodemSession(zsession)
     }
@@ -664,7 +685,7 @@ export default class Term extends React.PureComponent {
       term.webLinksInit()
       term.focus()
       term.fit()
-      term.zmodemAttach(socket, {
+      term.zmodemAttach(this.socket, {
         noTerminalWriteOutsideSession: true
       })
       term.on('zmodemRetract', () => {
