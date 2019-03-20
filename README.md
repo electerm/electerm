@@ -50,7 +50,7 @@ npm i -g electerm
 
 ## Support
 
-Without users's feebacks/suggestions, this project would not get this far, would love to hear from you, please tell me what you think, [submit an issue](https://github.com/electerm/electerm/issues), [send me an email](mailto:zxdong@gmail.com), or [create a language file](https://github.com/electerm/electerm-locales).
+Without users's feebacks/suggestions, this project would not get this far, would love to hear from you, please tell me what you think, [submit an issue](https://github.com/electerm/electerm/issues), [send me an email](mailto:zxdong@gmail.com), or [create/fix language files](https://github.com/electerm/electerm-locales).
 
 ## Dev
 
