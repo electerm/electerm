@@ -1,5 +1,6 @@
 
 import React from 'react'
+import ZmodemTransfer from './zmodem-transfer'
 import fetch, {handleErr} from '../../common/fetch'
 import {mergeProxy} from '../../common/merge-proxy'
 import {generate} from 'shortid'
@@ -16,7 +17,8 @@ import {
   isWin,
   contextMenuWidth,
   terminalSshConfigType,
-  ctrlOrCmd
+  ctrlOrCmd,
+  transferTypeMap
 } from '../../common/constants'
 import deepCopy from 'json-deep-copy'
 import {readClipboard, copy} from '../../common/clipboard'
@@ -261,28 +263,27 @@ export default class Term extends React.PureComponent {
     return promise
   }
 
-  updateProgress = (xfer) => {
+  updateProgress = _.throttle((xfer, type) => {
     let fileInfo = xfer.get_details()
+    let options = xfer.get_options()
     let {
       size
     } = fileInfo
     let total = xfer.get_offset() || 0
     let percent = Math.floor(100 * total / size)
-    console.log(fileInfo, 'fileinfo', percent)
+    console.log(fileInfo, 'fileinfo', percent, options)
     this.setState(() => {
       return {
         zmodemTransfer: {
           fileInfo,
-          percent
+          options,
+          percent,
+          trasnferedSize: size,
+          type
         }
       }
     })
-
-    // var xfer_opts = xfer.get_options();
-    // ["conversion", "management", "transport", "sparse"].forEach((lbl) => {
-    //   document.getElementById(`zfile_${lbl}`).textContent = xfer_opts[lbl];
-    // });
-  }
+  }, 500)
 
   saveToDisk = (xfer, buffer) => {
     return window.Zmodem.Browser
@@ -290,10 +291,10 @@ export default class Term extends React.PureComponent {
   }
 
   onOfferReceive = xfer => {
-    this.updateProgress(xfer)
+    this.updateProgress(xfer, transferTypeMap.download)
     let FILE_BUFFER = []
     xfer.on('input', (payload) => {
-      this.updateProgress(xfer)
+      this.updateProgress(xfer, transferTypeMap.download)
       FILE_BUFFER.push(new Uint8Array(payload))
     })
     xfer.accept()
@@ -320,11 +321,11 @@ export default class Term extends React.PureComponent {
           files, {
             on_offer_response(obj, xfer) {
               if (xfer) {
-                this.updateProgress(xfer)
+                this.updateProgress(xfer, transferTypeMap.upload)
               }
             },
             on_progress(obj, xfer) {
-              this.updateProgress(xfer)
+              this.updateProgress(xfer, transferTypeMap.upload)
             }
           }
         ).then(resolve).catch(reject)
@@ -332,9 +333,32 @@ export default class Term extends React.PureComponent {
     })
   }
 
+  cancelZmodem = () => {
+    try {
+      this.onskip = true
+      this.zsession.abort()
+    } catch(e) {
+      console.log(e)
+    }
+    this.onZmodemEnd()
+  }
+
+  onZmodemEnd = () => {
+    this.term.attach(this.socket)
+    this.setState(() => {
+      return {
+        zmodemTransfer: null
+      }
+    })
+    this.term.focus()
+    this.term.write('\r\n')
+  }
+
   onZmodemDetect = detection => {
     this.term.detach()
+    this.term.blur()
     let zsession = detection.confirm()
+    this.zsession = zsession
     let promise
     console.log(zsession, 'zsession')
     if (zsession.type === 'receive') {
@@ -344,12 +368,10 @@ export default class Term extends React.PureComponent {
       promise = this.onSendZmodemSession(zsession)
     }
     promise
-      .then(() => {
-        this.term.attach(this.socket)
-      })
+      .then(this.onZmodemEnd)
       .catch(e => {
         this.props.onError(e)
-        this.term.attach(this.socket)
+        this.onZmodemEnd()
       })
   }
 
@@ -895,7 +917,7 @@ export default class Term extends React.PureComponent {
   }
 
   render() {
-    let {id, loading} = this.state
+    let {id, loading, zmodemTransfer} = this.state
     let {height, width, left, top, position, id: pid} = this.props
     let cls = classnames('term-wrap bg-black', {
       'not-first-term': !!position
@@ -934,6 +956,10 @@ export default class Term extends React.PureComponent {
               height: '100%',
               width: '100%'
             }}
+          />
+          <ZmodemTransfer
+            zmodemTransfer={zmodemTransfer}
+            cancelZmodem={this.cancelZmodem}
           />
         </div>
         <Spin className="loading-wrapper" spinning={loading} />
