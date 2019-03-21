@@ -5,7 +5,7 @@
  */
 
 import {memo} from 'react'
-import {Progress, Button} from 'antd'
+import {Progress, Button, Icon} from 'antd'
 import './zmodem.styl'
 
 const {prefix} = window
@@ -20,10 +20,20 @@ export default memo((props) => {
   let {
     fileInfo,
     type,
-    trasnferedSize,
-    percent
+    transferedSize,
+    percent,
+    ending
     //options
   } = zmodemTransfer
+  if (ending) {
+    return (
+      <div className="zmodem-transfer">
+        <h2 className="zmodem-transfer-inner">
+          {c('cancel')}... <Icon type="loading" />
+        </h2>
+      </div>
+    )
+  }
   let {
     size,
     name
@@ -36,7 +46,7 @@ export default memo((props) => {
           size="small"
           status="active"
           format={() => {
-            return `%${percent}(${trasnferedSize}/${size})`
+            return `%${percent}(${transferedSize}/${size})`
           }}
         />
         <h2 className="pd2y">

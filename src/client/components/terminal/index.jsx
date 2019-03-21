@@ -248,37 +248,37 @@ export default class Term extends React.PureComponent {
     // todo
   }
 
-  onReceiveZmodemSession = sess => {
+  onReceiveZmodemSession = () => {
     console.log('onreceive')
     /**
      * zmodem transfer
      * then run rz to send from your browser or
      * sz <file> to send from the remote peer.
      */
-    sess.on('offer', this.onOfferReceive)
+    this.zsession.on('offer', this.onOfferReceive)
     let promise = new Promise((resolve) => {
-      sess.on('session_end', resolve)
+      this.zsession.on('session_end', resolve)
     })
-    sess.start()
+    this.zsession.start()
     return promise
   }
 
   updateProgress = _.throttle((xfer, type) => {
+    if (this.onCancel) {
+      return
+    }
     let fileInfo = xfer.get_details()
-    let options = xfer.get_options()
     let {
       size
     } = fileInfo
     let total = xfer.get_offset() || 0
     let percent = Math.floor(100 * total / size)
-    console.log(fileInfo, 'fileinfo', percent, options)
     this.setState(() => {
       return {
         zmodemTransfer: {
           fileInfo,
-          options,
           percent,
-          trasnferedSize: size,
+          transferedSize: total,
           type
         }
       }
@@ -304,6 +304,7 @@ export default class Term extends React.PureComponent {
         }
       )
       .catch(this.props.onError)
+    this.xfer = xfer
   }
 
   onSendZmodemSession = sess => {
@@ -334,13 +335,23 @@ export default class Term extends React.PureComponent {
   }
 
   cancelZmodem = () => {
-    try {
-      this.onskip = true
-      this.zsession.abort()
-    } catch(e) {
-      console.log(e)
+    this.onCancel = true
+    this.zsession._skip()
+    this.setState(() => {
+      return {
+        zmodemTransfer: {
+          ending: true
+        }
+      }
+    })
+    this.term.on('data', this.onEnd)
+  }
+
+  onEnd = data => {
+    if (data.toString().includes('skip')) {
+      this.onZmodemEnd()
+      this.term.off('data', this.onEnd)
     }
-    this.onZmodemEnd()
   }
 
   onZmodemEnd = () => {
@@ -351,21 +362,21 @@ export default class Term extends React.PureComponent {
       }
     })
     this.term.focus()
-    this.term.write('\r\n')
   }
 
   onZmodemDetect = detection => {
+    console.log('onZmodemDetect')
+    this.onCancel = false
     this.term.detach()
     this.term.blur()
     let zsession = detection.confirm()
     this.zsession = zsession
     let promise
-    console.log(zsession, 'zsession')
     if (zsession.type === 'receive') {
-      promise = this.onReceiveZmodemSession(zsession)
+      promise = this.onReceiveZmodemSession()
     }
     else {
-      promise = this.onSendZmodemSession(zsession)
+      promise = this.onSendZmodemSession()
     }
     promise
       .then(this.onZmodemEnd)
@@ -710,9 +721,7 @@ export default class Term extends React.PureComponent {
       term.zmodemAttach(this.socket, {
         noTerminalWriteOutsideSession: true
       })
-      term.on('zmodemRetract', () => {
-        // todo
-      })
+      term.on('zmodemRetract', this.onzmodemRetract)
       term.on('zmodemDetect', this.onZmodemDetect)
     }
     term.attachCustomKeyEventHandler(this.handleEvent)
