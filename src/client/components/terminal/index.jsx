@@ -304,7 +304,6 @@ export default class Term extends React.PureComponent {
         }
       )
       .catch(this.props.onError)
-    this.xfer = xfer
   }
 
   onSendZmodemSession = sess => {
