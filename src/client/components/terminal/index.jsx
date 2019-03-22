@@ -67,7 +67,7 @@ const computePos = (e, height) => {
 export default class Term extends React.PureComponent {
 
   constructor(props) {
-    super()
+    super(props)
     this.state = {
       id: props.id || 'id' + generate(),
       loading: false,
