@@ -51,6 +51,7 @@ export default memo((props) => {
           <Upload
             className="iblock"
             multiple
+            showUploadList={false}
             beforeUpload={beforeZmodemUpload}
             className={fileInfo ? 'hide' : ''}
           >

@@ -262,7 +262,7 @@ export default class Term extends React.PureComponent {
     }).then(this.onZmodemEnd).catch(this.onZmodemCatch)
   }
 
-  updateProgress = _.throttle((xfer, type) => {
+  updateProgress = (xfer, type) => {
     if (this.onCancel) {
       return
     }
@@ -282,7 +282,7 @@ export default class Term extends React.PureComponent {
         }
       }
     })
-  }, 500)
+  }
 
   saveToDisk = (xfer, buffer) => {
     return window.Zmodem.Browser
@@ -323,12 +323,14 @@ export default class Term extends React.PureComponent {
         on_progress(obj, xfer) {
           console.log('on_progress')
           th.updateProgress(xfer, transferTypeMap.upload)
-        },
-        on_file_complete() {
-          th.timers.end = setTimeout(th.onZmodemEnd, 100)
-        }
+        } //,
+        // on_file_complete() {
+        //   th.timers.end = setTimeout(th.onZmodemEnd, 100)
+        // }
       }
-    ).catch(th.onZmodemCatch)
+    )
+      .then(th.onZmodemEnd)
+      .catch(th.onZmodemCatch)
     return false
   }
 
@@ -347,6 +349,7 @@ export default class Term extends React.PureComponent {
     if (_.isFunction(this.zsession._skip)) {
       this.zsession._skip()
     } else {
+      console.log('about')
       this.zsession.abort()
       return this.onZmodemEnd()
     }
@@ -368,7 +371,7 @@ export default class Term extends React.PureComponent {
   }
 
   onZmodemEnd = () => {
-    console.log('sdfsdf')
+    console.log('onZmodemEnd')
     this.term.attach(this.socket)
     this.setState(() => {
       return {
