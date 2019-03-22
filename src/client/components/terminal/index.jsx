@@ -306,22 +306,29 @@ export default class Term extends React.PureComponent {
   }
 
   beforeZmodemUpload = (file, files) => {
+    console.log('000000000', file, files)
     if (!files.length) {
-      return
+      return false
     }
+    let th = this
     window.Zmodem.Browser.send_files(
       this.zsession,
       files, {
         on_offer_response(obj, xfer) {
+          console.log('on offer')
           if (xfer) {
-            this.updateProgress(xfer, transferTypeMap.upload)
+            th.updateProgress(xfer, transferTypeMap.upload)
           }
         },
         on_progress(obj, xfer) {
-          this.updateProgress(xfer, transferTypeMap.upload)
+          console.log('on_progress')
+          th.updateProgress(xfer, transferTypeMap.upload)
+        },
+        on_file_complete() {
+          th.timers.end = setTimeout(th.onZmodemEnd, 100)
         }
       }
-    ).then(this.onZmodemEnd).catch(this.onZmodemCatch)
+    ).catch(th.onZmodemCatch)
     return false
   }
 
@@ -337,7 +344,12 @@ export default class Term extends React.PureComponent {
 
   cancelZmodem = () => {
     this.onCancel = true
-    this.zsession._skip()
+    if (_.isFunction(this.zsession._skip)) {
+      this.zsession._skip()
+    } else {
+      this.zsession.abort()
+      return this.onZmodemEnd()
+    }
     this.setState(() => {
       return {
         zmodemTransfer: {
@@ -356,6 +368,7 @@ export default class Term extends React.PureComponent {
   }
 
   onZmodemEnd = () => {
+    console.log('sdfsdf')
     this.term.attach(this.socket)
     this.setState(() => {
       return {
@@ -363,6 +376,7 @@ export default class Term extends React.PureComponent {
       }
     })
     this.term.focus()
+    this.term.write('\r\n')
   }
 
   onZmodemCatch = (e) => {
@@ -968,6 +982,7 @@ export default class Term extends React.PureComponent {
           <ZmodemTransfer
             zmodemTransfer={zmodemTransfer}
             cancelZmodem={this.cancelZmodem}
+            beforeZmodemUpload={this.beforeZmodemUpload}
           />
         </div>
         <Spin className="loading-wrapper" spinning={loading} />

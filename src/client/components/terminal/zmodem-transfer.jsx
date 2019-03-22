@@ -36,11 +36,20 @@ export default memo((props) => {
     )
   }
   let btn = null
+  let progress = null
+  let cancelBtn = (
+    <Button
+      type="danger"
+      className="iblock mg2l"
+      onClick={cancelZmodem}
+    >{c('cancel')}</Button>
+  )
   if (type === transferTypeMap.upload) {
     btn = (
-      <div className="zmodem-transfer">
-        <div className="zmodem-transfer-inner">
+      <div className={fileInfo ? 'hide' : 'mg2b'}>
+        <div className="iblock">
           <Upload
+            className="iblock"
             multiple
             beforeUpload={beforeZmodemUpload}
             className={fileInfo ? 'hide' : ''}
@@ -50,17 +59,17 @@ export default memo((props) => {
             </Button>
           </Upload>
         </div>
+        {cancelBtn}
       </div>
     )
   }
-  let {
-    size,
-    name
-  } = fileInfo
-  return (
-    <div className="zmodem-transfer">
-      <div className="zmodem-transfer-inner">
-        {btn}
+  if (fileInfo) {
+    let {
+      size,
+      name
+    } = fileInfo
+    progress = (
+      <div className="pd1b">
         <Progress
           percent={percent}
           size="small"
@@ -73,12 +82,16 @@ export default memo((props) => {
           <span className="iblock">
             {s(type)}: {name}
           </span>
-          <Button
-            type="danger"
-            className="iblock mg2l"
-            onClick={cancelZmodem}
-          >{c('cancel')}</Button>
+          {cancelBtn}
         </h2>
+      </div>
+    )
+  }
+  return (
+    <div className="zmodem-transfer">
+      <div className="zmodem-transfer-inner">
+        {btn}
+        {progress}
       </div>
     </div>
   )
