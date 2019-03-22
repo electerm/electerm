@@ -5,7 +5,8 @@
  */
 
 import {memo} from 'react'
-import {Progress, Button, Icon} from 'antd'
+import {Progress, Button, Icon, Upload} from 'antd'
+import {transferTypeMap} from '../../common/constants'
 import './zmodem.styl'
 
 const {prefix} = window
@@ -13,7 +14,7 @@ const s = prefix('sftp')
 const c = prefix('common')
 
 export default memo((props) => {
-  let {zmodemTransfer, cancelZmodem} = props
+  let {zmodemTransfer, cancelZmodem, beforeZmodemUpload} = props
   if (!zmodemTransfer) {
     return null
   }
@@ -34,6 +35,24 @@ export default memo((props) => {
       </div>
     )
   }
+  let btn = null
+  if (type === transferTypeMap.upload) {
+    btn = (
+      <div className="zmodem-transfer">
+        <div className="zmodem-transfer-inner">
+          <Upload
+            multiple
+            beforeUpload={beforeZmodemUpload}
+            className={fileInfo ? 'hide' : ''}
+          >
+            <Button>
+              {s(type)}
+            </Button>
+          </Upload>
+        </div>
+      </div>
+    )
+  }
   let {
     size,
     name
@@ -41,6 +60,7 @@ export default memo((props) => {
   return (
     <div className="zmodem-transfer">
       <div className="zmodem-transfer-inner">
+        {btn}
         <Progress
           percent={percent}
           size="small"

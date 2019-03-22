@@ -256,11 +256,10 @@ export default class Term extends React.PureComponent {
      * sz <file> to send from the remote peer.
      */
     this.zsession.on('offer', this.onOfferReceive)
-    let promise = new Promise((resolve) => {
-      this.zsession.on('session_end', resolve)
-    })
     this.zsession.start()
-    return promise
+    return new Promise((resolve) => {
+      this.zsession.on('session_end', resolve)
+    }).then(this.onZmodemEnd).catch(this.onZmodemCatch)
   }
 
   updateProgress = _.throttle((xfer, type) => {
@@ -306,29 +305,32 @@ export default class Term extends React.PureComponent {
       .catch(this.props.onError)
   }
 
-  onSendZmodemSession = sess => {
-    console.log('onSendZmodemSession')
-    let el = document.getElementById(`${this.state.id}-file-sel`)
-    el.click()
-    return new Promise((resolve, reject) => {
-      el.onchange = () => {
-        let {files} = el
-        if (!files.length) {
-          return
-        }
-        window.Zmodem.Browser.send_files(
-          sess,
-          files, {
-            on_offer_response(obj, xfer) {
-              if (xfer) {
-                this.updateProgress(xfer, transferTypeMap.upload)
-              }
-            },
-            on_progress(obj, xfer) {
-              this.updateProgress(xfer, transferTypeMap.upload)
-            }
+  beforeZmodemUpload = (file, files) => {
+    if (!files.length) {
+      return
+    }
+    window.Zmodem.Browser.send_files(
+      this.zsession,
+      files, {
+        on_offer_response(obj, xfer) {
+          if (xfer) {
+            this.updateProgress(xfer, transferTypeMap.upload)
           }
-        ).then(resolve).catch(reject)
+        },
+        on_progress(obj, xfer) {
+          this.updateProgress(xfer, transferTypeMap.upload)
+        }
+      }
+    ).then(this.onZmodemEnd).catch(this.onZmodemCatch)
+    return false
+  }
+
+  onSendZmodemSession = () => {
+    this.setState(() => {
+      return {
+        zmodemTransfer: {
+          type: transferTypeMap.upload
+        }
       }
     })
   }
@@ -363,6 +365,11 @@ export default class Term extends React.PureComponent {
     this.term.focus()
   }
 
+  onZmodemCatch = (e) => {
+    this.props.onError(e)
+    this.onZmodemEnd()
+  }
+
   onZmodemDetect = detection => {
     console.log('onZmodemDetect')
     this.onCancel = false
@@ -370,19 +377,12 @@ export default class Term extends React.PureComponent {
     this.term.blur()
     let zsession = detection.confirm()
     this.zsession = zsession
-    let promise
     if (zsession.type === 'receive') {
-      promise = this.onReceiveZmodemSession()
+      this.onReceiveZmodemSession()
     }
     else {
-      promise = this.onSendZmodemSession()
+      this.onSendZmodemSession()
     }
-    promise
-      .then(this.onZmodemEnd)
-      .catch(e => {
-        this.props.onError(e)
-        this.onZmodemEnd()
-      })
   }
 
   split = () => {
