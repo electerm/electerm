@@ -357,6 +357,7 @@ export default class Term extends React.PureComponent {
     } else {
       console.log('about')
       try {
+        this.zsession.aborted = () => false
         this.zsession.abort()
       } catch (e) {
         console.log(e)
