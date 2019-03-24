@@ -262,7 +262,7 @@ export default class Term extends React.PureComponent {
     }).then(this.onZmodemEnd).catch(this.onZmodemCatch)
   }
 
-  updateProgress = (xfer, type) => {
+  updateProgress = _.throttle((xfer, type) => {
     if (this.onCancel) {
       return
     }
@@ -282,7 +282,9 @@ export default class Term extends React.PureComponent {
         }
       }
     })
-  }
+  }, 300, {
+    leading: true
+  })
 
   saveToDisk = (xfer, buffer) => {
     return window.Zmodem.Browser
@@ -311,26 +313,30 @@ export default class Term extends React.PureComponent {
       return false
     }
     let th = this
-    window.Zmodem.Browser.send_files(
-      this.zsession,
-      files, {
-        on_offer_response(obj, xfer) {
-          console.log('on offer')
-          if (xfer) {
+    try {
+      window.Zmodem.Browser.send_files(
+        this.zsession,
+        files, {
+          on_offer_response(obj, xfer) {
+            if (xfer) {
+              th.updateProgress(xfer, transferTypeMap.upload)
+            }
+          },
+          on_progress(obj, xfer) {
+            console.log('on_progress')
             th.updateProgress(xfer, transferTypeMap.upload)
-          }
-        },
-        on_progress(obj, xfer) {
-          console.log('on_progress')
-          th.updateProgress(xfer, transferTypeMap.upload)
-        } //,
-        // on_file_complete() {
-        //   th.timers.end = setTimeout(th.onZmodemEnd, 100)
-        // }
-      }
-    )
-      .then(th.onZmodemEnd)
-      .catch(th.onZmodemCatch)
+          } //,
+          // on_file_complete() {
+          //   th.timers.end = setTimeout(th.onZmodemEnd, 100)
+          // }
+        }
+      )
+        .then(th.onZmodemEndSend)
+        .catch(th.onZmodemCatch)
+    } catch (e) {
+      console.log(e)
+    }
+
     return false
   }
 
@@ -350,7 +356,11 @@ export default class Term extends React.PureComponent {
       this.zsession._skip()
     } else {
       console.log('about')
-      this.zsession.abort()
+      try {
+        this.zsession.abort()
+      } catch (e) {
+        console.log(e)
+      }
       return this.onZmodemEnd()
     }
     this.setState(() => {
@@ -364,13 +374,27 @@ export default class Term extends React.PureComponent {
   }
 
   onEnd = data => {
-    if (data.toString().includes('skip')) {
-      this.onZmodemEnd()
+    let str = data.toString()
+    console.log(str, '=====================')
+    if (str.includes('skip')) {
+      if (this.zsession.type === 'receive') {
+        this.onZmodemEnd()
+      } else {
+        this.onZmodemEndSend()
+      }
+
       this.term.off('data', this.onEnd)
     }
   }
 
+  onZmodemEndSend = () => {
+    this.zsession.close()
+    this.onZmodemEnd()
+  }
+
   onZmodemEnd = () => {
+    delete this.onZmodem
+    this.onCancel = true
     console.log('onZmodemEnd')
     this.term.attach(this.socket)
     this.setState(() => {
@@ -392,6 +416,7 @@ export default class Term extends React.PureComponent {
     this.onCancel = false
     this.term.detach()
     this.term.blur()
+    this.onZmodem = true
     let zsession = detection.confirm()
     this.zsession = zsession
     if (zsession.type === 'receive') {
@@ -565,9 +590,12 @@ export default class Term extends React.PureComponent {
 
   listenTimeout = () => {
     clearTimeout(this.timeoutHandler)
+    if (this.onZmodem) {
+      return
+    }
     this.timeoutHandler = setTimeout(
       () => this.setStatus('error'),
-      window._config.terminalTimeout
+      this.props.config.terminalTimeout
     )
   }
 
