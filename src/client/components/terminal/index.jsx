@@ -359,10 +359,13 @@ export default class Term extends React.PureComponent {
       try {
         this.zsession.aborted = () => false
         this.zsession.abort()
+        this.zsession.close()
       } catch (e) {
         console.log(e)
       }
+      return this.onZmodemEnd()
     }
+
     this.setState(() => {
       return {
         zmodemTransfer: {
@@ -376,7 +379,10 @@ export default class Term extends React.PureComponent {
   onEnd = data => {
     let str = data.toString()
     console.log(str, '=====================')
-    if (str.includes('skip')) {
+    if (
+      (str.includes('skip') && this.zsession.type === 'receive' ) ||
+      str
+    ) {
       if (this.zsession.type === 'receive') {
         this.onZmodemEnd()
       } else {
