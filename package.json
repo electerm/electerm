@@ -40,7 +40,7 @@
   },
   "homepage": "https://electerm.html5beta.com",
   "engines": {
-    "node": ">=8.9.1"
+    "node": ">=10.0.0"
   },
   "preferGlobal": true,
   "devDependencies": {

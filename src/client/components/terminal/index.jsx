@@ -282,7 +282,7 @@ export default class Term extends React.PureComponent {
         }
       }
     })
-  }, 300, {
+  }, 500, {
     leading: true
   })
 
@@ -362,7 +362,6 @@ export default class Term extends React.PureComponent {
       } catch (e) {
         console.log(e)
       }
-      return this.onZmodemEnd()
     }
     this.setState(() => {
       return {
@@ -383,14 +382,13 @@ export default class Term extends React.PureComponent {
       } else {
         this.onZmodemEndSend()
       }
-
       this.term.off('data', this.onEnd)
     }
   }
 
   onZmodemEndSend = () => {
     this.zsession.close()
-    this.onZmodemEnd()
+    this.onZmodemEnd
   }
 
   onZmodemEnd = () => {
