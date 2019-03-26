@@ -69,6 +69,7 @@ var config = {
     'react': 'React',
     'react-dom': 'ReactDOM'
   },
+  target: 'electron-renderer',
   watch: true,
   resolve: {
     extensions: ['.js', '.jsx', '.ts', '.json'],

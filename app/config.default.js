@@ -46,7 +46,8 @@ module.exports = function() {
         opacity: 1,
         proxyPort: 1080,
         proxyType: '5',
-        proxyIp: '127.0.0.1'
+        proxyIp: '127.0.0.1',
+        zoom: 1
       }
       extend(conf, override)
       extend(conf, userConfig)

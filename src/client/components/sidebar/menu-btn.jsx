@@ -14,19 +14,6 @@ const c = prefix('common')
 const t = prefix('tabs')
 const s = prefix('setting')
 const {Group} = Button
-const zoom = (level = 1, plus = false) => {
-  window.getGlobal('zoom')(level, plus)
-}
-
-// const onOpenMenu = (e) => {
-//   let {right: x, bottom: y} = e.currentTarget.getBoundingClientRect()
-//   x = Math.ceil(x - 15)
-//   y = Math.ceil(x - 12)
-//   window.getGlobal('popup')({
-//     x,
-//     y
-//   })
-// }
 
 const logo = require('node_modules/@electerm/electerm-resource/res/imgs/electerm.svg').replace(/^\//, '')
 
@@ -133,13 +120,13 @@ function renderContext(props) {
         className={cls + ' no-auto-close-context'}
       >
         <Group size="small">
-          <Button onClick={() => zoom(0.5, true)}>
+          <Button onClick={() => props.zoom(0.5, true)}>
             <Icon type="plus-circle" />
           </Button>
-          <Button onClick={() => zoom(-0.5, true)}>
+          <Button onClick={() => props.zoom(-0.5, true)}>
             <Icon type="minus-circle" />
           </Button>
-          <Button onClick={() => zoom()}>
+          <Button onClick={() => props.zoom()}>
             100%
           </Button>
         </Group>

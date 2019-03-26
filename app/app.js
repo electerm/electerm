@@ -190,12 +190,6 @@ async function createWindow () {
     openDevTools: () => {
       win.webContents.openDevTools()
     },
-    zoom: (level, plus = false) => {
-      if (!plus) {
-        return win.webFrame.setZoomFactor(level)
-      }
-      require('electron').webFrame.setZoomFactor(require('electron').webFrame.getZoomFactor() + level)
-    },
     lookup,
     lang,
     langs,

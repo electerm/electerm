@@ -129,6 +129,7 @@ export default class Index extends React.Component {
     this.checkLastSession()
     this.checkDefaultTheme()
     window.addEventListener('offline',  this.setOffline)
+    this.zoom(this.state.config.zoom, false, true)
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -231,6 +232,27 @@ export default class Index extends React.Component {
       event: 'selectall',
       id: this.state.activeTerminalId
     }, '*')
+  }
+
+  zoom = (level = 1, plus = false, zoomOnly) => {
+    let {webFrame} = require('electron')
+    let nl = plus
+      ? webFrame.getZoomFactor() + level
+      : level
+    webFrame.setZoomFactor(nl)
+    if (zoomOnly) {
+      return
+    }
+    this.setState(old => {
+      let nc = {
+        ...old.config,
+        zoom: nl
+      }
+      getGlobal('saveUserConfig')(nc)
+      return {
+        config: nc
+      }
+    })
 
   }
 
@@ -744,6 +766,7 @@ export default class Index extends React.Component {
         'addBookmarkGroup',
         'editBookmarkGroup',
         'closeContextMenu',
+        'zoom',
         'clickNextTab',
         'delBookmarkGroup',
         'onClose',
