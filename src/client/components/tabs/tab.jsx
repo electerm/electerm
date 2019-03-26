@@ -8,12 +8,10 @@ import classnames from 'classnames'
 import copy from 'json-deep-copy'
 import _ from 'lodash'
 import Input from '../common/input-auto-focus'
-import wait from '../../common/wait'
 import createName from '../../common/create-title'
 import {addClass, removeClass} from '../../common/class'
-import {generate} from 'shortid'
 import {
-  statusMap, terminalSshConfigType
+  terminalSshConfigType
 } from '../../common/constants'
 
 const {prefix} = window

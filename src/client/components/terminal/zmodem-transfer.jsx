@@ -5,7 +5,7 @@
  */
 
 import {memo} from 'react'
-import {Progress, Button, Icon, Upload} from 'antd'
+import {Progress, Button, Upload} from 'antd'
 import {transferTypeMap} from '../../common/constants'
 import './zmodem.styl'
 
