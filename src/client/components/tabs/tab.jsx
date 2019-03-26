@@ -115,17 +115,7 @@ export default class Tab extends React.Component {
   }
 
   reloadTab = async () => {
-    let tab = copy(
-      this.state.tab
-    )
-    let {id} = tab
-    tab.id = generate()
-    tab.status = statusMap.processing
-    let tabs = copy(this.props.tabs)
-    let index = _.findIndex(tabs, t => t.id === id)
-    this.props.delTab({id: this.state.tab.id})
-    await wait(30)
-    this.props.addTab(tab, index)
+    this.props.reloadTab(this.state.tab)
   }
 
   onDragEnd = e => {

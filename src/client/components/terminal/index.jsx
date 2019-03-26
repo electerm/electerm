@@ -245,11 +245,9 @@ export default class Term extends React.PureComponent {
 
   onzmodemRetract = () => {
     console.log('zmodemRetract')
-    // todo
   }
 
   onReceiveZmodemSession = () => {
-    console.log('onreceive')
     /**
      * zmodem transfer
      * then run rz to send from your browser or
@@ -262,7 +260,7 @@ export default class Term extends React.PureComponent {
     }).then(this.onZmodemEnd).catch(this.onZmodemCatch)
   }
 
-  updateProgress = _.throttle((xfer, type) => {
+  updateProgress = (xfer, type) => {
     if (this.onCancel) {
       return
     }
@@ -272,6 +270,9 @@ export default class Term extends React.PureComponent {
     } = fileInfo
     let total = xfer.get_offset() || 0
     let percent = Math.floor(100 * total / size)
+    if (percent > 99) {
+      percent = 99
+    }
     this.setState(() => {
       return {
         zmodemTransfer: {
@@ -282,9 +283,7 @@ export default class Term extends React.PureComponent {
         }
       }
     })
-  }, 500, {
-    leading: true
-  })
+  }
 
   saveToDisk = (xfer, buffer) => {
     return window.Zmodem.Browser
@@ -308,34 +307,25 @@ export default class Term extends React.PureComponent {
   }
 
   beforeZmodemUpload = (file, files) => {
-    console.log('000000000', file, files)
     if (!files.length) {
       return false
     }
     let th = this
-    try {
-      window.Zmodem.Browser.send_files(
-        this.zsession,
-        files, {
-          on_offer_response(obj, xfer) {
-            if (xfer) {
-              th.updateProgress(xfer, transferTypeMap.upload)
-            }
-          },
-          on_progress(obj, xfer) {
-            console.log('on_progress')
+    window.Zmodem.Browser.send_files(
+      this.zsession,
+      files, {
+        on_offer_response(obj, xfer) {
+          if (xfer) {
             th.updateProgress(xfer, transferTypeMap.upload)
-          } //,
-          // on_file_complete() {
-          //   th.timers.end = setTimeout(th.onZmodemEnd, 100)
-          // }
+          }
+        },
+        on_progress(obj, xfer) {
+          th.updateProgress(xfer, transferTypeMap.upload)
         }
-      )
-        .then(th.onZmodemEndSend)
-        .catch(th.onZmodemCatch)
-    } catch (e) {
-      console.log(e)
-    }
+      }
+    )
+      .then(th.onZmodemEndSend)
+      .catch(th.onZmodemCatch)
 
     return false
   }
@@ -351,56 +341,17 @@ export default class Term extends React.PureComponent {
   }
 
   cancelZmodem = () => {
-    this.onCancel = true
-    if (_.isFunction(this.zsession._skip)) {
-      this.zsession._skip()
-    } else {
-      console.log('about')
-      try {
-        this.zsession.aborted = () => false
-        this.zsession.abort()
-        this.zsession.close()
-      } catch (e) {
-        console.log(e)
-      }
-      return this.onZmodemEnd()
-    }
-
-    this.setState(() => {
-      return {
-        zmodemTransfer: {
-          ending: true
-        }
-      }
-    })
-    this.term.on('data', this.onEnd)
-  }
-
-  onEnd = data => {
-    let str = data.toString()
-    console.log(str, '=====================')
-    if (
-      (str.includes('skip') && this.zsession.type === 'receive' ) ||
-      str
-    ) {
-      if (this.zsession.type === 'receive') {
-        this.onZmodemEnd()
-      } else {
-        this.onZmodemEndSend()
-      }
-      this.term.off('data', this.onEnd)
-    }
+    this.props.reloadTab(this.props.tab)
   }
 
   onZmodemEndSend = () => {
     this.zsession.close()
-    this.onZmodemEnd
+    this.onZmodemEnd()
   }
 
   onZmodemEnd = () => {
     delete this.onZmodem
     this.onCancel = true
-    console.log('onZmodemEnd')
     this.term.attach(this.socket)
     this.setState(() => {
       return {
@@ -417,7 +368,6 @@ export default class Term extends React.PureComponent {
   }
 
   onZmodemDetect = detection => {
-    console.log('onZmodemDetect')
     this.onCancel = false
     this.term.detach()
     this.term.blur()

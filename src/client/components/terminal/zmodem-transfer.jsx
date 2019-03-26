@@ -22,19 +22,9 @@ export default memo((props) => {
     fileInfo,
     type,
     transferedSize,
-    percent,
-    ending
+    percent
     //options
   } = zmodemTransfer
-  if (ending) {
-    return (
-      <div className="zmodem-transfer">
-        <h2 className="zmodem-transfer-inner">
-          {c('cancel')}... <Icon type="loading" />
-        </h2>
-      </div>
-    )
-  }
   let btn = null
   let progress = null
   let cancelBtn = (
@@ -50,7 +40,6 @@ export default memo((props) => {
         <div className="iblock">
           <Upload
             className="iblock"
-            multiple
             showUploadList={false}
             beforeUpload={beforeZmodemUpload}
             className={fileInfo ? 'hide' : ''}
