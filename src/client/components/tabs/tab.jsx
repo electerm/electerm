@@ -8,12 +8,10 @@ import classnames from 'classnames'
 import copy from 'json-deep-copy'
 import _ from 'lodash'
 import Input from '../common/input-auto-focus'
-import wait from '../../common/wait'
 import createName from '../../common/create-title'
 import {addClass, removeClass} from '../../common/class'
-import {generate} from 'shortid'
 import {
-  statusMap, terminalSshConfigType
+  terminalSshConfigType
 } from '../../common/constants'
 
 const {prefix} = window
@@ -115,17 +113,7 @@ export default class Tab extends React.Component {
   }
 
   reloadTab = async () => {
-    let tab = copy(
-      this.state.tab
-    )
-    let {id} = tab
-    tab.id = generate()
-    tab.status = statusMap.processing
-    let tabs = copy(this.props.tabs)
-    let index = _.findIndex(tabs, t => t.id === id)
-    this.props.delTab({id: this.state.tab.id})
-    await wait(30)
-    this.props.addTab(tab, index)
+    this.props.reloadTab(this.state.tab)
   }
 
   onDragEnd = e => {
