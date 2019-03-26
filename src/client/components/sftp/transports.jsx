@@ -26,6 +26,9 @@ function getFirstTransports(transports, max = maxTransport) {
   let res = []
   for (let i = 0;i < max;i ++) {
     let f = trans[i]
+    if (!f) {
+      break
+    }
     if (!f.file.isDirectory) {
       res.push(f)
     } else {
@@ -182,12 +185,39 @@ export default class Transports extends React.PureComponent {
     )
   }
 
+  computePercent = (trs) => {
+    let {all, transfered} = trs.reduce((prev, c) => {
+      prev.all += c.file.size
+      prev.transfered += (c.transferred || 0)
+      return prev
+    }, {
+      all: 0,
+      transfered: 0
+    })
+    let percent = all === 0
+      ? 0
+      : Math.floor(100 * transfered / all)
+    percent = percent >= 100 ? 99 : percent
+    return percent
+  }
+
+  computeLeftTime = (trs) => {
+    let sorted = copy(trs).sort((a, b) => a.leftTimeInt - b.leftTimeInt)
+    return _.get(sorted, '[0].leftTime')
+  }
+
+  computePausing = (trs) => {
+    return trs.reduce((prev, c) => {
+      return prev && c
+    }, true)
+  }
+
   render() {
     let {transports, isActive} = this.props
-    let {currentTransport, showList} = this.state
-    let percent = _.get(currentTransport, 'percent')
-    let leftTime = _.get(currentTransport, 'leftTime')
-    let pausing = _.get(currentTransport, 'pausing')
+    let {currentTransports, showList} = this.state
+    let percent = this.computePercent(currentTransports)
+    let leftTime = this.computeLeftTime(currentTransports)
+    let pausing = this.computePausing(currentTransports)
     let func = pausing
       ? this.resume
       : this.pause
@@ -210,7 +240,7 @@ export default class Transports extends React.PureComponent {
             >
               {this.renderTransportIcon()} {percent}%({leftTime})
               <span className="mg1l">
-                [1 / {transports.length}]
+                [{currentTransports.length} / {transports.length}]
               </span>
             </div>
           </div>

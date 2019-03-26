@@ -33,11 +33,11 @@ export default class ErrorBoundary extends React.PureComponent {
     if (this.state.hasError) {
       let {stack, message} = this.state.error
       return (
-        <div className="pd3 aligncenter color-white error-wrapper">
+        <div className="pd3 aligncenter error-wrapper">
           <div className="pd2y aligncenter">
             <img src={logoPath1} className="iblock mwm-100" />
           </div>
-          <h1 className="color-white">
+          <h1>
             <Icon type="frown-o" className="mg1r iblock" />
             <span className="iblock mg1r">{e('error')}</span>
             <Button

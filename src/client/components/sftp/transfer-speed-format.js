@@ -53,5 +53,8 @@ export const computeLeftTime = (bytes, total, startTime) => {
   }
   let speed = bytes / (now - startTime)
   let allTimeNeed = (total - bytes) / speed
-  return formatTime(allTimeNeed)
+  return {
+    leftTime: formatTime(allTimeNeed),
+    leftTimeInt: allTimeNeed
+  }
 } 

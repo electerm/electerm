@@ -70,9 +70,9 @@ export default class Tranporter extends React.PureComponent {
     let transports = copy(this.props.transports)
     let index = _.findIndex(transports, t => t.id === transport.id)
     transports.splice(index, 1, transport)
-    this.props.modifier({
+    this.props.modifier(() => ({
       transports
-    })
+    }))
   }
 
   pause = () => {
@@ -101,8 +101,12 @@ export default class Tranporter extends React.PureComponent {
     percent = percent >= 100 ? 99 : percent
     transport.percent = percent
     transport.status = 'active'
+    transport.transferred = transferred
     transport.speed = format(transferred, this.startTime)
-    transport.leftTime = computeLeftTime(transferred, total, this.startTime)
+    Object.assign(
+      transport,
+      computeLeftTime(transferred, total, this.startTime)
+    )
     transport.passedTime = computePassedTime(this.startTime)
     this.update(transport)
   }
@@ -217,9 +221,9 @@ export default class Tranporter extends React.PureComponent {
     let transports = oldTrans.filter(t => {
       return t.id !== id
     })
-    this.props.modifier({
+    this.props.modifier(() => ({
       transports
-    }, _.isFunction(callback) ? callback : undefined)
+    }), _.isFunction(callback) ? callback : undefined)
   }
 
   buildCls(file = {}) {
