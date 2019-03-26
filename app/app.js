@@ -8,8 +8,7 @@ const {
   Menu,
   Notification,
   globalShortcut,
-  shell,
-  webFrame
+  shell
 } = require('electron')
 const {fork} = require('child_process')
 const _ = require('lodash')
