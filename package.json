@@ -1,6 +1,6 @@
 {
   "name": "electerm",
-  "version": "0.26.64",
+  "version": "0.26.68",
   "description": "Terminal/ssh/sftp client(linux, mac, win) based on electron/ssh2/node-pty/xterm/antd and other libs",
   "main": "dev-app.js",
   "bin": "npm/electerm",
@@ -25,6 +25,7 @@
     "pre-test": "npm run compile && npm run prepare-file"
   },
   "license": "MIT",
+  "langugeRepo": "https://github.com/electerm/electerm-locales",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/electerm/electerm.git"
@@ -39,7 +40,7 @@
   },
   "homepage": "https://electerm.html5beta.com",
   "engines": {
-    "node": ">=8.9.1"
+    "node": ">=10.0.0"
   },
   "preferGlobal": true,
   "devDependencies": {
@@ -53,7 +54,7 @@
     "@babel/preset-react": "7.0.0",
     "@babel/register": "7.0.0",
     "@babel/runtime": "7.1.2",
-    "@electerm/antd-dark-theme": "0.0.1",
+    "@electerm/antd-dark-theme": "0.0.4",
     "@electerm/electerm-resource": "1.2.1",
     "antd": "3.11.6",
     "babel-eslint": "10.0.1",
@@ -71,7 +72,7 @@
     "css-loader": "1.0.0",
     "dotenv": "6.1.0",
     "electron": "3.0.15",
-    "electron-builder": "20.28.4",
+    "electron-builder": "^20.39.0",
     "electron-rebuild": "1.8.2",
     "eslint": "5.7.0",
     "eslint-config-airbnb": "17.1.0",
@@ -113,7 +114,7 @@
     "xterm": "3.12.0"
   },
   "dependencies": {
-    "@electerm/electerm-locales": "0.5.2",
+    "@electerm/electerm-locales": "0.5.6",
     "@electerm/ssh2": "0.8.1",
     "bluebird": "3.5.2",
     "body-parser": "1.18.3",
@@ -132,6 +133,7 @@
     "recursive-assign": "0.2.0",
     "shortid": "2.2.13",
     "socks": "2.2.1",
-    "ssh-config": "1.1.5"
+    "ssh-config": "1.1.5",
+    "zmodem.js": "0.1.7"
   }
 }
