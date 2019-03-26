@@ -30,7 +30,8 @@ app.post('/terminals', async function (req, res) {
     logs[pid] = Buffer.from('')
     term.on('data', function(data) {
       logs[pid] = Buffer.concat([
-        logs[pid], Buffer.from(data)
+        logs[pid],
+        Buffer.from(data)
       ])
     })
     res.end(pid)
@@ -62,7 +63,7 @@ app.ws('/terminals/:pid', function (ws, req) {
   term.on('data', function(data) {
     console.log(typeof data)
     try {
-      ws.send(data)
+      ws.send(Buffer.from(data))
     } catch (ex) {
       // The WebSocket is not open, ignore
     }

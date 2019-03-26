@@ -15,6 +15,7 @@ const e = prefix('control')
 const m = prefix('menu')
 const c = prefix('common')
 const a = prefix('app')
+const s = prefix('setting')
 const {TabPane} = Tabs
 
 export default function({
@@ -29,6 +30,7 @@ export default function({
     //description,
     devDependencies,
     dependencies,
+    langugeRepo,
     author: {
       name: authorName,
       email,
@@ -79,32 +81,38 @@ export default function({
               <span className="iblock mg1r">{name}</span>
               <Tag color="#08c">{version}</Tag>
             </h1>
-            <p className="mg1b">{a('desc')}</p>
+            <p className="mg2b">{a('desc')}</p>
             <p className="mg1b">
-              <b className="mg1r">{e('author')}:</b>
+              => <b className="mg1r">{e('author')}:</b>
               <Link to={authorUrl} className="mg1l">
                 {authorName} ({email})
               </Link>
             </p>
             <p className="mg1b">
-              <b>{e('homepage')}/{e('download')}:</b>
+              => <b>{e('homepage')}/{e('download')}:</b>
               <Link to={homepage} className="mg1l">
                 <Icon type="home" /> {homepage}
               </Link>
             </p>
             <p className="mg1b">
-              <b className="mg1r">github:</b>
+              => <b className="mg1r">github:</b>
               <Link to={link} className="mg1l">
                 <Icon type="github" /> {link}
               </Link>
             </p>
             <p className="mg1b">
-              <b className="mg1r">{e('bugReport')}:</b>
-              <Link to={bugReportLink} className="mg1l">
-                <Icon type="github" /> {bugReportLink}
+              => <b className="mg1r">{s('language')} repo:</b>
+              <Link to={langugeRepo} className="mg1l">
+                <Icon type="global" /> {langugeRepo}
               </Link>
             </p>
-            <p className="mg1y">
+            <p className="mg1b">
+              => <b className="mg1r">{e('bugReport')}:</b>
+              <Link to={bugReportLink} className="mg1l">
+                <Icon type="warning" /> {bugReportLink}
+              </Link>
+            </p>
+            <p className="mg1b mg2t">
               <Button
                 type="primary"
                 loading={onCheckUpdating}

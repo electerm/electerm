@@ -1,5 +1,6 @@
 
 import React from 'react'
+import ZmodemTransfer from './zmodem-transfer'
 import fetch, {handleErr} from '../../common/fetch'
 import {mergeProxy} from '../../common/merge-proxy'
 import {generate} from 'shortid'
@@ -16,13 +17,17 @@ import {
   isWin,
   contextMenuWidth,
   terminalSshConfigType,
-  ctrlOrCmd
+  ctrlOrCmd,
+  transferTypeMap
 } from '../../common/constants'
 import deepCopy from 'json-deep-copy'
 import {readClipboard, copy} from '../../common/clipboard'
 import * as fit from 'xterm/lib/addons/fit/fit'
 import * as attach from 'xterm/lib/addons/attach/attach'
 import * as search from 'xterm/lib/addons/search/search'
+import * as webLinks from 'xterm/lib/addons/webLinks/webLinks'
+import * as winptyCompat from 'xterm/lib/addons/winptyCompat/winptyCompat'
+import * as zmodem from 'xterm/lib/addons/zmodem/zmodem'
 import keyControlPressed from '../../common/key-control-pressed'
 
 import { Terminal } from 'xterm'
@@ -30,6 +35,9 @@ import { Terminal } from 'xterm'
 Terminal.applyAddon(fit)
 Terminal.applyAddon(attach)
 Terminal.applyAddon(search)
+Terminal.applyAddon(webLinks)
+Terminal.applyAddon(winptyCompat)
+Terminal.applyAddon(zmodem)
 
 const {prefix} = window
 const e = prefix('ssh')
@@ -59,7 +67,7 @@ const computePos = (e, height) => {
 export default class Term extends React.PureComponent {
 
   constructor(props) {
-    super()
+    super(props)
     this.state = {
       id: props.id || 'id' + generate(),
       loading: false,
@@ -68,7 +76,8 @@ export default class Term extends React.PureComponent {
       tempPassword: '',
       searchVisible: false,
       searchInput: '',
-      passType: 'password'
+      passType: 'password',
+      zmodemTransfer: null
     }
   }
 
@@ -231,6 +240,145 @@ export default class Term extends React.PureComponent {
       this.props.modifier({
         activeTerminalId: ''
       })
+    }
+  }
+
+  onzmodemRetract = () => {
+    console.log('zmodemRetract')
+  }
+
+  onReceiveZmodemSession = () => {
+    /**
+     * zmodem transfer
+     * then run rz to send from your browser or
+     * sz <file> to send from the remote peer.
+     */
+    this.zsession.on('offer', this.onOfferReceive)
+    this.zsession.start()
+    return new Promise((resolve) => {
+      this.zsession.on('session_end', resolve)
+    }).then(this.onZmodemEnd).catch(this.onZmodemCatch)
+  }
+
+  updateProgress = (xfer, type) => {
+    if (this.onCancel) {
+      return
+    }
+    let fileInfo = xfer.get_details()
+    let {
+      size
+    } = fileInfo
+    let total = xfer.get_offset() || 0
+    let percent = Math.floor(100 * total / size)
+    if (percent > 99) {
+      percent = 99
+    }
+    this.setState(() => {
+      return {
+        zmodemTransfer: {
+          fileInfo,
+          percent,
+          transferedSize: total,
+          type
+        }
+      }
+    })
+  }
+
+  saveToDisk = (xfer, buffer) => {
+    return window.Zmodem.Browser
+      .save_to_disk(buffer, xfer.get_details().name)
+  }
+
+  onOfferReceive = xfer => {
+    this.updateProgress(xfer, transferTypeMap.download)
+    let FILE_BUFFER = []
+    xfer.on('input', (payload) => {
+      this.updateProgress(xfer, transferTypeMap.download)
+      FILE_BUFFER.push(new Uint8Array(payload))
+    })
+    xfer.accept()
+      .then(
+        () => {
+          this.saveToDisk(xfer, FILE_BUFFER)
+        }
+      )
+      .catch(this.props.onError)
+  }
+
+  beforeZmodemUpload = (file, files) => {
+    if (!files.length) {
+      return false
+    }
+    let th = this
+    window.Zmodem.Browser.send_files(
+      this.zsession,
+      files, {
+        on_offer_response(obj, xfer) {
+          if (xfer) {
+            th.updateProgress(xfer, transferTypeMap.upload)
+          }
+        },
+        on_progress(obj, xfer) {
+          th.updateProgress(xfer, transferTypeMap.upload)
+        }
+      }
+    )
+      .then(th.onZmodemEndSend)
+      .catch(th.onZmodemCatch)
+
+    return false
+  }
+
+  onSendZmodemSession = () => {
+    this.setState(() => {
+      return {
+        zmodemTransfer: {
+          type: transferTypeMap.upload
+        }
+      }
+    })
+  }
+
+  cancelZmodem = () => {
+    this.props.reloadTab(this.props.tab)
+  }
+
+  onZmodemEndSend = () => {
+    this.zsession.close()
+    this.onZmodemEnd()
+  }
+
+  onZmodemEnd = () => {
+    delete this.onZmodem
+    this.onCancel = true
+    this.term.attach(this.socket)
+    this.setState(() => {
+      return {
+        zmodemTransfer: null
+      }
+    })
+    this.term.focus()
+    this.term.write('\r\n')
+  }
+
+  onZmodemCatch = (e) => {
+    this.props.onError(e)
+    this.onZmodemEnd()
+  }
+
+  onZmodemDetect = detection => {
+    this.onCancel = false
+    this.term.detach()
+    this.term.blur()
+    this.onZmodem = true
+    let zsession = detection.confirm()
+    this.zsession = zsession
+    if (zsession.type === 'receive') {
+      this.onReceiveZmodemSession()
+    }
+    else {
+      this.onSendZmodemSession()
     }
   }
 
@@ -397,9 +545,12 @@ export default class Term extends React.PureComponent {
 
   listenTimeout = () => {
     clearTimeout(this.timeoutHandler)
+    if (this.onZmodem) {
+      return
+    }
     this.timeoutHandler = setTimeout(
       () => this.setStatus('error'),
-      window._config.terminalTimeout
+      this.props.config.terminalTimeout
     )
   }
 
@@ -561,8 +712,17 @@ export default class Term extends React.PureComponent {
     let cid = _.get(this.props, 'currentTabId')
     let tid = _.get(this.props, 'tab.id')
     if (cid === tid && this.props.tab.status === statusMap.success) {
+      if (isWin) {
+        term.winptyCompatInit()
+      }
+      term.webLinksInit()
       term.focus()
       term.fit()
+      term.zmodemAttach(this.socket, {
+        noTerminalWriteOutsideSession: true
+      })
+      term.on('zmodemRetract', this.onzmodemRetract)
+      term.on('zmodemDetect', this.onZmodemDetect)
     }
     term.attachCustomKeyEventHandler(this.handleEvent)
     this.term = term
@@ -775,7 +935,7 @@ export default class Term extends React.PureComponent {
   }
 
   render() {
-    let {id, loading} = this.state
+    let {id, loading, zmodemTransfer} = this.state
     let {height, width, left, top, position, id: pid} = this.props
     let cls = classnames('term-wrap bg-black', {
       'not-first-term': !!position
@@ -789,6 +949,12 @@ export default class Term extends React.PureComponent {
         }}
       >
         {this.renderPromoteModal()}
+        <input
+          type="file"
+          multiple
+          id={`${id}-file-sel`}
+          className="hide"
+        />
         <div
           className="bg-black absolute"
           style={{
@@ -808,6 +974,11 @@ export default class Term extends React.PureComponent {
               height: '100%',
               width: '100%'
             }}
+          />
+          <ZmodemTransfer
+            zmodemTransfer={zmodemTransfer}
+            cancelZmodem={this.cancelZmodem}
+            beforeZmodemUpload={this.beforeZmodemUpload}
           />
         </div>
         <Spin className="loading-wrapper" spinning={loading} />

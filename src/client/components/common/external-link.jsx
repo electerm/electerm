@@ -5,6 +5,10 @@
 import {memo} from 'react'
 import {Icon} from 'antd'
 
+window.open = (url) => {
+  window.getGlobal('openExternal')(url)
+}
+
 function onClick(e, href) {
   e.preventDefault()
   window.getGlobal('openExternal')(href)

@@ -9,6 +9,7 @@ import {generate} from 'shortid'
 import copy from 'json-deep-copy'
 import ContextMenu from '../common/context-menu'
 import FileInfoModal from '../sftp/file-props-modal'
+import wait from '../../common/wait'
 import FileModeModal from '../sftp/file-mode-modal'
 import UpdateCheck from './upgrade'
 import {notification} from 'antd'
@@ -377,6 +378,9 @@ export default class Index extends React.Component {
   editItem = (id, update, type, mod = this.setStateLs) => {
     let items = copy(this.state[type])
     let item = _.find(items, t => t.id === id)
+    if (!item) {
+      return
+    }
     let index = _.findIndex(items, t => t.id === id)
     Object.assign(item, update)
     items.splice(index, 1, item)
@@ -557,6 +561,20 @@ export default class Index extends React.Component {
     }
   }
 
+  reloadTab = async (tabToReload) => {
+    let tab = copy(
+      tabToReload
+    )
+    let {id} = tab
+    tab.id = generate()
+    tab.status = statusMap.processing
+    let tabs = copy(this.state.tabs)
+    let index = _.findIndex(tabs, t => t.id === id)
+    this.delTab({id: tabToReload.id})
+    await wait(30)
+    this.addTab(tab, index)
+  }
+
   onDuplicateTab = tab => {
     let index = _.findIndex(
       this.state.tabs,
@@ -729,6 +747,7 @@ export default class Index extends React.Component {
         'clickNextTab',
         'delBookmarkGroup',
         'onClose',
+        'reloadTab',
         'hideModal', 'onDelItem',
         'onNewSsh', 'openSetting', 'onEditHistory',
         'openTerminalThemes',

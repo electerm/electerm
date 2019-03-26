@@ -33,6 +33,8 @@ rm('-rf',  'work/app/localstorage.json')
 rm('-rf',  'work/app/nohup.out')
 rm('-rf',  'work/app/assets/js/basic.bundle.js')
 rm('-rf',  'work/app/assets/js/index.bundle.js')
+rm('-rf',  'work/app/node_modules/zmodem.js/src')
+rm('-rf',  'work/app/node_modules/zmodem.js/dist/zmodem.devel.js')
 require('fs').writeFileSync(
   resolve(__dirname, '../work/app/package.json'),
   JSON.stringify(
