@@ -10,6 +10,7 @@ import wait from '../../common/wait'
 import {transferTypeMap} from '../../common/constants'
 import format, {computeLeftTime, computePassedTime} from './transfer-speed-format'
 import fs from '../../common/fs'
+import {transportTypes} from './transport-types'
 
 const {prefix} = window
 const e = prefix('sftp')
@@ -25,22 +26,44 @@ const typeIconMap2 = {
 
 export default class Tranporter extends React.PureComponent {
 
-  componentWillMount() {
+  componentDidMount() {
+    this.initEvent()
     this.startTransfer()
   }
 
   componentDidUpdate(prevProps) {
-    let before = this.props.currentTransport
-    let after = prevProps.currentTransport
+    let before = this.props.currentTransports
+    let after = prevProps.currentTransports
     if (!_.isEqual(before, after)) {
       this.startTransfer()
     }
   }
 
   componentWillUnmount() {
+    window.removeEventListener('message', this.onMessage)
     this.transport && this.transport.destroy && this.transport.destroy()
-    this.props.onChildDestroy(this.props.transport.id)
     clearTimeout(this.timer)
+  }
+
+  initEvent = () => {
+    window.addEventListener('message', this.onMessage)
+  }
+
+  onMessage = (e) => {
+    let action = _.get(e, 'data.action')
+    let ids = _.get(e, 'data.ids')
+    if (!ids || !ids.includes(this.props.transport.id)) {
+      return
+    }
+    if (
+      action === transportTypes.pauseTransport
+    ) {
+      this.pause()
+    } else if (action === transportTypes.resumeTransport) {
+      this.resume()
+    } else if (action === transportTypes.cancelTransport) {
+      this.cancel()
+    }
   }
 
   update = (transport) => {
@@ -141,44 +164,44 @@ export default class Tranporter extends React.PureComponent {
 
   startTransfer = async () => {
     let {id} = this.props.transport
-    let {currentTransport} = this.props
-    if (
-      _.get(currentTransport, 'id') === id && !this.started
-    ) {
-      this.started = true
-      this.startTime = +new Date()
-      let {
-        transferType,
-        fromPath,
-        toPath,
-        file: {
-          isDirectory,
-          mode
-        }
-      } = this.props.transport
-      if (isDirectory) {
-        return this.mkdir(this.props.transport)
-          .then(this.onEnd)
-          .catch(this.onError)
-      }
-      let isDown = transferType === transferTypeMap.download
-      let localPath = isDown
-        ? toPath
-        : fromPath
-      let remotePath = isDown
-        ? fromPath
-        : toPath
-      this.transport = await this.props.sftp[transferType]({
-        remotePath,
-        localPath,
-        options: {mode},
-        ..._.pick(this, [
-          'onData',
-          'onError',
-          'onEnd'
-        ])
-      })
+    let {currentTransports} = this.props
+    let ids = currentTransports.map(c => c.id)
+    if (!ids.includes(id) || this.started) {
+      return
     }
+    this.started = true
+    this.startTime = +new Date()
+    let {
+      transferType,
+      fromPath,
+      toPath,
+      file: {
+        isDirectory,
+        mode
+      }
+    } = this.props.transport
+    if (isDirectory) {
+      return this.mkdir(this.props.transport)
+        .then(this.onEnd)
+        .catch(this.onError)
+    }
+    let isDown = transferType === transferTypeMap.download
+    let localPath = isDown
+      ? toPath
+      : fromPath
+    let remotePath = isDown
+      ? fromPath
+      : toPath
+    this.transport = await this.props.sftp[transferType]({
+      remotePath,
+      localPath,
+      options: {mode},
+      ..._.pick(this, [
+        'onData',
+        'onError',
+        'onEnd'
+      ])
+    })
   }
 
   cancel = async (callback) => {
@@ -200,9 +223,10 @@ export default class Tranporter extends React.PureComponent {
   }
 
   buildCls(file = {}) {
-    let {index, transports, currentTransport} = this.props
+    let {index, transports, currentTransports} = this.props
     let {path} = file
     let shouldHide = false
+    let ids = currentTransports.map(c => c.id)
     for (let i = index - 1;i >= 0;i --) {
       let t = transports[i] || {}
       let p = _.get(t, 'file.path') || ''
@@ -212,7 +236,7 @@ export default class Tranporter extends React.PureComponent {
       if (
         path.startsWith(pp) &&
         isDirectory &&
-        currentTransport.id !== t.id
+        !ids.includes(t.id)
       ) {
         shouldHide = false
       }

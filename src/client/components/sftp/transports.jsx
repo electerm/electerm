@@ -7,6 +7,7 @@ import Transport from './transport'
 import _ from 'lodash'
 import copy from 'json-deep-copy'
 import {maxTransport} from '../../common/constants'
+import {transportTypes} from './transport-types'
 
 const {prefix} = window
 const e = prefix('sftp')
@@ -56,12 +57,6 @@ export default class Transports extends React.PureComponent {
     clearTimeout(this.timer)
   }
 
-  refs = {}
-
-  onChildDestroy = id => {
-    delete this[`ref__${id}`]
-  }
-
   onVisibleChange = showList => {
     this.setState({
       showList
@@ -76,14 +71,14 @@ export default class Transports extends React.PureComponent {
 
   pause = () => {
     window.postMessage({
-      action: 'pause-transport',
+      action: transportTypes.pauseTransport,
       ids: this.state.currentTransports.map(d => d.id)
     }, '*')
   }
 
   resume = () => {
     window.postMessage({
-      action: 'resume-transport',
+      action: transportTypes.resumeTransport,
       ids: this.state.currentTransports.map(d => d.id)
     }, '*')
   }
@@ -96,7 +91,7 @@ export default class Transports extends React.PureComponent {
 
   cancelAll = async () => {
     window.postMessage({
-      action: 'cancel-transport',
+      action: transportTypes.cancelTransport,
       ids: this.state.currentTransports.map(d => d.id)
     }, '*')
     this.timer = setTimeout(() => {
@@ -132,7 +127,7 @@ export default class Transports extends React.PureComponent {
 
   renderContent = () => {
     let {transports, addTransferHistory} = this.props
-    let {currentTransport} = this.state
+    let {currentTransports} = this.state
     return (
       <div className="transports-content overscroll-y">
         {
@@ -145,8 +140,7 @@ export default class Transports extends React.PureComponent {
                 {...this.props}
                 addTransferHistory={addTransferHistory}
                 onChildDestroy={this.onChildDestroy}
-                currentTransport={currentTransport}
-                ref={ref => this[`ref__${id}`] = ref}
+                currentTransports={currentTransports}
                 index={i}
               />
             )
