@@ -8,7 +8,8 @@ const {
   Menu,
   Notification,
   globalShortcut,
-  shell
+  shell,
+  webFrame
 } = require('electron')
 const {fork} = require('child_process')
 const _ = require('lodash')
@@ -188,6 +189,12 @@ async function createWindow () {
     },
     openDevTools: () => {
       win.webContents.openDevTools()
+    },
+    zoom: (level, plus = false) => {
+      if (!plus) {
+        return win.webFrame.setZoomFactor(level)
+      }
+      require('electron').webFrame.setZoomFactor(require('electron').webFrame.getZoomFactor() + level)
     },
     lookup,
     lang,

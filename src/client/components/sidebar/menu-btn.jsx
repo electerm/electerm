@@ -2,7 +2,7 @@
  * btns
  */
 
-import {Icon} from 'antd'
+import {Icon, Button} from 'antd'
 import {ctrlOrCmd} from '../../common/constants'
 import createTitle from '../../common/create-title'
 import './menu.styl'
@@ -13,6 +13,10 @@ const m = prefix('menu')
 const c = prefix('common')
 const t = prefix('tabs')
 const s = prefix('setting')
+const {Group} = Button
+const zoom = (level = 1, plus = false) => {
+  window.getGlobal('zoom')(level, plus)
+}
 
 // const onOpenMenu = (e) => {
 //   let {right: x, bottom: y} = e.currentTarget.getBoundingClientRect()
@@ -125,6 +129,21 @@ function renderContext(props) {
         <Icon type="left-square" theme="filled" /> {m('toggledevtools')}
       </div>
       <hr />
+      <div
+        className={cls + ' no-auto-close-context'}
+      >
+        <Group size="small">
+          <Button onClick={() => zoom(0.5, true)}>
+            <Icon type="plus-circle" />
+          </Button>
+          <Button onClick={() => zoom(-0.5, true)}>
+            <Icon type="minus-circle" />
+          </Button>
+          <Button onClick={() => zoom()}>
+            100%
+          </Button>
+        </Group>
+      </div>
       <div
         className={cls}
         onClick={() => window.getGlobal('minimize')()}
