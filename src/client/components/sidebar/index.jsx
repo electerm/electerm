@@ -1,7 +1,6 @@
 /**
  * sidebar
  */
-import {memo} from 'react'
 import {
   Icon, Tooltip
 } from 'antd'
@@ -20,7 +19,7 @@ const h = prefix('transferHistory')
 const t = prefix('terminalThemes')
 const u = prefix('updater')
 
-export default memo((props) => {
+export default (props) => {
   let {
     openedSideBar,
     onNewSsh,
@@ -200,4 +199,4 @@ export default memo((props) => {
       </div>
     </div>
   )
-})
+}
