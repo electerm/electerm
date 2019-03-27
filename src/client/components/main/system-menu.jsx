@@ -6,6 +6,8 @@ import {Icon, Button} from 'antd'
 import {ctrlOrCmd} from '../../common/constants'
 import createTitle from '../../common/create-title'
 import Context from '../common/context-menu'
+import BookmarksList from '../sidebar/bookmark-select'
+import './system-menu.styl'
 
 const {prefix} = window
 const e = prefix('control')
@@ -14,6 +16,16 @@ const c = prefix('common')
 const t = prefix('tabs')
 const s = prefix('setting')
 const {Group} = Button
+
+function renderBookmarks(props) {
+  return (
+    <div className="sub-context-menu bookmarks-sub-context-menu">
+      <BookmarksList
+        {...props}
+      />
+    </div>
+  )
+}
 
 function renderTabs(props) {
   return (
@@ -76,6 +88,15 @@ function renderContext(props) {
         <Icon type="right-square" theme="filled" /> {t('newTab')}
       </div>
       <hr />
+      <div
+        className={cls1 + ' no-auto-close-context'}
+      >
+        <Icon type="book" /> {c('bookmarks')}
+        <span className="context-sub-text">
+          <Icon type="right" />
+        </span>
+        {renderBookmarks(props)}
+      </div>
       <div
         className={cls1}
       >

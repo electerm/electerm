@@ -2,8 +2,6 @@
  * btns
  */
 
-import './menu.styl'
-
 const {prefix} = window
 const e = prefix('control')
 
