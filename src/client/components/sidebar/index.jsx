@@ -1,7 +1,6 @@
 /**
  * sidebar
  */
-import {memo} from 'react'
 import {
   Icon, Tooltip
 } from 'antd'
