@@ -12,9 +12,9 @@ export default class ContextMenu extends React.PureComponent {
   static propTypes = {
     content: PropTypes.element.isRequired,
     visible: PropTypes.bool,
-    position: PropTypes.object,
+    pos: PropTypes.object,
     className: PropTypes.string,
-    closeContext: PropTypes.func
+    closeContextMenu: PropTypes.func
   }
 
   static defaultProps = {
