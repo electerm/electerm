@@ -46,7 +46,9 @@ npm i -g electerm
 - Support multi platform(linux, mac, win)
 - 🇺🇸 🇨🇳 🇧🇷 🇷🇺 🇪🇸 Support multi-language([electerm-locales](https://github.com/electerm/electerm-locales), contribute welcome)
 - Double click to directly edit remote file(small ones).
-- Support auth with publickey + password
+- Edit local file with built-in editor(small ones).
+- Support auth with publickey + password.
+- Support Zmodem.
 
 ## Support
 
