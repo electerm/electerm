@@ -380,7 +380,6 @@ export class BookmarkForm extends React.PureComponent {
           default:
             console.error('invalid proxyType')
             return prev
-            break
         }
         return {
           ...prev,
