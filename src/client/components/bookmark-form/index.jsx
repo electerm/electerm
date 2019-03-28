@@ -368,20 +368,9 @@ export class BookmarkForm extends React.PureComponent {
         if (!proxy || !proxyIp || !proxyPort) {
           return prev
         }
-        let id = 'null'
-        switch (proxyType) {
-          case '0':
-            id = `http://${proxyIp}:${proxyPort}`
-            break
-          case '4':
-          case '5':
-            id = `socks${proxyType}://${proxyIp}:${proxyPort}`
-            break
-          default:
-            console.error('invalid proxyType')
-            return prev
-            break
-        }
+        let id = proxyType === '0'
+          ? `http://${proxyIp}:${proxyPort}`
+          : `socks${proxyType}://${proxyIp}:${proxyPort}`
         return {
           ...prev,
           [id]: proxy

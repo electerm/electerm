@@ -43,20 +43,18 @@ module.exports = (initOptions) => {
         method: 'CONNECT',
         timeout: readyTimeout
       }
-      req = request(opts)
-      .on('error', (e) => {
-        console.error(`fail to connect proxy: ${e.message}`);
-        reject(e)
-      })
-      .on('connect', (res, socket, head) => {
-        resolve({socket: socket})
-      })
-      req.end()
+      request(opts)
+        .on('error', (e) => {
+          console.error(`fail to connect proxy: ${e.message}`)
+          reject(e)
+        })
+        .on('connect', (res, socket) => {
+          resolve({ socket: socket })
+        })
+        .end()
     })
   }
 
   // use socks proxy
-  else if (proxyType === '4' || proxyType === '5'){
-    return SocksClient.createConnection(options)
-  }
+  return SocksClient.createConnection(options)
 }

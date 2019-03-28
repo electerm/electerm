@@ -644,12 +644,12 @@ export default class Term extends React.PureComponent {
       ...tab,
       ...extra,
       ..._.pick(config, [
-        'sshReadyTimeout',
         'keepaliveInterval',
         'execWindows',
         'execMac',
         'execLinux'
       ]),
+      readyTimeout: config.sshReadyTimeout,
       proxy: mergeProxy(config, tab),
       type: tab.host && !isSshConfig
         ? typeMap.remote
