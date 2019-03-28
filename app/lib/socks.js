@@ -49,7 +49,7 @@ module.exports = (initOptions) => {
           reject(e)
         })
         .on('connect', (res, socket) => {
-          resolve({socket: socket})
+          resolve({ socket: socket })
         })
         .end()
     })
