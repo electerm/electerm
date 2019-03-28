@@ -49,6 +49,7 @@ npm i -g electerm
 - Edit local file with built-in editor(small ones).
 - Support auth with publickey + password.
 - Support Zmodem.
+- Support transparent window(Mac, win).
 
 ## Support
 
