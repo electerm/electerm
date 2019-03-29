@@ -153,9 +153,11 @@ export default class Tranporter extends React.PureComponent {
         toPath,
         file: {
           isDirectory,
+          targetFile,
           mode
         }
       } = this.props.transport
+      mode = _.get(targetFile, 'mode') || mode
       if (isDirectory) {
         return this.mkdir(this.props.transport)
           .then(this.onEnd)

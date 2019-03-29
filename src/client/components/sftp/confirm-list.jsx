@@ -10,8 +10,8 @@ import {generate} from 'shortid'
 import Trigger from './file-transfer-trigger'
 import resolve from '../../common/resolve'
 import AnimateText from '../common/animate-text'
-import fs from '../../common/fs'
 import {typeMap} from '../../common/constants'
+import {getLocalFileInfo, getRemoteFileInfo} from './file-read'
 
 const {prefix} = window
 const e = prefix('sftp')
@@ -112,25 +112,22 @@ export default class Confirms extends React.PureComponent {
     return generate() + '__' + 'renamed__' + name
   }
 
-  localCheckExist = async (path) => {
-    return await fs.accessAsync(path)
-      .then(() => true)
-      .catch(() => false)
+  localCheckExist = (path) => {
+    return getLocalFileInfo(path)
   }
 
-  remoteCheckExist = async (path) => {
+  remoteCheckExist = (path) => {
     let {sftp} = this.props
-    let res = await sftp.lstat(path)
-      .then(() => true)
+    return getRemoteFileInfo(sftp, path)
+      .then(r => r)
       .catch(() => false)
-    return res
   }
 
-  checkExist = async (type, path) => {
-    return await this[type + 'CheckExist'](path)
+  checkExist = (type, path) => {
+    return this[type + 'CheckExist'](path)
   }
 
-  checkFileExist = async (file, props = this.props) => {
+  checkFileExist = (file, props = this.props) => {
     let {
       path,
       name
@@ -148,7 +145,7 @@ export default class Confirms extends React.PureComponent {
       ? '\\'
       : '/'
     targetPath = targetPath.replace(fromSep, targetSep)
-    return await this.checkExist(toType, targetPath, props)
+    return this.checkExist(toType, targetPath, props)
   }
 
   transferProps = [
@@ -360,7 +357,10 @@ export default class Confirms extends React.PureComponent {
       let {isDirectory} = f
       let exist = await this.checkFileExist(f)
       if (!exist || !isDirectory) {
-        transferList.push(this.createTransfer(f))
+        transferList.push(this.createTransfer({
+          ...f,
+          targetFile: exist
+        }))
       }
     }
     this.setStateProxy({
@@ -387,7 +387,10 @@ export default class Confirms extends React.PureComponent {
     let exist = await this.checkFileExist(firstFile, nextProps)
     if (exist) {
       return this.setStateProxy({
-        currentFile: firstFile,
+        currentFile: {
+          ...firstFile,
+          targetFile: exist
+        },
         files,
         index: 0,
         transferList: []
