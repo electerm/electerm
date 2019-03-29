@@ -44,7 +44,7 @@ export const getRemoteFileInfo = async (sftp, filePath) => {
     //size: stat.size,
     //accessTime: stat.atime,
     //modifyTime: stat.mtime,
-    //mode: stat.mode,
+    mode: stat.mode,
     type: 'remote',
     ...getFolderFromFilePath(filePath),
     id: generate(),

@@ -369,7 +369,9 @@ export class BookmarkForm extends React.PureComponent {
         if (!proxy || !proxyIp || !proxyPort) {
           return prev
         }
-        let id = `socks${proxyType}://${proxyIp}:${proxyPort}`
+        let id = proxyType === '0'
+          ? `http://${proxyIp}:${proxyPort}`
+          : `socks${proxyType}://${proxyIp}:${proxyPort}`
         return {
           ...prev,
           [id]: proxy
@@ -460,6 +462,7 @@ export class BookmarkForm extends React.PureComponent {
           <Select>
             <Option value="5">SOCKS5</Option>
             <Option value="4">SOCKS4</Option>
+            <Option value="0">HTTP</Option>
           </Select>
         )}
       </FormItem>
