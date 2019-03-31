@@ -665,6 +665,7 @@ export default class ItemListTree extends React.PureComponent {
     let level1Bookgroups = bookmarkGroups.filter(
       d => !d.level || d.level < 2
     )
+    console.log(expandedKeys, 'expandedKeys')
     return (
       <div className={`tree-list item-type-${type}`}>
         {

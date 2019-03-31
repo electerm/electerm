@@ -52,6 +52,7 @@ export default memo((props) => {
         onClickItem={onClickItem}
         expandedKeys={openedCategoryIds}
         onExpand={openedCategoryIds => {
+          console.log(openedCategoryIds, 'openedCategoryIds')
           props.modifyLs({
             openedCategoryIds
           })
