@@ -112,7 +112,7 @@ export default class Setting extends React.PureComponent {
     )
   }
 
-  renderToggle = name => {
+  renderToggle = (name) => {
     let checked = !!this.props.config[name]
     return (
       <div className="pd2b">
@@ -390,7 +390,8 @@ export default class Setting extends React.PureComponent {
         }
         {this.renderToggle('rightClickSelectsWord')}
         {this.renderToggle('copyWhenSelect')}
-        {this.renderToggle('pasteWhenContextMenu')}
+        {this.renderToggle('disableSshHistory')}
+        {this.renderToggle('disableTransferHistory')}
         {this.renderReset()}
       </div>
     )
