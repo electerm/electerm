@@ -32,7 +32,9 @@ module.exports = function() {
         execWindows: 'System32/WindowsPowerShell/v1.0/powershell.exe',
         execMac: 'bash',
         execLinux: 'bash',
-        enableGlobalProxy: false
+        enableGlobalProxy: false,
+        disableSshHistory: false,
+        disableTransferHistory: false
       }
       let conf = {
         port: freePort,

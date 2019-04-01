@@ -107,18 +107,20 @@ export default class Tranporter extends React.PureComponent {
     let {startTime} = this
     let finishTime = +new Date()
     let {size} = file
-    this.props.addTransferHistory({
-      id,
-      fromPath,
-      toPath,
-      targetTransferType,
-      srcTransferType,
-      startTime,
-      finishTime,
-      type: transferType,
-      size: file.size,
-      speed: format(size, startTime)
-    })
+    if (!this.props.config.disableTransferHistory) {
+      this.props.addTransferHistory({
+        id,
+        fromPath,
+        toPath,
+        targetTransferType,
+        srcTransferType,
+        startTime,
+        finishTime,
+        type: transferType,
+        size: file.size,
+        speed: format(size, startTime)
+      })
+    }
     this.timer = setTimeout(
       () => this.cancel(cb),
       100

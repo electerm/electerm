@@ -687,7 +687,9 @@ export default class Index extends React.Component {
       id: generate()
     })
     item.id = generate()
-
+    if (this.state.config.disableSshHistory) {
+      return
+    }
     let existItem = _.find(history, j => {
       let keysj = Object.keys(j)
       let keysi = Object.keys(item)
