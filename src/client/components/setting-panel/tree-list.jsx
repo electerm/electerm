@@ -30,7 +30,7 @@ const e = prefix('menu')
 const c = prefix('common')
 const s = prefix('setting')
 
-export default class ItemListTree extends React.PureComponent {
+export default class ItemListTree extends React.Component {
 
   constructor(props) {
     super(props)
@@ -665,7 +665,6 @@ export default class ItemListTree extends React.PureComponent {
     let level1Bookgroups = bookmarkGroups.filter(
       d => !d.level || d.level < 2
     )
-    console.log(expandedKeys, 'expandedKeys')
     return (
       <div className={`tree-list item-type-${type}`}>
         {
@@ -681,7 +680,7 @@ export default class ItemListTree extends React.PureComponent {
           <Tree
             onExpand={this.props.onExpand || this.onExpand}
             expandedKeys={expandedKeys}
-            autoExpandParent={!!keyword || !!staticList}
+            autoExpandAll={!!keyword || !!staticList}
             onSelect={this.onSelect}
             draggable={!staticList}
             selectedKeys={[activeItemId]}
