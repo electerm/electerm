@@ -30,7 +30,7 @@ const e = prefix('menu')
 const c = prefix('common')
 const s = prefix('setting')
 
-export default class ItemListTree extends React.Component {
+export default class ItemListTree extends React.PureComponent {
 
   constructor(props) {
     super(props)
