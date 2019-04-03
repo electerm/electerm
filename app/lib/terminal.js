@@ -253,19 +253,6 @@ class Terminal {
     this.channel.stderr.on(event, cb)
   }
 
-  setEncoding(encode) {
-    this[this.type + 'SetEncoding'](encode)
-  }
-
-  localSetEncoding(encode) {
-    this.term.setEncoding(encode)
-  }
-
-  remoteSetEncoding(encode) {
-    this.channel.setEncoding(encode)
-    this.channel.stderr.setEncoding(encode)
-  }
-
   write(data) {
     try {
       (this.term || this.channel).write(data)
