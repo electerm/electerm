@@ -61,7 +61,6 @@ app.ws('/terminals/:pid', function (ws, req) {
   ws.send(logs[pid])
 
   term.on('data', function(data) {
-    console.log(typeof data)
     try {
       ws.send(Buffer.from(data))
     } catch (ex) {

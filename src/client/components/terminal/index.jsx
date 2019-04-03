@@ -634,7 +634,8 @@ export default class Term extends React.PureComponent {
     let url = `http://${host}:${port}/terminals`
     let {tab = {}} = this.props
     let {
-      startPath, srcId, from = 'bookmarks', type, loginScript
+      startPath, srcId, from = 'bookmarks',
+      type, loginScript, encode
     } = tab
     let {savePassword} = this.state
     let isSshConfig = type === terminalSshConfigType
@@ -725,17 +726,32 @@ export default class Term extends React.PureComponent {
       term.on('zmodemDetect', this.onZmodemDetect)
     }
     term.attachCustomKeyEventHandler(this.handleEvent)
+    this.decoder = new TextDecoder(encode)
+    term.__getMessage = function (ev) {
+      let str = ''
+      if (typeof ev.data === 'object') {
+        if (ev.data instanceof ArrayBuffer) {
+          str = this.decoder.decode(ev.data)
+          term.write(str)
+        }
+        else {
+          let fileReader_1 = new FileReader()
+          fileReader_1.addEventListener('load', function () {
+            str = this.decoder.decode(fileReader_1.result)
+            term.write(str)
+          })
+          fileReader_1.readAsArrayBuffer(ev.data)
+        }
+      }
+      else if (typeof ev.data === 'string') {
+        term.write(ev.data)
+      }
+      else {
+        throw Error(`Cannot handle ${typeof ev.data} websocket message.`)
+      }
+    }
     this.term = term
     this.startPath = startPath
-    this.decoder = new TextDecoder('gb18030')
-    console.log(this.term)
-    // console.log('en', encode)
-    // let oldWrite = this.term.write
-    // this.term.write = (data) => {
-    //   console.log(typeof data, 'ddd')
-    //   let str = this.decoder.decode(data)
-    //   oldWrite.call(this.term, str)
-    // }
     if (startPath || loginScript || isSshConfig) {
       this.startPath = startPath
       this.timers.timer1 = setTimeout(this.initData, 10)
