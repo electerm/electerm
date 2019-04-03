@@ -171,21 +171,21 @@ export default class Tranporter extends React.PureComponent {
   startTransfer = async () => {
     let {id} = this.props.transport
     let {currentTransport} = this.props
+    let {
+      transferType,
+      fromPath,
+      toPath,
+      file: {
+        isDirectory,
+        targetFile,
+        mode
+      }
+    } = this.props.transport
     if (
       _.get(currentTransport, 'id') === id && !this.started
     ) {
       this.started = true
       this.startTime = +new Date()
-      let {
-        transferType,
-        fromPath,
-        toPath,
-        file: {
-          isDirectory,
-          targetFile,
-          mode
-        }
-      } = this.props.transport
       mode = _.get(targetFile, 'mode') || mode
       if (isDirectory) {
         return this.mkdir(this.props.transport)
