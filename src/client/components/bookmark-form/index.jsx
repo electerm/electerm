@@ -22,6 +22,7 @@ import {
 import {formItemLayout, tailFormItemLayout} from '../../common/form-layout'
 import InputAutoFocus from '../common/input-auto-focus'
 import isIp from '../../common/is-ip'
+import encodes from './encodes'
 import './bookmark-form.styl'
 
 const {TabPane} = Tabs
@@ -477,7 +478,8 @@ export class BookmarkForm extends React.PureComponent {
       loginScript,
       authType = authTypeMap.password,
       username,
-      id
+      id,
+      encode = encodes[0]
     } = this.props.formData
     let {
       autofocustrigger,
@@ -620,7 +622,6 @@ export class BookmarkForm extends React.PureComponent {
         <FormItem
           {...formItemLayout}
           label={e('loginScript')}
-          hasFeedback
         >
           {getFieldDecorator('loginScript', {
             initialValue: loginScript
@@ -629,6 +630,32 @@ export class BookmarkForm extends React.PureComponent {
               <Input.TextArea rows={1}>{loginScript}</Input.TextArea>
               <div>* {e('loginScriptTip')}</div>
             </div>
+          )}
+        </FormItem>
+        <FormItem
+          {...formItemLayout}
+          key="encode-select"
+          label={e('encode')}
+        >
+          {getFieldDecorator('encode', {
+            initialValue: encode
+          })(
+            <Select
+              showSearch
+            >
+              {
+                encodes.map(k => {
+                  return (
+                    <Option
+                      value={k}
+                      key={k}
+                    >
+                      {k}
+                    </Option>
+                  )
+                })
+              }
+            </Select>
           )}
         </FormItem>
       </div>
