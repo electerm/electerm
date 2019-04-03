@@ -134,18 +134,20 @@ export default class Tranporter extends React.PureComponent {
     let {startTime} = this
     let finishTime = +new Date()
     let {size} = file
-    this.props.addTransferHistory({
-      id,
-      fromPath,
-      toPath,
-      targetTransferType,
-      srcTransferType,
-      startTime,
-      finishTime,
-      type: transferType,
-      size: file.size,
-      speed: format(size, startTime)
-    })
+    if (!this.props.config.disableTransferHistory) {
+      this.props.addTransferHistory({
+        id,
+        fromPath,
+        toPath,
+        targetTransferType,
+        srcTransferType,
+        startTime,
+        finishTime,
+        type: transferType,
+        size: file.size,
+        speed: format(size, startTime)
+      })
+    }
     this.timer = setTimeout(
       () => this.cancel(cb),
       100
@@ -168,20 +170,27 @@ export default class Tranporter extends React.PureComponent {
 
   startTransfer = async () => {
     let {id} = this.props.transport
-    let {currentTransports} = this.props
-    let ids = currentTransports.map(c => c.id)
-    if (!ids.includes(id) || this.started) {
-      return
-    }
-    this.started = true
-    this.startTime = +new Date()
-    let {
-      transferType,
-      fromPath,
-      toPath,
-      file: {
-        isDirectory,
-        mode
+    let {currentTransport} = this.props
+    if (
+      _.get(currentTransport, 'id') === id && !this.started
+    ) {
+      this.started = true
+      this.startTime = +new Date()
+      let {
+        transferType,
+        fromPath,
+        toPath,
+        file: {
+          isDirectory,
+          targetFile,
+          mode
+        }
+      } = this.props.transport
+      mode = _.get(targetFile, 'mode') || mode
+      if (isDirectory) {
+        return this.mkdir(this.props.transport)
+          .then(this.onEnd)
+          .catch(this.onError)
       }
     } = this.props.transport
     if (isDirectory) {

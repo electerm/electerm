@@ -22,6 +22,7 @@ import {
 import {formItemLayout, tailFormItemLayout} from '../../common/form-layout'
 import InputAutoFocus from '../common/input-auto-focus'
 import isIp from '../../common/is-ip'
+import encodes from './encodes'
 import './bookmark-form.styl'
 
 const {TabPane} = Tabs
@@ -368,7 +369,9 @@ export class BookmarkForm extends React.PureComponent {
         if (!proxy || !proxyIp || !proxyPort) {
           return prev
         }
-        let id = `socks${proxyType}://${proxyIp}:${proxyPort}`
+        let id = proxyType === '0'
+          ? `http://${proxyIp}:${proxyPort}`
+          : `socks${proxyType}://${proxyIp}:${proxyPort}`
         return {
           ...prev,
           [id]: proxy
@@ -459,6 +462,7 @@ export class BookmarkForm extends React.PureComponent {
           <Select>
             <Option value="5">SOCKS5</Option>
             <Option value="4">SOCKS4</Option>
+            <Option value="0">HTTP</Option>
           </Select>
         )}
       </FormItem>
@@ -474,7 +478,8 @@ export class BookmarkForm extends React.PureComponent {
       loginScript,
       authType = authTypeMap.password,
       username,
-      id
+      id,
+      encode = encodes[0]
     } = this.props.formData
     let {
       autofocustrigger,
@@ -617,7 +622,6 @@ export class BookmarkForm extends React.PureComponent {
         <FormItem
           {...formItemLayout}
           label={e('loginScript')}
-          hasFeedback
         >
           {getFieldDecorator('loginScript', {
             initialValue: loginScript
@@ -626,6 +630,32 @@ export class BookmarkForm extends React.PureComponent {
               <Input.TextArea rows={1}>{loginScript}</Input.TextArea>
               <div>* {e('loginScriptTip')}</div>
             </div>
+          )}
+        </FormItem>
+        <FormItem
+          {...formItemLayout}
+          key="encode-select"
+          label={e('encode')}
+        >
+          {getFieldDecorator('encode', {
+            initialValue: encode
+          })(
+            <Select
+              showSearch
+            >
+              {
+                encodes.map(k => {
+                  return (
+                    <Option
+                      value={k}
+                      key={k}
+                    >
+                      {k}
+                    </Option>
+                  )
+                })
+              }
+            </Select>
           )}
         </FormItem>
       </div>

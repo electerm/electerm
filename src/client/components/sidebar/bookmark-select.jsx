@@ -65,5 +65,4 @@ export default memo((props) => {
         onClickItem={item => props.onSelectBookmark(item.id)}
       />
     )
-
 })

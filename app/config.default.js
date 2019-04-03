@@ -32,7 +32,9 @@ module.exports = function() {
         execWindows: 'System32/WindowsPowerShell/v1.0/powershell.exe',
         execMac: 'bash',
         execLinux: 'bash',
-        enableGlobalProxy: false
+        enableGlobalProxy: false,
+        disableSshHistory: false,
+        disableTransferHistory: false
       }
       let conf = {
         port: freePort,
@@ -46,7 +48,8 @@ module.exports = function() {
         opacity: 1,
         proxyPort: 1080,
         proxyType: '5',
-        proxyIp: '127.0.0.1'
+        proxyIp: '127.0.0.1',
+        zoom: 1
       }
       extend(conf, override)
       extend(conf, userConfig)

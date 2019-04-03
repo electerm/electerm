@@ -952,7 +952,7 @@ export default class Sftp extends React.Component {
       height,
       isActive: this.isActive(),
       ..._.pick(this.props, [
-        'onError', 'addTransferHistory'
+        'onError', 'addTransferHistory', 'config'
       ]),
       ..._.pick(this.state, [
         'transports',

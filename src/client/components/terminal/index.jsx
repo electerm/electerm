@@ -633,7 +633,10 @@ export default class Term extends React.PureComponent {
     let wsUrl
     let url = `http://${host}:${port}/terminals`
     let {tab = {}} = this.props
-    let {startPath, srcId, from = 'bookmarks', type, loginScript} = tab
+    let {
+      startPath, srcId, from = 'bookmarks',
+      type, loginScript, encode
+    } = tab
     let {savePassword} = this.state
     let isSshConfig = type === terminalSshConfigType
     let extra = this.props.sessionOptions
@@ -644,12 +647,12 @@ export default class Term extends React.PureComponent {
       ...tab,
       ...extra,
       ..._.pick(config, [
-        'sshReadyTimeout',
         'keepaliveInterval',
         'execWindows',
         'execMac',
         'execLinux'
       ]),
+      readyTimeout: config.sshReadyTimeout,
       proxy: mergeProxy(config, tab),
       type: tab.host && !isSshConfig
         ? typeMap.remote
@@ -707,7 +710,6 @@ export default class Term extends React.PureComponent {
     this.socket = socket
     term.on('refresh', this.onRefresh)
     term.on('resize', this.onResizeTerminal)
-
     let cid = _.get(this.props, 'currentTabId')
     let tid = _.get(this.props, 'tab.id')
     if (cid === tid && this.props.tab.status === statusMap.success) {
@@ -724,6 +726,30 @@ export default class Term extends React.PureComponent {
       term.on('zmodemDetect', this.onZmodemDetect)
     }
     term.attachCustomKeyEventHandler(this.handleEvent)
+    this.decoder = new TextDecoder(encode)
+    term.__getMessage = function (ev) {
+      let str = ''
+      if (typeof ev.data === 'object') {
+        if (ev.data instanceof ArrayBuffer) {
+          str = this.decoder.decode(ev.data)
+          term.write(str)
+        }
+        else {
+          let fileReader_1 = new FileReader()
+          fileReader_1.addEventListener('load', function () {
+            str = this.decoder.decode(fileReader_1.result)
+            term.write(str)
+          })
+          fileReader_1.readAsArrayBuffer(ev.data)
+        }
+      }
+      else if (typeof ev.data === 'string') {
+        term.write(ev.data)
+      }
+      else {
+        throw Error(`Cannot handle ${typeof ev.data} websocket message.`)
+      }
+    }
     this.term = term
     this.startPath = startPath
     if (startPath || loginScript || isSshConfig) {

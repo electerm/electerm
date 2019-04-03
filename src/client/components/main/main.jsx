@@ -19,6 +19,7 @@ import * as terminalThemes from '../../common/terminal-theme'
 import createTitlte from '../../common/create-title'
 import TextEditor from '../text-editor'
 import Sidebar from '../sidebar'
+import SystemMenu from './system-menu'
 import {
   maxHistory,
   settingMap,
@@ -96,6 +97,7 @@ export default class Index extends React.Component {
       //sidebar
       openedSideBar: '',
       openedCategoryIds: ls.get('openedCategoryIds') || bookmarkGroups.map(b => b.id),
+      menuOpened: false,
 
       //update
       shouldCheckUpdate: 0,
@@ -129,6 +131,7 @@ export default class Index extends React.Component {
     this.checkLastSession()
     this.checkDefaultTheme()
     window.addEventListener('offline',  this.setOffline)
+    this.zoom(this.state.config.zoom, false, true)
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -145,6 +148,28 @@ export default class Index extends React.Component {
     window.postMessage({
       type: 'focus'
     }, '*')
+  }
+
+  openMenu = () => {
+    this.setState(() => {
+      return {
+        menuOpened: true
+      }
+    })
+    this.initMenuEvent()
+  }
+
+  closeMenu = () => {
+    this.setState(() => {
+      return {
+        menuOpened: false
+      }
+    })
+    this.onCloseMenu()
+  }
+
+  onCloseMenu = () => {
+    this.dom && this.dom.removeEventListener('click', this.closeContextMenu)
   }
 
   checkDefaultTheme () {
@@ -217,10 +242,16 @@ export default class Index extends React.Component {
     }
   }
 
-  initEvent = () => {
+  initContextEvent = () => {
     let dom = document.getElementById('outside-context')
     this.dom = dom
     dom.addEventListener('click', this.closeContextMenu)
+  }
+
+  initMenuEvent = () => {
+    let dom = document.getElementById('outside-context')
+    this.dom = dom
+    dom.addEventListener('click', this.closeMenu)
   }
 
   selectall = () => {
@@ -231,6 +262,27 @@ export default class Index extends React.Component {
       event: 'selectall',
       id: this.state.activeTerminalId
     }, '*')
+  }
+
+  zoom = (level = 1, plus = false, zoomOnly) => {
+    let {webFrame} = require('electron')
+    let nl = plus
+      ? webFrame.getZoomFactor() + level
+      : level
+    webFrame.setZoomFactor(nl)
+    if (zoomOnly) {
+      return
+    }
+    this.setState(old => {
+      let nc = {
+        ...old.config,
+        zoom: nl
+      }
+      getGlobal('saveUserConfig')(nc)
+      return {
+        config: nc
+      }
+    })
 
   }
 
@@ -331,7 +383,7 @@ export default class Index extends React.Component {
       contextMenuProps,
       contextMenuVisible: true
     })
-    this.initEvent()
+    this.initContextEvent()
   }
 
   closeContextMenu = () => {
@@ -635,7 +687,9 @@ export default class Index extends React.Component {
       id: generate()
     })
     item.id = generate()
-
+    if (this.state.config.disableSshHistory) {
+      return
+    }
     let existItem = _.find(history, j => {
       let keysj = Object.keys(j)
       let keysi = Object.keys(item)
@@ -744,7 +798,10 @@ export default class Index extends React.Component {
         'addBookmarkGroup',
         'editBookmarkGroup',
         'closeContextMenu',
+        'zoom',
         'clickNextTab',
+        'openMenu',
+        'closeMenu',
         'delBookmarkGroup',
         'onClose',
         'reloadTab',
@@ -782,6 +839,7 @@ export default class Index extends React.Component {
           visible={contextMenuVisible}
           closeContextMenu={this.closeContextMenu}
         />
+        <SystemMenu {...controlProps} />
         <FileInfoModal
           {...fileInfoModalProps}
         />

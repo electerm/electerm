@@ -12,6 +12,7 @@
 <span class="badge-daviddmdev"><a href="https://david-dm.org/electerm/electerm#info=devDependencies" title="View the status of this project's development dependencies on DavidDM"><img src="https://img.shields.io/david/dev/electerm/electerm.svg" alt="Dev Dependency Status" /></a></span>
 <span class="badge-githubstar">
 [![license](https://img.shields.io/github/license/electerm/electerm.svg)](https://github.com/electerm/electerm/blob/master/LICENSE)
+[![996.icu](https://img.shields.io/badge/link-996.icu-red.svg)](https://996.icu)
 
 Terminal/ssh/sftp client(linux, mac, win) based on electron/ssh2/node-pty/xterm/antd and other libs.
 
@@ -46,7 +47,10 @@ npm i -g electerm
 - Support multi platform(linux, mac, win)
 - 🇺🇸 🇨🇳 🇧🇷 🇷🇺 🇪🇸 Support multi-language([electerm-locales](https://github.com/electerm/electerm-locales), contribute welcome)
 - Double click to directly edit remote file(small ones).
-- Support auth with publickey + password
+- Edit local file with built-in editor(small ones).
+- Support auth with publickey + password.
+- Support Zmodem.
+- Support transparent window(Mac, win).
 
 ## Support
 
