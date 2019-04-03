@@ -192,7 +192,7 @@ export default class Tranporter extends React.PureComponent {
           .then(this.onEnd)
           .catch(this.onError)
       }
-    } = this.props.transport
+    }
     if (isDirectory) {
       return this.mkdir(this.props.transport)
         .then(this.onEnd)
