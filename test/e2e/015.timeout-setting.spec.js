@@ -17,7 +17,7 @@ const {
 } = require('./common/env')
 const isOs = require('./common/is-os')
 
-if (!isOs('darwin')) {
+if (isOs('darwin')) {
   return
 }
 
