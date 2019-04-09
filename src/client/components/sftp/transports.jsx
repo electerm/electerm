@@ -130,11 +130,11 @@ export default class Transports extends React.PureComponent {
 
   renderContent = () => {
     let {transports, addTransferHistory, config} = this.props
-    let {currentTransport} = this.state
+    let {currentTransports} = this.state
     return (
       <div className="transports-content overscroll-y">
         {
-          transports.map((t ,i) => {
+          transports.map((t, i) => {
             let {id} = t
             return (
               <Transport
@@ -143,9 +143,8 @@ export default class Transports extends React.PureComponent {
                 {...this.props}
                 addTransferHistory={addTransferHistory}
                 onChildDestroy={this.onChildDestroy}
-                currentTransport={currentTransport}
+                currentTransports={currentTransports}
                 config={config}
-                ref={ref => this[`ref__${id}`] = ref}
                 index={i}
               />
             )
@@ -156,7 +155,7 @@ export default class Transports extends React.PureComponent {
   }
 
   renderTransportIcon() {
-    let pausing = _.get(this.state.currentTransport, 'pausing')
+    let pausing = this.computePausing()
     let icon = pausing ? 'play-circle' : 'pause-circle'
     return (
       <Icon type={icon} />
@@ -187,7 +186,7 @@ export default class Transports extends React.PureComponent {
     )
   }
 
-  computePercent = (trs) => {
+  computePercent = (trs = this.state.currentTransports) => {
     let {all, transfered} = trs.reduce((prev, c) => {
       prev.all += c.file.size
       prev.transfered += (c.transferred || 0)
@@ -203,14 +202,14 @@ export default class Transports extends React.PureComponent {
     return percent
   }
 
-  computeLeftTime = (trs) => {
+  computeLeftTime = (trs = this.state.currentTransports) => {
     let sorted = copy(trs).sort((a, b) => a.leftTimeInt - b.leftTimeInt)
     return _.get(sorted, '[0].leftTime')
   }
 
-  computePausing = (trs) => {
+  computePausing = (trs = this.state.currentTransports) => {
     return trs.reduce((prev, c) => {
-      return prev && c
+      return prev && c.pausing
     }, true)
   }
 
@@ -226,6 +225,8 @@ export default class Transports extends React.PureComponent {
     if (!transports.length) {
       return null
     }
+    console.log(transports, 'transports')
+    console.log(currentTransports, 'currentTransports')
     return (
       <div className="tranports-wrap">
         <Popover

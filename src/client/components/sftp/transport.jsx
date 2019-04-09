@@ -78,7 +78,7 @@ export default class Tranporter extends React.PureComponent {
   pause = () => {
     let transport = copy(this.props.transport)
     transport.pausing = true
-    this.transport.pause()
+    this.transport && this.transport.pause()
     this.update(transport)
   }
 
@@ -86,7 +86,7 @@ export default class Tranporter extends React.PureComponent {
     let transport = copy(this.props.transport)
     transport.pausing = false
     this.update(transport)
-    this.transport.resume()
+    this.transport && this.transport.resume()
   }
 
   onData = (transferred) => {
@@ -148,10 +148,7 @@ export default class Tranporter extends React.PureComponent {
         speed: format(size, startTime)
       })
     }
-    this.timer = setTimeout(
-      () => this.cancel(cb),
-      100
-    )
+    this.cancel(cb)
   }
 
   mkdir = async (transport) => {
@@ -169,9 +166,9 @@ export default class Tranporter extends React.PureComponent {
   }
 
   startTransfer = async () => {
-    let {id} = this.props.transport
-    let {currentTransport} = this.props
+    let {currentTransports} = this.props
     let {
+      id,
       transferType,
       fromPath,
       toPath,
@@ -181,8 +178,9 @@ export default class Tranporter extends React.PureComponent {
         mode
       }
     } = this.props.transport
+    let cids = currentTransports.map(t => t.id)
     if (
-      _.get(currentTransport, 'id') === id && !this.started
+      cids.includes(id) && !this.started
     ) {
       this.started = true
       this.startTime = +new Date()
@@ -192,29 +190,29 @@ export default class Tranporter extends React.PureComponent {
           .then(this.onEnd)
           .catch(this.onError)
       }
+      if (isDirectory) {
+        return this.mkdir(this.props.transport)
+          .then(this.onEnd)
+          .catch(this.onError)
+      }
+      let isDown = transferType === transferTypeMap.download
+      let localPath = isDown
+        ? toPath
+        : fromPath
+      let remotePath = isDown
+        ? fromPath
+        : toPath
+      this.transport = await this.props.sftp[transferType]({
+        remotePath,
+        localPath,
+        options: {mode},
+        ..._.pick(this, [
+          'onData',
+          'onError',
+          'onEnd'
+        ])
+      })
     }
-    if (isDirectory) {
-      return this.mkdir(this.props.transport)
-        .then(this.onEnd)
-        .catch(this.onError)
-    }
-    let isDown = transferType === transferTypeMap.download
-    let localPath = isDown
-      ? toPath
-      : fromPath
-    let remotePath = isDown
-      ? fromPath
-      : toPath
-    this.transport = await this.props.sftp[transferType]({
-      remotePath,
-      localPath,
-      options: {mode},
-      ..._.pick(this, [
-        'onData',
-        'onError',
-        'onEnd'
-      ])
-    })
   }
 
   cancel = async (callback) => {
@@ -227,6 +225,7 @@ export default class Tranporter extends React.PureComponent {
       }
       await wait(150)
     }
+    oldTrans = copy(this.props.transports)
     let transports = oldTrans.filter(t => {
       return t.id !== id
     })
