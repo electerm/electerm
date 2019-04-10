@@ -17,7 +17,7 @@ const {
 } = require('./common/env')
 const isOs = require('./common/is-os')
 
-if (!isOs('darwin') || true) {
+if (isOs('darwin')) {
   return
 }
 
@@ -70,7 +70,7 @@ describe('timeout setting', function () {
       document.querySelector('.ant-modal .ant-tabs-tabpane-active .ant-btn-primary').click()
     })
     await delay(3500)
-    let txt = await client.getText('.ant-notification-notice  .ant-notification-notice-content .common-err-desc')
+    let txt = await client.getText('.ant-notification-notice  .ant-notification-notice-content .common-err')
     expect(txt.includes('Timed out')).equal(true)
     await client.execute(function() {
       document.querySelector('.btns .anticon-setting').click()
