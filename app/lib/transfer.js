@@ -40,19 +40,23 @@ class Transfer {
     }, 1000)
 
     readSteam.on('data', chunk => {
-      let res = writeSteam.write(chunk)
-      if (res) {
-        count += chunk.length
-        this.onData(count)
-      } else {
-        readSteam.pause()
-        writeSteam.once('drain', () => {
+      try {
+        let res = writeSteam.write(chunk)
+        if (res) {
           count += chunk.length
           this.onData(count)
-          if (!this.pausing) {
-            readSteam.resume()
-          }
-        })
+        } else {
+          readSteam.pause()
+          writeSteam.once('drain', () => {
+            count += chunk.length
+            this.onData(count)
+            if (!this.pausing) {
+              readSteam.resume()
+            }
+          })
+        }
+      } catch(e) {
+        this.onError(e, id)
       }
     })
 

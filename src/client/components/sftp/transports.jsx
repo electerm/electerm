@@ -6,16 +6,44 @@ import {Popover, Icon} from 'antd'
 import Transport from './transport'
 import _ from 'lodash'
 import copy from 'json-deep-copy'
+import {maxTransport} from '../../common/constants'
+import {transportTypes} from './transport-types'
 
 const {prefix} = window
 const e = prefix('sftp')
+
+function getFirstTransports(transports, max = maxTransport) {
+  let trans = _.isArray(transports)
+    ? transports
+    : []
+  let first = trans[0]
+  if (!first) {
+    return []
+  }
+  if (first.file.isDirectory) {
+    return [first]
+  }
+  let res = []
+  for (let i = 0;i < max;i ++) {
+    let f = trans[i]
+    if (!f) {
+      break
+    }
+    if (!f.file.isDirectory) {
+      res.push(f)
+    } else {
+      break
+    }
+  }
+  return res
+}
 
 export default class Transports extends React.PureComponent {
 
   constructor(props) {
     super(props)
     this.state = {
-      currentTransport: props.transports[0] || null,
+      currentTransports: getFirstTransports(props.transports),
       showList: false
     }
   }
@@ -24,18 +52,12 @@ export default class Transports extends React.PureComponent {
     if (
       !_.isEqual(this.props.transports, prevProps.transports)
     ) {
-      this.rebuildState()
+      this.rebuildState(this.props.transports, prevProps.transports)
     }
   }
 
   componentWillUnmount() {
     clearTimeout(this.timer)
-  }
-
-  refs = {}
-
-  onChildDestroy = id => {
-    delete this[`ref__${id}`]
   }
 
   onVisibleChange = showList => {
@@ -51,13 +73,17 @@ export default class Transports extends React.PureComponent {
   }
 
   pause = () => {
-    let {id} = this.state.currentTransport
-    this[`ref__${id}`].pause()
+    window.postMessage({
+      action: transportTypes.pauseTransport,
+      ids: this.state.currentTransports.map(d => d.id)
+    }, '*')
   }
 
   resume = () => {
-    let {id} = this.state.currentTransport
-    this[`ref__${id}`].resume()
+    window.postMessage({
+      action: transportTypes.resumeTransport,
+      ids: this.state.currentTransports.map(d => d.id)
+    }, '*')
   }
 
   modifyAsync = (data) => {
@@ -66,12 +92,11 @@ export default class Transports extends React.PureComponent {
     })
   }
 
-  cancelAll = async () => {
-    this.pause()
-    Object.keys(this).filter(k => k.includes('ref__'))
-      .forEach(k => {
-        this[k].onCancel = true
-      })
+  cancelAll = () => {
+    window.postMessage({
+      action: transportTypes.cancelTransport,
+      ids: this.state.currentTransports.map(d => d.id)
+    }, '*')
     this.timer = setTimeout(() => {
       this.props.modifier({
         transports: []
@@ -79,35 +104,37 @@ export default class Transports extends React.PureComponent {
     }, 300)
   }
 
-  rebuildState = (nextProps = this.props) => {
-    let {transports} = nextProps
-    let {currentTransport} = this.state
-    let has = _.find(transports, t => t.id === _.get(currentTransport, 'id'))
-    if (!has) {
-      let cur = transports[0] || null
-      this.setState({
-        currentTransport: copy(cur),
-        showList: !!cur
-      })
-    } else {
-      let showList = currentTransport.id !== has.id
-      let update = {
-        currentTransport: copy(has)
-      }
-      if (showList) {
-        update.showList = true
-      }
-      this.setState(update)
-    }
+  rebuildState = (newtrans, oldtrans) => {
+    let transports = copy(newtrans)
+    let diff = _.difference(transports.map(t => t.id), oldtrans.map(t => t.id))
+    let currentTransports = copy(this.state.currentTransports)
+    let idsAll = transports.map(d => d.id)
+    currentTransports = currentTransports.filter(c => {
+      return idsAll.includes(c.id)
+    })
+    let cids = currentTransports.map(c => c.id)
+    let max = maxTransport - cids.length
+    transports = transports.filter(t => {
+      return !cids.includes(t.id)
+    })
+    transports = getFirstTransports(transports, max)
+    currentTransports = [
+      ...currentTransports,
+      ...transports
+    ]
+    this.setState({
+      currentTransports,
+      showList: diff.length
+    })
   }
 
   renderContent = () => {
     let {transports, addTransferHistory, config} = this.props
-    let {currentTransport} = this.state
+    let {currentTransports} = this.state
     return (
       <div className="transports-content overscroll-y">
         {
-          transports.map((t ,i) => {
+          transports.map((t, i) => {
             let {id} = t
             return (
               <Transport
@@ -116,9 +143,8 @@ export default class Transports extends React.PureComponent {
                 {...this.props}
                 addTransferHistory={addTransferHistory}
                 onChildDestroy={this.onChildDestroy}
-                currentTransport={currentTransport}
+                currentTransports={currentTransports}
                 config={config}
-                ref={ref => this[`ref__${id}`] = ref}
                 index={i}
               />
             )
@@ -129,7 +155,7 @@ export default class Transports extends React.PureComponent {
   }
 
   renderTransportIcon() {
-    let pausing = _.get(this.state.currentTransport, 'pausing')
+    let pausing = this.computePausing()
     let icon = pausing ? 'play-circle' : 'pause-circle'
     return (
       <Icon type={icon} />
@@ -160,12 +186,45 @@ export default class Transports extends React.PureComponent {
     )
   }
 
+  computePercent = () => {
+    let ids = this.state.currentTransports.map(r => r.id)
+    let trs = this.props.transports.filter(t => ids.includes(t.id))
+    let {all, transfered} = trs.reduce((prev, c) => {
+      prev.all += c.file.size
+      prev.transfered += (c.transferred || 0)
+      return prev
+    }, {
+      all: 0,
+      transfered: 0
+    })
+    let percent = all === 0
+      ? 0
+      : Math.floor(100 * transfered / all)
+    percent = percent >= 100 ? 99 : percent
+    return percent
+  }
+
+  computeLeftTime = () => {
+    let ids = this.state.currentTransports.map(r => r.id)
+    let trs = this.props.transports.filter(t => ids.includes(t.id))
+    let sorted = copy(trs).sort((b, a) => a.leftTimeInt - b.leftTimeInt)
+    return _.get(sorted, '[0].leftTime')
+  }
+
+  computePausing = () => {
+    let ids = this.state.currentTransports.map(r => r.id)
+    let trs = this.props.transports.filter(t => ids.includes(t.id))
+    return trs.reduce((prev, c) => {
+      return prev && c.pausing
+    }, true)
+  }
+
   render() {
     let {transports, isActive} = this.props
-    let {currentTransport, showList} = this.state
-    let percent = _.get(currentTransport, 'percent')
-    let leftTime = _.get(currentTransport, 'leftTime')
-    let pausing = _.get(currentTransport, 'pausing')
+    let {currentTransports, showList} = this.state
+    let percent = this.computePercent()
+    let leftTime = this.computeLeftTime()
+    let pausing = this.computePausing()
     let func = pausing
       ? this.resume
       : this.pause
@@ -188,7 +247,7 @@ export default class Transports extends React.PureComponent {
             >
               {this.renderTransportIcon()} {percent}%({leftTime})
               <span className="mg1l">
-                [1 / {transports.length}]
+                [{currentTransports.length} / {transports.length}]
               </span>
             </div>
           </div>

@@ -48,11 +48,14 @@ const initWs = function (app) {
 
       if (action === 'sftp-new') {
         let {id} = msg
-        sftpInsts[id] = new Sftp()
+        sftpInsts[id] = {
+          inst: new Sftp(),
+          transferIds: []
+        }
       } else if (action === 'sftp-func') {
         let {id, args, func} = msg
         let uid = func + ':' + id
-        sftpInsts[id][func](...args)
+        sftpInsts[id].inst[func](...args)
           .then(data => {
             ws.s({
               id: uid,
@@ -71,6 +74,15 @@ const initWs = function (app) {
       } else if (action === 'sftp-destroy') {
         let {id} = msg
         ws.close()
+        let {inst, transferIds} = sftpInsts[id]
+        if (inst) {
+          inst.client.destroy()
+          for(let tid of transferIds) {
+            if (global.transferInsts[tid]) {
+              global.transferInsts[tid].destroy()
+            }
+          }
+        }
         delete sftpInsts[id]
       }
     })
@@ -94,7 +106,7 @@ const initWs = function (app) {
       if (action === 'transfer-new') {
         let {sftpId, id} = msg
         let opts = Object.assign({}, msg, {
-          sftp: sftpInsts[sftpId].sftp,
+          sftp: sftpInsts[sftpId].inst.sftp,
           ws
         })
         global.transferInsts[id] = new Transfer(opts)
