@@ -6,7 +6,6 @@ import {Icon} from 'antd'
 import copy from 'json-deep-copy'
 import _ from 'lodash'
 import resolve from '../../common/resolve'
-import wait from '../../common/wait'
 import {transferTypeMap} from '../../common/constants'
 import format, {computeLeftTime, computePassedTime} from './transfer-speed-format'
 import fs from '../../common/fs'
@@ -67,12 +66,14 @@ export default class Tranporter extends React.PureComponent {
   }
 
   update = (transport) => {
-    let transports = copy(this.props.transports)
-    let index = _.findIndex(transports, t => t.id === transport.id)
-    transports.splice(index, 1, transport)
-    this.props.modifier(() => ({
-      transports
-    }))
+    this.props.modifier((old) => {
+      let transports = copy(old.transports)
+      let index = _.findIndex(transports, t => t.id === transport.id)
+      transports.splice(index, 1, transport)
+      return {
+        transports
+      }
+    })
   }
 
   pause = () => {
@@ -218,20 +219,15 @@ export default class Tranporter extends React.PureComponent {
   cancel = async (callback) => {
     this.onCancel = true
     let {id} = this.props.transport
-    let oldTrans = copy(this.props.transports)
-    if (oldTrans.length === 1) {
-      if (this.transport) {
-        await this.transport.pause()
+    this.props.modifier((old) => {
+      let oldTrans = copy(old.transports)
+      let transports = oldTrans.filter(t => {
+        return t.id !== id
+      })
+      return {
+        transports
       }
-      await wait(150)
-    }
-    oldTrans = copy(this.props.transports)
-    let transports = oldTrans.filter(t => {
-      return t.id !== id
-    })
-    this.props.modifier(() => ({
-      transports
-    }), _.isFunction(callback) ? callback : undefined)
+    }, _.isFunction(callback) ? callback : undefined)
   }
 
   buildCls(file = {}) {
@@ -300,13 +296,13 @@ export default class Tranporter extends React.PureComponent {
         </span>
         <Icon
           type={pauseIcon}
-          className="sftp-control-icon iblock pointer mg1r hover-black"
+          className="transfer-control-icon iblock pointer mg1r hover-black"
           onClick={pauseFunc}
           title={pauseTitle}
         />
         <Icon
           type="close-circle"
-          className="sftp-control-icon iblock pointer hover-black"
+          className="transfer-control-icon iblock pointer hover-black"
           onClick={this.cancel}
           title={e('cancel')}
         />

@@ -52,7 +52,7 @@ export default class Transports extends React.PureComponent {
     if (
       !_.isEqual(this.props.transports, prevProps.transports)
     ) {
-      this.rebuildState()
+      this.rebuildState(this.props.transports, prevProps.transports)
     }
   }
 
@@ -92,7 +92,7 @@ export default class Transports extends React.PureComponent {
     })
   }
 
-  cancelAll = async () => {
+  cancelAll = () => {
     window.postMessage({
       action: transportTypes.cancelTransport,
       ids: this.state.currentTransports.map(d => d.id)
@@ -104,8 +104,9 @@ export default class Transports extends React.PureComponent {
     }, 300)
   }
 
-  rebuildState = (nextProps = this.props) => {
-    let transports = copy(nextProps.transports)
+  rebuildState = (newtrans, oldtrans) => {
+    let transports = copy(newtrans)
+    let diff = _.difference(transports.map(t => t.id), oldtrans.map(t => t.id))
     let currentTransports = copy(this.state.currentTransports)
     let idsAll = transports.map(d => d.id)
     currentTransports = currentTransports.filter(c => {
@@ -121,10 +122,9 @@ export default class Transports extends React.PureComponent {
       ...currentTransports,
       ...transports
     ]
-    this.setState(() => {
-      return {
-        currentTransports
-      }
+    this.setState({
+      currentTransports,
+      showList: diff.length
     })
   }
 
@@ -186,7 +186,9 @@ export default class Transports extends React.PureComponent {
     )
   }
 
-  computePercent = (trs = this.state.currentTransports) => {
+  computePercent = () => {
+    let ids = this.state.currentTransports.map(r => r.id)
+    let trs = this.props.transports.filter(t => ids.includes(t.id))
     let {all, transfered} = trs.reduce((prev, c) => {
       prev.all += c.file.size
       prev.transfered += (c.transferred || 0)
@@ -202,12 +204,16 @@ export default class Transports extends React.PureComponent {
     return percent
   }
 
-  computeLeftTime = (trs = this.state.currentTransports) => {
-    let sorted = copy(trs).sort((a, b) => a.leftTimeInt - b.leftTimeInt)
+  computeLeftTime = () => {
+    let ids = this.state.currentTransports.map(r => r.id)
+    let trs = this.props.transports.filter(t => ids.includes(t.id))
+    let sorted = copy(trs).sort((b, a) => a.leftTimeInt - b.leftTimeInt)
     return _.get(sorted, '[0].leftTime')
   }
 
-  computePausing = (trs = this.state.currentTransports) => {
+  computePausing = () => {
+    let ids = this.state.currentTransports.map(r => r.id)
+    let trs = this.props.transports.filter(t => ids.includes(t.id))
     return trs.reduce((prev, c) => {
       return prev && c.pausing
     }, true)
@@ -216,17 +222,15 @@ export default class Transports extends React.PureComponent {
   render() {
     let {transports, isActive} = this.props
     let {currentTransports, showList} = this.state
-    let percent = this.computePercent(currentTransports)
-    let leftTime = this.computeLeftTime(currentTransports)
-    let pausing = this.computePausing(currentTransports)
+    let percent = this.computePercent()
+    let leftTime = this.computeLeftTime()
+    let pausing = this.computePausing()
     let func = pausing
       ? this.resume
       : this.pause
     if (!transports.length) {
       return null
     }
-    console.log(transports, 'transports')
-    console.log(currentTransports, 'currentTransports')
     return (
       <div className="tranports-wrap">
         <Popover

@@ -66,21 +66,22 @@ export default class Confirms extends React.PureComponent {
   }
 
   submit = () => {
-    let {transports} = this.props
     this.setStateProxy({
       files: [],
       index: 0
     }, () => {
-      this.props.modifier({
-        filesToConfirm: [],
-        transferType: null,
-        transports: [
-          ...transports,
-          ...this.state.transferList
-        ]
+      this.props.modifier(old => {
+        let transports = copy(old.transports)
+        return {
+          filesToConfirm: [],
+          transferType: null,
+          transports: [
+            ...transports,
+            ...this.state.transferList
+          ]
+        }
       })
     })
-
   }
 
   skip = async () => {
