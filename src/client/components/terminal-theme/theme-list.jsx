@@ -45,7 +45,7 @@ export default class ThemeList extends List {
     let {activeItemId, theme} = this.props
     let {name, id} = item
     let cls = classnames(
-      'item-list-unit',
+      'item-list-unit theme-item',
       {
         current: theme === id
       },
