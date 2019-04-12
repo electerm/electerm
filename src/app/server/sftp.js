@@ -2,10 +2,10 @@
  * ssh2 sftp client
  */
 
-let {Client} = require('@electerm/ssh2')
-const proxySock = require('./socks')
-const _ = require('lodash')
-const {readRemoteFile, writeRemoteFile} = require('./sftp-file')
+import {Client} from '@electerm/ssh2'
+import proxySock from './socks'
+import _ from 'lodash'
+import {readRemoteFile, writeRemoteFile} from './sftp-file'
 
 class Sftp {
 
@@ -454,7 +454,7 @@ class Sftp {
   //end
 }
 
-module.exports = {
+export default {
   Sftp,
   instSftpKeys: [
     'connect',

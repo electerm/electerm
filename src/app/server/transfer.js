@@ -2,9 +2,8 @@
  * transfer class
  */
 
-
-const fs = require('original-fs')
-const _ = require('lodash')
+import fs from 'original-fs'
+import _ from 'lodash'
 
 class Transfer {
 
@@ -107,8 +106,7 @@ class Transfer {
   //end
 }
 
-
-module.exports = {
+export default {
   Transfer,
   transferKeys: [
     'pause',

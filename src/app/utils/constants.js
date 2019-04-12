@@ -4,7 +4,7 @@
 
 let {NODE_ENV} = process.env
 
-module.exports = {
+export default {
   isDev: NODE_ENV === 'development',
   defaultLang: 'en_us'
 }

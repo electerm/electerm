@@ -1,12 +1,13 @@
-const express = require('express')
+import express from 'express'
+import cors from 'cors'
+import log from '../utils/log'
+import bodyParser from 'body-parser'
+import {terminal} from './terminal'
+import initWs from './dispatch-center'
+
 const app = express()
-const cors = require('cors')
-const log = require('../utils/log')
 const terminals = {}
 const logs = {}
-const bodyParser = require('body-parser')
-const {terminal} = require('./terminal')
-const initWs = require('./dispatch-center')
 
 app.use(cors())
 

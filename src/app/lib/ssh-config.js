@@ -2,14 +2,15 @@
  * read ssh config
  */
 
-const {app} = require('electron')
-const home = app.getPath('home')
-const sshConfig = require('ssh-config')
-const {resolve} = require('path')
-const log = require('../utils/log')
+import {app} from 'electron'
+import sshConfig from 'ssh-config'
+import {resolve} from 'path'
+import log from '../utils/log'
 
+const home = app.getPath('home')
 const defaultPort = 22
 let config = []
+
 try {
   const configStr = require('fs').readFileSync(
     resolve(home, '.ssh', 'config')
@@ -36,4 +37,4 @@ try {
   log.debug('maybe no $HOME/.ssh/config, but it is ok')
 }
 
-module.exports = config
+export default config

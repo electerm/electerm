@@ -2,7 +2,7 @@
  * shortcut controll
  */
 
-const log = require('../utils/log')
+import log from '../utils/log'
 
 let shortcut
 
@@ -12,7 +12,7 @@ let shortcut
  * @param {object} win
  * @param {object} config
  */
-exports.init = (globalShortcut, win, config) => {
+export const init = (globalShortcut, win, config) => {
   shortcut = config.hotkey
   globalShortcut.register(shortcut, () => {
     if (win.isFocused()) {
@@ -28,7 +28,7 @@ exports.init = (globalShortcut, win, config) => {
   }
 }
 
-exports.changeHotkeyReg = (globalShortcut, win) => {
+export const changeHotkeyReg = (globalShortcut, win) => {
   return newHotkey => {
     globalShortcut.unregister(shortcut)
     globalShortcut.register(newHotkey, () => {

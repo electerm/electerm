@@ -1,7 +1,7 @@
 // export install src for linux dist
 
-const {resolve} = require('path')
-const log = require('../utils/log')
+import {resolve} from 'path'
+import log from '../utils/log'
 
 let installSrc = ''
 
@@ -22,5 +22,5 @@ if (!installSrc) {
   }
 }
 
-module.exports = installSrc
+export default installSrc
 

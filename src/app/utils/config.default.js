@@ -1,11 +1,11 @@
 
-const extend = require('recursive-assign')
-const fp = require('find-free-port')
-const {resolve} = require('path')
-const appPath = require('./app-path')
-const log = require('./log')
+import extend from 'recursive-assign'
+import fp from 'find-free-port'
+import {resolve} from 'path'
+import appPath from './app-path'
+import log from './log'
 
-module.exports = function() {
+export default () => {
   let override = {}
   let userConfig = {}
   let configPath = resolve(appPath, 'electerm-config.js')
