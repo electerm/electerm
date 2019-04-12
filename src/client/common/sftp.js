@@ -45,7 +45,7 @@ class Sftp {
           })
           ws.once((arg) => {
             if (arg.error) {
-              log.error('sftp error', arg.error.message)
+              log.debug('sftp error', arg.error.message)
               return reject(new Error(arg.error.message))
             }
             resolve(arg.data)

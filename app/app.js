@@ -153,7 +153,6 @@ async function createWindow () {
     upgradeKeys: transferKeys,
     fs: fsExport,
     ls,
-    log,
     getExitStatus: () => global.et.exitStatus,
     setExitStatus: (status) => {
       global.et.exitStatus = status
