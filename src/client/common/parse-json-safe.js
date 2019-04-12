@@ -5,7 +5,7 @@ export default str => {
   try {
     return JSON.parse(str)
   } catch(e) {
-    console.log(e.stack)
+    log.error('JSON.parse fails', e.stack)
     return str
   }
 }

@@ -24,9 +24,7 @@ export default fsFunctions.reduce((prev, func) => {
       })
       ws.once((arg) => {
         if (arg.error) {
-          console.log('fs error')
-          console.log(arg.error.message)
-          console.log(arg.error.stack)
+          log.error('fs error', arg.error.message)
           return reject(new Error(arg.error.message))
         }
         resolve(arg.data)

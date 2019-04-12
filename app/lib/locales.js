@@ -2,7 +2,7 @@
  * multi language support
  */
 
-const {isDev, defaultLang} = require('./constants')
+const {isDev, defaultLang} = require('../utils/constants')
 const fs = require('fs')
 const _ = require('lodash')
 const {resolve} = require('path')

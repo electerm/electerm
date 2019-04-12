@@ -395,7 +395,7 @@ export default class Index extends React.Component {
 
   onError = e => {
     let {message = 'error', stack} = e
-    console.log(new Date + '', stack)
+    log.error(e)
     let msg = (
       <div className="mw240 elli wordbreak" title={message}>
         {message}

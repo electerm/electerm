@@ -68,7 +68,7 @@ export class BookmarkForm extends React.PureComponent {
     }
     let ip = await window.getGlobal('lookup')(value)
       .catch(err => {
-        console.log(err)
+        log.debug(err)
       })
     this.setState({
       dns: ip ? ip : ''

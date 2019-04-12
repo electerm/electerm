@@ -5,7 +5,8 @@
 
 const {Sftp} = require('./sftp')
 const {Transfer} = require('./transfer')
-const {fsExport: fs} = require('./fs')
+const {fsExport: fs} = require('../lib/fs')
+const log = require('../utils/log')
 const Upgrade = require('./download-upgrade')
 
 const sftpInsts = {}
@@ -21,11 +22,11 @@ const wsDec = (ws) => {
     try {
       ws.send(JSON.stringify(msg))
     } catch(e) {
-      console.log('ws send error')
-      console.log(e)
+      log.error('ws send error')
+      log.error(e)
     }
   }
-  ws.on('error', e => console.log(e))
+  ws.on('error', log.error)
   ws._socket.setKeepAlive(true, 5 * 60 * 1000)
 }
 

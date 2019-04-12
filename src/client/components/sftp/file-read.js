@@ -33,7 +33,7 @@ export const getLocalFileInfo = async (filePath) => {
       isSymbolicLink: stat.isSymbolicLink
     }
   } catch (e) {
-    console.log(e)
+    log.debug(e)
     return null
   }
 }

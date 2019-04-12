@@ -14,17 +14,16 @@ function parseResponse(response) {
 }
 
 export async function handleErr(res) {
-  console.log(res)
+  log.debug(res)
   let text = res.message || res.statusText
   try {
     text = _.isFunction(res.text)
       ? await res.text()
       : await res.json()
   } catch(e) {
-    console.log(e)
-    console.log('res.text fails')
+    log.error('fetch res.text fails', e)
   }
-  console.log(text, 'err info')
+  log.debug(text, 'fetch err info')
   notification.error({
     message: 'error',
     placement: 'bottomRight',
