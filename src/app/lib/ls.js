@@ -16,7 +16,7 @@ let writeFs = _.debounce(writeFileSync, 280, {
   leading: true
 })
 
-export const get = (key) => {
+const get = (key) => {
   try {
     let db = JSON.parse(readFileSync(savePath).toString())
     cache = db
@@ -27,7 +27,7 @@ export const get = (key) => {
   }
 }
 
-export const set = (keyOrObject, value) => {
+const set = (keyOrObject, value) => {
   try {
     let newdb = copy(cache)
     if (_.isPlainObject(keyOrObject)) {
@@ -45,6 +45,12 @@ export const set = (keyOrObject, value) => {
   }
 }
 
-export const clear = (key) => {
+const clear = (key) => {
   return set(key, null)
+}
+
+export default {
+  get,
+  set,
+  clear
 }

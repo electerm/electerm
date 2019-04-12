@@ -7,7 +7,7 @@ import proxySock from './socks'
 import _ from 'lodash'
 import {readRemoteFile, writeRemoteFile} from './sftp-file'
 
-class Sftp {
+export class Sftp {
 
   constructor() {
     this.client = new Client()
@@ -454,27 +454,24 @@ class Sftp {
   //end
 }
 
-export default {
-  Sftp,
-  instSftpKeys: [
-    'connect',
-    'list',
-    'download',
-    'upload',
-    'mkdir',
-    'getHomeDir',
-    'rmdir',
-    'stat',
-    'lstat',
-    'chmod',
-    'rename',
-    'rm',
-    'touch',
-    'readlink',
-    'realpath',
-    'mv',
-    'cp',
-    'readFile',
-    'writeFile'
-  ]
-}
+export const instSftpKeys = [
+  'connect',
+  'list',
+  'download',
+  'upload',
+  'mkdir',
+  'getHomeDir',
+  'rmdir',
+  'stat',
+  'lstat',
+  'chmod',
+  'rename',
+  'rm',
+  'touch',
+  'readlink',
+  'realpath',
+  'mv',
+  'cp',
+  'readFile',
+  'writeFile'
+]

@@ -4,14 +4,20 @@
 
 import ls from './ls'
 
-export const set = (key, value) => {
+const set = (key, value) => {
   ls.set(`laststate.${key}`, value)
 }
 
-export const get = (key) => {
+const get = (key) => {
   return ls.get(`laststate.${key}`)
 }
 
-export const clear = (key) => {
+const clear = (key) => {
   ls.clear(`laststate.${key}`)
+}
+
+export default {
+  get,
+  clear,
+  set
 }

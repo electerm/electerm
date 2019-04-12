@@ -5,7 +5,7 @@
 import fs from 'original-fs'
 import _ from 'lodash'
 
-class Transfer {
+export class Transfer {
 
   constructor({
     remotePath,
@@ -106,11 +106,9 @@ class Transfer {
   //end
 }
 
-export default {
-  Transfer,
-  transferKeys: [
-    'pause',
-    'resume',
-    'destroy'
-  ]
-}
+export const transferKeys = [
+  'pause',
+  'resume',
+  'destroy'
+]
+

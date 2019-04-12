@@ -4,8 +4,6 @@
 
 let {NODE_ENV} = process.env
 
-export default {
-  isDev: NODE_ENV === 'development',
-  defaultLang: 'en_us'
-}
+export const isDev = NODE_ENV === 'development'
+export const defaultLang = 'en_us'
 

@@ -1,7 +1,7 @@
 /**
  * terminal class
  */
-import pty from 'node-pty'
+import * as pty from 'node-pty'
 import {Client} from '@electerm/ssh2'
 import proxySock from './socks'
 import _ from 'lodash'
