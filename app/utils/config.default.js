@@ -2,7 +2,8 @@
 const extend = require('recursive-assign')
 const fp = require('find-free-port')
 const {resolve} = require('path')
-const appPath = require('./lib/app-path')
+const appPath = require('./app-path')
+const log = require('./log')
 
 module.exports = function() {
   let override = {}
@@ -13,12 +14,12 @@ module.exports = function() {
   try {
     override = require(configPath)
   } catch(e) {
-    console.log('no', configPath, 'but it is ok')
+    log.info('no', configPath, 'but it is ok')
   }
   try {
     userConfig = require(userConfigPath)
   } catch(e) {
-    console.log('no', userConfigPath, 'but it is ok')
+    log.info('no', userConfigPath, 'but it is ok')
   }
 
   return new Promise((resolve) => {

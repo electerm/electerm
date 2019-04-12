@@ -525,8 +525,8 @@ export default class Sftp extends React.Component {
             sftp,
             realpath
           ).catch(e => {
-            console.log('seems a bad symbolic link')
-            console.log(e)
+            log.debug('seems a bad symbolic link')
+            log.debug(e)
             return null
           })
           if (!realFileInfo) {

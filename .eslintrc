@@ -10,7 +10,8 @@
     "describe": true,
     "beforeEach": true,
     "afterEach": true,
-    "it": true
+    "it": true,
+    "log": true
   },
   "extends": "eslint:recommended",
   "parser": "babel-eslint",

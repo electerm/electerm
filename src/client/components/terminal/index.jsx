@@ -244,7 +244,7 @@ export default class Term extends React.PureComponent {
   }
 
   onzmodemRetract = () => {
-    console.log('zmodemRetract')
+    log.debug('zmodemRetract')
   }
 
   onReceiveZmodemSession = () => {
@@ -770,14 +770,14 @@ export default class Term extends React.PureComponent {
         let {cols, rows} = this.term.proposeGeometry()
         this.term.resize(cols, rows)
       } catch (e) {
-        console.log('resize failed')
+        log.info('resize failed')
       }
     }
   }
 
   onerrorSocket = err => {
     this.setStatus(statusMap.error)
-    console.log(err.stack)
+    log.warn('onerrorSocket', err)
   }
 
   oncloseSocket = () => {
@@ -785,7 +785,7 @@ export default class Term extends React.PureComponent {
       return
     }
     this.setStatus(statusMap.error)
-    console.log('socket closed, pid:', this.pid)
+    log.debug('socket closed, pid:', this.pid)
   }
 
   onResizeTerminal = size => {

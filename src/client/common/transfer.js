@@ -52,8 +52,8 @@ class Transfer {
       onEnd(arg)
     }, 'transfer:end:' + id)
     ws.once((arg) => {
-      console.log('sftp transfer error')
-      console.log(arg.error.stack)
+      log.debug('sftp transfer error')
+      log.debug(arg.error.stack)
       onError(new Error(arg.error.message))
     }, 'transfer:err:' + id)
 

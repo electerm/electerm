@@ -78,7 +78,6 @@ export default memo(props => {
         bookmarks
       })
     } catch(e) {
-      console.log(e.stack)
       props.onError(e)
     }
     return false

@@ -18,7 +18,7 @@ export default class ErrorBoundary extends React.PureComponent {
   }
 
   componentDidCatch(error) {
-    console.log(new Date() + '', error.stack)
+    log.error(error)
     this.setState({
       hasError: true,
       error

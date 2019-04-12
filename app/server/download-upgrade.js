@@ -10,9 +10,9 @@ const rp = require('phin')
 const os = require('os')
 const isWin = os.platform() === 'win32'
 const isMac = os.platform() === 'darwin'
-const installSrc = require('./install-src')
+const installSrc = require('../lib/install-src')
 const tempDir = os.tmpdir()
-const {fsExport} = require('./fs')
+const {fsExport} = require('../lib/fs')
 const {openFile, rmrf} = fsExport
 
 function getReleaseInfo(filter, releaseInfoUrl) {
