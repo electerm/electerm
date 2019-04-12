@@ -2,12 +2,12 @@
  * multi language support
  */
 
-const {isDev, defaultLang} = require('../utils/constants')
-const fs = require('fs')
-const _ = require('lodash')
-const {resolve} = require('path')
-const {userConfig} = require('./user-config-controller')
-const {sync} = require('os-locale')
+import {isDev, defaultLang} from '../utils/constants'
+import fs from 'fs'
+import _ from 'lodash'
+import {resolve} from 'path'
+import {userConfig} from './user-config-controller'
+import {sync} from 'os-locale'
 
 let path = (isDev
   ? '../'
@@ -16,7 +16,7 @@ let path = (isDev
 let localeFolder = resolve(__dirname, path)
 
 //languages array
-const langs = fs.readdirSync(localeFolder)
+const langsAll = fs.readdirSync(localeFolder)
   .map(fileName => {
     let filePath = resolve(localeFolder, fileName)
     let lang = require(filePath)
@@ -27,14 +27,14 @@ const langs = fs.readdirSync(localeFolder)
       match: lang.match
     }
   })
-const langMap = langs.reduce((prev, l) => {
+const langMap = langsAll.reduce((prev, l) => {
   prev[l.id] = l
   return prev
 }, {})
 
 function findLang(la) {
   let res = false
-  for (let l of langs) {
+  for (let l of langsAll) {
     if (_.isRegExp(l.match)) {
       res = l.match.test(la)
     } else if (_.isFunction(l.match)) {
@@ -61,25 +61,25 @@ const getLang = () => {
 
 let language = getLang()
 
-exports.lang = require(langMap[language].path).lang
+export const lang = require(langMap[language].path).lang
 
 /**
  * string translate
  * @param {string} id eg: 'menu.cut'
  */
-exports.e = id => {
+export const e = id => {
   return _.get(exports.lang, id) || id
 }
 
-exports.prefix = prefix => {
+export const prefix = prefix => {
   return (id) => {
     return _.get(exports.lang, `${prefix}.${id}`) || id
   }
 }
 
-exports.langs = langs
+export const langs = langsAll
 
-exports.saveLangConfig = (saveUserConfig, userConfig) => {
+export const saveLangConfig = (saveUserConfig, userConfig) => {
   if (!userConfig.language) {
     saveUserConfig({
       language

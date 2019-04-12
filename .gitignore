@@ -2,6 +2,7 @@
 *.log
 .DS_Store
 *.rdb
+/app/
 /.happypack/
 /app/assets/
 # config etc

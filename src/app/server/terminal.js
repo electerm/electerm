@@ -1,15 +1,15 @@
 /**
  * terminal class
  */
-const pty = require('node-pty')
-const {Client} = require('@electerm/ssh2')
-const proxySock = require('./socks')
-const _ = require('lodash')
-const {generate} = require('shortid')
-const {resolve} = require('path')
-const net = require('net')
-const {exec} = require('child_process')
-const log = require('../utils/log')
+import * as pty from 'node-pty'
+import {Client} from '@electerm/ssh2'
+import proxySock from './socks'
+import _ from 'lodash'
+import {generate} from 'shortid'
+import {resolve} from 'path'
+import net from 'net'
+import {exec} from 'child_process'
+import log from '../utils/log'
 
 function getDisplay() {
   return new Promise((resolve) => {
@@ -271,7 +271,7 @@ class Terminal {
 
 }
 
-exports.terminal = async function(initOptions) {
+export const terminal = async function(initOptions) {
   let term = new Terminal(initOptions)
   await term.init()
   return term
@@ -281,6 +281,6 @@ exports.terminal = async function(initOptions) {
  * test ssh connection
  * @param {object} options
  */
-exports.testConnection = (options) => {
+export const testConnection = (options) => {
   return (new Terminal(options)).remoteInit(options, true)
 }

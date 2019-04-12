@@ -2,10 +2,11 @@
  * localstorage to local file system
  */
 
-const {writeFileSync, readFileSync} = require('fs')
-const _ = require('lodash')
-const {resolve} = require('path')
-const appPath = require('../utils/app-path')
+import {writeFileSync, readFileSync} from 'fs'
+import _ from 'lodash'
+import {resolve} from 'path'
+import appPath from '../utils/app-path'
+
 const savePath = resolve(appPath, 'electerm-localstorage.json')
 const copy = require('json-deep-copy')
 const log = require('../utils/log')
@@ -48,7 +49,7 @@ const clear = (key) => {
   return set(key, null)
 }
 
-module.exports = {
+export default {
   get,
   set,
   clear

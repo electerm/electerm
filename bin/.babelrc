@@ -1,0 +1,13 @@
+{
+  "presets": [
+    ["minify", {
+      "removeConsole": true,
+      "removeDebugger": true
+    }],
+    ["@babel/env", {
+      "targets": {
+        "node": "current"
+      }
+    }]
+  ]
+}

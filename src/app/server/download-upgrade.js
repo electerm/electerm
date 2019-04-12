@@ -3,16 +3,17 @@
  */
 
 
-const fs = require('fs')
-const {resolve} = require('path')
-const _ = require('lodash')
-const rp = require('phin')
-const os = require('os')
+import fs from 'fs'
+import {resolve} from 'path'
+import _ from 'lodash'
+import rp from 'phin'
+import os from 'os'
+import installSrc from '../lib/install-src'
+import {fsExport} from '../lib/fs'
+
 const isWin = os.platform() === 'win32'
 const isMac = os.platform() === 'darwin'
-const installSrc = require('../lib/install-src')
 const tempDir = os.tmpdir()
-const {fsExport} = require('../lib/fs')
 const {openFile, rmrf} = fsExport
 
 function getReleaseInfo(filter, releaseInfoUrl) {
@@ -152,4 +153,4 @@ class Upgrade {
   //end
 }
 
-module.exports = Upgrade
+export default Upgrade

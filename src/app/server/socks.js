@@ -2,10 +2,10 @@
  * socks proxy wrapper
  */
 
-let {SocksClient} = require('socks')
-let {request} = require('http')
+import {SocksClient} from 'socks'
+import {request} from 'http'
 
-module.exports = (initOptions) => {
+export default (initOptions) => {
   let {
     proxy: {
       proxyIp,

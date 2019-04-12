@@ -1,7 +1,8 @@
 global.Promise = require('bluebird')
 
-const {exec} = require('child_process')
-const os = require('os')
+import {exec} from 'child_process'
+import os from 'os'
+
 const isWin = os.platform() === 'win32'
 const isMac = os.platform() === 'darwin'
 const fs = require('original-fs')
@@ -104,7 +105,7 @@ const openFile = (localFilePath) => {
   return run(cmd)
 }
 
-const fsExport = Object.assign(
+export const fsExport = Object.assign(
   {},
   fss,
   {
@@ -149,7 +150,7 @@ const fsExport = Object.assign(
   }
 )
 
-const fsFunctions = [
+export const fsFunctions = [
   'accessAsync',
   'statAsync',
   'lstatAsync',
@@ -166,8 +167,3 @@ const fsFunctions = [
   'writeFile',
   'openFile'
 ]
-
-module.exports = {
-  fsExport,
-  fsFunctions
-}

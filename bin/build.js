@@ -12,6 +12,7 @@ echo('clean')
 exec('npm run clean')
 exec('npm run ver')
 exec('npm run build')
+exec('npm run build-app')
 
 const endTime = +new Date()
 echo(`done build in ${(endTime - timeStart)/1000} s`)

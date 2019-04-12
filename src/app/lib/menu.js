@@ -1,11 +1,12 @@
 /**
  * app system menu config
  */
-const {
+import {
   app,
   Menu,
   shell
-} = require('electron')
+} from 'electron'
+
 let {
   NODE_ENV
 } = process.env
@@ -256,4 +257,4 @@ if (process.platform === 'darwin') {
 
 const menu = Menu.buildFromTemplate(template)
 
-module.exports = menu
+export default menu

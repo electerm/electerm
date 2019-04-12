@@ -2,9 +2,9 @@
  * dns lookup
  */
 
-const dns = require('dns')
+import dns from 'dns'
 
-module.exports = (host) => {
+export default (host) => {
   return new Promise((resolve, reject) => {
     dns.lookup(host, function(err, result) {
       if (err) {

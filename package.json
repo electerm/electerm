@@ -1,11 +1,12 @@
 {
   "name": "electerm",
-  "version": "0.27.2",
+  "version": "0.27.3",
   "description": "Terminal/ssh/sftp client(linux, mac, win) based on electron/ssh2/node-pty/xterm/antd and other libs",
   "main": "dev-app.js",
   "bin": "npm/electerm",
   "scripts": {
-    "app": "node bin/app",
+    "app": "npm run build-app && node bin/app",
+    "build-app": "./node_modules/.bin/babel src/app --out-dir app --config-file ./bin/.babelrc",
     "build": "./node_modules/.bin/cross-env NODE_ENV=production ./node_modules/.bin/webpack --progress",
     "start": "./node_modules/.bin/webpack-dev-server --progress --colors --content-base app/assets/",
     "icon": "node bin/icon",
@@ -20,7 +21,7 @@
     "release": "npm run pre-test && npm run output",
     "preinstall": "node bin/preinstall",
     "postinstall": "node bin/post-install",
-    "lint": "./node_modules/.bin/eslint --max-warnings 0 --ext .js --ext .jsx src app bin test",
+    "lint": "./node_modules/.bin/eslint --max-warnings 0 --ext .js --ext .jsx src bin test",
     "test": "./node_modules/.bin/mocha test/e2e/*.js",
     "pre-test": "npm run compile && npm run prepare-file"
   },
@@ -64,6 +65,7 @@
     "babel-plugin-lodash": "3.3.4",
     "babel-plugin-syntax-dynamic-import": "6.18.0",
     "babel-plugin-transform-runtime": "6.23.0",
+    "babel-preset-minify": "^0.5.0",
     "badges": "1.2.4",
     "chai": "4.2.0",
     "classnames": "2.2.6",

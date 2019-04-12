@@ -14,7 +14,6 @@ pack.devDependencies = {}
 echo('start pack prepare')
 
 const timeStart = + new Date()
-
 rm('-rf', dir)
 rm('-rf', 'dist/latest')
 rm('-rf', 'work')
