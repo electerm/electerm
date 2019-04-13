@@ -37,8 +37,12 @@ before_install:
 script:
   - npm run pre-test
   - npm i electron@3.1.8 electron-chromedriver@~3.0.0
+  - npm ls electron
+  - npm ls electron-chromedriver
   - npm run test
   - npm i electron@4.1.4 electron-chromedriver@^4.0.0-beta.1
+  - npm ls electron
+  - npm ls electron-chromedriver
   - |
     if echo "$TRAVIS_COMMIT_MESSAGE" | grep -F -q "[skip build]" ; then
       echo "[skip build] has been found, exiting" && exit 0 ;
