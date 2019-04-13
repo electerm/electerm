@@ -10,6 +10,6 @@ module.exports = {
   webdriverOptions: {
     deprecationWarnings: false
   },
-  chromeDriverArgs: isCI ? [] : ['remote-debugging-port=9222'],
+  chromeDriverArgs: isCI ? undefined : ['remote-debugging-port=9222'],
   args: [resolve(cwd, 'work/app'), '--no-session-restore']
 }
