@@ -9,25 +9,17 @@ const {
   TEST_USER
 } = require('./common/env')
 const { Application } = require('spectron')
-const electronPath = require('electron')
-const {resolve} = require('path')
 const {expect} = require('chai')
-const cwd = process.cwd()
 const delay = require('./common/wait')
-const {log} = console
+const log = require('./common/log')
 const {generate} = require('shortid')
+const appOptions = require('./common/app-options')
 
 describe('sftp basic', function () {
   this.timeout(100000)
 
   beforeEach(async function() {
-    this.app = new Application({
-      path: electronPath,
-      args: [resolve(cwd, 'work/app'), '--no-session-restore'],
-      webdriverOptions: {
-        deprecationWarnings: false
-      }
-    })
+    this.app = new Application(appOptions)
     return this.app.start()
   })
 
@@ -187,7 +179,7 @@ describe('sftp basic', function () {
       })
       document.querySelectorAll('.ssh-wrap-show .file-list.remote .sftp-item')[1].dispatchEvent(event)
     })
-    await delay(2000)
+    await delay(3000)
     let pathCurrentRemote = await client.getAttribute('.ssh-wrap-show .sftp-remote-section .sftp-title input', 'value')
     expect(pathCurrentRemote.includes(fname0)).equal(true)
     let remoteFileList0 = await client.elements('.ssh-wrap-show .file-list.remote .sftp-item')

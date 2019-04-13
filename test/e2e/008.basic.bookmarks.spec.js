@@ -1,12 +1,9 @@
 const { Application } = require('spectron')
-const electronPath = require('electron')
-const {resolve} = require('path')
 const delay = require('./common/wait')
-const cwd = process.cwd()
 const _ = require('lodash')
-const {log} = console
+const log = require('./common/log')
 const {expect} = require('chai')
-
+const appOptions = require('./common/app-options')
 const {
   TEST_HOST,
   TEST_PASS,
@@ -18,13 +15,7 @@ describe('bookmarks', function () {
   this.timeout(100000)
 
   beforeEach(async function() {
-    this.app = new Application({
-      path: electronPath,
-      webdriverOptions: {
-        deprecationWarnings: false
-      },
-      args: [resolve(cwd, 'work/app'), '--no-session-restore']
-    })
+    this.app = new Application(appOptions)
     return this.app.start()
   })
 

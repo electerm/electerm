@@ -1,23 +1,15 @@
 
 
 const { Application } = require('spectron')
-const electronPath = require('electron')
-const {resolve} = require('path')
 const delay = require('./common/wait')
-const cwd = process.cwd()
 const {expect} = require('chai')
+const appOptions = require('./common/app-options')
 
 describe('tabs', function () {
   this.timeout(100000)
 
   beforeEach(async function() {
-    this.app = new Application({
-      path: electronPath,
-      webdriverOptions: {
-        deprecationWarnings: false
-      },
-      args: [resolve(cwd, 'work/app'), '--no-session-restore']
-    })
+    this.app = new Application(appOptions)
     return this.app.start()
   })
 

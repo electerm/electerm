@@ -159,7 +159,16 @@ export default function({
                 if (!_.isFunction(vf)) {
                   return null
                 }
-                let v = JSON.stringify(vf(), null, 2)
+                let v
+                try {
+                  v = vf()
+                } catch(e) {
+                  return null
+                }
+                if (!v) {
+                  return null
+                }
+                v = JSON.stringify(v, null, 2)
                 return (
                   <div className="pd1b" key={i + '_os_' + k}>
                     <b className="bold">{k}</b>:
@@ -172,7 +181,6 @@ export default function({
             }
           </TabPane>
         </Tabs>
-
       </div>
     )
   })
