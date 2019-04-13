@@ -1,7 +1,4 @@
 const { Application } = require('spectron')
-const electronPath = require('electron')
-const {resolve} = require('path')
-const cwd = process.cwd()
 const delay = require('./common/wait')
 const {expect} = require('chai')
 const appOptions = require('./common/app-options')

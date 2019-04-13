@@ -2,7 +2,7 @@
  * post install script
  */
 const {exec, cp, rm} = require('shelljs')
-const {existsSync, readFileSync, writeFileSync} = require('fs')
+const {existsSync} = require('fs')
 const {resolve} = require('path')
 const prePushPath = resolve(__dirname, '../.git/hooks/pre-push')
 const prePushPathFrom = resolve(__dirname, 'pre-push')
