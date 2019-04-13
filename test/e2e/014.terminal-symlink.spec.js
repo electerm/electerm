@@ -1,9 +1,11 @@
 const { Application } = require('spectron')
+const electronPath = require('electron')
+const {resolve} = require('path')
+const cwd = process.cwd()
 const delay = require('./common/wait')
-const log = require('./common/log')
+const {log} = console
 const {expect} = require('chai')
 const isOs = require('./common/is-os')
-const appOptions = require('./common/app-options')
 
 if (isOs('darwin')) {
   return
@@ -13,7 +15,13 @@ describe('terminal symlink', function () {
   this.timeout(100000)
 
   beforeEach(async function() {
-    this.app = new Application(appOptions)
+    this.app = new Application({
+      path: electronPath,
+      webdriverOptions: {
+        deprecationWarnings: false
+      },
+      args: [resolve(cwd, 'work/app'), '--no-session-restore']
+    })
     return this.app.start()
   })
 
