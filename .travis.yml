@@ -39,7 +39,7 @@ script:
   # - npm i electron@3.1.8 electron-chromedriver@~3.0.0
   # - npm ls electron
   # - npm ls electron-chromedriver
-  # - npm run test
+  - npm run test
   # - npm i electron@4.1.4 electron-chromedriver@^4.0.0-beta.1
   # - npm ls electron
   # - npm ls electron-chromedriver
