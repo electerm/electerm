@@ -30,6 +30,19 @@ const wsDec = (ws) => {
   ws._socket.setKeepAlive(true, 5 * 60 * 1000)
 }
 
+function onDestroySftp(id) {
+  let {inst, transferIds} = sftpInsts[id]
+  if (inst) {
+    inst.client.destroy()
+    for(let tid of transferIds) {
+      if (global.transferInsts[tid]) {
+        global.transferInsts[tid].destroy()
+      }
+    }
+  }
+  delete sftpInsts[id]
+}
+
 const initWs = function (app) {
 
   //sftp function
@@ -37,11 +50,7 @@ const initWs = function (app) {
     wsDec(ws)
     let {id} = req.params
     ws.on('close', () => {
-      let inst = sftpInsts[id]
-      if (inst && inst.destroy) {
-        inst.destroy()
-      }
-      delete sftpInsts[id]
+      onDestroySftp(id)
     })
     ws.on('message', (message) => {
       let msg = JSON.parse(message)
@@ -75,16 +84,7 @@ const initWs = function (app) {
       } else if (action === 'sftp-destroy') {
         let {id} = msg
         ws.close()
-        let {inst, transferIds} = sftpInsts[id]
-        if (inst) {
-          inst.client.destroy()
-          for(let tid of transferIds) {
-            if (global.transferInsts[tid]) {
-              global.transferInsts[tid].destroy()
-            }
-          }
-        }
-        delete sftpInsts[id]
+        onDestroySftp(id)
       }
     })
     //end
