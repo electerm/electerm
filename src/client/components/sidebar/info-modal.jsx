@@ -9,6 +9,7 @@ import {
   logoPath1,
   logoPath2
 } from '../../common/constants'
+import LogView from './log-view'
 
 const {prefix} = window
 const e = prefix('control')
@@ -179,6 +180,9 @@ export default function({
                 )
               })
             }
+          </TabPane>
+          <TabPane tab={e('log')} key="5">
+            <LogView />
           </TabPane>
         </Tabs>
       </div>

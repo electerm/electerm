@@ -7,10 +7,9 @@ const fs = require('fs')
 const {resolve} = require('path')
 const _ = require('lodash')
 const rp = require('phin')
-const os = require('os')
-const isWin = os.platform() === 'win32'
-const isMac = os.platform() === 'darwin'
+const {isWin, isMac} = require('../utils/app-props')
 const installSrc = require('../lib/install-src')
+const os = require('os')
 const tempDir = os.tmpdir()
 const {fsExport} = require('../lib/fs')
 const {openFile, rmrf} = fsExport

@@ -5,7 +5,7 @@
 const {writeFileSync, readFileSync} = require('fs')
 const _ = require('lodash')
 const {resolve} = require('path')
-const appPath = require('../utils/app-path')
+const {appPath} = require('../utils/app-props')
 const savePath = resolve(appPath, 'electerm-localstorage.json')
 const copy = require('json-deep-copy')
 const log = require('../utils/log')
