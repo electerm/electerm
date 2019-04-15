@@ -2,7 +2,7 @@
  * log view and export
  */
 
-import {useState, useEffect} from 'react'
+import {useState} from 'react'
 import {Button, Input} from 'antd'
 import fs from '../../common/fs'
 
