@@ -12,21 +12,20 @@ const {
 } = require('electron')
 const {fork} = require('child_process')
 const _ = require('lodash')
-const getConf = require('./config.default')
+const getConf = require('./utils/config.default')
 const sshConfigItems = require('./lib/ssh-config')
-const lookup = require('./lib/lookup')
+const lookup = require('./utils/lookup')
 const os = require('os')
 const {resolve} = require('path')
-const {instSftpKeys} = require('./lib/sftp')
-const {transferKeys} = require('./lib/transfer')
+const {instSftpKeys} = require('./server/sftp')
+const {transferKeys} = require('./server/transfer')
 const {saveUserConfig, userConfig} = require('./lib/user-config-controller')
 const {init, changeHotkeyReg} = require('./lib/shortcut')
 const {fsExport, fsFunctions} = require('./lib/fs')
 const ls = require('./lib/ls')
 const menu = require('./lib/menu')
-const {setWin} = require('./lib/win')
-const log = require('electron-log')
-const {testConnection} = require('./lib/terminal')
+const log = require('./utils/log')
+const {testConnection} = require('./server/terminal')
 const {saveLangConfig, lang, langs} = require('./lib/locales')
 const rp = require('phin').promisified
 const lastStateManager = require('./lib/last-state')
@@ -36,9 +35,7 @@ const {
 } = require('./lib/locales')
 const a = prefix('app')
 
-// Keep a global reference of the window object, if you don't, the window will
-// be closed automatically when the JavaScript object is garbage collected.
-let win
+global.win = null
 let timer
 let timer1
 let childPid
@@ -55,6 +52,7 @@ const iconPath = resolve(
 )
 
 function onClose() {
+  log.debug('close app')
   ls.set({
     exitStatus: 'ok',
     sessions: null
@@ -62,7 +60,7 @@ function onClose() {
   process.nextTick(() => {
     clearTimeout(timer)
     clearTimeout(timer1)
-    win = null
+    global.win = null
     process.kill(childPid)
     process.on('uncaughtException', function () {
       process.exit(0)
@@ -85,14 +83,14 @@ async function waitUntilServerStart(url) {
   }
 }
 
-log.info('App starting...')
+log.debug('App starting...')
 
 async function createWindow () {
 
   let config = await getConf()
 
   //start server
-  let child = fork(resolve(__dirname, './lib/server.js'), {
+  let child = fork(resolve(__dirname, './server/server.js'), {
     env: Object.assign(
       {},
       process.env,
@@ -108,7 +106,9 @@ async function createWindow () {
 
   childPid = child.pid
 
-  if (config.showMenu) Menu.setApplicationMenu(menu)
+  if (config.showMenu) {
+    Menu.setApplicationMenu(menu)
+  }
 
   let windowSizeLastState = lastStateManager.get('windowSize')
   const {width, height} = windowSizeLastState && !isDev
@@ -116,7 +116,7 @@ async function createWindow () {
     : require('electron').screen.getPrimaryDisplay().workAreaSize
 
   // Create the browser window.
-  win = new BrowserWindow({
+  global.win = new BrowserWindow({
     width,
     height,
     fullscreenable: true,
@@ -132,7 +132,7 @@ async function createWindow () {
 
   //handle autohide flag
   if (process.argv.includes('--autohide')) {
-    timer1 = setTimeout(() => win.hide(), 500)
+    timer1 = setTimeout(() => global.win.hide(), 500)
     if (Notification.isSupported()) {
       let notice = new Notification({
         title: `${packInfo.name} ${a('isRunning')}, ${a('press')} ${config.hotkey} ${a('toShow')}`
@@ -168,26 +168,26 @@ async function createWindow () {
     openExternal: shell.openExternal,
     homeOrtmp: os.homedir() || os.tmpdir(),
     closeApp: () => {
-      win.close()
+      global.win.close()
     },
     restart: () => {
-      win.close()
+      global.win.close()
       app.relaunch()
     },
     minimize: () => {
-      win.minimize()
+      global.win.minimize()
     },
     maximize: () => {
-      win.maximize()
+      global.win.maximize()
     },
     unmaximize: () => {
-      win.unmaximize()
+      global.win.unmaximize()
     },
     isMaximized: () => {
-      return win.isMaximized()
+      return global.win.isMaximized()
     },
     openDevTools: () => {
-      win.webContents.openDevTools()
+      global.win.webContents.openDevTools()
     },
     lookup,
     lang,
@@ -197,9 +197,9 @@ async function createWindow () {
     os,
     saveUserConfig,
     setTitle: (title) => {
-      win.setTitle(packInfo.name + ' - ' +title)
+      global.win.setTitle(packInfo.name + ' - ' +title)
     },
-    changeHotkey: changeHotkeyReg(globalShortcut, win)
+    changeHotkey: changeHotkeyReg(globalShortcut, global.win)
   })
 
   timer = setTimeout(() => {
@@ -221,22 +221,23 @@ async function createWindow () {
 
   await waitUntilServerStart(childServerUrl)
 
-  win.loadURL(opts)
+  global.win.loadURL(opts)
   //win.maximize()
 
   // Open the DevTools.
-  if(isDev) win.webContents.openDevTools()
+  if (isDev) {
+    global.win.webContents.openDevTools()
+  }
 
   //init hotkey
-  init(globalShortcut, win, config)
+  init(globalShortcut, global.win, config)
 
   // Emitted when the window is closed.
-  win.on('close', onClose)
-  win.on('focus', () => {
-    win.webContents.send('focused', null)
+  global.win.on('close', onClose)
+  global.win.on('focus', () => {
+    global.win.webContents.send('focused', null)
   })
 
-  setWin(win)
 }
 
 // This method will be called when Electron has finished
@@ -251,7 +252,7 @@ app.on('activate', () => {
 
   // On macOS it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
-  if (win === null) {
+  if (global.win === null) {
     createWindow()
   }
 })

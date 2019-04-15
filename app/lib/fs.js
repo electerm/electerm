@@ -6,6 +6,8 @@ const isWin = os.platform() === 'win32'
 const isMac = os.platform() === 'darwin'
 const fs = require('original-fs')
 const fss = Promise.promisifyAll(fs)
+const log = require('../utils/log')
+
 /**
  * run cmd
  * @param {string} cmd
@@ -140,7 +142,7 @@ const fsExport = Object.assign(
       return fss.writeFileAsync(path, txt, {mode})
         .then(() => true)
         .catch((e) => {
-          console.log(e)
+          log.error('fs.writeFile', e)
           return false
         })
     }

@@ -9,6 +9,7 @@ const {generate} = require('shortid')
 const {resolve} = require('path')
 const net = require('net')
 const {exec} = require('child_process')
+const log = require('../utils/log')
 
 function getDisplay() {
   return new Promise((resolve) => {
@@ -167,7 +168,7 @@ class Terminal {
                   xclientsock.pipe(xserversock).pipe(xclientsock)
                 })
                 .on('error', (e) => {
-                  console.log(e.message)
+                  log.error(e)
                   xserversock.destroy()
                   start = start === maxRetry ? portStart : start + 1
                   retry()
@@ -204,7 +205,7 @@ class Terminal {
             )
           })
           .on('error', err => {
-            console.log('errored term', err)
+            log.error('errored terminal', err)
             conn.end()
             reject(err)
           })
@@ -257,7 +258,7 @@ class Terminal {
     try {
       (this.term || this.channel).write(data)
     } catch (e) {
-      console.log(e)
+      log.error(e)
     }
   }
 
