@@ -1,11 +1,10 @@
 
-import extend from 'recursive-assign'
-import fp from 'find-free-port'
-import {resolve} from 'path'
-import appPath from './app-path'
-import log from './log'
+const extend = require('recursive-assign')
+const fp = require('find-free-port')
+const {resolve} = require('path')
+const appPath = require('./lib/app-path')
 
-export default () => {
+module.exports = function() {
   let override = {}
   let userConfig = {}
   let configPath = resolve(appPath, 'electerm-config.js')
@@ -14,12 +13,12 @@ export default () => {
   try {
     override = require(configPath)
   } catch(e) {
-    log.info('no', configPath, 'but it is ok')
+    console.log('no', configPath, 'but it is ok')
   }
   try {
     userConfig = require(userConfigPath)
   } catch(e) {
-    log.info('no', userConfigPath, 'but it is ok')
+    console.log('no', userConfigPath, 'but it is ok')
   }
 
   return new Promise((resolve) => {

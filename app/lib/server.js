@@ -1,13 +1,12 @@
-import express from 'express'
-import cors from 'cors'
-import log from '../utils/log'
-import bodyParser from 'body-parser'
-import {terminal} from './terminal'
-import initWs from './dispatch-center'
-
+const express = require('express')
 const app = express()
+const cors = require('cors')
+const {log} = require('./log')
 const terminals = {}
 const logs = {}
+const bodyParser = require('body-parser')
+const {terminal} = require('./terminal')
+const initWs = require('./dispatch-center')
 
 app.use(cors())
 
@@ -26,7 +25,7 @@ app.post('/terminals', async function (req, res) {
     .catch(err => err)
   let {pid} = term
   if (pid) {
-    log.debug('Created terminal with PID:', pid)
+    log('Created terminal with PID:', pid)
     terminals[pid] = term
     logs[pid] = Buffer.from('')
     term.on('data', function(data) {
@@ -49,7 +48,7 @@ app.post('/terminals/:pid/size', function (req, res) {
   let term = terminals[pid]
   if (term) {
     term.resize(cols, rows)
-    log.debug('Resized terminal ', pid, ' to ', cols, ' cols and ', rows, ' rows.')
+    log('Resized terminal ', pid, ' to ', cols, ' cols and ', rows, ' rows.')
   }
   res.end()
 })
@@ -57,7 +56,7 @@ app.post('/terminals/:pid/size', function (req, res) {
 app.ws('/terminals/:pid', function (ws, req) {
   let term = terminals[req.params.pid]
   let {pid} = term
-  log.debug('Connected to terminal', pid)
+  log('Connected to terminal', pid)
 
   ws.send(logs[pid])
 
@@ -71,7 +70,7 @@ app.ws('/terminals/:pid', function (ws, req) {
 
   function onClose() {
     term.kill()
-    log.debug('Closed terminal ' + pid)
+    log('Closed terminal ' + pid)
     // Clean things up
     delete terminals[pid]
     delete logs[pid]
@@ -84,11 +83,11 @@ app.ws('/terminals/:pid', function (ws, req) {
     try {
       term.write(msg)
     } catch (ex) {
-      log.error(ex)
+      log(ex)
     }
   })
 
-  ws.on('error', log.error)
+  ws.on('error', e => console.log(e))
 
   ws.on('close', onClose)
 })
@@ -102,7 +101,7 @@ initWs(app)
 const runServer = function() {
   let {port, host} = process.env
   app.listen(port, host, () => {
-    log.info('server', 'runs on', host, port)
+    log('server', 'runs on', host, port)
   })
 }
 

@@ -2,40 +2,43 @@
 //use bluebird for performance
 global.Promise = require('bluebird')
 
-import {
+const {
   app,
   BrowserWindow,
   Menu,
   Notification,
   globalShortcut,
   shell
-} from 'electron'
-import {fork} from 'child_process'
-import _ from 'lodash'
-import getConf from './utils/config.default'
-import sshConfigItems from './lib/ssh-config'
-import lookup from './utils/lookup'
-import os from 'os'
-import {resolve} from 'path'
-import {instSftpKeys} from './server/sftp'
-import {transferKeys} from './server/transfer'
-import {saveUserConfig, userConfig} from './lib/user-config-controller'
-import {init, changeHotkeyReg} from './lib/shortcut'
-import {fsExport, fsFunctions} from './lib/fs'
-import ls from './lib/ls'
-import menu from './lib/menu'
-import log from './utils/log'
-import {testConnection} from './server/terminal'
-import {saveLangConfig, lang, langs} from './lib/locales'
-import {promisified as rp} from 'phin'
-import lastStateManager from './lib/last-state'
-import installSrc from './lib/install-src'
-import {
+} = require('electron')
+const {fork} = require('child_process')
+const _ = require('lodash')
+const getConf = require('./config.default')
+const sshConfigItems = require('./lib/ssh-config')
+const lookup = require('./lib/lookup')
+const os = require('os')
+const {resolve} = require('path')
+const {instSftpKeys} = require('./lib/sftp')
+const {transferKeys} = require('./lib/transfer')
+const {saveUserConfig, userConfig} = require('./lib/user-config-controller')
+const {init, changeHotkeyReg} = require('./lib/shortcut')
+const {fsExport, fsFunctions} = require('./lib/fs')
+const ls = require('./lib/ls')
+const menu = require('./lib/menu')
+const {setWin} = require('./lib/win')
+const log = require('electron-log')
+const {testConnection} = require('./lib/terminal')
+const {saveLangConfig, lang, langs} = require('./lib/locales')
+const rp = require('phin').promisified
+const lastStateManager = require('./lib/last-state')
+const installSrc = require('./lib/install-src')
+const {
   prefix
-} from './lib/locales'
-
+} = require('./lib/locales')
 const a = prefix('app')
-global.win = null
+
+// Keep a global reference of the window object, if you don't, the window will
+// be closed automatically when the JavaScript object is garbage collected.
+let win
 let timer
 let timer1
 let childPid
@@ -52,7 +55,6 @@ const iconPath = resolve(
 )
 
 function onClose() {
-  log.debug('close app')
   ls.set({
     exitStatus: 'ok',
     sessions: null
@@ -60,7 +62,7 @@ function onClose() {
   process.nextTick(() => {
     clearTimeout(timer)
     clearTimeout(timer1)
-    global.win = null
+    win = null
     process.kill(childPid)
     process.on('uncaughtException', function () {
       process.exit(0)
@@ -83,14 +85,14 @@ async function waitUntilServerStart(url) {
   }
 }
 
-log.debug('App starting...')
+log.info('App starting...')
 
 async function createWindow () {
 
   let config = await getConf()
 
   //start server
-  let child = fork(resolve(__dirname, './server/server.js'), {
+  let child = fork(resolve(__dirname, './lib/server.js'), {
     env: Object.assign(
       {},
       process.env,
@@ -106,9 +108,7 @@ async function createWindow () {
 
   childPid = child.pid
 
-  if (config.showMenu) {
-    Menu.setApplicationMenu(menu)
-  }
+  if (config.showMenu) Menu.setApplicationMenu(menu)
 
   let windowSizeLastState = lastStateManager.get('windowSize')
   const {width, height} = windowSizeLastState && !isDev
@@ -116,7 +116,7 @@ async function createWindow () {
     : require('electron').screen.getPrimaryDisplay().workAreaSize
 
   // Create the browser window.
-  global.win = new BrowserWindow({
+  win = new BrowserWindow({
     width,
     height,
     fullscreenable: true,
@@ -132,7 +132,7 @@ async function createWindow () {
 
   //handle autohide flag
   if (process.argv.includes('--autohide')) {
-    timer1 = setTimeout(() => global.win.hide(), 500)
+    timer1 = setTimeout(() => win.hide(), 500)
     if (Notification.isSupported()) {
       let notice = new Notification({
         title: `${packInfo.name} ${a('isRunning')}, ${a('press')} ${config.hotkey} ${a('toShow')}`
@@ -168,26 +168,26 @@ async function createWindow () {
     openExternal: shell.openExternal,
     homeOrtmp: os.homedir() || os.tmpdir(),
     closeApp: () => {
-      global.win.close()
+      win.close()
     },
     restart: () => {
-      global.win.close()
+      win.close()
       app.relaunch()
     },
     minimize: () => {
-      global.win.minimize()
+      win.minimize()
     },
     maximize: () => {
-      global.win.maximize()
+      win.maximize()
     },
     unmaximize: () => {
-      global.win.unmaximize()
+      win.unmaximize()
     },
     isMaximized: () => {
-      return global.win.isMaximized()
+      return win.isMaximized()
     },
     openDevTools: () => {
-      global.win.webContents.openDevTools()
+      win.webContents.openDevTools()
     },
     lookup,
     lang,
@@ -197,9 +197,9 @@ async function createWindow () {
     os,
     saveUserConfig,
     setTitle: (title) => {
-      global.win.setTitle(packInfo.name + ' - ' +title)
+      win.setTitle(packInfo.name + ' - ' +title)
     },
-    changeHotkey: changeHotkeyReg(globalShortcut, global.win)
+    changeHotkey: changeHotkeyReg(globalShortcut, win)
   })
 
   timer = setTimeout(() => {
@@ -221,23 +221,22 @@ async function createWindow () {
 
   await waitUntilServerStart(childServerUrl)
 
-  global.win.loadURL(opts)
+  win.loadURL(opts)
   //win.maximize()
 
   // Open the DevTools.
-  if (isDev) {
-    global.win.webContents.openDevTools()
-  }
+  if(isDev) win.webContents.openDevTools()
 
   //init hotkey
-  init(globalShortcut, global.win, config)
+  init(globalShortcut, win, config)
 
   // Emitted when the window is closed.
-  global.win.on('close', onClose)
-  global.win.on('focus', () => {
-    global.win.webContents.send('focused', null)
+  win.on('close', onClose)
+  win.on('focus', () => {
+    win.webContents.send('focused', null)
   })
 
+  setWin(win)
 }
 
 // This method will be called when Electron has finished
@@ -252,7 +251,7 @@ app.on('activate', () => {
 
   // On macOS it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
-  if (global.win === null) {
+  if (win === null) {
     createWindow()
   }
 })

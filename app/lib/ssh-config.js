@@ -2,15 +2,12 @@
  * read ssh config
  */
 
-import {app} from 'electron'
-import sshConfig from 'ssh-config'
-import {resolve} from 'path'
-import log from '../utils/log'
-
+const {app} = require('electron')
 const home = app.getPath('home')
+const sshConfig = require('ssh-config')
+const {resolve} = require('path')
 const defaultPort = 22
 let config = []
-
 try {
   const configStr = require('fs').readFileSync(
     resolve(home, '.ssh', 'config')
@@ -33,8 +30,8 @@ try {
     }
   }).filter(d => d)
 } catch (e) {
-  log.debug('error parsing $HOME/.ssh/config')
-  log.debug('maybe no $HOME/.ssh/config, but it is ok')
+  console.log('error parsing $HOME/.ssh/config')
+  console.log('maybe no $HOME/.ssh/config, but it is ok')
 }
 
-export default config
+module.exports = config

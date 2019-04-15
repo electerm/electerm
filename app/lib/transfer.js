@@ -2,10 +2,11 @@
  * transfer class
  */
 
-import fs from 'original-fs'
-import _ from 'lodash'
 
-export class Transfer {
+const fs = require('original-fs')
+const _ = require('lodash')
+
+class Transfer {
 
   constructor({
     remotePath,
@@ -106,9 +107,12 @@ export class Transfer {
   //end
 }
 
-export const transferKeys = [
-  'pause',
-  'resume',
-  'destroy'
-]
 
+module.exports = {
+  Transfer,
+  transferKeys: [
+    'pause',
+    'resume',
+    'destroy'
+  ]
+}

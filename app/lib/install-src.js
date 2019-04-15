@@ -1,8 +1,6 @@
 // export install src for linux dist
 
-import {resolve} from 'path'
-import log from '../utils/log'
-
+const {resolve} = require('path')
 let installSrc = ''
 
 try {
@@ -10,7 +8,7 @@ try {
     resolve(__dirname, '../../install-src.txt')
   ).toString().trim()
 } catch(e) {
-  log.info('no ../../install-src file')
+  console.log('no ../../install-src file')
 }
 if (!installSrc) {
   try {
@@ -18,9 +16,9 @@ if (!installSrc) {
       resolve(__dirname, '../install-src.txt')
     ).toString().trim()
   } catch(e) {
-    log.info('no install-src file')
+    console.log('no install-src file')
   }
 }
 
-export default installSrc
+module.exports = installSrc
 

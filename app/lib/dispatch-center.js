@@ -3,11 +3,10 @@
  * run functions in seprate process, avoid using electron.remote directly
  */
 
-import {Sftp} from './sftp'
-import {Transfer} from './transfer'
-import {fsExport as fs} from '../lib/fs'
-import log from '../utils/log'
-import Upgrade from './download-upgrade'
+const {Sftp} = require('./sftp')
+const {Transfer} = require('./transfer')
+const {fsExport: fs} = require('./fs')
+const Upgrade = require('./download-upgrade')
 
 const sftpInsts = {}
 global.transferInsts = {}
@@ -22,11 +21,11 @@ const wsDec = (ws) => {
     try {
       ws.send(JSON.stringify(msg))
     } catch(e) {
-      log.error('ws send error')
-      log.error(e)
+      console.log('ws send error')
+      console.log(e)
     }
   }
-  ws.on('error', log.error)
+  ws.on('error', e => console.log(e))
   ws._socket.setKeepAlive(true, 5 * 60 * 1000)
 }
 
@@ -176,4 +175,4 @@ const initWs = function (app) {
   })
 }
 
-export default initWs
+module.exports = initWs

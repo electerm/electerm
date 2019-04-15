@@ -2,8 +2,6 @@
  * shortcut controll
  */
 
-import log from '../utils/log'
-
 let shortcut
 
 /**
@@ -12,7 +10,7 @@ let shortcut
  * @param {object} win
  * @param {object} config
  */
-export const init = (globalShortcut, win, config) => {
+exports.init = (globalShortcut, win, config) => {
   shortcut = config.hotkey
   globalShortcut.register(shortcut, () => {
     if (win.isFocused()) {
@@ -24,11 +22,11 @@ export const init = (globalShortcut, win, config) => {
   })
   let ok = globalShortcut.isRegistered(shortcut)
   if (!ok) {
-    log.warn('shortcut Registration failed.')
+    console.log('shortcut Registration failed.')
   }
 }
 
-export const changeHotkeyReg = (globalShortcut, win) => {
+exports.changeHotkeyReg = (globalShortcut, win) => {
   return newHotkey => {
     globalShortcut.unregister(shortcut)
     globalShortcut.register(newHotkey, () => {
