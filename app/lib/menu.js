@@ -26,7 +26,7 @@ const template = [
         label: c('newSsh'),
         accelerator: 'CmdOrCtrl+N',
         click() {
-          require('./win').win.webContents.send('new-ssh', null)
+          global.win.webContents.send('new-ssh', null)
         }
       },
       {
@@ -66,7 +66,7 @@ const template = [
         label: e('selectall'),
         accelerator: 'CmdOrCtrl+A',
         click() {
-          require('./win').win.webContents.send('selectall', null)
+          global.win.webContents.send('selectall', null)
         }
       },
       {
@@ -75,7 +75,7 @@ const template = [
       {
         label: s('settings'),
         click() {
-          require('./win').win.webContents.send('openSettings', null)
+          global.win.webContents.send('openSettings', null)
         }
       }
     ]
@@ -134,7 +134,7 @@ const template = [
       {
         label: e('restart'),
         click() {
-          require('./win').win.close()
+          global.win.close()
           app.relaunch()
         }
       }
@@ -147,13 +147,13 @@ const template = [
       {
         label: e('about'),
         click() {
-          require('./win').win.webContents.send('open-about', null)
+          global.win.webContents.send('open-about', null)
         }
       },
       {
         label: e('checkUpdate'),
         click() {
-          require('./win').win.webContents.send('checkupdate', null)
+          global.win.webContents.send('checkupdate', null)
         }
       },
       {
@@ -180,7 +180,7 @@ const template = [
       {
         label: e('toggledevtools'),
         click() {
-          require('./win').win.webContents.openDevTools()
+          global.win.webContents.openDevTools()
         }
       }
     ]
