@@ -14,6 +14,7 @@ const {fork} = require('child_process')
 const _ = require('lodash')
 const getConf = require('./utils/config.default')
 const sshConfigItems = require('./lib/ssh-config')
+const logPaths = require('./lib/log-read')
 const lookup = require('./utils/lookup')
 const os = require('os')
 const {resolve} = require('path')
@@ -30,6 +31,7 @@ const {saveLangConfig, lang, langs} = require('./lib/locales')
 const rp = require('phin').promisified
 const lastStateManager = require('./lib/last-state')
 const installSrc = require('./lib/install-src')
+const {isDev, packInfo} = require('./utils/app-props')
 const {
   prefix
 } = require('./lib/locales')
@@ -39,9 +41,6 @@ global.win = null
 let timer
 let timer1
 let childPid
-let {NODE_ENV} = process.env
-const isDev = NODE_ENV === 'development'
-const packInfo = require(isDev ? '../package.json' : './package.json')
 const iconPath = resolve(
   __dirname,
   (
@@ -153,6 +152,7 @@ async function createWindow () {
     upgradeKeys: transferKeys,
     fs: fsExport,
     ls,
+    logPaths,
     getExitStatus: () => global.et.exitStatus,
     setExitStatus: (status) => {
       global.et.exitStatus = status

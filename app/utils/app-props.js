@@ -1,0 +1,25 @@
+/**
+ * app path
+ */
+let {app} = require('electron')
+const os = require('os')
+const platform = os.platform()
+const isWin = platform === 'win32'
+const isMac = platform === 'darwin'
+const isLinux = platform === 'linux'
+
+let {NODE_ENV} = process.env
+const isDev = NODE_ENV === 'development'
+app = app || {
+  getPath: () => null
+}
+module.exports = {
+  appPath: app.getPath('appData'),
+  isDev,
+  isWin,
+  isMac,
+  isLinux,
+  defaultLang: 'en_us',
+  packInfo: require(isDev ? '../../package.json' : '../package.json')
+}
+

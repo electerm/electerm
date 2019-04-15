@@ -1,13 +1,10 @@
 global.Promise = require('bluebird')
 
 const {exec} = require('child_process')
-const os = require('os')
-const isWin = os.platform() === 'win32'
-const isMac = os.platform() === 'darwin'
 const fs = require('original-fs')
 const fss = Promise.promisifyAll(fs)
 const log = require('../utils/log')
-
+const {isWin, isMac} = require('../utils/app-props')
 /**
  * run cmd
  * @param {string} cmd

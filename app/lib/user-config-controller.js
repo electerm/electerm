@@ -5,7 +5,7 @@
  */
 const fs = require('fs')
 const {resolve} = require('path')
-const appPath = require('../utils/app-path')
+const {appPath} = require('../utils/app-props')
 const log = require('../utils/log')
 const userConfigPath = resolve(appPath, 'electerm-user-config.json')
 

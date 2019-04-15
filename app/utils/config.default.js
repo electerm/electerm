@@ -2,7 +2,7 @@
 const extend = require('recursive-assign')
 const fp = require('find-free-port')
 const {resolve} = require('path')
-const appPath = require('./app-path')
+const {appPath} = require('./app-props')
 const log = require('./log')
 
 module.exports = function() {
