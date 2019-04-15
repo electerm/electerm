@@ -4,10 +4,7 @@
  */
 
 const { Application } = require('spectron')
-const electronPath = require('electron')
-const {resolve} = require('path')
 const {expect} = require('chai')
-const cwd = process.cwd()
 const delay = require('./common/wait')
 const generate = require('./common/uid')
 const {
@@ -15,19 +12,14 @@ const {
   TEST_PASS,
   TEST_USER
 } = require('./common/env')
-const {log} = console
+const log = require('./common/log')
+const appOptions = require('./common/app-options')
 
 describe('sftp file transfer', function () {
   this.timeout(100000)
 
   beforeEach(async function() {
-    this.app = new Application({
-      path: electronPath,
-      webdriverOptions: {
-        deprecationWarnings: false
-      },
-      args: [resolve(cwd, 'work/app'), '--no-session-restore']
-    })
+    this.app = new Application(appOptions)
     return this.app.start()
   })
 
@@ -72,7 +64,7 @@ describe('sftp file transfer', function () {
     await client.execute(function() {
       document.querySelector('.context-menu .anticon-folder-add').click()
     })
-    await delay(200)
+    await delay(300)
     let fname = '00000test-electerm' + generate()
     await client.setValue('.ssh-wrap-show .sftp-item input', fname)
     await client.doubleClick('.ssh-wrap-show .sftp-title-wrap')

@@ -2,39 +2,39 @@
 //use bluebird for performance
 global.Promise = require('bluebird')
 
-import {
+const {
   app,
   BrowserWindow,
   Menu,
   Notification,
   globalShortcut,
   shell
-} from 'electron'
-import {fork} from 'child_process'
-import _ from 'lodash'
-import getConf from './utils/config.default'
-import sshConfigItems from './lib/ssh-config'
-import lookup from './utils/lookup'
-import os from 'os'
-import {resolve} from 'path'
-import {instSftpKeys} from './server/sftp'
-import {transferKeys} from './server/transfer'
-import {saveUserConfig, userConfig} from './lib/user-config-controller'
-import {init, changeHotkeyReg} from './lib/shortcut'
-import {fsExport, fsFunctions} from './lib/fs'
-import ls from './lib/ls'
-import menu from './lib/menu'
-import log from './utils/log'
-import {testConnection} from './server/terminal'
-import {saveLangConfig, lang, langs} from './lib/locales'
-import {promisified as rp} from 'phin'
-import lastStateManager from './lib/last-state'
-import installSrc from './lib/install-src'
-import {
+} = require('electron')
+const {fork} = require('child_process')
+const _ = require('lodash')
+const getConf = require('./utils/config.default')
+const sshConfigItems = require('./lib/ssh-config')
+const lookup = require('./utils/lookup')
+const os = require('os')
+const {resolve} = require('path')
+const {instSftpKeys} = require('./server/sftp')
+const {transferKeys} = require('./server/transfer')
+const {saveUserConfig, userConfig} = require('./lib/user-config-controller')
+const {init, changeHotkeyReg} = require('./lib/shortcut')
+const {fsExport, fsFunctions} = require('./lib/fs')
+const ls = require('./lib/ls')
+const menu = require('./lib/menu')
+const log = require('./utils/log')
+const {testConnection} = require('./server/terminal')
+const {saveLangConfig, lang, langs} = require('./lib/locales')
+const rp = require('phin').promisified
+const lastStateManager = require('./lib/last-state')
+const installSrc = require('./lib/install-src')
+const {
   prefix
-} from './lib/locales'
-
+} = require('./lib/locales')
 const a = prefix('app')
+
 global.win = null
 let timer
 let timer1

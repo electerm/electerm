@@ -3,11 +3,11 @@
  * run functions in seprate process, avoid using electron.remote directly
  */
 
-import {Sftp} from './sftp'
-import {Transfer} from './transfer'
-import {fsExport as fs} from '../lib/fs'
-import log from '../utils/log'
-import Upgrade from './download-upgrade'
+const {Sftp} = require('./sftp')
+const {Transfer} = require('./transfer')
+const {fsExport: fs} = require('../lib/fs')
+const log = require('../utils/log')
+const Upgrade = require('./download-upgrade')
 
 const sftpInsts = {}
 global.transferInsts = {}
@@ -176,4 +176,4 @@ const initWs = function (app) {
   })
 }
 
-export default initWs
+module.exports = initWs

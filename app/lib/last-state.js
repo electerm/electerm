@@ -2,7 +2,7 @@
  * set/get app last state
  */
 
-import ls from './ls'
+const ls = require('./ls')
 
 const set = (key, value) => {
   ls.set(`laststate.${key}`, value)
@@ -16,8 +16,8 @@ const clear = (key) => {
   ls.clear(`laststate.${key}`)
 }
 
-export default {
+module.exports = {
+  set,
   get,
-  clear,
-  set
+  clear
 }
