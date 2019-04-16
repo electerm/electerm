@@ -211,12 +211,6 @@ export default class Term extends React.PureComponent {
     } else if (
       e.ctrlKey &&
       e.shiftKey &&
-      e.code === 'KeyC'
-    ) {
-      this.onCopy()
-    } else if (
-      e.ctrlKey &&
-      e.shiftKey &&
       e.code === 'Tab'
     ) {
       e.stopPropagation()
