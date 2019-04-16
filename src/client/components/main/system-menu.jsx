@@ -200,6 +200,7 @@ export default (props) => {
     <Context
       content={renderContext(props)}
       visible={props.menuOpened}
+      className="context-menu system-menu"
       closeContextMenu={props.closeMenu}
       pos={{
         left: 40,

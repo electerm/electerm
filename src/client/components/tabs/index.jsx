@@ -140,13 +140,13 @@ export default class Tabs extends React.Component {
       <div className="add-menu-wrap">
         <div
           className={cls}
-          onClick={() => addTab()}
+          onClick={onNewSsh}
         >
           <Icon type="code" theme="filled" /> {c('newSsh')}
         </div>
         <div
           className={cls}
-          onClick={onNewSsh}
+          onClick={() => addTab()}
         >
           <Icon type="right-square" theme="filled" /> {t('newTab')}
         </div>
