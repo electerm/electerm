@@ -31,7 +31,7 @@ const wsDec = (ws) => {
 }
 
 function onDestroySftp(id) {
-  let {inst, transferIds} = sftpInsts[id]
+  let {inst, transferIds} = sftpInsts[id] || {}
   if (inst) {
     inst.client.destroy()
     for(let tid of transferIds) {
