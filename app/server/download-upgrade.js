@@ -45,7 +45,7 @@ class Upgrade {
         r.name.includes('linux')
     }
     if (isWin) {
-      filter = r => /electerm-\d+\.\d+\.\d+-win\.tar\.gz/.test(r.name)
+      filter = r => /electerm-\d+\.\d+\.\d+-win-x64\.tar\.gz/.test(r.name)
     } else if (isMac) {
       filter = r => /\.dmg$/.test(r.name)
     }
