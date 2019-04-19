@@ -1,35 +1,39 @@
+/**
+ * central state store powered by subx - https://github.com/tylerlong/subx
+ */
 
-import React from 'react'
+import Subx from 'subx'
+//import React from 'react'
 import {message} from 'antd'
-import Session from '../session'
-import Tabs from '../tabs'
+// import Session from '../session'
+// import Tabs from '../tabs'
 import newTerm from '../../common/new-terminal'
 import _ from 'lodash'
-import {generate} from 'shortid'
+//import {generate} from 'shortid'
 import copy from 'json-deep-copy'
-import ContextMenu from '../common/context-menu'
-import FileInfoModal from '../sftp/file-props-modal'
-import wait from '../../common/wait'
-import FileModeModal from '../sftp/file-mode-modal'
-import UpdateCheck from './upgrade'
-import {notification} from 'antd'
-import SettingModal from '../setting-panel/setting-modal'
-import openInfoModal from '../sidebar/info-modal'
+// import ContextMenu from '../common/context-menu'
+// import FileInfoModal from '../sftp/file-props-modal'
+// import wait from '../../common/wait'
+// import FileModeModal from '../sftp/file-mode-modal'
+// import UpdateCheck from './upgrade'
+// import {notification} from 'antd'
+// import SettingModal from '../setting-panel/setting-modal'
+// import openInfoModal from '../sidebar/info-modal'
 import * as terminalThemes from '../../common/terminal-theme'
-import createTitlte from '../../common/create-title'
-import TextEditor from '../text-editor'
-import Sidebar from '../sidebar'
-import SystemMenu from './system-menu'
+// import createTitlte from '../../common/create-title'
+// import TextEditor from '../text-editor'
+// import Sidebar from '../sidebar'
+// import SystemMenu from './system-menu'
 import {
-  maxHistory,
+  //maxHistory,
   settingMap,
   defaultookmarkGroupId,
-  maxTransferHistory,
+  //maxTransferHistory,
   sidebarWidth,
   statusMap,
   defaultTheme
 } from '../../common/constants'
-import SessionControl from '../session-control'
+//import SessionControl from '../session-control'
 import {buildNewTheme} from '../../common/terminal-theme'
 import './wrapper.styl'
 
@@ -38,9 +42,9 @@ const ls = getGlobal('ls')
 const {prefix} = window
 const t = prefix('terminalThemes')
 const e = prefix('control')
-const defaultStatus = statusMap.processing
-let sessionsGlob = copy(ls.get('sessions'))
-const sshConfigItems = copy(getGlobal('sshConfigItems'))
+// const defaultStatus = statusMap.processing
+// let sessionsGlob = copy(ls.get('sessions'))
+// const sshConfigItems = copy(getGlobal('sshConfigItems'))
 const getInitItem = (arr, tab) => {
   if (tab === settingMap.history) {
     return arr[0] || {}
@@ -53,120 +57,69 @@ const getInitItem = (arr, tab) => {
   }
 }
 
-export default class Index extends React.Component {
+let tabs = [newTerm()]
+let bookmarks = copy(ls.get(settingMap.bookmarks) || [])
+let bookmarkGroups = copy(
+  ls.get(settingMap.bookmarkGroups) ||
+  this.getDefaultBookmarkGroups(bookmarks)
+)
 
-  constructor(props) {
-    super(props)
-    let tabs = [newTerm()]
-    let bookmarks = copy(ls.get(settingMap.bookmarks) || [])
-    let bookmarkGroups = copy(
-      ls.get(settingMap.bookmarkGroups) ||
-      this.getDefaultBookmarkGroups(bookmarks)
-    )
-    this.state = {
-      tabs,
-      height: 500,
-      width: window.innerWidth - sidebarWidth,
-      currentTabId: tabs[0].id,
-      history: copy(ls.get(settingMap.history) || []),
-      bookmarks,
-      bookmarkGroups,
-      isMaximized: window.getGlobal('isMaximized')(),
-      config: copy(_config) || {},
-      contextMenuProps: {},
-      transferHistory: [],
-      themes: terminalThemes.getThemes(),
-      theme: terminalThemes.getCurrentTheme().id,
-      contextMenuVisible: false,
-      fileInfoModalProps: {},
-      fileModeModalProps: {},
-      currentBookmarkGroupId: defaultookmarkGroupId,
-      transferHistoryModalVisible: false,
-      selectedSessions: [],
-      sessionModalVisible: false,
-      textEditorProps: {},
-      item: getInitItem([], settingMap.bookmarks),
+const store = Subx.create({
+  tabs,
+  height: 500,
+  width: window.innerWidth - sidebarWidth,
+  currentTabId: tabs[0].id,
+  history: copy(ls.get(settingMap.history) || []),
+  bookmarks,
+  bookmarkGroups,
+  isMaximized: window.getGlobal('isMaximized')(),
+  config: copy(_config) || {},
+  contextMenuProps: {},
+  transferHistory: [],
+  themes: terminalThemes.getThemes(),
+  theme: terminalThemes.getCurrentTheme().id,
+  contextMenuVisible: false,
+  fileInfoModalProps: {},
+  fileModeModalProps: {},
+  currentBookmarkGroupId: defaultookmarkGroupId,
+  transferHistoryModalVisible: false,
+  selectedSessions: [],
+  sessionModalVisible: false,
+  textEditorProps: {},
+  item: getInitItem([], settingMap.bookmarks),
 
-      //for settings related
-      tab: settingMap.bookmarks,
-      autofocustrigger: + new Date(),
-      bookmarkId: undefined,
-      showModal: false,
-      activeTerminalId: '',
+  //for settings related
+  tab: settingMap.bookmarks,
+  autofocustrigger: + new Date(),
+  bookmarkId: undefined,
+  showModal: false,
+  activeTerminalId: '',
 
-      //sidebar
-      openedSideBar: '',
-      openedCategoryIds: ls.get('openedCategoryIds') || bookmarkGroups.map(b => b.id),
-      menuOpened: false,
+  //sidebar
+  openedSideBar: '',
+  openedCategoryIds: ls.get('openedCategoryIds') || bookmarkGroups.map(b => b.id),
+  menuOpened: false,
 
-      //update
-      shouldCheckUpdate: 0,
-      upgradeInfo: {}
-    }
-    let title = createTitlte(tabs[0])
-    window.getGlobal('setTitle')(title)
-  }
+  //update
+  shouldCheckUpdate: 0,
+  upgradeInfo: {},
 
-  componentDidMount() {
-    window.lang = copy(window.lang)
-    window._config = copy(window._config)
-    window.addEventListener('resize', this.onResize)
-    this.onResize()
-    window._require('electron')
-      .ipcRenderer
-      .on('checkupdate', this.onCheckUpdate)
-      .on('open-about', this.openAbout)
-      .on('new-ssh', this.onNewSsh)
-      .on('openSettings', this.openSetting)
-      .on('selectall', this.selectall)
-      .on('focused', this.focus)
-    document.addEventListener('drop', function(e) {
-      e.preventDefault()
-      e.stopPropagation()
-    })
-    document.addEventListener('dragover', function(e) {
-      e.preventDefault()
-      e.stopPropagation()
-    })
-    this.checkLastSession()
-    this.checkDefaultTheme()
-    window.addEventListener('offline',  this.setOffline)
-    this.zoom(this.state.config.zoom, false, true)
-  }
-
-  componentDidUpdate(prevProps, prevState) {
-    let {currentTabId} = this.state
-    if (
-      prevState.currentTabId !== currentTabId &&
-      currentTabId
-    ) {
-      this.focus()
-    }
-  }
-
-  focus = () => {
+  // methods
+  focus () {
     window.postMessage({
       type: 'focus'
     }, '*')
-  }
+  },
 
-  openMenu = () => {
-    this.setState({
-      menuOpened: true
-    })
-    this.initMenuEvent()
-  }
+  openMenu () {
+    store.menuOpened = true
+    //todo subscribe
+  },
 
-  closeMenu = () => {
-    this.setState({
-      menuOpened: false
-    })
-    this.onCloseMenu()
-  }
-
-  onCloseMenu = () => {
-    this.dom && this.dom.removeEventListener('click', this.closeContextMenu)
-  }
+  closeMenu () {
+    store.menuOpened = false
+    //todo subscribe
+  },
 
   checkDefaultTheme () {
     let currentTheme = terminalThemes.getCurrentTheme()
@@ -174,7 +127,7 @@ export default class Index extends React.Component {
       currentTheme.id === defaultTheme.id &&
       !_.isEqual(currentTheme.themeConfig, defaultTheme.themeConfig)
     ) {
-      this.editTheme(
+      store.editTheme(
         defaultTheme.id,
         {
           themeConfig: defaultTheme.themeConfig
@@ -184,10 +137,10 @@ export default class Index extends React.Component {
         `${t('default')} ${t('themeConfig')} ${t('updated')}`
       )
     }
-  }
+  },
 
-  setOffline = () => {
-    let tabs = copy(this.state.tabs)
+  setOffline () {
+    let tabs = copy(store.tabs)
       .map(t => {
         return {
           ...t,
@@ -197,32 +150,35 @@ export default class Index extends React.Component {
     this.modifier({
       tabs
     })
-  }
+  }//,
 
-  onResize = _.debounce(() => {
-    let update = {
-      height: window.innerHeight,
-      width: window.innerWidth - sidebarWidth,
-      isMaximized: window.getGlobal('isMaximized')()
-    }
-    this.setState(update)
-    window
-      .getGlobal('lastStateManager')
-      .set('windowSize', update)
-  }, 100)
+  // onResize = _.debounce(() => {
+  //   let update = {
+  //     height: window.innerHeight,
+  //     width: window.innerWidth - sidebarWidth,
+  //     isMaximized: window.getGlobal('isMaximized')()
+  //   }
+  //   this.setState(update)
+  //   window
+  //     .getGlobal('lastStateManager')
+  //     .set('windowSize', update)
+  // }, 100)
+  //todo debounce
 
-  setStateLs = (update) => {
-    Object.keys(update).forEach(k => {
-      ls.set(k, update[k])
-    })
-    this.setState(update)
-  }
+  // setStateLs (update) => {
+  //   Object.keys(update).forEach(k => {
+  //     ls.set(k, update[k])
+  //   })
+  //   this.setState(update)
+  // }
+  // todo subscibe
 
-  modifyLs = (...args) => {
-    this.setStateLs(...args)
-  }
-
-  modifier = (...args) => {
+  // modifyLs = (...args) => {
+  //   this.setStateLs(...args)
+  // }
+  //todo subscribe
+/*
+  modifier (...args) {
     let update = args[0]
     let changed = (update.currentTabId && update.currentTabId !== this.state.currentTabId) || update.tabs
     if (changed) {
@@ -762,117 +718,5 @@ export default class Index extends React.Component {
         ...arr
       ]
   }
-
-  render() {
-    let {
-      tabs,
-      currentTabId,
-      contextMenuProps,
-      contextMenuVisible,
-      fileInfoModalProps,
-      fileModeModalProps,
-      shouldCheckUpdate,
-      textEditorProps,
-      config
-    } = this.state
-    let {themes, theme} = this.state
-    let themeConfig = (_.find(themes, d => d.id === theme) || {}).themeConfig || {}
-    let controlProps = {
-      ...this.state,
-      list: this.getList(),
-      themeConfig,
-      ..._.pick(this, [
-        'modifier', 'delTab', 'addTab', 'editTab',
-        'openTransferHistory',
-        'clearTransferHistory',
-        'closeTransferHistory',
-        'addTransferHistory',
-        'onError', 'openContextMenu',
-        'modifyLs', 'addItem', 'editItem', 'delItem',
-        'onCheckUpdate', 'openAbout',
-        'setTheme', 'addTheme', 'editTheme', 'delTheme',
-        'addBookmarkGroup',
-        'editBookmarkGroup',
-        'closeContextMenu',
-        'zoom',
-        'clickNextTab',
-        'openMenu',
-        'closeMenu',
-        'delBookmarkGroup',
-        'onClose',
-        'reloadTab',
-        'hideModal', 'onDelItem',
-        'onNewSsh', 'openSetting', 'onEditHistory',
-        'openTerminalThemes',
-        'onSelectHistory', 'onChangeTabId', 'onDuplicateTab', 'onSelectBookmark', 'onChangeTab'
-      ])
-    }
-    let sessProps = {
-      ..._.pick(this, [
-        'modifier', 'addTab'
-      ]),
-      ..._.pick(this.state, [
-        'sessionModalVisible',
-        'selectedSessions'
-      ])
-    }
-    return (
-      <div>
-        <SessionControl {...sessProps} />
-        <TextEditor
-          key={textEditorProps.id}
-          {...textEditorProps}
-          modifier={this.modifier}
-        />
-        <UpdateCheck
-          modifier={this.modifier}
-          upgradeInfo={this.state.upgradeInfo}
-          addTab={this.addTab}
-          shouldCheckUpdate={shouldCheckUpdate}
-        />
-        <ContextMenu
-          {...contextMenuProps}
-          visible={contextMenuVisible}
-          closeContextMenu={this.closeContextMenu}
-        />
-        <SystemMenu {...controlProps} />
-        <FileInfoModal
-          {...fileInfoModalProps}
-        />
-        <FileModeModal
-          key={_.get(fileModeModalProps, 'file.id') || ''}
-          {...fileModeModalProps}
-        />
-        <SettingModal {...controlProps} />
-        <div
-          id="outside-context"
-          style={{
-            opacity: config.opacity
-          }}
-        >
-          <Sidebar {...controlProps} />
-          <Tabs {...controlProps} />
-          <div className="ui-outer">
-            {
-              tabs.map((tab) => {
-                let {id} = tab
-                let cls = id !== currentTabId
-                  ? 'hide'
-                  : 'ssh-wrap-show'
-                return (
-                  <div className={cls} key={id}>
-                    <Session
-                      {...controlProps}
-                      tab={tab}
-                    />
-                  </div>
-                )
-              })
-            }
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-}
+  */
+})
