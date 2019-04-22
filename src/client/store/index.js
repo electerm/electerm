@@ -61,7 +61,7 @@ let tabs = [newTerm()]
 let bookmarks = copy(ls.get(settingMap.bookmarks) || [])
 let bookmarkGroups = copy(
   ls.get(settingMap.bookmarkGroups) ||
-  this.getDefaultBookmarkGroups(bookmarks)
+  store.getDefaultBookmarkGroups(bookmarks)
 )
 
 const store = Subx.create({
@@ -147,7 +147,7 @@ const store = Subx.create({
           status: t.host ? statusMap.error: t.status
         }
       })
-    this.modifier({
+    store.modifier({
       tabs
     })
   }//,
@@ -158,7 +158,7 @@ const store = Subx.create({
   //     width: window.innerWidth - sidebarWidth,
   //     isMaximized: window.getGlobal('isMaximized')()
   //   }
-  //   this.setState(update)
+  //   store.setState(update)
   //   window
   //     .getGlobal('lastStateManager')
   //     .set('windowSize', update)
@@ -169,26 +169,26 @@ const store = Subx.create({
   //   Object.keys(update).forEach(k => {
   //     ls.set(k, update[k])
   //   })
-  //   this.setState(update)
+  //   store.setState(update)
   // }
   // todo subscibe
 
   // modifyLs = (...args) => {
-  //   this.setStateLs(...args)
+  //   store.setStateLs(...args)
   // }
   //todo subscribe
 /*
   modifier (...args) {
     let update = args[0]
-    let changed = (update.currentTabId && update.currentTabId !== this.state.currentTabId) || update.tabs
+    let changed = (update.currentTabId && update.currentTabId !== store.currentTabId) || update.tabs
     if (changed) {
-      let currentTabId = update.currentTabId || this.state.currentTabId
-      let tabs = update.tabs || this.state.tabs
+      let currentTabId = update.currentTabId || store.currentTabId
+      let tabs = update.tabs || store.tabs
       let tab = _.find(tabs, t => t.id === currentTabId) || {}
       let title = createTitlte(tab)
       window.getGlobal('setTitle')(title)
     }
-    this.setState(...args)
+    store.setState(...args)
     if (update.tabs) {
       ls.set('sessions', update.tabs)
     }
@@ -197,14 +197,14 @@ const store = Subx.create({
 
   initContextEvent = () => {
     let dom = document.getElementById('outside-context')
-    this.dom = dom
-    dom.addEventListener('click', this.closeContextMenu)
+    store.dom = dom
+    dom.addEventListener('click', store.closeContextMenu)
   }
 
   initMenuEvent = () => {
     let dom = document.getElementById('outside-context')
-    this.dom = dom
-    dom.addEventListener('click', this.closeMenu)
+    store.dom = dom
+    dom.addEventListener('click', store.closeMenu)
   }
 
   selectall = () => {
@@ -226,7 +226,7 @@ const store = Subx.create({
     if (zoomOnly) {
       return
     }
-    this.setState(old => {
+    store.setState(old => {
       let nc = {
         ...old.config,
         zoom: nl
@@ -250,6 +250,7 @@ const store = Subx.create({
       next.querySelector('.tab-title').click()
     }
   }, 100)
+  //todo
 
   getDefaultBookmarkGroups = (bookmarks) => {
     return [
@@ -266,14 +267,14 @@ const store = Subx.create({
     if (status === 'ok') {
       return
     }
-    this.showLastSessions(sessionsGlob)
+    store.showLastSessions(sessionsGlob)
   }
 
   showLastSessions = sessions => {
     if (!sessions) {
       return
     }
-    this.setState({
+    store.setState({
       selectedSessions: copy(sessions).map(s => ({
         id: s.id,
         tab: s,
@@ -285,27 +286,27 @@ const store = Subx.create({
 
   openAbout = () => {
     openInfoModal({
-      onCheckUpdating: this.state.upgradeInfo.checkingRemoteVersion || this.state.upgradeInfo.upgrading,
-      onCheckUpdate: this.onCheckUpdate,
-      onCancel: this.focus,
-      onOk: this.focus
+      onCheckUpdating: store.upgradeInfo.checkingRemoteVersion || store.upgradeInfo.upgrading,
+      onCheckUpdate: store.onCheckUpdate,
+      onCancel: store.focus,
+      onOk: store.focus
     })
   }
 
   openTransferHistory = () => {
-    this.setState({
+    store.setState({
       transferHistoryModalVisible: true
     })
   }
 
   closeTransferHistory = () => {
-    this.setState({
+    store.setState({
       transferHistoryModalVisible: false
     })
   }
 
   clearTransferHistory = () => {
-    this.setState({
+    store.setState({
       transferHistory: [],
       transferHistoryModalVisible: false
     })
@@ -314,35 +315,35 @@ const store = Subx.create({
   addTransferHistory = (item) => {
     let transferHistory = [
       item,
-      ...copy(this.state.transferHistory)
+      ...copy(store.transferHistory)
     ].slice(0, maxTransferHistory)
-    this.setState({
+    store.setState({
       transferHistory
     })
   }
 
   onCheckUpdate = () => {
-    if (this.state.onCheckUpdating) {
+    if (store.onCheckUpdating) {
       return
     }
-    this.setState({
+    store.setState({
       shouldCheckUpdate: +new Date()
     })
   }
 
   openContextMenu = (contextMenuProps) => {
-    this.setState({
+    store.setState({
       contextMenuProps,
       contextMenuVisible: true
     })
-    this.initContextEvent()
+    store.initContextEvent()
   }
 
   closeContextMenu = () => {
-    this.setState({
+    store.setState({
       contextMenuVisible: false
     })
-    this.dom && this.dom.removeEventListener('click', this.closeContextMenu)
+    store.dom && store.dom.removeEventListener('click', store.closeContextMenu)
   }
 
   onError = e => {
@@ -369,18 +370,18 @@ const store = Subx.create({
   }
 
   addItem = (item, type) => {
-    let items = copy(this.state[type])
+    let items = copy(store[type])
     items.unshift(item)
     if (type === settingMap.history && items.length > maxHistory) {
       items = items.slice(0, maxHistory)
     }
-    this.setStateLs({
+    store.setStateLs({
       [type]: items
     })
   }
 
-  editItem = (id, update, type, mod = this.setStateLs) => {
-    let items = copy(this.state[type])
+  editItem = (id, update, type, mod = store.setStateLs) => {
+    let items = copy(store[type])
     let item = _.find(items, t => t.id === id)
     if (!item) {
       return
@@ -394,32 +395,32 @@ const store = Subx.create({
   }
 
   delItem = ({id}, type) => {
-    let items = copy(this.state[type]).filter(t => {
+    let items = copy(store[type]).filter(t => {
       return t.id !== id
     })
-    this.setStateLs({
+    store.setStateLs({
       [type]: items
     })
   }
 
-  addTab = (tab = newTerm(), index = this.state.tabs.length) => {
-    let tabs = copy(this.state.tabs)
+  addTab = (tab = newTerm(), index = store.tabs.length) => {
+    let tabs = copy(store.tabs)
     tabs.splice(index, 0, tab)
-    this.modifier({
+    store.modifier({
       tabs,
       currentTabId: tab.id
     })
   }
 
   editTab = (id, update) => {
-    this.editItem(id, update, 'tabs', this.modifier)
+    store.editItem(id, update, 'tabs', store.modifier)
   }
 
   delTab = ({id}) => {
-    let tabs = copy(this.state.tabs).filter(t => {
+    let tabs = copy(store.tabs).filter(t => {
       return t.id !== id
     })
-    let {currentTabId} = this.state
+    let {currentTabId} = store
     let update = {
       tabs
     }
@@ -427,66 +428,66 @@ const store = Subx.create({
       let next = tabs[0] || {}
       update.currentTabId = next.id
     }
-    this.modifier(update)
+    store.modifier(update)
   }
 
   addTheme = (theme) => {
-    let themes = copy(this.state.themes)
+    let themes = copy(store.themes)
     themes = [
       theme,
       ...themes
     ]
-    this.setState({
+    store.setState({
       themes
     })
     terminalThemes.addTheme(theme)
   }
 
   editTheme = (id, update) => {
-    let items = copy(this.state.themes)
+    let items = copy(store.themes)
     let item = _.find(items, t => t.id === id)
     let index = _.findIndex(items, t => t.id === id)
     Object.assign(item, update)
     items.splice(index, 1, item)
-    this.setState({
+    store.setState({
       themes: items
     })
     terminalThemes.updateTheme(id, update)
   }
 
   delTheme = ({id}) => {
-    let themes = copy(this.state.themes).filter(t => {
+    let themes = copy(store.themes).filter(t => {
       return t.id !== id
     })
-    let {theme} = this.state
+    let {theme} = store
     let update = {
       themes
     }
     if (theme === id) {
       update.theme = terminalThemes.defaultTheme.id
     }
-    this.setState(update)
+    store.setState(update)
     terminalThemes.delTheme(id)
   }
 
   addBookmarkGroup = (group) => {
-    let bookmarkGroups = copy(this.state.bookmarkGroups)
+    let bookmarkGroups = copy(store.bookmarkGroups)
     bookmarkGroups = [
       ...bookmarkGroups,
       group
     ]
-    this.setStateLs({
+    store.setStateLs({
       bookmarkGroups
     })
   }
 
   editBookmarkGroup = (id, update) => {
-    let items = copy(this.state.bookmarkGroups)
+    let items = copy(store.bookmarkGroups)
     let item = _.find(items, t => t.id === id)
     let index = _.findIndex(items, t => t.id === id)
     Object.assign(item, update)
     items.splice(index, 1, item)
-    this.setStateLs({
+    store.setStateLs({
       bookmarkGroups: items
     })
   }
@@ -495,7 +496,7 @@ const store = Subx.create({
     if (id === defaultookmarkGroupId) {
       return
     }
-    let bookmarkGroups = copy(this.state.bookmarkGroups)
+    let bookmarkGroups = copy(store.bookmarkGroups)
     let tobeDel = _.find(bookmarkGroups, bg => bg.id === id)
     if (!tobeDel) {
       return
@@ -539,22 +540,22 @@ const store = Subx.create({
     let update = {
       bookmarkGroups
     }
-    if (id === this.state.currentBookmarkGroupId) {
+    if (id === store.currentBookmarkGroupId) {
       update.currentBookmarkGroupId = ''
     }
-    this.setStateLs(update)
+    store.setStateLs(update)
   }
 
   setTheme = id => {
-    this.setState({
+    store.setState({
       theme: id
     })
     terminalThemes.setTheme(id)
   }
 
   onDelItem = (item, type) => {
-    if (item.id === this.state.item.id) {
-      this.setState((old) => {
+    if (item.id === store.item.id) {
+      store.setState((old) => {
         return {
           item: getInitItem(
             old[type],
@@ -572,19 +573,19 @@ const store = Subx.create({
     let {id} = tab
     tab.id = generate()
     tab.status = statusMap.processing
-    let tabs = copy(this.state.tabs)
+    let tabs = copy(store.tabs)
     let index = _.findIndex(tabs, t => t.id === id)
-    this.delTab({id: tabToReload.id})
+    store.delTab({id: tabToReload.id})
     await wait(30)
-    this.addTab(tab, index)
+    store.addTab(tab, index)
   }
 
   onDuplicateTab = tab => {
     let index = _.findIndex(
-      this.state.tabs,
+      store.tabs,
       d => d.id === tab.id
     )
-    this.addTab({
+    store.addTab({
       ...tab,
       status: defaultStatus,
       id: generate()
@@ -592,28 +593,28 @@ const store = Subx.create({
   }
 
   onChangeTabId = currentTabId => {
-    this.modifier({currentTabId})
+    store.modifier({currentTabId})
   }
 
   onNewSsh = () => {
-    this.setState({
+    store.setState({
       tab: settingMap.bookmarks,
       item: getInitItem([], settingMap.bookmarks),
       autofocustrigger: + new Date()
-    }, this.openModal)
+    }, store.openModal)
   }
 
   onEditHistory = () => {
-    this.setState({
+    store.setState({
       tab: settingMap.history,
-      item: this.state.history[0] || getInitItem([], settingMap.history),
+      item: store.history[0] || getInitItem([], settingMap.history),
       autofocustrigger: + new Date()
-    }, this.openModal)
+    }, store.openModal)
   }
 
   onSelectHistory = id => {
-    let item = _.find(this.state.history, it => it.id === id)
-    this.addTab({
+    let item = _.find(store.history, it => it.id === id)
+    store.addTab({
       ...copy(item),
       from: 'history',
       srcId: item.id,
@@ -623,7 +624,7 @@ const store = Subx.create({
   }
 
   onSelectBookmark = id => {
-    let {history, bookmarks} = this.state
+    let {history, bookmarks} = store
     let item = copy(
       _.find(bookmarks, it => it.id === id) ||
       _.find(sshConfigItems, it => it.id === id)
@@ -631,7 +632,7 @@ const store = Subx.create({
     if (!item) {
       return
     }
-    this.addTab({
+    store.addTab({
       ...item,
       from: 'bookmarks',
       srcId: item.id,
@@ -639,7 +640,7 @@ const store = Subx.create({
       id: generate()
     })
     item.id = generate()
-    if (this.state.config.disableSshHistory) {
+    if (store.config.disableSshHistory) {
       return
     }
     let existItem = _.find(history, j => {
@@ -651,54 +652,54 @@ const store = Subx.create({
       )
     })
     if (!existItem) {
-      this.addItem(item, settingMap.history)
+      store.addItem(item, settingMap.history)
     } else {
       let historyNew = copy(history)
       let index = _.findIndex(historyNew, f => f.id === existItem.id)
       historyNew.splice(index, 1)
       historyNew.unshift(existItem)
-      this.modifier({history: historyNew})
+      store.modifier({history: historyNew})
     }
   }
 
   openSetting = () => {
-    this.setState({
+    store.setState({
       tab: settingMap.setting,
       item: getInitItem([], settingMap.setting)
-    }, this.openModal)
+    }, store.openModal)
   }
 
   openTerminalThemes = () => {
-    this.setState({
+    store.setState({
       tab: settingMap.terminalThemes,
       item: buildNewTheme(),
       autofocustrigger: + new Date()
-    }, this.openModal)
+    }, store.openModal)
   }
 
   openModal = () => {
-    this.setState({
+    store.setState({
       showModal: true
     })
   }
 
   hideModal = () => {
-    this.setState({
+    store.setState({
       showModal: false
     })
-    this.focus()
+    store.focus()
   }
 
-  getItems = (tab, props = this.state) => {
+  getItems = (tab, props = store) => {
     return tab === settingMap.terminalThemes
       ? copy(props.themes)
       : copy(props[tab]) || []
   }
 
   onChangeTab = tab => {
-    let arr = this.getItems(tab)
+    let arr = store.getItems(tab)
     let item = getInitItem(arr, tab)
-    this.setState({
+    store.setState({
       item,
       autofocustrigger: + new Date(),
       tab
@@ -708,8 +709,8 @@ const store = Subx.create({
   getList = () => {
     let {
       tab
-    } = this.state
-    let arr = this.getItems(tab)
+    } = store
+    let arr = store.getItems(tab)
     let initItem = getInitItem(arr, tab)
     return tab === settingMap.history
       ? arr
