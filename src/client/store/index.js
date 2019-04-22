@@ -193,6 +193,7 @@ const store = Subx.create({
       ls.set('sessions', update.tabs)
     }
   }
+  //todo use subscribe
 
   initContextEvent = () => {
     let dom = document.getElementById('outside-context')
@@ -212,7 +213,7 @@ const store = Subx.create({
     document.activeElement.select()
     window.postMessage({
       event: 'selectall',
-      id: this.state.activeTerminalId
+      id: store.activeTerminalId
     }, '*')
   }
 
@@ -235,7 +236,6 @@ const store = Subx.create({
         config: nc
       }
     })
-
   }
 
   clickNextTab = _.debounce(() => {
