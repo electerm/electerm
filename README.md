@@ -5,7 +5,7 @@
 </h1>
 
 # electerm
-[![GitHub version](https://img.shields.io/github/release/electerm/electerm/all.svg)](https://github.com/electerm/electerm/releases)
+[![Backers on Open Collective](https://opencollective.com/electerm/backers/badge.svg)](#backers) [![Sponsors on Open Collective](https://opencollective.com/electerm/sponsors/badge.svg)](#sponsors) [![GitHub version](https://img.shields.io/github/release/electerm/electerm/all.svg)](https://github.com/electerm/electerm/releases)
 [![Build Status](https://travis-ci.org/electerm/electerm.svg?branch=release)](https://travis-ci.org/electerm/electerm)
 [![Build status](https://ci.appveyor.com/api/projects/status/33ckbqln02utekxd/branch/release?svg=true)](https://ci.appveyor.com/project/zxdong262/electerm/branch/release)
 <span class="badge-daviddm"><a href="https://david-dm.org/electerm/electerm" title="View the status of this project's dependencies on DavidDM"><img src="https://img.shields.io/david/electerm/electerm.svg" alt="Dependency Status" /></a></span>
@@ -105,6 +105,36 @@ npm run release -l
 ## Change log
 
 Visit [Releases](https://github.com/electerm/electerm/releases)
+
+## Contributors
+
+This project exists thanks to all the people who contribute. 
+<a href="https://github.com/electerm/electerm/graphs/contributors"><img src="https://opencollective.com/electerm/contributors.svg?width=890&button=false" /></a>
+
+
+## Backers
+
+Thank you to all our backers! 🙏 [[Become a backer](https://opencollective.com/electerm#backer)]
+
+<a href="https://opencollective.com/electerm#backers" target="_blank"><img src="https://opencollective.com/electerm/backers.svg?width=890"></a>
+
+
+## Sponsors
+
+Support this project by becoming a sponsor. Your logo will show up here with a link to your website. [[Become a sponsor](https://opencollective.com/electerm#sponsor)]
+
+<a href="https://opencollective.com/electerm/sponsor/0/website" target="_blank"><img src="https://opencollective.com/electerm/sponsor/0/avatar.svg"></a>
+<a href="https://opencollective.com/electerm/sponsor/1/website" target="_blank"><img src="https://opencollective.com/electerm/sponsor/1/avatar.svg"></a>
+<a href="https://opencollective.com/electerm/sponsor/2/website" target="_blank"><img src="https://opencollective.com/electerm/sponsor/2/avatar.svg"></a>
+<a href="https://opencollective.com/electerm/sponsor/3/website" target="_blank"><img src="https://opencollective.com/electerm/sponsor/3/avatar.svg"></a>
+<a href="https://opencollective.com/electerm/sponsor/4/website" target="_blank"><img src="https://opencollective.com/electerm/sponsor/4/avatar.svg"></a>
+<a href="https://opencollective.com/electerm/sponsor/5/website" target="_blank"><img src="https://opencollective.com/electerm/sponsor/5/avatar.svg"></a>
+<a href="https://opencollective.com/electerm/sponsor/6/website" target="_blank"><img src="https://opencollective.com/electerm/sponsor/6/avatar.svg"></a>
+<a href="https://opencollective.com/electerm/sponsor/7/website" target="_blank"><img src="https://opencollective.com/electerm/sponsor/7/avatar.svg"></a>
+<a href="https://opencollective.com/electerm/sponsor/8/website" target="_blank"><img src="https://opencollective.com/electerm/sponsor/8/avatar.svg"></a>
+<a href="https://opencollective.com/electerm/sponsor/9/website" target="_blank"><img src="https://opencollective.com/electerm/sponsor/9/avatar.svg"></a>
+
+
 
 ## License
 
