@@ -19,7 +19,6 @@ import {
   defaultookmarkGroupId
 } from '../../common/constants'
 import highlight from '../common/highlight'
-import copy from 'json-deep-copy'
 import Search from '../common/search'
 import Btns from './bookmark-transport'
 import './tree-list.styl'
