@@ -4,15 +4,15 @@
 
 import Subx from 'subx'
 import {message} from 'antd'
-import newTerm from '../../common/new-terminal'
+import newTerm from '../common/new-terminal'
 import _ from 'lodash'
 import {generate} from 'shortid'
 import copy from 'json-deep-copy'
-import wait from '../../common/wait'
+import wait from '../common/wait'
 import {notification} from 'antd'
-import openInfoModal from '../sidebar/info-modal'
-import * as terminalThemes from '../../common/terminal-theme'
-import createTitlte from '../../common/create-title'
+import openInfoModal from '../components/sidebar/info-modal'
+import * as terminalThemes from '../common/terminal-theme'
+import createTitlte from '../common/create-title'
 import {
   maxHistory,
   settingMap,
@@ -21,9 +21,8 @@ import {
   sidebarWidth,
   statusMap,
   defaultTheme
-} from '../../common/constants'
-import {buildNewTheme} from '../../common/terminal-theme'
-import './wrapper.styl'
+} from '../common/constants'
+import {buildNewTheme} from '../common/terminal-theme'
 
 const {getGlobal, _config} = window
 const ls = getGlobal('ls')
@@ -230,7 +229,7 @@ const store = Subx.create({
   },
 
   addTransferHistory (item) {
-    store.transferHistory.unshift(item)
+    store.transferHistory = store.transferHistory.unshift(item).slice(0, maxTransferHistory)
   },
 
   onCheckUpdate () {
@@ -617,3 +616,8 @@ store.config.$
     getGlobal('saveUserConfig')(store.config)
   })
 
+store.modifier = store.setState
+store.modifierLS = store.setState
+store.setStateLS = store.setState
+
+export default store
