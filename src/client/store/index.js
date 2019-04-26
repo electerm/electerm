@@ -93,6 +93,10 @@ const store = Subx.create({
   upgradeInfo: {},
 
   // methods
+  setState(update) {
+    Object.assign(store, update)
+  },
+
   focus () {
     window.postMessage({
       type: 'focus'
@@ -101,12 +105,10 @@ const store = Subx.create({
 
   openMenu () {
     store.menuOpened = true
-    //todo subscribe
   },
 
   closeMenu () {
     store.menuOpened = false
-    //todo subscribe
   },
 
   checkDefaultTheme () {
@@ -128,60 +130,14 @@ const store = Subx.create({
   },
 
   setOffline () {
-    let tabs = copy(store.tabs)
+    store.tabs = store.tabs
       .map(t => {
         return {
           ...t,
           status: t.host ? statusMap.error: t.status
         }
       })
-    store.modifier({
-      tabs
-    })
   },
-
-  // onResize = _.debounce(() => {
-  //   let update = {
-  //     height: window.innerHeight,
-  //     width: window.innerWidth - sidebarWidth,
-  //     isMaximized: window.getGlobal('isMaximized')()
-  //   }
-  //   store.setState(update)
-  //   window
-  //     .getGlobal('lastStateManager')
-  //     .set('windowSize', update)
-  // }, 100)
-  //todo debounce
-
-  // setStateLs (update) => {
-  //   Object.keys(update).forEach(k => {
-  //     ls.set(k, update[k])
-  //   })
-  //   store.setState(update)
-  // }
-  // todo subscibe
-
-  // modifyLs = (...args) => {
-  //   store.setStateLs(...args)
-  // }
-  //todo subscribe
-
-  modifier (...args) {
-    let update = args[0]
-    let changed = (update.currentTabId && update.currentTabId !== store.currentTabId) || update.tabs
-    if (changed) {
-      let currentTabId = update.currentTabId || store.currentTabId
-      let tabs = update.tabs || store.tabs
-      let tab = _.find(tabs, t => t.id === currentTabId) || {}
-      let title = createTitlte(tab)
-      window.getGlobal('setTitle')(title)
-    }
-    store.setState(...args)
-    if (update.tabs) {
-      ls.set('sessions', update.tabs)
-    }
-  },
-  //todo use subscribe
 
   initContextEvent () {
     let dom = document.getElementById('outside-context')
@@ -214,16 +170,7 @@ const store = Subx.create({
     if (zoomOnly) {
       return
     }
-    store.setState(old => {
-      let nc = {
-        ...old.config,
-        zoom: nl
-      }
-      getGlobal('saveUserConfig')(nc)
-      return {
-        config: nc
-      }
-    })
+    store.config.zoom = nl
   },
 
   getDefaultBookmarkGroups (bookmarks) {
@@ -268,15 +215,11 @@ const store = Subx.create({
   },
 
   openTransferHistory () {
-    store.setState({
-      transferHistoryModalVisible: true
-    })
+    store.transferHistoryModalVisible = true
   },
 
   closeTransferHistory () {
-    store.setState({
-      transferHistoryModalVisible: false
-    })
+    store.transferHistoryModalVisible = false
   },
 
   clearTransferHistory () {
@@ -287,22 +230,14 @@ const store = Subx.create({
   },
 
   addTransferHistory (item) {
-    let transferHistory = [
-      item,
-      ...copy(store.transferHistory)
-    ].slice(0, maxTransferHistory)
-    store.setState({
-      transferHistory
-    })
+    store.transferHistory.unshift(item)
   },
 
   onCheckUpdate () {
     if (store.onCheckUpdating) {
       return
     }
-    store.setState({
-      shouldCheckUpdate: +new Date()
-    })
+    store.shouldCheckUpdate = +new Date()
   },
 
   openContextMenu (contextMenuProps) {
@@ -649,3 +584,36 @@ store.clickNextTab = _.debounce(() => {
     next.querySelector('.tab-title').click()
   }
 }, 100)
+
+store.currentTabId.$
+  // todo .distinct(function () { return store.currentTabId })
+  .subscribe(() => {
+    store.focus()
+    let {currentTabId} = store
+    let tab = _.find(tabs, t => t.id === currentTabId) || {}
+    let title = createTitlte(tab)
+    window.getGlobal('setTitle')(title)
+  })
+
+store.menuOpened.$
+  // todo .distinct(function () { return store.currentTabId })
+  .subscribe(() => {
+    if (store.menuOpened) {
+      store.initMenuEvent()
+    } else {
+      store.onCloseMenu()
+    }
+  })
+
+store.tabs.$
+  // todo .distinct(function () { return store.currentTabId })
+  .subscribe(() => {
+    ls.set('sessions', store.tabs)
+  })
+
+store.config.$
+  // todo .distinct(function () { return store.currentTabId })
+  .subscribe(() => {
+    getGlobal('saveUserConfig')(store.config)
+  })
+
