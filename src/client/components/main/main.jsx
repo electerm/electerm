@@ -57,69 +57,32 @@ export default class Index extends React.Component {
       fileModeModalProps,
       shouldCheckUpdate,
       textEditorProps,
+      modifier,
       config
-    } = this.state
-    let {themes, theme} = this.state
-    let themeConfig = (_.find(themes, d => d.id === theme) || {}).themeConfig || {}
-    let controlProps = {
-      ...this.state,
-      list: this.getList(),
-      themeConfig,
-      ..._.pick(this, [
-        'modifier', 'delTab', 'addTab', 'editTab',
-        'openTransferHistory',
-        'clearTransferHistory',
-        'closeTransferHistory',
-        'addTransferHistory',
-        'onError', 'openContextMenu',
-        'modifyLs', 'addItem', 'editItem', 'delItem',
-        'onCheckUpdate', 'openAbout',
-        'setTheme', 'addTheme', 'editTheme', 'delTheme',
-        'addBookmarkGroup',
-        'editBookmarkGroup',
-        'closeContextMenu',
-        'zoom',
-        'clickNextTab',
-        'openMenu',
-        'closeMenu',
-        'delBookmarkGroup',
-        'onClose',
-        'reloadTab',
-        'hideModal', 'onDelItem',
-        'onNewSsh', 'openSetting', 'onEditHistory',
-        'openTerminalThemes',
-        'onSelectHistory', 'onChangeTabId', 'onDuplicateTab', 'onSelectBookmark', 'onChangeTab'
-      ])
-    }
-    let sessProps = {
-      ..._.pick(this, [
-        'modifier', 'addTab'
-      ]),
-      ..._.pick(this.state, [
-        'sessionModalVisible',
-        'selectedSessions'
-      ])
-    }
+    } = this.props.store
+    let sessProps = _.pick(this.props.store, [
+      'modifier', 'addTab', 'sessionModalVisible', 'selectedSessions'
+    ])
     return (
       <div>
         <SessionControl {...sessProps} />
         <TextEditor
           key={textEditorProps.id}
           {...textEditorProps}
-          modifier={this.modifier}
+          modifier={modifier}
         />
         <UpdateCheck
-          modifier={this.modifier}
-          upgradeInfo={this.state.upgradeInfo}
-          addTab={this.addTab}
+          modifier={modifier}
+          upgradeInfo={this.props.store.upgradeInfo}
+          addTab={this.props.store.addTab}
           shouldCheckUpdate={shouldCheckUpdate}
         />
         <ContextMenu
           {...contextMenuProps}
           visible={contextMenuVisible}
-          closeContextMenu={this.closeContextMenu}
+          closeContextMenu={this.props.store.closeContextMenu}
         />
-        <SystemMenu {...controlProps} />
+        <SystemMenu store={this.props.store} />
         <FileInfoModal
           {...fileInfoModalProps}
         />
@@ -127,15 +90,20 @@ export default class Index extends React.Component {
           key={_.get(fileModeModalProps, 'file.id') || ''}
           {...fileModeModalProps}
         />
-        <SettingModal {...controlProps} />
+        <SettingModal store={this.props.store} />
         <div
           id="outside-context"
           style={{
             opacity: config.opacity
           }}
         >
-          <Sidebar {...controlProps} />
-          <Tabs {...controlProps} />
+          <Sidebar store={this.props.store} />
+          <Tabs
+            store={this.props.store}
+            {..._.pick(this.props.store, [
+              'currentTabId', 'width', 'tabTitles'
+            ])}
+          />
           <div className="ui-outer">
             {
               tabs.map((tab) => {
@@ -146,7 +114,7 @@ export default class Index extends React.Component {
                 return (
                   <div className={cls} key={id}>
                     <Session
-                      {...controlProps}
+                      store={this.props.store}
                       tab={tab}
                     />
                   </div>

@@ -119,7 +119,7 @@ export class BookmarkForm extends React.PureComponent {
       )
       return bg
     })
-    this.props.modifyLs({
+    this.props.setState({
       bookmarkGroups
     })
   }

@@ -19,7 +19,7 @@ const h = prefix('transferHistory')
 const t = prefix('terminalThemes')
 const u = prefix('updater')
 
-export default (props) => {
+export default ({store}) => {
   let {
     openedSideBar,
     onNewSsh,
@@ -31,7 +31,7 @@ export default (props) => {
     height,
     openTerminalThemes,
     upgradeInfo
-  } = props
+  } = store
   let {showUpgradeModal, upgradePercent, checkingRemoteVersion, shouldUpgrade} = upgradeInfo
   let handler
   let interval = 400
@@ -76,11 +76,11 @@ export default (props) => {
       }}
     >
       <TransferHistoryModal
-        {...props}
+        store={store}
       />
       <div className="sidebar-bar btns">
         <div className="control-icon-wrap">
-          <MenuBtn {...props} />
+          <MenuBtn store={store} />
         </div>
         <div
           className="control-icon-wrap"
@@ -185,13 +185,13 @@ export default (props) => {
         className="sidebar-list"
       >
         <BookMarksWrap
-          {...props}
+          store={store}
           onMouseEnter={onMouseEnterBookmark}
           onMouseLeave={onMouseLeave}
           listStyle={listStyle}
         />
         <HistoryWrap
-          {...props}
+          store={store}
           onMouseEnter={onMouseEnterHistory}
           onMouseLeave={onMouseLeave}
           listStyle={listStyle}

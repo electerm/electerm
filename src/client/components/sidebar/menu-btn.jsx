@@ -7,16 +7,16 @@ const e = prefix('control')
 
 const logo = require('node_modules/@electerm/electerm-resource/res/imgs/electerm.svg').replace(/^\//, '')
 
-export default (props) => {
+export default ({store}) => {
   return (
     <div
       className="menu-control"
       key="menu-control"
       onMouseDown={evt => evt.preventDefault()}
       onClick={() => {
-        props.menuOpened
-          ? props.closeMenu()
-          : props.openMenu()
+        store.menuOpened
+          ? store.closeMenu()
+          : store.openMenu()
       }}
       title={e('menu')}
     >

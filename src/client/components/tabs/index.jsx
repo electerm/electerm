@@ -33,7 +33,7 @@ export default class Tabs extends React.Component {
     if (
       prevProps.currentTabId !== this.props.currentTabId ||
       prevProps.width !== this.props.width ||
-      prevProps.map(d => d.title).join('#') !== this.props.map(d => d.title).join('#')
+      prevProps.tabTitles !== this.props.tabTitles
     ) {
       this.adjustScroll()
     }
@@ -66,7 +66,7 @@ export default class Tabs extends React.Component {
       e.code === 'Tab' &&
       e.shiftKey
     ) {
-      this.props.clickNextTab()
+      this.props.store.clickNextTab()
     }
   }
 
@@ -74,11 +74,11 @@ export default class Tabs extends React.Component {
     if (!e.target.className.includes('tabs-wrapper')) {
       return
     }
-    this.props.addTab()
+    this.props.store.addTab()
   }
 
   adjustScroll = () => {
-    let {width, tabs, currentTabId} = this.props
+    let {width, tabs, currentTabId} = this.props.store
     let index = _.findIndex(tabs, t => t.id === currentTabId)
     let tabsDomWith = Array.from(
       document.querySelectorAll('.tab')
@@ -112,7 +112,7 @@ export default class Tabs extends React.Component {
 
   onClickMenu = ({key}) => {
     let id = key.split('##')[1]
-    this.props.onChangeTabId(id)
+    this.props.store.onChangeTabId(id)
   }
 
   renderList = () => {
@@ -134,7 +134,7 @@ export default class Tabs extends React.Component {
   }
 
   renderMenus() {
-    let {onNewSsh, addTab} = this.props
+    let {onNewSsh, addTab} = this.props.store
     let cls = 'pd2x pd1y context-item pointer'
     return (
       <div className="add-menu-wrap">
@@ -199,7 +199,7 @@ export default class Tabs extends React.Component {
   }
 
   render() {
-    let {tabs = [], width} = this.props
+    let {tabs = [], width} = this.props.store
     let len = tabs.length
     let tabsWidthAll = tabMargin * len + 10 + this.tabsWidth()
     let overflow = this.isOverflow()
@@ -223,7 +223,7 @@ export default class Tabs extends React.Component {
               tabs.map((tab, i) => {
                 return (
                   <Tab
-                    {...this.props}
+                    store={this.props.store}
                     tab={tab}
                     key={i + '##' + tab.id}
                   />
@@ -239,7 +239,7 @@ export default class Tabs extends React.Component {
         </div>
         <div className="app-drag" />
         <WindowControl
-          isMaximized={this.props.isMaximized}
+          isMaximized={this.props.store.isMaximized}
         />
         {
           overflow

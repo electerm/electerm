@@ -10,21 +10,21 @@ import copy from 'json-deep-copy'
 const {getGlobal} = window
 const sshConfigItems = copy(getGlobal('sshConfigItems'))
 
-export default memo((props) => {
+export default memo(({store}) => {
   let {
     bookmarkGroups = [],
     listStyle,
     openedCategoryIds
-  } = props
+  } = store
   const onClickItem = (item) => {
-    props.modifier({
+    store.modifier({
       openedSideBar: ''
     })
-    props.onSelectBookmark(item.id)
+    store.onSelectBookmark(item.id)
   }
   let props0 = {
     bookmarks: [
-      ...(props.bookmarks || []),
+      ...(store.bookmarks || []),
       ...sshConfigItems
     ],
     type: 'bookmarks',
@@ -44,7 +44,7 @@ export default memo((props) => {
   return bookmarkGroups.filter(d => d.level !== 2).length > 1
     ? (
       <TreeList
-        {...props}
+        store={store}
         {...props0}
         shouldComfirmDel
         staticList
@@ -52,7 +52,7 @@ export default memo((props) => {
         onClickItem={onClickItem}
         expandedKeys={openedCategoryIds}
         onExpand={openedCategoryIds => {
-          props.modifyLs({
+          store.setState({
             openedCategoryIds
           })
         }}
@@ -62,7 +62,7 @@ export default memo((props) => {
       <ItemList
         {...props0}
         list={props0.bookmarks || []}
-        onClickItem={item => props.onSelectBookmark(item.id)}
+        onClickItem={item => store.onSelectBookmark(item.id)}
       />
     )
 })

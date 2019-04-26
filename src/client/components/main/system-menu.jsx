@@ -195,13 +195,13 @@ function renderContext(props) {
   )
 }
 
-export default (props) => {
+export default ({store}) => {
   return (
     <Context
-      content={renderContext(props)}
-      visible={props.menuOpened}
+      content={renderContext(store)}
+      visible={store.menuOpened}
       className="context-menu system-menu"
-      closeContextMenu={props.closeMenu}
+      closeContextMenu={store.closeMenu}
       pos={{
         left: 40,
         top: 10

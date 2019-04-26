@@ -17,13 +17,13 @@ const sorterFactory = prop => {
     return a[prop] > b[prop] ? 1 : -1
   }
 }
-export default memo(props => {
+export default memo(({store}) => {
   let {
     transferHistory,
     transferHistoryModalVisible,
     clearTransferHistory,
     closeTransferHistory
-  } = props
+  } = store
   const columns = [{
     title: e('startTime'),
     dataIndex: 'startTime',

@@ -91,6 +91,15 @@ const store = Subx.create({
   shouldCheckUpdate: 0,
   upgradeInfo: {},
 
+  //computed
+  get themeConfig() {
+    return (_.find(store.themes, d => d.id === store.theme) || {}).themeConfig || {}
+  },
+
+  get tabTitles() {
+    return store.tabs.map(d => d.title).join('#')
+  },
+
   // methods
   setState(update) {
     Object.assign(store, update)

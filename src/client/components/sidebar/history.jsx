@@ -14,11 +14,11 @@ const {prefix} = window
 const c = prefix('common')
 const m = prefix('menu')
 
-export default memo((props) => {
+export default memo(({store}) => {
   return (
     <div
       className="sidebar-panel history-panel animate-fast"
-      {..._.pick(props, ['onMouseEnter', 'onMouseLeave'])}
+      {..._.pick(store, ['onMouseEnter', 'onMouseLeave'])}
     >
       <div className="pd1y pd2t pd2x">
         <div className="fix">
@@ -28,7 +28,7 @@ export default memo((props) => {
               <Icon
                 type="edit"
                 className="font16 mg1x mg2l pointer iblock control-icon icon-do-edit"
-                onClick={props.onEditHistory}
+                onClick={store.onEditHistory}
               />
             </Tooltip>
           </div>
@@ -36,11 +36,11 @@ export default memo((props) => {
       </div>
       <div className="pd2x">
         <ItemList
-          {...props}
+          store={store}
           type="history"
-          list={props.history || []}
-          onClickItem={item => props.onSelectHistory(item.id)}
-          activeItemId={props.activeItemId}
+          list={store.history || []}
+          onClickItem={item => store.onSelectHistory(item.id)}
+          activeItemId={store.activeItemId}
         />
       </div>
     </div>
