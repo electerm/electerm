@@ -31,16 +31,6 @@ export default memo(({store}) => {
     onClickItem,
     listStyle
   }
-  let bookmarkGroupsTotal = sshConfigItems.length
-    ? [
-      ...bookmarkGroups,
-      {
-        title: 'ssh-config',
-        id: 'ssh-config',
-        bookmarkIds: sshConfigItems.map(d => d.id)
-      }
-    ]
-    : bookmarkGroups
   return bookmarkGroups.filter(d => d.level !== 2).length > 1
     ? (
       <TreeList
@@ -48,7 +38,7 @@ export default memo(({store}) => {
         {...props0}
         shouldComfirmDel
         staticList
-        bookmarkGroups={bookmarkGroupsTotal}
+        bookmarkGroups={store.bookmarkGroupsTotal}
         onClickItem={onClickItem}
         expandedKeys={openedCategoryIds}
         onExpand={openedCategoryIds => {

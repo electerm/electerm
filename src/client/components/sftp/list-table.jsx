@@ -85,7 +85,7 @@ export default class FileListTable extends React.Component {
 
   initFromProps = (pps = this.getPropsDefault()) => {
     let {length} = pps
-    let {width} = this.props
+    let {width} = this.props.store
     let padding = 5
     let w = (width - padding * 2) / length
     let properties = pps.map((name, i) => {
@@ -254,7 +254,7 @@ export default class FileListTable extends React.Component {
       ? this.computePos(e, height)
       : this.pos
     this.pos = pos
-    this.props.openContextMenu({
+    this.props.store.openContextMenu({
       content,
       pos
     })

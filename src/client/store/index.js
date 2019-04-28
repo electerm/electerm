@@ -59,6 +59,7 @@ const store = Subx.create({
   history: copy(ls.get(settingMap.history) || []),
   bookmarks,
   bookmarkGroups,
+  sshConfigItems: copy(getGlobal('sshConfigItems')),
   isMaximized: window.getGlobal('isMaximized')(),
   config: copy(_config) || {},
   contextMenuProps: {},
@@ -98,6 +99,19 @@ const store = Subx.create({
 
   get tabTitles() {
     return store.tabs.map(d => d.title).join('#')
+  },
+
+  get bookmarkGroupsTotal() {
+    return store.sshConfigItems.length
+      ? [
+        ...store.bookmarkGroups,
+        {
+          title: 'ssh-config',
+          id: 'ssh-config',
+          bookmarkIds: sshConfigItems.map(d => d.id)
+        }
+      ]
+      : store.bookmarkGroups
   },
 
   // methods

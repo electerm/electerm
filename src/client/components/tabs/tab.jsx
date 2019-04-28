@@ -33,10 +33,10 @@ export default class Tab extends React.Component {
     this.dom = document.getElementById('id' + this.state.tab.id)
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (!_.isEqual(nextProps.tab, this.props.tab)) {
+  componentDidUpdate(prevProps) {
+    if (!_.isEqual(prevProps.tab, this.props.tab)) {
       this.setState({
-        tab: copy(nextProps.tab)
+        tab: copy(this.props.tab)
       })
     }
   }
@@ -99,7 +99,7 @@ export default class Tab extends React.Component {
       return
     }
     let {id} = fromTab
-    let tabs = copy(this.props.tabs)
+    let {tabs} = this.props.store
     let indexFrom = _.findIndex(tabs, t => t.id === id)
     let indexDrop = _.findIndex(tabs, t => t.id === dropId)
     if (indexDrop > indexFrom) {
@@ -107,13 +107,10 @@ export default class Tab extends React.Component {
     }
     tabs.splice(indexFrom, 1)
     tabs.splice(indexDrop, 0, fromTab)
-    this.props.modifier({
-      tabs
-    })
   }
 
   reloadTab = async () => {
-    this.props.reloadTab(this.state.tab)
+    this.props.store.reloadTab(this.state.tab)
   }
 
   onDragEnd = e => {
@@ -123,14 +120,14 @@ export default class Tab extends React.Component {
   }
 
   close = () => {
-    this.props.delTab({id: this.state.tab.id})
+    this.props.store.delTab({id: this.state.tab.id})
     if (this.props.tabs.length <= 1) {
       setTimeout(this.props.addTab, 1)
     }
   }
 
   dup = () => {
-    this.props.onDuplicateTab(this.props.tab)
+    this.props.store.onDuplicateTab(this.props.tab)
   }
 
   doRename = () => {
@@ -155,7 +152,7 @@ export default class Tab extends React.Component {
         tab
       })
     }
-    this.props.editTab(id, {title: titleTemp})
+    this.props.store.editTab(id, {title: titleTemp})
   }
 
   onChange = e => {
@@ -168,23 +165,20 @@ export default class Tab extends React.Component {
   }
 
   closeOther = () => {
-    this.props.modifier({
+    this.props.store.modifier({
       tabs: [this.props.tab],
       currentTabId: this.props.tab.id
     })
   }
 
   closeTabsRight = () => {
-    let {tabs, tab, currentTabId} = this.props
+    let {tabs, currentTabId} = this.props.store
+    let {tab} = this.props
     let index = _.findIndex(tabs, t => t.id === tab.id)
     tabs = tabs.slice(0, index + 1)
-    let update = {
-      tabs
-    }
     if (!_.some(tabs, t => t.id === currentTabId)) {
-      update.currentTabId = tabs[0].id
+      this.props.store.currentTabId = tabs[0].id
     }
-    this.props.modifier(update)
   }
 
   renderContext() {
@@ -230,7 +224,7 @@ export default class Tab extends React.Component {
 
         <div
           className={cls}
-          onClick={() => this.props.addTab()}
+          onClick={() => this.props.store.addTab()}
         >
           <Icon type="code-o" /> {e('newTab')}
         </div>
@@ -261,7 +255,7 @@ export default class Tab extends React.Component {
     let {target} = e
     let rect = target.getBoundingClientRect()
     let content = this.renderContext()
-    this.props.openContextMenu({
+    this.props.store.openContextMenu({
       content,
       pos: {
         left: rect.left,
@@ -291,7 +285,7 @@ export default class Tab extends React.Component {
       currentTabId,
       onChangeTabId,
       onDuplicateTab
-    } = this.props
+    } = this.props.store
     let {tab} = this.state
     let {id, isEditting, status} = tab
     let active = id === currentTabId

@@ -166,7 +166,7 @@ export default class Tabs extends React.Component {
           type="plus-circle-o"
           title={e('openNewTerm')}
           className="pointer tabs-add-btn font16"
-          onClick={() => this.props.addTab()}
+          onClick={() => this.props.store.addTab()}
         />
       </Popover>
     )

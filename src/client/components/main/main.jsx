@@ -115,7 +115,7 @@ export default class Index extends React.Component {
                   <div className={cls} key={id}>
                     <Session
                       store={this.props.store}
-                      tab={tab}
+                      tab={copy(tab)}
                     />
                   </div>
                 )

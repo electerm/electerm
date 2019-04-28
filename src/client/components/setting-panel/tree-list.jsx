@@ -310,7 +310,7 @@ export default class ItemListTree extends React.PureComponent {
   }
 
   renderDelBtn = item => {
-    if (item.id === defaultookmarkGroupId || this.props.store.staticList) {
+    if (item.id === defaultookmarkGroupId || this.props.staticList) {
       return null
     }
     return (
@@ -354,7 +354,7 @@ export default class ItemListTree extends React.PureComponent {
   }
 
   renderAddNewSubGroupBtn = item => {
-    if (this.props.store.staticList || item.level === 2) {
+    if (this.props.staticList || item.level === 2) {
       return null
     }
     return (
@@ -368,7 +368,7 @@ export default class ItemListTree extends React.PureComponent {
   }
 
   renderEditBtn = item => {
-    if (this.props.store.staticList) {
+    if (this.props.staticList) {
       return null
     }
     return (
@@ -635,12 +635,14 @@ export default class ItemListTree extends React.PureComponent {
 
   render() {
     let {
+      activeItemId
+    } = this.props.store
+    let {
       bookmarkGroups,
       type,
-      activeItemId,
       staticList,
       listStyle = {}
-    } = this.props.store
+    } = this.props
     let {keyword} = this.state
     let expandedKeys = this.props.expandedKeys || this.state.expandedKeys
     let level1Bookgroups = bookmarkGroups.filter(

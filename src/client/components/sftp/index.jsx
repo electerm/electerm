@@ -153,7 +153,7 @@ export default class Sftp extends React.Component {
   }
 
   isActive() {
-    return this.props.currentTabId === this.props.tab.id &&
+    return this.props.store.currentTabId === this.props.tab.id &&
       this.props.pane === paneMap.fileManager
   }
 
@@ -228,7 +228,7 @@ export default class Sftp extends React.Component {
       ? fs.unlinkAsync
       : fs.rmrf
     let p = resolve(localPath, name)
-    await func(p).catch(this.props.onError)
+    await func(p).catch(this.props.store.onError)
   }
 
   remoteDel = async (file) => {
@@ -239,7 +239,7 @@ export default class Sftp extends React.Component {
       ? sftp.rmdir
       : sftp.rm
     let p = resolve(remotePath, name)
-    await func(p).catch(this.props.onError)
+    await func(p).catch(this.props.store.onError)
   }
 
   delFiles = async (_type, files = this.state.selectedFiles) => {
@@ -418,7 +418,7 @@ export default class Sftp extends React.Component {
   }
 
   onError = e => {
-    this.props.onError(e)
+    this.props.store.onError(e)
     this.setState({
       remoteLoading: false
     })
@@ -468,7 +468,7 @@ export default class Sftp extends React.Component {
     try {
       if (!this.sftp) {
         let config = deepCopy(
-          this.props.config
+          this.props.store.config
         )
         await sftp.connect({
           ...tab,
@@ -483,7 +483,7 @@ export default class Sftp extends React.Component {
         let home = await sftp.getHomeDir()
           .then(r => r)
           .catch(err => {
-            this.props.onError(err)
+            this.props.store.onError(err)
             return ''
           })
         if (home) {
@@ -677,10 +677,9 @@ export default class Sftp extends React.Component {
 
   getFileProps = (file, type) => {
     return {
-      ...this.props,
+      store: this.props.store,
       file,
       type,
-      rootModifier: this.props.modifier,
       ..._.pick(this, [
         'sftp',
         'onSort',
@@ -823,7 +822,7 @@ export default class Sftp extends React.Component {
     let listProps = {
       id,
       type,
-      ...this.props,
+      store: this.props.store,
       ..._.pick(
         this,
         [
@@ -906,8 +905,11 @@ export default class Sftp extends React.Component {
       typeMap.remote
     ]
     let {
-      width, height, tab
+      height, tab
     } = this.props
+    let {
+      width
+    } = this.props.store
     let host = _.get(tab, 'host')
     if (!host) {
       return (
@@ -951,7 +953,7 @@ export default class Sftp extends React.Component {
       id,
       height,
       isActive: this.isActive(),
-      ..._.pick(this.props, [
+      ..._.pick(this.props.store, [
         'onError', 'addTransferHistory', 'config'
       ]),
       ..._.pick(this.state, [

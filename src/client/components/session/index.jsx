@@ -81,7 +81,7 @@ export default class WindowWrapper extends React.PureComponent  {
   }
 
   isActive() {
-    return this.props.currentTabId === this.props.tab.id &&
+    return this.props.store.currentTabId === this.props.tab.id &&
       this.state.pane === paneMap.terminal
   }
 
@@ -95,7 +95,7 @@ export default class WindowWrapper extends React.PureComponent  {
   }
 
   computeHeight = () => {
-    return this.props.height - tabsHeight
+    return this.props.store.height - tabsHeight
   }
 
   onChangePane = pane => {
@@ -186,9 +186,9 @@ export default class WindowWrapper extends React.PureComponent  {
     let cls = pane === paneMap.terminal
       ? 'terms-box bg-black'
       : 'terms-box bg-black hide'
-    let {props} = this
     let height = this.computeHeight()
-    let {width, tab} = props
+    let {tab} = this.props
+    let {width, currentTabId, config, themeConfig} = this.props.store
     return (
       <div
         className={cls}
@@ -204,9 +204,11 @@ export default class WindowWrapper extends React.PureComponent  {
           {
             terminals.map((t) => {
               let pops = {
-                ...props,
                 ...t,
+                config: copy(config),
+                themeConfig: copy(themeConfig),
                 pane,
+                currentTabId,
                 ..._.pick(
                   this,
                   ['setActive', 'doSplit', 'setSessionState']
@@ -218,6 +220,7 @@ export default class WindowWrapper extends React.PureComponent  {
                   key={t.id}
                   sessionOptions={sessionOptions}
                   {...pops}
+                  store={this.props.store}
                 />
               )
             })
@@ -230,14 +233,13 @@ export default class WindowWrapper extends React.PureComponent  {
   renderSftp = () => {
     let {pane, sessionOptions, sshConnected} = this.state
     let height = this.computeHeight()
-    let {props} = this
     let cls = pane === paneMap.terminal
       ? 'hide'
       : ''
     return (
       <div className={cls}>
         <Sftp
-          {...props}
+          store={this.props.store}
           sessionOptions={sessionOptions}
           sshConnected={sshConnected}
           height={height}

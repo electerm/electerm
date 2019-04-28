@@ -229,9 +229,9 @@ export default class Term extends React.PureComponent {
 
   onBlur = () => {
     if (
-      this.props.id === this.props.activeTerminalId
+      this.props.id === this.props.store.activeTerminalId
     ) {
-      this.props.modifier({
+      this.props.store.modifier({
         activeTerminalId: ''
       })
     }
@@ -267,14 +267,12 @@ export default class Term extends React.PureComponent {
     if (percent > 99) {
       percent = 99
     }
-    this.setState(() => {
-      return {
-        zmodemTransfer: {
-          fileInfo,
-          percent,
-          transferedSize: total,
-          type
-        }
+    this.setState({
+      zmodemTransfer: {
+        fileInfo,
+        percent,
+        transferedSize: total,
+        type
       }
     })
   }

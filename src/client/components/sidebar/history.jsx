@@ -36,7 +36,6 @@ export default memo(({store}) => {
       </div>
       <div className="pd2x">
         <ItemList
-          store={store}
           type="history"
           list={store.history || []}
           onClickItem={item => store.onSelectHistory(item.id)}
