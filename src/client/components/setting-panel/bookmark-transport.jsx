@@ -13,12 +13,12 @@ const {prefix} = window
 const f = prefix('form')
 const t = prefix('terminalThemes')
 
-export default memo(props => {
+export default memo(({store}) => {
   const down = () => {
     let {
       bookmarkGroups,
       bookmarks
-    } = props
+    } = store
     let txt = JSON.stringify({
       bookmarkGroups,
       bookmarks
@@ -36,8 +36,8 @@ export default memo(props => {
         bookmarkGroups: bookmarkGroups1,
         bookmarks: bookmarks1
       } = content
-      let bookmarkGroups = copy(props.bookmarkGroups)
-      let bookmarks = copy(props.bookmarks)
+      let bookmarkGroups = copy(store.bookmarkGroups)
+      let bookmarks = copy(store.bookmarks)
       let bmTree = bookmarks.reduce((p, v) => {
         return {
           ...p,
@@ -73,12 +73,12 @@ export default memo(props => {
           )
         }
       })
-      props.modifier({
+      store.modifier({
         bookmarkGroups,
         bookmarks
       })
     } catch(e) {
-      props.onError(e)
+      store.onError(e)
     }
     return false
   }

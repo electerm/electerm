@@ -19,9 +19,9 @@ const c = prefix('control')
 const t = prefix('terminalThemes')
 const {TabPane} = Tabs
 
-export default memo(props => {
+export default memo(({store}) => {
   const selectItem = (item) => {
-    props.modifier({item})
+    store.modifier({item})
   }
 
   const tabsShouldConfirmDel = [
@@ -30,9 +30,9 @@ export default memo(props => {
   ]
 
   const renderTabs = () => {
-    let {tab, item, list} = props
+    let {tab, item, list} = store
     let props0 = {
-      ...props,
+      store,
       activeItemId: item.id,
       type: tab,
       onClickItem: selectItem,
@@ -40,16 +40,16 @@ export default memo(props => {
       list
     }
     let formProps = {
-      ...props,
+      store,
       formData: item,
       type: tab,
-      hide: props.hideModal
+      hide: store.hideModal
     }
     return (
       <Tabs
         activeKey={tab}
         animated={false}
-        onChange={props.onChangeTab}
+        onChange={store.onChangeTab}
       >
         <TabPane
           tab={m(settingMap.history)}
@@ -132,11 +132,11 @@ export default memo(props => {
     <Modal
       {...{
         title: e('settings'),
-        onCancel: props.hideModal,
+        onCancel: store.hideModal,
         footer: null,
         width: '94%',
         height: '94%',
-        visible: props.showModal
+        visible: store.showModal
       }}
     >
       {renderTabs()}

@@ -82,7 +82,7 @@ export class BookmarkForm extends React.PureComponent {
     let {
       bookmarkGroups,
       currentBookmarkGroupId
-    } = props
+    } = props.store
     return id
       ? this.findBookmarkGroupId(bookmarkGroups, id)
       : currentBookmarkGroupId
@@ -119,7 +119,7 @@ export class BookmarkForm extends React.PureComponent {
       )
       return bg
     })
-    this.props.setState({
+    this.props.store.setState({
       bookmarkGroups
     })
   }
@@ -164,7 +164,7 @@ export class BookmarkForm extends React.PureComponent {
         obj,
         categoryId
       )
-      this.props.modifier({
+      this.props.store.modifier({
         item: obj
       })
     }
@@ -232,7 +232,7 @@ export class BookmarkForm extends React.PureComponent {
     }
     evt && this.submit(evt, obj)
     if (evt !== 'save') {
-      this.props.addTab({
+      this.props.store.addTab({
         ...copy(obj),
         srcId: obj.id,
         status: statusMap.processing,
@@ -358,7 +358,7 @@ export class BookmarkForm extends React.PureComponent {
   }
 
   renderProxySelect = () => {
-    let proxyList = this.props.bookmarks.
+    let proxyList = this.props.store.bookmarks.
       reduce((prev, current) => {
         let {proxy} = current
         let {
@@ -485,7 +485,7 @@ export class BookmarkForm extends React.PureComponent {
       autofocustrigger,
       bookmarkGroups,
       currentBookmarkGroupId
-    } = this.props
+    } = this.props.store
     let {dns} = this.state
     let initBookmarkGroupId = id
       ? this.findBookmarkGroupId(bookmarkGroups, id)
@@ -667,7 +667,7 @@ export class BookmarkForm extends React.PureComponent {
     const {
       fontFamily: defaultFontFamily,
       fontSize: defaultFontSize
-    } = this.props.config.defaultSettings || {}
+    } = this.props.store.config.defaultSettings || {}
     const {
       fontFamily,
       fontSize

@@ -198,7 +198,7 @@ export default class ItemListTree extends React.PureComponent {
   }
 
   newBookmark = () => {
-    this.props.store.onClickItem({
+    this.props.onClickItem({
       id: '',
       title: ''
     })
@@ -294,7 +294,7 @@ export default class ItemListTree extends React.PureComponent {
       d => d.id === id
     )
     if (bookmark) {
-      this.props.store.onClickItem(bookmark)
+      this.props.onClickItem(bookmark)
     }
   }
 
@@ -635,14 +635,16 @@ export default class ItemListTree extends React.PureComponent {
 
   render() {
     let {
-      activeItemId
+      activeItemId,
+      bookmarkGroups: storeBookmarkGroups
     } = this.props.store
     let {
-      bookmarkGroups,
+      bookmarkGroups: propsBookmarkGroups,
       type,
       staticList,
       listStyle = {}
     } = this.props
+    let bookmarkGroups = propsBookmarkGroups || storeBookmarkGroups
     let {keyword} = this.state
     let expandedKeys = this.props.expandedKeys || this.state.expandedKeys
     let level1Bookgroups = bookmarkGroups.filter(
