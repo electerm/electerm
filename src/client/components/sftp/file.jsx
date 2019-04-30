@@ -362,19 +362,19 @@ export default class FileSection extends React.Component {
   }
 
   onCloseFileMode = () => {
-    this.props.rootModifier({
+    this.props.store.modifier({
       fileModeModalProps: {}
     })
   }
 
   onCloseFileInfo = () => {
-    this.props.rootModifier({
+    this.props.store.modifier({
       fileInfoModalProps: {}
     })
   }
 
   showInfo = () => {
-    this.props.rootModifier({
+    this.props.store.modifier({
       fileInfoModalProps: {
         file: this.state.file,
         tab: this.props.tab,
@@ -509,7 +509,7 @@ export default class FileSection extends React.Component {
   }
 
   openFileModeModal = () => {
-    this.props.rootModifier({
+    this.props.store.modifier({
       fileModeModalProps: {
         file: this.state.file,
         tab: this.props.tab,
@@ -609,7 +609,7 @@ export default class FileSection extends React.Component {
       edit ||
       (!edit && type === typeMap.remote && size < maxEditFileSize)
     ) {
-      return this.props.rootModifier({
+      return this.props.store.modifier({
         textEditorProps: {
           visible: true,
           id,
@@ -1008,7 +1008,7 @@ export default class FileSection extends React.Component {
     let content = this.renderContext()
     let height = content.props.children.filter(_.identity)
       .length * contextMenuHeight + contextMenuPaddingTop * 2
-    this.props.openContextMenu({
+    this.props.store.openContextMenu({
       content,
       pos: computePos(e, id, height)
     })

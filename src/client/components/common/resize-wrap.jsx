@@ -15,7 +15,7 @@ import {
 } from '../../common/constants'
 import './resize-wrap.styl'
 
-export default class ResizeWrap extends React.PureComponent {
+export default class ResizeWrap extends React.Component {
 
   static propTypes = {
     direction: PropTypes.oneOf(['horizontal', 'vertical']).isRequired,

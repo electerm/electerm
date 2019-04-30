@@ -157,7 +157,7 @@ export default class WindowWrapper extends Component {
 
   computePosition = (index) => {
     let len = this.state.terminals.length || 1
-    let {width: windowWidth} = this.props
+    let {width: windowWidth} = this.props.store
     let {splitDirection} = this.state
     let isHori = splitDirection === terminalSplitDirectionMap.horizontal
     let heightAll = this.computeHeight()

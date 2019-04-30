@@ -729,7 +729,7 @@ export default class Term extends Component {
     }
   }
 
-  onResize = () => {
+  onResize = _.debounce(() => {
     let cid = _.get(this.props, 'currentTabId')
     let tid = _.get(this.props, 'tab.id')
     if (
@@ -744,7 +744,7 @@ export default class Term extends Component {
         log.info('resize failed')
       }
     }
-  }
+  }, 200)
 
   onerrorSocket = err => {
     this.setStatus(statusMap.error)
