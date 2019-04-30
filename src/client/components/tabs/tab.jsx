@@ -2,7 +2,7 @@
  * file section
  */
 
-import React from 'react'
+import {Component} from 'react'
 import {Icon, Tooltip, message, Badge} from 'antd'
 import classnames from 'classnames'
 import copy from 'json-deep-copy'
@@ -20,7 +20,7 @@ const m = prefix('menu')
 const onDragCls = 'ondrag-tab'
 const onDragOverCls = 'dragover-tab'
 
-export default class Tab extends React.Component {
+export default class Tab extends Component {
 
   constructor(props) {
     super(props)
@@ -182,7 +182,8 @@ export default class Tab extends React.Component {
   }
 
   renderContext() {
-    let {tabs, tab} = this.props
+    let {tab} = this.props
+    let {tabs} = this.props.store
     let len = tabs.length
     let index = _.findIndex(tabs, t => t.id === tab.id)
     let nother = len === 1

@@ -1,5 +1,5 @@
 
-import React from 'react'
+import {Component} from 'react'
 import Session from '../session'
 import Tabs from '../tabs'
 import _ from 'lodash'
@@ -16,23 +16,24 @@ import SystemMenu from './system-menu'
 import SessionControl from '../session-control'
 import './wrapper.styl'
 
-export default class Index extends React.Component {
+export default class Index extends Component {
 
   componentDidMount() {
+    let {store} = this.props
     window.lang = copy(window.lang)
     window._config = copy(window._config)
-    let title = createTitlte(this.props.store.tabs[0])
+    let title = createTitlte(store.tabs[0])
     window.getGlobal('setTitle')(title)
-    window.addEventListener('resize', this.store.onResize)
-    this.onResize()
+    window.addEventListener('resize', store.onResize)
+    store.onResize()
     window._require('electron')
       .ipcRenderer
-      .on('checkupdate', this.store.onCheckUpdate)
-      .on('open-about', this.store.openAbout)
-      .on('new-ssh', this.store.onNewSsh)
-      .on('openSettings', this.store.openSetting)
-      .on('selectall', this.store.selectall)
-      .on('focused', this.store.focus)
+      .on('checkupdate', store.onCheckUpdate)
+      .on('open-about', store.openAbout)
+      .on('new-ssh', store.onNewSsh)
+      .on('openSettings', store.openSetting)
+      .on('selectall', store.selectall)
+      .on('focused', store.focus)
     document.addEventListener('drop', function(e) {
       e.preventDefault()
       e.stopPropagation()
@@ -41,13 +42,14 @@ export default class Index extends React.Component {
       e.preventDefault()
       e.stopPropagation()
     })
-    this.checkLastSession()
-    this.checkDefaultTheme()
-    window.addEventListener('offline',  this.store.setOffline)
-    this.zoom(this.props.store.config.zoom, false, true)
+    store.checkLastSession()
+    store.checkDefaultTheme()
+    window.addEventListener('offline',  store.setOffline)
+    store.zoom(store.config.zoom, false, true)
   }
 
   render() {
+    let {store} = this.props
     let {
       tabs,
       currentTabId,
@@ -59,8 +61,8 @@ export default class Index extends React.Component {
       textEditorProps,
       modifier,
       config
-    } = this.props.store
-    let sessProps = _.pick(this.props.store, [
+    } = store
+    let sessProps = _.pick(store, [
       'modifier', 'addTab', 'sessionModalVisible', 'selectedSessions'
     ])
     return (
@@ -73,14 +75,14 @@ export default class Index extends React.Component {
         />
         <UpdateCheck
           modifier={modifier}
-          upgradeInfo={this.props.store.upgradeInfo}
-          addTab={this.props.store.addTab}
+          upgradeInfo={store.upgradeInfo}
+          addTab={store.addTab}
           shouldCheckUpdate={shouldCheckUpdate}
         />
         <ContextMenu
           {...contextMenuProps}
           visible={contextMenuVisible}
-          closeContextMenu={this.props.store.closeContextMenu}
+          closeContextMenu={store.closeContextMenu}
         />
         <SystemMenu store={this.props.store} />
         <FileInfoModal
@@ -114,7 +116,7 @@ export default class Index extends React.Component {
                 return (
                   <div className={cls} key={id}>
                     <Session
-                      store={this.props.store}
+                      store={store}
                       tab={copy(tab)}
                     />
                   </div>

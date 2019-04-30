@@ -93,7 +93,7 @@ const store = Subx.create({
   upgradeInfo: {},
 
   //computed
-  get themeConfig() {
+  getThemeConfig() {
     return (_.find(store.themes, d => d.id === store.theme) || {}).themeConfig || {}
   },
 
@@ -133,6 +133,11 @@ const store = Subx.create({
     store.menuOpened = false
   },
 
+  onCloseMenu () {
+    let dom = document.getElementById('outside-context')
+    dom && dom.removeEventListener('click', this.closeContextMenu)
+  },
+
   checkDefaultTheme () {
     let currentTheme = terminalThemes.getCurrentTheme()
     if (
@@ -163,14 +168,12 @@ const store = Subx.create({
 
   initContextEvent () {
     let dom = document.getElementById('outside-context')
-    store.dom = dom
-    dom.addEventListener('click', store.closeContextMenu)
+    dom && dom.addEventListener('click', store.closeContextMenu)
   },
 
   initMenuEvent () {
     let dom = document.getElementById('outside-context')
-    store.dom = dom
-    dom.addEventListener('click', store.closeMenu)
+    dom && dom.addEventListener('click', store.closeMenu)
   },
 
   selectall () {
@@ -607,37 +610,46 @@ store.clickNextTab = _.debounce(() => {
   }
 }, 100)
 
-store.currentTabId.$
-  // todo .distinct(function () { return store.currentTabId })
-  .subscribe(() => {
-    store.focus()
-    let {currentTabId} = store
-    let tab = _.find(tabs, t => t.id === currentTabId) || {}
-    let title = createTitlte(tab)
-    window.getGlobal('setTitle')(title)
-  })
+store.onResize = _.debounce(() => {
+  let update = {
+    height: window.innerHeight,
+    width: window.innerWidth - sidebarWidth,
+    isMaximized: window.getGlobal('isMaximized')()
+  }
+  store.setState(update)
+  window
+    .getGlobal('lastStateManager')
+    .set('windowSize', update)
+}, 100)
 
-store.menuOpened.$
-  // todo .distinct(function () { return store.currentTabId })
-  .subscribe(() => {
-    if (store.menuOpened) {
-      store.initMenuEvent()
-    } else {
-      store.onCloseMenu()
-    }
-  })
+// auto focus when tab change
+Subx.autoRun(store, () => {
+  store.focus()
+  let {currentTabId} = store
+  let tab = _.find(tabs, t => t.id === currentTabId) || {}
+  let title = createTitlte(tab)
+  window.getGlobal('setTitle')(title)
+  return store.currentTabId
+})
 
-store.tabs.$
-  // todo .distinct(function () { return store.currentTabId })
-  .subscribe(() => {
-    ls.set('sessions', store.tabs)
-  })
+Subx.autoRun(store, () => {
+  if (store.menuOpened) {
+    store.initMenuEvent()
+  } else {
+    store.onCloseMenu()
+  }
+  return store.menuOpened
+})
 
-store.config.$
-  // todo .distinct(function () { return store.currentTabId })
-  .subscribe(() => {
-    getGlobal('saveUserConfig')(store.config)
-  })
+Subx.autoRun(store, () => {
+  ls.set('sessions', store.tabs)
+  return store.tabs
+})
+
+Subx.autoRun(store, () => {
+  getGlobal('saveUserConfig')(store.config)
+  return store.config
+})
 
 store.modifier = store.setState
 store.modifierLS = store.setState

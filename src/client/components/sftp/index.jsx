@@ -1,5 +1,5 @@
 
-import React from 'react'
+import {Component} from 'react'
 import ReactDOM from 'react-dom'
 import {generate} from 'shortid'
 import {mergeProxy} from '../../common/merge-proxy'
@@ -45,7 +45,7 @@ const buildTree = arr => {
   }, {})
 }
 
-export default class Sftp extends React.Component {
+export default class Sftp extends Component {
 
   constructor(props) {
     super(props)

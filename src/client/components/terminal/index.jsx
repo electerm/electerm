@@ -1,5 +1,5 @@
 
-import React from 'react'
+import {Component} from 'react'
 import ZmodemTransfer from './zmodem-transfer'
 import fetch, {handleErr} from '../../common/fetch'
 import {mergeProxy} from '../../common/merge-proxy'
@@ -64,7 +64,7 @@ const computePos = (e, height) => {
   return res
 }
 
-export default class Term extends React.PureComponent {
+export default class Term extends Component {
 
   constructor(props) {
     super(props)
@@ -214,7 +214,7 @@ export default class Term extends React.PureComponent {
       e.code === 'Tab'
     ) {
       e.stopPropagation()
-      this.props.clickNextTab()
+      this.props.store.clickNextTab()
     }
   }
 
@@ -295,7 +295,7 @@ export default class Term extends React.PureComponent {
           this.saveToDisk(xfer, FILE_BUFFER)
         }
       )
-      .catch(this.props.onError)
+      .catch(this.props.store.onError)
   }
 
   beforeZmodemUpload = (file, files) => {
@@ -333,7 +333,7 @@ export default class Term extends React.PureComponent {
   }
 
   cancelZmodem = () => {
-    this.props.reloadTab(this.props.tab)
+    this.props.store.reloadTab(this.props.tab)
   }
 
   onZmodemEndSend = () => {
@@ -355,7 +355,7 @@ export default class Term extends React.PureComponent {
   }
 
   onZmodemCatch = (e) => {
-    this.props.onError(e)
+    this.props.store.onError(e)
     this.onZmodemEnd()
   }
 
@@ -389,7 +389,7 @@ export default class Term extends React.PureComponent {
     let content = this.renderContext()
     let height = content.props.children.filter(_.identity)
       .length * contextMenuHeight + contextMenuPaddingTop * 2
-    this.props.openContextMenu({
+    this.props.store.openContextMenu({
       content,
       pos: computePos(e, height)
     })
@@ -454,29 +454,8 @@ export default class Term extends React.PureComponent {
   }
 
   onSelectTheme = id => {
-    this.props.setTheme(id)
-    this.props.closeContextMenu()
-  }
-
-  renderThemeSelect = () => {
-    let {theme, themes} = this.props
-    return (
-      <div className="sub-context-menu">
-        {
-          themes.map(item => {
-            let cls = `sub-context-menu-item ${theme === item.id ? 'active' : ''}`
-            return (
-              <div
-                className={cls}
-                onClick={() => this.onSelectTheme(item.id)}
-              >
-                {item.name}
-              </div>
-            )
-          })
-        }
-      </div>
-    )
+    this.props.store.setTheme(id)
+    this.props.store.closeContextMenu()
   }
 
   renderContext = () => {
@@ -572,7 +551,7 @@ export default class Term extends React.PureComponent {
 
   setActive = () => {
     this.props.setActive(this.props.id)
-    this.props.modifier({
+    this.props.store.modifier({
       activeTerminalId: this.props.id
     })
   }
@@ -600,7 +579,7 @@ export default class Term extends React.PureComponent {
     let mat = text.match(reg)
     let startPath = mat && mat[1] ? mat[1] : ''
     if (startPath.startsWith('~') || startPath.startsWith('/')) {
-      this.props.editTab(this.props.tab.id, {
+      this.props.store.editTab(this.props.tab.id, {
         startPath
       })
     }
@@ -610,7 +589,7 @@ export default class Term extends React.PureComponent {
 
   setStatus = status => {
     let id = _.get(this.props, 'tab.id')
-    this.props.editTab(id, {
+    this.props.store.editTab(id, {
       status
     })
   }
@@ -670,7 +649,7 @@ export default class Term extends React.PureComponent {
       return this.promote()
     }
     if (savePassword) {
-      this.props.editItem(srcId, extra, from)
+      this.props.store.editItem(srcId, extra, from)
     }
     this.setState({
       loading: false
@@ -702,7 +681,7 @@ export default class Term extends React.PureComponent {
     this.socket = socket
     term.on('refresh', this.onRefresh)
     term.on('resize', this.onResizeTerminal)
-    let cid = _.get(this.props, 'currentTabId')
+    let cid = _.get(this.props.store, 'currentTabId')
     let tid = _.get(this.props, 'tab.id')
     if (cid === tid && this.props.tab.status === statusMap.success) {
       if (isWin) {
@@ -800,7 +779,7 @@ export default class Term extends React.PureComponent {
 
   onCancel = () => {
     let {id} = this.props.tab
-    this.props.delTab({id})
+    this.props.store.delTab({id})
   }
 
   onToggleSavePass = () => {

@@ -17,27 +17,27 @@ const t = prefix('tabs')
 const s = prefix('setting')
 const {Group} = Button
 
-function renderBookmarks(props) {
+function renderBookmarks(store) {
   return (
     <div className="sub-context-menu bookmarks-sub-context-menu">
       <BookmarksList
-        {...props}
+        store={store}
       />
     </div>
   )
 }
 
-function renderTabs(props) {
+function renderTabs(store) {
   return (
     <div className="sub-context-menu">
       {
-        props.tabs.map(item => {
+        store.tabs.map(item => {
           let title = createTitle(item)
           return (
             <div
               className="sub-context-menu-item"
               title={title}
-              onClick={() => props.onChangeTabId(item.id)}
+              onClick={() => store.onChangeTabId(item.id)}
             >
               {title}
             </div>
@@ -48,17 +48,17 @@ function renderTabs(props) {
   )
 }
 
-function renderHistory(props) {
+function renderHistory(store) {
   return (
     <div className="sub-context-menu">
       {
-        props.history.map(item => {
+        store.history.map(item => {
           let title = createTitle(item)
           return (
             <div
               className="sub-context-menu-item"
               title={title}
-              onClick={() => props.onSelectHistory(item.id)}
+              onClick={() => store.onSelectHistory(item.id)}
             >
               {title}
             </div>
@@ -69,21 +69,21 @@ function renderHistory(props) {
   )
 }
 
-function renderContext(props) {
+function renderContext(store) {
   let cls = 'pd2x pd1y context-item pointer'
   let cls1 = cls + ' with-sub-menu'
   return (
     <div className="menus">
       <div
         className={cls}
-        onClick={props.onNewSsh}
+        onClick={store.onNewSsh}
       >
         <Icon type="code" theme="filled" /> {e('newSsh')}
         <span className="context-sub-text">{ctrlOrCmd}+N</span>
       </div>
       <div
         className={cls}
-        onClick={() => props.addTab()}
+        onClick={() => store.addTab()}
       >
         <Icon type="right-square" theme="filled" /> {t('newTab')}
       </div>
@@ -95,7 +95,7 @@ function renderContext(props) {
         <span className="context-sub-text">
           <Icon type="right" />
         </span>
-        {renderBookmarks(props)}
+        {renderBookmarks(store)}
       </div>
       <div
         className={cls1}
@@ -104,7 +104,7 @@ function renderContext(props) {
         <span className="context-sub-text">
           <Icon type="right" />
         </span>
-        {renderHistory(props)}
+        {renderHistory(store)}
       </div>
       <div
         className={cls1}
@@ -113,18 +113,18 @@ function renderContext(props) {
         <span className="context-sub-text">
           <Icon type="right" />
         </span>
-        {renderTabs(props)}
+        {renderTabs(store)}
       </div>
       <hr />
       <div
         className={cls}
-        onClick={props.openAbout}
+        onClick={store.openAbout}
       >
         <Icon type="info-circle" /> {m('about')}
       </div>
       <div
         className={cls}
-        onClick={props.openSetting}
+        onClick={store.openSetting}
       >
         <Icon type="setting" /> {s('settings')}
       </div>
@@ -140,15 +140,15 @@ function renderContext(props) {
       >
         <Group size="small">
           <span className="mg1r iblock">
-            {props.config.zoom * 100}
+            {store.config.zoom * 100}
           </span>
-          <Button onClick={() => props.zoom(0.5, true)}>
+          <Button onClick={() => store.zoom(0.5, true)}>
             <Icon type="plus-circle" />
           </Button>
-          <Button onClick={() => props.zoom(-0.5, true)}>
+          <Button onClick={() => store.zoom(-0.5, true)}>
             <Icon type="minus-circle" />
           </Button>
-          <Button onClick={() => props.zoom()}>
+          <Button onClick={() => store.zoom()}>
             100%
           </Button>
         </Group>
@@ -174,7 +174,7 @@ function renderContext(props) {
       <hr />
       <div
         className={cls}
-        onClick={props.onCheckUpdate}
+        onClick={store.onCheckUpdate}
       >
         <Icon type="up-circle" /> {e('checkForUpdate')}
       </div>

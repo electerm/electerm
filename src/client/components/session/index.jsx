@@ -2,7 +2,7 @@
 /**
  * terminal/sftp wrapper
  */
-import React from 'react'
+import {Component} from 'react'
 import Term from '../terminal'
 import Sftp from '../sftp'
 import {Icon} from 'antd'
@@ -43,7 +43,7 @@ const {prefix} = window
 const e = prefix('ssh')
 const m = prefix('menu')
 
-export default class WindowWrapper extends React.PureComponent  {
+export default class WindowWrapper extends Component {
 
   constructor(props) {
     super(props)
@@ -187,8 +187,9 @@ export default class WindowWrapper extends React.PureComponent  {
       ? 'terms-box bg-black'
       : 'terms-box bg-black hide'
     let height = this.computeHeight()
-    let {tab} = this.props
-    let {width, currentTabId, config, themeConfig} = this.props.store
+    let {tab, store} = this.props
+    let {width, currentTabId, config} = store
+    let themeConfig = store.getThemeConfig()
     return (
       <div
         className={cls}
@@ -220,7 +221,8 @@ export default class WindowWrapper extends React.PureComponent  {
                   key={t.id}
                   sessionOptions={sessionOptions}
                   {...pops}
-                  store={this.props.store}
+                  tab={tab}
+                  store={store}
                 />
               )
             })
@@ -244,6 +246,7 @@ export default class WindowWrapper extends React.PureComponent  {
           sshConnected={sshConnected}
           height={height}
           pane={pane}
+          tab={this.props.tab}
         />
       </div>
     )

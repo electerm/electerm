@@ -3,7 +3,7 @@
  * @param {array} props.tabs {id, title}
  */
 
-import React from 'react'
+import {Component} from 'react'
 import _ from 'lodash'
 import {Icon, Dropdown, Menu, Popover} from 'antd'
 import Tab from './tab'
@@ -20,8 +20,7 @@ const t = prefix('tabs')
 const MenuItem = Menu.Item
 const extraWidth = 113
 
-
-export default class Tabs extends React.Component {
+export default class Tabs extends Component {
 
   componentDidMount() {
     this.dom = document.querySelector('.tabs-inner')

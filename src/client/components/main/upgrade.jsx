@@ -1,4 +1,4 @@
-import React from 'react'
+import {Component} from 'react'
 import {Icon, Button} from 'antd'
 import _ from 'lodash'
 import {getLatestReleaseInfo, getLatestReleaseVersion} from '../../common/update-check'
@@ -17,7 +17,7 @@ const e = prefix('updater')
 const c = prefix('common')
 const installSrc = getGlobal('installSrc')
 
-export default class Upgrade extends React.Component {
+export default class Upgrade extends Component {
 
   componentDidMount() {
     this.getLatestReleaseInfo()

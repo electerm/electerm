@@ -1,5 +1,5 @@
 
-import React from 'react'
+import {Component} from 'react'
 import {
   message, Select, Switch,
   Input, Icon,
@@ -27,7 +27,7 @@ const keys = [
   })
 ]
 
-export default class Setting extends React.PureComponent {
+export default class Setting extends Component {
 
   state = {
     languageChanged: false
