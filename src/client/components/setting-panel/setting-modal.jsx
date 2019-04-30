@@ -36,7 +36,6 @@ export default class SettingModal extends Component {
       let props0 = {
         store,
         activeItemId: item.id,
-        theme: store.theme,
         type: tab,
         onClickItem: selectItem,
         shouldComfirmDel: tabsShouldConfirmDel.includes(tab),
@@ -108,7 +107,7 @@ export default class SettingModal extends Component {
                 />
               </Col>
               <Col span={18}>
-                <Setting {...props0} />
+                <Setting {...props0} config={store.config} />
               </Col>
             </Row>
           </TabPane>
@@ -120,6 +119,7 @@ export default class SettingModal extends Component {
               <Col span={6}>
                 <TerminalThemeList
                   {...props0}
+                  theme={store.theme}
                 />
               </Col>
               <Col span={18}>
