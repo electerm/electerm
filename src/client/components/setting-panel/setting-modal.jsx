@@ -36,6 +36,7 @@ export default class SettingModal extends Component {
       let props0 = {
         store,
         activeItemId: item.id,
+        theme: store.theme,
         type: tab,
         onClickItem: selectItem,
         shouldComfirmDel: tabsShouldConfirmDel.includes(tab),

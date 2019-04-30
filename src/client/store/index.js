@@ -582,7 +582,7 @@ const store = Subx.create({
     })
   },
 
-  getList () {
+  get list () {
     let {
       tab
     } = store

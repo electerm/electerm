@@ -16,7 +16,7 @@ export default class ThemeList extends List {
 
   del = (item, e) => {
     e.stopPropagation()
-    this.props.delTheme(item)
+    this.props.store.delTheme(item)
   }
 
   renderApplyBtn = item => {
@@ -31,7 +31,7 @@ export default class ThemeList extends List {
         <Icon
           type="check-circle-o"
           className="pointer list-item-apply"
-          onClick={() => this.props.setTheme(item.id)}
+          onClick={() => this.props.store.setTheme(item.id)}
         />
       </Tooltip>
     )
@@ -42,7 +42,8 @@ export default class ThemeList extends List {
   }
 
   renderItem = (item, i) => {
-    let {activeItemId, theme} = this.props
+    let {activeItemId} = this.props
+    let {theme} = this.props
     let {name, id} = item
     let cls = classnames(
       'item-list-unit theme-item',
