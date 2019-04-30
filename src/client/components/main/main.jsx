@@ -114,7 +114,7 @@ export default class Index extends Component {
                   <div className={cls} key={id}>
                     <Session
                       store={store}
-                      tab={copy(tab)}
+                      tab={tab}
                     />
                   </div>
                 )
