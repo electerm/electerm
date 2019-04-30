@@ -330,6 +330,7 @@ const store = Subx.create({
 
   addTab (tab = newTerm(), index = store.tabs.length) {
     store.tabs.splice(index, 0, tab)
+    store.currentTabId = tab.id
   },
 
   editTab (id, update) {
@@ -649,6 +650,13 @@ Subx.autoRun(store, () => {
 Subx.autoRun(store, () => {
   getGlobal('saveUserConfig')(store.config)
   return store.config
+})
+
+Subx.autoRun(store, () => {
+  window.postMessage({
+    action: 'adjust-scroll'
+  }, '*')
+  return store.currentTabId + store.width + store.tabTitles
 })
 
 store.modifier = store.setState

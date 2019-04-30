@@ -84,7 +84,7 @@ export default class Index extends Component {
           visible={contextMenuVisible}
           closeContextMenu={store.closeContextMenu}
         />
-        <SystemMenu store={this.props.store} />
+        <SystemMenu store={store} />
         <FileInfoModal
           {...fileInfoModalProps}
         />
@@ -92,19 +92,16 @@ export default class Index extends Component {
           key={_.get(fileModeModalProps, 'file.id') || ''}
           {...fileModeModalProps}
         />
-        <SettingModal store={this.props.store} />
+        <SettingModal store={store} />
         <div
           id="outside-context"
           style={{
             opacity: config.opacity
           }}
         >
-          <Sidebar store={this.props.store} />
+          <Sidebar store={store} />
           <Tabs
-            store={this.props.store}
-            {..._.pick(this.props.store, [
-              'currentTabId', 'width', 'tabTitles'
-            ])}
+            store={store}
           />
           <div className="ui-outer">
             {

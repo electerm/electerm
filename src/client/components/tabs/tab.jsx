@@ -2,7 +2,7 @@
  * file section
  */
 
-import {Component} from 'react'
+import {Component} from '@electerm/react-subx'
 import {Icon, Tooltip, message, Badge} from 'antd'
 import classnames from 'classnames'
 import copy from 'json-deep-copy'
@@ -121,7 +121,7 @@ export default class Tab extends Component {
 
   close = () => {
     this.props.store.delTab({id: this.state.tab.id})
-    if (this.props.tabs.length <= 1) {
+    if (this.props.store.tabs.length <= 1) {
       setTimeout(this.props.addTab, 1)
     }
   }

@@ -3,7 +3,7 @@
  * @param {array} props.tabs {id, title}
  */
 
-import {Component} from 'react'
+import {Component} from '@electerm/react-subx'
 import _ from 'lodash'
 import {Icon, Dropdown, Menu, Popover} from 'antd'
 import Tab from './tab'
@@ -25,21 +25,17 @@ export default class Tabs extends Component {
   componentDidMount() {
     this.dom = document.querySelector('.tabs-inner')
     window.addEventListener('keydown', this.handleTabHotkey)
+    window.addEventListener('message', this.onEvent)
   }
 
-  componentDidUpdate(prevState, prevProps) {
-    prevProps = prevProps || {}
-    if (
-      prevProps.currentTabId !== this.props.currentTabId ||
-      prevProps.width !== this.props.width ||
-      prevProps.tabTitles !== this.props.tabTitles
-    ) {
+  // componentWillUnmount() {
+  //   window.removeEventListener('keydown', this.handleTabHotkey)
+  // }
+
+  onEvent = e => {
+    if (e.data && e.data.action === 'adjust-scroll') {
       this.adjustScroll()
     }
-  }
-
-  componentWillUnmount() {
-    window.removeEventListener('keydown', this.handleTabHotkey)
   }
 
   tabsWidth = () => {
@@ -51,7 +47,7 @@ export default class Tabs extends Component {
   }
 
   isOverflow = () => {
-    let {tabs = [], width} = this.props
+    let {tabs = [], width} = this.props.store
     let len = tabs.length
     let addBtnWidth = 22
     let tabsWidth = this.tabsWidth()
@@ -115,7 +111,7 @@ export default class Tabs extends Component {
   }
 
   renderList = () => {
-    let {tabs = []} = this.props
+    let {tabs = []} = this.props.store
     return (
       <Menu onClick={this.onClickMenu}>
         {

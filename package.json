@@ -103,7 +103,7 @@
     "png2icons": "1.0.1",
     "prop-types": "15.7.2",
     "pug-html-loader": "1.1.5",
-    "@electerm/react-subx": "0.4.12",
+    "@electerm/react-subx": "0.4.13",
     "shelljs": "0.8.3",
     "spectron": "5.0.0",
     "style-loader": "0.23.1",
