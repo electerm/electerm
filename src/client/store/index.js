@@ -656,7 +656,7 @@ Subx.autoRun(store, () => {
   window.postMessage({
     action: 'adjust-scroll'
   }, '*')
-  return store.currentTabId + store.width + store.tabTitles
+  return store.currentTabId + '#' + store.width + '#' + store.tabTitles
 })
 
 store.modifier = store.setState
