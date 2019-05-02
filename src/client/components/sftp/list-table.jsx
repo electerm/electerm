@@ -85,7 +85,7 @@ export default class FileListTable extends React.Component {
 
   initFromProps = (pps = this.getPropsDefault()) => {
     let {length} = pps
-    let {width} = this.props.store
+    let {width} = this.props
     let padding = 5
     let w = (width - padding * 2) / length
     let properties = pps.map((name, i) => {

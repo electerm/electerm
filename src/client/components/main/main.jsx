@@ -115,6 +115,13 @@ export default class Index extends Component {
                     <Session
                       store={store}
                       tab={tab}
+                      {..._.pick(store, [
+                        'currentTabId',
+                        'height',
+                        'width',
+                        'config',
+                        'activeTerminalId'
+                      ])}
                     />
                   </div>
                 )

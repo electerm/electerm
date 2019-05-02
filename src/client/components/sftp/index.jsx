@@ -153,7 +153,7 @@ export default class Sftp extends Component {
   }
 
   isActive() {
-    return this.props.store.currentTabId === this.props.tab.id &&
+    return this.props.currentTabId === this.props.tab.id &&
       this.props.pane === paneMap.fileManager
   }
 
@@ -468,7 +468,7 @@ export default class Sftp extends Component {
     try {
       if (!this.sftp) {
         let config = deepCopy(
-          this.props.store.config
+          this.props.config
         )
         await sftp.connect({
           ...tab,
@@ -822,6 +822,7 @@ export default class Sftp extends Component {
     let listProps = {
       id,
       type,
+      height: this.props.height,
       store: this.props.store,
       ..._.pick(
         this,
@@ -905,11 +906,8 @@ export default class Sftp extends Component {
       typeMap.remote
     ]
     let {
-      height, tab
+      height, tab, width
     } = this.props
-    let {
-      width
-    } = this.props.store
     let host = _.get(tab, 'host')
     if (!host) {
       return (
@@ -948,13 +946,14 @@ export default class Sftp extends Component {
       id,
       filesToConfirm
     } = this.state
-    let {height} = this.props
+    let {height, config} = this.props
     let props = {
       id,
       height,
+      config,
       isActive: this.isActive(),
       ..._.pick(this.props.store, [
-        'onError', 'addTransferHistory', 'config'
+        'onError', 'addTransferHistory'
       ]),
       ..._.pick(this.state, [
         'transports',

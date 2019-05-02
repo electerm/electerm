@@ -229,7 +229,7 @@ export default class Term extends Component {
 
   onBlur = () => {
     if (
-      this.props.id === this.props.store.activeTerminalId
+      this.props.id === this.props.activeTerminalId
     ) {
       this.props.store.modifier({
         activeTerminalId: ''
@@ -453,10 +453,10 @@ export default class Term extends Component {
     })
   }
 
-  onSelectTheme = id => {
-    this.props.store.setTheme(id)
-    this.props.store.closeContextMenu()
-  }
+  // onSelectTheme = id => {
+  //   this.props.store.setTheme(id)
+  //   this.props.store.closeContextMenu()
+  // }
 
   renderContext = () => {
     let cls = 'pd2x pd1y context-item pointer'
@@ -681,7 +681,7 @@ export default class Term extends Component {
     this.socket = socket
     term.on('refresh', this.onRefresh)
     term.on('resize', this.onResizeTerminal)
-    let cid = _.get(this.props.store, 'currentTabId')
+    let cid = _.get(this.props, 'currentTabId')
     let tid = _.get(this.props, 'tab.id')
     if (cid === tid && this.props.tab.status === statusMap.success) {
       if (isWin) {

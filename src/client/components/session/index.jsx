@@ -81,7 +81,7 @@ export default class SessionWrapper extends Component {
   }
 
   isActive() {
-    return this.props.store.currentTabId === this.props.tab.id &&
+    return this.props.currentTabId === this.props.tab.id &&
       this.state.pane === paneMap.terminal
   }
 
@@ -95,7 +95,7 @@ export default class SessionWrapper extends Component {
   }
 
   computeHeight = () => {
-    return this.props.store.height - tabsHeight
+    return this.props.height - tabsHeight
   }
 
   onChangePane = pane => {
@@ -157,7 +157,7 @@ export default class SessionWrapper extends Component {
 
   computePosition = (index) => {
     let len = this.state.terminals.length || 1
-    let {width: windowWidth} = this.props.store
+    let {width: windowWidth} = this.props
     let {splitDirection} = this.state
     let isHori = splitDirection === terminalSplitDirectionMap.horizontal
     let heightAll = this.computeHeight()
@@ -187,8 +187,7 @@ export default class SessionWrapper extends Component {
       ? 'terms-box bg-black'
       : 'terms-box bg-black hide'
     let height = this.computeHeight()
-    let {tab, store} = this.props
-    let {width, currentTabId, config} = store
+    let {tab, store, width, currentTabId, config, activeTerminalId} = this.props
     let themeConfig = store.getThemeConfig()
     return (
       <div
@@ -209,6 +208,7 @@ export default class SessionWrapper extends Component {
                 config: copy(config),
                 themeConfig: copy(themeConfig),
                 pane,
+                activeTerminalId,
                 currentTabId,
                 ..._.pick(
                   this,
@@ -241,12 +241,17 @@ export default class SessionWrapper extends Component {
     return (
       <div className={cls}>
         <Sftp
-          store={this.props.store}
           sessionOptions={sessionOptions}
           sshConnected={sshConnected}
           height={height}
           pane={pane}
-          tab={this.props.tab}
+          {..._.pick(this.props, [
+            'store',
+            'tab',
+            'config',
+            'height',
+            'width'
+          ])}
         />
       </div>
     )
