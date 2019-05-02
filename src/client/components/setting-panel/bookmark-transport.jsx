@@ -3,7 +3,6 @@
  */
 
 import {Component} from '@electerm/react-subx'
-import {memo} from 'react'
 import {Upload, Button} from 'antd'
 import download from '../../common/download'
 import time from '../../common/time'
