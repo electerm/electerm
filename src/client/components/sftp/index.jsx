@@ -945,15 +945,11 @@ export default class Sftp extends Component {
       id,
       filesToConfirm
     } = this.state
-    let {height, config} = this.props
+    let {height} = this.props
     let props = {
+      ...this.props,
       id,
-      height,
-      config,
       isActive: this.isActive(),
-      ..._.pick(this.props.store, [
-        'onError', 'addTransferHistory'
-      ]),
       ..._.pick(this.state, [
         'transports',
         'remotePath',

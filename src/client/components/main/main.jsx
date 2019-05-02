@@ -123,14 +123,14 @@ export default class Index extends Component {
                   <div className={cls} key={id}>
                     <Session
                       store={store}
-                      tab={tab}
+                      tab={copy(tab)}
                       {..._.pick(store, [
                         'currentTabId',
                         'height',
                         'width',
-                        'config',
                         'activeTerminalId'
                       ])}
+                      config={copy(config)}
                     />
                   </div>
                 )

@@ -654,6 +654,16 @@ Subx.autoRun(store, () => {
 })
 
 Subx.autoRun(store, () => {
+  ls.set('history', store.history)
+  return store.history
+})
+
+Subx.autoRun(store, () => {
+  ls.set('openedCategoryIds', store.openedCategoryIds)
+  return store.openedCategoryIds
+})
+
+Subx.autoRun(store, () => {
   ls.set('bookmarkGroups', store.bookmarkGroups)
   return store.bookmarkGroups
 })

@@ -313,7 +313,7 @@ export default class ItemListTree extends React.PureComponent {
       d => d.id === id
     )
     if (bookmark) {
-      this.props.store.onClickItem(bookmark)
+      this.props.onClickItem(bookmark)
     }
   }
 
