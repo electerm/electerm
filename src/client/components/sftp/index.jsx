@@ -677,7 +677,7 @@ export default class Sftp extends Component {
 
   getFileProps = (file, type) => {
     return {
-      store: this.props.store,
+      ...this.props,
       file,
       type,
       ..._.pick(this, [
@@ -822,8 +822,7 @@ export default class Sftp extends Component {
     let listProps = {
       id,
       type,
-      height: this.props.height,
-      store: this.props.store,
+      ...this.props,
       ..._.pick(
         this,
         [
