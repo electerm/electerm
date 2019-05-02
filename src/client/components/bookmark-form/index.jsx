@@ -82,7 +82,7 @@ export class BookmarkForm extends React.PureComponent {
     let {
       bookmarkGroups,
       currentBookmarkGroupId
-    } = props.store
+    } = props
     return id
       ? this.findBookmarkGroupId(bookmarkGroups, id)
       : currentBookmarkGroupId
@@ -119,7 +119,7 @@ export class BookmarkForm extends React.PureComponent {
       )
       return bg
     })
-    this.props.store.setState({
+    this.props.store.modifier({
       bookmarkGroups
     })
   }
@@ -358,7 +358,7 @@ export class BookmarkForm extends React.PureComponent {
   }
 
   renderProxySelect = () => {
-    let proxyList = this.props.store.bookmarks.
+    let proxyList = this.props.bookmarks.
       reduce((prev, current) => {
         let {proxy} = current
         let {
@@ -485,7 +485,7 @@ export class BookmarkForm extends React.PureComponent {
       autofocustrigger,
       bookmarkGroups,
       currentBookmarkGroupId
-    } = this.props.store
+    } = this.props
     let {dns} = this.state
     let initBookmarkGroupId = id
       ? this.findBookmarkGroupId(bookmarkGroups, id)
@@ -667,7 +667,7 @@ export class BookmarkForm extends React.PureComponent {
     const {
       fontFamily: defaultFontFamily,
       fontSize: defaultFontSize
-    } = this.props.store.config.defaultSettings || {}
+    } = this.props.config.defaultSettings || {}
     const {
       fontFamily,
       fontSize

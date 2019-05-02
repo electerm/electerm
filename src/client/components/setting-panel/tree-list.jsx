@@ -19,6 +19,7 @@ import {
   defaultookmarkGroupId
 } from '../../common/constants'
 import highlight from '../common/highlight'
+import copy from 'json-deep-copy'
 import Search from '../common/search'
 import Btns from './bookmark-transport'
 import './tree-list.styl'
@@ -89,7 +90,9 @@ export default class ItemListTree extends React.PureComponent {
     if (!categoryTitle) {
       return
     }
-    let {bookmarkGroups} = this.props.store
+    let bookmarkGroups = copy(
+      this.props.bookmarkGroups
+    )
     let obj = _.find(
       bookmarkGroups,
       bg => bg.id === categoryId
@@ -100,6 +103,9 @@ export default class ItemListTree extends React.PureComponent {
     obj.title = categoryTitle
     this.setState({
       categoryId: ''
+    })
+    this.props.store.modifier({
+      bookmarkGroups
     })
   }
 
@@ -120,15 +126,15 @@ export default class ItemListTree extends React.PureComponent {
     let fromLeaf = dragNode.props.isLeaf
     let from = fromLeaf
       ? _.find(
-        this.props.store.bookmarks,
+        this.props.bookmarks,
         d => d.id === fromId
       )
       : _.find(
-        this.props.store.bookmarkGroups,
+        this.props.bookmarkGroups,
         d => d.id === fromId
       )
     let to = _.find(
-      this.props.store.bookmarkGroups,
+      this.props.bookmarkGroups,
       d => d.id === toId
     )
     if (!to || !from) {
@@ -146,7 +152,9 @@ export default class ItemListTree extends React.PureComponent {
     if (to.bookmarkGroupIds && to.bookmarkGroupIds.includes(from.id)) {
       return
     }
-    let {bookmarkGroups} = this.props.store
+    let bookmarkGroups = copy(
+      this.props.bookmarkGroups
+    )
     let fromGroup = fromLeaf
       ? _.find(
         bookmarkGroups,
@@ -172,6 +180,9 @@ export default class ItemListTree extends React.PureComponent {
       toGroup.bookmarkGroupIds = toGroup.bookmarkGroupIds || []
       toGroup.bookmarkGroupIds.unshift(fromId)
     }
+    this.props.store.modifier({
+      bookmarkGroups
+    })
   }
 
   onSubmit = false
@@ -231,14 +242,19 @@ export default class ItemListTree extends React.PureComponent {
       bookmarkGroupSubParentId: ''
     }, () => {
       this.onSubmit = false
-      let {bookmarkGroups} = this.props.store
+      let bookmarkGroups = copy(
+        this.props.bookmarkGroups
+      )
       let newCat = {
         id: generate(),
         title: this.state.bookmarkGroupTitleSub,
         level: 2,
         bookmarkIds: []
       }
-      bookmarkGroups.unshift(newCat)
+      bookmarkGroups = [
+        newCat,
+        ...bookmarkGroups
+      ]
       let cat = _.find(
         bookmarkGroups,
         d => d.id === id
@@ -250,6 +266,9 @@ export default class ItemListTree extends React.PureComponent {
         ...(cat.bookmarkGroupIds || []),
         newCat.id
       ]
+      this.props.store.modifier({
+        bookmarkGroups
+      })
     })
   }
 
@@ -284,17 +303,17 @@ export default class ItemListTree extends React.PureComponent {
   ) => {
     let [id] = selectedKeys
     if (!node.props.isLeaf) {
-      this.props.modifier({
+      this.props.store.modifier({
         currentBookmarkGroupId: id
       })
     }
-    let {bookmarks} = this.props.store
+    let {bookmarks} = this.props
     let bookmark = _.find(
       bookmarks,
       d => d.id === id
     )
     if (bookmark) {
-      this.props.onClickItem(bookmark)
+      this.props.store.onClickItem(bookmark)
     }
   }
 
@@ -455,7 +474,7 @@ export default class ItemListTree extends React.PureComponent {
 
   renderChildNodes = bookmarkIds => {
     let bookmarks = this.filter(
-      this.props.store.bookmarks
+      this.props.bookmarks
     )
     let map = bookmarks.reduce((p, b) => {
       return {
@@ -483,7 +502,7 @@ export default class ItemListTree extends React.PureComponent {
   }
 
   renderGroupChildNodes = bookmarkGroupIds => {
-    let bookmarkGroups = this.props.store.bookmarkGroups.filter(
+    let bookmarkGroups = this.props.bookmarkGroups.filter(
       d => bookmarkGroupIds.includes(d.id)
     )
     return bookmarkGroups.map(node => {
@@ -555,7 +574,7 @@ export default class ItemListTree extends React.PureComponent {
           <Icon type="folder" className="with-plus" />
         </Button>
         <Btns
-          {...this.props}
+          store={this.props.store}
         />
       </div>
     )
@@ -635,16 +654,12 @@ export default class ItemListTree extends React.PureComponent {
 
   render() {
     let {
-      activeItemId,
-      bookmarkGroups: storeBookmarkGroups
-    } = this.props.store
-    let {
-      bookmarkGroups: propsBookmarkGroups,
+      bookmarkGroups,
       type,
+      activeItemId,
       staticList,
       listStyle = {}
     } = this.props
-    let bookmarkGroups = propsBookmarkGroups || storeBookmarkGroups
     let {keyword} = this.state
     let expandedKeys = this.props.expandedKeys || this.state.expandedKeys
     let level1Bookgroups = bookmarkGroups.filter(

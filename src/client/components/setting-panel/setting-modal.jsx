@@ -3,6 +3,7 @@
  */
 
 import {Component} from '@electerm/react-subx'
+import _ from 'lodash'
 import {Modal, Tabs, Col, Row} from 'antd'
 import TerminalThemeForm from '../terminal-theme'
 import TerminalThemeList from '../terminal-theme/theme-list'
@@ -45,7 +46,12 @@ export default class SettingModal extends Component {
         store,
         formData: item,
         type: tab,
-        hide: store.hideModal
+        hide: store.hideModal,
+        ..._.pick(store, [
+          'bookmarkGroups',
+          'currentBookmarkGroupId',
+          'bookmarks'
+        ])
       }
       return (
         <Tabs
@@ -86,6 +92,13 @@ export default class SettingModal extends Component {
               <Col span={10}>
                 <TreeList
                   {...props0}
+                  {..._.pick(store, [
+                    'bookmarkGroups',
+                    'currentBookmarkGroupId',
+                    'bookmarks',
+                    'autofocustrigger',
+                    'config'
+                  ])}
                 />
               </Col>
               <Col span={14}>

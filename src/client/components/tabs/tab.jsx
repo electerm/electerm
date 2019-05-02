@@ -122,7 +122,7 @@ export default class Tab extends Component {
   close = () => {
     this.props.store.delTab({id: this.state.tab.id})
     if (this.props.store.tabs.length <= 1) {
-      setTimeout(this.props.addTab, 1)
+      setTimeout(this.props.store.addTab, 1)
     }
   }
 
