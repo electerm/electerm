@@ -15,11 +15,12 @@ const c = prefix('common')
 const m = prefix('menu')
 const e = prefix('control')
 
-export default memo(({store}) => {
+export default memo((props) => {
+  let {store} = props
   return (
     <div
       className="sidebar-panel bookmarks-panel animate-fast"
-      {..._.pick(store, ['onMouseEnter', 'onMouseLeave'])}
+      {..._.pick(props, ['onMouseEnter', 'onMouseLeave'])}
     >
       <div className="pd1y pd2t pd2x">
         <div className="fix">
