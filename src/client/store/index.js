@@ -373,7 +373,7 @@ const store = Subx.create({
   },
 
   addBookmarkGroup (group) {
-    store.bookmarkGroups.unshift(group)
+    store.bookmarkGroups.push(group)
   },
 
   editBookmarkGroup (id, update) {
@@ -646,6 +646,16 @@ Subx.autoRun(store, () => {
 Subx.autoRun(store, () => {
   ls.set('sessions', store.tabs)
   return store.tabs
+})
+
+Subx.autoRun(store, () => {
+  ls.set('bookmarks', store.bookmarks)
+  return store.bookmarks
+})
+
+Subx.autoRun(store, () => {
+  ls.set('bookmarkGroups', store.bookmarkGroups)
+  return store.bookmarkGroups
 })
 
 Subx.autoRun(store, () => {

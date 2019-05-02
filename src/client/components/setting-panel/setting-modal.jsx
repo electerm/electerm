@@ -12,6 +12,7 @@ import List from './list'
 import TreeList from './tree-list'
 import Setting from './setting'
 import {settingMap} from '../../common/constants'
+import copy from 'json-deep-copy'
 
 const {prefix} = window
 const e = prefix('setting')
@@ -48,10 +49,11 @@ export default class SettingModal extends Component {
         type: tab,
         hide: store.hideModal,
         ..._.pick(store, [
-          'bookmarkGroups',
           'currentBookmarkGroupId',
-          'bookmarks'
-        ])
+          'config'
+        ]),
+        bookmarkGroups: copy(store.bookmarkGroups),
+        bookmarks: copy(store.bookmarks)
       }
       return (
         <Tabs
