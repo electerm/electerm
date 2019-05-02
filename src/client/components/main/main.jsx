@@ -107,10 +107,10 @@ export default class Index extends Component {
               'height',
               'width',
               'config',
-              'tabs',
               'activeTerminalId',
               'isMaximized'
             ])}
+            tabs={copy(store.tabs)}
           />
           <div className="ui-outer">
             {

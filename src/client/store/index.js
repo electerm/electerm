@@ -312,15 +312,15 @@ const store = Subx.create({
   },
 
   editItem (id, update, type) {
-    let items = copy(store[type])
+    let items = store[type]
     let item = _.find(items, t => t.id === id)
     if (!item) {
       return
     }
-    let index = _.findIndex(items, t => t.id === id)
+    //let index = _.findIndex(items, t => t.id === id)
     Object.assign(item, update)
-    items.splice(index, 1, item)
-    store[type] = items
+    // items.splice(index, 1, item)
+    // store[type] = items
   },
 
   delItem ({id}, type) {

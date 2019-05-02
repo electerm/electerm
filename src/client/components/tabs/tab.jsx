@@ -36,7 +36,7 @@ export default class Tab extends React.Component {
   componentDidUpdate(prevProps) {
     if (!_.isEqual(prevProps.tab, this.props.tab)) {
       this.setState({
-        tab: copy(prevProps.tab)
+        tab: copy(this.props.tab)
       })
     }
   }
