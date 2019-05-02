@@ -2,6 +2,7 @@
  * btns
  */
 
+import {Component} from '@electerm/react-subx'
 import {Icon, Button} from 'antd'
 import {ctrlOrCmd} from '../../common/constants'
 import createTitle from '../../common/create-title'
@@ -195,18 +196,21 @@ function renderContext(store) {
   )
 }
 
-export default ({store}) => {
-  return (
-    <Context
-      content={renderContext(store)}
-      visible={store.menuOpened}
-      className="context-menu system-menu"
-      closeContextMenu={store.closeMenu}
-      pos={{
-        left: 40,
-        top: 10
-      }}
-      key="menu-item-wrap"
-    />
-  )
+export default class SystemMenu extends Component {
+  render() {
+    const {store} = this.props
+    return (
+      <Context
+        content={renderContext(store)}
+        visible={store.menuOpened}
+        className="context-menu system-menu"
+        closeContextMenu={store.closeMenu}
+        pos={{
+          left: 40,
+          top: 10
+        }}
+        key="menu-item-wrap"
+      />
+    )
+  }
 }
