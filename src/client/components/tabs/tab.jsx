@@ -2,7 +2,7 @@
  * file section
  */
 
-import {Component} from '@electerm/react-subx'
+import React from 'react'
 import {Icon, Tooltip, message, Badge} from 'antd'
 import classnames from 'classnames'
 import copy from 'json-deep-copy'
@@ -20,7 +20,7 @@ const m = prefix('menu')
 const onDragCls = 'ondrag-tab'
 const onDragOverCls = 'dragover-tab'
 
-export default class Tab extends Component {
+export default class Tab extends React.Component {
 
   constructor(props) {
     super(props)
@@ -36,7 +36,7 @@ export default class Tab extends Component {
   componentDidUpdate(prevProps) {
     if (!_.isEqual(prevProps.tab, this.props.tab)) {
       this.setState({
-        tab: copy(this.props.tab)
+        tab: copy(prevProps.tab)
       })
     }
   }
@@ -99,7 +99,7 @@ export default class Tab extends Component {
       return
     }
     let {id} = fromTab
-    let {tabs} = this.props.store
+    let tabs = copy(this.props.tabs)
     let indexFrom = _.findIndex(tabs, t => t.id === id)
     let indexDrop = _.findIndex(tabs, t => t.id === dropId)
     if (indexDrop > indexFrom) {
@@ -107,6 +107,9 @@ export default class Tab extends Component {
     }
     tabs.splice(indexFrom, 1)
     tabs.splice(indexDrop, 0, fromTab)
+    this.props.store.modifier({
+      tabs
+    })
   }
 
   reloadTab = async () => {
@@ -121,7 +124,7 @@ export default class Tab extends Component {
 
   close = () => {
     this.props.store.delTab({id: this.state.tab.id})
-    if (this.props.store.tabs.length <= 1) {
+    if (this.props.tabs.length <= 1) {
       setTimeout(this.props.store.addTab, 1)
     }
   }
@@ -145,13 +148,16 @@ export default class Tab extends Component {
     if (!titleTemp && !host) {
       return message.warn(e('titleEmptyWarn'))
     }
+    delete tab.isEditting
     if (title === titleTemp) {
       delete tab.titleTemp
-      delete tab.isEditting
       return this.setState({
         tab
       })
     }
+    this.setState({
+      tab
+    })
     this.props.store.editTab(id, {title: titleTemp})
   }
 
@@ -172,18 +178,20 @@ export default class Tab extends Component {
   }
 
   closeTabsRight = () => {
-    let {tabs, currentTabId} = this.props.store
-    let {tab} = this.props
+    let {tabs, tab, currentTabId} = this.props
     let index = _.findIndex(tabs, t => t.id === tab.id)
     tabs = tabs.slice(0, index + 1)
-    if (!_.some(tabs, t => t.id === currentTabId)) {
-      this.props.store.currentTabId = tabs[0].id
+    let update = {
+      tabs
     }
+    if (!_.some(tabs, t => t.id === currentTabId)) {
+      update.currentTabId = tabs[0].id
+    }
+    this.props.store.modifier(update)
   }
 
   renderContext() {
-    let {tab} = this.props
-    let {tabs} = this.props.store
+    let {tabs, tab} = this.props
     let len = tabs.length
     let index = _.findIndex(tabs, t => t.id === tab.id)
     let nother = len === 1

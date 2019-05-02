@@ -3,7 +3,7 @@
  * @param {array} props.tabs {id, title}
  */
 
-import {Component} from '@electerm/react-subx'
+import React from 'react'
 import _ from 'lodash'
 import {Icon, Dropdown, Menu, Popover} from 'antd'
 import Tab from './tab'
@@ -20,22 +20,27 @@ const t = prefix('tabs')
 const MenuItem = Menu.Item
 const extraWidth = 113
 
-export default class Tabs extends Component {
+
+export default class Tabs extends React.Component {
 
   componentDidMount() {
     this.dom = document.querySelector('.tabs-inner')
     window.addEventListener('keydown', this.handleTabHotkey)
-    window.addEventListener('message', this.onEvent)
   }
 
-  // componentWillUnmount() {
-  //   window.removeEventListener('keydown', this.handleTabHotkey)
-  // }
-
-  onEvent = e => {
-    if (e.data && e.data.action === 'adjust-scroll') {
+  componentDidUpdate(prevProps) {
+    prevProps = prevProps || {}
+    if (
+      prevProps.currentTabId !== this.props.currentTabId ||
+      prevProps.width !== this.props.width ||
+      prevProps.tabs.map(d => d.title).join('#') !== this.props.tabs.map(d => d.title).join('#')
+    ) {
       this.adjustScroll()
     }
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('keydown', this.handleTabHotkey)
   }
 
   tabsWidth = () => {
@@ -47,7 +52,7 @@ export default class Tabs extends Component {
   }
 
   isOverflow = () => {
-    let {tabs = [], width} = this.props.store
+    let {tabs = [], width} = this.props
     let len = tabs.length
     let addBtnWidth = 22
     let tabsWidth = this.tabsWidth()
@@ -73,7 +78,7 @@ export default class Tabs extends Component {
   }
 
   adjustScroll = () => {
-    let {width, tabs, currentTabId} = this.props.store
+    let {width, tabs, currentTabId} = this.props
     let index = _.findIndex(tabs, t => t.id === currentTabId)
     let tabsDomWith = Array.from(
       document.querySelectorAll('.tab')
@@ -111,7 +116,7 @@ export default class Tabs extends Component {
   }
 
   renderList = () => {
-    let {tabs = []} = this.props.store
+    let {tabs = []} = this.props
     return (
       <Menu onClick={this.onClickMenu}>
         {
@@ -146,7 +151,7 @@ export default class Tabs extends Component {
           <Icon type="right-square" theme="filled" /> {t('newTab')}
         </div>
         <BookmarksList
-          {...this.props}
+          store={this.props.store}
         />
       </div>
     )
@@ -194,7 +199,7 @@ export default class Tabs extends Component {
   }
 
   render() {
-    let {tabs = [], width} = this.props.store
+    let {tabs = [], width} = this.props
     let len = tabs.length
     let tabsWidthAll = tabMargin * len + 10 + this.tabsWidth()
     let overflow = this.isOverflow()
@@ -215,12 +220,12 @@ export default class Tabs extends Component {
             onDoubleClick={this.onAdd}
           >
             {
-              tabs.map((tab, i) => {
+              tabs.map((tab) => {
                 return (
                   <Tab
-                    store={this.props.store}
+                    {...this.props}
                     tab={tab}
-                    key={i + '##' + tab.id}
+                    key={tab.id}
                   />
                 )
               })
@@ -234,7 +239,7 @@ export default class Tabs extends Component {
         </div>
         <div className="app-drag" />
         <WindowControl
-          isMaximized={this.props.store.isMaximized}
+          isMaximized={this.props.isMaximized}
         />
         {
           overflow

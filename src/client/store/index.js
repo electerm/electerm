@@ -312,7 +312,7 @@ const store = Subx.create({
   },
 
   editItem (id, update, type) {
-    let items = store[type]
+    let items = copy(store[type])
     let item = _.find(items, t => t.id === id)
     if (!item) {
       return
@@ -320,6 +320,7 @@ const store = Subx.create({
     let index = _.findIndex(items, t => t.id === id)
     Object.assign(item, update)
     items.splice(index, 1, item)
+    store[type] = items
   },
 
   delItem ({id}, type) {
@@ -334,7 +335,7 @@ const store = Subx.create({
   },
 
   editTab (id, update) {
-    store.editItem(id, update, 'tabs', store.modifier)
+    store.editItem(id, update, 'tabs')
   },
 
   delTab ({id}) {
@@ -652,15 +653,6 @@ Subx.autoRun(store, () => {
   return store.config
 })
 
-Subx.autoRun(store, () => {
-  window.postMessage({
-    action: 'adjust-scroll'
-  }, '*')
-  return store.currentTabId + '#' + store.width + '#' + store.tabTitles
-})
-
 store.modifier = store.setState
-store.modifierLS = store.setState
-store.setStateLS = store.setState
 
 export default store

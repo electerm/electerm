@@ -102,6 +102,15 @@ export default class Index extends Component {
           <Sidebar store={store} />
           <Tabs
             store={store}
+            {..._.pick(store, [
+              'currentTabId',
+              'height',
+              'width',
+              'config',
+              'tabs',
+              'activeTerminalId',
+              'isMaximized'
+            ])}
           />
           <div className="ui-outer">
             {
