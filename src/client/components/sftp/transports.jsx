@@ -129,7 +129,7 @@ export default class Transports extends React.PureComponent {
   }
 
   renderContent = () => {
-    let {transports, config} = this.props
+    let {transports} = this.props
     let {currentTransports} = this.state
     return (
       <div className="transports-content overscroll-y">
@@ -138,12 +138,11 @@ export default class Transports extends React.PureComponent {
             let {id} = t
             return (
               <Transport
+                {...this.props}
                 transport={t}
                 key={id + ':tr:' + i}
-                {...this.props}
                 onChildDestroy={this.onChildDestroy}
                 currentTransports={currentTransports}
-                config={config}
                 index={i}
               />
             )

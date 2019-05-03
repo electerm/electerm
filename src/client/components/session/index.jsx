@@ -241,13 +241,7 @@ export default class SessionWrapper extends Component {
           sshConnected={sshConnected}
           height={height}
           pane={pane}
-          {..._.pick(this.props, [
-            'store',
-            'tab',
-            'config',
-            'height',
-            'width'
-          ])}
+          {...this.props}
         />
       </div>
     )
