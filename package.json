@@ -75,6 +75,7 @@
     "electron": "4.1.4",
     "electron-builder": "20.39.0",
     "electron-chromedriver": "^4.0.0-beta.1",
+    "electron-rebuild": "1.8.4",
     "eslint": "5.16.0",
     "eslint-config-airbnb": "17.1.0",
     "eslint-config-standard": "12.0.0",
