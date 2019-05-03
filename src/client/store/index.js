@@ -330,8 +330,8 @@ const store = Subx.create({
   },
 
   addTab (tab = newTerm(), index = store.tabs.length) {
-    store.tabs.splice(index, 0, tab)
     store.currentTabId = tab.id
+    store.tabs.splice(index, 0, tab)
   },
 
   editTab (id, update) {
@@ -339,14 +339,14 @@ const store = Subx.create({
   },
 
   delTab ({id}) {
-    store.tabs = store.tabs.filter(t => {
-      return t.id !== id
-    })
     let {currentTabId} = store
     if (currentTabId === id) {
       let next = tabs[0] || {}
       store.currentTabId = next.id
     }
+    store.tabs = store.tabs.filter(t => {
+      return t.id !== id
+    })
   },
 
   addTheme (theme) {
@@ -453,7 +453,7 @@ const store = Subx.create({
     let {id} = tab
     tab.id = generate()
     tab.status = statusMap.processing
-    let tabs = copy(store.tabs)
+    let tabs = store.tabs
     let index = _.findIndex(tabs, t => t.id === id)
     store.delTab({id: tabToReload.id})
     await wait(30)
