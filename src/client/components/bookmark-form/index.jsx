@@ -126,7 +126,7 @@ export class BookmarkForm extends React.PureComponent {
 
   submit = (evt, item, type = this.props.type) => {
     let obj = item
-    let {addItem, editItem} = this.props
+    let {addItem, editItem} = this.props.store
     let categoryId = obj.category
     delete obj.category
     let bookmarkGroups = copy(
