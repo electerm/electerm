@@ -28,11 +28,10 @@ describe('main window', function () {
     const { client, browserWindow } = this.app
 
     await client.waitUntilWindowLoaded()
-    await delay(800)
+    await delay(2800)
 
     log('title')
     const title = await browserWindow.getTitle()
-    console.log(title)
     expect(title).includes(packInfo.name)
 
     log('elements')
