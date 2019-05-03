@@ -672,7 +672,6 @@ Subx.autoRun(store, () => {
   getGlobal('saveUserConfig')(store.config)
   return store.config
 })
-
 store.modifier = store.setState
 
 export default store
