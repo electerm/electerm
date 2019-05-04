@@ -229,11 +229,18 @@ const store = Subx.create({
     })
   },
 
+  onCloseAbout(cb) {
+    if (_.isFunction(cb)) {
+      cb()
+    }
+    store.focus()
+  },
+
   openAbout () {
     openInfoModal({
       onCheckUpdating: store.upgradeInfo.checkingRemoteVersion || store.upgradeInfo.upgrading,
       onCheckUpdate: store.onCheckUpdate,
-      onCancel: store.focus,
+      onCancel: store.onCloseAbout,
       onOk: store.focus
     })
   },
