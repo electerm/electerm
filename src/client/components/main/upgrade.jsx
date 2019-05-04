@@ -30,12 +30,10 @@ export default class Upgrade extends Component {
   }
 
   changeProps = (update) => {
-    this.props.modifier(old => {
-      return {
-        upgradeInfo: {
-          ...old.upgradeInfo,
-          ...update
-        }
+    this.props.store.modifier({
+      upgradeInfo: {
+        ...this.props.store.upgradeInfo,
+        ...update
       }
     })
   }
@@ -47,7 +45,7 @@ export default class Upgrade extends Component {
   }
 
   close = () => {
-    this.props.modifier({
+    this.props.store.modifier({
       upgradeInfo: {}
     })
   }

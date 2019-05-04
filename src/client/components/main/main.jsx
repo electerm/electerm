@@ -74,7 +74,7 @@ export default class Index extends Component {
           modifier={modifier}
         />
         <UpdateCheck
-          modifier={modifier}
+          store={store}
           upgradeInfo={store.upgradeInfo}
           addTab={store.addTab}
           shouldCheckUpdate={shouldCheckUpdate}

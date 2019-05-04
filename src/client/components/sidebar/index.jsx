@@ -61,12 +61,10 @@ export default class Sidebar extends Component {
       maxHeight: height - 160
     }
     let showUpgrade = () => {
-      modifier(old => {
-        return {
-          upgradeInfo: {
-            ...old.upgradeInfo,
-            showUpgradeModal: true
-          }
+      modifier({
+        upgradeInfo: {
+          ...store.upgradeInfo,
+          showUpgradeModal: true
         }
       })
     }
