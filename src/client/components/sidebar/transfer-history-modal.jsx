@@ -2,7 +2,7 @@
  * transfer-history-modal
  */
 
-import {Component} from '@electerm/react-subx'
+import {Component} from '../common/react-subx'
 import {Modal, Table, Icon} from 'antd'
 import time from '../../common/time'
 import {transferTypeMap} from '../../common/constants'

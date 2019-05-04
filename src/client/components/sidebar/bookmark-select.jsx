@@ -2,7 +2,7 @@
  * history select
  */
 
-import {Component} from '@electerm/react-subx'
+import {Component} from '../common/react-subx'
 import ItemList from '../setting-panel/list'
 import TreeList from '../setting-panel/tree-list'
 import copy from 'json-deep-copy'

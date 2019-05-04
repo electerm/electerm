@@ -2,7 +2,7 @@
  * hisotry/bookmark/setting modal
  */
 
-import {Component} from '@electerm/react-subx'
+import {Component} from '../common/react-subx'
 import _ from 'lodash'
 import {Modal, Tabs, Col, Row} from 'antd'
 import TerminalThemeForm from '../terminal-theme'

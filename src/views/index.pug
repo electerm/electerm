@@ -21,6 +21,7 @@ html
           if (window.et.env === 'development') return console.log.apply(null, args);
         }
     - var tail = env !== 'development' ? '.production.min' : '.development'
+    script(src='../node_modules/lodash/lodash.min.js')
     script(src='../node_modules/zmodem.js/dist/zmodem.js?' + version)
     script(src='../node_modules/react/umd/react' + tail + '.js?' + version)
     script(src='../node_modules/react-dom/umd/react-dom' + tail + '.js?' + version)

@@ -37,7 +37,6 @@ describe('main window', function () {
     log('elements')
     let wrap = await client.element('#outside-context')
     expect(!!wrap.value).equal(true)
-    await delay(5000000)
     let tabs = await client.element('.tabs')
     expect(!!tabs.value).equal(true)
     let term = await client.element('.xterm')

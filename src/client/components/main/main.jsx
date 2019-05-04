@@ -1,5 +1,5 @@
 
-import {Component} from '@electerm/react-subx'
+import {Component} from '../common/react-subx'
 import Session from '../session'
 import Tabs from '../tabs'
 import _ from 'lodash'
