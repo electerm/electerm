@@ -254,7 +254,9 @@ const store = Subx.create({
   },
 
   addTransferHistory (item) {
-    store.transferHistory = store.transferHistory.unshift(item).slice(0, maxTransferHistory)
+    let {transferHistory} = store
+    transferHistory.unshift(item)
+    store.transferHistory = transferHistory.slice(0, maxTransferHistory)
   },
 
   onCheckUpdate () {
