@@ -8,7 +8,6 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const express = require('express')
 const path = require('path')
 const pack = require('./package.json')
-const LodashModuleReplacementPlugin = require('lodash-webpack-plugin')
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin')
 const {env} = process
 const git = require('git-rev-sync')
@@ -68,7 +67,8 @@ var config = {
   externals: {
     'react': 'React',
     'react-dom': 'ReactDOM',
-    'zmodem': 'Zmodem'
+    'zmodem': 'Zmodem',
+    'lodash': '_'
   },
   target: 'electron-renderer',
   watch: true,
@@ -168,7 +168,6 @@ var config = {
   devtool: '#eval-source-map',
   plugins: [
     new webpack.HotModuleReplacementPlugin(),
-    new LodashModuleReplacementPlugin(),
     stylusSettingPlugin,
     packThreadCount === 0 ? null : new HappyPack(happyConf),
     extractTextPlugin1
@@ -203,7 +202,6 @@ if (isProd) {
     // }),
     extractTextPlugin1,
     stylusSettingPlugin,
-    new LodashModuleReplacementPlugin(),
     //new webpack.optimize.OccurenceOrderPlugin(),
     // new webpack.optimize.MinChunkSizePlugin({
     //   minChunkSize: 51200 // ~50kb

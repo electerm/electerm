@@ -4,7 +4,7 @@
 import {
   Icon, Tooltip
 } from 'antd'
-import {Component} from '@electerm/react-subx'
+import {Component} from '../common/react-subx'
 import BookMarksWrap from './bookmark'
 import HistoryWrap from './history'
 import TransferHistoryModal from './transfer-history-modal'

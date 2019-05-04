@@ -12,7 +12,7 @@ matrix:
       language: node_js
       node_js: "10"
       sudo: required
-      dist: trusty
+      dist: xenial
       addons:
         apt:
           packages:

@@ -2,7 +2,7 @@
  * btns
  */
 
-import {Component} from '@electerm/react-subx'
+import {Component} from '../common/react-subx'
 
 const {prefix} = window
 const e = prefix('control')

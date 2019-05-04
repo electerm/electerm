@@ -123,6 +123,9 @@ async function createWindow () {
     title: packInfo.name,
     frame: false,
     transparent: true,
+    webPreferences: {
+      nodeIntegration: true
+    },
     titleBarStyle: 'customButtonsOnHover',
     icon: iconPath
   })

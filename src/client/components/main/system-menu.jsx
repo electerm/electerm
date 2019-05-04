@@ -2,7 +2,7 @@
  * btns
  */
 
-import {Component} from '@electerm/react-subx'
+import {Component} from '../common/react-subx'
 import {Icon, Button} from 'antd'
 import {ctrlOrCmd} from '../../common/constants'
 import createTitle from '../../common/create-title'
