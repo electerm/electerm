@@ -86,7 +86,7 @@ export default function({
             <p className="mg1b">
               => <b className="mg1r">{e('author')}:</b>
               <Link to={authorUrl} className="mg1l">
-                {authorName} ({email})
+                <Icon type="user" /> {authorName} ({email})
               </Link>
             </p>
             <p className="mg1b">

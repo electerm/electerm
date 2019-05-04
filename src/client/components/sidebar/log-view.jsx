@@ -26,7 +26,7 @@ export default function LogView () {
         <Button
           onClick={onClick}
         >
-          {m('reload')} log
+          {m('reload') + ' log'}
         </Button>
       </div>
       {
