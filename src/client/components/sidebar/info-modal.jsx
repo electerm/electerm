@@ -70,7 +70,7 @@ export default function({
       <span className="fright">
         <Icon
           type="close-circle"
-          onClick={() => modal.destroy()}
+          onClick={() => onCancel(modal.destroy)}
           className="close-info-modal"
         />
       </span>
