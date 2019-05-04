@@ -32,6 +32,15 @@ const e = prefix('control')
 const defaultStatus = statusMap.processing
 let sessionsGlob = copy(ls.get('sessions'))
 const sshConfigItems = copy(getGlobal('sshConfigItems'))
+function getDefaultBookmarkGroups (bookmarks) {
+  return [
+    {
+      title: t(defaultookmarkGroupId),
+      id: defaultookmarkGroupId,
+      bookmarkIds: bookmarks.map(d => d.id)
+    }
+  ]
+}
 const getInitItem = (arr, tab) => {
   if (tab === settingMap.history) {
     return arr[0] || {}
@@ -48,7 +57,7 @@ let tabs = [newTerm()]
 let bookmarks = copy(ls.get(settingMap.bookmarks) || [])
 let bookmarkGroups = copy(
   ls.get(settingMap.bookmarkGroups) ||
-  store.getDefaultBookmarkGroups(bookmarks)
+  getDefaultBookmarkGroups(bookmarks)
 )
 
 const store = Subx.create({
@@ -196,16 +205,6 @@ const store = Subx.create({
       return
     }
     store.config.zoom = nl
-  },
-
-  getDefaultBookmarkGroups (bookmarks) {
-    return [
-      {
-        title: t(defaultookmarkGroupId),
-        id: defaultookmarkGroupId,
-        bookmarkIds: bookmarks.map(d => d.id)
-      }
-    ]
   },
 
   checkLastSession () {
@@ -386,7 +385,7 @@ const store = Subx.create({
     if (id === defaultookmarkGroupId) {
       return
     }
-    let bookmarkGroups = store.bookmarkGroups
+    let {bookmarkGroups} = store
     let tobeDel = _.find(bookmarkGroups, bg => bg.id === id)
     if (!tobeDel) {
       return
@@ -427,6 +426,7 @@ const store = Subx.create({
     bookmarkGroups = bookmarkGroups.filter(t => {
       return !groupIds.includes(t.id)
     })
+    store.bookmarkGroups = bookmarkGroups
     if (id === store.currentBookmarkGroupId) {
       store.currentBookmarkGroupId = ''
     }
