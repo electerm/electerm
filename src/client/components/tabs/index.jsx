@@ -203,7 +203,9 @@ export default class Tabs extends React.Component {
     let len = tabs.length
     let tabsWidthAll = tabMargin * len + 10 + this.tabsWidth()
     let overflow = this.isOverflow()
-    //let extraw = overflow ? extraWidth : 0
+    let left = overflow
+      ? '100%'
+      : tabsWidthAll
     return (
       <div className="tabs noise">
         <div
@@ -212,6 +214,12 @@ export default class Tabs extends React.Component {
             width
           }}
         >
+          <div
+            className="app-drag"
+            style={{
+              left
+            }}
+          />
           <div
             className="tabs-wrapper relative"
             style={{
