@@ -28,7 +28,7 @@ describe('main window', function () {
     const { client, browserWindow } = this.app
 
     await client.waitUntilWindowLoaded()
-    await delay(9500)
+    await delay(500)
 
     log('title')
     const title = await browserWindow.getTitle()

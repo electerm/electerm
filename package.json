@@ -72,7 +72,7 @@
     "cross-env": "5.2.0",
     "css-loader": "2.1.1",
     "dotenv": "7.0.0",
-    "electron": "4.1.4",
+    "electron": "5.0.1",
     "electron-builder": "20.39.0",
     "electron-chromedriver": "^4.0.0-beta.1",
     "electron-rebuild": "1.8.4",
