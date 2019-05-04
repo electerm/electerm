@@ -11,7 +11,7 @@ if (isOs('darwin')) {
 }
 
 describe('main window', function () {
-  this.timeout(100000)
+  this.timeout(1000000000000)
 
   beforeEach(async function() {
     this.app = new Application(appOptions)
@@ -37,6 +37,7 @@ describe('main window', function () {
     log('elements')
     let wrap = await client.element('#outside-context')
     expect(!!wrap.value).equal(true)
+    await delay(5000000)
     let tabs = await client.element('.tabs')
     expect(!!tabs.value).equal(true)
     let term = await client.element('.xterm')
