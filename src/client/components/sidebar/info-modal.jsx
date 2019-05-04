@@ -63,8 +63,21 @@ export default function({
   let cls2 = cls1
     ? ''
     : 'hide'
-  Modal.info({
-    title: `${m('about')} ` + name,
+  let modal
+  let titleDiv = (
+    <div className="fix">
+      <span className="fleft">{`${m('about')} ` + name}</span>
+      <span className="fright">
+        <Icon
+          type="close-circle"
+          onClick={() => modal.destroy()}
+          className="close-info-modal"
+        />
+      </span>
+    </div>
+  )
+  modal = Modal.info({
+    title: titleDiv,
     width: window.innerWidth - 100,
     maskClosable: true,
     okText: c('ok'),
