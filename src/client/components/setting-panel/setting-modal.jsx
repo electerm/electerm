@@ -2,7 +2,8 @@
  * hisotry/bookmark/setting modal
  */
 
-import {memo} from 'react'
+import {Component} from '@electerm/react-subx'
+import _ from 'lodash'
 import {Modal, Tabs, Col, Row} from 'antd'
 import TerminalThemeForm from '../terminal-theme'
 import TerminalThemeList from '../terminal-theme/theme-list'
@@ -11,6 +12,7 @@ import List from './list'
 import TreeList from './tree-list'
 import Setting from './setting'
 import {settingMap} from '../../common/constants'
+import copy from 'json-deep-copy'
 
 const {prefix} = window
 const e = prefix('setting')
@@ -19,127 +21,144 @@ const c = prefix('control')
 const t = prefix('terminalThemes')
 const {TabPane} = Tabs
 
-export default memo(props => {
-  const selectItem = (item) => {
-    props.modifier({item})
-  }
-
-  const tabsShouldConfirmDel = [
-    settingMap.bookmarks,
-    settingMap.terminalThemes
-  ]
-
-  const renderTabs = () => {
-    let {tab, item, list} = props
-    let props0 = {
-      ...props,
-      activeItemId: item.id,
-      type: tab,
-      onClickItem: selectItem,
-      shouldComfirmDel: tabsShouldConfirmDel.includes(tab),
-      list
+export default class SettingModal extends Component {
+  render() {
+    let {store} = this.props
+    const selectItem = (item) => {
+      store.modifier({item})
     }
-    let formProps = {
-      ...props,
-      formData: item,
-      type: tab,
-      hide: props.hideModal
+
+    const tabsShouldConfirmDel = [
+      settingMap.bookmarks,
+      settingMap.terminalThemes
+    ]
+
+    const renderTabs = () => {
+      let {tab, item, list} = store
+      let props0 = {
+        store,
+        activeItemId: item.id,
+        type: tab,
+        onClickItem: selectItem,
+        shouldComfirmDel: tabsShouldConfirmDel.includes(tab),
+        list
+      }
+      let formProps = {
+        store,
+        formData: item,
+        type: tab,
+        hide: store.hideModal,
+        ..._.pick(store, [
+          'currentBookmarkGroupId',
+          'config'
+        ]),
+        bookmarkGroups: copy(store.bookmarkGroups),
+        bookmarks: copy(store.bookmarks)
+      }
+      return (
+        <Tabs
+          activeKey={tab}
+          animated={false}
+          onChange={store.onChangeTab}
+        >
+          <TabPane
+            tab={m(settingMap.history)}
+            key={settingMap.history}
+          >
+            <Row>
+              <Col span={6}>
+                <List
+                  {...props0}
+                />
+              </Col>
+              <Col span={18}>
+                {
+                  item.id
+                    ? (
+                      <BookmarkForm
+                        key={item.id}
+                        {...formProps}
+                      />
+                    )
+                    : <div className="form-wrap pd2 aligncenter">{c('notFoundContent')}</div>
+                }
+
+              </Col>
+            </Row>
+          </TabPane>
+          <TabPane
+            tab={m(settingMap.bookmarks)}
+            key={settingMap.bookmarks}
+          >
+            <Row>
+              <Col span={10}>
+                <TreeList
+                  {...props0}
+                  {..._.pick(store, [
+                    'bookmarkGroups',
+                    'currentBookmarkGroupId',
+                    'bookmarks',
+                    'autofocustrigger',
+                    'config'
+                  ])}
+                />
+              </Col>
+              <Col span={14}>
+                <BookmarkForm
+                  key={item.id}
+                  {...formProps}
+                />
+              </Col>
+            </Row>
+          </TabPane>
+          <TabPane
+            tab={m(settingMap.setting)}
+            key={settingMap.setting}
+          >
+            <Row>
+              <Col span={6}>
+                <List
+                  {...props0}
+                />
+              </Col>
+              <Col span={18}>
+                <Setting {...props0} config={store.config} />
+              </Col>
+            </Row>
+          </TabPane>
+          <TabPane
+            tab={t(settingMap.terminalThemes)}
+            key={settingMap.terminalThemes}
+          >
+            <Row>
+              <Col span={6}>
+                <TerminalThemeList
+                  {...props0}
+                  theme={store.theme}
+                />
+              </Col>
+              <Col span={18}>
+                <TerminalThemeForm {...formProps} key={item.id} />
+              </Col>
+            </Row>
+          </TabPane>
+        </Tabs>
+      )
     }
+
     return (
-      <Tabs
-        activeKey={tab}
-        animated={false}
-        onChange={props.onChangeTab}
+      <Modal
+        {...{
+          title: e('settings'),
+          onCancel: store.hideModal,
+          footer: null,
+          width: '94%',
+          height: '94%',
+          visible: store.showModal
+        }}
       >
-        <TabPane
-          tab={m(settingMap.history)}
-          key={settingMap.history}
-        >
-          <Row>
-            <Col span={6}>
-              <List
-                {...props0}
-              />
-            </Col>
-            <Col span={18}>
-              {
-                item.id
-                  ? (
-                    <BookmarkForm
-                      key={item.id}
-                      {...formProps}
-                    />
-                  )
-                  : <div className="form-wrap pd2 aligncenter">{c('notFoundContent')}</div>
-              }
-
-            </Col>
-          </Row>
-        </TabPane>
-        <TabPane
-          tab={m(settingMap.bookmarks)}
-          key={settingMap.bookmarks}
-        >
-          <Row>
-            <Col span={10}>
-              <TreeList
-                {...props0}
-              />
-            </Col>
-            <Col span={14}>
-              <BookmarkForm
-                key={item.id}
-                {...formProps}
-              />
-            </Col>
-          </Row>
-        </TabPane>
-        <TabPane
-          tab={m(settingMap.setting)}
-          key={settingMap.setting}
-        >
-          <Row>
-            <Col span={6}>
-              <List
-                {...props0}
-              />
-            </Col>
-            <Col span={18}>
-              <Setting {...props0} />
-            </Col>
-          </Row>
-        </TabPane>
-        <TabPane
-          tab={t(settingMap.terminalThemes)}
-          key={settingMap.terminalThemes}
-        >
-          <Row>
-            <Col span={6}>
-              <TerminalThemeList
-                {...props0}
-              />
-            </Col>
-            <Col span={18}>
-              <TerminalThemeForm {...formProps} key={item.id} />
-            </Col>
-          </Row>
-        </TabPane>
-      </Tabs>
+        {renderTabs()}
+      </Modal>
     )
   }
-
-  return (
-    <Modal
-      {...{
-        title: e('settings'),
-        onCancel: props.hideModal,
-        footer: null,
-        width: '94%',
-        height: '94%',
-        visible: props.showModal
-      }}
-    >
-      {renderTabs()}
-    </Modal>
-  )
-})
+}

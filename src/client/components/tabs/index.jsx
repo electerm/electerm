@@ -28,12 +28,12 @@ export default class Tabs extends React.Component {
     window.addEventListener('keydown', this.handleTabHotkey)
   }
 
-  componentDidUpdate(prevState, prevProps) {
+  componentDidUpdate(prevProps) {
     prevProps = prevProps || {}
     if (
       prevProps.currentTabId !== this.props.currentTabId ||
       prevProps.width !== this.props.width ||
-      prevProps.map(d => d.title).join('#') !== this.props.map(d => d.title).join('#')
+      prevProps.tabs.map(d => d.title).join('#') !== this.props.tabs.map(d => d.title).join('#')
     ) {
       this.adjustScroll()
     }
@@ -66,7 +66,7 @@ export default class Tabs extends React.Component {
       e.code === 'Tab' &&
       e.shiftKey
     ) {
-      this.props.clickNextTab()
+      this.props.store.clickNextTab()
     }
   }
 
@@ -74,7 +74,7 @@ export default class Tabs extends React.Component {
     if (!e.target.className.includes('tabs-wrapper')) {
       return
     }
-    this.props.addTab()
+    this.props.store.addTab()
   }
 
   adjustScroll = () => {
@@ -112,7 +112,7 @@ export default class Tabs extends React.Component {
 
   onClickMenu = ({key}) => {
     let id = key.split('##')[1]
-    this.props.onChangeTabId(id)
+    this.props.store.onChangeTabId(id)
   }
 
   renderList = () => {
@@ -134,7 +134,7 @@ export default class Tabs extends React.Component {
   }
 
   renderMenus() {
-    let {onNewSsh, addTab} = this.props
+    let {onNewSsh, addTab} = this.props.store
     let cls = 'pd2x pd1y context-item pointer'
     return (
       <div className="add-menu-wrap">
@@ -151,7 +151,7 @@ export default class Tabs extends React.Component {
           <Icon type="right-square" theme="filled" /> {t('newTab')}
         </div>
         <BookmarksList
-          {...this.props}
+          store={this.props.store}
         />
       </div>
     )
@@ -166,7 +166,7 @@ export default class Tabs extends React.Component {
           type="plus-circle-o"
           title={e('openNewTerm')}
           className="pointer tabs-add-btn font16"
-          onClick={() => this.props.addTab()}
+          onClick={() => this.props.store.addTab()}
         />
       </Popover>
     )
@@ -220,12 +220,12 @@ export default class Tabs extends React.Component {
             onDoubleClick={this.onAdd}
           >
             {
-              tabs.map((tab, i) => {
+              tabs.map((tab) => {
                 return (
                   <Tab
                     {...this.props}
                     tab={tab}
-                    key={i + '##' + tab.id}
+                    key={tab.id}
                   />
                 )
               })

@@ -29,7 +29,7 @@ export default class ItemList extends React.PureComponent {
 
   del = (item, e) => {
     e.stopPropagation()
-    this.props.delItem(item, this.props.type)
+    this.props.store.delItem(item, this.props.type)
   }
 
   renderSearch = () => {

@@ -2,7 +2,7 @@
 /**
  * terminal/sftp wrapper
  */
-import React from 'react'
+import {Component} from 'react'
 import Term from '../terminal'
 import Sftp from '../sftp'
 import {Icon} from 'antd'
@@ -43,7 +43,7 @@ const {prefix} = window
 const e = prefix('ssh')
 const m = prefix('menu')
 
-export default class WindowWrapper extends React.PureComponent  {
+export default class SessionWrapper extends Component {
 
   constructor(props) {
     super(props)
@@ -186,9 +186,9 @@ export default class WindowWrapper extends React.PureComponent  {
     let cls = pane === paneMap.terminal
       ? 'terms-box bg-black'
       : 'terms-box bg-black hide'
-    let {props} = this
     let height = this.computeHeight()
-    let {width, tab} = props
+    let {store, width, tab} = this.props
+    let themeConfig = store.getThemeConfig()
     return (
       <div
         className={cls}
@@ -204,8 +204,9 @@ export default class WindowWrapper extends React.PureComponent  {
           {
             terminals.map((t) => {
               let pops = {
-                ...props,
+                ...this.props,
                 ...t,
+                themeConfig,
                 pane,
                 ..._.pick(
                   this,
@@ -230,18 +231,17 @@ export default class WindowWrapper extends React.PureComponent  {
   renderSftp = () => {
     let {pane, sessionOptions, sshConnected} = this.state
     let height = this.computeHeight()
-    let {props} = this
     let cls = pane === paneMap.terminal
       ? 'hide'
       : ''
     return (
       <div className={cls}>
         <Sftp
-          {...props}
           sessionOptions={sessionOptions}
           sshConnected={sshConnected}
           height={height}
           pane={pane}
+          {...this.props}
         />
       </div>
     )

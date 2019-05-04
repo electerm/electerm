@@ -16,6 +16,7 @@ const m = prefix('menu')
 const e = prefix('control')
 
 export default memo((props) => {
+  let {store} = props
   return (
     <div
       className="sidebar-panel bookmarks-panel animate-fast"
@@ -29,21 +30,21 @@ export default memo((props) => {
               <Icon
                 type="plus-circle"
                 className="font16 mg1x mg2l pointer iblock control-icon icon-do-edit"
-                onClick={props.onNewSsh}
+                onClick={store.onNewSsh}
               />
             </Tooltip>
             <Tooltip title={`${m('edit')} ${c('bookmarks')}`}>
               <Icon
                 type="edit"
                 className="font16 mg1x mg2l pointer iblock control-icon icon-do-edit"
-                onClick={props.onNewSsh}
+                onClick={store.onNewSsh}
               />
             </Tooltip>
           </div>
         </div>
       </div>
       <div className="pd2x">
-        <BookmarkSelect {...props} />
+        <BookmarkSelect store={store} />
       </div>
     </div>
   )

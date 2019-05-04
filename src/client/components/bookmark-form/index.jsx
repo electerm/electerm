@@ -119,14 +119,14 @@ export class BookmarkForm extends React.PureComponent {
       )
       return bg
     })
-    this.props.modifyLs({
+    this.props.store.modifier({
       bookmarkGroups
     })
   }
 
   submit = (evt, item, type = this.props.type) => {
     let obj = item
-    let {addItem, editItem} = this.props
+    let {addItem, editItem} = this.props.store
     let categoryId = obj.category
     delete obj.category
     let bookmarkGroups = copy(
@@ -164,7 +164,7 @@ export class BookmarkForm extends React.PureComponent {
         obj,
         categoryId
       )
-      this.props.modifier({
+      this.props.store.modifier({
         item: obj
       })
     }
@@ -232,7 +232,7 @@ export class BookmarkForm extends React.PureComponent {
     }
     evt && this.submit(evt, obj)
     if (evt !== 'save') {
-      this.props.addTab({
+      this.props.store.addTab({
         ...copy(obj),
         srcId: obj.id,
         status: statusMap.processing,

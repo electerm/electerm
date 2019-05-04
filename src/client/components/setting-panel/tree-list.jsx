@@ -104,7 +104,7 @@ export default class ItemListTree extends React.PureComponent {
     this.setState({
       categoryId: ''
     })
-    this.props.modifyLs({
+    this.props.store.modifier({
       bookmarkGroups
     })
   }
@@ -180,7 +180,7 @@ export default class ItemListTree extends React.PureComponent {
       toGroup.bookmarkGroupIds = toGroup.bookmarkGroupIds || []
       toGroup.bookmarkGroupIds.unshift(fromId)
     }
-    this.props.modifyLs({
+    this.props.store.modifier({
       bookmarkGroups
     })
   }
@@ -224,7 +224,7 @@ export default class ItemListTree extends React.PureComponent {
       showNewBookmarkGroupForm: false
     }, () => {
       this.onSubmit = false
-      this.props.addBookmarkGroup({
+      this.props.store.addBookmarkGroup({
         id: generate(),
         title: this.state.bookmarkGroupTitle,
         bookmarkIds: []
@@ -266,7 +266,7 @@ export default class ItemListTree extends React.PureComponent {
         ...(cat.bookmarkGroupIds || []),
         newCat.id
       ]
-      this.props.modifyLs({
+      this.props.store.modifier({
         bookmarkGroups
       })
     })
@@ -283,10 +283,10 @@ export default class ItemListTree extends React.PureComponent {
   del = (item, e) => {
     e.stopPropagation()
     if (item.bookmarkIds) {
-      return this.props.delBookmarkGroup(item)
+      return this.props.store.delBookmarkGroup(item)
     }
-    this.props.delItem(item, this.props.type)
-    this.props.onDelItem(item, this.props.type)
+    this.props.store.delItem(item, this.props.type)
+    this.props.store.onDelItem(item, this.props.type)
   }
 
   onExpand = (expandedKeys) => {
@@ -303,7 +303,7 @@ export default class ItemListTree extends React.PureComponent {
   ) => {
     let [id] = selectedKeys
     if (!node.props.isLeaf) {
-      this.props.modifier({
+      this.props.store.modifier({
         currentBookmarkGroupId: id
       })
     }
@@ -574,7 +574,7 @@ export default class ItemListTree extends React.PureComponent {
           <Icon type="folder" className="with-plus" />
         </Button>
         <Btns
-          {...this.props}
+          store={this.props.store}
         />
       </div>
     )

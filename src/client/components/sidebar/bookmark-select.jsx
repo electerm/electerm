@@ -2,7 +2,7 @@
  * history select
  */
 
-import {memo} from 'react'
+import {Component} from '@electerm/react-subx'
 import ItemList from '../setting-panel/list'
 import TreeList from '../setting-panel/tree-list'
 import copy from 'json-deep-copy'
@@ -10,59 +10,52 @@ import copy from 'json-deep-copy'
 const {getGlobal} = window
 const sshConfigItems = copy(getGlobal('sshConfigItems'))
 
-export default memo((props) => {
-  let {
-    bookmarkGroups = [],
-    listStyle,
-    openedCategoryIds
-  } = props
-  const onClickItem = (item) => {
-    props.modifier({
-      openedSideBar: ''
-    })
-    props.onSelectBookmark(item.id)
+export default class BookmarkSelect extends Component {
+  render() {
+    const {store} = this.props
+    let {
+      bookmarkGroups = [],
+      listStyle,
+      openedCategoryIds
+    } = store
+    const onClickItem = (item) => {
+      store.modifier({
+        openedSideBar: ''
+      })
+      store.onSelectBookmark(item.id)
+    }
+    let props0 = {
+      bookmarks: [
+        ...(store.bookmarks || []),
+        ...sshConfigItems
+      ],
+      type: 'bookmarks',
+      onClickItem,
+      listStyle
+    }
+    return bookmarkGroups.filter(d => d.level !== 2).length > 1
+      ? (
+        <TreeList
+          store={store}
+          {...props0}
+          shouldComfirmDel
+          staticList
+          bookmarkGroups={store.bookmarkGroupsTotal}
+          onClickItem={onClickItem}
+          expandedKeys={openedCategoryIds}
+          onExpand={openedCategoryIds => {
+            store.setState({
+              openedCategoryIds
+            })
+          }}
+        />
+      )
+      : (
+        <ItemList
+          {...props0}
+          list={props0.bookmarks || []}
+          onClickItem={item => store.onSelectBookmark(item.id)}
+        />
+      )
   }
-  let props0 = {
-    bookmarks: [
-      ...(props.bookmarks || []),
-      ...sshConfigItems
-    ],
-    type: 'bookmarks',
-    onClickItem,
-    listStyle
-  }
-  let bookmarkGroupsTotal = sshConfigItems.length
-    ? [
-      ...bookmarkGroups,
-      {
-        title: 'ssh-config',
-        id: 'ssh-config',
-        bookmarkIds: sshConfigItems.map(d => d.id)
-      }
-    ]
-    : bookmarkGroups
-  return bookmarkGroups.filter(d => d.level !== 2).length > 1
-    ? (
-      <TreeList
-        {...props}
-        {...props0}
-        shouldComfirmDel
-        staticList
-        bookmarkGroups={bookmarkGroupsTotal}
-        onClickItem={onClickItem}
-        expandedKeys={openedCategoryIds}
-        onExpand={openedCategoryIds => {
-          props.modifyLs({
-            openedCategoryIds
-          })
-        }}
-      />
-    )
-    : (
-      <ItemList
-        {...props0}
-        list={props0.bookmarks || []}
-        onClickItem={item => props.onSelectBookmark(item.id)}
-      />
-    )
-})
+}

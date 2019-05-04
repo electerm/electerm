@@ -15,6 +15,7 @@ const c = prefix('common')
 const m = prefix('menu')
 
 export default memo((props) => {
+  let {store} = props
   return (
     <div
       className="sidebar-panel history-panel animate-fast"
@@ -28,7 +29,7 @@ export default memo((props) => {
               <Icon
                 type="edit"
                 className="font16 mg1x mg2l pointer iblock control-icon icon-do-edit"
-                onClick={props.onEditHistory}
+                onClick={store.onEditHistory}
               />
             </Tooltip>
           </div>
@@ -36,11 +37,10 @@ export default memo((props) => {
       </div>
       <div className="pd2x">
         <ItemList
-          {...props}
           type="history"
-          list={props.history || []}
-          onClickItem={item => props.onSelectHistory(item.id)}
-          activeItemId={props.activeItemId}
+          list={store.history || []}
+          onClickItem={item => store.onSelectHistory(item.id)}
+          activeItemId={store.activeItemId}
         />
       </div>
     </div>

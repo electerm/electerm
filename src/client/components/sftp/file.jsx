@@ -362,19 +362,19 @@ export default class FileSection extends React.Component {
   }
 
   onCloseFileMode = () => {
-    this.props.rootModifier({
+    this.props.store.modifier({
       fileModeModalProps: {}
     })
   }
 
   onCloseFileInfo = () => {
-    this.props.rootModifier({
+    this.props.store.modifier({
       fileInfoModalProps: {}
     })
   }
 
   showInfo = () => {
-    this.props.rootModifier({
+    this.props.store.modifier({
       fileInfoModalProps: {
         file: this.state.file,
         tab: this.props.tab,
@@ -401,7 +401,7 @@ export default class FileSection extends React.Component {
       : fs.touch
     let res = await func(p)
       .then(() => true)
-      .catch(this.props.onError)
+      .catch(this.props.store.onError)
     if (res) {
       this.props.localList()
     }
@@ -416,7 +416,7 @@ export default class FileSection extends React.Component {
       : sftp.touch
     let res = await func(p)
       .then(() => true)
-      .catch(this.props.onError)
+      .catch(this.props.store.onError)
     if (res) {
       await wait(500)
       await this.props.remoteList()
@@ -504,12 +504,12 @@ export default class FileSection extends React.Component {
       ? fs.chmodAsync
       : this.props.sftp.chmod
     let p = resolve(path, name)
-    await func(p, permission).catch(this.props.onError)
+    await func(p, permission).catch(this.props.store.onError)
     this.props[type + 'List']()
   }
 
   openFileModeModal = () => {
-    this.props.rootModifier({
+    this.props.store.modifier({
       fileModeModalProps: {
         file: this.state.file,
         tab: this.props.tab,
@@ -548,7 +548,7 @@ export default class FileSection extends React.Component {
     let {localPath} = this.props
     let p1 = resolve(localPath, oldname)
     let p2 = resolve(localPath, newname)
-    await fs.renameAsync(p1, p2).catch(this.props.onError)
+    await fs.renameAsync(p1, p2).catch(this.props.store.onError)
     this.props.localList()
   }
 
@@ -557,7 +557,7 @@ export default class FileSection extends React.Component {
     let p1 = resolve(remotePath, oldname)
     let p2 = resolve(remotePath, newname)
     let res = await sftp.rename(p1, p2)
-      .catch(this.props.onError)
+      .catch(this.props.store.onError)
       .then(() => true)
     if (res) {
       this.props.remoteList()
@@ -593,7 +593,7 @@ export default class FileSection extends React.Component {
   openFile = file => {
     let filePath = resolve(file.path, file.name)
     fs.openFile(filePath)
-      .catch(this.props.onError)
+      .catch(this.props.store.onError)
   }
 
   transferOrEnterDirectory = async (e, edit) => {
@@ -609,7 +609,7 @@ export default class FileSection extends React.Component {
       edit ||
       (!edit && type === typeMap.remote && size < maxEditFileSize)
     ) {
-      return this.props.rootModifier({
+      return this.props.store.modifier({
         textEditorProps: {
           visible: true,
           id,
@@ -1008,7 +1008,7 @@ export default class FileSection extends React.Component {
     let content = this.renderContext()
     let height = content.props.children.filter(_.identity)
       .length * contextMenuHeight + contextMenuPaddingTop * 2
-    this.props.openContextMenu({
+    this.props.store.openContextMenu({
       content,
       pos: computePos(e, id, height)
     })

@@ -116,7 +116,7 @@ export default class Tranporter extends React.PureComponent {
     let transport = copy(this.props.transport)
     transport.status = 'exception'
     this.update(transport)
-    this.props.onError(e)
+    this.props.store.onError(e)
   }
 
   onEnd = () => {
@@ -136,7 +136,7 @@ export default class Tranporter extends React.PureComponent {
     let finishTime = +new Date()
     let {size} = file
     if (!this.props.config.disableTransferHistory) {
-      this.props.addTransferHistory({
+      this.props.store.addTransferHistory({
         id,
         fromPath,
         toPath,

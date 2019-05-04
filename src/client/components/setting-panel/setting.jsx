@@ -1,5 +1,5 @@
 
-import React from 'react'
+import {Component} from 'react'
 import {
   message, Select, Switch,
   Input, Icon,
@@ -27,7 +27,7 @@ const keys = [
   })
 ]
 
-export default class Setting extends React.PureComponent {
+export default class Setting extends Component {
 
   state = {
     languageChanged: false
@@ -75,7 +75,7 @@ export default class Setting extends React.PureComponent {
   }
 
   onChangeTerminalTheme = id => {
-    this.props.setTheme(id)
+    this.props.store.setTheme(id)
   }
 
   onChangeValue = (value, name) => {
@@ -103,7 +103,7 @@ export default class Setting extends React.PureComponent {
       }
     }
     saveUserConfig && saveUserConfig(ext)
-    this.props.modifier(update)
+    this.props.store.modifier(update)
   }
 
   renderOption = (m, i) => {
@@ -269,7 +269,7 @@ export default class Setting extends React.PureComponent {
       hotkey,
       language
     } = this.props.config
-    let {themes, theme} = this.props
+    let {themes, theme} = this.props.store
     let langs = getGlobal('langs')
     let [modifier, key] = hotkey.split('+')
     return (

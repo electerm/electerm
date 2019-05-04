@@ -1,5 +1,5 @@
 
-import React from 'react'
+import {Component} from 'react'
 import ReactDOM from 'react-dom'
 import {generate} from 'shortid'
 import {mergeProxy} from '../../common/merge-proxy'
@@ -45,7 +45,7 @@ const buildTree = arr => {
   }, {})
 }
 
-export default class Sftp extends React.Component {
+export default class Sftp extends Component {
 
   constructor(props) {
     super(props)
@@ -228,7 +228,7 @@ export default class Sftp extends React.Component {
       ? fs.unlinkAsync
       : fs.rmrf
     let p = resolve(localPath, name)
-    await func(p).catch(this.props.onError)
+    await func(p).catch(this.props.store.onError)
   }
 
   remoteDel = async (file) => {
@@ -239,7 +239,7 @@ export default class Sftp extends React.Component {
       ? sftp.rmdir
       : sftp.rm
     let p = resolve(remotePath, name)
-    await func(p).catch(this.props.onError)
+    await func(p).catch(this.props.store.onError)
   }
 
   delFiles = async (_type, files = this.state.selectedFiles) => {
@@ -418,7 +418,7 @@ export default class Sftp extends React.Component {
   }
 
   onError = e => {
-    this.props.onError(e)
+    this.props.store.onError(e)
     this.setState({
       remoteLoading: false
     })
@@ -483,7 +483,7 @@ export default class Sftp extends React.Component {
         let home = await sftp.getHomeDir()
           .then(r => r)
           .catch(err => {
-            this.props.onError(err)
+            this.props.store.onError(err)
             return ''
           })
         if (home) {
@@ -680,7 +680,6 @@ export default class Sftp extends React.Component {
       ...this.props,
       file,
       type,
-      rootModifier: this.props.modifier,
       ..._.pick(this, [
         'sftp',
         'onSort',
@@ -906,7 +905,7 @@ export default class Sftp extends React.Component {
       typeMap.remote
     ]
     let {
-      width, height, tab
+      height, tab, width
     } = this.props
     let host = _.get(tab, 'host')
     if (!host) {
@@ -948,12 +947,9 @@ export default class Sftp extends React.Component {
     } = this.state
     let {height} = this.props
     let props = {
+      ...this.props,
       id,
-      height,
       isActive: this.isActive(),
-      ..._.pick(this.props, [
-        'onError', 'addTransferHistory', 'config'
-      ]),
       ..._.pick(this.state, [
         'transports',
         'remotePath',
