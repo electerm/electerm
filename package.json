@@ -71,7 +71,7 @@
     "cross-env": "5.2.0",
     "css-loader": "2.1.1",
     "dotenv": "7.0.0",
-    "electron": "5.0.1",
+    "electron": "4.2.0",
     "electron-builder": "20.40.2",
     "electron-chromedriver": "^4.0.0-beta.1",
     "eslint": "5.16.0",
