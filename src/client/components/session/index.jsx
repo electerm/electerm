@@ -138,6 +138,7 @@ export default class SessionWrapper extends Component {
       terminals: newTerms,
       activeSplitId: newActiveId
     })
+    this.props.store.focus()
   }
 
   changeDirection = () => {
