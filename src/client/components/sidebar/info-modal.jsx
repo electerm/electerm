@@ -69,7 +69,7 @@ export default function({
       <span className="fleft">{`${m('about')} ` + name}</span>
       <span className="fright">
         <Icon
-          type="close-circle"
+          type="close"
           onClick={() => onCancel(modal.destroy)}
           className="close-info-modal"
         />

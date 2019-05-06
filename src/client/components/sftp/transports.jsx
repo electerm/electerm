@@ -43,8 +43,7 @@ export default class Transports extends React.PureComponent {
   constructor(props) {
     super(props)
     this.state = {
-      currentTransports: getFirstTransports(props.transports),
-      showList: false
+      currentTransports: getFirstTransports(props.transports)
     }
   }
 
@@ -58,18 +57,6 @@ export default class Transports extends React.PureComponent {
 
   componentWillUnmount() {
     clearTimeout(this.timer)
-  }
-
-  onVisibleChange = showList => {
-    this.setState({
-      showList
-    })
-  }
-
-  hide = () => {
-    this.setState({
-      showList: false
-    })
   }
 
   pause = () => {
@@ -218,8 +205,8 @@ export default class Transports extends React.PureComponent {
   }
 
   render() {
-    let {transports, isActive} = this.props
-    let {currentTransports, showList} = this.state
+    let {transports} = this.props
+    let {currentTransports} = this.state
     let percent = this.computePercent()
     let leftTime = this.computeLeftTime()
     let pausing = this.computePausing()
@@ -235,8 +222,6 @@ export default class Transports extends React.PureComponent {
           title={this.renderTitle()}
           content={this.renderContent()}
           placement="bottom"
-          visible={showList && isActive}
-          onVisibleChange={this.onVisibleChange}
         >
           <div className="tranports-circle-wrap">
             <div
