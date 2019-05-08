@@ -613,7 +613,7 @@ export default class FileSection extends React.Component {
         textEditorProps: {
           visible: true,
           id,
-          sftp: this.props.sftp,
+          sftpFunc: () => this.props.sftp,
           file,
           afterWrite: this.props[`${type}List`]
         }

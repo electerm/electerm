@@ -38,7 +38,7 @@ export class TextEditorForm extends React.PureComponent {
       loading: true
     })
     let {
-      sftp,
+      sftpFunc,
       file: {
         path,
         name,
@@ -49,6 +49,7 @@ export class TextEditorForm extends React.PureComponent {
     this.setState({
       path: p
     })
+    let sftp = sftpFunc()
     let text = typeMap.remote === type
       ? await sftp.readFile(p)
       : await fs.readFile(p)
@@ -71,12 +72,13 @@ export class TextEditorForm extends React.PureComponent {
       return this.cancel()
     }
     let {
-      sftp,
+      sftpFunc,
       file: {
         type,
         mode
       }
     } = this.props
+    let sftp = sftpFunc()
     let r = typeMap.remote === type
       ? await sftp.writeFile(
         this.state.path,
