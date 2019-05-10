@@ -1,6 +1,6 @@
 {
   "name": "electerm",
-  "version": "0.27.22",
+  "version": "0.27.23",
   "description": "Terminal/ssh/sftp client(linux, mac, win) based on electron/ssh2/node-pty/xterm/antd and other libs",
   "main": "dev-app.js",
   "bin": "npm/electerm",
@@ -97,7 +97,6 @@
     "memoize-one": "5.0.4",
     "mini-css-extract-plugin": "0.6.0",
     "mocha": "6.1.4",
-    "npm-force-resolutions": "0.0.2",
     "optimize-css-assets-webpack-plugin": "5.0.1",
     "png2icons": "1.0.1",
     "prop-types": "15.7.2",
