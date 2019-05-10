@@ -110,6 +110,7 @@ export default class ItemListTree extends React.PureComponent {
   }
 
   onDrop = (info) => {
+    console.log(info)
     let {
       dropToGap,
       dragNode,
@@ -124,6 +125,7 @@ export default class ItemListTree extends React.PureComponent {
     let fromId = dragNode.props.eventKey
     let toId = node.props.eventKey
     let fromLeaf = dragNode.props.isLeaf
+    let toLeaf = node.isLeaf()
     let from = fromLeaf
       ? _.find(
         this.props.bookmarks,
@@ -133,10 +135,15 @@ export default class ItemListTree extends React.PureComponent {
         this.props.bookmarkGroups,
         d => d.id === fromId
       )
-    let to = _.find(
-      this.props.bookmarkGroups,
-      d => d.id === toId
-    )
+    let to = toLeaf
+      ? _.find(
+        this.props.bookmarks,
+        d => d.id === toId
+      )
+      :  _.find(
+        this.props.bookmarkGroups,
+        d => d.id === toId
+      )
     if (!to || !from) {
       return
     }
