@@ -55,15 +55,16 @@ export default class Transports extends React.PureComponent {
         : props.sftp[funcName]
       await func(fromPath, toPath)
         .catch(
-          this.props.onError
+          this.props.store.onError
         )
     }
     let ids = transports.map(d => d.id)
     this.props.modifier(old => {
-      old.transports = old.transports.filter(t => {
-        return !ids.includes(t.id)
-      })
-      return old
+      return {
+        transports: old.transports.filter(t => {
+          return !ids.includes(t.id)
+        })
+      }
     })
     await wait(500)
     this.props[transports[0].srcTransferType + 'List']()

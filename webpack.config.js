@@ -58,7 +58,7 @@ var config = {
     index: './src/views/index.pug'
   },
   output: {
-    path: __dirname + '/app/assets',
+    path: path.resolve(__dirname, '/app/assets'),
     filename: 'js/[name].' + version + '.js',
     publicPath: '/',
     chunkFilename: 'js/[name].' + version + '.js',
