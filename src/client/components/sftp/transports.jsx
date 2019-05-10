@@ -193,7 +193,7 @@ export default class Transports extends React.PureComponent {
     let ids = this.state.currentTransports.map(r => r.id)
     let trs = this.props.transports.filter(t => ids.includes(t.id))
     let sorted = copy(trs).sort((b, a) => a.leftTimeInt - b.leftTimeInt)
-    return _.get(sorted, '[0].leftTime')
+    return _.get(sorted, '[0].leftTime') || '-'
   }
 
   computePausing = () => {
