@@ -20,6 +20,7 @@ import {
 } from '../../common/constants'
 import highlight from '../common/highlight'
 import copy from 'json-deep-copy'
+import onDrop from './on-tree-drop'
 import Search from '../common/search'
 import Btns from './bookmark-transport'
 import './tree-list.styl'
@@ -111,85 +112,86 @@ export default class ItemListTree extends React.PureComponent {
 
   onDrop = (info) => {
     console.log(info)
-    let {
-      dropToGap,
-      dragNode,
-      node
-    } = info
-    if (
-      dropToGap ||
-      node.props.isLeaf
-    ) {
-      return
-    }
-    let fromId = dragNode.props.eventKey
-    let toId = node.props.eventKey
-    let fromLeaf = dragNode.props.isLeaf
-    let toLeaf = node.isLeaf()
-    let from = fromLeaf
-      ? _.find(
-        this.props.bookmarks,
-        d => d.id === fromId
-      )
-      : _.find(
-        this.props.bookmarkGroups,
-        d => d.id === fromId
-      )
-    let to = toLeaf
-      ? _.find(
-        this.props.bookmarks,
-        d => d.id === toId
-      )
-      :  _.find(
-        this.props.bookmarkGroups,
-        d => d.id === toId
-      )
-    if (!to || !from) {
-      return
-    }
-    if (to.level === 2 && !fromLeaf) {
-      return
-    }
-    if (from.level === 2 && to.level === 2) {
-      return
-    }
-    if (to.bookmarkIds && to.bookmarkIds.includes(from.id)) {
-      return
-    }
-    if (to.bookmarkGroupIds && to.bookmarkGroupIds.includes(from.id)) {
-      return
-    }
-    let bookmarkGroups = copy(
-      this.props.bookmarkGroups
-    )
-    let fromGroup = fromLeaf
-      ? _.find(
-        bookmarkGroups,
-        d => (d.bookmarkIds || []).includes(fromId)
-      )
-      : _.find(
-        bookmarkGroups,
-        d => (d.bookmarkGroupIds || []).includes(fromId)
-      )
-    if (fromLeaf) {
-      _.remove(fromGroup.bookmarkIds, d => d === fromId)
-    } else {
-      _.remove(fromGroup.bookmarkGroupIds, d => d === fromId)
-    }
-    let toGroup = _.find(
-      bookmarkGroups,
-      d => d.id === toId
-    )
-    if (fromLeaf) {
-      toGroup.bookmarkIds = toGroup.bookmarkIds || []
-      toGroup.bookmarkIds.unshift(fromId)
-    } else {
-      toGroup.bookmarkGroupIds = toGroup.bookmarkGroupIds || []
-      toGroup.bookmarkGroupIds.unshift(fromId)
-    }
-    this.props.store.modifier({
-      bookmarkGroups
-    })
+    onDrop(info, this.props)
+    // let {
+    //   dropToGap,
+    //   dragNode,
+    //   node
+    // } = info
+    // if (
+    //   dropToGap ||
+    //   node.props.isLeaf
+    // ) {
+    //   return
+    // }
+    // let fromId = dragNode.props.eventKey
+    // let toId = node.props.eventKey
+    // let fromLeaf = dragNode.props.isLeaf
+    // let toLeaf = node.isLeaf()
+    // let from = fromLeaf
+    //   ? _.find(
+    //     this.props.bookmarks,
+    //     d => d.id === fromId
+    //   )
+    //   : _.find(
+    //     this.props.bookmarkGroups,
+    //     d => d.id === fromId
+    //   )
+    // let to = toLeaf
+    //   ? _.find(
+    //     this.props.bookmarks,
+    //     d => d.id === toId
+    //   )
+    //   :  _.find(
+    //     this.props.bookmarkGroups,
+    //     d => d.id === toId
+    //   )
+    // if (!to || !from) {
+    //   return
+    // }
+    // if (to.level === 2 && !fromLeaf) {
+    //   return
+    // }
+    // if (from.level === 2 && to.level === 2) {
+    //   return
+    // }
+    // if (to.bookmarkIds && to.bookmarkIds.includes(from.id)) {
+    //   return
+    // }
+    // if (to.bookmarkGroupIds && to.bookmarkGroupIds.includes(from.id)) {
+    //   return
+    // }
+    // let bookmarkGroups = copy(
+    //   this.props.bookmarkGroups
+    // )
+    // let fromGroup = fromLeaf
+    //   ? _.find(
+    //     bookmarkGroups,
+    //     d => (d.bookmarkIds || []).includes(fromId)
+    //   )
+    //   : _.find(
+    //     bookmarkGroups,
+    //     d => (d.bookmarkGroupIds || []).includes(fromId)
+    //   )
+    // if (fromLeaf) {
+    //   _.remove(fromGroup.bookmarkIds, d => d === fromId)
+    // } else {
+    //   _.remove(fromGroup.bookmarkGroupIds, d => d === fromId)
+    // }
+    // let toGroup = _.find(
+    //   bookmarkGroups,
+    //   d => d.id === toId
+    // )
+    // if (fromLeaf) {
+    //   toGroup.bookmarkIds = toGroup.bookmarkIds || []
+    //   toGroup.bookmarkIds.unshift(fromId)
+    // } else {
+    //   toGroup.bookmarkGroupIds = toGroup.bookmarkGroupIds || []
+    //   toGroup.bookmarkGroupIds.unshift(fromId)
+    // }
+    // this.props.store.modifier({
+    //   bookmarkGroups
+    // })
   }
 
   onSubmit = false
