@@ -91,9 +91,8 @@ export default class Transports extends React.PureComponent {
     }, 300)
   }
 
-  rebuildState = (newtrans, oldtrans) => {
+  rebuildState = (newtrans) => {
     let transports = copy(newtrans)
-    let diff = _.difference(transports.map(t => t.id), oldtrans.map(t => t.id))
     let currentTransports = copy(this.state.currentTransports)
     let idsAll = transports.map(d => d.id)
     currentTransports = currentTransports.filter(c => {
