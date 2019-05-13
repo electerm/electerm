@@ -110,8 +110,7 @@ export default class Transports extends React.PureComponent {
       ...transports
     ]
     this.setState({
-      currentTransports,
-      showList: diff.length
+      currentTransports
     })
   }
 
