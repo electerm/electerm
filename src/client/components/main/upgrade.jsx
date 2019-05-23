@@ -42,6 +42,7 @@ export default class Upgrade extends Component {
     this.changeProps({
       showUpgradeModal: false
     })
+    this.props.store.focus()
   }
 
   close = () => {
