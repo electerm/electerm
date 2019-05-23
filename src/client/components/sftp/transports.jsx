@@ -2,7 +2,7 @@
  * tranporters
  */
 import React from 'react'
-import {Popover, Icon} from 'antd'
+import {Icon} from 'antd'
 import Transport from './transport'
 import _ from 'lodash'
 import copy from 'json-deep-copy'
@@ -91,9 +91,8 @@ export default class Transports extends React.PureComponent {
     }, 300)
   }
 
-  rebuildState = (newtrans, oldtrans) => {
+  rebuildState = (newtrans) => {
     let transports = copy(newtrans)
-    let diff = _.difference(transports.map(t => t.id), oldtrans.map(t => t.id))
     let currentTransports = copy(this.state.currentTransports)
     let idsAll = transports.map(d => d.id)
     currentTransports = currentTransports.filter(c => {
@@ -110,8 +109,7 @@ export default class Transports extends React.PureComponent {
       ...transports
     ]
     this.setState({
-      currentTransports,
-      showList: diff.length
+      currentTransports
     })
   }
 
@@ -149,17 +147,11 @@ export default class Transports extends React.PureComponent {
 
   renderTitle() {
     return (
-      <div className="fix">
+      <div className="fix transports-title">
         <div className="fleft">
           {e('fileTransfers')}
         </div>
         <div className="fright">
-          <span
-            className="pointer mg1r"
-            onClick={this.hide}
-          >
-            {e('hide')}
-          </span>
           <span
             className="color-red pointer"
             onClick={this.cancelAll}
@@ -218,23 +210,23 @@ export default class Transports extends React.PureComponent {
     }
     return (
       <div className="tranports-wrap">
-        <Popover
-          title={this.renderTitle()}
-          content={this.renderContent()}
-          placement="bottom"
-        >
-          <div className="tranports-circle-wrap">
-            <div
-              className="opacity-loop pointer"
-              onClick={func}
-            >
-              {this.renderTransportIcon()} {percent}%({leftTime})
-              <span className="mg1l">
-                [{currentTransports.length} / {transports.length}]
-              </span>
-            </div>
+        <div className="tranports-circle-wrap">
+          <div
+            className="opacity-loop pointer"
+            onClick={func}
+          >
+            {this.renderTransportIcon()} {percent}%({leftTime})
+            <span className="mg1l">
+              [{currentTransports.length} / {transports.length}]
+            </span>
           </div>
-        </Popover>
+        </div>
+        <div
+          className="transports-dd"
+        >
+          {this.renderTitle()}
+          {this.renderContent()}
+        </div>
       </div>
     )
   }
