@@ -24,23 +24,27 @@ export default (info, props) => {
   let toPoses = node.props.pos.split('-').map(Number)
   let toPosesLevel = toPoses.slice(0, toPoses.length - 1)
   let isSameLevel = fromPosesLevel.length === toPosesLevel.length
-  let isSameCat = _.isEqual(fromPosesLevel, toPosesLevel)
+  let isSameCat = _.isEqual(fromPosesLevel, toPosesLevel) && dropToGap
+  let bookmarks = copy(props.bookmarks)
+  let bookmarkGroups = copy(
+    props.bookmarkGroups
+  )
   let from = fromLeaf
     ? _.find(
-      props.bookmarks,
+      bookmarks,
       d => d.id === fromId
     )
     : _.find(
-      props.bookmarkGroups,
+      bookmarkGroups,
       d => d.id === fromId
     )
   let to = toLeaf
     ? _.find(
-      props.bookmarks,
+      bookmarks,
       d => d.id === toId
     )
     :  _.find(
-      props.bookmarkGroups,
+      bookmarkGroups,
       d => d.id === toId
     )
 
@@ -61,6 +65,7 @@ export default (info, props) => {
 
   // drag default cateogry to nongap
   if (fromId === defaultookmarkGroupId && !dropToGap) {
+    console.log('return', 'drag default cateogry to nongap')
     return
   }
 
@@ -70,14 +75,22 @@ export default (info, props) => {
   }
 
   // drag cat to level2 node
-  if (!fromLeaf && toPoses.length > 2) {
+  if (!fromLeaf && toPoses.length > 2 && !dropToGap) {
+    return
+  }
+
+  // drag node to first level
+  if (fromLeaf && toPoses.length <= 2 && dropToGap) {
+    return
+  }
+
+  // drag leaf node to cat gap
+  if (fromLeaf && toPoses.length > 2 && dropToGap && !toLeaf) {
     return
   }
 
   // let's confirm the drop position
-  let bookmarkGroups = copy(
-    props.bookmarkGroups
-  )
+  to = copy(to)
   let fromGroup = null
   if (fromPoses.length > 2) {
     fromGroup = fromLeaf
@@ -108,7 +121,6 @@ export default (info, props) => {
         d => d.id === toId
       )
   }
-
   let nodeIndex = 0
   if (toGroup) {
     let pool = toLeaf
@@ -117,40 +129,61 @@ export default (info, props) => {
     nodeIndex = dropToGap
       ? _.findIndex(pool, d => d === toId)
       : pool.length
-    if (!dropToGap) {
-      nodeIndex = dropPosition < _.last(toPoses)
-        ? nodeIndex - 1
-        : nodeIndex + 1
+    if (dropToGap) {
+      if (fromLeaf) {
+        nodeIndex = dropPosition < _.last(toPoses)
+          ? nodeIndex - 1
+          : nodeIndex + 1
+      } else {
+        nodeIndex = dropPosition < _.last(toPoses)
+          ? nodeIndex
+          : nodeIndex + 1
+      }
     }
   } else {
     nodeIndex = _.findIndex(bookmarkGroups, d => {
       return d.id === toId
     })
+    if (fromLeaf) {
+      nodeIndex = dropPosition < _.last(toPoses)
+        ? nodeIndex - 1
+        : nodeIndex + 1
+    } else {
+      nodeIndex = dropPosition < _.last(toPoses)
+        ? nodeIndex
+        : nodeIndex + 1
+    }
   }
-  if (fromGroup) {
+  if (nodeIndex < 0) {
+    nodeIndex = 0
+  }
+  let fromIndex = 0
+  if (!fromLeaf) {
+    from.level = toFirstLevel ? 1 : 2
+  }
+  if (toFirstLevel) {
+    fromIndex = _.findIndex(bookmarkGroups, d => d.id === fromId)
+    from = copy(from)
+    bookmarkGroups.splice(fromIndex, 1, 'tobedel')
+    bookmarkGroups.splice(nodeIndex, 0, from)
+    _.remove(bookmarkGroups, d => d === 'tobedel')
+    if (fromGroup) {
+      _.remove(fromGroup.bookmarkGroupIds, d => d === fromId)
+    }
+  } else if (fromGroup) {
     let arr = fromLeaf
       ? fromGroup.bookmarkIds
       : fromGroup.bookmarkGroupIds
-    let fromIndex = _.findIndex(arr, d => d === fromId)
+    fromIndex = _.findIndex(arr, d => d === fromId)
     isSameCat
       ? arr.splice(fromIndex, 1, 'tobedel')
       : _.remove(arr, d => d === fromId)
-  } else {
-    let fromIndex = _.findIndex(bookmarkGroups, d => d === d.id === fromId)
-    isSameCat
-      ? bookmarkGroups.splice(fromIndex, 1, 'tobedel')
-      : _.remove(bookmarkGroups, d => d.id === fromId)
   }
-  if (toFirstLevel) {
-    bookmarkGroups.splice(nodeIndex, 0, from)
-    if (isSameCat) {
-      _.remove(bookmarkGroups, d => d === 'tobedel')
-    }
-  } else {
-    let arr = fromLeaf
+  if (!toFirstLevel) {
+    let arr = !fromLeaf
       ? toGroup.bookmarkGroupIds
       : toGroup.bookmarkIds
-    arr.splice(nodeIndex, 0, from.id)
+    arr.splice(nodeIndex, 0, fromId)
     if (isSameCat) {
       _.remove(arr, d => d === 'tobedel')
     }

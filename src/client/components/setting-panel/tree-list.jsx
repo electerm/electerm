@@ -511,9 +511,9 @@ export default class ItemListTree extends React.PureComponent {
   }
 
   renderGroupChildNodes = bookmarkGroupIds => {
-    let bookmarkGroups = this.props.bookmarkGroups.filter(
-      d => bookmarkGroupIds.includes(d.id)
-    )
+    let bookmarkGroups = bookmarkGroupIds.map(id => {
+      return _.find(this.props.bookmarkGroups, d => d.id === id)
+    }).filter(d => d)
     return bookmarkGroups.map(node => {
       let {bookmarkIds = [], id} = node
       return (
