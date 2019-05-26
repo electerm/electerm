@@ -2,13 +2,11 @@
  * transfer class
  */
 
-
 const fs = require('original-fs')
 const _ = require('lodash')
 
 class Transfer {
-
-  constructor({
+  constructor ({
     remotePath,
     localPath,
     options = {},
@@ -55,7 +53,7 @@ class Transfer {
             }
           })
         }
-      } catch(e) {
+      } catch (e) {
         this.onError(e, id)
       }
     })
@@ -78,7 +76,7 @@ class Transfer {
     })
   }
 
-  onError(err, id, ws) {
+  onError (err, id, ws) {
     ws && ws.s({
       wid: 'transfer:err:' + id,
       error: {
@@ -104,9 +102,8 @@ class Transfer {
     delete global.transferInsts[this.id]
   }
 
-  //end
+  // end
 }
-
 
 module.exports = {
   Transfer,

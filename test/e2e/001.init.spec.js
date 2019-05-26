@@ -1,6 +1,10 @@
-const { Application } = require('spectron')
+const {
+  Application
+} = require('spectron')
 const delay = require('./common/wait')
-const {expect} = require('chai')
+const {
+  expect
+} = require('chai')
 const packInfo = require('../../package.json')
 const log = require('./common/log')
 const isOs = require('./common/is-os')
@@ -13,19 +17,22 @@ if (isOs('darwin')) {
 describe('main window', function () {
   this.timeout(1000000000000)
 
-  beforeEach(async function() {
+  beforeEach(async function () {
     this.app = new Application(appOptions)
     return this.app.start()
   })
 
-  afterEach(function() {
+  afterEach(function () {
     if (this.app && this.app.isRunning()) {
       return this.app.stop()
     }
   })
 
-  it('should open window and buttons works', async function() {
-    const { client, browserWindow } = this.app
+  it('should open window and buttons works', async function () {
+    const {
+      client,
+      browserWindow
+    } = this.app
 
     await client.waitUntilWindowLoaded()
     await delay(500)
@@ -51,10 +58,10 @@ describe('main window', function () {
     expect(!!active.value).equal(true)
 
     log('button:close modal')
-    await client.execute(function() {
+    await client.execute(function () {
       document.querySelector('.ant-modal .ant-modal-close').click()
     })
-    //await client.click('.ant-modal-close')
+    // await client.click('.ant-modal-close')
     await delay(900)
     let isVisible = await client.isVisible('.ant-modal')
     expect(isVisible).equal(false)
@@ -65,7 +72,7 @@ describe('main window', function () {
     expect(!!c.value).equal(true)
 
     log('button:close info modal')
-    await client.execute(function() {
+    await client.execute(function () {
       document.querySelector('.ant-modal.ant-modal-confirm .ant-modal-confirm-btns button').click()
     })
     await delay(900)
@@ -78,5 +85,4 @@ describe('main window', function () {
     let count = await client.elements('.tabs .tab')
     expect(count.value.length).equal(2)
   })
-
 })

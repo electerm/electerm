@@ -9,7 +9,7 @@
 import React from 'react'
 import classnames from 'classnames'
 import _ from 'lodash'
-import {generate} from 'shortid'
+import { generate } from 'shortid'
 import {
   splitDraggerWidth,
   filePropMinWidth,
@@ -22,25 +22,24 @@ import {
   paneMap
 } from '../../common/constants'
 import copy from 'json-deep-copy'
-import {Icon} from 'antd'
+import { Icon } from 'antd'
 import FileSection from './file'
 
-const {prefix} = window
+const { prefix } = window
 const e = prefix('sftp')
 
 export default class FileListTable extends React.Component {
-
-  constructor(props) {
+  constructor (props) {
     super(props)
     this.state = this.initFromProps()
   }
 
-  componentDidMount() {
+  componentDidMount () {
     this.saveOldStyle()
     window.addEventListener('message', this.onMsg)
   }
 
-  componentDidUpdate(prevProps, prevState) {
+  componentDidUpdate (prevProps, prevState) {
     if (this.state.properties.length < 2) {
       return
     }
@@ -58,7 +57,7 @@ export default class FileListTable extends React.Component {
     }
   }
 
-  componentWillUnmount() {
+  componentWillUnmount () {
     window.removeEventListener('message', this.onMsg)
   }
 
@@ -74,7 +73,7 @@ export default class FileListTable extends React.Component {
   }
 
   onMsg = e => {
-    let {type, data} = e.data || {}
+    let { type, data } = e.data || {}
     if (
       type === eventTypes.resetFileListTable &&
       data.id === this.props.id
@@ -84,8 +83,8 @@ export default class FileListTable extends React.Component {
   }
 
   initFromProps = (pps = this.getPropsDefault()) => {
-    let {length} = pps
-    let {width} = this.props
+    let { length } = pps
+    let { width } = this.props
     let padding = 5
     let w = (width - padding * 2) / length
     let properties = pps.map((name, i) => {
@@ -99,7 +98,7 @@ export default class FileListTable extends React.Component {
         }
       }
     })
-    let splitHandles = properties.reduce((prev, {name}, i) => {
+    let splitHandles = properties.reduce((prev, { name }, i) => {
       if (i === length - 1) {
         return prev
       }
@@ -148,7 +147,7 @@ export default class FileListTable extends React.Component {
   }
 
   renderTableHeader = () => {
-    let {properties, splitHandles} = this.state
+    let { properties, splitHandles } = this.state
     let arr = properties.reduce((prev, p, i) => {
       return [
         ...prev,
@@ -158,7 +157,7 @@ export default class FileListTable extends React.Component {
     }, []).filter(d => d)
     return (
       <div
-        className="sftp-file-table-header relative"
+        className='sftp-file-table-header relative'
         onContextMenu={this.onContextMenu}
       >
         {
@@ -175,7 +174,7 @@ export default class FileListTable extends React.Component {
       style
     } = item
     let isHandle = !name
-    let {sortDirection, sortProp} = this.props
+    let { sortDirection, sortProp } = this.props
     let isSorting = !isHandle && sortProp === name
     let cls = classnames(
       'sftp-header-item',
@@ -217,8 +216,8 @@ export default class FileListTable extends React.Component {
     )
   }
 
-  computePos = (e, height, ) => {
-    let {clientX, clientY} = e
+  computePos = (e, height) => {
+    let { clientX, clientY } = e
     let res = {
       left: clientX,
       top: clientY
@@ -234,11 +233,11 @@ export default class FileListTable extends React.Component {
   }
 
   onToggleProp = name => {
-    let {properties} = this.state
+    let { properties } = this.state
     let names = properties.map(d => d.name)
     let all = this.getPropsAll()
     let newProps = names.includes(name)
-      ? names.filter(d => d!== name)
+      ? names.filter(d => d !== name)
       : [...names, name]
     let props = all.filter(g => newProps.includes(g))
     let update = this.initFromProps(props)
@@ -262,7 +261,7 @@ export default class FileListTable extends React.Component {
 
   onClickName = (e) => {
     let id = e.target.getAttribute('id')
-    let {properties} = this.state
+    let { properties } = this.state
     let propObj = _.find(
       properties,
       p => p.id === id
@@ -270,12 +269,12 @@ export default class FileListTable extends React.Component {
     if (!propObj) {
       return
     }
-    let {name} = propObj
-    let {sortDirection, sortProp} = this.props
+    let { name } = propObj
+    let { sortDirection, sortProp } = this.props
     let sortDirectionNew = sortProp === name
       ? this.otherDirection(sortDirection)
       : this.props.defaultDirection()
-    let {type} = this.props
+    let { type } = this.props
     this.props.modifier({
       [`sortDirection.${type}`]: sortDirectionNew,
       [`sortProp.${type}`]: name
@@ -284,7 +283,7 @@ export default class FileListTable extends React.Component {
 
   renderContext = () => {
     let clsBase = 'pd2x pd1y context-item pointer'
-    let {properties} = this.state
+    let { properties } = this.state
     let all = this.getPropsAll()
     let selectedNames = properties.map(d => d.name)
     return (
@@ -295,9 +294,9 @@ export default class FileListTable extends React.Component {
             let disabled = !i
             let cls = classnames(
               clsBase,
-              {selected},
-              {unselected: !selected},
-              {disabled}
+              { selected },
+              { unselected: !selected },
+              { disabled }
             )
             let onClick = disabled
               ? _.noop
@@ -309,8 +308,8 @@ export default class FileListTable extends React.Component {
               >
                 {
                   disabled || selected
-                    ? <Icon type="check" className="mg1r" />
-                    : <span className="icon-holder mg1r" />
+                    ? <Icon type='check' className='mg1r' />
+                    : <span className='icon-holder mg1r' />
                 }
                 {e(p)}
               </div>
@@ -327,17 +326,17 @@ export default class FileListTable extends React.Component {
   ]
 
   saveOldStyle = () => {
-    let {properties, splitHandles} = this.state
+    let { properties, splitHandles } = this.state
     let ids = [
       ...properties,
       ...splitHandles
     ]
-    let {type, id} = this.props
+    let { type, id } = this.props
     let parentWidth = document.querySelector(
       `#id-${id} .tw-${type} .sftp-table`
     ).clientWidth
-    this.oldStyles = ids.reduce((prev, {id, name}) => {
-      let sel = `.ssh-wrap-show .tw-${type} .sftp-file-table-header .shi-${name ? name : id}`
+    this.oldStyles = ids.reduce((prev, { id, name }) => {
+      let sel = `.ssh-wrap-show .tw-${type} .sftp-file-table-header .shi-${name || id}`
       return {
         ...prev,
         [name || id]: {
@@ -356,8 +355,8 @@ export default class FileListTable extends React.Component {
       return
     }
     let dom = e.target
-    let {splitHandles} = this.state
-    let {type} = this.props
+    let { splitHandles } = this.state
+    let { type } = this.props
     let id = dom.getAttribute('id')
     let splitHandle = _.find(
       splitHandles,
@@ -371,7 +370,7 @@ export default class FileListTable extends React.Component {
     let selNext = `.ssh-wrap-show .tw-${type} .shi-${nextProp}`
     let prev = Array.from(document.querySelectorAll(selPrev))
     let next = Array.from(document.querySelectorAll(selNext))
-    let {startPosition} = this
+    let { startPosition } = this
     let currentPosition = {
       x: e.pageX
     }
@@ -380,7 +379,7 @@ export default class FileListTable extends React.Component {
     let doms = [dom, prev, next]
     let styles = doms.map(d => {
       let dd = _.isArray(d) ? d[0] : d
-      let {style} = dd
+      let { style } = dd
       let rect = dd.getBoundingClientRect()
       let obj = _.pick(style, this.positionProps)
       let res = Object.keys(obj).reduce((prev, k) => {
@@ -404,8 +403,8 @@ export default class FileListTable extends React.Component {
     let minW = filePropMinWidth
     if (xDiff > 0 && xDiff > nextStyle.width - minW) {
       xDiff = nextStyle.width - minW
-    } else if (xDiff < 0 && xDiff < - (prevStyle.width - minW)) {
-      xDiff = - (prevStyle.width - minW)
+    } else if (xDiff < 0 && xDiff < -(prevStyle.width - minW)) {
+      xDiff = -(prevStyle.width - minW)
     }
     doms.forEach((d, i) => {
       this.changePosition(d, xDiff, types[i], styles[i])
@@ -446,7 +445,7 @@ export default class FileListTable extends React.Component {
   onDoubleClick = () => this.resetWidth()
 
   rebuildStyle = (name) => {
-    let {style, parentWidth} = this.oldStyles[name]
+    let { style, parentWidth } = this.oldStyles[name]
     style = copy(style)
     let {
       type,
@@ -460,16 +459,16 @@ export default class FileListTable extends React.Component {
     return style
   }
 
-  //reset
+  // reset
   resetWidth = () => {
-    let {properties, splitHandles} = this.state
+    let { properties, splitHandles } = this.state
     let ids = [
       ...properties,
       ...splitHandles
     ]
-    let {type} = this.props
-    ids.forEach(({id, name}) => {
-      let sel = `.ssh-wrap-show .tw-${type} .shi-${name ? name : id}`
+    let { type } = this.props
+    ids.forEach(({ id, name }) => {
+      let sel = `.ssh-wrap-show .tw-${type} .shi-${name || id}`
       let arr = Array.from(
         document.querySelectorAll(sel)
       )
@@ -485,7 +484,7 @@ export default class FileListTable extends React.Component {
   }
 
   renderItem = (item, i) => {
-    let {type} = this.props
+    let { type } = this.props
     return (
       <FileSection
         {...this.props.getFileProps(item, type)}
@@ -495,14 +494,14 @@ export default class FileListTable extends React.Component {
     )
   }
 
-  render() {
-    let {fileList, height, type} = this.props
+  render () {
+    let { fileList, height, type } = this.props
     const tableHeaderHeight = 30
     return (
-      <div className="sftp-table relative">
+      <div className='sftp-table relative'>
         {this.renderTableHeader()}
         <div
-          className="sftp-table-content overscroll-y relative"
+          className='sftp-table-content overscroll-y relative'
           style={{
             height: height - sftpControlHeight - tableHeaderHeight
           }}

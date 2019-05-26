@@ -3,8 +3,8 @@
  */
 
 export default (type, id) => {
-  //init gloabl ws
-  let {host, port} = window._config
+  // init gloabl ws
+  let { host, port } = window._config
   let wsUrl = `ws://${host}:${port}/${type}/${id}`
   let ws = new WebSocket(wsUrl)
   ws.s = msg => {

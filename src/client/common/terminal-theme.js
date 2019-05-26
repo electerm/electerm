@@ -2,10 +2,10 @@
  * theme control
  */
 
-import {defaultTheme} from './constants'
+import { defaultTheme } from './constants'
 import download from './download'
 import copy from 'json-deep-copy'
-const {prefix} = window
+const { prefix } = window
 const t = prefix('terminalThemes')
 
 /**
@@ -38,7 +38,7 @@ const buildNewTheme = () => {
  */
 const convertThemeToText = (themeObj = {}, withName = false) => {
   let theme = themeObj || {}
-  let {themeConfig = {}, name} = theme
+  let { themeConfig = {}, name } = theme
   if (withName) {
     themeConfig.themeName = name
   }
@@ -66,7 +66,7 @@ const convertTheme = (themeTxt) => {
     if (!key || !value || !keys.includes(key)) {
       return prev
     }
-    if (key === 'themeName' ) {
+    if (key === 'themeName') {
       prev.name = value.slice(0, 50)
     } else {
       prev.themeConfig[key] = value

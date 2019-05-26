@@ -1,5 +1,5 @@
 
-import {Component} from '../common/react-subx'
+import { Component } from '../common/react-subx'
 import Session from '../session'
 import Tabs from '../tabs'
 import _ from 'lodash'
@@ -17,9 +17,8 @@ import SessionControl from '../session-control'
 import './wrapper.styl'
 
 export default class Index extends Component {
-
-  componentDidMount() {
-    let {store} = this.props
+  componentDidMount () {
+    let { store } = this.props
     window.lang = copy(window.lang)
     window._config = copy(window._config)
     let title = createTitlte(store.tabs[0])
@@ -34,22 +33,22 @@ export default class Index extends Component {
       .on('openSettings', store.openSetting)
       .on('selectall', store.selectall)
       .on('focused', store.focus)
-    document.addEventListener('drop', function(e) {
+    document.addEventListener('drop', function (e) {
       e.preventDefault()
       e.stopPropagation()
     })
-    document.addEventListener('dragover', function(e) {
+    document.addEventListener('dragover', function (e) {
       e.preventDefault()
       e.stopPropagation()
     })
     store.checkLastSession()
     store.checkDefaultTheme()
-    window.addEventListener('offline',  store.setOffline)
+    window.addEventListener('offline', store.setOffline)
     store.zoom(store.config.zoom, false, true)
   }
 
-  render() {
-    let {store} = this.props
+  render () {
+    let { store } = this.props
     let {
       tabs,
       currentTabId,
@@ -94,7 +93,7 @@ export default class Index extends Component {
         />
         <SettingModal store={store} />
         <div
-          id="outside-context"
+          id='outside-context'
           style={{
             opacity: config.opacity
           }}
@@ -112,10 +111,10 @@ export default class Index extends Component {
             ])}
             tabs={copy(store.tabs)}
           />
-          <div className="ui-outer">
+          <div className='ui-outer'>
             {
               tabs.map((tab) => {
-                let {id} = tab
+                let { id } = tab
                 let cls = id !== currentTabId
                   ? 'hide'
                   : 'ssh-wrap-show'
@@ -141,5 +140,4 @@ export default class Index extends Component {
       </div>
     )
   }
-
 }

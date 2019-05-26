@@ -2,18 +2,15 @@
  * sftp through ws
  */
 
-import {generate} from 'shortid'
+import { generate } from 'shortid'
 import Transfer from './transfer'
-import {transferTypeMap} from './constants'
+import { transferTypeMap } from './constants'
 import initWs from './ws'
 
 const keys = window.getGlobal('instSftpKeys')
 const transferKeys = Object.keys(transferTypeMap)
 
 class Sftp {
-
-  constructor() {}
-
   async init () {
     let id = generate()
     let ws = await initWs('sftp', id)
@@ -35,7 +32,7 @@ class Sftp {
           })
         }
         let uid = func + ':' + id
-        //let ws = await initWs()
+        // let ws = await initWs()
         return new Promise((resolve, reject) => {
           ws.s({
             action: 'sftp-func',
@@ -55,15 +52,14 @@ class Sftp {
     })
   }
 
-  async destroy() {
-    let {ws} = this
+  async destroy () {
+    let { ws } = this
     ws.s({
       action: 'sftp-destroy',
       id: this.id
     })
     ws.close()
   }
-
 }
 
 export default async () => {

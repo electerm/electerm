@@ -5,7 +5,7 @@ const log = require('../utils/log')
 const terminals = {}
 const logs = {}
 const bodyParser = require('body-parser')
-const {terminal} = require('./terminal')
+const { terminal } = require('./terminal')
 const initWs = require('./dispatch-center')
 
 app.use(cors())
@@ -19,16 +19,16 @@ app.use(bodyParser.json())
 require('express-ws')(app)
 
 app.post('/terminals', async function (req, res) {
-  let {body} = req
+  let { body } = req
   let term = await terminal(body)
     .then(r => r)
     .catch(err => err)
-  let {pid} = term
+  let { pid } = term
   if (pid) {
     log.debug('Created terminal with PID:', pid)
     terminals[pid] = term
     logs[pid] = Buffer.from('')
-    term.on('data', function(data) {
+    term.on('data', function (data) {
       logs[pid] = Buffer.concat([
         logs[pid],
         Buffer.from(data)
@@ -55,12 +55,12 @@ app.post('/terminals/:pid/size', function (req, res) {
 
 app.ws('/terminals/:pid', function (ws, req) {
   let term = terminals[req.params.pid]
-  let {pid} = term
+  let { pid } = term
   log.debug('Connected to terminal', pid)
 
   ws.send(logs[pid])
 
-  term.on('data', function(data) {
+  term.on('data', function (data) {
     try {
       ws.send(Buffer.from(data))
     } catch (ex) {
@@ -68,7 +68,7 @@ app.ws('/terminals/:pid', function (ws, req) {
     }
   })
 
-  function onClose() {
+  function onClose () {
     term.kill()
     log.debug('Closed terminal ' + pid)
     // Clean things up
@@ -79,7 +79,7 @@ app.ws('/terminals/:pid', function (ws, req) {
 
   term.on('close', onClose)
 
-  ws.on('message', function(msg) {
+  ws.on('message', function (msg) {
     try {
       term.write(msg)
     } catch (ex) {
@@ -98,8 +98,8 @@ app.get('/run', function (req, res) {
 
 initWs(app)
 
-const runServer = function() {
-  let {port, host} = process.env
+const runServer = function () {
+  let { port, host } = process.env
   app.listen(port, host, () => {
     log.info('server', 'runs on', host, port)
   })
@@ -113,7 +113,5 @@ const quitServer = () => {
 
 process.on('exit', quitServer)
 
-//start
+// start
 runServer()
-
-

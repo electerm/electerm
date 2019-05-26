@@ -2,12 +2,12 @@
  * btns
  */
 
-import {memo} from 'react'
+import { memo } from 'react'
 import {
   Icon
 } from 'antd'
 
-const {prefix} = window
+const { prefix } = window
 const m = prefix('menu')
 
 export default memo(props => {
@@ -27,16 +27,16 @@ export default memo(props => {
     window.getGlobal('closeApp')()
   }
   return (
-    <div className="window-controls">
-      <div className="window-control-box">
+    <div className='window-controls'>
+      <div className='window-control-box'>
         <Icon
-          type="minus"
+          type='minus'
           title={m('minimize')}
-          className="iblock font12 widnow-control-icon"
+          className='iblock font12 widnow-control-icon'
           onClick={minimize}
         />
       </div>
-      <div className="window-control-box">
+      <div className='window-control-box'>
         <span
           title={
             isMaximized ? m('unmaximize') : m('maximize')
@@ -50,11 +50,11 @@ export default memo(props => {
           }
         />
       </div>
-      <div className="window-control-box">
+      <div className='window-control-box'>
         <Icon
-          type="close"
+          type='close'
           title={m('close')}
-          className="iblock font12 widnow-control-icon"
+          className='iblock font12 widnow-control-icon'
           onClick={closeApp}
         />
       </div>

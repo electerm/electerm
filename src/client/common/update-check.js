@@ -5,22 +5,22 @@
 import fetch from './fetch'
 import _ from 'lodash'
 
-export async function getLatestReleaseVersion() {
+export async function getLatestReleaseVersion () {
   let url = 'https://electerm.html5beta.com/version.html?_=' + (+new Date())
-  let tag_name = await fetch.get(url, null, {
+  let tagName = await fetch.get(url, null, {
     headers: {
       'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/59.0.3071.115 Safari/537.36'
     },
     timeout: 1000 * 60 * 5
   })
-  if (tag_name) {
+  if (tagName) {
     return {
-      tag_name
+      tag_name: tagName
     }
   }
 }
 
-export async function getLatestReleaseInfo() {
+export async function getLatestReleaseInfo () {
   const url = 'https://electerm.html5beta.com/data/electerm-github-release.json?_=' + (+new Date())
   let res = await fetch.get(url, null, {
     headers: {
@@ -30,5 +30,3 @@ export async function getLatestReleaseInfo() {
   })
   return _.get(res, 'release.body')
 }
-
-

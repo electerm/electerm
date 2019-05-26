@@ -9,7 +9,6 @@ import ReactDOM from 'react-dom'
 import './animate-text.styl'
 
 export default class AnimateText extends React.PureComponent {
-
   static propTypes = {
     className: PropTypes.string
   }
@@ -18,7 +17,7 @@ export default class AnimateText extends React.PureComponent {
     className: 'animate-text-wrap'
   }
 
-  componentDidUpdate() {
+  componentDidUpdate () {
     let dom = ReactDOM.findDOMNode(this)
     dom.className = this.props.className + ' animated bounceIn'
     this.timer = setTimeout(() => {
@@ -28,18 +27,16 @@ export default class AnimateText extends React.PureComponent {
     }, 450)
   }
 
-  componentWillUnmount() {
+  componentWillUnmount () {
     clearTimeout(this.timer)
   }
 
-
   render () {
-    let {children, className} = this.props
+    let { children, className } = this.props
     return (
       <div className={className}>
         {children}
       </div>
     )
-
   }
 }

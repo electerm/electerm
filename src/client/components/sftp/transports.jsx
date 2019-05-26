@@ -2,17 +2,17 @@
  * tranporters
  */
 import React from 'react'
-import {Icon} from 'antd'
+import { Icon } from 'antd'
 import Transport from './transport'
 import _ from 'lodash'
 import copy from 'json-deep-copy'
-import {maxTransport} from '../../common/constants'
-import {transportTypes} from './transport-types'
+import { maxTransport } from '../../common/constants'
+import { transportTypes } from './transport-types'
 
-const {prefix} = window
+const { prefix } = window
 const e = prefix('sftp')
 
-function getFirstTransports(transports, max = maxTransport) {
+function getFirstTransports (transports, max = maxTransport) {
   let trans = _.isArray(transports)
     ? transports
     : []
@@ -24,7 +24,7 @@ function getFirstTransports(transports, max = maxTransport) {
     return [first]
   }
   let res = []
-  for (let i = 0;i < max;i ++) {
+  for (let i = 0; i < max; i++) {
     let f = trans[i]
     if (!f) {
       break
@@ -39,15 +39,14 @@ function getFirstTransports(transports, max = maxTransport) {
 }
 
 export default class Transports extends React.PureComponent {
-
-  constructor(props) {
+  constructor (props) {
     super(props)
     this.state = {
       currentTransports: getFirstTransports(props.transports)
     }
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate (prevProps) {
     if (
       !_.isEqual(this.props.transports, prevProps.transports)
     ) {
@@ -55,7 +54,7 @@ export default class Transports extends React.PureComponent {
     }
   }
 
-  componentWillUnmount() {
+  componentWillUnmount () {
     clearTimeout(this.timer)
   }
 
@@ -114,13 +113,13 @@ export default class Transports extends React.PureComponent {
   }
 
   renderContent = () => {
-    let {transports} = this.props
-    let {currentTransports} = this.state
+    let { transports } = this.props
+    let { currentTransports } = this.state
     return (
-      <div className="transports-content overscroll-y">
+      <div className='transports-content overscroll-y'>
         {
           transports.map((t, i) => {
-            let {id} = t
+            let { id } = t
             return (
               <Transport
                 {...this.props}
@@ -137,7 +136,7 @@ export default class Transports extends React.PureComponent {
     )
   }
 
-  renderTransportIcon() {
+  renderTransportIcon () {
     let pausing = this.computePausing()
     let icon = pausing ? 'play-circle' : 'pause-circle'
     return (
@@ -145,15 +144,15 @@ export default class Transports extends React.PureComponent {
     )
   }
 
-  renderTitle() {
+  renderTitle () {
     return (
-      <div className="fix transports-title">
-        <div className="fleft">
+      <div className='fix transports-title'>
+        <div className='fleft'>
           {e('fileTransfers')}
         </div>
-        <div className="fright">
+        <div className='fright'>
           <span
-            className="color-red pointer"
+            className='color-red pointer'
             onClick={this.cancelAll}
           >
             {e('cancelAll')}
@@ -166,7 +165,7 @@ export default class Transports extends React.PureComponent {
   computePercent = () => {
     let ids = this.state.currentTransports.map(r => r.id)
     let trs = this.props.transports.filter(t => ids.includes(t.id))
-    let {all, transfered} = trs.reduce((prev, c) => {
+    let { all, transfered } = trs.reduce((prev, c) => {
       prev.all += c.file.size
       prev.transfered += (c.transferred || 0)
       return prev
@@ -196,9 +195,9 @@ export default class Transports extends React.PureComponent {
     }, true)
   }
 
-  render() {
-    let {transports} = this.props
-    let {currentTransports} = this.state
+  render () {
+    let { transports } = this.props
+    let { currentTransports } = this.state
     let percent = this.computePercent()
     let leftTime = this.computeLeftTime()
     let pausing = this.computePausing()
@@ -209,20 +208,20 @@ export default class Transports extends React.PureComponent {
       return null
     }
     return (
-      <div className="tranports-wrap">
-        <div className="tranports-circle-wrap">
+      <div className='tranports-wrap'>
+        <div className='tranports-circle-wrap'>
           <div
-            className="opacity-loop pointer"
+            className='opacity-loop pointer'
             onClick={func}
           >
             {this.renderTransportIcon()} {percent}%({leftTime})
-            <span className="mg1l">
+            <span className='mg1l'>
               [{currentTransports.length} / {transports.length}]
             </span>
           </div>
         </div>
         <div
-          className="transports-dd"
+          className='transports-dd'
         >
           {this.renderTitle()}
           {this.renderContent()}

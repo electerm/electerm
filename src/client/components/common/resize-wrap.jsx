@@ -6,7 +6,7 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import classnames from 'classnames'
 import _ from 'lodash'
-import {generate} from 'shortid'
+import { generate } from 'shortid'
 import memoizeOne from 'memoize-one'
 import {
   terminalSplitDirectionMap,
@@ -16,7 +16,6 @@ import {
 import './resize-wrap.styl'
 
 export default class ResizeWrap extends React.Component {
-
   static propTypes = {
     direction: PropTypes.oneOf(['horizontal', 'vertical']).isRequired,
     children: PropTypes.arrayOf(PropTypes.element).isRequired,
@@ -50,8 +49,8 @@ export default class ResizeWrap extends React.Component {
     let dom = e.target
     let prev = dom.previousSibling
     let next = dom.nextSibling
-    let {direction} = this.props
-    let {startPosition} = this
+    let { direction } = this.props
+    let { startPosition } = this
     if (_.isNull(e.pageX)) {
       return
     }
@@ -63,7 +62,7 @@ export default class ResizeWrap extends React.Component {
     let types = ['dom', 'prev', 'next']
     let doms = [dom, prev, next]
     let styles = doms.map(d => {
-      let {style} = d
+      let { style } = d
       let obj = _.pick(style, this.positionProps)
       return Object.keys(obj).reduce((prev, k) => {
         let v = obj[k]
@@ -86,14 +85,14 @@ export default class ResizeWrap extends React.Component {
     if (direction === terminalSplitDirectionMap.vertical) {
       if (yDiff > 0 && yDiff > nextStyle.height - minW) {
         yDiff = nextStyle.height - minW
-      } else if (yDiff < 0 && yDiff < - (prevStyle.height - minW)) {
-        yDiff = - (prevStyle.height - minW)
+      } else if (yDiff < 0 && yDiff < -(prevStyle.height - minW)) {
+        yDiff = -(prevStyle.height - minW)
       }
     } else {
       if (xDiff > 0 && xDiff > nextStyle.width - minW) {
         xDiff = nextStyle.width - minW
-      } else if (xDiff < 0 && xDiff < - (prevStyle.width - minW)) {
-        xDiff = - (prevStyle.width - minW)
+      } else if (xDiff < 0 && xDiff < -(prevStyle.width - minW)) {
+        xDiff = -(prevStyle.width - minW)
       }
     }
     doms.forEach((d, i) => {
@@ -152,7 +151,6 @@ export default class ResizeWrap extends React.Component {
     window.dispatchEvent(new CustomEvent('resize'))
   }
 
-
   buildHandleComponent = (prevComponent, direction, index, tid) => {
     let zIndex = this.props.children.length + 10
     let cls = classnames(
@@ -161,7 +159,7 @@ export default class ResizeWrap extends React.Component {
       `term-dragger-${index}`,
       `term-dragger-${direction}`
     )
-    let {left, top, width, height} = prevComponent.props
+    let { left, top, width, height } = prevComponent.props
     let style = direction === terminalSplitDirectionMap.vertical
       ? {
         left: 0,
@@ -193,7 +191,7 @@ export default class ResizeWrap extends React.Component {
     )
   }
 
-  render() {
+  render () {
     let {
       children,
       direction
@@ -208,7 +206,7 @@ export default class ResizeWrap extends React.Component {
       let split = null
       if (i !== len - 1) {
         split = this.buildHandleComponent(c, direction, i, splitIds[splitIndex])
-        splitIndex ++
+        splitIndex++
       }
       return [
         ...prev,

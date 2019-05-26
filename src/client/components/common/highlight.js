@@ -17,7 +17,7 @@ export default (text, keyword) => {
       t,
       i === len - 1
         ? null
-        : <span className="highlight">{keyword}</span>
+        : <span className='highlight'>{keyword}</span>
     ]
   }, [])
 }

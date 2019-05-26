@@ -1,7 +1,7 @@
 require('dotenv').config()
 const webpack = require('webpack')
 const os = require('os')
-const {identity} = require('lodash')
+const { identity } = require('lodash')
 const MinifyPlugin = require('babel-minify-webpack-plugin')
 const HappyPack = require('happypack')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
@@ -9,7 +9,7 @@ const express = require('express')
 const path = require('path')
 const pack = require('./package.json')
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin')
-const {env} = process
+const { env } = process
 const git = require('git-rev-sync')
 const packThreadCount = env.packThreadCount
   ? parseInt(env.packThreadCount)
@@ -42,7 +42,7 @@ const pug = {
     }
   }
 }
-const stylusSettingPlugin =  new webpack.LoaderOptionsPlugin({
+const stylusSettingPlugin = new webpack.LoaderOptionsPlugin({
   test: /\.styl$/,
   stylus: {
     preferPathResolver: 'webpack'
@@ -185,7 +185,7 @@ var config = {
     port: devPort,
     before: (app) => {
       app.use('/node_modules', express.static(
-        path.resolve(__dirname, './node_modules'), {maxAge: '170d'})
+        path.resolve(__dirname, './node_modules'), { maxAge: '170d' })
       )
     }
   }
@@ -194,7 +194,7 @@ var config = {
 if (isProd) {
   config.plugins = [
     packThreadCount === 0 ? null : new HappyPack(happyConf),
-    //new webpack.optimize.DedupePlugin(),
+    // new webpack.optimize.DedupePlugin(),
     // commonsChunkPlugin,
     // new webpack.optimize.CommonsChunkPlugin({
     //   name: 'manifest',
@@ -202,7 +202,7 @@ if (isProd) {
     // }),
     extractTextPlugin1,
     stylusSettingPlugin,
-    //new webpack.optimize.OccurenceOrderPlugin(),
+    // new webpack.optimize.OccurenceOrderPlugin(),
     // new webpack.optimize.MinChunkSizePlugin({
     //   minChunkSize: 51200 // ~50kb
     // }),
@@ -215,4 +215,3 @@ if (isProd) {
 }
 
 module.exports = config
-

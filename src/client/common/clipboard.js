@@ -2,7 +2,7 @@
  * clipboard related
  */
 
-import {isWin} from './constants'
+import { isWin } from './constants'
 let fileReg = isWin
   ? /^(remote:)?\w:\\.+/
   : /^(remote:)?\/.+/
@@ -23,6 +23,3 @@ export const hasFileInClipboardText = (
     return prev && fileReg.test(t)
   }, true)
 }
-
-
-

@@ -9,25 +9,24 @@ import {
   Spin,
   Modal
 } from 'antd'
-import {validateFieldsAndScroll} from '../../common/dec-validate-and-scroll'
+import { validateFieldsAndScroll } from '../../common/dec-validate-and-scroll'
 import resolve from '../../common/resolve'
-import {typeMap} from '../../common/constants'
+import { typeMap } from '../../common/constants'
 
 const FormItem = Form.Item
-const {prefix} = window
+const { prefix } = window
 const e = prefix('form')
 const c = prefix('common')
 const s = prefix('sftp')
 
 export class TextEditorForm extends React.PureComponent {
-
   state = {
     text: '',
     path: 'loading...',
     loading: true
   }
 
-  componentDidMount() {
+  componentDidMount () {
     if (this.props.visible) {
       this.fetchText()
     }
@@ -104,15 +103,15 @@ export class TextEditorForm extends React.PureComponent {
     e.stopPropagation()
   }
 
-  renderForm() {
+  renderForm () {
     const {
       text
     } = this.state
-    const {getFieldDecorator} = this.props.form
+    const { getFieldDecorator } = this.props.form
     return (
       <Form
         onSubmit={this.handleSubmit}
-        layout="vertical"
+        layout='vertical'
       >
         <FormItem>
           {getFieldDecorator('text', {
@@ -125,38 +124,38 @@ export class TextEditorForm extends React.PureComponent {
     )
   }
 
-  renderFooter() {
-    let {loading} = this.state
+  renderFooter () {
+    let { loading } = this.state
     return (
       <div>
         <Button
-          type="primary"
-          className="mg1r"
+          type='primary'
+          className='mg1r'
           disabled={loading}
           onClick={this.handleSubmit}
         >{e('save')}</Button>
         <Button
-          type="ghost"
-          className="mg1r"
+          type='ghost'
+          className='mg1r'
           disabled={loading}
           onClick={() => this.props.form.resetFields()}
         >{s('reset')}</Button>
         <Button
-          type="ghost"
+          type='ghost'
           onClick={this.cancel}
           disabled={loading}
-          className="mg2r"
+          className='mg2r'
         >{c('cancel')}</Button>
       </div>
     )
   }
 
-  render() {
-    const {visible} = this.props
+  render () {
+    const { visible } = this.props
     if (!visible) {
       return null
     }
-    const {path, loading} = this.state
+    const { path, loading } = this.state
     const title = `${s('edit')} ${s('remote')} ${s('file')}: ${path}`
     let props = {
       footer: this.renderFooter(),
@@ -176,7 +175,6 @@ export class TextEditorForm extends React.PureComponent {
       </Modal>
     )
   }
-
 }
 
 @Form.create()

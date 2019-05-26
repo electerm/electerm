@@ -3,22 +3,21 @@
  */
 
 import React from 'react'
-import {Modal, Icon, Button} from 'antd'
+import { Modal, Icon, Button } from 'antd'
 import _ from 'lodash'
 import copy from 'json-deep-copy'
-import {generate} from 'shortid'
+import { generate } from 'shortid'
 import Trigger from './file-transfer-trigger'
 import resolve from '../../common/resolve'
 import AnimateText from '../common/animate-text'
-import {typeMap} from '../../common/constants'
-import {getLocalFileInfo, getRemoteFileInfo} from './file-read'
+import { typeMap } from '../../common/constants'
+import { getLocalFileInfo, getRemoteFileInfo } from './file-read'
 
-const {prefix} = window
+const { prefix } = window
 const e = prefix('sftp')
 
 export default class Confirms extends React.PureComponent {
-
-  constructor(props) {
+  constructor (props) {
     super(props)
     this.state = {
       currentFile: props.files[0] || null,
@@ -29,11 +28,11 @@ export default class Confirms extends React.PureComponent {
     }
   }
 
-  componentWillMount() {
+  componentWillMount () {
     this.rebuildState()
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate (prevProps) {
     if (
       !_.isEqual(this.props.files, prevProps.files)
     ) {
@@ -44,7 +43,7 @@ export default class Confirms extends React.PureComponent {
   setStateProxy = (data, cb) => {
     if (data.transferList) {
       let tree = data.transferList.reduce((prev, t) => {
-        let {localPath, remotePath, type} = t
+        let { localPath, remotePath, type } = t
         let startPath = type === typeMap.local
           ? localPath
           : remotePath
@@ -118,7 +117,7 @@ export default class Confirms extends React.PureComponent {
   }
 
   remoteCheckExist = (path) => {
-    let {sftp} = this.props
+    let { sftp } = this.props
     return getRemoteFileInfo(sftp, path)
       .then(r => r)
       .catch(() => false)
@@ -157,7 +156,7 @@ export default class Confirms extends React.PureComponent {
     'transferType'
   ]
 
-  buildTransfer = ({file, fromPath, toPath}) => {
+  buildTransfer = ({ file, fromPath, toPath }) => {
     return {
       fromPath,
       toPath,
@@ -172,7 +171,7 @@ export default class Confirms extends React.PureComponent {
   }
 
   createTransfer = (file, targetPath) => {
-    let {name, path} = file
+    let { name, path } = file
     let fromPath = resolve(path, name)
     let toPath = targetPath || this.getTargetPath(file)
     return this.buildTransfer({
@@ -184,9 +183,9 @@ export default class Confirms extends React.PureComponent {
 
   findParentTransport = (file) => {
     let path = _.get(file, 'path') || ''
-    let {transferList} = this.state
+    let { transferList } = this.state
     let len = transferList.length
-    for(let i = len - 1;i >= 0;i --) {
+    for (let i = len - 1; i >= 0; i--) {
       let t = transferList[i]
       if (path === resolve(t.file.path, t.file.name)) {
         return t
@@ -199,7 +198,7 @@ export default class Confirms extends React.PureComponent {
     let index = currentIndex + 1
     let currentFile = this.state.files[index] || null
     if (!currentFile) {
-      return {index, currentFile}
+      return { index, currentFile }
     }
     let {
       name
@@ -212,15 +211,15 @@ export default class Confirms extends React.PureComponent {
     } else {
       targetPath = this.getTargetPath(currentFile)
     }
-    let {targetTransferType} = this.props
+    let { targetTransferType } = this.props
     let exist = await this.checkExist(targetTransferType, targetPath)
     if (exist) {
-      return {index, currentFile}
+      return { index, currentFile }
     }
     let t = this.createTransfer(currentFile, targetPath)
     transferList.push(t)
-    await this.setStateAsync({transferList, index})
-    return await this.getNextIndex(index)
+    await this.setStateAsync({ transferList, index })
+    return this.getNextIndex(index)
   }
 
   getTargetPath = (file, shouldRename = false) => {
@@ -257,7 +256,7 @@ export default class Confirms extends React.PureComponent {
       isDirectory,
       path: bp
     } = file
-    let {files} = this.state
+    let { files } = this.state
     let newName = this.buildNewName(name, isDirectory)
     let basePath = this.getBasePath('from')
     let repPath = this.getBasePath('to')
@@ -267,9 +266,9 @@ export default class Confirms extends React.PureComponent {
     let reg1 = new RegExp('^' + beforePath.replace(/\\/g, '\\\\'))
     let i = index + 0
     let transferList = copy(this.state.transferList)
-    for (;;i ++) {
+    for (;;i++) {
       let f = files[i] || {}
-      let {path, name} = f
+      let { path, name } = f
       if (
         !path ||
         (!path.startsWith(beforePath) && i > index)
@@ -319,9 +318,9 @@ export default class Confirms extends React.PureComponent {
     )
     currentFile = up.currentFile
     index = up.index
-    let {files} = this.state
-    let {length} = files
-    while(index < length) {
+    let { files } = this.state
+    let { length } = files
+    while (index < length) {
       let obj = await this.rename(
         undefined,
         currentFile, index, true
@@ -335,8 +334,8 @@ export default class Confirms extends React.PureComponent {
   }
 
   mergeOrOverwrite = async () => {
-    let {currentFile, index} = this.state
-    let {isDirectory} = currentFile
+    let { currentFile, index } = this.state
+    let { isDirectory } = currentFile
     let transferList = copy(this.state.transferList)
     if (!isDirectory) {
       transferList.push(this.createTransfer(currentFile))
@@ -349,13 +348,13 @@ export default class Confirms extends React.PureComponent {
   }
 
   mergeOrOverwriteAll = async () => {
-    let {files, index} = this.state
+    let { files, index } = this.state
     let i = index
     let transferList = copy(this.state.transferList)
     let len = files.length
-    for(;i < len;i ++) {
+    for (;i < len; i++) {
       let f = files[i]
-      let {isDirectory} = f
+      let { isDirectory } = f
       let exist = await this.checkFileExist(f)
       if (!exist || !isDirectory) {
         transferList.push(this.createTransfer({
@@ -378,7 +377,7 @@ export default class Confirms extends React.PureComponent {
   }
 
   rebuildState = async (nextProps = this.props) => {
-    let {files} = nextProps
+    let { files } = nextProps
     let firstFile = files[0] || null
     if (!firstFile) {
       return this.setStateProxy({
@@ -408,32 +407,32 @@ export default class Confirms extends React.PureComponent {
     this.setStateProxy(update)
   }
 
-  renderFooter() {
-    let {currentFile, index, files} = this.state
+  renderFooter () {
+    let { currentFile, index, files } = this.state
     if (!currentFile) {
       return null
     }
-    let {isDirectory} = currentFile
+    let { isDirectory } = currentFile
     let hasMoreFile = index < files.length - 1
     return (
-      <div className="mgq1t pd1y alignright">
+      <div className='mgq1t pd1y alignright'>
         <Button
-          type="ghost"
-          className="mg1l"
+          type='ghost'
+          className='mg1l'
           onClick={this.cancel}
         >
           {e('cancel')}
         </Button>
         <Button
-          type="ghost"
-          className="mg1l"
+          type='ghost'
+          className='mg1l'
           onClick={this.skip}
         >
           {e('skip')}
         </Button>
         <Button
-          type="primary"
-          className="mg1l"
+          type='primary'
+          className='mg1l'
           onClick={
             this.mergeOrOverwrite
           }
@@ -441,21 +440,21 @@ export default class Confirms extends React.PureComponent {
           {isDirectory ? e('merge') : e('overwrite')}
         </Button>
         <Button
-          type="primary"
-          className="mg1l"
+          type='primary'
+          className='mg1l'
           onClick={
             this.rename
           }
         >
           {e('rename')}
         </Button>
-        <div className="pd1t" />
+        <div className='pd1t' />
         {
           hasMoreFile
             ? (
               <Button
-                type="ghost"
-                className="mg1l"
+                type='ghost'
+                className='mg1l'
                 title={
                   isDirectory
                     ? e('mergeDesc')
@@ -474,8 +473,8 @@ export default class Confirms extends React.PureComponent {
           hasMoreFile
             ? (
               <Button
-                type="primary"
-                className="mg1l"
+                type='primary'
+                className='mg1l'
                 title={e('renameDesc')}
                 onClick={
                   this.renameAll
@@ -491,7 +490,7 @@ export default class Confirms extends React.PureComponent {
   }
 
   renderContent = () => {
-    let {currentFile} = this.state
+    let { currentFile } = this.state
     if (!currentFile) {
       return null
     }
@@ -499,7 +498,7 @@ export default class Confirms extends React.PureComponent {
       isDirectory,
       name
     } = currentFile
-    let {targetTransferPath} = this.props
+    let { targetTransferPath } = this.props
     let transport = this.findParentTransport(currentFile)
     let targetPath
     if (transport) {
@@ -522,24 +521,24 @@ export default class Confirms extends React.PureComponent {
       ? e(typeMap.remote)
       : e(typeMap.local)
     return (
-      <div className="confirms-content-wrap">
+      <div className='confirms-content-wrap'>
         <AnimateText>
-          <p className="pd1b color-red font13">
+          <p className='pd1b color-red font13'>
             {action}
           </p>
-          <p className="bold font14">
-            {typeTitle} {typeTxt}: <Icon type={typeTxt} className="mg1r" />{name}
+          <p className='bold font14'>
+            {typeTitle} {typeTxt}: <Icon type={typeTxt} className='mg1r' />{name}
           </p>
-          <p className="pd1b">
+          <p className='pd1b'>
             ({toPath})
           </p>
           <p>
             with
           </p>
-          <p className="bold font14">
-            {otherTypeTitle} {typeTxt}: <Icon type={typeTxt} className="mg1r" />{name}
+          <p className='bold font14'>
+            {otherTypeTitle} {typeTxt}: <Icon type={typeTxt} className='mg1r' />{name}
           </p>
-          <p className="pd1b">
+          <p className='pd1b'>
             ({fromPath})
           </p>
         </AnimateText>
@@ -547,8 +546,8 @@ export default class Confirms extends React.PureComponent {
     )
   }
 
-  render() {
-    let {currentFile, index, files} = this.state
+  render () {
+    let { currentFile, index, files } = this.state
     let props = {
       visible: !!currentFile,
       width: 500,

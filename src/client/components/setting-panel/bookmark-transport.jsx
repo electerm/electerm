@@ -2,20 +2,20 @@
  * bookmark import/export
  */
 
-import {Component} from '../common/react-subx'
-import {Upload, Button} from 'antd'
+import { Component } from '../common/react-subx'
+import { Upload, Button } from 'antd'
 import download from '../../common/download'
 import time from '../../common/time'
 import copy from 'json-deep-copy'
 import _ from 'lodash'
 
-const {prefix} = window
+const { prefix } = window
 const f = prefix('form')
 const t = prefix('terminalThemes')
 
 export default class Btns extends Component {
-  render() {
-    const {store} = this.props
+  render () {
+    const { store } = this.props
     const down = () => {
       let {
         bookmarkGroups,
@@ -28,7 +28,7 @@ export default class Btns extends Component {
       let stamp = time(undefined, 'YYYY-MM-DD-HH-mm-ss')
       download('bookmarks-' + stamp + '.json', txt)
     }
-  
+
     const beforeUpload = (file) => {
       let txt = window.getGlobal('fs')
         .readFileSync(file.path).toString()
@@ -79,28 +79,28 @@ export default class Btns extends Component {
           bookmarkGroups,
           bookmarks
         })
-      } catch(e) {
+      } catch (e) {
         store.onError(e)
       }
       return false
     }
-  
+
     return [
       <Button
-        icon="download"
+        icon='download'
         onClick={down}
-        className="mg1x mg1t"
+        className='mg1x mg1t'
         title={t('export')}
-        key="export"
+        key='export'
       />,
       <Upload
         beforeUpload={beforeUpload}
         fileList={[]}
-        key="Upload"
+        key='Upload'
       >
         <Button
-          icon="upload"
-          className="mg1t"
+          icon='upload'
+          className='mg1t'
           title={f('importFromFile')}
         />
       </Upload>

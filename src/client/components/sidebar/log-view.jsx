@@ -2,18 +2,18 @@
  * log view and export
  */
 
-import {useState} from 'react'
-import {Button, Input} from 'antd'
+import { useState } from 'react'
+import { Button, Input } from 'antd'
 import fs from '../../common/fs'
 
 const TextArea = Input.TextArea
-const {prefix} = window
+const { prefix } = window
 const m = prefix('menu')
-let {oldLogPath, logPath} = window.getGlobal('logPaths')
+let { oldLogPath, logPath } = window.getGlobal('logPaths')
 
 export default function LogView () {
   let [log, setLog] = useState('')
-  async function onClick() {
+  async function onClick () {
     let str = await fs.readFile(logPath)
       .catch(() => '')
     let strOld = await fs.readFile(oldLogPath)
@@ -22,7 +22,7 @@ export default function LogView () {
   }
   return (
     <div>
-      <div className="pd1b">
+      <div className='pd1b'>
         <Button
           onClick={onClick}
         >

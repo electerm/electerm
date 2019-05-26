@@ -2,17 +2,17 @@
  * history select
  */
 
-import {Component} from '../common/react-subx'
+import { Component } from '../common/react-subx'
 import ItemList from '../setting-panel/list'
 import TreeList from '../setting-panel/tree-list'
 import copy from 'json-deep-copy'
 
-const {getGlobal} = window
+const { getGlobal } = window
 const sshConfigItems = copy(getGlobal('sshConfigItems'))
 
 export default class BookmarkSelect extends Component {
-  render() {
-    const {store} = this.props
+  render () {
+    const { store } = this.props
     let {
       bookmarkGroups = [],
       listStyle,

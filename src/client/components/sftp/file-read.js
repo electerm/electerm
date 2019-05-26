@@ -2,13 +2,13 @@
  * file info related functions
  */
 
-import {generate} from 'shortid'
+import { generate } from 'shortid'
 import fs from '../../common/fs'
 
-const {_require} = window
+const { _require } = window
 
 export const getFolderFromFilePath = filePath => {
-  let {sep} = _require('path')
+  let { sep } = _require('path')
   let arr = filePath.split(sep)
   let len = arr.length
   return {
@@ -41,9 +41,9 @@ export const getLocalFileInfo = async (filePath) => {
 export const getRemoteFileInfo = async (sftp, filePath) => {
   let stat = await sftp.stat(filePath)
   return {
-    //size: stat.size,
-    //accessTime: stat.atime,
-    //modifyTime: stat.mtime,
+    // size: stat.size,
+    // accessTime: stat.atime,
+    // modifyTime: stat.mtime,
     mode: stat.mode,
     type: 'remote',
     ...getFolderFromFilePath(filePath),

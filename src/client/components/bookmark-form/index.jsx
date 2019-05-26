@@ -8,10 +8,10 @@ import {
   Radio, Upload, Tabs,
   Select, Switch
 } from 'antd'
-import {validateFieldsAndScroll} from '../../common/dec-validate-and-scroll'
+import { validateFieldsAndScroll } from '../../common/dec-validate-and-scroll'
 import _ from 'lodash'
 import copy from 'json-deep-copy'
-import {generate} from 'shortid'
+import { generate } from 'shortid'
 import {
   authTypeMap,
   settingMap,
@@ -19,29 +19,28 @@ import {
   defaultUserName,
   defaultookmarkGroupId
 } from '../../common/constants'
-import {formItemLayout, tailFormItemLayout} from '../../common/form-layout'
+import { formItemLayout, tailFormItemLayout } from '../../common/form-layout'
 import InputAutoFocus from '../common/input-auto-focus'
 import isIp from '../../common/is-ip'
 import encodes from './encodes'
 import './bookmark-form.styl'
 
-const {TabPane} = Tabs
-const {TextArea} = Input
+const { TabPane } = Tabs
+const { TextArea } = Input
 const authTypes = Object.keys(authTypeMap).map(k => {
   return k
 })
 const RadioButton = Radio.Button
 const RadioGroup = Radio.Group
 const FormItem = Form.Item
-const {Option} = Select
-const {prefix} = window
+const { Option } = Select
+const { prefix } = window
 const e = prefix('form')
 const c = prefix('common')
 const m = prefix('menu')
 const s = prefix('setting')
 
 export class BookmarkForm extends React.PureComponent {
-
   state = {
     testing: false,
     dns: ''
@@ -57,8 +56,8 @@ export class BookmarkForm extends React.PureComponent {
   }
 
   onBlur = async e => {
-    let {value} = e.target
-    let {type} = this.props
+    let { value } = e.target
+    let { type } = this.props
     if (
       type !== settingMap.bookmarks ||
       !value || /\s/.test(value) ||
@@ -71,7 +70,7 @@ export class BookmarkForm extends React.PureComponent {
         log.debug(err)
       })
     this.setState({
-      dns: ip ? ip : ''
+      dns: ip || ''
     })
   }
 
@@ -126,7 +125,7 @@ export class BookmarkForm extends React.PureComponent {
 
   submit = (evt, item, type = this.props.type) => {
     let obj = item
-    let {addItem, editItem} = this.props.store
+    let { addItem, editItem } = this.props.store
     let categoryId = obj.category
     delete obj.category
     let bookmarkGroups = copy(
@@ -199,8 +198,8 @@ export class BookmarkForm extends React.PureComponent {
   }
 
   onSelectProxy = proxy => {
-    let obj = Object.keys(proxy).
-      reduce((prev, c) => {
+    let obj = Object.keys(proxy)
+      .reduce((prev, c) => {
         return {
           ...prev,
           [`proxy.${c}`]: proxy[c]
@@ -215,8 +214,8 @@ export class BookmarkForm extends React.PureComponent {
     if (!res) return
     if (
       res.proxy && (
-        !res.proxy.proxyIp && res.proxy.proxyPort ||
-        !res.proxy.proxyPort && res.proxy.proxyIp
+        (!res.proxy.proxyIp && res.proxy.proxyPort) ||
+        (!res.proxy.proxyPort && res.proxy.proxyIp)
       )
     ) {
       return message.error(
@@ -228,7 +227,7 @@ export class BookmarkForm extends React.PureComponent {
       ...res
     }
     if (isTest) {
-      return await this.test(obj)
+      return this.test(obj)
     }
     evt && this.submit(evt, obj)
     if (evt !== 'save') {
@@ -251,14 +250,14 @@ export class BookmarkForm extends React.PureComponent {
     return false
   }
 
-  renderAuth() {
-    let authType = this.props.form.getFieldValue('authType')
-      || authTypeMap.password
+  renderAuth () {
+    let authType = this.props.form.getFieldValue('authType') ||
+      authTypeMap.password
     return this[authType + 'Render']()
   }
 
-  passwordRender() {
-    const {getFieldDecorator} = this.props.form
+  passwordRender () {
+    const { getFieldDecorator } = this.props.form
     const {
       password
     } = this.props.formData
@@ -275,7 +274,7 @@ export class BookmarkForm extends React.PureComponent {
           initialValue: password
         })(
           <Input
-            type="password"
+            type='password'
             placeholder={e('password')}
           />
         )}
@@ -283,8 +282,8 @@ export class BookmarkForm extends React.PureComponent {
     )
   }
 
-  privateKeyRender() {
-    const {getFieldDecorator} = this.props.form
+  privateKeyRender () {
+    const { getFieldDecorator } = this.props.form
     const {
       privateKey,
       passphrase
@@ -294,8 +293,8 @@ export class BookmarkForm extends React.PureComponent {
         {...formItemLayout}
         label={e('privateKey')}
         hasFeedback
-        key="privateKey"
-        className="mg1b"
+        key='privateKey'
+        className='mg1b'
       >
         {getFieldDecorator('privateKey', {
           rules: [{
@@ -311,17 +310,17 @@ export class BookmarkForm extends React.PureComponent {
         <Upload
           beforeUpload={this.beforeUpload}
           fileList={[]}
-          className="mg1b"
+          className='mg1b'
         >
           <Button
-            type="ghost"
+            type='ghost'
           >
             {e('importFromFile')}
           </Button>
         </Upload>
       </FormItem>,
       <FormItem
-        key="passphrase"
+        key='passphrase'
         {...formItemLayout}
         label={e('passphrase')}
         hasFeedback
@@ -333,7 +332,7 @@ export class BookmarkForm extends React.PureComponent {
           initialValue: passphrase
         })(
           <Input
-            type="password"
+            type='password'
             placeholder={e('passphraseDesc')}
           />
         )}
@@ -341,12 +340,12 @@ export class BookmarkForm extends React.PureComponent {
     ]
   }
 
-  renderTitle(type, id) {
+  renderTitle (type, id) {
     if (type !== settingMap.bookmarks) {
       return null
     }
     return (
-      <FormItem {...tailFormItemLayout} className="mg0 font14">
+      <FormItem {...tailFormItemLayout} className='mg0 font14'>
         {
           (id
             ? m('edit')
@@ -358,9 +357,9 @@ export class BookmarkForm extends React.PureComponent {
   }
 
   renderProxySelect = () => {
-    let proxyList = this.props.bookmarks.
-      reduce((prev, current) => {
-        let {proxy} = current
+    let proxyList = this.props.bookmarks
+      .reduce((prev, current) => {
+        let { proxy } = current
         let {
           proxyIp,
           proxyPort,
@@ -384,8 +383,8 @@ export class BookmarkForm extends React.PureComponent {
     return (
       <FormItem
         {...tailFormItemLayout}
-        className="mg0"
-        key="proxy-select"
+        className='mg0'
+        key='proxy-select'
       >
         <Select
           placeholder={e('selectProxy')}
@@ -411,18 +410,18 @@ export class BookmarkForm extends React.PureComponent {
     )
   }
 
-  renderProxy() {
-    const {getFieldDecorator} = this.props.form
+  renderProxy () {
+    const { getFieldDecorator } = this.props.form
     const {
       proxy = {}
     } = this.props.formData
-    let {proxyIp, proxyPort, proxyType = '5'} = proxy
+    let { proxyIp, proxyPort, proxyType = '5' } = proxy
     return [
       this.renderProxySelect(),
       <FormItem
         {...formItemLayout}
         label={e('proxyIp')}
-        key="proxyIp"
+        key='proxyIp'
       >
         {getFieldDecorator('proxy.proxyIp', {
           rules: [{
@@ -438,7 +437,7 @@ export class BookmarkForm extends React.PureComponent {
       <FormItem
         {...formItemLayout}
         label={e('proxyPort')}
-        key="proxyPort"
+        key='proxyPort'
       >
         {getFieldDecorator('proxy.proxyPort', {
           initialValue: proxyPort
@@ -454,23 +453,23 @@ export class BookmarkForm extends React.PureComponent {
       <FormItem
         {...formItemLayout}
         label={e('proxyType')}
-        key="proxyType"
+        key='proxyType'
       >
         {getFieldDecorator('proxy.proxyType', {
           initialValue: proxyType
         })(
           <Select>
-            <Option value="5">SOCKS5</Option>
-            <Option value="4">SOCKS4</Option>
-            <Option value="0">HTTP</Option>
+            <Option value='5'>SOCKS5</Option>
+            <Option value='4'>SOCKS4</Option>
+            <Option value='0'>HTTP</Option>
           </Select>
         )}
       </FormItem>
     ]
   }
 
-  renderCommon() {
-    const {getFieldDecorator} = this.props.form
+  renderCommon () {
+    const { getFieldDecorator } = this.props.form
     const {
       host,
       port = 22,
@@ -486,7 +485,7 @@ export class BookmarkForm extends React.PureComponent {
       bookmarkGroups,
       currentBookmarkGroupId
     } = this.props
-    let {dns} = this.state
+    let { dns } = this.state
     let initBookmarkGroupId = id
       ? this.findBookmarkGroupId(bookmarkGroups, id)
       : currentBookmarkGroupId
@@ -501,10 +500,10 @@ export class BookmarkForm extends React.PureComponent {
           {
             dns
               ? (
-                <div className="dns-section">
+                <div className='dns-section'>
                   ip: {dns}
                   <span
-                    className="color-blue pointer mg1l"
+                    className='color-blue pointer mg1l'
                     onClick={this.useIp}
                   >
                     {e('use')}
@@ -512,7 +511,7 @@ export class BookmarkForm extends React.PureComponent {
                 </div>
               )
               : (
-                <div className="dns-section">
+                <div className='dns-section'>
                   hostname or ip
                 </div>
               )
@@ -527,7 +526,7 @@ export class BookmarkForm extends React.PureComponent {
           })(
             <InputAutoFocus
               autofocustrigger={autofocustrigger}
-              selectall="true"
+              selectall='true'
               onBlur={this.onBlur}
             />
           )}
@@ -548,11 +547,11 @@ export class BookmarkForm extends React.PureComponent {
             <Input placeholder={defaultUserName} />
           )}
         </FormItem>
-        <FormItem {...tailFormItemLayout} className="mg1b">
+        <FormItem {...tailFormItemLayout} className='mg1b'>
           {getFieldDecorator('authType', {
             initialValue: authType
           })(
-            <RadioGroup size="small">
+            <RadioGroup size='small'>
               {
                 authTypes.map(t => {
                   return (
@@ -634,7 +633,7 @@ export class BookmarkForm extends React.PureComponent {
         </FormItem>
         <FormItem
           {...formItemLayout}
-          key="encode-select"
+          key='encode-select'
           label={e('encode')}
         >
           {getFieldDecorator('encode', {
@@ -663,7 +662,7 @@ export class BookmarkForm extends React.PureComponent {
   }
 
   renderUI = () => {
-    const {getFieldDecorator} = this.props.form
+    const { getFieldDecorator } = this.props.form
     const {
       fontFamily: defaultFontFamily,
       fontSize: defaultFontSize
@@ -676,7 +675,7 @@ export class BookmarkForm extends React.PureComponent {
       <FormItem
         {...formItemLayout}
         label={s('fontFamily')}
-        key="fontFamily"
+        key='fontFamily'
       >
         {getFieldDecorator('fontFamily', {
           rules: [{
@@ -688,7 +687,7 @@ export class BookmarkForm extends React.PureComponent {
         )}
       </FormItem>,
       <FormItem
-        key="fontSize"
+        key='fontSize'
         {...formItemLayout}
         label={s('fontSize')}
       >
@@ -707,12 +706,12 @@ export class BookmarkForm extends React.PureComponent {
   }
 
   renderX11 = () => {
-    let {x11 = false} = this.props.formData
-    const {getFieldDecorator} = this.props.form
+    let { x11 = false } = this.props.formData
+    const { getFieldDecorator } = this.props.form
     return (
       <FormItem
         {...formItemLayout}
-        label="x11"
+        label='x11'
       >
         {getFieldDecorator('x11', {
           initialValue: x11,
@@ -724,26 +723,26 @@ export class BookmarkForm extends React.PureComponent {
     )
   }
 
-  renderTabs() {
+  renderTabs () {
     return (
-      <Tabs type="card">
-        <TabPane tab={e('auth')} key="auth" forceRender>
+      <Tabs type='card'>
+        <TabPane tab={e('auth')} key='auth' forceRender>
           {this.renderCommon()}
         </TabPane>
-        <TabPane tab="x11" key="x11" forceRender>
+        <TabPane tab='x11' key='x11' forceRender>
           {this.renderX11()}
         </TabPane>
-        <TabPane tab={e('proxy')} key="proxy" forceRender>
+        <TabPane tab={e('proxy')} key='proxy' forceRender>
           {this.renderProxy()}
         </TabPane>
-        <TabPane tab={e('UI')} key="UI" forceRender>
+        <TabPane tab={e('UI')} key='UI' forceRender>
           {this.renderUI()}
         </TabPane>
       </Tabs>
     )
   }
 
-  render() {
+  render () {
     const {
       id
     } = this.props.formData
@@ -751,30 +750,30 @@ export class BookmarkForm extends React.PureComponent {
       type
     } = this.props
     return (
-      <Form onSubmit={this.handleSubmit} className="form-wrap pd1x">
+      <Form onSubmit={this.handleSubmit} className='form-wrap pd1x'>
         {this.renderTitle(type, id)}
         {this.renderTabs()}
         <FormItem {...tailFormItemLayout}>
           <p>
             <Button
-              type="primary"
-              htmlType="submit"
-              className="mg1r"
+              type='primary'
+              htmlType='submit'
+              className='mg1r'
             >{e('saveAndConnect')}</Button>
             <Button
-              type="ghost"
-              className="mg1r"
+              type='ghost'
+              className='mg1r'
               onClick={() => this.handleSubmit('save')}
             >{e('save')}</Button>
             <Button
-              type="ghost"
+              type='ghost'
               onClick={this.handleSubmit}
-              className="mg2r"
+              className='mg2r'
             >{e('connect')}</Button>
           </p>
           <p>
             <Button
-              type="ghost"
+              type='ghost'
               loading={this.state.testing}
               onClick={e => this.handleSubmit(e, true)}
             >{e('testConnection')}</Button>
@@ -783,7 +782,6 @@ export class BookmarkForm extends React.PureComponent {
       </Form>
     )
   }
-
 }
 
 @Form.create()
@@ -791,4 +789,3 @@ export class BookmarkForm extends React.PureComponent {
 class BookmarkFormExport extends BookmarkForm {}
 
 export default BookmarkFormExport
-

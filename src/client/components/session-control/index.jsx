@@ -3,13 +3,13 @@
  * show last sessions for user to recover
  */
 
-import {memo} from 'react'
-import {Modal, Button, Checkbox} from 'antd'
+import { memo } from 'react'
+import { Modal, Button, Checkbox } from 'antd'
 import copy from 'json-deep-copy'
 import _ from 'lodash'
 import createName from '../../common/create-title'
 
-const {prefix} = window
+const { prefix } = window
 const c = prefix('common')
 
 export default memo(props => {
@@ -50,7 +50,7 @@ export default memo(props => {
   }
 
   let toggoleSelection = (e, id) => {
-    let {checked} = e.target
+    let { checked } = e.target
     let ss = copy(selectedSessions)
     let s = _.find(ss, s => s.id === id)
     s.checked = checked
@@ -63,7 +63,7 @@ export default memo(props => {
     <div>
       {
         selectedSessions.map(s => {
-          let {id, tab, checked} = s
+          let { id, tab, checked } = s
           let title = createName(tab)
           return (
             <div key={id}>
@@ -82,10 +82,10 @@ export default memo(props => {
   let footer = (
     <div>
       <Button
-        type="primary"
+        type='primary'
         disabled={!selectedSessions.filter(s => s.checked).length}
         onClick={onConfirmLoadSession}
-        className="mg1r"
+        className='mg1r'
       >
         {c('ok')}
       </Button>

@@ -2,13 +2,13 @@
  * transfer-history-modal
  */
 
-import {Component} from '../common/react-subx'
-import {Modal, Table, Icon} from 'antd'
+import { Component } from '../common/react-subx'
+import { Modal, Table, Icon } from 'antd'
 import time from '../../common/time'
-import {transferTypeMap} from '../../common/constants'
+import { transferTypeMap } from '../../common/constants'
 import './transfer-history.styl'
 
-const {prefix} = window
+const { prefix } = window
 const e = prefix('transferHistory')
 const f = prefix('sftp')
 const timeRender = t => time(t)
@@ -18,7 +18,7 @@ const sorterFactory = prop => {
   }
 }
 export default class TransferHistoryModal extends Component {
-  render() {
+  render () {
     let {
       transferHistory,
       transferHistoryModalVisible,
@@ -86,27 +86,27 @@ export default class TransferHistoryModal extends Component {
       <Modal
         onCancel={closeTransferHistory}
         footer={null}
-        width="90%"
+        width='90%'
         visible={transferHistoryModalVisible}
       >
-        <div className="pd2">
+        <div className='pd2'>
           <div>
             <span
-              className="iblock pointer"
+              className='iblock pointer'
               onClick={clearTransferHistory}
             >
-              <Icon type="close" className="mg1r" />
+              <Icon type='close' className='mg1r' />
               {e('clear')}
             </span>
           </div>
-          <div className="table-scroll-wrap">
+          <div className='table-scroll-wrap'>
             <Table
               dataSource={transferHistory}
               columns={columns}
               bordered
               pagination={false}
-              size="small"
-              rowKey="id"
+              size='small'
+              rowKey='id'
             />
           </div>
         </div>

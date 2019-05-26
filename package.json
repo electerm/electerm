@@ -1,6 +1,6 @@
 {
   "name": "electerm",
-  "version": "0.27.27",
+  "version": "0.27.28",
   "description": "Terminal/ssh/sftp client(linux, mac, win) based on electron/ssh2/node-pty/xterm/antd and other libs",
   "main": "dev-app.js",
   "bin": "npm/electerm",
@@ -20,7 +20,7 @@
     "release": "npm run pre-test && npm run output",
     "preinstall": "node bin/preinstall",
     "postinstall": "node bin/post-install",
-    "lint": "./node_modules/.bin/eslint --max-warnings 0 --ext .js --ext .jsx app src bin test",
+    "lint": "./node_modules/.bin/standard",
     "test": "exit 0",
     "test0": "./node_modules/.bin mocha test/*.js",
     "pre-test": "npm run compile && npm run prepare-file"
@@ -75,18 +75,6 @@
     "electron": "4.2.0",
     "electron-builder": "20.40.2",
     "electron-chromedriver": "^4.0.0-beta.1",
-    "eslint": "5.16.0",
-    "eslint-config-airbnb": "17.1.0",
-    "eslint-config-standard": "12.0.0",
-    "eslint-formatter-pretty": "2.1.1",
-    "eslint-import-resolver-webpack": "0.11.0",
-    "eslint-plugin-compat": "3.1.1",
-    "eslint-plugin-import": "2.16.0",
-    "eslint-plugin-jsx-a11y": "6.2.1",
-    "eslint-plugin-node": "8.0.1",
-    "eslint-plugin-promise": "4.1.1",
-    "eslint-plugin-react": "7.12.4",
-    "eslint-plugin-standard": "4.0.0",
     "extract-loader": "3.1.0",
     "file-loader": "3.0.1",
     "git-rev-sync": "1.12.0",
@@ -103,6 +91,7 @@
     "pug-html-loader": "1.1.5",
     "shelljs": "0.8.3",
     "spectron": "5.0.0",
+    "standard": "^12.0.1",
     "style-loader": "0.23.1",
     "stylus": "0.54.5",
     "stylus-loader": "3.0.2",
@@ -136,5 +125,9 @@
     "socks": "2.3.2",
     "ssh-config": "1.1.6",
     "zmodem.js": "0.1.9"
+  },
+  "standard": {
+    "parser": "babel-eslint",
+    "globals": ["describe", "beforeEach", "afterEach", "it", "log", "MouseEvent", "WebSocket", "FileReader", "CustomEvent"]
   }
 }

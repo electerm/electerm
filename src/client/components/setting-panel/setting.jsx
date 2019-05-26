@@ -1,5 +1,5 @@
 
-import {Component} from 'react'
+import { Component } from 'react'
 import {
   message, Select, Switch,
   Input, Icon,
@@ -8,8 +8,8 @@ import {
 import deepCopy from 'json-deep-copy'
 
 const InputGroup = Input.Group
-const {Option} = Select
-const {getGlobal, prefix} = window
+const { Option } = Select
+const { getGlobal, prefix } = window
 const e = prefix('setting')
 const f = prefix('form')
 const s = prefix('ssh')
@@ -28,7 +28,6 @@ const keys = [
 ]
 
 export default class Setting extends Component {
-
   state = {
     languageChanged: false
   }
@@ -44,7 +43,7 @@ export default class Setting extends Component {
   }
 
   onChangeModifier = modifier => {
-    let {hotkey} = this.props.config
+    let { hotkey } = this.props.config
     let key = hotkey.split('+')[1]
     return this.saveConfig({
       hotkey: `${modifier}+${key}`
@@ -58,7 +57,7 @@ export default class Setting extends Component {
   }
 
   onChangeKey = key => {
-    let {hotkey} = this.props.config
+    let { hotkey } = this.props.config
     let modifier = hotkey.split('+')[0]
     return this.saveConfig({
       hotkey: `${modifier}+${key}`
@@ -115,7 +114,7 @@ export default class Setting extends Component {
   renderToggle = (name) => {
     let checked = !!this.props.config[name]
     return (
-      <div className="pd2b">
+      <div className='pd2b'>
         <Switch
           checked={checked}
           checkedChildren={e(name)}
@@ -131,20 +130,20 @@ export default class Setting extends Component {
       return null
     }
     return (
-      <div className="pd1t">
+      <div className='pd1t'>
         <Alert
           message={
             <div>
               {e('saveLang')}
               <Button
                 onClick={this.restart}
-                className="mg1l"
+                className='mg1l'
               >
                 {e('restartNow')}
               </Button>
             </div>
           }
-          type="success"
+          type='success'
         />
       </div>
     )
@@ -182,7 +181,7 @@ export default class Setting extends Component {
     let defaultValue = this.props.config.defaultSettings[name]
     let onChange = (e) => this.onChangeValue(e.target.value, name)
     return (
-      <div className="pd2b">
+      <div className='pd2b'>
         <Input
           value={value}
           onChange={onChange}
@@ -194,7 +193,7 @@ export default class Setting extends Component {
 
   renderReset = () => {
     return (
-      <div className="pd1b pd1t">
+      <div className='pd1b pd1t'>
         <Button
           onClick={this.resetAll}
         >
@@ -204,7 +203,7 @@ export default class Setting extends Component {
     )
   }
 
-  renderProxy() {
+  renderProxy () {
     let {
       enableGlobalProxy,
       proxyPort,
@@ -212,9 +211,9 @@ export default class Setting extends Component {
       proxyIp
     } = this.props.config
     return (
-      <div className="pd1b">
-        <div className="pd1b">
-          <span className="pd1r">
+      <div className='pd1b'>
+        <div className='pd1b'>
+          <span className='pd1r'>
             {e('global')} {f('proxy')}
           </span>
           <Switch
@@ -224,7 +223,7 @@ export default class Setting extends Component {
             }}
           />
         </div>
-        <div className="pd2b">
+        <div className='pd2b'>
           <InputGroup compact>
             <Select
               value={proxyType}
@@ -233,9 +232,9 @@ export default class Setting extends Component {
                 this.onChangeValue(v, 'proxyType')
               }}
             >
-              <Option value="5">sock5</Option>
-              <Option value="4">sock4</Option>
-              <Option value="0">http</Option>
+              <Option value='5'>sock5</Option>
+              <Option value='4'>sock4</Option>
+              <Option value='0'>http</Option>
             </Select>
             <Input
               style={{ width: '65%' }}
@@ -264,23 +263,23 @@ export default class Setting extends Component {
     )
   }
 
-  render() {
+  render () {
     let {
       hotkey,
       language
     } = this.props.config
-    let {themes, theme} = this.props.store
+    let { themes, theme } = this.props.store
     let langs = getGlobal('langs')
     let [modifier, key] = hotkey.split('+')
     return (
-      <div className="form-wrap pd1y pd2x">
+      <div className='form-wrap pd1y pd2x'>
         <h2>{e('settings')}</h2>
-        <div className="pd1b">{e('hotkeyDesc')}</div>
-        <div className="pd2b">
+        <div className='pd1b'>{e('hotkeyDesc')}</div>
+        <div className='pd2b'>
           <Select
             value={modifier}
             onChange={this.onChangeModifier}
-            className="iblock width100"
+            className='iblock width100'
             dropdownMatchSelectWidth={false}
             showSearch
           >
@@ -288,10 +287,10 @@ export default class Setting extends Component {
               modifiers.map(this.renderOption)
             }
           </Select>
-          <span className="iblock mg1x">+</span>
+          <span className='iblock mg1x'>+</span>
           <Select
             value={key}
-            className="iblock width100"
+            className='iblock width100'
             onChange={this.onChangeKey}
             dropdownMatchSelectWidth={false}
             showSearch
@@ -302,14 +301,14 @@ export default class Setting extends Component {
           </Select>
         </div>
         {this.renderProxy()}
-        <div className="pd1b">{e('scrollBackDesc')}</div>
+        <div className='pd1b'>{e('scrollBackDesc')}</div>
         {
           this.renderNumber('scrollback', {
             step: 200,
             min: 1000
           })
         }
-        <div className="pd1b">{e('timeoutDesc')}</div>
+        <div className='pd1b'>{e('timeoutDesc')}</div>
         {
           this.renderNumber('sshReadyTimeout', {
             step: 200,
@@ -317,7 +316,7 @@ export default class Setting extends Component {
             cls: 'timeout-desc'
           })
         }
-        <div className="pd1b">{e('opacity')}</div>
+        <div className='pd1b'>{e('opacity')}</div>
         {
           this.renderNumber('opacity', {
             step: 0.05,
@@ -326,8 +325,8 @@ export default class Setting extends Component {
             cls: 'opacity'
           })
         }
-        <div className="pd1b">{e('terminalTheme')}</div>
-        <div className="pd2b">
+        <div className='pd1b'>{e('terminalTheme')}</div>
+        <div className='pd2b'>
           <Select
             onChange={this.onChangeTerminalTheme}
             dropdownMatchSelectWidth={false}
@@ -335,7 +334,7 @@ export default class Setting extends Component {
           >
             {
               themes.map(l => {
-                let {id, name} = l
+                let { id, name } = l
                 return (
                   <Option key={id} value={id}>{name}</Option>
                 )
@@ -343,8 +342,8 @@ export default class Setting extends Component {
             }
           </Select>
         </div>
-        <div className="pd1b">{e('language')}</div>
-        <div className="pd2b">
+        <div className='pd1b'>{e('language')}</div>
+        <div className='pd2b'>
           <Select
             onChange={this.onChangeLang}
             value={language}
@@ -352,7 +351,7 @@ export default class Setting extends Component {
           >
             {
               langs.map(l => {
-                let {id, name} = l
+                let { id, name } = l
                 return (
                   <Option key={id} value={id}>{name}</Option>
                 )
@@ -361,30 +360,30 @@ export default class Setting extends Component {
           </Select>
         </div>
         {this.renderLanguageChangeTip()}
-        <div className="pd1y font16 bold">
-          <Icon type="code" theme="outlined" className="mg1r" />
+        <div className='pd1y font16 bold'>
+          <Icon type='code' theme='outlined' className='mg1r' />
           {s('terminal')} {e('settings')}
         </div>
-        <div className="pd1b">{t('default')} {e('fontSize')}</div>
+        <div className='pd1b'>{t('default')} {e('fontSize')}</div>
         {
           this.renderNumber('fontSize', {
             step: 1,
             min: 9
           })
         }
-        <div className="pd1b">{t('default')} {e('fontFamily')}</div>
+        <div className='pd1b'>{t('default')} {e('fontFamily')}</div>
         {
           this.renderText('fontFamily')
         }
-        <div className="pd1b">{t('default')} {e('execWindows')}</div>
+        <div className='pd1b'>{t('default')} {e('execWindows')}</div>
         {
           this.renderText('execWindows')
         }
-        <div className="pd1b">{t('default')} {e('execMac')}</div>
+        <div className='pd1b'>{t('default')} {e('execMac')}</div>
         {
           this.renderText('execMac')
         }
-        <div className="pd1b">{t('default')} {e('execLinux')}</div>
+        <div className='pd1b'>{t('default')} {e('execLinux')}</div>
         {
           this.renderText('execLinux')
         }
@@ -396,6 +395,4 @@ export default class Setting extends Component {
       </div>
     )
   }
-
 }
-
