@@ -1,5 +1,5 @@
 
-const {rm} = require('shelljs')
+const { rm } = require('shelljs')
 
 rm('-rf', [
   'app/assets/js',

@@ -2,16 +2,16 @@
  * terminal class
  */
 const pty = require('node-pty')
-const {Client} = require('@electerm/ssh2')
+const { Client } = require('@electerm/ssh2')
 const proxySock = require('./socks')
 const _ = require('lodash')
-const {generate} = require('shortid')
-const {resolve} = require('path')
+const { generate } = require('shortid')
+const { resolve } = require('path')
 const net = require('net')
-const {exec} = require('child_process')
+const { exec } = require('child_process')
 const log = require('../utils/log')
 
-function getDisplay() {
+function getDisplay () {
   return new Promise((resolve) => {
     exec('echo $DISPLAY', (err, out, e) => {
       if (err || e) {
@@ -23,7 +23,7 @@ function getDisplay() {
   })
 }
 
-function getX11Cookie() {
+function getX11Cookie () {
   return new Promise((resolve) => {
     exec('xauth list :0', (err, out, e) => {
       if (err || e) {
@@ -41,18 +41,17 @@ function getX11Cookie() {
 }
 
 class Terminal {
-
-  constructor(initOptions) {
+  constructor (initOptions) {
     this.type = initOptions.type
     this.pid = generate()
     this.initOptions = initOptions
   }
 
-  init() {
+  init () {
     return this[this.type + 'Init'](this.initOptions)
   }
 
-  localInit(initOptions) {
+  localInit (initOptions) {
     let {
       cols,
       rows,
@@ -60,16 +59,14 @@ class Terminal {
       execMac,
       execLinux
     } = initOptions
-    let {platform} = process
+    let { platform } = process
     let exe = platform.startsWith('win')
       ? resolve(
         process.env.windir,
         execWindows
       )
       : platform === 'darwin' ? execMac : execLinux
-    let cwd = process.env[
-      platform === 'win32' ? 'USERPROFILE' : 'HOME'
-    ]
+    let cwd = process.env[ platform === 'win32' ? 'USERPROFILE' : 'HOME' ]
     let argv = platform.startsWith('darwin') ? ['--login'] : []
     this.term = pty.spawn(exe, argv, {
       name: 'xterm-color',
@@ -81,7 +78,7 @@ class Terminal {
     return Promise.resolve()
   }
 
-  async remoteInit(initOptions, isTest) {
+  async remoteInit (initOptions, isTest) {
     let display = await getDisplay()
     let x11Cookie = await getX11Cookie()
     return new Promise((resolve, reject) => {
@@ -123,7 +120,7 @@ class Terminal {
       if (!opts.passphrase) {
         delete opts.passphrase
       }
-      let x11 = undefined
+      let x11
       if (initOptions.x11 === true) {
         x11 = {
           cookie: x11Cookie
@@ -156,7 +153,7 @@ class Terminal {
             let maxRetry = 100
             let portStart = 6000
             let maxPort = portStart + maxRetry
-            function retry() {
+            function retry () {
               if (start >= maxPort) {
                 return
               }
@@ -229,32 +226,32 @@ class Terminal {
     })
   }
 
-  resize(cols, rows) {
+  resize (cols, rows) {
     this[this.type + 'Resize'](cols, rows)
   }
 
-  localResize(cols, rows) {
+  localResize (cols, rows) {
     this.term.resize(cols, rows)
   }
 
-  remoteResize(cols, rows) {
+  remoteResize (cols, rows) {
     this.channel.setWindow(rows, cols)
   }
 
-  on(event, cb) {
+  on (event, cb) {
     this[this.type + 'On'](event, cb)
   }
 
-  localOn(event, cb) {
+  localOn (event, cb) {
     this.term.on(event, cb)
   }
 
-  remoteOn(event, cb) {
+  remoteOn (event, cb) {
     this.channel.on(event, cb)
     this.channel.stderr.on(event, cb)
   }
 
-  write(data) {
+  write (data) {
     try {
       (this.term || this.channel).write(data)
     } catch (e) {
@@ -262,16 +259,15 @@ class Terminal {
     }
   }
 
-  kill() {
+  kill () {
     if (this.term) {
       return this.term.kill()
     }
     this.conn.end()
   }
-
 }
 
-exports.terminal = async function(initOptions) {
+exports.terminal = async function (initOptions) {
   let term = new Terminal(initOptions)
   await term.init()
   return term

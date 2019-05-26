@@ -2,12 +2,12 @@
 /**
  * terminal/sftp wrapper
  */
-import {Component} from 'react'
+import { Component } from 'react'
 import Term from '../terminal'
 import Sftp from '../sftp'
-import {Icon} from 'antd'
+import { Icon } from 'antd'
 import _ from 'lodash'
-import {generate} from 'shortid'
+import { generate } from 'shortid'
 import copy from 'json-deep-copy'
 import classnames from 'classnames'
 import {
@@ -38,14 +38,12 @@ const getPrevTerminal = terminals => {
   return _.last(terminals)
 }
 
-
-const {prefix} = window
+const { prefix } = window
 const e = prefix('ssh')
 const m = prefix('menu')
 
 export default class SessionWrapper extends Component {
-
-  constructor(props) {
+  constructor (props) {
     super(props)
     let id = generate()
     this.state = {
@@ -64,23 +62,23 @@ export default class SessionWrapper extends Component {
     }
   }
 
-  componentDidMount() {
+  componentDidMount () {
     this.initEvent()
   }
 
-  componentWillUnmount() {
+  componentWillUnmount () {
     this.destroyEvent()
   }
 
-  initEvent() {
+  initEvent () {
     window.addEventListener('keydown', this.handleEvent)
   }
 
-  destroyEvent() {
+  destroyEvent () {
     window.removeEventListener('keydown', this.handleEvent)
   }
 
-  isActive() {
+  isActive () {
     return this.props.currentTabId === this.props.tab.id &&
       this.state.pane === paneMap.terminal
   }
@@ -127,7 +125,7 @@ export default class SessionWrapper extends Component {
   }
 
   delSplit = () => {
-    let {activeSplitId, terminals} = this.state
+    let { activeSplitId, terminals } = this.state
     let newTerms = terminals.filter(t => t.id !== activeSplitId)
     if (!newTerms.length) {
       return
@@ -142,7 +140,7 @@ export default class SessionWrapper extends Component {
   }
 
   changeDirection = () => {
-    let {splitDirection} = this.state
+    let { splitDirection } = this.state
     this.setState({
       splitDirection: splitDirection === terminalSplitDirectionMap.horizontal
         ? terminalSplitDirectionMap.vertical
@@ -158,8 +156,8 @@ export default class SessionWrapper extends Component {
 
   computePosition = (index) => {
     let len = this.state.terminals.length || 1
-    let {width: windowWidth} = this.props
-    let {splitDirection} = this.state
+    let { width: windowWidth } = this.props
+    let { splitDirection } = this.state
     let isHori = splitDirection === terminalSplitDirectionMap.horizontal
     let heightAll = this.computeHeight()
     let width = isHori
@@ -183,12 +181,12 @@ export default class SessionWrapper extends Component {
   }
 
   renderTerminals = () => {
-    let {pane, terminals, splitDirection, sessionOptions} = this.state
+    let { pane, terminals, splitDirection, sessionOptions } = this.state
     let cls = pane === paneMap.terminal
       ? 'terms-box bg-black'
       : 'terms-box bg-black hide'
     let height = this.computeHeight()
-    let {store, width, tab} = this.props
+    let { store, width, tab } = this.props
     let themeConfig = store.getThemeConfig()
     return (
       <div
@@ -230,7 +228,7 @@ export default class SessionWrapper extends Component {
   }
 
   renderSftp = () => {
-    let {pane, sessionOptions, sshConnected} = this.state
+    let { pane, sessionOptions, sshConnected } = this.state
     let height = this.computeHeight()
     let cls = pane === paneMap.terminal
       ? 'hide'
@@ -249,8 +247,8 @@ export default class SessionWrapper extends Component {
   }
 
   renderControl = () => {
-    let {pane, splitDirection, terminals} = this.state
-    let {props} = this
+    let { pane, splitDirection, terminals } = this.state
+    let { props } = this
     let host = _.get(props, 'tab.host') &&
       _.get(props, 'tab.type') !== terminalSshConfigType
     let isHori = splitDirection === terminalSplitDirectionMap.horizontal
@@ -269,9 +267,9 @@ export default class SessionWrapper extends Component {
     ]
     return (
       <div
-        className="terminal-control fix"
+        className='terminal-control fix'
       >
-        <div className="term-sftp-tabs fleft">
+        <div className='term-sftp-tabs fleft'>
           {
             [
               host ? paneMap.ssh : paneMap.terminal,
@@ -299,15 +297,15 @@ export default class SessionWrapper extends Component {
         {
           pane === paneMap.terminal
             ? (
-              <div className="fright term-controls">
+              <div className='fright term-controls'>
                 {
                   hide
                     ? null
                     : (
                       <Icon
-                        type="close-circle"
-                        theme="filled"
-                        className="mg1r icon-trash font16 iblock pointer"
+                        type='close-circle'
+                        theme='filled'
+                        className='mg1r icon-trash font16 iblock pointer'
                         onClick={this.delSplit}
                         title={m('del')}
                       />
@@ -333,8 +331,8 @@ export default class SessionWrapper extends Component {
     )
   }
 
-  render() {
-    let {pane, splitDirection} = this.state
+  render () {
+    let { pane, splitDirection } = this.state
     return (
       <div
         className={'term-sftp-box ' + pane + ' ' + splitDirection}
@@ -346,5 +344,4 @@ export default class SessionWrapper extends Component {
       </div>
     )
   }
-
 }

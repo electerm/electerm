@@ -2,12 +2,12 @@
  * multi language support
  */
 
-const {isDev, defaultLang} = require('../utils/constants')
+const { isDev, defaultLang } = require('../utils/constants')
 const fs = require('fs')
 const _ = require('lodash')
-const {resolve} = require('path')
-const {userConfig} = require('./user-config-controller')
-const {sync} = require('os-locale')
+const { resolve } = require('path')
+const { userConfig } = require('./user-config-controller')
+const { sync } = require('os-locale')
 
 let path = (isDev
   ? '../'
@@ -15,7 +15,7 @@ let path = (isDev
   '../node_modules/@electerm/electerm-locales/locales'
 let localeFolder = resolve(__dirname, path)
 
-//languages array
+// languages array
 const langs = fs.readdirSync(localeFolder)
   .map(fileName => {
     let filePath = resolve(localeFolder, fileName)
@@ -32,7 +32,7 @@ const langMap = langs.reduce((prev, l) => {
   return prev
 }, {})
 
-function findLang(la) {
+function findLang (la) {
   let res = false
   for (let l of langs) {
     if (_.isRegExp(l.match)) {
@@ -86,5 +86,3 @@ exports.saveLangConfig = (saveUserConfig, userConfig) => {
     })
   }
 }
-
-

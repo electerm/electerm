@@ -5,8 +5,8 @@ let savedPackage = [
 ]
 let pack = require('../package.json')
 let fs = require('fs')
-let {resolve} = require('path')
-let {cp, rm} = require('shelljs')
+let { resolve } = require('path')
+let { cp, rm } = require('shelljs')
 
 delete pack.devDependencies
 pack.dependencies = savedPackage.reduce((prev, p) => {
@@ -22,4 +22,3 @@ let to = resolve(__dirname, '../package-bak.json')
 cp(from, to)
 rm(from)
 fs.writeFileSync(from, JSON.stringify(pack, null, 2))
-

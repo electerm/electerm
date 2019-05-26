@@ -17,8 +17,7 @@ exports.init = (globalShortcut, win, config) => {
   globalShortcut.register(shortcut, () => {
     if (win.isFocused()) {
       win.hide()
-    }
-    else {
+    } else {
       win.show()
     }
   })

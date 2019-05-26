@@ -4,13 +4,13 @@
 
 import React from 'react'
 import ReactDOM from 'react-dom'
-import {Icon, Popconfirm} from 'antd'
+import { Icon, Popconfirm } from 'antd'
 import classnames from 'classnames'
 import copy from 'json-deep-copy'
 import _ from 'lodash'
 import Input from '../common/input-auto-focus'
 import resolve from '../../common/resolve'
-import {addClass, removeClass} from '../../common/class'
+import { addClass, removeClass } from '../../common/class'
 import {
   mode2permission,
   permission2mode
@@ -24,18 +24,18 @@ import {
 } from '../../common/constants'
 import findParent from '../../common/find-parent'
 import sorter from '../../common/index-sorter'
-import {getLocalFileInfo, getFolderFromFilePath, getRemoteFileInfo} from './file-read'
-import {readClipboard, copy as copyToClipboard, hasFileInClipboardText} from '../../common/clipboard'
+import { getLocalFileInfo, getFolderFromFilePath, getRemoteFileInfo } from './file-read'
+import { readClipboard, copy as copyToClipboard, hasFileInClipboardText } from '../../common/clipboard'
 import fs from '../../common/fs'
 import time from '../../common/time'
 
-const {prefix} = window
+const { prefix } = window
 const e = prefix('sftp')
 const m = prefix('menu')
 const c = prefix('common')
 
-const computePos = (e, isBg, height, ) => {
-  let {clientX, clientY} = e
+const computePos = (e, isBg, height) => {
+  let { clientX, clientY } = e
   let res = {
     left: clientX,
     top: clientY
@@ -56,8 +56,7 @@ const onDragOverCls = 'sftp-dragover'
 const onMultiDragCls = 'sftp-dragover-multi'
 
 export default class FileSection extends React.Component {
-
-  constructor(props) {
+  constructor (props) {
     super(props)
     this.state = {
       file: copy(props.file),
@@ -65,12 +64,12 @@ export default class FileSection extends React.Component {
     }
   }
 
-  componentDidMount() {
+  componentDidMount () {
     this.dom = ReactDOM.findDOMNode(this)
     this.applyStyle()
   }
 
-  componentDidUpdate(prevProps, prevState) {
+  componentDidUpdate (prevProps, prevState) {
     if (
       !prevState.file.id &&
       this.state.file.id
@@ -97,7 +96,7 @@ export default class FileSection extends React.Component {
   }
 
   onCopy = (e, targetFiles, isCut) => {
-    let {file} = this.state
+    let { file } = this.state
     let selected = this.isSelected(file)
     let files = targetFiles || selected
       ? this.props.selectedFiles
@@ -151,33 +150,33 @@ export default class FileSection extends React.Component {
         selectedFiles: res
       }, resolve)
     })
-    let {type} = this.state.file
+    let { type } = this.state.file
     let toFile = {
       type,
       ...getFolderFromFilePath(this.props[type + 'Path']),
       isDirectory: false
     }
     let fromFile = res[0]
-    let {type: fromType} = fromFile
+    let { type: fromType } = fromFile
     let {
       type: toType
     } = toFile
 
     let transferType = this.getTransferType(toType)
 
-    //same side and drop to file, do nothing
+    // same side and drop to file, do nothing
     if (fromType === toType) {
       transferType = this.props.transferType || fileOpTypeMap.copy
     }
 
-    //other side, do transfer
+    // other side, do transfer
     this.transferDrop(fromFile, toFile, transferType)
   }
 
   onDrag = () => {}
 
   onDragEnter = e => {
-    let {target} = e
+    let { target } = e
     target = findParent(target, '.' + fileItemCls)
     if (!target) {
       return e.preventDefault()
@@ -189,7 +188,7 @@ export default class FileSection extends React.Component {
   onDragExit = () => {}
 
   onDragLeave = e => {
-    let {target} = e
+    let { target } = e
     target = findParent(target, '.' + fileItemCls)
     if (!target) {
       return e.preventDefault()
@@ -217,14 +216,14 @@ export default class FileSection extends React.Component {
     if (fromFile) {
       return JSON.parse(fromFile)
     }
-    let {files} = data
+    let { files } = data
     let res = []
     for (let i = 0, len = files.length; i < len; i++) {
       let item = files[i]
       if (!item) {
         continue
       }
-      //let file = item.getAsFile()
+      // let file = item.getAsFile()
       let fileObj = await getLocalFileInfo(item.path)
       res.push(fileObj)
     }
@@ -238,7 +237,7 @@ export default class FileSection extends React.Component {
   onDrop = async e => {
     e.preventDefault()
     let fromFileManager = !!_.get(e, 'dataTransfer.files.length')
-    let {target} = e
+    let { target } = e
     if (!target) {
       return
     }
@@ -277,7 +276,7 @@ export default class FileSection extends React.Component {
       let dt = e.dataTransfer
       if (dt.items) {
         // Use DataTransferItemList interface to remove the drag data
-        for (var i = 0, len = dt.items.length; i < len;i++ ) {
+        for (var i = 0, len = dt.items.length; i < len; i++) {
           dt.items.remove(i)
         }
       }
@@ -286,7 +285,7 @@ export default class FileSection extends React.Component {
   }
 
   onDropFile = (fromFile, toFile, fromFileManager) => {
-    let {type: fromType} = fromFile
+    let { type: fromType } = fromFile
     let {
       id,
       type: toType,
@@ -295,12 +294,12 @@ export default class FileSection extends React.Component {
 
     let transferType = this.getTransferType(toType)
 
-    //same side and drop to file = drop to folder
+    // same side and drop to file = drop to folder
     if (!fromFileManager && fromType === toType && !isDirectoryTo) {
       return
     }
 
-    //drop from file manager
+    // drop from file manager
     if (fromFileManager && toType === typeMap.local) {
       transferType = fileOpTypeMap.copy
       if (id) {
@@ -314,14 +313,13 @@ export default class FileSection extends React.Component {
       }
     }
 
-    //same side and drop to folder, do mv
+    // same side and drop to folder, do mv
     if (fromType === toType && isDirectoryTo && !fromFileManager) {
       transferType = fileOpTypeMap.mv
     }
 
-    //other side, do transfer
+    // other side, do transfer
     this.transferDrop(fromFile, toFile, transferType)
-
   }
 
   transferDrop = (fromFile, toFile, transferType) => {
@@ -393,8 +391,8 @@ export default class FileSection extends React.Component {
   }
 
   localCreateNew = async file => {
-    let {nameTemp, isDirectory} = file
-    let {localPath} = this.props
+    let { nameTemp, isDirectory } = file
+    let { localPath } = this.props
     let p = resolve(localPath, nameTemp)
     let func = isDirectory
       ? fs.mkdirAsync
@@ -408,8 +406,8 @@ export default class FileSection extends React.Component {
   }
 
   remoteCreateNew = async file => {
-    let {nameTemp, isDirectory} = file
-    let {remotePath, sftp} = this.props
+    let { nameTemp, isDirectory } = file
+    let { remotePath, sftp } = this.props
     let p = resolve(remotePath, nameTemp)
     let func = isDirectory
       ? sftp.mkdir
@@ -424,16 +422,16 @@ export default class FileSection extends React.Component {
   }
 
   selectAll = (e) => {
-    let {type} = this.props.file
+    let { type } = this.props.file
     this.props.selectAll(type, e)
   }
 
   createNew = file => {
-    let {type} = file
+    let { type } = file
     return this[`${type}CreateNew`](file)
   }
 
-  getShiftSelected(file, type) {
+  getShiftSelected (file, type) {
     let indexs = this.props.selectedFiles.map(
       this.props.getIndex
     )
@@ -452,7 +450,7 @@ export default class FileSection extends React.Component {
   }
 
   onClick = e => {
-    let {file} = this.state
+    let { file } = this.state
     let {
       id,
       type
@@ -469,8 +467,8 @@ export default class FileSection extends React.Component {
     let selectedFilesOld = copy(
       this.props.selectedFiles
     )
-    let isSameSide = selectedFilesOld.length
-      && type === selectedFilesOld[0].type
+    let isSameSide = selectedFilesOld.length &&
+      type === selectedFilesOld[0].type
     let selectedFiles = [file]
     if (isSameSide) {
       if (
@@ -499,7 +497,7 @@ export default class FileSection extends React.Component {
 
   changeFileMode = async file => {
     this.onCloseFileMode()
-    let {permission, type, path, name} = file
+    let { permission, type, path, name } = file
     let func = type === typeMap.local
       ? fs.chmodAsync
       : this.props.sftp.chmod
@@ -522,7 +520,7 @@ export default class FileSection extends React.Component {
 
   onBlur = () => {
     let file = copy(this.state.file)
-    let {nameTemp, name, id, type} = this.state.file
+    let { nameTemp, name, id, type } = this.state.file
     if (name === nameTemp) {
       if (!id) {
         return this.cancelNew(type)
@@ -540,12 +538,12 @@ export default class FileSection extends React.Component {
   }
 
   rename = (oldname, newname) => {
-    let {type} = this.props.file
+    let { type } = this.props.file
     return this[`${type}Rename`](oldname, newname)
   }
 
   localRename = async (oldname, newname) => {
-    let {localPath} = this.props
+    let { localPath } = this.props
     let p1 = resolve(localPath, oldname)
     let p2 = resolve(localPath, newname)
     await fs.renameAsync(p1, p2).catch(this.props.store.onError)
@@ -553,7 +551,7 @@ export default class FileSection extends React.Component {
   }
 
   remoteRename = async (oldname, newname) => {
-    let {remotePath, sftp} = this.props
+    let { remotePath, sftp } = this.props
     let p1 = resolve(remotePath, oldname)
     let p2 = resolve(remotePath, newname)
     let res = await sftp.rename(p1, p2)
@@ -575,7 +573,7 @@ export default class FileSection extends React.Component {
 
   enterDirectory = (e, file) => {
     e.stopPropagation()
-    let {type, name} = file || this.state.file
+    let { type, name } = file || this.state.file
     let n = `${type}Path`
     let path = this.props[n]
     let np = resolve(path, name)
@@ -597,8 +595,8 @@ export default class FileSection extends React.Component {
   }
 
   transferOrEnterDirectory = async (e, edit) => {
-    let {file} = this.state
-    let {isDirectory, type, id, size} = file
+    let { file } = this.state
+    let { isDirectory, type, id, size } = file
     if (isDirectory) {
       return this.enterDirectory(e)
     }
@@ -627,7 +625,7 @@ export default class FileSection extends React.Component {
   }
 
   getTransferList = async (file) => {
-    let {isDirectory, name, path, type} = file
+    let { isDirectory, name, path, type } = file
     if (!isDirectory) {
       return [file]
     }
@@ -648,7 +646,7 @@ export default class FileSection extends React.Component {
     _targetTransferType,
     transferType
   ) => {
-    let {type} = file
+    let { type } = file
     let otherType = _targetTransferType || (type === typeMap.local
       ? typeMap.remote
       : typeMap.local)
@@ -671,11 +669,11 @@ export default class FileSection extends React.Component {
     targetTransferType,
     _transferType
   ) => {
-    let {type} = selectedFiles[0]
+    let { type } = selectedFiles[0]
     let transferType = type === typeMap.local
       ? transferTypeMap.upload
       : transferTypeMap.download
-    transferType = _transferType ? _transferType : transferType
+    transferType = _transferType || transferType
     let filesToConfirm = []
     for (let f of selectedFiles) {
       let arr = await this.getTransferList(f)
@@ -697,9 +695,9 @@ export default class FileSection extends React.Component {
   }
 
   transfer = async () => {
-    let {file} = this.state
+    let { file } = this.state
     let arr = await this.getTransferList(this.state.file)
-    let {type} = file
+    let { type } = file
     let transferType = type === typeMap.local
       ? transferTypeMap.upload
       : transferTypeMap.download
@@ -718,8 +716,8 @@ export default class FileSection extends React.Component {
   }
 
   del = async (delSelected) => {
-    let {file, selectedFiles} = this.props
-    let {type} = file
+    let { file, selectedFiles } = this.props
+    let { type } = file
     let files = delSelected
       ? selectedFiles
       : [file]
@@ -742,7 +740,7 @@ export default class FileSection extends React.Component {
   }
 
   newItem = (isDirectory) => {
-    let {type} = this.state.file
+    let { type } = this.state.file
     let list = this.props[type]
     list.unshift({
       name: '',
@@ -757,15 +755,15 @@ export default class FileSection extends React.Component {
     })
   }
 
-  renderDelConfirmTitle(shouldShowSelectedMenu) {
-    let {file, selectedFiles} = this.props
+  renderDelConfirmTitle (shouldShowSelectedMenu) {
+    let { file, selectedFiles } = this.props
     let files = shouldShowSelectedMenu
       ? selectedFiles
       : [file]
     return this.props.renderDelConfirmTitle(files)
   }
 
-  showModeEdit(type, id) {
+  showModeEdit (type, id) {
     if (!id) {
       return false
     }
@@ -775,7 +773,7 @@ export default class FileSection extends React.Component {
     return !isWin
   }
 
-  renderContext() {
+  renderContext () {
     let {
       file: {
         type,
@@ -794,9 +792,9 @@ export default class FileSection extends React.Component {
       ? 'cloud-upload-o'
       : 'cloud-download-o'
     let len = selectedFiles.length
-    let shouldShowSelectedMenu = id
-      && len > 1
-      && _.some(selectedFiles, d => d.id === id)
+    let shouldShowSelectedMenu = id &&
+      len > 1 &&
+      _.some(selectedFiles, d => d.id === id)
     let cls = 'pd2x pd1y context-item pointer'
     let delTxt = shouldShowSelectedMenu ? `${e('deleteAll')}(${len})` : m('del')
     let canPaste = hasFileInClipboardText()
@@ -812,7 +810,7 @@ export default class FileSection extends React.Component {
                 className={cls}
                 onClick={this.doEnterDirectory}
               >
-                <Icon type="enter" /> {e('enter')}
+                <Icon type='enter' /> {e('enter')}
               </div>
             )
             : null
@@ -848,7 +846,7 @@ export default class FileSection extends React.Component {
                 className={cls}
                 onClick={this.transferOrEnterDirectory}
               >
-                <Icon type="arrow-right" /> {e('open')}
+                <Icon type='arrow-right' /> {e('open')}
               </div>
             )
             : null
@@ -863,7 +861,7 @@ export default class FileSection extends React.Component {
                   e => this.transferOrEnterDirectory(e, true)
                 }
               >
-                <Icon type="edit" /> {e('edit')}
+                <Icon type='edit' /> {e('edit')}
               </div>
             )
             : null
@@ -880,7 +878,7 @@ export default class FileSection extends React.Component {
                 <div
                   className={cls + ' no-auto-close-context'}
                 >
-                  <Icon type="close-circle" /> {delTxt}
+                  <Icon type='close-circle' /> {delTxt}
                 </div>
               </Popconfirm>
             )
@@ -893,8 +891,8 @@ export default class FileSection extends React.Component {
                 className={cls}
                 onClick={this.onCopy}
               >
-                <Icon type="copy" /> {m('copy')}
-                <span className="context-sub-text">
+                <Icon type='copy' /> {m('copy')}
+                <span className='context-sub-text'>
                   {ctrlOrCmd}+c
                 </span>
               </div>
@@ -909,8 +907,8 @@ export default class FileSection extends React.Component {
                 className={cls}
                 onClick={this.onCut}
               >
-                <Icon type="file-excel" /> {m('cut')}
-                <span className="context-sub-text">
+                <Icon type='file-excel' /> {m('cut')}
+                <span className='context-sub-text'>
                   {ctrlOrCmd}+x
                 </span>
               </div>
@@ -922,8 +920,8 @@ export default class FileSection extends React.Component {
           className={clsPaste}
           onClick={canPaste ? this.onPaste : _.noop}
         >
-          <Icon type="copy" /> {m('paste')}
-          <span className="context-sub-text">
+          <Icon type='copy' /> {m('paste')}
+          <span className='context-sub-text'>
             {ctrlOrCmd}+v
           </span>
         </div>
@@ -934,7 +932,7 @@ export default class FileSection extends React.Component {
                 className={cls}
                 onClick={this.doRename}
               >
-                <Icon type="edit" /> {e('rename')}
+                <Icon type='edit' /> {e('rename')}
               </div>
             )
             : null
@@ -943,20 +941,20 @@ export default class FileSection extends React.Component {
           className={cls}
           onClick={this.newFile}
         >
-          <Icon type="file-add" /> {e('newFile')}
+          <Icon type='file-add' /> {e('newFile')}
         </div>
         <div
           className={cls}
           onClick={this.newDirectory}
         >
-          <Icon type="folder-add" /> {e('newFolder')}
+          <Icon type='folder-add' /> {e('newFolder')}
         </div>
         <div
           className={cls}
           onClick={this.selectAll}
         >
-          <Icon type="check-square-o" /> {e('selectAll')}
-          <span className="context-sub-text">
+          <Icon type='check-square-o' /> {e('selectAll')}
+          <span className='context-sub-text'>
             {ctrlOrCmd}+a
           </span>
         </div>
@@ -964,7 +962,7 @@ export default class FileSection extends React.Component {
           className={cls}
           onClick={this.refresh}
         >
-          <Icon type="reload" /> {e('refresh')}
+          <Icon type='reload' /> {e('refresh')}
         </div>
         {
           this.showModeEdit(type, id)
@@ -973,7 +971,7 @@ export default class FileSection extends React.Component {
                 className={cls}
                 onClick={this.editPermission}
               >
-                <Icon type="lock" /> {e('editPermission')}
+                <Icon type='lock' /> {e('editPermission')}
               </div>
             )
             : null
@@ -985,7 +983,7 @@ export default class FileSection extends React.Component {
                 className={cls}
                 onClick={this.showInfo}
               >
-                <Icon type="info-circle-o" /> {e('info')}
+                <Icon type='info-circle-o' /> {e('info')}
               </div>
             )
             : null
@@ -996,12 +994,12 @@ export default class FileSection extends React.Component {
 
   onContextMenu = e => {
     e.preventDefault()
-    let {file} = this.state
+    let { file } = this.state
     let selected = this.isSelected(file)
     if (!selected) {
       this.onClick(e)
     }
-    let {id} = file
+    let { id } = file
     this.props.modifier({
       lastClickedFile: file
     })
@@ -1014,7 +1012,7 @@ export default class FileSection extends React.Component {
     })
   }
 
-  renderEditting(file) {
+  renderEditting (file) {
     let {
       nameTemp,
       isDirectory
@@ -1022,7 +1020,7 @@ export default class FileSection extends React.Component {
     let icon = isDirectory ? 'folder' : 'file'
     let pre = <Icon type={icon} />
     return (
-      <div className="sftp-item">
+      <div className='sftp-item'>
         <Input
           value={nameTemp}
           addonBefore={pre}
@@ -1034,8 +1032,8 @@ export default class FileSection extends React.Component {
     )
   }
 
-  renderProp = ({name, style}) => {
-    let {file} = this.state
+  renderProp = ({ name, style }) => {
+    let { file } = this.state
     let value = file[name]
     let typeIcon = null
     let symbolicLinkText = null
@@ -1050,9 +1048,9 @@ export default class FileSection extends React.Component {
       let type = isDirectory
         ? 'folder'
         : 'file'
-      typeIcon = <Icon type={type} className="mg1r" />
+      typeIcon = <Icon type={type} className='mg1r' />
       symbolicLinkText = isSymbolicLink
-        ? <sup className="color-blue symbolic-link-icon">*</sup>
+        ? <sup className='color-blue symbolic-link-icon'>*</sup>
         : null
     } else if (name === 'mode') {
       value = permission2mode(mode2permission(value))
@@ -1073,9 +1071,9 @@ export default class FileSection extends React.Component {
     )
   }
 
-  render() {
-    let {type, selectedFiles, draggable = true, properties = [], onDragStart} = this.props
-    let {file} = this.state
+  render () {
+    let { type, selectedFiles, draggable = true, properties = [], onDragStart } = this.props
+    let { file } = this.state
     let {
       isDirectory,
       id,
@@ -1113,8 +1111,8 @@ export default class FileSection extends React.Component {
         data-type={type}
         title={file.name}
       >
-        <div className="file-bg" />
-        <div className="file-props">
+        <div className='file-bg' />
+        <div className='file-props'>
           {
             properties.map(this.renderProp)
           }

@@ -4,7 +4,7 @@
  * @param {String} className
  * @return {Boolean}
  */
-export default function findParentBySel(node, sel) {
+export default function findParentBySel (node, sel) {
   if (!node) {
     return false
   }

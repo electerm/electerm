@@ -2,7 +2,7 @@
 import ErrorBoundary from './error-wrapper'
 import Init from './init'
 
-export default function() {
+export default function () {
   return (
     <ErrorBoundary>
       <Init />

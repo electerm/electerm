@@ -2,7 +2,7 @@
  * time formatter
  */
 
-function prefix(n) {
+function prefix (n) {
   let str = '' + n
   if (str.length < 2) {
     return '0' + str

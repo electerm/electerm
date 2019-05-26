@@ -5,11 +5,10 @@
 import React from 'react'
 
 export default class FileTransferTrigger extends React.PureComponent {
-
-  componentDidUpdate(prevProps) {
+  componentDidUpdate (prevProps) {
     let filesLen = (this.props.files || []).length
-    let {index} = this.props
-    let {index: oldIndex} = prevProps
+    let { index } = this.props
+    let { index: oldIndex } = prevProps
     if (
       index >= filesLen &&
       oldIndex < index &&
@@ -19,7 +18,7 @@ export default class FileTransferTrigger extends React.PureComponent {
     }
   }
 
-  render() {
+  render () {
     return null
   }
 }

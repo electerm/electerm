@@ -3,13 +3,12 @@
  */
 import React from 'react'
 import ReactDOM from 'react-dom'
-import {Input, Icon} from 'antd'
+import { Input, Icon } from 'antd'
 
-const {Search} = Input
+const { Search } = Input
 
 export default class CommonSearch extends React.PureComponent {
-
-  componentDidUpdate(prevProps) {
+  componentDidUpdate (prevProps) {
     if (prevProps.value !== this.props.value) {
       let root = ReactDOM.findDOMNode(this)
       root.querySelector('input').focus()
@@ -17,7 +16,7 @@ export default class CommonSearch extends React.PureComponent {
   }
 
   clear = () => {
-    let {onChange} = this.props
+    let { onChange } = this.props
     onChange && onChange({
       target: {
         value: ''
@@ -25,16 +24,16 @@ export default class CommonSearch extends React.PureComponent {
     })
   }
 
-  render() {
-    let {className, style, ...rest} = this.props
+  render () {
+    let { className, style, ...rest } = this.props
     let Dom = Search
     if (!rest.suffix && rest.value) {
       rest.suffix = (
         <Icon
-          type="close"
-          className="pointer"
+          type='close'
+          className='pointer'
           onClick={this.clear}
-          title="clear"
+          title='clear'
         />
       )
       Dom = Input
@@ -45,10 +44,9 @@ export default class CommonSearch extends React.PureComponent {
       />
     )
     return (
-      <div {...{className, style}}>
+      <div {...{ className, style }}>
         {dom}
       </div>
     )
   }
 }
-

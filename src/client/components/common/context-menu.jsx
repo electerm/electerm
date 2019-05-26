@@ -8,7 +8,6 @@ import './context-menu.styl'
 import findParent from '../../common/find-parent'
 
 export default class ContextMenu extends React.PureComponent {
-
   static propTypes = {
     content: PropTypes.element.isRequired,
     visible: PropTypes.bool,
@@ -27,10 +26,10 @@ export default class ContextMenu extends React.PureComponent {
     className: 'context-menu'
   }
 
-  componentDidMount() {
+  componentDidMount () {
     ReactDOM.findDOMNode(this)
       .addEventListener('click', e => {
-        let {target} = e
+        let { target } = e
         let p = findParent(target, '.context-item')
         if (
           p &&
@@ -48,7 +47,7 @@ export default class ContextMenu extends React.PureComponent {
   }
 
   render () {
-    let {visible, pos, content, className} = this.props
+    let { visible, pos, content, className } = this.props
     let cls = `${className} ${visible ? 'show' : 'hide'}`
 
     return (
@@ -60,5 +59,4 @@ export default class ContextMenu extends React.PureComponent {
       </div>
     )
   }
-
 }

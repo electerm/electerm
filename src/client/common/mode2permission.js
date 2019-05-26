@@ -8,11 +8,11 @@
  * @param {string} _d
  * @return {object} {read: Boolean, write: Boolean, exec: Boolean}
  */
-function digit2permission(_d) {
+function digit2permission (_d) {
   let d = parseInt(_d, 10)
   let arr = d.toString(2).split('')
   let len = arr.length
-  for(let a = len - 3, i = 0;i < a;i ++) {
+  for (let a = len - 3, i = 0; i < a; i++) {
     arr.unshift('0')
   }
   let [rr, ww, xx] = arr
@@ -31,7 +31,7 @@ function digit2permission(_d) {
  * @param {object}  {read: Boolean, write: Boolean, exec: Boolean}
  * @return {string}
  */
-function permission2digit({
+function permission2digit ({
   read,
   write,
   exec
@@ -41,7 +41,7 @@ function permission2digit({
     write ? '1' : '0',
     exec ? '1' : '0'
   ]
-  return new Number('0b' + arr.join('')).toString()
+  return Number('0b' + arr.join('')).toString()
 }
 
 /**
@@ -49,7 +49,7 @@ function permission2digit({
  * @param {number}  mode
  * @return {array}
  */
-export function mode2permission(mode) {
+export function mode2permission (mode) {
   let str = mode.toString(8)
   let len = str.length
   let perms = str.slice(len - 3, len).split('')
@@ -71,8 +71,8 @@ export function mode2permission(mode) {
  * @param {array} arr
  * @return {string} eg, '644'
  */
-export function permission2mode(arr) {
-  return arr.reduce((prev, {permission}) => {
+export function permission2mode (arr) {
+  return arr.reduce((prev, { permission }) => {
     return prev + permission2digit(permission)
   }, '')
 }

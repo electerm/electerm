@@ -2,15 +2,12 @@
  * transfer through ws
  */
 
-import {generate} from 'shortid'
+import { generate } from 'shortid'
 import initWs from './ws'
 
 const keys = window.getGlobal('transferKeys')
 
 class Transfer {
-
-  constructor() {}
-
   async init ({
     onData,
     onEnd,
@@ -56,14 +53,12 @@ class Transfer {
       log.debug(arg.error.stack)
       onError(new Error(arg.error.message))
     }, 'transfer:err:' + id)
-
   }
 
-  onDestroy(ws) {
+  onDestroy (ws) {
     ws.removeEventListener('message', this.onData)
     ws.close()
   }
-
 }
 
 export default async (props) => {

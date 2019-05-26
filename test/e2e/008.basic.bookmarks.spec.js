@@ -2,7 +2,7 @@ const { Application } = require('spectron')
 const delay = require('./common/wait')
 const _ = require('lodash')
 const log = require('./common/log')
-const {expect} = require('chai')
+const { expect } = require('chai')
 const appOptions = require('./common/app-options')
 const {
   TEST_HOST,
@@ -11,23 +11,22 @@ const {
 } = require('./common/env')
 
 describe('bookmarks', function () {
-
   this.timeout(100000)
 
-  beforeEach(async function() {
+  beforeEach(async function () {
     this.app = new Application(appOptions)
     return this.app.start()
   })
 
-  afterEach(function() {
+  afterEach(function () {
     if (this.app && this.app.isRunning()) {
       return this.app.stop()
     }
   })
 
-  it('all buttons open proper bookmark tab', async function() {
+  it('all buttons open proper bookmark tab', async function () {
     const { client, electron } = this.app
-    let {lang} = await electron.remote.getGlobal('et')
+    let { lang } = await electron.remote.getGlobal('et')
     let prefix = prefix => {
       return (id) => {
         return _.get(lang, `${prefix}.${id}`) || id
@@ -63,7 +62,7 @@ describe('bookmarks', function () {
     await client.setValue('.ant-modal .ant-tabs-tabpane-active #username', TEST_USER)
     await client.setValue('.ant-modal .ant-tabs-tabpane-active #password', TEST_PASS)
     let list0 = await client.elements('.ant-modal .ant-tabs-tabpane-active .tree-item')
-    await client.execute(function() {
+    await client.execute(function () {
       document.querySelectorAll('.ant-modal .ant-tabs-tabpane-active .ant-form-item-children .ant-btn.ant-btn-ghost')[0].click()
     })
     let list = await client.elements('.ant-modal .ant-tabs-tabpane-active .tree-item')
@@ -71,24 +70,22 @@ describe('bookmarks', function () {
     expect(list.value.length).equal(list0.value.length + 1)
 
     log('list tab')
-    await client.execute(function() {
+    await client.execute(function () {
       document.querySelectorAll('.ant-modal .ant-tabs-tabpane-active .ant-tree-child-tree-open .tree-item')[0].click()
     })
-    //await delay(55555555)
+    // await delay(55555555)
     let list1 = await client.getAttribute('.ant-modal .ant-tabs-tabpane-active .ant-tree-child-tree-open .ant-tree-node-content-wrapper', 'class')
     expect(list1.includes('ant-tree-node-selected'))
 
-    //await delay(55555555)
+    // await delay(55555555)
 
     log('tab it')
-    await client.execute(function() {
+    await client.execute(function () {
       document.querySelectorAll('.ant-modal .ant-tabs-tab')[2].click()
     })
 
     await delay(100)
     let text4 = await client.getText(sel)
     expect(text4).equal(e('setting'))
-
   })
-
 })

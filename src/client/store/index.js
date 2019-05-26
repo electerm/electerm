@@ -3,15 +3,13 @@
  */
 
 import Subx from 'subx'
-import {message} from 'antd'
+import { message, notification } from 'antd'
 import newTerm from '../common/new-terminal'
 import _ from 'lodash'
-import {generate} from 'shortid'
+import { generate } from 'shortid'
 import copy from 'json-deep-copy'
 import wait from '../common/wait'
-import {notification} from 'antd'
 import openInfoModal from '../components/sidebar/info-modal'
-import * as terminalThemes from '../common/terminal-theme'
 import createTitlte from '../common/create-title'
 import {
   maxHistory,
@@ -22,11 +20,12 @@ import {
   statusMap,
   defaultTheme
 } from '../common/constants'
-import {buildNewTheme} from '../common/terminal-theme'
+import * as terminalThemes from '../common/terminal-theme'
 
-const {getGlobal, _config} = window
+const { buildNewTheme } = terminalThemes
+const { getGlobal, _config } = window
 const ls = getGlobal('ls')
-const {prefix} = window
+const { prefix } = window
 const t = prefix('terminalThemes')
 const e = prefix('control')
 const defaultStatus = statusMap.processing
@@ -45,9 +44,9 @@ const getInitItem = (arr, tab) => {
   if (tab === settingMap.history) {
     return arr[0] || {}
   } else if (tab === settingMap.bookmarks) {
-    return {id: '', title: ''}
+    return { id: '', title: '' }
   } else if (tab === settingMap.setting) {
-    return {id: '', title: e('common')}
+    return { id: '', title: e('common') }
   } else if (tab === settingMap.terminalThemes) {
     return buildNewTheme()
   }
@@ -85,32 +84,32 @@ const store = Subx.create({
   textEditorProps: {},
   item: getInitItem([], settingMap.bookmarks),
 
-  //for settings related
+  // for settings related
   tab: settingMap.bookmarks,
-  autofocustrigger: + new Date(),
+  autofocustrigger: +new Date(),
   bookmarkId: undefined,
   showModal: false,
   activeTerminalId: '',
 
-  //sidebar
+  // sidebar
   openedSideBar: '',
   openedCategoryIds: ls.get('openedCategoryIds') || bookmarkGroups.map(b => b.id),
   menuOpened: false,
 
-  //update
+  // update
   shouldCheckUpdate: 0,
   upgradeInfo: {},
 
-  //computed
-  getThemeConfig() {
+  // computed
+  getThemeConfig () {
     return (_.find(store.themes, d => d.id === store.theme) || {}).themeConfig || {}
   },
 
-  get tabTitles() {
+  get tabTitles () {
     return store.tabs.map(d => d.title).join('#')
   },
 
-  get bookmarkGroupsTotal() {
+  get bookmarkGroupsTotal () {
     return store.sshConfigItems.length
       ? [
         ...store.bookmarkGroups,
@@ -124,7 +123,7 @@ const store = Subx.create({
   },
 
   // methods
-  setState(update) {
+  setState (update) {
     Object.assign(store, update)
   },
 
@@ -170,7 +169,7 @@ const store = Subx.create({
       .map(t => {
         return {
           ...t,
-          status: t.host ? statusMap.error: t.status
+          status: t.host ? statusMap.error : t.status
         }
       })
   },
@@ -196,7 +195,7 @@ const store = Subx.create({
   },
 
   zoom (level = 1, plus = false, zoomOnly) {
-    let {webFrame} = require('electron')
+    let { webFrame } = require('electron')
     let nl = plus
       ? webFrame.getZoomFactor() + level
       : level
@@ -229,7 +228,7 @@ const store = Subx.create({
     })
   },
 
-  onCloseAbout(cb) {
+  onCloseAbout (cb) {
     if (_.isFunction(cb)) {
       cb()
     }
@@ -261,7 +260,7 @@ const store = Subx.create({
   },
 
   addTransferHistory (item) {
-    let {transferHistory} = store
+    let { transferHistory } = store
     transferHistory.unshift(item)
     store.transferHistory = transferHistory.slice(0, maxTransferHistory)
   },
@@ -289,16 +288,16 @@ const store = Subx.create({
   },
 
   onError (e) {
-    let {message = 'error', stack} = e
+    let { message = 'error', stack } = e
     log.error(e)
     let msg = (
-      <div className="mw240 elli wordbreak" title={message}>
+      <div className='mw240 elli wordbreak' title={message}>
         {message}
       </div>
     )
     let description = (
       <div
-        className="mw300 elli common-err-desc wordbreak"
+        className='mw300 elli common-err-desc wordbreak'
       >
         {stack}
       </div>
@@ -325,13 +324,13 @@ const store = Subx.create({
     if (!item) {
       return
     }
-    //let index = _.findIndex(items, t => t.id === id)
+    // let index = _.findIndex(items, t => t.id === id)
     Object.assign(item, update)
     // items.splice(index, 1, item)
     // store[type] = items
   },
 
-  delItem ({id}, type) {
+  delItem ({ id }, type) {
     store[type] = store[type].filter(t => {
       return t.id !== id
     })
@@ -346,8 +345,8 @@ const store = Subx.create({
     store.editItem(id, update, 'tabs')
   },
 
-  delTab ({id}) {
-    let {currentTabId} = store
+  delTab ({ id }) {
+    let { currentTabId } = store
     if (currentTabId === id) {
       let next = tabs[0] || {}
       store.currentTabId = next.id
@@ -369,11 +368,11 @@ const store = Subx.create({
     terminalThemes.updateTheme(id, update)
   },
 
-  delTheme ({id}) {
+  delTheme ({ id }) {
     store.themes = store.themes.filter(t => {
       return t.id !== id
     })
-    let {theme} = store
+    let { theme } = store
     if (theme === id) {
       store.theme = terminalThemes.defaultTheme.id
     }
@@ -390,11 +389,11 @@ const store = Subx.create({
     Object.assign(item, update)
   },
 
-  delBookmarkGroup ({id}) {
+  delBookmarkGroup ({ id }) {
     if (id === defaultookmarkGroupId) {
       return
     }
-    let {bookmarkGroups} = store
+    let { bookmarkGroups } = store
     let tobeDel = _.find(bookmarkGroups, bg => bg.id === id)
     if (!tobeDel) {
       return
@@ -459,12 +458,12 @@ const store = Subx.create({
     let tab = copy(
       tabToReload
     )
-    let {id} = tab
+    let { id } = tab
     tab.id = generate()
     tab.status = statusMap.processing
     let tabs = store.tabs
     let index = _.findIndex(tabs, t => t.id === id)
-    store.delTab({id: tabToReload.id})
+    store.delTab({ id: tabToReload.id })
     await wait(30)
     store.addTab(tab, index)
   },
@@ -489,7 +488,7 @@ const store = Subx.create({
     store.setState({
       tab: settingMap.bookmarks,
       item: getInitItem([], settingMap.bookmarks),
-      autofocustrigger: + new Date()
+      autofocustrigger: +new Date()
     })
     store.openModal()
   },
@@ -498,7 +497,7 @@ const store = Subx.create({
     store.setState({
       tab: settingMap.history,
       item: store.history[0] || getInitItem([], settingMap.history),
-      autofocustrigger: + new Date()
+      autofocustrigger: +new Date()
     })
     store.openModal()
   },
@@ -515,7 +514,7 @@ const store = Subx.create({
   },
 
   onSelectBookmark (id) {
-    let {history, bookmarks} = store
+    let { history, bookmarks } = store
     let item = copy(
       _.find(bookmarks, it => it.id === id) ||
       _.find(sshConfigItems, it => it.id === id)
@@ -563,7 +562,7 @@ const store = Subx.create({
     store.setState({
       tab: settingMap.terminalThemes,
       item: buildNewTheme(),
-      autofocustrigger: + new Date()
+      autofocustrigger: +new Date()
     })
     store.openModal()
   },
@@ -588,7 +587,7 @@ const store = Subx.create({
     let item = getInitItem(arr, tab)
     store.setState({
       item,
-      autofocustrigger: + new Date(),
+      autofocustrigger: +new Date(),
       tab
     })
   },
@@ -636,7 +635,7 @@ store.onResize = _.debounce(() => {
 // auto focus when tab change
 Subx.autoRun(store, () => {
   store.focus()
-  let {currentTabId} = store
+  let { currentTabId } = store
   let tab = _.find(tabs, t => t.id === currentTabId) || {}
   let title = createTitlte(tab)
   window.getGlobal('setTitle')(title)

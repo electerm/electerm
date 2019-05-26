@@ -4,11 +4,11 @@
 
 import React from 'react'
 import Main from './main'
-import {initFS} from '../../common/fs'
+import { initFS } from '../../common/fs'
 import store from '../../store'
 
 export default class Init extends React.PureComponent {
-  constructor(props) {
+  constructor (props) {
     super(props)
     this.state = {
       loading: true
@@ -23,10 +23,10 @@ export default class Init extends React.PureComponent {
     })
   }
 
-  render() {
+  render () {
     if (this.state.loading) {
       return (
-        <div className="pd3 aligncenter">loading...</div>
+        <div className='pd3 aligncenter'>loading...</div>
       )
     }
     return <Main store={store} />

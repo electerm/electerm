@@ -2,30 +2,30 @@
  * hisotry/bookmark/setting modal
  */
 
-import {Component} from '../common/react-subx'
+import { Component } from '../common/react-subx'
 import _ from 'lodash'
-import {Modal, Tabs, Col, Row} from 'antd'
+import { Modal, Tabs, Col, Row } from 'antd'
 import TerminalThemeForm from '../terminal-theme'
 import TerminalThemeList from '../terminal-theme/theme-list'
 import BookmarkForm from '../bookmark-form'
 import List from './list'
 import TreeList from './tree-list'
 import Setting from './setting'
-import {settingMap} from '../../common/constants'
+import { settingMap } from '../../common/constants'
 import copy from 'json-deep-copy'
 
-const {prefix} = window
+const { prefix } = window
 const e = prefix('setting')
 const m = prefix('common')
 const c = prefix('control')
 const t = prefix('terminalThemes')
-const {TabPane} = Tabs
+const { TabPane } = Tabs
 
 export default class SettingModal extends Component {
-  render() {
-    let {store} = this.props
+  render () {
+    let { store } = this.props
     const selectItem = (item) => {
-      store.modifier({item})
+      store.modifier({ item })
     }
 
     const tabsShouldConfirmDel = [
@@ -34,7 +34,7 @@ export default class SettingModal extends Component {
     ]
 
     const renderTabs = () => {
-      let {tab, item, list} = store
+      let { tab, item, list } = store
       let props0 = {
         store,
         activeItemId: item.id,
@@ -80,7 +80,7 @@ export default class SettingModal extends Component {
                         {...formProps}
                       />
                     )
-                    : <div className="form-wrap pd2 aligncenter">{c('notFoundContent')}</div>
+                    : <div className='form-wrap pd2 aligncenter'>{c('notFoundContent')}</div>
                 }
 
               </Col>

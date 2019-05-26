@@ -1,9 +1,9 @@
 
-import {Component} from 'react'
+import { Component } from 'react'
 import ReactDOM from 'react-dom'
-import {generate} from 'shortid'
-import {mergeProxy} from '../../common/merge-proxy'
-import {Input, Icon, Tooltip, Spin, Modal} from  'antd'
+import { generate } from 'shortid'
+import { mergeProxy } from '../../common/merge-proxy'
+import { Input, Icon, Tooltip, Spin, Modal } from 'antd'
 import _ from 'lodash'
 import Transports from './transports'
 import FileOps from './file-ops'
@@ -15,14 +15,14 @@ import isAbsPath from '../../common/is-absolute-path'
 import classnames from 'classnames'
 import sorterIndex from '../../common/index-sorter'
 import DragSelect from './drag-select'
-import {getLocalFileInfo, getRemoteFileInfo} from './file-read'
+import { getLocalFileInfo, getRemoteFileInfo } from './file-read'
 import {
   typeMap, maxSftpHistory, paneMap,
   fileOpTypeMap, eventTypes,
   fileTypeMap, transferTypeMap,
   terminalSshConfigType
 } from '../../common/constants'
-import {hasFileInClipboardText} from '../../common/clipboard'
+import { hasFileInClipboardText } from '../../common/clipboard'
 import Client from '../../common/sftp'
 import fs from '../../common/fs'
 import ResizeWrap from '../common/resize-wrap'
@@ -32,7 +32,7 @@ import deepCopy from 'json-deep-copy'
 import memoizeOne from 'memoize-one'
 import './sftp.styl'
 
-const {getGlobal, prefix} = window
+const { getGlobal, prefix } = window
 const e = prefix('sftp')
 const c = prefix('common')
 
@@ -46,8 +46,7 @@ const buildTree = arr => {
 }
 
 export default class Sftp extends Component {
-
-  constructor(props) {
+  constructor (props) {
     super(props)
     this.state = {
       id: props.id || generate(),
@@ -66,15 +65,15 @@ export default class Sftp extends Component {
     }
   }
 
-  componentWillMount() {
+  componentWillMount () {
     this.initData()
   }
-  
-  componentDidMount() {
+
+  componentDidMount () {
     this.initEvent()
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate (prevProps) {
     if (
       !_.isEqual(
         prevProps.sshConnected, this.props.sshConnected
@@ -84,7 +83,7 @@ export default class Sftp extends Component {
     }
   }
 
-  componentWillUnmount() {
+  componentWillUnmount () {
     this.destroyEvent()
     this.sftp && this.sftp.destroy()
     clearTimeout(this.timer4)
@@ -142,23 +141,23 @@ export default class Sftp extends Component {
     ].filter(d => d)
   }, _.isEqual)
 
-  initEvent() {
+  initEvent () {
     let root = ReactDOM.findDOMNode(this)
     window.addEventListener('keydown', this.handleEvent)
     this.dom = root
   }
 
-  destroyEvent() {
+  destroyEvent () {
     window.removeEventListener('keydown', this.handleEvent)
   }
 
-  isActive() {
+  isActive () {
     return this.props.currentTabId === this.props.tab.id &&
       this.props.pane === paneMap.fileManager
   }
 
   getIndex = (file) => {
-    let {type} = file
+    let { type } = file
     return _.findIndex(this.getFileList(type), f => f.id === file.id)
   }
 
@@ -179,7 +178,7 @@ export default class Sftp extends Component {
   }
 
   selectNext = type => {
-    let {selectedFiles} = this.state
+    let { selectedFiles } = this.state
     let sorted = selectedFiles.map(f => this.getIndex(f))
       .sort(sorterIndex)
     let last = _.last(sorted)
@@ -200,7 +199,7 @@ export default class Sftp extends Component {
   }
 
   selectPrev = type => {
-    let {selectedFiles} = this.state
+    let { selectedFiles } = this.state
     let sorted = selectedFiles.map(f => this.getIndex(f))
       .sort(sorterIndex)
     let last = sorted[0]
@@ -222,8 +221,8 @@ export default class Sftp extends Component {
   }
 
   localDel = async (file) => {
-    let {localPath} = this.state
-    let {name, isDirectory} = file
+    let { localPath } = this.state
+    let { name, isDirectory } = file
     let func = !isDirectory
       ? fs.unlinkAsync
       : fs.rmrf
@@ -232,9 +231,9 @@ export default class Sftp extends Component {
   }
 
   remoteDel = async (file) => {
-    let {remotePath} = this.state
-    let {name, isDirectory} = file
-    let {sftp} = this
+    let { remotePath } = this.state
+    let { name, isDirectory } = file
+    let { sftp } = this
     let func = isDirectory
       ? sftp.rmdir
       : sftp.rm
@@ -255,11 +254,11 @@ export default class Sftp extends Component {
     this[type + 'List']()
   }
 
-  renderDelConfirmTitle(files = this.state.selectedFiles) {
+  renderDelConfirmTitle (files = this.state.selectedFiles) {
     let hasDirectory = _.some(files, f => f.isDirectory)
     let names = hasDirectory ? e('filesAndFolders') : e('files')
     return (
-      <div className="wordbreak">
+      <div className='wordbreak'>
         {e('delTip')}
         {names}
         {
@@ -267,7 +266,7 @@ export default class Sftp extends Component {
             ? e('delTip1')
             : ''
         }
-        (<b className="mg1x">{files.length}</b>)
+        (<b className='mg1x'>{files.length}</b>)
       </div>
     )
   }
@@ -286,8 +285,8 @@ export default class Sftp extends Component {
     if (!ids.length) {
       return
     }
-    let {shiftKey, ctrlKey} = e
-    let {selectedFiles} = this.state
+    let { shiftKey, ctrlKey } = e
+    let { selectedFiles } = this.state
     let tree = this.state[type + 'FileTree']
     let sels = []
     let sids = selectedFiles.map(d => d.id)
@@ -313,12 +312,12 @@ export default class Sftp extends Component {
   }
 
   enter = (type, e) => {
-    let {selectedFiles, onEditFile} = this.state
+    let { selectedFiles, onEditFile } = this.state
     if (onEditFile || selectedFiles.length !== 1) {
       return
     }
     let file = selectedFiles[0]
-    let {isDirectory} = file
+    let { isDirectory } = file
     if (isDirectory) {
       this[type + 'Dom'].enterDirectory(e, file)
     } else {
@@ -326,7 +325,6 @@ export default class Sftp extends Component {
         filesToConfirm: [file]
       })
     }
-
   }
 
   onInputFocus = (type) => {
@@ -373,8 +371,8 @@ export default class Sftp extends Component {
     let lastClickedFile = this.state.lastClickedFile || {
       type: typeMap.local
     }
-    let {type} = lastClickedFile
-    let {inputFocus, onDelete} = this
+    let { type } = lastClickedFile
+    let { inputFocus, onDelete } = this
     if (keyControlPressed(e) && e.code === 'KeyA') {
       this.selectAll(type, e)
     } else if (e.code === 'ArrowDown') {
@@ -398,7 +396,7 @@ export default class Sftp extends Component {
 
   initData = (remoteInit) => {
     if (remoteInit) {
-      let {props} = this
+      let { props } = this
       let host = _.get(props, 'tab.host') &&
         _.get(props, 'tab.type') !== terminalSshConfigType
       if (host) {
@@ -449,8 +447,8 @@ export default class Sftp extends Component {
 
   remoteList = async (returnList = false, remotePathReal, oldPath) => {
     let sftp = this.sftp || await Client()
-    let {tab} = this.props
-    let {username, startPath} = tab
+    let { tab } = this.props
+    let { username, startPath } = tab
     let remotePath
     let noPathInit = remotePathReal || this.state.remotePath
     if (noPathInit) {
@@ -464,7 +462,7 @@ export default class Sftp extends Component {
     let oldRemote = deepCopy(
       this.state.remote
     )
-    let {sessionOptions} = this.props
+    let { sessionOptions } = this.props
     try {
       if (!this.sftp) {
         let config = deepCopy(
@@ -506,7 +504,7 @@ export default class Sftp extends Component {
       remote = []
       for (let _r of remotes) {
         let r = _r
-        let {type, name} = r
+        let { type, name } = r
         let f = {
           ..._.pick(r, ['name', 'size', 'accessTime', 'modifyTime', 'mode']),
           isDirectory: r.type === fileTypeMap.directory,
@@ -560,7 +558,7 @@ export default class Sftp extends Component {
         ]).slice(0, maxSftpHistory)
       }
       this.setState(update)
-    } catch(e) {
+    } catch (e) {
       let update = {
         remoteLoading: false,
         remote: oldRemote
@@ -589,7 +587,7 @@ export default class Sftp extends Component {
       let localPath = noPathInit || getGlobal('homeOrtmp')
       let locals = await fs.readdirAsync(localPath)
       let local = []
-      for(let name of locals) {
+      for (let name of locals) {
         let p = resolve(localPath, name)
         let fileObj = await getLocalFileInfo(p)
         if (fileObj) {
@@ -617,7 +615,7 @@ export default class Sftp extends Component {
         ]).slice(0, maxSftpHistory)
       }
       this.setState(update)
-    } catch(e) {
+    } catch (e) {
       let update = {
         localLoading: false,
         local: oldLocal
@@ -730,7 +728,9 @@ export default class Sftp extends Component {
       >
         <FileSection
           {...this.getFileProps(item, type)}
-          ref={ref => this[type + 'Dom'] = ref}
+          ref={ref => {
+            this[type + 'Dom'] = ref
+          }}
           draggable={false}
           key={'empty' + type}
         />
@@ -746,23 +746,23 @@ export default class Sftp extends Component {
       <div>
         <Tooltip
           title={title}
-          placement="topLeft"
+          placement='topLeft'
           arrowPointAtCenter
         >
           <Icon
-            type="eye"
+            type='eye'
             theme={theme}
-            className="mg1r"
+            className='mg1r'
             onClick={() => this.toggleShowHiddenFile(type)}
           />
         </Tooltip>
         <Tooltip
           title={e('goParent')}
           arrowPointAtCenter
-          placement="topLeft"
+          placement='topLeft'
         >
           <Icon
-            type="arrow-up"
+            type='arrow-up'
             onClick={() => this.goParent(type)}
           />
         </Tooltip>
@@ -782,7 +782,7 @@ export default class Sftp extends Component {
       'sftp-history',
       'animated',
       `sftp-history-${type}`,
-      {focused}
+      { focused }
     )
     return (
       <div
@@ -793,7 +793,7 @@ export default class Sftp extends Component {
             return (
               <div
                 key={o}
-                className="sftp-history-item"
+                className='sftp-history-item'
                 onClick={() => this.onClickHistory(type, o)}
               >
                 {o}
@@ -805,7 +805,7 @@ export default class Sftp extends Component {
     )
   }
 
-  renderSection(type, style, width) {
+  renderSection (type, style, width) {
     let {
       id, onDrag
     } = this.state
@@ -814,7 +814,7 @@ export default class Sftp extends Component {
     let realPath = this.state[`${type}Path`]
     let arr = this.getFileList(type)
     let loading = this.state[`${type}Loading`]
-    let {host, username} = this.props.tab
+    let { host, username } = this.props.tab
     let goIcon = realPath === path
       ? 'reload'
       : 'arrow-right'
@@ -847,22 +847,22 @@ export default class Sftp extends Component {
         {...style}
       >
         <Spin spinning={loading}>
-          <div className="pd1 sftp-panel">
+          <div className='pd1 sftp-panel'>
             {
               type === typeMap.remote
                 ? (
-                  <div className="pd1t pd1b pd1x alignright">
+                  <div className='pd1t pd1b pd1x alignright'>
                     {e('remote')}: {username}@{host}
                   </div>
                 )
                 : (
-                  <div className="pd1t pd1b pd1x">
+                  <div className='pd1t pd1b pd1x'>
                     {e('local')}
                   </div>
                 )
             }
-            <div className="pd1y sftp-title-wrap">
-              <div className="sftp-title">
+            <div className='pd1y sftp-title-wrap'>
+              <div className='sftp-title'>
                 <Input
                   value={path}
                   onChange={e => this.onChange(e, n)}
@@ -920,7 +920,7 @@ export default class Sftp extends Component {
     }
     return (
       <ResizeWrap
-        direction="horizontal"
+        direction='horizontal'
         noResizeEvent
         onDragEnd={this.onResizeDragEnd}
         minWidth={300}
@@ -940,12 +940,12 @@ export default class Sftp extends Component {
     )
   }
 
-  render() {
+  render () {
     let {
       id,
       filesToConfirm
     } = this.state
-    let {height} = this.props
+    let { height } = this.props
     let props = {
       ...this.props,
       id,
@@ -969,7 +969,7 @@ export default class Sftp extends Component {
         'localPath'
       ])
     }
-    let {transports} = this.state
+    let { transports } = this.state
     let keys = Object.keys(transferTypeMap)
     let transports1 = transports.filter(f => {
       return keys.includes(f.transferType)
@@ -978,7 +978,7 @@ export default class Sftp extends Component {
       return !keys.includes(f.transferType)
     })
     return (
-      <div className="sftp-wrap overhide relative" id={`id-${id}`} style={{height}}>
+      <div className='sftp-wrap overhide relative' id={`id-${id}`} style={{ height }}>
         {
           this.renderSections()
         }
@@ -997,5 +997,4 @@ export default class Sftp extends Component {
       </div>
     )
   }
-
 }

@@ -7,7 +7,6 @@ import ReactDOM from 'react-dom'
 import PropTypes from 'prop-types'
 
 export default class DragSelect extends React.PureComponent {
-
   static propTypes = {
     className: PropTypes.string,
     wrapperSelector: PropTypes.string,
@@ -35,20 +34,20 @@ export default class DragSelect extends React.PureComponent {
     startPoint: null
   }
 
-  componentDidMount() {
+  componentDidMount () {
     this.initEvents()
   }
 
-  componentWillUnmount() {
+  componentWillUnmount () {
     this.destroyEvents()
   }
 
-  destroyEvents() {
+  destroyEvents () {
     this.root.removeEventListener('mousedown', this.onMousedown)
     clearTimeout(this.mousedownTimer)
   }
 
-  initEvents() {
+  initEvents () {
     let root = document.querySelector(this.props.wrapperSelector)
     if (!root) {
       return
@@ -138,7 +137,7 @@ export default class DragSelect extends React.PureComponent {
   }
 
   computeSelectedFiles = (e) => {
-    let {targetSelector} = this.props
+    let { targetSelector } = this.props
     let doms = Array.from(document.querySelectorAll(targetSelector))
     let maskDom = ReactDOM.findDOMNode(this)
     let maskReact = maskDom.getBoundingClientRect()
@@ -153,7 +152,7 @@ export default class DragSelect extends React.PureComponent {
   }
 
   computeMaskPosition = () => {
-    let {startPoint, endPoint} = this.state
+    let { startPoint, endPoint } = this.state
     if (!startPoint || !endPoint) {
       return {}
     }
@@ -172,8 +171,8 @@ export default class DragSelect extends React.PureComponent {
     }
   }
 
-  render() {
-    let {style, className} = this.props
+  render () {
+    let { style, className } = this.props
     let maskStyle = this.computeMaskPosition()
     const styles = {
       position: 'absolute',
@@ -195,6 +194,4 @@ export default class DragSelect extends React.PureComponent {
       <div className={className} style={styles} />
     )
   }
-
 }
-

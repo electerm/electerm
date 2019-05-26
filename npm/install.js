@@ -3,8 +3,8 @@
  */
 
 const os = require('os')
-const {resolve} = require('path')
-const {exec, rm, mv} = require('shelljs')
+const { resolve } = require('path')
+const { exec, rm, mv } = require('shelljs')
 const rp = require('phin').promisified
 const download = require('download')
 const isWin = os.platform() === 'win32'
@@ -15,12 +15,12 @@ const versionUrl = 'https://electerm.html5beta.com/version.html?_=' + (+new Date
 function down (url, extract = true) {
   let local = resolve(__dirname, '../')
   console.log('downloading ' + url)
-  return download(url, local, {extract}).then(() => {
+  return download(url, local, { extract }).then(() => {
     console.log('done!')
   })
 }
 
-function getVer() {
+function getVer () {
   return rp({
     url: versionUrl,
     timeout: 15000
@@ -28,7 +28,7 @@ function getVer() {
     .then(res => res.body.toString())
 }
 
-function getReleaseInfo(filter) {
+function getReleaseInfo (filter) {
   return rp({
     url: releaseInfoUrl,
     timeout: 15000
@@ -41,28 +41,28 @@ function getReleaseInfo(filter) {
     })
 }
 
-async function runLinux() {
+async function runLinux () {
   let ver = await getVer()
   let target = resolve(__dirname, `../electerm-${ver.replace('v', '')}-linux-x64`)
   let targetNew = resolve(__dirname, '../electerm')
   exec(`rm -rf ${target} ${targetNew}`)
   let releaseInfo = await getReleaseInfo(r => /linux-x64\.tar\.gz/.test(r.name))
   await down(releaseInfo.browser_download_url)
-  //await down('http://192.168.0.67:7500/electerm-0.16.1.tar.gz')
+  // await down('http://192.168.0.67:7500/electerm-0.16.1.tar.gz')
   exec(`mv ${target} ${targetNew}`)
   exec(`echo "npm" > ${targetNew}/resources/install-src.txt`)
   exec('electerm')
 }
 
-async function runMac() {
+async function runMac () {
   let releaseInfo = await getReleaseInfo(r => /\.dmg$/.test(r.name))
   await down(releaseInfo.browser_download_url, false)
-  //await down('http://192.168.0.67:7500/electerm-0.16.1-mac.dmg', false)
+  // await down('http://192.168.0.67:7500/electerm-0.16.1-mac.dmg', false)
   let target = resolve(__dirname, '../', releaseInfo.name)
   exec(`open ${target}`)
 }
 
-async function runWin() {
+async function runWin () {
   let ver = await getVer()
   let target = resolve(__dirname, `../electerm-${ver.replace('v', '')}-win-x64`)
   let targetNew = resolve(__dirname, '../electerm')
@@ -72,7 +72,7 @@ async function runWin() {
   ])
   let releaseInfo = await getReleaseInfo(r => /electerm-\d+\.\d+\.\d+-win\.tar\.gz/.test(r.name))
   await down(releaseInfo.browser_download_url)
-  //await down('http://192.168.0.67:7500/electerm-0.16.1-win.tar.gz')
+  // await down('http://192.168.0.67:7500/electerm-0.16.1-win.tar.gz')
   await mv(target, targetNew)
   require('child_process').execFile(`${targetNew}\\electerm.exe`)
 }

@@ -2,7 +2,7 @@
  * fs through ws
  */
 
-import {generate} from 'shortid'
+import { generate } from 'shortid'
 import initWs from './ws'
 
 const fsFunctions = window.getGlobal('fsFunctions')

@@ -10,8 +10,8 @@ const isValidProxy = (proxy) => {
     proxy.proxyPort
 }
 
-export function mergeProxy(globalConfig, tab) {
-  let {proxy} = tab
+export function mergeProxy (globalConfig, tab) {
+  let { proxy } = tab
   if (isValidProxy(proxy)) {
     return proxy
   }

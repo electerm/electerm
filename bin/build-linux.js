@@ -1,4 +1,4 @@
-const {exec} = require('shelljs')
+const { exec } = require('shelljs')
 
 const cmd = 'rm -rf dist && ' +
 'echo "tar.gz" > work/app/install-src.txt && ' +

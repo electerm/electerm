@@ -43,7 +43,7 @@ export default (info, props) => {
       bookmarks,
       d => d.id === toId
     )
-    :  _.find(
+    : _.find(
       bookmarkGroups,
       d => d.id === toId
     )

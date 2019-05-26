@@ -3,17 +3,16 @@
  */
 
 import List from '../setting-panel/list'
-import {Tooltip, Icon} from 'antd'
+import { Tooltip, Icon } from 'antd'
 import classnames from 'classnames'
-import {defaultTheme} from '../../common/terminal-theme'
+import { defaultTheme } from '../../common/terminal-theme'
 import highlight from '../common/highlight'
 import './terminal-theme-list.styl'
 
-const {prefix} = window
+const { prefix } = window
 const e = prefix('terminalThemes')
 
 export default class ThemeList extends List {
-
   del = (item, e) => {
     e.stopPropagation()
     this.props.store.delTheme(item)
@@ -26,11 +25,11 @@ export default class ThemeList extends List {
     return (
       <Tooltip
         title={e('apply')}
-        placement="top"
+        placement='top'
       >
         <Icon
-          type="check-circle-o"
-          className="pointer list-item-apply"
+          type='check-circle-o'
+          className='pointer list-item-apply'
           onClick={() => this.props.store.setTheme(item.id)}
         />
       </Tooltip>
@@ -42,9 +41,9 @@ export default class ThemeList extends List {
   }
 
   renderItem = (item, i) => {
-    let {activeItemId} = this.props
-    let {theme} = this.props
-    let {name, id} = item
+    let { activeItemId } = this.props
+    let { theme } = this.props
+    let { name, id } = item
     let cls = classnames(
       'item-list-unit theme-item',
       {
@@ -69,9 +68,9 @@ export default class ThemeList extends List {
       >
         <Tooltip
           title={name}
-          placement="right"
+          placement='right'
         >
-          <div className="elli pd1y pd2x">{title}</div>
+          <div className='elli pd1y pd2x'>{title}</div>
         </Tooltip>
         {
           id === defaultTheme.id
@@ -84,7 +83,7 @@ export default class ThemeList extends List {
   }
 
   filter = list => {
-    let {keyword} = this.state
+    let { keyword } = this.state
     return keyword
       ? list.filter(item => {
         return item.name.toLowerCase().includes(keyword.toLowerCase())
@@ -92,4 +91,3 @@ export default class ThemeList extends List {
       : list
   }
 }
-

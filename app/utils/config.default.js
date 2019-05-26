@@ -1,11 +1,11 @@
 
 const extend = require('recursive-assign')
 const fp = require('find-free-port')
-const {resolve} = require('path')
-const {appPath} = require('./app-props')
+const { resolve } = require('path')
+const { appPath } = require('./app-props')
 const log = require('./log')
 
-module.exports = function() {
+module.exports = function () {
   let override = {}
   let userConfig = {}
   let configPath = resolve(appPath, 'electerm-config.js')
@@ -13,17 +13,20 @@ module.exports = function() {
 
   try {
     override = require(configPath)
-  } catch(e) {
+  } catch (e) {
     log.info('no', configPath, 'but it is ok')
   }
   try {
     userConfig = require(userConfigPath)
-  } catch(e) {
+  } catch (e) {
     log.info('no', userConfigPath, 'but it is ok')
   }
 
-  return new Promise((resolve) => {
-    fp(3075, '127.0.0.1', function(err, freePort){
+  return new Promise((resolve, reject) => {
+    fp(3075, '127.0.0.1', function (err, freePort) {
+      if (err) {
+        reject(err)
+      }
       let defaultSettings = {
         hotkey: 'Control+2',
         sshReadyTimeout: 50000,
@@ -58,4 +61,3 @@ module.exports = function() {
     })
   })
 }
-

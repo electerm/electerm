@@ -25,7 +25,7 @@ const template = [
       {
         label: c('newSsh'),
         accelerator: 'CmdOrCtrl+N',
-        click() {
+        click () {
           global.win.webContents.send('new-ssh', null)
         }
       },
@@ -65,7 +65,7 @@ const template = [
       {
         label: e('selectall'),
         accelerator: 'CmdOrCtrl+A',
-        click() {
+        click () {
           global.win.webContents.send('selectall', null)
         }
       },
@@ -74,7 +74,7 @@ const template = [
       },
       {
         label: s('settings'),
-        click() {
+        click () {
           global.win.webContents.send('openSettings', null)
         }
       }
@@ -133,7 +133,7 @@ const template = [
       },
       {
         label: e('restart'),
-        click() {
+        click () {
           global.win.close()
           app.relaunch()
         }
@@ -146,40 +146,40 @@ const template = [
     submenu: [
       {
         label: e('about'),
-        click() {
+        click () {
           global.win.webContents.send('open-about', null)
         }
       },
       {
         label: e('checkUpdate'),
-        click() {
+        click () {
           global.win.webContents.send('checkupdate', null)
         }
       },
       {
         label: e('reportIssue'),
-        click() {
+        click () {
           shell
             .openExternal('https://github.com/electerm/electerm/issues/new')
         }
       },
       {
         label: 'github',
-        click() {
+        click () {
           shell
             .openExternal('https://github.com/electerm/electerm')
         }
       },
       {
         label: e('homepage'),
-        click() {
+        click () {
           shell
             .openExternal(packInfo.homepage)
         }
       },
       {
         label: e('toggledevtools'),
-        click() {
+        click () {
           global.win.webContents.openDevTools()
         }
       }

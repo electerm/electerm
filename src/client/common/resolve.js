@@ -11,12 +11,12 @@ export default (basePath, nameOrDot) => {
     : '/'
   if (nameOrDot === '..') {
     let arr = basePath.split(sep)
-    let {length} = arr
+    let { length } = arr
     if (length === 1) {
       return basePath
     }
     let res = arr.slice(0, length - 1).join(sep)
-    return res ? res : '/'
+    return res || '/'
   }
   return basePath +
     (basePath === '/' ? '' : sep) +

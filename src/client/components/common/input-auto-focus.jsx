@@ -2,18 +2,17 @@
  * input with auto focus
  */
 
-import {Input} from 'antd'
+import { Input } from 'antd'
 import React from 'react'
 import ReactDOM from 'react-dom'
 import _ from 'lodash'
 
 export default class InputAutoFocus extends React.PureComponent {
-
-  componentDidMount() {
+  componentDidMount () {
     this.timer = setTimeout(this.doFocus, 50)
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate (prevProps) {
     if (!prevProps.selectall) {
       return
     }
@@ -22,27 +21,26 @@ export default class InputAutoFocus extends React.PureComponent {
     }
   }
 
-  componentWillUnmount() {
+  componentWillUnmount () {
     clearTimeout(this.timer)
   }
 
   doFocus = () => {
     let dom = this.getDom()
     if (dom && dom.focus) {
-      let {value, selectall = false} = this.props
+      let { value, selectall = false } = this.props
       let index = _.findLastIndex(value, v => v === '.')
       let hasExt = index > 0
-      if (value && !selectall && hasExt ) {
+      if (value && !selectall && hasExt) {
         dom.focus()
         dom.setSelectionRange(0, index)
-      }
-      else {
+      } else {
         dom.select()
       }
     }
   }
 
-  getDom() {
+  getDom () {
     let root = ReactDOM.findDOMNode(this)
     let dom = root.tagName === 'INPUT'
       ? root
@@ -50,12 +48,11 @@ export default class InputAutoFocus extends React.PureComponent {
     return dom
   }
 
-  render() {
+  render () {
     return (
       <Input
         {...this.props}
       />
     )
   }
-
 }

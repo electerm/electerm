@@ -2,7 +2,7 @@
  * validateFieldsAndScroll decorator
  * @param {class} target
  */
-export function validateFieldsAndScroll(target) {
+export function validateFieldsAndScroll (target) {
   target.prototype.validateFieldsAndScroll = function () {
     let { validateFieldsAndScroll } = this.props.form
     return new Promise(resolve => {

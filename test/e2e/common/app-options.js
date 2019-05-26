@@ -1,6 +1,6 @@
 
 const electronPath = require('electron')
-const {resolve} = require('path')
+const { resolve } = require('path')
 const cwd = process.cwd()
 
 module.exports = {
