@@ -105,7 +105,7 @@ export const defaultTheme = {
   name: 'default',
   themeConfig: {
     foreground: '#bbbbbb',
-    background: '#000000',
+    background: '#141314',
     cursor: '#b5bd68',
     cursorAccent: '#1d1f21',
     selection: 'rgba(255, 255, 255, 0.3)',
