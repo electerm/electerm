@@ -56,7 +56,7 @@
     "@babel/register": "7.4.0",
     "@babel/runtime": "7.4.3",
     "@electerm/antd-dark-theme": "0.0.4",
-    "@electerm/electerm-resource": "1.2.1",
+    "@electerm/electerm-resource": "1.2.3",
     "antd": "3.16.2",
     "babel-eslint": "10.0.1",
     "babel-loader": "8.0.5",
@@ -102,7 +102,7 @@
     "webpack": "4.32.2",
     "webpack-cli": "3.3.0",
     "webpack-dev-server": "3.3.1",
-    "xterm": "3.12.2"
+    "xterm": "3.13.2"
   },
   "dependencies": {
     "@electerm/electerm-locales": "0.5.8",
