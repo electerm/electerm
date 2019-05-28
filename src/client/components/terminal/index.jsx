@@ -917,7 +917,7 @@ export default class Term extends Component {
   render () {
     let { id, loading, zmodemTransfer } = this.state
     let { height, width, left, top, position, id: pid } = this.props
-    let cls = classnames('term-wrap bg-black', {
+    let cls = classnames('term-wrap', {
       'not-first-term': !!position
     }, 'tw-' + pid)
     return (

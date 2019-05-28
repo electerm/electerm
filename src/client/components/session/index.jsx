@@ -183,8 +183,8 @@ export default class SessionWrapper extends Component {
   renderTerminals = () => {
     let { pane, terminals, splitDirection, sessionOptions } = this.state
     let cls = pane === paneMap.terminal
-      ? 'terms-box bg-black'
-      : 'terms-box bg-black hide'
+      ? 'terms-box'
+      : 'terms-box hide'
     let height = this.computeHeight()
     let { store, width, tab } = this.props
     let themeConfig = store.getThemeConfig()
