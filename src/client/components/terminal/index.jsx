@@ -680,9 +680,6 @@ export default class Term extends Component {
     let cid = _.get(this.props, 'currentTabId')
     let tid = _.get(this.props, 'tab.id')
     if (cid === tid && this.props.tab.status === statusMap.success) {
-      if (isWin) {
-        term.winptyCompatInit()
-      }
       term.webLinksInit()
       term.focus()
       term.fit()
