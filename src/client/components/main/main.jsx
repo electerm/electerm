@@ -14,6 +14,7 @@ import TextEditor from '../text-editor'
 import Sidebar from '../sidebar'
 import SystemMenu from './system-menu'
 import SessionControl from '../session-control'
+import CssOverwrite from './css-overwrite'
 import './wrapper.styl'
 
 export default class Index extends Component {
@@ -64,8 +65,10 @@ export default class Index extends Component {
     let sessProps = _.pick(store, [
       'modifier', 'addTab', 'sessionModalVisible', 'selectedSessions'
     ])
+    let { terminalBackgroundImagePath } = config
     return (
       <div>
+        <CssOverwrite terminalBackgroundImagePath={terminalBackgroundImagePath} />
         <SessionControl {...sessProps} />
         <TextEditor
           key={textEditorProps.id}

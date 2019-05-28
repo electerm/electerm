@@ -2,7 +2,7 @@
 import { Component } from 'react'
 import {
   message, Select, Switch,
-  Input, Icon,
+  Input, Icon, Upload,
   InputNumber, Alert, Button
 } from 'antd'
 import deepCopy from 'json-deep-copy'
@@ -191,6 +191,33 @@ export default class Setting extends Component {
     )
   }
 
+  renderTerminalBgSelect = (name) => {
+    let value = this.props.config[name]
+    let defaultValue = this.props.config.defaultSettings[name]
+    let onChange = (e) => this.onChangeValue(e.target.value, name)
+    let after = (
+      <Upload
+        beforeUpload={(file) => {
+          this.onChangeValue(file.path, name)
+          return false
+        }}
+        showUploadList={false}
+      >
+        <span>{e('chooseFile')}</span>
+      </Upload>
+    )
+    return (
+      <div className='pd2b'>
+        <Input
+          value={value}
+          onChange={onChange}
+          placeholder={defaultValue}
+          addonAfter={after}
+        />
+      </div>
+    )
+  }
+
   renderReset = () => {
     return (
       <div className='pd1b pd1t'>
@@ -374,6 +401,10 @@ export default class Setting extends Component {
         <div className='pd1b'>{t('default')} {e('fontFamily')}</div>
         {
           this.renderText('fontFamily')
+        }
+        <div className='pd1b'>{e('terminalBackgroundImage')}</div>
+        {
+          this.renderTerminalBgSelect('terminalBackgroundImagePath')
         }
         <div className='pd1b'>{t('default')} {e('execWindows')}</div>
         {

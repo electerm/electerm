@@ -85,7 +85,7 @@ const touch = (localFilePath) => {
 }
 
 /**
- * oepn file
+ * open file
  * @param {string} localFolderPath absolute path
  */
 const openFile = (localFilePath) => {
@@ -135,6 +135,12 @@ const fsExport = Object.assign(
           return res.toString()
         })
     },
+    readFileAsBase64: (...args) => {
+      return fss.readFileAsync(...args)
+        .then(res => {
+          return res.toString('base64')
+        })
+    },
     writeFile: (path, txt, mode) => {
       return fss.writeFileAsync(path, txt, { mode })
         .then(() => true)
@@ -160,6 +166,7 @@ const fsFunctions = [
   'rmrf',
   'readdirAsync',
   'readFile',
+  'readFileAsBase64',
   'writeFile',
   'openFile'
 ]
