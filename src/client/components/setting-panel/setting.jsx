@@ -293,7 +293,8 @@ export default class Setting extends Component {
   render () {
     let {
       hotkey,
-      language
+      language,
+      rendererType
     } = this.props.config
     let { themes, theme } = this.props.store
     let langs = getGlobal('langs')
@@ -390,6 +391,22 @@ export default class Setting extends Component {
         <div className='pd1y font16 bold'>
           <Icon type='code' theme='outlined' className='mg1r' />
           {s('terminal')} {e('settings')}
+        </div>
+        <div className='pd1b'>{e('rendererType')}</div>
+        <div className='pd2b'>
+          <Select
+            onChange={v => this.onChangeValue(v, 'rendererType')}
+            value={rendererType}
+            dropdownMatchSelectWidth={false}
+          >
+            {
+              ['canvas', 'dom'].map(id => {
+                return (
+                  <Option key={id} value={id}>{id}</Option>
+                )
+              })
+            }
+          </Select>
         </div>
         <div className='pd1b'>{t('default')} {e('fontSize')}</div>
         {

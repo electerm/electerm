@@ -531,7 +531,8 @@ export default class Term extends Component {
       theme: themeConfig,
       allowTransparency: true,
       // lineHeight: 1.2,
-      fontSize: tab.fontSize || config.fontSize
+      fontSize: tab.fontSize || config.fontSize,
+      rendererType: config.rendererType
     })
     term.open(document.getElementById(id), true)
     term.on('focus', this.setActive)

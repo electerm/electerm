@@ -39,7 +39,8 @@ module.exports = function () {
         enableGlobalProxy: false,
         disableSshHistory: false,
         disableTransferHistory: false,
-        terminalBackgroundImagePath: ''
+        terminalBackgroundImagePath: '',
+        rendererType: 'canvas'
       }
       let conf = {
         port: freePort,
