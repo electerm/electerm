@@ -937,7 +937,7 @@ export default class Term extends Component {
           className='hide'
         />
         <div
-          className='bg-black absolute'
+          className='absolute'
           style={{
             left: '3px',
             top: '10px',
