@@ -339,12 +339,12 @@ export default class Tab extends React.Component {
             />
             {title}
           </div>
-          <Icon
-            className='pointer tab-close'
-            type='close-circle'
-            theme='filled'
-            onClick={this.close}
-          />
+          <span className='tab-close pointer'>
+            <Icon
+              type='close'
+              onClick={this.close}
+            />
+          </span>
         </div>
       </Tooltip>
     )
