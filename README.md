@@ -51,6 +51,7 @@ npm i -g electerm
 - Support auth with publickey + password.
 - Support Zmodem.
 - Support transparent window(Mac, win).
+- Support terminal background image
 
 ## Support
 
