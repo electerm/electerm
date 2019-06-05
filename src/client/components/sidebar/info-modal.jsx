@@ -5,6 +5,7 @@
 import { Icon, Modal, Tabs, Button, Tag } from 'antd'
 import Link from '../common/external-link'
 import _ from 'lodash'
+
 import {
   logoPath1,
   logoPath2
@@ -57,12 +58,6 @@ export default function ({
     ...env
   }
   let bugReportLink = link + '/issues'
-  let cls1 = Math.random() > 0.5
-    ? 'hide'
-    : ''
-  let cls2 = cls1
-    ? ''
-    : 'hide'
   let modal
   let titleDiv = (
     <div className='fix'>
@@ -87,12 +82,11 @@ export default function ({
       <div className='about-wrap'>
         <Tabs defaultActiveKey='1'>
           <TabPane tab={m('about')} key='1'>
-            <div className='pd2y aligncenter'>
-              <img src={logoPath1} className={`iblock mwm-100 ${cls1}`} />
-              <img src={logoPath2} className={`iblock mwm-100 ${cls2}`} />
-            </div>
-            <h1 className='mg2b font50'>
-              <span className='iblock mg1r'>{name}</span>
+            <h1 className='mg3y font50'>
+              <img src={logoPath2} height={80} className='iblock mwm-100 mg1l mg1r logo-filter' />
+              <sup>
+                <img src={logoPath1} height={28} className='iblock mwm-100 mg1r' />
+              </sup>
               <Tag color='#08c'>{version}</Tag>
             </h1>
             <p className='mg2b'>{a('desc')}</p>
