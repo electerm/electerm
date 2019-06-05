@@ -106,6 +106,11 @@ export class BookmarkForm extends React.PureComponent {
       )
     }
     let bid = bookmark.id
+    let bg = bookmarkGroups[index]
+    if (!bg.bookmarkIds.includes(bid)) {
+      bg.bookmarkIds.unshift(bid)
+    }
+    bg.bookmarkIds = _.uniq(bg.bookmarkIds)
     bookmarkGroups = bookmarkGroups.map((bg, i) => {
       if (i === index) {
         return bg
