@@ -85,7 +85,7 @@ export default function ({
             <h1 className='mg3y font50'>
               <img src={logoPath2} height={80} className='iblock mwm-100 mg1l mg1r logo-filter' />
               <sup>
-                <img src={logoPath1} height={32} className='iblock mwm-100' />
+                <img src={logoPath1} height={28} className='iblock mwm-100 mg1r' />
               </sup>
               <Tag color='#08c'>{version}</Tag>
             </h1>
