@@ -57,12 +57,6 @@ export default function ({
     ...env
   }
   let bugReportLink = link + '/issues'
-  let cls1 = Math.random() > 0.5
-    ? 'hide'
-    : ''
-  let cls2 = cls1
-    ? ''
-    : 'hide'
   let modal
   let titleDiv = (
     <div className='fix'>
