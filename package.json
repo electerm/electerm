@@ -20,7 +20,7 @@
     "release": "npm run pre-test && npm run output",
     "preinstall": "node bin/preinstall",
     "postinstall": "node bin/post-install",
-    "lint": "./node_modules/.bin/standard",
+    "lint": "./node_modules/.bin/standard --verbose | snazzy",
     "test": "exit 0",
     "test0": "./node_modules/.bin mocha test/*.js",
     "pre-test": "npm run compile && npm run prepare-file"
@@ -91,6 +91,7 @@
     "prop-types": "15.7.2",
     "pug-html-loader": "1.1.5",
     "shelljs": "0.8.3",
+    "snazzy": "^8.0.0",
     "spectron": "5.0.0",
     "standard": "^12.0.1",
     "style-loader": "0.23.1",
