@@ -21,8 +21,7 @@
     "preinstall": "node bin/preinstall",
     "postinstall": "node bin/post-install",
     "lint": "./node_modules/.bin/standard --verbose | snazzy",
-    "test": "exit 0",
-    "test0": "./node_modules/.bin/mocha test/e2e/*.js",
+    "test": "./node_modules/.bin/mocha test/e2e/*.js",
     "pre-test": "npm run compile && npm run prepare-file"
   },
   "license": "MIT",
