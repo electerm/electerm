@@ -18,7 +18,7 @@
 Terminal/ssh/sftp client(linux, mac, win) based on electron/ssh2/node-pty/xterm/antd and other libs, expecially [subx](https://github.com/tylerlong/subx)(my favourite state manager).
 
 <div align="center">
-  <img src="https://github.com/electerm/electerm-resource/raw/master/static/images/electerm.gif", alt="" />
+  <img style="border-radius:3px;border:1px solid #333" src="https://github.com/electerm/electerm-resource/raw/master/static/images/electerm.gif", alt="" />
 </div>
 
 ## Download
