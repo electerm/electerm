@@ -15,9 +15,9 @@ if (isOs('darwin')) {
 }
 
 describe('main window', function () {
-  this.timeout(1000000000000)
+  this.timeout(100000)
 
-  beforeEach(async function () {
+  beforeEach(function () {
     this.app = new Application(appOptions)
     return this.app.start()
   })
