@@ -37,6 +37,7 @@ before_install:
 script:
   - npm run pre-test
   - npm run test
+  - cat x.log
   - |
     if echo "$TRAVIS_COMMIT_MESSAGE" | grep -F -q "[skip build]" ; then
       echo "[skip build] has been found, exiting" && exit 0 ;
