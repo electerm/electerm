@@ -1,6 +1,6 @@
 {
   "name": "electerm",
-  "version": "0.27.37",
+  "version": "0.27.38",
   "description": "Terminal/ssh/sftp client(linux, mac, win) based on electron/ssh2/node-pty/xterm/antd/subx and other libs",
   "main": "dev-app.js",
   "bin": "npm/electerm",
@@ -105,7 +105,7 @@
     "xterm": "3.13.2"
   },
   "dependencies": {
-    "@electerm/electerm-locales": "0.5.11",
+    "@electerm/electerm-locales": "0.5.12",
     "@electerm/ssh2": "0.8.2",
     "bluebird": "3.5.4",
     "body-parser": "1.18.3",
