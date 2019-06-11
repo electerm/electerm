@@ -55,6 +55,32 @@ export class BookmarkForm extends React.PureComponent {
     })
   }
 
+  onPaste = e => {
+    let txt = e.clipboardData.getData('Text')
+    // support name:passsword@host:23
+    let arr = txt.match(/([^:@]+)(:[^:@]+)?@([^:@]+)(:\d+)?/)
+    if (!arr) {
+      return
+    }
+    let username = arr[1]
+    let password = arr[2] ? arr[2].slice(1) : ''
+    let host = arr[3]
+    let port = arr[4] ? arr[4].slice(1) : ''
+    let obj = {
+      username,
+      host
+    }
+    if (password) {
+      obj.password = password
+    }
+    if (port) {
+      obj.port = port
+    }
+    setTimeout(() => {
+      this.props.form.setFieldsValue(obj)
+    }, 20)
+  }
+
   onBlur = async e => {
     let { value } = e.target
     let { type } = this.props
@@ -530,6 +556,7 @@ export class BookmarkForm extends React.PureComponent {
               autofocustrigger={autofocustrigger}
               selectall='true'
               onBlur={this.onBlur}
+              onPaste={this.onPaste}
             />
           )}
         </FormItem>
