@@ -121,3 +121,13 @@
     color #fff
 .logo-filter
   filter invert(80%)
+
+// from https://codepen.io/althi/pen/eKdmaa
+.rainbow-3:hover
+  background-image linear-gradient(to right, red, orange, yellow, green, blue, indigo, red)
+  animation slidebg 2s linear infinite
+  border-radius 3px
+
+@keyframes slidebg
+  to
+    background-position 20vw

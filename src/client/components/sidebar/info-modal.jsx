@@ -83,7 +83,7 @@ export default function ({
         <Tabs defaultActiveKey='1'>
           <TabPane tab={m('about')} key='1'>
             <h1 className='mg3y font50'>
-              <img src={logoPath2} height={80} className='iblock mwm-100 mg1l mg1r logo-filter' />
+              <img src={logoPath2} height={80} className='iblock mwm-100 mg1l mg1r logo-filter rainbow-3' />
               <sup>
                 <img src={logoPath1} height={28} className='iblock mwm-100 mg1r' />
               </sup>
