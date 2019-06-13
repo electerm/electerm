@@ -1,3 +1,3 @@
-module.exports = (str) => {
-  console.log('  > ' + str)
+module.exports = (...arg) => {
+  console.log('  >', ...arg)
 }
