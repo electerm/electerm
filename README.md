@@ -50,9 +50,10 @@ npm i -g electerm
 - Double click to directly edit remote file(small ones).
 - Edit local file with built-in editor(small ones).
 - Support auth with publickey + password.
-- Support Zmodem.
+- Support Zmodem(rz, sz).
 - Support transparent window(Mac, win).
-- Support terminal background image
+- Support terminal background image.
+- Support global/session proxy.
 
 ## Support
 
