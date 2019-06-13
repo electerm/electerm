@@ -38,7 +38,7 @@ script:
   - npm run pre-test
   - |
     if [ "$TRAVIS_OS_NAME" == "linux" ]; then
-      echo "do not test in linux" && exit 0;
+      echo "do not test in linux";
     else
       npm run test
     fi
