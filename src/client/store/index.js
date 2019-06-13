@@ -592,6 +592,14 @@ const store = Subx.create({
     })
   },
 
+  exit () {
+    window.getGlobal('closeApp')()
+  },
+
+  restart () {
+    window.getGlobal('restart')()
+  },
+
   get list () {
     let {
       tab

@@ -182,13 +182,13 @@ function renderContext (store) {
       <hr />
       <div
         className={cls}
-        onClick={() => window.getGlobal('restart')()}
+        onClick={store.restart}
       >
         <Icon type='redo' /> {m('restart')}
       </div>
       <div
         className={cls}
-        onClick={() => window.getGlobal('closeApp')()}
+        onClick={store.exit}
       >
         <Icon type='close' /> {m('close')}
       </div>

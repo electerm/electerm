@@ -246,6 +246,7 @@ export default class Tabs extends React.Component {
         <div className='app-drag' />
         <WindowControl
           isMaximized={this.props.isMaximized}
+          closeApp={this.props.store.exit}
         />
         {
           overflow
