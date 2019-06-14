@@ -3,7 +3,7 @@
  */
 
 import Subx from 'subx'
-import { message, notification } from 'antd'
+import { message, notification, Modal } from 'antd'
 import newTerm from '../common/new-terminal'
 import _ from 'lodash'
 import { generate } from 'shortid'
@@ -28,6 +28,8 @@ const ls = getGlobal('ls')
 const { prefix } = window
 const t = prefix('terminalThemes')
 const e = prefix('control')
+const m = prefix('menu')
+const c = prefix('common')
 const defaultStatus = statusMap.processing
 let sessionsGlob = copy(ls.get('sessions'))
 const sshConfigItems = copy(getGlobal('sshConfigItems'))
@@ -476,7 +478,8 @@ const store = Subx.create({
     store.addTab({
       ...tab,
       status: defaultStatus,
-      id: generate()
+      id: generate(),
+      isTransporting: undefined
     }, index + 1)
   },
 
@@ -592,6 +595,46 @@ const store = Subx.create({
     })
   },
 
+  confirmExit (type) {
+    let mod
+    mod = Modal.confirm({
+      onCancel: () => mod.destroy(),
+      onOk: store[type],
+      title: m('quit'),
+      okText: c('ok'),
+      cancelText: c('cancel'),
+      content: ''
+    })
+  },
+
+  exit () {
+    if (store.isTransporting) {
+      store.confirmExit('doExit')
+    } else {
+      store.doExit()
+    }
+  },
+
+  restart () {
+    if (store.isTransporting) {
+      store.confirmExit('doRestart')
+    } else {
+      store.doRestart()
+    }
+  },
+
+  doExit () {
+    window.getGlobal('closeApp')()
+  },
+
+  doRestart () {
+    window.getGlobal('restart')()
+  },
+
+  get isTransporting () {
+    return store.tabs.some(t => t.isTransporting)
+  },
+
   get list () {
     let {
       tab
@@ -652,7 +695,10 @@ Subx.autoRun(store, () => {
 })
 
 Subx.autoRun(store, () => {
-  ls.set('sessions', store.tabs)
+  ls.set('sessions', copy(store.tabs).map(t => {
+    delete t.isTransporting
+    return t
+  }))
   return store.tabs
 })
 

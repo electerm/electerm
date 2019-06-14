@@ -12,7 +12,8 @@ const m = prefix('menu')
 
 export default memo(props => {
   let {
-    isMaximized
+    isMaximized,
+    closeApp
   } = props
   let minimize = () => {
     window.getGlobal('minimize')()
@@ -22,9 +23,6 @@ export default memo(props => {
   }
   let unmaximize = () => {
     window.getGlobal('unmaximize')()
-  }
-  let closeApp = () => {
-    window.getGlobal('closeApp')()
   }
   return (
     <div className='window-controls'>
