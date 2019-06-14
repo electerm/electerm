@@ -608,7 +608,7 @@ const store = Subx.create({
   },
 
   exit () {
-    if (!store.isTransporting) {
+    if (store.isTransporting) {
       store.confirmExit('doExit')
     } else {
       store.doExit()
