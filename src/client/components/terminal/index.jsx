@@ -630,6 +630,7 @@ export default class Term extends Component {
         let text = _.isFunction(response.text)
           ? await response.text()
           : _.isPlainObject(response) ? JSON.stringify(response) : response
+        text = (text || '').toString()
         if (text.includes(authFailMsg)) {
           this.setState(() => ({ passType: 'password' }))
           return 'fail'
