@@ -3,7 +3,7 @@
  */
 
 import React from 'react'
-import { Icon, Tooltip, message, Badge } from 'antd'
+import { Icon, Tooltip, message } from 'antd'
 import classnames from 'classnames'
 import copy from 'json-deep-copy'
 import _ from 'lodash'
@@ -295,7 +295,7 @@ export default class Tab extends React.Component {
       onDuplicateTab
     } = this.props.store
     let { tab } = this.state
-    let { id, isEditting, status } = tab
+    let { id, isEditting, status, isTransporting } = tab
     let active = id === currentTabId
     let cls = classnames('tab', { active }, status)
     let title = createName(tab)
@@ -329,7 +329,6 @@ export default class Tab extends React.Component {
             onDoubleClick={() => onDuplicateTab(tab)}
             onContextMenu={this.onContextMenu}
           >
-            <Badge status={status} />
             <Icon
               className='pointer tab-reload mg1r'
               type='loading-3-quarters'
@@ -339,6 +338,12 @@ export default class Tab extends React.Component {
             />
             {title}
           </div>
+          <div className={'tab-status ' + status} />
+          {
+            isTransporting
+              ? <div className='tab-is-transporting' />
+              : null
+          }
           <span className='tab-close pointer'>
             <Icon
               type='close'

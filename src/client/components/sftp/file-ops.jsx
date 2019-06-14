@@ -59,10 +59,16 @@ export default class Transports extends React.PureComponent {
     }
     let ids = transports.map(d => d.id)
     this.props.modifier(old => {
-      return {
-        transports: old.transports.filter(t => {
-          return !ids.includes(t.id)
+      let trans1 = old.transports.filter(t => {
+        return !ids.includes(t.id)
+      })
+      if (!trans1.length) {
+        this.props.store.editTab(this.props.tab.id, {
+          isTransporting: false
         })
+      }
+      return {
+        transports: trans1
       }
     })
     await wait(500)
