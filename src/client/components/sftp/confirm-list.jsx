@@ -71,13 +71,19 @@ export default class Confirms extends React.PureComponent {
     }, () => {
       this.props.modifier(old => {
         let transports = copy(old.transports)
+        let nt = [
+          ...transports,
+          ...this.state.transferList
+        ]
+        if (nt.length) {
+          this.props.store.editTab(this.props.tab.id, {
+            isTransporting: true
+          })
+        }
         return {
           filesToConfirm: [],
           transferType: null,
-          transports: [
-            ...transports,
-            ...this.state.transferList
-          ]
+          transports: nt
         }
       })
     })

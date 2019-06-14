@@ -223,6 +223,11 @@ export default class Tranporter extends React.PureComponent {
       let transports = oldTrans.filter(t => {
         return t.id !== id
       })
+      if (!transports.length) {
+        this.props.store.editTab(this.props.tab.id, {
+          isTransporting: false
+        })
+      }
       return {
         transports
       }

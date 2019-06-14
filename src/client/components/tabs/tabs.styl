@@ -62,7 +62,27 @@
     .tab-reload
       display inline-block
       color #fff
-
+.tab-is-transporting
+  position absolute
+  left 0
+  right 0
+  bottom 0
+  height 0
+  border-bottom 1px dashed green
+.tab-status
+  position absolute
+  left 2px
+  top 2px
+  width 5px
+  height 5px
+  border-radius 5px
+  background-color #444
+  &.success
+    background-color green
+  &.error
+    background-color red
+  &.processing
+    background-color #08c
 .tab-close
   position absolute
   right 5px
