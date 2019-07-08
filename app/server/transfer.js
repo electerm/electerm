@@ -4,6 +4,7 @@
 
 const fs = require('original-fs')
 const _ = require('lodash')
+const log = require('../utils/log')
 
 function tryCreateBuffer (size) {
   try {
@@ -27,6 +28,8 @@ class Transfer {
     let isd = type === 'download'
     this.src = isd ? sftp : fs
     this.dst = isd ? fs : sftp
+    this.srcPath = isd ? remotePath : localPath
+    this.dstPath = !isd ? remotePath : localPath
     this.pausing = false
 
     this.onData = _.throttle((count) => {
@@ -37,19 +40,18 @@ class Transfer {
     }, 1000)
 
     this.ws = ws
+    this.fastXfer(options, type)
   }
 
   // from https://github.com/mscdex/ssh2-streams/blob/master/lib/sftp.js
-  fastXfer (srcPath, dstPath, opts) {
+  fastXfer = (opts, type) => {
     let {
       concurrency = 64,
       chunkSize = 32768,
-      type,
       mode
     } = opts
     let onstep = this.onData
-    let { src, dst } = this
-
+    let { src, dst, srcPath, dstPath } = this
     let fileSize
     let isUpload = type === 'upload'
     let cb = this.onError
@@ -81,13 +83,13 @@ class Transfer {
         if (th.srcHandle && (isUpload || src.writable)) {
           ++left
         }
-        if (th.dstHandle && (dst === fs || dst.writable)) {
+        if (th.dstHandle && (!isUpload || dst.writable)) {
           ++left
         }
         if (th.srcHandle && (isUpload || src.writable)) {
           src.close(th.srcHandle, cbfinal)
         }
-        if (th.dstHandle && (dst === fs || dst.writable)) {
+        if (th.dstHandle && (!isUpload || dst.writable)) {
           dst.close(th.dstHandle, cbfinal)
         }
       } else {
@@ -124,7 +126,6 @@ class Transfer {
           return onerror(err)
         }
         fsize = attrs.size
-
         dst.open(dstPath, 'w', (err, destHandle) => {
           if (err) {
             return onerror(err)
@@ -174,11 +175,7 @@ class Transfer {
 
             datapos = datapos || 0
 
-            if (isUpload) {
-              dst.writeData(th.dstHandle, readbuf, datapos, nb, dstpos, writeCb)
-            } else {
-              dst.write(th.dstHandle, readbuf, datapos, nb, dstpos, writeCb)
-            }
+            dst.write(th.dstHandle, readbuf, datapos, nb, dstpos, writeCb)
 
             function writeCb (err) {
               if (err) {
@@ -226,15 +223,12 @@ class Transfer {
           }
 
           function singleRead (psrc, pdst, chunk) {
-            let funcName = isUpload
-              ? 'read'
-              : 'readData'
             if (th.pausing) {
               return setTimeout(
                 () => singleRead(psrc, pdst, chunk), 2
               )
             }
-            src[funcName](
+            src.read(
               th.srcHandle,
               readbuf,
               psrc,
@@ -260,16 +254,16 @@ class Transfer {
     })
   }
 
-  onEnd (id = this.id, ws) {
+  onEnd = (id = this.id, ws = this.ws) => {
     ws.s({
       id: 'transfer:end:' + id,
       data: null
     })
   }
 
-  onError (err, id = this.id, ws = this.ws) {
+  onError = (err = '', id = this.id, ws = this.ws) => {
     if (!err) {
-      this.onEnd()
+      return this.onEnd()
     }
     ws && ws.s({
       wid: 'transfer:err:' + id,
@@ -280,20 +274,20 @@ class Transfer {
     })
   }
 
-  pause () {
+  pause = () => {
     this.pausing = true
   }
 
-  resume () {
+  resume = () => {
     this.pausing = false
   }
 
-  destroy () {
+  destroy = () => {
     if (this.src && this.srcHandle) {
-      this.src.close(this.srcHandle)
+      this.src.close(this.srcHandle, log.error)
     }
     if (this.dst && this.dstHandle) {
-      this.dst.close(this.dstHandle)
+      this.dst.close(this.dstHandle, log.error)
     }
     this.ws.close()
     delete global.transferInsts[this.id]
