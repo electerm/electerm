@@ -42,6 +42,7 @@ script:
     else
       npm run test
     fi
+  # - npm run test
   - |
     if echo "$TRAVIS_COMMIT_MESSAGE" | grep -F -q "[skip build]" ; then
       echo "[skip build] has been found, exiting" && exit 0 ;
