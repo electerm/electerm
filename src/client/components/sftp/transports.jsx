@@ -13,19 +13,19 @@ const { prefix } = window
 const e = prefix('sftp')
 
 function getFirstTransports (transports, max = maxTransport) {
-  let trans = _.isArray(transports)
+  const trans = _.isArray(transports)
     ? transports
     : []
-  let first = trans[0]
+  const first = trans[0]
   if (!first) {
     return []
   }
   if (first.file.isDirectory) {
     return [first]
   }
-  let res = []
+  const res = []
   for (let i = 0; i < max; i++) {
-    let f = trans[i]
+    const f = trans[i]
     if (!f) {
       break
     }
@@ -93,12 +93,12 @@ export default class Transports extends React.PureComponent {
   rebuildState = (newtrans) => {
     let transports = copy(newtrans)
     let currentTransports = copy(this.state.currentTransports)
-    let idsAll = transports.map(d => d.id)
+    const idsAll = transports.map(d => d.id)
     currentTransports = currentTransports.filter(c => {
       return idsAll.includes(c.id)
     })
-    let cids = currentTransports.map(c => c.id)
-    let max = maxTransport - cids.length
+    const cids = currentTransports.map(c => c.id)
+    const max = maxTransport - cids.length
     transports = transports.filter(t => {
       return !cids.includes(t.id)
     })
@@ -113,13 +113,13 @@ export default class Transports extends React.PureComponent {
   }
 
   renderContent = () => {
-    let { transports } = this.props
-    let { currentTransports } = this.state
+    const { transports } = this.props
+    const { currentTransports } = this.state
     return (
       <div className='transports-content overscroll-y'>
         {
           transports.map((t, i) => {
-            let { id } = t
+            const { id } = t
             return (
               <Transport
                 {...this.props}
@@ -137,8 +137,8 @@ export default class Transports extends React.PureComponent {
   }
 
   renderTransportIcon () {
-    let pausing = this.computePausing()
-    let icon = pausing ? 'play-circle' : 'pause-circle'
+    const pausing = this.computePausing()
+    const icon = pausing ? 'play-circle' : 'pause-circle'
     return (
       <Icon type={icon} />
     )
@@ -163,9 +163,9 @@ export default class Transports extends React.PureComponent {
   }
 
   computePercent = () => {
-    let ids = this.state.currentTransports.map(r => r.id)
-    let trs = this.props.transports.filter(t => ids.includes(t.id))
-    let { all, transfered } = trs.reduce((prev, c) => {
+    const ids = this.state.currentTransports.map(r => r.id)
+    const trs = this.props.transports.filter(t => ids.includes(t.id))
+    const { all, transfered } = trs.reduce((prev, c) => {
       prev.all += c.file.size
       prev.transfered += (c.transferred || 0)
       return prev
@@ -181,27 +181,27 @@ export default class Transports extends React.PureComponent {
   }
 
   computeLeftTime = () => {
-    let ids = this.state.currentTransports.map(r => r.id)
-    let trs = this.props.transports.filter(t => ids.includes(t.id))
-    let sorted = copy(trs).sort((b, a) => a.leftTimeInt - b.leftTimeInt)
+    const ids = this.state.currentTransports.map(r => r.id)
+    const trs = this.props.transports.filter(t => ids.includes(t.id))
+    const sorted = copy(trs).sort((b, a) => a.leftTimeInt - b.leftTimeInt)
     return _.get(sorted, '[0].leftTime') || '-'
   }
 
   computePausing = () => {
-    let ids = this.state.currentTransports.map(r => r.id)
-    let trs = this.props.transports.filter(t => ids.includes(t.id))
+    const ids = this.state.currentTransports.map(r => r.id)
+    const trs = this.props.transports.filter(t => ids.includes(t.id))
     return trs.reduce((prev, c) => {
       return prev && c.pausing
     }, true)
   }
 
   render () {
-    let { transports } = this.props
-    let { currentTransports } = this.state
-    let percent = this.computePercent()
-    let leftTime = this.computeLeftTime()
-    let pausing = this.computePausing()
-    let func = pausing
+    const { transports } = this.props
+    const { currentTransports } = this.state
+    const percent = this.computePercent()
+    const leftTime = this.computeLeftTime()
+    const pausing = this.computePausing()
+    const func = pausing
       ? this.resume
       : this.pause
     if (!transports.length) {

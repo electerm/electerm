@@ -18,7 +18,7 @@ export default class AnimateText extends React.PureComponent {
   }
 
   componentDidUpdate () {
-    let dom = ReactDOM.findDOMNode(this)
+    const dom = ReactDOM.findDOMNode(this)
     dom.className = this.props.className + ' animated bounceIn'
     this.timer = setTimeout(() => {
       if (dom) {
@@ -32,7 +32,7 @@ export default class AnimateText extends React.PureComponent {
   }
 
   render () {
-    let { children, className } = this.props
+    const { children, className } = this.props
     return (
       <div className={className}>
         {children}

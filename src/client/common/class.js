@@ -7,8 +7,8 @@
  * @param _classes
  */
 export function addClass (elem, ..._classes) {
-  let cls = elem.className || ''
-  let classes = _classes.filter(c => {
+  const cls = elem.className || ''
+  const classes = _classes.filter(c => {
     return !cls.includes(c)
   })
   if (!classes.length) {
@@ -27,7 +27,7 @@ export function hasClass (elem, clst) {
   let cls = elem.className || ''
   if (!cls) return false
   cls = ' ' + cls.split(/\s+/).join(' ') + ' '
-  let reg = new RegExp(' ' + clst + ' ')
+  const reg = new RegExp(' ' + clst + ' ')
   return reg.test(cls)
 }
 
@@ -40,8 +40,8 @@ export function removeClass (elem, ...classes) {
   let cls = elem.className || ''
   if (!cls) return
   cls = '  ' + cls.split(/\s+/).join('  ') + '  '
-  let clst = classes.join(' ').split(/\s+/)
-  let reg = new RegExp(' ' + clst.join(' | ') + ' ', 'g')
+  const clst = classes.join(' ').split(/\s+/)
+  const reg = new RegExp(' ' + clst.join(' | ') + ' ', 'g')
   cls = cls.replace(reg, '')
     .replace(/^\s+|\s+$/g, '')
     .replace(/ {2,}/g, ' ')

@@ -46,8 +46,8 @@ export default class ItemList extends React.PureComponent {
     if (!item.id) {
       return null
     }
-    let { shouldComfirmDel } = this.props
-    let icon = (
+    const { shouldComfirmDel } = this.props
+    const icon = (
       <Icon
         type='close'
         title={e('del')}
@@ -76,10 +76,10 @@ export default class ItemList extends React.PureComponent {
   }
 
   renderItem = (item, i) => {
-    let { onClickItem, type, activeItemId } = this.props
-    let { id } = item
+    const { onClickItem, type, activeItemId } = this.props
+    const { id } = item
     let title = createName(item)
-    let cls = classnames(
+    const cls = classnames(
       'item-list-unit',
       {
         active: activeItemId === id
@@ -107,7 +107,7 @@ export default class ItemList extends React.PureComponent {
   }
 
   filter = list => {
-    let { keyword } = this.state
+    const { keyword } = this.state
     return keyword
       ? list.filter(item => {
         return createName(item).toLowerCase().includes(keyword.toLowerCase())

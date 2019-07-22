@@ -8,8 +8,8 @@ const log = require('./log')
 module.exports = function () {
   let override = {}
   let userConfig = {}
-  let configPath = resolve(appPath, 'electerm-config.js')
-  let userConfigPath = resolve(appPath, 'electerm-user-config.json')
+  const configPath = resolve(appPath, 'electerm-config.js')
+  const userConfigPath = resolve(appPath, 'electerm-user-config.json')
 
   try {
     override = require(configPath)
@@ -27,7 +27,7 @@ module.exports = function () {
       if (err) {
         reject(err)
       }
-      let defaultSettings = {
+      const defaultSettings = {
         hotkey: 'Control+2',
         sshReadyTimeout: 50000,
         scrollback: 3000,
@@ -42,7 +42,7 @@ module.exports = function () {
         terminalBackgroundImagePath: '',
         rendererType: 'canvas'
       }
-      let conf = {
+      const conf = {
         port: freePort,
         host: 'localhost',
         keepaliveInterval: 20 * 1000,

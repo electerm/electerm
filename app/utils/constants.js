@@ -8,7 +8,7 @@ const isWin = platform === 'win32'
 const isMac = platform === 'darwin'
 const isLinux = platform === 'linux'
 
-let { NODE_ENV } = process.env
+const { NODE_ENV } = process.env
 const isDev = NODE_ENV === 'development'
 
 module.exports = {

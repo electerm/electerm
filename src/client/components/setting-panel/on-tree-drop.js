@@ -9,24 +9,24 @@ import _ from 'lodash'
 import copy from 'json-deep-copy'
 
 export default (info, props) => {
-  let {
+  const {
     dropToGap,
     dragNode,
     node,
     dropPosition
   } = info
-  let fromId = dragNode.props.eventKey
-  let toId = node.props.eventKey
-  let fromLeaf = dragNode.props.isLeaf
-  let toLeaf = node.isLeaf()
-  let fromPoses = dragNode.props.pos.split('-').map(Number)
-  let fromPosesLevel = fromPoses.slice(0, fromPoses.length - 1)
-  let toPoses = node.props.pos.split('-').map(Number)
-  let toPosesLevel = toPoses.slice(0, toPoses.length - 1)
-  let isSameLevel = fromPosesLevel.length === toPosesLevel.length
-  let isSameCat = _.isEqual(fromPosesLevel, toPosesLevel) && dropToGap
-  let bookmarks = copy(props.bookmarks)
-  let bookmarkGroups = copy(
+  const fromId = dragNode.props.eventKey
+  const toId = node.props.eventKey
+  const fromLeaf = dragNode.props.isLeaf
+  const toLeaf = node.isLeaf()
+  const fromPoses = dragNode.props.pos.split('-').map(Number)
+  const fromPosesLevel = fromPoses.slice(0, fromPoses.length - 1)
+  const toPoses = node.props.pos.split('-').map(Number)
+  const toPosesLevel = toPoses.slice(0, toPoses.length - 1)
+  const isSameLevel = fromPosesLevel.length === toPosesLevel.length
+  const isSameCat = _.isEqual(fromPosesLevel, toPosesLevel) && dropToGap
+  const bookmarks = copy(props.bookmarks)
+  const bookmarkGroups = copy(
     props.bookmarkGroups
   )
   let from = fromLeaf
@@ -104,13 +104,13 @@ export default (info, props) => {
       )
   }
   let toGroup = null
-  let toFirstLevel = toPoses.length === 2 && dropToGap
+  const toFirstLevel = toPoses.length === 2 && dropToGap
   if (!toFirstLevel) {
     toGroup = dropToGap
       ? _.find(
         bookmarkGroups,
         d => {
-          let arr = toLeaf
+          const arr = toLeaf
             ? d.bookmarkIds
             : d.bookmarkGroupIds
           return (arr || []).includes(toId)
@@ -123,7 +123,7 @@ export default (info, props) => {
   }
   let nodeIndex = 0
   if (toGroup) {
-    let pool = toLeaf
+    const pool = toLeaf
       ? toGroup.bookmarkIds || []
       : toGroup.bookmarkGroupIds || []
     nodeIndex = dropToGap
@@ -171,7 +171,7 @@ export default (info, props) => {
       _.remove(fromGroup.bookmarkGroupIds, d => d === fromId)
     }
   } else if (fromGroup) {
-    let arr = fromLeaf
+    const arr = fromLeaf
       ? fromGroup.bookmarkIds
       : fromGroup.bookmarkGroupIds
     fromIndex = _.findIndex(arr, d => d === fromId)
@@ -180,7 +180,7 @@ export default (info, props) => {
       : _.remove(arr, d => d === fromId)
   }
   if (!toFirstLevel) {
-    let arr = !fromLeaf
+    const arr = !fromLeaf
       ? toGroup.bookmarkGroupIds
       : toGroup.bookmarkIds
     arr.splice(nodeIndex, 0, fromId)

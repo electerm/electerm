@@ -19,11 +19,11 @@ app.use(bodyParser.json())
 require('express-ws')(app)
 
 app.post('/terminals', async function (req, res) {
-  let { body } = req
-  let term = await terminal(body)
+  const { body } = req
+  const term = await terminal(body)
     .then(r => r)
     .catch(err => err)
-  let { pid } = term
+  const { pid } = term
   if (pid) {
     log.debug('Created terminal with PID:', pid)
     terminals[pid] = term
@@ -42,10 +42,10 @@ app.post('/terminals', async function (req, res) {
 })
 
 app.post('/terminals/:pid/size', function (req, res) {
-  let pid = req.params.pid
-  let cols = parseInt(req.query.cols, 10)
-  let rows = parseInt(req.query.rows, 10)
-  let term = terminals[pid]
+  const pid = req.params.pid
+  const cols = parseInt(req.query.cols, 10)
+  const rows = parseInt(req.query.rows, 10)
+  const term = terminals[pid]
   if (term) {
     term.resize(cols, rows)
     log.debug('Resized terminal ', pid, ' to ', cols, ' cols and ', rows, ' rows.')
@@ -54,8 +54,8 @@ app.post('/terminals/:pid/size', function (req, res) {
 })
 
 app.ws('/terminals/:pid', function (ws, req) {
-  let term = terminals[req.params.pid]
-  let { pid } = term
+  const term = terminals[req.params.pid]
+  const { pid } = term
   log.debug('Connected to terminal', pid)
 
   ws.send(logs[pid])
@@ -99,7 +99,7 @@ app.get('/run', function (req, res) {
 initWs(app)
 
 const runServer = function () {
-  let { port, host } = process.env
+  const { port, host } = process.env
   app.listen(port, host, () => {
     log.info('server', 'runs on', host, port)
   })

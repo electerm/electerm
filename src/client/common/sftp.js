@@ -12,15 +12,15 @@ const transferKeys = Object.keys(transferTypeMap)
 
 class Sftp {
   async init () {
-    let id = generate()
-    let ws = await initWs('sftp', id)
+    const id = generate()
+    const ws = await initWs('sftp', id)
     this.ws = ws
     this.id = id
     ws.s({
       action: 'sftp-new',
       id
     })
-    let th = this
+    const th = this
     this.ws = ws
     keys.forEach(func => {
       th[func] = async (...args) => {
@@ -31,7 +31,7 @@ class Sftp {
             type: func
           })
         }
-        let uid = func + ':' + id
+        const uid = func + ':' + id
         // let ws = await initWs()
         return new Promise((resolve, reject) => {
           ws.s({
@@ -53,7 +53,7 @@ class Sftp {
   }
 
   async destroy () {
-    let { ws } = this
+    const { ws } = this
     ws.s({
       action: 'sftp-destroy',
       id: this.id
@@ -63,7 +63,7 @@ class Sftp {
 }
 
 export default async () => {
-  let sftp = new Sftp()
+  const sftp = new Sftp()
   await sftp.init()
   return sftp
 }

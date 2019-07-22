@@ -83,17 +83,17 @@ export default class ItemListTree extends React.PureComponent {
   }
 
   submitEdit = () => {
-    let {
+    const {
       categoryTitle,
       categoryId
     } = this.state
     if (!categoryTitle) {
       return
     }
-    let bookmarkGroups = copy(
+    const bookmarkGroups = copy(
       this.props.bookmarkGroups
     )
-    let obj = _.find(
+    const obj = _.find(
       bookmarkGroups,
       bg => bg.id === categoryId
     )
@@ -114,6 +114,7 @@ export default class ItemListTree extends React.PureComponent {
   }
 
   onSubmit = false
+
   onSubmitEdit = false
 
   onChangeBookmarkGroupTitle = e => {
@@ -165,7 +166,7 @@ export default class ItemListTree extends React.PureComponent {
       return
     }
     this.onSubmit = true
-    let id = this.state.bookmarkGroupSubParentId
+    const id = this.state.bookmarkGroupSubParentId
     this.setState({
       bookmarkGroupSubParentId: ''
     }, () => {
@@ -173,7 +174,7 @@ export default class ItemListTree extends React.PureComponent {
       let bookmarkGroups = copy(
         this.props.bookmarkGroups
       )
-      let newCat = {
+      const newCat = {
         id: generate(),
         title: this.state.bookmarkGroupTitleSub,
         level: 2,
@@ -183,7 +184,7 @@ export default class ItemListTree extends React.PureComponent {
         newCat,
         ...bookmarkGroups
       ]
-      let cat = _.find(
+      const cat = _.find(
         bookmarkGroups,
         d => d.id === id
       )
@@ -229,14 +230,14 @@ export default class ItemListTree extends React.PureComponent {
       node
     }
   ) => {
-    let [id] = selectedKeys
+    const [id] = selectedKeys
     if (!node.props.isLeaf) {
       this.props.store.modifier({
         currentBookmarkGroupId: id
       })
     }
-    let { bookmarks } = this.props
-    let bookmark = _.find(
+    const { bookmarks } = this.props
+    const bookmark = _.find(
       bookmarks,
       d => d.id === id
     )
@@ -329,10 +330,10 @@ export default class ItemListTree extends React.PureComponent {
   }
 
   editCategory = () => {
-    let {
+    const {
       categoryTitle
     } = this.state
-    let confirm = (
+    const confirm = (
       <span>
         <Icon
           type='check'
@@ -360,7 +361,7 @@ export default class ItemListTree extends React.PureComponent {
     if (isGroup && item.id === this.state.categoryId) {
       return this.editCategory(item)
     }
-    let cls = classnames(
+    const cls = classnames(
       'tree-item elli',
       {
         'is-category': isGroup,
@@ -401,16 +402,16 @@ export default class ItemListTree extends React.PureComponent {
   }
 
   renderChildNodes = bookmarkIds => {
-    let bookmarks = this.filter(
+    const bookmarks = this.filter(
       this.props.bookmarks
     )
-    let map = bookmarks.reduce((p, b) => {
+    const map = bookmarks.reduce((p, b) => {
       return {
         ...p,
         [b.id]: b
       }
     }, {})
-    let nodes = bookmarkIds.reduce((prev, id) => {
+    const nodes = bookmarkIds.reduce((prev, id) => {
       return map[id]
         ? [
           ...prev,
@@ -430,11 +431,11 @@ export default class ItemListTree extends React.PureComponent {
   }
 
   renderGroupChildNodes = bookmarkGroupIds => {
-    let bookmarkGroups = bookmarkGroupIds.map(id => {
+    const bookmarkGroups = bookmarkGroupIds.map(id => {
       return _.find(this.props.bookmarkGroups, d => d.id === id)
     }).filter(d => d)
     return bookmarkGroups.map(node => {
-      let { bookmarkIds = [], id } = node
+      const { bookmarkIds = [], id } = node
       return (
         <TreeNode
           key={id}
@@ -451,7 +452,7 @@ export default class ItemListTree extends React.PureComponent {
   }
 
   renderItem = (item) => {
-    let {
+    const {
       bookmarkIds = [],
       bookmarkGroupIds = []
     } = item
@@ -476,7 +477,7 @@ export default class ItemListTree extends React.PureComponent {
   }
 
   filter = list => {
-    let { keyword } = this.state
+    const { keyword } = this.state
     return keyword
       ? list.filter(item => {
         return createName(item).toLowerCase().includes(keyword.toLowerCase())
@@ -509,14 +510,14 @@ export default class ItemListTree extends React.PureComponent {
   }
 
   renderNewSubBookmarkGroup = item => {
-    let {
+    const {
       bookmarkGroupTitleSub,
       bookmarkGroupSubParentId
     } = this.state
     if (!bookmarkGroupSubParentId || item.id !== bookmarkGroupSubParentId) {
       return null
     }
-    let confirm = (
+    const confirm = (
       <span>
         <Icon
           type='check'
@@ -547,14 +548,14 @@ export default class ItemListTree extends React.PureComponent {
   }
 
   renderNewBookmarkGroup = () => {
-    let {
+    const {
       bookmarkGroupTitle,
       showNewBookmarkGroupForm
     } = this.state
     if (!showNewBookmarkGroupForm) {
       return null
     }
-    let confirm = (
+    const confirm = (
       <span>
         <Icon
           type='check'
@@ -581,16 +582,16 @@ export default class ItemListTree extends React.PureComponent {
   }
 
   render () {
-    let {
+    const {
       bookmarkGroups,
       type,
       activeItemId,
       staticList,
       listStyle = {}
     } = this.props
-    let { keyword } = this.state
-    let expandedKeys = this.props.expandedKeys || this.state.expandedKeys
-    let level1Bookgroups = bookmarkGroups.filter(
+    const { keyword } = this.state
+    const expandedKeys = this.props.expandedKeys || this.state.expandedKeys
+    const level1Bookgroups = bookmarkGroups.filter(
       d => !d.level || d.level < 2
     )
     return (

@@ -29,8 +29,8 @@ export default class ContextMenu extends React.PureComponent {
   componentDidMount () {
     ReactDOM.findDOMNode(this)
       .addEventListener('click', e => {
-        let { target } = e
-        let p = findParent(target, '.context-item')
+        const { target } = e
+        const p = findParent(target, '.context-item')
         if (
           p &&
           !p.classList.contains('no-auto-close-context') &&
@@ -47,8 +47,8 @@ export default class ContextMenu extends React.PureComponent {
   }
 
   render () {
-    let { visible, pos, content, className } = this.props
-    let cls = `${className} ${visible ? 'show' : 'hide'}`
+    const { visible, pos, content, className } = this.props
+    const cls = `${className} ${visible ? 'show' : 'hide'}`
 
     return (
       <div

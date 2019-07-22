@@ -22,8 +22,8 @@ const u = prefix('updater')
 
 export default class Sidebar extends Component {
   render () {
-    let { store } = this.props
-    let {
+    const { store } = this.props
+    const {
       openedSideBar,
       onNewSsh,
       modifier,
@@ -35,32 +35,32 @@ export default class Sidebar extends Component {
       openTerminalThemes,
       upgradeInfo
     } = store
-    let { showUpgradeModal, upgradePercent, checkingRemoteVersion, shouldUpgrade } = upgradeInfo
+    const { showUpgradeModal, upgradePercent, checkingRemoteVersion, shouldUpgrade } = upgradeInfo
     let handler
-    let interval = 400
-    let setOpenedSideBar = (bar) => {
+    const interval = 400
+    const setOpenedSideBar = (bar) => {
       return modifier({
         openedSideBar: bar
       })
     }
-    let onMouseLeave = () => {
+    const onMouseLeave = () => {
       handler = setTimeout(
         () => setOpenedSideBar(''),
         interval
       )
     }
-    let onMouseEnterBookmark = () => {
+    const onMouseEnterBookmark = () => {
       clearTimeout(handler)
       setOpenedSideBar('bookmarks')
     }
-    let onMouseEnterHistory = () => {
+    const onMouseEnterHistory = () => {
       clearTimeout(handler)
       setOpenedSideBar('history')
     }
-    let listStyle = {
+    const listStyle = {
       maxHeight: height - 160
     }
-    let showUpgrade = () => {
+    const showUpgrade = () => {
       modifier({
         upgradeInfo: {
           ...store.upgradeInfo,

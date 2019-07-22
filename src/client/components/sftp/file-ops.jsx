@@ -34,12 +34,12 @@ export default class Transports extends React.PureComponent {
   }
 
   mvOrCp = async (props = this.props) => {
-    let { transports } = props
+    const { transports } = props
     if (!transports.length) {
       return
     }
-    for (let tr of transports) {
-      let {
+    for (const tr of transports) {
+      const {
         srcTransferType,
         transferType,
         fromPath,
@@ -48,8 +48,8 @@ export default class Transports extends React.PureComponent {
       if (fromPath === toPath) {
         continue
       }
-      let funcName = this.funcMap[transferType]
-      let func = srcTransferType === typeMap.local
+      const funcName = this.funcMap[transferType]
+      const func = srcTransferType === typeMap.local
         ? fs[funcName]
         : props.sftp[funcName]
       await func(fromPath, toPath)
@@ -57,9 +57,9 @@ export default class Transports extends React.PureComponent {
           this.props.store.onError
         )
     }
-    let ids = transports.map(d => d.id)
+    const ids = transports.map(d => d.id)
     this.props.modifier(old => {
-      let trans1 = old.transports.filter(t => {
+      const trans1 = old.transports.filter(t => {
         return !ids.includes(t.id)
       })
       if (!trans1.length) {

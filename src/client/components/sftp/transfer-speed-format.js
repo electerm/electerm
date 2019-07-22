@@ -2,20 +2,20 @@
  * format transfer speed
  */
 
-let m1 = 1000 * 1000
-let k1 = 1000
-let sec = 1000
-let minute = sec * 60
-let hour = minute * 60
-let day = hour * 24
-let month = day * 30
+const m1 = 1000 * 1000
+const k1 = 1000
+const sec = 1000
+const minute = sec * 60
+const hour = minute * 60
+const day = hour * 24
+const month = day * 30
 
 export default (bytes, startTime) => {
   let now = +new Date()
   if (now <= startTime) {
     now = startTime + 1
   }
-  let speed = bytes / ((now - startTime) / 1000)
+  const speed = bytes / ((now - startTime) / 1000)
   if (speed > m1) {
     return (speed / m1).toFixed(1) + 'MB/s'
   } else {
@@ -24,10 +24,10 @@ export default (bytes, startTime) => {
 }
 
 function formatTime (ms) {
-  let d = Math.floor(ms / day)
-  let h = Math.floor((ms - d * day) / hour)
-  let m = Math.floor((ms - d * day - h * hour) / minute)
-  let s = Math.floor((ms - d * day - h * hour - m * minute) / sec)
+  const d = Math.floor(ms / day)
+  const h = Math.floor((ms - d * day) / hour)
+  const m = Math.floor((ms - d * day - h * hour) / minute)
+  const s = Math.floor((ms - d * day - h * hour - m * minute) / sec)
   if (ms > month) {
     return '>30d'
   } else if (ms > day) {
@@ -42,7 +42,7 @@ function formatTime (ms) {
 }
 
 export const computePassedTime = (startTime) => {
-  let allTimeNeed = (+new Date()) - startTime
+  const allTimeNeed = (+new Date()) - startTime
   return formatTime(allTimeNeed)
 }
 
@@ -51,8 +51,8 @@ export const computeLeftTime = (bytes, total, startTime) => {
   if (now <= startTime) {
     now = startTime + 1
   }
-  let speed = bytes / (now - startTime)
-  let allTimeNeed = (total - bytes) / speed
+  const speed = bytes / (now - startTime)
+  const allTimeNeed = (total - bytes) / speed
   return {
     leftTime: formatTime(allTimeNeed),
     leftTimeInt: allTimeNeed

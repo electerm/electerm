@@ -31,10 +31,10 @@ const wsDec = (ws) => {
 }
 
 function onDestroySftp (id) {
-  let { inst, transferIds } = sftpInsts[id] || {}
+  const { inst, transferIds } = sftpInsts[id] || {}
   if (inst) {
     inst.client.destroy()
-    for (let tid of transferIds) {
+    for (const tid of transferIds) {
       if (global.transferInsts[tid]) {
         global.transferInsts[tid].destroy()
       }
@@ -47,23 +47,23 @@ const initWs = function (app) {
   // sftp function
   app.ws('/sftp/:id', (ws, req) => {
     wsDec(ws)
-    let { id } = req.params
+    const { id } = req.params
     ws.on('close', () => {
       onDestroySftp(id)
     })
     ws.on('message', (message) => {
-      let msg = JSON.parse(message)
-      let { action } = msg
+      const msg = JSON.parse(message)
+      const { action } = msg
 
       if (action === 'sftp-new') {
-        let { id } = msg
+        const { id } = msg
         sftpInsts[id] = {
           inst: new Sftp(),
           transferIds: []
         }
       } else if (action === 'sftp-func') {
-        let { id, args, func } = msg
-        let uid = func + ':' + id
+        const { id, args, func } = msg
+        const uid = func + ':' + id
         sftpInsts[id].inst[func](...args)
           .then(data => {
             ws.s({
@@ -81,7 +81,7 @@ const initWs = function (app) {
             })
           })
       } else if (action === 'sftp-destroy') {
-        let { id } = msg
+        const { id } = msg
         ws.close()
         onDestroySftp(id)
       }
@@ -92,26 +92,26 @@ const initWs = function (app) {
   // transfer function
   app.ws('/transfer/:id', (ws, req) => {
     wsDec(ws)
-    let { id } = req.params
+    const { id } = req.params
     ws.on('close', () => {
-      let inst = global.transferInsts[id]
+      const inst = global.transferInsts[id]
       if (inst) {
         inst.destroy()
       }
     })
     ws.on('message', (message) => {
-      let msg = JSON.parse(message)
-      let { action } = msg
+      const msg = JSON.parse(message)
+      const { action } = msg
 
       if (action === 'transfer-new') {
-        let { sftpId, id } = msg
-        let opts = Object.assign({}, msg, {
+        const { sftpId, id } = msg
+        const opts = Object.assign({}, msg, {
           sftp: sftpInsts[sftpId].inst.sftp,
           ws
         })
         global.transferInsts[id] = new Transfer(opts)
       } else if (action === 'transfer-func') {
-        let { id, func, args } = msg
+        const { id, func, args } = msg
         global.transferInsts[id][func](...args)
       }
     })
@@ -122,9 +122,9 @@ const initWs = function (app) {
   app.ws('/fs/:id', (ws) => {
     wsDec(ws)
     ws.on('message', (message) => {
-      let msg = JSON.parse(message)
-      let { id, args, func } = msg
-      let uid = func + ':' + id
+      const msg = JSON.parse(message)
+      const { id, args, func } = msg
+      const uid = func + ':' + id
       fs[func](...args)
         .then(data => {
           ws.s({
@@ -148,26 +148,26 @@ const initWs = function (app) {
   // upgrade
   app.ws('/upgrade/:id', (ws, req) => {
     wsDec(ws)
-    let { id } = req.params
+    const { id } = req.params
     ws.on('close', () => {
-      let inst = global.upgradeInsts[id]
+      const inst = global.upgradeInsts[id]
       if (inst) {
         inst.destroy()
       }
     })
     ws.on('message', async (message) => {
-      let msg = JSON.parse(message)
-      let { action } = msg
+      const msg = JSON.parse(message)
+      const { action } = msg
 
       if (action === 'upgrade-new') {
-        let { id } = msg
-        let opts = Object.assign({}, msg, {
+        const { id } = msg
+        const opts = Object.assign({}, msg, {
           ws
         })
         global.upgradeInsts[id] = new Upgrade(opts)
         await global.upgradeInsts[id].init()
       } else if (action === 'upgrade-func') {
-        let { id, func, args } = msg
+        const { id, func, args } = msg
         global.upgradeInsts[id][func](...args)
       }
     })

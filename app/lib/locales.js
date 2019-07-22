@@ -9,17 +9,17 @@ const { resolve } = require('path')
 const { userConfig } = require('./user-config-controller')
 const { sync } = require('os-locale')
 
-let path = (isDev
+const path = (isDev
   ? '../'
   : '') +
   '../node_modules/@electerm/electerm-locales/locales'
-let localeFolder = resolve(__dirname, path)
+const localeFolder = resolve(__dirname, path)
 
 // languages array
 const langs = fs.readdirSync(localeFolder)
   .map(fileName => {
-    let filePath = resolve(localeFolder, fileName)
-    let lang = require(filePath)
+    const filePath = resolve(localeFolder, fileName)
+    const lang = require(filePath)
     return {
       path: filePath,
       id: fileName.replace('.js', ''),
@@ -34,7 +34,7 @@ const langMap = langs.reduce((prev, l) => {
 
 function findLang (la) {
   let res = false
-  for (let l of langs) {
+  for (const l of langs) {
     if (_.isRegExp(l.match)) {
       res = l.match.test(la)
     } else if (_.isFunction(l.match)) {
@@ -59,7 +59,7 @@ const getLang = () => {
   return findLang(l) || defaultLang
 }
 
-let language = getLang()
+const language = getLang()
 
 exports.lang = require(langMap[language].path).lang
 

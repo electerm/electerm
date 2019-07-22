@@ -19,7 +19,7 @@ const sorterFactory = prop => {
 }
 export default class TransferHistoryModal extends Component {
   render () {
-    let {
+    const {
       transferHistory,
       transferHistoryModalVisible,
       clearTransferHistory,

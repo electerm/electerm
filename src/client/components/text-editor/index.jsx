@@ -36,7 +36,7 @@ export class TextEditorForm extends React.PureComponent {
     this.setState({
       loading: true
     })
-    let {
+    const {
       sftpFunc,
       file: {
         path,
@@ -44,12 +44,12 @@ export class TextEditorForm extends React.PureComponent {
         type
       }
     } = this.props
-    let p = resolve(path, name)
+    const p = resolve(path, name)
     this.setState({
       path: p
     })
-    let sftp = sftpFunc()
-    let text = typeMap.remote === type
+    const sftp = sftpFunc()
+    const text = typeMap.remote === type
       ? await sftp.readFile(p)
       : await fs.readFile(p)
     this.setState({
@@ -60,7 +60,7 @@ export class TextEditorForm extends React.PureComponent {
 
   handleSubmit = async (evt) => {
     evt.preventDefault()
-    let res = await this.validateFieldsAndScroll()
+    const res = await this.validateFieldsAndScroll()
     if (!res) {
       return
     }
@@ -70,15 +70,15 @@ export class TextEditorForm extends React.PureComponent {
     if (res.text === this.state.text) {
       return this.cancel()
     }
-    let {
+    const {
       sftpFunc,
       file: {
         type,
         mode
       }
     } = this.props
-    let sftp = sftpFunc()
-    let r = typeMap.remote === type
+    const sftp = sftpFunc()
+    const r = typeMap.remote === type
       ? await sftp.writeFile(
         this.state.path,
         res.text,
@@ -125,7 +125,7 @@ export class TextEditorForm extends React.PureComponent {
   }
 
   renderFooter () {
-    let { loading } = this.state
+    const { loading } = this.state
     return (
       <div>
         <Button
@@ -157,7 +157,7 @@ export class TextEditorForm extends React.PureComponent {
     }
     const { path, loading } = this.state
     const title = `${s('edit')} ${s('remote')} ${s('file')}: ${path}`
-    let props = {
+    const props = {
       footer: this.renderFooter(),
       title,
       maskClosable: false,

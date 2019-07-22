@@ -6,16 +6,16 @@
  * @return {String}
  */
 export default (basePath, nameOrDot) => {
-  let sep = basePath.includes('\\') || basePath.includes(':')
+  const sep = basePath.includes('\\') || basePath.includes(':')
     ? '\\'
     : '/'
   if (nameOrDot === '..') {
-    let arr = basePath.split(sep)
-    let { length } = arr
+    const arr = basePath.split(sep)
+    const { length } = arr
     if (length === 1) {
       return basePath
     }
-    let res = arr.slice(0, length - 1).join(sep)
+    const res = arr.slice(0, length - 1).join(sep)
     return res || '/'
   }
   return basePath +

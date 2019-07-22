@@ -22,13 +22,13 @@ describe('tabs', function () {
     const { client } = this.app
     await client.waitUntilWindowLoaded()
     await delay(500)
-    let tabs = await client.elements('.tabs .tab')
-    let tabsLenBefore = tabs.value.length
+    const tabs = await client.elements('.tabs .tab')
+    const tabsLenBefore = tabs.value.length
     await client.doubleClick('.tab')
     await delay(500)
-    let tabs0 = await client.elements('.tabs .tab')
+    const tabs0 = await client.elements('.tabs .tab')
     expect(tabs0.value.length).equal(tabsLenBefore + 1)
-    let wraps = await client.elements('.ui-outer > div')
+    const wraps = await client.elements('.ui-outer > div')
     expect(wraps.value.length).equal(tabsLenBefore + 1)
     await delay(500)
   })
@@ -37,13 +37,13 @@ describe('tabs', function () {
     const { client } = this.app
     await client.waitUntilWindowLoaded()
     await delay(500)
-    let tabs = await client.elements('.tabs .tab')
-    let tabsLenBefore = tabs.value.length
+    const tabs = await client.elements('.tabs .tab')
+    const tabsLenBefore = tabs.value.length
     await client.click('.tabs .tabs-add-btn')
     await delay(500)
-    let tabs0 = await client.elements('.tabs .tab')
+    const tabs0 = await client.elements('.tabs .tab')
     expect(tabs0.value.length).equal(tabsLenBefore + 1)
-    let wraps = await client.elements('.ui-outer > div')
+    const wraps = await client.elements('.ui-outer > div')
     expect(wraps.value.length).equal(tabsLenBefore + 1)
     await delay(500)
   })

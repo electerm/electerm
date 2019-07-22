@@ -14,10 +14,10 @@ class Transfer {
     onError,
     ...rest
   }) {
-    let id = generate()
+    const id = generate()
     this.id = id
-    let th = this
-    let ws = await initWs('transfer', id)
+    const th = this
+    const ws = await initWs('transfer', id)
     ws.s({
       action: 'transfer-new',
       ...rest,
@@ -37,9 +37,9 @@ class Transfer {
       }
     })
 
-    let did = 'transfer:data:' + id
+    const did = 'transfer:data:' + id
     this.onData = (evt) => {
-      let arg = JSON.parse(evt.data)
+      const arg = JSON.parse(evt.data)
       if (did === arg.id) {
         onData(arg.data)
       }
@@ -62,7 +62,7 @@ class Transfer {
 }
 
 export default async (props) => {
-  let transfer = new Transfer()
+  const transfer = new Transfer()
   await transfer.init(props)
   return transfer
 }

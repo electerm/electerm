@@ -10,7 +10,7 @@ import newTerm from '../../common/new-terminal'
 import './upgrade.styl'
 
 const { getGlobal, prefix } = window
-let {
+const {
   homepage
 } = getGlobal('packInfo')
 const e = prefix('updater')
@@ -102,7 +102,7 @@ export default class Upgrade extends Component {
       checkingRemoteVersion: true,
       error: ''
     })
-    let releaseVer = await getLatestReleaseVersion()
+    const releaseVer = await getLatestReleaseVersion()
     this.changeProps({
       checkingRemoteVersion: false
     })
@@ -111,10 +111,10 @@ export default class Upgrade extends Component {
         error: 'Can not get version info'
       })
     }
-    let currentVer = 'v' + window.et.version.split('-')[0]
-    let latestVer = releaseVer.tag_name
-    let shouldUpgrade = compare(currentVer, latestVer) < 0
-    let canAutoUpgrade = installSrc || isWin || isMac
+    const currentVer = 'v' + window.et.version.split('-')[0]
+    const latestVer = releaseVer.tag_name
+    const shouldUpgrade = compare(currentVer, latestVer) < 0
+    const canAutoUpgrade = installSrc || isWin || isMac
     let releaseInfo
     if (canAutoUpgrade) {
       releaseInfo = await getLatestReleaseInfo()
@@ -151,10 +151,10 @@ export default class Upgrade extends Component {
   }
 
   renderCanNotUpgrade = () => {
-    let {
+    const {
       showUpgradeModal
     } = this.props.upgradeInfo
-    let cls = `animate upgrade-panel${showUpgradeModal ? '' : ' upgrade-panel-hide'}`
+    const cls = `animate upgrade-panel${showUpgradeModal ? '' : ' upgrade-panel-hide'}`
     return (
       <div className={cls}>
         <div className='upgrade-panel-title'>
@@ -173,13 +173,13 @@ export default class Upgrade extends Component {
   }
 
   renderChangeLog = () => {
-    let {
+    const {
       releaseInfo
     } = this.props.upgradeInfo
     if (!releaseInfo) {
       return null
     }
-    let arr = releaseInfo.split(/[\n\r]+/g)
+    const arr = releaseInfo.split(/[\n\r]+/g)
     return (
       <div className='pd1t'>
         <div className='bold'>Changelog:</div>
@@ -193,7 +193,7 @@ export default class Upgrade extends Component {
   }
 
   render () {
-    let {
+    const {
       remoteVersion,
       upgrading,
       checkingRemoteVersion,
@@ -214,8 +214,8 @@ export default class Upgrade extends Component {
     if (checkingRemoteVersion) {
       return null
     }
-    let cls = `animate upgrade-panel${showUpgradeModal ? '' : ' upgrade-panel-hide'}`
-    let func = upgrading
+    const cls = `animate upgrade-panel${showUpgradeModal ? '' : ' upgrade-panel-hide'}`
+    const func = upgrading
       ? this.cancel
       : this.upgrade
     return (

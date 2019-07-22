@@ -6,7 +6,7 @@ import { generate } from 'shortid'
 import initWs from './ws'
 
 const fsFunctions = window.getGlobal('fsFunctions')
-let id = generate()
+const id = generate()
 let ws
 
 export const initFS = async () => {
@@ -15,7 +15,7 @@ export const initFS = async () => {
 
 export default fsFunctions.reduce((prev, func) => {
   prev[func] = async (...args) => {
-    let uid = func + ':' + id
+    const uid = func + ':' + id
     return new Promise((resolve, reject) => {
       ws.s({
         id,

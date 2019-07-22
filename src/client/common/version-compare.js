@@ -9,8 +9,8 @@
 // return -1 when a < b
 // return 0 when a === b
 export default function (a, b) {
-  let ar = a.split('.').map(n => Number(n.replace('v', '')))
-  let br = b.split('.').map(n => Number(n.replace('v', '')))
+  const ar = a.split('.').map(n => Number(n.replace('v', '')))
+  const br = b.split('.').map(n => Number(n.replace('v', '')))
   let res = 0
   for (let i = 0, len = br.length; i < len; i++) {
     if (br[i] < ar[i]) {

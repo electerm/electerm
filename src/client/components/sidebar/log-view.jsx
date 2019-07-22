@@ -9,14 +9,14 @@ import fs from '../../common/fs'
 const TextArea = Input.TextArea
 const { prefix } = window
 const m = prefix('menu')
-let { oldLogPath, logPath } = window.getGlobal('logPaths')
+const { oldLogPath, logPath } = window.getGlobal('logPaths')
 
 export default function LogView () {
-  let [log, setLog] = useState('')
+  const [log, setLog] = useState('')
   async function onClick () {
-    let str = await fs.readFile(logPath)
+    const str = await fs.readFile(logPath)
       .catch(() => '')
-    let strOld = await fs.readFile(oldLogPath)
+    const strOld = await fs.readFile(oldLogPath)
       .catch(() => '')
     setLog(`${str}\n${strOld}`)
   }

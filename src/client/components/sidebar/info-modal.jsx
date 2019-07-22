@@ -27,7 +27,7 @@ export default function ({
   onOk
 }) {
   const { getGlobal } = window
-  let {
+  const {
     name,
     // description,
     devDependencies,
@@ -44,22 +44,21 @@ export default function ({
     },
     version: packVer
   } = getGlobal('packInfo')
-  let version = 'v' + packVer
-  let link = url.replace('git+', '').replace('.git', '')
-  let os = getGlobal('os')
-  let env = getGlobal('env')
-  let deps = {
+  const version = 'v' + packVer
+  const link = url.replace('git+', '').replace('.git', '')
+  const os = getGlobal('os')
+  const env = getGlobal('env')
+  const deps = {
     ...devDependencies,
     ...dependencies
   }
-  let versions = getGlobal('versions')
-  let envs = {
+  const versions = getGlobal('versions')
+  const envs = {
     ...versions,
     ...env
   }
-  let bugReportLink = link + '/issues'
-  let modal
-  let titleDiv = (
+  const bugReportLink = link + '/issues'
+  const titleDiv = (
     <div className='fix'>
       <span className='fleft'>{`${m('about')} ` + name}</span>
       <span className='fright'>
@@ -71,7 +70,7 @@ export default function ({
       </span>
     </div>
   )
-  modal = Modal.info({
+  const modal = Modal.info({
     title: titleDiv,
     width: window.innerWidth - 100,
     maskClosable: true,
@@ -133,7 +132,7 @@ export default function ({
           <TabPane tab={e('dependencies')} key='4'>
             {
               Object.keys(deps).map((k, i) => {
-                let v = deps[k]
+                const v = deps[k]
                 return (
                   <div className='pd1b' key={i + '_dp_' + k}>
                     <b className='bold'>{k}</b>:
@@ -148,7 +147,7 @@ export default function ({
           <TabPane tab={e('env')} key='3'>
             {
               Object.keys(envs).map((k, i) => {
-                let v = envs[k]
+                const v = envs[k]
                 return (
                   <div className='pd1b' key={i + '_env_' + k}>
                     <b className='bold'>{k}</b>:
@@ -163,7 +162,7 @@ export default function ({
           <TabPane tab={e('os')} key='2'>
             {
               Object.keys(os).map((k, i) => {
-                let vf = os[k]
+                const vf = os[k]
                 if (!_.isFunction(vf)) {
                   return null
                 }

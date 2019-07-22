@@ -25,7 +25,7 @@ describe('terminal symlink', function () {
 
   it('should open window and local terminal ls/dir command works', async function () {
     const { client } = this.app
-    let cmd = 'rm -rf tmp-o.js link-o && touch tmp-o.js && ln -s tmp-o.js link-o'
+    const cmd = 'rm -rf tmp-o.js link-o && touch tmp-o.js && ln -s tmp-o.js link-o'
     await client.waitUntilWindowLoaded()
     await delay(500)
     await client.keys([...cmd.split(''), 'Enter'])
@@ -43,7 +43,7 @@ describe('terminal symlink', function () {
     await delay(800)
 
     log('check synlink')
-    let txt = await client.getText('.sftp-table-content')
+    const txt = await client.getText('.sftp-table-content')
     expect(txt.includes('*link-o')).equal(true)
     // await delay(200)
     // expect(has).equal(true)
@@ -54,7 +54,7 @@ describe('terminal symlink', function () {
     })
 
     await delay(200)
-    let cmd0 = 'rm -rf tmp-o.js link-o'
+    const cmd0 = 'rm -rf tmp-o.js link-o'
     await client.keys([...cmd0.split(''), 'Enter'])
   })
 })

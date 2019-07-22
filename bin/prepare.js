@@ -2,7 +2,7 @@
  * prepare the files to be packed
  */
 
-let pack = require('../package.json')
+const pack = require('../package.json')
 const { resolve } = require('path')
 const { version } = pack
 const { mkdir, rm, exec, echo, cp } = require('shelljs')

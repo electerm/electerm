@@ -14,7 +14,7 @@ const e = prefix('sftp')
 const formatTime = time
 
 export default memo(props => {
-  let {
+  const {
     visible,
     file,
     tab,
@@ -23,7 +23,7 @@ export default memo(props => {
   if (!visible) {
     return null
   }
-  let {
+  const {
     name,
     size,
     accessTime,
@@ -34,24 +34,24 @@ export default memo(props => {
     mode,
     type
   } = file
-  let {
+  const {
     host,
     port,
     username
   } = tab
-  let iconType = isDirectory ? 'folder' : 'file'
-  let ps = {
+  const iconType = isDirectory ? 'folder' : 'file'
+  const ps = {
     visible,
     width: 500,
     title: e(iconType) + ` ${e('attributes')}`,
     footer: null,
     onCancel: onClose
   }
-  let fp = resolve(path, name)
-  let ffp = type === 'local'
+  const fp = resolve(path, name)
+  const ffp = type === 'local'
     ? fp
     : `${username}@${host}:${port}:${fp}`
-  let perms = mode2permission(mode)
+  const perms = mode2permission(mode)
   return (
     <Modal
       {...ps}

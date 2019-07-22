@@ -15,7 +15,7 @@ function onClick (e, href) {
 }
 
 export default memo(props => {
-  let { to, children, ...rest } = props
+  const { to, children, ...rest } = props
   return (
     <a
       href={to}

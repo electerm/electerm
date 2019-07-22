@@ -62,7 +62,7 @@ describe('timeout setting', function () {
       document.querySelector('.ant-modal .ant-tabs-tabpane-active .ant-btn-primary').click()
     })
     await delay(3500)
-    let txt = await client.getText('.ant-notification-notice  .ant-notification-notice-content .common-err')
+    const txt = await client.getText('.ant-notification-notice  .ant-notification-notice-content .common-err')
     expect(txt.includes('Timed out')).equal(true)
     await client.execute(function () {
       document.querySelector('.btns .anticon-setting').click()

@@ -26,8 +26,8 @@ const happyConf = {
   threadPool: happyThreadPool,
   verbose: true
 }
-let version = pack.version + '-' + git.long()
-let isProd = env.NODE_ENV === 'production'
+const version = pack.version + '-' + git.long()
+const isProd = env.NODE_ENV === 'production'
 const extractTextPlugin1 = new MiniCssExtractPlugin({
   filename: 'css/[name].styles.css'
 })
@@ -65,18 +65,18 @@ var config = {
     libraryTarget: 'var'
   },
   externals: {
-    'react': 'React',
+    react: 'React',
     'react-dom': 'ReactDOM',
-    'zmodem': 'Zmodem',
-    'lodash': '_'
+    zmodem: 'Zmodem',
+    lodash: '_'
   },
   target: 'electron-renderer',
   watch: true,
   resolve: {
     extensions: ['.js', '.jsx', '.ts', '.json'],
     alias: {
-      'client': path.resolve(__dirname, 'src/client'),
-      'node_modules': path.resolve(__dirname, 'node_modules')
+      client: path.resolve(__dirname, 'src/client'),
+      node_modules: path.resolve(__dirname, 'node_modules')
     }
   },
   resolveLoader: {

@@ -14,10 +14,10 @@ class Upgrade {
     onError,
     ...rest
   }) {
-    let id = generate()
+    const id = generate()
     this.id = id
-    let th = this
-    let ws = await initWs('upgrade', id)
+    const th = this
+    const ws = await initWs('upgrade', id)
     ws.s({
       action: 'upgrade-new',
       ...rest,
@@ -37,9 +37,9 @@ class Upgrade {
       }
     })
 
-    let did = 'upgrade:data:' + id
+    const did = 'upgrade:data:' + id
     this.onData = (evt) => {
-      let arg = JSON.parse(evt.data)
+      const arg = JSON.parse(evt.data)
       if (did === arg.id) {
         onData(arg.data)
       }
@@ -62,7 +62,7 @@ class Upgrade {
 }
 
 export default async (props) => {
-  let upgrade = new Upgrade()
+  const upgrade = new Upgrade()
   await upgrade.init(props)
   return upgrade
 }

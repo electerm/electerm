@@ -43,8 +43,8 @@ export default class Setting extends Component {
   }
 
   onChangeModifier = modifier => {
-    let { hotkey } = this.props.config
-    let key = hotkey.split('+')[1]
+    const { hotkey } = this.props.config
+    const key = hotkey.split('+')[1]
     return this.saveConfig({
       hotkey: `${modifier}+${key}`
     })
@@ -57,8 +57,8 @@ export default class Setting extends Component {
   }
 
   onChangeKey = key => {
-    let { hotkey } = this.props.config
-    let modifier = hotkey.split('+')[0]
+    const { hotkey } = this.props.config
+    const modifier = hotkey.split('+')[0]
     return this.saveConfig({
       hotkey: `${modifier}+${key}`
     })
@@ -84,15 +84,15 @@ export default class Setting extends Component {
   }
 
   saveConfig = (_ext) => {
-    let config = deepCopy(this.props.config)
-    let ext = deepCopy(_ext)
-    let update = {
+    const config = deepCopy(this.props.config)
+    const ext = deepCopy(_ext)
+    const update = {
       config: Object.assign({}, config, deepCopy(_ext))
     }
     const saveUserConfig = getGlobal('saveUserConfig')
     if (ext.hotkey && ext.hotkey !== config.hotkey) {
       const changeHotkey = getGlobal('changeHotkey')
-      let res = changeHotkey(ext.hotkey)
+      const res = changeHotkey(ext.hotkey)
       if (!res) {
         message.warn(e('hotkeyNotOk'))
         update.config.hotkey = config.hotkey
@@ -112,7 +112,7 @@ export default class Setting extends Component {
   }
 
   renderToggle = (name) => {
-    let checked = !!this.props.config[name]
+    const checked = !!this.props.config[name]
     return (
       <div className='pd2b'>
         <Switch
@@ -150,16 +150,16 @@ export default class Setting extends Component {
   }
 
   renderNumber = (name, options) => {
-    let value = this.props.config[name]
-    let defaultValue = this.props.config.defaultSettings[name]
-    let {
+    const value = this.props.config[name]
+    const defaultValue = this.props.config.defaultSettings[name]
+    const {
       step = 1,
       min,
       max,
       cls,
       onChange = (v) => this.onChangeValue(v, name)
     } = options
-    let opts = {
+    const opts = {
       step,
       value,
       min,
@@ -177,9 +177,9 @@ export default class Setting extends Component {
   }
 
   renderText = (name) => {
-    let value = this.props.config[name]
-    let defaultValue = this.props.config.defaultSettings[name]
-    let onChange = (e) => this.onChangeValue(e.target.value, name)
+    const value = this.props.config[name]
+    const defaultValue = this.props.config.defaultSettings[name]
+    const onChange = (e) => this.onChangeValue(e.target.value, name)
     return (
       <div className='pd2b'>
         <Input
@@ -192,10 +192,10 @@ export default class Setting extends Component {
   }
 
   renderTerminalBgSelect = (name) => {
-    let value = this.props.config[name]
-    let defaultValue = this.props.config.defaultSettings[name]
-    let onChange = (e) => this.onChangeValue(e.target.value, name)
-    let after = (
+    const value = this.props.config[name]
+    const defaultValue = this.props.config.defaultSettings[name]
+    const onChange = (e) => this.onChangeValue(e.target.value, name)
+    const after = (
       <Upload
         beforeUpload={(file) => {
           this.onChangeValue(file.path, name)
@@ -231,7 +231,7 @@ export default class Setting extends Component {
   }
 
   renderProxy () {
-    let {
+    const {
       enableGlobalProxy,
       proxyPort,
       proxyType,
@@ -291,14 +291,14 @@ export default class Setting extends Component {
   }
 
   render () {
-    let {
+    const {
       hotkey,
       language,
       rendererType
     } = this.props.config
-    let { themes, theme } = this.props.store
-    let langs = getGlobal('langs')
-    let [modifier, key] = hotkey.split('+')
+    const { themes, theme } = this.props.store
+    const langs = getGlobal('langs')
+    const [modifier, key] = hotkey.split('+')
     return (
       <div className='form-wrap pd1y pd2x'>
         <h2>{e('settings')}</h2>
@@ -362,7 +362,7 @@ export default class Setting extends Component {
           >
             {
               themes.map(l => {
-                let { id, name } = l
+                const { id, name } = l
                 return (
                   <Option key={id} value={id}>{name}</Option>
                 )
@@ -379,7 +379,7 @@ export default class Setting extends Component {
           >
             {
               langs.map(l => {
-                let { id, name } = l
+                const { id, name } = l
                 return (
                   <Option key={id} value={id}>{name}</Option>
                 )

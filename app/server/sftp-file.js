@@ -26,7 +26,7 @@ class FakeWrite extends Writable {
 
 function writeRemoteFile (sftp, path, str, mode) {
   return new Promise((resolve, reject) => {
-    let writeStream = sftp.createWriteStream(path, {
+    const writeStream = sftp.createWriteStream(path, {
       highWaterMark: 64 * 1024 * 4 * 4,
       mode
     })
@@ -43,7 +43,7 @@ function writeRemoteFile (sftp, path, str, mode) {
 function readRemoteFile (sftp, path) {
   return new Promise((resolve, reject) => {
     let final = Buffer.alloc(0)
-    let writeStream = new FakeWrite({
+    const writeStream = new FakeWrite({
       onData: data => {
         final = Buffer.concat(
           [final, data]

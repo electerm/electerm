@@ -2,9 +2,9 @@ import zmodem from 'zmodem.js/src/zmodem_browser'
 
 function zmodemAttach (ws, opts) {
   if (opts === void 0) { opts = {} }
-  let term = this
-  let senderFunc = function (octets) { return ws.send(new Uint8Array(octets)) }
-  let zsentry
+  const term = this
+  const senderFunc = function (octets) { return ws.send(new Uint8Array(octets)) }
+  let zsentry = null
   function shouldWrite () {
     return !!zsentry.get_confirmed_session() || !opts.noTerminalWriteOutsideSession
   }

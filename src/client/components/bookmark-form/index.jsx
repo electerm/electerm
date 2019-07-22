@@ -56,17 +56,17 @@ export class BookmarkForm extends React.PureComponent {
   }
 
   onPaste = e => {
-    let txt = e.clipboardData.getData('Text')
+    const txt = e.clipboardData.getData('Text')
     // support name:passsword@host:23
-    let arr = txt.match(/([^:@]+)(:[^:@]+)?@([^:@]+)(:\d+)?/)
+    const arr = txt.match(/([^:@]+)(:[^:@]+)?@([^:@]+)(:\d+)?/)
     if (!arr) {
       return
     }
-    let username = arr[1]
-    let password = arr[2] ? arr[2].slice(1) : ''
-    let host = arr[3]
-    let port = arr[4] ? arr[4].slice(1) : ''
-    let obj = {
+    const username = arr[1]
+    const password = arr[2] ? arr[2].slice(1) : ''
+    const host = arr[3]
+    const port = arr[4] ? arr[4].slice(1) : ''
+    const obj = {
       username,
       host
     }
@@ -82,8 +82,8 @@ export class BookmarkForm extends React.PureComponent {
   }
 
   onBlur = async e => {
-    let { value } = e.target
-    let { type } = this.props
+    const { value } = e.target
+    const { type } = this.props
     if (
       type !== settingMap.bookmarks ||
       !value || /\s/.test(value) ||
@@ -91,7 +91,7 @@ export class BookmarkForm extends React.PureComponent {
     ) {
       return
     }
-    let ip = await window.getGlobal('lookup')(value)
+    const ip = await window.getGlobal('lookup')(value)
       .catch(err => {
         log.debug(err)
       })
@@ -104,7 +104,7 @@ export class BookmarkForm extends React.PureComponent {
     const {
       id
     } = props.formData
-    let {
+    const {
       bookmarkGroups,
       currentBookmarkGroupId
     } = props
@@ -114,7 +114,7 @@ export class BookmarkForm extends React.PureComponent {
   }
 
   findBookmarkGroupId = (bookmarkGroups, id) => {
-    let obj = _.find(bookmarkGroups, bg => {
+    const obj = _.find(bookmarkGroups, bg => {
       return bg.bookmarkIds.includes(id)
     })
     return obj ? obj.id : defaultookmarkGroupId
@@ -131,8 +131,8 @@ export class BookmarkForm extends React.PureComponent {
         bg => bg.id === defaultookmarkGroupId
       )
     }
-    let bid = bookmark.id
-    let bg = bookmarkGroups[index]
+    const bid = bookmark.id
+    const bg = bookmarkGroups[index]
     if (!bg.bookmarkIds.includes(bid)) {
       bg.bookmarkIds.unshift(bid)
     }
@@ -152,11 +152,11 @@ export class BookmarkForm extends React.PureComponent {
   }
 
   submit = (evt, item, type = this.props.type) => {
-    let obj = item
-    let { addItem, editItem } = this.props.store
-    let categoryId = obj.category
+    const obj = item
+    const { addItem, editItem } = this.props.store
+    const categoryId = obj.category
     delete obj.category
-    let bookmarkGroups = copy(
+    const bookmarkGroups = copy(
       this.props.bookmarkGroups
     )
     if (type === settingMap.history) {
@@ -172,7 +172,7 @@ export class BookmarkForm extends React.PureComponent {
       return
     }
     if (obj.id) {
-      let tar = copy(obj)
+      const tar = copy(obj)
       delete tar.id
       editItem(obj.id, tar, settingMap.bookmarks)
       this.updateBookmarkGroups(
@@ -198,12 +198,12 @@ export class BookmarkForm extends React.PureComponent {
   }
 
   test = async (options) => {
-    let testConnection = window.getGlobal('testConnection')
+    const testConnection = window.getGlobal('testConnection')
     let msg = ''
     this.setState({
       testing: true
     })
-    let res = await testConnection(options)
+    const res = await testConnection(options)
       .then(() => true)
       .catch((e) => {
         msg = e.message
@@ -215,7 +215,7 @@ export class BookmarkForm extends React.PureComponent {
     if (res) {
       message.success('connection ok')
     } else {
-      let err = 'connection fails' +
+      const err = 'connection fails' +
         (msg ? `: ${msg}` : '')
       message.error(err)
     }
@@ -226,7 +226,7 @@ export class BookmarkForm extends React.PureComponent {
   }
 
   onSelectProxy = proxy => {
-    let obj = Object.keys(proxy)
+    const obj = Object.keys(proxy)
       .reduce((prev, c) => {
         return {
           ...prev,
@@ -238,7 +238,7 @@ export class BookmarkForm extends React.PureComponent {
 
   handleSubmit = async (evt, isTest = false) => {
     evt && evt.preventDefault && evt.preventDefault()
-    let res = await this.validateFieldsAndScroll()
+    const res = await this.validateFieldsAndScroll()
     if (!res) return
     if (
       res.proxy && (
@@ -250,7 +250,7 @@ export class BookmarkForm extends React.PureComponent {
         `${e('proxyIp')} and ${e('proxyPort')} ${e('required')}`
       )
     }
-    let obj = {
+    const obj = {
       ...this.props.formData,
       ...res
     }
@@ -270,7 +270,7 @@ export class BookmarkForm extends React.PureComponent {
   }
 
   beforeUpload = (file) => {
-    let privateKey = window.getGlobal('fs')
+    const privateKey = window.getGlobal('fs')
       .readFileSync(file.path).toString()
     this.props.form.setFieldsValue({
       privateKey
@@ -279,7 +279,7 @@ export class BookmarkForm extends React.PureComponent {
   }
 
   renderAuth () {
-    let authType = this.props.form.getFieldValue('authType') ||
+    const authType = this.props.form.getFieldValue('authType') ||
       authTypeMap.password
     return this[authType + 'Render']()
   }
@@ -385,10 +385,10 @@ export class BookmarkForm extends React.PureComponent {
   }
 
   renderProxySelect = () => {
-    let proxyList = this.props.bookmarks
+    const proxyList = this.props.bookmarks
       .reduce((prev, current) => {
-        let { proxy } = current
-        let {
+        const { proxy } = current
+        const {
           proxyIp,
           proxyPort,
           proxyType
@@ -396,7 +396,7 @@ export class BookmarkForm extends React.PureComponent {
         if (!proxy || !proxyIp || !proxyPort) {
           return prev
         }
-        let id = proxyType === '0'
+        const id = proxyType === '0'
           ? `http://${proxyIp}:${proxyPort}`
           : `socks${proxyType}://${proxyIp}:${proxyPort}`
         return {
@@ -404,7 +404,7 @@ export class BookmarkForm extends React.PureComponent {
           [id]: proxy
         }
       }, {})
-    let keys = Object.keys(proxyList)
+    const keys = Object.keys(proxyList)
     if (!keys.length) {
       return null
     }
@@ -443,7 +443,7 @@ export class BookmarkForm extends React.PureComponent {
     const {
       proxy = {}
     } = this.props.formData
-    let { proxyIp, proxyPort, proxyType = '5' } = proxy
+    const { proxyIp, proxyPort, proxyType = '5' } = proxy
     return [
       this.renderProxySelect(),
       <FormItem
@@ -508,13 +508,13 @@ export class BookmarkForm extends React.PureComponent {
       id,
       encode = encodes[0]
     } = this.props.formData
-    let {
+    const {
       autofocustrigger,
       bookmarkGroups,
       currentBookmarkGroupId
     } = this.props
-    let { dns } = this.state
-    let initBookmarkGroupId = id
+    const { dns } = this.state
+    const initBookmarkGroupId = id
       ? this.findBookmarkGroupId(bookmarkGroups, id)
       : currentBookmarkGroupId
 
@@ -735,7 +735,7 @@ export class BookmarkForm extends React.PureComponent {
   }
 
   renderX11 = () => {
-    let { x11 = false } = this.props.formData
+    const { x11 = false } = this.props.formData
     const { getFieldDecorator } = this.props.form
     return (
       <FormItem
@@ -775,7 +775,7 @@ export class BookmarkForm extends React.PureComponent {
     const {
       id
     } = this.props.formData
-    let {
+    const {
       type
     } = this.props
     return (

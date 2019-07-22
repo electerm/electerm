@@ -11,13 +11,13 @@ const copy = require('json-deep-copy')
 const log = require('../utils/log')
 
 let cache = {}
-let writeFs = _.debounce(writeFileSync, 280, {
+const writeFs = _.debounce(writeFileSync, 280, {
   leading: true
 })
 
 const get = (key) => {
   try {
-    let db = JSON.parse(readFileSync(savePath).toString())
+    const db = JSON.parse(readFileSync(savePath).toString())
     cache = db
     return db[key]
   } catch (e) {
@@ -28,7 +28,7 @@ const get = (key) => {
 
 const set = (keyOrObject, value) => {
   try {
-    let newdb = copy(cache)
+    const newdb = copy(cache)
     if (_.isPlainObject(keyOrObject)) {
       Object.assign(newdb, keyOrObject)
     } else if (_.isUndefined(value) || _.isNull(value)) {

@@ -48,7 +48,7 @@ export default class DragSelect extends React.PureComponent {
   }
 
   initEvents () {
-    let root = document.querySelector(this.props.wrapperSelector)
+    const root = document.querySelector(this.props.wrapperSelector)
     if (!root) {
       return
     }
@@ -59,8 +59,8 @@ export default class DragSelect extends React.PureComponent {
   }
 
   mousemove = e => {
-    let rect = this.root.getBoundingClientRect()
-    let endPoint = {
+    const rect = this.root.getBoundingClientRect()
+    const endPoint = {
       x: e.pageX - rect.left,
       y: e.pageY - rect.top + 30
     }
@@ -81,8 +81,8 @@ export default class DragSelect extends React.PureComponent {
     ) {
       return
     }
-    let rect = this.root.getBoundingClientRect()
-    let startPoint = {
+    const rect = this.root.getBoundingClientRect()
+    const startPoint = {
       x: e.pageX - rect.left,
       y: e.pageY - rect.top + 30
     }
@@ -128,22 +128,22 @@ export default class DragSelect extends React.PureComponent {
   }
 
   checkInSelect = (rect, maskReact) => {
-    let xs1 = [rect.left, rect.right]
-    let ys1 = [rect.top, rect.bottom]
-    let xs2 = [maskReact.left, maskReact.right]
-    let ys2 = [maskReact.top, maskReact.bottom]
+    const xs1 = [rect.left, rect.right]
+    const ys1 = [rect.top, rect.bottom]
+    const xs2 = [maskReact.left, maskReact.right]
+    const ys2 = [maskReact.top, maskReact.bottom]
     return this.checkIntersects(xs1, xs2) &&
       this.checkIntersects(ys1, ys2)
   }
 
   computeSelectedFiles = (e) => {
-    let { targetSelector } = this.props
-    let doms = Array.from(document.querySelectorAll(targetSelector))
-    let maskDom = ReactDOM.findDOMNode(this)
-    let maskReact = maskDom.getBoundingClientRect()
-    let ids = doms
+    const { targetSelector } = this.props
+    const doms = Array.from(document.querySelectorAll(targetSelector))
+    const maskDom = ReactDOM.findDOMNode(this)
+    const maskReact = maskDom.getBoundingClientRect()
+    const ids = doms
       .filter(dom => {
-        let rect = dom.getBoundingClientRect()
+        const rect = dom.getBoundingClientRect()
         return this.checkInSelect(rect, maskReact)
       })
       .map(dom => dom.getAttribute('data-id'))
@@ -152,17 +152,17 @@ export default class DragSelect extends React.PureComponent {
   }
 
   computeMaskPosition = () => {
-    let { startPoint, endPoint } = this.state
+    const { startPoint, endPoint } = this.state
     if (!startPoint || !endPoint) {
       return {}
     }
-    let fix = startPoint.x > endPoint.x
+    const fix = startPoint.x > endPoint.x
       ? 1
       : -1
-    let left = Math.min(startPoint.x, endPoint.x) + fix
-    let top = Math.min(startPoint.y, endPoint.y)
-    let width = Math.abs(startPoint.x - endPoint.x)
-    let height = Math.abs(startPoint.y - endPoint.y)
+    const left = Math.min(startPoint.x, endPoint.x) + fix
+    const top = Math.min(startPoint.y, endPoint.y)
+    const width = Math.abs(startPoint.x - endPoint.x)
+    const height = Math.abs(startPoint.y - endPoint.y)
     return {
       width,
       height,
@@ -172,8 +172,8 @@ export default class DragSelect extends React.PureComponent {
   }
 
   render () {
-    let { style, className } = this.props
-    let maskStyle = this.computeMaskPosition()
+    const { style, className } = this.props
+    const maskStyle = this.computeMaskPosition()
     const styles = {
       position: 'absolute',
       background: 'rgba(199, 207, 254, 0.3)',

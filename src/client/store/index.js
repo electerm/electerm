@@ -31,7 +31,7 @@ const e = prefix('control')
 const m = prefix('menu')
 const c = prefix('common')
 const defaultStatus = statusMap.processing
-let sessionsGlob = copy(ls.get('sessions'))
+const sessionsGlob = copy(ls.get('sessions'))
 const sshConfigItems = copy(getGlobal('sshConfigItems'))
 function getDefaultBookmarkGroups (bookmarks) {
   return [
@@ -54,9 +54,9 @@ const getInitItem = (arr, tab) => {
   }
 }
 
-let tabs = [newTerm()]
-let bookmarks = copy(ls.get(settingMap.bookmarks) || [])
-let bookmarkGroups = copy(
+const tabs = [newTerm()]
+const bookmarks = copy(ls.get(settingMap.bookmarks) || [])
+const bookmarkGroups = copy(
   ls.get(settingMap.bookmarkGroups) ||
   getDefaultBookmarkGroups(bookmarks)
 )
@@ -144,12 +144,12 @@ const store = Subx.create({
   },
 
   onCloseMenu () {
-    let dom = document.getElementById('outside-context')
+    const dom = document.getElementById('outside-context')
     dom && dom.removeEventListener('click', this.closeContextMenu)
   },
 
   checkDefaultTheme () {
-    let currentTheme = terminalThemes.getCurrentTheme()
+    const currentTheme = terminalThemes.getCurrentTheme()
     if (
       currentTheme.id === defaultTheme.id &&
       !_.isEqual(currentTheme.themeConfig, defaultTheme.themeConfig)
@@ -177,12 +177,12 @@ const store = Subx.create({
   },
 
   initContextEvent () {
-    let dom = document.getElementById('outside-context')
+    const dom = document.getElementById('outside-context')
     dom && dom.addEventListener('click', store.closeContextMenu)
   },
 
   initMenuEvent () {
-    let dom = document.getElementById('outside-context')
+    const dom = document.getElementById('outside-context')
     dom && dom.addEventListener('click', store.closeMenu)
   },
 
@@ -197,8 +197,8 @@ const store = Subx.create({
   },
 
   zoom (level = 1, plus = false, zoomOnly) {
-    let { webFrame } = require('electron')
-    let nl = plus
+    const { webFrame } = require('electron')
+    const nl = plus
       ? webFrame.getZoomFactor() + level
       : level
     webFrame.setZoomFactor(nl)
@@ -209,7 +209,7 @@ const store = Subx.create({
   },
 
   checkLastSession () {
-    let status = window.getGlobal('getExitStatus')()
+    const status = window.getGlobal('getExitStatus')()
     if (status === 'ok') {
       return
     }
@@ -262,7 +262,7 @@ const store = Subx.create({
   },
 
   addTransferHistory (item) {
-    let { transferHistory } = store
+    const { transferHistory } = store
     transferHistory.unshift(item)
     store.transferHistory = transferHistory.slice(0, maxTransferHistory)
   },
@@ -290,14 +290,14 @@ const store = Subx.create({
   },
 
   onError (e) {
-    let { message = 'error', stack } = e
+    const { message = 'error', stack } = e
     log.error(e)
-    let msg = (
+    const msg = (
       <div className='mw240 elli wordbreak' title={message}>
         {message}
       </div>
     )
-    let description = (
+    const description = (
       <div
         className='mw300 elli common-err-desc wordbreak'
       >
@@ -321,8 +321,8 @@ const store = Subx.create({
   },
 
   editItem (id, update, type) {
-    let items = store[type]
-    let item = _.find(items, t => t.id === id)
+    const items = store[type]
+    const item = _.find(items, t => t.id === id)
     if (!item) {
       return
     }
@@ -348,9 +348,9 @@ const store = Subx.create({
   },
 
   delTab ({ id }) {
-    let { currentTabId } = store
+    const { currentTabId } = store
     if (currentTabId === id) {
-      let next = tabs[0] || {}
+      const next = tabs[0] || {}
       store.currentTabId = next.id
     }
     store.tabs = store.tabs.filter(t => {
@@ -364,8 +364,8 @@ const store = Subx.create({
   },
 
   editTheme (id, update) {
-    let items = store.themes
-    let item = _.find(items, t => t.id === id)
+    const items = store.themes
+    const item = _.find(items, t => t.id === id)
     Object.assign(item, update)
     terminalThemes.updateTheme(id, update)
   },
@@ -374,7 +374,7 @@ const store = Subx.create({
     store.themes = store.themes.filter(t => {
       return t.id !== id
     })
-    let { theme } = store
+    const { theme } = store
     if (theme === id) {
       store.theme = terminalThemes.defaultTheme.id
     }
@@ -386,8 +386,8 @@ const store = Subx.create({
   },
 
   editBookmarkGroup (id, update) {
-    let items = store.bookmarkGroups
-    let item = _.find(items, t => t.id === id)
+    const items = store.bookmarkGroups
+    const item = _.find(items, t => t.id === id)
     Object.assign(item, update)
   },
 
@@ -396,7 +396,7 @@ const store = Subx.create({
       return
     }
     let { bookmarkGroups } = store
-    let tobeDel = _.find(bookmarkGroups, bg => bg.id === id)
+    const tobeDel = _.find(bookmarkGroups, bg => bg.id === id)
     if (!tobeDel) {
       return
     }
@@ -406,7 +406,7 @@ const store = Subx.create({
       tobeDel.bookmarkGroupIds &&
       tobeDel.bookmarkGroupIds.length > 0
     ) {
-      let childs = bookmarkGroups.filter(
+      const childs = bookmarkGroups.filter(
         bg => tobeDel.bookmarkGroupIds.includes(bg.id)
       )
       groups = [
@@ -414,8 +414,8 @@ const store = Subx.create({
         ...childs
       ]
     }
-    let groupIds = groups.map(g => g.id)
-    let defaultCatIndex = tobeDel.level !== 2
+    const groupIds = groups.map(g => g.id)
+    const defaultCatIndex = tobeDel.level !== 2
       ? _.findIndex(
         bookmarkGroups,
         g => g.id === defaultookmarkGroupId
@@ -424,9 +424,9 @@ const store = Subx.create({
         bookmarkGroups,
         g => (g.bookmarkGroupIds || []).includes(tobeDel.id)
       )
-    for (let g of groups) {
+    for (const g of groups) {
       if (g.bookmarkIds.length) {
-        let def = bookmarkGroups[defaultCatIndex]
+        const def = bookmarkGroups[defaultCatIndex]
         def.bookmarkIds = [
           ...g.bookmarkIds,
           ...def.bookmarkIds
@@ -457,21 +457,21 @@ const store = Subx.create({
   },
 
   async reloadTab (tabToReload) {
-    let tab = copy(
+    const tab = copy(
       tabToReload
     )
-    let { id } = tab
+    const { id } = tab
     tab.id = generate()
     tab.status = statusMap.processing
-    let tabs = store.tabs
-    let index = _.findIndex(tabs, t => t.id === id)
+    const tabs = store.tabs
+    const index = _.findIndex(tabs, t => t.id === id)
     store.delTab({ id: tabToReload.id })
     await wait(30)
     store.addTab(tab, index)
   },
 
   onDuplicateTab (tab) {
-    let index = _.findIndex(
+    const index = _.findIndex(
       store.tabs,
       d => d.id === tab.id
     )
@@ -506,7 +506,7 @@ const store = Subx.create({
   },
 
   onSelectHistory (id) {
-    let item = _.find(store.history, it => it.id === id)
+    const item = _.find(store.history, it => it.id === id)
     store.addTab({
       ...copy(item),
       from: 'history',
@@ -517,8 +517,8 @@ const store = Subx.create({
   },
 
   onSelectBookmark (id) {
-    let { history, bookmarks } = store
-    let item = copy(
+    const { history, bookmarks } = store
+    const item = copy(
       _.find(bookmarks, it => it.id === id) ||
       _.find(sshConfigItems, it => it.id === id)
     )
@@ -536,9 +536,9 @@ const store = Subx.create({
     if (store.config.disableSshHistory) {
       return
     }
-    let existItem = _.find(history, j => {
-      let keysj = Object.keys(j)
-      let keysi = Object.keys(item)
+    const existItem = _.find(history, j => {
+      const keysj = Object.keys(j)
+      const keysi = Object.keys(item)
       return _.isEqual(
         _.pick(item, _.without(keysi, 'id')),
         _.pick(j, _.without(keysj, 'id'))
@@ -547,7 +547,7 @@ const store = Subx.create({
     if (!existItem) {
       store.addItem(item, settingMap.history)
     } else {
-      let index = _.findIndex(history, f => f.id === existItem.id)
+      const index = _.findIndex(history, f => f.id === existItem.id)
       history.splice(index, 1)
       history.unshift(existItem)
     }
@@ -586,8 +586,8 @@ const store = Subx.create({
   },
 
   onChangeTab (tab) {
-    let arr = store.getItems(tab)
-    let item = getInitItem(arr, tab)
+    const arr = store.getItems(tab)
+    const item = getInitItem(arr, tab)
     store.setState({
       item,
       autofocustrigger: +new Date(),
@@ -596,7 +596,7 @@ const store = Subx.create({
   },
 
   confirmExit (type) {
-    let mod
+    let mod = null
     mod = Modal.confirm({
       onCancel: () => mod.destroy(),
       onOk: store[type],
@@ -636,11 +636,11 @@ const store = Subx.create({
   },
 
   get list () {
-    let {
+    const {
       tab
     } = store
-    let arr = store.getItems(tab)
-    let initItem = getInitItem(arr, tab)
+    const arr = store.getItems(tab)
+    const initItem = getInitItem(arr, tab)
     return tab === settingMap.history
       ? arr
       : [
@@ -651,7 +651,7 @@ const store = Subx.create({
 })
 
 store.clickNextTab = _.debounce(() => {
-  let tab = document.querySelector('.tabs-wrapper .tab.active')
+  const tab = document.querySelector('.tabs-wrapper .tab.active')
   if (tab) {
     let next = tab.nextSibling
     if (!next || !next.classList.contains('tab')) {
@@ -664,7 +664,7 @@ store.clickNextTab = _.debounce(() => {
 }, 100)
 
 store.onResize = _.debounce(() => {
-  let update = {
+  const update = {
     height: window.innerHeight,
     width: window.innerWidth - sidebarWidth,
     isMaximized: window.getGlobal('isMaximized')()
@@ -678,9 +678,9 @@ store.onResize = _.debounce(() => {
 // auto focus when tab change
 Subx.autoRun(store, () => {
   store.focus()
-  let { currentTabId } = store
-  let tab = _.find(tabs, t => t.id === currentTabId) || {}
-  let title = createTitlte(tab)
+  const { currentTabId } = store
+  const tab = _.find(tabs, t => t.id === currentTabId) || {}
+  const title = createTitlte(tab)
   window.getGlobal('setTitle')(title)
   return store.currentTabId
 })

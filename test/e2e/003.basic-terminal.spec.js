@@ -22,7 +22,7 @@ describe('terminal', function () {
 
   it('should open window and local terminal ls/dir command works', async function () {
     const { client } = this.app
-    let cmd = isWin
+    const cmd = isWin
       ? 'dir'
       : 'ls'
     await client.waitUntilWindowLoaded()

@@ -11,17 +11,17 @@ const { prefix } = window
 const m = prefix('menu')
 
 export default memo(props => {
-  let {
+  const {
     isMaximized,
     closeApp
   } = props
-  let minimize = () => {
+  const minimize = () => {
     window.getGlobal('minimize')()
   }
-  let maximize = () => {
+  const maximize = () => {
     window.getGlobal('maximize')()
   }
-  let unmaximize = () => {
+  const unmaximize = () => {
     window.getGlobal('unmaximize')()
   }
   return (

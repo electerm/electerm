@@ -17,9 +17,9 @@ export default class SystemMenu extends PureComponent {
   }
 
   writeCss = async () => {
-    let style = document.createElement('style')
+    const style = document.createElement('style')
     style.type = 'text/css'
-    let { terminalBackgroundImagePath } = this.props
+    const { terminalBackgroundImagePath } = this.props
     let content = ''
     if (terminalBackgroundImagePath) {
       content = await fs.readFileAsBase64(terminalBackgroundImagePath)
@@ -37,8 +37,8 @@ export default class SystemMenu extends PureComponent {
   }
 
   updateCss = async () => {
-    let style = document.getElementById('css-overwrite')
-    let { terminalBackgroundImagePath } = this.props
+    const style = document.getElementById('css-overwrite')
+    const { terminalBackgroundImagePath } = this.props
     let content = ''
     if (terminalBackgroundImagePath) {
       content = await fs.readFileAsBase64(terminalBackgroundImagePath)

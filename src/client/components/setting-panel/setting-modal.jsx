@@ -23,7 +23,7 @@ const { TabPane } = Tabs
 
 export default class SettingModal extends Component {
   render () {
-    let { store } = this.props
+    const { store } = this.props
     const selectItem = (item) => {
       store.modifier({ item })
     }
@@ -34,8 +34,8 @@ export default class SettingModal extends Component {
     ]
 
     const renderTabs = () => {
-      let { tab, item, list } = store
-      let props0 = {
+      const { tab, item, list } = store
+      const props0 = {
         store,
         activeItemId: item.id,
         type: tab,
@@ -43,7 +43,7 @@ export default class SettingModal extends Component {
         shouldComfirmDel: tabsShouldConfirmDel.includes(tab),
         list
       }
-      let formProps = {
+      const formProps = {
         store,
         formData: item,
         type: tab,

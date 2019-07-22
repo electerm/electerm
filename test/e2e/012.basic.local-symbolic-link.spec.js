@@ -25,8 +25,8 @@ describe('symbolic links support', function () {
     const { client } = this.app
     await client.waitUntilWindowLoaded()
     await delay(500)
-    let tmp = 'tmp-' + (+new Date())
-    let cmd = `mkdir ${tmp} && cd ${tmp} && touch x.js && mkdir xx && ln -s x.js xk && ln -s xx xxk`
+    const tmp = 'tmp-' + (+new Date())
+    const cmd = `mkdir ${tmp} && cd ${tmp} && touch x.js && mkdir xx && ln -s x.js xk && ln -s xx xxk`
     await delay(101)
     await client.keys([...cmd.split(''), 'Enter'])
     await delay(100)
@@ -39,22 +39,22 @@ describe('symbolic links support', function () {
     })
     await delay(2500)
     await client.execute(function () {
-      let event = new MouseEvent('dblclick', {
-        'view': window,
-        'bubbles': true,
-        'cancelable': true
+      const event = new MouseEvent('dblclick', {
+        view: window,
+        bubbles: true,
+        cancelable: true
       })
       document.querySelector('.ssh-wrap-show .sftp-table-content .sftp-item.local.directory .sftp-file-prop').dispatchEvent(event)
     })
 
     await delay(3000)
-    let localFileList = await client.elements('.ssh-wrap-show .file-list.local .sftp-item')
+    const localFileList = await client.elements('.ssh-wrap-show .file-list.local .sftp-item')
     expect(localFileList.value.length).equal(5)
     await client.execute(function () {
       document.querySelector('.ssh-wrap-show .term-sftp-tabs .terminal').click()
     })
     await delay(300)
-    let cmd1 = `cd .. && rm -rf ${tmp}`
+    const cmd1 = `cd .. && rm -rf ${tmp}`
     await client.keys([...cmd1.split(''), 'Enter'])
   })
 })

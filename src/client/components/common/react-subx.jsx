@@ -38,9 +38,9 @@ export class Component extends React.Component {
       if (!_.isEqual(this.state, nextState)) {
         return true
       }
-      let keys = _.without(Object.keys(nextProps), 'store')
-      let old = _.pick(this.props, keys)
-      let nn = _.pick(nextProps, keys)
+      const keys = _.without(Object.keys(nextProps), 'store')
+      const old = _.pick(this.props, keys)
+      const nn = _.pick(nextProps, keys)
       return !_.isEqual(old, nn)
     }
   }

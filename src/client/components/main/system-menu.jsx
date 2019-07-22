@@ -33,7 +33,7 @@ function renderTabs (store) {
     <div className='sub-context-menu'>
       {
         store.tabs.map(item => {
-          let title = createTitle(item)
+          const title = createTitle(item)
           return (
             <div
               className='sub-context-menu-item'
@@ -54,7 +54,7 @@ function renderHistory (store) {
     <div className='sub-context-menu'>
       {
         store.history.map(item => {
-          let title = createTitle(item)
+          const title = createTitle(item)
           return (
             <div
               className='sub-context-menu-item'
@@ -71,8 +71,8 @@ function renderHistory (store) {
 }
 
 function renderContext (store) {
-  let cls = 'pd2x pd1y context-item pointer'
-  let cls1 = cls + ' with-sub-menu'
+  const cls = 'pd2x pd1y context-item pointer'
+  const cls1 = cls + ' with-sub-menu'
   return (
     <div className='menus'>
       <div

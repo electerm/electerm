@@ -13,7 +13,7 @@ const { prefix } = window
 const c = prefix('common')
 
 export default memo(props => {
-  let {
+  const {
     sessionModalVisible,
     modifier,
     addTab,
@@ -24,17 +24,17 @@ export default memo(props => {
     return null
   }
 
-  let onConfirmLoadSession = () => {
+  const onConfirmLoadSession = () => {
     modifier({
       sessionModalVisible: false,
       selectedSessions: []
     })
-    let saved = copy(
+    const saved = copy(
       selectedSessions
         .filter(s => s.checked)
     )
       .map(s => s.tab)
-    for (let s of saved) {
+    for (const s of saved) {
       setTimeout(() => {
         addTab(s)
       }, 100)
@@ -42,29 +42,29 @@ export default memo(props => {
     window.getGlobal('setExitStatus')('ok')
   }
 
-  let onCancelLoadSession = () => {
+  const onCancelLoadSession = () => {
     modifier({
       sessionModalVisible: false
     })
     window.getGlobal('setExitStatus')('ok')
   }
 
-  let toggoleSelection = (e, id) => {
-    let { checked } = e.target
-    let ss = copy(selectedSessions)
-    let s = _.find(ss, s => s.id === id)
+  const toggoleSelection = (e, id) => {
+    const { checked } = e.target
+    const ss = copy(selectedSessions)
+    const s = _.find(ss, s => s.id === id)
     s.checked = checked
     modifier({
       selectedSessions: ss
     })
   }
 
-  let content = (
+  const content = (
     <div>
       {
         selectedSessions.map(s => {
-          let { id, tab, checked } = s
-          let title = createName(tab)
+          const { id, tab, checked } = s
+          const title = createName(tab)
           return (
             <div key={id}>
               <Checkbox
@@ -79,7 +79,7 @@ export default memo(props => {
       }
     </div>
   )
-  let footer = (
+  const footer = (
     <div>
       <Button
         type='primary'

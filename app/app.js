@@ -85,10 +85,10 @@ async function waitUntilServerStart (url) {
 log.debug('App starting...')
 
 async function createWindow () {
-  let config = await getConf()
+  const config = await getConf()
 
   // start server
-  let child = fork(resolve(__dirname, './server/server.js'), {
+  const child = fork(resolve(__dirname, './server/server.js'), {
     env: Object.assign(
       {},
       process.env,
@@ -108,7 +108,7 @@ async function createWindow () {
     Menu.setApplicationMenu(menu)
   }
 
-  let windowSizeLastState = lastStateManager.get('windowSize')
+  const windowSizeLastState = lastStateManager.get('windowSize')
   const { width, height } = windowSizeLastState && !isDev
     ? windowSizeLastState
     : require('electron').screen.getPrimaryDisplay().workAreaSize
@@ -135,7 +135,7 @@ async function createWindow () {
   if (process.argv.includes('--autohide')) {
     timer1 = setTimeout(() => global.win.hide(), 500)
     if (Notification.isSupported()) {
-      let notice = new Notification({
+      const notice = new Notification({
         title: `${packInfo.name} ${a('isRunning')}, ${a('press')} ${config.hotkey} ${a('toShow')}`
       })
       notice.show()
@@ -215,9 +215,9 @@ async function createWindow () {
     pathname: resolve(__dirname, 'assets', 'index.html')
   })
 
-  let childServerUrl = `http://localhost:${config.port}/run`
+  const childServerUrl = `http://localhost:${config.port}/run`
   if (isDev) {
-    let { devPort = 5570 } = process.env
+    const { devPort = 5570 } = process.env
     opts = `http://localhost:${devPort}`
   }
 

@@ -31,7 +31,7 @@ export default class ErrorBoundary extends React.PureComponent {
 
   render () {
     if (this.state.hasError) {
-      let { stack, message } = this.state.error
+      const { stack, message } = this.state.error
       return (
         <div className='pd3 aligncenter error-wrapper'>
           <div className='pd2y aligncenter'>

@@ -29,9 +29,9 @@ function getX11Cookie () {
       if (err || e) {
         resolve('')
       } else {
-        let s = out || ''
-        let reg = /MIT-MAGIC-COOKIE-1 +([\d\w]{1,38})/
-        let arr = s.match(reg)
+        const s = out || ''
+        const reg = /MIT-MAGIC-COOKIE-1 +([\d\w]{1,38})/
+        const arr = s.match(reg)
         resolve(
           arr ? arr[1] || '' : ''
         )
@@ -52,22 +52,22 @@ class Terminal {
   }
 
   localInit (initOptions) {
-    let {
+    const {
       cols,
       rows,
       execWindows,
       execMac,
       execLinux
     } = initOptions
-    let { platform } = process
-    let exe = platform.startsWith('win')
+    const { platform } = process
+    const exe = platform.startsWith('win')
       ? resolve(
         process.env.windir,
         execWindows
       )
       : platform === 'darwin' ? execMac : execLinux
-    let cwd = process.env[ platform === 'win32' ? 'USERPROFILE' : 'HOME' ]
-    let argv = platform.startsWith('darwin') ? ['--login'] : []
+    const cwd = process.env[platform === 'win32' ? 'USERPROFILE' : 'HOME']
+    const argv = platform.startsWith('darwin') ? ['--login'] : []
     this.term = pty.spawn(exe, argv, {
       name: 'xterm-color',
       cols: cols || 80,
@@ -79,11 +79,11 @@ class Terminal {
   }
 
   async remoteInit (initOptions, isTest) {
-    let display = await getDisplay()
-    let x11Cookie = await getX11Cookie()
+    const display = await getDisplay()
+    const x11Cookie = await getX11Cookie()
     return new Promise((resolve, reject) => {
       const conn = new Client()
-      let opts = Object.assign(
+      const opts = Object.assign(
         {
           tryKeyboard: true
         },
@@ -126,7 +126,7 @@ class Terminal {
           cookie: x11Cookie
         }
       }
-      let shellOpts = {
+      const shellOpts = {
         ..._.pick(initOptions, [
           'rows', 'cols', 'term'
         ]),
@@ -150,14 +150,14 @@ class Terminal {
           })
           .on('x11', function (info, accept) {
             let start = 0
-            let maxRetry = 100
-            let portStart = 6000
-            let maxPort = portStart + maxRetry
+            const maxRetry = 100
+            const portStart = 6000
+            const maxPort = portStart + maxRetry
             function retry () {
               if (start >= maxPort) {
                 return
               }
-              let xserversock = new net.Socket()
+              const xserversock = new net.Socket()
               let xclientsock
               xserversock
                 .on('connect', function () {
@@ -175,7 +175,7 @@ class Terminal {
                   xclientsock && xclientsock.destroy()
                 })
               if (start < portStart) {
-                let addr = display.includes('/tmp')
+                const addr = display.includes('/tmp')
                   ? display
                   : `/tmp/.X11-unix/X${start}`
                 xserversock.connect(addr)
@@ -268,7 +268,7 @@ class Terminal {
 }
 
 exports.terminal = async function (initOptions) {
-  let term = new Terminal(initOptions)
+  const term = new Terminal(initOptions)
   await term.init()
   return term
 }

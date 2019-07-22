@@ -42,12 +42,12 @@ export default class Confirms extends React.PureComponent {
 
   setStateProxy = (data, cb) => {
     if (data.transferList) {
-      let tree = data.transferList.reduce((prev, t) => {
-        let { localPath, remotePath, type } = t
-        let startPath = type === typeMap.local
+      const tree = data.transferList.reduce((prev, t) => {
+        const { localPath, remotePath, type } = t
+        const startPath = type === typeMap.local
           ? localPath
           : remotePath
-        let targetPath = type === typeMap.local
+        const targetPath = type === typeMap.local
           ? remotePath
           : localPath
         prev[startPath] = targetPath
@@ -70,8 +70,8 @@ export default class Confirms extends React.PureComponent {
       index: 0
     }, () => {
       this.props.modifier(old => {
-        let transports = copy(old.transports)
-        let nt = [
+        const transports = copy(old.transports)
+        const nt = [
           ...transports,
           ...this.state.transferList
         ]
@@ -90,7 +90,7 @@ export default class Confirms extends React.PureComponent {
   }
 
   skip = async () => {
-    let update = await this.getNextIndex(this.state.index)
+    const update = await this.getNextIndex(this.state.index)
     this.setStateProxy(update)
   }
 
@@ -102,7 +102,7 @@ export default class Confirms extends React.PureComponent {
   }
 
   getBasePath = (type, props = this.props) => {
-    let {
+    const {
       srcTransferPath,
       targetTransferPath
     } = props
@@ -123,7 +123,7 @@ export default class Confirms extends React.PureComponent {
   }
 
   remoteCheckExist = (path) => {
-    let { sftp } = this.props
+    const { sftp } = this.props
     return getRemoteFileInfo(sftp, path)
       .then(r => r)
       .catch(() => false)
@@ -134,20 +134,20 @@ export default class Confirms extends React.PureComponent {
   }
 
   checkFileExist = (file, props = this.props) => {
-    let {
+    const {
       path,
       name
     } = file
-    let toType = props.targetTransferType
-    let basePath = this.getBasePath('from', props)
-    let beforePath = resolve(path, name)
-    let reg = new RegExp('^' + basePath.replace(/\\/g, '\\\\'))
-    let otherPath = this.getBasePath('to', props)
+    const toType = props.targetTransferType
+    const basePath = this.getBasePath('from', props)
+    const beforePath = resolve(path, name)
+    const reg = new RegExp('^' + basePath.replace(/\\/g, '\\\\'))
+    const otherPath = this.getBasePath('to', props)
     let targetPath = beforePath.replace(reg, otherPath)
-    let targetSep = otherPath.includes('\\')
+    const targetSep = otherPath.includes('\\')
       ? '\\'
       : '/'
-    let fromSep = basePath.includes('\\')
+    const fromSep = basePath.includes('\\')
       ? '\\'
       : '/'
     targetPath = targetPath.replace(fromSep, targetSep)
@@ -177,9 +177,9 @@ export default class Confirms extends React.PureComponent {
   }
 
   createTransfer = (file, targetPath) => {
-    let { name, path } = file
-    let fromPath = resolve(path, name)
-    let toPath = targetPath || this.getTargetPath(file)
+    const { name, path } = file
+    const fromPath = resolve(path, name)
+    const toPath = targetPath || this.getTargetPath(file)
     return this.buildTransfer({
       file,
       fromPath,
@@ -188,11 +188,11 @@ export default class Confirms extends React.PureComponent {
   }
 
   findParentTransport = (file) => {
-    let path = _.get(file, 'path') || ''
-    let { transferList } = this.state
-    let len = transferList.length
+    const path = _.get(file, 'path') || ''
+    const { transferList } = this.state
+    const len = transferList.length
     for (let i = len - 1; i >= 0; i--) {
-      let t = transferList[i]
+      const t = transferList[i]
       if (path === resolve(t.file.path, t.file.name)) {
         return t
       }
@@ -201,51 +201,51 @@ export default class Confirms extends React.PureComponent {
   }
 
   getNextIndex = async (currentIndex = this.state.index) => {
-    let index = currentIndex + 1
-    let currentFile = this.state.files[index] || null
+    const index = currentIndex + 1
+    const currentFile = this.state.files[index] || null
     if (!currentFile) {
       return { index, currentFile }
     }
-    let {
+    const {
       name
     } = currentFile
-    let transferList = copy(this.state.transferList)
-    let transport = this.findParentTransport(currentFile)
+    const transferList = copy(this.state.transferList)
+    const transport = this.findParentTransport(currentFile)
     let targetPath
     if (transport) {
       targetPath = resolve(transport.toPath, name)
     } else {
       targetPath = this.getTargetPath(currentFile)
     }
-    let { targetTransferType } = this.props
-    let exist = await this.checkExist(targetTransferType, targetPath)
+    const { targetTransferType } = this.props
+    const exist = await this.checkExist(targetTransferType, targetPath)
     if (exist) {
       return { index, currentFile }
     }
-    let t = this.createTransfer(currentFile, targetPath)
+    const t = this.createTransfer(currentFile, targetPath)
     transferList.push(t)
     await this.setStateAsync({ transferList, index })
     return this.getNextIndex(index)
   }
 
   getTargetPath = (file, shouldRename = false) => {
-    let {
+    const {
       name,
       path,
       isDirectory
     } = file
-    let basePath = this.getBasePath('from')
-    let toBasePath = this.getBasePath('to')
-    let regBase = new RegExp('^' + basePath.replace(/\\/g, '\\\\'))
+    const basePath = this.getBasePath('from')
+    const toBasePath = this.getBasePath('to')
+    const regBase = new RegExp('^' + basePath.replace(/\\/g, '\\\\'))
     let targetPath = path.replace(regBase, toBasePath)
-    let targetSep = toBasePath.includes('\\')
+    const targetSep = toBasePath.includes('\\')
       ? '\\'
       : '/'
-    let fromSep = basePath.includes('\\')
+    const fromSep = basePath.includes('\\')
       ? '\\'
       : '/'
     targetPath = targetPath.replace(fromSep, targetSep)
-    let newName = shouldRename
+    const newName = shouldRename
       ? this.buildNewName(name, isDirectory)
       : name
     return resolve(targetPath, newName)
@@ -257,24 +257,24 @@ export default class Confirms extends React.PureComponent {
     index = this.state.index,
     shouldReturn
   ) => {
-    let {
+    const {
       name,
       isDirectory,
       path: bp
     } = file
-    let { files } = this.state
-    let newName = this.buildNewName(name, isDirectory)
-    let basePath = this.getBasePath('from')
-    let repPath = this.getBasePath('to')
-    let beforePath = resolve(bp, name)
-    let newPath = resolve(bp, newName)
-    let reg = new RegExp('^' + basePath.replace(/\\/g, '\\\\'))
-    let reg1 = new RegExp('^' + beforePath.replace(/\\/g, '\\\\'))
+    const { files } = this.state
+    const newName = this.buildNewName(name, isDirectory)
+    const basePath = this.getBasePath('from')
+    const repPath = this.getBasePath('to')
+    const beforePath = resolve(bp, name)
+    const newPath = resolve(bp, newName)
+    const reg = new RegExp('^' + basePath.replace(/\\/g, '\\\\'))
+    const reg1 = new RegExp('^' + beforePath.replace(/\\/g, '\\\\'))
     let i = index + 0
-    let transferList = copy(this.state.transferList)
+    const transferList = copy(this.state.transferList)
     for (;;i++) {
-      let f = files[i] || {}
-      let { path, name } = f
+      const f = files[i] || {}
+      const { path, name } = f
       if (
         !path ||
         (!path.startsWith(beforePath) && i > index)
@@ -282,13 +282,13 @@ export default class Confirms extends React.PureComponent {
         i = i - 1
         break
       }
-      let p = resolve(path, name)
-      let np = p.replace(reg1, newPath)
+      const p = resolve(path, name)
+      const np = p.replace(reg1, newPath)
       let t = np.replace(reg, repPath)
-      let targetSep = repPath.includes('\\')
+      const targetSep = repPath.includes('\\')
         ? '\\'
         : '/'
-      let fromSep = basePath.includes('\\')
+      const fromSep = basePath.includes('\\')
         ? '\\'
         : '/'
       t = t.replace(fromSep, targetSep)
@@ -307,7 +307,7 @@ export default class Confirms extends React.PureComponent {
     await this.setStateAsync({
       transferList
     })
-    let update = await this.getNextIndex(i)
+    const update = await this.getNextIndex(i)
     if (shouldReturn) {
       return update
     }
@@ -316,7 +316,7 @@ export default class Confirms extends React.PureComponent {
 
   renameAll = async () => {
     let currentFile, index
-    let up = await this.rename(
+    const up = await this.rename(
       undefined,
       undefined,
       undefined,
@@ -324,10 +324,10 @@ export default class Confirms extends React.PureComponent {
     )
     currentFile = up.currentFile
     index = up.index
-    let { files } = this.state
-    let { length } = files
+    const { files } = this.state
+    const { length } = files
     while (index < length) {
-      let obj = await this.rename(
+      const obj = await this.rename(
         undefined,
         currentFile, index, true
       )
@@ -340,28 +340,28 @@ export default class Confirms extends React.PureComponent {
   }
 
   mergeOrOverwrite = async () => {
-    let { currentFile, index } = this.state
-    let { isDirectory } = currentFile
-    let transferList = copy(this.state.transferList)
+    const { currentFile, index } = this.state
+    const { isDirectory } = currentFile
+    const transferList = copy(this.state.transferList)
     if (!isDirectory) {
       transferList.push(this.createTransfer(currentFile))
       await this.setStateAsync({
         transferList
       })
     }
-    let update = await this.getNextIndex(index)
+    const update = await this.getNextIndex(index)
     this.setStateAsync(update)
   }
 
   mergeOrOverwriteAll = async () => {
-    let { files, index } = this.state
+    const { files, index } = this.state
     let i = index
-    let transferList = copy(this.state.transferList)
-    let len = files.length
+    const transferList = copy(this.state.transferList)
+    const len = files.length
     for (;i < len; i++) {
-      let f = files[i]
-      let { isDirectory } = f
-      let exist = await this.checkFileExist(f)
+      const f = files[i]
+      const { isDirectory } = f
+      const exist = await this.checkFileExist(f)
       if (!exist || !isDirectory) {
         transferList.push(this.createTransfer({
           ...f,
@@ -383,14 +383,14 @@ export default class Confirms extends React.PureComponent {
   }
 
   rebuildState = async (nextProps = this.props) => {
-    let { files } = nextProps
-    let firstFile = files[0] || null
+    const { files } = nextProps
+    const firstFile = files[0] || null
     if (!firstFile) {
       return this.setStateProxy({
         currentFile: null
       })
     }
-    let exist = await this.checkFileExist(firstFile, nextProps)
+    const exist = await this.checkFileExist(firstFile, nextProps)
     if (exist) {
       return this.setStateProxy({
         currentFile: {
@@ -408,18 +408,18 @@ export default class Confirms extends React.PureComponent {
       files
     })
 
-    let update = await this.getNextIndex(0)
+    const update = await this.getNextIndex(0)
 
     this.setStateProxy(update)
   }
 
   renderFooter () {
-    let { currentFile, index, files } = this.state
+    const { currentFile, index, files } = this.state
     if (!currentFile) {
       return null
     }
-    let { isDirectory } = currentFile
-    let hasMoreFile = index < files.length - 1
+    const { isDirectory } = currentFile
+    const hasMoreFile = index < files.length - 1
     return (
       <div className='mgq1t pd1y alignright'>
         <Button
@@ -496,34 +496,34 @@ export default class Confirms extends React.PureComponent {
   }
 
   renderContent = () => {
-    let { currentFile } = this.state
+    const { currentFile } = this.state
     if (!currentFile) {
       return null
     }
-    let {
+    const {
       isDirectory,
       name
     } = currentFile
-    let { targetTransferPath } = this.props
-    let transport = this.findParentTransport(currentFile)
+    const { targetTransferPath } = this.props
+    const transport = this.findParentTransport(currentFile)
     let targetPath
     if (transport) {
       targetPath = resolve(targetTransferPath, name)
     } else {
       targetPath = this.getTargetPath(currentFile)
     }
-    let {
+    const {
       srcTransferType,
       targetTransferType,
       fromPath,
       toPath
     } = this.createTransfer(currentFile, targetPath)
-    let action = isDirectory ? e('merge') : e('replace')
-    let typeTxt = isDirectory ? e('folder') : e('file')
-    let typeTitle = targetTransferType === typeMap.local
+    const action = isDirectory ? e('merge') : e('replace')
+    const typeTxt = isDirectory ? e('folder') : e('file')
+    const typeTitle = targetTransferType === typeMap.local
       ? e(typeMap.local)
       : e(typeMap.remote)
-    let otherTypeTitle = srcTransferType === typeMap.remote
+    const otherTypeTitle = srcTransferType === typeMap.remote
       ? e(typeMap.remote)
       : e(typeMap.local)
     return (
@@ -553,15 +553,15 @@ export default class Confirms extends React.PureComponent {
   }
 
   render () {
-    let { currentFile, index, files } = this.state
-    let props = {
+    const { currentFile, index, files } = this.state
+    const props = {
       visible: !!currentFile,
       width: 500,
       title: e('fileConflict'),
       footer: this.renderFooter(),
       onCancel: this.cancel
     }
-    let triggerProps = {
+    const triggerProps = {
       submit: this.submit,
       index,
       files

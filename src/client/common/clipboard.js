@@ -3,7 +3,7 @@
  */
 
 import { isWin } from './constants'
-let fileReg = isWin
+const fileReg = isWin
   ? /^(remote:)?\w:\\.+/
   : /^(remote:)?\/.+/
 
@@ -18,7 +18,7 @@ export const copy = (str) => {
 export const hasFileInClipboardText = (
   text = readClipboard()
 ) => {
-  let arr = text.split('\n')
+  const arr = text.split('\n')
   return arr.reduce((prev, t) => {
     return prev && fileReg.test(t)
   }, true)

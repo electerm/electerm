@@ -10,11 +10,11 @@ const e = prefix('permission')
 const { Group } = Button
 
 export default (perm, _onClick) => {
-  let {
+  const {
     name,
     permission
   } = perm
-  let onClick = _.isFunction(_onClick)
+  const onClick = _.isFunction(_onClick)
     ? _onClick
     : _.noop
   return (
@@ -23,7 +23,7 @@ export default (perm, _onClick) => {
       <Group className='iblock'>
         {
           Object.keys(permission).map(n => {
-            let type = permission[n]
+            const type = permission[n]
               ? 'primary'
               : 'ghost'
             return (

@@ -2,7 +2,7 @@
  * ssh2 sftp client
  */
 
-let { Client } = require('@electerm/ssh2')
+const { Client } = require('@electerm/ssh2')
 const proxySock = require('./socks')
 const _ = require('lodash')
 const { readRemoteFile, writeRemoteFile } = require('./sftp-file')
@@ -17,8 +17,8 @@ class Sftp {
    * @return {Promise} sftp inst
    */
   connect (config) {
-    let { client } = this
-    let confs = Object.assign(
+    const { client } = this
+    const confs = Object.assign(
       {
         tryKeyboard: true
       },
@@ -130,15 +130,15 @@ class Sftp {
    */
   list (remotePath) {
     return new Promise((resolve, reject) => {
-      let { sftp } = this
-      let reg = /-/g
+      const { sftp } = this
+      const reg = /-/g
 
       sftp.readdir(remotePath, (err, list) => {
         if (err) {
           return reject(err)
         }
         resolve(list.map(item => {
-          let {
+          const {
             filename,
             longname,
             attrs: {
@@ -188,7 +188,7 @@ class Sftp {
    */
   mkdir (remotePath, options = {}) {
     return new Promise((resolve, reject) => {
-      let { sftp } = this
+      const { sftp } = this
       sftp.mkdir(remotePath, options, err => {
         if (err) reject(err)
         else resolve()
@@ -205,8 +205,8 @@ class Sftp {
    */
   getHomeDir () {
     return new Promise((resolve, reject) => {
-      let { client } = this
-      let cmd = 'eval echo "~$different_user"'
+      const { client } = this
+      const cmd = 'eval echo "~$different_user"'
       client.exec(cmd, (err, stream) => {
         if (err) reject(err)
         stream.on('data', function (data) {
@@ -226,8 +226,8 @@ class Sftp {
    */
   rmdir (remotePath) {
     return new Promise((resolve, reject) => {
-      let { client } = this
-      let cmd = `rm -rf "${remotePath}"`
+      const { client } = this
+      const cmd = `rm -rf "${remotePath}"`
       client.exec(cmd, err => {
         if (err) reject(err)
         else resolve()
@@ -251,7 +251,7 @@ class Sftp {
    */
   stat (remotePath) {
     return new Promise((resolve, reject) => {
-      let { sftp } = this
+      const { sftp } = this
       sftp.stat(remotePath, (err, stat) => {
         if (err) reject(err)
         else {
@@ -274,7 +274,7 @@ class Sftp {
    */
   readlink (remotePath) {
     return new Promise((resolve, reject) => {
-      let { sftp } = this
+      const { sftp } = this
       sftp.readlink(remotePath, (err, target) => {
         if (err) reject(err)
         else resolve(target)
@@ -291,7 +291,7 @@ class Sftp {
    */
   realpath (remotePath) {
     return new Promise((resolve, reject) => {
-      let { sftp } = this
+      const { sftp } = this
       sftp.realpath(remotePath, (err, target) => {
         if (err) reject(err)
         else resolve(target)
@@ -315,7 +315,7 @@ class Sftp {
    */
   lstat (remotePath) {
     return new Promise((resolve, reject) => {
-      let { sftp } = this
+      const { sftp } = this
       sftp.lstat(remotePath, (err, stat) => {
         if (err) reject(err)
         else resolve(stat)
@@ -332,7 +332,7 @@ class Sftp {
    */
   chmod (remotePath, mode) {
     return new Promise((resolve, reject) => {
-      let { sftp } = this
+      const { sftp } = this
       sftp.chmod(remotePath, mode, (err) => {
         if (err) reject(err)
         else resolve()
@@ -350,7 +350,7 @@ class Sftp {
    */
   rename (remotePath, remotePathNew) {
     return new Promise((resolve, reject) => {
-      let { sftp } = this
+      const { sftp } = this
       sftp.rename(remotePath, remotePathNew, (err) => {
         if (err) reject(err)
         else resolve()
@@ -367,7 +367,7 @@ class Sftp {
    */
   rm (remotePath) {
     return new Promise((resolve, reject) => {
-      let { sftp } = this
+      const { sftp } = this
       sftp.unlink(remotePath, (err) => {
         if (err) reject(err)
         else resolve()
@@ -384,8 +384,8 @@ class Sftp {
    */
   touch (remotePath) {
     return new Promise((resolve, reject) => {
-      let { client } = this
-      let cmd = `touch "${remotePath}"`
+      const { client } = this
+      const cmd = `touch "${remotePath}"`
       client.exec(cmd, err => {
         if (err) reject(err)
         else resolve()
@@ -403,8 +403,8 @@ class Sftp {
    */
   mv (from, to) {
     return new Promise((resolve, reject) => {
-      let { client } = this
-      let cmd = `mv "${from}" "${to}"`
+      const { client } = this
+      const cmd = `mv "${from}" "${to}"`
       client.exec(cmd, (err) => {
         if (err) reject(err)
         else resolve()
@@ -422,8 +422,8 @@ class Sftp {
    */
   cp (from, to) {
     return new Promise((resolve, reject) => {
-      let { client } = this
-      let cmd = `cp -r "${from}" "${to}"`
+      const { client } = this
+      const cmd = `cp -r "${from}" "${to}"`
       client.exec(cmd, (err) => {
         if (err) reject(err)
         else resolve()

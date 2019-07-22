@@ -17,42 +17,42 @@ export default class Btns extends Component {
   render () {
     const { store } = this.props
     const down = () => {
-      let {
+      const {
         bookmarkGroups,
         bookmarks
       } = store
-      let txt = JSON.stringify({
+      const txt = JSON.stringify({
         bookmarkGroups,
         bookmarks
       }, null, 2)
-      let stamp = time(undefined, 'YYYY-MM-DD-HH-mm-ss')
+      const stamp = time(undefined, 'YYYY-MM-DD-HH-mm-ss')
       download('bookmarks-' + stamp + '.json', txt)
     }
 
     const beforeUpload = (file) => {
-      let txt = window.getGlobal('fs')
+      const txt = window.getGlobal('fs')
         .readFileSync(file.path).toString()
       try {
-        let content = JSON.parse(txt)
-        let {
+        const content = JSON.parse(txt)
+        const {
           bookmarkGroups: bookmarkGroups1,
           bookmarks: bookmarks1
         } = content
-        let bookmarkGroups = copy(store.bookmarkGroups)
-        let bookmarks = copy(store.bookmarks)
-        let bmTree = bookmarks.reduce((p, v) => {
+        const bookmarkGroups = copy(store.bookmarkGroups)
+        const bookmarks = copy(store.bookmarks)
+        const bmTree = bookmarks.reduce((p, v) => {
           return {
             ...p,
             [v.id]: v
           }
         }, {})
-        let bmgTree = bookmarkGroups.reduce((p, v) => {
+        const bmgTree = bookmarkGroups.reduce((p, v) => {
           return {
             ...p,
             [v.id]: v
           }
         }, {})
-        let add = []
+        const add = []
         bookmarks1.forEach(bg => {
           if (!bmTree[bg.id]) {
             bookmarks.push(bg)
@@ -63,7 +63,7 @@ export default class Btns extends Component {
           if (!bmgTree[bg.id]) {
             bookmarkGroups.push(bg)
           } else {
-            let bg1 = _.find(
+            const bg1 = _.find(
               bookmarkGroups,
               b => b.id === bg.id
             )

@@ -32,7 +32,7 @@ class Upgrade {
   }
 
   async init () {
-    let {
+    const {
       id,
       ws
     } = this.options
@@ -51,18 +51,18 @@ class Upgrade {
     if (!releaseInfo) {
       return
     }
-    let localPath = resolve(tempDir, releaseInfo.name)
-    let remotePath = releaseInfo.browser_download_url
+    const localPath = resolve(tempDir, releaseInfo.name)
+    const remotePath = releaseInfo.browser_download_url
     await rmrf(localPath)
-    let { size } = releaseInfo
+    const { size } = releaseInfo
     this.id = id
     this.localPath = localPath
-    let readSteam = await rp({
+    const readSteam = await rp({
       url: remotePath,
       followRedirects: true,
       stream: true
     })
-    let writeSteam = fs.createWriteStream(localPath)
+    const writeSteam = fs.createWriteStream(localPath)
 
     let count = 0
 
@@ -80,7 +80,7 @@ class Upgrade {
     }, 1000)
 
     readSteam.on('data', chunk => {
-      let res = writeSteam.write(chunk)
+      const res = writeSteam.write(chunk)
       if (res) {
         count += chunk.length
         this.onData(count)

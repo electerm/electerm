@@ -16,7 +16,7 @@ const m = prefix('menu')
 const e = prefix('control')
 
 export default memo((props) => {
-  let { store } = props
+  const { store } = props
   return (
     <div
       className='sidebar-panel bookmarks-panel animate-fast'

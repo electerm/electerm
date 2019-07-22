@@ -26,11 +26,11 @@ export default class InputAutoFocus extends React.PureComponent {
   }
 
   doFocus = () => {
-    let dom = this.getDom()
+    const dom = this.getDom()
     if (dom && dom.focus) {
-      let { value, selectall = false } = this.props
-      let index = _.findLastIndex(value, v => v === '.')
-      let hasExt = index > 0
+      const { value, selectall = false } = this.props
+      const index = _.findLastIndex(value, v => v === '.')
+      const hasExt = index > 0
       if (value && !selectall && hasExt) {
         dom.focus()
         dom.setSelectionRange(0, index)
@@ -41,8 +41,8 @@ export default class InputAutoFocus extends React.PureComponent {
   }
 
   getDom () {
-    let root = ReactDOM.findDOMNode(this)
-    let dom = root.tagName === 'INPUT'
+    const root = ReactDOM.findDOMNode(this)
+    const dom = root.tagName === 'INPUT'
       ? root
       : root.querySelector('input')
     return dom

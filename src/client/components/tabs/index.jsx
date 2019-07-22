@@ -50,11 +50,11 @@ export default class Tabs extends React.Component {
   }
 
   isOverflow = () => {
-    let { tabs = [], width } = this.props
-    let len = tabs.length
-    let addBtnWidth = 22
-    let tabsWidth = this.tabsWidth()
-    let tabsWidthAll = tabMargin * len + 10 + tabsWidth
+    const { tabs = [], width } = this.props
+    const len = tabs.length
+    const addBtnWidth = 22
+    const tabsWidth = this.tabsWidth()
+    const tabsWidthAll = tabMargin * len + 10 + tabsWidth
     return width < (tabsWidthAll + addBtnWidth)
   }
 
@@ -76,15 +76,15 @@ export default class Tabs extends React.Component {
   }
 
   adjustScroll = () => {
-    let { width, tabs, currentTabId } = this.props
-    let index = _.findIndex(tabs, t => t.id === currentTabId)
-    let tabsDomWith = Array.from(
+    const { width, tabs, currentTabId } = this.props
+    const index = _.findIndex(tabs, t => t.id === currentTabId)
+    const tabsDomWith = Array.from(
       document.querySelectorAll('.tab')
     ).slice(0, index + 2).reduce((prev, c) => {
       return prev + c.clientWidth
     }, 0)
-    let w = (index + 1) * tabMargin + 5 + tabsDomWith
-    let scrollLeft = w > width - extraWidth
+    const w = (index + 1) * tabMargin + 5 + tabsDomWith
+    const scrollLeft = w > width - extraWidth
       ? w - width + extraWidth
       : 0
     this.dom.scrollLeft = scrollLeft
@@ -109,12 +109,12 @@ export default class Tabs extends React.Component {
   }
 
   onClickMenu = ({ key }) => {
-    let id = key.split('##')[1]
+    const id = key.split('##')[1]
     this.props.store.onChangeTabId(id)
   }
 
   renderList = () => {
-    let { tabs = [] } = this.props
+    const { tabs = [] } = this.props
     return (
       <Menu onClick={this.onClickMenu}>
         {
@@ -132,8 +132,8 @@ export default class Tabs extends React.Component {
   }
 
   renderMenus () {
-    let { onNewSsh, addTab } = this.props.store
-    let cls = 'pd2x pd1y context-item pointer'
+    const { onNewSsh, addTab } = this.props.store
+    const cls = 'pd2x pd1y context-item pointer'
     return (
       <div className='add-menu-wrap'>
         <div
@@ -197,11 +197,11 @@ export default class Tabs extends React.Component {
   }
 
   render () {
-    let { tabs = [], width } = this.props
-    let len = tabs.length
-    let tabsWidthAll = tabMargin * len + 10 + this.tabsWidth()
-    let overflow = this.isOverflow()
-    let left = overflow
+    const { tabs = [], width } = this.props
+    const len = tabs.length
+    const tabsWidthAll = tabMargin * len + 10 + this.tabsWidth()
+    const overflow = this.isOverflow()
+    const left = overflow
       ? '100%'
       : tabsWidthAll
     return (

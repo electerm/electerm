@@ -14,11 +14,11 @@ const s = prefix('sftp')
 const c = prefix('common')
 
 export default memo((props) => {
-  let { zmodemTransfer, cancelZmodem, beforeZmodemUpload } = props
+  const { zmodemTransfer, cancelZmodem, beforeZmodemUpload } = props
   if (!zmodemTransfer) {
     return null
   }
-  let {
+  const {
     fileInfo,
     type,
     transferedSize,
@@ -27,7 +27,7 @@ export default memo((props) => {
   } = zmodemTransfer
   let btn = null
   let progress = null
-  let cancelBtn = (
+  const cancelBtn = (
     <Button
       type='danger'
       className='iblock mg2l'
@@ -53,7 +53,7 @@ export default memo((props) => {
     )
   }
   if (fileInfo) {
-    let {
+    const {
       size,
       name
     } = fileInfo

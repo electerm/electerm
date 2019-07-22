@@ -9,8 +9,8 @@ export default (text, keyword) => {
   if (!keyword || !text.includes(keyword)) {
     return text
   }
-  let arr = text.split(keyword)
-  let len = arr.length
+  const arr = text.split(keyword)
+  const len = arr.length
   return arr.reduce((prev, t, i) => {
     return [
       ...prev,

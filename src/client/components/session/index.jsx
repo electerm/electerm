@@ -19,8 +19,8 @@ import ResizeWrap from '../common/resize-wrap'
 import keyControlPressed from '../../common/key-control-pressed'
 
 const rebuildPosition = terminals => {
-  let indexs = terminals.map(t => t.position).sort((a, b) => a - b)
-  let indexMap = indexs.reduce((prev, pos, index) => {
+  const indexs = terminals.map(t => t.position).sort((a, b) => a - b)
+  const indexMap = indexs.reduce((prev, pos, index) => {
     return {
       ...prev,
       [pos]: index * 10
@@ -45,7 +45,7 @@ const m = prefix('menu')
 export default class SessionWrapper extends Component {
   constructor (props) {
     super(props)
-    let id = generate()
+    const id = generate()
     this.state = {
       pane: paneMap.terminal,
       splitDirection: terminalSplitDirectionMap.horizontal,
@@ -125,13 +125,13 @@ export default class SessionWrapper extends Component {
   }
 
   delSplit = () => {
-    let { activeSplitId, terminals } = this.state
+    const { activeSplitId, terminals } = this.state
     let newTerms = terminals.filter(t => t.id !== activeSplitId)
     if (!newTerms.length) {
       return
     }
     newTerms = rebuildPosition(newTerms)
-    let newActiveId = getPrevTerminal(newTerms).id
+    const newActiveId = getPrevTerminal(newTerms).id
     this.setState({
       terminals: newTerms,
       activeSplitId: newActiveId
@@ -140,7 +140,7 @@ export default class SessionWrapper extends Component {
   }
 
   changeDirection = () => {
-    let { splitDirection } = this.state
+    const { splitDirection } = this.state
     this.setState({
       splitDirection: splitDirection === terminalSplitDirectionMap.horizontal
         ? terminalSplitDirectionMap.vertical
@@ -155,21 +155,21 @@ export default class SessionWrapper extends Component {
   }
 
   computePosition = (index) => {
-    let len = this.state.terminals.length || 1
-    let { width: windowWidth } = this.props
-    let { splitDirection } = this.state
-    let isHori = splitDirection === terminalSplitDirectionMap.horizontal
-    let heightAll = this.computeHeight()
-    let width = isHori
+    const len = this.state.terminals.length || 1
+    const { width: windowWidth } = this.props
+    const { splitDirection } = this.state
+    const isHori = splitDirection === terminalSplitDirectionMap.horizontal
+    const heightAll = this.computeHeight()
+    const width = isHori
       ? windowWidth / len
       : windowWidth
-    let height = isHori
+    const height = isHori
       ? heightAll
       : heightAll / len
-    let left = isHori
+    const left = isHori
       ? index * width
       : 0
-    let top = isHori
+    const top = isHori
       ? 0
       : index * height
     return {
@@ -181,13 +181,13 @@ export default class SessionWrapper extends Component {
   }
 
   renderTerminals = () => {
-    let { pane, terminals, splitDirection, sessionOptions } = this.state
-    let cls = pane === paneMap.terminal
+    const { pane, terminals, splitDirection, sessionOptions } = this.state
+    const cls = pane === paneMap.terminal
       ? 'terms-box'
       : 'terms-box hide'
-    let height = this.computeHeight()
-    let { store, width, tab } = this.props
-    let themeConfig = store.getThemeConfig()
+    const height = this.computeHeight()
+    const { store, width, tab } = this.props
+    const themeConfig = store.getThemeConfig()
     return (
       <div
         className={cls}
@@ -202,7 +202,7 @@ export default class SessionWrapper extends Component {
         >
           {
             terminals.map((t) => {
-              let pops = {
+              const pops = {
                 ...this.props,
                 ...t,
                 themeConfig,
@@ -228,9 +228,9 @@ export default class SessionWrapper extends Component {
   }
 
   renderSftp = () => {
-    let { pane, sessionOptions, sshConnected } = this.state
-    let height = this.computeHeight()
-    let cls = pane === paneMap.terminal
+    const { pane, sessionOptions, sshConnected } = this.state
+    const height = this.computeHeight()
+    const cls = pane === paneMap.terminal
       ? 'hide'
       : ''
     return (
@@ -247,21 +247,21 @@ export default class SessionWrapper extends Component {
   }
 
   renderControl = () => {
-    let { pane, splitDirection, terminals } = this.state
-    let { props } = this
-    let host = _.get(props, 'tab.host') &&
+    const { pane, splitDirection, terminals } = this.state
+    const { props } = this
+    const host = _.get(props, 'tab.host') &&
       _.get(props, 'tab.type') !== terminalSshConfigType
-    let isHori = splitDirection === terminalSplitDirectionMap.horizontal
-    let cls1 = 'mg1r icon-split pointer iblock spliter'
-    let cls2 = 'icon-direction pointer iblock spliter'
-    let icon1 = isHori
+    const isHori = splitDirection === terminalSplitDirectionMap.horizontal
+    const cls1 = 'mg1r icon-split pointer iblock spliter'
+    const cls2 = 'icon-direction pointer iblock spliter'
+    const icon1 = isHori
       ? 'border-horizontal'
       : 'border-verticle'
-    let icon2 = !isHori
+    const icon2 = !isHori
       ? 'border-horizontal'
       : 'border-verticle'
-    let hide = terminals.length < 2
-    let types = [
+    const hide = terminals.length < 2
+    const types = [
       paneMap.terminal,
       paneMap.fileManager
     ]
@@ -275,7 +275,7 @@ export default class SessionWrapper extends Component {
               host ? paneMap.ssh : paneMap.terminal,
               host ? paneMap.sftp : paneMap.fileManager
             ].map((type, i) => {
-              let cls = classnames(
+              const cls = classnames(
                 'type-tab',
                 type,
                 {
@@ -332,7 +332,7 @@ export default class SessionWrapper extends Component {
   }
 
   render () {
-    let { pane, splitDirection } = this.state
+    const { pane, splitDirection } = this.state
     return (
       <div
         className={'term-sftp-box ' + pane + ' ' + splitDirection}

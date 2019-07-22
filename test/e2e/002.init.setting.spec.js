@@ -21,23 +21,23 @@ describe('init setting buttons', function () {
 
   it('all buttons open proper setting tab', async function () {
     const { client, electron } = this.app
-    let { lang } = await electron.remote.getGlobal('et')
-    let prefix = prefix => {
+    const { lang } = await electron.remote.getGlobal('et')
+    const prefix = prefix => {
       return (id) => {
         return _.get(lang, `${prefix}.${id}`) || id
       }
     }
-    let e = prefix('common')
+    const e = prefix('common')
     await client.waitUntilWindowLoaded()
     await delay(500)
 
     log('button:edit')
     await client.click('.btns .anticon-plus-circle')
     await delay(500)
-    let sel = '.ant-modal .ant-tabs-line > .ant-tabs-bar .ant-tabs-tab-active'
-    let active = await client.element(sel)
+    const sel = '.ant-modal .ant-tabs-line > .ant-tabs-bar .ant-tabs-tab-active'
+    const active = await client.element(sel)
     expect(!!active.value).equal(true)
-    let text = await client.getText(sel)
+    const text = await client.getText(sel)
     expect(text).equal(e('bookmarks'))
 
     log('close')
@@ -51,9 +51,9 @@ describe('init setting buttons', function () {
       document.querySelector('.btns .anticon-setting').click()
     })
     await delay(1500)
-    let active1 = await client.element(sel)
+    const active1 = await client.element(sel)
     expect(!!active1.value).equal(true)
-    let text1 = await client.getText(sel)
+    const text1 = await client.getText(sel)
     expect(text1).equal(e('setting'))
     log('close')
     await client.execute(function () {
@@ -66,9 +66,9 @@ describe('init setting buttons', function () {
       document.querySelector('.btns .anticon-plus-circle').click()
     })
     await delay(1000)
-    let active2 = await client.element(sel)
+    const active2 = await client.element(sel)
     expect(!!active2.value).equal(true)
-    let text2 = await client.getText(sel)
+    const text2 = await client.getText(sel)
     expect(text2).equal(e('bookmarks'))
 
     log('tab it')
@@ -76,7 +76,7 @@ describe('init setting buttons', function () {
       document.querySelectorAll('.ant-modal .ant-tabs-tab')[2].click()
     })
     await delay(100)
-    let text4 = await client.getText(sel)
+    const text4 = await client.getText(sel)
     expect(text4).equal(e('setting'))
     await client.execute(function () {
       document.querySelector('.ant-modal .ant-modal-close').click()
@@ -86,7 +86,7 @@ describe('init setting buttons', function () {
     log('button:edit again')
     await client.click('.btns .anticon-plus-circle')
     await delay(600)
-    let text5 = await client.getText(sel)
+    const text5 = await client.getText(sel)
     expect(text5).equal(e('bookmarks'))
   })
 })

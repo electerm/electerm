@@ -30,7 +30,7 @@ describe('ssh', function () {
 
   it('should open window and basic ssh ls command works', async function () {
     const { client } = this.app
-    let cmd = 'ls'
+    const cmd = 'ls'
     await client.waitUntilWindowLoaded()
     await delay(500)
     await client.click('.btns .anticon-plus-circle')
@@ -42,7 +42,7 @@ describe('ssh', function () {
       document.querySelector('.ant-modal .ant-tabs-tabpane-active .ant-btn-primary').click()
     })
     await delay(1500)
-    let tabsCount = await client.elements('.tabs .tabs-wrapper .tab')
+    const tabsCount = await client.elements('.tabs .tabs-wrapper .tab')
 
     expect(tabsCount.value.length).equal(2)
     await delay(2010)

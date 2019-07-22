@@ -63,7 +63,7 @@ export default class Tab extends React.Component {
 
   onDragLeave = e => {
     // debug('ondragleave')
-    let { target } = e
+    const { target } = e
     removeClass(target, onDragOverCls)
   }
 
@@ -83,23 +83,23 @@ export default class Tab extends React.Component {
 
   onDrop = e => {
     e.preventDefault()
-    let { target } = e
+    const { target } = e
     if (!target) {
       return
     }
     // debug('target drop', target)
-    let fromTab = JSON.parse(e.dataTransfer.getData('fromFile'))
-    let onDropTab = document.querySelector('.' + onDragOverCls)
+    const fromTab = JSON.parse(e.dataTransfer.getData('fromFile'))
+    const onDropTab = document.querySelector('.' + onDragOverCls)
     if (!onDropTab || !fromTab) {
       return
     }
-    let dropId = onDropTab.getAttribute('data-id')
+    const dropId = onDropTab.getAttribute('data-id')
     if (!dropId || dropId === fromTab.id) {
       return
     }
-    let { id } = fromTab
-    let tabs = copy(this.props.tabs)
-    let indexFrom = _.findIndex(tabs, t => t.id === id)
+    const { id } = fromTab
+    const tabs = copy(this.props.tabs)
+    const indexFrom = _.findIndex(tabs, t => t.id === id)
     let indexDrop = _.findIndex(tabs, t => t.id === dropId)
     if (indexDrop > indexFrom) {
       indexDrop = indexDrop - 1
@@ -133,7 +133,7 @@ export default class Tab extends React.Component {
   }
 
   doRename = () => {
-    let tab = copy(this.state.tab)
+    const tab = copy(this.state.tab)
     tab.titleTemp = tab.title || ''
     tab.isEditting = true
     this.setState({
@@ -142,8 +142,8 @@ export default class Tab extends React.Component {
   }
 
   onBlur = () => {
-    let tab = copy(this.state.tab)
-    let { titleTemp, title, id, host } = tab
+    const tab = copy(this.state.tab)
+    const { titleTemp, title, id, host } = tab
     if (!titleTemp && !host) {
       return message.warn(e('titleEmptyWarn'))
     }
@@ -161,8 +161,8 @@ export default class Tab extends React.Component {
   }
 
   onChange = e => {
-    let titleTemp = e.target.value
-    let tab = copy(this.state.tab)
+    const titleTemp = e.target.value
+    const tab = copy(this.state.tab)
     tab.titleTemp = titleTemp
     this.setState({
       tab
@@ -178,9 +178,9 @@ export default class Tab extends React.Component {
 
   closeTabsRight = () => {
     let { tabs, tab, currentTabId } = this.props
-    let index = _.findIndex(tabs, t => t.id === tab.id)
+    const index = _.findIndex(tabs, t => t.id === tab.id)
     tabs = tabs.slice(0, index + 1)
-    let update = {
+    const update = {
       tabs
     }
     if (!_.some(tabs, t => t.id === currentTabId)) {
@@ -190,13 +190,13 @@ export default class Tab extends React.Component {
   }
 
   renderContext () {
-    let { tabs, tab } = this.props
-    let len = tabs.length
-    let index = _.findIndex(tabs, t => t.id === tab.id)
-    let nother = len === 1
-    let noRight = index >= len - 1
-    let cls = 'pd2x pd1y context-item pointer'
-    let isSshConfig = tab.type === terminalSshConfigType
+    const { tabs, tab } = this.props
+    const len = tabs.length
+    const index = _.findIndex(tabs, t => t.id === tab.id)
+    const nother = len === 1
+    const noRight = index >= len - 1
+    const cls = 'pd2x pd1y context-item pointer'
+    const isSshConfig = tab.type === terminalSshConfigType
     return (
       <div>
         <div
@@ -260,9 +260,9 @@ export default class Tab extends React.Component {
 
   onContextMenu = e => {
     e.preventDefault()
-    let { target } = e
-    let rect = target.getBoundingClientRect()
-    let content = this.renderContext()
+    const { target } = e
+    const rect = target.getBoundingClientRect()
+    const content = this.renderContext()
     this.props.store.openContextMenu({
       content,
       pos: {
@@ -273,7 +273,7 @@ export default class Tab extends React.Component {
   }
 
   renderEditting (tab, cls) {
-    let {
+    const {
       titleTemp
     } = tab
     return (
@@ -289,16 +289,16 @@ export default class Tab extends React.Component {
   }
 
   render () {
-    let {
+    const {
       currentTabId,
       onChangeTabId,
       onDuplicateTab
     } = this.props.store
-    let { tab } = this.state
-    let { id, isEditting, status, isTransporting } = tab
-    let active = id === currentTabId
-    let cls = classnames('tab', { active }, status)
-    let title = createName(tab)
+    const { tab } = this.state
+    const { id, isEditting, status, isTransporting } = tab
+    const active = id === currentTabId
+    const cls = classnames('tab', { active }, status)
+    const title = createName(tab)
     if (isEditting) {
       return this.renderEditting(tab, cls)
     }

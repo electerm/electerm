@@ -49,8 +49,8 @@ const privateKeyMsg = 'private key detected'
 const typeSshConfig = 'ssh-config'
 
 const computePos = (e, height) => {
-  let { clientX, clientY } = e
-  let res = {
+  const { clientX, clientY } = e
+  const res = {
     left: clientX,
     top: clientY
   }
@@ -85,7 +85,7 @@ export default class Term extends Component {
   }
 
   componentDidUpdate (prevProps) {
-    let shouldChange = (
+    const shouldChange = (
       prevProps.currentTabId !== this.props.currentTabId &&
       this.props.tab.id === this.props.currentTabId &&
       this.props.pane === paneMap.terminal
@@ -93,7 +93,7 @@ export default class Term extends Component {
       this.props.pane !== prevProps.pane &&
       this.props.pane === paneMap.terminal
     )
-    let names = [
+    const names = [
       'width',
       'height',
       'left',
@@ -115,7 +115,7 @@ export default class Term extends Component {
       prevProps,
       this.props
     )
-    let themeChanged = !_.isEqual(
+    const themeChanged = !_.isEqual(
       this.props.themeConfig,
       prevProps.themeConfig
     )
@@ -163,10 +163,10 @@ export default class Term extends Component {
   }
 
   checkConfigChange = (prevProps, props) => {
-    for (let k of this.terminalConfigProps) {
-      let { name, type } = k
-      let prev = this.getValue(prevProps, type, name)
-      let curr = this.getValue(props, type, name)
+    for (const k of this.terminalConfigProps) {
+      const { name, type } = k
+      const prev = this.getValue(prevProps, type, name)
+      const curr = this.getValue(props, type, name)
       if (
         prev !== curr
       ) {
@@ -181,8 +181,8 @@ export default class Term extends Component {
   timers = {}
 
   initEvt = () => {
-    let { id } = this.state
-    let dom = document.getElementById(id)
+    const { id } = this.state
+    const dom = document.getElementById(id)
     this.dom = dom
     dom.addEventListener('contextmenu', this.onContextMenu)
     window.addEventListener(
@@ -217,7 +217,7 @@ export default class Term extends Component {
 
   onSelection = () => {
     if (this.props.config.copyWhenSelect) {
-      let txt = this.term.getSelection()
+      const txt = this.term.getSelection()
       if (txt) {
         copy(txt)
       }
@@ -255,11 +255,11 @@ export default class Term extends Component {
     if (this.onCancel) {
       return
     }
-    let fileInfo = xfer.get_details()
-    let {
+    const fileInfo = xfer.get_details()
+    const {
       size
     } = fileInfo
-    let total = xfer.get_offset() || 0
+    const total = xfer.get_offset() || 0
     let percent = Math.floor(100 * total / size)
     if (percent > 99) {
       percent = 99
@@ -281,7 +281,7 @@ export default class Term extends Component {
 
   onOfferReceive = xfer => {
     this.updateProgress(xfer, transferTypeMap.download)
-    let FILE_BUFFER = []
+    const FILE_BUFFER = []
     xfer.on('input', (payload) => {
       this.updateProgress(xfer, transferTypeMap.download)
       FILE_BUFFER.push(new Uint8Array(payload))
@@ -299,7 +299,7 @@ export default class Term extends Component {
     if (!files.length) {
       return false
     }
-    let th = this
+    const th = this
     Zmodem.Browser.send_files(
       this.zsession,
       files, {
@@ -361,7 +361,7 @@ export default class Term extends Component {
     this.term.detach()
     this.term.blur()
     this.onZmodem = true
-    let zsession = detection.confirm()
+    const zsession = detection.confirm()
     this.zsession = zsession
     if (zsession.type === 'receive') {
       this.onReceiveZmodemSession()
@@ -382,8 +382,8 @@ export default class Term extends Component {
     if (this.props.config.pasteWhenContextMenu) {
       return this.onPaste()
     }
-    let content = this.renderContext()
-    let height = content.props.children.filter(_.identity)
+    const content = this.renderContext()
+    const height = content.props.children.filter(_.identity)
       .length * contextMenuHeight + contextMenuPaddingTop * 2
     this.props.store.openContextMenu({
       content,
@@ -392,7 +392,7 @@ export default class Term extends Component {
   }
 
   onCopy = () => {
-    let selected = this.term.getSelection()
+    const selected = this.term.getSelection()
     copy(selected)
   }
 
@@ -455,12 +455,12 @@ export default class Term extends Component {
   // }
 
   renderContext = () => {
-    let cls = 'pd2x pd1y context-item pointer'
-    let hasSlected = this.term.hasSelection()
-    let clsCopy = cls +
+    const cls = 'pd2x pd1y context-item pointer'
+    const hasSlected = this.term.hasSelection()
+    const clsCopy = cls +
       (hasSlected ? '' : ' disabled')
-    let copyed = readClipboard()
-    let clsPaste = cls +
+    const copyed = readClipboard()
+    const clsPaste = cls +
       (copyed ? '' : ' disabled')
     return (
       <div>
@@ -522,10 +522,10 @@ export default class Term extends Component {
   }
 
   initTerminal = async () => {
-    let { id } = this.state
+    const { id } = this.state
     // let {password, privateKey, host} = this.props.tab
-    let { themeConfig, tab = {}, config = {} } = this.props
-    let term = new Terminal({
+    const { themeConfig, tab = {}, config = {} } = this.props
+    const term = new Terminal({
       scrollback: config.scrollback,
       rightClickSelectsWord: config.rightClickSelectsWord || false,
       fontFamily: tab.fontFamily || config.fontFamily,
@@ -555,8 +555,8 @@ export default class Term extends Component {
   }
 
   initData = () => {
-    let { type, title, loginScript } = this.props.tab
-    let cmd = type === terminalSshConfigType
+    const { type, title, loginScript } = this.props.tab
+    const cmd = type === terminalSshConfigType
       ? `ssh ${title.split(/\s/g)[0]}\r`
       : (
         loginScript
@@ -567,15 +567,15 @@ export default class Term extends Component {
   }
 
   onRefresh = (data) => {
-    let text = this.term._core.buffer.translateBufferLineToString(data.end)
+    const text = this.term._core.buffer.translateBufferLineToString(data.end)
     this.extractPath(text.trim())
   }
 
   extractPath = text => {
     // only support path like zxd@zxd-Q85M-D2A:~/dev$
-    let reg = /^[^@]{1,}@[^:]{1,}:([^$]{1,})\$$/
-    let mat = text.match(reg)
-    let startPath = mat && mat[1] ? mat[1] : ''
+    const reg = /^[^@]{1,}@[^:]{1,}:([^$]{1,})\$$/
+    const mat = text.match(reg)
+    const startPath = mat && mat[1] ? mat[1] : ''
     if (startPath.startsWith('~') || startPath.startsWith('/')) {
       this.props.store.editTab(this.props.tab.id, {
         startPath
@@ -586,7 +586,7 @@ export default class Term extends Component {
   count = 0
 
   setStatus = status => {
-    let id = _.get(this.props, 'tab.id')
+    const id = _.get(this.props, 'tab.id')
     this.props.store.editTab(id, {
       status
     })
@@ -596,19 +596,18 @@ export default class Term extends Component {
     this.setState({
       loading: true
     })
-    let { cols, rows } = term
-    let { config } = this.props
-    let { host, port } = config
-    let wsUrl
-    let url = `http://${host}:${port}/terminals`
-    let { tab = {} } = this.props
-    let {
+    const { cols, rows } = term
+    const { config } = this.props
+    const { host, port } = config
+    const url = `http://${host}:${port}/terminals`
+    const { tab = {} } = this.props
+    const {
       startPath, srcId, from = 'bookmarks',
       type, loginScript, encode
     } = tab
-    let { savePassword } = this.state
-    let isSshConfig = type === terminalSshConfigType
-    let extra = this.props.sessionOptions
+    const { savePassword } = this.state
+    const isSshConfig = type === terminalSshConfigType
+    const extra = this.props.sessionOptions
     let pid = await fetch.post(url, {
       cols,
       rows,
@@ -663,13 +662,13 @@ export default class Term extends Component {
     })
     term.pid = pid
     this.pid = pid
-    wsUrl = `ws://${host}:${port}/terminals/${pid}`
-    let socket = new WebSocket(wsUrl)
+    const wsUrl = `ws://${host}:${port}/terminals/${pid}`
+    const socket = new WebSocket(wsUrl)
     socket.onclose = this.oncloseSocket
     socket.onerror = this.onerrorSocket
     socket.onopen = () => {
       term.attach(socket)
-      let old = socket.send
+      const old = socket.send
       socket.send = (...args) => {
         this.listenTimeout()
         return old.apply(socket, args)
@@ -680,8 +679,8 @@ export default class Term extends Component {
     this.socket = socket
     term.on('refresh', this.onRefresh)
     term.on('resize', this.onResizeTerminal)
-    let cid = _.get(this.props, 'currentTabId')
-    let tid = _.get(this.props, 'tab.id')
+    const cid = _.get(this.props, 'currentTabId')
+    const tid = _.get(this.props, 'tab.id')
     if (cid === tid && this.props.tab.status === statusMap.success) {
       term.webLinksInit()
       term.focus()
@@ -701,7 +700,7 @@ export default class Term extends Component {
           str = this.decoder.decode(ev.data)
           term.write(str)
         } else {
-          let fileReader = new FileReader()
+          const fileReader = new FileReader()
           fileReader.addEventListener('load', function () {
             str = this.decoder.decode(fileReader.result)
             term.write(str)
@@ -723,15 +722,15 @@ export default class Term extends Component {
   }
 
   onResize = _.debounce(() => {
-    let cid = _.get(this.props, 'currentTabId')
-    let tid = _.get(this.props, 'tab.id')
+    const cid = _.get(this.props, 'currentTabId')
+    const tid = _.get(this.props, 'tab.id')
     if (
       this.props.tab.status === statusMap.success &&
       cid === tid &&
       this.term
     ) {
       try {
-        let { cols, rows } = this.term.proposeGeometry()
+        const { cols, rows } = this.term.proposeGeometry()
         this.term.resize(cols, rows)
       } catch (e) {
         log.info('resize failed')
@@ -753,13 +752,13 @@ export default class Term extends Component {
   }
 
   onResizeTerminal = size => {
-    let { cols, rows } = size
-    let config = deepCopy(
+    const { cols, rows } = size
+    const config = deepCopy(
       window.getGlobal('_config')
     )
-    let { host, port } = config
-    let { pid } = this
-    let url = `http://${host}:${port}/terminals/${pid}/size?cols=${cols}&rows=${rows}`
+    const { host, port } = config
+    const { pid } = this
+    const url = `http://${host}:${port}/terminals/${pid}/size?cols=${cols}&rows=${rows}`
     fetch.post(url)
   }
 
@@ -771,7 +770,7 @@ export default class Term extends Component {
   }
 
   onCancel = () => {
-    let { id } = this.props.tab
+    const { id } = this.props.tab
     this.props.store.delTab({ id })
   }
 
@@ -782,8 +781,8 @@ export default class Term extends Component {
   }
 
   renderPasswordForm = () => {
-    let { tempPassword, savePassword, promoteModalVisible } = this.state
-    let { type } = this.props.tab
+    const { tempPassword, savePassword, promoteModalVisible } = this.state
+    const { type } = this.props.tab
     return (
       <div>
         <Input
@@ -817,12 +816,12 @@ export default class Term extends Component {
   }
 
   onClickConfirmPass = () => {
-    let {
+    const {
       tempPassword,
       passType
     } = this.state
     this.props.setSessionState(old => {
-      let sessionOptions = deepCopy(old.sessionOptions) || {}
+      const sessionOptions = deepCopy(old.sessionOptions) || {}
       sessionOptions[passType] = tempPassword
       return { sessionOptions }
     })
@@ -832,10 +831,10 @@ export default class Term extends Component {
   }
 
   renderPromoteModal = () => {
-    let {
+    const {
       passType = 'password'
     } = this.state
-    let props = {
+    const props = {
       title: f(passType) + '?',
       content: this.renderPasswordForm(),
       onCancel: this.onCancel,
@@ -853,7 +852,7 @@ export default class Term extends Component {
   }
 
   renderModalFooter = () => {
-    let disabled = !this.state.tempPassword
+    const disabled = !this.state.tempPassword
     return (
       <div className='alignright pd1'>
         <Button
@@ -877,7 +876,7 @@ export default class Term extends Component {
   }
 
   renderSearchBox = () => {
-    let { searchInput, searchVisible } = this.state
+    const { searchInput, searchVisible } = this.state
     if (!searchVisible) {
       return null
     }
@@ -915,9 +914,9 @@ export default class Term extends Component {
   }
 
   render () {
-    let { id, loading, zmodemTransfer } = this.state
-    let { height, width, left, top, position, id: pid } = this.props
-    let cls = classnames('term-wrap', {
+    const { id, loading, zmodemTransfer } = this.state
+    const { height, width, left, top, position, id: pid } = this.props
+    const cls = classnames('term-wrap', {
       'not-first-term': !!position
     }, 'tw-' + pid)
     return (

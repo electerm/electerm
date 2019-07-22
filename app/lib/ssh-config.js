@@ -14,11 +14,11 @@ try {
   const configStr = require('fs').readFileSync(
     resolve(home, '.ssh', 'config')
   ).toString()
-  let sshConf = sshConfig.parse(configStr)
+  const sshConf = sshConfig.parse(configStr)
   config = sshConf.map((c, i) => {
-    let { value } = c
-    let obj = sshConf.compute(value.split(/\s/g)[0])
-    let { HostName, User, Port = defaultPort, Host } = obj
+    const { value } = c
+    const obj = sshConf.compute(value.split(/\s/g)[0])
+    const { HostName, User, Port = defaultPort, Host } = obj
     if (!Host) {
       return null
     }

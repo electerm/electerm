@@ -48,7 +48,7 @@ const runWinCmd = (cmd) => {
  * @param {string} localFolderPath absolute path of directory
  */
 const rmrf = (localFolderPath) => {
-  let cmd = isWin
+  const cmd = isWin
     ? `Remove-Item "${localFolderPath}" -Force -Recurse -ErrorAction SilentlyContinue`
     : `rm -rf "${localFolderPath}"`
   return isWin ? runWinCmd(cmd) : run(cmd)
@@ -59,7 +59,7 @@ const rmrf = (localFolderPath) => {
  * @param {string} localFolderPath absolute path of directory
  */
 const mv = (from, to) => {
-  let cmd = isWin
+  const cmd = isWin
     ? `Move-Item "${from}" "${to}"`
     : `mv "${from}" "${to}"`
   return isWin ? runWinCmd(cmd) : run(cmd)
@@ -70,7 +70,7 @@ const mv = (from, to) => {
  * @param {string} localFolderPath absolute path of directory
  */
 const cp = (from, to) => {
-  let cmd = isWin
+  const cmd = isWin
     ? `Copy-Item "${from}" -Destination "${to}" -Recurse`
     : `cp -r "${from}" "${to}"`
   return isWin ? runWinCmd(cmd) : run(cmd)

@@ -21,7 +21,7 @@ exports.init = (globalShortcut, win, config) => {
       win.show()
     }
   })
-  let ok = globalShortcut.isRegistered(shortcut)
+  const ok = globalShortcut.isRegistered(shortcut)
   if (!ok) {
     log.warn('shortcut Registration failed.')
   }
@@ -33,7 +33,7 @@ exports.changeHotkeyReg = (globalShortcut, win) => {
     globalShortcut.register(newHotkey, () => {
       win.show()
     })
-    let ok = globalShortcut.isRegistered(newHotkey)
+    const ok = globalShortcut.isRegistered(newHotkey)
     if (ok) {
       shortcut = newHotkey
     }

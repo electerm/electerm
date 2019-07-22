@@ -24,9 +24,9 @@ export default class FileMode extends React.PureComponent {
   }
 
   addPermission = file => {
-    let perms = mode2permission(file.mode)
-    let permission = permission2mode(perms)
-    let mode = Number('0o' + '10' + permission)
+    const perms = mode2permission(file.mode)
+    const permission = permission2mode(perms)
+    const mode = Number('0o' + '10' + permission)
     return {
       ...file,
       permission,
@@ -35,16 +35,16 @@ export default class FileMode extends React.PureComponent {
   }
 
   onChangePermission = (name, permName) => {
-    let { file } = this.state
-    let perms = mode2permission(file.mode)
-    let i = _.findIndex(perms, p => p.name === name)
+    const { file } = this.state
+    const perms = mode2permission(file.mode)
+    const i = _.findIndex(perms, p => p.name === name)
     _.update(
       perms,
       `[${i}].permission.${permName}`,
       b => !b
     )
-    let permission = permission2mode(perms)
-    let mode = Number('0o' + '10' + permission)
+    const permission = permission2mode(perms)
+    const mode = Number('0o' + '10' + permission)
     this.setState({
       file: {
         ...file,
@@ -72,7 +72,7 @@ export default class FileMode extends React.PureComponent {
   }
 
   render () {
-    let {
+    const {
       visible,
       tab,
       onClose
@@ -80,8 +80,8 @@ export default class FileMode extends React.PureComponent {
     if (!visible) {
       return null
     }
-    let { file } = this.state
-    let {
+    const { file } = this.state
+    const {
       name,
       size,
       accessTime,
@@ -92,26 +92,26 @@ export default class FileMode extends React.PureComponent {
       mode,
       type
     } = file
-    let {
+    const {
       host,
       port,
       username
     } = tab
-    let iconType = isDirectory ? 'folder' : 'file'
-    let ps = {
+    const iconType = isDirectory ? 'folder' : 'file'
+    const ps = {
       visible,
       width: 500,
       title: `${e('edit')} ` + e(iconType) + ` ${e('permission')}`,
       footer: this.renderFooter(),
       onCancel: onClose
     }
-    let fp = resolve(path, name)
-    let ffp = type === 'local'
+    const fp = resolve(path, name)
+    const ffp = type === 'local'
       ? fp
       : `${username}@${host}:${port}:${fp}`
 
-    let perms = mode2permission(mode)
-    let permission = permission2mode(perms)
+    const perms = mode2permission(mode)
+    const permission = permission2mode(perms)
 
     return (
       <Modal

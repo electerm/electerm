@@ -37,8 +37,8 @@ const buildNewTheme = () => {
  * @return {string}
  */
 const convertThemeToText = (themeObj = {}, withName = false) => {
-  let theme = themeObj || {}
-  let { themeConfig = {}, name } = theme
+  const theme = themeObj || {}
+  const { themeConfig = {}, name } = theme
   if (withName) {
     themeConfig.themeName = name
   }
@@ -55,7 +55,7 @@ const convertThemeToText = (themeObj = {}, withName = false) => {
  * @return {object}
  */
 const convertTheme = (themeTxt) => {
-  let keys = [
+  const keys = [
     ...Object.keys(defaultTheme.themeConfig),
     'themeName'
   ]
@@ -84,10 +84,10 @@ const convertTheme = (themeTxt) => {
  */
 const getCurrentTheme = () => {
   const ls = window.getGlobal('ls')
-  let config = window.getGlobal('_config')
-  let themes = copy(ls.get('themes') || buildDefaultThemes())
-  let themeId = config.theme || defaultTheme.id
-  let themeObj = themes[themeId] || defaultTheme
+  const config = window.getGlobal('_config')
+  const themes = copy(ls.get('themes') || buildDefaultThemes())
+  const themeId = config.theme || defaultTheme.id
+  const themeObj = themes[themeId] || defaultTheme
   return themeObj
 }
 
@@ -97,7 +97,7 @@ const getCurrentTheme = () => {
  */
 const getThemes = () => {
   const ls = window.getGlobal('ls')
-  let themes = copy(ls.get('themes') || buildDefaultThemes())
+  const themes = copy(ls.get('themes') || buildDefaultThemes())
   return Object.keys(themes).reduce((prev, k) => {
     return [
       ...prev,
@@ -123,9 +123,9 @@ const setTheme = (themeId) => {
  * @return {array} extra keys
  */
 const verifyTheme = (themeConfig) => {
-  let keysRight = Object.keys(defaultTheme.themeConfig)
-  let keys = Object.keys(themeConfig)
-  let extraKeys = keys.filter(k => !keysRight.includes(k))
+  const keysRight = Object.keys(defaultTheme.themeConfig)
+  const keys = Object.keys(themeConfig)
+  const extraKeys = keys.filter(k => !keysRight.includes(k))
   return extraKeys
 }
 
@@ -135,7 +135,7 @@ const verifyTheme = (themeConfig) => {
  */
 const addTheme = (themeObj) => {
   const ls = window.getGlobal('ls')
-  let themes = copy(ls.get('themes') || buildDefaultThemes())
+  const themes = copy(ls.get('themes') || buildDefaultThemes())
   themes[themeObj.id] = themeObj
   ls.set('themes', themes)
 }
@@ -146,9 +146,9 @@ const addTheme = (themeObj) => {
  */
 const exportTheme = (themeId) => {
   const ls = window.getGlobal('ls')
-  let themes = copy(ls.get('themes') || buildDefaultThemes())
-  let theme = themes[themeId]
-  let text = convertThemeToText(theme, true)
+  const themes = copy(ls.get('themes') || buildDefaultThemes())
+  const theme = themes[themeId]
+  const text = convertThemeToText(theme, true)
   download(
     `${theme.name}.txt`,
     text
@@ -164,10 +164,10 @@ const delTheme = (themeId) => {
     throw new Error('default theme can not be deleted')
   }
   const ls = window.getGlobal('ls')
-  let themes = copy(ls.get('themes') || buildDefaultThemes())
+  const themes = copy(ls.get('themes') || buildDefaultThemes())
   delete themes[themeId]
   ls.set('themes', themes)
-  let config = window.getGlobal('_config')
+  const config = window.getGlobal('_config')
   if (config.theme === themeId) {
     const saveUserConfig = window.getGlobal('saveUserConfig')
     saveUserConfig({
@@ -183,7 +183,7 @@ const delTheme = (themeId) => {
  */
 const updateTheme = (themeId, update) => {
   const ls = window.getGlobal('ls')
-  let themes = copy(ls.get('themes') || buildDefaultThemes())
+  const themes = copy(ls.get('themes') || buildDefaultThemes())
   Object.assign(themes[themeId], update)
   ls.set('themes', themes)
 }

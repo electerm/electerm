@@ -13,7 +13,7 @@ const sshConfigItems = copy(getGlobal('sshConfigItems'))
 export default class BookmarkSelect extends Component {
   render () {
     const { store } = this.props
-    let {
+    const {
       bookmarkGroups = [],
       listStyle,
       openedCategoryIds
@@ -24,7 +24,7 @@ export default class BookmarkSelect extends Component {
       })
       store.onSelectBookmark(item.id)
     }
-    let props0 = {
+    const props0 = {
       bookmarks: [
         ...(store.bookmarks || []),
         ...sshConfigItems

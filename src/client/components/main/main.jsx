@@ -19,10 +19,10 @@ import './wrapper.styl'
 
 export default class Index extends Component {
   componentDidMount () {
-    let { store } = this.props
+    const { store } = this.props
     window.lang = copy(window.lang)
     window._config = copy(window._config)
-    let title = createTitlte(store.tabs[0])
+    const title = createTitlte(store.tabs[0])
     window.getGlobal('setTitle')(title)
     window.addEventListener('resize', store.onResize)
     store.onResize()
@@ -49,8 +49,8 @@ export default class Index extends Component {
   }
 
   render () {
-    let { store } = this.props
-    let {
+    const { store } = this.props
+    const {
       tabs,
       currentTabId,
       contextMenuProps,
@@ -62,10 +62,10 @@ export default class Index extends Component {
       modifier,
       config
     } = store
-    let sessProps = _.pick(store, [
+    const sessProps = _.pick(store, [
       'modifier', 'addTab', 'sessionModalVisible', 'selectedSessions'
     ])
-    let { terminalBackgroundImagePath } = config
+    const { terminalBackgroundImagePath } = config
     return (
       <div>
         <CssOverwrite terminalBackgroundImagePath={terminalBackgroundImagePath} />
@@ -117,8 +117,8 @@ export default class Index extends Component {
           <div className='ui-outer'>
             {
               tabs.map((tab) => {
-                let { id } = tab
-                let cls = id !== currentTabId
+                const { id } = tab
+                const cls = id !== currentTabId
                   ? 'hide'
                   : 'ssh-wrap-show'
                 return (

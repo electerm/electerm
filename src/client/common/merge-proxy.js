@@ -11,7 +11,7 @@ const isValidProxy = (proxy) => {
 }
 
 export function mergeProxy (globalConfig, tab) {
-  let { proxy } = tab
+  const { proxy } = tab
   if (isValidProxy(proxy)) {
     return proxy
   }

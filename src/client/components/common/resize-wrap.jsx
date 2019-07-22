@@ -29,7 +29,7 @@ export default class ResizeWrap extends React.Component {
   }
 
   getSplitIds = () => {
-    let len = this.props.children.length - 1
+    const len = this.props.children.length - 1
     return this.getSplitIdsCache(len)
   }
 
@@ -46,26 +46,26 @@ export default class ResizeWrap extends React.Component {
   ]
 
   onDrag = (e) => {
-    let dom = e.target
-    let prev = dom.previousSibling
-    let next = dom.nextSibling
-    let { direction } = this.props
-    let { startPosition } = this
+    const dom = e.target
+    const prev = dom.previousSibling
+    const next = dom.nextSibling
+    const { direction } = this.props
+    const { startPosition } = this
     if (_.isNull(e.pageX)) {
       return
     }
-    let currentPosition = {
+    const currentPosition = {
       x: e.pageX,
       y: e.pageY
     }
 
-    let types = ['dom', 'prev', 'next']
-    let doms = [dom, prev, next]
-    let styles = doms.map(d => {
-      let { style } = d
-      let obj = _.pick(style, this.positionProps)
+    const types = ['dom', 'prev', 'next']
+    const doms = [dom, prev, next]
+    const styles = doms.map(d => {
+      const { style } = d
+      const obj = _.pick(style, this.positionProps)
       return Object.keys(obj).reduce((prev, k) => {
-        let v = obj[k]
+        const v = obj[k]
         return {
           ...prev,
           [k]: _.isUndefined(v)
@@ -79,9 +79,9 @@ export default class ResizeWrap extends React.Component {
     if (Math.abs(xDiff) > maxDragMove) {
       return
     }
-    let prevStyle = styles[1]
-    let nextStyle = styles[2]
-    let minW = this.props.minWidth || minTerminalWidth
+    const prevStyle = styles[1]
+    const nextStyle = styles[2]
+    const minW = this.props.minWidth || minTerminalWidth
     if (direction === terminalSplitDirectionMap.vertical) {
       if (yDiff > 0 && yDiff > nextStyle.height - minW) {
         yDiff = nextStyle.height - minW
@@ -116,10 +116,10 @@ export default class ResizeWrap extends React.Component {
     type,
     style
   ) => {
-    let realHeight = style.height
-    let realWidth = style.width
-    let realTop = style.top
-    let realLeft = style.left
+    const realHeight = style.height
+    const realWidth = style.width
+    const realTop = style.top
+    const realLeft = style.left
     if (type === 'prev' && direction === terminalSplitDirectionMap.vertical) {
       dom.style.height = (realHeight + yDiff) + 'px'
     } else if (type === 'prev') {
@@ -138,7 +138,7 @@ export default class ResizeWrap extends React.Component {
   }
 
   onDragEnd = () => {
-    let {
+    const {
       noResizeEvent,
       onDragEnd
     } = this.props
@@ -152,15 +152,15 @@ export default class ResizeWrap extends React.Component {
   }
 
   buildHandleComponent = (prevComponent, direction, index, tid) => {
-    let zIndex = this.props.children.length + 10
-    let cls = classnames(
+    const zIndex = this.props.children.length + 10
+    const cls = classnames(
       `tw-${tid}`,
       'term-dragger',
       `term-dragger-${index}`,
       `term-dragger-${direction}`
     )
-    let { left, top, width, height } = prevComponent.props
-    let style = direction === terminalSplitDirectionMap.vertical
+    const { left, top, width, height } = prevComponent.props
+    const style = direction === terminalSplitDirectionMap.vertical
       ? {
         left: 0,
         right: 0,
@@ -172,7 +172,7 @@ export default class ResizeWrap extends React.Component {
         zIndex,
         left: left + width - 2
       }
-    let props = {
+    const props = {
       style,
       ..._.pick(this, [
         'onDoubleClick',
@@ -192,17 +192,17 @@ export default class ResizeWrap extends React.Component {
   }
 
   render () {
-    let {
+    const {
       children,
       direction
     } = this.props
-    let len = children.length
+    const len = children.length
     if (len < 2) {
       return children
     }
     let splitIndex = 0
-    let splitIds = this.getSplitIds()
-    let newArr = children.reduce((prev, c, i) => {
+    const splitIds = this.getSplitIds()
+    const newArr = children.reduce((prev, c, i) => {
       let split = null
       if (i !== len - 1) {
         split = this.buildHandleComponent(c, direction, i, splitIds[splitIndex])

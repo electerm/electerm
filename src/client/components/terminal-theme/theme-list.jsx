@@ -41,10 +41,10 @@ export default class ThemeList extends List {
   }
 
   renderItem = (item, i) => {
-    let { activeItemId } = this.props
-    let { theme } = this.props
-    let { name, id } = item
-    let cls = classnames(
+    const { activeItemId } = this.props
+    const { theme } = this.props
+    const { name, id } = item
+    const cls = classnames(
       'item-list-unit theme-item',
       {
         current: theme === id
@@ -83,7 +83,7 @@ export default class ThemeList extends List {
   }
 
   filter = list => {
-    let { keyword } = this.state
+    const { keyword } = this.state
     return keyword
       ? list.filter(item => {
         return item.name.toLowerCase().includes(keyword.toLowerCase())

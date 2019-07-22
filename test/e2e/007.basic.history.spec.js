@@ -21,23 +21,23 @@ describe('history', function () {
 
   it('all buttons open proper history tab', async function () {
     const { client, electron } = this.app
-    let { lang } = await electron.remote.getGlobal('et')
-    let prefix = prefix => {
+    const { lang } = await electron.remote.getGlobal('et')
+    const prefix = prefix => {
       return (id) => {
         return _.get(lang, `${prefix}.${id}`) || id
       }
     }
-    let e = prefix('common')
+    const e = prefix('common')
     await client.waitUntilWindowLoaded()
     await delay(500)
 
     log('button:edit')
     await client.click('.btns .anticon-plus-circle')
     await delay(500)
-    let sel = '.ant-modal .ant-tabs-line > .ant-tabs-bar .ant-tabs-tab-active'
-    let active = await client.element(sel)
+    const sel = '.ant-modal .ant-tabs-line > .ant-tabs-bar .ant-tabs-tab-active'
+    const active = await client.element(sel)
     expect(!!active.value).equal(true)
-    let text = await client.getText(sel)
+    const text = await client.getText(sel)
     expect(text).equal(e('bookmarks'))
 
     log('tab it')
@@ -46,17 +46,17 @@ describe('history', function () {
     })
 
     await delay(100)
-    let text4 = await client.getText(sel)
+    const text4 = await client.getText(sel)
     expect(text4).equal(e('history'))
 
     log('auto focus works')
-    let focus = await client.hasFocus('.ant-modal .ant-tabs-tabpane-active #host')
+    const focus = await client.hasFocus('.ant-modal .ant-tabs-tabpane-active #host')
     expect(focus).equal(true)
     log('list tab')
     await client.execute(function () {
       document.querySelectorAll('.ant-modal .ant-tabs-tabpane-active .item-list-unit')[1].click()
     })
-    let list1 = await client.getAttribute('.ant-modal .ant-tabs-tabpane-active .item-list-unit:nth-child(1)', 'class')
+    const list1 = await client.getAttribute('.ant-modal .ant-tabs-tabpane-active .item-list-unit:nth-child(1)', 'class')
     expect(list1.includes('active'))
   })
 })

@@ -27,18 +27,18 @@ class ThemeForm extends BookmarkForm {
 
   handleSubmit = async (e, saveOnly = false) => {
     e.preventDefault()
-    let res = await this.validateFieldsAndScroll()
+    const res = await this.validateFieldsAndScroll()
     if (!res) return
-    let { formData } = this.props
-    let {
+    const { formData } = this.props
+    const {
       themeName,
       themeText
     } = res
-    let update = {
+    const update = {
       name: themeName,
       themeConfig: convertTheme(themeText).themeConfig
     }
-    let update1 = {
+    const update1 = {
       ...update,
       id: generate()
     }
@@ -59,9 +59,9 @@ class ThemeForm extends BookmarkForm {
   }
 
   beforeUpload = (file) => {
-    let txt = window.getGlobal('fs')
+    const txt = window.getGlobal('fs')
       .readFileSync(file.path).toString()
-    let { name, themeConfig } = convertTheme(txt)
+    const { name, themeConfig } = convertTheme(txt)
     this.props.form.setFieldsValue({
       themeName: name,
       themeText: convertThemeToText({
@@ -78,9 +78,9 @@ class ThemeForm extends BookmarkForm {
       id,
       name: themeName
     } = this.props.formData
-    let { autofocustrigger } = this.props.store
-    let themeText = convertThemeToText({ themeConfig, name: themeName })
-    let isDefaultTheme = id === defaultTheme.id
+    const { autofocustrigger } = this.props.store
+    const themeText = convertThemeToText({ themeConfig, name: themeName })
+    const isDefaultTheme = id === defaultTheme.id
     return (
       <Form onSubmit={this.handleSubmit} className='form-wrap'>
         <FormItem {...tailFormItemLayout}>

@@ -15,7 +15,7 @@ const c = prefix('common')
 const m = prefix('menu')
 
 export default memo((props) => {
-  let { store } = props
+  const { store } = props
   return (
     <div
       className='sidebar-panel history-panel animate-fast'

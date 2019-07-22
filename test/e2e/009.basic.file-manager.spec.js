@@ -41,32 +41,32 @@ describe('local file manager', function () {
     await delay(2500)
 
     // make a local folder
-    let localFileListBefore = await client.elements('.ssh-wrap-show .file-list.local .sftp-item')
+    const localFileListBefore = await client.elements('.ssh-wrap-show .file-list.local .sftp-item')
     await client.rightClick('.ssh-wrap-show .virtual-file-local', 10, 10)
     await client.execute(function () {
       document.querySelector('.context-menu .anticon-folder-add').click()
     })
     await delay(200)
-    let fname = '00000test-electerm' + generate()
+    const fname = '00000test-electerm' + generate()
     await client.setValue('.ssh-wrap-show .sftp-item input', fname)
     await client.doubleClick('.ssh-wrap-show .sftp-title-wrap')
     await delay(2500)
-    let localFileList = await client.elements('.ssh-wrap-show .file-list.local .sftp-item')
+    const localFileList = await client.elements('.ssh-wrap-show .file-list.local .sftp-item')
     expect(localFileList.value.length).equal(localFileListBefore.value.length + 1)
 
     // enter folder
     await client.execute(function () {
-      let event = new MouseEvent('dblclick', {
-        'view': window,
-        'bubbles': true,
-        'cancelable': true
+      const event = new MouseEvent('dblclick', {
+        view: window,
+        bubbles: true,
+        cancelable: true
       })
       document.querySelectorAll('.ssh-wrap-show .file-list.local .sftp-item')[1].dispatchEvent(event)
     })
     await delay(2000)
-    let pathCurrentLocal = await client.getAttribute('.ssh-wrap-show .sftp-local-section .sftp-title input', 'value')
+    const pathCurrentLocal = await client.getAttribute('.ssh-wrap-show .sftp-local-section .sftp-title input', 'value')
     expect(pathCurrentLocal.includes(fname)).equal(true)
-    let localFileList0 = await client.elements('.ssh-wrap-show .file-list.local .sftp-item')
+    const localFileList0 = await client.elements('.ssh-wrap-show .file-list.local .sftp-item')
     expect(localFileList0.value.length).equal(1)
 
     // new file
@@ -75,18 +75,18 @@ describe('local file manager', function () {
       document.querySelector('.context-menu .anticon-file-add').click()
     })
     await delay(200)
-    let fname00 = '00000test-electerm' + generate()
+    const fname00 = '00000test-electerm' + generate()
     await client.setValue('.ssh-wrap-show .sftp-item input', fname00)
     await client.doubleClick('.ssh-wrap-show .sftp-title-wrap')
     await delay(2500)
-    let localFileList00 = await client.elements('.ssh-wrap-show .file-list.local .sftp-item')
+    const localFileList00 = await client.elements('.ssh-wrap-show .file-list.local .sftp-item')
     expect(localFileList00.value.length).equal(2)
 
     // left click to highlight selection
-    let selectedBefore = await client.elements('.ssh-wrap-show .sftp-item.selected')
+    const selectedBefore = await client.elements('.ssh-wrap-show .sftp-item.selected')
     expect(selectedBefore.value.length).equal(0)
     await client.click('.ssh-wrap-show .sftp-table-content > .sftp-item', 10, 10)
-    let selected = await client.elements('.ssh-wrap-show .sftp-table-content > .sftp-item.selected')
+    const selected = await client.elements('.ssh-wrap-show .sftp-table-content > .sftp-item.selected')
     expect(selected.value.length).equal(1)
 
     // select all and del Control
@@ -99,7 +99,7 @@ describe('local file manager', function () {
     await delay(20)
     await client.keys(['Enter'])
     await delay(2000)
-    let localFileList11 = await client.elements('.ssh-wrap-show .file-list.local .sftp-item')
+    const localFileList11 = await client.elements('.ssh-wrap-show .file-list.local .sftp-item')
     expect(localFileList11.value.length).equal(1)
 
     // goto parent
@@ -107,7 +107,7 @@ describe('local file manager', function () {
       document.querySelector('.ssh-wrap-show .sftp-local-section .anticon-arrow-up').click()
     })
     await delay(2000)
-    let localFileList1 = await client.elements('.ssh-wrap-show .file-list.local .sftp-item')
+    const localFileList1 = await client.elements('.ssh-wrap-show .file-list.local .sftp-item')
     expect(localFileList1.value.length).equal(localFileList.value.length)
 
     // del folder
@@ -120,7 +120,7 @@ describe('local file manager', function () {
     await delay(20)
     await client.keys(['Enter'])
     await delay(2000)
-    let localFileList2 = await client.elements('.ssh-wrap-show .file-list.local .sftp-item')
+    const localFileList2 = await client.elements('.ssh-wrap-show .file-list.local .sftp-item')
     expect(localFileList2.value.length).equal(localFileListBefore.value.length)
   })
 })

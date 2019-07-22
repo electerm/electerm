@@ -10,13 +10,13 @@ const { Search } = Input
 export default class CommonSearch extends React.PureComponent {
   componentDidUpdate (prevProps) {
     if (prevProps.value !== this.props.value) {
-      let root = ReactDOM.findDOMNode(this)
+      const root = ReactDOM.findDOMNode(this)
       root.querySelector('input').focus()
     }
   }
 
   clear = () => {
-    let { onChange } = this.props
+    const { onChange } = this.props
     onChange && onChange({
       target: {
         value: ''
@@ -25,7 +25,7 @@ export default class CommonSearch extends React.PureComponent {
   }
 
   render () {
-    let { className, style, ...rest } = this.props
+    const { className, style, ...rest } = this.props
     let Dom = Search
     if (!rest.suffix && rest.value) {
       rest.suffix = (
@@ -38,7 +38,7 @@ export default class CommonSearch extends React.PureComponent {
       )
       Dom = Input
     }
-    let dom = (
+    const dom = (
       <Dom
         {...rest}
       />

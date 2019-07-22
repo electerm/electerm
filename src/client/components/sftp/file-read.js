@@ -8,9 +8,9 @@ import fs from '../../common/fs'
 const { _require } = window
 
 export const getFolderFromFilePath = filePath => {
-  let { sep } = _require('path')
-  let arr = filePath.split(sep)
-  let len = arr.length
+  const { sep } = _require('path')
+  const arr = filePath.split(sep)
+  const len = arr.length
   return {
     path: arr.slice(0, len - 1).join(sep),
     name: arr[len - 1]
@@ -19,8 +19,8 @@ export const getFolderFromFilePath = filePath => {
 
 export const getLocalFileInfo = async (filePath) => {
   try {
-    let statr = await fs.statAsync(filePath)
-    let stat = await fs.lstatAsync(filePath)
+    const statr = await fs.statAsync(filePath)
+    const stat = await fs.lstatAsync(filePath)
     return {
       size: stat.size,
       accessTime: stat.atime,
@@ -39,7 +39,7 @@ export const getLocalFileInfo = async (filePath) => {
 }
 
 export const getRemoteFileInfo = async (sftp, filePath) => {
-  let stat = await sftp.stat(filePath)
+  const stat = await sftp.stat(filePath)
   return {
     // size: stat.size,
     // accessTime: stat.atime,
