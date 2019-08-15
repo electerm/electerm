@@ -67,6 +67,7 @@ const store = Subx.create({
   width: window.innerWidth - sidebarWidth,
   currentTabId: tabs[0].id,
   history: copy(ls.get(settingMap.history) || []),
+  quickCommands: copy(ls.get(settingMap.quickCommands) || []),
   bookmarks,
   bookmarkGroups,
   sshConfigItems: copy(getGlobal('sshConfigItems')),
@@ -123,6 +124,12 @@ const store = Subx.create({
       ]
       : store.bookmarkGroups
   },
+
+  get currentTab () {
+    return _.find(store.tabs, tab => {
+      return tab.id === store.currentTabId
+    })
+  }
 
   // methods
   setState (update) {
