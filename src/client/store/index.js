@@ -129,7 +129,7 @@ const store = Subx.create({
     return _.find(store.tabs, tab => {
       return tab.id === store.currentTabId
     })
-  }
+  },
 
   // methods
   setState (update) {
