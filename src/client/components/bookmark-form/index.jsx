@@ -752,6 +752,10 @@ export class BookmarkForm extends React.PureComponent {
     )
   }
 
+  renderQuickCommands = () => {
+    return null
+  }
+
   renderTabs () {
     return (
       <Tabs type='card'>
@@ -766,6 +770,9 @@ export class BookmarkForm extends React.PureComponent {
         </TabPane>
         <TabPane tab={e('UI')} key='UI' forceRender>
           {this.renderUI()}
+        </TabPane>
+        <TabPane tab={e('quickCommands')} key='quickCommands' forceRender>
+          {this.renderQuickCommands()}
         </TabPane>
       </Tabs>
     )

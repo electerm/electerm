@@ -193,13 +193,22 @@ export default class Term extends Component {
   }
 
   handleEvent = (e) => {
+    const isActiveTerminal = this.props.id === this.props.activeSplitId &&
+      this.props.tab.id === this.props.currentTabId &&
+      this.props.pane === paneMap.terminal
     if (
       e.data &&
       e.data.type === 'focus' &&
-      this.props.tab.id === this.props.currentTabId &&
-      this.props.pane === paneMap.terminal
+      isActiveTerminal
     ) {
       return this.term && this.term.focus()
+    } else if (
+      e.data &&
+      e.data.action === 'quick-command' &&
+      isActiveTerminal
+    ) {
+      this.term && e.data.command && this.term.__sendData(e.data.command + '\r')
+      this.term.focus()
     }
     if (e.data && e.data.id === this.props.id) {
       this.term.selectAll()

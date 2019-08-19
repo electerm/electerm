@@ -7,6 +7,8 @@ import _ from 'lodash'
 import { Modal, Tabs, Col, Row } from 'antd'
 import TerminalThemeForm from '../terminal-theme'
 import TerminalThemeList from '../terminal-theme/theme-list'
+import QuickCommandsList from '../quick-commands/quick-commands-list'
+import QuickCommandsForm from '../quick-commands/quick-commands-form'
 import BookmarkForm from '../bookmark-form'
 import List from './list'
 import TreeList from './tree-list'
@@ -139,6 +141,25 @@ export default class SettingModal extends Component {
               </Col>
               <Col span={18}>
                 <TerminalThemeForm {...formProps} key={item.id} />
+              </Col>
+            </Row>
+          </TabPane>
+          <TabPane
+            tab={t(settingMap.quickCommands)}
+            key={settingMap.quickCommands}
+          >
+            <Row>
+              <Col span={6}>
+                <QuickCommandsList
+                  {...props0}
+                  quickCommandId={store.quickCommandId}
+                />
+              </Col>
+              <Col span={18}>
+                <QuickCommandsForm
+                  {...formProps}
+                  key={item.id}
+                />
               </Col>
             </Row>
           </TabPane>
