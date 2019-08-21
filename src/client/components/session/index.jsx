@@ -302,9 +302,15 @@ export default class SessionWrapper extends Component {
             })
           }
         </div>
-        <Qm
-          store={this.props.store}
-        />
+        {
+          pane === paneMap.sftp || pane === paneMap.fileManager
+            ? null
+            : (
+              <Qm
+                store={this.props.store}
+              />
+            )
+        }
         {
           pane === paneMap.terminal
             ? (

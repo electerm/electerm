@@ -23,6 +23,7 @@ import { formItemLayout, tailFormItemLayout } from '../../common/form-layout'
 import InputAutoFocus from '../common/input-auto-focus'
 import isIp from '../../common/is-ip'
 import encodes from './encodes'
+import QmList from './quick-command-list'
 import './bookmark-form.styl'
 
 const { TabPane } = Tabs
@@ -753,7 +754,30 @@ export class BookmarkForm extends React.PureComponent {
   }
 
   renderQuickCommands = () => {
-    return null
+    const { quickCommands = [] } = this.props.formData
+    const { form } = this.props
+    const { getFieldDecorator } = form
+    const qms = this.props.form.getFieldValue('quickCommands') || []
+    return (
+      <div>
+        <div className='hide'>
+          <FormItem
+            {...formItemLayout}
+            label='quick commands'
+          >
+            {getFieldDecorator('quickCommands', {
+              initialValue: quickCommands
+            })(
+              <Input />
+            )}
+          </FormItem>
+        </div>
+        <QmList
+          quickCommands={qms}
+          form={form}
+        />
+      </div>
+    )
   }
 
   renderTabs () {
