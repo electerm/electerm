@@ -45,15 +45,16 @@ npm i -g electerm
 
 - Work as a terminal/file manager or ssh/sftp client(similar to xshell)
 - Global hotkey to toggle window visibility (simliar to guake, default is `ctrl + 2`)
-- Support multi platform(linux, mac, win)
+- Multi platform(linux, mac, win)
 - 🇺🇸 🇨🇳 🇧🇷 🇷🇺 🇪🇸 Support multi-language([electerm-locales](https://github.com/electerm/electerm-locales), contribute welcome)
 - Double click to directly edit remote file(small ones).
 - Edit local file with built-in editor(small ones).
-- Support auth with publickey + password.
-- Support Zmodem(rz, sz).
-- Support transparent window(Mac, win).
-- Support terminal background image.
-- Support global/session proxy.
+- Auth with publickey + password.
+- Zmodem(rz, sz).
+- Transparent window(Mac, win).
+- Terminal background image.
+- Global/session proxy.
+- Quick commands
 
 ## Support
 

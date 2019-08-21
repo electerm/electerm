@@ -17,6 +17,7 @@ import {
 } from '../../common/constants'
 import ResizeWrap from '../common/resize-wrap'
 import keyControlPressed from '../../common/key-control-pressed'
+import Qm from '../quick-commands/quick-commands-select'
 
 const rebuildPosition = terminals => {
   const indexs = terminals.map(t => t.position).sort((a, b) => a - b)
@@ -181,7 +182,13 @@ export default class SessionWrapper extends Component {
   }
 
   renderTerminals = () => {
-    const { pane, terminals, splitDirection, sessionOptions } = this.state
+    const {
+      pane,
+      terminals,
+      activeSplitId,
+      splitDirection,
+      sessionOptions
+    } = this.state
     const cls = pane === paneMap.terminal
       ? 'terms-box'
       : 'terms-box hide'
@@ -205,6 +212,7 @@ export default class SessionWrapper extends Component {
               const pops = {
                 ...this.props,
                 ...t,
+                activeSplitId,
                 themeConfig,
                 pane,
                 ..._.pick(
@@ -294,6 +302,15 @@ export default class SessionWrapper extends Component {
             })
           }
         </div>
+        {
+          pane === paneMap.sftp || pane === paneMap.fileManager
+            ? null
+            : (
+              <Qm
+                store={this.props.store}
+              />
+            )
+        }
         {
           pane === paneMap.terminal
             ? (

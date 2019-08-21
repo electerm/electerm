@@ -30,6 +30,8 @@ const t = prefix('terminalThemes')
 const e = prefix('control')
 const m = prefix('menu')
 const c = prefix('common')
+const newQuickCommand = 'newQuickCommand'
+const q = prefix('quickCommands')
 const defaultStatus = statusMap.processing
 const sessionsGlob = copy(ls.get('sessions'))
 const sshConfigItems = copy(getGlobal('sshConfigItems'))
@@ -51,6 +53,11 @@ const getInitItem = (arr, tab) => {
     return { id: '', title: e('common') }
   } else if (tab === settingMap.terminalThemes) {
     return buildNewTheme()
+  } else if (tab === settingMap.quickCommands) {
+    return {
+      id: '',
+      name: q(newQuickCommand)
+    }
   }
 }
 
@@ -67,6 +74,8 @@ const store = Subx.create({
   width: window.innerWidth - sidebarWidth,
   currentTabId: tabs[0].id,
   history: copy(ls.get(settingMap.history) || []),
+  quickCommands: copy(ls.get(settingMap.quickCommands) || []),
+  quickCommandId: '',
   bookmarks,
   bookmarkGroups,
   sshConfigItems: copy(getGlobal('sshConfigItems')),
@@ -122,6 +131,24 @@ const store = Subx.create({
         }
       ]
       : store.bookmarkGroups
+  },
+
+  get currentTab () {
+    const tabs = copy(store.tabs)
+    return _.find(tabs, tab => {
+      return tab.id === store.currentTabId
+    })
+  },
+
+  get currentQuickCommands () {
+    const { currentTab, quickCommands } = store
+    const currentTabQuickCommands = _.get(
+      currentTab, 'quickCommands'
+    ) || []
+    return [
+      ...currentTabQuickCommands,
+      ...copy(quickCommands)
+    ]
   },
 
   // methods
@@ -505,6 +532,15 @@ const store = Subx.create({
     store.openModal()
   },
 
+  openQuickCommandsSetting () {
+    store.setState({
+      tab: settingMap.quickCommands,
+      item: getInitItem([], settingMap.quickCommands),
+      autofocustrigger: +new Date()
+    })
+    store.openModal()
+  },
+
   onSelectHistory (id) {
     const item = _.find(store.history, it => it.id === id)
     store.addTab({
@@ -705,6 +741,11 @@ Subx.autoRun(store, () => {
 Subx.autoRun(store, () => {
   ls.set('bookmarks', store.bookmarks)
   return store.bookmarks
+})
+
+Subx.autoRun(store, () => {
+  ls.set('quickCommands', store.quickCommands)
+  return store.quickCommands
 })
 
 Subx.autoRun(store, () => {
