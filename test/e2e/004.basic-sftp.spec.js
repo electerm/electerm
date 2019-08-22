@@ -201,11 +201,15 @@ describe('sftp basic', function () {
       document.querySelectorAll('.ssh-wrap-show .file-list.remote .sftp-item .sftp-file-prop')[0].click()
     })
     await delay(20)
-
+    await client.execute(function () {
+      document.querySelector('.ssh-wrap-show .sftp-local-section .sftp-title input').blur()
+      document.querySelector('.ssh-wrap-show .sftp-remote-section .sftp-title input').blur()
+    })
+    await delay(300)
     await client.keys(['Delete'])
-    await delay(20)
+    await delay(1000)
     await client.keys(['Enter'])
-    await delay(3000)
+    await delay(5000)
     const remoteFileList2 = await client.elements('.ssh-wrap-show .file-list.remote .sftp-item')
     expect(remoteFileList2.value.length).equal(remoteFileListBefore.value.length)
   })
