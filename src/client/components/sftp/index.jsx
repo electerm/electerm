@@ -387,7 +387,7 @@ export default class Sftp extends Component {
       this.doCopy(type, e)
     } else if (keyControlPressed(e) && e.code === 'KeyX') {
       this.doCut(type, e)
-    } else if (keyControlPressed(e) && e.code === 'KeyV') {
+    } else if (keyControlPressed(e) && e.code === 'KeyV' && !inputFocus) {
       this.doPaste(type, e)
     } else if (e.code === 'F5') {
       this.onGoto(type)
