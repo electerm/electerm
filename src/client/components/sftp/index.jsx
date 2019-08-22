@@ -373,19 +373,19 @@ export default class Sftp extends Component {
     }
     const { type } = lastClickedFile
     const { inputFocus, onDelete } = this
-    if (keyControlPressed(e) && e.code === 'KeyA') {
+    if (keyControlPressed(e) && e.code === 'KeyA' && !inputFocus) {
       this.selectAll(type, e)
-    } else if (e.code === 'ArrowDown') {
+    } else if (e.code === 'ArrowDown' && !inputFocus) {
       this.selectNext(type)
-    } else if (e.code === 'ArrowUp') {
+    } else if (e.code === 'ArrowUp' && !inputFocus) {
       this.selectPrev(type)
-    } else if (e.code === 'Delete') {
+    } else if (e.code === 'Delete' && !inputFocus) {
       this.onDel(type)
     } else if (e.code === 'Enter' && !inputFocus && !onDelete) {
       this.enter(type, e)
-    } else if (keyControlPressed(e) && e.code === 'KeyC') {
+    } else if (keyControlPressed(e) && e.code === 'KeyC' && !inputFocus) {
       this.doCopy(type, e)
-    } else if (keyControlPressed(e) && e.code === 'KeyX') {
+    } else if (keyControlPressed(e) && e.code === 'KeyX' && !inputFocus) {
       this.doCut(type, e)
     } else if (keyControlPressed(e) && e.code === 'KeyV' && !inputFocus) {
       this.doPaste(type, e)
