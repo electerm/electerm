@@ -21,6 +21,7 @@ const e = prefix('setting')
 const m = prefix('common')
 const c = prefix('control')
 const t = prefix('terminalThemes')
+const q = prefix('quickCommands')
 const { TabPane } = Tabs
 
 export default class SettingModal extends Component {
@@ -145,7 +146,7 @@ export default class SettingModal extends Component {
             </Row>
           </TabPane>
           <TabPane
-            tab={t(settingMap.quickCommands)}
+            tab={q(settingMap.quickCommands)}
             key={settingMap.quickCommands}
           >
             <Row>
