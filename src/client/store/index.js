@@ -78,6 +78,16 @@ const store = Subx.create({
   quickCommandId: '',
   bookmarks,
   bookmarkGroups,
+  setting: [
+    {
+      id: '',
+      title: e('common')
+    },
+    {
+      id: 'setting-sync',
+      title: ''
+    }
+  ],
   sshConfigItems: copy(getGlobal('sshConfigItems')),
   isMaximized: window.getGlobal('isMaximized')(),
   config: copy(_config) || {},

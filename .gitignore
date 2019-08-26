@@ -21,7 +21,6 @@ test/e2e/reports
 /electerm/
 /.env
 /package-bak.json
-package-lock.json
 /app/config.js
 /app/*.json
 /app/version
