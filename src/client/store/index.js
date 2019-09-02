@@ -3,7 +3,6 @@
  */
 
 import Subx from 'subx'
-import Gist from 'gist-wrapper'
 import { message, notification, Modal } from 'antd'
 import newTerm from '../common/new-terminal'
 import _ from 'lodash'
@@ -25,6 +24,7 @@ import * as terminalThemes from '../common/terminal-theme'
 
 const { buildNewTheme } = terminalThemes
 const { getGlobal, _config } = window
+const Gist = window._require('gist-wrapper').default
 const {
   version: packVer
 } = getGlobal('packInfo')
@@ -721,7 +721,7 @@ const store = Subx.create({
   async getGist (syncSetting = store.config.syncSetting || {}) {
     const client = this.getGistClient(syncSetting.githubAccessToken)
     const gist = await client.getOne(syncSetting.gistId).catch(
-      store.onError
+      console.log
     )
     return gist
   },
@@ -765,11 +765,12 @@ const store = Subx.create({
 
   async downloadSetting (syncSetting = store.config.syncSetting || {}) {
     store.isSyncingSetting = true
-    const gist = await this.getGist(syncSetting)
+    let gist = await this.getGist(syncSetting)
       .catch(store.onError)
     if (!gist) {
       return
     }
+    gist = gist.data
     const setting = JSON.parse(
       _.get(gist, 'files["status.json"].content')
     )
@@ -796,16 +797,20 @@ const store = Subx.create({
     store.isSyncingSetting = true
   },
 
-  syncSetting (syncSetting = store.config.syncSetting || {}) {
-    const gist = this.getGist(syncSetting)
+  async syncSetting (syncSetting = store.config.syncSetting || {}) {
+    let gist = await this.getGist(syncSetting)
     if (!gist) {
       return
     }
-    const status = JSON.parse(gist.files['status.json'])
+    gist = gist.data
+    if (!gist.files['status.json']) {
+      return
+    }
+    const status = JSON.parse(gist.files['status.json'].content)
     if (status.lastSyncTime > syncSetting.lastSyncTime || 0) {
-      this.upload()
+      store.uploadSetting()
     } else if (status.lastSyncTime < syncSetting.lastSyncTime || 0) {
-      this.download()
+      store.downloadSetting()
     }
   },
 
@@ -819,7 +824,7 @@ const store = Subx.create({
   checkSettingSync (path) {
     store.updateSyncTime()
     if (_.get(store, 'config.syncSetting.autoSync')) {
-      store.uploadSetting()
+      store.syncSetting()
     }
   }
 })

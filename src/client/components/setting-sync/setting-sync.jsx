@@ -32,7 +32,11 @@ export class SyncForm extends React.PureComponent {
       gistId,
       githubAccessToken
     } = this.props.formData
-    return !!gistId && !!githubAccessToken
+    return !gistId || !githubAccessToken
+  }
+
+  isNew = () => {
+    return this.disabled()
   }
 
   submit = async () => {
@@ -48,7 +52,7 @@ export class SyncForm extends React.PureComponent {
       await this.upload(res)
     }
     res.lastSyncTime = Date.now()
-    this.props.doSubmit(res)
+    this.doSubmit(res)
   }
 
   doSubmit = res => {
@@ -158,6 +162,7 @@ export class SyncForm extends React.PureComponent {
         >
           <Switch
             checked={autoSync}
+            disabled={this.disabled()}
             onChange={this.onChangeAutoSync}
           />
         </FormItem>
