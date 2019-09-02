@@ -3,6 +3,7 @@
  */
 
 import Subx from 'subx'
+import Gist from 'gist-wrapper'
 import { message, notification, Modal } from 'antd'
 import newTerm from '../common/new-terminal'
 import _ from 'lodash'
@@ -24,6 +25,9 @@ import * as terminalThemes from '../common/terminal-theme'
 
 const { buildNewTheme } = terminalThemes
 const { getGlobal, _config } = window
+const {
+  version: packVer
+} = getGlobal('packInfo')
 const ls = getGlobal('ls')
 const { prefix } = window
 const t = prefix('terminalThemes')
@@ -32,6 +36,7 @@ const m = prefix('menu')
 const c = prefix('common')
 const newQuickCommand = 'newQuickCommand'
 const q = prefix('quickCommands')
+const ss = prefix('settingSync')
 const defaultStatus = statusMap.processing
 const sessionsGlob = copy(ls.get('sessions'))
 const sshConfigItems = copy(getGlobal('sshConfigItems'))
@@ -80,12 +85,8 @@ const store = Subx.create({
   bookmarkGroups,
   setting: [
     {
-      id: '',
-      title: e('common')
-    },
-    {
       id: 'setting-sync',
-      title: ''
+      title: ss('settingSync')
     }
   ],
   sshConfigItems: copy(getGlobal('sshConfigItems')),
@@ -94,7 +95,6 @@ const store = Subx.create({
   contextMenuProps: {},
   transferHistory: [],
   themes: terminalThemes.getThemes(),
-  theme: terminalThemes.getCurrentTheme().id,
   contextMenuVisible: false,
   fileInfoModalProps: {},
   fileModeModalProps: {},
@@ -111,6 +111,9 @@ const store = Subx.create({
   bookmarkId: undefined,
   showModal: false,
   activeTerminalId: '',
+
+  // setting sync related
+  isSyncingSetting: false,
 
   // sidebar
   openedSideBar: '',
@@ -480,7 +483,7 @@ const store = Subx.create({
   },
 
   setTheme (id) {
-    store.theme = id
+    store.config.theme = id
     terminalThemes.setTheme(id)
   },
 
@@ -693,6 +696,131 @@ const store = Subx.create({
         copy(initItem),
         ...arr
       ]
+  },
+
+  updateSyncSetting (data) {
+    store.config.syncSetting = {
+      ...store.config.syncSetting,
+      ...data
+    }
+    window.gitClient = new Gist(store.config.syncSetting.githubAccessToken)
+  },
+
+  getGistClient (
+    githubAccessToken = _.get(store, 'config.syncSetting.githubAccessToken')
+  ) {
+    if (
+      !window.gitClient ||
+      githubAccessToken !== _.get(store, 'config.syncSetting.githubAccessToken')
+    ) {
+      window.gitClient = new Gist(githubAccessToken)
+    }
+    return window.gitClient
+  },
+
+  async getGist (syncSetting = store.config.syncSetting || {}) {
+    const client = this.getGistClient(syncSetting.githubAccessToken)
+    const gist = await client.getOne(syncSetting.gistId).catch(
+      store.onError
+    )
+    return gist
+  },
+
+  async uploadSetting (syncSetting = store.config.syncSetting || {}) {
+    const client = this.getGistClient(syncSetting.githubAccessToken)
+    if (!client) {
+      return
+    }
+    store.isSyncingSetting = true
+    await client.update(syncSetting.gistId, {
+      description: 'sync electerm data',
+      files: {
+        'status.json': {
+          content: JSON.stringify({
+            lastSyncTime: Date.now(),
+            electermVersion: packVer
+          }),
+          filename: 'status.json'
+        },
+        'bookmarks.json': {
+          content: JSON.stringify(store.bookmarks),
+          filename: 'bookmarks.json'
+        },
+        'bookmarkGroups.json': {
+          content: JSON.stringify(store.bookmarks),
+          filename: 'bookmarkGroups.json'
+        },
+        'terminalThemes.json': {
+          content: JSON.stringify(store.terminalThemes),
+          filename: 'terminalThemes.json'
+        },
+        'userConfig.json': {
+          content: JSON.stringify(_.pick(store.config, ['theme'])),
+          filename: 'userConfig.json'
+        }
+      }
+    }).catch(store.onError)
+    store.isSyncingSetting = true
+  },
+
+  async downloadSetting (syncSetting = store.config.syncSetting || {}) {
+    store.isSyncingSetting = true
+    const gist = await this.getGist(syncSetting)
+      .catch(store.onError)
+    if (!gist) {
+      return
+    }
+    const setting = JSON.parse(
+      _.get(gist, 'files["status.json"].content')
+    )
+    const bookmarks = JSON.parse(
+      _.get(gist, 'files["bookmarks.json"].content')
+    )
+    const bookmarkGroups = JSON.parse(
+      _.get(gist, 'files["bookmarkGroups.json"].content')
+    )
+    const terminalThemes = JSON.parse(
+      _.get(gist, 'files["terminalThemes.json"].content')
+    )
+    const userConfig = JSON.parse(
+      _.get(gist, 'files["userConfig.json"].content')
+    )
+    Object.assign(store, {
+      bookmarkGroups,
+      bookmarks,
+      terminalThemes
+    })
+    Object.assign(store.config, userConfig)
+    store.setTheme(userConfig.theme)
+    Object.assign(store.config.syncSetting, setting)
+    store.isSyncingSetting = true
+  },
+
+  syncSetting (syncSetting = store.config.syncSetting || {}) {
+    const gist = this.getGist(syncSetting)
+    if (!gist) {
+      return
+    }
+    const status = JSON.parse(gist.files['status.json'])
+    if (status.lastSyncTime > syncSetting.lastSyncTime || 0) {
+      this.upload()
+    } else if (status.lastSyncTime < syncSetting.lastSyncTime || 0) {
+      this.download()
+    }
+  },
+
+  updateSyncTime () {
+    if (!store.config.syncSetting) {
+      store.config.syncSetting = {}
+    }
+    store.config.syncSetting.lastSyncTime = Date.now()
+  },
+
+  checkSettingSync (path) {
+    store.updateSyncTime()
+    if (_.get(store, 'config.syncSetting.autoSync')) {
+      store.uploadSetting()
+    }
   }
 })
 
@@ -750,11 +878,13 @@ Subx.autoRun(store, () => {
 
 Subx.autoRun(store, () => {
   ls.set('bookmarks', store.bookmarks)
+  store.checkSettingSync()
   return store.bookmarks
 })
 
 Subx.autoRun(store, () => {
   ls.set('quickCommands', store.quickCommands)
+  store.checkSettingSync()
   return store.quickCommands
 })
 
@@ -770,12 +900,23 @@ Subx.autoRun(store, () => {
 
 Subx.autoRun(store, () => {
   ls.set('bookmarkGroups', store.bookmarkGroups)
+  store.checkSettingSync()
   return store.bookmarkGroups
+})
+
+Subx.autoRun(store, () => {
+  store.checkSettingSync()
+  return store.terminalThemes
 })
 
 Subx.autoRun(store, () => {
   getGlobal('saveUserConfig')(store.config)
   return store.config
+})
+
+Subx.autoRun(store, () => {
+  store.checkSettingSync()
+  return _.get(store, 'config.theme')
 })
 store.modifier = store.setState
 

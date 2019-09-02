@@ -15,8 +15,6 @@ import { validateFieldsAndScroll } from '../../common/dec-validate-and-scroll'
 import { formItemLayout, tailFormItemLayout } from '../../common/form-layout'
 import InputAutoFocus from '../common/input-auto-focus'
 import Link from '../common/external-link'
-import Gist from 'gist-wrapper'
-import './bookmark-form.styl'
 
 const FormItem = Form.Item
 const { prefix } = window
@@ -37,27 +35,12 @@ export class SyncForm extends React.PureComponent {
     return !!gistId && !!githubAccessToken
   }
 
-  getClient = (githubAccessToken = this.props.formData.githubAccessToken) => {
-    return this.client || new Gist(githubAccessToken)
-  }
-
-  getGist = async res => {
-    const client = this.getClient(res.githubAccessToken)
-    const gist = await client.getOne(res.gistId).catch(
-      this.props.onError
-    )
-    if (gist) {
-      this.client = client
-    }
-    return gist
-  }
-
   submit = async () => {
     const res = await this.validateFieldsAndScroll()
     if (!res) {
       return
     }
-    const gist = this.getGist(res)
+    const gist = await this.props.store.getGist(res)
     if (!gist) {
       return
     }
@@ -69,56 +52,25 @@ export class SyncForm extends React.PureComponent {
   }
 
   doSubmit = res => {
-    this.props.submit(res)
+    this.props.store.updateSyncSetting(res)
   }
 
   sync = () => {
-    const { formData } = this.props
-    const gist = this.getGist(formData)
-    if (!gist) {
-      return
-    }
-    const status = JSON.parse(gist.files['config.json'])
-    if (status.lastSyncTime > formData.lastSyncTime || 0) {
-      this.upload()
-    } else {
-      this.download()
-    }
+    this.props.store.syncSetting()
   }
 
-  upload = async (conf = this.props.formData) => {
-    const client = this.getClient(conf.githubAccessToken)
-    if (!client) {
-      return
-    }
-    await client.update(conf.gistId, {
-      description: 'sync electerm data',
-      files: {
-        'status.json': {
-          content: JSON.stringify({
-            lastSyncTime: Date.now(),
-            electermVersion: this.props.version
-          }),
-          filename: 'status.json'
-        },
-        'bookmarks.json': {
-          content: JSON.stringify(this.props.bookmarks),
-          filename: 'bookmarks.json'
-        },
-        'terminalThemes.json': {
-          content: JSON.stringify(this.props.terminalThemes),
-          filename: 'terminalThemes.json'
-        },
-        'userConfig.json': {
-          content: JSON.stringify(this.props.userConfig),
-          filename: 'userConfig.json'
-        }
-      }
-    })
+  upload = async () => {
+    this.props.store.uploadSetting()
   }
 
   download = () => {
+    this.props.store.downloadSetting()
+  }
 
+  onChangeAutoSync = checked => {
+    this.props.store.updateSyncSetting({
+      autoSync: checked
+    })
   }
 
   render () {
@@ -204,12 +156,10 @@ export class SyncForm extends React.PureComponent {
           {...formItemLayout}
           label={ss('autoSync')}
         >
-          {getFieldDecorator('autoSync', {
-            initialValue: !!autoSync,
-            valuePropName: 'checked'
-          })(
-            <Switch />
-          )}
+          <Switch
+            checked={autoSync}
+            onChange={this.onChangeAutoSync}
+          />
         </FormItem>
         <FormItem {...tailFormItemLayout}>
           <p>

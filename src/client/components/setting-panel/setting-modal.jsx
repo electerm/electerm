@@ -13,8 +13,8 @@ import BookmarkForm from '../bookmark-form'
 import List from './list'
 import TreeList from './tree-list'
 import Setting from './setting'
+import SyncSetting from '../setting-sync/setting-sync'
 import { settingMap } from '../../common/constants'
-import copy from 'json-deep-copy'
 
 const { prefix } = window
 const e = prefix('setting')
@@ -54,9 +54,7 @@ export default class SettingModal extends Component {
         ..._.pick(store, [
           'currentBookmarkGroupId',
           'config'
-        ]),
-        bookmarkGroups: copy(store.bookmarkGroups),
-        bookmarks: copy(store.bookmarks)
+        ])
       }
       return (
         <Tabs
@@ -125,7 +123,13 @@ export default class SettingModal extends Component {
                 />
               </Col>
               <Col span={18}>
-                <Setting {...props0} config={store.config} />
+                {
+                  item.id
+                    ? (
+                      <SyncSetting {...formProps} />
+                    )
+                    : <Setting {...props0} config={store.config} />
+                }
               </Col>
             </Row>
           </TabPane>
@@ -137,7 +141,7 @@ export default class SettingModal extends Component {
               <Col span={6}>
                 <TerminalThemeList
                   {...props0}
-                  theme={store.theme}
+                  theme={store.config.theme}
                 />
               </Col>
               <Col span={18}>
