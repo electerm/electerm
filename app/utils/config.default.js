@@ -55,7 +55,11 @@ module.exports = function () {
         proxyPort: 1080,
         proxyType: '5',
         proxyIp: '127.0.0.1',
-        zoom: 1
+        zoom: 1,
+        syncSetting: {
+          lastSyncTime: Date.now(),
+          autoSync: false
+        }
       }
       extend(conf, override)
       extend(conf, userConfig)

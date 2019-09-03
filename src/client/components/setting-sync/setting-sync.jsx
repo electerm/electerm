@@ -15,6 +15,8 @@ import { validateFieldsAndScroll } from '../../common/dec-validate-and-scroll'
 import { formItemLayout, tailFormItemLayout } from '../../common/form-layout'
 import InputAutoFocus from '../common/input-auto-focus'
 import Link from '../common/external-link'
+import _ from 'lodash'
+import moment from 'moment'
 
 const FormItem = Form.Item
 const { prefix } = window
@@ -25,6 +27,14 @@ export class SyncForm extends React.PureComponent {
   state = {
     submitting: false,
     syncing: false
+  }
+
+  componentDidUpdate (prevProps) {
+    if (
+      !_.isEqual(prevProps.formData, this.props.formData)
+    ) {
+      this.props.form.resetFields()
+    }
   }
 
   disabled = () => {
@@ -51,7 +61,6 @@ export class SyncForm extends React.PureComponent {
     if (this.isNew(gist)) {
       await this.upload(res)
     }
-    res.lastSyncTime = Date.now()
     this.doSubmit(res)
   }
 
@@ -63,8 +72,8 @@ export class SyncForm extends React.PureComponent {
     this.props.store.syncSetting()
   }
 
-  upload = async () => {
-    this.props.store.uploadSetting()
+  upload = async (res) => {
+    this.props.store.uploadSetting(res)
   }
 
   download = () => {
@@ -80,7 +89,10 @@ export class SyncForm extends React.PureComponent {
   render () {
     const { getFieldDecorator } = this.props.form
     const {
-      autofocustrigger
+      autofocustrigger,
+      isSyncingSetting,
+      isSyncUpload,
+      isSyncDownload
     } = this.props
     const {
       gistId,
@@ -88,7 +100,10 @@ export class SyncForm extends React.PureComponent {
       autoSync,
       lastSyncTime = ''
     } = this.props.formData
-    const { submitting, syncing } = this.state
+    const timeFormatted = lastSyncTime
+      ? moment(lastSyncTime).format('YYYY-MM-DD HH:mm:ss')
+      : '-'
+    const { submitting } = this.state
     const tokenLabel = (
       <Tooltip
         title={
@@ -179,25 +194,25 @@ export class SyncForm extends React.PureComponent {
               onClick={this.sync}
               disabled={this.disabled()}
               className='mg1r'
-              loading={syncing}
+              loading={isSyncingSetting}
             >{ss('sync')}</Button>
             <Button
               type='ghost'
               onClick={this.upload}
               disabled={this.disabled()}
               className='mg1r'
-              loading={syncing}
+              loading={isSyncUpload}
             >{ss('uploadSettings')}</Button>
             <Button
               type='ghost'
               onClick={this.download}
               disabled={this.disabled()}
               className='mg1r'
-              loading={syncing}
+              loading={isSyncDownload}
             >{ss('downloadSettings')}</Button>
           </p>
           <p>
-            {e('lastSyncTime')}: {lastSyncTime}
+            {e('lastSyncTime')}: {timeFormatted}
           </p>
         </FormItem>
       </Form>

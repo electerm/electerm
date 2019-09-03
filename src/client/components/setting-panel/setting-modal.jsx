@@ -15,6 +15,7 @@ import TreeList from './tree-list'
 import Setting from './setting'
 import SyncSetting from '../setting-sync/setting-sync'
 import { settingMap } from '../../common/constants'
+import copy from 'json-deep-copy'
 
 const { prefix } = window
 const e = prefix('setting')
@@ -126,7 +127,16 @@ export default class SettingModal extends Component {
                 {
                   item.id
                     ? (
-                      <SyncSetting {...formProps} />
+                      <SyncSetting
+                        store={store}
+                        formData={copy(store.config.syncSetting)}
+                        {..._.pick(store, [
+                          'autofocustrigger',
+                          'isSyncingSetting',
+                          'isSyncDownload',
+                          'isSyncUpload'
+                        ])}
+                      />
                     )
                     : <Setting {...props0} config={store.config} />
                 }
