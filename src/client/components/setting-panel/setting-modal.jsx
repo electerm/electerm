@@ -13,6 +13,7 @@ import BookmarkForm from '../bookmark-form'
 import List from './list'
 import TreeList from './tree-list'
 import Setting from './setting'
+import SyncSetting from '../setting-sync/setting-sync'
 import { settingMap } from '../../common/constants'
 import copy from 'json-deep-copy'
 
@@ -125,7 +126,22 @@ export default class SettingModal extends Component {
                 />
               </Col>
               <Col span={18}>
-                <Setting {...props0} config={store.config} />
+                {
+                  item.id
+                    ? (
+                      <SyncSetting
+                        store={store}
+                        formData={copy(store.config.syncSetting)}
+                        {..._.pick(store, [
+                          'autofocustrigger',
+                          'isSyncingSetting',
+                          'isSyncDownload',
+                          'isSyncUpload'
+                        ])}
+                      />
+                    )
+                    : <Setting {...props0} config={store.config} />
+                }
               </Col>
             </Row>
           </TabPane>
@@ -137,7 +153,7 @@ export default class SettingModal extends Component {
               <Col span={6}>
                 <TerminalThemeList
                   {...props0}
-                  theme={store.theme}
+                  theme={store.config.theme}
                 />
               </Col>
               <Col span={18}>

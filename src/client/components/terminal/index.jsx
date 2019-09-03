@@ -31,7 +31,6 @@ import { Zmodem, addonZmodem } from './xterm-zmodem'
 import keyControlPressed from '../../common/key-control-pressed'
 import { Terminal } from 'xterm'
 
-console.log(Zmodem)
 Terminal.applyAddon(fit)
 Terminal.applyAddon(attach)
 Terminal.applyAddon(search)

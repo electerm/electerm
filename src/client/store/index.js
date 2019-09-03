@@ -24,6 +24,10 @@ import * as terminalThemes from '../common/terminal-theme'
 
 const { buildNewTheme } = terminalThemes
 const { getGlobal, _config } = window
+const Gist = window._require('gist-wrapper').default
+const {
+  version: packVer
+} = getGlobal('packInfo')
 const ls = getGlobal('ls')
 const { prefix } = window
 const t = prefix('terminalThemes')
@@ -32,6 +36,7 @@ const m = prefix('menu')
 const c = prefix('common')
 const newQuickCommand = 'newQuickCommand'
 const q = prefix('quickCommands')
+const ss = prefix('settingSync')
 const defaultStatus = statusMap.processing
 const sessionsGlob = copy(ls.get('sessions'))
 const sshConfigItems = copy(getGlobal('sshConfigItems'))
@@ -78,13 +83,18 @@ const store = Subx.create({
   quickCommandId: '',
   bookmarks,
   bookmarkGroups,
+  setting: [
+    {
+      id: 'setting-sync',
+      title: ss('settingSync')
+    }
+  ],
   sshConfigItems: copy(getGlobal('sshConfigItems')),
   isMaximized: window.getGlobal('isMaximized')(),
   config: copy(_config) || {},
   contextMenuProps: {},
   transferHistory: [],
   themes: terminalThemes.getThemes(),
-  theme: terminalThemes.getCurrentTheme().id,
   contextMenuVisible: false,
   fileInfoModalProps: {},
   fileModeModalProps: {},
@@ -101,6 +111,11 @@ const store = Subx.create({
   bookmarkId: undefined,
   showModal: false,
   activeTerminalId: '',
+
+  // setting sync related
+  isSyncingSetting: false,
+  isSyncUpload: false,
+  isSyncDownload: false,
 
   // sidebar
   openedSideBar: '',
@@ -172,7 +187,7 @@ const store = Subx.create({
 
   onCloseMenu () {
     const dom = document.getElementById('outside-context')
-    dom && dom.removeEventListener('click', this.closeContextMenu)
+    dom && dom.removeEventListener('click', store.closeContextMenu)
   },
 
   checkDefaultTheme () {
@@ -470,7 +485,7 @@ const store = Subx.create({
   },
 
   setTheme (id) {
-    store.theme = id
+    store.config.theme = id
     terminalThemes.setTheme(id)
   },
 
@@ -597,6 +612,14 @@ const store = Subx.create({
     store.openModal()
   },
 
+  openSettingSync () {
+    store.setState({
+      tab: settingMap.setting,
+      item: store.setting[0]
+    })
+    store.openModal()
+  },
+
   openTerminalThemes () {
     store.setState({
       tab: settingMap.terminalThemes,
@@ -683,6 +706,147 @@ const store = Subx.create({
         copy(initItem),
         ...arr
       ]
+  },
+
+  updateSyncSetting (data) {
+    const keys = Object.keys(data)
+    if (_.isEqual(
+      _.pick(store.config.syncSetting, keys),
+      data
+    )) {
+      return
+    }
+    Object.assign(store.config.syncSetting, data)
+    window.gitClient = new Gist(store.config.syncSetting.githubAccessToken)
+  },
+
+  getGistClient (
+    githubAccessToken = _.get(store, 'config.syncSetting.githubAccessToken')
+  ) {
+    if (
+      !window.gitClient ||
+      githubAccessToken !== _.get(store, 'config.syncSetting.githubAccessToken')
+    ) {
+      window.gitClient = new Gist(githubAccessToken)
+    }
+    return window.gitClient
+  },
+
+  async getGist (syncSetting = store.config.syncSetting || {}) {
+    const client = store.getGistClient(syncSetting.githubAccessToken)
+    if (!client.token) {
+      return
+    }
+    const gist = await client.getOne(syncSetting.gistId).catch(
+      console.log
+    )
+    return gist
+  },
+
+  async uploadSetting (syncSetting = store.config.syncSetting || {}) {
+    const client = store.getGistClient(syncSetting.githubAccessToken)
+    if (!client.token) {
+      return
+    }
+    store.isSyncingSetting = true
+    store.isSyncUpload = true
+    const res = await client.update(syncSetting.gistId, {
+      description: 'sync electerm data',
+      files: {
+        'bookmarks.json': {
+          content: JSON.stringify(copy(store.bookmarks))
+        },
+        'bookmarkGroups.json': {
+          content: JSON.stringify(copy(store.bookmarkGroups))
+        },
+        'terminalThemes.json': {
+          content: JSON.stringify(copy(store.themes))
+        },
+        'quickCommands.json': {
+          content: JSON.stringify(copy(store.quickCommands))
+        },
+        'userConfig.json': {
+          content: JSON.stringify(_.pick(store.config, ['theme']))
+        },
+        'electerm-status.json': {
+          content: JSON.stringify({
+            lastSyncTime: Date.now(),
+            electermVersion: packVer
+          })
+        }
+      }
+    }).catch(store.onError)
+    store.isSyncingSetting = false
+    store.isSyncUpload = false
+    if (res) {
+      store.config.syncSetting.lastSyncTime = Date.now()
+    }
+  },
+
+  async downloadSetting (syncSetting = store.config.syncSetting || {}) {
+    store.isSyncingSetting = true
+    store.isSyncDownload = true
+    let gist = await store.getGist(syncSetting)
+      .catch(store.onError)
+    store.isSyncingSetting = false
+    store.isSyncDownload = false
+    if (!gist) {
+      return
+    }
+    gist = gist.data
+    const bookmarks = JSON.parse(
+      _.get(gist, 'files["bookmarks.json"].content')
+    )
+    const bookmarkGroups = JSON.parse(
+      _.get(gist, 'files["bookmarkGroups.json"].content')
+    )
+    const terminalThemes = JSON.parse(
+      _.get(gist, 'files["terminalThemes.json"].content')
+    )
+    const quickCommands = JSON.parse(
+      _.get(gist, 'files["quickCommands.json"].content')
+    )
+    const userConfig = JSON.parse(
+      _.get(gist, 'files["userConfig.json"].content')
+    )
+    Object.assign(store, {
+      bookmarks,
+      bookmarkGroups,
+      themes: terminalThemes,
+      quickCommands
+    })
+    store.setTheme(userConfig.theme)
+    store.config.syncSetting.lastSyncTime = Date.now()
+  },
+
+  async syncSetting (syncSetting = store.config.syncSetting || {}) {
+    let gist = await store.getGist(syncSetting)
+    if (!gist) {
+      return
+    }
+    gist = gist.data
+    if (!gist.files['electerm-status.json']) {
+      return
+    }
+    const status = JSON.parse(gist.files['electerm-status.json'].content)
+    if (status.lastSyncTime > syncSetting.lastUpdateTime) {
+      store.uploadSetting()
+    } else if (status.lastSyncTime < syncSetting.lastUpdateTime) {
+      store.downloadSetting()
+    }
+  },
+
+  updateSyncTime () {
+    store.updateSyncSetting({
+      lastUpdateTime: Date.now()
+    })
+  },
+
+  checkSettingSync () {
+    store.updateSyncTime()
+    if (_.get(store, 'config.syncSetting.autoSync')) {
+      store.uploadSetting()
+    }
   }
 })
 
@@ -766,6 +930,17 @@ Subx.autoRun(store, () => {
 Subx.autoRun(store, () => {
   getGlobal('saveUserConfig')(store.config)
   return store.config
+})
+
+Subx.autoRun(store, () => {
+  store.checkSettingSync()
+  return [
+    store.config.theme,
+    store.terminalThemes,
+    store.bookmarkGroups,
+    store.quickCommands,
+    store.bookmarks
+  ]
 })
 store.modifier = store.setState
 
