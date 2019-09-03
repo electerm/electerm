@@ -8,8 +8,8 @@
 import React from 'react'
 import {
   Form, Button, Input,
-  Tooltip, Icon,
-  Switch
+  // Switch,
+  Tooltip, Icon
 } from 'antd'
 import { validateFieldsAndScroll } from '../../common/dec-validate-and-scroll'
 import { formItemLayout, tailFormItemLayout } from '../../common/form-layout'
@@ -96,7 +96,7 @@ export class SyncForm extends React.PureComponent {
     const {
       gistId,
       githubAccessToken,
-      autoSync,
+      // autoSync,
       lastSyncTime = ''
     } = this.props.formData
     const timeFormatted = lastSyncTime
@@ -170,7 +170,7 @@ export class SyncForm extends React.PureComponent {
             />
           )}
         </FormItem>
-        <FormItem
+        {/* <FormItem
           {...formItemLayout}
           label={ss('autoSync')}
         >
@@ -179,7 +179,7 @@ export class SyncForm extends React.PureComponent {
             disabled={this.disabled()}
             onChange={this.onChangeAutoSync}
           />
-        </FormItem>
+        </FormItem> */}
         <FormItem {...tailFormItemLayout}>
           <p>
             <Button
