@@ -170,7 +170,7 @@ export class SyncForm extends React.PureComponent {
             />
           )}
         </FormItem>
-        <FormItem
+        {/* <FormItem
           {...formItemLayout}
           label={ss('autoSync')}
         >
@@ -179,7 +179,7 @@ export class SyncForm extends React.PureComponent {
             disabled={this.disabled()}
             onChange={this.onChangeAutoSync}
           />
-        </FormItem>
+        </FormItem> */}
         <FormItem {...tailFormItemLayout}>
           <p>
             <Button
