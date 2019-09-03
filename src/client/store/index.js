@@ -908,6 +908,11 @@ Subx.autoRun(store, () => {
 })
 
 Subx.autoRun(store, () => {
+  ls.set('quickCommands', store.quickCommands)
+  return store.quickCommands
+})
+
+Subx.autoRun(store, () => {
   ls.set('history', store.history)
   return store.history
 })
