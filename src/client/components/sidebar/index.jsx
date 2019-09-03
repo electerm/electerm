@@ -19,6 +19,7 @@ const m = prefix('menu')
 const h = prefix('transferHistory')
 const t = prefix('terminalThemes')
 const u = prefix('updater')
+const ss = prefix('settingSync')
 
 export default class Sidebar extends Component {
   render () {
@@ -31,6 +32,7 @@ export default class Sidebar extends Component {
       transferHistory,
       openTransferHistory,
       openAbout,
+      openSettingSync,
       height,
       openTerminalThemes,
       upgradeInfo
@@ -133,6 +135,16 @@ export default class Sidebar extends Component {
             <Icon
               className='iblock pointer font20 control-icon'
               type='setting'
+            />
+          </div>
+          <div
+            className='control-icon-wrap'
+            onClick={openSettingSync}
+            title={ss('settingSync')}
+          >
+            <Icon
+              className='iblock pointer font20 control-icon'
+              type='cloud-sync'
             />
           </div>
           {

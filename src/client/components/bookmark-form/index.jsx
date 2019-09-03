@@ -511,7 +511,7 @@ export class BookmarkForm extends React.PureComponent {
     } = this.props.formData
     const {
       autofocustrigger,
-      bookmarkGroups,
+      bookmarkGroups = [],
       currentBookmarkGroupId
     } = this.props
     const { dns } = this.state

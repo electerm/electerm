@@ -57,7 +57,7 @@ module.exports = function () {
         proxyIp: '127.0.0.1',
         zoom: 1,
         syncSetting: {
-          lastSyncTime: Date.now(),
+          lastUpdateTime: Date.now(),
           autoSync: false
         }
       }

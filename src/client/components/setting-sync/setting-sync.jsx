@@ -45,11 +45,10 @@ export class SyncForm extends React.PureComponent {
     return !gistId || !githubAccessToken
   }
 
-  isNew = () => {
-    return this.disabled()
-  }
-
   submit = async () => {
+    this.setState({
+      submitting: true
+    })
     const res = await this.validateFieldsAndScroll()
     if (!res) {
       return
@@ -58,10 +57,10 @@ export class SyncForm extends React.PureComponent {
     if (!gist) {
       return
     }
-    if (this.isNew(gist)) {
-      await this.upload(res)
-    }
     this.doSubmit(res)
+    this.setState({
+      submitting: false
+    })
   }
 
   doSubmit = res => {
@@ -90,7 +89,7 @@ export class SyncForm extends React.PureComponent {
     const { getFieldDecorator } = this.props.form
     const {
       autofocustrigger,
-      isSyncingSetting,
+      // isSyncingSetting,
       isSyncUpload,
       isSyncDownload
     } = this.props
@@ -109,7 +108,7 @@ export class SyncForm extends React.PureComponent {
         title={
           <span>
             github personal access token
-            <Link className='mg1l' to='https://github.com/electerm/electerm/wiki/create-personal-access-token' />
+            <Link className='mg1l' to='https://github.com/electerm/electerm/wiki/Create-personal-access-token' />
           </span>
         }
       >
@@ -122,7 +121,7 @@ export class SyncForm extends React.PureComponent {
       <Tooltip title={
         <span>
           secret gist id
-          <Link className='mg1l' to='https://github.com/electerm/electerm/wiki/create-secret-gist' />
+          <Link className='mg1l' to='https://github.com/electerm/electerm/wiki/Create-secret-gist' />
         </span>
       }>
         <span>
@@ -188,20 +187,23 @@ export class SyncForm extends React.PureComponent {
               className='mg1r'
               onClick={() => this.submit()}
               loading={submitting}
+              icon='save'
             >{e('save')}</Button>
-            <Button
+            {/* <Button
               type='ghost'
               onClick={this.sync}
               disabled={this.disabled()}
               className='mg1r'
               loading={isSyncingSetting}
-            >{ss('sync')}</Button>
+              icon='swap'
+            >{ss('sync')}</Button> */}
             <Button
               type='ghost'
-              onClick={this.upload}
+              onClick={() => this.upload()}
               disabled={this.disabled()}
               className='mg1r'
               loading={isSyncUpload}
+              icon='arrow-up'
             >{ss('uploadSettings')}</Button>
             <Button
               type='ghost'
@@ -209,6 +211,7 @@ export class SyncForm extends React.PureComponent {
               disabled={this.disabled()}
               className='mg1r'
               loading={isSyncDownload}
+              icon='arrow-down'
             >{ss('downloadSettings')}</Button>
           </p>
           <p>

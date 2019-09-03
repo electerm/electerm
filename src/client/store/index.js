@@ -612,6 +612,14 @@ const store = Subx.create({
     store.openModal()
   },
 
+  openSettingSync () {
+    store.setState({
+      tab: settingMap.setting,
+      item: store.setting[0]
+    })
+    store.openModal()
+  },
+
   openTerminalThemes () {
     store.setState({
       tab: settingMap.terminalThemes,
@@ -726,6 +734,9 @@ const store = Subx.create({
 
   async getGist (syncSetting = store.config.syncSetting || {}) {
     const client = store.getGistClient(syncSetting.githubAccessToken)
+    if (!client.token) {
+      return
+    }
     const gist = await client.getOne(syncSetting.gistId).catch(
       console.log
     )
@@ -734,12 +745,12 @@ const store = Subx.create({
 
   async uploadSetting (syncSetting = store.config.syncSetting || {}) {
     const client = store.getGistClient(syncSetting.githubAccessToken)
-    if (!client) {
+    if (!client.token) {
       return
     }
     store.isSyncingSetting = true
     store.isSyncUpload = true
-    await client.update(syncSetting.gistId, {
+    const res = await client.update(syncSetting.gistId, {
       description: 'sync electerm data',
       files: {
         'bookmarks.json': {
@@ -767,6 +778,9 @@ const store = Subx.create({
     }).catch(store.onError)
     store.isSyncingSetting = false
     store.isSyncUpload = false
+    if (res) {
+      store.config.syncSetting.lastSyncTime = Date.now()
+    }
   },
 
   async downloadSetting (syncSetting = store.config.syncSetting || {}) {
@@ -780,9 +794,6 @@ const store = Subx.create({
       return
     }
     gist = gist.data
-    const setting = JSON.parse(
-      _.get(gist, 'files["electerm-status.json"].content')
-    )
     const bookmarks = JSON.parse(
       _.get(gist, 'files["bookmarks.json"].content')
     )
@@ -799,14 +810,13 @@ const store = Subx.create({
       _.get(gist, 'files["userConfig.json"].content')
     )
     Object.assign(store, {
-      bookmarkGroups,
       bookmarks,
+      bookmarkGroups,
       themes: terminalThemes,
       quickCommands
     })
-    Object.assign(store.config, userConfig)
     store.setTheme(userConfig.theme)
-    Object.assign(store.config.syncSetting, setting)
+    store.config.syncSetting.lastSyncTime = Date.now()
   },
 
   async syncSetting (syncSetting = store.config.syncSetting || {}) {
@@ -819,23 +829,23 @@ const store = Subx.create({
       return
     }
     const status = JSON.parse(gist.files['electerm-status.json'].content)
-    if (status.lastSyncTime > syncSetting.lastSyncTime || 0) {
+    if (status.lastSyncTime > syncSetting.lastUpdateTime) {
       store.uploadSetting()
-    } else if (status.lastSyncTime < syncSetting.lastSyncTime || 0) {
+    } else if (status.lastSyncTime < syncSetting.lastUpdateTime) {
       store.downloadSetting()
     }
   },
 
   updateSyncTime () {
     store.updateSyncSetting({
-      lastSyncTime: Date.now()
+      lastUpdateTime: Date.now()
     })
   },
 
   checkSettingSync () {
     store.updateSyncTime()
     if (_.get(store, 'config.syncSetting.autoSync')) {
-      store.syncSetting()
+      store.uploadSetting()
     }
   }
 })

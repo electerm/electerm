@@ -55,7 +55,9 @@ export default class SettingModal extends Component {
         ..._.pick(store, [
           'currentBookmarkGroupId',
           'config'
-        ])
+        ]),
+        bookmarkGroups: copy(store.bookmarkGroups),
+        bookmarks: copy(store.bookmarks)
       }
       return (
         <Tabs
