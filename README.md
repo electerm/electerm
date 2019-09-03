@@ -55,6 +55,7 @@ npm i -g electerm
 - Terminal background image.
 - Global/session proxy.
 - Quick commands
+- Sync bookmarks/themes/quick commands to github secret gist
 
 ## Support
 
