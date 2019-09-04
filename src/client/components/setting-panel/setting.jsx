@@ -294,9 +294,10 @@ export default class Setting extends Component {
     const {
       hotkey,
       language,
-      rendererType
+      rendererType,
+      theme
     } = this.props.config
-    const { themes, theme } = this.props.store
+    const { themes } = this.props.store
     const langs = getGlobal('langs')
     const [modifier, key] = hotkey.split('+')
     return (
