@@ -47,6 +47,10 @@ export class BookmarkForm extends React.PureComponent {
     dns: ''
   }
 
+  trim = (v) => {
+    return (v || '').replace(/^\s+|\s+$/g, '')
+  }
+
   useIp = () => {
     this.props.form.setFieldsValue({
       host: this.state.dns
@@ -551,6 +555,7 @@ export class BookmarkForm extends React.PureComponent {
             }, {
               required: true, message: 'host required'
             }],
+            normalize: this.trim,
             initialValue: host
           })(
             <InputAutoFocus
@@ -572,7 +577,8 @@ export class BookmarkForm extends React.PureComponent {
             }, {
               required: true, message: 'username required'
             }],
-            initialValue: username
+            initialValue: username,
+            normalize: this.trim
           })(
             <Input placeholder={defaultUserName} />
           )}
