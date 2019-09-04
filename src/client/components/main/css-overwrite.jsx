@@ -27,7 +27,7 @@ export default class SystemMenu extends PureComponent {
     }
     style.innerHTML = content
       ? `
-    .xterm-viewport {
+    #container .xterm-viewport {
       background-image: url(data:image;base64,${content});
     }
     `
@@ -46,7 +46,7 @@ export default class SystemMenu extends PureComponent {
     }
     style.innerHTML = content
       ? `
-    .xterm-viewport {
+    #container .xterm .xterm-viewport {
       background-image: url(data:image;base64,${content});
     }
     `
