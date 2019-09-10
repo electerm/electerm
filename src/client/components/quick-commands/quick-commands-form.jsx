@@ -6,7 +6,6 @@ import {
 } from 'antd'
 import { validateFieldsAndScroll } from '../../common/dec-validate-and-scroll'
 import { generate } from 'shortid'
-import { formItemLayout } from '../../common/form-layout'
 import InputAutoFocus from '../common/input-auto-focus'
 import { settingMap } from '../../common/constants'
 
