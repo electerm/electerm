@@ -2,11 +2,10 @@
 import { BookmarkForm } from '../bookmark-form'
 import {
   Form, Button, Input,
-  message
+  message, Switch
 } from 'antd'
 import { validateFieldsAndScroll } from '../../common/dec-validate-and-scroll'
 import { generate } from 'shortid'
-import { formItemLayout, tailFormItemLayout } from '../../common/form-layout'
 import InputAutoFocus from '../common/input-auto-focus'
 import { settingMap } from '../../common/constants'
 
@@ -27,11 +26,13 @@ class QuickCommandForm extends BookmarkForm {
     const { formData } = this.props
     const {
       name,
-      command
+      command,
+      inputOnly
     } = res
     const update = {
       name,
-      command
+      command,
+      inputOnly
     }
     const update1 = {
       ...update,
@@ -42,7 +43,10 @@ class QuickCommandForm extends BookmarkForm {
     } else {
       this.props.store.addItem(update1, settingMap.quickCommands)
       this.props.store.modifier({
-        settingItem: update1
+        settingItem: {
+          id: '',
+          name: t('newQuickCommand')
+        }
       })
     }
     message.success(s('saved'))
@@ -52,13 +56,13 @@ class QuickCommandForm extends BookmarkForm {
     const { getFieldDecorator } = this.props.form
     const {
       command,
-      name
+      name,
+      inputOnly = false
     } = this.props.formData
     const { autofocustrigger } = this.props.store
     return (
-      <Form onSubmit={this.handleSubmit} className='form-wrap'>
+      <Form onSubmit={this.handleSubmit} className='form-wrap pd2l' layout='vertical'>
         <FormItem
-          {...formItemLayout}
           label={t('quickCommandName')}
           hasFeedback
         >
@@ -77,7 +81,6 @@ class QuickCommandForm extends BookmarkForm {
           )}
         </FormItem>
         <FormItem
-          {...formItemLayout}
           label={t('quickCommand')}
         >
           {getFieldDecorator('command', {
@@ -88,10 +91,20 @@ class QuickCommandForm extends BookmarkForm {
             }],
             initialValue: command
           })(
-            <TextArea rows={18} />
+            <TextArea rows={3} />
           )}
         </FormItem>
-        <FormItem {...tailFormItemLayout}>
+        <FormItem
+          label={s('inputOnly')}
+        >
+          {getFieldDecorator('inputOnly', {
+            initialValue: inputOnly,
+            valuePropName: 'checked'
+          })(
+            <Switch />
+          )}
+        </FormItem>
+        <FormItem>
           <p>
             <Button
               type='ghost'

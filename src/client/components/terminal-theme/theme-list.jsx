@@ -73,7 +73,7 @@ export default class ThemeList extends List {
           <div className='elli pd1y pd2x'>
             {
               !id
-                ? <Icon type='plus-circle' className='mg1r' />
+                ? <Icon type='plus' className='mg1r' />
                 : null
             }
             {title}

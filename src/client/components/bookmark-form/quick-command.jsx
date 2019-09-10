@@ -3,7 +3,7 @@
  */
 
 import { Component } from 'react'
-import { Input, Col, Row, Icon, message } from 'antd'
+import { Input, Col, Row, Icon, message, Switch, Tooltip } from 'antd'
 import { settingMap } from '../../common/constants'
 import { generate } from 'shortid'
 import _ from 'lodash'
@@ -31,7 +31,7 @@ export default class QuickCommandItem extends Component {
 
   submit = () => {
     const {
-      name, command, id
+      name, command, id, inputOnly
     } = this.state.item
     if (!name) {
       return message.warn('name required')
@@ -43,13 +43,17 @@ export default class QuickCommandItem extends Component {
       const qm = quickCommands.find(d => d.id === id)
       if (qm) {
         Object.assign(qm, {
-          name, command
+          name, command, inputOnly
         })
       }
+      this.setState({
+        edit: false
+      })
     } else {
       quickCommands.unshift({
         name,
         command,
+        inputOnly,
         id: generate()
       })
       this.setState({
@@ -136,10 +140,21 @@ export default class QuickCommandItem extends Component {
     })
   }
 
+  onChangeInputOnly = v => {
+    this.setState(old => {
+      return {
+        item: {
+          ...old.item,
+          inputOnly: v
+        }
+      }
+    })
+  }
+
   renderForm = (item = this.state.item) => {
     return (
       <Row className='mg1t'>
-        <Col span={18}>
+        <Col span={15}>
           <InputGroup compact>
             <Input
               value={item.name}
@@ -157,6 +172,14 @@ export default class QuickCommandItem extends Component {
             />
           </InputGroup>
         </Col>
+        <Col span={3}>
+          <Tooltip title={t('inputOnly')}>
+            <Switch
+              checked={!!item.inputOnly}
+              onChange={this.onChangeInputOnly}
+            />
+          </Tooltip>
+        </Col>
         <Col span={6}>
           {this.renderIcons(item)}
         </Col>
@@ -167,7 +190,7 @@ export default class QuickCommandItem extends Component {
   renderItem = (item = this.state.item) => {
     return (
       <Row className='mg1t'>
-        <Col span={18}>
+        <Col span={15}>
           <InputGroup compact>
             <Input
               value={item.name}
@@ -183,6 +206,15 @@ export default class QuickCommandItem extends Component {
               title={item.command}
             />
           </InputGroup>
+        </Col>
+        <Col span={3}>
+          <Tooltip title={t('inputOnly')}>
+            <Switch
+              checked={!!item.inputOnly}
+              title={t('inputOnly')}
+              readOnly
+            />
+          </Tooltip>
         </Col>
         <Col span={6}>
           <Icon

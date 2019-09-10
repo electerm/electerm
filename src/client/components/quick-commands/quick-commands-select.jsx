@@ -25,7 +25,8 @@ export default class QuickCommandsFooter extends Component {
       if (qm && qm.command) {
         window.postMessage({
           action: 'quick-command',
-          command: qm.command
+          command: qm.command,
+          inputOnly: qm.inputOnly
         }, '*')
       }
     }

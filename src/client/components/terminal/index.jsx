@@ -206,7 +206,10 @@ export default class Term extends Component {
       e.data.action === 'quick-command' &&
       isActiveTerminal
     ) {
-      this.term && e.data.command && this.term.__sendData(e.data.command + '\r')
+      this.term && e.data.command && this.term.__sendData(
+        e.data.command +
+        (e.data.inputOnly ? '' : '\r')
+      )
       this.term.focus()
     }
     if (e.data && e.data.id === this.props.id) {
