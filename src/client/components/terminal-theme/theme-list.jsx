@@ -70,7 +70,14 @@ export default class ThemeList extends List {
           title={name}
           placement='right'
         >
-          <div className='elli pd1y pd2x'>{title}</div>
+          <div className='elli pd1y pd2x'>
+            {
+              !id
+                ? <Icon type='plus-circle' className='mg1r' />
+                : null
+            }
+            {title}
+          </div>
         </Tooltip>
         {
           id === defaultTheme.id

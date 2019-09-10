@@ -402,14 +402,12 @@ const store = Subx.create({
 
   addTheme (theme) {
     store.themes.unshift(theme)
-    terminalThemes.addTheme(theme)
   },
 
   editTheme (id, update) {
     const items = store.themes
     const item = _.find(items, t => t.id === id)
     Object.assign(item, update)
-    terminalThemes.updateTheme(id, update)
   },
 
   delTheme ({ id }) {
@@ -420,7 +418,6 @@ const store = Subx.create({
     if (theme === id) {
       store.config.theme = terminalThemes.defaultTheme.id
     }
-    terminalThemes.delTheme(id)
   },
 
   addBookmarkGroup (group) {
@@ -486,7 +483,6 @@ const store = Subx.create({
 
   setTheme (id) {
     store.config.theme = id
-    terminalThemes.setTheme(id)
   },
 
   onDelItem (item, type) {
@@ -905,6 +901,17 @@ Subx.autoRun(store, () => {
 Subx.autoRun(store, () => {
   ls.set('bookmarks', store.bookmarks)
   return store.bookmarks
+})
+
+Subx.autoRun(store, () => {
+  const themesObj = store.themes.reduce((p, k) => {
+    return {
+      ...p,
+      [k.id]: k
+    }
+  }, {})
+  ls.set('themes', themesObj)
+  return store.themes
 })
 
 Subx.autoRun(store, () => {
