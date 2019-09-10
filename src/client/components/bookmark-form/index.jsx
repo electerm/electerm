@@ -197,7 +197,7 @@ export class BookmarkForm extends React.PureComponent {
         categoryId
       )
       this.props.store.modifier({
-        item: obj
+        settingItem: obj
       })
     }
   }

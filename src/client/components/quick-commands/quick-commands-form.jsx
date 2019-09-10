@@ -42,7 +42,7 @@ class QuickCommandForm extends BookmarkForm {
     } else {
       this.props.store.addItem(update1, settingMap.quickCommands)
       this.props.store.modifier({
-        item: update1
+        settingItem: update1
       })
     }
     message.success(s('saved'))

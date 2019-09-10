@@ -29,7 +29,7 @@ export default class SettingModal extends Component {
   render () {
     const { store } = this.props
     const selectItem = (item) => {
-      store.modifier({ item })
+      store.modifier({ settingItem: item })
     }
 
     const tabsShouldConfirmDel = [
@@ -38,10 +38,10 @@ export default class SettingModal extends Component {
     ]
 
     const renderTabs = () => {
-      const { tab, item, list } = store
+      const { tab, settingItem, list } = store
       const props0 = {
         store,
-        activeItemId: item.id,
+        activeItemId: settingItem.id,
         type: tab,
         onClickItem: selectItem,
         shouldComfirmDel: tabsShouldConfirmDel.includes(tab),
@@ -49,7 +49,7 @@ export default class SettingModal extends Component {
       }
       const formProps = {
         store,
-        formData: item,
+        formData: settingItem,
         type: tab,
         hide: store.hideModal,
         ..._.pick(store, [
@@ -77,10 +77,10 @@ export default class SettingModal extends Component {
               </Col>
               <Col span={18}>
                 {
-                  item.id
+                  settingItem.id
                     ? (
                       <BookmarkForm
-                        key={item.id}
+                        key={settingItem.id}
                         {...formProps}
                       />
                     )
@@ -109,7 +109,7 @@ export default class SettingModal extends Component {
               </Col>
               <Col span={14}>
                 <BookmarkForm
-                  key={item.id}
+                  key={settingItem.id}
                   {...formProps}
                 />
               </Col>
@@ -127,7 +127,7 @@ export default class SettingModal extends Component {
               </Col>
               <Col span={18}>
                 {
-                  item.id
+                  settingItem.id
                     ? (
                       <SyncSetting
                         store={store}
@@ -157,7 +157,7 @@ export default class SettingModal extends Component {
                 />
               </Col>
               <Col span={18}>
-                <TerminalThemeForm {...formProps} key={item.id} />
+                <TerminalThemeForm {...formProps} key={settingItem.id} />
               </Col>
             </Row>
           </TabPane>
@@ -175,7 +175,7 @@ export default class SettingModal extends Component {
               <Col span={18}>
                 <QuickCommandsForm
                   {...formProps}
-                  key={item.id}
+                  key={settingItem.id}
                 />
               </Col>
             </Row>

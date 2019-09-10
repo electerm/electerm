@@ -103,7 +103,7 @@ const store = Subx.create({
   selectedSessions: [],
   sessionModalVisible: false,
   textEditorProps: {},
-  item: getInitItem([], settingMap.bookmarks),
+  settingItem: getInitItem([], settingMap.bookmarks),
 
   // for settings related
   tab: settingMap.bookmarks,
@@ -416,9 +416,9 @@ const store = Subx.create({
     store.themes = store.themes.filter(t => {
       return t.id !== id
     })
-    const { theme } = store
+    const { theme } = store.config
     if (theme === id) {
-      store.theme = terminalThemes.defaultTheme.id
+      store.config.theme = terminalThemes.defaultTheme.id
     }
     terminalThemes.delTheme(id)
   },
@@ -491,7 +491,7 @@ const store = Subx.create({
 
   onDelItem (item, type) {
     if (item.id === store.item.id) {
-      store.item = getInitItem(
+      store.settingItem = getInitItem(
         store[type],
         type
       )
@@ -532,7 +532,7 @@ const store = Subx.create({
   onNewSsh () {
     store.setState({
       tab: settingMap.bookmarks,
-      item: getInitItem([], settingMap.bookmarks),
+      settingItem: getInitItem([], settingMap.bookmarks),
       autofocustrigger: +new Date()
     })
     store.openModal()
@@ -541,7 +541,7 @@ const store = Subx.create({
   onEditHistory () {
     store.setState({
       tab: settingMap.history,
-      item: store.history[0] || getInitItem([], settingMap.history),
+      settingItem: store.history[0] || getInitItem([], settingMap.history),
       autofocustrigger: +new Date()
     })
     store.openModal()
@@ -550,7 +550,7 @@ const store = Subx.create({
   openQuickCommandsSetting () {
     store.setState({
       tab: settingMap.quickCommands,
-      item: getInitItem([], settingMap.quickCommands),
+      settingItem: getInitItem([], settingMap.quickCommands),
       autofocustrigger: +new Date()
     })
     store.openModal()
@@ -607,7 +607,7 @@ const store = Subx.create({
   openSetting () {
     store.setState({
       tab: settingMap.setting,
-      item: getInitItem([], settingMap.setting)
+      settingItem: getInitItem([], settingMap.setting)
     })
     store.openModal()
   },
@@ -615,7 +615,7 @@ const store = Subx.create({
   openSettingSync () {
     store.setState({
       tab: settingMap.setting,
-      item: store.setting[0]
+      settingItem: store.setting[0]
     })
     store.openModal()
   },
@@ -623,7 +623,7 @@ const store = Subx.create({
   openTerminalThemes () {
     store.setState({
       tab: settingMap.terminalThemes,
-      item: buildNewTheme(),
+      settingItem: buildNewTheme(),
       autofocustrigger: +new Date()
     })
     store.openModal()
@@ -648,7 +648,7 @@ const store = Subx.create({
     const arr = store.getItems(tab)
     const item = getInitItem(arr, tab)
     store.setState({
-      item,
+      settingItem: item,
       autofocustrigger: +new Date(),
       tab
     })
