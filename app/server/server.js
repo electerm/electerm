@@ -3,7 +3,7 @@ const app = express()
 const cors = require('cors')
 const log = require('../utils/log')
 const terminals = {}
-const logs = {}
+// const logs = {}
 const bodyParser = require('body-parser')
 const { terminal } = require('./terminal')
 const initWs = require('./dispatch-center')
@@ -27,13 +27,13 @@ app.post('/terminals', async function (req, res) {
   if (pid) {
     log.debug('Created terminal with PID:', pid)
     terminals[pid] = term
-    logs[pid] = Buffer.from('')
-    term.on('data', function (data) {
-      logs[pid] = Buffer.concat([
-        logs[pid],
-        Buffer.from(data)
-      ])
-    })
+    // logs[pid] = Buffer.from('')
+    // term.on('data', function (data) {
+    //   logs[pid] = Buffer.concat([
+    //     logs[pid],
+    //     Buffer.from(data)
+    //   ])
+    // })
     res.end(pid)
   } else {
     res.status(500)
@@ -58,7 +58,7 @@ app.ws('/terminals/:pid', function (ws, req) {
   const { pid } = term
   log.debug('Connected to terminal', pid)
 
-  ws.send(logs[pid])
+  // ws.send(logs[pid])
 
   term.on('data', function (data) {
     try {
@@ -73,7 +73,6 @@ app.ws('/terminals/:pid', function (ws, req) {
     log.debug('Closed terminal ' + pid)
     // Clean things up
     delete terminals[pid]
-    delete logs[pid]
     ws.close && ws.close()
   }
 

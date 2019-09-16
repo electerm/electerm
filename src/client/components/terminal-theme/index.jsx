@@ -1,5 +1,5 @@
 
-import { BookmarkForm } from '../bookmark-form'
+import { BookmarkForm } from '../bookmark-form/ssh-form'
 import {
   Form, Button, Input,
   message,

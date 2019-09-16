@@ -1,6 +1,6 @@
 {
   "name": "electerm",
-  "version": "0.27.63",
+  "version": "0.27.64",
   "description": "Terminal/ssh/sftp client(linux, mac, win) based on electron/ssh2/node-pty/xterm/antd/subx and other libs",
   "main": "dev-app.js",
   "bin": "npm/electerm",
@@ -21,6 +21,7 @@
     "preinstall": "node bin/preinstall",
     "postinstall": "node bin/post-install",
     "lint": "./node_modules/.bin/standard --verbose | snazzy",
+    "fix": "./node_modules/.bin/standard --fix",
     "test": "./node_modules/.bin/mocha test/e2e/*.js",
     "pre-test": "npm run compile && npm run prepare-file"
   },
@@ -105,7 +106,7 @@
   },
   "dependencies": {
     "@electerm/electerm-locales": "0.5.17",
-    "@electerm/ssh2": "0.8.7",
+    "@electerm/ssh2": "0.8.8",
     "bluebird": "3.5.5",
     "body-parser": "1.19.0",
     "cors": "2.8.5",
@@ -122,6 +123,7 @@
     "react": "16.8.6",
     "react-dom": "16.8.6",
     "recursive-assign": "0.2.0",
+    "serialport": "7.1.5",
     "shortid": "2.2.14",
     "socks": "2.3.2",
     "ssh-config": "1.1.6",
@@ -130,8 +132,7 @@
   "standard": {
     "parser": "babel-eslint",
     "ignore": [
-      "/app/assets/",
-      "/app/"
+      "/app/assets/"
     ],
     "globals": [
       "describe",

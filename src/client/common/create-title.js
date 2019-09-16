@@ -2,10 +2,14 @@
  * tab title create rule
  */
 export default (res) => {
-  const { host, port, username, title, type } = res
-  const extra = host ? `${username}@${host}:${port}` : ''
+  const {
+    host, port, username, title, type,
+    path
+  } = res
+  const fixTitle = `${username}@${host}:${port}`
+  const extra = host || path ? (path || fixTitle) : ''
   let f = title
-    ? `${title}` + (extra ? ` - ${username}@${host}:${port}` : '')
+    ? `${title}` + (extra ? ` - ${extra}` : '')
     : extra
   if (type) {
     f = `[${type}]${f}`

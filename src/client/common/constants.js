@@ -49,6 +49,11 @@ export const statusMap = buildConst([
   'warning'
 ])
 
+export const connectionMap = buildConst([
+  'ssh',
+  'serial'
+])
+
 export const authTypeMap = buildConst([
   'password',
   'privateKey'
@@ -132,3 +137,29 @@ export const defaultTheme = {
 export const eventTypes = {
   resetFileListTable: 'reset-file-list-table'
 }
+
+export const commonBaudRates = [
+  110,
+  300,
+  1200,
+  2400,
+  4800,
+  9600,
+  14400,
+  19200,
+  38400,
+  57600,
+  115200
+]
+
+export const commonDataBits = [
+  8, 7, 6, 5
+]
+
+export const commonStopBits = [
+  1, 2
+]
+
+export const commonParities = [
+  'none', 'even', 'mark', 'odd', 'space'
+]

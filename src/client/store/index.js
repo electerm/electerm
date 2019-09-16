@@ -126,6 +126,10 @@ const store = Subx.create({
   shouldCheckUpdate: 0,
   upgradeInfo: {},
 
+  // serial list related
+  serials: [],
+  loaddingSerials: false,
+
   // computed
   getThemeConfig () {
     return (_.find(store.themes, d => d.id === store.theme) || {}).themeConfig || {}
@@ -843,7 +847,18 @@ const store = Subx.create({
     if (_.get(store, 'config.syncSetting.autoSync')) {
       store.uploadSetting()
     }
+  },
+
+  async getSerials () {
+    store.loaddingSerials = true
+    const res = await window._require('serialport').list()
+      .catch(store.onError)
+    if (res) {
+      store.serials = res
+    }
+    store.loaddingSerials = false
   }
+
 })
 
 store.clickNextTab = _.debounce(() => {
