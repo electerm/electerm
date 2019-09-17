@@ -132,7 +132,7 @@ const store = Subx.create({
 
   // computed
   getThemeConfig () {
-    return (_.find(store.themes, d => d.id === store.theme) || {}).themeConfig || {}
+    return (_.find(store.themes, d => d.id === store.config.theme) || {}).themeConfig || {}
   },
 
   get tabTitles () {
