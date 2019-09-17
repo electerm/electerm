@@ -1,6 +1,6 @@
 {
   "name": "electerm",
-  "version": "0.27.63",
+  "version": "0.27.64",
   "description": "Terminal/ssh/sftp client(linux, mac, win) based on electron/ssh2/node-pty/xterm/antd/subx and other libs",
   "main": "dev-app.js",
   "bin": "npm/electerm",
@@ -44,6 +44,7 @@
   },
   "preferGlobal": true,
   "devDependencies": {
+    "@ant-design/dark-theme": "0.2.2",
     "@babel/cli": "7.5.5",
     "@babel/core": "7.5.5",
     "@babel/plugin-proposal-class-properties": "7.5.5",
@@ -54,7 +55,6 @@
     "@babel/preset-react": "7.0.0",
     "@babel/register": "7.5.5",
     "@babel/runtime": "7.5.5",
-    "@electerm/antd-dark-theme": "0.0.4",
     "@electerm/electerm-resource": "1.2.3",
     "antd": "3.22.2",
     "babel-eslint": "10.0.2",
