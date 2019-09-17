@@ -16,7 +16,7 @@ const packThreadCount = env.packThreadCount
   : os.cpus().length
 const devPort = env.devPort || 5570
 const host = env.host || 'localhost'
-const theme = require('@electerm/antd-dark-theme')
+const theme = require('@ant-design/dark-theme').default
 const happyThreadPool = packThreadCount === 0
   ? null
   : HappyPack.ThreadPool({ size: packThreadCount })
