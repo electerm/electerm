@@ -18,7 +18,8 @@ import {
   maxTransferHistory,
   sidebarWidth,
   statusMap,
-  defaultTheme
+  defaultTheme,
+  terminalSshConfigType
 } from '../common/constants'
 import * as terminalThemes from '../common/terminal-theme'
 
@@ -144,8 +145,8 @@ const store = Subx.create({
       ? [
         ...store.bookmarkGroups,
         {
-          title: 'ssh-config',
-          id: 'ssh-config',
+          title: terminalSshConfigType,
+          id: terminalSshConfigType,
           bookmarkIds: sshConfigItems.map(d => d.id)
         }
       ]

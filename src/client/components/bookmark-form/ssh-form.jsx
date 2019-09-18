@@ -570,7 +570,7 @@ export class BookmarkForm extends React.PureComponent {
           {getFieldDecorator('authType', {
             initialValue: authType
           })(
-            <RadioGroup size='small'>
+            <RadioGroup size='small' buttonStyle='solid'>
               {
                 authTypes.map(t => {
                   return (

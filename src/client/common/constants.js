@@ -104,6 +104,7 @@ export const terminalSplitDirectionMap = buildConst([
 ])
 
 export const terminalSshConfigType = 'ssh-config'
+export const terminalSerialType = 'serial'
 
 // https://github.com/tinkertrain/panda-syntax-vscode/blob/master/themes/workbench.yaml
 export const defaultTheme = {

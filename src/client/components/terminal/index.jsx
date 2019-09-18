@@ -45,7 +45,6 @@ const c = prefix('common')
 
 const authFailMsg = 'All configured authentication methods failed'
 const privateKeyMsg = 'private key detected'
-const typeSshConfig = 'ssh-config'
 
 const computePos = (e, height) => {
   const { clientX, clientY } = e
@@ -418,7 +417,7 @@ export default class Term extends Component {
 
   isRemote = () => {
     return _.get(this.props, 'tab.host') &&
-    _.get(this.props, 'tab.type') !== 'ssh-config'
+    _.get(this.props, 'tab.type') !== terminalSshConfigType
   }
 
   onPaste = () => {
@@ -805,7 +804,7 @@ export default class Term extends Component {
           onPressEnter={this.onClickConfirmPass}
         />
         {
-          type !== typeSshConfig
+          type !== terminalSshConfigType
             ? (
               <div className='pd1t'>
                 <Checkbox
