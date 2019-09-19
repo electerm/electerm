@@ -41,7 +41,7 @@ export default class QuickCommandsFooter extends Component {
       })
     }
     return (
-      <div className='fleft'>
+      <div className='fleft relative'>
         <Select
           style={{
             width: 200
