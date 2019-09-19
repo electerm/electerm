@@ -7,7 +7,8 @@ import {
 } from 'antd'
 import {
   settingMap,
-  connectionMap
+  connectionMap,
+  terminalSerialType
 } from '../../common/constants'
 import SshForm from './ssh-form'
 import SerialForm from './serial-form'
@@ -18,7 +19,10 @@ const m = prefix('menu')
 const s = prefix('setting')
 
 export default function LogView (props) {
-  const [bookmarkType, setBookmarkType] = useState(connectionMap.ssh)
+  const initType = props.formData.type === terminalSerialType
+    ? terminalSerialType
+    : 'ssh'
+  const [bookmarkType, setBookmarkType] = useState(initType)
   const {
     id
   } = props.formData

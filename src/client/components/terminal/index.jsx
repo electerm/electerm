@@ -630,6 +630,7 @@ export default class Term extends Component {
         'execMac',
         'execLinux'
       ]),
+      termType: type,
       readyTimeout: config.sshReadyTimeout,
       proxy: mergeProxy(config, tab),
       type: tab.host && !isSshConfig

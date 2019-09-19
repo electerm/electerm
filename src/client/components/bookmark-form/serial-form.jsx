@@ -13,7 +13,8 @@ import {
   commonBaudRates,
   commonDataBits,
   commonStopBits,
-  commonParities
+  commonParities,
+  terminalSerialType
 } from '../../common/constants'
 
 const { TabPane } = Tabs
@@ -47,7 +48,8 @@ class SerialForm extends BookmarkForm {
       xany = false,
       path,
       title,
-      id
+      id,
+      type = terminalSerialType
     } = this.props.formData
     const {
       bookmarkGroups = [],
@@ -239,6 +241,17 @@ class SerialForm extends BookmarkForm {
         >
           {getFieldDecorator('title', {
             initialValue: title
+          })(
+            <Input />
+          )}
+        </FormItem>
+        <FormItem
+          {...formItemLayout}
+          label={e('type')}
+          className='hide'
+        >
+          {getFieldDecorator('type', {
+            initialValue: type
           })(
             <Input />
           )}
