@@ -11,6 +11,10 @@ const { resolve } = require('path')
 const net = require('net')
 const { exec } = require('child_process')
 const log = require('../utils/log')
+const MockBinding = require('@serialport/binding-mock')
+
+SerialPort.Binding = MockBinding
+MockBinding.createPort('/dev/ROBOT', { echo: true, record: true })
 
 function getDisplay () {
   return new Promise((resolve) => {
