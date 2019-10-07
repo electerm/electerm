@@ -486,7 +486,7 @@ const store = Subx.create({
   },
 
   onDelItem (item, type) {
-    if (item.id === store.item.id) {
+    if (item.id === store.settingItem.id) {
       store.settingItem = getInitItem(
         store[type],
         type
