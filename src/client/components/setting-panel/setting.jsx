@@ -3,7 +3,8 @@ import { Component } from 'react'
 import {
   message, Select, Switch,
   Input, Icon, Upload,
-  InputNumber, Alert, Button
+  InputNumber, Alert, Button,
+  AutoComplete
 } from 'antd'
 import deepCopy from 'json-deep-copy'
 
@@ -230,6 +231,16 @@ export default class Setting extends Component {
     )
   }
 
+  renderdDefaultTerminalType = () => {
+    return (
+      <AutoComplete
+        dataSource={this.props.config.terminalTypes}
+        value={this.props.config.terminalType}
+        onChange={(v) => this.onChangeValue(v, 'terminalType')}
+      />
+    )
+  }
+
   renderProxy () {
     const {
       enableGlobalProxy,
@@ -419,6 +430,12 @@ export default class Setting extends Component {
         <div className='pd1b'>{t('default')} {e('fontFamily')}</div>
         {
           this.renderText('fontFamily')
+        }
+        <div className='pd1b'>
+          {e('defaultTerminalType')}
+        </div>
+        {
+          this.renderdDefaultTerminalType()
         }
         <div className='pd1b'>{e('terminalBackgroundImage')}</div>
         {
