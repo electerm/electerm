@@ -133,7 +133,6 @@ class Terminal {
       const shellWindow = _.pick(initOptions, [
         'rows', 'cols', 'term'
       ])
-      console.log(shellWindow, '==========')
       const run = (info) => {
         if (info && info.socket) {
           delete opts.host
