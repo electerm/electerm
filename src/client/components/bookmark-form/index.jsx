@@ -6,7 +6,7 @@ import {
   Form, Button, Input,
   InputNumber, message,
   Radio, Upload, Tabs,
-  Select, Switch
+  Select, Switch, AutoComplete
 } from 'antd'
 import { validateFieldsAndScroll } from '../../common/dec-validate-and-scroll'
 import _ from 'lodash'
@@ -701,13 +701,33 @@ export class BookmarkForm extends React.PureComponent {
     const { getFieldDecorator } = this.props.form
     const {
       fontFamily: defaultFontFamily,
-      fontSize: defaultFontSize
+      fontSize: defaultFontSize,
+      terminalType: defaultTerminalType
     } = this.props.config.defaultSettings || {}
     const {
       fontFamily,
-      fontSize
+      fontSize,
+      term = defaultTerminalType
     } = this.props.formData
+    const { terminalTypes } = this.props.store.config
     return [
+      <FormItem
+        {...formItemLayout}
+        key='terminalType'
+        label={e('terminalType')}
+      >
+        {getFieldDecorator('term', {
+          rules: [{
+            required: true, message: 'terminal type required'
+          }],
+          normalize: this.trim,
+          initialValue: term
+        })(
+          <AutoComplete
+            dataSource={terminalTypes}
+          />
+        )}
+      </FormItem>,
       <FormItem
         {...formItemLayout}
         label={s('fontFamily')}

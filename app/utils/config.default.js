@@ -40,7 +40,8 @@ module.exports = function () {
         disableSshHistory: false,
         disableTransferHistory: false,
         terminalBackgroundImagePath: '',
-        rendererType: 'canvas'
+        rendererType: 'canvas',
+        terminalType: 'xterm-color'
       }
       const conf = {
         port: freePort,
@@ -60,7 +61,15 @@ module.exports = function () {
         syncSetting: {
           lastUpdateTime: Date.now(),
           autoSync: false
-        }
+        },
+        terminalTypes: [
+          'xterm-color',
+          'vt100',
+          'xterm-vt220',
+          'xterm',
+          'ansi',
+          'xterm-256color'
+        ]
       }
       extend(conf, override)
       extend(conf, userConfig)

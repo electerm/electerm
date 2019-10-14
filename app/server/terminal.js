@@ -57,7 +57,8 @@ class Terminal {
       rows,
       execWindows,
       execMac,
-      execLinux
+      execLinux,
+      term
     } = initOptions
     const { platform } = process
     const exe = platform.startsWith('win')
@@ -69,7 +70,7 @@ class Terminal {
     const cwd = process.env[platform === 'win32' ? 'USERPROFILE' : 'HOME']
     const argv = platform.startsWith('darwin') ? ['--login'] : []
     this.term = pty.spawn(exe, argv, {
-      name: 'xterm-color',
+      name: term,
       cols: cols || 80,
       rows: rows || 24,
       cwd,
@@ -127,11 +128,11 @@ class Terminal {
         }
       }
       const shellOpts = {
-        ..._.pick(initOptions, [
-          'rows', 'cols', 'term'
-        ]),
         x11
       }
+      const shellWindow = _.pick(initOptions, [
+        'rows', 'cols', 'term'
+      ])
       const run = (info) => {
         if (info && info.socket) {
           delete opts.host
@@ -191,6 +192,7 @@ class Terminal {
               return resolve(true)
             }
             conn.shell(
+              shellWindow,
               shellOpts,
               (err, channel) => {
                 if (err) {
