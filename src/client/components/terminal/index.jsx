@@ -613,7 +613,8 @@ export default class Term extends Component {
     const { tab = {} } = this.props
     const {
       startPath, srcId, from = 'bookmarks',
-      type, loginScript, encode
+      type, loginScript, encode,
+      term: terminalType
     } = tab
     const { savePassword } = this.state
     const isSshConfig = type === terminalSshConfigType
@@ -621,7 +622,7 @@ export default class Term extends Component {
     let pid = await fetch.post(url, {
       cols,
       rows,
-      term: 'xterm-color',
+      term: terminalType || config.terminalType,
       ...tab,
       ...extra,
       ..._.pick(config, [
