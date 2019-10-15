@@ -20,7 +20,7 @@ import {
   typeMap, maxSftpHistory, paneMap,
   fileOpTypeMap, eventTypes,
   fileTypeMap, transferTypeMap,
-  terminalSshConfigType
+  terminalSshConfigType, terminalSerialType
 } from '../../common/constants'
 import { hasFileInClipboardText } from '../../common/clipboard'
 import Client from '../../common/sftp'
@@ -65,11 +65,8 @@ export default class Sftp extends Component {
     }
   }
 
-  componentWillMount () {
-    this.initData()
-  }
-
   componentDidMount () {
+    this.initData()
     this.initEvent()
   }
 
@@ -398,7 +395,8 @@ export default class Sftp extends Component {
     if (remoteInit) {
       const { props } = this
       const host = _.get(props, 'tab.host') &&
-        _.get(props, 'tab.type') !== terminalSshConfigType
+        _.get(props, 'tab.type') !== terminalSshConfigType &&
+        _.get(props, 'tab.type') !== terminalSerialType
       if (host) {
         this.remoteList()
       }

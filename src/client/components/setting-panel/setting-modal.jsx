@@ -57,7 +57,9 @@ export default class SettingModal extends Component {
           'config'
         ]),
         bookmarkGroups: copy(store.bookmarkGroups),
-        bookmarks: copy(store.bookmarks)
+        bookmarks: copy(store.bookmarks),
+        serials: copy(store.serials),
+        loaddingSerials: store.loaddingSerials
       }
       return (
         <Tabs

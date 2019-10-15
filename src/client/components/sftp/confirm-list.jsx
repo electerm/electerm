@@ -28,7 +28,7 @@ export default class Confirms extends React.PureComponent {
     }
   }
 
-  componentWillMount () {
+  componentDidMount () {
     this.rebuildState()
   }
 

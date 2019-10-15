@@ -3,6 +3,7 @@
  */
 const pty = require('node-pty')
 const { Client } = require('@electerm/ssh2')
+const SerialPort = require('serialport')
 const proxySock = require('./socks')
 const _ = require('lodash')
 const { generate } = require('shortid')
@@ -10,6 +11,10 @@ const { resolve } = require('path')
 const net = require('net')
 const { exec } = require('child_process')
 const log = require('../utils/log')
+// const MockBinding = require('@serialport/binding-mock')
+
+// SerialPort.Binding = MockBinding
+// MockBinding.createPort('/dev/ROBOT', { echo: true, record: true })
 
 function getDisplay () {
   return new Promise((resolve) => {
@@ -42,13 +47,50 @@ function getX11Cookie () {
 
 class Terminal {
   constructor (initOptions) {
-    this.type = initOptions.type
+    this.type = initOptions.termType || initOptions.type
     this.pid = generate()
     this.initOptions = initOptions
   }
 
   init () {
     return this[this.type + 'Init'](this.initOptions)
+  }
+
+  serialInit () {
+    // https://serialport.io/docs/api-stream
+    const {
+      autoOpen = true,
+      baudRate = 9600,
+      dataBits = 8,
+      lock = true,
+      stopBits = 1,
+      parity = 'none',
+      rtscts = false,
+      xon = false,
+      xoff = false,
+      xany = false,
+      path
+    } = this.initOptions
+    return new Promise((resolve, reject) => {
+      this.port = new SerialPort(path, {
+        autoOpen,
+        baudRate,
+        dataBits,
+        lock,
+        stopBits,
+        parity,
+        rtscts,
+        xon,
+        xoff,
+        xany
+      }, (err) => {
+        if (err) {
+          reject(err)
+        } else {
+          resolve()
+        }
+      })
+    })
   }
 
   localInit (initOptions) {
@@ -58,6 +100,7 @@ class Terminal {
       execWindows,
       execMac,
       execLinux,
+      termType,
       term
     } = initOptions
     const { platform } = process
@@ -76,6 +119,7 @@ class Terminal {
       cwd,
       env: process.env
     })
+    this.term.termType = termType
     return Promise.resolve()
   }
 
@@ -232,6 +276,10 @@ class Terminal {
     this[this.type + 'Resize'](cols, rows)
   }
 
+  serialResize () {
+
+  }
+
   localResize (cols, rows) {
     this.term.resize(cols, rows)
   }
@@ -242,6 +290,10 @@ class Terminal {
 
   on (event, cb) {
     this[this.type + 'On'](event, cb)
+  }
+
+  serialOn (event, cb) {
+    this.port.on(event, cb)
   }
 
   localOn (event, cb) {
@@ -255,17 +307,26 @@ class Terminal {
 
   write (data) {
     try {
-      (this.term || this.channel).write(data)
+      (this.term || this.channel || this.port).write(data)
     } catch (e) {
       log.error(e)
     }
   }
 
   kill () {
-    if (this.term) {
-      return this.term.kill()
-    }
-    this.conn.end()
+    this[`${this.type}Kill`]()
+  }
+
+  serialKill () {
+    this.port && this.port.close()
+  }
+
+  localKill () {
+    this.term && this.term.kill()
+  }
+
+  remoteKill () {
+    this.conn && this.conn.end()
   }
 }
 

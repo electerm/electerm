@@ -18,7 +18,8 @@ import {
   maxTransferHistory,
   sidebarWidth,
   statusMap,
-  defaultTheme
+  defaultTheme,
+  terminalSshConfigType
 } from '../common/constants'
 import * as terminalThemes from '../common/terminal-theme'
 
@@ -126,6 +127,10 @@ const store = Subx.create({
   shouldCheckUpdate: 0,
   upgradeInfo: {},
 
+  // serial list related
+  serials: [],
+  loaddingSerials: false,
+
   // computed
   getThemeConfig () {
     return (_.find(store.themes, d => d.id === store.config.theme) || {}).themeConfig || {}
@@ -140,8 +145,8 @@ const store = Subx.create({
       ? [
         ...store.bookmarkGroups,
         {
-          title: 'ssh-config',
-          id: 'ssh-config',
+          title: terminalSshConfigType,
+          id: terminalSshConfigType,
           bookmarkIds: sshConfigItems.map(d => d.id)
         }
       ]
@@ -843,7 +848,18 @@ const store = Subx.create({
     if (_.get(store, 'config.syncSetting.autoSync')) {
       store.uploadSetting()
     }
+  },
+
+  async getSerials () {
+    store.loaddingSerials = true
+    const res = await window._require('serialport').list()
+      .catch(store.onError)
+    if (res) {
+      store.serials = res
+    }
+    store.loaddingSerials = false
   }
+
 })
 
 store.clickNextTab = _.debounce(() => {

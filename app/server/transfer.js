@@ -25,7 +25,7 @@ class Transfer {
     ws
   }) {
     this.id = id
-    let isd = type === 'download'
+    const isd = type === 'download'
     this.src = isd ? sftp : fs
     this.dst = isd ? fs : sftp
     this.srcPath = isd ? remotePath : localPath
@@ -50,12 +50,12 @@ class Transfer {
       chunkSize = 32768,
       mode
     } = opts
-    let onstep = this.onData
-    let { src, dst, srcPath, dstPath } = this
+    const onstep = this.onData
+    const { src, dst, srcPath, dstPath } = this
     let fileSize
-    let isUpload = type === 'upload'
-    let cb = this.onError
-    let th = this
+    const isUpload = type === 'upload'
+    const cb = this.onError
+    const th = this
 
     // internal state variables
     let fsize
@@ -210,7 +210,7 @@ class Transfer {
                 return
               }
 
-              let chunk = (pdst + chunkSize > fsize ? fsize - pdst : chunkSize)
+              const chunk = (pdst + chunkSize > fsize ? fsize - pdst : chunkSize)
               singleRead(datapos, pdst, chunk)
               pdst += chunk
             }
@@ -242,7 +242,7 @@ class Transfer {
             let reads = 0
             let psrc = 0
             while (pdst < fsize && reads < concurrency) {
-              let chunk = (pdst + chunkSize > fsize ? fsize - pdst : chunkSize)
+              const chunk = (pdst + chunkSize > fsize ? fsize - pdst : chunkSize)
               singleRead(psrc, pdst, chunk)
               psrc += chunk
               pdst += chunk
