@@ -62,7 +62,7 @@ class SerialForm extends BookmarkForm {
       : currentBookmarkGroupId
 
     return (
-      <Form onSubmit={this.handleSubmit} className='form-wrap pd1x'>
+      <Form onSubmit={this.handleSubmit} className='pd1x'>
         <FormItem
           {...formItemLayout}
           label='path'
