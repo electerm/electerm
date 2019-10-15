@@ -18,7 +18,7 @@ const c = prefix('common')
 const m = prefix('menu')
 const s = prefix('setting')
 
-export default function LogView (props) {
+export default function BookmarkIndex (props) {
   const initType = props.formData.type === terminalSerialType
     ? terminalSerialType
     : 'ssh'
@@ -29,7 +29,7 @@ export default function LogView (props) {
   const {
     type
   } = props
-  if (type !== settingMap.bookmarks) {
+  if (type !== settingMap.bookmarks && type !== settingMap.history) {
     return null
   }
   return (

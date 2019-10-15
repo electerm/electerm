@@ -165,7 +165,6 @@ export class BookmarkForm extends React.PureComponent {
     )
     if (type === settingMap.history) {
       obj.id = generate()
-      delete obj.type
       addItem(obj, settingMap.bookmarks)
       this.updateBookmarkGroups(
         bookmarkGroups,
