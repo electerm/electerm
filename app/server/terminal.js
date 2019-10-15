@@ -318,7 +318,7 @@ class Terminal {
   }
 
   serialKill () {
-    this.port && this.port.close()
+    this.port && this.port.isOpen && this.port.close()
   }
 
   localKill () {
