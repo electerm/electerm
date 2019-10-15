@@ -528,7 +528,6 @@ const store = Subx.create({
 
   onChangeTabId (currentTabId) {
     store.currentTabId = currentTabId
-    store.settingItem = getInitItem(store[currentTabId], currentTabId)
   },
 
   onNewSsh () {
