@@ -354,7 +354,6 @@ const store = Subx.create({
     notification.error({
       message: msg,
       description,
-      placement: 'bottomRight',
       duration: 55
     })
   },
