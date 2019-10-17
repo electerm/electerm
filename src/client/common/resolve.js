@@ -19,6 +19,6 @@ export default (basePath, nameOrDot) => {
     return res || '/'
   }
   return basePath +
-    (basePath === '/' ? '' : sep) +
+    (basePath.endsWith(sep) ? '' : sep) +
     nameOrDot
 }

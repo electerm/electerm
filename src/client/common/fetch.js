@@ -28,7 +28,6 @@ export async function handleErr (res) {
   log.debug(text, 'fetch err info')
   notification.error({
     message: 'error',
-    placement: 'bottomRight',
     description: (
       <div className='common-err'>
         {text}

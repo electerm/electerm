@@ -119,6 +119,7 @@
     "lodash": "4.17.15",
     "node-pty": "0.9.0-beta25",
     "os-locale": "4.0.0",
+    "path-validation": "^0.2.3",
     "phin": "3.4.0",
     "react": "16.8.6",
     "react-dom": "16.8.6",

@@ -3,7 +3,7 @@ import { Component } from 'react'
 import ReactDOM from 'react-dom'
 import { generate } from 'shortid'
 import { mergeProxy } from '../../common/merge-proxy'
-import { Input, Icon, Tooltip, Spin, Modal } from 'antd'
+import { Input, Icon, Tooltip, Spin, Modal, notification } from 'antd'
 import _ from 'lodash'
 import Transports from './transports'
 import FileOps from './file-ops'
@@ -29,6 +29,7 @@ import ResizeWrap from '../common/resize-wrap'
 import keyControlPressed from '../../common/key-control-pressed'
 import ListTable from './list-table'
 import deepCopy from 'json-deep-copy'
+import isValidPath from '../../common/is-valid-path'
 import memoizeOne from 'memoize-one'
 import './sftp.styl'
 
@@ -649,6 +650,12 @@ export default class Sftp extends Component {
     const n = `${type}Path`
     const nt = n + 'Temp'
     const oldPath = this.state[type + 'Path']
+    const np = this.state[nt]
+    if (!isValidPath(np)) {
+      return notification.warn({
+        message: 'path not valid'
+      })
+    }
     this.setState({
       [n]: this.state[nt]
     }, () => this[`${type}List`](undefined, undefined, oldPath))
