@@ -613,7 +613,7 @@ export default class Term extends Component {
     const { tab = {} } = this.props
     const {
       startPath, srcId, from = 'bookmarks',
-      type, loginScript, encode,
+      type, loginScript, loginScriptDelay, encode,
       term: terminalType
     } = tab
     const { savePassword } = this.state
@@ -729,7 +729,7 @@ export default class Term extends Component {
     this.startPath = startPath
     if (startPath || loginScript || isSshConfig) {
       this.startPath = startPath
-      this.timers.timer1 = setTimeout(this.initData, 10)
+      this.timers.timer1 = setTimeout(this.initData, loginScriptDelay)
     }
   }
 
