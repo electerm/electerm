@@ -19,7 +19,8 @@ import {
   contextMenuWidth,
   terminalSshConfigType,
   ctrlOrCmd,
-  transferTypeMap
+  transferTypeMap,
+  defaultLoginScriptDelay
 } from '../../common/constants'
 import deepCopy from 'json-deep-copy'
 import { readClipboard, copy } from '../../common/clipboard'
@@ -613,7 +614,9 @@ export default class Term extends Component {
     const { tab = {} } = this.props
     const {
       startPath, srcId, from = 'bookmarks',
-      type, loginScript, loginScriptDelay, encode,
+      type, loginScript,
+      loginScriptDelay = defaultLoginScriptDelay,
+      encode,
       term: terminalType
     } = tab
     const { savePassword } = this.state

@@ -164,3 +164,5 @@ export const commonStopBits = [
 export const commonParities = [
   'none', 'even', 'mark', 'odd', 'space'
 ]
+
+export const defaultLoginScriptDelay = 500
