@@ -17,7 +17,8 @@ import {
   settingMap,
   statusMap,
   defaultUserName,
-  defaultookmarkGroupId
+  defaultookmarkGroupId,
+  defaultLoginScriptDelay
 } from '../../common/constants'
 import { formItemLayout, tailFormItemLayout } from '../../common/form-layout'
 import InputAutoFocus from '../common/input-auto-focus'
@@ -490,7 +491,7 @@ export class BookmarkForm extends React.PureComponent {
       port = 22,
       title,
       loginScript,
-      loginScriptDelay = 500,
+      loginScriptDelay = defaultLoginScriptDelay,
       authType = authTypeMap.password,
       username,
       id,
@@ -652,7 +653,7 @@ export class BookmarkForm extends React.PureComponent {
         </FormItem>
         <FormItem
           {...formItemLayout}
-          label='loginScriptDelay'
+          label={e('loginScriptDelay')}
         >
           {getFieldDecorator('loginScriptDelay', {
             initialValue: loginScriptDelay
