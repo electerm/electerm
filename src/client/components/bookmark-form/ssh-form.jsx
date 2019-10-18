@@ -663,6 +663,7 @@ export class BookmarkForm extends React.PureComponent {
               min={1}
               max={65535}
               step={1}
+              formatter={value => `${value} ms`}
             />
           )}
         </FormItem>
