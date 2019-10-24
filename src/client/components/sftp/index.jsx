@@ -477,12 +477,15 @@ export default class Sftp extends Component {
       }
 
       if (!remotePath) {
-        const home = await sftp.getHomeDir()
+        let home = await sftp.getHomeDir()
           .then(r => r)
           .catch(err => {
             this.props.store.onError(err)
             return ''
           })
+        if (home.includes('error:')) {
+          home = '/'
+        }
         if (home) {
           remotePath = home.trim()
         } else {
