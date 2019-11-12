@@ -32,6 +32,7 @@ const rp = require('phin').promisified
 const lastStateManager = require('./lib/last-state')
 const installSrc = require('./lib/install-src')
 const { isDev, packInfo } = require('./utils/app-props')
+const { tempDir } = require('./utils/constants')
 const {
   prefix
 } = require('./lib/locales')
@@ -155,6 +156,7 @@ async function createWindow () {
     fs: fsExport,
     ls,
     logPaths,
+    tempDir,
     getExitStatus: () => global.et.exitStatus,
     setExitStatus: (status) => {
       global.et.exitStatus = status

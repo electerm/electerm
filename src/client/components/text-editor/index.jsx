@@ -32,6 +32,12 @@ export class TextEditorForm extends React.PureComponent {
     }
   }
 
+  componentWillUnmount () {
+    this.watcher &&
+    this.watcher.close &&
+    this.watcher.close()
+  }
+
   fetchText = async () => {
     this.setState({
       loading: true
@@ -49,13 +55,57 @@ export class TextEditorForm extends React.PureComponent {
       path: p
     })
     const sftp = sftpFunc()
-    const text = typeMap.remote === type
-      ? await sftp.readFile(p)
+    const isRemote = typeMap.remote === type
+    const text = isRemote
+      ? await this.startDownload(sftp, this.props.file)
       : await fs.readFile(p)
-    this.setState({
-      text: text || '',
-      loading: false
-    }, this.props.form.resetFields)
+    if (!isRemote) {
+      this.setState({
+        text: text || '',
+        loading: false
+      }, this.props.form.resetFields)
+    }
+  }
+
+  startDownload = (sftp, file) => {
+    const localPath = resolve(
+      window.getGlobal('tempDir'), file.name
+    )
+    const remotePath = resolve(file.path, file.name)
+    this.remotePath = remotePath
+    this.localPath = localPath
+    this.file = file
+    return new Promise((resolve, reject) => {
+      const opts = {
+        remotePath,
+        localPath,
+        options: {
+          mode: file.mode
+        },
+        onData: () => null,
+        onError: reject,
+        onEnd: resolve
+      }
+      sftp.download(opts)
+    })
+      .then(() => this.openFile(localPath))
+      .catch(this.props.store.onError)
+  }
+
+  openFile = (filePath) => {
+    fs.openFile(filePath)
+      .then(() => {
+        this.watcher = fs.watch(filePath, (eventname, filename) => {
+          if (eventname === 'change') {
+            this.upload()
+          }
+        })
+      })
+      .catch(this.props.store.onError)
+  }
+
+  upload = () => {
+
   }
 
   handleSubmit = async (evt) => {

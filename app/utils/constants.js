@@ -10,6 +10,7 @@ const isLinux = platform === 'linux'
 
 const { NODE_ENV } = process.env
 const isDev = NODE_ENV === 'development'
+const tempDir = os.tmpdir()
 
 module.exports = {
   isDev,
@@ -17,5 +18,6 @@ module.exports = {
   isMac,
   isLinux,
   defaultLang: 'en_us',
-  packInfo: require(isDev ? '../../package.json' : '../package.json')
+  packInfo: require(isDev ? '../../package.json' : '../package.json'),
+  tempDir
 }

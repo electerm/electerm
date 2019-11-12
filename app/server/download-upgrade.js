@@ -6,10 +6,8 @@ const fs = require('fs')
 const { resolve } = require('path')
 const _ = require('lodash')
 const rp = require('phin')
-const { isWin, isMac } = require('../utils/constants')
+const { isWin, isMac, tempDir } = require('../utils/constants')
 const installSrc = require('../lib/install-src')
-const os = require('os')
-const tempDir = os.tmpdir()
 const { fsExport } = require('../lib/fs')
 const { openFile, rmrf } = fsExport
 
