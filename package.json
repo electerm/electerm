@@ -1,7 +1,7 @@
 {
   "name": "electerm",
-  "version": "0.27.75",
-  "description": "Terminal/ssh/sftp client(linux, mac, win) based on electron/ssh2/node-pty/xterm/antd/subx and other libs",
+  "version": "0.27.76",
+  "description": "Terminal/ssh/sftp client(linux, mac, win) based on electron/ssh2/node-pty/xterm/antd/subx and many other libs",
   "main": "dev-app.js",
   "bin": "npm/electerm",
   "scripts": {

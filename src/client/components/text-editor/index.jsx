@@ -4,6 +4,7 @@
 
 import React from 'react'
 import fs from '../../common/fs'
+import _ from 'lodash'
 import {
   Form, Button, Input,
   Spin,
@@ -104,8 +105,24 @@ export class TextEditorForm extends React.PureComponent {
       .catch(this.props.store.onError)
   }
 
-  upload = () => {
-
+  upload = async () => {
+    return new Promise((resolve, reject) => {
+      const opts = {
+        ..._.pick(this, [
+          'remotePath',
+          'localPath'
+        ]),
+        options: {
+          mode: this.file.mode
+        },
+        onData: () => null,
+        onError: reject,
+        onEnd: resolve
+      }
+      this.props.sftp.download(opts)
+    })
+      .then(this.cancel)
+      .catch(this.props.store.onError)
   }
 
   handleSubmit = async (evt) => {
