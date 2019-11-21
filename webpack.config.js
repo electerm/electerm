@@ -2,7 +2,6 @@ require('dotenv').config()
 const webpack = require('webpack')
 const os = require('os')
 const { identity } = require('lodash')
-const MinifyPlugin = require('babel-minify-webpack-plugin')
 const HappyPack = require('happypack')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const express = require('express')
@@ -194,20 +193,12 @@ var config = {
 if (isProd) {
   config.plugins = [
     packThreadCount === 0 ? null : new HappyPack(happyConf),
-    // new webpack.optimize.DedupePlugin(),
-    // commonsChunkPlugin,
-    // new webpack.optimize.CommonsChunkPlugin({
-    //   name: 'manifest',
-    //   minChunks: Infinity
-    // }),
     extractTextPlugin1,
-    stylusSettingPlugin,
-    // new webpack.optimize.OccurenceOrderPlugin(),
-    // new webpack.optimize.MinChunkSizePlugin({
-    //   minChunkSize: 51200 // ~50kb
-    // }),
-    new MinifyPlugin()
+    stylusSettingPlugin
   ]
+  config.optimization = {
+    minimize: true
+  }
   config.mode = 'production'
   delete config.watch
   delete config.devtool
