@@ -135,7 +135,9 @@ export default class Tabs extends React.Component {
     const { onNewSsh, addTab } = this.props.store
     const cls = 'pd2x pd1y context-item pointer'
     return (
-      <div className='add-menu-wrap'>
+      <div className='add-menu-wrap' style={{
+        maxHeight: window.innerHeight - 200
+      }}>
         <div
           className={cls}
           onClick={onNewSsh}
