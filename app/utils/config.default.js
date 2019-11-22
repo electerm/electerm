@@ -48,6 +48,7 @@ module.exports = function () {
         host: 'localhost',
         keepaliveInterval: 20 * 1000,
         rightClickSelectsWord: false,
+        pasteWhenContextMenu: false,
         showMenu: true,
         ...defaultSettings,
         defaultSettings,

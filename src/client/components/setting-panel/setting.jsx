@@ -454,6 +454,7 @@ export default class Setting extends Component {
           this.renderText('execLinux')
         }
         {this.renderToggle('rightClickSelectsWord')}
+        {this.renderToggle('pasteWhenContextMenu')}
         {this.renderToggle('copyWhenSelect')}
         {this.renderToggle('disableSshHistory')}
         {this.renderToggle('disableTransferHistory')}
