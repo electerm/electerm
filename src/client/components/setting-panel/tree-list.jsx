@@ -7,7 +7,8 @@ import {
   Icon,
   Popconfirm,
   Tree,
-  Button
+  Button,
+  message
 } from 'antd'
 import createName from '../../common/create-title'
 import classnames from 'classnames'
@@ -23,7 +24,9 @@ import copy from 'json-deep-copy'
 import onDrop from './on-tree-drop'
 import Search from '../common/search'
 import Btns from './bookmark-transport'
+
 import './tree-list.styl'
+import time from '../../common/time';
 
 const { TreeNode } = Tree
 const { prefix } = window
@@ -357,6 +360,45 @@ export default class ItemListTree extends React.PureComponent {
     )
   }
 
+  duplicateItem = (e, item) => {
+    e.stopPropagation()
+    const newbookmark = copy(item)
+    newbookmark.id = ''
+    newbookmark.title = newbookmark.title + '-copy'
+
+    const {
+      bookmarkGroups
+    } = this.props
+
+    const groupid = this.findBookmarkGroupId(bookmarkGroups, item.id)
+    this.props.store.modifier({
+      currentBookmarkGroupId: groupid
+    })
+    this.props.onClickItem(newbookmark)
+  }
+
+  findBookmarkGroupId = (bookmarkGroups, id) => {
+    const obj = _.find(bookmarkGroups, bg => {
+      return bg.bookmarkIds.includes(id)
+    })
+    return obj ? obj.id : defaultookmarkGroupId
+  }
+
+  renderDuplicateBtn = (item, isGroup) => {
+    if (!item.id) {
+      return null
+    }
+    const icon = (
+      <Icon
+        type='copy'
+        title={e('duplicate')}
+        className='pointer list-item-edit'
+        onClick={(e) => this.duplicateItem(e, item)}
+      />
+    )
+    return icon
+  }
+
   renderItemTitle = (item, isGroup) => {
     if (isGroup && item.id === this.state.categoryId) {
       return this.editCategory(item)
@@ -385,6 +427,11 @@ export default class ItemListTree extends React.PureComponent {
         {
           isGroup
             ? this.renderGroupBtns(item)
+            : null
+        }
+        {
+          !isGroup
+            ? this.renderDuplicateBtn(item)
             : null
         }
         {this.renderDelBtn(item)}
