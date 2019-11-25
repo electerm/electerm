@@ -7,7 +7,7 @@ import {
   Icon,
   Popconfirm,
   Tree,
-  Button,
+  Button
 } from 'antd'
 import createName from '../../common/create-title'
 import classnames from 'classnames'
