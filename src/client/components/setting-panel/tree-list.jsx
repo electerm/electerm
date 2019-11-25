@@ -8,7 +8,6 @@ import {
   Popconfirm,
   Tree,
   Button,
-  message
 } from 'antd'
 import createName from '../../common/create-title'
 import classnames from 'classnames'
@@ -26,7 +25,6 @@ import Search from '../common/search'
 import Btns from './bookmark-transport'
 
 import './tree-list.styl'
-import time from '../../common/time';
 
 const { TreeNode } = Tree
 const { prefix } = window
@@ -364,7 +362,11 @@ export default class ItemListTree extends React.PureComponent {
     e.stopPropagation()
     const newbookmark = copy(item)
     newbookmark.id = ''
-    newbookmark.title = newbookmark.title + '-copy'
+    if (item.title != '') {
+      newbookmark.title = item.title + '-copy'
+    }else{
+      newbookmark.host = item.host + '-copy'
+    }
 
     const {
       bookmarkGroups
