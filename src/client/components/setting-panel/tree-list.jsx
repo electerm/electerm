@@ -16,14 +16,15 @@ import InputAutoFocus from '../common/input-auto-focus'
 import _ from 'lodash'
 import {
   maxBookmarkGroupTitleLength,
-  defaultookmarkGroupId
+  defaultookmarkGroupId,
+  settingMap
+
 } from '../../common/constants'
 import highlight from '../common/highlight'
 import copy from 'json-deep-copy'
 import onDrop from './on-tree-drop'
 import Search from '../common/search'
 import Btns from './bookmark-transport'
-
 import './tree-list.styl'
 
 const { TreeNode } = Tree
@@ -360,23 +361,65 @@ export default class ItemListTree extends React.PureComponent {
 
   duplicateItem = (e, item) => {
     e.stopPropagation()
+    const { addItem } = this.props.store
+    const bookmarkGroups = copy(
+      this.props.bookmarkGroups
+    )
+
     const newbookmark = copy(item)
-    newbookmark.id = ''
-    if (item.title != '') {
-      newbookmark.title = item.title + '-copy'
-    }else{
-      newbookmark.host = item.host + '-copy'
+    newbookmark.id = generate()
+    const bookmarkWithSameTitle = this.findBookmarkByTitle(this.props.bookmarks, item)
+    let deplicateIndex
+    if (bookmarkWithSameTitle.length === 1) {
+      deplicateIndex = 1
+    } else {
+      deplicateIndex = bookmarkWithSameTitle.length
     }
-
-    const {
-      bookmarkGroups
-    } = this.props
-
-    const groupid = this.findBookmarkGroupId(bookmarkGroups, item.id)
+    newbookmark.title = item.title + '(' + deplicateIndex + ')'
+    const categoryId = this.findBookmarkGroupId(bookmarkGroups, item.id)
     this.props.store.modifier({
-      currentBookmarkGroupId: groupid
+      currentBookmarkGroupId: categoryId
     })
+    // add bookmark to store
+    addItem(newbookmark, settingMap.bookmarks)
+    // update bookmark groups
+    this.updateBookmarkGroups(
+      bookmarkGroups,
+      newbookmark,
+      categoryId
+    )
     this.props.onClickItem(newbookmark)
+  }
+
+  updateBookmarkGroups = (bookmarkGroups, bookmark, categoryId) => {
+    let index = _.findIndex(
+      bookmarkGroups,
+      bg => bg.id === categoryId
+    )
+    if (index < 0) {
+      index = _.findIndex(
+        bookmarkGroups,
+        bg => bg.id === defaultookmarkGroupId
+      )
+    }
+    const bid = bookmark.id
+    const bg = bookmarkGroups[index]
+    if (!bg.bookmarkIds.includes(bid)) {
+      bg.bookmarkIds.unshift(bid)
+    }
+    bg.bookmarkIds = _.uniq(bg.bookmarkIds)
+    bookmarkGroups = bookmarkGroups.map((bg, i) => {
+      if (i === index) {
+        return bg
+      }
+      bg.bookmarkIds = bg.bookmarkIds.filter(
+        g => g !== bid
+      )
+      return bg
+    })
+    this.props.store.modifier({
+      bookmarkGroups
+    })
   }
 
   findBookmarkGroupId = (bookmarkGroups, id) => {
@@ -384,6 +427,12 @@ export default class ItemListTree extends React.PureComponent {
       return bg.bookmarkIds.includes(id)
     })
     return obj ? obj.id : defaultookmarkGroupId
+  }
+
+  findBookmarkByTitle = (bookmarks, oldBookmark) => {
+    return _.filter(bookmarks, bookmark => {
+      return bookmark.title.includes(oldBookmark.title) && bookmark.host === oldBookmark.host && bookmark.port === oldBookmark.port
+    })
   }
 
   renderDuplicateBtn = (item, isGroup) => {
