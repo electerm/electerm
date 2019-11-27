@@ -436,7 +436,7 @@ export default class ItemListTree extends React.PureComponent {
   }
 
   renderDuplicateBtn = (item, isGroup) => {
-    if (!item.id) {
+    if (!item.id || this.props.staticList) {
       return null
     }
     const icon = (
