@@ -32,12 +32,8 @@
   position relative
   &.is-category
     .tree-item-title
-      width calc(100% - 60px)
       margin-left 0
       font-weight bold
-  &.level2
-    .tree-item-title
-      width calc(100% - 45px)
   &:hover
     .list-item-del
     .list-item-edit
@@ -46,11 +42,20 @@
       position static
       vertical-align middle
 .tree-item-title
-  width calc(100% - 60px)
   margin-left 8px
   display inline-block
   vertical-align middle
 
+.model-bookmark-tree-wrap
+  .tree-item-title
+    width calc(100% - 45px)
+  .tree-item
+    &.is-category
+      .tree-item-title
+        width calc(100% - 60px)
+    &.level2
+      .tree-item-title
+        width calc(100% - 45px)
 
 .with-plus
   &:after
