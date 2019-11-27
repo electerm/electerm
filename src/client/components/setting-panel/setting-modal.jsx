@@ -98,16 +98,18 @@ export default class SettingModal extends Component {
           >
             <Row>
               <Col span={10}>
-                <TreeList
-                  {...props0}
-                  {..._.pick(store, [
-                    'bookmarkGroups',
-                    'currentBookmarkGroupId',
-                    'bookmarks',
-                    'autofocustrigger',
-                    'config'
-                  ])}
-                />
+                <div className='model-bookmark-tree-wrap'>
+                  <TreeList
+                    {...props0}
+                    {..._.pick(store, [
+                      'bookmarkGroups',
+                      'currentBookmarkGroupId',
+                      'bookmarks',
+                      'autofocustrigger',
+                      'config'
+                    ])}
+                  />
+                </div>
               </Col>
               <Col span={14}>
                 <BookmarkForm
