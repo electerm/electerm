@@ -931,8 +931,13 @@ export default class Term extends Component {
   render () {
     const { id, loading, zmodemTransfer } = this.state
     const { height, width, left, top, position, id: pid } = this.props
+    const isFocus = this.props.id === this.props.activeSplitId
     const cls = classnames('term-wrap', {
       'not-first-term': !!position
+    }, {
+      'term-wrap-focus': isFocus && this.props.terminalCount > 1
+    }, {
+      'term-wrap-blur': !isFocus && this.props.terminalCount > 1
     }, 'tw-' + pid)
     return (
       <div
@@ -957,7 +962,7 @@ export default class Term extends Component {
           style={{
             left: '3px',
             top: '10px',
-            right: 0,
+            right: '7px',
             bottom: '40px'
           }}
         >

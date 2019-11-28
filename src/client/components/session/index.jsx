@@ -94,7 +94,7 @@ export default class SessionWrapper extends Component {
   }
 
   computeHeight = () => {
-    return this.props.height - tabsHeight
+    return this.props.height - tabsHeight - 32
   }
 
   onChangePane = pane => {
@@ -214,6 +214,7 @@ export default class SessionWrapper extends Component {
                 ...t,
                 activeSplitId,
                 themeConfig,
+                terminalCount: terminals.length,
                 pane,
                 ..._.pick(
                   this,
