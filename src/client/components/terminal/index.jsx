@@ -245,6 +245,15 @@ export default class Term extends Component {
     }
   }
 
+  webLinkHandler = (event, url) => {
+    if (!this.props.config.ctrlOrMetaOpenTerminalLink) {
+      return window.open(url, '_blank')
+    }
+    if (keyControlPressed(event)) {
+      window.open(url, '_blank')
+    }
+  }
+
   onzmodemRetract = () => {
     log.debug('zmodemRetract')
   }
@@ -697,7 +706,7 @@ export default class Term extends Component {
     const cid = _.get(this.props, 'currentTabId')
     const tid = _.get(this.props, 'tab.id')
     if (cid === tid && this.props.tab.status === statusMap.success) {
-      term.webLinksInit()
+      term.webLinksInit(this.webLinkHandler)
       term.focus()
       term.fit()
       term.zmodemAttach(this.socket, {

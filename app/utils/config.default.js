@@ -49,6 +49,7 @@ module.exports = function () {
         keepaliveInterval: 20 * 1000,
         rightClickSelectsWord: false,
         pasteWhenContextMenu: false,
+        ctrlOrMetaOpenTerminalLink: false,
         showMenu: true,
         ...defaultSettings,
         defaultSettings,
