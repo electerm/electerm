@@ -314,11 +314,12 @@ const store = Subx.create({
     store.transferHistory = transferHistory.slice(0, maxTransferHistory)
   },
 
-  onCheckUpdate () {
+  onCheckUpdate (noSkipVersion = false) {
     if (store.onCheckUpdating) {
       return
     }
-    store.shouldCheckUpdate = +new Date()
+    const prefix = noSkipVersion ? 'noSkipVersion' : ''
+    store.shouldCheckUpdate = prefix + new Date()
   },
 
   openContextMenu (contextMenuProps) {

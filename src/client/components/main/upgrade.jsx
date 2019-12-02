@@ -24,7 +24,7 @@ export default class Upgrade extends Component {
 
   componentDidUpdate (prevProps) {
     if (prevProps.shouldCheckUpdate !== this.props.shouldCheckUpdate) {
-      this.getLatestReleaseInfo()
+      this.getLatestReleaseInfo(this.props.shouldCheckUpdate.includes('noSkipVersion'))
     }
   }
 
@@ -81,6 +81,11 @@ export default class Upgrade extends Component {
     })
   }
 
+  skipVersion = () => {
+    this.props.store.config.skipVersion = this.props.upgradeInfo.remoteVersion
+    this.close()
+  }
+
   onError = (e) => {
     this.changeProps({
       error: e.message
@@ -97,7 +102,7 @@ export default class Upgrade extends Component {
 
   onEnd = this.close
 
-  getLatestReleaseInfo = async () => {
+  getLatestReleaseInfo = async (noSkipVersion = false) => {
     this.changeProps({
       checkingRemoteVersion: true,
       error: ''
@@ -111,8 +116,12 @@ export default class Upgrade extends Component {
         error: 'Can not get version info'
       })
     }
+    const { skipVersion = 'v0.0.0' } = this.props.store.config
     const currentVer = 'v' + window.et.version.split('-')[0]
     const latestVer = releaseVer.tag_name
+    if (!noSkipVersion && compare(skipVersion, latestVer) >= 0) {
+      return
+    }
     const shouldUpgrade = compare(currentVer, latestVer) < 0
     const canAutoUpgrade = installSrc || isWin || isMac
     let releaseInfo
@@ -192,6 +201,18 @@ export default class Upgrade extends Component {
     )
   }
 
+  renderSkipVersion = () => {
+    return (
+      <Button
+        onClick={this.skipVersion}
+        icon='close'
+        className='mg1l'
+      >
+        {e('skipThisVersion')}
+      </Button>
+    )
+  }
+
   render () {
     const {
       remoteVersion,
@@ -218,6 +239,13 @@ export default class Upgrade extends Component {
     const func = upgrading
       ? this.cancel
       : this.upgrade
+    const getLink = (
+      <div>
+        {e('goGetIt')}
+        <Link to={homepage} className='mg1l'>{homepage}</Link>
+        {this.renderChangeLog()}
+      </div>
+    )
     return (
       <div className={cls}>
         <div className='upgrade-panel-title'>
@@ -246,20 +274,13 @@ export default class Upgrade extends Component {
                         : e('upgrade')
                     }
                   </Button>
-                  <p className='pd1t'>
-                    {e('goGetIt')}
-                    <Link to={homepage} className='mg1l'>{homepage}</Link>
-                  </p>
-                  {this.renderChangeLog()}
+                  {this.renderSkipVersion()}
+                  <div className='pd1t'>
+                    {getLink}
+                  </div>
                 </div>
               )
-              : (
-                <div>
-                  {e('goGetIt')}
-                  <Link to={homepage} className='mg1l'>{homepage}</Link>
-                  {this.renderChangeLog()}
-                </div>
-              )
+              : getLink
           }
         </div>
       </div>

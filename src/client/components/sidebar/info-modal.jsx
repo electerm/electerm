@@ -123,7 +123,7 @@ export default function ({
               <Button
                 type='primary'
                 loading={onCheckUpdating}
-                onClick={onCheckUpdate}
+                onClick={() => onCheckUpdate(true)}
               >
                 {e('checkForUpdate')}
               </Button>
