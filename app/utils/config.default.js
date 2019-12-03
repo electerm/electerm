@@ -41,7 +41,7 @@ module.exports = function () {
         disableTransferHistory: false,
         terminalBackgroundImagePath: '',
         rendererType: 'canvas',
-        terminalType: 'xterm-color'
+        terminalType: 'xterm-256color'
       }
       const conf = {
         port: freePort,
@@ -65,12 +65,12 @@ module.exports = function () {
           autoSync: false
         },
         terminalTypes: [
+          'xterm-256color',
           'xterm-color',
           'vt100',
           'xterm-vt220',
           'xterm',
-          'ansi',
-          'xterm-256color'
+          'ansi'
         ]
       }
       extend(conf, override)
