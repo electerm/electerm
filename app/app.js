@@ -86,7 +86,6 @@ log.debug('App starting...')
 
 async function createWindow () {
   const config = await getConf()
-  console.log(config.port, '----')
   // start server
   const child = fork(resolve(__dirname, './server/server.js'), {
     env: Object.assign(
