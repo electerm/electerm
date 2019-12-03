@@ -24,6 +24,7 @@ module.exports = function () {
 
   return new Promise((resolve, reject) => {
     fp(3075, '127.0.0.1', function (err, freePort) {
+      console.log('free port', freePort)
       if (err) {
         reject(err)
       }
@@ -44,8 +45,6 @@ module.exports = function () {
         terminalType: 'xterm-256color'
       }
       const conf = {
-        port: freePort,
-        host: 'localhost',
         keepaliveInterval: 20 * 1000,
         rightClickSelectsWord: false,
         pasteWhenContextMenu: false,
@@ -75,6 +74,8 @@ module.exports = function () {
       }
       extend(conf, override)
       extend(conf, userConfig)
+      conf.host = 'localhost'
+      conf.port = freePort
       resolve(conf)
     })
   })
