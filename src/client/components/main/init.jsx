@@ -26,7 +26,7 @@ export default class Init extends React.PureComponent {
   render () {
     if (this.state.loading) {
       return (
-        <div className='pd3 aligncenter'>loading...</div>
+        <div className='init-wrap pd3 aligncenter'>loading...</div>
       )
     }
     return <Main store={store} />
