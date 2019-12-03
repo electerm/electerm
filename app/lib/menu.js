@@ -220,6 +220,9 @@ if (process.platform === 'darwin') {
     ]
   })
 
+  template[2].submenu = template[2].submenu
+    .filter(d => d.role !== 'togglefullscreen')
+
   // Edit menu
   template[1].submenu.push({
     type: 'separator'
