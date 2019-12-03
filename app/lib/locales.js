@@ -9,6 +9,8 @@ const { resolve } = require('path')
 const { userConfig } = require('./user-config-controller')
 const { sync } = require('os-locale')
 
+exports.sysLocale = sync()
+
 const path = (isDev
   ? '../'
   : '') +
@@ -54,7 +56,7 @@ const getLang = () => {
   if (userConfig.language) {
     return userConfig.language
   }
-  let l = sync()
+  let l = exports.sysLocale
   l = l ? l.toLowerCase().replace('-', '_') : defaultLang
   return findLang(l) || defaultLang
 }
