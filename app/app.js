@@ -60,7 +60,7 @@ function onClose () {
     clearTimeout(timer)
     clearTimeout(timer1)
     global.win = null
-    process.kill(childPid)
+    childPid && process.kill(childPid)
     process.on('uncaughtException', function () {
       process.exit(0)
     })
@@ -86,7 +86,6 @@ log.debug('App starting...')
 
 async function createWindow () {
   const config = await getConf()
-
   // start server
   const child = fork(resolve(__dirname, './server/server.js'), {
     env: Object.assign(
@@ -100,6 +99,10 @@ async function createWindow () {
       throw error || stderr
     }
     log.info(stdout)
+  })
+
+  child.on('exit', () => {
+    childPid = null
   })
 
   childPid = child.pid
