@@ -11,7 +11,8 @@ import Input from '../common/input-auto-focus'
 import createName from '../../common/create-title'
 import { addClass, removeClass } from '../../common/class'
 import {
-  terminalSshConfigType
+  terminalSshConfigType,
+  ctrlOrCmd
 } from '../../common/constants'
 
 const { prefix } = window
@@ -203,7 +204,7 @@ export default class Tab extends React.Component {
           className={cls}
           onClick={this.close}
         >
-          <Icon type='close' /> {e('close')}
+          <Icon type='close' /> {e('close')} ({ctrlOrCmd} + W)
         </div>
         {
           nother
