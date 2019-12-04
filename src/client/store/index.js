@@ -395,9 +395,13 @@ const store = Subx.create({
   },
 
   delTab ({ id }) {
-    const { currentTabId } = store
+    const { currentTabId, tabs } = store
     if (currentTabId === id) {
-      const next = tabs[0] || {}
+      let i = _.findIndex(tabs, t => {
+        return t.id === id
+      })
+      i = i ? i - 1 : i + 1
+      const next = tabs[i] || {}
       store.currentTabId = next.id
     }
     store.tabs = store.tabs.filter(t => {
