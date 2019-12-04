@@ -22,6 +22,7 @@ import {
   terminalSshConfigType
 } from '../common/constants'
 import * as terminalThemes from '../common/terminal-theme'
+import keyControlPress from '../common/key-control-pressed'
 
 const { buildNewTheme } = terminalThemes
 const { getGlobal, _config } = window
@@ -862,6 +863,20 @@ const store = Subx.create({
       store.serials = res
     }
     store.loaddingSerials = false
+  },
+
+  initShortcuts () {
+    window.addEventListener('keydown', e => {
+      if (keyControlPress(e) && e.code === 'KeyW') {
+        e.stopPropagation()
+        store.delTab({
+          id: store.currentTabId
+        })
+        if (!store.tabs.length) {
+          store.addTab()
+        }
+      }
+    })
   }
 
 })

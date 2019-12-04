@@ -46,6 +46,7 @@ export default class Index extends Component {
     store.checkDefaultTheme()
     window.addEventListener('offline', store.setOffline)
     store.zoom(store.config.zoom, false, true)
+    store.initShortcuts()
   }
 
   render () {

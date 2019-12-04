@@ -200,12 +200,14 @@ export default class Term extends Component {
       e.data.type === 'focus' &&
       isActiveTerminal
     ) {
+      e.stopPropagation()
       return this.term && this.term.focus()
     } else if (
       e.data &&
       e.data.action === 'quick-command' &&
       isActiveTerminal
     ) {
+      e.stopPropagation()
       this.term && e.data.command && this.term.__sendData(
         e.data.command +
         (e.data.inputOnly ? '' : '\r')
@@ -213,8 +215,10 @@ export default class Term extends Component {
       this.term.focus()
     }
     if (e.data && e.data.id === this.props.id) {
+      e.stopPropagation()
       this.term.selectAll()
     } else if (keyControlPressed(e) && e.code === 'KeyF') {
+      e.stopPropagation()
       this.openSearch()
     } else if (
       e.ctrlKey &&

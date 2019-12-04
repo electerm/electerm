@@ -128,10 +128,6 @@ const template = [
         label: e('minimize')
       },
       {
-        role: 'close',
-        label: e('close')
-      },
-      {
         label: e('restart'),
         click () {
           global.win.close()
