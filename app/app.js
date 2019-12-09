@@ -32,6 +32,7 @@ const rp = require('phin').promisified
 const lastStateManager = require('./lib/last-state')
 const installSrc = require('./lib/install-src')
 const { isDev, packInfo } = require('./utils/app-props')
+const { getWindowSize, getScreenSize } = require('./utils/window-size')
 const {
   prefix
 } = require('./lib/locales')
@@ -113,10 +114,8 @@ async function createWindow () {
     Menu.setApplicationMenu(menu)
   }
 
-  const windowSizeLastState = lastStateManager.get('windowSize')
-  const { width, height } = windowSizeLastState && !isDev
-    ? windowSizeLastState
-    : require('electron').screen.getPrimaryDisplay().workAreaSize
+  const { width, height } = getWindowSize()
+  log.info(width, height)
 
   // Create the browser window.
   global.win = new BrowserWindow({
@@ -167,6 +166,7 @@ async function createWindow () {
     popup: (options) => {
       Menu.getApplicationMenu().popup(options)
     },
+    getScreenSize,
     versions: process.versions,
     sshConfigItems,
     testConnection,

@@ -896,9 +896,12 @@ store.clickNextTab = _.debounce(() => {
 }, 100)
 
 store.onResize = _.debounce(() => {
+  const { width, height } = window.getGlobal('getScreenSize')()
   const update = {
     height: window.innerHeight,
-    width: window.innerWidth - sidebarWidth,
+    width: window.innerWidth,
+    screenWidth: width,
+    screenHeight: height,
     isMaximized: window.getGlobal('isMaximized')()
   }
   store.setState(update)
