@@ -17,14 +17,16 @@ import {
   settingMap,
   statusMap,
   defaultUserName,
-  defaultookmarkGroupId,
-  defaultLoginScriptDelay
+  defaultBookmarkGroupId,
+  defaultLoginScriptDelay,
+  newBookmarkIdPrefix
 } from '../../common/constants'
 import { formItemLayout, tailFormItemLayout } from '../../common/form-layout'
 import InputAutoFocus from '../common/input-auto-focus'
 import isIp from '../../common/is-ip'
 import encodes from './encodes'
 import QmList from './quick-command-list'
+import { getInitItem } from '../../store'
 import './bookmark-form.styl'
 
 const { TabPane } = Tabs
@@ -122,7 +124,7 @@ export class BookmarkForm extends React.PureComponent {
     const obj = _.find(bookmarkGroups, bg => {
       return bg.bookmarkIds.includes(id)
     })
-    return obj ? obj.id : defaultookmarkGroupId
+    return obj ? obj.id : defaultBookmarkGroupId
   }
 
   updateBookmarkGroups = (bookmarkGroups, bookmark, categoryId) => {
@@ -133,7 +135,7 @@ export class BookmarkForm extends React.PureComponent {
     if (index < 0) {
       index = _.findIndex(
         bookmarkGroups,
-        bg => bg.id === defaultookmarkGroupId
+        bg => bg.id === defaultBookmarkGroupId
       )
     }
     const bid = bookmark.id
@@ -175,7 +177,7 @@ export class BookmarkForm extends React.PureComponent {
       message.success('OK', 3)
       return
     }
-    if (obj.id) {
+    if (!obj.id.startsWith(newBookmarkIdPrefix)) {
       const tar = copy(obj)
       delete tar.id
       editItem(obj.id, tar, settingMap.bookmarks)
@@ -184,9 +186,12 @@ export class BookmarkForm extends React.PureComponent {
         obj,
         categoryId
       )
+      if (evt === 'saveAndCreateNew') {
+        this.setNewItem()
+      }
     } else {
       obj.id = generate()
-      if (evt !== 'save') {
+      if (evt !== 'save' && evt !== 'saveAndCreateNew') {
         addItem(obj, settingMap.history)
       }
       addItem(obj, settingMap.bookmarks)
@@ -195,10 +200,21 @@ export class BookmarkForm extends React.PureComponent {
         obj,
         categoryId
       )
-      this.props.store.modifier({
-        settingItem: obj
-      })
+      this.setNewItem(evt === 'saveAndCreateNew'
+        ? getInitItem([], settingMap.bookmarks)
+        : obj
+      )
     }
+  }
+
+  setNewItem = (
+    settingItem = getInitItem([],
+      settingMap.bookmarks)
+  ) => {
+    this.props.store.modifier({
+      autofocustrigger: +new Date(),
+      settingItem
+    })
   }
 
   test = async (options) => {
@@ -262,7 +278,7 @@ export class BookmarkForm extends React.PureComponent {
       return this.test(obj)
     }
     evt && this.submit(evt, obj)
-    if (evt !== 'save') {
+    if (evt !== 'save' && evt !== 'saveAndCreateNew') {
       this.props.store.addTab({
         ...copy(obj),
         srcId: obj.id,
@@ -835,6 +851,11 @@ export class BookmarkForm extends React.PureComponent {
               htmlType='submit'
               className='mg1r'
             >{e('saveAndConnect')}</Button>
+            <Button
+              type='primary'
+              className='mg1r'
+              onClick={() => this.handleSubmit('saveAndCreateNew')}
+            >{e('saveAndCreateNew')}</Button>
             <Button
               type='ghost'
               className='mg1r'

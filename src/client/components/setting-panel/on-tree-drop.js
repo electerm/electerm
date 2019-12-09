@@ -3,7 +3,7 @@
  */
 
 import {
-  defaultookmarkGroupId
+  defaultBookmarkGroupId
 } from '../../common/constants'
 import _ from 'lodash'
 import copy from 'json-deep-copy'
@@ -59,12 +59,12 @@ export default (info, props) => {
   }
 
   // drag default cateogry to other level
-  if (fromId === defaultookmarkGroupId && !isSameLevel) {
+  if (fromId === defaultBookmarkGroupId && !isSameLevel) {
     return
   }
 
   // drag default cateogry to nongap
-  if (fromId === defaultookmarkGroupId && !dropToGap) {
+  if (fromId === defaultBookmarkGroupId && !dropToGap) {
     console.log('return', 'drag default cateogry to nongap')
     return
   }

@@ -14,12 +14,13 @@ import createTitlte from '../common/create-title'
 import {
   maxHistory,
   settingMap,
-  defaultookmarkGroupId,
+  defaultBookmarkGroupId,
   maxTransferHistory,
   sidebarWidth,
   statusMap,
   defaultTheme,
-  terminalSshConfigType
+  terminalSshConfigType,
+  newBookmarkIdPrefix
 } from '../common/constants'
 import * as terminalThemes from '../common/terminal-theme'
 import keyControlPress from '../common/key-control-pressed'
@@ -45,17 +46,17 @@ const sshConfigItems = copy(getGlobal('sshConfigItems'))
 function getDefaultBookmarkGroups (bookmarks) {
   return [
     {
-      title: t(defaultookmarkGroupId),
-      id: defaultookmarkGroupId,
+      title: t(defaultBookmarkGroupId),
+      id: defaultBookmarkGroupId,
       bookmarkIds: bookmarks.map(d => d.id)
     }
   ]
 }
-const getInitItem = (arr, tab) => {
+export const getInitItem = (arr, tab) => {
   if (tab === settingMap.history) {
     return arr[0] || {}
   } else if (tab === settingMap.bookmarks) {
-    return { id: '', title: '' }
+    return { id: newBookmarkIdPrefix + ':' + (+new Date()), title: '' }
   } else if (tab === settingMap.setting) {
     return { id: '', title: e('common') }
   } else if (tab === settingMap.terminalThemes) {
@@ -100,7 +101,7 @@ const store = Subx.create({
   contextMenuVisible: false,
   fileInfoModalProps: {},
   fileModeModalProps: {},
-  currentBookmarkGroupId: defaultookmarkGroupId,
+  currentBookmarkGroupId: defaultBookmarkGroupId,
   transferHistoryModalVisible: false,
   selectedSessions: [],
   sessionModalVisible: false,
@@ -441,7 +442,7 @@ const store = Subx.create({
   },
 
   delBookmarkGroup ({ id }) {
-    if (id === defaultookmarkGroupId) {
+    if (id === defaultBookmarkGroupId) {
       return
     }
     let { bookmarkGroups } = store
@@ -467,7 +468,7 @@ const store = Subx.create({
     const defaultCatIndex = tobeDel.level !== 2
       ? _.findIndex(
         bookmarkGroups,
-        g => g.id === defaultookmarkGroupId
+        g => g.id === defaultBookmarkGroupId
       )
       : _.findIndex(
         bookmarkGroups,
