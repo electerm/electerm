@@ -232,9 +232,9 @@ async function createWindow () {
   // win.maximize()
 
   // Open the DevTools.
-  // if (isDev) {
-  //   global.win.webContents.openDevTools()
-  // }
+  if (isDev) {
+    global.win.webContents.openDevTools()
+  }
 
   // init hotkey
   init(globalShortcut, global.win, config)

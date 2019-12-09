@@ -3,7 +3,7 @@
  */
 
 const lastStateManager = require('../lib/last-state')
-const log = require('./log')
+// const log = require('./log')
 const { isDev } = require('./app-props')
 
 exports.getScreenSize = () => {
@@ -16,14 +16,12 @@ exports.getWindowSize = () => {
     width: maxWidth,
     height: maxHeight
   } = exports.getScreenSize()
-  log.info('max width', maxWidth)
-  log.info('max height', maxHeight)
-  // if (!windowSizeLastState || isDev) {
-  //   return {
-  //     width: maxWidth,
-  //     height: maxHeight
-  //   }
-  // }
+  if (!windowSizeLastState || isDev) {
+    return {
+      width: maxWidth,
+      height: maxHeight
+    }
+  }
   const {
     width,
     height,
@@ -32,10 +30,6 @@ exports.getWindowSize = () => {
   } = windowSizeLastState
   const fw = width / screenWidth
   const fh = height / screenHeight
-  log.info('f', fw, fh, width,
-  height,
-  screenHeight,
-  screenWidth)
   let w = maxWidth * fw
   let h = maxHeight * fh
   const minW = 590
