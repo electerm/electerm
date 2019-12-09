@@ -8,7 +8,8 @@ import {
 import {
   settingMap,
   connectionMap,
-  terminalSerialType
+  terminalSerialType,
+  newBookmarkIdPrefix
 } from '../../common/constants'
 import SshForm from './ssh-form'
 import SerialForm from './serial-form'
@@ -36,7 +37,7 @@ export default function BookmarkIndex (props) {
     <div className='form-wrap pd1x'>
       <div className='form-title pd1y'>
         {
-          (id
+          (!id.startsWith(newBookmarkIdPrefix)
             ? m('edit')
             : s('new')
           ) + ' ' + c(settingMap.bookmarks)

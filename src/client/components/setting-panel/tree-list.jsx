@@ -16,7 +16,7 @@ import InputAutoFocus from '../common/input-auto-focus'
 import _ from 'lodash'
 import {
   maxBookmarkGroupTitleLength,
-  defaultookmarkGroupId,
+  defaultBookmarkGroupId,
   settingMap
 
 } from '../../common/constants'
@@ -25,6 +25,7 @@ import copy from 'json-deep-copy'
 import onDrop from './on-tree-drop'
 import Search from '../common/search'
 import Btns from './bookmark-transport'
+import { getInitItem } from '../../store'
 import './tree-list.styl'
 
 const { TreeNode } = Tree
@@ -38,7 +39,7 @@ export default class ItemListTree extends React.PureComponent {
     super(props)
     this.state = {
       keyword: '',
-      expandedKeys: props.expandedKeys || [defaultookmarkGroupId],
+      expandedKeys: props.expandedKeys || [defaultBookmarkGroupId],
       showNewBookmarkGroupForm: false,
       bookmarkGroupTitle: '',
       categoryTitle: '',
@@ -140,10 +141,7 @@ export default class ItemListTree extends React.PureComponent {
   }
 
   newBookmark = () => {
-    this.props.onClickItem({
-      id: '',
-      title: ''
-    })
+    this.props.onClickItem(getInitItem([], settingMap.bookmarks))
   }
 
   submit = () => {
@@ -260,7 +258,7 @@ export default class ItemListTree extends React.PureComponent {
   }
 
   renderDelBtn = item => {
-    if (item.id === defaultookmarkGroupId || this.props.staticList) {
+    if (item.id === defaultBookmarkGroupId || this.props.staticList) {
       return null
     }
     return (
@@ -399,7 +397,7 @@ export default class ItemListTree extends React.PureComponent {
     if (index < 0) {
       index = _.findIndex(
         bookmarkGroups,
-        bg => bg.id === defaultookmarkGroupId
+        bg => bg.id === defaultBookmarkGroupId
       )
     }
     const bid = bookmark.id
@@ -426,7 +424,7 @@ export default class ItemListTree extends React.PureComponent {
     const obj = _.find(bookmarkGroups, bg => {
       return bg.bookmarkIds.includes(id)
     })
-    return obj ? obj.id : defaultookmarkGroupId
+    return obj ? obj.id : defaultBookmarkGroupId
   }
 
   findBookmarkByTitle = (bookmarks, oldBookmark) => {
