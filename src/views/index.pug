@@ -54,12 +54,19 @@ html
         return window.lang.id || id
       }
 
+      function capitalizeFirstLetter (string) {
+        return string.charAt(0).toUpperCase() + string.slice(1)
+      }
+
+      window._config = window.getGlobal('_config')
       window.prefix = prefix => {
+        if (window._config.language === 'en_us') {
+          return (id) => {
+            return capitalizeFirstLetter(window.lang[prefix][id] || id)
+          }
+        }
         return (id) => {
           return window.lang[prefix][id] || id
         }
       }
-
-      window._config = window.getGlobal('_config')
-
     script(src='js/electerm.' + version + '.js', onload='window.et.onload()')
