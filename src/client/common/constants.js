@@ -30,7 +30,8 @@ export const sidebarWidth = 43
 export const maxHistory = 50
 export const maxTransport = 5
 export const maxSftpHistory = 20
-
+export const maxZoom = 8
+export const minZoom = 0.25
 // export const maxTabs = 20
 
 export const tabWidth = 160
