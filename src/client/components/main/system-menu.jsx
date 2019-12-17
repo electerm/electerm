@@ -143,10 +143,10 @@ function renderContext (store) {
           <span className='mg1r iblock'>
             {store.config.zoom * 100}
           </span>
-          <Button onClick={() => store.zoom(0.5, true)}>
+          <Button onClick={() => store.zoom(0.25, true)}>
             <Icon type='plus-circle' />
           </Button>
-          <Button onClick={() => store.zoom(-0.5, true)}>
+          <Button onClick={() => store.zoom(-0.25, true)}>
             <Icon type='minus-circle' />
           </Button>
           <Button onClick={() => store.zoom()}>

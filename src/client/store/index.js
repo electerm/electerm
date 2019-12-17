@@ -20,7 +20,9 @@ import {
   statusMap,
   defaultTheme,
   terminalSshConfigType,
-  newBookmarkIdPrefix
+  newBookmarkIdPrefix,
+  maxZoom,
+  minZoom
 } from '../common/constants'
 import * as terminalThemes from '../common/terminal-theme'
 import keyControlPress from '../common/key-control-pressed'
@@ -247,9 +249,14 @@ const store = Subx.create({
 
   zoom (level = 1, plus = false, zoomOnly) {
     const { webFrame } = require('electron')
-    const nl = plus
+    let nl = plus
       ? webFrame.getZoomFactor() + level
       : level
+    if (nl > maxZoom) {
+      nl = maxZoom
+    } else if (nl < minZoom) {
+      nl = minZoom
+    }
     webFrame.setZoomFactor(nl)
     if (zoomOnly) {
       return
