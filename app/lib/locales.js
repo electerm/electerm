@@ -73,7 +73,16 @@ exports.e = id => {
   return _.get(exports.lang, id) || id
 }
 
+function capitalizeFirstLetter (string) {
+  return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
 exports.prefix = prefix => {
+  if (language === 'en_us') {
+    return (id) => {
+      return capitalizeFirstLetter(_.get(exports.lang, `${prefix}.${id}`) || id)
+    }
+  }
   return (id) => {
     return _.get(exports.lang, `${prefix}.${id}`) || id
   }
