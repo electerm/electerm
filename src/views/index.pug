@@ -55,8 +55,9 @@ html
       }
 
       function capitalizeFirstLetter (string) {
-          return string.charAt(0).toUpperCase() + string.slice(1);
+        return string.charAt(0).toUpperCase() + string.slice(1)
       }
+
       window._config = window.getGlobal('_config')
       window.prefix = prefix => {
         if (window._config.language === 'en_us') {
