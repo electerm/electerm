@@ -6,6 +6,7 @@ import {
   Form, Button, Input,
   InputNumber, message,
   Radio, Upload, Tabs,
+  TreeSelect,
   Select, Switch, AutoComplete
 } from 'antd'
 import { validateFieldsAndScroll } from '../../common/dec-validate-and-scroll'
@@ -27,6 +28,7 @@ import isIp from '../../common/is-ip'
 import encodes from './encodes'
 import QmList from './quick-command-list'
 import { getInitItem } from '../../store'
+import formatBookmarkGroups from './bookmark-group-tree-format'
 import './bookmark-form.styl'
 
 const { TabPane } = Tabs
@@ -519,10 +521,10 @@ export class BookmarkForm extends React.PureComponent {
       currentBookmarkGroupId
     } = this.props
     const { dns } = this.state
-    const initBookmarkGroupId = id
+    const initBookmarkGroupId = !id.startsWith(newBookmarkIdPrefix)
       ? this.findBookmarkGroupId(bookmarkGroups, id)
       : currentBookmarkGroupId
-
+    const tree = formatBookmarkGroups(bookmarkGroups)
     return (
       <div>
         <FormItem
@@ -627,20 +629,11 @@ export class BookmarkForm extends React.PureComponent {
           {getFieldDecorator('category', {
             initialValue: initBookmarkGroupId
           })(
-            <Select showSearch>
-              {
-                bookmarkGroups.map(bg => {
-                  return (
-                    <Option
-                      value={bg.id}
-                      key={bg.id}
-                    >
-                      {bg.title}
-                    </Option>
-                  )
-                })
-              }
-            </Select>
+            <TreeSelect
+              treeData={tree}
+              treeDefaultExpandAll
+              showSearch
+            />
           )}
         </FormItem>
         <FormItem
