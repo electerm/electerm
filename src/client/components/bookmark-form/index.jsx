@@ -35,7 +35,7 @@ export default function BookmarkIndex (props) {
   }
   return (
     <div className='form-wrap pd1x'>
-      <div className='form-title pd1y'>
+      <div className='form-title pd1t pd1x pd2b'>
         {
           (!id.startsWith(newBookmarkIdPrefix)
             ? m('edit')

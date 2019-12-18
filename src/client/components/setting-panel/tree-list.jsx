@@ -470,7 +470,12 @@ export default class ItemListTree extends React.PureComponent {
       )
     return (
       <div className={cls} key={item.id} title={title}>
-        <div className='tree-item-title elli'>
+        <div
+          className='tree-item-title elli'
+          onClick={() => {
+            this.props.store.currentBookmarkGroupId = item.id
+          }}
+        >
           {title}
         </div>
         {
