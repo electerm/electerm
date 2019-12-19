@@ -1,6 +1,5 @@
 const { Application } = require('spectron')
 const delay = require('./common/wait')
-const _ = require('lodash')
 const log = require('./common/log')
 const { expect } = require('chai')
 const appOptions = require('./common/app-options')
