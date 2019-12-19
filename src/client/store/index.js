@@ -911,7 +911,9 @@ store.onResize = _.debounce(() => {
     screenHeight: height,
     isMaximized: window.getGlobal('isMaximized')()
   }
-  store.setState(update)
+  const stateUpdate = copy(update)
+  stateUpdate.width = stateUpdate.width - sidebarWidth
+  store.setState(stateUpdate)
   window
     .getGlobal('lastStateManager')
     .set('windowSize', update)
