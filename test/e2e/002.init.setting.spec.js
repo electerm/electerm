@@ -1,9 +1,9 @@
 const { Application } = require('spectron')
 const delay = require('./common/wait')
-const _ = require('lodash')
 const log = require('./common/log')
 const { expect } = require('chai')
 const appOptions = require('./common/app-options')
+const prefixer = require('./common/lang')
 
 describe('init setting buttons', function () {
   this.timeout(100000)
@@ -21,12 +21,7 @@ describe('init setting buttons', function () {
 
   it('all buttons open proper setting tab', async function () {
     const { client, electron } = this.app
-    const { lang } = await electron.remote.getGlobal('et')
-    const prefix = prefix => {
-      return (id) => {
-        return _.get(lang, `${prefix}.${id}`) || id
-      }
-    }
+    const prefix = await prefixer(electron)
     const e = prefix('common')
     await client.waitUntilWindowLoaded()
     await delay(500)

@@ -1,6 +1,5 @@
 const { Application } = require('spectron')
 const delay = require('./common/wait')
-const _ = require('lodash')
 const log = require('./common/log')
 const { expect } = require('chai')
 const appOptions = require('./common/app-options')
@@ -9,6 +8,7 @@ const {
   TEST_PASS,
   TEST_USER
 } = require('./common/env')
+const prefixer = require('./common/lang')
 
 describe('bookmarks', function () {
   this.timeout(100000)
@@ -26,12 +26,7 @@ describe('bookmarks', function () {
 
   it('all buttons open proper bookmark tab', async function () {
     const { client, electron } = this.app
-    const { lang } = await electron.remote.getGlobal('et')
-    const prefix = prefix => {
-      return (id) => {
-        return _.get(lang, `${prefix}.${id}`) || id
-      }
-    }
+    const prefix = await prefixer(electron)
     const e = prefix('common')
     await client.waitUntilWindowLoaded()
     await delay(500)
