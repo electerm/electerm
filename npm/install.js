@@ -70,7 +70,7 @@ async function runWin () {
     target,
     targetNew
   ])
-  const releaseInfo = await getReleaseInfo(r => /electerm-\d+\.\d+\.\d+-win\.tar\.gz/.test(r.name))
+  const releaseInfo = await getReleaseInfo(r => /electerm-\d+\.\d+\.\d+-win-x64\.tar\.gz/.test(r.name))
   await down(releaseInfo.browser_download_url)
   // await down('http://192.168.0.67:7500/electerm-0.16.1-win.tar.gz')
   await mv(target, targetNew)
