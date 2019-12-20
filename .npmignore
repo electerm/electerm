@@ -10,7 +10,7 @@
 /.eslintignore
 /.eslintrc
 /.gitignore
-/.travis.yml
+/*.yml
 /webpack.config.js
 /work/
 /package-bak.json
@@ -18,3 +18,7 @@
 /dist/
 /.github/
 *.log
+/version
+/*.env
+/.env
+/*.txt
