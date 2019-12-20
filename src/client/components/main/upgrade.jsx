@@ -206,7 +206,7 @@ export default class Upgrade extends Component {
       <Button
         onClick={this.skipVersion}
         icon='close'
-        className='mg1l'
+        className='mg1l mg1b'
       >
         {e('skipThisVersion')}
       </Button>
@@ -267,6 +267,7 @@ export default class Upgrade extends Component {
                     loading={checkingRemoteVersion}
                     disabled={checkingRemoteVersion}
                     onClick={func}
+                    className='mg1b'
                   >
                     {
                       upgrading
