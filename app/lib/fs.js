@@ -30,7 +30,10 @@ const run = (cmd) => {
 const runWinCmd = (cmd) => {
   return new Promise((resolve, reject) => {
     exec(
-      'powershell.exe',
+      resolve(
+        process.env.windir,
+        'System32/WindowsPowerShell/v1.0/powershell.exe'
+      ),
       [`-command ${cmd}`],
       (err, stdout, stderr) => {
         if (err) {
