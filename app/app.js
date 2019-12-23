@@ -36,6 +36,7 @@ const { getWindowSize, getScreenSize } = require('./utils/window-size')
 const {
   prefix
 } = require('./lib/locales')
+const { loadFontList } = require('./lib/font-list')
 const a = prefix('app')
 
 global.win = null
@@ -151,6 +152,7 @@ async function createWindow () {
       ? 'ok' : ls.get('exitStatus')
   }
   Object.assign(global.et, {
+    loadFontList,
     _config: config,
     installSrc,
     instSftpKeys,

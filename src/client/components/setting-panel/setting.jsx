@@ -84,6 +84,13 @@ export default class Setting extends Component {
     })
   }
 
+  handleChangeFont = (values) => {
+    this.onChangeValue(
+      values.join(', '),
+      'fontFamily'
+    )
+  }
+
   saveConfig = (_ext) => {
     const config = deepCopy(this.props.config)
     const ext = deepCopy(_ext)
@@ -301,6 +308,30 @@ export default class Setting extends Component {
     )
   }
 
+  renderFontFamily = () => {
+    const { fonts } = this.props.store
+    const { fontFamily } = this.props.config
+    const props = {
+      mode: 'multiple',
+      onChange: this.handleChangeFont,
+      value: fontFamily.split(/, */g),
+      search: true
+    }
+    return (
+      <Select
+        {...props}
+      >
+        {
+          fonts.map(f => {
+            return (
+              <Option value={f} key={f}>{f}</Option>
+            )
+          })
+        }
+      </Select>
+    )
+  }
+
   render () {
     const {
       hotkey,
@@ -429,7 +460,7 @@ export default class Setting extends Component {
         }
         <div className='pd1b'>{t('default')} {e('fontFamily')}</div>
         {
-          this.renderText('fontFamily')
+          this.renderFontFamily()
         }
         <div className='pd1b'>
           {e('defaultTerminalType')}
