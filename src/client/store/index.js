@@ -885,6 +885,12 @@ const store = Subx.create({
         }
       }
     })
+  },
+
+  async loadFontList () {
+    const fonts = await window.getGlobal('loadFontList')()
+    console.log(fonts)
+    store.fonts = fonts
   }
 
 })

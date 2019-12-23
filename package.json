@@ -1,6 +1,6 @@
 {
   "name": "electerm",
-  "version": "0.27.100",
+  "version": "0.27.101",
   "description": "Terminal/ssh/sftp client(linux, mac, win) based on electron/ssh2/node-pty/xterm/antd/subx and other libs",
   "main": "dev-app.js",
   "bin": "npm/electerm",
@@ -114,6 +114,7 @@
     "express": "4.17.1",
     "express-ws": "4.0.0",
     "find-free-port": "2.0.0",
+    "font-list": "^1.2.6",
     "gist-wrapper": "0.1.0",
     "json-deep-copy": "1.0.2",
     "lodash": "4.17.15",

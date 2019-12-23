@@ -47,6 +47,7 @@ export default class Index extends Component {
     window.addEventListener('offline', store.setOffline)
     store.zoom(store.config.zoom, false, true)
     store.initShortcuts()
+    store.loadFontList()
   }
 
   render () {
