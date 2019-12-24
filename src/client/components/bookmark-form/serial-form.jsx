@@ -75,7 +75,7 @@ class SerialForm extends BookmarkForm {
             initialValue: path
           })(
             <AutoComplete
-              dataSource={serials.map(d => d.comName)}
+              dataSource={serials.map(d => d.path)}
             />
           )}
           <Spin spinning={loaddingSerials}>
