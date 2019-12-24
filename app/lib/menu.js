@@ -185,7 +185,7 @@ const template = [
 
 if (process.platform === 'darwin') {
   template.unshift({
-    label: app.getName(),
+    label: app.name,
     submenu: [
       {
         role: 'services',

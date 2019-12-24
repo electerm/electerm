@@ -3,11 +3,12 @@
  */
 
 import { Component } from '../common/react-subx'
+import logoRef from '@electerm/electerm-resource/res/imgs/electerm.svg'
 
 const { prefix } = window
 const e = prefix('control')
 
-const logo = require('node_modules/@electerm/electerm-resource/res/imgs/electerm.svg').replace(/^\//, '')
+const logo = logoRef.replace(/^\//, '')
 
 export default class MenuBtn extends Component {
   render () {

@@ -867,6 +867,7 @@ const store = Subx.create({
     store.loaddingSerials = true
     const res = await window._require('serialport').list()
       .catch(store.onError)
+    console.log(res, 'rrrr')
     if (res) {
       store.serials = res
     }
@@ -889,7 +890,6 @@ const store = Subx.create({
 
   async loadFontList () {
     const fonts = await window.getGlobal('loadFontList')()
-    console.log(fonts)
     store.fonts = fonts
   }
 
