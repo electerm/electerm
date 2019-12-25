@@ -4,7 +4,7 @@
 
 const lastStateManager = require('../lib/last-state')
 // const log = require('./log')
-const { isDev } = require('./app-props')
+const { isDev, minWindowWidth, minWindowHeight } = require('./app-props')
 
 exports.getScreenSize = () => {
   return require('electron').screen.getPrimaryDisplay().workAreaSize
@@ -32,8 +32,8 @@ exports.getWindowSize = () => {
   const fh = height / screenHeight
   let w = maxWidth * fw
   let h = maxHeight * fh
-  const minW = 590
-  const minH = 400
+  const minW = minWindowWidth
+  const minH = minWindowHeight
   if (w < minW) {
     w = minW
   }

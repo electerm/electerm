@@ -3,6 +3,7 @@ const webpack = require('webpack')
 const os = require('os')
 const { identity } = require('lodash')
 const HappyPack = require('happypack')
+const CopyWebpackPlugin = require('copy-webpack-plugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const express = require('express')
 const path = require('path')
@@ -48,7 +49,14 @@ const stylusSettingPlugin = new webpack.LoaderOptionsPlugin({
   },
   'resolve url': false
 })
-
+const from = path.resolve(
+  __dirname,
+  'node_modules/@electerm/electerm-resource/tray-icons'
+)
+const to1 = path.resolve(
+  __dirname,
+  'app/assets/images'
+)
 var config = {
   mode: 'development',
   entry: {
@@ -194,7 +202,12 @@ if (isProd) {
   config.plugins = [
     packThreadCount === 0 ? null : new HappyPack(happyConf),
     extractTextPlugin1,
-    stylusSettingPlugin
+    stylusSettingPlugin,
+    new CopyWebpackPlugin([{
+      from,
+      to: to1,
+      force: true
+    }], {})
   ]
   config.optimization = {
     minimize: true
