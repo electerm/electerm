@@ -31,26 +31,19 @@ const { saveLangConfig, lang, langs, sysLocale } = require('./lib/locales')
 const rp = require('phin').promisified
 const lastStateManager = require('./lib/last-state')
 const installSrc = require('./lib/install-src')
-const { isDev, packInfo } = require('./utils/app-props')
+const { isDev, packInfo, iconPath } = require('./utils/app-props')
 const { getWindowSize, getScreenSize } = require('./utils/window-size')
 const {
   prefix
 } = require('./lib/locales')
 const { loadFontList } = require('./lib/font-list')
 const a = prefix('app')
+require('./lib/tray')
 
 global.win = null
 let timer
 let timer1
 let childPid
-const iconPath = resolve(
-  __dirname,
-  (
-    isDev
-      ? '../node_modules/@electerm/electerm-resource/res/imgs/electerm-round-128x128.png'
-      : 'assets/images/electerm-round-128x128.png'
-  )
-)
 
 function onClose () {
   log.debug('close app')
@@ -116,7 +109,6 @@ async function createWindow () {
   }
 
   const { width, height } = getWindowSize()
-  log.info(width, height)
 
   // Create the browser window.
   global.win = new BrowserWindow({

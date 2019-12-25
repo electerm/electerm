@@ -17,6 +17,7 @@ const {
 const e = prefix('menu')
 const c = prefix('control')
 const s = prefix('setting')
+const w = prefix('window')
 
 const template = [
   {
@@ -126,6 +127,12 @@ const template = [
       {
         role: 'minimize',
         label: e('minimize')
+      },
+      {
+        label: w('maximize'),
+        click () {
+          global.win.maximize()
+        }
       },
       {
         label: e('restart'),
