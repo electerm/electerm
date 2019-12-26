@@ -4,7 +4,8 @@ import {
   message, Select, Switch,
   Input, Icon, Upload,
   InputNumber, Alert, Button,
-  AutoComplete
+  AutoComplete,
+  Tooltip
 } from 'antd'
 import deepCopy from 'json-deep-copy'
 
@@ -216,12 +217,16 @@ export default class Setting extends Component {
     )
     return (
       <div className='pd2b'>
-        <Input
-          value={value}
-          onChange={onChange}
-          placeholder={defaultValue}
-          addonAfter={after}
-        />
+        <Tooltip
+          title='eg: https://xx.com/xx.png or /path/to/xx.png'
+        >
+          <Input
+            value={value}
+            onChange={onChange}
+            placeholder={defaultValue}
+            addonAfter={after}
+          />
+        </Tooltip>
       </div>
     )
   }

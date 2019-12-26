@@ -21,14 +21,21 @@ export default class SystemMenu extends PureComponent {
     style.type = 'text/css'
     const { terminalBackgroundImagePath } = this.props
     let content = ''
-    if (terminalBackgroundImagePath) {
+    let st = ''
+    const isWebImg = /^https?:\/\//.test(terminalBackgroundImagePath)
+    if (terminalBackgroundImagePath && !isWebImg) {
       content = await fs.readFileAsBase64(terminalBackgroundImagePath)
         .catch(console.log)
+      if (content) {
+        st = `url(data:image;base64,${content})`
+      }
+    } else if (terminalBackgroundImagePath && isWebImg) {
+      st = `url(${terminalBackgroundImagePath})`
     }
-    style.innerHTML = content
+    style.innerHTML = st
       ? `
     #container .xterm-viewport {
-      background-image: url(data:image;base64,${content});
+      background-image: ${st};
     }
     `
       : ''
