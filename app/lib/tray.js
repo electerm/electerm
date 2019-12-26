@@ -11,12 +11,14 @@ app.on('ready', () => {
   tray = new Tray(trayIconPath)
   tray.setToolTip(packInfo.name)
   tray.setIgnoreDoubleClickEvents(true)
-  tray.on('click', function onClick (e, b) {
+  function onClick () {
     const [w, h] = global.win.getSize()
     global.win.show()
     if (w < minWindowWidth || h < minWindowHeight) {
       global.win.maximize()
     }
     tray.popUpContextMenu(menu)
-  })
+  }
+  tray.on('click', onClick)
+  tray.on('right-click', onClick)
 })
