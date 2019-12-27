@@ -66,10 +66,12 @@ export default class SettingModal extends Component {
           activeKey={tab}
           animated={false}
           onChange={store.onChangeTab}
+          className='setting-tabs'
         >
           <TabPane
             tab={m(settingMap.history)}
             key={settingMap.history}
+            className='setting-tabs-history'
           >
             <Row>
               <Col span={6}>
@@ -95,6 +97,7 @@ export default class SettingModal extends Component {
           <TabPane
             tab={m(settingMap.bookmarks)}
             key={settingMap.bookmarks}
+            className='setting-tabs-bookmarks'
           >
             <Row>
               <Col span={10}>
@@ -122,6 +125,7 @@ export default class SettingModal extends Component {
           <TabPane
             tab={m(settingMap.setting)}
             key={settingMap.setting}
+            className='setting-tabs-setting'
           >
             <Row>
               <Col span={6}>
@@ -152,6 +156,7 @@ export default class SettingModal extends Component {
           <TabPane
             tab={t(settingMap.terminalThemes)}
             key={settingMap.terminalThemes}
+            className='setting-tabs-terminal-themes'
           >
             <Row>
               <Col span={6}>
@@ -168,6 +173,7 @@ export default class SettingModal extends Component {
           <TabPane
             tab={q(settingMap.quickCommands)}
             key={settingMap.quickCommands}
+            className='setting-tabs-quick-commands'
           >
             <Row>
               <Col span={6}>
