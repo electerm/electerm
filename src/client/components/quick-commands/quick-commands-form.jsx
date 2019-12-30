@@ -95,7 +95,7 @@ class QuickCommandForm extends BookmarkForm {
           )}
         </FormItem>
         <FormItem
-          label={s('inputOnly')}
+          label={t('inputOnly')}
         >
           {getFieldDecorator('inputOnly', {
             initialValue: inputOnly,
