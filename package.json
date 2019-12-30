@@ -106,7 +106,7 @@
     "xterm": "3.14.5"
   },
   "dependencies": {
-    "@electerm/electerm-locales": "0.5.22",
+    "@electerm/electerm-locales": "0.6.0",
     "@electerm/ssh2": "0.8.9",
     "bluebird": "3.7.2",
     "body-parser": "1.19.0",
