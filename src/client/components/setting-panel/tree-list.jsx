@@ -272,7 +272,7 @@ export default class ItemListTree extends React.PureComponent {
         <Icon
           type='close'
           title={e('del')}
-          className='pointer list-item-del'
+          className='pointer'
         />
       </Popconfirm>
     )
@@ -310,7 +310,7 @@ export default class ItemListTree extends React.PureComponent {
         type='folder-add'
         title={`${s('new')} ${c('bookmarkCategory')}`}
         onClick={(e) => this.addSubCat(e, item)}
-        className='pointer list-item-edit'
+        className='pointer'
       />
     )
   }
@@ -324,7 +324,7 @@ export default class ItemListTree extends React.PureComponent {
         type='edit'
         title={e('edit')}
         onClick={(e) => this.editItem(e, item)}
-        className='pointer list-item-edit'
+        className='pointer'
       />
     )
   }
@@ -441,7 +441,7 @@ export default class ItemListTree extends React.PureComponent {
       <Icon
         type='copy'
         title={e('duplicate')}
-        className='pointer list-item-edit'
+        className='pointer'
         onClick={(e) => this.duplicateItem(e, item)}
       />
     )
@@ -478,17 +478,21 @@ export default class ItemListTree extends React.PureComponent {
         >
           {title}
         </div>
-        {
-          isGroup
-            ? this.renderGroupBtns(item)
-            : null
-        }
-        {
-          !isGroup
-            ? this.renderDuplicateBtn(item)
-            : null
-        }
-        {this.renderDelBtn(item)}
+        <div
+          className='tree-item-actions'
+        >
+          {
+            isGroup
+              ? this.renderGroupBtns(item)
+              : null
+          }
+          {
+            !isGroup
+              ? this.renderDuplicateBtn(item)
+              : null
+          }
+          {this.renderDelBtn(item)}
+        </div>
       </div>
     )
   }

@@ -1,7 +1,4 @@
 .tree-list
-  .list-item-edit
-  .list-item-del
-    display none
   .ant-tree li
     > .ant-tree-node-content-wrapper
       width calc(100% - 24px)
@@ -29,26 +26,28 @@
 
 
 .tree-item
-  position relative
+  display flex
   &.is-category
     .tree-item-title
       margin-left 0
       font-weight bold
   &:hover
-    .list-item-del
-    .list-item-edit
-      display inline-block
-      margin-right 5px
-      position static
-      vertical-align middle
+    .tree-item-actions
+      display flex
 .tree-item-title
   margin-left 8px
-  display inline-block
-  vertical-align middle
+  flex 90%
+.tree-item-actions
+  display none
+  align-items center
+  justify-content center
+  flex auto
+  i
+    padding 5px
 
 .model-bookmark-tree-wrap
   .tree-item-title
-    width calc(100% - 45px)
+    width calc(100% - 60px)
   .tree-item
     &.is-category
       .tree-item-title
