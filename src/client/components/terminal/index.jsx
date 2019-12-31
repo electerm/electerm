@@ -30,6 +30,8 @@ import * as search from 'xterm/lib/addons/search/search'
 import * as webLinks from 'xterm/lib/addons/webLinks/webLinks'
 import { Zmodem, addonZmodem } from './xterm-zmodem'
 import keyControlPressed from '../../common/key-control-pressed'
+import keyShiftPressed from '../../common/key-shift-pressed'
+import keyPressed from '../../common/key-pressed'
 import { Terminal } from 'xterm'
 
 Terminal.applyAddon(fit)
@@ -195,6 +197,7 @@ export default class Term extends Component {
     const isActiveTerminal = this.props.id === this.props.activeSplitId &&
       this.props.tab.id === this.props.currentTabId &&
       this.props.pane === paneMap.terminal
+
     if (
       e.data &&
       e.data.type === 'focus' &&
@@ -214,16 +217,24 @@ export default class Term extends Component {
       )
       this.term.focus()
     }
-    if (e.data && e.data.id === this.props.id) {
+
+    if (
+      keyControlPressed(e) &&
+      keyShiftPressed(e) &&
+      keyPressed(e, 'c')
+    ) {
+      e.stopPropagation()
+      this.copySelectionToClipboard()
+    } else if (e.data && e.data.id === this.props.id) {
       e.stopPropagation()
       this.term.selectAll()
-    } else if (keyControlPressed(e) && e.code === 'KeyF') {
+    } else if (keyControlPressed(e) && keyPressed(e, 'f')) {
       e.stopPropagation()
       this.openSearch()
     } else if (
-      e.ctrlKey &&
-      e.shiftKey &&
-      e.code === 'Tab'
+      keyControlPressed(e) &&
+      keyPressed(e, 'shift') &&
+      keyPressed(e, 'tab')
     ) {
       e.stopPropagation()
       this.props.store.clickNextTab()
@@ -232,10 +243,14 @@ export default class Term extends Component {
 
   onSelection = () => {
     if (this.props.config.copyWhenSelect) {
-      const txt = this.term.getSelection()
-      if (txt) {
-        copy(txt)
-      }
+      this.copySelectionToClipboard()
+    }
+  }
+
+  copySelectionToClipboard = () => {
+    const txt = this.term.getSelection()
+    if (txt) {
+      copy(txt)
     }
   }
 

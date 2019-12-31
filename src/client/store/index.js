@@ -26,6 +26,7 @@ import {
 } from '../common/constants'
 import * as terminalThemes from '../common/terminal-theme'
 import keyControlPress from '../common/key-control-pressed'
+import keyPressed from '../common/key-pressed'
 
 const { buildNewTheme } = terminalThemes
 const { getGlobal, _config } = window
@@ -888,7 +889,7 @@ const store = Subx.create({
 
   initShortcuts () {
     window.addEventListener('keydown', e => {
-      if (keyControlPress(e) && e.code === 'KeyW') {
+      if (keyControlPress(e) && keyPressed(e, 'w')) {
         e.stopPropagation()
         store.delTab({
           id: store.currentTabId
