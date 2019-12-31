@@ -888,7 +888,7 @@ const store = Subx.create({
 
   initShortcuts () {
     window.addEventListener('keydown', e => {
-      if (keyControlPress(e) && e.code === 'KeyW') {
+      if (keyControlPress(e) && e.key.toLowerCase() === 'w') {
         e.stopPropagation()
         store.delTab({
           id: store.currentTabId

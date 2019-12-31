@@ -88,7 +88,7 @@ export default class SessionWrapper extends Component {
     if (!this.isActive()) {
       return
     }
-    if (keyControlPressed(e) && e.code === 'Slash') {
+    if (keyControlPressed(e) && e.key.toLowerCase() === '/') {
       this.doSplit()
     }
   }
