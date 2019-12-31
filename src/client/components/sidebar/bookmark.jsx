@@ -40,6 +40,20 @@ export default memo((props) => {
                 onClick={store.onNewSsh}
               />
             </Tooltip>
+            <Tooltip title={c('expandAll')}>
+              <Icon
+                type='arrows-alt'
+                className='font16 mg1x mg2l pointer iblock control-icon icon-do-edit'
+                onClick={store.expandBookmarks}
+              />
+            </Tooltip>
+            <Tooltip title={c('collapseAll')}>
+              <Icon
+                type='shrink'
+                className='font16 mg1x mg2l pointer iblock control-icon icon-do-edit'
+                onClick={store.collapseBookmarks}
+              />
+            </Tooltip>
           </div>
         </div>
       </div>

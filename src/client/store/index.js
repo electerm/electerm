@@ -499,6 +499,18 @@ const store = Subx.create({
     }
   },
 
+  expandBookmarks () {
+    store.setState({
+      openedCategoryIds: store.bookmarkGroups.map(g => g.id)
+    })
+  },
+
+  collapseBookmarks () {
+    store.setState({
+      openedCategoryIds: []
+    })
+  },
+
   setTheme (id) {
     store.config.theme = id
   },
