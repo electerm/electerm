@@ -217,7 +217,7 @@ export default class Term extends Component {
     if (e.data && e.data.id === this.props.id) {
       e.stopPropagation()
       this.term.selectAll()
-    } else if (keyControlPressed(e) && e.code === 'KeyF') {
+    } else if (keyControlPressed(e) && e.key.toLowerCase() === 'f') {
       e.stopPropagation()
       this.openSearch()
     } else if (

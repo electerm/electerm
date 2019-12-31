@@ -371,28 +371,29 @@ export default class Sftp extends Component {
     }
     const { type } = lastClickedFile
     const { inputFocus, onDelete } = this
-    if (keyControlPressed(e) && e.code === 'KeyA' && !inputFocus) {
+    const pressedKey = e.key.toLowerCase()
+    if (keyControlPressed(e) && pressedKey === 'a' && !inputFocus) {
       e.stopPropagation()
       this.selectAll(type, e)
-    } else if (e.code === 'ArrowDown' && !inputFocus) {
+    } else if (pressedKey === 'arrowdown' && !inputFocus) {
       e.stopPropagation()
       this.selectNext(type)
-    } else if (e.code === 'ArrowUp' && !inputFocus) {
+    } else if (pressedKey === 'arrowup' && !inputFocus) {
       e.stopPropagation()
       this.selectPrev(type)
-    } else if (e.code === 'Delete' && !inputFocus) {
+    } else if (pressedKey === 'delete' && !inputFocus) {
       e.stopPropagation()
       this.onDel(type)
-    } else if (e.code === 'Enter' && !inputFocus && !onDelete) {
+    } else if (pressedKey === 'enter' && !inputFocus && !onDelete) {
       e.stopPropagation()
       this.enter(type, e)
-    } else if (keyControlPressed(e) && e.code === 'KeyC' && !inputFocus) {
+    } else if (keyControlPressed(e) && pressedKey === 'c' && !inputFocus) {
       e.stopPropagation()
       this.doCopy(type, e)
-    } else if (keyControlPressed(e) && e.code === 'KeyX' && !inputFocus) {
+    } else if (keyControlPressed(e) && pressedKey === 'x' && !inputFocus) {
       e.stopPropagation()
       this.doCut(type, e)
-    } else if (keyControlPressed(e) && e.code === 'KeyV' && !inputFocus) {
+    } else if (keyControlPressed(e) && pressedKey === 'v' && !inputFocus) {
       e.stopPropagation()
       this.doPaste(type, e)
     } else if (e.code === 'F5') {
