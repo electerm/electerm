@@ -23,12 +23,13 @@ describe('quick commands', function () {
     }
   })
 
-  it('timeout setting works', async function () {
+  it('quick commands form', async function () {
     const { client } = this.app
 
     await client.waitUntilWindowLoaded()
 
     log('open setting')
+    await delay(500)
     await client.execute(function () {
       document.querySelector('.btns .anticon-setting').click()
     })
