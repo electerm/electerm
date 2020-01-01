@@ -17,6 +17,7 @@ import {
 } from '../../common/constants'
 import ResizeWrap from '../common/resize-wrap'
 import keyControlPressed from '../../common/key-control-pressed'
+import keyPressed from '../../common/key-pressed'
 import Qm from '../quick-commands/quick-commands-select'
 
 const rebuildPosition = terminals => {
@@ -88,7 +89,7 @@ export default class SessionWrapper extends Component {
     if (!this.isActive()) {
       return
     }
-    if (keyControlPressed(e) && e.code === 'Slash') {
+    if (keyControlPressed(e) && keyPressed(e, '/')) {
       this.doSplit()
     }
   }

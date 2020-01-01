@@ -27,6 +27,7 @@ import Client from '../../common/sftp'
 import fs from '../../common/fs'
 import ResizeWrap from '../common/resize-wrap'
 import keyControlPressed from '../../common/key-control-pressed'
+import keyPressed from '../../common/key-pressed'
 import ListTable from './list-table'
 import deepCopy from 'json-deep-copy'
 import isValidPath from '../../common/is-valid-path'
@@ -371,31 +372,31 @@ export default class Sftp extends Component {
     }
     const { type } = lastClickedFile
     const { inputFocus, onDelete } = this
-    if (keyControlPressed(e) && e.code === 'KeyA' && !inputFocus) {
+    if (keyControlPressed(e) && keyPressed(e, 'a') && !inputFocus) {
       e.stopPropagation()
       this.selectAll(type, e)
-    } else if (e.code === 'ArrowDown' && !inputFocus) {
+    } else if (keyPressed(e, 'arrowdown') && !inputFocus) {
       e.stopPropagation()
       this.selectNext(type)
-    } else if (e.code === 'ArrowUp' && !inputFocus) {
+    } else if (keyPressed(e, 'arrowup') && !inputFocus) {
       e.stopPropagation()
       this.selectPrev(type)
-    } else if (e.code === 'Delete' && !inputFocus) {
+    } else if (keyPressed(e, 'delete') && !inputFocus) {
       e.stopPropagation()
       this.onDel(type)
-    } else if (e.code === 'Enter' && !inputFocus && !onDelete) {
+    } else if (keyPressed(e, 'enter') && !inputFocus && !onDelete) {
       e.stopPropagation()
       this.enter(type, e)
-    } else if (keyControlPressed(e) && e.code === 'KeyC' && !inputFocus) {
+    } else if (keyControlPressed(e) && keyPressed(e, 'c') && !inputFocus) {
       e.stopPropagation()
       this.doCopy(type, e)
-    } else if (keyControlPressed(e) && e.code === 'KeyX' && !inputFocus) {
+    } else if (keyControlPressed(e) && keyPressed(e, 'x') && !inputFocus) {
       e.stopPropagation()
       this.doCut(type, e)
-    } else if (keyControlPressed(e) && e.code === 'KeyV' && !inputFocus) {
+    } else if (keyControlPressed(e) && keyPressed(e, 'v') && !inputFocus) {
       e.stopPropagation()
       this.doPaste(type, e)
-    } else if (e.code === 'F5') {
+    } else if (keyPressed(e, 'f5')) {
       e.stopPropagation()
       this.onGoto(type)
     }
