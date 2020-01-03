@@ -50,6 +50,8 @@ export default class QuickCommandsFooter extends Component {
           placeholder={e('quickCommands')}
           onSelect={this.onSelect}
           size='small'
+          showSearch
+          optionFilterProp='children'
         >
           {
             all.map(qc => {
