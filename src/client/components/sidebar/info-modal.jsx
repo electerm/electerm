@@ -123,7 +123,7 @@ export default function ({
             <p className='mg1b'>
               => <b className='mg1r'>Changelog:</b>
               <Link to={releaseLink} className='mg1l'>
-                <Icon type="highlight" /> {releaseLink}
+                <Icon type='highlight' /> {releaseLink}
               </Link>
             </p>
             <p className='mg1b mg2t'>
