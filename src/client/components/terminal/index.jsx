@@ -239,7 +239,7 @@ export default class Term extends Component {
       e.stopPropagation()
       this.openSearch()
     } else if (
-      keyControlPressed(e) &&
+      e.ctrlKey &&
       keyShiftPressed(e) &&
       keyPressed(e, 'tab')
     ) {
