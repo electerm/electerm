@@ -58,6 +58,7 @@ export default function ({
     ...env
   }
   const bugReportLink = link + '/issues'
+  const releaseLink = link + '/releases'
   const titleDiv = (
     <div className='fix'>
       <span className='fleft'>{`${m('about')} ` + name}</span>
@@ -117,6 +118,12 @@ export default function ({
               => <b className='mg1r'>{e('bugReport')}:</b>
               <Link to={bugReportLink} className='mg1l'>
                 <Icon type='warning' /> {bugReportLink}
+              </Link>
+            </p>
+            <p className='mg1b'>
+              => <b className='mg1r'>Changelog:</b>
+              <Link to={releaseLink} className='mg1l'>
+                <Icon type="highlight" /> {releaseLink}
               </Link>
             </p>
             <p className='mg1b mg2t'>
