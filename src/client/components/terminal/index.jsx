@@ -16,6 +16,7 @@ import {
   contextMenuPaddingTop,
   typeMap,
   isWin,
+  isMac,
   contextMenuWidth,
   terminalSshConfigType,
   ctrlOrCmd,
@@ -228,12 +229,18 @@ export default class Term extends Component {
     } else if (e.data && e.data.id === this.props.id) {
       e.stopPropagation()
       this.term.selectAll()
-    } else if (keyControlPressed(e) && keyPressed(e, 'f')) {
+    } else if (
+      keyPressed(e, 'f') && keyControlPressed(e) &&
+      (
+        isMac ||
+        (!isMac && keyShiftPressed(e))
+      )
+    ) {
       e.stopPropagation()
       this.openSearch()
     } else if (
       keyControlPressed(e) &&
-      keyPressed(e, 'shift') &&
+      keyShiftPressed(e) &&
       keyPressed(e, 'tab')
     ) {
       e.stopPropagation()
