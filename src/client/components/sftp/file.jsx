@@ -739,6 +739,13 @@ export default class FileSection extends React.Component {
     return this.newItem(true)
   }
 
+  showInDefaultFileMananger = () => {
+    const { path, name } = this.state.file
+    const p = resolve(path, name)
+    window._require('electron').shell
+      .showItemInFolder(p)
+  }
+
   newItem = (isDirectory) => {
     const { type } = this.state.file
     const list = this.props[type]
@@ -847,6 +854,18 @@ export default class FileSection extends React.Component {
                 onClick={this.transferOrEnterDirectory}
               >
                 <Icon type='arrow-right' /> {e('open')}
+              </div>
+            )
+            : null
+        }
+        {
+          id && type === typeMap.local
+            ? (
+              <div
+                className={cls}
+                onClick={this.showInDefaultFileMananger}
+              >
+                <Icon type='container' /> {e('showInDefaultFileMananger')}
               </div>
             )
             : null

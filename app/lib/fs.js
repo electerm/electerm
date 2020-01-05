@@ -5,6 +5,7 @@ const fs = require('original-fs')
 const fss = Promise.promisifyAll(fs)
 const log = require('../utils/log')
 const { isWin, isMac } = require('../utils/constants')
+
 /**
  * run cmd
  * @param {string} cmd
