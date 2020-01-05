@@ -31,7 +31,10 @@ const { saveLangConfig, lang, langs, sysLocale } = require('./lib/locales')
 const rp = require('phin').promisified
 const lastStateManager = require('./lib/last-state')
 const installSrc = require('./lib/install-src')
-const { isDev, packInfo, iconPath } = require('./utils/app-props')
+const {
+  isDev, packInfo, iconPath,
+  minWindowWidth, minWindowHeight
+} = require('./utils/app-props')
 const { getWindowSize, getScreenSize } = require('./utils/window-size')
 const {
   prefix
@@ -233,6 +236,18 @@ async function createWindow () {
   // init hotkey
   init(globalShortcut, global.win, config)
 
+  global.win.on('unmaximize', () => {
+    const { width, height } = global.win.getBounds()
+    if (width < minWindowWidth || height < minWindowHeight) {
+      global.win.setBounds({
+        x: 0,
+        y: 0,
+        width: minWindowWidth,
+        height: minWindowHeight
+      })
+      global.win.center()
+    }
+  })
   // Emitted when the window is closed.
   global.win.on('close', onClose)
   global.win.on('focus', () => {
