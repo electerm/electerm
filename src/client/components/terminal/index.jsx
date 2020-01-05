@@ -19,7 +19,6 @@ import {
   isMac,
   contextMenuWidth,
   terminalSshConfigType,
-  ctrlOrCmd,
   transferTypeMap,
   defaultLoginScriptDelay
 } from '../../common/constants'
@@ -512,6 +511,12 @@ export default class Term extends Component {
     const copyed = readClipboard()
     const clsPaste = cls +
       (copyed ? '' : ' disabled')
+    const copyShortcut = isMac
+      ? 'Command+C'
+      : 'Ctrl+Shift+C'
+    const pasteShortcut = isMac
+      ? 'Command+V'
+      : 'Ctrl+Shift+V'
     return (
       <div>
         <div
@@ -519,20 +524,20 @@ export default class Term extends Component {
           onClick={hasSlected ? this.onCopy : _.noop}
         >
           <Icon type='copy' /> {m('copy')}
-          <span className='context-sub-text'>({ctrlOrCmd}+shift+C)</span>
+          <span className='context-sub-text'>({copyShortcut})</span>
         </div>
         <div
           className={clsPaste}
           onClick={copyed ? this.onPaste : _.noop}
         >
           <Icon type='switcher' /> {m('paste')}
-          <span className='context-sub-text'>({ctrlOrCmd}+shift+V)</span>
+          <span className='context-sub-text'>({pasteShortcut})</span>
         </div>
         <div
           className={cls}
           onClick={this.onClear}
         >
-          <Icon type='reload' /> {e('clear')}
+          <Icon type='reload' /> {e('clear')} (Ctrl+L)
         </div>
         <div
           className={cls}
