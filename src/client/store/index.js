@@ -574,6 +574,15 @@ const store = Subx.create({
     store.openModal()
   },
 
+  openBookmarkEdit (item) {
+    store.setState({
+      tab: settingMap.bookmarks,
+      settingItem: item,
+      autofocustrigger: +new Date()
+    })
+    store.openModal()
+  },
+
   openQuickCommandsSetting () {
     store.setState({
       tab: settingMap.quickCommands,

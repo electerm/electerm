@@ -278,13 +278,17 @@ export default class ItemListTree extends React.PureComponent {
     )
   }
 
-  editItem = (e, item) => {
+  editItem = (e, item, isGroup) => {
     e.stopPropagation()
-    this.setState({
-      categoryTitle: '' + item.title,
-      categoryId: item.id + '',
-      bookmarkGroupSubParentId: ''
-    })
+    if (isGroup) {
+      this.setState({
+        categoryTitle: '' + item.title,
+        categoryId: item.id + '',
+        bookmarkGroupSubParentId: ''
+      })
+    } else {
+      this.props.store.openBookmarkEdit(item)
+    }
   }
 
   addSubCat = (e, item) => {
@@ -315,15 +319,18 @@ export default class ItemListTree extends React.PureComponent {
     )
   }
 
-  renderEditBtn = item => {
-    if (this.props.staticList) {
+  renderEditBtn = (item, isGroup) => {
+    if (
+      (this.props.staticList && isGroup) ||
+      (!this.props.staticList && !isGroup)
+    ) {
       return null
     }
     return (
       <Icon
         type='edit'
         title={e('edit')}
-        onClick={(e) => this.editItem(e, item)}
+        onClick={(e) => this.editItem(e, item, isGroup)}
         className='pointer'
       />
     )
@@ -492,6 +499,7 @@ export default class ItemListTree extends React.PureComponent {
               : null
           }
           {this.renderDelBtn(item)}
+          {this.renderEditBtn(item, isGroup)}
         </div>
       </div>
     )
