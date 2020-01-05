@@ -240,7 +240,6 @@ export default class Term extends Component {
       this.openSearch()
     } else if (
       e.ctrlKey &&
-      keyShiftPressed(e) &&
       keyPressed(e, 'tab')
     ) {
       e.stopPropagation()
