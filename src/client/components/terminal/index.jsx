@@ -244,6 +244,11 @@ export default class Term extends Component {
     ) {
       e.stopPropagation()
       this.props.store.clickNextTab()
+    } else if (
+      e.ctrlKey &&
+      keyPressed(e, 'tab')
+    ) {
+      this.onClear()
     }
   }
 
