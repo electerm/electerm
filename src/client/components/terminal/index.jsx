@@ -251,6 +251,15 @@ export default class Term extends Component {
     }
   }
 
+  onDrop = e => {
+    const files = _.get(e, 'dataTransfer.files')
+    if (files && files.length) {
+      this.term.write(
+        Array.from(files).map(f => f.path).join(' ')
+      )
+    }
+  }
+
   onSelection = () => {
     if (this.props.config.copyWhenSelect) {
       this.copySelectionToClipboard()
@@ -988,6 +997,7 @@ export default class Term extends Component {
           top,
           zIndex: position / 10
         }}
+        onDrop={this.onDrop}
       >
         {this.renderPromoteModal()}
         <input
