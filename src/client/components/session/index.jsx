@@ -5,7 +5,7 @@
 import { Component } from 'react'
 import Term from '../terminal'
 import Sftp from '../sftp'
-import { Icon } from 'antd'
+import { Icon, Tooltip } from 'antd'
 import _ from 'lodash'
 import { generate } from 'shortid'
 import copy from 'json-deep-copy'
@@ -321,7 +321,7 @@ export default class SessionWrapper extends Component {
                     ? null
                     : (
                       <Icon
-                        type='close-circle'
+                        type='close-square'
                         theme='filled'
                         className='mg1r icon-trash font16 iblock pointer'
                         onClick={this.delSplit}
@@ -329,18 +329,24 @@ export default class SessionWrapper extends Component {
                       />
                     )
                 }
-                <Icon
-                  type={icon1}
-                  className={cls1}
-                  onClick={this.doSplit}
+                <Tooltip
                   title={`${e('split')}(${ctrlOrCmd} + /)`}
-                />
-                <Icon
-                  type={icon2}
-                  className={cls2}
+                >
+                  <Icon
+                    type={icon1}
+                    className={cls1}
+                    onClick={this.doSplit}
+                  />
+                </Tooltip>
+                <Tooltip
                   title={e('changeDirection')}
-                  onClick={this.changeDirection}
-                />
+                >
+                  <Icon
+                    type={icon2}
+                    className={cls2}
+                    onClick={this.changeDirection}
+                  />
+                </Tooltip>
               </div>
             )
             : null
