@@ -518,7 +518,7 @@ export default class Sftp extends Component {
           })
         this.setState(() => {
           return {
-            loadingSftp: true
+            loadingSftp: false
           }
         })
         if (!r) {

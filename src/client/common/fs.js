@@ -8,14 +8,22 @@ import initWs from './ws'
 const fsFunctions = window.getGlobal('fsFunctions')
 const id = generate()
 let ws
+let wsOpened = false
 
 export const initFS = async () => {
   ws = await initWs('fs', id)
+  wsOpened = true
+  ws.onclose = () => {
+    wsOpened = false
+  }
 }
 
 export default fsFunctions.reduce((prev, func) => {
   prev[func] = async (...args) => {
     const uid = func + ':' + id
+    if (!wsOpened) {
+      await initFS()
+    }
     return new Promise((resolve, reject) => {
       ws.s({
         id,

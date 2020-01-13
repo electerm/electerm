@@ -92,7 +92,7 @@ class Terminal {
         if (err) {
           reject(err)
         } else {
-          resolve()
+          resolve('ok')
         }
       })
     })
@@ -140,7 +140,7 @@ class Terminal {
         [this.pid]: this
       }
     }
-    return Promise.resolve()
+    return Promise.resolve('ok')
   }
 
   remoteInit (initOptions, isTest) {
@@ -201,7 +201,7 @@ class Terminal {
         }
         this.sftp = sftp
         connInst.sftps[this.pid] = this
-        resolve('')
+        resolve('ok')
       })
     })
   }
