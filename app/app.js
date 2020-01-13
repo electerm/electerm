@@ -8,7 +8,8 @@ const {
   Menu,
   Notification,
   globalShortcut,
-  shell
+  shell,
+  session
 } = require('electron')
 const { fork } = require('child_process')
 const _ = require('lodash')
@@ -83,6 +84,14 @@ async function waitUntilServerStart (url) {
 log.debug('App starting...')
 
 async function createWindow () {
+  session.defaultSession.webRequest.onBeforeRequest((details, done) => {
+    const redirectURL = details.url.replace(/^devtools:\/\/devtools\/remote\/serve_file\/@[0-9a-f]{40}/, 'https://chrome-devtools-frontend.appspot.com/serve_file/@675968a8c657a3bd9c1c2c20c5d2935577bbc5e6')
+    if (redirectURL !== details.url) {
+      done({ redirectURL })
+    } else {
+      done({})
+    }
+  })
   const config = await getConf()
   // start server
   const child = fork(resolve(__dirname, './server/server.js'), {

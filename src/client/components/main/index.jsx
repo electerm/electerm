@@ -1,11 +1,12 @@
 
 import ErrorBoundary from './error-wrapper'
-import Init from './init'
+import Main from './main'
+import store from '../../store'
 
 export default function () {
   return (
     <ErrorBoundary>
-      <Init />
+      <Main store={store} />
     </ErrorBoundary>
   )
 }
