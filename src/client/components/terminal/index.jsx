@@ -664,7 +664,7 @@ export default class Term extends Component {
     const { config } = this.props
     const { host, port } = config
     const url = `http://${host}:${port}/terminals`
-    const { tab = {} } = this.props
+    const { tab = {}, sessionId, terminalIndex } = this.props
     const {
       startPath, srcId, from = 'bookmarks',
       type, loginScript,
@@ -687,6 +687,8 @@ export default class Term extends Component {
         'execMac',
         'execLinux'
       ]),
+      sessionId,
+      terminalIndex,
       termType: type,
       readyTimeout: config.sshReadyTimeout,
       proxy: mergeProxy(config, tab),
@@ -730,7 +732,7 @@ export default class Term extends Component {
     })
     term.pid = pid
     this.pid = pid
-    const wsUrl = `ws://${host}:${port}/terminals/${pid}`
+    const wsUrl = `ws://${host}:${port}/terminals/${pid}?sessionId=${sessionId}`
     const socket = new WebSocket(wsUrl)
     socket.onclose = this.oncloseSocket
     socket.onerror = this.onerrorSocket
@@ -826,7 +828,7 @@ export default class Term extends Component {
     )
     const { host, port } = config
     const { pid } = this
-    const url = `http://${host}:${port}/terminals/${pid}/size?cols=${cols}&rows=${rows}`
+    const url = `http://${host}:${port}/terminals/${pid}/size?cols=${cols}&rows=${rows}&sessionId=${this.props.sessionId}`
     fetch.post(url)
   }
 

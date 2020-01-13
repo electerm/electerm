@@ -2,10 +2,10 @@
  * ws function for sftp/file transfer communication
  */
 
-export default (type, id) => {
+export default (type, id, sessionId = '', sftpId = '') => {
   // init gloabl ws
   const { host, port } = window._config
-  const wsUrl = `ws://${host}:${port}/${type}/${id}`
+  const wsUrl = `ws://${host}:${port}/${type}/${id}?sessionId=${sessionId}&sftpId=${sftpId}`
   const ws = new WebSocket(wsUrl)
   ws.s = msg => {
     ws.send(JSON.stringify(msg))

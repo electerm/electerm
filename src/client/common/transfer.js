@@ -17,7 +17,11 @@ class Transfer {
     const id = generate()
     this.id = id
     const th = this
-    const ws = await initWs('transfer', id)
+    const {
+      sessionId,
+      sftpId
+    } = rest
+    const ws = await initWs('transfer', id, sessionId, sftpId)
     ws.s({
       action: 'transfer-new',
       ...rest,
@@ -29,6 +33,8 @@ class Transfer {
           action: 'transfer-func',
           id: th.id,
           func,
+          sessionId,
+          sftpId,
           args
         })
         if (func === 'destroy') {

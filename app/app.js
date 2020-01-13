@@ -18,7 +18,7 @@ const logPaths = require('./lib/log-read')
 const lookup = require('./utils/lookup')
 const os = require('os')
 const { resolve } = require('path')
-const { instSftpKeys } = require('./server/sftp')
+const { instSftpKeys } = require('./server/session')
 const { transferKeys } = require('./server/transfer')
 const { saveUserConfig, userConfig } = require('./lib/user-config-controller')
 const { init, changeHotkeyReg } = require('./lib/shortcut')
@@ -26,7 +26,7 @@ const { fsExport, fsFunctions } = require('./lib/fs')
 const ls = require('./lib/ls')
 const menu = require('./lib/menu')
 const log = require('./utils/log')
-const { testConnection } = require('./server/terminal')
+const { testConnection } = require('./server/session')
 const { saveLangConfig, lang, langs, sysLocale } = require('./lib/locales')
 const rp = require('phin').promisified
 const lastStateManager = require('./lib/last-state')
@@ -230,7 +230,9 @@ async function createWindow () {
 
   // Open the DevTools.
   if (isDev) {
-    global.win.webContents.openDevTools()
+    global.win.webContents.once('dom-ready', () => {
+      global.win.webContents.openDevTools()
+    })
   }
 
   // init hotkey
