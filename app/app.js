@@ -197,7 +197,9 @@ async function createWindow () {
       global.win.unmaximize()
     },
     isMaximized: () => {
-      return global.win.isMaximized()
+      const { width: widthMax, height: heightMax } = getScreenSize()
+      const { width, height } = global.win.getBounds()
+      return widthMax === width && heightMax === height
     },
     openDevTools: () => {
       global.win.webContents.openDevTools()
