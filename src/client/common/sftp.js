@@ -11,14 +11,16 @@ const keys = window.getGlobal('instSftpKeys')
 const transferKeys = Object.keys(transferTypeMap)
 
 class Sftp {
-  async init () {
+  async init (sessionId) {
     const id = generate()
-    const ws = await initWs('sftp', id)
+    const ws = await initWs('sftp', id, sessionId)
     this.ws = ws
     this.id = id
+    this.sessionId = sessionId
     ws.s({
       action: 'sftp-new',
-      id
+      id,
+      sessionId
     })
     const th = this
     this.ws = ws
@@ -28,6 +30,7 @@ class Sftp {
           return Transfer({
             sftpId: id,
             ...args[0],
+            sessionId,
             type: func
           })
         }
@@ -38,7 +41,8 @@ class Sftp {
             action: 'sftp-func',
             id,
             func,
-            args
+            args,
+            sessionId
           })
           ws.once((arg) => {
             if (arg.error) {
@@ -56,14 +60,15 @@ class Sftp {
     const { ws } = this
     ws.s({
       action: 'sftp-destroy',
-      id: this.id
+      id: this.id,
+      sessionId: this.sessionId
     })
     ws.close()
   }
 }
 
-export default async () => {
+export default async (sessionId) => {
   const sftp = new Sftp()
-  await sftp.init()
+  await sftp.init(sessionId)
   return sftp
 }

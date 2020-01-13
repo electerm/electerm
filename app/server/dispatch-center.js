@@ -3,15 +3,22 @@
  * run functions in seprate process, avoid using electron.remote directly
  */
 
-const { Sftp } = require('./sftp')
+const { Terminal: Sftp } = require('./session')
+const {
+  sftp,
+  transfer,
+  onDestroySftp,
+  onDestroyTransfer
+} = require('./remote-common')
 const { Transfer } = require('./transfer')
 const { fsExport: fs } = require('../lib/fs')
 const log = require('../utils/log')
 const Upgrade = require('./download-upgrade')
 
-const sftpInsts = {}
-global.transferInsts = {}
 global.upgradeInsts = {}
+
+// for remote sessions
+global.sessions = {}
 
 /**
  * add ws.s function
@@ -30,41 +37,30 @@ const wsDec = (ws) => {
   ws._socket.setKeepAlive(true, 5 * 60 * 1000)
 }
 
-function onDestroySftp (id) {
-  const { inst, transferIds } = sftpInsts[id] || {}
-  if (inst) {
-    inst.client.destroy()
-    for (const tid of transferIds) {
-      if (global.transferInsts[tid]) {
-        global.transferInsts[tid].destroy()
-      }
-    }
-  }
-  delete sftpInsts[id]
-}
-
 const initWs = function (app) {
   // sftp function
   app.ws('/sftp/:id', (ws, req) => {
     wsDec(ws)
     const { id } = req.params
+    const { sessionId } = req.query
     ws.on('close', () => {
-      onDestroySftp(id)
+      onDestroySftp(id, sessionId)
     })
     ws.on('message', (message) => {
       const msg = JSON.parse(message)
       const { action } = msg
 
       if (action === 'sftp-new') {
-        const { id } = msg
-        sftpInsts[id] = {
-          inst: new Sftp(),
-          transferIds: []
-        }
+        const { id, sessionId } = msg
+        sftp(id, sessionId, new Sftp({
+          uid: id,
+          sessionId,
+          type: 'sftp'
+        }))
       } else if (action === 'sftp-func') {
-        const { id, args, func } = msg
+        const { id, args, func, sessionId } = msg
         const uid = func + ':' + id
-        sftpInsts[id].inst[func](...args)
+        sftp(id, sessionId)[func](...args)
           .then(data => {
             ws.s({
               id: uid,
@@ -81,9 +77,9 @@ const initWs = function (app) {
             })
           })
       } else if (action === 'sftp-destroy') {
-        const { id } = msg
+        const { id, sessionId } = msg
         ws.close()
-        onDestroySftp(id)
+        onDestroySftp(id, sessionId)
       }
     })
     // end
@@ -93,26 +89,29 @@ const initWs = function (app) {
   app.ws('/transfer/:id', (ws, req) => {
     wsDec(ws)
     const { id } = req.params
+    const { sessionId, sftpId } = req.query
     ws.on('close', () => {
-      const inst = global.transferInsts[id]
-      if (inst) {
-        inst.destroy()
-      }
+      onDestroyTransfer(id, sftpId, sessionId)
     })
     ws.on('message', (message) => {
       const msg = JSON.parse(message)
       const { action } = msg
 
       if (action === 'transfer-new') {
-        const { sftpId, id } = msg
+        const { sftpId, id, sessionId } = msg
         const opts = Object.assign({}, msg, {
-          sftp: sftpInsts[sftpId].inst.sftp,
+          sftp: sftp(sftpId, sessionId).sftp,
+          sftpId,
+          sessionId,
           ws
         })
-        global.transferInsts[id] = new Transfer(opts)
+        transfer(id, sftpId, sessionId, new Transfer(opts))
       } else if (action === 'transfer-func') {
-        const { id, func, args } = msg
-        global.transferInsts[id][func](...args)
+        const { id, func, args, sftpId, sessionId } = msg
+        if (func === 'destroy') {
+          return onDestroyTransfer(id, sftpId, sessionId)
+        }
+        transfer(id, sftpId, sessionId)[func](...args)
       }
     })
     // end

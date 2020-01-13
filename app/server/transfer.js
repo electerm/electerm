@@ -22,12 +22,16 @@ class Transfer {
     id,
     type = 'download',
     sftp,
+    sftpId,
+    sessionId,
     ws
   }) {
     this.id = id
     const isd = type === 'download'
     this.src = isd ? sftp : fs
     this.dst = isd ? fs : sftp
+    this.sftpId = sftpId
+    this.sessionId = sessionId
     this.srcPath = isd ? remotePath : localPath
     this.dstPath = !isd ? remotePath : localPath
     this.pausing = false
@@ -290,7 +294,6 @@ class Transfer {
       this.dst.close(this.dstHandle, log.error)
     }
     this.ws.close()
-    delete global.transferInsts[this.id]
   }
 
   // end

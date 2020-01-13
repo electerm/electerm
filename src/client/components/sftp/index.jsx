@@ -20,7 +20,8 @@ import {
   typeMap, maxSftpHistory, paneMap,
   fileOpTypeMap, eventTypes,
   fileTypeMap, transferTypeMap,
-  terminalSshConfigType, terminalSerialType
+  terminalSshConfigType, terminalSerialType,
+  unexpectedPacketErrorDesc, sftpRetryInterval
 } from '../../common/constants'
 import { hasFileInClipboardText } from '../../common/clipboard'
 import Client from '../../common/sftp'
@@ -63,8 +64,10 @@ export default class Sftp extends Component {
       targetTransferType: null,
       srcTransferType: null,
       transferType: null,
+      loadingSftp: false,
       filesToConfirm: []
     }
+    this.retryCount = 0
   }
 
   componentDidMount () {
@@ -454,9 +457,12 @@ export default class Sftp extends Component {
     })
   }
 
-  remoteList = async (returnList = false, remotePathReal, oldPath) => {
-    const sftp = this.sftp || await Client()
-    const { tab } = this.props
+  remoteList = async (
+    returnList = false,
+    remotePathReal,
+    oldPath
+  ) => {
+    const { tab, sessionOptions, sessionId } = this.props
     const { username, startPath } = tab
     let remotePath
     const noPathInit = remotePathReal || this.state.remotePath
@@ -471,21 +477,57 @@ export default class Sftp extends Component {
     const oldRemote = deepCopy(
       this.state.remote
     )
-    const { sessionOptions } = this.props
+    let sftp
     try {
       if (!this.sftp) {
+        sftp = await Client(sessionId)
+        if (!sftp) {
+          return
+        }
         const config = deepCopy(
           this.props.config
         )
-        await sftp.connect({
+        this.setState(() => {
+          return {
+            loadingSftp: true
+          }
+        })
+        const r = await sftp.connect({
           ...tab,
           readyTimeout: _.get(config, 'sshReadyTimeout'),
+          sessionId,
           keepaliveInterval: _.get(config, 'keepaliveInterval'),
           proxy: mergeProxy(config, tab),
           ...sessionOptions
         })
+          .catch(e => {
+            if (
+              e &&
+              e.message.includes(unexpectedPacketErrorDesc) && this.retryCount
+            ) {
+              this.retryHandler = setTimeout(
+                () => this.initData(
+                  true
+                ),
+                sftpRetryInterval
+              )
+              this.retryCount++
+            } else {
+              throw e
+            }
+          })
+        this.setState(() => {
+          return {
+            loadingSftp: true
+          }
+        })
+        if (!r) {
+          sftp.destroy()
+          return
+        } else {
+          this.sftp = sftp
+        }
       }
-
       if (!remotePath) {
         let home = await sftp.getHomeDir()
           .then(r => r)
@@ -573,7 +615,8 @@ export default class Sftp extends Component {
     } catch (e) {
       const update = {
         remoteLoading: false,
-        remote: oldRemote
+        remote: oldRemote,
+        loadingSftp: false
       }
       if (oldPath) {
         update.remotePath = oldPath
@@ -660,6 +703,9 @@ export default class Sftp extends Component {
 
   onGoto = (type, e) => {
     e && e.preventDefault()
+    if (type === typeMap.remote && !this.sftp) {
+      return this.initData(true)
+    }
     const n = `${type}Path`
     const nt = n + 'Temp'
     const oldPath = this.state[type + 'Path']
@@ -825,7 +871,7 @@ export default class Sftp extends Component {
 
   renderSection (type, style, width) {
     const {
-      id, onDrag
+      id, onDrag, loadingSftp
     } = this.state
     const n = `${type}PathTemp`
     const path = this.state[n]
@@ -836,7 +882,7 @@ export default class Sftp extends Component {
     const goIcon = realPath === path
       ? 'reload'
       : 'arrow-right'
-
+    const isLoadingRemote = type === typeMap.remote && loadingSftp
     const listProps = {
       id,
       type,
@@ -888,10 +934,11 @@ export default class Sftp extends Component {
                   addonBefore={this.renderAddonBefore(type)}
                   onFocus={() => this.onInputFocus(type)}
                   onBlur={() => this.onInputBlur(type)}
+                  disabled={loadingSftp}
                   addonAfter={
                     <Icon
-                      type={goIcon}
-                      onClick={() => this.onGoto(type)}
+                      type={isLoadingRemote ? 'loading' : goIcon}
+                      onClick={isLoadingRemote ? () => null : () => this.onGoto(type)}
                     />
                   }
                 />

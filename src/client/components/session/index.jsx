@@ -55,6 +55,7 @@ export default class SessionWrapper extends Component {
       key: Math.random(),
       sessionOptions: null,
       sshConnected: false,
+      sessionId: generate(),
       terminals: [
         {
           id,
@@ -188,7 +189,8 @@ export default class SessionWrapper extends Component {
       terminals,
       activeSplitId,
       splitDirection,
-      sessionOptions
+      sessionOptions,
+      sessionId
     } = this.state
     const cls = pane === paneMap.terminal
       ? 'terms-box'
@@ -209,7 +211,7 @@ export default class SessionWrapper extends Component {
           tab={tab}
         >
           {
-            terminals.map((t) => {
+            terminals.map((t, index) => {
               const pops = {
                 ...this.props,
                 ...t,
@@ -225,6 +227,8 @@ export default class SessionWrapper extends Component {
               return (
                 <Term
                   key={t.id}
+                  sessionId={sessionId}
+                  terminalIndex={index}
                   sessionOptions={sessionOptions}
                   {...pops}
                 />
@@ -237,7 +241,7 @@ export default class SessionWrapper extends Component {
   }
 
   renderSftp = () => {
-    const { pane, sessionOptions, sshConnected } = this.state
+    const { pane, sessionOptions, sshConnected, sessionId } = this.state
     const height = this.computeHeight()
     const cls = pane === paneMap.terminal
       ? 'hide'
@@ -248,6 +252,7 @@ export default class SessionWrapper extends Component {
           sessionOptions={sessionOptions}
           sshConnected={sshConnected}
           height={height}
+          sessionId={sessionId}
           pane={pane}
           {...this.props}
         />

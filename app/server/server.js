@@ -2,11 +2,13 @@ const express = require('express')
 const app = express()
 const cors = require('cors')
 const log = require('../utils/log')
-const terminals = {}
 // const logs = {}
 const bodyParser = require('body-parser')
-const { terminal } = require('./terminal')
+const { terminal } = require('./session')
 const initWs = require('./dispatch-center')
+const {
+  terminals
+} = require('./remote-common')
 
 app.use(cors())
 
@@ -26,7 +28,6 @@ app.post('/terminals', async function (req, res) {
   const { pid } = term
   if (pid) {
     log.debug('Created terminal with PID:', pid)
-    terminals[pid] = term
     // logs[pid] = Buffer.from('')
     // term.on('data', function (data) {
     //   logs[pid] = Buffer.concat([
@@ -43,9 +44,10 @@ app.post('/terminals', async function (req, res) {
 
 app.post('/terminals/:pid/size', function (req, res) {
   const pid = req.params.pid
+  const { sessionId } = req.query
   const cols = parseInt(req.query.cols, 10)
   const rows = parseInt(req.query.rows, 10)
-  const term = terminals[pid]
+  const term = terminals(pid, sessionId)
   if (term) {
     term.resize(cols, rows)
     log.debug('Resized terminal ', pid, ' to ', cols, ' cols and ', rows, ' rows.')
@@ -54,7 +56,8 @@ app.post('/terminals/:pid/size', function (req, res) {
 })
 
 app.ws('/terminals/:pid', function (ws, req) {
-  const term = terminals[req.params.pid]
+  const { sessionId } = req.query
+  const term = terminals(req.params.pid, sessionId)
   const { pid } = term
   log.debug('Connected to terminal', pid)
 
@@ -72,7 +75,6 @@ app.ws('/terminals/:pid', function (ws, req) {
     term.kill()
     log.debug('Closed terminal ' + pid)
     // Clean things up
-    delete terminals[pid]
     ws.close && ws.close()
   }
 
@@ -105,8 +107,21 @@ const runServer = function () {
 }
 
 const quitServer = () => {
-  Object.keys(terminals).forEach(k => {
-    terminals[k].kill()
+  Object.keys(global.upgradeInsts).forEach(k => {
+    const inst = global.upgradeInsts[k]
+    inst && inst.destroy && inst.destroy()
+  })
+  Object.keys(global.sesssions).forEach(k => {
+    const {
+      terminals,
+      sftps
+    } = global.sesssions[k]
+    sftps.forEach(s => {
+      s.kill()
+    })
+    terminals.forEach(t => {
+      t.kill()
+    })
   })
 }
 
