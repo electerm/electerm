@@ -477,7 +477,7 @@ export default class Sftp extends Component {
     const oldRemote = deepCopy(
       this.state.remote
     )
-    let sftp
+    let sftp = this.sftp
     try {
       if (!this.sftp) {
         sftp = await Client(sessionId)
