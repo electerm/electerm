@@ -10,27 +10,39 @@ function session (sessionId) {
 }
 
 function sftp (id, sessionId, inst) {
+  const ss = session(sessionId)
+  if (!ss) {
+    return
+  }
   if (inst) {
-    session(sessionId).sftps[id] = inst
+    ss.sftps[id] = inst
     return inst
   }
-  return session(sessionId).sftps[id]
+  return ss.sftps[id]
 }
 
 function terminals (id, sessionId, inst) {
+  const ss = session(sessionId)
+  if (!ss) {
+    return
+  }
   if (inst) {
-    session(sessionId).terminals[id] = inst
+    ss.terminals[id] = inst
     return inst
   }
-  return session(sessionId).terminals[id]
+  return ss.terminals[id]
 }
 
 function transfer (id, sftpId, sessionId, inst) {
+  const ss = sftp(sftpId, sessionId)
+  if (!ss) {
+    return
+  }
   if (inst) {
-    sftp(sftpId, sessionId).transfers[id] = inst
+    ss.transfers[id] = inst
     return inst
   }
-  return sftp(sftpId, sessionId).transfers[id]
+  return ss.transfers[id]
 }
 
 function onDestroySftp (id, sessionId) {
