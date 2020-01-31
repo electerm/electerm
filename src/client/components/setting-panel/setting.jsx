@@ -8,6 +8,7 @@ import {
   Tooltip
 } from 'antd'
 import deepCopy from 'json-deep-copy'
+import { noTerminalBgValue } from '../../common/constants'
 
 const InputGroup = Input.Group
 const { Option } = Select
@@ -200,10 +201,18 @@ export default class Setting extends Component {
     )
   }
 
+  renderOption = item => {
+    return (
+      <Option value={item.value}>
+        {item.desc}
+      </Option>
+    )
+  }
+
   renderTerminalBgSelect = (name) => {
     const value = this.props.config[name]
     const defaultValue = this.props.config.defaultSettings[name]
-    const onChange = (e) => this.onChangeValue(e.target.value, name)
+    const onChange = (v) => this.onChangeValue(v, name)
     const after = (
       <Upload
         beforeUpload={(file) => {
@@ -215,17 +224,32 @@ export default class Setting extends Component {
         <span>{e('chooseFile')}</span>
       </Upload>
     )
+    const dataSource = [
+      {
+        value: '',
+        desc: t('default')
+      },
+      {
+        value: noTerminalBgValue,
+        desc: e('noTerminalBg')
+      }
+    ]
     return (
       <div className='pd2b'>
         <Tooltip
           title='eg: https://xx.com/xx.png or /path/to/xx.png'
         >
-          <Input
+          <AutoComplete
             value={value}
             onChange={onChange}
             placeholder={defaultValue}
-            addonAfter={after}
-          />
+            className='width-100'
+            dataSource={dataSource.map(this.renderOption)}
+          >
+            <Input
+              addonAfter={after}
+            />
+          </AutoComplete>
         </Tooltip>
       </div>
     )

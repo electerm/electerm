@@ -21,6 +21,7 @@ export const defaultUserName = 'root'
 export const defaultBookmarkGroupId = 'default'
 export const newBookmarkIdPrefix = 'new-bookmark'
 export const unexpectedPacketErrorDesc = 'Unexpected packet'
+export const noTerminalBgValue = 'no-termimal-bg'
 export const sftpRetryInterval = 3000
 export const maxBookmarkGroupTitleLength = 33
 export const termControlHeight = 33
