@@ -57,6 +57,7 @@ export class SyncForm extends React.PureComponent {
     if (!gist) {
       return
     }
+    res.encrypted = true
     this.doSubmit(res)
     this.setState({
       submitting: false
@@ -95,10 +96,14 @@ export class SyncForm extends React.PureComponent {
     } = this.props
     const {
       gistId,
-      githubAccessToken,
       // autoSync,
-      lastSyncTime = ''
+      lastSyncTime = '',
+      encrypted
     } = this.props.formData
+    let { githubAccessToken } = this.props.formData
+    if (encrypted) {
+      githubAccessToken = window.getGlobal('decrypt')(githubAccessToken, gistId)
+    }
     const timeFormatted = lastSyncTime
       ? moment(lastSyncTime).format('YYYY-MM-DD HH:mm:ss')
       : '-'

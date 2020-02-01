@@ -41,6 +41,7 @@ const {
   prefix
 } = require('./lib/locales')
 const { loadFontList } = require('./lib/font-list')
+const { encrypt, decrypt } = require('./lib/enc')
 const a = prefix('app')
 require('./lib/tray')
 
@@ -178,6 +179,8 @@ async function createWindow () {
     testConnection,
     env: process.env,
     fsFunctions,
+    encrypt,
+    decrypt,
     openExternal: shell.openExternal,
     homeOrtmp: os.homedir() || os.tmpdir(),
     closeApp: () => {
