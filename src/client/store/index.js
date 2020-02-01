@@ -744,7 +744,8 @@ const store = Subx.create({
       ]
   },
 
-  updateSyncSetting (data) {
+  updateSyncSetting (_data) {
+    const data = copy(_data)
     const keys = Object.keys(data)
     if (_.isEqual(
       _.pick(store.config.syncSetting, keys),
@@ -752,16 +753,39 @@ const store = Subx.create({
     )) {
       return
     }
+    if (data.githubAccessToken) {
+      data.githubAccessToken = window.getGlobal('encrypt')(
+        data.githubAccessToken,
+        data.gistId
+      )
+    }
     Object.assign(store.config.syncSetting, data)
-    window.gitClient = new Gist(store.config.syncSetting.githubAccessToken)
+    window.gitClient = new Gist(
+      store.getGistToken()
+    )
+  },
+
+  getGistToken (
+    syncSetting = store.config.syncSetting
+  ) {
+    const token = _.get(syncSetting, 'githubAccessToken')
+    const encrypted = _.get(syncSetting, 'encrypted')
+    if (encrypted && token) {
+      return window.getGlobal('decrypt')(
+        token,
+        _.get(syncSetting, 'gistId')
+      )
+    } else {
+      return token
+    }
   },
 
   getGistClient (
-    githubAccessToken = _.get(store, 'config.syncSetting.githubAccessToken')
+    githubAccessToken = store.getGistToken()
   ) {
     if (
       !window.gitClient ||
-      githubAccessToken !== _.get(store, 'config.syncSetting.githubAccessToken')
+      githubAccessToken !== store.getGistToken()
     ) {
       window.gitClient = new Gist(githubAccessToken)
     }
@@ -769,7 +793,8 @@ const store = Subx.create({
   },
 
   async getGist (syncSetting = store.config.syncSetting || {}) {
-    const client = store.getGistClient(syncSetting.githubAccessToken)
+    const token = store.getGistToken(syncSetting)
+    const client = store.getGistClient(token)
     if (!client.token) {
       return
     }
@@ -780,7 +805,8 @@ const store = Subx.create({
   },
 
   async uploadSetting (syncSetting = store.config.syncSetting || {}) {
-    const client = store.getGistClient(syncSetting.githubAccessToken)
+    const token = store.getGistToken(syncSetting)
+    const client = store.getGistClient(token)
     if (!client.token) {
       return
     }
