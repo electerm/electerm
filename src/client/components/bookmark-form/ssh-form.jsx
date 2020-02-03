@@ -7,7 +7,8 @@ import {
   InputNumber, message,
   Radio, Upload, Tabs,
   TreeSelect,
-  Select, Switch, AutoComplete
+  Select, Switch, AutoComplete,
+  Row, Col
 } from 'antd'
 import { validateFieldsAndScroll } from '../../common/dec-validate-and-scroll'
 import _ from 'lodash'
@@ -449,7 +450,7 @@ export class BookmarkForm extends React.PureComponent {
     const {
       proxy = {}
     } = this.props.formData
-    const { proxyIp, proxyPort, proxyType = '5' } = proxy
+    const { proxyIp, proxyPort, proxyType = '5', username, password } = proxy
     return [
       this.renderProxySelect(),
       <FormItem
@@ -498,6 +499,42 @@ export class BookmarkForm extends React.PureComponent {
             <Option value='0'>HTTP</Option>
           </Select>
         )}
+      </FormItem>,
+      <FormItem
+        {...formItemLayout}
+        label='Auth'
+        key='proxyAuth'
+      >
+        <Row>
+          <Col span={12}>
+            <FormItem>
+              {getFieldDecorator('proxy.username', {
+                rules: [{
+                  max: 64, message: '64 chars max'
+                }],
+                initialValue: username
+              })(
+                <Input
+                  placeholder={e('username')}
+                />
+              )}
+            </FormItem>
+          </Col>
+          <Col span={12}>
+            <FormItem>
+              {getFieldDecorator('proxy.password', {
+                rules: [{
+                  max: 64, message: '64 chars max'
+                }],
+                initialValue: password
+              })(
+                <Input
+                  placeholder={e('password')}
+                />
+              )}
+            </FormItem>
+          </Col>
+        </Row>
       </FormItem>
     ]
   }
