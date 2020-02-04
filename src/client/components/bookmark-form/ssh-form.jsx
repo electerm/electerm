@@ -450,7 +450,7 @@ export class BookmarkForm extends React.PureComponent {
     const {
       proxy = {}
     } = this.props.formData
-    const { proxyIp, proxyPort, proxyType = '5', username, password } = proxy
+    const { proxyIp, proxyPort, proxyType = '5', proxyUsername, proxyPassword } = proxy
     return [
       this.renderProxySelect(),
       <FormItem
@@ -508,11 +508,11 @@ export class BookmarkForm extends React.PureComponent {
         <Row>
           <Col span={12}>
             <FormItem>
-              {getFieldDecorator('proxy.username', {
+              {getFieldDecorator('proxy.proxyUsername', {
                 rules: [{
                   max: 64, message: '64 chars max'
                 }],
-                initialValue: username
+                initialValue: proxyUsername
               })(
                 <Input
                   placeholder={e('username')}
@@ -522,11 +522,11 @@ export class BookmarkForm extends React.PureComponent {
           </Col>
           <Col span={12}>
             <FormItem>
-              {getFieldDecorator('proxy.password', {
+              {getFieldDecorator('proxy.proxyPassword', {
                 rules: [{
                   max: 64, message: '64 chars max'
                 }],
-                initialValue: password
+                initialValue: proxyPassword
               })(
                 <Input
                   placeholder={e('password')}

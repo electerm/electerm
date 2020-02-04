@@ -56,6 +56,8 @@ module.exports = function () {
         proxyPort: 1080,
         proxyType: '5',
         proxyIp: '127.0.0.1',
+        proxyUsername: '',
+        proxyPassword: '',
         zoom: 1,
         theme: 'default',
         syncSetting: {
