@@ -19,7 +19,9 @@ export function mergeProxy (globalConfig, tab) {
     ? _.pick(globalConfig, [
       'proxyPort',
       'proxyIp',
-      'proxyType'
+      'proxyType',
+      'proxyPassword',
+      'proxyUsername'
     ])
     : {}
 }

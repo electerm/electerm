@@ -282,7 +282,9 @@ export default class Setting extends Component {
       enableGlobalProxy,
       proxyPort,
       proxyType,
-      proxyIp
+      proxyIp,
+      proxyUsername,
+      proxyPassword
     } = this.props.config
     return (
       <div className='pd1b'>
@@ -328,6 +330,30 @@ export default class Setting extends Component {
               onChange={v => {
                 this.onChangeValue(
                   v, 'proxyPort'
+                )
+              }}
+            />
+          </InputGroup>
+          <InputGroup compact>
+            <Input
+              style={{ width: '50%' }}
+              value={proxyUsername}
+              placeholder={f('username')}
+              disabled={!enableGlobalProxy}
+              onChange={e => {
+                this.onChangeValue(
+                  e.target.value, 'proxyUsername'
+                )
+              }}
+            />
+            <Input
+              style={{ width: '45%' }}
+              value={proxyPassword}
+              placeholder={f('password')}
+              disabled={!enableGlobalProxy}
+              onChange={e => {
+                this.onChangeValue(
+                  e.target.value, 'proxyPassword'
                 )
               }}
             />

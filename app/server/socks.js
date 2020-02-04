@@ -11,8 +11,8 @@ module.exports = (initOptions) => {
       proxyIp,
       proxyPort,
       proxyType,
-      username,
-      password
+      proxyUsername,
+      proxyPassword
     },
     readyTimeout,
     host,
@@ -23,8 +23,8 @@ module.exports = (initOptions) => {
       ipaddress: proxyIp,
       port: proxyPort,
       type: Number(proxyType),
-      userId: username,
-      password
+      userId: proxyUsername,
+      password: proxyPassword
     },
 
     command: 'connect',
@@ -47,8 +47,8 @@ module.exports = (initOptions) => {
         method: 'CONNECT',
         timeout: readyTimeout
       }
-      if (username) {
-        opts.auth = `${username}:${password}`
+      if (proxyUsername) {
+        opts.auth = `${proxyUsername}:${proxyPassword}`
       }
       request(opts)
         .on('error', (e) => {
