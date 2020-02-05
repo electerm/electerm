@@ -201,7 +201,7 @@ export default class Setting extends Component {
     )
   }
 
-  renderOption = item => {
+  renderBgOption = item => {
     return (
       <Option value={item.value}>
         {item.desc}
@@ -244,7 +244,7 @@ export default class Setting extends Component {
             onChange={onChange}
             placeholder={defaultValue}
             className='width-100'
-            dataSource={dataSource.map(this.renderOption)}
+            dataSource={dataSource.map(this.renderBgOption)}
           >
             <Input
               addonAfter={after}
