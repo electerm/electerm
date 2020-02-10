@@ -75,8 +75,8 @@ module.exports = function () {
       }
       extend(conf, override)
       extend(conf, userConfig)
-      conf.host = 'localhost'
-      conf.port = freePort
+      conf.electermHost = 'localhost'
+      conf.electermPort = freePort
       resolve(conf)
     })
   })
