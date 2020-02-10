@@ -12,7 +12,6 @@ const {
   session
 } = require('electron')
 const { fork } = require('child_process')
-const _ = require('lodash')
 const getConf = require('./utils/config.default')
 const sshConfigItems = require('./lib/ssh-config')
 const logPaths = require('./lib/log-read')
@@ -98,10 +97,11 @@ async function createWindow () {
   const child = fork(resolve(__dirname, './server/server.js'), {
     env: Object.assign(
       {
-        LANG: `${sysLocale.replace(/-/, '_')}.UTF-8`
+        LANG: `${sysLocale.replace(/-/, '_')}.UTF-8`,
+        electermPort: config.port,
+        electermHost: config.host
       },
-      process.env,
-      _.pick(config, ['electermPort', 'electermHost'])
+      process.env
     ),
     cwd: process.cwd()
   }, (error, stdout, stderr) => {
@@ -158,10 +158,7 @@ async function createWindow () {
   }
   Object.assign(global.et, {
     loadFontList,
-    _config: Object.assign({}, config, {
-      port: config.electermPort,
-      host: config.electermHost
-    }),
+    _config: config,
     installSrc,
     instSftpKeys,
     transferKeys,
