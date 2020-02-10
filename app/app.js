@@ -12,7 +12,6 @@ const {
   session
 } = require('electron')
 const { fork } = require('child_process')
-const _ = require('lodash')
 const getConf = require('./utils/config.default')
 const sshConfigItems = require('./lib/ssh-config')
 const logPaths = require('./lib/log-read')
