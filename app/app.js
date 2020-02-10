@@ -98,10 +98,11 @@ async function createWindow () {
   const child = fork(resolve(__dirname, './server/server.js'), {
     env: Object.assign(
       {
-        LANG: `${sysLocale.replace(/-/, '_')}.UTF-8`
+        LANG: `${sysLocale.replace(/-/, '_')}.UTF-8`,
+        electermPort: config.port,
+        electermHost: config.host
       },
-      process.env,
-      _.pick(config, ['electermPort', 'electermHost'])
+      process.env
     ),
     cwd: process.cwd()
   }, (error, stdout, stderr) => {
@@ -158,10 +159,7 @@ async function createWindow () {
   }
   Object.assign(global.et, {
     loadFontList,
-    _config: Object.assign({}, config, {
-      port: config.electermPort,
-      host: config.electermHost
-    }),
+    _config: config,
     installSrc,
     instSftpKeys,
     transferKeys,
