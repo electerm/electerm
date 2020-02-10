@@ -100,9 +100,9 @@ app.get('/run', function (req, res) {
 initWs(app)
 
 const runServer = function () {
-  const { port, host } = process.env
-  app.listen(port, host, () => {
-    log.info('server', 'runs on', host, port)
+  const { electermPort, electermHost } = process.env
+  app.listen(electermPort, electermHost, () => {
+    log.info('server', 'runs on', electermHost, electermPort)
   })
 }
 

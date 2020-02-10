@@ -101,7 +101,7 @@ async function createWindow () {
         LANG: `${sysLocale.replace(/-/, '_')}.UTF-8`
       },
       process.env,
-      _.pick(config, ['port', 'host'])
+      _.pick(config, ['electermPort', 'electermHost'])
     ),
     cwd: process.cwd()
   }, (error, stdout, stderr) => {
@@ -158,7 +158,10 @@ async function createWindow () {
   }
   Object.assign(global.et, {
     loadFontList,
-    _config: config,
+    _config: Object.assign({}, config, {
+      port: config.electermPort,
+      host: config.electermHost
+    }),
     installSrc,
     instSftpKeys,
     transferKeys,
