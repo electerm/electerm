@@ -320,7 +320,7 @@ export class BookmarkForm extends React.PureComponent {
       >
         {getFieldDecorator('password', {
           rules: [{
-            max: 40, message: '40 chars max'
+            max: 128, message: '128 chars max'
           }],
           initialValue: password
         })(
@@ -378,7 +378,7 @@ export class BookmarkForm extends React.PureComponent {
       >
         {getFieldDecorator('passphrase', {
           rules: [{
-            max: 100, message: '100 chars max'
+            max: 128, message: '128 chars max'
           }],
           initialValue: passphrase
         })(
@@ -460,7 +460,7 @@ export class BookmarkForm extends React.PureComponent {
       >
         {getFieldDecorator('proxy.proxyIp', {
           rules: [{
-            max: 130, message: '130 chars max'
+            max: 530, message: '530 chars max'
           }],
           initialValue: proxyIp
         })(
@@ -510,7 +510,7 @@ export class BookmarkForm extends React.PureComponent {
             <FormItem>
               {getFieldDecorator('proxy.proxyUsername', {
                 rules: [{
-                  max: 64, message: '64 chars max'
+                  max: 128, message: '128 chars max'
                 }],
                 initialValue: proxyUsername
               })(
@@ -524,7 +524,7 @@ export class BookmarkForm extends React.PureComponent {
             <FormItem>
               {getFieldDecorator('proxy.proxyPassword', {
                 rules: [{
-                  max: 64, message: '64 chars max'
+                  max: 128, message: '128 chars max'
                 }],
                 initialValue: proxyPassword
               })(
@@ -590,7 +590,7 @@ export class BookmarkForm extends React.PureComponent {
           }
           {getFieldDecorator('host', {
             rules: [{
-              max: 130, message: '130 chars max'
+              max: 520, message: '520 chars max'
             }, {
               required: true, message: 'host required'
             }],
@@ -612,7 +612,7 @@ export class BookmarkForm extends React.PureComponent {
         >
           {getFieldDecorator('username', {
             rules: [{
-              max: 30, message: '30 chars max'
+              max: 128, message: '128 chars max'
             }, {
               required: true, message: 'username required'
             }],
