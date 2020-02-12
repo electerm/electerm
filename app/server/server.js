@@ -61,7 +61,7 @@ app.ws('/terminals/:pid', function (ws, req) {
   const { pid } = term
   log.debug('Connected to terminal', pid)
 
-  // ws.send(logs[pid])
+  ws.send('')
 
   term.on('data', function (data) {
     try {
