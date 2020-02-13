@@ -27,6 +27,7 @@ app.post('/terminals', async function (req, res) {
     .catch(err => err)
   const { pid } = term
   if (pid) {
+    term.write('')
     log.debug('Created terminal with PID:', pid)
     // logs[pid] = Buffer.from('')
     // term.on('data', function (data) {
