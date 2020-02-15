@@ -9,7 +9,7 @@ const initWs = require('./dispatch-center')
 const {
   terminals
 } = require('./remote-common')
-const { isWin } = require('../utils/constants')
+// const { isWin } = require('../utils/constants')
 
 app.use(cors())
 
