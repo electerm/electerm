@@ -9,6 +9,7 @@ const initWs = require('./dispatch-center')
 const {
   terminals
 } = require('./remote-common')
+const { isWin } = require('../utils/constants')
 
 app.use(cors())
 
@@ -61,7 +62,9 @@ app.ws('/terminals/:pid', function (ws, req) {
   const { pid } = term
   log.debug('ws: connected to terminal', pid)
 
-  ws.send('')
+  if (isWin) {
+    ws.send(Buffer.from('\r'))
+  }
 
   term.on('data', function (data) {
     try {
