@@ -61,11 +61,6 @@ app.ws('/terminals/:pid', function (ws, req) {
   const term = terminals(req.params.pid, sessionId)
   const { pid } = term
   log.debug('ws: connected to terminal', pid)
-
-  if (isWin) {
-    ws.send(Buffer.from('\r'))
-  }
-
   term.on('data', function (data) {
     try {
       ws.send(Buffer.from(data))

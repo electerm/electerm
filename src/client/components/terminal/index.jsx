@@ -783,6 +783,12 @@ export default class Term extends Component {
         throw Error(`Cannot handle ${typeof ev.data} websocket message.`)
       }
     }
+    if (isWin) {
+      this.timers.timer2 = setTimeout(
+        () => this.term.write('\r\n'),
+        100
+      )
+    }
     this.term = term
     this.startPath = startPath
     if (startPath || loginScript || isSshConfig) {
