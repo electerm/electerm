@@ -785,7 +785,7 @@ export default class Term extends Component {
     }
     if (isWin) {
       this.timers.timer2 = setTimeout(
-        () => this.hanterm.write('\r\n'),
+        () => this.term.write('\r'),
         100
       )
     }
