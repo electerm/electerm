@@ -783,7 +783,6 @@ export default class Term extends Component {
         throw Error(`Cannot handle ${typeof ev.data} websocket message.`)
       }
     }
-    term.write('')
     this.term = term
     this.startPath = startPath
     if (startPath || loginScript || isSshConfig) {
@@ -1012,7 +1011,7 @@ export default class Term extends Component {
         <div
           className='absolute'
           style={{
-            left: '3px',
+            left: '10px',
             top: '10px',
             right: 0,
             bottom: '40px'
