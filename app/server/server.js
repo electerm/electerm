@@ -50,7 +50,6 @@ app.post('/terminals/:pid/size', function (req, res) {
   const term = terminals(pid, sessionId)
   if (term) {
     term.resize(cols, rows)
-    log.debug('Resized terminal ', pid, ' to ', cols, ' cols and ', rows, ' rows.')
   }
   res.end()
 })
@@ -59,9 +58,7 @@ app.ws('/terminals/:pid', function (ws, req) {
   const { sessionId } = req.query
   const term = terminals(req.params.pid, sessionId)
   const { pid } = term
-  log.debug('Connected to terminal', pid)
-
-  ws.send('')
+  log.debug('ws: connected to terminal ->', pid)
 
   term.on('data', function (data) {
     try {
