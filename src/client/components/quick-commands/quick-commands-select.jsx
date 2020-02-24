@@ -32,6 +32,13 @@ export default class QuickCommandsFooter extends Component {
     }
   }
 
+  filterFunc = (v, opt) => {
+    const c = opt.props.children.toLowerCase()
+    const m = opt.props.cmd.toLowerCase()
+    const vv = v.toLowerCase()
+    return c.includes(vv) || m.includes(vv)
+  }
+
   render () {
     const all = copy(this.props.store.currentQuickCommands)
     if (!all.length) {
@@ -52,11 +59,12 @@ export default class QuickCommandsFooter extends Component {
           size='small'
           showSearch
           optionFilterProp='children'
+          filterOption={this.filterFunc}
         >
           {
             all.map(qc => {
               return (
-                <Option value={qc.id}>
+                <Option value={qc.id} cmd={qc.command}>
                   {qc.name}
                 </Option>
               )
