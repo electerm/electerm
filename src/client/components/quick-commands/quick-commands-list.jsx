@@ -60,7 +60,6 @@ export default class QuickCommandsList extends List {
     const { keyword } = this.state
     return keyword
       ? list.filter((item) => {
-        console.log(item)
         const n = (item.name || '').toLowerCase()
         const c = (item.command || '').toLowerCase()
         const k = keyword.toLowerCase()
