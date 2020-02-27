@@ -985,10 +985,12 @@ export default class Term extends Component {
 
   render () {
     const { id, loading, zmodemTransfer } = this.state
-    const { height, width, left, top, position, id: pid } = this.props
+    const { height, width, left, top, position, id: pid, activeSplitId } = this.props
     const cls = classnames('term-wrap', {
       'not-first-term': !!position
-    }, 'tw-' + pid)
+    }, 'tw-' + pid, {
+      'terminal-not-active': activeSplitId !== pid
+    })
     return (
       <div
         className={cls}
