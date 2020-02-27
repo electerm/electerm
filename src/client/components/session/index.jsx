@@ -217,7 +217,6 @@ export default class SessionWrapper extends Component {
                 ...t,
                 activeSplitId,
                 themeConfig,
-                cls: activeSplitId !== t.id ? 'terminal-not-active' : '',
                 pane,
                 ..._.pick(
                   this,
