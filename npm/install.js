@@ -9,8 +9,9 @@ const rp = require('phin').promisified
 const download = require('download')
 const isWin = os.platform() === 'win32'
 const isMac = os.platform() === 'darwin'
-const releaseInfoUrl = 'https://electerm.html5beta.com/data/electerm-github-release.json?_=' + (+new Date())
-const versionUrl = 'https://electerm.html5beta.com/version.html?_=' + (+new Date())
+const { homepage } = require('../package.json')
+const releaseInfoUrl = `${homepage}/data/electerm-github-release.json?_=${+new Date()}`
+const versionUrl = `${homepage}/electerm/version.html?_=${+new Date()}`
 
 function down (url, extract = true) {
   const local = resolve(__dirname, '../')
