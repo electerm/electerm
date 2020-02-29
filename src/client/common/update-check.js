@@ -25,7 +25,7 @@ export async function getLatestReleaseVersion () {
 }
 
 export async function getLatestReleaseInfo () {
-  const url = 'https://electerm.github.io/electerm/data/electerm-github-release.json?_=' + (+new Date())
+  const url = `${homepage}/data/electerm-github-release.json?_=${+new Date()}`
   const res = await fetch.get(url, null, {
     headers: {
       'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/59.0.3071.115 Safari/537.36'
