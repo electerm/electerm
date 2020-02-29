@@ -6,7 +6,7 @@ const fs = require('fs')
 const { resolve } = require('path')
 const _ = require('lodash')
 const rp = require('phin')
-const { isWin, isMac } = require('../utils/constants')
+const { isWin, isMac, packInfo } = require('../utils/constants')
 const installSrc = require('../lib/install-src')
 const os = require('os')
 const tempDir = os.tmpdir()
@@ -36,7 +36,7 @@ class Upgrade {
       id,
       ws
     } = this.options
-    const releaseInfoUrl = 'https://electerm.html5beta.com/data/electerm-github-release.json?_=' + (+new Date())
+    const releaseInfoUrl = `${packInfo.homepage}/data/electerm-github-release.json?_=${+new Date()}`
     let filter = r => {
       return r.name.includes(installSrc) &&
         r.name.includes('linux')

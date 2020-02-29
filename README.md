@@ -1,5 +1,5 @@
 <h1 align="center">
-    <a href="http://electerm.html5beta.com">
+    <a href="https://electerm.github.io/electerm">
         <img src="https://github.com/electerm/electerm-resource/raw/master/static/images/electerm.png", alt="" />
     </a>
 </h1>
@@ -23,7 +23,7 @@ Terminal/ssh/sftp client(linux, mac, win) based on electron/ssh2/node-pty/xterm/
 
 ## Download
 
-- [https://electerm.html5beta.com](https://electerm.html5beta.com)
+- [https://electerm.github.io/electerm](https://electerm.github.io/electerm)
 - From release: [https://github.com/electerm/electerm/releases](https://github.com/electerm/electerm/releases)
 - Install from npm
 
