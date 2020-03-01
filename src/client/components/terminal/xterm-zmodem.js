@@ -1,6 +1,6 @@
 import zmodem from 'zmodem.js/src/zmodem_browser'
 
-function zmodemAttach (ws, opts) {
+function zmodemAttach (ws, opts, ctx) {
   if (opts === void 0) { opts = {} }
   const term = this
   const senderFunc = function (octets) { return ws.send(new Uint8Array(octets)) }
@@ -15,8 +15,8 @@ function zmodemAttach (ws, opts) {
       }
     },
     sender: senderFunc,
-    on_retract: function () { return term.emit('zmodemRetract') },
-    on_detect: function (detection) { return term.emit('zmodemDetect', detection) }
+    on_retract: ctx.onzmodemRetract,
+    on_detect: ctx.onZmodemDetect
   })
   function handleWSMessage (evt) {
     if (typeof evt.data === 'string') {
@@ -31,13 +31,18 @@ function zmodemAttach (ws, opts) {
   ws.addEventListener('message', handleWSMessage)
 }
 
-function apply (terminalConstructor) {
-  terminalConstructor.prototype.zmodemAttach = zmodemAttach
-  terminalConstructor.prototype.zmodemBrowser = zmodem.Browser
-}
+export class AddonZmodem {
+  _disposables = []
 
-export const addonZmodem = {
-  apply
+  activate (terminal) {
+    terminal.zmodemAttach = zmodemAttach
+    terminal.zmodemBrowser = zmodem.Browser
+  }
+
+  dispose () {
+    this._disposables.forEach(d => d.dispose())
+    this._disposables.length = 0
+  }
 }
 
 export const Zmodem = zmodem
