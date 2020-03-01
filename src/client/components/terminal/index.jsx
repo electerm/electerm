@@ -211,7 +211,7 @@ export default class Term extends Component {
       isActiveTerminal
     ) {
       e.stopPropagation()
-      this.term && e.data.command && this.term.__sendData(
+      this.term && e.data.command && this.attachAddon._sendData(
         e.data.command +
         (e.data.inputOnly ? '' : '\r')
       )
@@ -472,7 +472,7 @@ export default class Term extends Component {
     if (isWin && this.isRemote()) {
       selected = selected.replace(/\r\n/g, '\n')
     }
-    this.term.__sendData(selected)
+    this.attachAddon._sendData(selected)
     this.term.focus()
   }
 
@@ -639,7 +639,7 @@ export default class Term extends Component {
           ? loginScript + '\r'
           : `cd ${this.startPath}\r`
       )
-    this.term.__sendData(cmd)
+    this.attachAddon._sendData(cmd)
   }
 
   // onRefresh = (data) => {
