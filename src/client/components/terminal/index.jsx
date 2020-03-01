@@ -24,21 +24,16 @@ import {
 } from '../../common/constants'
 import deepCopy from 'json-deep-copy'
 import { readClipboard, copy } from '../../common/clipboard'
-import * as fit from 'xterm/lib/addons/fit/fit'
-import * as attach from 'xterm/lib/addons/attach/attach'
-import * as search from 'xterm/lib/addons/search/search'
-import * as webLinks from 'xterm/lib/addons/webLinks/webLinks'
-import { Zmodem, addonZmodem } from './xterm-zmodem'
+import { FitAddon } from 'xterm-addon-fit'
+import { AttachAddon } from 'xterm-addon-attach'
+import { SearchAddon } from 'xterm-addon-search'
+import { WebLinksAddon } from 'xterm-addon-web-links'
+import { Zmodem, AddonZmodem } from './xterm-zmodem'
+import { Unicode11Addon } from 'xterm-addon-unicode11'
 import keyControlPressed from '../../common/key-control-pressed'
 import keyShiftPressed from '../../common/key-shift-pressed'
 import keyPressed from '../../common/key-pressed'
 import { Terminal } from 'xterm'
-
-Terminal.applyAddon(fit)
-Terminal.applyAddon(attach)
-Terminal.applyAddon(search)
-Terminal.applyAddon(webLinks)
-Terminal.applyAddon(addonZmodem)
 
 const { prefix } = window
 const e = prefix('ssh')
@@ -133,7 +128,9 @@ export default class Term extends Component {
     clearTimeout(this.timers)
     this.onClose = true
     this.socket && this.socket.close()
-    this.term && this.term.dispose()
+    if (this.term) {
+      this.term.dispose()
+    }
     window.removeEventListener(
       'resize',
       this.onResize
@@ -194,6 +191,9 @@ export default class Term extends Component {
   }
 
   handleEvent = (e) => {
+    if (e.data && e.data.type === 'focus') {
+      this.setActive()
+    }
     const isActiveTerminal = this.props.id === this.props.activeSplitId &&
       this.props.tab.id === this.props.currentTabId &&
       this.props.pane === paneMap.terminal
@@ -297,11 +297,9 @@ export default class Term extends Component {
   }
 
   onReceiveZmodemSession = () => {
-    /**
-     * zmodem transfer
-     * then run rz to send from your browser or
-     * sz <file> to send from the remote peer.
-     */
+    //  * zmodem transfer
+    //  * then run rz to send from your browser or
+    //  * sz <file> to send from the remote peer.
     this.zsession.on('offer', this.onOfferReceive)
     this.zsession.start()
     return new Promise((resolve) => {
@@ -399,7 +397,8 @@ export default class Term extends Component {
   onZmodemEnd = () => {
     delete this.onZmodem
     this.onCancel = true
-    this.term.attach(this.socket)
+    this.attachAddon = new AttachAddon(this.socket)
+    this.term.loadAddon(this.attachAddon)
     this.setState(() => {
       return {
         zmodemTransfer: null
@@ -416,7 +415,7 @@ export default class Term extends Component {
 
   onZmodemDetect = detection => {
     this.onCancel = false
-    this.term.detach()
+    this.attachAddon.dispose()
     this.term.blur()
     this.onZmodem = true
     const zsession = detection.confirm()
@@ -483,6 +482,10 @@ export default class Term extends Component {
     })
   }
 
+  onTitleChange = e => {
+    log.debug(e, 'title change')
+  }
+
   onChangeSearch = (e) => {
     this.setState({
       searchInput: e.target.value
@@ -490,13 +493,13 @@ export default class Term extends Component {
   }
 
   searchPrev = () => {
-    this.term.findPrevious(
+    this.searchAddon.findPrevious(
       this.state.searchInput
     )
   }
 
   searchNext = () => {
-    this.term.findNext(
+    this.searchAddon.findNext(
       this.state.searchInput
     )
   }
@@ -599,11 +602,20 @@ export default class Term extends Component {
       fontSize: tab.fontSize || config.fontSize,
       rendererType: config.rendererType
     })
+    this.fitAddon = new FitAddon()
+    this.searchAddon = new SearchAddon()
+    const unicode11Addon = new Unicode11Addon()
+    term.loadAddon(unicode11Addon)
+    // activate the new version
+    term.unicode.activeVersion = '11'
+    term.loadAddon(this.fitAddon)
+    term.loadAddon(this.searchAddon)
     term.open(document.getElementById(id), true)
-    term.on('focus', this.setActive)
-    term.on('blur', this.onBlur)
-    term.on('selection', this.onSelection)
-    term.on('keydown', this.handleEvent)
+    term.textarea.addEventListener('focus', this.setActive)
+    term.textarea.addEventListener('blur', this.onBlur)
+    term.onTitleChange(this.onTitleChange)
+    term.onSelectionChange(this.onSelection)
+    // term.on('keydown', this.handleEvent)
     this.term = term
     // if (host && !password && !privateKey) {
     //   return this.promote()
@@ -630,10 +642,10 @@ export default class Term extends Component {
     this.term.__sendData(cmd)
   }
 
-  onRefresh = (data) => {
-    const text = this.term._core.buffer.translateBufferLineToString(data.end)
-    this.extractPath(text.trim())
-  }
+  // onRefresh = (data) => {
+  //   const text = this.term._core.buffer.translateBufferLineToString(data.end)
+  //   this.extractPath(text.trim())
+  // }
 
   extractPath = text => {
     // only support path like zxd@zxd-Q85M-D2A:~/dev$
@@ -736,8 +748,9 @@ export default class Term extends Component {
     const socket = new WebSocket(wsUrl)
     socket.onclose = this.oncloseSocket
     socket.onerror = this.onerrorSocket
+    this.attachAddon = new AttachAddon(socket)
+    term.loadAddon(this.attachAddon)
     socket.onopen = () => {
-      term.attach(socket)
       const old = socket.send
       socket.send = (...args) => {
         this.listenTimeout()
@@ -747,19 +760,19 @@ export default class Term extends Component {
       term._initialized = true
     }
     this.socket = socket
-    term.on('refresh', this.onRefresh)
-    term.on('resize', this.onResizeTerminal)
+    // term.onRrefresh(this.onRefresh)
+    term.onResize(this.onResizeTerminal)
     const cid = _.get(this.props, 'currentTabId')
     const tid = _.get(this.props, 'tab.id')
     if (cid === tid && this.props.tab.status === statusMap.success) {
-      term.webLinksInit(this.webLinkHandler)
+      term.loadAddon(new WebLinksAddon(this.webLinkHandler))
       term.focus()
-      term.fit()
+      this.zmodemAddon = new AddonZmodem()
+      this.fitAddon.fit()
+      term.loadAddon(this.zmodemAddon)
       term.zmodemAttach(this.socket, {
         noTerminalWriteOutsideSession: true
-      })
-      term.on('zmodemRetract', this.onzmodemRetract)
-      term.on('zmodemDetect', this.onZmodemDetect)
+      }, this)
     }
     term.attachCustomKeyEventHandler(this.handleEvent)
     this.decoder = new TextDecoder(encode)
@@ -800,8 +813,7 @@ export default class Term extends Component {
       this.term
     ) {
       try {
-        const { cols, rows } = this.term.proposeGeometry()
-        this.term.resize(cols, rows)
+        this.fitAddon.fit()
       } catch (e) {
         log.info('resize failed')
       }
