@@ -21,11 +21,13 @@ Terminal/ssh/sftp client(linux, mac, win) based on electron/ssh2/node-pty/xterm/
   <img src="https://github.com/electerm/electerm-resource/raw/master/static/images/electerm.gif", alt="" />
 </div>
 
-## Download
+## Download/install
 
 - [https://electerm.github.io/electerm](https://electerm.github.io/electerm)
 - From release: [https://github.com/electerm/electerm/releases](https://github.com/electerm/electerm/releases)
 - Install from npm
+- For Mac user: `brew cask install electerm`
+- For Deepin Linux user, you can find it from App store.
 
 ```bash
 npm i -g electerm
