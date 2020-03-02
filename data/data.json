@@ -4,7 +4,7 @@
     "lang": {
       "lang": {
         "app": {
-          "desc": "electerm is a terminal/ssh/sftp client(linux, mac, win) based on electron/ssh2/node-pty/xterm/antd and many other libs",
+          "desc": "electerm is a terminal/ssh/sftp client(linux, mac, win) based on electron/ssh2/node-pty/xterm/antd/subx and many other libs",
           "isRunning": "is running",
           "press": "press",
           "toShow": "to show"
@@ -55,7 +55,9 @@
           "about": "about",
           "ok": "ok",
           "cancel": "cancel",
-          "restoreSessions": "restore sessions from uncorrect shutdown?"
+          "restoreSessions": "restore sessions from uncorrect shutdown?",
+          "expandAll": "Expand all",
+          "collapseAll": "Collapse all"
         },
         "control": {
           "author": "author",
@@ -102,7 +104,8 @@
           "goGetIt": "go get it!",
           "newVersion": "new version found",
           "upgrade": "upgrade",
-          "upgrading": "upgrading"
+          "upgrading": "upgrading",
+          "skipThisVersion": "skip this version"
         },
         "setting": {
           "new": "new",
@@ -123,7 +126,15 @@
           "fontFamily": "font family",
           "opacity": "opacity",
           "global": "global",
-          "resetAllToDefault": "restore settings to their original defaults"
+          "disableSshHistory": "disable ssh history",
+          "disableTransferHistory": "disable sftp transfer history",
+          "resetAllToDefault": "restore settings to their original defaults",
+          "terminalBackgroundImage": "terminal background image",
+          "chooseFile": "choose file",
+          "rendererType": "renderer type",
+          "defaultTerminalType": "default terminal type",
+          "ctrlOrMetaOpenTerminalLink": "must hold ctrl or meta (in mac) when click to open terminal link",
+          "noTerminalBg": "no background image"
         },
         "sftp": {
           "cancel": "cancel",
@@ -177,7 +188,8 @@
           "download": "download",
           "resume": "resume",
           "pause": "pause",
-          "reset": "reset"
+          "reset": "reset",
+          "showInDefaultFileMananger": "show in file manager"
         },
         "permission": {
           "read": "read",
@@ -199,8 +211,10 @@
           "port": "port",
           "title": "title",
           "saveAndConnect": "save and connect",
+          "saveAndCreateNew": "save and create new",
           "save": "save",
           "loginScript": "run script",
+          "loginScriptDelay": "run script delay",
           "loginScriptTip": "run script after logined",
           "connect": "connect",
           "testConnection": "test connection",
@@ -213,7 +227,8 @@
           "auth": "auth",
           "proxy": "proxy",
           "use": "use",
-          "encode": "encode"
+          "encode": "encode",
+          "terminalType": "terminal type"
         },
         "ssh": {
           "clear": "clear",
@@ -237,6 +252,26 @@
           "newTheme": "new theme",
           "themeConfig": "theme config",
           "updated": "updated"
+        },
+        "quickCommands": {
+          "quickCommand": "quick command",
+          "quickCommands": "quick commands",
+          "quickCommandName": "quick command name",
+          "addQuickCommands": "add quick commands",
+          "newQuickCommand": "new quick command",
+          "inputOnly": "input only"
+        },
+        "settingSync": {
+          "settingSync": "setting sync",
+          "sync": "sync",
+          "syncing": "syncing",
+          "syncSettings": "sync settings",
+          "uploadSettings": "upload settings",
+          "downloadSettings": "download settings",
+          "synced": "synced",
+          "syncDesc": "sync bookmark / history / setting to github secret gist",
+          "autoSync": "auto sync",
+          "lastSyncTime": "last sync time"
         }
       },
       "name": "English",
@@ -249,10 +284,10 @@
         "name": "linux x86 x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/18391595",
-            "id": 18391595,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDE4MzkxNTk1",
-            "name": "electerm-1.0.33-linux-amd64.deb",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/11807797",
+            "id": 11807797,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDExODA3Nzk3",
+            "name": "electerm-0.26.73-linux-amd64.deb",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -276,18 +311,18 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 50873646,
-            "download_count": 1,
-            "created_at": "2020-03-01T13:07:13Z",
-            "updated_at": "2020-03-01T13:07:14Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.0.33/electerm-1.0.33-linux-amd64.deb",
+            "size": 38195260,
+            "download_count": 0,
+            "created_at": "2019-03-30T07:03:09Z",
+            "updated_at": "2019-03-30T07:03:10Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v0.26.73/electerm-0.26.73-linux-amd64.deb",
             "desc": "for Debian, Ubuntu..."
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/18391627",
-            "id": 18391627,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDE4MzkxNjI3",
-            "name": "electerm-1.0.33-linux-amd64.snap",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/11807842",
+            "id": 11807842,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDExODA3ODQy",
+            "name": "electerm-0.26.73-linux-amd64.snap",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -311,18 +346,18 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 62132224,
+            "size": 111947776,
             "download_count": 0,
-            "created_at": "2020-03-01T13:10:35Z",
-            "updated_at": "2020-03-01T13:10:37Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.0.33/electerm-1.0.33-linux-amd64.snap",
+            "created_at": "2019-03-30T07:07:06Z",
+            "updated_at": "2019-03-30T07:07:08Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v0.26.73/electerm-0.26.73-linux-amd64.snap",
             "desc": "for all linux that support snap"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/18391567",
-            "id": 18391567,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDE4MzkxNTY3",
-            "name": "electerm-1.0.33-linux-x64.tar.gz",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/11807789",
+            "id": 11807789,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDExODA3Nzg5",
+            "name": "electerm-0.26.73-linux-x64.tar.gz",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -346,18 +381,18 @@
             },
             "content_type": "application/gzip",
             "state": "uploaded",
-            "size": 70224102,
+            "size": 52716982,
             "download_count": 0,
-            "created_at": "2020-03-01T13:05:20Z",
-            "updated_at": "2020-03-01T13:05:21Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.0.33/electerm-1.0.33-linux-x64.tar.gz",
+            "created_at": "2019-03-30T07:01:53Z",
+            "updated_at": "2019-03-30T07:01:54Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v0.26.73/electerm-0.26.73-linux-x64.tar.gz",
             "desc": "for all linux x64, just extract"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/18391612",
-            "id": 18391612,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDE4MzkxNjEy",
-            "name": "electerm-1.0.33-linux-x86_64.rpm",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/11807834",
+            "id": 11807834,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDExODA3ODM0",
+            "name": "electerm-0.26.73-linux-x86_64.rpm",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -381,11 +416,11 @@
             },
             "content_type": "application/x-redhat-package-manager",
             "state": "uploaded",
-            "size": 50536100,
+            "size": 38229822,
             "download_count": 0,
-            "created_at": "2020-03-01T13:09:44Z",
-            "updated_at": "2020-03-01T13:09:45Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.0.33/electerm-1.0.33-linux-x86_64.rpm",
+            "created_at": "2019-03-30T07:05:04Z",
+            "updated_at": "2019-03-30T07:05:06Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v0.26.73/electerm-0.26.73-linux-x86_64.rpm",
             "desc": "for Red Hat, Fedora..."
           }
         ]
@@ -394,10 +429,10 @@
         "name": "mac os x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/18391666",
-            "id": 18391666,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDE4MzkxNjY2",
-            "name": "electerm-1.0.33-mac.dmg",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/11807795",
+            "id": 11807795,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDExODA3Nzk1",
+            "name": "electerm-0.26.73-mac.dmg",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -421,11 +456,11 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 68158371,
-            "download_count": 1,
-            "created_at": "2020-03-01T13:12:11Z",
-            "updated_at": "2020-03-01T13:12:13Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.0.33/electerm-1.0.33-mac.dmg"
+            "size": 54392102,
+            "download_count": 0,
+            "created_at": "2019-03-30T07:03:08Z",
+            "updated_at": "2019-03-30T07:03:11Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v0.26.73/electerm-0.26.73-mac.dmg"
           }
         ]
       },
@@ -433,10 +468,10 @@
         "name": "windows 7/8/10 x86 x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/18391607",
-            "id": 18391607,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDE4MzkxNjA3",
-            "name": "electerm-1.0.33-win-x64.tar.gz",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/11807783",
+            "id": 11807783,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDExODA3Nzgz",
+            "name": "electerm-0.26.73-win-x64.tar.gz",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -460,28 +495,28 @@
             },
             "content_type": "application/gzip",
             "state": "uploaded",
-            "size": 65297305,
+            "size": 54845865,
             "download_count": 0,
-            "created_at": "2020-03-01T13:08:46Z",
-            "updated_at": "2020-03-01T13:08:48Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.0.33/electerm-1.0.33-win-x64.tar.gz"
+            "created_at": "2019-03-30T07:00:10Z",
+            "updated_at": "2019-03-30T07:00:12Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v0.26.73/electerm-0.26.73-win-x64.tar.gz"
           }
         ]
       }
     },
-    "version": "v1.0.33",
-    "releaseNote": "- Fix old 1.0.33 release is actrually 1.0.31 release(maybe github release issue)\r\n- Fix split terminal UI in transprent mode (#1581)\r\n- Use github to host homepage (#1580)",
-    "releaseDate": "2020-03-01T13:17:22Z",
+    "version": "v0.26.73",
+    "releaseNote": "- fix #1198 [bug fix] Fix tree list collapse (#1199)\r\n- fix #1190 [bug fix] Keep overwrited file mode (#1197)\r\n\r\n",
+    "releaseDate": "2019-03-30T07:08:49Z",
     "siteKeywords": "electron,ternimal,electerm,ssh,sftp",
     "siteName": "electerm",
-    "path": "/home/execapp/dev/electerm.html5beta.com/index.html"
+    "path": "/Users/drake.zhao/dev/electerm.html5beta.com/index.html"
   },
   {
     "id": "es_es",
     "lang": {
       "lang": {
         "app": {
-          "desc": "electerm es una terminal/ssh/sftp client(linux, mac, win) basada en electron/ssh2/node-pty/xterm/antd y otras librerías",
+          "desc": "electerm es una terminal/ssh/sftp client(linux, mac, win) basada en electron/ssh2/node-pty/xterm/antd/subx y otras librerías",
           "isRunning": "está corriendo",
           "press": "presione",
           "toShow": "mostrar"
@@ -525,14 +560,16 @@
           "homepage": "página principal"
         },
         "common": {
-          "history": "historyial",
+          "history": "historial",
           "bookmarks": "marcadores",
           "bookmarkCategory": "categoría",
-          "setting": "ajuste",
+          "setting": "ajustes",
           "about": "acerca de",
           "ok": "ok",
           "cancel": "cancelar",
-          "restoreSessions": "restaurar sesiones desde apagado incorrecto?"
+          "restoreSessions": "restaurar sesiones desde apagado incorrecto?",
+          "expandAll": "Expandir todos",
+          "collapseAll": "Contraer todos"
         },
         "control": {
           "author": "autor",
@@ -579,7 +616,8 @@
           "goGetIt": "ve a buscarlo!",
           "newVersion": "nueva versión encontrada",
           "upgrade": "mejorar",
-          "upgrading": "mejorando"
+          "upgrading": "mejorando",
+          "skipThisVersion": "omitir esta version"
         },
         "setting": {
           "new": "new",
@@ -600,7 +638,15 @@
           "fontFamily": "tipografía familiar",
           "opacity": "opacidad",
           "global": "global",
-          "resetAllToDefault": "restaurar la configuración a sus valores predeterminados originales"
+          "disableSshHistory": "deshabilitar el historial de ssh",
+          "disableTransferHistory": "deshabilitar el historial de transferencia sftp",
+          "resetAllToDefault": "restaurar la configuración a sus valores predeterminados originales",
+          "terminalBackgroundImage": "imagen de fondo terminal",
+          "chooseFile": "Elija el archivo",
+          "rendererType": "tipo de renderizador",
+          "defaultTerminalType": "tipo de terminal predeterminado",
+          "ctrlOrMetaOpenTerminalLink": "debe contener ctrl o meta (en mac) al hacer clic para abrir el enlace del terminal",
+          "noTerminalBg": "sin imagen de fondo"
         },
         "sftp": {
           "cancel": "cancelar",
@@ -654,7 +700,8 @@
           "download": "descargar",
           "resume": "resumir",
           "pause": "pausar",
-          "reset": "reiniciar"
+          "reset": "reiniciar",
+          "showInDefaultFileMananger": "mostrar en el administrador de archivos"
         },
         "permission": {
           "read": "leer",
@@ -676,8 +723,10 @@
           "port": "puerto",
           "title": "título",
           "saveAndConnect": "guardar y conectar",
+          "saveAndCreateNew": "guardar y crear nuevos",
           "save": "guardar",
           "loginScript": "ejecutar script",
+          "loginScriptDelay": "executar atraso do script",
           "loginScriptTip": "ejecutar script después de iniciar sesión",
           "connect": "conectar",
           "testConnection": "conexión de prueba",
@@ -690,7 +739,8 @@
           "auth": "autenticacción",
           "proxy": "proxy",
           "use": "usar",
-          "encode": "codificar"
+          "encode": "codificar",
+          "terminalType": "tipo de terminal"
         },
         "ssh": {
           "clear": "limpiar",
@@ -714,6 +764,26 @@
           "newTheme": "nuevo tema",
           "themeConfig": "configuración del tema",
           "updated": "actualizado"
+        },
+        "quickCommands": {
+          "quickCommand": "comando rápido",
+          "quickCommands": "comando rápidos",
+          "quickCommandName": "nombre de comando rápido",
+          "addQuickCommands": "agregar comandos rápidos",
+          "newQuickCommand": "nuevo comando rápido",
+          "inputOnly": "solo entrada"
+        },
+        "settingSync": {
+          "settingSync": "ajuste de sincronización",
+          "sync": "sincronizar",
+          "syncing": "sincronización",
+          "syncSettings": "ajustes de sincronización",
+          "uploadSettings": "subir configuraciones",
+          "downloadSettings": "configuración de descarga",
+          "synced": "sincronizado",
+          "syncDesc": "sincronizar marcador / historial / configuración a github secret gist",
+          "autoSync": "sincronización automática",
+          "lastSyncTime": "última hora de sincronización"
         }
       },
       "name": "Español",
@@ -726,10 +796,10 @@
         "name": "linux x86 x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/18391595",
-            "id": 18391595,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDE4MzkxNTk1",
-            "name": "electerm-1.0.33-linux-amd64.deb",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/11807797",
+            "id": 11807797,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDExODA3Nzk3",
+            "name": "electerm-0.26.73-linux-amd64.deb",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -753,18 +823,18 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 50873646,
-            "download_count": 1,
-            "created_at": "2020-03-01T13:07:13Z",
-            "updated_at": "2020-03-01T13:07:14Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.0.33/electerm-1.0.33-linux-amd64.deb",
+            "size": 38195260,
+            "download_count": 0,
+            "created_at": "2019-03-30T07:03:09Z",
+            "updated_at": "2019-03-30T07:03:10Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v0.26.73/electerm-0.26.73-linux-amd64.deb",
             "desc": "for Debian, Ubuntu..."
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/18391627",
-            "id": 18391627,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDE4MzkxNjI3",
-            "name": "electerm-1.0.33-linux-amd64.snap",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/11807842",
+            "id": 11807842,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDExODA3ODQy",
+            "name": "electerm-0.26.73-linux-amd64.snap",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -788,18 +858,18 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 62132224,
+            "size": 111947776,
             "download_count": 0,
-            "created_at": "2020-03-01T13:10:35Z",
-            "updated_at": "2020-03-01T13:10:37Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.0.33/electerm-1.0.33-linux-amd64.snap",
+            "created_at": "2019-03-30T07:07:06Z",
+            "updated_at": "2019-03-30T07:07:08Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v0.26.73/electerm-0.26.73-linux-amd64.snap",
             "desc": "for all linux that support snap"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/18391567",
-            "id": 18391567,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDE4MzkxNTY3",
-            "name": "electerm-1.0.33-linux-x64.tar.gz",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/11807789",
+            "id": 11807789,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDExODA3Nzg5",
+            "name": "electerm-0.26.73-linux-x64.tar.gz",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -823,18 +893,18 @@
             },
             "content_type": "application/gzip",
             "state": "uploaded",
-            "size": 70224102,
+            "size": 52716982,
             "download_count": 0,
-            "created_at": "2020-03-01T13:05:20Z",
-            "updated_at": "2020-03-01T13:05:21Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.0.33/electerm-1.0.33-linux-x64.tar.gz",
+            "created_at": "2019-03-30T07:01:53Z",
+            "updated_at": "2019-03-30T07:01:54Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v0.26.73/electerm-0.26.73-linux-x64.tar.gz",
             "desc": "for all linux x64, just extract"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/18391612",
-            "id": 18391612,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDE4MzkxNjEy",
-            "name": "electerm-1.0.33-linux-x86_64.rpm",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/11807834",
+            "id": 11807834,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDExODA3ODM0",
+            "name": "electerm-0.26.73-linux-x86_64.rpm",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -858,11 +928,11 @@
             },
             "content_type": "application/x-redhat-package-manager",
             "state": "uploaded",
-            "size": 50536100,
+            "size": 38229822,
             "download_count": 0,
-            "created_at": "2020-03-01T13:09:44Z",
-            "updated_at": "2020-03-01T13:09:45Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.0.33/electerm-1.0.33-linux-x86_64.rpm",
+            "created_at": "2019-03-30T07:05:04Z",
+            "updated_at": "2019-03-30T07:05:06Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v0.26.73/electerm-0.26.73-linux-x86_64.rpm",
             "desc": "for Red Hat, Fedora..."
           }
         ]
@@ -871,10 +941,10 @@
         "name": "mac os x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/18391666",
-            "id": 18391666,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDE4MzkxNjY2",
-            "name": "electerm-1.0.33-mac.dmg",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/11807795",
+            "id": 11807795,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDExODA3Nzk1",
+            "name": "electerm-0.26.73-mac.dmg",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -898,11 +968,11 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 68158371,
-            "download_count": 1,
-            "created_at": "2020-03-01T13:12:11Z",
-            "updated_at": "2020-03-01T13:12:13Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.0.33/electerm-1.0.33-mac.dmg"
+            "size": 54392102,
+            "download_count": 0,
+            "created_at": "2019-03-30T07:03:08Z",
+            "updated_at": "2019-03-30T07:03:11Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v0.26.73/electerm-0.26.73-mac.dmg"
           }
         ]
       },
@@ -910,10 +980,10 @@
         "name": "windows 7/8/10 x86 x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/18391607",
-            "id": 18391607,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDE4MzkxNjA3",
-            "name": "electerm-1.0.33-win-x64.tar.gz",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/11807783",
+            "id": 11807783,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDExODA3Nzgz",
+            "name": "electerm-0.26.73-win-x64.tar.gz",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -937,28 +1007,540 @@
             },
             "content_type": "application/gzip",
             "state": "uploaded",
-            "size": 65297305,
+            "size": 54845865,
             "download_count": 0,
-            "created_at": "2020-03-01T13:08:46Z",
-            "updated_at": "2020-03-01T13:08:48Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.0.33/electerm-1.0.33-win-x64.tar.gz"
+            "created_at": "2019-03-30T07:00:10Z",
+            "updated_at": "2019-03-30T07:00:12Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v0.26.73/electerm-0.26.73-win-x64.tar.gz"
           }
         ]
       }
     },
-    "version": "v1.0.33",
-    "releaseNote": "- Fix old 1.0.33 release is actrually 1.0.31 release(maybe github release issue)\r\n- Fix split terminal UI in transprent mode (#1581)\r\n- Use github to host homepage (#1580)",
-    "releaseDate": "2020-03-01T13:17:22Z",
+    "version": "v0.26.73",
+    "releaseNote": "- fix #1198 [bug fix] Fix tree list collapse (#1199)\r\n- fix #1190 [bug fix] Keep overwrited file mode (#1197)\r\n\r\n",
+    "releaseDate": "2019-03-30T07:08:49Z",
     "siteKeywords": "electron,ternimal,electerm,ssh,sftp",
     "siteName": "electerm",
-    "path": "/home/execapp/dev/electerm.html5beta.com/index-es_es.html"
+    "path": "/Users/drake.zhao/dev/electerm.html5beta.com/index-es_es.html"
+  },
+  {
+    "id": "fr_fr",
+    "lang": {
+      "lang": {
+        "app": {
+          "desc": "electerm est un terminal ssh/sftp multiplateforme (linux, mac, win) basé sur electron/ssh2/node-pty/xterm/antd/subx et d'autres librairies",
+          "isRunning": "est démarré",
+          "press": "Appuyez",
+          "toShow": "Pour ouvrir"
+        },
+        "menu": {
+          "hide": "Masquer",
+          "hideothers": "Masquer les autres",
+          "unhide": "Afficher",
+          "quit": "Quitter",
+          "edit": "Editer",
+          "undo": "Annuler",
+          "redo": "Rétablir",
+          "cut": "Couper",
+          "copy": "Copier",
+          "paste": "Coller",
+          "pasteandmatchstyle": "Coller avec le style",
+          "del": "Supprimer",
+          "selectall": "Sélectionner tout",
+          "startspeaking": "Démarrer la conversation",
+          "stopspeaking": "Arrêter la conversation",
+          "view": "Vue",
+          "reload": "Rafraîchir",
+          "forcereload": "Forcer le rafraîchissement",
+          "toggledevtools": "Afficher la console",
+          "toggleControl": "Afficher les boutons de contrôle",
+          "resetzoom": "Réinitialiser le zoom",
+          "zoomin": "Zoom avant",
+          "zoomout": "Zoom arrière",
+          "togglefullscreen": " Plein écran",
+          "window": "Fenêtre",
+          "minimize": "Minimiser",
+          "maximize": "Maximiser",
+          "unmaximize": "Réduire",
+          "close": "Fermer",
+          "restart": "Redémarrer",
+          "front": "front",
+          "help": "Aide",
+          "about": "A propos",
+          "checkUpdate": "Vérifier les mises à jour",
+          "reportIssue": "Reporter une anomalie",
+          "homepage": "Accueil"
+        },
+        "common": {
+          "history": "Historique",
+          "bookmarks": "Favoris",
+          "bookmarkCategory": "Catégorie",
+          "setting": "Paramètres",
+          "about": "A propos",
+          "ok": "Ok",
+          "cancel": "Annuler",
+          "restoreSessions": "Restaurer les sessions précédentes ?",
+          "expandAll": "Déplier tout",
+          "collapseAll": "Réduire tout"
+        },
+        "control": {
+          "author": "Auteur",
+          "download": "Télécharger",
+          "bugReport": "Rapport d'erreur",
+          "checkForUpdate": "Vérifier les mises à jour",
+          "homepage": "Page d'accueil",
+          "notFoundContent": "Aucun élément",
+          "newSsh": "Nouvelle connexion ssh",
+          "newTerminal": "Nouveau terminal",
+          "dependencies": "Dépendances",
+          "env": "Environnement",
+          "os": "Système",
+          "userTips": "user tips"
+        },
+        "transferHistory": {
+          "transferHistory": "Historique des transferts",
+          "localPath": "Chemin local",
+          "remotePath": "Chemin distant",
+          "type": "Type",
+          "startTime": "Démarré le",
+          "finishTime": "Terminé le",
+          "speed": "Vitesse",
+          "clear": "Vider"
+        },
+        "tabs": {
+          "titleEmptyWarn": "Le titre est requis",
+          "close": "Fermer",
+          "closeOtherTabs": "Fermer les autres onglets",
+          "closeTabRight": "Fermer les onglets à droite",
+          "newTab": "Nouvel onglet",
+          "duplicate": "Dupliquer",
+          "rename": "Renommer",
+          "openNewTerm": "Nouveau terminal SSH",
+          "sessions": "sessions"
+        },
+        "main": {
+          "error": "Une erreur a été rencontrée."
+        },
+        "updater": {
+          "noNeed": "Aucune mise à jour disponible",
+          "noNeedDesc": "Vous utilisez la dernière version disponible",
+          "fail": "Erreur de vérification de mise à jour",
+          "goGetIt": "Mise à jour disponible !",
+          "newVersion": "Nouvelle version disponible",
+          "upgrade": "Mettre à jour",
+          "upgrading": "Mise à jour en cours",
+          "skipThisVersion": "Ignorer cette version"
+        },
+        "setting": {
+          "new": "Nouveau",
+          "settings": "Paramètres",
+          "common": "Général",
+          "hotkeyNotOk": "Le raccourci ne peut pas être utilisé, veuillez en choisir un autre",
+          "saved": "Enregistré",
+          "saveLang": "Enregistré, redémarrez l'application pour prendre en compte les changements",
+          "restartNow": "Redémarrer maintenant",
+          "hotkeyDesc": "Raccourci pour afficher l'application",
+          "timeoutDesc": "Délai d'attente ssh/sftp (en millisecondes)",
+          "scrollBackDesc": "Lignes de défilement",
+          "language": "Langue",
+          "copyWhenSelect": "Copier dans le presse-papier lors de la sélection",
+          "rightClickSelectsWord": "Clic droit sélectionne autmatiquement le mot",
+          "pasteWhenContextMenu": "Coller lors du clic droit",
+          "fontSize": "Taille de la police",
+          "fontFamily": "Police",
+          "opacity": "Opacité",
+          "global": "Global",
+          "disableSshHistory": "Désactiver l'historique SSH",
+          "disableTransferHistory": "Désactiver l'historique de transfert sftp",
+          "resetAllToDefault": "Restaurer les paramères par défaut",
+          "terminalBackgroundImage": "Image de fond du terminal",
+          "chooseFile": "Sélectionner un fichier",
+          "rendererType": "Type de rendu",
+          "defaultTerminalType": "Type de terminal par défaut",
+          "ctrlOrMetaOpenTerminalLink": "Doit maintenir la touche ctrl ou meta (sur mac) enfoncée pour ouvrir les liens dans le terminal",
+          "noTerminalBg": "pas d'image d'arrière-plan"
+        },
+        "sftp": {
+          "cancel": "Annuler",
+          "skip": "Ignorer",
+          "merge": "Fusionner",
+          "overwrite": "Ecraser",
+          "rename": "Renommer",
+          "renameAll": "Tout renommer",
+          "mergeDesc": "Fusionner les dossiers restants",
+          "overwriteDesc": "Ecraser les fichiers restants",
+          "mergeAll": "Tout fusionner",
+          "overwriteAll": "Tout écraser",
+          "renameDesc": "Tenommer les fichiers/dossiers restants",
+          "folder": "Dossier",
+          "file": "Fichier",
+          "fileConflict": "Conflit de fichier",
+          "submit": "Valider",
+          "edit": "Editer",
+          "open": "Ouvrir",
+          "permission": "Permission",
+          "name": "Nom",
+          "mode": "Mode",
+          "path": "Chemin",
+          "fullPath": "Chemin complet",
+          "size": "Taille",
+          "accessTime": "Dernier accès",
+          "modifyTime": "Dernière modification",
+          "attributes": "Attributs",
+          "enter": "Entrée",
+          "deleteAll": "Tout supprimer",
+          "selected": "Sélectionnés",
+          "newFile": "Nouveau fichier",
+          "newFolder": "Nouveau dossier",
+          "selectAll": "Tout sélectionner",
+          "refresh": "Actualiser",
+          "editPermission": "Editer les permissions",
+          "info": "Informations",
+          "filesAndFolders": "Fichiers/Dossiers",
+          "files": "Fichiers",
+          "delTip": "Etes-vous sûr ? Ceci supprimera",
+          "delTip1": "tous les fichiers et dossiers",
+          "goParent": "Aller au dossier parent",
+          "hide": "Masquer",
+          "show": "Afficher",
+          "hfd": "Fichiers et dossiers cachés",
+          "remote": "Distant",
+          "local": "Local",
+          "fileTransfers": "Transfert de fichiers",
+          "cancelAll": "Tout annuler",
+          "upload": "Envoyer",
+          "download": "Télécharger",
+          "resume": "Reprendre",
+          "pause": "Pause",
+          "reset": "Réinitialiser",
+          "showInDefaultFileMananger": "afficher dans le gestionnaire de fichiers"
+        },
+        "permission": {
+          "read": "Lecture",
+          "write": "Ecriture",
+          "exec": "Exécution",
+          "owner": "Propriétaire",
+          "group": "Groupe",
+          "other": "Autre"
+        },
+        "form": {
+          "password": "Mot de passe",
+          "privateKey": "Clé privée",
+          "privateKeyDesc": "Contenu de la clé privée",
+          "importFromFile": "Importer un fichier",
+          "passphrase": "Passphrase",
+          "passphraseDesc": "Passphrase de la clé privée",
+          "host": "Hôte",
+          "username": "Identifiant",
+          "port": "Port",
+          "title": "Titre",
+          "saveAndConnect": "Enregistrer et se connecter",
+          "saveAndCreateNew": "Enregistrer et créer un nouveau",
+          "save": "Enregistrer",
+          "loginScript": "Script à la connexion",
+          "loginScriptDelay": "Délai avant exécution du script",
+          "loginScriptTip": "Exécute une script à la connexion",
+          "connect": "Connexion",
+          "testConnection": "Tester la connexion",
+          "required": "Requis",
+          "proxyIp": "IP du proxy",
+          "proxyPort": "Port du proxy",
+          "proxyType": "Type de proxy",
+          "proxyIpPlaceholder": "Adresse IP du proxy",
+          "selectProxy": "Sélectionner le proxy",
+          "auth": "auth",
+          "proxy": "proxy",
+          "use": "use",
+          "encode": "encode",
+          "terminalType": "Type de terminal"
+        },
+        "ssh": {
+          "clear": "Effacer",
+          "selectAll": "Tout sélectionner",
+          "savePassword": "Mémoriser le mot de passe",
+          "search": "Rechercher",
+          "terminal": "Terminal SSH",
+          "nextMatch": "Suivant",
+          "prevMatch": "Précédent",
+          "split": "Séparer",
+          "fileManager": "Gestionnaire de fichiers SFTP",
+          "changeDirection": "Changer d'orientation"
+        },
+        "terminalThemes": {
+          "terminalThemes": "Thèmes de terminal",
+          "export": "Exporter",
+          "themeName": "Nom du thème",
+          "saveAndApply": "Enregistrer et appliquer",
+          "apply": "Appliquer",
+          "default": "Default",
+          "newTheme": "Nouveau thème",
+          "themeConfig": "Configuration du thème",
+          "updated": "Mis à jour"
+        },
+        "quickCommands": {
+          "quickCommand": "Commande",
+          "quickCommands": "Raccourcis (commandes)",
+          "quickCommandName": "Nom du raccourci",
+          "addQuickCommands": "Ajouter un raccourci",
+          "newQuickCommand": "Nouveau raccourci",
+          "inputOnly": "Saisie uniquement (ne termine pas par la touche entrée)"
+        },
+        "settingSync": {
+          "settingSync": "Synchronisation des paramètres",
+          "sync": "Synchronier",
+          "syncing": "Synchronisation en cours",
+          "syncSettings": "Synchroniser les paramètres",
+          "uploadSettings": "Envoyer les paramètres",
+          "downloadSettings": "Télécharger les paramètres",
+          "synced": "Synchronisé",
+          "syncDesc": "Synchroniser les favoris / historique / paramètres dans gist",
+          "autoSync": "Synchronisation automatique",
+          "lastSyncTime": "Dernière synchronisation"
+        }
+      },
+      "name": "Français",
+      "match": {},
+      "flag": "🇫🇷"
+    },
+    "pathHtml": "/electerm/index-fr_fr.html",
+    "assets": {
+      "linux": {
+        "name": "linux x86 x64",
+        "items": [
+          {
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/11807797",
+            "id": 11807797,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDExODA3Nzk3",
+            "name": "electerm-0.26.73-linux-amd64.deb",
+            "label": "",
+            "uploader": {
+              "login": "zxdong262",
+              "id": 1641949,
+              "node_id": "MDQ6VXNlcjE2NDE5NDk=",
+              "avatar_url": "https://avatars2.githubusercontent.com/u/1641949?v=4",
+              "gravatar_id": "",
+              "url": "https://api.github.com/users/zxdong262",
+              "html_url": "https://github.com/zxdong262",
+              "followers_url": "https://api.github.com/users/zxdong262/followers",
+              "following_url": "https://api.github.com/users/zxdong262/following{/other_user}",
+              "gists_url": "https://api.github.com/users/zxdong262/gists{/gist_id}",
+              "starred_url": "https://api.github.com/users/zxdong262/starred{/owner}{/repo}",
+              "subscriptions_url": "https://api.github.com/users/zxdong262/subscriptions",
+              "organizations_url": "https://api.github.com/users/zxdong262/orgs",
+              "repos_url": "https://api.github.com/users/zxdong262/repos",
+              "events_url": "https://api.github.com/users/zxdong262/events{/privacy}",
+              "received_events_url": "https://api.github.com/users/zxdong262/received_events",
+              "type": "User",
+              "site_admin": false
+            },
+            "content_type": "application/octet-stream",
+            "state": "uploaded",
+            "size": 38195260,
+            "download_count": 0,
+            "created_at": "2019-03-30T07:03:09Z",
+            "updated_at": "2019-03-30T07:03:10Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v0.26.73/electerm-0.26.73-linux-amd64.deb",
+            "desc": "for Debian, Ubuntu..."
+          },
+          {
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/11807842",
+            "id": 11807842,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDExODA3ODQy",
+            "name": "electerm-0.26.73-linux-amd64.snap",
+            "label": "",
+            "uploader": {
+              "login": "zxdong262",
+              "id": 1641949,
+              "node_id": "MDQ6VXNlcjE2NDE5NDk=",
+              "avatar_url": "https://avatars2.githubusercontent.com/u/1641949?v=4",
+              "gravatar_id": "",
+              "url": "https://api.github.com/users/zxdong262",
+              "html_url": "https://github.com/zxdong262",
+              "followers_url": "https://api.github.com/users/zxdong262/followers",
+              "following_url": "https://api.github.com/users/zxdong262/following{/other_user}",
+              "gists_url": "https://api.github.com/users/zxdong262/gists{/gist_id}",
+              "starred_url": "https://api.github.com/users/zxdong262/starred{/owner}{/repo}",
+              "subscriptions_url": "https://api.github.com/users/zxdong262/subscriptions",
+              "organizations_url": "https://api.github.com/users/zxdong262/orgs",
+              "repos_url": "https://api.github.com/users/zxdong262/repos",
+              "events_url": "https://api.github.com/users/zxdong262/events{/privacy}",
+              "received_events_url": "https://api.github.com/users/zxdong262/received_events",
+              "type": "User",
+              "site_admin": false
+            },
+            "content_type": "application/octet-stream",
+            "state": "uploaded",
+            "size": 111947776,
+            "download_count": 0,
+            "created_at": "2019-03-30T07:07:06Z",
+            "updated_at": "2019-03-30T07:07:08Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v0.26.73/electerm-0.26.73-linux-amd64.snap",
+            "desc": "for all linux that support snap"
+          },
+          {
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/11807789",
+            "id": 11807789,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDExODA3Nzg5",
+            "name": "electerm-0.26.73-linux-x64.tar.gz",
+            "label": "",
+            "uploader": {
+              "login": "zxdong262",
+              "id": 1641949,
+              "node_id": "MDQ6VXNlcjE2NDE5NDk=",
+              "avatar_url": "https://avatars2.githubusercontent.com/u/1641949?v=4",
+              "gravatar_id": "",
+              "url": "https://api.github.com/users/zxdong262",
+              "html_url": "https://github.com/zxdong262",
+              "followers_url": "https://api.github.com/users/zxdong262/followers",
+              "following_url": "https://api.github.com/users/zxdong262/following{/other_user}",
+              "gists_url": "https://api.github.com/users/zxdong262/gists{/gist_id}",
+              "starred_url": "https://api.github.com/users/zxdong262/starred{/owner}{/repo}",
+              "subscriptions_url": "https://api.github.com/users/zxdong262/subscriptions",
+              "organizations_url": "https://api.github.com/users/zxdong262/orgs",
+              "repos_url": "https://api.github.com/users/zxdong262/repos",
+              "events_url": "https://api.github.com/users/zxdong262/events{/privacy}",
+              "received_events_url": "https://api.github.com/users/zxdong262/received_events",
+              "type": "User",
+              "site_admin": false
+            },
+            "content_type": "application/gzip",
+            "state": "uploaded",
+            "size": 52716982,
+            "download_count": 0,
+            "created_at": "2019-03-30T07:01:53Z",
+            "updated_at": "2019-03-30T07:01:54Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v0.26.73/electerm-0.26.73-linux-x64.tar.gz",
+            "desc": "for all linux x64, just extract"
+          },
+          {
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/11807834",
+            "id": 11807834,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDExODA3ODM0",
+            "name": "electerm-0.26.73-linux-x86_64.rpm",
+            "label": "",
+            "uploader": {
+              "login": "zxdong262",
+              "id": 1641949,
+              "node_id": "MDQ6VXNlcjE2NDE5NDk=",
+              "avatar_url": "https://avatars2.githubusercontent.com/u/1641949?v=4",
+              "gravatar_id": "",
+              "url": "https://api.github.com/users/zxdong262",
+              "html_url": "https://github.com/zxdong262",
+              "followers_url": "https://api.github.com/users/zxdong262/followers",
+              "following_url": "https://api.github.com/users/zxdong262/following{/other_user}",
+              "gists_url": "https://api.github.com/users/zxdong262/gists{/gist_id}",
+              "starred_url": "https://api.github.com/users/zxdong262/starred{/owner}{/repo}",
+              "subscriptions_url": "https://api.github.com/users/zxdong262/subscriptions",
+              "organizations_url": "https://api.github.com/users/zxdong262/orgs",
+              "repos_url": "https://api.github.com/users/zxdong262/repos",
+              "events_url": "https://api.github.com/users/zxdong262/events{/privacy}",
+              "received_events_url": "https://api.github.com/users/zxdong262/received_events",
+              "type": "User",
+              "site_admin": false
+            },
+            "content_type": "application/x-redhat-package-manager",
+            "state": "uploaded",
+            "size": 38229822,
+            "download_count": 0,
+            "created_at": "2019-03-30T07:05:04Z",
+            "updated_at": "2019-03-30T07:05:06Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v0.26.73/electerm-0.26.73-linux-x86_64.rpm",
+            "desc": "for Red Hat, Fedora..."
+          }
+        ]
+      },
+      "mac": {
+        "name": "mac os x64",
+        "items": [
+          {
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/11807795",
+            "id": 11807795,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDExODA3Nzk1",
+            "name": "electerm-0.26.73-mac.dmg",
+            "label": "",
+            "uploader": {
+              "login": "zxdong262",
+              "id": 1641949,
+              "node_id": "MDQ6VXNlcjE2NDE5NDk=",
+              "avatar_url": "https://avatars2.githubusercontent.com/u/1641949?v=4",
+              "gravatar_id": "",
+              "url": "https://api.github.com/users/zxdong262",
+              "html_url": "https://github.com/zxdong262",
+              "followers_url": "https://api.github.com/users/zxdong262/followers",
+              "following_url": "https://api.github.com/users/zxdong262/following{/other_user}",
+              "gists_url": "https://api.github.com/users/zxdong262/gists{/gist_id}",
+              "starred_url": "https://api.github.com/users/zxdong262/starred{/owner}{/repo}",
+              "subscriptions_url": "https://api.github.com/users/zxdong262/subscriptions",
+              "organizations_url": "https://api.github.com/users/zxdong262/orgs",
+              "repos_url": "https://api.github.com/users/zxdong262/repos",
+              "events_url": "https://api.github.com/users/zxdong262/events{/privacy}",
+              "received_events_url": "https://api.github.com/users/zxdong262/received_events",
+              "type": "User",
+              "site_admin": false
+            },
+            "content_type": "application/octet-stream",
+            "state": "uploaded",
+            "size": 54392102,
+            "download_count": 0,
+            "created_at": "2019-03-30T07:03:08Z",
+            "updated_at": "2019-03-30T07:03:11Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v0.26.73/electerm-0.26.73-mac.dmg"
+          }
+        ]
+      },
+      "windows": {
+        "name": "windows 7/8/10 x86 x64",
+        "items": [
+          {
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/11807783",
+            "id": 11807783,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDExODA3Nzgz",
+            "name": "electerm-0.26.73-win-x64.tar.gz",
+            "label": "",
+            "uploader": {
+              "login": "zxdong262",
+              "id": 1641949,
+              "node_id": "MDQ6VXNlcjE2NDE5NDk=",
+              "avatar_url": "https://avatars2.githubusercontent.com/u/1641949?v=4",
+              "gravatar_id": "",
+              "url": "https://api.github.com/users/zxdong262",
+              "html_url": "https://github.com/zxdong262",
+              "followers_url": "https://api.github.com/users/zxdong262/followers",
+              "following_url": "https://api.github.com/users/zxdong262/following{/other_user}",
+              "gists_url": "https://api.github.com/users/zxdong262/gists{/gist_id}",
+              "starred_url": "https://api.github.com/users/zxdong262/starred{/owner}{/repo}",
+              "subscriptions_url": "https://api.github.com/users/zxdong262/subscriptions",
+              "organizations_url": "https://api.github.com/users/zxdong262/orgs",
+              "repos_url": "https://api.github.com/users/zxdong262/repos",
+              "events_url": "https://api.github.com/users/zxdong262/events{/privacy}",
+              "received_events_url": "https://api.github.com/users/zxdong262/received_events",
+              "type": "User",
+              "site_admin": false
+            },
+            "content_type": "application/gzip",
+            "state": "uploaded",
+            "size": 54845865,
+            "download_count": 0,
+            "created_at": "2019-03-30T07:00:10Z",
+            "updated_at": "2019-03-30T07:00:12Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v0.26.73/electerm-0.26.73-win-x64.tar.gz"
+          }
+        ]
+      }
+    },
+    "version": "v0.26.73",
+    "releaseNote": "- fix #1198 [bug fix] Fix tree list collapse (#1199)\r\n- fix #1190 [bug fix] Keep overwrited file mode (#1197)\r\n\r\n",
+    "releaseDate": "2019-03-30T07:08:49Z",
+    "siteKeywords": "electron,ternimal,electerm,ssh,sftp",
+    "siteName": "electerm",
+    "path": "/Users/drake.zhao/dev/electerm.html5beta.com/index-fr_fr.html"
   },
   {
     "id": "pt_br",
     "lang": {
       "lang": {
         "app": {
-          "desc": "electerm é um cliente terminal/ssh/sftp para (linux, mac, win) baseado em electron/ssh2/node-pty/xterm/antd e muitas outras libs",
+          "desc": "electerm é um cliente terminal/ssh/sftp para (linux, mac, win) baseado em electron/ssh2/node-pty/xterm/antd/subx e muitas outras libs",
           "isRunning": "está rodando",
           "press": "pressione",
           "toShow": "para exibir"
@@ -1009,7 +1591,9 @@
           "about": "sobre",
           "ok": "ok",
           "cancel": "cancelar",
-          "restoreSessions": "Restaurar sesiones de incorrecto shutdown?"
+          "restoreSessions": "Restaurar sesiones de incorrecto shutdown?",
+          "expandAll": "Expandir todo",
+          "collapseAll": "Recolher todo"
         },
         "control": {
           "author": "autor",
@@ -1056,7 +1640,8 @@
           "goGetIt": "buscar",
           "newVersion": "nova versão encontrada",
           "upgrade": "atualizar",
-          "upgrading": "atualizando"
+          "upgrading": "atualizando",
+          "skipThisVersion": "pular esta versão"
         },
         "setting": {
           "new": "novo",
@@ -1077,7 +1662,15 @@
           "fontFamily": "família de fontes",
           "opacity": "opacidade",
           "global": "global",
-          "resetAllToDefault": "restaurar configurações para seus padrões originais"
+          "disableSshHistory": "desativar o histórico do ssh",
+          "disableTransferHistory": "desativar histórico de transferência do sftp",
+          "resetAllToDefault": "restaurar configurações para seus padrões originais",
+          "terminalBackgroundImage": "imagem de fundo do terminal",
+          "chooseFile": "escolher arquivo",
+          "rendererType": "tipo renderizador",
+          "defaultTerminalType": "tipo de terminal padrão",
+          "ctrlOrMetaOpenTerminalLink": "deve segurar ctrl ou meta (no mac) quando clicar para abrir o link do terminal",
+          "noTerminalBg": "nenhuma imagem de fundo"
         },
         "sftp": {
           "cancel": "cancelar",
@@ -1131,7 +1724,8 @@
           "download": "download",
           "resume": "continuar",
           "pause": "pausar",
-          "reset": "restaurar"
+          "reset": "restaurar",
+          "showInDefaultFileMananger": "mostrar no gerenciador de arquivos"
         },
         "permission": {
           "read": "leitura",
@@ -1153,8 +1747,10 @@
           "port": "porta",
           "title": "título",
           "saveAndConnect": "salvar e conectar",
+          "saveAndCreateNew": "salve e crie novo",
           "save": "salvar",
           "loginScript": "rodar script",
+          "loginScriptDelay": "run script delay",
           "loginScriptTip": "rodar script após login",
           "connect": "conectar",
           "testConnection": "testar conexão",
@@ -1167,7 +1763,8 @@
           "auth": "autenticação",
           "proxy": "proxy",
           "use": "usar",
-          "encode": "codificar"
+          "encode": "codificar",
+          "terminalType": "tipo de terminal"
         },
         "ssh": {
           "clear": "limpar",
@@ -1191,6 +1788,26 @@
           "newTheme": "novo tema",
           "themeConfig": "configuração do tema",
           "updated": "Atualizada"
+        },
+        "quickCommands": {
+          "quickCommand": "comando rápido",
+          "quickCommands": "comandos rápidos",
+          "quickCommandName": "nome de comando rápido",
+          "addQuickCommands": "adicionar comandos rápidos",
+          "newQuickCommand": "novo comando rápido",
+          "inputOnly": "somente entrada"
+        },
+        "settingSync": {
+          "settingSync": "ajustando a sincronização",
+          "sync": "sincronizar",
+          "syncing": "sincronização",
+          "syncSettings": "configurações de sincronização",
+          "uploadSettings": "configurações de upload",
+          "downloadSettings": "configurações de download",
+          "synced": "sincronizado",
+          "syncDesc": "sincronizar marcador / history / setting para github secret gist",
+          "autoSync": "sincronização automática",
+          "lastSyncTime": "hora da última sincronização"
         }
       },
       "name": "Português do Brasil",
@@ -1203,10 +1820,10 @@
         "name": "linux x86 x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/18391595",
-            "id": 18391595,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDE4MzkxNTk1",
-            "name": "electerm-1.0.33-linux-amd64.deb",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/11807797",
+            "id": 11807797,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDExODA3Nzk3",
+            "name": "electerm-0.26.73-linux-amd64.deb",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -1230,18 +1847,18 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 50873646,
-            "download_count": 1,
-            "created_at": "2020-03-01T13:07:13Z",
-            "updated_at": "2020-03-01T13:07:14Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.0.33/electerm-1.0.33-linux-amd64.deb",
+            "size": 38195260,
+            "download_count": 0,
+            "created_at": "2019-03-30T07:03:09Z",
+            "updated_at": "2019-03-30T07:03:10Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v0.26.73/electerm-0.26.73-linux-amd64.deb",
             "desc": "for Debian, Ubuntu..."
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/18391627",
-            "id": 18391627,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDE4MzkxNjI3",
-            "name": "electerm-1.0.33-linux-amd64.snap",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/11807842",
+            "id": 11807842,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDExODA3ODQy",
+            "name": "electerm-0.26.73-linux-amd64.snap",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -1265,18 +1882,18 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 62132224,
+            "size": 111947776,
             "download_count": 0,
-            "created_at": "2020-03-01T13:10:35Z",
-            "updated_at": "2020-03-01T13:10:37Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.0.33/electerm-1.0.33-linux-amd64.snap",
+            "created_at": "2019-03-30T07:07:06Z",
+            "updated_at": "2019-03-30T07:07:08Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v0.26.73/electerm-0.26.73-linux-amd64.snap",
             "desc": "for all linux that support snap"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/18391567",
-            "id": 18391567,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDE4MzkxNTY3",
-            "name": "electerm-1.0.33-linux-x64.tar.gz",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/11807789",
+            "id": 11807789,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDExODA3Nzg5",
+            "name": "electerm-0.26.73-linux-x64.tar.gz",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -1300,18 +1917,18 @@
             },
             "content_type": "application/gzip",
             "state": "uploaded",
-            "size": 70224102,
+            "size": 52716982,
             "download_count": 0,
-            "created_at": "2020-03-01T13:05:20Z",
-            "updated_at": "2020-03-01T13:05:21Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.0.33/electerm-1.0.33-linux-x64.tar.gz",
+            "created_at": "2019-03-30T07:01:53Z",
+            "updated_at": "2019-03-30T07:01:54Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v0.26.73/electerm-0.26.73-linux-x64.tar.gz",
             "desc": "for all linux x64, just extract"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/18391612",
-            "id": 18391612,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDE4MzkxNjEy",
-            "name": "electerm-1.0.33-linux-x86_64.rpm",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/11807834",
+            "id": 11807834,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDExODA3ODM0",
+            "name": "electerm-0.26.73-linux-x86_64.rpm",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -1335,11 +1952,11 @@
             },
             "content_type": "application/x-redhat-package-manager",
             "state": "uploaded",
-            "size": 50536100,
+            "size": 38229822,
             "download_count": 0,
-            "created_at": "2020-03-01T13:09:44Z",
-            "updated_at": "2020-03-01T13:09:45Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.0.33/electerm-1.0.33-linux-x86_64.rpm",
+            "created_at": "2019-03-30T07:05:04Z",
+            "updated_at": "2019-03-30T07:05:06Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v0.26.73/electerm-0.26.73-linux-x86_64.rpm",
             "desc": "for Red Hat, Fedora..."
           }
         ]
@@ -1348,10 +1965,10 @@
         "name": "mac os x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/18391666",
-            "id": 18391666,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDE4MzkxNjY2",
-            "name": "electerm-1.0.33-mac.dmg",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/11807795",
+            "id": 11807795,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDExODA3Nzk1",
+            "name": "electerm-0.26.73-mac.dmg",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -1375,11 +1992,11 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 68158371,
-            "download_count": 1,
-            "created_at": "2020-03-01T13:12:11Z",
-            "updated_at": "2020-03-01T13:12:13Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.0.33/electerm-1.0.33-mac.dmg"
+            "size": 54392102,
+            "download_count": 0,
+            "created_at": "2019-03-30T07:03:08Z",
+            "updated_at": "2019-03-30T07:03:11Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v0.26.73/electerm-0.26.73-mac.dmg"
           }
         ]
       },
@@ -1387,10 +2004,10 @@
         "name": "windows 7/8/10 x86 x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/18391607",
-            "id": 18391607,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDE4MzkxNjA3",
-            "name": "electerm-1.0.33-win-x64.tar.gz",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/11807783",
+            "id": 11807783,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDExODA3Nzgz",
+            "name": "electerm-0.26.73-win-x64.tar.gz",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -1414,28 +2031,28 @@
             },
             "content_type": "application/gzip",
             "state": "uploaded",
-            "size": 65297305,
+            "size": 54845865,
             "download_count": 0,
-            "created_at": "2020-03-01T13:08:46Z",
-            "updated_at": "2020-03-01T13:08:48Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.0.33/electerm-1.0.33-win-x64.tar.gz"
+            "created_at": "2019-03-30T07:00:10Z",
+            "updated_at": "2019-03-30T07:00:12Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v0.26.73/electerm-0.26.73-win-x64.tar.gz"
           }
         ]
       }
     },
-    "version": "v1.0.33",
-    "releaseNote": "- Fix old 1.0.33 release is actrually 1.0.31 release(maybe github release issue)\r\n- Fix split terminal UI in transprent mode (#1581)\r\n- Use github to host homepage (#1580)",
-    "releaseDate": "2020-03-01T13:17:22Z",
+    "version": "v0.26.73",
+    "releaseNote": "- fix #1198 [bug fix] Fix tree list collapse (#1199)\r\n- fix #1190 [bug fix] Keep overwrited file mode (#1197)\r\n\r\n",
+    "releaseDate": "2019-03-30T07:08:49Z",
     "siteKeywords": "electron,ternimal,electerm,ssh,sftp",
     "siteName": "electerm",
-    "path": "/home/execapp/dev/electerm.html5beta.com/index-pt_br.html"
+    "path": "/Users/drake.zhao/dev/electerm.html5beta.com/index-pt_br.html"
   },
   {
     "id": "ru_ru",
     "lang": {
       "lang": {
         "app": {
-          "desc": "electerm - это мультиплатформенный терминал и ssh/sftp клиент (linux, mac, win) на основе electron/ssh2/node-pty/xterm/antd и многих других библиотек",
+          "desc": "electerm - это мультиплатформенный терминал и ssh/sftp клиент (linux, mac, win) на основе electron/ssh2/node-pty/xterm/antd/subx и многих других библиотек",
           "isRunning": "выполняется",
           "press": "нажмите",
           "toShow": "для отображения"
@@ -1486,7 +2103,9 @@
           "about": "о программе",
           "ok": "ок",
           "cancel": "отмена",
-          "restoreSessions": "восстановить сессии после некорректного завершения?"
+          "restoreSessions": "восстановить сессии после некорректного завершения?",
+          "expandAll": "развернуть",
+          "collapseAll": "свернуть"
         },
         "control": {
           "author": "автор",
@@ -1533,7 +2152,8 @@
           "goGetIt": "получите ее!",
           "newVersion": "найдена новая версия",
           "upgrade": "Обновить",
-          "upgrading": "модернизация"
+          "upgrading": "модернизация",
+          "skipThisVersion": "пропустить эту версию"
         },
         "setting": {
           "new": "новый",
@@ -1554,7 +2174,15 @@
           "fontFamily": "семейство шрифта",
           "opacity": "помутнение",
           "global": "глобальной",
-          "resetAllToDefault": "восстановить настройки по умолчанию"
+          "disableSshHistory": "Отключить историю SSH",
+          "disableTransferHistory": "Отключить историю переводов sftp",
+          "resetAllToDefault": "восстановить настройки по умолчанию",
+          "terminalBackgroundImage": "терминал фоновое изображение",
+          "chooseFile": "выберите файл",
+          "rendererType": "тип рендерера",
+          "defaultTerminalType": "тип терминала по умолчанию",
+          "ctrlOrMetaOpenTerminalLink": "должен удерживать Ctrl или Meta (в Mac) при нажатии, чтобы открыть ссылку терминала",
+          "noTerminalBg": "без фонового изображения"
         },
         "sftp": {
           "cancel": "отменить",
@@ -1608,7 +2236,8 @@
           "download": "скачать",
           "resume": "возобновить",
           "pause": "приостановить",
-          "reset": "сбросить"
+          "reset": "сбросить",
+          "showInDefaultFileMananger": "показать в файловом менеджере"
         },
         "permission": {
           "read": "чтение",
@@ -1630,8 +2259,10 @@
           "port": "порт",
           "title": "название",
           "saveAndConnect": "сохранить и соединиться",
+          "saveAndCreateNew": "сохранить и создать новый",
           "save": "сохранить",
           "loginScript": "запустить скрипт",
+          "loginScriptDelay": "задержка запуска скрипта",
           "loginScriptTip": "запустить скрипт после логина",
           "connect": "соединиться",
           "testConnection": "проверить соединение",
@@ -1644,7 +2275,8 @@
           "auth": "авторизация",
           "proxy": "прокси",
           "use": "использовать",
-          "encode": "шифровать"
+          "encode": "шифровать",
+          "terminalType": "тип терминала"
         },
         "ssh": {
           "clear": "очистить",
@@ -1668,6 +2300,26 @@
           "newTheme": "новая тема",
           "themeConfig": "конфигурация темы",
           "updated": "обновлено"
+        },
+        "quickCommands": {
+          "quickCommand": "быстрая команда",
+          "quickCommands": "быстрые команды",
+          "quickCommandName": "быстрое имя команды",
+          "addQuickCommands": "добавить быстрые команды",
+          "newQuickCommand": "новая быстрая команда",
+          "inputOnly": "только вход"
+        },
+        "settingSync": {
+          "settingSync": "настройка синхронизации",
+          "sync": "синхронизировать",
+          "syncing": "синхронизации",
+          "syncSettings": "настройки синхронизации",
+          "uploadSettings": "загрузить настройки",
+          "downloadSettings": "скачать настройки",
+          "synced": "синхронизирован",
+          "syncDesc": "синхронизировать закладку / историю / настройку в github секретный гист",
+          "autoSync": "автосинхронизация",
+          "lastSyncTime": "время последней синхронизации"
         }
       },
       "name": "Русский",
@@ -1680,10 +2332,10 @@
         "name": "linux x86 x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/18391595",
-            "id": 18391595,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDE4MzkxNTk1",
-            "name": "electerm-1.0.33-linux-amd64.deb",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/11807797",
+            "id": 11807797,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDExODA3Nzk3",
+            "name": "electerm-0.26.73-linux-amd64.deb",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -1707,18 +2359,18 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 50873646,
-            "download_count": 1,
-            "created_at": "2020-03-01T13:07:13Z",
-            "updated_at": "2020-03-01T13:07:14Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.0.33/electerm-1.0.33-linux-amd64.deb",
+            "size": 38195260,
+            "download_count": 0,
+            "created_at": "2019-03-30T07:03:09Z",
+            "updated_at": "2019-03-30T07:03:10Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v0.26.73/electerm-0.26.73-linux-amd64.deb",
             "desc": "for Debian, Ubuntu..."
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/18391627",
-            "id": 18391627,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDE4MzkxNjI3",
-            "name": "electerm-1.0.33-linux-amd64.snap",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/11807842",
+            "id": 11807842,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDExODA3ODQy",
+            "name": "electerm-0.26.73-linux-amd64.snap",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -1742,18 +2394,18 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 62132224,
+            "size": 111947776,
             "download_count": 0,
-            "created_at": "2020-03-01T13:10:35Z",
-            "updated_at": "2020-03-01T13:10:37Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.0.33/electerm-1.0.33-linux-amd64.snap",
+            "created_at": "2019-03-30T07:07:06Z",
+            "updated_at": "2019-03-30T07:07:08Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v0.26.73/electerm-0.26.73-linux-amd64.snap",
             "desc": "for all linux that support snap"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/18391567",
-            "id": 18391567,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDE4MzkxNTY3",
-            "name": "electerm-1.0.33-linux-x64.tar.gz",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/11807789",
+            "id": 11807789,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDExODA3Nzg5",
+            "name": "electerm-0.26.73-linux-x64.tar.gz",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -1777,18 +2429,18 @@
             },
             "content_type": "application/gzip",
             "state": "uploaded",
-            "size": 70224102,
+            "size": 52716982,
             "download_count": 0,
-            "created_at": "2020-03-01T13:05:20Z",
-            "updated_at": "2020-03-01T13:05:21Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.0.33/electerm-1.0.33-linux-x64.tar.gz",
+            "created_at": "2019-03-30T07:01:53Z",
+            "updated_at": "2019-03-30T07:01:54Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v0.26.73/electerm-0.26.73-linux-x64.tar.gz",
             "desc": "for all linux x64, just extract"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/18391612",
-            "id": 18391612,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDE4MzkxNjEy",
-            "name": "electerm-1.0.33-linux-x86_64.rpm",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/11807834",
+            "id": 11807834,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDExODA3ODM0",
+            "name": "electerm-0.26.73-linux-x86_64.rpm",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -1812,11 +2464,11 @@
             },
             "content_type": "application/x-redhat-package-manager",
             "state": "uploaded",
-            "size": 50536100,
+            "size": 38229822,
             "download_count": 0,
-            "created_at": "2020-03-01T13:09:44Z",
-            "updated_at": "2020-03-01T13:09:45Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.0.33/electerm-1.0.33-linux-x86_64.rpm",
+            "created_at": "2019-03-30T07:05:04Z",
+            "updated_at": "2019-03-30T07:05:06Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v0.26.73/electerm-0.26.73-linux-x86_64.rpm",
             "desc": "for Red Hat, Fedora..."
           }
         ]
@@ -1825,10 +2477,10 @@
         "name": "mac os x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/18391666",
-            "id": 18391666,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDE4MzkxNjY2",
-            "name": "electerm-1.0.33-mac.dmg",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/11807795",
+            "id": 11807795,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDExODA3Nzk1",
+            "name": "electerm-0.26.73-mac.dmg",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -1852,11 +2504,11 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 68158371,
-            "download_count": 1,
-            "created_at": "2020-03-01T13:12:11Z",
-            "updated_at": "2020-03-01T13:12:13Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.0.33/electerm-1.0.33-mac.dmg"
+            "size": 54392102,
+            "download_count": 0,
+            "created_at": "2019-03-30T07:03:08Z",
+            "updated_at": "2019-03-30T07:03:11Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v0.26.73/electerm-0.26.73-mac.dmg"
           }
         ]
       },
@@ -1864,10 +2516,10 @@
         "name": "windows 7/8/10 x86 x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/18391607",
-            "id": 18391607,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDE4MzkxNjA3",
-            "name": "electerm-1.0.33-win-x64.tar.gz",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/11807783",
+            "id": 11807783,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDExODA3Nzgz",
+            "name": "electerm-0.26.73-win-x64.tar.gz",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -1891,28 +2543,28 @@
             },
             "content_type": "application/gzip",
             "state": "uploaded",
-            "size": 65297305,
+            "size": 54845865,
             "download_count": 0,
-            "created_at": "2020-03-01T13:08:46Z",
-            "updated_at": "2020-03-01T13:08:48Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.0.33/electerm-1.0.33-win-x64.tar.gz"
+            "created_at": "2019-03-30T07:00:10Z",
+            "updated_at": "2019-03-30T07:00:12Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v0.26.73/electerm-0.26.73-win-x64.tar.gz"
           }
         ]
       }
     },
-    "version": "v1.0.33",
-    "releaseNote": "- Fix old 1.0.33 release is actrually 1.0.31 release(maybe github release issue)\r\n- Fix split terminal UI in transprent mode (#1581)\r\n- Use github to host homepage (#1580)",
-    "releaseDate": "2020-03-01T13:17:22Z",
+    "version": "v0.26.73",
+    "releaseNote": "- fix #1198 [bug fix] Fix tree list collapse (#1199)\r\n- fix #1190 [bug fix] Keep overwrited file mode (#1197)\r\n\r\n",
+    "releaseDate": "2019-03-30T07:08:49Z",
     "siteKeywords": "electron,ternimal,electerm,ssh,sftp",
     "siteName": "electerm",
-    "path": "/home/execapp/dev/electerm.html5beta.com/index-ru_ru.html"
+    "path": "/Users/drake.zhao/dev/electerm.html5beta.com/index-ru_ru.html"
   },
   {
     "id": "zh_cn",
     "lang": {
       "lang": {
         "app": {
-          "desc": "electerm是一个terminal/ssh/sftp客户端(支持linux, mac, win), 基于electron/ssh2/node-pty/xterm/antd等组件",
+          "desc": "electerm是一个terminal/ssh/sftp客户端(支持linux, mac, win), 基于electron/ssh2/node-pty/xterm/antd/subx等组件",
           "isRunning": "运行中",
           "press": "按",
           "toShow": "显示"
@@ -1963,7 +2615,9 @@
           "about": "关于",
           "ok": "好的",
           "cancel": "取消",
-          "restoreSessions": "恢复未正确关闭的连接?"
+          "restoreSessions": "恢复未正确关闭的连接?",
+          "expandAll": "展开所有",
+          "collapseAll": "收起所有"
         },
         "control": {
           "author": "作者",
@@ -2010,7 +2664,8 @@
           "goGetIt": "前往升级!",
           "newVersion": "发现新版本",
           "upgrade": "升级",
-          "upgrading": "升级中"
+          "upgrading": "升级中",
+          "skipThisVersion": "不再提示这个版本"
         },
         "setting": {
           "new": "新建",
@@ -2031,7 +2686,15 @@
           "fontFamily": "字体",
           "opacity": "不透明度",
           "global": "全局",
-          "resetAllToDefault": "重置为默认设置"
+          "disableSshHistory": "关闭SSH连接历史",
+          "disableTransferHistory": "关闭传输SFTP传输历史",
+          "resetAllToDefault": "重置为默认设置",
+          "terminalBackgroundImage": "终端背景图片",
+          "chooseFile": "选择文件",
+          "rendererType": "渲染类型",
+          "defaultTerminalType": "默认终端类型",
+          "ctrlOrMetaOpenTerminalLink": "按住ctrl或者meta(mac系统)才能点击打开终端里的链接",
+          "noTerminalBg": "无背景图片"
         },
         "sftp": {
           "cancel": "取消",
@@ -2085,7 +2748,8 @@
           "download": "下载",
           "resume": "继续",
           "pause": "暂停",
-          "reset": "重置"
+          "reset": "重置",
+          "showInDefaultFileMananger": "在文件管理器中显示"
         },
         "permission": {
           "read": "读",
@@ -2107,8 +2771,10 @@
           "port": "端口",
           "title": "标题",
           "saveAndConnect": "保存并连接",
+          "saveAndCreateNew": "保存并新建",
           "save": "保存",
           "loginScript": "运行脚本",
+          "loginScriptDelay": "运行脚本延迟",
           "loginScriptTip": "登陆后运行脚本",
           "connect": "连接",
           "testConnection": "测试连接",
@@ -2121,7 +2787,8 @@
           "auth": "授权信息",
           "proxy": "代理",
           "use": "使用",
-          "encode": "编码"
+          "encode": "编码",
+          "terminalType": "终端类型"
         },
         "ssh": {
           "clear": "清屏",
@@ -2145,6 +2812,26 @@
           "newTheme": "新主题",
           "themeConfig": "主题定义",
           "updated": "已更新"
+        },
+        "quickCommands": {
+          "quickCommand": "快速命令",
+          "quickCommands": "快速命令",
+          "quickCommandName": "快速命令名称",
+          "addQuickCommands": "添加快速命令",
+          "newQuickCommand": "新建快速命令",
+          "inputOnly": "仅输入"
+        },
+        "settingSync": {
+          "settingSync": "设定同步",
+          "sync": "同步",
+          "syncing": "同步中...",
+          "syncSettings": "设定同步",
+          "uploadSettings": "上传设定",
+          "downloadSettings": "下载设定",
+          "synced": "已同步",
+          "syncDesc": "同步书签/历史/设定到github私有gist",
+          "autoSync": "自动同步",
+          "lastSyncTime": "last sync time"
         }
       },
       "name": "中文",
@@ -2157,10 +2844,10 @@
         "name": "linux x86 x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/18391595",
-            "id": 18391595,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDE4MzkxNTk1",
-            "name": "electerm-1.0.33-linux-amd64.deb",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/11807797",
+            "id": 11807797,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDExODA3Nzk3",
+            "name": "electerm-0.26.73-linux-amd64.deb",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -2184,18 +2871,18 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 50873646,
-            "download_count": 1,
-            "created_at": "2020-03-01T13:07:13Z",
-            "updated_at": "2020-03-01T13:07:14Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.0.33/electerm-1.0.33-linux-amd64.deb",
+            "size": 38195260,
+            "download_count": 0,
+            "created_at": "2019-03-30T07:03:09Z",
+            "updated_at": "2019-03-30T07:03:10Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v0.26.73/electerm-0.26.73-linux-amd64.deb",
             "desc": "for Debian, Ubuntu..."
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/18391627",
-            "id": 18391627,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDE4MzkxNjI3",
-            "name": "electerm-1.0.33-linux-amd64.snap",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/11807842",
+            "id": 11807842,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDExODA3ODQy",
+            "name": "electerm-0.26.73-linux-amd64.snap",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -2219,18 +2906,18 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 62132224,
+            "size": 111947776,
             "download_count": 0,
-            "created_at": "2020-03-01T13:10:35Z",
-            "updated_at": "2020-03-01T13:10:37Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.0.33/electerm-1.0.33-linux-amd64.snap",
+            "created_at": "2019-03-30T07:07:06Z",
+            "updated_at": "2019-03-30T07:07:08Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v0.26.73/electerm-0.26.73-linux-amd64.snap",
             "desc": "for all linux that support snap"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/18391567",
-            "id": 18391567,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDE4MzkxNTY3",
-            "name": "electerm-1.0.33-linux-x64.tar.gz",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/11807789",
+            "id": 11807789,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDExODA3Nzg5",
+            "name": "electerm-0.26.73-linux-x64.tar.gz",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -2254,18 +2941,18 @@
             },
             "content_type": "application/gzip",
             "state": "uploaded",
-            "size": 70224102,
+            "size": 52716982,
             "download_count": 0,
-            "created_at": "2020-03-01T13:05:20Z",
-            "updated_at": "2020-03-01T13:05:21Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.0.33/electerm-1.0.33-linux-x64.tar.gz",
+            "created_at": "2019-03-30T07:01:53Z",
+            "updated_at": "2019-03-30T07:01:54Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v0.26.73/electerm-0.26.73-linux-x64.tar.gz",
             "desc": "for all linux x64, just extract"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/18391612",
-            "id": 18391612,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDE4MzkxNjEy",
-            "name": "electerm-1.0.33-linux-x86_64.rpm",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/11807834",
+            "id": 11807834,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDExODA3ODM0",
+            "name": "electerm-0.26.73-linux-x86_64.rpm",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -2289,11 +2976,11 @@
             },
             "content_type": "application/x-redhat-package-manager",
             "state": "uploaded",
-            "size": 50536100,
+            "size": 38229822,
             "download_count": 0,
-            "created_at": "2020-03-01T13:09:44Z",
-            "updated_at": "2020-03-01T13:09:45Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.0.33/electerm-1.0.33-linux-x86_64.rpm",
+            "created_at": "2019-03-30T07:05:04Z",
+            "updated_at": "2019-03-30T07:05:06Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v0.26.73/electerm-0.26.73-linux-x86_64.rpm",
             "desc": "for Red Hat, Fedora..."
           }
         ]
@@ -2302,10 +2989,10 @@
         "name": "mac os x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/18391666",
-            "id": 18391666,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDE4MzkxNjY2",
-            "name": "electerm-1.0.33-mac.dmg",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/11807795",
+            "id": 11807795,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDExODA3Nzk1",
+            "name": "electerm-0.26.73-mac.dmg",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -2329,11 +3016,11 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 68158371,
-            "download_count": 1,
-            "created_at": "2020-03-01T13:12:11Z",
-            "updated_at": "2020-03-01T13:12:13Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.0.33/electerm-1.0.33-mac.dmg"
+            "size": 54392102,
+            "download_count": 0,
+            "created_at": "2019-03-30T07:03:08Z",
+            "updated_at": "2019-03-30T07:03:11Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v0.26.73/electerm-0.26.73-mac.dmg"
           }
         ]
       },
@@ -2341,10 +3028,10 @@
         "name": "windows 7/8/10 x86 x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/18391607",
-            "id": 18391607,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDE4MzkxNjA3",
-            "name": "electerm-1.0.33-win-x64.tar.gz",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/11807783",
+            "id": 11807783,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDExODA3Nzgz",
+            "name": "electerm-0.26.73-win-x64.tar.gz",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -2368,20 +3055,20 @@
             },
             "content_type": "application/gzip",
             "state": "uploaded",
-            "size": 65297305,
+            "size": 54845865,
             "download_count": 0,
-            "created_at": "2020-03-01T13:08:46Z",
-            "updated_at": "2020-03-01T13:08:48Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.0.33/electerm-1.0.33-win-x64.tar.gz"
+            "created_at": "2019-03-30T07:00:10Z",
+            "updated_at": "2019-03-30T07:00:12Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v0.26.73/electerm-0.26.73-win-x64.tar.gz"
           }
         ]
       }
     },
-    "version": "v1.0.33",
-    "releaseNote": "- Fix old 1.0.33 release is actrually 1.0.31 release(maybe github release issue)\r\n- Fix split terminal UI in transprent mode (#1581)\r\n- Use github to host homepage (#1580)",
-    "releaseDate": "2020-03-01T13:17:22Z",
+    "version": "v0.26.73",
+    "releaseNote": "- fix #1198 [bug fix] Fix tree list collapse (#1199)\r\n- fix #1190 [bug fix] Keep overwrited file mode (#1197)\r\n\r\n",
+    "releaseDate": "2019-03-30T07:08:49Z",
     "siteKeywords": "electron,ternimal,electerm,ssh,sftp",
     "siteName": "electerm",
-    "path": "/home/execapp/dev/electerm.html5beta.com/index-zh_cn.html"
+    "path": "/Users/drake.zhao/dev/electerm.html5beta.com/index-zh_cn.html"
   }
 ]
