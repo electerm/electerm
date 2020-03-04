@@ -12,9 +12,9 @@ const { sync } = require('os-locale')
 exports.sysLocale = sync()
 
 const path = (isDev
-  ? '../'
+  ? '../../'
   : '') +
-  '../node_modules/@electerm/electerm-locales/locales'
+  '../node_modules/@electerm/electerm-locales/dist'
 const localeFolder = resolve(__dirname, path)
 
 // languages array
@@ -24,7 +24,7 @@ const langs = fs.readdirSync(localeFolder)
     const lang = require(filePath)
     return {
       path: filePath,
-      id: fileName.replace('.js', ''),
+      id: fileName.replace('.json', ''),
       name: lang.name,
       match: lang.match
     }

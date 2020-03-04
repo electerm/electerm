@@ -10,7 +10,7 @@ const {
   NODE_ENV
 } = process.env
 const isDev = NODE_ENV === 'development'
-const packInfo = require(isDev ? '../../package.json' : '../package.json')
+const packInfo = require(isDev ? '../../../package.json' : '../package.json')
 const {
   prefix
 } = require('./locales')
