@@ -16,7 +16,7 @@ const iconPath = resolve(
   __dirname,
   (
     isDev
-      ? '../../node_modules/@electerm/electerm-resource/res/imgs/electerm-round-128x128.png'
+      ? '../../../node_modules/@electerm/electerm-resource/res/imgs/electerm-round-128x128.png'
       : '../assets/images/electerm-round-128x128.png'
   )
 )
@@ -24,7 +24,7 @@ const trayIconPath = resolve(
   __dirname,
   (
     isDev
-      ? '../../node_modules/@electerm/electerm-resource/tray-icons/electerm-tray.png'
+      ? '../../../node_modules/@electerm/electerm-resource/tray-icons/electerm-tray.png'
       : '../assets/images/electerm-tray.png'
   )
 )
@@ -38,5 +38,5 @@ module.exports = {
   minWindowWidth: 590,
   minWindowHeight: 400,
   defaultLang: 'en_us',
-  packInfo: require(isDev ? '../../package.json' : '../package.json')
+  packInfo: require(isDev ? '../../../package.json' : '../package.json')
 }

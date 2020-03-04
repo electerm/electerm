@@ -16,17 +16,13 @@ echo('start pack prepare')
 const timeStart = +new Date()
 rm('-rf', dir)
 rm('-rf', 'dist/latest')
-rm('-rf', 'work')
 
 mkdir('-p', dir)
 mkdir('-p', 'dist/latest')
-mkdir('-p', 'work')
-cp('-r', 'app', 'work/')
+cp('-r', 'src/app', 'work/')
 cp('-r', [
-  'node_modules',
-  'version'
+  'node_modules'
 ], 'work/app/')
-rm('-rf', 'work/app/dev-app.js')
 rm('-rf', 'work/app/user-config.json')
 rm('-rf', 'work/app/localstorage.json')
 rm('-rf', 'work/app/nohup.out')

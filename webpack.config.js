@@ -55,7 +55,7 @@ const from = path.resolve(
 )
 const to1 = path.resolve(
   __dirname,
-  'app/assets/images'
+  'work/app/assets/images'
 )
 var config = {
   mode: 'development',
@@ -65,7 +65,7 @@ var config = {
     index: './src/views/index.pug'
   },
   output: {
-    path: path.resolve(__dirname, 'app/assets'),
+    path: path.resolve(__dirname, 'work/app/assets'),
     filename: 'js/[name].' + version + '.js',
     publicPath: '/',
     chunkFilename: 'js/[name].' + version + '.js',
@@ -184,7 +184,7 @@ var config = {
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept'
     },
-    contentBase: path.join(__dirname, 'app/assets/'),
+    contentBase: path.join(__dirname, 'work/app/assets/'),
     historyApiFallback: true,
     hot: true,
     inline: true,
