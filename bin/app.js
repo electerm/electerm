@@ -1,4 +1,4 @@
-const { exec, cd } = require('shelljs')
+const { exec } = require('shelljs')
 const os = require('os')
 const platform = os.platform()
 console.log('platform:', platform)
