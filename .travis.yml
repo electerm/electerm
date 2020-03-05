@@ -13,6 +13,10 @@ matrix:
       node_js: "12"
       sudo: required
       dist: xenial
+      deploy:
+        provider: snap
+        channel: edge
+        skip_cleanup: true
       addons:
         apt:
           packages:
