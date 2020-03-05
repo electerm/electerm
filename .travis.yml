@@ -12,7 +12,7 @@ matrix:
       language: node_js
       node_js: "12"
       sudo: required
-      dist: xenial
+      dist: bionic
       deploy:
         provider: snap
         channel: edge
