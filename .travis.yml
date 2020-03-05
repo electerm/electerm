@@ -43,7 +43,12 @@ before_install:
 
 script:
   - npm run pre-test
-  - xvfb-run --server-args="-screen 0 1024x768x24" npm run test
+  - |
+    if [ "$TRAVIS_OS_NAME" == "linux" ]; then
+      xvfb-run --server-args="-screen 0 1024x768x24"npm run test
+    else
+      npm run test
+    fi
   - |
     if echo "$TRAVIS_COMMIT_MESSAGE" | grep -F -q "[skip build]" ; then
       echo "[skip build] has been found, exiting" && exit 0 ;
