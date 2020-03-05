@@ -35,7 +35,7 @@ before_script:
   - sleep 3 # give xvfb some time to start
   - sudo snap refresh
   - sudo snap install snapcraft --classic
-  - echo SNAP_TOKEN | snapcraft login --with -
+  - echo $SNAP_TOKEN | snapcraft login --with -
 
 before_install:
   - if echo "$TRAVIS_COMMIT_MESSAGE" | grep -F -q "[skip travis]" ; then echo "[skip travis] has been found, exiting" && exit 0 ; else echo "[skip travis] has not been found, continuing" ; fi
