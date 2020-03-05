@@ -29,6 +29,7 @@ before_script:
   - export DISPLAY=:99.0
   - sh -e /etc/init.d/xvfb start &
   - sleep 3 # give xvfb some time to start
+  - snap install snapcraft --classic
 
 before_install:
   - if echo "$TRAVIS_COMMIT_MESSAGE" | grep -F -q "[skip travis]" ; then echo "[skip travis] has been found, exiting" && exit 0 ; else echo "[skip travis] has not been found, continuing" ; fi
