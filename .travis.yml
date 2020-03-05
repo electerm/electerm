@@ -13,6 +13,8 @@ matrix:
       node_js: "12"
       sudo: required
       dist: bionic
+      services:
+        - xvfb
       deploy:
         provider: snap
         channel: edge
@@ -41,13 +43,7 @@ before_install:
 
 script:
   - npm run pre-test
-  - |
-    if [ "$TRAVIS_OS_NAME" == "linux" ]; then
-      echo "do not test in linux";
-    else
-      npm run test
-    fi
-  # - npm run test
+  - xvfb-run --server-args="-screen 0 1024x768x24" npm run test
   - |
     if echo "$TRAVIS_COMMIT_MESSAGE" | grep -F -q "[skip build]" ; then
       echo "[skip build] has been found, exiting" && exit 0 ;
