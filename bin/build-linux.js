@@ -10,5 +10,5 @@ const cmd = 'rm -rf dist && ' +
 'echo "rpm" > work/app/install-src.txt && ' +
 './node_modules/.bin/electron-builder --linux rpm &&' +
 'echo "snap" > work/app/install-src.txt && ' +
-'./node_modules/.bin/electron-builder --linux snap'
+'./node_modules/.bin/electron-builder --linux snap -p always'
 exec(cmd)

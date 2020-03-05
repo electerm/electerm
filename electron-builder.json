@@ -39,6 +39,6 @@
     ]
   },
   "snap": {
-    "publish": ["github"]
+    "publish": ["github", "snapStore"]
   }
 }
