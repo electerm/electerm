@@ -39,7 +39,6 @@
     ]
   },
   "snap": {
-    "publish": ["github", "snapStore"],
-    "channels": ["edge"]
+    "publish": ["github", "snapStore"]
   }
 }
