@@ -45,7 +45,7 @@ script:
   - npm run pre-test
   - |
     if [ "$TRAVIS_OS_NAME" == "linux" ]; then
-      xvfb-run --server-args="-screen 0 1024x768x24"npm run test
+      xvfb-run --server-args="-screen 0 1024x768x24" npm run test
     else
       npm run test
     fi
