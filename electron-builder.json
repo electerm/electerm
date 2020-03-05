@@ -32,9 +32,6 @@
     "category": "Development",
     "icon": "node_modules/@electerm/electerm-resource/res/imgs",
     "target": [
-      "rpm",
-      "deb",
-      "tar.gz",
       "snap"
     ]
   },
