@@ -32,10 +32,14 @@
     "category": "Development",
     "icon": "node_modules/@electerm/electerm-resource/res/imgs",
     "target": [
+      "rpm",
+      "deb",
+      "tar.gz",
       "snap"
     ]
   },
   "snap": {
-    "publish": ["github", "snap"]
+    "publish": ["github", "snapStore"],
+    "channels": ["edge"]
   }
 }
