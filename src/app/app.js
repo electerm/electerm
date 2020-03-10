@@ -11,7 +11,8 @@ const {
   shell,
   session
 } = require('electron')
-const { fork } = require('child_process')
+const createChildServer = require('./server/child-process')
+const getport = require('./lib/get-port')
 const getConf = require('./utils/config.default')
 const sshConfigItems = require('./lib/ssh-config')
 const logPaths = require('./lib/log-read')
@@ -83,6 +84,11 @@ async function waitUntilServerStart (url) {
 
 log.debug('App starting...')
 
+async function initServer () {
+  const port = await getport()
+  
+}
+
 async function createWindow () {
   session.defaultSession.webRequest.onBeforeRequest((details, done) => {
     const redirectURL = details.url.replace(/^devtools:\/\/devtools\/remote\/serve_file\/@[0-9a-f]{40}/, 'https://chrome-devtools-frontend.appspot.com/serve_file/@675968a8c657a3bd9c1c2c20c5d2935577bbc5e6')
@@ -94,22 +100,7 @@ async function createWindow () {
   })
   const config = await getConf()
   // start server
-  const child = fork(resolve(__dirname, './server/server.js'), {
-    env: Object.assign(
-      {
-        LANG: `${sysLocale.replace(/-/, '_')}.UTF-8`,
-        electermPort: config.port,
-        electermHost: config.host
-      },
-      process.env
-    ),
-    cwd: process.cwd()
-  }, (error, stdout, stderr) => {
-    if (error || stderr) {
-      throw error || stderr
-    }
-    log.info(stdout)
-  })
+  const child = createChildServer()
 
   child.on('exit', () => {
     childPid = null
@@ -159,6 +150,7 @@ async function createWindow () {
   Object.assign(global.et, {
     loadFontList,
     _config: config,
+    getport,
     installSrc,
     instSftpKeys,
     transferKeys,

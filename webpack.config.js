@@ -83,7 +83,8 @@ var config = {
     extensions: ['.js', '.jsx', '.ts', '.json'],
     alias: {
       client: path.resolve(__dirname, 'src/client'),
-      node_modules: path.resolve(__dirname, 'node_modules')
+      node_modules: path.resolve(__dirname, 'node_modules'),
+      'app-common': path.resolve(__dirname, 'src/app/common')
     }
   },
   resolveLoader: {
