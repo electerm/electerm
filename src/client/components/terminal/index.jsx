@@ -695,6 +695,7 @@ export default class Term extends Component {
       ...extra,
       ..._.pick(config, [
         'keepaliveInterval',
+        'keepaliveCountMax',
         'execWindows',
         'execMac',
         'execLinux'

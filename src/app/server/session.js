@@ -218,6 +218,7 @@ class Terminal {
         },
         {
           readyTimeout: _.get(initOptions, 'readyTimeout'),
+          keepaliveCountMax: _.get(initOptions, 'keepaliveCountMax'),
           keepaliveInterval: _.get(initOptions, 'keepaliveInterval'),
           agent: process.env.SSH_AUTH_SOCK,
           algorithms: alg
@@ -231,6 +232,7 @@ class Terminal {
           'passphrase'
         ])
       )
+      console.log(opts)
       if (!opts.password) {
         delete opts.password
       }
