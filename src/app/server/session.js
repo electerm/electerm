@@ -232,7 +232,6 @@ class Terminal {
           'passphrase'
         ])
       )
-      console.log(opts)
       if (!opts.password) {
         delete opts.password
       }
