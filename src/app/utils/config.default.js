@@ -41,10 +41,11 @@ module.exports = function () {
         disableTransferHistory: false,
         terminalBackgroundImagePath: '',
         rendererType: 'canvas',
-        terminalType: 'xterm-256color'
+        terminalType: 'xterm-256color',
+        keepaliveCountMax: 10
       }
       const conf = {
-        keepaliveInterval: 20 * 1000,
+        keepaliveInterval: 10 * 1000,
         rightClickSelectsWord: false,
         pasteWhenContextMenu: false,
         ctrlOrMetaOpenTerminalLink: false,
