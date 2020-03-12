@@ -4,32 +4,31 @@
  */
 
 const { resolve } = require('path')
-const { dbAction } = require('../lib/nedb')
+const { dbAction, tables } = require('../lib/nedb')
 const { appPath, defaultUserName } = require('../utils/app-props')
 const userConfigPath = resolve(appPath, 'electerm-user-config.json')
 const savePath = resolve(appPath, 'electerm-localstorage.json')
 const { existsSync, unlinkSync, writeFileSync } = require('fs')
 const log = require('../utils/log')
 const _ = require('lodash')
+const { userConfigId } = require('../common/constants')
 
 async function loadArr (arr, name) {
   await dbAction(name, 'insert', arr.map(d => {
     const { id, ...rest } = d
     return {
       _id: id,
-      _user: defaultUserName,
       ...rest
     }
   }))
   await dbAction('data', 'insert', {
     _id: `${name}:order`,
-    _user: defaultUserName,
     value: arr.map(d => d.id)
   })
 }
 
 function shouldLoadAsArray (key, value) {
-  return key !== 'sessions' && _.isArray(value) && value.length && value[0].id
+  return tables.includes(key) && _.isArray(value) && value.length && value[0].id
 }
 
 async function migrateData () {
@@ -53,7 +52,6 @@ async function migrateData () {
     } else {
       await dbAction('data', 'insert', {
         _id: k,
-        _user: defaultUserName,
         value: v
       })
     }
@@ -77,14 +75,15 @@ async function migrateUserConfig () {
     log.error('load user config fails')
   }
   await dbAction('data', 'insert', {
-    _id: 'userConfig',
-    _user: defaultUserName,
+    _id: userConfigId,
     value: uf
   })
   log.log('End migrating user config')
 }
 
 module.exports = async () => {
+  log.info('Start: upgrading to v1.3.0')
   await migrateData()
   await migrateUserConfig()
+  log.info('Done: upgrading to v1.3.0')
 }

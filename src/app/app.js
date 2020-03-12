@@ -11,9 +11,8 @@ const {
   shell,
   session
 } = require('electron')
-const createChildServer = require('./server/child-process')
-const getport = require('./lib/get-port')
-const getConf = require('./utils/config.default')
+const { dbAction } = require('./lib/nedb')
+const initServer = require('./lib/init-server')
 const sshConfigItems = require('./lib/ssh-config')
 const logPaths = require('./lib/log-read')
 const lookup = require('./utils/lookup')
@@ -28,8 +27,7 @@ const ls = require('./lib/ls')
 const menu = require('./lib/menu')
 const log = require('./utils/log')
 const { testConnection } = require('./server/session')
-const { saveLangConfig, lang, langs, sysLocale } = require('./lib/locales')
-const rp = require('phin').promisified
+const { saveLangConfig, lang, langs } = require('./lib/locales')
 const lastStateManager = require('./lib/last-state')
 const installSrc = require('./lib/install-src')
 const {
@@ -48,11 +46,11 @@ require('./lib/tray')
 global.win = null
 let timer
 let timer1
-let childPid
+global.childPid = null
 
-function onClose () {
+async function onClose () {
   log.debug('close app')
-  ls.set({
+  await ls.set({
     exitStatus: 'ok',
     sessions: null
   })
@@ -60,7 +58,7 @@ function onClose () {
     clearTimeout(timer)
     clearTimeout(timer1)
     global.win = null
-    childPid && process.kill(childPid)
+    global.childPid && process.kill(global.childPid)
     process.on('uncaughtException', function () {
       process.exit(0)
     })
@@ -68,26 +66,7 @@ function onClose () {
   })
 }
 
-async function waitUntilServerStart (url) {
-  let serverStarted = false
-  while (!serverStarted) {
-    await rp({
-      url,
-      timeout: 100
-    })
-      .then(() => {
-        serverStarted = true
-      })
-      .catch(() => null)
-  }
-}
-
 log.debug('App starting...')
-
-async function initServer () {
-  const port = await getport()
-  
-}
 
 async function createWindow () {
   session.defaultSession.webRequest.onBeforeRequest((details, done) => {
@@ -98,21 +77,13 @@ async function createWindow () {
       done({})
     }
   })
-  const config = await getConf()
-  // start server
-  const child = createChildServer()
-
-  child.on('exit', () => {
-    childPid = null
-  })
-
-  childPid = child.pid
+  const config = await initServer()
 
   if (config.showMenu) {
     Menu.setApplicationMenu(menu)
   }
 
-  const { width, height } = getWindowSize()
+  const { width, height } = await getWindowSize()
 
   // Create the browser window.
   global.win = new BrowserWindow({
@@ -150,7 +121,6 @@ async function createWindow () {
   Object.assign(global.et, {
     loadFontList,
     _config: config,
-    getport,
     installSrc,
     instSftpKeys,
     transferKeys,
@@ -165,6 +135,7 @@ async function createWindow () {
     popup: (options) => {
       Menu.getApplicationMenu().popup(options)
     },
+    dbAction,
     getScreenSize,
     versions: process.versions,
     sshConfigItems,
@@ -223,13 +194,10 @@ async function createWindow () {
     pathname: resolve(__dirname, 'assets', 'index.html')
   })
 
-  const childServerUrl = `http://localhost:${config.port}/run`
   if (isDev) {
     const { devPort = 5570 } = process.env
     opts = `http://localhost:${devPort}`
   }
-
-  await waitUntilServerStart(childServerUrl)
 
   global.win.loadURL(opts)
   // win.maximize()

@@ -2,15 +2,14 @@
  * nedb api wrapper
  */
 
-const { appPath } = require('../utils/app-props')
+const { appPath, defaultUserName } = require('../utils/app-props')
 const { resolve } = require('path')
 const Datastore = require('nedb')
 const db = {}
 const reso = (name) => {
-  return resolve(appPath, 'electerm', `electerm.${name}.nedb`)
+  return resolve(appPath, 'electerm', 'users', defaultUserName, `electerm.${name}.nedb`)
 }
 const tables = [
-  'user',
   'bookmarks',
   'history',
   'jumpHosts',
@@ -19,7 +18,6 @@ const tables = [
   'lastStates',
   'userConfigs',
   'data',
-  'sessions',
   'orders',
   'quickCommands'
 ]
