@@ -15,7 +15,7 @@ const c = prefix('common')
 export default memo(props => {
   const {
     sessionModalVisible,
-    modifier,
+    storeAssign,
     addTab,
     selectedSessions
   } = props
@@ -25,7 +25,7 @@ export default memo(props => {
   }
 
   const onConfirmLoadSession = () => {
-    modifier({
+    storeAssign({
       sessionModalVisible: false,
       selectedSessions: []
     })
@@ -43,7 +43,7 @@ export default memo(props => {
   }
 
   const onCancelLoadSession = () => {
-    modifier({
+    storeAssign({
       sessionModalVisible: false
     })
     window.getGlobal('setExitStatus')('ok')
@@ -54,7 +54,7 @@ export default memo(props => {
     const ss = copy(selectedSessions)
     const s = _.find(ss, s => s.id === id)
     s.checked = checked
-    modifier({
+    storeAssign({
       selectedSessions: ss
     })
   }

@@ -25,7 +25,7 @@ import copy from 'json-deep-copy'
 import onDrop from './on-tree-drop'
 import Search from '../common/search'
 import Btns from './bookmark-transport'
-import { getInitItem } from '../../store'
+import getInitItem from '../../common/init-setting-item'
 import './tree-list.styl'
 
 const { TreeNode } = Tree
@@ -107,7 +107,7 @@ export default class ItemListTree extends React.PureComponent {
     this.setState({
       categoryId: ''
     })
-    this.props.store.modifier({
+    this.props.store.storeAssign({
       bookmarkGroups
     })
   }
@@ -195,7 +195,7 @@ export default class ItemListTree extends React.PureComponent {
         ...(cat.bookmarkGroupIds || []),
         newCat.id
       ]
-      this.props.store.modifier({
+      this.props.store.storeAssign({
         bookmarkGroups
       })
     })
@@ -232,7 +232,7 @@ export default class ItemListTree extends React.PureComponent {
   ) => {
     const [id] = selectedKeys
     if (!node.props.isLeaf) {
-      this.props.store.modifier({
+      this.props.store.storeAssign({
         currentBookmarkGroupId: id
       })
     }
@@ -382,7 +382,7 @@ export default class ItemListTree extends React.PureComponent {
     }
     newbookmark.title = item.title + '(' + deplicateIndex + ')'
     const categoryId = this.findBookmarkGroupId(bookmarkGroups, item.id)
-    this.props.store.modifier({
+    this.props.store.storeAssign({
       currentBookmarkGroupId: categoryId
     })
     // add bookmark to store
@@ -422,7 +422,7 @@ export default class ItemListTree extends React.PureComponent {
       )
       return bg
     })
-    this.props.store.modifier({
+    this.props.store.storeAssign({
       bookmarkGroups
     })
   }

@@ -11,6 +11,7 @@ const fs = require('fs')
 const log = require('../utils/log')
 const comapre = require('../common/version-compare')
 const { dbAction } = require('../lib/nedb')
+const _ = require('lodash')
 
 let version
 const versionQuery = {
@@ -23,7 +24,7 @@ async function getDBVersion () {
   }
   version = await dbAction('data', 'findOne', versionQuery)
     .then(doc => {
-      return doc.version
+      return doc ? doc.version : null
     })
     .catch(e => {
       log.error(e)
@@ -43,12 +44,7 @@ async function getUpgradeVersionList () {
   if (!version) {
     version = '0.0.0'
   }
-  const list = await fs.readdirAsync(__dirname)
-    .catch(e => {
-      log.error(e)
-      log.error('read upgrade list error')
-      return []
-    })
+  const list = fs.readdirSync(__dirname)
   return list.filter(f => {
     const vv = f.replace('.js', '').replace('v', '')
     return f.startsWith('v') && comapre(vv, version) > 0
@@ -56,14 +52,30 @@ async function getUpgradeVersionList () {
     return comapre(a, b)
   })
 }
+async function versionShouldUpgrade () {
+  const dbVersion = await getDBVersion()
+  return comapre(dbVersion, packVersion) < 0
+}
 
 async function shouldUpgrade () {
-  const dbVer = await getDBVersion()
-  return comapre(dbVer, packVersion) < 0
+  const dbVersion = await getDBVersion()
+  const shouldUpgradeVersion = await versionShouldUpgrade()
+  if (!shouldUpgradeVersion) {
+    return false
+  }
+  const list = await getUpgradeVersionList()
+  if (_.isEmpty(list)) {
+    await updateDBVersion()
+    return false
+  }
+  return {
+    dbVersion,
+    packVersion
+  }
 }
 
 async function updateDBVersion () {
-  if (shouldUpgrade()) {
+  if (versionShouldUpgrade()) {
     await dbAction('data', 'update', versionQuery, {
       version: packVersion
     })
@@ -93,5 +105,5 @@ async function doUpgrade () {
   log.info('Upgrade end')
 }
 
-exports.shouldUpgrade = shouldUpgrade
-module.exports = doUpgrade
+exports.checkDbUpgrade = shouldUpgrade
+exports.doUpgrade = doUpgrade

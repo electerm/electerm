@@ -3,8 +3,9 @@
  */
 
 const getConfig = require('./get-config')
-const createChildServer = require('./server/child-process')
+const createChildServer = require('../server/child-process')
 const rp = require('phin').promisified
+const { initLang } = require('./locales')
 
 async function waitUntilServerStart (url) {
   let serverStarted = false
@@ -21,7 +22,9 @@ async function waitUntilServerStart (url) {
 }
 
 module.exports = async () => {
-  const config = await getConfig()
+  const { config, userConfig } = await getConfig()
+  console.log('config', config, userConfig)
+  initLang(userConfig)
   const child = await createChildServer(config)
   child.on('exit', () => {
     global.childPid = null
@@ -29,5 +32,8 @@ module.exports = async () => {
   global.childPid = child.pid
   const childServerUrl = `http://${config.host}:${config.port}/run`
   await waitUntilServerStart(childServerUrl)
-  return config
+  return {
+    config,
+    localeRef: require('./locales')
+  }
 }

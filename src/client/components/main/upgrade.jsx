@@ -29,7 +29,7 @@ export default class Upgrade extends Component {
   }
 
   changeProps = (update) => {
-    this.props.store.modifier({
+    this.props.store.storeAssign({
       upgradeInfo: {
         ...this.props.store.upgradeInfo,
         ...update
@@ -45,7 +45,7 @@ export default class Upgrade extends Component {
   }
 
   close = () => {
-    this.props.store.modifier({
+    this.props.store.storeAssign({
       upgradeInfo: {}
     })
   }

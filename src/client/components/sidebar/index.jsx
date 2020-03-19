@@ -27,7 +27,7 @@ export default class Sidebar extends Component {
     const {
       openedSideBar,
       onNewSsh,
-      modifier,
+      storeAssign,
       openSetting,
       transferHistory,
       openTransferHistory,
@@ -41,7 +41,7 @@ export default class Sidebar extends Component {
     let handler
     const interval = 400
     const setOpenedSideBar = (bar) => {
-      return modifier({
+      return storeAssign({
         openedSideBar: bar
       })
     }
@@ -63,7 +63,7 @@ export default class Sidebar extends Component {
       maxHeight: height - 160
     }
     const showUpgrade = () => {
-      modifier({
+      storeAssign({
         upgradeInfo: {
           ...store.upgradeInfo,
           showUpgradeModal: true

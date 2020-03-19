@@ -29,7 +29,7 @@ export default class SettingModal extends Component {
   render () {
     const { store } = this.props
     const selectItem = (item) => {
-      store.modifier({ settingItem: item })
+      store.storeAssign({ settingItem: item })
     }
 
     const tabsShouldConfirmDel = [

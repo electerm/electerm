@@ -360,19 +360,19 @@ export default class FileSection extends React.Component {
   }
 
   onCloseFileMode = () => {
-    this.props.store.modifier({
+    this.props.store.storeAssign({
       fileModeModalProps: {}
     })
   }
 
   onCloseFileInfo = () => {
-    this.props.store.modifier({
+    this.props.store.storeAssign({
       fileInfoModalProps: {}
     })
   }
 
   showInfo = () => {
-    this.props.store.modifier({
+    this.props.store.storeAssign({
       fileInfoModalProps: {
         file: this.state.file,
         tab: this.props.tab,
@@ -507,7 +507,7 @@ export default class FileSection extends React.Component {
   }
 
   openFileModeModal = () => {
-    this.props.store.modifier({
+    this.props.store.storeAssign({
       fileModeModalProps: {
         file: this.state.file,
         tab: this.props.tab,
@@ -607,7 +607,7 @@ export default class FileSection extends React.Component {
       edit ||
       (!edit && type === typeMap.remote && size < maxEditFileSize)
     ) {
-      return this.props.store.modifier({
+      return this.props.store.storeAssign({
         textEditorProps: {
           visible: true,
           id,

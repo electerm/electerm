@@ -94,7 +94,7 @@ export class TextEditorForm extends React.PureComponent {
   }
 
   cancel = () => {
-    this.props.modifier({
+    this.props.storeAssign({
       textEditorProps: {}
     })
   }

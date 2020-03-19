@@ -48,6 +48,7 @@ export default class Index extends Component {
     store.zoom(store.config.zoom, false, true)
     store.initShortcuts()
     store.loadFontList()
+    store.checkForDbUpgrade()
   }
 
   render () {
@@ -61,11 +62,11 @@ export default class Index extends Component {
       fileModeModalProps,
       shouldCheckUpdate,
       textEditorProps,
-      modifier,
+      storeAssign,
       config
     } = store
     const sessProps = _.pick(store, [
-      'modifier', 'addTab', 'sessionModalVisible', 'selectedSessions'
+      'storeAssign', 'addTab', 'sessionModalVisible', 'selectedSessions'
     ])
     const { terminalBackgroundImagePath } = config
     return (
@@ -75,7 +76,7 @@ export default class Index extends Component {
         <TextEditor
           key={textEditorProps.id}
           {...textEditorProps}
-          modifier={modifier}
+          modifier={storeAssign}
         />
         <UpdateCheck
           store={store}

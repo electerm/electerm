@@ -5,7 +5,7 @@
 
 const { resolve } = require('path')
 const { dbAction, tables } = require('../lib/nedb')
-const { appPath, defaultUserName } = require('../utils/app-props')
+const { appPath } = require('../utils/app-props')
 const userConfigPath = resolve(appPath, 'electerm-user-config.json')
 const savePath = resolve(appPath, 'electerm-localstorage.json')
 const { existsSync, unlinkSync, writeFileSync } = require('fs')

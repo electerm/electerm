@@ -53,32 +53,54 @@ export default class Btns extends Component {
           }
         }, {})
         const add = []
+        const dbAdd = []
+        const updates = []
         bookmarks1.forEach(bg => {
           if (!bmTree[bg.id]) {
             bookmarks.push(bg)
             add.push(bg)
+            dbAdd.push({
+              db: 'bookmarks',
+              obj: bg
+            })
           }
         })
         bookmarkGroups1.forEach(bg => {
           if (!bmgTree[bg.id]) {
             bookmarkGroups.push(bg)
+            dbAdd.push({
+              db: 'bookmarkGroups',
+              obj: bg
+            })
           } else {
             const bg1 = _.find(
               bookmarkGroups,
               b => b.id === bg.id
             )
+            const old = copy(bg1.bookmarkIds)
             bg1.bookmarkIds = _.uniq(
               [
                 ...bg1.bookmarkIds,
                 ...bg.bookmarkIds
               ]
             )
+            if (!_.isEqual(bg1.bookmarkIds, old)) {
+              updates.push({
+                id: bg1.id,
+                db: 'bookmarkGroups',
+                update: {
+                  bookmarkIds: bg1.bookmarkIds
+                }
+              })
+            }
           }
         })
-        store.modifier({
+        store.storeAssign({
           bookmarkGroups,
           bookmarks
         })
+        store.batchDbAdd(dbAdd)
+        store.batchDbUpdate(updates)
       } catch (e) {
         store.onError(e)
       }

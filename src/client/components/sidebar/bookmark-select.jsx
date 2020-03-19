@@ -19,7 +19,7 @@ export default class BookmarkSelect extends Component {
       openedCategoryIds
     } = store
     const onClickItem = (item) => {
-      store.modifier({
+      store.storeAssign({
         openedSideBar: ''
       })
       store.onSelectBookmark(item.id)
@@ -44,7 +44,7 @@ export default class BookmarkSelect extends Component {
           onClickItem={onClickItem}
           expandedKeys={openedCategoryIds}
           onExpand={openedCategoryIds => {
-            store.setState({
+            store.storeAssign({
               openedCategoryIds
             })
           }}

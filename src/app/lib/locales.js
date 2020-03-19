@@ -6,7 +6,6 @@ const { isDev, defaultLang } = require('../utils/constants')
 const fs = require('fs')
 const _ = require('lodash')
 const { resolve } = require('path')
-const { userConfig } = require('./user-config-controller')
 const { sync } = require('os-locale')
 
 exports.sysLocale = sync()
@@ -52,18 +51,17 @@ function findLang (la) {
   return res
 }
 
-const getLang = () => {
-  if (userConfig.language) {
-    return userConfig.language
+const getLang = (config) => {
+  if (config.language) {
+    return config.language
   }
   let l = exports.sysLocale
   l = l ? l.toLowerCase().replace('-', '_') : defaultLang
   return findLang(l) || defaultLang
 }
 
-const language = getLang()
-
-exports.lang = require(langMap[language].path).lang
+exports.lang = null
+let language = null
 
 /**
  * string translate
@@ -96,4 +94,9 @@ exports.saveLangConfig = (saveUserConfig, userConfig) => {
       language
     })
   }
+}
+
+exports.initLang = (userConf) => {
+  language = getLang(userConf)
+  exports.lang = require(langMap[language].path).lang
 }

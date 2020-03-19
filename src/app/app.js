@@ -20,14 +20,12 @@ const os = require('os')
 const { resolve } = require('path')
 const { instSftpKeys } = require('./server/session')
 const { transferKeys } = require('./server/transfer')
-const { saveUserConfig, userConfig } = require('./lib/user-config-controller')
+const { saveUserConfig } = require('./lib/user-config-controller')
 const { init, changeHotkeyReg } = require('./lib/shortcut')
 const { fsExport, fsFunctions } = require('./lib/fs')
-const ls = require('./lib/ls')
 const menu = require('./lib/menu')
 const log = require('./utils/log')
 const { testConnection } = require('./server/session')
-const { saveLangConfig, lang, langs } = require('./lib/locales')
 const lastStateManager = require('./lib/last-state')
 const installSrc = require('./lib/install-src')
 const {
@@ -41,30 +39,16 @@ const {
 const { loadFontList } = require('./lib/font-list')
 const { encrypt, decrypt } = require('./lib/enc')
 const a = prefix('app')
+const { onClose, getExitStatus } = require('./lib/on-close')
+const { checkDbUpgrade, doUpgrade } = require('./upgrade')
 require('./lib/tray')
 
-global.win = null
-let timer
-let timer1
-global.childPid = null
-
-async function onClose () {
-  log.debug('close app')
-  await ls.set({
-    exitStatus: 'ok',
-    sessions: null
-  })
-  process.nextTick(() => {
-    clearTimeout(timer)
-    clearTimeout(timer1)
-    global.win = null
-    global.childPid && process.kill(global.childPid)
-    process.on('uncaughtException', function () {
-      process.exit(0)
-    })
-    process.exit(0)
-  })
+global.et = {
+  timer: null,
+  timer1: null
 }
+global.win = null
+global.childPid = null
 
 log.debug('App starting...')
 
@@ -77,8 +61,8 @@ async function createWindow () {
       done({})
     }
   })
-  const config = await initServer()
-
+  const { config, localeRef } = await initServer()
+  const { lang, langs } = localeRef
   if (config.showMenu) {
     Menu.setApplicationMenu(menu)
   }
@@ -105,7 +89,7 @@ async function createWindow () {
 
   // handle autohide flag
   if (process.argv.includes('--autohide')) {
-    timer1 = setTimeout(() => global.win.hide(), 500)
+    global.et.timer1 = setTimeout(() => global.win.hide(), 500)
     if (Notification.isSupported()) {
       const notice = new Notification({
         title: `${packInfo.name} ${a('isRunning')}, ${a('press')} ${config.hotkey} ${a('toShow')}`
@@ -114,10 +98,10 @@ async function createWindow () {
     }
   }
 
-  global.et = {
-    exitStatus: process.argv.includes('--no-session-restore')
-      ? 'ok' : ls.get('exitStatus')
-  }
+  global.et.exitStatus = process.argv.includes('--no-session-restore')
+    ? 'ok'
+    : await getExitStatus()
+
   Object.assign(global.et, {
     loadFontList,
     _config: config,
@@ -126,8 +110,9 @@ async function createWindow () {
     transferKeys,
     upgradeKeys: transferKeys,
     fs: fsExport,
-    ls,
     logPaths,
+    doUpgrade,
+    checkDbUpgrade,
     getExitStatus: () => global.et.exitStatus,
     setExitStatus: (status) => {
       global.et.exitStatus = status
@@ -183,9 +168,14 @@ async function createWindow () {
     changeHotkey: changeHotkeyReg(globalShortcut, global.win)
   })
 
-  timer = setTimeout(() => {
-    ls.set('exitStatus', 'unknown')
-    saveLangConfig(saveUserConfig, userConfig)
+  global.et.timer = setTimeout(() => {
+    dbAction('data', 'update', {
+      _id: 'exitStatus'
+    }, {
+      value: 'unknown'
+    }, {
+      upsert: true
+    })
   }, 100)
 
   let opts = require('url').format({

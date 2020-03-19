@@ -10,7 +10,7 @@ const log = require('../utils/log')
 
 module.exports = (config) => {
   // start server
-  const child = fork(resolve(__dirname, './erver.js'), {
+  const child = fork(resolve(__dirname, './server.js'), {
     env: Object.assign(
       {
         LANG: `${sysLocale.replace(/-/, '_')}.UTF-8`,

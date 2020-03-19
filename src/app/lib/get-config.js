@@ -3,13 +3,18 @@ const defaultSetting = require('../common/config-default')
 const getPort = require('./get-port')
 
 module.exports = async () => {
-  const userConf = await dbAction('data', 'findOne', {
+  let userConfig = await dbAction('data', 'findOne', {
     _id: 'userConfig'
   })
-  const port = getPort()
-  return {
+  userConfig = userConfig ? userConfig.value : {}
+  const port = await getPort()
+  const config = {
     ...defaultSetting,
-    ...(userConf || {}),
+    ...userConfig,
     port
+  }
+  return {
+    userConfig,
+    config
   }
 }

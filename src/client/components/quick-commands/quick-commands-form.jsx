@@ -42,7 +42,7 @@ class QuickCommandForm extends BookmarkForm {
       this.props.store.editItem(formData.id, update, settingMap.quickCommands)
     } else {
       this.props.store.addItem(update1, settingMap.quickCommands)
-      this.props.store.modifier({
+      this.props.store.storeAssign({
         settingItem: {
           id: '',
           name: t('newQuickCommand')

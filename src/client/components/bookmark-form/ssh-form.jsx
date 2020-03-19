@@ -28,7 +28,7 @@ import InputAutoFocus from '../common/input-auto-focus'
 import isIp from '../../common/is-ip'
 import encodes from './encodes'
 import QmList from './quick-command-list'
-import { getInitItem } from '../../store'
+import getInitItem from '../../common/init-setting-item'
 import formatBookmarkGroups from './bookmark-group-tree-format'
 import './bookmark-form.styl'
 
@@ -143,22 +143,43 @@ export class BookmarkForm extends React.PureComponent {
     }
     const bid = bookmark.id
     const bg = bookmarkGroups[index]
+    const updates = []
+    const old = copy(bg.bookmarkIds)
     if (!bg.bookmarkIds.includes(bid)) {
       bg.bookmarkIds.unshift(bid)
     }
     bg.bookmarkIds = _.uniq(bg.bookmarkIds)
+    if (!_.isEqual(bg.bookmarkIds, old)) {
+      updates.push({
+        id: bg.id,
+        update: {
+          bookmarkIds: bg.bookmarkIds
+        }
+      })
+    }
     bookmarkGroups = bookmarkGroups.map((bg, i) => {
       if (i === index) {
         return bg
       }
+      const olde = copy(bg.bookmarkIds)
       bg.bookmarkIds = bg.bookmarkIds.filter(
         g => g !== bid
       )
+      if (!_.isEqual(bg.bookmarkIds, olde)) {
+        updates.push({
+          id: bg.id,
+          db: 'bookmarkGroups',
+          update: {
+            bookmarkIds: bg.bookmarkIds
+          }
+        })
+      }
       return bg
     })
-    this.props.store.modifier({
+    this.props.store.storeAssign({
       bookmarkGroups
     })
+    this.props.store.batchDbUpdate(updates)
   }
 
   submit = (evt, item, type = this.props.type) => {
@@ -214,7 +235,7 @@ export class BookmarkForm extends React.PureComponent {
     settingItem = getInitItem([],
       settingMap.bookmarks)
   ) => {
-    this.props.store.modifier({
+    this.props.store.storeAssign({
       autofocustrigger: +new Date(),
       settingItem
     })

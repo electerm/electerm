@@ -6,11 +6,7 @@ const {
   Menu,
   shell
 } = require('electron')
-const {
-  NODE_ENV
-} = process.env
-const isDev = NODE_ENV === 'development'
-const packInfo = require(isDev ? '../../../package.json' : '../package.json')
+const { packInfo } = require('../utils/app-props')
 const {
   prefix
 } = require('./locales')

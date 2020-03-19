@@ -112,7 +112,7 @@ export default class Setting extends Component {
       }
     }
     saveUserConfig && saveUserConfig(ext)
-    this.props.store.modifier(update)
+    this.props.store.storeAssign(update)
   }
 
   renderOption = (m, i) => {
@@ -394,7 +394,7 @@ export default class Setting extends Component {
       rendererType,
       theme
     } = this.props.config
-    const { themes } = this.props.store
+    const { terminalThemes } = this.props.store
     const langs = getGlobal('langs')
     const [modifier, key] = hotkey.split('+')
     return (
@@ -459,7 +459,7 @@ export default class Setting extends Component {
             value={theme}
           >
             {
-              themes.map(l => {
+              terminalThemes.map(l => {
                 const { id, name } = l
                 return (
                   <Option key={id} value={id}>{name}</Option>
