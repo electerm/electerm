@@ -104,7 +104,7 @@ export default store => {
     openSettingSync () {
       store.storeAssign({
         tab: settingMap.setting,
-        settingItem: store.setting[0]
+        settingItem: copy(store.setting[0])
       })
       store.openModal()
     },
@@ -128,26 +128,12 @@ export default store => {
     },
 
     getItems (tab, props = store) {
-      return tab === settingMap.terminalThemes
-        ? copy(props.terminalThemes)
-        : copy(props[tab]) || []
+      return copy(props[tab]) || []
     },
+
     async loadFontList () {
       const fonts = await window.getGlobal('loadFontList')()
       store.fonts = fonts
-    },
-    get list () {
-      const {
-        tab
-      } = store
-      const arr = store.getItems(tab)
-      const initItem = getInitItem(arr, tab)
-      return tab === settingMap.history
-        ? arr
-        : [
-          copy(initItem),
-          ...arr
-        ]
     }
   })
 }

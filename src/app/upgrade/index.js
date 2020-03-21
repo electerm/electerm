@@ -6,13 +6,20 @@
 
 const { packInfo } = require('../utils/app-props')
 const { version: packVersion } = packInfo
-const { resovle } = require('path')
+const { resolve } = require('path')
 const fs = require('fs')
 const log = require('../utils/log')
 const comapre = require('../common/version-compare')
 const { dbAction } = require('../lib/nedb')
 const _ = require('lodash')
+const initData = require('./init-nedb')
+const { appPath } = require('../utils/app-props')
+const savePath = resolve(appPath, 'electerm-localstorage.json')
+const { existsSync } = require('fs')
+const { updateDBVersion } = require('./version-upgrade')
 
+const hasOldJSONDB = existsSync(savePath)
+const emptyVersion = '0.0.0'
 let version
 const versionQuery = {
   _id: 'version'
@@ -24,14 +31,14 @@ async function getDBVersion () {
   }
   version = await dbAction('data', 'findOne', versionQuery)
     .then(doc => {
-      return doc ? doc.version : null
+      return doc ? doc.value : null
     })
     .catch(e => {
       log.error(e)
       return null
     })
   if (!version) {
-    version = '0.0.0'
+    version = emptyVersion
   }
   return version
 }
@@ -40,10 +47,7 @@ async function getDBVersion () {
  * get upgrade versions should be run as version upgrade
  */
 async function getUpgradeVersionList () {
-  let version = await getDBVersion()
-  if (!version) {
-    version = '0.0.0'
-  }
+  const version = await getDBVersion()
   const list = fs.readdirSync(__dirname)
   return list.filter(f => {
     const vv = f.replace('.js', '').replace('v', '')
@@ -58,14 +62,20 @@ async function versionShouldUpgrade () {
 }
 
 async function shouldUpgrade () {
-  const dbVersion = await getDBVersion()
   const shouldUpgradeVersion = await versionShouldUpgrade()
   if (!shouldUpgradeVersion) {
     return false
   }
+  const dbVersion = await getDBVersion()
+  log.info('dbVersion', dbVersion)
+  if (!hasOldJSONDB && dbVersion === emptyVersion) {
+    await initData()
+    await updateDBVersion(packVersion)
+    return false
+  }
   const list = await getUpgradeVersionList()
   if (_.isEmpty(list)) {
-    await updateDBVersion()
+    await updateDBVersion(packVersion)
     return false
   }
   return {
@@ -74,30 +84,11 @@ async function shouldUpgrade () {
   }
 }
 
-async function updateDBVersion () {
-  if (versionShouldUpgrade()) {
-    await dbAction('data', 'update', versionQuery, {
-      version: packVersion
-    })
-      .then(() => {
-        version = packVersion
-      })
-      .catch(e => {
-        log.error(e)
-        log.error('upgrade db version error')
-      })
-  }
-}
-
 async function doUpgrade () {
-  const list = getUpgradeVersionList()
-  if (!list.length) {
-    await updateDBVersion()
-    return
-  }
+  const list = await getUpgradeVersionList()
   log.info('Upgrading...')
   for (const v of list) {
-    const p = resovle(__dirname, v)
+    const p = resolve(__dirname, v)
     const run = require(p)
     await run()
   }

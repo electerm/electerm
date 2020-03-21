@@ -33,7 +33,7 @@ describe('init setting buttons', function () {
     const active = await client.element(sel)
     expect(!!active.value).equal(true)
     const text = await client.getText(sel)
-    expect(text).equal(e('bookmarks'))
+    expect(text.toLowerCase()).equal(e('bookmarks'))
 
     log('close')
     await client.execute(function () {

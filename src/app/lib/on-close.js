@@ -30,14 +30,12 @@ exports.onClose = async function () {
   }, {
     upsert: true
   })
-  process.nextTick(() => {
-    clearTimeout(global.et.timer)
-    clearTimeout(global.et.timer1)
-    global.win = null
-    global.childPid && process.kill(global.childPid)
-    process.on('uncaughtException', function () {
-      process.exit(0)
-    })
+  clearTimeout(global.et.timer)
+  clearTimeout(global.et.timer1)
+  global.win = null
+  global.childPid && process.kill(global.childPid)
+  process.on('uncaughtException', function () {
     process.exit(0)
   })
+  process.exit(0)
 }

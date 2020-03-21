@@ -8,7 +8,7 @@ import {
   settingMap
 } from '../common/constants'
 import getInitItem from '../common/init-setting-item'
-import { dbAction, dbNames } from '../common/db'
+import { update, remove, dbNames } from '../common/db'
 import copy from 'json-deep-copy'
 
 export default store => {
@@ -40,18 +40,16 @@ export default store => {
       }
     },
 
-    editItem (id, update, type) {
+    editItem (id, updates, type) {
       const items = store[type]
       const item = _.find(items, t => t.id === id)
       if (!item) {
         return
       }
       // let index = _.findIndex(items, t => t.id === id)
-      Object.assign(item, update)
+      Object.assign(item, updates)
       if (dbNames.includes(type)) {
-        dbAction(type, 'update', {
-          _id: id
-        }, update)
+        update(id, updates)
       }
     },
 
@@ -60,9 +58,7 @@ export default store => {
         return t.id !== id
       })
       if (dbNames.includes(type)) {
-        dbAction(type, 'remove', {
-          _id: id
-        })
+        remove(type, id)
       }
     },
 

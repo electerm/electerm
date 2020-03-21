@@ -1,5 +1,5 @@
 /**
- * session related functions
+ * sessions not proper closed related functions
  */
 
 import { getData } from '../common/db'

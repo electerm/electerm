@@ -30,6 +30,7 @@ import encodes from './encodes'
 import QmList from './quick-command-list'
 import getInitItem from '../../common/init-setting-item'
 import formatBookmarkGroups from './bookmark-group-tree-format'
+import defaultSettings from '../../../app/common/default-setting'
 import './bookmark-form.styl'
 
 const { TabPane } = Tabs
@@ -770,7 +771,7 @@ export class BookmarkForm extends React.PureComponent {
       fontFamily: defaultFontFamily,
       fontSize: defaultFontSize,
       terminalType: defaultTerminalType
-    } = this.props.config.defaultSettings || {}
+    } = defaultSettings
     const {
       fontFamily,
       fontSize,

@@ -16,15 +16,6 @@ const defaultStatus = statusMap.processing
 
 export default store => {
   Object.assign(store, {
-    get tabTitles () {
-      return store.tabs.map(d => d.title).join('#')
-    },
-    get currentTab () {
-      const tabs = copy(store.tabs)
-      return _.find(tabs, tab => {
-        return tab.id === store.currentTabId
-      })
-    },
     addTab (tab = newTerm(), index = store.tabs.length) {
       store.currentTabId = tab.id
       store.tabs.splice(index, 0, tab)

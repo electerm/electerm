@@ -6,6 +6,7 @@ const getConfig = require('./get-config')
 const createChildServer = require('../server/child-process')
 const rp = require('phin').promisified
 const { initLang } = require('./locales')
+const { saveUserConfig } = require('./user-config-controller')
 
 async function waitUntilServerStart (url) {
   let serverStarted = false
@@ -23,8 +24,13 @@ async function waitUntilServerStart (url) {
 
 module.exports = async () => {
   const { config, userConfig } = await getConfig()
-  console.log('config', config, userConfig)
-  initLang(userConfig)
+  const language = initLang(userConfig)
+  if (!config.language) {
+    await saveUserConfig({
+      language
+    })
+    config.language = language
+  }
   const child = await createChildServer(config)
   child.on('exit', () => {
     global.childPid = null

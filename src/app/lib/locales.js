@@ -99,4 +99,5 @@ exports.saveLangConfig = (saveUserConfig, userConfig) => {
 exports.initLang = (userConf) => {
   language = getLang(userConf)
   exports.lang = require(langMap[language].path).lang
+  return language
 }

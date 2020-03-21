@@ -110,10 +110,6 @@ export default store => {
 
     doRestart () {
       window.getGlobal('restart')()
-    },
-
-    get isTransporting () {
-      return store.tabs.some(t => t.isTransporting)
     }
   })
 }

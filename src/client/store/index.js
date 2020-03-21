@@ -7,7 +7,6 @@ import initState from './init-state'
 import loadDataExtend from './load-data'
 import dbUpgradeExtend from './db-upgrade'
 import eventExtend from './event'
-import watchExtend from './watch'
 import syncExtend from './sync'
 import appUpgrdeExtend from './app-upgrade'
 import bookmarkGroupExtend from './bookmark-group'
@@ -24,8 +23,67 @@ import tabExtend from './tab'
 import terminalThemeExtend from './terminal-theme'
 import transferHistoryExtend from './transfer-history'
 
-const store = Subx.create(initState)
-console.log(store)
+import _ from 'lodash'
+import copy from 'json-deep-copy'
+import {
+  terminalSshConfigType,
+  settingMap
+} from '../common/constants'
+import getInitItem from '../common/init-setting-item'
+const { getGlobal } = window
+const sshConfigItems = copy(getGlobal('sshConfigItems'))
+
+const store = Subx.create({
+  ...initState,
+  get currentQuickCommands () {
+    const { currentTab, quickCommands } = store
+    const currentTabQuickCommands = _.get(
+      currentTab, 'quickCommands'
+    ) || []
+    return [
+      ...currentTabQuickCommands,
+      ...copy(quickCommands)
+    ]
+  },
+  get isTransporting () {
+    return store.tabs.some(t => t.isTransporting)
+  },
+  get settingSidebarList () {
+    const {
+      tab
+    } = store
+    const arr = store.getItems(tab)
+    const initItem = getInitItem(arr, tab)
+    return tab === settingMap.history
+      ? arr
+      : [
+        copy(initItem),
+        ...arr
+      ]
+  },
+  get tabTitles () {
+    return store.tabs.map(d => d.title).join('#')
+  },
+  get currentTab () {
+    const tabs = copy(store.tabs)
+    return _.find(tabs, tab => {
+      return tab.id === store.currentTabId
+    })
+  },
+  get bookmarkGroupsTotal () {
+    return store.sshConfigItems.length
+      ? [
+        ...store.bookmarkGroups,
+        {
+          title: terminalSshConfigType,
+          id: terminalSshConfigType,
+          bookmarkIds: sshConfigItems.map(d => d.id)
+        }
+      ]
+      : store.bookmarkGroups
+  }
+})
+
 loadDataExtend(store)
 eventExtend(store)
 dbUpgradeExtend(store)
@@ -44,6 +102,5 @@ sysMenuExtend(store)
 tabExtend(store)
 terminalThemeExtend(store)
 transferHistoryExtend(store)
-watchExtend(store)
 
 export default store

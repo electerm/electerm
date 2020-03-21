@@ -28,9 +28,10 @@ const get = async (key) => {
 }
 
 const clear = (key) => {
-  return dbAction('lastStates', 'remove', {
-    _id: key
-  })
+  const q = key
+    ? { _id: key }
+    : {}
+  return dbAction('lastStates', 'remove', q)
 }
 
 module.exports = {

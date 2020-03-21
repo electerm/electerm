@@ -11,6 +11,7 @@ const currentUserPath = resolve(
   appPath, 'electerm', 'current_user.txt'
 )
 let currentUser = defaultUserName
+// const log = require('../utils/log')
 
 try {
   if (existsSync(currentUserPath)) {
@@ -31,7 +32,9 @@ const tables = [
   'terminalThemes',
   'lastStates',
   'data',
-  'quickCommands'
+  'quickCommands',
+  'log',
+  'dbUpgradeLog'
 ]
 
 tables.forEach(table => {
@@ -43,7 +46,6 @@ tables.forEach(table => {
 
 const dbAction = (dbName, op, ...args) => {
   return new Promise((resolve, reject) => {
-    console.log('op', dbName, op)
     db[dbName][op](...args, (err, result) => {
       if (err) {
         return reject(err)

@@ -94,6 +94,8 @@ export default {
   isSyncingSetting: false,
   isSyncUpload: false,
   isSyncDownload: false,
+  syncSetting: {},
+  fonts: [],
 
   // sidebar
   openedSideBar: '',

@@ -6,7 +6,8 @@ import createTitlte from '../common/create-title'
 import Subx from 'subx'
 import _ from 'lodash'
 import copy from 'json-deep-copy'
-import { setData, dbNames } from '../common/db'
+import { update, dbNames } from '../common/db'
+import { debounceTime } from 'rxjs/operators'
 
 export default store => {
   // auto focus when tab change
@@ -17,7 +18,7 @@ export default store => {
     const title = createTitlte(tab)
     window.getGlobal('setTitle')(title)
     return store.currentTabId
-  })
+  }, debounceTime(1000))
 
   Subx.autoRun(store, () => {
     if (store.menuOpened) {
@@ -29,42 +30,34 @@ export default store => {
   })
 
   Subx.autoRun(store, () => {
-    setData('sessions', copy(store.tabs).map(t => {
+    const v = copy(store.tabs).map(t => {
       delete t.isTransporting
       return t
-    }))
-    return store.tabs
-  })
-
-  for (const _name of dbNames) {
-    Subx.autoRun(store, () => {
-      const name = _name
-      const nm = `${name}Order`
-      setData(`${name}:order`, copy(store[nm]))
-      const order = store[name].map(g => g.id)
-      store[nm] = order
-      return order
     })
+    update('sessions', v)
+    return store.tabs
+  }, debounceTime(1000))
+
+  for (const name of dbNames) {
+    Subx.autoRun(store, async () => {
+      await update(`${name}:order`, copy(store[name].map(d => d.id)))
+      await store.checkSettingSync()
+      return store[name]
+    }, debounceTime(500))
   }
 
   Subx.autoRun(store, () => {
-    setData('openedCategoryIds', copy(store.openedCategoryIds))
+    update('openedCategoryIds', copy(store.openedCategoryIds))
     return store.openedCategoryIds
-  })
+  }, debounceTime(1000))
 
   Subx.autoRun(store, () => {
     window.getGlobal('saveUserConfig')(store.config)
     return store.config
-  })
+  }, debounceTime(1000))
 
   Subx.autoRun(store, () => {
     store.checkSettingSync()
-    return [
-      store.config.theme,
-      store.terminalThemes,
-      store.bookmarkGroups,
-      store.quickCommands,
-      store.bookmarks
-    ]
-  })
+    return store.config.theme
+  }, debounceTime(1000))
 }

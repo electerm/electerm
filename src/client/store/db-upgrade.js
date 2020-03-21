@@ -8,8 +8,8 @@ import delay from '../common/wait'
 export default (store) => {
   store.checkForDbUpgrade = async () => {
     const shouldUpgrade = await window.getGlobal('checkDbUpgrade')()
-    if (shouldUpgrade) {
-      return store.initData()
+    if (!shouldUpgrade) {
+      return false
     }
     const doUpgrade = window.getGlobal('doUpgrade')
     const {
@@ -18,14 +18,22 @@ export default (store) => {
     } = shouldUpgrade
     const mod = modal.info({
       title: 'Upgrading database',
-      content: `Upgrading database... from v${dbVersion} to v${packVersion} please wait`
+      content: `Upgrading database... from v${dbVersion} to v${packVersion} please wait`,
+      keyboard: false,
+      okButtonProps: {
+        style: {
+          display: 'none'
+        }
+      }
     })
     await doUpgrade()
     mod.update({
       title: 'Done',
-      content: 'Database Upgraded'
+      content: 'Database Upgraded',
+      okButtonProps: {}
     })
     await delay(1000)
-    window.location.reload()
+    mod.destroy()
+    return true
   }
 }

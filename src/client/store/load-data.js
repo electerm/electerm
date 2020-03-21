@@ -2,40 +2,38 @@
  * load data from db
  */
 
-import { dbNames, dbAction, getArrayData, getData } from '../common/db'
+import { dbNames, update, getData, fetchInitData, insert, remove } from '../common/db'
+import initWatch from './watch'
 
 export default (store) => {
   store.batchDbUpdate = async (updates) => {
     for (const u of updates) {
-      await dbAction(u.db, 'update', {
-        _id: u.id
-      }, u.update)
+      await update(u.id, u.update, u.db, u.upsert)
     }
   }
   store.batchDbAdd = async (adds) => {
     for (const u of adds) {
-      const { id, ...rest } = u.obj
-      await dbAction(u.db, 'insert', {
-        _id: id,
-        ...rest
-      })
+      insert(u.db, u.obj)
     }
   }
   store.batchDbDel = async (dels) => {
     for (const u of dels) {
-      await dbAction(u.db, 'remove', {
-        _id: u.id
-      })
+      await remove(u.db, u.id)
     }
   }
   store.initData = async () => {
+    await store.checkForDbUpgrade()
     const ext = {}
     for (const name of dbNames) {
-      ext[name] = await getArrayData(name)
-      ext[name + 'Order'] = await getData(name + ':order') || []
+      ext[name] = await fetchInitData(name)
     }
-    ext.sessions = await getData('sessions')
     ext.openedCategoryIds = await getData('openedCategoryIds') || ext.bookmarkGroups.map(b => b.id)
+    await store.checkLastSession()
     Object.assign(store, ext)
+
+    await store.checkDefaultTheme()
+    await store.initShortcuts()
+    await store.loadFontList()
+    initWatch(store)
   }
 }

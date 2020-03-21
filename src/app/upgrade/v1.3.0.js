@@ -12,6 +12,9 @@ const { existsSync, unlinkSync, writeFileSync } = require('fs')
 const log = require('../utils/log')
 const _ = require('lodash')
 const { userConfigId } = require('../common/constants')
+const { updateDBVersion } = require('./version-upgrade')
+
+const versionTo = '1.3.0'
 
 async function loadArr (arr, name) {
   await dbAction(name, 'insert', arr.map(d => {
@@ -21,10 +24,6 @@ async function loadArr (arr, name) {
       ...rest
     }
   }))
-  await dbAction('data', 'insert', {
-    _id: `${name}:order`,
-    value: arr.map(d => d.id)
-  })
 }
 
 function shouldLoadAsArray (key, value) {
@@ -47,11 +46,26 @@ async function migrateData () {
   const keys = Object.keys(json)
   for (const k of keys) {
     const v = json[k]
-    if (shouldLoadAsArray(k, v)) {
+    const _id = k.startsWith('laststate')
+      ? k.split('.')[1]
+      : k
+    const db = k.startsWith('laststate')
+      ? 'lastStates'
+      : 'data'
+    if (k === 'themes') {
+      const vs = Object.values(v)
+      for (const vv of vs) {
+        const { id, ...rest } = vv
+        await dbAction('terminalThemes', 'insert', {
+          _id: id,
+          ...rest
+        })
+      }
+    } else if (shouldLoadAsArray(k, v)) {
       await loadArr(v, k)
     } else {
-      await dbAction('data', 'insert', {
-        _id: k,
+      await dbAction(db, 'insert', {
+        _id,
         value: v
       })
     }
@@ -82,8 +96,9 @@ async function migrateUserConfig () {
 }
 
 module.exports = async () => {
-  log.info('Start: upgrading to v1.3.0')
+  log.info(`Start: upgrading to v${versionTo}`)
   await migrateData()
   await migrateUserConfig()
-  log.info('Done: upgrading to v1.3.0')
+  await updateDBVersion(versionTo)
+  log.info(`Done: upgrading to v${versionTo}`)
 }

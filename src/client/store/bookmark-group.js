@@ -3,58 +3,29 @@
  */
 
 import _ from 'lodash'
-import copy from 'json-deep-copy'
 import {
   defaultBookmarkGroupId,
-  terminalSshConfigType
+  settingMap
 } from '../common/constants'
-import { dbAction, setData } from '../common/db'
+import { insert, update } from '../common/db'
 
-const { getGlobal } = window
-const sshConfigItems = copy(getGlobal('sshConfigItems'))
+const { bookmarkGroups } = settingMap
 
 export default store => {
   Object.assign(store, {
-    get bookmarkGroupsTotal () {
-      return store.sshConfigItems.length
-        ? [
-          ...store.bookmarkGroups,
-          {
-            title: terminalSshConfigType,
-            id: terminalSshConfigType,
-            bookmarkIds: sshConfigItems.map(d => d.id)
-          }
-        ]
-        : store.bookmarkGroups
-    },
-
-    addBookmarkGroup (group) {
+    async addBookmarkGroup (group) {
       store.bookmarkGroups.push(group)
-      const {
-        id, ...rest
-      } = group
-      dbAction('bookmarkGroups', 'insert', {
-        _id: id,
-        ...rest
-      })
-      const q = {
-        _id: 'bookmarkGroups:order'
-      }
-      setData('data', 'update', q, {
-        ...q,
-        value: store.bookmarkGroups.map(d => d.id)
-      }, {
-        upsert: true
-      })
+      await insert(bookmarkGroups, group)
+      const _id = `${bookmarkGroups}:order`
+      await update(_id, store.bookmarkGroups.map(d => d.id)
+      )
     },
 
-    editBookmarkGroup (id, update) {
+    editBookmarkGroup (id, updates) {
       const items = store.bookmarkGroups
       const item = _.find(items, t => t.id === id)
-      Object.assign(item, update)
-      dbAction('bookmarkGroups', 'update', {
-        _id: id
-      }, update)
+      Object.assign(item, updates)
+      update(id, updates, bookmarkGroups, false)
     },
 
     delBookmarkGroup ({ id }) {

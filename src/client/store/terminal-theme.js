@@ -8,7 +8,7 @@ import {
   defaultTheme,
   settingMap
 } from '../common/constants'
-import { dbAction } from '../common/db'
+import { insert, update, remove, findOne } from '../common/db'
 
 const { terminalThemes } = settingMap
 const { prefix } = window
@@ -22,20 +22,14 @@ export default store => {
 
     addTheme (theme) {
       store.terminalThemes.unshift(theme)
-      const { id, ...update } = theme
-      dbAction(terminalThemes, 'insert', {
-        _id: id,
-        ...update
-      })
+      insert(terminalThemes, theme)
     },
 
-    editTheme (id, update) {
+    editTheme (id, updates) {
       const items = store.terminalThemes
       const item = _.find(items, t => t.id === id)
-      Object.assign(item, update)
-      dbAction(terminalThemes, 'update', {
-        _id: id
-      }, update)
+      Object.assign(item, updates)
+      update(id, updates, terminalThemes)
     },
 
     delTheme ({ id }) {
@@ -46,6 +40,7 @@ export default store => {
       if (theme === id) {
         store.config.theme = defaultTheme.id
       }
+      remove(terminalThemes, id)
     },
     // computed
     getThemeConfig () {
@@ -55,12 +50,9 @@ export default store => {
     async checkDefaultTheme () {
       const { config } = store
       const themeId = config.theme || defaultTheme.id
-      const currentTheme = await dbAction(
+      const currentTheme = await findOne(
         terminalThemes,
-        'findOne',
-        {
-          _id: themeId
-        }
+        themeId
       ) || defaultTheme
       if (
         currentTheme.id === defaultTheme.id &&

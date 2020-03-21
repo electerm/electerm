@@ -11,7 +11,9 @@ import copy from 'json-deep-copy'
 import {
   settingMap
 } from '../common/constants'
+import { remove, dbNames, insert } from '../common/db'
 
+const names = _.without(dbNames, settingMap.history)
 const { getGlobal } = window
 const Gist = window._require('gist-wrapper').default
 const {
@@ -82,7 +84,7 @@ export default (store) => {
       return
     }
     const gist = await client.getOne(syncSetting.gistId).catch(
-      console.log
+      log.error
     )
     return gist
   }
@@ -95,21 +97,18 @@ export default (store) => {
     }
     store.isSyncingSetting = true
     store.isSyncUpload = true
+    const objs = names.reduce((p, n) => {
+      return {
+        ...p,
+        [`${n}.json`]: {
+          content: JSON.stringify(copy(store[n]))
+        }
+      }
+    })
     const res = await client.update(syncSetting.gistId, {
       description: 'sync electerm data',
       files: {
-        'bookmarks.json': {
-          content: JSON.stringify(copy(store.bookmarks))
-        },
-        'bookmarkGroups.json': {
-          content: JSON.stringify(copy(store.bookmarkGroups))
-        },
-        'terminalThemes.json': {
-          content: JSON.stringify(copy(store.terminalThemes))
-        },
-        'quickCommands.json': {
-          content: JSON.stringify(copy(store.quickCommands))
-        },
+        objs,
         'userConfig.json': {
           content: JSON.stringify(_.pick(store.config, ['theme']))
         },
@@ -139,29 +138,30 @@ export default (store) => {
       return
     }
     gist = gist.data
-    const bookmarks = JSON.parse(
-      _.get(gist, 'files["bookmarks.json"].content')
-    )
-    const bookmarkGroups = JSON.parse(
-      _.get(gist, 'files["bookmarkGroups.json"].content')
-    )
-    const terminalThemes = JSON.parse(
-      _.get(gist, 'files["terminalThemes.json"].content')
-    )
-    const quickCommands = JSON.parse(
-      _.get(gist, 'files["quickCommands.json"].content')
-    )
+    const toInsert = []
+    const ext = names.reduce((p, n) => {
+      const arr = JSON.parse(
+        _.get(gist, `files["${n}.json"].content`)
+      )
+      toInsert.push({
+        name: n,
+        value: arr
+      })
+      return {
+        ...p,
+        [n]: arr
+      }
+    }, {})
     const userConfig = JSON.parse(
       _.get(gist, 'files["userConfig.json"].content')
     )
-    Object.assign(store, {
-      bookmarks,
-      bookmarkGroups,
-      terminalThemes: terminalThemes,
-      quickCommands
-    })
+    Object.assign(store, ext)
     store.setTheme(userConfig.theme)
     store.config.syncSetting.lastSyncTime = Date.now()
+    for (const u of toInsert) {
+      await remove(u.name)
+      await insert(u.name, u.value)
+    }
   }
 
   store.syncSetting = async (syncSetting = store.config.syncSetting || {}) => {

@@ -5,7 +5,7 @@
 import { defaultTheme } from '../common/constants'
 import download from '../common/download'
 import copy from 'json-deep-copy'
-import { dbAction } from './db'
+import { findOne } from './db'
 const { prefix } = window
 const t = prefix('terminalThemes')
 
@@ -96,9 +96,7 @@ export const verifyTheme = (themeConfig) => {
  * @param {string} themeId
  */
 export const exportTheme = async (themeId) => {
-  const themes = await dbAction('terminalThemes', 'findOne', {
-    _id: themeId
-  }) || buildDefaultThemes()
+  const themes = await findOne('terminalThemes', themeId) || buildDefaultThemes()
   const theme = themes[themeId]
   const text = convertThemeToText(theme, true)
   download(

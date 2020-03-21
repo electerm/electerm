@@ -42,13 +42,9 @@ export default class Index extends Component {
       e.preventDefault()
       e.stopPropagation()
     })
-    store.checkLastSession()
-    store.checkDefaultTheme()
     window.addEventListener('offline', store.setOffline)
     store.zoom(store.config.zoom, false, true)
-    store.initShortcuts()
-    store.loadFontList()
-    store.checkForDbUpgrade()
+    store.initData()
   }
 
   render () {
