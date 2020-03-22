@@ -13,9 +13,10 @@ describe('init setting buttons', function () {
     return this.app.start()
   })
 
-  afterEach(function () {
+  afterEach(async function () {
     if (this.app && this.app.isRunning()) {
-      return this.app.stop()
+      await this.app.stop()
+      return true
     }
   })
 
@@ -33,7 +34,7 @@ describe('init setting buttons', function () {
     const active = await client.element(sel)
     expect(!!active.value).equal(true)
     const text = await client.getText(sel)
-    expect(text.toLowerCase()).equal(e('bookmarks'))
+    expect(text).equal(e('bookmarks'))
 
     log('close')
     await client.execute(function () {

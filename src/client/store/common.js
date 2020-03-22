@@ -12,8 +12,8 @@ import {
 
 export default store => {
   Object.assign(store, {
-    storeAssign (update) {
-      Object.assign(store, update)
+    storeAssign (updates) {
+      Object.assign(store, updates)
     },
 
     setOffline () {

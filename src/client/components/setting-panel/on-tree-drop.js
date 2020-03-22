@@ -191,12 +191,14 @@ export default (info, props) => {
       _.remove(arr, d => d === 'tobedel')
     }
   }
-  const { id, ...rest } = fromGroup
-  updates.push({
-    id,
-    update: rest
-  })
-  if (_.isEqual(toGroup, oldto)) {
+  if (fromGroup) {
+    const { id, ...rest } = fromGroup
+    updates.push({
+      id,
+      update: rest
+    })
+  }
+  if (toGroup && !_.isEqual(toGroup, oldto)) {
     const { id, ...rest } = toGroup
     updates.push({
       id,

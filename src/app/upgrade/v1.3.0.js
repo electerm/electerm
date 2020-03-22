@@ -14,8 +14,6 @@ const _ = require('lodash')
 const { userConfigId } = require('../common/constants')
 const { updateDBVersion } = require('./version-upgrade')
 
-const versionTo = '1.3.0'
-
 async function loadArr (arr, name) {
   await dbAction(name, 'insert', arr.map(d => {
     const { id, ...rest } = d
@@ -88,14 +86,19 @@ async function migrateUserConfig () {
     log.error(e)
     log.error('load user config fails')
   }
-  await dbAction('data', 'insert', {
+  await dbAction('data', 'update', {
+    _id: userConfigId
+  }, {
     _id: userConfigId,
     value: uf
+  }, {
+    upsert: true
   })
   log.log('End migrating user config')
 }
 
 module.exports = async () => {
+  const versionTo = '1.3.0'
   log.info(`Start: upgrading to v${versionTo}`)
   await migrateData()
   await migrateUserConfig()

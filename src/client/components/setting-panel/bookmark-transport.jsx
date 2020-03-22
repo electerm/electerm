@@ -22,8 +22,8 @@ export default class Btns extends Component {
         bookmarks
       } = store
       const txt = JSON.stringify({
-        bookmarkGroups,
-        bookmarks
+        bookmarkGroups: copy(bookmarkGroups),
+        bookmarks: copy(bookmarks)
       }, null, 2)
       const stamp = time(undefined, 'YYYY-MM-DD-HH-mm-ss')
       download('bookmarks-' + stamp + '.json', txt)

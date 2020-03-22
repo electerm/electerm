@@ -11,11 +11,11 @@
 const log = require('../utils/log')
 const { dbAction } = require('../lib/nedb')
 const { generate } = require('shortid')
-const versionQuery = {
-  _id: 'version'
-}
 
 async function updateDBVersion (toVersion) {
+  const versionQuery = {
+    _id: 'version'
+  }
   log.info('upgrade db version to', toVersion)
   await dbAction('data', 'update', versionQuery, {
     ...versionQuery,

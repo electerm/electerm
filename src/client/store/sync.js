@@ -11,7 +11,7 @@ import copy from 'json-deep-copy'
 import {
   settingMap
 } from '../common/constants'
-import { remove, dbNames, insert } from '../common/db'
+import { remove, dbNames, insert, update } from '../common/db'
 
 const names = _.without(dbNames, settingMap.history)
 const { getGlobal } = window
@@ -174,21 +174,14 @@ export default (store) => {
       return
     }
     const status = JSON.parse(gist.files['electerm-status.json'].content)
-    if (status.lastSyncTime > syncSetting.lastUpdateTime) {
+    if (status.lastSyncTime > store.lastUpdateTime) {
       store.uploadSetting()
-    } else if (status.lastSyncTime < syncSetting.lastUpdateTime) {
+    } else if (status.lastSyncTime < store.lastUpdateTime) {
       store.downloadSetting()
     }
   }
 
-  store.updateSyncTime = () => {
-    store.updateSyncSetting({
-      lastUpdateTime: Date.now()
-    })
-  }
-
   store.checkSettingSync = () => {
-    store.updateSyncTime()
     if (_.get(store, 'config.syncSetting.autoSync')) {
       store.uploadSetting()
     }
@@ -202,5 +195,10 @@ export default (store) => {
       store.serials = res
     }
     store.loaddingSerials = false
+  }
+
+  store.updateLastDataUpdateTime = () => {
+    store.lastDataUpdateTime = +new Date()
+    update('lastDataUpdateTime', store.lastDataUpdateTime)
   }
 }

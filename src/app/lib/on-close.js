@@ -35,7 +35,9 @@ exports.onClose = async function () {
   global.win = null
   global.childPid && process.kill(global.childPid)
   process.on('uncaughtException', function () {
+    global.childPid && process.kill(global.childPid)
     process.exit(0)
   })
+  global.app.quit()
   process.exit(0)
 }

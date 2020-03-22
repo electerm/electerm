@@ -28,6 +28,7 @@ export default (store) => {
       ext[name] = await fetchInitData(name)
     }
     ext.openedCategoryIds = await getData('openedCategoryIds') || ext.bookmarkGroups.map(b => b.id)
+    ext.lastDataUpdateTime = await getData('lastDataUpdateTime') || 0
     await store.checkLastSession()
     Object.assign(store, ext)
 

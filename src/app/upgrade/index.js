@@ -92,7 +92,6 @@ async function doUpgrade () {
     const run = require(p)
     await run()
   }
-  await updateDBVersion()
   log.info('Upgrade end')
 }
 

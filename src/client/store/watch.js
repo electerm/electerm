@@ -41,7 +41,7 @@ export default store => {
   for (const name of dbNames) {
     Subx.autoRun(store, async () => {
       await update(`${name}:order`, copy(store[name].map(d => d.id)))
-      await store.checkSettingSync()
+      await store.updateLastDataUpdateTime()
       return store[name]
     }, debounceTime(500))
   }
@@ -57,7 +57,7 @@ export default store => {
   }, debounceTime(1000))
 
   Subx.autoRun(store, () => {
-    store.checkSettingSync()
+    store.updateLastDataUpdateTime()
     return store.config.theme
   }, debounceTime(1000))
 }

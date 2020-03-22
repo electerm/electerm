@@ -10,7 +10,9 @@ async function initData () {
   log.info('start: init db')
   await dbAction('bookmarkGroups', 'insert', {
     _id: 'default',
-    title: 'default'
+    title: 'default',
+    bookmarkIds: [],
+    bookmarkGroupIds: []
   })
   await dbAction('terminalThemes', 'insert', {
     _id: 'default',

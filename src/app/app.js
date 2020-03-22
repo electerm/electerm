@@ -236,3 +236,6 @@ app.on('activate', () => {
     createWindow()
   }
 })
+
+global.app = app
+

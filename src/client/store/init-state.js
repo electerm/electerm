@@ -52,6 +52,7 @@ const bookmarks = []
 const bookmarkGroups = getDefaultBookmarkGroups(bookmarks)
 
 export default {
+  lastDataUpdateTime: 0,
   tabs,
   height: 500,
   width: window.innerWidth - sidebarWidth,
