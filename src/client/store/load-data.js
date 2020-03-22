@@ -29,6 +29,8 @@ export default (store) => {
     }
     ext.openedCategoryIds = await getData('openedCategoryIds') || ext.bookmarkGroups.map(b => b.id)
     ext.lastDataUpdateTime = await getData('lastDataUpdateTime') || 0
+    const confs = await window.getGlobal('getConfig')()
+    ext.config = confs.config
     await store.checkLastSession()
     Object.assign(store, ext)
 
