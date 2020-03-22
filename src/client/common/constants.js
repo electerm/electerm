@@ -4,6 +4,7 @@
 
 import logoPath1Ref from '@electerm/electerm-resource/res/imgs/electerm-round-128x128.png'
 import logoPath2Ref from '@electerm/electerm-resource/res/imgs/electerm.png'
+import newTerm from '../common/new-terminal'
 
 const buildConst = (props) => {
   return props.reduce((prev, key) => {
@@ -175,3 +176,5 @@ export const commonParities = [
 ]
 
 export const defaultLoginScriptDelay = 500
+
+export const initTabs = [newTerm()]

@@ -1,0 +1,82 @@
+/**
+ * bookmark group functions
+ */
+
+import _ from 'lodash'
+import {
+  defaultBookmarkGroupId,
+  settingMap
+} from '../common/constants'
+import { insert, update } from '../common/db'
+
+const { bookmarkGroups } = settingMap
+
+export default store => {
+  Object.assign(store, {
+    async addBookmarkGroup (group) {
+      store.bookmarkGroups.push(group)
+      await insert(bookmarkGroups, group)
+      const _id = `${bookmarkGroups}:order`
+      await update(_id, store.bookmarkGroups.map(d => d.id)
+      )
+    },
+
+    editBookmarkGroup (id, updates) {
+      const items = store.bookmarkGroups
+      const item = _.find(items, t => t.id === id)
+      Object.assign(item, updates)
+      update(id, updates, bookmarkGroups, false)
+    },
+
+    delBookmarkGroup ({ id }) {
+      if (id === defaultBookmarkGroupId) {
+        return
+      }
+      let { bookmarkGroups } = store
+      const tobeDel = _.find(bookmarkGroups, bg => bg.id === id)
+      if (!tobeDel) {
+        return
+      }
+      let groups = [tobeDel]
+      if (
+        tobeDel.level !== 2 &&
+        tobeDel.bookmarkGroupIds &&
+        tobeDel.bookmarkGroupIds.length > 0
+      ) {
+        const childs = bookmarkGroups.filter(
+          bg => tobeDel.bookmarkGroupIds.includes(bg.id)
+        )
+        groups = [
+          ...groups,
+          ...childs
+        ]
+      }
+      const groupIds = groups.map(g => g.id)
+      const defaultCatIndex = tobeDel.level !== 2
+        ? _.findIndex(
+          bookmarkGroups,
+          g => g.id === defaultBookmarkGroupId
+        )
+        : _.findIndex(
+          bookmarkGroups,
+          g => (g.bookmarkGroupIds || []).includes(tobeDel.id)
+        )
+      for (const g of groups) {
+        if (g.bookmarkIds.length) {
+          const def = bookmarkGroups[defaultCatIndex]
+          def.bookmarkIds = [
+            ...g.bookmarkIds,
+            ...def.bookmarkIds
+          ]
+        }
+      }
+      bookmarkGroups = bookmarkGroups.filter(t => {
+        return !groupIds.includes(t.id)
+      })
+      store.bookmarkGroups = bookmarkGroups
+      if (id === store.currentBookmarkGroupId) {
+        store.currentBookmarkGroupId = ''
+      }
+    }
+  })
+}

@@ -13,9 +13,10 @@ describe('init setting buttons', function () {
     return this.app.start()
   })
 
-  afterEach(function () {
+  afterEach(async function () {
     if (this.app && this.app.isRunning()) {
-      return this.app.stop()
+      await this.app.stop()
+      return true
     }
   })
 

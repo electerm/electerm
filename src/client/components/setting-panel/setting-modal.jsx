@@ -29,7 +29,7 @@ export default class SettingModal extends Component {
   render () {
     const { store } = this.props
     const selectItem = (item) => {
-      store.modifier({ settingItem: item })
+      store.storeAssign({ settingItem: item })
     }
 
     const tabsShouldConfirmDel = [
@@ -38,14 +38,14 @@ export default class SettingModal extends Component {
     ]
 
     const renderTabs = () => {
-      const { tab, settingItem, list } = store
+      const { tab, settingItem, settingSidebarList } = store
       const props0 = {
         store,
         activeItemId: settingItem.id,
         type: tab,
         onClickItem: selectItem,
         shouldComfirmDel: tabsShouldConfirmDel.includes(tab),
-        list
+        list: settingSidebarList
       }
       const formProps = {
         store,
@@ -202,6 +202,9 @@ export default class SettingModal extends Component {
           footer: null,
           width: '94%',
           height: '94%',
+          style: {
+            left: 0
+          },
           visible: store.showModal
         }}
       >

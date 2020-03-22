@@ -104,6 +104,7 @@ export default (info, props) => {
       )
   }
   let toGroup = null
+  let oldto = null
   const toFirstLevel = toPoses.length === 2 && dropToGap
   if (!toFirstLevel) {
     toGroup = dropToGap
@@ -120,6 +121,7 @@ export default (info, props) => {
         bookmarkGroups,
         d => d.id === toId
       )
+    oldto = copy(toGroup)
   }
   let nodeIndex = 0
   if (toGroup) {
@@ -161,6 +163,7 @@ export default (info, props) => {
   if (!fromLeaf) {
     from.level = toFirstLevel ? 1 : 2
   }
+  const updates = []
   if (toFirstLevel) {
     fromIndex = _.findIndex(bookmarkGroups, d => d.id === fromId)
     from = copy(from)
@@ -188,7 +191,22 @@ export default (info, props) => {
       _.remove(arr, d => d === 'tobedel')
     }
   }
-  props.store.modifier({
+  if (fromGroup) {
+    const { id, ...rest } = fromGroup
+    updates.push({
+      id,
+      update: rest
+    })
+  }
+  if (toGroup && !_.isEqual(toGroup, oldto)) {
+    const { id, ...rest } = toGroup
+    updates.push({
+      id,
+      update: rest
+    })
+  }
+  props.store.storeAssign({
     bookmarkGroups
   })
+  props.store.batchDbUpdate(updates)
 }

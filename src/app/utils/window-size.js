@@ -10,8 +10,8 @@ exports.getScreenSize = () => {
   return require('electron').screen.getPrimaryDisplay().workAreaSize
 }
 
-exports.getWindowSize = () => {
-  const windowSizeLastState = lastStateManager.get('windowSize')
+exports.getWindowSize = async () => {
+  const windowSizeLastState = await lastStateManager.get('windowSize')
   const {
     width: maxWidth,
     height: maxHeight

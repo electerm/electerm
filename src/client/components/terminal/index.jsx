@@ -277,7 +277,7 @@ export default class Term extends Component {
     if (
       this.props.id === this.props.activeTerminalId
     ) {
-      this.props.store.modifier({
+      this.props.store.storeAssign({
         activeTerminalId: ''
       })
     }
@@ -625,7 +625,7 @@ export default class Term extends Component {
 
   setActive = () => {
     this.props.setActive(this.props.id)
-    this.props.store.modifier({
+    this.props.store.storeAssign({
       activeTerminalId: this.props.id
     })
   }

@@ -42,12 +42,9 @@ export default class Index extends Component {
       e.preventDefault()
       e.stopPropagation()
     })
-    store.checkLastSession()
-    store.checkDefaultTheme()
     window.addEventListener('offline', store.setOffline)
     store.zoom(store.config.zoom, false, true)
-    store.initShortcuts()
-    store.loadFontList()
+    store.initData()
   }
 
   render () {
@@ -61,11 +58,11 @@ export default class Index extends Component {
       fileModeModalProps,
       shouldCheckUpdate,
       textEditorProps,
-      modifier,
+      storeAssign,
       config
     } = store
     const sessProps = _.pick(store, [
-      'modifier', 'addTab', 'sessionModalVisible', 'selectedSessions'
+      'storeAssign', 'addTab', 'sessionModalVisible', 'selectedSessions'
     ])
     const { terminalBackgroundImagePath } = config
     return (
@@ -75,7 +72,7 @@ export default class Index extends Component {
         <TextEditor
           key={textEditorProps.id}
           {...textEditorProps}
-          modifier={modifier}
+          modifier={storeAssign}
         />
         <UpdateCheck
           store={store}

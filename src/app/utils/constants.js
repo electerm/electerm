@@ -28,6 +28,8 @@ const trayIconPath = resolve(
       : '../assets/images/electerm-tray.png'
   )
 )
+const defaultUserName = require('../common/default-user-name')
+
 module.exports = {
   isDev,
   isWin,
@@ -35,6 +37,7 @@ module.exports = {
   isLinux,
   iconPath,
   trayIconPath,
+  defaultUserName,
   minWindowWidth: 590,
   minWindowHeight: 400,
   defaultLang: 'en_us',

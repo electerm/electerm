@@ -6,7 +6,8 @@ import {
   Upload
 } from 'antd'
 import { validateFieldsAndScroll } from '../../common/dec-validate-and-scroll'
-import { convertTheme, convertThemeToText, exportTheme, defaultTheme } from '../../common/terminal-theme'
+import { convertTheme, convertThemeToText, exportTheme } from '../../common/terminal-theme'
+import { defaultTheme } from '../../common/constants'
 import { generate } from 'shortid'
 import { formItemLayout, tailFormItemLayout } from '../../common/form-layout'
 import InputAutoFocus from '../common/input-auto-focus'
@@ -46,7 +47,7 @@ class ThemeForm extends BookmarkForm {
       this.props.store.editTheme(formData.id, update)
     } else {
       this.props.store.addTheme(update1)
-      this.props.store.modifier({
+      this.props.store.storeAssign({
         item: update1
       })
     }

@@ -159,7 +159,6 @@ class Terminal {
   }
 
   remoteInitTerminal (initOptions) {
-    console.log('ok here')
     const connInst = session(initOptions.sessionId)
     const {
       conn,
@@ -175,7 +174,6 @@ class Terminal {
           }
           this.channel = channel
           connInst.terminals[this.pid] = this
-          console.log(session(initOptions.sessionId))
           resolve(true)
         }
       )

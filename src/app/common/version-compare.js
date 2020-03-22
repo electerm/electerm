@@ -8,7 +8,7 @@
 // return 1 when a > b
 // return -1 when a < b
 // return 0 when a === b
-export default function (a, b) {
+module.exports = exports.default = function (a, b) {
   const ar = a.split('.').map(n => Number(n.replace('v', '')))
   const br = b.split('.').map(n => Number(n.replace('v', '')))
   let res = 0

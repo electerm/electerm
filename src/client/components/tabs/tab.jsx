@@ -107,7 +107,7 @@ export default class Tab extends React.Component {
     }
     tabs.splice(indexFrom, 1)
     tabs.splice(indexDrop, 0, fromTab)
-    this.props.store.modifier({
+    this.props.store.storeAssign({
       tabs
     })
   }
@@ -171,7 +171,7 @@ export default class Tab extends React.Component {
   }
 
   closeOther = () => {
-    this.props.store.modifier({
+    this.props.store.storeAssign({
       tabs: [this.props.tab],
       currentTabId: this.props.tab.id
     })
@@ -187,7 +187,7 @@ export default class Tab extends React.Component {
     if (!_.some(tabs, t => t.id === currentTabId)) {
       update.currentTabId = tabs[0].id
     }
-    this.props.store.modifier(update)
+    this.props.store.storeAssign(update)
   }
 
   renderContext () {

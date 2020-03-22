@@ -5,7 +5,7 @@
 import List from '../setting-panel/list'
 import { Tooltip, Icon } from 'antd'
 import classnames from 'classnames'
-import { defaultTheme } from '../../common/terminal-theme'
+import { defaultTheme } from '../../common/constants'
 import highlight from '../common/highlight'
 import './terminal-theme-list.styl'
 

@@ -9,6 +9,7 @@ import {
 } from 'antd'
 import deepCopy from 'json-deep-copy'
 import { noTerminalBgValue } from '../../common/constants'
+import defaultSettings from '../../../app/common/default-setting'
 
 const InputGroup = Input.Group
 const { Option } = Select
@@ -41,7 +42,7 @@ export default class Setting extends Component {
 
   resetAll = () => {
     this.saveConfig(
-      deepCopy(this.props.config.defaultSettings)
+      deepCopy(defaultSettings)
     )
   }
 
@@ -112,7 +113,7 @@ export default class Setting extends Component {
       }
     }
     saveUserConfig && saveUserConfig(ext)
-    this.props.store.modifier(update)
+    this.props.store.storeAssign(update)
   }
 
   renderOption = (m, i) => {
@@ -161,7 +162,7 @@ export default class Setting extends Component {
 
   renderNumber = (name, options) => {
     const value = this.props.config[name]
-    const defaultValue = this.props.config.defaultSettings[name]
+    const defaultValue = defaultSettings[name]
     const {
       step = 1,
       min,
@@ -188,7 +189,7 @@ export default class Setting extends Component {
 
   renderText = (name) => {
     const value = this.props.config[name]
-    const defaultValue = this.props.config.defaultSettings[name]
+    const defaultValue = defaultSettings[name]
     const onChange = (e) => this.onChangeValue(e.target.value, name)
     return (
       <div className='pd2b'>
@@ -211,7 +212,7 @@ export default class Setting extends Component {
 
   renderTerminalBgSelect = (name) => {
     const value = this.props.config[name]
-    const defaultValue = this.props.config.defaultSettings[name]
+    const defaultValue = defaultSettings[name]
     const onChange = (v) => this.onChangeValue(v, name)
     const after = (
       <Upload
@@ -394,7 +395,7 @@ export default class Setting extends Component {
       rendererType,
       theme
     } = this.props.config
-    const { themes } = this.props.store
+    const { terminalThemes } = this.props.store
     const langs = getGlobal('langs')
     const [modifier, key] = hotkey.split('+')
     return (
@@ -459,7 +460,7 @@ export default class Setting extends Component {
             value={theme}
           >
             {
-              themes.map(l => {
+              terminalThemes.map(l => {
                 const { id, name } = l
                 return (
                   <Option key={id} value={id}>{name}</Option>

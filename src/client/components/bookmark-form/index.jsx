@@ -25,7 +25,7 @@ export default function BookmarkIndex (props) {
     : 'ssh'
   const [bookmarkType, setBookmarkType] = useState(initType)
   const {
-    id
+    id = ''
   } = props.formData
   const {
     type

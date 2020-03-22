@@ -26,7 +26,7 @@ export default class SystemMenu extends PureComponent {
       st = 'none'
     } else if (terminalBackgroundImagePath && !isWebImg) {
       content = await fs.readFileAsBase64(terminalBackgroundImagePath)
-        .catch(console.log)
+        .catch(log.error)
       if (content) {
         st = `url(data:image;base64,${content})`
       }

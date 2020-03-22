@@ -3,7 +3,7 @@ import { Icon, Button } from 'antd'
 import _ from 'lodash'
 import { getLatestReleaseInfo, getLatestReleaseVersion } from '../../common/update-check'
 import upgrade from '../../common/upgrade'
-import compare from '../../common/version-compare'
+import compare from '../../../app/common/version-compare'
 import Link from '../common/external-link'
 import { isMac, isWin } from '../../common/constants'
 import newTerm from '../../common/new-terminal'
@@ -29,7 +29,7 @@ export default class Upgrade extends Component {
   }
 
   changeProps = (update) => {
-    this.props.store.modifier({
+    this.props.store.storeAssign({
       upgradeInfo: {
         ...this.props.store.upgradeInfo,
         ...update
@@ -45,7 +45,7 @@ export default class Upgrade extends Component {
   }
 
   close = () => {
-    this.props.store.modifier({
+    this.props.store.storeAssign({
       upgradeInfo: {}
     })
   }

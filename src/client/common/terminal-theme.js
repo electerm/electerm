@@ -2,16 +2,17 @@
  * theme control
  */
 
-import { defaultTheme } from './constants'
-import download from './download'
+import { defaultTheme } from '../common/constants'
+import download from '../common/download'
 import copy from 'json-deep-copy'
+import { findOne } from './db'
 const { prefix } = window
 const t = prefix('terminalThemes')
 
 /**
  * build default themes
  */
-const buildDefaultThemes = () => {
+export const buildDefaultThemes = () => {
   return {
     [defaultTheme.id]: defaultTheme
   }
@@ -20,7 +21,7 @@ const buildDefaultThemes = () => {
 /**
  * build new theme
  */
-const buildNewTheme = () => {
+export const buildNewTheme = () => {
   return Object.assign(
     copy(defaultTheme),
     {
@@ -36,7 +37,7 @@ const buildNewTheme = () => {
  * @param {boolean} withName
  * @return {string}
  */
-const convertThemeToText = (themeObj = {}, withName = false) => {
+export const convertThemeToText = (themeObj = {}, withName = false) => {
   const theme = themeObj || {}
   const { themeConfig = {}, name } = theme
   if (withName) {
@@ -54,7 +55,7 @@ const convertThemeToText = (themeObj = {}, withName = false) => {
  * @param {string} themeTxt
  * @return {object}
  */
-const convertTheme = (themeTxt) => {
+export const convertTheme = (themeTxt) => {
   const keys = [
     ...Object.keys(defaultTheme.themeConfig),
     'themeName'
@@ -79,39 +80,11 @@ const convertTheme = (themeTxt) => {
 }
 
 /**
- * get current
- * @return {object}
- */
-const getCurrentTheme = () => {
-  const ls = window.getGlobal('ls')
-  const config = window.getGlobal('_config')
-  const themes = copy(ls.get('themes') || buildDefaultThemes())
-  const themeId = config.theme || defaultTheme.id
-  const themeObj = themes[themeId] || defaultTheme
-  return themeObj
-}
-
-/**
- * get theme list from ls
- * @return {array}
- */
-const getThemes = () => {
-  const ls = window.getGlobal('ls')
-  const themes = copy(ls.get('themes') || buildDefaultThemes())
-  return Object.keys(themes).reduce((prev, k) => {
-    return [
-      ...prev,
-      themes[k]
-    ]
-  }, [])
-}
-
-/**
  * verify theme config
  * @param {object} themeConfig
  * @return {array} extra keys
  */
-const verifyTheme = (themeConfig) => {
+export const verifyTheme = (themeConfig) => {
   const keysRight = Object.keys(defaultTheme.themeConfig)
   const keys = Object.keys(themeConfig)
   const extraKeys = keys.filter(k => !keysRight.includes(k))
@@ -122,24 +95,12 @@ const verifyTheme = (themeConfig) => {
  * export theme as txt
  * @param {string} themeId
  */
-const exportTheme = (themeId) => {
-  const ls = window.getGlobal('ls')
-  const themes = copy(ls.get('themes') || buildDefaultThemes())
+export const exportTheme = async (themeId) => {
+  const themes = await findOne('terminalThemes', themeId) || buildDefaultThemes()
   const theme = themes[themeId]
   const text = convertThemeToText(theme, true)
   download(
     `${theme.name}.txt`,
     text
   )
-}
-
-export {
-  getCurrentTheme,
-  verifyTheme,
-  convertTheme,
-  exportTheme,
-  defaultTheme,
-  getThemes,
-  convertThemeToText,
-  buildNewTheme
 }
