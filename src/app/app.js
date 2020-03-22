@@ -238,4 +238,3 @@ app.on('activate', () => {
 })
 
 global.app = app
-
