@@ -1,5 +1,5 @@
 import React from 'react'
-import SubX from '@electerm/subx'
+import SubX from 'subx'
 import * as R from 'ramda'
 import _ from 'lodash'
 

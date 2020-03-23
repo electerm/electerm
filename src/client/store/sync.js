@@ -44,7 +44,10 @@ export default (store) => {
         data.gistId
       )
     }
-    Object.assign(store.config.syncSetting, data)
+    store.config = {
+      ...copy(store.config),
+      syncSetting: Object.assign({}, copy(store.config.syncSetting), data)
+    }
     window.gitClient = new Gist(
       store.getGistToken()
     )
@@ -104,11 +107,11 @@ export default (store) => {
           content: JSON.stringify(copy(store[n]))
         }
       }
-    })
+    }, {})
     const res = await client.update(syncSetting.gistId, {
       description: 'sync electerm data',
       files: {
-        objs,
+        ...objs,
         'userConfig.json': {
           content: JSON.stringify(_.pick(store.config, ['theme']))
         },
@@ -123,7 +126,12 @@ export default (store) => {
     store.isSyncingSetting = false
     store.isSyncUpload = false
     if (res) {
-      store.config.syncSetting.lastSyncTime = Date.now()
+      store.updateConfig({
+        syncSetting: {
+          ...copy(store.config.syncSetting),
+          lastSyncTime: Date.now()
+        }
+      })
     }
   }
 

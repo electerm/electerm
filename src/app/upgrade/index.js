@@ -17,29 +17,21 @@ const { appPath } = require('../utils/app-props')
 const savePath = resolve(appPath, 'electerm-localstorage.json')
 const { existsSync } = require('fs')
 const { updateDBVersion } = require('./version-upgrade')
-
 const hasOldJSONDB = existsSync(savePath)
 const emptyVersion = '0.0.0'
-let version
 const versionQuery = {
   _id: 'version'
 }
 
 async function getDBVersion () {
-  if (version) {
-    return version
-  }
-  version = await dbAction('data', 'findOne', versionQuery)
+  const version = await dbAction('data', 'findOne', versionQuery)
     .then(doc => {
-      return doc ? doc.value : null
+      return doc ? doc.value : emptyVersion
     })
     .catch(e => {
       log.error(e)
-      return null
+      return emptyVersion
     })
-  if (!version) {
-    version = emptyVersion
-  }
   return version
 }
 
