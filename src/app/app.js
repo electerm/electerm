@@ -12,7 +12,7 @@ const {
   session
 } = require('electron')
 const { dbAction } = require('./lib/nedb')
-const getConfig = require('./lib/get-config')
+const { getAllConfig } = require('./lib/get-config')
 const initServer = require('./lib/init-server')
 const sshConfigItems = require('./lib/ssh-config')
 const logPaths = require('./lib/log-read')
@@ -106,7 +106,7 @@ async function createWindow () {
   Object.assign(global.et, {
     loadFontList,
     _config: config,
-    getConfig,
+    getAllConfig,
     installSrc,
     instSftpKeys,
     transferKeys,
