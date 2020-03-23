@@ -3,7 +3,7 @@
  */
 
 import createTitlte from '../common/create-title'
-import Subx from 'subx'
+import Subx from '@electerm/subx'
 import _ from 'lodash'
 import copy from 'json-deep-copy'
 import { update, dbNames } from '../common/db'

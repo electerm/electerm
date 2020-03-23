@@ -2,7 +2,7 @@
  * central state store powered by subx - https://github.com/tylerlong/subx
  */
 
-import Subx from 'subx'
+import Subx from '@electerm/subx'
 import initState from './init-state'
 import loadDataExtend from './load-data'
 import dbUpgradeExtend from './db-upgrade'
