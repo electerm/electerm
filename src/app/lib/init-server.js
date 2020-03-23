@@ -2,7 +2,7 @@
  * server init script
  */
 
-const getConfig = require('./get-config')
+const { getConfig } = require('./get-config')
 const createChildServer = require('../server/child-process')
 const rp = require('phin').promisified
 const { initLang } = require('./locales')
