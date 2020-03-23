@@ -23,7 +23,7 @@ const { prefix } = window
 const e = prefix('form')
 const ss = prefix('settingSync')
 
-export class SyncForm extends React.PureComponent {
+export class SyncForm extends React.Component {
   state = {
     submitting: false,
     syncing: false
@@ -104,6 +104,7 @@ export class SyncForm extends React.PureComponent {
     if (encrypted) {
       githubAccessToken = window.getGlobal('decrypt')(githubAccessToken, gistId)
     }
+    console.log(this.props.formData, 'this.props.formData')
     const timeFormatted = lastSyncTime
       ? moment(lastSyncTime).format('YYYY-MM-DD HH:mm:ss')
       : '-'

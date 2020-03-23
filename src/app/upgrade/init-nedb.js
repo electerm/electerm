@@ -13,7 +13,7 @@ async function initData () {
     title: 'default',
     bookmarkIds: [],
     bookmarkGroupIds: []
-  })
+  }).catch(log.error)
   await dbAction('terminalThemes', 'insert', {
     _id: 'default',
     name: 'default',
@@ -40,7 +40,7 @@ async function initData () {
       brightCyan: '#BCAAFE',
       brightWhite: '#E6E6E6'
     }
-  })
+  }).catch(log.error)
   log.info('end: init db')
 }
 

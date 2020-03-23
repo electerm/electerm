@@ -53,7 +53,8 @@ export function remove (dbName, id) {
       _id: id
     }
     : {}
-  return dbAction(dbName, 'remove', q)
+  const multi = !id
+  return dbAction(dbName, 'remove', q, { multi })
 }
 
 /**

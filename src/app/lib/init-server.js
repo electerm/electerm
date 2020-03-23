@@ -8,9 +8,19 @@ const rp = require('phin').promisified
 const { initLang } = require('./locales')
 const { saveUserConfig } = require('./user-config-controller')
 
+/**
+ * wait async
+ */
+function wait (time) {
+  return new Promise(resolve => {
+    setTimeout(resolve, time)
+  })
+}
+
 async function waitUntilServerStart (url) {
   let serverStarted = false
   while (!serverStarted) {
+    await wait(10)
     await rp({
       url,
       timeout: 100

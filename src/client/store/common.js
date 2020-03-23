@@ -28,6 +28,13 @@ export default store => {
 
     onError (e) {
       handleError(e)
+    },
+
+    updateConfig (ext) {
+      store.config = {
+        ...copy(store.config),
+        ...ext
+      }
     }
   })
 
