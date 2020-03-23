@@ -11,12 +11,11 @@ const { saveUserConfig } = require('./user-config-controller')
 /**
  * wait async
  */
- function wait (time) {
+function wait (time) {
   return new Promise(resolve => {
     setTimeout(resolve, time)
   })
 }
-
 
 async function waitUntilServerStart (url) {
   let serverStarted = false
