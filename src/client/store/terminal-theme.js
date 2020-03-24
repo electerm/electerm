@@ -8,7 +8,7 @@ import {
   defaultTheme,
   settingMap
 } from '../common/constants'
-import { insert, update, remove, findOne } from '../common/db'
+import { insert, update, remove } from '../common/db'
 
 const { terminalThemes } = settingMap
 const { prefix } = window
@@ -17,7 +17,9 @@ const t = prefix(terminalThemes)
 export default store => {
   Object.assign(store, {
     setTheme (id) {
-      store.config.theme = id
+      store.updateConfig({
+        theme: id
+      })
     },
 
     addTheme (theme) {
@@ -48,19 +50,19 @@ export default store => {
     },
 
     async checkDefaultTheme () {
-      const { config } = store
-      const themeId = config.theme || defaultTheme.id
-      const currentTheme = await findOne(
-        terminalThemes,
-        themeId
-      ) || defaultTheme
+      const themeId = defaultTheme.id
+      const currentDefaultTheme = _.find(store.terminalThemes, d => d.id === themeId)
       if (
-        currentTheme.id === defaultTheme.id &&
-        !_.isEqual(currentTheme.themeConfig, defaultTheme.themeConfig)
+        currentDefaultTheme &&
+        (
+          !_.isEqual(currentDefaultTheme.themeConfig, defaultTheme.themeConfig) ||
+          currentDefaultTheme.name !== defaultTheme.name
+        )
       ) {
         store.editTheme(
-          defaultTheme.id,
+          themeId,
           {
+            name: defaultTheme.name,
             themeConfig: defaultTheme.themeConfig
           }
         )
