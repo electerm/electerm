@@ -64,7 +64,7 @@ export function remove (dbName, id) {
  * @param {string} db default is 'data'
  */
 export function update (_id, value, db = 'data', upsert = true) {
-  const update = dbNames.includes(db)
+  const updates = dbNames.includes(db)
     ? {
       _id,
       ...value
@@ -75,7 +75,7 @@ export function update (_id, value, db = 'data', upsert = true) {
     }
   return dbAction(db, 'update', {
     _id
-  }, update, {
+  }, updates, {
     upsert
   })
 }

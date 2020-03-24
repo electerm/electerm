@@ -197,7 +197,7 @@ export default class SessionWrapper extends Component {
       : 'terms-box hide'
     const height = this.computeHeight()
     const { store, width, tab } = this.props
-    const themeConfig = store.getThemeConfig()
+    const themeConfig = copy(store.getThemeConfig())
     return (
       <div
         className={cls}
