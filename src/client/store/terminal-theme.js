@@ -9,7 +9,6 @@ import {
   settingMap
 } from '../common/constants'
 import { insert, update, remove } from '../common/db'
-import copy from 'json-deep-copy'
 
 const { terminalThemes } = settingMap
 const { prefix } = window
