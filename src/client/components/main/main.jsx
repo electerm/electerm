@@ -72,7 +72,7 @@ export default class Index extends Component {
         <TextEditor
           key={textEditorProps.id}
           {...textEditorProps}
-          modifier={storeAssign}
+          storeAssign={storeAssign}
         />
         <UpdateCheck
           store={store}
