@@ -21,7 +21,7 @@ async function loadArr (arr, name) {
       _id: id,
       ...rest
     }
-  }))
+  })).catch(log.error)
 }
 
 function shouldLoadAsArray (key, value) {
@@ -57,7 +57,7 @@ async function migrateData () {
         await dbAction('terminalThemes', 'insert', {
           _id: id,
           ...rest
-        })
+        }).catch(log.error)
       }
     } else if (shouldLoadAsArray(k, v)) {
       await loadArr(v, k)
@@ -65,7 +65,7 @@ async function migrateData () {
       await dbAction(db, 'insert', {
         _id,
         value: v
-      })
+      }).catch(log.error)
     }
   }
   await writeFileSync(savePath + '.backup', JSON.stringify(json))
@@ -93,7 +93,7 @@ async function migrateUserConfig () {
     value: uf
   }, {
     upsert: true
-  })
+  }).catch(log.error)
   log.log('End migrating user config')
 }
 
