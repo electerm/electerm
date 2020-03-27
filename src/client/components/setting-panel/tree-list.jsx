@@ -110,6 +110,13 @@ export default class ItemListTree extends React.PureComponent {
     this.props.store.storeAssign({
       bookmarkGroups
     })
+    this.props.store.batchDbUpdate([{
+      id: categoryId,
+      db: 'bookmarkGroups',
+      update: {
+        title: categoryTitle
+      }
+    }])
   }
 
   onDrop = (info) => {
