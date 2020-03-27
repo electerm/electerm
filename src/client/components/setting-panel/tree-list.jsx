@@ -110,6 +110,13 @@ export default class ItemListTree extends React.PureComponent {
     this.props.store.storeAssign({
       bookmarkGroups
     })
+    this.props.store.batchDbUpdate([{
+      id: categoryId,
+      db: 'bookmarkGroups',
+      update: {
+        title: categoryTitle
+      }
+    }])
   }
 
   onDrop = (info) => {
@@ -470,7 +477,7 @@ export default class ItemListTree extends React.PureComponent {
       ? item.title
       : createName(item)
     title = isGroup
-      ? item.title
+      ? item.title || 'no title'
       : highlight(
         title,
         this.state.keyword

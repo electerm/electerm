@@ -153,6 +153,7 @@ export class BookmarkForm extends React.PureComponent {
     if (!_.isEqual(bg.bookmarkIds, old)) {
       updates.push({
         id: bg.id,
+        db: 'bookmarkGroups',
         update: {
           bookmarkIds: bg.bookmarkIds
         }
@@ -903,11 +904,17 @@ export class BookmarkForm extends React.PureComponent {
               htmlType='submit'
               className='mg1r'
             >{e('saveAndConnect')}</Button>
-            <Button
-              type='primary'
-              className='mg1r'
-              onClick={() => this.handleSubmit('saveAndCreateNew')}
-            >{e('saveAndCreateNew')}</Button>
+            {
+              settingMap.history === this.props.type
+                ? null
+                : (
+                  <Button
+                    type='primary'
+                    className='mg1r'
+                    onClick={() => this.handleSubmit('saveAndCreateNew')}
+                  >{e('saveAndCreateNew')}</Button>
+                )
+            }
             <Button
               type='ghost'
               className='mg1r'
