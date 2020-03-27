@@ -10,7 +10,6 @@
 
 const log = require('../utils/log')
 const { dbAction } = require('../lib/nedb')
-const { generate } = require('shortid')
 
 async function updateDBVersion (toVersion) {
   const versionQuery = {
@@ -28,7 +27,6 @@ async function updateDBVersion (toVersion) {
       log.error('upgrade db version error', toVersion)
     })
   await dbAction('dbUpgradeLog', 'insert', {
-    id: generate(),
     time: Date.now(),
     toVersion
   })

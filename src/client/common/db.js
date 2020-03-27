@@ -35,7 +35,7 @@ export function insert (dbName, inst) {
   arr = arr.map(obj => {
     const { id, _id, ...rest } = obj
     return {
-      id: _id || id || generate(),
+      _id: _id || id || generate(),
       ...rest
     }
   })
@@ -47,14 +47,14 @@ export function insert (dbName, inst) {
  * @param {string} dbName
  * @param {string} id
  */
-export function remove (dbName, id) {
+export async function remove (dbName, id) {
   const q = id
     ? {
       _id: id
     }
     : {}
   const multi = !id
-  return dbAction(dbName, 'remove', q, { multi })
+  await dbAction(dbName, 'remove', q, { multi })
 }
 
 /**

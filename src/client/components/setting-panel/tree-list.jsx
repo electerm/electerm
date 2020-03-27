@@ -113,6 +113,7 @@ export default class ItemListTree extends React.PureComponent {
     this.props.store.batchDbUpdate([{
       id: categoryId,
       db: 'bookmarkGroups',
+      upsert: false,
       update: {
         title: categoryTitle
       }
@@ -205,6 +206,18 @@ export default class ItemListTree extends React.PureComponent {
       this.props.store.storeAssign({
         bookmarkGroups
       })
+      this.props.store.batchDbAdd([{
+        db: 'bookmarkGroups',
+        obj: newCat
+      }])
+      this.props.store.batchDbUpdate([{
+        upsert: false,
+        id,
+        update: {
+          bookmarkGroupIds: cat.bookmarkGroupIds
+        },
+        db: 'bookmarkGroups'
+      }])
     })
   }
 
@@ -414,24 +427,48 @@ export default class ItemListTree extends React.PureComponent {
         bg => bg.id === defaultBookmarkGroupId
       )
     }
+    const updates = []
     const bid = bookmark.id
     const bg = bookmarkGroups[index]
+    const old = copy(bg.bookmarkIds)
     if (!bg.bookmarkIds.includes(bid)) {
       bg.bookmarkIds.unshift(bid)
     }
     bg.bookmarkIds = _.uniq(bg.bookmarkIds)
+    if (!_.isEqual(old, copy(bg.bookmarkIds))) {
+      updates.push({
+        id: bg.id,
+        db: 'bookmarkGroups',
+        upsert: false,
+        update: {
+          bookmarkIds: bg.bookmarkIds
+        }
+      })
+    }
     bookmarkGroups = bookmarkGroups.map((bg, i) => {
       if (i === index) {
         return bg
       }
+      const old = copy(bg.bookmarkIds)
       bg.bookmarkIds = bg.bookmarkIds.filter(
         g => g !== bid
       )
+      if (!_.isEqual(old, copy(bg.bookmarkIds))) {
+        updates.push({
+          id: bg.id,
+          db: 'bookmarkGroups',
+          upsert: false,
+          update: {
+            bookmarkIds: bg.bookmarkIds
+          }
+        })
+      }
       return bg
     })
     this.props.store.storeAssign({
       bookmarkGroups
     })
+    this.props.store.batchDbUpdate(updates)
   }
 
   findBookmarkGroupId = (bookmarkGroups, id) => {
