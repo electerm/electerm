@@ -14,21 +14,23 @@ import copy from 'json-deep-copy'
 export default store => {
   Object.assign(store, {
     removeOldHistoryFromDb (items) {
-      const arr = items.splice(maxHistory).map(k => {
+      const arr = items.slice(maxHistory).map(k => {
         return {
           db: 'history',
-          obj: k
+          id: k.id
         }
       })
       store.batchDbDel(arr)
     },
 
     addItem (item, type) {
-      let items = store[type]
+      const items = store[type]
       items.unshift(item)
       if (type === settingMap.history && items.length > maxHistory) {
-        store.removeOldHistoryFromDb(copy(items))
-        items = items.slice(0, maxHistory)
+        store.removeOldHistoryFromDb(
+          copy(items)
+        )
+        store[type] = items.slice(0, maxHistory)
       }
       if (dbNames.includes(type)) {
         store.batchDbAdd([
@@ -49,7 +51,7 @@ export default store => {
       // let index = _.findIndex(items, t => t.id === id)
       Object.assign(item, updates)
       if (dbNames.includes(type)) {
-        update(id, updates)
+        update(id, updates, type, false)
       }
     },
 

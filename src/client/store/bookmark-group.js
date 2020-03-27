@@ -52,6 +52,7 @@ export default store => {
         ]
       }
       const groupIds = groups.map(g => g.id)
+      const updates = []
       const defaultCatIndex = tobeDel.level !== 2
         ? _.findIndex(
           bookmarkGroups,
@@ -68,11 +69,26 @@ export default store => {
             ...g.bookmarkIds,
             ...def.bookmarkIds
           ]
+          updates.push({
+            id: def.id,
+            db: 'bookmarkGroups',
+            upsert: false,
+            update: {
+              bookmarkIds: def.bookmarkIds
+            }
+          })
         }
       }
       bookmarkGroups = bookmarkGroups.filter(t => {
         return !groupIds.includes(t.id)
       })
+      store.batchDbUpdate(updates)
+      store.batchDbDel(groupIds.map(id => {
+        return {
+          id,
+          db: 'bookmarkGroups'
+        }
+      }))
       store.bookmarkGroups = bookmarkGroups
       if (id === store.currentBookmarkGroupId) {
         store.currentBookmarkGroupId = ''

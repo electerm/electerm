@@ -205,8 +205,8 @@ export default (store) => {
     store.loaddingSerials = false
   }
 
-  store.updateLastDataUpdateTime = () => {
+  store.updateLastDataUpdateTime = _.debounce(() => {
     store.lastDataUpdateTime = +new Date()
     update('lastDataUpdateTime', store.lastDataUpdateTime)
-  }
+  }, 1000)
 }

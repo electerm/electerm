@@ -17,8 +17,6 @@ export default (info, props) => {
   } = info
   const fromId = dragNode.props.eventKey
   const toId = node.props.eventKey
-  const fromLeaf = dragNode.props.isLeaf
-  const toLeaf = node.isLeaf()
   const fromPoses = dragNode.props.pos.split('-').map(Number)
   const fromPosesLevel = fromPoses.slice(0, fromPoses.length - 1)
   const toPoses = node.props.pos.split('-').map(Number)
@@ -29,24 +27,22 @@ export default (info, props) => {
   const bookmarkGroups = copy(
     props.bookmarkGroups
   )
-  let from = fromLeaf
-    ? _.find(
-      bookmarks,
-      d => d.id === fromId
-    )
-    : _.find(
-      bookmarkGroups,
-      d => d.id === fromId
-    )
-  let to = toLeaf
-    ? _.find(
-      bookmarks,
-      d => d.id === toId
-    )
-    : _.find(
-      bookmarkGroups,
-      d => d.id === toId
-    )
+  let from = _.find(
+    bookmarks,
+    d => d.id === fromId
+  ) || _.find(
+    bookmarkGroups,
+    d => d.id === fromId
+  )
+  const fromLeaf = !!from && !from.bookmarkIds
+  let to = _.find(
+    bookmarks,
+    d => d.id === toId
+  ) || _.find(
+    bookmarkGroups,
+    d => d.id === toId
+  )
+  const toLeaf = !!to && !to.bookmarkIds
 
   // no match
   if (!to || !from) {
@@ -104,7 +100,6 @@ export default (info, props) => {
       )
   }
   let toGroup = null
-  let oldto = null
   const toFirstLevel = toPoses.length === 2 && dropToGap
   if (!toFirstLevel) {
     toGroup = dropToGap
@@ -121,7 +116,6 @@ export default (info, props) => {
         bookmarkGroups,
         d => d.id === toId
       )
-    oldto = copy(toGroup)
   }
   let nodeIndex = 0
   if (toGroup) {
@@ -195,14 +189,26 @@ export default (info, props) => {
     const { id, ...rest } = fromGroup
     updates.push({
       id,
-      update: rest
+      db: 'bookmarkGroups',
+      update: rest,
+      upsert: false
     })
   }
-  if (toGroup && !_.isEqual(toGroup, oldto)) {
+  if (toGroup) {
     const { id, ...rest } = toGroup
     updates.push({
       id,
-      update: rest
+      db: 'bookmarkGroups',
+      update: rest,
+      upsert: false
+    })
+  } else if (from) {
+    const { id, ...rest } = from
+    updates.push({
+      id,
+      db: 'bookmarkGroups',
+      update: rest,
+      upsert: false
     })
   }
   props.store.storeAssign({

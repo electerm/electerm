@@ -1,5 +1,5 @@
 /**
- * upgrade database to v1.2.0
+ * upgrade database to v1.3.0
  * migrate old file based db to nedb
  */
 

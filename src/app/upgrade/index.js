@@ -43,7 +43,7 @@ async function getUpgradeVersionList () {
   const list = fs.readdirSync(__dirname)
   return list.filter(f => {
     const vv = f.replace('.js', '').replace('v', '')
-    return /^v\d/.test(f) && comapre(vv, version) > 0
+    return /^v\d/.test(f) && comapre(vv, version) > 0 && comapre(vv, packVersion) <= 0
   }).sort((a, b) => {
     return comapre(a, b)
   })
