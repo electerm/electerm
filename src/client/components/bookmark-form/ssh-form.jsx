@@ -153,6 +153,7 @@ export class BookmarkForm extends React.PureComponent {
     if (!_.isEqual(bg.bookmarkIds, old)) {
       updates.push({
         id: bg.id,
+        db: 'bookmarkGroups',
         update: {
           bookmarkIds: bg.bookmarkIds
         }

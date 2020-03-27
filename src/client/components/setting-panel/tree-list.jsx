@@ -470,7 +470,7 @@ export default class ItemListTree extends React.PureComponent {
       ? item.title
       : createName(item)
     title = isGroup
-      ? item.title
+      ? item.title || 'no title'
       : highlight(
         title,
         this.state.keyword

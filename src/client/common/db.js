@@ -66,12 +66,14 @@ export function remove (dbName, id) {
 export function update (_id, value, db = 'data', upsert = true) {
   const updates = dbNames.includes(db)
     ? {
-      _id,
-      ...value
+      $set: {
+        ...value
+      }
     }
     : {
-      _id,
-      value
+      $set: {
+        value
+      }
     }
   return dbAction(db, 'update', {
     _id
