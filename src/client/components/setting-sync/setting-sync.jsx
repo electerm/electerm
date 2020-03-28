@@ -104,7 +104,6 @@ export class SyncForm extends React.Component {
     if (encrypted) {
       githubAccessToken = window.getGlobal('decrypt')(githubAccessToken, gistId)
     }
-    console.log(this.props.formData, 'this.props.formData')
     const timeFormatted = lastSyncTime
       ? moment(lastSyncTime).format('YYYY-MM-DD HH:mm:ss')
       : '-'

@@ -15,7 +15,6 @@ const { dbAction } = require('./lib/nedb')
 const { getAllConfig } = require('./lib/get-config')
 const initServer = require('./lib/init-server')
 const sshConfigItems = require('./lib/ssh-config')
-const logPaths = require('./lib/log-read')
 const lookup = require('./utils/lookup')
 const os = require('os')
 const { resolve } = require('path')
@@ -112,7 +111,6 @@ async function createWindow () {
     transferKeys,
     upgradeKeys: transferKeys,
     fs: fsExport,
-    logPaths,
     doUpgrade,
     checkDbUpgrade,
     getExitStatus: () => global.et.exitStatus,
