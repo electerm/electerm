@@ -16,6 +16,9 @@ const { readRemoteFile, writeRemoteFile } = require('./sftp-file')
 const {
   session
 } = require('./remote-common')
+const { createLogFileName } = require('../common/create-session-log-file-path')
+const SessionLog = require('./session-log')
+
 // const MockBinding = require('@serialport/binding-mock')
 
 // SerialPort.Binding = MockBinding
@@ -55,6 +58,11 @@ class Terminal {
     this.type = initOptions.termType || initOptions.type
     this.pid = initOptions.uid || generate()
     this.initOptions = initOptions
+    if (initOptions.saveTerminalLogToFile) {
+      this.sessionLogger = new SessionLog({
+        fileName: createLogFileName(initOptions.tabId)
+      })
+    }
   }
 
   init () {
@@ -385,6 +393,9 @@ class Terminal {
   write (data) {
     try {
       (this.term || this.channel || this.port).write(data)
+      if (this.sshLogger) {
+        this.sshLogger.write(data)
+      }
     } catch (e) {
       log.error(e)
     }
@@ -392,6 +403,9 @@ class Terminal {
 
   kill () {
     this[`${this.type}Kill`]()
+    if (this.sshLogger) {
+      this.sshLogger.destroy()
+    }
   }
 
   serialKill () {

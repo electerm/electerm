@@ -32,7 +32,7 @@ async function waitUntilServerStart (url) {
   }
 }
 
-module.exports = async () => {
+module.exports = async (env) => {
   const { config, userConfig } = await getConfig()
   const language = initLang(userConfig)
   if (!config.language) {
@@ -41,7 +41,7 @@ module.exports = async () => {
     })
     config.language = language
   }
-  const child = await createChildServer(config)
+  const child = await createChildServer(config, env)
   child.on('exit', () => {
     global.childPid = null
   })

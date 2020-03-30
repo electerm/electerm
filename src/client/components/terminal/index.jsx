@@ -40,7 +40,7 @@ const e = prefix('ssh')
 const m = prefix('menu')
 const f = prefix('form')
 const c = prefix('common')
-
+const s = prefix('sftp')
 const authFailMsg = 'All configured authentication methods failed'
 const privateKeyMsg = 'private key detected'
 
@@ -193,6 +193,12 @@ export default class Term extends Component {
   handleEvent = (e) => {
     if (e.data && e.data.type === 'focus') {
       this.setActive()
+    } else if (
+      e.data &&
+      e.data.action === 'open-terminal-search' &&
+      e.data.id === this.props.id
+    ) {
+      this.openSearch()
     }
     const isActiveTerminal = this.props.id === this.props.activeSplitId &&
       this.props.tab.id === this.props.currentTabId &&
@@ -510,6 +516,22 @@ export default class Term extends Component {
     })
   }
 
+  showInfo = () => {
+    const { id } = this.props.tab
+    const { sessionId } = this.props
+    const content = (
+      <ul>
+        <li>ID: {id}</li>
+        <li>session ID: {sessionId}</li>
+        <li>log: </li>
+      </ul>
+    )
+    Modal.info({
+      title: s('info'),
+      content
+    })
+  }
+
   // onSelectTheme = id => {
   //   this.props.store.setTheme(id)
   //   this.props.store.closeContextMenu()
@@ -568,6 +590,12 @@ export default class Term extends Component {
           onClick={this.split}
         >
           <Icon type='border-horizontal' /> {e('split')}
+        </div>
+        <div
+          className={cls}
+          onClick={this.props.showInfo}
+        >
+          <Icon type='info-circle' /> {s('info')}
         </div>
       </div>
     )
@@ -676,7 +704,7 @@ export default class Term extends Component {
     const { config } = this.props
     const { host, port } = config
     const url = `http://${host}:${port}/terminals`
-    const { tab = {}, sessionId, terminalIndex } = this.props
+    const { tab = {}, sessionId, terminalIndex, id } = this.props
     const {
       startPath, srcId, from = 'bookmarks',
       type, loginScript,
@@ -691,6 +719,7 @@ export default class Term extends Component {
       cols,
       rows,
       term: terminalType || config.terminalType,
+      saveTerminalLogToFile: config.saveTerminalLogToFile,
       ...tab,
       ...extra,
       ..._.pick(config, [
@@ -701,6 +730,7 @@ export default class Term extends Component {
         'execLinux'
       ]),
       sessionId,
+      tabId: id,
       terminalIndex,
       termType: type,
       readyTimeout: config.sshReadyTimeout,

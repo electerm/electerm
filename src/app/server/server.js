@@ -4,7 +4,7 @@ const cors = require('cors')
 const log = require('../utils/log')
 // const logs = {}
 const bodyParser = require('body-parser')
-const { terminal } = require('./session')
+const { terminal, testConnection } = require('./session')
 const initWs = require('./dispatch-center')
 const {
   terminals
@@ -22,6 +22,12 @@ require('express-ws')(app)
 
 app.post('/terminals', async function (req, res) {
   const { body } = req
+  const { isTest } = req.query
+  if (isTest) {
+    const r = await testConnection(body)
+    res.send(r)
+    return
+  }
   const term = await terminal(body)
     .then(r => r)
     .catch(err => err)
@@ -62,6 +68,9 @@ app.ws('/terminals/:pid', function (ws, req) {
 
   term.on('data', function (data) {
     try {
+      if (term.sessionLogger) {
+        term.sessionLogger.write(data)
+      }
       ws.send(Buffer.from(data))
     } catch (ex) {
       // The WebSocket is not open, ignore

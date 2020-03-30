@@ -1,5 +1,5 @@
 
-import { Component } from 'react'
+import React, { Component } from 'react'
 import {
   message, Select, Switch,
   Input, Icon, Upload,
@@ -8,8 +8,11 @@ import {
   Tooltip
 } from 'antd'
 import deepCopy from 'json-deep-copy'
-import { noTerminalBgValue } from '../../common/constants'
+import { noTerminalBgValue, appPath } from '../../common/constants'
 import defaultSettings from '../../../app/common/default-setting'
+import OpenItem from '../common/open-item'
+import { osResolve } from '../../common/resolve'
+import _ from 'lodash'
 
 const InputGroup = Input.Group
 const { Option } = Select
@@ -17,6 +20,7 @@ const { getGlobal, prefix } = window
 const e = prefix('setting')
 const f = prefix('form')
 const s = prefix('ssh')
+const p = prefix('sftp')
 const t = prefix('terminalThemes')
 const modifiers = [
   'Command',
@@ -30,7 +34,7 @@ const keys = [
     return 'F' + (i + 1)
   })
 ]
-
+const terminalLogPath = osResolve(appPath, 'electerm', 'session_logs')
 export default class Setting extends Component {
   state = {
     languageChanged: false
@@ -122,7 +126,7 @@ export default class Setting extends Component {
     )
   }
 
-  renderToggle = (name) => {
+  renderToggle = (name, extra = null) => {
     const checked = !!this.props.config[name]
     return (
       <div className='pd2b'>
@@ -132,6 +136,7 @@ export default class Setting extends Component {
           unCheckedChildren={e(name)}
           onChange={v => this.onChangeValue(v, name)}
         />
+        {_.isNumber(extra) ? null : extra}
       </div>
     )
   }
@@ -395,6 +400,7 @@ export default class Setting extends Component {
       rendererType,
       theme
     } = this.props.config
+
     const { terminalThemes } = this.props.store
     const langs = getGlobal('langs')
     const [modifier, key] = hotkey.split('+')
@@ -550,6 +556,9 @@ export default class Setting extends Component {
             'ctrlOrMetaOpenTerminalLink'
           ].map(this.renderToggle)
         }
+        {this.renderToggle('saveTerminalLogToFile', (
+          <OpenItem to={terminalLogPath} className='mg1l'>{p('open')}</OpenItem>
+        ))}
         {this.renderReset()}
       </div>
     )
