@@ -6,8 +6,8 @@ import { generate } from 'shortid'
 import Transfer from './transfer'
 import { transferTypeMap } from './constants'
 import initWs from './ws'
+import { instSftpKeys as keys } from '../../app/common/constants'
 
-const keys = window.getGlobal('instSftpKeys')
 const transferKeys = Object.keys(transferTypeMap)
 
 class Sftp {

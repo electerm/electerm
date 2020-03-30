@@ -31,6 +31,7 @@ import QmList from './quick-command-list'
 import getInitItem from '../../common/init-setting-item'
 import formatBookmarkGroups from './bookmark-group-tree-format'
 import defaultSettings from '../../../app/common/default-setting'
+import testConnection from '../../common/test-connection'
 import './bookmark-form.styl'
 
 const { TabPane } = Tabs
@@ -244,13 +245,12 @@ export class BookmarkForm extends React.PureComponent {
   }
 
   test = async (options) => {
-    const testConnection = window.getGlobal('testConnection')
     let msg = ''
     this.setState({
       testing: true
     })
     const res = await testConnection(options)
-      .then(() => true)
+      .then(r => r)
       .catch((e) => {
         msg = e.message
         return false

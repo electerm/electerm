@@ -4,7 +4,7 @@
 
 import { Component } from '../common/react-subx'
 import { Modal, Table, Icon } from 'antd'
-import time from '../../common/time'
+import time from '../../../app/common/time'
 import { transferTypeMap } from '../../common/constants'
 import './transfer-history.styl'
 

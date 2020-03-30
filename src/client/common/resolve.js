@@ -22,3 +22,7 @@ export default (basePath, nameOrDot) => {
     (basePath.endsWith(sep) ? '' : sep) +
     nameOrDot
 }
+
+export const osResolve = (...args) => {
+  return window._require('path').resolve(...args)
+}

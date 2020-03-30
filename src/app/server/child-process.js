@@ -8,7 +8,7 @@ const { resolve } = require('path')
 const { sysLocale } = require('../lib/locales')
 const log = require('../utils/log')
 
-module.exports = (config) => {
+module.exports = (config, env) => {
   // start server
   const child = fork(resolve(__dirname, './server.js'), {
     env: Object.assign(
@@ -17,7 +17,7 @@ module.exports = (config) => {
         electermPort: config.port,
         electermHost: config.host
       },
-      process.env
+      env
     ),
     cwd: process.cwd()
   }, (error, stdout, stderr) => {

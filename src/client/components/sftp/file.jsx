@@ -27,7 +27,7 @@ import sorter from '../../common/index-sorter'
 import { getLocalFileInfo, getFolderFromFilePath, getRemoteFileInfo } from './file-read'
 import { readClipboard, copy as copyToClipboard, hasFileInClipboardText } from '../../common/clipboard'
 import fs from '../../common/fs'
-import time from '../../common/time'
+import time from '../../../app/common/time'
 
 const { prefix } = window
 const e = prefix('sftp')

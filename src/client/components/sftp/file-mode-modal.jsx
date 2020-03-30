@@ -5,7 +5,7 @@
 import React from 'react'
 import { Icon, Modal, Button } from 'antd'
 import resolve from '../../common/resolve'
-import time from '../../common/time'
+import time from '../../../app/common/time'
 import _ from 'lodash'
 import { mode2permission, permission2mode } from '../../common/mode2permission'
 import renderPermission from './permission-render'

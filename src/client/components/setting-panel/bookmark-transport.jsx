@@ -5,7 +5,7 @@
 import { Component } from '../common/react-subx'
 import { Upload, Button } from 'antd'
 import download from '../../common/download'
-import time from '../../common/time'
+import time from '../../../app/common/time'
 import copy from 'json-deep-copy'
 import _ from 'lodash'
 

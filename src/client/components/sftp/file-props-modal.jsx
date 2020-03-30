@@ -6,7 +6,7 @@ import { memo } from 'react'
 import { Icon, Modal } from 'antd'
 import resolve from '../../common/resolve'
 import { mode2permission } from '../../common/mode2permission'
-import time from '../../common/time'
+import time from '../../../app/common/time'
 import renderPermission from './permission-render'
 
 const { prefix } = window

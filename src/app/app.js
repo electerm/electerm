@@ -18,19 +18,18 @@ const sshConfigItems = require('./lib/ssh-config')
 const lookup = require('./utils/lookup')
 const os = require('os')
 const { resolve } = require('path')
-const { instSftpKeys } = require('./server/session')
 const { transferKeys } = require('./server/transfer')
 const { saveUserConfig } = require('./lib/user-config-controller')
 const { init, changeHotkeyReg } = require('./lib/shortcut')
 const { fsExport, fsFunctions } = require('./lib/fs')
 const menu = require('./lib/menu')
 const log = require('./utils/log')
-const { testConnection } = require('./server/session')
 const lastStateManager = require('./lib/last-state')
 const installSrc = require('./lib/install-src')
 const {
   isDev, packInfo, iconPath,
-  minWindowWidth, minWindowHeight
+  minWindowWidth, minWindowHeight,
+  appPath
 } = require('./utils/app-props')
 const { getWindowSize, getScreenSize } = require('./utils/window-size')
 const {
@@ -41,6 +40,8 @@ const { encrypt, decrypt } = require('./lib/enc')
 const a = prefix('app')
 const { onClose, getExitStatus } = require('./lib/on-close')
 const { checkDbUpgrade, doUpgrade } = require('./upgrade')
+const showItemInFolder = require('./lib/show-item-in-folder')
+const openItem = require('./lib/open-item')
 require('./lib/tray')
 
 global.et = {
@@ -61,7 +62,10 @@ async function createWindow () {
       done({})
     }
   })
-  const { config, localeRef } = await initServer()
+  const { config, localeRef } = await initServer({
+    ...process.env,
+    appPath
+  })
   const { lang, langs } = localeRef
   if (config.showMenu) {
     Menu.setApplicationMenu(menu)
@@ -107,10 +111,11 @@ async function createWindow () {
     _config: config,
     getAllConfig,
     installSrc,
-    instSftpKeys,
     transferKeys,
     upgradeKeys: transferKeys,
     fs: fsExport,
+    showItemInFolder,
+    openItem,
     doUpgrade,
     checkDbUpgrade,
     getExitStatus: () => global.et.exitStatus,
@@ -121,10 +126,10 @@ async function createWindow () {
       Menu.getApplicationMenu().popup(options)
     },
     dbAction,
+    appPath,
     getScreenSize,
     versions: process.versions,
     sshConfigItems,
-    testConnection,
     env: process.env,
     fsFunctions,
     encrypt,

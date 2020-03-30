@@ -17,5 +17,6 @@ module.exports = exports.default = {
   terminalBackgroundImagePath: '',
   rendererType: 'canvas',
   terminalType: 'xterm-256color',
-  keepaliveCountMax: 10
+  keepaliveCountMax: 10,
+  saveTerminalLogToFile: false
 }
