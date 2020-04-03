@@ -710,14 +710,12 @@ export class BookmarkForm extends React.PureComponent {
         <FormItem
           {...formItemLayout}
           label={e('loginScript')}
+          help={`* ${e('loginScriptTip')}`}
         >
           {getFieldDecorator('loginScript', {
             initialValue: loginScript
           })(
-            <div>
-              <Input.TextArea rows={1}>{loginScript}</Input.TextArea>
-              <div>* {e('loginScriptTip')}</div>
-            </div>
+            <Input.TextArea row={1} />
           )}
         </FormItem>
         <FormItem
