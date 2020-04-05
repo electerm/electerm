@@ -572,7 +572,7 @@ export class BookmarkForm extends React.PureComponent {
       loginScriptDelay = defaultLoginScriptDelay,
       authType = authTypeMap.password,
       username,
-      id,
+      id = '',
       encode = encodes[0]
     } = this.props.formData
     const {
