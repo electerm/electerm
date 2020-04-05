@@ -10,7 +10,7 @@ import {
 import deepCopy from 'json-deep-copy'
 import { noTerminalBgValue, appPath } from '../../common/constants'
 import defaultSettings from '../../../app/common/default-setting'
-import OpenItem from '../common/open-item'
+import ShowItem from '../common/show-item'
 import { osResolve } from '../../common/resolve'
 import _ from 'lodash'
 
@@ -557,7 +557,7 @@ export default class Setting extends Component {
           ].map(this.renderToggle)
         }
         {this.renderToggle('saveTerminalLogToFile', (
-          <OpenItem to={terminalLogPath} className='mg1l'>{p('open')}</OpenItem>
+          <ShowItem to={terminalLogPath} className='mg1l'>{p('open')}</ShowItem>
         ))}
         {this.renderReset()}
       </div>
