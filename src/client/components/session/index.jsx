@@ -22,7 +22,7 @@ import keyPressed from '../../common/key-pressed'
 import Qm from '../quick-commands/quick-commands-select'
 import { createLogFileName } from '../../../app/common/create-session-log-file-path'
 import { osResolve } from '../../common/resolve'
-import OpenItem from '../common/open-item'
+import ShowItem from '../common/show-item'
 
 const rebuildPosition = terminals => {
   const indexs = terminals.map(t => t.position).sort((a, b) => a - b)
@@ -274,7 +274,7 @@ export default class SessionWrapper extends Component {
     const name = createLogFileName(activeSplitId)
     const path = osResolve(appPath, 'electerm', 'session_logs', name)
     const to = saveTerminalLogToFile
-      ? <OpenItem disabled={!saveTerminalLogToFile} to={path}>{path}</OpenItem>
+      ? <ShowItem disabled={!saveTerminalLogToFile} to={path}>{path}</ShowItem>
       : `-> ${c('setting')} -> ${st('saveTerminalLogToFile')}`
     const content = (
       <div>

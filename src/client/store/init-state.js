@@ -2,7 +2,7 @@
  * init static state
  */
 
-import newTerm from '../common/new-terminal'
+// import newTerm from '../common/new-terminal'
 import copy from 'json-deep-copy'
 import {
   settingMap,
@@ -47,7 +47,7 @@ export const getInitItem = (arr, tab) => {
   }
 }
 
-const tabs = [newTerm()]
+const tabs = []
 const bookmarks = []
 const bookmarkGroups = getDefaultBookmarkGroups(bookmarks)
 
@@ -56,7 +56,7 @@ export default {
   tabs,
   height: 500,
   width: window.innerWidth - sidebarWidth,
-  currentTabId: tabs[0].id,
+  currentTabId: '',
   history: [],
   quickCommands: [],
   quickCommandId: '',
