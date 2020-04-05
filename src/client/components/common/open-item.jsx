@@ -10,7 +10,8 @@ function onClick (e, href) {
   e.preventDefault()
   fs.openFile(href).catch(e => {
     log.error(e)
-    window.getGlabal('showItemInFolder')(href)
+    window._require('electron').shell
+      .showItemInFolder(href)
   })
 }
 

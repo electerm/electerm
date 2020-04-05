@@ -4,10 +4,12 @@
 
 import { memo } from 'react'
 import { Icon } from 'antd'
+// import { isMac } from '../../common/constants'
+// import fs from '../../common/fs'
 
 function onClick (e, href) {
   e.preventDefault()
-  window.getGlobal('showItemInFolder')(href)
+  window._require('electron').shell.showItemInFolder(href)
 }
 
 export default memo(props => {

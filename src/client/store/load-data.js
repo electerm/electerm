@@ -36,6 +36,7 @@ export default (store) => {
     await store.checkDefaultTheme()
     await store.initShortcuts()
     await store.loadFontList()
+    store.addTab()
     initWatch(store)
   }
 }

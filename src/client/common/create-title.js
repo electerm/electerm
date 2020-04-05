@@ -1,7 +1,7 @@
 /**
  * tab title create rule
  */
-export default (res) => {
+export default (res = {}) => {
   const {
     host, port, username, title, type,
     path
