@@ -12,7 +12,9 @@ import { noTerminalBgValue, appPath } from '../../common/constants'
 import defaultSettings from '../../../app/common/default-setting'
 import ShowItem from '../common/show-item'
 import { osResolve } from '../../common/resolve'
+import Link from '../common/external-link'
 import _ from 'lodash'
+import createEditLangLink from '../../common/create-lang-edit-link'
 
 const InputGroup = Input.Group
 const { Option } = Select
@@ -22,6 +24,7 @@ const f = prefix('form')
 const s = prefix('ssh')
 const p = prefix('sftp')
 const t = prefix('terminalThemes')
+
 const modifiers = [
   'Command',
   'Control',
@@ -491,6 +494,7 @@ export default class Setting extends Component {
               })
             }
           </Select>
+          <Link className='mg1l' to={createEditLangLink(language)}>{p('edit')}</Link>
         </div>
         {this.renderLanguageChangeTip()}
         <div className='pd1y font16 bold'>
