@@ -25,7 +25,7 @@ import {
 import deepCopy from 'json-deep-copy'
 import { readClipboard, copy } from '../../common/clipboard'
 import { FitAddon } from 'xterm-addon-fit'
-import { AttachAddon } from 'xterm-addon-attach'
+import AttachAddon from './attach-addon-custom'
 import { SearchAddon } from 'xterm-addon-search'
 import { WebLinksAddon } from 'xterm-addon-web-links'
 import { Zmodem, AddonZmodem } from './xterm-zmodem'
@@ -779,7 +779,7 @@ export default class Term extends Component {
     const socket = new WebSocket(wsUrl)
     socket.onclose = this.oncloseSocket
     socket.onerror = this.onerrorSocket
-    this.attachAddon = new AttachAddon(socket)
+    this.attachAddon = new AttachAddon(socket, undefined, encode)
     term.loadAddon(this.attachAddon)
     socket.onopen = () => {
       const old = socket.send
@@ -806,27 +806,30 @@ export default class Term extends Component {
       }, this)
     }
     term.attachCustomKeyEventHandler(this.handleEvent)
-    this.decoder = new TextDecoder(encode)
-    term.__getMessage = function (ev) {
-      let str = ''
-      if (typeof ev.data === 'object') {
-        if (ev.data instanceof ArrayBuffer) {
-          str = this.decoder.decode(ev.data)
-          term.write(str)
-        } else {
-          const fileReader = new FileReader()
-          fileReader.addEventListener('load', function () {
-            str = this.decoder.decode(fileReader.result)
-            term.write(str)
-          })
-          fileReader.readAsArrayBuffer(ev.data)
-        }
-      } else if (typeof ev.data === 'string') {
-        term.write(ev.data)
-      } else {
-        throw Error(`Cannot handle ${typeof ev.data} websocket message.`)
-      }
-    }
+    // this.decoder = new TextDecoder(encode)
+    // const oldWrite = term.write
+    // const th = this
+    // term.write = function (data) {
+    //   let str = ''
+    //   if (typeof data === 'object') {
+    //     if (data instanceof ArrayBuffer) {
+    //       str = th.decoder.decode(data)
+    //       oldWrite.call(term, str)
+    //     } else {
+    //       const fileReader = new FileReader()
+    //       fileReader.addEventListener('load', () => {
+    //         str = th.decoder.decode(fileReader.result)
+    //         console.log(str, '--ff-')
+    //         oldWrite.call(term, str)
+    //       })
+    //       fileReader.readAsArrayBuffer(new window.Blob([data]))
+    //     }
+    //   } else if (typeof data === 'string') {
+    //     oldWrite.call(term, data)
+    //   } else {
+    //     throw Error(`Cannot handle ${typeof data} websocket message.`)
+    //   }
+    // }
     this.term = term
     this.startPath = startPath
     if (startPath || loginScript || isSshConfig) {
