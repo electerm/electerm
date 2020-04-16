@@ -12,7 +12,6 @@ export default class AttachAddonCustom extends AttachAddon {
   activate (terminal) {
     this._disposables.push(
       addSocketListener(this._socket, 'message', ev => {
-        console.log(ev)
         let { data } = ev
         if (typeof data === 'string') {
           return terminal.write(data)
