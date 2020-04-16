@@ -249,10 +249,10 @@
         "name": "linux x86 x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/19399793",
-            "id": 19399793,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDE5Mzk5Nzkz",
-            "name": "electerm-1.3.15-linux-amd64.deb",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/19862932",
+            "id": 19862932,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDE5ODYyOTMy",
+            "name": "electerm-1.3.18-linux-amd64.deb",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -276,18 +276,18 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 52550090,
+            "size": 52555050,
             "download_count": 0,
-            "created_at": "2020-04-05T12:36:14Z",
-            "updated_at": "2020-04-05T12:36:15Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.3.15/electerm-1.3.15-linux-amd64.deb",
+            "created_at": "2020-04-16T09:28:08Z",
+            "updated_at": "2020-04-16T09:28:09Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.3.18/electerm-1.3.18-linux-amd64.deb",
             "desc": "for Debian, Ubuntu..."
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/19399815",
-            "id": 19399815,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDE5Mzk5ODE1",
-            "name": "electerm-1.3.15-linux-amd64.snap",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/19862979",
+            "id": 19862979,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDE5ODYyOTc5",
+            "name": "electerm-1.3.18-linux-amd64.snap",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -313,16 +313,16 @@
             "state": "uploaded",
             "size": 64425984,
             "download_count": 0,
-            "created_at": "2020-04-05T12:39:08Z",
-            "updated_at": "2020-04-05T12:39:10Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.3.15/electerm-1.3.15-linux-amd64.snap",
+            "created_at": "2020-04-16T09:30:56Z",
+            "updated_at": "2020-04-16T09:30:58Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.3.18/electerm-1.3.18-linux-amd64.snap",
             "desc": "for all linux that support snap"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/19399776",
-            "id": 19399776,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDE5Mzk5Nzc2",
-            "name": "electerm-1.3.15-linux-x64.tar.gz",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/19862895",
+            "id": 19862895,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDE5ODYyODk1",
+            "name": "electerm-1.3.18-linux-x64.tar.gz",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -346,18 +346,18 @@
             },
             "content_type": "application/gzip",
             "state": "uploaded",
-            "size": 72795860,
+            "size": 72798020,
             "download_count": 0,
-            "created_at": "2020-04-05T12:34:38Z",
-            "updated_at": "2020-04-05T12:34:40Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.3.15/electerm-1.3.15-linux-x64.tar.gz",
+            "created_at": "2020-04-16T09:26:36Z",
+            "updated_at": "2020-04-16T09:26:38Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.3.18/electerm-1.3.18-linux-x64.tar.gz",
             "desc": "for all linux x64, just extract"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/19399807",
-            "id": 19399807,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDE5Mzk5ODA3",
-            "name": "electerm-1.3.15-linux-x86_64.rpm",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/19862959",
+            "id": 19862959,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDE5ODYyOTU5",
+            "name": "electerm-1.3.18-linux-x86_64.rpm",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -381,11 +381,11 @@
             },
             "content_type": "application/x-redhat-package-manager",
             "state": "uploaded",
-            "size": 51930052,
+            "size": 51951032,
             "download_count": 0,
-            "created_at": "2020-04-05T12:38:16Z",
-            "updated_at": "2020-04-05T12:38:17Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.3.15/electerm-1.3.15-linux-x86_64.rpm",
+            "created_at": "2020-04-16T09:30:05Z",
+            "updated_at": "2020-04-16T09:30:07Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.3.18/electerm-1.3.18-linux-x86_64.rpm",
             "desc": "for Red Hat, Fedora..."
           }
         ]
@@ -394,10 +394,10 @@
         "name": "mac os x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/19399811",
-            "id": 19399811,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDE5Mzk5ODEx",
-            "name": "electerm-1.3.15-mac.dmg",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/19863006",
+            "id": 19863006,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDE5ODYzMDA2",
+            "name": "electerm-1.3.18-mac.dmg",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -421,11 +421,11 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 71642066,
+            "size": 71655171,
             "download_count": 0,
-            "created_at": "2020-04-05T12:38:44Z",
-            "updated_at": "2020-04-05T12:38:46Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.3.15/electerm-1.3.15-mac.dmg"
+            "created_at": "2020-04-16T09:31:49Z",
+            "updated_at": "2020-04-16T09:31:52Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.3.18/electerm-1.3.18-mac.dmg"
           }
         ]
       },
@@ -433,10 +433,10 @@
         "name": "windows 7/8/10 x86 x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/19399789",
-            "id": 19399789,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDE5Mzk5Nzg5",
-            "name": "electerm-1.3.15-win-x64.tar.gz",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/19862939",
+            "id": 19862939,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDE5ODYyOTM5",
+            "name": "electerm-1.3.18-win-x64.tar.gz",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -460,18 +460,18 @@
             },
             "content_type": "application/gzip",
             "state": "uploaded",
-            "size": 73250932,
-            "download_count": 2,
-            "created_at": "2020-04-05T12:35:46Z",
-            "updated_at": "2020-04-05T12:36:00Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.3.15/electerm-1.3.15-win-x64.tar.gz"
+            "size": 73251692,
+            "download_count": 0,
+            "created_at": "2020-04-16T09:28:41Z",
+            "updated_at": "2020-04-16T09:28:47Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.3.18/electerm-1.3.18-win-x64.tar.gz"
           }
         ]
       }
     },
-    "version": "v1.3.15",
-    "releaseNote": "- [bug fix] Fix terminal log open issue (#1652)\r\n- [bug fix] Fix no history cause app crash (#1651)\r\n- [bug fix] Fix runScript UI in bookmark form (#1648)",
-    "releaseDate": "2020-04-05T12:43:29Z",
+    "version": "v1.3.18",
+    "releaseNote": "- [feat] Add edit language file link in settings (#1656)\r\n- [feat] Fix ecnode support\r\n- [fix] Fix theme background setting (#1660)",
+    "releaseDate": "2020-04-16T09:45:42Z",
     "siteKeywords": "electron,ternimal,electerm,ssh,sftp",
     "siteName": "electerm",
     "path": "/home/execapp/dev/electerm.html5beta.com/index.html"
@@ -726,10 +726,10 @@
         "name": "linux x86 x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/19399793",
-            "id": 19399793,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDE5Mzk5Nzkz",
-            "name": "electerm-1.3.15-linux-amd64.deb",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/19862932",
+            "id": 19862932,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDE5ODYyOTMy",
+            "name": "electerm-1.3.18-linux-amd64.deb",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -753,18 +753,18 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 52550090,
+            "size": 52555050,
             "download_count": 0,
-            "created_at": "2020-04-05T12:36:14Z",
-            "updated_at": "2020-04-05T12:36:15Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.3.15/electerm-1.3.15-linux-amd64.deb",
+            "created_at": "2020-04-16T09:28:08Z",
+            "updated_at": "2020-04-16T09:28:09Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.3.18/electerm-1.3.18-linux-amd64.deb",
             "desc": "for Debian, Ubuntu..."
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/19399815",
-            "id": 19399815,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDE5Mzk5ODE1",
-            "name": "electerm-1.3.15-linux-amd64.snap",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/19862979",
+            "id": 19862979,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDE5ODYyOTc5",
+            "name": "electerm-1.3.18-linux-amd64.snap",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -790,16 +790,16 @@
             "state": "uploaded",
             "size": 64425984,
             "download_count": 0,
-            "created_at": "2020-04-05T12:39:08Z",
-            "updated_at": "2020-04-05T12:39:10Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.3.15/electerm-1.3.15-linux-amd64.snap",
+            "created_at": "2020-04-16T09:30:56Z",
+            "updated_at": "2020-04-16T09:30:58Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.3.18/electerm-1.3.18-linux-amd64.snap",
             "desc": "for all linux that support snap"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/19399776",
-            "id": 19399776,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDE5Mzk5Nzc2",
-            "name": "electerm-1.3.15-linux-x64.tar.gz",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/19862895",
+            "id": 19862895,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDE5ODYyODk1",
+            "name": "electerm-1.3.18-linux-x64.tar.gz",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -823,18 +823,18 @@
             },
             "content_type": "application/gzip",
             "state": "uploaded",
-            "size": 72795860,
+            "size": 72798020,
             "download_count": 0,
-            "created_at": "2020-04-05T12:34:38Z",
-            "updated_at": "2020-04-05T12:34:40Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.3.15/electerm-1.3.15-linux-x64.tar.gz",
+            "created_at": "2020-04-16T09:26:36Z",
+            "updated_at": "2020-04-16T09:26:38Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.3.18/electerm-1.3.18-linux-x64.tar.gz",
             "desc": "for all linux x64, just extract"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/19399807",
-            "id": 19399807,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDE5Mzk5ODA3",
-            "name": "electerm-1.3.15-linux-x86_64.rpm",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/19862959",
+            "id": 19862959,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDE5ODYyOTU5",
+            "name": "electerm-1.3.18-linux-x86_64.rpm",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -858,11 +858,11 @@
             },
             "content_type": "application/x-redhat-package-manager",
             "state": "uploaded",
-            "size": 51930052,
+            "size": 51951032,
             "download_count": 0,
-            "created_at": "2020-04-05T12:38:16Z",
-            "updated_at": "2020-04-05T12:38:17Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.3.15/electerm-1.3.15-linux-x86_64.rpm",
+            "created_at": "2020-04-16T09:30:05Z",
+            "updated_at": "2020-04-16T09:30:07Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.3.18/electerm-1.3.18-linux-x86_64.rpm",
             "desc": "for Red Hat, Fedora..."
           }
         ]
@@ -871,10 +871,10 @@
         "name": "mac os x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/19399811",
-            "id": 19399811,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDE5Mzk5ODEx",
-            "name": "electerm-1.3.15-mac.dmg",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/19863006",
+            "id": 19863006,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDE5ODYzMDA2",
+            "name": "electerm-1.3.18-mac.dmg",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -898,11 +898,11 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 71642066,
+            "size": 71655171,
             "download_count": 0,
-            "created_at": "2020-04-05T12:38:44Z",
-            "updated_at": "2020-04-05T12:38:46Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.3.15/electerm-1.3.15-mac.dmg"
+            "created_at": "2020-04-16T09:31:49Z",
+            "updated_at": "2020-04-16T09:31:52Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.3.18/electerm-1.3.18-mac.dmg"
           }
         ]
       },
@@ -910,10 +910,10 @@
         "name": "windows 7/8/10 x86 x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/19399789",
-            "id": 19399789,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDE5Mzk5Nzg5",
-            "name": "electerm-1.3.15-win-x64.tar.gz",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/19862939",
+            "id": 19862939,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDE5ODYyOTM5",
+            "name": "electerm-1.3.18-win-x64.tar.gz",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -937,18 +937,18 @@
             },
             "content_type": "application/gzip",
             "state": "uploaded",
-            "size": 73250932,
-            "download_count": 2,
-            "created_at": "2020-04-05T12:35:46Z",
-            "updated_at": "2020-04-05T12:36:00Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.3.15/electerm-1.3.15-win-x64.tar.gz"
+            "size": 73251692,
+            "download_count": 0,
+            "created_at": "2020-04-16T09:28:41Z",
+            "updated_at": "2020-04-16T09:28:47Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.3.18/electerm-1.3.18-win-x64.tar.gz"
           }
         ]
       }
     },
-    "version": "v1.3.15",
-    "releaseNote": "- [bug fix] Fix terminal log open issue (#1652)\r\n- [bug fix] Fix no history cause app crash (#1651)\r\n- [bug fix] Fix runScript UI in bookmark form (#1648)",
-    "releaseDate": "2020-04-05T12:43:29Z",
+    "version": "v1.3.18",
+    "releaseNote": "- [feat] Add edit language file link in settings (#1656)\r\n- [feat] Fix ecnode support\r\n- [fix] Fix theme background setting (#1660)",
+    "releaseDate": "2020-04-16T09:45:42Z",
     "siteKeywords": "electron,ternimal,electerm,ssh,sftp",
     "siteName": "electerm",
     "path": "/home/execapp/dev/electerm.html5beta.com/index-es_es.html"
@@ -1203,10 +1203,10 @@
         "name": "linux x86 x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/19399793",
-            "id": 19399793,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDE5Mzk5Nzkz",
-            "name": "electerm-1.3.15-linux-amd64.deb",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/19862932",
+            "id": 19862932,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDE5ODYyOTMy",
+            "name": "electerm-1.3.18-linux-amd64.deb",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -1230,18 +1230,18 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 52550090,
+            "size": 52555050,
             "download_count": 0,
-            "created_at": "2020-04-05T12:36:14Z",
-            "updated_at": "2020-04-05T12:36:15Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.3.15/electerm-1.3.15-linux-amd64.deb",
+            "created_at": "2020-04-16T09:28:08Z",
+            "updated_at": "2020-04-16T09:28:09Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.3.18/electerm-1.3.18-linux-amd64.deb",
             "desc": "for Debian, Ubuntu..."
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/19399815",
-            "id": 19399815,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDE5Mzk5ODE1",
-            "name": "electerm-1.3.15-linux-amd64.snap",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/19862979",
+            "id": 19862979,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDE5ODYyOTc5",
+            "name": "electerm-1.3.18-linux-amd64.snap",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -1267,16 +1267,16 @@
             "state": "uploaded",
             "size": 64425984,
             "download_count": 0,
-            "created_at": "2020-04-05T12:39:08Z",
-            "updated_at": "2020-04-05T12:39:10Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.3.15/electerm-1.3.15-linux-amd64.snap",
+            "created_at": "2020-04-16T09:30:56Z",
+            "updated_at": "2020-04-16T09:30:58Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.3.18/electerm-1.3.18-linux-amd64.snap",
             "desc": "for all linux that support snap"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/19399776",
-            "id": 19399776,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDE5Mzk5Nzc2",
-            "name": "electerm-1.3.15-linux-x64.tar.gz",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/19862895",
+            "id": 19862895,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDE5ODYyODk1",
+            "name": "electerm-1.3.18-linux-x64.tar.gz",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -1300,18 +1300,18 @@
             },
             "content_type": "application/gzip",
             "state": "uploaded",
-            "size": 72795860,
+            "size": 72798020,
             "download_count": 0,
-            "created_at": "2020-04-05T12:34:38Z",
-            "updated_at": "2020-04-05T12:34:40Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.3.15/electerm-1.3.15-linux-x64.tar.gz",
+            "created_at": "2020-04-16T09:26:36Z",
+            "updated_at": "2020-04-16T09:26:38Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.3.18/electerm-1.3.18-linux-x64.tar.gz",
             "desc": "for all linux x64, just extract"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/19399807",
-            "id": 19399807,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDE5Mzk5ODA3",
-            "name": "electerm-1.3.15-linux-x86_64.rpm",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/19862959",
+            "id": 19862959,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDE5ODYyOTU5",
+            "name": "electerm-1.3.18-linux-x86_64.rpm",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -1335,11 +1335,11 @@
             },
             "content_type": "application/x-redhat-package-manager",
             "state": "uploaded",
-            "size": 51930052,
+            "size": 51951032,
             "download_count": 0,
-            "created_at": "2020-04-05T12:38:16Z",
-            "updated_at": "2020-04-05T12:38:17Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.3.15/electerm-1.3.15-linux-x86_64.rpm",
+            "created_at": "2020-04-16T09:30:05Z",
+            "updated_at": "2020-04-16T09:30:07Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.3.18/electerm-1.3.18-linux-x86_64.rpm",
             "desc": "for Red Hat, Fedora..."
           }
         ]
@@ -1348,10 +1348,10 @@
         "name": "mac os x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/19399811",
-            "id": 19399811,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDE5Mzk5ODEx",
-            "name": "electerm-1.3.15-mac.dmg",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/19863006",
+            "id": 19863006,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDE5ODYzMDA2",
+            "name": "electerm-1.3.18-mac.dmg",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -1375,11 +1375,11 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 71642066,
+            "size": 71655171,
             "download_count": 0,
-            "created_at": "2020-04-05T12:38:44Z",
-            "updated_at": "2020-04-05T12:38:46Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.3.15/electerm-1.3.15-mac.dmg"
+            "created_at": "2020-04-16T09:31:49Z",
+            "updated_at": "2020-04-16T09:31:52Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.3.18/electerm-1.3.18-mac.dmg"
           }
         ]
       },
@@ -1387,10 +1387,10 @@
         "name": "windows 7/8/10 x86 x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/19399789",
-            "id": 19399789,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDE5Mzk5Nzg5",
-            "name": "electerm-1.3.15-win-x64.tar.gz",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/19862939",
+            "id": 19862939,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDE5ODYyOTM5",
+            "name": "electerm-1.3.18-win-x64.tar.gz",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -1414,18 +1414,18 @@
             },
             "content_type": "application/gzip",
             "state": "uploaded",
-            "size": 73250932,
-            "download_count": 2,
-            "created_at": "2020-04-05T12:35:46Z",
-            "updated_at": "2020-04-05T12:36:00Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.3.15/electerm-1.3.15-win-x64.tar.gz"
+            "size": 73251692,
+            "download_count": 0,
+            "created_at": "2020-04-16T09:28:41Z",
+            "updated_at": "2020-04-16T09:28:47Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.3.18/electerm-1.3.18-win-x64.tar.gz"
           }
         ]
       }
     },
-    "version": "v1.3.15",
-    "releaseNote": "- [bug fix] Fix terminal log open issue (#1652)\r\n- [bug fix] Fix no history cause app crash (#1651)\r\n- [bug fix] Fix runScript UI in bookmark form (#1648)",
-    "releaseDate": "2020-04-05T12:43:29Z",
+    "version": "v1.3.18",
+    "releaseNote": "- [feat] Add edit language file link in settings (#1656)\r\n- [feat] Fix ecnode support\r\n- [fix] Fix theme background setting (#1660)",
+    "releaseDate": "2020-04-16T09:45:42Z",
     "siteKeywords": "electron,ternimal,electerm,ssh,sftp",
     "siteName": "electerm",
     "path": "/home/execapp/dev/electerm.html5beta.com/index-pt_br.html"
@@ -1680,10 +1680,10 @@
         "name": "linux x86 x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/19399793",
-            "id": 19399793,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDE5Mzk5Nzkz",
-            "name": "electerm-1.3.15-linux-amd64.deb",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/19862932",
+            "id": 19862932,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDE5ODYyOTMy",
+            "name": "electerm-1.3.18-linux-amd64.deb",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -1707,18 +1707,18 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 52550090,
+            "size": 52555050,
             "download_count": 0,
-            "created_at": "2020-04-05T12:36:14Z",
-            "updated_at": "2020-04-05T12:36:15Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.3.15/electerm-1.3.15-linux-amd64.deb",
+            "created_at": "2020-04-16T09:28:08Z",
+            "updated_at": "2020-04-16T09:28:09Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.3.18/electerm-1.3.18-linux-amd64.deb",
             "desc": "for Debian, Ubuntu..."
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/19399815",
-            "id": 19399815,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDE5Mzk5ODE1",
-            "name": "electerm-1.3.15-linux-amd64.snap",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/19862979",
+            "id": 19862979,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDE5ODYyOTc5",
+            "name": "electerm-1.3.18-linux-amd64.snap",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -1744,16 +1744,16 @@
             "state": "uploaded",
             "size": 64425984,
             "download_count": 0,
-            "created_at": "2020-04-05T12:39:08Z",
-            "updated_at": "2020-04-05T12:39:10Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.3.15/electerm-1.3.15-linux-amd64.snap",
+            "created_at": "2020-04-16T09:30:56Z",
+            "updated_at": "2020-04-16T09:30:58Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.3.18/electerm-1.3.18-linux-amd64.snap",
             "desc": "for all linux that support snap"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/19399776",
-            "id": 19399776,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDE5Mzk5Nzc2",
-            "name": "electerm-1.3.15-linux-x64.tar.gz",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/19862895",
+            "id": 19862895,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDE5ODYyODk1",
+            "name": "electerm-1.3.18-linux-x64.tar.gz",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -1777,18 +1777,18 @@
             },
             "content_type": "application/gzip",
             "state": "uploaded",
-            "size": 72795860,
+            "size": 72798020,
             "download_count": 0,
-            "created_at": "2020-04-05T12:34:38Z",
-            "updated_at": "2020-04-05T12:34:40Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.3.15/electerm-1.3.15-linux-x64.tar.gz",
+            "created_at": "2020-04-16T09:26:36Z",
+            "updated_at": "2020-04-16T09:26:38Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.3.18/electerm-1.3.18-linux-x64.tar.gz",
             "desc": "for all linux x64, just extract"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/19399807",
-            "id": 19399807,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDE5Mzk5ODA3",
-            "name": "electerm-1.3.15-linux-x86_64.rpm",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/19862959",
+            "id": 19862959,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDE5ODYyOTU5",
+            "name": "electerm-1.3.18-linux-x86_64.rpm",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -1812,11 +1812,11 @@
             },
             "content_type": "application/x-redhat-package-manager",
             "state": "uploaded",
-            "size": 51930052,
+            "size": 51951032,
             "download_count": 0,
-            "created_at": "2020-04-05T12:38:16Z",
-            "updated_at": "2020-04-05T12:38:17Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.3.15/electerm-1.3.15-linux-x86_64.rpm",
+            "created_at": "2020-04-16T09:30:05Z",
+            "updated_at": "2020-04-16T09:30:07Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.3.18/electerm-1.3.18-linux-x86_64.rpm",
             "desc": "for Red Hat, Fedora..."
           }
         ]
@@ -1825,10 +1825,10 @@
         "name": "mac os x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/19399811",
-            "id": 19399811,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDE5Mzk5ODEx",
-            "name": "electerm-1.3.15-mac.dmg",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/19863006",
+            "id": 19863006,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDE5ODYzMDA2",
+            "name": "electerm-1.3.18-mac.dmg",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -1852,11 +1852,11 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 71642066,
+            "size": 71655171,
             "download_count": 0,
-            "created_at": "2020-04-05T12:38:44Z",
-            "updated_at": "2020-04-05T12:38:46Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.3.15/electerm-1.3.15-mac.dmg"
+            "created_at": "2020-04-16T09:31:49Z",
+            "updated_at": "2020-04-16T09:31:52Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.3.18/electerm-1.3.18-mac.dmg"
           }
         ]
       },
@@ -1864,10 +1864,10 @@
         "name": "windows 7/8/10 x86 x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/19399789",
-            "id": 19399789,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDE5Mzk5Nzg5",
-            "name": "electerm-1.3.15-win-x64.tar.gz",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/19862939",
+            "id": 19862939,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDE5ODYyOTM5",
+            "name": "electerm-1.3.18-win-x64.tar.gz",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -1891,18 +1891,18 @@
             },
             "content_type": "application/gzip",
             "state": "uploaded",
-            "size": 73250932,
-            "download_count": 2,
-            "created_at": "2020-04-05T12:35:46Z",
-            "updated_at": "2020-04-05T12:36:00Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.3.15/electerm-1.3.15-win-x64.tar.gz"
+            "size": 73251692,
+            "download_count": 0,
+            "created_at": "2020-04-16T09:28:41Z",
+            "updated_at": "2020-04-16T09:28:47Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.3.18/electerm-1.3.18-win-x64.tar.gz"
           }
         ]
       }
     },
-    "version": "v1.3.15",
-    "releaseNote": "- [bug fix] Fix terminal log open issue (#1652)\r\n- [bug fix] Fix no history cause app crash (#1651)\r\n- [bug fix] Fix runScript UI in bookmark form (#1648)",
-    "releaseDate": "2020-04-05T12:43:29Z",
+    "version": "v1.3.18",
+    "releaseNote": "- [feat] Add edit language file link in settings (#1656)\r\n- [feat] Fix ecnode support\r\n- [fix] Fix theme background setting (#1660)",
+    "releaseDate": "2020-04-16T09:45:42Z",
     "siteKeywords": "electron,ternimal,electerm,ssh,sftp",
     "siteName": "electerm",
     "path": "/home/execapp/dev/electerm.html5beta.com/index-ru_ru.html"
@@ -2157,10 +2157,10 @@
         "name": "linux x86 x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/19399793",
-            "id": 19399793,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDE5Mzk5Nzkz",
-            "name": "electerm-1.3.15-linux-amd64.deb",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/19862932",
+            "id": 19862932,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDE5ODYyOTMy",
+            "name": "electerm-1.3.18-linux-amd64.deb",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -2184,18 +2184,18 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 52550090,
+            "size": 52555050,
             "download_count": 0,
-            "created_at": "2020-04-05T12:36:14Z",
-            "updated_at": "2020-04-05T12:36:15Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.3.15/electerm-1.3.15-linux-amd64.deb",
+            "created_at": "2020-04-16T09:28:08Z",
+            "updated_at": "2020-04-16T09:28:09Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.3.18/electerm-1.3.18-linux-amd64.deb",
             "desc": "for Debian, Ubuntu..."
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/19399815",
-            "id": 19399815,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDE5Mzk5ODE1",
-            "name": "electerm-1.3.15-linux-amd64.snap",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/19862979",
+            "id": 19862979,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDE5ODYyOTc5",
+            "name": "electerm-1.3.18-linux-amd64.snap",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -2221,16 +2221,16 @@
             "state": "uploaded",
             "size": 64425984,
             "download_count": 0,
-            "created_at": "2020-04-05T12:39:08Z",
-            "updated_at": "2020-04-05T12:39:10Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.3.15/electerm-1.3.15-linux-amd64.snap",
+            "created_at": "2020-04-16T09:30:56Z",
+            "updated_at": "2020-04-16T09:30:58Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.3.18/electerm-1.3.18-linux-amd64.snap",
             "desc": "for all linux that support snap"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/19399776",
-            "id": 19399776,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDE5Mzk5Nzc2",
-            "name": "electerm-1.3.15-linux-x64.tar.gz",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/19862895",
+            "id": 19862895,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDE5ODYyODk1",
+            "name": "electerm-1.3.18-linux-x64.tar.gz",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -2254,18 +2254,18 @@
             },
             "content_type": "application/gzip",
             "state": "uploaded",
-            "size": 72795860,
+            "size": 72798020,
             "download_count": 0,
-            "created_at": "2020-04-05T12:34:38Z",
-            "updated_at": "2020-04-05T12:34:40Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.3.15/electerm-1.3.15-linux-x64.tar.gz",
+            "created_at": "2020-04-16T09:26:36Z",
+            "updated_at": "2020-04-16T09:26:38Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.3.18/electerm-1.3.18-linux-x64.tar.gz",
             "desc": "for all linux x64, just extract"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/19399807",
-            "id": 19399807,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDE5Mzk5ODA3",
-            "name": "electerm-1.3.15-linux-x86_64.rpm",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/19862959",
+            "id": 19862959,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDE5ODYyOTU5",
+            "name": "electerm-1.3.18-linux-x86_64.rpm",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -2289,11 +2289,11 @@
             },
             "content_type": "application/x-redhat-package-manager",
             "state": "uploaded",
-            "size": 51930052,
+            "size": 51951032,
             "download_count": 0,
-            "created_at": "2020-04-05T12:38:16Z",
-            "updated_at": "2020-04-05T12:38:17Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.3.15/electerm-1.3.15-linux-x86_64.rpm",
+            "created_at": "2020-04-16T09:30:05Z",
+            "updated_at": "2020-04-16T09:30:07Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.3.18/electerm-1.3.18-linux-x86_64.rpm",
             "desc": "for Red Hat, Fedora..."
           }
         ]
@@ -2302,10 +2302,10 @@
         "name": "mac os x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/19399811",
-            "id": 19399811,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDE5Mzk5ODEx",
-            "name": "electerm-1.3.15-mac.dmg",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/19863006",
+            "id": 19863006,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDE5ODYzMDA2",
+            "name": "electerm-1.3.18-mac.dmg",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -2329,11 +2329,11 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 71642066,
+            "size": 71655171,
             "download_count": 0,
-            "created_at": "2020-04-05T12:38:44Z",
-            "updated_at": "2020-04-05T12:38:46Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.3.15/electerm-1.3.15-mac.dmg"
+            "created_at": "2020-04-16T09:31:49Z",
+            "updated_at": "2020-04-16T09:31:52Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.3.18/electerm-1.3.18-mac.dmg"
           }
         ]
       },
@@ -2341,10 +2341,10 @@
         "name": "windows 7/8/10 x86 x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/19399789",
-            "id": 19399789,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDE5Mzk5Nzg5",
-            "name": "electerm-1.3.15-win-x64.tar.gz",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/19862939",
+            "id": 19862939,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDE5ODYyOTM5",
+            "name": "electerm-1.3.18-win-x64.tar.gz",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -2368,18 +2368,18 @@
             },
             "content_type": "application/gzip",
             "state": "uploaded",
-            "size": 73250932,
-            "download_count": 2,
-            "created_at": "2020-04-05T12:35:46Z",
-            "updated_at": "2020-04-05T12:36:00Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.3.15/electerm-1.3.15-win-x64.tar.gz"
+            "size": 73251692,
+            "download_count": 0,
+            "created_at": "2020-04-16T09:28:41Z",
+            "updated_at": "2020-04-16T09:28:47Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.3.18/electerm-1.3.18-win-x64.tar.gz"
           }
         ]
       }
     },
-    "version": "v1.3.15",
-    "releaseNote": "- [bug fix] Fix terminal log open issue (#1652)\r\n- [bug fix] Fix no history cause app crash (#1651)\r\n- [bug fix] Fix runScript UI in bookmark form (#1648)",
-    "releaseDate": "2020-04-05T12:43:29Z",
+    "version": "v1.3.18",
+    "releaseNote": "- [feat] Add edit language file link in settings (#1656)\r\n- [feat] Fix ecnode support\r\n- [fix] Fix theme background setting (#1660)",
+    "releaseDate": "2020-04-16T09:45:42Z",
     "siteKeywords": "electron,ternimal,electerm,ssh,sftp",
     "siteName": "electerm",
     "path": "/home/execapp/dev/electerm.html5beta.com/index-zh_cn.html"
