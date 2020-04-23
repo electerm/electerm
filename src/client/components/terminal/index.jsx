@@ -658,33 +658,19 @@ export default class Term extends Component {
     })
   }
 
-  initData = () => {
-    const { type, title, loginScript } = this.props.tab
-    const cmd = type === terminalSshConfigType
-      ? `ssh ${title.split(/\s/g)[0]}\r`
-      : (
-        loginScript
-          ? loginScript + '\r'
-          : `cd ${this.startPath}\r`
-      )
-    this.attachAddon._sendData(cmd)
-  }
-
-  // onRefresh = (data) => {
-  //   const text = this.term._core.buffer.translateBufferLineToString(data.end)
-  //   this.extractPath(text.trim())
-  // }
-
-  extractPath = text => {
-    // only support path like zxd@zxd-Q85M-D2A:~/dev$
-    const reg = /^[^@]{1,}@[^:]{1,}:([^$]{1,})\$$/
-    const mat = text.match(reg)
-    const startPath = mat && mat[1] ? mat[1] : ''
-    if (startPath.startsWith('~') || startPath.startsWith('/')) {
-      this.props.store.editTab(this.props.tab.id, {
-        startPath
-      })
+  runInitScript = () => {
+    const { type, title, loginScript, startDirectory } = this.props.tab
+    let cmd = ''
+    if (type === terminalSshConfigType) {
+      cmd = `ssh ${title.split(/\s/g)[0]}\r`
+    } else if (startDirectory && !loginScript) {
+      cmd = `cd ${startDirectory}\r`
+    } else if (!startDirectory && loginScript) {
+      cmd = loginScript + '\r'
+    } else if (startDirectory && loginScript) {
+      cmd = `cd ${startDirectory} && ${loginScript}\r`
     }
+    this.attachAddon._sendData(cmd)
   }
 
   count = 0
@@ -706,11 +692,12 @@ export default class Term extends Component {
     const url = `http://${host}:${port}/terminals`
     const { tab = {}, sessionId, terminalIndex, id } = this.props
     const {
-      startPath, srcId, from = 'bookmarks',
+      srcId, from = 'bookmarks',
       type, loginScript,
       loginScriptDelay = defaultLoginScriptDelay,
       encode,
-      term: terminalType
+      term: terminalType,
+      startDirectory
     } = tab
     const { savePassword } = this.state
     const isSshConfig = type === terminalSshConfigType
@@ -831,10 +818,8 @@ export default class Term extends Component {
     //   }
     // }
     this.term = term
-    this.startPath = startPath
-    if (startPath || loginScript || isSshConfig) {
-      this.startPath = startPath
-      this.timers.timer1 = setTimeout(this.initData, loginScriptDelay)
+    if (startDirectory|| loginScript || isSshConfig) {
+      this.timers.timer1 = setTimeout(this.runInitScript, loginScriptDelay)
     }
   }
 
