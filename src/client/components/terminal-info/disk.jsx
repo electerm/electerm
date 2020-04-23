@@ -1,0 +1,4 @@
+/**
+ * disk info
+ * df -h
+ */

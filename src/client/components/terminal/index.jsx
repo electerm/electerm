@@ -63,6 +63,7 @@ export default class Term extends Component {
   constructor (props) {
     super(props)
     this.state = {
+      pid: '',
       id: props.id || 'id' + generate(),
       loading: false,
       promoteModalVisible: false,
@@ -775,6 +776,9 @@ export default class Term extends Component {
     })
     term.pid = pid
     this.pid = pid
+    this.setState({
+      pid
+    })
     const wsUrl = `ws://${host}:${port}/terminals/${pid}?sessionId=${sessionId}`
     const socket = new WebSocket(wsUrl)
     socket.onclose = this.oncloseSocket

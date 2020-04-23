@@ -56,6 +56,7 @@ export default class SessionWrapper extends Component {
     super(props)
     const id = generate()
     this.state = {
+      pid: null,
       pane: paneMap.terminal,
       splitDirection: terminalSplitDirectionMap.horizontal,
       activeSplitId: id,
@@ -164,6 +165,12 @@ export default class SessionWrapper extends Component {
     })
   }
 
+  setPid = pid => {
+    this.setState({
+      pid
+    })
+  }
+
   computePosition = (index) => {
     const len = this.state.terminals.length || 1
     const { width: windowWidth } = this.props
@@ -228,7 +235,7 @@ export default class SessionWrapper extends Component {
                 pane,
                 ..._.pick(
                   this,
-                  ['setActive', 'doSplit', 'setSessionState']
+                  ['setActive', 'doSplit', 'setSessionState', 'setPid']
                 ),
                 ...this.computePosition(t.position / 10)
               }

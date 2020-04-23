@@ -218,6 +218,7 @@ class Terminal {
 
     return new Promise((resolve, reject) => {
       const conn = new Client()
+      this.conn = conn
       const opts = Object.assign(
         {
           tryKeyboard: true
@@ -537,9 +538,12 @@ class Terminal {
    * @return {Promise}
    */
   getHomeDir () {
+    return this.runCmd('eval echo "~$different_user"')
+  }
+
+  runCmd (cmd) {
     return new Promise((resolve, reject) => {
-      const { client } = this
-      const cmd = 'eval echo "~$different_user"'
+      const client = this.conn || this.client
       client.exec(cmd, (err, stream) => {
         if (err) reject(err)
         stream.on('data', function (data) {
