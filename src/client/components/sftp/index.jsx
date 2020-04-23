@@ -463,7 +463,7 @@ export default class Sftp extends Component {
     oldPath
   ) => {
     const { tab, sessionOptions, sessionId } = this.props
-    const { username, startPath } = tab
+    const { username, startDirectory } = tab
     let remotePath
     const noPathInit = remotePathReal || this.state.remotePath
     if (noPathInit) {
@@ -528,27 +528,27 @@ export default class Sftp extends Component {
           this.sftp = sftp
         }
       }
+
       if (!remotePath) {
-        let home = await sftp.getHomeDir()
-          .then(r => r)
-          .catch(err => {
-            this.props.store.onError(err)
-            return ''
-          })
-        if (home.includes('error:')) {
-          home = '/'
-        }
-        if (home) {
-          remotePath = home.trim()
+        if (startDirectory) {
+          remotePath = startDirectory
         } else {
-          remotePath = username === 'root'
-            ? '/root'
-            : `/home/${tab.username}`
-        }
-        if (startPath && startPath.startsWith('~')) {
-          remotePath = remotePath + startPath.replace(/^~/, '')
-        } else if (startPath) {
-          remotePath = startPath
+          let home = await sftp.getHomeDir()
+            .then(r => r)
+            .catch(err => {
+              this.props.store.onError(err)
+              return ''
+            })
+          if (home.includes('error:')) {
+            home = '/'
+          }
+          if (home) {
+            remotePath = home.trim()
+          } else {
+            remotePath = username === 'root'
+              ? '/root'
+              : `/home/${tab.username}`
+          }
         }
       }
 
