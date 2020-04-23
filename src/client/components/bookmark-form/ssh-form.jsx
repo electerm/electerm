@@ -573,7 +573,8 @@ export class BookmarkForm extends React.PureComponent {
       authType = authTypeMap.password,
       username,
       id = '',
-      encode = encodes[0]
+      encode = encodes[0],
+      startDirectory
     } = this.props.formData
     const {
       autofocustrigger,
@@ -703,6 +704,16 @@ export class BookmarkForm extends React.PureComponent {
         >
           {getFieldDecorator('title', {
             initialValue: title
+          })(
+            <Input />
+          )}
+        </FormItem>
+        <FormItem
+          {...formItemLayout}
+          label={e('startDirectory')}
+        >
+          {getFieldDecorator('startDirectory', {
+            initialValue: startDirectory
           })(
             <Input />
           )}
