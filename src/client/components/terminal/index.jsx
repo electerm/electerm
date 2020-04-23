@@ -818,7 +818,7 @@ export default class Term extends Component {
     //   }
     // }
     this.term = term
-    if (startDirectory|| loginScript || isSshConfig) {
+    if (startDirectory || loginScript || isSshConfig) {
       this.timers.timer1 = setTimeout(this.runInitScript, loginScriptDelay)
     }
   }
