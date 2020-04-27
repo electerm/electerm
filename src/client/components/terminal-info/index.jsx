@@ -3,8 +3,19 @@
  * inluding id log path, and system info for remote session
  */
 
-import { useState, useEffect } from 'react'
+import { Popover, Icon } from 'antd'
+import TerminalInfoContent from './content'
 
-export default (props) => {
-
+export default function TerminalInfoIndex (props) {
+  return (
+    <Popover
+      title='Terminal Info'
+      content={<TerminalInfoContent {...props} />}
+    >
+      <Icon
+        type='info-circle'
+        className='pointer font18'
+      />
+    </Popover>
+  )
 }
