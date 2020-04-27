@@ -7,6 +7,9 @@
 ## Expected Behavior
 <!--- Tell me what should happen -->
 
+## Can you reproduce the same behavior in other terminal:
+<!--- If same bahavior happens in other terminal, maybe it is supposed to be like this or not a problem of terminal app -->
+
 ## Current Behavior
 <!--- Tell me what happens instead of the expected behavior -->
 
