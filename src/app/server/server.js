@@ -60,6 +60,18 @@ app.post('/terminals/:pid/size', function (req, res) {
   res.end()
 })
 
+app.post('/terminals/:pid/run-cmd', async function (req, res) {
+  const pid = req.params.pid
+  const { sessionId } = req.query
+  const { cmd } = req.body
+  const term = terminals(pid, sessionId)
+  let txt = ''
+  if (term) {
+    txt = await term.runCmd(cmd)
+  }
+  res.end(txt)
+})
+
 app.ws('/terminals/:pid', function (ws, req) {
   const { sessionId } = req.query
   const term = terminals(req.params.pid, sessionId)

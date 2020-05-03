@@ -5,7 +5,7 @@
 import { Component } from 'react'
 import Term from '../terminal'
 import Sftp from '../sftp'
-import { Icon, Tooltip, Modal } from 'antd'
+import { Icon, Tooltip } from 'antd'
 import _ from 'lodash'
 import { generate } from 'shortid'
 import copy from 'json-deep-copy'
@@ -13,16 +13,13 @@ import classnames from 'classnames'
 import {
   tabsHeight,
   terminalSplitDirectionMap, termControlHeight,
-  paneMap, terminalSshConfigType, ctrlOrCmd,
-  appPath
+  paneMap, terminalSshConfigType, ctrlOrCmd
 } from '../../common/constants'
 import ResizeWrap from '../common/resize-wrap'
 import keyControlPressed from '../../common/key-control-pressed'
 import keyPressed from '../../common/key-pressed'
 import Qm from '../quick-commands/quick-commands-select'
-import { createLogFileName } from '../../../app/common/create-session-log-file-path'
-import { osResolve } from '../../common/resolve'
-import ShowItem from '../common/show-item'
+import TerminalInfoContent from '../terminal-info/content'
 
 const rebuildPosition = terminals => {
   const indexs = terminals.map(t => t.position).sort((a, b) => a - b)
@@ -47,15 +44,13 @@ const getPrevTerminal = terminals => {
 const { prefix } = window
 const e = prefix('ssh')
 const m = prefix('menu')
-const s = prefix('sftp')
-const c = prefix('common')
-const st = prefix('setting')
 
 export default class SessionWrapper extends Component {
   constructor (props) {
     super(props)
     const id = generate()
     this.state = {
+      pid: null,
       pane: paneMap.terminal,
       splitDirection: terminalSplitDirectionMap.horizontal,
       activeSplitId: id,
@@ -68,7 +63,9 @@ export default class SessionWrapper extends Component {
           id,
           position: 0
         }
-      ]
+      ],
+      showInfo: false,
+      infoPanelProps: {}
     }
   }
 
@@ -100,6 +97,19 @@ export default class SessionWrapper extends Component {
     if (keyControlPressed(e) && keyPressed(e, '/')) {
       this.doSplit()
     }
+  }
+
+  handleShowInfo = (infoPanelProps) => {
+    this.setState({
+      showInfo: true,
+      infoPanelProps
+    })
+  }
+
+  hideInfoPanel = () => {
+    this.setState({
+      showInfo: false
+    })
   }
 
   computeHeight = () => {
@@ -223,12 +233,11 @@ export default class SessionWrapper extends Component {
                 ...this.props,
                 ...t,
                 activeSplitId,
-                showInfo: this.showInfo,
                 themeConfig,
                 pane,
                 ..._.pick(
                   this,
-                  ['setActive', 'doSplit', 'setSessionState']
+                  ['setActive', 'doSplit', 'setSessionState', 'handleShowInfo', 'hideInfoPanel']
                 ),
                 ...this.computePosition(t.position / 10)
               }
@@ -268,26 +277,6 @@ export default class SessionWrapper extends Component {
     )
   }
 
-  showInfo = () => {
-    const { activeSplitId } = this.state
-    const { saveTerminalLogToFile } = this.props.config
-    const name = createLogFileName(activeSplitId)
-    const path = osResolve(appPath, 'electerm', 'session_logs', name)
-    const to = saveTerminalLogToFile
-      ? <ShowItem disabled={!saveTerminalLogToFile} to={path}>{path}</ShowItem>
-      : `-> ${c('setting')} -> ${st('saveTerminalLogToFile')}`
-    const content = (
-      <div>
-        <p><b>ID:</b> {activeSplitId}</p>
-        <p><b>log:</b> {to}</p>
-      </div>
-    )
-    Modal.info({
-      title: s('info'),
-      content
-    })
-  }
-
   handleOpenSearch = () => {
     window.postMessage({
       action: 'open-terminal-search',
@@ -303,19 +292,6 @@ export default class SessionWrapper extends Component {
           type='search'
           className='mg1r icon-info font16 iblock pointer'
           onClick={this.handleOpenSearch}
-        />
-      </Tooltip>
-    )
-  }
-
-  renderInfoIcon = () => {
-    const title = `${e('terminal')} ${s('info')}`
-    return (
-      <Tooltip title={title}>
-        <Icon
-          type='info'
-          className='mg1r icon-info font16 iblock pointer'
-          onClick={this.showInfo}
         />
       </Tooltip>
     )
@@ -383,7 +359,6 @@ export default class SessionWrapper extends Component {
             ? (
               <div className='fright term-controls'>
                 {this.renderSearchIcon()}
-                {this.renderInfoIcon()}
                 {
                   hide
                     ? null
@@ -424,7 +399,22 @@ export default class SessionWrapper extends Component {
   }
 
   render () {
-    const { pane, splitDirection } = this.state
+    const {
+      pane,
+      splitDirection,
+      infoPanelProps,
+      showInfo
+    } = this.state
+    const infoProps = {
+      ..._.pick(this.props.config, ['host', 'port', 'saveTerminalLogToFile']),
+      ...infoPanelProps,
+      showInfo,
+      // pid,
+      // sessionId,
+      // isRemote: this.isRemote(),
+      // isActive: this.isActiveTerminal(),
+      hideInfoPanel: this.hideInfoPanel
+    }
     return (
       <div
         className={'term-sftp-box ' + pane + ' ' + splitDirection}
@@ -433,6 +423,9 @@ export default class SessionWrapper extends Component {
         {this.renderControl()}
         {this.renderTerminals()}
         {this.renderSftp()}
+        <TerminalInfoContent
+          {...infoProps}
+        />
       </div>
     )
   }
