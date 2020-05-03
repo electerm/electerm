@@ -34,13 +34,13 @@ import keyControlPressed from '../../common/key-control-pressed'
 import keyShiftPressed from '../../common/key-shift-pressed'
 import keyPressed from '../../common/key-pressed'
 import { Terminal } from 'xterm'
+import TerminalInfoIcon from '../terminal-info'
 
 const { prefix } = window
 const e = prefix('ssh')
 const m = prefix('menu')
 const f = prefix('form')
 const c = prefix('common')
-const s = prefix('sftp')
 const authFailMsg = 'All configured authentication methods failed'
 const privateKeyMsg = 'private key detected'
 
@@ -191,6 +191,12 @@ export default class Term extends Component {
     window.addEventListener('message', this.handleEvent)
   }
 
+  isActiveTerminal = () => {
+    return this.props.id === this.props.activeSplitId &&
+    this.props.tab.id === this.props.currentTabId &&
+    this.props.pane === paneMap.terminal
+  }
+
   handleEvent = (e) => {
     if (e.data && e.data.type === 'focus') {
       this.setActive()
@@ -201,10 +207,7 @@ export default class Term extends Component {
     ) {
       this.openSearch()
     }
-    const isActiveTerminal = this.props.id === this.props.activeSplitId &&
-      this.props.tab.id === this.props.currentTabId &&
-      this.props.pane === paneMap.terminal
-
+    const isActiveTerminal = this.isActiveTerminal()
     if (
       e.data &&
       e.data.type === 'focus' &&
@@ -517,22 +520,6 @@ export default class Term extends Component {
     })
   }
 
-  showInfo = () => {
-    const { id } = this.props.tab
-    const { sessionId } = this.props
-    const content = (
-      <ul>
-        <li>ID: {id}</li>
-        <li>session ID: {sessionId}</li>
-        <li>log: </li>
-      </ul>
-    )
-    Modal.info({
-      title: s('info'),
-      content
-    })
-  }
-
   // onSelectTheme = id => {
   //   this.props.store.setTheme(id)
   //   this.props.store.closeContextMenu()
@@ -592,12 +579,6 @@ export default class Term extends Component {
         >
           <Icon type='border-horizontal' /> {e('split')}
         </div>
-        <div
-          className={cls}
-          onClick={this.props.showInfo}
-        >
-          <Icon type='info-circle' /> {s('info')}
-        </div>
       </div>
     )
   }
@@ -653,6 +634,7 @@ export default class Term extends Component {
   }
 
   setActive = () => {
+    this.props.hideInfoPanel()
     this.props.setActive(this.props.id)
     this.props.store.storeAssign({
       activeTerminalId: this.props.id
@@ -935,6 +917,19 @@ export default class Term extends Component {
     }, this.remoteInit)
   }
 
+  handleShowInfo = () => {
+    const { id, sessionId } = this.props
+    const { pid } = this.state
+    const infoProps = {
+      id,
+      pid,
+      sessionId,
+      isRemote: this.isRemote(),
+      isActive: this.isActiveTerminal()
+    }
+    this.props.handleShowInfo(infoProps)
+  }
+
   renderPromoteModal = () => {
     const {
       passType = 'password'
@@ -1026,6 +1021,9 @@ export default class Term extends Component {
     }, 'tw-' + pid, {
       'terminal-not-active': activeSplitId !== pid
     })
+    const infoProps = {
+      showInfoPanel: this.handleShowInfo
+    }
     return (
       <div
         className={cls}
@@ -1072,6 +1070,15 @@ export default class Term extends Component {
           />
         </div>
         <Spin className='loading-wrapper' spinning={loading} />
+        {
+          loading
+            ? null
+            : (
+              <TerminalInfoIcon
+                {...infoProps}
+              />
+            )
+        }
       </div>
     )
   }

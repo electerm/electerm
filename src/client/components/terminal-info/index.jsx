@@ -3,19 +3,19 @@
  * inluding id log path, and system info for remote session
  */
 
-import { Popover, Icon } from 'antd'
-import TerminalInfoContent from './content'
+import { Tooltip, Icon } from 'antd'
+import './terminal-info.styl'
 
 export default function TerminalInfoIndex (props) {
   return (
-    <Popover
+    <Tooltip
       title='Terminal Info'
-      content={<TerminalInfoContent {...props} />}
     >
       <Icon
         type='info-circle'
-        className='pointer font18'
+        onClick={props.showInfoPanel}
+        className='pointer font18 terminal-info-icon'
       />
-    </Popover>
+    </Tooltip>
   )
 }
