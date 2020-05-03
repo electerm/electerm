@@ -174,12 +174,6 @@ export default class SessionWrapper extends Component {
     })
   }
 
-  setPid = pid => {
-    this.setState({
-      pid
-    })
-  }
-
   computePosition = (index) => {
     const len = this.state.terminals.length || 1
     const { width: windowWidth } = this.props
@@ -243,7 +237,7 @@ export default class SessionWrapper extends Component {
                 pane,
                 ..._.pick(
                   this,
-                  ['setActive', 'doSplit', 'setSessionState', 'setPid', 'handleShowInfo', 'hideInfoPanel']
+                  ['setActive', 'doSplit', 'setSessionState', 'handleShowInfo', 'hideInfoPanel']
                 ),
                 ...this.computePosition(t.position / 10)
               }
