@@ -267,9 +267,6 @@ export default class Term extends Component {
       this.attachAddon._sendData(
         Array.from(files).map(f => `"${f.path}"`).join(' ')
       )
-      // this.term.write(
-      //   Array.from(files).map(f => f.path).join(' ')
-      // )
     }
   }
 
