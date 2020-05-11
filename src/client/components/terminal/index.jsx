@@ -264,8 +264,8 @@ export default class Term extends Component {
   onDrop = e => {
     const files = _.get(e, 'dataTransfer.files')
     if (files && files.length) {
-      this.term.write(
-        Array.from(files).map(f => f.path).join(' ')
+      this.attachAddon._sendData(
+        Array.from(files).map(f => `"${f.path}"`).join(' ')
       )
     }
   }
