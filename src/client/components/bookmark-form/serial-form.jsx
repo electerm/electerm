@@ -90,22 +90,12 @@ class SerialForm extends BookmarkForm {
           normalize={parseInt}
         >
           {getFieldDecorator('baudRate', {
-            initialValue: baudRate
+            initialValue: baudRate.toString(),
+            normalize: v => Number(v)
           })(
-            <Select>
-              {
-                commonBaudRates.map(s => {
-                  return (
-                    <Option
-                      value={s}
-                      key={s}
-                    >
-                      {s}
-                    </Option>
-                  )
-                })
-              }
-            </Select>
+            <AutoComplete
+              dataSource={commonBaudRates.map(d => d + '')}
+            />
           )}
         </FormItem>
         <FormItem
