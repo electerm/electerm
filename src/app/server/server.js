@@ -9,6 +9,7 @@ const initWs = require('./dispatch-center')
 const {
   terminals
 } = require('./remote-common')
+const { token } = process.env
 
 app.use(cors())
 
@@ -20,7 +21,14 @@ app.use(bodyParser.json())
 
 require('express-ws')(app)
 
-app.post('/terminals', async function (req, res) {
+function verify (req, res, next) {
+  if (req.get('token') !== token) {
+    throw new Error('not valid request')
+  }
+  next()
+}
+
+app.post('/terminals', verify, async function (req, res) {
   const { body } = req
   const { isTest } = req.query
   if (isTest) {
@@ -48,7 +56,7 @@ app.post('/terminals', async function (req, res) {
   }
 })
 
-app.post('/terminals/:pid/size', function (req, res) {
+app.post('/terminals/:pid/size', verify, function (req, res) {
   const pid = req.params.pid
   const { sessionId } = req.query
   const cols = parseInt(req.query.cols, 10)
@@ -60,7 +68,7 @@ app.post('/terminals/:pid/size', function (req, res) {
   res.end()
 })
 
-app.post('/terminals/:pid/run-cmd', async function (req, res) {
+app.post('/terminals/:pid/run-cmd', verify, async function (req, res) {
   const pid = req.params.pid
   const { sessionId } = req.query
   const { cmd } = req.body
@@ -73,7 +81,10 @@ app.post('/terminals/:pid/run-cmd', async function (req, res) {
 })
 
 app.ws('/terminals/:pid', function (ws, req) {
-  const { sessionId } = req.query
+  const { sessionId, token: to } = req.query
+  if (to !== token) {
+    throw new Error('not valid request')
+  }
   const term = terminals(req.params.pid, sessionId)
   const { pid } = term
   log.debug('ws: connected to terminal ->', pid)
