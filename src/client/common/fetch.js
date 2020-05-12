@@ -4,7 +4,8 @@ import { notification } from 'antd'
 
 const jsonHeader = {
   Accept: 'application/json',
-  'Content-Type': 'application/json'
+  'Content-Type': 'application/json',
+  token: window._config.token
 }
 
 function parseResponse (response) {

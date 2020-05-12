@@ -5,7 +5,7 @@
 export default (type, id, sessionId = '', sftpId = '') => {
   // init gloabl ws
   const { host, port } = window._config
-  const wsUrl = `ws://${host}:${port}/${type}/${id}?sessionId=${sessionId}&sftpId=${sftpId}`
+  const wsUrl = `ws://${host}:${port}/${type}/${id}?sessionId=${sessionId}&sftpId=${sftpId}&token=${window._config.token}`
   const ws = new WebSocket(wsUrl)
   ws.s = msg => {
     ws.send(JSON.stringify(msg))
