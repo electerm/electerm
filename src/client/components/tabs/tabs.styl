@@ -128,18 +128,17 @@
 
 .window-controls
   position absolute
-  right 10px
+  right 0
   -webkit-app-region no-drag
   top 0
   z-index 200
   border-radius 0 0 3px 3px
-  padding 0 0 0 4px
+  padding 0
   background #333
 
 .window-control-box
   display inline-block
-  width 20px
-  height 20px
+  padding 5px 10px
   color #ccc
   -webkit-app-region no-drag
   &:hover
@@ -175,3 +174,9 @@
 
 .add-menu-wrap
   overflow-y scroll
+.window-controls div:nth-child(1):hover
+    background #666
+.window-controls div:nth-child(2):hover
+    background #666
+.window-controls div:nth-child(3):hover
+    background red
