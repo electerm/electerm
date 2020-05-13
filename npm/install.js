@@ -11,7 +11,7 @@ const isWin = os.platform() === 'win32'
 const isMac = os.platform() === 'darwin'
 const { homepage } = require('../package.json')
 const releaseInfoUrl = `${homepage}/data/electerm-github-release.json?_=${+new Date()}`
-const versionUrl = `${homepage}/electerm/version.html?_=${+new Date()}`
+const versionUrl = `${homepage}/version.html?_=${+new Date()}`
 
 function down (url, extract = true) {
   const local = resolve(__dirname, '../')
