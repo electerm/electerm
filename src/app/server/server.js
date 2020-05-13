@@ -154,7 +154,7 @@ const quitServer = () => {
   })
 }
 
-process.on('exit', quitServer)
+// process.on('exit', quitServer)
 
 // start
 runServer()
