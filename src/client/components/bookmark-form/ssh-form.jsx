@@ -47,6 +47,7 @@ const { prefix } = window
 const e = prefix('form')
 const c = prefix('common')
 const s = prefix('setting')
+const sf = prefix('sftp')
 
 export class BookmarkForm extends React.PureComponent {
   state = {
@@ -574,7 +575,8 @@ export class BookmarkForm extends React.PureComponent {
       username,
       id = '',
       encode = encodes[0],
-      startDirectory
+      startDirectory,
+      startDirectoryLocal
     } = this.props.formData
     const {
       autofocustrigger,
@@ -710,7 +712,17 @@ export class BookmarkForm extends React.PureComponent {
         </FormItem>
         <FormItem
           {...formItemLayout}
-          label={e('startDirectory')}
+          label={`${e('startDirectory')}:${sf('local')}`}
+        >
+          {getFieldDecorator('startDirectoryLocal', {
+            initialValue: startDirectoryLocal
+          })(
+            <Input />
+          )}
+        </FormItem>
+        <FormItem
+          {...formItemLayout}
+          label={`${e('startDirectory')}:${sf('remote')}`}
         >
           {getFieldDecorator('startDirectory', {
             initialValue: startDirectory
