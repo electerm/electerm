@@ -135,24 +135,24 @@ const runServer = function () {
   })
 }
 
-const quitServer = () => {
-  Object.keys(global.upgradeInsts).forEach(k => {
-    const inst = global.upgradeInsts[k]
-    inst && inst.destroy && inst.destroy()
-  })
-  Object.keys(global.sesssions).forEach(k => {
-    const {
-      terminals,
-      sftps
-    } = global.sesssions[k]
-    sftps.forEach(s => {
-      s.kill()
-    })
-    terminals.forEach(t => {
-      t.kill()
-    })
-  })
-}
+// const quitServer = () => {
+//   Object.keys(global.upgradeInsts).forEach(k => {
+//     const inst = global.upgradeInsts[k]
+//     inst && inst.destroy && inst.destroy()
+//   })
+//   Object.keys(global.sesssions).forEach(k => {
+//     const {
+//       terminals,
+//       sftps
+//     } = global.sesssions[k]
+//     sftps.forEach(s => {
+//       s.kill()
+//     })
+//     terminals.forEach(t => {
+//       t.kill()
+//     })
+//   })
+// }
 
 // process.on('exit', quitServer)
 
