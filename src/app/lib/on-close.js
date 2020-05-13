@@ -14,6 +14,12 @@ exports.getExitStatus = async () => {
 
 exports.onClose = async function () {
   log.debug('Closing app')
+  global.childPid && process.kill(global.childPid)
+  process.on('uncaughtException', function () {
+    global.childPid && process.kill(global.childPid)
+    process.exit(0)
+  })
+  log.debug('Child process killed')
   await dbAction('data', 'update', {
     _id: 'exitStatus'
   }, {
@@ -33,11 +39,6 @@ exports.onClose = async function () {
   clearTimeout(global.et.timer)
   clearTimeout(global.et.timer1)
   global.win = null
-  global.childPid && process.kill(global.childPid)
-  process.on('uncaughtException', function () {
-    global.childPid && process.kill(global.childPid)
-    process.exit(0)
-  })
   global.app.quit()
   process.exit(0)
 }
