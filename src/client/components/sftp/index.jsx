@@ -639,7 +639,7 @@ export default class Sftp extends Component {
     )
     try {
       const noPathInit = localPathReal || this.state.localPath
-      const localPath = noPathInit || getGlobal('homeOrtmp')
+      const localPath = noPathInit || this.props.tab.startDirectoryLocal || getGlobal('homeOrtmp')
       const locals = await fs.readdirAsync(localPath)
       const local = []
       for (const name of locals) {
