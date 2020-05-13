@@ -54,7 +54,7 @@ export default class Tabs extends React.Component {
     const len = tabs.length
     const addBtnWidth = 22
     const tabsWidth = this.tabsWidth()
-    const tabsWidthAll = tabMargin * len + 10 + tabsWidth
+    const tabsWidthAll = tabMargin * len + 130 + tabsWidth
     return width < (tabsWidthAll + addBtnWidth)
   }
 
@@ -178,13 +178,13 @@ export default class Tabs extends React.Component {
         {this.renderAddBtn()}
         <Icon
           type='left'
-          className='mg1l iblock pointer font16 tab-scroll-icon'
+          className='mg1l iblock pointer font12 tab-scroll-icon'
           onClick={this.scrollLeft}
 
         />
         <Icon
           type='right'
-          className='mg1x iblock pointer font16 tab-scroll-icon'
+          className='mg1x iblock pointer font12 tab-scroll-icon'
           onClick={this.scrollRight}
         />
         <Dropdown
