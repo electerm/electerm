@@ -176,9 +176,10 @@
 .add-menu-wrap
   overflow-y scroll
 .window-controls
-  div:nth-child(1):hover
-    background #444
-  div:nth-child(2):hover
-    background #444
-  div:nth-child(3):hover
+  .window-control-minimize
+  .window-control-maximize
+    &:hover
+      background #444
+  .window-control-close:hover
     background red
+

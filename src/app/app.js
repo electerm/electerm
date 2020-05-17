@@ -53,6 +53,11 @@ global.childPid = null
 
 log.debug('App starting...')
 
+if (process.platform === 'linux') {
+  app.commandLine.appendSwitch('enable-transparent-visuals')
+  app.commandLine.appendSwitch('disable-gpu')
+}
+
 async function createWindow () {
   session.defaultSession.webRequest.onBeforeRequest((details, done) => {
     const redirectURL = details.url.replace(/^devtools:\/\/devtools\/remote\/serve_file\/@[0-9a-f]{40}/, 'https://chrome-devtools-frontend.appspot.com/serve_file/@675968a8c657a3bd9c1c2c20c5d2935577bbc5e6')
