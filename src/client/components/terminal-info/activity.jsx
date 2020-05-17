@@ -4,6 +4,10 @@
 
 import { Table } from 'antd'
 import _ from 'lodash'
+import { copy } from '../../common/clipboard'
+
+const { prefix } = window
+const m = prefix('menu')
 
 export default function TerminalInfoActivities (props) {
   const { activities } = props
@@ -17,6 +21,19 @@ export default function TerminalInfoActivities (props) {
       key: k,
       sorter: (a, b) => {
         return a[k] > b[k] ? 1 : -1
+      },
+      render: (txt) => {
+        return (
+          <div className='activity-item'>
+            <span>{txt}</span>
+            <span
+              className='pointer activity-item-copy mg1l bold color-blue'
+              onClick={() => copy(txt)}
+            >
+              {m('copy')}
+            </span>
+          </div>
+        )
       }
     }
   })
@@ -32,7 +49,7 @@ export default function TerminalInfoActivities (props) {
   }
   return (
     <div className='terminal-info-section terminal-info-act'>
-      <div className='pd1y'>Activities</div>
+      <div className='pd1y bold'>Activities</div>
       <Table {...ps} />
     </div>
   )

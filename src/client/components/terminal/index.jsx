@@ -634,7 +634,6 @@ export default class Term extends Component {
   }
 
   setActive = () => {
-    this.props.hideInfoPanel()
     this.props.setActive(this.props.id)
     this.props.store.storeAssign({
       activeTerminalId: this.props.id
