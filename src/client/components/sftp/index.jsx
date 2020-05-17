@@ -972,7 +972,7 @@ export default class Sftp extends Component {
     const {
       height, tab, width
     } = this.props
-    const host = _.get(tab, 'host')
+    const host = _.get(tab, 'host') && _.get(this.props, 'tab.type') !== terminalSshConfigType
     if (!host) {
       return (
         this.renderSection(arr[0], {
