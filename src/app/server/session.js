@@ -815,7 +815,11 @@ exports.Terminal = Terminal
  * @param {object} options
  */
 exports.testConnection = (options) => {
-  return (new Terminal(options)).remoteInit(options, true)
+  return (new Terminal(options))
+    .remoteInit(options, true)
+    .catch(() => {
+      return false
+    })
 }
 
 exports.instSftpKeys = [

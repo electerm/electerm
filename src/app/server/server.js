@@ -33,6 +33,10 @@ app.post('/terminals', verify, async function (req, res) {
   const { isTest } = req.query
   if (isTest) {
     const r = await testConnection(body)
+    if (!r) {
+      res.status(500).send('Test failed')
+      return
+    }
     res.send(r)
     return
   }
