@@ -15,6 +15,8 @@ import Sidebar from '../sidebar'
 import SystemMenu from './system-menu'
 import SessionControl from '../session-control'
 import CssOverwrite from './css-overwrite'
+import classnames from 'classnames'
+import { isMac, isWin } from '../../common/constants'
 import './wrapper.styl'
 
 export default class Index extends Component {
@@ -65,8 +67,12 @@ export default class Index extends Component {
       'storeAssign', 'addTab', 'sessionModalVisible', 'selectedSessions'
     ])
     const { terminalBackgroundImagePath } = config
+    const cls = classnames({
+      'is-mac': isMac,
+      'is-win': isWin
+    })
     return (
-      <div>
+      <div className={cls}>
         <CssOverwrite terminalBackgroundImagePath={terminalBackgroundImagePath} />
         <SessionControl {...sessProps} />
         <TextEditor

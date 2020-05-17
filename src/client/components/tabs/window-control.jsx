@@ -26,7 +26,7 @@ export default memo(props => {
   }
   return (
     <div className='window-controls'>
-      <div className='window-control-box'>
+      <div className='window-control-box window-control-minimize'>
         <Icon
           type='minus'
           title={m('minimize')}
@@ -34,7 +34,7 @@ export default memo(props => {
           onClick={minimize}
         />
       </div>
-      <div className='window-control-box'>
+      <div className='window-control-box window-control-maximize'>
         <span
           title={
             isMaximized ? m('unmaximize') : m('maximize')
@@ -48,7 +48,7 @@ export default memo(props => {
           }
         />
       </div>
-      <div className='window-control-box'>
+      <div className='window-control-box window-control-close'>
         <Icon
           type='close'
           title={m('close')}
