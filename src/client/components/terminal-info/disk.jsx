@@ -32,7 +32,7 @@ export default function TerminalInfoDisk (props) {
   }
   return (
     <div className='terminal-info-section terminal-info-disk'>
-      <div className='pd1y'>File system</div>
+      <div className='pd1y bold'>File system</div>
       <Table {...ps} />
     </div>
   )

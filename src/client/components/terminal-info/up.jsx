@@ -9,7 +9,7 @@ export default function TerminalInfoUp (props) {
   }
   return (
     <div className='terminal-info-section terminal-info-up'>
-      uptime: {uptime}
+      <b>uptime</b>: {uptime}
     </div>
   )
 }
