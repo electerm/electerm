@@ -684,6 +684,9 @@ export default class Term extends Component {
     } = tab
     const { savePassword } = this.state
     const isSshConfig = type === terminalSshConfigType
+    const termType = isSshConfig
+      ? typeMap.local
+      : type
     const extra = this.props.sessionOptions
     let pid = await fetch.post(url, {
       cols,
@@ -702,7 +705,7 @@ export default class Term extends Component {
       sessionId,
       tabId: id,
       terminalIndex,
-      termType: type,
+      termType,
       readyTimeout: config.sshReadyTimeout,
       proxy: mergeProxy(config, tab),
       type: tab.host && !isSshConfig
