@@ -3,7 +3,7 @@
  */
 
 import { isWin } from './constants'
-import { notification } from 'antd'
+import { message } from 'antd'
 
 const fileReg = isWin
   ? /^(remote:)?\w:\\.+/
@@ -14,9 +14,7 @@ export const readClipboard = () => {
 }
 
 export const copy = (str) => {
-  notification.success({
-    message: 'copied'
-  })
+  message.success('Copied', 2)
   window._require('electron').clipboard.writeText(str)
 }
 
