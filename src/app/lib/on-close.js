@@ -20,23 +20,23 @@ exports.onClose = async function () {
     process.exit(0)
   })
   log.debug('Child process killed')
-  await dbAction('data', 'update', {
-    _id: 'exitStatus'
-  }, {
-    value: 'ok',
-    _id: 'exitStatus'
-  }, {
-    upsert: true
-  })
-  await dbAction('data', 'update', {
-    _id: 'sessions'
-  }, {
-    value: null,
-    _id: 'sessions'
-  }, {
-    upsert: true
-  })
-  log.debug('session saved')
+  // await dbAction('data', 'update', {
+  //   _id: 'exitStatus'
+  // }, {
+  //   value: 'ok',
+  //   _id: 'exitStatus'
+  // }, {
+  //   upsert: true
+  // })
+  // await dbAction('data', 'update', {
+  //   _id: 'sessions'
+  // }, {
+  //   value: null,
+  //   _id: 'sessions'
+  // }, {
+  //   upsert: true
+  // })
+  // log.debug('session saved')
   clearTimeout(global.et.timer)
   clearTimeout(global.et.timer1)
   global.win = null
