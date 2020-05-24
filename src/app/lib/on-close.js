@@ -36,9 +36,9 @@ exports.onClose = async function () {
   }, {
     upsert: true
   })
+  log.debug('session saved')
   clearTimeout(global.et.timer)
   clearTimeout(global.et.timer1)
   global.win = null
   global.app.quit()
-  process.exit(0)
 }
