@@ -13,7 +13,7 @@ import createTitlte from '../../common/create-title'
 import TextEditor from '../text-editor'
 import Sidebar from '../sidebar'
 import SystemMenu from './system-menu'
-import SessionControl from '../session-control'
+// import SessionControl from '../session-control'
 import CssOverwrite from './css-overwrite'
 import classnames from 'classnames'
 import { isMac, isWin } from '../../common/constants'
@@ -63,9 +63,9 @@ export default class Index extends Component {
       storeAssign,
       config
     } = store
-    const sessProps = _.pick(store, [
-      'storeAssign', 'addTab', 'sessionModalVisible', 'selectedSessions'
-    ])
+    // const sessProps = _.pick(store, [
+    //   'storeAssign', 'addTab', 'sessionModalVisible', 'selectedSessions'
+    // ])
     const { terminalBackgroundImagePath } = config
     const cls = classnames({
       'is-mac': isMac,
@@ -74,7 +74,6 @@ export default class Index extends Component {
     return (
       <div className={cls}>
         <CssOverwrite terminalBackgroundImagePath={terminalBackgroundImagePath} />
-        <SessionControl {...sessProps} />
         <TextEditor
           key={textEditorProps.id}
           {...textEditorProps}
