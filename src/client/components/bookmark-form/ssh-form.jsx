@@ -869,6 +869,24 @@ export class BookmarkForm extends React.PureComponent {
     )
   }
 
+  renderEnableSftp = () => {
+    const { enableSftp = true } = this.props.formData
+    const { getFieldDecorator } = this.props.form
+    return (
+      <FormItem
+        {...formItemLayout}
+        label='Sftp'
+      >
+        {getFieldDecorator('enableSftp', {
+          initialValue: enableSftp,
+          valuePropName: 'checked'
+        })(
+          <Switch />
+        )}
+      </FormItem>
+    )
+  }
+
   renderQuickCommands = () => {
     const { quickCommands = [] } = this.props.formData
     const { form } = this.props
@@ -903,6 +921,7 @@ export class BookmarkForm extends React.PureComponent {
           {this.renderCommon()}
         </TabPane>
         <TabPane tab={s('settings')} key='settings' forceRender>
+          {this.renderEnableSftp()}
           {this.renderUI()}
           {this.renderProxy()}
           {this.renderX11()}

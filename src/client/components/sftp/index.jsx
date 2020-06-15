@@ -77,8 +77,15 @@ export default class Sftp extends Component {
 
   componentDidUpdate (prevProps) {
     if (
-      !_.isEqual(
-        prevProps.sshConnected, this.props.sshConnected
+      (
+        prevProps.enableSftp !== false &&
+        !prevProps.sshConnected &&
+        this.props.sshConnected
+      ) ||
+      (
+        prevProps.sshConnected &&
+        prevProps.enableSftp === false &&
+        this.props.enableSftp !== false
       )
     ) {
       this.initData(true)
@@ -972,8 +979,10 @@ export default class Sftp extends Component {
     const {
       height, tab, width
     } = this.props
-    const host = _.get(tab, 'host') && _.get(this.props, 'tab.type') !== terminalSshConfigType
-    if (!host) {
+    const shouldRenderRemote = _.get(tab, 'host') &&
+      _.get(this.props, 'tab.type') !== terminalSshConfigType &&
+      _.get(this.props, 'tab.enableSftp') !== false
+    if (!shouldRenderRemote) {
       return (
         this.renderSection(arr[0], {
           width,
