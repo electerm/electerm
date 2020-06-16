@@ -31,7 +31,12 @@ const {
   minWindowWidth, minWindowHeight,
   appPath
 } = require('./utils/app-props')
-const { getWindowSize, getScreenSize } = require('./utils/window-size')
+const {
+  getWindowSize,
+  getScreenSize,
+  maximize,
+  unmaximize
+} = require('./lib/window-control')
 const {
   prefix
 } = require('./lib/locales')
@@ -151,12 +156,8 @@ async function createWindow () {
     minimize: () => {
       global.win.minimize()
     },
-    maximize: () => {
-      global.win.maximize()
-    },
-    unmaximize: () => {
-      global.win.unmaximize()
-    },
+    maximize,
+    unmaximize,
     isMaximized: () => {
       const { width: widthMax, height: heightMax } = getScreenSize()
       const { width, height } = global.win.getBounds()
