@@ -26,15 +26,17 @@ export default memo(props => {
   }
   return (
     <div className='window-controls'>
-      <div className='window-control-box window-control-minimize'>
+      <div className='window-control-box window-control-minimize' onClick={minimize}>
         <Icon
           type='minus'
           title={m('minimize')}
           className='iblock font12 widnow-control-icon'
-          onClick={minimize}
         />
       </div>
-      <div className='window-control-box window-control-maximize'>
+      <div className='window-control-box window-control-maximize'
+        onClick={
+          isMaximized ? unmaximize : maximize
+        }>
         <span
           title={
             isMaximized ? m('unmaximize') : m('maximize')
@@ -43,17 +45,13 @@ export default memo(props => {
             'iblock font12 icon-maximize widnow-control-icon ' +
               (isMaximized ? 'is-max' : 'not-max')
           }
-          onClick={
-            isMaximized ? unmaximize : maximize
-          }
         />
       </div>
-      <div className='window-control-box window-control-close'>
+      <div className='window-control-box window-control-close' onClick={closeApp}>
         <Icon
           type='close'
           title={m('close')}
           className='iblock font12 widnow-control-icon'
-          onClick={closeApp}
         />
       </div>
     </div>
