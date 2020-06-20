@@ -49,6 +49,7 @@ const showItemInFolder = require('./lib/show-item-in-folder')
 const openItem = require('./lib/open-item')
 require('./lib/tray')
 
+app.setName(packInfo.name)
 global.et = {
   timer: null,
   timer1: null

@@ -89,7 +89,7 @@ export function update (_id, value, db = 'data', upsert = true) {
  * @return any
  */
 export async function findOne (dbName, id) {
-  const res = await dbAction('data', 'findOne', {
+  const res = await dbAction(dbName, 'findOne', {
     _id: id
   })
   if (!res) {

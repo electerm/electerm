@@ -97,7 +97,12 @@ export const verifyTheme = (themeConfig) => {
  */
 export const exportTheme = async (themeId) => {
   const themes = await findOne('terminalThemes', themeId) || buildDefaultThemes()
-  const theme = themes[themeId]
+  const theme = themes[themeId] || themes
+  if (!theme) {
+    console.log('export error', themeId)
+    return
+  }
+
   const text = convertThemeToText(theme, true)
   download(
     `${theme.name}.txt`,
