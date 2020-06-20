@@ -15,6 +15,7 @@ import { osResolve } from '../../common/resolve'
 import Link from '../common/external-link'
 import _ from 'lodash'
 import createEditLangLink from '../../common/create-lang-edit-link'
+import './setting.styl'
 
 const InputGroup = Input.Group
 const { Option } = Select
@@ -168,7 +169,7 @@ export default class Setting extends Component {
     )
   }
 
-  renderNumber = (name, options) => {
+  renderNumber = (name, options, title = '') => {
     const value = this.props.config[name]
     const defaultValue = defaultSettings[name]
     const {
@@ -187,7 +188,8 @@ export default class Setting extends Component {
       placeholder: defaultValue
     }
     return (
-      <div className={`pd2b ${cls}`}>
+      <div className={`pd2b ${cls || ''}`}>
+        <span className={ !title ? 'hide' : 'inline-title' }>{title} </span>
         <InputNumber
           {...opts}
         />
@@ -243,23 +245,55 @@ export default class Setting extends Component {
         desc: e('noTerminalBg')
       }
     ]
+    const numberOpts = {step: 0.05, min: 0, max: 1, cls: ''}
+
+    const renderFilter = () => {
+      if (this.props.config[name] == noTerminalBgValue) return;
+
+      return (
+        <div className="pd2l">
+          {
+            this.renderNumber('terminalBackgroundFilterOpacity', numberOpts, e('Opacity'))
+          }
+          {
+            this.renderNumber('terminalBackgroundFilterBlur', {min:0, max: 50, step: 0.5}, e('Blur'))
+          }
+          {
+            this.renderNumber('terminalBackgroundFilterBrightness', {min:0, max: 10, step: 0.1}, e('Brightness'))
+          }
+          {
+            this.renderNumber('terminalBackgroundFilterGrayscale', numberOpts, e('Grayscal'))
+          }
+          {
+            this.renderNumber('terminalBackgroundFilterContrast', {min:0, max: 10, step: 0.1}, e('Contrast'))
+          }
+        </div>
+      )
+    }
+
     return (
       <div className='pd2b'>
-        <Tooltip
-          title='eg: https://xx.com/xx.png or /path/to/xx.png'
-        >
-          <AutoComplete
-            value={value}
-            onChange={onChange}
-            placeholder={defaultValue}
-            className='width-100'
-            dataSource={dataSource.map(this.renderBgOption)}
+        <div className="pd1b">
+          <Tooltip
+            title='eg: https://xx.com/xx.png or /path/to/xx.png'
           >
-            <Input
-              addonAfter={after}
-            />
-          </AutoComplete>
-        </Tooltip>
+            <AutoComplete
+              value={value}
+              onChange={onChange}
+              placeholder={defaultValue}
+              className='width-100'
+              dataSource={dataSource.map(this.renderBgOption)}
+            >
+              <Input
+                addonAfter={after}
+              />
+            </AutoComplete>
+          </Tooltip>
+        </div>
+        
+        {
+          renderFilter()
+        }
       </div>
     )
   }
@@ -437,32 +471,30 @@ export default class Setting extends Component {
           </Select>
         </div>
         {this.renderProxy()}
-        <div className='pd1b'>{e('scrollBackDesc')}</div>
         {
           this.renderNumber('scrollback', {
             step: 200,
             min: 1000
-          })
+          }, e('scrollBackDesc'))
         }
-        <div className='pd1b'>{e('timeoutDesc')}</div>
         {
           this.renderNumber('sshReadyTimeout', {
             step: 200,
             min: 100,
             cls: 'timeout-desc'
-          })
+          }, e('timeoutDesc'))
         }
-        <div className='pd1b'>{e('opacity')}</div>
         {
           this.renderNumber('opacity', {
             step: 0.05,
             min: 0,
             max: 1,
             cls: 'opacity'
-          })
+          }, e('opacity'))
         }
-        <div className='pd1b'>{e('terminalTheme')}</div>
+
         <div className='pd2b'>
+          <span className="inline-title">{e('terminalTheme')}</span>
           <Select
             onChange={this.onChangeTerminalTheme}
             dropdownMatchSelectWidth={false}
@@ -478,8 +510,8 @@ export default class Setting extends Component {
             }
           </Select>
         </div>
-        <div className='pd1b'>{e('language')}</div>
         <div className='pd2b'>
+          <span className="inline-title">{e('language')}</span>
           <Select
             onChange={this.onChangeLang}
             value={language}
@@ -501,8 +533,8 @@ export default class Setting extends Component {
           <Icon type='code' theme='outlined' className='mg1r' />
           {s('terminal')} {e('settings')}
         </div>
-        <div className='pd1b'>{e('rendererType')}</div>
         <div className='pd2b'>
+          <span className="inline-title">{e('rendererType')}</span>
           <Select
             onChange={v => this.onChangeValue(v, 'rendererType')}
             value={rendererType}
@@ -517,23 +549,24 @@ export default class Setting extends Component {
             }
           </Select>
         </div>
-        <div className='pd1b'>{t('default')} {e('fontSize')}</div>
         {
           this.renderNumber('fontSize', {
             step: 1,
             min: 9
-          })
+          }, `${t('default')} ${e('fontSize')}`)
         }
-        <div className='pd1b'>{t('default')} {e('fontFamily')}</div>
-        {
-          this.renderFontFamily()
-        }
-        <div className='pd1b'>
-          {e('defaultTerminalType')}
+        <div className='pd2b'>
+          <span className="inline-title">{t('default')} {e('fontFamily')}</span>
+          {
+            this.renderFontFamily()
+          }
         </div>
-        {
-          this.renderdDefaultTerminalType()
-        }
+        <div className='pd2b'>
+          <span className="inline-title">{e('defaultTerminalType')}</span>
+          {
+            this.renderdDefaultTerminalType()
+          }
+        </div>
         <div className='pd1b'>{e('terminalBackgroundImage')}</div>
         {
           this.renderTerminalBgSelect('terminalBackgroundImagePath')

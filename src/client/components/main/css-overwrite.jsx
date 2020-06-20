@@ -12,9 +12,12 @@ export default class SystemMenu extends PureComponent {
   }
 
   componentDidUpdate (prevProps) {
-    if (prevProps.terminalBackgroundImagePath !== this.props.terminalBackgroundImagePath) {
-      this.updateCss()
-    }
+    Object.keys(this.props).some(key => {
+      if (key.startsWith('terminalBackground') && prevProps[key] !== this.props[key]) {
+        this.updateCss();
+        return true;
+      }
+    })
   }
 
   createStyle = async () => {
@@ -33,13 +36,25 @@ export default class SystemMenu extends PureComponent {
     } else if (terminalBackgroundImagePath && isWebImg) {
       st = `url(${terminalBackgroundImagePath})`
     }
-    return st
-      ? `
-    #container .xterm-viewport {
-      background-image: ${st};
+    if (!st) return ''
+
+    const styles = [`background-image: ${st}`];
+
+    if (st !== 'none') {
+      styles.push(`filter: blur(${
+        this.props.terminalBackgroundFilterBlur
+      }px) opacity(${
+        +this.props.terminalBackgroundFilterOpacity
+      }) brightness(${
+        +this.props.terminalBackgroundFilterBrightness
+      }) contrast(${
+        +this.props.terminalBackgroundFilterContrast
+      }) grayscale(${
+        +this.props.terminalBackgroundFilterGrayscale
+      })`)
     }
-    `
-      : ''
+
+    return `#container .xterm-viewport {${styles.join(';')} }`
   }
 
   writeCss = async () => {
