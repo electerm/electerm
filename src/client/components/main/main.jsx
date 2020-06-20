@@ -66,14 +66,13 @@ export default class Index extends Component {
     // const sessProps = _.pick(store, [
     //   'storeAssign', 'addTab', 'sessionModalVisible', 'selectedSessions'
     // ])
-    const { terminalBackgroundImagePath } = config
     const cls = classnames({
       'is-mac': isMac,
       'is-win': isWin
     })
     return (
       <div className={cls}>
-        <CssOverwrite terminalBackgroundImagePath={terminalBackgroundImagePath} />
+        <CssOverwrite {...config} />
         <TextEditor
           key={textEditorProps.id}
           {...textEditorProps}
