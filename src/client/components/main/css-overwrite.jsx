@@ -14,8 +14,8 @@ export default class SystemMenu extends PureComponent {
   componentDidUpdate (prevProps) {
     Object.keys(this.props).some(key => {
       if (key.startsWith('terminalBackground') && prevProps[key] !== this.props[key]) {
-        this.updateCss();
-        return true;
+        this.updateCss()
+        return true
       }
     })
   }
@@ -38,7 +38,7 @@ export default class SystemMenu extends PureComponent {
     }
     if (!st) return ''
 
-    const styles = [`background-image: ${st}`];
+    const styles = [`background-image: ${st}`]
 
     if (st !== 'none') {
       styles.push(`filter: blur(${
