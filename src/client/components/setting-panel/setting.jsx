@@ -187,9 +187,14 @@ export default class Setting extends Component {
       onChange,
       placeholder: defaultValue
     }
+    if (title) {
+      opts.formatter = v => `${title}: ${v}`
+      opts.style = {
+        width: '136px'
+      }
+    }
     return (
       <div className={`pd2b ${cls || ''}`}>
-        <span className={ !title ? 'hide' : 'inline-title' }>{title} </span>
         <InputNumber
           {...opts}
         />
@@ -245,27 +250,47 @@ export default class Setting extends Component {
         desc: e('noTerminalBg')
       }
     ]
-    const numberOpts = {step: 0.05, min: 0, max: 1, cls: ''}
+    const numberOpts = { step: 0.05, min: 0, max: 1, cls: 'bg-img-setting' }
 
     const renderFilter = () => {
-      if (this.props.config[name] == noTerminalBgValue) return;
+      if (this.props.config[name] === noTerminalBgValue) return
 
       return (
-        <div className="pd2l">
+        <div>
           {
-            this.renderNumber('terminalBackgroundFilterOpacity', numberOpts, e('Opacity'))
+            this.renderNumber(
+              'terminalBackgroundFilterOpacity',
+              numberOpts,
+              e('Opacity')
+            )
           }
           {
-            this.renderNumber('terminalBackgroundFilterBlur', {min:0, max: 50, step: 0.5}, e('Blur'))
+            this.renderNumber(
+              'terminalBackgroundFilterBlur',
+              { ...numberOpts, min: 0, max: 50, step: 0.5 },
+              e('Blur')
+            )
           }
           {
-            this.renderNumber('terminalBackgroundFilterBrightness', {min:0, max: 10, step: 0.1}, e('Brightness'))
+            this.renderNumber(
+              'terminalBackgroundFilterBrightness',
+              { ...numberOpts, min: 0, max: 10, step: 0.1 },
+              e('Brightness')
+            )
           }
           {
-            this.renderNumber('terminalBackgroundFilterGrayscale', numberOpts, e('Grayscal'))
+            this.renderNumber(
+              'terminalBackgroundFilterGrayscale',
+              numberOpts,
+              e('Grayscale')
+            )
           }
           {
-            this.renderNumber('terminalBackgroundFilterContrast', {min:0, max: 10, step: 0.1}, e('Contrast'))
+            this.renderNumber(
+              'terminalBackgroundFilterContrast',
+              { ...numberOpts, min: 0, max: 10, step: 0.1 },
+              e('Contrast')
+            )
           }
         </div>
       )
@@ -273,7 +298,7 @@ export default class Setting extends Component {
 
     return (
       <div className='pd2b'>
-        <div className="pd1b">
+        <div className='pd1b'>
           <Tooltip
             title='eg: https://xx.com/xx.png or /path/to/xx.png'
           >
@@ -290,7 +315,7 @@ export default class Setting extends Component {
             </AutoComplete>
           </Tooltip>
         </div>
-        
+
         {
           renderFilter()
         }
@@ -494,7 +519,7 @@ export default class Setting extends Component {
         }
 
         <div className='pd2b'>
-          <span className="inline-title">{e('terminalTheme')}</span>
+          <span className='inline-title'>{e('terminalTheme')}</span>
           <Select
             onChange={this.onChangeTerminalTheme}
             dropdownMatchSelectWidth={false}
@@ -511,7 +536,7 @@ export default class Setting extends Component {
           </Select>
         </div>
         <div className='pd2b'>
-          <span className="inline-title">{e('language')}</span>
+          <span className='inline-title'>{e('language')}</span>
           <Select
             onChange={this.onChangeLang}
             value={language}
@@ -534,7 +559,7 @@ export default class Setting extends Component {
           {s('terminal')} {e('settings')}
         </div>
         <div className='pd2b'>
-          <span className="inline-title">{e('rendererType')}</span>
+          <span className='inline-title'>{e('rendererType')}</span>
           <Select
             onChange={v => this.onChangeValue(v, 'rendererType')}
             value={rendererType}
@@ -556,13 +581,13 @@ export default class Setting extends Component {
           }, `${t('default')} ${e('fontSize')}`)
         }
         <div className='pd2b'>
-          <span className="inline-title">{t('default')} {e('fontFamily')}</span>
+          <span className='inline-title'>{t('default')} {e('fontFamily')}</span>
           {
             this.renderFontFamily()
           }
         </div>
         <div className='pd2b'>
-          <span className="inline-title">{e('defaultTerminalType')}</span>
+          <span className='inline-title'>{e('defaultTerminalType')}</span>
           {
             this.renderdDefaultTerminalType()
           }
