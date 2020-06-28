@@ -29,7 +29,7 @@
     ]
   },
   "linux": {
-    "category": "Development",
+    "category": "Development;System;TerminalEmulator",
     "icon": "node_modules/@electerm/electerm-resource/res/imgs",
     "target": [
       "rpm",
