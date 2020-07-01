@@ -576,6 +576,13 @@ export default class Sftp extends Component {
         if (type === fileTypeMap.link) {
           const linkPath = resolve(remotePath, name)
           let realpath = await sftp.readlink(linkPath)
+            .catch(e => {
+              console.debug(e)
+              return null
+            })
+          if (!realpath) {
+            continue
+          }
           if (!isAbsPath(realpath)) {
             realpath = resolve(remotePath, realpath)
             realpath = await sftp.realpath(realpath)
