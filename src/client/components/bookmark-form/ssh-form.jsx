@@ -792,7 +792,8 @@ export class BookmarkForm extends React.PureComponent {
     const {
       fontFamily: defaultFontFamily,
       fontSize: defaultFontSize,
-      terminalType: defaultTerminalType
+      terminalType: defaultTerminalType,
+      envLang
     } = defaultSettings
     const {
       fontFamily,
@@ -801,6 +802,20 @@ export class BookmarkForm extends React.PureComponent {
     } = this.props.formData
     const { terminalTypes } = this.props.store.config
     return [
+      <FormItem
+        {...formItemLayout}
+        label='ENV:LANG'
+        key='envLang'
+      >
+        {getFieldDecorator('envLang', {
+          rules: [{
+            max: 130, message: '130 chars max'
+          }],
+          initialValue: envLang
+        })(
+          <Input placeholder='en_US.UTF-8' />
+        )}
+      </FormItem>,
       <FormItem
         {...formItemLayout}
         key='terminalType'
