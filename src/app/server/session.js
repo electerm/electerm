@@ -254,6 +254,11 @@ class Terminal {
       const shellOpts = {
         x11
       }
+      if (initOptions.envLang) {
+        shellOpts.env = {
+          LANG: initOptions.envLang
+        }
+      }
       const shellWindow = this.getShellWindow()
       const run = (info) => {
         if (info && info.socket) {
