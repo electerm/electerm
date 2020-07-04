@@ -792,13 +792,13 @@ export class BookmarkForm extends React.PureComponent {
     const {
       fontFamily: defaultFontFamily,
       fontSize: defaultFontSize,
-      terminalType: defaultTerminalType,
-      envLang
+      terminalType: defaultTerminalType
     } = defaultSettings
     const {
       fontFamily,
       fontSize,
-      term = defaultTerminalType
+      term = defaultTerminalType,
+      envLang
     } = this.props.formData
     const { terminalTypes } = this.props.store.config
     return [
