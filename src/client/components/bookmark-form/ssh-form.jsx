@@ -184,6 +184,7 @@ export class BookmarkForm extends React.PureComponent {
       bookmarkGroups
     })
     this.props.store.batchDbUpdate(updates)
+    message.success('OK', 3)
   }
 
   submit = (evt, item, type = this.props.type) => {
