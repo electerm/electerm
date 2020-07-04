@@ -32,6 +32,7 @@ import getInitItem from '../../common/init-setting-item'
 import formatBookmarkGroups from './bookmark-group-tree-format'
 import defaultSettings from '../../../app/common/default-setting'
 import testConnection from '../../common/test-connection'
+import findBookmarkGroupId from '../../common/find-bookmark-group-id'
 import './bookmark-form.styl'
 
 const { TabPane } = Tabs
@@ -122,15 +123,8 @@ export class BookmarkForm extends React.PureComponent {
       currentBookmarkGroupId
     } = props
     return id
-      ? this.findBookmarkGroupId(bookmarkGroups, id)
+      ? findBookmarkGroupId(bookmarkGroups, id)
       : currentBookmarkGroupId
-  }
-
-  findBookmarkGroupId = (bookmarkGroups, id) => {
-    const obj = _.find(bookmarkGroups, bg => {
-      return bg.bookmarkIds.includes(id)
-    })
-    return obj ? obj.id : defaultBookmarkGroupId
   }
 
   updateBookmarkGroups = (bookmarkGroups, bookmark, categoryId) => {
@@ -586,7 +580,7 @@ export class BookmarkForm extends React.PureComponent {
     } = this.props
     const { dns } = this.state
     const initBookmarkGroupId = !id.startsWith(newBookmarkIdPrefix)
-      ? this.findBookmarkGroupId(bookmarkGroups, id)
+      ? findBookmarkGroupId(bookmarkGroups, id)
       : currentBookmarkGroupId
     const tree = formatBookmarkGroups(bookmarkGroups)
     return (

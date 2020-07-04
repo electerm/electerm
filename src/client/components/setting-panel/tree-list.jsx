@@ -25,6 +25,7 @@ import copy from 'json-deep-copy'
 import onDrop from './on-tree-drop'
 import Search from '../common/search'
 import Btns from './bookmark-transport'
+import findBookmarkGroupId from '../../common/find-bookmark-group-id'
 import getInitItem from '../../common/init-setting-item'
 import './tree-list.styl'
 
@@ -255,6 +256,10 @@ export default class ItemListTree extends React.PureComponent {
       this.props.store.storeAssign({
         currentBookmarkGroupId: id
       })
+    } else {
+      this.props.store.storeAssign({
+        currentBookmarkGroupId: findBookmarkGroupId(this.props.store.bookmarkGroups, id)
+      })
     }
     const { bookmarks } = this.props
     const bookmark = _.find(
@@ -401,7 +406,7 @@ export default class ItemListTree extends React.PureComponent {
       deplicateIndex = bookmarkWithSameTitle.length
     }
     newbookmark.title = item.title + '(' + deplicateIndex + ')'
-    const categoryId = this.findBookmarkGroupId(bookmarkGroups, item.id)
+    const categoryId = findBookmarkGroupId(bookmarkGroups, item.id)
     this.props.store.storeAssign({
       currentBookmarkGroupId: categoryId
     })
@@ -471,13 +476,6 @@ export default class ItemListTree extends React.PureComponent {
     this.props.store.batchDbUpdate(updates)
   }
 
-  findBookmarkGroupId = (bookmarkGroups, id) => {
-    const obj = _.find(bookmarkGroups, bg => {
-      return bg.bookmarkIds.includes(id)
-    })
-    return obj ? obj.id : defaultBookmarkGroupId
-  }
-
   findBookmarkByTitle = (bookmarks, oldBookmark) => {
     return _.filter(bookmarks, bookmark => {
       return bookmark.title.includes(oldBookmark.title) && bookmark.host === oldBookmark.host && bookmark.port === oldBookmark.port
@@ -523,9 +521,6 @@ export default class ItemListTree extends React.PureComponent {
       <div className={cls} key={item.id} title={title}>
         <div
           className='tree-item-title elli'
-          onClick={() => {
-            this.props.store.currentBookmarkGroupId = item.id
-          }}
         >
           {title}
         </div>
