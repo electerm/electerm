@@ -28,6 +28,7 @@ import { getLocalFileInfo, getFolderFromFilePath, getRemoteFileInfo } from './fi
 import { readClipboard, copy as copyToClipboard, hasFileInClipboardText } from '../../common/clipboard'
 import fs from '../../common/fs'
 import time from '../../../app/common/time'
+import filesize from 'filesize'
 
 const { prefix } = window
 const e = prefix('sftp')
@@ -1062,6 +1063,8 @@ export default class FileSection extends React.Component {
     } = file
     if (isDirectory && name === 'size') {
       value = null
+    } else if (!isDirectory && name === 'size') {
+      value = filesize(value)
     }
     if (name === 'name') {
       const type = isDirectory
