@@ -9,6 +9,10 @@ import highlight from '../common/highlight'
 import { settingMap } from '../../common/constants'
 
 export default class QuickCommandsList extends List {
+  componentDidMount () {
+    this.props.form.validateFields(['quickCommands'])
+  }
+
   del = (item, e) => {
     e.stopPropagation()
     this.props.store.delItem(item, settingMap.quickCommands)
