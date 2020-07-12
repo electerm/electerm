@@ -29,7 +29,7 @@ describe('quick commands', function () {
     await client.waitUntilWindowLoaded()
 
     log('open setting')
-    await delay(500)
+    await delay(1000)
     await client.execute(function () {
       document.querySelector('.btns .anticon-setting').click()
     })
