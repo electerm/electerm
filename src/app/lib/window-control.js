@@ -14,8 +14,9 @@ exports.maximize = () => {
   global.oldRectangle = global.win.getBounds()
   global.win.setPosition(0, 0)
   const {
-    width, height
+    width, height, x, y
   } = exports.getScreenSize()
+  global.win.setPosition(x, y)
   global.win.setSize(width, height)
 }
 
