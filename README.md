@@ -120,7 +120,7 @@ npm run release -l
 
 ## Change log
 
-Visit [Releases](https://github.com/electerm/electerm/releases)
+Visit [Releases](https://github.com/electerm/electerm/releases).
 
 ## License
 
