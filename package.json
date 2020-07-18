@@ -127,7 +127,7 @@
     "font-list": "1.2.6",
     "gist-wrapper": "0.1.0",
     "json-deep-copy": "1.1.1",
-    "lodash": "4.17.15",
+    "lodash": "4.17.19",
     "nedb": "1.8.0",
     "node-pty": "0.9.0",
     "os-locale": "4.0.0",
