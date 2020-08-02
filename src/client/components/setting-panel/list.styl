@@ -5,11 +5,16 @@
 .list-item-remove
   display none
   position absolute
-  right 5px
-  top 50%
-  margin-top -6px
-
+  margin-right 5px
+.list-item-edit
+  display none
+  flex auto
+  line-height 31px
+  margin-right 5px
+.list-item-title
+  flex 90%
 .item-list-unit
+  display flex
   position relative
   margin-bottom 1px
   cursor pointer
@@ -24,5 +29,6 @@
     background #08c
     color #fff
     .list-item-apply
+    .list-item-edit
     .list-item-remove
       display block

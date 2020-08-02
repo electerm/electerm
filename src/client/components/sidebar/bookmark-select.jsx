@@ -53,6 +53,8 @@ export default class BookmarkSelect extends Component {
       : (
         <ItemList
           {...props0}
+          staticList
+          store={store}
           list={props0.bookmarks || []}
           onClickItem={item => store.onSelectBookmark(item.id)}
         />

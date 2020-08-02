@@ -31,6 +31,11 @@ export default class ItemList extends React.PureComponent {
     this.props.store.delItem(item, this.props.type)
   }
 
+  editItem = (e, item, isGroup) => {
+    e.stopPropagation()
+    this.props.store.openBookmarkEdit(item)
+  }
+
   renderSearch = () => {
     return (
       <div className='pd1y pd2r'>
@@ -89,6 +94,7 @@ export default class ItemList extends React.PureComponent {
       title,
       this.state.keyword
     )
+    const isGroup = false
     return (
       <div
         key={i + '__' + id}
@@ -99,9 +105,10 @@ export default class ItemList extends React.PureComponent {
           title={title}
           placement='right'
         >
-          <div className='elli pd1y pd2x'>{title || s('new')}</div>
+          <div className='elli pd1y pd2x list-item-title'>{title || s('new')}</div>
         </Tooltip>
         {this.renderDelBtn(item)}
+        {this.renderEditBtn(item, isGroup)}
       </div>
     )
   }
@@ -113,6 +120,23 @@ export default class ItemList extends React.PureComponent {
         return createName(item).toLowerCase().includes(keyword.toLowerCase())
       })
       : list
+  }
+
+  renderEditBtn = (item, isGroup) => {
+    if (
+      (this.props.staticList && isGroup) ||
+      (!this.props.staticList && !isGroup)
+    ) {
+      return null
+    }
+    return (
+      <Icon
+        type='edit'
+        title={e('edit')}
+        onClick={(e) => this.editItem(e, item, isGroup)}
+        className='pointer list-item-edit'
+      />
+    )
   }
 
   render () {
