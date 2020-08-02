@@ -1,7 +1,7 @@
 /**
  * log ssh output to file
  */
-console.log('process.env', process.env.appPath)
+
 const { appPath } = process.env
 const { resolve } = require('path')
 const { existsSync, mkdirSync, createWriteStream } = require('fs')

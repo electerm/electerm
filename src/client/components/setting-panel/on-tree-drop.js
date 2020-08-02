@@ -61,7 +61,7 @@ export default (info, props) => {
 
   // drag default cateogry to nongap
   if (fromId === defaultBookmarkGroupId && !dropToGap) {
-    console.log('return', 'drag default cateogry to nongap')
+    // console.log('return', 'drag default cateogry to nongap')
     return
   }
 
