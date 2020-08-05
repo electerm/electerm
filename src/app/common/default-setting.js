@@ -23,5 +23,6 @@ module.exports = exports.default = {
   rendererType: 'canvas',
   terminalType: 'xterm-256color',
   keepaliveCountMax: 10,
-  saveTerminalLogToFile: false
+  saveTerminalLogToFile: false,
+  checkUpdateOnStart: true
 }
