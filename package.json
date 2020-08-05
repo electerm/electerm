@@ -1,6 +1,6 @@
 {
   "name": "electerm",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "Terminal/ssh/sftp client(linux, mac, win) based on electron/ssh2/node-pty/xterm/antd/subx and other libs",
   "main": "app.js",
   "bin": "npm/electerm",
@@ -136,7 +136,7 @@
     "react": "16.13.0",
     "react-dom": "16.13.0",
     "recursive-assign": "0.2.0",
-    "serialport": "8.0.7",
+    "serialport": "9.0.0",
     "shortid": "2.2.15",
     "socks": "2.3.3",
     "ssh-config": "4.0.2",

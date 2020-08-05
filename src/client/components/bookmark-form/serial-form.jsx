@@ -16,6 +16,7 @@ import {
   commonParities,
   terminalSerialType
 } from '../../common/constants'
+import findBookmarkGroupId from '../../common/find-bookmark-group-id'
 
 const { TabPane } = Tabs
 const FormItem = Form.Item
@@ -58,7 +59,7 @@ class SerialForm extends BookmarkForm {
       currentBookmarkGroupId
     } = this.props
     const initBookmarkGroupId = id
-      ? this.findBookmarkGroupId(bookmarkGroups, id)
+      ? findBookmarkGroupId(bookmarkGroups, id)
       : currentBookmarkGroupId
 
     return (
