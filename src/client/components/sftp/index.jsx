@@ -810,6 +810,7 @@ export default class Sftp extends Component {
             this[type + 'Dom'] = ref
           }}
           draggable={false}
+          cls='virtual-file-unit'
           key={'empty' + type}
         />
       </div>

@@ -3,6 +3,7 @@ const { Application } = require('spectron')
 const delay = require('./common/wait')
 const { expect } = require('chai')
 const appOptions = require('./common/app-options')
+const extendClient = require('./common/client-extend')
 
 describe('tabs', function () {
   this.timeout(100000)
@@ -18,33 +19,35 @@ describe('tabs', function () {
     }
   })
 
-  it('add tab button works', async function () {
+  it('double click to duplicate tab button works', async function () {
     const { client } = this.app
+    extendClient(client)
     await client.waitUntilWindowLoaded()
     await delay(500)
     const tabs = await client.elements('.tabs .tab')
-    const tabsLenBefore = tabs.value.length
+    const tabsLenBefore = tabs.length
     await client.doubleClick('.tab')
     await delay(500)
     const tabs0 = await client.elements('.tabs .tab')
-    expect(tabs0.value.length).equal(tabsLenBefore + 1)
+    expect(tabs0.length).equal(tabsLenBefore + 1)
     const wraps = await client.elements('.ui-outer > div')
-    expect(wraps.value.length).equal(tabsLenBefore + 1)
+    expect(wraps.length).equal(tabsLenBefore + 1)
     await delay(500)
   })
 
-  it('double click to duplicate tab button works', async function () {
+  it('add tab button works', async function () {
     const { client } = this.app
+    extendClient(client)
     await client.waitUntilWindowLoaded()
     await delay(500)
     const tabs = await client.elements('.tabs .tab')
-    const tabsLenBefore = tabs.value.length
+    const tabsLenBefore = tabs.length
     await client.click('.tabs .tabs-add-btn')
     await delay(500)
     const tabs0 = await client.elements('.tabs .tab')
-    expect(tabs0.value.length).equal(tabsLenBefore + 1)
+    expect(tabs0.length).equal(tabsLenBefore + 1)
     const wraps = await client.elements('.ui-outer > div')
-    expect(wraps.value.length).equal(tabsLenBefore + 1)
+    expect(wraps.length).equal(tabsLenBefore + 1)
     await delay(500)
   })
 })

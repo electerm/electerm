@@ -1094,7 +1094,7 @@ export default class FileSection extends React.Component {
   }
 
   render () {
-    const { type, selectedFiles, draggable = true, properties = [], onDragStart } = this.props
+    const { type, selectedFiles, draggable = true, properties = [], onDragStart, cls = '' } = this.props
     const { file } = this.state
     const {
       isDirectory,
@@ -1105,7 +1105,7 @@ export default class FileSection extends React.Component {
       return this.renderEditting(file)
     }
     const selected = _.some(selectedFiles.filter(d => d), s => s.id === id)
-    const className = classnames('sftp-item', type, {
+    const className = classnames('sftp-item', cls, type, {
       directory: isDirectory,
       selected
     })

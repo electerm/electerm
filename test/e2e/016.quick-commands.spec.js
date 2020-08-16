@@ -8,6 +8,7 @@ const { expect } = require('chai')
 const delay = require('./common/wait')
 const log = require('./common/log')
 const appOptions = require('./common/app-options')
+const extendClient = require('./common/client-extend')
 
 describe('quick commands', function () {
   this.timeout(100000)
@@ -25,20 +26,15 @@ describe('quick commands', function () {
 
   it('quick commands form', async function () {
     const { client } = this.app
-
+    extendClient(client)
     await client.waitUntilWindowLoaded()
 
     log('open setting')
     await delay(1000)
-    await client.execute(function () {
-      document.querySelector('.btns .anticon-setting').click()
-    })
+    await client.click('.btns .anticon-setting')
     await delay(1500)
     log('click quick commands')
-    await client.execute(function () {
-      document.querySelectorAll('.setting-tabs [role="tab"]')[4].click()
-    })
-
+    await client.click('.setting-tabs [role="tab"]', 4)
     client.setValue(
       '.setting-tabs-quick-commands input[autofocustrigger]',
       'ls'
@@ -52,7 +48,7 @@ describe('quick commands', function () {
     await client.click('.setting-tabs-quick-commands .ant-btn')
     await delay(2550)
     const qmlist2 = await client.elements('.setting-tabs-quick-commands .item-list-unit')
-    log(qmlist2.value.length)
-    expect(qmlist2.value.length).equal(qmlist1.value.length + 1)
+    log(qmlist2.length)
+    expect(qmlist2.length).equal(qmlist1.length + 1)
   })
 })
