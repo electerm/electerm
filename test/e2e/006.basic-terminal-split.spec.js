@@ -7,6 +7,7 @@ const { Application } = require('spectron')
 const { expect } = require('chai')
 const delay = require('./common/wait')
 const appOptions = require('./common/app-options')
+const extendClient = require('./common/client-extend')
 
 describe('terminal split', function () {
   this.timeout(100000)
@@ -24,26 +25,20 @@ describe('terminal split', function () {
 
   it('split button works', async function () {
     const { client } = this.app
-
+    extendClient(client)
     await client.waitUntilWindowLoaded()
     await delay(500)
-    await client.execute(function () {
-      document.querySelector('.ssh-wrap-show .term-controls .icon-split').click()
-    })
+    await client.click('.ssh-wrap-show .term-controls .icon-split')
     await delay(200)
     let terms = await client.elements('.ssh-wrap-show .term-wrap')
-    expect(terms.value.length).equal(2)
-    await client.execute(function () {
-      document.querySelector('.ssh-wrap-show .term-controls .icon-split').click()
-    })
+    expect(terms.length).equal(2)
+    await client.click('.ssh-wrap-show .term-controls .icon-split')
     await delay(200)
     terms = await client.elements('.ssh-wrap-show .term-wrap')
-    expect(terms.value.length).equal(3)
-    await client.execute(function () {
-      document.querySelector('.ssh-wrap-show .term-controls .icon-trash').click()
-    })
+    expect(terms.length).equal(3)
+    await client.click('.ssh-wrap-show .term-controls .icon-trash')
     await delay(200)
     terms = await client.elements('.ssh-wrap-show .term-wrap')
-    expect(terms.value.length).equal(2)
+    expect(terms.length).equal(2)
   })
 })

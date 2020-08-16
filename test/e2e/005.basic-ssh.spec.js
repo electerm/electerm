@@ -13,6 +13,7 @@ const { expect } = require('chai')
 const delay = require('./common/wait')
 const basicTermTest = require('./common/basic-terminal-test')
 const appOptions = require('./common/app-options')
+const extendClient = require('./common/client-extend')
 
 describe('ssh', function () {
   this.timeout(100000)
@@ -30,6 +31,7 @@ describe('ssh', function () {
 
   it('should open window and basic ssh ls command works', async function () {
     const { client } = this.app
+    extendClient(client)
     const cmd = 'ls'
     await client.waitUntilWindowLoaded()
     await delay(500)
@@ -38,13 +40,11 @@ describe('ssh', function () {
     await client.setValue('#host', TEST_HOST)
     await client.setValue('#username', TEST_USER)
     await client.setValue('#password', TEST_PASS)
-    await client.execute(function () {
-      document.querySelector('.ant-modal .ant-tabs-tabpane-active .ant-btn-primary').click()
-    })
+    await client.click('.ant-modal .ant-tabs-tabpane-active .ant-btn-primary')
     await delay(1500)
     const tabsCount = await client.elements('.tabs .tabs-wrapper .tab')
 
-    expect(tabsCount.value.length).equal(2)
+    expect(tabsCount.length).equal(2)
     await delay(2010)
     await basicTermTest(this, client, cmd)
   })

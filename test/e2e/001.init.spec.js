@@ -36,17 +36,22 @@ describe('main window', function () {
 
     await client.waitUntilWindowLoaded()
     await delay(500)
+    const { $ } = client
+    client.click = (sel) => {
+      $(sel).click()
+    }
 
     log('title')
     const title = await browserWindow.getTitle()
     expect(title).includes(packInfo.name)
 
     log('elements')
-    const wrap = await client.element('#outside-context')
+    const wrap = await $('#outside-context')
+    console.log(wrap)
     expect(!!wrap.value).equal(true)
-    const tabs = await client.element('.tabs')
+    const tabs = await $('.tabs')
     expect(!!tabs.value).equal(true)
-    const term = await client.element('.xterm')
+    const term = await $('.xterm')
     expect(!!term.value).equal(true)
 
     log('button click')
@@ -54,7 +59,7 @@ describe('main window', function () {
     log('button:edit')
     await client.click('.btns .anticon-plus-circle')
     await delay(500)
-    const active = await client.element('.ant-modal .ant-tabs-line > .ant-tabs-bar .ant-tabs-tab-active')
+    const active = await $('.ant-modal .ant-tabs-line > .ant-tabs-bar .ant-tabs-tab-active')
     expect(!!active.value).equal(true)
 
     log('button:close modal')
@@ -68,7 +73,7 @@ describe('main window', function () {
 
     log('button:about')
     await client.click('.btns .anticon-info-circle-o')
-    const c = await client.element('.ant-modal.ant-modal-confirm')
+    const c = await $('.ant-modal.ant-modal-confirm')
     expect(!!c.value).equal(true)
 
     log('button:close info modal')
@@ -82,7 +87,7 @@ describe('main window', function () {
     log('button:add new tab')
     await client.click('.tabs .tabs-add-btn')
     await delay(900)
-    const count = await client.elements('.tabs .tab')
+    const count = await $s('.tabs .tab')
     expect(count.value.length).equal(2)
   })
 })

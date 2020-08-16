@@ -4,6 +4,7 @@ const log = require('./common/log')
 const { expect } = require('chai')
 const appOptions = require('./common/app-options')
 const prefixer = require('./common/lang')
+const extendClient = require('./common/client-extend')
 
 describe('init setting buttons', function () {
   this.timeout(100000)
@@ -22,6 +23,8 @@ describe('init setting buttons', function () {
 
   it('all buttons open proper setting tab', async function () {
     const { client, electron } = this.app
+    client.element = client.$
+    extendClient(client)
     const prefix = await prefixer(electron)
     const e = prefix('common')
     await client.waitUntilWindowLoaded()
@@ -32,7 +35,7 @@ describe('init setting buttons', function () {
     await delay(500)
     const sel = '.ant-modal .ant-tabs-line > .ant-tabs-bar .ant-tabs-tab-active'
     const active = await client.element(sel)
-    expect(!!active.value).equal(true)
+    expect(!!active.elementId).equal(true)
     const text = await client.getText(sel)
     expect(text).equal(e('bookmarks'))
 
@@ -48,35 +51,27 @@ describe('init setting buttons', function () {
     })
     await delay(1500)
     const active1 = await client.element(sel)
-    expect(!!active1.value).equal(true)
+    expect(!!active1.elementId).equal(true)
     const text1 = await client.getText(sel)
     expect(text1).equal(e('setting'))
     log('close')
-    await client.execute(function () {
-      document.querySelector('.ant-modal .ant-modal-close').click()
-    })
+    await client.click('.ant-modal .ant-modal-close')
     await delay(900)
 
     log('button:new ssh')
-    await client.execute(function () {
-      document.querySelector('.btns .anticon-plus-circle').click()
-    })
+    await client.click('.btns .anticon-plus-circle')
     await delay(1000)
     const active2 = await client.element(sel)
-    expect(!!active2.value).equal(true)
+    expect(!!active2.elementId).equal(true)
     const text2 = await client.getText(sel)
     expect(text2).equal(e('bookmarks'))
 
     log('tab it')
-    await client.execute(function () {
-      document.querySelectorAll('.ant-modal .ant-tabs-tab')[2].click()
-    })
+    await client.click('.ant-modal .ant-tabs-tab:nth-child(3)')
     await delay(100)
     const text4 = await client.getText(sel)
     expect(text4).equal(e('setting'))
-    await client.execute(function () {
-      document.querySelector('.ant-modal .ant-modal-close').click()
-    })
+    await client.click('.ant-modal .ant-modal-close')
     await delay(600)
 
     log('button:edit again')
