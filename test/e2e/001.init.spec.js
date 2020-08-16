@@ -87,7 +87,7 @@ describe('main window', function () {
     log('button:add new tab')
     await client.click('.tabs .tabs-add-btn')
     await delay(900)
-    const count = await $s('.tabs .tab')
+    const count = await $('.tabs .tab')
     expect(count.value.length).equal(2)
   })
 })
