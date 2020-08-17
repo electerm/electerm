@@ -12,6 +12,7 @@ const {
   session
 } = require('electron')
 const { dbAction } = require('./lib/nedb')
+const { listSerialPorts } = require('./lib/serial-port')
 const { getAllConfig } = require('./lib/get-config')
 const initServer = require('./lib/init-server')
 const sshConfigItems = require('./lib/ssh-config')
@@ -118,6 +119,7 @@ async function createWindow () {
     : await getExitStatus()
 
   Object.assign(global.et, {
+    listSerialPorts,
     loadFontList,
     _config: config,
     getAllConfig,

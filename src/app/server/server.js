@@ -9,6 +9,7 @@ const initWs = require('./dispatch-center')
 const {
   terminals
 } = require('./remote-common')
+const { listSerialPorts } = require('../lib/serial-port')
 const { token } = process.env
 
 app.use(cors())
@@ -124,6 +125,11 @@ app.ws('/terminals/:pid', function (ws, req) {
   ws.on('error', log.error)
 
   ws.on('close', onClose)
+})
+
+app.get('/serial-port', verify, async (req, res) => {
+  const list = await listSerialPorts()
+  res.send(list)
 })
 
 app.get('/run', function (req, res) {

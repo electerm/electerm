@@ -19,7 +19,9 @@ const installSrc = getGlobal('installSrc')
 
 export default class Upgrade extends Component {
   componentDidMount () {
-    this.getLatestReleaseInfo()
+    if (this.props.store.config.checkUpdateOnStart !== false) {
+      this.getLatestReleaseInfo()
+    }
   }
 
   componentDidUpdate (prevProps) {

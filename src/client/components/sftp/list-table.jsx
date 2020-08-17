@@ -489,6 +489,7 @@ export default class FileListTable extends React.Component {
       <FileSection
         {...this.props.getFileProps(item, type)}
         key={i + '*f*' + item.id}
+        cls='real-file-item'
         properties={this.state.properties}
       />
     )

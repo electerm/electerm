@@ -169,7 +169,7 @@ export default class Setting extends Component {
     )
   }
 
-  renderNumber = (name, options, title = '') => {
+  renderNumber = (name, options, title = '', width = 136) => {
     const value = this.props.config[name]
     const defaultValue = defaultSettings[name]
     const {
@@ -190,7 +190,7 @@ export default class Setting extends Component {
     if (title) {
       opts.formatter = v => `${title}: ${v}`
       opts.style = {
-        width: '136px'
+        width: width + 'px'
       }
     }
     return (
@@ -500,14 +500,14 @@ export default class Setting extends Component {
           this.renderNumber('scrollback', {
             step: 200,
             min: 1000
-          }, e('scrollBackDesc'))
+          }, e('scrollBackDesc'), 300)
         }
         {
           this.renderNumber('sshReadyTimeout', {
             step: 200,
             min: 100,
             cls: 'timeout-desc'
-          }, e('timeoutDesc'))
+          }, e('timeoutDesc'), 400)
         }
         {
           this.renderNumber('opacity', {
@@ -515,7 +515,7 @@ export default class Setting extends Component {
             min: 0,
             max: 1,
             cls: 'opacity'
-          }, e('opacity'))
+          }, e('opacity'), 300)
         }
 
         <div className='pd2b'>
@@ -615,7 +615,8 @@ export default class Setting extends Component {
             'copyWhenSelect',
             'disableSshHistory',
             'disableTransferHistory',
-            'ctrlOrMetaOpenTerminalLink'
+            'ctrlOrMetaOpenTerminalLink',
+            'checkUpdateOnStart'
           ].map(this.renderToggle)
         }
         {this.renderToggle('saveTerminalLogToFile', (

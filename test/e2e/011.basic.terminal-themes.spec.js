@@ -4,6 +4,7 @@ const log = require('./common/log')
 const { expect } = require('chai')
 const appOptions = require('./common/app-options')
 const prefixer = require('./common/lang')
+const extendClient = require('./common/client-extend')
 
 describe('terminal themes', function () {
   this.timeout(100000)
@@ -21,6 +22,7 @@ describe('terminal themes', function () {
 
   it('all buttons open proper terminal themes tab', async function () {
     const { client, electron } = this.app
+    extendClient(client)
     const prefix = await prefixer(electron)
     const e = prefix('common')
     const t = prefix('terminalThemes')
@@ -32,7 +34,7 @@ describe('terminal themes', function () {
     await delay(500)
     const sel = '.ant-modal .ant-tabs-line > .ant-tabs-bar .ant-tabs-tab-active'
     const active = await client.element(sel)
-    expect(!!active.value).equal(true)
+    expect(!!active.elementId).equal(true)
     const text = await client.getText(sel)
     expect(text).equal(t('terminalThemes'))
 

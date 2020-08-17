@@ -4,6 +4,7 @@ const log = require('./common/log')
 const { expect } = require('chai')
 const appOptions = require('./common/app-options')
 const prefixer = require('./common/lang')
+const extendClient = require('./common/client-extend')
 
 describe('history', function () {
   this.timeout(100000)
@@ -21,6 +22,7 @@ describe('history', function () {
 
   it('all buttons open proper history tab', async function () {
     const { client, electron } = this.app
+    extendClient(client)
     const prefix = await prefixer(electron)
     const e = prefix('common')
     await client.waitUntilWindowLoaded()
@@ -31,14 +33,12 @@ describe('history', function () {
     await delay(500)
     const sel = '.ant-modal .ant-tabs-line > .ant-tabs-bar .ant-tabs-tab-active'
     const active = await client.element(sel)
-    expect(!!active.value).equal(true)
+    expect(!!active.elementId).equal(true)
     const text = await client.getText(sel)
     expect(text).equal(e('bookmarks'))
 
     log('tab it')
-    await client.execute(function () {
-      document.querySelectorAll('.ant-modal .ant-tabs-bar .ant-tabs-tab')[0].click()
-    })
+    await client.click('.ant-modal .ant-tabs-bar .ant-tabs-tab')
 
     await delay(100)
     const text4 = await client.getText(sel)
@@ -48,9 +48,7 @@ describe('history', function () {
     const focus = await client.hasFocus('.ant-modal .ant-tabs-tabpane-active #host')
     expect(focus).equal(true)
     log('list tab')
-    await client.execute(function () {
-      document.querySelectorAll('.ant-modal .ant-tabs-tabpane-active .item-list-unit')[1].click()
-    })
+    await client.click('.ant-modal .ant-tabs-tabpane-active .item-list-unit')
     const list1 = await client.getAttribute('.ant-modal .ant-tabs-tabpane-active .item-list-unit:nth-child(1)', 'class')
     expect(list1.includes('active'))
   })
