@@ -65,7 +65,8 @@ export default class Sftp extends Component {
       srcTransferType: null,
       transferType: null,
       loadingSftp: false,
-      filesToConfirm: []
+      filesToConfirm: [],
+      waitingList: []
     }
     this.retryCount = 0
   }

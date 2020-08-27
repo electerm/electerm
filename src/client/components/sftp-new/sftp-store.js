@@ -1,4 +1,0 @@
-/**
- * store builder for sftp
- */
-

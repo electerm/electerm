@@ -109,5 +109,8 @@ export default {
 
   // serial list related
   serials: [],
-  loaddingSerials: false
+  loaddingSerials: false,
+
+  // transfer list
+  transports: []
 }
