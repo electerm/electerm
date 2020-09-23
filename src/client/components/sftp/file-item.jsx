@@ -18,17 +18,19 @@ import {
 import wait from '../../common/wait'
 import {
   contextMenuHeight, contextMenuPaddingTop,
+  fileOperationsMap,
   isWin, transferTypeMap, typeMap,
-  contextMenuWidth, fileOpTypeMap,
+  contextMenuWidth,
   isMac, maxEditFileSize, ctrlOrCmd
 } from '../../common/constants'
 import findParent from '../../common/find-parent'
 import sorter from '../../common/index-sorter'
-import { getLocalFileInfo, getFolderFromFilePath, getRemoteFileInfo } from './file-read'
+import { getFolderFromFilePath } from './file-read'
 import { readClipboard, copy as copyToClipboard, hasFileInClipboardText } from '../../common/clipboard'
 import fs from '../../common/fs'
 import time from '../../../app/common/time'
 import filesize from 'filesize'
+import { generate } from 'shortid'
 
 const { prefix } = window
 const e = prefix('sftp')
@@ -99,9 +101,12 @@ export default class FileSection extends React.Component {
   onCopy = (e, targetFiles, isCut) => {
     const { file } = this.state
     const selected = this.isSelected(file)
-    const files = targetFiles || selected
-      ? this.props.selectedFiles
-      : [file]
+    const files = targetFiles ||
+      (
+        selected
+          ? this.props.selectedFiles
+          : [file]
+      )
     const prefix = file.type === typeMap.remote
       ? 'remote:'
       : ''
@@ -109,11 +114,9 @@ export default class FileSection extends React.Component {
       return prefix + resolve(f.path, f.name)
     }).join('\n')
     copyToClipboard(textToCopy)
-    if (isCut) {
-      this.props.modifier({
-        transferType: fileOpTypeMap.mv
-      })
-    }
+    this.props.modifier({
+      fileOperation: isCut ? fileOperationsMap.mv : fileOperationsMap.cp
+    })
   }
 
   onCut = (e, targetFiles) => {
@@ -126,52 +129,44 @@ export default class FileSection extends React.Component {
       : transferTypeMap.download
   }
 
+  addTransferList = list => {
+    this.props.modifier((old) => {
+      let transferList = copy(old.transferList)
+      transferList = [
+        ...transferList,
+        ...list
+      ]
+      return {
+        transferList
+      }
+    })
+  }
+
   onPaste = async () => {
+    const { type } = this.state.file
+    const path = this.props[type + 'Path']
     const clickBoardText = readClipboard()
     const fileNames = clickBoardText.split('\n')
     const res = []
+    const operation = this.props.fileOperation
     for (let i = 0, len = fileNames.length; i < len; i++) {
       const item = fileNames[i]
       const isRemote = item.startsWith('remote:')
-      const path = isRemote
+      const fromPath = isRemote
         ? item.replace(/^remote:/, '')
         : item
-      const fileObj = isRemote
-        ? await getRemoteFileInfo(this.props.sftp, path)
-        : await getLocalFileInfo(path)
-      if (fileObj) {
-        res.push(fileObj)
-      }
+      const { name } = getFolderFromFilePath(fromPath)
+      const toPath = resolve(path, name)
+      res.push({
+        typeFrom: isRemote ? typeMap.remote : typeMap.local,
+        typeTo: type,
+        fromPath,
+        toPath,
+        id: generate(),
+        operation
+      })
     }
-    if (!res.length) {
-      return
-    }
-    await new Promise((resolve) => {
-      this.props.modifier({
-        selectedFiles: res
-      }, resolve)
-    })
-    const { type } = this.state.file
-    const toFile = {
-      type,
-      ...getFolderFromFilePath(this.props[type + 'Path']),
-      isDirectory: false
-    }
-    const fromFile = res[0]
-    const { type: fromType } = fromFile
-    const {
-      type: toType
-    } = toFile
-
-    let transferType = this.getTransferType(toType)
-
-    // same side and drop to file, do nothing
-    if (fromType === toType) {
-      transferType = this.props.transferType || fileOpTypeMap.copy
-    }
-
-    // other side, do transfer
-    this.transferDrop(fromFile, toFile, transferType)
+    this.addTransferList(res)
   }
 
   onDrag = () => {}
@@ -212,10 +207,10 @@ export default class FileSection extends React.Component {
     e.dataTransfer.setData('fromFile', JSON.stringify(this.props.file))
   }
 
-  getDropFileList = async data => {
+  getDropFileList = data => {
     const fromFile = data.getData('fromFile')
     if (fromFile) {
-      return JSON.parse(fromFile)
+      return [JSON.parse(fromFile)]
     }
     const { files } = data
     const res = []
@@ -225,14 +220,13 @@ export default class FileSection extends React.Component {
         continue
       }
       // let file = item.getAsFile()
-      const fileObj = await getLocalFileInfo(item.path)
-      res.push(fileObj)
+      const fileObj = getFolderFromFilePath(item.path)
+      res.push({
+        ...fileObj,
+        type: typeMap.local
+      })
     }
-    return new Promise((resolve) => {
-      this.props.modifier({
-        selectedFiles: res
-      }, () => resolve(res[0]))
-    })
+    return res
   }
 
   onDrop = async e => {
@@ -242,8 +236,8 @@ export default class FileSection extends React.Component {
     if (!target) {
       return
     }
-    const fromFile = await this.getDropFileList(e.dataTransfer)
-    if (!fromFile) {
+    const fromFiles = this.getDropFileList(e.dataTransfer)
+    if (!fromFiles) {
       return
     }
     while (!target.className.includes(fileItemCls)) {
@@ -262,7 +256,7 @@ export default class FileSection extends React.Component {
         isDirectory: false
       }
     }
-    this.onDropFile(fromFile, toFile, fromFileManager)
+    this.onDropFile(fromFiles, toFile, fromFileManager)
   }
 
   onDragEnd = e => {
@@ -285,15 +279,15 @@ export default class FileSection extends React.Component {
     }
   }
 
-  onDropFile = (fromFile, toFile, fromFileManager) => {
-    const { type: fromType } = fromFile
+  onDropFile = (fromFiles, toFile, fromFileManager) => {
+    const { type: fromType } = fromFiles[0]
     const {
       id,
       type: toType,
       isDirectory: isDirectoryTo
     } = toFile
 
-    let transferType = this.getTransferType(toType)
+    let operation = ''
 
     // same side and drop to file = drop to folder
     if (!fromFileManager && fromType === toType && !isDirectoryTo) {
@@ -302,7 +296,7 @@ export default class FileSection extends React.Component {
 
     // drop from file manager
     if (fromFileManager && toType === typeMap.local) {
-      transferType = fileOpTypeMap.copy
+      operation = fileOperationsMap.cp
       if (id) {
         toFile = {
           ...toFile,
@@ -316,24 +310,23 @@ export default class FileSection extends React.Component {
 
     // same side and drop to folder, do mv
     if (fromType === toType && isDirectoryTo && !fromFileManager) {
-      transferType = fileOpTypeMap.mv
+      operation = fileOperationsMap.mv
     }
 
     // other side, do transfer
-    this.transferDrop(fromFile, toFile, transferType)
+    this.transferDrop(fromFiles, toFile, operation)
   }
 
-  transferDrop = (fromFile, toFile, transferType) => {
-    const files = this.isSelected(fromFile)
+  transferDrop = (fromFiles, toFile, operation) => {
+    const files = this.isSelected(fromFiles[0])
       ? this.props.selectedFiles
-      : [fromFile]
+      : fromFiles
     return this.doTransferSelected(
       null,
       files,
-      fromFile.path,
       resolve(toFile.path, toFile.name),
       toFile.type,
-      transferType
+      operation
     )
   }
 
@@ -347,7 +340,7 @@ export default class FileSection extends React.Component {
   doRename = () => {
     const file = copy(this.state.file)
     file.nameTemp = file.name
-    file.isEditting = true
+    file.isEditing = true
     this.props.modifier({
       onEditFile: true
     })
@@ -527,7 +520,7 @@ export default class FileSection extends React.Component {
         return this.cancelNew(type)
       }
       delete file.nameTemp
-      delete file.isEditting
+      delete file.isEditing
       return this.setState({
         file
       })
@@ -625,87 +618,58 @@ export default class FileSection extends React.Component {
     }
   }
 
-  getTransferList = async (file) => {
-    const { isDirectory, name, path, type } = file
-    if (!isDirectory) {
-      return [file]
-    }
-    const p = resolve(path, name)
-    const files = await this.props[`${type}List`](true, p)
-    let res = [file]
-    for (const f of files) {
-      const cs = await this.getTransferList(f)
-      res = [...res, ...cs]
-    }
-    return res
-  }
-
-  getTransferProps = (
+  getTransferList = (
     file,
-    _srcTransferPath,
-    _targetTransferPath,
-    _targetTransferType,
-    transferType
+    toPathBase,
+    _typeTo,
+    operation
   ) => {
-    const { type } = file
-    const otherType = _targetTransferType || (type === typeMap.local
+    const { name, path, type } = file
+    let typeTo = type === typeMap.local
       ? typeMap.remote
-      : typeMap.local)
-    const targetTransferPath = _targetTransferPath || this.props[otherType + 'Path']
-    const srcTransferPath = _srcTransferPath || this.props[type + 'Path']
-    return {
-      targetTransferPath,
-      transferType,
-      targetTransferType: otherType,
-      srcTransferType: type,
-      srcTransferPath
+      : typeMap.local
+    if (_typeTo) {
+      typeTo = _typeTo
     }
+    let toPath = type === typeMap.local
+      ? this.props[typeMap.remote + 'Path']
+      : this.props[typeMap.local + 'Path']
+    if (toPathBase) {
+      toPath = toPathBase
+    }
+    toPath = resolve(toPath, name)
+    return [{
+      typeFrom: type,
+      typeTo,
+      fromPath: resolve(path, name),
+      toPath,
+      id: generate(),
+      operation
+    }]
   }
 
-  doTransferSelected = async (
+  doTransferSelected = (
     e,
     selectedFiles = this.props.selectedFiles,
-    srcTransferPath,
-    targetTransferPath,
-    targetTransferType,
-    _transferType
+    toPathBase,
+    typeTo,
+    operation
   ) => {
-    const { type } = selectedFiles[0]
-    let transferType = type === typeMap.local
-      ? transferTypeMap.upload
-      : transferTypeMap.download
-    transferType = _transferType || transferType
-    let filesToConfirm = []
+    let all = []
     for (const f of selectedFiles) {
-      const arr = await this.getTransferList(f)
-      filesToConfirm = [
-        ...filesToConfirm,
+      const arr = this.getTransferList(f, toPathBase, typeTo, operation)
+      all = [
+        ...all,
         ...arr
       ]
     }
-    this.props.modifier({
-      filesToConfirm,
-      ...this.getTransferProps(
-        selectedFiles[0],
-        srcTransferPath,
-        targetTransferPath,
-        targetTransferType,
-        transferType
-      )
-    })
+    this.addTransferList(all)
   }
 
   transfer = async () => {
     const { file } = this.state
-    const arr = await this.getTransferList(this.state.file)
-    const { type } = file
-    const transferType = type === typeMap.local
-      ? transferTypeMap.upload
-      : transferTypeMap.download
-    this.props.modifier({
-      filesToConfirm: arr,
-      ...this.getTransferProps(file, '', '', '', transferType)
-    })
+    const arr = this.getTransferList(file)
+    this.addTransferList(arr)
   }
 
   doEnterDirectory = (e) => {
@@ -740,7 +704,7 @@ export default class FileSection extends React.Component {
     return this.newItem(true)
   }
 
-  showInDefaultFileMananger = () => {
+  showInDefaultFileManager = () => {
     const { path, name } = this.state.file
     const p = resolve(path, name)
     window._require('electron').shell
@@ -754,7 +718,7 @@ export default class FileSection extends React.Component {
       name: '',
       nameTemp: '',
       isDirectory,
-      isEditting: true,
+      isEditing: true,
       type
     })
     this.props.modifier({
@@ -864,7 +828,7 @@ export default class FileSection extends React.Component {
             ? (
               <div
                 className={cls}
-                onClick={this.showInDefaultFileMananger}
+                onClick={this.showInDefaultFileManager}
               >
                 <Icon type='container' /> {e('showInDefaultFileMananger')}
               </div>
@@ -1032,7 +996,7 @@ export default class FileSection extends React.Component {
     })
   }
 
-  renderEditting (file) {
+  renderEditing (file) {
     const {
       nameTemp,
       isDirectory
@@ -1099,10 +1063,10 @@ export default class FileSection extends React.Component {
     const {
       isDirectory,
       id,
-      isEditting
+      isEditing
     } = file
-    if (isEditting) {
-      return this.renderEditting(file)
+    if (isEditing) {
+      return this.renderEditing(file)
     }
     const selected = _.some(selectedFiles.filter(d => d), s => s.id === id)
     const className = classnames('sftp-item', cls, type, {

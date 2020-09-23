@@ -100,11 +100,13 @@ export const settingMap = buildConst([
 
 export const transferTypeMap = buildConst([
   'download',
-  'upload'
+  'upload',
+  'remote',
+  'local'
 ])
 
-export const fileOpTypeMap = buildConst([
-  'copy',
+export const fileOperationsMap = buildConst([
+  'cp',
   'mv'
 ])
 

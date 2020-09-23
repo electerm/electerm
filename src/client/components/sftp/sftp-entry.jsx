@@ -5,10 +5,8 @@ import { generate } from 'shortid'
 import { mergeProxy } from '../../common/merge-proxy'
 import { Input, Icon, Tooltip, Spin, Modal, notification } from 'antd'
 import _ from 'lodash'
-import Transports from './transports'
-import FileOps from './file-ops'
-import FileSection from './file'
-import Confirms from './confirm-list'
+import FileSection from './file-item'
+import Confirms from './confirm-modal'
 import resolve from '../../common/resolve'
 import wait from '../../common/wait'
 import isAbsPath from '../../common/is-absolute-path'
@@ -18,8 +16,8 @@ import DragSelect from './drag-select'
 import { getLocalFileInfo, getRemoteFileInfo } from './file-read'
 import {
   typeMap, maxSftpHistory, paneMap,
-  fileOpTypeMap, eventTypes,
-  fileTypeMap, transferTypeMap,
+  eventTypes,
+  fileTypeMap,
   terminalSshConfigType, terminalSerialType,
   unexpectedPacketErrorDesc, sftpRetryInterval
 } from '../../common/constants'
@@ -29,10 +27,12 @@ import fs from '../../common/fs'
 import ResizeWrap from '../common/resize-wrap'
 import keyControlPressed from '../../common/key-control-pressed'
 import keyPressed from '../../common/key-pressed'
-import ListTable from './list-table'
+import ListTable from './list-table-ui'
 import deepCopy from 'json-deep-copy'
 import isValidPath from '../../common/is-valid-path'
 import memoizeOne from 'memoize-one'
+import ConflictHandler from './transfer-conflict'
+import TransfersHandler from './transports-action'
 import './sftp.styl'
 
 const { getGlobal, prefix } = window
@@ -59,13 +59,11 @@ export default class Sftp extends Component {
       onEditFile: false,
       onDrag: false,
       ...this.defaultState(),
-      targetTransferPath: null,
-      srcTransferPath: null,
-      targetTransferType: null,
-      srcTransferType: null,
-      transferType: null,
       loadingSftp: false,
-      filesToConfirm: []
+      transferToConfirm: null,
+      transferList: [],
+      fileOperation: '',
+      pauseAll: false
     }
     this.retryCount = 0
   }
@@ -352,18 +350,12 @@ export default class Sftp extends Component {
     }, 200)
   }
 
-  doCopy = (type) => {
-    this.setState({
-      transferType: fileOpTypeMap.copy
-    })
-    this[type + 'Dom'].onCopy(null, true)
+  doCopy = (type, e) => {
+    this[type + 'Dom'].onCopy(e, this.state.selectedFiles)
   }
 
-  doCut = (type) => {
-    this.setState({
-      transferType: fileOpTypeMap.mv
-    })
-    this[type + 'Dom'].onCopy(null, true)
+  doCut = (type, e) => {
+    this[type + 'Dom'].onCut(e, this.state.selectedFiles)
   }
 
   doPaste = (type) => {
@@ -698,6 +690,10 @@ export default class Sftp extends Component {
     }
   }
 
+  remoteListDebounce = _.debounce(this.remoteList, 1000)
+
+  localListDebounce = _.debounce(this.localList, 1000)
+
   timers = {}
 
   onChange = (e, prop) => {
@@ -784,12 +780,12 @@ export default class Sftp extends Component {
         typeMap.remote,
         'lastClickedFile',
         'lastMataKey',
-        'targetTransferPath',
-        'srcTransferPath',
+        'transferToConfirm',
+        'transferList',
         'targetTransferType',
-        'srcTransferType',
-        'transferType',
-        'selectedFiles'
+        'fileOperation',
+        'selectedFiles',
+        'pauseAll'
       ])
     }
   }
@@ -1024,57 +1020,42 @@ export default class Sftp extends Component {
 
   render () {
     const {
-      id,
-      filesToConfirm
+      id
     } = this.state
     const { height } = this.props
-    const props = {
-      ...this.props,
-      id,
-      isActive: this.isActive(),
-      ..._.pick(this.state, [
-        'transports',
-        'remotePath',
-        'localPath',
-        'targetTransferPath',
-        'srcTransferPath',
-        'targetTransferType',
-        'transferType',
-        'srcTransferType'
-      ]),
-      ..._.pick(this, [
-        'sftp',
-        'modifier',
-        'localList',
-        'remoteList',
-        'remotePath',
-        'localPath'
-      ])
-    }
-    const { transports } = this.state
-    const keys = Object.keys(transferTypeMap)
-    const transports1 = transports.filter(f => {
-      return keys.includes(f.transferType)
-    })
-    const transports2 = transports.filter(f => {
-      return !keys.includes(f.transferType)
-    })
     return (
-      <div className='sftp-wrap overhide relative' id={`id-${id}`} style={{ height }}>
+      <div
+        className='sftp-wrap overhide relative'
+        id={`id-${id}`}
+        style={{ height }}
+      >
         {
           this.renderSections()
         }
-        <Transports
-          {...props}
-          transports={transports1}
+        <ConflictHandler
+          transferList={this.state.transferList}
+          modifier={this.modifier}
+          localList={this.localList}
+          remoteList={this.remoteList}
+          sftp={this.sftp}
+          store={this.props.store}
+          host={this.props.tab.host}
+          transferToConfirm={this.state.transferToConfirm}
         />
-        <FileOps
-          {...props}
-          transports={transports2}
+        <TransfersHandler
+          localList={this.localListDebounce}
+          remoteList={this.remoteListDebounce}
+          transferList={this.state.transferList}
+          modifier={this.modifier}
+          sftp={this.sftp}
+          store={this.props.store}
+          pauseAll={this.state.pauseAll}
+          config={this.props.config}
+          tab={this.props.tab}
         />
         <Confirms
-          files={filesToConfirm}
-          {...props}
+          transferToConfirm={this.state.transferToConfirm}
+          modifier={this.modifier}
         />
       </div>
     )
