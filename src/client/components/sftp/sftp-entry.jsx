@@ -1020,31 +1020,9 @@ export default class Sftp extends Component {
 
   render () {
     const {
-      id,
-      filesToConfirm
+      id
     } = this.state
     const { height } = this.props
-    const props = {
-      ...this.props,
-      id,
-      isActive: this.isActive(),
-      ..._.pick(this.state, [
-        'remotePath',
-        'localPath',
-        'transferList',
-        'transferToConfirm',
-        'fileOperation',
-        'pauseAll'
-      ]),
-      ..._.pick(this, [
-        'sftp',
-        'modifier',
-        'localList',
-        'remoteList',
-        'remotePath',
-        'localPath'
-      ])
-    }
     return (
       <div
         className='sftp-wrap overhide relative'
