@@ -7,6 +7,22 @@ import fs from '../../common/fs'
 
 const { _require } = window
 
+export const getFileExt = fileName => {
+  const sep = '.'
+  const arr = fileName.split(sep)
+  const len = arr.length
+  if (len === 1) {
+    return {
+      base: fileName,
+      ext: ''
+    }
+  }
+  return {
+    base: arr.slice(0, len - 1).join(sep),
+    ext: arr[len - 1]
+  }
+}
+
 export const getFolderFromFilePath = filePath => {
   const { sep } = _require('path')
   const arr = filePath.split(sep)

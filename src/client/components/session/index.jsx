@@ -4,7 +4,7 @@
  */
 import { Component } from 'react'
 import Term from '../terminal'
-import Sftp from '../sftp'
+import Sftp from '../sftp/sftp-entry'
 import { Icon, Tooltip } from 'antd'
 import _ from 'lodash'
 import { generate } from 'shortid'

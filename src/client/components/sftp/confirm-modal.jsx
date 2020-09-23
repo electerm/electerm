@@ -4,41 +4,52 @@
  */
 
 import { Modal, Button, Icon } from 'antd'
-import { typeMap } from '../../common/constants'
-import resolve from '../../common/resolve'
 import AnimateText from '../common/animate-text'
+import formatTime from '../../../app/common/time'
 
 const { prefix } = window
 const e = prefix('sftp')
 
 export default (props) => {
-  function renderContent () {
-    const {
+  if (!props.transferToConfirm) {
+    return null
+  }
+  const {
+    fromPath,
+    toPath,
+    fromFile: {
       isDirectory,
-      name
-    } = currentFile
-    const { targetTransferPath } = this.props
-    const transport = this.findParentTransport(currentFile)
-    let targetPath
-    if (transport) {
-      targetPath = resolve(targetTransferPath, name)
-    } else {
-      targetPath = this.getTargetPath(currentFile)
-    }
-    const {
-      srcTransferType,
-      targetTransferType,
-      fromPath,
-      toPath
-    } = this.createTransfer(currentFile, targetPath)
+      name,
+      id: fileId,
+      modifyTime: modifyTimeFrom,
+      size: sizeFrom,
+      type: typeFrom
+    },
+    toFile: {
+      modifyTime: modifyTimeTo,
+      size: sizeTo,
+      type: typeTo
+    },
+    id,
+    transferGroupId
+  } = props.transferToConfirm
+  function act (action) {
+    props.modifier({
+      transferToConfirm: null
+    })
+    window.postMessage({
+      transferGroupId,
+      fileId,
+      id,
+      transfer: props.transferToConfirm,
+      action
+    })
+  }
+  function renderContent () {
     const action = isDirectory ? e('merge') : e('replace')
     const typeTxt = isDirectory ? e('folder') : e('file')
-    const typeTitle = targetTransferType === typeMap.local
-      ? e(typeMap.local)
-      : e(typeMap.remote)
-    const otherTypeTitle = srcTransferType === typeMap.remote
-      ? e(typeMap.remote)
-      : e(typeMap.local)
+    const typeTitle = e(typeFrom)
+    const otherTypeTitle = e(typeTo)
     return (
       <div className='confirms-content-wrap'>
         <AnimateText>
@@ -47,6 +58,9 @@ export default (props) => {
           </p>
           <p className='bold font14'>
             {typeTitle} {typeTxt}: <Icon type={typeTxt} className='mg1r' />{name}
+          </p>
+          <p className='font13'>
+            {e('size')}: {sizeTo}, {e('modifyTime')}: {formatTime(modifyTimeTo)}
           </p>
           <p className='pd1b'>
             ({toPath})
@@ -57,6 +71,9 @@ export default (props) => {
           <p className='bold font14'>
             {otherTypeTitle} {typeTxt}: <Icon type={typeTxt} className='mg1r' />{name}
           </p>
+          <p className='font13'>
+            {e('size')}: {sizeFrom}, {e('modifyTime')}: {formatTime(modifyTimeFrom)}
+          </p>
           <p className='pd1b'>
             ({fromPath})
           </p>
@@ -65,25 +82,19 @@ export default (props) => {
     )
   }
   function renderFooter () {
-    const { currentFile, index, files } = this.state
-    if (!currentFile) {
-      return null
-    }
-    const { isDirectory } = currentFile
-    const hasMoreFile = index < files.length - 1
     return (
       <div className='mgq1t pd1y alignright'>
         <Button
           type='ghost'
           className='mg1l'
-          onClick={this.cancel}
+          onClick={() => act('cancel')}
         >
           {e('cancel')}
         </Button>
         <Button
           type='ghost'
           className='mg1l'
-          onClick={this.skip}
+          onClick={() => act('skip')}
         >
           {e('skip')}
         </Button>
@@ -91,7 +102,7 @@ export default (props) => {
           type='primary'
           className='mg1l'
           onClick={
-            this.mergeOrOverwrite
+            () => act('mergeOrOverwrite')
           }
         >
           {isDirectory ? e('merge') : e('overwrite')}
@@ -100,48 +111,37 @@ export default (props) => {
           type='primary'
           className='mg1l'
           onClick={
-            this.rename
+            () => act('rename')
           }
         >
           {e('rename')}
         </Button>
-        <div className='pd1t' />
-        {
-          hasMoreFile
-            ? (
-              <Button
-                type='ghost'
-                className='mg1l'
-                title={
-                  isDirectory
-                    ? e('mergeDesc')
-                    : e('overwriteDesc')
-                }
-                onClick={
-                  this.mergeOrOverwriteAll
-                }
-              >
-                {isDirectory ? e('mergeAll') : e('overwriteAll')}
-              </Button>
-            )
-            : null
-        }
-        {
-          hasMoreFile
-            ? (
-              <Button
-                type='primary'
-                className='mg1l'
-                title={e('renameDesc')}
-                onClick={
-                  this.renameAll
-                }
-              >
-                {e('renameAll')}
-              </Button>
-            )
-            : null
-        }
+        <div className='pd1t'>
+          <Button
+            type='ghost'
+            className='mg1l'
+            title={
+              isDirectory
+                ? e('mergeDesc')
+                : e('overwriteDesc')
+            }
+            onClick={
+              () => act('mergeOrOverwriteAll')
+            }
+          >
+            {isDirectory ? e('mergeAll') : e('overwriteAll')}
+          </Button>
+          <Button
+            type='primary'
+            className='mg1l'
+            title={e('renameDesc')}
+            onClick={
+              () => act('renameAll')
+            }
+          >
+            {e('renameAll')}
+          </Button>
+        </div>
       </div>
     )
   }

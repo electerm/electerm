@@ -54,7 +54,7 @@ function onDestroyTransfer (id, sftpId, sessionId) {
   const sftpInst = sftp(sftpId, sessionId)
   const inst = transfer(id, sftpId, sessionId)
   inst && inst.destroy && inst.destroy()
-  delete sftpInst.transfers[id]
+  sftpInst && delete sftpInst.transfers[id]
 }
 
 module.exports = {

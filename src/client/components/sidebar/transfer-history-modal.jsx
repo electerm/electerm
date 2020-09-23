@@ -5,16 +5,19 @@
 import { Component } from '../common/react-subx'
 import { Modal, Table, Icon } from 'antd'
 import time from '../../../app/common/time'
-import { transferTypeMap } from '../../common/constants'
+import Tag from '../sftp/transfer-tag'
 import './transfer-history.styl'
+import _ from 'lodash'
+import filesize from 'filesize'
 
 const { prefix } = window
 const e = prefix('transferHistory')
 const f = prefix('sftp')
+const m = prefix('menu')
 const timeRender = t => time(t)
 const sorterFactory = prop => {
   return (a, b) => {
-    return a[prop] > b[prop] ? 1 : -1
+    return _.get(a, prop) > _.get(b, prop) ? 1 : -1
   }
 }
 export default class TransferHistoryModal extends Component {
@@ -40,42 +43,34 @@ export default class TransferHistoryModal extends Component {
     }, {
       title: e('type'),
       dataIndex: 'type',
-      key: 'type',
-      sorter: sorterFactory('type'),
-      render: (type) => {
+      key: 'typeFrom',
+      sorter: sorterFactory('typeFrom'),
+      render: (type, inst) => {
         return (
-          <Icon type={type} />
+          <Tag transfer={inst} />
         )
       }
     }, {
-      title: e('localPath'),
-      dataIndex: 'localPath',
-      key: 'localPath',
-      sorter: sorterFactory('localPath'),
-      render: (x, obj) => {
-        if (obj.type === transferTypeMap.upload) {
-          return obj.fromPath
-        } else {
-          return obj.toPath
-        }
-      }
+      title: m('host'),
+      dataIndex: 'host',
+      key: 'host',
+      sorter: sorterFactory('host')
     }, {
-      title: e('remotePath'),
-      dataIndex: 'remotePath',
-      key: 'remotePath',
-      sorter: sorterFactory('remotePath'),
-      render: (x, obj) => {
-        if (obj.type === transferTypeMap.download) {
-          return obj.fromPath
-        } else {
-          return obj.toPath
-        }
-      }
+      title: e('fromPath'),
+      dataIndex: 'fromPath',
+      key: 'fromPath',
+      sorter: sorterFactory('fromPath')
+    }, {
+      title: e('toPath'),
+      dataIndex: 'toPath',
+      key: 'toPath',
+      sorter: sorterFactory('toPath')
     }, {
       title: f('size'),
-      dataIndex: 'size',
-      key: 'size',
-      sorter: sorterFactory('size')
+      dataIndex: 'fromFile.size',
+      key: 'fromFile.size',
+      sorter: sorterFactory('fromFile.size'),
+      render: (v) => filesize(v || 0)
     }, {
       title: e('speed'),
       dataIndex: 'speed',
