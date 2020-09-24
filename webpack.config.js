@@ -204,11 +204,13 @@ if (isProd) {
     packThreadCount === 0 ? null : new HappyPack(happyConf),
     extractTextPlugin1,
     stylusSettingPlugin,
-    new CopyWebpackPlugin([{
-      from,
-      to: to1,
-      force: true
-    }], {})
+    new CopyWebpackPlugin({
+      patterns: [{
+        from,
+        to: to1,
+        force: true
+      }]
+    })
   ]
   config.optimization = {
     minimize: true
