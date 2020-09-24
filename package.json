@@ -74,7 +74,7 @@
     "css-loader": "3.4.2",
     "dotenv": "8.2.0",
     "electron": "9.3.1",
-    "electron-builder": "22.6.0",
+    "electron-builder": "22.8.1",
     "electron-rebuild": "1.10.1",
     "extract-loader": "5.0.1",
     "fast-deep-equal": "^3.1.3",
