@@ -13,7 +13,7 @@ export default (basePath, nameOrDot) => {
     const arr = basePath.split(sep)
     const { length } = arr
     if (length === 1) {
-      return basePath
+      return '/'
     }
     const res = arr.slice(0, length - 1).join(sep)
     return res || '/'
