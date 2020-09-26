@@ -4,6 +4,7 @@
 
 import { generate } from 'shortid'
 import fs from '../../common/fs'
+import { isWin } from '../../common/constants'
 
 const { _require } = window
 
@@ -27,9 +28,16 @@ export const getFolderFromFilePath = filePath => {
   const { sep } = _require('path')
   const arr = filePath.split(sep)
   const len = arr.length
+  const isWinDisk = isWin && filePath.endsWith(sep)
+  const path = isWinDisk
+    ? '/'
+    : arr.slice(0, len - 1).join(sep)
+  const name = isWinDisk
+    ? filePath.replace(sep, '')
+    : arr[len - 1]
   return {
-    path: arr.slice(0, len - 1).join(sep),
-    name: arr[len - 1]
+    path,
+    name
   }
 }
 

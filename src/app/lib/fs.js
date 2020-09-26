@@ -5,6 +5,8 @@ const fs = require('original-fs')
 const fss = Promise.promisifyAll(fs)
 const log = require('../utils/log')
 const { isWin, isMac } = require('../utils/constants')
+const ROOT_PATH = '/'
+const drivelist = require('drivelist')
 
 /**
  * run cmd
@@ -105,6 +107,17 @@ const openFile = (localFilePath) => {
   return run(cmd)
 }
 
+async function listWindowsRootPath () {
+  const drives = await drivelist.list()
+  const mts = drives.reduce((p, c) => {
+    return [
+      ...p,
+      ...c.mountpoints.map(d => d.path)
+    ]
+  }, [])
+  return mts
+}
+
 const fsExport = Object.assign(
   {},
   fss,
@@ -116,6 +129,12 @@ const fsExport = Object.assign(
     openFile
   },
   {
+    readdirAsync: (path) => {
+      if (path === ROOT_PATH && isWin) {
+        return listWindowsRootPath()
+      }
+      return fss.readdirAsync(path)
+    },
     statAsync: (...args) => {
       return fss.statAsync(...args)
         .then(res => {
