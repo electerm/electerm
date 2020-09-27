@@ -18,7 +18,6 @@ import {
 import ResizeWrap from '../common/resize-wrap'
 import keyControlPressed from '../../common/key-control-pressed'
 import keyPressed from '../../common/key-pressed'
-import Qm from '../quick-commands/quick-commands-select'
 import TerminalInfoContent from '../terminal-info/content'
 
 const rebuildPosition = terminals => {
@@ -347,15 +346,6 @@ export default class SessionWrapper extends Component {
             })
           }
         </div>
-        {
-          pane === paneMap.sftp || pane === paneMap.fileManager
-            ? null
-            : (
-              <Qm
-                store={this.props.store}
-              />
-            )
-        }
         {
           pane === paneMap.terminal
             ? (

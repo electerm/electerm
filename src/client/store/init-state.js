@@ -112,5 +112,8 @@ export default {
   loaddingSerials: false,
 
   // transfer list
-  transports: []
+  transports: [],
+
+  // batch inputs
+  batchInputs: []
 }
