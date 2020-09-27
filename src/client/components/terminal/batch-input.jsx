@@ -13,26 +13,36 @@ const e = prefix('ssh')
 
 export default class BatchInput extends Component {
   state = {
-    cmd: ''
+    cmd: '',
+    open: false
   }
 
-  handleEnter = () => {
+  handleEnter = (e) => {
     const { cmd } = this.state
     this.props.store.addBatchInput(cmd)
     this.props.input(cmd)
     this.setState({
-      cmd: ''
+      cmd: '',
+      open: false
     })
+    e.preventPropagation()
   }
 
   handleChange = (v) => {
     this.setState({
-      cmd: v
+      cmd: v,
+      open: false
+    })
+  }
+
+  handleClick = () => {
+    this.setState({
+      open: true
     })
   }
 
   render () {
-    const { cmd } = this.state
+    const { cmd, open } = this.state
 
     return (
       <AutoComplete
@@ -42,10 +52,12 @@ export default class BatchInput extends Component {
         onChange={this.handleChange}
         size='small'
         defaultOpen={false}
+        open={open}
         allowClear
       >
         <Input
           onPressEnter={this.handleEnter}
+          onClick={this.handleClick}
           size='small'
         />
       </AutoComplete>
