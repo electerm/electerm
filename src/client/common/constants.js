@@ -181,3 +181,4 @@ export const defaultLoginScriptDelay = 500
 
 export const initTabs = [newTerm()]
 export const appPath = window.getGlobal('appPath')
+export const maxBatchInput = 30

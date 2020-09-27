@@ -22,6 +22,7 @@ import sysMenuExtend from './system-menu'
 import tabExtend from './tab'
 import terminalThemeExtend from './terminal-theme'
 import transferHistoryExtend from './transfer-history'
+import batchInputHistory from './batch-input-history'
 
 import _ from 'lodash'
 import copy from 'json-deep-copy'
@@ -102,5 +103,6 @@ sysMenuExtend(store)
 tabExtend(store)
 terminalThemeExtend(store)
 transferHistoryExtend(store)
+batchInputHistory(store)
 
 export default store

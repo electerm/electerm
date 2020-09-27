@@ -35,6 +35,8 @@ import keyShiftPressed from '../../common/key-shift-pressed'
 import keyPressed from '../../common/key-pressed'
 import { Terminal } from 'xterm'
 import TerminalInfoIcon from '../terminal-info'
+import Qm from '../quick-commands/quick-commands-select'
+import BatchInput from './batch-input'
 
 const { prefix } = window
 const e = prefix('ssh')
@@ -840,6 +842,10 @@ export default class Term extends Component {
     log.debug('socket closed, pid:', this.pid)
   }
 
+  batchInput = (cmd) => {
+    this.attachAddon._sendData(cmd + '\r')
+  }
+
   onResizeTerminal = size => {
     const { cols, rows } = size
     const config = deepCopy(
@@ -1015,6 +1021,55 @@ export default class Term extends Component {
     )
   }
 
+  renderInfoIcon () {
+    const { loading } = this.state
+    const infoProps = {
+      showInfoPanel: this.handleShowInfo
+    }
+    return loading
+      ? null
+      : (
+        <div className='terminal-footer-unit terminal-footer-info'>
+          <TerminalInfoIcon
+            {...infoProps}
+          />
+        </div>
+      )
+  }
+
+  renderQuickCommands () {
+    return (
+      <div className='terminal-footer-unit terminal-footer-qm'>
+        <Qm
+          store={this.props.store}
+        />
+      </div>
+    )
+  }
+
+  renderBatchInputs () {
+    return (
+      <div className='terminal-footer-unit terminal-footer-center'>
+        <BatchInput
+          store={this.props.store}
+          input={this.batchInput}
+        />
+      </div>
+    )
+  }
+
+  renderFooter () {
+    return (
+      <div className='terminal-footer'>
+        <div className='terminal-footer-flex'>
+          {this.renderQuickCommands()}
+          {this.renderBatchInputs()}
+          {this.renderInfoIcon()}
+        </div>
+      </div>
+    )
+  }
+
   render () {
     const { id, loading, zmodemTransfer } = this.state
     const { height, width, left, top, position, id: pid, activeSplitId } = this.props
@@ -1023,9 +1078,6 @@ export default class Term extends Component {
     }, 'tw-' + pid, {
       'terminal-not-active': activeSplitId !== pid
     })
-    const infoProps = {
-      showInfoPanel: this.handleShowInfo
-    }
     return (
       <div
         className={cls}
@@ -1051,7 +1103,7 @@ export default class Term extends Component {
             left: '10px',
             top: '10px',
             right: 0,
-            bottom: '40px'
+            bottom: '70px'
           }}
         >
           {this.renderSearchBox()}
@@ -1071,16 +1123,8 @@ export default class Term extends Component {
             beforeZmodemUpload={this.beforeZmodemUpload}
           />
         </div>
+        {this.renderFooter()}
         <Spin className='loading-wrapper' spinning={loading} />
-        {
-          loading
-            ? null
-            : (
-              <TerminalInfoIcon
-                {...infoProps}
-              />
-            )
-        }
       </div>
     )
   }
