@@ -198,6 +198,9 @@ export default function transportAction (props) {
     if (inst.current.started) {
       return
     }
+    props.store.editTab(props.tab.id, {
+      isTransporting: true
+    })
     const {
       typeFrom,
       typeTo,

@@ -298,7 +298,14 @@ export default class Tab extends React.Component {
     const { tab } = this.state
     const { id, isEditting, status, isTransporting } = tab
     const active = id === currentTabId
-    const cls = classnames('tab', { active }, status)
+    const cls = classnames(
+      'tab',
+      { active },
+      status,
+      {
+        'is-transporting': isTransporting
+      }
+    )
     const title = createName(tab)
     if (isEditting) {
       return this.renderEditting(tab, cls)
@@ -340,11 +347,6 @@ export default class Tab extends React.Component {
             {title}
           </div>
           <div className={'tab-status ' + status} />
-          {
-            isTransporting
-              ? <div className='tab-is-transporting' />
-              : null
-          }
           <span className='tab-close pointer'>
             <Icon
               type='close'

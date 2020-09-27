@@ -880,20 +880,43 @@ export default class Sftp extends Component {
     )
   }
 
-  renderSection (type, style, width) {
+  renderInput (type) {
     const {
-      id, onDrag, loadingSftp
+      loadingSftp
     } = this.state
     const n = `${type}PathTemp`
     const path = this.state[n]
     const realPath = this.state[`${type}Path`]
-    const arr = this.getFileList(type)
-    const loading = this.state[`${type}Loading`]
-    const { host, username } = this.props.tab
     const goIcon = realPath === path
       ? 'reload'
       : 'arrow-right'
     const isLoadingRemote = type === typeMap.remote && loadingSftp
+    return (
+      <Input
+        value={path}
+        onChange={e => this.onChange(e, n)}
+        onPressEnter={e => this.onGoto(type, e)}
+        addonBefore={this.renderAddonBefore(type)}
+        onFocus={() => this.onInputFocus(type)}
+        onBlur={() => this.onInputBlur(type)}
+        disabled={loadingSftp}
+        addonAfter={
+          <Icon
+            type={isLoadingRemote ? 'loading' : goIcon}
+            onClick={isLoadingRemote ? () => null : () => this.onGoto(type)}
+          />
+        }
+      />
+    )
+  }
+
+  renderSection (type, style, width) {
+    const {
+      id, onDrag
+    } = this.state
+    const arr = this.getFileList(type)
+    const loading = this.state[`${type}Loading`]
+    const { host, username } = this.props.tab
     const listProps = {
       id,
       type,
@@ -938,21 +961,7 @@ export default class Sftp extends Component {
             }
             <div className='pd1y sftp-title-wrap'>
               <div className='sftp-title'>
-                <Input
-                  value={path}
-                  onChange={e => this.onChange(e, n)}
-                  onPressEnter={e => this.onGoto(type, e)}
-                  addonBefore={this.renderAddonBefore(type)}
-                  onFocus={() => this.onInputFocus(type)}
-                  onBlur={() => this.onInputBlur(type)}
-                  disabled={loadingSftp}
-                  addonAfter={
-                    <Icon
-                      type={isLoadingRemote ? 'loading' : goIcon}
-                      onClick={isLoadingRemote ? () => null : () => this.onGoto(type)}
-                    />
-                  }
-                />
+                {this.renderInput(type)}
                 {this.renderHistory(type)}
               </div>
             </div>

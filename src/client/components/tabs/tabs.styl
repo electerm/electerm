@@ -62,13 +62,14 @@
     .tab-reload
       display inline-block
       color #fff
-.tab-is-transporting
-  position absolute
-  left 0
-  right 0
-  bottom 0
-  height 0
-  border-bottom 1px dashed green
+@keyframes blink
+  0%
+    opacity 0.5
+  50%
+    opacity 1
+  100%
+    opacity 0.5
+
 .tab-status
   position absolute
   left 2px
@@ -83,6 +84,8 @@
     background-color red
   &.processing
     background-color #08c
+.is-transporting .tab-status
+  animation blink 2s infinite
 .tab-close
   position absolute
   right 5px
