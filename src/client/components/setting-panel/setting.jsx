@@ -177,7 +177,9 @@ export default class Setting extends Component {
       min,
       max,
       cls,
-      onChange = (v) => this.onChangeValue(v, name)
+      onChange = (v) => {
+        this.onChangeValue(v, name)
+      }
     } = options
     const opts = {
       step,
@@ -189,6 +191,15 @@ export default class Setting extends Component {
     }
     if (title) {
       opts.formatter = v => `${title}: ${v}`
+      opts.parser = (v) => {
+        let vv = _.isNumber(v)
+          ? v
+          : Number(v.split(': ')[1], 10)
+        if (_.isNaN(vv)) {
+          vv = defaultValue
+        }
+        return vv
+      }
       opts.style = {
         width: width + 'px'
       }
