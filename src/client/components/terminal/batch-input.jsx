@@ -19,6 +19,9 @@ export default class BatchInput extends Component {
 
   handleEnter = (e) => {
     const { cmd } = this.state
+    if (!cmd.trim()) {
+      return
+    }
     this.props.store.addBatchInput(cmd)
     this.props.input(cmd)
     this.setState({
