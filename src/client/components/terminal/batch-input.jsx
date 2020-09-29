@@ -25,7 +25,7 @@ export default class BatchInput extends Component {
       cmd: '',
       open: false
     })
-    e.preventPropagation()
+    e.stopPropagation()
   }
 
   handleChange = (v) => {
