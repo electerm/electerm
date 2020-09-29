@@ -14,6 +14,11 @@ const delay = require('./common/wait')
 const basicTermTest = require('./common/basic-terminal-test')
 const appOptions = require('./common/app-options')
 const extendClient = require('./common/client-extend')
+const isOs = require('./common/is-os')
+
+if (isOs('darwin')) {
+  return
+}
 
 describe('ssh', function () {
   this.timeout(100000)
