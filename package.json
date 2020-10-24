@@ -133,7 +133,6 @@
     "json-deep-copy": "1.1.1",
     "lodash": "4.17.19",
     "nedb": "1.8.0",
-    "node-fetch": "^2.6.1",
     "node-pty": "0.9.0",
     "os-locale": "4.0.0",
     "path-validation": "0.2.3",
