@@ -8,7 +8,8 @@ import _ from 'lodash'
 
 import {
   logoPath1,
-  logoPath2
+  logoPath2,
+  packInfo
 } from '../../common/constants'
 import LogView from './log-view'
 
@@ -43,7 +44,7 @@ export default function ({
       url
     },
     version: packVer
-  } = getGlobal('packInfo')
+  } = packInfo
   const version = 'v' + packVer
   const link = url.replace('git+', '').replace('.git', '')
   const os = getGlobal('os')
