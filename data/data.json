@@ -1,10 +1,10 @@
 [
   {
-    "id": "en_us",
+    "id": "en_uson",
     "lang": {
       "lang": {
         "app": {
-          "desc": "electerm is a terminal/ssh/sftp client(linux, mac, win) based on electron/ssh2/node-pty/xterm/antd and many other libs",
+          "desc": "electerm is a terminal/ssh/sftp client(linux, mac, win) based on electron/ssh2/node-pty/xterm/antd/subx and many other libs",
           "isRunning": "is running",
           "press": "press",
           "toShow": "to show"
@@ -55,7 +55,9 @@
           "about": "about",
           "ok": "ok",
           "cancel": "cancel",
-          "restoreSessions": "restore sessions from uncorrect shutdown?"
+          "expandAll": "Expand all",
+          "collapseAll": "Collapse all",
+          "restoreSessions": "restore sessions"
         },
         "control": {
           "author": "author",
@@ -79,7 +81,9 @@
           "startTime": "start time",
           "finishTime": "finish time",
           "speed": "speed",
-          "clear": "clear"
+          "clear": "clear",
+          "fromPath": "source path",
+          "toPath": "target path"
         },
         "tabs": {
           "titleEmptyWarn": "title can not be empty",
@@ -102,7 +106,8 @@
           "goGetIt": "go get it!",
           "newVersion": "new version found",
           "upgrade": "upgrade",
-          "upgrading": "upgrading"
+          "upgrading": "upgrading",
+          "skipThisVersion": "skip this version"
         },
         "setting": {
           "new": "new",
@@ -123,7 +128,17 @@
           "fontFamily": "font family",
           "opacity": "opacity",
           "global": "global",
-          "resetAllToDefault": "restore settings to their original defaults"
+          "disableSshHistory": "disable ssh history",
+          "disableTransferHistory": "disable sftp transfer history",
+          "resetAllToDefault": "restore settings to their original defaults",
+          "terminalBackgroundImage": "terminal background image",
+          "chooseFile": "choose file",
+          "rendererType": "renderer type",
+          "defaultTerminalType": "default terminal type",
+          "ctrlOrMetaOpenTerminalLink": "must hold ctrl or meta (in mac) when click to open terminal link",
+          "noTerminalBg": "no background image",
+          "saveTerminalLogToFile": "save terminal log to file",
+          "checkUpdateOnStart": "check update on app start"
         },
         "sftp": {
           "cancel": "cancel",
@@ -177,7 +192,8 @@
           "download": "download",
           "resume": "resume",
           "pause": "pause",
-          "reset": "reset"
+          "reset": "reset",
+          "showInDefaultFileMananger": "show in file manager"
         },
         "permission": {
           "read": "read",
@@ -199,8 +215,10 @@
           "port": "port",
           "title": "title",
           "saveAndConnect": "save and connect",
+          "saveAndCreateNew": "save and create new",
           "save": "save",
           "loginScript": "run script",
+          "loginScriptDelay": "run script delay",
           "loginScriptTip": "run script after logined",
           "connect": "connect",
           "testConnection": "test connection",
@@ -213,7 +231,9 @@
           "auth": "auth",
           "proxy": "proxy",
           "use": "use",
-          "encode": "encode"
+          "encode": "encode",
+          "terminalType": "terminal type",
+          "startDirectory": "start directory"
         },
         "ssh": {
           "clear": "clear",
@@ -225,7 +245,8 @@
           "prevMatch": "prev match",
           "split": "split",
           "fileManager": "file manager",
-          "changeDirection": "change direction"
+          "changeDirection": "change direction",
+          "batchInput": "batch input"
         },
         "terminalThemes": {
           "terminalThemes": "terminal themes",
@@ -237,13 +258,33 @@
           "newTheme": "new theme",
           "themeConfig": "theme config",
           "updated": "updated"
+        },
+        "quickCommands": {
+          "quickCommand": "quick command",
+          "quickCommands": "quick commands",
+          "quickCommandName": "quick command name",
+          "addQuickCommands": "add quick commands",
+          "newQuickCommand": "new quick command",
+          "inputOnly": "input only"
+        },
+        "settingSync": {
+          "settingSync": "setting sync",
+          "sync": "sync",
+          "syncing": "syncing",
+          "syncSettings": "sync settings",
+          "uploadSettings": "upload settings",
+          "downloadSettings": "download settings",
+          "synced": "synced",
+          "syncDesc": "sync bookmark / history / setting to github secret gist",
+          "autoSync": "auto sync",
+          "lastSyncTime": "last sync time"
         }
       },
       "name": "English",
       "match": {},
       "flag": "🇺🇸"
     },
-    "pathHtml": "/electerm",
+    "pathHtml": "/electerm/index-en_uson.html",
     "assets": {
       "linux": {
         "name": "linux x86 x64",
@@ -474,14 +515,14 @@
     "releaseDate": "2020-09-29T14:57:19Z",
     "siteKeywords": "electron,ternimal,electerm,ssh,sftp",
     "siteName": "electerm",
-    "path": "/home/execapp/dev/electerm.html5beta.com/index.html"
+    "path": "/home/execapp/dev/electerm.html5beta.com/index-en_uson.html"
   },
   {
-    "id": "es_es",
+    "id": "es_eson",
     "lang": {
       "lang": {
         "app": {
-          "desc": "electerm es una terminal/ssh/sftp client(linux, mac, win) basada en electron/ssh2/node-pty/xterm/antd y otras librerías",
+          "desc": "electerm es una terminal/ssh/sftp client(linux, mac, win) basada en electron/ssh2/node-pty/xterm/antd/subx y otras librerías",
           "isRunning": "está corriendo",
           "press": "presione",
           "toShow": "mostrar"
@@ -525,14 +566,16 @@
           "homepage": "página principal"
         },
         "common": {
-          "history": "historyial",
+          "history": "historial",
           "bookmarks": "marcadores",
           "bookmarkCategory": "categoría",
-          "setting": "ajuste",
+          "setting": "ajustes",
           "about": "acerca de",
           "ok": "ok",
           "cancel": "cancelar",
-          "restoreSessions": "restaurar sesiones desde apagado incorrecto?"
+          "expandAll": "Expandir todos",
+          "collapseAll": "Contraer todos",
+          "restoreSessions": "restaurar sesiones"
         },
         "control": {
           "author": "autor",
@@ -556,7 +599,9 @@
           "startTime": "hora de inicio",
           "finishTime": "hora de finalización",
           "speed": "velocidad",
-          "clear": "limpio"
+          "clear": "limpio",
+          "fromPath": "ruta de origen",
+          "toPath": "ruta de destino"
         },
         "tabs": {
           "titleEmptyWarn": "el título no puede estar vacío",
@@ -579,7 +624,8 @@
           "goGetIt": "ve a buscarlo!",
           "newVersion": "nueva versión encontrada",
           "upgrade": "mejorar",
-          "upgrading": "mejorando"
+          "upgrading": "mejorando",
+          "skipThisVersion": "omitir esta version"
         },
         "setting": {
           "new": "new",
@@ -600,7 +646,17 @@
           "fontFamily": "tipografía familiar",
           "opacity": "opacidad",
           "global": "global",
-          "resetAllToDefault": "restaurar la configuración a sus valores predeterminados originales"
+          "disableSshHistory": "deshabilitar el historial de ssh",
+          "disableTransferHistory": "deshabilitar el historial de transferencia sftp",
+          "resetAllToDefault": "restaurar la configuración a sus valores predeterminados originales",
+          "terminalBackgroundImage": "imagen de fondo terminal",
+          "chooseFile": "Elija el archivo",
+          "rendererType": "tipo de renderizador",
+          "defaultTerminalType": "tipo de terminal predeterminado",
+          "ctrlOrMetaOpenTerminalLink": "debe contener ctrl o meta (en mac) al hacer clic para abrir el enlace del terminal",
+          "noTerminalBg": "sin imagen de fondo",
+          "saveTerminalLogToFile": "guardar el registro del terminal en el archivo",
+          "checkUpdateOnStart": "comprobar actualización al inicio de la aplicación"
         },
         "sftp": {
           "cancel": "cancelar",
@@ -654,7 +710,8 @@
           "download": "descargar",
           "resume": "resumir",
           "pause": "pausar",
-          "reset": "reiniciar"
+          "reset": "reiniciar",
+          "showInDefaultFileMananger": "mostrar en el administrador de archivos"
         },
         "permission": {
           "read": "leer",
@@ -676,8 +733,10 @@
           "port": "puerto",
           "title": "título",
           "saveAndConnect": "guardar y conectar",
+          "saveAndCreateNew": "guardar y crear nuevos",
           "save": "guardar",
           "loginScript": "ejecutar script",
+          "loginScriptDelay": "executar atraso do script",
           "loginScriptTip": "ejecutar script después de iniciar sesión",
           "connect": "conectar",
           "testConnection": "conexión de prueba",
@@ -690,7 +749,9 @@
           "auth": "autenticacción",
           "proxy": "proxy",
           "use": "usar",
-          "encode": "codificar"
+          "encode": "codificar",
+          "terminalType": "tipo de terminal",
+          "startDirectory": "directorio de inicio"
         },
         "ssh": {
           "clear": "limpiar",
@@ -702,7 +763,8 @@
           "prevMatch": "anterior",
           "split": "dividir",
           "fileManager": "administrador de archivos",
-          "changeDirection": "cambiar dirección"
+          "changeDirection": "cambiar dirección",
+          "batchInput": "entrada por lotes"
         },
         "terminalThemes": {
           "terminalThemes": "temas terminales",
@@ -714,13 +776,33 @@
           "newTheme": "nuevo tema",
           "themeConfig": "configuración del tema",
           "updated": "actualizado"
+        },
+        "quickCommands": {
+          "quickCommand": "comando rápido",
+          "quickCommands": "comando rápidos",
+          "quickCommandName": "nombre de comando rápido",
+          "addQuickCommands": "agregar comandos rápidos",
+          "newQuickCommand": "nuevo comando rápido",
+          "inputOnly": "solo entrada"
+        },
+        "settingSync": {
+          "settingSync": "ajuste de sincronización",
+          "sync": "sincronizar",
+          "syncing": "sincronización",
+          "syncSettings": "ajustes de sincronización",
+          "uploadSettings": "subir configuraciones",
+          "downloadSettings": "configuración de descarga",
+          "synced": "sincronizado",
+          "syncDesc": "sincronizar marcador / historial / configuración a github secret gist",
+          "autoSync": "sincronización automática",
+          "lastSyncTime": "última hora de sincronización"
         }
       },
       "name": "Español",
       "match": {},
       "flag": "🇪🇸"
     },
-    "pathHtml": "/electerm/index-es_es.html",
+    "pathHtml": "/electerm/index-es_eson.html",
     "assets": {
       "linux": {
         "name": "linux x86 x64",
@@ -951,14 +1033,532 @@
     "releaseDate": "2020-09-29T14:57:19Z",
     "siteKeywords": "electron,ternimal,electerm,ssh,sftp",
     "siteName": "electerm",
-    "path": "/home/execapp/dev/electerm.html5beta.com/index-es_es.html"
+    "path": "/home/execapp/dev/electerm.html5beta.com/index-es_eson.html"
   },
   {
-    "id": "pt_br",
+    "id": "fr_fron",
     "lang": {
       "lang": {
         "app": {
-          "desc": "electerm é um cliente terminal/ssh/sftp para (linux, mac, win) baseado em electron/ssh2/node-pty/xterm/antd e muitas outras libs",
+          "desc": "electerm est un terminal ssh/sftp multiplateforme (linux, mac, win) basé sur electron/ssh2/node-pty/xterm/antd/subx et d'autres librairies",
+          "isRunning": "est démarré",
+          "press": "Appuyez",
+          "toShow": "Pour ouvrir"
+        },
+        "menu": {
+          "hide": "Masquer",
+          "hideothers": "Masquer les autres",
+          "unhide": "Afficher",
+          "quit": "Quitter",
+          "edit": "Editer",
+          "undo": "Annuler",
+          "redo": "Rétablir",
+          "cut": "Couper",
+          "copy": "Copier",
+          "paste": "Coller",
+          "pasteandmatchstyle": "Coller avec le style",
+          "del": "Supprimer",
+          "selectall": "Sélectionner tout",
+          "startspeaking": "Démarrer la conversation",
+          "stopspeaking": "Arrêter la conversation",
+          "view": "Vue",
+          "reload": "Rafraîchir",
+          "forcereload": "Forcer le rafraîchissement",
+          "toggledevtools": "Afficher la console",
+          "toggleControl": "Afficher les boutons de contrôle",
+          "resetzoom": "Réinitialiser le zoom",
+          "zoomin": "Zoom avant",
+          "zoomout": "Zoom arrière",
+          "togglefullscreen": " Plein écran",
+          "window": "Fenêtre",
+          "minimize": "Minimiser",
+          "maximize": "Maximiser",
+          "unmaximize": "Réduire",
+          "close": "Fermer",
+          "restart": "Redémarrer",
+          "front": "front",
+          "help": "Aide",
+          "about": "A propos",
+          "checkUpdate": "Vérifier les mises à jour",
+          "reportIssue": "Reporter une anomalie",
+          "homepage": "Accueil"
+        },
+        "common": {
+          "history": "Historique",
+          "bookmarks": "Favoris",
+          "bookmarkCategory": "Catégorie",
+          "setting": "Paramètres",
+          "about": "A propos",
+          "ok": "Ok",
+          "cancel": "Annuler",
+          "expandAll": "Déplier tout",
+          "collapseAll": "Réduire tout",
+          "restoreSessions": "restaurer des sessions"
+        },
+        "control": {
+          "author": "Auteur",
+          "download": "Télécharger",
+          "bugReport": "Rapport d'erreur",
+          "checkForUpdate": "Vérifier les mises à jour",
+          "homepage": "Page d'accueil",
+          "notFoundContent": "Aucun élément",
+          "newSsh": "Nouvelle connexion ssh",
+          "newTerminal": "Nouveau terminal",
+          "dependencies": "Dépendances",
+          "env": "Environnement",
+          "os": "Système",
+          "userTips": "user tips"
+        },
+        "transferHistory": {
+          "transferHistory": "Historique des transferts",
+          "localPath": "Chemin local",
+          "remotePath": "Chemin distant",
+          "type": "Type",
+          "startTime": "Démarré le",
+          "finishTime": "Terminé le",
+          "speed": "Vitesse",
+          "clear": "Vider",
+          "fromPath": "chemin source",
+          "toPath": "chemin cible"
+        },
+        "tabs": {
+          "titleEmptyWarn": "Le titre est requis",
+          "close": "Fermer",
+          "closeOtherTabs": "Fermer les autres onglets",
+          "closeTabRight": "Fermer les onglets à droite",
+          "newTab": "Nouvel onglet",
+          "duplicate": "Dupliquer",
+          "rename": "Renommer",
+          "openNewTerm": "Nouveau terminal SSH",
+          "sessions": "sessions"
+        },
+        "main": {
+          "error": "Une erreur a été rencontrée."
+        },
+        "updater": {
+          "noNeed": "Aucune mise à jour disponible",
+          "noNeedDesc": "Vous utilisez la dernière version disponible",
+          "fail": "Erreur de vérification de mise à jour",
+          "goGetIt": "Mise à jour disponible !",
+          "newVersion": "Nouvelle version disponible",
+          "upgrade": "Mettre à jour",
+          "upgrading": "Mise à jour en cours",
+          "skipThisVersion": "Ignorer cette version"
+        },
+        "setting": {
+          "new": "Nouveau",
+          "settings": "Paramètres",
+          "common": "Général",
+          "hotkeyNotOk": "Le raccourci ne peut pas être utilisé, veuillez en choisir un autre",
+          "saved": "Enregistré",
+          "saveLang": "Enregistré, redémarrez l'application pour prendre en compte les changements",
+          "restartNow": "Redémarrer maintenant",
+          "hotkeyDesc": "Raccourci pour afficher l'application",
+          "timeoutDesc": "Délai d'attente ssh/sftp (en millisecondes)",
+          "scrollBackDesc": "Lignes de défilement",
+          "language": "Langue",
+          "copyWhenSelect": "Copier dans le presse-papier lors de la sélection",
+          "rightClickSelectsWord": "Clic droit sélectionne autmatiquement le mot",
+          "pasteWhenContextMenu": "Coller lors du clic droit",
+          "fontSize": "Taille de la police",
+          "fontFamily": "Police",
+          "opacity": "Opacité",
+          "global": "Global",
+          "disableSshHistory": "Désactiver l'historique SSH",
+          "disableTransferHistory": "Désactiver l'historique de transfert sftp",
+          "resetAllToDefault": "Restaurer les paramères par défaut",
+          "terminalBackgroundImage": "Image de fond du terminal",
+          "chooseFile": "Sélectionner un fichier",
+          "rendererType": "Type de rendu",
+          "defaultTerminalType": "Type de terminal par défaut",
+          "ctrlOrMetaOpenTerminalLink": "Doit maintenir la touche ctrl ou meta (sur mac) enfoncée pour ouvrir les liens dans le terminal",
+          "noTerminalBg": "pas d'image d'arrière-plan",
+          "saveTerminalLogToFile": "enregistrer le journal du terminal dans un fichier",
+          "checkUpdateOnStart": "vérifier la mise à jour au démarrage de l'application"
+        },
+        "sftp": {
+          "cancel": "Annuler",
+          "skip": "Ignorer",
+          "merge": "Fusionner",
+          "overwrite": "Ecraser",
+          "rename": "Renommer",
+          "renameAll": "Tout renommer",
+          "mergeDesc": "Fusionner les dossiers restants",
+          "overwriteDesc": "Ecraser les fichiers restants",
+          "mergeAll": "Tout fusionner",
+          "overwriteAll": "Tout écraser",
+          "renameDesc": "Tenommer les fichiers/dossiers restants",
+          "folder": "Dossier",
+          "file": "Fichier",
+          "fileConflict": "Conflit de fichier",
+          "submit": "Valider",
+          "edit": "Editer",
+          "open": "Ouvrir",
+          "permission": "Permission",
+          "name": "Nom",
+          "mode": "Mode",
+          "path": "Chemin",
+          "fullPath": "Chemin complet",
+          "size": "Taille",
+          "accessTime": "Dernier accès",
+          "modifyTime": "Dernière modification",
+          "attributes": "Attributs",
+          "enter": "Entrée",
+          "deleteAll": "Tout supprimer",
+          "selected": "Sélectionnés",
+          "newFile": "Nouveau fichier",
+          "newFolder": "Nouveau dossier",
+          "selectAll": "Tout sélectionner",
+          "refresh": "Actualiser",
+          "editPermission": "Editer les permissions",
+          "info": "Informations",
+          "filesAndFolders": "Fichiers/Dossiers",
+          "files": "Fichiers",
+          "delTip": "Etes-vous sûr ? Ceci supprimera",
+          "delTip1": "tous les fichiers et dossiers",
+          "goParent": "Aller au dossier parent",
+          "hide": "Masquer",
+          "show": "Afficher",
+          "hfd": "Fichiers et dossiers cachés",
+          "remote": "Distant",
+          "local": "Local",
+          "fileTransfers": "Transfert de fichiers",
+          "cancelAll": "Tout annuler",
+          "upload": "Envoyer",
+          "download": "Télécharger",
+          "resume": "Reprendre",
+          "pause": "Pause",
+          "reset": "Réinitialiser",
+          "showInDefaultFileMananger": "afficher dans le gestionnaire de fichiers"
+        },
+        "permission": {
+          "read": "Lecture",
+          "write": "Ecriture",
+          "exec": "Exécution",
+          "owner": "Propriétaire",
+          "group": "Groupe",
+          "other": "Autre"
+        },
+        "form": {
+          "password": "Mot de passe",
+          "privateKey": "Clé privée",
+          "privateKeyDesc": "Contenu de la clé privée",
+          "importFromFile": "Importer un fichier",
+          "passphrase": "Passphrase",
+          "passphraseDesc": "Passphrase de la clé privée",
+          "host": "Hôte",
+          "username": "Identifiant",
+          "port": "Port",
+          "title": "Titre",
+          "saveAndConnect": "Enregistrer et se connecter",
+          "saveAndCreateNew": "Enregistrer et créer un nouveau",
+          "save": "Enregistrer",
+          "loginScript": "Script à la connexion",
+          "loginScriptDelay": "Délai avant exécution du script",
+          "loginScriptTip": "Exécute une script à la connexion",
+          "connect": "Connexion",
+          "testConnection": "Tester la connexion",
+          "required": "Requis",
+          "proxyIp": "IP du proxy",
+          "proxyPort": "Port du proxy",
+          "proxyType": "Type de proxy",
+          "proxyIpPlaceholder": "Adresse IP du proxy",
+          "selectProxy": "Sélectionner le proxy",
+          "auth": "auth",
+          "proxy": "proxy",
+          "use": "use",
+          "encode": "encode",
+          "terminalType": "Type de terminal",
+          "startDirectory": "répertoire de démarrage"
+        },
+        "ssh": {
+          "clear": "Effacer",
+          "selectAll": "Tout sélectionner",
+          "savePassword": "Mémoriser le mot de passe",
+          "search": "Rechercher",
+          "terminal": "Terminal SSH",
+          "nextMatch": "Suivant",
+          "prevMatch": "Précédent",
+          "split": "Séparer",
+          "fileManager": "Gestionnaire de fichiers SFTP",
+          "changeDirection": "Changer d'orientation",
+          "batchInput": "entrée par lots"
+        },
+        "terminalThemes": {
+          "terminalThemes": "Thèmes de terminal",
+          "export": "Exporter",
+          "themeName": "Nom du thème",
+          "saveAndApply": "Enregistrer et appliquer",
+          "apply": "Appliquer",
+          "default": "Default",
+          "newTheme": "Nouveau thème",
+          "themeConfig": "Configuration du thème",
+          "updated": "Mis à jour"
+        },
+        "quickCommands": {
+          "quickCommand": "Commande",
+          "quickCommands": "Raccourcis (commandes)",
+          "quickCommandName": "Nom du raccourci",
+          "addQuickCommands": "Ajouter un raccourci",
+          "newQuickCommand": "Nouveau raccourci",
+          "inputOnly": "Saisie uniquement (ne termine pas par la touche entrée)"
+        },
+        "settingSync": {
+          "settingSync": "Synchronisation des paramètres",
+          "sync": "Synchronier",
+          "syncing": "Synchronisation en cours",
+          "syncSettings": "Synchroniser les paramètres",
+          "uploadSettings": "Envoyer les paramètres",
+          "downloadSettings": "Télécharger les paramètres",
+          "synced": "Synchronisé",
+          "syncDesc": "Synchroniser les favoris / historique / paramètres dans gist",
+          "autoSync": "Synchronisation automatique",
+          "lastSyncTime": "Dernière synchronisation"
+        }
+      },
+      "name": "Français",
+      "match": {},
+      "flag": "🇫🇷"
+    },
+    "pathHtml": "/electerm/index-fr_fron.html",
+    "assets": {
+      "linux": {
+        "name": "linux x86 x64",
+        "items": [
+          {
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/26328852",
+            "id": 26328852,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDI2MzI4ODUy",
+            "name": "electerm-1.5.7-linux-amd64.deb",
+            "label": "",
+            "uploader": {
+              "login": "zxdong262",
+              "id": 1641949,
+              "node_id": "MDQ6VXNlcjE2NDE5NDk=",
+              "avatar_url": "https://avatars2.githubusercontent.com/u/1641949?v=4",
+              "gravatar_id": "",
+              "url": "https://api.github.com/users/zxdong262",
+              "html_url": "https://github.com/zxdong262",
+              "followers_url": "https://api.github.com/users/zxdong262/followers",
+              "following_url": "https://api.github.com/users/zxdong262/following{/other_user}",
+              "gists_url": "https://api.github.com/users/zxdong262/gists{/gist_id}",
+              "starred_url": "https://api.github.com/users/zxdong262/starred{/owner}{/repo}",
+              "subscriptions_url": "https://api.github.com/users/zxdong262/subscriptions",
+              "organizations_url": "https://api.github.com/users/zxdong262/orgs",
+              "repos_url": "https://api.github.com/users/zxdong262/repos",
+              "events_url": "https://api.github.com/users/zxdong262/events{/privacy}",
+              "received_events_url": "https://api.github.com/users/zxdong262/received_events",
+              "type": "User",
+              "site_admin": false
+            },
+            "content_type": "application/octet-stream",
+            "state": "uploaded",
+            "size": 54286362,
+            "download_count": 0,
+            "created_at": "2020-09-29T14:46:48Z",
+            "updated_at": "2020-09-29T14:46:50Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.5.7/electerm-1.5.7-linux-amd64.deb",
+            "desc": "for Debian, Ubuntu..."
+          },
+          {
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/26323066",
+            "id": 26323066,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDI2MzIzMDY2",
+            "name": "electerm-1.5.7-linux-amd64.snap",
+            "label": "",
+            "uploader": {
+              "login": "zxdong262",
+              "id": 1641949,
+              "node_id": "MDQ6VXNlcjE2NDE5NDk=",
+              "avatar_url": "https://avatars2.githubusercontent.com/u/1641949?v=4",
+              "gravatar_id": "",
+              "url": "https://api.github.com/users/zxdong262",
+              "html_url": "https://github.com/zxdong262",
+              "followers_url": "https://api.github.com/users/zxdong262/followers",
+              "following_url": "https://api.github.com/users/zxdong262/following{/other_user}",
+              "gists_url": "https://api.github.com/users/zxdong262/gists{/gist_id}",
+              "starred_url": "https://api.github.com/users/zxdong262/starred{/owner}{/repo}",
+              "subscriptions_url": "https://api.github.com/users/zxdong262/subscriptions",
+              "organizations_url": "https://api.github.com/users/zxdong262/orgs",
+              "repos_url": "https://api.github.com/users/zxdong262/repos",
+              "events_url": "https://api.github.com/users/zxdong262/events{/privacy}",
+              "received_events_url": "https://api.github.com/users/zxdong262/received_events",
+              "type": "User",
+              "site_admin": false
+            },
+            "content_type": "application/octet-stream",
+            "state": "uploaded",
+            "size": 66347008,
+            "download_count": 0,
+            "created_at": "2020-09-29T13:08:40Z",
+            "updated_at": "2020-09-29T13:08:43Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.5.7/electerm-1.5.7-linux-amd64.snap",
+            "desc": "for all linux that support snap"
+          },
+          {
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/26328798",
+            "id": 26328798,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDI2MzI4Nzk4",
+            "name": "electerm-1.5.7-linux-x64.tar.gz",
+            "label": "",
+            "uploader": {
+              "login": "zxdong262",
+              "id": 1641949,
+              "node_id": "MDQ6VXNlcjE2NDE5NDk=",
+              "avatar_url": "https://avatars2.githubusercontent.com/u/1641949?v=4",
+              "gravatar_id": "",
+              "url": "https://api.github.com/users/zxdong262",
+              "html_url": "https://github.com/zxdong262",
+              "followers_url": "https://api.github.com/users/zxdong262/followers",
+              "following_url": "https://api.github.com/users/zxdong262/following{/other_user}",
+              "gists_url": "https://api.github.com/users/zxdong262/gists{/gist_id}",
+              "starred_url": "https://api.github.com/users/zxdong262/starred{/owner}{/repo}",
+              "subscriptions_url": "https://api.github.com/users/zxdong262/subscriptions",
+              "organizations_url": "https://api.github.com/users/zxdong262/orgs",
+              "repos_url": "https://api.github.com/users/zxdong262/repos",
+              "events_url": "https://api.github.com/users/zxdong262/events{/privacy}",
+              "received_events_url": "https://api.github.com/users/zxdong262/received_events",
+              "type": "User",
+              "site_admin": false
+            },
+            "content_type": "application/gzip",
+            "state": "uploaded",
+            "size": 74959246,
+            "download_count": 0,
+            "created_at": "2020-09-29T14:45:11Z",
+            "updated_at": "2020-09-29T14:45:13Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.5.7/electerm-1.5.7-linux-x64.tar.gz",
+            "desc": "for all linux x64, just extract"
+          },
+          {
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/26323021",
+            "id": 26323021,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDI2MzIzMDIx",
+            "name": "electerm-1.5.7-linux-x86_64.rpm",
+            "label": "",
+            "uploader": {
+              "login": "zxdong262",
+              "id": 1641949,
+              "node_id": "MDQ6VXNlcjE2NDE5NDk=",
+              "avatar_url": "https://avatars2.githubusercontent.com/u/1641949?v=4",
+              "gravatar_id": "",
+              "url": "https://api.github.com/users/zxdong262",
+              "html_url": "https://github.com/zxdong262",
+              "followers_url": "https://api.github.com/users/zxdong262/followers",
+              "following_url": "https://api.github.com/users/zxdong262/following{/other_user}",
+              "gists_url": "https://api.github.com/users/zxdong262/gists{/gist_id}",
+              "starred_url": "https://api.github.com/users/zxdong262/starred{/owner}{/repo}",
+              "subscriptions_url": "https://api.github.com/users/zxdong262/subscriptions",
+              "organizations_url": "https://api.github.com/users/zxdong262/orgs",
+              "repos_url": "https://api.github.com/users/zxdong262/repos",
+              "events_url": "https://api.github.com/users/zxdong262/events{/privacy}",
+              "received_events_url": "https://api.github.com/users/zxdong262/received_events",
+              "type": "User",
+              "site_admin": false
+            },
+            "content_type": "application/x-redhat-package-manager",
+            "state": "uploaded",
+            "size": 54411668,
+            "download_count": 0,
+            "created_at": "2020-09-29T13:07:48Z",
+            "updated_at": "2020-09-29T13:07:49Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.5.7/electerm-1.5.7-linux-x86_64.rpm",
+            "desc": "for Red Hat, Fedora..."
+          }
+        ]
+      },
+      "mac": {
+        "name": "mac os x64",
+        "items": [
+          {
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/26329631",
+            "id": 26329631,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDI2MzI5NjMx",
+            "name": "electerm-1.5.7-mac.dmg",
+            "label": "",
+            "uploader": {
+              "login": "zxdong262",
+              "id": 1641949,
+              "node_id": "MDQ6VXNlcjE2NDE5NDk=",
+              "avatar_url": "https://avatars2.githubusercontent.com/u/1641949?v=4",
+              "gravatar_id": "",
+              "url": "https://api.github.com/users/zxdong262",
+              "html_url": "https://github.com/zxdong262",
+              "followers_url": "https://api.github.com/users/zxdong262/followers",
+              "following_url": "https://api.github.com/users/zxdong262/following{/other_user}",
+              "gists_url": "https://api.github.com/users/zxdong262/gists{/gist_id}",
+              "starred_url": "https://api.github.com/users/zxdong262/starred{/owner}{/repo}",
+              "subscriptions_url": "https://api.github.com/users/zxdong262/subscriptions",
+              "organizations_url": "https://api.github.com/users/zxdong262/orgs",
+              "repos_url": "https://api.github.com/users/zxdong262/repos",
+              "events_url": "https://api.github.com/users/zxdong262/events{/privacy}",
+              "received_events_url": "https://api.github.com/users/zxdong262/received_events",
+              "type": "User",
+              "site_admin": false
+            },
+            "content_type": "application/octet-stream",
+            "state": "uploaded",
+            "size": 78077417,
+            "download_count": 0,
+            "created_at": "2020-09-29T14:55:48Z",
+            "updated_at": "2020-09-29T14:55:51Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.5.7/electerm-1.5.7-mac.dmg"
+          }
+        ]
+      },
+      "windows": {
+        "name": "windows 7/8/10 x86 x64",
+        "items": [
+          {
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/26322395",
+            "id": 26322395,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDI2MzIyMzk1",
+            "name": "electerm-1.5.7-win-x64.tar.gz",
+            "label": "",
+            "uploader": {
+              "login": "zxdong262",
+              "id": 1641949,
+              "node_id": "MDQ6VXNlcjE2NDE5NDk=",
+              "avatar_url": "https://avatars2.githubusercontent.com/u/1641949?v=4",
+              "gravatar_id": "",
+              "url": "https://api.github.com/users/zxdong262",
+              "html_url": "https://github.com/zxdong262",
+              "followers_url": "https://api.github.com/users/zxdong262/followers",
+              "following_url": "https://api.github.com/users/zxdong262/following{/other_user}",
+              "gists_url": "https://api.github.com/users/zxdong262/gists{/gist_id}",
+              "starred_url": "https://api.github.com/users/zxdong262/starred{/owner}{/repo}",
+              "subscriptions_url": "https://api.github.com/users/zxdong262/subscriptions",
+              "organizations_url": "https://api.github.com/users/zxdong262/orgs",
+              "repos_url": "https://api.github.com/users/zxdong262/repos",
+              "events_url": "https://api.github.com/users/zxdong262/events{/privacy}",
+              "received_events_url": "https://api.github.com/users/zxdong262/received_events",
+              "type": "User",
+              "site_admin": false
+            },
+            "content_type": "application/gzip",
+            "state": "uploaded",
+            "size": 73098675,
+            "download_count": 0,
+            "created_at": "2020-09-29T13:05:21Z",
+            "updated_at": "2020-09-29T13:05:23Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.5.7/electerm-1.5.7-win-x64.tar.gz"
+          }
+        ]
+      }
+    },
+    "version": "v1.5.7",
+    "releaseNote": "- fix: Fix empty batch input crash app\r\n- fix: Fix number input direct edit function in settings (#1836)",
+    "releaseDate": "2020-09-29T14:57:19Z",
+    "siteKeywords": "electron,ternimal,electerm,ssh,sftp",
+    "siteName": "electerm",
+    "path": "/home/execapp/dev/electerm.html5beta.com/index-fr_fron.html"
+  },
+  {
+    "id": "pt_bron",
+    "lang": {
+      "lang": {
+        "app": {
+          "desc": "electerm é um cliente terminal/ssh/sftp para (linux, mac, win) baseado em electron/ssh2/node-pty/xterm/antd/subx e muitas outras libs",
           "isRunning": "está rodando",
           "press": "pressione",
           "toShow": "para exibir"
@@ -1009,7 +1609,9 @@
           "about": "sobre",
           "ok": "ok",
           "cancel": "cancelar",
-          "restoreSessions": "Restaurar sesiones de incorrecto shutdown?"
+          "expandAll": "Expandir todo",
+          "collapseAll": "Recolher todo",
+          "restoreSessions": "restaurar sessões"
         },
         "control": {
           "author": "autor",
@@ -1033,7 +1635,9 @@
           "startTime": "tempo de início",
           "finishTime": "tempo final",
           "speed": "velocidade",
-          "clear": "limpar"
+          "clear": "limpar",
+          "fromPath": "caminho de origem",
+          "toPath": "caminho de Destino"
         },
         "tabs": {
           "titleEmptyWarn": "o título não pode ficar em branco",
@@ -1056,7 +1660,8 @@
           "goGetIt": "buscar",
           "newVersion": "nova versão encontrada",
           "upgrade": "atualizar",
-          "upgrading": "atualizando"
+          "upgrading": "atualizando",
+          "skipThisVersion": "pular esta versão"
         },
         "setting": {
           "new": "novo",
@@ -1077,7 +1682,17 @@
           "fontFamily": "família de fontes",
           "opacity": "opacidade",
           "global": "global",
-          "resetAllToDefault": "restaurar configurações para seus padrões originais"
+          "disableSshHistory": "desativar o histórico do ssh",
+          "disableTransferHistory": "desativar histórico de transferência do sftp",
+          "resetAllToDefault": "restaurar configurações para seus padrões originais",
+          "terminalBackgroundImage": "imagem de fundo do terminal",
+          "chooseFile": "escolher arquivo",
+          "rendererType": "tipo renderizador",
+          "defaultTerminalType": "tipo de terminal padrão",
+          "ctrlOrMetaOpenTerminalLink": "deve segurar ctrl ou meta (no mac) quando clicar para abrir o link do terminal",
+          "noTerminalBg": "nenhuma imagem de fundo",
+          "saveTerminalLogToFile": "salvar o log do terminal no arquivo",
+          "checkUpdateOnStart": "verifique a atualização no início do aplicativo"
         },
         "sftp": {
           "cancel": "cancelar",
@@ -1131,7 +1746,8 @@
           "download": "download",
           "resume": "continuar",
           "pause": "pausar",
-          "reset": "restaurar"
+          "reset": "restaurar",
+          "showInDefaultFileMananger": "mostrar no gerenciador de arquivos"
         },
         "permission": {
           "read": "leitura",
@@ -1153,8 +1769,10 @@
           "port": "porta",
           "title": "título",
           "saveAndConnect": "salvar e conectar",
+          "saveAndCreateNew": "salve e crie novo",
           "save": "salvar",
           "loginScript": "rodar script",
+          "loginScriptDelay": "run script delay",
           "loginScriptTip": "rodar script após login",
           "connect": "conectar",
           "testConnection": "testar conexão",
@@ -1167,7 +1785,9 @@
           "auth": "autenticação",
           "proxy": "proxy",
           "use": "usar",
-          "encode": "codificar"
+          "encode": "codificar",
+          "terminalType": "tipo de terminal",
+          "startDirectory": "diretório inicial"
         },
         "ssh": {
           "clear": "limpar",
@@ -1179,7 +1799,8 @@
           "prevMatch": "anterior",
           "split": "dividir",
           "fileManager": "gerenciador de arquivo",
-          "changeDirection": "alterar direção"
+          "changeDirection": "alterar direção",
+          "batchInput": "entrada de lote"
         },
         "terminalThemes": {
           "terminalThemes": "temas do terminal",
@@ -1191,13 +1812,33 @@
           "newTheme": "novo tema",
           "themeConfig": "configuração do tema",
           "updated": "Atualizada"
+        },
+        "quickCommands": {
+          "quickCommand": "comando rápido",
+          "quickCommands": "comandos rápidos",
+          "quickCommandName": "nome de comando rápido",
+          "addQuickCommands": "adicionar comandos rápidos",
+          "newQuickCommand": "novo comando rápido",
+          "inputOnly": "somente entrada"
+        },
+        "settingSync": {
+          "settingSync": "ajustando a sincronização",
+          "sync": "sincronizar",
+          "syncing": "sincronização",
+          "syncSettings": "configurações de sincronização",
+          "uploadSettings": "configurações de upload",
+          "downloadSettings": "configurações de download",
+          "synced": "sincronizado",
+          "syncDesc": "sincronizar marcador / history / setting para github secret gist",
+          "autoSync": "sincronização automática",
+          "lastSyncTime": "hora da última sincronização"
         }
       },
       "name": "Português do Brasil",
       "match": {},
       "flag": "🇧🇷"
     },
-    "pathHtml": "/electerm/index-pt_br.html",
+    "pathHtml": "/electerm/index-pt_bron.html",
     "assets": {
       "linux": {
         "name": "linux x86 x64",
@@ -1428,14 +2069,14 @@
     "releaseDate": "2020-09-29T14:57:19Z",
     "siteKeywords": "electron,ternimal,electerm,ssh,sftp",
     "siteName": "electerm",
-    "path": "/home/execapp/dev/electerm.html5beta.com/index-pt_br.html"
+    "path": "/home/execapp/dev/electerm.html5beta.com/index-pt_bron.html"
   },
   {
-    "id": "ru_ru",
+    "id": "ru_ruon",
     "lang": {
       "lang": {
         "app": {
-          "desc": "electerm - это мультиплатформенный терминал и ssh/sftp клиент (linux, mac, win) на основе electron/ssh2/node-pty/xterm/antd и многих других библиотек",
+          "desc": "electerm - это мультиплатформенный терминал и ssh/sftp клиент (linux, mac, win) на основе electron/ssh2/node-pty/xterm/antd/subx и многих других библиотек",
           "isRunning": "выполняется",
           "press": "нажмите",
           "toShow": "для отображения"
@@ -1486,7 +2127,9 @@
           "about": "о программе",
           "ok": "ок",
           "cancel": "отмена",
-          "restoreSessions": "восстановить сессии после некорректного завершения?"
+          "expandAll": "развернуть",
+          "collapseAll": "свернуть",
+          "restoreSessions": "восстановить сеансы"
         },
         "control": {
           "author": "автор",
@@ -1510,7 +2153,9 @@
           "startTime": "начальное время",
           "finishTime": "конечное время",
           "speed": "скорость",
-          "clear": "очистить"
+          "clear": "очистить",
+          "fromPath": "исходный путь",
+          "toPath": "целевой путь"
         },
         "tabs": {
           "titleEmptyWarn": "заголовок не может быть пустым",
@@ -1533,7 +2178,8 @@
           "goGetIt": "получите ее!",
           "newVersion": "найдена новая версия",
           "upgrade": "Обновить",
-          "upgrading": "модернизация"
+          "upgrading": "модернизация",
+          "skipThisVersion": "пропустить эту версию"
         },
         "setting": {
           "new": "новый",
@@ -1554,7 +2200,17 @@
           "fontFamily": "семейство шрифта",
           "opacity": "помутнение",
           "global": "глобальной",
-          "resetAllToDefault": "восстановить настройки по умолчанию"
+          "disableSshHistory": "Отключить историю SSH",
+          "disableTransferHistory": "Отключить историю переводов sftp",
+          "resetAllToDefault": "восстановить настройки по умолчанию",
+          "terminalBackgroundImage": "терминал фоновое изображение",
+          "chooseFile": "выберите файл",
+          "rendererType": "тип рендерера",
+          "defaultTerminalType": "тип терминала по умолчанию",
+          "ctrlOrMetaOpenTerminalLink": "должен удерживать Ctrl или Meta (в Mac) при нажатии, чтобы открыть ссылку терминала",
+          "noTerminalBg": "без фонового изображения",
+          "saveTerminalLogToFile": "сохранить журнал терминала в файл",
+          "checkUpdateOnStart": "проверить обновление при запуске приложения"
         },
         "sftp": {
           "cancel": "отменить",
@@ -1608,7 +2264,8 @@
           "download": "скачать",
           "resume": "возобновить",
           "pause": "приостановить",
-          "reset": "сбросить"
+          "reset": "сбросить",
+          "showInDefaultFileMananger": "показать в файловом менеджере"
         },
         "permission": {
           "read": "чтение",
@@ -1630,8 +2287,10 @@
           "port": "порт",
           "title": "название",
           "saveAndConnect": "сохранить и соединиться",
+          "saveAndCreateNew": "сохранить и создать новый",
           "save": "сохранить",
           "loginScript": "запустить скрипт",
+          "loginScriptDelay": "задержка запуска скрипта",
           "loginScriptTip": "запустить скрипт после логина",
           "connect": "соединиться",
           "testConnection": "проверить соединение",
@@ -1644,7 +2303,9 @@
           "auth": "авторизация",
           "proxy": "прокси",
           "use": "использовать",
-          "encode": "шифровать"
+          "encode": "шифровать",
+          "terminalType": "тип терминала",
+          "startDirectory": "начальный каталог"
         },
         "ssh": {
           "clear": "очистить",
@@ -1656,7 +2317,8 @@
           "prevMatch": "предыдущее соответствие",
           "split": "разделить",
           "fileManager": "файловый менеджер",
-          "changeDirection": "изменить направление"
+          "changeDirection": "изменить направление",
+          "batchInput": "пакетный ввод"
         },
         "terminalThemes": {
           "terminalThemes": "темы терминала",
@@ -1668,13 +2330,33 @@
           "newTheme": "новая тема",
           "themeConfig": "конфигурация темы",
           "updated": "обновлено"
+        },
+        "quickCommands": {
+          "quickCommand": "быстрая команда",
+          "quickCommands": "быстрые команды",
+          "quickCommandName": "быстрое имя команды",
+          "addQuickCommands": "добавить быстрые команды",
+          "newQuickCommand": "новая быстрая команда",
+          "inputOnly": "только вход"
+        },
+        "settingSync": {
+          "settingSync": "настройка синхронизации",
+          "sync": "синхронизировать",
+          "syncing": "синхронизации",
+          "syncSettings": "настройки синхронизации",
+          "uploadSettings": "загрузить настройки",
+          "downloadSettings": "скачать настройки",
+          "synced": "синхронизирован",
+          "syncDesc": "синхронизировать закладку / историю / настройку в github секретный гист",
+          "autoSync": "автосинхронизация",
+          "lastSyncTime": "время последней синхронизации"
         }
       },
       "name": "Русский",
       "match": {},
       "flag": "🇷🇺"
     },
-    "pathHtml": "/electerm/index-ru_ru.html",
+    "pathHtml": "/electerm/index-ru_ruon.html",
     "assets": {
       "linux": {
         "name": "linux x86 x64",
@@ -1905,14 +2587,532 @@
     "releaseDate": "2020-09-29T14:57:19Z",
     "siteKeywords": "electron,ternimal,electerm,ssh,sftp",
     "siteName": "electerm",
-    "path": "/home/execapp/dev/electerm.html5beta.com/index-ru_ru.html"
+    "path": "/home/execapp/dev/electerm.html5beta.com/index-ru_ruon.html"
   },
   {
-    "id": "zh_cn",
+    "id": "tr_tron",
     "lang": {
       "lang": {
         "app": {
-          "desc": "electerm是一个terminal/ssh/sftp客户端(支持linux, mac, win), 基于electron/ssh2/node-pty/xterm/antd等组件",
+          "desc": "electerm, electron/ssh2/node-pty/xterm/antd/subx ve birçok diğer kütüphaneyi temel alarak çalışan bir terminal/ssh/sftp istemcisidir (linux, mac, win)",
+          "isRunning": "çalışıyor",
+          "press": "bas",
+          "toShow": "göster"
+        },
+        "menu": {
+          "hide": "gizle",
+          "hideothers": "diğerlerini gizle",
+          "unhide": "göster",
+          "quit": "çıkış",
+          "edit": "düzenle",
+          "undo": "geri al",
+          "redo": "tekrar yap",
+          "cut": "kes",
+          "copy": "kopyala",
+          "paste": "yapıştır",
+          "pasteandmatchstyle": "yapıştır ve tarzı eşleştir",
+          "del": "sil",
+          "selectall": "tümünü seç",
+          "startspeaking": "konuşmayı başlat",
+          "stopspeaking": "konuşmayı durdur",
+          "view": "görüntüle",
+          "reload": "yeniden yükle",
+          "forcereload": "yeniden yüklemeye zorla",
+          "toggledevtools": "geliştirici araçlarını aç/kapat",
+          "toggleControl": "denetim butonlarını aç/kapat",
+          "resetzoom": "yakınlaştırmayı sıfırla",
+          "zoomin": "yakınlaştır",
+          "zoomout": "uzaklaştır",
+          "togglefullscreen": "tam ekran modunu aç/kapat",
+          "window": "pencere",
+          "minimize": "küçült",
+          "maximize": "büyüt",
+          "unmaximize": "eski boyutuna döndür",
+          "close": "kapat",
+          "restart": "yeniden başlat",
+          "front": "ön",
+          "help": "yardım",
+          "about": "hakkında",
+          "checkUpdate": "güncellemeleri denetle",
+          "reportIssue": "sorun bildir",
+          "homepage": "anasayfa"
+        },
+        "common": {
+          "history": "geçmiş",
+          "bookmarks": "yer imleri",
+          "bookmarkCategory": "kategori",
+          "setting": "ayarlar",
+          "about": "hakkında",
+          "ok": "tamam",
+          "cancel": "iptal",
+          "expandAll": "Tümünü genişlet",
+          "collapseAll": "Tümünü daralt",
+          "restoreSessions": "oturumları geri yükle"
+        },
+        "control": {
+          "author": "geliştirici",
+          "download": "indir",
+          "bugReport": "hata raporu",
+          "checkForUpdate": "güncellemeleri denetle",
+          "homepage": "anasayfa",
+          "notFoundContent": "içerik yok",
+          "newSsh": "yeni ssh",
+          "newTerminal": "yeni terminal",
+          "dependencies": "bağımlılıklar",
+          "env": "ortam",
+          "os": "işletim sistemi",
+          "userTips": "kullanım ipuçları"
+        },
+        "transferHistory": {
+          "transferHistory": "geçmişi aktar",
+          "localPath": "yerel dosya yolu",
+          "remotePath": "uzak dosya tolu",
+          "type": "tür",
+          "startTime": "başlangıç zamanı",
+          "finishTime": "bitiş zamanı",
+          "speed": "hız",
+          "clear": "temizle",
+          "fromPath": "kaynak yolu",
+          "toPath": "hedef yol"
+        },
+        "tabs": {
+          "titleEmptyWarn": "başlık boş olamaz",
+          "close": "kapat",
+          "closeOtherTabs": "diğer sekmeleri kapat",
+          "closeTabRight": "sağdaki sekmeleri kapat",
+          "newTab": "yeni sekme",
+          "duplicate": "çoğalt",
+          "rename": "yeniden adlandır",
+          "openNewTerm": "yeni terminal aç",
+          "sessions": "oturumlar"
+        },
+        "main": {
+          "error": "Bir hata oluştu."
+        },
+        "updater": {
+          "noNeed": "güncelleme ihtiyacı bulunmuyor",
+          "noNeedDesc": "en güncel sürümü kullanıyorsunuz",
+          "fail": "güncelleme sorgulaması başarısız oldu",
+          "goGetIt": "indir",
+          "newVersion": "güncel sürüm bulundu",
+          "upgrade": "yükselt!",
+          "upgrading": "yükseltiliyor",
+          "skipThisVersion": "bu sürümü atla"
+        },
+        "setting": {
+          "new": "yeni",
+          "settings": "ayarlar",
+          "common": "genel",
+          "hotkeyNotOk": "bu kısayol kullanılamıyor, lütfen başka bir kısayol kullanın",
+          "saved": "kaydedildi",
+          "saveLang": "kaydedildi, işlevsel hale gelmesi için yeniden başlatın",
+          "restartNow": "şimdi yeniden başlat",
+          "hotkeyDesc": "sistem kısayolu (pencereyi öne getir)",
+          "timeoutDesc": "ssh/sftp zaman aşımı (milisaniye)",
+          "scrollBackDesc": "kaydırılabilecek satır miktarı",
+          "language": "dil",
+          "copyWhenSelect": "seçilen metni kopyala",
+          "rightClickSelectsWord": "sağ tık ile kelimeyi otomatik seç",
+          "pasteWhenContextMenu": "sağ tık ile yapıştır",
+          "fontSize": "font boyutu",
+          "fontFamily": "font ailesi",
+          "opacity": "opaklık",
+          "global": "evrensel",
+          "disableSshHistory": "ssh geçmişini devre dışı bırak",
+          "disableTransferHistory": "sftp aktarım geçmişini devre dışı bırak",
+          "resetAllToDefault": "ayarları varsayılanlara geri döndür",
+          "terminalBackgroundImage": "terminal arkaplan resmi",
+          "chooseFile": "dosya seç",
+          "rendererType": "render türü",
+          "defaultTerminalType": "varsayılan terminal türü",
+          "ctrlOrMetaOpenTerminalLink": "terminal bağlantısını açmak için ctrl (veya mac ise meta) basılı iken bağlantıya tıklanmalıdır",
+          "noTerminalBg": "arkaplan resmi yok",
+          "saveTerminalLogToFile": "terminal günlüğünü dosyaya kaydet",
+          "checkUpdateOnStart": "uygulama başlangıcında güncellemeyi kontrol et"
+        },
+        "sftp": {
+          "cancel": "iptal",
+          "skip": "atla",
+          "merge": "birleştir",
+          "overwrite": "üzerine yaz",
+          "rename": "yeniden adlandır",
+          "renameAll": "tümünü yeniden adlandır",
+          "mergeDesc": "tekrar dizin tutarsızlığı oluşursa birleştir",
+          "overwriteDesc": "tekrar dosya tutarsızlığı oluşursa üzerine yaz",
+          "mergeAll": "tümünü birleştir",
+          "overwriteAll": "tümünü üzerine yaz",
+          "renameDesc": "kalan tüm dosyaları/dizinleri yeniden adlandır",
+          "folder": "dizin",
+          "file": "dosya",
+          "fileConflict": "dosya tutarsızlığı",
+          "submit": "onayla",
+          "edit": "düzenle",
+          "open": "aç",
+          "permission": "yetki",
+          "name": "isim",
+          "mode": "mod",
+          "path": "dosya yolu",
+          "fullPath": "tam dosya yolu",
+          "size": "boyut",
+          "accessTime": "erişim tarihi",
+          "modifyTime": "düzenlenme tarihi",
+          "attributes": "nitelikler",
+          "enter": "gir",
+          "deleteAll": "tümünü sil",
+          "selected": "seçili",
+          "newFile": "yeni dosya",
+          "newFolder": "yeni dizin",
+          "selectAll": "tümünü seç",
+          "refresh": "yenile",
+          "editPermission": "yetkiyi düzenle",
+          "info": "bilgi",
+          "filesAndFolders": "dosyalar/dizinler",
+          "files": "dosyalar",
+          "delTip": "emin misiniz? belirtilenler silinecektir",
+          "delTip1": "aynı zamanda içerdikleri tüm dosya ve dizinler de silinecektir",
+          "goParent": "üst dizine git",
+          "hide": "gizle",
+          "show": "göster",
+          "hfd": "gizli dosya ve dizinler",
+          "remote": "uzak",
+          "local": "yerel",
+          "fileTransfers": "dosya aktarımları",
+          "cancelAll": "tümünü iptal et",
+          "upload": "yükle",
+          "download": "indir",
+          "resume": "devam et",
+          "pause": "duraklat",
+          "reset": "yeniden başlat",
+          "showInDefaultFileMananger": "dosya yöneticisinde göster"
+        },
+        "permission": {
+          "read": "okuma",
+          "write": "yazma",
+          "exec": "çalıştırma",
+          "owner": "dosya sahibi",
+          "group": "kullanıcı grubu",
+          "other": "diğerleri"
+        },
+        "form": {
+          "password": "parola",
+          "privateKey": "özel anahtar",
+          "privateKeyDesc": "özel anahtar açıklaması",
+          "importFromFile": "dosyadan içeri aktar",
+          "passphrase": "anahtar parolası",
+          "passphraseDesc": "anahtar parolası açıklaması",
+          "host": "sunucu",
+          "username": "kullanıcı adı",
+          "port": "port",
+          "title": "başlık",
+          "saveAndConnect": "kaydet ve bağlan",
+          "saveAndCreateNew": "kaydet ve yenisini oluştur",
+          "save": "kaydet",
+          "loginScript": "komut dosyası çalıştır",
+          "loginScriptDelay": "komut dosyası gecikmesi",
+          "loginScriptTip": "giriş yaptıktan sonra komut dosyasını çalıştır",
+          "connect": "bağlan",
+          "testConnection": "bağlantıyı test et",
+          "required": "gerekli",
+          "proxyIp": "vekil sunucuya ait ip",
+          "proxyPort": "vekil sunucuya ait port",
+          "proxyType": "vekil sunucu türü",
+          "proxyIpPlaceholder": "vekil sunucu ip adresi",
+          "selectProxy": "vekil sunucu seç",
+          "auth": "yetkilendirme",
+          "proxy": "vekil sunucu",
+          "use": "kullan",
+          "encode": "şifrele",
+          "terminalType": "terminal türü",
+          "startDirectory": "başlangıç dizini"
+        },
+        "ssh": {
+          "clear": "temizle",
+          "selectAll": "tümünü seç",
+          "savePassword": "parolayı kaydet",
+          "search": "ara",
+          "terminal": "terminal",
+          "nextMatch": "sonraki eşleşme",
+          "prevMatch": "önceki eşleşme",
+          "split": "ikiye böl",
+          "fileManager": "dosya yöneticisi",
+          "changeDirection": "yönü değiştir",
+          "batchInput": "Toplu giriş"
+        },
+        "terminalThemes": {
+          "terminalThemes": "terminal temaları",
+          "export": "dışarı aktar",
+          "themeName": "tema adı",
+          "saveAndApply": "kaydet ve uygula",
+          "apply": "uygula",
+          "default": "varsayılan",
+          "newTheme": "yeni tema",
+          "themeConfig": "tema ayarları",
+          "updated": "güncellendi"
+        },
+        "quickCommands": {
+          "quickCommand": "hızlı komut",
+          "quickCommands": "hızlı komutlar",
+          "quickCommandName": "hızlı komut adı",
+          "addQuickCommands": "hızlı komutlar ekle",
+          "newQuickCommand": "yeni hızlı komut",
+          "inputOnly": "sadece giriş"
+        },
+        "settingSync": {
+          "settingSync": "ayar senkronizasyonu",
+          "sync": "senkronize et",
+          "syncing": "senkronize ediliyor",
+          "syncSettings": "senkronizasyon ayarları",
+          "uploadSettings": "yükleme ayarları",
+          "downloadSettings": "indirme ayarları",
+          "synced": "senkronize edildi",
+          "syncDesc": "yer imlerini / geçmişi / ayarları gizli github gist adresine senkronize et",
+          "autoSync": "otomatik senkronizasyon",
+          "lastSyncTime": "son senkronizasyon zamanı"
+        }
+      },
+      "name": "Türkçe",
+      "match": {},
+      "flag": "🇹🇷"
+    },
+    "pathHtml": "/electerm/index-tr_tron.html",
+    "assets": {
+      "linux": {
+        "name": "linux x86 x64",
+        "items": [
+          {
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/26328852",
+            "id": 26328852,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDI2MzI4ODUy",
+            "name": "electerm-1.5.7-linux-amd64.deb",
+            "label": "",
+            "uploader": {
+              "login": "zxdong262",
+              "id": 1641949,
+              "node_id": "MDQ6VXNlcjE2NDE5NDk=",
+              "avatar_url": "https://avatars2.githubusercontent.com/u/1641949?v=4",
+              "gravatar_id": "",
+              "url": "https://api.github.com/users/zxdong262",
+              "html_url": "https://github.com/zxdong262",
+              "followers_url": "https://api.github.com/users/zxdong262/followers",
+              "following_url": "https://api.github.com/users/zxdong262/following{/other_user}",
+              "gists_url": "https://api.github.com/users/zxdong262/gists{/gist_id}",
+              "starred_url": "https://api.github.com/users/zxdong262/starred{/owner}{/repo}",
+              "subscriptions_url": "https://api.github.com/users/zxdong262/subscriptions",
+              "organizations_url": "https://api.github.com/users/zxdong262/orgs",
+              "repos_url": "https://api.github.com/users/zxdong262/repos",
+              "events_url": "https://api.github.com/users/zxdong262/events{/privacy}",
+              "received_events_url": "https://api.github.com/users/zxdong262/received_events",
+              "type": "User",
+              "site_admin": false
+            },
+            "content_type": "application/octet-stream",
+            "state": "uploaded",
+            "size": 54286362,
+            "download_count": 0,
+            "created_at": "2020-09-29T14:46:48Z",
+            "updated_at": "2020-09-29T14:46:50Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.5.7/electerm-1.5.7-linux-amd64.deb",
+            "desc": "for Debian, Ubuntu..."
+          },
+          {
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/26323066",
+            "id": 26323066,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDI2MzIzMDY2",
+            "name": "electerm-1.5.7-linux-amd64.snap",
+            "label": "",
+            "uploader": {
+              "login": "zxdong262",
+              "id": 1641949,
+              "node_id": "MDQ6VXNlcjE2NDE5NDk=",
+              "avatar_url": "https://avatars2.githubusercontent.com/u/1641949?v=4",
+              "gravatar_id": "",
+              "url": "https://api.github.com/users/zxdong262",
+              "html_url": "https://github.com/zxdong262",
+              "followers_url": "https://api.github.com/users/zxdong262/followers",
+              "following_url": "https://api.github.com/users/zxdong262/following{/other_user}",
+              "gists_url": "https://api.github.com/users/zxdong262/gists{/gist_id}",
+              "starred_url": "https://api.github.com/users/zxdong262/starred{/owner}{/repo}",
+              "subscriptions_url": "https://api.github.com/users/zxdong262/subscriptions",
+              "organizations_url": "https://api.github.com/users/zxdong262/orgs",
+              "repos_url": "https://api.github.com/users/zxdong262/repos",
+              "events_url": "https://api.github.com/users/zxdong262/events{/privacy}",
+              "received_events_url": "https://api.github.com/users/zxdong262/received_events",
+              "type": "User",
+              "site_admin": false
+            },
+            "content_type": "application/octet-stream",
+            "state": "uploaded",
+            "size": 66347008,
+            "download_count": 0,
+            "created_at": "2020-09-29T13:08:40Z",
+            "updated_at": "2020-09-29T13:08:43Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.5.7/electerm-1.5.7-linux-amd64.snap",
+            "desc": "for all linux that support snap"
+          },
+          {
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/26328798",
+            "id": 26328798,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDI2MzI4Nzk4",
+            "name": "electerm-1.5.7-linux-x64.tar.gz",
+            "label": "",
+            "uploader": {
+              "login": "zxdong262",
+              "id": 1641949,
+              "node_id": "MDQ6VXNlcjE2NDE5NDk=",
+              "avatar_url": "https://avatars2.githubusercontent.com/u/1641949?v=4",
+              "gravatar_id": "",
+              "url": "https://api.github.com/users/zxdong262",
+              "html_url": "https://github.com/zxdong262",
+              "followers_url": "https://api.github.com/users/zxdong262/followers",
+              "following_url": "https://api.github.com/users/zxdong262/following{/other_user}",
+              "gists_url": "https://api.github.com/users/zxdong262/gists{/gist_id}",
+              "starred_url": "https://api.github.com/users/zxdong262/starred{/owner}{/repo}",
+              "subscriptions_url": "https://api.github.com/users/zxdong262/subscriptions",
+              "organizations_url": "https://api.github.com/users/zxdong262/orgs",
+              "repos_url": "https://api.github.com/users/zxdong262/repos",
+              "events_url": "https://api.github.com/users/zxdong262/events{/privacy}",
+              "received_events_url": "https://api.github.com/users/zxdong262/received_events",
+              "type": "User",
+              "site_admin": false
+            },
+            "content_type": "application/gzip",
+            "state": "uploaded",
+            "size": 74959246,
+            "download_count": 0,
+            "created_at": "2020-09-29T14:45:11Z",
+            "updated_at": "2020-09-29T14:45:13Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.5.7/electerm-1.5.7-linux-x64.tar.gz",
+            "desc": "for all linux x64, just extract"
+          },
+          {
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/26323021",
+            "id": 26323021,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDI2MzIzMDIx",
+            "name": "electerm-1.5.7-linux-x86_64.rpm",
+            "label": "",
+            "uploader": {
+              "login": "zxdong262",
+              "id": 1641949,
+              "node_id": "MDQ6VXNlcjE2NDE5NDk=",
+              "avatar_url": "https://avatars2.githubusercontent.com/u/1641949?v=4",
+              "gravatar_id": "",
+              "url": "https://api.github.com/users/zxdong262",
+              "html_url": "https://github.com/zxdong262",
+              "followers_url": "https://api.github.com/users/zxdong262/followers",
+              "following_url": "https://api.github.com/users/zxdong262/following{/other_user}",
+              "gists_url": "https://api.github.com/users/zxdong262/gists{/gist_id}",
+              "starred_url": "https://api.github.com/users/zxdong262/starred{/owner}{/repo}",
+              "subscriptions_url": "https://api.github.com/users/zxdong262/subscriptions",
+              "organizations_url": "https://api.github.com/users/zxdong262/orgs",
+              "repos_url": "https://api.github.com/users/zxdong262/repos",
+              "events_url": "https://api.github.com/users/zxdong262/events{/privacy}",
+              "received_events_url": "https://api.github.com/users/zxdong262/received_events",
+              "type": "User",
+              "site_admin": false
+            },
+            "content_type": "application/x-redhat-package-manager",
+            "state": "uploaded",
+            "size": 54411668,
+            "download_count": 0,
+            "created_at": "2020-09-29T13:07:48Z",
+            "updated_at": "2020-09-29T13:07:49Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.5.7/electerm-1.5.7-linux-x86_64.rpm",
+            "desc": "for Red Hat, Fedora..."
+          }
+        ]
+      },
+      "mac": {
+        "name": "mac os x64",
+        "items": [
+          {
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/26329631",
+            "id": 26329631,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDI2MzI5NjMx",
+            "name": "electerm-1.5.7-mac.dmg",
+            "label": "",
+            "uploader": {
+              "login": "zxdong262",
+              "id": 1641949,
+              "node_id": "MDQ6VXNlcjE2NDE5NDk=",
+              "avatar_url": "https://avatars2.githubusercontent.com/u/1641949?v=4",
+              "gravatar_id": "",
+              "url": "https://api.github.com/users/zxdong262",
+              "html_url": "https://github.com/zxdong262",
+              "followers_url": "https://api.github.com/users/zxdong262/followers",
+              "following_url": "https://api.github.com/users/zxdong262/following{/other_user}",
+              "gists_url": "https://api.github.com/users/zxdong262/gists{/gist_id}",
+              "starred_url": "https://api.github.com/users/zxdong262/starred{/owner}{/repo}",
+              "subscriptions_url": "https://api.github.com/users/zxdong262/subscriptions",
+              "organizations_url": "https://api.github.com/users/zxdong262/orgs",
+              "repos_url": "https://api.github.com/users/zxdong262/repos",
+              "events_url": "https://api.github.com/users/zxdong262/events{/privacy}",
+              "received_events_url": "https://api.github.com/users/zxdong262/received_events",
+              "type": "User",
+              "site_admin": false
+            },
+            "content_type": "application/octet-stream",
+            "state": "uploaded",
+            "size": 78077417,
+            "download_count": 0,
+            "created_at": "2020-09-29T14:55:48Z",
+            "updated_at": "2020-09-29T14:55:51Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.5.7/electerm-1.5.7-mac.dmg"
+          }
+        ]
+      },
+      "windows": {
+        "name": "windows 7/8/10 x86 x64",
+        "items": [
+          {
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/26322395",
+            "id": 26322395,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDI2MzIyMzk1",
+            "name": "electerm-1.5.7-win-x64.tar.gz",
+            "label": "",
+            "uploader": {
+              "login": "zxdong262",
+              "id": 1641949,
+              "node_id": "MDQ6VXNlcjE2NDE5NDk=",
+              "avatar_url": "https://avatars2.githubusercontent.com/u/1641949?v=4",
+              "gravatar_id": "",
+              "url": "https://api.github.com/users/zxdong262",
+              "html_url": "https://github.com/zxdong262",
+              "followers_url": "https://api.github.com/users/zxdong262/followers",
+              "following_url": "https://api.github.com/users/zxdong262/following{/other_user}",
+              "gists_url": "https://api.github.com/users/zxdong262/gists{/gist_id}",
+              "starred_url": "https://api.github.com/users/zxdong262/starred{/owner}{/repo}",
+              "subscriptions_url": "https://api.github.com/users/zxdong262/subscriptions",
+              "organizations_url": "https://api.github.com/users/zxdong262/orgs",
+              "repos_url": "https://api.github.com/users/zxdong262/repos",
+              "events_url": "https://api.github.com/users/zxdong262/events{/privacy}",
+              "received_events_url": "https://api.github.com/users/zxdong262/received_events",
+              "type": "User",
+              "site_admin": false
+            },
+            "content_type": "application/gzip",
+            "state": "uploaded",
+            "size": 73098675,
+            "download_count": 0,
+            "created_at": "2020-09-29T13:05:21Z",
+            "updated_at": "2020-09-29T13:05:23Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.5.7/electerm-1.5.7-win-x64.tar.gz"
+          }
+        ]
+      }
+    },
+    "version": "v1.5.7",
+    "releaseNote": "- fix: Fix empty batch input crash app\r\n- fix: Fix number input direct edit function in settings (#1836)",
+    "releaseDate": "2020-09-29T14:57:19Z",
+    "siteKeywords": "electron,ternimal,electerm,ssh,sftp",
+    "siteName": "electerm",
+    "path": "/home/execapp/dev/electerm.html5beta.com/index-tr_tron.html"
+  },
+  {
+    "id": "zh_cnon",
+    "lang": {
+      "lang": {
+        "app": {
+          "desc": "electerm是一个跨平台的Terminal/SSH/SFTP客户端工具，同时支持Linux、MacOS、Windows，基于electron/ssh2/node-pty/xterm/antd/subx等开源组件。",
           "isRunning": "运行中",
           "press": "按",
           "toShow": "显示"
@@ -1939,8 +3139,8 @@
           "toggledevtools": "切换开发者工具",
           "toggleControl": "切换显示/隐藏控制按钮",
           "resetzoom": "重设大小",
-          "zoomin": "缩小",
-          "zoomout": "放大",
+          "zoomin": "放大",
+          "zoomout": "缩小",
           "togglefullscreen": "切换全屏",
           "window": "窗口",
           "minimize": "最小化",
@@ -1948,7 +3148,7 @@
           "unmaximize": "取消最大化",
           "close": "关闭",
           "restart": "重启",
-          "front": "到最前",
+          "front": "窗口置顶",
           "help": "帮助",
           "about": "关于",
           "checkUpdate": "检查更新",
@@ -1961,9 +3161,11 @@
           "bookmarkCategory": "书签分类",
           "setting": "设置",
           "about": "关于",
-          "ok": "好的",
+          "ok": "确定",
           "cancel": "取消",
-          "restoreSessions": "恢复未正确关闭的连接?"
+          "expandAll": "展开所有",
+          "collapseAll": "收起所有",
+          "restoreSessions": "恢复会话"
         },
         "control": {
           "author": "作者",
@@ -1987,7 +3189,9 @@
           "startTime": "开始时间",
           "finishTime": "结束时间",
           "speed": "速度",
-          "clear": "清空"
+          "clear": "清空",
+          "fromPath": "源路径",
+          "toPath": "目标路径"
         },
         "tabs": {
           "titleEmptyWarn": "标题不能为空",
@@ -2010,7 +3214,8 @@
           "goGetIt": "前往升级!",
           "newVersion": "发现新版本",
           "upgrade": "升级",
-          "upgrading": "升级中"
+          "upgrading": "升级中",
+          "skipThisVersion": "不再提示这个版本"
         },
         "setting": {
           "new": "新建",
@@ -2022,7 +3227,7 @@
           "restartNow": "立刻重启",
           "hotkeyDesc": "系统快捷键(重新把窗口带到最前面)",
           "timeoutDesc": "ssh/sftp超时时间(毫秒)",
-          "scrollBackDesc": "保留的行数",
+          "scrollBackDesc": "保留终端显示行数",
           "language": "语言",
           "copyWhenSelect": "选中文字后自动拷贝到剪贴板",
           "rightClickSelectsWord": "右键自动选择单词",
@@ -2031,7 +3236,17 @@
           "fontFamily": "字体",
           "opacity": "不透明度",
           "global": "全局",
-          "resetAllToDefault": "重置为默认设置"
+          "disableSshHistory": "关闭SSH连接历史",
+          "disableTransferHistory": "关闭传输SFTP传输历史",
+          "resetAllToDefault": "重置为默认设置",
+          "terminalBackgroundImage": "终端背景图片",
+          "chooseFile": "选择文件",
+          "rendererType": "渲染类型",
+          "defaultTerminalType": "默认终端类型",
+          "ctrlOrMetaOpenTerminalLink": "按住ctrl或者meta(mac系统)才能点击打开终端里的链接",
+          "noTerminalBg": "无背景图片",
+          "saveTerminalLogToFile": "将终端日志保存到文件",
+          "checkUpdateOnStart": "检查应用程序启动时的更新"
         },
         "sftp": {
           "cancel": "取消",
@@ -2085,7 +3300,8 @@
           "download": "下载",
           "resume": "继续",
           "pause": "暂停",
-          "reset": "重置"
+          "reset": "重置",
+          "showInDefaultFileMananger": "在文件管理器中显示"
         },
         "permission": {
           "read": "读",
@@ -2107,8 +3323,10 @@
           "port": "端口",
           "title": "标题",
           "saveAndConnect": "保存并连接",
+          "saveAndCreateNew": "保存并新建",
           "save": "保存",
           "loginScript": "运行脚本",
+          "loginScriptDelay": "运行脚本延迟",
           "loginScriptTip": "登陆后运行脚本",
           "connect": "连接",
           "testConnection": "测试连接",
@@ -2121,7 +3339,9 @@
           "auth": "授权信息",
           "proxy": "代理",
           "use": "使用",
-          "encode": "编码"
+          "encode": "编码",
+          "terminalType": "终端类型",
+          "startDirectory": "开始目录"
         },
         "ssh": {
           "clear": "清屏",
@@ -2131,9 +3351,10 @@
           "terminal": "终端",
           "nextMatch": "下一处",
           "prevMatch": "上一处",
-          "split": "分割",
+          "split": "分屏",
           "fileManager": "文件管理器",
-          "changeDirection": "切换布局"
+          "changeDirection": "切换布局",
+          "batchInput": "批量输入"
         },
         "terminalThemes": {
           "terminalThemes": "终端主题",
@@ -2143,15 +3364,35 @@
           "apply": "应用",
           "default": "默认",
           "newTheme": "新主题",
-          "themeConfig": "主题定义",
+          "themeConfig": "主题配置",
           "updated": "已更新"
+        },
+        "quickCommands": {
+          "quickCommand": "快速命令",
+          "quickCommands": "快速命令",
+          "quickCommandName": "快速命令名称",
+          "addQuickCommands": "添加快速命令",
+          "newQuickCommand": "新建快速命令",
+          "inputOnly": "仅输入"
+        },
+        "settingSync": {
+          "settingSync": "设置同步",
+          "sync": "同步",
+          "syncing": "同步中...",
+          "syncSettings": "同步设置",
+          "uploadSettings": "上传设置",
+          "downloadSettings": "下载设置",
+          "synced": "已同步",
+          "syncDesc": "把书签/历史/系统设置同步到Github的私有Gist",
+          "autoSync": "自动同步",
+          "lastSyncTime": "最后同步时间"
         }
       },
-      "name": "中文",
+      "name": "简体中文",
       "match": {},
       "flag": "🇨🇳"
     },
-    "pathHtml": "/electerm/index-zh_cn.html",
+    "pathHtml": "/electerm/index-zh_cnon.html",
     "assets": {
       "linux": {
         "name": "linux x86 x64",
@@ -2382,6 +3623,524 @@
     "releaseDate": "2020-09-29T14:57:19Z",
     "siteKeywords": "electron,ternimal,electerm,ssh,sftp",
     "siteName": "electerm",
-    "path": "/home/execapp/dev/electerm.html5beta.com/index-zh_cn.html"
+    "path": "/home/execapp/dev/electerm.html5beta.com/index-zh_cnon.html"
+  },
+  {
+    "id": "zh_twon",
+    "lang": {
+      "lang": {
+        "app": {
+          "desc": "electerm 是一個跨平台的 Terminal/SSH/SFTP 用户端工具，同時支援 Linux、MacOS、Windows，基於 electron/ssh2/node-pty/xterm/antd/subx 等開源軟體所開發。",
+          "isRunning": "執行中",
+          "press": "按",
+          "toShow": "顯示"
+        },
+        "menu": {
+          "hide": "隱藏",
+          "hideothers": "隱藏其他",
+          "unhide": "顯示",
+          "quit": "離開",
+          "edit": "編輯",
+          "undo": "復原",
+          "redo": "重做",
+          "cut": "剪下",
+          "copy": "複製",
+          "paste": "貼上",
+          "pasteandmatchstyle": "格式貼上",
+          "del": "刪除",
+          "selectall": "全選",
+          "startspeaking": "開始錄音",
+          "stopspeaking": "停止錄音",
+          "view": "檢視",
+          "reload": "重新載入",
+          "forcereload": "強制重新載入",
+          "toggledevtools": "切換開發者工具",
+          "toggleControl": "切換顯示/隱藏控制選項",
+          "resetzoom": "重設大小",
+          "zoomin": "放大",
+          "zoomout": "縮小",
+          "togglefullscreen": "切換全螢幕",
+          "window": "視窗",
+          "minimize": "最小化",
+          "maximize": "最大化",
+          "unmaximize": "取消最大化",
+          "close": "關閉",
+          "restart": "重新啓動",
+          "front": "視窗置頂",
+          "help": "協助",
+          "about": "關於",
+          "checkUpdate": "檢查更新",
+          "reportIssue": "回報問題",
+          "homepage": "專案首頁"
+        },
+        "common": {
+          "history": "連線歷史",
+          "bookmarks": "書籤",
+          "bookmarkCategory": "書籤群組",
+          "setting": "設定",
+          "about": "關於",
+          "ok": "確定",
+          "cancel": "取消",
+          "expandAll": "展開全部",
+          "collapseAll": "收起全部",
+          "restoreSessions": "回復連線"
+        },
+        "control": {
+          "author": "作者",
+          "download": "下載",
+          "bugReport": "回報錯誤",
+          "checkForUpdate": "檢查更新",
+          "homepage": "專案首頁",
+          "notFoundContent": "沒有內容",
+          "newSsh": "建立新的 SSH 連線",
+          "newTerminal": "新的 Terminal 分頁",
+          "dependencies": "相依模組",
+          "env": "環境變數",
+          "os": "作業系統",
+          "userTips": "小技巧"
+        },
+        "transferHistory": {
+          "transferHistory": "傳輸歷史記錄",
+          "localPath": "本地端路徑",
+          "remotePath": "遠端路徑",
+          "type": "類型",
+          "startTime": "開始時間",
+          "finishTime": "結束時間",
+          "speed": "速度",
+          "clear": "清空白",
+          "fromPath": "源路徑",
+          "toPath": "目標路徑"
+        },
+        "tabs": {
+          "titleEmptyWarn": "標題不能為空白",
+          "close": "關閉",
+          "closeOtherTabs": "關閉其他分頁",
+          "closeTabRight": "關閉右邊所有分頁",
+          "newTab": "新增分頁",
+          "duplicate": "複製",
+          "rename": "重新命名",
+          "openNewTerm": "開啓新的分頁",
+          "sessions": "連線"
+        },
+        "main": {
+          "error": "發生錯誤了！"
+        },
+        "updater": {
+          "noNeed": "不需要升級",
+          "noNeedDesc": "你已經在使用最新版本了",
+          "fail": "檢查升級失敗了",
+          "goGetIt": "前往升級！",
+          "newVersion": "發現了新的版本",
+          "upgrade": "升級",
+          "upgrading": "升級中",
+          "skipThisVersion": "不再提示這個版本"
+        },
+        "setting": {
+          "new": "新建",
+          "settings": "設定",
+          "common": "環境設定",
+          "hotkeyNotOk": "這個快捷鍵無法使用，請換一個試試",
+          "saved": "已儲存",
+          "saveLang": "已儲存，需要重新啓動才能生效",
+          "restartNow": "請立刻重新啓動",
+          "hotkeyDesc": "系统快捷鍵(重新把視窗帶到最前面)",
+          "timeoutDesc": "ssh/sftp 逾時時限(毫秒)",
+          "scrollBackDesc": "保留顯示行數",
+          "language": "介面語言",
+          "copyWhenSelect": "選取文字之後自動複製到剪貼簿",
+          "rightClickSelectsWord": "右鍵自動選取單字",
+          "pasteWhenContextMenu": "右鍵自動貼上",
+          "fontSize": "字體大小",
+          "fontFamily": "字體",
+          "opacity": "不透明度",
+          "global": "全域",
+          "disableSshHistory": "關閉 SSH 分頁歷史",
+          "disableTransferHistory": "關閉傳輸 SFTP 傳輸歷史",
+          "resetAllToDefault": "重置為預設設定",
+          "terminalBackgroundImage": "終端機背景圖片",
+          "chooseFile": "選取檔案",
+          "rendererType": "渲染類型",
+          "defaultTerminalType": "預設終端機類型",
+          "ctrlOrMetaOpenTerminalLink": "按住 ctrl 或者 meta (mac 系统) 才能開啓終端機裡的連結",
+          "noTerminalBg": "無背景圖片",
+          "saveTerminalLogToFile": "將終端機日誌儲存到檔案",
+          "checkUpdateOnStart": "啓動時檢查更新"
+        },
+        "sftp": {
+          "cancel": "取消",
+          "skip": "跳過",
+          "merge": "合並",
+          "overwrite": "覆寫",
+          "rename": "重新命名",
+          "renameAll": "重新命名全部",
+          "mergeDesc": "合並全部衝突",
+          "overwriteDesc": "覆寫全部衝突檔案",
+          "mergeAll": "合並全部",
+          "overwriteAll": "覆寫全部",
+          "renameDesc": "重新命名剩下的檔案/目錄",
+          "folder": "目錄",
+          "file": "檔案",
+          "fileConflict": "檔案衝突",
+          "submit": "提交",
+          "edit": "編輯",
+          "open": "開啓",
+          "permission": "權限",
+          "name": "名稱",
+          "mode": "模式",
+          "path": "路徑",
+          "fullPath": "完整路徑",
+          "size": "大小",
+          "accessTime": "存取時間",
+          "modifyTime": "修改時間",
+          "attributes": "屬性",
+          "enter": "進入",
+          "deleteAll": "刪除全部",
+          "selected": "選中的",
+          "newFile": "新建檔案",
+          "newFolder": "新建目錄",
+          "selectAll": "全選",
+          "refresh": "重新載入",
+          "editPermission": "編輯權限",
+          "info": "檔案資訊",
+          "filesAndFolders": "檔案/目錄",
+          "files": "檔案",
+          "delTip": "確定嗎？將會刪除這些",
+          "delTip1": "以及其中的檔案/目錄",
+          "goParent": "前往上層目錄",
+          "hide": "隱藏",
+          "show": "顯示",
+          "hfd": "隱藏檔案和目錄",
+          "remote": "遠端",
+          "local": "本地端",
+          "fileTransfers": "檔案傳輸",
+          "cancelAll": "取消全部",
+          "upload": "上傳",
+          "download": "下載",
+          "resume": "繼續",
+          "pause": "暫停",
+          "reset": "重置",
+          "showInDefaultFileMananger": "在檔案瀏覽器中顯示"
+        },
+        "permission": {
+          "read": "讀",
+          "write": "寫",
+          "exec": "執行",
+          "owner": "擁有者",
+          "group": "群組",
+          "other": "其他"
+        },
+        "form": {
+          "password": "密碼",
+          "privateKey": "私鑰",
+          "privateKeyDesc": "私鑰字串",
+          "importFromFile": "從檔案匯入",
+          "passphrase": "私鑰密碼",
+          "passphraseDesc": "私鑰的密碼",
+          "host": "主機位址",
+          "username": "使用者名稱",
+          "port": "連接埠",
+          "title": "標題",
+          "saveAndConnect": "儲存然後開始連線",
+          "saveAndCreateNew": "儲存然後再建立新的",
+          "save": "儲存",
+          "loginScript": "登入腳本",
+          "loginScriptDelay": "登入腳本延遲執行",
+          "loginScriptTip": "登入後執行登入腳本",
+          "connect": "連線",
+          "testConnection": "测試連線",
+          "required": "必填",
+          "proxyIp": "代理伺服器 IP",
+          "proxyPort": "代理伺服器連接埠",
+          "proxyType": "代理伺服器類型",
+          "proxyIpPlaceholder": "代理伺服器 IP 位址",
+          "selectProxy": "選取代理伺服器",
+          "auth": "授權資訊",
+          "proxy": "代理伺服器",
+          "use": "使用",
+          "encode": "編碼",
+          "terminalType": "終端機類型",
+          "startDirectory": "啓動目錄"
+        },
+        "ssh": {
+          "clear": "清空畫面",
+          "selectAll": "全選",
+          "savePassword": "儲存密碼",
+          "search": "搜尋",
+          "terminal": "終端機",
+          "nextMatch": "下一個",
+          "prevMatch": "上一個",
+          "split": "分隔畫面",
+          "fileManager": "檔案瀏覽器",
+          "changeDirection": "切換排列",
+          "batchInput": "批量輸入"
+        },
+        "terminalThemes": {
+          "terminalThemes": "終端機主題",
+          "export": "匯出",
+          "themeName": "主題名稱",
+          "saveAndApply": "儲存並套用",
+          "apply": "套用",
+          "default": "預設",
+          "newTheme": "新主題",
+          "themeConfig": "主題設定",
+          "updated": "已更新"
+        },
+        "quickCommands": {
+          "quickCommand": "快速指令",
+          "quickCommands": "快速指令",
+          "quickCommandName": "快速指令名稱",
+          "addQuickCommands": "加入快速指令",
+          "newQuickCommand": "新建快速指令",
+          "inputOnly": "僅能輸入"
+        },
+        "settingSync": {
+          "settingSync": "設定同步",
+          "sync": "同步",
+          "syncing": "同步中...",
+          "syncSettings": "同步設定",
+          "uploadSettings": "上傳設定",
+          "downloadSettings": "下載設定",
+          "synced": "已同步",
+          "syncDesc": "把書籤/歷史/系统設定同步到 Github 的私有 Gist",
+          "autoSync": "自動同步",
+          "lastSyncTime": "最後同步時間"
+        }
+      },
+      "name": "繁體中文",
+      "match": {},
+      "flag": "tw"
+    },
+    "pathHtml": "/electerm/index-zh_twon.html",
+    "assets": {
+      "linux": {
+        "name": "linux x86 x64",
+        "items": [
+          {
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/26328852",
+            "id": 26328852,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDI2MzI4ODUy",
+            "name": "electerm-1.5.7-linux-amd64.deb",
+            "label": "",
+            "uploader": {
+              "login": "zxdong262",
+              "id": 1641949,
+              "node_id": "MDQ6VXNlcjE2NDE5NDk=",
+              "avatar_url": "https://avatars2.githubusercontent.com/u/1641949?v=4",
+              "gravatar_id": "",
+              "url": "https://api.github.com/users/zxdong262",
+              "html_url": "https://github.com/zxdong262",
+              "followers_url": "https://api.github.com/users/zxdong262/followers",
+              "following_url": "https://api.github.com/users/zxdong262/following{/other_user}",
+              "gists_url": "https://api.github.com/users/zxdong262/gists{/gist_id}",
+              "starred_url": "https://api.github.com/users/zxdong262/starred{/owner}{/repo}",
+              "subscriptions_url": "https://api.github.com/users/zxdong262/subscriptions",
+              "organizations_url": "https://api.github.com/users/zxdong262/orgs",
+              "repos_url": "https://api.github.com/users/zxdong262/repos",
+              "events_url": "https://api.github.com/users/zxdong262/events{/privacy}",
+              "received_events_url": "https://api.github.com/users/zxdong262/received_events",
+              "type": "User",
+              "site_admin": false
+            },
+            "content_type": "application/octet-stream",
+            "state": "uploaded",
+            "size": 54286362,
+            "download_count": 0,
+            "created_at": "2020-09-29T14:46:48Z",
+            "updated_at": "2020-09-29T14:46:50Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.5.7/electerm-1.5.7-linux-amd64.deb",
+            "desc": "for Debian, Ubuntu..."
+          },
+          {
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/26323066",
+            "id": 26323066,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDI2MzIzMDY2",
+            "name": "electerm-1.5.7-linux-amd64.snap",
+            "label": "",
+            "uploader": {
+              "login": "zxdong262",
+              "id": 1641949,
+              "node_id": "MDQ6VXNlcjE2NDE5NDk=",
+              "avatar_url": "https://avatars2.githubusercontent.com/u/1641949?v=4",
+              "gravatar_id": "",
+              "url": "https://api.github.com/users/zxdong262",
+              "html_url": "https://github.com/zxdong262",
+              "followers_url": "https://api.github.com/users/zxdong262/followers",
+              "following_url": "https://api.github.com/users/zxdong262/following{/other_user}",
+              "gists_url": "https://api.github.com/users/zxdong262/gists{/gist_id}",
+              "starred_url": "https://api.github.com/users/zxdong262/starred{/owner}{/repo}",
+              "subscriptions_url": "https://api.github.com/users/zxdong262/subscriptions",
+              "organizations_url": "https://api.github.com/users/zxdong262/orgs",
+              "repos_url": "https://api.github.com/users/zxdong262/repos",
+              "events_url": "https://api.github.com/users/zxdong262/events{/privacy}",
+              "received_events_url": "https://api.github.com/users/zxdong262/received_events",
+              "type": "User",
+              "site_admin": false
+            },
+            "content_type": "application/octet-stream",
+            "state": "uploaded",
+            "size": 66347008,
+            "download_count": 0,
+            "created_at": "2020-09-29T13:08:40Z",
+            "updated_at": "2020-09-29T13:08:43Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.5.7/electerm-1.5.7-linux-amd64.snap",
+            "desc": "for all linux that support snap"
+          },
+          {
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/26328798",
+            "id": 26328798,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDI2MzI4Nzk4",
+            "name": "electerm-1.5.7-linux-x64.tar.gz",
+            "label": "",
+            "uploader": {
+              "login": "zxdong262",
+              "id": 1641949,
+              "node_id": "MDQ6VXNlcjE2NDE5NDk=",
+              "avatar_url": "https://avatars2.githubusercontent.com/u/1641949?v=4",
+              "gravatar_id": "",
+              "url": "https://api.github.com/users/zxdong262",
+              "html_url": "https://github.com/zxdong262",
+              "followers_url": "https://api.github.com/users/zxdong262/followers",
+              "following_url": "https://api.github.com/users/zxdong262/following{/other_user}",
+              "gists_url": "https://api.github.com/users/zxdong262/gists{/gist_id}",
+              "starred_url": "https://api.github.com/users/zxdong262/starred{/owner}{/repo}",
+              "subscriptions_url": "https://api.github.com/users/zxdong262/subscriptions",
+              "organizations_url": "https://api.github.com/users/zxdong262/orgs",
+              "repos_url": "https://api.github.com/users/zxdong262/repos",
+              "events_url": "https://api.github.com/users/zxdong262/events{/privacy}",
+              "received_events_url": "https://api.github.com/users/zxdong262/received_events",
+              "type": "User",
+              "site_admin": false
+            },
+            "content_type": "application/gzip",
+            "state": "uploaded",
+            "size": 74959246,
+            "download_count": 0,
+            "created_at": "2020-09-29T14:45:11Z",
+            "updated_at": "2020-09-29T14:45:13Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.5.7/electerm-1.5.7-linux-x64.tar.gz",
+            "desc": "for all linux x64, just extract"
+          },
+          {
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/26323021",
+            "id": 26323021,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDI2MzIzMDIx",
+            "name": "electerm-1.5.7-linux-x86_64.rpm",
+            "label": "",
+            "uploader": {
+              "login": "zxdong262",
+              "id": 1641949,
+              "node_id": "MDQ6VXNlcjE2NDE5NDk=",
+              "avatar_url": "https://avatars2.githubusercontent.com/u/1641949?v=4",
+              "gravatar_id": "",
+              "url": "https://api.github.com/users/zxdong262",
+              "html_url": "https://github.com/zxdong262",
+              "followers_url": "https://api.github.com/users/zxdong262/followers",
+              "following_url": "https://api.github.com/users/zxdong262/following{/other_user}",
+              "gists_url": "https://api.github.com/users/zxdong262/gists{/gist_id}",
+              "starred_url": "https://api.github.com/users/zxdong262/starred{/owner}{/repo}",
+              "subscriptions_url": "https://api.github.com/users/zxdong262/subscriptions",
+              "organizations_url": "https://api.github.com/users/zxdong262/orgs",
+              "repos_url": "https://api.github.com/users/zxdong262/repos",
+              "events_url": "https://api.github.com/users/zxdong262/events{/privacy}",
+              "received_events_url": "https://api.github.com/users/zxdong262/received_events",
+              "type": "User",
+              "site_admin": false
+            },
+            "content_type": "application/x-redhat-package-manager",
+            "state": "uploaded",
+            "size": 54411668,
+            "download_count": 0,
+            "created_at": "2020-09-29T13:07:48Z",
+            "updated_at": "2020-09-29T13:07:49Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.5.7/electerm-1.5.7-linux-x86_64.rpm",
+            "desc": "for Red Hat, Fedora..."
+          }
+        ]
+      },
+      "mac": {
+        "name": "mac os x64",
+        "items": [
+          {
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/26329631",
+            "id": 26329631,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDI2MzI5NjMx",
+            "name": "electerm-1.5.7-mac.dmg",
+            "label": "",
+            "uploader": {
+              "login": "zxdong262",
+              "id": 1641949,
+              "node_id": "MDQ6VXNlcjE2NDE5NDk=",
+              "avatar_url": "https://avatars2.githubusercontent.com/u/1641949?v=4",
+              "gravatar_id": "",
+              "url": "https://api.github.com/users/zxdong262",
+              "html_url": "https://github.com/zxdong262",
+              "followers_url": "https://api.github.com/users/zxdong262/followers",
+              "following_url": "https://api.github.com/users/zxdong262/following{/other_user}",
+              "gists_url": "https://api.github.com/users/zxdong262/gists{/gist_id}",
+              "starred_url": "https://api.github.com/users/zxdong262/starred{/owner}{/repo}",
+              "subscriptions_url": "https://api.github.com/users/zxdong262/subscriptions",
+              "organizations_url": "https://api.github.com/users/zxdong262/orgs",
+              "repos_url": "https://api.github.com/users/zxdong262/repos",
+              "events_url": "https://api.github.com/users/zxdong262/events{/privacy}",
+              "received_events_url": "https://api.github.com/users/zxdong262/received_events",
+              "type": "User",
+              "site_admin": false
+            },
+            "content_type": "application/octet-stream",
+            "state": "uploaded",
+            "size": 78077417,
+            "download_count": 0,
+            "created_at": "2020-09-29T14:55:48Z",
+            "updated_at": "2020-09-29T14:55:51Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.5.7/electerm-1.5.7-mac.dmg"
+          }
+        ]
+      },
+      "windows": {
+        "name": "windows 7/8/10 x86 x64",
+        "items": [
+          {
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/26322395",
+            "id": 26322395,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDI2MzIyMzk1",
+            "name": "electerm-1.5.7-win-x64.tar.gz",
+            "label": "",
+            "uploader": {
+              "login": "zxdong262",
+              "id": 1641949,
+              "node_id": "MDQ6VXNlcjE2NDE5NDk=",
+              "avatar_url": "https://avatars2.githubusercontent.com/u/1641949?v=4",
+              "gravatar_id": "",
+              "url": "https://api.github.com/users/zxdong262",
+              "html_url": "https://github.com/zxdong262",
+              "followers_url": "https://api.github.com/users/zxdong262/followers",
+              "following_url": "https://api.github.com/users/zxdong262/following{/other_user}",
+              "gists_url": "https://api.github.com/users/zxdong262/gists{/gist_id}",
+              "starred_url": "https://api.github.com/users/zxdong262/starred{/owner}{/repo}",
+              "subscriptions_url": "https://api.github.com/users/zxdong262/subscriptions",
+              "organizations_url": "https://api.github.com/users/zxdong262/orgs",
+              "repos_url": "https://api.github.com/users/zxdong262/repos",
+              "events_url": "https://api.github.com/users/zxdong262/events{/privacy}",
+              "received_events_url": "https://api.github.com/users/zxdong262/received_events",
+              "type": "User",
+              "site_admin": false
+            },
+            "content_type": "application/gzip",
+            "state": "uploaded",
+            "size": 73098675,
+            "download_count": 0,
+            "created_at": "2020-09-29T13:05:21Z",
+            "updated_at": "2020-09-29T13:05:23Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.5.7/electerm-1.5.7-win-x64.tar.gz"
+          }
+        ]
+      }
+    },
+    "version": "v1.5.7",
+    "releaseNote": "- fix: Fix empty batch input crash app\r\n- fix: Fix number input direct edit function in settings (#1836)",
+    "releaseDate": "2020-09-29T14:57:19Z",
+    "siteKeywords": "electron,ternimal,electerm,ssh,sftp",
+    "siteName": "electerm",
+    "path": "/home/execapp/dev/electerm.html5beta.com/index-zh_twon.html"
   }
 ]
