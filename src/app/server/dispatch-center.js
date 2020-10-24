@@ -14,6 +14,7 @@ const { Transfer } = require('./transfer')
 const { fsExport: fs } = require('../lib/fs')
 const log = require('../utils/log')
 const Upgrade = require('./download-upgrade')
+const fetch = require('./fetch')
 
 global.upgradeInsts = {}
 
@@ -170,8 +171,29 @@ const initWs = function (app) {
         global.upgradeInsts[id][func](...args)
       }
     })
-    // end
   })
+
+  // upgrade
+  app.ws('/fetch/s', (ws, req) => {
+    wsDec(ws)
+    ws.on('message', async (message) => {
+      const msg = JSON.parse(message)
+      const { id, options } = msg
+      const res = await fetch(options)
+      if (res.error) {
+        ws.s({
+          error: res.error,
+          id
+        })
+      } else {
+        ws.s({
+          data: res,
+          id
+        })
+      }
+    })
+  })
+  // end
 }
 
 module.exports = initWs

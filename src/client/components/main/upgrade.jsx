@@ -5,14 +5,14 @@ import { getLatestReleaseInfo, getLatestReleaseVersion } from '../../common/upda
 import upgrade from '../../common/upgrade'
 import compare from '../../../app/common/version-compare'
 import Link from '../common/external-link'
-import { isMac, isWin } from '../../common/constants'
+import { isMac, isWin, packInfo } from '../../common/constants'
 import newTerm from '../../common/new-terminal'
 import './upgrade.styl'
 
 const { getGlobal, prefix } = window
 const {
   homepage
-} = getGlobal('packInfo')
+} = packInfo
 const e = prefix('updater')
 const c = prefix('common')
 const installSrc = getGlobal('installSrc')

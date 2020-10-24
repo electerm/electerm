@@ -9,16 +9,15 @@
 import _ from 'lodash'
 import copy from 'json-deep-copy'
 import {
-  settingMap
+  settingMap, packInfo
 } from '../common/constants'
 import { remove, dbNames, insert, update } from '../common/db'
 
 const names = _.without(dbNames, settingMap.history)
-const { getGlobal } = window
 const Gist = window._require('gist-wrapper').default
 const {
   version: packVer
-} = getGlobal('packInfo')
+} = packInfo
 
 export default (store) => {
   store.openSettingSync = () => {

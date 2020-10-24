@@ -6,6 +6,8 @@ import logoPath1Ref from '@electerm/electerm-resource/res/imgs/electerm-round-12
 import logoPath2Ref from '@electerm/electerm-resource/res/imgs/electerm.png'
 import newTerm from '../common/new-terminal'
 
+export const packInfo = window.getGlobal('packInfo')
+
 const buildConst = (props) => {
   return props.reduce((prev, key) => {
     return {
@@ -182,3 +184,7 @@ export const defaultLoginScriptDelay = 500
 export const initTabs = [newTerm()]
 export const appPath = window.getGlobal('appPath')
 export const maxBatchInput = 30
+export const baseUrls = [
+  'https://electerm.github.io/electerm',
+  'https://gitee.com/github-zxdong262/electerm/raw/gh-pages'
+]

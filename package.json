@@ -1,6 +1,6 @@
 {
   "name": "electerm",
-  "version": "1.5.7",
+  "version": "1.5.10",
   "description": "Terminal/ssh/sftp client(linux, mac, win) based on electron/ssh2/node-pty/xterm/antd/subx and other libs",
   "main": "app.js",
   "bin": "npm/electerm",
@@ -117,7 +117,7 @@
     "xterm-addon-webgl": "0.6.0"
   },
   "dependencies": {
-    "@electerm/electerm-locales": "0.9.2",
+    "@electerm/electerm-locales": "0.9.4",
     "@electerm/ssh2": "0.8.11",
     "bluebird": "3.7.2",
     "body-parser": "1.19.0",
@@ -129,9 +129,11 @@
     "find-free-port": "2.0.0",
     "font-list": "1.2.6",
     "gist-wrapper": "0.1.0",
+    "gitee-client": "^0.1.1",
     "json-deep-copy": "1.1.1",
     "lodash": "4.17.19",
     "nedb": "1.8.0",
+    "node-fetch": "^2.6.1",
     "node-pty": "0.9.0",
     "os-locale": "4.0.0",
     "path-validation": "0.2.3",
