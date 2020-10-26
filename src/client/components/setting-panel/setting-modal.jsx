@@ -139,12 +139,13 @@ export default class SettingModal extends Component {
                     ? (
                       <SyncSetting
                         store={store}
-                        formData={copy(store.config.syncSetting)}
+                        {...store.config.syncSetting}
                         {..._.pick(store, [
                           'autofocustrigger',
                           'isSyncingSetting',
                           'isSyncDownload',
-                          'isSyncUpload'
+                          'isSyncUpload',
+                          'syncType'
                         ])}
                       />
                     )

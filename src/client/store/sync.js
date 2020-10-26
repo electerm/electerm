@@ -12,12 +12,23 @@ import {
   settingMap, packInfo
 } from '../common/constants'
 import { remove, dbNames, insert, update } from '../common/db'
+import fetch from '../common/fetch-from-server'
 
 const names = _.without(dbNames, settingMap.history)
-const Gist = window._require('gist-wrapper').default
 const {
   version: packVer
 } = packInfo
+
+async function fetchData (type, func, args, token) {
+  const data = {
+    type,
+    action: 'sync',
+    func,
+    args,
+    token
+  }
+  return fetch(data)
+}
 
 export default (store) => {
   store.openSettingSync = () => {
@@ -37,68 +48,79 @@ export default (store) => {
     )) {
       return
     }
-    if (data.githubAccessToken) {
-      data.githubAccessToken = window.getGlobal('encrypt')(
-        data.githubAccessToken,
-        data.gistId
-      )
-    }
+    // if (data.githubAccessToken) {
+    //   data.githubAccessToken = window.getGlobal('encrypt')(
+    //     data.githubAccessToken,
+    //     data.gistId
+    //   )
+    // }
     store.config = {
       ...copy(store.config),
       syncSetting: Object.assign({}, copy(store.config.syncSetting), data)
     }
-    window.gitClient = new Gist(
-      store.getGistToken()
-    )
   }
 
-  store.getGistToken = (
-    syncSetting = store.config.syncSetting
-  ) => {
-    const token = _.get(syncSetting, 'githubAccessToken')
-    const encrypted = _.get(syncSetting, 'encrypted')
-    if (encrypted && token) {
-      return window.getGlobal('decrypt')(
-        token,
-        _.get(syncSetting, 'gistId')
-      )
-    } else {
-      return token
-    }
+  store.getSyncToken = (type) => {
+    return _.get(store.config, 'syncSetting.' + type + 'AccessToken')
   }
 
-  store.getGistClient = (
-    githubAccessToken = store.getGistToken()
-  ) => {
-    if (
-      !window.gitClient ||
-      githubAccessToken !== store.getGistToken()
-    ) {
-      window.gitClient = new Gist(githubAccessToken)
-    }
-    return window.gitClient
+  store.getSyncGistId = (type) => {
+    return _.get(store.config, 'syncSetting.' + type + 'GistId')
   }
 
-  store.getGist = async (syncSetting = store.config.syncSetting || {}) => {
-    const token = store.getGistToken(syncSetting)
-    const client = store.getGistClient(token)
-    if (!client.token) {
-      return
-    }
-    const gist = await client.getOne(syncSetting.gistId).catch(
+  store.testSyncToken = async (type) => {
+    store.isSyncingSetting = true
+    const token = store.getSyncToken(type)
+    const gist = await fetchData(
+      type,
+      'test',
+      [],
+      token
+    ).catch(
       log.error
     )
-    return gist
+    store.isSyncingSetting = false
+    return !!gist
   }
 
-  store.uploadSetting = async (syncSetting = store.config.syncSetting || {}) => {
-    const token = store.getGistToken(syncSetting)
-    const client = store.getGistClient(token)
-    if (!client.token) {
-      return
+  store.createGist = async (type) => {
+    store.isSyncingSetting = true
+    const token = store.getSyncToken(type)
+    const data = {
+      description: 'sync electerm data',
+      files: {
+        'placeholder.js': {
+          content: 'placeholder'
+        }
+      },
+      public: false
     }
+    const res = await fetchData(
+      type, 'create', [data], token
+    ).catch(
+      store.onError
+    )
+    if (res) {
+      store.updateSyncSetting({
+        [type + 'GistId']: res.id,
+        [type + 'Url']: res.html_url
+      })
+    }
+    store.isSyncingSetting = false
+  }
+
+  store.uploadSetting = async (type) => {
     store.isSyncingSetting = true
     store.isSyncUpload = true
+    const token = store.getSyncToken(type)
+    let gistId = store.getSyncGistId(type)
+    if (!gistId) {
+      await store.createGist(type)
+      gistId = store.getSyncGistId(type)
+    }
+    if (!gistId) {
+      return
+    }
     const objs = names.reduce((p, n) => {
       return {
         ...p,
@@ -107,7 +129,7 @@ export default (store) => {
         }
       }
     }, {})
-    const res = await client.update(syncSetting.gistId, {
+    const res = await fetchData(type, 'update', [gistId, {
       description: 'sync electerm data',
       files: {
         ...objs,
@@ -121,30 +143,34 @@ export default (store) => {
           })
         }
       }
-    }).catch(store.onError)
+    }], token).catch(store.onError)
     store.isSyncingSetting = false
     store.isSyncUpload = false
     if (res) {
-      store.updateConfig({
-        syncSetting: {
-          ...copy(store.config.syncSetting),
-          lastSyncTime: Date.now()
-        }
+      store.updateSyncSetting({
+        [type + 'LastSyncTime']: Date.now()
       })
     }
   }
 
-  store.downloadSetting = async (syncSetting = store.config.syncSetting || {}) => {
+  store.downloadSetting = async (type) => {
     store.isSyncingSetting = true
     store.isSyncDownload = true
-    let gist = await store.getGist(syncSetting)
-      .catch(store.onError)
-    store.isSyncingSetting = false
-    store.isSyncDownload = false
-    if (!gist) {
+    const token = store.getSyncToken(type)
+    let gistId = store.getSyncGistId(type)
+    if (!gistId) {
+      await store.createGist(type)
+      gistId = store.getSyncGistId(type)
+    }
+    if (!gistId) {
       return
     }
-    gist = gist.data
+    const gist = await fetchData(
+      type,
+      'getOne',
+      [gistId],
+      token
+    )
     const toInsert = []
     const ext = names.reduce((p, n) => {
       const arr = JSON.parse(
@@ -164,45 +190,41 @@ export default (store) => {
     )
     Object.assign(store, ext)
     store.setTheme(userConfig.theme)
-    store.config.syncSetting.lastSyncTime = Date.now()
+    store.updateSyncSetting({
+      [type + 'GistId']: gist.id,
+      [type + 'Url']: gist.html_url,
+      [type + 'LastSyncTime']: Date.now()
+    })
     for (const u of toInsert) {
       await remove(u.name)
       await insert(u.name, u.value)
     }
+    store.isSyncingSetting = false
+    store.isSyncDownload = false
   }
 
-  store.syncSetting = async (syncSetting = store.config.syncSetting || {}) => {
-    let gist = await store.getGist(syncSetting)
-    if (!gist) {
-      return
-    }
-    gist = gist.data
-    if (!gist.files['electerm-status.json']) {
-      return
-    }
-    const status = JSON.parse(gist.files['electerm-status.json'].content)
-    if (status.lastSyncTime > store.lastUpdateTime) {
-      store.uploadSetting()
-    } else if (status.lastSyncTime < store.lastUpdateTime) {
-      store.downloadSetting()
-    }
-  }
+  // store.syncSetting = async (syncSetting = store.config.syncSetting || {}) => {
+  //   let gist = await store.getGist(syncSetting)
+  //   if (!gist) {
+  //     return
+  //   }
+  //   gist = gist.data
+  //   if (!gist.files['electerm-status.json']) {
+  //     return
+  //   }
+  //   const status = JSON.parse(gist.files['electerm-status.json'].content)
+  //   if (status.lastSyncTime > store.lastUpdateTime) {
+  //     store.uploadSetting()
+  //   } else if (status.lastSyncTime < store.lastUpdateTime) {
+  //     store.downloadSetting()
+  //   }
+  // }
 
-  store.checkSettingSync = () => {
-    if (_.get(store, 'config.syncSetting.autoSync')) {
-      store.uploadSetting()
-    }
-  }
-
-  store.getSerials = async () => {
-    store.loaddingSerials = true
-    const res = await window._require('serialport').list()
-      .catch(store.onError)
-    if (res) {
-      store.serials = res
-    }
-    store.loaddingSerials = false
-  }
+  // store.checkSettingSync = () => {
+  //   if (_.get(store, 'config.syncSetting.autoSync')) {
+  //     store.uploadSetting()
+  //   }
+  // }
 
   store.updateLastDataUpdateTime = _.debounce(() => {
     store.lastDataUpdateTime = +new Date()

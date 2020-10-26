@@ -184,7 +184,15 @@ export const defaultLoginScriptDelay = 500
 export const initTabs = [newTerm()]
 export const appPath = window.getGlobal('appPath')
 export const maxBatchInput = 30
-export const baseUrls = [
+export const baseUpdateCheckUrls = [
   'https://electerm.github.io/electerm',
   'https://gitee.com/github-zxdong262/electerm/raw/gh-pages'
 ]
+export const syncTypes = buildConst([
+  'github',
+  'gitee'
+])
+export const syncTokenCreateUrls = {
+  gitee: 'https://gitee.com/github-zxdong262/electerm/wikis/Create%20personal%20access%20token?sort_id=3028409',
+  github: 'https://github.com/electerm/electerm/wiki/Create-personal-access-token'
+}

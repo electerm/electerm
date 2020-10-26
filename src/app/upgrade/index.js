@@ -50,6 +50,7 @@ async function getUpgradeVersionList () {
 }
 async function versionShouldUpgrade () {
   const dbVersion = await getDBVersion()
+  log.info('database version:', dbVersion)
   return comapre(dbVersion, packVersion) < 0
 }
 

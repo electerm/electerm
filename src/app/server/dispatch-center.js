@@ -15,6 +15,7 @@ const { fsExport: fs } = require('../lib/fs')
 const log = require('../utils/log')
 const Upgrade = require('./download-upgrade')
 const fetch = require('./fetch')
+const sync = require('./sync')
 
 global.upgradeInsts = {}
 
@@ -178,18 +179,33 @@ const initWs = function (app) {
     wsDec(ws)
     ws.on('message', async (message) => {
       const msg = JSON.parse(message)
-      const { id, options } = msg
-      const res = await fetch(options)
-      if (res.error) {
-        ws.s({
-          error: res.error,
-          id
-        })
-      } else {
-        ws.s({
-          data: res,
-          id
-        })
+      const { id, options, action, type, args, func, token } = msg
+      if (action === 'fetch') {
+        const res = await fetch(options)
+        if (res.error) {
+          ws.s({
+            error: res.error,
+            id
+          })
+        } else {
+          ws.s({
+            data: res,
+            id
+          })
+        }
+      } else if (action === 'sync') {
+        const res = await sync(type, func, args, token)
+        if (res.error) {
+          ws.s({
+            error: res.error,
+            id
+          })
+        } else {
+          ws.s({
+            data: res,
+            id
+          })
+        }
       }
     })
   })
