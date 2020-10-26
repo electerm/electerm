@@ -5,12 +5,24 @@
 import fetch from './fetch-from-server'
 import _ from 'lodash'
 import {
-  baseUrls
+  baseUpdateCheckUrls
 } from './constants'
+
+async function fetchData (url, options) {
+  const data = {
+    options: {
+      ...options,
+      url,
+      timeout: 15000
+    }
+  }
+  return fetch(data)
+}
 
 function getInfo (url) {
   const n = +new Date()
-  return fetch(url + '?_=' + n, {
+  return fetchData(url + '?_=' + n, {
+    action: 'get-update-info',
     headers: {
       'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/59.0.3071.115 Safari/537.36'
     },
@@ -22,10 +34,10 @@ function getInfo (url) {
 }
 
 export async function getLatestReleaseVersion () {
-  let url = `${baseUrls[0]}/version.html`
+  let url = `${baseUpdateCheckUrls[0]}/version.html`
   let tagName = await getInfo(url)
   if (!tagName) {
-    url = `${baseUrls[1]}/version.html`
+    url = `${baseUpdateCheckUrls[1]}/version.html`
     tagName = await getInfo(url)
   }
   if (tagName) {
@@ -36,10 +48,10 @@ export async function getLatestReleaseVersion () {
 }
 
 export async function getLatestReleaseInfo () {
-  let url = `${baseUrls[0]}/data/electerm-github-release.json`
+  let url = `${baseUpdateCheckUrls[0]}/data/electerm-github-release.json`
   let res = await getInfo(url).then(JSON.parse)
   if (!_.get(res, 'release.body')) {
-    url = `${baseUrls[1]}/data/electerm-github-release.json`
+    url = `${baseUpdateCheckUrls[1]}/data/electerm-github-release.json`
     res = await getInfo(url).then(JSON.parse)
   }
   return _.get(res, 'release.body')

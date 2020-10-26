@@ -17,7 +17,7 @@ const init = async () => {
   }
 }
 
-export default async (url, options) => {
+export default async (data) => {
   const id = generate()
   if (!wsOpened) {
     await init()
@@ -25,16 +25,11 @@ export default async (url, options) => {
   return new Promise((resolve, reject) => {
     ws.s({
       id,
-      options: {
-        ...options,
-        url,
-        timeout: 15000
-      }
+      ...data
     })
     ws.once((arg) => {
       if (arg.error) {
         log.error('fetch error', arg.error)
-        log.error('url', url)
         return reject(new Error(arg.error))
       }
       resolve(arg.data)

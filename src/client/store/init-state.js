@@ -8,7 +8,8 @@ import {
   settingMap,
   defaultBookmarkGroupId,
   sidebarWidth,
-  newBookmarkIdPrefix
+  newBookmarkIdPrefix,
+  syncTypes
 } from '../common/constants'
 import { buildDefaultThemes, buildNewTheme } from '../common/terminal-theme'
 
@@ -96,6 +97,7 @@ export default {
   isSyncUpload: false,
   isSyncDownload: false,
   syncSetting: {},
+  syncType: syncTypes.github,
   fonts: [],
 
   // sidebar
