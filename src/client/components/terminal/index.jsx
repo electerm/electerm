@@ -200,7 +200,16 @@ export default class Term extends Component {
   }
 
   handleEvent = (e) => {
-    if (e.data && e.data.type === 'focus') {
+    if (
+      e.data &&
+      e.data.type === 'batch-input' &&
+      (
+        e.data.target = this.props.id ||
+        e.data.target === 'all'
+      )
+    ) {
+      this.batchInput(e.data.cmd)
+    } else if (e.data && e.data.type === 'focus') {
       this.setActive()
     } else if (
       e.data &&
@@ -842,8 +851,17 @@ export default class Term extends Component {
     log.debug('socket closed, pid:', this.pid)
   }
 
-  batchInput = (cmd) => {
-    this.attachAddon._sendData(cmd + '\r')
+  batchInput = (cmd, toAll) => {
+    if (toAll) {
+      window.postMessage({
+        type: 'batch-input',
+        target: 'all',
+        cmd,
+        toAll
+      }, '*')
+    } else {
+      this.attachAddon._sendData(cmd + '\r')
+    }
   }
 
   onResizeTerminal = size => {
