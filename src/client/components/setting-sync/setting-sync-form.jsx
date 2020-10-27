@@ -150,7 +150,7 @@ export class SyncForm extends React.Component {
           )}
         </FormItem>
         <FormItem {...tailFormItemLayout} className='sync-control'>
-          <span className='pointer sync-control-link' onClick={this.showGistForm}>Use existing gist ID</span>
+          <span className='pointer sync-control-link' onClick={this.showGistForm}>{ss('useExistingGistId')} gist ID</span>
         </FormItem>
         <div className={cls}>
           <FormItem
