@@ -118,7 +118,7 @@ export class SyncForm extends React.Component {
       <Tooltip
         title={
           <span>
-            github personal access token
+            {syncType} personal access token
             <Link className='mg1l' to={this.getTokenCreateGuideUrl()} />
           </span>
         }
