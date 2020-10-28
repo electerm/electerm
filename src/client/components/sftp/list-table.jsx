@@ -15,9 +15,6 @@ import {
   filePropMinWidth,
   maxDragMove,
   sftpControlHeight,
-  contextMenuHeight,
-  contextMenuPaddingTop,
-  contextMenuWidth,
   eventTypes,
   paneMap
 } from '../../common/constants'
@@ -216,20 +213,11 @@ export default class FileListTable extends React.Component {
     )
   }
 
-  computePos = (e, height) => {
-    const { clientX, clientY } = e
-    const res = {
-      left: clientX,
-      top: clientY
+  computePos = (e) => {
+    return {
+      left: e.clientX,
+      top: e.clientY
     }
-    if (window.innerHeight < res.top + height + 10) {
-      res.top = res.top - height
-    }
-    if (window.innerWidth < res.left + contextMenuWidth + 10) {
-      res.left = res.left - contextMenuWidth
-    }
-    res.top = res.top > 0 ? res.top : 0
-    return res
   }
 
   onToggleProp = name => {
@@ -247,10 +235,8 @@ export default class FileListTable extends React.Component {
   onContextMenu = e => {
     e && e.preventDefault()
     const content = this.renderContext()
-    const height = content.props.children.filter(_.identity)
-      .length * contextMenuHeight + contextMenuPaddingTop * 2
     const pos = e
-      ? this.computePos(e, height)
+      ? this.computePos(e)
       : this.pos
     this.pos = pos
     this.props.store.openContextMenu({

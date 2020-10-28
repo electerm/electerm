@@ -12,12 +12,9 @@ import './terminal.styl'
 import {
   statusMap,
   paneMap,
-  contextMenuHeight,
-  contextMenuPaddingTop,
   typeMap,
   isWin,
   isMac,
-  contextMenuWidth,
   terminalSshConfigType,
   transferTypeMap,
   defaultLoginScriptDelay
@@ -46,19 +43,11 @@ const c = prefix('common')
 const authFailMsg = 'All configured authentication methods failed'
 const privateKeyMsg = 'private key detected'
 
-const computePos = (e, height) => {
-  const { clientX, clientY } = e
-  const res = {
-    left: clientX,
-    top: clientY
+const computePos = (e) => {
+  return {
+    left: e.clientX,
+    top: e.clientY
   }
-  if (window.innerHeight < res.top + height + 10) {
-    res.top = res.top - height
-  }
-  if (window.innerWidth < clientX + contextMenuWidth + 10) {
-    res.left = window.innerWidth - contextMenuWidth
-  }
-  return res
 }
 
 export default class Term extends Component {
@@ -461,11 +450,9 @@ export default class Term extends Component {
       return this.onPaste()
     }
     const content = this.renderContext()
-    const height = content.props.children.filter(_.identity)
-      .length * contextMenuHeight + contextMenuPaddingTop * 2
     this.props.store.openContextMenu({
       content,
-      pos: computePos(e, height)
+      pos: computePos(e)
     })
   }
 

@@ -17,10 +17,8 @@ import {
 } from '../../common/mode2permission'
 import wait from '../../common/wait'
 import {
-  contextMenuHeight, contextMenuPaddingTop,
   fileOperationsMap,
   isWin, transferTypeMap, typeMap,
-  contextMenuWidth,
   isMac, maxEditFileSize, ctrlOrCmd
 } from '../../common/constants'
 import findParent from '../../common/find-parent'
@@ -37,20 +35,11 @@ const e = prefix('sftp')
 const m = prefix('menu')
 const c = prefix('common')
 
-const computePos = (e, isBg, height) => {
-  const { clientX, clientY } = e
-  const res = {
-    left: clientX,
-    top: clientY
+const computePos = (e) => {
+  return {
+    left: e.clientX,
+    top: e.clientY
   }
-  if (window.innerHeight < res.top + height + 10) {
-    res.top = res.top - height
-  }
-  if (window.innerWidth < res.left + contextMenuWidth + 10) {
-    res.left = res.left - contextMenuWidth
-  }
-  res.top = res.top > 0 ? res.top : 0
-  return res
 }
 
 const fileItemCls = 'sftp-item'
@@ -983,16 +972,13 @@ export default class FileSection extends React.Component {
     if (!selected) {
       this.onClick(e)
     }
-    const { id } = file
     this.props.modifier({
       lastClickedFile: file
     })
     const content = this.renderContext()
-    const height = content.props.children.filter(_.identity)
-      .length * contextMenuHeight + contextMenuPaddingTop * 2
     this.props.store.openContextMenu({
       content,
-      pos: computePos(e, id, height)
+      pos: computePos(e)
     })
   }
 

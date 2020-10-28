@@ -205,11 +205,13 @@ export default class SystemMenu extends Component {
         visible={store.menuOpened}
         className='context-menu system-menu'
         closeContextMenu={store.closeMenu}
+
         pos={{
           left: 40,
           top: 10
         }}
         key='menu-item-wrap'
+        count={15}
       />
     )
   }
