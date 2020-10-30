@@ -87,64 +87,64 @@ export default class Sidebar extends Component {
           </div>
           <div
             className='control-icon-wrap'
-            onClick={onNewSsh}
             title={e('newSsh')}
           >
             <Icon
-              className='font22 pointer iblock control-icon'
+              className='font22 iblock control-icon'
               type='plus-circle'
+              onClick={onNewSsh}
             />
           </div>
           <div
             className='control-icon-wrap'
-            onMouseEnter={onMouseEnterBookmark}
-            onMouseLeave={onMouseLeave}
             title={c('bookmarks')}
           >
             <Icon
-              className='font20 pointer iblock control-icon'
+              onMouseEnter={onMouseEnterBookmark}
+              onMouseLeave={onMouseLeave}
+              className='font20 iblock control-icon'
               type='book'
             />
           </div>
           <div
             className='control-icon-wrap'
-            onMouseEnter={onMouseEnterHistory}
-            onMouseLeave={onMouseLeave}
             title={c('history')}
           >
             <Icon
-              className='font20 pointer iblock control-icon'
+              onMouseEnter={onMouseEnterHistory}
+              onMouseLeave={onMouseLeave}
+              className='font20 iblock control-icon'
               type='clock-circle'
             />
           </div>
           <div
             className='control-icon-wrap'
-            onClick={openTerminalThemes}
             title={t('terminalThemes')}
           >
             <Icon
               type='picture'
               className='font20 iblock pointer control-icon'
+              onClick={openTerminalThemes}
             />
           </div>
           <div
             className='control-icon-wrap'
-            onClick={openSetting}
             title={c('setting')}
           >
             <Icon
-              className='iblock pointer font20 control-icon'
+              className='iblock font20 control-icon'
               type='setting'
+              onClick={openSetting}
             />
           </div>
           <div
             className='control-icon-wrap'
-            onClick={openSettingSync}
             title={ss('settingSync')}
           >
             <Icon
-              className='iblock pointer font20 control-icon'
+              className='iblock font20 control-icon'
               type='cloud-sync'
+              onClick={openSettingSync}
             />
           </div>
           {
@@ -152,12 +152,12 @@ export default class Sidebar extends Component {
               ? (
                 <div
                   className='control-icon-wrap'
-                  onClick={openTransferHistory}
                   title={h('transferHistory')}
                 >
                   <Icon
-                    className='font20 pointer iblock control-icon'
+                    className='font20 iblock control-icon'
                     type='swap'
+                    onClick={openTransferHistory}
                   />
                 </div>
               )
@@ -166,11 +166,11 @@ export default class Sidebar extends Component {
           <div
             className='control-icon-wrap'
             title={m('about')}
-            onClick={openAbout}
           >
             <Icon
-              className='iblock pointer font16 control-icon open-about-icon'
+              className='iblock font16 control-icon open-about-icon'
               type='info-circle-o'
+              onClick={openAbout}
             />
           </div>
           {
@@ -182,11 +182,11 @@ export default class Sidebar extends Component {
                 >
                   <div
                     className='control-icon-wrap'
-                    onClick={showUpgrade}
                   >
                     <Icon
-                      className='iblock pointer font18 control-icon hvr-bob upgrade-icon'
+                      className='iblock font18 control-icon hvr-bob upgrade-icon'
                       type='up-circle'
+                      onClick={showUpgrade}
                     />
                   </div>
                 </Tooltip>
