@@ -668,7 +668,7 @@ export default class Term extends Component {
     })
     const { cols, rows } = term
     const { config } = this.props
-    const { host, port, token } = config
+    const { host, port, tokenElecterm } = config
     const url = `http://${host}:${port}/terminals`
     const { tab = {}, sessionId, terminalIndex, id } = this.props
     const {
@@ -748,7 +748,7 @@ export default class Term extends Component {
     this.setState({
       pid
     })
-    const wsUrl = `ws://${host}:${port}/terminals/${pid}?sessionId=${sessionId}&token=${token}`
+    const wsUrl = `ws://${host}:${port}/terminals/${pid}?sessionId=${sessionId}&token=${tokenElecterm}`
     const socket = new WebSocket(wsUrl)
     socket.onclose = this.oncloseSocket
     socket.onerror = this.onerrorSocket

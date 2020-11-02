@@ -86,7 +86,7 @@ app.post('/terminals/:pid/run-cmd', verify, async function (req, res) {
 
 app.ws('/terminals/:pid', function (ws, req) {
   const { sessionId, token: to } = req.query
-  if (to !== token) {
+  if (to !== tokenElecterm) {
     throw new Error('not valid request')
   }
   const term = terminals(req.params.pid, sessionId)
