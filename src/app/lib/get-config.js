@@ -6,7 +6,6 @@ const { initLang } = require('./locales')
 const { generate } = require('shortid')
 
 const token = generate()
-
 exports.getConfig = async () => {
   const userConfig = await dbAction('data', 'findOne', {
     _id: userConfigId
@@ -17,7 +16,7 @@ exports.getConfig = async () => {
     ...defaultSetting,
     ...userConfig,
     port,
-    token
+    tokenElecterm: token
   }
   return {
     userConfig,

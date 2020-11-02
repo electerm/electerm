@@ -55,7 +55,6 @@ export default class ContextMenu extends React.PureComponent {
   }
 
   computePos = () => {
-    console.log(this.props.content.props.children)
     const count = this.props.content.props.children
       ? this.props.content.props.children.filter(c => _.identity(c) && c.type !== 'hr').length
       : 3

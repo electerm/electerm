@@ -16,7 +16,7 @@ module.exports = (config, env) => {
         LANG: `${sysLocale.replace(/-/, '_')}.UTF-8`,
         electermPort: config.port,
         electermHost: config.host,
-        token: config.token
+        tokenElecterm: config.tokenElecterm
       },
       env
     ),
