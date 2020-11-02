@@ -10,8 +10,7 @@ const {
   terminals
 } = require('./remote-common')
 const { listSerialPorts } = require('../lib/serial-port')
-const { token } = process.env
-
+const { tokenElecterm } = process.env
 app.use(cors())
 
 // parse application/x-www-form-urlencoded
@@ -23,7 +22,7 @@ app.use(bodyParser.json())
 require('express-ws')(app)
 
 function verify (req, res, next) {
-  if (req.get('token') !== token) {
+  if (req.get('token') !== tokenElecterm) {
     throw new Error('not valid request')
   }
   next()
