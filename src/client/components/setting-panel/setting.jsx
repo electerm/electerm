@@ -1,9 +1,15 @@
 
 import React, { Component } from 'react'
+import { CodeOutlined } from '@ant-design/icons'
 import {
-  message, Select, Switch,
-  Input, Icon, Upload,
-  InputNumber, Alert, Button,
+  message,
+  Select,
+  Switch,
+  Input,
+  Upload,
+  InputNumber,
+  Alert,
+  Button,
   AutoComplete,
   Tooltip
 } from 'antd'
@@ -566,7 +572,7 @@ export default class Setting extends Component {
         </div>
         {this.renderLanguageChangeTip()}
         <div className='pd1y font16 bold'>
-          <Icon type='code' theme='outlined' className='mg1r' />
+          <CodeOutlined className='mg1r' />
           {s('terminal')} {e('settings')}
         </div>
         <div className='pd2b'>

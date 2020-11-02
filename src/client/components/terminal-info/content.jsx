@@ -17,7 +17,7 @@ import {
   termControlHeight
 } from '../../common/constants'
 
-import { Icon } from 'antd'
+import { CloseCircleOutlined, LeftCircleOutlined, RightCircleOutlined } from '@ant-design/icons'
 
 export default function TerminalInfoContent (props) {
   if (!props.showInfo) {
@@ -47,30 +47,24 @@ export default function TerminalInfoContent (props) {
       }}
     >
       <div className='pd2t pd2x'>
-        <Icon
+        <CloseCircleOutlined
           onClick={props.hideInfoPanel}
-          type='close-circle'
-          className='pointer font20 hide-info-panel-wrap'
-        />
+          className='pointer font20 hide-info-panel-wrap' />
         {
           state.expand
             ? (
-              <Icon
+              <RightCircleOutlined
                 onClick={() => setState({
                   expand: false
                 })}
-                className='pointer font20 mg1l'
-                type='right-circle'
-              />
+                className='pointer font20 mg1l' />
             )
             : (
-              <Icon
+              <LeftCircleOutlined
                 onClick={() => setState({
                   expand: true
                 })}
-                className='pointer font20 mg1l'
-                type='left-circle'
-              />
+                className='pointer font20 mg1l' />
             )
         }
 

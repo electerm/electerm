@@ -3,7 +3,8 @@
  */
 import React from 'react'
 import ReactDOM from 'react-dom'
-import { Input, Icon } from 'antd'
+import { CloseOutlined } from '@ant-design/icons'
+import { Input } from 'antd'
 
 const { Search } = Input
 
@@ -29,12 +30,7 @@ export default class CommonSearch extends React.PureComponent {
     let Dom = Search
     if (!rest.suffix && rest.value) {
       rest.suffix = (
-        <Icon
-          type='close'
-          className='pointer'
-          onClick={this.clear}
-          title='clear'
-        />
+        <CloseOutlined className='pointer' onClick={this.clear} title='clear' />
       )
       Dom = Input
     }

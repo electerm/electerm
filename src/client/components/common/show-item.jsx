@@ -3,7 +3,7 @@
  */
 
 import { memo } from 'react'
-import { Icon } from 'antd'
+import { FolderOpenOutlined } from '@ant-design/icons'
 // import { isMac } from '../../common/constants'
 // import fs from '../../common/fs'
 
@@ -20,7 +20,7 @@ export default memo(props => {
       onClick={e => onClick(e, to)}
       {...rest}
     >
-      {children} <Icon type='folder-open' />
+      {children} <FolderOpenOutlined />
     </a>
   )
 })

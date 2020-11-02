@@ -3,7 +3,7 @@
  */
 
 import { memo } from 'react'
-import { Icon } from 'antd'
+import { LinkOutlined } from '@ant-design/icons'
 
 window.open = (url) => {
   window.getGlobal('openExternal')(url)
@@ -22,7 +22,7 @@ export default memo(props => {
       onClick={e => onClick(e, to)}
       {...rest}
     >
-      {children} <Icon type='link' />
+      {children} <LinkOutlined />
     </a>
   )
 })

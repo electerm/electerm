@@ -5,17 +5,14 @@
 /**
  * bookmark form
  */
-import React from 'react'
-import {
-  Form, Button, Input,
-  notification,
-  Tooltip, Icon
-} from 'antd'
-import { validateFieldsAndScroll } from '../../common/dec-validate-and-scroll'
+import { useState } from 'react'
+import { useDelta, useConditionalEffect } from 'react-delta'
+import { ArrowDownOutlined, ArrowUpOutlined, QuestionCircleOutlined, SaveOutlined } from '@ant-design/icons'
+import { Button, Input, notification, Tooltip, Form } from 'antd'
 import { formItemLayout, tailFormItemLayout } from '../../common/form-layout'
 import Link from '../common/external-link'
-import _ from 'lodash'
 import moment from 'moment'
+import eq from 'fast-deep-equal'
 import { syncTokenCreateUrls } from '../../common/constants'
 import './sync.styl'
 
@@ -24,38 +21,27 @@ const { prefix } = window
 const e = prefix('form')
 const ss = prefix('settingSync')
 
-export class SyncForm extends React.Component {
-  state = {
-    hide: true
+export default function SyncForm (props) {
+  const [form] = Form.useForm()
+  const [hide, setState] = useState(true)
+  const delta = useDelta(props.formData)
+  useConditionalEffect(() => {
+    form.resetFields()
+  }, delta && delta.prev && !eq(delta.prev, delta.curr))
+
+  function showGistForm () {
+    setState(false)
   }
 
-  componentDidUpdate (prevProps) {
-    if (
-      !_.isEqual(prevProps.formData, this.props.formData)
-    ) {
-      this.props.form.resetFields()
-    }
-  }
-
-  showGistForm = () => {
-    this.setState({
-      hide: false
-    })
-  }
-
-  disabled = () => {
+  function disabled () {
     const {
       token,
       gistId
-    } = this.props.formData
+    } = props.formData
     return !token || !gistId
   }
 
-  save = async () => {
-    const res = await this.validateFieldsAndScroll()
-    if (!res) {
-      return
-    }
+  async function save (res) {
     const { syncType } = this.props
     const up = {
       [syncType + 'AccessToken']: res.token
@@ -63,24 +49,24 @@ export class SyncForm extends React.Component {
     if (res.gistId) {
       up[syncType + 'GistId'] = res.gistId
     }
-    this.props.store.updateSyncSetting(up)
-    const test = await this.props.store.testSyncToken(syncType, res.gistId)
+    props.store.updateSyncSetting(up)
+    const test = await props.store.testSyncToken(syncType, res.gistId)
     if (!test) {
       return notification.error({
         message: 'token invalid'
       })
     }
-    if (!this.props.formData.gistId) {
-      this.props.store.createGist(syncType)
+    if (!props.formData.gistId) {
+      props.store.createGist(syncType)
     }
   }
 
-  upload = async () => {
-    this.props.store.uploadSetting(this.props.syncType)
+  function upload () {
+    props.store.uploadSetting(props.syncType)
   }
 
-  download = () => {
-    this.props.store.downloadSetting(this.props.syncType)
+  function download () {
+    props.store.downloadSetting(props.syncType)
   }
 
   // onChangeAutoSync = checked => {
@@ -89,141 +75,140 @@ export class SyncForm extends React.Component {
   //   })
   // }
 
-  getTokenCreateGuideUrl = () => {
-    return syncTokenCreateUrls[this.props.syncType]
+  function getTokenCreateGuideUrl () {
+    return syncTokenCreateUrls[props.syncType]
   }
 
-  renderGistUrl = () => {
-    if (!this.props.formData.url) {
+  function renderGistUrl () {
+    if (!props.formData.url) {
       return null
     }
     return (
-      <Link to={this.props.formData.url}>Check gist</Link>
+      <Link to={props.formData.url}>Check gist</Link>
     )
   }
 
-  render () {
-    const { getFieldDecorator } = this.props.form
-    const {
-      token,
-      lastSyncTime = '',
-      gistId
-    } = this.props.formData
-    const cls = this.state.hide ? 'hide' : ''
-    const { syncType } = this.props
-    const timeFormatted = lastSyncTime
-      ? moment(lastSyncTime).format('YYYY-MM-DD HH:mm:ss')
-      : '-'
-    const tokenLabel = (
-      <Tooltip
-        title={
-          <span>
-            {syncType} personal access token
-            <Link className='mg1l' to={this.getTokenCreateGuideUrl()} />
-          </span>
-        }
-      >
+  const {
+    token,
+    lastSyncTime = '',
+    gistId
+  } = props.formData
+  const cls = hide ? 'hide' : ''
+  const { syncType } = props
+  const timeFormatted = lastSyncTime
+    ? moment(lastSyncTime).format('YYYY-MM-DD HH:mm:ss')
+    : '-'
+  const tokenLabel = (
+    <Tooltip
+      title={
         <span>
-          token <Icon type='question-circle' />
+          {syncType} personal access token
+          <Link className='mg1l' to={getTokenCreateGuideUrl()} />
         </span>
-      </Tooltip>
-    )
-    return (
-      <Form onSubmit={this.handleSubmit} className='form-wrap pd1x'>
+      }
+    >
+      <span>
+        token <QuestionCircleOutlined />
+      </span>
+    </Tooltip>
+  )
+  return (
+    <Form
+      onFinish={save}
+      form={form}
+      className='form-wrap pd1x'
+      name='setting-sync-form'
+      initialValues={props.formData}
+    >
+      <FormItem
+        {...formItemLayout}
+        label={tokenLabel}
+        hasFeedback
+        name='token'
+        rules={[{
+          max: 100, message: '100 chars max'
+        }, {
+          required: true, message: syncType + ' access token required'
+        }]}
+        initialValue={token}
+      >
+        <Input
+          type='password'
+          placeholder={syncType + ' personal access token'}
+        />
+      </FormItem>
+      <FormItem
+        {...tailFormItemLayout}
+        className='sync-control'
+      >
+        <span
+          className='pointer sync-control-link'
+          onClick={showGistForm}
+        >{ss('useExistingGistId')} gist ID</span>
+      </FormItem>
+      <div className={cls}>
         <FormItem
           {...formItemLayout}
-          label={tokenLabel}
-          hasFeedback
+          label='gist ID'
+          name='gistId'
+          rules={[{
+            max: 100, message: '100 chars max'
+          }]}
+          initialValue={gistId}
         >
-          {getFieldDecorator('token', {
-            rules: [{
-              max: 100, message: '100 chars max'
-            }, {
-              required: true, message: syncType + ' access token required'
-            }],
-            initialValue: token
-          })(
-            <Input
-              type='password'
-              placeholder={syncType + ' personal access token'}
-            />
-          )}
-        </FormItem>
-        <FormItem {...tailFormItemLayout} className='sync-control'>
-          <span className='pointer sync-control-link' onClick={this.showGistForm}>{ss('useExistingGistId')} gist ID</span>
-        </FormItem>
-        <div className={cls}>
-          <FormItem
-            {...formItemLayout}
-            label='gist ID'
-          >
-            {getFieldDecorator('gistId', {
-              rules: [{
-                max: 100, message: '100 chars max'
-              }],
-              initialValue: gistId
-            })(
-              <Input
-                placeholder={syncType + ' gist id'}
-              />
-            )}
-          </FormItem>
-        </div>
-        {/* <FormItem
-          {...formItemLayout}
-          label={ss('autoSync')}
-        >
-          <Switch
-            checked={autoSync}
-            disabled={this.disabled()}
-            onChange={this.onChangeAutoSync}
+          <Input
+            placeholder={syncType + ' gist id'}
           />
-        </FormItem> */}
-        <FormItem {...tailFormItemLayout}>
-          <p>
-            <Button
-              type='ghost'
-              className='mg1r'
-              onClick={() => this.save()}
-              icon='save'
-            >{e('save')}</Button>
-            {/* <Button
-              type='ghost'
-              onClick={this.sync}
-              disabled={this.disabled()}
-              className='mg1r'
-              loading={isSyncingSetting}
-              icon='swap'
-            >{ss('sync')}</Button> */}
-            <Button
-              type='ghost'
-              onClick={this.upload}
-              disabled={this.disabled()}
-              className='mg1r'
-              icon='arrow-up'
-            >{ss('uploadSettings')}</Button>
-            <Button
-              type='ghost'
-              onClick={this.download}
-              disabled={this.disabled()}
-              className='mg1r'
-              icon='arrow-down'
-            >{ss('downloadSettings')}</Button>
-          </p>
-          <p>
-            {e('lastSyncTime')}: {timeFormatted}
-          </p>
-          <p>
-            {this.renderGistUrl()}
-          </p>
         </FormItem>
-      </Form>
-    )
-  }
+      </div>
+      {/* <FormItem
+        {...formItemLayout}
+        label={ss('autoSync')}
+      >
+        <Switch
+          checked={autoSync}
+          disabled={this.disabled()}
+          onChange={this.onChangeAutoSync}
+        />
+      </FormItem> */}
+      <FormItem {...tailFormItemLayout}>
+        <p>
+          <Button
+            type='ghost'
+            className='mg1r'
+            htmlType='submit'
+            icon={<SaveOutlined />}
+          >{e('save')}</Button>
+          {/* <Button
+            type='ghost'
+            onClick={this.sync}
+            disabled={this.disabled()}
+            className='mg1r'
+            loading={isSyncingSetting}
+            icon='swap'
+          >{ss('sync')}</Button> */}
+          <Button
+            type='ghost'
+            onClick={upload}
+            disabled={disabled()}
+            className='mg1r'
+            icon={<ArrowUpOutlined />}
+          >{ss('uploadSettings')}</Button>
+          <Button
+            type='ghost'
+            onClick={download}
+            disabled={disabled()}
+            className='mg1r'
+            icon={<ArrowDownOutlined />}
+          >{ss('downloadSettings')}</Button>
+        </p>
+        <p>
+          {e('lastSyncTime')}: {timeFormatted}
+        </p>
+        <p>
+          {renderGistUrl()}
+        </p>
+      </FormItem>
+    </Form>
+  )
 }
-
-@Form.create()
-@validateFieldsAndScroll
-class SyncFormExport extends SyncForm {}
-
-export default SyncFormExport

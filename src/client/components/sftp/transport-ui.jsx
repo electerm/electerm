@@ -2,8 +2,12 @@
  * transporter UI component
  */
 import React from 'react'
-import { Icon } from 'antd'
 import Tag from './transfer-tag'
+import {
+  CloseCircleOutlined,
+  PlayCircleOutlined,
+  PauseCircleOutlined
+} from '@ant-design/icons'
 import './transfer.styl'
 
 const { prefix } = window
@@ -25,24 +29,21 @@ export default function Transporter (props) {
     id
   } = props.transfer
   const isTransfer = typeTo !== typeFrom
-  const pauseIcon = pausing ? 'play-circle' : 'pause-circle'
+  const Icon = !pausing ? PauseCircleOutlined : PlayCircleOutlined
   const pauseTitle = pausing ? e('resume') : e('pause')
   const cls = 'sftp-transport mg1b pd1x'
   const typeFromTitle = e(typeFrom)
   const typeToTitle = e(typeTo)
   const title = `${typeFromTitle}→${typeToTitle}: ${fromPath} -> ${toPath} ${speed || ''} ${percent || 0}%`
   const cancelIcon = (
-    <Icon
-      type='close-circle'
+    <CloseCircleOutlined
       className='transfer-control-icon pointer hover-black'
       onClick={props.cancel}
-      title={e('cancel')}
-    />
+      title={e('cancel')} />
   )
   const controlIcon = isTransfer
     ? (
       <Icon
-        type={pauseIcon}
         className='flex-child transfer-control-icon pointer hover-black'
         onClick={props.handlePauseOrResume}
         title={pauseTitle}

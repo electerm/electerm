@@ -3,7 +3,16 @@
  */
 
 import React from 'react'
-import { Icon, Tooltip, message } from 'antd'
+
+import {
+  CloseOutlined,
+  CodeOutlined,
+  CopyOutlined,
+  EditOutlined,
+  Loading3QuartersOutlined
+} from '@ant-design/icons'
+
+import { Tooltip, message } from 'antd'
 import classnames from 'classnames'
 import copy from 'json-deep-copy'
 import _ from 'lodash'
@@ -204,7 +213,7 @@ export default class Tab extends React.Component {
           className={cls}
           onClick={this.close}
         >
-          <Icon type='close' /> {e('close')} ({ctrlOrCmd} + W)
+          <CloseOutlined /> {e('close')} ({ctrlOrCmd} + W)
         </div>
         {
           nother
@@ -214,7 +223,7 @@ export default class Tab extends React.Component {
                 className={cls}
                 onClick={this.closeOther}
               >
-                <Icon type='close' /> {e('closeOtherTabs')}
+                <CloseOutlined /> {e('closeOtherTabs')}
               </div>
             )
         }
@@ -226,7 +235,7 @@ export default class Tab extends React.Component {
                 className={cls}
                 onClick={this.closeTabsRight}
               >
-                <Icon type='close' /> {e('closeTabRight')}
+                <CloseOutlined /> {e('closeTabRight')}
               </div>
             )
         }
@@ -235,25 +244,25 @@ export default class Tab extends React.Component {
           className={cls}
           onClick={() => this.props.store.addTab()}
         >
-          <Icon type='code-o' /> {e('newTab')}
+          <CodeOutlined /> {e('newTab')}
         </div>
         <div
           className={cls}
           onClick={this.dup}
         >
-          <Icon type='copy' /> {e('duplicate')}
+          <CopyOutlined /> {e('duplicate')}
         </div>
         <div
           className={cls + (isSshConfig ? ' disabled' : '')}
           onClick={isSshConfig ? _.noop : this.doRename}
         >
-          <Icon type='edit' /> {e('rename')}
+          <EditOutlined /> {e('rename')}
         </div>
         <div
           className={cls}
           onClick={this.reloadTab}
         >
-          <Icon type='loading-3-quarters' theme='outlined' /> {m('reload')}
+          <Loading3QuartersOutlined /> {m('reload')}
         </div>
       </div>
     )
@@ -337,21 +346,15 @@ export default class Tab extends React.Component {
             onDoubleClick={() => onDuplicateTab(tab)}
             onContextMenu={this.onContextMenu}
           >
-            <Icon
+            <Loading3QuartersOutlined
               className='pointer tab-reload mg1r'
-              type='loading-3-quarters'
-              theme='outlined'
               onClick={this.reloadTab}
-              title={m('reload')}
-            />
+              title={m('reload')} />
             {title}
           </div>
           <div className={'tab-status ' + status} />
           <span className='tab-close pointer'>
-            <Icon
-              type='close'
-              onClick={this.close}
-            />
+            <CloseOutlined onClick={this.close} />
           </span>
         </div>
       </Tooltip>

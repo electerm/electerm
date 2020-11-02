@@ -3,7 +3,8 @@
  */
 
 import { Component } from 'react'
-import { Input, Col, Row, Icon, message, Switch, Tooltip } from 'antd'
+import { CheckOutlined, CloseCircleOutlined, CloseOutlined, EditOutlined } from '@ant-design/icons'
+import { Input, Col, Row, message, Switch, Tooltip } from 'antd'
 import { settingMap } from '../../common/constants'
 import { generate } from 'shortid'
 import _ from 'lodash'
@@ -89,13 +90,7 @@ export default class QuickCommandItem extends Component {
   }
 
   renderNew = (item) => {
-    return (
-      <Icon
-        type='check'
-        className='pointer mg1l'
-        onClick={this.submit}
-      />
-    )
+    return <CheckOutlined className='pointer mg1l' onClick={this.submit} />
   }
 
   renderIcons = (item) => {
@@ -104,16 +99,8 @@ export default class QuickCommandItem extends Component {
     }
     return (
       <span>
-        <Icon
-          type='check'
-          className='pointer mg1x'
-          onClick={this.submit}
-        />
-        <Icon
-          type='close'
-          className='pointer'
-          onClick={this.cancel}
-        />
+        <CheckOutlined className='pointer mg1x' onClick={this.submit} />
+        <CloseOutlined className='pointer' onClick={this.cancel} />
       </span>
     )
   }
@@ -217,16 +204,8 @@ export default class QuickCommandItem extends Component {
           </Tooltip>
         </Col>
         <Col span={6}>
-          <Icon
-            type='edit'
-            className='pointer font16 mg1x'
-            onClick={this.edit}
-          />
-          <Icon
-            type='close-circle'
-            className='pointer font16'
-            onClick={this.del}
-          />
+          <EditOutlined className='pointer font16 mg1x' onClick={this.edit} />
+          <CloseCircleOutlined className='pointer font16' onClick={this.del} />
         </Col>
       </Row>
     )

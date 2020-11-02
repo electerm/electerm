@@ -1,11 +1,6 @@
 
-import { BookmarkForm } from '../bookmark-form/ssh-form'
-import {
-  Form, Button, Input,
-  message,
-  Upload
-} from 'antd'
-import { validateFieldsAndScroll } from '../../common/dec-validate-and-scroll'
+import { useRef } from 'react'
+import { Button, Input, message, Upload, Form } from 'antd'
 import { convertTheme, convertThemeToText, exportTheme } from '../../common/terminal-theme'
 import { defaultTheme } from '../../common/constants'
 import { generate } from 'shortid'
@@ -19,18 +14,18 @@ const e = prefix('form')
 const s = prefix('setting')
 const t = prefix('terminalThemes')
 
-@Form.create()
-@validateFieldsAndScroll
-class ThemeForm extends BookmarkForm {
-  export = () => {
-    exportTheme(this.props.formData.id)
+export default function ThemeForm (props) {
+  const [form] = Form.useForm()
+  const action = useRef('submit')
+  function exporter () {
+    exportTheme(props.formData.id)
   }
-
-  handleSubmit = async (e, saveOnly = false) => {
-    e.preventDefault()
-    const res = await this.validateFieldsAndScroll()
-    if (!res) return
-    const { formData } = this.props
+  function saveOnly () {
+    action.current = 'saveOnly'
+    form.submit()
+  }
+  async function handleSubmit (res) {
+    const { formData } = props
     const {
       themeName,
       themeText
@@ -44,26 +39,27 @@ class ThemeForm extends BookmarkForm {
       id: generate()
     }
     if (formData.id) {
-      this.props.store.editTheme(formData.id, update)
+      props.store.editTheme(formData.id, update)
     } else {
-      this.props.store.addTheme(update1)
-      this.props.store.storeAssign({
+      props.store.addTheme(update1)
+      props.store.storeAssign({
         item: update1
       })
     }
-    if (!saveOnly) {
-      this.props.store.setTheme(
+    if (action.current !== 'saveOnly') {
+      props.store.setTheme(
         formData.id || update1.id
       )
     }
     message.success(s('saved'))
+    action.current = 'submit'
   }
 
-  beforeUpload = (file) => {
+  function beforeUpload (file) {
     const txt = window.getGlobal('fs')
       .readFileSync(file.path).toString()
     const { name, themeConfig } = convertTheme(txt)
-    this.props.form.setFieldsValue({
+    form.setFieldsValue({
       themeName: name,
       themeText: convertThemeToText({
         name, themeConfig
@@ -72,97 +68,98 @@ class ThemeForm extends BookmarkForm {
     return false
   }
 
-  render () {
-    const { getFieldDecorator } = this.props.form
-    const {
-      themeConfig,
-      id,
-      name: themeName
-    } = this.props.formData
-    const { autofocustrigger } = this.props.store
-    const themeText = convertThemeToText({ themeConfig, name: themeName })
-    const isDefaultTheme = id === defaultTheme.id
-    return (
-      <Form onSubmit={this.handleSubmit} className='form-wrap'>
-        <FormItem {...tailFormItemLayout}>
-          {
-            id
-              ? (
-                <Button
-                  type='ghost'
-                  onClick={this.export}
-                >{t('export')}</Button>
-              )
-              : null
-          }
-        </FormItem>
-        <FormItem
-          {...formItemLayout}
-          label={t('themeName')}
-          hasFeedback
-        >
-          {getFieldDecorator('themeName', {
-            rules: [{
-              max: 30, message: '30 chars max'
-            }, {
-              required: true, message: 'theme name required'
-            }],
-            initialValue: themeName
-          })(
-            <InputAutoFocus selectall='true' disabled={isDefaultTheme} autofocustrigger={autofocustrigger} />
-          )}
-        </FormItem>
-        <FormItem
-          {...formItemLayout}
-          label={t('themeConfig')}
-        >
-          {getFieldDecorator('themeText', {
-            rules: [{
-              max: 1000, message: '1000 chars max'
-            }, {
-              required: true, message: 'theme Config required'
-            }],
-            initialValue: themeText
-          })(
-            <TextArea rows={18} disabled={isDefaultTheme} />
-          )}
-          <div className='pd1t'>
-            <Upload
-              beforeUpload={this.beforeUpload}
-              fileList={[]}
-              className='mg1b'
-            >
+  const {
+    themeConfig,
+    id,
+    name: themeName
+  } = props.formData
+  const { autofocustrigger } = props.store
+  const themeText = convertThemeToText({ themeConfig, name: themeName })
+  const isDefaultTheme = id === defaultTheme.id
+  return (
+    <Form
+      onFinish={handleSubmit}
+      form={form}
+      initialValues={props.formData}
+      className='form-wrap'
+      name='terminal-theme-form'
+    >
+      <FormItem {...tailFormItemLayout}>
+        {
+          id
+            ? (
               <Button
                 type='ghost'
-                disabled={isDefaultTheme}
-              >
-                {e('importFromFile')}
-              </Button>
-            </Upload>
-          </div>
-        </FormItem>
-        {
-          isDefaultTheme
-            ? null
-            : (
-              <FormItem {...tailFormItemLayout}>
-                <p>
-                  <Button
-                    type='primary'
-                    htmlType='submit'
-                    className='mg1r'
-                  >{t('saveAndApply')}</Button>
-                  <Button
-                    type='ghost'
-                    onClick={e => this.handleSubmit(e, true)}
-                  >{e('save')}</Button>
-                </p>
-              </FormItem>
+                onClick={exporter}
+              >{t('export')}</Button>
             )
+            : null
         }
-      </Form>
-    )
-  }
+      </FormItem>
+      <FormItem
+        {...formItemLayout}
+        label={t('themeName')}
+        hasFeedback
+        name='themeName'
+        rules={[{
+          max: 30, message: '30 chars max'
+        }, {
+          required: true, message: 'theme name required'
+        }]}
+        initialValue={themeName}
+      >
+        <InputAutoFocus
+          selectall='true'
+          disabled={isDefaultTheme}
+          autofocustrigger={autofocustrigger}
+        />
+      </FormItem>
+      <FormItem
+        {...formItemLayout}
+        label={t('themeConfig')}
+        name='themeText'
+        rules={[{
+          max: 1000, message: '1000 chars max'
+        }, {
+          required: true, message: 'theme Config required'
+        }]}
+        initialValue={themeText}
+      >
+        <TextArea rows={18} disabled={isDefaultTheme} />
+        <div className='pd1t'>
+          <Upload
+            beforeUpload={beforeUpload}
+            fileList={[]}
+            className='mg1b'
+          >
+            <Button
+              type='ghost'
+              disabled={isDefaultTheme}
+            >
+              {e('importFromFile')}
+            </Button>
+          </Upload>
+        </div>
+      </FormItem>
+      {
+        isDefaultTheme
+          ? null
+          : (
+            <FormItem {...tailFormItemLayout}>
+              <p>
+                <Button
+                  type='primary'
+                  htmlType='submit'
+                  className='mg1r'
+                >{t('saveAndApply')}</Button>
+                <Button
+                  type='ghost'
+                  onClick={saveOnly}
+                >{e('save')}</Button>
+              </p>
+            </FormItem>
+          )
+      }
+    </Form>
+  )
 }
-
-export default ThemeForm

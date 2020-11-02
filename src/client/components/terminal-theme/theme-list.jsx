@@ -3,7 +3,8 @@
  */
 
 import List from '../setting-panel/list'
-import { Tooltip, Icon } from 'antd'
+import { CheckCircleOutlined, PlusOutlined } from '@ant-design/icons'
+import { Tooltip } from 'antd'
 import classnames from 'classnames'
 import { defaultTheme } from '../../common/constants'
 import highlight from '../common/highlight'
@@ -27,11 +28,9 @@ export default class ThemeList extends List {
         title={e('apply')}
         placement='top'
       >
-        <Icon
-          type='check-circle-o'
+        <CheckCircleOutlined
           className='pointer list-item-apply'
-          onClick={() => this.props.store.setTheme(item.id)}
-        />
+          onClick={() => this.props.store.setTheme(item.id)} />
       </Tooltip>
     )
   }
@@ -73,7 +72,7 @@ export default class ThemeList extends List {
           <div className='elli pd1y pd2x'>
             {
               !id
-                ? <Icon type='plus' className='mg1r' />
+                ? <PlusOutlined className='mg1r' />
                 : null
             }
             {title}

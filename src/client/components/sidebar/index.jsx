@@ -1,9 +1,16 @@
-/**
- * sidebar
- */
 import {
-  Icon, Tooltip
-} from 'antd'
+  BookOutlined,
+  ClockCircleOutlined,
+  CloudSyncOutlined,
+  InfoCircleOutlined,
+  PictureOutlined,
+  PlusCircleOutlined,
+  SettingOutlined,
+  SwapOutlined,
+  UpCircleOutlined
+} from '@ant-design/icons'
+
+import { Tooltip } from 'antd'
 import { Component } from '../common/react-subx'
 import BookMarksWrap from './bookmark'
 import HistoryWrap from './history'
@@ -89,63 +96,45 @@ export default class Sidebar extends Component {
             className='control-icon-wrap'
             title={e('newSsh')}
           >
-            <Icon
-              className='font22 iblock control-icon'
-              type='plus-circle'
-              onClick={onNewSsh}
-            />
+            <PlusCircleOutlined className='font22 iblock control-icon' onClick={onNewSsh} />
           </div>
           <div
             className='control-icon-wrap'
             title={c('bookmarks')}
           >
-            <Icon
+            <BookOutlined
               onMouseEnter={onMouseEnterBookmark}
               onMouseLeave={onMouseLeave}
-              className='font20 iblock control-icon'
-              type='book'
-            />
+              className='font20 iblock control-icon' />
           </div>
           <div
             className='control-icon-wrap'
             title={c('history')}
           >
-            <Icon
+            <ClockCircleOutlined
               onMouseEnter={onMouseEnterHistory}
               onMouseLeave={onMouseLeave}
-              className='font20 iblock control-icon'
-              type='clock-circle'
-            />
+              className='font20 iblock control-icon' />
           </div>
           <div
             className='control-icon-wrap'
             title={t('terminalThemes')}
           >
-            <Icon
-              type='picture'
+            <PictureOutlined
               className='font20 iblock pointer control-icon'
-              onClick={openTerminalThemes}
-            />
+              onClick={openTerminalThemes} />
           </div>
           <div
             className='control-icon-wrap'
             title={c('setting')}
           >
-            <Icon
-              className='iblock font20 control-icon'
-              type='setting'
-              onClick={openSetting}
-            />
+            <SettingOutlined className='iblock font20 control-icon' onClick={openSetting} />
           </div>
           <div
             className='control-icon-wrap'
             title={ss('settingSync')}
           >
-            <Icon
-              className='iblock font20 control-icon'
-              type='cloud-sync'
-              onClick={openSettingSync}
-            />
+            <CloudSyncOutlined className='iblock font20 control-icon' onClick={openSettingSync} />
           </div>
           {
             transferHistory.length
@@ -154,11 +143,7 @@ export default class Sidebar extends Component {
                   className='control-icon-wrap'
                   title={h('transferHistory')}
                 >
-                  <Icon
-                    className='font20 iblock control-icon'
-                    type='swap'
-                    onClick={openTransferHistory}
-                  />
+                  <SwapOutlined className='font20 iblock control-icon' onClick={openTransferHistory} />
                 </div>
               )
               : null
@@ -167,11 +152,9 @@ export default class Sidebar extends Component {
             className='control-icon-wrap'
             title={m('about')}
           >
-            <Icon
+            <InfoCircleOutlined
               className='iblock font16 control-icon open-about-icon'
-              type='info-circle-o'
-              onClick={openAbout}
-            />
+              onClick={openAbout} />
           </div>
           {
             !checkingRemoteVersion && !showUpgradeModal && shouldUpgrade
@@ -183,11 +166,9 @@ export default class Sidebar extends Component {
                   <div
                     className='control-icon-wrap'
                   >
-                    <Icon
+                    <UpCircleOutlined
                       className='iblock font18 control-icon hvr-bob upgrade-icon'
-                      type='up-circle'
-                      onClick={showUpgrade}
-                    />
+                      onClick={showUpgrade} />
                   </div>
                 </Tooltip>
               )

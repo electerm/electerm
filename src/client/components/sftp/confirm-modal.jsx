@@ -3,9 +3,10 @@
  *
  */
 
-import { Modal, Button, Icon } from 'antd'
+import { Modal, Button } from 'antd'
 import AnimateText from '../common/animate-text'
 import formatTime from '../../../app/common/time'
+import { FolderOutlined, FileOutlined } from '@ant-design/icons'
 
 const { prefix } = window
 const e = prefix('sftp')
@@ -48,6 +49,7 @@ export default (props) => {
   function renderContent () {
     const action = isDirectory ? e('merge') : e('replace')
     const typeTxt = isDirectory ? e('folder') : e('file')
+    const Icon = isDirectory ? FolderOutlined : FileOutlined
     const typeTitle = e(typeFrom)
     const otherTypeTitle = e(typeTo)
     return (
@@ -57,7 +59,7 @@ export default (props) => {
             {action}
           </p>
           <p className='bold font14'>
-            {typeTitle} {typeTxt}: <Icon type={typeTxt} className='mg1r' />{name}
+            {typeTitle} {typeTxt}: <Icon className='mg1r' />{name}
           </p>
           <p className='font13'>
             {e('size')}: {sizeTo}, {e('modifyTime')}: {formatTime(modifyTimeTo)}
@@ -69,7 +71,7 @@ export default (props) => {
             with
           </p>
           <p className='bold font14'>
-            {otherTypeTitle} {typeTxt}: <Icon type={typeTxt} className='mg1r' />{name}
+            {otherTypeTitle} {typeTxt}: <Icon className='mg1r' />{name}
           </p>
           <p className='font13'>
             {e('size')}: {sizeFrom}, {e('modifyTime')}: {formatTime(modifyTimeFrom)}

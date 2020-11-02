@@ -3,6 +3,7 @@
  */
 
 import { Component } from '../common/react-subx'
+import { DownloadOutlined, UploadOutlined } from '@ant-design/icons'
 import { Upload, Button } from 'antd'
 import download from '../../common/download'
 import time from '../../../app/common/time'
@@ -109,7 +110,7 @@ export default class Btns extends Component {
 
     return [
       <Button
-        icon='download'
+        icon={<DownloadOutlined />}
         onClick={down}
         className='mg1x mg1t'
         title={t('export')}
@@ -121,7 +122,7 @@ export default class Btns extends Component {
         key='Upload'
       >
         <Button
-          icon='upload'
+          icon={<UploadOutlined />}
           className='mg1t'
           title={f('importFromFile')}
         />

@@ -3,12 +3,18 @@
  */
 
 import React from 'react'
+
 import {
-  Icon,
-  Popconfirm,
-  Tree,
-  Button
-} from 'antd'
+  BookOutlined,
+  CheckOutlined,
+  CloseOutlined,
+  CopyOutlined,
+  EditOutlined,
+  FolderAddOutlined,
+  FolderOutlined
+} from '@ant-design/icons'
+
+import { Popconfirm, Tree, Button } from 'antd'
 import createName from '../../common/create-title'
 import classnames from 'classnames'
 import { generate } from 'shortid'
@@ -18,7 +24,6 @@ import {
   maxBookmarkGroupTitleLength,
   defaultBookmarkGroupId,
   settingMap
-
 } from '../../common/constants'
 import highlight from '../common/highlight'
 import copy from 'json-deep-copy'
@@ -294,11 +299,7 @@ export default class ItemListTree extends React.PureComponent {
         cancelText={c('cancel')}
         placement='top'
       >
-        <Icon
-          type='close'
-          title={e('del')}
-          className='pointer'
-        />
+        <CloseOutlined title={e('del')} className='pointer' />
       </Popconfirm>
     )
   }
@@ -335,12 +336,10 @@ export default class ItemListTree extends React.PureComponent {
       return null
     }
     return (
-      <Icon
-        type='folder-add'
+      <FolderAddOutlined
         title={`${s('new')} ${c('bookmarkCategory')}`}
         onClick={(e) => this.addSubCat(e, item)}
-        className='pointer'
-      />
+        className='pointer' />
     )
   }
 
@@ -352,12 +351,10 @@ export default class ItemListTree extends React.PureComponent {
       return null
     }
     return (
-      <Icon
-        type='edit'
+      <EditOutlined
         title={e('edit')}
         onClick={(e) => this.editItem(e, item, isGroup)}
-        className='pointer'
-      />
+        className='pointer' />
     )
   }
 
@@ -367,16 +364,8 @@ export default class ItemListTree extends React.PureComponent {
     } = this.state
     const confirm = (
       <span>
-        <Icon
-          type='check'
-          className='pointer'
-          onClick={this.submitEdit}
-        />
-        <Icon
-          type='close'
-          className='mg1l pointer'
-          onClick={this.cancelEdit}
-        />
+        <CheckOutlined className='pointer' onClick={this.submitEdit} />
+        <CloseOutlined className='mg1l pointer' onClick={this.cancelEdit} />
       </span>
     )
     return (
@@ -487,12 +476,10 @@ export default class ItemListTree extends React.PureComponent {
       return null
     }
     const icon = (
-      <Icon
-        type='copy'
+      <CopyOutlined
         title={e('duplicate')}
         className='pointer'
-        onClick={(e) => this.duplicateItem(e, item)}
-      />
+        onClick={(e) => this.duplicateItem(e, item)} />
     )
     return icon
   }
@@ -645,14 +632,14 @@ export default class ItemListTree extends React.PureComponent {
           onClick={this.newBookmark}
           title={`${s('new')} ${c('bookmarks')}`}
         >
-          <Icon type='book' className='with-plus' />
+          <BookOutlined className='with-plus' />
         </Button>
         <Button
           className='mg1t'
           onClick={this.newBookmarkGroup}
           title={`${s('new')} ${c('bookmarkCategory')}`}
         >
-          <Icon type='folder' className='with-plus' />
+          <FolderOutlined className='with-plus' />
         </Button>
         <Btns
           store={this.props.store}
@@ -671,16 +658,8 @@ export default class ItemListTree extends React.PureComponent {
     }
     const confirm = (
       <span>
-        <Icon
-          type='check'
-          className='pointer'
-          onClick={this.submitSub}
-        />
-        <Icon
-          type='close'
-          className='mg1l pointer'
-          onClick={this.cancelNewSub}
-        />
+        <CheckOutlined className='pointer' onClick={this.submitSub} />
+        <CloseOutlined className='mg1l pointer' onClick={this.cancelNewSub} />
       </span>
     )
     return (
@@ -709,16 +688,8 @@ export default class ItemListTree extends React.PureComponent {
     }
     const confirm = (
       <span>
-        <Icon
-          type='check'
-          className='pointer'
-          onClick={this.submit}
-        />
-        <Icon
-          type='close'
-          className='mg1l pointer'
-          onClick={this.cancelNew}
-        />
+        <CheckOutlined className='pointer' onClick={this.submit} />
+        <CloseOutlined className='mg1l pointer' onClick={this.cancelNew} />
       </span>
     )
     return (

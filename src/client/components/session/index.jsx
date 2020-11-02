@@ -5,7 +5,8 @@
 import { Component } from 'react'
 import Term from '../terminal'
 import Sftp from '../sftp/sftp-entry'
-import { Icon, Tooltip } from 'antd'
+import { BorderVerticleOutlined, BorderHorizontalOutlined, CloseSquareFilled, SearchOutlined } from '@ant-design/icons'
+import { Tooltip } from 'antd'
 import _ from 'lodash'
 import { generate } from 'shortid'
 import copy from 'json-deep-copy'
@@ -289,11 +290,9 @@ export default class SessionWrapper extends Component {
     const title = e('search')
     return (
       <Tooltip title={title}>
-        <Icon
-          type='search'
+        <SearchOutlined
           className='mg1r icon-info font16 iblock pointer'
-          onClick={this.handleOpenSearch}
-        />
+          onClick={this.handleOpenSearch} />
       </Tooltip>
     )
   }
@@ -306,12 +305,12 @@ export default class SessionWrapper extends Component {
     const isHori = splitDirection === terminalSplitDirectionMap.horizontal
     const cls1 = 'mg1r icon-split pointer iblock spliter'
     const cls2 = 'icon-direction pointer iblock spliter'
-    const icon1 = isHori
-      ? 'border-horizontal'
-      : 'border-verticle'
-    const icon2 = !isHori
-      ? 'border-horizontal'
-      : 'border-verticle'
+    const Icon1 = isHori
+      ? BorderHorizontalOutlined
+      : BorderVerticleOutlined
+    const Icon2 = !isHori
+      ? BorderHorizontalOutlined
+      : BorderVerticleOutlined
     const hide = terminals.length < 2
     const types = [
       paneMap.terminal,
@@ -355,20 +354,16 @@ export default class SessionWrapper extends Component {
                   hide
                     ? null
                     : (
-                      <Icon
-                        type='close-square'
-                        theme='filled'
+                      <CloseSquareFilled
                         className='mg1r icon-trash font16 iblock pointer'
                         onClick={this.delSplit}
-                        title={m('del')}
-                      />
+                        title={m('del')} />
                     )
                 }
                 <Tooltip
                   title={`${e('split')}(${ctrlOrCmd} + /)`}
                 >
-                  <Icon
-                    type={icon1}
+                  <Icon1
                     className={cls1}
                     onClick={this.doSplit}
                   />
@@ -376,8 +371,7 @@ export default class SessionWrapper extends Component {
                 <Tooltip
                   title={e('changeDirection')}
                 >
-                  <Icon
-                    type={icon2}
+                  <Icon2
                     className={cls2}
                     onClick={this.changeDirection}
                   />

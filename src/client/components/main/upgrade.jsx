@@ -1,5 +1,6 @@
 import { Component } from 'react'
-import { Icon, Button } from 'antd'
+import { CloseOutlined, MinusSquareOutlined, UpCircleOutlined } from '@ant-design/icons'
+import { Button } from 'antd'
 import _ from 'lodash'
 import { getLatestReleaseInfo, getLatestReleaseVersion } from '../../common/update-check'
 import upgrade from '../../common/upgrade'
@@ -143,11 +144,7 @@ export default class Upgrade extends Component {
     return (
       <div className='upgrade-panel'>
         <div className='upgrade-panel-title'>
-          <Icon
-            type='close'
-            className='pointer font16 close-upgrade-panel'
-            onClick={this.close}
-          />
+          <CloseOutlined className='pointer font16 close-upgrade-panel' onClick={this.close} />
           {e('fail')}: {err}
         </div>
         <div className='upgrade-panel-body'>
@@ -169,11 +166,7 @@ export default class Upgrade extends Component {
     return (
       <div className={cls}>
         <div className='upgrade-panel-title'>
-          <Icon
-            type='close'
-            className='pointer font16 close-upgrade-panel'
-            onClick={this.close}
-          />
+          <CloseOutlined className='pointer font16 close-upgrade-panel' onClick={this.close} />
           {e('noNeed')}
         </div>
         <div className='upgrade-panel-body'>
@@ -207,7 +200,7 @@ export default class Upgrade extends Component {
     return (
       <Button
         onClick={this.skipVersion}
-        icon='close'
+        icon={<CloseOutlined />}
         className='mg1l mg1b'
       >
         {e('skipThisVersion')}
@@ -251,11 +244,7 @@ export default class Upgrade extends Component {
     return (
       <div className={cls}>
         <div className='upgrade-panel-title'>
-          <Icon
-            type='minus-square'
-            className='pointer font16 close-upgrade-panel'
-            onClick={this.minimize}
-          />
+          <MinusSquareOutlined className='pointer font16 close-upgrade-panel' onClick={this.minimize} />
           {e('newVersion')} <b>{remoteVersion}</b>
         </div>
         <div className='upgrade-panel-body'>
@@ -265,7 +254,7 @@ export default class Upgrade extends Component {
                 <div>
                   <Button
                     type='primary'
-                    icon='up-circle'
+                    icon={<UpCircleOutlined />}
                     loading={checkingRemoteVersion}
                     disabled={checkingRemoteVersion}
                     onClick={func}

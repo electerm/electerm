@@ -5,10 +5,8 @@
 import { memo } from 'react'
 import BookmarkSelect from './bookmark-select'
 import _ from 'lodash'
-import {
-  Icon,
-  Tooltip
-} from 'antd'
+import { ArrowsAltOutlined, EditOutlined, PlusCircleOutlined, ShrinkOutlined } from '@ant-design/icons'
+import { Tooltip } from 'antd'
 
 const { prefix } = window
 const c = prefix('common')
@@ -27,32 +25,24 @@ export default memo((props) => {
           <div className='fleft'>{c('bookmarks')}</div>
           <div className='fright'>
             <Tooltip title={e('newSsh')}>
-              <Icon
-                type='plus-circle'
+              <PlusCircleOutlined
                 className='font16 mg1x mg2l pointer iblock control-icon icon-do-edit'
-                onClick={store.onNewSsh}
-              />
+                onClick={store.onNewSsh} />
             </Tooltip>
             <Tooltip title={`${m('edit')} ${c('bookmarks')}`}>
-              <Icon
-                type='edit'
+              <EditOutlined
                 className='font16 mg1x mg2l pointer iblock control-icon icon-do-edit'
-                onClick={store.onNewSsh}
-              />
+                onClick={store.onNewSsh} />
             </Tooltip>
             <Tooltip title={c('expandAll')}>
-              <Icon
-                type='arrows-alt'
+              <ArrowsAltOutlined
                 className='font16 mg1x mg2l pointer iblock control-icon icon-do-edit'
-                onClick={store.expandBookmarks}
-              />
+                onClick={store.expandBookmarks} />
             </Tooltip>
             <Tooltip title={c('collapseAll')}>
-              <Icon
-                type='shrink'
+              <ShrinkOutlined
                 className='font16 mg1x mg2l pointer iblock control-icon icon-do-edit'
-                onClick={store.collapseBookmarks}
-              />
+                onClick={store.collapseBookmarks} />
             </Tooltip>
           </div>
         </div>

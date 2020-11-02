@@ -3,7 +3,8 @@
  */
 
 import List from '../setting-panel/list'
-import { Tooltip, Icon } from 'antd'
+import { PlusOutlined } from '@ant-design/icons'
+import { Tooltip } from 'antd'
 import classnames from 'classnames'
 import highlight from '../common/highlight'
 import { settingMap } from '../../common/constants'
@@ -45,7 +46,7 @@ export default class QuickCommandsList extends List {
           <div className='elli pd1y pd2x'>
             {
               !id
-                ? <Icon type='plus' className='mg1r' />
+                ? <PlusOutlined className='mg1r' />
                 : null
             }
             {title}
