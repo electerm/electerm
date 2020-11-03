@@ -16,7 +16,14 @@ const packThreadCount = env.packThreadCount
   : os.cpus().length
 const devPort = env.devPort || 5570
 const host = env.host || 'localhost'
-const theme = require('@ant-design/dark-theme').default
+// const theme = require('@ant-design/dark-theme').default
+// theme['@light'] = '#aaa'
+const { getThemeVariables } = require('antd/dist/theme')
+const theme = getThemeVariables({
+  dark: true,
+  compact: true
+})
+theme['@text-color'] = '#aaaaaa'
 const happyThreadPool = packThreadCount === 0
   ? null
   : HappyPack.ThreadPool({ size: packThreadCount })

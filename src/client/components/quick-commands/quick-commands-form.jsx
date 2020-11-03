@@ -12,11 +12,6 @@ const s = prefix('setting')
 
 export default function QuickCommandForm (props) {
   const [form] = Form.useForm()
-  const {
-    command,
-    name,
-    inputOnly = false
-  } = props.formData
   const { autofocustrigger } = props.store
   async function handleSubmit (res) {
     const { formData } = props
@@ -62,7 +57,6 @@ export default function QuickCommandForm (props) {
         }, {
           required: true, message: 'name required'
         }]}
-        initialValue={name}
         hasFeedback
         name='name'
       >
@@ -79,14 +73,12 @@ export default function QuickCommandForm (props) {
         }, {
           required: true, message: 'command required'
         }]}
-        initialValue={command}
       >
         <TextArea rows={3} />
       </FormItem>
       <FormItem
         label={t('inputOnly')}
         name='inputOnly'
-        initialValue={inputOnly}
         valuePropName='checked'
       >
         <Switch />

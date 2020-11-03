@@ -21,6 +21,7 @@ import {
   newBookmarkIdPrefix
 } from '../../common/constants'
 import { formItemLayout, tailFormItemLayout } from '../../common/form-layout'
+import defaultSettings from '../../../app/common/default-setting'
 import InputAutoFocus from '../common/input-auto-focus'
 import encodes from './encodes'
 import formatBookmarkGroups from './bookmark-group-tree-format'
@@ -28,6 +29,8 @@ import findBookmarkGroupId from '../../common/find-bookmark-group-id'
 import useSubmit from './use-submit'
 import useUI from './use-ui'
 import useQm from './use-quick-commands'
+import copy from 'json-deep-copy'
+import _ from 'lodash'
 import './bookmark-form.styl'
 
 const { TabPane } = Tabs
@@ -45,7 +48,7 @@ const c = prefix('common')
 const s = prefix('setting')
 const sf = prefix('sftp')
 
-export function BookmarkFormUI (props) {
+export default function BookmarkFormUI (props) {
   const [
     form,
     handleFinish,
@@ -53,11 +56,30 @@ export function BookmarkFormUI (props) {
   ] = useSubmit(props)
   const qms = useQm(form, props.formData)
   const uis = useUI(props)
-  const authTypeReners = {}
-  authTypeReners.password = () => {
-    const {
-      password
-    } = props.formData
+  const authTypeRenders = {}
+  const {
+    id = ''
+  } = props.formData
+  const {
+    bookmarkGroups = [],
+    currentBookmarkGroupId
+  } = props
+  const initBookmarkGroupId = !id.startsWith(newBookmarkIdPrefix)
+    ? findBookmarkGroupId(bookmarkGroups, id)
+    : currentBookmarkGroupId
+  let initialValues = copy(props.formData)
+  const defaultValues = {
+    port: 22,
+    loginScriptDelay: defaultLoginScriptDelay,
+    authType: authTypeMap.password,
+    id: '',
+    term: defaultSettings.terminalType,
+    encode: encodes[0],
+    category: initBookmarkGroupId
+  }
+  initialValues = _.defaults(initialValues, defaultValues)
+
+  authTypeRenders.password = () => {
     return (
       <FormItem
         {...formItemLayout}
@@ -67,7 +89,6 @@ export function BookmarkFormUI (props) {
         rules={[{
           max: 128, message: '128 chars max'
         }]}
-        initialValue={password}
       >
         <Input
           type='password'
@@ -76,11 +97,7 @@ export function BookmarkFormUI (props) {
       </FormItem>
     )
   }
-  authTypeReners.privateKey = () => {
-    const {
-      privateKey,
-      passphrase
-    } = props.formData
+  authTypeRenders.privateKey = () => {
     return [
       <FormItem
         {...formItemLayout}
@@ -88,10 +105,10 @@ export function BookmarkFormUI (props) {
         hasFeedback
         key='privateKey'
         className='mg1b'
+        name='privateKey'
         rules={[{
           max: 13000, message: '13000 chars max'
         }]}
-        initialValue={privateKey}
       >
         <TextArea
           placeholder={e('privateKeyDesc')}
@@ -118,7 +135,6 @@ export function BookmarkFormUI (props) {
         rules={[{
           max: 128, message: '128 chars max'
         }]}
-        initialValue={passphrase}
       >
         <Input
           type='password'
@@ -130,31 +146,14 @@ export function BookmarkFormUI (props) {
   function renderAuth () {
     const authType = form.getFieldValue('authType') ||
       authTypeMap.password
-    return authTypeReners[authType]()
+    return authTypeRenders[authType]()
   }
   function renderCommon () {
     const {
-      host,
-      port = 22,
-      title,
-      loginScript,
-      loginScriptDelay = defaultLoginScriptDelay,
-      authType = authTypeMap.password,
-      username,
-      id = '',
-      encode = encodes[0],
-      startDirectory,
-      startDirectoryLocal
-    } = props.formData
-    const {
       autofocustrigger,
-      bookmarkGroups = [],
-      currentBookmarkGroupId
+      bookmarkGroups = []
     } = props
     const { dns } = props
-    const initBookmarkGroupId = !id.startsWith(newBookmarkIdPrefix)
-      ? findBookmarkGroupId(bookmarkGroups, id)
-      : currentBookmarkGroupId
     const tree = formatBookmarkGroups(bookmarkGroups)
     return (
       <div>
@@ -169,7 +168,6 @@ export function BookmarkFormUI (props) {
             required: true, message: 'host required'
           }]}
           normalize={props.trim}
-          initialValue={host}
         >
           {
             dns
@@ -208,7 +206,6 @@ export function BookmarkFormUI (props) {
           }, {
             required: true, message: 'username required'
           }]}
-          initialValue={username}
           normalize={props.trim}
         >
           <Input placeholder={defaultUserName} />
@@ -216,7 +213,6 @@ export function BookmarkFormUI (props) {
         <FormItem
           {...tailFormItemLayout}
           className='mg1b'
-          initialValue={authType}
           name='authType'
         >
           <RadioGroup size='small' buttonStyle='solid'>
@@ -240,7 +236,6 @@ export function BookmarkFormUI (props) {
           rules={[{
             required: true, message: 'port required'
           }]}
-          initialValue={port}
         >
           <InputNumber
             placeholder={e('port')}
@@ -253,7 +248,6 @@ export function BookmarkFormUI (props) {
           {...formItemLayout}
           label={c('bookmarkCategory')}
           name='category'
-          initialValue={initBookmarkGroupId}
         >
           <TreeSelect
             treeData={tree}
@@ -266,13 +260,11 @@ export function BookmarkFormUI (props) {
           label={e('title')}
           hasFeedback
           name='title'
-          initialValue={title}
         >
           <Input />
         </FormItem>
         <FormItem
           {...formItemLayout}
-          initialValue={startDirectoryLocal}
           name='startDirectoryLocal'
           label={`${e('startDirectory')}:${sf('local')}`}
         >
@@ -281,7 +273,6 @@ export function BookmarkFormUI (props) {
         <FormItem
           {...formItemLayout}
           name='startDirectory'
-          initialValue={startDirectory}
           label={`${e('startDirectory')}:${sf('remote')}`}
         >
           <Input />
@@ -290,7 +281,6 @@ export function BookmarkFormUI (props) {
           {...formItemLayout}
           label={e('loginScript')}
           name='loginScript'
-          initialValue={loginScript}
           help={`* ${e('loginScriptTip')}`}
         >
           <Input.TextArea row={1} />
@@ -299,7 +289,6 @@ export function BookmarkFormUI (props) {
           {...formItemLayout}
           name='loginScriptDelay'
           label={e('loginScriptDelay')}
-          initialValue={loginScriptDelay}
         >
           <InputNumber
             placeholder='loginScriptDelay'
@@ -314,7 +303,6 @@ export function BookmarkFormUI (props) {
           key='encode-select'
           label={e('encode')}
           name='encode'
-          initialValue={encode}
         >
           <Select
             showSearch
@@ -343,7 +331,6 @@ export function BookmarkFormUI (props) {
         {...formItemLayout}
         label='Sftp'
         name='enableSftp'
-        initialValue={enableSftp}
         valuePropName='checked'
       >
         <Switch />
@@ -419,7 +406,6 @@ export function BookmarkFormUI (props) {
         rules={[{
           max: 530, message: '530 chars max'
         }]}
-        initialValue={proxyIp}
       >
         <Input
           placeholder={e('proxyIpPlaceholder')}
@@ -430,7 +416,6 @@ export function BookmarkFormUI (props) {
         label={e('proxyPort')}
         key='proxyPort'
         name={['proxy', 'proxyPort']}
-        initialValue={proxyPort}
       >
         <InputNumber
           placeholder={e('proxyPort')}
@@ -444,7 +429,6 @@ export function BookmarkFormUI (props) {
         label={e('proxyType')}
         key='proxyType'
         name={['proxy', 'proxyType']}
-        initialValue={proxyType}
       >
         <Select>
           <Option value='5'>SOCKS5</Option>
@@ -464,7 +448,6 @@ export function BookmarkFormUI (props) {
             rules={[{
               max: 128, message: '128 chars max'
             }]}
-            initialValue={proxyUsername}
           >
             <Input
               placeholder={e('username')}
@@ -475,7 +458,6 @@ export function BookmarkFormUI (props) {
             rules={[{
               max: 128, message: '128 chars max'
             }]}
-            initialValue={proxyPassword}
           >
             <Input
               placeholder={e('password')}
@@ -486,13 +468,11 @@ export function BookmarkFormUI (props) {
     ]
   }
   function renderX11 () {
-    const { x11 = false } = props.formData
     return (
       <FormItem
         {...formItemLayout}
         label='x11'
         name='x11'
-        initialValue={x11}
         valuePropName='checked'
       >
         <Switch />
@@ -523,7 +503,7 @@ export function BookmarkFormUI (props) {
       form={form}
       name='ssh-form'
       onFinish={handleFinish}
-      initialValues={props.formData}
+      initialValues={initialValues}
     >
       {renderTabs()}
       {submitUi}

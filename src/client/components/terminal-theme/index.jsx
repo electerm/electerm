@@ -6,6 +6,8 @@ import { defaultTheme } from '../../common/constants'
 import { generate } from 'shortid'
 import { formItemLayout, tailFormItemLayout } from '../../common/form-layout'
 import InputAutoFocus from '../common/input-auto-focus'
+import _ from 'lodash'
+import copy from 'json-deep-copy'
 
 const { TextArea } = Input
 const FormItem = Form.Item
@@ -73,14 +75,17 @@ export default function ThemeForm (props) {
     id,
     name: themeName
   } = props.formData
+  const initialValues = {
+    themeName,
+    themeText: convertThemeToText({ themeConfig, name: themeName })
+  }
   const { autofocustrigger } = props.store
-  const themeText = convertThemeToText({ themeConfig, name: themeName })
   const isDefaultTheme = id === defaultTheme.id
   return (
     <Form
       onFinish={handleSubmit}
       form={form}
-      initialValues={props.formData}
+      initialValues={initialValues}
       className='form-wrap'
       name='terminal-theme-form'
     >
@@ -106,7 +111,6 @@ export default function ThemeForm (props) {
         }, {
           required: true, message: 'theme name required'
         }]}
-        initialValue={themeName}
       >
         <InputAutoFocus
           selectall='true'
@@ -123,7 +127,6 @@ export default function ThemeForm (props) {
         }, {
           required: true, message: 'theme Config required'
         }]}
-        initialValue={themeText}
       >
         <TextArea rows={18} disabled={isDefaultTheme} />
         <div className='pd1t'>
@@ -150,10 +153,11 @@ export default function ThemeForm (props) {
                 <Button
                   type='primary'
                   htmlType='submit'
-                  className='mg1r'
+                  className='mg1r mg1b'
                 >{t('saveAndApply')}</Button>
                 <Button
                   type='ghost'
+                  className='mg1r mg1b'
                   onClick={saveOnly}
                 >{e('save')}</Button>
               </p>

@@ -4,7 +4,7 @@
 import BookmarkForm from './ssh-form'
 import SerialFormUi from './serial-form-ui'
 
-class SerialForm extends BookmarkForm {
+export default class SerialForm extends BookmarkForm {
   componentDidMount () {
     this.props.store.getSerials()
   }
@@ -18,5 +18,3 @@ class SerialForm extends BookmarkForm {
     )
   }
 }
-
-export default SerialForm

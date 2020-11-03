@@ -17,7 +17,6 @@ const FormItem = Form.Item
 
 export default function useQuickCmds (form, formData) {
   const qms = form.getFieldValue('quickCommands') || []
-  const { quickCommands = [] } = formData
   return (
     <div>
       <div className='hide'>
@@ -25,7 +24,6 @@ export default function useQuickCmds (form, formData) {
           {...formItemLayout}
           label='quick commands'
           name='quickCommands'
-          initialValue={quickCommands}
         >
           <Input />
         </FormItem>

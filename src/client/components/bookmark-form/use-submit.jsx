@@ -20,7 +20,7 @@ const FormItem = Form.Item
 const { prefix } = window
 const e = prefix('form')
 
-export function useBookmarkSubmit (props) {
+export default function useBookmarkSubmit (props) {
   const [
     form,
     save,

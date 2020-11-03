@@ -21,6 +21,7 @@ import { osResolve } from '../../common/resolve'
 import Link from '../common/external-link'
 import _ from 'lodash'
 import createEditLangLink from '../../common/create-lang-edit-link'
+import mapper from '../../common/auto-complete-data-mapper'
 import './setting.styl'
 
 const InputGroup = Input.Group
@@ -235,11 +236,10 @@ export default class Setting extends Component {
   }
 
   renderBgOption = item => {
-    return (
-      <Option value={item.value}>
-        {item.desc}
-      </Option>
-    )
+    return {
+      value: item.value,
+      label: item.desc
+    }
   }
 
   renderTerminalBgSelect = (name) => {
@@ -324,7 +324,7 @@ export default class Setting extends Component {
               onChange={onChange}
               placeholder={defaultValue}
               className='width-100'
-              dataSource={dataSource.map(this.renderBgOption)}
+              options={dataSource.map(this.renderBgOption)}
             >
               <Input
                 addonAfter={after}
@@ -355,7 +355,7 @@ export default class Setting extends Component {
   renderdDefaultTerminalType = () => {
     return (
       <AutoComplete
-        dataSource={this.props.config.terminalTypes}
+        options={this.props.config.terminalTypes.map(mapper)}
         value={this.props.config.terminalType}
         onChange={(v) => this.onChangeValue(v, 'terminalType')}
       />

@@ -9,12 +9,15 @@ import {
   commonDataBits,
   commonStopBits,
   commonParities,
-  terminalSerialType
+  terminalSerialType,
+  newBookmarkIdPrefix
 } from '../../common/constants'
 import findBookmarkGroupId from '../../common/find-bookmark-group-id'
 import useSubmit from './use-submit'
 import useUI from './use-ui'
 import useQm from './use-quick-commands'
+import copy from 'json-deep-copy'
+import _ from 'lodash'
 
 const { TabPane } = Tabs
 const FormItem = Form.Item
@@ -33,33 +36,37 @@ export default function SerialFormUi (props) {
   ] = useSubmit(props)
   const qms = useQm(form, props.formData)
   const uis = useUI(props)
+  const {
+    id = ''
+  } = props.formData
+  const {
+    bookmarkGroups = [],
+    currentBookmarkGroupId
+  } = props
+  const initBookmarkGroupId = !id.startsWith(newBookmarkIdPrefix)
+    ? findBookmarkGroupId(bookmarkGroups, id)
+    : currentBookmarkGroupId
+  let initialValues = copy(props.formData)
+  const defaultValues = {
+    baudRate: 9600,
+    dataBits: 8,
+    lock: true,
+    stopBits: 1,
+    parity: 'none',
+    rtscts: false,
+    xon: false,
+    xoff: false,
+    xany: false,
+    type: terminalSerialType,
+    category: initBookmarkGroupId
+  }
+  initialValues = _.defaults(initialValues, defaultValues)
   function renderCommon () {
-    const {
-      // autoOpen = true,
-      baudRate = 9600,
-      dataBits = 8,
-      lock = true,
-      stopBits = 1,
-      parity = 'none',
-      rtscts = false,
-      xon = false,
-      xoff = false,
-      xany = false,
-      path,
-      title,
-      id,
-      type = terminalSerialType
-    } = props.formData
     const {
       bookmarkGroups = [],
       serials = [],
-      loaddingSerials,
-      currentBookmarkGroupId
+      loaddingSerials
     } = props
-    const initBookmarkGroupId = id
-      ? findBookmarkGroupId(bookmarkGroups, id)
-      : currentBookmarkGroupId
-
     return (
       <div className='pd1x'>
         <FormItem
@@ -69,11 +76,10 @@ export default function SerialFormUi (props) {
             required: true, message: 'path required'
           }]}
           normalize={props.trim}
-          initialValue={path}
           name='path'
         >
           <AutoComplete
-            dataSource={serials.map(d => d.path)}
+            options={serials.map(d => d.path)}
           />
           <Spin spinning={loaddingSerials}>
             <span onClick={props.store.getSerials}>
@@ -86,10 +92,9 @@ export default function SerialFormUi (props) {
           label='baudRate'
           name='baudRate'
           normalize={parseInt}
-          initialValue={baudRate.toString()}
         >
           <AutoComplete
-            dataSource={commonBaudRates.map(d => d + '')}
+            options={commonBaudRates.map(d => d + '')}
           />
         </FormItem>
         <FormItem
@@ -97,7 +102,6 @@ export default function SerialFormUi (props) {
           label='dataBits'
           name='dataBits'
           normalize={parseInt}
-          initialValue={dataBits}
         >
           <Select>
             {
@@ -119,7 +123,6 @@ export default function SerialFormUi (props) {
           label='stopBits'
           name='stopBits'
           normalize={parseInt}
-          initialValue={stopBits}
         >
           <Select>
             {
@@ -140,7 +143,6 @@ export default function SerialFormUi (props) {
           {...formItemLayout}
           label='parity'
           name='parity'
-          initialValue={parity}
         >
           <Select>
             {
@@ -161,7 +163,6 @@ export default function SerialFormUi (props) {
           {...formItemLayout}
           label='lock'
           name='lock'
-          initialValue={lock}
           valuePropName='checked'
         >
           <Switch />
@@ -170,7 +171,6 @@ export default function SerialFormUi (props) {
           {...formItemLayout}
           label='rtscts'
           name='rtscts'
-          initialValue={rtscts}
           valuePropName='checked'
         >
           <Switch />
@@ -179,7 +179,6 @@ export default function SerialFormUi (props) {
           {...formItemLayout}
           label='xon'
           name='xon'
-          initialValue={xon}
           valuePropName='checked'
         >
           <Switch />
@@ -188,7 +187,6 @@ export default function SerialFormUi (props) {
           {...formItemLayout}
           label='xoff'
           name='xoff'
-          initialValue={xoff}
           valuePropName='checked'
         >
           <Switch />
@@ -197,7 +195,6 @@ export default function SerialFormUi (props) {
           {...formItemLayout}
           label='xany'
           name='xany'
-          initialValue={xany}
           valuePropName='checked'
         >
           <Switch />
@@ -206,7 +203,6 @@ export default function SerialFormUi (props) {
           {...formItemLayout}
           label={e('title')}
           name='title'
-          initialValue={title}
           hasFeedback
         >
           <Input />
@@ -216,7 +212,6 @@ export default function SerialFormUi (props) {
           label={e('type')}
           name='type'
           className='hide'
-          initialValue={type}
         >
           <Input />
         </FormItem>
@@ -224,7 +219,6 @@ export default function SerialFormUi (props) {
           {...formItemLayout}
           label={c('bookmarkCategory')}
           name='category'
-          initialValue={initBookmarkGroupId}
         >
           <Select showSearch>
             {
@@ -265,7 +259,7 @@ export default function SerialFormUi (props) {
     <Form
       form={form}
       onFinish={handleFinish}
-      initialValues={props.formData}
+      initialValues={initialValues}
       name='serial-form'
     >
       {renderTabs()}

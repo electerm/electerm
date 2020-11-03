@@ -89,9 +89,7 @@ export default function SyncForm (props) {
   }
 
   const {
-    token,
-    lastSyncTime = '',
-    gistId
+    lastSyncTime = ''
   } = props.formData
   const cls = hide ? 'hide' : ''
   const { syncType } = props
@@ -130,7 +128,6 @@ export default function SyncForm (props) {
         }, {
           required: true, message: syncType + ' access token required'
         }]}
-        initialValue={token}
       >
         <Input
           type='password'
@@ -154,7 +151,6 @@ export default function SyncForm (props) {
           rules={[{
             max: 100, message: '100 chars max'
           }]}
-          initialValue={gistId}
         >
           <Input
             placeholder={syncType + ' gist id'}

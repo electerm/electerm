@@ -14,6 +14,7 @@ import {
 } from 'antd'
 import { formItemLayout } from '../../common/form-layout'
 import defaultSettings from '../../../app/common/default-setting'
+import mapper from '../../common/auto-complete-data-mapper'
 
 const FormItem = Form.Item
 const { prefix } = window
@@ -23,15 +24,8 @@ const s = prefix('setting')
 export default function useBookmarkFormUI (props) {
   const {
     fontFamily: defaultFontFamily,
-    fontSize: defaultFontSize,
-    terminalType: defaultTerminalType
+    fontSize: defaultFontSize
   } = defaultSettings
-  const {
-    fontFamily,
-    fontSize,
-    term = defaultTerminalType,
-    envLang
-  } = props.formData
   const { terminalTypes } = props.store.config
   return [
     <FormItem
@@ -41,7 +35,6 @@ export default function useBookmarkFormUI (props) {
       rules={[{
         max: 130, message: '130 chars max'
       }]}
-      initialValue={envLang}
       name='envLang'
     >
       <Input placeholder='en_US.UTF-8' />
@@ -54,11 +47,10 @@ export default function useBookmarkFormUI (props) {
         required: true, message: 'terminal type required'
       }]}
       normalize={props.trim}
-      initialValue={term}
       name='term'
     >
       <AutoComplete
-        dataSource={terminalTypes}
+        options={terminalTypes.map(mapper)}
       />
     </FormItem>,
     <FormItem
@@ -69,7 +61,6 @@ export default function useBookmarkFormUI (props) {
       rules={[{
         max: 130, message: '130 chars max'
       }]}
-      initialValue={fontFamily}
     >
       <Input placeholder={defaultFontFamily + ''} />
     </FormItem>,
@@ -78,7 +69,6 @@ export default function useBookmarkFormUI (props) {
       {...formItemLayout}
       label={s('fontSize')}
       name='fontSize'
-      initialValue={fontSize}
     >
       <InputNumber
         min={9}

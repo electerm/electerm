@@ -120,7 +120,6 @@ export default function TextEditorForm (props) {
       >
         <FormItem
           name='text'
-          initialValue={text}
         >
           <Input.TextArea
             rows={20}
@@ -137,13 +136,13 @@ export default function TextEditorForm (props) {
       <div>
         <Button
           type='primary'
-          className='mg1r'
+          className='mg1r mg1b'
           disabled={loading}
           onClick={submit}
         >{e('save')}</Button>
         <Button
           type='ghost'
-          className='mg1r'
+          className='mg1r mg1b'
           disabled={loading}
           onClick={() => form.resetFields()}
         >{s('reset')}</Button>
@@ -151,7 +150,7 @@ export default function TextEditorForm (props) {
           type='ghost'
           onClick={cancel}
           disabled={loading}
-          className='mg2r'
+          className='mg2r mg1b'
         >{c('cancel')}</Button>
       </div>
     )
