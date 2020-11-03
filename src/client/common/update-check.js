@@ -10,6 +10,7 @@ import {
 
 async function fetchData (url, options) {
   const data = {
+    action: 'fetch',
     options: {
       ...options,
       url,
