@@ -20,8 +20,8 @@ const host = env.host || 'localhost'
 // theme['@light'] = '#aaa'
 const { getThemeVariables } = require('antd/dist/theme')
 const theme = getThemeVariables({
-  dark: true,
-  compact: true
+  dark: true
+  // compact: true
 })
 theme['@text-color'] = '#aaaaaa'
 const happyThreadPool = packThreadCount === 0

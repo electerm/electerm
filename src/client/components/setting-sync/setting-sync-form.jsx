@@ -171,7 +171,7 @@ export default function SyncForm (props) {
         <p>
           <Button
             type='ghost'
-            className='mg1r'
+            className='mg1r mg1b'
             htmlType='submit'
             icon={<SaveOutlined />}
           >{e('save')}</Button>
@@ -187,14 +187,14 @@ export default function SyncForm (props) {
             type='ghost'
             onClick={upload}
             disabled={disabled()}
-            className='mg1r'
+            className='mg1r mg1b'
             icon={<ArrowUpOutlined />}
           >{ss('uploadSettings')}</Button>
           <Button
             type='ghost'
             onClick={download}
             disabled={disabled()}
-            className='mg1r'
+            className='mg1r mg1b'
             icon={<ArrowDownOutlined />}
           >{ss('downloadSettings')}</Button>
         </p>

@@ -44,6 +44,7 @@ export default function BookmarkIndex (props) {
         }
         <Radio.Group
           buttonStyle='solid'
+          size='small'
           className='mg1l'
           value={bookmarkType}
           onChange={e => setBookmarkType(e.target.value)}

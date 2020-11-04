@@ -9,6 +9,7 @@ import createName from '../../common/create-title'
 import classnames from 'classnames'
 import _ from 'lodash'
 import highlight from '../common/highlight'
+import { settingSyncId, settingCommonId } from '../../common/constants'
 import './list.styl'
 
 const { prefix } = window
@@ -49,7 +50,7 @@ export default class ItemList extends React.PureComponent {
   }
 
   renderDelBtn = item => {
-    if (!item.id) {
+    if (!item.id || [settingSyncId, settingCommonId].includes(item.id)) {
       return null
     }
     const { shouldComfirmDel } = this.props

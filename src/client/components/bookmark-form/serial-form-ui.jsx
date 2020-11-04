@@ -76,11 +76,16 @@ export default function SerialFormUi (props) {
             required: true, message: 'path required'
           }]}
           normalize={props.trim}
-          name='path'
         >
-          <AutoComplete
-            options={serials.map(d => d.path)}
-          />
+          <FormItem noStyle name='path'>
+            <AutoComplete
+              options={serials.map(d => {
+                return {
+                  value: d.path
+                }
+              })}
+            />
+          </FormItem>
           <Spin spinning={loaddingSerials}>
             <span onClick={props.store.getSerials}>
               <ReloadOutlined /> {m('reload')} serials
@@ -94,7 +99,11 @@ export default function SerialFormUi (props) {
           normalize={parseInt}
         >
           <AutoComplete
-            options={commonBaudRates.map(d => d + '')}
+            options={commonBaudRates.map(d => {
+              return {
+                value: d + ''
+              }
+            })}
           />
         </FormItem>
         <FormItem
@@ -241,7 +250,7 @@ export default function SerialFormUi (props) {
 
   function renderTabs () {
     return (
-      <Tabs type='card'>
+      <Tabs>
         <TabPane tab={e('auth')} key='auth' forceRender>
           {renderCommon()}
         </TabPane>

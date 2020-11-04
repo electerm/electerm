@@ -39,7 +39,7 @@ export default class QuickCommandItem extends Component {
     } else if (!command) {
       return message.warn('command required')
     }
-    const quickCommands = this.props.form.getFieldValue(settingMap.quickCommands)
+    const quickCommands = this.props.form.getFieldValue(settingMap.quickCommands) || []
     if (id) {
       const qm = quickCommands.find(d => d.id === id)
       if (qm) {
@@ -67,7 +67,7 @@ export default class QuickCommandItem extends Component {
   }
 
   del = () => {
-    let quickCommands = this.props.form.getFieldValue(settingMap.quickCommands)
+    let quickCommands = this.props.form.getFieldValue(settingMap.quickCommands) || []
     quickCommands = quickCommands.filter(d => {
       return d.id !== this.state.item.id
     })

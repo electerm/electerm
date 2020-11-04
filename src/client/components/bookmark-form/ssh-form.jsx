@@ -311,7 +311,7 @@ export default class BookmarkForm extends PureComponent {
   }
 
   getProps = () => {
-    return _.pick(this, [
+    const funcs = _.pick(this, [
       'beforeUpload',
       'handleFinish',
       'testConnection',
@@ -323,6 +323,10 @@ export default class BookmarkForm extends PureComponent {
       'useIp',
       'trim'
     ])
+    return {
+      ...this.state,
+      ...funcs
+    }
   }
 
   render () {

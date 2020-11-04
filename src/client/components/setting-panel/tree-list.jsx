@@ -299,7 +299,7 @@ export default class ItemListTree extends React.PureComponent {
         cancelText={c('cancel')}
         placement='top'
       >
-        <CloseOutlined title={e('del')} className='pointer' />
+        <CloseOutlined title={e('del')} className='pointer tree-control-btn' />
       </Popconfirm>
     )
   }
@@ -339,7 +339,7 @@ export default class ItemListTree extends React.PureComponent {
       <FolderAddOutlined
         title={`${s('new')} ${c('bookmarkCategory')}`}
         onClick={(e) => this.addSubCat(e, item)}
-        className='pointer' />
+        className='pointer tree-control-btn' />
     )
   }
 
@@ -354,7 +354,7 @@ export default class ItemListTree extends React.PureComponent {
       <EditOutlined
         title={e('edit')}
         onClick={(e) => this.editItem(e, item, isGroup)}
-        className='pointer' />
+        className='pointer tree-control-btn' />
     )
   }
 
@@ -478,7 +478,7 @@ export default class ItemListTree extends React.PureComponent {
     const icon = (
       <CopyOutlined
         title={e('duplicate')}
-        className='pointer'
+        className='pointer tree-control-btn'
         onClick={(e) => this.duplicateItem(e, item)} />
     )
     return icon
@@ -511,33 +511,27 @@ export default class ItemListTree extends React.PureComponent {
         >
           {title}
         </div>
-        <div
-          className='tree-item-actions'
-        >
-          {
-            isGroup
-              ? this.renderGroupBtns(item)
-              : null
-          }
-          {
-            !isGroup
-              ? this.renderDuplicateBtn(item)
-              : null
-          }
-          {this.renderDelBtn(item)}
-          {this.renderEditBtn(item, isGroup)}
-        </div>
+        {
+          isGroup
+            ? this.renderGroupBtns(item)
+            : null
+        }
+        {
+          !isGroup
+            ? this.renderDuplicateBtn(item)
+            : null
+        }
+        {this.renderDelBtn(item)}
+        {this.renderEditBtn(item, isGroup)}
       </div>
     )
   }
 
   renderGroupBtns = (item) => {
-    return (
-      <span>
-        {this.renderAddNewSubGroupBtn(item)}
-        {this.renderEditBtn(item)}
-      </span>
-    )
+    return [
+      this.renderAddNewSubGroupBtn(item),
+      this.renderEditBtn(item)
+    ]
   }
 
   renderChildNodes = bookmarkIds => {

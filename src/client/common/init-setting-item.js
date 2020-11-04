@@ -4,7 +4,8 @@
 
 import {
   settingMap,
-  newBookmarkIdPrefix
+  newBookmarkIdPrefix,
+  settingCommonId
 } from './constants'
 import { buildNewTheme } from '../common/terminal-theme'
 
@@ -19,7 +20,7 @@ export default (arr, tab) => {
   } else if (tab === settingMap.bookmarks) {
     return { id: newBookmarkIdPrefix + ':' + (+new Date()), title: '' }
   } else if (tab === settingMap.setting) {
-    return { id: '', title: e('common') }
+    return { id: settingCommonId, title: e('common') }
   } else if (tab === settingMap.terminalThemes) {
     return buildNewTheme()
   } else if (tab === settingMap.quickCommands) {

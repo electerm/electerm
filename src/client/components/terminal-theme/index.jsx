@@ -6,8 +6,6 @@ import { defaultTheme } from '../../common/constants'
 import { generate } from 'shortid'
 import { formItemLayout, tailFormItemLayout } from '../../common/form-layout'
 import InputAutoFocus from '../common/input-auto-focus'
-import _ from 'lodash'
-import copy from 'json-deep-copy'
 
 const { TextArea } = Input
 const FormItem = Form.Item
@@ -121,14 +119,15 @@ export default function ThemeForm (props) {
       <FormItem
         {...formItemLayout}
         label={t('themeConfig')}
-        name='themeText'
         rules={[{
           max: 1000, message: '1000 chars max'
         }, {
           required: true, message: 'theme Config required'
         }]}
       >
-        <TextArea rows={18} disabled={isDefaultTheme} />
+        <FormItem noStyle name='themeText'>
+          <TextArea rows={18} disabled={isDefaultTheme} />
+        </FormItem>
         <div className='pd1t'>
           <Upload
             beforeUpload={beforeUpload}

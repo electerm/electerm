@@ -64,7 +64,6 @@ export default class BatchInput extends Component {
           placeholder={e('batchInput')}
           value={cmd}
           onChange={this.handleChange}
-          size='small'
           defaultOpen={false}
           open={open}
           allowClear

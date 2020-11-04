@@ -15,6 +15,7 @@ import {
 import { formItemLayout } from '../../common/form-layout'
 import defaultSettings from '../../../app/common/default-setting'
 import mapper from '../../common/auto-complete-data-mapper'
+import { defaultEnvLang } from '../../common/constants'
 
 const FormItem = Form.Item
 const { prefix } = window
@@ -37,7 +38,7 @@ export default function useBookmarkFormUI (props) {
       }]}
       name='envLang'
     >
-      <Input placeholder='en_US.UTF-8' />
+      <Input placeholder={defaultEnvLang} />
     </FormItem>,
     <FormItem
       {...formItemLayout}

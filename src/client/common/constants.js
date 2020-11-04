@@ -32,7 +32,7 @@ export const maxDragMove = 30
 export const splitDraggerWidth = 5
 export const minTerminalWidth = 90
 export const filePropMinWidth = 1
-export const contextMenuHeight = 30
+export const contextMenuHeight = 28
 export const contextMenuWidth = 170
 export const contextMenuPaddingTop = 10
 export const sftpControlHeight = 28 + 42 + 33 + 56
@@ -197,3 +197,6 @@ export const syncTokenCreateUrls = {
   gitee: 'https://gitee.com/github-zxdong262/electerm/wikis/Create%20personal%20access%20token?sort_id=3028409',
   github: 'https://github.com/electerm/electerm/wiki/Create-personal-access-token'
 }
+export const settingSyncId = 'setting-sync'
+export const settingCommonId = 'setting-common'
+export const defaultEnvLang = 'en_US.UTF-8'

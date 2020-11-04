@@ -34,7 +34,7 @@ export default function useBookmarkSubmit (props) {
         <Button
           type='primary'
           htmlType='submit'
-          className='mg1r'
+          className='mg1r mg1b'
         >{e('saveAndConnect')}</Button>
         {
           settingMap.history === props.type
@@ -42,14 +42,14 @@ export default function useBookmarkSubmit (props) {
             : (
               <Button
                 type='primary'
-                className='mg1r'
+                className='mg1r mg1b'
                 onClick={saveAndCreateNew}
               >{e('saveAndCreateNew')}</Button>
             )
         }
         <Button
           type='ghost'
-          className='mg1r'
+          className='mg1r mg1b'
           onClick={save}
         >{e('save')}</Button>
       </p>

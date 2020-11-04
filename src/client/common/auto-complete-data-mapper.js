@@ -1,5 +1,6 @@
 export default (d) => {
   return {
-    value: d
+    value: d,
+    label: d
   }
 }

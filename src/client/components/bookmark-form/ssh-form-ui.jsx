@@ -1,7 +1,7 @@
 /**
  * bookmark form
  */
-
+import { useState } from 'react'
 import {
   Button,
   Input,
@@ -54,6 +54,7 @@ export default function BookmarkFormUI (props) {
     handleFinish,
     submitUi
   ] = useSubmit(props)
+  const [authType, setAuthType] = useState(props.formData.authType || authTypeMap.password)
   const qms = useQm(form, props.formData)
   const uis = useUI(props)
   const authTypeRenders = {}
@@ -75,10 +76,16 @@ export default function BookmarkFormUI (props) {
     id: '',
     term: defaultSettings.terminalType,
     encode: encodes[0],
-    category: initBookmarkGroupId
+    enableSftp: true,
+    category: initBookmarkGroupId,
+    proxy: {
+      proxyType: '5'
+    }
   }
-  initialValues = _.defaults(initialValues, defaultValues)
-
+  initialValues = _.defaultsDeep(initialValues, defaultValues)
+  function onChangeAuthType (e) {
+    setAuthType(e.target.value)
+  }
   authTypeRenders.password = () => {
     return (
       <FormItem
@@ -105,22 +112,23 @@ export default function BookmarkFormUI (props) {
         hasFeedback
         key='privateKey'
         className='mg1b'
-        name='privateKey'
         rules={[{
           max: 13000, message: '13000 chars max'
         }]}
       >
-        <TextArea
-          placeholder={e('privateKeyDesc')}
-          rows={2}
-        />
+        <FormItem noStyle name='privateKey'>
+          <TextArea
+            placeholder={e('privateKeyDesc')}
+            rows={1}
+          />
+        </FormItem>
         <Upload
           beforeUpload={file => props.beforeUpload(file, form)}
           fileList={[]}
-          className='mg1b'
         >
           <Button
             type='ghost'
+            className='mg2b mg1t'
           >
             {e('importFromFile')}
           </Button>
@@ -144,8 +152,6 @@ export default function BookmarkFormUI (props) {
     ]
   }
   function renderAuth () {
-    const authType = form.getFieldValue('authType') ||
-      authTypeMap.password
     return authTypeRenders[authType]()
   }
   function renderCommon () {
@@ -161,7 +167,6 @@ export default function BookmarkFormUI (props) {
           {...formItemLayout}
           label={e('host')}
           hasFeedback
-          name='host'
           rules={[{
             max: 520, message: '520 chars max'
           }, {
@@ -188,13 +193,14 @@ export default function BookmarkFormUI (props) {
                 </div>
               )
           }
-
-          <InputAutoFocus
-            autofocustrigger={autofocustrigger}
-            selectall='true'
-            onBlur={props.onBlur}
-            onPaste={e => props.onPaste(e, form)}
-          />
+          <FormItem noStyle name='host'>
+            <InputAutoFocus
+              autofocustrigger={autofocustrigger}
+              selectall='true'
+              onBlur={props.onBlur}
+              onPaste={e => props.onPaste(e, form)}
+            />
+          </FormItem>
         </FormItem>
         <FormItem
           {...formItemLayout}
@@ -215,7 +221,11 @@ export default function BookmarkFormUI (props) {
           className='mg1b'
           name='authType'
         >
-          <RadioGroup size='small' buttonStyle='solid'>
+          <RadioGroup
+            size='small'
+            onChange={onChangeAuthType}
+            buttonStyle='solid'
+          >
             {
               authTypes.map(t => {
                 return (
@@ -325,7 +335,6 @@ export default function BookmarkFormUI (props) {
     )
   }
   function renderEnableSftp () {
-    const { enableSftp = true } = props.formData
     return (
       <FormItem
         {...formItemLayout}
@@ -392,10 +401,6 @@ export default function BookmarkFormUI (props) {
     )
   }
   function renderProxy () {
-    const {
-      proxy = {}
-    } = props.formData
-    const { proxyIp, proxyPort, proxyType = '5', proxyUsername, proxyPassword } = proxy
     return [
       renderProxySelect(),
       <FormItem
@@ -482,7 +487,7 @@ export default function BookmarkFormUI (props) {
 
   function renderTabs () {
     return (
-      <Tabs type='card'>
+      <Tabs>
         <TabPane tab={e('auth')} key='auth' forceRender>
           {renderCommon()}
         </TabPane>

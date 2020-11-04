@@ -353,9 +353,13 @@ export default class Setting extends Component {
   }
 
   renderdDefaultTerminalType = () => {
+    const opts = this.props.config.terminalTypes.map(mapper)
     return (
       <AutoComplete
-        options={this.props.config.terminalTypes.map(mapper)}
+        options={opts}
+        style={{
+          width: '200px'
+        }}
         value={this.props.config.terminalType}
         onChange={(v) => this.onChangeValue(v, 'terminalType')}
       />
@@ -517,7 +521,7 @@ export default class Setting extends Component {
           this.renderNumber('scrollback', {
             step: 200,
             min: 1000
-          }, e('scrollBackDesc'), 300)
+          }, e('scrollBackDesc'), 400)
         }
         {
           this.renderNumber('sshReadyTimeout', {
@@ -532,11 +536,11 @@ export default class Setting extends Component {
             min: 0,
             max: 1,
             cls: 'opacity'
-          }, e('opacity'), 300)
+          }, e('opacity'), 400)
         }
 
         <div className='pd2b'>
-          <span className='inline-title'>{e('terminalTheme')}</span>
+          <span className='inline-title mg1r'>{e('terminalTheme')}</span>
           <Select
             onChange={this.onChangeTerminalTheme}
             dropdownMatchSelectWidth={false}
@@ -553,7 +557,7 @@ export default class Setting extends Component {
           </Select>
         </div>
         <div className='pd2b'>
-          <span className='inline-title'>{e('language')}</span>
+          <span className='inline-title mg1r'>{e('language')}</span>
           <Select
             onChange={this.onChangeLang}
             value={language}
@@ -576,7 +580,7 @@ export default class Setting extends Component {
           {s('terminal')} {e('settings')}
         </div>
         <div className='pd2b'>
-          <span className='inline-title'>{e('rendererType')}</span>
+          <span className='inline-title mg1r'>{e('rendererType')}</span>
           <Select
             onChange={v => this.onChangeValue(v, 'rendererType')}
             value={rendererType}
@@ -595,16 +599,16 @@ export default class Setting extends Component {
           this.renderNumber('fontSize', {
             step: 1,
             min: 9
-          }, `${t('default')} ${e('fontSize')}`)
+          }, `${t('default')} ${e('fontSize')}`, 400)
         }
         <div className='pd2b'>
-          <span className='inline-title'>{t('default')} {e('fontFamily')}</span>
+          <span className='inline-title mg1r'>{t('default')} {e('fontFamily')}</span>
           {
             this.renderFontFamily()
           }
         </div>
         <div className='pd2b'>
-          <span className='inline-title'>{e('defaultTerminalType')}</span>
+          <span className='inline-title mg1r'>{e('defaultTerminalType')}</span>
           {
             this.renderdDefaultTerminalType()
           }

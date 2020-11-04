@@ -1,67 +1,52 @@
-.tree-list
-  .ant-tree li
-    > .ant-tree-node-content-wrapper
-      width calc(100% - 24px)
-      line-height 1.6
-      height auto
-    .ant-tree-child-tree
-      span.ant-tree-switcher.ant-tree-switcher-noop
-        display none
-      li.ant-tree-treenode-switcher-open
-      li.ant-tree-treenode-switcher-close
-        & > .ant-tree-switcher.ant-tree-switcher-noop
-          display inline-block
-      .ant-tree-node-content-wrapper-open
-      .ant-tree-node-content-wrapper-close
-        width calc(100% - 48px)
-        display inline-block
-      .ant-tree-child-tree
-        .ant-tree-node-content-wrapper
-          display block
-          padding-left 8px
-          width 100%
-          overflow hidden
-          white-space nowrap
-          text-overflow ellipsis
+// .tree-list
+//   .ant-tree li
+//     > .ant-tree-node-content-wrapper
+//       width calc(100% - 24px)
+//       line-height 1.6
+//       height auto
+//     .ant-tree-child-tree
+//       span.ant-tree-switcher.ant-tree-switcher-noop
+//         display none
+//       li.ant-tree-treenode-switcher-open
+//       li.ant-tree-treenode-switcher-close
+//         & > .ant-tree-switcher.ant-tree-switcher-noop
+//           display inline-block
+//       .ant-tree-node-content-wrapper-open
+//       .ant-tree-node-content-wrapper-close
+//         width calc(100% - 48px)
+//         display inline-block
+//       .ant-tree-child-tree
+//         .ant-tree-node-content-wrapper
+//           display block
+//           padding-left 8px
+//           width 100%
+//           overflow hidden
+//           white-space nowrap
+//           text-overflow ellipsis
 
-
+.tree-control-btn
+  display none
+  margin-left 3px
+  width 16px
+  line-height 22px
+  height 20px
 .tree-item
   display flex
   &.is-category
     .tree-item-title
-      margin-left 0
       font-weight bold
   &:hover
-    .tree-item-actions
-      display flex
+    .tree-control-btn
+      display inline-block
 .tree-item-title
-  margin-left 8px
-  flex 90%
-.menus
-.add-menu-wrap
-.sidebar-panel
-  .tree-item-title
-    flex 90%
-
-.tree-item-actions
-  display none
-  align-items center
-  justify-content center
-  flex auto
-  i
-    padding 5px
-
-.model-bookmark-tree-wrap
-  .tree-item-title
-    width calc(100% - 45px)
-  .tree-item
-    &.is-category
-      .tree-item-title
-        width calc(100% - 60px)
-    &.level2
-      .tree-item-title
-        width calc(100% - 45px)
-
+  flex-grow 1
+  height 20px
+  max-width 400px
+  overflow hidden
+  white-space nowrap
+  text-overflow ellipsis
+.sidebar-panel .tree-item-title
+  max-width 200px
 .with-plus
   &:after
     content '+'

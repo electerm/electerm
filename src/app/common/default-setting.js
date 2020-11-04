@@ -24,5 +24,6 @@ module.exports = exports.default = {
   terminalType: 'xterm-256color',
   keepaliveCountMax: 10,
   saveTerminalLogToFile: false,
-  checkUpdateOnStart: true
+  checkUpdateOnStart: true,
+  opacity: 1
 }
