@@ -1,9 +1,15 @@
 
 import React, { Component } from 'react'
+import { CodeOutlined } from '@ant-design/icons'
 import {
-  message, Select, Switch,
-  Input, Icon, Upload,
-  InputNumber, Alert, Button,
+  message,
+  Select,
+  Switch,
+  Input,
+  Upload,
+  InputNumber,
+  Alert,
+  Button,
   AutoComplete,
   Tooltip
 } from 'antd'
@@ -15,6 +21,7 @@ import { osResolve } from '../../common/resolve'
 import Link from '../common/external-link'
 import _ from 'lodash'
 import createEditLangLink from '../../common/create-lang-edit-link'
+import mapper from '../../common/auto-complete-data-mapper'
 import './setting.styl'
 
 const InputGroup = Input.Group
@@ -229,11 +236,10 @@ export default class Setting extends Component {
   }
 
   renderBgOption = item => {
-    return (
-      <Option value={item.value}>
-        {item.desc}
-      </Option>
-    )
+    return {
+      value: item.value,
+      label: item.desc
+    }
   }
 
   renderTerminalBgSelect = (name) => {
@@ -318,7 +324,7 @@ export default class Setting extends Component {
               onChange={onChange}
               placeholder={defaultValue}
               className='width-100'
-              dataSource={dataSource.map(this.renderBgOption)}
+              options={dataSource.map(this.renderBgOption)}
             >
               <Input
                 addonAfter={after}
@@ -347,9 +353,13 @@ export default class Setting extends Component {
   }
 
   renderdDefaultTerminalType = () => {
+    const opts = this.props.config.terminalTypes.map(mapper)
     return (
       <AutoComplete
-        dataSource={this.props.config.terminalTypes}
+        options={opts}
+        style={{
+          width: '200px'
+        }}
         value={this.props.config.terminalType}
         onChange={(v) => this.onChangeValue(v, 'terminalType')}
       />
@@ -511,7 +521,7 @@ export default class Setting extends Component {
           this.renderNumber('scrollback', {
             step: 200,
             min: 1000
-          }, e('scrollBackDesc'), 300)
+          }, e('scrollBackDesc'), 400)
         }
         {
           this.renderNumber('sshReadyTimeout', {
@@ -526,11 +536,11 @@ export default class Setting extends Component {
             min: 0,
             max: 1,
             cls: 'opacity'
-          }, e('opacity'), 300)
+          }, e('opacity'), 400)
         }
 
         <div className='pd2b'>
-          <span className='inline-title'>{e('terminalTheme')}</span>
+          <span className='inline-title mg1r'>{e('terminalTheme')}</span>
           <Select
             onChange={this.onChangeTerminalTheme}
             dropdownMatchSelectWidth={false}
@@ -547,7 +557,7 @@ export default class Setting extends Component {
           </Select>
         </div>
         <div className='pd2b'>
-          <span className='inline-title'>{e('language')}</span>
+          <span className='inline-title mg1r'>{e('language')}</span>
           <Select
             onChange={this.onChangeLang}
             value={language}
@@ -566,11 +576,11 @@ export default class Setting extends Component {
         </div>
         {this.renderLanguageChangeTip()}
         <div className='pd1y font16 bold'>
-          <Icon type='code' theme='outlined' className='mg1r' />
+          <CodeOutlined className='mg1r' />
           {s('terminal')} {e('settings')}
         </div>
         <div className='pd2b'>
-          <span className='inline-title'>{e('rendererType')}</span>
+          <span className='inline-title mg1r'>{e('rendererType')}</span>
           <Select
             onChange={v => this.onChangeValue(v, 'rendererType')}
             value={rendererType}
@@ -589,16 +599,16 @@ export default class Setting extends Component {
           this.renderNumber('fontSize', {
             step: 1,
             min: 9
-          }, `${t('default')} ${e('fontSize')}`)
+          }, `${t('default')} ${e('fontSize')}`, 400)
         }
         <div className='pd2b'>
-          <span className='inline-title'>{t('default')} {e('fontFamily')}</span>
+          <span className='inline-title mg1r'>{t('default')} {e('fontFamily')}</span>
           {
             this.renderFontFamily()
           }
         </div>
         <div className='pd2b'>
-          <span className='inline-title'>{e('defaultTerminalType')}</span>
+          <span className='inline-title mg1r'>{e('defaultTerminalType')}</span>
           {
             this.renderdDefaultTerminalType()
           }

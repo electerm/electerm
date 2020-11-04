@@ -1,5 +1,6 @@
 import React from 'react'
-import { Icon, Button } from 'antd'
+import { FrownOutlined, ReloadOutlined } from '@ant-design/icons'
+import { Button } from 'antd'
 import {
   logoPath1
 } from '../../common/constants'
@@ -38,12 +39,12 @@ export default class ErrorBoundary extends React.PureComponent {
             <img src={logoPath1} className='iblock mwm-100' />
           </div>
           <h1>
-            <Icon type='frown-o' className='mg1r iblock' />
+            <FrownOutlined className='mg1r iblock' />
             <span className='iblock mg1r'>{e('error')}</span>
             <Button
               onClick={this.reload}
               className='iblock'
-              icon='reload'
+              icon={<ReloadOutlined />}
             >
               {m('reload')}
             </Button>

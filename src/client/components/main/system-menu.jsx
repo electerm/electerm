@@ -3,7 +3,28 @@
  */
 
 import { Component } from '../common/react-subx'
-import { Icon, Button } from 'antd'
+
+import {
+  BarsOutlined,
+  BookOutlined,
+  ClockCircleOutlined,
+  CloseOutlined,
+  CodeFilled,
+  InfoCircleOutlined,
+  LayoutFilled,
+  LeftSquareFilled,
+  MinusCircleOutlined,
+  PlusCircleOutlined,
+  RedoOutlined,
+  ReloadOutlined,
+  RightOutlined,
+  RightSquareFilled,
+  SettingOutlined,
+  SwitcherFilled,
+  UpCircleOutlined
+} from '@ant-design/icons'
+
+import { Button } from 'antd'
 import { ctrlOrCmd } from '../../common/constants'
 import createTitle from '../../common/create-title'
 import Context from '../common/context-menu'
@@ -79,40 +100,40 @@ function renderContext (store) {
         className={cls}
         onClick={store.onNewSsh}
       >
-        <Icon type='code' theme='filled' /> {e('newSsh')}
+        <CodeFilled /> {e('newSsh')}
         <span className='context-sub-text'>{ctrlOrCmd}+N</span>
       </div>
       <div
         className={cls}
         onClick={() => store.addTab()}
       >
-        <Icon type='right-square' theme='filled' /> {t('newTab')}
+        <RightSquareFilled /> {t('newTab')}
       </div>
       <hr />
       <div
         className={cls1 + ' no-auto-close-context'}
       >
-        <Icon type='book' /> {c('bookmarks')}
+        <BookOutlined /> {c('bookmarks')}
         <span className='context-sub-text'>
-          <Icon type='right' />
+          <RightOutlined />
         </span>
         {renderBookmarks(store)}
       </div>
       <div
         className={cls1}
       >
-        <Icon type='clock-circle' /> {c('history')}
+        <ClockCircleOutlined /> {c('history')}
         <span className='context-sub-text'>
-          <Icon type='right' />
+          <RightOutlined />
         </span>
         {renderHistory(store)}
       </div>
       <div
         className={cls1}
       >
-        <Icon type='bars' /> {t('sessions')}
+        <BarsOutlined /> {t('sessions')}
         <span className='context-sub-text'>
-          <Icon type='right' />
+          <RightOutlined />
         </span>
         {renderTabs(store)}
       </div>
@@ -121,19 +142,19 @@ function renderContext (store) {
         className={cls}
         onClick={store.openAbout}
       >
-        <Icon type='info-circle' /> {m('about')}
+        <InfoCircleOutlined /> {m('about')}
       </div>
       <div
         className={cls}
         onClick={store.openSetting}
       >
-        <Icon type='setting' /> {s('settings')}
+        <SettingOutlined /> {s('settings')}
       </div>
       <div
         className={cls}
         onClick={() => window.getGlobal('openDevTools')()}
       >
-        <Icon type='left-square' theme='filled' /> {m('toggledevtools')}
+        <LeftSquareFilled /> {m('toggledevtools')}
       </div>
       <hr />
       <div
@@ -144,10 +165,10 @@ function renderContext (store) {
             {store.config.zoom * 100}
           </span>
           <Button onClick={() => store.zoom(0.25, true)}>
-            <Icon type='plus-circle' />
+            <PlusCircleOutlined />
           </Button>
           <Button onClick={() => store.zoom(-0.25, true)}>
-            <Icon type='minus-circle' />
+            <MinusCircleOutlined />
           </Button>
           <Button onClick={() => store.zoom()}>
             100%
@@ -158,39 +179,39 @@ function renderContext (store) {
         className={cls}
         onClick={() => window.getGlobal('minimize')()}
       >
-        <Icon type='switcher' theme='filled' /> {m('minimize')}
+        <SwitcherFilled /> {m('minimize')}
       </div>
       <div
         className={cls}
         onClick={() => window.getGlobal('maximize')()}
       >
-        <Icon type='layout' theme='filled' /> {m('maximize')}
+        <LayoutFilled /> {m('maximize')}
       </div>
       <div
         className={cls}
         onClick={() => window.location.reload()}
       >
-        <Icon type='reload' /> {m('reload')}
+        <ReloadOutlined /> {m('reload')}
       </div>
       <hr />
       <div
         className={cls}
         onClick={store.onCheckUpdate}
       >
-        <Icon type='up-circle' /> {e('checkForUpdate')}
+        <UpCircleOutlined /> {e('checkForUpdate')}
       </div>
       <hr />
       <div
         className={cls}
         onClick={store.restart}
       >
-        <Icon type='redo' /> {m('restart')}
+        <RedoOutlined /> {m('restart')}
       </div>
       <div
         className={cls}
         onClick={store.exit}
       >
-        <Icon type='close' /> {m('close')}
+        <CloseOutlined /> {m('close')}
       </div>
     </div>
   )

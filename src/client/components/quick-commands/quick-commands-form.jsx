@@ -1,29 +1,20 @@
 
-import { BookmarkForm } from '../bookmark-form/ssh-form'
-import {
-  Form, Button, Input,
-  message, Switch
-} from 'antd'
-import { validateFieldsAndScroll } from '../../common/dec-validate-and-scroll'
+import { Button, Input, Switch, Form, message } from 'antd'
 import { generate } from 'shortid'
-import InputAutoFocus from '../common/input-auto-focus'
 import { settingMap } from '../../common/constants'
-
+import InputAutoFocus from '../common/input-auto-focus'
 const { TextArea } = Input
 const FormItem = Form.Item
 const { prefix } = window
 const e = prefix('form')
-const s = prefix('setting')
 const t = prefix('quickCommands')
+const s = prefix('setting')
 
-@Form.create()
-@validateFieldsAndScroll
-class QuickCommandForm extends BookmarkForm {
-  handleSubmit = async (evt) => {
-    evt.preventDefault()
-    const res = await this.validateFieldsAndScroll()
-    if (!res) return
-    const { formData } = this.props
+export default function QuickCommandForm (props) {
+  const [form] = Form.useForm()
+  const { autofocustrigger } = props.store
+  async function handleSubmit (res) {
+    const { formData } = props
     const {
       name,
       command,
@@ -39,10 +30,10 @@ class QuickCommandForm extends BookmarkForm {
       id: generate()
     }
     if (formData.id) {
-      this.props.store.editItem(formData.id, update, settingMap.quickCommands)
+      props.store.editItem(formData.id, update, settingMap.quickCommands)
     } else {
-      this.props.store.addItem(update1, settingMap.quickCommands)
-      this.props.store.storeAssign({
+      props.store.addItem(update1, settingMap.quickCommands)
+      props.store.storeAssign({
         settingItem: {
           id: '',
           name: t('newQuickCommand')
@@ -51,70 +42,55 @@ class QuickCommandForm extends BookmarkForm {
     }
     message.success(s('saved'))
   }
-
-  render () {
-    const { getFieldDecorator } = this.props.form
-    const {
-      command,
-      name,
-      inputOnly = false
-    } = this.props.formData
-    const { autofocustrigger } = this.props.store
-    return (
-      <Form onSubmit={this.handleSubmit} className='form-wrap pd2l' layout='vertical'>
-        <FormItem
-          label={t('quickCommandName')}
-          hasFeedback
-        >
-          {getFieldDecorator('name', {
-            rules: [{
-              max: 30, message: '30 chars max'
-            }, {
-              required: true, message: 'name required'
-            }],
-            initialValue: name
-          })(
-            <InputAutoFocus
-              selectall='true'
-              autofocustrigger={autofocustrigger}
-            />
-          )}
-        </FormItem>
-        <FormItem
-          label={t('quickCommand')}
-        >
-          {getFieldDecorator('command', {
-            rules: [{
-              max: 1000, message: '1000 chars max'
-            }, {
-              required: true, message: 'command required'
-            }],
-            initialValue: command
-          })(
-            <TextArea rows={3} />
-          )}
-        </FormItem>
-        <FormItem
-          label={t('inputOnly')}
-        >
-          {getFieldDecorator('inputOnly', {
-            initialValue: inputOnly,
-            valuePropName: 'checked'
-          })(
-            <Switch />
-          )}
-        </FormItem>
-        <FormItem>
-          <p>
-            <Button
-              type='ghost'
-              onClick={this.handleSubmit}
-            >{e('save')}</Button>
-          </p>
-        </FormItem>
-      </Form>
-    )
-  }
+  return (
+    <Form
+      form={form}
+      onFinish={handleSubmit}
+      className='form-wrap pd2l'
+      layout='vertical'
+      initialValues={props.formData}
+    >
+      <FormItem
+        label={t('quickCommandName')}
+        rules={[{
+          max: 30, message: '30 chars max'
+        }, {
+          required: true, message: 'name required'
+        }]}
+        hasFeedback
+        name='name'
+      >
+        <InputAutoFocus
+          selectall='true'
+          autofocustrigger={autofocustrigger}
+        />
+      </FormItem>
+      <FormItem
+        name='command'
+        label={t('quickCommand')}
+        rules={[{
+          max: 1000, message: '1000 chars max'
+        }, {
+          required: true, message: 'command required'
+        }]}
+      >
+        <TextArea rows={3} />
+      </FormItem>
+      <FormItem
+        label={t('inputOnly')}
+        name='inputOnly'
+        valuePropName='checked'
+      >
+        <Switch />
+      </FormItem>
+      <FormItem>
+        <p>
+          <Button
+            type='ghost'
+            htmlType='submit'
+          >{e('save')}</Button>
+        </p>
+      </FormItem>
+    </Form>
+  )
 }
-
-export default QuickCommandForm

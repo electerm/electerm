@@ -9,7 +9,8 @@ import {
   defaultBookmarkGroupId,
   sidebarWidth,
   newBookmarkIdPrefix,
-  syncTypes
+  syncTypes,
+  settingSyncId
 } from '../common/constants'
 import { buildDefaultThemes, buildNewTheme } from '../common/terminal-theme'
 
@@ -65,7 +66,7 @@ export default {
   bookmarkGroups,
   setting: [
     {
-      id: 'setting-sync',
+      id: settingSyncId,
       title: ss('settingSync')
     }
   ],

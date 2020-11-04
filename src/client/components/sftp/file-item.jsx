@@ -4,7 +4,27 @@
 
 import React from 'react'
 import ReactDOM from 'react-dom'
-import { Icon, Popconfirm } from 'antd'
+
+import {
+  FolderOutlined,
+  FileOutlined,
+  CloudDownloadOutlined,
+  CloudUploadOutlined,
+  ArrowRightOutlined,
+  CheckSquareOutlined,
+  CloseCircleOutlined,
+  ContainerOutlined,
+  CopyOutlined,
+  EditOutlined,
+  EnterOutlined,
+  FileAddOutlined,
+  FileExcelOutlined,
+  FolderAddOutlined,
+  InfoCircleOutlined,
+  LockOutlined,
+  ReloadOutlined
+} from '@ant-design/icons'
+import { Popconfirm } from 'antd'
 import classnames from 'classnames'
 import copy from 'json-deep-copy'
 import _ from 'lodash'
@@ -749,9 +769,9 @@ export default class FileSection extends React.Component {
     const transferText = type === typeMap.local
       ? e(transferTypeMap.upload)
       : e(transferTypeMap.download)
-    const icon = type === typeMap.local
-      ? 'cloud-upload-o'
-      : 'cloud-download-o'
+    const Icon = type === typeMap.local
+      ? CloudUploadOutlined
+      : CloudDownloadOutlined
     const len = selectedFiles.length
     const shouldShowSelectedMenu = id &&
       len > 1 &&
@@ -771,7 +791,7 @@ export default class FileSection extends React.Component {
                 className={cls}
                 onClick={this.doEnterDirectory}
               >
-                <Icon type='enter' /> {e('enter')}
+                <EnterOutlined /> {e('enter')}
               </div>
             )
             : null
@@ -783,7 +803,7 @@ export default class FileSection extends React.Component {
                 className={cls}
                 onClick={this.doTransferSelected}
               >
-                <Icon type={icon} /> {transferText} {e('selected')}({len})
+                <Icon /> {transferText} {e('selected')}({len})
               </div>
             )
             : null
@@ -796,7 +816,7 @@ export default class FileSection extends React.Component {
                 className={cls}
                 onClick={this.doTransfer}
               >
-                <Icon type={icon} /> {transferText}
+                <Icon /> {transferText}
               </div>
             )
         }
@@ -807,7 +827,7 @@ export default class FileSection extends React.Component {
                 className={cls}
                 onClick={this.transferOrEnterDirectory}
               >
-                <Icon type='arrow-right' /> {e('open')}
+                <ArrowRightOutlined /> {e('open')}
               </div>
             )
             : null
@@ -819,7 +839,7 @@ export default class FileSection extends React.Component {
                 className={cls}
                 onClick={this.showInDefaultFileManager}
               >
-                <Icon type='container' /> {e('showInDefaultFileMananger')}
+                <ContainerOutlined /> {e('showInDefaultFileMananger')}
               </div>
             )
             : null
@@ -834,7 +854,7 @@ export default class FileSection extends React.Component {
                   e => this.transferOrEnterDirectory(e, true)
                 }
               >
-                <Icon type='edit' /> {e('edit')}
+                <EditOutlined /> {e('edit')}
               </div>
             )
             : null
@@ -851,7 +871,7 @@ export default class FileSection extends React.Component {
                 <div
                   className={cls + ' no-auto-close-context'}
                 >
-                  <Icon type='close-circle' /> {delTxt}
+                  <CloseCircleOutlined /> {delTxt}
                 </div>
               </Popconfirm>
             )
@@ -864,7 +884,7 @@ export default class FileSection extends React.Component {
                 className={cls}
                 onClick={this.onCopy}
               >
-                <Icon type='copy' /> {m('copy')}
+                <CopyOutlined /> {m('copy')}
                 <span className='context-sub-text'>
                   {ctrlOrCmd}+c
                 </span>
@@ -880,7 +900,7 @@ export default class FileSection extends React.Component {
                 className={cls}
                 onClick={this.onCut}
               >
-                <Icon type='file-excel' /> {m('cut')}
+                <FileExcelOutlined /> {m('cut')}
                 <span className='context-sub-text'>
                   {ctrlOrCmd}+x
                 </span>
@@ -893,7 +913,7 @@ export default class FileSection extends React.Component {
           className={clsPaste}
           onClick={canPaste ? this.onPaste : _.noop}
         >
-          <Icon type='copy' /> {m('paste')}
+          <CopyOutlined /> {m('paste')}
           <span className='context-sub-text'>
             {ctrlOrCmd}+v
           </span>
@@ -905,7 +925,7 @@ export default class FileSection extends React.Component {
                 className={cls}
                 onClick={this.doRename}
               >
-                <Icon type='edit' /> {e('rename')}
+                <EditOutlined /> {e('rename')}
               </div>
             )
             : null
@@ -914,19 +934,19 @@ export default class FileSection extends React.Component {
           className={cls}
           onClick={this.newFile}
         >
-          <Icon type='file-add' /> {e('newFile')}
+          <FileAddOutlined /> {e('newFile')}
         </div>
         <div
           className={cls}
           onClick={this.newDirectory}
         >
-          <Icon type='folder-add' /> {e('newFolder')}
+          <FolderAddOutlined /> {e('newFolder')}
         </div>
         <div
           className={cls}
           onClick={this.selectAll}
         >
-          <Icon type='check-square-o' /> {e('selectAll')}
+          <CheckSquareOutlined /> {e('selectAll')}
           <span className='context-sub-text'>
             {ctrlOrCmd}+a
           </span>
@@ -935,7 +955,7 @@ export default class FileSection extends React.Component {
           className={cls}
           onClick={this.refresh}
         >
-          <Icon type='reload' /> {e('refresh')}
+          <ReloadOutlined /> {e('refresh')}
         </div>
         {
           this.showModeEdit(type, id)
@@ -944,7 +964,7 @@ export default class FileSection extends React.Component {
                 className={cls}
                 onClick={this.editPermission}
               >
-                <Icon type='lock' /> {e('editPermission')}
+                <LockOutlined /> {e('editPermission')}
               </div>
             )
             : null
@@ -956,7 +976,7 @@ export default class FileSection extends React.Component {
                 className={cls}
                 onClick={this.showInfo}
               >
-                <Icon type='info-circle-o' /> {e('info')}
+                <InfoCircleOutlined /> {e('info')}
               </div>
             )
             : null
@@ -987,8 +1007,8 @@ export default class FileSection extends React.Component {
       nameTemp,
       isDirectory
     } = file
-    const icon = isDirectory ? 'folder' : 'file'
-    const pre = <Icon type={icon} />
+    const Icon = isDirectory ? FolderOutlined : FileOutlined
+    const pre = <Icon />
     return (
       <div className='sftp-item'>
         <Input
@@ -1017,10 +1037,10 @@ export default class FileSection extends React.Component {
       value = filesize(value)
     }
     if (name === 'name') {
-      const type = isDirectory
-        ? 'folder'
-        : 'file'
-      typeIcon = <Icon type={type} className='mg1r' />
+      const Icon = isDirectory
+        ? FolderOutlined
+        : FileOutlined
+      typeIcon = <Icon className='mg1r' />
       symbolicLinkText = isSymbolicLink
         ? <sup className='color-blue symbolic-link-icon'>*</sup>
         : null

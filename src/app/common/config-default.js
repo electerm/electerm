@@ -9,7 +9,6 @@ module.exports = exports.default = {
   showMenu: true,
   ...defaultSettings,
   terminalTimeout: 5000,
-  opacity: 1,
   proxyPort: 1080,
   proxyType: '5',
   proxyIp: '127.0.0.1',

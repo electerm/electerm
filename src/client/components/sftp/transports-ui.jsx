@@ -2,7 +2,10 @@
  * transporter UI component
  */
 import { useRef, useEffect } from 'react'
-import { Icon } from 'antd'
+import {
+  PlayCircleOutlined,
+  PauseCircleOutlined
+} from '@ant-design/icons'
 import Transport from './transport-action'
 import { transportTypes } from './transport-types'
 import _ from 'lodash'
@@ -53,10 +56,8 @@ export default function Transporter (props) {
   }
   function renderTransportIcon () {
     const pausing = computePausing()
-    const icon = pausing ? 'play-circle' : 'pause-circle'
-    return (
-      <Icon type={icon} />
-    )
+    const Icon = pausing ? PlayCircleOutlined : PauseCircleOutlined
+    return <Icon />
   }
   const pauseAll = () => {
     props.modifier({

@@ -3,7 +3,8 @@
  */
 
 import { Component } from '../common/react-subx'
-import { Modal, Table, Icon } from 'antd'
+import { CloseOutlined } from '@ant-design/icons'
+import { Modal, Table } from 'antd'
 import time from '../../../app/common/time'
 import Tag from '../sftp/transfer-tag'
 import './transfer-history.styl'
@@ -90,7 +91,7 @@ export default class TransferHistoryModal extends Component {
               className='iblock pointer'
               onClick={clearTransferHistory}
             >
-              <Icon type='close' className='mg1r' />
+              <CloseOutlined className='mg1r' />
               {e('clear')}
             </span>
           </div>

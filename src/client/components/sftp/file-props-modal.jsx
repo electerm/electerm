@@ -3,7 +3,11 @@
  */
 
 import { memo } from 'react'
-import { Icon, Modal } from 'antd'
+import {
+  FolderOutlined,
+  FileOutlined
+} from '@ant-design/icons'
+import { Modal } from 'antd'
 import resolve from '../../common/resolve'
 import { mode2permission } from '../../common/mode2permission'
 import time from '../../../app/common/time'
@@ -40,6 +44,9 @@ export default memo(props => {
     username
   } = tab
   const iconType = isDirectory ? 'folder' : 'file'
+  const Icon = isDirectory
+    ? FolderOutlined
+    : FileOutlined
   const ps = {
     visible,
     width: 500,
@@ -57,7 +64,7 @@ export default memo(props => {
       {...ps}
     >
       <div className='file-props-wrap relative'>
-        <Icon type={iconType} className='file-icon' />
+        <Icon className='file-icon' />
         <div className='file-props'>
           <p className='bold'>{e(iconType)} {e('name')}:</p>
           <p className='pd1b'>

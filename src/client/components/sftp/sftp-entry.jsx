@@ -3,7 +3,15 @@ import { Component } from 'react'
 import ReactDOM from 'react-dom'
 import { generate } from 'shortid'
 import { mergeProxy } from '../../common/merge-proxy'
-import { Input, Icon, Tooltip, Spin, Modal, notification } from 'antd'
+import {
+  ArrowUpOutlined,
+  EyeInvisibleFilled,
+  EyeFilled,
+  ReloadOutlined,
+  ArrowRightOutlined,
+  LoadingOutlined
+} from '@ant-design/icons'
+import { Input, Tooltip, Spin, Modal, notification } from 'antd'
 import _ from 'lodash'
 import FileSection from './file-item'
 import Confirms from './confirm-modal'
@@ -816,7 +824,7 @@ export default class Sftp extends Component {
   renderAddonBefore = (type) => {
     const isShow = this.state[`${type}ShowHiddenFile`]
     const title = `${isShow ? e('hide') : e('show')} ${e('hfd')}`
-    const theme = isShow ? 'filled' : 'outlined'
+    const Icon = isShow ? EyeFilled : EyeInvisibleFilled
     return (
       <div>
         <Tooltip
@@ -826,7 +834,6 @@ export default class Sftp extends Component {
         >
           <Icon
             type='eye'
-            theme={theme}
             className='mg1r'
             onClick={() => this.toggleShowHiddenFile(type)}
           />
@@ -836,10 +843,7 @@ export default class Sftp extends Component {
           arrowPointAtCenter
           placement='topLeft'
         >
-          <Icon
-            type='arrow-up'
-            onClick={() => this.goParent(type)}
-          />
+          <ArrowUpOutlined onClick={() => this.goParent(type)} />
         </Tooltip>
       </div>
     )
@@ -887,10 +891,10 @@ export default class Sftp extends Component {
     const n = `${type}PathTemp`
     const path = this.state[n]
     const realPath = this.state[`${type}Path`]
-    const goIcon = realPath === path
-      ? 'reload'
-      : 'arrow-right'
     const isLoadingRemote = type === typeMap.remote && loadingSftp
+    const GoIcon = isLoadingRemote
+      ? LoadingOutlined
+      : (realPath === path ? ReloadOutlined : ArrowRightOutlined)
     return (
       <Input
         value={path}
@@ -901,8 +905,7 @@ export default class Sftp extends Component {
         onBlur={() => this.onInputBlur(type)}
         disabled={loadingSftp}
         addonAfter={
-          <Icon
-            type={isLoadingRemote ? 'loading' : goIcon}
+          <GoIcon
             onClick={isLoadingRemote ? () => null : () => this.onGoto(type)}
           />
         }

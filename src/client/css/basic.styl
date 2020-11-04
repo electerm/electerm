@@ -1,4 +1,5 @@
 @require './includes'
+@require './antd-overwrite'
 html
   background rgba(0,0,0,.01)
 
@@ -18,8 +19,8 @@ body
   background-color #08c
   outline none
 
-.ant-input::placeholder
-  color #777
+// .ant-input::placeholder
+//   color #777
 
 #content-loading
   position fixed
@@ -35,21 +36,21 @@ body
   overflow-y scroll
   overflow-x hidden
   word-break break-all
-.ant-spin-blur
-  opacity inherit
-  transform none
-.ant-spin-container
-  transition opacity 0s
-// .ant-spin-container:after
-//   display none
-.ant-tree li .ant-tree-node-content-wrapper.ant-tree-node-selected
-  background #000
-.ant-select-tree li .ant-select-tree-node-content-wrapper.ant-select-tree-node-selected
-  background-color #08c
-.ant-select-tree-dropdown .ant-select-dropdown-search .ant-select-search__field
-  color rgba(255, 255, 255, 0.65)
-  background-color #3b3b4d
-  border 1px solid #17171f
+// .ant-spin-blur
+//   opacity inherit
+//   transform none
+// .ant-spin-container
+//   transition opacity 0s
+// // .ant-spin-container:after
+// //   display none
+// .ant-tree li .ant-tree-node-content-wrapper.ant-tree-node-selected
+//   background #000
+// .ant-select-tree li .ant-select-tree-node-content-wrapper.ant-select-tree-node-selected
+//   background-color #08c
+// .ant-select-tree-dropdown .ant-select-dropdown-search .ant-select-search__field
+//   color rgba(255, 255, 255, 0.65)
+//   background-color #3b3b4d
+//   border 1px solid #17171f
 
 // from https://coderwall.com/p/m-uwvg/css-background-noise
 .noise

@@ -5,10 +5,20 @@
 
 import React from 'react'
 import _ from 'lodash'
-import { Icon, Dropdown, Menu, Popover } from 'antd'
+
+import {
+  CodeFilled,
+  DownOutlined,
+  LeftOutlined,
+  PlusCircleOutlined,
+  RightOutlined,
+  RightSquareFilled
+} from '@ant-design/icons'
+
+import { Dropdown, Menu, Popover } from 'antd'
 import Tab from './tab'
 import './tabs.styl'
-import { tabWidth, tabMargin } from '../../common/constants'
+import { tabWidth, tabMargin, extraTabWidth } from '../../common/constants'
 import createName from '../../common/create-title'
 import WindowControl from './window-control'
 import BookmarksList from '../sidebar/bookmark-select'
@@ -18,7 +28,6 @@ const e = prefix('tabs')
 const c = prefix('control')
 const t = prefix('tabs')
 const MenuItem = Menu.Item
-const extraWidth = 113
 
 export default class Tabs extends React.Component {
   componentDidMount () {
@@ -84,8 +93,8 @@ export default class Tabs extends React.Component {
       return prev + c.clientWidth
     }, 0)
     const w = (index + 1) * tabMargin + 5 + tabsDomWith
-    const scrollLeft = w > width - extraWidth
-      ? w - width + extraWidth
+    const scrollLeft = w > width - extraTabWidth
+      ? w - width + extraTabWidth
       : 0
     this.dom.scrollLeft = scrollLeft
   }
@@ -142,13 +151,13 @@ export default class Tabs extends React.Component {
           className={cls}
           onClick={onNewSsh}
         >
-          <Icon type='code' theme='filled' /> {c('newSsh')}
+          <CodeFilled /> {c('newSsh')}
         </div>
         <div
           className={cls}
           onClick={() => addTab()}
         >
-          <Icon type='right-square' theme='filled' /> {t('newTab')}
+          <RightSquareFilled /> {t('newTab')}
         </div>
         <BookmarksList
           store={this.props.store}
@@ -162,12 +171,10 @@ export default class Tabs extends React.Component {
       <Popover
         content={this.renderMenus()}
       >
-        <Icon
-          type='plus-circle-o'
+        <PlusCircleOutlined
           title={e('openNewTerm')}
           className='pointer tabs-add-btn font16'
-          onClick={() => this.props.store.addTab()}
-        />
+          onClick={() => this.props.store.addTab()} />
       </Popover>
     )
   }
@@ -176,23 +183,18 @@ export default class Tabs extends React.Component {
     return (
       <div className='tabs-extra noise pd1x'>
         {this.renderAddBtn()}
-        <Icon
-          type='left'
+        <LeftOutlined
           className='mg1l iblock pointer font12 tab-scroll-icon'
-          onClick={this.scrollLeft}
-
-        />
-        <Icon
-          type='right'
+          onClick={this.scrollLeft} />
+        <RightOutlined
           className='mg1x iblock pointer font12 tab-scroll-icon'
-          onClick={this.scrollRight}
-        />
+          onClick={this.scrollRight} />
         <Dropdown
           className='iblock'
           placement='bottomRight'
           overlay={this.renderList()}
         >
-          <Icon type='down' className='tabs-dd-icon' />
+          <DownOutlined className='tabs-dd-icon' />
         </Dropdown>
       </div>
     )
@@ -223,7 +225,7 @@ export default class Tabs extends React.Component {
           <div
             className='tabs-wrapper relative'
             style={{
-              width: tabsWidthAll + extraWidth + 10
+              width: tabsWidthAll + extraTabWidth + 10
             }}
             onDoubleClick={this.onAdd}
           >

@@ -2,7 +2,10 @@
  * tranporters
  */
 import React from 'react'
-import { Icon } from 'antd'
+import {
+  PlayCircleOutlined,
+  PauseCircleOutlined
+} from '@ant-design/icons'
 import Transport from './transport'
 import _ from 'lodash'
 import copy from 'json-deep-copy'
@@ -138,10 +141,8 @@ export default class Transports extends React.PureComponent {
 
   renderTransportIcon () {
     const pausing = this.computePausing()
-    const icon = pausing ? 'play-circle' : 'pause-circle'
-    return (
-      <Icon type={icon} />
-    )
+    const Icon = pausing ? PlayCircleOutlined : PauseCircleOutlined
+    return <Icon />
   }
 
   renderTitle () {

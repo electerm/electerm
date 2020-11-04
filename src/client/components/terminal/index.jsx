@@ -5,7 +5,21 @@ import fetch, { handleErr } from '../../common/fetch'
 import { mergeProxy } from '../../common/merge-proxy'
 import { generate } from 'shortid'
 import _ from 'lodash'
-import { Spin, Icon, Modal, Button, Checkbox } from 'antd'
+
+import {
+  BorderHorizontalOutlined,
+  CheckCircleOutlined,
+  CloseOutlined,
+  CopyOutlined,
+  LeftOutlined,
+  ReloadOutlined,
+  RightOutlined,
+  SearchOutlined,
+  SelectOutlined,
+  SwitcherOutlined
+} from '@ant-design/icons'
+
+import { Spin, Modal, Button, Checkbox } from 'antd'
 import Input from '../common/input-auto-focus'
 import classnames from 'classnames'
 import './terminal.styl'
@@ -543,39 +557,39 @@ export default class Term extends Component {
           className={clsCopy}
           onClick={hasSlected ? this.onCopy : _.noop}
         >
-          <Icon type='copy' /> {m('copy')}
+          <CopyOutlined /> {m('copy')}
           <span className='context-sub-text'>({copyShortcut})</span>
         </div>
         <div
           className={clsPaste}
           onClick={copyed ? this.onPaste : _.noop}
         >
-          <Icon type='switcher' /> {m('paste')}
+          <SwitcherOutlined /> {m('paste')}
           <span className='context-sub-text'>({pasteShortcut})</span>
         </div>
         <div
           className={cls}
           onClick={this.onClear}
         >
-          <Icon type='reload' /> {e('clear')} (Ctrl+L)
+          <ReloadOutlined /> {e('clear')} (Ctrl+L)
         </div>
         <div
           className={cls}
           onClick={this.onSelectAll}
         >
-          <Icon type='select' /> {e('selectAll')}
+          <SelectOutlined /> {e('selectAll')}
         </div>
         <div
           className={cls}
           onClick={this.openSearch}
         >
-          <Icon type='search' /> {e('search')}
+          <SearchOutlined /> {e('search')}
         </div>
         <div
           className={cls}
           onClick={this.split}
         >
-          <Icon type='border-horizontal' /> {e('split')}
+          <BorderHorizontalOutlined /> {e('split')}
         </div>
       </div>
     )
@@ -970,7 +984,7 @@ export default class Term extends Component {
       <div className='alignright pd1'>
         <Button
           type='primary'
-          icon='check-circle'
+          icon={<CheckCircleOutlined />}
           disabled={disabled}
           onClick={this.onClickConfirmPass}
           className='mg1r'
@@ -1001,24 +1015,9 @@ export default class Term extends Component {
           onPressEnter={this.searchNext}
           addonAfter={
             <span>
-              <Icon
-                type='left'
-                className='pointer mg1r'
-                title={e('prevMatch')}
-                onClick={this.searchPrev}
-              />
-              <Icon
-                type='right'
-                className='pointer mg1r'
-                title={e('nextMatch')}
-                onClick={this.searchNext}
-              />
-              <Icon
-                type='close'
-                className='pointer'
-                title={m('close')}
-                onClick={this.searchClose}
-              />
+              <LeftOutlined className='pointer mg1r' title={e('prevMatch')} onClick={this.searchPrev} />
+              <RightOutlined className='pointer mg1r' title={e('nextMatch')} onClick={this.searchNext} />
+              <CloseOutlined className='pointer' title={m('close')} onClick={this.searchClose} />
             </span>
           }
         />

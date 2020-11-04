@@ -14,7 +14,7 @@ import List from './list'
 import TreeList from './tree-list'
 import Setting from './setting'
 import SyncSetting from '../setting-sync/setting-sync'
-import { settingMap } from '../../common/constants'
+import { settingMap, settingSyncId } from '../../common/constants'
 import copy from 'json-deep-copy'
 
 const { prefix } = window
@@ -135,7 +135,7 @@ export default class SettingModal extends Component {
               </Col>
               <Col span={18}>
                 {
-                  settingItem.id
+                  settingItem.id === settingSyncId
                     ? (
                       <SyncSetting
                         store={store}

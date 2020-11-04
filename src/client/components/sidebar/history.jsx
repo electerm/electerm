@@ -5,10 +5,8 @@
 import { memo } from 'react'
 import ItemList from '../setting-panel/list'
 import _ from 'lodash'
-import {
-  Icon,
-  Tooltip
-} from 'antd'
+import { EditOutlined } from '@ant-design/icons'
+import { Tooltip } from 'antd'
 
 const { prefix } = window
 const c = prefix('common')
@@ -26,11 +24,9 @@ export default memo((props) => {
           <div className='fleft'>{c('history')}</div>
           <div className='fleft'>
             <Tooltip title={`${m('edit')} ${c('history')}`}>
-              <Icon
-                type='edit'
+              <EditOutlined
                 className='font16 mg1x mg2l pointer iblock control-icon icon-do-edit'
-                onClick={store.onEditHistory}
-              />
+                onClick={store.onEditHistory} />
             </Tooltip>
           </div>
         </div>

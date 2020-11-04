@@ -2,12 +2,14 @@
  * history list
  */
 import React from 'react'
-import { Tooltip, Icon, Popconfirm } from 'antd'
+import { CloseOutlined, EditOutlined } from '@ant-design/icons'
+import { Tooltip, Popconfirm } from 'antd'
 import Search from '../common/search'
 import createName from '../../common/create-title'
 import classnames from 'classnames'
 import _ from 'lodash'
 import highlight from '../common/highlight'
+import { settingSyncId, settingCommonId } from '../../common/constants'
 import './list.styl'
 
 const { prefix } = window
@@ -48,21 +50,19 @@ export default class ItemList extends React.PureComponent {
   }
 
   renderDelBtn = item => {
-    if (!item.id) {
+    if (!item.id || [settingSyncId, settingCommonId].includes(item.id)) {
       return null
     }
     const { shouldComfirmDel } = this.props
     const icon = (
-      <Icon
-        type='close'
+      <CloseOutlined
         title={e('del')}
         className='pointer list-item-remove'
         onClick={
           shouldComfirmDel
             ? _.noop
             : e => this.del(item, e)
-        }
-      />
+        } />
     )
     if (shouldComfirmDel) {
       return (
@@ -130,12 +130,10 @@ export default class ItemList extends React.PureComponent {
       return null
     }
     return (
-      <Icon
-        type='edit'
+      <EditOutlined
         title={e('edit')}
         onClick={(e) => this.editItem(e, item, isGroup)}
-        className='pointer list-item-edit'
-      />
+        className='pointer list-item-edit' />
     )
   }
 

@@ -6,9 +6,9 @@ import React from 'react'
 import QmItem from './quick-command'
 
 export default class QmList extends React.Component {
-  componentDidMount () {
-    this.props.form.validateFields(['quickCommands'])
-  }
+  // componentDidMount () {
+  //   this.props.form.validateFields(['quickCommands'])
+  // }
 
   render () {
     const { quickCommands, form } = this.props

@@ -3,9 +3,7 @@
  */
 
 import { memo } from 'react'
-import {
-  Icon
-} from 'antd'
+import { CloseOutlined, MinusOutlined } from '@ant-design/icons'
 
 const { prefix } = window
 const m = prefix('menu')
@@ -27,11 +25,7 @@ export default memo(props => {
   return (
     <div className='window-controls'>
       <div className='window-control-box window-control-minimize' onClick={minimize}>
-        <Icon
-          type='minus'
-          title={m('minimize')}
-          className='iblock font12 widnow-control-icon'
-        />
+        <MinusOutlined title={m('minimize')} className='iblock font12 widnow-control-icon' />
       </div>
       <div className='window-control-box window-control-maximize'
         onClick={
@@ -48,11 +42,7 @@ export default memo(props => {
         />
       </div>
       <div className='window-control-box window-control-close' onClick={closeApp}>
-        <Icon
-          type='close'
-          title={m('close')}
-          className='iblock font12 widnow-control-icon'
-        />
+        <CloseOutlined title={m('close')} className='iblock font12 widnow-control-icon' />
       </div>
     </div>
   )

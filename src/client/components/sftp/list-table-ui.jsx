@@ -19,7 +19,7 @@ import {
   paneMap
 } from '../../common/constants'
 import copy from 'json-deep-copy'
-import { Icon } from 'antd'
+import { CheckOutlined } from '@ant-design/icons'
 import FileSection from './file-item'
 
 const { prefix } = window
@@ -294,7 +294,7 @@ export default class FileListTable extends React.Component {
               >
                 {
                   disabled || selected
-                    ? <Icon type='check' className='mg1r' />
+                    ? <CheckOutlined className='mg1r' />
                     : <span className='icon-holder mg1r' />
                 }
                 {e(p)}

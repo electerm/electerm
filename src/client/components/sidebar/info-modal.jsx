@@ -1,8 +1,14 @@
-/**
- * output app and system info
- */
+import {
+  CloseOutlined,
+  GithubOutlined,
+  GlobalOutlined,
+  HighlightOutlined,
+  HomeOutlined,
+  UserOutlined,
+  WarningOutlined
+} from '@ant-design/icons'
 
-import { Icon, Modal, Tabs, Button, Tag } from 'antd'
+import { Modal, Tabs, Button, Tag } from 'antd'
 import Link from '../common/external-link'
 import _ from 'lodash'
 
@@ -64,11 +70,7 @@ export default function ({
     <div className='fix'>
       <span className='fleft'>{`${m('about')} ` + name}</span>
       <span className='fright'>
-        <Icon
-          type='close'
-          onClick={() => onCancel(modal.destroy)}
-          className='close-info-modal'
-        />
+        <CloseOutlined onClick={() => onCancel(modal.destroy)} className='close-info-modal' />
       </span>
     </div>
   )
@@ -94,37 +96,37 @@ export default function ({
             <p className='mg1b'>
               => <b className='mg1r'>{e('author')}:</b>
               <Link to={authorUrl} className='mg1l'>
-                <Icon type='user' /> {authorName} ({email})
+                <UserOutlined /> {authorName} ({email})
               </Link>
             </p>
             <p className='mg1b'>
               => <b>{e('homepage')}/{e('download')}:</b>
               <Link to={homepage} className='mg1l'>
-                <Icon type='home' /> {homepage}
+                <HomeOutlined /> {homepage}
               </Link>
             </p>
             <p className='mg1b'>
               => <b className='mg1r'>github:</b>
               <Link to={link} className='mg1l'>
-                <Icon type='github' /> {link}
+                <GithubOutlined /> {link}
               </Link>
             </p>
             <p className='mg1b'>
               => <b className='mg1r'>{s('language')} repo:</b>
               <Link to={langugeRepo} className='mg1l'>
-                <Icon type='global' /> {langugeRepo}
+                <GlobalOutlined /> {langugeRepo}
               </Link>
             </p>
             <p className='mg1b'>
               => <b className='mg1r'>{e('bugReport')}:</b>
               <Link to={bugReportLink} className='mg1l'>
-                <Icon type='warning' /> {bugReportLink}
+                <WarningOutlined /> {bugReportLink}
               </Link>
             </p>
             <p className='mg1b'>
               => <b className='mg1r'>Changelog:</b>
               <Link to={releaseLink} className='mg1l'>
-                <Icon type='highlight' /> {releaseLink}
+                <HighlightOutlined /> {releaseLink}
               </Link>
             </p>
             <p className='mg1b mg2t'>

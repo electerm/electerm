@@ -3,7 +3,9 @@
  * inluding id log path, and system info for remote session
  */
 
-import { Tooltip, Icon } from 'antd'
+import { InfoCircleOutlined } from '@ant-design/icons'
+
+import { Tooltip } from 'antd'
 import './terminal-info.styl'
 
 export default function TerminalInfoIndex (props) {
@@ -11,11 +13,9 @@ export default function TerminalInfoIndex (props) {
     <Tooltip
       title='Terminal Info'
     >
-      <Icon
-        type='info-circle'
+      <InfoCircleOutlined
         onClick={props.showInfoPanel}
-        className='pointer font18 terminal-info-icon'
-      />
+        className='pointer font18 terminal-info-icon' />
     </Tooltip>
   )
 }

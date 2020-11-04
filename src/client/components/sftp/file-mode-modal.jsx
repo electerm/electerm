@@ -3,7 +3,11 @@
  */
 
 import React from 'react'
-import { Icon, Modal, Button } from 'antd'
+import {
+  FolderOutlined,
+  FileOutlined
+} from '@ant-design/icons'
+import { Modal, Button } from 'antd'
 import resolve from '../../common/resolve'
 import time from '../../../app/common/time'
 import _ from 'lodash'
@@ -98,6 +102,9 @@ export default class FileMode extends React.PureComponent {
       username
     } = tab
     const iconType = isDirectory ? 'folder' : 'file'
+    const Icon = isDirectory
+      ? FolderOutlined
+      : FileOutlined
     const ps = {
       visible,
       width: 500,
@@ -118,7 +125,7 @@ export default class FileMode extends React.PureComponent {
         {...ps}
       >
         <div className='file-props-wrap relative'>
-          <Icon type={iconType} className='file-icon' />
+          <Icon className='file-icon' />
           <div className='file-props'>
             <p className='bold'>{e(iconType)} {e('name')}:</p>
             <p className='pd1b'>
