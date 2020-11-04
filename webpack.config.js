@@ -64,6 +64,14 @@ const to1 = path.resolve(
   __dirname,
   'work/app/assets/images'
 )
+const from1 = path.resolve(
+  __dirname,
+  'node_modules/vscode-icons/icons'
+)
+const to2 = path.resolve(
+  __dirname,
+  'work/app/assets/icons'
+)
 var config = {
   mode: 'development',
   entry: {
@@ -215,6 +223,10 @@ if (isProd) {
       patterns: [{
         from,
         to: to1,
+        force: true
+      }, {
+        from: from1,
+        to: to2,
         force: true
       }]
     })

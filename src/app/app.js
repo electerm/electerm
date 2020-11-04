@@ -30,7 +30,7 @@ const installSrc = require('./lib/install-src')
 const {
   isDev, packInfo, iconPath,
   minWindowWidth, minWindowHeight,
-  appPath
+  appPath, extIconPath
 } = require('./utils/app-props')
 const {
   getWindowSize,
@@ -121,6 +121,7 @@ async function createWindow () {
   Object.assign(global.et, {
     listSerialPorts,
     loadFontList,
+    extIconPath,
     _config: config,
     getAllConfig,
     installSrc,

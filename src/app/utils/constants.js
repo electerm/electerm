@@ -28,6 +28,10 @@ const trayIconPath = resolve(
       : '../assets/images/electerm-tray.png'
   )
 )
+const extIconPath = isDev
+  ? '/node_modules/vscode-icons/icons/'
+  : 'icons/'
+
 const defaultUserName = require('../common/default-user-name')
 
 module.exports = {
@@ -37,6 +41,7 @@ module.exports = {
   isLinux,
   iconPath,
   trayIconPath,
+  extIconPath,
   defaultUserName,
   minWindowWidth: 590,
   minWindowHeight: 400,
