@@ -4,7 +4,7 @@
 
 import React from 'react'
 import ReactDOM from 'react-dom'
-
+import ExtIcon from './file-icon'
 import {
   FolderOutlined,
   FileOutlined,
@@ -1037,10 +1037,10 @@ export default class FileSection extends React.Component {
       value = filesize(value)
     }
     if (name === 'name') {
-      const Icon = isDirectory
-        ? FolderOutlined
-        : FileOutlined
-      typeIcon = <Icon className='mg1r' />
+      // const Icon = isDirectory
+      //   ? FolderOutlined
+      //   : FileOutlined
+      typeIcon = <ExtIcon file={file} className='mg1r' />
       symbolicLinkText = isSymbolicLink
         ? <sup className='color-blue symbolic-link-icon'>*</sup>
         : null

@@ -1,6 +1,6 @@
 {
   "name": "electerm",
-  "version": "1.5.30",
+  "version": "1.5.31",
   "description": "Terminal/ssh/sftp client(linux, mac, win) based on electron/ssh2/node-pty/xterm/antd/subx and other libs",
   "main": "app.js",
   "bin": "npm/electerm",
@@ -103,6 +103,8 @@
     "subx": "0.9.4",
     "url-loader": "4.0.0",
     "useragent": "2.3.0",
+    "vscode-icons": "https://github.com/vscode-icons/vscode-icons.git",
+    "vscode-icons-js": "^11.0.0",
     "webpack": "4.44.1",
     "webpack-cli": "3.3.11",
     "webpack-dev-server": "3.11.0",
