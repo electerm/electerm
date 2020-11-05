@@ -1,6 +1,8 @@
 /**
  * bookmark form
  */
+
+import { useEffect } from 'react'
 import { ReloadOutlined } from '@ant-design/icons'
 import { Tabs, Spin, Input, Select, Switch, AutoComplete, Form } from 'antd'
 import { formItemLayout } from '../../common/form-layout'
@@ -12,6 +14,7 @@ import {
   terminalSerialType,
   newBookmarkIdPrefix
 } from '../../common/constants'
+import defaultSettings from '../../../app/common/default-setting'
 import findBookmarkGroupId from '../../common/find-bookmark-group-id'
 import useSubmit from './use-submit'
 import useUI from './use-ui'
@@ -34,6 +37,13 @@ export default function SerialFormUi (props) {
     handleFinish,
     submitUi
   ] = useSubmit(props)
+  useEffect(() => {
+    if (props.formData.id.startsWith(newBookmarkIdPrefix)) {
+      form.setFieldsValue({
+        category: props.currentBookmarkGroupId
+      })
+    }
+  }, [props.currentBookmarkGroupId])
   const qms = useQm(form, props.formData)
   const uis = useUI(props)
   const {
@@ -58,6 +68,7 @@ export default function SerialFormUi (props) {
     xoff: false,
     xany: false,
     type: terminalSerialType,
+    term: defaultSettings.terminalType,
     category: initBookmarkGroupId
   }
   initialValues = _.defaults(initialValues, defaultValues)

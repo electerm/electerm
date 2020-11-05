@@ -55,9 +55,11 @@ export default function BookmarkFormUI (props) {
     submitUi
   ] = useSubmit(props)
   useEffect(() => {
-    form.setFieldsValue({
-      category: props.currentBookmarkGroupId
-    })
+    if (props.formData.id.startsWith(newBookmarkIdPrefix)) {
+      form.setFieldsValue({
+        category: props.currentBookmarkGroupId
+      })
+    }
   }, [props.currentBookmarkGroupId])
   const [authType, setAuthType] = useState(props.formData.authType || authTypeMap.password)
   const qms = useQm(form, props.formData)
