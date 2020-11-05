@@ -31,21 +31,21 @@ describe('history', function () {
     log('button:edit')
     await client.click('.btns .anticon-plus-circle')
     await delay(500)
-    const sel = '.ant-modal .ant-tabs-line > .ant-tabs-bar .ant-tabs-tab-active'
+    const sel = '.ant-modal .ant-tabs-nav-list .ant-tabs-tab-active'
     const active = await client.element(sel)
     expect(!!active.elementId).equal(true)
     const text = await client.getText(sel)
     expect(text).equal(e('bookmarks'))
 
     log('tab it')
-    await client.click('.ant-modal .ant-tabs-bar .ant-tabs-tab')
+    await client.click('.ant-modal .ant-tabs-nav-list .ant-tabs-tab')
 
     await delay(100)
     const text4 = await client.getText(sel)
     expect(text4).equal(e('history'))
 
     log('auto focus works')
-    const focus = await client.hasFocus('.ant-modal .ant-tabs-tabpane-active #host')
+    const focus = await client.hasFocus('.ant-modal .ant-tabs-tabpane-active #ssh-form_host')
     expect(focus).equal(true)
     log('list tab')
     await client.click('.ant-modal .ant-tabs-tabpane-active .item-list-unit')

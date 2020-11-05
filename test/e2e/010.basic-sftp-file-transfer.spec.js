@@ -37,9 +37,9 @@ describe('sftp file transfer', function () {
     await delay(500)
     await client.click('.btns .anticon-plus-circle')
     await delay(500)
-    await client.setValue('#host', TEST_HOST)
-    await client.setValue('#username', TEST_USER)
-    await client.setValue('#password', TEST_PASS)
+    await client.setValue('#ssh-form_host', TEST_HOST)
+    await client.setValue('#ssh-form_username', TEST_USER)
+    await client.setValue('#ssh-form_password', TEST_PASS)
     await delay(100)
     await client.execute(function () {
       document.querySelector('.ant-modal .ant-tabs-tabpane-active .ant-btn-primary').click()
@@ -134,7 +134,7 @@ describe('sftp file transfer', function () {
     await client.rightClick('.ssh-wrap-show .file-list.local .sftp-item.real-file-item .file-bg', 3, 3)
     await delay(200)
     log('do upload')
-    await client.click('.context-menu .anticon-cloud-upload-o')
+    await client.click('.context-menu .anticon-cloud-upload')
 
     // transfer remote to local
     await delay(500)
@@ -148,8 +148,8 @@ describe('sftp file transfer', function () {
     await delay(1800)
     await client.rightClick('.ssh-wrap-show .file-list.remote .sftp-item.real-file-item .file-bg', 10, 10)
     await delay(323)
-    await client.click('.context-menu .anticon-cloud-download-o')
-    await delay(2000)
+    await client.click('.context-menu .anticon-cloud-download')
+    await delay(3000)
     const localFileList001 = await client.elements('.ssh-wrap-show .file-list.local .sftp-item')
     expect(localFileList001.length).equal(2)
 

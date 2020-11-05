@@ -36,39 +36,39 @@ describe('bookmarks', function () {
     log('button:edit')
     await client.click('.btns .anticon-plus-circle')
     await delay(500)
-    const sel = '.ant-modal .ant-tabs-line > .ant-tabs-bar .ant-tabs-tab-active'
+    const sel = '.ant-modal .ant-tabs-nav-list .ant-tabs-tab-active'
     const active = await client.element(sel)
     expect(!!active.elementId).equal(true)
     const text = await client.getText(sel)
     expect(text).equal(e('bookmarks'))
 
     log('auto focus works')
-    const focus = await client.hasFocus('.ant-modal .ant-tabs-tabpane-active #host')
+    const focus = await client.hasFocus('.ant-modal .ant-tabs-tabpane-active #ssh-form_host')
     expect(focus).equal(true)
 
     log('default username = ""')
-    const v = await client.getValue('.ant-modal .ant-tabs-tabpane-active #username')
+    const v = await client.getValue('.ant-modal .ant-tabs-tabpane-active #ssh-form_username')
     expect(v).equal('')
 
     log('default port = 22')
-    const v1 = await client.getValue('.ant-modal .ant-tabs-tabpane-active #port')
+    const v1 = await client.getValue('.ant-modal .ant-tabs-tabpane-active #ssh-form_port')
     expect(v1).equal('22')
 
     log('save it')
-    await client.setValue('.ant-modal .ant-tabs-tabpane-active #host', TEST_HOST)
-    await client.setValue('.ant-modal .ant-tabs-tabpane-active #username', TEST_USER)
-    await client.setValue('.ant-modal .ant-tabs-tabpane-active #password', TEST_PASS)
+    await client.setValue('.ant-modal .ant-tabs-tabpane-active #ssh-form_host', TEST_HOST)
+    await client.setValue('.ant-modal .ant-tabs-tabpane-active #ssh-form_username', TEST_USER)
+    await client.setValue('.ant-modal .ant-tabs-tabpane-active #ssh-form_password', TEST_PASS)
     const list0 = await client.elements('.ant-modal .ant-tabs-tabpane-active .tree-item')
-    await client.click('.ant-modal .ant-tabs-tabpane-active .ant-form-item-children .ant-btn.ant-btn-ghost')
+    await client.click('.ant-modal .ant-tabs-tabpane-active .ant-form-item .ant-btn.ant-btn-ghost')
     const list = await client.elements('.ant-modal .ant-tabs-tabpane-active .tree-item')
     await delay(100)
     expect(list.length).equal(list0.length + 1)
 
     log('list tab')
-    await client.click('.ant-modal .ant-tabs-tabpane-active .ant-tree-child-tree-open .tree-item')
+    await client.click('.ant-modal .ant-tabs-tabpane-active .tree-item')
     // await delay(55555555)
-    const list1 = await client.getAttribute('.ant-modal .ant-tabs-tabpane-active .ant-tree-child-tree-open .ant-tree-node-content-wrapper', 'class')
-    expect(list1.includes('ant-tree-node-selected'))
+    const list1 = await client.getAttribute('.ant-modal .ant-tabs-tabpane-active .ant-tree-treenode', 'class')
+    expect(list1.includes('ant-tree-treenode-selected'))
 
     // await delay(55555555)
 

@@ -34,7 +34,10 @@ describe('quick commands', function () {
     await client.click('.btns .anticon-setting')
     await delay(1500)
     log('click quick commands')
-    await client.click('.setting-tabs [role="tab"]', 4)
+    await client.execute(function () {
+      document.querySelectorAll('.setting-tabs [role="tab"]')[4].click()
+    })
+    // await client.click('.setting-tabs [role="tab"]', 4)
     client.setValue(
       '.setting-tabs-quick-commands input[autofocustrigger]',
       'ls'
@@ -45,7 +48,7 @@ describe('quick commands', function () {
     )
     const qmlist1 = await client.elements('.setting-tabs-quick-commands .item-list-unit')
     await delay(150)
-    await client.click('.setting-tabs-quick-commands .ant-btn')
+    await client.click('.setting-tabs-quick-commands .ant-btn-ghost')
     await delay(2550)
     const qmlist2 = await client.elements('.setting-tabs-quick-commands .item-list-unit')
     log(qmlist2.length)
