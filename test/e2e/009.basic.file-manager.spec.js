@@ -90,7 +90,7 @@ describe('local file manager', function () {
 
     // select all and del Control
     await client.rightClick('.ssh-wrap-show .virtual-file-local', 10, 10)
-    await client.click('.context-menu .anticon-check-square-o')
+    await client.click('.context-menu .anticon-check-square')
     await delay(20)
     await client.keys(['Delete'])
     await delay(20)

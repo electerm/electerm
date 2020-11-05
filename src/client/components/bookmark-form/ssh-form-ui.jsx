@@ -1,7 +1,7 @@
 /**
  * bookmark form
  */
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
   Button,
   Input,
@@ -54,6 +54,11 @@ export default function BookmarkFormUI (props) {
     handleFinish,
     submitUi
   ] = useSubmit(props)
+  useEffect(() => {
+    form.setFieldsValue({
+      category: props.currentBookmarkGroupId
+    })
+  }, [props.currentBookmarkGroupId])
   const [authType, setAuthType] = useState(props.formData.authType || authTypeMap.password)
   const qms = useQm(form, props.formData)
   const uis = useUI(props)

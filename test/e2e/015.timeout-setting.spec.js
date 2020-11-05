@@ -55,9 +55,9 @@ describe('timeout setting', function () {
     await delay(900)
     await client.click('.btns .anticon-plus-circle')
     await delay(500)
-    await client.setValue('#host', TEST_HOST)
-    await client.setValue('#username', TEST_USER)
-    await client.setValue('#password', TEST_PASS)
+    await client.setValue('#ssh-form_host', TEST_HOST)
+    await client.setValue('#ssh-form_username', TEST_USER)
+    await client.setValue('#ssh-form_password', TEST_PASS)
     await client.execute(function () {
       document.querySelector('.ant-modal .ant-tabs-tabpane-active .ant-btn-primary').click()
     })

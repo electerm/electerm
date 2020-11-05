@@ -59,7 +59,7 @@ describe('main window', function () {
     log('button:edit')
     await client.click('.btns .anticon-plus-circle')
     await delay(500)
-    const active = await $('.ant-modal .ant-tabs-line > .ant-tabs-bar .ant-tabs-tab-active')
+    const active = await $('.ant-modal .ant-tabs-line > .ant-tabs-nav-list .ant-tabs-tab-active')
     expect(!!active.value).equal(true)
 
     log('button:close modal')

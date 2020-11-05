@@ -257,7 +257,7 @@ export default class ItemListTree extends React.PureComponent {
     }
   ) => {
     const [id] = selectedKeys
-    if (!node.props.isLeaf) {
+    if (!node.isLeaf) {
       this.props.store.storeAssign({
         currentBookmarkGroupId: id
       })

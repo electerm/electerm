@@ -32,13 +32,13 @@ describe('terminal themes', function () {
     log('button:edit')
     await client.click('.btns .anticon-picture')
     await delay(500)
-    const sel = '.ant-modal .ant-tabs-line > .ant-tabs-bar .ant-tabs-tab-active'
+    const sel = '.ant-modal .ant-tabs-nav-list .ant-tabs-tab-active'
     const active = await client.element(sel)
     expect(!!active.elementId).equal(true)
     const text = await client.getText(sel)
     expect(text).equal(t('terminalThemes'))
 
-    const v = await client.getValue('.ant-modal #themeName')
+    const v = await client.getValue('.ant-modal #terminal-theme-form_themeName')
     const tx = await client.getText('.ant-modal .item-list-unit.active')
     const txd = await client.getText('.ant-modal .item-list-unit.current')
     expect(v).equal(t('newTheme'))
