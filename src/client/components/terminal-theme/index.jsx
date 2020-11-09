@@ -32,7 +32,7 @@ export default function ThemeForm (props) {
     } = res
     const update = {
       name: themeName,
-      themeConfig: convertTheme(themeText).themeConfig
+      ...convertTheme(themeText)
     }
     const update1 = {
       ...update,
@@ -58,24 +58,23 @@ export default function ThemeForm (props) {
   function beforeUpload (file) {
     const txt = window.getGlobal('fs')
       .readFileSync(file.path).toString()
-    const { name, themeConfig } = convertTheme(txt)
+    const { name, themeConfig, uiThemeConfig } = convertTheme(txt)
     form.setFieldsValue({
       themeName: name,
       themeText: convertThemeToText({
-        name, themeConfig
+        themeConfig, uiThemeConfig
       })
     })
     return false
   }
 
   const {
-    themeConfig,
     id,
     name: themeName
   } = props.formData
   const initialValues = {
     themeName,
-    themeText: convertThemeToText({ themeConfig, name: themeName })
+    themeText: convertThemeToText(props.formData)
   }
   const { autofocustrigger } = props.store
   const isDefaultTheme = id === defaultTheme.id
@@ -126,8 +125,9 @@ export default function ThemeForm (props) {
         }]}
       >
         <FormItem noStyle name='themeText'>
-          <TextArea rows={18} disabled={isDefaultTheme} />
+          <TextArea rows={5} disabled={isDefaultTheme} />
         </FormItem>
+        <p>Tip: <b>main</b> better be the same as <b>terminal:background</b></p>
         <div className='pd1t'>
           <Upload
             beforeUpload={beforeUpload}

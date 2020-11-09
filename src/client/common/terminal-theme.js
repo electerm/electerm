@@ -8,6 +8,7 @@ import copy from 'json-deep-copy'
 import { findOne } from './db'
 const { prefix } = window
 const t = prefix('terminalThemes')
+const terminalPrefix = 'terminal:'
 
 /**
  * build default themes
@@ -21,9 +22,9 @@ export const buildDefaultThemes = () => {
 /**
  * build new theme
  */
-export const buildNewTheme = () => {
+export const buildNewTheme = (theme = defaultTheme) => {
   return Object.assign(
-    copy(defaultTheme),
+    copy(theme),
     {
       id: '',
       name: t('newTheme')
@@ -39,15 +40,20 @@ export const buildNewTheme = () => {
  */
 export const convertThemeToText = (themeObj = {}, withName = false) => {
   const theme = themeObj || {}
-  const { themeConfig = {}, name } = theme
-  if (withName) {
-    themeConfig.themeName = name
-  }
-  return Object.keys(themeConfig).reduce((prev, key) => {
+  const { themeConfig = {}, name, uiThemeConfig = {} } = theme
+  const begin = withName
+    ? `themeName=${name}\n`
+    : ''
+  const res = Object.keys(uiThemeConfig).reduce((prev, key) => {
     return prev +
       (prev ? '\n' : '') +
+      key + '=' + uiThemeConfig[key]
+  }, begin)
+  return Object.keys(themeConfig).reduce((prev, key) => {
+    return prev +
+      (prev ? '\n' : '') + terminalPrefix +
       key + '=' + themeConfig[key]
-  }, '')
+  }, res)
 }
 
 /**
@@ -56,26 +62,28 @@ export const convertThemeToText = (themeObj = {}, withName = false) => {
  * @return {object}
  */
 export const convertTheme = (themeTxt) => {
-  const keys = [
-    ...Object.keys(defaultTheme.themeConfig),
-    'themeName'
-  ]
   return themeTxt.split('\n').reduce((prev, line) => {
     let [key = '', value = ''] = line.split('=')
     key = key.trim()
     value = value.trim()
-    if (!key || !value || !keys.includes(key)) {
+    if (!key || !value) {
       return prev
     }
     if (key === 'themeName') {
       prev.name = value.slice(0, 50)
     } else {
-      prev.themeConfig[key] = value
+      const isTerminal = key.startsWith(terminalPrefix)
+      key = key.replace(terminalPrefix, '')
+      if (isTerminal) {
+        prev.themeConfig[key] = value
+      } else {
+        prev.uiThemeConfig[key] = value
+      }
     }
     return prev
   }, {
-    name: 'unnamed theme',
-    themeConfig: {}
+    themeConfig: {},
+    uiThemeConfig: {}
   })
 }
 
@@ -99,7 +107,7 @@ export const exportTheme = async (themeId) => {
   const themes = await findOne('terminalThemes', themeId) || buildDefaultThemes()
   const theme = themes[themeId] || themes
   if (!theme) {
-    console.log('export error', themeId)
+    log.error('export error', themeId)
     return
   }
 

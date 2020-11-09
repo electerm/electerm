@@ -51,8 +51,9 @@ export default function BookmarkIndex (props) {
         >
           {
             Object.keys(connectionMap).map(k => {
+              const v = connectionMap[k]
               return (
-                <Radio.Button value={connectionMap[k]}>{connectionMap[k]}</Radio.Button>
+                <Radio.Button key={v} value={v}>{v}</Radio.Button>
               )
             })
           }

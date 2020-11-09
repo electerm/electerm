@@ -1,7 +1,7 @@
 /**
  * constants
  */
-
+import { getUiThemeConfig } from './ui-theme'
 import logoPath1Ref from '@electerm/electerm-resource/res/imgs/electerm-round-128x128.png'
 import logoPath2Ref from '@electerm/electerm-resource/res/imgs/electerm.png'
 import newTerm from '../common/new-terminal'
@@ -147,7 +147,8 @@ export const defaultTheme = {
     brightMagenta: '#FF9AC1',
     brightCyan: '#BCAAFE',
     brightWhite: '#E6E6E6'
-  }
+  },
+  uiThemeConfig: getUiThemeConfig(window.et.stylus)
 }
 
 export const eventTypes = {

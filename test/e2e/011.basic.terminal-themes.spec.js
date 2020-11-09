@@ -36,7 +36,7 @@ describe('terminal themes', function () {
     const active = await client.element(sel)
     expect(!!active.elementId).equal(true)
     const text = await client.getText(sel)
-    expect(text).equal(t('terminalThemes'))
+    expect(text).equal(t('uiThemes'))
 
     const v = await client.getValue('.ant-modal #terminal-theme-form_themeName')
     const tx = await client.getText('.ant-modal .item-list-unit.active')

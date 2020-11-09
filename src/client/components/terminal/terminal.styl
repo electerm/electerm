@@ -1,6 +1,7 @@
+@require '../../css/includes/theme-default'
 .terms-box
 .term-wrap
-  background #141314
+  background main
   position relative
 .loading-wrapper
   padding 30px
@@ -25,19 +26,19 @@
 //   .ant-tabs-nav-wrap
 //     background #333
 .terminal-control
-  background #141314
+  background main
   line-height 32px
   padding 0 10px
-.fileManager
-  .terminal-control
-    background #000
-  .type-tab
-    color #555
-    &:hover
-    &.active
-      color #999
-    &.active
-      border-bottom 1px solid #999
+// .fileManager
+//   .terminal-control
+//     background main-dark
+//   .type-tab
+//     color text
+//     &:hover
+//     &.active
+//       color text-dark
+//     &.active
+//       border-bottom 1px solid text-dark
 
 .terms-box
   position relative
@@ -46,30 +47,30 @@
 
 .vertical
   .term-wrap.not-first-term
-    border-top 1px solid #222
+    border-top 1px solid mmain-light
 .horizontal
   .term-wrap.not-first-term
-    border-left 1px solid #222
+    border-left 1px solid main-light
 .term-sftp-tabs
   margin-left 5px
 .type-tab
   display inline-block
   vertical-align middle
   line-height 30px
-  color #777
+  color text-dark
   margin-right 20px
   font-size 14px
   cursor pointer
   &:hover
   &.active
-    color #aaa
+    color text
   &.active
-    border-bottom 1px solid #777
+    border-bottom 1px solid text-dark
 .spliter
-  color #aaa
+  color text
   font-size 16px
   &:hover
-    color #fff
+    color text-light
 #container
   .xterm-viewport
     // background-color transparent !important
@@ -84,7 +85,7 @@
   left 0
   bottom 30px
   height 36px
-  background #000
+  background main
   right 0
 .terminal-footer-flex
   display flex

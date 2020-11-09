@@ -2,7 +2,7 @@
  * db upgrade
  */
 
-import { modal } from 'antd'
+import { Modal } from 'antd'
 import delay from '../common/wait'
 
 export default (store) => {
@@ -16,7 +16,7 @@ export default (store) => {
       dbVersion,
       packVersion
     } = shouldUpgrade
-    const mod = modal.info({
+    const mod = Modal.info({
       title: 'Upgrading database',
       content: `Upgrading database... from v${dbVersion} to v${packVersion} please wait`,
       keyboard: false,

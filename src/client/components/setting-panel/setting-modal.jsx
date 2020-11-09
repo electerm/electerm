@@ -155,7 +155,7 @@ export default class SettingModal extends Component {
             </Row>
           </TabPane>
           <TabPane
-            tab={t(settingMap.terminalThemes)}
+            tab={t('uiThemes')}
             key={settingMap.terminalThemes}
             className='setting-tabs-terminal-themes'
           >

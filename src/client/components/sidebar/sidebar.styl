@@ -1,3 +1,4 @@
+@require '../../css/includes/theme-default'
 .animate-fast
   animation-duration .2s
 .sidebar-panel
@@ -8,8 +9,8 @@
   z-index 200
   width 0
   overflow-y scroll
-  background #111
-  color #eee
+  background main-light
+  color text
   .item-list-unit:hover
     .list-item-remove
       display none !important
@@ -20,8 +21,8 @@
   width 36px
   z-index 100
   bottom 0
-  background #222
-  box-shadow 0px 0px 3px 3px rgba(0,0,0,0.05)
+  background main-dark
+  box-shadow 0px 0px 3px 3px alpha(main, .1)
   .item-list
     padding-right 0
 .type-bookmarks
@@ -34,16 +35,16 @@
   padding 14px 0
   text-align center
   .control-icon
-    color #999
+    color text-dark
     cursor pointer
     &:hover
-      color #fff
+      color text-light
 
 .menu-control
   width 28px
   height 28px
   border-radius 30px
-  color #ccc
+  color text
   font-size 16px
   text-align center
   display inline-block
@@ -55,13 +56,13 @@
 
 //btns
 .btns
-  background #222
-  border-color #444
+  background main-dark
+  border-color primary
   // .ant-select-arrow
   .open-about-icon
-    color #aaa
+    color text-dark
     &:hover
-      color #08c
+      color text-light
   // .ant-btn
   // .ant-select-selection
   //   background transparent
@@ -116,11 +117,11 @@
   animation-direction normal, alternate
 }
 .btns .upgrade-icon
-  color #31CACE
+  color success
 .close-info-modal
   cursor pointer
   &:hover
-    color #fff
+    color text-light
 .logo-filter
   filter invert(80%)
 

@@ -6,7 +6,6 @@ import { Component } from '../common/react-subx'
 import _ from 'lodash'
 import { Select } from 'antd'
 import copy from 'json-deep-copy'
-import './quick-commands.styl'
 
 const { Option } = Select
 const { prefix } = window
@@ -64,7 +63,7 @@ export default class QuickCommandsFooter extends Component {
           {
             all.map(qc => {
               return (
-                <Option value={qc.id} cmd={qc.command}>
+                <Option key={qc.id} value={qc.id} cmd={qc.command}>
                   {qc.name}
                 </Option>
               )
