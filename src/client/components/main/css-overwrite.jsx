@@ -6,7 +6,7 @@ import { PureComponent } from 'react'
 import fs from '../../common/fs'
 import { noTerminalBgValue } from '../../common/constants'
 
-export default class SystemMenu extends PureComponent {
+export default class CssOverwrite extends PureComponent {
   componentDidMount () {
     this.writeCss()
   }

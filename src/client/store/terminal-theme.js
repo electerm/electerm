@@ -55,7 +55,7 @@ export default store => {
       if (
         currentDefaultTheme &&
         (
-          !_.isEqual(currentDefaultTheme.themeConfig, defaultTheme.themeConfig) ||
+          !_.isEqual(currentDefaultTheme.themeConfig, defaultTheme.themeConfig) || !_.isEqual(currentDefaultTheme.uiThemeConfig, defaultTheme.uiThemeConfig) ||
           currentDefaultTheme.name !== defaultTheme.name
         )
       ) {

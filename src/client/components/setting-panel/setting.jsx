@@ -140,7 +140,7 @@ export default class Setting extends Component {
   renderToggle = (name, extra = null) => {
     const checked = !!this.props.config[name]
     return (
-      <div className='pd2b'>
+      <div className='pd2b' key={'rt' + name}>
         <Switch
           checked={checked}
           checkedChildren={e(name)}
@@ -458,12 +458,12 @@ export default class Setting extends Component {
     const props = {
       mode: 'multiple',
       onChange: this.handleChangeFont,
-      value: fontFamily.split(/, */g),
-      search: true
+      value: fontFamily.split(/, */g)
     }
     return (
       <Select
         {...props}
+        showSearch
       >
         {
           fonts.map(f => {

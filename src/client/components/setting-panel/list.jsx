@@ -50,7 +50,7 @@ export default class ItemList extends React.PureComponent {
   }
 
   renderDelBtn = item => {
-    if (!item.id || [settingSyncId, settingCommonId].includes(item.id)) {
+    if (!item.id || [settingSyncId, settingCommonId].includes(item.id) || item.id.startsWith('default')) {
       return null
     }
     const { shouldComfirmDel } = this.props

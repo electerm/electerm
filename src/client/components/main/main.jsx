@@ -15,6 +15,7 @@ import Sidebar from '../sidebar'
 import SystemMenu from './system-menu'
 // import SessionControl from '../session-control'
 import CssOverwrite from './css-overwrite'
+import UiTheme from './ui-theme'
 import classnames from 'classnames'
 import { isMac, isWin } from '../../common/constants'
 import './wrapper.styl'
@@ -73,6 +74,10 @@ export default class Index extends Component {
     return (
       <div className={cls}>
         <CssOverwrite {...config} />
+        <UiTheme
+          themeConfig={store.getUiThemeConfig()}
+          buildTheme={store.buildTheme}
+        />
         <TextEditor
           key={textEditorProps.id}
           {...textEditorProps}

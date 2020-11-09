@@ -266,7 +266,7 @@ export default class ItemListTree extends React.PureComponent {
         currentBookmarkGroupId: findBookmarkGroupId(this.props.store.bookmarkGroups, id)
       })
     }
-    const { bookmarks } = this.props
+    const bookmarks = copy(this.props.bookmarks)
     const bookmark = _.find(
       bookmarks,
       d => d.id === id
@@ -337,6 +337,7 @@ export default class ItemListTree extends React.PureComponent {
     }
     return (
       <FolderAddOutlined
+        key='new-tree'
         title={`${s('new')} ${c('bookmarkCategory')}`}
         onClick={(e) => this.addSubCat(e, item)}
         className='pointer tree-control-btn' />
@@ -353,6 +354,7 @@ export default class ItemListTree extends React.PureComponent {
     return (
       <EditOutlined
         title={e('edit')}
+        key='edit-tree'
         onClick={(e) => this.editItem(e, item, isGroup)}
         className='pointer tree-control-btn' />
     )
@@ -505,7 +507,7 @@ export default class ItemListTree extends React.PureComponent {
         this.state.keyword
       )
     return (
-      <div className={cls} key={item.id} title={title}>
+      <div className={cls} key={item.id || 'noid'} title={title}>
         <div
           className='tree-item-title elli'
         >
@@ -552,7 +554,7 @@ export default class ItemListTree extends React.PureComponent {
         ]
         : prev
     }, [])
-    return nodes.map(node => {
+    return nodes.map((node, i) => {
       return (
         <TreeNode
           key={node.id}
@@ -567,7 +569,7 @@ export default class ItemListTree extends React.PureComponent {
     const bookmarkGroups = bookmarkGroupIds.map(id => {
       return _.find(this.props.bookmarkGroups, d => d.id === id)
     }).filter(d => d)
-    return bookmarkGroups.map(node => {
+    return bookmarkGroups.map((node, i) => {
       const { bookmarkIds = [], id } = node
       return (
         <TreeNode
@@ -584,7 +586,7 @@ export default class ItemListTree extends React.PureComponent {
     })
   }
 
-  renderItem = (item) => {
+  renderItem = (item, i) => {
     const {
       bookmarkIds = [],
       bookmarkGroupIds = []

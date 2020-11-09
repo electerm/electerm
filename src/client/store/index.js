@@ -20,6 +20,7 @@ import settingExtend from './setting'
 import sidebarExtend from './sidebar'
 import sysMenuExtend from './system-menu'
 import tabExtend from './tab'
+import uiThemeExtend from './ui-theme'
 import terminalThemeExtend from './terminal-theme'
 import transferHistoryExtend from './transfer-history'
 import batchInputHistory from './batch-input-history'
@@ -102,6 +103,7 @@ sidebarExtend(store)
 sysMenuExtend(store)
 tabExtend(store)
 terminalThemeExtend(store)
+uiThemeExtend(store)
 transferHistoryExtend(store)
 batchInputHistory(store)
 

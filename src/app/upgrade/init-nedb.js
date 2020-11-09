@@ -5,42 +5,17 @@
 
 const { dbAction } = require('../lib/nedb')
 const log = require('../utils/log')
+const defaults = require('./db-defaults')
 
 async function initData () {
   log.info('start: init db')
-  await dbAction('bookmarkGroups', 'insert', {
-    _id: 'default',
-    title: 'default',
-    bookmarkIds: [],
-    bookmarkGroupIds: []
-  }).catch(log.error)
-  await dbAction('terminalThemes', 'insert', {
-    _id: 'default',
-    name: 'default',
-    themeConfig: {
-      foreground: '#bbbbbb',
-      background: '#141314',
-      cursor: '#b5bd68',
-      cursorAccent: '#1d1f21',
-      selection: 'rgba(255, 255, 255, 0.3)',
-      black: '#575757',
-      red: '#FF2C6D',
-      green: '#19f9d8',
-      yellow: '#FFB86C',
-      blue: '#45A9F9',
-      magenta: '#FF75B5',
-      cyan: '#B084EB',
-      white: '#CDCDCD',
-      brightBlack: '#757575',
-      brightRed: '#FF2C6D',
-      brightGreen: '#19f9d8',
-      brightYellow: '#FFCC95',
-      brightBlue: '#6FC1FF',
-      brightMagenta: '#FF9AC1',
-      brightCyan: '#BCAAFE',
-      brightWhite: '#E6E6E6'
-    }
-  }).catch(log.error)
+  for (const conf of defaults) {
+    const {
+      db, data
+    } = conf
+    console.log(db, data)
+    await dbAction(db, 'insert', data).catch(log.error)
+  }
   log.info('end: init db')
 }
 

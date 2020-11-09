@@ -59,6 +59,7 @@ function renderTabs (store) {
             <div
               className='sub-context-menu-item'
               title={title}
+              key={item.id}
               onClick={() => store.onChangeTabId(item.id)}
             >
               {title}
@@ -80,6 +81,7 @@ function renderHistory (store) {
             <div
               className='sub-context-menu-item'
               title={title}
+              key={item.id}
               onClick={() => store.onSelectHistory(item.id)}
             >
               {title}

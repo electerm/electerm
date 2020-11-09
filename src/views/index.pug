@@ -1,29 +1,39 @@
 
 doctype html
+- var isDev = env !== 'production'
 html
   head
     meta(charset='UTF-8')
     meta(http-equiv='x-ua-compatible' content='IE=edge')
     meta(name='viewport', content='width=device-width, initial-scale=1, shrink-to-fit=no')
     title #{siteName}
+
+    - if (isDev)
+      link(rel='stylesheet/less', type='text/css', href='../less/less-dev.less?' + version)
+    - else
+      link(rel='stylesheet/less', type='text/css', href='./external/less-prod.less?' + version)
     link(rel='stylesheet', href='css/electerm.styles.css?' + version)
     link(rel='stylesheet', href='css/basic.styles.css?' + version)
+
   body
     #container
     #content-loading
     script.
       window.et = !{JSON.stringify(_global)}
-
-    - if (env === 'development')
-      script.
-        window.debug = function () {
-          var args = Array.prototype.slice.call(arguments);
-          if (window.et.env === 'development') return console.log.apply(null, args);
-        }
-    - var tail = env !== 'development' ? '.production.min' : '.development'
+    script.
+      less = {
+        env: 'production',
+        javascriptEnabled: true
+      }
     script(src='../node_modules/lodash/lodash.min.js')
-    script(src='../node_modules/react/umd/react' + tail + '.js?' + version)
-    script(src='../node_modules/react-dom/umd/react-dom' + tail + '.js?' + version)
+    - if (isDev)
+      script(src='../node_modules/react/umd/react.development.js?' + version)
+      script(src='../node_modules/react-dom/umd/react-dom.development.js?' + version)
+      script(src='../node_modules/less/dist/less.js?' + version)
+    - else
+      script(src='./external/react.production.min.js?' + version)
+      script(src='./external/react-dom.production.min.js?' + version)
+      script(src='./external/less.min.js?' + version)
     script.
       window.et.onload = function() {
         document.body.removeChild(document.getElementById('content-loading'));

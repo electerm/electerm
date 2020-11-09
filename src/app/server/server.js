@@ -10,6 +10,7 @@ const {
   terminals
 } = require('./remote-common')
 const { listSerialPorts } = require('../lib/serial-port')
+const { toCss } = require('../lib/style')
 const { tokenElecterm } = process.env
 app.use(cors())
 
@@ -70,6 +71,14 @@ app.post('/terminals/:pid/size', verify, function (req, res) {
     term.resize(cols, rows)
   }
   res.end()
+})
+
+app.post('/to-css', verify, async function (req, res) {
+  const {
+    stylus
+  } = req.body
+  const r = await toCss(stylus)
+  res.send(r)
 })
 
 app.post('/terminals/:pid/run-cmd', verify, async function (req, res) {
