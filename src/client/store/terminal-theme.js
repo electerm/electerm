@@ -63,7 +63,8 @@ export default store => {
           themeId,
           {
             name: defaultTheme.name,
-            themeConfig: defaultTheme.themeConfig
+            themeConfig: defaultTheme.themeConfig,
+            uiThemeConfig: defaultTheme.uiThemeConfig
           }
         )
         message.info(
