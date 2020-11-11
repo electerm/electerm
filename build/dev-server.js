@@ -2,7 +2,7 @@ const express = require('express')
 const path = require('path')
 const { env } = process
 const devPort = env.devPort || 5570
-const host = env.host || 'localhost'
+const host = env.host || '127.0.0.1'
 
 module.exports = {
   headers: {

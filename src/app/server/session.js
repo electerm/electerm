@@ -308,7 +308,7 @@ class Terminal {
                   : `/tmp/.X11-unix/X${start}`
                 xserversock.connect(addr)
               } else {
-                xserversock.connect(start, 'localhost')
+                xserversock.connect(start, '127.0.0.1')
               }
             }
             retry()
