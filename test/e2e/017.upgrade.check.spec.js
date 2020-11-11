@@ -3,7 +3,6 @@ const delay = require('./common/wait')
 const log = require('./common/log')
 const { expect } = require('chai')
 const appOptions = require('./common/app-options')
-const prefixer = require('./common/lang')
 const extendClient = require('./common/client-extend')
 
 describe('init setting buttons', function () {
@@ -22,11 +21,9 @@ describe('init setting buttons', function () {
   })
 
   it('Upgrade check should work', async function () {
-    const { client, electron } = this.app
+    const { client } = this.app
     client.element = client.$
     extendClient(client)
-    const prefix = await prefixer(electron)
-    const e = prefix('common')
     await client.waitUntilWindowLoaded()
     await delay(500)
 
