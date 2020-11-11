@@ -34,7 +34,7 @@ describe('sftp file transfer', function () {
     const { client } = this.app
     extendClient(client)
     await client.waitUntilWindowLoaded()
-    await delay(500)
+    await delay(3500)
     await client.click('.btns .anticon-plus-circle')
     await delay(500)
     await client.setValue('#ssh-form_host', TEST_HOST)

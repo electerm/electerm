@@ -27,7 +27,7 @@ describe('terminal split', function () {
     const { client } = this.app
     extendClient(client)
     await client.waitUntilWindowLoaded()
-    await delay(500)
+    await delay(3500)
     await client.click('.ssh-wrap-show .term-controls .icon-split')
     await delay(200)
     let terms = await client.elements('.ssh-wrap-show .term-wrap')

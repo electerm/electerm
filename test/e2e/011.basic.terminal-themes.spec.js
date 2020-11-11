@@ -27,7 +27,7 @@ describe('terminal themes', function () {
     const e = prefix('common')
     const t = prefix('terminalThemes')
     await client.waitUntilWindowLoaded()
-    await delay(500)
+    await delay(3500)
 
     log('button:edit')
     await client.click('.btns .anticon-picture')
