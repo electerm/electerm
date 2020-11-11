@@ -42,7 +42,7 @@ export default function SyncForm (props) {
   }
 
   async function save (res) {
-    const { syncType } = this.props
+    const { syncType } = props
     const up = {
       [syncType + 'AccessToken']: res.token
     }
