@@ -36,7 +36,11 @@ export default class CssOverwrite extends PureComponent {
     } else if (terminalBackgroundImagePath && isWebImg) {
       st = `url(${terminalBackgroundImagePath})`
     }
-    if (!st) return ''
+    if (!st) {
+      return `#container .xterm-viewport {
+        background-image: url("./images/electerm-watermark.png");
+      }`
+    }
 
     const styles = [`background-image: ${st}`]
 
