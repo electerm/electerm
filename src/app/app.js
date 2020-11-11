@@ -201,7 +201,7 @@ async function createWindow () {
 
   if (isDev) {
     const { devPort = 5570 } = process.env
-    opts = `http://localhost:${devPort}`
+    opts = `http://127.0.0.1:${devPort}`
   }
 
   global.win.loadURL(opts)

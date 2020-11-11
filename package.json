@@ -120,7 +120,8 @@
     "xterm-addon-serialize": "0.2.0",
     "xterm-addon-unicode11": "0.1.1",
     "xterm-addon-web-links": "0.3.0",
-    "xterm-addon-webgl": "0.6.0"
+    "xterm-addon-webgl": "0.6.0",
+    "zmodem.js": "^0.1.10"
   },
   "dependencies": {
     "@electerm/electerm-locales": "^0.9.7",
@@ -147,8 +148,7 @@
     "serialport": "9.0.0",
     "shortid": "2.2.15",
     "socks": "2.3.3",
-    "ssh-config": "4.0.2",
-    "zmodem.js": "0.1.9"
+    "ssh-config": "4.0.2"
   },
   "standard": {
     "parser": "babel-eslint",
