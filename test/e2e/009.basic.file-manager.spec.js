@@ -33,7 +33,7 @@ describe('local file manager', function () {
     const { client } = this.app
     extendClient(client)
     await client.waitUntilWindowLoaded()
-    await delay(500)
+    await delay(3500)
 
     // click sftp tab
     await client.click('.ssh-wrap-show .term-sftp-tabs .type-tab', 1)

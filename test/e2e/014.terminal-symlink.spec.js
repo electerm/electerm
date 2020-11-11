@@ -27,7 +27,7 @@ describe('terminal symlink', function () {
     const { client } = this.app
     const cmd = 'rm -rf tmp-o.js link-o && touch tmp-o.js && ln -s tmp-o.js link-o'
     await client.waitUntilWindowLoaded()
-    await delay(500)
+    await delay(3500)
     await client.keys([...cmd.split(''), 'Enter'])
 
     log('click file manager tab')

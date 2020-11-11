@@ -37,7 +37,7 @@ describe('timeout setting', function () {
     const { client } = this.app
 
     await client.waitUntilWindowLoaded()
-
+    delay(3000)
     log('open setting')
     await client.execute(function () {
       document.querySelector('.btns .anticon-setting').click()

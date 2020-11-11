@@ -34,6 +34,7 @@ describe('sftp basic', function () {
     const { client } = this.app
     extendClient(client)
     await client.waitUntilWindowLoaded()
+    await delay(3500)
     const bookmarkCountPrev = await client.elements('.sidebar-list .bookmarks-panel .item-list-unit')
     const historyCountPrev = await client.elements('.sidebar-list .history-panel .item-list-unit')
     await delay(500)

@@ -26,7 +26,7 @@ describe('history', function () {
     const prefix = await prefixer(electron)
     const e = prefix('common')
     await client.waitUntilWindowLoaded()
-    await delay(500)
+    await delay(3500)
 
     log('button:edit')
     await client.click('.btns .anticon-plus-circle')

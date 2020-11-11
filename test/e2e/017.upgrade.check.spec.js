@@ -5,7 +5,7 @@ const { expect } = require('chai')
 const appOptions = require('./common/app-options')
 const extendClient = require('./common/client-extend')
 
-describe('init setting buttons', function () {
+describe('Upgrade check', function () {
   this.timeout(100000)
 
   beforeEach(async function () {
@@ -25,7 +25,7 @@ describe('init setting buttons', function () {
     client.element = client.$
     extendClient(client)
     await client.waitUntilWindowLoaded()
-    await delay(500)
+    await delay(2500)
 
     log('button:edit')
     await client.click('.btns .open-about-icon')

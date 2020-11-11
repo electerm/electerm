@@ -24,7 +24,7 @@ describe('symbolic links support', function () {
   it('symbolic links support works', async function () {
     const { client } = this.app
     await client.waitUntilWindowLoaded()
-    await delay(500)
+    await delay(3500)
     const tmp = 'tmp-' + (+new Date())
     const cmd = `mkdir ${tmp} && cd ${tmp} && touch x.js && mkdir xx && ln -s x.js xk && ln -s xx xxk`
     await delay(101)

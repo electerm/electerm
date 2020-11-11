@@ -23,7 +23,7 @@ describe('tabs', function () {
     const { client } = this.app
     extendClient(client)
     await client.waitUntilWindowLoaded()
-    await delay(500)
+    await delay(3500)
     const tabs = await client.elements('.tabs .tab')
     const tabsLenBefore = tabs.length
     await client.doubleClick('.tab')
@@ -39,7 +39,7 @@ describe('tabs', function () {
     const { client } = this.app
     extendClient(client)
     await client.waitUntilWindowLoaded()
-    await delay(500)
+    await delay(3500)
     const tabs = await client.elements('.tabs .tab')
     const tabsLenBefore = tabs.length
     await client.click('.tabs .tabs-add-btn')

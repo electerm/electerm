@@ -30,7 +30,7 @@ describe('quick commands', function () {
     await client.waitUntilWindowLoaded()
 
     log('open setting')
-    await delay(1000)
+    await delay(2000)
     await client.click('.btns .anticon-setting')
     await delay(1500)
     log('click quick commands')
