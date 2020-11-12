@@ -38,7 +38,7 @@ describe('history', function () {
     expect(text).equal(e('bookmarks'))
 
     log('tab it')
-    await client.exec(()'.ant-modal .ant-tabs-nav-list .ant-tabs-tab')
+    await client.click('.ant-modal .ant-tabs-nav-list .ant-tabs-tab')
 
     await delay(1000)
     const text4 = await client.getText(sel)
