@@ -13,6 +13,15 @@ import {
 import fetch from '../common/fetch'
 import copy from 'json-deep-copy'
 
+function configToLessConfig (conf) {
+  return Object.keys(conf).reduce((p, k) => {
+    return {
+      ...p,
+      ['@' + k]: conf[k]
+    }
+  }, {})
+}
+
 export default store => {
   Object.assign(store, {
     async toCss (stylus) {
@@ -40,7 +49,7 @@ export default store => {
       }, {})
     },
 
-    async buildTheme (config) {
+    buildTheme (config) {
       let { stylus } = window.et
       const keys = Object.keys(config)
       for (const key of keys) {
@@ -48,8 +57,8 @@ export default store => {
         const v = config[key]
         stylus = stylus.replace(reg, `${key} = ${v}\n`)
       }
-      const css = await store.toCss(stylus)
-      return css
+      const lessConf = configToLessConfig(config)
+      return window.getGlobal('toCss')(stylus, lessConf)
     },
 
     getUiThemeConfig () {

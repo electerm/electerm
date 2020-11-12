@@ -7,33 +7,31 @@ html
     meta(http-equiv='x-ua-compatible' content='IE=edge')
     meta(name='viewport', content='width=device-width, initial-scale=1, shrink-to-fit=no')
     title #{siteName}
-
-    - if (isDev)
-      link(rel='stylesheet/less', type='text/css', href='../less/less-dev.less?' + version)
-    - else
-      link(rel='stylesheet/less', type='text/css', href='./external/less-prod.less?' + version)
+    style.
+      #content-loading {
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background: #141314 50% 50% no-repeat url("./images/electerm-watermark.png")
+      }
+    style(id='less-css').
     link(rel='stylesheet', href='css/electerm.styles.css?' + version)
     link(rel='stylesheet', href='css/basic.styles.css?' + version)
-
+    style(id='theme-css').
   body
     #container
     #content-loading
     script.
       window.et = !{JSON.stringify(_global)}
-    script.
-      less = {
-        env: 'production',
-        javascriptEnabled: true
-      }
     script(src='../node_modules/lodash/lodash.min.js')
     - if (isDev)
       script(src='../node_modules/react/umd/react.development.js?' + version)
       script(src='../node_modules/react-dom/umd/react-dom.development.js?' + version)
-      script(src='../node_modules/less/dist/less.js?' + version)
     - else
       script(src='./external/react.production.min.js?' + version)
       script(src='./external/react-dom.production.min.js?' + version)
-      script(src='./external/less.min.js?' + version)
     script.
       window.et.onload = function() {
         document.body.removeChild(document.getElementById('content-loading'));

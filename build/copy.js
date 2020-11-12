@@ -16,10 +16,10 @@ const from2 = resolve(
   __dirname,
   '../node_modules/react-dom/umd/react-dom.production.min.js'
 )
-const from3 = resolve(
-  __dirname,
-  '../node_modules/less/dist/less.min.js'
-)
+// const from3 = resolve(
+//   __dirname,
+//   '../node_modules/less/dist/less.min.js'
+// )
 const from4 = resolve(
   __dirname,
   '../node_modules/antd'
@@ -61,11 +61,13 @@ const copy = new CopyWebpackPlugin({
     from: from2,
     to: to3,
     force: true
-  }, {
-    from: from3,
-    to: to3,
-    force: true
-  }, {
+  },
+  // , {
+  //   from: from3,
+  //   to: to3,
+  //   force: true
+  // }
+  {
     from: from5,
     to: to3,
     force: true

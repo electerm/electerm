@@ -19,6 +19,10 @@ const sshConfigItems = require('./lib/ssh-config')
 const lookup = require('./utils/lookup')
 const os = require('os')
 const { resolve } = require('path')
+const {
+  toCss,
+  clearCssCache
+} = require('./lib/style')
 const { transferKeys } = require('./server/transfer')
 const { saveUserConfig } = require('./lib/user-config-controller')
 const { init, changeHotkeyReg } = require('./lib/shortcut')
@@ -94,6 +98,7 @@ async function createWindow () {
     title: packInfo.name,
     frame: false,
     transparent: true,
+    backgroundColor: '#ff333333',
     webPreferences: {
       nodeIntegration: true
     },
@@ -119,6 +124,8 @@ async function createWindow () {
     : await getExitStatus()
 
   Object.assign(global.et, {
+    toCss,
+    clearCssCache,
     listSerialPorts,
     loadFontList,
     extIconPath,

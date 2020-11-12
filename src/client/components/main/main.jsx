@@ -77,6 +77,7 @@ export default class Index extends Component {
         <UiTheme
           themeConfig={store.getUiThemeConfig()}
           buildTheme={store.buildTheme}
+          configLoaded={store.configLoaded}
         />
         <TextEditor
           key={textEditorProps.id}

@@ -30,7 +30,7 @@ export default (store) => {
     ext.openedCategoryIds = await getData('openedCategoryIds') || ext.bookmarkGroups.map(b => b.id)
     ext.lastDataUpdateTime = await getData('lastDataUpdateTime') || 0
     ext.config = await window.getGlobal('getAllConfig')()
-    await store.checkLastSession()
+    ext.configLoaded = true
     Object.assign(store, ext)
 
     await store.checkDefaultTheme()

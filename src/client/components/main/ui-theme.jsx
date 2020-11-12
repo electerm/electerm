@@ -6,44 +6,32 @@ import { useEffect } from 'react'
 import { useDelta, useConditionalEffect } from 'react-delta'
 import eq from 'fast-deep-equal'
 
-const themeDomId = 'ui-theme'
+const themeDomId = 'theme-css'
+const lessDomId = 'less-css'
 
 export default function UiTheme (props) {
-  const { themeConfig, buildTheme } = props
+  const { themeConfig, buildTheme, configLoaded } = props
+  if (!configLoaded) {
+    return null
+  }
   const delta = useDelta((themeConfig))
-  function configToLessConfig (conf) {
-    return Object.keys(conf).reduce((p, k) => {
-      return {
-        ...p,
-        ['@' + k]: conf[k]
-      }
-    }, {})
-  }
-
-  function updateLess () {
-    window.less.modifyVars(configToLessConfig(themeConfig))
-  }
 
   async function applyTheme () {
-    const style = document.createElement('style')
-    style.type = 'text/css'
-    style.innerHTML = await buildTheme(themeConfig)
-    style.id = themeDomId
-    document.getElementsByTagName('head')[0].appendChild(style)
-    updateLess()
+    const stylus = document.getElementById(themeDomId)
+    const less = document.getElementById(lessDomId)
+    const {
+      stylusCss,
+      lessCss
+    } = await buildTheme(themeConfig)
+    stylus.innerHTML = stylusCss
+    less.innerHTML = lessCss
   }
 
-  async function updateTheme () {
-    const style = document.getElementById(themeDomId)
-    const css = await buildTheme(themeConfig)
-    style.innerHTML = css
-    updateLess()
-  }
   useEffect(() => {
     applyTheme()
   }, [])
   useConditionalEffect(() => {
-    updateTheme()
+    applyTheme()
   }, delta && delta.prev && !eq(delta.prev, delta.curr))
   return null
 }
