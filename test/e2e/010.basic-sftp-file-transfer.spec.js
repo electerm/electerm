@@ -147,7 +147,7 @@ describe('sftp file transfer', function () {
     await client.keys(['Enter'])
     await delay(1800)
     await client.rightClick('.ssh-wrap-show .file-list.remote .sftp-item.real-file-item .file-bg', 10, 10)
-    await delay(323)
+    await delay(1123)
     await client.click('.context-menu .anticon-cloud-download')
     await delay(3000)
     const localFileList001 = await client.elements('.ssh-wrap-show .file-list.local .sftp-item')

@@ -37,7 +37,6 @@ async function toCss (stylus, config) {
   if (
     cache &&
     cache.version === version &&
-    cache.isDev === isDev &&
     eq(cache.config, config)
   ) {
     return cache
