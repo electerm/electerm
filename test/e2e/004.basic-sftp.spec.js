@@ -158,7 +158,7 @@ describe('sftp basic', function () {
 
     // enter folder
     await client.doubleClick('.ssh-wrap-show .file-list.remote .sftp-item.real-file-item .file-bg')
-    await delay(500000000)
+    await delay(5000)
     const pathCurrentRemote = await client.getValue('.ssh-wrap-show .sftp-remote-section .sftp-title input')
     expect(pathCurrentRemote.includes(fname0)).equal(true)
     const remoteFileList0 = await client.elements('.ssh-wrap-show .file-list.remote .sftp-item')
