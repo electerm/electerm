@@ -13,7 +13,6 @@ async function initData () {
     const {
       db, data
     } = conf
-    console.log(db, data)
     await dbAction(db, 'insert', data).catch(log.error)
   }
   log.info('end: init db')

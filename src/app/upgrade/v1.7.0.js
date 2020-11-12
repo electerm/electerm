@@ -8,11 +8,23 @@ const log = require('../utils/log')
 const defaults = require('./db-defaults')
 
 async function fixAll () {
-  const q = {
-    _id: 'default'
+  const defaultThemeConfig = defaults[0].data[0]
+  const defaultLightThemeConfig = defaults[0].data[1]
+  const all = await dbAction('terminalThemes', 'find', {}).catch(log.error) || []
+  for (const item of all) {
+    console.log(item)
+    const q = {
+      _id: item.id || item._id
+    }
+    const updates = q._id === 'default'
+      ? defaultThemeConfig
+      : {
+        ...item,
+        uiThemeConfig: defaultThemeConfig.uiThemeConfig
+      }
+    await dbAction('terminalThemes', 'update', q, updates).catch(log.error)
   }
-  await dbAction('terminalThemes', 'update', q, defaults[0].data[0]).catch(log.error)
-  await dbAction('terminalThemes', 'insert', defaults[0].data[1]).catch(log.error)
+  await dbAction('terminalThemes', 'insert', defaultLightThemeConfig).catch(log.error)
   log.info('end: update db')
 }
 
