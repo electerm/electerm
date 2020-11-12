@@ -152,13 +152,13 @@ describe('sftp basic', function () {
     const fname0 = '00000test-electerm-remote' + generate()
     await client.setValue('.ssh-wrap-show .sftp-remote-section .sftp-item input', fname0)
     await client.doubleClick('.ssh-wrap-show .sftp-title-wrap')
-    await delay(2500)
+    await delay(3500)
     const remoteFileList = await client.elements('.ssh-wrap-show .file-list.remote .sftp-item')
     expect(remoteFileList.length).equal(remoteFileListBefore.length + 1)
 
     // enter folder
     await client.doubleClick('.ssh-wrap-show .file-list.remote .sftp-item.real-file-item .file-bg')
-    await delay(5000)
+    await delay(500000000)
     const pathCurrentRemote = await client.getValue('.ssh-wrap-show .sftp-remote-section .sftp-title input')
     expect(pathCurrentRemote.includes(fname0)).equal(true)
     const remoteFileList0 = await client.elements('.ssh-wrap-show .file-list.remote .sftp-item')
