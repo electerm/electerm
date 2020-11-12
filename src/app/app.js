@@ -100,7 +100,8 @@ async function createWindow () {
     transparent: true,
     backgroundColor: '#ff333333',
     webPreferences: {
-      nodeIntegration: true
+      nodeIntegration: true,
+      enableRemoteModule: true
     },
     titleBarStyle: 'customButtonsOnHover',
     icon: iconPath

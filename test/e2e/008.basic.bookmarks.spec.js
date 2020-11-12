@@ -35,7 +35,7 @@ describe('bookmarks', function () {
 
     log('button:edit')
     await client.click('.btns .anticon-plus-circle')
-    await delay(500)
+    await delay(1500)
     const sel = '.ant-modal .ant-tabs-nav-list .ant-tabs-tab-active'
     const active = await client.element(sel)
     expect(!!active.elementId).equal(true)
