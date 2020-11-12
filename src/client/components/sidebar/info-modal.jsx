@@ -15,6 +15,7 @@ import _ from 'lodash'
 import {
   logoPath1,
   logoPath2,
+  logoPath3,
   packInfo
 } from '../../common/constants'
 import LogView from './log-view'
@@ -87,6 +88,7 @@ export default function ({
           <TabPane tab={m('about')} key='1'>
             <h1 className='mg3y font50'>
               <img src={logoPath2} height={80} className='iblock mwm-100 mg1l mg1r logo-filter rainbow-3' />
+              <img src={logoPath3} height={80} className='hide' />
               <sup>
                 <img src={logoPath1} height={28} className='iblock mwm-100 mg1r' />
               </sup>
