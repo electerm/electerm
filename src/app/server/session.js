@@ -254,10 +254,8 @@ class Terminal {
       const shellOpts = {
         x11
       }
-      if (initOptions.envLang) {
-        shellOpts.env = {
-          LANG: initOptions.envLang
-        }
+      shellOpts.env = {
+        LANG: initOptions.envLang || 'en_US.UTF-8'
       }
       const shellWindow = this.getShellWindow()
       const run = (info) => {

@@ -18,7 +18,8 @@ import {
   authTypeMap,
   defaultUserName,
   defaultLoginScriptDelay,
-  newBookmarkIdPrefix
+  newBookmarkIdPrefix,
+  defaultEnvLang
 } from '../../common/constants'
 import { formItemLayout, tailFormItemLayout } from '../../common/form-layout'
 import defaultSettings from '../../../app/common/default-setting'
@@ -83,6 +84,7 @@ export default function BookmarkFormUI (props) {
     id: '',
     term: defaultSettings.terminalType,
     encode: encodes[0],
+    envLang: defaultEnvLang,
     enableSftp: true,
     category: initBookmarkGroupId,
     proxy: {
