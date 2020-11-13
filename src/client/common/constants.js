@@ -203,3 +203,4 @@ export const syncTokenCreateUrls = {
 export const settingSyncId = 'setting-sync'
 export const settingCommonId = 'setting-common'
 export const defaultEnvLang = 'en_US.UTF-8'
+export const appUpdateCheck = 'check-app-update'

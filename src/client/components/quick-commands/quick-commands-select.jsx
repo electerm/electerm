@@ -60,6 +60,7 @@ export default class QuickCommandsFooter extends Component {
           open={this.state.open}
           placeholder={e('quickCommands')}
           onSelect={this.onSelect}
+          autoFocus
           size='small'
           onMouseEnter={() => this.setState({ open: true })}
           onBlur={() => this.setState({ open: false })}

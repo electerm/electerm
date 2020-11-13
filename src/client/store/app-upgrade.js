@@ -2,12 +2,12 @@
  * app upgrade
  */
 
+import { appUpdateCheck } from '../common/constants'
+
 export default store => {
-  store.onCheckUpdate = (noSkipVersion = false) => {
-    if (store.onCheckUpdating) {
-      return
-    }
-    const prefix = noSkipVersion ? 'noSkipVersion' : ''
-    store.shouldCheckUpdate = prefix + new Date()
+  store.onCheckUpdate = () => {
+    window.postMessage({
+      action: appUpdateCheck
+    }, '*')
   }
 }

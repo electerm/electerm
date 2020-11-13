@@ -59,7 +59,6 @@ export default class Index extends Component {
       contextMenuVisible,
       fileInfoModalProps,
       fileModeModalProps,
-      shouldCheckUpdate,
       textEditorProps,
       storeAssign,
       config
@@ -88,7 +87,6 @@ export default class Index extends Component {
           store={store}
           upgradeInfo={store.upgradeInfo}
           addTab={store.addTab}
-          shouldCheckUpdate={shouldCheckUpdate}
         />
         <ContextMenu
           {...contextMenuProps}
