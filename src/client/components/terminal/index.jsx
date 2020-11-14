@@ -19,7 +19,7 @@ import {
   SwitcherOutlined
 } from '@ant-design/icons'
 
-import { Spin, Modal, Button, Checkbox } from 'antd'
+import { Spin, Modal, Button, Checkbox, notification } from 'antd'
 import Input from '../common/input-auto-focus'
 import classnames from 'classnames'
 import './terminal.styl'
@@ -31,7 +31,8 @@ import {
   isMac,
   terminalSshConfigType,
   transferTypeMap,
-  defaultLoginScriptDelay
+  defaultLoginScriptDelay,
+  maxZmodemUploadSize
 } from '../../common/constants'
 import deepCopy from 'json-deep-copy'
 import { readClipboard, copy } from '../../common/clipboard'
@@ -48,6 +49,7 @@ import { Terminal } from 'xterm'
 import TerminalInfoIcon from '../terminal-info'
 import Qm from '../quick-commands/quick-commands-select'
 import BatchInput from './batch-input'
+import filesize from 'filesize'
 
 const { prefix } = window
 const e = prefix('ssh')
@@ -378,6 +380,17 @@ export default class Term extends Component {
   beforeZmodemUpload = (file, files) => {
     if (!files.length) {
       return false
+    }
+    const f = files[0]
+    if (f.size > maxZmodemUploadSize) {
+      notification.error({
+        message: `Only support upload file size less than ${filesize(maxZmodemUploadSize)}`,
+        duration: 8
+      })
+      if (this.zsession) {
+        this.zsession.abort()
+      }
+      return this.onZmodemEnd()
     }
     const th = this
     Zmodem.Browser.send_files(
