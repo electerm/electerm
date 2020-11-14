@@ -7,6 +7,7 @@
 import { memo } from 'react'
 import { Progress, Button, Upload } from 'antd'
 import { transferTypeMap } from '../../common/constants'
+import Link from '../common/external-link'
 import './zmodem.styl'
 
 const { prefix } = window
@@ -49,6 +50,10 @@ export default memo((props) => {
           </Upload>
         </div>
         {cancelBtn}
+        <h4 className='pd2t pd2x'>Only support upload small files due to known issue:</h4>
+        <h4 className='pd2b pd2x'>
+          <Link to='https://github.com/FGasper/zmodemjs/issues/11'>https://github.com/FGasper/zmodemjs/issues/11</Link>
+        </h4>
       </div>
     )
   }

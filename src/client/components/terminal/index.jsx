@@ -1121,13 +1121,13 @@ export default class Term extends Component {
               width: '100%'
             }}
           />
-          <ZmodemTransfer
-            zmodemTransfer={zmodemTransfer}
-            cancelZmodem={this.cancelZmodem}
-            beforeZmodemUpload={this.beforeZmodemUpload}
-          />
         </div>
         {this.renderFooter()}
+        <ZmodemTransfer
+          zmodemTransfer={zmodemTransfer}
+          cancelZmodem={this.cancelZmodem}
+          beforeZmodemUpload={this.beforeZmodemUpload}
+        />
         <Spin className='loading-wrapper' spinning={loading} />
       </div>
     )
