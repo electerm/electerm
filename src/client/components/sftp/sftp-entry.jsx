@@ -429,6 +429,19 @@ export default class Sftp extends Component {
     this.setState(...args)
   }
 
+  addTransferList = list => {
+    this.setState((old) => {
+      let transferList = deepCopy(old.transferList)
+      transferList = [
+        ...transferList,
+        ...list
+      ]
+      return {
+        transferList
+      }
+    })
+  }
+
   computeListHeight = () => {
     const hasTransports = this.state.transports.length
     return this.props.height - 15 - (hasTransports ? 300 : 0)
@@ -773,6 +786,7 @@ export default class Sftp extends Component {
         'selectAll',
         'getFileList',
         'onGoto',
+        'addTransferList',
         'renderDelConfirmTitle'
       ]),
       ..._.pick(this.state, [
@@ -1050,7 +1064,9 @@ export default class Sftp extends Component {
           localList={this.localList}
           remoteList={this.remoteList}
           sftp={this.sftp}
+          sessionId={this.props.sessionId}
           store={this.props.store}
+          addTransferList={this.addTransferList}
           host={this.props.tab.host}
           transferToConfirm={this.state.transferToConfirm}
         />

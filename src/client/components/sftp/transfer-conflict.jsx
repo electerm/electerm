@@ -3,7 +3,7 @@
  * when list changes, do transfer and other op
  */
 
-import { useRef } from 'react'
+import { useRef, useEffect } from 'react'
 import { useDelta, useConditionalEffect } from 'react-delta'
 import { maxTransport } from '../../common/constants'
 import { getLocalFileInfo, getRemoteFileInfo, getFolderFromFilePath, getFileExt } from './file-read'
@@ -286,5 +286,26 @@ export default (props) => {
       clearTimeout(timer.current)
     }
   }, delta && delta.prev && !eq(delta.prev, delta.curr))
+  function unwatch () {
+    window.removeEventListener('message', onTransferEvent)
+  }
+  function onTransferEvent (e) {
+    const {
+      data = {}
+    } = e || {}
+    if (
+      data.type === 'add-transfer' &&
+      data.sessionId === props.sessionId
+    ) {
+      props.addTransferList(data.transfers)
+    }
+  }
+  function watchEvent () {
+    window.addEventListener('message', onTransferEvent)
+  }
+  useEffect(() => {
+    watchEvent()
+    return unwatch
+  }, [])
   return null
 }

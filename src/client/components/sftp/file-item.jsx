@@ -138,19 +138,6 @@ export default class FileSection extends React.Component {
       : transferTypeMap.download
   }
 
-  addTransferList = list => {
-    this.props.modifier((old) => {
-      let transferList = copy(old.transferList)
-      transferList = [
-        ...transferList,
-        ...list
-      ]
-      return {
-        transferList
-      }
-    })
-  }
-
   onPaste = async () => {
     const { type } = this.state.file
     const path = this.props[type + 'Path']
@@ -175,7 +162,7 @@ export default class FileSection extends React.Component {
         operation
       })
     }
-    this.addTransferList(res)
+    this.props.addTransferList(res)
   }
 
   onDrag = () => {}
@@ -672,13 +659,13 @@ export default class FileSection extends React.Component {
         ...arr
       ]
     }
-    this.addTransferList(all)
+    this.props.addTransferList(all)
   }
 
   transfer = async () => {
     const { file } = this.state
     const arr = this.getTransferList(file)
-    this.addTransferList(arr)
+    this.props.addTransferList(arr)
   }
 
   doEnterDirectory = (e) => {

@@ -238,8 +238,14 @@ export default class SessionWrapper extends Component {
                 pane,
                 ..._.pick(
                   this,
-                  ['setActive', 'doSplit', 'setSessionState', 'handleShowInfo', 'hideInfoPanel']
-                ),
+                  [
+                    'setActive',
+                    'doSplit',
+                    'setSessionState',
+                    'handleShowInfo',
+                    'onChangePane',
+                    'hideInfoPanel'
+                  ]),
                 ...this.computePosition(t.position / 10)
               }
               return (

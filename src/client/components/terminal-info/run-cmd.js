@@ -169,7 +169,7 @@ function formatNetwork (traffic, ips) {
 //   return final
 // }
 
-async function runCmds (props, cmds) {
+export async function runCmds (props, cmds) {
   const {
     host,
     port,

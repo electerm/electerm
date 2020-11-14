@@ -5,6 +5,7 @@ import fetch, { handleErr } from '../../common/fetch'
 import { mergeProxy } from '../../common/merge-proxy'
 import { generate } from 'shortid'
 import _ from 'lodash'
+import { runCmds } from '../terminal-info/run-cmd'
 
 import {
   BorderHorizontalOutlined,
@@ -48,8 +49,10 @@ import keyPressed from '../../common/key-pressed'
 import { Terminal } from 'xterm'
 import TerminalInfoIcon from '../terminal-info'
 import Qm from '../quick-commands/quick-commands-select'
+import resolve from '../../common/resolve'
 import BatchInput from './batch-input'
 import filesize from 'filesize'
+import { getFolderFromFilePath } from '../sftp/file-read'
 
 const { prefix } = window
 const e = prefix('ssh')
@@ -377,20 +380,48 @@ export default class Term extends Component {
       .catch(this.props.store.onError)
   }
 
+  transferBySftp = async (files) => {
+    const pwd = await this.getPwd()
+    const transfers = files.map(f => {
+      const { name } = getFolderFromFilePath(f.path)
+      return {
+        typeFrom: typeMap.local,
+        typeTo: typeMap.remote,
+        fromPath: f.path,
+        toPath: resolve(pwd, name),
+        id: generate()
+      }
+    })
+    window.postMessage({
+      type: 'add-transfer',
+      sessionId: this.props.sessionId,
+      transfers
+    }, '*')
+    this.props.onChangePane(paneMap.sftp)
+  }
+
   beforeZmodemUpload = (file, files) => {
     if (!files.length) {
       return false
     }
     const f = files[0]
     if (f.size > maxZmodemUploadSize) {
-      notification.error({
-        message: `Only support upload file size less than ${filesize(maxZmodemUploadSize)}`,
-        duration: 8
-      })
       if (this.zsession) {
         this.zsession.abort()
       }
-      return this.onZmodemEnd()
+      this.onZmodemEnd()
+      if (this.props.tab.enableSftp) {
+        notification.info({
+          message: `Uploading by sftp`,
+          duration: 8
+        })
+        return this.transferBySftp(files)
+      } else {
+        notification.error({
+          message: `Only support upload file size less than ${filesize(maxZmodemUploadSize)}`,
+          duration: 8
+        })
+      }
     }
     const th = this
     Zmodem.Browser.send_files(
@@ -968,6 +999,20 @@ export default class Term extends Component {
       isActive: this.isActiveTerminal()
     }
     this.props.handleShowInfo(infoProps)
+  }
+
+  getPwd = async () => {
+    const { sessionId, config } = this.props
+    const { pid } = this.state
+    const prps = {
+      host: config.host,
+      port: config.port,
+      pid,
+      sessionId
+    }
+    const result = await runCmds(prps, ['pwd'])
+    console.log(result[0])
+    return result[0].trim()
   }
 
   renderPromoteModal = () => {
