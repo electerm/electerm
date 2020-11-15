@@ -382,6 +382,9 @@ export default class Term extends Component {
 
   transferBySftp = async (files) => {
     const pwd = await this.getPwd()
+    if (!pwd) {
+      return
+    }
     const transfers = files.map(f => {
       const { name } = getFolderFromFilePath(f.path)
       return {
@@ -1011,8 +1014,8 @@ export default class Term extends Component {
       sessionId
     }
     const result = await runCmds(prps, ['pwd'])
-    console.log(result[0])
-    return result[0].trim()
+      .catch(this.props.store.onError)
+    return result ? result[0].trim() : ''
   }
 
   renderPromoteModal = () => {

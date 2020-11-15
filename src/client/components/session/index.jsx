@@ -20,6 +20,7 @@ import ResizeWrap from '../common/resize-wrap'
 import keyControlPressed from '../../common/key-control-pressed'
 import keyPressed from '../../common/key-pressed'
 import TerminalInfoContent from '../terminal-info/content'
+import './session.styl'
 
 const rebuildPosition = terminals => {
   const indexs = terminals.map(t => t.position).sort((a, b) => a - b)
@@ -346,6 +347,7 @@ export default class SessionWrapper extends Component {
                   onClick={() => this.onChangePane(types[i])}
                 >
                   {e(type)}
+                  <span className='type-tab-line' />
                 </span>
               )
             })
@@ -407,9 +409,17 @@ export default class SessionWrapper extends Component {
       // isActive: this.isActiveTerminal(),
       hideInfoPanel: this.hideInfoPanel
     }
+    const cls = classnames(
+      'term-sftp-box',
+      pane,
+      splitDirection,
+      {
+        'is-transporting': this.props.tab.isTransporting
+      }
+    )
     return (
       <div
-        className={'term-sftp-box ' + pane + ' ' + splitDirection}
+        className={cls}
         id={`is-${this.props.tab.id}`}
       >
         {this.renderControl()}
