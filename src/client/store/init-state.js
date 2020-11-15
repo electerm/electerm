@@ -107,7 +107,6 @@ export default {
   menuOpened: false,
 
   // update
-  shouldCheckUpdate: 0,
   upgradeInfo: {},
 
   // serial list related

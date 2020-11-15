@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { CloseOutlined, MinusSquareOutlined, UpCircleOutlined } from '@ant-design/icons'
 import { Button } from 'antd'
 import { getLatestReleaseInfo, getLatestReleaseVersion } from '../../common/update-check'
@@ -18,9 +18,13 @@ const c = prefix('common')
 const installSrc = getGlobal('installSrc')
 
 export default function Upgrade (props) {
+  const [showCount, setShowCount] = useState(0)
   const update = useRef(null)
   function onEvent (e) {
     if (e && e.data && e.data.action === appUpdateCheck) {
+      setShowCount(old => {
+        return old + 1
+      })
       getLatestRelease(true)
     }
   }
@@ -225,10 +229,10 @@ export default function Upgrade (props) {
   if (error) {
     return renderError(error)
   }
-  if (!shouldUpgrade && !props.shouldCheckUpdate) {
+  if (!shouldUpgrade && !showCount) {
     return null
   }
-  if (!shouldUpgrade && props.shouldCheckUpdate) {
+  if (!shouldUpgrade && showCount) {
     return renderCanNotUpgrade()
   }
   if (checkingRemoteVersion) {

@@ -27,15 +27,15 @@ describe('Upgrade check', function () {
     await client.waitUntilWindowLoaded()
     await delay(2500)
 
-    log('button:edit')
+    log('button:about')
     await client.click('.btns .open-about-icon')
-    await delay(500)
+    await delay(2500)
     const sel = '.ant-modal .ant-tabs-nav-list .ant-tabs-tab-active'
     const active = await client.element(sel)
     expect(!!active.elementId).equal(true)
 
     await client.click('.about-wrap .ant-btn-primary')
-    await delay(1000)
+    await delay(3000)
     const up = await client.element('.upgrade-panel')
     expect(!!up.elementId).equal(true)
   })

@@ -85,7 +85,7 @@ export default class Index extends Component {
         />
         <UpdateCheck
           store={store}
-          upgradeInfo={store.upgradeInfo}
+          upgradeInfo={copy(store.upgradeInfo)}
           addTab={store.addTab}
         />
         <ContextMenu
