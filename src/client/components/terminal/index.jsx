@@ -49,10 +49,11 @@ import keyPressed from '../../common/key-pressed'
 import { Terminal } from 'xterm'
 import TerminalInfoIcon from '../terminal-info'
 import Qm from '../quick-commands/quick-commands-select'
-import resolve from '../../common/resolve'
+// import resolve from '../../common/resolve'
 import BatchInput from './batch-input'
 import filesize from 'filesize'
-import { getFolderFromFilePath } from '../sftp/file-read'
+import Link from '../common/external-link'
+// import { getFolderFromFilePath } from '../sftp/file-read'
 
 const { prefix } = window
 const e = prefix('ssh')
@@ -380,28 +381,28 @@ export default class Term extends Component {
       .catch(this.props.store.onError)
   }
 
-  transferBySftp = async (files) => {
-    const pwd = await this.getPwd()
-    if (!pwd) {
-      return
-    }
-    const transfers = files.map(f => {
-      const { name } = getFolderFromFilePath(f.path)
-      return {
-        typeFrom: typeMap.local,
-        typeTo: typeMap.remote,
-        fromPath: f.path,
-        toPath: resolve(pwd, name),
-        id: generate()
-      }
-    })
-    window.postMessage({
-      type: 'add-transfer',
-      sessionId: this.props.sessionId,
-      transfers
-    }, '*')
-    this.props.onChangePane(paneMap.sftp)
-  }
+  // transferBySftp = async (files) => {
+  //   const pwd = await this.getPwd()
+  //   if (!pwd) {
+  //     return
+  //   }
+  //   const transfers = files.map(f => {
+  //     const { name } = getFolderFromFilePath(f.path)
+  //     return {
+  //       typeFrom: typeMap.local,
+  //       typeTo: typeMap.remote,
+  //       fromPath: f.path,
+  //       toPath: resolve(pwd, name),
+  //       id: generate()
+  //     }
+  //   })
+  //   window.postMessage({
+  //     type: 'add-transfer',
+  //     sessionId: this.props.sessionId,
+  //     transfers
+  //   }, '*')
+  //   this.props.onChangePane(paneMap.sftp)
+  // }
 
   beforeZmodemUpload = (file, files) => {
     if (!files.length) {
@@ -413,18 +414,26 @@ export default class Term extends Component {
         this.zsession.abort()
       }
       this.onZmodemEnd()
-      if (this.props.tab.enableSftp) {
-        notification.info({
-          message: `Uploading by sftp`,
-          duration: 8
-        })
-        return this.transferBySftp(files)
-      } else {
-        notification.error({
-          message: `Only support upload file size less than ${filesize(maxZmodemUploadSize)}`,
-          duration: 8
-        })
-      }
+      // if (this.props.tab.enableSftp) {
+      //   notification.info({
+      //     message: `Uploading by sftp`,
+      //     duration: 8
+      //   })
+      //   return this.transferBySftp(files)
+      // } else {
+      const url = 'https://github.com/FGasper/zmodemjs/issues/11'
+      const msg = (
+        <div>
+          <p>Currently <b>rz</b> only support upload file size less than {filesize(maxZmodemUploadSize)}, due to known issue:</p>
+          <p><Link to={url}>{url}</Link></p>
+          <p>You can try upload in sftp which is much faster.</p>
+        </div>
+      )
+      notification.error({
+        message: msg,
+        duration: 8
+      })
+      // }
     }
     const th = this
     Zmodem.Browser.send_files(
