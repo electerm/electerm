@@ -33,6 +33,7 @@ describe('history', function () {
     await delay(500)
     const sel = '.ant-modal .ant-tabs-nav-list .ant-tabs-tab-active'
     const active = await client.element(sel)
+    await delay(1500)
     expect(!!active.elementId).equal(true)
     const text = await client.getText(sel)
     expect(text).equal(e('bookmarks'))
