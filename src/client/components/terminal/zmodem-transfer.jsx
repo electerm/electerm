@@ -50,7 +50,7 @@ export default memo((props) => {
           </Upload>
         </div>
         {cancelBtn}
-        <h4 className='pd2t pd2x'>Only support upload small files due to known issue:</h4>
+        <h4 className='pd2t pd2x'>Only support upload small files(less than 8M) due to known issue:</h4>
         <h4 className='pd2b pd2x'>
           <Link to='https://github.com/FGasper/zmodemjs/issues/11'>https://github.com/FGasper/zmodemjs/issues/11</Link>
         </h4>
