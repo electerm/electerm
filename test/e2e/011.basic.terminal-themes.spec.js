@@ -27,13 +27,14 @@ describe('terminal themes', function () {
     const e = prefix('common')
     const t = prefix('terminalThemes')
     await client.waitUntilWindowLoaded()
-    await delay(3500)
+    await delay(1500)
 
     log('button:edit')
     await client.click('.btns .anticon-picture')
     await delay(500)
     const sel = '.ant-modal .ant-tabs-nav-list .ant-tabs-tab-active'
     const active = await client.element(sel)
+    await delay(2500)
     expect(!!active.elementId).equal(true)
     const text = await client.getText(sel)
     expect(text).equal(t('uiThemes'))

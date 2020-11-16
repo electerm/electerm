@@ -49,7 +49,7 @@ describe('init setting buttons', function () {
     await client.execute(function () {
       document.querySelector('.btns .anticon-setting').click()
     })
-    await delay(1500)
+    await delay(2500)
     const active1 = await client.element(sel)
     expect(!!active1.elementId).equal(true)
     const text1 = await client.getText(sel)
@@ -68,7 +68,7 @@ describe('init setting buttons', function () {
 
     log('tab it')
     await client.click('.ant-modal .ant-tabs-tab:nth-child(3)')
-    await delay(100)
+    await delay(3100)
     const text4 = await client.getText(sel)
     expect(text4).equal(e('setting'))
     await client.click('.ant-modal .ant-modal-close')
