@@ -363,7 +363,7 @@ export default class SessionWrapper extends Component {
                     ? null
                     : (
                       <CloseSquareFilled
-                        className='mg1r icon-trash font16 iblock pointer'
+                        className='mg1r icon-trash font16 iblock pointer spliter'
                         onClick={this.delSplit}
                         title={m('del')} />
                     )
