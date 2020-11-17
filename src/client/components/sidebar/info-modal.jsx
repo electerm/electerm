@@ -10,7 +10,6 @@ import {
 
 import { Modal, Tabs, Button, Tag } from 'antd'
 import Link from '../common/external-link'
-import _ from 'lodash'
 
 import {
   logoPath1,
@@ -35,7 +34,6 @@ export default function ({
   onCancel,
   onOk
 }) {
-  const { getGlobal } = window
   const {
     name,
     // description,

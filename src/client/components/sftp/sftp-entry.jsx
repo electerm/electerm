@@ -43,7 +43,7 @@ import ConflictHandler from './transfer-conflict'
 import TransfersHandler from './transports-action'
 import './sftp.styl'
 
-const { getGlobal, prefix } = window
+const { prefix } = window
 const e = prefix('sftp')
 const c = prefix('common')
 
