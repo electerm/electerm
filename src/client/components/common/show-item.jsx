@@ -9,7 +9,7 @@ import { FolderOpenOutlined } from '@ant-design/icons'
 
 function onClick (e, href) {
   e.preventDefault()
-  window._require('electron').shell.showItemInFolder(href)
+  window.pre.showItemInFolder(href)
 }
 
 export default memo(props => {

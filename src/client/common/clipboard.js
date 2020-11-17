@@ -10,12 +10,12 @@ const fileReg = isWin
   : /^(remote:)?\/.+/
 
 export const readClipboard = () => {
-  return window._require('electron').clipboard.readText()
+  return window.pre.readClipboard()
 }
 
 export const copy = (str) => {
   message.success('Copied', 2)
-  window._require('electron').clipboard.writeText(str)
+  window.pre.writeClipboard(str)
 }
 
 export const hasFileInClipboardText = (

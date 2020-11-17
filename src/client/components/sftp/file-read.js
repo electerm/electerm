@@ -6,8 +6,6 @@ import { nanoid as generate } from 'nanoid'
 import fs from '../../common/fs'
 import { isWin } from '../../common/constants'
 
-const { _require } = window
-
 export const getFileExt = fileName => {
   const sep = '.'
   const arr = fileName.split(sep)
@@ -25,7 +23,7 @@ export const getFileExt = fileName => {
 }
 
 export const getFolderFromFilePath = filePath => {
-  const { sep } = _require('path')
+  const { sep } = window.pre
   const arr = filePath.split(sep)
   const len = arr.length
   const isWinDisk = isWin && filePath.endsWith(sep)

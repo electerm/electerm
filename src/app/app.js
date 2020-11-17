@@ -100,8 +100,9 @@ async function createWindow () {
     transparent: true,
     backgroundColor: '#ff333333',
     webPreferences: {
-      nodeIntegration: true,
-      enableRemoteModule: true
+      nodeIntegration: false,
+      enableRemoteModule: true,
+      preload: resolve(__dirname, './preload/preload.js')
     },
     titleBarStyle: 'customButtonsOnHover',
     icon: iconPath

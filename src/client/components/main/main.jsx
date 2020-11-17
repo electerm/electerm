@@ -29,14 +29,14 @@ export default class Index extends Component {
     window.getGlobal('setTitle')(title)
     window.addEventListener('resize', store.onResize)
     store.onResize()
-    window._require('electron')
-      .ipcRenderer
-      .on('checkupdate', store.onCheckUpdate)
-      .on('open-about', store.openAbout)
-      .on('new-ssh', store.onNewSsh)
-      .on('openSettings', store.openSetting)
-      .on('selectall', store.selectall)
-      .on('focused', store.focus)
+    const { ipcOnEvent } = window.pre
+    ipcOnEvent('checkupdate', store.onCheckUpdate)
+    ipcOnEvent('open-about', store.openAbout)
+    ipcOnEvent('new-ssh', store.onNewSsh)
+    ipcOnEvent('openSettings', store.openSetting)
+    ipcOnEvent('selectall', store.selectall)
+    ipcOnEvent('focused', store.focus)
+
     document.addEventListener('drop', function (e) {
       e.preventDefault()
       e.stopPropagation()
