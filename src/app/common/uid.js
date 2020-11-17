@@ -1,3 +1,4 @@
+const { nanoid } = require('nanoid')
 module.exports = () => {
-  return '' + Math.random() + Date.now()
+  return nanoid()
 }

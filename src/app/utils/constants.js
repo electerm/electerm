@@ -4,6 +4,7 @@
 
 const os = require('os')
 const { resolve } = require('path')
+const _ = require('lodash')
 
 const platform = os.platform()
 const isWin = platform === 'win32'
@@ -46,5 +47,23 @@ module.exports = {
   minWindowWidth: 590,
   minWindowHeight: 400,
   defaultLang: 'en_us',
-  packInfo: require(isDev ? '../../../package.json' : '../package.json')
+  homeOrtmp: os.homedir() || os.tmpdir(),
+  packInfo: require(isDev ? '../../../package.json' : '../package.json'),
+  osInfo: Object.keys(os).map((k, i) => {
+    const vf = os[k]
+    if (!_.isFunction(vf)) {
+      return null
+    }
+    let v
+    try {
+      v = vf()
+    } catch (e) {
+      return null
+    }
+    if (!v) {
+      return null
+    }
+    v = JSON.stringify(v, null, 2)
+    return { k, v }
+  }).filter(d => d)
 }

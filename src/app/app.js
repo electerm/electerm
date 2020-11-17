@@ -8,33 +8,26 @@ const {
   Menu,
   Notification,
   globalShortcut,
-  shell,
   session
 } = require('electron')
 const { dbAction } = require('./lib/nedb')
-const { listSerialPorts } = require('./lib/serial-port')
 const { getAllConfig } = require('./lib/get-config')
 const initServer = require('./lib/init-server')
 const sshConfigItems = require('./lib/ssh-config')
-const lookup = require('./utils/lookup')
-const os = require('os')
 const { resolve } = require('path')
 const {
   toCss,
   clearCssCache
 } = require('./lib/style')
-const { transferKeys } = require('./server/transfer')
 const { saveUserConfig } = require('./lib/user-config-controller')
 const { init, changeHotkeyReg } = require('./lib/shortcut')
-const { fsExport, fsFunctions } = require('./lib/fs')
 const menu = require('./lib/menu')
 const log = require('./utils/log')
 const lastStateManager = require('./lib/last-state')
-const installSrc = require('./lib/install-src')
 const {
   isDev, packInfo, iconPath,
   minWindowWidth, minWindowHeight,
-  appPath, extIconPath
+  appPath
 } = require('./utils/app-props')
 const {
   getWindowSize,
@@ -46,11 +39,9 @@ const {
   prefix
 } = require('./lib/locales')
 const { loadFontList } = require('./lib/font-list')
-const { encrypt, decrypt } = require('./lib/enc')
 const a = prefix('app')
 const { onClose, getExitStatus } = require('./lib/on-close')
 const { checkDbUpgrade, doUpgrade } = require('./upgrade')
-const showItemInFolder = require('./lib/show-item-in-folder')
 const openItem = require('./lib/open-item')
 require('./lib/tray')
 
@@ -128,16 +119,9 @@ async function createWindow () {
   Object.assign(global.et, {
     toCss,
     clearCssCache,
-    listSerialPorts,
     loadFontList,
-    extIconPath,
     _config: config,
     getAllConfig,
-    installSrc,
-    transferKeys,
-    upgradeKeys: transferKeys,
-    fs: fsExport,
-    showItemInFolder,
     openItem,
     doUpgrade,
     checkDbUpgrade,
@@ -145,20 +129,10 @@ async function createWindow () {
     setExitStatus: (status) => {
       global.et.exitStatus = status
     },
-    popup: (options) => {
-      Menu.getApplicationMenu().popup(options)
-    },
     dbAction,
     appPath,
     getScreenSize,
-    versions: process.versions,
     sshConfigItems,
-    env: process.env,
-    fsFunctions,
-    encrypt,
-    decrypt,
-    openExternal: shell.openExternal,
-    homeOrtmp: os.homedir() || os.tmpdir(),
     closeApp: () => {
       global.win.close()
     },
@@ -179,12 +153,9 @@ async function createWindow () {
     openDevTools: () => {
       global.win.webContents.openDevTools()
     },
-    lookup,
     lang,
     langs,
-    packInfo,
     lastStateManager,
-    os,
     saveUserConfig,
     setTitle: (title) => {
       global.win.setTitle(packInfo.name + ' - ' + title)

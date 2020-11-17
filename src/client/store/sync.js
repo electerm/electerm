@@ -48,12 +48,6 @@ export default (store) => {
     )) {
       return
     }
-    // if (data.githubAccessToken) {
-    //   data.githubAccessToken = window.getGlobal('encrypt')(
-    //     data.githubAccessToken,
-    //     data.gistId
-    //   )
-    // }
     store.config = {
       ...copy(store.config),
       syncSetting: Object.assign({}, copy(store.config.syncSetting), data)

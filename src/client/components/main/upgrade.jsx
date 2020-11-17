@@ -9,13 +9,13 @@ import { isMac, isWin, packInfo, appUpdateCheck } from '../../common/constants'
 import newTerm from '../../common/new-terminal'
 import './upgrade.styl'
 
-const { getGlobal, prefix } = window
+const { prefix } = window
 const {
   homepage
 } = packInfo
 const e = prefix('updater')
 const c = prefix('common')
-const installSrc = getGlobal('installSrc')
+const { installSrc } = window.pre
 
 export default function Upgrade (props) {
   const [showCount, setShowCount] = useState(0)

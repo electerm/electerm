@@ -56,7 +56,7 @@ export default function ThemeForm (props) {
   }
 
   function beforeUpload (file) {
-    const txt = window.getGlobal('fs')
+    const txt = window.pre
       .readFileSync(file.path).toString()
     const { name, themeConfig, uiThemeConfig } = convertTheme(txt)
     form.setFieldsValue({

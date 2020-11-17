@@ -6,12 +6,12 @@ import { memo } from 'react'
 import { LinkOutlined } from '@ant-design/icons'
 
 window.open = (url) => {
-  window.getGlobal('openExternal')(url)
+  window.pre.openExternal(url)
 }
 
 function onClick (e, href) {
   e.preventDefault()
-  window.getGlobal('openExternal')(href)
+  window.pre.openExternal(href)
 }
 
 export default memo(props => {

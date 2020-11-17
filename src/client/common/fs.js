@@ -5,7 +5,7 @@
 import { nanoid as generate } from 'nanoid'
 import initWs from './ws'
 
-const fsFunctions = window.getGlobal('fsFunctions')
+const { fsFunctions } = window.pre
 const id = generate()
 let ws
 let wsOpened = false

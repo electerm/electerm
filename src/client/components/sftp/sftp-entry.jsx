@@ -43,7 +43,7 @@ import ConflictHandler from './transfer-conflict'
 import TransfersHandler from './transports-action'
 import './sftp.styl'
 
-const { getGlobal, prefix } = window
+const { prefix } = window
 const e = prefix('sftp')
 const c = prefix('common')
 
@@ -666,7 +666,7 @@ export default class Sftp extends Component {
     )
     try {
       const noPathInit = localPathReal || this.state.localPath
-      const localPath = noPathInit || this.props.tab.startDirectoryLocal || getGlobal('homeOrtmp')
+      const localPath = noPathInit || this.props.tab.startDirectoryLocal || window.pre.homeOrtmp
       const locals = await fs.readdirAsync(localPath)
       const local = []
       for (const name of locals) {

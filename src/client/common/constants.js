@@ -7,7 +7,7 @@ import logoPath2Ref from '@electerm/electerm-resource/res/imgs/electerm.png'
 import logoPath3Ref from '@electerm/electerm-resource/res/imgs/electerm-watermark.png'
 import newTerm from '../common/new-terminal'
 
-export const packInfo = window.getGlobal('packInfo')
+export const { packInfo } = window.pre
 
 const buildConst = (props) => {
   return props.reduce((prev, key) => {
@@ -78,9 +78,8 @@ export const maxTransferHistory = 100
 export const topMenuHeight = 15
 export const tabsHeight = 56
 
-const platform = window.getGlobal('os').platform()
-export const isWin = platform.startsWith('win')
-export const isMac = platform.startsWith('darwin')
+export const isWin = window.pre.isWin
+export const isMac = window.pre.isMac
 export const ctrlOrCmd = isMac ? 'cmd' : 'ctrl'
 export const typeMap = buildConst([
   'remote',

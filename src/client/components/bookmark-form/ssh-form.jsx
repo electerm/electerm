@@ -78,7 +78,7 @@ export default class BookmarkForm extends PureComponent {
     ) {
       return
     }
-    const ip = await window.getGlobal('lookup')(value)
+    const ip = await window.pre.lookup(value)
       .catch(err => {
         log.debug(err)
       })
@@ -302,7 +302,7 @@ export default class BookmarkForm extends PureComponent {
   }
 
   beforeUpload = (file, form) => {
-    const privateKey = window.getGlobal('fs')
+    const privateKey = window.pre
       .readFileSync(file.path).toString()
     form.setFieldsValue({
       privateKey
