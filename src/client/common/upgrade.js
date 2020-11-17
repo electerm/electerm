@@ -2,7 +2,7 @@
  * upgrade through ws
  */
 
-import { generate } from 'shortid'
+import { nanoid as generate } from 'nanoid'
 import initWs from './ws'
 
 const keys = window.getGlobal('upgradeKeys')

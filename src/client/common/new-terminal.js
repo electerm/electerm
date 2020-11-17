@@ -2,7 +2,7 @@
  * output default new terminal data obj
  */
 
-import { generate } from 'shortid'
+import { nanoid as generate } from 'nanoid'
 
 const { prefix } = window
 const e = prefix('control')

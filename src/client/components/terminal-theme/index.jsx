@@ -3,7 +3,7 @@ import { useRef } from 'react'
 import { Button, Input, message, Upload, Form } from 'antd'
 import { convertTheme, convertThemeToText, exportTheme } from '../../common/terminal-theme'
 import { defaultTheme } from '../../common/constants'
-import { generate } from 'shortid'
+import { nanoid as generate } from 'nanoid'
 import { formItemLayout, tailFormItemLayout } from '../../common/form-layout'
 import InputAutoFocus from '../common/input-auto-focus'
 

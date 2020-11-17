@@ -3,7 +3,7 @@
  */
 
 import initWs from './ws'
-import { generate } from 'shortid'
+import { nanoid as generate } from 'nanoid'
 
 const id = 's'
 let ws
