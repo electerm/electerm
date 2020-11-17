@@ -29,5 +29,5 @@ export default (basePath, nameOrDot) => {
 }
 
 export const osResolve = (...args) => {
-  return window._require('path').resolve(...args)
+  return window.pre.resolve(...args)
 }

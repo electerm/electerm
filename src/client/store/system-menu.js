@@ -31,16 +31,15 @@ export default store => {
       dom && dom.removeEventListener('click', store.closeContextMenu)
     },
     zoom (level = 1, plus = false, zoomOnly) {
-      const { webFrame } = require('electron')
       let nl = plus
-        ? webFrame.getZoomFactor() + level
+        ? window.pre.getZoomFactor() + level
         : level
       if (nl > maxZoom) {
         nl = maxZoom
       } else if (nl < minZoom) {
         nl = minZoom
       }
-      webFrame.setZoomFactor(nl)
+      window.pre.setZoomFactor(nl)
       if (zoomOnly) {
         return
       }

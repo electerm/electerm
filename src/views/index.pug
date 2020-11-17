@@ -37,20 +37,7 @@ html
         document.body.removeChild(document.getElementById('content-loading'));
       };
       window.getGlobal = function(str) {
-        try {
-          return require('electron').remote.getGlobal('et')[str]
-        } catch(e) {
-          console.log(e.stack)
-          return false
-        }
-      }
-      window._require = function(modName) {
-        try {
-          return require(modName)
-        } catch(e) {
-          console.log(e.stack)
-          return false
-        }
+        return window.pre.getGlobal(str)
       }
       window.lang = window.getGlobal('lang')
 

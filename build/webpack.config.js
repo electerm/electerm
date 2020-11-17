@@ -33,7 +33,7 @@ let config = {
     'react-dom': 'ReactDOM',
     lodash: '_'
   },
-  target: 'electron-renderer',
+  target: 'web',
   watch: true,
   resolve: {
     extensions: ['.js', '.jsx', '.ts', '.json'],

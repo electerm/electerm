@@ -703,8 +703,7 @@ export default class FileSection extends React.Component {
   showInDefaultFileManager = () => {
     const { path, name } = this.state.file
     const p = resolve(path, name)
-    window._require('electron').shell
-      .showItemInFolder(p)
+    window.pre.showItemInFolder(p)
   }
 
   newItem = (isDirectory) => {
