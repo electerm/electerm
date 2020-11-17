@@ -9,7 +9,7 @@
 import React from 'react'
 import classnames from 'classnames'
 import _ from 'lodash'
-import { generate } from 'shortid'
+import { nanoid as generate } from 'nanoid'
 import {
   splitDraggerWidth,
   filePropMinWidth,

@@ -2,7 +2,7 @@
  * file info related functions
  */
 
-import { generate } from 'shortid'
+import { nanoid as generate } from 'nanoid'
 import fs from '../../common/fs'
 import { isWin } from '../../common/constants'
 

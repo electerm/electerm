@@ -6,7 +6,7 @@ import { Component } from 'react'
 import { CheckOutlined, CloseCircleOutlined, CloseOutlined, EditOutlined } from '@ant-design/icons'
 import { Input, Col, Row, message, Switch, Tooltip } from 'antd'
 import { settingMap } from '../../common/constants'
-import { generate } from 'shortid'
+import { nanoid as generate } from 'nanoid'
 import _ from 'lodash'
 
 const InputGroup = Input.Group

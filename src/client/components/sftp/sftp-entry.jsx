@@ -1,7 +1,7 @@
 
 import { Component } from 'react'
 import ReactDOM from 'react-dom'
-import { generate } from 'shortid'
+import { nanoid as generate } from 'nanoid'
 import { mergeProxy } from '../../common/merge-proxy'
 import {
   ArrowUpOutlined,

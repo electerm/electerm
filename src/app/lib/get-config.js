@@ -3,9 +3,10 @@ const defaultSetting = require('../common/config-default')
 const getPort = require('./get-port')
 const { userConfigId } = require('../common/constants')
 const { initLang } = require('./locales')
-const { generate } = require('shortid')
+const generate = require('../common/uid')
 
 const token = generate()
+
 exports.getConfig = async () => {
   const userConfig = await dbAction('data', 'findOne', {
     _id: userConfigId

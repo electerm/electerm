@@ -6,7 +6,7 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import classnames from 'classnames'
 import _ from 'lodash'
-import { generate } from 'shortid'
+import { nanoid as generate } from 'nanoid'
 import memoizeOne from 'memoize-one'
 import {
   terminalSplitDirectionMap,

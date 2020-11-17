@@ -7,7 +7,7 @@ import {
 } from '../common/constants'
 import _ from 'lodash'
 import handleError from './error-handler'
-import { generate } from 'shortid'
+import { nanoid as generate } from 'nanoid'
 
 /**
  * db action, never direct use it
