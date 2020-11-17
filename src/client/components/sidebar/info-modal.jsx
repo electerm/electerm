@@ -55,13 +55,11 @@ export default function ({
   } = packInfo
   const version = 'v' + packVer
   const link = url.replace('git+', '').replace('.git', '')
-  const os = getGlobal('os')
-  const env = getGlobal('env')
+  const { env, versions } = window.pre
   const deps = {
     ...devDependencies,
     ...dependencies
   }
-  const versions = getGlobal('versions')
   const envs = {
     ...versions,
     ...env
@@ -176,21 +174,7 @@ export default function ({
           </TabPane>
           <TabPane tab={e('os')} key='2'>
             {
-              Object.keys(os).map((k, i) => {
-                const vf = os[k]
-                if (!_.isFunction(vf)) {
-                  return null
-                }
-                let v
-                try {
-                  v = vf()
-                } catch (e) {
-                  return null
-                }
-                if (!v) {
-                  return null
-                }
-                v = JSON.stringify(v, null, 2)
+              window.pre.osInfo.map(({ k, v }, i) => {
                 return (
                   <div className='pd1b' key={i + '_os_' + k}>
                     <b className='bold'>{k}</b>:

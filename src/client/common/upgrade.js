@@ -5,7 +5,7 @@
 import { nanoid as generate } from 'nanoid'
 import initWs from './ws'
 
-const keys = window.getGlobal('upgradeKeys')
+const keys = window.pre.transferKeys
 
 class Upgrade {
   async init ({

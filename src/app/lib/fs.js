@@ -175,26 +175,6 @@ const fsExport = Object.assign(
   }
 )
 
-const fsFunctions = [
-  'accessAsync',
-  'statAsync',
-  'lstatAsync',
-  'cp',
-  'mv',
-  'mkdirAsync',
-  'touch',
-  'chmodAsync',
-  'renameAsync',
-  'unlinkAsync',
-  'rmrf',
-  'readdirAsync',
-  'readFile',
-  'readFileAsBase64',
-  'writeFile',
-  'openFile'
-]
-
 module.exports = {
-  fsExport,
-  fsFunctions
+  fsExport
 }

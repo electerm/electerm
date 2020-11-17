@@ -31,7 +31,7 @@ export default class Btns extends Component {
     }
 
     const beforeUpload = (file) => {
-      const txt = window.getGlobal('fs')
+      const txt = window.pre
         .readFileSync(file.path).toString()
       try {
         const content = JSON.parse(txt)
