@@ -42,6 +42,16 @@ export default class QuickCommandsFooter extends Component {
     return c.includes(vv) || m.includes(vv)
   }
 
+  onMouseEnter = () => {
+    this.setState({ open: true })
+    document.getElementById('outside-context').addEventListener('click', this.handleBlur)
+  }
+
+  handleBlur = (e) => {
+    this.setState({ open: false })
+    document.getElementById('outside-context').removeEventListener('click', this.handleBlur)
+  }
+
   render () {
     const all = copy(this.props.store.currentQuickCommands)
     if (!all.length) {
@@ -62,8 +72,7 @@ export default class QuickCommandsFooter extends Component {
           onSelect={this.onSelect}
           autoFocus
           size='small'
-          onMouseEnter={() => this.setState({ open: true })}
-          onBlur={() => this.setState({ open: false })}
+          onMouseEnter={this.onMouseEnter}
           showSearch
           optionFilterProp='children'
           filterOption={this.filterFunc}
