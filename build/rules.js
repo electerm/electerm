@@ -50,7 +50,12 @@ module.exports = [
       'file-loader?name=index.html',
       'concat-loader',
       'extract-loader',
-      'html-loader',
+      {
+        loader: 'html-loader',
+        options: {
+          attributes: false
+        }
+      },
       pug
     ]
   }

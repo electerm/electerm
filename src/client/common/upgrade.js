@@ -2,7 +2,7 @@
  * upgrade through ws
  */
 
-import { nanoid as generate } from 'nanoid'
+import { nanoid as generate } from 'nanoid/non-secure'
 import initWs from './ws'
 
 const keys = window.pre.transferKeys

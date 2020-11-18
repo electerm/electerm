@@ -28,6 +28,7 @@ rm('-rf', 'work/app/localstorage.json')
 rm('-rf', 'work/app/nohup.out')
 rm('-rf', 'work/app/assets/js/basic*')
 rm('-rf', 'work/app/assets/js/index*')
+rm('-rf', 'work/app/assets/js/*.txt')
 rm('-rf', 'work/app/node_modules/zmodem.js/src')
 rm('-rf', 'work/app/node_modules/zmodem.js/dist/zmodem.devel.js')
 require('fs').writeFileSync(

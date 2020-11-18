@@ -59,6 +59,7 @@ async function createWindow () {
   const { width, height } = await getWindowSize()
 
   // Create the browser window.
+  const isTest = process.env.NODE_TEST === 'yes'
   global.win = new BrowserWindow({
     width,
     height,
@@ -69,8 +70,8 @@ async function createWindow () {
     transparent: true,
     backgroundColor: '#ff333333',
     webPreferences: {
-      nodeIntegration: false,
-      enableRemoteModule: false,
+      nodeIntegration: isTest,
+      enableRemoteModule: isTest,
       preload: resolve(__dirname, './preload/preload.js')
     },
     titleBarStyle: 'customButtonsOnHover',

@@ -9,7 +9,7 @@ function capitalizeFirstLetter (string) {
 }
 
 module.exports = async (electron) => {
-  const { lang } = await electron.remote.getGlobal('et')
+  const lang = require('@electerm/electerm-locales/dist/en_us.json').lang
   return prefix => {
     return (id) => {
       return capitalizeFirstLetter(_.get(lang, `${prefix}.${id}`) || id)

@@ -48,7 +48,7 @@ import { readClipboard, copy as copyToClipboard, hasFileInClipboardText } from '
 import fs from '../../common/fs'
 import time from '../../../app/common/time'
 import filesize from 'filesize'
-import { nanoid as generate } from 'nanoid'
+import { nanoid as generate } from 'nanoid/non-secure'
 
 const { prefix } = window
 const e = prefix('sftp')

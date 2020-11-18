@@ -4,7 +4,7 @@
  */
 
 // const { isDev } = require('../utils/app-props')
-const { resolve } = require('path')
+const path = require('path')
 const { readFileSync } = require('fs')
 const _ = require('lodash')
 
@@ -25,7 +25,7 @@ function findFiles (pattern) {
 }
 
 function loadDevStylus () {
-  const dir = resolve(__dirname, '../../client')
+  const dir = path.resolve(__dirname, '../../client')
   const pat = dir + '/**/*.styl'
   const arr = findFiles(pat)
   const key = 'theme-default.styl'
@@ -46,7 +46,7 @@ function loadDevStylus () {
 }
 
 function loadProdStylus () {
-  const p = resolve(__dirname, '../assets/external/style.styl')
+  const p = path.resolve(__dirname, '../assets/external/style.styl')
   return readFileSync(p).then(toString)
 }
 
