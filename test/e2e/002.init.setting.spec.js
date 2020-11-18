@@ -28,7 +28,7 @@ describe('init setting buttons', function () {
     const prefix = await prefixer(electron)
     const e = prefix('common')
     await client.waitUntilWindowLoaded()
-    await delay(3500)
+    await delay(8500)
 
     log('button:edit')
     await client.click('.btns .anticon-plus-circle')

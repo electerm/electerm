@@ -13,10 +13,6 @@ const e = prefix('quickCommands')
 const addQuickCommands = 'addQuickCommands'
 
 export default class QuickCommandsFooter extends Component {
-  state = {
-    open: false
-  }
-
   onSelect = (id) => {
     if (id === addQuickCommands) {
       this.props.store.openQuickCommandsSetting()
@@ -57,13 +53,10 @@ export default class QuickCommandsFooter extends Component {
             width: 200
           }}
           value={undefined}
-          open={this.state.open}
           placeholder={e('quickCommands')}
           onSelect={this.onSelect}
           autoFocus
           size='small'
-          onMouseEnter={() => this.setState({ open: true })}
-          onBlur={() => this.setState({ open: false })}
           showSearch
           optionFilterProp='children'
           filterOption={this.filterFunc}
