@@ -7,7 +7,7 @@ import {
 } from 'antd'
 import _ from 'lodash'
 import copy from 'json-deep-copy'
-import { nanoid as generate } from 'nanoid'
+import { nanoid as generate } from 'nanoid/non-secure'
 import {
   settingMap,
   statusMap,

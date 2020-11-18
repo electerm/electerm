@@ -2,7 +2,6 @@ require('dotenv').config()
 const webpack = require('webpack')
 const { identity } = require('lodash')
 const path = require('path')
-const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin')
 const { happy } = require('./happy-pack')
 const { env, version } = require('./common')
 const isProd = env === 'production'
@@ -26,14 +25,15 @@ let config = {
     filename: 'js/[name].' + version + '.js',
     publicPath: '/',
     chunkFilename: 'js/[name].' + version + '.js',
-    libraryTarget: 'var'
+    libraryTarget: 'var',
+    library: 'Et'
   },
   externals: {
     react: 'React',
     'react-dom': 'ReactDOM',
     lodash: '_'
   },
-  target: 'web',
+  target: 'es7',
   watch: true,
   resolve: {
     extensions: ['.js', '.jsx', '.ts', '.json'],
@@ -52,12 +52,7 @@ let config = {
   module: {
     rules
   },
-  optimization: {
-    minimizer: [
-      new OptimizeCSSAssetsPlugin({})
-    ]
-  },
-  devtool: '#eval-source-map',
+  devtool: 'source-map',
   plugins: [
     new webpack.HotModuleReplacementPlugin(),
     stylusSettingPlugin,

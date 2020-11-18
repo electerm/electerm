@@ -9,7 +9,7 @@ import { maxTransport } from '../../common/constants'
 import { getLocalFileInfo, getRemoteFileInfo, getFolderFromFilePath, getFileExt } from './file-read'
 import copy from 'json-deep-copy'
 import _ from 'lodash'
-import { nanoid as generate } from 'nanoid'
+import { nanoid as generate } from 'nanoid/non-secure'
 import resolve from '../../common/resolve'
 import eq from 'fast-deep-equal'
 

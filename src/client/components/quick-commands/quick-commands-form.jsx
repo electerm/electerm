@@ -1,6 +1,6 @@
 
 import { Button, Input, Switch, Form, message } from 'antd'
-import { nanoid as generate } from 'nanoid'
+import { nanoid as generate } from 'nanoid/non-secure'
 import { settingMap } from '../../common/constants'
 import InputAutoFocus from '../common/input-auto-focus'
 const { TextArea } = Input

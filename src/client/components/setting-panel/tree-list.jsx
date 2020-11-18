@@ -17,7 +17,7 @@ import {
 import { Popconfirm, Tree, Button } from 'antd'
 import createName from '../../common/create-title'
 import classnames from 'classnames'
-import { nanoid as generate } from 'nanoid'
+import { nanoid as generate } from 'nanoid/non-secure'
 import InputAutoFocus from '../common/input-auto-focus'
 import _ from 'lodash'
 import {

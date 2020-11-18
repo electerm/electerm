@@ -8,6 +8,9 @@ module.exports = {
   webdriverOptions: {
     deprecationWarnings: false
   },
+  env: {
+    NODE_TEST: 'yes'
+  },
   // chromeDriverArgs: ['remote-debugging-port=9222'],
   chromeDriverLogPath: resolve(cwd, 'spectron-test.log'),
   args: [resolve(cwd, 'work/app'), '--no-session-restore']

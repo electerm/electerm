@@ -3,7 +3,7 @@
  */
 
 import initWs from './ws'
-import { nanoid as generate } from 'nanoid'
+import { nanoid as generate } from 'nanoid/non-secure'
 
 const id = 's'
 let ws

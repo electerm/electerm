@@ -7,8 +7,7 @@ const {
   BrowserWindow,
   Menu,
   Notification,
-  globalShortcut,
-  session
+  globalShortcut
 } = require('electron')
 const { dbAction } = require('./lib/nedb')
 const initServer = require('./lib/init-server')
@@ -48,14 +47,6 @@ if (process.platform === 'linux') {
 }
 
 async function createWindow () {
-  session.defaultSession.webRequest.onBeforeRequest((details, done) => {
-    const redirectURL = details.url.replace(/^devtools:\/\/devtools\/remote\/serve_file\/@[0-9a-f]{40}/, 'https://chrome-devtools-frontend.appspot.com/serve_file/@675968a8c657a3bd9c1c2c20c5d2935577bbc5e6')
-    if (redirectURL !== details.url) {
-      done({ redirectURL })
-    } else {
-      done({})
-    }
-  })
   const { config, localeRef } = await initServer({
     ...process.env,
     appPath
@@ -68,6 +59,7 @@ async function createWindow () {
   const { width, height } = await getWindowSize()
 
   // Create the browser window.
+  const isTest = process.env.NODE_TEST === 'yes'
   global.win = new BrowserWindow({
     width,
     height,
@@ -78,8 +70,8 @@ async function createWindow () {
     transparent: true,
     backgroundColor: '#ff333333',
     webPreferences: {
-      nodeIntegration: false,
-      enableRemoteModule: false,
+      nodeIntegration: isTest,
+      enableRemoteModule: isTest,
       preload: resolve(__dirname, './preload/preload.js')
     },
     titleBarStyle: 'customButtonsOnHover',

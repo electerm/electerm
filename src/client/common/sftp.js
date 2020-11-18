@@ -2,7 +2,7 @@
  * sftp through ws
  */
 
-import { nanoid as generate } from 'nanoid'
+import { nanoid as generate } from 'nanoid/non-secure'
 import Transfer from './transfer'
 import { transferTypeMap } from './constants'
 import initWs from './ws'

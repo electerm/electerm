@@ -1,6 +1,8 @@
 
 const { happy } = require('./happy-pack')
 const copy = require('./copy')
+const TerserPlugin = require('terser-webpack-plugin')
+const CssMinimizerPlugin = require('css-minimizer-webpack-plugin')
 const {
   extractTextPlugin1,
   stylusSettingPlugin
@@ -13,7 +15,11 @@ module.exports = (config) => {
     copy
   ]
   config.optimization = {
-    minimize: true
+    minimize: true,
+    minimizer: [
+      new TerserPlugin(),
+      new CssMinimizerPlugin()
+    ]
   }
   config.mode = 'production'
   delete config.watch

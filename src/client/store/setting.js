@@ -3,7 +3,7 @@
  */
 
 import _ from 'lodash'
-import { nanoid as generate } from 'nanoid'
+import { nanoid as generate } from 'nanoid/non-secure'
 import copy from 'json-deep-copy'
 import {
   settingMap,

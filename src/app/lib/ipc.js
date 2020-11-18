@@ -28,6 +28,7 @@ const {
 } = require('../lib/window-control')
 const { loadFontList } = require('../lib/font-list')
 const { checkDbUpgrade, doUpgrade } = require('../upgrade')
+const { listSerialPorts } = require('./serial-port')
 
 function initIpc (config, lang, langs) {
   const syncGlobals = {
@@ -52,6 +53,7 @@ function initIpc (config, lang, langs) {
     event.returnValue = syncFuncs[name](...args)
   })
   const asyncGlobals = {
+    listSerialPorts,
     toCss,
     clearCssCache,
     loadFontList,

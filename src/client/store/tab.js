@@ -4,7 +4,7 @@
 
 import newTerm from '../common/new-terminal'
 import _ from 'lodash'
-import { nanoid as generate } from 'nanoid'
+import { nanoid as generate } from 'nanoid/non-secure'
 import copy from 'json-deep-copy'
 import wait from '../common/wait'
 import getInitItem from '../common/init-setting-item'

@@ -3,7 +3,7 @@ import { Component } from 'react'
 import ZmodemTransfer from './zmodem-transfer'
 import fetch, { handleErr } from '../../common/fetch'
 import { mergeProxy } from '../../common/merge-proxy'
-import { nanoid as generate } from 'nanoid'
+import { nanoid as generate } from 'nanoid/non-secure'
 import _ from 'lodash'
 import { runCmds } from '../terminal-info/run-cmd'
 
