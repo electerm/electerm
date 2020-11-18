@@ -145,7 +145,7 @@
     "path-validation": "0.2.3",
     "phin": "3.5.1",
     "recursive-assign": "0.2.0",
-    "serialport": "9.0.2",
+    "serialport": "9.0.0",
     "socks": "2.5.0",
     "ssh-config": "4.0.4",
     "stylus": "0.54.8",
