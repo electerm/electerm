@@ -25,7 +25,8 @@ const langs = fs.readdirSync(localeFolder)
       path: filePath,
       id: fileName.replace('.json', ''),
       name: lang.name,
-      match: lang.match
+      match: lang.match,
+      lang: lang.lang
     }
   })
 const langMap = langs.reduce((prev, l) => {
@@ -98,6 +99,6 @@ exports.saveLangConfig = (saveUserConfig, userConfig) => {
 
 exports.initLang = (userConf) => {
   language = getLang(userConf)
-  exports.lang = require(langMap[language].path).lang
+  exports.lang = langMap[language].lang
   return language
 }

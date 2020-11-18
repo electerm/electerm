@@ -6,7 +6,6 @@ const fss = Promise.promisifyAll(fs)
 const log = require('../utils/log')
 const { isWin, isMac } = require('../utils/constants')
 const ROOT_PATH = '/'
-const drivelist = require('drivelist')
 
 /**
  * run cmd
@@ -108,7 +107,7 @@ const openFile = (localFilePath) => {
 }
 
 async function listWindowsRootPath () {
-  const drives = await drivelist.list()
+  const drives = await require('drivelist').list()
   const mts = drives.reduce((p, c) => {
     return [
       ...p,

@@ -2,11 +2,10 @@
  * load font list after start
  */
 
-const fontList = require('font-list')
 const log = require('../utils/log')
 
 exports.loadFontList = () => {
-  return fontList.getFonts()
+  return require('font-list').getFonts()
     .then(fonts => {
       return fonts.map(f => f.replace(/"/g, ''))
     })

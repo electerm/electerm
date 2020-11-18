@@ -6,12 +6,11 @@
 // const { isDev } = require('../utils/app-props')
 const { resolve } = require('path')
 const { readFileSync } = require('fs')
-const stylus = require('stylus')
 const _ = require('lodash')
 
 function toCss (str) {
   return new Promise((resolve, reject) => {
-    stylus.render(str, (err, css) => {
+    require('stylus').render(str, (err, css) => {
       if (err) {
         reject(err)
       } else {
