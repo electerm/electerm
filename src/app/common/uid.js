@@ -1,4 +1,4 @@
-const { nanoid } = require('nanoid')
+const { nanoid } = require('nanoid/non-secure')
 module.exports = () => {
   return nanoid()
 }

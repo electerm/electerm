@@ -3,23 +3,25 @@
 const { resolve } = require('path')
 // const log = require('../utils/log')
 
-let installSrc = ''
+function getInstallSrc () {
+  let installSrc = ''
 
-try {
-  installSrc = require('fs').readFileSync(
-    resolve(__dirname, '../../install-src.txt')
-  ).toString().trim()
-} catch (e) {
-  // log.info('no ../../install-src file')
-}
-if (!installSrc) {
   try {
     installSrc = require('fs').readFileSync(
-      resolve(__dirname, '../install-src.txt')
+      resolve(__dirname, '../../install-src.txt')
     ).toString().trim()
   } catch (e) {
-    // log.info('no install-src file')
+    // log.info('no ../../install-src file')
+  }
+  if (!installSrc) {
+    try {
+      installSrc = require('fs').readFileSync(
+        resolve(__dirname, '../install-src.txt')
+      ).toString().trim()
+    } catch (e) {
+      // log.info('no install-src file')
+    }
   }
 }
 
-module.exports = installSrc
+module.exports = getInstallSrc

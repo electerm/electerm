@@ -7,16 +7,22 @@ const {
   app,
   globalShortcut
 } = require('electron')
-const { dbAction } = require('../lib/nedb')
-const { getAllConfig } = require('../lib/get-config')
-const sshConfigItems = require('../lib/ssh-config')
+const { dbAction } = require('./nedb')
+const getInstallSrc = require('./install-src')
+const { getConfig } = require('./get-config')
+const loadSshConfig = require('./ssh-config')
 const {
   toCss,
   clearCssCache
-} = require('../lib/style')
-const { saveUserConfig } = require('../lib/user-config-controller')
-const { changeHotkeyReg } = require('../lib/shortcut')
-const lastStateManager = require('../lib/last-state')
+} = require('./style')
+const initServer = require('./init-server')
+const {
+  getLang,
+  loadLocales
+} = require('./locales')
+const { saveUserConfig } = require('./user-config-controller')
+const { changeHotkeyReg, initShortCut } = require('./shortcut')
+const lastStateManager = require('./last-state')
 const {
   packInfo,
   appPath
@@ -25,27 +31,48 @@ const {
   getScreenSize,
   maximize,
   unmaximize
-} = require('../lib/window-control')
-const { loadFontList } = require('../lib/font-list')
+} = require('./window-control')
+const { loadFontList } = require('./font-list')
 const { checkDbUpgrade, doUpgrade } = require('../upgrade')
 const { listSerialPorts } = require('./serial-port')
+const initApp = require('./init-app')
 
-function initIpc (config, lang, langs) {
-  const syncGlobals = {
-    _config: config,
-    appPath,
-    sshConfigItems,
-    lang,
-    langs
+function initIpc () {
+  async function init () {
+    const {
+      config
+    } = await getConfig()
+    const {
+      langs,
+      langMap,
+      sysLocale
+    } = await loadLocales()
+    const language = getLang(config, sysLocale)
+    config.language = language
+    await initServer(config, {
+      ...process.env,
+      appPath
+    }, sysLocale)
+    const lang = langMap[language].lang
+    const sshConfigItems = await loadSshConfig()
+    const installSrc = getInstallSrc()
+    const globs = {
+      _config: config,
+      langs,
+      lang,
+      installSrc,
+      sshConfigItems,
+      appPath
+    }
+    initApp(language, lang, config)
+    initShortCut(globalShortcut, global.win, config)
+    return globs
   }
   const isMaximized = () => {
     const { width: widthMax, height: heightMax } = getScreenSize()
     const { width, height } = global.win.getBounds()
     return widthMax === width && heightMax === height
   }
-  ipcMain.on('sync', (event, { name, args }) => {
-    event.returnValue = syncGlobals[name]
-  })
   const syncFuncs = {
     isMaximized
   }
@@ -53,11 +80,11 @@ function initIpc (config, lang, langs) {
     event.returnValue = syncFuncs[name](...args)
   })
   const asyncGlobals = {
+    init,
     listSerialPorts,
     toCss,
     clearCssCache,
     loadFontList,
-    getAllConfig,
     doUpgrade,
     checkDbUpgrade,
     isMaximized,

@@ -2,14 +2,12 @@
  * system tray
  */
 
-const { app, Tray } = require('electron')
+const { Tray } = require('electron')
 const { trayIconPath, packInfo, minWindowHeight, minWindowWidth } = require('../utils/app-props')
-const menu = require('./menu')
 const log = require('../utils/log')
 
-let tray = null
-app.on('ready', () => {
-  tray = new Tray(trayIconPath)
+function initTray (menu) {
+  const tray = new Tray(trayIconPath)
   tray.setToolTip(packInfo.name)
   tray.setIgnoreDoubleClickEvents(true)
   function onClick () {
@@ -27,4 +25,6 @@ app.on('ready', () => {
   }
   tray.on('click', onClick)
   tray.on('right-click', onClick)
-})
+}
+
+module.exports = initTray

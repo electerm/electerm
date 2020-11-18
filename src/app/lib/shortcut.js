@@ -12,7 +12,7 @@ let shortcut
  * @param {object} win
  * @param {object} config
  */
-exports.init = (globalShortcut, win, config) => {
+exports.initShortCut = (globalShortcut, win, config) => {
   shortcut = config.hotkey
   globalShortcut.register(shortcut, () => {
     if (win.isFocused()) {

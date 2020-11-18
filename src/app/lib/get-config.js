@@ -2,12 +2,10 @@ const { dbAction } = require('./nedb')
 const defaultSetting = require('../common/config-default')
 const getPort = require('./get-port')
 const { userConfigId } = require('../common/constants')
-const { initLang } = require('./locales')
 const generate = require('../common/uid')
 
-const token = generate()
-
 exports.getConfig = async () => {
+  const token = generate()
   const userConfig = await dbAction('data', 'findOne', {
     _id: userConfigId
   }) || {}
@@ -23,10 +21,4 @@ exports.getConfig = async () => {
     userConfig,
     config
   }
-}
-
-exports.getAllConfig = async () => {
-  const { config } = await exports.getConfig()
-  config.language = initLang(config)
-  return config
 }

@@ -10,10 +10,8 @@ const themeDomId = 'theme-css'
 const lessDomId = 'less-css'
 
 export default function UiTheme (props) {
-  const { themeConfig, buildTheme, configLoaded } = props
-  if (!configLoaded) {
-    return null
-  }
+  const { themeConfig, buildTheme } = props
+
   const delta = useDelta((themeConfig))
 
   async function applyTheme () {
