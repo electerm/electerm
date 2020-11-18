@@ -10,7 +10,6 @@ const lookup = require('../common/lookup')
 const { resolve, sep } = require('path')
 const contants = require('../utils/constants')
 const { transferKeys } = require('../server/transfer')
-const installSrc = require('../lib/install-src')
 const _ = require('lodash')
 const log = require('electron-log')
 
@@ -50,7 +49,6 @@ const pre = {
   env: process.env,
   versions: process.versions,
   transferKeys,
-  installSrc,
   fsFunctions: [
     'accessAsync',
     'statAsync',
