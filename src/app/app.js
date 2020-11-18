@@ -4,32 +4,20 @@ global.Promise = require('bluebird')
 require('v8-compile-cache')
 const {
   app,
-  BrowserWindow,
-  Menu,
-  Notification,
-  globalShortcut
+  BrowserWindow
 } = require('electron')
 const { dbAction } = require('./lib/nedb')
-const initServer = require('./lib/init-server')
 const { resolve } = require('path')
-const { init } = require('./lib/shortcut')
-const menu = require('./lib/menu')
 const log = require('./utils/log')
 const {
   isDev, packInfo, iconPath,
-  minWindowWidth, minWindowHeight,
-  appPath
+  minWindowWidth, minWindowHeight
 } = require('./utils/app-props')
 const {
   getWindowSize
 } = require('./lib/window-control')
-const {
-  prefix
-} = require('./lib/locales')
-const a = prefix('app')
 const { onClose, getExitStatus } = require('./lib/on-close')
 const initIpc = require('./lib/ipc')
-require('./lib/tray')
 
 app.setName(packInfo.name)
 global.et = {
@@ -39,7 +27,7 @@ global.et = {
 global.win = null
 global.childPid = null
 
-log.debug('App starting...')
+log.debug('electerm start')
 
 if (process.platform === 'linux') {
   app.commandLine.appendSwitch('enable-transparent-visuals')
@@ -47,17 +35,7 @@ if (process.platform === 'linux') {
 }
 
 async function createWindow () {
-  const { config, localeRef } = await initServer({
-    ...process.env,
-    appPath
-  })
-  const { lang, langs } = localeRef
-  if (config.showMenu) {
-    Menu.setApplicationMenu(menu)
-  }
-
   const { width, height } = await getWindowSize()
-
   // Create the browser window.
   const isTest = process.env.NODE_TEST === 'yes'
   global.win = new BrowserWindow({
@@ -78,24 +56,11 @@ async function createWindow () {
     icon: iconPath
   })
 
-  // win.setAutoHideMenuBar(true)
-
-  // handle autohide flag
-  if (process.argv.includes('--autohide')) {
-    global.et.timer1 = setTimeout(() => global.win.hide(), 500)
-    if (Notification.isSupported()) {
-      const notice = new Notification({
-        title: `${packInfo.name} ${a('isRunning')}, ${a('press')} ${config.hotkey} ${a('toShow')}`
-      })
-      notice.show()
-    }
-  }
-
   global.et.exitStatus = process.argv.includes('--no-session-restore')
     ? 'ok'
     : await getExitStatus()
 
-  initIpc(config, lang, langs)
+  initIpc()
 
   global.et.timer = setTimeout(() => {
     dbAction('data', 'update', {
@@ -119,17 +84,12 @@ async function createWindow () {
   }
 
   global.win.loadURL(opts)
-  // win.maximize()
 
-  // Open the DevTools.
   if (isDev) {
     global.win.webContents.once('dom-ready', () => {
       global.win.webContents.openDevTools()
     })
   }
-
-  // init hotkey
-  init(globalShortcut, global.win, config)
 
   global.win.on('unmaximize', () => {
     const { width, height } = global.win.getBounds()

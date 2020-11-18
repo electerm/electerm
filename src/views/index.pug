@@ -14,7 +14,11 @@ html
         top: 0;
         width: 100%;
         height: 100%;
-        background: #141314 50% 50% no-repeat url("./images/electerm-watermark.png")
+        background: #141314 50% 50% no-repeat url("./images/electerm-watermark.png");
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
       }
     style(id='less-css').
     link(rel='stylesheet', href='css/electerm.styles.css?' + version)
@@ -23,6 +27,8 @@ html
   body
     #container
     #content-loading
+      .morph-shape.iblock.pd3
+        img.iblock.logo-filter(src='images/electerm.png', alt='', height=80)
     script.
       window.et = !{JSON.stringify(_global)}
     script(src='../node_modules/lodash/lodash.min.js')
@@ -32,24 +38,4 @@ html
     - else
       script(src='./external/react.production.min.js?' + version)
       script(src='./external/react-dom.production.min.js?' + version)
-    script.
-      window.et.onload = function() {
-        document.body.removeChild(document.getElementById('content-loading'));
-      };
-      window.lang = window.pre.getGlobalSync('lang')
-
-      function capitalizeFirstLetter (string) {
-        return string.charAt(0).toUpperCase() + string.slice(1)
-      }
-      window._config = window.pre.getGlobalSync('_config')
-      window.prefix = prefix => {
-        if (window._config.language === 'en_us') {
-          return (id) => {
-            return capitalizeFirstLetter(window.lang[prefix][id] || id)
-          }
-        }
-        return (id) => {
-          return window.lang[prefix][id] || id
-        }
-      }
-    script(src='js/electerm.' + version + '.js', onload='window.et.onload()')
+    script(src='js/basic.' + version + '.js')

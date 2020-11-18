@@ -21,7 +21,7 @@ const {
   loadLocales
 } = require('./locales')
 const { saveUserConfig } = require('./user-config-controller')
-const { changeHotkeyReg } = require('./shortcut')
+const { changeHotkeyReg, initShortCut } = require('./shortcut')
 const lastStateManager = require('./last-state')
 const {
   packInfo,
@@ -35,33 +35,37 @@ const {
 const { loadFontList } = require('./font-list')
 const { checkDbUpgrade, doUpgrade } = require('../upgrade')
 const { listSerialPorts } = require('./serial-port')
+const initApp = require('./init-app')
 
 function initIpc () {
   async function init () {
-    const dbConf = await getConfig()
-    await initServer(dbConf, {
-      ...process.env,
-      appPath
-    })
+    const {
+      config
+    } = await getConfig()
     const {
       langs,
       langMap,
       sysLocale
     } = await loadLocales()
-    const language = getLang(dbConf, sysLocale)
+    const language = getLang(config, sysLocale)
+    config.language = language
+    await initServer(config, {
+      ...process.env,
+      appPath
+    }, sysLocale)
     const lang = langMap[language].lang
     const sshConfigItems = await loadSshConfig()
     const installSrc = getInstallSrc()
     const globs = {
-      _config: {
-        ...dbConf,
-        language
-      },
+      _config: config,
       langs,
       lang,
       installSrc,
-      sshConfigItems
+      sshConfigItems,
+      appPath
     }
+    initApp(language, lang, config)
+    initShortCut(globalShortcut, global.win, config)
     return globs
   }
   const isMaximized = () => {

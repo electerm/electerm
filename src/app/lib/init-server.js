@@ -29,8 +29,8 @@ async function waitUntilServerStart (url) {
   }
 }
 
-module.exports = async (env, config) => {
-  const child = await createChildServer(config, env)
+module.exports = async (config, env, sysLocale) => {
+  const child = await createChildServer(config, env, sysLocale)
   child.on('exit', () => {
     global.childPid = null
   })

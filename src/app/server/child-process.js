@@ -5,11 +5,11 @@
 
 const { fork } = require('child_process')
 const { resolve } = require('path')
-const { sysLocale } = require('../lib/locales')
 const log = require('../utils/log')
 
-module.exports = (config, env) => {
+module.exports = (config, env, sysLocale) => {
   // start server
+  console.log(config.tokenElecterm, 'config.tokenElecterm')
   const child = fork(resolve(__dirname, './server.js'), {
     env: Object.assign(
       {
