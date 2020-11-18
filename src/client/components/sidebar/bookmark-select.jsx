@@ -5,10 +5,9 @@
 import { Component } from '../common/react-subx'
 import ItemList from '../setting-panel/list'
 import TreeList from '../setting-panel/tree-list'
-import copy from 'json-deep-copy'
-
-const { getGlobal } = window
-const sshConfigItems = copy(getGlobal('sshConfigItems'))
+import {
+  sshConfigItems
+} from '../../common/constants'
 
 export default class BookmarkSelect extends Component {
   render () {

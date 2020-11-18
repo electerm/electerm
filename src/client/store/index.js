@@ -29,11 +29,10 @@ import _ from 'lodash'
 import copy from 'json-deep-copy'
 import {
   terminalSshConfigType,
-  settingMap
+  settingMap,
+  sshConfigItems
 } from '../common/constants'
 import getInitItem from '../common/init-setting-item'
-const { getGlobal } = window
-const sshConfigItems = copy(getGlobal('sshConfigItems'))
 
 const store = Subx.create({
   ...initState,

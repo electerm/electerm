@@ -16,7 +16,7 @@ export default store => {
     const { currentTabId, tabs } = store
     const tab = _.find(tabs, t => t.id === currentTabId) || {}
     const title = createTitlte(tab)
-    window.getGlobal('setTitle')(title)
+    window.pre.runGlobalAsync('setTitle', title)
     return store.currentTabId
   }, debounceTime(1000))
 
@@ -52,7 +52,7 @@ export default store => {
   }, debounceTime(1000))
 
   Subx.autoRun(store, () => {
-    window.getGlobal('saveUserConfig')(store.config)
+    window.pre.runGlobalAsync('saveUserConfig', copy(store.config))
     return store.config
   }, debounceTime(1000))
 

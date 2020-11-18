@@ -10,11 +10,12 @@ import {
   sidebarWidth,
   newBookmarkIdPrefix,
   syncTypes,
-  settingSyncId
+  settingSyncId,
+  sshConfigItems
 } from '../common/constants'
 import { buildDefaultThemes, buildNewTheme } from '../common/terminal-theme'
 
-const { getGlobal, _config } = window
+const { _config } = window
 const { prefix } = window
 const t = prefix('terminalThemes')
 const e = prefix('control')
@@ -70,8 +71,8 @@ export default {
       title: ss('settingSync')
     }
   ],
-  sshConfigItems: copy(getGlobal('sshConfigItems')),
-  isMaximized: window.getGlobal('isMaximized')(),
+  sshConfigItems,
+  isMaximized: window.pre.runSync('isMaximized'),
   config: copy(_config) || {},
   contextMenuProps: {},
   transferHistory: [],

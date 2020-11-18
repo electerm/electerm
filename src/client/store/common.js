@@ -38,20 +38,19 @@ export default store => {
     }
   })
 
-  store.onResize = _.debounce(() => {
-    const { width, height } = window.getGlobal('getScreenSize')()
+  store.onResize = _.debounce(async () => {
+    const { width, height } = await window.pre.runGlobalAsync('getScreenSize')
+    const isMaximized = await window.pre.runGlobalAsync('isMaximized')
     const update = {
       height: window.innerHeight,
       width: window.innerWidth,
       screenWidth: width,
       screenHeight: height,
-      isMaximized: window.getGlobal('isMaximized')()
+      isMaximized
     }
     const stateUpdate = copy(update)
     stateUpdate.width = stateUpdate.width - sidebarWidth
     store.storeAssign(stateUpdate)
-    window
-      .getGlobal('lastStateManager')
-      .set('windowSize', update)
+    window.pre.runGlobalAsync('setWindowSize', update)
   }, 100)
 }

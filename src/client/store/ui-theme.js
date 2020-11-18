@@ -58,7 +58,7 @@ export default store => {
         stylus = stylus.replace(reg, `${key} = ${v}\n`)
       }
       const lessConf = configToLessConfig(config)
-      return window.getGlobal('toCss')(stylus, lessConf)
+      return window.pre.runGlobalAsync('toCss', stylus, lessConf)
     },
 
     getUiThemeConfig () {

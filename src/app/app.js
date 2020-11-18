@@ -1,7 +1,7 @@
 
 // use bluebird for performance
 global.Promise = require('bluebird')
-
+require('v8-compile-cache')
 const {
   app,
   BrowserWindow,
@@ -11,38 +11,25 @@ const {
   session
 } = require('electron')
 const { dbAction } = require('./lib/nedb')
-const { getAllConfig } = require('./lib/get-config')
 const initServer = require('./lib/init-server')
-const sshConfigItems = require('./lib/ssh-config')
 const { resolve } = require('path')
-const {
-  toCss,
-  clearCssCache
-} = require('./lib/style')
-const { saveUserConfig } = require('./lib/user-config-controller')
-const { init, changeHotkeyReg } = require('./lib/shortcut')
+const { init } = require('./lib/shortcut')
 const menu = require('./lib/menu')
 const log = require('./utils/log')
-const lastStateManager = require('./lib/last-state')
 const {
   isDev, packInfo, iconPath,
   minWindowWidth, minWindowHeight,
   appPath
 } = require('./utils/app-props')
 const {
-  getWindowSize,
-  getScreenSize,
-  maximize,
-  unmaximize
+  getWindowSize
 } = require('./lib/window-control')
 const {
   prefix
 } = require('./lib/locales')
-const { loadFontList } = require('./lib/font-list')
 const a = prefix('app')
 const { onClose, getExitStatus } = require('./lib/on-close')
-const { checkDbUpgrade, doUpgrade } = require('./upgrade')
-const openItem = require('./lib/open-item')
+const initIpc = require('./lib/ipc')
 require('./lib/tray')
 
 app.setName(packInfo.name)
@@ -92,7 +79,7 @@ async function createWindow () {
     backgroundColor: '#ff333333',
     webPreferences: {
       nodeIntegration: false,
-      enableRemoteModule: true,
+      enableRemoteModule: false,
       preload: resolve(__dirname, './preload/preload.js')
     },
     titleBarStyle: 'customButtonsOnHover',
@@ -116,52 +103,7 @@ async function createWindow () {
     ? 'ok'
     : await getExitStatus()
 
-  Object.assign(global.et, {
-    toCss,
-    clearCssCache,
-    loadFontList,
-    _config: config,
-    getAllConfig,
-    openItem,
-    doUpgrade,
-    checkDbUpgrade,
-    getExitStatus: () => global.et.exitStatus,
-    setExitStatus: (status) => {
-      global.et.exitStatus = status
-    },
-    dbAction,
-    appPath,
-    getScreenSize,
-    sshConfigItems,
-    closeApp: () => {
-      global.win.close()
-    },
-    restart: () => {
-      global.win.close()
-      app.relaunch()
-    },
-    minimize: () => {
-      global.win.minimize()
-    },
-    maximize,
-    unmaximize,
-    isMaximized: () => {
-      const { width: widthMax, height: heightMax } = getScreenSize()
-      const { width, height } = global.win.getBounds()
-      return widthMax === width && heightMax === height
-    },
-    openDevTools: () => {
-      global.win.webContents.openDevTools()
-    },
-    lang,
-    langs,
-    lastStateManager,
-    saveUserConfig,
-    setTitle: (title) => {
-      global.win.setTitle(packInfo.name + ' - ' + title)
-    },
-    changeHotkey: changeHotkeyReg(globalShortcut, global.win)
-  })
+  initIpc(config, lang, langs)
 
   global.et.timer = setTimeout(() => {
     dbAction('data', 'update', {

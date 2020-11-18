@@ -172,7 +172,7 @@ export default function ({
           </TabPane>
           <TabPane tab={e('os')} key='2'>
             {
-              window.pre.osInfo.map(({ k, v }, i) => {
+              window.pre.osInfo().map(({ k, v }, i) => {
                 return (
                   <div className='pd1b' key={i + '_os_' + k}>
                     <b className='bold'>{k}</b>:

@@ -185,7 +185,7 @@ export const commonParities = [
 export const defaultLoginScriptDelay = 500
 
 export const initTabs = [newTerm()]
-export const appPath = window.getGlobal('appPath')
+export const appPath = window.pre.getGlobalSync('appPath')
 export const maxBatchInput = 30
 export const baseUpdateCheckUrls = [
   'https://electerm.github.io/electerm',
@@ -204,3 +204,5 @@ export const settingCommonId = 'setting-common'
 export const defaultEnvLang = 'en_US.UTF-8'
 export const appUpdateCheck = 'check-app-update'
 export const maxZmodemUploadSize = 1024 * 8192
+export const sshConfigItems = window.pre.getGlobalSync('sshConfigItems')
+export const langs = window.pre.getGlobalSync('langs')

@@ -8,7 +8,7 @@ import copy from 'json-deep-copy'
 export default store => {
   Object.assign(store, {
     async checkLastSession () {
-      const status = window.getGlobal('getExitStatus')()
+      const status = await window.pre.runGlobalAsync('getExitStatus')
       if (status === 'ok') {
         return
       }

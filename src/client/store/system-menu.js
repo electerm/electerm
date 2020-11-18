@@ -104,11 +104,11 @@ export default store => {
     },
 
     doExit () {
-      window.getGlobal('closeApp')()
+      window.pre.runGlobalAsync('closeApp')
     },
 
     doRestart () {
-      window.getGlobal('restart')()
+      window.pre.runGlobalAsync('restart')
     }
   })
 }

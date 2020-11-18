@@ -39,14 +39,14 @@ export default memo(props => {
         addTab(s)
       }, 100)
     }
-    window.getGlobal('setExitStatus')('ok')
+    window.pre.runGlobalAsync('setExitStatus', 'ok')
   }
 
   const onCancelLoadSession = () => {
     storeAssign({
       sessionModalVisible: false
     })
-    window.getGlobal('setExitStatus')('ok')
+    window.pre.runGlobalAsync('setExitStatus', 'ok')
   }
 
   const toggoleSelection = (e, id) => {
