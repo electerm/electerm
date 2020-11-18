@@ -29,7 +29,7 @@ export default (store) => {
     }
     ext.openedCategoryIds = await getData('openedCategoryIds') || ext.bookmarkGroups.map(b => b.id)
     ext.lastDataUpdateTime = await getData('lastDataUpdateTime') || 0
-    ext.config = await window.getGlobal('getAllConfig')()
+    ext.config = await window.pre.runGlobalAsync('getAllConfig')
     ext.configLoaded = true
     Object.assign(store, ext)
 

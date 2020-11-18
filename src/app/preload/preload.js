@@ -3,15 +3,17 @@
  */
 
 const fs = require('fs')
-const { clipboard, shell, ipcRenderer, remote, webFrame } = require('electron')
+const os = require('os')
+const { clipboard, shell, ipcRenderer, webFrame } = require('electron')
 const vali = require('path-validation')
 const lookup = require('../common/lookup')
 const { resolve, sep } = require('path')
 const contants = require('../utils/constants')
 const { transferKeys } = require('../server/transfer')
 const installSrc = require('../lib/install-src')
-
+const _ = require('lodash')
 const log = require('electron-log')
+
 log.transports.console.format = '{h}:{i}:{s} {level} › {text}'
 
 window.log = log
@@ -40,7 +42,6 @@ const pre = {
   ipcOnEvent: (event, cb) => {
     ipcRenderer.on(event, cb)
   },
-  getGlobal: (name) => remote.getGlobal('et')[name],
   getZoomFactor: () => webFrame.getZoomFactor(),
   setZoomFactor: (nl) => webFrame.setZoomFactor(nl),
   lookup,
@@ -67,8 +68,44 @@ const pre = {
     'readFileAsBase64',
     'writeFile',
     'openFile'
-  ]
-
+  ],
+  osInfo: () => {
+    return Object.keys(os).map((k, i) => {
+      const vf = os[k]
+      if (!_.isFunction(vf)) {
+        return null
+      }
+      let v
+      try {
+        v = vf()
+      } catch (e) {
+        return null
+      }
+      if (!v) {
+        return null
+      }
+      v = JSON.stringify(v, null, 2)
+      return { k, v }
+    }).filter(d => d)
+  },
+  getGlobalSync: (name, ...args) => {
+    return ipcRenderer.sendSync('sync', {
+      name,
+      args
+    })
+  },
+  runGlobalAsync: (name, ...args) => {
+    return ipcRenderer.invoke('async', {
+      name,
+      args
+    })
+  },
+  runSync: (name, ...args) => {
+    return ipcRenderer.sendSync('sync-func', {
+      name,
+      args
+    })
+  }
 }
 
 window.pre = pre

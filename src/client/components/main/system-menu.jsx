@@ -154,7 +154,7 @@ function renderContext (store) {
       </div>
       <div
         className={cls}
-        onClick={() => window.getGlobal('openDevTools')()}
+        onClick={() => window.pre.runGlobalAsync('openDevTools')}
       >
         <LeftSquareFilled /> {m('toggledevtools')}
       </div>
@@ -179,13 +179,13 @@ function renderContext (store) {
       </div>
       <div
         className={cls}
-        onClick={() => window.getGlobal('minimize')()}
+        onClick={() => window.pre.runGlobalAsync('minimize')}
       >
         <SwitcherFilled /> {m('minimize')}
       </div>
       <div
         className={cls}
-        onClick={() => window.getGlobal('maximize')()}
+        onClick={() => window.pre.runGlobalAsync('maximize')}
       >
         <LayoutFilled /> {m('maximize')}
       </div>

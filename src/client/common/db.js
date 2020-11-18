@@ -14,7 +14,7 @@ import { nanoid as generate } from 'nanoid'
  * @param  {...any} args
  */
 const dbAction = (...args) => {
-  return window.getGlobal('dbAction')(...args)
+  return window.pre.runGlobalAsync('dbAction', ...args)
     .catch(handleError)
 }
 

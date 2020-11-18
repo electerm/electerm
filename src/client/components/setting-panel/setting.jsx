@@ -14,7 +14,7 @@ import {
   Tooltip
 } from 'antd'
 import deepCopy from 'json-deep-copy'
-import { noTerminalBgValue, appPath } from '../../common/constants'
+import { noTerminalBgValue, appPath, langs } from '../../common/constants'
 import defaultSettings from '../../../app/common/default-setting'
 import ShowItem from '../common/show-item'
 import { osResolve } from '../../common/resolve'
@@ -26,7 +26,7 @@ import './setting.styl'
 
 const InputGroup = Input.Group
 const { Option } = Select
-const { getGlobal, prefix } = window
+const { prefix } = window
 const e = prefix('setting')
 const f = prefix('form')
 const s = prefix('ssh')
@@ -52,7 +52,7 @@ export default class Setting extends Component {
   }
 
   restart = () => {
-    getGlobal('restart')()
+    window.pre.runGlobalAsync('restart')
   }
 
   resetAll = () => {
@@ -109,16 +109,14 @@ export default class Setting extends Component {
     )
   }
 
-  saveConfig = (_ext) => {
+  saveConfig = async (_ext) => {
     const config = deepCopy(this.props.config)
     const ext = deepCopy(_ext)
     const update = {
       config: Object.assign({}, config, deepCopy(_ext))
     }
-    const saveUserConfig = getGlobal('saveUserConfig')
     if (ext.hotkey && ext.hotkey !== config.hotkey) {
-      const changeHotkey = getGlobal('changeHotkey')
-      const res = changeHotkey(ext.hotkey)
+      const res = await window.pre.runGlobalAsync('changeHotkey', ext.hotkey)
       if (!res) {
         message.warn(e('hotkeyNotOk'))
         update.config.hotkey = config.hotkey
@@ -127,7 +125,7 @@ export default class Setting extends Component {
         message.success(e('saved'))
       }
     }
-    saveUserConfig && saveUserConfig(ext)
+    window.pre.runGlobalAsync('saveUserConfig', ext)
     this.props.store.storeAssign(update)
   }
 
@@ -485,7 +483,6 @@ export default class Setting extends Component {
     } = this.props.config
 
     const { terminalThemes } = this.props.store
-    const langs = getGlobal('langs')
     const [modifier, key] = hotkey.split('+')
     return (
       <div className='form-wrap pd1y pd2x'>

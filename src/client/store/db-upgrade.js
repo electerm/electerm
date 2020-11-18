@@ -7,11 +7,10 @@ import delay from '../common/wait'
 
 export default (store) => {
   store.checkForDbUpgrade = async () => {
-    const shouldUpgrade = await window.getGlobal('checkDbUpgrade')()
+    const shouldUpgrade = await window.pre.runGlobalAsync('checkDbUpgrade')
     if (!shouldUpgrade) {
       return false
     }
-    const doUpgrade = window.getGlobal('doUpgrade')
     const {
       dbVersion,
       packVersion
@@ -26,7 +25,7 @@ export default (store) => {
         }
       }
     })
-    await doUpgrade()
+    await window.pre.runGlobalAsync('doUpgrade')
     mod.update({
       title: 'Done',
       content: 'Database Upgraded',

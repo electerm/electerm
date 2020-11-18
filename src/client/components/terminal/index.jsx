@@ -923,9 +923,7 @@ export default class Term extends Component {
 
   onResizeTerminal = size => {
     const { cols, rows } = size
-    const config = deepCopy(
-      window.getGlobal('_config')
-    )
+    const config = this.props.store.config
     const { host, port } = config
     const { pid } = this
     const url = `http://${host}:${port}/terminals/${pid}/size?cols=${cols}&rows=${rows}&sessionId=${this.props.sessionId}`

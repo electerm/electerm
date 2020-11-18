@@ -14,13 +14,13 @@ export default memo(props => {
     closeApp
   } = props
   const minimize = () => {
-    window.getGlobal('minimize')()
+    window.pre.runGlobalAsync('minimize')
   }
   const maximize = () => {
-    window.getGlobal('maximize')()
+    window.pre.runGlobalAsync('maximize')
   }
   const unmaximize = () => {
-    window.getGlobal('unmaximize')()
+    window.pre.runGlobalAsync('unmaximize')
   }
   return (
     <div className='window-controls'>

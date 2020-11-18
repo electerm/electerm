@@ -7,14 +7,13 @@ import { nanoid as generate } from 'nanoid'
 import copy from 'json-deep-copy'
 import {
   settingMap,
-  statusMap
+  statusMap,
+  sshConfigItems
 } from '../common/constants'
 import { buildNewTheme } from '../common/terminal-theme'
 import getInitItem from '../common/init-setting-item'
 
-const { getGlobal } = window
 const defaultStatus = statusMap.processing
-const sshConfigItems = copy(getGlobal('sshConfigItems'))
 
 export default store => {
   Object.assign(store, {
@@ -132,7 +131,7 @@ export default store => {
     },
 
     async loadFontList () {
-      const fonts = await window.getGlobal('loadFontList')()
+      const fonts = await window.pre.runGlobalAsync('loadFontList')
       store.fonts = fonts
     }
   })

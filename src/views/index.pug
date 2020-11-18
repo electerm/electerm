@@ -36,24 +36,12 @@ html
       window.et.onload = function() {
         document.body.removeChild(document.getElementById('content-loading'));
       };
-      window.getGlobal = function(str) {
-        return window.pre.getGlobal(str)
-      }
-      window.lang = window.getGlobal('lang')
-
-      /**
-      * string translate
-      * @param {string} id eg: 'menu.cut'
-      */
-      window.e = id => {
-        return window.lang.id || id
-      }
+      window.lang = window.pre.getGlobalSync('lang')
 
       function capitalizeFirstLetter (string) {
         return string.charAt(0).toUpperCase() + string.slice(1)
       }
-
-      window._config = window.getGlobal('_config')
+      window._config = window.pre.getGlobalSync('_config')
       window.prefix = prefix => {
         if (window._config.language === 'en_us') {
           return (id) => {

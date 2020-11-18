@@ -26,7 +26,7 @@ export default class Index extends Component {
     window.lang = copy(window.lang)
     window._config = copy(window._config)
     const title = createTitlte(store.tabs[0])
-    window.getGlobal('setTitle')(title)
+    window.pre.runGlobalAsync('setTitle', title)
     window.addEventListener('resize', store.onResize)
     store.onResize()
     const { ipcOnEvent } = window.pre

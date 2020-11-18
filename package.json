@@ -1,6 +1,6 @@
 {
   "name": "electerm",
-  "version": "1.8.0",
+  "version": "1.8.1",
   "description": "Terminal/ssh/sftp client(linux, mac, win) based on electron/ssh2/node-pty/xterm/antd/subx and other libs",
   "main": "app.js",
   "bin": "npm/electerm",
@@ -148,7 +148,8 @@
     "serialport": "9.0.0",
     "socks": "2.3.3",
     "ssh-config": "4.0.2",
-    "stylus": "^0.54.8"
+    "stylus": "^0.54.8",
+    "v8-compile-cache": "^2.2.0"
   },
   "standard": {
     "parser": "babel-eslint",
