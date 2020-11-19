@@ -30,7 +30,7 @@ describe('history', function () {
 
     log('button:edit')
     await client.click('.btns .anticon-plus-circle')
-    await delay(500)
+    await delay(3500)
     const sel = '.ant-modal .ant-tabs-nav-list .ant-tabs-tab-active'
     const active = await client.element(sel)
     await delay(1500)
