@@ -26,7 +26,7 @@ describe('terminal', function () {
       ? 'dir'
       : 'ls'
     await client.waitUntilWindowLoaded()
-    await delay(3500)
+    await delay(7500)
     await basicTermTest(this, client, cmd)
   })
 })
