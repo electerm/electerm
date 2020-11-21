@@ -52,7 +52,7 @@ export default class Setting extends Component {
   }
 
   restart = () => {
-    window.pre.runGlobalAsync('restart')
+    window.location.reload()
   }
 
   resetAll = () => {

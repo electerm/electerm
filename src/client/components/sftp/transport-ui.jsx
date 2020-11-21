@@ -38,7 +38,7 @@ export default function Transporter (props) {
   const cancelIcon = (
     <CloseCircleOutlined
       className='transfer-control-icon pointer hover-black'
-      onClick={props.cancel}
+      onClick={() => props.cancel()}
       title={e('cancel')} />
   )
   const controlIcon = isTransfer

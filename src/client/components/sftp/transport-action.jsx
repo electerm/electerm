@@ -92,7 +92,7 @@ export default function transportAction (props) {
       return {
         transferList
       }
-    }, callback)
+    }, callback || _.noop)
   }
 
   function pause () {

@@ -1,5 +1,4 @@
 
-const { happy } = require('./happy-pack')
 const copy = require('./copy')
 const TerserPlugin = require('terser-webpack-plugin')
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin')
@@ -9,7 +8,6 @@ const {
 } = require('./plugins')
 module.exports = (config) => {
   config.plugins = [
-    happy,
     extractTextPlugin1,
     stylusSettingPlugin,
     copy
