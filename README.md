@@ -67,7 +67,7 @@ Without users's feedbacks/suggestions/pull requests/language files, this project
 ## Dev
 
 ```bash
-# tested in ubuntu16.04/mac os 10.13 only
+# tested in ubuntu16.04+/mac os 10.13+ only
 # need nodejs/npm, suggest using nvm to install nodejs/npm
 # https://github.com/creationix/nvm
 # with node 8.6+
@@ -76,7 +76,7 @@ git clone git@github.com:electerm/electerm.git
 cd electerm
 npm i
 
-# start webpack dev server
+# start webpack dev server, requires 5570 port
 npm start
 
 # in a separate terminal session run app
@@ -101,7 +101,7 @@ npm run test
 ## Test build
 
 ```bash
-# Tested only in ubuntu 16.04 x64
+# Tested only in ubuntu 16.04 x64+
 # Install yarn first(to do yarn autoclean)
 # See https://yarnpkg.com/en/docs/install
 
