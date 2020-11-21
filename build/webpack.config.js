@@ -2,7 +2,7 @@ require('dotenv').config()
 const webpack = require('webpack')
 const { identity } = require('lodash')
 const path = require('path')
-const { env, version } = require('./common')
+const { env } = require('./common')
 const isProd = env === 'production'
 const {
   extractTextPlugin1,
@@ -21,9 +21,9 @@ let config = {
   },
   output: {
     path: path.resolve(__dirname, '../work/app/assets'),
-    filename: 'js/[name].' + version + '.js',
+    filename: 'js/[name].js',
     publicPath: '/',
-    chunkFilename: 'js/[name].' + version + '.js',
+    chunkFilename: 'js/[name].js',
     libraryTarget: 'var',
     library: 'Et'
   },
@@ -32,7 +32,7 @@ let config = {
     'react-dom': 'ReactDOM',
     lodash: '_'
   },
-  target: 'es7',
+  target: 'web',
   watch: true,
   resolve: {
     extensions: ['.js', '.jsx', '.ts', '.json'],
@@ -53,7 +53,6 @@ let config = {
   },
   devtool: 'source-map',
   plugins: [
-    new webpack.HotModuleReplacementPlugin(),
     stylusSettingPlugin,
     extractTextPlugin1
   ].filter(identity),

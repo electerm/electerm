@@ -30,9 +30,7 @@ function initApp (language, lang, config) {
     }
   }
   const menu = buildMenu(prefix)
-  if (config.showMenu) {
-    Menu.setApplicationMenu(menu)
-  }
+  Menu.setApplicationMenu(menu)
   initTray(menu)
   const a = prefix('app')
   // handle autohide flag
