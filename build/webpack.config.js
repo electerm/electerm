@@ -1,5 +1,4 @@
 require('dotenv').config()
-const webpack = require('webpack')
 const { identity } = require('lodash')
 const path = require('path')
 const { env } = require('./common')
