@@ -6,7 +6,7 @@
   "bin": "npm/electerm",
   "scripts": {
     "app": "node bin/app",
-    "build": "./node_modules/.bin/cross-env NODE_ENV=production ./node_modules/.bin/webpack --watch --progress --config build/webpack.config.js",
+    "build": "./node_modules/.bin/cross-env NODE_ENV=production ./node_modules/.bin/webpack --progress --config build/webpack.config.js",
     "start": "./node_modules/.bin/webpack serve --hot --progress --content-base work/app/assets/ --config build/webpack.config.js",
     "icon": "node bin/icon",
     "ver": "node bin/generate-version",
