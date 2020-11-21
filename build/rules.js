@@ -1,11 +1,10 @@
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
-const { packThreadCount } = require('./happy-pack')
 const pug = require('./pug')
 module.exports = [
   {
     test: /\.jsx?$/,
     exclude: /node_modules/,
-    use: [packThreadCount === 0 ? 'babel-loader?cacheDirectory' : 'happypack/loader?cacheDirectory']
+    use: ['babel-loader?cacheDirectory']
   },
   {
     test: /\.styl$/,

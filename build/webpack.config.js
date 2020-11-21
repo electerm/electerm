@@ -2,7 +2,6 @@ require('dotenv').config()
 const webpack = require('webpack')
 const { identity } = require('lodash')
 const path = require('path')
-const { happy } = require('./happy-pack')
 const { env, version } = require('./common')
 const isProd = env === 'production'
 const {
@@ -56,7 +55,6 @@ let config = {
   plugins: [
     new webpack.HotModuleReplacementPlugin(),
     stylusSettingPlugin,
-    happy,
     extractTextPlugin1
   ].filter(identity),
   devServer

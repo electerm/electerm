@@ -41,7 +41,7 @@ function initIpc () {
   async function init () {
     const {
       config
-    } = await getConfig()
+    } = await getConfig(global.et.serverInited)
     const {
       langs,
       langMap,
@@ -49,13 +49,17 @@ function initIpc () {
     } = await loadLocales()
     const language = getLang(config, sysLocale)
     config.language = language
-    await initServer(config, {
-      ...process.env,
-      appPath
-    }, sysLocale)
+    if (!global.et.serverInited) {
+      await initServer(config, {
+        ...process.env,
+        appPath
+      }, sysLocale)
+      global.et.serverInited = true
+    }
     const lang = langMap[language].lang
     const sshConfigItems = await loadSshConfig()
     const installSrc = getInstallSrc()
+    global.et.config = config
     const globs = {
       _config: config,
       langs,

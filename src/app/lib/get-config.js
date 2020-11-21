@@ -4,18 +4,19 @@ const getPort = require('./get-port')
 const { userConfigId } = require('../common/constants')
 const generate = require('../common/uid')
 
-exports.getConfig = async () => {
-  const token = generate()
+exports.getConfig = async (inited) => {
   const userConfig = await dbAction('data', 'findOne', {
     _id: userConfigId
   }) || {}
   delete userConfig._id
-  const port = await getPort()
+  const port = inited
+    ? global.et.config.port
+    : await getPort()
   const config = {
     ...defaultSetting,
     ...userConfig,
     port,
-    tokenElecterm: token
+    tokenElecterm: inited ? global.et.config.tokenElecterm : generate()
   }
   return {
     userConfig,
