@@ -751,7 +751,7 @@ export default class FileSection extends React.Component {
       selectedFiles,
       tab
     } = this.props
-    const hasHost = !!_.get(tab, 'host')
+    const hasHost = !!_.get(tab, 'host') || _.get(tab, 'enableSftp') !== false
     const transferText = type === typeMap.local
       ? e(transferTypeMap.upload)
       : e(transferTypeMap.download)

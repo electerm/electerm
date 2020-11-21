@@ -6,7 +6,6 @@ module.exports = exports.default = {
   rightClickSelectsWord: false,
   pasteWhenContextMenu: false,
   ctrlOrMetaOpenTerminalLink: false,
-  showMenu: true,
   ...defaultSettings,
   terminalTimeout: 5000,
   proxyPort: 1080,

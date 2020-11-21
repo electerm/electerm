@@ -10,7 +10,7 @@ async function load () {
   }
   function loadScript () {
     const rcs = document.createElement('script')
-    rcs.src = 'js/electerm.' + window.pre.packInfo.version + '.js'
+    rcs.src = 'js/electerm.js?' + window.pre.packInfo.version
     document.body.appendChild(rcs)
   }
   const globs = await window.pre.runGlobalAsync('init')

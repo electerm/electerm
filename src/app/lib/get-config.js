@@ -9,6 +9,9 @@ exports.getConfig = async (inited) => {
     _id: userConfigId
   }) || {}
   delete userConfig._id
+  delete userConfig.host
+  delete userConfig.terminalTypes
+  delete userConfig.tokenElecterm
   const port = inited
     ? global.et.config.port
     : await getPort()
