@@ -222,19 +222,21 @@ function renderContext (store) {
 export default class SystemMenu extends Component {
   render () {
     const { store } = this.props
+    const ext = {
+      pos: {
+        left: 40,
+        top: 10
+      },
+      content: renderContext(store)
+    }
     return (
       <Context
-        content={renderContext(store)}
         visible={store.menuOpened}
         className='context-menu system-menu'
         closeContextMenu={store.closeMenu}
-
-        pos={{
-          left: 40,
-          top: 10
-        }}
         key='menu-item-wrap'
         count={15}
+        {...ext}
       />
     )
   }

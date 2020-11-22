@@ -4,7 +4,7 @@
  * run every upgrade script one by one
  */
 
-const { packInfo, appPath } = require('../utils/constants')
+const { packInfo, appPath } = require('../utils/app-props')
 const { version: packVersion } = packInfo
 const { resolve } = require('path')
 const fs = require('fs')

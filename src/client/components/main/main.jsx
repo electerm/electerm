@@ -13,7 +13,6 @@ import createTitlte from '../../common/create-title'
 import TextEditor from '../text-editor'
 import Sidebar from '../sidebar'
 import SystemMenu from './system-menu'
-// import SessionControl from '../session-control'
 import CssOverwrite from './css-overwrite'
 import UiTheme from './ui-theme'
 import classnames from 'classnames'
@@ -70,13 +69,47 @@ export default class Index extends Component {
       'is-mac': isMac,
       'is-win': isWin
     })
+    const ext1 = {
+      className: cls
+    }
+    const cpConf = copy(config)
+    const confsCss = Object
+      .keys((cpConf))
+      .filter(d => d.startsWith('terminalBackground'))
+      .reduce((p, k) => {
+        return {
+          ...p,
+          [k]: cpConf[k]
+        }
+      }, {})
+    const themeProps = {
+      themeConfig: store.getUiThemeConfig()
+    }
+    const updateProps = {
+      upgradeInfo: copy(store.upgradeInfo)
+    }
+    const outerProps = {
+      style: {
+        opacity: config.opacity
+      }
+    }
+    const tabsProps = {
+      ..._.pick(store, [
+        'currentTabId',
+        'height',
+        'width',
+        'config',
+        'activeTerminalId',
+        'isMaximized'
+      ]),
+      tabs: copy(store.tabs)
+    }
     return (
-      <div className={cls}>
-        <CssOverwrite {...config} />
+      <div {...ext1}>
+        <CssOverwrite {...confsCss} />
         <UiTheme
-          themeConfig={store.getUiThemeConfig()}
+          {...themeProps}
           buildTheme={store.buildTheme}
-          configLoaded={store.configLoaded}
         />
         <TextEditor
           key={textEditorProps.id}
@@ -85,7 +118,7 @@ export default class Index extends Component {
         />
         <UpdateCheck
           store={store}
-          upgradeInfo={copy(store.upgradeInfo)}
+          {...updateProps}
           addTab={store.addTab}
         />
         <ContextMenu
@@ -104,22 +137,12 @@ export default class Index extends Component {
         <SettingModal store={store} />
         <div
           id='outside-context'
-          style={{
-            opacity: config.opacity
-          }}
+          {...outerProps}
         >
           <Sidebar store={store} />
           <Tabs
             store={store}
-            {..._.pick(store, [
-              'currentTabId',
-              'height',
-              'width',
-              'config',
-              'activeTerminalId',
-              'isMaximized'
-            ])}
-            tabs={copy(store.tabs)}
+            {...tabsProps}
           />
           <div className='ui-outer'>
             {
@@ -128,18 +151,21 @@ export default class Index extends Component {
                 const cls = id !== currentTabId
                   ? 'hide'
                   : 'ssh-wrap-show'
+                const tabProps = {
+                  tab: copy(tab),
+                  ..._.pick(store, [
+                    'currentTabId',
+                    'height',
+                    'width',
+                    'activeTerminalId'
+                  ]),
+                  config: cpConf
+                }
                 return (
                   <div className={cls} key={id}>
                     <Session
                       store={store}
-                      tab={copy(tab)}
-                      {..._.pick(store, [
-                        'currentTabId',
-                        'height',
-                        'width',
-                        'activeTerminalId'
-                      ])}
-                      config={copy(config)}
+                      {...tabProps}
                     />
                   </div>
                 )
