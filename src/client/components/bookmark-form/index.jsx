@@ -1,7 +1,7 @@
 /**
  * bookmark form
  */
-import { useState } from 'react'
+import { useState, memo } from 'react'
 import {
   Radio
 } from 'antd'
@@ -19,7 +19,7 @@ const c = prefix('common')
 const m = prefix('menu')
 const s = prefix('setting')
 
-export default function BookmarkIndex (props) {
+export default memo(function BookmarkIndex (props) {
   const initType = props.formData.type === terminalSerialType
     ? terminalSerialType
     : 'ssh'
@@ -32,6 +32,9 @@ export default function BookmarkIndex (props) {
   } = props
   if (type !== settingMap.bookmarks && type !== settingMap.history) {
     return null
+  }
+  function handleChange (e) {
+    setBookmarkType(e.target.value)
   }
   return (
     <div className='form-wrap pd1x'>
@@ -47,7 +50,7 @@ export default function BookmarkIndex (props) {
           size='small'
           className='mg1l'
           value={bookmarkType}
-          onChange={e => setBookmarkType(e.target.value)}
+          onChange={handleChange}
         >
           {
             Object.keys(connectionMap).map(k => {
@@ -66,4 +69,4 @@ export default function BookmarkIndex (props) {
       }
     </div>
   )
-}
+})

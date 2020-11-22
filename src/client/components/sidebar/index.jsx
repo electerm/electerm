@@ -29,12 +29,50 @@ const u = prefix('updater')
 const ss = prefix('settingSync')
 
 export default class Sidebar extends Component {
+  handler = null
+
+  setOpenedSideBar = (bar) => {
+    const { store } = this.props
+    const {
+      storeAssign
+    } = store
+    return storeAssign({
+      openedSideBar: bar
+    })
+  }
+
+  onMouseLeave = () => {
+    const interval = 400
+    this.handler = setTimeout(
+      () => this.setOpenedSideBar(''),
+      interval
+    )
+  }
+
+  onMouseEnterBookmark = () => {
+    clearTimeout(this.handler)
+    this.setOpenedSideBar('bookmarks')
+  }
+
+  onMouseEnterHistory = () => {
+    clearTimeout(this.handler)
+    this.setOpenedSideBar('history')
+  }
+
+  showUpgrade = () => {
+    this.props.store.storeAssign({
+      upgradeInfo: {
+        ...this.props.store.upgradeInfo,
+        showUpgradeModal: true
+      }
+    })
+  }
+
   render () {
     const { store } = this.props
     const {
       openedSideBar,
       onNewSsh,
-      storeAssign,
       openSetting,
       transferHistory,
       openTransferHistory,
@@ -45,38 +83,6 @@ export default class Sidebar extends Component {
       upgradeInfo
     } = store
     const { showUpgradeModal, upgradePercent, checkingRemoteVersion, shouldUpgrade } = upgradeInfo
-    let handler
-    const interval = 400
-    const setOpenedSideBar = (bar) => {
-      return storeAssign({
-        openedSideBar: bar
-      })
-    }
-    const onMouseLeave = () => {
-      handler = setTimeout(
-        () => setOpenedSideBar(''),
-        interval
-      )
-    }
-    const onMouseEnterBookmark = () => {
-      clearTimeout(handler)
-      setOpenedSideBar('bookmarks')
-    }
-    const onMouseEnterHistory = () => {
-      clearTimeout(handler)
-      setOpenedSideBar('history')
-    }
-    const listStyle = {
-      maxHeight: height - 160
-    }
-    const showUpgrade = () => {
-      storeAssign({
-        upgradeInfo: {
-          ...store.upgradeInfo,
-          showUpgradeModal: true
-        }
-      })
-    }
     return (
       <div
         className={`sidebar type-${openedSideBar}`}
@@ -103,8 +109,8 @@ export default class Sidebar extends Component {
             title={c('bookmarks')}
           >
             <BookOutlined
-              onMouseEnter={onMouseEnterBookmark}
-              onMouseLeave={onMouseLeave}
+              onMouseEnter={this.onMouseEnterBookmark}
+              onMouseLeave={this.onMouseLeave}
               className='font20 iblock control-icon' />
           </div>
           <div
@@ -112,8 +118,8 @@ export default class Sidebar extends Component {
             title={c('history')}
           >
             <ClockCircleOutlined
-              onMouseEnter={onMouseEnterHistory}
-              onMouseLeave={onMouseLeave}
+              onMouseEnter={this.onMouseEnterHistory}
+              onMouseLeave={this.onMouseLeave}
               className='font20 iblock control-icon' />
           </div>
           <div
@@ -168,7 +174,7 @@ export default class Sidebar extends Component {
                   >
                     <UpCircleOutlined
                       className='iblock font18 control-icon hvr-bob upgrade-icon'
-                      onClick={showUpgrade} />
+                      onClick={this.showUpgrade} />
                   </div>
                 </Tooltip>
               )
@@ -180,15 +186,13 @@ export default class Sidebar extends Component {
         >
           <BookMarksWrap
             store={store}
-            onMouseEnter={onMouseEnterBookmark}
-            onMouseLeave={onMouseLeave}
-            listStyle={listStyle}
+            onMouseEnter={this.onMouseEnterBookmark}
+            onMouseLeave={this.onMouseLeave}
           />
           <HistoryWrap
             store={store}
-            onMouseEnter={onMouseEnterHistory}
-            onMouseLeave={onMouseLeave}
-            listStyle={listStyle}
+            onMouseEnter={this.onMouseEnterHistory}
+            onMouseLeave={this.onMouseLeave}
           />
         </div>
       </div>

@@ -62,9 +62,9 @@ export default class QuickCommandsFooter extends Component {
           filterOption={this.filterFunc}
         >
           {
-            all.map(qc => {
+            all.map((qc, i) => {
               return (
-                <Option key={qc.id} value={qc.id} cmd={qc.command}>
+                <Option key={qc.id + '-' + i} value={qc.id} cmd={qc.command}>
                   {qc.name}
                 </Option>
               )

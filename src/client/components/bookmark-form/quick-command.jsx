@@ -2,18 +2,18 @@
  * quick command list
  */
 
-import { Component } from 'react'
+import { PureComponent } from 'react'
 import { CheckOutlined, CloseCircleOutlined, CloseOutlined, EditOutlined } from '@ant-design/icons'
 import { Input, Col, Row, message, Switch, Tooltip } from 'antd'
 import { settingMap } from '../../common/constants'
 import { nanoid as generate } from 'nanoid/non-secure'
-import _ from 'lodash'
+import eq from 'fast-deep-equal'
 
 const InputGroup = Input.Group
 const { prefix } = window
 const t = prefix('quickCommands')
 
-export default class QuickCommandItem extends Component {
+export default class QuickCommandItem extends PureComponent {
   constructor (props) {
     super(props)
     this.state = {
@@ -23,7 +23,7 @@ export default class QuickCommandItem extends Component {
   }
 
   componentDidUpdate (prevProps) {
-    if (!_.isEqual(this.props.item, prevProps.item)) {
+    if (!eq(this.props.item, prevProps.item)) {
       this.setState({
         item: this.props.item
       })
@@ -146,14 +146,14 @@ export default class QuickCommandItem extends Component {
             <Input
               value={item.name}
               onChange={this.onChangeName}
-              style={{ width: '40%' }}
+              className='width-40'
               title={item.name}
               placeholder={t('quickCommandName')}
             />
             <Input
               value={item.command}
               onChange={this.onChangeCommand}
-              style={{ width: '60%' }}
+              className='width-60'
               placeholder={t('quickCommand')}
               title={item.command}
             />
@@ -182,14 +182,14 @@ export default class QuickCommandItem extends Component {
             <Input
               value={item.name}
               readOnly
-              style={{ width: '40%' }}
+              className='width-40'
               title={item.name}
               placeholder={t('quickCommandName')}
             />
             <Input
               value={item.command}
               readOnly
-              style={{ width: '60%' }}
+              className='width-60'
               title={item.command}
             />
           </InputGroup>

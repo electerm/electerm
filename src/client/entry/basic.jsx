@@ -1,7 +1,6 @@
 /**
- * basic css import
+ * init app data then write main script to html body
  */
-
 import '../css/basic.styl'
 
 async function load () {

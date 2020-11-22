@@ -1,5 +1,6 @@
 /**
  * show item in folder
+ * // todo rerender check
  */
 
 import { memo } from 'react'

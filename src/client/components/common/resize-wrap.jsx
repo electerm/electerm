@@ -1,5 +1,6 @@
 /**
  * make child component resizable by drag the horizontal or vertical handle
+ * // todo: rerender check
  */
 
 import React from 'react'

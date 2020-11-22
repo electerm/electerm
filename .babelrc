@@ -1,6 +1,6 @@
 {
   "presets": [
-    "@babel/react",
+    "@babel/preset-react",
     ["@babel/env", {
       "targets": {
         "chrome": 87,
