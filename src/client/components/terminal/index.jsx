@@ -529,6 +529,7 @@ export default class Term extends Component {
   onCopy = () => {
     const selected = this.term.getSelection()
     copy(selected)
+    this.term.focus()
   }
 
   onSelectAll = () => {
