@@ -4,7 +4,7 @@
  * run every upgrade script one by one
  */
 
-const { packInfo } = require('../utils/app-props')
+const { packInfo, appPath } = require('../utils/constants')
 const { version: packVersion } = packInfo
 const { resolve } = require('path')
 const fs = require('fs')
@@ -13,7 +13,6 @@ const comapre = require('../common/version-compare')
 const { dbAction } = require('../lib/nedb')
 const _ = require('lodash')
 const initData = require('./init-nedb')
-const { appPath } = require('../utils/app-props')
 const savePath = resolve(appPath, 'electerm-localstorage.json')
 const { existsSync } = require('fs')
 const { updateDBVersion } = require('./version-upgrade')

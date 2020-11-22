@@ -12,7 +12,7 @@ const log = require('./utils/log')
 const {
   isDev, packInfo, iconPath,
   minWindowWidth, minWindowHeight
-} = require('./utils/app-props')
+} = require('./utils/constants')
 const {
   getWindowSize
 } = require('./lib/window-control')

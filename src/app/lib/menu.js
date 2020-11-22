@@ -6,7 +6,7 @@ const {
   Menu,
   shell
 } = require('electron')
-const { packInfo } = require('../utils/app-props')
+const { packInfo } = require('../utils/constants')
 
 function buildMenu (prefix) {
   const e = prefix('menu')

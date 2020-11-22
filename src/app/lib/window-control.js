@@ -4,7 +4,7 @@
 
 const lastStateManager = require('./last-state')
 // const log = require('./log')
-const { isDev, minWindowWidth, minWindowHeight } = require('../utils/app-props')
+const { isDev, minWindowWidth, minWindowHeight } = require('../utils/constants')
 
 exports.getScreenPrimary = () => {
   return require('electron').screen.getPrimaryDisplay()

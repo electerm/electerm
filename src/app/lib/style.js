@@ -12,7 +12,7 @@ const {
     version
   },
   isDev
-} = require('../utils/app-props')
+} = require('../utils/constants')
 const eq = require('fast-deep-equal')
 const { readFileSync } = require('fs')
 

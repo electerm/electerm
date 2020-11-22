@@ -8,7 +8,7 @@ const {
 } = require('electron')
 const {
   packInfo
-} = require('../utils/app-props')
+} = require('../utils/constants')
 const buildMenu = require('./menu')
 const initTray = require('./tray')
 
