@@ -2,9 +2,8 @@
  * run command in remote terminal
  */
 
-import fetch from '../../common/fetch'
+import { runCmd } from '../terminal/terminal-apis'
 import { useEffect } from 'react'
-// const sepStr = '---sep---'
 
 function formatActivities (str) {
   if (!str) {
@@ -171,19 +170,12 @@ function formatNetwork (traffic, ips) {
 
 export async function runCmds (props, cmds) {
   const {
-    host,
-    port,
     pid,
     sessionId
   } = props
-  const url = `http://${host}:${port}/terminals/${pid}/run-cmd?sessionId=${sessionId}`
   const ress = []
   for (const cmd of cmds) {
-    const res = await fetch.post(url, {
-      cmd
-    }, {
-      handleErr: log.error
-    })
+    const res = await runCmd(pid, sessionId, cmd)
     ress.push(res || '')
   }
   return ress

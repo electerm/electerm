@@ -11,16 +11,24 @@ const {
   onDestroyTransfer
 } = require('./remote-common')
 const { Transfer } = require('./transfer')
-const { fsExport: fs } = require('../lib/fs')
+const fs = require('./fs')
 const log = require('../utils/log')
 const Upgrade = require('./download-upgrade')
 const fetch = require('./fetch')
 const sync = require('./sync')
+const {
+  createTerm,
+  testTerm,
+  resize,
+  runCmd
+} = require('./terminal-api')
 
 global.upgradeInsts = {}
 
 // for remote sessions
 global.sessions = {}
+
+const { tokenElecterm } = process.env
 
 /**
  * add ws.s function
@@ -39,9 +47,17 @@ const wsDec = (ws) => {
   ws._socket.setKeepAlive(true, 5 * 60 * 1000)
 }
 
+function verify (req) {
+  const { token: to } = req.query
+  if (to !== tokenElecterm) {
+    throw new Error('not valid request')
+  }
+}
+
 const initWs = function (app) {
   // sftp function
   app.ws('/sftp/:id', (ws, req) => {
+    verify(req)
     wsDec(ws)
     const { id } = req.params
     const { sessionId } = req.query
@@ -89,6 +105,7 @@ const initWs = function (app) {
 
   // transfer function
   app.ws('/transfer/:id', (ws, req) => {
+    verify(req)
     wsDec(ws)
     const { id } = req.params
     const { sessionId, sftpId } = req.query
@@ -119,35 +136,9 @@ const initWs = function (app) {
     // end
   })
 
-  // fs function
-  app.ws('/fs/:id', (ws) => {
-    wsDec(ws)
-    ws.on('message', (message) => {
-      const msg = JSON.parse(message)
-      const { id, args, func } = msg
-      const uid = func + ':' + id
-      fs[func](...args)
-        .then(data => {
-          ws.s({
-            id: uid,
-            data
-          })
-        })
-        .catch(err => {
-          ws.s({
-            id: uid,
-            error: {
-              message: err.message,
-              stack: err.stack
-            }
-          })
-        })
-    })
-    // end
-  })
-
   // upgrade
   app.ws('/upgrade/:id', (ws, req) => {
+    verify(req)
     wsDec(ws)
     const { id } = req.params
     ws.on('close', () => {
@@ -174,42 +165,32 @@ const initWs = function (app) {
     })
   })
 
-  // upgrade
-  app.ws('/fetch/s', (ws, req) => {
+  // common functions
+  app.ws('/common/s', (ws, req) => {
+    verify(req)
     wsDec(ws)
     ws.on('message', async (message) => {
       const msg = JSON.parse(message)
-      const { id, options, action, type, args, func, token } = msg
+      const { action } = msg
       if (action === 'fetch') {
-        const res = await fetch(options)
-        if (res.error) {
-          ws.s({
-            error: res.error,
-            id
-          })
-        } else {
-          ws.s({
-            data: res,
-            id
-          })
-        }
+        fetch(ws, msg)
       } else if (action === 'sync') {
-        const res = await sync(type, func, args, token)
-        if (res.error) {
-          ws.s({
-            error: res.error,
-            id
-          })
-        } else {
-          ws.s({
-            data: res,
-            id
-          })
-        }
+        sync(ws, msg)
+      } else if (action === 'fs') {
+        fs(ws, msg)
+      } else if (action === 'create-terminal') {
+        createTerm(ws, msg)
+      } else if (action === 'test-terminal') {
+        testTerm(ws, msg)
+      } else if (action === 'resize-terminal') {
+        resize(ws, msg)
+      } else if (action === 'run-cmd') {
+        runCmd(ws, msg)
       }
     })
   })
   // end
 }
 
-module.exports = initWs
+exports.verifyWs = verify
+exports.initWs = initWs

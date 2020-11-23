@@ -15,6 +15,7 @@ import Sidebar from '../sidebar'
 import SystemMenu from './system-menu'
 import CssOverwrite from './css-overwrite'
 import UiTheme from './ui-theme'
+import TerminalInteractive from '../terminal/terminal-ineractive'
 import classnames from 'classnames'
 import { isMac, isWin } from '../../common/constants'
 import './wrapper.styl'
@@ -108,6 +109,7 @@ export default class Index extends Component {
     return (
       <div {...ext1}>
         <CssOverwrite {...confsCss} />
+        <TerminalInteractive />
         <UiTheme
           {...themeProps}
           buildTheme={store.buildTheme}

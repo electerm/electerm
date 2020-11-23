@@ -2,7 +2,7 @@
  * terminal/sftp/serial class
  */
 const pty = require('node-pty')
-const { Client } = require('@electerm/ssh2')
+const { Client } = require('ssh2')
 const SerialPort = require('serialport')
 const proxySock = require('./socks')
 const _ = require('lodash')
@@ -54,7 +54,7 @@ function getX11Cookie () {
 }
 
 class Terminal {
-  constructor (initOptions) {
+  constructor (initOptions, ws) {
     this.type = initOptions.termType || initOptions.type
     this.pid = initOptions.uid || generate()
     this.initOptions = initOptions
@@ -62,6 +62,9 @@ class Terminal {
       this.sessionLogger = new SessionLog({
         fileName: createLogFileName(initOptions.tabId)
       })
+    }
+    if (ws) {
+      this.ws = ws
     }
   }
 
@@ -245,6 +248,7 @@ class Terminal {
       if (!opts.passphrase) {
         delete opts.passphrase
       }
+      console.log(opts)
       let x11
       if (initOptions.x11 === true) {
         x11 = {
@@ -272,7 +276,15 @@ class Terminal {
             prompts,
             finish
           ) => {
-            finish([opts.password])
+            // this.ws.s({
+            //   action: 'session-inetractive',
+            //   pid: this.pid,
+            //   name,
+            //   instructions,
+            //   instructionsLang,
+            //   prompts
+            // })
+            finish([shellOpts.password])
           })
           .on('x11', function (info, accept) {
             let start = 0
@@ -805,8 +817,8 @@ class Terminal {
   // end
 }
 
-exports.terminal = async function (initOptions) {
-  const term = new Terminal(initOptions)
+exports.terminal = async function (initOptions, ws) {
+  const term = new Terminal(initOptions, ws)
   await term.init()
   return term
 }
@@ -824,25 +836,3 @@ exports.testConnection = (options) => {
       return false
     })
 }
-
-exports.instSftpKeys = [
-  'connect',
-  'list',
-  'download',
-  'upload',
-  'mkdir',
-  'getHomeDir',
-  'rmdir',
-  'stat',
-  'lstat',
-  'chmod',
-  'rename',
-  'rm',
-  'touch',
-  'readlink',
-  'realpath',
-  'mv',
-  'cp',
-  'readFile',
-  'writeFile'
-]

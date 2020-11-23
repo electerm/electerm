@@ -4,12 +4,10 @@ const cors = require('cors')
 const log = require('../utils/log')
 // const logs = {}
 const bodyParser = require('body-parser')
-const { terminal, testConnection } = require('./session')
-const initWs = require('./dispatch-center')
+const { verifyWs, initWs } = require('./dispatch-center')
 const {
   terminals
 } = require('./remote-common')
-const { tokenElecterm } = process.env
 app.use(cors())
 
 // parse application/x-www-form-urlencoded
@@ -20,74 +18,9 @@ app.use(bodyParser.json())
 
 require('express-ws')(app)
 
-function verify (req, res, next) {
-  if (req.get('token') !== tokenElecterm) {
-    throw new Error('not valid request')
-  }
-  next()
-}
-
-app.post('/terminals', verify, async function (req, res) {
-  const { body } = req
-  const { isTest } = req.query
-  if (isTest) {
-    const r = await testConnection(body)
-    if (!r) {
-      res.status(500).send('Test failed')
-      return
-    }
-    res.send(r)
-    return
-  }
-  const term = await terminal(body)
-    .then(r => r)
-    .catch(err => err)
-  const { pid } = term
-  if (pid) {
-    log.debug('Created terminal with PID:', pid)
-    // logs[pid] = Buffer.from('')
-    // term.on('data', function (data) {
-    //   logs[pid] = Buffer.concat([
-    //     logs[pid],
-    //     Buffer.from(data)
-    //   ])
-    // })
-    res.end(pid)
-  } else {
-    res.status(500)
-    res.end(term.stack)
-  }
-})
-
-app.post('/terminals/:pid/size', verify, function (req, res) {
-  const pid = req.params.pid
-  const { sessionId } = req.query
-  const cols = parseInt(req.query.cols, 10)
-  const rows = parseInt(req.query.rows, 10)
-  const term = terminals(pid, sessionId)
-  if (term) {
-    term.resize(cols, rows)
-  }
-  res.end()
-})
-
-app.post('/terminals/:pid/run-cmd', verify, async function (req, res) {
-  const pid = req.params.pid
-  const { sessionId } = req.query
-  const { cmd } = req.body
-  const term = terminals(pid, sessionId)
-  let txt = ''
-  if (term) {
-    txt = await term.runCmd(cmd)
-  }
-  res.end(txt)
-})
-
 app.ws('/terminals/:pid', function (ws, req) {
-  const { sessionId, token: to } = req.query
-  if (to !== tokenElecterm) {
-    throw new Error('not valid request')
-  }
+  const { sessionId } = req.query
+  verifyWs(req)
   const term = terminals(req.params.pid, sessionId)
   const { pid } = term
   log.debug('ws: connected to terminal ->', pid)
@@ -137,27 +70,6 @@ const runServer = function () {
     log.info('server', 'runs on', electermHost, electermPort)
   })
 }
-
-// const quitServer = () => {
-//   Object.keys(global.upgradeInsts).forEach(k => {
-//     const inst = global.upgradeInsts[k]
-//     inst && inst.destroy && inst.destroy()
-//   })
-//   Object.keys(global.sesssions).forEach(k => {
-//     const {
-//       terminals,
-//       sftps
-//     } = global.sesssions[k]
-//     sftps.forEach(s => {
-//       s.kill()
-//     })
-//     terminals.forEach(t => {
-//       t.kill()
-//     })
-//   })
-// }
-
-// process.on('exit', quitServer)
 
 // start
 runServer()

@@ -2,7 +2,7 @@
  * history select
  */
 
-import { memo } from 'react'
+// import { memo } from 'react'
 import BookmarkSelect from './bookmark-select'
 import _ from 'lodash'
 import { ArrowsAltOutlined, EditOutlined, PlusCircleOutlined, ShrinkOutlined } from '@ant-design/icons'
@@ -13,7 +13,7 @@ const c = prefix('common')
 const m = prefix('menu')
 const e = prefix('control')
 
-export default memo((props) => {
+export default (props) => {
   const { store } = props
   return (
     <div
@@ -52,4 +52,4 @@ export default memo((props) => {
       </div>
     </div>
   )
-})
+}
