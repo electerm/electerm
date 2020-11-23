@@ -6,18 +6,35 @@ const lastStateManager = require('./last-state')
 // const log = require('./log')
 const { isDev, minWindowWidth, minWindowHeight } = require('../utils/constants')
 
-exports.getScreenPrimary = () => {
-  return require('electron').screen.getPrimaryDisplay()
+exports.getScreenCurrent = () => {
+  const rect = global.win
+    ? global.win.getBounds()
+    : {
+      x: 0,
+      width: minWindowWidth
+    }
+  const all = require('electron')
+    .screen
+    .getAllDisplays()
+  if (all.length === 1) {
+    return all[0]
+  }
+  for (let d of all) {
+    const right = rect.x + rect.width
+    if (right > d.bounds.x && right <= d.bounds.x + d.workArea.width) {
+      return d
+    }
+  }
 }
 
 exports.getScreenSize = () => {
-  return exports.getScreenPrimary().workAreaSize
+  return exports.getScreenCurrent().workAreaSize
 }
 
 exports.maximize = () => {
   global.oldRectangle = global.win.getBounds()
-  global.win.setPosition(0, 0)
-  const p = exports.getScreenPrimary()
+  // global.win.setPosition(0, 0)
+  const p = exports.getScreenCurrent()
   const {
     width, height, x, y
   } = p.workArea

@@ -1,8 +1,7 @@
-global.Promise = require('bluebird')
-
+const promisifyAll = require('util-promisifyall')
 const { exec } = require('child_process')
 const fs = require('original-fs')
-const fss = Promise.promisifyAll(fs)
+const fss = promisifyAll(fs)
 const log = require('../utils/log')
 const { isWin, isMac } = require('../utils/constants')
 const ROOT_PATH = '/'

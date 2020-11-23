@@ -121,7 +121,6 @@
   "dependencies": {
     "@electerm/electerm-locales": "0.9.7",
     "@electerm/ssh2": "0.8.11",
-    "bluebird": "3.7.2",
     "body-parser": "1.19.0",
     "cors": "2.8.5",
     "drivelist": "9.1.0",
@@ -147,6 +146,7 @@
     "socks": "2.5.0",
     "ssh-config": "4.0.4",
     "stylus": "0.54.8",
+    "util-promisifyall": "^1.0.6",
     "v8-compile-cache": "2.2.0"
   },
   "standard": {

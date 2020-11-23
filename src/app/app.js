@@ -1,6 +1,4 @@
 
-// use bluebird for performance
-global.Promise = require('bluebird')
 require('v8-compile-cache')
 const {
   app,
