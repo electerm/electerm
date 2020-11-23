@@ -290,10 +290,10 @@
         "name": "linux x86 x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/28591230",
-            "id": 28591230,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDI4NTkxMjMw",
-            "name": "electerm-1.9.7-linux-amd64.deb",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/28646354",
+            "id": 28646354,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDI4NjQ2MzU0",
+            "name": "electerm-1.9.12-linux-amd64.deb",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -317,18 +317,18 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 55418338,
+            "size": 55383406,
             "download_count": 0,
-            "created_at": "2020-11-21T09:10:34Z",
-            "updated_at": "2020-11-21T09:10:36Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.9.7/electerm-1.9.7-linux-amd64.deb",
+            "created_at": "2020-11-23T01:53:45Z",
+            "updated_at": "2020-11-23T01:53:47Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.9.12/electerm-1.9.12-linux-amd64.deb",
             "desc": "for Debian, Ubuntu..."
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/28591293",
-            "id": 28591293,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDI4NTkxMjkz",
-            "name": "electerm-1.9.7-linux-amd64.snap",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/28646371",
+            "id": 28646371,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDI4NjQ2Mzcx",
+            "name": "electerm-1.9.12-linux-amd64.snap",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -352,18 +352,18 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 68227072,
+            "size": 68112384,
             "download_count": 0,
-            "created_at": "2020-11-21T09:13:35Z",
-            "updated_at": "2020-11-21T09:13:37Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.9.7/electerm-1.9.7-linux-amd64.snap",
+            "created_at": "2020-11-23T01:56:59Z",
+            "updated_at": "2020-11-23T01:57:01Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.9.12/electerm-1.9.12-linux-amd64.snap",
             "desc": "for all linux that support snap"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/28591199",
-            "id": 28591199,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDI4NTkxMTk5",
-            "name": "electerm-1.9.7-linux-x64.tar.gz",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/28646328",
+            "id": 28646328,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDI4NjQ2MzI4",
+            "name": "electerm-1.9.12-linux-x64.tar.gz",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -387,18 +387,18 @@
             },
             "content_type": "application/gzip",
             "state": "uploaded",
-            "size": 76920774,
+            "size": 76793056,
             "download_count": 0,
-            "created_at": "2020-11-21T09:08:52Z",
-            "updated_at": "2020-11-21T09:08:54Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.9.7/electerm-1.9.7-linux-x64.tar.gz",
+            "created_at": "2020-11-23T01:51:56Z",
+            "updated_at": "2020-11-23T01:51:58Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.9.12/electerm-1.9.12-linux-x64.tar.gz",
             "desc": "for all linux x64, just extract"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/28591281",
-            "id": 28591281,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDI4NTkxMjgx",
-            "name": "electerm-1.9.7-linux-x86_64.rpm",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/28646365",
+            "id": 28646365,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDI4NjQ2MzY1",
+            "name": "electerm-1.9.12-linux-x86_64.rpm",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -422,11 +422,11 @@
             },
             "content_type": "application/x-redhat-package-manager",
             "state": "uploaded",
-            "size": 56113340,
+            "size": 56001764,
             "download_count": 0,
-            "created_at": "2020-11-21T09:12:39Z",
-            "updated_at": "2020-11-21T09:12:42Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.9.7/electerm-1.9.7-linux-x86_64.rpm",
+            "created_at": "2020-11-23T01:56:04Z",
+            "updated_at": "2020-11-23T01:56:05Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.9.12/electerm-1.9.12-linux-x86_64.rpm",
             "desc": "for Red Hat, Fedora..."
           }
         ]
@@ -435,10 +435,10 @@
         "name": "mac os x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/28590983",
-            "id": 28590983,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDI4NTkwOTgz",
-            "name": "electerm-1.9.7-mac.dmg",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/28646402",
+            "id": 28646402,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDI4NjQ2NDAy",
+            "name": "electerm-1.9.12-mac.dmg",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -462,11 +462,11 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 80154440,
+            "size": 80066371,
             "download_count": 0,
-            "created_at": "2020-11-21T09:00:00Z",
-            "updated_at": "2020-11-21T09:00:03Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.9.7/electerm-1.9.7-mac.dmg"
+            "created_at": "2020-11-23T01:58:29Z",
+            "updated_at": "2020-11-23T01:58:32Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.9.12/electerm-1.9.12-mac.dmg"
           }
         ]
       },
@@ -474,10 +474,10 @@
         "name": "windows 7/8/10 x86 x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/28590705",
-            "id": 28590705,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDI4NTkwNzA1",
-            "name": "electerm-1.9.7-win-x64.tar.gz",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/28646145",
+            "id": 28646145,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDI4NjQ2MTQ1",
+            "name": "electerm-1.9.12-win-x64.tar.gz",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -501,18 +501,18 @@
             },
             "content_type": "application/gzip",
             "state": "uploaded",
-            "size": 75719282,
+            "size": 75590675,
             "download_count": 0,
-            "created_at": "2020-11-21T08:53:28Z",
-            "updated_at": "2020-11-21T08:53:30Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.9.7/electerm-1.9.7-win-x64.tar.gz"
+            "created_at": "2020-11-23T01:39:18Z",
+            "updated_at": "2020-11-23T01:39:20Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.9.12/electerm-1.9.12-win-x64.tar.gz"
           }
         ]
       }
     },
-    "version": "v1.9.7",
-    "releaseNote": "- fix: Fix context menu when disable sftp (#1914)\r\n- fix #1909 fix: Fix cancel single transfer function\r\n- build: Remove happyPack\r\n- build: fix hot reload\r\n- fix: Fix reload support\r\n- feat: Support reload to make language change take effect",
-    "releaseDate": "2020-11-21T09:21:47Z",
+    "version": "v1.9.12",
+    "releaseNote": "- feat: Update window maximize status when window move\r\n- feat: Support maximize in all displays\r\n- fix #1915 fix: Copy remain terminal focus\r\n- code: Partial code refractor\r\n",
+    "releaseDate": "2020-11-23T03:37:20Z",
     "siteKeywords": "electron,ternimal,electerm,ssh,sftp",
     "siteName": "electerm",
     "path": "/home/execapp/dev/electerm.html5beta.com/index.html"
@@ -808,10 +808,10 @@
         "name": "linux x86 x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/28591230",
-            "id": 28591230,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDI4NTkxMjMw",
-            "name": "electerm-1.9.7-linux-amd64.deb",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/28646354",
+            "id": 28646354,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDI4NjQ2MzU0",
+            "name": "electerm-1.9.12-linux-amd64.deb",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -835,18 +835,18 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 55418338,
+            "size": 55383406,
             "download_count": 0,
-            "created_at": "2020-11-21T09:10:34Z",
-            "updated_at": "2020-11-21T09:10:36Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.9.7/electerm-1.9.7-linux-amd64.deb",
+            "created_at": "2020-11-23T01:53:45Z",
+            "updated_at": "2020-11-23T01:53:47Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.9.12/electerm-1.9.12-linux-amd64.deb",
             "desc": "for Debian, Ubuntu..."
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/28591293",
-            "id": 28591293,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDI4NTkxMjkz",
-            "name": "electerm-1.9.7-linux-amd64.snap",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/28646371",
+            "id": 28646371,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDI4NjQ2Mzcx",
+            "name": "electerm-1.9.12-linux-amd64.snap",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -870,18 +870,18 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 68227072,
+            "size": 68112384,
             "download_count": 0,
-            "created_at": "2020-11-21T09:13:35Z",
-            "updated_at": "2020-11-21T09:13:37Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.9.7/electerm-1.9.7-linux-amd64.snap",
+            "created_at": "2020-11-23T01:56:59Z",
+            "updated_at": "2020-11-23T01:57:01Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.9.12/electerm-1.9.12-linux-amd64.snap",
             "desc": "for all linux that support snap"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/28591199",
-            "id": 28591199,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDI4NTkxMTk5",
-            "name": "electerm-1.9.7-linux-x64.tar.gz",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/28646328",
+            "id": 28646328,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDI4NjQ2MzI4",
+            "name": "electerm-1.9.12-linux-x64.tar.gz",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -905,18 +905,18 @@
             },
             "content_type": "application/gzip",
             "state": "uploaded",
-            "size": 76920774,
+            "size": 76793056,
             "download_count": 0,
-            "created_at": "2020-11-21T09:08:52Z",
-            "updated_at": "2020-11-21T09:08:54Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.9.7/electerm-1.9.7-linux-x64.tar.gz",
+            "created_at": "2020-11-23T01:51:56Z",
+            "updated_at": "2020-11-23T01:51:58Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.9.12/electerm-1.9.12-linux-x64.tar.gz",
             "desc": "for all linux x64, just extract"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/28591281",
-            "id": 28591281,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDI4NTkxMjgx",
-            "name": "electerm-1.9.7-linux-x86_64.rpm",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/28646365",
+            "id": 28646365,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDI4NjQ2MzY1",
+            "name": "electerm-1.9.12-linux-x86_64.rpm",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -940,11 +940,11 @@
             },
             "content_type": "application/x-redhat-package-manager",
             "state": "uploaded",
-            "size": 56113340,
+            "size": 56001764,
             "download_count": 0,
-            "created_at": "2020-11-21T09:12:39Z",
-            "updated_at": "2020-11-21T09:12:42Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.9.7/electerm-1.9.7-linux-x86_64.rpm",
+            "created_at": "2020-11-23T01:56:04Z",
+            "updated_at": "2020-11-23T01:56:05Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.9.12/electerm-1.9.12-linux-x86_64.rpm",
             "desc": "for Red Hat, Fedora..."
           }
         ]
@@ -953,10 +953,10 @@
         "name": "mac os x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/28590983",
-            "id": 28590983,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDI4NTkwOTgz",
-            "name": "electerm-1.9.7-mac.dmg",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/28646402",
+            "id": 28646402,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDI4NjQ2NDAy",
+            "name": "electerm-1.9.12-mac.dmg",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -980,11 +980,11 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 80154440,
+            "size": 80066371,
             "download_count": 0,
-            "created_at": "2020-11-21T09:00:00Z",
-            "updated_at": "2020-11-21T09:00:03Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.9.7/electerm-1.9.7-mac.dmg"
+            "created_at": "2020-11-23T01:58:29Z",
+            "updated_at": "2020-11-23T01:58:32Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.9.12/electerm-1.9.12-mac.dmg"
           }
         ]
       },
@@ -992,10 +992,10 @@
         "name": "windows 7/8/10 x86 x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/28590705",
-            "id": 28590705,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDI4NTkwNzA1",
-            "name": "electerm-1.9.7-win-x64.tar.gz",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/28646145",
+            "id": 28646145,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDI4NjQ2MTQ1",
+            "name": "electerm-1.9.12-win-x64.tar.gz",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -1019,18 +1019,18 @@
             },
             "content_type": "application/gzip",
             "state": "uploaded",
-            "size": 75719282,
+            "size": 75590675,
             "download_count": 0,
-            "created_at": "2020-11-21T08:53:28Z",
-            "updated_at": "2020-11-21T08:53:30Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.9.7/electerm-1.9.7-win-x64.tar.gz"
+            "created_at": "2020-11-23T01:39:18Z",
+            "updated_at": "2020-11-23T01:39:20Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.9.12/electerm-1.9.12-win-x64.tar.gz"
           }
         ]
       }
     },
-    "version": "v1.9.7",
-    "releaseNote": "- fix: Fix context menu when disable sftp (#1914)\r\n- fix #1909 fix: Fix cancel single transfer function\r\n- build: Remove happyPack\r\n- build: fix hot reload\r\n- fix: Fix reload support\r\n- feat: Support reload to make language change take effect",
-    "releaseDate": "2020-11-21T09:21:47Z",
+    "version": "v1.9.12",
+    "releaseNote": "- feat: Update window maximize status when window move\r\n- feat: Support maximize in all displays\r\n- fix #1915 fix: Copy remain terminal focus\r\n- code: Partial code refractor\r\n",
+    "releaseDate": "2020-11-23T03:37:20Z",
     "siteKeywords": "electron,ternimal,electerm,ssh,sftp",
     "siteName": "electerm",
     "path": "/home/execapp/dev/electerm.html5beta.com/index-es_es.html"
@@ -1326,10 +1326,10 @@
         "name": "linux x86 x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/28591230",
-            "id": 28591230,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDI4NTkxMjMw",
-            "name": "electerm-1.9.7-linux-amd64.deb",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/28646354",
+            "id": 28646354,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDI4NjQ2MzU0",
+            "name": "electerm-1.9.12-linux-amd64.deb",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -1353,18 +1353,18 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 55418338,
+            "size": 55383406,
             "download_count": 0,
-            "created_at": "2020-11-21T09:10:34Z",
-            "updated_at": "2020-11-21T09:10:36Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.9.7/electerm-1.9.7-linux-amd64.deb",
+            "created_at": "2020-11-23T01:53:45Z",
+            "updated_at": "2020-11-23T01:53:47Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.9.12/electerm-1.9.12-linux-amd64.deb",
             "desc": "for Debian, Ubuntu..."
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/28591293",
-            "id": 28591293,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDI4NTkxMjkz",
-            "name": "electerm-1.9.7-linux-amd64.snap",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/28646371",
+            "id": 28646371,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDI4NjQ2Mzcx",
+            "name": "electerm-1.9.12-linux-amd64.snap",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -1388,18 +1388,18 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 68227072,
+            "size": 68112384,
             "download_count": 0,
-            "created_at": "2020-11-21T09:13:35Z",
-            "updated_at": "2020-11-21T09:13:37Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.9.7/electerm-1.9.7-linux-amd64.snap",
+            "created_at": "2020-11-23T01:56:59Z",
+            "updated_at": "2020-11-23T01:57:01Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.9.12/electerm-1.9.12-linux-amd64.snap",
             "desc": "for all linux that support snap"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/28591199",
-            "id": 28591199,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDI4NTkxMTk5",
-            "name": "electerm-1.9.7-linux-x64.tar.gz",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/28646328",
+            "id": 28646328,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDI4NjQ2MzI4",
+            "name": "electerm-1.9.12-linux-x64.tar.gz",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -1423,18 +1423,18 @@
             },
             "content_type": "application/gzip",
             "state": "uploaded",
-            "size": 76920774,
+            "size": 76793056,
             "download_count": 0,
-            "created_at": "2020-11-21T09:08:52Z",
-            "updated_at": "2020-11-21T09:08:54Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.9.7/electerm-1.9.7-linux-x64.tar.gz",
+            "created_at": "2020-11-23T01:51:56Z",
+            "updated_at": "2020-11-23T01:51:58Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.9.12/electerm-1.9.12-linux-x64.tar.gz",
             "desc": "for all linux x64, just extract"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/28591281",
-            "id": 28591281,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDI4NTkxMjgx",
-            "name": "electerm-1.9.7-linux-x86_64.rpm",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/28646365",
+            "id": 28646365,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDI4NjQ2MzY1",
+            "name": "electerm-1.9.12-linux-x86_64.rpm",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -1458,11 +1458,11 @@
             },
             "content_type": "application/x-redhat-package-manager",
             "state": "uploaded",
-            "size": 56113340,
+            "size": 56001764,
             "download_count": 0,
-            "created_at": "2020-11-21T09:12:39Z",
-            "updated_at": "2020-11-21T09:12:42Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.9.7/electerm-1.9.7-linux-x86_64.rpm",
+            "created_at": "2020-11-23T01:56:04Z",
+            "updated_at": "2020-11-23T01:56:05Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.9.12/electerm-1.9.12-linux-x86_64.rpm",
             "desc": "for Red Hat, Fedora..."
           }
         ]
@@ -1471,10 +1471,10 @@
         "name": "mac os x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/28590983",
-            "id": 28590983,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDI4NTkwOTgz",
-            "name": "electerm-1.9.7-mac.dmg",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/28646402",
+            "id": 28646402,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDI4NjQ2NDAy",
+            "name": "electerm-1.9.12-mac.dmg",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -1498,11 +1498,11 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 80154440,
+            "size": 80066371,
             "download_count": 0,
-            "created_at": "2020-11-21T09:00:00Z",
-            "updated_at": "2020-11-21T09:00:03Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.9.7/electerm-1.9.7-mac.dmg"
+            "created_at": "2020-11-23T01:58:29Z",
+            "updated_at": "2020-11-23T01:58:32Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.9.12/electerm-1.9.12-mac.dmg"
           }
         ]
       },
@@ -1510,10 +1510,10 @@
         "name": "windows 7/8/10 x86 x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/28590705",
-            "id": 28590705,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDI4NTkwNzA1",
-            "name": "electerm-1.9.7-win-x64.tar.gz",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/28646145",
+            "id": 28646145,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDI4NjQ2MTQ1",
+            "name": "electerm-1.9.12-win-x64.tar.gz",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -1537,18 +1537,18 @@
             },
             "content_type": "application/gzip",
             "state": "uploaded",
-            "size": 75719282,
+            "size": 75590675,
             "download_count": 0,
-            "created_at": "2020-11-21T08:53:28Z",
-            "updated_at": "2020-11-21T08:53:30Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.9.7/electerm-1.9.7-win-x64.tar.gz"
+            "created_at": "2020-11-23T01:39:18Z",
+            "updated_at": "2020-11-23T01:39:20Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.9.12/electerm-1.9.12-win-x64.tar.gz"
           }
         ]
       }
     },
-    "version": "v1.9.7",
-    "releaseNote": "- fix: Fix context menu when disable sftp (#1914)\r\n- fix #1909 fix: Fix cancel single transfer function\r\n- build: Remove happyPack\r\n- build: fix hot reload\r\n- fix: Fix reload support\r\n- feat: Support reload to make language change take effect",
-    "releaseDate": "2020-11-21T09:21:47Z",
+    "version": "v1.9.12",
+    "releaseNote": "- feat: Update window maximize status when window move\r\n- feat: Support maximize in all displays\r\n- fix #1915 fix: Copy remain terminal focus\r\n- code: Partial code refractor\r\n",
+    "releaseDate": "2020-11-23T03:37:20Z",
     "siteKeywords": "electron,ternimal,electerm,ssh,sftp",
     "siteName": "electerm",
     "path": "/home/execapp/dev/electerm.html5beta.com/index-fr_fr.html"
@@ -1844,10 +1844,10 @@
         "name": "linux x86 x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/28591230",
-            "id": 28591230,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDI4NTkxMjMw",
-            "name": "electerm-1.9.7-linux-amd64.deb",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/28646354",
+            "id": 28646354,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDI4NjQ2MzU0",
+            "name": "electerm-1.9.12-linux-amd64.deb",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -1871,18 +1871,18 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 55418338,
+            "size": 55383406,
             "download_count": 0,
-            "created_at": "2020-11-21T09:10:34Z",
-            "updated_at": "2020-11-21T09:10:36Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.9.7/electerm-1.9.7-linux-amd64.deb",
+            "created_at": "2020-11-23T01:53:45Z",
+            "updated_at": "2020-11-23T01:53:47Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.9.12/electerm-1.9.12-linux-amd64.deb",
             "desc": "for Debian, Ubuntu..."
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/28591293",
-            "id": 28591293,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDI4NTkxMjkz",
-            "name": "electerm-1.9.7-linux-amd64.snap",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/28646371",
+            "id": 28646371,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDI4NjQ2Mzcx",
+            "name": "electerm-1.9.12-linux-amd64.snap",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -1906,18 +1906,18 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 68227072,
+            "size": 68112384,
             "download_count": 0,
-            "created_at": "2020-11-21T09:13:35Z",
-            "updated_at": "2020-11-21T09:13:37Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.9.7/electerm-1.9.7-linux-amd64.snap",
+            "created_at": "2020-11-23T01:56:59Z",
+            "updated_at": "2020-11-23T01:57:01Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.9.12/electerm-1.9.12-linux-amd64.snap",
             "desc": "for all linux that support snap"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/28591199",
-            "id": 28591199,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDI4NTkxMTk5",
-            "name": "electerm-1.9.7-linux-x64.tar.gz",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/28646328",
+            "id": 28646328,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDI4NjQ2MzI4",
+            "name": "electerm-1.9.12-linux-x64.tar.gz",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -1941,18 +1941,18 @@
             },
             "content_type": "application/gzip",
             "state": "uploaded",
-            "size": 76920774,
+            "size": 76793056,
             "download_count": 0,
-            "created_at": "2020-11-21T09:08:52Z",
-            "updated_at": "2020-11-21T09:08:54Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.9.7/electerm-1.9.7-linux-x64.tar.gz",
+            "created_at": "2020-11-23T01:51:56Z",
+            "updated_at": "2020-11-23T01:51:58Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.9.12/electerm-1.9.12-linux-x64.tar.gz",
             "desc": "for all linux x64, just extract"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/28591281",
-            "id": 28591281,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDI4NTkxMjgx",
-            "name": "electerm-1.9.7-linux-x86_64.rpm",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/28646365",
+            "id": 28646365,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDI4NjQ2MzY1",
+            "name": "electerm-1.9.12-linux-x86_64.rpm",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -1976,11 +1976,11 @@
             },
             "content_type": "application/x-redhat-package-manager",
             "state": "uploaded",
-            "size": 56113340,
+            "size": 56001764,
             "download_count": 0,
-            "created_at": "2020-11-21T09:12:39Z",
-            "updated_at": "2020-11-21T09:12:42Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.9.7/electerm-1.9.7-linux-x86_64.rpm",
+            "created_at": "2020-11-23T01:56:04Z",
+            "updated_at": "2020-11-23T01:56:05Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.9.12/electerm-1.9.12-linux-x86_64.rpm",
             "desc": "for Red Hat, Fedora..."
           }
         ]
@@ -1989,10 +1989,10 @@
         "name": "mac os x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/28590983",
-            "id": 28590983,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDI4NTkwOTgz",
-            "name": "electerm-1.9.7-mac.dmg",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/28646402",
+            "id": 28646402,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDI4NjQ2NDAy",
+            "name": "electerm-1.9.12-mac.dmg",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -2016,11 +2016,11 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 80154440,
+            "size": 80066371,
             "download_count": 0,
-            "created_at": "2020-11-21T09:00:00Z",
-            "updated_at": "2020-11-21T09:00:03Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.9.7/electerm-1.9.7-mac.dmg"
+            "created_at": "2020-11-23T01:58:29Z",
+            "updated_at": "2020-11-23T01:58:32Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.9.12/electerm-1.9.12-mac.dmg"
           }
         ]
       },
@@ -2028,10 +2028,10 @@
         "name": "windows 7/8/10 x86 x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/28590705",
-            "id": 28590705,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDI4NTkwNzA1",
-            "name": "electerm-1.9.7-win-x64.tar.gz",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/28646145",
+            "id": 28646145,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDI4NjQ2MTQ1",
+            "name": "electerm-1.9.12-win-x64.tar.gz",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -2055,18 +2055,18 @@
             },
             "content_type": "application/gzip",
             "state": "uploaded",
-            "size": 75719282,
+            "size": 75590675,
             "download_count": 0,
-            "created_at": "2020-11-21T08:53:28Z",
-            "updated_at": "2020-11-21T08:53:30Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.9.7/electerm-1.9.7-win-x64.tar.gz"
+            "created_at": "2020-11-23T01:39:18Z",
+            "updated_at": "2020-11-23T01:39:20Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.9.12/electerm-1.9.12-win-x64.tar.gz"
           }
         ]
       }
     },
-    "version": "v1.9.7",
-    "releaseNote": "- fix: Fix context menu when disable sftp (#1914)\r\n- fix #1909 fix: Fix cancel single transfer function\r\n- build: Remove happyPack\r\n- build: fix hot reload\r\n- fix: Fix reload support\r\n- feat: Support reload to make language change take effect",
-    "releaseDate": "2020-11-21T09:21:47Z",
+    "version": "v1.9.12",
+    "releaseNote": "- feat: Update window maximize status when window move\r\n- feat: Support maximize in all displays\r\n- fix #1915 fix: Copy remain terminal focus\r\n- code: Partial code refractor\r\n",
+    "releaseDate": "2020-11-23T03:37:20Z",
     "siteKeywords": "electron,ternimal,electerm,ssh,sftp",
     "siteName": "electerm",
     "path": "/home/execapp/dev/electerm.html5beta.com/index-pt_br.html"
@@ -2362,10 +2362,10 @@
         "name": "linux x86 x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/28591230",
-            "id": 28591230,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDI4NTkxMjMw",
-            "name": "electerm-1.9.7-linux-amd64.deb",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/28646354",
+            "id": 28646354,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDI4NjQ2MzU0",
+            "name": "electerm-1.9.12-linux-amd64.deb",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -2389,18 +2389,18 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 55418338,
+            "size": 55383406,
             "download_count": 0,
-            "created_at": "2020-11-21T09:10:34Z",
-            "updated_at": "2020-11-21T09:10:36Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.9.7/electerm-1.9.7-linux-amd64.deb",
+            "created_at": "2020-11-23T01:53:45Z",
+            "updated_at": "2020-11-23T01:53:47Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.9.12/electerm-1.9.12-linux-amd64.deb",
             "desc": "for Debian, Ubuntu..."
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/28591293",
-            "id": 28591293,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDI4NTkxMjkz",
-            "name": "electerm-1.9.7-linux-amd64.snap",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/28646371",
+            "id": 28646371,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDI4NjQ2Mzcx",
+            "name": "electerm-1.9.12-linux-amd64.snap",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -2424,18 +2424,18 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 68227072,
+            "size": 68112384,
             "download_count": 0,
-            "created_at": "2020-11-21T09:13:35Z",
-            "updated_at": "2020-11-21T09:13:37Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.9.7/electerm-1.9.7-linux-amd64.snap",
+            "created_at": "2020-11-23T01:56:59Z",
+            "updated_at": "2020-11-23T01:57:01Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.9.12/electerm-1.9.12-linux-amd64.snap",
             "desc": "for all linux that support snap"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/28591199",
-            "id": 28591199,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDI4NTkxMTk5",
-            "name": "electerm-1.9.7-linux-x64.tar.gz",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/28646328",
+            "id": 28646328,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDI4NjQ2MzI4",
+            "name": "electerm-1.9.12-linux-x64.tar.gz",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -2459,18 +2459,18 @@
             },
             "content_type": "application/gzip",
             "state": "uploaded",
-            "size": 76920774,
+            "size": 76793056,
             "download_count": 0,
-            "created_at": "2020-11-21T09:08:52Z",
-            "updated_at": "2020-11-21T09:08:54Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.9.7/electerm-1.9.7-linux-x64.tar.gz",
+            "created_at": "2020-11-23T01:51:56Z",
+            "updated_at": "2020-11-23T01:51:58Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.9.12/electerm-1.9.12-linux-x64.tar.gz",
             "desc": "for all linux x64, just extract"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/28591281",
-            "id": 28591281,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDI4NTkxMjgx",
-            "name": "electerm-1.9.7-linux-x86_64.rpm",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/28646365",
+            "id": 28646365,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDI4NjQ2MzY1",
+            "name": "electerm-1.9.12-linux-x86_64.rpm",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -2494,11 +2494,11 @@
             },
             "content_type": "application/x-redhat-package-manager",
             "state": "uploaded",
-            "size": 56113340,
+            "size": 56001764,
             "download_count": 0,
-            "created_at": "2020-11-21T09:12:39Z",
-            "updated_at": "2020-11-21T09:12:42Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.9.7/electerm-1.9.7-linux-x86_64.rpm",
+            "created_at": "2020-11-23T01:56:04Z",
+            "updated_at": "2020-11-23T01:56:05Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.9.12/electerm-1.9.12-linux-x86_64.rpm",
             "desc": "for Red Hat, Fedora..."
           }
         ]
@@ -2507,10 +2507,10 @@
         "name": "mac os x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/28590983",
-            "id": 28590983,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDI4NTkwOTgz",
-            "name": "electerm-1.9.7-mac.dmg",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/28646402",
+            "id": 28646402,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDI4NjQ2NDAy",
+            "name": "electerm-1.9.12-mac.dmg",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -2534,11 +2534,11 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 80154440,
+            "size": 80066371,
             "download_count": 0,
-            "created_at": "2020-11-21T09:00:00Z",
-            "updated_at": "2020-11-21T09:00:03Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.9.7/electerm-1.9.7-mac.dmg"
+            "created_at": "2020-11-23T01:58:29Z",
+            "updated_at": "2020-11-23T01:58:32Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.9.12/electerm-1.9.12-mac.dmg"
           }
         ]
       },
@@ -2546,10 +2546,10 @@
         "name": "windows 7/8/10 x86 x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/28590705",
-            "id": 28590705,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDI4NTkwNzA1",
-            "name": "electerm-1.9.7-win-x64.tar.gz",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/28646145",
+            "id": 28646145,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDI4NjQ2MTQ1",
+            "name": "electerm-1.9.12-win-x64.tar.gz",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -2573,18 +2573,18 @@
             },
             "content_type": "application/gzip",
             "state": "uploaded",
-            "size": 75719282,
+            "size": 75590675,
             "download_count": 0,
-            "created_at": "2020-11-21T08:53:28Z",
-            "updated_at": "2020-11-21T08:53:30Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.9.7/electerm-1.9.7-win-x64.tar.gz"
+            "created_at": "2020-11-23T01:39:18Z",
+            "updated_at": "2020-11-23T01:39:20Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.9.12/electerm-1.9.12-win-x64.tar.gz"
           }
         ]
       }
     },
-    "version": "v1.9.7",
-    "releaseNote": "- fix: Fix context menu when disable sftp (#1914)\r\n- fix #1909 fix: Fix cancel single transfer function\r\n- build: Remove happyPack\r\n- build: fix hot reload\r\n- fix: Fix reload support\r\n- feat: Support reload to make language change take effect",
-    "releaseDate": "2020-11-21T09:21:47Z",
+    "version": "v1.9.12",
+    "releaseNote": "- feat: Update window maximize status when window move\r\n- feat: Support maximize in all displays\r\n- fix #1915 fix: Copy remain terminal focus\r\n- code: Partial code refractor\r\n",
+    "releaseDate": "2020-11-23T03:37:20Z",
     "siteKeywords": "electron,ternimal,electerm,ssh,sftp",
     "siteName": "electerm",
     "path": "/home/execapp/dev/electerm.html5beta.com/index-ru_ru.html"
@@ -2880,10 +2880,10 @@
         "name": "linux x86 x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/28591230",
-            "id": 28591230,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDI4NTkxMjMw",
-            "name": "electerm-1.9.7-linux-amd64.deb",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/28646354",
+            "id": 28646354,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDI4NjQ2MzU0",
+            "name": "electerm-1.9.12-linux-amd64.deb",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -2907,18 +2907,18 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 55418338,
+            "size": 55383406,
             "download_count": 0,
-            "created_at": "2020-11-21T09:10:34Z",
-            "updated_at": "2020-11-21T09:10:36Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.9.7/electerm-1.9.7-linux-amd64.deb",
+            "created_at": "2020-11-23T01:53:45Z",
+            "updated_at": "2020-11-23T01:53:47Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.9.12/electerm-1.9.12-linux-amd64.deb",
             "desc": "for Debian, Ubuntu..."
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/28591293",
-            "id": 28591293,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDI4NTkxMjkz",
-            "name": "electerm-1.9.7-linux-amd64.snap",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/28646371",
+            "id": 28646371,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDI4NjQ2Mzcx",
+            "name": "electerm-1.9.12-linux-amd64.snap",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -2942,18 +2942,18 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 68227072,
+            "size": 68112384,
             "download_count": 0,
-            "created_at": "2020-11-21T09:13:35Z",
-            "updated_at": "2020-11-21T09:13:37Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.9.7/electerm-1.9.7-linux-amd64.snap",
+            "created_at": "2020-11-23T01:56:59Z",
+            "updated_at": "2020-11-23T01:57:01Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.9.12/electerm-1.9.12-linux-amd64.snap",
             "desc": "for all linux that support snap"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/28591199",
-            "id": 28591199,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDI4NTkxMTk5",
-            "name": "electerm-1.9.7-linux-x64.tar.gz",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/28646328",
+            "id": 28646328,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDI4NjQ2MzI4",
+            "name": "electerm-1.9.12-linux-x64.tar.gz",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -2977,18 +2977,18 @@
             },
             "content_type": "application/gzip",
             "state": "uploaded",
-            "size": 76920774,
+            "size": 76793056,
             "download_count": 0,
-            "created_at": "2020-11-21T09:08:52Z",
-            "updated_at": "2020-11-21T09:08:54Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.9.7/electerm-1.9.7-linux-x64.tar.gz",
+            "created_at": "2020-11-23T01:51:56Z",
+            "updated_at": "2020-11-23T01:51:58Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.9.12/electerm-1.9.12-linux-x64.tar.gz",
             "desc": "for all linux x64, just extract"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/28591281",
-            "id": 28591281,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDI4NTkxMjgx",
-            "name": "electerm-1.9.7-linux-x86_64.rpm",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/28646365",
+            "id": 28646365,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDI4NjQ2MzY1",
+            "name": "electerm-1.9.12-linux-x86_64.rpm",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -3012,11 +3012,11 @@
             },
             "content_type": "application/x-redhat-package-manager",
             "state": "uploaded",
-            "size": 56113340,
+            "size": 56001764,
             "download_count": 0,
-            "created_at": "2020-11-21T09:12:39Z",
-            "updated_at": "2020-11-21T09:12:42Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.9.7/electerm-1.9.7-linux-x86_64.rpm",
+            "created_at": "2020-11-23T01:56:04Z",
+            "updated_at": "2020-11-23T01:56:05Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.9.12/electerm-1.9.12-linux-x86_64.rpm",
             "desc": "for Red Hat, Fedora..."
           }
         ]
@@ -3025,10 +3025,10 @@
         "name": "mac os x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/28590983",
-            "id": 28590983,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDI4NTkwOTgz",
-            "name": "electerm-1.9.7-mac.dmg",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/28646402",
+            "id": 28646402,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDI4NjQ2NDAy",
+            "name": "electerm-1.9.12-mac.dmg",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -3052,11 +3052,11 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 80154440,
+            "size": 80066371,
             "download_count": 0,
-            "created_at": "2020-11-21T09:00:00Z",
-            "updated_at": "2020-11-21T09:00:03Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.9.7/electerm-1.9.7-mac.dmg"
+            "created_at": "2020-11-23T01:58:29Z",
+            "updated_at": "2020-11-23T01:58:32Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.9.12/electerm-1.9.12-mac.dmg"
           }
         ]
       },
@@ -3064,10 +3064,10 @@
         "name": "windows 7/8/10 x86 x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/28590705",
-            "id": 28590705,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDI4NTkwNzA1",
-            "name": "electerm-1.9.7-win-x64.tar.gz",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/28646145",
+            "id": 28646145,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDI4NjQ2MTQ1",
+            "name": "electerm-1.9.12-win-x64.tar.gz",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -3091,18 +3091,18 @@
             },
             "content_type": "application/gzip",
             "state": "uploaded",
-            "size": 75719282,
+            "size": 75590675,
             "download_count": 0,
-            "created_at": "2020-11-21T08:53:28Z",
-            "updated_at": "2020-11-21T08:53:30Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.9.7/electerm-1.9.7-win-x64.tar.gz"
+            "created_at": "2020-11-23T01:39:18Z",
+            "updated_at": "2020-11-23T01:39:20Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.9.12/electerm-1.9.12-win-x64.tar.gz"
           }
         ]
       }
     },
-    "version": "v1.9.7",
-    "releaseNote": "- fix: Fix context menu when disable sftp (#1914)\r\n- fix #1909 fix: Fix cancel single transfer function\r\n- build: Remove happyPack\r\n- build: fix hot reload\r\n- fix: Fix reload support\r\n- feat: Support reload to make language change take effect",
-    "releaseDate": "2020-11-21T09:21:47Z",
+    "version": "v1.9.12",
+    "releaseNote": "- feat: Update window maximize status when window move\r\n- feat: Support maximize in all displays\r\n- fix #1915 fix: Copy remain terminal focus\r\n- code: Partial code refractor\r\n",
+    "releaseDate": "2020-11-23T03:37:20Z",
     "siteKeywords": "electron,ternimal,electerm,ssh,sftp",
     "siteName": "electerm",
     "path": "/home/execapp/dev/electerm.html5beta.com/index-tr_tr.html"
@@ -3398,10 +3398,10 @@
         "name": "linux x86 x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/28591230",
-            "id": 28591230,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDI4NTkxMjMw",
-            "name": "electerm-1.9.7-linux-amd64.deb",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/28646354",
+            "id": 28646354,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDI4NjQ2MzU0",
+            "name": "electerm-1.9.12-linux-amd64.deb",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -3425,18 +3425,18 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 55418338,
+            "size": 55383406,
             "download_count": 0,
-            "created_at": "2020-11-21T09:10:34Z",
-            "updated_at": "2020-11-21T09:10:36Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.9.7/electerm-1.9.7-linux-amd64.deb",
+            "created_at": "2020-11-23T01:53:45Z",
+            "updated_at": "2020-11-23T01:53:47Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.9.12/electerm-1.9.12-linux-amd64.deb",
             "desc": "for Debian, Ubuntu..."
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/28591293",
-            "id": 28591293,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDI4NTkxMjkz",
-            "name": "electerm-1.9.7-linux-amd64.snap",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/28646371",
+            "id": 28646371,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDI4NjQ2Mzcx",
+            "name": "electerm-1.9.12-linux-amd64.snap",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -3460,18 +3460,18 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 68227072,
+            "size": 68112384,
             "download_count": 0,
-            "created_at": "2020-11-21T09:13:35Z",
-            "updated_at": "2020-11-21T09:13:37Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.9.7/electerm-1.9.7-linux-amd64.snap",
+            "created_at": "2020-11-23T01:56:59Z",
+            "updated_at": "2020-11-23T01:57:01Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.9.12/electerm-1.9.12-linux-amd64.snap",
             "desc": "for all linux that support snap"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/28591199",
-            "id": 28591199,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDI4NTkxMTk5",
-            "name": "electerm-1.9.7-linux-x64.tar.gz",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/28646328",
+            "id": 28646328,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDI4NjQ2MzI4",
+            "name": "electerm-1.9.12-linux-x64.tar.gz",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -3495,18 +3495,18 @@
             },
             "content_type": "application/gzip",
             "state": "uploaded",
-            "size": 76920774,
+            "size": 76793056,
             "download_count": 0,
-            "created_at": "2020-11-21T09:08:52Z",
-            "updated_at": "2020-11-21T09:08:54Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.9.7/electerm-1.9.7-linux-x64.tar.gz",
+            "created_at": "2020-11-23T01:51:56Z",
+            "updated_at": "2020-11-23T01:51:58Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.9.12/electerm-1.9.12-linux-x64.tar.gz",
             "desc": "for all linux x64, just extract"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/28591281",
-            "id": 28591281,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDI4NTkxMjgx",
-            "name": "electerm-1.9.7-linux-x86_64.rpm",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/28646365",
+            "id": 28646365,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDI4NjQ2MzY1",
+            "name": "electerm-1.9.12-linux-x86_64.rpm",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -3530,11 +3530,11 @@
             },
             "content_type": "application/x-redhat-package-manager",
             "state": "uploaded",
-            "size": 56113340,
+            "size": 56001764,
             "download_count": 0,
-            "created_at": "2020-11-21T09:12:39Z",
-            "updated_at": "2020-11-21T09:12:42Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.9.7/electerm-1.9.7-linux-x86_64.rpm",
+            "created_at": "2020-11-23T01:56:04Z",
+            "updated_at": "2020-11-23T01:56:05Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.9.12/electerm-1.9.12-linux-x86_64.rpm",
             "desc": "for Red Hat, Fedora..."
           }
         ]
@@ -3543,10 +3543,10 @@
         "name": "mac os x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/28590983",
-            "id": 28590983,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDI4NTkwOTgz",
-            "name": "electerm-1.9.7-mac.dmg",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/28646402",
+            "id": 28646402,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDI4NjQ2NDAy",
+            "name": "electerm-1.9.12-mac.dmg",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -3570,11 +3570,11 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 80154440,
+            "size": 80066371,
             "download_count": 0,
-            "created_at": "2020-11-21T09:00:00Z",
-            "updated_at": "2020-11-21T09:00:03Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.9.7/electerm-1.9.7-mac.dmg"
+            "created_at": "2020-11-23T01:58:29Z",
+            "updated_at": "2020-11-23T01:58:32Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.9.12/electerm-1.9.12-mac.dmg"
           }
         ]
       },
@@ -3582,10 +3582,10 @@
         "name": "windows 7/8/10 x86 x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/28590705",
-            "id": 28590705,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDI4NTkwNzA1",
-            "name": "electerm-1.9.7-win-x64.tar.gz",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/28646145",
+            "id": 28646145,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDI4NjQ2MTQ1",
+            "name": "electerm-1.9.12-win-x64.tar.gz",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -3609,18 +3609,18 @@
             },
             "content_type": "application/gzip",
             "state": "uploaded",
-            "size": 75719282,
+            "size": 75590675,
             "download_count": 0,
-            "created_at": "2020-11-21T08:53:28Z",
-            "updated_at": "2020-11-21T08:53:30Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.9.7/electerm-1.9.7-win-x64.tar.gz"
+            "created_at": "2020-11-23T01:39:18Z",
+            "updated_at": "2020-11-23T01:39:20Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.9.12/electerm-1.9.12-win-x64.tar.gz"
           }
         ]
       }
     },
-    "version": "v1.9.7",
-    "releaseNote": "- fix: Fix context menu when disable sftp (#1914)\r\n- fix #1909 fix: Fix cancel single transfer function\r\n- build: Remove happyPack\r\n- build: fix hot reload\r\n- fix: Fix reload support\r\n- feat: Support reload to make language change take effect",
-    "releaseDate": "2020-11-21T09:21:47Z",
+    "version": "v1.9.12",
+    "releaseNote": "- feat: Update window maximize status when window move\r\n- feat: Support maximize in all displays\r\n- fix #1915 fix: Copy remain terminal focus\r\n- code: Partial code refractor\r\n",
+    "releaseDate": "2020-11-23T03:37:20Z",
     "siteKeywords": "electron,ternimal,electerm,ssh,sftp",
     "siteName": "electerm",
     "path": "/home/execapp/dev/electerm.html5beta.com/index-zh_cn.html"
@@ -3916,10 +3916,10 @@
         "name": "linux x86 x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/28591230",
-            "id": 28591230,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDI4NTkxMjMw",
-            "name": "electerm-1.9.7-linux-amd64.deb",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/28646354",
+            "id": 28646354,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDI4NjQ2MzU0",
+            "name": "electerm-1.9.12-linux-amd64.deb",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -3943,18 +3943,18 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 55418338,
+            "size": 55383406,
             "download_count": 0,
-            "created_at": "2020-11-21T09:10:34Z",
-            "updated_at": "2020-11-21T09:10:36Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.9.7/electerm-1.9.7-linux-amd64.deb",
+            "created_at": "2020-11-23T01:53:45Z",
+            "updated_at": "2020-11-23T01:53:47Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.9.12/electerm-1.9.12-linux-amd64.deb",
             "desc": "for Debian, Ubuntu..."
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/28591293",
-            "id": 28591293,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDI4NTkxMjkz",
-            "name": "electerm-1.9.7-linux-amd64.snap",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/28646371",
+            "id": 28646371,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDI4NjQ2Mzcx",
+            "name": "electerm-1.9.12-linux-amd64.snap",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -3978,18 +3978,18 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 68227072,
+            "size": 68112384,
             "download_count": 0,
-            "created_at": "2020-11-21T09:13:35Z",
-            "updated_at": "2020-11-21T09:13:37Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.9.7/electerm-1.9.7-linux-amd64.snap",
+            "created_at": "2020-11-23T01:56:59Z",
+            "updated_at": "2020-11-23T01:57:01Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.9.12/electerm-1.9.12-linux-amd64.snap",
             "desc": "for all linux that support snap"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/28591199",
-            "id": 28591199,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDI4NTkxMTk5",
-            "name": "electerm-1.9.7-linux-x64.tar.gz",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/28646328",
+            "id": 28646328,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDI4NjQ2MzI4",
+            "name": "electerm-1.9.12-linux-x64.tar.gz",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -4013,18 +4013,18 @@
             },
             "content_type": "application/gzip",
             "state": "uploaded",
-            "size": 76920774,
+            "size": 76793056,
             "download_count": 0,
-            "created_at": "2020-11-21T09:08:52Z",
-            "updated_at": "2020-11-21T09:08:54Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.9.7/electerm-1.9.7-linux-x64.tar.gz",
+            "created_at": "2020-11-23T01:51:56Z",
+            "updated_at": "2020-11-23T01:51:58Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.9.12/electerm-1.9.12-linux-x64.tar.gz",
             "desc": "for all linux x64, just extract"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/28591281",
-            "id": 28591281,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDI4NTkxMjgx",
-            "name": "electerm-1.9.7-linux-x86_64.rpm",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/28646365",
+            "id": 28646365,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDI4NjQ2MzY1",
+            "name": "electerm-1.9.12-linux-x86_64.rpm",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -4048,11 +4048,11 @@
             },
             "content_type": "application/x-redhat-package-manager",
             "state": "uploaded",
-            "size": 56113340,
+            "size": 56001764,
             "download_count": 0,
-            "created_at": "2020-11-21T09:12:39Z",
-            "updated_at": "2020-11-21T09:12:42Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.9.7/electerm-1.9.7-linux-x86_64.rpm",
+            "created_at": "2020-11-23T01:56:04Z",
+            "updated_at": "2020-11-23T01:56:05Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.9.12/electerm-1.9.12-linux-x86_64.rpm",
             "desc": "for Red Hat, Fedora..."
           }
         ]
@@ -4061,10 +4061,10 @@
         "name": "mac os x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/28590983",
-            "id": 28590983,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDI4NTkwOTgz",
-            "name": "electerm-1.9.7-mac.dmg",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/28646402",
+            "id": 28646402,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDI4NjQ2NDAy",
+            "name": "electerm-1.9.12-mac.dmg",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -4088,11 +4088,11 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 80154440,
+            "size": 80066371,
             "download_count": 0,
-            "created_at": "2020-11-21T09:00:00Z",
-            "updated_at": "2020-11-21T09:00:03Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.9.7/electerm-1.9.7-mac.dmg"
+            "created_at": "2020-11-23T01:58:29Z",
+            "updated_at": "2020-11-23T01:58:32Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.9.12/electerm-1.9.12-mac.dmg"
           }
         ]
       },
@@ -4100,10 +4100,10 @@
         "name": "windows 7/8/10 x86 x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/28590705",
-            "id": 28590705,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDI4NTkwNzA1",
-            "name": "electerm-1.9.7-win-x64.tar.gz",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/28646145",
+            "id": 28646145,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDI4NjQ2MTQ1",
+            "name": "electerm-1.9.12-win-x64.tar.gz",
             "label": "",
             "uploader": {
               "login": "zxdong262",
@@ -4127,18 +4127,18 @@
             },
             "content_type": "application/gzip",
             "state": "uploaded",
-            "size": 75719282,
+            "size": 75590675,
             "download_count": 0,
-            "created_at": "2020-11-21T08:53:28Z",
-            "updated_at": "2020-11-21T08:53:30Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.9.7/electerm-1.9.7-win-x64.tar.gz"
+            "created_at": "2020-11-23T01:39:18Z",
+            "updated_at": "2020-11-23T01:39:20Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.9.12/electerm-1.9.12-win-x64.tar.gz"
           }
         ]
       }
     },
-    "version": "v1.9.7",
-    "releaseNote": "- fix: Fix context menu when disable sftp (#1914)\r\n- fix #1909 fix: Fix cancel single transfer function\r\n- build: Remove happyPack\r\n- build: fix hot reload\r\n- fix: Fix reload support\r\n- feat: Support reload to make language change take effect",
-    "releaseDate": "2020-11-21T09:21:47Z",
+    "version": "v1.9.12",
+    "releaseNote": "- feat: Update window maximize status when window move\r\n- feat: Support maximize in all displays\r\n- fix #1915 fix: Copy remain terminal focus\r\n- code: Partial code refractor\r\n",
+    "releaseDate": "2020-11-23T03:37:20Z",
     "siteKeywords": "electron,ternimal,electerm,ssh,sftp",
     "siteName": "electerm",
     "path": "/home/execapp/dev/electerm.html5beta.com/index-zh_tw.html"
