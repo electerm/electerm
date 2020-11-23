@@ -248,7 +248,6 @@ class Terminal {
       if (!opts.passphrase) {
         delete opts.passphrase
       }
-      console.log(opts)
       let x11
       if (initOptions.x11 === true) {
         x11 = {
