@@ -103,6 +103,7 @@ export default function Upgrade (props) {
       upgrading: true
     })
     update.current = await upgrade({
+      proxy: props.proxy,
       onData,
       onEnd,
       onError

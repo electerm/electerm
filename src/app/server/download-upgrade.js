@@ -5,21 +5,50 @@
 const fs = require('fs')
 const { resolve } = require('path')
 const _ = require('lodash')
-const rp = require('phin')
+const rp = require('axios')
 const { isWin, isMac, packInfo } = require('../utils/constants')
 const installSrc = require('../lib/install-src')
 const os = require('os')
-const tempDir = os.tmpdir()
 const { fsExport } = require('../lib/fs')
+const SocksProxyAgent = require('socks-proxy-agent')
+const HttpsProxyAgent = require('https-proxy-agent')
 const { openFile, rmrf } = fsExport
 
-function getReleaseInfo (filter, releaseInfoUrl) {
+function createAgent (proxy) {
+  if (!proxy.enableGlobalProxy) {
+    return undefined
+  }
+  const {
+    proxyPort,
+    proxyType,
+    proxyIp,
+    proxyUsername,
+    proxyPassword
+  } = proxy
+  if (proxyType !== '0') {
+    return new SocksProxyAgent({
+      type: parseInt(proxyType, 10),
+      port: proxyPort,
+      host: proxyIp,
+      password: proxyPassword,
+      username: proxyUsername
+    })
+  } else {
+    return new HttpsProxyAgent({
+      port: proxyPort,
+      host: proxyIp
+    })
+  }
+}
+
+function getReleaseInfo (filter, releaseInfoUrl, agent) {
   return rp({
     url: releaseInfoUrl,
-    timeout: 15000
+    timeout: 15000,
+    httpsAgent: agent
   })
     .then((res) => {
-      return JSON.parse(res.body.toString())
+      return res.data
         .release
         .assets
         .filter(filter)[0]
@@ -34,8 +63,10 @@ class Upgrade {
   async init () {
     const {
       id,
-      ws
+      ws,
+      proxy
     } = this.options
+    const agent = createAgent(proxy)
     const releaseInfoUrl = `${packInfo.homepage}/data/electerm-github-release.json?_=${+new Date()}`
     let filter = r => {
       return r.name.includes(installSrc) &&
@@ -46,11 +77,12 @@ class Upgrade {
     } else if (isMac) {
       filter = r => /\.dmg$/.test(r.name)
     }
-    const releaseInfo = await getReleaseInfo(filter, releaseInfoUrl)
+    const releaseInfo = await getReleaseInfo(filter, releaseInfoUrl, agent)
       .catch(this.onError)
     if (!releaseInfo) {
       return
     }
+    const tempDir = os.tmpdir()
     const localPath = resolve(tempDir, releaseInfo.name)
     const remotePath = releaseInfo.browser_download_url
     await rmrf(localPath)
@@ -59,9 +91,9 @@ class Upgrade {
     this.localPath = localPath
     const readSteam = await rp({
       url: remotePath,
-      followRedirects: true,
-      stream: true
-    })
+      httpsAgent: agent,
+      responseType: 'stream'
+    }).then(r => r.data)
     const writeSteam = fs.createWriteStream(localPath)
 
     let count = 0
@@ -100,7 +132,7 @@ class Upgrade {
       writeSteam.end('', () => this.onEnd(id, ws))
     })
 
-    readSteam.on('error', (err) => this.onError(err, id))
+    readSteam.on('error', (err) => this.onError(err, id, ws))
 
     this.readSteam = readSteam
     this.writeSteam = writeSteam

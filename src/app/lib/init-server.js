@@ -3,7 +3,7 @@
  */
 
 const createChildServer = require('../server/child-process')
-const rp = require('phin').promisified
+const rp = require('axios')
 
 /**
  * wait async
