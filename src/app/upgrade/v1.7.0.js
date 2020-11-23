@@ -12,7 +12,6 @@ async function fixAll () {
   const defaultLightThemeConfig = defaults[0].data[1]
   const all = await dbAction('terminalThemes', 'find', {}).catch(log.error) || []
   for (const item of all) {
-    console.log(item)
     const q = {
       _id: item.id || item._id
     }

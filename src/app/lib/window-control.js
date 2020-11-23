@@ -29,7 +29,6 @@ exports.getScreenCurrent = () => {
 
 exports.getScreenSize = () => {
   const screen = exports.getScreenCurrent()
-  console.log(screen)
   return {
     ...screen.workAreaSize,
     x: screen.workArea.x,

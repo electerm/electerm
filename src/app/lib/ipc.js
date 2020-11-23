@@ -82,9 +82,7 @@ function initIpc () {
       x: sx,
       y: sy
     } = getScreenSize()
-    console.log('sx, sy', sx, sy)
     const { width, height, x, y } = global.win.getBounds()
-    console.log('x, y', x, y)
     return widthMax === width &&
       heightMax === height &&
       x === sx &&
