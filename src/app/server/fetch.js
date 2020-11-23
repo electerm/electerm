@@ -4,7 +4,7 @@
 
 const rp = require('phin')
 
-module.exports = (options) => {
+function fetch (options) {
   return rp(options)
     .then((res) => {
       if (res.statusCode >= 304) {
@@ -18,3 +18,21 @@ module.exports = (options) => {
       }
     })
 }
+
+async function wsFetchHandler (ws, msg) {
+  const { id, options } = msg
+  const res = await fetch(options)
+  if (res.error) {
+    ws.s({
+      error: res.error,
+      id
+    })
+  } else {
+    ws.s({
+      data: res,
+      id
+    })
+  }
+}
+
+module.exports = wsFetchHandler

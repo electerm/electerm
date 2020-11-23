@@ -1,7 +1,7 @@
 
 import { Component } from 'react'
 import ZmodemTransfer from './zmodem-transfer'
-import fetch, { handleErr } from '../../common/fetch'
+import { handleErr } from '../../common/fetch'
 import { mergeProxy } from '../../common/merge-proxy'
 import { nanoid as generate } from 'nanoid/non-secure'
 import _ from 'lodash'
@@ -53,6 +53,7 @@ import Qm from '../quick-commands/quick-commands-select'
 import BatchInput from './batch-input'
 import filesize from 'filesize'
 import Link from '../common/external-link'
+import { createTerm, resizeTerm } from './terminal-apis'
 // import { getFolderFromFilePath } from '../sftp/file-read'
 
 const { prefix } = window
@@ -740,7 +741,6 @@ export default class Term extends Component {
     const { cols, rows } = term
     const { config } = this.props
     const { host, port, tokenElecterm } = config
-    const url = `http://${host}:${port}/terminals`
     const { tab = {}, sessionId, terminalIndex, id } = this.props
     const {
       srcId, from = 'bookmarks',
@@ -756,7 +756,7 @@ export default class Term extends Component {
       ? typeMap.local
       : type
     const extra = this.props.sessionOptions
-    let pid = await fetch.post(url, {
+    let pid = await createTerm({
       cols,
       rows,
       term: terminalType || config.terminalType,
@@ -779,12 +779,9 @@ export default class Term extends Component {
       type: tab.host && !isSshConfig
         ? typeMap.remote
         : typeMap.local
-    }, {
-      handleErr: async response => {
-        let text = _.isFunction(response.text)
-          ? await response.text()
-          : _.isPlainObject(response) ? JSON.stringify(response) : response
-        text = (text || '').toString()
+    })
+      .catch(err => {
+        const text = err.message
         if (text.includes(authFailMsg)) {
           this.setState(() => ({ passType: 'password' }))
           return 'fail'
@@ -794,8 +791,7 @@ export default class Term extends Component {
         } else {
           handleErr({ message: text })
         }
-      }
-    })
+      })
     pid = pid || ''
     if (pid.includes('fail')) {
       return this.promote()
@@ -924,11 +920,7 @@ export default class Term extends Component {
 
   onResizeTerminal = size => {
     const { cols, rows } = size
-    const config = this.props.store.config
-    const { host, port } = config
-    const { pid } = this
-    const url = `http://${host}:${port}/terminals/${pid}/size?cols=${cols}&rows=${rows}&sessionId=${this.props.sessionId}`
-    fetch.post(url)
+    resizeTerm(this.pid, this.props.sessionId, cols, rows)
   }
 
   promote = () => {

@@ -39,7 +39,7 @@ const dist = {
   github: GitHub
 }
 
-module.exports = async (type, func, args, token) => {
+async function doSync (type, func, args, token) {
   const inst = new dist[type](token)
   return inst[func](...args)
     .then(r => r.data)
@@ -48,3 +48,21 @@ module.exports = async (type, func, args, token) => {
       return e
     })
 }
+
+async function wsSyncHandler (ws, msg) {
+  const { id, type, args, func, token } = msg
+  const res = await doSync(type, func, args, token)
+  if (res.error) {
+    ws.s({
+      error: res.error,
+      id
+    })
+  } else {
+    ws.s({
+      data: res,
+      id
+    })
+  }
+}
+
+module.exports = wsSyncHandler

@@ -2,12 +2,11 @@
  * test connection
  */
 
-import fetch from './fetch'
+import fetch from './fetch-from-server'
 
-export default (config) => {
-  const { host, port } = window._config
-  const url = `http://${host}:${port}/terminals?isTest=1`
-  return fetch.post(url, config, {
-    handleErr: log.error
+export default (body) => {
+  return fetch({
+    body,
+    action: 'test-terminal'
   })
 }

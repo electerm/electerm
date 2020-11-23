@@ -1,6 +1,6 @@
 {
   "name": "electerm",
-  "version": "1.9.12",
+  "version": "1.9.14",
   "description": "Terminal/ssh/sftp client(linux, mac, win) based on electron/ssh2/node-pty/xterm/antd/subx and other libs",
   "main": "app.js",
   "bin": "npm/electerm",
@@ -120,7 +120,6 @@
   },
   "dependencies": {
     "@electerm/electerm-locales": "0.9.7",
-    "@electerm/ssh2": "0.8.11",
     "body-parser": "1.19.0",
     "cors": "2.8.5",
     "drivelist": "9.1.0",
@@ -145,6 +144,7 @@
     "serialport": "9.0.0",
     "socks": "2.5.0",
     "ssh-config": "4.0.4",
+    "ssh2": "^0.8.9",
     "stylus": "0.54.8",
     "util-promisifyall": "^1.0.6",
     "v8-compile-cache": "2.2.0"

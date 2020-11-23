@@ -15,7 +15,7 @@ export default class QuickCommandsList extends List {
     this.props.store.delItem(item, settingMap.quickCommands)
   }
 
-  onClickItem = item => {
+  onClickItem = (item) => {
     this.props.onClickItem(item)
   }
 

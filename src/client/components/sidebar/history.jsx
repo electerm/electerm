@@ -2,7 +2,7 @@
  * history select
  */
 
-import { memo } from 'react'
+// import { memo } from 'react'
 import ItemList from '../setting-panel/list'
 import _ from 'lodash'
 import { EditOutlined } from '@ant-design/icons'
@@ -12,7 +12,7 @@ const { prefix } = window
 const c = prefix('common')
 const m = prefix('menu')
 
-export default memo((props) => {
+export default (props) => {
   const { store } = props
   return (
     <div
@@ -41,4 +41,4 @@ export default memo((props) => {
       </div>
     </div>
   )
-})
+}

@@ -10,11 +10,12 @@ let ws
 let wsOpened = false
 
 const init = async () => {
-  ws = await initWs('fetch', id)
+  ws = await initWs('common', id)
   wsOpened = true
   ws.onclose = () => {
     wsOpened = false
   }
+  window.et.commonWs = ws
 }
 
 export default async (data) => {
@@ -30,7 +31,7 @@ export default async (data) => {
     ws.once((arg) => {
       if (arg.error) {
         log.error('fetch error', arg.error)
-        return reject(new Error(arg.error))
+        return reject(new Error(arg.error.message))
       }
       resolve(arg.data)
     }, id)
