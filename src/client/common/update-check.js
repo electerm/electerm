@@ -50,10 +50,10 @@ export async function getLatestReleaseVersion () {
 
 export async function getLatestReleaseInfo () {
   let url = `${baseUpdateCheckUrls[0]}/data/electerm-github-release.json`
-  let res = await getInfo(url).then(JSON.parse)
+  let res = await getInfo(url)
   if (!_.get(res, 'release.body')) {
     url = `${baseUpdateCheckUrls[1]}/data/electerm-github-release.json`
-    res = await getInfo(url).then(JSON.parse)
+    res = await getInfo(url)
   }
   return _.get(res, 'release.body')
 }

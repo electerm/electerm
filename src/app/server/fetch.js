@@ -2,15 +2,12 @@
  * node fetch in server side
  */
 
-const rp = require('phin')
+const rp = require('axios')
 
 function fetch (options) {
   return rp(options)
     .then((res) => {
-      if (res.statusCode >= 304) {
-        throw new Error(`status: ${res.statusCode}`)
-      }
-      return res.body.toString()
+      return res.data
     })
     .catch(error => {
       return {

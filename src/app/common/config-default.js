@@ -8,6 +8,7 @@ module.exports = exports.default = {
   ctrlOrMetaOpenTerminalLink: false,
   ...defaultSettings,
   terminalTimeout: 5000,
+  enableGlobalProxy: false,
   proxyPort: 1080,
   proxyType: '5',
   proxyIp: '127.0.0.1',
