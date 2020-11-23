@@ -19,7 +19,7 @@ exports.getScreenCurrent = () => {
   if (all.length === 1) {
     return all[0]
   }
-  for (let d of all) {
+  for (const d of all) {
     const right = rect.x + rect.width
     if (right > d.bounds.x && right <= d.bounds.x + d.workArea.width) {
       return d
@@ -28,7 +28,13 @@ exports.getScreenCurrent = () => {
 }
 
 exports.getScreenSize = () => {
-  return exports.getScreenCurrent().workAreaSize
+  const screen = exports.getScreenCurrent()
+  console.log(screen)
+  return {
+    ...screen.workAreaSize,
+    x: screen.workArea.x,
+    y: screen.workArea.y
+  }
 }
 
 exports.maximize = () => {

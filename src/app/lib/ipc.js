@@ -38,6 +38,9 @@ const { listSerialPorts } = require('./serial-port')
 const initApp = require('./init-app')
 
 function initIpc () {
+  global.win.on('move', () => {
+    global.win.webContents.send('window-move', null)
+  })
   async function init () {
     const {
       config
@@ -73,9 +76,19 @@ function initIpc () {
     return globs
   }
   const isMaximized = () => {
-    const { width: widthMax, height: heightMax } = getScreenSize()
-    const { width, height } = global.win.getBounds()
-    return widthMax === width && heightMax === height
+    const {
+      width: widthMax,
+      height: heightMax,
+      x: sx,
+      y: sy
+    } = getScreenSize()
+    console.log('sx, sy', sx, sy)
+    const { width, height, x, y } = global.win.getBounds()
+    console.log('x, y', x, y)
+    return widthMax === width &&
+      heightMax === height &&
+      x === sx &&
+      y === sy
   }
   const syncFuncs = {
     isMaximized

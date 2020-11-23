@@ -35,6 +35,7 @@ export default class Index extends Component {
     ipcOnEvent('openSettings', store.openSetting)
     ipcOnEvent('selectall', store.selectall)
     ipcOnEvent('focused', store.focus)
+    ipcOnEvent('window-move', store.onResize)
 
     document.addEventListener('drop', function (e) {
       e.preventDefault()
