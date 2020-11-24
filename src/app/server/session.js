@@ -18,7 +18,6 @@ const {
 } = require('./remote-common')
 const { createLogFileName } = require('../common/create-session-log-file-path')
 const SessionLog = require('./session-log')
-
 // const MockBinding = require('@serialport/binding-mock')
 
 // SerialPort.Binding = MockBinding
@@ -215,6 +214,28 @@ class Terminal {
     })
   }
 
+  onKeyboardEvent (options) {
+    const id = generate()
+    this.ws.s({
+      id,
+      action: 'session-interactive',
+      ..._.pick(this.initOptions, [
+        'sessionId',
+        'tabId'
+      ]),
+      options
+    })
+    return new Promise((resolve, reject) => {
+      this.ws.once((arg) => {
+        const { results } = arg
+        if (_.isEmpty(results)) {
+          return reject(new Error('User cancel'))
+        }
+        resolve(results)
+      }, id)
+    })
+  }
+
   async remoteInitProcess (initOptions, isTest) {
     const display = await getDisplay()
     const x11Cookie = await getX11Cookie()
@@ -268,22 +289,22 @@ class Terminal {
           opts.sock = info.socket
         }
         conn
-          .on('keyboard-interactive', (
+          .on('keyboard-interactive', async (
             name,
             instructions,
             instructionsLang,
             prompts,
             finish
           ) => {
-            // this.ws.s({
-            //   action: 'session-inetractive',
-            //   pid: this.pid,
-            //   name,
-            //   instructions,
-            //   instructionsLang,
-            //   prompts
-            // })
-            finish([shellOpts.password])
+            const options = {
+              name,
+              instructions,
+              instructionsLang,
+              prompts
+            }
+            const result = await this.onKeyboardEvent(options)
+              .catch(reject)
+            finish(result)
           })
           .on('x11', function (info, accept) {
             let start = 0
