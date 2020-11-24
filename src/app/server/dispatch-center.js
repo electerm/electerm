@@ -44,6 +44,16 @@ const wsDec = (ws) => {
     }
   }
   ws.on('error', log.error)
+  ws.once = (callack, id) => {
+    const func = (evt) => {
+      const arg = JSON.parse(evt.data)
+      if (id === arg.id) {
+        callack(arg)
+        ws.removeEventListener('message', func)
+      }
+    }
+    ws.addEventListener('message', func)
+  }
   ws._socket.setKeepAlive(true, 5 * 60 * 1000)
 }
 
