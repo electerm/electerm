@@ -298,7 +298,7 @@ export default class SessionWrapper extends Component {
     return (
       <Tooltip title={title}>
         <SearchOutlined
-          className='mg1r icon-info font16 iblock pointer'
+          className='mg1r icon-info font16 iblock pointer spliter'
           onClick={this.handleOpenSearch} />
       </Tooltip>
     )
