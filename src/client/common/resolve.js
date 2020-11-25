@@ -5,7 +5,6 @@
  * @param {String} nameOrDot
  * @return {String}
  */
-import { isWin } from './constants'
 
 export default (basePath, nameOrDot) => {
   const sep = basePath.includes('\\') || basePath.includes(':')
@@ -20,7 +19,7 @@ export default (basePath, nameOrDot) => {
     const res = arr.slice(0, length - 1).join(sep)
     return res || '/'
   }
-  const pre = isWin && basePath === '/'
+  const pre = nameOrDot.includes(':') && basePath === '/'
     ? ''
     : basePath
   return pre +
