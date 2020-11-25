@@ -56,7 +56,7 @@ export default function BookmarkFormUI (props) {
     submitUi
   ] = useSubmit(props)
   useEffect(() => {
-    if (props.formData.id.startsWith(newBookmarkIdPrefix)) {
+    if ((props.formData.id || '').startsWith(newBookmarkIdPrefix)) {
       form.setFieldsValue({
         category: props.currentBookmarkGroupId
       })
