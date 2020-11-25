@@ -5,6 +5,7 @@
 import { useEffect, useState } from 'react'
 import { Modal, Form, Input } from 'antd'
 import { formItemLayout } from '../../common/form-layout'
+import wait from '../../common/wait'
 
 const { prefix } = window
 const e = prefix('sftp')
@@ -55,19 +56,32 @@ export default function TermInteractive () {
         rules={[{
           required: true, message: 'required'
         }]}
-        name={'item' + i}
       >
-        <Input
-          type={type}
-          placeholder={note}
-        />
+        <div>
+          <pre>{note}</pre>
+        </div>
+        <FormItem noStyle name={'item' + i}>
+          <Input
+            type={type}
+            placeholder={note}
+          />
+        </FormItem>
       </FormItem>
     )
   }
+  async function initWatch () {
+    let done = false
+    while (!done) {
+      if (window.et.commonWs) {
+        window.et.commonWs.addEventListener('message', onMsg)
+        done = true
+      } else {
+        await wait(400)
+      }
+    }
+  }
   function init () {
-    setTimeout(() => {
-      window.et.commonWs.addEventListener('message', onMsg)
-    }, 500)
+    initWatch()
   }
   useEffect(() => {
     init()
@@ -81,7 +95,8 @@ export default function TermInteractive () {
     onCancel,
     onOk,
     closable: false,
-    visible: true
+    visible: true,
+    title: '?'
   }
   return (
     <Modal
