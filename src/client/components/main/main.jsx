@@ -9,13 +9,13 @@ import FileInfoModal from '../sftp/file-props-modal'
 import FileModeModal from '../sftp/file-mode-modal'
 import UpdateCheck from './upgrade'
 import SettingModal from '../setting-panel/setting-modal'
-import createTitlte from '../../common/create-title'
+import createTitle from '../../common/create-title'
 import TextEditor from '../text-editor'
 import Sidebar from '../sidebar'
 import SystemMenu from './system-menu'
 import CssOverwrite from './css-overwrite'
 import UiTheme from './ui-theme'
-import TerminalInteractive from '../terminal/terminal-ineractive'
+import TerminalInteractive from '../terminal/terminal-interactive'
 import classnames from 'classnames'
 import { isMac, isWin } from '../../common/constants'
 import './wrapper.styl'
@@ -25,7 +25,7 @@ export default class Index extends Component {
     const { store } = this.props
     window.lang = copy(window.lang)
     window._config = copy(window._config)
-    const title = createTitlte(store.tabs[0])
+    const title = createTitle(store.tabs[0])
     window.pre.runGlobalAsync('setTitle', title)
     window.addEventListener('resize', store.onResize)
     store.onResize()
