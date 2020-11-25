@@ -13,8 +13,8 @@ exports.getScreenCurrent = () => {
       x: 0,
       width: minWindowWidth
     }
-  const all = require('electron')
-    .screen
+  const { screen } = require('electron')
+  const all = screen
     .getAllDisplays()
   if (all.length === 1) {
     return all[0]
@@ -25,6 +25,7 @@ exports.getScreenCurrent = () => {
       return d
     }
   }
+  return screen.getPrimaryDisplay()
 }
 
 exports.getScreenSize = () => {
