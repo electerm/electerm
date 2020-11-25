@@ -66,11 +66,11 @@ describe('init setting buttons', function () {
     const text2 = await client.getText(sel)
     expect(text2).equal(e('bookmarks'))
 
-    log('tab it')
-    await client.click('.ant-modal .ant-tabs-nav-list .ant-tabs-tab')
-    await delay(3100)
-    const text4 = await client.getText(sel)
-    expect(text4).equal(e('history'))
+    // log('tab it')
+    // await client.click('.ant-modal .ant-tabs-tab:nth-child(3)')
+    // await delay(3100)
+    // const text4 = await client.getText(sel)
+    // expect(text4).equal(e('setting'))
     await client.click('.ant-modal .ant-modal-close')
     await delay(600)
 
