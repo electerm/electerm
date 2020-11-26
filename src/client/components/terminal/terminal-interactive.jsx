@@ -3,12 +3,13 @@
  */
 
 import { useEffect, useState } from 'react'
-import { Modal, Form, Input } from 'antd'
-import { formItemLayout } from '../../common/form-layout'
+import { Modal, Form, Input, Button } from 'antd'
+import { formItemLayout, tailFormItemLayout } from '../../common/form-layout'
 import wait from '../../common/wait'
 
 const { prefix } = window
 const e = prefix('sftp')
+const c = prefix('common')
 const FormItem = Form.Item
 
 export default function TermInteractive () {
@@ -32,6 +33,13 @@ export default function TermInteractive () {
   }
   function onOk () {
     form.submit()
+  }
+  function onIgnore () {
+    window.et.commonWs.s({
+      id: opts.id,
+      results: Object.keys(opts.options.prompts).map(() => '')
+    })
+    clear()
   }
   function onFinish (res) {
     window.et.commonWs.s({
@@ -96,7 +104,8 @@ export default function TermInteractive () {
     onOk,
     closable: false,
     visible: true,
-    title: '?'
+    title: '?',
+    footer: null
   }
   return (
     <Modal
@@ -109,6 +118,27 @@ export default function TermInteractive () {
         {
           opts.options.prompts.map(renderFormItem)
         }
+        <FormItem {...tailFormItemLayout}>
+          <Button
+            type='primary'
+            htmlType='submit'
+          >
+            {e('submit')}
+          </Button>
+          <Button
+            type='dashed'
+            className='mg1l'
+            onClick={onIgnore}
+          >
+            {c('ignore')}
+          </Button>
+          <Button
+            className='mg1l'
+            onClick={onCancel}
+          >
+            {e('cancel')}
+          </Button>
+        </FormItem>
       </Form>
     </Modal>
   )
