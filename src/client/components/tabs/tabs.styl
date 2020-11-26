@@ -65,12 +65,14 @@
       color text-light
 @keyframes blink
   0%
-    opacity 0.5
+    opacity 0.3
   50%
     opacity 1
   100%
-    opacity 0.5
+    opacity 0.3
 
+.tab-terminal-feed
+.tab-traffic
 .tab-status
   position absolute
   left 2px
@@ -85,8 +87,27 @@
     background-color error
   &.processing
     background-color primary
-.is-transporting .tab-status
+.is-transporting .tab-traffic
+  display block
   animation blink 2s infinite
+.tab-traffic
+  display none
+  left 10px
+  width 5px
+  border-radius 0
+  background-color success
+.is-terminal-active .tab-terminal-feed
+  display block
+  animation blink 2s infinite
+.tab-terminal-feed
+  display none
+  left 20px
+  border-radius 0
+  color success
+  background none
+  font-size 8px
+  left 2px
+  top 24px
 .tab-close
   position absolute
   right 5px

@@ -653,7 +653,15 @@ export default class Term extends Component {
     )
   }
 
+  notifyOnData = _.debounce(() => {
+    window.postMessage({
+      action: 'terminal-receive-data',
+      tabId: this.props.tab.id
+    }, '*')
+  }, 1000)
+
   onSocketData = () => {
+    this.notifyOnData()
     clearTimeout(this.timeoutHandler)
   }
 

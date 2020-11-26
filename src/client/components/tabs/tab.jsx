@@ -9,7 +9,8 @@ import {
   CodeOutlined,
   CopyOutlined,
   EditOutlined,
-  Loading3QuartersOutlined
+  Loading3QuartersOutlined,
+  BorderlessTableOutlined
 } from '@ant-design/icons'
 
 import { Tooltip, message } from 'antd'
@@ -34,12 +35,14 @@ export default class Tab extends React.Component {
   constructor (props) {
     super(props)
     this.state = {
+      terminalOnData: false,
       tab: copy(props.tab)
     }
   }
 
   componentDidMount () {
     this.dom = document.getElementById('id' + this.state.tab.id)
+    window.addEventListener('message', this.onEvent)
   }
 
   componentDidUpdate (prevProps) {
@@ -48,6 +51,30 @@ export default class Tab extends React.Component {
         tab: copy(this.props.tab)
       })
     }
+  }
+
+  componentWillUnmount () {
+    clearTimeout(this.handler)
+    window.removeEventListener('message', this.onEvent)
+  }
+
+  onEvent = (e) => {
+    if (
+      e.data &&
+      e.data.action === 'terminal-receive-data' &&
+      e.data.tabId === this.state.tab.id
+    ) {
+      this.setState({
+        terminalOnData: true
+      })
+      this.handler = setTimeout(this.offTerminalOnData, 4000)
+    }
+  }
+
+  offTerminalOnData = () => {
+    this.setState({
+      terminalOnData: false
+    })
   }
 
   clearCls = () => {
@@ -304,13 +331,16 @@ export default class Tab extends React.Component {
       onChangeTabId,
       onDuplicateTab
     } = this.props.store
-    const { tab } = this.state
+    const { tab, terminalOnData } = this.state
     const { id, isEditting, status, isTransporting } = tab
     const active = id === currentTabId
     const cls = classnames(
       'tab',
       { active },
       status,
+      {
+        'is-terminal-active': terminalOnData
+      },
       {
         'is-transporting': isTransporting
       }
@@ -353,6 +383,8 @@ export default class Tab extends React.Component {
             {title}
           </div>
           <div className={'tab-status ' + status} />
+          <div className='tab-traffic' />
+          <BorderlessTableOutlined className='tab-terminal-feed' />
           <span className='tab-close pointer'>
             <CloseOutlined onClick={this.close} />
           </span>
