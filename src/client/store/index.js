@@ -38,12 +38,19 @@ const store = Subx.create({
   ...initState,
   get currentQuickCommands () {
     const { currentTab, quickCommands } = store
-    const currentTabQuickCommands = _.get(
-      currentTab, 'quickCommands'
-    ) || []
+    const currentTabQuickCommands = (
+      _.get(
+        currentTab, 'quickCommands'
+      ) || []
+    ).map((d, i) => {
+      return {
+        ...d,
+        id: 'tab-qm-' + currentTab.id + '#' + i
+      }
+    })
     return [
       ...currentTabQuickCommands,
-      ...copy(quickCommands)
+      ...quickCommands
     ]
   },
   get isTransporting () {
