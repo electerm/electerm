@@ -344,16 +344,26 @@ export default function BookmarkFormUI (props) {
     )
   }
   function renderEnableSftp () {
-    return (
+    return [
       <FormItem
         {...formItemLayout}
         label='Sftp'
         name='enableSftp'
+        key='sftp'
+        valuePropName='checked'
+      >
+        <Switch />
+      </FormItem>,
+      <FormItem
+        {...formItemLayout}
+        label={e('ignoreKeyboardInteractive')}
+        name='ignoreKeyboardInteractive'
+        key='ignoreKeyboardInteractive'
         valuePropName='checked'
       >
         <Switch />
       </FormItem>
-    )
+    ]
   }
 
   function renderProxySelect () {

@@ -13,12 +13,15 @@ async function fixAll () {
     _id: userConfigId
   }
   const conf = await dbAction('data', 'findOne', q)
+  if (!conf.syncSetting) {
+    conf.syncSetting = {}
+  }
   const {
     encrypted,
     gistId,
     githubAccessToken,
     lastSyncTime
-  } = conf.syncSetting || {}
+  } = conf.syncSetting
   if (lastSyncTime) {
     conf.syncSetting.githubLastSyncTime = lastSyncTime
   }

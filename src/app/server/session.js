@@ -296,6 +296,11 @@ class Terminal {
             prompts,
             finish
           ) => {
+            if (initOptions.ignoreKeyboardInteractive) {
+              return finish(
+                (prompts || []).map(() => '')
+              )
+            }
             const options = {
               name,
               instructions,

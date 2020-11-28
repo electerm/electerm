@@ -7,8 +7,8 @@ import { nanoid as generate } from 'nanoid/non-secure'
 const { prefix } = window
 const e = prefix('control')
 
-export default () => ({
+export default (len) => ({
   id: generate(),
   status: 'processing',
-  title: e('newTerminal')
+  title: e('newTerminal') + (len ? `(${len})` : '')
 })
