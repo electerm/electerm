@@ -53,6 +53,7 @@ import Qm from '../quick-commands/quick-commands-select'
 import BatchInput from './batch-input'
 import filesize from 'filesize'
 import Link from '../common/external-link'
+import NormalBuffer from './normal-buffer'
 import { createTerm, resizeTerm } from './terminal-apis'
 // import { getFolderFromFilePath } from '../sftp/file-read'
 
@@ -84,7 +85,8 @@ export default class Term extends Component {
       searchVisible: false,
       searchInput: '',
       passType: 'password',
-      zmodemTransfer: null
+      zmodemTransfer: null,
+      lines: []
     }
   }
 
@@ -274,6 +276,12 @@ export default class Term extends Component {
     ) {
       e.stopPropagation()
       this.props.store.clickNextTab()
+    } else if (
+      keyControlPressed(e) &&
+      keyPressed(e, 'ArrowUp') && this.bufferMode === 'alternate'
+    ) {
+      e.stopPropagation()
+      this.openNormalBuffer()
     } else if (
       e.ctrlKey &&
       keyPressed(e, 'tab')
@@ -742,6 +750,38 @@ export default class Term extends Component {
     })
   }
 
+  watchNormalBufferTrigger = e => {
+    if (
+      keyControlPressed(e) &&
+      keyPressed(e, 'ArrowUp')
+    ) {
+      e.stopPropagation()
+      this.copySelectionToClipboard()
+    }
+  }
+
+  openNormalBuffer = () => {
+    const normal = this.term.buffer._normal
+    const len = normal.length
+    const lines = new Array(len).fill('').map((x, i) => {
+      return normal.getLine(i).translateToString(false)
+    })
+    this.setState({
+      lines
+    })
+  }
+
+  closeNormalBuffer = () => {
+    this.setState({
+      lines: []
+    })
+    this.term.focus()
+  }
+
+  onBufferChange = buf => {
+    this.bufferMode = buf.type
+  }
+
   remoteInit = async (term = this.term) => {
     this.setState({
       loading: true
@@ -841,6 +881,7 @@ export default class Term extends Component {
     this.socket = socket
     // term.onRrefresh(this.onRefresh)
     term.onResize(this.onResizeTerminal)
+    term.buffer._onBufferChange._listeners.push(this.onBufferChange)
     const cid = _.get(this.props, 'currentTabId')
     const tid = _.get(this.props, 'tab.id')
     if (cid === tid && this.props.tab.status === statusMap.success) {
@@ -1151,45 +1192,58 @@ export default class Term extends Component {
     }, 'tw-' + pid, {
       'terminal-not-active': activeSplitId !== pid
     })
+    const prps1 = {
+      className: cls,
+      style: {
+        height,
+        width,
+        left,
+        top,
+        zIndex: position / 10
+      },
+      onDrop: this.onDrop
+    }
+    const fileProps = {
+      type: 'file',
+      multiple: true,
+      id: `${id}-file-sel`,
+      className: 'hide'
+    }
+    const prps2 = {
+      className: 'absolute',
+      style: {
+        left: '10px',
+        top: '10px',
+        right: 0,
+        bottom: '70px'
+      }
+    }
+    const prps3 = {
+      id,
+      className: 'absolute',
+      style: {
+        left: 0,
+        top: 0,
+        height: '100%',
+        width: '100%'
+      }
+    }
     return (
       <div
-        className={cls}
-        style={{
-          height,
-          width,
-          left,
-          top,
-          zIndex: position / 10
-        }}
-        onDrop={this.onDrop}
+        {...prps1}
       >
         {this.renderPromoteModal()}
         <input
-          type='file'
-          multiple
-          id={`${id}-file-sel`}
-          className='hide'
+          {...fileProps}
         />
         <div
-          className='absolute'
-          style={{
-            left: '10px',
-            top: '10px',
-            right: 0,
-            bottom: '70px'
-          }}
+          {...prps2}
         >
           {this.renderSearchBox()}
           <div
-            id={id}
-            className='absolute'
-            style={{
-              left: 0,
-              top: 0,
-              height: '100%',
-              width: '100%'
-            }}
+            {...prps3}
           />
+          <NormalBuffer lines={this.state.lines} close={this.closeNormalBuffer} />
         </div>
         {this.renderFooter()}
         <ZmodemTransfer

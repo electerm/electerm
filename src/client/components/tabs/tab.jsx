@@ -54,8 +54,8 @@ export default class Tab extends React.Component {
   }
 
   componentWillUnmount () {
-    clearTimeout(this.handler)
     window.removeEventListener('message', this.onEvent)
+    clearTimeout(this.handler)
   }
 
   onEvent = (e) => {
@@ -67,6 +67,9 @@ export default class Tab extends React.Component {
       this.setState({
         terminalOnData: true
       })
+      if (this.handler) {
+        clearTimeout(this.handler)
+      }
       this.handler = setTimeout(this.offTerminalOnData, 4000)
     }
   }
