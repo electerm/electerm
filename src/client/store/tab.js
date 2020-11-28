@@ -16,7 +16,7 @@ const defaultStatus = statusMap.processing
 
 export default store => {
   Object.assign(store, {
-    addTab (tab = newTerm(), index = store.tabs.length) {
+    addTab (tab = newTerm(store.tabs.length), index = store.tabs.length) {
       store.currentTabId = tab.id
       store.tabs.splice(index, 0, tab)
     },
