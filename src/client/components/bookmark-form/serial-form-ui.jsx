@@ -69,7 +69,8 @@ export default function SerialFormUi (props) {
     xany: false,
     type: terminalSerialType,
     term: defaultSettings.terminalType,
-    category: initBookmarkGroupId
+    category: initBookmarkGroupId,
+    ignoreKeyboardInteractive: false
   }
   initialValues = _.defaults(initialValues, defaultValues)
   function renderCommon () {
