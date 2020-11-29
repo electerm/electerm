@@ -15,14 +15,13 @@
     "icon": "node_modules/@electerm/electerm-resource/build/icons.icns"
   },
   "dmg": {
-    "background": "node_modules/@electerm/electerm-resource/res/imgs/electerm-dmg-background-min.png",
     "contents": [
       {
         "x": 110,
         "y": 150
       },
       {
-        "x": 340,
+        "x": 240,
         "y": 150,
         "type": "link",
         "path": "/Applications"
