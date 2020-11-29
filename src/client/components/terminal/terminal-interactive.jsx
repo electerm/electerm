@@ -50,12 +50,13 @@ export default function TermInteractive () {
   }
   function renderFormItem (pro, i) {
     const {
-      prompt
+      prompt,
+      echo
     } = pro
     const note = (opts.options.instructions || [])[i]
-    const type = prompt.toLowerCase().includes('password')
-      ? 'password'
-      : 'text'
+    const type = echo
+      ? 'text'
+      : 'password'
     return (
       <FormItem
         {...formItemLayout}
