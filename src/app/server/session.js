@@ -298,7 +298,9 @@ class Terminal {
           ) => {
             if (initOptions.ignoreKeyboardInteractive) {
               return finish(
-                (prompts || []).map(() => '')
+                (prompts || []).map((n, i) => {
+                  return i ? '' : (opts.password || '')
+                })
               )
             }
             const options = {
