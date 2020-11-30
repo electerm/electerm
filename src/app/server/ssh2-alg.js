@@ -4,6 +4,11 @@
 
 module.exports = {
   kex: [
+    // curve25519-sha256 (node v13.9.0 or newer)
+    // curve25519-sha256@libssh.org (node v13.9.0 or newer)
+    'diffie-hellman-group14-sha256',
+    'diffie-hellman-group16-sha512',
+    'diffie-hellman-group18-sha512',
     'ecdh-sha2-nistp256',
     'ecdh-sha2-nistp384',
     'ecdh-sha2-nistp521',
@@ -31,6 +36,7 @@ module.exports = {
     'arcfour'
   ],
   serverHostKey: [
+    'ssh-ed25519',
     'ssh-rsa',
     'ecdsa-sha2-nistp256',
     'ecdsa-sha2-nistp384',
