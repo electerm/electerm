@@ -4,7 +4,8 @@
 
 import { Component } from '../common/react-subx'
 import _ from 'lodash'
-import { Modal, Tabs, Col, Row } from 'antd'
+import { Tabs, Col, Row } from 'antd'
+import Modal from './setting-wrap'
 import TerminalThemeForm from '../terminal-theme'
 import TerminalThemeList from '../terminal-theme/theme-list'
 import QuickCommandsList from '../quick-commands/quick-commands-list'
@@ -197,17 +198,8 @@ export default class SettingModal extends Component {
 
     return (
       <Modal
-        {...{
-          title: e('settings'),
-          onCancel: store.hideModal,
-          footer: null,
-          width: '94%',
-          height: '94%',
-          style: {
-            left: 0
-          },
-          visible: store.showModal
-        }}
+        onCancel={store.hideModal}
+        visible={store.showModal}
       >
         {renderTabs()}
       </Modal>
