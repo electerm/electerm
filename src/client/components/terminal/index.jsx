@@ -475,11 +475,11 @@ export default class Term extends Component {
   }
 
   cancelZmodem = () => {
-    this.props.store.reloadTab(this.props.tab)
+    this.onZmodemEndSend()
   }
 
   onZmodemEndSend = () => {
-    this.zsession.close()
+    this.zsession && this.zsession.close && this.zsession.close()
     this.onZmodemEnd()
   }
 
