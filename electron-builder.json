@@ -43,5 +43,10 @@
   },
   "snap": {
     "publish": ["github", "snapStore", "bintray"]
+  },
+  "bintray": {
+    "provider": "bintray",
+    "repo": "electerm",
+    "owner": "zxdong262"
   }
 }
