@@ -1,0 +1,33 @@
+@require '../../css/includes/theme-default'
+
+.setting-wrap
+  position fixed
+  left 0
+  right 0
+  top 0
+  height 100%
+  z-index 888
+  overflow hidden
+  background main-light
+  animation-duration .5s
+.setting-wrap-content
+  position absolute
+  left 0
+  top 0
+  width 100%
+  height 100%
+  overflow-y scroll
+.setting-wrap-hide
+  width 0
+  border-left-width 0
+.close-setting-wrap
+  position absolute
+  right 20px
+  top 20px
+  font-size 16px
+  color text-disabled
+  cursor pointer
+  z-index 889
+  &:hover
+    color text
+
