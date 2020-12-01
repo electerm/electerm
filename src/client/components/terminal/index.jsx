@@ -881,7 +881,9 @@ export default class Term extends Component {
     this.socket = socket
     // term.onRrefresh(this.onRefresh)
     term.onResize(this.onResizeTerminal)
-    term.buffer._onBufferChange._listeners.push(this.onBufferChange)
+    if (_.pick(term, 'buffer._onBufferChange._listeners')) {
+      term.buffer._onBufferChange._listeners.push(this.onBufferChange)
+    }
     const cid = _.get(this.props, 'currentTabId')
     const tid = _.get(this.props, 'tab.id')
     if (cid === tid && this.props.tab.status === statusMap.success) {

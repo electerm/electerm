@@ -7,12 +7,14 @@
   "artifactName": "${productName}-${version}-${os}-${arch}.${ext}",
   "win": {
     "target": ["tar.gz"],
-    "icon": "node_modules/@electerm/electerm-resource/build/icons.ico"
+    "icon": "node_modules/@electerm/electerm-resource/build/icons.ico",
+    "publish": ["github", "bintray"]
   },
   "mac": {
     "category": "public.app-category.developer-tools",
     "target": ["dmg"],
-    "icon": "node_modules/@electerm/electerm-resource/build/icons.icns"
+    "icon": "node_modules/@electerm/electerm-resource/build/icons.icns",
+    "publish": ["github", "bintray"]
   },
   "dmg": {
     "contents": [
@@ -36,9 +38,10 @@
       "deb",
       "tar.gz",
       "snap"
-    ]
+    ],
+    "publish": ["github", "bintray"]
   },
   "snap": {
-    "publish": ["github", "snapStore"]
+    "publish": ["github", "snapStore", "bintray"]
   }
 }
