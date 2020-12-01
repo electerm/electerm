@@ -8,13 +8,13 @@
   "win": {
     "target": ["tar.gz"],
     "icon": "node_modules/@electerm/electerm-resource/build/icons.ico",
-    "publish": ["github", "bintray"]
+    "publish": ["github"]
   },
   "mac": {
     "category": "public.app-category.developer-tools",
     "target": ["dmg"],
     "icon": "node_modules/@electerm/electerm-resource/build/icons.icns",
-    "publish": ["github", "bintray"]
+    "publish": ["github"]
   },
   "dmg": {
     "contents": [
@@ -39,14 +39,9 @@
       "tar.gz",
       "snap"
     ],
-    "publish": ["github", "bintray"]
+    "publish": ["github"]
   },
   "snap": {
-    "publish": ["github", "snapStore", "bintray"]
-  },
-  "bintray": {
-    "provider": "bintray",
-    "repo": "electerm",
-    "owner": "zxdong262"
+    "publish": ["github", "snapStore"]
   }
 }
