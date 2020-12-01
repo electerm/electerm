@@ -19,7 +19,6 @@ import { settingMap, settingSyncId } from '../../common/constants'
 import copy from 'json-deep-copy'
 
 const { prefix } = window
-const e = prefix('setting')
 const m = prefix('common')
 const c = prefix('control')
 const t = prefix('terminalThemes')
