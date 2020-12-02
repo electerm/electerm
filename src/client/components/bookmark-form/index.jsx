@@ -9,20 +9,28 @@ import {
   settingMap,
   connectionMap,
   terminalSerialType,
+  terminalLocalType,
   newBookmarkIdPrefix
 } from '../../common/constants'
 import SshForm from './ssh-form'
 import SerialForm from './serial-form'
+import LocalForm from './local-form'
 
 const { prefix } = window
 const c = prefix('common')
 const m = prefix('menu')
 const s = prefix('setting')
+const p = prefix('sftp')
 
 export default memo(function BookmarkIndex (props) {
-  const initType = props.formData.type === terminalSerialType
-    ? terminalSerialType
-    : 'ssh'
+  let initType = props.formData.type
+  if (initType === terminalSerialType) {
+    initType = terminalSerialType
+  } else if (initType === terminalLocalType) {
+    initType = terminalLocalType
+  } else {
+    initType = connectionMap.ssh
+  }
   const [bookmarkType, setBookmarkType] = useState(initType)
   const {
     id = ''
@@ -36,11 +44,18 @@ export default memo(function BookmarkIndex (props) {
   function handleChange (e) {
     setBookmarkType(e.target.value)
   }
+  const mapper = {
+    [connectionMap.ssh]: SshForm,
+    [connectionMap.serial]: SerialForm,
+    [connectionMap.local]: LocalForm
+  }
+  const Form = mapper[bookmarkType]
+  const isNew = id.startsWith(newBookmarkIdPrefix)
   return (
     <div className='form-wrap pd1x'>
       <div className='form-title pd1t pd1x pd2b'>
         {
-          (!id.startsWith(newBookmarkIdPrefix)
+          (!isNew
             ? m('edit')
             : s('new')
           ) + ' ' + c(settingMap.bookmarks)
@@ -50,23 +65,20 @@ export default memo(function BookmarkIndex (props) {
           size='small'
           className='mg1l'
           value={bookmarkType}
+          disabled={!isNew}
           onChange={handleChange}
         >
           {
             Object.keys(connectionMap).map(k => {
               const v = connectionMap[k]
               return (
-                <Radio.Button key={v} value={v}>{v}</Radio.Button>
+                <Radio.Button key={v} value={v}>{p(v)}</Radio.Button>
               )
             })
           }
         </Radio.Group>
       </div>
-      {
-        bookmarkType === connectionMap.ssh
-          ? <SshForm {...props} />
-          : <SerialForm {...props} />
-      }
+      <Form {...props} />
     </div>
   )
 })

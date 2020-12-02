@@ -4,7 +4,16 @@
 
 import { useEffect } from 'react'
 import { ReloadOutlined } from '@ant-design/icons'
-import { Tabs, Spin, Input, Select, Switch, AutoComplete, Form } from 'antd'
+import {
+  Tabs,
+  Spin,
+  Input,
+  Select,
+  Switch,
+  AutoComplete,
+  Form,
+  TreeSelect
+} from 'antd'
 import { formItemLayout } from '../../common/form-layout'
 import {
   commonBaudRates,
@@ -14,6 +23,7 @@ import {
   terminalSerialType,
   newBookmarkIdPrefix
 } from '../../common/constants'
+import formatBookmarkGroups from './bookmark-group-tree-format'
 import defaultSettings from '../../../app/common/default-setting'
 import findBookmarkGroupId from '../../common/find-bookmark-group-id'
 import useSubmit from './use-submit'
@@ -79,6 +89,7 @@ export default function SerialFormUi (props) {
       serials = [],
       loaddingSerials
     } = props
+    const tree = formatBookmarkGroups(bookmarkGroups)
     return (
       <div className='pd1x'>
         <FormItem
@@ -241,20 +252,11 @@ export default function SerialFormUi (props) {
           label={c('bookmarkCategory')}
           name='category'
         >
-          <Select showSearch>
-            {
-              bookmarkGroups.map(bg => {
-                return (
-                  <Option
-                    value={bg.id}
-                    key={bg.id}
-                  >
-                    {bg.title}
-                  </Option>
-                )
-              })
-            }
-          </Select>
+          <TreeSelect
+            treeData={tree}
+            treeDefaultExpandAll
+            showSearch
+          />
         </FormItem>
       </div>
     )
