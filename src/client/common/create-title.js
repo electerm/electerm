@@ -1,6 +1,14 @@
 /**
  * tab title create rule
  */
+
+import {
+  terminalLocalType
+} from './constants'
+
+const { prefix } = window
+const p = prefix('sftp')
+
 export default (res = {}) => {
   const {
     host, port, username, title, type,
@@ -14,5 +22,5 @@ export default (res = {}) => {
   if (type) {
     f = `[${type}]${f}`
   }
-  return f
+  return f || p(terminalLocalType)
 }
