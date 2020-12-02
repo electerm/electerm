@@ -271,11 +271,14 @@ export default class Term extends Component {
       e.stopPropagation()
       this.openSearch()
     } else if (
-      e.ctrlKey &&
       keyPressed(e, 'tab')
     ) {
       e.stopPropagation()
-      this.props.store.clickNextTab()
+      e.preventDefault()
+      if (e.ctrlKey && e.type === 'keydown') {
+        this.props.store.clickNextTab()
+        return false
+      }
     } else if (
       keyControlPressed(e) &&
       keyPressed(e, 'ArrowUp') && this.bufferMode === 'alternate'
