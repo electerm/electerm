@@ -66,7 +66,10 @@ export default function SyncForm (props) {
   }
 
   function download () {
-    props.store.downloadSetting(props.syncType)
+    props
+      .store
+      .downloadSetting(props.syncType)
+      .catch(props.store.onError)
   }
 
   // onChangeAutoSync = checked => {

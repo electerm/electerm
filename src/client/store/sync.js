@@ -167,8 +167,14 @@ export default (store) => {
     )
     const toInsert = []
     const ext = names.reduce((p, n) => {
+      const str = _.get(gist, `files["${n}.json"].content`)
+      if (!str) {
+        store.isSyncingSetting = false
+        store.isSyncDownload = false
+        throw new Error(('Seems you have a empty gist, you can try use existing gist ID or upload first'))
+      }
       const arr = JSON.parse(
-        _.get(gist, `files["${n}.json"].content`)
+        str
       )
       toInsert.push({
         name: n,
