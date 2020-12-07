@@ -79,10 +79,6 @@ function buildMenu (prefix) {
       label: e('view'),
       submenu: [
         {
-          role: 'reload',
-          label: e('reload')
-        },
-        {
           role: 'forcereload',
           label: e('forcereload')
         },
