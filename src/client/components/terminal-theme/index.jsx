@@ -2,7 +2,7 @@
 import { useRef } from 'react'
 import { Button, Input, message, Upload, Form } from 'antd'
 import { convertTheme, convertThemeToText, exportTheme } from '../../common/terminal-theme'
-import { defaultTheme } from '../../common/constants'
+import { defaultTheme, defaultThemeLight } from '../../common/constants'
 import { nanoid as generate } from 'nanoid/non-secure'
 import { formItemLayout, tailFormItemLayout } from '../../common/form-layout'
 import InputAutoFocus from '../common/input-auto-focus'
@@ -77,7 +77,7 @@ export default function ThemeForm (props) {
     themeText: convertThemeToText(props.formData)
   }
   const { autofocustrigger } = props.store
-  const isDefaultTheme = id === defaultTheme.id
+  const isDefaultTheme = id === defaultTheme.id || id === defaultThemeLight.id
   return (
     <Form
       onFinish={handleSubmit}
