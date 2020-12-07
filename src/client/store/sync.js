@@ -19,6 +19,10 @@ const {
   version: packVer
 } = packInfo
 
+function isJSON (str = '') {
+  return str.startsWith('[')
+}
+
 async function fetchData (type, func, args, token) {
   const data = {
     type,
@@ -115,14 +119,16 @@ export default (store) => {
     if (!gistId) {
       return
     }
-    const objs = names.reduce((p, n) => {
-      return {
-        ...p,
-        [`${n}.json`]: {
-          content: JSON.stringify(copy(store[n]))
-        }
+    const objs = {}
+    for (const n of names) {
+      let str = JSON.stringify(copy(store[n]))
+      if (n === settingMap.bookmarks && store.config.syncSetting.syncEncrypt) {
+        str = await window.pre.runGlobalAsync('encryptAsync', str, token)
       }
-    }, {})
+      objs[`${n}.json`] = {
+        content: str
+      }
+    }
     const res = await fetchData(type, 'update', [gistId, {
       description: 'sync electerm data',
       files: {
@@ -166,25 +172,29 @@ export default (store) => {
       token
     )
     const toInsert = []
-    const ext = names.reduce((p, n) => {
-      const str = _.get(gist, `files["${n}.json"].content`)
+    const ext = {}
+    for (const n of names) {
+      let str = _.get(gist, `files["${n}.json"].content`)
       if (!str) {
         store.isSyncingSetting = false
         store.isSyncDownload = false
         throw new Error(('Seems you have a empty gist, you can try use existing gist ID or upload first'))
       }
-      const arr = JSON.parse(
+      if (!isJSON(str)) {
+        str = await window.pre.runGlobalAsync('decryptAsync', str, token)
+      }
+      let arr = JSON.parse(
         str
       )
+      if (n === settingMap.terminalThemes) {
+        arr = store.fixThemes(arr)
+      }
       toInsert.push({
         name: n,
         value: arr
       })
-      return {
-        ...p,
-        [n]: arr
-      }
-    }, {})
+      ext[n] = arr
+    }
     const userConfig = JSON.parse(
       _.get(gist, 'files["userConfig.json"].content')
     )
@@ -225,6 +235,11 @@ export default (store) => {
   //     store.uploadSetting()
   //   }
   // }
+  store.onChangeEncrypt = v => {
+    store.updateSyncSetting({
+      syncEncrypt: v
+    })
+  }
 
   store.updateLastDataUpdateTime = _.debounce(() => {
     store.lastDataUpdateTime = +new Date()

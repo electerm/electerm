@@ -6,8 +6,10 @@ import { message } from 'antd'
 import _ from 'lodash'
 import {
   defaultTheme,
-  settingMap
+  settingMap,
+  defaultThemeLight
 } from '../common/constants'
+import copy from 'json-deep-copy'
 import { insert, update, remove } from '../common/db'
 
 const { terminalThemes } = settingMap
@@ -49,7 +51,22 @@ export default store => {
       return (_.find(store.terminalThemes, d => d.id === store.config.theme) || {}).themeConfig || {}
     },
 
-    async checkDefaultTheme () {
+    fixThemes (themes) {
+      return themes.map(t => {
+        const isDefaultTheme = t.id === defaultTheme.id
+        const isDefaultThemeLight = t.id === defaultThemeLight.id
+        if (isDefaultTheme) {
+          Object.assign(t, defaultTheme)
+        } else if (isDefaultThemeLight) {
+          Object.assign(t, defaultThemeLight)
+        } else if (!t.uiThemeConfig) {
+          t.uiThemeConfig = copy(defaultTheme.uiThemeConfig)
+        }
+        return t
+      })
+    },
+
+    async checkDefaultTheme (terminalThemes) {
       const themeId = defaultTheme.id
       const currentDefaultTheme = _.find(store.terminalThemes, d => d.id === themeId)
       if (
@@ -70,6 +87,10 @@ export default store => {
         message.info(
           `${t('default')} ${t('themeConfig')} ${t('updated')}`
         )
+      }
+      const hasLightTheme = _.find(store.terminalThemes, d => d.id === defaultThemeLight.id)
+      if (!hasLightTheme) {
+        store.terminalThemes.push(defaultThemeLight)
       }
     }
   })

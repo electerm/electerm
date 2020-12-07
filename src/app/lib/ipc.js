@@ -36,6 +36,7 @@ const { loadFontList } = require('./font-list')
 const { checkDbUpgrade, doUpgrade } = require('../upgrade')
 const { listSerialPorts } = require('./serial-port')
 const initApp = require('./init-app')
+const { encryptAsync, decryptAsync } = require('./enc')
 
 function initIpc () {
   global.win.on('move', () => {
@@ -107,6 +108,8 @@ function initIpc () {
     setExitStatus: (status) => {
       global.et.exitStatus = status
     },
+    encryptAsync,
+    decryptAsync,
     dbAction,
     getScreenSize,
     closeApp: () => {

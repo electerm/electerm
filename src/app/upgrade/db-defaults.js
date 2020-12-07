@@ -91,7 +91,7 @@ const defaultThemeTerminal = {
   brightWhite: '#E6E6E6'
 }
 
-module.exports = [
+module.exports = exports.default = [
   {
     db: 'terminalThemes',
     data: [

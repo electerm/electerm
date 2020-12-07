@@ -28,6 +28,7 @@ export default function SyncSettingEntry (props) {
                 <SyncForm
                   {...props}
                   syncType={type}
+                  encrypt={props.syncEncrypt}
                   formData={formData}
                 />
               </TabPane>

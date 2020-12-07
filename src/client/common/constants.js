@@ -6,6 +6,8 @@ import logoPath1Ref from '@electerm/electerm-resource/res/imgs/electerm-round-12
 import logoPath2Ref from '@electerm/electerm-resource/res/imgs/electerm.png'
 import logoPath3Ref from '@electerm/electerm-resource/res/imgs/electerm-watermark.png'
 import newTerm from '../common/new-terminal'
+import dbDefaults from '../../app/upgrade/db-defaults'
+import _ from 'lodash'
 
 export const { packInfo } = window.pre
 
@@ -208,3 +210,8 @@ export const appUpdateCheck = 'check-app-update'
 export const maxZmodemUploadSize = 1024 * 8192
 export const sshConfigItems = window.pre.sshConfigItems
 export const langs = window.langs
+const defaultThemeLightConf = _.get(
+  dbDefaults, '[0].data[1]'
+)
+defaultThemeLightConf.id = defaultThemeLightConf._id
+export const defaultThemeLight = defaultThemeLightConf

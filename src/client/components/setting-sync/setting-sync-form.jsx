@@ -8,7 +8,7 @@
 import { useState } from 'react'
 import { useDelta, useConditionalEffect } from 'react-delta'
 import { ArrowDownOutlined, ArrowUpOutlined, QuestionCircleOutlined, SaveOutlined } from '@ant-design/icons'
-import { Button, Input, notification, Tooltip, Form } from 'antd'
+import { Button, Input, notification, Tooltip, Form, Switch } from 'antd'
 import { formItemLayout, tailFormItemLayout } from '../../common/form-layout'
 import Link from '../common/external-link'
 import moment from 'moment'
@@ -20,6 +20,7 @@ const FormItem = Form.Item
 const { prefix } = window
 const e = prefix('form')
 const ss = prefix('settingSync')
+const s = prefix('setting')
 
 export default function SyncForm (props) {
   const [form] = Form.useForm()
@@ -62,7 +63,10 @@ export default function SyncForm (props) {
   }
 
   function upload () {
-    props.store.uploadSetting(props.syncType)
+    props
+      .store
+      .uploadSetting(props.syncType)
+      .catch(props.store.onError)
   }
 
   function download () {
@@ -135,6 +139,15 @@ export default function SyncForm (props) {
         <Input
           type='password'
           placeholder={syncType + ' personal access token'}
+        />
+      </FormItem>
+      <FormItem
+        {...formItemLayout}
+        label={s('encrypt')}
+      >
+        <Switch
+          onChange={props.store.onChangeEncrypt}
+          checked={!!props.syncEncrypt}
         />
       </FormItem>
       <FormItem

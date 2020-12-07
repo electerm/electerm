@@ -66,7 +66,7 @@ export default store => {
         store.terminalThemes,
         d => d.id === store.config.theme
       )
-      return theme
+      return theme && theme.uiThemeConfig
         ? copy(theme.uiThemeConfig)
         : defaultTheme.uiThemeConfig
     }
