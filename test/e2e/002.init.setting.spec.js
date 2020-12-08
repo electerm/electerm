@@ -33,7 +33,7 @@ describe('init setting buttons', function () {
     log('button:edit')
     await client.click('.btns .anticon-plus-circle')
     await delay(3500)
-    const sel = '.ant-modal .ant-tabs-nav-list .ant-tabs-tab-active'
+    const sel = '.setting-wrap .ant-tabs-nav-list .ant-tabs-tab-active'
     const active = await client.element(sel)
     expect(!!active.elementId).equal(true)
     const text = await client.getText(sel)
@@ -41,7 +41,7 @@ describe('init setting buttons', function () {
 
     log('close')
     await client.execute(function () {
-      document.querySelector('.ant-modal .ant-modal-close').click()
+      document.querySelector('.setting-wrap .close-setting-wrap').click()
     })
     await delay(900)
 
@@ -55,7 +55,7 @@ describe('init setting buttons', function () {
     const text1 = await client.getText(sel)
     expect(text1).equal(e('setting'))
     log('close')
-    await client.click('.ant-modal .ant-modal-close')
+    await client.click('.setting-wrap .close-setting-wrap')
     await delay(900)
 
     log('button:new ssh')
@@ -67,11 +67,11 @@ describe('init setting buttons', function () {
     expect(text2).equal(e('bookmarks'))
 
     // log('tab it')
-    // await client.click('.ant-modal .ant-tabs-tab:nth-child(3)')
+    // await client.click('.setting-wrap .ant-tabs-tab:nth-child(3)')
     // await delay(3100)
     // const text4 = await client.getText(sel)
     // expect(text4).equal(e('setting'))
-    await client.click('.ant-modal .ant-modal-close')
+    await client.click('.setting-wrap .close-setting-wrap')
     await delay(600)
 
     log('button:edit again')
