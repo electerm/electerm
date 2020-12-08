@@ -30,7 +30,7 @@ describe('Upgrade check', function () {
     log('button:about')
     await client.click('.btns .open-about-icon')
     await delay(2500)
-    const sel = '.setting-wrap .ant-tabs-nav-list .ant-tabs-tab-active'
+    const sel = '.ant-modal .ant-tabs-nav-list .ant-tabs-tab-active'
     const active = await client.element(sel)
     expect(!!active.elementId).equal(true)
 
