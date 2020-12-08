@@ -42,7 +42,7 @@ describe('sftp file transfer', function () {
     await client.setValue('#ssh-form_password', TEST_PASS)
     await delay(100)
     await client.execute(function () {
-      document.querySelector('.ant-modal .ant-tabs-tabpane-active .ant-btn-primary').click()
+      document.querySelector('.setting-wrap .ant-tabs-tabpane-active .ant-btn-primary').click()
     })
     await delay(500)
     const tabsCount = await client.elements('.tabs .tabs-wrapper .tab')

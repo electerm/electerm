@@ -45,12 +45,12 @@ describe('timeout setting', function () {
     await delay(1500)
 
     client.setValue(
-      '.ant-modal .ant-tabs-tabpane-active .timeout-desc .ant-input-number-input',
+      '.setting-wrap .ant-tabs-tabpane-active .timeout-desc .ant-input-number-input',
       100
     )
     await delay(150)
     await client.execute(function () {
-      document.querySelector('.ant-modal .ant-modal-close').click()
+      document.querySelector('.setting-wrap .close-setting-wrap').click()
     })
     await delay(900)
     await client.click('.btns .anticon-plus-circle')
@@ -59,7 +59,7 @@ describe('timeout setting', function () {
     await client.setValue('#ssh-form_username', TEST_USER)
     await client.setValue('#ssh-form_password', TEST_PASS)
     await client.execute(function () {
-      document.querySelector('.ant-modal .ant-tabs-tabpane-active .ant-btn-primary').click()
+      document.querySelector('.setting-wrap .ant-tabs-tabpane-active .ant-btn-primary').click()
     })
     await delay(3500)
     const txt = await client.getText('.ant-notification-notice  .ant-notification-notice-content .common-err')
@@ -69,12 +69,12 @@ describe('timeout setting', function () {
     })
     await delay(1500)
     client.setValue(
-      '.ant-modal .ant-tabs-tabpane-active .timeout-desc .ant-input-number-input',
+      '.setting-wrap .ant-tabs-tabpane-active .timeout-desc .ant-input-number-input',
       50000
     )
     await delay(555)
     await client.execute(function () {
-      document.querySelector('.ant-modal .ant-modal-close').click()
+      document.querySelector('.setting-wrap .close-setting-wrap').click()
     })
     await delay(400)
   })
