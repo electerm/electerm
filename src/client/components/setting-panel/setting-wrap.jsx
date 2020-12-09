@@ -23,7 +23,7 @@ export default function SettingWrap (props) {
         onClick={props.onCancel}
       />
       <div className='setting-wrap-content'>
-        <div className='pd1t pd2b pd2x'>
+        <div className='pd2b pd2x setting-wrap-inner'>
           {props.visible ? props.children : null}
         </div>
       </div>
