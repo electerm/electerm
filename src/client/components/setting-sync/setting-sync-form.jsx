@@ -57,7 +57,7 @@ export default function SyncForm (props) {
         message: 'token invalid'
       })
     }
-    if (!props.formData.gistId) {
+    if (!res.gistId) {
       props.store.createGist(syncType)
     }
   }
