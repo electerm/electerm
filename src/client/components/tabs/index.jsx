@@ -217,7 +217,6 @@ export default class Tabs extends React.Component {
           }}
         >
           <div
-            className='app-drag'
             style={{
               left
             }}
