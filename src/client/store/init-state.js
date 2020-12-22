@@ -106,6 +106,7 @@ export default {
   openedSideBar: '',
   openedCategoryIds: [],
   menuOpened: false,
+  pinned: false,
 
   // update
   upgradeInfo: {},

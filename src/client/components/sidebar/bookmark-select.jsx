@@ -18,44 +18,49 @@ export default class BookmarkSelect extends Component {
       openedCategoryIds
     } = store
     const onClickItem = (item) => {
-      store.storeAssign({
-        openedSideBar: ''
-      })
+      if (!store.pinned) {
+        store.storeAssign({
+          openedSideBar: ''
+        })
+      }
       store.onSelectBookmark(item.id)
     }
-    const props0 = {
+    const base = {
+      store,
       bookmarks: [
         ...(store.bookmarks || []),
         ...sshConfigItems
       ],
       type: 'bookmarks',
       onClickItem,
-      listStyle
+      listStyle,
+      staticList: true
+    }
+    const propsTree = {
+      ...base,
+      shouldComfirmDel: true,
+      bookmarkGroups: store.bookmarkGroupsTotal,
+      expandedKeys: openedCategoryIds,
+      onExpand: openedCategoryIds => {
+        store.storeAssign({
+          openedCategoryIds
+        })
+      }
+    }
+    const propsList = {
+      ...base,
+      bookmarks: undefined,
+      list: base.bookmarks || []
     }
     return bookmarkGroups.filter(d => d.level !== 2).length > 1
       ? (
         <TreeList
-          store={store}
-          {...props0}
-          shouldComfirmDel
-          staticList
-          bookmarkGroups={store.bookmarkGroupsTotal}
-          onClickItem={onClickItem}
-          expandedKeys={openedCategoryIds}
-          onExpand={openedCategoryIds => {
-            store.storeAssign({
-              openedCategoryIds
-            })
-          }}
+          {...propsTree}
         />
       )
       : (
         <ItemList
-          {...props0}
-          staticList
-          store={store}
-          list={props0.bookmarks || []}
-          onClickItem={item => store.onSelectBookmark(item.id)}
+          {...propsList}
         />
       )
   }

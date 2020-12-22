@@ -42,6 +42,9 @@ export default class Sidebar extends Component {
   }
 
   onMouseLeave = () => {
+    if (this.props.store.pinned) {
+      return false
+    }
     const interval = 400
     this.handler = setTimeout(
       () => this.setOpenedSideBar(''),
@@ -50,11 +53,17 @@ export default class Sidebar extends Component {
   }
 
   onMouseEnterBookmark = () => {
+    if (this.props.store.pinned) {
+      return false
+    }
     clearTimeout(this.handler)
     this.setOpenedSideBar('bookmarks')
   }
 
   onMouseEnterHistory = () => {
+    if (this.props.store.pinned) {
+      return false
+    }
     clearTimeout(this.handler)
     this.setOpenedSideBar('history')
   }
