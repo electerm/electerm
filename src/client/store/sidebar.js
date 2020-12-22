@@ -14,6 +14,10 @@ export default store => {
       store.storeAssign({
         openedCategoryIds: []
       })
+    },
+
+    pin (pinned) {
+      store.pinned = !store.pinned
     }
   })
 }
