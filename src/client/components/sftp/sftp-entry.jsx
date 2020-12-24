@@ -65,7 +65,6 @@ export default class Sftp extends Component {
       selectedFiles: [],
       lastClickedFile: null,
       onEditFile: false,
-      onDrag: false,
       ...this.defaultState(),
       loadingSftp: false,
       transferToConfirm: null,
@@ -293,36 +292,6 @@ export default class Sftp extends Component {
       okText: c('ok'),
       title: this.renderDelConfirmTitle(files),
       onOk: () => this.delFiles(type, files)
-    })
-  }
-
-  onDragSelect = (ids, e, type) => {
-    if (!ids.length) {
-      return
-    }
-    const { shiftKey, ctrlKey } = e
-    const { selectedFiles } = this.state
-    const tree = this.state[type + 'FileTree']
-    let sels = []
-    const sids = selectedFiles.map(d => d.id)
-    const map2obj = id => tree[id]
-    if (shiftKey) {
-      sels = _.uniq([
-        ...sids,
-        ...ids
-      ]).map(map2obj)
-    } else if (ctrlKey) {
-      sels = [
-        ...selectedFiles.filter(s => !ids.includes(s.id)),
-        ...ids
-          .filter(id => !sids.includes(id))
-          .map(map2obj)
-      ]
-    } else {
-      sels = ids.map(map2obj)
-    }
-    this.setState({
-      selectedFiles: sels
     })
   }
 
@@ -929,7 +898,7 @@ export default class Sftp extends Component {
 
   renderSection (type, style, width) {
     const {
-      id, onDrag
+      id
     } = this.state
     const arr = this.getFileList(type)
     const loading = this.state[`${type}Loading`]
@@ -987,12 +956,6 @@ export default class Sftp extends Component {
             >
               <ListTable
                 {...listProps}
-              />
-              <DragSelect
-                targetSelector={`#id-${id} .file-list.${type} .sftp-table-content .sftp-item`}
-                wrapperSelector={`#id-${id} .file-list.${type} .sftp-table-content`}
-                onDrag={onDrag}
-                onSelect={(ids, e) => this.onDragSelect(ids, e, type)}
               />
             </div>
           </div>
