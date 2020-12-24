@@ -37,14 +37,14 @@ export default function Transporter (props) {
   const title = `${typeFromTitle}→${typeToTitle}: ${fromPath} -> ${toPath} ${speed || ''} ${percent || 0}%`
   const cancelIcon = (
     <CloseCircleOutlined
-      className='transfer-control-icon pointer hover-black'
+      className='transfer-control-icon pointer hover-black iblock font14'
       onClick={props.cancel}
       title={e('cancel')} />
   )
   const controlIcon = isTransfer
     ? (
       <Icon
-        className='flex-child transfer-control-icon pointer hover-black'
+        className='flex-child transfer-control-icon pointer hover-black font14 iblock'
         onClick={props.handlePauseOrResume}
         title={pauseTitle}
       />

@@ -57,7 +57,7 @@ export default function Transporter (props) {
   function renderTransportIcon () {
     const pausing = computePausing()
     const Icon = pausing ? PlayCircleOutlined : PauseCircleOutlined
-    return <Icon />
+    return <Icon className='font14' />
   }
   const pauseAll = () => {
     props.modifier({
