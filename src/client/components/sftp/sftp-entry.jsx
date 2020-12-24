@@ -20,7 +20,6 @@ import wait from '../../common/wait'
 import isAbsPath from '../../common/is-absolute-path'
 import classnames from 'classnames'
 import sorterIndex from '../../common/index-sorter'
-import DragSelect from './drag-select'
 import { getLocalFileInfo, getRemoteFileInfo } from './file-read'
 import {
   typeMap, maxSftpHistory, paneMap,
