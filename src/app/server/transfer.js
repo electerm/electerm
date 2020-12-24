@@ -41,7 +41,7 @@ class Transfer {
         id: 'transfer:data:' + id,
         data: count
       })
-    }, 1000)
+    }, 3000)
 
     this.ws = ws
     this.fastXfer(options, type)
