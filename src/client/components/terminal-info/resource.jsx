@@ -30,7 +30,7 @@ export default function TerminalInfoResource (props) {
   }
   function renderItem (obj) {
     if (_.isEmpty(obj)) {
-      return 'NA'
+      return <div className='pd1b' key={obj.name}>NA</div>
     }
     const {
       used,
@@ -46,10 +46,9 @@ export default function TerminalInfoResource (props) {
       ? (p) => `${name}: ${p}%`
       : (p) => `${name}: ${p}%(${used}/${total})`
     return (
-      <div className='pd1b'>
+      <div className='pd1b' key={name}>
         <Progress
           style={{ width: '50%' }}
-          key={name}
           percent={p}
           format={fmt}
         />

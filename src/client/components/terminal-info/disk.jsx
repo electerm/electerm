@@ -10,7 +10,7 @@ export default function TerminalInfoDisk (props) {
   if (_.isEmpty(disks) || !props.isRemote) {
     return null
   }
-  const col = Object.keys(disks[0]).map(k => {
+  const col = Object.keys(disks[0]).map((k, i) => {
     return {
       title: k,
       dataIndex: k,
@@ -21,7 +21,7 @@ export default function TerminalInfoDisk (props) {
     }
   })
   const ps = {
-    rowKey: 'filesystem',
+    rowKey: (rec) => `${rec.mount}_${rec.filesystem}`,
     dataSource: disks,
     bordered: true,
     columns: col,

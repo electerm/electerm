@@ -4,6 +4,7 @@
 
 import { runCmd } from '../terminal/terminal-apis'
 import { useEffect } from 'react'
+import wait from '../../common/wait'
 
 function formatActivities (str) {
   if (!str) {
@@ -187,11 +188,13 @@ function InfoGetter (props) {
     cmd,
     cmds,
     interval,
-    formatter
+    formatter,
+    delay
   } = props.options
   const cms = cmds || [cmd]
   useEffect(() => {
     const run = async () => {
+      await wait(delay)
       const ress = await runCmds(props, cms)
       const update = formatter(...ress)
       // console.log(name)
@@ -218,30 +221,35 @@ export default (props) => {
       name: 'uptime',
       cmd: 'uptime -p',
       interval: 5000,
+      delay: 0,
       formatter: d => ({ uptime: d })
     },
     {
       name: 'activities',
       cmd: 'ps --no-headers -o pid,user,%cpu,size,command ax | sort -b -k3 -r',
       interval: 5000,
+      delay: 800,
       formatter: formatActivities
     },
     {
       name: 'disks',
       cmd: 'df -h',
       interval: 10000,
+      delay: 1600,
       formatter: formatDisks
     },
     {
       name: 'cpu',
       cmd: `(grep 'cpu ' /proc/stat;sleep 0.1;grep 'cpu ' /proc/stat)|awk -v RS="" '{print "CPU "($13-$2+$15-$4)*100/($13-$2+$15-$4+$16-$5)"%"}'`,
       interval: 5000,
-      formatter: formatCpu
+      formatter: formatCpu,
+      delay: 2400
     },
     {
       name: 'mem',
       cmd: 'free -h',
       interval: 5000,
+      delay: 3200,
       formatter: formatMem
     },
     {
@@ -250,6 +258,7 @@ export default (props) => {
         'ip -s link',
         'ip addr'
       ],
+      delay: 4000,
       formatter: formatNetwork,
       interval: 5000
     }

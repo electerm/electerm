@@ -79,7 +79,7 @@ export default function TerminalInfoDisk (props) {
     down: '↓',
     name: 'name'
   }
-  const col = ['name', 'up', 'down'].map(k => {
+  const col = ['name', 'up', 'down'].map((k, i) => {
     return {
       title: map[k],
       dataIndex: k,
