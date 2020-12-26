@@ -234,23 +234,21 @@ export default class Sftp extends Component {
   }
 
   localDel = async (file) => {
-    const { localPath } = this.state
-    const { name, isDirectory } = file
+    const { name, isDirectory, path } = file
     const func = !isDirectory
       ? fs.unlinkAsync
       : fs.rmrf
-    const p = resolve(localPath, name)
+    const p = resolve(path, name)
     await func(p).catch(this.props.store.onError)
   }
 
   remoteDel = async (file) => {
-    const { remotePath } = this.state
-    const { name, isDirectory } = file
+    const { name, isDirectory, path } = file
     const { sftp } = this
     const func = isDirectory
       ? sftp.rmdir
       : sftp.rm
-    const p = resolve(remotePath, name)
+    const p = resolve(path, name)
     await func(p).catch(this.props.store.onError)
   }
 
