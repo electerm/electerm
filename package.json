@@ -142,7 +142,7 @@
     "os-locale-s": "1.0.8",
     "path-validation": "0.2.3",
     "recursive-assign": "0.2.0",
-    "serialport": "9.0.2",
+    "serialport": "9.0.4",
     "socks": "2.5.0",
     "socks-proxy-agent": "5.0.0",
     "ssh-config": "4.0.4",
