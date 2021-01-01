@@ -10,7 +10,8 @@ import {
   connectionMap,
   terminalSerialType,
   terminalLocalType,
-  newBookmarkIdPrefix
+  newBookmarkIdPrefix,
+  isWin
 } from '../../common/constants'
 import SshForm from './ssh-form'
 import SerialForm from './serial-form'
@@ -51,6 +52,10 @@ export default memo(function BookmarkIndex (props) {
   }
   const Form = mapper[bookmarkType]
   const isNew = id.startsWith(newBookmarkIdPrefix)
+  let keys = Object.keys(connectionMap)
+  if (isWin) {
+    keys = keys.filter(k => k !== connectionMap.serial)
+  }
   return (
     <div className='form-wrap pd1x'>
       <div className='form-title pd1t pd1x pd2b'>
@@ -69,7 +74,7 @@ export default memo(function BookmarkIndex (props) {
           onChange={handleChange}
         >
           {
-            Object.keys(connectionMap).map(k => {
+            keys.map(k => {
               const v = connectionMap[k]
               return (
                 <Radio.Button key={v} value={v}>{p(v)}</Radio.Button>

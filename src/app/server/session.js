@@ -3,7 +3,6 @@
  */
 const pty = require('node-pty')
 const { Client } = require('ssh2')
-const SerialPort = require('serialport')
 const proxySock = require('./socks')
 const _ = require('lodash')
 const generate = require('../common/uid')
@@ -72,6 +71,7 @@ class Terminal {
   }
 
   async serialInit () {
+    const SerialPort = require('serialport')
     // https://serialport.io/docs/api-stream
     const {
       autoOpen = true,

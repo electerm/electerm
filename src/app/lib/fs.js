@@ -1,5 +1,5 @@
 const promisifyAll = require('util-promisifyall')
-const { exec } = require('child_process')
+const { exec, spawn } = require('child_process')
 const fs = require('original-fs')
 const fss = promisifyAll(fs)
 const log = require('../utils/log')
@@ -106,14 +106,29 @@ const openFile = (localFilePath) => {
 }
 
 async function listWindowsRootPath () {
-  const drives = await require('drivelist').list()
-  const mts = drives.reduce((p, c) => {
-    return [
-      ...p,
-      ...c.mountpoints.map(d => d.path)
-    ]
-  }, [])
-  return mts
+  const list = spawn('cmd')
+  return new Promise((resolve, reject) => {
+    list.stdout.on('data', function (data) {
+      const output = String(data)
+      const out = output.split('\r\n').map(e => e.trim()).filter(e => e !== '')
+      if (out[0] === 'Name') {
+        resolve(out.slice(1))
+      }
+    })
+
+    list.stderr.on('data', function (data) {
+      console.log('stderr: ' + data)
+    })
+
+    list.on('exit', function (code) {
+      if (code !== 0) {
+        reject(code)
+      }
+    })
+
+    list.stdin.write('wmic logicaldisk get name\n')
+    list.stdin.end()
+  })
 }
 
 const fsExport = Object.assign(
