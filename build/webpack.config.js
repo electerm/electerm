@@ -1,4 +1,5 @@
 require('dotenv').config()
+const AntdDayjsWebpackPlugin = require('antd-dayjs-webpack-plugin')
 const { identity } = require('lodash')
 const path = require('path')
 const { env } = require('./common')
@@ -29,7 +30,10 @@ let config = {
   externals: {
     react: 'React',
     'react-dom': 'ReactDOM',
-    lodash: '_'
+    lodash: '_',
+    xterm: 'Terminal',
+    ramda: 'R',
+    rxjs: 'rxjs'
   },
   target: 'web',
   watch: true,
@@ -53,7 +57,8 @@ let config = {
   devtool: 'source-map',
   plugins: [
     stylusSettingPlugin,
-    extractTextPlugin1
+    extractTextPlugin1,
+    new AntdDayjsWebpackPlugin()
   ].filter(identity),
   devServer
 }
