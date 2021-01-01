@@ -30,7 +30,10 @@ let config = {
   externals: {
     react: 'React',
     'react-dom': 'ReactDOM',
-    lodash: '_'
+    lodash: '_',
+    xterm: 'Terminal',
+    ramda: 'R',
+    rxjs: 'rxjs'
   },
   target: 'web',
   watch: true,
