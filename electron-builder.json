@@ -8,8 +8,7 @@
   "win": {
     "target": ["tar.gz"],
     "icon": "node_modules/@electerm/electerm-resource/build/icons.ico",
-    "publish": ["github"],
-    "asar": false
+    "publish": ["github"]
   },
   "mac": {
     "category": "public.app-category.developer-tools",
@@ -24,7 +23,7 @@
         "y": 150
       },
       {
-        "x": 240,
+        "x": 340,
         "y": 150,
         "type": "link",
         "path": "/Applications"
