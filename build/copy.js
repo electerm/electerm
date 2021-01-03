@@ -16,18 +16,6 @@ const from2 = resolve(
   __dirname,
   '../node_modules/react-dom/umd/react-dom.production.min.js'
 )
-const from21 = resolve(
-  __dirname,
-  '../node_modules/xterm/lib/xterm.js'
-)
-const from22 = resolve(
-  __dirname,
-  '../node_modules/ramda/dist/ramda.min.js'
-)
-const from23 = resolve(
-  __dirname,
-  '../node_modules/rxjs/bundles/rxjs.umd.min.js'
-)
 // const from3 = resolve(
 //   __dirname,
 //   '../node_modules/less/dist/less.min.js'
@@ -71,18 +59,6 @@ const copy = new CopyWebpackPlugin({
     force: true
   }, {
     from: from2,
-    to: to3,
-    force: true
-  }, {
-    from: from21,
-    to: to3,
-    force: true
-  }, {
-    from: from22,
-    to: to3,
-    force: true
-  }, {
-    from: from23,
     to: to3,
     force: true
   },

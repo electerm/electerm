@@ -185,7 +185,9 @@ export default (props) => {
         return t.id === tr.id
       })
       transferList.splice(index + 1, 0, ...list)
-      transferList[index].expanded = true
+      if (transferList[index]) {
+        transferList[index].expanded = true
+      }
       return {
         transferList
       }

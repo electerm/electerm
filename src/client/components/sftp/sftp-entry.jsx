@@ -11,10 +11,10 @@ import {
   ArrowRightOutlined,
   LoadingOutlined
 } from '@ant-design/icons'
+import runIdle from '../../common/run-idle'
 import { Input, Tooltip, Spin, Modal, notification } from 'antd'
 import _ from 'lodash'
 import FileSection from './file-item'
-import Confirms from './confirm-modal'
 import resolve from '../../common/resolve'
 import wait from '../../common/wait'
 import isAbsPath from '../../common/is-absolute-path'
@@ -38,8 +38,7 @@ import ListTable from './list-table-ui'
 import deepCopy from 'json-deep-copy'
 import isValidPath from '../../common/is-valid-path'
 import memoizeOne from 'memoize-one'
-import ConflictHandler from './transfer-conflict'
-import TransfersHandler from './transports-action'
+import TransportEntry from './transport-entry'
 import './sftp.styl'
 
 const { prefix } = window
@@ -60,7 +59,6 @@ export default class Sftp extends Component {
     super(props)
     this.state = {
       id: props.id || generate(),
-      transports: [],
       selectedFiles: [],
       lastClickedFile: null,
       onEditFile: false,
@@ -392,20 +390,14 @@ export default class Sftp extends Component {
   }
 
   modifier = (...args) => {
-    this.setState(...args)
+    runIdle(() => this.setState(...args))
   }
 
   addTransferList = list => {
-    this.setState((old) => {
-      let transferList = deepCopy(old.transferList)
-      transferList = [
-        ...transferList,
-        ...list
-      ]
-      return {
-        transferList
-      }
-    })
+    window.postMessage({
+      list,
+      sessionId: this.props.sessionId
+    }, '*')
   }
 
   computeListHeight = () => {
@@ -1009,6 +1001,18 @@ export default class Sftp extends Component {
       id
     } = this.state
     const { height } = this.props
+    const prps = {
+      localList: this.localList,
+      remoteList: this.remoteList,
+      sftp: this.sftp,
+      sessionId: this.props.sessionId,
+      store: this.props.store,
+      host: this.props.tab.host,
+      localListDebounce: this.localListDebounce,
+      remoteListDebounce: this.remoteListDebounce,
+      config: this.props.config,
+      tab: this.props.tab
+    }
     return (
       <div
         className='sftp-wrap overhide relative'
@@ -1018,33 +1022,7 @@ export default class Sftp extends Component {
         {
           this.renderSections()
         }
-        <ConflictHandler
-          transferList={this.state.transferList}
-          modifier={this.modifier}
-          localList={this.localList}
-          remoteList={this.remoteList}
-          sftp={this.sftp}
-          sessionId={this.props.sessionId}
-          store={this.props.store}
-          addTransferList={this.addTransferList}
-          host={this.props.tab.host}
-          transferToConfirm={this.state.transferToConfirm}
-        />
-        <TransfersHandler
-          localList={this.localListDebounce}
-          remoteList={this.remoteListDebounce}
-          transferList={this.state.transferList}
-          modifier={this.modifier}
-          sftp={this.sftp}
-          store={this.props.store}
-          pauseAll={this.state.pauseAll}
-          config={this.props.config}
-          tab={this.props.tab}
-        />
-        <Confirms
-          transferToConfirm={this.state.transferToConfirm}
-          modifier={this.modifier}
-        />
+        <TransportEntry {...prps} />
       </div>
     )
   }
