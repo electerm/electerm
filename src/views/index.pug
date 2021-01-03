@@ -32,19 +32,10 @@ html
     script.
       window.et = !{JSON.stringify(_global)}
     script(src='../node_modules/lodash/lodash.min.js')
-    script(src='../node_modules/xterm/lib/xterm.js')
-    script(src='../node_modules/ramda/dist/ramda.min.js')
-    script(src='../node_modules/rxjs/bundles/rxjs.umd.min.js')
     - if (isDev)
       script(src='../node_modules/react/umd/react.development.js?' + version)
       script(src='../node_modules/react-dom/umd/react-dom.development.js?' + version)
-      script(src='../node_modules/xterm/lib/xterm.js')
-      script(src='../node_modules/ramda/dist/ramda.min.js')
-      script(src='../node_modules/rxjs/bundles/rxjs.umd.min.js')
     - else
       script(src='./external/react.production.min.js?' + version)
       script(src='./external/react-dom.production.min.js?' + version)
-      script(src='./external/xterm.js?' + version)
-      script(src='./external/ramda.min.js?' + version)
-      script(src='./external/rxjs.umd.min.js?' + version)
     script(src='js/basic.js?' + version)
