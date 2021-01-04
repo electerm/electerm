@@ -3,7 +3,7 @@
  */
 
 import React from 'react'
-
+import runIdle from '../../common/run-idle'
 import {
   CloseOutlined,
   CodeOutlined,
@@ -58,13 +58,17 @@ export default class Tab extends React.Component {
     clearTimeout(this.handler)
   }
 
+  modifier = (...args) => {
+    runIdle(() => this.setState(...args))
+  }
+
   onEvent = (e) => {
     if (
       e.data &&
       e.data.action === 'terminal-receive-data' &&
       e.data.tabId === this.state.tab.id
     ) {
-      this.setState({
+      this.modifier({
         terminalOnData: true
       })
       if (this.handler) {
@@ -75,7 +79,7 @@ export default class Tab extends React.Component {
   }
 
   offTerminalOnData = () => {
-    this.setState({
+    this.modifier({
       terminalOnData: false
     })
   }

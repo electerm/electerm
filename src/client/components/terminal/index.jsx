@@ -669,7 +669,7 @@ export default class Term extends Component {
       action: 'terminal-receive-data',
       tabId: this.props.tab.id
     }, '*')
-  }, 1000)
+  }, 2000)
 
   onSocketData = () => {
     this.notifyOnData()
