@@ -42,7 +42,7 @@ describe('local file manager', function () {
     // make a local folder
     const localFileListBefore = await client.elements('.ssh-wrap-show .file-list.local .sftp-item')
     await client.rightClick('.ssh-wrap-show .virtual-file-local .virtual-file-unit', 10, 10)
-    await delay(200)
+    await delay(3200)
     await client.click('.context-menu .anticon-folder-add')
     await delay(200)
     const fname = '00000test-electerm' + generate()
