@@ -33,7 +33,8 @@ cache:
 
 before_script:
   - export DISPLAY=:99.0
-  - /sbin/start-stop-daemon --start --quiet --pidfile /tmp/custom_xvfb_99.pid --make-pidfile --background --exec /usr/bin/Xvfb -- :99 -ac -screen 0 1920x1080x16
+  - sh -e /etc/init.d/xvfb start &
+  - "/Library/Application Support/VMware Tools/vmware-resolutionSet" 1920 1080
   - sleep 3 # give xvfb some time to start
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo snap refresh && sudo snap install snapcraft --classic &&echo $SNAP_TOKEN | snapcraft login --with - ; fi
 
