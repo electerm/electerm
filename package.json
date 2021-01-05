@@ -12,6 +12,7 @@
     "ver": "node bin/generate-version",
     "clean": "node bin/clean",
     "compile": "node bin/build",
+    "local-test": "LOCAL_TEST=1 npm run test",
     "prepublishOnly": "node npm/prepublish",
     "postpublish": "node npm/postpublish",
     "prepare-file": "node bin/prepare",

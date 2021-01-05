@@ -11,7 +11,7 @@ const isOs = require('./common/is-os')
 const appOptions = require('./common/app-options')
 const extendClient = require('./common/client-extend')
 
-if (isOs('darwin')) {
+if (!process.env.LOCAL_TEST && isOs('darwin')) {
   return
 }
 

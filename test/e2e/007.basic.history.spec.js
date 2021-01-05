@@ -5,6 +5,11 @@ const { expect } = require('chai')
 const appOptions = require('./common/app-options')
 const prefixer = require('./common/lang')
 const extendClient = require('./common/client-extend')
+const isOs = require('./common/is-os')
+
+if (!process.env.LOCAL_TEST && isOs('darwin')) {
+  return
+}
 
 describe('history', function () {
   this.timeout(100000)

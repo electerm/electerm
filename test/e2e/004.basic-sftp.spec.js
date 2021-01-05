@@ -17,7 +17,7 @@ const appOptions = require('./common/app-options')
 const extendClient = require('./common/client-extend')
 const isOs = require('./common/is-os')
 
-if (isOs('darwin')) {
+if (!process.env.LOCAL_TEST && isOs('darwin')) {
   return
 }
 
@@ -163,7 +163,7 @@ describe('sftp basic', function () {
 
     // enter folder
     await client.doubleClick('.ssh-wrap-show .file-list.remote .sftp-item.real-file-item .file-bg')
-    await delay(5000)
+    await delay(9000)
     const pathCurrentRemote = await client.getValue('.ssh-wrap-show .sftp-remote-section .sftp-title input')
     expect(pathCurrentRemote.includes(fname0)).equal(true)
     const remoteFileList0 = await client.elements('.ssh-wrap-show .file-list.remote .sftp-item')
@@ -189,7 +189,7 @@ describe('sftp basic', function () {
     await client.keys(['Delete'])
     await delay(1000)
     await client.keys(['Enter'])
-    await delay(5000)
+    await delay(8000)
     const remoteFileList2 = await client.elements('.ssh-wrap-show .file-list.remote .sftp-item')
     expect(remoteFileList2.length).equal(remoteFileListBefore.length)
   })
