@@ -59,7 +59,7 @@ describe('sftp file transfer', function () {
 
     // make a local folder
     const localFileListBefore = await client.elements('.ssh-wrap-show .file-list.local .sftp-item')
-    await client.rightClick('.ssh-wrap-show .virtual-file-local', 10, 10)
+    await client.rightClick('.ssh-wrap-show .virtual-file-local .virtual-file-unit', 10, 10)
     await delay(300)
     log('add folder')
     await client.execute(function () {
@@ -89,7 +89,7 @@ describe('sftp file transfer', function () {
     expect(localFileList0.length).equal(1)
 
     // new file
-    await client.rightClick('.ssh-wrap-show .virtual-file-local', 10, 10)
+    await client.rightClick('.ssh-wrap-show .virtual-file-local .virtual-file-unit', 10, 10)
     await delay(200)
     log('add file')
     await client.execute(function () {

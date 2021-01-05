@@ -41,7 +41,7 @@ describe('local file manager', function () {
 
     // make a local folder
     const localFileListBefore = await client.elements('.ssh-wrap-show .file-list.local .sftp-item')
-    await client.rightClick('.ssh-wrap-show .virtual-file-local', 10, 10)
+    await client.rightClick('.ssh-wrap-show .virtual-file-local .virtual-file-unit', 10, 10)
     await delay(200)
     await client.click('.context-menu .anticon-folder-add')
     await delay(200)
@@ -68,7 +68,7 @@ describe('local file manager', function () {
     expect(localFileList0.length).equal(1)
 
     // new file
-    await client.rightClick('.ssh-wrap-show .virtual-file-local', 10, 10)
+    await client.rightClick('.ssh-wrap-show .virtual-file-local .virtual-file-unit', 10, 10)
     await client.click('.context-menu .anticon-file-add')
     await delay(200)
     const fname00 = '00000test-electerm' + generate()
@@ -89,7 +89,7 @@ describe('local file manager', function () {
     expect(selected.length).equal(1)
 
     // select all and del Control
-    await client.rightClick('.ssh-wrap-show .virtual-file-local', 10, 10)
+    await client.rightClick('.ssh-wrap-show .virtual-file-local .virtual-file-unit', 10, 10)
     await client.click('.context-menu .anticon-check-square')
     await delay(20)
     await client.keys(['Delete'])
