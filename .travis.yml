@@ -33,7 +33,7 @@ cache:
 
 before_script:
   - export DISPLAY=:99.0
-  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then ( Xvfb :99 -ac -screen 0 1920x1080x24; echo ok )& fi
+  - sh -e /etc/init.d/xvfb start &
   - sleep 3 # give xvfb some time to start
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo snap refresh && sudo snap install snapcraft --classic &&echo $SNAP_TOKEN | snapcraft login --with - ; fi
 
