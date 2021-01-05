@@ -15,6 +15,11 @@ const log = require('./common/log')
 const { nanoid } = require('nanoid')
 const appOptions = require('./common/app-options')
 const extendClient = require('./common/client-extend')
+const isOs = require('./common/is-os')
+
+if (isOs('darwin')) {
+  return
+}
 
 describe('sftp basic', function () {
   this.timeout(10000000)

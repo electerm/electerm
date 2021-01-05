@@ -15,6 +15,11 @@ const {
 const log = require('./common/log')
 const appOptions = require('./common/app-options')
 const extendClient = require('./common/client-extend')
+const isOs = require('./common/is-os')
+
+if (isOs('darwin')) {
+  return
+}
 
 describe('sftp file transfer', function () {
   this.timeout(100000)
