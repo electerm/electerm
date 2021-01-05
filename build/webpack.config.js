@@ -17,7 +17,8 @@ let config = {
   entry: {
     electerm: './src/client/entry/index.jsx',
     basic: './src/client/entry/basic.jsx',
-    index: './src/views/index.pug'
+    index: './src/views/index.pug',
+    worker: './src/client/entry/worker.js'
   },
   output: {
     path: path.resolve(__dirname, '../work/app/assets'),

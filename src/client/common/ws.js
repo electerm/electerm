@@ -2,25 +2,112 @@
  * ws function for sftp/file transfer communication
  */
 
-export default (type, id, sessionId = '', sftpId = '') => {
-  // init gloabl ws
-  const { host, port } = window._config
-  const wsUrl = `ws://${host}:${port}/${type}/${id}?sessionId=${sessionId}&sftpId=${sftpId}&token=${window._config.tokenElecterm}`
-  const ws = new WebSocket(wsUrl)
-  ws.s = msg => {
-    ws.send(JSON.stringify(msg))
+import { nanoid as generate } from 'nanoid/non-secure'
+
+const onces = {}
+const wss = {}
+const persists = {}
+
+function send (data) {
+  window.worker.postMessage(data)
+}
+
+class Ws {
+  constructor (id) {
+    this.id = id
   }
-  ws.once = (callack, id) => {
-    const func = (evt) => {
-      const arg = JSON.parse(evt.data)
-      if (id === arg.id) {
-        callack(arg)
-        ws.removeEventListener('message', func)
-      }
+
+  s (data) {
+    send({
+      action: 's',
+      args: [data],
+      wsId: this.id
+    })
+  }
+
+  once (cb, id) {
+    onces[id] = {
+      resolve: cb
     }
-    ws.addEventListener('message', func)
+    send({
+      id,
+      wsId: this.id,
+      action: 'once'
+    })
   }
+
+  addEventListener (type, cb) {
+    const id = generate()
+    this.eid = id
+    persists[id] = {
+      resolve: cb
+    }
+    send({
+      id,
+      wsId: this.id,
+      type,
+      action: 'addEventListener'
+    })
+  }
+
+  removeEventListener (type, cb) {
+    delete persists[this.eid]
+    send({
+      id: this.eid,
+      wsId: this.id,
+      type,
+      action: 'removeEventListener'
+    })
+  }
+
+  close () {
+    send({
+      action: 'close',
+      wsId: this.id
+    })
+    delete wss[this.id]
+  }
+}
+
+function onEvent (e) {
+  if (!e || !e.data) {
+    return false
+  }
+  const {
+    id,
+    data,
+    action
+  } = e.data
+  if (onces[id]) {
+    if (action === 'create') {
+      wss[id] = new Ws(id)
+      return onces[id].resolve(wss[id])
+    } else {
+      onces[id].resolve(data)
+    }
+    delete onces[id]
+  } else if (persists[id]) {
+    persists[id].resolve(data)
+  }
+}
+
+window.worker.addEventListener('message', onEvent)
+
+export default (type, id, sessionId = '', sftpId = '') => {
   return new Promise((resolve) => {
-    ws.onopen = () => resolve(ws)
+    send({
+      id,
+      action: 'create',
+      args: [
+        type,
+        id,
+        sessionId,
+        sftpId,
+        window._config
+      ]
+    })
+    onces[id] = {
+      resolve
+    }
   })
 }
