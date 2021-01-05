@@ -33,7 +33,8 @@ cache:
 
 before_script:
   - export DISPLAY=:99.0
-  - - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then ( sudo Xvfb :99 -ac -screen 0 1920x1080x16; echo ok )& fi
+  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then ( sudo Xvfb :99 -ac -screen 0 1920x1080x16; echo ok )& fi
+  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then ( xvfb-run --server-args="-screen 0 1920x1080x24"; echo ok )& fi
   - sleep 3 # give xvfb some time to start
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo snap refresh && sudo snap install snapcraft --classic &&echo $SNAP_TOKEN | snapcraft login --with - ; fi
 
@@ -43,12 +44,7 @@ before_install:
 
 script:
   - npm run pre-test
-  - |
-    if [ "$TRAVIS_OS_NAME" == "linux" ]; then
-      echo "skip test for linux"
-    else
-      npm run test
-    fi
+  - npm run test
   - |
     if echo "$TRAVIS_COMMIT_MESSAGE" | grep -F -q "[skip build]" ; then
       echo "[skip build] has been found, exiting" && exit 0 ;
