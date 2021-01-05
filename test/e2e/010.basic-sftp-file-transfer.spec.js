@@ -15,6 +15,11 @@ const {
 const log = require('./common/log')
 const appOptions = require('./common/app-options')
 const extendClient = require('./common/client-extend')
+const isOs = require('./common/is-os')
+
+if (isOs('darwin')) {
+  return
+}
 
 describe('sftp file transfer', function () {
   this.timeout(100000)
@@ -59,8 +64,8 @@ describe('sftp file transfer', function () {
 
     // make a local folder
     const localFileListBefore = await client.elements('.ssh-wrap-show .file-list.local .sftp-item')
-    await client.rightClick('.ssh-wrap-show .virtual-file-local', 10, 10)
-    await delay(300)
+    await client.rightClick('.ssh-wrap-show .virtual-file-local .virtual-file-unit', 10, 10)
+    await delay(3300)
     log('add folder')
     await client.execute(function () {
       document.querySelector('.context-menu .anticon-folder-add').click()
@@ -89,7 +94,7 @@ describe('sftp file transfer', function () {
     expect(localFileList0.length).equal(1)
 
     // new file
-    await client.rightClick('.ssh-wrap-show .virtual-file-local', 10, 10)
+    await client.rightClick('.ssh-wrap-show .virtual-file-local .virtual-file-unit', 10, 10)
     await delay(200)
     log('add file')
     await client.execute(function () {

@@ -15,6 +15,11 @@ const log = require('./common/log')
 const { nanoid } = require('nanoid')
 const appOptions = require('./common/app-options')
 const extendClient = require('./common/client-extend')
+const isOs = require('./common/is-os')
+
+if (isOs('darwin')) {
+  return
+}
 
 describe('sftp basic', function () {
   this.timeout(10000000)
@@ -72,8 +77,8 @@ describe('sftp basic', function () {
 
     // make a local folder
     const localFileListBefore = await client.elements('.ssh-wrap-show .file-list.local .sftp-item')
-    await client.rightClick('.ssh-wrap-show .virtual-file-local', 10, 10)
-    await delay(300)
+    await client.rightClick('.ssh-wrap-show .virtual-file-local .virtual-file-unit', 10, 10)
+    await delay(3300)
     log('add folder')
 
     await client.click('.context-menu .anticon-folder-add')
@@ -94,7 +99,7 @@ describe('sftp basic', function () {
     expect(localFileList0.length).equal(1)
 
     // new file
-    await client.rightClick('.ssh-wrap-show .virtual-file-local', 10, 10)
+    await client.rightClick('.ssh-wrap-show .virtual-file-local .virtual-file-unit', 10, 10)
     await delay(200)
     log('add file')
     await client.click('.context-menu .anticon-file-add')
@@ -107,7 +112,7 @@ describe('sftp basic', function () {
     expect(localFileList00.length).equal(2)
 
     // select all and del Control
-    await client.rightClick('.ssh-wrap-show .virtual-file-local', 10, 10)
+    await client.rightClick('.ssh-wrap-show .virtual-file-local .virtual-file-unit', 10, 10)
     await delay(200)
     log('select all')
     await client.click('.context-menu .anticon-check-square')

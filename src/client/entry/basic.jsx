@@ -31,6 +31,8 @@ async function load () {
   }
   loadScript()
   document.body.removeChild(document.getElementById('content-loading'))
+
+  window.worker = new window.Worker('js/worker.js')
 }
 
 // window.addEventListener('load', load)
