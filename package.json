@@ -120,7 +120,7 @@
   "dependencies": {
     "@electerm/electerm-locales": "0.9.10",
     "antd-dayjs-webpack-plugin": "^1.0.1",
-    "axios": "0.21.0",
+    "axios": "0.21.1",
     "body-parser": "1.19.0",
     "cors": "2.8.5",
     "electron-log": "4.3.0",
