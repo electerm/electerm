@@ -2,6 +2,8 @@
  * web worker
  */
 
+self.insts = {}
+
 function createWs (
   type,
   id,
@@ -16,6 +18,7 @@ function createWs (
   ws.s = msg => {
     ws.send(JSON.stringify(msg))
   }
+  ws.id = id
   ws.once = (callack, id) => {
     const func = (evt) => {
       const arg = JSON.parse(evt.data)
@@ -26,12 +29,28 @@ function createWs (
     }
     ws.addEventListener('message', func)
   }
+  ws.onclose = () => {
+    if (ws.dup) {
+      return
+    }
+    send({
+      id: ws.id,
+      action: 'close'
+    })
+    delete self.insts[ws.id]
+  }
   return new Promise((resolve) => {
-    ws.onopen = () => resolve(ws)
+    ws.onopen = () => {
+      if (self.insts[ws.id]) {
+        ws.dup = true
+        ws.close()
+        resolve(null)
+      } else {
+        resolve(ws)
+      }
+    }
   })
 }
-
-self.insts = {}
 
 function send (data) {
   self.postMessage(data)
@@ -43,12 +62,28 @@ async function onMsg (e) {
     wsId,
     args,
     action,
-    type
+    type,
+    persist
   } = e.data
   if (action === 'create') {
-    self.insts[id] = await createWs(...args)
+    const inst = self.insts[id]
+    if (inst instanceof WebSocket) {
+      return send({
+        action,
+        id,
+        persist
+      }, '*')
+    } else if (inst) {
+      return false
+    } else {
+      const ws = await createWs(...args)
+      if (ws) {
+        self.insts[id] = ws
+      }
+    }
     send({
       action,
+      persist,
       id
     }, '*')
   } else if (action === 'once') {
@@ -67,7 +102,6 @@ async function onMsg (e) {
     const ws = self.insts[wsId]
     if (ws) {
       ws.close()
-      delete self.insts[wsId]
     }
   } else if (action === 's') {
     const ws = self.insts[wsId]

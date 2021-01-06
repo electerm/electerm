@@ -3,6 +3,7 @@
  */
 
 import { nanoid as generate } from 'nanoid/non-secure'
+import wait from './wait'
 
 const onces = {}
 const wss = {}
@@ -13,9 +14,12 @@ function send (data) {
 }
 
 class Ws {
-  constructor (id) {
+  constructor (id, persist) {
     this.id = id
+    this.persist = !!persist
   }
+
+  onceIds = []
 
   s (data) {
     send({
@@ -25,7 +29,11 @@ class Ws {
     })
   }
 
-  once (cb, id) {
+  async once (cb, id) {
+    while (this.closed) {
+      await wait(100)
+    }
+    this.onceIds.push(id)
     onces[id] = {
       resolve: cb
     }
@@ -36,8 +44,9 @@ class Ws {
     })
   }
 
-  addEventListener (type, cb) {
-    const id = generate()
+  addEventListener (type = 'message', cb = this.cb) {
+    this.cb = cb
+    const id = this.eid || generate()
     this.eid = id
     persists[id] = {
       resolve: cb
@@ -60,7 +69,26 @@ class Ws {
     })
   }
 
+  onclose () {
+
+  }
+
+  clearOnces () {
+    if (this.eid) {
+      delete persists[this.eid]
+    }
+    this.onceIds.forEach(k => {
+      delete onces[k]
+    })
+  }
+
   close () {
+    this.onclose()
+    if (this.persist) {
+      this.closed = true
+      return
+    }
+    this.clearOnces()
     send({
       action: 'close',
       wsId: this.id
@@ -76,28 +104,41 @@ function onEvent (e) {
   const {
     id,
     data,
-    action
+    action,
+    persist
   } = e.data
-  if (onces[id]) {
+  if (wss[id]) {
+    if (action === 'close') {
+      wss[id].close && wss[id].close()
+    }
+  }
+  if (persists[id]) {
+    persists[id].resolve(data)
+  } else if (onces[id]) {
     if (action === 'create') {
-      wss[id] = new Ws(id)
-      return onces[id].resolve(wss[id])
+      if (!wss[id]) {
+        wss[id] = new Ws(id, persist)
+      } else {
+        wss[id].addEventListener()
+        wss[id].closed = false
+      }
+      onces[id].resolve(wss[id])
     } else {
       onces[id].resolve(data)
     }
     delete onces[id]
-  } else if (persists[id]) {
-    persists[id].resolve(data)
   }
 }
 
 window.worker.addEventListener('message', onEvent)
 
-export default (type, id, sessionId = '', sftpId = '') => {
+export default (type, id, sessionId = '', sftpId = '', persist) => {
   return new Promise((resolve) => {
     send({
       id,
       action: 'create',
+      persist,
+      type,
       args: [
         type,
         id,
