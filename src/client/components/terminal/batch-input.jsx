@@ -56,17 +56,20 @@ export default class BatchInput extends Component {
 
   render () {
     const { cmd, open, toAll } = this.state
-
+    const opts = {
+      options: this.props.store.batchInputs.map(mapper),
+      placeholder: e('batchInput'),
+      value: cmd,
+      onChange: this.handleChange,
+      defaultOpen: false,
+      open,
+      allowClear: true,
+      className: 'batch-input-wrap'
+    }
     return (
       <span>
         <AutoComplete
-          options={this.props.store.batchInputs.map(mapper)}
-          placeholder={e('batchInput')}
-          value={cmd}
-          onChange={this.handleChange}
-          defaultOpen={false}
-          open={open}
-          allowClear
+          {...opts}
         >
           <Input
             onPressEnter={this.handleEnter}
