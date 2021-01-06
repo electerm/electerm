@@ -2,6 +2,8 @@
  * web worker
  */
 
+self.insts = {}
+
 function createWs (
   type,
   id,
@@ -16,6 +18,7 @@ function createWs (
   ws.s = msg => {
     ws.send(JSON.stringify(msg))
   }
+  ws.id = id
   ws.once = (callack, id) => {
     const func = (evt) => {
       const arg = JSON.parse(evt.data)
@@ -26,12 +29,17 @@ function createWs (
     }
     ws.addEventListener('message', func)
   }
+  ws.onclose = () => {
+    send({
+      id: ws.id,
+      action: 'close'
+    })
+    delete self.insts[ws.id]
+  }
   return new Promise((resolve) => {
     ws.onopen = () => resolve(ws)
   })
 }
-
-self.insts = {}
 
 function send (data) {
   self.postMessage(data)
@@ -46,6 +54,12 @@ async function onMsg (e) {
     type
   } = e.data
   if (action === 'create') {
+    if (self.insts[id]) {
+      send({
+        action,
+        id
+      }, '*')
+    }
     self.insts[id] = await createWs(...args)
     send({
       action,
@@ -67,7 +81,6 @@ async function onMsg (e) {
     const ws = self.insts[wsId]
     if (ws) {
       ws.close()
-      delete self.insts[wsId]
     }
   } else if (action === 's') {
     const ws = self.insts[wsId]

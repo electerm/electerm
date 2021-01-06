@@ -17,6 +17,8 @@ class Ws {
     this.id = id
   }
 
+  onceIds = []
+
   s (data) {
     send({
       action: 's',
@@ -26,6 +28,7 @@ class Ws {
   }
 
   once (cb, id) {
+    this.onceIds.push(id)
     onces[id] = {
       resolve: cb
     }
@@ -60,7 +63,22 @@ class Ws {
     })
   }
 
+  onclose () {
+
+  }
+
+  clearOnces () {
+    if (this.eid) {
+      delete persists[this.eid]
+    }
+    this.onceIds.forEach(k => {
+      delete onces[k]
+    })
+  }
+
   close () {
+    this.onclose()
+    this.clearOnces()
     send({
       action: 'close',
       wsId: this.id
@@ -78,16 +96,20 @@ function onEvent (e) {
     data,
     action
   } = e.data
-  if (onces[id]) {
+  if (wss[id]) {
+    if (action === 'close') {
+      wss[id].close && wss[id].close()
+    }
+  } else if (persists[id]) {
+    persists[id].resolve(data)
+  } else if (onces[id]) {
     if (action === 'create') {
       wss[id] = new Ws(id)
-      return onces[id].resolve(wss[id])
+      onces[id].resolve(wss[id])
     } else {
       onces[id].resolve(data)
     }
     delete onces[id]
-  } else if (persists[id]) {
-    persists[id].resolve(data)
   }
 }
 
