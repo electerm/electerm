@@ -30,6 +30,9 @@ function createWs (
     ws.addEventListener('message', func)
   }
   ws.onclose = () => {
+    if (ws.dup) {
+      return
+    }
     send({
       id: ws.id,
       action: 'close'
@@ -37,7 +40,15 @@ function createWs (
     delete self.insts[ws.id]
   }
   return new Promise((resolve) => {
-    ws.onopen = () => resolve(ws)
+    ws.onopen = () => {
+      if (self.insts[ws.id]) {
+        ws.dup = true
+        ws.close()
+        resolve(null)
+      } else {
+        resolve(ws)
+      }
+    }
   })
 }
 
@@ -51,18 +62,28 @@ async function onMsg (e) {
     wsId,
     args,
     action,
-    type
+    type,
+    persist
   } = e.data
   if (action === 'create') {
-    if (self.insts[id]) {
-      send({
+    const inst = self.insts[id]
+    if (inst instanceof WebSocket) {
+      return send({
         action,
-        id
+        id,
+        persist
       }, '*')
+    } else if (inst) {
+      return false
+    } else {
+      const ws = await createWs(...args)
+      if (ws) {
+        self.insts[id] = ws
+      }
     }
-    self.insts[id] = await createWs(...args)
     send({
       action,
+      persist,
       id
     }, '*')
   } else if (action === 'once') {
