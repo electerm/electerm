@@ -1,7 +1,7 @@
 /**
  * bookmark form
  */
-import { Component } from 'react'
+import { Component } from '../common/react-subx'
 import {
   Radio
 } from 'antd'
