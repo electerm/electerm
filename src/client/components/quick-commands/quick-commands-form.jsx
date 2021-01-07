@@ -61,7 +61,7 @@ export default function QuickCommandForm (props) {
         name='name'
       >
         <InputAutoFocus
-          selectall='true'
+          selectall='yes'
           autofocustrigger={autofocustrigger}
         />
       </FormItem>

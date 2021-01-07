@@ -21,8 +21,6 @@ const init = async () => {
 window.pre.ipcOnEvent('power-resume', init)
 
 export default async (data) => {
-  console.log('fetch', data)
-  console.log('wsOpened', wsOpened)
   if (!wsOpened) {
     await init()
   }

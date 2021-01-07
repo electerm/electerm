@@ -12,6 +12,7 @@ import {
   TreeSelect,
   Select,
   Switch,
+  AutoComplete,
   Form
 } from 'antd'
 import {
@@ -96,6 +97,22 @@ export default function BookmarkFormUI (props) {
     setAuthType(e.target.value)
   }
   authTypeRenders.password = () => {
+    const opts = {
+      options: _.uniqBy(
+        props.store
+          .bookmarks
+          .filter(d => d.password),
+        (d) => d.password
+      )
+        .map(d => {
+          return {
+            label: `${d.title ? `(${d.title})` : ''}${d.username}:${d.host}-******`,
+            value: d.password
+          }
+        }),
+      placeholder: e('password'),
+      allowClear: false
+    }
     return (
       <FormItem
         {...formItemLayout}
@@ -106,10 +123,11 @@ export default function BookmarkFormUI (props) {
           max: 128, message: '128 chars max'
         }]}
       >
-        <Input
-          type='password'
-          placeholder={e('password')}
-        />
+        <AutoComplete
+          {...opts}
+        >
+          <Input.Password />
+        </AutoComplete>
       </FormItem>
     )
   }
@@ -153,8 +171,7 @@ export default function BookmarkFormUI (props) {
           max: 128, message: '128 chars max'
         }]}
       >
-        <Input
-          type='password'
+        <Input.Password
           placeholder={e('passphraseDesc')}
         />
       </FormItem>
@@ -205,7 +222,7 @@ export default function BookmarkFormUI (props) {
           <FormItem noStyle name='host'>
             <InputAutoFocus
               autofocustrigger={autofocustrigger}
-              selectall='true'
+              selectall='yes'
               onBlur={props.onBlur}
               onPaste={e => props.onPaste(e, form)}
             />

@@ -136,8 +136,7 @@ export default function SyncForm (props) {
           required: true, message: syncType + ' access token required'
         }]}
       >
-        <Input
-          type='password'
+        <Input.Password
           placeholder={syncType + ' personal access token'}
         />
       </FormItem>

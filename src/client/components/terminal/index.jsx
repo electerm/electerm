@@ -1003,8 +1003,8 @@ export default class Term extends Component {
         <Input
           value={tempPassword}
           type='password'
-          autofocustrigger={promoteModalVisible}
-          selectall
+          autofocustrigger={promoteModalVisible ? 1 : 2}
+          selectall='yes'
           onChange={this.onChangePass}
           onPressEnter={this.onClickConfirmPass}
         />
