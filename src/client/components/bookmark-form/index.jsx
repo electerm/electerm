@@ -2,6 +2,7 @@
  * bookmark form
  */
 import { Component } from '../common/react-subx'
+import runIdle from '../../common/run-idle'
 import {
   Radio
 } from 'antd'
@@ -39,8 +40,18 @@ export default class BookmarkIndex extends Component {
     }
   }
 
+  static mapper = {
+    [connectionMap.ssh]: SshForm,
+    [connectionMap.serial]: SerialForm,
+    [connectionMap.local]: LocalForm
+  }
+
+  modifier = (...args) => {
+    runIdle(() => this.setState(...args))
+  }
+
   handleChange = (e) => {
-    this.setState({
+    this.modifier({
       bookmarkType: e.target.value
     })
   }
@@ -56,15 +67,10 @@ export default class BookmarkIndex extends Component {
       return null
     }
 
-    const mapper = {
-      [connectionMap.ssh]: SshForm,
-      [connectionMap.serial]: SerialForm,
-      [connectionMap.local]: LocalForm
-    }
     const {
       bookmarkType
     } = this.state
-    const Form = mapper[bookmarkType]
+    const Form = BookmarkIndex.mapper[bookmarkType]
     const isNew = id.startsWith(newBookmarkIdPrefix)
     let keys = Object.keys(connectionMap)
     if (isWin) {
