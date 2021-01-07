@@ -10,7 +10,7 @@ let ws
 let wsOpened = false
 
 const init = async () => {
-  ws = await initWs('common', id)
+  ws = await initWs('common', id, undefined, undefined, true)
   wsOpened = true
   ws.onclose = () => {
     wsOpened = false
@@ -18,11 +18,15 @@ const init = async () => {
   window.et.commonWs = ws
 }
 
+window.pre.ipcOnEvent('power-resume', init)
+
 export default async (data) => {
-  const id = generate()
+  console.log('fetch', data)
+  console.log('wsOpened', wsOpened)
   if (!wsOpened) {
     await init()
   }
+  const id = generate()
   return new Promise((resolve, reject) => {
     ws.s({
       id,

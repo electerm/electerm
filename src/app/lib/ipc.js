@@ -5,6 +5,7 @@
 const {
   ipcMain,
   app,
+  powerMonitor,
   globalShortcut
 } = require('electron')
 const { dbAction } = require('./nedb')
@@ -41,6 +42,9 @@ const { encryptAsync, decryptAsync } = require('./enc')
 function initIpc () {
   global.win.on('move', () => {
     global.win.webContents.send('window-move', null)
+  })
+  powerMonitor.on('resume', () => {
+    global.win.webContents.send('power-resume', null)
   })
   async function init () {
     const {
