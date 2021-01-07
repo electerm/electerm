@@ -98,9 +98,12 @@ export default function BookmarkFormUI (props) {
   }
   authTypeRenders.password = () => {
     const opts = {
-      options: props.store
-        .bookmarks
-        .filter(d => d.password)
+      options: _.uniqBy(
+        props.store
+          .bookmarks
+          .filter(d => d.password),
+        (d) => d.password
+      )
         .map(d => {
           return {
             label: `${d.title ? `(${d.title})` : ''}${d.username}:${d.host}-******`,
@@ -108,8 +111,7 @@ export default function BookmarkFormUI (props) {
           }
         }),
       placeholder: e('password'),
-      allowClear: true,
-      type: 'password'
+      allowClear: false
     }
     return (
       <FormItem
@@ -124,9 +126,7 @@ export default function BookmarkFormUI (props) {
         <AutoComplete
           {...opts}
         >
-          <Input
-            type='password'
-          />
+          <Input.Password />
         </AutoComplete>
       </FormItem>
     )
@@ -171,8 +171,7 @@ export default function BookmarkFormUI (props) {
           max: 128, message: '128 chars max'
         }]}
       >
-        <Input
-          type='password'
+        <Input.Password
           placeholder={e('passphraseDesc')}
         />
       </FormItem>
@@ -223,7 +222,7 @@ export default function BookmarkFormUI (props) {
           <FormItem noStyle name='host'>
             <InputAutoFocus
               autofocustrigger={autofocustrigger}
-              selectall='true'
+              selectall='yes'
               onBlur={props.onBlur}
               onPaste={e => props.onPaste(e, form)}
             />

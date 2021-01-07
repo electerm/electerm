@@ -49,9 +49,13 @@ export default class InputAutoFocus extends React.PureComponent {
   }
 
   render () {
+    const { type, ...rest } = this.props
+    const Dom = type === 'password'
+      ? Input.Password
+      : Input
     return (
-      <Input
-        {...this.props}
+      <Dom
+        {...rest}
       />
     )
   }

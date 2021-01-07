@@ -110,7 +110,7 @@ export default function ThemeForm (props) {
         }]}
       >
         <InputAutoFocus
-          selectall='true'
+          selectall='yes'
           disabled={isDefaultTheme}
           autofocustrigger={autofocustrigger}
         />

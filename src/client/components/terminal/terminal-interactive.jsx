@@ -54,9 +54,9 @@ export default function TermInteractive () {
       echo
     } = pro
     const note = (opts.options.instructions || [])[i]
-    const type = echo
-      ? 'text'
-      : 'password'
+    const InputDom = echo
+      ? Input
+      : Input.Password
     return (
       <FormItem
         {...formItemLayout}
@@ -70,8 +70,7 @@ export default function TermInteractive () {
           <pre>{note}</pre>
         </div>
         <FormItem noStyle name={'item' + i}>
-          <Input
-            type={type}
+          <InputDom
             placeholder={note}
           />
         </FormItem>
