@@ -75,7 +75,7 @@
     "css-minimizer-webpack-plugin": "1.1.5",
     "dayjs": "^1.9.6",
     "dotenv": "8.2.0",
-    "electron": "9.4.0",
+    "electron": "9.3.4",
     "electron-builder": "22.9.1",
     "electron-rebuild": "2.3.4",
     "extract-loader": "5.0.1",
