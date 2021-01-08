@@ -2,7 +2,6 @@
  * bookmark form
  */
 import { Component } from '../common/react-subx'
-import runIdle from '../../common/run-idle'
 import {
   Radio
 } from 'antd'
@@ -46,12 +45,8 @@ export default class BookmarkIndex extends Component {
     [connectionMap.local]: LocalForm
   }
 
-  modifier = (...args) => {
-    runIdle(() => this.setState(...args))
-  }
-
   handleChange = (e) => {
-    this.modifier({
+    this.setState({
       bookmarkType: e.target.value
     })
   }
