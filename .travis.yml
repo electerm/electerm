@@ -55,7 +55,7 @@ script:
     elif [ "$TRAVIS_OS_NAME" == "linux" ]; then
       npm run build-linux
     else
-      ./node_modules/.bin/electron-builder --mac --x64 && ./node_modules/.bin/electron-builder --mac --arm64
+      npm run build-mac
     fi
 
 branches:
