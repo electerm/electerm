@@ -6,8 +6,8 @@ const fs = require('fs')
 const { resolve } = require('path')
 const _ = require('lodash')
 const rp = require('axios')
-const { isWin, isMac, packInfo } = require('../utils/constants')
-const installSrc = require('../lib/install-src')
+const { isWin, isMac, isArm, packInfo } = require('../utils/constants')
+const getInstallSrc = require('../lib/install-src')
 const os = require('os')
 const { fsExport } = require('../lib/fs')
 const SocksProxyAgent = require('socks-proxy-agent')
@@ -68,14 +68,21 @@ class Upgrade {
     } = this.options
     const agent = createAgent(proxy)
     const releaseInfoUrl = `${packInfo.homepage}/data/electerm-github-release.json?_=${+new Date()}`
+    const installSrc = getInstallSrc()
     let filter = r => {
       return r.name.includes(installSrc) &&
         r.name.includes('linux')
     }
     if (isWin) {
       filter = r => /electerm-\d+\.\d+\.\d+-win-x64\.tar\.gz/.test(r.name)
+    } else if (isArm) {
+      filter = r => {
+        /arm64\.dmg$/.test(r.name)
+      }
     } else if (isMac) {
-      filter = r => /\.dmg$/.test(r.name)
+      filter = r => {
+        /mac\.dmg$/.test(r.name)
+      }
     }
     const releaseInfo = await getReleaseInfo(filter, releaseInfoUrl, agent)
       .catch(this.onError)
