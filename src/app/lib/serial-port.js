@@ -7,6 +7,7 @@
 // SerialPort.Binding = MockBinding
 // MockBinding.createPort('/dev/ROBOT', { echo: true, record: true })
 
-exports.listSerialPorts = function () {
-  return require('serialport').list()
+exports.listSerialPorts = async function () {
+  const arr = await require('serialport').list()
+  return arr
 }
