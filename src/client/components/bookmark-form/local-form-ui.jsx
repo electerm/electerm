@@ -155,7 +155,7 @@ export default function LocalFormUi (props) {
       form={form}
       onFinish={handleFinish}
       initialValues={initialValues}
-      name='serial-form'
+      name='local-form'
     >
       {renderTabs()}
       {submitUi}

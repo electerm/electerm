@@ -14,7 +14,7 @@ import {
   isWin
 } from '../../common/constants'
 import SshForm from './ssh-form'
-import SerialForm from './serial-form'
+// import SerialForm from './serial-form'
 import LocalForm from './local-form'
 
 const { prefix } = window
@@ -41,7 +41,7 @@ export default class BookmarkIndex extends Component {
 
   static mapper = {
     [connectionMap.ssh]: SshForm,
-    [connectionMap.serial]: SerialForm,
+    // [connectionMap.serial]: SerialForm,
     [connectionMap.local]: LocalForm
   }
 
