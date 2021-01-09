@@ -55,7 +55,7 @@ script:
     elif [ "$TRAVIS_OS_NAME" == "linux" ]; then
       npm run build-linux
     else
-      npm run output -m
+      npm run build-mac
     fi
 
 branches:

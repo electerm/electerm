@@ -6,13 +6,11 @@ const { existsSync } = require('fs')
 const { resolve } = require('path')
 const prePushPath = resolve(__dirname, '../.git/hooks/pre-push')
 const prePushPathFrom = resolve(__dirname, 'pre-push')
-const os = require('os')
+// const os = require('os')
 
-const platform = os.platform()
-const isWin = platform === 'win32'
-const rest = isWin
-  ? ' -o node-pty'
-  : ''
+// const platform = os.platform()
+// const isWin = platform === 'win32'
+const rest = ''
 
 exec(resolve('./node_modules/.bin/electron-rebuild') + rest)
 
