@@ -13,6 +13,10 @@
   "mac": {
     "category": "public.app-category.developer-tools",
     "target": ["dmg"],
+    "arch": [
+      "x64",
+      "arm64"
+    ],
     "icon": "node_modules/@electerm/electerm-resource/build/icons.icns",
     "publish": ["github"]
   },

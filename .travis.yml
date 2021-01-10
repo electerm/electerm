@@ -53,7 +53,11 @@ script:
     if echo "$TRAVIS_COMMIT_MESSAGE" | grep -F -q "[skip build]" ; then
       echo "[skip build] has been found, exiting" && exit 0 ;
     elif [ "$TRAVIS_OS_NAME" == "linux" ]; then
-      npm run build-linux
+      if echo "$TRAVIS_COMMIT_MESSAGE" | grep -F -q "[skip linux]" ; then
+        echo "[skip linux] has been found, exiting" && exit 0 ;
+      elif
+        npm run build-linux
+      fi
     else
       npm run build-mac
     fi
