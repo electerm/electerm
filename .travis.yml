@@ -32,6 +32,12 @@ cache:
   - $HOME/.cache/electron-builder
 
 before_script:
+  - |
+    if [[echo "$TRAVIS_COMMIT_MESSAGE" | grep -F -q "[skip linux]"] && [ "$TRAVIS_OS_NAME" == "linux" ]] ; then
+      echo "[skip linux] has been found, exiting" && exit 0 ;
+    elif
+      npm run build-linux
+    fi
   - export DISPLAY=:99.0
   - sh -e /etc/init.d/xvfb start &
   - sleep 3 # give xvfb some time to start
@@ -53,11 +59,7 @@ script:
     if echo "$TRAVIS_COMMIT_MESSAGE" | grep -F -q "[skip build]" ; then
       echo "[skip build] has been found, exiting" && exit 0 ;
     elif [ "$TRAVIS_OS_NAME" == "linux" ]; then
-      if echo "$TRAVIS_COMMIT_MESSAGE" | grep -F -q "[skip linux]" ; then
-        echo "[skip linux] has been found, exiting" && exit 0 ;
-      elif
-        npm run build-linux
-      fi
+      npm run build-linux
     else
       npm run build-mac
     fi
