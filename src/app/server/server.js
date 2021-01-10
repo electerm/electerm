@@ -68,6 +68,7 @@ const runServer = function () {
   const { electermPort, electermHost } = process.env
   app.listen(electermPort, electermHost, () => {
     log.info('server', 'runs on', electermHost, electermPort)
+    process.send({ serverInited: true })
   })
 }
 
