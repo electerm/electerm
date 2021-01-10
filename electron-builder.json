@@ -19,10 +19,6 @@
         "arm64"
       ]
     },
-    "arch": [
-      "x64",
-      "arm64"
-    ],
     "icon": "node_modules/@electerm/electerm-resource/build/icons.icns",
     "publish": ["github"]
   },
