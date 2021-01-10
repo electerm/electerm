@@ -1,7 +1,7 @@
 matrix:
   include:
     - os: osx
-      osx_image: xcode12.2
+      osx_image: xcode12.3
       language: node_js
       node_js: "12"
       env:
@@ -38,6 +38,7 @@ before_script:
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo snap refresh && sudo snap install snapcraft --classic &&echo $SNAP_TOKEN | snapcraft login --with - ; fi
 
 before_install:
+  - if echo "$TRAVIS_COMMIT_MESSAGE" | grep -F -q "[skip linux]" && [ "$TRAVIS_OS_NAME" == "linux" ] ; then echo "[skip linux] has been found, exiting" && exit 0 ; fi
   - if echo "$TRAVIS_COMMIT_MESSAGE" | grep -F -q "[skip travis]" ; then echo "[skip travis] has been found, exiting" && exit 0 ; else echo "[skip travis] has not been found, continuing" ; fi
   - npm install -g yarn
 
