@@ -12,7 +12,13 @@
   },
   "mac": {
     "category": "public.app-category.developer-tools",
-    "target": ["dmg"],
+    "target": {
+      "target": "dmg",
+      "arch": [
+        "x64",
+        "arm64"
+      ]
+    },
     "arch": [
       "x64",
       "arm64"
