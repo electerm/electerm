@@ -89,7 +89,6 @@ class Upgrade {
     if (!releaseInfo) {
       return
     }
-    console.log(releaseInfo)
     const tempDir = os.tmpdir()
     const localPath = resolve(tempDir, releaseInfo.name)
     const remotePath = releaseInfo.browser_download_url

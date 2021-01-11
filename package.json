@@ -1,6 +1,6 @@
 {
   "name": "electerm",
-  "version": "1.11.4",
+  "version": "1.11.5",
   "description": "Terminal/ssh/sftp client(linux, mac, win) based on electron/ssh2/node-pty/xterm/antd/subx and other libs",
   "main": "app.js",
   "bin": "npm/electerm",
@@ -139,6 +139,7 @@
     "lodash": "4.17.20",
     "nanoid": "3.1.16",
     "nedb": "1.8.0",
+    "node-powershell": "^4.0.0",
     "node-pty": "0.10.0-beta18",
     "os-locale-s": "1.0.8",
     "path-validation": "0.2.3",
