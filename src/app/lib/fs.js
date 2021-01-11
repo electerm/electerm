@@ -4,7 +4,6 @@ const fs = require('original-fs')
 const fss = promisifyAll(fs)
 const log = require('../utils/log')
 const { isWin, isMac } = require('../utils/constants')
-const { resolve: resolvePath } = require('path')
 const ROOT_PATH = '/'
 
 /**
@@ -36,14 +35,7 @@ const runWinCmd = (cmd) => {
     noProfile: true
   })
   ps.addCommand(cmd)
-  return ps.invoke().then(output => {
-    ps.dispose()
-    resolve(output)
-  }).catch(err => {
-    log.err('error when run cmd:', cmd)
-    log.err(err)
-    ps.dispose()
-  })
+  return ps.invoke()
 }
 
 /**
