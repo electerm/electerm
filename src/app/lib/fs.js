@@ -29,22 +29,13 @@ const run = (cmd) => {
  * @param {string} cmd
  */
 const runWinCmd = (cmd) => {
-  return new Promise((resolve, reject) => {
-    exec(
-      resolve(
-        process.env.windir,
-        'System32/WindowsPowerShell/v1.0/powershell.exe'
-      ),
-      [`-command ${cmd}`],
-      (err, stdout, stderr) => {
-        if (err) {
-          reject(err)
-        } else if (stderr) {
-          reject(stderr)
-        }
-        resolve(stdout)
-      })
+  const Shell = require('node-powershell')
+  const ps = new Shell({
+    executionPolicy: 'Bypass',
+    noProfile: true
   })
+  ps.addCommand(cmd)
+  return ps.invoke()
 }
 
 /**
