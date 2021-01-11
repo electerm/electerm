@@ -12,13 +12,7 @@
   },
   "mac": {
     "category": "public.app-category.developer-tools",
-    "target": {
-      "target": "dmg",
-      "arch": [
-        "x64",
-        "arm64"
-      ]
-    },
+    "target": "dmg",
     "icon": "node_modules/@electerm/electerm-resource/build/icons.icns",
     "publish": ["github"]
   },
