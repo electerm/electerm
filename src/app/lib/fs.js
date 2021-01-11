@@ -87,7 +87,6 @@ const openFile = (localFilePath) => {
   let cmd
   if (isWin) {
     cmd = `Invoke-Item "${localFilePath}"`
-    console.log('cmd', cmd)
     return runWinCmd(cmd)
   }
   cmd = (isMac
