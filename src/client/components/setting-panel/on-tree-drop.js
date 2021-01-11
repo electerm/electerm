@@ -15,11 +15,11 @@ export default (info, props) => {
     node,
     dropPosition
   } = info
-  const fromId = dragNode.props.eventKey
-  const toId = node.props.eventKey
-  const fromPoses = dragNode.props.pos.split('-').map(Number)
+  const fromId = dragNode.key
+  const toId = node.key
+  const fromPoses = dragNode.pos.split('-').map(Number)
   const fromPosesLevel = fromPoses.slice(0, fromPoses.length - 1)
-  const toPoses = node.props.pos.split('-').map(Number)
+  const toPoses = node.pos.split('-').map(Number)
   const toPosesLevel = toPoses.slice(0, toPoses.length - 1)
   const isSameLevel = fromPosesLevel.length === toPosesLevel.length
   const isSameCat = _.isEqual(fromPosesLevel, toPosesLevel) && dropToGap
