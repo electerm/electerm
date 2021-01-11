@@ -77,11 +77,11 @@ class Upgrade {
       filter = r => /electerm-\d+\.\d+\.\d+-win-x64\.tar\.gz/.test(r.name)
     } else if (isArm) {
       filter = r => {
-        /arm64\.dmg$/.test(r.name)
+        return /arm64\.dmg$/.test(r.name)
       }
     } else if (isMac) {
       filter = r => {
-        /mac\.dmg$/.test(r.name)
+        return /mac\.dmg$/.test(r.name)
       }
     }
     const releaseInfo = await getReleaseInfo(filter, releaseInfoUrl, agent)
@@ -89,6 +89,7 @@ class Upgrade {
     if (!releaseInfo) {
       return
     }
+    console.log(releaseInfo)
     const tempDir = os.tmpdir()
     const localPath = resolve(tempDir, releaseInfo.name)
     const remotePath = releaseInfo.browser_download_url
