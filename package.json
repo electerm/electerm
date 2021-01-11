@@ -139,6 +139,7 @@
     "lodash": "4.17.20",
     "nanoid": "3.1.16",
     "nedb": "1.8.0",
+    "node-powershell": "^4.0.0",
     "node-pty": "0.10.0-beta18",
     "os-locale-s": "1.0.8",
     "path-validation": "0.2.3",

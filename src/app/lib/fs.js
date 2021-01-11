@@ -4,6 +4,7 @@ const fs = require('original-fs')
 const fss = promisifyAll(fs)
 const log = require('../utils/log')
 const { isWin, isMac } = require('../utils/constants')
+const { resolve: resolvePath } = require('path')
 const ROOT_PATH = '/'
 
 /**
@@ -29,21 +30,19 @@ const run = (cmd) => {
  * @param {string} cmd
  */
 const runWinCmd = (cmd) => {
-  return new Promise((resolve, reject) => {
-    exec(
-      resolve(
-        process.env.windir,
-        'System32/WindowsPowerShell/v1.0/powershell.exe'
-      ),
-      [`-command ${cmd}`],
-      (err, stdout, stderr) => {
-        if (err) {
-          reject(err)
-        } else if (stderr) {
-          reject(stderr)
-        }
-        resolve(stdout)
-      })
+  const Shell = require('node-powershell')
+  const ps = new Shell({
+    executionPolicy: 'Bypass',
+    noProfile: true
+  })
+  ps.addCommand(cmd)
+  return ps.invoke().then(output => {
+    ps.dispose()
+    resolve(output)
+  }).catch(err => {
+    log.err('error when run cmd:', cmd)
+    log.err(err)
+    ps.dispose()
   })
 }
 
