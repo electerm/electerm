@@ -23,7 +23,7 @@ Terminal/ssh/sftp client(linux, mac, win) based on electron/ssh2/node-pty/xterm/
 - [https://electerm.github.io/electerm](https://electerm.github.io/electerm)
 - From release: [https://github.com/electerm/electerm/releases](https://github.com/electerm/electerm/releases)
 - For some linux OS, rpm pack may not work, you can try the `.snap` release.
-- For Mac user: `brew cask install electerm`
+- For Mac user: `brew install --cask electerm`
 - With snap: `sudo snap install electerm`
 - For Deepin Linux user, you can find it from App store.
 - Install from npm
