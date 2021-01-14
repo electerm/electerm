@@ -6,14 +6,13 @@ import initWs from './ws'
 import { nanoid as generate } from 'nanoid/non-secure'
 
 const id = 's'
-let ws
-let wsOpened = false
+window.et.wsOpened = false
 
 const init = async () => {
-  ws = await initWs('common', id, undefined, undefined, true)
-  wsOpened = true
+  const ws = await initWs('common', id, undefined, undefined, true)
+  window.et.wsOpened = true
   ws.onclose = () => {
-    wsOpened = false
+    window.et.wsOpened = false
   }
   window.et.commonWs = ws
 }
@@ -21,16 +20,16 @@ const init = async () => {
 window.pre.ipcOnEvent('power-resume', init)
 
 export default async (data) => {
-  if (!wsOpened) {
+  if (!window.et.wsOpened) {
     await init()
   }
   const id = generate()
   return new Promise((resolve, reject) => {
-    ws.s({
+    window.et.commonWs.s({
       id,
       ...data
     })
-    ws.once((arg) => {
+    window.et.commonWs.once((arg) => {
       if (arg.error) {
         log.error('fetch error', arg.error)
         return reject(new Error(arg.error.message))

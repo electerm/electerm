@@ -3,6 +3,25 @@
  */
 import '../css/basic.styl'
 
+async function loadWorker () {
+  return new Promise((resolve) => {
+    window.worker = new window.Worker('js/worker.js')
+    function onInit (e) {
+      if (!e || !e.data) {
+        return false
+      }
+      const {
+        action
+      } = e.data
+      if (action === 'worker-init') {
+        window.worker.removeEventListener('message', onInit)
+        resolve(1)
+      }
+    }
+    window.worker.addEventListener('message', onInit)
+  })
+}
+
 async function load () {
   function capitalizeFirstLetter (string) {
     return string.charAt(0).toUpperCase() + string.slice(1)
@@ -29,10 +48,9 @@ async function load () {
       return window.lang[prefix][id] || id
     }
   }
+  await loadWorker()
   loadScript()
   document.body.removeChild(document.getElementById('content-loading'))
-
-  window.worker = new window.Worker('js/worker.js')
 }
 
 // window.addEventListener('load', load)

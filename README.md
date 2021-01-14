@@ -57,7 +57,7 @@ npm i -g electerm
 - Global/session proxy.
 - Quick commands
 - Sync bookmarks/themes/quick commands to github/gitee secret gist
-- Serial Port support
+- ~~Serial Port support~~(removed after version 1.10.14)
 - Quick input
 
 ## Support
