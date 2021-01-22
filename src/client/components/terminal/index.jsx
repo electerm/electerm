@@ -20,7 +20,8 @@ import {
   SwitcherOutlined
 } from '@ant-design/icons'
 
-import { Spin, Modal, Button, Checkbox, notification } from 'antd'
+import { Spin, Modal, Button, Checkbox, notification, Select } from 'antd'
+import encodes from '../bookmark-form/encodes'
 import Input from '../common/input-auto-focus'
 import classnames from 'classnames'
 import './terminal.styl'
@@ -1140,6 +1141,36 @@ export default class Term extends Component {
     )
   }
 
+  switchEncoding = encode => {
+    this.attachAddon.decoder = new TextDecoder(encode)
+  }
+
+  renderEncodingInfo () {
+    return (
+      <div className='terminal-footer-unit terminal-footer-info'>
+        <div className='fleft relative'>
+          <Select
+            style={{ minWidth: 100 }}
+            placeholder={f('encode')}
+            defaultValue={this.props.tab.encode}
+            onSelect={this.switchEncoding}
+            size='small'
+          >
+            {
+              encodes.map(k => {
+                return (
+                  <Select.Option key={k} value={k}>
+                    {k}
+                  </Select.Option>
+                )
+              })
+            }
+          </Select>
+        </div>
+      </div>
+    )
+  }
+
   renderInfoIcon () {
     const { loading } = this.state
     const infoProps = {
@@ -1183,6 +1214,7 @@ export default class Term extends Component {
         <div className='terminal-footer-flex'>
           {this.renderQuickCommands()}
           {this.renderBatchInputs()}
+          {this.renderEncodingInfo()}
           {this.renderInfoIcon()}
         </div>
       </div>
