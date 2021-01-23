@@ -1,3 +1,6 @@
+## Please check known issues first
+
+https://github.com/electerm/electerm/wiki/Know-issues
 
 <!--- Provide some basic info -->
 ## Electerm version:

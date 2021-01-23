@@ -60,6 +60,10 @@ npm i -g electerm
 - ~~Serial Port support~~(removed after version 1.10.14)
 - Quick input
 
+## Known issues
+
+[https://github.com/electerm/electerm/wiki/Know-issues](https://github.com/electerm/electerm/wiki/Know-issues)
+
 ## Support
 
 Without users's feedbacks/suggestions/pull requests/language files, this project would not get this far, would love to hear from you, please tell me what you think, [submit an issue](https://github.com/electerm/electerm/issues), [send me an email](mailto:zxdong@gmail.com), [create/fix language files](https://github.com/electerm/electerm-locales) or create a pull requests, all welcome.
