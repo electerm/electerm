@@ -64,6 +64,10 @@ npm i -g electerm
 
 [https://github.com/electerm/electerm/wiki/Know-issues](https://github.com/electerm/electerm/wiki/Know-issues)
 
+## Troubleshoot
+
+[https://github.com/electerm/electerm/wiki/Troubleshoot](https://github.com/electerm/electerm/wiki/Troubleshoot)
+
 ## Support
 
 Without users's feedbacks/suggestions/pull requests/language files, this project would not get this far, would love to hear from you, please tell me what you think, [submit an issue](https://github.com/electerm/electerm/issues), [send me an email](mailto:zxdong@gmail.com), [create/fix language files](https://github.com/electerm/electerm-locales) or create a pull requests, all welcome.
