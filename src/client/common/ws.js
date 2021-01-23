@@ -4,6 +4,7 @@
 
 import { nanoid as generate } from 'nanoid/non-secure'
 import wait from './wait'
+import copy from 'json-deep-copy'
 
 const onces = {}
 const wss = {}
@@ -29,13 +30,17 @@ class Ws {
     })
   }
 
-  async once (cb, id) {
+  async once (func, id) {
     while (this.closed) {
       await wait(100)
     }
     this.onceIds.push(id)
     onces[id] = {
-      resolve: cb
+      resolve: (...args) => {
+        func(...args)
+        delete onces[id]
+        this.onceIds = this.onceIds.filter(d => d !== id)
+      }
     }
     send({
       id,
@@ -77,9 +82,11 @@ class Ws {
     if (this.eid) {
       delete persists[this.eid]
     }
-    this.onceIds.forEach(k => {
+    const ids = copy(this.onceIds)
+    ids.forEach(k => {
       delete onces[k]
     })
+    this.onceIds = []
   }
 
   close () {

@@ -25,10 +25,6 @@ export default async (data) => {
   }
   const id = generate()
   return new Promise((resolve, reject) => {
-    window.et.commonWs.s({
-      id,
-      ...data
-    })
     window.et.commonWs.once((arg) => {
       if (arg.error) {
         log.error('fetch error', arg.error)
@@ -36,5 +32,9 @@ export default async (data) => {
       }
       resolve(arg.data)
     }, id)
+    window.et.commonWs.s({
+      id,
+      ...data
+    })
   })
 }
