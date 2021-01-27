@@ -263,6 +263,9 @@ class Terminal {
           'passphrase'
         ])
       )
+      if (initOptions.debug) {
+        opts.debug = log.log
+      }
       if (!opts.password) {
         delete opts.password
       }

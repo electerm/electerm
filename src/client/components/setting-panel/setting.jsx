@@ -634,7 +634,8 @@ export default class Setting extends Component {
             'disableSshHistory',
             'disableTransferHistory',
             'ctrlOrMetaOpenTerminalLink',
-            'checkUpdateOnStart'
+            'checkUpdateOnStart',
+            'debug'
           ].map(this.renderToggle)
         }
         {this.renderToggle('saveTerminalLogToFile', (

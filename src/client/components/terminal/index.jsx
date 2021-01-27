@@ -820,7 +820,8 @@ export default class Term extends Component {
         'keepaliveCountMax',
         'execWindows',
         'execMac',
-        'execLinux'
+        'execLinux',
+        'debug'
       ]),
       sessionId,
       tabId: id,

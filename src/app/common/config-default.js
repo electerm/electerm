@@ -15,6 +15,7 @@ module.exports = exports.default = {
   proxyUsername: '',
   proxyPassword: '',
   zoom: 1,
+  debug: false,
   theme: 'default',
   syncSetting: {
     lastUpdateTime: Date.now(),
