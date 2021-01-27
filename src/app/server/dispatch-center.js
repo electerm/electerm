@@ -54,7 +54,7 @@ const wsDec = (ws) => {
     }
     ws.addEventListener('message', func)
   }
-  ws._socket.setKeepAlive(true, 5 * 60 * 1000)
+  ws._socket.setKeepAlive(true, 1 * 60 * 1000)
 }
 
 function verify (req) {
