@@ -9,7 +9,6 @@ init:
 install:
   - ps: Install-Product node 12 x64
   - npm i -g yarn
-  - npm i -S electron@9.4.0 node-pty@0.9.0
   - npm i
 
 build_script:
