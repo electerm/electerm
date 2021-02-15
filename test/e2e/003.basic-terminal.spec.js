@@ -6,6 +6,12 @@ const platform = os.platform()
 const isWin = platform.startsWith('win')
 const appOptions = require('./common/app-options')
 
+const isOs = require('./common/is-os')
+
+if (!process.env.LOCAL_TEST && isOs('darwin')) {
+  return
+}
+
 describe('terminal', function () {
   this.timeout(100000)
 

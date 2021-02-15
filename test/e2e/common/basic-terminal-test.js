@@ -25,13 +25,14 @@ module.exports = async (th, client, cmd) => {
   const text1 = await th.app.electron.clipboard.readText()
   await delay(101)
   await focus()
-  await delay(101)
+  await delay(1010)
   await client.keys([...cmd.split(''), 'Enter'])
   await delay(1011)
   await client.rightClick('.ssh-wrap-show .xterm canvas:nth-child(3)', 20, 20)
 
-  await delay(101)
+  await delay(1010)
   await copy()
+  await delay(101)
   const text2 = await th.app.electron.clipboard.readText()
   expect(text1.trim().length).lessThan(text2.trim().length)
 }

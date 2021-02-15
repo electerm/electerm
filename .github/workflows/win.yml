@@ -5,17 +5,19 @@ name: Node.js CI
 
 on:
   push:
-    branches: [ release, test ]
+    branches: [ build, test ]
 
 jobs:
   build:
 
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    environment: build
+    if: "!contains(github.event.head_commit.message, 'skip ci') && !contains(github.event.head_commit.message, 'skip win')"
 
     strategy:
       matrix:
+        os: [windows-latest]
         node-version: [ 12.x ]
-        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
     steps:
     - uses: actions/checkout@v2
@@ -24,5 +26,17 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
     - run: npm ci
-    - run: npm run build --if-present
-    - run: npm test
+
+    # before_install:
+    - run:  npm install -g yarn
+
+    # script:
+    - run: npm run pre-test
+
+    - name: build
+      if: "!contains(github.event.head_commit.message, 'skip build')"
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        BUILD_NUMBER: ${{ secrets.BUILD_NUMBER }}
+      run: npm run output -w
+

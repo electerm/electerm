@@ -4,7 +4,7 @@ cd ..
 git co master
 git pull
 git pull
-git delete-branch release
-git create-branch release
-git push origin release -u
+git delete-branch build
+git create-branch build
+git push origin build -u
 git co -
