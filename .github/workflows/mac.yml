@@ -12,11 +12,11 @@ jobs:
 
     runs-on: ${{ matrix.os }}
     environment: build
-    if: "!contains(github.event.head_commit.message, 'skip ci') && !contains(github.event.head_commit.message, 'skip linux')"
+    if: "!contains(github.event.head_commit.message, 'skip ci') && !contains(github.event.head_commit.message, 'skip mac')"
 
     strategy:
       matrix:
-        os: [ubuntu-latest]
+        os: [macOS-latest]
         node-version: [ 12.x ]
 
     steps:
@@ -27,25 +27,6 @@ jobs:
         node-version: ${{ matrix.node-version }}
     - run: npm ci
 
-    # - name: xvfb
-    #   uses: GabrielBB/xvfb-action@v1
-
-    - name: Install rpm
-      run: sudo apt-get install rpm -y
-
-    - name: Install Snapcraft
-      uses: samuelmeuli/action-snapcraft@v1
-      # Only install Snapcraft on Ubuntu
-      if: startsWith(matrix.os, 'ubuntu')
-      with:
-        # Log in to Snap Store
-        snapcraft_token: ${{ secrets.SNAP_TOKEN }}
-
-    # before_script:
-    # - run: export DISPLAY=:99.0
-    # - run: sh -e /etc/init.d/xvfb start &
-    # - run: sleep 3
-
     # before_install:
     - run:  npm install -g yarn
     - run:  npm un -S node-powershell
@@ -53,9 +34,19 @@ jobs:
     # script:
     - run: npm run pre-test
 
+    - name: test
+      env:
+        TEST_HOST: ${{ secrets.TEST_HOST }}
+        TEST_USER_DARWIN: ${{ TEST_USER_DARWIN }}
+        TEST_PASS_DARWIN: ${{ TEST_PASS_DARWIN }}
+      uses: GabrielBB/xvfb-action@v1
+      run: npm run test
+
     - name: build
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         BUILD_NUMBER: ${{ BUILD_NUMBER }}
+        CSC_LINK: ${{ CSC_LINK }}
+        CSC_KEY_PASSWORD: ${{ CSC_KEY_PASSWORD }}
       run: npm run build-linux
 
