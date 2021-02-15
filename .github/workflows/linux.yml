@@ -41,9 +41,9 @@ jobs:
         snapcraft_token: ${{ secrets.SNAP_TOKEN }}
 
     # before_script:
-    - run: export DISPLAY=:99.0
-    - run: sh -e /etc/init.d/xvfb start &
-    - run: sleep 3
+    # - run: export DISPLAY=:99.0
+    # - run: sh -e /etc/init.d/xvfb start &
+    # - run: sleep 3
 
     # before_install:
     - run:  npm install -g yarn
@@ -51,5 +51,9 @@ jobs:
 
     # script:
     - run: npm run pre-test
-    - run: npm run build-linux
+
+    - name: build
+      env:
+        GH_TOKEN: ${{ secrets.GH_TOKEN }}
+      run: npm run build-linux
 
