@@ -26,8 +26,8 @@ jobs:
         node-version: ${{ matrix.node-version }}
     - run: npm ci
 
-    - name: xvfb
-      uses: GabrielBB/xvfb-action@v1
+    # - name: xvfb
+    #   uses: GabrielBB/xvfb-action@v1
 
     - name: Install rpm
       run: sudo apt-get install rpm -y
