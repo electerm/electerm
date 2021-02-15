@@ -34,15 +34,14 @@ jobs:
     # script:
     - run: npm run pre-test
 
-    - run: export DISPLAY=:99.0
-    - run: sh -e /etc/init.d/xvfb start &
-    - run: sleep 3
-    - name: test
+    - name: xvfb
+      uses: GabrielBB/xvfb-action@v1
+      with:
+        run: npm run test
       env:
         TEST_HOST: ${{ secrets.TEST_HOST }}
-        TEST_USER_DARWIN: ${{ secrets.TEST_USER_DARWIN }}
-        TEST_PASS_DARWIN: ${{ secrets.TEST_PASS_DARWIN }}
-      run: npm run test
+        TEST_USER: ${{ secrets.TEST_USER_DARWIN }}
+        TEST_PASS: ${{ secrets.TEST_PASS_DARWIN }}
 
     - name: build
       env:
