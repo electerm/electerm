@@ -56,6 +56,6 @@ jobs:
     - name: build
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        BUILD_NUMBER: ${{ BUILD_NUMBER }}
+        BUILD_NUMBER: ${{ secrets.BUILD_NUMBER }}
       run: npm run build-linux
 
