@@ -134,9 +134,10 @@ class Terminal {
       : platform === 'darwin' ? execMac : execLinux
     const exeArr = exec.split(/ +/)
     const exe = exeArr[0]
-    const arg = exeArr.slice(1).join(' ')
+    const arg = exeArr.slice(1)
     const cwd = process.env[platform === 'win32' ? 'USERPROFILE' : 'HOME']
-    const argv = platform.startsWith('darwin') ? ['--login', arg] : [arg]
+    let argv = platform.startsWith('darwin') ? ['--login', ...arg] : arg
+    argv = argv.filter(d => d)
     this.term = pty.spawn(exe, argv, {
       name: term,
       cols: cols || 80,
@@ -852,7 +853,7 @@ class Terminal {
 
 exports.terminal = async function (initOptions, ws) {
   const term = new Terminal(initOptions, ws)
-  await term.init()
+  await term.init().catch(log.error)
   return term
 }
 
