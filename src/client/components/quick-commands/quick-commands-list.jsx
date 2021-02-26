@@ -41,7 +41,7 @@ export default class QuickCommandsList extends List {
       >
         <Tooltip
           title={name}
-          placement='right'
+          placement='topLeft'
         >
           <div className='elli pd1y pd2x'>
             {

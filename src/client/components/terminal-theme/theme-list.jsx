@@ -26,7 +26,7 @@ export default class ThemeList extends List {
     return (
       <Tooltip
         title={e('apply')}
-        placement='top'
+        placement='topLeft'
       >
         <CheckCircleOutlined
           className='pointer list-item-apply'
@@ -67,7 +67,7 @@ export default class ThemeList extends List {
       >
         <Tooltip
           title={name}
-          placement='right'
+          placement='topLeft'
         >
           <div className='elli pd1y pd2x'>
             {

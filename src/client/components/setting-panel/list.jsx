@@ -103,7 +103,7 @@ export default class ItemList extends React.PureComponent {
       >
         <Tooltip
           title={title}
-          placement='right'
+          placement='topLeft'
         >
           <div className='elli pd1y pd2x list-item-title'>{title || s('new')}</div>
         </Tooltip>
