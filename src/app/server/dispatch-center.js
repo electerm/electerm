@@ -88,22 +88,25 @@ const initWs = function (app) {
       } else if (action === 'sftp-func') {
         const { id, args, func, sessionId } = msg
         const uid = func + ':' + id
-        sftp(id, sessionId)[func](...args)
-          .then(data => {
-            ws.s({
-              id: uid,
-              data
+        const inst = sftp(id, sessionId)
+        if (inst) {
+          inst[func](...args)
+            .then(data => {
+              ws.s({
+                id: uid,
+                data
+              })
             })
-          })
-          .catch(err => {
-            ws.s({
-              id: uid,
-              error: {
-                message: err.message,
-                stack: err.stack
-              }
+            .catch(err => {
+              ws.s({
+                id: uid,
+                error: {
+                  message: err.message,
+                  stack: err.stack
+                }
+              })
             })
-          })
+        }
       } else if (action === 'sftp-destroy') {
         const { id, sessionId } = msg
         ws.close()

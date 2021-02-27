@@ -853,7 +853,7 @@ class Terminal {
 
 exports.terminal = async function (initOptions, ws) {
   const term = new Terminal(initOptions, ws)
-  await term.init().catch(log.error)
+  await term.init()
   return term
 }
 
