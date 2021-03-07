@@ -5,7 +5,6 @@
 import { dbNames, update, getData, fetchInitData, insert, remove } from '../common/db'
 import initWatch from './watch'
 import { infoTabs, statusMap, defaultEnvLang } from '../common/constants'
-import _ from 'lodash'
 import fs from '../common/fs'
 import { nanoid as generate } from 'nanoid/non-secure'
 import defaultSettings from '../../app/common/default-setting'
@@ -81,22 +80,26 @@ export default (store) => {
     if (isHelp) {
       return store.openAbout(infoTabs.cmd)
     }
-    const conf = _.defaults(
-      getHost(argv, options),
-      {
-        username: options.user,
-        passphrase: options.passphrase,
-        password: options.password,
-        port: options.port ? parseInt(options.port, 10) : 22,
-        type: 'remote',
-        status: statusMap.processing,
-        id: generate(),
-        encode: encodes[0],
-        enableSftp: true,
-        envLang: defaultEnvLang,
-        term: defaultSettings.terminalType
-      }
-    )
+    const conf = getHost(argv, options)
+    const update = {
+      passphrase: options.passphrase,
+      password: options.password,
+      port: options.port ? parseInt(options.port, 10) : 22,
+      type: 'remote',
+      status: statusMap.processing,
+      id: generate(),
+      encode: encodes[0],
+      enableSftp: true,
+      envLang: defaultEnvLang,
+      term: defaultSettings.terminalType
+    }
+    if (options.user) {
+      update.username = options.user
+    }
+    if (options.port && parseInt(options.port, 10)) {
+      update.port = parseInt(options.port, 10)
+    }
+    Object.assign(conf, update)
     if (options.privateKeyPath) {
       conf.privateKey = await fs.readFile(options.privateKeyPath)
     }
