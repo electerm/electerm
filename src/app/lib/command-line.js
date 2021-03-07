@@ -24,7 +24,7 @@ if (!isTest) {
     .option('-l, --user <user>', 'specify a login name')
     .option('-P, --port <port>', 'specify ssh port')
     .option('-i, --private-key-path <path>', 'specify an SSH private key path')
-    .option('-ps, --passphrase <passphrase>', 'specify an SSH private key path')
+    .option('-ps, --passphrase <passphrase>', 'specify an SSH private key passphrase')
     .option('-pw, --password <password>', 'specify ssh server password')
 
   helpInfo = program.helpInformation()
