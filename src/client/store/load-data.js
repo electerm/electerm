@@ -97,6 +97,8 @@ export default (store) => {
     if (options.privateKeyPath) {
       conf.privateKey = await fs.readFile(options.privateKeyPath)
     }
-    store.addTab(conf)
+    if (conf.user && conf.host) {
+      store.addTab(conf)
+    }
   }
 }
