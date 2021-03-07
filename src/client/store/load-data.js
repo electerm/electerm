@@ -68,6 +68,9 @@ export default (store) => {
   store.initCommandLine = async () => {
     const opts = await window.pre.runGlobalAsync('initCommandLine')
     log.debug('command line params', opts)
+    if (!opts) {
+      return false
+    }
     const {
       isHelp,
       helpInfo,
@@ -97,7 +100,7 @@ export default (store) => {
     if (options.privateKeyPath) {
       conf.privateKey = await fs.readFile(options.privateKeyPath)
     }
-    if (conf.user && conf.host) {
+    if (conf.username && conf.host) {
       store.addTab(conf)
     }
   }
