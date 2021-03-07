@@ -11,7 +11,8 @@ import {
   newBookmarkIdPrefix,
   syncTypes,
   settingSyncId,
-  sshConfigItems
+  sshConfigItems,
+  infoTabs
 } from '../common/constants'
 import { buildDefaultThemes, buildNewTheme } from '../common/terminal-theme'
 
@@ -107,6 +108,11 @@ export default {
   openedCategoryIds: [],
   menuOpened: false,
   pinned: false,
+
+  // info/help modal
+  showInfoModal: false,
+  infoModalTab: infoTabs.info,
+  commandLineHelp: '',
 
   // update
   upgradeInfo: {},

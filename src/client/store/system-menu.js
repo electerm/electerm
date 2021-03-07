@@ -4,7 +4,6 @@
 
 import { Modal } from 'antd'
 import _ from 'lodash'
-import openInfoModal from '../components/sidebar/info-modal'
 import getInitItem from '../common/init-setting-item'
 import {
   settingMap,
@@ -47,19 +46,18 @@ export default store => {
     },
 
     onCloseAbout (cb) {
+      store.showInfoModal = false
       if (_.isFunction(cb)) {
         cb()
       }
       store.focus()
     },
 
-    openAbout () {
-      openInfoModal({
-        onCheckUpdating: store.upgradeInfo.checkingRemoteVersion || store.upgradeInfo.upgrading,
-        onCheckUpdate: store.onCheckUpdate,
-        onCancel: store.onCloseAbout,
-        onOk: store.focus
-      })
+    openAbout (tab) {
+      store.showInfoModal = true
+      if (_.isString(tab)) {
+        store.infoModalTab = tab
+      }
     },
     initMenuEvent () {
       const dom = document.getElementById('outside-context')

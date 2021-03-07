@@ -105,6 +105,15 @@ export const settingMap = buildConst([
   'quickCommands'
 ])
 
+export const infoTabs = buildConst([
+  'info',
+  'deps',
+  'env',
+  'os',
+  'log',
+  'cmd'
+])
+
 export const transferTypeMap = buildConst([
   'download',
   'upload',

@@ -4,7 +4,6 @@ const {
   app,
   BrowserWindow
 } = require('electron')
-const { dbAction } = require('./lib/nedb')
 const { resolve } = require('path')
 const log = require('./utils/log')
 const {
@@ -14,7 +13,7 @@ const {
 const {
   getWindowSize
 } = require('./lib/window-control')
-const { onClose, getExitStatus } = require('./lib/on-close')
+const { onClose } = require('./lib/on-close')
 const initIpc = require('./lib/ipc')
 
 app.setName(packInfo.name)
@@ -54,21 +53,21 @@ async function createWindow () {
     icon: iconPath
   })
 
-  global.et.exitStatus = process.argv.includes('--no-session-restore')
-    ? 'ok'
-    : await getExitStatus()
+  // global.et.exitStatus = process.argv.includes('--no-session-restore')
+  //   ? 'ok'
+  //   : await getExitStatus()
 
   initIpc()
 
-  global.et.timer = setTimeout(() => {
-    dbAction('data', 'update', {
-      _id: 'exitStatus'
-    }, {
-      value: 'unknown'
-    }, {
-      upsert: true
-    })
-  }, 100)
+  // global.et.timer = setTimeout(() => {
+  //   dbAction('data', 'update', {
+  //     _id: 'exitStatus'
+  //   }, {
+  //     value: 'unknown'
+  //   }, {
+  //     upsert: true
+  //   })
+  // }, 100)
 
   let opts = require('url').format({
     protocol: 'file',

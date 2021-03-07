@@ -16,6 +16,7 @@ import BookMarksWrap from './bookmark'
 import HistoryWrap from './history'
 import TransferHistoryModal from './transfer-history-modal'
 import MenuBtn from './menu-btn'
+import InfoModal from './info-modal'
 import { sidebarWidth } from '../../common/constants'
 import './sidebar.styl'
 
@@ -190,6 +191,7 @@ export default class Sidebar extends Component {
               : null
           }
         </div>
+        <InfoModal store={store} />
         <div
           className='sidebar-list'
         >

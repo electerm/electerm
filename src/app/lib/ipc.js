@@ -38,6 +38,7 @@ const { checkDbUpgrade, doUpgrade } = require('../upgrade')
 // const { listSerialPorts } = require('./serial-port')
 const initApp = require('./init-app')
 const { encryptAsync, decryptAsync } = require('./enc')
+const { initCommandLine } = require('./command-line')
 
 function initIpc () {
   global.win.on('move', () => {
@@ -139,7 +140,8 @@ function initIpc () {
     setTitle: (title) => {
       global.win.setTitle(packInfo.name + ' - ' + title)
     },
-    changeHotkey: changeHotkeyReg(globalShortcut, global.win)
+    changeHotkey: changeHotkeyReg(globalShortcut, global.win),
+    initCommandLine
   }
   ipcMain.handle('async', (event, { name, args }) => {
     return asyncGlobals[name](...args)
