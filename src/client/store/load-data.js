@@ -12,7 +12,7 @@ import defaultSettings from '../../app/common/default-setting'
 import encodes from '../components/bookmark-form/encodes'
 
 function getHost (argv, opts) {
-  const arr = _.difference(argv.slice(1), [...Object.keys(opts), ...Object.values(opts)])
+  const arr = argv
   let i = arr.length - 1
   const reg = /^([\w\d-_]+@)?([\w\d-_]+\.[\w\d-_.]+)(:[\d]+)?$/
   for (; i >= 0; i--) {
@@ -100,6 +100,7 @@ export default (store) => {
     if (options.privateKeyPath) {
       conf.privateKey = await fs.readFile(options.privateKeyPath)
     }
+    log.debug('command line opts', conf)
     if (conf.username && conf.host) {
       store.addTab(conf)
     }

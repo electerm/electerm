@@ -8,8 +8,6 @@ const { packInfo } = require('../utils/app-props')
 const { version } = packInfo
 const isTest = process.env.NODE_TEST
 
-let argv
-let filtered
 let helpInfo
 let options
 
@@ -29,10 +27,8 @@ if (!isTest) {
     .option('-ps, --passphrase <passphrase>', 'specify an SSH private key path')
     .option('-pw, --password <password>', 'specify ssh server password')
 
-  argv = process.argv
-  filtered = argv.filter(d => d !== '-h' && d !== '--help')
   helpInfo = program.helpInformation()
-  program.parse(filtered)
+  program.parse()
   options = program.opts()
 }
 
@@ -40,18 +36,9 @@ exports.initCommandLine = function () {
   if (isTest) {
     return false
   }
-  if (
-    argv &&
-    (argv.includes('-h') || argv.includes('--help'))
-  ) {
-    return {
-      isHelp: true,
-      helpInfo
-    }
-  }
   return {
     options,
-    argv: filtered,
+    argv: program.args,
     helpInfo
   }
 }
