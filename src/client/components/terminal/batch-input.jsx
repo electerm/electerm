@@ -9,7 +9,6 @@ import {
   Switch,
   Tooltip
 } from 'antd'
-import mapper from '../../common/auto-complete-data-mapper'
 
 const { prefix } = window
 const e = prefix('ssh')
@@ -36,8 +35,9 @@ export default class BatchInput extends Component {
   }
 
   handleChange = (v) => {
+    const vv = v.replace(/^\d+:/, '')
     this.setState({
-      cmd: v,
+      cmd: vv,
       open: false
     })
   }
@@ -54,10 +54,23 @@ export default class BatchInput extends Component {
     })
   }
 
+  handleBlur = () => {
+    this.setState({
+      open: false
+    })
+  }
+
+  mapper = (v, i) => {
+    return {
+      value: `${i}:${v}`,
+      label: v
+    }
+  }
+
   render () {
     const { cmd, open, toAll } = this.state
     const opts = {
-      options: this.props.store.batchInputs.map(mapper),
+      options: this.props.store.batchInputs.map(this.mapper),
       placeholder: e('batchInput'),
       value: cmd,
       onChange: this.handleChange,
@@ -74,6 +87,7 @@ export default class BatchInput extends Component {
           <Input
             onPressEnter={this.handleEnter}
             onClick={this.handleClick}
+            onBlur={this.handleBlur}
             size='small'
           />
         </AutoComplete>
