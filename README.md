@@ -26,6 +26,12 @@ Terminal/ssh/sftp client(linux, mac, win) based on electron/ssh2/node-pty/xterm/
 - For Mac user: `brew install --cask electerm`
 - With snap: `sudo snap install electerm`
 - For Deepin Linux user, you can find it from App store.
+- For Windows users, command-line installer [scoop](https://github.com/lukesampson/scoop) is recommended:
+
+```powershell
+scoop bucket add dorado https://github.com/chawyehsu/dorado
+scoop install dorado/electerm
+```
 - Install from npm
 
 ```bash
