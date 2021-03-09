@@ -97,7 +97,7 @@ npm start
 # in a separate terminal session run app
 npm run app
 
-# lint
+# code format check
 npm run lint
 
 # code format fix
