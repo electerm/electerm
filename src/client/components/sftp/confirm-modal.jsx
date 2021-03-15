@@ -152,7 +152,7 @@ export default (props) => {
     width: 500,
     title: e('fileConflict'),
     footer: renderFooter(),
-    onCancel: props.closeModal
+    onCancel: () => act('cancel')
   }
   return (
     <Modal
