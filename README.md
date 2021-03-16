@@ -64,7 +64,7 @@ npm i -g electerm
 - Quick commands
 - Sync bookmarks/themes/quick commands to github/gitee secret gist
 - ~~Serial Port support~~(removed after version 1.10.14)
-- Quick input
+- Quick input to one or all terminal
 - Command line usage: check [wiki](https://github.com/electerm/electerm/wiki/Command-line-usage)
 
 ## Known issues
