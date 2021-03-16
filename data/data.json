@@ -57,7 +57,9 @@
           "cancel": "cancel",
           "expandAll": "Expand all",
           "collapseAll": "Collapse all",
-          "restoreSessions": "restore sessions"
+          "restoreSessions": "restore sessions",
+          "ignore": "ignore",
+          "pin": "keep panel open"
         },
         "control": {
           "author": "author",
@@ -71,7 +73,8 @@
           "dependencies": "dependencies",
           "env": "env",
           "os": "os",
-          "userTips": "user tips"
+          "userTips": "user tips",
+          "commandLineUsage": "command line usage"
         },
         "transferHistory": {
           "transferHistory": "transfer history",
@@ -138,7 +141,8 @@
           "ctrlOrMetaOpenTerminalLink": "must hold ctrl or meta (in mac) when click to open terminal link",
           "noTerminalBg": "no background image",
           "saveTerminalLogToFile": "save terminal log to file",
-          "checkUpdateOnStart": "check update on app start"
+          "checkUpdateOnStart": "check update on app start",
+          "encrypt": "encrypt"
         },
         "sftp": {
           "cancel": "cancel",
@@ -233,7 +237,8 @@
           "use": "use",
           "encode": "encode",
           "terminalType": "terminal type",
-          "startDirectory": "start directory"
+          "startDirectory": "start directory",
+          "ignoreKeyboardInteractive": "ignore keyboard interactive"
         },
         "ssh": {
           "clear": "clear",
@@ -246,7 +251,8 @@
           "split": "split",
           "fileManager": "file manager",
           "changeDirection": "change direction",
-          "batchInput": "batch input"
+          "batchInput": "batch input",
+          "runInAllTerminals": "run in all terminals"
         },
         "terminalThemes": {
           "terminalThemes": "terminal themes",
@@ -257,7 +263,8 @@
           "default": "default",
           "newTheme": "new theme",
           "themeConfig": "theme config",
-          "updated": "updated"
+          "updated": "updated",
+          "uiThemes": "UI Themes"
         },
         "quickCommands": {
           "quickCommand": "quick command",
@@ -277,7 +284,8 @@
           "synced": "synced",
           "syncDesc": "sync bookmark / history / setting to github secret gist",
           "autoSync": "auto sync",
-          "lastSyncTime": "last sync time"
+          "lastSyncTime": "last sync time",
+          "useExistingGistId": "use existing"
         }
       },
       "name": "English",
@@ -575,7 +583,9 @@
           "cancel": "cancelar",
           "expandAll": "Expandir todos",
           "collapseAll": "Contraer todos",
-          "restoreSessions": "restaurar sesiones"
+          "restoreSessions": "restaurar sesiones",
+          "ignore": "ignorar",
+          "pin": "mantener el panel abierto"
         },
         "control": {
           "author": "autor",
@@ -589,7 +599,8 @@
           "dependencies": "dependencias",
           "env": "env",
           "os": "os",
-          "userTips": "consejos para el usuario"
+          "userTips": "consejos para el usuario",
+          "commandLineUsage": "Uso de la línea de comandos"
         },
         "transferHistory": {
           "transferHistory": "historial de transferencias",
@@ -656,7 +667,8 @@
           "ctrlOrMetaOpenTerminalLink": "debe contener ctrl o meta (en mac) al hacer clic para abrir el enlace del terminal",
           "noTerminalBg": "sin imagen de fondo",
           "saveTerminalLogToFile": "guardar el registro del terminal en el archivo",
-          "checkUpdateOnStart": "comprobar actualización al inicio de la aplicación"
+          "checkUpdateOnStart": "comprobar actualización al inicio de la aplicación",
+          "encrypt": "cifrar"
         },
         "sftp": {
           "cancel": "cancelar",
@@ -751,7 +763,8 @@
           "use": "usar",
           "encode": "codificar",
           "terminalType": "tipo de terminal",
-          "startDirectory": "directorio de inicio"
+          "startDirectory": "directorio de inicio",
+          "ignoreKeyboardInteractive": "ignorar el teclado interactivo"
         },
         "ssh": {
           "clear": "limpiar",
@@ -764,7 +777,8 @@
           "split": "dividir",
           "fileManager": "administrador de archivos",
           "changeDirection": "cambiar dirección",
-          "batchInput": "entrada por lotes"
+          "batchInput": "entrada por lotes",
+          "runInAllTerminals": "correr en todas las terminales"
         },
         "terminalThemes": {
           "terminalThemes": "temas terminales",
@@ -775,7 +789,8 @@
           "default": "defecto",
           "newTheme": "nuevo tema",
           "themeConfig": "configuración del tema",
-          "updated": "actualizado"
+          "updated": "actualizado",
+          "uiThemes": "Temas de UI"
         },
         "quickCommands": {
           "quickCommand": "comando rápido",
@@ -795,7 +810,8 @@
           "synced": "sincronizado",
           "syncDesc": "sincronizar marcador / historial / configuración a github secret gist",
           "autoSync": "sincronización automática",
-          "lastSyncTime": "última hora de sincronización"
+          "lastSyncTime": "última hora de sincronización",
+          "useExistingGistId": "utilizar existente"
         }
       },
       "name": "Español",
@@ -1093,7 +1109,9 @@
           "cancel": "Annuler",
           "expandAll": "Déplier tout",
           "collapseAll": "Réduire tout",
-          "restoreSessions": "restaurer des sessions"
+          "restoreSessions": "restaurer des sessions",
+          "ignore": "ignorer",
+          "pin": "garder le panneau ouvert"
         },
         "control": {
           "author": "Auteur",
@@ -1107,7 +1125,8 @@
           "dependencies": "Dépendances",
           "env": "Environnement",
           "os": "Système",
-          "userTips": "user tips"
+          "userTips": "user tips",
+          "commandLineUsage": "Utilisation de la ligne de commande"
         },
         "transferHistory": {
           "transferHistory": "Historique des transferts",
@@ -1174,7 +1193,8 @@
           "ctrlOrMetaOpenTerminalLink": "Doit maintenir la touche ctrl ou meta (sur mac) enfoncée pour ouvrir les liens dans le terminal",
           "noTerminalBg": "pas d'image d'arrière-plan",
           "saveTerminalLogToFile": "enregistrer le journal du terminal dans un fichier",
-          "checkUpdateOnStart": "vérifier la mise à jour au démarrage de l'application"
+          "checkUpdateOnStart": "vérifier la mise à jour au démarrage de l'application",
+          "encrypt": "Crypter"
         },
         "sftp": {
           "cancel": "Annuler",
@@ -1269,7 +1289,8 @@
           "use": "use",
           "encode": "encode",
           "terminalType": "Type de terminal",
-          "startDirectory": "répertoire de démarrage"
+          "startDirectory": "répertoire de démarrage",
+          "ignoreKeyboardInteractive": "ignorer le clavier interactif"
         },
         "ssh": {
           "clear": "Effacer",
@@ -1282,7 +1303,8 @@
           "split": "Séparer",
           "fileManager": "Gestionnaire de fichiers SFTP",
           "changeDirection": "Changer d'orientation",
-          "batchInput": "entrée par lots"
+          "batchInput": "entrée par lots",
+          "runInAllTerminals": "courir dans tous les terminaux"
         },
         "terminalThemes": {
           "terminalThemes": "Thèmes de terminal",
@@ -1293,7 +1315,8 @@
           "default": "Default",
           "newTheme": "Nouveau thème",
           "themeConfig": "Configuration du thème",
-          "updated": "Mis à jour"
+          "updated": "Mis à jour",
+          "uiThemes": "Thèmes de l'interface utilisateur"
         },
         "quickCommands": {
           "quickCommand": "Commande",
@@ -1313,7 +1336,8 @@
           "synced": "Synchronisé",
           "syncDesc": "Synchroniser les favoris / historique / paramètres dans gist",
           "autoSync": "Synchronisation automatique",
-          "lastSyncTime": "Dernière synchronisation"
+          "lastSyncTime": "Dernière synchronisation",
+          "useExistingGistId": "utiliser existant"
         }
       },
       "name": "Français",
@@ -1554,6 +1578,532 @@
     "path": "/home/execapp/dev/electerm.html5beta.com/index-fr_fr.html"
   },
   {
+    "id": "ja_jp",
+    "lang": {
+      "lang": {
+        "app": {
+          "desc": "electermは、electron / ssh2 / node-pty / xterm / antd / subxおよび他多数のライブラリに基づくターミナル/ ssh / sftpクライアント（linux、mac、win）です。",
+          "isRunning": "実行中",
+          "press": "押す",
+          "toShow": "表示"
+        },
+        "menu": {
+          "hide": "非表示",
+          "hideothers": "その他を非表示",
+          "unhide": "表示",
+          "quit": "終了",
+          "edit": "編集",
+          "undo": "取り消す",
+          "redo": "やり直す",
+          "cut": "カット",
+          "copy": "コピー",
+          "paste": "ペースト",
+          "pasteandmatchstyle": "ペーストしてスタイルを合わせる",
+          "del": "削除",
+          "selectall": "すべでを選択",
+          "startspeaking": "読み上げを開始",
+          "stopspeaking": "読み上げを終了",
+          "view": "表示",
+          "reload": "リロード",
+          "forcereload": "強制リロード",
+          "toggledevtools": "開発者ツールを切替",
+          "toggleControl": "制御ボタンを切替",
+          "resetzoom": "実際のサイズ",
+          "zoomin": "拡大",
+          "zoomout": "縮小",
+          "togglefullscreen": "フルスクリーンを切替",
+          "window": "ウインドウ",
+          "minimize": "しまう",
+          "maximize": "拡大",
+          "unmaximize": "縮小",
+          "close": "終了",
+          "restart": "再起動",
+          "front": "手前にする",
+          "help": "ヘルプ",
+          "about": "アプリについで",
+          "checkUpdate": "更新を確認",
+          "reportIssue": "問題を報告",
+          "homepage": "ホームページ"
+        },
+        "common": {
+          "history": "履歴",
+          "bookmarks": "ブックマーク",
+          "bookmarkCategory": "カテゴリ",
+          "setting": "設定",
+          "about": "についで",
+          "ok": "確認",
+          "cancel": "キャンセル",
+          "expandAll": "すべて展開",
+          "collapseAll": "すべて折りたたむ",
+          "restoreSessions": "セッションの復元 ",
+          "ignore": "無視",
+          "pin": "パネルを開いたままにする"
+        },
+        "control": {
+          "author": "著者",
+          "download": "ダウンロード",
+          "bugReport": "バグレポート",
+          "checkForUpdate": "更新を確認",
+          "homepage": "ホームページ",
+          "notFoundContent": "アイテムなし",
+          "newSsh": "新規SSH",
+          "newTerminal": "新規ターミナル",
+          "dependencies": "依存",
+          "env": "環境変数",
+          "os": "システム",
+          "userTips": "ヒント",
+          "commandLineUsage": "コマンドラインの使用法"
+        },
+        "transferHistory": {
+          "transferHistory": "転送履歴",
+          "localPath": "ローカルパス",
+          "remotePath": "リモートパス",
+          "type": "タイプ",
+          "startTime": "開始時間",
+          "finishTime": "終了時間",
+          "speed": "スピード",
+          "clear": "クリア",
+          "fromPath": "ソースパス",
+          "toPath": "ターゲットパス"
+        },
+        "tabs": {
+          "titleEmptyWarn": "タイトルが必要",
+          "close": "終了",
+          "closeOtherTabs": "その他のタブを終了",
+          "closeTabRight": "右のタブを終了",
+          "newTab": "新規タブ",
+          "duplicate": "複製",
+          "rename": "名前を変更",
+          "openNewTerm": "新しい接続を開く",
+          "sessions": "セッション"
+        },
+        "main": {
+          "error": "エラーが発生"
+        },
+        "updater": {
+          "noNeed": "更新する必要はありません",
+          "noNeedDesc": "最新のリリースを使用しています",
+          "fail": "更新の確認が失敗",
+          "goGetIt": "更新を進め",
+          "newVersion": "更新があります",
+          "upgrade": "更新",
+          "upgrading": "更新中",
+          "skipThisVersion": "更新を無視"
+        },
+        "setting": {
+          "new": "新規",
+          "settings": "設定",
+          "common": "通用",
+          "hotkeyNotOk": "ホットキーは登録できません。別のホットキーを使用してください",
+          "saved": "保存",
+          "saveLang": "保存し、再起動して有効にします",
+          "restartNow": "今すぐ再起動",
+          "hotkeyDesc": "システムホットキー（ウィンドウを前面に戻す）",
+          "timeoutDesc": "ssh / sftpタイムアウト時間（ミリ秒）",
+          "scrollBackDesc": "端末の表示行を保留",
+          "language": "言語",
+          "copyWhenSelect": "テキストを選択した時に自動的にコピー",
+          "rightClickSelectsWord": "右クリックして単語を自動的に選択",
+          "pasteWhenContextMenu": "右クリックしてペースト",
+          "fontSize": "フォントサイズ",
+          "fontFamily": "フォント",
+          "opacity": "不透明度",
+          "global": "グローバル",
+          "disableSshHistory": "ssh履歴を無効",
+          "disableTransferHistory": "sftp転送履歴を無効",
+          "resetAllToDefault": "設定をデフォルトにする",
+          "terminalBackgroundImage": "ターミナルの背景画像",
+          "chooseFile": "ファイルを選択",
+          "rendererType": "レンダラータイプ",
+          "defaultTerminalType": "デフォルトのタイプ",
+          "ctrlOrMetaOpenTerminalLink": "CtrlキーまたはMeta（Macシステム）を押したままクリックして、ターミナルでリンクを開きます",
+          "noTerminalBg": "背景画像なし",
+          "saveTerminalLogToFile": "ターミナルログをファイルに保存",
+          "checkUpdateOnStart": "アプリの起動時に更新を確認する",
+          "encrypt": "暗号化"
+        },
+        "sftp": {
+          "cancel": "キャンセル",
+          "skip": "無視",
+          "merge": "マージ",
+          "overwrite": "上書き",
+          "rename": "名前を変更",
+          "renameAll": "すべての名前を変更",
+          "mergeDesc": "競合フォルダーをマージする",
+          "overwriteDesc": "競合フォルダーを上書き",
+          "mergeAll": "すべてをマージ",
+          "overwriteAll": "すべてを上書き",
+          "renameDesc": "残りのファイル/フォルダの名前を変更します",
+          "folder": "フォルダ",
+          "file": "ファイル",
+          "fileConflict": "ファイルの競合",
+          "submit": "提出",
+          "edit": "編集",
+          "open": "開く",
+          "permission": "権限",
+          "name": "名前",
+          "mode": "モード",
+          "path": "パス",
+          "fullPath": "フルパス",
+          "size": "サイズ",
+          "accessTime": "アクセス時間",
+          "modifyTime": "編集時間",
+          "attributes": "属性",
+          "enter": "入る",
+          "deleteAll": "すべでを削除",
+          "selected": "選択済み",
+          "newFile": "新規ファイル",
+          "newFolder": "新規フォルダ",
+          "selectAll": "すべでを選択",
+          "refresh": "更新",
+          "editPermission": "権限を編集",
+          "info": "情報",
+          "filesAndFolders": "ファイル/フォルダ",
+          "files": "ファイル",
+          "delTip": "確認しますか？これからすべでを削除し",
+          "delTip1": "すべでのファイルやフォルダがなくなります",
+          "goParent": "親フォルダーに移動します",
+          "hide": "非表示",
+          "show": "表示",
+          "hfd": "ファイルとフォルダを非表示",
+          "remote": "リモート",
+          "local": "ローカル",
+          "fileTransfers": "ファイル転送",
+          "cancelAll": "すべでをキャンセル",
+          "upload": "アップロード",
+          "download": "ダウンロード",
+          "resume": "継続",
+          "pause": "一時停止",
+          "reset": "リセット",
+          "showInDefaultFileMananger": "ファイルマネージャに表示"
+        },
+        "permission": {
+          "read": "読み",
+          "write": "書き",
+          "exec": "実行",
+          "owner": "所有者",
+          "group": "グループ",
+          "other": "その他"
+        },
+        "form": {
+          "password": "パスワード",
+          "privateKey": "秘密鍵",
+          "privateKeyDesc": "秘密鍵テキスト",
+          "importFromFile": "ファイルからインポート",
+          "passphrase": "秘密鍵パスワード",
+          "passphraseDesc": "秘密鍵のパスワード",
+          "host": "ホスト",
+          "username": "ユーザー名",
+          "port": "ポート",
+          "title": "タイトル",
+          "saveAndConnect": "保存して接続",
+          "saveAndCreateNew": "保存して新規",
+          "save": "保存",
+          "loginScript": "スクリプトを実行",
+          "loginScriptDelay": "スクリプトを遅延実行",
+          "loginScriptTip": "ログイン後にスクリプトを実行",
+          "connect": "接続",
+          "testConnection": "接続のテスト",
+          "required": "必要",
+          "proxyIp": "プロキシIP",
+          "proxyPort": "プロキシポート",
+          "proxyType": "プロキシタイプ",
+          "proxyIpPlaceholder": "プロキシIPアドレス",
+          "selectProxy": "プロキシを選択",
+          "auth": "承認情報",
+          "proxy": "プロキシ",
+          "use": "使用",
+          "encode": "エンコード",
+          "terminalType": "ターミナルタイプ",
+          "startDirectory": "開始パス",
+          "ignoreKeyboardInteractive": "キーボードインタラクティブを無視"
+        },
+        "ssh": {
+          "clear": "クリア",
+          "selectAll": "すべでを選択",
+          "savePassword": "パスワードを保存",
+          "search": "検索",
+          "terminal": "ターミナル",
+          "nextMatch": "次",
+          "prevMatch": "前",
+          "split": "分割",
+          "fileManager": "ファイルマネージャー",
+          "changeDirection": "レイアウトの切替",
+          "batchInput": "バッチ入力",
+          "runInAllTerminals": "すべてのターミナルで実行"
+        },
+        "terminalThemes": {
+          "terminalThemes": "ターミナルテーマ",
+          "export": "書き出す",
+          "themeName": "テーマ名",
+          "saveAndApply": "保存して適用",
+          "apply": "適用",
+          "default": "デフォルト",
+          "newTheme": "新規テーマ",
+          "themeConfig": "テーマ設定",
+          "updated": "更新",
+          "uiThemes": "UIテーマ"
+        },
+        "quickCommands": {
+          "quickCommand": "クイックコマンド",
+          "quickCommands": "クイックコマンド",
+          "quickCommandName": "コマンド名",
+          "addQuickCommands": "コマンドを追加",
+          "newQuickCommand": "新規コマンド",
+          "inputOnly": "入力のみ"
+        },
+        "settingSync": {
+          "settingSync": "設定の同期",
+          "sync": "同期",
+          "syncing": "同期中",
+          "syncSettings": "同期の設定",
+          "uploadSettings": "設定をアップロード",
+          "downloadSettings": "設定をダウンロード",
+          "synced": "同期しました",
+          "syncDesc": "ブックマーク／履歴／設定をgithubシークレットへ同期",
+          "autoSync": "自動同期",
+          "lastSyncTime": "前回同期の時間",
+          "useExistingGistId": "既存を使用"
+        }
+      },
+      "name": "日本語",
+      "match": {},
+      "flag": "🇯🇵"
+    },
+    "pathHtml": "/electerm/index-ja_jp.html",
+    "assets": {
+      "linux": {
+        "name": "linux x86 x64",
+        "items": [
+          {
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/33098137",
+            "id": 33098137,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDMzMDk4MTM3",
+            "name": "electerm-1.12.2-linux-amd64.deb",
+            "label": "",
+            "uploader": {
+              "login": "github-actions[bot]",
+              "id": 41898282,
+              "node_id": "MDM6Qm90NDE4OTgyODI=",
+              "avatar_url": "https://avatars.githubusercontent.com/in/15368?v=4",
+              "gravatar_id": "",
+              "url": "https://api.github.com/users/github-actions%5Bbot%5D",
+              "html_url": "https://github.com/apps/github-actions",
+              "followers_url": "https://api.github.com/users/github-actions%5Bbot%5D/followers",
+              "following_url": "https://api.github.com/users/github-actions%5Bbot%5D/following{/other_user}",
+              "gists_url": "https://api.github.com/users/github-actions%5Bbot%5D/gists{/gist_id}",
+              "starred_url": "https://api.github.com/users/github-actions%5Bbot%5D/starred{/owner}{/repo}",
+              "subscriptions_url": "https://api.github.com/users/github-actions%5Bbot%5D/subscriptions",
+              "organizations_url": "https://api.github.com/users/github-actions%5Bbot%5D/orgs",
+              "repos_url": "https://api.github.com/users/github-actions%5Bbot%5D/repos",
+              "events_url": "https://api.github.com/users/github-actions%5Bbot%5D/events{/privacy}",
+              "received_events_url": "https://api.github.com/users/github-actions%5Bbot%5D/received_events",
+              "type": "Bot",
+              "site_admin": false
+            },
+            "content_type": "application/octet-stream",
+            "state": "uploaded",
+            "size": 55009354,
+            "download_count": 0,
+            "created_at": "2021-03-08T03:08:52Z",
+            "updated_at": "2021-03-08T03:08:54Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.12.2/electerm-1.12.2-linux-amd64.deb",
+            "desc": "for Debian, Ubuntu..."
+          },
+          {
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/33098339",
+            "id": 33098339,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDMzMDk4MzM5",
+            "name": "electerm-1.12.2-linux-amd64.snap",
+            "label": "",
+            "uploader": {
+              "login": "github-actions[bot]",
+              "id": 41898282,
+              "node_id": "MDM6Qm90NDE4OTgyODI=",
+              "avatar_url": "https://avatars.githubusercontent.com/in/15368?v=4",
+              "gravatar_id": "",
+              "url": "https://api.github.com/users/github-actions%5Bbot%5D",
+              "html_url": "https://github.com/apps/github-actions",
+              "followers_url": "https://api.github.com/users/github-actions%5Bbot%5D/followers",
+              "following_url": "https://api.github.com/users/github-actions%5Bbot%5D/following{/other_user}",
+              "gists_url": "https://api.github.com/users/github-actions%5Bbot%5D/gists{/gist_id}",
+              "starred_url": "https://api.github.com/users/github-actions%5Bbot%5D/starred{/owner}{/repo}",
+              "subscriptions_url": "https://api.github.com/users/github-actions%5Bbot%5D/subscriptions",
+              "organizations_url": "https://api.github.com/users/github-actions%5Bbot%5D/orgs",
+              "repos_url": "https://api.github.com/users/github-actions%5Bbot%5D/repos",
+              "events_url": "https://api.github.com/users/github-actions%5Bbot%5D/events{/privacy}",
+              "received_events_url": "https://api.github.com/users/github-actions%5Bbot%5D/received_events",
+              "type": "Bot",
+              "site_admin": false
+            },
+            "content_type": "application/octet-stream",
+            "state": "uploaded",
+            "size": 67186688,
+            "download_count": 0,
+            "created_at": "2021-03-08T03:11:53Z",
+            "updated_at": "2021-03-08T03:11:59Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.12.2/electerm-1.12.2-linux-amd64.snap",
+            "desc": "for all linux that support snap"
+          },
+          {
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/33098082",
+            "id": 33098082,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDMzMDk4MDgy",
+            "name": "electerm-1.12.2-linux-x64.tar.gz",
+            "label": "",
+            "uploader": {
+              "login": "github-actions[bot]",
+              "id": 41898282,
+              "node_id": "MDM6Qm90NDE4OTgyODI=",
+              "avatar_url": "https://avatars.githubusercontent.com/in/15368?v=4",
+              "gravatar_id": "",
+              "url": "https://api.github.com/users/github-actions%5Bbot%5D",
+              "html_url": "https://github.com/apps/github-actions",
+              "followers_url": "https://api.github.com/users/github-actions%5Bbot%5D/followers",
+              "following_url": "https://api.github.com/users/github-actions%5Bbot%5D/following{/other_user}",
+              "gists_url": "https://api.github.com/users/github-actions%5Bbot%5D/gists{/gist_id}",
+              "starred_url": "https://api.github.com/users/github-actions%5Bbot%5D/starred{/owner}{/repo}",
+              "subscriptions_url": "https://api.github.com/users/github-actions%5Bbot%5D/subscriptions",
+              "organizations_url": "https://api.github.com/users/github-actions%5Bbot%5D/orgs",
+              "repos_url": "https://api.github.com/users/github-actions%5Bbot%5D/repos",
+              "events_url": "https://api.github.com/users/github-actions%5Bbot%5D/events{/privacy}",
+              "received_events_url": "https://api.github.com/users/github-actions%5Bbot%5D/received_events",
+              "type": "Bot",
+              "site_admin": false
+            },
+            "content_type": "application/gzip",
+            "state": "uploaded",
+            "size": 75832623,
+            "download_count": 0,
+            "created_at": "2021-03-08T03:07:22Z",
+            "updated_at": "2021-03-08T03:07:27Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.12.2/electerm-1.12.2-linux-x64.tar.gz",
+            "desc": "for all linux x64, just extract"
+          },
+          {
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/33098261",
+            "id": 33098261,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDMzMDk4MjYx",
+            "name": "electerm-1.12.2-linux-x86_64.rpm",
+            "label": "",
+            "uploader": {
+              "login": "github-actions[bot]",
+              "id": 41898282,
+              "node_id": "MDM6Qm90NDE4OTgyODI=",
+              "avatar_url": "https://avatars.githubusercontent.com/in/15368?v=4",
+              "gravatar_id": "",
+              "url": "https://api.github.com/users/github-actions%5Bbot%5D",
+              "html_url": "https://github.com/apps/github-actions",
+              "followers_url": "https://api.github.com/users/github-actions%5Bbot%5D/followers",
+              "following_url": "https://api.github.com/users/github-actions%5Bbot%5D/following{/other_user}",
+              "gists_url": "https://api.github.com/users/github-actions%5Bbot%5D/gists{/gist_id}",
+              "starred_url": "https://api.github.com/users/github-actions%5Bbot%5D/starred{/owner}{/repo}",
+              "subscriptions_url": "https://api.github.com/users/github-actions%5Bbot%5D/subscriptions",
+              "organizations_url": "https://api.github.com/users/github-actions%5Bbot%5D/orgs",
+              "repos_url": "https://api.github.com/users/github-actions%5Bbot%5D/repos",
+              "events_url": "https://api.github.com/users/github-actions%5Bbot%5D/events{/privacy}",
+              "received_events_url": "https://api.github.com/users/github-actions%5Bbot%5D/received_events",
+              "type": "Bot",
+              "site_admin": false
+            },
+            "content_type": "application/x-redhat-package-manager",
+            "state": "uploaded",
+            "size": 55534528,
+            "download_count": 0,
+            "created_at": "2021-03-08T03:11:08Z",
+            "updated_at": "2021-03-08T03:11:09Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.12.2/electerm-1.12.2-linux-x86_64.rpm",
+            "desc": "for Red Hat, Fedora..."
+          }
+        ]
+      },
+      "mac": {
+        "name": "mac os x64",
+        "items": [
+          {
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/33098104",
+            "id": 33098104,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDMzMDk4MTA0",
+            "name": "electerm-1.12.2-mac.dmg",
+            "label": "",
+            "uploader": {
+              "login": "github-actions[bot]",
+              "id": 41898282,
+              "node_id": "MDM6Qm90NDE4OTgyODI=",
+              "avatar_url": "https://avatars.githubusercontent.com/in/15368?v=4",
+              "gravatar_id": "",
+              "url": "https://api.github.com/users/github-actions%5Bbot%5D",
+              "html_url": "https://github.com/apps/github-actions",
+              "followers_url": "https://api.github.com/users/github-actions%5Bbot%5D/followers",
+              "following_url": "https://api.github.com/users/github-actions%5Bbot%5D/following{/other_user}",
+              "gists_url": "https://api.github.com/users/github-actions%5Bbot%5D/gists{/gist_id}",
+              "starred_url": "https://api.github.com/users/github-actions%5Bbot%5D/starred{/owner}{/repo}",
+              "subscriptions_url": "https://api.github.com/users/github-actions%5Bbot%5D/subscriptions",
+              "organizations_url": "https://api.github.com/users/github-actions%5Bbot%5D/orgs",
+              "repos_url": "https://api.github.com/users/github-actions%5Bbot%5D/repos",
+              "events_url": "https://api.github.com/users/github-actions%5Bbot%5D/events{/privacy}",
+              "received_events_url": "https://api.github.com/users/github-actions%5Bbot%5D/received_events",
+              "type": "Bot",
+              "site_admin": false
+            },
+            "content_type": "application/octet-stream",
+            "state": "uploaded",
+            "size": 79028562,
+            "download_count": 0,
+            "created_at": "2021-03-08T03:07:58Z",
+            "updated_at": "2021-03-08T03:08:00Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.12.2/electerm-1.12.2-mac.dmg"
+          }
+        ]
+      },
+      "windows": {
+        "name": "windows 7/8/10 x86 x64",
+        "items": [
+          {
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/33098182",
+            "id": 33098182,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDMzMDk4MTgy",
+            "name": "electerm-1.12.2-win-x64.tar.gz",
+            "label": "",
+            "uploader": {
+              "login": "github-actions[bot]",
+              "id": 41898282,
+              "node_id": "MDM6Qm90NDE4OTgyODI=",
+              "avatar_url": "https://avatars.githubusercontent.com/in/15368?v=4",
+              "gravatar_id": "",
+              "url": "https://api.github.com/users/github-actions%5Bbot%5D",
+              "html_url": "https://github.com/apps/github-actions",
+              "followers_url": "https://api.github.com/users/github-actions%5Bbot%5D/followers",
+              "following_url": "https://api.github.com/users/github-actions%5Bbot%5D/following{/other_user}",
+              "gists_url": "https://api.github.com/users/github-actions%5Bbot%5D/gists{/gist_id}",
+              "starred_url": "https://api.github.com/users/github-actions%5Bbot%5D/starred{/owner}{/repo}",
+              "subscriptions_url": "https://api.github.com/users/github-actions%5Bbot%5D/subscriptions",
+              "organizations_url": "https://api.github.com/users/github-actions%5Bbot%5D/orgs",
+              "repos_url": "https://api.github.com/users/github-actions%5Bbot%5D/repos",
+              "events_url": "https://api.github.com/users/github-actions%5Bbot%5D/events{/privacy}",
+              "received_events_url": "https://api.github.com/users/github-actions%5Bbot%5D/received_events",
+              "type": "Bot",
+              "site_admin": false
+            },
+            "content_type": "application/gzip",
+            "state": "uploaded",
+            "size": 73368610,
+            "download_count": 0,
+            "created_at": "2021-03-08T03:10:07Z",
+            "updated_at": "2021-03-08T03:10:09Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.12.2/electerm-1.12.2-win-x64.tar.gz"
+          }
+        ]
+      }
+    },
+    "version": "v1.12.2",
+    "releaseNote": "fix #2074 fix: Fix support for electron command line params",
+    "releaseDate": "2021-03-08T03:25:20Z",
+    "siteKeywords": "electron,ternimal,electerm,ssh,sftp",
+    "siteName": "electerm",
+    "path": "/home/execapp/dev/electerm.html5beta.com/index-ja_jp.html"
+  },
+  {
     "id": "pt_br",
     "lang": {
       "lang": {
@@ -1611,7 +2161,9 @@
           "cancel": "cancelar",
           "expandAll": "Expandir todo",
           "collapseAll": "Recolher todo",
-          "restoreSessions": "restaurar sessões"
+          "restoreSessions": "restaurar sessões",
+          "ignore": "ignorar",
+          "pin": "mantenha o painel aberto"
         },
         "control": {
           "author": "autor",
@@ -1625,7 +2177,8 @@
           "dependencies": "dependencias",
           "env": "env",
           "os": "os",
-          "userTips": "dicas do usuário"
+          "userTips": "dicas do usuário",
+          "commandLineUsage": "Uso de linha de comando"
         },
         "transferHistory": {
           "transferHistory": "transferir histórico",
@@ -1692,7 +2245,8 @@
           "ctrlOrMetaOpenTerminalLink": "deve segurar ctrl ou meta (no mac) quando clicar para abrir o link do terminal",
           "noTerminalBg": "nenhuma imagem de fundo",
           "saveTerminalLogToFile": "salvar o log do terminal no arquivo",
-          "checkUpdateOnStart": "verifique a atualização no início do aplicativo"
+          "checkUpdateOnStart": "verifique a atualização no início do aplicativo",
+          "encrypt": "criptografar"
         },
         "sftp": {
           "cancel": "cancelar",
@@ -1787,7 +2341,8 @@
           "use": "usar",
           "encode": "codificar",
           "terminalType": "tipo de terminal",
-          "startDirectory": "diretório inicial"
+          "startDirectory": "diretório inicial",
+          "ignoreKeyboardInteractive": "ignorar teclado interativo"
         },
         "ssh": {
           "clear": "limpar",
@@ -1800,7 +2355,8 @@
           "split": "dividir",
           "fileManager": "gerenciador de arquivo",
           "changeDirection": "alterar direção",
-          "batchInput": "entrada de lote"
+          "batchInput": "entrada de lote",
+          "runInAllTerminals": "correr em todos os terminais"
         },
         "terminalThemes": {
           "terminalThemes": "temas do terminal",
@@ -1811,7 +2367,8 @@
           "default": "padrão",
           "newTheme": "novo tema",
           "themeConfig": "configuração do tema",
-          "updated": "Atualizada"
+          "updated": "Atualizada",
+          "uiThemes": "Temas de IU"
         },
         "quickCommands": {
           "quickCommand": "comando rápido",
@@ -1831,7 +2388,8 @@
           "synced": "sincronizado",
           "syncDesc": "sincronizar marcador / history / setting para github secret gist",
           "autoSync": "sincronização automática",
-          "lastSyncTime": "hora da última sincronização"
+          "lastSyncTime": "hora da última sincronização",
+          "useExistingGistId": "usar existente"
         }
       },
       "name": "Português do Brasil",
@@ -2129,7 +2687,9 @@
           "cancel": "отмена",
           "expandAll": "развернуть",
           "collapseAll": "свернуть",
-          "restoreSessions": "восстановить сеансы"
+          "restoreSessions": "восстановить сеансы",
+          "ignore": "игнорировать",
+          "pin": "держите панель открытой"
         },
         "control": {
           "author": "автор",
@@ -2143,7 +2703,8 @@
           "dependencies": "зависимости",
           "env": "окружение",
           "os": "ос",
-          "userTips": "советы"
+          "userTips": "советы",
+          "commandLineUsage": "Использование командной строки"
         },
         "transferHistory": {
           "transferHistory": "история передач",
@@ -2210,7 +2771,8 @@
           "ctrlOrMetaOpenTerminalLink": "должен удерживать Ctrl или Meta (в Mac) при нажатии, чтобы открыть ссылку терминала",
           "noTerminalBg": "без фонового изображения",
           "saveTerminalLogToFile": "сохранить журнал терминала в файл",
-          "checkUpdateOnStart": "проверить обновление при запуске приложения"
+          "checkUpdateOnStart": "проверить обновление при запуске приложения",
+          "encrypt": "зашифровать"
         },
         "sftp": {
           "cancel": "отменить",
@@ -2305,7 +2867,8 @@
           "use": "использовать",
           "encode": "шифровать",
           "terminalType": "тип терминала",
-          "startDirectory": "начальный каталог"
+          "startDirectory": "начальный каталог",
+          "ignoreKeyboardInteractive": "игнорировать интерактивную клавиатуру"
         },
         "ssh": {
           "clear": "очистить",
@@ -2318,7 +2881,8 @@
           "split": "разделить",
           "fileManager": "файловый менеджер",
           "changeDirection": "изменить направление",
-          "batchInput": "пакетный ввод"
+          "batchInput": "пакетный ввод",
+          "runInAllTerminals": "запустить во всех терминалах"
         },
         "terminalThemes": {
           "terminalThemes": "темы терминала",
@@ -2329,7 +2893,8 @@
           "default": "по умолчанию",
           "newTheme": "новая тема",
           "themeConfig": "конфигурация темы",
-          "updated": "обновлено"
+          "updated": "обновлено",
+          "uiThemes": "Темы пользовательского интерфейса"
         },
         "quickCommands": {
           "quickCommand": "быстрая команда",
@@ -2349,7 +2914,8 @@
           "synced": "синхронизирован",
           "syncDesc": "синхронизировать закладку / историю / настройку в github секретный гист",
           "autoSync": "автосинхронизация",
-          "lastSyncTime": "время последней синхронизации"
+          "lastSyncTime": "время последней синхронизации",
+          "useExistingGistId": "использовать существующие"
         }
       },
       "name": "Русский",
@@ -2647,7 +3213,9 @@
           "cancel": "iptal",
           "expandAll": "Tümünü genişlet",
           "collapseAll": "Tümünü daralt",
-          "restoreSessions": "oturumları geri yükle"
+          "restoreSessions": "oturumları geri yükle",
+          "ignore": "aldırmamak",
+          "pin": "paneli açık tut"
         },
         "control": {
           "author": "geliştirici",
@@ -2661,7 +3229,8 @@
           "dependencies": "bağımlılıklar",
           "env": "ortam",
           "os": "işletim sistemi",
-          "userTips": "kullanım ipuçları"
+          "userTips": "kullanım ipuçları",
+          "commandLineUsage": "Komut satırı kullanımı"
         },
         "transferHistory": {
           "transferHistory": "geçmişi aktar",
@@ -2728,7 +3297,8 @@
           "ctrlOrMetaOpenTerminalLink": "terminal bağlantısını açmak için ctrl (veya mac ise meta) basılı iken bağlantıya tıklanmalıdır",
           "noTerminalBg": "arkaplan resmi yok",
           "saveTerminalLogToFile": "terminal günlüğünü dosyaya kaydet",
-          "checkUpdateOnStart": "uygulama başlangıcında güncellemeyi kontrol et"
+          "checkUpdateOnStart": "uygulama başlangıcında güncellemeyi kontrol et",
+          "encrypt": "şifrelemek"
         },
         "sftp": {
           "cancel": "iptal",
@@ -2823,7 +3393,8 @@
           "use": "kullan",
           "encode": "şifrele",
           "terminalType": "terminal türü",
-          "startDirectory": "başlangıç dizini"
+          "startDirectory": "başlangıç dizini",
+          "ignoreKeyboardInteractive": "klavye etkileşimini yoksay"
         },
         "ssh": {
           "clear": "temizle",
@@ -2836,7 +3407,8 @@
           "split": "ikiye böl",
           "fileManager": "dosya yöneticisi",
           "changeDirection": "yönü değiştir",
-          "batchInput": "Toplu giriş"
+          "batchInput": "Toplu giriş",
+          "runInAllTerminals": "tüm terminallerde çalıştır"
         },
         "terminalThemes": {
           "terminalThemes": "terminal temaları",
@@ -2847,7 +3419,8 @@
           "default": "varsayılan",
           "newTheme": "yeni tema",
           "themeConfig": "tema ayarları",
-          "updated": "güncellendi"
+          "updated": "güncellendi",
+          "uiThemes": "UI Temaları"
         },
         "quickCommands": {
           "quickCommand": "hızlı komut",
@@ -2867,7 +3440,8 @@
           "synced": "senkronize edildi",
           "syncDesc": "yer imlerini / geçmişi / ayarları gizli github gist adresine senkronize et",
           "autoSync": "otomatik senkronizasyon",
-          "lastSyncTime": "son senkronizasyon zamanı"
+          "lastSyncTime": "son senkronizasyon zamanı",
+          "useExistingGistId": "var olanı kullan"
         }
       },
       "name": "Türkçe",
@@ -3165,7 +3739,9 @@
           "cancel": "取消",
           "expandAll": "展开所有",
           "collapseAll": "收起所有",
-          "restoreSessions": "恢复会话"
+          "restoreSessions": "恢复会话",
+          "ignore": "忽视",
+          "pin": "保持面板打开"
         },
         "control": {
           "author": "作者",
@@ -3179,7 +3755,8 @@
           "dependencies": "依赖组件",
           "env": "环境变量",
           "os": "操作系统",
-          "userTips": "使用小技巧"
+          "userTips": "使用小技巧",
+          "commandLineUsage": "命令行用法"
         },
         "transferHistory": {
           "transferHistory": "传输历史记录",
@@ -3246,7 +3823,8 @@
           "ctrlOrMetaOpenTerminalLink": "按住ctrl或者meta(mac系统)才能点击打开终端里的链接",
           "noTerminalBg": "无背景图片",
           "saveTerminalLogToFile": "将终端日志保存到文件",
-          "checkUpdateOnStart": "检查应用程序启动时的更新"
+          "checkUpdateOnStart": "检查应用程序启动时的更新",
+          "encrypt": "加密"
         },
         "sftp": {
           "cancel": "取消",
@@ -3341,7 +3919,8 @@
           "use": "使用",
           "encode": "编码",
           "terminalType": "终端类型",
-          "startDirectory": "开始目录"
+          "startDirectory": "开始目录",
+          "ignoreKeyboardInteractive": "忽略键盘互动"
         },
         "ssh": {
           "clear": "清屏",
@@ -3354,7 +3933,8 @@
           "split": "分屏",
           "fileManager": "文件管理器",
           "changeDirection": "切换布局",
-          "batchInput": "批量输入"
+          "batchInput": "批量输入",
+          "runInAllTerminals": "在所有终端上运行"
         },
         "terminalThemes": {
           "terminalThemes": "终端主题",
@@ -3365,7 +3945,8 @@
           "default": "默认",
           "newTheme": "新主题",
           "themeConfig": "主题配置",
-          "updated": "已更新"
+          "updated": "已更新",
+          "uiThemes": "UI主题"
         },
         "quickCommands": {
           "quickCommand": "快速命令",
@@ -3385,7 +3966,8 @@
           "synced": "已同步",
           "syncDesc": "把书签/历史/系统设置同步到Github的私有Gist",
           "autoSync": "自动同步",
-          "lastSyncTime": "最后同步时间"
+          "lastSyncTime": "最后同步时间",
+          "useExistingGistId": "利用现有的"
         }
       },
       "name": "简体中文",
@@ -3683,7 +4265,9 @@
           "cancel": "取消",
           "expandAll": "展開全部",
           "collapseAll": "收起全部",
-          "restoreSessions": "回復連線"
+          "restoreSessions": "回復連線",
+          "ignore": "忽視",
+          "pin": "保持面板打開"
         },
         "control": {
           "author": "作者",
@@ -3697,7 +4281,8 @@
           "dependencies": "相依模組",
           "env": "環境變數",
           "os": "作業系統",
-          "userTips": "小技巧"
+          "userTips": "小技巧",
+          "commandLineUsage": "命令行用法"
         },
         "transferHistory": {
           "transferHistory": "傳輸歷史記錄",
@@ -3764,7 +4349,8 @@
           "ctrlOrMetaOpenTerminalLink": "按住 ctrl 或者 meta (mac 系统) 才能開啓終端機裡的連結",
           "noTerminalBg": "無背景圖片",
           "saveTerminalLogToFile": "將終端機日誌儲存到檔案",
-          "checkUpdateOnStart": "啓動時檢查更新"
+          "checkUpdateOnStart": "啓動時檢查更新",
+          "encrypt": "加密"
         },
         "sftp": {
           "cancel": "取消",
@@ -3859,7 +4445,8 @@
           "use": "使用",
           "encode": "編碼",
           "terminalType": "終端機類型",
-          "startDirectory": "啓動目錄"
+          "startDirectory": "啓動目錄",
+          "ignoreKeyboardInteractive": "忽略鍵盤互動"
         },
         "ssh": {
           "clear": "清空畫面",
@@ -3872,7 +4459,8 @@
           "split": "分隔畫面",
           "fileManager": "檔案瀏覽器",
           "changeDirection": "切換排列",
-          "batchInput": "批量輸入"
+          "batchInput": "批量輸入",
+          "runInAllTerminals": "在所有終端上運行"
         },
         "terminalThemes": {
           "terminalThemes": "終端機主題",
@@ -3883,7 +4471,8 @@
           "default": "預設",
           "newTheme": "新主題",
           "themeConfig": "主題設定",
-          "updated": "已更新"
+          "updated": "已更新",
+          "uiThemes": "UI主題"
         },
         "quickCommands": {
           "quickCommand": "快速指令",
@@ -3903,7 +4492,8 @@
           "synced": "已同步",
           "syncDesc": "把書籤/歷史/系统設定同步到 Github 的私有 Gist",
           "autoSync": "自動同步",
-          "lastSyncTime": "最後同步時間"
+          "lastSyncTime": "最後同步時間",
+          "useExistingGistId": "利用現有的"
         }
       },
       "name": "繁體中文",
