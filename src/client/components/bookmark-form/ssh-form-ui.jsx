@@ -83,7 +83,7 @@ export default function BookmarkFormUI (props) {
     loginScriptDelay: defaultLoginScriptDelay,
     authType: authTypeMap.password,
     id: '',
-    term: defaultSettings.terminalType,
+    term: props.store.config.terminalType,
     encode: encodes[0],
     envLang: defaultEnvLang,
     enableSftp: true,

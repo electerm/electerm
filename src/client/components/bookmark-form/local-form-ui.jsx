@@ -62,7 +62,7 @@ export default function LocalFormUi (props) {
     loginScriptDelay: 500,
     enableSftp: true,
     category: initBookmarkGroupId,
-    term: defaultSettings.terminalType,
+    term: props.store.config.terminalType,
     type: terminalLocalType
   }
   initialValues = _.defaults(initialValues, defaultValues)
