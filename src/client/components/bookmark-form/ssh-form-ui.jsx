@@ -23,7 +23,6 @@ import {
   defaultEnvLang
 } from '../../common/constants'
 import { formItemLayout, tailFormItemLayout } from '../../common/form-layout'
-import defaultSettings from '../../../app/common/default-setting'
 import InputAutoFocus from '../common/input-auto-focus'
 import encodes from './encodes'
 import formatBookmarkGroups from './bookmark-group-tree-format'

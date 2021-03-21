@@ -821,6 +821,9 @@ export default class Term extends Component {
         'execWindows',
         'execMac',
         'execLinux',
+        'execWindowsArgs',
+        'execMacArgs',
+        'execLinuxArgs',
         'debug'
       ]),
       sessionId,

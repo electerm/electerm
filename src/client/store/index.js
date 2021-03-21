@@ -113,4 +113,5 @@ uiThemeExtend(store)
 transferHistoryExtend(store)
 batchInputHistory(store)
 
+window.store = store
 export default store

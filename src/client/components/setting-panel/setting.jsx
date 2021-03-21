@@ -233,6 +233,55 @@ export default class Setting extends Component {
     )
   }
 
+  renderTextExec = (name) => {
+    const agrsProp = `${name}Args`
+    const args = this.props.config[agrsProp]
+    const value = this.props.config[name]
+    const defaultValue = defaultSettings[name]
+    const onChange = (e) => this.onChangeValue(e.target.value, name)
+    const onChangeArgs = (v) => this.onChangeValue(v, agrsProp)
+    const style = {
+      style: {
+        width: '40%'
+      }
+    }
+    const styleArg = {
+      style: {
+        width: '40%',
+        marginLeft: '3px'
+      }
+    }
+    return (
+      <div className='pd2b'>
+        <Input.Group compact>
+          <Input
+            value={value}
+            {...style}
+            onChange={onChange}
+            placeholder={defaultValue}
+          />
+          <Select
+            {...styleArg}
+            placeholder='args'
+            onChange={onChangeArgs}
+            value={args}
+            mode='tags'
+          >
+            {
+              args.map((arg, i) => {
+                return (
+                  <Option key={arg + '__' + i} value={arg}>
+                    {arg}
+                  </Option>
+                )
+              })
+            }
+          </Select>
+        </Input.Group>
+      </div>
+    )
+  }
+
   renderBgOption = item => {
     return {
       value: item.value,
@@ -616,15 +665,15 @@ export default class Setting extends Component {
         }
         <div className='pd1b'>{t('default')} {e('execWindows')}</div>
         {
-          this.renderText('execWindows')
+          this.renderTextExec('execWindows')
         }
         <div className='pd1b'>{t('default')} {e('execMac')}</div>
         {
-          this.renderText('execMac')
+          this.renderTextExec('execMac')
         }
         <div className='pd1b'>{t('default')} {e('execLinux')}</div>
         {
-          this.renderText('execLinux')
+          this.renderTextExec('execLinux')
         }
         {
           [

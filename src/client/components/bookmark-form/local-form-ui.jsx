@@ -16,7 +16,6 @@ import {
   newBookmarkIdPrefix,
   terminalLocalType
 } from '../../common/constants'
-import defaultSettings from '../../../app/common/default-setting'
 import formatBookmarkGroups from './bookmark-group-tree-format'
 import findBookmarkGroupId from '../../common/find-bookmark-group-id'
 import useSubmit from './use-submit'
