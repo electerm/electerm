@@ -135,14 +135,12 @@ class Terminal {
         execWindows
       )
       : platform === 'darwin' ? execMac : execLinux
-    const exeArr = exec.split(/ +/)
-    const exe = exeArr[0]
     const arg = platform.startsWith('win')
       ? execWindowsArgs
       : platform === 'darwin' ? execMacArgs : execLinuxArgs
     const cwd = process.env[platform === 'win32' ? 'USERPROFILE' : 'HOME']
     const argv = platform.startsWith('darwin') ? ['--login', ...arg] : arg
-    this.term = pty.spawn(exe, argv, {
+    this.term = pty.spawn(exec, argv, {
       name: term,
       cols: cols || 80,
       rows: rows || 24,
