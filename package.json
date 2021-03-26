@@ -1,6 +1,6 @@
 {
   "name": "electerm",
-  "version": "1.12.7",
+  "version": "1.12.8",
   "description": "Terminal/ssh/sftp client(linux, mac, win) based on electron/ssh2/node-pty/xterm/antd/subx and other libs",
   "main": "app.js",
   "bin": "npm/electerm",
@@ -19,6 +19,7 @@
     "output": "./node_modules/.bin/electron-builder",
     "build-mac": "node bin/build-mac",
     "build-linux": "node bin/build-linux",
+    "build-win": "node bin/build-win",
     "release": "npm run pre-test && npm run output",
     "preinstall": "node bin/preinstall",
     "postinstall": "node bin/post-install",
@@ -94,6 +95,7 @@
     "react": "17.0.1",
     "react-delta": "1.1.0",
     "react-dom": "17.0.1",
+    "replace-in-file": "^6.2.0",
     "shelljs": "0.8.4",
     "snazzy": "9.0.0",
     "spectron": "11.1.0",
