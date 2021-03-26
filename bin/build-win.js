@@ -6,9 +6,7 @@ const options = {
   to: ['"asar": false', '${productName}-${version}-${os}-${arch}-loose.${ext}'] // eslint-disable-line
 }
 
-const cmd = 'rm -rf dist && ' +
-'echo "build x64 win" && ' +
-'./node_modules/.bin/electron-builder -w'
+const cmd = 'npm run output -w'
 // 'echo "build arm64 mac" && ' +
 // './node_modules/.bin/electron-rebuild --arch arm64 -f -p work/app && ' +
 // './node_modules/.bin/electron-builder --mac --arm64'
