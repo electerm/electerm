@@ -7,6 +7,13 @@ const { isWin, isMac } = require('../utils/constants')
 const ROOT_PATH = '/'
 
 /**
+ * windows drive D: should use D:\
+ */
+function isWinDrive (path) {
+  return /^\w+:$/.test(path)
+}
+
+/**
  * run cmd
  * @param {string} cmd
  */
@@ -133,9 +140,13 @@ const fsExport = Object.assign(
     openFile
   },
   {
-    readdirAsync: (path) => {
-      if (path === ROOT_PATH && isWin) {
+    readdirAsync: (_path) => {
+      if (_path === ROOT_PATH && isWin) {
         return listWindowsRootPath()
+      }
+      let path = _path
+      if (isWin && isWinDrive(path)) {
+        path = path + '\\'
       }
       return fss.readdirAsync(path)
     },
