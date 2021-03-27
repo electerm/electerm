@@ -4,14 +4,8 @@ const fs = require('original-fs')
 const fss = promisifyAll(fs)
 const log = require('../utils/log')
 const { isWin, isMac } = require('../utils/constants')
+const { isWinDrive } = require('../common/is-win-drive')
 const ROOT_PATH = '/'
-
-/**
- * windows drive D: should use D:\
- */
-function isWinDrive (path) {
-  return /^\w+:$/.test(path)
-}
 
 /**
  * run cmd
