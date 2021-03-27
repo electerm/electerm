@@ -4,6 +4,7 @@ const fs = require('original-fs')
 const fss = promisifyAll(fs)
 const log = require('../utils/log')
 const { isWin, isMac } = require('../utils/constants')
+const { isWinDrive } = require('../common/is-win-drive')
 const ROOT_PATH = '/'
 
 /**
@@ -133,9 +134,13 @@ const fsExport = Object.assign(
     openFile
   },
   {
-    readdirAsync: (path) => {
-      if (path === ROOT_PATH && isWin) {
+    readdirAsync: (_path) => {
+      if (_path === ROOT_PATH && isWin) {
         return listWindowsRootPath()
+      }
+      let path = _path
+      if (isWin && isWinDrive(path)) {
+        path = path + '\\'
       }
       return fss.readdirAsync(path)
     },
