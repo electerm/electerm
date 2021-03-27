@@ -4,6 +4,7 @@
     "app": "work/app",
     "output": "dist"
   },
+  "asar": true,
   "artifactName": "${productName}-${version}-${os}-${arch}.${ext}",
   "win": {
     "target": ["tar.gz"],
