@@ -57,7 +57,6 @@ export default class SessionWrapper extends Component {
       activeSplitId: id,
       key: Math.random(),
       sessionOptions: null,
-      sshConnected: false,
       enableSftp: props.tab.enableSftp,
       sessionId: generate(),
       terminals: [
@@ -266,7 +265,7 @@ export default class SessionWrapper extends Component {
   }
 
   renderSftp = () => {
-    const { pane, sessionOptions, sshConnected, enableSftp, sessionId } = this.state
+    const { pane, sessionOptions, enableSftp, sessionId, pid } = this.state
     const height = this.computeHeight()
     const cls = pane === paneMap.terminal
       ? 'hide'
@@ -274,8 +273,8 @@ export default class SessionWrapper extends Component {
     return (
       <div className={cls}>
         <Sftp
+          pid={pid}
           sessionOptions={sessionOptions}
-          sshConnected={sshConnected}
           height={height}
           enableSftp={enableSftp}
           sessionId={sessionId}

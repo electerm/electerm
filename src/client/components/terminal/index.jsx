@@ -864,7 +864,7 @@ export default class Term extends Component {
     }
     this.setStatus(statusMap.success)
     this.props.setSessionState({
-      sshConnected: true
+      pid
     })
     term.pid = pid
     this.pid = pid

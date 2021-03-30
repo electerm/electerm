@@ -79,7 +79,9 @@ export default class FileMode extends React.PureComponent {
     const {
       visible,
       tab,
-      onClose
+      onClose,
+      uidTree,
+      gidTree
     } = this.props
     if (!visible) {
       return null
@@ -94,7 +96,9 @@ export default class FileMode extends React.PureComponent {
       isSymbolicLink,
       path,
       mode,
-      type
+      type,
+      owner,
+      group
     } = file
     const {
       host,
@@ -149,6 +153,10 @@ export default class FileMode extends React.PureComponent {
             </div>
             <p className='bold'>{e('fullPath')}:</p>
             <p className='pd1b'>{ffp}</p>
+            <p className='bold'>{e('owner')}</p>
+            <p className='pd1b'>{uidTree['' + owner]}</p>
+            <p className='bold'>{e('group')}</p>
+            <p className='pd1b'>{gidTree['' + group]}</p>
             <p className='bold'>{e('size')}:</p>
             <p className='pd1b'>{size}</p>
             <p className='bold'>{e('accessTime')}:</p>

@@ -39,6 +39,7 @@ import deepCopy from 'json-deep-copy'
 import isValidPath from '../../common/is-valid-path'
 import memoizeOne from 'memoize-one'
 import TransportEntry from './transport-entry'
+import * as owner from './owner-list'
 import './sftp.styl'
 
 const { prefix } = window
@@ -81,11 +82,11 @@ export default class Sftp extends Component {
     if (
       (
         prevProps.enableSftp !== false &&
-        !prevProps.sshConnected &&
-        this.props.sshConnected
+        !prevProps.pid &&
+        this.props.pid
       ) ||
       (
-        prevProps.sshConnected &&
+        prevProps.pid &&
         prevProps.enableSftp === false &&
         this.props.enableSftp !== false
       )
@@ -121,7 +122,9 @@ export default class Sftp extends Component {
         [`${k}ShowHiddenFile`]: false,
         [`${k}Path`]: '',
         [`${k}PathTemp`]: '',
-        [`${k}PathHistory`]: []
+        [`${k}PathHistory`]: [],
+        [`${k}GidTree`]: {},
+        [`${k}UidTree`]: {}
       })
       return prev
     }, {})
@@ -376,16 +379,18 @@ export default class Sftp extends Component {
     }
   }
 
-  initData = (remoteInit) => {
+  initData = async (remoteInit) => {
     if (remoteInit) {
       const { props } = this
       const host = _.get(props, 'tab.host') &&
         _.get(props, 'tab.type') !== terminalSshConfigType &&
         _.get(props, 'tab.type') !== terminalSerialType
       if (host) {
-        this.remoteList()
+        await this.remoteList()
+        this.remoteListOwner()
       }
     }
+    this.localListOwner()
     this.localList()
   }
 
@@ -432,6 +437,30 @@ export default class Sftp extends Component {
     const b = this.state[prop]
     this.setState({
       [prop]: !b
+    })
+  }
+
+  remoteListOwner = async () => {
+    const remoteUidTree = await owner.remoteListUsers(
+      this.props.pid,
+      this.props.sessionId
+    )
+    const remoteGidTree = await owner.remoteListGroups(
+      this.props.pid,
+      this.props.sessionId
+    )
+    this.setState({
+      remoteGidTree,
+      remoteUidTree
+    })
+  }
+
+  localListOwner = async () => {
+    const localUidTree = await owner.localListUsers()
+    const localGidTree = await owner.localListGroups()
+    this.setState({
+      localGidTree,
+      localUidTree
     })
   }
 
@@ -538,7 +567,7 @@ export default class Sftp extends Component {
         const r = _r
         const { type, name } = r
         const f = {
-          ..._.pick(r, ['name', 'size', 'accessTime', 'modifyTime', 'mode']),
+          ..._.pick(r, ['name', 'size', 'accessTime', 'modifyTime', 'mode', 'owner', 'group']),
           isDirectory: r.type === fileTypeMap.directory,
           type: typeMap.remote,
           path: remotePath,
@@ -765,7 +794,11 @@ export default class Sftp extends Component {
         'targetTransferType',
         'fileOperation',
         'selectedFiles',
-        'pauseAll'
+        'pauseAll',
+        'localGidTree',
+        'remoteUidTree',
+        'localUidTree',
+        'remoteGidTree'
       ])
     }
   }

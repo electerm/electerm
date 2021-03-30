@@ -50,6 +50,8 @@ const pre = {
   versions: process.versions,
   transferKeys,
   fsFunctions: [
+    'run',
+    'runWinCmd',
     'accessAsync',
     'statAsync',
     'lstatAsync',
