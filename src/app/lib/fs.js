@@ -127,6 +127,8 @@ const fsExport = Object.assign(
   {},
   fss,
   {
+    run,
+    runWinCmd,
     rmrf,
     touch,
     cp,

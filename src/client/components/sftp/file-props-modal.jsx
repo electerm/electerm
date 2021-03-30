@@ -22,7 +22,9 @@ export default memo(props => {
     visible,
     file,
     tab,
-    onClose
+    onClose,
+    uidTree = {},
+    gidTree = {}
   } = props
   if (!visible) {
     return null
@@ -30,6 +32,8 @@ export default memo(props => {
   const {
     name,
     size,
+    owner,
+    group,
     accessTime,
     modifyTime,
     isDirectory,
@@ -83,6 +87,10 @@ export default memo(props => {
           <p className='pd1b'>{formatTime(accessTime)}</p>
           <p className='bold'>{e('modifyTime')}:</p>
           <p className='pd1b'>{formatTime(modifyTime)}</p>
+          <p className='bold'>{e('owner')}</p>
+          <p className='pd1b'>{uidTree['' + owner]}</p>
+          <p className='bold'>{e('group')}</p>
+          <p className='pd1b'>{gidTree['' + group]}</p>
           <p className='bold'>{e('mode')}:</p>
           <div className='pd1b'>
             {

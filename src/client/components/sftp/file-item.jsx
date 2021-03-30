@@ -362,11 +362,14 @@ export default class FileSection extends React.Component {
   }
 
   showInfo = () => {
+    const { type } = this.props
     this.props.store.storeAssign({
       fileInfoModalProps: {
         file: this.state.file,
         tab: this.props.tab,
         visible: true,
+        uidTree: this.props[`${type}UidTree`],
+        gidTree: this.props[`${type}GidTree`],
         onClose: this.onCloseFileInfo
       }
     })
@@ -497,13 +500,16 @@ export default class FileSection extends React.Component {
   }
 
   openFileModeModal = () => {
+    const { type } = this.props
     this.props.store.storeAssign({
       fileModeModalProps: {
         file: this.state.file,
         tab: this.props.tab,
         visible: true,
         onClose: this.onCloseFileMode,
-        changeFileMode: this.changeFileMode
+        changeFileMode: this.changeFileMode,
+        uidTree: this.props[`${type}UidTree`],
+        gidTree: this.props[`${type}GidTree`]
       }
     })
   }
@@ -1021,6 +1027,12 @@ export default class FileSection extends React.Component {
       value = null
     } else if (!isDirectory && name === 'size') {
       value = filesize(value)
+    } else if (name === 'owner') {
+      const { type } = this.props
+      value = this.props[`${type}UidTree`]['' + value] || value
+    } else if (name === 'group') {
+      const { type } = this.props
+      value = this.props[`${type}GidTree`]['' + value] || value
     }
     if (name === 'name') {
       // const Icon = isDirectory
