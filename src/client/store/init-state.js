@@ -125,5 +125,8 @@ export default {
   transports: [],
 
   // batch inputs
-  batchInputs: []
+  batchInputs: [],
+
+  // ui
+  terminalFullScreen: false
 }

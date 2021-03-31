@@ -1251,7 +1251,7 @@ export default class Term extends Component {
       className: 'hide'
     }
     const prps2 = {
-      className: 'absolute',
+      className: 'absolute term-wrap-1',
       style: {
         left: '10px',
         top: '10px',
@@ -1261,7 +1261,7 @@ export default class Term extends Component {
     }
     const prps3 = {
       id,
-      className: 'absolute',
+      className: 'absolute term-wrap-2',
       style: {
         left: 0,
         top: 0,

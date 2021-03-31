@@ -5,7 +5,13 @@
 import { Component } from 'react'
 import Term from '../terminal'
 import Sftp from '../sftp/sftp-entry'
-import { BorderVerticleOutlined, BorderHorizontalOutlined, CloseSquareFilled, SearchOutlined } from '@ant-design/icons'
+import {
+  BorderVerticleOutlined,
+  BorderHorizontalOutlined,
+  CloseSquareFilled,
+  SearchOutlined,
+  FullscreenOutlined
+} from '@ant-design/icons'
 import { Tooltip } from 'antd'
 import _ from 'lodash'
 import { nanoid as generate } from 'nanoid/non-secure'
@@ -285,6 +291,10 @@ export default class SessionWrapper extends Component {
     )
   }
 
+  handleFullscreen = () => {
+    this.props.store.toggleTermFullscreen(true)
+  }
+
   handleOpenSearch = () => {
     window.postMessage({
       action: 'open-terminal-search',
@@ -299,6 +309,17 @@ export default class SessionWrapper extends Component {
         <SearchOutlined
           className='mg1r icon-info font16 iblock pointer spliter'
           onClick={this.handleOpenSearch} />
+      </Tooltip>
+    )
+  }
+
+  fullscreenIcon = () => {
+    const title = e('fullscreen')
+    return (
+      <Tooltip title={title}>
+        <FullscreenOutlined
+          className='mg1r icon-info font16 iblock pointer spliter'
+          onClick={this.handleFullscreen} />
       </Tooltip>
     )
   }
@@ -356,6 +377,7 @@ export default class SessionWrapper extends Component {
           pane === paneMap.terminal
             ? (
               <div className='fright term-controls'>
+                {this.fullscreenIcon()}
                 {this.renderSearchIcon()}
                 {
                   hide

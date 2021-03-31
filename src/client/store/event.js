@@ -33,6 +33,15 @@ export default store => {
         event: 'selectall',
         id: store.activeTerminalId
       }, '*')
+    },
+
+    triggerReszie () {
+      window.dispatchEvent(new window.Event('resize'))
+    },
+
+    toggleTermFullscreen (terminalFullScreen) {
+      store.terminalFullScreen = terminalFullScreen
+      setTimeout(store.triggerReszie, 200)
     }
   })
 }

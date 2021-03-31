@@ -18,6 +18,7 @@ import UiTheme from './ui-theme'
 import TerminalInteractive from '../terminal/terminal-interactive'
 import classnames from 'classnames'
 import { isMac, isWin } from '../../common/constants'
+import TermFullscreenControl from './term-fullscreen-control'
 import './wrapper.styl'
 
 export default class Index extends Component {
@@ -62,14 +63,16 @@ export default class Index extends Component {
       fileModeModalProps,
       textEditorProps,
       storeAssign,
-      config
+      config,
+      terminalFullScreen
     } = store
     // const sessProps = _.pick(store, [
     //   'storeAssign', 'addTab', 'sessionModalVisible', 'selectedSessions'
     // ])
     const cls = classnames({
       'is-mac': isMac,
-      'is-win': isWin
+      'is-win': isWin,
+      'term-fullscreen': terminalFullScreen
     })
     const ext1 = {
       className: cls
@@ -118,6 +121,9 @@ export default class Index extends Component {
     }
     return (
       <div {...ext1}>
+        <TermFullscreenControl
+          store={store}
+        />
         <CssOverwrite {...confsCss} />
         <TerminalInteractive />
         <UiTheme
