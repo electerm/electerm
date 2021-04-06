@@ -78,7 +78,7 @@
     "dayjs": "^1.9.6",
     "dotenv": "8.2.0",
     "electron": "9.4.1",
-    "electron-builder": "22.10.4",
+    "electron-builder": "22.10.5",
     "electron-rebuild": "2.3.4",
     "extract-loader": "5.0.1",
     "file-loader": "6.2.0",
