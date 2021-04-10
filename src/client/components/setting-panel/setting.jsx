@@ -677,6 +677,7 @@ export default class Setting extends Component {
         }
         {
           [
+            'cursorBlink',
             'rightClickSelectsWord',
             'pasteWhenContextMenu',
             'copyWhenSelect',
