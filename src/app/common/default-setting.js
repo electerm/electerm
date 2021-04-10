@@ -28,5 +28,6 @@ module.exports = exports.default = {
   keepaliveCountMax: 10,
   saveTerminalLogToFile: false,
   checkUpdateOnStart: true,
+  cursorBlink: false,
   opacity: 1
 }
