@@ -18,6 +18,9 @@ const c = prefix('common')
 const { installSrc } = window.pre
 
 export default function Upgrade (props) {
+  const {
+    checkUpdateOnStart
+  } = props.store.config
   const [showCount, setShowCount] = useState(0)
   const update = useRef(null)
   function onEvent (e) {
@@ -35,7 +38,9 @@ export default function Upgrade (props) {
     window.removeEventListener('message', onEvent)
   }
   useEffect(() => {
-    getLatestRelease()
+    if (checkUpdateOnStart) {
+      getLatestRelease()
+    }
     watch()
     return unwatch
   }, [])
@@ -124,6 +129,9 @@ export default function Upgrade (props) {
     changeProps({
       checkingRemoteVersion: false
     })
+    if (!checkUpdateOnStart) {
+      return
+    }
     if (!releaseVer) {
       return changeProps({
         error: 'Can not get version info'

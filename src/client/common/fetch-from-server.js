@@ -8,7 +8,7 @@ import { nanoid as generate } from 'nanoid/non-secure'
 const id = 's'
 window.et.wsOpened = false
 
-const init = async () => {
+export const init = async () => {
   const ws = await initWs('common', id, undefined, undefined, true)
   window.et.wsOpened = true
   ws.onclose = () => {
