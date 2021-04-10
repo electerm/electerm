@@ -140,11 +140,21 @@ export default class Sftp extends Component {
     const l1 = list.filter(g => g.id && g.isDirectory)
     const l2 = list.filter(g => g.id && !g.isDirectory)
     const sorter = (a, b) => {
-      const va = a[sortProp]
-      const vb = b[sortProp]
+      let va = a[sortProp]
+      let vb = b[sortProp]
+      if (_.isString(va)) {
+        va = va.toLowerCase()
+        vb = vb.toLowerCase()
+      }
       if (sortDirection === 'desc') {
+        if (_.isString(va)) {
+          return va.localeCompare(vb, { sensitivity: 'base' })
+        }
         return va > vb ? -1 : 1
       } else {
+        if (_.isString(va)) {
+          return -va.localeCompare(vb, { sensitivity: 'base' })
+        }
         return va > vb ? 1 : -1
       }
     }
