@@ -3,6 +3,7 @@
  */
 
 import { Component } from '../common/react-subx'
+import { isWin } from '../../common/constants'
 import _ from 'lodash'
 import { Select } from 'antd'
 import copy from 'json-deep-copy'
@@ -22,9 +23,12 @@ export default class QuickCommandsFooter extends Component {
         a => a.id === id
       )
       if (qm && qm.command) {
+        const realCmd = isWin
+          ? qm.command.replace(/\n/g, '\n\r')
+          : qm.command
         window.postMessage({
           action: 'quick-command',
-          command: qm.command,
+          command: realCmd,
           inputOnly: qm.inputOnly
         }, '*')
       }
