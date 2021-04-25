@@ -41,7 +41,7 @@ export default store => {
 
     toggleTermFullscreen (terminalFullScreen) {
       store.terminalFullScreen = terminalFullScreen
-      setTimeout(store.triggerReszie, 200)
+      setTimeout(store.triggerReszie, 500)
     }
   })
 }
