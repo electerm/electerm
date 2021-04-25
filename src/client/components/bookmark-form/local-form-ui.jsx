@@ -62,7 +62,8 @@ export default function LocalFormUi (props) {
     enableSftp: true,
     category: initBookmarkGroupId,
     term: props.store.config.terminalType,
-    type: terminalLocalType
+    type: terminalLocalType,
+    enableSsh: true
   }
   initialValues = _.defaults(initialValues, defaultValues)
   function renderCommon () {

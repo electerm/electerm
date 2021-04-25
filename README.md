@@ -48,6 +48,7 @@ npm i -g electerm
 - Auto upgrade: When new version released, you will get upgrade notification after you start electerm again, then you click the upgrade button to upgrade.
 - Download: Just download the latest edition, reinstall.
 - Npm: If you install from npm, just run `npm i -g electerm` again.
+- If use Snap or some other distribution systems, these systems may provide upgrade.
 
 ## Features
 

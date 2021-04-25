@@ -86,6 +86,7 @@ export default function BookmarkFormUI (props) {
     encode: encodes[0],
     envLang: defaultEnvLang,
     enableSftp: true,
+    enableSsh: true,
     category: initBookmarkGroupId,
     proxy: {
       proxyType: '5'
@@ -361,6 +362,15 @@ export default function BookmarkFormUI (props) {
   }
   function renderEnableSftp () {
     return [
+      <FormItem
+        {...formItemLayout}
+        label='SSH'
+        name='enableSsh'
+        key='ssh'
+        valuePropName='checked'
+      >
+        <Switch />
+      </FormItem>,
       <FormItem
         {...formItemLayout}
         label='Sftp'

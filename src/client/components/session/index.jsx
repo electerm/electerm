@@ -56,9 +56,12 @@ export default class SessionWrapper extends Component {
   constructor (props) {
     super(props)
     const id = generate()
+    const pane = props.tab.enableSsh !== false
+      ? paneMap.terminal
+      : paneMap.fileManager
     this.state = {
       pid: null,
-      pane: paneMap.terminal,
+      pane,
       splitDirection: terminalSplitDirectionMap.horizontal,
       activeSplitId: id,
       key: Math.random(),
@@ -436,6 +439,9 @@ export default class SessionWrapper extends Component {
       splitDirection,
       {
         'is-transporting': this.props.tab.isTransporting
+      },
+      {
+        'disable-ssh': this.props.tab.enableSsh === false
       }
     )
     return (
