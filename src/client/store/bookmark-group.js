@@ -28,6 +28,28 @@ export default store => {
       update(id, updates, bookmarkGroups, false)
     },
 
+    openAllBookmarkInCategory (item) {
+      let ids = item.bookmarkIds
+      const gids = item.bookmarkGroupIds || []
+      const { bookmarkGroups } = store
+      for (const gid of gids) {
+        const g = _.find(bookmarkGroups, g => g.id === gid)
+        if (g && g.bookmarkIds && g.bookmarkIds.length) {
+          ids = [
+            ...ids,
+            ...g.bookmarkIds
+          ]
+        }
+      }
+      const { bookmarks } = store
+      for (const id of ids) {
+        const item = _.find(bookmarks, b => b.id === id)
+        if (item) {
+          store.addTab(item)
+        }
+      }
+    },
+
     delBookmarkGroup ({ id }) {
       if (id === defaultBookmarkGroupId) {
         return

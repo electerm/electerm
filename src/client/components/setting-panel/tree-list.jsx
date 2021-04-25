@@ -11,10 +11,11 @@ import {
   CopyOutlined,
   EditOutlined,
   FolderAddOutlined,
-  FolderOutlined
+  FolderOutlined,
+  FolderOpenOutlined
 } from '@ant-design/icons'
 
-import { Popconfirm, Tree, Button } from 'antd'
+import { Popconfirm, Tree, Button, Tooltip } from 'antd'
 import createName from '../../common/create-title'
 import classnames from 'classnames'
 import { nanoid as generate } from 'nanoid/non-secure'
@@ -360,6 +361,24 @@ export default class ItemListTree extends React.PureComponent {
     )
   }
 
+  renderOpenAll = (item, isGroup) => {
+    if (
+      (this.props.staticList && isGroup) ||
+      (!this.props.staticList && !isGroup)
+    ) {
+      return null
+    }
+    return (
+      <Tooltip title={s('openAll')}>
+        <FolderOpenOutlined
+          key='open-all-tree'
+          onClick={(e) => this.props.store.openAllBookmarkInCategory(item)}
+          className='pointer tree-control-btn'
+        />
+      </Tooltip>
+    )
+  }
+
   editCategory = () => {
     const {
       categoryTitle
@@ -532,7 +551,8 @@ export default class ItemListTree extends React.PureComponent {
   renderGroupBtns = (item) => {
     return [
       this.renderAddNewSubGroupBtn(item),
-      this.renderEditBtn(item)
+      this.renderEditBtn(item),
+      this.renderOpenAll(item)
     ]
   }
 
