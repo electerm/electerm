@@ -8,7 +8,7 @@ import { noTerminalBgValue } from '../../common/constants'
 
 export default class CssOverwrite extends PureComponent {
   componentDidMount () {
-    this.writeCss()
+    setTimeout(this.writeCss, 1000)
   }
 
   componentDidUpdate (prevProps) {
