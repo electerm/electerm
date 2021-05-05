@@ -31,18 +31,18 @@ export default class CssOverwrite extends PureComponent {
       content = await fs.readFileAsBase64(terminalBackgroundImagePath)
         .catch(log.error)
       if (content) {
-        st = `url(data:image;base64,${content})`
+        st = `url(data:image;base64,${content}) !important`
       }
     } else if (terminalBackgroundImagePath && isWebImg) {
-      st = `url(${terminalBackgroundImagePath})`
+      st = `url(${terminalBackgroundImagePath}) !important`
     }
     if (!st) {
-      return `#container .xterm-viewport {
+      return `#container .ssh-wrap-show {
         background-image: url("./images/electerm-watermark.png");
       }`
     }
 
-    const styles = [`background-image: ${st}`]
+    const styles = [`background-image: ${st}`, 'background-repeat: no-repeat', 'background-size: 100% 100%', 'position: absolute', 'top: 0', 'bottom: 0', 'width: 100%', 'content: \' \'', 'z-index: -1']
 
     if (st !== 'none') {
       styles.push(`filter: blur(${
@@ -58,7 +58,9 @@ export default class CssOverwrite extends PureComponent {
       })`)
     }
 
-    return `#container .xterm-viewport {${styles.join(';')} }`
+    return `#container .ui-outer::before {
+      ${styles.join(';')} 
+    }`
   }
 
   writeCss = async () => {
