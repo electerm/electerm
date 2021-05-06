@@ -4,6 +4,7 @@
 
 const { appPath, defaultUserName } = require('../utils/app-props')
 const { resolve } = require('path')
+const { encrypt, decrypt } = require('./simple-enc')
 const Datastore = require('nedb')
 const { existsSync } = require('fs')
 const db = {}
@@ -11,6 +12,7 @@ const currentUserPath = resolve(
   appPath, 'electerm', 'current_user.txt'
 )
 let currentUser = defaultUserName
+const prefix = '####enced####'
 // const log = require('../utils/log')
 
 try {
@@ -38,10 +40,24 @@ const tables = [
 ]
 
 tables.forEach(table => {
-  db[table] = new Datastore({
+  const conf = {
     filename: reso(table),
     autoload: true
-  })
+  }
+  // if (table === tables[0]) {
+  //   conf.afterSerialization = str => {
+  //     console.log('ff1', str)
+  //     return str
+  //   }
+  //   conf.beforeDeserialization = str => {
+  //     if (str.startsWith(prefix)) {
+  //       console.log('ff')
+  //       return decrypt(str.replace(prefix, ''))
+  //     }
+  //     return str
+  //   }
+  // }
+  db[table] = new Datastore(conf)
 })
 
 const dbAction = (dbName, op, ...args) => {
