@@ -4,7 +4,6 @@
 
 import { useEffect, useState } from 'react'
 import { Modal, Form, Input, Button } from 'antd'
-import { formItemLayout, tailFormItemLayout } from '../../common/form-layout'
 import wait from '../../common/wait'
 
 const { prefix } = window
@@ -59,7 +58,6 @@ export default function TermInteractive () {
       : Input.Password
     return (
       <FormItem
-        {...formItemLayout}
         key={prompt + i}
         label={prompt}
         rules={[{
@@ -113,12 +111,13 @@ export default function TermInteractive () {
     >
       <Form
         form={form}
+        layout='vertical'
         onFinish={onFinish}
       >
         {
           opts.options.prompts.map(renderFormItem)
         }
-        <FormItem {...tailFormItemLayout}>
+        <FormItem>
           <Button
             type='primary'
             htmlType='submit'
