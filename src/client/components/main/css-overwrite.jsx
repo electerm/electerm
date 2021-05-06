@@ -37,12 +37,16 @@ export default class CssOverwrite extends PureComponent {
       st = `url(${terminalBackgroundImagePath}) !important`
     }
     if (!st) {
-      return `#container .ssh-wrap-show {
+      return `#container .ssh-wrap-show .xterm-viewport {
         background-image: url("./images/electerm-watermark.png");
       }`
     }
 
-    const styles = [`background-image: ${st}`, 'background-repeat: no-repeat', 'background-size: 100% 100%', 'position: absolute', 'top: 0', 'bottom: 0', 'width: 100%', 'content: \' \'', 'z-index: -1']
+    const styles = [
+      `background-image: ${st}`,
+      'background-size: cover',
+      'background-position: center'
+    ]
 
     if (st !== 'none') {
       styles.push(`filter: blur(${
@@ -58,7 +62,7 @@ export default class CssOverwrite extends PureComponent {
       })`)
     }
 
-    return `#container .ui-outer::before {
+    return `#container .ssh-wrap-show .xterm-viewport {
       ${styles.join(';')} 
     }`
   }
