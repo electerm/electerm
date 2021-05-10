@@ -8,6 +8,7 @@ import {
 import _ from 'lodash'
 import handleError from './error-handler'
 import { nanoid as generate } from 'nanoid/non-secure'
+import { encObj, decObj } from './pass-enc'
 
 /**
  * db action, never direct use it
@@ -36,7 +37,7 @@ export function insert (dbName, inst) {
     const { id, _id, ...rest } = obj
     return {
       _id: _id || id || generate(),
-      ...rest
+      ...encObj(rest)
     }
   })
   return dbAction(dbName, 'insert', arr)
@@ -67,7 +68,7 @@ export function update (_id, value, db = 'data', upsert = true) {
   const updates = dbNames.includes(db)
     ? {
       $set: {
-        ...value
+        ...encObj(value)
       }
     }
     : {
@@ -98,7 +99,7 @@ export async function findOne (dbName, id) {
   const { _id, ...rest } = res
   return {
     id: _id,
-    ...rest
+    ...decObj(rest)
   }
 }
 
@@ -112,7 +113,7 @@ export async function find (dbName) {
     const { _id, ...rest } = r
     return {
       id: _id,
-      ...rest
+      ...decObj(rest)
     }
   })
 }

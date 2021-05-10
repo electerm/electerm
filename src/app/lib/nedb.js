@@ -11,7 +11,6 @@ const currentUserPath = resolve(
   appPath, 'electerm', 'current_user.txt'
 )
 let currentUser = defaultUserName
-// const log = require('../utils/log')
 
 try {
   if (existsSync(currentUserPath)) {
@@ -38,10 +37,11 @@ const tables = [
 ]
 
 tables.forEach(table => {
-  db[table] = new Datastore({
+  const conf = {
     filename: reso(table),
     autoload: true
-  })
+  }
+  db[table] = new Datastore(conf)
 })
 
 const dbAction = (dbName, op, ...args) => {
