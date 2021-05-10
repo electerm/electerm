@@ -4,7 +4,7 @@ exports.enc = (str) => {
   }
   return str.split('').map((s, i) => {
     return String.fromCharCode((s.charCodeAt(0) + i + 1) % 65536)
-  })
+  }).join('')
 }
 
 exports.dec = (str) => {
@@ -13,5 +13,5 @@ exports.dec = (str) => {
   }
   return str.split('').map((s, i) => {
     return String.fromCharCode((s.charCodeAt(0) - i - 1 + 65536) % 65536)
-  })
+  }).join('')
 }

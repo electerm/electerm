@@ -24,7 +24,7 @@ async function fixAll () {
 }
 
 module.exports = async () => {
-  const versionTo = '1.12.21'
+  const versionTo = '1.12.22'
   log.info(`Start: upgrading to v${versionTo}`)
   await fixAll()
   await updateDBVersion(versionTo)
