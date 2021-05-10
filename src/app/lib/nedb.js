@@ -41,19 +41,6 @@ tables.forEach(table => {
     filename: reso(table),
     autoload: true
   }
-  // if (table === tables[0]) {
-  //   conf.afterSerialization = str => {
-  //     console.log('ff1', str)
-  //     return str
-  //   }
-  //   conf.beforeDeserialization = str => {
-  //     if (str.startsWith(prefix)) {
-  //       console.log('ff')
-  //       return decrypt(str.replace(prefix, ''))
-  //     }
-  //     return str
-  //   }
-  // }
   db[table] = new Datastore(conf)
 })
 

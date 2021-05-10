@@ -18,9 +18,7 @@ export function encObj (obj) {
  */
 export function decObj (obj) {
   if (obj.passwordEncrypted && obj.password) {
-    console.log('pass', obj.password)
     obj.password = dec(obj.password)
-    console.log('pass read', obj.password)
     delete obj.passwordEncrypted
   }
   return obj
