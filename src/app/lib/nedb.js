@@ -4,7 +4,6 @@
 
 const { appPath, defaultUserName } = require('../utils/app-props')
 const { resolve } = require('path')
-const { encrypt, decrypt } = require('./simple-enc')
 const Datastore = require('nedb')
 const { existsSync } = require('fs')
 const db = {}
@@ -12,8 +11,6 @@ const currentUserPath = resolve(
   appPath, 'electerm', 'current_user.txt'
 )
 let currentUser = defaultUserName
-const prefix = '####enced####'
-// const log = require('../utils/log')
 
 try {
   if (existsSync(currentUserPath)) {
