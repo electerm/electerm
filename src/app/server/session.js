@@ -58,7 +58,7 @@ class Terminal {
     this.initOptions = initOptions
     if (initOptions.saveTerminalLogToFile) {
       this.sessionLogger = new SessionLog({
-        fileName: createLogFileName(initOptions.tabId)
+        fileName: createLogFileName(initOptions.logName)
       })
     }
     if (ws) {
