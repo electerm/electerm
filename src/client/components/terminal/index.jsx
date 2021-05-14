@@ -56,7 +56,8 @@ import filesize from 'filesize'
 import Link from '../common/external-link'
 import NormalBuffer from './normal-buffer'
 import { createTerm, resizeTerm } from './terminal-apis'
-// import { getFolderFromFilePath } from '../sftp/file-read'
+import safeName from '../../common/safe-name'
+import createTitle from '../../common/create-title'
 
 const { prefix } = window
 const e = prefix('ssh')
@@ -809,6 +810,7 @@ export default class Term extends Component {
       ? typeMap.local
       : type
     const extra = this.props.sessionOptions
+    const logName = safeName(`${tab.title ? tab.title + '_' : ''}${tab.host ? tab.host + '_' : ''}${id}`)
     let pid = await createTerm({
       cols,
       rows,
@@ -816,6 +818,7 @@ export default class Term extends Component {
       saveTerminalLogToFile: config.saveTerminalLogToFile,
       ...tab,
       ...extra,
+      logName,
       ..._.pick(config, [
         'keepaliveInterval',
         'keepaliveCountMax',
