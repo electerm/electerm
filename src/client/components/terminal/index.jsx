@@ -57,7 +57,6 @@ import Link from '../common/external-link'
 import NormalBuffer from './normal-buffer'
 import { createTerm, resizeTerm } from './terminal-apis'
 import safeName from '../../common/safe-name'
-import createTitle from '../../common/create-title'
 
 const { prefix } = window
 const e = prefix('ssh')
