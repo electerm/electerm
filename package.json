@@ -139,7 +139,7 @@
     "https-proxy-agent": "5.0.0",
     "json-deep-copy": "1.1.1",
     "less": "3.12.2",
-    "lodash": "4.17.20",
+    "lodash": "4.17.21",
     "nanoid": "3.1.16",
     "nedb": "1.8.0",
     "node-powershell": "^4.0.0",
