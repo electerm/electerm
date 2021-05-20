@@ -52,7 +52,7 @@ module.exports = [
       {
         loader: 'html-loader',
         options: {
-          attributes: false
+          sources: false
         }
       },
       pug
