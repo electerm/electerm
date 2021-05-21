@@ -105,7 +105,7 @@
     "subx": "0.9.16",
     "url-loader": "4.1.1",
     "useragent": "2.3.0",
-    "vscode-icons": "https://github.com/vscode-icons/vscode-icons.git",
+    "vscode-icons": "vscode-icons/vscode-icons",
     "vscode-icons-js": "11.1.0",
     "webpack": "5.37.1",
     "webpack-cli": "4.7.0",
