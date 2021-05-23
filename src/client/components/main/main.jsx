@@ -72,6 +72,7 @@ export default class Index extends Component {
     //   'storeAssign', 'addTab', 'sessionModalVisible', 'selectedSessions'
     // ])
     const cls = classnames({
+      'system-ui': window._config.useSystemTitleBar,
       'is-mac': isMac,
       'is-win': isWin,
       'term-fullscreen': terminalFullScreen

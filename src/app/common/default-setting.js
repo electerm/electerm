@@ -29,5 +29,6 @@ module.exports = exports.default = {
   saveTerminalLogToFile: false,
   checkUpdateOnStart: true,
   cursorBlink: false,
+  useSystemTitleBar: false,
   opacity: 1
 }

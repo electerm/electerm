@@ -26,3 +26,10 @@ exports.getConfig = async (inited) => {
     config
   }
 }
+
+exports.getDbConfig = async () => {
+  const userConfig = await dbAction('data', 'findOne', {
+    _id: userConfigId
+  }) || {}
+  return userConfig
+}

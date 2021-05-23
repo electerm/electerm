@@ -15,6 +15,7 @@ const {
 } = require('./lib/window-control')
 const { onClose } = require('./lib/on-close')
 const initIpc = require('./lib/ipc')
+const { getDbConfig } = require('./lib/get-config')
 
 app.setName(packInfo.name)
 global.et = {
@@ -32,17 +33,21 @@ if (process.platform === 'linux') {
 }
 
 async function createWindow () {
+  const userConfig = await getDbConfig() || {}
   const { width, height } = await getWindowSize()
+  const { useSystemTitleBar } = userConfig
   // Create the browser window.
+  console.log('useSystemTitleBar', useSystemTitleBar)
   const isTest = process.env.NODE_TEST === 'yes'
+
   global.win = new BrowserWindow({
     width,
     height,
     fullscreenable: true,
     // fullscreen: true,
     title: packInfo.name,
-    frame: false,
-    transparent: true,
+    frame: useSystemTitleBar,
+    transparent: !useSystemTitleBar,
     backgroundColor: '#333333FF',
     webPreferences: {
       contextIsolation: false,
@@ -50,7 +55,7 @@ async function createWindow () {
       enableRemoteModule: isTest,
       preload: resolve(__dirname, './preload/preload.js')
     },
-    titleBarStyle: 'customButtonsOnHover',
+    titleBarStyle: useSystemTitleBar ? 'default' : 'customButtonsOnHover',
     icon: iconPath
   })
 

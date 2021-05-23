@@ -97,6 +97,9 @@ export default class Setting extends Component {
   }
 
   onChangeValue = (value, name) => {
+    if (name === 'useSystemTitleBar') {
+      message.info(e('useSystemTitleBarTip'), 5)
+    }
     this.saveConfig({
       [name]: value
     })
@@ -685,6 +688,7 @@ export default class Setting extends Component {
             'disableTransferHistory',
             'ctrlOrMetaOpenTerminalLink',
             'checkUpdateOnStart',
+            'useSystemTitleBar',
             'debug'
           ].map(this.renderToggle)
         }
