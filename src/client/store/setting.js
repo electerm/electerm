@@ -8,7 +8,8 @@ import copy from 'json-deep-copy'
 import {
   settingMap,
   statusMap,
-  sshConfigItems
+  sshConfigItems,
+  settingCommonId
 } from '../common/constants'
 import { buildNewTheme } from '../common/terminal-theme'
 import getInitItem from '../common/init-setting-item'
@@ -93,6 +94,12 @@ export default store => {
     },
 
     openSetting () {
+      if (
+        store.tab === settingMap.setting &&
+        _.get(store.settingItem, 'id') === settingCommonId
+      ) {
+        return store.hideModal()
+      }
       store.storeAssign({
         tab: settingMap.setting,
         settingItem: getInitItem([], settingMap.setting)
@@ -101,6 +108,12 @@ export default store => {
     },
 
     openSettingSync () {
+      if (
+        store.tab === settingMap.setting &&
+        _.get(store.settingItem, 'id') === store.setting[0].id
+      ) {
+        return store.hideModal()
+      }
       store.storeAssign({
         tab: settingMap.setting,
         settingItem: copy(store.setting[0])
@@ -109,6 +122,12 @@ export default store => {
     },
 
     openTerminalThemes () {
+      if (
+        store.tab === settingMap.terminalThemes &&
+        _.get(store.settingItem, 'id') === ''
+      ) {
+        return store.hideModal()
+      }
       store.storeAssign({
         tab: settingMap.terminalThemes,
         settingItem: buildNewTheme(),
@@ -123,6 +142,7 @@ export default store => {
 
     hideModal () {
       store.showModal = false
+      store.settingItem = {}
       store.focus()
     },
 
