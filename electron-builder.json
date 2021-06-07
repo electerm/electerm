@@ -12,6 +12,7 @@
     "publish": ["github"]
   },
   "nsis": {
+    "artifactName": "${productName}-${version}-${os}-${arch}-installer.${ext}",
     "allowToChangeInstallationDirectory": true
   },
   "mac": {
