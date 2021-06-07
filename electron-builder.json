@@ -8,7 +8,7 @@
   "artifactName": "${productName}-${version}-${os}-${arch}.${ext}",
   "win": {
     "target": ["tar.gz", "appx", "nsis"],
-    "icon": "node_modules/@electerm/electerm-resource/build/icons.ico",
+    "icon": "node_modules/@electerm/electerm-resource/build/icons-win.ico",
     "publish": ["github"]
   },
   "mac": {
