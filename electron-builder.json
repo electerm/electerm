@@ -7,7 +7,7 @@
   "asar": true,
   "artifactName": "${productName}-${version}-${os}-${arch}.${ext}",
   "win": {
-    "target": ["tar.gz"],
+    "target": ["tar.gz", "appx", "nsis"],
     "icon": "node_modules/@electerm/electerm-resource/build/icons.ico",
     "publish": ["github"]
   },
