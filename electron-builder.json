@@ -7,9 +7,14 @@
   "asar": true,
   "artifactName": "${productName}-${version}-${os}-${arch}.${ext}",
   "win": {
-    "target": ["tar.gz"],
-    "icon": "node_modules/@electerm/electerm-resource/build/icons.ico",
+    "target": ["tar.gz", "appx", "nsis"],
+    "icon": "node_modules/@electerm/electerm-resource/build/icons-win.ico",
     "publish": ["github"]
+  },
+  "nsis": {
+    "oneClick": false,
+    "artifactName": "${productName}-${version}-${os}-${arch}-installer.${ext}",
+    "allowToChangeInstallationDirectory": true
   },
   "mac": {
     "category": "public.app-category.developer-tools",

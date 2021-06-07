@@ -5,7 +5,8 @@ import {
   HomeOutlined,
   UserOutlined,
   WarningOutlined,
-  InfoCircleOutlined
+  InfoCircleOutlined,
+  BugOutlined
 } from '@ant-design/icons'
 import { Component } from '../common/react-subx'
 import { Modal, Tabs, Button, Tag } from 'antd'
@@ -62,7 +63,8 @@ export default class InfoModal extends Component {
       repository: {
         url
       },
-      version: packVer
+      version: packVer,
+      privacyNoticeLink
     } = packInfo
     const version = 'v' + packVer
     const link = url.replace('git+', '').replace('.git', '')
@@ -137,13 +139,19 @@ export default class InfoModal extends Component {
               <p className='mg1b'>
                 => <b className='mg1r'>{e('bugReport')}:</b>
                 <Link to={bugReportLink} className='mg1l'>
-                  <WarningOutlined /> {bugReportLink}
+                  <BugOutlined /> {bugReportLink}
                 </Link>
               </p>
               <p className='mg1b'>
                 => <b className='mg1r'>Changelog:</b>
                 <Link to={releaseLink} className='mg1l'>
                   <HighlightOutlined /> {releaseLink}
+                </Link>
+              </p>
+              <p className='mg1b'>
+                => <b className='mg1r'>Privacy notice:</b>
+                <Link to={releaseLink} className='mg1l'>
+                  <WarningOutlined /> {privacyNoticeLink}
                 </Link>
               </p>
               <p className='mg1b mg2t'>
