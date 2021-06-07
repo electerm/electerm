@@ -11,6 +11,9 @@
     "icon": "node_modules/@electerm/electerm-resource/build/icons-win.ico",
     "publish": ["github"]
   },
+  "nsis": {
+    "allowToChangeInstallationDirectory": true
+  },
   "mac": {
     "category": "public.app-category.developer-tools",
     "target": "dmg",
