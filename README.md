@@ -26,9 +26,13 @@ Terminal/ssh/sftp client(linux, mac, win) based on electron/ssh2/node-pty/xterm/
 - With snap: `sudo snap install electerm`
 - For some Linux distribution, you can find it from OS default App store(Ubuntu, Deepin, Mint...).
 - For some linux OS, the `rpm`, `deb`, or `snap` release may not work, you can try the `tar.gz` release.
-- For Windows users, command-line installer [scoop](https://github.com/lukesampson/scoop) is recommended:
+- For Windows users, command-line installer [winget](https://github.com/microsoft/winget-cli) and [scoop](https://github.com/lukesampson/scoop) is recommended:
 
 ```powershell
+# winget https://github.com/microsoft/winget-cli
+winget install electerm
+
+# scoop https://github.com/lukesampson/scoop
 scoop bucket add dorado https://github.com/chawyehsu/dorado
 scoop install dorado/electerm
 ```
