@@ -11,6 +11,11 @@
     "icon": "node_modules/@electerm/electerm-resource/build/icons-win.ico",
     "publish": ["github"]
   },
+  "appx": {
+    "identityName": "64159ZHAOXudong.electerm",
+    "publisher": "CN=9F481654-170A-434C-8259-984D2EB1FD7F",
+    "publisherDisplayName": "ZHAO Xudong"
+  },
   "nsis": {
     "oneClick": false,
     "artifactName": "${productName}-${version}-${os}-${arch}-installer.${ext}",
