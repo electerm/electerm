@@ -12,6 +12,7 @@
     "publish": ["github"]
   },
   "appx": {
+    "applicationId": "electerm",
     "identityName": "64159ZHAOXudong.electerm",
     "publisher": "CN=9F481654-170A-434C-8259-984D2EB1FD7F",
     "publisherDisplayName": "ZHAO Xudong"
