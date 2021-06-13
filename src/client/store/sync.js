@@ -107,6 +107,13 @@ export default (store) => {
     store.isSyncingSetting = false
   }
 
+  store.clearSyncSetting = async () => {
+    store.config = {
+      ...copy(store.config),
+      syncSetting: {}
+    }
+  }
+
   store.uploadSetting = async (type) => {
     store.isSyncingSetting = true
     store.isSyncUpload = true

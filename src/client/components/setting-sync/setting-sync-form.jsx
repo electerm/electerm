@@ -7,7 +7,7 @@
  */
 import { useState } from 'react'
 import { useDelta, useConditionalEffect } from 'react-delta'
-import { ArrowDownOutlined, ArrowUpOutlined, QuestionCircleOutlined, SaveOutlined } from '@ant-design/icons'
+import { ArrowDownOutlined, ArrowUpOutlined, QuestionCircleOutlined, SaveOutlined, ClearOutlined } from '@ant-design/icons'
 import { Button, Input, notification, Tooltip, Form, Switch } from 'antd'
 import { formItemLayout, tailFormItemLayout } from '../../common/form-layout'
 import Link from '../common/external-link'
@@ -21,6 +21,7 @@ const { prefix } = window
 const e = prefix('form')
 const ss = prefix('settingSync')
 const s = prefix('setting')
+const sh = prefix('ssh')
 
 export default function SyncForm (props) {
   const [form] = Form.useForm()
@@ -212,6 +213,13 @@ export default function SyncForm (props) {
             className='mg1r mg1b'
             icon={<ArrowDownOutlined />}
           >{ss('downloadSettings')}</Button>
+          <Button
+            type='ghost'
+            onClick={props.store.clearSyncSetting}
+            disabled={disabled()}
+            className='mg1r mg1b'
+            icon={<ClearOutlined />}
+          >{sh('clear')}</Button>
         </p>
         <p>
           {e('lastSyncTime')}: {timeFormatted}
