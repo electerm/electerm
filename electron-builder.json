@@ -4,6 +4,7 @@
     "app": "work/app",
     "output": "dist"
   },
+  "buildResources": "node_modules/@electerm/electerm-resource/build-res",
   "asar": true,
   "artifactName": "${productName}-${version}-${os}-${arch}.${ext}",
   "win": {
