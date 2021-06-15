@@ -2,9 +2,9 @@
   "appId": "org.electerm.electerm",
   "directories": {
     "app": "work/app",
-    "output": "dist"
+    "output": "dist",
+    "buildResources": "node_modules/@electerm/electerm-resource/build-res"
   },
-  "buildResources": "node_modules/@electerm/electerm-resource/build-res",
   "asar": true,
   "artifactName": "${productName}-${version}-${os}-${arch}.${ext}",
   "win": {
