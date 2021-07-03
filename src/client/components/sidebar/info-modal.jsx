@@ -6,6 +6,7 @@ import {
   UserOutlined,
   WarningOutlined,
   InfoCircleOutlined,
+  AlignLeftOutlined,
   BugOutlined
 } from '@ant-design/icons'
 import { Component } from '../common/react-subx'
@@ -64,7 +65,8 @@ export default class InfoModal extends Component {
         url
       },
       version: packVer,
-      privacyNoticeLink
+      privacyNoticeLink,
+      knownIssuesLink
     } = packInfo
     const version = 'v' + packVer
     const link = url.replace('git+', '').replace('.git', '')
@@ -146,6 +148,12 @@ export default class InfoModal extends Component {
                 => <b className='mg1r'>Changelog:</b>
                 <Link to={releaseLink} className='mg1l'>
                   <HighlightOutlined /> {releaseLink}
+                </Link>
+              </p>
+              <p className='mg1b'>
+                => <b className='mg1r'>Known issues:</b>
+                <Link to={knownIssuesLink} className='mg1l'>
+                  <AlignLeftOutlined /> {knownIssuesLink}
                 </Link>
               </p>
               <p className='mg1b'>

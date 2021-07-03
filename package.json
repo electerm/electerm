@@ -1,6 +1,6 @@
 {
   "name": "electerm",
-  "version": "1.13.7",
+  "version": "1.13.8",
   "description": "Terminal/ssh/sftp client(linux, mac, win) based on electron/ssh2/node-pty/xterm/antd/subx and other libs",
   "main": "app.js",
   "bin": "npm/electerm",
@@ -31,6 +31,7 @@
   "license": "MIT",
   "langugeRepo": "https://github.com/electerm/electerm-locales",
   "privacyNoticeLink": "https://github.com/electerm/electerm/wiki/privacy-notice",
+  "knownIssuesLink": "https://github.com/electerm/electerm/wiki/Know-issues",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/electerm/electerm.git"
