@@ -152,7 +152,7 @@
     "socks": "2.6.1",
     "socks-proxy-agent": "6.0.0",
     "ssh-config": "4.0.6",
-    "ssh2": "1.1.0",
+    "ssh2": "0.8.9",
     "stylus": "0.54.8",
     "util-promisifyall": "1.0.6",
     "v8-compile-cache": "2.3.0"
