@@ -518,7 +518,11 @@ export default class Setting extends Component {
         {
           fonts.map(f => {
             return (
-              <Option value={f} key={f}>{f}</Option>
+              <Option value={f} key={f}>
+                <span style={{
+                  fontFamily: f
+                }}>{f}</span>
+              </Option>
             )
           })
         }
