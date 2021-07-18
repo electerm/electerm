@@ -298,10 +298,10 @@
         "name": "linux x86 x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/38213239",
-            "id": 38213239,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDM4MjEzMjM5",
-            "name": "electerm-1.13.4-linux-amd64.deb",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/40557496",
+            "id": 40557496,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDQwNTU3NDk2",
+            "name": "electerm-1.14.0-linux-amd64.deb",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -325,18 +325,18 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 59032620,
+            "size": 59121880,
             "download_count": 0,
-            "created_at": "2021-06-07T16:46:13Z",
-            "updated_at": "2021-06-07T16:46:15Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/1.13.4/electerm-1.13.4-linux-amd64.deb",
+            "created_at": "2021-07-18T13:37:56Z",
+            "updated_at": "2021-07-18T13:38:08Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.14.0/electerm-1.14.0-linux-amd64.deb",
             "desc": "for Debian, Ubuntu..."
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/38213316",
-            "id": 38213316,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDM4MjEzMzE2",
-            "name": "electerm-1.13.4-linux-amd64.snap",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/40557605",
+            "id": 40557605,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDQwNTU3NjA1",
+            "name": "electerm-1.14.0-linux-amd64.snap",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -360,18 +360,18 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 73379840,
+            "size": 73670656,
             "download_count": 0,
-            "created_at": "2021-06-07T16:49:11Z",
-            "updated_at": "2021-06-07T16:49:14Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/1.13.4/electerm-1.13.4-linux-amd64.snap",
+            "created_at": "2021-07-18T13:41:28Z",
+            "updated_at": "2021-07-18T13:41:31Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.14.0/electerm-1.14.0-linux-amd64.snap",
             "desc": "for all linux that support snap"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/38213171",
-            "id": 38213171,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDM4MjEzMTcx",
-            "name": "electerm-1.13.4-linux-x64.tar.gz",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/40557457",
+            "id": 40557457,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDQwNTU3NDU3",
+            "name": "electerm-1.14.0-linux-x64.tar.gz",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -395,18 +395,18 @@
             },
             "content_type": "application/gzip",
             "state": "uploaded",
-            "size": 81770552,
+            "size": 82091052,
             "download_count": 0,
-            "created_at": "2021-06-07T16:44:46Z",
-            "updated_at": "2021-06-07T16:44:48Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/1.13.4/electerm-1.13.4-linux-x64.tar.gz",
+            "created_at": "2021-07-18T13:36:13Z",
+            "updated_at": "2021-07-18T13:36:18Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.14.0/electerm-1.14.0-linux-x64.tar.gz",
             "desc": "for all linux x64, just extract"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/38213297",
-            "id": 38213297,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDM4MjEzMjk3",
-            "name": "electerm-1.13.4-linux-x86_64.rpm",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/40557558",
+            "id": 40557558,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDQwNTU3NTU4",
+            "name": "electerm-1.14.0-linux-x86_64.rpm",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -430,11 +430,11 @@
             },
             "content_type": "application/x-redhat-package-manager",
             "state": "uploaded",
-            "size": 60195688,
+            "size": 60344352,
             "download_count": 0,
-            "created_at": "2021-06-07T16:48:24Z",
-            "updated_at": "2021-06-07T16:48:26Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/1.13.4/electerm-1.13.4-linux-x86_64.rpm",
+            "created_at": "2021-07-18T13:40:36Z",
+            "updated_at": "2021-07-18T13:40:39Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.14.0/electerm-1.14.0-linux-x86_64.rpm",
             "desc": "for Red Hat, Fedora..."
           }
         ]
@@ -443,10 +443,10 @@
         "name": "mac os x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/38213233",
-            "id": 38213233,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDM4MjEzMjMz",
-            "name": "electerm-1.13.4-mac.dmg",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/40557482",
+            "id": 40557482,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDQwNTU3NDgy",
+            "name": "electerm-1.14.0-mac-x64.dmg",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -470,11 +470,11 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 86814488,
+            "size": 87141684,
             "download_count": 0,
-            "created_at": "2021-06-07T16:46:01Z",
-            "updated_at": "2021-06-07T16:46:05Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/1.13.4/electerm-1.13.4-mac.dmg"
+            "created_at": "2021-07-18T13:36:50Z",
+            "updated_at": "2021-07-18T13:36:57Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.14.0/electerm-1.14.0-mac-x64.dmg"
           }
         ]
       },
@@ -482,10 +482,10 @@
         "name": "windows 7/8/10 x86 x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/38213123",
-            "id": 38213123,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDM4MjEzMTIz",
-            "name": "electerm-1.13.4-win-installer.exe",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/40557461",
+            "id": 40557461,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDQwNTU3NDYx",
+            "name": "electerm-1.14.0-win-x64-installer.exe",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -509,17 +509,17 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 63482960,
+            "size": 63601110,
             "download_count": 0,
-            "created_at": "2021-06-07T16:44:25Z",
-            "updated_at": "2021-06-07T16:44:33Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/1.13.4/electerm-1.13.4-win-installer.exe"
+            "created_at": "2021-07-18T13:36:16Z",
+            "updated_at": "2021-07-18T13:36:19Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.14.0/electerm-1.14.0-win-x64-installer.exe"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/38213379",
-            "id": 38213379,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDM4MjEzMzc5",
-            "name": "electerm-1.13.4-win-x64-loose.tar.gz",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/40557661",
+            "id": 40557661,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDQwNTU3NjYx",
+            "name": "electerm-1.14.0-win-x64-loose.tar.gz",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -543,17 +543,17 @@
             },
             "content_type": "application/gzip",
             "state": "uploaded",
-            "size": 86049026,
-            "download_count": 0,
-            "created_at": "2021-06-07T16:51:37Z",
-            "updated_at": "2021-06-07T16:51:41Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/1.13.4/electerm-1.13.4-win-x64-loose.tar.gz"
+            "size": 86425630,
+            "download_count": 1,
+            "created_at": "2021-07-18T13:42:25Z",
+            "updated_at": "2021-07-18T13:42:34Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.14.0/electerm-1.14.0-win-x64-loose.tar.gz"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/38213092",
-            "id": 38213092,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDM4MjEzMDky",
-            "name": "electerm-1.13.4-win-x64.appx",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/40557447",
+            "id": 40557447,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDQwNTU3NDQ3",
+            "name": "electerm-1.14.0-win-x64.appx",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -577,17 +577,17 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 92619441,
+            "size": 92945727,
             "download_count": 0,
-            "created_at": "2021-06-07T16:43:39Z",
-            "updated_at": "2021-06-07T16:43:44Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/1.13.4/electerm-1.13.4-win-x64.appx"
+            "created_at": "2021-07-18T13:35:41Z",
+            "updated_at": "2021-07-18T13:35:47Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.14.0/electerm-1.14.0-win-x64.appx"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/38213270",
-            "id": 38213270,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDM4MjEzMjcw",
-            "name": "electerm-1.13.4-win-x64.tar.gz",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/40557514",
+            "id": 40557514,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDQwNTU3NTE0",
+            "name": "electerm-1.14.0-win-x64.tar.gz",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -611,18 +611,18 @@
             },
             "content_type": "application/gzip",
             "state": "uploaded",
-            "size": 86704927,
+            "size": 87022544,
             "download_count": 0,
-            "created_at": "2021-06-07T16:47:17Z",
-            "updated_at": "2021-06-07T16:47:21Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/1.13.4/electerm-1.13.4-win-x64.tar.gz"
+            "created_at": "2021-07-18T13:38:44Z",
+            "updated_at": "2021-07-18T13:38:48Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.14.0/electerm-1.14.0-win-x64.tar.gz"
           }
         ]
       }
     },
-    "version": "1.13.4",
-    "releaseNote": "Add privacy notice link and build appx and nsis release for windows (no need to upgrade)",
-    "releaseDate": "2021-06-07T17:58:00Z",
+    "version": "v1.14.0",
+    "releaseNote": "- [feature]: Support compress and transfer folder in sftp(auto uncompress)\r\n- [feature] Preview font style in font setting\r\n- [feature]: Add clear sync setting button",
+    "releaseDate": "2021-07-18T13:52:28Z",
     "siteKeywords": "electron,ternimal,electerm,ssh,sftp",
     "siteName": "electerm",
     "path": "/home/execapp/dev/electerm.html5beta.com/index.html"
@@ -926,10 +926,10 @@
         "name": "linux x86 x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/38213239",
-            "id": 38213239,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDM4MjEzMjM5",
-            "name": "electerm-1.13.4-linux-amd64.deb",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/40557496",
+            "id": 40557496,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDQwNTU3NDk2",
+            "name": "electerm-1.14.0-linux-amd64.deb",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -953,18 +953,18 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 59032620,
+            "size": 59121880,
             "download_count": 0,
-            "created_at": "2021-06-07T16:46:13Z",
-            "updated_at": "2021-06-07T16:46:15Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/1.13.4/electerm-1.13.4-linux-amd64.deb",
+            "created_at": "2021-07-18T13:37:56Z",
+            "updated_at": "2021-07-18T13:38:08Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.14.0/electerm-1.14.0-linux-amd64.deb",
             "desc": "for Debian, Ubuntu..."
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/38213316",
-            "id": 38213316,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDM4MjEzMzE2",
-            "name": "electerm-1.13.4-linux-amd64.snap",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/40557605",
+            "id": 40557605,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDQwNTU3NjA1",
+            "name": "electerm-1.14.0-linux-amd64.snap",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -988,18 +988,18 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 73379840,
+            "size": 73670656,
             "download_count": 0,
-            "created_at": "2021-06-07T16:49:11Z",
-            "updated_at": "2021-06-07T16:49:14Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/1.13.4/electerm-1.13.4-linux-amd64.snap",
+            "created_at": "2021-07-18T13:41:28Z",
+            "updated_at": "2021-07-18T13:41:31Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.14.0/electerm-1.14.0-linux-amd64.snap",
             "desc": "for all linux that support snap"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/38213171",
-            "id": 38213171,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDM4MjEzMTcx",
-            "name": "electerm-1.13.4-linux-x64.tar.gz",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/40557457",
+            "id": 40557457,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDQwNTU3NDU3",
+            "name": "electerm-1.14.0-linux-x64.tar.gz",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -1023,18 +1023,18 @@
             },
             "content_type": "application/gzip",
             "state": "uploaded",
-            "size": 81770552,
+            "size": 82091052,
             "download_count": 0,
-            "created_at": "2021-06-07T16:44:46Z",
-            "updated_at": "2021-06-07T16:44:48Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/1.13.4/electerm-1.13.4-linux-x64.tar.gz",
+            "created_at": "2021-07-18T13:36:13Z",
+            "updated_at": "2021-07-18T13:36:18Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.14.0/electerm-1.14.0-linux-x64.tar.gz",
             "desc": "for all linux x64, just extract"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/38213297",
-            "id": 38213297,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDM4MjEzMjk3",
-            "name": "electerm-1.13.4-linux-x86_64.rpm",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/40557558",
+            "id": 40557558,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDQwNTU3NTU4",
+            "name": "electerm-1.14.0-linux-x86_64.rpm",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -1058,11 +1058,11 @@
             },
             "content_type": "application/x-redhat-package-manager",
             "state": "uploaded",
-            "size": 60195688,
+            "size": 60344352,
             "download_count": 0,
-            "created_at": "2021-06-07T16:48:24Z",
-            "updated_at": "2021-06-07T16:48:26Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/1.13.4/electerm-1.13.4-linux-x86_64.rpm",
+            "created_at": "2021-07-18T13:40:36Z",
+            "updated_at": "2021-07-18T13:40:39Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.14.0/electerm-1.14.0-linux-x86_64.rpm",
             "desc": "for Red Hat, Fedora..."
           }
         ]
@@ -1071,10 +1071,10 @@
         "name": "mac os x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/38213233",
-            "id": 38213233,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDM4MjEzMjMz",
-            "name": "electerm-1.13.4-mac.dmg",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/40557482",
+            "id": 40557482,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDQwNTU3NDgy",
+            "name": "electerm-1.14.0-mac-x64.dmg",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -1098,11 +1098,11 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 86814488,
+            "size": 87141684,
             "download_count": 0,
-            "created_at": "2021-06-07T16:46:01Z",
-            "updated_at": "2021-06-07T16:46:05Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/1.13.4/electerm-1.13.4-mac.dmg"
+            "created_at": "2021-07-18T13:36:50Z",
+            "updated_at": "2021-07-18T13:36:57Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.14.0/electerm-1.14.0-mac-x64.dmg"
           }
         ]
       },
@@ -1110,10 +1110,10 @@
         "name": "windows 7/8/10 x86 x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/38213123",
-            "id": 38213123,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDM4MjEzMTIz",
-            "name": "electerm-1.13.4-win-installer.exe",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/40557461",
+            "id": 40557461,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDQwNTU3NDYx",
+            "name": "electerm-1.14.0-win-x64-installer.exe",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -1137,17 +1137,17 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 63482960,
+            "size": 63601110,
             "download_count": 0,
-            "created_at": "2021-06-07T16:44:25Z",
-            "updated_at": "2021-06-07T16:44:33Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/1.13.4/electerm-1.13.4-win-installer.exe"
+            "created_at": "2021-07-18T13:36:16Z",
+            "updated_at": "2021-07-18T13:36:19Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.14.0/electerm-1.14.0-win-x64-installer.exe"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/38213379",
-            "id": 38213379,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDM4MjEzMzc5",
-            "name": "electerm-1.13.4-win-x64-loose.tar.gz",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/40557661",
+            "id": 40557661,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDQwNTU3NjYx",
+            "name": "electerm-1.14.0-win-x64-loose.tar.gz",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -1171,17 +1171,17 @@
             },
             "content_type": "application/gzip",
             "state": "uploaded",
-            "size": 86049026,
-            "download_count": 0,
-            "created_at": "2021-06-07T16:51:37Z",
-            "updated_at": "2021-06-07T16:51:41Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/1.13.4/electerm-1.13.4-win-x64-loose.tar.gz"
+            "size": 86425630,
+            "download_count": 1,
+            "created_at": "2021-07-18T13:42:25Z",
+            "updated_at": "2021-07-18T13:42:34Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.14.0/electerm-1.14.0-win-x64-loose.tar.gz"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/38213092",
-            "id": 38213092,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDM4MjEzMDky",
-            "name": "electerm-1.13.4-win-x64.appx",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/40557447",
+            "id": 40557447,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDQwNTU3NDQ3",
+            "name": "electerm-1.14.0-win-x64.appx",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -1205,17 +1205,17 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 92619441,
+            "size": 92945727,
             "download_count": 0,
-            "created_at": "2021-06-07T16:43:39Z",
-            "updated_at": "2021-06-07T16:43:44Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/1.13.4/electerm-1.13.4-win-x64.appx"
+            "created_at": "2021-07-18T13:35:41Z",
+            "updated_at": "2021-07-18T13:35:47Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.14.0/electerm-1.14.0-win-x64.appx"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/38213270",
-            "id": 38213270,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDM4MjEzMjcw",
-            "name": "electerm-1.13.4-win-x64.tar.gz",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/40557514",
+            "id": 40557514,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDQwNTU3NTE0",
+            "name": "electerm-1.14.0-win-x64.tar.gz",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -1239,18 +1239,18 @@
             },
             "content_type": "application/gzip",
             "state": "uploaded",
-            "size": 86704927,
+            "size": 87022544,
             "download_count": 0,
-            "created_at": "2021-06-07T16:47:17Z",
-            "updated_at": "2021-06-07T16:47:21Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/1.13.4/electerm-1.13.4-win-x64.tar.gz"
+            "created_at": "2021-07-18T13:38:44Z",
+            "updated_at": "2021-07-18T13:38:48Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.14.0/electerm-1.14.0-win-x64.tar.gz"
           }
         ]
       }
     },
-    "version": "1.13.4",
-    "releaseNote": "Add privacy notice link and build appx and nsis release for windows (no need to upgrade)",
-    "releaseDate": "2021-06-07T17:58:00Z",
+    "version": "v1.14.0",
+    "releaseNote": "- [feature]: Support compress and transfer folder in sftp(auto uncompress)\r\n- [feature] Preview font style in font setting\r\n- [feature]: Add clear sync setting button",
+    "releaseDate": "2021-07-18T13:52:28Z",
     "siteKeywords": "electron,ternimal,electerm,ssh,sftp",
     "siteName": "electerm",
     "path": "/home/execapp/dev/electerm.html5beta.com/index-es_es.html"
@@ -1554,10 +1554,10 @@
         "name": "linux x86 x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/38213239",
-            "id": 38213239,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDM4MjEzMjM5",
-            "name": "electerm-1.13.4-linux-amd64.deb",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/40557496",
+            "id": 40557496,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDQwNTU3NDk2",
+            "name": "electerm-1.14.0-linux-amd64.deb",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -1581,18 +1581,18 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 59032620,
+            "size": 59121880,
             "download_count": 0,
-            "created_at": "2021-06-07T16:46:13Z",
-            "updated_at": "2021-06-07T16:46:15Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/1.13.4/electerm-1.13.4-linux-amd64.deb",
+            "created_at": "2021-07-18T13:37:56Z",
+            "updated_at": "2021-07-18T13:38:08Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.14.0/electerm-1.14.0-linux-amd64.deb",
             "desc": "for Debian, Ubuntu..."
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/38213316",
-            "id": 38213316,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDM4MjEzMzE2",
-            "name": "electerm-1.13.4-linux-amd64.snap",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/40557605",
+            "id": 40557605,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDQwNTU3NjA1",
+            "name": "electerm-1.14.0-linux-amd64.snap",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -1616,18 +1616,18 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 73379840,
+            "size": 73670656,
             "download_count": 0,
-            "created_at": "2021-06-07T16:49:11Z",
-            "updated_at": "2021-06-07T16:49:14Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/1.13.4/electerm-1.13.4-linux-amd64.snap",
+            "created_at": "2021-07-18T13:41:28Z",
+            "updated_at": "2021-07-18T13:41:31Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.14.0/electerm-1.14.0-linux-amd64.snap",
             "desc": "for all linux that support snap"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/38213171",
-            "id": 38213171,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDM4MjEzMTcx",
-            "name": "electerm-1.13.4-linux-x64.tar.gz",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/40557457",
+            "id": 40557457,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDQwNTU3NDU3",
+            "name": "electerm-1.14.0-linux-x64.tar.gz",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -1651,18 +1651,18 @@
             },
             "content_type": "application/gzip",
             "state": "uploaded",
-            "size": 81770552,
+            "size": 82091052,
             "download_count": 0,
-            "created_at": "2021-06-07T16:44:46Z",
-            "updated_at": "2021-06-07T16:44:48Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/1.13.4/electerm-1.13.4-linux-x64.tar.gz",
+            "created_at": "2021-07-18T13:36:13Z",
+            "updated_at": "2021-07-18T13:36:18Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.14.0/electerm-1.14.0-linux-x64.tar.gz",
             "desc": "for all linux x64, just extract"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/38213297",
-            "id": 38213297,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDM4MjEzMjk3",
-            "name": "electerm-1.13.4-linux-x86_64.rpm",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/40557558",
+            "id": 40557558,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDQwNTU3NTU4",
+            "name": "electerm-1.14.0-linux-x86_64.rpm",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -1686,11 +1686,11 @@
             },
             "content_type": "application/x-redhat-package-manager",
             "state": "uploaded",
-            "size": 60195688,
+            "size": 60344352,
             "download_count": 0,
-            "created_at": "2021-06-07T16:48:24Z",
-            "updated_at": "2021-06-07T16:48:26Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/1.13.4/electerm-1.13.4-linux-x86_64.rpm",
+            "created_at": "2021-07-18T13:40:36Z",
+            "updated_at": "2021-07-18T13:40:39Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.14.0/electerm-1.14.0-linux-x86_64.rpm",
             "desc": "for Red Hat, Fedora..."
           }
         ]
@@ -1699,10 +1699,10 @@
         "name": "mac os x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/38213233",
-            "id": 38213233,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDM4MjEzMjMz",
-            "name": "electerm-1.13.4-mac.dmg",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/40557482",
+            "id": 40557482,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDQwNTU3NDgy",
+            "name": "electerm-1.14.0-mac-x64.dmg",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -1726,11 +1726,11 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 86814488,
+            "size": 87141684,
             "download_count": 0,
-            "created_at": "2021-06-07T16:46:01Z",
-            "updated_at": "2021-06-07T16:46:05Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/1.13.4/electerm-1.13.4-mac.dmg"
+            "created_at": "2021-07-18T13:36:50Z",
+            "updated_at": "2021-07-18T13:36:57Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.14.0/electerm-1.14.0-mac-x64.dmg"
           }
         ]
       },
@@ -1738,10 +1738,10 @@
         "name": "windows 7/8/10 x86 x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/38213123",
-            "id": 38213123,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDM4MjEzMTIz",
-            "name": "electerm-1.13.4-win-installer.exe",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/40557461",
+            "id": 40557461,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDQwNTU3NDYx",
+            "name": "electerm-1.14.0-win-x64-installer.exe",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -1765,17 +1765,17 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 63482960,
+            "size": 63601110,
             "download_count": 0,
-            "created_at": "2021-06-07T16:44:25Z",
-            "updated_at": "2021-06-07T16:44:33Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/1.13.4/electerm-1.13.4-win-installer.exe"
+            "created_at": "2021-07-18T13:36:16Z",
+            "updated_at": "2021-07-18T13:36:19Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.14.0/electerm-1.14.0-win-x64-installer.exe"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/38213379",
-            "id": 38213379,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDM4MjEzMzc5",
-            "name": "electerm-1.13.4-win-x64-loose.tar.gz",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/40557661",
+            "id": 40557661,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDQwNTU3NjYx",
+            "name": "electerm-1.14.0-win-x64-loose.tar.gz",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -1799,17 +1799,17 @@
             },
             "content_type": "application/gzip",
             "state": "uploaded",
-            "size": 86049026,
-            "download_count": 0,
-            "created_at": "2021-06-07T16:51:37Z",
-            "updated_at": "2021-06-07T16:51:41Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/1.13.4/electerm-1.13.4-win-x64-loose.tar.gz"
+            "size": 86425630,
+            "download_count": 1,
+            "created_at": "2021-07-18T13:42:25Z",
+            "updated_at": "2021-07-18T13:42:34Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.14.0/electerm-1.14.0-win-x64-loose.tar.gz"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/38213092",
-            "id": 38213092,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDM4MjEzMDky",
-            "name": "electerm-1.13.4-win-x64.appx",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/40557447",
+            "id": 40557447,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDQwNTU3NDQ3",
+            "name": "electerm-1.14.0-win-x64.appx",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -1833,17 +1833,17 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 92619441,
+            "size": 92945727,
             "download_count": 0,
-            "created_at": "2021-06-07T16:43:39Z",
-            "updated_at": "2021-06-07T16:43:44Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/1.13.4/electerm-1.13.4-win-x64.appx"
+            "created_at": "2021-07-18T13:35:41Z",
+            "updated_at": "2021-07-18T13:35:47Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.14.0/electerm-1.14.0-win-x64.appx"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/38213270",
-            "id": 38213270,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDM4MjEzMjcw",
-            "name": "electerm-1.13.4-win-x64.tar.gz",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/40557514",
+            "id": 40557514,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDQwNTU3NTE0",
+            "name": "electerm-1.14.0-win-x64.tar.gz",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -1867,18 +1867,18 @@
             },
             "content_type": "application/gzip",
             "state": "uploaded",
-            "size": 86704927,
+            "size": 87022544,
             "download_count": 0,
-            "created_at": "2021-06-07T16:47:17Z",
-            "updated_at": "2021-06-07T16:47:21Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/1.13.4/electerm-1.13.4-win-x64.tar.gz"
+            "created_at": "2021-07-18T13:38:44Z",
+            "updated_at": "2021-07-18T13:38:48Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.14.0/electerm-1.14.0-win-x64.tar.gz"
           }
         ]
       }
     },
-    "version": "1.13.4",
-    "releaseNote": "Add privacy notice link and build appx and nsis release for windows (no need to upgrade)",
-    "releaseDate": "2021-06-07T17:58:00Z",
+    "version": "v1.14.0",
+    "releaseNote": "- [feature]: Support compress and transfer folder in sftp(auto uncompress)\r\n- [feature] Preview font style in font setting\r\n- [feature]: Add clear sync setting button",
+    "releaseDate": "2021-07-18T13:52:28Z",
     "siteKeywords": "electron,ternimal,electerm,ssh,sftp",
     "siteName": "electerm",
     "path": "/home/execapp/dev/electerm.html5beta.com/index-fr_fr.html"
@@ -2182,10 +2182,10 @@
         "name": "linux x86 x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/38213239",
-            "id": 38213239,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDM4MjEzMjM5",
-            "name": "electerm-1.13.4-linux-amd64.deb",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/40557496",
+            "id": 40557496,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDQwNTU3NDk2",
+            "name": "electerm-1.14.0-linux-amd64.deb",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -2209,18 +2209,18 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 59032620,
+            "size": 59121880,
             "download_count": 0,
-            "created_at": "2021-06-07T16:46:13Z",
-            "updated_at": "2021-06-07T16:46:15Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/1.13.4/electerm-1.13.4-linux-amd64.deb",
+            "created_at": "2021-07-18T13:37:56Z",
+            "updated_at": "2021-07-18T13:38:08Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.14.0/electerm-1.14.0-linux-amd64.deb",
             "desc": "for Debian, Ubuntu..."
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/38213316",
-            "id": 38213316,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDM4MjEzMzE2",
-            "name": "electerm-1.13.4-linux-amd64.snap",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/40557605",
+            "id": 40557605,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDQwNTU3NjA1",
+            "name": "electerm-1.14.0-linux-amd64.snap",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -2244,18 +2244,18 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 73379840,
+            "size": 73670656,
             "download_count": 0,
-            "created_at": "2021-06-07T16:49:11Z",
-            "updated_at": "2021-06-07T16:49:14Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/1.13.4/electerm-1.13.4-linux-amd64.snap",
+            "created_at": "2021-07-18T13:41:28Z",
+            "updated_at": "2021-07-18T13:41:31Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.14.0/electerm-1.14.0-linux-amd64.snap",
             "desc": "for all linux that support snap"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/38213171",
-            "id": 38213171,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDM4MjEzMTcx",
-            "name": "electerm-1.13.4-linux-x64.tar.gz",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/40557457",
+            "id": 40557457,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDQwNTU3NDU3",
+            "name": "electerm-1.14.0-linux-x64.tar.gz",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -2279,18 +2279,18 @@
             },
             "content_type": "application/gzip",
             "state": "uploaded",
-            "size": 81770552,
+            "size": 82091052,
             "download_count": 0,
-            "created_at": "2021-06-07T16:44:46Z",
-            "updated_at": "2021-06-07T16:44:48Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/1.13.4/electerm-1.13.4-linux-x64.tar.gz",
+            "created_at": "2021-07-18T13:36:13Z",
+            "updated_at": "2021-07-18T13:36:18Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.14.0/electerm-1.14.0-linux-x64.tar.gz",
             "desc": "for all linux x64, just extract"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/38213297",
-            "id": 38213297,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDM4MjEzMjk3",
-            "name": "electerm-1.13.4-linux-x86_64.rpm",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/40557558",
+            "id": 40557558,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDQwNTU3NTU4",
+            "name": "electerm-1.14.0-linux-x86_64.rpm",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -2314,11 +2314,11 @@
             },
             "content_type": "application/x-redhat-package-manager",
             "state": "uploaded",
-            "size": 60195688,
+            "size": 60344352,
             "download_count": 0,
-            "created_at": "2021-06-07T16:48:24Z",
-            "updated_at": "2021-06-07T16:48:26Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/1.13.4/electerm-1.13.4-linux-x86_64.rpm",
+            "created_at": "2021-07-18T13:40:36Z",
+            "updated_at": "2021-07-18T13:40:39Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.14.0/electerm-1.14.0-linux-x86_64.rpm",
             "desc": "for Red Hat, Fedora..."
           }
         ]
@@ -2327,10 +2327,10 @@
         "name": "mac os x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/38213233",
-            "id": 38213233,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDM4MjEzMjMz",
-            "name": "electerm-1.13.4-mac.dmg",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/40557482",
+            "id": 40557482,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDQwNTU3NDgy",
+            "name": "electerm-1.14.0-mac-x64.dmg",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -2354,11 +2354,11 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 86814488,
+            "size": 87141684,
             "download_count": 0,
-            "created_at": "2021-06-07T16:46:01Z",
-            "updated_at": "2021-06-07T16:46:05Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/1.13.4/electerm-1.13.4-mac.dmg"
+            "created_at": "2021-07-18T13:36:50Z",
+            "updated_at": "2021-07-18T13:36:57Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.14.0/electerm-1.14.0-mac-x64.dmg"
           }
         ]
       },
@@ -2366,10 +2366,10 @@
         "name": "windows 7/8/10 x86 x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/38213123",
-            "id": 38213123,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDM4MjEzMTIz",
-            "name": "electerm-1.13.4-win-installer.exe",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/40557461",
+            "id": 40557461,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDQwNTU3NDYx",
+            "name": "electerm-1.14.0-win-x64-installer.exe",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -2393,17 +2393,17 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 63482960,
+            "size": 63601110,
             "download_count": 0,
-            "created_at": "2021-06-07T16:44:25Z",
-            "updated_at": "2021-06-07T16:44:33Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/1.13.4/electerm-1.13.4-win-installer.exe"
+            "created_at": "2021-07-18T13:36:16Z",
+            "updated_at": "2021-07-18T13:36:19Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.14.0/electerm-1.14.0-win-x64-installer.exe"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/38213379",
-            "id": 38213379,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDM4MjEzMzc5",
-            "name": "electerm-1.13.4-win-x64-loose.tar.gz",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/40557661",
+            "id": 40557661,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDQwNTU3NjYx",
+            "name": "electerm-1.14.0-win-x64-loose.tar.gz",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -2427,17 +2427,17 @@
             },
             "content_type": "application/gzip",
             "state": "uploaded",
-            "size": 86049026,
-            "download_count": 0,
-            "created_at": "2021-06-07T16:51:37Z",
-            "updated_at": "2021-06-07T16:51:41Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/1.13.4/electerm-1.13.4-win-x64-loose.tar.gz"
+            "size": 86425630,
+            "download_count": 1,
+            "created_at": "2021-07-18T13:42:25Z",
+            "updated_at": "2021-07-18T13:42:34Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.14.0/electerm-1.14.0-win-x64-loose.tar.gz"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/38213092",
-            "id": 38213092,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDM4MjEzMDky",
-            "name": "electerm-1.13.4-win-x64.appx",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/40557447",
+            "id": 40557447,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDQwNTU3NDQ3",
+            "name": "electerm-1.14.0-win-x64.appx",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -2461,17 +2461,17 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 92619441,
+            "size": 92945727,
             "download_count": 0,
-            "created_at": "2021-06-07T16:43:39Z",
-            "updated_at": "2021-06-07T16:43:44Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/1.13.4/electerm-1.13.4-win-x64.appx"
+            "created_at": "2021-07-18T13:35:41Z",
+            "updated_at": "2021-07-18T13:35:47Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.14.0/electerm-1.14.0-win-x64.appx"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/38213270",
-            "id": 38213270,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDM4MjEzMjcw",
-            "name": "electerm-1.13.4-win-x64.tar.gz",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/40557514",
+            "id": 40557514,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDQwNTU3NTE0",
+            "name": "electerm-1.14.0-win-x64.tar.gz",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -2495,18 +2495,18 @@
             },
             "content_type": "application/gzip",
             "state": "uploaded",
-            "size": 86704927,
+            "size": 87022544,
             "download_count": 0,
-            "created_at": "2021-06-07T16:47:17Z",
-            "updated_at": "2021-06-07T16:47:21Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/1.13.4/electerm-1.13.4-win-x64.tar.gz"
+            "created_at": "2021-07-18T13:38:44Z",
+            "updated_at": "2021-07-18T13:38:48Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.14.0/electerm-1.14.0-win-x64.tar.gz"
           }
         ]
       }
     },
-    "version": "1.13.4",
-    "releaseNote": "Add privacy notice link and build appx and nsis release for windows (no need to upgrade)",
-    "releaseDate": "2021-06-07T17:58:00Z",
+    "version": "v1.14.0",
+    "releaseNote": "- [feature]: Support compress and transfer folder in sftp(auto uncompress)\r\n- [feature] Preview font style in font setting\r\n- [feature]: Add clear sync setting button",
+    "releaseDate": "2021-07-18T13:52:28Z",
     "siteKeywords": "electron,ternimal,electerm,ssh,sftp",
     "siteName": "electerm",
     "path": "/home/execapp/dev/electerm.html5beta.com/index-ja_jp.html"
@@ -2810,10 +2810,10 @@
         "name": "linux x86 x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/38213239",
-            "id": 38213239,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDM4MjEzMjM5",
-            "name": "electerm-1.13.4-linux-amd64.deb",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/40557496",
+            "id": 40557496,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDQwNTU3NDk2",
+            "name": "electerm-1.14.0-linux-amd64.deb",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -2837,18 +2837,18 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 59032620,
+            "size": 59121880,
             "download_count": 0,
-            "created_at": "2021-06-07T16:46:13Z",
-            "updated_at": "2021-06-07T16:46:15Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/1.13.4/electerm-1.13.4-linux-amd64.deb",
+            "created_at": "2021-07-18T13:37:56Z",
+            "updated_at": "2021-07-18T13:38:08Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.14.0/electerm-1.14.0-linux-amd64.deb",
             "desc": "for Debian, Ubuntu..."
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/38213316",
-            "id": 38213316,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDM4MjEzMzE2",
-            "name": "electerm-1.13.4-linux-amd64.snap",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/40557605",
+            "id": 40557605,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDQwNTU3NjA1",
+            "name": "electerm-1.14.0-linux-amd64.snap",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -2872,18 +2872,18 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 73379840,
+            "size": 73670656,
             "download_count": 0,
-            "created_at": "2021-06-07T16:49:11Z",
-            "updated_at": "2021-06-07T16:49:14Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/1.13.4/electerm-1.13.4-linux-amd64.snap",
+            "created_at": "2021-07-18T13:41:28Z",
+            "updated_at": "2021-07-18T13:41:31Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.14.0/electerm-1.14.0-linux-amd64.snap",
             "desc": "for all linux that support snap"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/38213171",
-            "id": 38213171,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDM4MjEzMTcx",
-            "name": "electerm-1.13.4-linux-x64.tar.gz",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/40557457",
+            "id": 40557457,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDQwNTU3NDU3",
+            "name": "electerm-1.14.0-linux-x64.tar.gz",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -2907,18 +2907,18 @@
             },
             "content_type": "application/gzip",
             "state": "uploaded",
-            "size": 81770552,
+            "size": 82091052,
             "download_count": 0,
-            "created_at": "2021-06-07T16:44:46Z",
-            "updated_at": "2021-06-07T16:44:48Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/1.13.4/electerm-1.13.4-linux-x64.tar.gz",
+            "created_at": "2021-07-18T13:36:13Z",
+            "updated_at": "2021-07-18T13:36:18Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.14.0/electerm-1.14.0-linux-x64.tar.gz",
             "desc": "for all linux x64, just extract"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/38213297",
-            "id": 38213297,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDM4MjEzMjk3",
-            "name": "electerm-1.13.4-linux-x86_64.rpm",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/40557558",
+            "id": 40557558,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDQwNTU3NTU4",
+            "name": "electerm-1.14.0-linux-x86_64.rpm",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -2942,11 +2942,11 @@
             },
             "content_type": "application/x-redhat-package-manager",
             "state": "uploaded",
-            "size": 60195688,
+            "size": 60344352,
             "download_count": 0,
-            "created_at": "2021-06-07T16:48:24Z",
-            "updated_at": "2021-06-07T16:48:26Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/1.13.4/electerm-1.13.4-linux-x86_64.rpm",
+            "created_at": "2021-07-18T13:40:36Z",
+            "updated_at": "2021-07-18T13:40:39Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.14.0/electerm-1.14.0-linux-x86_64.rpm",
             "desc": "for Red Hat, Fedora..."
           }
         ]
@@ -2955,10 +2955,10 @@
         "name": "mac os x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/38213233",
-            "id": 38213233,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDM4MjEzMjMz",
-            "name": "electerm-1.13.4-mac.dmg",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/40557482",
+            "id": 40557482,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDQwNTU3NDgy",
+            "name": "electerm-1.14.0-mac-x64.dmg",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -2982,11 +2982,11 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 86814488,
+            "size": 87141684,
             "download_count": 0,
-            "created_at": "2021-06-07T16:46:01Z",
-            "updated_at": "2021-06-07T16:46:05Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/1.13.4/electerm-1.13.4-mac.dmg"
+            "created_at": "2021-07-18T13:36:50Z",
+            "updated_at": "2021-07-18T13:36:57Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.14.0/electerm-1.14.0-mac-x64.dmg"
           }
         ]
       },
@@ -2994,10 +2994,10 @@
         "name": "windows 7/8/10 x86 x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/38213123",
-            "id": 38213123,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDM4MjEzMTIz",
-            "name": "electerm-1.13.4-win-installer.exe",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/40557461",
+            "id": 40557461,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDQwNTU3NDYx",
+            "name": "electerm-1.14.0-win-x64-installer.exe",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -3021,17 +3021,17 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 63482960,
+            "size": 63601110,
             "download_count": 0,
-            "created_at": "2021-06-07T16:44:25Z",
-            "updated_at": "2021-06-07T16:44:33Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/1.13.4/electerm-1.13.4-win-installer.exe"
+            "created_at": "2021-07-18T13:36:16Z",
+            "updated_at": "2021-07-18T13:36:19Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.14.0/electerm-1.14.0-win-x64-installer.exe"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/38213379",
-            "id": 38213379,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDM4MjEzMzc5",
-            "name": "electerm-1.13.4-win-x64-loose.tar.gz",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/40557661",
+            "id": 40557661,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDQwNTU3NjYx",
+            "name": "electerm-1.14.0-win-x64-loose.tar.gz",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -3055,17 +3055,17 @@
             },
             "content_type": "application/gzip",
             "state": "uploaded",
-            "size": 86049026,
-            "download_count": 0,
-            "created_at": "2021-06-07T16:51:37Z",
-            "updated_at": "2021-06-07T16:51:41Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/1.13.4/electerm-1.13.4-win-x64-loose.tar.gz"
+            "size": 86425630,
+            "download_count": 1,
+            "created_at": "2021-07-18T13:42:25Z",
+            "updated_at": "2021-07-18T13:42:34Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.14.0/electerm-1.14.0-win-x64-loose.tar.gz"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/38213092",
-            "id": 38213092,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDM4MjEzMDky",
-            "name": "electerm-1.13.4-win-x64.appx",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/40557447",
+            "id": 40557447,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDQwNTU3NDQ3",
+            "name": "electerm-1.14.0-win-x64.appx",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -3089,17 +3089,17 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 92619441,
+            "size": 92945727,
             "download_count": 0,
-            "created_at": "2021-06-07T16:43:39Z",
-            "updated_at": "2021-06-07T16:43:44Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/1.13.4/electerm-1.13.4-win-x64.appx"
+            "created_at": "2021-07-18T13:35:41Z",
+            "updated_at": "2021-07-18T13:35:47Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.14.0/electerm-1.14.0-win-x64.appx"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/38213270",
-            "id": 38213270,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDM4MjEzMjcw",
-            "name": "electerm-1.13.4-win-x64.tar.gz",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/40557514",
+            "id": 40557514,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDQwNTU3NTE0",
+            "name": "electerm-1.14.0-win-x64.tar.gz",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -3123,18 +3123,18 @@
             },
             "content_type": "application/gzip",
             "state": "uploaded",
-            "size": 86704927,
+            "size": 87022544,
             "download_count": 0,
-            "created_at": "2021-06-07T16:47:17Z",
-            "updated_at": "2021-06-07T16:47:21Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/1.13.4/electerm-1.13.4-win-x64.tar.gz"
+            "created_at": "2021-07-18T13:38:44Z",
+            "updated_at": "2021-07-18T13:38:48Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.14.0/electerm-1.14.0-win-x64.tar.gz"
           }
         ]
       }
     },
-    "version": "1.13.4",
-    "releaseNote": "Add privacy notice link and build appx and nsis release for windows (no need to upgrade)",
-    "releaseDate": "2021-06-07T17:58:00Z",
+    "version": "v1.14.0",
+    "releaseNote": "- [feature]: Support compress and transfer folder in sftp(auto uncompress)\r\n- [feature] Preview font style in font setting\r\n- [feature]: Add clear sync setting button",
+    "releaseDate": "2021-07-18T13:52:28Z",
     "siteKeywords": "electron,ternimal,electerm,ssh,sftp",
     "siteName": "electerm",
     "path": "/home/execapp/dev/electerm.html5beta.com/index-pt_br.html"
@@ -3438,10 +3438,10 @@
         "name": "linux x86 x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/38213239",
-            "id": 38213239,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDM4MjEzMjM5",
-            "name": "electerm-1.13.4-linux-amd64.deb",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/40557496",
+            "id": 40557496,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDQwNTU3NDk2",
+            "name": "electerm-1.14.0-linux-amd64.deb",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -3465,18 +3465,18 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 59032620,
+            "size": 59121880,
             "download_count": 0,
-            "created_at": "2021-06-07T16:46:13Z",
-            "updated_at": "2021-06-07T16:46:15Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/1.13.4/electerm-1.13.4-linux-amd64.deb",
+            "created_at": "2021-07-18T13:37:56Z",
+            "updated_at": "2021-07-18T13:38:08Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.14.0/electerm-1.14.0-linux-amd64.deb",
             "desc": "for Debian, Ubuntu..."
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/38213316",
-            "id": 38213316,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDM4MjEzMzE2",
-            "name": "electerm-1.13.4-linux-amd64.snap",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/40557605",
+            "id": 40557605,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDQwNTU3NjA1",
+            "name": "electerm-1.14.0-linux-amd64.snap",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -3500,18 +3500,18 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 73379840,
+            "size": 73670656,
             "download_count": 0,
-            "created_at": "2021-06-07T16:49:11Z",
-            "updated_at": "2021-06-07T16:49:14Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/1.13.4/electerm-1.13.4-linux-amd64.snap",
+            "created_at": "2021-07-18T13:41:28Z",
+            "updated_at": "2021-07-18T13:41:31Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.14.0/electerm-1.14.0-linux-amd64.snap",
             "desc": "for all linux that support snap"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/38213171",
-            "id": 38213171,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDM4MjEzMTcx",
-            "name": "electerm-1.13.4-linux-x64.tar.gz",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/40557457",
+            "id": 40557457,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDQwNTU3NDU3",
+            "name": "electerm-1.14.0-linux-x64.tar.gz",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -3535,18 +3535,18 @@
             },
             "content_type": "application/gzip",
             "state": "uploaded",
-            "size": 81770552,
+            "size": 82091052,
             "download_count": 0,
-            "created_at": "2021-06-07T16:44:46Z",
-            "updated_at": "2021-06-07T16:44:48Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/1.13.4/electerm-1.13.4-linux-x64.tar.gz",
+            "created_at": "2021-07-18T13:36:13Z",
+            "updated_at": "2021-07-18T13:36:18Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.14.0/electerm-1.14.0-linux-x64.tar.gz",
             "desc": "for all linux x64, just extract"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/38213297",
-            "id": 38213297,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDM4MjEzMjk3",
-            "name": "electerm-1.13.4-linux-x86_64.rpm",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/40557558",
+            "id": 40557558,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDQwNTU3NTU4",
+            "name": "electerm-1.14.0-linux-x86_64.rpm",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -3570,11 +3570,11 @@
             },
             "content_type": "application/x-redhat-package-manager",
             "state": "uploaded",
-            "size": 60195688,
+            "size": 60344352,
             "download_count": 0,
-            "created_at": "2021-06-07T16:48:24Z",
-            "updated_at": "2021-06-07T16:48:26Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/1.13.4/electerm-1.13.4-linux-x86_64.rpm",
+            "created_at": "2021-07-18T13:40:36Z",
+            "updated_at": "2021-07-18T13:40:39Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.14.0/electerm-1.14.0-linux-x86_64.rpm",
             "desc": "for Red Hat, Fedora..."
           }
         ]
@@ -3583,10 +3583,10 @@
         "name": "mac os x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/38213233",
-            "id": 38213233,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDM4MjEzMjMz",
-            "name": "electerm-1.13.4-mac.dmg",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/40557482",
+            "id": 40557482,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDQwNTU3NDgy",
+            "name": "electerm-1.14.0-mac-x64.dmg",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -3610,11 +3610,11 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 86814488,
+            "size": 87141684,
             "download_count": 0,
-            "created_at": "2021-06-07T16:46:01Z",
-            "updated_at": "2021-06-07T16:46:05Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/1.13.4/electerm-1.13.4-mac.dmg"
+            "created_at": "2021-07-18T13:36:50Z",
+            "updated_at": "2021-07-18T13:36:57Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.14.0/electerm-1.14.0-mac-x64.dmg"
           }
         ]
       },
@@ -3622,10 +3622,10 @@
         "name": "windows 7/8/10 x86 x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/38213123",
-            "id": 38213123,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDM4MjEzMTIz",
-            "name": "electerm-1.13.4-win-installer.exe",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/40557461",
+            "id": 40557461,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDQwNTU3NDYx",
+            "name": "electerm-1.14.0-win-x64-installer.exe",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -3649,17 +3649,17 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 63482960,
+            "size": 63601110,
             "download_count": 0,
-            "created_at": "2021-06-07T16:44:25Z",
-            "updated_at": "2021-06-07T16:44:33Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/1.13.4/electerm-1.13.4-win-installer.exe"
+            "created_at": "2021-07-18T13:36:16Z",
+            "updated_at": "2021-07-18T13:36:19Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.14.0/electerm-1.14.0-win-x64-installer.exe"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/38213379",
-            "id": 38213379,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDM4MjEzMzc5",
-            "name": "electerm-1.13.4-win-x64-loose.tar.gz",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/40557661",
+            "id": 40557661,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDQwNTU3NjYx",
+            "name": "electerm-1.14.0-win-x64-loose.tar.gz",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -3683,17 +3683,17 @@
             },
             "content_type": "application/gzip",
             "state": "uploaded",
-            "size": 86049026,
-            "download_count": 0,
-            "created_at": "2021-06-07T16:51:37Z",
-            "updated_at": "2021-06-07T16:51:41Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/1.13.4/electerm-1.13.4-win-x64-loose.tar.gz"
+            "size": 86425630,
+            "download_count": 1,
+            "created_at": "2021-07-18T13:42:25Z",
+            "updated_at": "2021-07-18T13:42:34Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.14.0/electerm-1.14.0-win-x64-loose.tar.gz"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/38213092",
-            "id": 38213092,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDM4MjEzMDky",
-            "name": "electerm-1.13.4-win-x64.appx",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/40557447",
+            "id": 40557447,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDQwNTU3NDQ3",
+            "name": "electerm-1.14.0-win-x64.appx",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -3717,17 +3717,17 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 92619441,
+            "size": 92945727,
             "download_count": 0,
-            "created_at": "2021-06-07T16:43:39Z",
-            "updated_at": "2021-06-07T16:43:44Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/1.13.4/electerm-1.13.4-win-x64.appx"
+            "created_at": "2021-07-18T13:35:41Z",
+            "updated_at": "2021-07-18T13:35:47Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.14.0/electerm-1.14.0-win-x64.appx"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/38213270",
-            "id": 38213270,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDM4MjEzMjcw",
-            "name": "electerm-1.13.4-win-x64.tar.gz",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/40557514",
+            "id": 40557514,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDQwNTU3NTE0",
+            "name": "electerm-1.14.0-win-x64.tar.gz",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -3751,18 +3751,18 @@
             },
             "content_type": "application/gzip",
             "state": "uploaded",
-            "size": 86704927,
+            "size": 87022544,
             "download_count": 0,
-            "created_at": "2021-06-07T16:47:17Z",
-            "updated_at": "2021-06-07T16:47:21Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/1.13.4/electerm-1.13.4-win-x64.tar.gz"
+            "created_at": "2021-07-18T13:38:44Z",
+            "updated_at": "2021-07-18T13:38:48Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.14.0/electerm-1.14.0-win-x64.tar.gz"
           }
         ]
       }
     },
-    "version": "1.13.4",
-    "releaseNote": "Add privacy notice link and build appx and nsis release for windows (no need to upgrade)",
-    "releaseDate": "2021-06-07T17:58:00Z",
+    "version": "v1.14.0",
+    "releaseNote": "- [feature]: Support compress and transfer folder in sftp(auto uncompress)\r\n- [feature] Preview font style in font setting\r\n- [feature]: Add clear sync setting button",
+    "releaseDate": "2021-07-18T13:52:28Z",
     "siteKeywords": "electron,ternimal,electerm,ssh,sftp",
     "siteName": "electerm",
     "path": "/home/execapp/dev/electerm.html5beta.com/index-ru_ru.html"
@@ -4066,10 +4066,10 @@
         "name": "linux x86 x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/38213239",
-            "id": 38213239,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDM4MjEzMjM5",
-            "name": "electerm-1.13.4-linux-amd64.deb",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/40557496",
+            "id": 40557496,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDQwNTU3NDk2",
+            "name": "electerm-1.14.0-linux-amd64.deb",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -4093,18 +4093,18 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 59032620,
+            "size": 59121880,
             "download_count": 0,
-            "created_at": "2021-06-07T16:46:13Z",
-            "updated_at": "2021-06-07T16:46:15Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/1.13.4/electerm-1.13.4-linux-amd64.deb",
+            "created_at": "2021-07-18T13:37:56Z",
+            "updated_at": "2021-07-18T13:38:08Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.14.0/electerm-1.14.0-linux-amd64.deb",
             "desc": "for Debian, Ubuntu..."
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/38213316",
-            "id": 38213316,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDM4MjEzMzE2",
-            "name": "electerm-1.13.4-linux-amd64.snap",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/40557605",
+            "id": 40557605,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDQwNTU3NjA1",
+            "name": "electerm-1.14.0-linux-amd64.snap",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -4128,18 +4128,18 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 73379840,
+            "size": 73670656,
             "download_count": 0,
-            "created_at": "2021-06-07T16:49:11Z",
-            "updated_at": "2021-06-07T16:49:14Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/1.13.4/electerm-1.13.4-linux-amd64.snap",
+            "created_at": "2021-07-18T13:41:28Z",
+            "updated_at": "2021-07-18T13:41:31Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.14.0/electerm-1.14.0-linux-amd64.snap",
             "desc": "for all linux that support snap"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/38213171",
-            "id": 38213171,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDM4MjEzMTcx",
-            "name": "electerm-1.13.4-linux-x64.tar.gz",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/40557457",
+            "id": 40557457,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDQwNTU3NDU3",
+            "name": "electerm-1.14.0-linux-x64.tar.gz",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -4163,18 +4163,18 @@
             },
             "content_type": "application/gzip",
             "state": "uploaded",
-            "size": 81770552,
+            "size": 82091052,
             "download_count": 0,
-            "created_at": "2021-06-07T16:44:46Z",
-            "updated_at": "2021-06-07T16:44:48Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/1.13.4/electerm-1.13.4-linux-x64.tar.gz",
+            "created_at": "2021-07-18T13:36:13Z",
+            "updated_at": "2021-07-18T13:36:18Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.14.0/electerm-1.14.0-linux-x64.tar.gz",
             "desc": "for all linux x64, just extract"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/38213297",
-            "id": 38213297,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDM4MjEzMjk3",
-            "name": "electerm-1.13.4-linux-x86_64.rpm",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/40557558",
+            "id": 40557558,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDQwNTU3NTU4",
+            "name": "electerm-1.14.0-linux-x86_64.rpm",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -4198,11 +4198,11 @@
             },
             "content_type": "application/x-redhat-package-manager",
             "state": "uploaded",
-            "size": 60195688,
+            "size": 60344352,
             "download_count": 0,
-            "created_at": "2021-06-07T16:48:24Z",
-            "updated_at": "2021-06-07T16:48:26Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/1.13.4/electerm-1.13.4-linux-x86_64.rpm",
+            "created_at": "2021-07-18T13:40:36Z",
+            "updated_at": "2021-07-18T13:40:39Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.14.0/electerm-1.14.0-linux-x86_64.rpm",
             "desc": "for Red Hat, Fedora..."
           }
         ]
@@ -4211,10 +4211,10 @@
         "name": "mac os x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/38213233",
-            "id": 38213233,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDM4MjEzMjMz",
-            "name": "electerm-1.13.4-mac.dmg",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/40557482",
+            "id": 40557482,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDQwNTU3NDgy",
+            "name": "electerm-1.14.0-mac-x64.dmg",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -4238,11 +4238,11 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 86814488,
+            "size": 87141684,
             "download_count": 0,
-            "created_at": "2021-06-07T16:46:01Z",
-            "updated_at": "2021-06-07T16:46:05Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/1.13.4/electerm-1.13.4-mac.dmg"
+            "created_at": "2021-07-18T13:36:50Z",
+            "updated_at": "2021-07-18T13:36:57Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.14.0/electerm-1.14.0-mac-x64.dmg"
           }
         ]
       },
@@ -4250,10 +4250,10 @@
         "name": "windows 7/8/10 x86 x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/38213123",
-            "id": 38213123,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDM4MjEzMTIz",
-            "name": "electerm-1.13.4-win-installer.exe",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/40557461",
+            "id": 40557461,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDQwNTU3NDYx",
+            "name": "electerm-1.14.0-win-x64-installer.exe",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -4277,17 +4277,17 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 63482960,
+            "size": 63601110,
             "download_count": 0,
-            "created_at": "2021-06-07T16:44:25Z",
-            "updated_at": "2021-06-07T16:44:33Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/1.13.4/electerm-1.13.4-win-installer.exe"
+            "created_at": "2021-07-18T13:36:16Z",
+            "updated_at": "2021-07-18T13:36:19Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.14.0/electerm-1.14.0-win-x64-installer.exe"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/38213379",
-            "id": 38213379,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDM4MjEzMzc5",
-            "name": "electerm-1.13.4-win-x64-loose.tar.gz",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/40557661",
+            "id": 40557661,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDQwNTU3NjYx",
+            "name": "electerm-1.14.0-win-x64-loose.tar.gz",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -4311,17 +4311,17 @@
             },
             "content_type": "application/gzip",
             "state": "uploaded",
-            "size": 86049026,
-            "download_count": 0,
-            "created_at": "2021-06-07T16:51:37Z",
-            "updated_at": "2021-06-07T16:51:41Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/1.13.4/electerm-1.13.4-win-x64-loose.tar.gz"
+            "size": 86425630,
+            "download_count": 1,
+            "created_at": "2021-07-18T13:42:25Z",
+            "updated_at": "2021-07-18T13:42:34Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.14.0/electerm-1.14.0-win-x64-loose.tar.gz"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/38213092",
-            "id": 38213092,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDM4MjEzMDky",
-            "name": "electerm-1.13.4-win-x64.appx",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/40557447",
+            "id": 40557447,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDQwNTU3NDQ3",
+            "name": "electerm-1.14.0-win-x64.appx",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -4345,17 +4345,17 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 92619441,
+            "size": 92945727,
             "download_count": 0,
-            "created_at": "2021-06-07T16:43:39Z",
-            "updated_at": "2021-06-07T16:43:44Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/1.13.4/electerm-1.13.4-win-x64.appx"
+            "created_at": "2021-07-18T13:35:41Z",
+            "updated_at": "2021-07-18T13:35:47Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.14.0/electerm-1.14.0-win-x64.appx"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/38213270",
-            "id": 38213270,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDM4MjEzMjcw",
-            "name": "electerm-1.13.4-win-x64.tar.gz",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/40557514",
+            "id": 40557514,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDQwNTU3NTE0",
+            "name": "electerm-1.14.0-win-x64.tar.gz",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -4379,18 +4379,18 @@
             },
             "content_type": "application/gzip",
             "state": "uploaded",
-            "size": 86704927,
+            "size": 87022544,
             "download_count": 0,
-            "created_at": "2021-06-07T16:47:17Z",
-            "updated_at": "2021-06-07T16:47:21Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/1.13.4/electerm-1.13.4-win-x64.tar.gz"
+            "created_at": "2021-07-18T13:38:44Z",
+            "updated_at": "2021-07-18T13:38:48Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.14.0/electerm-1.14.0-win-x64.tar.gz"
           }
         ]
       }
     },
-    "version": "1.13.4",
-    "releaseNote": "Add privacy notice link and build appx and nsis release for windows (no need to upgrade)",
-    "releaseDate": "2021-06-07T17:58:00Z",
+    "version": "v1.14.0",
+    "releaseNote": "- [feature]: Support compress and transfer folder in sftp(auto uncompress)\r\n- [feature] Preview font style in font setting\r\n- [feature]: Add clear sync setting button",
+    "releaseDate": "2021-07-18T13:52:28Z",
     "siteKeywords": "electron,ternimal,electerm,ssh,sftp",
     "siteName": "electerm",
     "path": "/home/execapp/dev/electerm.html5beta.com/index-tr_tr.html"
@@ -4694,10 +4694,10 @@
         "name": "linux x86 x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/38213239",
-            "id": 38213239,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDM4MjEzMjM5",
-            "name": "electerm-1.13.4-linux-amd64.deb",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/40557496",
+            "id": 40557496,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDQwNTU3NDk2",
+            "name": "electerm-1.14.0-linux-amd64.deb",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -4721,18 +4721,18 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 59032620,
+            "size": 59121880,
             "download_count": 0,
-            "created_at": "2021-06-07T16:46:13Z",
-            "updated_at": "2021-06-07T16:46:15Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/1.13.4/electerm-1.13.4-linux-amd64.deb",
+            "created_at": "2021-07-18T13:37:56Z",
+            "updated_at": "2021-07-18T13:38:08Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.14.0/electerm-1.14.0-linux-amd64.deb",
             "desc": "for Debian, Ubuntu..."
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/38213316",
-            "id": 38213316,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDM4MjEzMzE2",
-            "name": "electerm-1.13.4-linux-amd64.snap",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/40557605",
+            "id": 40557605,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDQwNTU3NjA1",
+            "name": "electerm-1.14.0-linux-amd64.snap",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -4756,18 +4756,18 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 73379840,
+            "size": 73670656,
             "download_count": 0,
-            "created_at": "2021-06-07T16:49:11Z",
-            "updated_at": "2021-06-07T16:49:14Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/1.13.4/electerm-1.13.4-linux-amd64.snap",
+            "created_at": "2021-07-18T13:41:28Z",
+            "updated_at": "2021-07-18T13:41:31Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.14.0/electerm-1.14.0-linux-amd64.snap",
             "desc": "for all linux that support snap"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/38213171",
-            "id": 38213171,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDM4MjEzMTcx",
-            "name": "electerm-1.13.4-linux-x64.tar.gz",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/40557457",
+            "id": 40557457,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDQwNTU3NDU3",
+            "name": "electerm-1.14.0-linux-x64.tar.gz",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -4791,18 +4791,18 @@
             },
             "content_type": "application/gzip",
             "state": "uploaded",
-            "size": 81770552,
+            "size": 82091052,
             "download_count": 0,
-            "created_at": "2021-06-07T16:44:46Z",
-            "updated_at": "2021-06-07T16:44:48Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/1.13.4/electerm-1.13.4-linux-x64.tar.gz",
+            "created_at": "2021-07-18T13:36:13Z",
+            "updated_at": "2021-07-18T13:36:18Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.14.0/electerm-1.14.0-linux-x64.tar.gz",
             "desc": "for all linux x64, just extract"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/38213297",
-            "id": 38213297,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDM4MjEzMjk3",
-            "name": "electerm-1.13.4-linux-x86_64.rpm",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/40557558",
+            "id": 40557558,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDQwNTU3NTU4",
+            "name": "electerm-1.14.0-linux-x86_64.rpm",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -4826,11 +4826,11 @@
             },
             "content_type": "application/x-redhat-package-manager",
             "state": "uploaded",
-            "size": 60195688,
+            "size": 60344352,
             "download_count": 0,
-            "created_at": "2021-06-07T16:48:24Z",
-            "updated_at": "2021-06-07T16:48:26Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/1.13.4/electerm-1.13.4-linux-x86_64.rpm",
+            "created_at": "2021-07-18T13:40:36Z",
+            "updated_at": "2021-07-18T13:40:39Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.14.0/electerm-1.14.0-linux-x86_64.rpm",
             "desc": "for Red Hat, Fedora..."
           }
         ]
@@ -4839,10 +4839,10 @@
         "name": "mac os x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/38213233",
-            "id": 38213233,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDM4MjEzMjMz",
-            "name": "electerm-1.13.4-mac.dmg",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/40557482",
+            "id": 40557482,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDQwNTU3NDgy",
+            "name": "electerm-1.14.0-mac-x64.dmg",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -4866,11 +4866,11 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 86814488,
+            "size": 87141684,
             "download_count": 0,
-            "created_at": "2021-06-07T16:46:01Z",
-            "updated_at": "2021-06-07T16:46:05Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/1.13.4/electerm-1.13.4-mac.dmg"
+            "created_at": "2021-07-18T13:36:50Z",
+            "updated_at": "2021-07-18T13:36:57Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.14.0/electerm-1.14.0-mac-x64.dmg"
           }
         ]
       },
@@ -4878,10 +4878,10 @@
         "name": "windows 7/8/10 x86 x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/38213123",
-            "id": 38213123,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDM4MjEzMTIz",
-            "name": "electerm-1.13.4-win-installer.exe",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/40557461",
+            "id": 40557461,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDQwNTU3NDYx",
+            "name": "electerm-1.14.0-win-x64-installer.exe",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -4905,17 +4905,17 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 63482960,
+            "size": 63601110,
             "download_count": 0,
-            "created_at": "2021-06-07T16:44:25Z",
-            "updated_at": "2021-06-07T16:44:33Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/1.13.4/electerm-1.13.4-win-installer.exe"
+            "created_at": "2021-07-18T13:36:16Z",
+            "updated_at": "2021-07-18T13:36:19Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.14.0/electerm-1.14.0-win-x64-installer.exe"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/38213379",
-            "id": 38213379,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDM4MjEzMzc5",
-            "name": "electerm-1.13.4-win-x64-loose.tar.gz",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/40557661",
+            "id": 40557661,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDQwNTU3NjYx",
+            "name": "electerm-1.14.0-win-x64-loose.tar.gz",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -4939,17 +4939,17 @@
             },
             "content_type": "application/gzip",
             "state": "uploaded",
-            "size": 86049026,
-            "download_count": 0,
-            "created_at": "2021-06-07T16:51:37Z",
-            "updated_at": "2021-06-07T16:51:41Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/1.13.4/electerm-1.13.4-win-x64-loose.tar.gz"
+            "size": 86425630,
+            "download_count": 1,
+            "created_at": "2021-07-18T13:42:25Z",
+            "updated_at": "2021-07-18T13:42:34Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.14.0/electerm-1.14.0-win-x64-loose.tar.gz"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/38213092",
-            "id": 38213092,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDM4MjEzMDky",
-            "name": "electerm-1.13.4-win-x64.appx",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/40557447",
+            "id": 40557447,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDQwNTU3NDQ3",
+            "name": "electerm-1.14.0-win-x64.appx",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -4973,17 +4973,17 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 92619441,
+            "size": 92945727,
             "download_count": 0,
-            "created_at": "2021-06-07T16:43:39Z",
-            "updated_at": "2021-06-07T16:43:44Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/1.13.4/electerm-1.13.4-win-x64.appx"
+            "created_at": "2021-07-18T13:35:41Z",
+            "updated_at": "2021-07-18T13:35:47Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.14.0/electerm-1.14.0-win-x64.appx"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/38213270",
-            "id": 38213270,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDM4MjEzMjcw",
-            "name": "electerm-1.13.4-win-x64.tar.gz",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/40557514",
+            "id": 40557514,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDQwNTU3NTE0",
+            "name": "electerm-1.14.0-win-x64.tar.gz",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -5007,18 +5007,18 @@
             },
             "content_type": "application/gzip",
             "state": "uploaded",
-            "size": 86704927,
+            "size": 87022544,
             "download_count": 0,
-            "created_at": "2021-06-07T16:47:17Z",
-            "updated_at": "2021-06-07T16:47:21Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/1.13.4/electerm-1.13.4-win-x64.tar.gz"
+            "created_at": "2021-07-18T13:38:44Z",
+            "updated_at": "2021-07-18T13:38:48Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.14.0/electerm-1.14.0-win-x64.tar.gz"
           }
         ]
       }
     },
-    "version": "1.13.4",
-    "releaseNote": "Add privacy notice link and build appx and nsis release for windows (no need to upgrade)",
-    "releaseDate": "2021-06-07T17:58:00Z",
+    "version": "v1.14.0",
+    "releaseNote": "- [feature]: Support compress and transfer folder in sftp(auto uncompress)\r\n- [feature] Preview font style in font setting\r\n- [feature]: Add clear sync setting button",
+    "releaseDate": "2021-07-18T13:52:28Z",
     "siteKeywords": "electron,ternimal,electerm,ssh,sftp",
     "siteName": "electerm",
     "path": "/home/execapp/dev/electerm.html5beta.com/index-zh_cn.html"
@@ -5322,10 +5322,10 @@
         "name": "linux x86 x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/38213239",
-            "id": 38213239,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDM4MjEzMjM5",
-            "name": "electerm-1.13.4-linux-amd64.deb",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/40557496",
+            "id": 40557496,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDQwNTU3NDk2",
+            "name": "electerm-1.14.0-linux-amd64.deb",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -5349,18 +5349,18 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 59032620,
+            "size": 59121880,
             "download_count": 0,
-            "created_at": "2021-06-07T16:46:13Z",
-            "updated_at": "2021-06-07T16:46:15Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/1.13.4/electerm-1.13.4-linux-amd64.deb",
+            "created_at": "2021-07-18T13:37:56Z",
+            "updated_at": "2021-07-18T13:38:08Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.14.0/electerm-1.14.0-linux-amd64.deb",
             "desc": "for Debian, Ubuntu..."
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/38213316",
-            "id": 38213316,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDM4MjEzMzE2",
-            "name": "electerm-1.13.4-linux-amd64.snap",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/40557605",
+            "id": 40557605,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDQwNTU3NjA1",
+            "name": "electerm-1.14.0-linux-amd64.snap",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -5384,18 +5384,18 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 73379840,
+            "size": 73670656,
             "download_count": 0,
-            "created_at": "2021-06-07T16:49:11Z",
-            "updated_at": "2021-06-07T16:49:14Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/1.13.4/electerm-1.13.4-linux-amd64.snap",
+            "created_at": "2021-07-18T13:41:28Z",
+            "updated_at": "2021-07-18T13:41:31Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.14.0/electerm-1.14.0-linux-amd64.snap",
             "desc": "for all linux that support snap"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/38213171",
-            "id": 38213171,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDM4MjEzMTcx",
-            "name": "electerm-1.13.4-linux-x64.tar.gz",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/40557457",
+            "id": 40557457,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDQwNTU3NDU3",
+            "name": "electerm-1.14.0-linux-x64.tar.gz",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -5419,18 +5419,18 @@
             },
             "content_type": "application/gzip",
             "state": "uploaded",
-            "size": 81770552,
+            "size": 82091052,
             "download_count": 0,
-            "created_at": "2021-06-07T16:44:46Z",
-            "updated_at": "2021-06-07T16:44:48Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/1.13.4/electerm-1.13.4-linux-x64.tar.gz",
+            "created_at": "2021-07-18T13:36:13Z",
+            "updated_at": "2021-07-18T13:36:18Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.14.0/electerm-1.14.0-linux-x64.tar.gz",
             "desc": "for all linux x64, just extract"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/38213297",
-            "id": 38213297,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDM4MjEzMjk3",
-            "name": "electerm-1.13.4-linux-x86_64.rpm",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/40557558",
+            "id": 40557558,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDQwNTU3NTU4",
+            "name": "electerm-1.14.0-linux-x86_64.rpm",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -5454,11 +5454,11 @@
             },
             "content_type": "application/x-redhat-package-manager",
             "state": "uploaded",
-            "size": 60195688,
+            "size": 60344352,
             "download_count": 0,
-            "created_at": "2021-06-07T16:48:24Z",
-            "updated_at": "2021-06-07T16:48:26Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/1.13.4/electerm-1.13.4-linux-x86_64.rpm",
+            "created_at": "2021-07-18T13:40:36Z",
+            "updated_at": "2021-07-18T13:40:39Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.14.0/electerm-1.14.0-linux-x86_64.rpm",
             "desc": "for Red Hat, Fedora..."
           }
         ]
@@ -5467,10 +5467,10 @@
         "name": "mac os x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/38213233",
-            "id": 38213233,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDM4MjEzMjMz",
-            "name": "electerm-1.13.4-mac.dmg",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/40557482",
+            "id": 40557482,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDQwNTU3NDgy",
+            "name": "electerm-1.14.0-mac-x64.dmg",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -5494,11 +5494,11 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 86814488,
+            "size": 87141684,
             "download_count": 0,
-            "created_at": "2021-06-07T16:46:01Z",
-            "updated_at": "2021-06-07T16:46:05Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/1.13.4/electerm-1.13.4-mac.dmg"
+            "created_at": "2021-07-18T13:36:50Z",
+            "updated_at": "2021-07-18T13:36:57Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.14.0/electerm-1.14.0-mac-x64.dmg"
           }
         ]
       },
@@ -5506,10 +5506,10 @@
         "name": "windows 7/8/10 x86 x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/38213123",
-            "id": 38213123,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDM4MjEzMTIz",
-            "name": "electerm-1.13.4-win-installer.exe",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/40557461",
+            "id": 40557461,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDQwNTU3NDYx",
+            "name": "electerm-1.14.0-win-x64-installer.exe",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -5533,17 +5533,17 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 63482960,
+            "size": 63601110,
             "download_count": 0,
-            "created_at": "2021-06-07T16:44:25Z",
-            "updated_at": "2021-06-07T16:44:33Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/1.13.4/electerm-1.13.4-win-installer.exe"
+            "created_at": "2021-07-18T13:36:16Z",
+            "updated_at": "2021-07-18T13:36:19Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.14.0/electerm-1.14.0-win-x64-installer.exe"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/38213379",
-            "id": 38213379,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDM4MjEzMzc5",
-            "name": "electerm-1.13.4-win-x64-loose.tar.gz",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/40557661",
+            "id": 40557661,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDQwNTU3NjYx",
+            "name": "electerm-1.14.0-win-x64-loose.tar.gz",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -5567,17 +5567,17 @@
             },
             "content_type": "application/gzip",
             "state": "uploaded",
-            "size": 86049026,
-            "download_count": 0,
-            "created_at": "2021-06-07T16:51:37Z",
-            "updated_at": "2021-06-07T16:51:41Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/1.13.4/electerm-1.13.4-win-x64-loose.tar.gz"
+            "size": 86425630,
+            "download_count": 1,
+            "created_at": "2021-07-18T13:42:25Z",
+            "updated_at": "2021-07-18T13:42:34Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.14.0/electerm-1.14.0-win-x64-loose.tar.gz"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/38213092",
-            "id": 38213092,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDM4MjEzMDky",
-            "name": "electerm-1.13.4-win-x64.appx",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/40557447",
+            "id": 40557447,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDQwNTU3NDQ3",
+            "name": "electerm-1.14.0-win-x64.appx",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -5601,17 +5601,17 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 92619441,
+            "size": 92945727,
             "download_count": 0,
-            "created_at": "2021-06-07T16:43:39Z",
-            "updated_at": "2021-06-07T16:43:44Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/1.13.4/electerm-1.13.4-win-x64.appx"
+            "created_at": "2021-07-18T13:35:41Z",
+            "updated_at": "2021-07-18T13:35:47Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.14.0/electerm-1.14.0-win-x64.appx"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/38213270",
-            "id": 38213270,
-            "node_id": "MDEyOlJlbGVhc2VBc3NldDM4MjEzMjcw",
-            "name": "electerm-1.13.4-win-x64.tar.gz",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/40557514",
+            "id": 40557514,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDQwNTU3NTE0",
+            "name": "electerm-1.14.0-win-x64.tar.gz",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -5635,18 +5635,18 @@
             },
             "content_type": "application/gzip",
             "state": "uploaded",
-            "size": 86704927,
+            "size": 87022544,
             "download_count": 0,
-            "created_at": "2021-06-07T16:47:17Z",
-            "updated_at": "2021-06-07T16:47:21Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/1.13.4/electerm-1.13.4-win-x64.tar.gz"
+            "created_at": "2021-07-18T13:38:44Z",
+            "updated_at": "2021-07-18T13:38:48Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.14.0/electerm-1.14.0-win-x64.tar.gz"
           }
         ]
       }
     },
-    "version": "1.13.4",
-    "releaseNote": "Add privacy notice link and build appx and nsis release for windows (no need to upgrade)",
-    "releaseDate": "2021-06-07T17:58:00Z",
+    "version": "v1.14.0",
+    "releaseNote": "- [feature]: Support compress and transfer folder in sftp(auto uncompress)\r\n- [feature] Preview font style in font setting\r\n- [feature]: Add clear sync setting button",
+    "releaseDate": "2021-07-18T13:52:28Z",
     "siteKeywords": "electron,ternimal,electerm,ssh,sftp",
     "siteName": "electerm",
     "path": "/home/execapp/dev/electerm.html5beta.com/index-zh_tw.html"
