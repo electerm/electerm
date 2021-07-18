@@ -151,7 +151,7 @@ export default class FileSection extends React.Component {
       const fromPath = isRemote
         ? item.replace(/^remote:/, '')
         : item
-      const { name } = getFolderFromFilePath(fromPath)
+      const { name } = getFolderFromFilePath(fromPath, isRemote)
       const toPath = resolve(path, name)
       res.push({
         typeFrom: isRemote ? typeMap.remote : typeMap.local,
@@ -216,7 +216,8 @@ export default class FileSection extends React.Component {
         continue
       }
       // let file = item.getAsFile()
-      const fileObj = getFolderFromFilePath(item.path)
+      const isRemote = false
+      const fileObj = getFolderFromFilePath(item.path, isRemote)
       res.push({
         ...fileObj,
         type: typeMap.local
@@ -674,6 +675,17 @@ export default class FileSection extends React.Component {
     this.props.addTransferList(arr)
   }
 
+  zipTransferDirectory = () => {
+    const { file } = this.state
+    const arr = this.getTransferList(file)
+    this.props.addTransferList(arr.map(s => {
+      return {
+        ...s,
+        zip: true
+      }
+    }))
+  }
+
   doEnterDirectory = (e) => {
     this.enterDirectory(e)
   }
@@ -761,6 +773,9 @@ export default class FileSection extends React.Component {
     const transferText = type === typeMap.local
       ? e(transferTypeMap.upload)
       : e(transferTypeMap.download)
+    const zipTransferTxt = type === typeMap.local
+      ? e('compressAndUpload')
+      : e('compressAndDownload')
     const Icon = type === typeMap.local
       ? CloudUploadOutlined
       : CloudDownloadOutlined
@@ -784,6 +799,18 @@ export default class FileSection extends React.Component {
                 onClick={this.doEnterDirectory}
               >
                 <EnterOutlined /> {e('enter')}
+              </div>
+            )
+            : null
+        }
+        {
+          isDirectory && id && hasHost && len < 2
+            ? (
+              <div
+                className={cls}
+                onClick={this.zipTransferDirectory}
+              >
+                <Icon /> {zipTransferTxt}
               </div>
             )
             : null

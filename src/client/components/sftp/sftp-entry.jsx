@@ -1054,7 +1054,8 @@ export default class Sftp extends Component {
       localListDebounce: this.localListDebounce,
       remoteListDebounce: this.remoteListDebounce,
       config: this.props.config,
-      tab: this.props.tab
+      tab: this.props.tab,
+      pid: this.props.pid
     }
     return (
       <div

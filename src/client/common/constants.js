@@ -118,7 +118,9 @@ export const transferTypeMap = buildConst([
   'download',
   'upload',
   'remote',
-  'local'
+  'local',
+  'compressAndDownload',
+  'compressAndUpload'
 ])
 
 export const fileOperationsMap = buildConst([

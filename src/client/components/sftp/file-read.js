@@ -22,8 +22,8 @@ export const getFileExt = fileName => {
   }
 }
 
-export const getFolderFromFilePath = filePath => {
-  const { sep } = window.pre
+export const getFolderFromFilePath = (filePath, isRemote) => {
+  const sep = isRemote ? '/' : window.pre.sep
   const arr = filePath.split(sep)
   const len = arr.length
   const isWinDisk = isWin && filePath.endsWith(sep)
@@ -51,7 +51,7 @@ export const getLocalFileInfo = async (filePath) => {
       owner: stat.uid,
       group: stat.gid,
       type: 'local',
-      ...getFolderFromFilePath(filePath),
+      ...getFolderFromFilePath(filePath, false),
       id: generate(),
       isDirectory: statr.isDirectory,
       isSymbolicLink: stat.isSymbolicLink
@@ -72,7 +72,7 @@ export const getRemoteFileInfo = async (sftp, filePath) => {
     group: stat.gid,
     owner: stat.uid,
     type: 'remote',
-    ...getFolderFromFilePath(filePath),
+    ...getFolderFromFilePath(filePath, true),
     id: generate(),
     isDirectory: stat.isDirectory
   }

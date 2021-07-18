@@ -67,7 +67,9 @@ const pre = {
     'readFile',
     'readFileAsBase64',
     'writeFile',
-    'openFile'
+    'openFile',
+    'zipFolder',
+    'unzipFile'
   ],
   osInfo: () => {
     return Object.keys(os).map((k, i) => {

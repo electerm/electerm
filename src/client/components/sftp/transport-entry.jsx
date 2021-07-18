@@ -78,7 +78,9 @@ export default class TransferEntry extends PureComponent {
         'sftp',
         'config',
         'store',
-        'tab'
+        'tab',
+        'sessionId',
+        'pid'
       ])
     }
     return (
