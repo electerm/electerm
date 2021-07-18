@@ -5,7 +5,7 @@
 
 import { useRef, useEffect } from 'react'
 import { useDelta, useConditionalEffect } from 'react-delta'
-import { maxTransport } from '../../common/constants'
+import { maxTransport, typeMap } from '../../common/constants'
 import { getLocalFileInfo, getRemoteFileInfo, getFolderFromFilePath, getFileExt } from './file-read'
 import copy from 'json-deep-copy'
 import _ from 'lodash'
@@ -37,7 +37,8 @@ export default (props) => {
   }
 
   function rename (tr, action, _renameId) {
-    const { path, name } = getFolderFromFilePath(tr.toPath)
+    const isRemote = tr.typeTo === typeMap.remote
+    const { path, name } = getFolderFromFilePath(tr.toPath, isRemote)
     const { base, ext } = getFileExt(name)
     const renameId = _renameId || generate()
     const newName = ext
@@ -164,20 +165,23 @@ export default (props) => {
   }
 
   async function expand (fromFile, tr) {
-    const { type } = fromFile
-    let list = await props[type + 'List'](
-      true, tr.fromPath
-    )
-    list = list.map(t => {
-      return {
-        typeFrom: tr.typeFrom,
-        typeTo: tr.typeTo,
-        fromPath: resolve(t.path, t.name),
-        toPath: resolve(tr.toPath, t.name),
-        id: generate(),
-        parentId: tr.id
-      }
-    })
+    let list = []
+    if (!tr.zip) {
+      const { type } = fromFile
+      list = await props[type + 'List'](
+        true, tr.fromPath
+      )
+      list = list.map(t => {
+        return {
+          typeFrom: tr.typeFrom,
+          typeTo: tr.typeTo,
+          fromPath: resolve(t.path, t.name),
+          toPath: resolve(tr.toPath, t.name),
+          id: generate(),
+          parentId: tr.id
+        }
+      })
+    }
     clear()
     props.modifier((old) => {
       const transferList = copy(old.transferList)

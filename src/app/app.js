@@ -76,11 +76,11 @@ async function createWindow () {
 
   global.win.loadURL(opts)
 
-  // if (isDev) {
-  //   global.win.webContents.once('dom-ready', () => {
-  //     global.win.webContents.openDevTools()
-  //   })
-  // }
+  if (isDev) {
+    global.win.webContents.once('dom-ready', () => {
+      global.win.webContents.openDevTools()
+    })
+  }
 
   global.win.on('unmaximize', () => {
     const { width, height } = global.win.getBounds()

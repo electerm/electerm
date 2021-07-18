@@ -2,11 +2,15 @@ import { useEffect, useRef } from 'react'
 import { useDelta, useConditionalEffect } from 'react-delta'
 import copy from 'json-deep-copy'
 import _ from 'lodash'
+import { nanoid as generate } from 'nanoid/non-secure'
 import TransportItem from './transport-ui'
 import { typeMap, transferTypeMap } from '../../common/constants'
 import fs from '../../common/fs'
 import { transportTypes } from './transport-types'
 import format, { computeLeftTime, computePassedTime } from './transfer-speed-format'
+import { getFolderFromFilePath } from './file-read'
+import resolve from '../../common/resolve'
+import { zipCmd, unzipCmd, rmCmd } from './zip'
 
 export default function transportAction (props) {
   const { transfer } = props
@@ -23,6 +27,16 @@ export default function transportAction (props) {
         }
       }
       Object.assign(transferList[index], up)
+      return {
+        transferList
+      }
+    })
+  }
+  function insert (insts) {
+    props.modifier((old) => {
+      const transferList = copy(old.transferList)
+      const index = _.findIndex(transferList, t => t.id === transfer.id)
+      transferList.splice(index, 1, ...insts)
       return {
         transferList
       }
@@ -163,6 +177,69 @@ export default function transportAction (props) {
         onError(e)
       })
   }
+  async function zipTransfer () {
+    const {
+      fromPath,
+      toPath,
+      typeFrom
+    } = transfer
+    let p
+    let isFromRemote
+    if (typeFrom === typeMap.local) {
+      isFromRemote = false
+      p = await fs.zipFolder(fromPath)
+    } else {
+      isFromRemote = true
+      p = await zipCmd(props.pid, props.sessionId, fromPath)
+    }
+    const { name } = getFolderFromFilePath(p, isFromRemote)
+    const { path } = getFolderFromFilePath(toPath, !isFromRemote)
+    const nTo = resolve(path, name)
+    const newTrans1 = {
+      ...copy(transfer),
+      toPath: nTo,
+      fromPath: p,
+      id: generate()
+    }
+    delete newTrans1.fromFile
+    delete newTrans1.inited
+    delete newTrans1.zip
+    const newTrans2 = copy(newTrans1)
+    newTrans2.unzip = true
+    newTrans2.id = generate()
+    const newTrans3 = copy(newTrans1)
+    newTrans3.clean = true
+    newTrans3.id = generate()
+    insert([newTrans1, newTrans2, newTrans3])
+  }
+
+  async function unzipFile () {
+    const {
+      toPath,
+      typeTo
+    } = transfer
+    const isToRemote = typeTo === typeMap.remote
+    const { path } = getFolderFromFilePath(toPath, isToRemote)
+    if (isToRemote) {
+      await unzipCmd(props.pid, props.sessionId, toPath, path)
+    } else {
+      await fs.unzipFile(toPath, path)
+    }
+    onEnd()
+  }
+
+  async function cleanFile () {
+    const {
+      toPath,
+      fromPath,
+      typeFrom
+    } = transfer
+    const isFromRemote = typeFrom === typeMap.remote
+    await rmCmd(props.pid, props.sessionId, isFromRemote ? fromPath : toPath)
+    await fs.rmrf(isFromRemote ? toPath : fromPath)
+    onEnd()
+  }
+
   async function doTransfer () {
     const {
       fromPath,
@@ -208,7 +285,10 @@ export default function transportAction (props) {
         isDirectory
       },
       action,
-      expanded
+      expanded,
+      zip,
+      unzip,
+      clean
     } = transfer
     const t = +new Date()
     update({
@@ -216,7 +296,13 @@ export default function transportAction (props) {
     })
     inst.current.startTime = t
     inst.current.started = true
-    if (typeFrom === typeTo) {
+    if (unzip) {
+      unzipFile()
+    } else if (clean) {
+      cleanFile()
+    } else if (zip) {
+      zipTransfer()
+    } else if (typeFrom === typeTo) {
       return mvOrCp()
     } else if (isDirectory && expanded && isTransferAction(action)) {
       return mkdir()
