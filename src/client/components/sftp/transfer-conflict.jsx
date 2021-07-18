@@ -166,7 +166,7 @@ export default (props) => {
 
   async function expand (fromFile, tr) {
     let list = []
-    if (!tr.zip) {
+    if (!tr.skipExpand) {
       const { type } = fromFile
       list = await props[type + 'List'](
         true, tr.fromPath

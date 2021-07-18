@@ -17,7 +17,6 @@ export async function zipCmd (pid, sessionId, filePath) {
   const { path, name } = getFolderFromFilePath(filePath, isRemote)
   const np = resolve(temp, `electerm-${id}.tar.gz`)
   const cmd = `tar -C ${path} -czf ${np} ${name}`
-  console.log('cmd', cmd)
   await runCmd(pid, sessionId, cmd)
   return np
 }

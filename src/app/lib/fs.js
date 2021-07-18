@@ -109,10 +109,8 @@ const zipFolder = (localFolerPath) => {
     const tempDir = require('os').tmpdir()
     const n = uid()
     const p = path.resolve(tempDir, `electerm-temp-${n}.tar.gz`)
-    console.log('zip', p)
     const cwd = path.dirname(localFolerPath)
     const file = path.basename(localFolerPath)
-    console.log('cwd', cwd)
     try {
       tar.c({
         gzip: true,
@@ -135,7 +133,6 @@ const zipFolder = (localFolerPath) => {
  */
 const unzipFile = (localFilePath, targetFolderPath) => {
   return new Promise((resolve, reject) => {
-    console.log('unzip', localFilePath, targetFolderPath)
     try {
       tar.x({
         file: localFilePath,

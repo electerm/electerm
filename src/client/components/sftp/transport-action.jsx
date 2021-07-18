@@ -15,6 +15,7 @@ import { zipCmd, unzipCmd, rmCmd } from './zip'
 export default function transportAction (props) {
   const { transfer } = props
   const inst = useRef({})
+  const unzipping = useRef(false)
   const initRef = useDelta(transfer.inited)
   const initRefExpand = useDelta(transfer.expaned)
   function update (up) {
@@ -47,7 +48,8 @@ export default function transportAction (props) {
       return
     }
     const {
-      typeTo
+      typeTo,
+      next
     } = transfer
     const cb = props[typeTo + 'List']
     const finishTime = +new Date()
@@ -61,6 +63,9 @@ export default function transportAction (props) {
           host: props.tab.host
         }
       )
+    }
+    if (next) {
+      insert([copy(next)])
     }
     cancel(cb)
   }
@@ -199,6 +204,7 @@ export default function transportAction (props) {
       ...copy(transfer),
       toPath: nTo,
       fromPath: p,
+
       id: generate()
     }
     delete newTrans1.fromFile
@@ -207,14 +213,17 @@ export default function transportAction (props) {
     const newTrans2 = copy(newTrans1)
     newTrans2.unzip = true
     newTrans2.id = generate()
-    const newTrans3 = copy(newTrans1)
-    newTrans3.clean = true
-    newTrans3.id = generate()
-    insert([newTrans1, newTrans2, newTrans3])
+    newTrans1.next = newTrans2
+    insert([newTrans1])
   }
 
   async function unzipFile () {
+    if (unzipping.current) {
+      return false
+    }
+    unzipping.current = true
     const {
+      fromPath,
       toPath,
       typeTo
     } = transfer
@@ -225,18 +234,8 @@ export default function transportAction (props) {
     } else {
       await fs.unzipFile(toPath, path)
     }
-    onEnd()
-  }
-
-  async function cleanFile () {
-    const {
-      toPath,
-      fromPath,
-      typeFrom
-    } = transfer
-    const isFromRemote = typeFrom === typeMap.remote
-    await rmCmd(props.pid, props.sessionId, isFromRemote ? fromPath : toPath)
-    await fs.rmrf(isFromRemote ? toPath : fromPath)
+    await rmCmd(props.pid, props.sessionId, !isToRemote ? fromPath : toPath)
+    await fs.rmrf(!isToRemote ? toPath : fromPath)
     onEnd()
   }
 
@@ -288,7 +287,7 @@ export default function transportAction (props) {
       expanded,
       zip,
       unzip,
-      clean
+      inited
     } = transfer
     const t = +new Date()
     update({
@@ -296,11 +295,9 @@ export default function transportAction (props) {
     })
     inst.current.startTime = t
     inst.current.started = true
-    if (unzip) {
+    if (unzip && inited) {
       unzipFile()
-    } else if (clean) {
-      cleanFile()
-    } else if (zip) {
+    } else if (zip && inited) {
       zipTransfer()
     } else if (typeFrom === typeTo) {
       return mvOrCp()

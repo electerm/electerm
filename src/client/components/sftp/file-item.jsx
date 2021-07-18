@@ -681,7 +681,8 @@ export default class FileSection extends React.Component {
     this.props.addTransferList(arr.map(s => {
       return {
         ...s,
-        zip: true
+        zip: true,
+        skipExpand: true
       }
     }))
   }
