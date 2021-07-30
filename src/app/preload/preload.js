@@ -5,7 +5,6 @@
 const fs = require('fs')
 const os = require('os')
 const { clipboard, shell, ipcRenderer, webFrame } = require('electron')
-const vali = require('path-validation')
 const lookup = require('../common/lookup')
 const { resolve, sep } = require('path')
 const contants = require('../utils/constants')
@@ -28,10 +27,6 @@ const pre = {
 
   writeClipboard: str => {
     return clipboard.writeText(str)
-  },
-
-  isAbsolutePath: (path, sep) => {
-    return vali.isAbsolutePath(path, sep)
   },
 
   resolve,
