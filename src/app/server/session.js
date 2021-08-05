@@ -2,7 +2,7 @@
  * terminal/sftp/serial class
  */
 const pty = require('node-pty')
-const { Client } = require('ssh2')
+const { Client } = require('@electerm/ssh2')
 const proxySock = require('./socks')
 const _ = require('lodash')
 const generate = require('../common/uid')

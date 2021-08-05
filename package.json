@@ -151,7 +151,7 @@
     "socks": "2.6.1",
     "socks-proxy-agent": "6.0.0",
     "ssh-config": "4.0.6",
-    "ssh2": "1.1.0",
+    "@electerm/ssh2": "1.2.1",
     "stylus": "0.54.8",
     "tar": "^6.1.0",
     "util-promisifyall": "1.0.6",
