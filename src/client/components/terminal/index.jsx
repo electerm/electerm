@@ -222,8 +222,6 @@ export default class Term extends Component {
       )
     ) {
       this.batchInput(e.data.cmd)
-    } else if (e.data && e.data.type === 'focus') {
-      this.setActive()
     } else if (
       e.data &&
       e.data.action === 'open-terminal-search' &&
