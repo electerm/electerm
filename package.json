@@ -1,6 +1,6 @@
 {
   "name": "electerm",
-  "version": "1.15.0",
+  "version": "1.15.2",
   "description": "Terminal/ssh/sftp client(linux, mac, win) based on electron/ssh2/node-pty/xterm/antd/subx and other libs",
   "main": "app.js",
   "bin": "npm/electerm",
@@ -124,7 +124,7 @@
     "zmodem.js": "0.1.10"
   },
   "dependencies": {
-    "@electerm/electerm-locales": "0.11.0",
+    "@electerm/electerm-locales": "0.11.2",
     "@yetzt/nedb": "^1.8.0",
     "antd-dayjs-webpack-plugin": "1.0.6",
     "axios": "0.21.1",
