@@ -183,7 +183,10 @@ export default class Setting extends Component {
   }
 
   renderNumber = (name, options, title = '', width = 136) => {
-    const value = this.props.config[name]
+    let value = this.props.config[name]
+    if (options.valueParser) {
+      value = options.valueParser(value)
+    }
     const defaultValue = defaultSettings[name]
     const {
       step = 1,
@@ -203,7 +206,7 @@ export default class Setting extends Component {
       placeholder: defaultValue
     }
     if (title) {
-      opts.formatter = v => `${title}: ${v}`
+      opts.formatter = v => `${title}${options.extraDesc || ''}: ${v}`
       opts.parser = (v) => {
         let vv = _.isNumber(v)
           ? v
@@ -595,6 +598,15 @@ export default class Setting extends Component {
             min: 100,
             cls: 'timeout-desc'
           }, e('timeoutDesc'), 400)
+        }
+        {
+          this.renderNumber('keepaliveInterval', {
+            step: 1000,
+            min: 1000,
+            max: 20000,
+            cls: 'keepalive-interval-desc',
+            extraDesc: '(ms)'
+          }, e('keepaliveIntervalDesc'), 400)
         }
         {
           this.renderNumber('opacity', {
