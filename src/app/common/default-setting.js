@@ -6,6 +6,7 @@ module.exports = exports.default = {
   hotkey: 'Control+2',
   sshReadyTimeout: 50000,
   scrollback: 3000,
+  onStartSessions: [],
   fontSize: 16,
   fontFamily: 'mono, courier-new, courier, monospace',
   execWindows: 'System32/WindowsPowerShell/v1.0/powershell.exe',

@@ -22,6 +22,7 @@ import Link from '../common/external-link'
 import _ from 'lodash'
 import createEditLangLink from '../../common/create-lang-edit-link'
 import mapper from '../../common/auto-complete-data-mapper'
+import StartSession from './start-session-select'
 import './setting.styl'
 
 const InputGroup = Input.Group
@@ -103,6 +104,10 @@ export default class Setting extends Component {
     this.saveConfig({
       [name]: value
     })
+  }
+
+  onChangeStartSessions = value => {
+    this.onChangeValue(value, 'onStartSessions')
   }
 
   handleChangeFont = (values) => {
@@ -568,6 +573,14 @@ export default class Setting extends Component {
               keys.map(this.renderOption)
             }
           </Select>
+        </div>
+        <div className='pd1b'>{e('onStartBookmarks')}</div>
+        <div className='pd2b'>
+          <StartSession
+            onStartSessions={this.props.config.onStartSessions}
+            store={this.props.store}
+            onChangeStartSessions={this.onChangeStartSessions}
+          />
         </div>
         {this.renderProxy()}
         {

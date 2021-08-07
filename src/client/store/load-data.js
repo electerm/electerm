@@ -46,6 +46,12 @@ export default (store) => {
       await remove(u.db, u.id)
     }
   }
+  store.openInitSessions = () => {
+    for (const s of store.config.onStartSessions || []) {
+      store.onSelectBookmark(s)
+    }
+    store.addTab()
+  }
   store.initData = async () => {
     await store.checkForDbUpgrade()
     const ext = {}
@@ -60,7 +66,7 @@ export default (store) => {
     await store.checkDefaultTheme()
     await store.initShortcuts()
     await store.loadFontList()
-    store.addTab()
+    store.openInitSessions()
     initWatch(store)
     store.initCommandLine().catch(store.onError)
   }
