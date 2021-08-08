@@ -43,23 +43,23 @@ async function main () {
   echo('build tar.gz')
   rm('-rf', 'dist')
   writeSrc('win-tar.gz')
-  await run('./node_modules/.bin/electron-builder --win tar.gz')
+  await run('node_modules/.bin/electron-builder --win tar.gz')
 
   echo('build appx')
   rm('-rf', 'dist')
   writeSrc('appx')
-  await run('./node_modules/.bin/electron-builder --win appx')
+  await run('node_modules/.bin/electron-builder --win appx')
 
   echo('build nsis')
   rm('-rf', 'dist')
   writeSrc('nsis')
-  await run('./node_modules/.bin/electron-builder --win nsis')
+  await run('node_modules/.bin/electron-builder --win nsis')
 
   echo('build loose tar.gz')
   await replaceRun()
   rm('-rf', 'dist')
   writeSrc('win.loose-tar.gz')
-  await run('./node_modules/.bin/electron-builder --win tar.gz')
+  await run('node_modules/.bin/electron-builder --win tar.gz')
 }
 
 main()
