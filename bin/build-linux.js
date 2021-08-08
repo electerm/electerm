@@ -1,14 +1,32 @@
-const { exec } = require('shelljs')
+const { echo, rm } = require('shelljs')
+const {
+  run,
+  writeSrc,
+  builder: pb
+} = require('./build-common')
 
-const cmd = 'rm -rf dist && ' +
-'echo "tar.gz" > work/app/install-src.txt && ' +
-'./node_modules/.bin/electron-builder --linux tar.gz && ' +
-'rm -rf dist && ' +
-'echo "deb" > work/app/install-src.txt && ' +
-'./node_modules/.bin/electron-builder --linux deb && ' +
-'rm -rf dist && ' +
-'echo "rpm" > work/app/install-src.txt && ' +
-'./node_modules/.bin/electron-builder --linux rpm &&' +
-'echo "snap" > work/app/install-src.txt && ' +
-'./node_modules/.bin/electron-builder --linux snap -p always'
-exec(cmd)
+async function main () {
+  echo('running build for linux')
+
+  echo('build tar.gz')
+  rm('-rf', 'dist')
+  writeSrc('linux-x64.tar.gz')
+  await run(`${pb} --linux tar.gz`)
+
+  echo('build deb')
+  rm('-rf', 'dist')
+  writeSrc('.deb')
+  await run(`${pb} --linux deb`)
+
+  echo('build rpm')
+  rm('-rf', 'dist')
+  writeSrc('.rpm')
+  await run(`${pb} --linux rpm`)
+
+  echo('build snap')
+  rm('-rf', 'dist')
+  writeSrc('.snap')
+  await run(`${pb} --linux snap -p always`)
+}
+
+main()

@@ -9,7 +9,7 @@ const {
   globalShortcut
 } = require('electron')
 const { dbAction } = require('./nedb')
-const getInstallSrc = require('./install-src')
+const installSrc = require('./install-src')
 const { getConfig } = require('./get-config')
 const loadSshConfig = require('./ssh-config')
 const {
@@ -67,7 +67,6 @@ function initIpc () {
     }
     const lang = langMap[language].lang
     const sshConfigItems = await loadSshConfig()
-    const installSrc = getInstallSrc()
     global.et.config = config
     const globs = {
       _config: config,

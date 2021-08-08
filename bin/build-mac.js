@@ -1,10 +1,26 @@
-const { exec } = require('shelljs')
 
-const cmd = 'rm -rf dist && ' +
-'echo "build x64 mac" && ' +
-'./node_modules/.bin/electron-builder --mac --x64'
+// const cmd = 'rm -rf dist && ' +
+// 'echo "build x64 mac" && ' +
+// './node_modules/.bin/electron-builder --mac --x64'
 // 'echo "build arm64 mac" && ' +
 // './node_modules/.bin/electron-rebuild --arch arm64 -f -p work/app && ' +
 // './node_modules/.bin/electron-builder --mac --arm64'
 // const cmd = './node_modules/.bin/electron-builder --mac'
-exec(cmd)
+
+const { echo, rm } = require('shelljs')
+const {
+  run,
+  writeSrc,
+  builder: pb
+} = require('./build-common')
+
+async function main () {
+  echo('running build for mac')
+
+  echo('build dmg')
+  rm('-rf', 'dist')
+  writeSrc('mac-x64.dmg')
+  await run(`${pb} --mac --x64 dmg`)
+}
+
+main()

@@ -51,12 +51,11 @@ async function runLinux () {
   await down(releaseInfo.browser_download_url)
   // await down('http://192.168.0.67:7500/electerm-0.16.1.tar.gz')
   exec(`mv ${target} ${targetNew}`)
-  exec(`echo "npm" > ${targetNew}/resources/install-src.txt`)
   exec('electerm')
 }
 
 async function runMac () {
-  const releaseInfo = await getReleaseInfo(r => /\.dmg$/.test(r.name))
+  const releaseInfo = await getReleaseInfo(r => /mac-x64\.dmg$/.test(r.name))
   await down(releaseInfo.browser_download_url, false)
   // await down('http://192.168.0.67:7500/electerm-0.16.1-mac.dmg', false)
   const target = resolve(__dirname, '../', releaseInfo.name)

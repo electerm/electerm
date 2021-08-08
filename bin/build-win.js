@@ -1,23 +1,15 @@
-const { exec } = require('child_process')
+
 const replace = require('replace-in-file')
-const { writeFileSync } = require('fs')
 const { rm, echo } = require('shelljs')
-const { resolve } = require('path')
+const {
+  run,
+  writeSrc,
+  builder
+} = require('./build-common')
 const options = {
   files: require('path').resolve(__dirname, '../electron-builder.json'),
   from: ['"asar": true', '${productName}-${version}-${os}-${arch}.${ext}', ', "appx", "nsis"'], // eslint-disable-line
   to: ['"asar": false', '${productName}-${version}-${os}-${arch}-loose.${ext}', ''] // eslint-disable-line
-}
-
-function run (cmd) {
-  return new Promise((resolve, reject) => {
-    exec(cmd, (err, stdout, stderr) => {
-      if (err || stderr) {
-        return reject(err || stderr)
-      }
-      resolve(stdout)
-    })
-  })
 }
 
 function replaceRun () {
@@ -32,36 +24,29 @@ function replaceRun () {
   })
 }
 
-function writeSrc (src) {
-  const p = resolve(__dirname, '../work/app/install-src.txt')
-  writeFileSync(p, src)
-}
-
 async function main () {
-  const pb = resolve(
-    __dirname, '../node_modules/.bin/electron-builder'
-  )
+  const pb = builder
   echo('running build for win')
 
   echo('build tar.gz')
   rm('-rf', 'dist')
-  writeSrc('win-tar.gz')
+  writeSrc('win-x64.tar.gz')
   await run(`${pb} --win tar.gz`)
 
   echo('build appx')
   rm('-rf', 'dist')
-  writeSrc('appx')
+  writeSrc('.appx')
   await run(`${pb} --win appx`)
 
   echo('build nsis')
   rm('-rf', 'dist')
-  writeSrc('nsis')
+  writeSrc('win-x64-installer.exe')
   await run(`${pb} --win nsis`)
 
   echo('build loose tar.gz')
   await replaceRun()
   rm('-rf', 'dist')
-  writeSrc('win.loose-tar.gz')
+  writeSrc('win-x64-loose.tar.gz')
   await run(`${pb} --win tar.gz`)
 }
 

@@ -16,6 +16,9 @@ const {
 const e = prefix('updater')
 const c = prefix('common')
 const { installSrc } = window.pre
+const srcSkip = [
+  '.appx'
+]
 
 export default function Upgrade (props) {
   const {
@@ -121,6 +124,9 @@ export default function Upgrade (props) {
   }
 
   async function getLatestRelease (noSkipVersion = false) {
+    if (installSrc) {
+
+    }
     changeProps({
       checkingRemoteVersion: true,
       error: ''
@@ -258,6 +264,7 @@ export default function Upgrade (props) {
       {renderChangeLog()}
     </div>
   )
+  const skip = srcSkip.includes(installSrc)
   return (
     <div className={cls}>
       <div className='upgrade-panel-title'>
@@ -266,7 +273,7 @@ export default function Upgrade (props) {
       </div>
       <div className='upgrade-panel-body'>
         {
-          installSrc || isWin || isMac
+          !skip
             ? (
               <div>
                 <Button
