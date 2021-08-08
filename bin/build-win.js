@@ -38,28 +38,31 @@ function writeSrc (src) {
 }
 
 async function main () {
+  const pb = resolve(
+    __dirname, 'node_modules/.bin/electron-builder.exe'
+  )
   echo('running build for win')
 
   echo('build tar.gz')
   rm('-rf', 'dist')
   writeSrc('win-tar.gz')
-  await run('node_modules/.bin/electron-builder --win tar.gz')
+  await run(`${pb} --win tar.gz`)
 
   echo('build appx')
   rm('-rf', 'dist')
   writeSrc('appx')
-  await run('node_modules/.bin/electron-builder --win appx')
+  await run(`${pb} --win appx`)
 
   echo('build nsis')
   rm('-rf', 'dist')
   writeSrc('nsis')
-  await run('node_modules/.bin/electron-builder --win nsis')
+  await run(`${pb} --win nsis`)
 
   echo('build loose tar.gz')
   await replaceRun()
   rm('-rf', 'dist')
   writeSrc('win.loose-tar.gz')
-  await run('node_modules/.bin/electron-builder --win tar.gz')
+  await run(`${pb} --win tar.gz`)
 }
 
 main()
