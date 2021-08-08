@@ -39,7 +39,7 @@ function writeSrc (src) {
 
 async function main () {
   const pb = resolve(
-    __dirname, 'node_modules/.bin/electron-builder.exe'
+    __dirname, 'node_modules/.bin/electron-builder'
   )
   echo('running build for win')
 
