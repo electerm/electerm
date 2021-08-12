@@ -35,7 +35,7 @@ const {
 } = require('./window-control')
 const { loadFontList } = require('./font-list')
 const { checkDbUpgrade, doUpgrade } = require('../upgrade')
-// const { listSerialPorts } = require('./serial-port')
+const { listSerialPorts } = require('./serial-port')
 const initApp = require('./init-app')
 const { encryptAsync, decryptAsync } = require('./enc')
 const { initCommandLine } = require('./command-line')
@@ -101,7 +101,7 @@ function initIpc () {
   })
   const asyncGlobals = {
     init,
-    // listSerialPorts,
+    listSerialPorts,
     toCss,
     clearCssCache,
     loadFontList,
