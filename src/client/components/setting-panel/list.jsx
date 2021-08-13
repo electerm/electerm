@@ -101,12 +101,10 @@ export default class ItemList extends React.PureComponent {
         className={cls}
         onClick={() => onClickItem(item, type)}
       >
-        <Tooltip
+        <div
           title={title}
-          placement='topLeft'
-        >
-          <div className='elli pd1y pd2x list-item-title'>{title || s('new')}</div>
-        </Tooltip>
+          className='elli pd1y pd2x list-item-title'
+        >{title || s('new')}</div>
         {this.renderDelBtn(item)}
         {this.renderEditBtn(item, isGroup)}
       </div>
