@@ -3,7 +3,7 @@
  */
 import React from 'react'
 import { CloseOutlined, EditOutlined } from '@ant-design/icons'
-import { Tooltip, Popconfirm } from 'antd'
+import { Popconfirm } from 'antd'
 import Search from '../common/search'
 import createName from '../../common/create-title'
 import classnames from 'classnames'
