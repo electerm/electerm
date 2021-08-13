@@ -10,8 +10,8 @@ import {
   connectionMap,
   terminalSerialType,
   terminalLocalType,
-  newBookmarkIdPrefix // ,
-  // isWin
+  newBookmarkIdPrefix,
+  isWin
 } from '../../common/constants'
 import SshForm from './ssh-form'
 import SerialForm from './serial-form'
@@ -67,10 +67,10 @@ export default class BookmarkIndex extends Component {
     } = this.state
     const Form = BookmarkIndex.mapper[bookmarkType]
     const isNew = id.startsWith(newBookmarkIdPrefix)
-    const keys = Object.keys(connectionMap)
-    // if (isWin) {
-    //   keys = keys.filter(k => k !== connectionMap.serial)
-    // }
+    let keys = Object.keys(connectionMap)
+    if (isWin) {
+      keys = keys.filter(k => k !== connectionMap.serial)
+    }
     return (
       <div className='form-wrap pd1x'>
         <div className='form-title pd1t pd1x pd2b'>
