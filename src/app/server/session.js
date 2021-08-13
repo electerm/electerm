@@ -70,50 +70,50 @@ class Terminal {
     return this[this.type + 'Init'](this.initOptions)
   }
 
-  // async serialInit () {
-  //   const SerialPort = require('serialport')
-  //   // https://serialport.io/docs/api-stream
-  //   const {
-  //     autoOpen = true,
-  //     baudRate = 9600,
-  //     dataBits = 8,
-  //     lock = true,
-  //     stopBits = 1,
-  //     parity = 'none',
-  //     rtscts = false,
-  //     xon = false,
-  //     xoff = false,
-  //     xany = false,
-  //     path
-  //   } = this.initOptions
-  //   await new Promise((resolve, reject) => {
-  //     this.port = new SerialPort(path, {
-  //       autoOpen,
-  //       baudRate,
-  //       dataBits,
-  //       lock,
-  //       stopBits,
-  //       parity,
-  //       rtscts,
-  //       xon,
-  //       xoff,
-  //       xany
-  //     }, (err) => {
-  //       if (err) {
-  //         reject(err)
-  //       } else {
-  //         resolve('ok')
-  //       }
-  //     })
-  //   })
-  //   global.sessions[this.initOptions.sessionId] = {
-  //     id: this.initOptions.sessionId,
-  //     sftps: {},
-  //     terminals: {
-  //       [this.pid]: this
-  //     }
-  //   }
-  // }
+  async serialInit () {
+    const SerialPort = require('serialport')
+    // https://serialport.io/docs/api-stream
+    const {
+      autoOpen = true,
+      baudRate = 9600,
+      dataBits = 8,
+      lock = true,
+      stopBits = 1,
+      parity = 'none',
+      rtscts = false,
+      xon = false,
+      xoff = false,
+      xany = false,
+      path
+    } = this.initOptions
+    await new Promise((resolve, reject) => {
+      this.port = new SerialPort(path, {
+        autoOpen,
+        baudRate,
+        dataBits,
+        lock,
+        stopBits,
+        parity,
+        rtscts,
+        xon,
+        xoff,
+        xany
+      }, (err) => {
+        if (err) {
+          reject(err)
+        } else {
+          resolve('ok')
+        }
+      })
+    })
+    global.sessions[this.initOptions.sessionId] = {
+      id: this.initOptions.sessionId,
+      sftps: {},
+      terminals: {
+        [this.pid]: this
+      }
+    }
+  }
 
   localInit (initOptions) {
     const {
