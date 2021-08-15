@@ -10,6 +10,7 @@ import TerminalThemeForm from '../terminal-theme'
 import TerminalThemeList from '../terminal-theme/theme-list'
 import QuickCommandsList from '../quick-commands/quick-commands-list'
 import QuickCommandsForm from '../quick-commands/quick-commands-form'
+import QmTransport from '../quick-commands/quick-command-transport'
 import BookmarkForm from '../bookmark-form'
 import List from './list'
 import TreeList from './tree-list'
@@ -177,6 +178,7 @@ export default class SettingModal extends Component {
         >
           <Row>
             <Col span={6}>
+              <QmTransport store={store} />
               <QuickCommandsList
                 {...props0}
                 quickCommandId={store.quickCommandId}
