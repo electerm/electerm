@@ -33,7 +33,7 @@ Terminal/ssh/sftp client(linux, mac, win) based on electron/ssh2/node-pty/xterm/
 - Global/session proxy.
 - Quick commands
 - Sync bookmarks/themes/quick commands to github/gitee secret gist
-- Serial Port support(do not support windows OS)
+- ~~Serial Port support~~(removed after version 1.10.14)
 - Quick input to one or all terminal
 - Command line usage: check [wiki](https://github.com/electerm/electerm/wiki/Command-line-usage)
 - Zip and transfer folder and auto unzip
