@@ -35,7 +35,7 @@ export default class StartSessionSelect extends Component {
         title: x.title
       }
       if (x.bookmarkIds && x.bookmarkIds.length) {
-        y.children = x.bookmarkIds.map(buildLeaf)
+        y.children = x.bookmarkIds.map(buildLeaf).filter(d => d)
       }
       if (y.children && !y.children.length) {
         delete y.children
@@ -69,6 +69,7 @@ export default class StartSessionSelect extends Component {
         }
         return r
       }).filter(d => d)
+    console.log('level1', level1)
     return level1
   }
 
