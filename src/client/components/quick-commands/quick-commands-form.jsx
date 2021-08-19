@@ -1,10 +1,12 @@
 
-import { Button, Input, Switch, Form, message } from 'antd'
+import { Button, Input, Switch, Form, message, Select } from 'antd'
+import copy from 'json-deep-copy'
 import { nanoid as generate } from 'nanoid/non-secure'
 import { settingMap } from '../../common/constants'
 import InputAutoFocus from '../common/input-auto-focus'
 const { TextArea } = Input
 const FormItem = Form.Item
+const { Option } = Select
 const { prefix } = window
 const e = prefix('form')
 const t = prefix('quickCommands')
@@ -12,18 +14,20 @@ const s = prefix('setting')
 
 export default function QuickCommandForm (props) {
   const [form] = Form.useForm()
-  const { autofocustrigger } = props.store
+  const { autofocustrigger, quickCommandTags = [] } = props.store
   async function handleSubmit (res) {
     const { formData } = props
     const {
       name,
       command,
-      inputOnly
+      inputOnly,
+      labels
     } = res
     const update = {
       name,
       command,
-      inputOnly
+      inputOnly,
+      labels
     }
     const update1 = {
       ...update,
@@ -42,13 +46,18 @@ export default function QuickCommandForm (props) {
     }
     message.success(s('saved'))
   }
+  const initialValues = props.formData
+  if (!initialValues.labels) {
+    initialValues.labels = []
+  }
+  console.log('initialValues', copy(initialValues))
   return (
     <Form
       form={form}
       onFinish={handleSubmit}
       className='form-wrap pd2l'
       layout='vertical'
-      initialValues={props.formData}
+      initialValues={initialValues}
     >
       <FormItem
         label={t('quickCommandName')}
@@ -75,6 +84,24 @@ export default function QuickCommandForm (props) {
         }]}
       >
         <TextArea rows={3} />
+      </FormItem>
+      <FormItem
+        name='labels'
+        label={t('label')}
+      >
+        <Select
+          mode='tags'
+        >
+          {
+            quickCommandTags.map(q => {
+              return (
+                <Option value={q} key={'qmt-' + q}>
+                  {q}
+                </Option>
+              )
+            })
+          }
+        </Select>
       </FormItem>
       <FormItem
         label={t('inputOnly')}

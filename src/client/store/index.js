@@ -53,6 +53,16 @@ const store = Subx.create({
       ...quickCommands
     ]
   },
+  get quickCommandTags () {
+    return _.uniq(
+      store.quickCommands.reduce((p, q) => {
+        return [
+          ...p,
+          ...(q.labels || [])
+        ]
+      }, [])
+    )
+  },
   get isTransporting () {
     return store.tabs.some(t => t.isTransporting)
   },

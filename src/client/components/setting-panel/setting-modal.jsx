@@ -187,6 +187,7 @@ export default class SettingModal extends Component {
             <Col span={18}>
               <QuickCommandsForm
                 {...formProps}
+                quickCommandTags={store.quickCommandTags}
                 key={settingItem.id}
               />
             </Col>

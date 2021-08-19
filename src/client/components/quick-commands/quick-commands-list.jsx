@@ -4,10 +4,14 @@
 
 import List from '../setting-panel/list'
 import { PlusOutlined } from '@ant-design/icons'
-import { Tooltip } from 'antd'
+import { Select, Tooltip } from 'antd'
 import classnames from 'classnames'
 import highlight from '../common/highlight'
 import { settingMap } from '../../common/constants'
+
+const { Option } = Select
+const { prefix } = window
+const q = prefix('quickCommands')
 
 export default class QuickCommandsList extends List {
   del = (item, e) => {
@@ -17,6 +21,16 @@ export default class QuickCommandsList extends List {
 
   onClickItem = (item) => {
     this.props.onClickItem(item)
+  }
+
+  handleChange = v => {
+    this.setState({
+      labels: v
+    })
+  }
+
+  getLabels = () => {
+    return this.props.store.quickCommandTags
   }
 
   renderItem = (item, i) => {
@@ -57,9 +71,42 @@ export default class QuickCommandsList extends List {
     )
   }
 
+  renderLabels = () => {
+    const arr = this.getLabels()
+    const props = {
+      placeholder: q('labels'),
+      mode: 'multiple',
+      value: this.state.labels,
+      onChange: this.handleChange,
+      style: {
+        width: '100%'
+      }
+    }
+    return (
+      <div className='pd1b'>
+        <Select
+          {...props}
+        >
+          {
+            arr.map(b => {
+              return (
+                <Option
+                  key={'qml-' + b}
+                  value={b}
+                >
+                  {b}
+                </Option>
+              )
+            })
+          }
+        </Select>
+      </div>
+    )
+  }
+
   filter = list => {
-    const { keyword } = this.state
-    return keyword
+    const { keyword, labels } = this.state
+    const f = keyword
       ? list.filter((item) => {
         const n = (item.name || '').toLowerCase()
         const c = (item.command || '').toLowerCase()
@@ -67,5 +114,13 @@ export default class QuickCommandsList extends List {
         return n.includes(k) || c.includes(k)
       })
       : list
+    return labels.length
+      ? f.filter(d => {
+        console.log('dd', d, labels)
+        return labels.some(label => {
+          return (d.labels || []).includes(label)
+        })
+      })
+      : f
   }
 }

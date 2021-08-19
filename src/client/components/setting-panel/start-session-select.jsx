@@ -69,7 +69,6 @@ export default class StartSessionSelect extends Component {
         }
         return r
       }).filter(d => d)
-    console.log('level1', level1)
     return level1
   }
 

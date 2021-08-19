@@ -5,7 +5,7 @@
 import { Component } from '../common/react-subx'
 import { isWin } from '../../common/constants'
 import _ from 'lodash'
-import { Popover, Button, Input } from 'antd'
+import { Popover, Button, Input, Select } from 'antd'
 import copy from 'json-deep-copy'
 import CmdItem from './quick-command-item'
 import {
@@ -17,11 +17,13 @@ import './qm.styl'
 const { prefix } = window
 const e = prefix('quickCommands')
 const addQuickCommands = 'addQuickCommands'
+const { Option } = Select
 
 export default class QuickCommandsFooter extends Component {
   state = {
     visible: false,
-    keyword: ''
+    keyword: '',
+    labels: []
   }
 
   onSelect = (id) => {
@@ -64,6 +66,12 @@ export default class QuickCommandsFooter extends Component {
     })
   }
 
+  handleChangeLabels = (v) => {
+    this.setState({
+      labels: v
+    })
+  }
+
   filterFunc = (v, opt) => {
     const c = opt.props.children.toLowerCase()
     const m = opt.props.cmd.toLowerCase()
@@ -94,17 +102,47 @@ export default class QuickCommandsFooter extends Component {
     )
   }
 
+  renderTag = tag => {
+    return (
+      <Option
+        value={tag}
+        key={'tag-' + tag}
+      >
+        {tag}
+      </Option>
+    )
+  }
+
   content = () => {
     const all = copy(this.props.store.currentQuickCommands)
     if (!all.length) {
       return this.renderNoCmd()
     }
     const keyword = this.state.keyword.toLowerCase()
-    const filtered = keyword
+    let filtered = keyword
       ? all.filter(d => {
         return d.name.toLowerCase().includes(keyword) || d.command.toLowerCase().includes(keyword)
       })
       : all
+    const { labels } = this.state
+    console.log(labels, 'labels')
+    if (labels.length) {
+      filtered = filtered.filter(d => {
+        return labels.some(label => {
+          return (d.labels || []).includes(label)
+        })
+      })
+    }
+    const sprops = {
+      value: this.state.labels,
+      mode: 'multiple',
+      onChange: this.handleChangeLabels,
+      placeholder: e('labels'),
+      className: 'iblock',
+      style: {
+        minWidth: '100px'
+      }
+    }
     return (
       <div>
         <div className='pd2b fix'>
@@ -115,6 +153,15 @@ export default class QuickCommandsFooter extends Component {
               placeholder=''
               className='iblock'
             />
+          </span>
+          <span className='fleft mg1l'>
+            <Select
+              {...sprops}
+            >
+              {this.props.store.quickCommandTags.map(
+                this.renderTag
+              )}
+            </Select>
           </span>
           <span className='fright'>
             <Button
@@ -136,13 +183,6 @@ export default class QuickCommandsFooter extends Component {
   }
 
   render () {
-    const all = copy(this.props.store.currentQuickCommands)
-    if (!all.length) {
-      all.push({
-        id: addQuickCommands,
-        name: e(addQuickCommands)
-      })
-    }
     const rProps = {
       trigger: 'hover',
       visible: this.state.visible,

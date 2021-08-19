@@ -19,7 +19,8 @@ const s = prefix('setting')
 
 export default class ItemList extends React.PureComponent {
   state = {
-    keyword: ''
+    keyword: '',
+    labels: []
   }
 
   onChange = e => {
@@ -40,7 +41,7 @@ export default class ItemList extends React.PureComponent {
 
   renderSearch = () => {
     return (
-      <div className='pd1y pd2r'>
+      <div className='pd1y'>
         <Search
           onChange={this.onChange}
           value={this.state.keyword}
@@ -144,6 +145,7 @@ export default class ItemList extends React.PureComponent {
     list = this.filter(list)
     return (
       <div className={`item-list item-type-${type}`}>
+        {this.renderLabels ? this.renderLabels() : null}
         {this.renderSearch()}
         <div className='item-list-wrap' style={listStyle}>
           {

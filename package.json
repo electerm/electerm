@@ -124,7 +124,7 @@
     "zmodem.js": "0.1.10"
   },
   "dependencies": {
-    "@electerm/electerm-locales": "0.11.3",
+    "@electerm/electerm-locales": "0.11.4",
     "@electerm/ssh2": "1.2.1",
     "@yetzt/nedb": "^1.8.0",
     "antd-dayjs-webpack-plugin": "1.0.6",
