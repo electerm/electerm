@@ -43,7 +43,7 @@ Terminal/ssh/sftp client(linux, mac, win) based on electron/ssh2/node-pty/xterm/
 - [https://electerm.github.io/electerm](https://electerm.github.io/electerm)
 - From release: [https://github.com/electerm/electerm/releases](https://github.com/electerm/electerm/releases)
 - For Mac user: `brew install --cask electerm`
-- With snap: `sudo snap install electerm` (Snap build has a strict permission control, some function may not work like font select)
+- With snap: `sudo snap install electerm --classic`
 - For some Linux distribution, you can find it from OS default App store(Ubuntu, Deepin, Mint...).
 - For some linux OS, the `rpm`, `deb`, or `snap` release may not work, you can try the `tar.gz` release.
 - For Windows users, you can install it from windows store(search `electerm`), command-line installer [winget](https://github.com/microsoft/winget-cli) and [scoop](https://github.com/lukesampson/scoop) is also recommended:
