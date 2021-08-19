@@ -55,6 +55,7 @@
     "publish": ["github"]
   },
   "snap": {
+    "confinement": "classic",
     "publish": ["github", "snapStore"]
   }
 }
