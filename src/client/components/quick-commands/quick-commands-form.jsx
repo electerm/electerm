@@ -23,12 +23,12 @@ export default function QuickCommandForm (props) {
       inputOnly,
       labels
     } = res
-    const update = {
+    const update = copy({
       name,
       command,
       inputOnly,
       labels
-    }
+    })
     const update1 = {
       ...update,
       id: generate()
