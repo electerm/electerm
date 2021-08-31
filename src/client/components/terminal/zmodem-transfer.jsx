@@ -7,7 +7,7 @@
 import { memo } from 'react'
 import { Progress, Button, Upload } from 'antd'
 import { transferTypeMap } from '../../common/constants'
-import Link from '../common/external-link'
+// import Link from '../common/external-link'
 import './zmodem.styl'
 
 const { prefix } = window

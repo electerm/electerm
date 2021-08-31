@@ -20,7 +20,7 @@ import {
   SwitcherOutlined
 } from '@ant-design/icons'
 
-import { Spin, Modal, Button, Checkbox, notification, Select } from 'antd'
+import { Spin, Modal, Button, Checkbox, Select } from 'antd'
 import encodes from '../bookmark-form/encodes'
 import Input from '../common/input-auto-focus'
 import classnames from 'classnames'
@@ -33,8 +33,7 @@ import {
   isMac,
   terminalSshConfigType,
   transferTypeMap,
-  defaultLoginScriptDelay,
-  maxZmodemUploadSize
+  defaultLoginScriptDelay
 } from '../../common/constants'
 import deepCopy from 'json-deep-copy'
 import { readClipboard, copy } from '../../common/clipboard'
@@ -52,8 +51,8 @@ import TerminalInfoIcon from '../terminal-info'
 import Qm from '../quick-commands/quick-commands-select'
 // import resolve from '../../common/resolve'
 import BatchInput from './batch-input'
-import filesize from 'filesize'
-import Link from '../common/external-link'
+// import filesize from 'filesize'
+// import Link from '../common/external-link'
 import NormalBuffer from './normal-buffer'
 import { createTerm, resizeTerm } from './terminal-apis'
 import safeName from '../../common/safe-name'
