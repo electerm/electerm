@@ -125,7 +125,6 @@ export default class QuickCommandsFooter extends Component {
       })
       : all
     const { labels } = this.state
-    console.log(labels, 'labels')
     if (labels.length) {
       filtered = filtered.filter(d => {
         return labels.some(label => {

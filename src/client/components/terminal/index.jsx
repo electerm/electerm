@@ -419,33 +419,33 @@ export default class Term extends Component {
     if (!files.length) {
       return false
     }
-    const f = files[0]
-    if (f.size > maxZmodemUploadSize) {
-      if (this.zsession) {
-        this.zsession.abort()
-      }
-      this.onZmodemEnd()
-      // if (this.props.tab.enableSftp) {
-      //   notification.info({
-      //     message: `Uploading by sftp`,
-      //     duration: 8
-      //   })
-      //   return this.transferBySftp(files)
-      // } else {
-      const url = 'https://github.com/FGasper/zmodemjs/issues/11'
-      const msg = (
-        <div>
-          <p>Currently <b>rz</b> only support upload file size less than {filesize(maxZmodemUploadSize)}, due to known issue:</p>
-          <p><Link to={url}>{url}</Link></p>
-          <p>You can try upload in sftp which is much faster.</p>
-        </div>
-      )
-      notification.error({
-        message: msg,
-        duration: 8
-      })
-      // }
-    }
+    // const f = files[0]
+    // if (f.size > maxZmodemUploadSize) {
+    //   if (this.zsession) {
+    //     this.zsession.abort()
+    //   }
+    //   this.onZmodemEnd()
+    //   // if (this.props.tab.enableSftp) {
+    //   //   notification.info({
+    //   //     message: `Uploading by sftp`,
+    //   //     duration: 8
+    //   //   })
+    //   //   return this.transferBySftp(files)
+    //   // } else {
+    //   const url = 'https://github.com/FGasper/zmodemjs/issues/11'
+    //   const msg = (
+    //     <div>
+    //       <p>Currently <b>rz</b> only support upload file size less than {filesize(maxZmodemUploadSize)}, due to known issue:</p>
+    //       <p><Link to={url}>{url}</Link></p>
+    //       <p>You can try upload in sftp which is much faster.</p>
+    //     </div>
+    //   )
+    //   notification.error({
+    //     message: msg,
+    //     duration: 8
+    //   })
+    //   // }
+    // }
     const th = this
     Zmodem.Browser.send_files(
       this.zsession,
