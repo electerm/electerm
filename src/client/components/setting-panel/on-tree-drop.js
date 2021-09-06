@@ -9,6 +9,7 @@ import _ from 'lodash'
 import copy from 'json-deep-copy'
 
 export default (info, props) => {
+  // console.log(info)
   const {
     dropToGap,
     dragNode,
@@ -49,10 +50,10 @@ export default (info, props) => {
     return
   }
 
-  // drop to a leaf
-  if (toLeaf && !dropToGap) {
-    return
-  }
+  // // drop to a leaf
+  // if (toLeaf && !dropToGap) {
+  //   return
+  // }
 
   // drag default cateogry to other level
   if (fromId === defaultBookmarkGroupId && !isSameLevel) {
@@ -71,7 +72,7 @@ export default (info, props) => {
   }
 
   // drag cat to level2 node
-  if (!fromLeaf && toPoses.length > 2 && !dropToGap) {
+  if (!fromLeaf && toPoses.length > 2) {
     return
   }
 
@@ -112,9 +113,16 @@ export default (info, props) => {
           return (arr || []).includes(toId)
         }
       )
-      : _.find(
-        bookmarkGroups,
-        d => d.id === toId
+      : (
+        toLeaf
+          ? _.find(
+            bookmarkGroups,
+            d => (d.bookmarkIds || []).includes(toId)
+          )
+          : _.find(
+            bookmarkGroups,
+            d => d.id === toId
+          )
       )
   }
   let nodeIndex = 0
