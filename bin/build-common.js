@@ -14,7 +14,7 @@ exports.run = function (cmd) {
       }
       resolve(stdout)
     })
-  }).then(console.log)
+  }).then(console.log).catch(console.error)
 }
 
 exports.writeSrc = function (src) {
@@ -24,4 +24,8 @@ exports.writeSrc = function (src) {
 
 exports.builder = resolve(
   __dirname, '../node_modules/.bin/electron-builder'
+)
+
+exports.reBuild = resolve(
+  __dirname, '../node_modules/.bin/electron-rebuild'
 )

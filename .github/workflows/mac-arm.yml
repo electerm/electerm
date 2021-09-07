@@ -16,7 +16,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [macos-10.15]
+        os: [macos-11]
         node-version: [ 14.x ]
 
     steps:
@@ -34,14 +34,14 @@ jobs:
     # script:
     - run: npm run pre-test
 
-    - name: test
-      uses: GabrielBB/xvfb-action@v1
-      with:
-        run: npm run test
-      env:
-        TEST_HOST: ${{ secrets.TEST_HOST }}
-        TEST_USER: ${{ secrets.TEST_USER_DARWIN }}
-        TEST_PASS: ${{ secrets.TEST_PASS_DARWIN }}
+    # - name: test
+    #   uses: GabrielBB/xvfb-action@v1
+    #   with:
+    #     run: npm run test
+    #   env:
+    #     TEST_HOST: ${{ secrets.TEST_HOST }}
+    #     TEST_USER: ${{ secrets.TEST_USER_DARWIN }}
+    #     TEST_PASS: ${{ secrets.TEST_PASS_DARWIN }}
 
     - name: build
       if: "!contains(github.event.head_commit.message, 'skip build')"
@@ -50,5 +50,5 @@ jobs:
         BUILD_NUMBER: ${{ secrets.BUILD_NUMBER }}
         CSC_LINK: ${{ secrets.CSC_LINK }}
         CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
-      run: npm run build-mac
+      run: npm run build-mac-arm
 
