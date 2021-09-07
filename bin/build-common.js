@@ -25,3 +25,7 @@ exports.writeSrc = function (src) {
 exports.builder = resolve(
   __dirname, '../node_modules/.bin/electron-builder'
 )
+
+exports.reBuild = resolve(
+  __dirname, '../node_modules/.bin/electron-rebuild'
+)
