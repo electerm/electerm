@@ -48,7 +48,7 @@ async function createWindow () {
     title: packInfo.name,
     frame: useSystemTitleBar,
     transparent: !useSystemTitleBar,
-    backgroundColor: '#333333FF',
+    backgroundColor: '#33333300',
     webPreferences: {
       contextIsolation: false,
       nodeIntegration: isTest,
