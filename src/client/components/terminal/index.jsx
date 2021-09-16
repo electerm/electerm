@@ -55,7 +55,6 @@ import BatchInput from './batch-input'
 // import Link from '../common/external-link'
 import NormalBuffer from './normal-buffer'
 import { createTerm, resizeTerm } from './terminal-apis'
-import safeName from '../../common/safe-name'
 
 const { prefix } = window
 const e = prefix('ssh')
@@ -791,7 +790,7 @@ export default class Term extends Component {
     const { cols, rows } = term
     const { config } = this.props
     const { host, port, tokenElecterm } = config
-    const { tab = {}, sessionId, terminalIndex, id } = this.props
+    const { tab = {}, sessionId, terminalIndex, id, logName } = this.props
     const {
       srcId, from = 'bookmarks',
       type, loginScript,
@@ -806,7 +805,6 @@ export default class Term extends Component {
       ? typeMap.local
       : type
     const extra = this.props.sessionOptions
-    const logName = safeName(`${tab.title ? tab.title + '_' : ''}${tab.host ? tab.host + '_' : ''}${id}`)
     let pid = await createTerm({
       cols,
       rows,
@@ -1051,9 +1049,10 @@ export default class Term extends Component {
   }
 
   handleShowInfo = () => {
-    const { id, sessionId } = this.props
+    const { id, sessionId, logName } = this.props
     const { pid } = this.state
     const infoProps = {
+      logName,
       id,
       pid,
       sessionId,

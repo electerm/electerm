@@ -25,6 +25,7 @@ import {
 import ResizeWrap from '../common/resize-wrap'
 import keyControlPressed from '../../common/key-control-pressed'
 import keyPressed from '../../common/key-pressed'
+import safeName from '../../common/safe-name'
 import TerminalInfoContent from '../terminal-info/content'
 import './session.styl'
 
@@ -239,6 +240,7 @@ export default class SessionWrapper extends Component {
         >
           {
             terminals.map((t, index) => {
+              const logName = safeName(`${tab.title ? tab.title + '_' : ''}${tab.host ? tab.host + '_' : ''}${t.id}`)
               const pops = {
                 ...this.props,
                 ...t,
@@ -260,6 +262,7 @@ export default class SessionWrapper extends Component {
               return (
                 <Term
                   key={t.id}
+                  logName={logName}
                   sessionId={sessionId}
                   terminalIndex={index}
                   sessionOptions={sessionOptions}
