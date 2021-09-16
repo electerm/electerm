@@ -1,6 +1,7 @@
 const express = require('express')
 const app = express()
 const cors = require('cors')
+const strip = require('@electerm/strip-ansi').default
 const log = require('../utils/log')
 // const logs = {}
 const bodyParser = require('body-parser')
@@ -50,7 +51,7 @@ app.ws('/terminals/:pid', function (ws, req) {
   term.on('data', function (data) {
     try {
       if (term.sessionLogger) {
-        term.sessionLogger.write(data)
+        term.sessionLogger.write(strip(data))
       }
       ws.send(Buffer.from(data))
     } catch (ex) {
