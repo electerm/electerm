@@ -27,6 +27,7 @@ import keyControlPressed from '../../common/key-control-pressed'
 import keyPressed from '../../common/key-pressed'
 import safeName from '../../common/safe-name'
 import TerminalInfoContent from '../terminal-info/content'
+import uid from '../../common/id-with-stamp'
 import './session.styl'
 
 const rebuildPosition = terminals => {
@@ -56,7 +57,7 @@ const m = prefix('menu')
 export default class SessionWrapper extends Component {
   constructor (props) {
     super(props)
-    const id = generate()
+    const id = uid()
     const pane = props.tab.enableSsh !== false
       ? paneMap.terminal
       : paneMap.fileManager
@@ -146,7 +147,7 @@ export default class SessionWrapper extends Component {
       index = index + 1
     }
     terminals.push({
-      id: generate(),
+      id: uid(),
       position: terminals[index - 1].position + 5
     })
     terminals = rebuildPosition(terminals)

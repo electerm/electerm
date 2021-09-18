@@ -51,7 +51,7 @@ app.ws('/terminals/:pid', function (ws, req) {
   term.on('data', function (data) {
     try {
       if (term.sessionLogger) {
-        term.sessionLogger.write(strip(data))
+        term.sessionLogger.write(strip(data.toString()))
       }
       ws.send(Buffer.from(data))
     } catch (ex) {
