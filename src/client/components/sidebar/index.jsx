@@ -90,7 +90,9 @@ export default class Sidebar extends Component {
       openSettingSync,
       height,
       openTerminalThemes,
-      upgradeInfo
+      upgradeInfo,
+      onClickBookmark,
+      onClickHistory
     } = store
     const { showUpgradeModal, upgradePercent, checkingRemoteVersion, shouldUpgrade } = upgradeInfo
     return (
@@ -112,7 +114,10 @@ export default class Sidebar extends Component {
             className='control-icon-wrap'
             title={e('newSsh')}
           >
-            <PlusCircleOutlined className='font22 iblock control-icon' onClick={onNewSsh} />
+            <PlusCircleOutlined
+              className='font22 iblock control-icon'
+              onClick={onNewSsh}
+            />
           </div>
           <div
             className='control-icon-wrap'
@@ -121,6 +126,7 @@ export default class Sidebar extends Component {
             <BookOutlined
               onMouseEnter={this.onMouseEnterBookmark}
               onMouseLeave={this.onMouseLeave}
+              onClick={onClickBookmark}
               className='font20 iblock control-icon' />
           </div>
           <div
@@ -130,6 +136,7 @@ export default class Sidebar extends Component {
             <ClockCircleOutlined
               onMouseEnter={this.onMouseEnterHistory}
               onMouseLeave={this.onMouseLeave}
+              onClick={onClickHistory}
               className='font20 iblock control-icon' />
           </div>
           <div

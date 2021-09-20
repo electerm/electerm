@@ -2,6 +2,10 @@
  * sidebar
  */
 
+import {
+  settingMap
+} from '../common/constants'
+
 export default store => {
   Object.assign(store, {
     expandBookmarks () {
@@ -18,6 +22,14 @@ export default store => {
 
     pin (pinned) {
       store.pinned = !store.pinned
+    },
+
+    onClickBookmark () {
+      store.onNewSsh()
+    },
+
+    onClickHistory () {
+      store.onChangeTab(settingMap.history)
     }
   })
 }
