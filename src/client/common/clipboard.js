@@ -2,12 +2,10 @@
  * clipboard related
  */
 
-import { isWin } from './constants'
 import { message } from 'antd'
 
-const fileReg = isWin
-  ? /^(remote:)?\w:\\.+/
-  : /^(remote:)?\/.+/
+const fileRegWin = /^(remote:)?\w:\\.+/
+const fileReg = /^(remote:)?\/.+/
 
 export const readClipboard = () => {
   return window.pre.readClipboard()
@@ -23,6 +21,7 @@ export const hasFileInClipboardText = (
 ) => {
   const arr = text.split('\n')
   return arr.reduce((prev, t) => {
-    return prev && fileReg.test(t)
+    return prev &&
+      (fileReg.test(t) || fileRegWin.test(t))
   }, true)
 }
