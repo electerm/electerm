@@ -697,7 +697,7 @@ export default class Setting extends Component {
         }
         <div className='pd1b'>{t('default')} {e('editorTip')}</div>
         {
-          this.renderText('editor', e('editorTip'))
+          this.renderText('defaultEditor', e('editorTip'))
         }
         <div className='pd1b'>{t('default')} {e('execWindows')}</div>
         {
