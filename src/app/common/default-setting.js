@@ -31,5 +31,6 @@ module.exports = exports.default = {
   checkUpdateOnStart: true,
   cursorBlink: false,
   useSystemTitleBar: false,
-  opacity: 1
+  opacity: 1,
+  defaultEditor: ''
 }

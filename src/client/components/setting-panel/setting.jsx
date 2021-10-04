@@ -229,7 +229,7 @@ export default class Setting extends Component {
     )
   }
 
-  renderText = (name) => {
+  renderText = (name, placeholder) => {
     const value = this.props.config[name]
     const defaultValue = defaultSettings[name]
     const onChange = (e) => this.onChangeValue(e.target.value, name)
@@ -238,7 +238,7 @@ export default class Setting extends Component {
         <Input
           value={value}
           onChange={onChange}
-          placeholder={defaultValue}
+          placeholder={placeholder || defaultValue}
         />
       </div>
     )
@@ -694,6 +694,10 @@ export default class Setting extends Component {
         <div className='pd1b'>{e('terminalBackgroundImage')}</div>
         {
           this.renderTerminalBgSelect('terminalBackgroundImagePath')
+        }
+        <div className='pd1b'>{t('default')} {e('editorTip')}</div>
+        {
+          this.renderText('editor', e('editorTip'))
         }
         <div className='pd1b'>{t('default')} {e('execWindows')}</div>
         {

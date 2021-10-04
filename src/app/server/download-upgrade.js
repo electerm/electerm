@@ -6,9 +6,8 @@ const fs = require('fs')
 const { resolve } = require('path')
 const _ = require('lodash')
 const rp = require('axios')
-const { packInfo } = require('../utils/constants')
+const { packInfo, tempDir } = require('../utils/constants')
 const installSrc = require('../lib/install-src')
-const os = require('os')
 const { fsExport } = require('../lib/fs')
 const SocksProxyAgent = require('socks-proxy-agent')
 const HttpsProxyAgent = require('https-proxy-agent')
@@ -87,7 +86,6 @@ class Upgrade {
     if (!releaseInfo) {
       return
     }
-    const tempDir = os.tmpdir()
     const localPath = resolve(tempDir, releaseInfo.name)
     const remotePath = releaseInfo.browser_download_url
     await rmrf(localPath)

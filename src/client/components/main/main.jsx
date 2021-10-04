@@ -11,6 +11,7 @@ import UpdateCheck from './upgrade'
 import SettingModal from '../setting-panel/setting-modal'
 import createTitle from '../../common/create-title'
 import TextEditor from '../text-editor'
+import TextEditorSystem from '../text-editor/edit-with-system-editor'
 import Sidebar from '../sidebar'
 import SystemMenu from './system-menu'
 import CssOverwrite from './css-overwrite'
@@ -64,13 +65,12 @@ export default class Index extends Component {
       fileInfoModalProps,
       fileModeModalProps,
       textEditorProps,
+      textEditorSystemProps,
       storeAssign,
+      updateConfig,
       config,
       terminalFullScreen
     } = store
-    // const sessProps = _.pick(store, [
-    //   'storeAssign', 'addTab', 'sessionModalVisible', 'selectedSessions'
-    // ])
     const cls = classnames({
       'system-ui': window._config.useSystemTitleBar,
       'is-mac': isMac,
@@ -137,6 +137,13 @@ export default class Index extends Component {
           key={textEditorProps.id}
           {...textEditorProps}
           storeAssign={storeAssign}
+        />
+        <TextEditorSystem
+          key={textEditorSystemProps.id}
+          {...copy(textEditorSystemProps)}
+          storeAssign={storeAssign}
+          updateConfig={updateConfig}
+          config={config}
         />
         <UpdateCheck
           store={store}

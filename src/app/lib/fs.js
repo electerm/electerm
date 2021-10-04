@@ -4,7 +4,7 @@ const fs = require('original-fs')
 const fss = promisifyAll(fs)
 const log = require('../utils/log')
 const tar = require('tar')
-const { isWin, isMac } = require('../utils/constants')
+const { isWin, isMac, tempDir } = require('../utils/constants')
 const uid = require('../common/uid')
 const { isWinDrive } = require('../common/is-win-drive')
 const path = require('path')
@@ -106,7 +106,6 @@ const openFile = (localFilePath) => {
  */
 const zipFolder = (localFolerPath) => {
   return new Promise((resolve, reject) => {
-    const tempDir = require('os').tmpdir()
     const n = uid()
     const p = path.resolve(tempDir, `electerm-temp-${n}.tar.gz`)
     const cwd = path.dirname(localFolerPath)

@@ -600,18 +600,25 @@ export default class FileSection extends React.Component {
     if (!edit && type === typeMap.local) {
       return this.openFile(this.state.file)
     }
+    const remoteEedit = !edit && type === typeMap.remote && size < maxEditFileSize
+    const editProps = {
+      visible: true,
+      id,
+      sftpFunc: () => this.props.sftp,
+      file,
+      afterWrite: this.props[`${type}List`]
+    }
     if (
-      edit ||
-      (!edit && type === typeMap.remote && size < maxEditFileSize)
+      edit === true || remoteEedit
     ) {
       return this.props.store.storeAssign({
-        textEditorProps: {
-          visible: true,
-          id,
-          sftpFunc: () => this.props.sftp,
-          file,
-          afterWrite: this.props[`${type}List`]
-        }
+        textEditorProps: editProps
+      })
+    } else if (
+      edit === 1 || remoteEedit
+    ) {
+      return this.props.store.storeAssign({
+        textEditorSystemProps: editProps
       })
     }
     if (
@@ -790,6 +797,8 @@ export default class FileSection extends React.Component {
     const clsPaste = canPaste
       ? cls
       : cls + ' disabled'
+    const showEdit = !isDirectory && id &&
+      size < maxEditFileSize
     return (
       <div>
         {
@@ -865,8 +874,7 @@ export default class FileSection extends React.Component {
             : null
         }
         {
-          !isDirectory && id &&
-          size < maxEditFileSize
+          showEdit
             ? (
               <div
                 className={cls}
@@ -875,6 +883,20 @@ export default class FileSection extends React.Component {
                 }
               >
                 <EditOutlined /> {e('edit')}
+              </div>
+            )
+            : null
+        }
+        {
+          showEdit
+            ? (
+              <div
+                className={cls}
+                onClick={
+                  e => this.transferOrEnterDirectory(e, 1)
+                }
+              >
+                <EditOutlined /> {e('editWith')}
               </div>
             )
             : null
