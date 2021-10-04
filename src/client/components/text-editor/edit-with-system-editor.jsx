@@ -2,36 +2,47 @@
  * default text editor for remote file
  */
 
-import { Component } from '../common/react-subx'
+import { useState, useEffect } from 'react'
 import fs from '../../common/fs'
 import { Button, Spin, Modal } from 'antd'
 import resolve from '../../common/resolve'
 import { typeMap } from '../../common/constants'
 import { nanoid } from 'nanoid/non-secure'
 import { getFileExt } from '../sftp/file-read'
+import EditorForm from './editor-form'
 
 const { prefix } = window
 const e = prefix('form')
 const c = prefix('common')
 const s = prefix('sftp')
 
-export default class TextEditorFormSystem extends Component {
-  state = {
-    show: true,
+export default function TextEditorFormSystem (props) {
+  const [state, setter] = useState({
     text: '',
     tempFilePath: '',
     loading: false,
     path: 'loading...'
+  })
+  function setState (update) {
+    setter(old => {
+      return {
+        ...old,
+        ...update
+      }
+    })
   }
-
-  componentDidUpdate () {
-    if (this.props.store.textEditorSystemProps.visible) {
-      this.fetchText()
+  const {
+    tempFilePath,
+    loading,
+    path
+  } = state
+  useEffect(() => {
+    if (props.visible) {
+      fetchText()
     }
-  }
-
-  fetchText = async () => {
-    this.setState({
+  }, [])
+  async function fetchText () {
+    setState({
       loading: true
     })
     const {
@@ -41,9 +52,9 @@ export default class TextEditorFormSystem extends Component {
         name,
         type
       }
-    } = this.props.store.textEditorSystemProps
+    } = props
     const p = resolve(path, name)
-    this.setState({
+    setState({
       path: p
     })
     if (typeMap.remote === type) {
@@ -59,79 +70,113 @@ export default class TextEditorFormSystem extends Component {
         fileName
       )
       await fs.writeFile(p0, text)
-      this.setState({
+      setState({
         tempFilePath: p0,
         loading: false
       })
-      await fs.openFile(p0)
     } else {
-      this.setState({
+      setState({
         tempFilePath: p,
         loading: false
       })
-      await fs.openFile(p)
     }
   }
 
-  handleSubmit = async (res) => {
-    this.setState({
+  function open () {
+    const cmd = `${props.config.defaultEditor} ${tempFilePath}`
+    fs.run(cmd)
+  }
+
+  async function handleSubmit (res) {
+    setState({
       loading: true
     })
     const {
       sftpFunc,
       file: {
-        type,
         mode
       }
-    } = this.props.store.textEditorSystemProps
-    const {
-      tempFilePath,
-      path
-    } = this.state
-    if (typeMap.remote === type) {
-      const sftp = sftpFunc()
-      const txt = await fs.readFile(tempFilePath)
-      await sftp.writeFile(
-        path,
-        txt,
-        mode
-      )
-    }
-    this.props.store.textEditorSystemProps.afterWrite()
-    this.cancel()
+    } = props
+    const sftp = sftpFunc()
+    const txt = await fs.readFile(tempFilePath)
+    await sftp.writeFile(
+      path,
+      txt,
+      mode
+    )
+    props.afterWrite()
+    cancel()
   }
 
-  cancel = () => {
-    this.props.store.textEditorProps = {}
-    this.setState({
-      show: false
+  function cancel () {
+    props.storeAssign({
+      textEditorSystemProps: {}
     })
   }
 
-  renderForm () {
+  function handleEditorSubmit (res) {
+    props.updateConfig(res)
+  }
+
+  function renderEditor () {
     const {
-      tempFilePath
-    } = this.state
+      defaultEditor
+    } = props.config
     return (
-      <div>
-        local file: {tempFilePath}
+      <div className='pd1b'>
+        <EditorForm
+          defaultEditor={defaultEditor}
+          handleSubmit={handleEditorSubmit}
+        />
       </div>
     )
   }
 
-  renderFooter () {
-    const { loading, tempFilePath } = this.state
+  function renderForm () {
+    return (
+      <div>
+        {
+          renderEditor()
+        }
+        <div className='pd1b'>
+          {s('file')}: {tempFilePath || 'loading...'}
+        </div>
+      </div>
+    )
+  }
+
+  function renderFooter () {
+    const {
+      defaultEditor
+    } = props.config
+    const {
+      file: {
+        type
+      }
+    } = props
     return (
       <div>
         <Button
           type='primary'
           className='mg1r mg1b'
-          disabled={loading || !tempFilePath}
-          onClick={this.handleSubmit}
-        >{e('save')}</Button>
+          disabled={loading || !tempFilePath || !defaultEditor}
+          onClick={open}
+        >{e('open')}</Button>
+        {
+          type === typeMap.remote
+            ? (
+              <Button
+                type='primary'
+                className='mg1r mg1b'
+                disabled={loading || !tempFilePath}
+                onClick={handleSubmit}
+              >{e('save')}</Button>
+            )
+            : null
+        }
         <Button
           type='ghost'
-          onClick={this.cancel}
+          onClick={cancel}
           disabled={loading}
           className='mg2r mg1b'
         >{c('cancel')}</Button>
@@ -139,31 +184,26 @@ export default class TextEditorFormSystem extends Component {
     )
   }
 
-  render () {
-    const { visible, file } = this.props.store.textEditorSystemProps
-    const {
-      path, loading, show
-    } = this.state
-    if (!visible || !show) {
-      return null
-    }
-    const title = `${s('edit')} ${s(file.type)} ${s('file')}: ${path}`
-    const propsAll = {
-      footer: this.renderFooter(),
-      title,
-      maskClosable: false,
-      onCancel: this.cancel,
-      width: '90%',
-      visible
-    }
-    return (
-      <Modal
-        {...propsAll}
-      >
-        <Spin spinning={loading}>
-          {this.renderForm()}
-        </Spin>
-      </Modal>
-    )
+  const { visible, file } = props
+  if (!visible) {
+    return null
   }
+  const title = `${s('edit')} ${s(file.type)} ${s('file')}: ${path}`
+  const propsAll = {
+    footer: renderFooter(),
+    title,
+    maskClosable: false,
+    onCancel: cancel,
+    width: '90%',
+    visible
+  }
+  return (
+    <Modal
+      {...propsAll}
+    >
+      <Spin spinning={loading}>
+        {renderForm()}
+      </Spin>
+    </Modal>
+  )
 }

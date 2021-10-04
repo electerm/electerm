@@ -65,14 +65,12 @@ export default class Index extends Component {
       fileInfoModalProps,
       fileModeModalProps,
       textEditorProps,
+      textEditorSystemProps,
       storeAssign,
+      updateConfig,
       config,
       terminalFullScreen
     } = store
-    // const sessProps = _.pick(store, [
-    //   'storeAssign', 'addTab', 'sessionModalVisible', 'selectedSessions'
-    // ])
-    console.log('textEditorSystemProps', store.textEditorSystemProps)
     const cls = classnames({
       'system-ui': window._config.useSystemTitleBar,
       'is-mac': isMac,
@@ -141,7 +139,11 @@ export default class Index extends Component {
           storeAssign={storeAssign}
         />
         <TextEditorSystem
-          store={store}
+          key={textEditorSystemProps.id}
+          {...copy(textEditorSystemProps)}
+          storeAssign={storeAssign}
+          updateConfig={updateConfig}
+          config={config}
         />
         <UpdateCheck
           store={store}

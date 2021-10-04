@@ -601,29 +601,24 @@ export default class FileSection extends React.Component {
       return this.openFile(this.state.file)
     }
     const remoteEedit = !edit && type === typeMap.remote && size < maxEditFileSize
+    const editProps = {
+      visible: true,
+      id,
+      sftpFunc: () => this.props.sftp,
+      file,
+      afterWrite: this.props[`${type}List`]
+    }
     if (
       edit === true || remoteEedit
     ) {
       return this.props.store.storeAssign({
-        textEditorProps: {
-          visible: true,
-          id,
-          sftpFunc: () => this.props.sftp,
-          file,
-          afterWrite: this.props[`${type}List`]
-        }
+        textEditorProps: editProps
       })
     } else if (
       edit === 1 || remoteEedit
     ) {
       return this.props.store.storeAssign({
-        textEditorSystemProps: {
-          visible: true,
-          id,
-          sftpFunc: () => this.props.sftp,
-          file,
-          afterWrite: this.props[`${type}List`]
-        }
+        textEditorSystemProps: editProps
       })
     }
     if (
