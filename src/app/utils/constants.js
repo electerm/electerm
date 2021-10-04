@@ -49,6 +49,7 @@ module.exports = {
   minWindowWidth: 590,
   minWindowHeight: 400,
   defaultLang: 'en_us',
+  tempDir: require('os').tmpdir(),
   homeOrtmp: os.homedir() || os.tmpdir(),
   packInfo: require(isDev ? '../../../package.json' : '../package.json')
 }

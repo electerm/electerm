@@ -86,6 +86,7 @@ export default {
   selectedSessions: [],
   sessionModalVisible: false,
   textEditorProps: {},
+  textEditorSystemProps: {},
   settingItem: getInitItem([], settingMap.bookmarks),
 
   // for settings related
