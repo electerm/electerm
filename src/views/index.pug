@@ -35,7 +35,19 @@ html
     - if (isDev)
       script(src='../node_modules/react/umd/react.development.js?' + version)
       script(src='../node_modules/react-dom/umd/react-dom.development.js?' + version)
+      script(src='https://www.googletagmanager.com/gtag/js?id=G-WLZHP33VBC')
+      script.
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-WLZHP33VBC');
     - else
       script(src='./external/react.production.min.js?' + version)
       script(src='./external/react-dom.production.min.js?' + version)
+      script(src='https://www.googletagmanager.com/gtag/js?id=G-K1J66PMDV4')
+      script.
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-K1J66PMDV4');
     script(src='js/basic.js?' + version)
