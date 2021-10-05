@@ -127,7 +127,7 @@
   },
   "dependencies": {
     "@electerm/electerm-locales": "0.11.9",
-    "@electerm/ssh2": "1.2.1",
+    "@electerm/ssh2": "1.4.0",
     "@electerm/strip-ansi": "^1.0.0",
     "@yetzt/nedb": "^1.8.0",
     "antd-dayjs-webpack-plugin": "1.0.6",
