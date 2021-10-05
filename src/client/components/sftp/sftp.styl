@@ -156,18 +156,21 @@
   height 30px
 .sftp-table
   z-index 2
-.sftp-table-content
-  overflow-x hidden
-  &::-webkit-scrollbar
-    width 5px
-    background alpha(main, .5)
+  &:hover
+    ::-webkit-scrollbar
+      width 12px
+// .sftp-table-content
+//   overflow-x hidden
+//   ::-webkit-scrollbar
+//     width 7px
+//     background alpha(main, .5)
 
-  &::-webkit-scrollbar-track
-    -webkit-box-shadow none
+//   ::-webkit-scrollbar-track
+//     -webkit-box-shadow none
 
-  &::-webkit-scrollbar-thumb
-    background-color main
-    outline none
+//   ::-webkit-scrollbar-thumb
+//     background-color primary
+//     outline none
 .sftp-item
   &.sftp-dragover
     .sftp-file-prop
@@ -199,13 +202,12 @@
   color text
 
 .file-list
-  &::-webkit-scrollbar
-    width 1em
-    background main
+  // &::-webkit-scrollbar
+  //   width 1em
+  //   background main
 
-  &::-webkit-scrollbar-track
-    -webkit-box-shadow inset 0 0 6px alpha(main, .1)
+  // &::-webkit-scrollbar-track
+  //   -webkit-box-shadow inset 0 0 6px alpha(main, .1)
 
-  &::-webkit-scrollbar-thumb
-    background-color main
-    outline 1px solid main
+  ::-webkit-scrollbar-thumb
+    background-color primary !important
