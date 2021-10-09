@@ -21,6 +21,7 @@ import {
 import copy from 'json-deep-copy'
 import { CheckOutlined } from '@ant-design/icons'
 import FileSection from './file-item'
+import PagedList from './paged-list'
 
 const { prefix } = window
 const e = prefix('sftp')
@@ -113,6 +114,7 @@ export default class FileListTable extends React.Component {
       ]
     }, [])
     return {
+      pageSize: 100,
       properties,
       splitHandles
     }
@@ -432,6 +434,17 @@ export default class FileListTable extends React.Component {
 
   onDoubleClick = () => this.resetWidth()
 
+  hasPager = () => {
+    const {
+      pageSize
+    } = this.state
+    const {
+      fileList
+    } = this.props
+    const len = fileList.length
+    return len > pageSize
+  }
+
   rebuildStyle = (name) => {
     let { style, parentWidth } = this.oldStyles[name]
     style = copy(style)
@@ -486,20 +499,32 @@ export default class FileListTable extends React.Component {
   render () {
     const { fileList, height, type } = this.props
     const tableHeaderHeight = 30
+    const props = {
+      className: 'sftp-table-content overscroll-y relative',
+      style: {
+        height: height - sftpControlHeight - tableHeaderHeight
+      },
+      draggable: false
+    }
+    const hasPager = this.hasPager()
+    const cls = classnames(
+      'sftp-table relative',
+      {
+        'sftp-has-pager': hasPager
+      }
+    )
     return (
-      <div className='sftp-table relative'>
+      <div className={cls}>
         {this.renderTableHeader()}
         <div
-          className='sftp-table-content overscroll-y relative'
-          style={{
-            height: height - sftpControlHeight - tableHeaderHeight
-          }}
-          draggable={false}
+          {...props}
         >
           {this.props.renderEmptyFile(type)}
-          {
-            fileList.map(this.renderItem)
-          }
+          <PagedList
+            list={fileList}
+            renderItem={this.renderItem}
+            hasPager={hasPager}
+          />
         </div>
       </div>
     )
