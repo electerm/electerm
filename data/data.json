@@ -298,10 +298,10 @@
         "name": "linux x86 x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/45073708",
-            "id": 45073708,
-            "node_id": "RA_kwDOBlLEFM4Cr8Us",
-            "name": "electerm-1.16.11-linux-amd64.deb",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/46795184",
+            "id": 46795184,
+            "node_id": "RA_kwDOBlLEFM4Cygmw",
+            "name": "electerm-1.16.21-linux-amd64.deb",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -325,18 +325,18 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 59299454,
+            "size": 59205832,
             "download_count": 0,
-            "created_at": "2021-09-18T07:28:59Z",
-            "updated_at": "2021-09-18T07:29:00Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.11/electerm-1.16.11-linux-amd64.deb",
+            "created_at": "2021-10-12T14:36:04Z",
+            "updated_at": "2021-10-12T14:36:06Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.21/electerm-1.16.21-linux-amd64.deb",
             "desc": "for Debian, Ubuntu..."
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/45073954",
-            "id": 45073954,
-            "node_id": "RA_kwDOBlLEFM4Cr8Yi",
-            "name": "electerm-1.16.11-linux-amd64.snap",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/46795459",
+            "id": 46795459,
+            "node_id": "RA_kwDOBlLEFM4CygrD",
+            "name": "electerm-1.16.21-linux-amd64.snap",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -360,18 +360,18 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 73383936,
+            "size": 73371648,
             "download_count": 0,
-            "created_at": "2021-09-18T07:32:21Z",
-            "updated_at": "2021-09-18T07:32:24Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.11/electerm-1.16.11-linux-amd64.snap",
+            "created_at": "2021-10-12T14:39:03Z",
+            "updated_at": "2021-10-12T14:39:05Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.21/electerm-1.16.21-linux-amd64.snap",
             "desc": "for all linux that support snap"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/45073641",
-            "id": 45073641,
-            "node_id": "RA_kwDOBlLEFM4Cr8Tp",
-            "name": "electerm-1.16.11-linux-x64.tar.gz",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/46795034",
+            "id": 46795034,
+            "node_id": "RA_kwDOBlLEFM4Cygka",
+            "name": "electerm-1.16.21-linux-x64.tar.gz",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -395,18 +395,18 @@
             },
             "content_type": "application/gzip",
             "state": "uploaded",
-            "size": 81819603,
+            "size": 81810196,
             "download_count": 0,
-            "created_at": "2021-09-18T07:27:19Z",
-            "updated_at": "2021-09-18T07:27:21Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.11/electerm-1.16.11-linux-x64.tar.gz",
+            "created_at": "2021-10-12T14:34:26Z",
+            "updated_at": "2021-10-12T14:34:30Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.21/electerm-1.16.21-linux-x64.tar.gz",
             "desc": "for all linux x64, just extract"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/45073917",
-            "id": 45073917,
-            "node_id": "RA_kwDOBlLEFM4Cr8X9",
-            "name": "electerm-1.16.11-linux-x86_64.rpm",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/46795389",
+            "id": 46795389,
+            "node_id": "RA_kwDOBlLEFM4Cygp9",
+            "name": "electerm-1.16.21-linux-x86_64.rpm",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -430,11 +430,11 @@
             },
             "content_type": "application/x-redhat-package-manager",
             "state": "uploaded",
-            "size": 60104540,
+            "size": 60097876,
             "download_count": 0,
-            "created_at": "2021-09-18T07:31:29Z",
-            "updated_at": "2021-09-18T07:31:31Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.11/electerm-1.16.11-linux-x86_64.rpm",
+            "created_at": "2021-10-12T14:38:16Z",
+            "updated_at": "2021-10-12T14:38:18Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.21/electerm-1.16.21-linux-x86_64.rpm",
             "desc": "for Red Hat, Fedora..."
           }
         ]
@@ -443,10 +443,10 @@
         "name": "mac os x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/45073613",
-            "id": 45073613,
-            "node_id": "RA_kwDOBlLEFM4Cr8TN",
-            "name": "electerm-1.16.11-mac-arm64.dmg",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/46795138",
+            "id": 46795138,
+            "node_id": "RA_kwDOBlLEFM4CygmC",
+            "name": "electerm-1.16.21-mac-arm64.dmg",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -470,17 +470,17 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 88546928,
+            "size": 88517276,
             "download_count": 0,
-            "created_at": "2021-09-18T07:25:34Z",
-            "updated_at": "2021-09-18T07:25:37Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.11/electerm-1.16.11-mac-arm64.dmg"
+            "created_at": "2021-10-12T14:35:41Z",
+            "updated_at": "2021-10-12T14:35:46Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.21/electerm-1.16.21-mac-arm64.dmg"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/45073716",
-            "id": 45073716,
-            "node_id": "RA_kwDOBlLEFM4Cr8U0",
-            "name": "electerm-1.16.11-mac-x64.dmg",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/46795205",
+            "id": 46795205,
+            "node_id": "RA_kwDOBlLEFM4CygnF",
+            "name": "electerm-1.16.21-mac-x64.dmg",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -504,11 +504,11 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 87190991,
+            "size": 87158915,
             "download_count": 0,
-            "created_at": "2021-09-18T07:29:12Z",
-            "updated_at": "2021-09-18T07:29:15Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.11/electerm-1.16.11-mac-x64.dmg"
+            "created_at": "2021-10-12T14:36:17Z",
+            "updated_at": "2021-10-12T14:36:20Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.21/electerm-1.16.21-mac-x64.dmg"
           }
         ]
       },
@@ -516,10 +516,10 @@
         "name": "windows 7/8/10 x86 x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/45073998",
-            "id": 45073998,
-            "node_id": "RA_kwDOBlLEFM4Cr8ZO",
-            "name": "electerm-1.16.11-win-x64-installer.exe",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/46795594",
+            "id": 46795594,
+            "node_id": "RA_kwDOBlLEFM4CygtK",
+            "name": "electerm-1.16.21-win-x64-installer.exe",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -543,17 +543,17 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 64105459,
+            "size": 64097074,
             "download_count": 0,
-            "created_at": "2021-09-18T07:33:42Z",
-            "updated_at": "2021-09-18T07:33:46Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.11/electerm-1.16.11-win-x64-installer.exe"
+            "created_at": "2021-10-12T14:40:53Z",
+            "updated_at": "2021-10-12T14:41:02Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.21/electerm-1.16.21-win-x64-installer.exe"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/45074129",
-            "id": 45074129,
-            "node_id": "RA_kwDOBlLEFM4Cr8bR",
-            "name": "electerm-1.16.11-win-x64-loose.tar.gz",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/46795959",
+            "id": 46795959,
+            "node_id": "RA_kwDOBlLEFM4Cygy3",
+            "name": "electerm-1.16.21-win-x64-loose.tar.gz",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -577,17 +577,17 @@
             },
             "content_type": "application/gzip",
             "state": "uploaded",
-            "size": 87140415,
+            "size": 87135832,
             "download_count": 0,
-            "created_at": "2021-09-18T07:37:53Z",
-            "updated_at": "2021-09-18T07:38:02Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.11/electerm-1.16.11-win-x64-loose.tar.gz"
+            "created_at": "2021-10-12T14:45:20Z",
+            "updated_at": "2021-10-12T14:45:25Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.21/electerm-1.16.21-win-x64-loose.tar.gz"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/45073950",
-            "id": 45073950,
-            "node_id": "RA_kwDOBlLEFM4Cr8Ye",
-            "name": "electerm-1.16.11-win-x64.appx",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/46795484",
+            "id": 46795484,
+            "node_id": "RA_kwDOBlLEFM4Cygrc",
+            "name": "electerm-1.16.21-win-x64.appx",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -611,17 +611,17 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 93749121,
+            "size": 93719512,
             "download_count": 0,
-            "created_at": "2021-09-18T07:32:02Z",
-            "updated_at": "2021-09-18T07:32:09Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.11/electerm-1.16.11-win-x64.appx"
+            "created_at": "2021-10-12T14:39:22Z",
+            "updated_at": "2021-10-12T14:39:28Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.21/electerm-1.16.21-win-x64.appx"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/45073897",
-            "id": 45073897,
-            "node_id": "RA_kwDOBlLEFM4Cr8Xp",
-            "name": "electerm-1.16.11-win-x64.tar.gz",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/46795393",
+            "id": 46795393,
+            "node_id": "RA_kwDOBlLEFM4CygqB",
+            "name": "electerm-1.16.21-win-x64.tar.gz",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -645,18 +645,18 @@
             },
             "content_type": "application/gzip",
             "state": "uploaded",
-            "size": 87750683,
+            "size": 87740467,
             "download_count": 0,
-            "created_at": "2021-09-18T07:30:56Z",
-            "updated_at": "2021-09-18T07:31:03Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.11/electerm-1.16.11-win-x64.tar.gz"
+            "created_at": "2021-10-12T14:38:24Z",
+            "updated_at": "2021-10-12T14:38:28Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.21/electerm-1.16.21-win-x64.tar.gz"
           }
         ]
       }
     },
-    "version": "v1.16.11",
-    "releaseNote": "Features:\r\n\r\n- fix #2248 Add time stamp to terminal log name\r\n- Strip ansi code from terminal log\r\n- Make drag bookmark a little easier\r\n\r\nBug fixes:\r\n\r\n- Fix open terminal log link in info panel\r\n- Fix upload big file support with rz\r\n\r\nUI:\r\n\r\n- Adjust default background color\r\n\r\nOthers:\r\n\r\n- Add experimental mac ARM build, may not work, not tested (#2244)\r\n",
-    "releaseDate": "2021-09-18T07:39:13Z",
+    "version": "v1.16.21",
+    "releaseNote": "New features:\r\n\r\n- Use pagination when more than 100 files in file manager\r\n- Add edit with external edtor option (#2269)\r\n\r\nBug fixes:\r\n\r\n- fix #2257 [UI] Increase scroll bar width\r\n- fix #2255 Fix sftp remote can not paste in windows (#2256)\r\n- Make sidebar bookmark and history button clickable\r\n\r\nOther updates:\r\n\r\n- Add google analytics to track use statics\r\n- Remove gcm cipher support, upgrade ssh module\r\n",
+    "releaseDate": "2021-10-12T16:26:58Z",
     "siteKeywords": "electron,ternimal,electerm,ssh,sftp",
     "siteName": "electerm",
     "path": "/home/execapp/dev/electerm.html5beta.com/index.html"
@@ -960,10 +960,10 @@
         "name": "linux x86 x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/45073708",
-            "id": 45073708,
-            "node_id": "RA_kwDOBlLEFM4Cr8Us",
-            "name": "electerm-1.16.11-linux-amd64.deb",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/46795184",
+            "id": 46795184,
+            "node_id": "RA_kwDOBlLEFM4Cygmw",
+            "name": "electerm-1.16.21-linux-amd64.deb",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -987,18 +987,18 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 59299454,
+            "size": 59205832,
             "download_count": 0,
-            "created_at": "2021-09-18T07:28:59Z",
-            "updated_at": "2021-09-18T07:29:00Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.11/electerm-1.16.11-linux-amd64.deb",
+            "created_at": "2021-10-12T14:36:04Z",
+            "updated_at": "2021-10-12T14:36:06Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.21/electerm-1.16.21-linux-amd64.deb",
             "desc": "for Debian, Ubuntu..."
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/45073954",
-            "id": 45073954,
-            "node_id": "RA_kwDOBlLEFM4Cr8Yi",
-            "name": "electerm-1.16.11-linux-amd64.snap",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/46795459",
+            "id": 46795459,
+            "node_id": "RA_kwDOBlLEFM4CygrD",
+            "name": "electerm-1.16.21-linux-amd64.snap",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -1022,18 +1022,18 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 73383936,
+            "size": 73371648,
             "download_count": 0,
-            "created_at": "2021-09-18T07:32:21Z",
-            "updated_at": "2021-09-18T07:32:24Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.11/electerm-1.16.11-linux-amd64.snap",
+            "created_at": "2021-10-12T14:39:03Z",
+            "updated_at": "2021-10-12T14:39:05Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.21/electerm-1.16.21-linux-amd64.snap",
             "desc": "for all linux that support snap"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/45073641",
-            "id": 45073641,
-            "node_id": "RA_kwDOBlLEFM4Cr8Tp",
-            "name": "electerm-1.16.11-linux-x64.tar.gz",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/46795034",
+            "id": 46795034,
+            "node_id": "RA_kwDOBlLEFM4Cygka",
+            "name": "electerm-1.16.21-linux-x64.tar.gz",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -1057,18 +1057,18 @@
             },
             "content_type": "application/gzip",
             "state": "uploaded",
-            "size": 81819603,
+            "size": 81810196,
             "download_count": 0,
-            "created_at": "2021-09-18T07:27:19Z",
-            "updated_at": "2021-09-18T07:27:21Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.11/electerm-1.16.11-linux-x64.tar.gz",
+            "created_at": "2021-10-12T14:34:26Z",
+            "updated_at": "2021-10-12T14:34:30Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.21/electerm-1.16.21-linux-x64.tar.gz",
             "desc": "for all linux x64, just extract"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/45073917",
-            "id": 45073917,
-            "node_id": "RA_kwDOBlLEFM4Cr8X9",
-            "name": "electerm-1.16.11-linux-x86_64.rpm",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/46795389",
+            "id": 46795389,
+            "node_id": "RA_kwDOBlLEFM4Cygp9",
+            "name": "electerm-1.16.21-linux-x86_64.rpm",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -1092,11 +1092,11 @@
             },
             "content_type": "application/x-redhat-package-manager",
             "state": "uploaded",
-            "size": 60104540,
+            "size": 60097876,
             "download_count": 0,
-            "created_at": "2021-09-18T07:31:29Z",
-            "updated_at": "2021-09-18T07:31:31Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.11/electerm-1.16.11-linux-x86_64.rpm",
+            "created_at": "2021-10-12T14:38:16Z",
+            "updated_at": "2021-10-12T14:38:18Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.21/electerm-1.16.21-linux-x86_64.rpm",
             "desc": "for Red Hat, Fedora..."
           }
         ]
@@ -1105,10 +1105,10 @@
         "name": "mac os x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/45073613",
-            "id": 45073613,
-            "node_id": "RA_kwDOBlLEFM4Cr8TN",
-            "name": "electerm-1.16.11-mac-arm64.dmg",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/46795138",
+            "id": 46795138,
+            "node_id": "RA_kwDOBlLEFM4CygmC",
+            "name": "electerm-1.16.21-mac-arm64.dmg",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -1132,17 +1132,17 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 88546928,
+            "size": 88517276,
             "download_count": 0,
-            "created_at": "2021-09-18T07:25:34Z",
-            "updated_at": "2021-09-18T07:25:37Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.11/electerm-1.16.11-mac-arm64.dmg"
+            "created_at": "2021-10-12T14:35:41Z",
+            "updated_at": "2021-10-12T14:35:46Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.21/electerm-1.16.21-mac-arm64.dmg"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/45073716",
-            "id": 45073716,
-            "node_id": "RA_kwDOBlLEFM4Cr8U0",
-            "name": "electerm-1.16.11-mac-x64.dmg",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/46795205",
+            "id": 46795205,
+            "node_id": "RA_kwDOBlLEFM4CygnF",
+            "name": "electerm-1.16.21-mac-x64.dmg",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -1166,11 +1166,11 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 87190991,
+            "size": 87158915,
             "download_count": 0,
-            "created_at": "2021-09-18T07:29:12Z",
-            "updated_at": "2021-09-18T07:29:15Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.11/electerm-1.16.11-mac-x64.dmg"
+            "created_at": "2021-10-12T14:36:17Z",
+            "updated_at": "2021-10-12T14:36:20Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.21/electerm-1.16.21-mac-x64.dmg"
           }
         ]
       },
@@ -1178,10 +1178,10 @@
         "name": "windows 7/8/10 x86 x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/45073998",
-            "id": 45073998,
-            "node_id": "RA_kwDOBlLEFM4Cr8ZO",
-            "name": "electerm-1.16.11-win-x64-installer.exe",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/46795594",
+            "id": 46795594,
+            "node_id": "RA_kwDOBlLEFM4CygtK",
+            "name": "electerm-1.16.21-win-x64-installer.exe",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -1205,17 +1205,17 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 64105459,
+            "size": 64097074,
             "download_count": 0,
-            "created_at": "2021-09-18T07:33:42Z",
-            "updated_at": "2021-09-18T07:33:46Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.11/electerm-1.16.11-win-x64-installer.exe"
+            "created_at": "2021-10-12T14:40:53Z",
+            "updated_at": "2021-10-12T14:41:02Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.21/electerm-1.16.21-win-x64-installer.exe"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/45074129",
-            "id": 45074129,
-            "node_id": "RA_kwDOBlLEFM4Cr8bR",
-            "name": "electerm-1.16.11-win-x64-loose.tar.gz",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/46795959",
+            "id": 46795959,
+            "node_id": "RA_kwDOBlLEFM4Cygy3",
+            "name": "electerm-1.16.21-win-x64-loose.tar.gz",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -1239,17 +1239,17 @@
             },
             "content_type": "application/gzip",
             "state": "uploaded",
-            "size": 87140415,
+            "size": 87135832,
             "download_count": 0,
-            "created_at": "2021-09-18T07:37:53Z",
-            "updated_at": "2021-09-18T07:38:02Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.11/electerm-1.16.11-win-x64-loose.tar.gz"
+            "created_at": "2021-10-12T14:45:20Z",
+            "updated_at": "2021-10-12T14:45:25Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.21/electerm-1.16.21-win-x64-loose.tar.gz"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/45073950",
-            "id": 45073950,
-            "node_id": "RA_kwDOBlLEFM4Cr8Ye",
-            "name": "electerm-1.16.11-win-x64.appx",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/46795484",
+            "id": 46795484,
+            "node_id": "RA_kwDOBlLEFM4Cygrc",
+            "name": "electerm-1.16.21-win-x64.appx",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -1273,17 +1273,17 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 93749121,
+            "size": 93719512,
             "download_count": 0,
-            "created_at": "2021-09-18T07:32:02Z",
-            "updated_at": "2021-09-18T07:32:09Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.11/electerm-1.16.11-win-x64.appx"
+            "created_at": "2021-10-12T14:39:22Z",
+            "updated_at": "2021-10-12T14:39:28Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.21/electerm-1.16.21-win-x64.appx"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/45073897",
-            "id": 45073897,
-            "node_id": "RA_kwDOBlLEFM4Cr8Xp",
-            "name": "electerm-1.16.11-win-x64.tar.gz",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/46795393",
+            "id": 46795393,
+            "node_id": "RA_kwDOBlLEFM4CygqB",
+            "name": "electerm-1.16.21-win-x64.tar.gz",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -1307,18 +1307,18 @@
             },
             "content_type": "application/gzip",
             "state": "uploaded",
-            "size": 87750683,
+            "size": 87740467,
             "download_count": 0,
-            "created_at": "2021-09-18T07:30:56Z",
-            "updated_at": "2021-09-18T07:31:03Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.11/electerm-1.16.11-win-x64.tar.gz"
+            "created_at": "2021-10-12T14:38:24Z",
+            "updated_at": "2021-10-12T14:38:28Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.21/electerm-1.16.21-win-x64.tar.gz"
           }
         ]
       }
     },
-    "version": "v1.16.11",
-    "releaseNote": "Features:\r\n\r\n- fix #2248 Add time stamp to terminal log name\r\n- Strip ansi code from terminal log\r\n- Make drag bookmark a little easier\r\n\r\nBug fixes:\r\n\r\n- Fix open terminal log link in info panel\r\n- Fix upload big file support with rz\r\n\r\nUI:\r\n\r\n- Adjust default background color\r\n\r\nOthers:\r\n\r\n- Add experimental mac ARM build, may not work, not tested (#2244)\r\n",
-    "releaseDate": "2021-09-18T07:39:13Z",
+    "version": "v1.16.21",
+    "releaseNote": "New features:\r\n\r\n- Use pagination when more than 100 files in file manager\r\n- Add edit with external edtor option (#2269)\r\n\r\nBug fixes:\r\n\r\n- fix #2257 [UI] Increase scroll bar width\r\n- fix #2255 Fix sftp remote can not paste in windows (#2256)\r\n- Make sidebar bookmark and history button clickable\r\n\r\nOther updates:\r\n\r\n- Add google analytics to track use statics\r\n- Remove gcm cipher support, upgrade ssh module\r\n",
+    "releaseDate": "2021-10-12T16:26:58Z",
     "siteKeywords": "electron,ternimal,electerm,ssh,sftp",
     "siteName": "electerm",
     "path": "/home/execapp/dev/electerm.html5beta.com/index-es_es.html"
@@ -1622,10 +1622,10 @@
         "name": "linux x86 x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/45073708",
-            "id": 45073708,
-            "node_id": "RA_kwDOBlLEFM4Cr8Us",
-            "name": "electerm-1.16.11-linux-amd64.deb",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/46795184",
+            "id": 46795184,
+            "node_id": "RA_kwDOBlLEFM4Cygmw",
+            "name": "electerm-1.16.21-linux-amd64.deb",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -1649,18 +1649,18 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 59299454,
+            "size": 59205832,
             "download_count": 0,
-            "created_at": "2021-09-18T07:28:59Z",
-            "updated_at": "2021-09-18T07:29:00Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.11/electerm-1.16.11-linux-amd64.deb",
+            "created_at": "2021-10-12T14:36:04Z",
+            "updated_at": "2021-10-12T14:36:06Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.21/electerm-1.16.21-linux-amd64.deb",
             "desc": "for Debian, Ubuntu..."
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/45073954",
-            "id": 45073954,
-            "node_id": "RA_kwDOBlLEFM4Cr8Yi",
-            "name": "electerm-1.16.11-linux-amd64.snap",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/46795459",
+            "id": 46795459,
+            "node_id": "RA_kwDOBlLEFM4CygrD",
+            "name": "electerm-1.16.21-linux-amd64.snap",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -1684,18 +1684,18 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 73383936,
+            "size": 73371648,
             "download_count": 0,
-            "created_at": "2021-09-18T07:32:21Z",
-            "updated_at": "2021-09-18T07:32:24Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.11/electerm-1.16.11-linux-amd64.snap",
+            "created_at": "2021-10-12T14:39:03Z",
+            "updated_at": "2021-10-12T14:39:05Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.21/electerm-1.16.21-linux-amd64.snap",
             "desc": "for all linux that support snap"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/45073641",
-            "id": 45073641,
-            "node_id": "RA_kwDOBlLEFM4Cr8Tp",
-            "name": "electerm-1.16.11-linux-x64.tar.gz",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/46795034",
+            "id": 46795034,
+            "node_id": "RA_kwDOBlLEFM4Cygka",
+            "name": "electerm-1.16.21-linux-x64.tar.gz",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -1719,18 +1719,18 @@
             },
             "content_type": "application/gzip",
             "state": "uploaded",
-            "size": 81819603,
+            "size": 81810196,
             "download_count": 0,
-            "created_at": "2021-09-18T07:27:19Z",
-            "updated_at": "2021-09-18T07:27:21Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.11/electerm-1.16.11-linux-x64.tar.gz",
+            "created_at": "2021-10-12T14:34:26Z",
+            "updated_at": "2021-10-12T14:34:30Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.21/electerm-1.16.21-linux-x64.tar.gz",
             "desc": "for all linux x64, just extract"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/45073917",
-            "id": 45073917,
-            "node_id": "RA_kwDOBlLEFM4Cr8X9",
-            "name": "electerm-1.16.11-linux-x86_64.rpm",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/46795389",
+            "id": 46795389,
+            "node_id": "RA_kwDOBlLEFM4Cygp9",
+            "name": "electerm-1.16.21-linux-x86_64.rpm",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -1754,11 +1754,11 @@
             },
             "content_type": "application/x-redhat-package-manager",
             "state": "uploaded",
-            "size": 60104540,
+            "size": 60097876,
             "download_count": 0,
-            "created_at": "2021-09-18T07:31:29Z",
-            "updated_at": "2021-09-18T07:31:31Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.11/electerm-1.16.11-linux-x86_64.rpm",
+            "created_at": "2021-10-12T14:38:16Z",
+            "updated_at": "2021-10-12T14:38:18Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.21/electerm-1.16.21-linux-x86_64.rpm",
             "desc": "for Red Hat, Fedora..."
           }
         ]
@@ -1767,10 +1767,10 @@
         "name": "mac os x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/45073613",
-            "id": 45073613,
-            "node_id": "RA_kwDOBlLEFM4Cr8TN",
-            "name": "electerm-1.16.11-mac-arm64.dmg",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/46795138",
+            "id": 46795138,
+            "node_id": "RA_kwDOBlLEFM4CygmC",
+            "name": "electerm-1.16.21-mac-arm64.dmg",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -1794,17 +1794,17 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 88546928,
+            "size": 88517276,
             "download_count": 0,
-            "created_at": "2021-09-18T07:25:34Z",
-            "updated_at": "2021-09-18T07:25:37Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.11/electerm-1.16.11-mac-arm64.dmg"
+            "created_at": "2021-10-12T14:35:41Z",
+            "updated_at": "2021-10-12T14:35:46Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.21/electerm-1.16.21-mac-arm64.dmg"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/45073716",
-            "id": 45073716,
-            "node_id": "RA_kwDOBlLEFM4Cr8U0",
-            "name": "electerm-1.16.11-mac-x64.dmg",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/46795205",
+            "id": 46795205,
+            "node_id": "RA_kwDOBlLEFM4CygnF",
+            "name": "electerm-1.16.21-mac-x64.dmg",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -1828,11 +1828,11 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 87190991,
+            "size": 87158915,
             "download_count": 0,
-            "created_at": "2021-09-18T07:29:12Z",
-            "updated_at": "2021-09-18T07:29:15Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.11/electerm-1.16.11-mac-x64.dmg"
+            "created_at": "2021-10-12T14:36:17Z",
+            "updated_at": "2021-10-12T14:36:20Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.21/electerm-1.16.21-mac-x64.dmg"
           }
         ]
       },
@@ -1840,10 +1840,10 @@
         "name": "windows 7/8/10 x86 x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/45073998",
-            "id": 45073998,
-            "node_id": "RA_kwDOBlLEFM4Cr8ZO",
-            "name": "electerm-1.16.11-win-x64-installer.exe",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/46795594",
+            "id": 46795594,
+            "node_id": "RA_kwDOBlLEFM4CygtK",
+            "name": "electerm-1.16.21-win-x64-installer.exe",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -1867,17 +1867,17 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 64105459,
+            "size": 64097074,
             "download_count": 0,
-            "created_at": "2021-09-18T07:33:42Z",
-            "updated_at": "2021-09-18T07:33:46Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.11/electerm-1.16.11-win-x64-installer.exe"
+            "created_at": "2021-10-12T14:40:53Z",
+            "updated_at": "2021-10-12T14:41:02Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.21/electerm-1.16.21-win-x64-installer.exe"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/45074129",
-            "id": 45074129,
-            "node_id": "RA_kwDOBlLEFM4Cr8bR",
-            "name": "electerm-1.16.11-win-x64-loose.tar.gz",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/46795959",
+            "id": 46795959,
+            "node_id": "RA_kwDOBlLEFM4Cygy3",
+            "name": "electerm-1.16.21-win-x64-loose.tar.gz",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -1901,17 +1901,17 @@
             },
             "content_type": "application/gzip",
             "state": "uploaded",
-            "size": 87140415,
+            "size": 87135832,
             "download_count": 0,
-            "created_at": "2021-09-18T07:37:53Z",
-            "updated_at": "2021-09-18T07:38:02Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.11/electerm-1.16.11-win-x64-loose.tar.gz"
+            "created_at": "2021-10-12T14:45:20Z",
+            "updated_at": "2021-10-12T14:45:25Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.21/electerm-1.16.21-win-x64-loose.tar.gz"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/45073950",
-            "id": 45073950,
-            "node_id": "RA_kwDOBlLEFM4Cr8Ye",
-            "name": "electerm-1.16.11-win-x64.appx",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/46795484",
+            "id": 46795484,
+            "node_id": "RA_kwDOBlLEFM4Cygrc",
+            "name": "electerm-1.16.21-win-x64.appx",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -1935,17 +1935,17 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 93749121,
+            "size": 93719512,
             "download_count": 0,
-            "created_at": "2021-09-18T07:32:02Z",
-            "updated_at": "2021-09-18T07:32:09Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.11/electerm-1.16.11-win-x64.appx"
+            "created_at": "2021-10-12T14:39:22Z",
+            "updated_at": "2021-10-12T14:39:28Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.21/electerm-1.16.21-win-x64.appx"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/45073897",
-            "id": 45073897,
-            "node_id": "RA_kwDOBlLEFM4Cr8Xp",
-            "name": "electerm-1.16.11-win-x64.tar.gz",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/46795393",
+            "id": 46795393,
+            "node_id": "RA_kwDOBlLEFM4CygqB",
+            "name": "electerm-1.16.21-win-x64.tar.gz",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -1969,18 +1969,18 @@
             },
             "content_type": "application/gzip",
             "state": "uploaded",
-            "size": 87750683,
+            "size": 87740467,
             "download_count": 0,
-            "created_at": "2021-09-18T07:30:56Z",
-            "updated_at": "2021-09-18T07:31:03Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.11/electerm-1.16.11-win-x64.tar.gz"
+            "created_at": "2021-10-12T14:38:24Z",
+            "updated_at": "2021-10-12T14:38:28Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.21/electerm-1.16.21-win-x64.tar.gz"
           }
         ]
       }
     },
-    "version": "v1.16.11",
-    "releaseNote": "Features:\r\n\r\n- fix #2248 Add time stamp to terminal log name\r\n- Strip ansi code from terminal log\r\n- Make drag bookmark a little easier\r\n\r\nBug fixes:\r\n\r\n- Fix open terminal log link in info panel\r\n- Fix upload big file support with rz\r\n\r\nUI:\r\n\r\n- Adjust default background color\r\n\r\nOthers:\r\n\r\n- Add experimental mac ARM build, may not work, not tested (#2244)\r\n",
-    "releaseDate": "2021-09-18T07:39:13Z",
+    "version": "v1.16.21",
+    "releaseNote": "New features:\r\n\r\n- Use pagination when more than 100 files in file manager\r\n- Add edit with external edtor option (#2269)\r\n\r\nBug fixes:\r\n\r\n- fix #2257 [UI] Increase scroll bar width\r\n- fix #2255 Fix sftp remote can not paste in windows (#2256)\r\n- Make sidebar bookmark and history button clickable\r\n\r\nOther updates:\r\n\r\n- Add google analytics to track use statics\r\n- Remove gcm cipher support, upgrade ssh module\r\n",
+    "releaseDate": "2021-10-12T16:26:58Z",
     "siteKeywords": "electron,ternimal,electerm,ssh,sftp",
     "siteName": "electerm",
     "path": "/home/execapp/dev/electerm.html5beta.com/index-fr_fr.html"
@@ -2284,10 +2284,10 @@
         "name": "linux x86 x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/45073708",
-            "id": 45073708,
-            "node_id": "RA_kwDOBlLEFM4Cr8Us",
-            "name": "electerm-1.16.11-linux-amd64.deb",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/46795184",
+            "id": 46795184,
+            "node_id": "RA_kwDOBlLEFM4Cygmw",
+            "name": "electerm-1.16.21-linux-amd64.deb",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -2311,18 +2311,18 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 59299454,
+            "size": 59205832,
             "download_count": 0,
-            "created_at": "2021-09-18T07:28:59Z",
-            "updated_at": "2021-09-18T07:29:00Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.11/electerm-1.16.11-linux-amd64.deb",
+            "created_at": "2021-10-12T14:36:04Z",
+            "updated_at": "2021-10-12T14:36:06Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.21/electerm-1.16.21-linux-amd64.deb",
             "desc": "for Debian, Ubuntu..."
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/45073954",
-            "id": 45073954,
-            "node_id": "RA_kwDOBlLEFM4Cr8Yi",
-            "name": "electerm-1.16.11-linux-amd64.snap",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/46795459",
+            "id": 46795459,
+            "node_id": "RA_kwDOBlLEFM4CygrD",
+            "name": "electerm-1.16.21-linux-amd64.snap",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -2346,18 +2346,18 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 73383936,
+            "size": 73371648,
             "download_count": 0,
-            "created_at": "2021-09-18T07:32:21Z",
-            "updated_at": "2021-09-18T07:32:24Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.11/electerm-1.16.11-linux-amd64.snap",
+            "created_at": "2021-10-12T14:39:03Z",
+            "updated_at": "2021-10-12T14:39:05Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.21/electerm-1.16.21-linux-amd64.snap",
             "desc": "for all linux that support snap"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/45073641",
-            "id": 45073641,
-            "node_id": "RA_kwDOBlLEFM4Cr8Tp",
-            "name": "electerm-1.16.11-linux-x64.tar.gz",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/46795034",
+            "id": 46795034,
+            "node_id": "RA_kwDOBlLEFM4Cygka",
+            "name": "electerm-1.16.21-linux-x64.tar.gz",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -2381,18 +2381,18 @@
             },
             "content_type": "application/gzip",
             "state": "uploaded",
-            "size": 81819603,
+            "size": 81810196,
             "download_count": 0,
-            "created_at": "2021-09-18T07:27:19Z",
-            "updated_at": "2021-09-18T07:27:21Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.11/electerm-1.16.11-linux-x64.tar.gz",
+            "created_at": "2021-10-12T14:34:26Z",
+            "updated_at": "2021-10-12T14:34:30Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.21/electerm-1.16.21-linux-x64.tar.gz",
             "desc": "for all linux x64, just extract"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/45073917",
-            "id": 45073917,
-            "node_id": "RA_kwDOBlLEFM4Cr8X9",
-            "name": "electerm-1.16.11-linux-x86_64.rpm",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/46795389",
+            "id": 46795389,
+            "node_id": "RA_kwDOBlLEFM4Cygp9",
+            "name": "electerm-1.16.21-linux-x86_64.rpm",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -2416,11 +2416,11 @@
             },
             "content_type": "application/x-redhat-package-manager",
             "state": "uploaded",
-            "size": 60104540,
+            "size": 60097876,
             "download_count": 0,
-            "created_at": "2021-09-18T07:31:29Z",
-            "updated_at": "2021-09-18T07:31:31Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.11/electerm-1.16.11-linux-x86_64.rpm",
+            "created_at": "2021-10-12T14:38:16Z",
+            "updated_at": "2021-10-12T14:38:18Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.21/electerm-1.16.21-linux-x86_64.rpm",
             "desc": "for Red Hat, Fedora..."
           }
         ]
@@ -2429,10 +2429,10 @@
         "name": "mac os x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/45073613",
-            "id": 45073613,
-            "node_id": "RA_kwDOBlLEFM4Cr8TN",
-            "name": "electerm-1.16.11-mac-arm64.dmg",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/46795138",
+            "id": 46795138,
+            "node_id": "RA_kwDOBlLEFM4CygmC",
+            "name": "electerm-1.16.21-mac-arm64.dmg",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -2456,17 +2456,17 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 88546928,
+            "size": 88517276,
             "download_count": 0,
-            "created_at": "2021-09-18T07:25:34Z",
-            "updated_at": "2021-09-18T07:25:37Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.11/electerm-1.16.11-mac-arm64.dmg"
+            "created_at": "2021-10-12T14:35:41Z",
+            "updated_at": "2021-10-12T14:35:46Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.21/electerm-1.16.21-mac-arm64.dmg"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/45073716",
-            "id": 45073716,
-            "node_id": "RA_kwDOBlLEFM4Cr8U0",
-            "name": "electerm-1.16.11-mac-x64.dmg",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/46795205",
+            "id": 46795205,
+            "node_id": "RA_kwDOBlLEFM4CygnF",
+            "name": "electerm-1.16.21-mac-x64.dmg",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -2490,11 +2490,11 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 87190991,
+            "size": 87158915,
             "download_count": 0,
-            "created_at": "2021-09-18T07:29:12Z",
-            "updated_at": "2021-09-18T07:29:15Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.11/electerm-1.16.11-mac-x64.dmg"
+            "created_at": "2021-10-12T14:36:17Z",
+            "updated_at": "2021-10-12T14:36:20Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.21/electerm-1.16.21-mac-x64.dmg"
           }
         ]
       },
@@ -2502,10 +2502,10 @@
         "name": "windows 7/8/10 x86 x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/45073998",
-            "id": 45073998,
-            "node_id": "RA_kwDOBlLEFM4Cr8ZO",
-            "name": "electerm-1.16.11-win-x64-installer.exe",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/46795594",
+            "id": 46795594,
+            "node_id": "RA_kwDOBlLEFM4CygtK",
+            "name": "electerm-1.16.21-win-x64-installer.exe",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -2529,17 +2529,17 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 64105459,
+            "size": 64097074,
             "download_count": 0,
-            "created_at": "2021-09-18T07:33:42Z",
-            "updated_at": "2021-09-18T07:33:46Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.11/electerm-1.16.11-win-x64-installer.exe"
+            "created_at": "2021-10-12T14:40:53Z",
+            "updated_at": "2021-10-12T14:41:02Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.21/electerm-1.16.21-win-x64-installer.exe"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/45074129",
-            "id": 45074129,
-            "node_id": "RA_kwDOBlLEFM4Cr8bR",
-            "name": "electerm-1.16.11-win-x64-loose.tar.gz",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/46795959",
+            "id": 46795959,
+            "node_id": "RA_kwDOBlLEFM4Cygy3",
+            "name": "electerm-1.16.21-win-x64-loose.tar.gz",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -2563,17 +2563,17 @@
             },
             "content_type": "application/gzip",
             "state": "uploaded",
-            "size": 87140415,
+            "size": 87135832,
             "download_count": 0,
-            "created_at": "2021-09-18T07:37:53Z",
-            "updated_at": "2021-09-18T07:38:02Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.11/electerm-1.16.11-win-x64-loose.tar.gz"
+            "created_at": "2021-10-12T14:45:20Z",
+            "updated_at": "2021-10-12T14:45:25Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.21/electerm-1.16.21-win-x64-loose.tar.gz"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/45073950",
-            "id": 45073950,
-            "node_id": "RA_kwDOBlLEFM4Cr8Ye",
-            "name": "electerm-1.16.11-win-x64.appx",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/46795484",
+            "id": 46795484,
+            "node_id": "RA_kwDOBlLEFM4Cygrc",
+            "name": "electerm-1.16.21-win-x64.appx",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -2597,17 +2597,17 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 93749121,
+            "size": 93719512,
             "download_count": 0,
-            "created_at": "2021-09-18T07:32:02Z",
-            "updated_at": "2021-09-18T07:32:09Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.11/electerm-1.16.11-win-x64.appx"
+            "created_at": "2021-10-12T14:39:22Z",
+            "updated_at": "2021-10-12T14:39:28Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.21/electerm-1.16.21-win-x64.appx"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/45073897",
-            "id": 45073897,
-            "node_id": "RA_kwDOBlLEFM4Cr8Xp",
-            "name": "electerm-1.16.11-win-x64.tar.gz",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/46795393",
+            "id": 46795393,
+            "node_id": "RA_kwDOBlLEFM4CygqB",
+            "name": "electerm-1.16.21-win-x64.tar.gz",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -2631,18 +2631,18 @@
             },
             "content_type": "application/gzip",
             "state": "uploaded",
-            "size": 87750683,
+            "size": 87740467,
             "download_count": 0,
-            "created_at": "2021-09-18T07:30:56Z",
-            "updated_at": "2021-09-18T07:31:03Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.11/electerm-1.16.11-win-x64.tar.gz"
+            "created_at": "2021-10-12T14:38:24Z",
+            "updated_at": "2021-10-12T14:38:28Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.21/electerm-1.16.21-win-x64.tar.gz"
           }
         ]
       }
     },
-    "version": "v1.16.11",
-    "releaseNote": "Features:\r\n\r\n- fix #2248 Add time stamp to terminal log name\r\n- Strip ansi code from terminal log\r\n- Make drag bookmark a little easier\r\n\r\nBug fixes:\r\n\r\n- Fix open terminal log link in info panel\r\n- Fix upload big file support with rz\r\n\r\nUI:\r\n\r\n- Adjust default background color\r\n\r\nOthers:\r\n\r\n- Add experimental mac ARM build, may not work, not tested (#2244)\r\n",
-    "releaseDate": "2021-09-18T07:39:13Z",
+    "version": "v1.16.21",
+    "releaseNote": "New features:\r\n\r\n- Use pagination when more than 100 files in file manager\r\n- Add edit with external edtor option (#2269)\r\n\r\nBug fixes:\r\n\r\n- fix #2257 [UI] Increase scroll bar width\r\n- fix #2255 Fix sftp remote can not paste in windows (#2256)\r\n- Make sidebar bookmark and history button clickable\r\n\r\nOther updates:\r\n\r\n- Add google analytics to track use statics\r\n- Remove gcm cipher support, upgrade ssh module\r\n",
+    "releaseDate": "2021-10-12T16:26:58Z",
     "siteKeywords": "electron,ternimal,electerm,ssh,sftp",
     "siteName": "electerm",
     "path": "/home/execapp/dev/electerm.html5beta.com/index-ja_jp.html"
@@ -2946,10 +2946,10 @@
         "name": "linux x86 x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/45073708",
-            "id": 45073708,
-            "node_id": "RA_kwDOBlLEFM4Cr8Us",
-            "name": "electerm-1.16.11-linux-amd64.deb",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/46795184",
+            "id": 46795184,
+            "node_id": "RA_kwDOBlLEFM4Cygmw",
+            "name": "electerm-1.16.21-linux-amd64.deb",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -2973,18 +2973,18 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 59299454,
+            "size": 59205832,
             "download_count": 0,
-            "created_at": "2021-09-18T07:28:59Z",
-            "updated_at": "2021-09-18T07:29:00Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.11/electerm-1.16.11-linux-amd64.deb",
+            "created_at": "2021-10-12T14:36:04Z",
+            "updated_at": "2021-10-12T14:36:06Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.21/electerm-1.16.21-linux-amd64.deb",
             "desc": "for Debian, Ubuntu..."
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/45073954",
-            "id": 45073954,
-            "node_id": "RA_kwDOBlLEFM4Cr8Yi",
-            "name": "electerm-1.16.11-linux-amd64.snap",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/46795459",
+            "id": 46795459,
+            "node_id": "RA_kwDOBlLEFM4CygrD",
+            "name": "electerm-1.16.21-linux-amd64.snap",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -3008,18 +3008,18 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 73383936,
+            "size": 73371648,
             "download_count": 0,
-            "created_at": "2021-09-18T07:32:21Z",
-            "updated_at": "2021-09-18T07:32:24Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.11/electerm-1.16.11-linux-amd64.snap",
+            "created_at": "2021-10-12T14:39:03Z",
+            "updated_at": "2021-10-12T14:39:05Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.21/electerm-1.16.21-linux-amd64.snap",
             "desc": "for all linux that support snap"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/45073641",
-            "id": 45073641,
-            "node_id": "RA_kwDOBlLEFM4Cr8Tp",
-            "name": "electerm-1.16.11-linux-x64.tar.gz",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/46795034",
+            "id": 46795034,
+            "node_id": "RA_kwDOBlLEFM4Cygka",
+            "name": "electerm-1.16.21-linux-x64.tar.gz",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -3043,18 +3043,18 @@
             },
             "content_type": "application/gzip",
             "state": "uploaded",
-            "size": 81819603,
+            "size": 81810196,
             "download_count": 0,
-            "created_at": "2021-09-18T07:27:19Z",
-            "updated_at": "2021-09-18T07:27:21Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.11/electerm-1.16.11-linux-x64.tar.gz",
+            "created_at": "2021-10-12T14:34:26Z",
+            "updated_at": "2021-10-12T14:34:30Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.21/electerm-1.16.21-linux-x64.tar.gz",
             "desc": "for all linux x64, just extract"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/45073917",
-            "id": 45073917,
-            "node_id": "RA_kwDOBlLEFM4Cr8X9",
-            "name": "electerm-1.16.11-linux-x86_64.rpm",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/46795389",
+            "id": 46795389,
+            "node_id": "RA_kwDOBlLEFM4Cygp9",
+            "name": "electerm-1.16.21-linux-x86_64.rpm",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -3078,11 +3078,11 @@
             },
             "content_type": "application/x-redhat-package-manager",
             "state": "uploaded",
-            "size": 60104540,
+            "size": 60097876,
             "download_count": 0,
-            "created_at": "2021-09-18T07:31:29Z",
-            "updated_at": "2021-09-18T07:31:31Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.11/electerm-1.16.11-linux-x86_64.rpm",
+            "created_at": "2021-10-12T14:38:16Z",
+            "updated_at": "2021-10-12T14:38:18Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.21/electerm-1.16.21-linux-x86_64.rpm",
             "desc": "for Red Hat, Fedora..."
           }
         ]
@@ -3091,10 +3091,10 @@
         "name": "mac os x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/45073613",
-            "id": 45073613,
-            "node_id": "RA_kwDOBlLEFM4Cr8TN",
-            "name": "electerm-1.16.11-mac-arm64.dmg",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/46795138",
+            "id": 46795138,
+            "node_id": "RA_kwDOBlLEFM4CygmC",
+            "name": "electerm-1.16.21-mac-arm64.dmg",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -3118,17 +3118,17 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 88546928,
+            "size": 88517276,
             "download_count": 0,
-            "created_at": "2021-09-18T07:25:34Z",
-            "updated_at": "2021-09-18T07:25:37Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.11/electerm-1.16.11-mac-arm64.dmg"
+            "created_at": "2021-10-12T14:35:41Z",
+            "updated_at": "2021-10-12T14:35:46Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.21/electerm-1.16.21-mac-arm64.dmg"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/45073716",
-            "id": 45073716,
-            "node_id": "RA_kwDOBlLEFM4Cr8U0",
-            "name": "electerm-1.16.11-mac-x64.dmg",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/46795205",
+            "id": 46795205,
+            "node_id": "RA_kwDOBlLEFM4CygnF",
+            "name": "electerm-1.16.21-mac-x64.dmg",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -3152,11 +3152,11 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 87190991,
+            "size": 87158915,
             "download_count": 0,
-            "created_at": "2021-09-18T07:29:12Z",
-            "updated_at": "2021-09-18T07:29:15Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.11/electerm-1.16.11-mac-x64.dmg"
+            "created_at": "2021-10-12T14:36:17Z",
+            "updated_at": "2021-10-12T14:36:20Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.21/electerm-1.16.21-mac-x64.dmg"
           }
         ]
       },
@@ -3164,10 +3164,10 @@
         "name": "windows 7/8/10 x86 x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/45073998",
-            "id": 45073998,
-            "node_id": "RA_kwDOBlLEFM4Cr8ZO",
-            "name": "electerm-1.16.11-win-x64-installer.exe",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/46795594",
+            "id": 46795594,
+            "node_id": "RA_kwDOBlLEFM4CygtK",
+            "name": "electerm-1.16.21-win-x64-installer.exe",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -3191,17 +3191,17 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 64105459,
+            "size": 64097074,
             "download_count": 0,
-            "created_at": "2021-09-18T07:33:42Z",
-            "updated_at": "2021-09-18T07:33:46Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.11/electerm-1.16.11-win-x64-installer.exe"
+            "created_at": "2021-10-12T14:40:53Z",
+            "updated_at": "2021-10-12T14:41:02Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.21/electerm-1.16.21-win-x64-installer.exe"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/45074129",
-            "id": 45074129,
-            "node_id": "RA_kwDOBlLEFM4Cr8bR",
-            "name": "electerm-1.16.11-win-x64-loose.tar.gz",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/46795959",
+            "id": 46795959,
+            "node_id": "RA_kwDOBlLEFM4Cygy3",
+            "name": "electerm-1.16.21-win-x64-loose.tar.gz",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -3225,17 +3225,17 @@
             },
             "content_type": "application/gzip",
             "state": "uploaded",
-            "size": 87140415,
+            "size": 87135832,
             "download_count": 0,
-            "created_at": "2021-09-18T07:37:53Z",
-            "updated_at": "2021-09-18T07:38:02Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.11/electerm-1.16.11-win-x64-loose.tar.gz"
+            "created_at": "2021-10-12T14:45:20Z",
+            "updated_at": "2021-10-12T14:45:25Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.21/electerm-1.16.21-win-x64-loose.tar.gz"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/45073950",
-            "id": 45073950,
-            "node_id": "RA_kwDOBlLEFM4Cr8Ye",
-            "name": "electerm-1.16.11-win-x64.appx",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/46795484",
+            "id": 46795484,
+            "node_id": "RA_kwDOBlLEFM4Cygrc",
+            "name": "electerm-1.16.21-win-x64.appx",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -3259,17 +3259,17 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 93749121,
+            "size": 93719512,
             "download_count": 0,
-            "created_at": "2021-09-18T07:32:02Z",
-            "updated_at": "2021-09-18T07:32:09Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.11/electerm-1.16.11-win-x64.appx"
+            "created_at": "2021-10-12T14:39:22Z",
+            "updated_at": "2021-10-12T14:39:28Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.21/electerm-1.16.21-win-x64.appx"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/45073897",
-            "id": 45073897,
-            "node_id": "RA_kwDOBlLEFM4Cr8Xp",
-            "name": "electerm-1.16.11-win-x64.tar.gz",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/46795393",
+            "id": 46795393,
+            "node_id": "RA_kwDOBlLEFM4CygqB",
+            "name": "electerm-1.16.21-win-x64.tar.gz",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -3293,18 +3293,18 @@
             },
             "content_type": "application/gzip",
             "state": "uploaded",
-            "size": 87750683,
+            "size": 87740467,
             "download_count": 0,
-            "created_at": "2021-09-18T07:30:56Z",
-            "updated_at": "2021-09-18T07:31:03Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.11/electerm-1.16.11-win-x64.tar.gz"
+            "created_at": "2021-10-12T14:38:24Z",
+            "updated_at": "2021-10-12T14:38:28Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.21/electerm-1.16.21-win-x64.tar.gz"
           }
         ]
       }
     },
-    "version": "v1.16.11",
-    "releaseNote": "Features:\r\n\r\n- fix #2248 Add time stamp to terminal log name\r\n- Strip ansi code from terminal log\r\n- Make drag bookmark a little easier\r\n\r\nBug fixes:\r\n\r\n- Fix open terminal log link in info panel\r\n- Fix upload big file support with rz\r\n\r\nUI:\r\n\r\n- Adjust default background color\r\n\r\nOthers:\r\n\r\n- Add experimental mac ARM build, may not work, not tested (#2244)\r\n",
-    "releaseDate": "2021-09-18T07:39:13Z",
+    "version": "v1.16.21",
+    "releaseNote": "New features:\r\n\r\n- Use pagination when more than 100 files in file manager\r\n- Add edit with external edtor option (#2269)\r\n\r\nBug fixes:\r\n\r\n- fix #2257 [UI] Increase scroll bar width\r\n- fix #2255 Fix sftp remote can not paste in windows (#2256)\r\n- Make sidebar bookmark and history button clickable\r\n\r\nOther updates:\r\n\r\n- Add google analytics to track use statics\r\n- Remove gcm cipher support, upgrade ssh module\r\n",
+    "releaseDate": "2021-10-12T16:26:58Z",
     "siteKeywords": "electron,ternimal,electerm,ssh,sftp",
     "siteName": "electerm",
     "path": "/home/execapp/dev/electerm.html5beta.com/index-pt_br.html"
@@ -3608,10 +3608,10 @@
         "name": "linux x86 x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/45073708",
-            "id": 45073708,
-            "node_id": "RA_kwDOBlLEFM4Cr8Us",
-            "name": "electerm-1.16.11-linux-amd64.deb",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/46795184",
+            "id": 46795184,
+            "node_id": "RA_kwDOBlLEFM4Cygmw",
+            "name": "electerm-1.16.21-linux-amd64.deb",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -3635,18 +3635,18 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 59299454,
+            "size": 59205832,
             "download_count": 0,
-            "created_at": "2021-09-18T07:28:59Z",
-            "updated_at": "2021-09-18T07:29:00Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.11/electerm-1.16.11-linux-amd64.deb",
+            "created_at": "2021-10-12T14:36:04Z",
+            "updated_at": "2021-10-12T14:36:06Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.21/electerm-1.16.21-linux-amd64.deb",
             "desc": "for Debian, Ubuntu..."
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/45073954",
-            "id": 45073954,
-            "node_id": "RA_kwDOBlLEFM4Cr8Yi",
-            "name": "electerm-1.16.11-linux-amd64.snap",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/46795459",
+            "id": 46795459,
+            "node_id": "RA_kwDOBlLEFM4CygrD",
+            "name": "electerm-1.16.21-linux-amd64.snap",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -3670,18 +3670,18 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 73383936,
+            "size": 73371648,
             "download_count": 0,
-            "created_at": "2021-09-18T07:32:21Z",
-            "updated_at": "2021-09-18T07:32:24Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.11/electerm-1.16.11-linux-amd64.snap",
+            "created_at": "2021-10-12T14:39:03Z",
+            "updated_at": "2021-10-12T14:39:05Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.21/electerm-1.16.21-linux-amd64.snap",
             "desc": "for all linux that support snap"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/45073641",
-            "id": 45073641,
-            "node_id": "RA_kwDOBlLEFM4Cr8Tp",
-            "name": "electerm-1.16.11-linux-x64.tar.gz",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/46795034",
+            "id": 46795034,
+            "node_id": "RA_kwDOBlLEFM4Cygka",
+            "name": "electerm-1.16.21-linux-x64.tar.gz",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -3705,18 +3705,18 @@
             },
             "content_type": "application/gzip",
             "state": "uploaded",
-            "size": 81819603,
+            "size": 81810196,
             "download_count": 0,
-            "created_at": "2021-09-18T07:27:19Z",
-            "updated_at": "2021-09-18T07:27:21Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.11/electerm-1.16.11-linux-x64.tar.gz",
+            "created_at": "2021-10-12T14:34:26Z",
+            "updated_at": "2021-10-12T14:34:30Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.21/electerm-1.16.21-linux-x64.tar.gz",
             "desc": "for all linux x64, just extract"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/45073917",
-            "id": 45073917,
-            "node_id": "RA_kwDOBlLEFM4Cr8X9",
-            "name": "electerm-1.16.11-linux-x86_64.rpm",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/46795389",
+            "id": 46795389,
+            "node_id": "RA_kwDOBlLEFM4Cygp9",
+            "name": "electerm-1.16.21-linux-x86_64.rpm",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -3740,11 +3740,11 @@
             },
             "content_type": "application/x-redhat-package-manager",
             "state": "uploaded",
-            "size": 60104540,
+            "size": 60097876,
             "download_count": 0,
-            "created_at": "2021-09-18T07:31:29Z",
-            "updated_at": "2021-09-18T07:31:31Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.11/electerm-1.16.11-linux-x86_64.rpm",
+            "created_at": "2021-10-12T14:38:16Z",
+            "updated_at": "2021-10-12T14:38:18Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.21/electerm-1.16.21-linux-x86_64.rpm",
             "desc": "for Red Hat, Fedora..."
           }
         ]
@@ -3753,10 +3753,10 @@
         "name": "mac os x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/45073613",
-            "id": 45073613,
-            "node_id": "RA_kwDOBlLEFM4Cr8TN",
-            "name": "electerm-1.16.11-mac-arm64.dmg",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/46795138",
+            "id": 46795138,
+            "node_id": "RA_kwDOBlLEFM4CygmC",
+            "name": "electerm-1.16.21-mac-arm64.dmg",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -3780,17 +3780,17 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 88546928,
+            "size": 88517276,
             "download_count": 0,
-            "created_at": "2021-09-18T07:25:34Z",
-            "updated_at": "2021-09-18T07:25:37Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.11/electerm-1.16.11-mac-arm64.dmg"
+            "created_at": "2021-10-12T14:35:41Z",
+            "updated_at": "2021-10-12T14:35:46Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.21/electerm-1.16.21-mac-arm64.dmg"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/45073716",
-            "id": 45073716,
-            "node_id": "RA_kwDOBlLEFM4Cr8U0",
-            "name": "electerm-1.16.11-mac-x64.dmg",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/46795205",
+            "id": 46795205,
+            "node_id": "RA_kwDOBlLEFM4CygnF",
+            "name": "electerm-1.16.21-mac-x64.dmg",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -3814,11 +3814,11 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 87190991,
+            "size": 87158915,
             "download_count": 0,
-            "created_at": "2021-09-18T07:29:12Z",
-            "updated_at": "2021-09-18T07:29:15Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.11/electerm-1.16.11-mac-x64.dmg"
+            "created_at": "2021-10-12T14:36:17Z",
+            "updated_at": "2021-10-12T14:36:20Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.21/electerm-1.16.21-mac-x64.dmg"
           }
         ]
       },
@@ -3826,10 +3826,10 @@
         "name": "windows 7/8/10 x86 x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/45073998",
-            "id": 45073998,
-            "node_id": "RA_kwDOBlLEFM4Cr8ZO",
-            "name": "electerm-1.16.11-win-x64-installer.exe",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/46795594",
+            "id": 46795594,
+            "node_id": "RA_kwDOBlLEFM4CygtK",
+            "name": "electerm-1.16.21-win-x64-installer.exe",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -3853,17 +3853,17 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 64105459,
+            "size": 64097074,
             "download_count": 0,
-            "created_at": "2021-09-18T07:33:42Z",
-            "updated_at": "2021-09-18T07:33:46Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.11/electerm-1.16.11-win-x64-installer.exe"
+            "created_at": "2021-10-12T14:40:53Z",
+            "updated_at": "2021-10-12T14:41:02Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.21/electerm-1.16.21-win-x64-installer.exe"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/45074129",
-            "id": 45074129,
-            "node_id": "RA_kwDOBlLEFM4Cr8bR",
-            "name": "electerm-1.16.11-win-x64-loose.tar.gz",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/46795959",
+            "id": 46795959,
+            "node_id": "RA_kwDOBlLEFM4Cygy3",
+            "name": "electerm-1.16.21-win-x64-loose.tar.gz",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -3887,17 +3887,17 @@
             },
             "content_type": "application/gzip",
             "state": "uploaded",
-            "size": 87140415,
+            "size": 87135832,
             "download_count": 0,
-            "created_at": "2021-09-18T07:37:53Z",
-            "updated_at": "2021-09-18T07:38:02Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.11/electerm-1.16.11-win-x64-loose.tar.gz"
+            "created_at": "2021-10-12T14:45:20Z",
+            "updated_at": "2021-10-12T14:45:25Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.21/electerm-1.16.21-win-x64-loose.tar.gz"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/45073950",
-            "id": 45073950,
-            "node_id": "RA_kwDOBlLEFM4Cr8Ye",
-            "name": "electerm-1.16.11-win-x64.appx",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/46795484",
+            "id": 46795484,
+            "node_id": "RA_kwDOBlLEFM4Cygrc",
+            "name": "electerm-1.16.21-win-x64.appx",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -3921,17 +3921,17 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 93749121,
+            "size": 93719512,
             "download_count": 0,
-            "created_at": "2021-09-18T07:32:02Z",
-            "updated_at": "2021-09-18T07:32:09Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.11/electerm-1.16.11-win-x64.appx"
+            "created_at": "2021-10-12T14:39:22Z",
+            "updated_at": "2021-10-12T14:39:28Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.21/electerm-1.16.21-win-x64.appx"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/45073897",
-            "id": 45073897,
-            "node_id": "RA_kwDOBlLEFM4Cr8Xp",
-            "name": "electerm-1.16.11-win-x64.tar.gz",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/46795393",
+            "id": 46795393,
+            "node_id": "RA_kwDOBlLEFM4CygqB",
+            "name": "electerm-1.16.21-win-x64.tar.gz",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -3955,18 +3955,18 @@
             },
             "content_type": "application/gzip",
             "state": "uploaded",
-            "size": 87750683,
+            "size": 87740467,
             "download_count": 0,
-            "created_at": "2021-09-18T07:30:56Z",
-            "updated_at": "2021-09-18T07:31:03Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.11/electerm-1.16.11-win-x64.tar.gz"
+            "created_at": "2021-10-12T14:38:24Z",
+            "updated_at": "2021-10-12T14:38:28Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.21/electerm-1.16.21-win-x64.tar.gz"
           }
         ]
       }
     },
-    "version": "v1.16.11",
-    "releaseNote": "Features:\r\n\r\n- fix #2248 Add time stamp to terminal log name\r\n- Strip ansi code from terminal log\r\n- Make drag bookmark a little easier\r\n\r\nBug fixes:\r\n\r\n- Fix open terminal log link in info panel\r\n- Fix upload big file support with rz\r\n\r\nUI:\r\n\r\n- Adjust default background color\r\n\r\nOthers:\r\n\r\n- Add experimental mac ARM build, may not work, not tested (#2244)\r\n",
-    "releaseDate": "2021-09-18T07:39:13Z",
+    "version": "v1.16.21",
+    "releaseNote": "New features:\r\n\r\n- Use pagination when more than 100 files in file manager\r\n- Add edit with external edtor option (#2269)\r\n\r\nBug fixes:\r\n\r\n- fix #2257 [UI] Increase scroll bar width\r\n- fix #2255 Fix sftp remote can not paste in windows (#2256)\r\n- Make sidebar bookmark and history button clickable\r\n\r\nOther updates:\r\n\r\n- Add google analytics to track use statics\r\n- Remove gcm cipher support, upgrade ssh module\r\n",
+    "releaseDate": "2021-10-12T16:26:58Z",
     "siteKeywords": "electron,ternimal,electerm,ssh,sftp",
     "siteName": "electerm",
     "path": "/home/execapp/dev/electerm.html5beta.com/index-ru_ru.html"
@@ -4270,10 +4270,10 @@
         "name": "linux x86 x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/45073708",
-            "id": 45073708,
-            "node_id": "RA_kwDOBlLEFM4Cr8Us",
-            "name": "electerm-1.16.11-linux-amd64.deb",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/46795184",
+            "id": 46795184,
+            "node_id": "RA_kwDOBlLEFM4Cygmw",
+            "name": "electerm-1.16.21-linux-amd64.deb",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -4297,18 +4297,18 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 59299454,
+            "size": 59205832,
             "download_count": 0,
-            "created_at": "2021-09-18T07:28:59Z",
-            "updated_at": "2021-09-18T07:29:00Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.11/electerm-1.16.11-linux-amd64.deb",
+            "created_at": "2021-10-12T14:36:04Z",
+            "updated_at": "2021-10-12T14:36:06Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.21/electerm-1.16.21-linux-amd64.deb",
             "desc": "for Debian, Ubuntu..."
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/45073954",
-            "id": 45073954,
-            "node_id": "RA_kwDOBlLEFM4Cr8Yi",
-            "name": "electerm-1.16.11-linux-amd64.snap",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/46795459",
+            "id": 46795459,
+            "node_id": "RA_kwDOBlLEFM4CygrD",
+            "name": "electerm-1.16.21-linux-amd64.snap",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -4332,18 +4332,18 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 73383936,
+            "size": 73371648,
             "download_count": 0,
-            "created_at": "2021-09-18T07:32:21Z",
-            "updated_at": "2021-09-18T07:32:24Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.11/electerm-1.16.11-linux-amd64.snap",
+            "created_at": "2021-10-12T14:39:03Z",
+            "updated_at": "2021-10-12T14:39:05Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.21/electerm-1.16.21-linux-amd64.snap",
             "desc": "for all linux that support snap"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/45073641",
-            "id": 45073641,
-            "node_id": "RA_kwDOBlLEFM4Cr8Tp",
-            "name": "electerm-1.16.11-linux-x64.tar.gz",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/46795034",
+            "id": 46795034,
+            "node_id": "RA_kwDOBlLEFM4Cygka",
+            "name": "electerm-1.16.21-linux-x64.tar.gz",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -4367,18 +4367,18 @@
             },
             "content_type": "application/gzip",
             "state": "uploaded",
-            "size": 81819603,
+            "size": 81810196,
             "download_count": 0,
-            "created_at": "2021-09-18T07:27:19Z",
-            "updated_at": "2021-09-18T07:27:21Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.11/electerm-1.16.11-linux-x64.tar.gz",
+            "created_at": "2021-10-12T14:34:26Z",
+            "updated_at": "2021-10-12T14:34:30Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.21/electerm-1.16.21-linux-x64.tar.gz",
             "desc": "for all linux x64, just extract"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/45073917",
-            "id": 45073917,
-            "node_id": "RA_kwDOBlLEFM4Cr8X9",
-            "name": "electerm-1.16.11-linux-x86_64.rpm",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/46795389",
+            "id": 46795389,
+            "node_id": "RA_kwDOBlLEFM4Cygp9",
+            "name": "electerm-1.16.21-linux-x86_64.rpm",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -4402,11 +4402,11 @@
             },
             "content_type": "application/x-redhat-package-manager",
             "state": "uploaded",
-            "size": 60104540,
+            "size": 60097876,
             "download_count": 0,
-            "created_at": "2021-09-18T07:31:29Z",
-            "updated_at": "2021-09-18T07:31:31Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.11/electerm-1.16.11-linux-x86_64.rpm",
+            "created_at": "2021-10-12T14:38:16Z",
+            "updated_at": "2021-10-12T14:38:18Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.21/electerm-1.16.21-linux-x86_64.rpm",
             "desc": "for Red Hat, Fedora..."
           }
         ]
@@ -4415,10 +4415,10 @@
         "name": "mac os x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/45073613",
-            "id": 45073613,
-            "node_id": "RA_kwDOBlLEFM4Cr8TN",
-            "name": "electerm-1.16.11-mac-arm64.dmg",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/46795138",
+            "id": 46795138,
+            "node_id": "RA_kwDOBlLEFM4CygmC",
+            "name": "electerm-1.16.21-mac-arm64.dmg",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -4442,17 +4442,17 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 88546928,
+            "size": 88517276,
             "download_count": 0,
-            "created_at": "2021-09-18T07:25:34Z",
-            "updated_at": "2021-09-18T07:25:37Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.11/electerm-1.16.11-mac-arm64.dmg"
+            "created_at": "2021-10-12T14:35:41Z",
+            "updated_at": "2021-10-12T14:35:46Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.21/electerm-1.16.21-mac-arm64.dmg"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/45073716",
-            "id": 45073716,
-            "node_id": "RA_kwDOBlLEFM4Cr8U0",
-            "name": "electerm-1.16.11-mac-x64.dmg",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/46795205",
+            "id": 46795205,
+            "node_id": "RA_kwDOBlLEFM4CygnF",
+            "name": "electerm-1.16.21-mac-x64.dmg",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -4476,11 +4476,11 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 87190991,
+            "size": 87158915,
             "download_count": 0,
-            "created_at": "2021-09-18T07:29:12Z",
-            "updated_at": "2021-09-18T07:29:15Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.11/electerm-1.16.11-mac-x64.dmg"
+            "created_at": "2021-10-12T14:36:17Z",
+            "updated_at": "2021-10-12T14:36:20Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.21/electerm-1.16.21-mac-x64.dmg"
           }
         ]
       },
@@ -4488,10 +4488,10 @@
         "name": "windows 7/8/10 x86 x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/45073998",
-            "id": 45073998,
-            "node_id": "RA_kwDOBlLEFM4Cr8ZO",
-            "name": "electerm-1.16.11-win-x64-installer.exe",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/46795594",
+            "id": 46795594,
+            "node_id": "RA_kwDOBlLEFM4CygtK",
+            "name": "electerm-1.16.21-win-x64-installer.exe",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -4515,17 +4515,17 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 64105459,
+            "size": 64097074,
             "download_count": 0,
-            "created_at": "2021-09-18T07:33:42Z",
-            "updated_at": "2021-09-18T07:33:46Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.11/electerm-1.16.11-win-x64-installer.exe"
+            "created_at": "2021-10-12T14:40:53Z",
+            "updated_at": "2021-10-12T14:41:02Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.21/electerm-1.16.21-win-x64-installer.exe"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/45074129",
-            "id": 45074129,
-            "node_id": "RA_kwDOBlLEFM4Cr8bR",
-            "name": "electerm-1.16.11-win-x64-loose.tar.gz",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/46795959",
+            "id": 46795959,
+            "node_id": "RA_kwDOBlLEFM4Cygy3",
+            "name": "electerm-1.16.21-win-x64-loose.tar.gz",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -4549,17 +4549,17 @@
             },
             "content_type": "application/gzip",
             "state": "uploaded",
-            "size": 87140415,
+            "size": 87135832,
             "download_count": 0,
-            "created_at": "2021-09-18T07:37:53Z",
-            "updated_at": "2021-09-18T07:38:02Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.11/electerm-1.16.11-win-x64-loose.tar.gz"
+            "created_at": "2021-10-12T14:45:20Z",
+            "updated_at": "2021-10-12T14:45:25Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.21/electerm-1.16.21-win-x64-loose.tar.gz"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/45073950",
-            "id": 45073950,
-            "node_id": "RA_kwDOBlLEFM4Cr8Ye",
-            "name": "electerm-1.16.11-win-x64.appx",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/46795484",
+            "id": 46795484,
+            "node_id": "RA_kwDOBlLEFM4Cygrc",
+            "name": "electerm-1.16.21-win-x64.appx",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -4583,17 +4583,17 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 93749121,
+            "size": 93719512,
             "download_count": 0,
-            "created_at": "2021-09-18T07:32:02Z",
-            "updated_at": "2021-09-18T07:32:09Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.11/electerm-1.16.11-win-x64.appx"
+            "created_at": "2021-10-12T14:39:22Z",
+            "updated_at": "2021-10-12T14:39:28Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.21/electerm-1.16.21-win-x64.appx"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/45073897",
-            "id": 45073897,
-            "node_id": "RA_kwDOBlLEFM4Cr8Xp",
-            "name": "electerm-1.16.11-win-x64.tar.gz",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/46795393",
+            "id": 46795393,
+            "node_id": "RA_kwDOBlLEFM4CygqB",
+            "name": "electerm-1.16.21-win-x64.tar.gz",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -4617,18 +4617,18 @@
             },
             "content_type": "application/gzip",
             "state": "uploaded",
-            "size": 87750683,
+            "size": 87740467,
             "download_count": 0,
-            "created_at": "2021-09-18T07:30:56Z",
-            "updated_at": "2021-09-18T07:31:03Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.11/electerm-1.16.11-win-x64.tar.gz"
+            "created_at": "2021-10-12T14:38:24Z",
+            "updated_at": "2021-10-12T14:38:28Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.21/electerm-1.16.21-win-x64.tar.gz"
           }
         ]
       }
     },
-    "version": "v1.16.11",
-    "releaseNote": "Features:\r\n\r\n- fix #2248 Add time stamp to terminal log name\r\n- Strip ansi code from terminal log\r\n- Make drag bookmark a little easier\r\n\r\nBug fixes:\r\n\r\n- Fix open terminal log link in info panel\r\n- Fix upload big file support with rz\r\n\r\nUI:\r\n\r\n- Adjust default background color\r\n\r\nOthers:\r\n\r\n- Add experimental mac ARM build, may not work, not tested (#2244)\r\n",
-    "releaseDate": "2021-09-18T07:39:13Z",
+    "version": "v1.16.21",
+    "releaseNote": "New features:\r\n\r\n- Use pagination when more than 100 files in file manager\r\n- Add edit with external edtor option (#2269)\r\n\r\nBug fixes:\r\n\r\n- fix #2257 [UI] Increase scroll bar width\r\n- fix #2255 Fix sftp remote can not paste in windows (#2256)\r\n- Make sidebar bookmark and history button clickable\r\n\r\nOther updates:\r\n\r\n- Add google analytics to track use statics\r\n- Remove gcm cipher support, upgrade ssh module\r\n",
+    "releaseDate": "2021-10-12T16:26:58Z",
     "siteKeywords": "electron,ternimal,electerm,ssh,sftp",
     "siteName": "electerm",
     "path": "/home/execapp/dev/electerm.html5beta.com/index-tr_tr.html"
@@ -4932,10 +4932,10 @@
         "name": "linux x86 x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/45073708",
-            "id": 45073708,
-            "node_id": "RA_kwDOBlLEFM4Cr8Us",
-            "name": "electerm-1.16.11-linux-amd64.deb",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/46795184",
+            "id": 46795184,
+            "node_id": "RA_kwDOBlLEFM4Cygmw",
+            "name": "electerm-1.16.21-linux-amd64.deb",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -4959,18 +4959,18 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 59299454,
+            "size": 59205832,
             "download_count": 0,
-            "created_at": "2021-09-18T07:28:59Z",
-            "updated_at": "2021-09-18T07:29:00Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.11/electerm-1.16.11-linux-amd64.deb",
+            "created_at": "2021-10-12T14:36:04Z",
+            "updated_at": "2021-10-12T14:36:06Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.21/electerm-1.16.21-linux-amd64.deb",
             "desc": "for Debian, Ubuntu..."
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/45073954",
-            "id": 45073954,
-            "node_id": "RA_kwDOBlLEFM4Cr8Yi",
-            "name": "electerm-1.16.11-linux-amd64.snap",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/46795459",
+            "id": 46795459,
+            "node_id": "RA_kwDOBlLEFM4CygrD",
+            "name": "electerm-1.16.21-linux-amd64.snap",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -4994,18 +4994,18 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 73383936,
+            "size": 73371648,
             "download_count": 0,
-            "created_at": "2021-09-18T07:32:21Z",
-            "updated_at": "2021-09-18T07:32:24Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.11/electerm-1.16.11-linux-amd64.snap",
+            "created_at": "2021-10-12T14:39:03Z",
+            "updated_at": "2021-10-12T14:39:05Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.21/electerm-1.16.21-linux-amd64.snap",
             "desc": "for all linux that support snap"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/45073641",
-            "id": 45073641,
-            "node_id": "RA_kwDOBlLEFM4Cr8Tp",
-            "name": "electerm-1.16.11-linux-x64.tar.gz",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/46795034",
+            "id": 46795034,
+            "node_id": "RA_kwDOBlLEFM4Cygka",
+            "name": "electerm-1.16.21-linux-x64.tar.gz",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -5029,18 +5029,18 @@
             },
             "content_type": "application/gzip",
             "state": "uploaded",
-            "size": 81819603,
+            "size": 81810196,
             "download_count": 0,
-            "created_at": "2021-09-18T07:27:19Z",
-            "updated_at": "2021-09-18T07:27:21Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.11/electerm-1.16.11-linux-x64.tar.gz",
+            "created_at": "2021-10-12T14:34:26Z",
+            "updated_at": "2021-10-12T14:34:30Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.21/electerm-1.16.21-linux-x64.tar.gz",
             "desc": "for all linux x64, just extract"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/45073917",
-            "id": 45073917,
-            "node_id": "RA_kwDOBlLEFM4Cr8X9",
-            "name": "electerm-1.16.11-linux-x86_64.rpm",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/46795389",
+            "id": 46795389,
+            "node_id": "RA_kwDOBlLEFM4Cygp9",
+            "name": "electerm-1.16.21-linux-x86_64.rpm",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -5064,11 +5064,11 @@
             },
             "content_type": "application/x-redhat-package-manager",
             "state": "uploaded",
-            "size": 60104540,
+            "size": 60097876,
             "download_count": 0,
-            "created_at": "2021-09-18T07:31:29Z",
-            "updated_at": "2021-09-18T07:31:31Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.11/electerm-1.16.11-linux-x86_64.rpm",
+            "created_at": "2021-10-12T14:38:16Z",
+            "updated_at": "2021-10-12T14:38:18Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.21/electerm-1.16.21-linux-x86_64.rpm",
             "desc": "for Red Hat, Fedora..."
           }
         ]
@@ -5077,10 +5077,10 @@
         "name": "mac os x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/45073613",
-            "id": 45073613,
-            "node_id": "RA_kwDOBlLEFM4Cr8TN",
-            "name": "electerm-1.16.11-mac-arm64.dmg",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/46795138",
+            "id": 46795138,
+            "node_id": "RA_kwDOBlLEFM4CygmC",
+            "name": "electerm-1.16.21-mac-arm64.dmg",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -5104,17 +5104,17 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 88546928,
+            "size": 88517276,
             "download_count": 0,
-            "created_at": "2021-09-18T07:25:34Z",
-            "updated_at": "2021-09-18T07:25:37Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.11/electerm-1.16.11-mac-arm64.dmg"
+            "created_at": "2021-10-12T14:35:41Z",
+            "updated_at": "2021-10-12T14:35:46Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.21/electerm-1.16.21-mac-arm64.dmg"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/45073716",
-            "id": 45073716,
-            "node_id": "RA_kwDOBlLEFM4Cr8U0",
-            "name": "electerm-1.16.11-mac-x64.dmg",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/46795205",
+            "id": 46795205,
+            "node_id": "RA_kwDOBlLEFM4CygnF",
+            "name": "electerm-1.16.21-mac-x64.dmg",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -5138,11 +5138,11 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 87190991,
+            "size": 87158915,
             "download_count": 0,
-            "created_at": "2021-09-18T07:29:12Z",
-            "updated_at": "2021-09-18T07:29:15Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.11/electerm-1.16.11-mac-x64.dmg"
+            "created_at": "2021-10-12T14:36:17Z",
+            "updated_at": "2021-10-12T14:36:20Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.21/electerm-1.16.21-mac-x64.dmg"
           }
         ]
       },
@@ -5150,10 +5150,10 @@
         "name": "windows 7/8/10 x86 x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/45073998",
-            "id": 45073998,
-            "node_id": "RA_kwDOBlLEFM4Cr8ZO",
-            "name": "electerm-1.16.11-win-x64-installer.exe",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/46795594",
+            "id": 46795594,
+            "node_id": "RA_kwDOBlLEFM4CygtK",
+            "name": "electerm-1.16.21-win-x64-installer.exe",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -5177,17 +5177,17 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 64105459,
+            "size": 64097074,
             "download_count": 0,
-            "created_at": "2021-09-18T07:33:42Z",
-            "updated_at": "2021-09-18T07:33:46Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.11/electerm-1.16.11-win-x64-installer.exe"
+            "created_at": "2021-10-12T14:40:53Z",
+            "updated_at": "2021-10-12T14:41:02Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.21/electerm-1.16.21-win-x64-installer.exe"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/45074129",
-            "id": 45074129,
-            "node_id": "RA_kwDOBlLEFM4Cr8bR",
-            "name": "electerm-1.16.11-win-x64-loose.tar.gz",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/46795959",
+            "id": 46795959,
+            "node_id": "RA_kwDOBlLEFM4Cygy3",
+            "name": "electerm-1.16.21-win-x64-loose.tar.gz",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -5211,17 +5211,17 @@
             },
             "content_type": "application/gzip",
             "state": "uploaded",
-            "size": 87140415,
+            "size": 87135832,
             "download_count": 0,
-            "created_at": "2021-09-18T07:37:53Z",
-            "updated_at": "2021-09-18T07:38:02Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.11/electerm-1.16.11-win-x64-loose.tar.gz"
+            "created_at": "2021-10-12T14:45:20Z",
+            "updated_at": "2021-10-12T14:45:25Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.21/electerm-1.16.21-win-x64-loose.tar.gz"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/45073950",
-            "id": 45073950,
-            "node_id": "RA_kwDOBlLEFM4Cr8Ye",
-            "name": "electerm-1.16.11-win-x64.appx",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/46795484",
+            "id": 46795484,
+            "node_id": "RA_kwDOBlLEFM4Cygrc",
+            "name": "electerm-1.16.21-win-x64.appx",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -5245,17 +5245,17 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 93749121,
+            "size": 93719512,
             "download_count": 0,
-            "created_at": "2021-09-18T07:32:02Z",
-            "updated_at": "2021-09-18T07:32:09Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.11/electerm-1.16.11-win-x64.appx"
+            "created_at": "2021-10-12T14:39:22Z",
+            "updated_at": "2021-10-12T14:39:28Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.21/electerm-1.16.21-win-x64.appx"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/45073897",
-            "id": 45073897,
-            "node_id": "RA_kwDOBlLEFM4Cr8Xp",
-            "name": "electerm-1.16.11-win-x64.tar.gz",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/46795393",
+            "id": 46795393,
+            "node_id": "RA_kwDOBlLEFM4CygqB",
+            "name": "electerm-1.16.21-win-x64.tar.gz",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -5279,18 +5279,18 @@
             },
             "content_type": "application/gzip",
             "state": "uploaded",
-            "size": 87750683,
+            "size": 87740467,
             "download_count": 0,
-            "created_at": "2021-09-18T07:30:56Z",
-            "updated_at": "2021-09-18T07:31:03Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.11/electerm-1.16.11-win-x64.tar.gz"
+            "created_at": "2021-10-12T14:38:24Z",
+            "updated_at": "2021-10-12T14:38:28Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.21/electerm-1.16.21-win-x64.tar.gz"
           }
         ]
       }
     },
-    "version": "v1.16.11",
-    "releaseNote": "Features:\r\n\r\n- fix #2248 Add time stamp to terminal log name\r\n- Strip ansi code from terminal log\r\n- Make drag bookmark a little easier\r\n\r\nBug fixes:\r\n\r\n- Fix open terminal log link in info panel\r\n- Fix upload big file support with rz\r\n\r\nUI:\r\n\r\n- Adjust default background color\r\n\r\nOthers:\r\n\r\n- Add experimental mac ARM build, may not work, not tested (#2244)\r\n",
-    "releaseDate": "2021-09-18T07:39:13Z",
+    "version": "v1.16.21",
+    "releaseNote": "New features:\r\n\r\n- Use pagination when more than 100 files in file manager\r\n- Add edit with external edtor option (#2269)\r\n\r\nBug fixes:\r\n\r\n- fix #2257 [UI] Increase scroll bar width\r\n- fix #2255 Fix sftp remote can not paste in windows (#2256)\r\n- Make sidebar bookmark and history button clickable\r\n\r\nOther updates:\r\n\r\n- Add google analytics to track use statics\r\n- Remove gcm cipher support, upgrade ssh module\r\n",
+    "releaseDate": "2021-10-12T16:26:58Z",
     "siteKeywords": "electron,ternimal,electerm,ssh,sftp",
     "siteName": "electerm",
     "path": "/home/execapp/dev/electerm.html5beta.com/index-zh_cn.html"
@@ -5594,10 +5594,10 @@
         "name": "linux x86 x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/45073708",
-            "id": 45073708,
-            "node_id": "RA_kwDOBlLEFM4Cr8Us",
-            "name": "electerm-1.16.11-linux-amd64.deb",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/46795184",
+            "id": 46795184,
+            "node_id": "RA_kwDOBlLEFM4Cygmw",
+            "name": "electerm-1.16.21-linux-amd64.deb",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -5621,18 +5621,18 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 59299454,
+            "size": 59205832,
             "download_count": 0,
-            "created_at": "2021-09-18T07:28:59Z",
-            "updated_at": "2021-09-18T07:29:00Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.11/electerm-1.16.11-linux-amd64.deb",
+            "created_at": "2021-10-12T14:36:04Z",
+            "updated_at": "2021-10-12T14:36:06Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.21/electerm-1.16.21-linux-amd64.deb",
             "desc": "for Debian, Ubuntu..."
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/45073954",
-            "id": 45073954,
-            "node_id": "RA_kwDOBlLEFM4Cr8Yi",
-            "name": "electerm-1.16.11-linux-amd64.snap",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/46795459",
+            "id": 46795459,
+            "node_id": "RA_kwDOBlLEFM4CygrD",
+            "name": "electerm-1.16.21-linux-amd64.snap",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -5656,18 +5656,18 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 73383936,
+            "size": 73371648,
             "download_count": 0,
-            "created_at": "2021-09-18T07:32:21Z",
-            "updated_at": "2021-09-18T07:32:24Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.11/electerm-1.16.11-linux-amd64.snap",
+            "created_at": "2021-10-12T14:39:03Z",
+            "updated_at": "2021-10-12T14:39:05Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.21/electerm-1.16.21-linux-amd64.snap",
             "desc": "for all linux that support snap"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/45073641",
-            "id": 45073641,
-            "node_id": "RA_kwDOBlLEFM4Cr8Tp",
-            "name": "electerm-1.16.11-linux-x64.tar.gz",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/46795034",
+            "id": 46795034,
+            "node_id": "RA_kwDOBlLEFM4Cygka",
+            "name": "electerm-1.16.21-linux-x64.tar.gz",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -5691,18 +5691,18 @@
             },
             "content_type": "application/gzip",
             "state": "uploaded",
-            "size": 81819603,
+            "size": 81810196,
             "download_count": 0,
-            "created_at": "2021-09-18T07:27:19Z",
-            "updated_at": "2021-09-18T07:27:21Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.11/electerm-1.16.11-linux-x64.tar.gz",
+            "created_at": "2021-10-12T14:34:26Z",
+            "updated_at": "2021-10-12T14:34:30Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.21/electerm-1.16.21-linux-x64.tar.gz",
             "desc": "for all linux x64, just extract"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/45073917",
-            "id": 45073917,
-            "node_id": "RA_kwDOBlLEFM4Cr8X9",
-            "name": "electerm-1.16.11-linux-x86_64.rpm",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/46795389",
+            "id": 46795389,
+            "node_id": "RA_kwDOBlLEFM4Cygp9",
+            "name": "electerm-1.16.21-linux-x86_64.rpm",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -5726,11 +5726,11 @@
             },
             "content_type": "application/x-redhat-package-manager",
             "state": "uploaded",
-            "size": 60104540,
+            "size": 60097876,
             "download_count": 0,
-            "created_at": "2021-09-18T07:31:29Z",
-            "updated_at": "2021-09-18T07:31:31Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.11/electerm-1.16.11-linux-x86_64.rpm",
+            "created_at": "2021-10-12T14:38:16Z",
+            "updated_at": "2021-10-12T14:38:18Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.21/electerm-1.16.21-linux-x86_64.rpm",
             "desc": "for Red Hat, Fedora..."
           }
         ]
@@ -5739,10 +5739,10 @@
         "name": "mac os x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/45073613",
-            "id": 45073613,
-            "node_id": "RA_kwDOBlLEFM4Cr8TN",
-            "name": "electerm-1.16.11-mac-arm64.dmg",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/46795138",
+            "id": 46795138,
+            "node_id": "RA_kwDOBlLEFM4CygmC",
+            "name": "electerm-1.16.21-mac-arm64.dmg",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -5766,17 +5766,17 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 88546928,
+            "size": 88517276,
             "download_count": 0,
-            "created_at": "2021-09-18T07:25:34Z",
-            "updated_at": "2021-09-18T07:25:37Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.11/electerm-1.16.11-mac-arm64.dmg"
+            "created_at": "2021-10-12T14:35:41Z",
+            "updated_at": "2021-10-12T14:35:46Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.21/electerm-1.16.21-mac-arm64.dmg"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/45073716",
-            "id": 45073716,
-            "node_id": "RA_kwDOBlLEFM4Cr8U0",
-            "name": "electerm-1.16.11-mac-x64.dmg",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/46795205",
+            "id": 46795205,
+            "node_id": "RA_kwDOBlLEFM4CygnF",
+            "name": "electerm-1.16.21-mac-x64.dmg",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -5800,11 +5800,11 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 87190991,
+            "size": 87158915,
             "download_count": 0,
-            "created_at": "2021-09-18T07:29:12Z",
-            "updated_at": "2021-09-18T07:29:15Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.11/electerm-1.16.11-mac-x64.dmg"
+            "created_at": "2021-10-12T14:36:17Z",
+            "updated_at": "2021-10-12T14:36:20Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.21/electerm-1.16.21-mac-x64.dmg"
           }
         ]
       },
@@ -5812,10 +5812,10 @@
         "name": "windows 7/8/10 x86 x64",
         "items": [
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/45073998",
-            "id": 45073998,
-            "node_id": "RA_kwDOBlLEFM4Cr8ZO",
-            "name": "electerm-1.16.11-win-x64-installer.exe",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/46795594",
+            "id": 46795594,
+            "node_id": "RA_kwDOBlLEFM4CygtK",
+            "name": "electerm-1.16.21-win-x64-installer.exe",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -5839,17 +5839,17 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 64105459,
+            "size": 64097074,
             "download_count": 0,
-            "created_at": "2021-09-18T07:33:42Z",
-            "updated_at": "2021-09-18T07:33:46Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.11/electerm-1.16.11-win-x64-installer.exe"
+            "created_at": "2021-10-12T14:40:53Z",
+            "updated_at": "2021-10-12T14:41:02Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.21/electerm-1.16.21-win-x64-installer.exe"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/45074129",
-            "id": 45074129,
-            "node_id": "RA_kwDOBlLEFM4Cr8bR",
-            "name": "electerm-1.16.11-win-x64-loose.tar.gz",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/46795959",
+            "id": 46795959,
+            "node_id": "RA_kwDOBlLEFM4Cygy3",
+            "name": "electerm-1.16.21-win-x64-loose.tar.gz",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -5873,17 +5873,17 @@
             },
             "content_type": "application/gzip",
             "state": "uploaded",
-            "size": 87140415,
+            "size": 87135832,
             "download_count": 0,
-            "created_at": "2021-09-18T07:37:53Z",
-            "updated_at": "2021-09-18T07:38:02Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.11/electerm-1.16.11-win-x64-loose.tar.gz"
+            "created_at": "2021-10-12T14:45:20Z",
+            "updated_at": "2021-10-12T14:45:25Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.21/electerm-1.16.21-win-x64-loose.tar.gz"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/45073950",
-            "id": 45073950,
-            "node_id": "RA_kwDOBlLEFM4Cr8Ye",
-            "name": "electerm-1.16.11-win-x64.appx",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/46795484",
+            "id": 46795484,
+            "node_id": "RA_kwDOBlLEFM4Cygrc",
+            "name": "electerm-1.16.21-win-x64.appx",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -5907,17 +5907,17 @@
             },
             "content_type": "application/octet-stream",
             "state": "uploaded",
-            "size": 93749121,
+            "size": 93719512,
             "download_count": 0,
-            "created_at": "2021-09-18T07:32:02Z",
-            "updated_at": "2021-09-18T07:32:09Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.11/electerm-1.16.11-win-x64.appx"
+            "created_at": "2021-10-12T14:39:22Z",
+            "updated_at": "2021-10-12T14:39:28Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.21/electerm-1.16.21-win-x64.appx"
           },
           {
-            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/45073897",
-            "id": 45073897,
-            "node_id": "RA_kwDOBlLEFM4Cr8Xp",
-            "name": "electerm-1.16.11-win-x64.tar.gz",
+            "url": "https://api.github.com/repos/electerm/electerm/releases/assets/46795393",
+            "id": 46795393,
+            "node_id": "RA_kwDOBlLEFM4CygqB",
+            "name": "electerm-1.16.21-win-x64.tar.gz",
             "label": "",
             "uploader": {
               "login": "github-actions[bot]",
@@ -5941,18 +5941,18 @@
             },
             "content_type": "application/gzip",
             "state": "uploaded",
-            "size": 87750683,
+            "size": 87740467,
             "download_count": 0,
-            "created_at": "2021-09-18T07:30:56Z",
-            "updated_at": "2021-09-18T07:31:03Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.11/electerm-1.16.11-win-x64.tar.gz"
+            "created_at": "2021-10-12T14:38:24Z",
+            "updated_at": "2021-10-12T14:38:28Z",
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.16.21/electerm-1.16.21-win-x64.tar.gz"
           }
         ]
       }
     },
-    "version": "v1.16.11",
-    "releaseNote": "Features:\r\n\r\n- fix #2248 Add time stamp to terminal log name\r\n- Strip ansi code from terminal log\r\n- Make drag bookmark a little easier\r\n\r\nBug fixes:\r\n\r\n- Fix open terminal log link in info panel\r\n- Fix upload big file support with rz\r\n\r\nUI:\r\n\r\n- Adjust default background color\r\n\r\nOthers:\r\n\r\n- Add experimental mac ARM build, may not work, not tested (#2244)\r\n",
-    "releaseDate": "2021-09-18T07:39:13Z",
+    "version": "v1.16.21",
+    "releaseNote": "New features:\r\n\r\n- Use pagination when more than 100 files in file manager\r\n- Add edit with external edtor option (#2269)\r\n\r\nBug fixes:\r\n\r\n- fix #2257 [UI] Increase scroll bar width\r\n- fix #2255 Fix sftp remote can not paste in windows (#2256)\r\n- Make sidebar bookmark and history button clickable\r\n\r\nOther updates:\r\n\r\n- Add google analytics to track use statics\r\n- Remove gcm cipher support, upgrade ssh module\r\n",
+    "releaseDate": "2021-10-12T16:26:58Z",
     "siteKeywords": "electron,ternimal,electerm,ssh,sftp",
     "siteName": "electerm",
     "path": "/home/execapp/dev/electerm.html5beta.com/index-zh_tw.html"
