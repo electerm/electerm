@@ -197,7 +197,7 @@ export default class Sftp extends Component {
   selectAll = (type, e) => {
     e.preventDefault()
     this.setState({
-      selectedFiles: this.state[type]
+      selectedFiles: this.getFileList(type)
     })
   }
 
