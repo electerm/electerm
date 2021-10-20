@@ -1,6 +1,6 @@
 {
   "name": "electerm",
-  "version": "1.16.24",
+  "version": "1.16.27",
   "description": "Terminal/ssh/sftp client(linux, mac, win) based on electron/ssh2/node-pty/xterm/antd/subx and other libs",
   "main": "app.js",
   "bin": "npm/electerm",
@@ -141,7 +141,7 @@
     "fast-deep-equal": "3.1.3",
     "find-free-port": "2.0.0",
     "font-list": "1.3.1",
-    "gist-wrapper": "0.3.0",
+    "gist-wrapper": "0.4.0",
     "gitee-client": "0.2.0",
     "https-proxy-agent": "5.0.0",
     "json-deep-copy": "1.1.6",

@@ -15,7 +15,8 @@ async function fetchData (url, options) {
       ...options,
       url,
       timeout: 15000
-    }
+    },
+    proxy: window.store.getProxySetting()
   }
   return fetch(data)
 }

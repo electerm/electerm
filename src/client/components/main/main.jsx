@@ -90,15 +90,7 @@ export default class Index extends Component {
           [k]: cpConf[k]
         }
       }, {})
-    const confsProxy = Object
-      .keys((cpConf))
-      .filter(d => d.toLowerCase().includes('proxy'))
-      .reduce((p, k) => {
-        return {
-          ...p,
-          [k]: cpConf[k]
-        }
-      }, {})
+    const confsProxy = store.getProxySetting()
     const themeProps = {
       themeConfig: store.getUiThemeConfig()
     }

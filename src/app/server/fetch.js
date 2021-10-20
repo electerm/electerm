@@ -3,6 +3,9 @@
  */
 
 const rp = require('axios')
+const {
+  createAgent
+} = require('./download-upgrade')
 
 function fetch (options) {
   return rp(options)
@@ -17,7 +20,14 @@ function fetch (options) {
 }
 
 async function wsFetchHandler (ws, msg) {
-  const { id, options } = msg
+  const { id, options, proxy } = msg
+  const {
+    agent,
+    agentType
+  } = createAgent(proxy)
+  if (agent) {
+    options[agentType] = agent
+  }
   const res = await fetch(options)
   if (res.error) {
     ws.s({

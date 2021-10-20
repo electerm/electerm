@@ -404,9 +404,13 @@ export default function BookmarkFormUI (props) {
         if (!proxy || !proxyIp || !proxyPort) {
           return prev
         }
-        const id = proxyType === '0'
-          ? `http://${proxyIp}:${proxyPort}`
-          : `socks${proxyType}://${proxyIp}:${proxyPort}`
+        let pre = `socks${proxyType}`
+        if (proxyType === '0') {
+          pre = 'http'
+        } else if (proxyType === '1') {
+          pre = 'https'
+        }
+        const id = `${pre}://${proxyIp}:${proxyPort}`
         return {
           ...prev,
           [id]: proxy
@@ -484,6 +488,7 @@ export default function BookmarkFormUI (props) {
           <Option value='5'>SOCKS5</Option>
           <Option value='4'>SOCKS4</Option>
           <Option value='0'>HTTP</Option>
+          <Option value='1'>HTTPS</Option>
         </Select>
       </FormItem>,
       <FormItem

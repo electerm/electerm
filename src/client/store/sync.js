@@ -23,13 +23,14 @@ function isJSON (str = '') {
   return str.startsWith('[')
 }
 
-async function fetchData (type, func, args, token) {
+async function fetchData (type, func, args, token, proxy) {
   const data = {
     type,
     action: 'sync',
     func,
     args,
-    token
+    token,
+    proxy
   }
   return fetch(data)
 }
@@ -73,7 +74,8 @@ export default (store) => {
       type,
       'test',
       [],
-      token
+      token,
+      store.getProxySetting()
     ).catch(
       log.error
     )
@@ -94,7 +96,7 @@ export default (store) => {
       public: false
     }
     const res = await fetchData(
-      type, 'create', [data], token
+      type, 'create', [data], token, store.getProxySetting()
     ).catch(
       store.onError
     )
@@ -150,7 +152,7 @@ export default (store) => {
           })
         }
       }
-    }], token).catch(store.onError)
+    }], token, store.getProxySetting()).catch(store.onError)
     store.isSyncingSetting = false
     store.isSyncUpload = false
     if (res) {
@@ -176,7 +178,8 @@ export default (store) => {
       type,
       'getOne',
       [gistId],
-      token
+      token,
+      store.getProxySetting()
     )
     const toInsert = []
     const ext = {}

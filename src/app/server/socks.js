@@ -37,10 +37,12 @@ module.exports = (initOptions) => {
   }
 
   // use http proxy
-  if (proxyType === '0') {
+  if (proxyType === '0' || proxyType === '1') {
+    const protocol = proxyType === '0' ? 'http:' : 'https:'
     return new Promise((resolve, reject) => {
       const opts = {
         agent: false,
+        protocol,
         hostname: proxyIp,
         port: proxyPort,
         path: `${host}:${port}`,

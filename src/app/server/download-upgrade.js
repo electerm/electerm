@@ -15,7 +15,7 @@ const { openFile, rmrf } = fsExport
 
 function createAgent (proxy) {
   if (!proxy.enableGlobalProxy) {
-    return undefined
+    return {}
   }
   const {
     proxyPort,
@@ -24,8 +24,12 @@ function createAgent (proxy) {
     proxyUsername,
     proxyPassword
   } = proxy
-  if (proxyType !== '0') {
-    return new SocksProxyAgent({
+  let agent
+  const agentType = proxyType === '0'
+    ? 'httpAgent'
+    : 'httpsAgent'
+  if (proxyType !== '0' && proxyType !== '1') {
+    agent = new SocksProxyAgent({
       type: parseInt(proxyType, 10),
       port: proxyPort,
       host: proxyIp,
@@ -33,19 +37,33 @@ function createAgent (proxy) {
       username: proxyUsername
     })
   } else {
-    return new HttpsProxyAgent({
+    const dict = {
+      0: 'http',
+      1: 'https'
+    }
+    agent = new HttpsProxyAgent({
+      protocol: dict[proxyType],
       port: proxyPort,
       host: proxyIp
     })
   }
+  return {
+    agent,
+    agentType
+  }
 }
 
-function getReleaseInfo (filter, releaseInfoUrl, agent) {
-  return rp({
+function getReleaseInfo (
+  filter, releaseInfoUrl, agent, agentType
+) {
+  const conf = {
     url: releaseInfoUrl,
-    timeout: 15000,
-    httpsAgent: agent
-  })
+    timeout: 15000
+  }
+  if (agentType) {
+    conf[agentType] = agent
+  }
+  return rp(conf)
     .then((res) => {
       return res.data
         .release
@@ -65,7 +83,7 @@ class Upgrade {
       ws,
       proxy
     } = this.options
-    const agent = createAgent(proxy)
+    const { agent, agentType } = createAgent(proxy)
     const releaseInfoUrl = `${packInfo.homepage}/data/electerm-github-release.json?_=${+new Date()}`
     const filter = r => {
       return r.name.includes(installSrc)
@@ -81,7 +99,7 @@ class Upgrade {
     //     return /mac\.dmg$/.test(r.name)
     //   }
     // }
-    const releaseInfo = await getReleaseInfo(filter, releaseInfoUrl, agent)
+    const releaseInfo = await getReleaseInfo(filter, releaseInfoUrl, agent, agentType)
       .catch(this.onError)
     if (!releaseInfo) {
       return
@@ -183,4 +201,5 @@ class Upgrade {
   // end
 }
 
-module.exports = Upgrade
+exports.createAgent = createAgent
+exports.Upgrade = Upgrade

@@ -458,6 +458,7 @@ export default class Setting extends Component {
               <Option value='5'>sock5</Option>
               <Option value='4'>sock4</Option>
               <Option value='0'>http</Option>
+              <Option value='1'>https</Option>
             </Select>
             <Input
               style={{ width: '65%' }}

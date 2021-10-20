@@ -5,32 +5,35 @@
 const GitHubOri = require('gist-wrapper').default
 const GiteeOri = require('gitee-client').default
 const log = require('../utils/log')
+const {
+  createAgent
+} = require('./download-upgrade')
 
 class Gitee extends GiteeOri {
-  create (data) {
-    return this.post('/v5/gists', data)
+  create (data, conf) {
+    return this.post('/v5/gists', data, conf)
   }
 
-  update (gistId, data) {
-    return this.patch(`/v5/gists/${gistId}`, data)
+  update (gistId, data, conf) {
+    return this.patch(`/v5/gists/${gistId}`, data, conf)
   }
 
-  getOne (gistId) {
-    return this.get(`/v5/gists/${gistId}`)
+  getOne (gistId, conf) {
+    return this.get(`/v5/gists/${gistId}`, conf)
   }
 
-  delOne (gistId) {
-    return this.delete(`/gists/${gistId}`)
+  delOne (gistId, conf) {
+    return this.delete(`/gists/${gistId}`, conf)
   }
 
-  test () {
-    return this.get(`/v5/gists?page=1&per_page=1`)
+  test (conf) {
+    return this.get(`/v5/gists?page=1&per_page=1`, conf)
   }
 }
 
 class GitHub extends GitHubOri {
-  test () {
-    return this.get(`/gists?page=1&per_page=1`)
+  test (conf) {
+    return this.get(`/gists?page=1&per_page=1`, conf)
   }
 }
 
@@ -39,19 +42,31 @@ const dist = {
   github: GitHub
 }
 
-async function doSync (type, func, args, token) {
+async function doSync (type, func, args, token, proxy) {
   const inst = new dist[type](token)
-  return inst[func](...args)
+  const {
+    agent,
+    agentType
+  } = createAgent(proxy)
+  const conf = agent
+    ? {
+      [agentType]: agent
+    }
+    : undefined
+  return inst[func](...args, conf)
     .then(r => r.data)
     .catch(e => {
       log.error('sync error')
-      return e
+      log.error(e)
+      return {
+        error: e
+      }
     })
 }
 
 async function wsSyncHandler (ws, msg) {
-  const { id, type, args, func, token } = msg
-  const res = await doSync(type, func, args, token)
+  const { id, type, args, func, token, proxy } = msg
+  const res = await doSync(type, func, args, token, proxy)
   if (res.error) {
     ws.s({
       error: res.error,
