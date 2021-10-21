@@ -9,7 +9,6 @@ import { useState } from 'react'
 import { useDelta, useConditionalEffect } from 'react-delta'
 import { ArrowDownOutlined, ArrowUpOutlined, QuestionCircleOutlined, SaveOutlined, ClearOutlined } from '@ant-design/icons'
 import { Button, Input, notification, Tooltip, Form, Switch } from 'antd'
-import { formItemLayout, tailFormItemLayout } from '../../common/form-layout'
 import Link from '../common/external-link'
 import moment from 'moment'
 import eq from 'fast-deep-equal'
@@ -124,10 +123,10 @@ export default function SyncForm (props) {
       form={form}
       className='form-wrap pd1x'
       name='setting-sync-form'
+      layout='vertical'
       initialValues={props.formData}
     >
       <FormItem
-        {...formItemLayout}
         label={tokenLabel}
         hasFeedback
         name='token'
@@ -142,7 +141,6 @@ export default function SyncForm (props) {
         />
       </FormItem>
       <FormItem
-        {...formItemLayout}
         label={s('encrypt')}
       >
         <Switch
@@ -151,7 +149,6 @@ export default function SyncForm (props) {
         />
       </FormItem>
       <FormItem
-        {...tailFormItemLayout}
         className='sync-control'
       >
         <span
@@ -161,7 +158,6 @@ export default function SyncForm (props) {
       </FormItem>
       <div className={cls}>
         <FormItem
-          {...formItemLayout}
           label='gist ID'
           name='gistId'
           rules={[{
@@ -183,7 +179,7 @@ export default function SyncForm (props) {
           onChange={this.onChangeAutoSync}
         />
       </FormItem> */}
-      <FormItem {...tailFormItemLayout}>
+      <FormItem>
         <p>
           <Button
             type='ghost'

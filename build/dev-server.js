@@ -9,17 +9,15 @@ module.exports = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept'
   },
-  contentBase: path.join(__dirname, '../work/app/assets/'),
   historyApiFallback: true,
   hot: true,
-  inline: true,
   host,
   port: devPort,
-  before: (app) => {
-    app.use('/node_modules', express.static(
+  onBeforeSetupMiddleware: (devServer) => {
+    devServer.app.use('/node_modules', express.static(
       path.resolve(__dirname, '../node_modules'), { maxAge: '170d' })
     )
-    app.use('/less', express.static(
+    devServer.app.use('/less', express.static(
       path.resolve(__dirname, '../src/client/css'), { maxAge: '170d' })
     )
   }

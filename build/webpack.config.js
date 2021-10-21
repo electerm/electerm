@@ -34,7 +34,6 @@ let config = {
     lodash: '_'
   },
   target: 'web',
-  watch: true,
   resolve: {
     extensions: ['.js', '.jsx', '.ts', '.json'],
     alias: {
