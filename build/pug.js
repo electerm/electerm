@@ -8,7 +8,7 @@ const base = {
   stylus: loadDevStylus()
 }
 module.exports = {
-  loader: 'pug-html-loader',
+  loader: '@electerm/pug-html-loader',
   options: {
     data: {
       ...base,

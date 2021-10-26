@@ -1,5 +1,5 @@
 require('dotenv').config()
-const AntdDayjsWebpackPlugin = require('antd-dayjs-webpack-plugin')
+const AntdDayjsWebpackPlugin = require('@electerm/antd-dayjs-webpack-plugin')
 const { identity } = require('lodash')
 const path = require('path')
 const { env } = require('./common')
@@ -17,7 +17,7 @@ let config = {
   entry: {
     electerm: './src/client/entry/index.jsx',
     basic: './src/client/entry/basic.jsx',
-    index: './src/views/index.pug',
+    index: './src/client/views/index.pug',
     worker: './src/client/entry/worker.js'
   },
   output: {
