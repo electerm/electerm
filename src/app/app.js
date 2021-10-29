@@ -30,6 +30,7 @@ log.debug('electerm start')
 if (process.platform === 'linux') {
   app.commandLine.appendSwitch('enable-transparent-visuals')
   app.commandLine.appendSwitch('disable-gpu')
+  app.disableHardwareAcceleration()
 }
 
 async function createWindow () {
