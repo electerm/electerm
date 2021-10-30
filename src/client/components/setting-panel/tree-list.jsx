@@ -516,10 +516,10 @@ export default class ItemListTree extends React.PureComponent {
         level2: item.level === 2
       }
     )
-    let title = isGroup
+    const title = isGroup
       ? item.title
       : createName(item)
-    title = isGroup
+    const titleHighlight = isGroup
       ? item.title || 'no title'
       : highlight(
         title,
@@ -530,7 +530,7 @@ export default class ItemListTree extends React.PureComponent {
         <div
           className='tree-item-title elli'
         >
-          {title}
+          {titleHighlight}
         </div>
         {
           isGroup

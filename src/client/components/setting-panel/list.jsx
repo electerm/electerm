@@ -84,14 +84,14 @@ export default class ItemList extends React.PureComponent {
   renderItem = (item, i) => {
     const { onClickItem, type, activeItemId } = this.props
     const { id } = item
-    let title = createName(item)
+    const title = createName(item)
     const cls = classnames(
       'item-list-unit',
       {
         active: activeItemId === id
       }
     )
-    title = highlight(
+    const titleHighlight = highlight(
       title,
       this.state.keyword
     )
@@ -105,7 +105,7 @@ export default class ItemList extends React.PureComponent {
         <div
           title={title}
           className='elli pd1y pd2x list-item-title'
-        >{title || s('new')}</div>
+        >{titleHighlight || s('new')}</div>
         {this.renderDelBtn(item)}
         {this.renderEditBtn(item, isGroup)}
       </div>

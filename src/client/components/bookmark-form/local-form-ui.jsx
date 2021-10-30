@@ -104,6 +104,14 @@ export default function LocalFormUi (props) {
         </FormItem>
         <FormItem
           {...formItemLayout}
+          label={e('description')}
+          name='description'
+          hasFeedback
+        >
+          <Input.TextArea rows={1} />
+        </FormItem>
+        <FormItem
+          {...formItemLayout}
           label={c('bookmarkCategory')}
           name='category'
         >
