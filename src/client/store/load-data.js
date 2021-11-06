@@ -13,7 +13,7 @@ import encodes from '../components/bookmark-form/encodes'
 function getHost (argv, opts) {
   const arr = argv
   let i = arr.length - 1
-  const reg = /^([\w\d-_]+@)?([\w\d-_]+\.[\w\d-_.]+)(:[\d]+)?$/
+  const reg = /^(?:([\w\d-_]+)@)?([\w\d-_]+\.[\w\d-_.]+)(?::([\d]+))?$/
   for (; i >= 0; i--) {
     const str = arr[i]
     const mt = str.match(reg)
@@ -22,7 +22,7 @@ function getHost (argv, opts) {
       const user = mt[1]
       return {
         host: mt[2],
-        username: user ? user.replace('@', '') : user,
+        username: user,
         port: port ? parseInt(port, 10) : 22
       }
     }
@@ -90,7 +90,7 @@ export default (store) => {
     const update = {
       passphrase: options.passphrase,
       password: options.password,
-      port: options.port ? parseInt(options.port, 10) : 22,
+      // port: options.port ? parseInt(options.port, 10) : 22,
       type: 'remote',
       status: statusMap.processing,
       id: generate(),
