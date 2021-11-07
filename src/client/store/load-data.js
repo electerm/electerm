@@ -30,6 +30,53 @@ function getHost (argv, opts) {
   return {}
 }
 
+export async function addTabFromCommandLine (store, opts) {
+  log.debug('command line params', opts)
+  if (!opts) {
+    return false
+  }
+  const {
+    isHelp,
+    helpInfo,
+    options,
+    argv
+  } = opts
+  store.commandLineHelp = helpInfo
+  if (isHelp) {
+    return store.openAbout(infoTabs.cmd)
+  }
+  const conf = getHost(argv, options)
+  const update = {
+    passphrase: options.passphrase,
+    password: options.password,
+    // port: options.port ? parseInt(options.port, 10) : 22,
+    type: 'remote',
+    status: statusMap.processing,
+    id: generate(),
+    encode: encodes[0],
+    enableSftp: true,
+    envLang: defaultEnvLang,
+    term: defaultSettings.terminalType
+  }
+  if (options.title) {
+    update.title = options.title
+  }
+  if (options.user) {
+    update.username = options.user
+  }
+  if (options.port && parseInt(options.port, 10)) {
+    update.port = parseInt(options.port, 10)
+  }
+  Object.assign(conf, update)
+  if (options.privateKeyPath) {
+    conf.privateKey = await fs.readFile(options.privateKeyPath)
+  }
+  log.debug('command line opts', conf)
+  if (conf.username && conf.host) {
+    store.addTab(conf)
+  }
+}
+
 export default (store) => {
   store.batchDbUpdate = async (updates) => {
     for (const u of updates) {
@@ -72,46 +119,9 @@ export default (store) => {
   }
   store.initCommandLine = async () => {
     const opts = await window.pre.runGlobalAsync('initCommandLine')
-    log.debug('command line params', opts)
-    if (!opts) {
-      return false
-    }
-    const {
-      isHelp,
-      helpInfo,
-      options,
-      argv
-    } = opts
-    store.commandLineHelp = helpInfo
-    if (isHelp) {
-      return store.openAbout(infoTabs.cmd)
-    }
-    const conf = getHost(argv, options)
-    const update = {
-      passphrase: options.passphrase,
-      password: options.password,
-      // port: options.port ? parseInt(options.port, 10) : 22,
-      type: 'remote',
-      status: statusMap.processing,
-      id: generate(),
-      encode: encodes[0],
-      enableSftp: true,
-      envLang: defaultEnvLang,
-      term: defaultSettings.terminalType
-    }
-    if (options.user) {
-      update.username = options.user
-    }
-    if (options.port && parseInt(options.port, 10)) {
-      update.port = parseInt(options.port, 10)
-    }
-    Object.assign(conf, update)
-    if (options.privateKeyPath) {
-      conf.privateKey = await fs.readFile(options.privateKeyPath)
-    }
-    log.debug('command line opts', conf)
-    if (conf.username && conf.host) {
-      store.addTab(conf)
-    }
+    addTabFromCommandLine(store, opts)
+  }
+  store.addTabFromCommandLine = (event, opts) => {
+    addTabFromCommandLine(store, opts)
   }
 }

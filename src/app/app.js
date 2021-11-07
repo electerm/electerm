@@ -16,6 +16,7 @@ const {
 const { onClose } = require('./lib/on-close')
 const initIpc = require('./lib/ipc')
 const { getDbConfig } = require('./lib/get-config')
+const { parseCommandLine, initCommandLine } = require('./lib/command-line')
 
 app.setName(packInfo.name)
 global.et = {
@@ -100,6 +101,27 @@ async function createWindow () {
   global.win.on('focus', () => {
     global.win.webContents.send('focused', null)
   })
+}
+
+if (initCommandLine()?.options?.newtab) {
+  const gotTheLock = app.requestSingleInstanceLock()
+  if (!gotTheLock) {
+    app.quit()
+  } else {
+    app.on('second-instance', (event, argv, wd) => {
+      const prog = parseCommandLine(argv)
+      const opts = {
+        options: prog.opts(),
+        argv,
+        helpInfo: prog.helpInformation()
+      }
+      if (global.win) {
+        if (global.win.isMinimized()) global.win.restore()
+        global.win.focus()
+        global.win.webContents.send('add-tab-from-cmdline', opts)
+      }
+    })
+  }
 }
 
 // This method will be called when Electron has finished
