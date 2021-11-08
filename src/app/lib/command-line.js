@@ -25,7 +25,7 @@ exports.parseCommandLine = function (argv, options) {
      electerm -l user -P 22 -i /path/to/private-key -pw password xx.com -T -t "XX Server"
      `)
     .option('-t, --title [Tab Name]', 'Specify the title of the new tab')
-    .option('-T, --newtab', 'Open a new tab from the window that uses this parameter')
+    .option('-nw, --new-window', 'Open this connection using standalone window')
     .option('-l, --user <user>', 'specify a login name')
     .option('-P, --port <port>', 'specify ssh port')
     .option('-i, --private-key-path <path>', 'specify an SSH private key path')

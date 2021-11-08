@@ -103,27 +103,27 @@ async function createWindow () {
   })
 }
 
-if (initCommandLine()?.options?.newtab) {
+const useStandAloneWindow = initCommandLine()?.options?.nw
+if (!useStandAloneWindow) {
   const gotTheLock = app.requestSingleInstanceLock()
   if (!gotTheLock) {
     app.quit()
-  } else {
-    app.on('second-instance', (event, argv, wd) => {
-      const prog = parseCommandLine(argv)
-      const opts = {
-        options: prog.opts(),
-        argv,
-        helpInfo: prog.helpInformation()
-      }
-      if (global.win) {
-        if (global.win.isMinimized()) {
-          global.win.restore()
-        }
-        global.win.focus()
-        global.win.webContents.send('add-tab-from-cmdline', opts)
-      }
-    })
   }
+  app.on('second-instance', (event, argv, wd) => {
+    const prog = parseCommandLine(argv)
+    const opts = {
+      options: prog.opts(),
+      argv,
+      helpInfo: prog.helpInformation()
+    }
+    if (global.win) {
+      if (global.win.isMinimized()) {
+        global.win.restore()
+      }
+      global.win.focus()
+      global.win.webContents.send('add-tab-from-command-line', opts)
+    }
+  })
 }
 
 // This method will be called when Electron has finished
