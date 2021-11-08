@@ -13,7 +13,7 @@ import encodes from '../components/bookmark-form/encodes'
 function getHost (argv, opts) {
   const arr = argv
   let i = arr.length - 1
-  const reg = /^([\w\d-_]+@)?([\w\d-_]+\.[\w\d-_.]+)(:[\d]+)?$/
+  const reg = /^(?:([\w\d-_]+)@)?([\w\d-_]+\.[\w\d-_.]+)(?::([\d]+))?$/
   for (; i >= 0; i--) {
     const str = arr[i]
     const mt = str.match(reg)
@@ -22,12 +22,59 @@ function getHost (argv, opts) {
       const user = mt[1]
       return {
         host: mt[2],
-        username: user ? user.replace('@', '') : user,
+        username: user,
         port: port ? parseInt(port, 10) : 22
       }
     }
   }
   return {}
+}
+
+export async function addTabFromCommandLine (store, opts) {
+  log.debug('command line params', opts)
+  if (!opts) {
+    return false
+  }
+  const {
+    isHelp,
+    helpInfo,
+    options,
+    argv
+  } = opts
+  store.commandLineHelp = helpInfo
+  if (isHelp) {
+    return store.openAbout(infoTabs.cmd)
+  }
+  const conf = getHost(argv, options)
+  const update = {
+    passphrase: options.passphrase,
+    password: options.password,
+    // port: options.port ? parseInt(options.port, 10) : 22,
+    type: 'remote',
+    status: statusMap.processing,
+    id: generate(),
+    encode: encodes[0],
+    enableSftp: true,
+    envLang: defaultEnvLang,
+    term: defaultSettings.terminalType
+  }
+  if (options.title) {
+    update.title = options.title
+  }
+  if (options.user) {
+    update.username = options.user
+  }
+  if (options.port && parseInt(options.port, 10)) {
+    update.port = parseInt(options.port, 10)
+  }
+  Object.assign(conf, update)
+  if (options.privateKeyPath) {
+    conf.privateKey = await fs.readFile(options.privateKeyPath)
+  }
+  log.debug('command line opts', conf)
+  if (conf.username && conf.host) {
+    store.addTab(conf)
+  }
 }
 
 export default (store) => {
@@ -72,46 +119,9 @@ export default (store) => {
   }
   store.initCommandLine = async () => {
     const opts = await window.pre.runGlobalAsync('initCommandLine')
-    log.debug('command line params', opts)
-    if (!opts) {
-      return false
-    }
-    const {
-      isHelp,
-      helpInfo,
-      options,
-      argv
-    } = opts
-    store.commandLineHelp = helpInfo
-    if (isHelp) {
-      return store.openAbout(infoTabs.cmd)
-    }
-    const conf = getHost(argv, options)
-    const update = {
-      passphrase: options.passphrase,
-      password: options.password,
-      port: options.port ? parseInt(options.port, 10) : 22,
-      type: 'remote',
-      status: statusMap.processing,
-      id: generate(),
-      encode: encodes[0],
-      enableSftp: true,
-      envLang: defaultEnvLang,
-      term: defaultSettings.terminalType
-    }
-    if (options.user) {
-      update.username = options.user
-    }
-    if (options.port && parseInt(options.port, 10)) {
-      update.port = parseInt(options.port, 10)
-    }
-    Object.assign(conf, update)
-    if (options.privateKeyPath) {
-      conf.privateKey = await fs.readFile(options.privateKeyPath)
-    }
-    log.debug('command line opts', conf)
-    if (conf.username && conf.host) {
-      store.addTab(conf)
-    }
+    addTabFromCommandLine(store, opts)
+  }
+  store.addTabFromCommandLine = (event, opts) => {
+    addTabFromCommandLine(store, opts)
   }
 }
