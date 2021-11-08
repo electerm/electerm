@@ -105,31 +105,27 @@ async function createWindow () {
 
 const useStandAloneWindow = initCommandLine()?.options?.nw
 const gotTheLock = app.requestSingleInstanceLock()
-if (!useStandAloneWindow) {
-  if (!gotTheLock) {
-    app.quit()
+if (!gotTheLock && !useStandAloneWindow) {
+  app.quit()
+}
+app.on('second-instance', (event, argv, wd) => {
+  if (!useStandAloneWindow) {
+    return false
   }
-}
-if (gotTheLock) {
-  app.on('second-instance', (event, argv, wd) => {
-    if (!useStandAloneWindow) {
-      return false
+  const prog = parseCommandLine(argv)
+  const opts = {
+    options: prog.opts(),
+    argv,
+    helpInfo: prog.helpInformation()
+  }
+  if (global.win) {
+    if (global.win.isMinimized()) {
+      global.win.restore()
     }
-    const prog = parseCommandLine(argv)
-    const opts = {
-      options: prog.opts(),
-      argv,
-      helpInfo: prog.helpInformation()
-    }
-    if (global.win) {
-      if (global.win.isMinimized()) {
-        global.win.restore()
-      }
-      global.win.focus()
-      global.win.webContents.send('add-tab-from-command-line', opts)
-    }
-  })
-}
+    global.win.focus()
+    global.win.webContents.send('add-tab-from-command-line', opts)
+  }
+})
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
