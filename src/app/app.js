@@ -116,7 +116,9 @@ if (initCommandLine()?.options?.newtab) {
         helpInfo: prog.helpInformation()
       }
       if (global.win) {
-        if (global.win.isMinimized()) global.win.restore()
+        if (global.win.isMinimized()) {
+          global.win.restore()
+        }
         global.win.focus()
         global.win.webContents.send('add-tab-from-cmdline', opts)
       }
