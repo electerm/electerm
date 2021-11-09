@@ -103,7 +103,7 @@ async function createWindow () {
   })
 }
 
-const useStandAloneWindow = initCommandLine()?.options?.nw
+const useStandAloneWindow = initCommandLine()?.options?.newWindow
 let gotTheLock = false
 if (!useStandAloneWindow) {
   gotTheLock = app.requestSingleInstanceLock()
