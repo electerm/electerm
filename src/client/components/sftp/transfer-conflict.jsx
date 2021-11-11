@@ -242,12 +242,12 @@ export default (props) => {
     let toFile = false
     if (renameId || parentId) {
       toFile = false
-    } else if (fromPath === toPath) {
+    } else if (fromPath === toPath && typeFrom === typeTo) {
       toFile = true
     } else {
       toFile = await checkExist(typeTo, toPath)
     }
-    if (fromPath === toPath) {
+    if (fromPath === toPath && typeFrom === typeTo) {
       return updateTransferAction({
         id,
         action: 'rename',
