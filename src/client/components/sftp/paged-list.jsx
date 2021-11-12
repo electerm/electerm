@@ -42,7 +42,7 @@ export default class ScrollFiles extends PureComponent {
       onChange: this.onChange
     }
     return (
-      <div className='pd1b'>
+      <div className='pd1b pager-wrap'>
         <Pagination
           {...props}
         />
