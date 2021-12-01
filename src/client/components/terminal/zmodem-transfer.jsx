@@ -7,7 +7,7 @@
 import { memo } from 'react'
 import { Progress, Button, Upload } from 'antd'
 import { transferTypeMap } from '../../common/constants'
-// import Link from '../common/external-link'
+import Link from '../common/external-link'
 import './zmodem.styl'
 
 const { prefix } = window
@@ -72,8 +72,8 @@ export default memo((props) => {
           <span className='iblock'>
             {s(type)}: {name}
           </span>
-          {cancelBtn}
         </h2>
+        <h4 className='pd2t pd2x'>Upload file(>1M) may not show progress and may not end properly, but still would finish uploading in background.</h4>
       </div>
     )
   }
