@@ -83,7 +83,7 @@ export default function TextEditorFormSystem (props) {
   }
 
   function open () {
-    const cmd = `${props.config.defaultEditor} ${tempFilePath}`
+    const cmd = `"${props.config.defaultEditor}" "${tempFilePath}"`
     fs.run(cmd)
   }
 
