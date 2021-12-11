@@ -166,9 +166,7 @@ export default class Sftp extends Component {
   }, _.isEqual)
 
   initEvent () {
-    const root = ReactDOM.findDOMNode(this)
     window.addEventListener('keydown', this.handleEvent)
-    this.dom = root
   }
 
   destroyEvent () {

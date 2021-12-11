@@ -25,6 +25,9 @@ export default function TextEditorForm (props) {
       >{e('save')}</span>
     )
   }
+  function onKeyDown (e) {
+    e.stopPropagation()
+  }
   return (
     <Form
       onFinish={props.handleSubmit}
@@ -48,6 +51,7 @@ export default function TextEditorForm (props) {
           placeholder={s('editorTip')}
           addonBefore={e('editWith')}
           addonAfter={renderButton()}
+          onKeyDown={onKeyDown}
         />
       </FormItem>
     </Form>
