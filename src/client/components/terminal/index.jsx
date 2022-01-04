@@ -486,7 +486,10 @@ export default class Term extends Component {
   onZmodemEnd = () => {
     delete this.onZmodem
     this.onCancel = true
-    this.attachAddon = new AttachAddon(this.socket)
+    this.attachAddon = new AttachAddon(this.socket, undefined, this.props.tab.encode)
+    if (this.decoder) {
+      this.attachAddon.decoder = this.decode
+    }
     this.term.loadAddon(this.attachAddon)
     this.setState(() => {
       return {
@@ -1145,7 +1148,8 @@ export default class Term extends Component {
   }
 
   switchEncoding = encode => {
-    this.attachAddon.decoder = new TextDecoder(encode)
+    this.decode = new TextDecoder(encode)
+    this.attachAddon.decoder = this.decode
   }
 
   renderEncodingInfo () {
