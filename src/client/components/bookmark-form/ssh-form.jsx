@@ -15,6 +15,7 @@ import {
   newBookmarkIdPrefix
 } from '../../common/constants'
 import isIp from '../../common/is-ip'
+import runIdle from '../../common/run-idle'
 import getInitItem from '../../common/init-setting-item'
 import testCon from '../../common/test-connection'
 import FormUi from './ssh-form-ui'
@@ -147,10 +148,9 @@ export default class BookmarkForm extends PureComponent {
       }
       return bg
     })
-    this.props.store.storeAssign({
-      bookmarkGroups
+    runIdle(() => {
+      this.props.store.batchDbUpdate(updates)
     })
-    this.props.store.batchDbUpdate(updates)
     message.success('OK', 3)
   }
 
@@ -164,7 +164,9 @@ export default class BookmarkForm extends PureComponent {
     )
     if (type === settingMap.history) {
       obj.id = generate()
-      addItem(obj, settingMap.bookmarks)
+      runIdle(() => {
+        addItem(obj, settingMap.bookmarks)
+      })
       this.updateBookmarkGroups(
         bookmarkGroups,
         obj,
@@ -176,7 +178,9 @@ export default class BookmarkForm extends PureComponent {
     if (!obj.id.startsWith(newBookmarkIdPrefix)) {
       const tar = copy(obj)
       delete tar.id
-      editItem(obj.id, tar, settingMap.bookmarks)
+      runIdle(() => {
+        editItem(obj.id, tar, settingMap.bookmarks)
+      })
       this.updateBookmarkGroups(
         bookmarkGroups,
         obj,
@@ -188,9 +192,13 @@ export default class BookmarkForm extends PureComponent {
     } else {
       obj.id = generate()
       if (evt !== 'save' && evt !== 'saveAndCreateNew') {
-        addItem(obj, settingMap.history)
+        runIdle(() => {
+          addItem(obj, settingMap.history)
+        })
       }
-      addItem(obj, settingMap.bookmarks)
+      runIdle(() => {
+        addItem(obj, settingMap.bookmarks)
+      })
       this.updateBookmarkGroups(
         bookmarkGroups,
         obj,
