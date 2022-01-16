@@ -7,8 +7,14 @@ const fs = require('fs')
 const _ = require('lodash')
 const { resolve } = require('path')
 
+function getOsLocale () {
+  return require('os-locale-s')
+    .osLocale()
+    .catch(() => '')
+}
+
 async function loadLocales () {
-  const sysLocale = await require('os-locale-s').osLocale() || defaultLang
+  const sysLocale = await getOsLocale() || defaultLang
   const path = (isDev
     ? '../../'
     : '') +
