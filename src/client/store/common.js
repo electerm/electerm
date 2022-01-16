@@ -9,14 +9,11 @@ import {
   statusMap,
   sidebarWidth
 } from '../common/constants'
-import runIdle from '../common/run-idle'
 
 export default store => {
   Object.assign(store, {
     storeAssign (updates) {
-      runIdle(() => {
-        Object.assign(store, updates)
-      })
+      Object.assign(store, updates)
     },
 
     setOffline () {

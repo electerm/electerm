@@ -149,6 +149,11 @@ export default class BookmarkForm extends PureComponent {
       return bg
     })
     runIdle(() => {
+      this.props.store.storeAssign({
+        bookmarkGroups
+      })
+    })
+    runIdle(() => {
       this.props.store.batchDbUpdate(updates)
     })
     message.success('OK', 3)
