@@ -4,12 +4,20 @@
  */
 
 import { Modal, Button } from 'antd'
+import _ from 'lodash'
 import AnimateText from '../common/animate-text'
 import formatTime from '../../../app/common/time'
 import { FolderOutlined, FileOutlined } from '@ant-design/icons'
 
 const { prefix } = window
 const e = prefix('sftp')
+
+function formatTimeAuto (strOrDigit) {
+  if (_.isString(strOrDigit)) {
+    return formatTime(strOrDigit)
+  }
+  return formatTime(strOrDigit * 1000)
+}
 
 export default (props) => {
   if (!props.transferToConfirm) {
@@ -50,8 +58,8 @@ export default (props) => {
     const action = isDirectory ? e('merge') : e('replace')
     const typeTxt = isDirectory ? e('folder') : e('file')
     const Icon = isDirectory ? FolderOutlined : FileOutlined
-    const typeTitle = e(typeFrom)
-    const otherTypeTitle = e(typeTo)
+    const typeTitle = e(typeTo)
+    const otherTypeTitle = e(typeFrom)
     return (
       <div className='confirms-content-wrap'>
         <AnimateText>
@@ -62,7 +70,7 @@ export default (props) => {
             {typeTitle} {typeTxt}: <Icon className='mg1r' />{name}
           </p>
           <p className='font13'>
-            {e('size')}: {sizeTo}, {e('modifyTime')}: {formatTime(modifyTimeTo)}
+            {e('size')}: {sizeTo}, {e('modifyTime')}: {formatTimeAuto(modifyTimeTo)}
           </p>
           <p className='pd1b'>
             ({toPath})
@@ -74,7 +82,7 @@ export default (props) => {
             {otherTypeTitle} {typeTxt}: <Icon className='mg1r' />{name}
           </p>
           <p className='font13'>
-            {e('size')}: {sizeFrom}, {e('modifyTime')}: {formatTime(modifyTimeFrom)}
+            {e('size')}: {sizeFrom}, {e('modifyTime')}: {formatTimeAuto(modifyTimeFrom)}
           </p>
           <p className='pd1b'>
             ({fromPath})
