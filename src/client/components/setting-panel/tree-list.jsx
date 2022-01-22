@@ -560,12 +560,11 @@ export default class ItemListTree extends React.PureComponent {
     const bookmarks = this.filter(
       this.props.bookmarks
     )
-    const map = bookmarks.reduce((p, b) => {
-      return {
+    const map = bookmarks.reduce((p, b) => ({
         ...p,
         [b.id]: b
-      }
-    }, {})
+      })
+    , {})
     const nodes = bookmarkIds.reduce((prev, id) => {
       return map[id]
         ? [
@@ -574,22 +573,19 @@ export default class ItemListTree extends React.PureComponent {
         ]
         : prev
     }, [])
-    return nodes.map((node, i) => {
-      return (
+    return nodes.map((node) => ((
         <TreeNode
           key={node.id}
           isLeaf
           title={this.renderItemTitle(node)}
         />
       )
-    })
+    ))
   }
 
   renderGroupChildNodes = bookmarkGroupIds => {
-    const bookmarkGroups = bookmarkGroupIds.map(id => {
-      return _.find(this.props.bookmarkGroups, d => d.id === id)
-    }).filter(d => d)
-    return bookmarkGroups.map((node, i) => {
+    const bookmarkGroups = bookmarkGroupIds.map(id => _.find(this.props.bookmarkGroups, d => d.id === id))
+    return bookmarkGroups.map((node) => {
       const { bookmarkIds = [], id } = node
       return (
         <TreeNode

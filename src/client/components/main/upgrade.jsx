@@ -212,9 +212,7 @@ export default function Upgrade (props) {
       <div className='pd1t'>
         <div className='bold'>Changelog:</div>
         {
-          arr.map((item, i) => {
-            return <div key={'clo' + i}>{item}</div>
-          })
+          arr.map((item, i) => <div key={'clo' + i}>{item}</div>)
         }
       </div>
     )

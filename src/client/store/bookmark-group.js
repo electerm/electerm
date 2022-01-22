@@ -101,16 +101,13 @@ export default store => {
           })
         }
       }
-      bookmarkGroups = bookmarkGroups.filter(t => {
-        return !groupIds.includes(t.id)
-      })
+			bookmarkGroups = bookmarkGroups.filter(t => !groupIds.includes(t.id))
       store.batchDbUpdate(updates)
-      store.batchDbDel(groupIds.map(id => {
-        return {
+      store.batchDbDel(groupIds.map(id => ({
           id,
           db: 'bookmarkGroups'
-        }
-      }))
+        })
+      ))
       store.bookmarkGroups = bookmarkGroups
       if (id === store.currentBookmarkGroupId) {
         store.currentBookmarkGroupId = ''

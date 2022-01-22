@@ -14,15 +14,14 @@ export default memo(function QMList (props) {
         item={{}}
       />
       {
-        quickCommands.map((item, i) => {
-          return (
+        quickCommands.map((item, i) =>  (
             <QmItem
               form={this.props.form}
               item={item}
               i={i}
             />
           )
-        })
+        )
       }
     </div>
   )

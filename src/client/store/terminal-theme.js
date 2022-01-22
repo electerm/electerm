@@ -37,9 +37,7 @@ export default store => {
     },
 
     delTheme ({ id }) {
-      store.terminalThemes = store.terminalThemes.filter(t => {
-        return t.id !== id
-      })
+      store.terminalThemes = store.terminalThemes.filter(t => t.id !== id)
       const { theme } = store.config
       if (theme === id) {
         store.config.theme = defaultTheme.id

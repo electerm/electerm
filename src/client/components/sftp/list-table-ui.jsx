@@ -59,8 +59,7 @@ export default class FileListTable extends React.Component {
     window.removeEventListener('message', this.onMsg)
   }
 
-  toVisible = (prevProps, props) => {
-    return (
+  toVisible = (prevProps, props) => (
       prevProps.pane === paneMap.ssh ||
       prevProps.pane === paneMap.terminal
     ) &&
@@ -68,7 +67,7 @@ export default class FileListTable extends React.Component {
       props.pane === paneMap.sftp ||
       props.pane === paneMap.fileManager
     )
-  }
+  
 
   onMsg = e => {
     const { type, data } = e.data || {}
@@ -217,7 +216,7 @@ export default class FileListTable extends React.Component {
     )
   }
 
-  computePos = (e, height) => {
+  computePos = (e) => {
     return {
       left: e.clientX,
       top: e.clientY

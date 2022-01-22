@@ -1164,13 +1164,12 @@ export default class Term extends Component {
             size='small'
           >
             {
-              encodes.map(k => {
-                return (
+              encodes.map(k =>  (
                   <Select.Option key={k} value={k}>
                     {k}
                   </Select.Option>
                 )
-              })
+              )
             }
           </Select>
         </div>

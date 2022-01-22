@@ -68,9 +68,7 @@ export default class QuickCommandItem extends PureComponent {
 
   del = () => {
     let quickCommands = this.props.form.getFieldValue(settingMap.quickCommands) || []
-    quickCommands = quickCommands.filter(d => {
-      return d.id !== this.state.item.id
-    })
+    quickCommands = quickCommands.filter(d => d.id !== this.state.item.id)
     this.props.form.setFieldsValue({
       quickCommands
     })

@@ -61,12 +61,11 @@ export default function TerminalInfoDisk (props) {
   if (_.isEmpty(state)) {
     return null
   }
-  const arr = Object.keys(state.network).map(k => {
-    return {
+  const arr = Object.keys(state.network).map(k =>  ({
       name: k,
       ...state.network[k]
-    }
-  }).sort((a, b) => {
+    })
+  ).sort((a, b) => {
     const ai = a.name.startsWith('eth') ? 100 : 10
     const bi = b.name.startsWith('eth') ? 100 : 10
     if (ai !== bi) {
@@ -79,16 +78,13 @@ export default function TerminalInfoDisk (props) {
     down: '↓',
     name: 'name'
   }
-  const col = ['name', 'up', 'down'].map((k, i) => {
-    return {
+  const col = ['name', 'up', 'down'].map((k) => ({
       title: map[k],
       dataIndex: k,
       key: k,
-      sorter: (a, b) => {
-        return a[k] > b[k] ? 1 : -1
-      }
+      sorter: (a, b) => a[k] > b[k] ? 1 : -1
     }
-  })
+  ))
   const ps = {
     rowKey: 'name',
     dataSource: arr,

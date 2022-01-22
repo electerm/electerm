@@ -127,14 +127,13 @@ export default class Tabs extends React.Component {
     return (
       <Menu onClick={this.onClickMenu}>
         {
-          tabs.map((t, i) => {
-            return (
-              <MenuItem
-                key={i + '##' + t.id}
-              >{createName(t)}
-              </MenuItem>
-            )
-          })
+					tabs.map((t, i) => (
+						<MenuItem
+						key={i + '##' + t.id}
+						>{createName(t)}
+						</MenuItem>
+					)
+					)
         }
       </Menu>
     )
@@ -229,15 +228,14 @@ export default class Tabs extends React.Component {
             onDoubleClick={this.onAdd}
           >
             {
-              tabs.map((tab) => {
-                return (
+              tabs.map((tab) =>  (
                   <Tab
                     {...this.props}
                     tab={tab}
                     key={tab.id}
                   />
                 )
-              })
+              )
             }
             {
               !overflow

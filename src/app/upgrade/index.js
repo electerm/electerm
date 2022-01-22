@@ -43,9 +43,7 @@ async function getUpgradeVersionList () {
   return list.filter(f => {
     const vv = f.replace('.js', '').replace('v', '')
     return /^v\d/.test(f) && comapre(vv, version) > 0 && comapre(vv, packVersion) <= 0
-  }).sort((a, b) => {
-    return comapre(a, b)
-  })
+  }).sort((a, b) => comapre(a, b))
 }
 async function versionShouldUpgrade () {
   const dbVersion = await getDBVersion()

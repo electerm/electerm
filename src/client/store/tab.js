@@ -35,9 +35,7 @@ export default store => {
         const next = tabs[i] || {}
         store.currentTabId = next.id
       }
-      store.tabs = store.tabs.filter(t => {
-        return t.id !== id
-      })
+      store.tabs = store.tabs.filter(t => t.id !== id)
     },
 
     async reloadTab (tabToReload) {

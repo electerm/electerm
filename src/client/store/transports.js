@@ -18,9 +18,7 @@ export default store => {
     },
 
     delTransport ({ id }) {
-      store.transports = store.transports.filter(t => {
-        return t.id !== id
-      })
+      store.transports = store.transports.filter(t => t.id !== id)
       window.postMessage({
         type: 'delTransport',
         id

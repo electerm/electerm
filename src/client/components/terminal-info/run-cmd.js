@@ -263,13 +263,12 @@ export default (props) => {
       interval: 5000
     }
   ]
-  return cmds.map(options => {
-    return (
+  return cmds.map(options => (
       <InfoGetter
         key={'info-getter-' + options.name}
         {...props}
         options={options}
       />
     )
-  })
+  )
 }

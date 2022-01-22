@@ -36,9 +36,7 @@ import './bookmark-form.styl'
 
 const { TabPane } = Tabs
 const { TextArea } = Input
-const authTypes = Object.keys(authTypeMap).map(k => {
-  return k
-})
+const authTypes = Object.keys(authTypeMap)
 const RadioButton = Radio.Button
 const RadioGroup = Radio.Group
 const FormItem = Form.Item
@@ -104,12 +102,11 @@ export default function BookmarkFormUI (props) {
           .filter(d => d.password),
         (d) => d.password
       )
-        .map(d => {
-          return {
+        .map(d => ({
             label: `${d.title ? `(${d.title})` : ''}${d.username}:${d.host}-******`,
             value: d.password
-          }
-        }),
+          })
+        ),
       placeholder: e('password'),
       allowClear: false
     }
@@ -253,13 +250,12 @@ export default function BookmarkFormUI (props) {
             buttonStyle='solid'
           >
             {
-              authTypes.map(t => {
-                return (
+              authTypes.map(t => (
                   <RadioButton value={t} key={t}>
                     {e(t)}
                   </RadioButton>
                 )
-              })
+              )
             }
           </RadioGroup>
         </FormItem>
@@ -352,8 +348,7 @@ export default function BookmarkFormUI (props) {
             showSearch
           >
             {
-              encodes.map(k => {
-                return (
+              encodes.map(k => (
                   <Option
                     value={k}
                     key={k}
@@ -361,7 +356,7 @@ export default function BookmarkFormUI (props) {
                     {k}
                   </Option>
                 )
-              })
+              )
             }
           </Select>
         </FormItem>
@@ -442,8 +437,7 @@ export default function BookmarkFormUI (props) {
           }
         >
           {
-            keys.map(k => {
-              return (
+            keys.map(k => (
                 <Option
                   value={k}
                   key={k}
@@ -451,7 +445,7 @@ export default function BookmarkFormUI (props) {
                   {k}
                 </Option>
               )
-            })
+            )
           }
         </Select>
       </FormItem>

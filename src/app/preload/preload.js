@@ -66,8 +66,7 @@ const pre = {
     'zipFolder',
     'unzipFile'
   ],
-  osInfo: () => {
-    return Object.keys(os).map((k, i) => {
+  osInfo: () => Object.keys(os).map((k) => {
       const vf = os[k]
       if (!_.isFunction(vf)) {
         return null
@@ -84,7 +83,7 @@ const pre = {
       v = JSON.stringify(v, null, 2)
       return { k, v }
     }).filter(d => d)
-  },
+  ,
   getGlobalSync: (name, ...args) => {
     return ipcRenderer.sendSync('sync', {
       name,

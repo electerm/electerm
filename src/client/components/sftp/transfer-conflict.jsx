@@ -171,16 +171,15 @@ export default (props) => {
       list = await props[type + 'List'](
         true, tr.fromPath
       )
-      list = list.map(t => {
-        return {
+      list = list.map(t => ({
           typeFrom: tr.typeFrom,
           typeTo: tr.typeTo,
           fromPath: resolve(t.path, t.name),
           toPath: resolve(tr.toPath, t.name),
           id: generate(),
           parentId: tr.id
-        }
-      })
+        })
+      )
     }
     clear()
     props.modifier((old) => {

@@ -60,9 +60,7 @@ export default function useQuickCmds (form, formData) {
           return (
             <div>
               {
-                fields.map((field, i) => {
-                  return renderItem(field, i, add, remove)
-                })
+                fields.map((field, i) => renderItem(field, i, add, remove))
               }
               <FormItem>
                 <Button

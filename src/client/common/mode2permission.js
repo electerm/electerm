@@ -58,12 +58,11 @@ export function mode2permission (mode) {
     'group',
     'other'
   ]
-  return permNames.map((name, i) => {
-    return {
+  return permNames.map((name, i) => ({
       name,
       permission: digit2permission(perms[i])
     }
-  })
+  ))
 }
 
 /**

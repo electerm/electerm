@@ -14,16 +14,12 @@ export default function TerminalInfoActivities (props) {
   if (_.isEmpty(activities) || !props.isRemote) {
     return null
   }
-  const col = Object.keys(activities[0]).map(k => {
-    return {
+  const col = Object.keys(activities[0]).map(k =>  ({
       title: k,
       dataIndex: k,
       key: k,
-      sorter: (a, b) => {
-        return a[k] > b[k] ? 1 : -1
-      },
-      render: (txt) => {
-        return (
+      sorter: (a, b) => a[k] > b[k] ? 1 : -1,
+      render: (txt) =>  (
           <div className='activity-item'>
             <span>{txt}</span>
             <span
@@ -35,8 +31,8 @@ export default function TerminalInfoActivities (props) {
           </div>
         )
       }
-    }
-  })
+    )
+  )
   const ps = {
     rowKey: 'pid',
     dataSource: activities,

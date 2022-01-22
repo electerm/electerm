@@ -100,9 +100,7 @@ export default function transportAction (props) {
     inst.current.transport && inst.current.transport.destroy()
     props.modifier((old) => {
       const oldTrans = copy(old.transferList)
-      const transferList = oldTrans.filter(t => {
-        return t.id !== id
-      })
+      const transferList = oldTrans.filter(t => t.id !== id)
       if (!transferList.length) {
         props.store.editTab(props.tab.id, {
           isTransporting: false

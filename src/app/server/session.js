@@ -310,9 +310,7 @@ class Terminal {
           ) => {
             if (initOptions.ignoreKeyboardInteractive) {
               return finish(
-                (prompts || []).map((n, i) => {
-                  return i ? '' : (opts.password || '')
-                })
+                (prompts || []).map((_n, i) => i ? '' : (opts.password || ''))
               )
             }
             const options = {
@@ -325,7 +323,7 @@ class Terminal {
               .catch(reject)
             finish(result)
           })
-          .on('x11', function (info, accept) {
+          .on('x11', function (_info, accept) {
             let start = 0
             const maxRetry = 100
             const portStart = 6000

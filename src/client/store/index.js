@@ -42,12 +42,11 @@ const store = Subx.create({
       _.get(
         currentTab, 'quickCommands'
       ) || []
-    ).map((d, i) => {
-      return {
+    ).map((d, i) => ({
         ...d,
         id: 'tab-qm-' + currentTab.id + '#' + i
-      }
-    })
+      })
+    )
     return [
       ...currentTabQuickCommands,
       ...quickCommands

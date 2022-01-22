@@ -143,12 +143,11 @@ export default class FileMode extends React.PureComponent {
             <p className='bold'>{e('mode')}: ({permission})</p>
             <div className='pd1b'>
               {
-                perms.map((perm) => {
-                  return renderPermission(
+                perms.map((perm) => renderPermission(
                     perm,
                     this.onChangePermission
                   )
-                })
+                )
               }
             </div>
             <p className='bold'>{e('fullPath')}:</p>

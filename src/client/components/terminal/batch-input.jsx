@@ -60,12 +60,11 @@ export default class BatchInput extends Component {
     })
   }
 
-  mapper = (v, i) => {
-    return {
+  mapper = (v, i) => ({
       value: `${i}:${v}`,
       label: v
-    }
-  }
+    })
+  
 
   render () {
     const { cmd, open, toAll } = this.state

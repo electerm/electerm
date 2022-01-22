@@ -126,11 +126,7 @@ export default class QuickCommandsFooter extends Component {
       : all
     const { labels } = this.state
     if (labels.length) {
-      filtered = filtered.filter(d => {
-        return labels.some(label => {
-          return (d.labels || []).includes(label)
-        })
-      })
+			filtered = filtered.filter(d => labels.some(label => (d.labels || []).includes(label)))
     }
     const sprops = {
       value: this.state.labels,

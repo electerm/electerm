@@ -327,12 +327,11 @@ export default class FileSection extends React.Component {
     )
   }
 
-  isSelected = file => {
-    return _.some(
-      this.props.selectedFiles,
-      f => f.id === file.id
-    )
-  }
+	isSelected = file => _.some(
+		this.props.selectedFiles,
+		f => f.id === file.id
+	)
+
 
   doRename = () => {
     const file = copy(this.state.file)

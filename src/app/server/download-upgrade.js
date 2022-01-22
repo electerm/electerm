@@ -85,9 +85,7 @@ class Upgrade {
     } = this.options
     const { agent, agentType } = createAgent(proxy)
     const releaseInfoUrl = `${packInfo.homepage}/data/electerm-github-release.json?_=${+new Date()}`
-    const filter = r => {
-      return r.name.includes(installSrc)
-    }
+    const filter = r => r.name.includes(installSrc)
     // if (isWin) {
     //   filter = r => /electerm-\d+\.\d+\.\d+-win-x64\.tar\.gz/.test(r.name)
     // } else if (isArm) {

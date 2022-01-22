@@ -9,9 +9,7 @@ import _ from 'lodash'
  */
 export function addClass (elem, ..._classes) {
   const cls = elem.className || ''
-  const classes = _classes.filter(c => {
-    return !cls.includes(c)
-  })
+	const classes = _classes.filter(c => !cls.includes(c))
   if (!classes.length) {
     return
   }

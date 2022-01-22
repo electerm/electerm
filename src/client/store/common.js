@@ -18,12 +18,11 @@ export default store => {
 
     setOffline () {
       store.tabs = store.tabs
-        .map(t => {
-          return {
+        .map(t => ({
             ...t,
             status: t.host ? statusMap.error : t.status
-          }
-        })
+          })
+				)
     },
 
     onError (e) {

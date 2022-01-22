@@ -42,10 +42,7 @@ const modifiers = [
 ]
 const keys = [
   ...'0123456789~ABCDEFGHIJKLMNOPQRTSUVWXYZ'.split(''),
-  ...new Array(12).fill(0).map((m, i) => {
-    return 'F' + (i + 1)
-  })
-]
+  ...new Array(12).fill(0).map((_m, i) => 'F' + (i + 1)) ]
 const terminalLogPath = osResolve(appPath, 'electerm', 'session_logs')
 export default class Setting extends Component {
   state = {
@@ -279,13 +276,12 @@ export default class Setting extends Component {
             mode='tags'
           >
             {
-              args.map((arg, i) => {
-                return (
+              args.map((arg, i) => (
                   <Option key={arg + '__' + i} value={arg}>
                     {arg}
                   </Option>
                 )
-              })
+              )
             }
           </Select>
         </Input.Group>
@@ -525,15 +521,14 @@ export default class Setting extends Component {
         showSearch
       >
         {
-          fonts.map(f => {
-            return (
+          fonts.map(f => (
               <Option value={f} key={f}>
                 <span style={{
                   fontFamily: f
                 }}>{f}</span>
               </Option>
             )
-          })
+          )
         }
       </Select>
     )
@@ -666,11 +661,10 @@ export default class Setting extends Component {
             dropdownMatchSelectWidth={false}
           >
             {
-              ['canvas', 'dom'].map(id => {
-                return (
+              ['canvas', 'dom'].map(id => (
                   <Option key={id} value={id}>{id}</Option>
                 )
-              })
+              )
             }
           </Select>
         </div>
