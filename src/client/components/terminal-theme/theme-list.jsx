@@ -89,7 +89,7 @@ export default class ThemeList extends List {
   }
 
   filter = list => this.state.keyword
-      ? list.filter(item => item.name.toLowerCase().includes(keyword.toLowerCase()))
+      ? list.filter(item => item.name.toLowerCase().includes(this.state.keyword.toLowerCase()))
       : list
  
 }
