@@ -52,20 +52,17 @@ function renderBookmarks (store) {
 function renderTabs (store) {
   return (
     <div className='sub-context-menu'>
-      {
-        store.tabs.map(item => {
-          const title = createTitle(item)
-          return (
+      { store.tabs.map(item => (
             <div
               className='sub-context-menu-item'
-              title={title}
+              title={createTitle(item)}
               key={item.id}
               onClick={() => store.onChangeTabId(item.id)}
             >
               {title}
             </div>
           )
-        })
+        )
       }
     </div>
   )

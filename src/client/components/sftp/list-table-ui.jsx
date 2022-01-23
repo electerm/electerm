@@ -84,8 +84,7 @@ export default class FileListTable extends React.Component {
     const { width } = this.props
     const padding = 5
     const w = (width - padding * 2) / length
-    const properties = pps.map((name, i) => {
-      return {
+    const properties = pps.map((name, i) => ({
         name,
         id: generate(),
         style: {
@@ -93,8 +92,7 @@ export default class FileListTable extends React.Component {
           left: (w * i) + 'px',
           zIndex: 3 + i
         }
-      }
-    })
+      }))
     const splitHandles = properties.reduce((prev, { name }, i) => {
       if (i === length - 1) {
         return prev

@@ -32,18 +32,11 @@ import './session.styl'
 
 const rebuildPosition = terminals => {
   const indexs = terminals.map(t => t.position).sort((a, b) => a - b)
-  const indexMap = indexs.reduce((prev, pos, index) => {
-    return {
+  const indexMap = indexs.reduce((prev, pos, index) => ({
       ...prev,
       [pos]: index * 10
-    }
-  }, {})
-  return terminals.map(t => {
-    return {
-      ...t,
-      position: indexMap[t.position]
-    }
-  })
+    }), {})
+  return terminals.map(t => ({ ...t, position: indexMap[t.position] }))
 }
 
 const getPrevTerminal = terminals => {

@@ -102,11 +102,7 @@ export default function SerialFormUi (props) {
         >
           <FormItem noStyle name='path'>
             <AutoComplete
-              options={serials.map(d => {
-                return {
-                  value: d.path
-                }
-              })}
+              options={serials.map(d => ({ value: d.path }))}
             />
           </FormItem>
           <Spin spinning={loaddingSerials}>
@@ -122,11 +118,7 @@ export default function SerialFormUi (props) {
           normalize={parseInt}
         >
           <AutoComplete
-            options={commonBaudRates.map(d => {
-              return {
-                value: d + ''
-              }
-            })}
+            options={commonBaudRates.map(d => ({value: d + ''}))}
           />
         </FormItem>
         <FormItem
@@ -136,18 +128,7 @@ export default function SerialFormUi (props) {
           normalize={parseInt}
         >
           <Select>
-            {
-              commonDataBits.map(s => {
-                return (
-                  <Option
-                    value={s}
-                    key={s}
-                  >
-                    {s}
-                  </Option>
-                )
-              })
-            }
+            {commonDataBits.map(s => <Option value={s} key={s} > {s} </Option>)}
           </Select>
         </FormItem>
         <FormItem
@@ -157,18 +138,7 @@ export default function SerialFormUi (props) {
           normalize={parseInt}
         >
           <Select>
-            {
-              commonStopBits.map(s => {
-                return (
-                  <Option
-                    value={s}
-                    key={s}
-                  >
-                    {s}
-                  </Option>
-                )
-              })
-            }
+            {commonStopBits.map(s => <Option value={s} key={s} > {s} </Option>)}
           </Select>
         </FormItem>
         <FormItem
@@ -177,18 +147,7 @@ export default function SerialFormUi (props) {
           name='parity'
         >
           <Select>
-            {
-              commonParities.map(s => {
-                return (
-                  <Option
-                    value={s}
-                    key={s}
-                  >
-                    {s}
-                  </Option>
-                )
-              })
-            }
+            { commonParities.map(s => <Option value={s} key={s} > {s} </Option>) }
           </Select>
         </FormItem>
         <FormItem

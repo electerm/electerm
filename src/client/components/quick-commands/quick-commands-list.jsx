@@ -87,17 +87,14 @@ export default class QuickCommandsList extends List {
         <Select
           {...props}
         >
-          {
-            arr.map(b => {
-              return (
+          {arr.map(b => (
                 <Option
                   key={'qml-' + b}
                   value={b}
                 >
                   {b}
                 </Option>
-              )
-            })
+              ))
           }
         </Select>
       </div>
