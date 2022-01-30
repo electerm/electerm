@@ -9,7 +9,7 @@ const { version: packVersion } = packInfo
 const { resolve } = require('path')
 const fs = require('fs')
 const log = require('../utils/log')
-const comapre = require('../common/version-compare')
+const compare = require('../common/version-compare')
 const { dbAction } = require('../lib/nedb')
 const _ = require('lodash')
 const initData = require('./init-nedb')
@@ -42,15 +42,15 @@ async function getUpgradeVersionList () {
   const list = fs.readdirSync(__dirname)
   return list.filter(f => {
     const vv = f.replace('.js', '').replace('v', '')
-    return /^v\d/.test(f) && comapre(vv, version) > 0 && comapre(vv, packVersion) <= 0
+    return /^v\d/.test(f) && compare(vv, version) > 0 && compare(vv, packVersion) <= 0
   }).sort((a, b) => {
-    return comapre(a, b)
+    return compare(a, b)
   })
 }
 async function versionShouldUpgrade () {
   const dbVersion = await getDBVersion()
   log.info('database version:', dbVersion)
-  return comapre(dbVersion, packVersion) < 0
+  return compare(dbVersion, packVersion) < 0
 }
 
 async function shouldUpgrade () {
