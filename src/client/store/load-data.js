@@ -9,6 +9,7 @@ import fs from '../common/fs'
 import { nanoid as generate } from 'nanoid/non-secure'
 import defaultSettings from '../../app/common/default-setting'
 import encodes from '../components/bookmark-form/encodes'
+import runIdle from '../common/run-idle'
 
 function getHost (argv, opts) {
   const arr = argv
@@ -79,19 +80,25 @@ export async function addTabFromCommandLine (store, opts) {
 
 export default (store) => {
   store.batchDbUpdate = async (updates) => {
-    for (const u of updates) {
-      await update(u.id, u.update, u.db, u.upsert)
-    }
+    runIdle(() => {
+      for (const u of updates) {
+        update(u.id, u.update, u.db, u.upsert)
+      }
+    })
   }
   store.batchDbAdd = async (adds) => {
-    for (const u of adds) {
-      insert(u.db, u.obj)
-    }
+    runIdle(() => {
+      for (const u of adds) {
+        insert(u.db, u.obj)
+      }
+    })
   }
   store.batchDbDel = async (dels) => {
-    for (const u of dels) {
-      await remove(u.db, u.id)
-    }
+    runIdle(() => {
+      for (const u of dels) {
+        remove(u.db, u.id)
+      }
+    })
   }
   store.openInitSessions = () => {
     for (const s of store.config.onStartSessions || []) {

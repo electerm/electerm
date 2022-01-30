@@ -8,6 +8,7 @@ import { Select, Tooltip } from 'antd'
 import classnames from 'classnames'
 import highlight from '../common/highlight'
 import { settingMap } from '../../common/constants'
+import QmTransport from './quick-command-transport'
 
 const { Option } = Select
 const { prefix } = window
@@ -68,6 +69,14 @@ export default class QuickCommandsList extends List {
         </Tooltip>
         {this.renderDelBtn(item)}
       </div>
+    )
+  }
+
+  renderTransport = () => {
+    return (
+      <QmTransport
+        store={this.props.store}
+      />
     )
   }
 

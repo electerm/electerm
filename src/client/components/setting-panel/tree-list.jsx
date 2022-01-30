@@ -750,7 +750,7 @@ export default class ItemListTree extends React.PureComponent {
             expandedKeys={expandedKeys}
             autoExpandAll={!!keyword || !!staticList}
             onSelect={this.onSelect}
-            draggable={!staticList}
+            draggable={staticList ? false : { icon: false }}
             selectedKeys={[activeItemId]}
             onDrop={this.onDrop}
           >

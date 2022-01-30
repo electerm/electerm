@@ -54,18 +54,18 @@ export default class ItemList extends React.PureComponent {
     if (!item.id || [settingSyncId, settingCommonId].includes(item.id) || item.id.startsWith('default')) {
       return null
     }
-    const { shouldComfirmDel } = this.props
+    const { shouldConfirmDel } = this.props
     const icon = (
       <CloseOutlined
         title={e('del')}
         className='pointer list-item-remove'
         onClick={
-          shouldComfirmDel
+          shouldConfirmDel
             ? _.noop
             : e => this.del(item, e)
         } />
     )
-    if (shouldComfirmDel) {
+    if (shouldConfirmDel) {
       return (
         <Popconfirm
           title={e('del') + '?'}
@@ -145,6 +145,7 @@ export default class ItemList extends React.PureComponent {
     list = this.filter(list)
     return (
       <div className={`item-list item-type-${type}`}>
+        {this.renderTransport ? this.renderTransport() : null}
         {this.renderLabels ? this.renderLabels() : null}
         {this.renderSearch()}
         <div className='item-list-wrap' style={listStyle}>

@@ -10,11 +10,11 @@ import TerminalThemeForm from '../terminal-theme'
 import TerminalThemeList from '../terminal-theme/theme-list'
 import QuickCommandsList from '../quick-commands/quick-commands-list'
 import QuickCommandsForm from '../quick-commands/quick-commands-form'
-import QmTransport from '../quick-commands/quick-command-transport'
 import BookmarkForm from '../bookmark-form'
 import List from './list'
 import TreeList from './tree-list'
 import Setting from './setting'
+import SettingCol from './col'
 import SyncSetting from '../setting-sync/setting-sync'
 import { settingMap, settingSyncId } from '../../common/constants'
 import copy from 'json-deep-copy'
@@ -44,7 +44,7 @@ export default class SettingModal extends Component {
       activeItemId: settingItem.id,
       type: tab,
       onClickItem: this.selectItem,
-      shouldComfirmDel: tabsShouldConfirmDel.includes(tab),
+      shouldConfirmDel: tabsShouldConfirmDel.includes(tab),
       list: settingSidebarList
     }
     const formProps = {
@@ -99,99 +99,82 @@ export default class SettingModal extends Component {
           key={settingMap.bookmarks}
           className='setting-tabs-bookmarks'
         >
-          <Row>
-            <Col span={10}>
-              <div className='model-bookmark-tree-wrap'>
-                <TreeList
-                  {...props0}
-                  {..._.pick(store, [
-                    'bookmarkGroups',
-                    'currentBookmarkGroupId',
-                    'bookmarks',
-                    'autofocustrigger',
-                    'config'
-                  ])}
-                />
-              </div>
-            </Col>
-            <Col span={14}>
-              <BookmarkForm
-                key={settingItem.id}
-                {...formProps}
+          <SettingCol>
+            <div className='model-bookmark-tree-wrap'>
+              <TreeList
+                {...props0}
+                {..._.pick(store, [
+                  'bookmarkGroups',
+                  'currentBookmarkGroupId',
+                  'bookmarks',
+                  'autofocustrigger',
+                  'config'
+                ])}
               />
-            </Col>
-          </Row>
+            </div>
+            <BookmarkForm
+              key={settingItem.id}
+              {...formProps}
+            />
+          </SettingCol>
         </TabPane>
         <TabPane
           tab={m(settingMap.setting)}
           key={settingMap.setting}
           className='setting-tabs-setting'
         >
-          <Row>
-            <Col span={6}>
-              <List
-                {...props0}
-              />
-            </Col>
-            <Col span={18}>
-              {
-                settingItem.id === settingSyncId
-                  ? (
-                    <SyncSetting
-                      store={store}
-                      {...store.config.syncSetting}
-                      {..._.pick(store, [
-                        'autofocustrigger',
-                        'isSyncingSetting',
-                        'isSyncDownload',
-                        'isSyncUpload',
-                        'syncType'
-                      ])}
-                    />
-                  )
-                  : <Setting {...props0} config={store.config} />
-              }
-            </Col>
-          </Row>
+          <SettingCol>
+            <List
+              {...props0}
+            />
+            {
+              settingItem.id === settingSyncId
+                ? (
+                  <SyncSetting
+                    store={store}
+                    {...store.config.syncSetting}
+                    {..._.pick(store, [
+                      'autofocustrigger',
+                      'isSyncingSetting',
+                      'isSyncDownload',
+                      'isSyncUpload',
+                      'syncType'
+                    ])}
+                  />
+                )
+                : <Setting {...props0} config={store.config} />
+            }
+          </SettingCol>
         </TabPane>
         <TabPane
           tab={t('uiThemes')}
           key={settingMap.terminalThemes}
           className='setting-tabs-terminal-themes'
         >
-          <Row>
-            <Col span={6}>
-              <TerminalThemeList
-                {...props0}
-                theme={store.config.theme}
-              />
-            </Col>
-            <Col span={18}>
-              <TerminalThemeForm {...formProps} key={settingItem.id} />
-            </Col>
-          </Row>
+          <SettingCol>
+            <TerminalThemeList
+              {...props0}
+              theme={store.config.theme}
+            />
+            <TerminalThemeForm {...formProps} key={settingItem.id} />
+          </SettingCol>
         </TabPane>
         <TabPane
           tab={q(settingMap.quickCommands)}
           key={settingMap.quickCommands}
           className='setting-tabs-quick-commands'
         >
-          <Row>
-            <Col span={6}>
-              <QmTransport store={store} />
-              <QuickCommandsList
-                {...props0}
-                quickCommandId={store.quickCommandId}
-              />
-            </Col>
-            <Col span={18}>
-              <QuickCommandsForm
-                {...formProps}
-                quickCommandTags={store.quickCommandTags}
-                key={settingItem.id}
-              />
-            </Col>
-          </Row>
+          <SettingCol>
+            <QuickCommandsList
+              {...props0}
+              quickCommandId={store.quickCommandId}
+            />
+            <QuickCommandsForm
+              {...formProps}
+              quickCommandTags={store.quickCommandTags}
+              key={settingItem.id}
+            />
+          </SettingCol>
         </TabPane>
       </Tabs>
     )
