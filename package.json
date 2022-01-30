@@ -147,7 +147,7 @@
     "json-deep-copy": "1.1.6",
     "less": "4.1.1",
     "lodash": "4.17.21",
-    "nanoid": "3.1.23",
+    "nanoid": "3.1.31",
     "node-powershell": "4.0.0",
     "node-pty": "0.10.1",
     "os-locale-s": "1.0.8",
