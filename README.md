@@ -20,13 +20,13 @@ Terminal/ssh/sftp client(linux, mac, win) based on electron/ssh2/node-pty/xterm/
 
 ## Features
 
-- Work as a terminal/file manager or ssh/sftp client(similar to xshell)
-- Global hotkey to toggle window visibility (simliar to guake, default is `ctrl + 2`)
+- Works as a terminal/file manager or ssh/sftp client(similar to xshell)
+- Global hotkey to toggle window visibility (similar to guake, default is `ctrl + 2`)
 - Multi platform(linux, mac, win)
-- 🇺🇸 🇨🇳 🇧🇷 🇷🇺 🇪🇸 🇫🇷 🇹🇷 🇭🇰 🇯🇵 🇸🇦 Support multi-language([electerm-locales](https://github.com/electerm/electerm-locales), contribute/fix welcome)
-- Double click to directly edit remote file(small ones).
-- Edit local file with built-in editor(small ones).
-- Auth with publickey + password.
+- 🇺🇸 🇨🇳 🇧🇷 🇷🇺 🇪🇸 🇫🇷 🇹🇷 🇭🇰 🇯🇵 🇸🇦 Multi-language support([electerm-locales](https://github.com/electerm/electerm-locales), contributions/fixes welcome)
+- Double click to directly edit (small) remote files.
+- Edit (small) local files with built-in editor.
+- Auth with publicKey + password.
 - Zmodem(rz, sz).
 - Transparent window(Mac, win).
 - Terminal background image.
@@ -34,9 +34,9 @@ Terminal/ssh/sftp client(linux, mac, win) based on electron/ssh2/node-pty/xterm/
 - Quick commands
 - Sync bookmarks/themes/quick commands to github/gitee secret gist
 - ~~Serial Port support~~(removed after version 1.10.14)
-- Quick input to one or all terminal
+- Quick input to one or all terminals.
 - Command line usage: check [wiki](https://github.com/electerm/electerm/wiki/Command-line-usage)
-- Zip and transfer folder and auto unzip
+- Zip/transfer/auto-unzip folders.
 
 ## Download/install
 
@@ -62,17 +62,17 @@ scoop install dorado/electerm
 ```bash
 npm i -g electerm
 
-# after install it will open at once for windows and linux,
-# for mac, will open the drag to install panel
+# after installation, it will immediately open for windows and linux,
+# for macOS, it will open the drag to install panel
 
 ```
 
 ## Upgrade
 
-- Auto upgrade: When new version released, you will get upgrade notification after you start electerm again, then you click the upgrade button to upgrade.
+- Auto upgrade: When a new version is released, you will get an upgrade notification after you start electerm again. You can then click the upgrade button to upgrade.
 - Download: Just download the latest edition, reinstall.
 - Npm: If you install from npm, just run `npm i -g electerm` again.
-- If use Snap or some other distribution systems, these systems may provide upgrade.
+- If use Snap or some other distribution system, these systems may provide upgrades.
 
 ## Known issues
 
@@ -84,13 +84,13 @@ npm i -g electerm
 
 ## Support
 
-Without users's feedbacks/suggestions/pull requests/language files, this project would not get this far, would love to hear from you, please tell me what you think, [submit an issue](https://github.com/electerm/electerm/issues), [send me an email](mailto:zxdong@gmail.com), [create/fix language files](https://github.com/electerm/electerm-locales) or create pull requests, all welcome.
+Without user feedback/suggestions/pull requests/language files, this project would not get this far.I would love to hear from you, please tell me what you think, [submit an issue](https://github.com/electerm/electerm/issues), [send me an email](mailto:zxdong@gmail.com), [create/fix language files](https://github.com/electerm/electerm-locales) or create pull requests, all are welcome.
 
 ## Dev
 
 ```bash
 # tested in ubuntu16.04+/mac os 10.13+ only
-# need nodejs/npm, suggest using nvm to install nodejs/npm
+# needs nodejs/npm, suggest using nvm to install nodejs/npm
 # https://github.com/creationix/nvm
 # with node 8.6+
 
@@ -98,7 +98,7 @@ git clone git@github.com:electerm/electerm.git
 cd electerm
 npm i
 
-# start webpack dev server, requires 5570 port
+# start webpack dev server, requires port 5570
 npm start
 
 # in a separate terminal session run app
