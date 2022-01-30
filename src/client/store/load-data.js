@@ -80,25 +80,25 @@ export async function addTabFromCommandLine (store, opts) {
 
 export default (store) => {
   store.batchDbUpdate = async (updates) => {
-    for (const u of updates) {
-      runIdle(() => {
+    runIdle(() => {
+      for (const u of updates) {
         update(u.id, u.update, u.db, u.upsert)
-      })
-    }
+      }
+    })
   }
   store.batchDbAdd = async (adds) => {
-    for (const u of adds) {
-      runIdle(() => {
+    runIdle(() => {
+      for (const u of adds) {
         insert(u.db, u.obj)
-      })
-    }
+      }
+    })
   }
   store.batchDbDel = async (dels) => {
-    for (const u of dels) {
-      runIdle(() => {
+    runIdle(() => {
+      for (const u of dels) {
         remove(u.db, u.id)
-      })
-    }
+      }
+    })
   }
   store.openInitSessions = () => {
     for (const s of store.config.onStartSessions || []) {
