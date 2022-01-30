@@ -38,7 +38,7 @@ export default class BookmarkSelect extends Component {
     }
     const propsTree = {
       ...base,
-      shouldComfirmDel: true,
+      shouldConfirmDel: true,
       bookmarkGroups: store.bookmarkGroupsTotal,
       expandedKeys: openedCategoryIds,
       onExpand: openedCategoryIds => {
