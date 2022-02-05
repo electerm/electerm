@@ -4,7 +4,7 @@
 
 import { Component } from '../common/react-subx'
 import _ from 'lodash'
-import { Tabs, Col, Row } from 'antd'
+import { Tabs } from 'antd'
 import Modal from './setting-wrap'
 import TerminalThemeForm from '../terminal-theme'
 import TerminalThemeList from '../terminal-theme/theme-list'
@@ -73,26 +73,21 @@ export default class SettingModal extends Component {
           key={settingMap.history}
           className='setting-tabs-history'
         >
-          <Row>
-            <Col span={6}>
-              <List
-                {...props0}
-              />
-            </Col>
-            <Col span={18}>
-              {
-                settingItem.id
-                  ? (
-                    <BookmarkForm
-                      key={settingItem.id}
-                      {...formProps}
-                    />
-                  )
-                  : <div className='form-wrap pd2 aligncenter'>{c('notFoundContent')}</div>
-              }
-
-            </Col>
-          </Row>
+          <SettingCol>
+            <List
+              {...props0}
+            />
+            {
+              settingItem.id
+                ? (
+                  <BookmarkForm
+                    key={settingItem.id}
+                    {...formProps}
+                  />
+                )
+                : <div className='form-wrap pd2 aligncenter'>{c('notFoundContent')}</div>
+            }
+          </SettingCol>
         </TabPane>
         <TabPane
           tab={m(settingMap.bookmarks)}
