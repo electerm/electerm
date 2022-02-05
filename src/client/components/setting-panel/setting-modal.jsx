@@ -17,7 +17,6 @@ import Setting from './setting'
 import SettingCol from './col'
 import SyncSetting from '../setting-sync/setting-sync'
 import { settingMap, settingSyncId } from '../../common/constants'
-import copy from 'json-deep-copy'
 
 const { prefix } = window
 const m = prefix('common')
@@ -56,9 +55,9 @@ export default class SettingModal extends Component {
         'currentBookmarkGroupId',
         'config'
       ]),
-      bookmarkGroups: copy(store.bookmarkGroups),
-      bookmarks: copy(store.bookmarks),
-      serials: copy(store.serials),
+      bookmarkGroups: store.bookmarkGroups.toJSON(),
+      bookmarks: store.bookmarks.toJSON(),
+      serials: store.serials.toJSON(),
       loaddingSerials: store.loaddingSerials
     }
     return (
