@@ -655,7 +655,7 @@
       }
     },
     "version": "v1.18.0",
-    "releaseNote": "UI:\r\n\r\n- Improve setting/bookmark panel UI\r\n- Improve tabs UI\r\n- Update pinned side panel UI, now will not cover terminal\r\n\r\nUpdates:\r\n\r\n- Improve performance(may still having performance, please feedback)\r\n- Improve some wording by @ic-768\r\n\r\nKnown issues:\r\n\r\n- [rz] When upload file with rz command, for file > 1M, may not end properly, and may not update progress, but still upload in background.\r\n- When use edit with... from context menu, editor only support apps in system path, means editor name without path\r\n- Check more from https://github.com/electerm/electerm/wiki/Know-issues\r\n",
+    "releaseNote": "UI:\r\n\r\n- Improve setting/bookmark panel UI\r\n- Improve tabs UI\r\n- Update pinned side panel UI, now will not cover terminal\r\n\r\nUpdates:\r\n\r\n- Improve performance(may still having performance issue, please feedback)\r\n- Improve some wording by @ic-768\r\n\r\nKnown issues:\r\n\r\n- [rz] When upload file with rz command, for file > 1M, may not end properly, and may not update progress, but still upload in background.\r\n- When use edit with... from context menu, editor only support apps in system path, means editor name without path\r\n- Check more from https://github.com/electerm/electerm/wiki/Know-issues\r\n",
     "releaseDate": "2022-02-06T07:45:22Z",
     "siteKeywords": "electron,ternimal,electerm,ssh,sftp",
     "siteName": "electerm",
@@ -1317,7 +1317,7 @@
       }
     },
     "version": "v1.18.0",
-    "releaseNote": "UI:\r\n\r\n- Improve setting/bookmark panel UI\r\n- Improve tabs UI\r\n- Update pinned side panel UI, now will not cover terminal\r\n\r\nUpdates:\r\n\r\n- Improve performance(may still having performance, please feedback)\r\n- Improve some wording by @ic-768\r\n\r\nKnown issues:\r\n\r\n- [rz] When upload file with rz command, for file > 1M, may not end properly, and may not update progress, but still upload in background.\r\n- When use edit with... from context menu, editor only support apps in system path, means editor name without path\r\n- Check more from https://github.com/electerm/electerm/wiki/Know-issues\r\n",
+    "releaseNote": "UI:\r\n\r\n- Improve setting/bookmark panel UI\r\n- Improve tabs UI\r\n- Update pinned side panel UI, now will not cover terminal\r\n\r\nUpdates:\r\n\r\n- Improve performance(may still having performance issue, please feedback)\r\n- Improve some wording by @ic-768\r\n\r\nKnown issues:\r\n\r\n- [rz] When upload file with rz command, for file > 1M, may not end properly, and may not update progress, but still upload in background.\r\n- When use edit with... from context menu, editor only support apps in system path, means editor name without path\r\n- Check more from https://github.com/electerm/electerm/wiki/Know-issues\r\n",
     "releaseDate": "2022-02-06T07:45:22Z",
     "siteKeywords": "electron,ternimal,electerm,ssh,sftp",
     "siteName": "electerm",
@@ -1979,7 +1979,7 @@
       }
     },
     "version": "v1.18.0",
-    "releaseNote": "UI:\r\n\r\n- Improve setting/bookmark panel UI\r\n- Improve tabs UI\r\n- Update pinned side panel UI, now will not cover terminal\r\n\r\nUpdates:\r\n\r\n- Improve performance(may still having performance, please feedback)\r\n- Improve some wording by @ic-768\r\n\r\nKnown issues:\r\n\r\n- [rz] When upload file with rz command, for file > 1M, may not end properly, and may not update progress, but still upload in background.\r\n- When use edit with... from context menu, editor only support apps in system path, means editor name without path\r\n- Check more from https://github.com/electerm/electerm/wiki/Know-issues\r\n",
+    "releaseNote": "UI:\r\n\r\n- Improve setting/bookmark panel UI\r\n- Improve tabs UI\r\n- Update pinned side panel UI, now will not cover terminal\r\n\r\nUpdates:\r\n\r\n- Improve performance(may still having performance issue, please feedback)\r\n- Improve some wording by @ic-768\r\n\r\nKnown issues:\r\n\r\n- [rz] When upload file with rz command, for file > 1M, may not end properly, and may not update progress, but still upload in background.\r\n- When use edit with... from context menu, editor only support apps in system path, means editor name without path\r\n- Check more from https://github.com/electerm/electerm/wiki/Know-issues\r\n",
     "releaseDate": "2022-02-06T07:45:22Z",
     "siteKeywords": "electron,ternimal,electerm,ssh,sftp",
     "siteName": "electerm",
@@ -2641,7 +2641,7 @@
       }
     },
     "version": "v1.18.0",
-    "releaseNote": "UI:\r\n\r\n- Improve setting/bookmark panel UI\r\n- Improve tabs UI\r\n- Update pinned side panel UI, now will not cover terminal\r\n\r\nUpdates:\r\n\r\n- Improve performance(may still having performance, please feedback)\r\n- Improve some wording by @ic-768\r\n\r\nKnown issues:\r\n\r\n- [rz] When upload file with rz command, for file > 1M, may not end properly, and may not update progress, but still upload in background.\r\n- When use edit with... from context menu, editor only support apps in system path, means editor name without path\r\n- Check more from https://github.com/electerm/electerm/wiki/Know-issues\r\n",
+    "releaseNote": "UI:\r\n\r\n- Improve setting/bookmark panel UI\r\n- Improve tabs UI\r\n- Update pinned side panel UI, now will not cover terminal\r\n\r\nUpdates:\r\n\r\n- Improve performance(may still having performance issue, please feedback)\r\n- Improve some wording by @ic-768\r\n\r\nKnown issues:\r\n\r\n- [rz] When upload file with rz command, for file > 1M, may not end properly, and may not update progress, but still upload in background.\r\n- When use edit with... from context menu, editor only support apps in system path, means editor name without path\r\n- Check more from https://github.com/electerm/electerm/wiki/Know-issues\r\n",
     "releaseDate": "2022-02-06T07:45:22Z",
     "siteKeywords": "electron,ternimal,electerm,ssh,sftp",
     "siteName": "electerm",
@@ -3303,7 +3303,7 @@
       }
     },
     "version": "v1.18.0",
-    "releaseNote": "UI:\r\n\r\n- Improve setting/bookmark panel UI\r\n- Improve tabs UI\r\n- Update pinned side panel UI, now will not cover terminal\r\n\r\nUpdates:\r\n\r\n- Improve performance(may still having performance, please feedback)\r\n- Improve some wording by @ic-768\r\n\r\nKnown issues:\r\n\r\n- [rz] When upload file with rz command, for file > 1M, may not end properly, and may not update progress, but still upload in background.\r\n- When use edit with... from context menu, editor only support apps in system path, means editor name without path\r\n- Check more from https://github.com/electerm/electerm/wiki/Know-issues\r\n",
+    "releaseNote": "UI:\r\n\r\n- Improve setting/bookmark panel UI\r\n- Improve tabs UI\r\n- Update pinned side panel UI, now will not cover terminal\r\n\r\nUpdates:\r\n\r\n- Improve performance(may still having performance issue, please feedback)\r\n- Improve some wording by @ic-768\r\n\r\nKnown issues:\r\n\r\n- [rz] When upload file with rz command, for file > 1M, may not end properly, and may not update progress, but still upload in background.\r\n- When use edit with... from context menu, editor only support apps in system path, means editor name without path\r\n- Check more from https://github.com/electerm/electerm/wiki/Know-issues\r\n",
     "releaseDate": "2022-02-06T07:45:22Z",
     "siteKeywords": "electron,ternimal,electerm,ssh,sftp",
     "siteName": "electerm",
@@ -3965,7 +3965,7 @@
       }
     },
     "version": "v1.18.0",
-    "releaseNote": "UI:\r\n\r\n- Improve setting/bookmark panel UI\r\n- Improve tabs UI\r\n- Update pinned side panel UI, now will not cover terminal\r\n\r\nUpdates:\r\n\r\n- Improve performance(may still having performance, please feedback)\r\n- Improve some wording by @ic-768\r\n\r\nKnown issues:\r\n\r\n- [rz] When upload file with rz command, for file > 1M, may not end properly, and may not update progress, but still upload in background.\r\n- When use edit with... from context menu, editor only support apps in system path, means editor name without path\r\n- Check more from https://github.com/electerm/electerm/wiki/Know-issues\r\n",
+    "releaseNote": "UI:\r\n\r\n- Improve setting/bookmark panel UI\r\n- Improve tabs UI\r\n- Update pinned side panel UI, now will not cover terminal\r\n\r\nUpdates:\r\n\r\n- Improve performance(may still having performance issue, please feedback)\r\n- Improve some wording by @ic-768\r\n\r\nKnown issues:\r\n\r\n- [rz] When upload file with rz command, for file > 1M, may not end properly, and may not update progress, but still upload in background.\r\n- When use edit with... from context menu, editor only support apps in system path, means editor name without path\r\n- Check more from https://github.com/electerm/electerm/wiki/Know-issues\r\n",
     "releaseDate": "2022-02-06T07:45:22Z",
     "siteKeywords": "electron,ternimal,electerm,ssh,sftp",
     "siteName": "electerm",
@@ -4627,7 +4627,7 @@
       }
     },
     "version": "v1.18.0",
-    "releaseNote": "UI:\r\n\r\n- Improve setting/bookmark panel UI\r\n- Improve tabs UI\r\n- Update pinned side panel UI, now will not cover terminal\r\n\r\nUpdates:\r\n\r\n- Improve performance(may still having performance, please feedback)\r\n- Improve some wording by @ic-768\r\n\r\nKnown issues:\r\n\r\n- [rz] When upload file with rz command, for file > 1M, may not end properly, and may not update progress, but still upload in background.\r\n- When use edit with... from context menu, editor only support apps in system path, means editor name without path\r\n- Check more from https://github.com/electerm/electerm/wiki/Know-issues\r\n",
+    "releaseNote": "UI:\r\n\r\n- Improve setting/bookmark panel UI\r\n- Improve tabs UI\r\n- Update pinned side panel UI, now will not cover terminal\r\n\r\nUpdates:\r\n\r\n- Improve performance(may still having performance issue, please feedback)\r\n- Improve some wording by @ic-768\r\n\r\nKnown issues:\r\n\r\n- [rz] When upload file with rz command, for file > 1M, may not end properly, and may not update progress, but still upload in background.\r\n- When use edit with... from context menu, editor only support apps in system path, means editor name without path\r\n- Check more from https://github.com/electerm/electerm/wiki/Know-issues\r\n",
     "releaseDate": "2022-02-06T07:45:22Z",
     "siteKeywords": "electron,ternimal,electerm,ssh,sftp",
     "siteName": "electerm",
@@ -5289,7 +5289,7 @@
       }
     },
     "version": "v1.18.0",
-    "releaseNote": "UI:\r\n\r\n- Improve setting/bookmark panel UI\r\n- Improve tabs UI\r\n- Update pinned side panel UI, now will not cover terminal\r\n\r\nUpdates:\r\n\r\n- Improve performance(may still having performance, please feedback)\r\n- Improve some wording by @ic-768\r\n\r\nKnown issues:\r\n\r\n- [rz] When upload file with rz command, for file > 1M, may not end properly, and may not update progress, but still upload in background.\r\n- When use edit with... from context menu, editor only support apps in system path, means editor name without path\r\n- Check more from https://github.com/electerm/electerm/wiki/Know-issues\r\n",
+    "releaseNote": "UI:\r\n\r\n- Improve setting/bookmark panel UI\r\n- Improve tabs UI\r\n- Update pinned side panel UI, now will not cover terminal\r\n\r\nUpdates:\r\n\r\n- Improve performance(may still having performance issue, please feedback)\r\n- Improve some wording by @ic-768\r\n\r\nKnown issues:\r\n\r\n- [rz] When upload file with rz command, for file > 1M, may not end properly, and may not update progress, but still upload in background.\r\n- When use edit with... from context menu, editor only support apps in system path, means editor name without path\r\n- Check more from https://github.com/electerm/electerm/wiki/Know-issues\r\n",
     "releaseDate": "2022-02-06T07:45:22Z",
     "siteKeywords": "electron,ternimal,electerm,ssh,sftp",
     "siteName": "electerm",
@@ -5951,7 +5951,7 @@
       }
     },
     "version": "v1.18.0",
-    "releaseNote": "UI:\r\n\r\n- Improve setting/bookmark panel UI\r\n- Improve tabs UI\r\n- Update pinned side panel UI, now will not cover terminal\r\n\r\nUpdates:\r\n\r\n- Improve performance(may still having performance, please feedback)\r\n- Improve some wording by @ic-768\r\n\r\nKnown issues:\r\n\r\n- [rz] When upload file with rz command, for file > 1M, may not end properly, and may not update progress, but still upload in background.\r\n- When use edit with... from context menu, editor only support apps in system path, means editor name without path\r\n- Check more from https://github.com/electerm/electerm/wiki/Know-issues\r\n",
+    "releaseNote": "UI:\r\n\r\n- Improve setting/bookmark panel UI\r\n- Improve tabs UI\r\n- Update pinned side panel UI, now will not cover terminal\r\n\r\nUpdates:\r\n\r\n- Improve performance(may still having performance issue, please feedback)\r\n- Improve some wording by @ic-768\r\n\r\nKnown issues:\r\n\r\n- [rz] When upload file with rz command, for file > 1M, may not end properly, and may not update progress, but still upload in background.\r\n- When use edit with... from context menu, editor only support apps in system path, means editor name without path\r\n- Check more from https://github.com/electerm/electerm/wiki/Know-issues\r\n",
     "releaseDate": "2022-02-06T07:45:22Z",
     "siteKeywords": "electron,ternimal,electerm,ssh,sftp",
     "siteName": "electerm",
