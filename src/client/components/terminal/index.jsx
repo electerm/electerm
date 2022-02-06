@@ -1080,6 +1080,9 @@ export default class Term extends Component {
   }
 
   renderPromoteModal = () => {
+    if (!this.isActiveTerminal()) {
+      return null
+    }
     const {
       passType = 'password'
     } = this.state
@@ -1125,6 +1128,9 @@ export default class Term extends Component {
   }
 
   renderSearchBox = () => {
+    if (!this.isActiveTerminal()) {
+      return null
+    }
     const { searchInput, searchVisible } = this.state
     if (!searchVisible) {
       return null
@@ -1183,7 +1189,7 @@ export default class Term extends Component {
     const infoProps = {
       showInfoPanel: this.handleShowInfo
     }
-    return loading
+    return loading || !this.isActiveTerminal()
       ? null
       : (
         <div className='terminal-footer-unit terminal-footer-info'>
@@ -1216,6 +1222,9 @@ export default class Term extends Component {
   }
 
   renderFooter () {
+    if (!this.isActiveTerminal()) {
+      return null
+    }
     return (
       <div className='terminal-footer'>
         <div className='terminal-footer-flex'>
@@ -1247,12 +1256,12 @@ export default class Term extends Component {
       },
       onDrop: this.onDrop
     }
-    const fileProps = {
-      type: 'file',
-      multiple: true,
-      id: `${id}-file-sel`,
-      className: 'hide'
-    }
+    // const fileProps = {
+    //   type: 'file',
+    //   multiple: true,
+    //   id: `${id}-file-sel`,
+    //   className: 'hide'
+    // }
     const prps2 = {
       className: 'absolute term-wrap-1',
       style: {
@@ -1277,9 +1286,6 @@ export default class Term extends Component {
         {...prps1}
       >
         {this.renderPromoteModal()}
-        <input
-          {...fileProps}
-        />
         <div
           {...prps2}
         >
@@ -1287,7 +1293,10 @@ export default class Term extends Component {
           <div
             {...prps3}
           />
-          <NormalBuffer lines={this.state.lines} close={this.closeNormalBuffer} />
+          <NormalBuffer
+            lines={this.state.lines}
+            close={this.closeNormalBuffer}
+          />
         </div>
         {this.renderFooter()}
         <ZmodemTransfer

@@ -202,6 +202,7 @@ export const defaultLoginScriptDelay = 500
 export const initTabs = [newTerm()]
 export const appPath = window.pre.appPath
 export const maxBatchInput = 30
+export const windowControlWidth = 94
 export const baseUpdateCheckUrls = [
   'https://electerm.github.io/electerm',
   'https://gitee.com/github-zxdong262/electerm/raw/gh-pages'

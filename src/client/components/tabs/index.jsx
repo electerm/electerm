@@ -18,7 +18,7 @@ import {
 import { Dropdown, Menu, Popover } from 'antd'
 import Tab from './tab'
 import './tabs.styl'
-import { tabWidth, tabMargin, extraTabWidth } from '../../common/constants'
+import { tabWidth, tabMargin, extraTabWidth, windowControlWidth } from '../../common/constants'
 import createName from '../../common/create-title'
 import WindowControl from './window-control'
 import BookmarksList from '../sidebar/bookmark-select'
@@ -181,7 +181,7 @@ export default class Tabs extends React.Component {
 
   renderExtra () {
     return (
-      <div className='tabs-extra noise pd1x'>
+      <div className='tabs-extra pd1x'>
         {this.renderAddBtn()}
         <LeftOutlined
           className='mg1l iblock pointer font12 tab-scroll-icon'
@@ -208,13 +208,14 @@ export default class Tabs extends React.Component {
     const left = overflow
       ? '100%'
       : tabsWidthAll
+    const style = {
+      width: width - windowControlWidth
+    }
     return (
       <div className='tabs noise'>
         <div
           className='tabs-inner'
-          style={{
-            width
-          }}
+          style={style}
         >
           <div
             style={{
