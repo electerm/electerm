@@ -41,6 +41,7 @@ export const contextMenuWidth = 170
 export const contextMenuPaddingTop = 10
 export const sftpControlHeight = 28 + 42 + 33 + 56
 export const sidebarWidth = 43
+export const sidebarPanelWidth = 300
 export const maxHistory = 50
 export const maxTransport = 5
 export const maxSftpHistory = 20

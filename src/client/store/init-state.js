@@ -7,7 +7,6 @@ import copy from 'json-deep-copy'
 import {
   settingMap,
   defaultBookmarkGroupId,
-  sidebarWidth,
   newBookmarkIdPrefix,
   syncTypes,
   settingSyncId,
@@ -59,7 +58,6 @@ export default {
   lastDataUpdateTime: 0,
   tabs,
   height: 500,
-  width: window.innerWidth - sidebarWidth,
   currentTabId: '',
   history: [],
   quickCommands: [],

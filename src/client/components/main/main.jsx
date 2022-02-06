@@ -70,12 +70,14 @@ export default class Index extends Component {
       storeAssign,
       updateConfig,
       config,
-      terminalFullScreen
+      terminalFullScreen,
+      pinned
     } = store
     const cls = classnames({
       'system-ui': window._config.useSystemTitleBar,
       'is-mac': isMac,
       'is-win': isWin,
+      pinned,
       'term-fullscreen': terminalFullScreen
     })
     const ext1 = {

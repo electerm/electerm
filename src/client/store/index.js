@@ -30,12 +30,18 @@ import copy from 'json-deep-copy'
 import {
   terminalSshConfigType,
   settingMap,
-  sshConfigItems
+  sidebarWidth,
+  sshConfigItems,
+  sidebarPanelWidth
 } from '../common/constants'
 import getInitItem from '../common/init-setting-item'
 
 const store = Subx.create({
   ...initState,
+  get width () {
+    return window.innerWidth - sidebarWidth -
+      (store.pinned ? sidebarPanelWidth : 0)
+  },
   get currentQuickCommands () {
     const { currentTab, quickCommands } = store
     const currentTabQuickCommands = (
