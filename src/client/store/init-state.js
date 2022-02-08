@@ -57,6 +57,7 @@ const bookmarkGroups = getDefaultBookmarkGroups(bookmarks)
 export default {
   lastDataUpdateTime: 0,
   tabs,
+  innerWidth: window.innerWidth,
   height: 500,
   currentTabId: '',
   history: [],

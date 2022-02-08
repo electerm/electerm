@@ -39,7 +39,7 @@ import getInitItem from '../common/init-setting-item'
 const store = Subx.create({
   ...initState,
   get width () {
-    return window.innerWidth - sidebarWidth -
+    return store.innerWidth - sidebarWidth -
       (store.pinned ? sidebarPanelWidth : 0)
   },
   get currentQuickCommands () {
