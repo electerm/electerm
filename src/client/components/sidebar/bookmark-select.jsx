@@ -3,7 +3,6 @@
  */
 
 import { Component } from '../common/react-subx'
-import ItemList from '../setting-panel/list'
 import TreeList from '../setting-panel/tree-list'
 import {
   sshConfigItems
@@ -13,7 +12,6 @@ export default class BookmarkSelect extends Component {
   render () {
     const { store } = this.props
     const {
-      bookmarkGroups = [],
       listStyle,
       openedCategoryIds
     } = store
@@ -47,21 +45,10 @@ export default class BookmarkSelect extends Component {
         })
       }
     }
-    const propsList = {
-      ...base,
-      bookmarks: undefined,
-      list: base.bookmarks || []
-    }
-    return bookmarkGroups.filter(d => d.level !== 2).length > 1
-      ? (
-        <TreeList
-          {...propsTree}
-        />
-      )
-      : (
-        <ItemList
-          {...propsList}
-        />
-      )
+    return (
+      <TreeList
+        {...propsTree}
+      />
+    )
   }
 }
