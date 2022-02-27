@@ -563,8 +563,7 @@ export default class Term extends Component {
     if (isWin && this.isRemote()) {
       selected = selected.replace(/\r\n/g, '\n')
     }
-    this.attachAddon._sendData(selected)
-    this.term.focus()
+    this.term.paste(selected)
   }
 
   openSearch = () => {
