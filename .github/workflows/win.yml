@@ -27,6 +27,7 @@ jobs:
         node-version: ${{ matrix.node-version }}
 
     # before_install:
+    - run: npm install --global --production windows-build-tools
     - run: npm install -g yarn
     - run: npm install -g node-gyp
     - run: npm i
