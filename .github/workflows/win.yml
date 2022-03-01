@@ -16,7 +16,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [windows-latest]
+        os: [windows-2022]
         node-version: [ 14.x ]
 
     steps:
@@ -29,7 +29,6 @@ jobs:
     # before_install:
     - run: npm install -g yarn
     - run: npm install -g node-gyp
-    - run: node-gyp configure --msvs_version=2015
     - run: npm i
 
     # script:
