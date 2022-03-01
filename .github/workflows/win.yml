@@ -16,7 +16,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [windows-2022]
+        os: [windows-2019]
         node-version: [ 14.x ]
 
     steps:
@@ -27,7 +27,7 @@ jobs:
         node-version: ${{ matrix.node-version }}
 
     # before_install:
-    - run: npm install --global --production windows-build-tools --vs2015
+    # - run: npm install --global --production windows-build-tools --vs2015
     - run: npm install -g yarn
     - run: npm install -g node-gyp
     - run: npm i
