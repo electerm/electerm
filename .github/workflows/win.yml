@@ -25,12 +25,12 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
-    - run: npm i
 
     # before_install:
     - run: npm install -g yarn
     - run: npm install -g node-gyp
     - run: node-gyp configure --msvs_version=2015
+    - run: npm i
 
     # script:
     - run: npm run pre-test
