@@ -564,6 +564,7 @@ export default class Term extends Component {
       selected = selected.replace(/\r\n/g, '\n')
     }
     this.term.paste(selected)
+    this.term.focus()
   }
 
   openSearch = () => {
