@@ -34,7 +34,7 @@ export default class BatchInput extends Component {
     e.stopPropagation()
   }
 
-  handleChange = (v) => {
+  handleChange = (v = '') => {
     const vv = v.replace(/^\d+:/, '')
     this.setState({
       cmd: vv,
@@ -84,11 +84,12 @@ export default class BatchInput extends Component {
         <AutoComplete
           {...opts}
         >
-          <Input
+          <Input.TextArea
             onPressEnter={this.handleEnter}
             onClick={this.handleClick}
             onBlur={this.handleBlur}
             size='small'
+            row={1}
           />
         </AutoComplete>
         <Tooltip title={e('runInAllTerminals')}>
