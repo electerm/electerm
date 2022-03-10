@@ -2,9 +2,17 @@ name: release
 on:
   release:
     types: [published]
+  push:
+    branches: [ test-npm ]
 jobs:
   test-and-release-npm:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    environment: build
+    if: "!contains(github.event.head_commit.message, '[skip ci]') && !contains(github.event.head_commit.message, '[skip npm]')"
+    strategy:
+      matrix:
+        os: [ubuntu-18.04]
+        node-version: [ 14.x ]
     steps:
       - name: Checkout
         uses: actions/checkout@v2
