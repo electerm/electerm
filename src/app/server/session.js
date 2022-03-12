@@ -142,6 +142,7 @@ class Terminal {
     const argv = platform.startsWith('darwin') ? ['--login', ...arg] : arg
     this.term = pty.spawn(exec, argv, {
       name: term,
+      encoding: null,
       cols: cols || 80,
       rows: rows || 24,
       cwd,
