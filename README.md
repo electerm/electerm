@@ -28,6 +28,7 @@ Terminal/ssh/sftp client(linux, mac, win) based on electron/ssh2/node-pty/xterm/
 - Edit (small) local files with built-in editor.
 - Auth with publicKey + password.
 - Zmodem(rz, sz).
+- [Trzsz](https://github.com/trzsz/trzsz)(trz/tsz), similar to rz/sz, and compatible with tmux.
 - Transparent window(Mac, win).
 - Terminal background image.
 - Global/session proxy.

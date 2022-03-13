@@ -5,6 +5,8 @@
 const {
   ipcMain,
   app,
+  BrowserWindow,
+  dialog,
   powerMonitor,
   globalShortcut
 } = require('electron')
@@ -144,6 +146,10 @@ function initIpc () {
   }
   ipcMain.handle('async', (event, { name, args }) => {
     return asyncGlobals[name](...args)
+  })
+  ipcMain.handle('show-open-dialog-sync', async (event, ...args) => {
+    const win = BrowserWindow.fromWebContents(event.sender)
+    return dialog.showOpenDialogSync(win, ...args)
   })
 }
 
