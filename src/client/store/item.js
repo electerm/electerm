@@ -2,7 +2,7 @@
  * common db op
  */
 
-import _ from 'lodash'
+import _, { times } from 'lodash'
 import {
   maxHistory,
   settingMap
@@ -24,14 +24,15 @@ export default store => {
     },
 
     addItem (item, type) {
-      const items = store[type]
+      const items = store.getItems(type)
       items.unshift(item)
       if (type === settingMap.history && items.length > maxHistory) {
         store.removeOldHistoryFromDb(
           copy(items)
         )
-        store[type] = items.slice(0, maxHistory)
+        items.slice(0, maxHistory)
       }
+      store.setItems(type, items)
       if (dbNames.includes(type)) {
         store.batchDbAdd([
           {
@@ -43,22 +44,24 @@ export default store => {
     },
 
     editItem (id, updates, type) {
-      const items = store[type]
+      const items = store.getItems(type)
       const item = _.find(items, t => t.id === id)
       if (!item) {
         return
       }
       // let index = _.findIndex(items, t => t.id === id)
       Object.assign(item, updates)
+      store.setItems(type, items)
       if (dbNames.includes(type)) {
         update(id, updates, type, false)
       }
     },
 
     delItem ({ id }, type) {
-      store[type] = store[type].filter(t => {
+      const items = store.getItems(type).filter(t => {
         return t.id !== id
       })
+      store.setItems(type, items)
       if (dbNames.includes(type)) {
         remove(type, id)
       }
@@ -67,10 +70,27 @@ export default store => {
     onDelItem (item, type) {
       if (item.id === store.settingItem.id) {
         store.settingItem = getInitItem(
-          store[type],
+          store.getItems(type),
           type
         )
       }
+    },
+
+    getItems (type) {
+      return copy(store[type]).map(d => {
+        return _.isString(d) ? JSON.parse(d) : d
+      })
+    },
+
+    setItems (type, items) {
+      if (!type.includes('bookmark')) {
+        store[type] = items
+        return store
+      }
+      store[type] = items.map(d => {
+        return JSON.stringify(d)
+      })
     }
+
   })
 }

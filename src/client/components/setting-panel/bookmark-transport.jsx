@@ -25,8 +25,8 @@ export default class BookmarkTransport extends Component {
         bookmarkGroups: bookmarkGroups1,
         bookmarks: bookmarks1
       } = content
-      const bookmarkGroups = copy(store.bookmarkGroups)
-      const bookmarks = copy(store.bookmarks)
+      const bookmarkGroups = copy(store.getItems('bookmarkGroups'))
+      const bookmarks = copy(store.getItems('bookmarks'))
       const bmTree = bookmarks.reduce((p, v) => {
         return {
           ...p,
@@ -82,10 +82,8 @@ export default class BookmarkTransport extends Component {
           }
         }
       })
-      store.storeAssign({
-        bookmarkGroups,
-        bookmarks
-      })
+      store.setItems('bookmarkGroups', bookmarkGroups)
+      store.setItems('bookmarks', bookmarks)
       store.batchDbAdd(dbAdd)
       store.batchDbUpdate(updates)
     } catch (e) {
@@ -96,10 +94,8 @@ export default class BookmarkTransport extends Component {
 
   down = () => {
     const { store } = this.props
-    const {
-      bookmarkGroups,
-      bookmarks
-    } = store
+    const bookmarkGroups = store.getItems('bookmarkGroups')
+    const bookmarks = store.getItems('bookmarks')
     const txt = JSON.stringify({
       bookmarkGroups: copy(bookmarkGroups),
       bookmarks: copy(bookmarks)

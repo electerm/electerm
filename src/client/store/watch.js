@@ -40,7 +40,10 @@ export default store => {
 
   for (const name of dbNames) {
     Subx.autoRun(store, async () => {
-      await update(`${name}:order`, copy(store[name].map(d => d.id)))
+      await update(
+        `${name}:order`,
+        store.getItems(name).map(d => d.id)
+      )
       await store.updateLastDataUpdateTime()
       return store[name]
     }, debounceTime(500))

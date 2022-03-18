@@ -125,7 +125,6 @@ export default class QuickCommandsList extends List {
       : list
     return labels.length
       ? f.filter(d => {
-        console.log('dd', d, labels)
         return labels.some(label => {
           return (d.labels || []).includes(label)
         })

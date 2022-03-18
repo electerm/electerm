@@ -134,12 +134,16 @@ export async function getData (name) {
  * get sorted data from db
  * @param {string} dbName
  */
+
 export async function fetchInitData (dbName) {
   const res = await find(dbName)
   const order = await getData(`${dbName}:order`)
-  return res.sort((a, b) => {
+  const r = res.sort((a, b) => {
     const ai = _.findIndex(order, r => r === a.id)
     const bi = _.findIndex(order, r => r === b.id)
     return ai - bi
   })
+  return dbName.includes('bookmark')
+    ? r.map(d => JSON.stringify(d))
+    : r
 }

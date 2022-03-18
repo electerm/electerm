@@ -55,11 +55,22 @@ export default class SettingModal extends Component {
         'currentBookmarkGroupId',
         'config'
       ]),
-      bookmarkGroups: store.bookmarkGroups.toJSON(),
-      bookmarks: store.bookmarks.toJSON(),
+      bookmarkGroups: store.getItems('bookmarkGroups'),
+      bookmarks: store.getItems('bookmarks'),
       serials: store.serials.toJSON(),
       loaddingSerials: store.loaddingSerials
     }
+    const treeProps = {
+      ...props0,
+      bookmarkGroups: store.getItems('bookmarkGroups'),
+      bookmarks: store.getItems('bookmarks'),
+      ..._.pick(store, [
+        'currentBookmarkGroupId',
+        'autofocustrigger',
+        'config'
+      ])
+    }
+
     return (
       <Tabs
         activeKey={tab}
@@ -96,14 +107,7 @@ export default class SettingModal extends Component {
           <SettingCol>
             <div className='model-bookmark-tree-wrap'>
               <TreeList
-                {...props0}
-                {..._.pick(store, [
-                  'bookmarkGroups',
-                  'currentBookmarkGroupId',
-                  'bookmarks',
-                  'autofocustrigger',
-                  'config'
-                ])}
+                {...treeProps}
               />
             </div>
             <BookmarkForm

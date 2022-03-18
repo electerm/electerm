@@ -19,9 +19,10 @@ const defaultStatus = statusMap.processing
 export default store => {
   Object.assign(store, {
     onEditHistory () {
+      const all = store.getItems('history')
       store.storeAssign({
         tab: settingMap.history,
-        settingItem: store.history[0] || getInitItem([], settingMap.history),
+        settingItem: all[0] || getInitItem([], settingMap.history),
         autofocustrigger: +new Date()
       })
       store.openModal()
@@ -46,7 +47,8 @@ export default store => {
     },
 
     onSelectHistory (id) {
-      const item = _.find(store.history, it => it.id === id)
+      const history = store.getItems('history')
+      const item = _.find(history, it => it.id === id)
       store.addTab({
         ...copy(item),
         from: 'history',
@@ -57,7 +59,8 @@ export default store => {
     },
 
     onSelectBookmark (id) {
-      const { history, bookmarks } = store
+      const history = store.getItems('history')
+      const bookmarks = store.getItems('bookmarks')
       const item = copy(
         _.find(bookmarks, it => it.id === id) ||
         _.find(sshConfigItems, it => it.id === id)
@@ -90,6 +93,7 @@ export default store => {
         const index = _.findIndex(history, f => f.id === existItem.id)
         history.splice(index, 1)
         history.unshift(existItem)
+        store.setItems('history', history)
       }
     },
 
@@ -144,10 +148,6 @@ export default store => {
       store.showModal = false
       store.settingItem = {}
       store.focus()
-    },
-
-    getItems (tab, props = store) {
-      return copy(props[tab]) || []
     },
 
     async loadFontList () {

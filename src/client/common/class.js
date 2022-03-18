@@ -44,7 +44,6 @@ export function removeClass (elem, ...classes) {
   if (!cls || !_.isString(cls)) {
     return
   }
-  console.log('cls', cls, elem)
   cls = '  ' + cls.split(/\s+/).join('  ') + '  '
   const clst = classes.join(' ').split(/\s+/)
   const reg = new RegExp(' ' + clst.join(' | ') + ' ', 'g')

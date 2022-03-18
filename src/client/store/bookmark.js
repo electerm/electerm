@@ -2,6 +2,8 @@
  * bookmark
  */
 
+import copy from 'json-deep-copy'
+
 export default store => {
   Object.assign(store, {
     async getSerials () {
@@ -12,6 +14,12 @@ export default store => {
         store.serials = res
       }
       store.loaddingSerials = false
+    },
+    getBookmarks () {
+      return store.getItems('bookmarks')
+    },
+    setBookmarks (items) {
+      return store.setItems('bookmarks', items)
     }
   })
 }

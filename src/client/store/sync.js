@@ -39,7 +39,7 @@ export default (store) => {
   store.openSettingSync = () => {
     store.storeAssign({
       tab: settingMap.setting,
-      settingItem: store.setting[0]
+      settingItem: copy(store.setting[0])
     })
     store.openModal()
   }
@@ -130,7 +130,7 @@ export default (store) => {
     }
     const objs = {}
     for (const n of names) {
-      let str = JSON.stringify(copy(store[n]))
+      let str = JSON.stringify(store.getItems(n))
       if (n === settingMap.bookmarks && store.config.syncSetting.syncEncrypt) {
         str = await window.pre.runGlobalAsync('encryptAsync', str, token)
       }
@@ -182,7 +182,6 @@ export default (store) => {
       store.getProxySetting()
     )
     const toInsert = []
-    const ext = {}
     for (const n of names) {
       let str = _.get(gist, `files["${n}.json"].content`)
       if (!str) {
@@ -203,12 +202,11 @@ export default (store) => {
         name: n,
         value: arr
       })
-      ext[n] = arr
+      store.setItems(n, arr)
     }
     const userConfig = JSON.parse(
       _.get(gist, 'files["userConfig.json"].content')
     )
-    Object.assign(store, ext)
     store.setTheme(userConfig.theme)
     store.updateSyncSetting({
       [type + 'GistId']: gist.id,

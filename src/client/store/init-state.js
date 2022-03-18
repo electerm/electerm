@@ -10,7 +10,6 @@ import {
   newBookmarkIdPrefix,
   syncTypes,
   settingSyncId,
-  sshConfigItems,
   infoTabs
 } from '../common/constants'
 import { buildDefaultThemes, buildNewTheme } from '../common/terminal-theme'
@@ -71,7 +70,6 @@ export default {
       title: ss('settingSync')
     }
   ],
-  sshConfigItems,
   isMaximized: window.pre.runSync('isMaximized'),
   config: copy(_config) || {},
   contextMenuProps: {},

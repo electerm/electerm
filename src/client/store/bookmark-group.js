@@ -5,33 +5,53 @@
 import _ from 'lodash'
 import {
   defaultBookmarkGroupId,
-  settingMap
+  settingMap,
+  sshConfigItems,
+  terminalSshConfigType
 } from '../common/constants'
 import { insert, update } from '../common/db'
 
-const { bookmarkGroups } = settingMap
-
 export default store => {
   Object.assign(store, {
+    getBookmarkGroups () {
+      return store.getItems('bookmarkGroups')
+    },
+    getBookmarkGroupsTotal () {
+      return sshConfigItems.length
+        ? [
+          ...store.getBookmarkGroups(),
+          {
+            title: terminalSshConfigType,
+            id: terminalSshConfigType,
+            bookmarkIds: sshConfigItems.map(d => d.id)
+          }
+        ]
+        : store.getBookmarkGroups()
+    },
+    setBookmarkGroups (items) {
+      return store.setItems('bookmarkGroups', items)
+    },
+
     async addBookmarkGroup (group) {
-      store.bookmarkGroups.push(group)
-      await insert(bookmarkGroups, group)
-      const _id = `${bookmarkGroups}:order`
-      await update(_id, store.bookmarkGroups.map(d => d.id)
+      store.bookmarkGroups.push(JSON.stringify(group))
+      await insert(settingMap.bookmarkGroups, group)
+      const _id = `${settingMap.bookmarkGroups}:order`
+      await update(_id, store.getItems('bookmarkGroups').map(d => d.id)
       )
     },
 
     editBookmarkGroup (id, updates) {
-      const items = store.bookmarkGroups
+      const items = store.getBookmarkGroups()
       const item = _.find(items, t => t.id === id)
       Object.assign(item, updates)
-      update(id, updates, bookmarkGroups, false)
+      store.setBookmarkGroups(items)
+      update(id, updates, settingMap.bookmarkGroups, false)
     },
 
     openAllBookmarkInCategory (item) {
       let ids = item.bookmarkIds
       const gids = item.bookmarkGroupIds || []
-      const { bookmarkGroups } = store
+      const bookmarkGroups = store.getBookmarkGroups()
       for (const gid of gids) {
         const g = _.find(bookmarkGroups, g => g.id === gid)
         if (g && g.bookmarkIds && g.bookmarkIds.length) {
@@ -41,7 +61,7 @@ export default store => {
           ]
         }
       }
-      const { bookmarks } = store
+      const bookmarks = store.getBookmarks()
       for (const id of ids) {
         const item = _.find(bookmarks, b => b.id === id)
         if (item) {
@@ -54,7 +74,7 @@ export default store => {
       if (id === defaultBookmarkGroupId) {
         return
       }
-      let { bookmarkGroups } = store
+      let bookmarkGroups = store.getBookmarkGroups()
       const tobeDel = _.find(bookmarkGroups, bg => bg.id === id)
       if (!tobeDel) {
         return
@@ -111,7 +131,7 @@ export default store => {
           db: 'bookmarkGroups'
         }
       }))
-      store.bookmarkGroups = bookmarkGroups
+      store.setBookmarkGroups(bookmarkGroups)
       if (id === store.currentBookmarkGroupId) {
         store.currentBookmarkGroupId = ''
       }
