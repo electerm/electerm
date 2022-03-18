@@ -30,7 +30,7 @@ export default store => {
   })
 
   Subx.autoRun(store, () => {
-    const v = copy(store.tabs).map(t => {
+    const v = store.getItems('tabs').map(t => {
       delete t.isTransporting
       return t
     })

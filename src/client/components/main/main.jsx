@@ -28,7 +28,7 @@ export default class Index extends Component {
     const { store } = this.props
     window.lang = copy(window.lang)
     window._config = copy(window._config)
-    const title = createTitle(store.tabs[0])
+    const title = createTitle(store.getItems('tabs')[0])
     window.pre.runGlobalAsync('setTitle', title)
     window.addEventListener('resize', store.onResize)
     store.onResize()
@@ -59,7 +59,6 @@ export default class Index extends Component {
   render () {
     const { store } = this.props
     const {
-      tabs,
       currentTabId,
       contextMenuProps,
       contextMenuVisible,
@@ -73,6 +72,7 @@ export default class Index extends Component {
       terminalFullScreen,
       pinned
     } = store
+    const tabs = store.getItems('tabs')
     const cls = classnames({
       'system-ui': window._config.useSystemTitleBar,
       'is-mac': isMac,
@@ -115,7 +115,7 @@ export default class Index extends Component {
         'activeTerminalId',
         'isMaximized'
       ]),
-      tabs: copy(store.tabs)
+      tabs
     }
     return (
       <div {...ext1}>

@@ -7,7 +7,7 @@ import _ from 'lodash'
 import { nanoid as generate } from 'nanoid/non-secure'
 import copy from 'json-deep-copy'
 import wait from '../common/wait'
-import getInitItem from '../common/init-setting-item'
+// import getInitItem from '../common/init-setting-item'
 import {
   statusMap
 } from '../common/constants'
@@ -16,9 +16,14 @@ const defaultStatus = statusMap.processing
 
 export default store => {
   Object.assign(store, {
-    addTab (tab = newTerm(store.tabs.length), index = store.tabs.length) {
+    addTab (
+      tab = newTerm(store.tabs.length),
+      index = store.tabs.length
+    ) {
       store.currentTabId = tab.id
-      store.tabs.splice(index, 0, tab)
+      const tabs = store.getItems('tabs')
+      tabs.splice(index, 0, tab)
+      store.setItems('tabs', tabs)
     },
 
     editTab (id, update) {
@@ -26,7 +31,8 @@ export default store => {
     },
 
     delTab ({ id }) {
-      const { currentTabId, tabs } = store
+      const tabs = store.getItems('tabs')
+      const { currentTabId } = store
       if (currentTabId === id) {
         let i = _.findIndex(tabs, t => {
           return t.id === id
@@ -35,9 +41,12 @@ export default store => {
         const next = tabs[i] || {}
         store.currentTabId = next.id
       }
-      store.tabs = store.tabs.filter(t => {
-        return t.id !== id
-      })
+      store.setItems(
+        'tabs',
+        tabs.filter(t => {
+          return t.id !== id
+        })
+      )
     },
 
     async reloadTab (tabToReload) {
@@ -47,7 +56,7 @@ export default store => {
       const { id } = tab
       tab.id = generate()
       tab.status = statusMap.processing
-      const { tabs } = store
+      const tabs = store.getItems('tabs')
       const index = _.findIndex(tabs, t => t.id === id)
       store.delTab({ id: tabToReload.id })
       await wait(30)
@@ -55,8 +64,9 @@ export default store => {
     },
 
     onDuplicateTab (tab) {
+      const tabs = store.getItems('tabs')
       const index = _.findIndex(
-        store.tabs,
+        tabs,
         d => d.id === tab.id
       )
       store.addTab({
@@ -69,15 +79,6 @@ export default store => {
 
     onChangeTabId (currentTabId) {
       store.currentTabId = currentTabId
-    },
-    onChangeTab (tab) {
-      const arr = store.getItems(tab)
-      const item = getInitItem(arr, tab)
-      store.storeAssign({
-        settingItem: item,
-        autofocustrigger: +new Date(),
-        tab
-      })
     }
   })
   store.clickNextTab = _.debounce(() => {

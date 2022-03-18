@@ -68,7 +68,7 @@ const store = Subx.create({
     )
   },
   get isTransporting () {
-    return store.tabs.some(t => t.isTransporting)
+    return store.getItems('tabs').some(t => t.isTransporting)
   },
   get settingSidebarList () {
     const {
@@ -87,7 +87,7 @@ const store = Subx.create({
     return store.tabs.map(d => d.title).join('#')
   },
   get currentTab () {
-    const tabs = copy(store.tabs)
+    const tabs = store.getItems('tabs')
     return _.find(tabs, tab => {
       return tab.id === store.currentTabId
     })

@@ -77,13 +77,20 @@ export default store => {
     },
 
     getItems (type) {
+      if (!store.shouldParse(type)) {
+        return copy(store[type])
+      }
       return copy(store[type]).map(d => {
-        return _.isString(d) ? JSON.parse(d) : d
+        return JSON.parse(d)
       })
     },
 
+    shouldParse (type) {
+      return type.includes('bookmark') || type === 'tabs'
+    },
+
     setItems (type, items) {
-      if (!type.includes('bookmark')) {
+      if (!store.shouldParse(type)) {
         store[type] = items
         return store
       }

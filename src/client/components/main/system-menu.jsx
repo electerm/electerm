@@ -53,7 +53,7 @@ function renderTabs (store) {
   return (
     <div className='sub-context-menu'>
       {
-        store.tabs.map(item => {
+        store.getItems('tabs').map(item => {
           const title = createTitle(item)
           return (
             <div
