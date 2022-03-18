@@ -219,8 +219,6 @@ export default (info, props) => {
       upsert: false
     })
   }
-  props.store.storeAssign({
-    bookmarkGroups
-  })
+  props.store.setItems('bookmarkGroups', bookmarkGroups)
   props.store.batchDbUpdate(updates)
 }

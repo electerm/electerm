@@ -114,9 +114,10 @@ export default class ItemListTree extends React.PureComponent {
     this.setState({
       categoryId: ''
     })
-    this.props.store.storeAssign({
+    this.props.store.setItems(
+      'bookmarkGroups',
       bookmarkGroups
-    })
+    )
     this.props.store.batchDbUpdate([{
       id: categoryId,
       db: 'bookmarkGroups',
@@ -210,9 +211,10 @@ export default class ItemListTree extends React.PureComponent {
         ...(cat.bookmarkGroupIds || []),
         newCat.id
       ]
-      this.props.store.storeAssign({
+      this.props.store.setItems(
+        'bookmarkGroups',
         bookmarkGroups
-      })
+      )
       this.props.store.batchDbAdd([{
         db: 'bookmarkGroups',
         obj: newCat
@@ -264,7 +266,7 @@ export default class ItemListTree extends React.PureComponent {
       })
     } else {
       this.props.store.storeAssign({
-        currentBookmarkGroupId: findBookmarkGroupId(this.props.store.bookmarkGroups, id)
+        currentBookmarkGroupId: findBookmarkGroupId(this.props.store.getItems('bookmarkGroups'), id)
       })
     }
     const bookmarks = copy(this.props.bookmarks)
@@ -480,15 +482,16 @@ export default class ItemListTree extends React.PureComponent {
       }
       return bg
     })
-    this.props.store.storeAssign({
+    this.props.store.setItems(
+      'bookmarkGroups',
       bookmarkGroups
-    })
+    )
     this.props.store.batchDbUpdate(updates)
   }
 
   findBookmarkByTitle = (bookmarks, oldBookmark) => {
     return _.filter(bookmarks, bookmark => {
-      return bookmark.title.includes(oldBookmark.title) && bookmark.host === oldBookmark.host && bookmark.port === oldBookmark.port
+      return (bookmark.title || '').includes(oldBookmark.title) && bookmark.host === oldBookmark.host && bookmark.port === oldBookmark.port
     })
   }
 

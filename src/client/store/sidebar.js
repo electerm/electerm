@@ -10,7 +10,7 @@ export default store => {
   Object.assign(store, {
     expandBookmarks () {
       store.storeAssign({
-        openedCategoryIds: store.bookmarkGroups.map(g => g.id)
+        openedCategoryIds: store.getItems('bookmarkGroups').map(g => g.id)
       })
     },
 

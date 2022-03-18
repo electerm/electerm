@@ -12,6 +12,12 @@ export default store => {
         store.serials = res
       }
       store.loaddingSerials = false
+    },
+    getBookmarks () {
+      return store.getItems('bookmarks')
+    },
+    setBookmarks (items) {
+      return store.setItems('bookmarks', items)
     }
   })
 }

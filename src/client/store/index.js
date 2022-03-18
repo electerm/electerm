@@ -28,10 +28,8 @@ import batchInputHistory from './batch-input-history'
 import _ from 'lodash'
 import copy from 'json-deep-copy'
 import {
-  terminalSshConfigType,
   settingMap,
   sidebarWidth,
-  sshConfigItems,
   sidebarPanelWidth
 } from '../common/constants'
 import getInitItem from '../common/init-setting-item'
@@ -93,18 +91,6 @@ const store = Subx.create({
     return _.find(tabs, tab => {
       return tab.id === store.currentTabId
     })
-  },
-  get bookmarkGroupsTotal () {
-    return store.sshConfigItems.length
-      ? [
-        ...store.bookmarkGroups,
-        {
-          title: terminalSshConfigType,
-          id: terminalSshConfigType,
-          bookmarkIds: sshConfigItems.map(d => d.id)
-        }
-      ]
-      : store.bookmarkGroups
   }
 })
 

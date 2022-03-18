@@ -26,7 +26,7 @@ export default class BookmarkSelect extends Component {
     const base = {
       store,
       bookmarks: [
-        ...(store.bookmarks || []),
+        ...(store.getItems('bookmarks') || []),
         ...sshConfigItems
       ],
       type: 'bookmarks',
@@ -37,7 +37,7 @@ export default class BookmarkSelect extends Component {
     const propsTree = {
       ...base,
       shouldConfirmDel: true,
-      bookmarkGroups: store.bookmarkGroupsTotal,
+      bookmarkGroups: store.getBookmarkGroupsTotal(),
       expandedKeys: openedCategoryIds,
       onExpand: openedCategoryIds => {
         store.storeAssign({
