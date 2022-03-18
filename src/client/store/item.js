@@ -2,7 +2,7 @@
  * common db op
  */
 
-import _, { times } from 'lodash'
+import _ from 'lodash'
 import {
   maxHistory,
   settingMap

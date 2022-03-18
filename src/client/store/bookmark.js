@@ -2,8 +2,6 @@
  * bookmark
  */
 
-import copy from 'json-deep-copy'
-
 export default store => {
   Object.assign(store, {
     async getSerials () {
