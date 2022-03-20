@@ -7,6 +7,7 @@ import compare from '../../../app/common/version-compare'
 import Link from '../common/external-link'
 import { isMac, isWin, packInfo, appUpdateCheck } from '../../common/constants'
 import newTerm from '../../common/new-terminal'
+import Markdown from '../common/markdown'
 import './upgrade.styl'
 
 const { prefix } = window
@@ -207,15 +208,10 @@ export default function Upgrade (props) {
     if (!releaseInfo) {
       return null
     }
-    const arr = releaseInfo.split(/[\n\r]+/g)
     return (
       <div className='pd1t'>
         <div className='bold'>Changelog:</div>
-        {
-          arr.map((item, i) => {
-            return <div key={'clo' + i}>{item}</div>
-          })
-        }
+        <Markdown text={releaseInfo} />
       </div>
     )
   }
