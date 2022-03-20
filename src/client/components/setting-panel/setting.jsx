@@ -117,6 +117,13 @@ export default class Setting extends Component {
     )
   }
 
+  handleChangeCursorStyle = (cursorStyle) => {
+    this.onChangeValue(
+      cursorStyle,
+      'cursorStyle'
+    )
+  }
+
   saveConfig = async (_ext) => {
     const config = deepCopy(this.props.config)
     const ext = deepCopy(_ext)
@@ -511,6 +518,52 @@ export default class Setting extends Component {
     )
   }
 
+  renderCursorStyleSelect = () => {
+    const {
+      cursorStyle = 'block'
+    } = this.props.config
+    const sets = [
+      {
+        id: 'block',
+        title: '▊'
+      },
+      {
+        id: 'underline',
+        title: '_'
+      },
+      {
+        id: 'bar',
+        title: '|'
+      }
+    ]
+    const props = {
+      onChange: this.handleChangeCursorStyle,
+      value: cursorStyle,
+      style: {
+        width: '100px'
+      }
+    }
+    return (
+      <div className='pd1b'>
+        <span className='inline-title mg1r'>{e('cursorStyle')}</span>
+        <Select
+          {...props}
+          showSearch
+        >
+          {
+            sets.map(f => {
+              return (
+                <Option value={f.id} key={f.id}>
+                  <b>{f.title}</b>
+                </Option>
+              )
+            })
+          }
+        </Select>
+      </div>
+    )
+  }
+
   renderFontFamily = () => {
     const { fonts } = this.props.store
     const { fontFamily } = this.props.config
@@ -711,6 +764,9 @@ export default class Setting extends Component {
         <div className='pd1b'>{t('default')} {e('execLinux')}</div>
         {
           this.renderTextExec('execLinux')
+        }
+        {
+          this.renderCursorStyleSelect()
         }
         {
           [

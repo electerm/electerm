@@ -30,6 +30,7 @@ module.exports = exports.default = {
   saveTerminalLogToFile: false,
   checkUpdateOnStart: true,
   cursorBlink: false,
+  cursorStyle: 'block',
   useSystemTitleBar: false,
   opacity: 1,
   defaultEditor: ''
