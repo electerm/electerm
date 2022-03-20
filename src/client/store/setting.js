@@ -153,6 +153,16 @@ export default store => {
     async loadFontList () {
       const fonts = await window.pre.runGlobalAsync('loadFontList')
       store.fonts = fonts
+    },
+
+    onChangeTab (tab) {
+      const arr = store.getItems(tab)
+      const item = getInitItem(arr, tab)
+      store.storeAssign({
+        settingItem: item,
+        autofocustrigger: +new Date(),
+        tab
+      })
     }
   })
 }

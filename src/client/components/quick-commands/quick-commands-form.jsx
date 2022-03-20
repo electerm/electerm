@@ -50,7 +50,6 @@ export default function QuickCommandForm (props) {
   if (!initialValues.labels) {
     initialValues.labels = []
   }
-  console.log('initialValues', copy(initialValues))
   return (
     <Form
       form={form}

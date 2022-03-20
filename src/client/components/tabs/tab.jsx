@@ -150,9 +150,10 @@ export default class Tab extends React.Component {
     }
     tabs.splice(indexFrom, 1)
     tabs.splice(indexDrop, 0, fromTab)
-    this.props.store.storeAssign({
+    this.props.store.setItems(
+      'tabs',
       tabs
-    })
+    )
   }
 
   reloadTab = async () => {
@@ -214,23 +215,24 @@ export default class Tab extends React.Component {
   }
 
   closeOther = () => {
-    this.props.store.storeAssign({
-      tabs: [this.props.tab],
+    const { store } = this.props
+    store.storeAssign({
       currentTabId: this.props.tab.id
     })
+    store.setItems('tabs', [this.props.tab])
   }
 
   closeTabsRight = () => {
-    let { tabs, tab, currentTabId } = this.props
+    const { tab, currentTabId, store } = this.props
+    let tabs = store.getItems('tabs')
     const index = _.findIndex(tabs, t => t.id === tab.id)
     tabs = tabs.slice(0, index + 1)
-    const update = {
-      tabs
-    }
+    const update = {}
     if (!_.some(tabs, t => t.id === currentTabId)) {
       update.currentTabId = tabs[0].id
     }
-    this.props.store.storeAssign(update)
+    store.storeAssign(update)
+    store.setItems('tabs', tabs)
   }
 
   renderContext () {

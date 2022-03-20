@@ -24,11 +24,11 @@ const ss = prefix('settingSync')
 
 function getDefaultBookmarkGroups (bookmarks) {
   return [
-    {
+    JSON.stringify({
       title: t(defaultBookmarkGroupId),
       id: defaultBookmarkGroupId,
       bookmarkIds: bookmarks.map(d => d.id)
-    }
+    })
   ]
 }
 

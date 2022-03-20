@@ -16,13 +16,15 @@ export default store => {
     },
 
     setOffline () {
-      store.tabs = store.tabs
+      const tabs = store.getItems('tabs')
+      store.setItem('tabs', tabs
         .map(t => {
           return {
             ...t,
             status: t.host ? statusMap.error : t.status
           }
         })
+      )
     },
 
     onError (e) {
