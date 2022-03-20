@@ -20,6 +20,10 @@ export default store => {
       })
     },
 
+    setOpenedSideBar (bar) {
+      store.openedSideBar = bar
+    },
+
     pin (pinned) {
       store.pinned = !store.pinned
     },

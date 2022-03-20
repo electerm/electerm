@@ -5,7 +5,6 @@
 import classnames from 'classnames'
 
 export default ({ text = '' }) => {
-  console.log('txt', text)
   const arr = text.split(/[\n\r]+/g)
   function render (txt, i) {
     const empty = txt.trim().length

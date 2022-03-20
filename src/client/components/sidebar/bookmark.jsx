@@ -61,7 +61,7 @@ export default class BookmarkPanel extends Component {
           </div>
         </div>
         <div className='pd2x'>
-          <BookmarkSelect store={store} />
+          <BookmarkSelect store={store} from='sidebar' />
         </div>
       </div>
     )

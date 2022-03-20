@@ -16,6 +16,12 @@ export default class HistoryPanel extends Component {
   render () {
     const { props } = this
     const { store } = props
+    const {
+      openedSideBar
+    } = store
+    if (openedSideBar !== 'history') {
+      return null
+    }
     const prps = {
       className: 'font16 mg1x mg2l pointer iblock control-icon'
     }

@@ -179,10 +179,17 @@ export default class SettingModal extends Component {
   }
 
   render () {
+    const {
+      showModal,
+      hideModal
+    } = this.props.store
+    if (!showModal) {
+      return null
+    }
     return (
       <Modal
-        onCancel={this.props.store.hideModal}
-        visible={this.props.store.showModal}
+        onCancel={hideModal}
+        visible={showModal}
       >
         {this.renderTabs()}
       </Modal>

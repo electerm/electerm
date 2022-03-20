@@ -10,11 +10,15 @@ import {
 
 export default class BookmarkSelect extends Component {
   render () {
-    const { store } = this.props
+    const { store, from } = this.props
     const {
       listStyle,
+      openedSideBar,
       openedCategoryIds
     } = store
+    if (from === 'sidebar' && openedSideBar !== 'bookmarks') {
+      return null
+    }
     const onClickItem = (item) => {
       if (!store.pinned) {
         store.storeAssign({

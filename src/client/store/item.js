@@ -86,7 +86,12 @@ export default store => {
     },
 
     shouldParse (type) {
-      return type.includes('bookmark') || type === 'tabs'
+      return [
+        'bookmarks',
+        'bookmarkGroups',
+        'tabs',
+        'fileTransfers'
+      ].includes(type)
     },
 
     setItems (type, items) {

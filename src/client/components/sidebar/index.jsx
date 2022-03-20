@@ -14,6 +14,7 @@ import { Tooltip } from 'antd'
 import { Component } from '../common/react-subx'
 import BookMarksWrap from './bookmark'
 import HistoryWrap from './history'
+import TransferList from './transfer-list'
 import TransferHistoryModal from './transfer-history-modal'
 import MenuBtn from './menu-btn'
 import InfoModal from './info-modal'
@@ -48,7 +49,7 @@ export default class Sidebar extends Component {
     }
     const interval = 400
     this.handler = setTimeout(
-      () => this.setOpenedSideBar(''),
+      () => this.props.store.setOpenedSideBar(''),
       interval
     )
   }
@@ -58,7 +59,7 @@ export default class Sidebar extends Component {
       return false
     }
     clearTimeout(this.handler)
-    this.setOpenedSideBar('bookmarks')
+    this.props.store.setOpenedSideBar('bookmarks')
   }
 
   onMouseEnterHistory = () => {
@@ -66,7 +67,7 @@ export default class Sidebar extends Component {
       return false
     }
     clearTimeout(this.handler)
-    this.setOpenedSideBar('history')
+    this.props.store.setOpenedSideBar('history')
   }
 
   showUpgrade = () => {
@@ -159,6 +160,7 @@ export default class Sidebar extends Component {
           >
             <CloudSyncOutlined className='iblock font20 control-icon' onClick={openSettingSync} />
           </div>
+          <TransferList store={store} />
           {
             transferHistory.length
               ? (

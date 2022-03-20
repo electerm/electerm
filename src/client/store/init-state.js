@@ -60,6 +60,7 @@ export default {
   height: 500,
   currentTabId: '',
   history: [],
+  fileTransfers: [],
   quickCommands: [],
   quickCommandId: '',
   bookmarks,
