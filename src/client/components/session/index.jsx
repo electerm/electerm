@@ -64,11 +64,11 @@ export default class SessionWrapper extends Component {
     this.state = {
       pid: null,
       pane,
+      enableSftp: false,
       splitDirection: terminalSplitDirectionMap.horizontal,
       activeSplitId: id,
       key: Math.random(),
       sessionOptions: null,
-      enableSftp: props.tab.enableSftp,
       sessionId: generate(),
       terminals: [
         {
@@ -129,9 +129,13 @@ export default class SessionWrapper extends Component {
   }
 
   onChangePane = pane => {
-    this.setState({
+    const update = {
       pane
-    })
+    }
+    if (pane === paneMap.fileManager) {
+      update.enableSftp = true
+    }
+    this.setState(update)
   }
 
   setSessionState = data => {
@@ -278,7 +282,7 @@ export default class SessionWrapper extends Component {
   }
 
   renderSftp = () => {
-    const { pane, sessionOptions, enableSftp, sessionId, pid } = this.state
+    const { pane, sessionOptions, sessionId, pid, enableSftp } = this.state
     const height = this.computeHeight()
     const cls = pane === paneMap.terminal
       ? 'hide'
@@ -287,9 +291,9 @@ export default class SessionWrapper extends Component {
       <div className={cls}>
         <Sftp
           pid={pid}
+          enableSftp={enableSftp}
           sessionOptions={sessionOptions}
           height={height}
-          enableSftp={enableSftp}
           sessionId={sessionId}
           pane={pane}
           {...this.props}
