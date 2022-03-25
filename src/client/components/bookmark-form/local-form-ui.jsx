@@ -8,8 +8,7 @@ import {
   InputNumber,
   Input,
   TreeSelect,
-  Form,
-  Switch
+  Form
 } from 'antd'
 import { formItemLayout } from '../../common/form-layout'
 import {
@@ -59,7 +58,6 @@ export default function LocalFormUi (props) {
   let initialValues = copy(props.formData)
   const defaultValues = {
     loginScriptDelay: 500,
-    enableSftp: true,
     category: initBookmarkGroupId,
     term: props.store.config.terminalType,
     type: terminalLocalType,
@@ -120,15 +118,6 @@ export default function LocalFormUi (props) {
             treeDefaultExpandAll
             showSearch
           />
-        </FormItem>
-        <FormItem
-          {...formItemLayout}
-          label='Sftp'
-          name='enableSftp'
-          valuePropName='checked'
-          className='hide'
-        >
-          <Switch />
         </FormItem>
         <FormItem
           {...formItemLayout}
