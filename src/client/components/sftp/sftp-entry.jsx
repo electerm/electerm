@@ -72,10 +72,10 @@ export default class Sftp extends Component {
     this.retryCount = 0
   }
 
-  componentDidMount () {
-    this.initData()
-    this.initEvent()
-  }
+  // componentDidMount () {
+  //   // this.initData()
+  //   // this.initEvent()
+  // }
 
   componentDidUpdate (prevProps) {
     if (
@@ -90,6 +90,7 @@ export default class Sftp extends Component {
         this.props.enableSftp !== false
       )
     ) {
+      this.initEvent()
       this.initData(true)
     }
   }
@@ -173,7 +174,7 @@ export default class Sftp extends Component {
   }
 
   isActive () {
-    return this.props.currentTabId === this.props.tab.id &&
+    return this.props.enableSftp && this.props.currentTabId === this.props.tab.id &&
       this.props.pane === paneMap.fileManager
   }
 
@@ -387,15 +388,13 @@ export default class Sftp extends Component {
   }
 
   initData = async (remoteInit) => {
-    if (remoteInit) {
-      const { props } = this
-      const host = _.get(props, 'tab.host') &&
-        _.get(props, 'tab.type') !== terminalSshConfigType &&
-        _.get(props, 'tab.type') !== terminalSerialType
-      if (host) {
-        await this.remoteList()
-        this.remoteListOwner()
-      }
+    const { props } = this
+    const host = _.get(props, 'tab.host') &&
+      _.get(props, 'tab.type') !== terminalSshConfigType &&
+      _.get(props, 'tab.type') !== terminalSerialType
+    if (host) {
+      await this.remoteList()
+      this.remoteListOwner()
     }
     this.localListOwner()
     this.localList()
@@ -1037,10 +1036,13 @@ export default class Sftp extends Component {
   }
 
   render () {
+    if (!this.isActive()) {
+      return null
+    }
+    const { height } = this.props
     const {
       id
     } = this.state
-    const { height } = this.props
     const prps = {
       localList: this.localList,
       remoteList: this.remoteList,
