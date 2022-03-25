@@ -24,8 +24,15 @@ export default store => {
     },
 
     addItem (item, type) {
-      const items = store.getItems(type)
-      items.unshift(item)
+      return store.addItems([item])
+    },
+
+    addItems (objs, type) {
+      let items = store.getItems(type)
+      items = [
+        ...objs,
+        ...items
+      ]
       if (type === settingMap.history && items.length > maxHistory) {
         store.removeOldHistoryFromDb(
           copy(items)
@@ -34,12 +41,14 @@ export default store => {
       }
       store.setItems(type, items)
       if (dbNames.includes(type)) {
-        store.batchDbAdd([
-          {
-            db: type,
-            obj: item
-          }
-        ])
+        store.batchDbAdd(
+          objs.map(obj => {
+            return {
+              db: type,
+              obj
+            }
+          })
+        )
       }
     },
 
@@ -103,6 +112,5 @@ export default store => {
         return JSON.stringify(d)
       })
     }
-
   })
 }

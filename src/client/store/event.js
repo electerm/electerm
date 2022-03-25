@@ -20,11 +20,31 @@ export default store => {
         }
       })
     },
+
+    initStoreEvents () {
+      window.addEventListener('message', store.onStoreEvent)
+    },
+
+    onStoreEvent (e) {
+      const {
+        type
+      } = e.data || {}
+      if (type !== 'store-op') {
+        return false
+      }
+      const {
+        action,
+        args
+      } = e.data || {}
+      return store[action](...args)
+    },
+
     focus () {
       window.postMessage({
         type: 'focus'
       }, '*')
     },
+
     selectall () {
       document.activeElement &&
       document.activeElement.select &&

@@ -33,16 +33,6 @@ const ss = prefix('settingSync')
 export default class Sidebar extends Component {
   handler = null
 
-  setOpenedSideBar = (bar) => {
-    const { store } = this.props
-    const {
-      storeAssign
-    } = store
-    return storeAssign({
-      openedSideBar: bar
-    })
-  }
-
   onMouseLeave = () => {
     if (this.props.store.pinned) {
       return false
