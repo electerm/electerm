@@ -70,11 +70,11 @@ export default class BookmarkForm extends PureComponent {
   }
 
   onBlur = async (e) => {
-    const { value } = e.target
+    const value = e.target.value.trim()
     const { type } = this.props
     if (
       type !== settingMap.bookmarks ||
-      !value || /\s/.test(value) ||
+      !value ||
       isIp(value)
     ) {
       return
@@ -161,6 +161,7 @@ export default class BookmarkForm extends PureComponent {
   }
 
   submit = (evt, item, type = this.props.type) => {
+    item.host = item.host.trim()
     const obj = item
     const { addItem, editItem } = this.props.store
     const categoryId = obj.category
