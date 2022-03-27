@@ -4,7 +4,7 @@
 
 import { Component } from '../common/react-subx'
 import { CloseOutlined } from '@ant-design/icons'
-import { Modal, Table } from 'antd'
+import { Table } from 'antd'
 import time from '../../../app/common/time'
 import Tag from '../sftp/transfer-tag'
 import './transfer-history.styl'
@@ -24,11 +24,10 @@ const sorterFactory = prop => {
 export default class TransferHistoryModal extends Component {
   render () {
     const {
-      transferHistory,
-      transferHistoryModalVisible,
-      clearTransferHistory,
-      closeTransferHistory
+      getTransferHistory,
+      clearTransferHistory
     } = this.props.store
+    const transferHistory = getTransferHistory()
     const columns = [{
       title: e('startTime'),
       dataIndex: 'startTime',
@@ -79,34 +78,27 @@ export default class TransferHistoryModal extends Component {
       sorter: sorterFactory('speed')
     }]
     return (
-      <Modal
-        onCancel={closeTransferHistory}
-        footer={null}
-        width='90%'
-        visible={transferHistoryModalVisible}
-      >
-        <div className='pd2'>
-          <div>
-            <span
-              className='iblock pointer'
-              onClick={clearTransferHistory}
-            >
-              <CloseOutlined className='mg1r' />
-              {e('clear')}
-            </span>
-          </div>
-          <div className='table-scroll-wrap'>
-            <Table
-              dataSource={transferHistory}
-              columns={columns}
-              bordered
-              pagination={false}
-              size='small'
-              rowKey='id'
-            />
-          </div>
+      <div className='pd2'>
+        <div>
+          <span
+            className='iblock pointer'
+            onClick={clearTransferHistory}
+          >
+            <CloseOutlined className='mg1r' />
+            {e('clear')}
+          </span>
         </div>
-      </Modal>
+        <div className='table-scroll-wrap'>
+          <Table
+            dataSource={transferHistory}
+            columns={columns}
+            bordered
+            pagination={false}
+            size='small'
+            rowKey='id'
+          />
+        </div>
+      </div>
     )
   }
 }

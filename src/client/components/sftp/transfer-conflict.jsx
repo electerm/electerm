@@ -12,6 +12,7 @@ import _ from 'lodash'
 import { nanoid as generate } from 'nanoid/non-secure'
 import resolve from '../../common/resolve'
 import eq from 'fast-deep-equal'
+import { createTransferProps } from './transfer-common'
 
 export default (props) => {
   const { transferList } = props
@@ -93,6 +94,7 @@ export default (props) => {
       if (action.includes('rename')) {
         transferList[index] = rename(transferList[index])
       }
+      props.store.setTransfers(transferList)
       return {
         transferList
       }
@@ -113,6 +115,7 @@ export default (props) => {
       if (index >= 0) {
         transferList.splice(index, 1)
       }
+      props.store.setTransfers(transferList)
       return {
         transferList
       }
@@ -155,9 +158,13 @@ export default (props) => {
         return t.id === tr.id
       })
       if (index >= 0) {
-        transferList[index].action = 'transfer'
-        transferList[index].fromFile = fromFile
+        const up = {
+          action: 'transfer',
+          fromFile: fromFile
+        }
+        Object.assign(transferList[index], up)
       }
+      props.store.setTransfers(transferList)
       return {
         transferList
       }
@@ -178,6 +185,7 @@ export default (props) => {
           fromPath: resolve(t.path, t.name),
           toPath: resolve(tr.toPath, t.name),
           id: generate(),
+          ...createTransferProps(props),
           parentId: tr.id
         }
       })
@@ -192,6 +200,7 @@ export default (props) => {
       if (transferList[index]) {
         transferList[index].expanded = true
       }
+      props.store.setTransfers(transferList)
       return {
         transferList
       }

@@ -24,8 +24,15 @@ export default store => {
     },
 
     addItem (item, type) {
-      const items = store.getItems(type)
-      items.unshift(item)
+      return store.addItems([item], type)
+    },
+
+    addItems (objs, type) {
+      let items = store.getItems(type)
+      items = [
+        ...objs,
+        ...items
+      ]
       if (type === settingMap.history && items.length > maxHistory) {
         store.removeOldHistoryFromDb(
           copy(items)
@@ -34,12 +41,14 @@ export default store => {
       }
       store.setItems(type, items)
       if (dbNames.includes(type)) {
-        store.batchDbAdd([
-          {
-            db: type,
-            obj: item
-          }
-        ])
+        store.batchDbAdd(
+          objs.map(obj => {
+            return {
+              db: type,
+              obj
+            }
+          })
+        )
       }
     },
 
@@ -67,6 +76,16 @@ export default store => {
       }
     },
 
+    delItems (ids, type) {
+      const items = store.getItems(type).filter(t => {
+        return !ids.includes(t.id)
+      })
+      store.setItems(type, items)
+      if (dbNames.includes(type)) {
+        ids.map(id => remove(type, id))
+      }
+    },
+
     onDelItem (item, type) {
       if (item.id === store.settingItem.id) {
         store.settingItem = getInitItem(
@@ -90,7 +109,8 @@ export default store => {
         'bookmarks',
         'bookmarkGroups',
         'tabs',
-        'fileTransfers'
+        'fileTransfers',
+        'transferHistory'
       ].includes(type)
     },
 
@@ -103,6 +123,5 @@ export default store => {
         return JSON.stringify(d)
       })
     }
-
   })
 }

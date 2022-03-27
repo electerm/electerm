@@ -393,11 +393,19 @@ export default class Sftp extends Component {
       _.get(props, 'tab.type') !== terminalSshConfigType &&
       _.get(props, 'tab.type') !== terminalSerialType
     if (host) {
-      await this.remoteList()
-      this.remoteListOwner()
+      this.initRemoteAll()
     }
+    this.initLocalAll()
+  }
+
+  initLocalAll = () => {
     this.localListOwner()
     this.localList()
+  }
+
+  initRemoteAll = async () => {
+    await this.remoteList()
+    this.remoteListOwner()
   }
 
   modifier = (...args) => {

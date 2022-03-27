@@ -63,4 +63,9 @@ export default store => {
     store.updateLastDataUpdateTime()
     return store.config.theme
   }, debounceTime(1000))
+
+  Subx.autoRun(store, () => {
+    store.updateTabsStatus()
+    return store.fileTransfers
+  }, debounceTime(1000))
 }

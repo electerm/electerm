@@ -2,12 +2,15 @@
  * transporter UI component
  */
 import React from 'react'
-import Tag from './transfer-tag'
+import Tag from '../sftp/transfer-tag'
 import {
   CloseCircleOutlined,
   PlayCircleOutlined,
   PauseCircleOutlined
 } from '@ant-design/icons'
+import {
+  transportTypes
+} from '../sftp/transport-types'
 import './transfer.styl'
 
 const { prefix } = window
@@ -28,6 +31,18 @@ export default function Transporter (props) {
     inited,
     id
   } = props.transfer
+  function cancel () {
+    window.postMessage({
+      action: transportTypes.cancelTransport,
+      id
+    }, '*')
+  }
+  function handlePauseOrResume () {
+    window.postMessage({
+      action: transportTypes.pauseOrResumeTransfer,
+      id
+    }, '*')
+  }
   const isTransfer = typeTo !== typeFrom
   const Icon = !pausing ? PauseCircleOutlined : PlayCircleOutlined
   const pauseTitle = pausing ? e('resume') : e('pause')
@@ -37,15 +52,15 @@ export default function Transporter (props) {
   const title = `${typeFromTitle}→${typeToTitle}: ${fromPath} -> ${toPath} ${speed || ''} ${percent || 0}%`
   const cancelIcon = (
     <CloseCircleOutlined
-      className='transfer-control-icon pointer hover-black iblock font14'
-      onClick={props.cancel}
+      className='transfer-control-icon pointer hover-black font14'
+      onClick={cancel}
       title={e('cancel')} />
   )
   const controlIcon = isTransfer
     ? (
       <Icon
-        className='flex-child transfer-control-icon pointer hover-black font14 iblock'
-        onClick={props.handlePauseOrResume}
+        className='flex-child transfer-control-icon pointer hover-black font14'
+        onClick={handlePauseOrResume}
         title={pauseTitle}
       />
     )

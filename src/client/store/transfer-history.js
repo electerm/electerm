@@ -7,24 +7,20 @@ import {
 } from '../common/constants'
 
 export default store => {
-  store.openTransferHistory = () => {
-    store.transferHistoryModalVisible = true
-  }
-
-  store.closeTransferHistory = () => {
-    store.transferHistoryModalVisible = false
-  }
-
   store.clearTransferHistory = () => {
-    store.storeAssign({
-      transferHistory: [],
-      transferHistoryModalVisible: false
-    })
+    store.transferHistory = []
+  }
+
+  store.getTransferHistory = () => {
+    return store.getItems('transferHistory')
   }
 
   store.addTransferHistory = (item) => {
-    const { transferHistory } = store
+    const transferHistory = store.getItems('transferHistory')
     transferHistory.unshift(item)
-    store.transferHistory = transferHistory.slice(0, maxTransferHistory)
+    store.setItems(
+      'transferHistory',
+      transferHistory.slice(0, maxTransferHistory)
+    )
   }
 }

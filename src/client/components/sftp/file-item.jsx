@@ -48,6 +48,7 @@ import { readClipboard, copy as copyToClipboard, hasFileInClipboardText } from '
 import fs from '../../common/fs'
 import time from '../../../app/common/time'
 import filesize from 'filesize'
+import { createTransferProps } from './transfer-common'
 import { nanoid as generate } from 'nanoid/non-secure'
 
 const { prefix } = window
@@ -159,6 +160,7 @@ export default class FileSection extends React.Component {
         fromPath,
         toPath,
         id: generate(),
+        ...createTransferProps(this.props),
         operation
       })
     }
@@ -654,6 +656,7 @@ export default class FileSection extends React.Component {
       fromPath: resolve(path, name),
       toPath,
       id: generate(),
+      ...createTransferProps(this.props),
       operation
     }]
   }
@@ -790,7 +793,8 @@ export default class FileSection extends React.Component {
     const len = selectedFiles.length
     const shouldShowSelectedMenu = id &&
       len > 1 &&
-      _.some(selectedFiles, d => d.id === id)
+      _.some(selectedFiles, d => d.id === id) &&
+      !_.some(selectedFiles, d => d.isDirectory)
     const cls = 'pd2x pd1y context-item pointer'
     const delTxt = shouldShowSelectedMenu ? `${e('deleteAll')}(${len})` : m('del')
     const canPaste = hasFileInClipboardText()
@@ -838,7 +842,7 @@ export default class FileSection extends React.Component {
             : null
         }
         {
-          !id || !hasHost
+          !id || !hasHost || isDirectory
             ? null
             : (
               <div
