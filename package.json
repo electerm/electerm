@@ -13,8 +13,8 @@
     "clean": "node bin/clean",
     "compile": "node bin/build",
     "local-test": "LOCAL_TEST=1 npm run test",
-    "prepublishOnly": "node npm/prepublish",
-    "postpublish": "node npm/postpublish",
+    "prepublishOnly": "node bin/prepublish",
+    "postpublish": "node bin/postpublish",
     "prepare-file": "node bin/prepare",
     "output": "./node_modules/.bin/electron-builder",
     "build-mac": "node bin/build-mac",
@@ -161,6 +161,11 @@
     "util-promisifyall": "1.0.6",
     "v8-compile-cache": "2.3.0"
   },
+  "files": [
+    "npm",
+    "README.md",
+    "LICENSE"
+  ],
   "standard": {
     "parser": "babel-eslint",
     "ignore": [

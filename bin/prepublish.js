@@ -15,7 +15,7 @@ pack.dependencies = savedPackage.reduce((prev, p) => {
 }, {})
 pack.scripts = {
   postinstall: 'node npm/install.js',
-  postpublish: 'node npm/postpublish.js'
+  postpublish: 'node bin/postpublish.js'
 }
 const from = resolve(__dirname, '../package.json')
 const to = resolve(__dirname, '../package-bak.json')
