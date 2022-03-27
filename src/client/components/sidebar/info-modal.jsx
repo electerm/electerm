@@ -158,7 +158,7 @@ export default class InfoModal extends Component {
               </p>
               <p className='mg1b'>
                 => <b className='mg1r'>Privacy notice:</b>
-                <Link to={releaseLink} className='mg1l'>
+                <Link to={privacyNoticeLink} className='mg1l'>
                   <WarningOutlined /> {privacyNoticeLink}
                 </Link>
               </p>
