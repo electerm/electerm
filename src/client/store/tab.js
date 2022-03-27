@@ -16,6 +16,28 @@ const defaultStatus = statusMap.processing
 
 export default store => {
   Object.assign(store, {
+
+    updateTabsStatus () {
+      const tabIds = _.uniq(
+        store.getTransfers().map(d => d.tabId)
+      )
+      const tabs = store.getTabs().map(d => {
+        return {
+          ...d,
+          isTransporting: tabIds.includes(d.id)
+        }
+      })
+      store.setTabs(tabs)
+    },
+
+    getTabs () {
+      return store.getItems('tabs')
+    },
+
+    setTabs (list) {
+      return store.setItems('tabs', list)
+    },
+
     addTab (
       tab = newTerm(store.tabs.length),
       index = store.tabs.length

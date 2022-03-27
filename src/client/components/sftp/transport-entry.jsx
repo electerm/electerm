@@ -43,6 +43,7 @@ export default class TransferEntry extends PureComponent {
         ...transferList,
         ...list
       ]
+      this.props.store.setTransfers(transferList)
       return {
         transferList
       }
@@ -65,7 +66,8 @@ export default class TransferEntry extends PureComponent {
         'sftp',
         'sessionId',
         'store',
-        'host'
+        'host',
+        'tab'
       ])
     }
     const prps3 = {

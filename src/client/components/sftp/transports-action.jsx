@@ -31,6 +31,7 @@ export default (props) => {
         return t
       })
       if (old.pauseAll) {
+        props.store.setTransfers(transferList)
         return {
           transferList
         }
@@ -44,6 +45,7 @@ export default (props) => {
         return typeTo !== typeFrom && inited
       }).length
       if (count >= maxTransport) {
+        props.store.setTransfers(transferList)
         return {
           transferList
         }
@@ -91,6 +93,7 @@ export default (props) => {
           tr.inited = true
         }
       }
+      props.store.setTransfers(transferList)
       return {
         transferList
       }

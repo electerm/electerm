@@ -60,7 +60,9 @@ export default {
   height: 500,
   currentTabId: '',
   history: [],
-  fileTransfers: [],
+  fileTransfers: [
+  ],
+  transferTab: 'transfer',
   quickCommands: [],
   quickCommandId: '',
   bookmarks,
@@ -80,7 +82,6 @@ export default {
   fileInfoModalProps: {},
   fileModeModalProps: {},
   currentBookmarkGroupId: defaultBookmarkGroupId,
-  transferHistoryModalVisible: false,
   selectedSessions: [],
   sessionModalVisible: false,
   textEditorProps: {},

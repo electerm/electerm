@@ -3,7 +3,6 @@ import { useDelta, useConditionalEffect } from 'react-delta'
 import copy from 'json-deep-copy'
 import _ from 'lodash'
 import { nanoid as generate } from 'nanoid/non-secure'
-import TransportItem from './transport-ui'
 import { typeMap, transferTypeMap } from '../../common/constants'
 import fs from '../../common/fs'
 import { transportTypes } from './transport-types'
@@ -11,6 +10,7 @@ import format, { computeLeftTime, computePassedTime } from './transfer-speed-for
 import { getFolderFromFilePath } from './file-read'
 import resolve from '../../common/resolve'
 import { zipCmd, unzipCmd, rmCmd } from './zip'
+import './transfer.styl'
 
 export default function transportAction (props) {
   const { transfer } = props
@@ -27,6 +27,10 @@ export default function transportAction (props) {
           transferList
         }
       }
+      props.store.editTransfer(
+        transferList[index].id,
+        up
+      )
       Object.assign(transferList[index], up)
       return {
         transferList
@@ -38,6 +42,7 @@ export default function transportAction (props) {
       const transferList = copy(old.transferList)
       const index = _.findIndex(transferList, t => t.id === transfer.id)
       transferList.splice(index, 1, ...insts)
+      props.store.setTransfers(transferList)
       return {
         transferList
       }
@@ -103,11 +108,7 @@ export default function transportAction (props) {
       const transferList = oldTrans.filter(t => {
         return t.id !== id
       })
-      if (!transferList.length) {
-        props.store.editTab(props.tab.id, {
-          isTransporting: false
-        })
-      }
+      props.store.setTransfers(transferList)
       return {
         transferList
       }
@@ -138,7 +139,20 @@ export default function transportAction (props) {
 
   function onMessage (e) {
     const action = _.get(e, 'data.action')
+    const id = _.get(e, 'data.id')
     const ids = _.get(e, 'data.ids')
+    if (id === transfer.id) {
+      switch (action) {
+        case transportTypes.cancelTransport:
+          cancel()
+          break
+        case transportTypes.pauseOrResumeTransfer:
+          handlePauseOrResume()
+          break
+        default:
+          break
+      }
+    }
     if (
       (ids && ids.includes(transfer.id)) ||
       (ids && ids.length === 0)
@@ -274,9 +288,6 @@ export default function transportAction (props) {
     if (inst.current.started) {
       return
     }
-    props.store.editTab(props.tab.id, {
-      isTransporting: true
-    })
     const {
       typeFrom,
       typeTo,
@@ -344,11 +355,5 @@ export default function transportAction (props) {
   useConditionalEffect(() => {
     initTransfer()
   }, initRefExpand && initRefExpand.prev !== initRefExpand.curr && initRef.curr === true)
-  return (
-    <TransportItem
-      {...props}
-      handlePauseOrResume={handlePauseOrResume}
-      cancel={cancel}
-    />
-  )
+  return null
 }

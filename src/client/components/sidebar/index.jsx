@@ -6,7 +6,6 @@ import {
   PictureOutlined,
   PlusCircleOutlined,
   SettingOutlined,
-  SwapOutlined,
   UpCircleOutlined
 } from '@ant-design/icons'
 
@@ -15,7 +14,6 @@ import { Component } from '../common/react-subx'
 import BookMarksWrap from './bookmark'
 import HistoryWrap from './history'
 import TransferList from './transfer-list'
-import TransferHistoryModal from './transfer-history-modal'
 import MenuBtn from './menu-btn'
 import InfoModal from './info-modal'
 import { sidebarWidth } from '../../common/constants'
@@ -25,7 +23,6 @@ const { prefix } = window
 const e = prefix('control')
 const c = prefix('common')
 const m = prefix('menu')
-const h = prefix('transferHistory')
 const t = prefix('terminalThemes')
 const u = prefix('updater')
 const ss = prefix('settingSync')
@@ -75,8 +72,6 @@ export default class Sidebar extends Component {
       openedSideBar,
       onNewSsh,
       openSetting,
-      transferHistory,
-      openTransferHistory,
       openAbout,
       openSettingSync,
       height,
@@ -94,9 +89,6 @@ export default class Sidebar extends Component {
           height
         }}
       >
-        <TransferHistoryModal
-          store={store}
-        />
         <div className='sidebar-bar btns'>
           <div className='control-icon-wrap'>
             <MenuBtn store={store} />
@@ -130,6 +122,7 @@ export default class Sidebar extends Component {
               onClick={onClickHistory}
               className='font20 iblock control-icon' />
           </div>
+          <TransferList store={store} />
           <div
             className='control-icon-wrap'
             title={t('terminalThemes')}
@@ -150,19 +143,6 @@ export default class Sidebar extends Component {
           >
             <CloudSyncOutlined className='iblock font20 control-icon' onClick={openSettingSync} />
           </div>
-          <TransferList store={store} />
-          {
-            transferHistory.length
-              ? (
-                <div
-                  className='control-icon-wrap'
-                  title={h('transferHistory')}
-                >
-                  <SwapOutlined className='font20 iblock control-icon' onClick={openTransferHistory} />
-                </div>
-              )
-              : null
-          }
           <div
             className='control-icon-wrap'
             title={m('about')}

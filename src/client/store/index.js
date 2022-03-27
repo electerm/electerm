@@ -24,6 +24,7 @@ import uiThemeExtend from './ui-theme'
 import terminalThemeExtend from './terminal-theme'
 import transferHistoryExtend from './transfer-history'
 import batchInputHistory from './batch-input-history'
+import transferExtend from './transfer-list'
 
 import _ from 'lodash'
 import copy from 'json-deep-copy'
@@ -114,6 +115,7 @@ terminalThemeExtend(store)
 uiThemeExtend(store)
 transferHistoryExtend(store)
 batchInputHistory(store)
+transferExtend(store)
 
 window.store = store
 export default store
