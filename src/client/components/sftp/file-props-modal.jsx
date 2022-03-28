@@ -3,15 +3,12 @@
  */
 
 import { memo } from 'react'
-import {
-  FolderOutlined,
-  FileOutlined
-} from '@ant-design/icons'
 import { Modal } from 'antd'
 import resolve from '../../common/resolve'
 import { mode2permission } from '../../common/mode2permission'
 import time from '../../../app/common/time'
 import renderPermission from './permission-render'
+import FileIcon from './file-icon'
 
 const { prefix } = window
 const e = prefix('sftp')
@@ -48,9 +45,6 @@ export default memo(props => {
     username
   } = tab
   const iconType = isDirectory ? 'folder' : 'file'
-  const Icon = isDirectory
-    ? FolderOutlined
-    : FileOutlined
   const ps = {
     visible,
     width: 500,
@@ -68,7 +62,11 @@ export default memo(props => {
       {...ps}
     >
       <div className='file-props-wrap relative'>
-        <Icon className='file-icon' />
+        <FileIcon
+          className='file-icon'
+          file={file}
+          height={50}
+        />
         <div className='file-props'>
           <p className='bold'>{e(iconType)} {e('name')}:</p>
           <p className='pd1b'>

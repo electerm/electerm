@@ -12,6 +12,11 @@ export default function FileIcon ({ file, ...extra }) {
     : getIconForFile(file.name)
   // const svg = <img src={iconPath + name} alt='' />
   return (
-    <img src={extIconPath + name} height={12} alt='' {...extra} />
+    <img
+      src={extIconPath + name}
+      height={12}
+      alt=''
+      {...extra}
+    />
   )
 }
