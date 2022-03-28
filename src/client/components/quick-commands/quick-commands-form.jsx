@@ -1,7 +1,7 @@
 
 import { Button, Input, Switch, Form, message, Select } from 'antd'
 import copy from 'json-deep-copy'
-import { nanoid as generate } from 'nanoid/non-secure'
+import generate from '../../common/uid'
 import { settingMap } from '../../common/constants'
 import InputAutoFocus from '../common/input-auto-focus'
 const { TextArea } = Input

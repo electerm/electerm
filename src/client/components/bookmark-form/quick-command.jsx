@@ -6,7 +6,7 @@ import { PureComponent } from 'react'
 import { CheckOutlined, CloseCircleOutlined, CloseOutlined, EditOutlined } from '@ant-design/icons'
 import { Input, Col, Row, message, Switch, Tooltip } from 'antd'
 import { settingMap } from '../../common/constants'
-import { nanoid as generate } from 'nanoid/non-secure'
+import generate from '../../common/uid'
 import eq from 'fast-deep-equal'
 
 const InputGroup = Input.Group

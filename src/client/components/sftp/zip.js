@@ -6,7 +6,7 @@
 import { runCmd } from '../terminal/terminal-apis'
 import { getFolderFromFilePath } from './file-read'
 import resolve from '../../common/resolve'
-import { nanoid as generate } from 'nanoid/non-secure'
+import generate from '../../common/uid'
 
 const isRemote = true
 const temp = '/tmp'
@@ -22,11 +22,21 @@ export async function zipCmd (pid, sessionId, filePath) {
 }
 
 export function unzipCmd (pid, sessionId, from, to) {
-  const cmd = `tar -xzf ${from} -C ${to}`
+  const cmd = `tar -xzf "${from}" -C "${to}"`
   return runCmd(pid, sessionId, cmd)
 }
 
 export async function rmCmd (pid, sessionId, path) {
-  const cmd = `rm -rf ${path}`
+  const cmd = `rm -rf "${path}"`
+  return runCmd(pid, sessionId, cmd)
+}
+
+export async function mvCmd (pid, sessionId, from, to) {
+  const cmd = `mv "${from}" "${to}"`
+  return runCmd(pid, sessionId, cmd)
+}
+
+export async function mkdirCmd (pid, sessionId, p) {
+  const cmd = `mkdir "${p}"`
   return runCmd(pid, sessionId, cmd)
 }

@@ -7,7 +7,7 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import classnames from 'classnames'
 import _ from 'lodash'
-import { nanoid as generate } from 'nanoid/non-secure'
+import generate from '../../common/uid'
 import memoizeOne from 'memoize-one'
 import {
   terminalSplitDirectionMap,

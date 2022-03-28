@@ -59,11 +59,17 @@ export default class TransferHistoryModal extends Component {
       title: e('fromPath'),
       dataIndex: 'fromPath',
       key: 'fromPath',
+      render: (txt, inst) => {
+        return inst.fromPathReal || txt
+      },
       sorter: sorterFactory('fromPath')
     }, {
       title: e('toPath'),
       dataIndex: 'toPath',
       key: 'toPath',
+      render: (txt, inst) => {
+        return inst.toPathReal || txt
+      },
       sorter: sorterFactory('toPath')
     }, {
       title: f('size'),

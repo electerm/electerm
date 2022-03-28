@@ -6,7 +6,7 @@ import { dbNames, update, getData, fetchInitData, insert, remove } from '../comm
 import initWatch from './watch'
 import { infoTabs, statusMap, defaultEnvLang } from '../common/constants'
 import fs from '../common/fs'
-import { nanoid as generate } from 'nanoid/non-secure'
+import generate from '../common/uid'
 import defaultSettings from '../../app/common/default-setting'
 import encodes from '../components/bookmark-form/encodes'
 import runIdle from '../common/run-idle'
