@@ -2,14 +2,15 @@ import { useEffect, useRef } from 'react'
 import { useDelta, useConditionalEffect } from 'react-delta'
 import copy from 'json-deep-copy'
 import _ from 'lodash'
-import { nanoid as generate } from 'nanoid/non-secure'
+import generate from '../../common/uid'
 import { typeMap, transferTypeMap } from '../../common/constants'
 import fs from '../../common/fs'
 import { transportTypes } from './transport-types'
 import format, { computeLeftTime, computePassedTime } from './transfer-speed-format'
 import { getFolderFromFilePath } from './file-read'
 import resolve from '../../common/resolve'
-import { zipCmd, unzipCmd, rmCmd } from './zip'
+import delay from '../../common/wait'
+import { zipCmd, unzipCmd, rmCmd, mvCmd, mkdirCmd } from './zip'
 import './transfer.styl'
 
 export default function transportAction (props) {
@@ -216,9 +217,10 @@ export default function transportAction (props) {
     const nTo = resolve(path, name)
     const newTrans1 = {
       ...copy(transfer),
+      toPathReal: transfer.toPath,
+      fromPathReal: transfer.fromPath,
       toPath: nTo,
       fromPath: p,
-
       id: generate()
     }
     delete newTrans1.fromFile
@@ -231,6 +233,25 @@ export default function transportAction (props) {
     insert([newTrans1])
   }
 
+  function buildUnzipPath (transfer) {
+    const {
+      newName,
+      toPath,
+      typeTo,
+      oldName
+    } = transfer
+    const isToRemote = typeTo === typeMap.remote
+    const { path } = getFolderFromFilePath(toPath, isToRemote)
+    const np = newName
+      ? resolve(path, 'temp-' + newName)
+      : path
+    return {
+      targetPath: path,
+      path: np,
+      name: oldName
+    }
+  }
+
   async function unzipFile () {
     if (unzipping.current) {
       return false
@@ -239,17 +260,46 @@ export default function transportAction (props) {
     const {
       fromPath,
       toPath,
-      typeTo
+      typeTo,
+      newName
     } = transfer
     const isToRemote = typeTo === typeMap.remote
-    const { path } = getFolderFromFilePath(toPath, isToRemote)
+    const {
+      path,
+      name,
+      targetPath
+    } = buildUnzipPath(transfer)
     if (isToRemote) {
+      if (newName) {
+        await mkdirCmd(props.pid, props.sessionId, path)
+        await delay(1000)
+      }
       await unzipCmd(props.pid, props.sessionId, toPath, path)
+      if (newName) {
+        const mvFrom = resolve(path, name)
+        const mvTo = resolve(targetPath, newName)
+        await mvCmd(props.pid, props.sessionId, mvFrom, mvTo)
+      }
     } else {
+      if (newName) {
+        await fs.mkdirAsync(path)
+      }
       await fs.unzipFile(toPath, path)
+      if (newName) {
+        const mvFrom = resolve(path, name)
+        const mvTo = resolve(targetPath, newName)
+        await fs.mv(mvFrom, mvTo)
+      }
     }
     await rmCmd(props.pid, props.sessionId, !isToRemote ? fromPath : toPath)
     await fs.rmrf(!isToRemote ? toPath : fromPath)
+    if (newName) {
+      if (isToRemote) {
+        await rmCmd(props.pid, props.sessionId, path)
+      } else {
+        await fs.rmrf(path)
+      }
+    }
     onEnd()
   }
 

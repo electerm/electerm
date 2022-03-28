@@ -49,7 +49,7 @@ import fs from '../../common/fs'
 import time from '../../../app/common/time'
 import filesize from 'filesize'
 import { createTransferProps } from './transfer-common'
-import { nanoid as generate } from 'nanoid/non-secure'
+import generate from '../../common/uid'
 
 const { prefix } = window
 const e = prefix('sftp')
@@ -636,7 +636,7 @@ export default class FileSection extends React.Component {
     _typeTo,
     operation
   ) => {
-    const { name, path, type } = file
+    const { name, path, type, isDirectory } = file
     let typeTo = type === typeMap.local
       ? typeMap.remote
       : typeMap.local
@@ -650,7 +650,7 @@ export default class FileSection extends React.Component {
       toPath = toPathBase
     }
     toPath = resolve(toPath, name)
-    return [{
+    const obj = {
       typeFrom: type,
       typeTo,
       fromPath: resolve(path, name),
@@ -658,7 +658,14 @@ export default class FileSection extends React.Component {
       id: generate(),
       ...createTransferProps(this.props),
       operation
-    }]
+    }
+    if (isDirectory) {
+      Object.assign(obj, {
+        zip: true,
+        skipExpand: true
+      })
+    }
+    return [obj]
   }
 
   doTransferSelected = (
@@ -688,13 +695,7 @@ export default class FileSection extends React.Component {
   zipTransferDirectory = () => {
     const { file } = this.state
     const arr = this.getTransferList(file)
-    this.props.addTransferList(arr.map(s => {
-      return {
-        ...s,
-        zip: true,
-        skipExpand: true
-      }
-    }))
+    this.props.addTransferList(arr)
   }
 
   doEnterDirectory = (e) => {
@@ -784,17 +785,13 @@ export default class FileSection extends React.Component {
     const transferText = type === typeMap.local
       ? e(transferTypeMap.upload)
       : e(transferTypeMap.download)
-    const zipTransferTxt = type === typeMap.local
-      ? e('compressAndUpload')
-      : e('compressAndDownload')
     const Icon = type === typeMap.local
       ? CloudUploadOutlined
       : CloudDownloadOutlined
     const len = selectedFiles.length
     const shouldShowSelectedMenu = id &&
       len > 1 &&
-      _.some(selectedFiles, d => d.id === id) &&
-      !_.some(selectedFiles, d => d.isDirectory)
+      _.some(selectedFiles, d => d.id === id)
     const cls = 'pd2x pd1y context-item pointer'
     const delTxt = shouldShowSelectedMenu ? `${e('deleteAll')}(${len})` : m('del')
     const canPaste = hasFileInClipboardText()
@@ -818,18 +815,6 @@ export default class FileSection extends React.Component {
             : null
         }
         {
-          isDirectory && id && hasHost && len < 2
-            ? (
-              <div
-                className={cls}
-                onClick={this.zipTransferDirectory}
-              >
-                <Icon /> {zipTransferTxt}
-              </div>
-            )
-            : null
-        }
-        {
           shouldShowSelectedMenu && hasHost
             ? (
               <div
@@ -842,7 +827,7 @@ export default class FileSection extends React.Component {
             : null
         }
         {
-          !id || !hasHost || isDirectory
+          !id || !hasHost || shouldShowSelectedMenu
             ? null
             : (
               <div

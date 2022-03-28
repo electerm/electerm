@@ -1,6 +1,6 @@
 
 import { Component } from 'react'
-import { nanoid as generate } from 'nanoid/non-secure'
+import generate from '../../common/uid'
 import { mergeProxy } from '../../common/merge-proxy'
 import {
   ArrowUpOutlined,

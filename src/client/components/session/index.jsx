@@ -14,7 +14,7 @@ import {
 } from '@ant-design/icons'
 import { Tooltip } from 'antd'
 import _ from 'lodash'
-import { nanoid as generate } from 'nanoid/non-secure'
+import generate from '../../common/uid'
 import copy from 'json-deep-copy'
 import classnames from 'classnames'
 import {

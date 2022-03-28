@@ -2,7 +2,7 @@
  * file info related functions
  */
 
-import { nanoid as generate } from 'nanoid/non-secure'
+import generate from '../../common/uid'
 import fs from '../../common/fs'
 import { isWin } from '../../common/constants'
 

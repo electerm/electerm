@@ -2,7 +2,7 @@
  * output default new terminal data obj
  */
 
-import { nanoid as generate } from 'nanoid/non-secure'
+import generate from './uid'
 
 const { prefix } = window
 const e = prefix('control')

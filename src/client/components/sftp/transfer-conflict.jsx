@@ -9,7 +9,7 @@ import { maxTransport, typeMap } from '../../common/constants'
 import { getLocalFileInfo, getRemoteFileInfo, getFolderFromFilePath, getFileExt } from './file-read'
 import copy from 'json-deep-copy'
 import _ from 'lodash'
-import { nanoid as generate } from 'nanoid/non-secure'
+import generate from '../../common/uid'
 import resolve from '../../common/resolve'
 import eq from 'fast-deep-equal'
 import { createTransferProps } from './transfer-common'
@@ -48,6 +48,8 @@ export default (props) => {
     const res = {
       ...tr,
       renameId,
+      newName,
+      oldName: base,
       toPath: resolve(path, newName)
     }
     if (action) {

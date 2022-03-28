@@ -20,6 +20,8 @@ export default function Transporter (props) {
   const {
     fromPath,
     toPath,
+    fromPathReal,
+    toPathReal,
     typeTo,
     typeFrom,
     percent,
@@ -78,13 +80,13 @@ export default function Transporter (props) {
       <span
         className='flex-child sftp-file sftp-local-file elli'
         title={fromPath}
-      >{fromPath}</span>
+      >{fromPathReal || fromPath}</span>
       <span className='flex-child sftp-transfer-arrow'>
         →
       </span>
       <span
         className='flex-child sftp-file sftp-remote-file elli'
-      >{toPath}</span>
+      >{toPathReal || toPath}</span>
       <span
         className='flex-child sftp-file-percent'
       >
