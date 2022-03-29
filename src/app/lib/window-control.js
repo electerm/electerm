@@ -74,12 +74,12 @@ exports.getWindowSize = async () => {
     }
   }
   const {
-    width,
+    innerWidth,
     height,
     screenHeight,
     screenWidth
   } = windowSizeLastState
-  const fw = width / screenWidth
+  const fw = innerWidth / screenWidth
   const fh = height / screenHeight
   let w = maxWidth * fw
   let h = maxHeight * fh
