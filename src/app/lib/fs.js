@@ -33,13 +33,14 @@ const run = (cmd) => {
  * @param {string} cmd
  */
 const runWinCmd = (cmd) => {
-  const Shell = require('node-powershell')
-  const ps = new Shell({
-    executionPolicy: 'Bypass',
-    noProfile: true
+  const { PowerShell } = require('node-powershell')
+  const ps = new PowerShell({
+    executableOptions: {
+      '-ExecutionPolicy': 'Bypass',
+      '-NoProfile': true
+    }
   })
-  ps.addCommand(cmd)
-  return ps.invoke()
+  return ps.invokeCommand(cmd)
 }
 
 /**
