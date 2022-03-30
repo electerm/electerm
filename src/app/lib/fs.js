@@ -15,7 +15,6 @@ const ROOT_PATH = '/'
  * @param {string} cmd
  */
 const run = (cmd) => {
-  console.log('cmd', cmd)
   const { Bash } = require('node-bash')
   const ps = new Bash({
     executableOptions: {

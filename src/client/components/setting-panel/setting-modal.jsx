@@ -55,15 +55,15 @@ export default class SettingModal extends Component {
         'currentBookmarkGroupId',
         'config'
       ]),
-      bookmarkGroups: store.getItems('bookmarkGroups'),
-      bookmarks: store.getItems('bookmarks'),
+      bookmarkGroups: store.getBookmarkGroups(),
+      bookmarks: store.getBookmarks(),
       serials: store.serials.toJSON(),
       loaddingSerials: store.loaddingSerials
     }
     const treeProps = {
       ...props0,
-      bookmarkGroups: store.getItems('bookmarkGroups'),
-      bookmarks: store.getItems('bookmarks'),
+      bookmarkGroups: store.getBookmarkGroups(),
+      bookmarks: store.getBookmarks(),
       ..._.pick(store, [
         'currentBookmarkGroupId',
         'autofocustrigger',

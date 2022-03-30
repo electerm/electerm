@@ -30,7 +30,7 @@ export default class BookmarkSelect extends Component {
     const base = {
       store,
       bookmarks: [
-        ...(store.getItems('bookmarks') || []),
+        ...(store.getBookmarks() || []),
         ...sshConfigItems
       ],
       type: 'bookmarks',

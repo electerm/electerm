@@ -149,8 +149,7 @@ export default class BookmarkForm extends PureComponent {
       return bg
     })
     runIdle(() => {
-      this.props.store.setItems(
-        'bookmarkGroups',
+      this.props.store.setBookmarkGroups(
         bookmarkGroups
       )
     })

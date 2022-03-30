@@ -9,8 +9,8 @@ const { SHOW_CHILD } = TreeSelect
 
 export default class StartSessionSelect extends Component {
   buildData = () => {
-    const cats = this.props.store.getItems('bookmarkGroups')
-    const tree = this.props.store.getItems('bookmarks')
+    const cats = this.props.store.getBookmarkGroups()
+    const tree = this.props.store.getBookmarks()
       .reduce((p, k) => {
         return {
           ...p,

@@ -60,7 +60,7 @@ export default store => {
 
     onSelectBookmark (id) {
       const history = store.getItems('history')
-      const bookmarks = store.getItems('bookmarks')
+      const bookmarks = store.getBookmarks()
       const item = copy(
         _.find(bookmarks, it => it.id === id) ||
         _.find(sshConfigItems, it => it.id === id)

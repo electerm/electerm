@@ -114,8 +114,7 @@ export default class ItemListTree extends React.PureComponent {
     this.setState({
       categoryId: ''
     })
-    this.props.store.setItems(
-      'bookmarkGroups',
+    this.props.store.setBookmarkGroups(
       bookmarkGroups
     )
     this.props.store.batchDbUpdate([{
@@ -211,8 +210,7 @@ export default class ItemListTree extends React.PureComponent {
         ...(cat.bookmarkGroupIds || []),
         newCat.id
       ]
-      this.props.store.setItems(
-        'bookmarkGroups',
+      this.props.store.setBookmarkGroups(
         bookmarkGroups
       )
       this.props.store.batchDbAdd([{
@@ -266,7 +264,7 @@ export default class ItemListTree extends React.PureComponent {
       })
     } else {
       this.props.store.storeAssign({
-        currentBookmarkGroupId: findBookmarkGroupId(this.props.store.getItems('bookmarkGroups'), id)
+        currentBookmarkGroupId: findBookmarkGroupId(this.props.store.getBookmarkGroups(), id)
       })
     }
     const bookmarks = copy(this.props.bookmarks)
@@ -482,8 +480,7 @@ export default class ItemListTree extends React.PureComponent {
       }
       return bg
     })
-    this.props.store.setItems(
-      'bookmarkGroups',
+    this.props.store.setBookmarkGroups(
       bookmarkGroups
     )
     this.props.store.batchDbUpdate(updates)

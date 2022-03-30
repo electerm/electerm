@@ -41,7 +41,7 @@ export default class TransferModalUI extends Component {
   }
 
   getGroups = () => {
-    const fileTransfers = this.props.store.getItems('fileTransfers')
+    const fileTransfers = this.props.store.getTransfers()
     const tree = fileTransfers.reduce((p, k) => {
       const {
         id,
@@ -78,7 +78,7 @@ export default class TransferModalUI extends Component {
     const {
       filter
     } = this.state
-    const fileTransfers = this.props.store.getItems('fileTransfers')
+    const fileTransfers = this.props.store.getTransfers()
     return filter === 'all'
       ? fileTransfers
       : fileTransfers.filter(d => d.sessionId === filter)

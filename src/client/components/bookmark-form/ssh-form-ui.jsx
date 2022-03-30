@@ -98,8 +98,7 @@ export default function BookmarkFormUI (props) {
   authTypeRenders.password = () => {
     const opts = {
       options: _.uniqBy(
-        props.store
-          .bookmarks
+        props.store.getBookmarks()
           .filter(d => d.password),
         (d) => d.password
       )
