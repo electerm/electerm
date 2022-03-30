@@ -17,7 +17,11 @@ const ROOT_PATH = '/'
 const run = (cmd) => {
   console.log('cmd', cmd)
   const { Bash } = require('node-bash')
-  const ps = new Bash()
+  const ps = new Bash({
+    executableOptions: {
+      '--login': true
+    }
+  })
   return ps.invokeCommand(cmd)
     .then(s => s.stdout.toString())
 }
