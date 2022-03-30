@@ -1,5 +1,5 @@
 const promisifyAll = require('util-promisifyall')
-const { exec, spawn } = require('child_process')
+const { spawn } = require('child_process')
 const fs = require('original-fs')
 const fss = promisifyAll(fs)
 const log = require('../utils/log')
@@ -15,17 +15,11 @@ const ROOT_PATH = '/'
  * @param {string} cmd
  */
 const run = (cmd) => {
-  return new Promise((resolve, reject) => {
-    exec(cmd, (err, stdout, stderr) => {
-      if (err) {
-        reject(err)
-      } else if (stderr) {
-        reject(stderr)
-      } else {
-        resolve(stdout)
-      }
-    })
-  })
+  console.log('cmd', cmd)
+  const { Bash } = require('node-bash')
+  const ps = new Bash()
+  return ps.invokeCommand(cmd)
+    .then(s => s.stdout.toString())
 }
 
 /**
