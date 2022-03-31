@@ -12,11 +12,15 @@ import { debounceTime } from 'rxjs/operators'
 export default store => {
   // auto focus when tab change
   Subx.autoRun(store, () => {
-    store.focus()
     const { currentTabId, tabs } = store
     const tab = _.find(tabs, t => t.id === currentTabId) || {}
     const title = createTitlte(tab)
     window.pre.runGlobalAsync('setTitle', title)
+    return [currentTabId, tabs]
+  }, debounceTime(1000))
+
+  Subx.autoRun(store, () => {
+    store.focus()
     return store.currentTabId
   }, debounceTime(1000))
 

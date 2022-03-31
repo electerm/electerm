@@ -40,9 +40,6 @@ export default store => {
     },
 
     focus () {
-      if (store.showModal) {
-        return false
-      }
       window.postMessage({
         type: 'focus'
       }, '*')
