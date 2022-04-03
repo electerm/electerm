@@ -31,5 +31,6 @@ describe('tabs', function () {
     await delay(1500)
     const tabs1 = await client.countElem('.tabs .tab')
     expect(tabs1).equal(tabsLenBefore + 2)
+    await electronApp.close().catch(console.log)
   })
 })

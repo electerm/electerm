@@ -41,5 +41,6 @@ describe('quick commands', function () {
     await delay(2550)
     const qmlist2 = await client.countElem('.setting-tabs-quick-commands .item-list-unit')
     expect(qmlist2).equal(qmlist1 + 1)
+    await electronApp.close().catch(console.log)
   })
 })

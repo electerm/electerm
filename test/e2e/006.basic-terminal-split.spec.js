@@ -35,5 +35,6 @@ describe('terminal split', function () {
     terms = await client.elements('.ssh-wrap-show .term-wrap')
     terms = await terms.count()
     expect(terms).equal(2)
+    await electronApp.close().catch(console.log)
   })
 })

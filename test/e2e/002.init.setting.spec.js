@@ -73,5 +73,7 @@ describe('init setting buttons', function () {
     await delay(600)
     const text5 = await client.getText(sel)
     expect(text5).toEqual(e('bookmarks'))
+
+    await electronApp.close().catch(console.log)
   })
 })

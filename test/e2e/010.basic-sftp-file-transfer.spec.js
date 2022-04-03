@@ -197,5 +197,6 @@ describe('sftp file transfer', function () {
     let remoteFileList2 = await client.elements('.ssh-wrap-show .file-list.remote .sftp-item')
     remoteFileList2 = await remoteFileList2.count()
     expect(remoteFileList2).equal(remoteFileListBefore)
+    await electronApp.close().catch(console.log)
   })
 })

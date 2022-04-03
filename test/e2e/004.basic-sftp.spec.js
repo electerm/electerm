@@ -182,5 +182,6 @@ describe('sftp basic', function () {
     await delay(8000)
     const remoteFileList2 = await client.countElem('.ssh-wrap-show .file-list.remote .sftp-item')
     expect(remoteFileList2).equal(remoteFileListBefore)
+    await electronApp.close().catch(console.log)
   })
 })

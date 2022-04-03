@@ -40,5 +40,6 @@ describe('ssh', function () {
     expect(tabsCount).equal(2)
     await delay(4010)
     await basicTermTest(client, cmd)
+    await electronApp.close().catch(console.log)
   })
 })

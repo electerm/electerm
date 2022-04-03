@@ -43,5 +43,6 @@ describe('history', function () {
     await client.click('.setting-wrap .ant-tabs-tabpane-active .item-list-unit')
     const list1 = await client.getAttribute('.setting-wrap .ant-tabs-tabpane-active .item-list-unit:nth-child(1)', 'class')
     expect(list1.includes('active'))
+    await electronApp.close().catch(console.log)
   })
 })

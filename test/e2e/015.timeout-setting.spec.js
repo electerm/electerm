@@ -71,5 +71,6 @@ describe('timeout setting', function () {
     await client.click('.setting-wrap .close-setting-wrap')
     await delay(400)
     await client.hasElem('.setting-wrap', false)
+    await electronApp.close().catch(console.log)
   })
 })

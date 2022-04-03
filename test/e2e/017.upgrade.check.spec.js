@@ -25,5 +25,6 @@ describe('Upgrade check', function () {
     await client.click('.about-wrap .ant-btn-primary')
     await delay(3000)
     await client.hasElem('.upgrade-panel')
+    await electronApp.close().catch(console.log)
   })
 })

@@ -55,5 +55,6 @@ describe('terminal themes', function () {
     await delay(100)
     const text4 = await client.getText(sel)
     expect(text4).equal(e('setting'))
+    await electronApp.close().catch(console.log)
   })
 })

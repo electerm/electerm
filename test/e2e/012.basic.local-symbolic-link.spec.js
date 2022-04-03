@@ -34,5 +34,6 @@ describe('symbolic links support', function () {
     const cmd1 = `cd ~ && rm -rf ${tmp}`
     await client.keyboard.type(cmd1)
     await client.keyboard.press('Enter')
+    await electronApp.close().catch(console.log)
   })
 })

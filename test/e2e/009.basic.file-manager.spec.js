@@ -99,5 +99,6 @@ describe('local file manager', function () {
     let localFileList2 = await client.elements('.ssh-wrap-show .file-list.local .sftp-item')
     localFileList2 = await localFileList2.count()
     expect(localFileList2).equal(localFileListBefore)
+    await electronApp.close().catch(console.log)
   })
 })

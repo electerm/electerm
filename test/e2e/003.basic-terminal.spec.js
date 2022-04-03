@@ -26,5 +26,6 @@ describe('terminal', function () {
     await delay(3500)
 
     await basicTermTest(client, cmd)
+    await electronApp.close().catch(console.log)
   })
 })
