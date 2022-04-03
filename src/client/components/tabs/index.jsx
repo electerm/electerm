@@ -151,7 +151,7 @@ export default class Tabs extends React.Component {
           className={cls}
           onClick={onNewSsh}
         >
-          <CodeFilled /> {c('newSsh')}
+          <CodeFilled /> {c('newBookmark')}
         </div>
         <div
           className={cls}
