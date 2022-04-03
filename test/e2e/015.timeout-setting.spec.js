@@ -3,7 +3,12 @@
  * need TEST_HOST TEST_PASS TEST_USER env set
  */
 
-const { Application } = require('spectron')
+const { _electron: electron } = require('playwright')
+const {
+  test: it
+} = require('@playwright/test')
+const { describe } = it
+it.setTimeout(100000)
 const { expect } = require('chai')
 const delay = require('./common/wait')
 const log = require('./common/log')
@@ -12,70 +17,60 @@ const {
   TEST_PASS,
   TEST_USER
 } = require('./common/env')
-const isOs = require('./common/is-os')
 const appOptions = require('./common/app-options')
-
-if (isOs('darwin')) {
-  return
-}
+const extendClient = require('./common/client-extend')
 
 describe('timeout setting', function () {
-  this.timeout(100000)
-
-  beforeEach(async function () {
-    this.app = new Application(appOptions)
-    return this.app.start()
-  })
-
-  afterEach(function () {
-    if (this.app && this.app.isRunning()) {
-      return this.app.stop()
-    }
-  })
-
   it('timeout setting works', async function () {
-    const { client } = this.app
+    const electronApp = await electron.launch(appOptions)
+    const client = await electronApp.firstWindow()
+    extendClient(client, electronApp)
+    delay(4000)
 
-    await client.waitUntilWindowLoaded()
-    delay(3000)
-    log('open setting')
-    await client.execute(function () {
-      document.querySelector('.btns .anticon-setting').click()
+    log('set timeout to 100')
+    await client.click('.btns .anticon-setting')
+    await delay(1500)
+
+    await client.evaluate(() => {
+      window.store.config.sshReadyTimeout = 100
     })
     await delay(1500)
 
-    client.setValue(
-      '.setting-wrap .ant-tabs-tabpane-active .timeout-desc .ant-input-number-input',
-      100
-    )
-    await delay(150)
-    await client.execute(function () {
-      document.querySelector('.setting-wrap .close-setting-wrap').click()
+    const timeout = await client.evaluate(() => {
+      return window.store.config.sshReadyTimeout
     })
+    await delay(150)
+    expect(timeout).equal(100)
+    await client.click('.btns .anticon-setting')
     await delay(900)
+    await client.hasElem('.setting-wrap', false)
+
+    log('open new ssh and timeout')
     await client.click('.btns .anticon-plus-circle')
     await delay(500)
     await client.setValue('#ssh-form_host', TEST_HOST)
     await client.setValue('#ssh-form_username', TEST_USER)
     await client.setValue('#ssh-form_password', TEST_PASS)
-    await client.execute(function () {
-      document.querySelector('.setting-wrap .ant-tabs-tabpane-active .ant-btn-primary').click()
-    })
+    await client.click('.setting-wrap .ant-tabs-tabpane-active .ant-btn-primary')
     await delay(3500)
     const txt = await client.getText('.ant-notification-notice  .ant-notification-notice-content .common-err')
     expect(txt.includes('Timed out')).equal(true)
-    await client.execute(function () {
-      document.querySelector('.btns .anticon-setting').click()
-    })
+
+    log('set timeout to 50000')
+    await client.click('.btns .anticon-setting')
     await delay(1500)
-    client.setValue(
-      '.setting-wrap .ant-tabs-tabpane-active .timeout-desc .ant-input-number-input',
-      50000
-    )
-    await delay(555)
-    await client.execute(function () {
-      document.querySelector('.setting-wrap .close-setting-wrap').click()
+    await client.evaluate(() => {
+      window.store.config.sshReadyTimeout = 50000
     })
+    await delay(1555)
+    const timeout1 = await client.evaluate(() => {
+      return window.store.config.sshReadyTimeout
+    })
+    await delay(150)
+    expect(timeout1).equal(50000)
+    await client.click('.setting-wrap .close-setting-wrap')
     await delay(400)
+    await client.hasElem('.setting-wrap', false)
+    await electronApp.close().catch(console.log)
   })
 })

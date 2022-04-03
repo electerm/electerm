@@ -106,15 +106,15 @@ export default class Sftp extends Component {
     'asc'
   ]
 
-  defaultDirection = () => {
-    return this.directions[0]
+  defaultDirection = (i = 0) => {
+    return this.directions[i]
   }
 
   defaultState = () => {
-    return Object.keys(typeMap).reduce((prev, k) => {
+    return Object.keys(typeMap).reduce((prev, k, i) => {
       Object.assign(prev, {
         [`sortProp.${k}`]: 'modifyTime',
-        [`sortDirection.${k}`]: this.defaultDirection(),
+        [`sortDirection.${k}`]: this.defaultDirection(i),
         [k]: [],
         [`${k}FileTree`]: {},
         [`${k}Loading`]: false,
