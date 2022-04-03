@@ -95,7 +95,7 @@ export default class Sidebar extends Component {
           </div>
           <div
             className='control-icon-wrap'
-            title={e('newSsh')}
+            title={e('newBookmark')}
           >
             <PlusCircleOutlined
               className='font22 iblock control-icon'
