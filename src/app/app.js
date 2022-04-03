@@ -39,7 +39,7 @@ async function createWindow () {
   const { width, height } = await getWindowSize()
   const { useSystemTitleBar } = userConfig
   // Create the browser window.
-  console.log('useSystemTitleBar', useSystemTitleBar)
+  log.debug('useSystemTitleBar:', useSystemTitleBar)
   const isTest = process.env.NODE_TEST === 'yes'
 
   global.win = new BrowserWindow({
