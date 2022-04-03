@@ -51,5 +51,7 @@ export default store => {
     }
     store.storeAssign(update)
     window.pre.runGlobalAsync('setWindowSize', update)
-  }, 100)
+  }, 100, {
+    leading: true
+  })
 }

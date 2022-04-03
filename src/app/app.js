@@ -38,9 +38,6 @@ async function createWindow () {
   const userConfig = await getDbConfig() || {}
   const { width, height } = await getWindowSize()
   const { useSystemTitleBar } = userConfig
-  // Create the browser window.
-  log.debug('useSystemTitleBar:', useSystemTitleBar)
-  const isTest = process.env.NODE_TEST === 'yes'
 
   global.win = new BrowserWindow({
     width,
@@ -53,8 +50,8 @@ async function createWindow () {
     backgroundColor: '#33333300',
     webPreferences: {
       contextIsolation: false,
-      nodeIntegration: isTest,
-      enableRemoteModule: isTest,
+      nodeIntegration: false,
+      enableRemoteModule: false,
       preload: resolve(__dirname, './preload/preload.js')
     },
     titleBarStyle: useSystemTitleBar ? 'default' : 'customButtonsOnHover',
