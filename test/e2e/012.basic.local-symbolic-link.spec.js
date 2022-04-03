@@ -1,60 +1,38 @@
-const { Application } = require('spectron')
+const { _electron: electron } = require('playwright')
+const {
+  test: it
+} = require('@playwright/test')
+const { describe } = it
+it.setTimeout(100000)
 const delay = require('./common/wait')
 const { expect } = require('chai')
 const appOptions = require('./common/app-options')
-
-if (true) { // eslint-disable-line
-  return
-}
+const extendClient = require('./common/client-extend')
 
 describe('symbolic links support', function () {
-  this.timeout(100000)
-
-  beforeEach(async function () {
-    this.app = new Application(appOptions)
-    return this.app.start()
-  })
-
-  afterEach(function () {
-    if (this.app && this.app.isRunning()) {
-      return this.app.stop()
-    }
-  })
-
   it('symbolic links support works', async function () {
-    const { client } = this.app
-    await client.waitUntilWindowLoaded()
-    await delay(3500)
+    const electronApp = await electron.launch(appOptions)
+    const client = await electronApp.firstWindow()
+    extendClient(client, electronApp)
+    await delay(4500)
     const tmp = 'tmp-' + (+new Date())
-    const cmd = `mkdir ${tmp} && cd ${tmp} && touch x.js && mkdir xx && ln -s x.js xk && ln -s xx xxk`
-    await delay(101)
-    await client.keys([...cmd.split(''), 'Enter'])
-    await delay(100)
-    await client.execute(function () {
-      document.querySelector('.ssh-wrap-show .term-sftp-tabs .fileManager').click()
-    })
+    const cmd = `cd ~ && mkdir ${tmp} && cd ${tmp} && touch x.js && mkdir xx && ln -s x.js xk && ln -s xx xxk`
+    await client.keyboard.type(cmd)
+    await client.keyboard.press('Enter')
+    await delay(1900)
+    await client.click('.ssh-wrap-show .term-sftp-tabs .fileManager')
     await delay(300)
-    await client.execute(function () {
-      document.querySelector('.ssh-wrap-show .anticon-reload').click()
-    })
+    await client.click('.ssh-wrap-show .anticon-reload')
     await delay(2500)
-    await client.execute(function () {
-      const event = new MouseEvent('dblclick', {
-        view: window,
-        bubbles: true,
-        cancelable: true
-      })
-      document.querySelector('.ssh-wrap-show .sftp-table-content .sftp-item.local.directory .sftp-file-prop').dispatchEvent(event)
-    })
+    await client.doubleClick('.ssh-wrap-show .file-list.local .real-file-item')
 
-    await delay(3000)
-    const localFileList = await client.elements('.ssh-wrap-show .file-list.local .sftp-item')
-    expect(localFileList.value.length).equal(5)
-    await client.execute(function () {
-      document.querySelector('.ssh-wrap-show .term-sftp-tabs .terminal').click()
-    })
-    await delay(300)
-    const cmd1 = `cd .. && rm -rf ${tmp}`
-    await client.keys([...cmd1.split(''), 'Enter'])
+    await delay(2000)
+    const localFileList = await client.countElem('.ssh-wrap-show .file-list.local .sftp-item')
+    expect(localFileList).equal(5)
+    await client.click('.ssh-wrap-show .term-sftp-tabs .terminal')
+    await delay(500)
+    const cmd1 = `cd ~ && rm -rf ${tmp}`
+    await client.keyboard.type(cmd1)
+    await client.keyboard.press('Enter')
   })
 })

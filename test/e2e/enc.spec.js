@@ -1,5 +1,10 @@
 const { enc, dec } = require('../../src/app/common/pass-enc')
 const { expect } = require('chai')
+const {
+  test: it
+} = require('@playwright/test')
+const { describe } = it
+it.setTimeout(100000)
 
 describe('enc/dec funcs', function () {
   it('dec/dec', async function () {

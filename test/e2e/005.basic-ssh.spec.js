@@ -8,38 +8,26 @@ const {
   TEST_PASS,
   TEST_USER
 } = require('./common/env')
-const { Application } = require('spectron')
+const { _electron: electron } = require('playwright')
+const {
+  test: it
+} = require('@playwright/test')
+const { describe } = it
+it.setTimeout(100000)
 const { expect } = require('chai')
 const delay = require('./common/wait')
 const basicTermTest = require('./common/basic-terminal-test')
 const appOptions = require('./common/app-options')
 const extendClient = require('./common/client-extend')
-const isOs = require('./common/is-os')
-
-if (isOs('darwin')) {
-  return
-}
 
 describe('ssh', function () {
-  this.timeout(100000)
-
-  beforeEach(async function () {
-    this.app = new Application(appOptions)
-    return this.app.start()
-  })
-
-  afterEach(function () {
-    if (this.app && this.app.isRunning()) {
-      return this.app.stop()
-    }
-  })
-
   it('should open window and basic ssh ls command works', async function () {
-    const { client } = this.app
-    extendClient(client)
+    const electronApp = await electron.launch(appOptions)
+    const client = await electronApp.firstWindow()
+    extendClient(client, electronApp)
+    await delay(4500)
     const cmd = 'ls'
-    await client.waitUntilWindowLoaded()
-    await delay(3500)
+    await delay(4500)
     await client.click('.btns .anticon-plus-circle')
     await delay(500)
     await client.setValue('#ssh-form_host', TEST_HOST)
@@ -47,10 +35,10 @@ describe('ssh', function () {
     await client.setValue('#ssh-form_password', TEST_PASS)
     await client.click('.setting-wrap .ant-tabs-tabpane-active .ant-btn-primary')
     await delay(1500)
-    const tabsCount = await client.elements('.tabs .tabs-wrapper .tab')
-
-    expect(tabsCount.length).equal(2)
-    await delay(2010)
-    await basicTermTest(this, client, cmd)
+    let tabsCount = await client.elements('.tabs .tabs-wrapper .tab')
+    tabsCount = await tabsCount.count()
+    expect(tabsCount).equal(2)
+    await delay(4010)
+    await basicTermTest(client, cmd)
   })
 })

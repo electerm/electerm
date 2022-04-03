@@ -29,8 +29,8 @@ Terminal/ssh/sftp client(linux, mac, win) based on electron/ssh2/node-pty/xterm/
 - Double click to directly edit (small) remote files.
 - Edit (small) local files with built-in editor.
 - Auth with publicKey + password.
-- Zmodem(rz, sz).
-- [Trzsz](https://github.com/trzsz/trzsz)(trz/tsz), similar to rz/sz, and compatible with tmux.
+- Support Zmodem(rz, sz).
+- Support [Trzsz](https://github.com/trzsz/trzsz)(trz/tsz), similar to rz/sz, and compatible with tmux.
 - Transparent window(Mac, win).
 - Terminal background image.
 - Global/session proxy.
@@ -119,6 +119,9 @@ npm run fix
 ```bash
 npm run pre-test
 cp .sample.env .env
+
+# install playwright
+PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm i -D playwright --no-save
 # then edit .env, fill your test host/username/password
 npm run test
 ```

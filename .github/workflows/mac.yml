@@ -17,7 +17,7 @@ jobs:
     strategy:
       matrix:
         os: [macos-10.15]
-        node-version: [ 14.x ]
+        node-version: [ 16.x ]
 
     steps:
     - uses: actions/checkout@v2
@@ -32,6 +32,7 @@ jobs:
     - run:  npm un -S node-powershell
 
     # script:
+    - run: PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm i -D playwright --no-save
     - run: npm run pre-test
 
     - name: test

@@ -1,4 +1,9 @@
-const { Application } = require('spectron')
+const { _electron: electron } = require('playwright')
+const {
+  test: it
+} = require('@playwright/test')
+const { describe } = it
+it.setTimeout(100000)
 const delay = require('./common/wait')
 const log = require('./common/log')
 const { expect } = require('chai')
@@ -7,35 +12,21 @@ const prefixer = require('./common/lang')
 const extendClient = require('./common/client-extend')
 
 describe('terminal themes', function () {
-  this.timeout(100000)
-
-  beforeEach(async function () {
-    this.app = new Application(appOptions)
-    return this.app.start()
-  })
-
-  afterEach(function () {
-    if (this.app && this.app.isRunning()) {
-      return this.app.stop()
-    }
-  })
-
   it('all buttons open proper terminal themes tab', async function () {
-    const { client, electron } = this.app
-    extendClient(client)
+    const electronApp = await electron.launch(appOptions)
+    const client = await electronApp.firstWindow()
+    extendClient(client, electronApp)
     const prefix = await prefixer(electron)
     const e = prefix('common')
     const t = prefix('terminalThemes')
-    await client.waitUntilWindowLoaded()
-    await delay(1500)
+    await delay(3500)
 
     log('button:edit')
     await client.click('.btns .anticon-picture')
     await delay(500)
     const sel = '.setting-wrap .ant-tabs-nav-list .ant-tabs-tab-active'
-    const active = await client.element(sel)
-    await delay(2500)
-    expect(!!active.elementId).equal(true)
+    await client.hasElem(sel)
+    await delay(500)
     const text = await client.getText(sel)
     expect(text).equal(t('uiThemes'))
 
@@ -46,10 +37,21 @@ describe('terminal themes', function () {
     expect(tx).equal(t('newTheme'))
     expect(txd).equal(t('default'))
 
-    log('tab it')
-    await client.execute(function () {
-      document.querySelectorAll('.setting-wrap .ant-tabs-tab')[2].click()
+    // create theme
+    log('create theme')
+    const themePrev = await client.evaluate(() => {
+      return window.store.terminalThemes.length
     })
+    await client.click('.setting-wrap .ant-tabs-tabpane-active .ant-btn-primary')
+
+    const themeNow = await client.evaluate(() => {
+      return window.store.terminalThemes.length
+    })
+    await delay(1000)
+    expect(themeNow).equal(themePrev + 1)
+
+    log('tab it')
+    await client.click('.setting-wrap .ant-tabs-tab', 2)
     await delay(100)
     const text4 = await client.getText(sel)
     expect(text4).equal(e('setting'))

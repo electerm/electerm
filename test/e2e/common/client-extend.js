@@ -1,50 +1,76 @@
 /**
  * extend client functions
  */
-module.exports = (client) => {
-  client.element = client.$
-  client.elements = client.$$
+
+const {
+  expect
+} = require('@playwright/test')
+module.exports = (client, app) => {
+  client.element = (sel) => {
+    return client.locator(sel).first()
+  }
+  client.elements = client.locator
   client.click = async (sel, n = 0) => {
-    const sl = sel +
-      (n ? `:nth-child(${n + 1})` : '')
-    const s = await client.$(sl)
+    const sl = sel + `>> nth=${n}`
+    const s = client.locator(sl)
     await s.click()
   }
-  client.hasFocus = async (sel, n = 0) => {
-    const sl = sel +
-      (n ? `:nth-child(${n + 1})` : '')
-    const s = await client.$(sl)
-    return s.isFocused()
+  client.hasElem = async (sel, target = true) => {
+    const s = client.locator(sel)
+    const c = await s.count()
+    expect(!!c).toEqual(target)
   }
-  client.getAttribute = async (sel, name) => {
-    const s = await client.$(sel)
-    return s.getAttribute(name)
+  client.countElem = async (sel) => {
+    const s = client.locator(sel)
+    const c = await s.count()
+    return c
+  }
+  client.hasFocus = async (sel) => {
+    const s = await client.locator(sel).first()
+    expect(s).toBeFocused()
   }
   client.getText = async (sel) => {
-    const s = await client.$(sel)
-    return s.getText()
+    const s = await client.locator(sel).first()
+    return s.textContent()
   }
   client.setValue = async (sel, v) => {
-    const s = await client.$(sel)
-    return s.setValue(v)
+    const s = await client.locator(sel)
+    return s.fill(v)
   }
   client.getValue = async (sel) => {
-    const s = await client.$(sel)
-    return s.getValue()
+    const s = await client.locator(sel)
+    return s.inputValue()
   }
   client.rightClick = async function (sel, x, y) {
-    const s = await client.$(sel)
+    const s = await client.locator(sel).first()
     await s.click({
       button: 'right',
-      x,
-      y
+      position: {
+        x,
+        y
+      }
     })
   }
   client.doubleClick = async function (sel, n = 0) {
-    const sl = sel +
-      (n ? `:nth-child(${n + 1})` : '')
-    const s = await client.$(sl)
-    await s.doubleClick()
+    const sl = sel + `>> nth=${n}`
+    const s = await client.locator(sl)
+    await s.dblclick()
   }
+  client.readClipboard = async () => {
+    return app.evaluate(
+      async ({ clipboard }) => clipboard.readText()
+    )
+  }
+  client.writeClipboard = (clipboardContentToWrite) => {
+    app.evaluate(
+      async ({ clipboard }, text) => clipboard.writeText(text), clipboardContentToWrite
+    )
+  }
+  client.getAttribute = async (sel, name) => {
+    return client.$eval(sel, (e, name) => {
+      return e.getAttribute(name)
+    }, name)
+  }
+
   return client
 }
