@@ -18,6 +18,7 @@ jobs:
       matrix:
         os: [windows-2022]
         node-version: [ 16.x ]
+        python-version: ['3.7']
 
     steps:
     - uses: actions/checkout@v2
