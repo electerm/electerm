@@ -27,10 +27,17 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
 
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions/setup-python@v3
+      with:
+        python-version: '3.7' # Version range or exact version of a Python version to use, using SemVer's version range syntax
+        architecture: 'x64' # optional x64 or x86. Defaults to x64 if not specified
+    - run: npm install -g node-gyp
+
     # before_install:
     # - run: npm install --global --production windows-build-tools --vs2015
     - run: npm install -g yarn
-    - run: npm install -g node-gyp
     - run: npm i
     - run: npm un -S node-bash
 
