@@ -23,10 +23,6 @@ body:
       description: |
         UNIX: output of `uname -a`
         Windows: output of `"$([Environment]::OSVersion | ForEach-Object VersionString) $(if ([Environment]::Is64BitOperatingSystem) { "x64" } else { "x86" })"` in PowerShell console
-  - type: input
-    attributes:
-      label: Architecture
-      description: i32/x86? x64? ARM?
   - type: textarea
     attributes:
       label: What steps will reproduce the bug?(重新问题的详细步骤)
