@@ -48,7 +48,7 @@ jobs:
 
     # before_install:
     - run:  npm install -g yarn
-    - run:  yarn remove -S node-powershell
+    - run:  yarn remove node-powershell
 
     # script:
     - run: npm run pre-test

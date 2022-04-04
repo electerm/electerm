@@ -29,7 +29,7 @@ jobs:
 
     # before_install:
     - run:  npm install -g yarn
-    - run:  npm un -S node-powershell
+    - run:  yarn remove node-powershell
 
     # script:
     - run: PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm i -D playwright --no-save
