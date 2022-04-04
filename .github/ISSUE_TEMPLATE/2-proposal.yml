@@ -1,0 +1,10 @@
+name: "💥 Proposal / Feature (建议和新功能)"
+description: Propose a non-trivial change or new feature for electerm
+body:
+  - type: textarea
+    attributes:
+      label: What feature you'd like to see or proposal(期望什么新功能/特性或者建议)
+      description: A clear and concise description of what the proposal or feature is.(请尽可能详细描述，以便帮助其他人能够理解)
+    validations:
+      required: true
+

@@ -36,10 +36,9 @@ Terminal/ssh/sftp client(linux, mac, win) based on electron/ssh2/node-pty/xterm/
 - Global/session proxy.
 - Quick commands
 - Sync bookmarks/themes/quick commands to github/gitee secret gist
-- ~~Serial Port support~~(removed after version 1.10.14)
+- Support serial Port(version > 1.21.8)
 - Quick input to one or all terminals.
 - Command line usage: check [wiki](https://github.com/electerm/electerm/wiki/Command-line-usage)
-- Zip/transfer/auto-unzip folders.
 
 ## Download/install
 
@@ -84,6 +83,10 @@ npm i -g electerm
 ## Troubleshoot
 
 [https://github.com/electerm/electerm/wiki/Troubleshoot](https://github.com/electerm/electerm/wiki/Troubleshoot)
+
+## Discussion
+
+[Discussion board](https://github.com/electerm/electerm/discussions)
 
 ## Support
 

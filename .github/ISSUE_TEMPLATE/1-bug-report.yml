@@ -1,0 +1,45 @@
+name: "\U0001F41B Bug report"
+description: Create a report to help us improve
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for reporting an issue.
+
+        This issue tracker is for bugs and issues found within Electerm.
+        If you require more general support please start a discussion on our discussion board https://github.com/electerm/electerm/discussions
+
+        Please fill in as much of the form below as you're able.
+
+        仅用来追踪bug, 如果有其他的讨论请移步讨论区 https://github.com/electerm/electerm/discussions
+  - type: input
+    attributes:
+      label: Electerm Version(Electerm版本)
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: Platform (平台)
+      description: |
+        UNIX: output of `uname -a`
+        Windows: output of `"$([Environment]::OSVersion | ForEach-Object VersionString) $(if ([Environment]::Is64BitOperatingSystem) { "x64" } else { "x86" })"` in PowerShell console
+  - type: input
+    attributes:
+      label: Architecture
+      description: i32/x86? x64? ARM?
+  - type: textarea
+    attributes:
+      label: What steps will reproduce the bug?(重新问题的详细步骤)
+      description: Enter details about your bug, preferably a simple code snippet that can be run using `node` directly without installing third-party dependencies.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: What should have happened?(期望的结果)
+      description: If possible please provide screenshots.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Additional information(其他任何相关信息)
+      description: Tell us anything else you think we should know.
