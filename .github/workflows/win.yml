@@ -27,8 +27,6 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
 
-    steps:
-    - uses: actions/checkout@v3
     - uses: actions/setup-python@v3
       with:
         python-version: '3.7' # Version range or exact version of a Python version to use, using SemVer's version range syntax
