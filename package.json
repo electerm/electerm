@@ -22,7 +22,6 @@
     "build-linux": "node bin/build-linux",
     "build-win": "node bin/build-win",
     "release": "npm run pre-test && npm run output",
-    "preinstall": "node bin/preinstall",
     "postinstall": "node bin/post-install",
     "lint": "./node_modules/.bin/standard --verbose | snazzy",
     "fix": "./node_modules/.bin/standard --fix",
