@@ -41,7 +41,7 @@ describe('sftp basic', function () {
     await client.setValue('#ssh-form_password', TEST_PASS)
     await delay(100)
     await client.click('.setting-wrap .ant-tabs-tabpane-active .ant-btn-primary')
-    await delay(1500)
+    await delay(2500)
     const tabsCount = await await client.evaluate(() => {
       return window.store.tabs.length
     })
