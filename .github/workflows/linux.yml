@@ -25,7 +25,7 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
-    - run: npm i
+    - run: yarn
 
     # - name: xvfb
     #   uses: GabrielBB/xvfb-action@v1
@@ -48,7 +48,7 @@ jobs:
 
     # before_install:
     - run:  npm install -g yarn
-    - run:  npm un -S node-powershell
+    - run:  yarn remove -S node-powershell
 
     # script:
     - run: npm run pre-test

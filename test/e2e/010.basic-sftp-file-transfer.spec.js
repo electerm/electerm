@@ -65,7 +65,7 @@ describe('sftp file transfer', function () {
 
     // enter folder
     await client.doubleClick('.ssh-wrap-show .file-list.local .sftp-item:not(.virtual-file-unit) .file-bg')
-    await delay(2000)
+    await delay(5000)
     const pathCurrentLocal = await client.getValue('.ssh-wrap-show .sftp-local-section .sftp-title input')
     expect(pathCurrentLocal.includes(fname)).equal(true)
     let localFileList0 = await client.elements('.ssh-wrap-show .file-list.local .sftp-item')

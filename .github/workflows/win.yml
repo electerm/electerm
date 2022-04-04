@@ -30,7 +30,7 @@ jobs:
     # - run: npm install --global --production windows-build-tools --vs2015
     - run: npm install -g yarn
     - run: npm install -g node-gyp
-    - run: npm i
+    - run: yarn
     - run: npm un -S node-bash
 
     # script:

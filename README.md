@@ -99,7 +99,7 @@ Without user feedback/suggestions/pull requests/language files, this project wou
 
 git clone git@github.com:electerm/electerm.git
 cd electerm
-npm i
+yarn
 
 # start webpack dev server, requires port 5570
 npm start
