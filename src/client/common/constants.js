@@ -69,7 +69,7 @@ export const statusMap = buildConst([
 
 export const connectionMap = buildConst([
   'ssh',
-  // 'serial',
+  'serial',
   'local'
 ])
 

@@ -41,7 +41,7 @@ describe('sftp basic', function () {
     await client.setValue('#ssh-form_password', TEST_PASS)
     await delay(100)
     await client.click('.setting-wrap .ant-tabs-tabpane-active .ant-btn-primary')
-    await delay(1500)
+    await delay(2500)
     const tabsCount = await await client.evaluate(() => {
       return window.store.tabs.length
     })
@@ -83,7 +83,7 @@ describe('sftp basic', function () {
 
     // enter folder
     await client.doubleClick('.ssh-wrap-show .file-list.local .sftp-item:not(.virtual-file-unit) .file-bg')
-    await delay(2000)
+    await delay(4000)
     const pathCurrentLocal = await client.getValue('.ssh-wrap-show .sftp-local-section .sftp-title input')
     expect(pathCurrentLocal.includes(fname)).equal(true)
     const localFileList0 = await client.countElem('.ssh-wrap-show .file-list.local .sftp-item')

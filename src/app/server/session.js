@@ -17,9 +17,8 @@ const {
 } = require('./remote-common')
 const { createLogFileName } = require('../common/create-session-log-file-path')
 const SessionLog = require('./session-log')
-// const MockBinding = require('@serialport/binding-mock')
 
-// SerialPort.Binding = MockBinding
+// const { MockBinding } = require('@serialport/binding-mock')
 // MockBinding.createPort('/dev/ROBOT', { echo: true, record: true })
 
 function getDisplay () {
@@ -71,7 +70,7 @@ class Terminal {
   }
 
   async serialInit () {
-    const SerialPort = require('serialport')
+    const { SerialPort } = require('serialport')
     // https://serialport.io/docs/api-stream
     const {
       autoOpen = true,
@@ -87,7 +86,9 @@ class Terminal {
       path
     } = this.initOptions
     await new Promise((resolve, reject) => {
-      this.port = new SerialPort(path, {
+      this.port = new SerialPort({
+        // binding: MockBinding,
+        path,
         autoOpen,
         baudRate,
         dataBits,
@@ -100,6 +101,7 @@ class Terminal {
         xany
       }, (err) => {
         if (err) {
+          console.log(err)
           reject(err)
         } else {
           resolve('ok')
@@ -426,9 +428,9 @@ class Terminal {
     this[this.type + 'Resize'](cols, rows)
   }
 
-  // serialResize () {
+  serialResize () {
 
-  // }
+  }
 
   localResize (cols, rows) {
     this.term.resize(cols, rows)
@@ -442,9 +444,9 @@ class Terminal {
     this[this.type + 'On'](event, cb)
   }
 
-  // serialOn (event, cb) {
-  //   this.port.on(event, cb)
-  // }
+  serialOn (event, cb) {
+    this.port.on(event, cb)
+  }
 
   localOn (event, cb) {
     this.term.on(event, cb)
@@ -473,10 +475,10 @@ class Terminal {
     }
   }
 
-  // serialKill () {
-  //   this.port && this.port.isOpen && this.port.close()
-  //   delete this.port
-  // }
+  serialKill () {
+    this.port && this.port.isOpen && this.port.close()
+    delete this.port
+  }
 
   localKill () {
     this.term && this.term.kill()

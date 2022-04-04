@@ -26,7 +26,7 @@ describe('symbolic links support', function () {
     await delay(2500)
     await client.doubleClick('.ssh-wrap-show .file-list.local .real-file-item')
 
-    await delay(2000)
+    await delay(5000)
     const localFileList = await client.countElem('.ssh-wrap-show .file-list.local .sftp-item')
     expect(localFileList).equal(5)
     await client.click('.ssh-wrap-show .term-sftp-tabs .terminal')
