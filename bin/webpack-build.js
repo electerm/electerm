@@ -4,8 +4,11 @@ const { resolve } = require('path')
 const webpack = resolve(
   __dirname, '../node_modules/.bin/webpack'
 )
+const crossEnv = resolve(
+  __dirname, '../node_modules/.bin/cross-env'
+)
 const conf = resolve(
   __dirname,
   '../build/webpack.config.js'
 )
-exec(`NODE_ENV=production ${webpack} --progress --config ${conf}`)
+exec(`${crossEnv} NODE_ENV=production ${webpack} --progress --config ${conf}`)
