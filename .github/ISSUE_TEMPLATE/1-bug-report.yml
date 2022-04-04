@@ -19,10 +19,13 @@ body:
       required: true
   - type: input
     attributes:
-      label: Platform (平台)
+      label: Platform detail (平台详情)
       description: |
+        windows 7/8/10/11, mac os, or linux
         UNIX: output of `uname -a`
         Windows: output of `"$([Environment]::OSVersion | ForEach-Object VersionString) $(if ([Environment]::Is64BitOperatingSystem) { "x64" } else { "x86" })"` in PowerShell console
+    validations:
+      required: true
   - type: textarea
     attributes:
       label: What steps will reproduce the bug?(重新问题的详细步骤)
