@@ -25,11 +25,11 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
-    - run: yarn
+    - run: npm i
 
     # before_install:
     - run:  npm install -g yarn
-    - run:  yarn remove node-powershell
+    - run:  npm un -S node-powershell
 
     # script:
     - run: PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm i -D playwright --no-save
