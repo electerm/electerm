@@ -160,7 +160,9 @@ export default class BookmarkForm extends PureComponent {
   }
 
   submit = (evt, item, type = this.props.type) => {
-    item.host = item.host.trim()
+    if (item.host) {
+      item.host = item.host.trim()
+    }
     const obj = item
     const { addItem, editItem } = this.props.store
     const categoryId = obj.category
