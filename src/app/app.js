@@ -29,8 +29,9 @@ global.childPid = null
 log.debug('electerm start')
 
 if (process.platform === 'linux') {
-  app.commandLine.appendSwitch('enable-transparent-visuals')
-  app.commandLine.appendSwitch('disable-gpu')
+  app.commandLine.appendSwitch('--enable-transparent-visuals')
+  app.commandLine.appendSwitch('--disable-gpu')
+  app.commandLine.appendSwitch('--in-process-gpu')
   app.disableHardwareAcceleration()
 }
 
@@ -77,7 +78,9 @@ async function createWindow () {
 
   if (isDev) {
     global.win.webContents.once('dom-ready', () => {
-      global.win.webContents.openDevTools()
+      global.win.webContents.openDevTools({
+        mode: 'detach'
+      })
     })
   }
 
