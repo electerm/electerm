@@ -40,5 +40,9 @@ body:
       required: true
   - type: textarea
     attributes:
+      label: Would this happen in other terminal app(是否能够在其他同类软件重现这个问题)
+      description: really important.
+  - type: textarea
+    attributes:
       label: Additional information(其他任何相关信息)
       description: Tell us anything else you think we should know.
