@@ -61,27 +61,32 @@ export default class SessionWrapper extends Component {
     const pane = props.tab.enableSsh !== false
       ? paneMap.terminal
       : paneMap.fileManager
+    const {
+      terminals = [
+        {
+          id,
+          position: 0
+        }
+      ]
+    } = props.tab
+    const activeSplitId = terminals[0].id
     this.state = {
       pid: null,
       pane,
       enableSftp: false,
       splitDirection: terminalSplitDirectionMap.horizontal,
-      activeSplitId: id,
+      activeSplitId,
       key: Math.random(),
       sessionOptions: null,
       sessionId: generate(),
-      terminals: [
-        {
-          id,
-          position: 0
-        }
-      ],
+      terminals,
       showInfo: false,
       infoPanelProps: {}
     }
   }
 
   componentDidMount () {
+    this.updateTab()
     this.initEvent()
   }
 
@@ -157,7 +162,17 @@ export default class SessionWrapper extends Component {
     terminals = rebuildPosition(terminals)
     this.setState({
       terminals
-    })
+    }, this.updateTab)
+  }
+
+  updateTab = () => {
+    const terminals = copy(this.state.terminals)
+    this.props.store.editTab(
+      this.props.tab.id,
+      {
+        terminals
+      }
+    )
   }
 
   delSplit = () => {
@@ -171,7 +186,7 @@ export default class SessionWrapper extends Component {
     this.setState({
       terminals: newTerms,
       activeSplitId: newActiveId
-    })
+    }, this.updateTab)
     this.props.store.focus()
   }
 

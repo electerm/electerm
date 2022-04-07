@@ -104,7 +104,7 @@ export default (store) => {
     for (const s of store.config.onStartSessions || []) {
       store.onSelectBookmark(s)
     }
-    store.addTab()
+    store.initFirstTab()
   }
   store.initData = async () => {
     await store.checkForDbUpgrade()

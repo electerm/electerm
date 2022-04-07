@@ -173,7 +173,9 @@ export default class Tab extends React.Component {
   }
 
   dup = () => {
-    this.props.store.onDuplicateTab(this.props.tab)
+    this.props.store.onDuplicateTab(
+      this.state.tab
+    )
   }
 
   doRename = () => {

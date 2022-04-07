@@ -41,6 +41,7 @@ import { FitAddon } from 'xterm-addon-fit'
 import AttachAddon from './attach-addon-custom'
 import { SearchAddon } from 'xterm-addon-search'
 import { WebLinksAddon } from 'xterm-addon-web-links'
+import { SerializeAddon } from 'xterm-addon-serialize'
 import { Zmodem, AddonZmodem } from './xterm-zmodem'
 import { Unicode11Addon } from 'xterm-addon-unicode11'
 import keyControlPressed from '../../common/key-control-pressed'
@@ -49,12 +50,14 @@ import keyPressed from '../../common/key-pressed'
 import { Terminal } from 'xterm'
 import TerminalInfoIcon from '../terminal-info'
 import Qm from '../quick-commands/quick-commands-select'
+import * as ls from '../../common/safe-local-storage'
 // import resolve from '../../common/resolve'
 import BatchInput from './batch-input'
 // import filesize from 'filesize'
 // import Link from '../common/external-link'
 import NormalBuffer from './normal-buffer'
 import { createTerm, resizeTerm } from './terminal-apis'
+import createLsId from './build-ls-term-is'
 
 const { prefix } = window
 const e = prefix('ssh')
@@ -664,7 +667,18 @@ export default class Term extends Component {
     )
   }
 
+  loadState = term => {
+    const id = createLsId(this.props.stateId || this.state.id)
+    const str = ls.getItem(id)
+    if (str) {
+      term.write(str)
+    }
+  }
+
   notifyOnData = _.debounce(() => {
+    const str = this.serializeAddon.serialize()
+    const id = createLsId(this.state.id)
+    ls.setItem(id, str)
     window.postMessage({
       action: 'terminal-receive-data',
       tabId: this.props.tab.id
@@ -706,16 +720,20 @@ export default class Term extends Component {
     this.fitAddon = new FitAddon()
     this.searchAddon = new SearchAddon()
     const unicode11Addon = new Unicode11Addon()
+    this.serializeAddon = new SerializeAddon()
+    term.loadAddon(this.serializeAddon)
     term.loadAddon(unicode11Addon)
     // activate the new version
     term.unicode.activeVersion = '11'
     term.loadAddon(this.fitAddon)
     term.loadAddon(this.searchAddon)
+    term.onTitleChange(this.onTitleChange)
+    term.onSelectionChange(this.onSelection)
+    this.loadState(term)
     term.open(document.getElementById(id), true)
     term.textarea.addEventListener('focus', this.setActive)
     term.textarea.addEventListener('blur', this.onBlur)
-    term.onTitleChange(this.onTitleChange)
-    term.onSelectionChange(this.onSelection)
+
     // term.on('keydown', this.handleEvent)
     this.term = term
     // if (host && !password && !privateKey) {

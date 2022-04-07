@@ -38,6 +38,15 @@ export default store => {
       return store.setItems('tabs', list)
     },
 
+    initFirstTab () {
+      const tab = newTerm(store.tabs.length)
+      tab.terminals = [{
+        id: 'electerm-init-term',
+        position: 0
+      }]
+      store.addTab(tab)
+    },
+
     addTab (
       tab = newTerm(store.tabs.length),
       index = store.tabs.length
@@ -71,21 +80,37 @@ export default store => {
       )
     },
 
+    processTerminals (tab) {
+      if (!tab.terminals) {
+        return tab
+      }
+      tab.terminals = tab.terminals.map(t => {
+        return {
+          ...t,
+          stateId: t.id,
+          id: generate()
+        }
+      })
+    },
+
     async reloadTab (tabToReload) {
       const tab = copy(
         tabToReload
       )
+      store.processTerminals(tab)
       const { id } = tab
+      const tabs = store.getItems('tabs')
       tab.id = generate()
       tab.status = statusMap.processing
-      const tabs = store.getItems('tabs')
       const index = _.findIndex(tabs, t => t.id === id)
       store.delTab({ id: tabToReload.id })
       await wait(30)
       store.addTab(tab, index)
     },
 
-    onDuplicateTab (tab) {
+    onDuplicateTab (tabToDup) {
+      const tab = copy(tabToDup)
+      store.processTerminals(tab)
       const tabs = store.getItems('tabs')
       const index = _.findIndex(
         tabs,
