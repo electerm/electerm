@@ -17,6 +17,9 @@ const {
 } = require('./remote-common')
 const { createLogFileName } = require('../common/create-session-log-file-path')
 const SessionLog = require('./session-log')
+const {
+  isWin
+} = require('../utils/constants')
 
 // const { MockBinding } = require('@serialport/binding-mock')
 // MockBinding.createPort('/dev/ROBOT', { echo: true, record: true })
@@ -481,7 +484,9 @@ class Terminal {
   }
 
   localKill () {
-    this.term && this.term.kill()
+    if (!isWin) {
+      this.term && this.term.kill()
+    }
   }
 
   remoteKill () {
