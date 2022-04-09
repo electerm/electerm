@@ -5,11 +5,11 @@
 
 const { resolve } = require('path')
 const { dbAction, tables } = require('../lib/nedb')
-const { appPath } = require('../utils/app-props')
+const { appPath } = require('../common/app-props')
 const userConfigPath = resolve(appPath, 'electerm-user-config.json')
 const savePath = resolve(appPath, 'electerm-localstorage.json')
 const { existsSync, unlinkSync, writeFileSync } = require('fs')
-const log = require('../utils/log')
+const log = require('../common/log')
 const _ = require('lodash')
 const { userConfigId } = require('../common/constants')
 const { updateDBVersion } = require('./version-upgrade')

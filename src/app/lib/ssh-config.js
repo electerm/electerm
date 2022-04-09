@@ -6,7 +6,7 @@ const { app } = require('electron')
 const home = app.getPath('home')
 const sshConfig = require('ssh-config')
 const { resolve } = require('path')
-const log = require('../utils/log')
+const log = require('../common/log')
 
 function loadSshConfig () {
   const defaultPort = 22

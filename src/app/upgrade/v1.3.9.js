@@ -5,7 +5,7 @@
 
 const { dbAction, tables } = require('../lib/nedb')
 const { updateDBVersion } = require('./version-upgrade')
-const log = require('../utils/log')
+const log = require('../common/log')
 
 function wait (time) {
   return new Promise(resolve => {

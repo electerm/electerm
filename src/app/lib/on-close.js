@@ -3,7 +3,7 @@
  */
 
 const { dbAction } = require('./nedb')
-const log = require('../utils/log')
+const log = require('../common/log')
 
 exports.getExitStatus = async () => {
   const res = await dbAction('data', 'findOne', {
@@ -38,7 +38,6 @@ exports.onClose = async function () {
   // })
   // log.debug('session saved')
   clearTimeout(global.et.timer)
-  clearTimeout(global.et.timer1)
   global.win = null
   global.app.quit()
 }

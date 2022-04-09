@@ -8,8 +8,9 @@ const {
 } = require('electron')
 const {
   packInfo
-} = require('../utils/constants')
+} = require('../common/runtime-constants')
 const buildMenu = require('./menu')
+const { createDockMenu } = require('./mac-dock-menu')
 const initTray = require('./tray')
 
 function capitalizeFirstLetter (string) {
@@ -29,13 +30,15 @@ function initApp (language, lang, config) {
       return global.et.lang[pre][id] || id
     }
   }
+  const dockMenu = createDockMenu(prefix)
+  global.app.dock.setMenu(dockMenu)
   const menu = buildMenu(prefix)
   Menu.setApplicationMenu(menu)
   initTray(menu)
   const a = prefix('app')
   // handle autohide flag
   if (process.argv.includes('--autohide')) {
-    global.et.timer1 = setTimeout(() => global.win.hide(), 500)
+    global.et.timer = setTimeout(() => global.win.hide(), 500)
     if (Notification.isSupported()) {
       const notice = new Notification({
         title: `${packInfo.name} ${a('isRunning')}, ${a('press')} ${config.hotkey} ${a('toShow')}`

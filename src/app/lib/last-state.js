@@ -3,7 +3,7 @@
  */
 
 const { dbAction } = require('./nedb')
-const log = require('../utils/log')
+const log = require('../common/log')
 
 const set = (key, value) => {
   return dbAction('lastStates', 'update', {

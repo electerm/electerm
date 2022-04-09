@@ -3,7 +3,7 @@ const {
   isWin,
   isMac,
   isArm
-} = require('../utils/constants')
+} = require('../common/runtime-constants')
 
 let init = 'not-inited'
 if (isWin) {

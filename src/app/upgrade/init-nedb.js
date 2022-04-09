@@ -4,7 +4,7 @@
  */
 
 const { dbAction } = require('../lib/nedb')
-const log = require('../utils/log')
+const log = require('../common/log')
 const defaults = require('./db-defaults')
 
 async function initData () {

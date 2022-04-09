@@ -102,7 +102,7 @@ function renderContext (store) {
         className={cls}
         onClick={store.onNewSsh}
       >
-        <CodeFilled /> {e('newSsh')}
+        <CodeFilled /> {e('newBookmark')}
         <span className='context-sub-text'>{ctrlOrCmd}+N</span>
       </div>
       <div

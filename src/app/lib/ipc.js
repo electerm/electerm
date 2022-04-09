@@ -29,7 +29,7 @@ const lastStateManager = require('./last-state')
 const {
   packInfo,
   appPath
-} = require('../utils/app-props')
+} = require('../common/app-props')
 const {
   getScreenSize,
   maximize,
@@ -96,7 +96,11 @@ function initIpc () {
       y === sy
   }
   const syncFuncs = {
-    isMaximized
+    getArgs: () => {
+      return global.rawArgs
+    },
+    isMaximized,
+    isSencondInstance: () => global.app.isSencondInstance
   }
   ipcMain.on('sync-func', (event, { name, args }) => {
     event.returnValue = syncFuncs[name](...args)

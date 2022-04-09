@@ -1,5 +1,5 @@
 /**
- * app path
+ * run time contants
  */
 
 const os = require('os')
@@ -34,7 +34,7 @@ const extIconPath = isDev
   ? '/node_modules/vscode-icons/icons/'
   : 'icons/'
 
-const defaultUserName = require('../common/default-user-name')
+const defaultUserName = require('./default-user-name')
 
 module.exports = {
   isDev,

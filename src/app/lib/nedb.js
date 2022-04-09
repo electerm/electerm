@@ -2,7 +2,7 @@
  * nedb api wrapper
  */
 
-const { appPath, defaultUserName } = require('../utils/app-props')
+const { appPath, defaultUserName } = require('../common/app-props')
 const { resolve } = require('path')
 const Datastore = require('@yetzt/nedb')
 const { existsSync } = require('fs')

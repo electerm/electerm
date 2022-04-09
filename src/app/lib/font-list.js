@@ -2,7 +2,7 @@
  * load font list after start
  */
 
-const log = require('../utils/log')
+const log = require('../common/log')
 
 exports.loadFontList = () => {
   return require('font-list').getFonts()

@@ -2,7 +2,7 @@
  * get first free open port
  */
 
-const log = require('../utils/log')
+const log = require('../common/log')
 
 let port = null
 
