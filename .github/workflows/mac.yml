@@ -40,6 +40,7 @@ jobs:
       with:
         run: npm run test
       env:
+        NODE_TEST: 1
         TEST_HOST: ${{ secrets.TEST_HOST }}
         TEST_USER: ${{ secrets.TEST_USER_DARWIN }}
         TEST_PASS: ${{ secrets.TEST_PASS_DARWIN }}
