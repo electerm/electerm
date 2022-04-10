@@ -12,7 +12,7 @@ const {
 } = require('./remote-common')
 const { Transfer } = require('./transfer')
 const fs = require('./fs')
-const log = require('../utils/log')
+const log = require('../common/log')
 const { Upgrade } = require('./download-upgrade')
 const fetch = require('./fetch')
 const sync = require('./sync')

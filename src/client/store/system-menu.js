@@ -73,6 +73,10 @@ export default store => {
       store.openModal()
     },
 
+    async onNewWindow () {
+      // todo
+    },
+
     confirmExit (type) {
       let mod = null
       mod = Modal.confirm({

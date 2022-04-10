@@ -1,5 +1,5 @@
 /**
- * app path
+ * run time contants
  */
 
 const os = require('os')
@@ -12,7 +12,7 @@ const isMac = platform === 'darwin'
 const isLinux = platform === 'linux'
 const isArm = arch.includes('arm')
 
-const { NODE_ENV } = process.env
+const { NODE_ENV, NODE_TEST } = process.env
 const isDev = NODE_ENV === 'development'
 const iconPath = resolve(
   __dirname,
@@ -34,9 +34,10 @@ const extIconPath = isDev
   ? '/node_modules/vscode-icons/icons/'
   : 'icons/'
 
-const defaultUserName = require('../common/default-user-name')
+const defaultUserName = require('./default-user-name')
 
 module.exports = {
+  isTest: !!NODE_TEST,
   isDev,
   isWin,
   isMac,

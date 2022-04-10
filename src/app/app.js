@@ -1,144 +1,19 @@
 
+/**
+ * app entry
+ */
 require('v8-compile-cache')
-const {
-  app,
-  BrowserWindow
-} = require('electron')
-const { resolve } = require('path')
-const log = require('./utils/log')
-const {
-  isDev, packInfo, iconPath,
-  minWindowWidth, minWindowHeight
-} = require('./utils/constants')
-const {
-  getWindowSize
-} = require('./lib/window-control')
-const { onClose } = require('./lib/on-close')
-const initIpc = require('./lib/ipc')
-const { getDbConfig } = require('./lib/get-config')
-const { parseCommandLine, initCommandLine } = require('./lib/command-line')
+const log = require('./common/log')
+const { createApp } = require('./lib/create-app')
 
-app.setName(packInfo.name)
 global.et = {
-  timer: null,
-  timer1: null
+  timer: null
 }
 global.win = null
 global.childPid = null
 
 log.debug('electerm start')
 
-if (process.platform === 'linux') {
-  app.commandLine.appendSwitch('--enable-transparent-visuals')
-  app.commandLine.appendSwitch('--disable-gpu')
-  app.commandLine.appendSwitch('--in-process-gpu')
-  app.disableHardwareAcceleration()
-}
-
-async function createWindow () {
-  const userConfig = await getDbConfig() || {}
-  const { width, height } = await getWindowSize()
-  const { useSystemTitleBar } = userConfig
-
-  global.win = new BrowserWindow({
-    width,
-    height,
-    fullscreenable: true,
-    // fullscreen: true,
-    title: packInfo.name,
-    frame: useSystemTitleBar,
-    transparent: !useSystemTitleBar,
-    backgroundColor: '#33333300',
-    webPreferences: {
-      contextIsolation: false,
-      nodeIntegration: false,
-      enableRemoteModule: false,
-      preload: resolve(__dirname, './preload/preload.js')
-    },
-    titleBarStyle: useSystemTitleBar ? 'default' : 'customButtonsOnHover',
-    icon: iconPath
-  })
-
-  initIpc()
-
-  let opts
-
-  if (isDev) {
-    const { devPort = 5570 } = process.env
-    opts = `http://127.0.0.1:${devPort}`
-  } else {
-    opts = require('url').format({
-      protocol: 'file',
-      slashes: true,
-      pathname: resolve(__dirname, 'assets', 'index.html')
-    })
-  }
-
-  global.win.loadURL(opts)
-
-  if (isDev) {
-    global.win.webContents.once('dom-ready', () => {
-      global.win.webContents.openDevTools({
-        mode: 'detach'
-      })
-    })
-  }
-
-  global.win.on('unmaximize', () => {
-    const { width, height } = global.win.getBounds()
-    if (width < minWindowWidth || height < minWindowHeight) {
-      global.win.setBounds({
-        x: 0,
-        y: 0,
-        width: minWindowWidth,
-        height: minWindowHeight
-      })
-      global.win.center()
-    }
-  })
-  // Emitted when the window is closed.
-  global.win.on('close', onClose)
-  global.win.on('focus', () => {
-    global.win.webContents.send('focused', null)
-  })
-}
-
-const useStandAloneWindow = initCommandLine()?.options?.newWindow
-let gotTheLock = false
-if (!useStandAloneWindow) {
-  gotTheLock = app.requestSingleInstanceLock()
-}
-if (!gotTheLock && !useStandAloneWindow) {
-  app.quit()
-}
-
-app.on('second-instance', (event, argv, wd) => {
-  const prog = parseCommandLine(argv)
-  const opts = {
-    options: prog.opts(),
-    argv,
-    helpInfo: prog.helpInformation()
-  }
-  if (global.win) {
-    if (global.win.isMinimized()) {
-      global.win.restore()
-    }
-    global.win.focus()
-    global.win.webContents.send('add-tab-from-command-line', opts)
-  }
-})
-
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
-// Some APIs can only be used after this event occurs.
-app.on('ready', createWindow)
-
-app.on('activate', () => {
-  // On macOS it's common to re-create a window in the app when the
-  // dock icon is clicked and there are no other windows open.
-  if (global.win === null) {
-    createWindow()
-  }
-})
+const app = createApp()
 
 global.app = app

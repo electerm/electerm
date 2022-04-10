@@ -4,7 +4,7 @@
 
 const lastStateManager = require('./last-state')
 // const log = require('./log')
-const { isDev, minWindowWidth, minWindowHeight } = require('../utils/constants')
+const { isDev, minWindowWidth, minWindowHeight } = require('../common/runtime-constants')
 
 exports.getScreenCurrent = () => {
   const rect = global.win

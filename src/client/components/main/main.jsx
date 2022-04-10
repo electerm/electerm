@@ -36,6 +36,7 @@ export default class Index extends Component {
     ipcOnEvent('checkupdate', store.onCheckUpdate)
     ipcOnEvent('open-about', store.openAbout)
     ipcOnEvent('new-ssh', store.onNewSsh)
+    // ipcOnEvent('new-window', store.onNewWindow)
     ipcOnEvent('add-tab-from-command-line', store.addTabFromCommandLine)
     ipcOnEvent('openSettings', store.openSetting)
     ipcOnEvent('selectall', store.selectall)
@@ -70,7 +71,8 @@ export default class Index extends Component {
       updateConfig,
       config,
       terminalFullScreen,
-      pinned
+      pinned,
+      isSencondInstance
     } = store
     const tabs = store.getTabs()
     const cls = classnames({
@@ -78,7 +80,8 @@ export default class Index extends Component {
       'is-mac': isMac,
       'is-win': isWin,
       pinned,
-      'term-fullscreen': terminalFullScreen
+      'term-fullscreen': terminalFullScreen,
+      'is-main': !isSencondInstance
     })
     const ext1 = {
       className: cls

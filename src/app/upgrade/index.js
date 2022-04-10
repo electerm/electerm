@@ -4,11 +4,11 @@
  * run every upgrade script one by one
  */
 
-const { packInfo, appPath } = require('../utils/app-props')
+const { packInfo, appPath } = require('../common/app-props')
 const { version: packVersion } = packInfo
 const { resolve } = require('path')
 const fs = require('fs')
-const log = require('../utils/log')
+const log = require('../common/log')
 const compare = require('../common/version-compare')
 const { dbAction } = require('../lib/nedb')
 const _ = require('lodash')

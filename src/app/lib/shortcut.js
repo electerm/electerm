@@ -2,7 +2,7 @@
  * shortcut controll
  */
 
-const log = require('../utils/log')
+const log = require('../common/log')
 
 let shortcut
 

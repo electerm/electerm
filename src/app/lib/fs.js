@@ -2,9 +2,9 @@ const promisifyAll = require('util-promisifyall')
 const { spawn } = require('child_process')
 const fs = require('original-fs')
 const fss = promisifyAll(fs)
-const log = require('../utils/log')
+const log = require('../common/log')
 const tar = require('tar')
-const { isWin, isMac, tempDir } = require('../utils/constants')
+const { isWin, isMac, tempDir } = require('../common/runtime-constants')
 const uid = require('../common/uid')
 const { isWinDrive } = require('../common/is-win-drive')
 const path = require('path')
@@ -15,6 +15,7 @@ const ROOT_PATH = '/'
  * @param {string} cmd
  */
 const run = (cmd) => {
+  console.log('ggg', cmd)
   const { Bash } = require('node-bash')
   const ps = new Bash({
     executableOptions: {

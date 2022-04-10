@@ -3,8 +3,8 @@
  */
 
 const { Tray } = require('electron')
-const { trayIconPath, packInfo, minWindowHeight, minWindowWidth } = require('../utils/constants')
-const log = require('../utils/log')
+const { trayIconPath, packInfo, minWindowHeight, minWindowWidth } = require('../common/runtime-constants')
+const log = require('../common/log')
 
 function initTray (menu) {
   const tray = new Tray(trayIconPath)

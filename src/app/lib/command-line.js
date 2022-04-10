@@ -3,10 +3,8 @@
  */
 
 const { Command } = require('commander')
-
-const { packInfo } = require('../utils/app-props')
+const { packInfo, isTest } = require('../common/app-props')
 const { version } = packInfo
-const isTest = process.env.NODE_TEST
 
 let helpInfo
 let options

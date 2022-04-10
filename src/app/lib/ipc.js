@@ -28,8 +28,9 @@ const { changeHotkeyReg, initShortCut } = require('./shortcut')
 const lastStateManager = require('./last-state')
 const {
   packInfo,
-  appPath
-} = require('../utils/app-props')
+  appPath,
+  isTest
+} = require('../common/app-props')
 const {
   getScreenSize,
   maximize,
@@ -96,7 +97,13 @@ function initIpc () {
       y === sy
   }
   const syncFuncs = {
-    isMaximized
+    getArgs: () => {
+      return global.rawArgs
+    },
+    isMaximized,
+    isSencondInstance: () => {
+      return isTest ? false : global.app.isSencondInstance
+    }
   }
   ipcMain.on('sync-func', (event, { name, args }) => {
     event.returnValue = syncFuncs[name](...args)

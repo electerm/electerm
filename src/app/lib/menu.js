@@ -6,7 +6,7 @@ const {
   Menu,
   shell
 } = require('electron')
-const { packInfo } = require('../utils/constants')
+const { packInfo } = require('../common/runtime-constants')
 
 function buildMenu (prefix) {
   const e = prefix('menu')
@@ -18,7 +18,7 @@ function buildMenu (prefix) {
       label: e('edit'),
       submenu: [
         {
-          label: c('newSsh'),
+          label: c('newBookmark'),
           accelerator: 'CmdOrCtrl+N',
           click () {
             global.win.webContents.send('new-ssh', null)

@@ -9,7 +9,7 @@ const generate = require('../common/uid')
 const { resolve } = require('path')
 const net = require('net')
 const { exec } = require('child_process')
-const log = require('../utils/log')
+const log = require('../common/log')
 const alg = require('./ssh2-alg')
 const { readRemoteFile, writeRemoteFile } = require('./sftp-file')
 const {
@@ -19,7 +19,7 @@ const { createLogFileName } = require('../common/create-session-log-file-path')
 const SessionLog = require('./session-log')
 const {
   isWin
-} = require('../utils/constants')
+} = require('../common/runtime-constants')
 
 // const { MockBinding } = require('@serialport/binding-mock')
 // MockBinding.createPort('/dev/ROBOT', { echo: true, record: true })

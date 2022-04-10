@@ -5,7 +5,7 @@
 
 const { fork } = require('child_process')
 const { resolve } = require('path')
-const log = require('../utils/log')
+const log = require('../common/log')
 
 module.exports = (config, env, sysLocale) => {
   // start server

@@ -4,7 +4,7 @@
 
 const GitHubOri = require('gist-wrapper').default
 const GiteeOri = require('gitee-client').default
-const log = require('../utils/log')
+const log = require('../common/log')
 const {
   createAgent
 } = require('./download-upgrade')

@@ -3,6 +3,9 @@
  */
 
 import _ from 'lodash'
+import {
+  message
+} from 'antd'
 import generate from '../common/uid'
 import copy from 'json-deep-copy'
 import {
@@ -14,6 +17,8 @@ import {
 import { buildNewTheme } from '../common/terminal-theme'
 import getInitItem from '../common/init-setting-item'
 
+const { prefix } = window
+const m = prefix('menu')
 const defaultStatus = statusMap.processing
 
 export default store => {
@@ -141,6 +146,11 @@ export default store => {
     },
 
     openModal () {
+      if (store.isSencondInstance) {
+        return message.warn(
+          m('sencondInstanceTip')
+        )
+      }
       store.showModal = true
     },
 
