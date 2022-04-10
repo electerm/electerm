@@ -49,7 +49,7 @@ exports.createWindow = async function () {
     opts = require('url').format({
       protocol: 'file',
       slashes: true,
-      pathname: resolve(__dirname, 'assets', 'index.html')
+      pathname: resolve(__dirname, '../assets/index.html')
     })
   }
 
