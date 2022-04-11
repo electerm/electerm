@@ -10,9 +10,6 @@ const {
   packInfo
 } = require('../common/runtime-constants')
 const buildMenu = require('./menu')
-const {
-  isMac
-} = require('../common/app-props')
 const { buildDocMenu } = require('./dock-menu')
 const initTray = require('./tray')
 
