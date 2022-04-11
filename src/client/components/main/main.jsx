@@ -36,7 +36,6 @@ export default class Index extends Component {
     ipcOnEvent('checkupdate', store.onCheckUpdate)
     ipcOnEvent('open-about', store.openAbout)
     ipcOnEvent('new-ssh', store.onNewSsh)
-    // ipcOnEvent('new-window', store.onNewWindow)
     ipcOnEvent('add-tab-from-command-line', store.addTabFromCommandLine)
     ipcOnEvent('openSettings', store.openSetting)
     ipcOnEvent('selectall', store.selectall)

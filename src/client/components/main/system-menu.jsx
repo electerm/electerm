@@ -21,7 +21,8 @@ import {
   RightSquareFilled,
   SettingOutlined,
   SwitcherFilled,
-  UpCircleOutlined
+  UpCircleOutlined,
+  WindowsOutlined
 } from '@ant-design/icons'
 
 import { Button } from 'antd'
@@ -110,6 +111,12 @@ function renderContext (store) {
         onClick={() => store.addTab()}
       >
         <RightSquareFilled /> {t('newTab')}
+      </div>
+      <div
+        className={cls}
+        onClick={() => store.onNewWindow()}
+      >
+        <WindowsOutlined /> {e('newWindow')}
       </div>
       <hr />
       <div

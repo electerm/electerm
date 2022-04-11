@@ -74,7 +74,7 @@ export default store => {
     },
 
     async onNewWindow () {
-      // todo
+      window.pre.runGlobalAsync('openNewIsntance')
     },
 
     confirmExit (type) {

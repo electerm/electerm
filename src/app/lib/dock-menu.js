@@ -4,20 +4,13 @@
 const {
   Menu
 } = require('electron')
-const { spawn } = require('child_process')
-
-function openNewIsntance () {
-  const [cmd, ...args] = process.argv
-  spawn(cmd, args, {
-    cwd: process.cwd()
-  })
-}
+const openNewIsntance = require('./open-new-instance')
 
 exports.buildDocMenu = function (prefix) {
-  const e = prefix('menu')
+  const e = prefix('control')
   return Menu.buildFromTemplate([
     {
-      label: e('New Window'),
+      label: e('newWindow'),
       click () {
         console.log(process.argv)
         openNewIsntance()

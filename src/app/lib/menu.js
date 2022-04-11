@@ -6,6 +6,7 @@ const {
   Menu,
   shell
 } = require('electron')
+const openNewIsntance = require('./open-new-instance')
 const { packInfo } = require('../common/runtime-constants')
 
 function buildMenu (prefix) {
@@ -19,9 +20,16 @@ function buildMenu (prefix) {
       submenu: [
         {
           label: c('newBookmark'),
-          accelerator: 'CmdOrCtrl+N',
+          accelerator: 'CmdOrCtrl+T',
           click () {
             global.win.webContents.send('new-ssh', null)
+          }
+        },
+        {
+          label: c('newWindow'),
+          accelerator: 'CmdOrCtrl+N',
+          click () {
+            openNewIsntance()
           }
         },
         {
