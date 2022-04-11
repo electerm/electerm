@@ -10,6 +10,10 @@ const {
   packInfo
 } = require('../common/runtime-constants')
 const buildMenu = require('./menu')
+const {
+  isMac
+} = require('../common/app-props')
+const { buildDocMenu } = require('./dock-menu')
 const initTray = require('./tray')
 
 function capitalizeFirstLetter (string) {
@@ -29,6 +33,8 @@ function initApp (language, lang, config) {
       return global.et.lang[pre][id] || id
     }
   }
+  const dockMenu = buildDocMenu(prefix)
+  global.app.dock.setMenu(dockMenu)
   const menu = buildMenu(prefix)
   Menu.setApplicationMenu(menu)
   initTray(menu)
