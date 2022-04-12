@@ -1001,6 +1001,9 @@ export default class Sftp extends Component {
   }
 
   renderSections () {
+    if (!this.isActive()) {
+      return null
+    }
     const arr = [
       typeMap.local,
       typeMap.remote
@@ -1044,9 +1047,6 @@ export default class Sftp extends Component {
   }
 
   render () {
-    if (!this.isActive()) {
-      return null
-    }
     const { height } = this.props
     const {
       id
