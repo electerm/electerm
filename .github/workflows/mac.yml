@@ -32,7 +32,7 @@ jobs:
     - run:  npm un -S node-powershell
 
     # script:
-    - run: PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm i -D playwright --no-save
+    - run: PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm i -D playwright@1.20.2 --no-save
     - run: npm run pre-test
 
     - name: test
