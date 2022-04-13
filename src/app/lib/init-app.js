@@ -7,7 +7,8 @@ const {
   Notification
 } = require('electron')
 const {
-  packInfo
+  packInfo,
+  isMac
 } = require('../common/runtime-constants')
 const buildMenu = require('./menu')
 const { buildDocMenu } = require('./dock-menu')
@@ -30,8 +31,10 @@ function initApp (language, lang, config) {
       return global.et.lang[pre][id] || id
     }
   }
-  const dockMenu = buildDocMenu(prefix)
-  global.app.dock.setMenu(dockMenu)
+  if (isMac) {
+    const dockMenu = buildDocMenu(prefix)
+    global.app.dock.setMenu(dockMenu)
+  }
   const menu = buildMenu(prefix)
   Menu.setApplicationMenu(menu)
   initTray(menu)
