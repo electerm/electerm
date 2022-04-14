@@ -812,7 +812,8 @@ export default class Term extends Component {
     const { cols, rows } = term
     const { config } = this.props
     const { host, port, tokenElecterm } = config
-    const { tab = {}, sessionId, terminalIndex, id, logName } = this.props
+    const { sessionId, terminalIndex, id, logName } = this.props
+    const tab = deepCopy(this.props.tab || {})
     const {
       srcId, from = 'bookmarks',
       type, loginScript,
@@ -827,7 +828,7 @@ export default class Term extends Component {
       ? typeMap.local
       : type
     const extra = this.props.sessionOptions
-    let pid = await createTerm({
+    const opts = {
       cols,
       rows,
       term: terminalType || config.terminalType,
@@ -855,7 +856,9 @@ export default class Term extends Component {
       type: tab.host && !isSshConfig
         ? typeMap.remote
         : typeMap.local
-    })
+    }
+    delete opts.terminals
+    let pid = await createTerm(opts)
       .catch(err => {
         const text = err.message
         if (text.includes(authFailMsg)) {

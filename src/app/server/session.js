@@ -198,6 +198,7 @@ class Terminal {
             return reject(err)
           }
           this.channel = channel
+          this.conn = conn
           connInst.terminals[this.pid] = this
           resolve(true)
         }
@@ -487,6 +488,7 @@ class Terminal {
     if (!isWin) {
       this.term && this.term.kill()
     }
+    this.onEndConn()
   }
 
   remoteKill () {

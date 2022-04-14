@@ -513,7 +513,7 @@ export default class Sftp extends Component {
             loadingSftp: true
           }
         })
-        const r = await sftp.connect({
+        const opts = deepCopy({
           ...tab,
           readyTimeout: _.get(config, 'sshReadyTimeout'),
           sessionId,
@@ -521,6 +521,8 @@ export default class Sftp extends Component {
           proxy: mergeProxy(config, tab),
           ...sessionOptions
         })
+        delete opts.terminals
+        const r = await sftp.connect(opts)
           .catch(e => {
             if (
               e &&
