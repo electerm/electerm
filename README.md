@@ -124,7 +124,8 @@ npm run pre-test
 cp .sample.env .env
 
 # install playwright
-PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm i -D playwright --no-save
+PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm i -D playwright@1.20.2 --no-save
+
 # then edit .env, fill your test host/username/password
 npm run test
 ```
