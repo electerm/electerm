@@ -3,8 +3,11 @@
  */
 
 import {
-  settingMap
+  settingMap,
+  openedSidebarKey,
+  sidebarPinnedKey
 } from '../common/constants'
+import * as ls from '../common/safe-local-storage'
 
 export default store => {
   Object.assign(store, {
@@ -21,11 +24,14 @@ export default store => {
     },
 
     setOpenedSideBar (bar) {
+      ls.setItem(openedSidebarKey, bar)
       store.openedSideBar = bar
     },
 
     pin (pinned) {
-      store.pinned = !store.pinned
+      const current = !store.pinned
+      ls.setItem(sidebarPinnedKey, current + '')
+      store.pinned = current
     },
 
     onClickBookmark () {

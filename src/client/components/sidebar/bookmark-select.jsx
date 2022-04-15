@@ -21,9 +21,7 @@ export default class BookmarkSelect extends Component {
     }
     const onClickItem = (item) => {
       if (!store.pinned) {
-        store.storeAssign({
-          openedSideBar: ''
-        })
+        store.setOpenedSideBar('')
       }
       store.onSelectBookmark(item.id)
     }

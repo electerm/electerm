@@ -137,7 +137,8 @@ export const terminalSplitDirectionMap = buildConst([
 export const terminalSshConfigType = 'ssh-config'
 export const terminalSerialType = 'serial'
 export const terminalLocalType = 'local'
-
+export const openedSidebarKey = 'opened-sidebar'
+export const sidebarPinnedKey = 'sidebar-pinned'
 // https://github.com/tinkertrain/panda-syntax-vscode/blob/master/themes/workbench.yaml
 export const defaultTheme = {
   id: 'default',
