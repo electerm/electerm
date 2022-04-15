@@ -19,8 +19,12 @@ import copy from 'json-deep-copy'
 import classnames from 'classnames'
 import {
   tabsHeight,
-  terminalSplitDirectionMap, termControlHeight,
-  paneMap, terminalSshConfigType, ctrlOrCmd
+  terminalSplitDirectionMap,
+  termControlHeight,
+  paneMap,
+  terminalSshConfigType,
+  ctrlOrCmd,
+  footerHeight
 } from '../../common/constants'
 import ResizeWrap from '../common/resize-wrap'
 import keyControlPressed from '../../common/key-control-pressed'
@@ -130,7 +134,7 @@ export default class SessionWrapper extends Component {
   }
 
   computeHeight = () => {
-    return this.props.height - tabsHeight
+    return this.props.height - tabsHeight - footerHeight
   }
 
   onChangePane = pane => {

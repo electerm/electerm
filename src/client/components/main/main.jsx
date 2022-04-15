@@ -21,6 +21,7 @@ import classnames from 'classnames'
 import { isMac, isWin } from '../../common/constants'
 import TermFullscreenControl from './term-fullscreen-control'
 import { init } from '../../common/fetch-from-server'
+import Footer from '../footer/footer-entry'
 import './wrapper.styl'
 
 export default class Index extends Component {
@@ -197,6 +198,7 @@ export default class Index extends Component {
                 )
               })
             }
+            <Footer store={store} />
           </div>
         </div>
       </div>

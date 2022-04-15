@@ -80,6 +80,7 @@ export const authTypeMap = buildConst([
 
 export const maxTransferHistory = 100
 export const topMenuHeight = window._config.useSystemTitleBar ? 0 : 15
+export const footerHeight = 32
 export const tabsHeight = window._config.useSystemTitleBar ? 45 : 56
 
 export const isWin = window.pre.isWin
