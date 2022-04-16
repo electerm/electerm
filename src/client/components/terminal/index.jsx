@@ -52,7 +52,7 @@ import { Terminal } from 'xterm'
 import * as ls from '../../common/safe-local-storage'
 import NormalBuffer from './normal-buffer'
 import { createTerm, resizeTerm } from './terminal-apis'
-import createLsId from './build-ls-term-is'
+import createLsId from './build-ls-term-id'
 
 const { prefix } = window
 const e = prefix('ssh')

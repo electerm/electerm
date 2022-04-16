@@ -7,7 +7,7 @@ import { InfoCircleOutlined } from '@ant-design/icons'
 import './footer.styl'
 import { paneMap, terminalActions, statusMap } from '../../common/constants'
 import postMessage from '../../common/post-msg'
-import BatchInput from '../terminal/batch-input'
+import BatchInput from './batch-input'
 import encodes from '../bookmark-form/encodes'
 import Qm from '../quick-commands/quick-commands-select'
 
