@@ -126,7 +126,7 @@ cp .sample.env .env
 # install playwright
 PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm i -D playwright@1.20.2 --no-save
 
-# then edit .env, fill your test host/username/password
+# then edit .env, fill your test host/username/password, may only works in mac OS
 npm run test
 ```
 
