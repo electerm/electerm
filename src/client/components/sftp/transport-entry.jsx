@@ -5,6 +5,7 @@ import ConflictHandler from './transfer-conflict'
 import TransfersHandler from './transports-action'
 import deepCopy from 'json-deep-copy'
 import runIdle from '../../common/run-idle'
+import { commonActions } from '../../common/constants'
 import _ from 'lodash'
 
 export default class TransferEntry extends PureComponent {
@@ -26,10 +27,18 @@ export default class TransferEntry extends PureComponent {
   }
 
   onAdd = e => {
-    if (!e || !e.data || e.data.sessionId !== this.props.sessionId) {
+    const {
+      sessionId,
+      list,
+      action
+    } = e?.data || {}
+    if (
+      action !== commonActions.addTransfer ||
+      sessionId !== this.props.sessionId
+    ) {
       return false
     }
-    this.addTransferList(e.data.list)
+    this.addTransferList(list)
   }
 
   modifier = (...args) => {

@@ -25,7 +25,8 @@ import {
   eventTypes,
   fileTypeMap,
   terminalSshConfigType, terminalSerialType,
-  unexpectedPacketErrorDesc, sftpRetryInterval
+  unexpectedPacketErrorDesc, sftpRetryInterval,
+  commonActions
 } from '../../common/constants'
 import { hasFileInClipboardText } from '../../common/clipboard'
 import Client from '../../common/sftp'
@@ -38,6 +39,7 @@ import deepCopy from 'json-deep-copy'
 import isValidPath from '../../common/is-valid-path'
 import memoizeOne from 'memoize-one'
 import TransportEntry from './transport-entry'
+import postMessage from '../../common/post-msg'
 import * as owner from './owner-list'
 import './sftp.styl'
 
@@ -184,12 +186,12 @@ export default class Sftp extends Component {
   }
 
   onResizeDragEnd = () => {
-    window.postMessage({
+    postMessage({
       type: eventTypes.resetFileListTable,
       data: {
         id: this.state.id
       }
-    }, '*')
+    })
   }
 
   selectAll = (type, e) => {
@@ -413,10 +415,11 @@ export default class Sftp extends Component {
   }
 
   addTransferList = list => {
-    window.postMessage({
+    postMessage({
       list,
+      action: commonActions.addTransfer,
       sessionId: this.props.sessionId
-    }, '*')
+    })
   }
 
   computeListHeight = () => {

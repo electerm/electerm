@@ -6,6 +6,7 @@ import { mergeProxy } from '../../common/merge-proxy'
 import generate from '../../common/uid'
 import _ from 'lodash'
 import { runCmds } from '../terminal-info/run-cmd'
+import postMessage from '../../common/post-msg'
 
 import {
   BorderHorizontalOutlined,
@@ -20,8 +21,7 @@ import {
   SwitcherOutlined
 } from '@ant-design/icons'
 
-import { Spin, Modal, Button, Checkbox, Select } from 'antd'
-import encodes from '../bookmark-form/encodes'
+import { Spin, Modal, Button, Checkbox } from 'antd'
 import Input from '../common/input-auto-focus'
 import classnames from 'classnames'
 import './terminal.styl'
@@ -34,7 +34,7 @@ import {
   terminalSshConfigType,
   transferTypeMap,
   defaultLoginScriptDelay,
-  messageActions
+  terminalActions
 } from '../../common/constants'
 import deepCopy from 'json-deep-copy'
 import { readClipboard, copy } from '../../common/clipboard'
@@ -49,13 +49,7 @@ import keyControlPressed from '../../common/key-control-pressed'
 import keyShiftPressed from '../../common/key-shift-pressed'
 import keyPressed from '../../common/key-pressed'
 import { Terminal } from 'xterm'
-import TerminalInfoIcon from '../terminal-info'
-import Qm from '../quick-commands/quick-commands-select'
 import * as ls from '../../common/safe-local-storage'
-// import resolve from '../../common/resolve'
-import BatchInput from './batch-input'
-// import filesize from 'filesize'
-// import Link from '../common/external-link'
 import NormalBuffer from './normal-buffer'
 import { createTerm, resizeTerm } from './terminal-apis'
 import createLsId from './build-ls-term-is'
@@ -223,7 +217,8 @@ export default class Term extends Component {
       type,
       cmd,
       activeSplitId,
-      toAll
+      toAll,
+      inputOnly
     } = e?.data || {}
     const { activeSplitId: propActiveSplitId } = this.props.tab
     if (
@@ -235,51 +230,52 @@ export default class Term extends Component {
     ) {
       this.batchInput(e.data.cmd)
     } else if (
-      action === 'open-terminal-search' &&
-      id === this.props.id
-    ) {
-      this.openSearch()
-    } else if (
-      action === messageActions.changeEncode &&
+      action === terminalActions.changeEncode &&
       propActiveSplitId === activeSplitId
     ) {
       this.switchEncoding(encode)
     } else if (
-      action === messageActions.batchInput &&
+      action === terminalActions.batchInput &&
       (
         toAll || propActiveSplitId === activeSplitId
       )
     ) {
       this.batchInput(cmd)
     } else if (
-      action === messageActions.showInfoPanel &&
+      action === terminalActions.showInfoPanel &&
       (
         propActiveSplitId === activeSplitId
       )
     ) {
       this.handleShowInfo()
+    } else if (
+      action === terminalActions.quickCommand &&
+      (
+        propActiveSplitId === activeSplitId
+      )
+    ) {
+      e.stopPropagation()
+      this.term && this.attachAddon._sendData(
+        cmd +
+        (inputOnly ? '' : '\r')
+      )
+      this.term.focus()
+    } else if (
+      action === terminalActions.openTerminalSearch &&
+      (
+        propActiveSplitId === activeSplitId
+      )
+    ) {
+      this.openSearch()
     }
     const isActiveTerminal = this.isActiveTerminal()
     if (
-      e.data &&
-      e.data.type === 'focus' &&
+      type === 'focus' &&
       isActiveTerminal
     ) {
       e.stopPropagation()
       return this.term && this.term.focus()
-    } else if (
-      e.data &&
-      e.data.action === 'quick-command' &&
-      isActiveTerminal
-    ) {
-      e.stopPropagation()
-      this.term && e.data.command && this.attachAddon._sendData(
-        e.data.command +
-        (e.data.inputOnly ? '' : '\r')
-      )
-      this.term.focus()
     }
-
     if (
       keyControlPressed(e) &&
       keyShiftPressed(e) &&
@@ -287,7 +283,7 @@ export default class Term extends Component {
     ) {
       e.stopPropagation()
       this.copySelectionToClipboard()
-    } else if (e.data && e.data.id === this.props.id) {
+    } else if (id === this.props.id) {
       e.stopPropagation()
       this.term.selectAll()
     } else if (
@@ -421,29 +417,6 @@ export default class Term extends Component {
       )
       .catch(this.props.store.onError)
   }
-
-  // transferBySftp = async (files) => {
-  //   const pwd = await this.getPwd()
-  //   if (!pwd) {
-  //     return
-  //   }
-  //   const transfers = files.map(f => {
-  //     const { name } = getFolderFromFilePath(f.path)
-  //     return {
-  //       typeFrom: typeMap.local,
-  //       typeTo: typeMap.remote,
-  //       fromPath: f.path,
-  //       toPath: resolve(pwd, name),
-  //       id: generate()
-  //     }
-  //   })
-  //   window.postMessage({
-  //     type: 'add-transfer',
-  //     sessionId: this.props.sessionId,
-  //     transfers
-  //   }, '*')
-  //   this.props.onChangePane(paneMap.sftp)
-  // }
 
   beforeZmodemUpload = (file, files) => {
     if (!files.length) {
@@ -708,10 +681,10 @@ export default class Term extends Component {
     const str = this.serializeAddon.serialize()
     const id = createLsId(this.state.id)
     ls.setItem(id, str)
-    window.postMessage({
+    postMessage({
       action: 'terminal-receive-data',
       tabId: this.props.tab.id
-    }, '*')
+    })
   }, 2000)
 
   onSocketData = () => {
@@ -1200,85 +1173,6 @@ export default class Term extends Component {
     this.attachAddon.decoder = this.decode
   }
 
-  renderEncodingInfo () {
-    return (
-      <div className='terminal-footer-unit terminal-footer-info'>
-        <div className='fleft relative'>
-          <Select
-            style={{ minWidth: 100 }}
-            placeholder={f('encode')}
-            defaultValue={this.props.tab.encode}
-            onSelect={this.switchEncoding}
-            size='small'
-          >
-            {
-              encodes.map(k => {
-                return (
-                  <Select.Option key={k} value={k}>
-                    {k}
-                  </Select.Option>
-                )
-              })
-            }
-          </Select>
-        </div>
-      </div>
-    )
-  }
-
-  renderInfoIcon () {
-    const { loading } = this.state
-    const infoProps = {
-      showInfoPanel: this.handleShowInfo
-    }
-    return loading || !this.isActiveTerminal()
-      ? null
-      : (
-        <div className='terminal-footer-unit terminal-footer-info'>
-          <TerminalInfoIcon
-            {...infoProps}
-          />
-        </div>
-      )
-  }
-
-  renderQuickCommands () {
-    return (
-      <div className='terminal-footer-unit terminal-footer-qm'>
-        <Qm
-          store={this.props.store}
-        />
-      </div>
-    )
-  }
-
-  renderBatchInputs () {
-    return (
-      <div className='terminal-footer-unit terminal-footer-center'>
-        <BatchInput
-          store={this.props.store}
-          input={this.batchInput}
-        />
-      </div>
-    )
-  }
-
-  renderFooter () {
-    if (!this.isActiveTerminal()) {
-      return null
-    }
-    return (
-      <div className='terminal-footer'>
-        <div className='terminal-footer-flex'>
-          {this.renderQuickCommands()}
-          {this.renderBatchInputs()}
-          {this.renderEncodingInfo()}
-          {this.renderInfoIcon()}
-        </div>
-      </div>
-    )
-  }
-
   render () {
     const { id, loading, zmodemTransfer } = this.state
     const { height, width, left, top, position, id: pid, activeSplitId } = this.props
@@ -1340,7 +1234,6 @@ export default class Term extends Component {
             close={this.closeNormalBuffer}
           />
         </div>
-        {this.renderFooter()}
         <ZmodemTransfer
           zmodemTransfer={zmodemTransfer}
           cancelZmodem={this.cancelZmodem}

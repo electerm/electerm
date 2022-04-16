@@ -3,6 +3,7 @@
  */
 import { useRef, useEffect } from 'react'
 import Transport from './transport-action'
+import postMessage from '../../common/post-msg'
 import { transportTypes } from './transport-types'
 import _ from 'lodash'
 
@@ -21,19 +22,19 @@ export default function TransportsUI (props) {
     props.modifier({
       pauseAll: true
     })
-    window.postMessage({
+    postMessage({
       action: transportTypes.pauseTransport,
       ids: []
-    }, '*')
+    })
   }
   const resumeAll = () => {
     props.modifier({
       pauseAll: false
     })
-    window.postMessage({
+    postMessage({
       action: transportTypes.resumeTransport,
       ids: []
-    }, '*')
+    })
   }
   const pauseOrResumeAll = () => {
     if (props.pauseAll) {
@@ -45,7 +46,7 @@ export default function TransportsUI (props) {
     props.modifier({
       pauseAll: false
     })
-    window.postMessage({
+    postMessage({
       action: transportTypes.cancelTransport,
       ids: []
     }, '*')

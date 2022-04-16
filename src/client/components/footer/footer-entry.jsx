@@ -5,7 +5,7 @@ import {
 } from 'antd'
 import { InfoCircleOutlined } from '@ant-design/icons'
 import './footer.styl'
-import { paneMap, messageActions, statusMap } from '../../common/constants'
+import { paneMap, terminalActions, statusMap } from '../../common/constants'
 import postMessage from '../../common/post-msg'
 import BatchInput from '../terminal/batch-input'
 import encodes from '../bookmark-form/encodes'
@@ -20,36 +20,30 @@ const f = prefix('form')
 
 export default class SystemMenu extends Component {
   showInfoPanel = () => {
-    const { currentTab } = this.props.store
-    if (currentTab) {
-      postMessage({
-        action: messageActions.showInfoPanel,
-        activeSplitId: currentTab.activeSplitId
-      })
-    }
+    const { activeTerminalId } = this.props.store
+    postMessage({
+      action: terminalActions.showInfoPanel,
+      activeSplitId: activeTerminalId
+    })
   }
 
   batchInput = (cmd, toAll) => {
-    const { currentTab } = this.props.store
-    if (currentTab) {
-      postMessage({
-        action: messageActions.batchInput,
-        activeSplitId: currentTab.activeSplitId,
-        toAll,
-        cmd
-      })
-    }
+    const { activeTerminalId } = this.props.store
+    postMessage({
+      action: terminalActions.batchInput,
+      activeSplitId: activeTerminalId,
+      toAll,
+      cmd
+    })
   }
 
   switchEncoding = encode => {
-    const { currentTab } = this.props.store
-    if (currentTab) {
-      postMessage({
-        encode,
-        action: messageActions.changeEncode,
-        activeSplitId: currentTab.activeSplitId
-      })
-    }
+    const { activeTerminalId } = this.props.store
+    postMessage({
+      encode,
+      action: terminalActions.changeEncode,
+      activeSplitId: activeTerminalId
+    })
   }
 
   isLoading = () => {

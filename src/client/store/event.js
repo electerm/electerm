@@ -4,6 +4,7 @@
 
 import keyControlPress from '../common/key-control-pressed'
 import keyPressed from '../common/key-pressed'
+import postMessage from '../common/post-msg'
 
 export default store => {
   Object.assign(store, {
@@ -40,19 +41,19 @@ export default store => {
     },
 
     focus () {
-      window.postMessage({
+      postMessage({
         type: 'focus'
-      }, '*')
+      })
     },
 
     selectall () {
       document.activeElement &&
       document.activeElement.select &&
       document.activeElement.select()
-      window.postMessage({
+      postMessage({
         event: 'selectall',
         id: store.activeTerminalId
-      }, '*')
+      })
     },
 
     triggerReszie () {

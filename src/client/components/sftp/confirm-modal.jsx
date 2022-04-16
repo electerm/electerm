@@ -8,6 +8,10 @@ import _ from 'lodash'
 import AnimateText from '../common/animate-text'
 import formatTime from '../../../app/common/time'
 import { FolderOutlined, FileOutlined } from '@ant-design/icons'
+import {
+  fileActions
+} from '../../common/constants'
+import postMessage from '../../common/post-msg'
 
 const { prefix } = window
 const e = prefix('sftp')
@@ -46,7 +50,7 @@ export default (props) => {
     props.modifier({
       transferToConfirm: null
     })
-    window.postMessage({
+    postMessage({
       transferGroupId,
       fileId,
       id,
@@ -97,14 +101,14 @@ export default (props) => {
         <Button
           type='ghost'
           className='mg1l'
-          onClick={() => act('cancel')}
+          onClick={() => act(fileActions.cancel)}
         >
           {e('cancel')}
         </Button>
         <Button
           type='ghost'
           className='mg1l'
-          onClick={() => act('skip')}
+          onClick={() => act(fileActions.skip)}
         >
           {e('skip')}
         </Button>
@@ -112,7 +116,7 @@ export default (props) => {
           type='primary'
           className='mg1l'
           onClick={
-            () => act('mergeOrOverwrite')
+            () => act(fileActions.mergeOrOverwrite)
           }
         >
           {isDirectory ? e('merge') : e('overwrite')}
@@ -121,7 +125,7 @@ export default (props) => {
           type='primary'
           className='mg1l'
           onClick={
-            () => act('rename')
+            () => act(fileActions.rename)
           }
         >
           {e('rename')}
@@ -136,7 +140,7 @@ export default (props) => {
                 : e('overwriteDesc')
             }
             onClick={
-              () => act('mergeOrOverwriteAll')
+              () => act(fileActions.mergeOrOverwriteAll)
             }
           >
             {isDirectory ? e('mergeAll') : e('overwriteAll')}
@@ -146,7 +150,7 @@ export default (props) => {
             className='mg1l'
             title={e('renameDesc')}
             onClick={
-              () => act('renameAll')
+              () => act(fileActions.renameAll)
             }
           >
             {e('renameAll')}
@@ -160,7 +164,7 @@ export default (props) => {
     width: 500,
     title: e('fileConflict'),
     footer: renderFooter(),
-    onCancel: () => act('cancel')
+    onCancel: () => act(fileActions.cancel)
   }
   return (
     <Modal

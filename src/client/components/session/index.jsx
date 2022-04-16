@@ -24,7 +24,8 @@ import {
   paneMap,
   terminalSshConfigType,
   ctrlOrCmd,
-  footerHeight
+  footerHeight,
+  terminalActions
 } from '../../common/constants'
 import ResizeWrap from '../common/resize-wrap'
 import keyControlPressed from '../../common/key-control-pressed'
@@ -32,6 +33,7 @@ import keyPressed from '../../common/key-pressed'
 import safeName from '../../common/safe-name'
 import TerminalInfoContent from '../terminal-info/content'
 import uid from '../../common/id-with-stamp'
+import postMessage from '../../common/post-msg'
 import './session.styl'
 
 const rebuildPosition = terminals => {
@@ -219,7 +221,6 @@ export default class SessionWrapper extends Component {
     const up = {
       activeSplitId
     }
-    this.editTab(up)
     this.setState(up)
   }
 
@@ -343,10 +344,10 @@ export default class SessionWrapper extends Component {
   }
 
   handleOpenSearch = () => {
-    window.postMessage({
-      action: 'open-terminal-search',
-      id: this.state.activeSplitId
-    }, '*')
+    postMessage({
+      action: terminalActions.openTerminalSearch,
+      activeSplitId: this.state.activeSplitId
+    })
   }
 
   renderSearchIcon = () => {

@@ -36,10 +36,12 @@ import {
   permission2mode
 } from '../../common/mode2permission'
 import wait from '../../common/wait'
+import postMessage from '../../common/post-msg'
 import {
   fileOperationsMap,
   isWin, transferTypeMap, typeMap,
-  isMac, maxEditFileSize, ctrlOrCmd
+  isMac, maxEditFileSize, ctrlOrCmd,
+  commonActions
 } from '../../common/constants'
 import findParent from '../../common/find-parent'
 import sorter from '../../common/index-sorter'
@@ -712,9 +714,9 @@ export default class FileSection extends React.Component {
     const files = delSelected
       ? selectedFiles
       : [file]
-    window.postMessage({
-      type: 'close-context-menu'
-    }, '*')
+    postMessage({
+      type: commonActions.closeContextMenu
+    })
     await this.props.delFiles(type, files)
   }
 

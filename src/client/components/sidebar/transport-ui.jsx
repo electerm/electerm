@@ -11,6 +11,7 @@ import {
 import {
   transportTypes
 } from '../sftp/transport-types'
+import postMessage from '../../common/post-msg'
 import './transfer.styl'
 
 const { prefix } = window
@@ -34,16 +35,16 @@ export default function Transporter (props) {
     id
   } = props.transfer
   function cancel () {
-    window.postMessage({
+    postMessage({
       action: transportTypes.cancelTransport,
       id
-    }, '*')
+    })
   }
   function handlePauseOrResume () {
-    window.postMessage({
+    postMessage({
       action: transportTypes.pauseOrResumeTransfer,
       id
-    }, '*')
+    })
   }
   const isTransfer = typeTo !== typeFrom
   const Icon = !pausing ? PauseCircleOutlined : PlayCircleOutlined

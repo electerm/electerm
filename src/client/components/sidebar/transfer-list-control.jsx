@@ -11,6 +11,7 @@ import _ from 'lodash'
 import {
   transportTypes
 } from '../sftp/transport-types'
+import postMessage from '../../common/post-msg'
 
 const { Option } = Select
 
@@ -27,17 +28,17 @@ export default class TransferModalUI extends Component {
   }
 
   pauseOrResumeAll = () => {
-    window.postMessage({
+    postMessage({
       action: transportTypes.pauseOrResumeAll,
       id: this.state.filter
-    }, '*')
+    })
   }
 
   cancelAll = () => {
-    window.postMessage({
+    postMessage({
       action: transportTypes.cancelAll,
       id: this.state.filter
-    }, '*')
+    })
   }
 
   getGroups = () => {

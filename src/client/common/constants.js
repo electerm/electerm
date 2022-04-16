@@ -230,8 +230,22 @@ const defaultThemeLightConf = _.get(
 )
 defaultThemeLightConf.id = defaultThemeLightConf._id
 export const defaultThemeLight = defaultThemeLightConf
-export const messageActions = {
+export const terminalActions = {
   showInfoPanel: 'show-info-panel',
   changeEncode: 'change-encode',
-  batchInput: 'batch-input'
+  batchInput: 'batch-input',
+  quickCommand: 'quick-command',
+  openTerminalSearch: 'open-terminal-search'
+}
+export const fileActions = {
+  cancel: 'cancel',
+  skip: 'skip',
+  mergeOrOverwrite: 'mergeOrOverwrite',
+  rename: 'rename',
+  mergeOrOverwriteAll: 'mergeOrOverwriteAll',
+  renameAll: 'renameAll'
+}
+export const commonActions = {
+  closeContextMenu: 'close-context-menu',
+  addTransfer: 'add-transfer'
 }
