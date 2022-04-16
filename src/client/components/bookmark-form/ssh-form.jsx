@@ -10,7 +10,6 @@ import copy from 'json-deep-copy'
 import generate from '../../common/uid'
 import {
   settingMap,
-  statusMap,
   defaultBookmarkGroupId,
   newBookmarkIdPrefix
 } from '../../common/constants'
@@ -20,6 +19,7 @@ import getInitItem from '../../common/init-setting-item'
 import testCon from '../../common/test-connection'
 import FormUi from './ssh-form-ui'
 import findBookmarkGroupId from '../../common/find-bookmark-group-id'
+import newTerm from '../../common/new-terminal'
 
 const { prefix } = window
 const e = prefix('form')
@@ -309,9 +309,7 @@ export default class BookmarkForm extends PureComponent {
     if (evt !== 'save' && evt !== 'saveAndCreateNew') {
       this.props.store.addTab({
         ...copy(obj),
-        srcId: obj.id,
-        status: statusMap.processing,
-        id: generate()
+        ...newTerm()
       })
       this.props.hide()
     }

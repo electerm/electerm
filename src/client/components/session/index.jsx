@@ -62,9 +62,6 @@ export default class SessionWrapper extends Component {
   constructor (props) {
     super(props)
     const id = uid()
-    const pane = props.tab.enableSsh !== false
-      ? paneMap.terminal
-      : paneMap.fileManager
     const {
       terminals = [
         {
@@ -76,7 +73,6 @@ export default class SessionWrapper extends Component {
     const activeSplitId = terminals[0].id
     this.state = {
       pid: null,
-      pane,
       enableSftp: false,
       splitDirection: terminalSplitDirectionMap.horizontal,
       activeSplitId,
@@ -107,8 +103,12 @@ export default class SessionWrapper extends Component {
   }
 
   isActive () {
-    return this.props.currentTabId === this.props.tab.id &&
-      this.state.pane === paneMap.terminal
+    const {
+      tab,
+      currentTabId
+    } = this.props
+    return currentTabId === tab.id &&
+      tab.pane === paneMap.terminal
   }
 
   handleEvent = (e) => {
@@ -134,7 +134,18 @@ export default class SessionWrapper extends Component {
   }
 
   computeHeight = () => {
-    return this.props.height - tabsHeight - footerHeight
+    return this.props.height - tabsHeight - footerHeight - termControlHeight
+  }
+
+  editTab = (up) => {
+    const {
+      store,
+      tab
+    } = this.props
+    store.editTab(
+      tab.id,
+      up
+    )
   }
 
   onChangePane = pane => {
@@ -142,9 +153,11 @@ export default class SessionWrapper extends Component {
       pane
     }
     if (pane === paneMap.fileManager) {
-      update.enableSftp = true
+      this.setState({
+        enableSftp: true
+      })
     }
-    this.setState(update)
+    this.editTab(update)
   }
 
   setSessionState = data => {
@@ -171,8 +184,7 @@ export default class SessionWrapper extends Component {
 
   updateTab = () => {
     const terminals = copy(this.state.terminals)
-    this.props.store.editTab(
-      this.props.tab.id,
+    this.editTab(
       {
         terminals
       }
@@ -204,9 +216,11 @@ export default class SessionWrapper extends Component {
   }
 
   setActive = activeSplitId => {
-    this.setState({
+    const up = {
       activeSplitId
-    })
+    }
+    this.editTab(up)
+    this.setState(up)
   }
 
   computePosition = (index) => {
@@ -237,13 +251,15 @@ export default class SessionWrapper extends Component {
 
   renderTerminals = () => {
     const {
-      pane,
       terminals,
       activeSplitId,
       splitDirection,
       sessionOptions,
       sessionId
     } = this.state
+    const {
+      pane
+    } = this.props.tab
     const cls = pane === paneMap.terminal
       ? 'terms-box'
       : 'terms-box hide'
@@ -255,7 +271,7 @@ export default class SessionWrapper extends Component {
         className={cls}
         style={{
           width,
-          height: height - termControlHeight
+          height
         }}
       >
         <ResizeWrap
@@ -301,7 +317,8 @@ export default class SessionWrapper extends Component {
   }
 
   renderSftp = () => {
-    const { pane, sessionOptions, sessionId, pid, enableSftp } = this.state
+    const { sessionOptions, sessionId, pid, enableSftp } = this.state
+    const { pane } = this.props.tab
     const height = this.computeHeight()
     const cls = pane === paneMap.terminal
       ? 'hide'
@@ -355,8 +372,9 @@ export default class SessionWrapper extends Component {
   }
 
   renderControl = () => {
-    const { pane, splitDirection, terminals } = this.state
+    const { splitDirection, terminals } = this.state
     const { props } = this
+    const { pane } = props.tab
     const host = _.get(props, 'tab.host') &&
       _.get(props, 'tab.type') !== terminalSshConfigType
     const isHori = splitDirection === terminalSplitDirectionMap.horizontal
@@ -445,11 +463,11 @@ export default class SessionWrapper extends Component {
 
   render () {
     const {
-      pane,
       splitDirection,
       infoPanelProps,
       showInfo
     } = this.state
+    const { pane } = this.props.tab
     const infoProps = {
       ..._.pick(this.props.config, ['host', 'port', 'saveTerminalLogToFile']),
       ...infoPanelProps,

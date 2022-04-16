@@ -31,7 +31,7 @@ export const unexpectedPacketErrorDesc = 'Unexpected packet'
 export const noTerminalBgValue = 'no-termimal-bg'
 export const sftpRetryInterval = 3000
 export const maxBookmarkGroupTitleLength = 33
-export const termControlHeight = 33
+export const termControlHeight = 32
 export const maxDragMove = 30
 export const splitDraggerWidth = 5
 export const minTerminalWidth = 90
@@ -80,7 +80,7 @@ export const authTypeMap = buildConst([
 
 export const maxTransferHistory = 100
 export const topMenuHeight = window._config.useSystemTitleBar ? 0 : 15
-export const footerHeight = 32
+export const footerHeight = 36
 export const tabsHeight = window._config.useSystemTitleBar ? 45 : 56
 
 export const isWin = window.pre.isWin
@@ -230,3 +230,8 @@ const defaultThemeLightConf = _.get(
 )
 defaultThemeLightConf.id = defaultThemeLightConf._id
 export const defaultThemeLight = defaultThemeLightConf
+export const messageActions = {
+  showInfoPanel: 'show-info-panel',
+  changeEncode: 'change-encode',
+  batchInput: 'batch-input'
+}

@@ -58,6 +58,17 @@ const store = Subx.create({
       ...quickCommands
     ]
   },
+  get currentTab () {
+    const {
+      currentTabId
+    } = store
+    const tabs = store.getTabs()
+    const tab = tabs.find(t => t.id === currentTabId)
+    if (!tab) {
+      return false
+    }
+    return tab
+  },
   get quickCommandTags () {
     return _.uniq(
       store.quickCommands.reduce((p, q) => {
@@ -69,7 +80,7 @@ const store = Subx.create({
     )
   },
   get isTransporting () {
-    return store.getItems('tabs').some(t => t.isTransporting)
+    return store.getTabs.some(t => t.isTransporting)
   },
   get settingSidebarList () {
     const {
@@ -85,13 +96,7 @@ const store = Subx.create({
       ]
   },
   get tabTitles () {
-    return store.tabs.map(d => d.title).join('#')
-  },
-  get currentTab () {
-    const tabs = store.getItems('tabs')
-    return _.find(tabs, tab => {
-      return tab.id === store.currentTabId
-    })
+    return store.getTabs().map(d => d.title).join('#')
   }
 })
 
