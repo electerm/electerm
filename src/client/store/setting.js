@@ -10,16 +10,15 @@ import generate from '../common/uid'
 import copy from 'json-deep-copy'
 import {
   settingMap,
-  statusMap,
   sshConfigItems,
   settingCommonId
 } from '../common/constants'
 import { buildNewTheme } from '../common/terminal-theme'
 import getInitItem from '../common/init-setting-item'
+import newTerm from '../common/new-terminal'
 
 const { prefix } = window
 const m = prefix('menu')
-const defaultStatus = statusMap.processing
 
 export default store => {
   Object.assign(store, {
@@ -58,8 +57,7 @@ export default store => {
         ...copy(item),
         from: 'history',
         srcId: item.id,
-        status: defaultStatus,
-        id: generate()
+        ...newTerm()
       })
     },
 
@@ -77,8 +75,7 @@ export default store => {
         ...item,
         from: 'bookmarks',
         srcId: item.id,
-        status: defaultStatus,
-        id: generate()
+        ...newTerm()
       })
       item.id = generate()
       if (store.config.disableSshHistory) {

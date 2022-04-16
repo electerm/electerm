@@ -33,7 +33,8 @@ import {
   isMac,
   terminalSshConfigType,
   transferTypeMap,
-  defaultLoginScriptDelay
+  defaultLoginScriptDelay,
+  messageActions
 } from '../../common/constants'
 import deepCopy from 'json-deep-copy'
 import { readClipboard, copy } from '../../common/clipboard'
@@ -214,21 +215,49 @@ export default class Term extends Component {
   }
 
   handleEvent = (e) => {
+    const {
+      target,
+      action,
+      encode,
+      id,
+      type,
+      cmd,
+      activeSplitId,
+      toAll
+    } = e?.data || {}
+    const { activeSplitId: propActiveSplitId } = this.props.tab
     if (
-      e.data &&
-      e.data.type === 'batch-input' &&
+      type === 'batch-input' &&
       (
-        e.data.target = this.props.id ||
-        e.data.target === 'all'
+        target === this.props.id ||
+        target === 'all'
       )
     ) {
       this.batchInput(e.data.cmd)
     } else if (
-      e.data &&
-      e.data.action === 'open-terminal-search' &&
-      e.data.id === this.props.id
+      action === 'open-terminal-search' &&
+      id === this.props.id
     ) {
       this.openSearch()
+    } else if (
+      action === messageActions.changeEncode &&
+      propActiveSplitId === activeSplitId
+    ) {
+      this.switchEncoding(encode)
+    } else if (
+      action === messageActions.batchInput &&
+      (
+        toAll || propActiveSplitId === activeSplitId
+      )
+    ) {
+      this.batchInput(cmd)
+    } else if (
+      action === messageActions.showInfoPanel &&
+      (
+        propActiveSplitId === activeSplitId
+      )
+    ) {
+      this.handleShowInfo()
     }
     const isActiveTerminal = this.isActiveTerminal()
     if (
@@ -987,17 +1016,8 @@ export default class Term extends Component {
     log.debug('socket closed, pid:', this.pid)
   }
 
-  batchInput = (cmd, toAll) => {
-    if (toAll) {
-      window.postMessage({
-        type: 'batch-input',
-        target: 'all',
-        cmd,
-        toAll
-      }, '*')
-    } else {
-      this.attachAddon._sendData(cmd + '\r')
-    }
+  batchInput = (cmd) => {
+    this.attachAddon._sendData(cmd + '\r')
   }
 
   onResizeTerminal = size => {
@@ -1290,7 +1310,7 @@ export default class Term extends Component {
         left: '10px',
         top: '10px',
         right: 0,
-        bottom: '70px'
+        bottom: 0
       }
     }
     const prps3 = {

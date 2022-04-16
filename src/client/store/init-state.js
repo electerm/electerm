@@ -110,7 +110,7 @@ export default {
   openedSideBar: ls.getItem(openedSidebarKey),
   openedCategoryIds: [],
   menuOpened: false,
-  pinned: ls.getItem(sidebarPinnedKey),
+  pinned: ls.getItem(sidebarPinnedKey) === 'true',
 
   // info/help modal
   showInfoModal: false,
