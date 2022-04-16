@@ -11,5 +11,5 @@ export function setItem (id, str) {
 }
 
 export function getItem (id) {
-  return window.localStorage.getItem(id)
+  return window.localStorage.getItem(id) || ''
 }

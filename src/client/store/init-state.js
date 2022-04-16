@@ -10,9 +10,12 @@ import {
   newBookmarkIdPrefix,
   syncTypes,
   settingSyncId,
-  infoTabs
+  infoTabs,
+  openedSidebarKey,
+  sidebarPinnedKey
 } from '../common/constants'
 import { buildDefaultThemes, buildNewTheme } from '../common/terminal-theme'
+import * as ls from '../common/safe-local-storage'
 
 const { _config } = window
 const { prefix } = window
@@ -104,10 +107,10 @@ export default {
   fonts: [],
 
   // sidebar
-  openedSideBar: '',
+  openedSideBar: ls.getItem(openedSidebarKey),
   openedCategoryIds: [],
   menuOpened: false,
-  pinned: false,
+  pinned: ls.getItem(sidebarPinnedKey),
 
   // info/help modal
   showInfoModal: false,
