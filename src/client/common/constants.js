@@ -249,3 +249,12 @@ export const commonActions = {
   closeContextMenu: 'close-context-menu',
   addTransfer: 'add-transfer'
 }
+
+export const dbsShouldParse = [
+  'bookmarks',
+  'bookmarkGroups',
+  'tabs',
+  'fileTransfers',
+  'transferHistory',
+  'quickCommands'
+]

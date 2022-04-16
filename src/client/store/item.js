@@ -5,7 +5,8 @@
 import _ from 'lodash'
 import {
   maxHistory,
-  settingMap
+  settingMap,
+  dbsShouldParse
 } from '../common/constants'
 import getInitItem from '../common/init-setting-item'
 import { update, remove, dbNames } from '../common/db'
@@ -105,13 +106,7 @@ export default store => {
     },
 
     shouldParse (type) {
-      return [
-        'bookmarks',
-        'bookmarkGroups',
-        'tabs',
-        'fileTransfers',
-        'transferHistory'
-      ].includes(type)
+      return dbsShouldParse.includes(type)
     },
 
     setItems (type, items) {

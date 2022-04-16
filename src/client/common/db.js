@@ -3,7 +3,8 @@
  */
 
 import {
-  settingMap
+  settingMap,
+  dbsShouldParse
 } from '../common/constants'
 import _ from 'lodash'
 import handleError from './error-handler'
@@ -143,7 +144,7 @@ export async function fetchInitData (dbName) {
     const bi = _.findIndex(order, r => r === b.id)
     return ai - bi
   })
-  return dbName.includes('bookmark')
+  return dbsShouldParse.includes(dbName)
     ? r.map(d => JSON.stringify(d))
     : r
 }

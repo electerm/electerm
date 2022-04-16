@@ -7,7 +7,6 @@ import { PlusOutlined } from '@ant-design/icons'
 import { Select, Tooltip } from 'antd'
 import classnames from 'classnames'
 import highlight from '../common/highlight'
-import { settingMap } from '../../common/constants'
 import QmTransport from './quick-command-transport'
 
 const { Option } = Select
@@ -17,7 +16,7 @@ const q = prefix('quickCommands')
 export default class QuickCommandsList extends List {
   del = (item, e) => {
     e.stopPropagation()
-    this.props.store.delItem(item, settingMap.quickCommands)
+    this.props.store.delQuickCommand(item)
   }
 
   onClickItem = (item) => {

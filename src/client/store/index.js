@@ -42,7 +42,8 @@ const store = Subx.create({
       (store.pinned ? sidebarPanelWidth : 0)
   },
   get currentQuickCommands () {
-    const { currentTab, quickCommands } = store
+    const { currentTab } = store
+    const quickCommands = store.getQuickCommands()
     const currentTabQuickCommands = (
       _.get(
         currentTab, 'quickCommands'
@@ -70,8 +71,9 @@ const store = Subx.create({
     return tab
   },
   get quickCommandTags () {
+    const quickCommands = store.getQuickCommands()
     return _.uniq(
-      store.quickCommands.reduce((p, q) => {
+      quickCommands.reduce((p, q) => {
         return [
           ...p,
           ...(q.labels || [])
@@ -80,7 +82,7 @@ const store = Subx.create({
     )
   },
   get isTransporting () {
-    return store.getTabs.some(t => t.isTransporting)
+    return store.getTabs().some(t => t.isTransporting)
   },
   get settingSidebarList () {
     const {

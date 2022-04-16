@@ -108,7 +108,6 @@ export default (store) => {
   }
   store.initData = async () => {
     store.isSencondInstance = window.pre.runSync('isSencondInstance')
-    console.log('isSencondInstance', store.isSencondInstance)
     await store.checkForDbUpgrade()
     const ext = {}
     for (const name of dbNames) {

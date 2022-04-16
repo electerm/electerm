@@ -2,7 +2,6 @@
 import { Button, Input, Switch, Form, message, Select } from 'antd'
 import copy from 'json-deep-copy'
 import generate from '../../common/uid'
-import { settingMap } from '../../common/constants'
 import InputAutoFocus from '../common/input-auto-focus'
 const { TextArea } = Input
 const FormItem = Form.Item
@@ -34,9 +33,9 @@ export default function QuickCommandForm (props) {
       id: generate()
     }
     if (formData.id) {
-      props.store.editItem(formData.id, update, settingMap.quickCommands)
+      props.store.editQuickCommand(formData.id, update)
     } else {
-      props.store.addItem(update1, settingMap.quickCommands)
+      props.store.addQuickCommand(update1)
       props.store.storeAssign({
         settingItem: {
           id: '',
