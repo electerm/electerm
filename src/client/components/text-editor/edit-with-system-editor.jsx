@@ -3,8 +3,12 @@
  */
 
 import { useState, useEffect } from 'react'
+import {
+  CheckOutlined,
+  CloseOutlined
+} from '@ant-design/icons'
 import fs from '../../common/fs'
-import { Button, Spin, Modal } from 'antd'
+import { Button, Spin, Modal, Typography } from 'antd'
 import resolve from '../../common/resolve'
 import { typeMap } from '../../common/constants'
 import { nanoid } from 'nanoid/non-secure'
@@ -15,6 +19,7 @@ const { prefix } = window
 const e = prefix('form')
 const c = prefix('common')
 const s = prefix('sftp')
+const { Text } = Typography
 
 export default function TextEditorFormSystem (props) {
   const [state, setter] = useState({
@@ -124,6 +129,12 @@ export default function TextEditorFormSystem (props) {
     } = props.config
     return (
       <div className='pd1b'>
+        <p>
+          <Text type='success'><CheckOutlined /></Text>: <Text code>code</Text>, <Text code>nano</Text>, <Text code>vim</Text>, <Text code>someOtherApp</Text>
+        </p>
+        <p>
+          <Text type='danger'><CloseOutlined /></Text>: <Text code>/Applications/xxxx/vs code</Text>, <Text code>/Applications/xxxx/nano</Text>
+        </p>
         <EditorForm
           defaultEditor={defaultEditor}
           handleSubmit={handleEditorSubmit}
