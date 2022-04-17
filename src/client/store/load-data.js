@@ -101,10 +101,13 @@ export default (store) => {
     })
   }
   store.openInitSessions = () => {
-    for (const s of store.config.onStartSessions || []) {
+    const arr = store.config.onStartSessions || []
+    for (const s of arr) {
       store.onSelectBookmark(s)
     }
-    store.initFirstTab()
+    if (!arr.length) {
+      store.initFirstTab()
+    }
   }
   store.initData = async () => {
     store.isSencondInstance = window.pre.runSync('isSencondInstance')
