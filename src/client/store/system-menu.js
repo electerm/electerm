@@ -81,7 +81,7 @@ export default store => {
       let mod = null
       mod = Modal.confirm({
         onCancel: () => mod.destroy(),
-        onOk: store[type],
+        onOk: store.doExit,
         title: m('quit'),
         okText: c('ok'),
         cancelText: c('cancel'),
@@ -90,11 +90,13 @@ export default store => {
     },
 
     exit () {
-      if (store.isTransporting) {
-        store.confirmExit('doExit')
-      } else {
-        store.doExit()
+      if (
+        !store.isTransporting &&
+        !store.config.confirmBeforeExit
+      ) {
+        return store.doExit()
       }
+      store.confirmExit()
     },
 
     restart () {

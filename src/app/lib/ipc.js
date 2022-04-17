@@ -128,7 +128,7 @@ function initIpc () {
     dbAction,
     getScreenSize,
     closeApp: () => {
-      global.win.close()
+      global.win && global.win.close()
     },
     restart: () => {
       global.win.close()
@@ -148,7 +148,7 @@ function initIpc () {
     },
     saveUserConfig,
     setTitle: (title) => {
-      global.win.setTitle(packInfo.name + ' - ' + title)
+      global.win && global.win.setTitle(packInfo.name + ' - ' + title)
     },
     changeHotkey: changeHotkeyReg(globalShortcut, global.win),
     initCommandLine

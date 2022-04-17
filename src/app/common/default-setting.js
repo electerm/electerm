@@ -33,5 +33,6 @@ module.exports = exports.default = {
   cursorStyle: 'block',
   useSystemTitleBar: false,
   opacity: 1,
-  defaultEditor: ''
+  defaultEditor: '',
+  confirmBeforeExit: false
 }

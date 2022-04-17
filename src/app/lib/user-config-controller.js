@@ -13,6 +13,10 @@ exports.saveUserConfig = (userConfig) => {
   delete userConfig.host
   delete userConfig.terminalTypes
   delete userConfig.tokenElecterm
+  Object.assign(
+    global.et.config,
+    userConfig
+  )
   dbAction('data', 'update', q, {
     ...q,
     ...userConfig

@@ -779,6 +779,7 @@ export default class Setting extends Component {
             'ctrlOrMetaOpenTerminalLink',
             'checkUpdateOnStart',
             'useSystemTitleBar',
+            'confirmBeforeExit',
             'debug'
           ].map(this.renderToggle)
         }
