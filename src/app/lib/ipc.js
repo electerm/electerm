@@ -23,7 +23,7 @@ const {
   getLang,
   loadLocales
 } = require('./locales')
-const openNewIsntance = require('./open-new-instance')
+const openNewInstance = require('./open-new-instance')
 const { saveUserConfig } = require('./user-config-controller')
 const { changeHotkeyReg, initShortCut } = require('./shortcut')
 const lastStateManager = require('./last-state')
@@ -110,7 +110,7 @@ function initIpc () {
     event.returnValue = syncFuncs[name](...args)
   })
   const asyncGlobals = {
-    openNewIsntance,
+    openNewInstance,
     init,
     listSerialPorts,
     toCss,

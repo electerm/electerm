@@ -4,7 +4,7 @@
 const {
   Menu
 } = require('electron')
-const openNewIsntance = require('./open-new-instance')
+const openNewInstance = require('./open-new-instance')
 
 exports.buildDocMenu = function (prefix) {
   const e = prefix('control')
@@ -13,7 +13,7 @@ exports.buildDocMenu = function (prefix) {
       label: e('newWindow'),
       click () {
         console.log(process.argv)
-        openNewIsntance()
+        openNewInstance()
       }
     }
   ])

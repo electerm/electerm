@@ -36,7 +36,7 @@ export default class QuickCommandsFooter extends Component {
         a => a.id === id
       )
       if (qm && qm.command) {
-        const { currentTab } = this.props.store
+        const { activeTerminalId } = this.props.store
         const realCmd = isWin
           ? qm.command.replace(/\n/g, '\n\r')
           : qm.command
@@ -44,7 +44,7 @@ export default class QuickCommandsFooter extends Component {
           action: terminalActions.quickCommand,
           cmd: realCmd,
           inputOnly: qm.inputOnly,
-          activeSplitId: currentTab?.activeSplitId
+          activeSplitId: activeTerminalId
         }, '*')
       }
     }

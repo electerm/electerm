@@ -210,7 +210,6 @@ export default class Term extends Component {
 
   handleEvent = (e) => {
     const {
-      target,
       action,
       encode,
       id,
@@ -220,16 +219,8 @@ export default class Term extends Component {
       toAll,
       inputOnly
     } = e?.data || {}
-    const { activeSplitId: propActiveSplitId } = this.props.tab
+    const { activeSplitId: propActiveSplitId } = this.props
     if (
-      type === 'batch-input' &&
-      (
-        target === this.props.id ||
-        target === 'all'
-      )
-    ) {
-      this.batchInput(e.data.cmd)
-    } else if (
       action === terminalActions.changeEncode &&
       propActiveSplitId === activeSplitId
     ) {
@@ -337,16 +328,6 @@ export default class Term extends Component {
     const txt = this.term.getSelection()
     if (txt) {
       copy(txt)
-    }
-  }
-
-  onBlur = () => {
-    if (
-      this.props.id === this.props.activeTerminalId
-    ) {
-      this.props.store.storeAssign({
-        activeTerminalId: ''
-      })
     }
   }
 
@@ -734,7 +715,7 @@ export default class Term extends Component {
     this.loadState(term)
     term.open(document.getElementById(id), true)
     term.textarea.addEventListener('focus', this.setActive)
-    term.textarea.addEventListener('blur', this.onBlur)
+    // term.textarea.addEventListener('blur', this.onBlur)
 
     // term.on('keydown', this.handleEvent)
     this.term = term

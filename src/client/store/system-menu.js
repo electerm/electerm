@@ -74,7 +74,7 @@ export default store => {
     },
 
     async onNewWindow () {
-      window.pre.runGlobalAsync('openNewIsntance')
+      window.pre.runGlobalAsync('openNewInstance')
     },
 
     confirmExit (type) {
