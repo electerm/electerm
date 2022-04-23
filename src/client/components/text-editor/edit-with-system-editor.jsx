@@ -8,7 +8,7 @@ import {
   CloseOutlined
 } from '@ant-design/icons'
 import fs from '../../common/fs'
-import { Button, Spin, Modal, Typography } from 'antd'
+import { Button, Spin, Modal, Typography, Tag } from 'antd'
 import resolve from '../../common/resolve'
 import { typeMap } from '../../common/constants'
 import { nanoid } from 'nanoid/non-secure'
@@ -129,11 +129,12 @@ export default function TextEditorFormSystem (props) {
     } = props.config
     return (
       <div className='pd1b'>
+        <p><Tag>Experimental</Tag></p>
         <p>
-          <Text type='success'><CheckOutlined /></Text>: <Text code>code</Text>, <Text code>nano</Text>, <Text code>vim</Text>, <Text code>someOtherApp</Text>
+          <Text type='success'><CheckOutlined /></Text>: <Text code>code</Text>
         </p>
         <p>
-          <Text type='danger'><CloseOutlined /></Text>: <Text code>/Applications/xxxx/vs code</Text>, <Text code>/Applications/xxxx/nano</Text>
+          <Text type='danger'><CloseOutlined /></Text>: <Text code>/Applications/xxxx/vs code</Text>
         </p>
         <EditorForm
           defaultEditor={defaultEditor}
@@ -172,7 +173,7 @@ export default function TextEditorFormSystem (props) {
           className='mg1r mg1b'
           disabled={loading || !tempFilePath || !defaultEditor}
           onClick={open}
-        >{e('open')}</Button>
+        >{s('open')}</Button>
         {
           type === typeMap.remote
             ? (

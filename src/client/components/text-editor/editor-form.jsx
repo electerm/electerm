@@ -17,17 +17,6 @@ export default function TextEditorForm (props) {
   function submit () {
     form.submit()
   }
-  function renderButton () {
-    return (
-      <span
-        onClick={submit}
-        className='pointer'
-      >{e('save')}</span>
-    )
-  }
-  function onKeyDown (e) {
-    e.stopPropagation()
-  }
   return (
     <Form
       onFinish={props.handleSubmit}
@@ -50,8 +39,7 @@ export default function TextEditorForm (props) {
         <Input
           placeholder={s('editorTip')}
           addonBefore={e('editWith')}
-          addonAfter={renderButton()}
-          onKeyDown={onKeyDown}
+          onChange={submit}
         />
       </FormItem>
     </Form>
