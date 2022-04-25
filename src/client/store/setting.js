@@ -57,7 +57,7 @@ export default store => {
         ...copy(item),
         from: 'history',
         srcId: item.id,
-        ...newTerm()
+        ...newTerm(false)
       })
     },
 
@@ -75,7 +75,7 @@ export default store => {
         ...item,
         from: 'bookmarks',
         srcId: item.id,
-        ...newTerm()
+        ...newTerm(false)
       })
       item.id = generate()
       if (store.config.disableSshHistory) {
