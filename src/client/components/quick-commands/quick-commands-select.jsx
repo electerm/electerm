@@ -139,6 +139,9 @@ export default class QuickCommandsFooter extends Component {
       value: this.state.labels,
       mode: 'multiple',
       onChange: this.handleChangeLabels,
+      getPopupContainer: () => {
+        return document.querySelector('.ui-outer')
+      },
       placeholder: e('labels'),
       className: 'iblock',
       style: {
