@@ -18,6 +18,7 @@ import generate from '../../common/uid'
 import copy from 'json-deep-copy'
 import classnames from 'classnames'
 import {
+  quickCommandBoxHeight,
   tabsHeight,
   terminalSplitDirectionMap,
   termControlHeight,
@@ -136,7 +137,14 @@ export default class SessionWrapper extends Component {
   }
 
   computeHeight = () => {
-    return this.props.height - tabsHeight - footerHeight - termControlHeight
+    const {
+      pinnedQuickCommandBar
+    } = this.props.store
+    return this.props.height -
+      tabsHeight -
+      footerHeight -
+      termControlHeight -
+      (pinnedQuickCommandBar ? quickCommandBoxHeight : 0)
   }
 
   editTab = (up) => {

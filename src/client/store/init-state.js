@@ -108,6 +108,8 @@ export default {
 
   // sidebar
   openedSideBar: ls.getItem(openedSidebarKey),
+  openQuickCommandBar: false,
+  pinnedQuickCommandBar: false,
   openedCategoryIds: [],
   menuOpened: false,
   pinned: ls.getItem(sidebarPinnedKey) === 'true',

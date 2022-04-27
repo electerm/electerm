@@ -22,6 +22,7 @@ import { isMac, isWin } from '../../common/constants'
 import TermFullscreenControl from './term-fullscreen-control'
 import { init } from '../../common/fetch-from-server'
 import Footer from '../footer/footer-entry'
+import QuickCommandsFooterBox from '../quick-commands/quick-commands-box'
 import './wrapper.styl'
 
 export default class Index extends Component {
@@ -72,7 +73,8 @@ export default class Index extends Component {
       config,
       terminalFullScreen,
       pinned,
-      isSencondInstance
+      isSencondInstance,
+      pinnedQuickCommandBar
     } = store
     const tabs = store.getTabs()
     const cls = classnames({
@@ -80,6 +82,7 @@ export default class Index extends Component {
       'is-mac': isMac,
       'is-win': isWin,
       pinned,
+      'qm-pinned': pinnedQuickCommandBar,
       'term-fullscreen': terminalFullScreen,
       'is-main': !isSencondInstance
     })
@@ -198,6 +201,7 @@ export default class Index extends Component {
                 )
               })
             }
+            <QuickCommandsFooterBox store={store} />
             <Footer store={store} />
           </div>
         </div>
