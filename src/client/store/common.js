@@ -16,8 +16,8 @@ export default store => {
     },
 
     setOffline () {
-      const tabs = store.getItems('tabs')
-      store.setItem('tabs', tabs
+      const tabs = store.getTabs()
+      store.setItems('tabs', tabs
         .map(t => {
           return {
             ...t,

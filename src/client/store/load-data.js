@@ -4,6 +4,7 @@
 
 import { dbNames, update, getData, fetchInitData, insert, remove } from '../common/db'
 import initWatch from './watch'
+import parseInt10 from '../common/parse-int10'
 import { infoTabs, statusMap, defaultEnvLang } from '../common/constants'
 import fs from '../common/fs'
 import generate from '../common/uid'
@@ -24,7 +25,7 @@ function getHost (argv, opts) {
       return {
         host: mt[2],
         username: user,
-        port: port ? parseInt(port, 10) : 22
+        port: port ? parseInt10(port) : 22
       }
     }
   }
@@ -65,8 +66,8 @@ export async function addTabFromCommandLine (store, opts) {
   if (options.user) {
     update.username = options.user
   }
-  if (options.port && parseInt(options.port, 10)) {
-    update.port = parseInt(options.port, 10)
+  if (options.port && parseInt10(options.port)) {
+    update.port = parseInt10(options.port)
   }
   Object.assign(conf, update)
   if (options.privateKeyPath) {

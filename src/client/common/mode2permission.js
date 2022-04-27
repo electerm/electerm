@@ -8,8 +8,11 @@
  * @param {string} _d
  * @return {object} {read: Boolean, write: Boolean, exec: Boolean}
  */
+
+import parseInt10 from './parse-int10'
+
 function digit2permission (_d) {
-  const d = parseInt(_d, 10)
+  const d = parseInt10(_d)
   const arr = d.toString(2).split('')
   const len = arr.length
   for (let a = len - 3, i = 0; i < a; i++) {

@@ -15,6 +15,7 @@ import {
   TreeSelect
 } from 'antd'
 import { formItemLayout } from '../../common/form-layout'
+import parseInt10 from '../../common/parse-int10'
 import {
   commonBaudRates,
   commonDataBits,
@@ -119,7 +120,7 @@ export default function SerialFormUi (props) {
           {...formItemLayout}
           label='baudRate'
           name='baudRate'
-          normalize={parseInt}
+          normalize={parseInt10}
         >
           <AutoComplete
             options={commonBaudRates.map(d => {
@@ -133,7 +134,7 @@ export default function SerialFormUi (props) {
           {...formItemLayout}
           label='dataBits'
           name='dataBits'
-          normalize={parseInt}
+          normalize={parseInt10}
         >
           <Select>
             {

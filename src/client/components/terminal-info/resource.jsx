@@ -4,6 +4,7 @@
 
 import _ from 'lodash'
 import { Progress } from 'antd'
+import parseInt10 from '../../common/parse-int10'
 
 function toNumber (n = '') {
   let f = 1
@@ -58,7 +59,7 @@ export default function TerminalInfoResource (props) {
   const data = [
     {
       name: 'cpu',
-      percent: parseInt(cpu)
+      percent: parseInt10(cpu)
     },
     {
       name: 'mem',

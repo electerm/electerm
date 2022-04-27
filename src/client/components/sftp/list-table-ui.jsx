@@ -10,6 +10,7 @@ import React from 'react'
 import classnames from 'classnames'
 import _ from 'lodash'
 import generate from '../../common/uid'
+import parseInt10 from '../../common/parse-int10'
 import {
   splitDraggerWidth,
   filePropMinWidth,
@@ -378,7 +379,7 @@ export default class FileListTable extends React.Component {
           ...prev,
           [k]: _.isUndefined(v)
             ? v
-            : parseInt(obj[k].replace('px', ''), 10)
+            : parseInt10(obj[k].replace('px', ''))
         }
       }, {})
       res.width = rect.right - rect.left

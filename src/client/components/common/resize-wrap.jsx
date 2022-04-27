@@ -7,6 +7,7 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import classnames from 'classnames'
 import _ from 'lodash'
+import parseInt10 from '../../common/parse-int10'
 import generate from '../../common/uid'
 import memoizeOne from 'memoize-one'
 import {
@@ -71,7 +72,7 @@ export default class ResizeWrap extends React.Component {
           ...prev,
           [k]: _.isUndefined(v)
             ? v
-            : parseInt(obj[k].replace('px', ''), 10)
+            : parseInt10(obj[k].replace('px', ''))
         }
       }, {})
     })
