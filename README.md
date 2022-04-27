@@ -146,7 +146,7 @@ npm run release -l
 
 ## Use
 
-- [Set autorun when login to os](https://github.com/electerm/electerm/wiki/autorun-electerm-when-login-to-os)
+- [Set autorun when login to os](https://github.com/electerm/electerm/wiki/Autorun-electerm-when-login-to-os)
 
 ## Change log
 

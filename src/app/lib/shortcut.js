@@ -16,9 +16,9 @@ exports.initShortCut = (globalShortcut, win, config) => {
   shortcut = config.hotkey
   globalShortcut.register(shortcut, () => {
     if (win.isFocused()) {
-      win.hide()
+      win.minimize()
     } else {
-      win.show()
+      win.restore()
     }
   })
   const ok = globalShortcut.isRegistered(shortcut)

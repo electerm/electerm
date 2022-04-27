@@ -12,7 +12,6 @@ const {
 } = require('../common/runtime-constants')
 const buildMenu = require('./menu')
 const { buildDocMenu } = require('./dock-menu')
-const initTray = require('./tray')
 
 function capitalizeFirstLetter (string) {
   return string.charAt(0).toUpperCase() + string.slice(1)
@@ -37,11 +36,10 @@ function initApp (language, lang, config) {
   }
   const menu = buildMenu(prefix)
   Menu.setApplicationMenu(menu)
-  initTray(menu)
   const a = prefix('app')
   // handle autohide flag
   if (process.argv.includes('--autohide')) {
-    global.et.timer = setTimeout(() => global.win.hide(), 500)
+    global.et.timer = setTimeout(() => global.win.minimize(), 500)
     if (Notification.isSupported()) {
       const notice = new Notification({
         title: `${packInfo.name} ${a('isRunning')}, ${a('press')} ${config.hotkey} ${a('toShow')}`
