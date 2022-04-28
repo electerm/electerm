@@ -106,10 +106,24 @@ export default {
   syncType: syncTypes.github,
   fonts: [],
 
-  // sidebar
-  openedSideBar: ls.getItem(openedSidebarKey),
+  // term search
+  termSearchOpen: false,
+  termSearch: '',
+  termSearchOptions: {
+    caseSensitive: false,
+    wholeWord: false,
+    regex: false,
+    decorations: {
+      activeMatchColorOverviewRuler: 'yellow'
+    }
+  },
+
+  // quick commands
   openQuickCommandBar: false,
   pinnedQuickCommandBar: false,
+
+  // sidebar
+  openedSideBar: ls.getItem(openedSidebarKey),
   openedCategoryIds: [],
   menuOpened: false,
   pinned: ls.getItem(sidebarPinnedKey) === 'true',

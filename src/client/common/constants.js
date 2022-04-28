@@ -236,7 +236,9 @@ export const terminalActions = {
   changeEncode: 'change-encode',
   batchInput: 'batch-input',
   quickCommand: 'quick-command',
-  openTerminalSearch: 'open-terminal-search'
+  openTerminalSearch: 'open-terminal-search',
+  doSearchNext: 'do-search-next',
+  doSearchPrev: 'do-search-prev'
 }
 export const fileActions = {
   cancel: 'cancel',

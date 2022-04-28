@@ -1,4 +1,4 @@
-import { render } from 'react-dom'
+import { createRoot } from 'react-dom/client'
 import '../../../node_modules/xterm/css/xterm.css'
 import Main from '../components/main'
 import { notification } from 'antd'
@@ -7,8 +7,6 @@ notification.config({
   placement: 'bottomRight'
 })
 
-const rootElement = document.getElementById('container')
-render(
-  <Main />,
-  rootElement
-)
+const container = document.getElementById('container')
+const root = createRoot(container)
+root.render(<Main />)

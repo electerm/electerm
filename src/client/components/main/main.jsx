@@ -23,6 +23,7 @@ import TermFullscreenControl from './term-fullscreen-control'
 import { init } from '../../common/fetch-from-server'
 import Footer from '../footer/footer-entry'
 import QuickCommandsFooterBox from '../quick-commands/quick-commands-box'
+import TermSearch from '../common/term-search'
 import './wrapper.styl'
 
 export default class Index extends Component {
@@ -201,6 +202,7 @@ export default class Index extends Component {
                 )
               })
             }
+            <TermSearch store={store} />
             <QuickCommandsFooterBox store={store} />
             <Footer store={store} />
           </div>

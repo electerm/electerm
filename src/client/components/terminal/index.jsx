@@ -11,11 +11,8 @@ import postMessage from '../../common/post-msg'
 import {
   BorderHorizontalOutlined,
   CheckCircleOutlined,
-  CloseOutlined,
   CopyOutlined,
-  LeftOutlined,
   ReloadOutlined,
-  RightOutlined,
   SearchOutlined,
   SelectOutlined,
   SwitcherOutlined
@@ -79,8 +76,6 @@ export default class Term extends Component {
       promoteModalVisible: false,
       savePassword: false,
       tempPassword: '',
-      searchVisible: false,
-      searchInput: '',
       passType: 'password',
       zmodemTransfer: null,
       lines: []
@@ -210,6 +205,8 @@ export default class Term extends Component {
 
   handleEvent = (e) => {
     const {
+      keyword,
+      options,
       action,
       encode,
       id,
@@ -258,6 +255,20 @@ export default class Term extends Component {
       )
     ) {
       this.openSearch()
+    } else if (
+      action === terminalActions.doSearchNext &&
+      (
+        propActiveSplitId === activeSplitId
+      )
+    ) {
+      this.searchNext(keyword, options)
+    } else if (
+      action === terminalActions.doSearchPrev &&
+      (
+        propActiveSplitId === activeSplitId
+      )
+    ) {
+      this.searchPrev(keyword, options)
     }
     const isActiveTerminal = this.isActiveTerminal()
     if (
@@ -554,43 +565,24 @@ export default class Term extends Component {
   }
 
   openSearch = () => {
-    this.setState({
-      searchVisible: true
-    })
+    this.props.store.termSearchOpen = true
   }
 
   onTitleChange = e => {
     log.debug(e, 'title change')
   }
 
-  onChangeSearch = (e) => {
-    this.setState({
-      searchInput: e.target.value
-    })
-  }
-
-  searchPrev = () => {
+  searchPrev = (searchInput, options) => {
     this.searchAddon.findPrevious(
-      this.state.searchInput
+      searchInput, options
     )
   }
 
-  searchNext = () => {
+  searchNext = (searchInput, options) => {
     this.searchAddon.findNext(
-      this.state.searchInput
+      searchInput, options
     )
   }
-
-  searchClose = () => {
-    this.setState({
-      searchVisible: false
-    })
-  }
-
-  // onSelectTheme = id => {
-  //   this.props.store.setTheme(id)
-  //   this.props.store.closeContextMenu()
-  // }
 
   renderContext = () => {
     const cls = 'pd2x pd1y context-item pointer'
@@ -939,6 +931,7 @@ export default class Term extends Component {
     if (startDirectory || loginScript || isSshConfig) {
       this.timers.timer1 = setTimeout(this.runInitScript, loginScriptDelay)
     }
+    this.props.store.triggerReszie()
   }
 
   onResize = _.debounce(() => {
@@ -1123,32 +1116,6 @@ export default class Term extends Component {
     )
   }
 
-  renderSearchBox = () => {
-    if (!this.isActiveTerminal()) {
-      return null
-    }
-    const { searchInput, searchVisible } = this.state
-    if (!searchVisible) {
-      return null
-    }
-    return (
-      <div className='term-search-box'>
-        <Input
-          value={searchInput}
-          onChange={this.onChangeSearch}
-          onPressEnter={this.searchNext}
-          addonAfter={
-            <span>
-              <LeftOutlined className='pointer mg1r' title={e('prevMatch')} onClick={this.searchPrev} />
-              <RightOutlined className='pointer mg1r' title={e('nextMatch')} onClick={this.searchNext} />
-              <CloseOutlined className='pointer' title={m('close')} onClick={this.searchClose} />
-            </span>
-          }
-        />
-      </div>
-    )
-  }
-
   switchEncoding = encode => {
     this.decode = new TextDecoder(encode)
     this.attachAddon.decoder = this.decode
@@ -1206,7 +1173,6 @@ export default class Term extends Component {
         <div
           {...prps2}
         >
-          {this.renderSearchBox()}
           <div
             {...prps3}
           />
