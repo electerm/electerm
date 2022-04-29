@@ -61,12 +61,8 @@ export default store => {
           ]
         }
       }
-      const bookmarks = store.getBookmarks()
       for (const id of ids) {
-        const item = _.find(bookmarks, b => b.id === id)
-        if (item) {
-          store.addTab(item)
-        }
+        store.onSelectBookmark(id)
       }
     },
 
