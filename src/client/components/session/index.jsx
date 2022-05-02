@@ -201,11 +201,13 @@ export default class SessionWrapper extends Component {
     )
   }
 
-  delSplit = () => {
-    const { activeSplitId, terminals } = this.state
-    let newTerms = terminals.filter(t => t.id !== activeSplitId)
+  delSplit = (splitId = this.state.activeSplitId) => {
+    const { terminals } = this.state
+    let newTerms = terminals.filter(t => t.id !== splitId)
     if (!newTerms.length) {
-      return
+      return this.props.store.delTab(
+        this.props.tab
+      )
     }
     newTerms = rebuildPosition(newTerms)
     const newActiveId = getPrevTerminal(newTerms).id
@@ -301,6 +303,7 @@ export default class SessionWrapper extends Component {
                   [
                     'setActive',
                     'doSplit',
+                    'delSplit',
                     'setSessionState',
                     'handleShowInfo',
                     'onChangePane',
@@ -442,7 +445,7 @@ export default class SessionWrapper extends Component {
                     : (
                       <CloseSquareFilled
                         className='mg1r icon-trash font16 iblock pointer spliter'
-                        onClick={this.delSplit}
+                        onClick={() => this.delSplit()}
                         title={m('del')} />
                     )
                 }

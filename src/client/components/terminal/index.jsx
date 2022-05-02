@@ -959,8 +959,8 @@ export default class Term extends Component {
     if (this.onClose) {
       return
     }
-    this.setStatus(statusMap.error)
     log.debug('socket closed, pid:', this.pid)
+    this.props.delSplit(this.state.id)
   }
 
   batchInput = (cmd) => {

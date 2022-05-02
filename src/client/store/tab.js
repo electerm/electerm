@@ -72,12 +72,18 @@ export default store => {
         const next = tabs[i] || {}
         store.currentTabId = next.id
       }
+      const narr = tabs.filter(t => {
+        return t.id !== id
+      })
       store.setItems(
         'tabs',
         tabs.filter(t => {
           return t.id !== id
         })
       )
+      if (narr.length <= 1) {
+        setTimeout(store.addTab, 1)
+      }
     },
 
     processTerminals (tab) {

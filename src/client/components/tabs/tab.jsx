@@ -167,9 +167,6 @@ export default class Tab extends React.Component {
 
   close = () => {
     this.props.store.delTab({ id: this.state.tab.id })
-    if (this.props.tabs.length <= 1) {
-      setTimeout(this.props.store.addTab, 1)
-    }
   }
 
   dup = () => {
