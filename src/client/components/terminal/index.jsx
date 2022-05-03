@@ -131,7 +131,6 @@ export default class Term extends Component {
     Object.keys(this.timers).forEach(k => {
       clearTimeout(this.timers[k])
     })
-    clearTimeout(this.timeoutHandler)
     clearTimeout(this.timers)
     this.onClose = true
     this.socket && this.socket.close()
@@ -662,18 +661,6 @@ export default class Term extends Component {
 
   onSocketData = () => {
     this.notifyOnData()
-    clearTimeout(this.timeoutHandler)
-  }
-
-  listenTimeout = () => {
-    clearTimeout(this.timeoutHandler)
-    if (this.onZmodem) {
-      return
-    }
-    this.timeoutHandler = setTimeout(
-      () => this.setStatus('error'),
-      this.props.config.terminalTimeout
-    )
   }
 
   initTerminal = async () => {
@@ -876,11 +863,6 @@ export default class Term extends Component {
     this.attachAddon = new AttachAddon(socket, undefined, encode)
     term.loadAddon(this.attachAddon)
     socket.onopen = () => {
-      const old = socket.send
-      socket.send = (...args) => {
-        this.listenTimeout()
-        return old.apply(socket, args)
-      }
       socket.addEventListener('message', this.onSocketData)
       term._initialized = true
     }
