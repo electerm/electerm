@@ -1,11 +1,11 @@
-import { useEffect, useRef, useState } from 'react'
+import { Component } from '../common/react-subx'
 import { CloseOutlined, MinusSquareOutlined, UpCircleOutlined } from '@ant-design/icons'
 import { Button } from 'antd'
 import { getLatestReleaseInfo, getLatestReleaseVersion } from '../../common/update-check'
 import upgrade from '../../common/upgrade'
 import compare from '../../../app/common/version-compare'
 import Link from '../common/external-link'
-import { isMac, isWin, packInfo, commonActions } from '../../common/constants'
+import { isMac, isWin, packInfo, commonActions, srcsSkipUpgradeCheck } from '../../common/constants'
 import newTerm from '../../common/new-terminal'
 import Markdown from '../common/markdown'
 import './upgrade.styl'
@@ -17,131 +17,136 @@ const {
 const e = prefix('updater')
 const c = prefix('common')
 const { installSrc } = window.pre
-const srcSkip = [
-  '.appx'
-]
 
-export default function Upgrade (props) {
-  const {
-    checkUpdateOnStart
-  } = props.store.config
-  const [showCount, setShowCount] = useState(0)
-  const update = useRef(null)
-  function onEvent (e) {
+export default class Upgrade extends Component {
+  state = {
+    showCount: 0
+  }
+
+  componentDidMount () {
+    if (this.props.store.config.checkUpdateOnStart) {
+      this.getLatestRelease()
+    }
+    this.watch()
+  }
+
+  componentWillUnmount () {
+    this.unwatch()
+  }
+
+  watch = () => {
+    window.addEventListener('message', this.onEvent)
+  }
+
+  unwatch = () => {
+    window.removeEventListener('message', this.onEvent)
+  }
+
+  onEvent = (e) => {
     if (e && e.data && e.data.action === commonActions.appUpdateCheck) {
-      setShowCount(old => {
-        return old + 1
+      this.setState(old => {
+        return {
+          showCount: old.showCount + 1
+        }
       })
-      getLatestRelease(true)
+      this.getLatestRelease(true)
     }
   }
-  function watch () {
-    window.addEventListener('message', onEvent)
-  }
-  function unwatch () {
-    window.removeEventListener('message', onEvent)
-  }
-  useEffect(() => {
-    if (checkUpdateOnStart) {
-      getLatestRelease()
-    }
-    watch()
-    return unwatch
-  }, [])
 
-  function changeProps (update) {
-    props.store.storeAssign({
+  changeProps = (update) => {
+    this.props.store.storeAssign({
       upgradeInfo: {
-        ...props.store.upgradeInfo,
+        ...this.props.store.upgradeInfo,
         ...update
       }
     })
   }
 
-  function minimize () {
-    changeProps({
+  minimize = () => {
+    this.changeProps({
       showUpgradeModal: false
     })
-    props.store.focus()
+    this.props.store.focus()
   }
 
-  function close () {
-    props.store.storeAssign({
+  close = () => {
+    this.props.store.storeAssign({
       upgradeInfo: {}
     })
   }
 
-  function onData (upgradePercent) {
+  onData = (upgradePercent) => {
     if (upgradePercent >= 100) {
-      update.current.destroy()
-      return close()
+      this.update && this.update.destroy()
+      return this.close()
     }
-    changeProps({
+    this.changeProps({
       upgradePercent
     })
   }
 
-  function onError (e) {
-    changeProps({
+  onError = (e) => {
+    this.changeProps({
       error: e.message
     })
   }
 
-  function cancel () {
-    update.current.destroy()
-    changeProps({
+  cancel = () => {
+    this.update && this.update.destroy()
+    this.changeProps({
       upgrading: false,
       upgradePercent: 0
     })
   }
 
-  function onEnd () {
-    close()
+  onEnd = () => {
+    this.close()
   }
 
-  async function doUpgrade () {
+  doUpgrade = async () => {
     if (!isMac && !isWin && installSrc === 'npm') {
-      return props.addTab(
+      return this.props.store.addTab(
         {
           ...newTerm(),
           loginScript: 'npm i -g electerm'
         }
       )
     }
-    changeProps({
+    this.changeProps({
       upgrading: true
     })
-    update.current = await upgrade({
-      proxy: props.proxy,
-      onData,
-      onEnd,
-      onError
+    const proxy = this.props.store.getProxySetting()
+    this.update = await upgrade({
+      proxy,
+      onData: this.onData,
+      onEnd: this.onEnd,
+      onError: this.onError
     })
   }
 
-  function skipVersion () {
-    props.store.config.skipVersion = props.upgradeInfo.remoteVersion
-    close()
+  skipVersion = () => {
+    this.props.store.config.skipVersion = this.props.upgradeInfo.remoteVersion
+    this.close()
   }
 
-  async function getLatestRelease (noSkipVersion = false) {
-    if (installSrc) {
-
+  getLatestRelease = async (noSkipVersion = false) => {
+    if (srcsSkipUpgradeCheck.includes(installSrc)) {
+      return
     }
-    changeProps({
+    this.changeProps({
       checkingRemoteVersion: true,
       error: ''
     })
     const releaseVer = await getLatestReleaseVersion()
-    changeProps({
+    this.changeProps({
       checkingRemoteVersion: false
     })
     if (!releaseVer) {
-      return changeProps({
+      return this.changeProps({
         error: 'Can not get version info'
       })
     }
-    const { skipVersion = 'v0.0.0' } = props.store.config
+    const { skipVersion = 'v0.0.0' } = this.props.store.config
     const currentVer = 'v' + window.et.version.split('-')[0]
     const latestVer = releaseVer.tag_name
     if (!noSkipVersion && compare(skipVersion, latestVer) >= 0) {
@@ -153,7 +158,7 @@ export default function Upgrade (props) {
     if (canAutoUpgrade) {
       releaseInfo = await getLatestReleaseInfo()
     }
-    changeProps({
+    this.changeProps({
       shouldUpgrade,
       releaseInfo,
       remoteVersion: latestVer,
@@ -162,11 +167,11 @@ export default function Upgrade (props) {
     })
   }
 
-  function renderError (err) {
+  renderError = (err) => {
     return (
       <div className='upgrade-panel'>
         <div className='upgrade-panel-title'>
-          <CloseOutlined className='pointer font16 close-upgrade-panel' onClick={close} />
+          <CloseOutlined className='pointer font16 close-upgrade-panel' onClick={this.close} />
           {e('fail')}: {err}
         </div>
         <div className='upgrade-panel-body'>
@@ -180,15 +185,15 @@ export default function Upgrade (props) {
     )
   }
 
-  function renderCanNotUpgrade () {
+  renderCanNotUpgrade = () => {
     const {
       showUpgradeModal
-    } = props.upgradeInfo
+    } = this.props.store.upgradeInfo
     const cls = `animate upgrade-panel${showUpgradeModal ? '' : ' upgrade-panel-hide'}`
     return (
       <div className={cls}>
         <div className='upgrade-panel-title'>
-          <CloseOutlined className='pointer font16 close-upgrade-panel' onClick={close} />
+          <CloseOutlined className='pointer font16 close-upgrade-panel' onClick={this.close} />
           {e('noNeed')}
         </div>
         <div className='upgrade-panel-body'>
@@ -198,10 +203,10 @@ export default function Upgrade (props) {
     )
   }
 
-  function renderChangeLog () {
+  renderChangeLog = () => {
     const {
       releaseInfo
-    } = props.upgradeInfo
+    } = this.props.store.upgradeInfo
     if (!releaseInfo) {
       return null
     }
@@ -213,10 +218,10 @@ export default function Upgrade (props) {
     )
   }
 
-  function renderSkipVersion () {
+  renderSkipVersion = () => {
     return (
       <Button
-        onClick={skipVersion}
+        onClick={this.skipVersion}
         icon={<CloseOutlined />}
         className='mg1l mg1b'
       >
@@ -225,73 +230,78 @@ export default function Upgrade (props) {
     )
   }
 
-  const {
-    remoteVersion,
-    upgrading,
-    checkingRemoteVersion,
-    showUpgradeModal,
-    upgradePercent,
-    shouldUpgrade,
-    error
-  } = props.upgradeInfo
-  if (error) {
-    return renderError(error)
-  }
-  if (!shouldUpgrade && !showCount) {
-    return null
-  }
-  if (!shouldUpgrade && showCount) {
-    return renderCanNotUpgrade()
-  }
-  if (checkingRemoteVersion) {
-    return null
-  }
-  const cls = `animate upgrade-panel${showUpgradeModal ? '' : ' upgrade-panel-hide'}`
-  const func = upgrading
-    ? cancel
-    : doUpgrade
-  const getLink = (
-    <div>
-      {e('goGetIt')}
-      <Link to={homepage} className='mg1l'>{homepage}</Link>
-      {renderChangeLog()}
-    </div>
-  )
-  const skip = srcSkip.includes(installSrc)
-  return (
-    <div className={cls}>
-      <div className='upgrade-panel-title'>
-        <MinusSquareOutlined className='pointer font16 close-upgrade-panel' onClick={minimize} />
-        {e('newVersion')} <b>{remoteVersion}</b>
+  render () {
+    const {
+      showCount
+    } = this.state
+    const {
+      remoteVersion,
+      upgrading,
+      checkingRemoteVersion,
+      showUpgradeModal,
+      upgradePercent,
+      shouldUpgrade,
+      error
+    } = this.props.store.upgradeInfo
+    if (error) {
+      return this.renderError(error)
+    }
+    if (!shouldUpgrade && !showCount) {
+      return null
+    }
+    if (!shouldUpgrade && showCount) {
+      return this.renderCanNotUpgrade()
+    }
+    if (checkingRemoteVersion) {
+      return null
+    }
+    const cls = `animate upgrade-panel${showUpgradeModal ? '' : ' upgrade-panel-hide'}`
+    const func = upgrading
+      ? this.cancel
+      : this.doUpgrade
+    const getLink = (
+      <div>
+        {e('goGetIt')}
+        <Link to={homepage} className='mg1l'>{homepage}</Link>
+        {this.renderChangeLog()}
       </div>
-      <div className='upgrade-panel-body'>
-        {
-          !skip
-            ? (
-              <div>
-                <Button
-                  type='primary'
-                  icon={<UpCircleOutlined />}
-                  loading={checkingRemoteVersion}
-                  disabled={checkingRemoteVersion}
-                  onClick={func}
-                  className='mg1b'
-                >
-                  {
-                    upgrading
-                      ? <span>{`${e('upgrading')}... ${upgradePercent || 0}% ${c('cancel')}`}</span>
-                      : e('upgrade')
-                  }
-                </Button>
-                {renderSkipVersion()}
-                <div className='pd1t'>
-                  {getLink}
+    )
+    const skip = srcsSkipUpgradeCheck.includes(installSrc)
+    return (
+      <div className={cls}>
+        <div className='upgrade-panel-title'>
+          <MinusSquareOutlined className='pointer font16 close-upgrade-panel' onClick={this.minimize} />
+          {e('newVersion')} <b>{remoteVersion}</b>
+        </div>
+        <div className='upgrade-panel-body'>
+          {
+            !skip
+              ? (
+                <div>
+                  <Button
+                    type='primary'
+                    icon={<UpCircleOutlined />}
+                    loading={checkingRemoteVersion}
+                    disabled={checkingRemoteVersion}
+                    onClick={func}
+                    className='mg1b'
+                  >
+                    {
+                      upgrading
+                        ? <span>{`${e('upgrading')}... ${upgradePercent || 0}% ${c('cancel')}`}</span>
+                        : e('upgrade')
+                    }
+                  </Button>
+                  {this.renderSkipVersion()}
+                  <div className='pd1t'>
+                    {getLink}
+                  </div>
                 </div>
-              </div>
-            )
-            : getLink
-        }
+              )
+              : getLink
+          }
+        </div>
       </div>
-    </div>
-  )
+    )
+  }
 }

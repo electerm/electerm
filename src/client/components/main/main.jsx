@@ -100,13 +100,8 @@ export default class Index extends Component {
           [k]: cpConf[k]
         }
       }, {})
-    const confsProxy = store.getProxySetting()
     const themeProps = {
       themeConfig: store.getUiThemeConfig()
-    }
-    const updateProps = {
-      proxy: confsProxy,
-      upgradeInfo: copy(store.upgradeInfo)
     }
     const outerProps = {
       style: {
@@ -149,8 +144,6 @@ export default class Index extends Component {
         />
         <UpdateCheck
           store={store}
-          {...updateProps}
-          addTab={store.addTab}
         />
         <ContextMenu
           {...contextMenuProps}

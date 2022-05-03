@@ -18,7 +18,8 @@ import {
   logoPath2,
   logoPath3,
   packInfo,
-  infoTabs
+  infoTabs,
+  srcsSkipUpgradeCheck
 } from '../../common/constants'
 import LogView from './log-view'
 import './info.styl'
@@ -36,10 +37,31 @@ export default class InfoModal extends Component {
     this.props.store.infoModalTab = key
   }
 
+  renderCheckUpdate = () => {
+    if (srcsSkipUpgradeCheck.includes(window.pre.installSrc)) {
+      return null
+    }
+    const { store } = this.props
+    const {
+      onCheckUpdate
+    } = store
+    const onCheckUpdating = store.upgradeInfo.checkingRemoteVersion || store.upgradeInfo.upgrading
+    return (
+      <p className='mg1b mg2t'>
+        <Button
+          type='primary'
+          loading={onCheckUpdating}
+          onClick={() => onCheckUpdate(true)}
+        >
+          {e('checkForUpdate')}
+        </Button>
+      </p>
+    )
+  }
+
   render () {
     const { store } = this.props
     const {
-      onCheckUpdate,
       onCloseAbout,
       showInfoModal,
       commandLineHelp,
@@ -48,7 +70,6 @@ export default class InfoModal extends Component {
     if (!showInfoModal) {
       return null
     }
-    const onCheckUpdating = store.upgradeInfo.checkingRemoteVersion || store.upgradeInfo.upgrading
     const {
       name,
       // description,
@@ -162,15 +183,7 @@ export default class InfoModal extends Component {
                   <WarningOutlined /> {privacyNoticeLink}
                 </Link>
               </p>
-              <p className='mg1b mg2t'>
-                <Button
-                  type='primary'
-                  loading={onCheckUpdating}
-                  onClick={() => onCheckUpdate(true)}
-                >
-                  {e('checkForUpdate')}
-                </Button>
-              </p>
+              {this.renderCheckUpdate()}
             </TabPane>
             <TabPane tab={e('dependencies')} key={infoTabs.deps}>
               {

@@ -261,3 +261,9 @@ export const dbsShouldParse = [
   'transferHistory',
   'quickCommands'
 ]
+
+export const srcsSkipUpgradeCheck = [
+  '.appx',
+  '.snap',
+  'skip-upgrade-check'
+]
