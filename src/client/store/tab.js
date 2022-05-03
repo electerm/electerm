@@ -77,9 +77,7 @@ export default store => {
       })
       store.setItems(
         'tabs',
-        tabs.filter(t => {
-          return t.id !== id
-        })
+        narr
       )
       if (narr.length <= 1) {
         setTimeout(store.addTab, 1)

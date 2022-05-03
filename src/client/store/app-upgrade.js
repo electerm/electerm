@@ -2,13 +2,13 @@
  * app upgrade
  */
 
-import { appUpdateCheck } from '../common/constants'
+import { commonActions } from '../common/constants'
 import copy from 'json-deep-copy'
 
 export default store => {
   store.onCheckUpdate = () => {
     window.postMessage({
-      action: appUpdateCheck
+      action: commonActions.appUpdateCheck
     }, '*')
   }
   store.getProxySetting = () => {

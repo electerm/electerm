@@ -5,7 +5,7 @@ import { getLatestReleaseInfo, getLatestReleaseVersion } from '../../common/upda
 import upgrade from '../../common/upgrade'
 import compare from '../../../app/common/version-compare'
 import Link from '../common/external-link'
-import { isMac, isWin, packInfo, appUpdateCheck } from '../../common/constants'
+import { isMac, isWin, packInfo, commonActions } from '../../common/constants'
 import newTerm from '../../common/new-terminal'
 import Markdown from '../common/markdown'
 import './upgrade.styl'
@@ -28,7 +28,7 @@ export default function Upgrade (props) {
   const [showCount, setShowCount] = useState(0)
   const update = useRef(null)
   function onEvent (e) {
-    if (e && e.data && e.data.action === appUpdateCheck) {
+    if (e && e.data && e.data.action === commonActions.appUpdateCheck) {
       setShowCount(old => {
         return old + 1
       })
@@ -136,9 +136,6 @@ export default function Upgrade (props) {
     changeProps({
       checkingRemoteVersion: false
     })
-    if (!checkUpdateOnStart) {
-      return
-    }
     if (!releaseVer) {
       return changeProps({
         error: 'Can not get version info'
