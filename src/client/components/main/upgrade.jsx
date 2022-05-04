@@ -25,7 +25,7 @@ export default class Upgrade extends Component {
 
   componentDidMount () {
     if (this.props.store.config.checkUpdateOnStart) {
-      this.getLatestRelease()
+      setTimeout(this.getLatestRelease, 1000)
     }
     this.watch()
   }
