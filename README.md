@@ -141,7 +141,7 @@ npm run test
 npm i
 npm run pre-test
 npm run release -l
-# visit dist/
+# check dist/ folder
 ```
 
 ## Use
