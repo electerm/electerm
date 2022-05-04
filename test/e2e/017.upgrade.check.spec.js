@@ -23,7 +23,7 @@ describe('Upgrade check', function () {
     await client.hasElem(sel)
 
     await client.click('.about-wrap .ant-btn-primary')
-    await delay(5000)
+    await delay(9000)
     await client.hasElem('.upgrade-panel')
     await electronApp.close().catch(console.log)
   })
