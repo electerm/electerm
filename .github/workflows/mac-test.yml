@@ -1,7 +1,7 @@
 # This workflow will do a clean install of node dependencies, build the source code and run tests across different versions of node
 # For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
 
-name: mac-x64
+name: mac-x64-test
 
 on:
   push:
@@ -35,12 +35,14 @@ jobs:
     - run: PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm i -D playwright@1.20.2 --no-save
     - run: npm run pre-test
 
-    - name: build
-      if: "!contains(github.event.head_commit.message, 'skip build')"
+    - name: test
+      uses: GabrielBB/xvfb-action@v1
+      with:
+        run: npm run test
       env:
-        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        BUILD_NUMBER: ${{ secrets.BUILD_NUMBER }}
-        CSC_LINK: ${{ secrets.CSC_LINK }}
-        CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
-      run: npm run build-mac
+        NODE_TEST: 1
+        TEST_HOST: ${{ secrets.TEST_HOST }}
+        TEST_USER: ${{ secrets.TEST_USER_DARWIN }}
+        TEST_PASS: ${{ secrets.TEST_PASS_DARWIN }}
+
 
