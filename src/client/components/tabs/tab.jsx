@@ -62,6 +62,10 @@ export default class Tab extends React.Component {
     runIdle(() => this.setState(...args))
   }
 
+  isOnlyTab = () => {
+    return this.props.store.tabs.length < 2
+  }
+
   onEvent = (e) => {
     if (
       e.data &&
@@ -234,23 +238,29 @@ export default class Tab extends React.Component {
   }
 
   renderContext () {
+    const isOnlyTab = this.isOnlyTab()
     const { tabs, tab } = this.props
     const len = tabs.length
     const index = _.findIndex(tabs, t => t.id === tab.id)
-    const nother = len === 1
     const noRight = index >= len - 1
     const cls = 'pd2x pd1y context-item pointer'
     const isSshConfig = tab.type === terminalSshConfigType
     return (
       <div>
-        <div
-          className={cls}
-          onClick={this.close}
-        >
-          <CloseOutlined /> {e('close')} ({ctrlOrCmd} + W)
-        </div>
         {
-          nother
+          isOnlyTab
+            ? null
+            : (
+              <div
+                className={cls}
+                onClick={this.close}
+              >
+                <CloseOutlined /> {e('close')} ({ctrlOrCmd} + W)
+              </div>
+            )
+        }
+        {
+          isOnlyTab
             ? null
             : (
               <div
@@ -332,6 +342,18 @@ export default class Tab extends React.Component {
     )
   }
 
+  renderCloseIcon () {
+    const isOnlyTab = this.isOnlyTab()
+    if (isOnlyTab) {
+      return null
+    }
+    return (
+      <span className='tab-close pointer'>
+        <CloseOutlined onClick={this.close} />
+      </span>
+    )
+  }
+
   render () {
     const {
       currentTabId,
@@ -392,9 +414,10 @@ export default class Tab extends React.Component {
           <div className={'tab-status ' + status} />
           <div className='tab-traffic' />
           <BorderlessTableOutlined className='tab-terminal-feed' />
-          <span className='tab-close pointer'>
-            <CloseOutlined onClick={this.close} />
-          </span>
+          {
+            this.renderCloseIcon()
+          }
+
         </div>
       </Tooltip>
     )
