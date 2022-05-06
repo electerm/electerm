@@ -117,6 +117,12 @@ npm run lint
 npm run fix
 ```
 
+If you encounter some errors when running ```npm run app``` like ```libatk1.0.so.0: cannot open shared object file``` or ```libgtk-3.so.0: cannot open shared object file``` you need to install some required libraries (example for Ubuntu in WSL 2) :
+
+```
+sudo apt install libatk1.0-0 libatk1.0-dev libatk-bridge2.0-0 libatk-bridge2.0-dev libgtk-3-0 libgtk-3-dev
+```
+
 ## Test
 
 ```bash
