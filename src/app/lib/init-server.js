@@ -13,7 +13,7 @@ module.exports = async (config, env, sysLocale) => {
     global.childPid = child.pid
     child.on('message', (m) => {
       if (m && m.serverInited) {
-        resolve(true)
+        resolve(child)
       }
     })
   })

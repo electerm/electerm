@@ -8,7 +8,8 @@ const {
   BrowserWindow,
   dialog,
   powerMonitor,
-  globalShortcut
+  globalShortcut,
+  shell
 } = require('electron')
 const { dbAction } = require('./nedb')
 const installSrc = require('./install-src')
@@ -30,7 +31,8 @@ const lastStateManager = require('./last-state')
 const {
   packInfo,
   appPath,
-  isTest
+  isTest,
+  isMac
 } = require('../common/app-props')
 const {
   getScreenSize,
@@ -63,10 +65,17 @@ function initIpc () {
     const language = getLang(config, sysLocale)
     config.language = language
     if (!global.et.serverInited) {
-      await initServer(config, {
+      const child = await initServer(config, {
         ...process.env,
         appPath
       }, sysLocale)
+      child.on('message', (m) => {
+        if (m && m.file) {
+          if (!isMac) {
+            shell.showItemInFolder(m.file)
+          }
+        }
+      })
       global.et.serverInited = true
     }
     const lang = langMap[language].lang

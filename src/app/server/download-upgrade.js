@@ -164,9 +164,12 @@ class Upgrade {
   onEnd (id, ws) {
     if (!this.onDestroy) {
       openFile(this.localPath)
+      process.send({
+        file: this.localPath
+      })
       ws.s({
         id: 'transfer:end:' + id,
-        data: null
+        data: this.dir
       })
     }
   }
