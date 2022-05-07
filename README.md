@@ -98,7 +98,7 @@ Would love to hear from you, please tell me what you think, [submit an issue](ht
 # tested in ubuntu16.04+/mac os 10.13+ only
 # needs nodejs/npm, suggest using nvm to install nodejs/npm
 # https://github.com/creationix/nvm
-# with node 8.6+
+# with nodejs 16+
 
 git clone git@github.com:electerm/electerm.git
 cd electerm
