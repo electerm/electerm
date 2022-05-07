@@ -4,48 +4,21 @@
 
 import { Table } from 'antd'
 import _ from 'lodash'
-import { copy } from '../../common/clipboard'
-
-const { prefix } = window
-const m = prefix('menu')
+import colsParser from './data-cols-parser'
 
 export default function TerminalInfoActivities (props) {
   const { activities } = props
   if (_.isEmpty(activities) || !props.isRemote) {
     return null
   }
-  const col = Object.keys(activities[0]).map(k => {
-    return {
-      title: k,
-      dataIndex: k,
-      key: k,
-      sorter: (a, b) => {
-        return a[k] > b[k] ? 1 : -1
-      },
-      render: (txt) => {
-        return (
-          <div className='activity-item'>
-            <span>{txt}</span>
-            <span
-              className='pointer activity-item-copy mg1l bold color-blue'
-              onClick={() => copy(txt)}
-            >
-              {m('copy')}
-            </span>
-          </div>
-        )
-      }
-    }
-  })
+  const col = colsParser(activities[0])
   const ps = {
     rowKey: 'pid',
     dataSource: activities,
     bordered: true,
     columns: col,
     size: 'small',
-    pagination: {
-      pageSize: 10000
-    }
+    pagination: false
   }
   return (
     <div className='terminal-info-section terminal-info-act'>

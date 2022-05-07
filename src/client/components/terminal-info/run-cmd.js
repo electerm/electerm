@@ -5,6 +5,7 @@
 import { runCmd } from '../terminal/terminal-apis'
 import { useEffect } from 'react'
 import wait from '../../common/wait'
+import parseInt10 from '../../common/parse-int10'
 
 function formatActivities (str) {
   if (!str) {
@@ -19,8 +20,8 @@ function formatActivities (str) {
       return {
         pid: arr[0],
         user: arr[1],
-        cpu: arr[2],
-        mem: arr[3],
+        cpu: parseFloat(arr[2]),
+        mem: parseInt10(arr[3]),
         cmd: arr.slice(4).join(' ')
       }
     }).filter(d => d.pid)
