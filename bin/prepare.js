@@ -10,7 +10,6 @@ const dir = 'dist/v' + version
 const cwd = process.cwd()
 pack.main = 'app.js'
 delete pack.scripts
-pack.devDependencies = {}
 echo('start pack prepare')
 
 const timeStart = +new Date()
