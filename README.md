@@ -90,7 +90,7 @@ npm i -g electerm
 
 ## Support
 
-Without user feedback/suggestions/pull requests/language files, this project would not get this far.I would love to hear from you, please tell me what you think, [submit an issue](https://github.com/electerm/electerm/issues), [send me an email](mailto:zxdong@gmail.com), [create/fix language files](https://github.com/electerm/electerm-locales) or create pull requests, all are welcome.
+Would love to hear from you, please tell me what you think, [submit an issue](https://github.com/electerm/electerm/issues), [Start a new discussion](https://github.com/electerm/electerm/discussions/new), [create/fix language files](https://github.com/electerm/electerm-locales) or create pull requests, all welcome.
 
 ## Dev
 
@@ -119,7 +119,7 @@ npm run fix
 
 If you encounter some errors when running ```npm run app``` like ```libatk1.0.so.0: cannot open shared object file``` or ```libgtk-3.so.0: cannot open shared object file``` you need to install some required libraries (example for Ubuntu in WSL 2) :
 
-```
+```bash
 sudo apt install libatk1.0-0 libatk1.0-dev libatk-bridge2.0-0 libatk-bridge2.0-dev libgtk-3-0 libgtk-3-dev
 ```
 
