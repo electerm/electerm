@@ -70,9 +70,9 @@ function initIpc () {
         appPath
       }, sysLocale)
       child.on('message', (m) => {
-        if (m && m.file) {
+        if (m && m.showFileInFolder) {
           if (!isMac) {
-            shell.showItemInFolder(m.file)
+            shell.showItemInFolder(m.showFileInFolder)
           }
         }
       })
