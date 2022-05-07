@@ -5,6 +5,7 @@ on:
 jobs:
   publish:
     runs-on: windows-latest # action can only be run on windows
+    environment: build
     steps:
       - uses: vedantmgoyal2009/vedantmgoyal2009/winget-pkgs-automation/releaser-action@v1.0.0
         with:
