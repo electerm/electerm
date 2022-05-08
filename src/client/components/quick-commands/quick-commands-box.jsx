@@ -68,22 +68,14 @@ export default class QuickCommandsFooterBox extends Component {
     }
   }
 
-  handleHoverChange = (v) => {
-    this.setState({
-      visible: v
-    })
-  }
-
   close = () => {
-    this.setState({
-      visible: false
-    })
+    this.props.store.pinnedQuickCommandBar = false
+    this.props.store.openQuickCommandBar = false
   }
 
   handleChange = e => {
     this.setState({
-      keyword: e.target.value,
-      visible: true
+      keyword: e.target.value
     })
   }
 
