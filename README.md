@@ -25,7 +25,7 @@ Terminal/ssh/sftp client(linux, mac, win) based on electron/ssh2/node-pty/xterm/
 - Works as a terminal/file manager or ssh/sftp client(similar to xshell)
 - Global hotkey to toggle window visibility (similar to guake, default is `ctrl + 2`)
 - Multi platform(linux, mac, win)
-- 🇺🇸 🇨🇳 🇧🇷 🇷🇺 🇪🇸 🇫🇷 🇹🇷 🇭🇰 🇯🇵 🇸🇦 Multi-language support([electerm-locales](https://github.com/electerm/electerm-locales), contributions/fixes welcome)
+- 🇺🇸 🇨🇳 🇧🇷 🇷🇺 🇪🇸 🇫🇷 🇹🇷 🇭🇰 🇯🇵 🇸🇦 🇩🇪 Multi-language support([electerm-locales](https://github.com/electerm/electerm-locales), contributions/fixes welcome)
 - Double click to directly edit (small) remote files.
 - Edit (small) local files with built-in editor.
 - Auth with publicKey + password.
