@@ -52,7 +52,7 @@ describe('timeout setting', function () {
     await client.setValue('#ssh-form_username', TEST_USER)
     await client.setValue('#ssh-form_password', TEST_PASS)
     await client.click('.setting-wrap .ant-tabs-tabpane-active .ant-btn-primary')
-    await delay(3500)
+    await delay(5500)
     const txt = await client.getText('.ant-notification-notice  .ant-notification-notice-content .common-err')
     expect(txt.includes('Timed out')).equal(true)
 
