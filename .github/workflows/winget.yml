@@ -10,5 +10,5 @@ jobs:
       - uses: vedantmgoyal2009/vedantmgoyal2009/winget-pkgs-automation/releaser-action@v1.0.0
         with:
           identifier: electerm.electerm
-          installer-regex: '.*.exe$'
+          installers-regex: '.*.exe$'
           token: ${{ secrets.WINGET_TOKEN }}
