@@ -9,7 +9,8 @@ import copy from 'json-deep-copy'
 import wait from '../common/wait'
 // import getInitItem from '../common/init-setting-item'
 import {
-  statusMap
+  statusMap,
+  paneMap
 } from '../common/constants'
 
 const defaultStatus = statusMap.processing
@@ -113,19 +114,22 @@ export default store => {
     },
 
     onDuplicateTab (tabToDup) {
-      const tab = copy(tabToDup)
+      let tab = copy(tabToDup)
       store.processTerminals(tab)
       const tabs = store.getItems('tabs')
       const index = _.findIndex(
         tabs,
         d => d.id === tab.id
       )
-      store.addTab({
+      tab = {
         ...tab,
         status: defaultStatus,
         id: generate(),
         isTransporting: undefined
-      }, index + 1)
+      }
+      tab.pane = paneMap.terminal
+      console.log('x', tab)
+      store.addTab(tab, index + 1)
     },
 
     onChangeTabId (currentTabId) {
