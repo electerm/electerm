@@ -266,6 +266,14 @@ export default class FileListTable extends React.Component {
       ? this.otherDirection(sortDirection)
       : this.props.defaultDirection()
     const { type } = this.props
+    Object.assign(
+      this.props.store.sftpSortSetting, {
+        [type]: {
+          direction: sortDirectionNew,
+          prop: name
+        }
+      }
+    )
     this.props.modifier({
       [`sortDirection.${type}`]: sortDirectionNew,
       [`sortProp.${type}`]: name

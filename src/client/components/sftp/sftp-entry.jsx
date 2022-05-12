@@ -115,8 +115,8 @@ export default class Sftp extends Component {
   defaultState = () => {
     return Object.keys(typeMap).reduce((prev, k, i) => {
       Object.assign(prev, {
-        [`sortProp.${k}`]: 'modifyTime',
-        [`sortDirection.${k}`]: this.defaultDirection(i),
+        [`sortProp.${k}`]: this.props.store.sftpSortSetting[k].prop,
+        [`sortDirection.${k}`]: this.props.store.sftpSortSetting[k].direction,
         [k]: [],
         [`${k}FileTree`]: {},
         [`${k}Loading`]: false,
@@ -781,7 +781,6 @@ export default class Sftp extends Component {
       type,
       ..._.pick(this, [
         'sftp',
-        'onSort',
         'modifier',
         'localList',
         'remoteList',

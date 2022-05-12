@@ -12,7 +12,8 @@ import {
   settingSyncId,
   infoTabs,
   openedSidebarKey,
-  sidebarPinnedKey
+  sidebarPinnedKey,
+  sftpDefaultSortSettingKey
 } from '../common/constants'
 import { buildDefaultThemes, buildNewTheme } from '../common/terminal-theme'
 import * as ls from '../common/safe-local-storage'
@@ -57,41 +58,54 @@ const bookmarks = []
 const bookmarkGroups = getDefaultBookmarkGroups(bookmarks)
 
 export default {
+  // common
   lastDataUpdateTime: 0,
   tabs,
-  innerWidth: window.innerWidth,
-  height: 500,
   currentTabId: '',
   history: [],
-  fileTransfers: [
-  ],
-  transferTab: 'transfer',
-  quickCommands: [],
-  quickCommandId: '',
   bookmarks,
   bookmarkGroups,
+  config: copy(_config) || {},
+  terminalThemes: [buildDefaultThemes()],
+
+  currentBookmarkGroupId: defaultBookmarkGroupId,
+
+  // context menu
+  contextMenuProps: {},
+  contextMenuVisible: false,
+
+  // init session control
+  selectedSessions: [],
+  sessionModalVisible: false,
+
+  // sftp
+  transferTab: 'transfer',
+  transferHistory: [],
+  textEditorProps: {},
+  textEditorSystemProps: {},
+  fileInfoModalProps: {},
+  fileModeModalProps: {},
+  fileTransfers: [
+  ],
+  sftpSortSetting: ls.getItemJSON(sftpDefaultSortSettingKey, {
+    local: {
+      prop: 'modifyTime',
+      direction: 'asc'
+    },
+    remote: {
+      prop: 'modifyTime',
+      direction: 'desc'
+    }
+  }),
+
+  // for settings related
   setting: [
     {
       id: settingSyncId,
       title: ss('settingSync')
     }
   ],
-  isMaximized: window.pre.runSync('isMaximized'),
-  config: copy(_config) || {},
-  contextMenuProps: {},
-  transferHistory: [],
-  terminalThemes: [buildDefaultThemes()],
-  contextMenuVisible: false,
-  fileInfoModalProps: {},
-  fileModeModalProps: {},
-  currentBookmarkGroupId: defaultBookmarkGroupId,
-  selectedSessions: [],
-  sessionModalVisible: false,
-  textEditorProps: {},
-  textEditorSystemProps: {},
   settingItem: getInitItem([], settingMap.bookmarks),
-
-  // for settings related
   tab: settingMap.bookmarks, // setting tab
   autofocustrigger: +new Date(),
   bookmarkId: undefined,
@@ -119,6 +133,8 @@ export default {
   },
 
   // quick commands
+  quickCommands: [],
+  quickCommandId: '',
   openQuickCommandBar: false,
   pinnedQuickCommandBar: false,
 
@@ -147,5 +163,8 @@ export default {
   batchInputs: [],
 
   // ui
+  innerWidth: window.innerWidth,
+  height: 500,
+  isMaximized: window.pre.runSync('isMaximized'),
   terminalFullScreen: false
 }

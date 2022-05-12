@@ -8,6 +8,10 @@ import _ from 'lodash'
 import copy from 'json-deep-copy'
 import { update, dbNames } from '../common/db'
 import { debounceTime } from 'rxjs/operators'
+import {
+  sftpDefaultSortSettingKey
+} from '../common/constants'
+import * as ls from '../common/safe-local-storage'
 
 export default store => {
   // auto focus when tab change
@@ -72,4 +76,9 @@ export default store => {
     store.updateTabsStatus()
     return store.fileTransfers
   }, debounceTime(1000))
+
+  Subx.autoRun(store, () => {
+    ls.setItemJSON(sftpDefaultSortSettingKey, store.sftpSortSetting)
+    return store.sftpSortSetting
+  })
 }
