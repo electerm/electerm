@@ -83,7 +83,7 @@ describe('sftp basic', function () {
 
     // enter folder
     await client.doubleClick('.ssh-wrap-show .file-list.local .sftp-item:not(.virtual-file-unit) .file-bg')
-    await delay(5000)
+    await delay(5500)
     const pathCurrentLocal = await client.getValue('.ssh-wrap-show .sftp-local-section .sftp-title input')
     expect(pathCurrentLocal.includes(fname)).equal(true)
     const localFileList0 = await client.countElem('.ssh-wrap-show .file-list.local .sftp-item')
