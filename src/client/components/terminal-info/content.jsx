@@ -16,7 +16,7 @@ import {
   sidebarWidth,
   termControlHeight
 } from '../../common/constants'
-
+import { runCmd } from '../terminal/terminal-apis'
 import { CloseCircleOutlined, LeftCircleOutlined, RightCircleOutlined } from '@ant-design/icons'
 
 export default function TerminalInfoContent (props) {
@@ -37,6 +37,14 @@ export default function TerminalInfoContent (props) {
     setter(s => {
       return Object.assign({}, s, ext)
     })
+  }
+  async function killProcess (id) {
+    const {
+      pid,
+      sessionId
+    } = props
+    const cmd = `kill ${id}`
+    runCmd(pid, sessionId, cmd)
   }
   return (
     <div
@@ -75,7 +83,11 @@ export default function TerminalInfoContent (props) {
         <TerminalInfoResource
           {...props} {...state}
         />
-        <TerminalInfoActivities {...props} {...state} />
+        <TerminalInfoActivities
+          {...props}
+          {...state}
+          killProcess={killProcess}
+        />
         <TerminalInfoNetwork {...props} {...state} />
         <TerminalInfoDisk {...props} {...state} />
         <RunCmd {...props} setState={setState} />
