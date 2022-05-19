@@ -35,6 +35,7 @@ Terminal/ssh/sftp client(linux, mac, win) based on electron/ssh2/node-pty/xterm/
 - Terminal background image.
 - Global/session proxy.
 - Quick commands
+- UI/terminal theme
 - Sync bookmarks/themes/quick commands to github/gitee secret gist
 - Support serial Port(version > 1.21.8)
 - Quick input to one or all terminals.
@@ -75,6 +76,11 @@ npm i -g electerm
 - Download: Just download the latest edition, reinstall.
 - Npm: If you install from npm, just run `npm i -g electerm` again.
 - If use Snap or some other distribution system, these systems may provide upgrades.
+
+## Themes
+
+- https://github.com/mbadolato/iTerm2-Color-Schemes/tree/master/electerm
+- https://github.com/Hope-IT-Works/electerm-theme-termius
 
 ## Known issues
 
