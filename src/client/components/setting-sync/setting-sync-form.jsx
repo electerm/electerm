@@ -5,7 +5,6 @@
 /**
  * bookmark form
  */
-import { useState } from 'react'
 import { useDelta, useConditionalEffect } from 'react-delta'
 import { ArrowDownOutlined, ArrowUpOutlined, QuestionCircleOutlined, SaveOutlined, ClearOutlined } from '@ant-design/icons'
 import { Button, Input, notification, Tooltip, Form, Switch } from 'antd'
@@ -24,15 +23,10 @@ const sh = prefix('ssh')
 
 export default function SyncForm (props) {
   const [form] = Form.useForm()
-  const [hide, setState] = useState(true)
   const delta = useDelta(props.formData)
   useConditionalEffect(() => {
     form.resetFields()
   }, delta && delta.prev && !eq(delta.prev, delta.curr))
-
-  function showGistForm () {
-    setState(false)
-  }
 
   function disabled () {
     const {
@@ -98,25 +92,29 @@ export default function SyncForm (props) {
   const {
     lastSyncTime = ''
   } = props.formData
-  const cls = hide ? 'hide' : ''
   const { syncType } = props
   const timeFormatted = lastSyncTime
     ? moment(lastSyncTime).format('YYYY-MM-DD HH:mm:ss')
     : '-'
-  const tokenLabel = (
-    <Tooltip
-      title={
+
+  function createLabel (name, text) {
+    return (
+      <Tooltip
+        title={
+          <span>
+            {syncType} {text}
+            <Link className='mg1l' to={getTokenCreateGuideUrl()} />
+          </span>
+        }
+      >
         <span>
-          {syncType} personal access token
-          <Link className='mg1l' to={getTokenCreateGuideUrl()} />
+          {name} <QuestionCircleOutlined />
         </span>
-      }
-    >
-      <span>
-        token <QuestionCircleOutlined />
-      </span>
-    </Tooltip>
-  )
+      </Tooltip>
+    )
+  }
+  const tokenLabel = createLabel('token', 'personal access token')
+  const gistLabel = createLabel('gist', 'gist ID')
   return (
     <Form
       onFinish={save}
@@ -149,26 +147,16 @@ export default function SyncForm (props) {
         />
       </FormItem>
       <FormItem
-        className='sync-control'
+        label={gistLabel}
+        name='gistId'
+        rules={[{
+          max: 100, message: '100 chars max'
+        }]}
       >
-        <span
-          className='pointer sync-control-link'
-          onClick={showGistForm}
-        >{ss('useExistingGistId')} gist ID</span>
+        <Input
+          placeholder={syncType + ' gist id'}
+        />
       </FormItem>
-      <div className={cls}>
-        <FormItem
-          label='gist ID'
-          name='gistId'
-          rules={[{
-            max: 100, message: '100 chars max'
-          }]}
-        >
-          <Input
-            placeholder={syncType + ' gist id'}
-          />
-        </FormItem>
-      </div>
       {/* <FormItem
         {...formItemLayout}
         label={ss('autoSync')}
@@ -218,7 +206,7 @@ export default function SyncForm (props) {
           >{sh('clear')}</Button>
         </p>
         <p>
-          {e('lastSyncTime')}: {timeFormatted}
+          {ss('lastSyncTime')}: {timeFormatted}
         </p>
         <p>
           {renderGistUrl()}
