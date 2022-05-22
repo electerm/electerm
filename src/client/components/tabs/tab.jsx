@@ -4,6 +4,7 @@
 
 import React from 'react'
 import runIdle from '../../common/run-idle'
+import classNames from 'classnames'
 import {
   CloseOutlined,
   CodeOutlined,
@@ -360,12 +361,16 @@ export default class Tab extends React.Component {
       onChangeTabId,
       onDuplicateTab
     } = this.props.store
+    const { isLast } = this.props
     const { tab, terminalOnData } = this.state
     const { id, isEditting, status, isTransporting } = tab
     const active = id === currentTabId
     const cls = classnames(
       'tab',
       { active },
+      {
+        'tab-last': isLast
+      },
       status,
       {
         'is-terminal-active': terminalOnData

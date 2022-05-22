@@ -212,7 +212,7 @@ export default class Tabs extends React.Component {
       width: width - windowControlWidth
     }
     return (
-      <div className='tabs noise'>
+      <div className='tabs'>
         <div
           className='tabs-inner'
           style={style}
@@ -230,11 +230,13 @@ export default class Tabs extends React.Component {
             onDoubleClick={this.onAdd}
           >
             {
-              tabs.map((tab) => {
+              tabs.map((tab, i) => {
+                const isLast = i === len - 1
                 return (
                   <Tab
                     {...this.props}
                     tab={tab}
+                    isLast={isLast}
                     key={tab.id}
                   />
                 )

@@ -34,17 +34,19 @@
   min-width 100px
   max-width 200px
   line-height 36px
-  margin 5px 3px 5px 0
-  border-radius 3px
-  background main
+  margin 10px 1px 0 0
+  border-radius 3px 3px 0 0
+  background main-dark
   text-align center
   color text-dark
+  &.tab-last
+    margin-right 5px
   .tab-reload
   .tab-close
     display none
   &.active
     color text
-    background main-light
+    background main
   &:hover
     .tab-close
       display block
@@ -125,7 +127,7 @@
 .tabs-add-btn
   display inline-block
   vertical-align middle
-  margin 0 3px
+  margin 10px 3px 0 3px
   -webkit-app-region no-drag
   color text
   &:hover
@@ -147,6 +149,8 @@
   .tabs-dd-icon
     color text
     font-size 12px
+  .tabs-add-btn
+    margin-top 0
 
 .window-controls
   position absolute
