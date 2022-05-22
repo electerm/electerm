@@ -8,7 +8,8 @@
 
 import _ from 'lodash'
 import {
-  defaultTheme
+  defaultTheme,
+  settingMap
 } from '../common/constants'
 import fetch from '../common/fetch'
 import copy from 'json-deep-copy'
@@ -63,7 +64,7 @@ export default store => {
 
     getUiThemeConfig () {
       const theme = _.find(
-        store.terminalThemes,
+        store.getSidebarList(settingMap.terminalThemes),
         d => d.id === store.config.theme
       )
       return theme && theme.uiThemeConfig

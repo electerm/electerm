@@ -1,6 +1,6 @@
 {
   "name": "electerm",
-  "version": "1.21.59",
+  "version": "1.21.60",
   "description": "Terminal/ssh/sftp client(linux, mac, win) based on electron/ssh2/node-pty/xterm/antd/subx and other libs",
   "main": "app.js",
   "bin": "npm/electerm",
@@ -22,6 +22,7 @@
     "build-linux": "node bin/build-linux",
     "build-win": "node bin/build-win",
     "release": "npm run pre-test && npm run output",
+    "install": "node bin/install",
     "postinstall": "node bin/post-install",
     "lint": "./node_modules/.bin/standard --verbose | snazzy",
     "fix": "./node_modules/.bin/standard --fix",
@@ -44,7 +45,7 @@
   "bugs": {
     "url": "https://github.com/electerm/electerm/issues"
   },
-  "homepage": "https://electerm.github.io/electerm",
+  "homepage": "https://electerm.html5beta.com",
   "engines": {
     "node": ">=16.0.0"
   },

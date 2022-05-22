@@ -10,7 +10,7 @@ import {
   defaultThemeLight
 } from '../common/constants'
 import copy from 'json-deep-copy'
-import { insert, update, remove } from '../common/db'
+import { convertTheme } from '../common/terminal-theme'
 
 const { terminalThemes } = settingMap
 const { prefix } = window
@@ -18,6 +18,14 @@ const t = prefix(terminalThemes)
 
 export default store => {
   Object.assign(store, {
+    getTerminalThemes () {
+      return store.getItems(settingMap.terminalThemes)
+    },
+
+    setTerminalThemes (arr) {
+      return store.setItems(settingMap.terminalThemes, arr)
+    },
+
     setTheme (id) {
       store.updateConfig({
         theme: id
@@ -25,30 +33,22 @@ export default store => {
     },
 
     addTheme (theme) {
-      store.terminalThemes.unshift(theme)
-      insert(terminalThemes, theme)
+      store.addItem(theme, settingMap.terminalThemes)
     },
 
     editTheme (id, updates) {
-      const items = store.terminalThemes
-      const item = _.find(items, t => t.id === id)
-      Object.assign(item, updates)
-      update(id, updates, terminalThemes)
+      return store.editItem(
+        id, updates, settingMap.terminalThemes
+      )
     },
 
     delTheme ({ id }) {
-      store.terminalThemes = store.terminalThemes.filter(t => {
-        return t.id !== id
-      })
-      const { theme } = store.config
-      if (theme === id) {
-        store.config.theme = defaultTheme.id
-      }
-      remove(terminalThemes, id)
+      store.delItem({ id }, settingMap.terminalThemes)
     },
-    // computed
+
     getThemeConfig () {
-      return (_.find(store.terminalThemes, d => d.id === store.config.theme) || {}).themeConfig || {}
+      const all = store.getSidebarList(settingMap.terminalThemes)
+      return (_.find(all, d => d.id === store.config.theme) || {}).themeConfig || {}
     },
 
     fixThemes (themes) {
@@ -64,6 +64,29 @@ export default store => {
         }
         return t
       })
+    },
+
+    setItermThemes (arr) {
+      store.setItems('itermThemes', arr)
+    },
+
+    getItermThemes () {
+      return store.getItems('itermThemes')
+    },
+
+    async fetchItermThemes () {
+      const list = await window.pre.runGlobalAsync('listItermThemes')
+      store.setItermThemes(
+        list.map(d => {
+          const obj = convertTheme(d)
+          return {
+            ...obj,
+            id: 'iterm#' + obj.name,
+            readonly: true,
+            type: 'iterm'
+          }
+        })
+      )
     },
 
     async checkDefaultTheme (terminalThemes) {
@@ -88,9 +111,9 @@ export default store => {
           `${t('default')} ${t('themeConfig')} ${t('updated')}`
         )
       }
-      const hasLightTheme = _.find(store.terminalThemes, d => d.id === defaultThemeLight.id)
+      const hasLightTheme = _.find(store.getTerminalThemes(), d => d.id === defaultThemeLight.id)
       if (!hasLightTheme) {
-        store.terminalThemes.push(defaultThemeLight)
+        store.addTheme(defaultThemeLight)
       }
     }
   })

@@ -16,6 +16,10 @@ const from2 = resolve(
   __dirname,
   '../node_modules/react-dom/umd/react-dom.production.min.js'
 )
+const from3 = resolve(
+  __dirname,
+  '../node_modules/iTerm2-Color-Schemes/electerm'
+)
 // const from3 = resolve(
 //   __dirname,
 //   '../node_modules/less/dist/less.min.js'
@@ -44,6 +48,10 @@ const to3 = resolve(
   __dirname,
   '../work/app/assets/external'
 )
+const to4 = resolve(
+  __dirname,
+  '../work/app/node_modules/iTerm2-Color-Schemes'
+)
 const copy = new CopyWebpackPlugin({
   patterns: [{
     from,
@@ -60,6 +68,10 @@ const copy = new CopyWebpackPlugin({
   }, {
     from: from2,
     to: to3,
+    force: true
+  }, {
+    from: from3,
+    to: to4,
     force: true
   },
   // , {

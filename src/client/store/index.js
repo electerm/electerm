@@ -88,7 +88,7 @@ const store = Subx.create({
     const {
       tab
     } = store
-    const arr = store.getItems(tab)
+    const arr = store.getSidebarList(tab)
     const initItem = getInitItem(arr, tab)
     return tab === settingMap.history
       ? arr

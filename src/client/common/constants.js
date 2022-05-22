@@ -209,7 +209,7 @@ export const appPath = window.pre.appPath
 export const maxBatchInput = 30
 export const windowControlWidth = 94
 export const baseUpdateCheckUrls = [
-  'https://electerm.github.io/electerm',
+  packInfo.homepage,
   'https://gitee.com/github-zxdong262/electerm/raw/gh-pages'
 ]
 export const syncTypes = buildConst([
@@ -260,7 +260,9 @@ export const dbsShouldParse = [
   'tabs',
   'fileTransfers',
   'transferHistory',
-  'quickCommands'
+  'quickCommands',
+  'itermThemes',
+  'terminalThemes'
 ]
 
 export const srcsSkipUpgradeCheck = [

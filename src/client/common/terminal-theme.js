@@ -2,10 +2,9 @@
  * theme control
  */
 
-import { defaultTheme } from '../common/constants'
+import { defaultTheme, settingMap } from '../common/constants'
 import download from '../common/download'
 import copy from 'json-deep-copy'
-import { findOne } from './db'
 const { prefix } = window
 const t = prefix('terminalThemes')
 const terminalPrefix = 'terminal:'
@@ -103,14 +102,13 @@ export const verifyTheme = (themeConfig) => {
  * export theme as txt
  * @param {string} themeId
  */
-export const exportTheme = async (themeId) => {
-  const themes = await findOne('terminalThemes', themeId) || buildDefaultThemes()
-  const theme = themes[themeId] || themes
+export const exportTheme = (themeId) => {
+  const themes = window.store.getSidebarList(settingMap.terminalThemes)
+  const theme = themes.find(d => d.id === themeId)
   if (!theme) {
     log.error('export error', themeId)
     return
   }
-
   const text = convertThemeToText(theme, true)
   download(
     `${theme.name}.txt`,

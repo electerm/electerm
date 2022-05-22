@@ -14,7 +14,7 @@ import {
   Tooltip
 } from 'antd'
 import deepCopy from 'json-deep-copy'
-import { noTerminalBgValue, appPath, langs } from '../../common/constants'
+import { noTerminalBgValue, appPath, langs, settingMap } from '../../common/constants'
 import defaultSettings from '../../../app/common/default-setting'
 import ShowItem from '../common/show-item'
 import { osResolve } from '../../common/resolve'
@@ -600,7 +600,7 @@ export default class Setting extends Component {
       theme
     } = this.props.config
 
-    const { terminalThemes } = this.props.store
+    const terminalThemes = this.props.store.getSidebarList(settingMap.terminalThemes)
     const [modifier, key] = hotkey.split('+')
     return (
       <div className='form-wrap pd1y pd2x'>

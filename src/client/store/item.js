@@ -96,6 +96,16 @@ export default store => {
       }
     },
 
+    getSidebarList (type) {
+      if (type === settingMap.terminalThemes) {
+        return [
+          ...store.getTerminalThemes(),
+          ...store.getItermThemes()
+        ]
+      }
+      return store.getItems(type)
+    },
+
     getItems (type) {
       if (!store.shouldParse(type)) {
         return copy(store[type])

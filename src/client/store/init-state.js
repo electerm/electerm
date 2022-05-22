@@ -66,7 +66,10 @@ export default {
   bookmarks,
   bookmarkGroups,
   config: copy(_config) || {},
-  terminalThemes: [buildDefaultThemes()],
+  terminalThemes: [
+    JSON.stringify(buildDefaultThemes())
+  ],
+  itermThemes: [],
 
   currentBookmarkGroupId: defaultBookmarkGroupId,
 

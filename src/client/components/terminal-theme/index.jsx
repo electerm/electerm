@@ -5,6 +5,7 @@ import { convertTheme, convertThemeToText, exportTheme } from '../../common/term
 import { defaultTheme, defaultThemeLight } from '../../common/constants'
 import generate from '../../common/uid'
 import { formItemLayout, tailFormItemLayout } from '../../common/form-layout'
+import Link from '../common/external-link'
 import InputAutoFocus from '../common/input-auto-focus'
 
 const { TextArea } = Input
@@ -55,6 +56,21 @@ export default function ThemeForm (props) {
     action.current = 'submit'
   }
 
+  function renderSrc (type) {
+    if (type === 'iterm') {
+      const url = `https://github.com/mbadolato/iTerm2-Color-Schemes/blob/master/electerm/${encodeURIComponent(themeName)}.txt`
+      return (
+        <FormItem {...tailFormItemLayout}>
+          <span className='mg1r'>src:</span>
+          <Link
+            to={url}
+          >{url}</Link>
+        </FormItem>
+      )
+    }
+    return null
+  }
+
   function beforeUpload (file) {
     const txt = window.pre
       .readFileSync(file.path).toString()
@@ -69,7 +85,9 @@ export default function ThemeForm (props) {
   }
 
   const {
+    readOnly,
     id,
+    type,
     name: themeName
   } = props.formData
   const initialValues = {
@@ -78,6 +96,7 @@ export default function ThemeForm (props) {
   }
   const { autofocustrigger } = props.store
   const isDefaultTheme = id === defaultTheme.id || id === defaultThemeLight.id
+  const disabled = readOnly || isDefaultTheme
   return (
     <Form
       onFinish={handleSubmit}
@@ -111,7 +130,7 @@ export default function ThemeForm (props) {
       >
         <InputAutoFocus
           selectall='yes'
-          disabled={isDefaultTheme}
+          disabled={disabled}
           autofocustrigger={autofocustrigger}
         />
       </FormItem>
@@ -125,7 +144,7 @@ export default function ThemeForm (props) {
         }]}
       >
         <FormItem noStyle name='themeText'>
-          <TextArea rows={5} disabled={isDefaultTheme} />
+          <TextArea rows={5} disabled={disabled} />
         </FormItem>
         <p>Tip: <b>main</b> better be the same as <b>terminal:background</b></p>
         <div className='pd1t'>
@@ -136,7 +155,7 @@ export default function ThemeForm (props) {
           >
             <Button
               type='ghost'
-              disabled={isDefaultTheme}
+              disabled={disabled}
             >
               {e('importFromFile')}
             </Button>
@@ -144,7 +163,7 @@ export default function ThemeForm (props) {
         </div>
       </FormItem>
       {
-        isDefaultTheme
+        disabled
           ? null
           : (
             <FormItem {...tailFormItemLayout}>
@@ -162,6 +181,9 @@ export default function ThemeForm (props) {
               </p>
             </FormItem>
           )
+      }
+      {
+        renderSrc(type)
       }
     </Form>
   )

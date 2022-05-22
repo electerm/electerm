@@ -12,6 +12,7 @@ const {
   shell
 } = require('electron')
 const { dbAction } = require('./nedb')
+const { listItermThemes } = require('./iterm-theme')
 const installSrc = require('./install-src')
 const { getConfig } = require('./get-config')
 const loadSshConfig = require('./ssh-config')
@@ -146,6 +147,7 @@ function initIpc () {
     minimize: () => {
       global.win.minimize()
     },
+    listItermThemes,
     maximize,
     unmaximize,
     openDevTools: () => {

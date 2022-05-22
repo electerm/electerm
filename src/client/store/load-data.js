@@ -122,9 +122,10 @@ export default (store) => {
     ext.configLoaded = true
     Object.assign(store, ext)
 
-    await store.checkDefaultTheme()
-    await store.initShortcuts()
-    await store.loadFontList()
+    store.checkDefaultTheme()
+    store.initShortcuts()
+    store.loadFontList()
+    store.fetchItermThemes()
     store.openInitSessions()
     initWatch(store)
     store.initCommandLine().catch(store.onError)
