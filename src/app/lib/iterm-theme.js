@@ -17,7 +17,7 @@ const folder = resolve(
   (
     isDev
       ? '../../../node_modules/iTerm2-Color-Schemes/electerm'
-      : '../node_modules/iTerm2-Color-Schemes'
+      : '../assets/iTerm2-Color-Schemes'
   )
 )
 

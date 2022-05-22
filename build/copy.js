@@ -50,7 +50,7 @@ const to3 = resolve(
 )
 const to4 = resolve(
   __dirname,
-  '../work/app/node_modules/iTerm2-Color-Schemes'
+  '../work/app/assets/iTerm2-Color-Schemes'
 )
 const copy = new CopyWebpackPlugin({
   patterns: [{

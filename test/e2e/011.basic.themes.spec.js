@@ -42,6 +42,9 @@ describe('terminal themes', function () {
     const themePrev = await client.evaluate(() => {
       return window.store.terminalThemes.length
     })
+    const themeIterm = await client.evaluate(() => {
+      return window.store.itermThemes.length
+    })
     await client.click('.setting-wrap .ant-tabs-tabpane-active .ant-btn-primary')
 
     const themeNow = await client.evaluate(() => {
@@ -49,6 +52,7 @@ describe('terminal themes', function () {
     })
     await delay(1000)
     expect(themeNow).equal(themePrev + 1)
+    expect(themeIterm > 10).equal(true)
 
     log('tab it')
     await client.click('.setting-wrap .ant-tabs-tab', 2)
