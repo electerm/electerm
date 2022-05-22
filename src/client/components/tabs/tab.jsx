@@ -4,7 +4,6 @@
 
 import React from 'react'
 import runIdle from '../../common/run-idle'
-import classNames from 'classnames'
 import {
   CloseOutlined,
   CodeOutlined,
