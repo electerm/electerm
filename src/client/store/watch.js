@@ -2,9 +2,8 @@
  * auto run when data change
  */
 
-import createTitlte from '../common/create-title'
+import createTitle from '../common/create-title'
 import Subx from 'subx'
-import _ from 'lodash'
 import copy from 'json-deep-copy'
 import { update, dbNames } from '../common/db'
 import { debounceTime } from 'rxjs/operators'
@@ -14,15 +13,6 @@ import {
 import * as ls from '../common/safe-local-storage'
 
 export default store => {
-  // auto focus when tab change
-  Subx.autoRun(store, () => {
-    const { currentTabId, tabs } = store
-    const tab = _.find(tabs, t => t.id === currentTabId) || {}
-    const title = createTitlte(tab)
-    window.pre.runGlobalAsync('setTitle', title)
-    return [currentTabId, tabs]
-  }, debounceTime(1000))
-
   Subx.autoRun(store, () => {
     store.focus()
     return store.currentTabId
@@ -80,5 +70,16 @@ export default store => {
   Subx.autoRun(store, () => {
     ls.setItemJSON(sftpDefaultSortSettingKey, store.sftpSortSetting)
     return store.sftpSortSetting
+  })
+
+  Subx.autoRun(store, () => {
+    const tabs = store.getTabs()
+    const { currentTabId } = store
+    const tab = tabs.find(t => t.id === currentTabId)
+    if (tab) {
+      const title = createTitle(tab)
+      window.pre.runGlobalAsync('setTitle', title)
+    }
+    return store.currentTabId
   })
 }

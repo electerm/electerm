@@ -9,7 +9,6 @@ import FileInfoModal from '../sftp/file-props-modal'
 import FileModeModal from '../sftp/file-mode-modal'
 import UpdateCheck from './upgrade'
 import SettingModal from '../setting-panel/setting-modal'
-import createTitle from '../../common/create-title'
 import TextEditor from '../text-editor'
 import TextEditorSystem from '../text-editor/edit-with-system-editor'
 import Sidebar from '../sidebar'
@@ -31,8 +30,6 @@ export default class Index extends Component {
     const { store } = this.props
     window.lang = copy(window.lang)
     window._config = copy(window._config)
-    const title = createTitle(store.getTabs()[0])
-    window.pre.runGlobalAsync('setTitle', title)
     window.addEventListener('resize', store.onResize)
     store.onResize()
     const { ipcOnEvent } = window.pre
