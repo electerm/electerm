@@ -1,8 +1,5 @@
 
 export default store => {
-  store.openTransferList = () => {
-    store.setOpenedSideBar('file-transfer')
-  }
   store.handleTransferTab = tab => {
     store.transferTab = tab
   }

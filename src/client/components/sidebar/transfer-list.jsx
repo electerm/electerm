@@ -16,7 +16,6 @@ export default class TransferList extends Component {
   render () {
     const { store } = this.props
     const {
-      openTransferList,
       fileTransfers,
       transferHistory
     } = store
@@ -43,7 +42,6 @@ export default class TransferList extends Component {
           >
             <SwapOutlined
               className='iblock font20 control-icon'
-              onClick={openTransferList}
             />
           </Badge>
         </Popover>
