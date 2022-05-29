@@ -41,9 +41,14 @@ export default store => {
     },
 
     focus () {
+      window.focused = true
       postMessage({
         type: 'focus'
       })
+    },
+
+    onBlur () {
+      window.focused = false
     },
 
     selectall () {

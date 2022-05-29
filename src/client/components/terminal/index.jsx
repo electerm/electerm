@@ -657,7 +657,9 @@ export default class Term extends Component {
       action: 'terminal-receive-data',
       tabId: this.props.tab.id
     })
-  }, 2000)
+  }, 1000, {
+    leading: true
+  })
 
   onSocketData = () => {
     this.notifyOnData()
@@ -941,7 +943,11 @@ export default class Term extends Component {
     if (this.onClose) {
       return
     }
-    log.debug('socket closed, pid:', this.pid)
+    if (!this.isActiveTerminal() || !window.focused) {
+      return this.setStatus(
+        statusMap.error
+      )
+    }
     this.props.delSplit(this.state.id)
   }
 

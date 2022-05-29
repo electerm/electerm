@@ -125,7 +125,6 @@ export default store => {
         isTransporting: undefined
       }
       tab.pane = paneMap.terminal
-      console.log('x', tab)
       store.addTab(tab, index + 1)
     },
 

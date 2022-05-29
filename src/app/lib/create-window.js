@@ -78,4 +78,7 @@ exports.createWindow = async function () {
   global.win.on('focus', () => {
     global.win.webContents.send('focused', null)
   })
+  global.win.on('blur', () => {
+    global.win.webContents.send('blur', null)
+  })
 }
