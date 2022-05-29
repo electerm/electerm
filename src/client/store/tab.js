@@ -80,9 +80,6 @@ export default store => {
         'tabs',
         narr
       )
-      if (narr.length < 1) {
-        setTimeout(store.addTab, 1)
-      }
     },
 
     processTerminals (tab) {
