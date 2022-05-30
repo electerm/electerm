@@ -31,9 +31,7 @@ jobs:
     - run: npm un -S node-powershell
     - run: npm i
 
-
     # script:
-    - run: PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm i -D playwright@1.20.2 --no-save
     - run: npm run pre-test
 
     - name: build

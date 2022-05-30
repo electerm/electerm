@@ -3,7 +3,7 @@ const {
   resolve
 } = require('path')
 
-const p = resolve(__dirname, '../' + 'node_modules/iTerm2-Color-Schemes')
+const p = resolve(__dirname, '../' + 'build/iTerm2-Color-Schemes')
 echo('install required modules')
 echo('install playwright')
 exec('PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm i -D playwright@1.20.2 --no-save')

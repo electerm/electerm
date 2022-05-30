@@ -18,7 +18,7 @@ const from2 = resolve(
 )
 const from3 = resolve(
   __dirname,
-  '../node_modules/iTerm2-Color-Schemes/electerm'
+  'iTerm2-Color-Schemes/electerm'
 )
 // const from3 = resolve(
 //   __dirname,
