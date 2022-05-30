@@ -18,7 +18,13 @@ import {
   SwitcherOutlined
 } from '@ant-design/icons'
 
-import { Spin, Modal, Button, Checkbox } from 'antd'
+import {
+  notification,
+  Spin,
+  Modal,
+  Button,
+  Checkbox
+} from 'antd'
 import Input from '../common/input-auto-focus'
 import classnames from 'classnames'
 import './terminal.styl'
@@ -567,6 +573,10 @@ export default class Term extends Component {
     this.props.store.termSearchOpen = true
   }
 
+  onLineFeed = e => {
+    console.log(e, 'onLineFeed')
+  }
+
   onTitleChange = e => {
     log.debug(e, 'title change')
   }
@@ -691,6 +701,7 @@ export default class Term extends Component {
     term.unicode.activeVersion = '11'
     term.loadAddon(this.fitAddon)
     term.loadAddon(this.searchAddon)
+    term.onLineFeed(this.onLineFeed)
     term.onTitleChange(this.onTitleChange)
     term.onSelectionChange(this.onSelection)
     this.loadState(term)
@@ -943,12 +954,45 @@ export default class Term extends Component {
     if (this.onClose) {
       return
     }
+    this.setStatus(
+      statusMap.error
+    )
     if (!this.isActiveTerminal() || !window.focused) {
-      return this.setStatus(
-        statusMap.error
-      )
+      return false
     }
-    this.props.delSplit(this.state.id)
+    const key = `open${Date.now()}`
+    function closeMsg () {
+      notification.close(key)
+    }
+    this.socketCloseWarning = notification.warn({
+      key,
+      message: e('socketCloseTip'),
+      description: (
+        <div className='pd2y'>
+          <Button
+            className='mg1r'
+            type='primary'
+            onClick={() => {
+              closeMsg()
+              this.props.delSplit(this.state.id)
+            }}
+          >
+            {m('close')}
+          </Button>
+          <Button
+            icon={<ReloadOutlined />}
+            onClick={() => {
+              closeMsg()
+              this.props.store.reloadTab(
+                this.props.tab
+              )
+            }}
+          >
+            {m('reload')}
+          </Button>
+        </div>
+      )
+    })
   }
 
   batchInput = (cmd) => {
