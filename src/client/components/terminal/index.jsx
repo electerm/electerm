@@ -63,7 +63,7 @@ const m = prefix('menu')
 const f = prefix('form')
 const c = prefix('common')
 const authFailMsg = 'All configured authentication methods failed'
-const privateKeyMsg = 'private key detected'
+const privateKeyMsg = 'no passphrase'
 
 const computePos = (e) => {
   return {
