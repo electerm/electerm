@@ -36,8 +36,8 @@ jobs:
     # before_install:
     # - run: npm install --global --production windows-build-tools --vs2015
     - run: npm install -g yarn
-    - run: npm i
     - run: npm un -S node-bash
+    - run: npm i
 
     # script:
     - run: npm run pre-test

@@ -25,11 +25,11 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
-    - run: npm i
 
     # before_install:
-    - run:  npm install -g yarn
-    - run:  npm un -S node-powershell
+    - run: npm install -g yarn
+    - run: npm un -S node-powershell
+    - run: npm i
 
     # script:
     - run: npm run pre-test
