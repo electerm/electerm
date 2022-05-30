@@ -215,30 +215,30 @@ export default class Term extends Component {
       toAll,
       inputOnly
     } = e?.data || {}
-    const { activeSplitId: propActiveSplitId } = this.props
+    const { id: propSplitId } = this.props
     if (
       action === terminalActions.changeEncode &&
-      propActiveSplitId === activeSplitId
+      propSplitId === activeSplitId
     ) {
       this.switchEncoding(encode)
     } else if (
       action === terminalActions.batchInput &&
       (
-        toAll || propActiveSplitId === activeSplitId
+        toAll || propSplitId === activeSplitId
       )
     ) {
       this.batchInput(cmd)
     } else if (
       action === terminalActions.showInfoPanel &&
       (
-        propActiveSplitId === activeSplitId
+        propSplitId === activeSplitId
       )
     ) {
       this.handleShowInfo()
     } else if (
       action === terminalActions.quickCommand &&
       (
-        propActiveSplitId === activeSplitId
+        propSplitId === activeSplitId
       )
     ) {
       e.stopPropagation()
@@ -250,21 +250,21 @@ export default class Term extends Component {
     } else if (
       action === terminalActions.openTerminalSearch &&
       (
-        propActiveSplitId === activeSplitId
+        propSplitId === activeSplitId
       )
     ) {
       this.openSearch()
     } else if (
       action === terminalActions.doSearchNext &&
       (
-        propActiveSplitId === activeSplitId
+        propSplitId === activeSplitId
       )
     ) {
       this.searchNext(keyword, options)
     } else if (
       action === terminalActions.doSearchPrev &&
       (
-        propActiveSplitId === activeSplitId
+        propSplitId === activeSplitId
       )
     ) {
       this.searchPrev(keyword, options)

@@ -105,9 +105,9 @@ export default store => {
       tab.id = generate()
       tab.status = statusMap.processing
       const index = _.findIndex(tabs, t => t.id === id)
-      store.delTab({ id: tabToReload.id })
-      await wait(30)
       store.addTab(tab, index)
+      await wait(30)
+      store.delTab({ id: tabToReload.id })
     },
 
     onDuplicateTab (tabToDup) {
