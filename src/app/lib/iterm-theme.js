@@ -8,21 +8,19 @@ const {
 const {
   isDev
 } = require('../common/runtime-constants')
-const {
-  fsExport
-} = require('./fs')
+const fs = require('fs/promises')
 
 const folder = resolve(
   __dirname,
   (
     isDev
-      ? '../../../node_modules/iTerm2-Color-Schemes/electerm'
+      ? '../../../build/iTerm2-Color-Schemes/electerm'
       : '../assets/iTerm2-Color-Schemes'
   )
 )
 
 exports.listItermThemes = async () => {
-  const list = await fsExport.readdirAsync(folder)
+  const list = await fs.readdir(folder)
     .catch(e => {
       console.log(e)
       return ''
@@ -31,9 +29,9 @@ exports.listItermThemes = async () => {
     return []
   }
   const all = list.map(f => {
-    return fsExport.readFile(
+    return fs.readFile(
       resolve(folder, f)
-    )
+    ).then(t => t.toString())
   })
   return Promise.all(all).catch(e => {
     console.log(e)
