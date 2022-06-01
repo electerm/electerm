@@ -6,7 +6,7 @@ const {
 } = require('./build-common')
 
 async function main () {
-  echo('running build for linux')
+  echo('running build for linux part 1')
 
   echo('build tar.gz')
   rm('-rf', 'dist')
@@ -17,16 +17,6 @@ async function main () {
   rm('-rf', 'dist')
   writeSrc('.deb')
   await run(`${pb} --linux deb`)
-
-  echo('build rpm')
-  rm('-rf', 'dist')
-  writeSrc('.rpm')
-  await run(`${pb} --linux rpm`)
-
-  echo('build snap')
-  rm('-rf', 'dist')
-  writeSrc('.snap')
-  await run(`${pb} --linux snap -p always`)
 }
 
 main()

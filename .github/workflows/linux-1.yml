@@ -1,0 +1,62 @@
+# This workflow will do a clean install of node dependencies, build the source code and run tests across different versions of node
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
+
+name: linux-2
+
+on:
+  push:
+    branches: [ build, test ]
+
+jobs:
+  build:
+
+    runs-on: ${{ matrix.os }}
+    environment: build
+    if: "!contains(github.event.head_commit.message, '[skip build]') && !contains(github.event.head_commit.message, '[skip ci]') && !contains(github.event.head_commit.message, '[skip linux]')"
+
+    strategy:
+      matrix:
+        os: [ubuntu-20.04]
+        node-version: [ 16.x ]
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+
+    # - name: xvfb
+    #   uses: GabrielBB/xvfb-action@v1
+
+    - name: Install rpm
+      run: sudo apt-get install rpm -y
+
+    - name: Install Snapcraft
+      uses: samuelmeuli/action-snapcraft@v1
+      # Only install Snapcraft on Ubuntu
+      if: startsWith(matrix.os, 'ubuntu')
+      with:
+        # Log in to Snap Store
+        snapcraft_token: ${{ secrets.SNAP_TOKEN }}
+
+    # before_script:
+    # - run: export DISPLAY=:99.0
+    # - run: sh -e /etc/init.d/xvfb start &
+    # - run: sleep 3
+
+    # before_install:
+    - run: npm install -g yarn
+    - run: npm un -S node-powershell
+    - run: npm i
+
+    # script:
+    - run: npm run pre-test
+
+    - name: build
+      if: "!contains(github.event.head_commit.message, 'skip build')"
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        BUILD_NUMBER: ${{ secrets.BUILD_NUMBER }}
+      run: npm run build-linux-2
+

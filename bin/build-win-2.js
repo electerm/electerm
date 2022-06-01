@@ -26,17 +26,7 @@ function replaceRun () {
 
 async function main () {
   const pb = builder
-  echo('running build for win')
-
-  echo('build tar.gz')
-  rm('-rf', 'dist')
-  writeSrc('win-x64.tar.gz')
-  await run(`${pb} --win tar.gz`)
-
-  echo('build appx')
-  rm('-rf', 'dist')
-  writeSrc('.appx')
-  await run(`${pb} --win appx`)
+  echo('running build for win part 2')
 
   echo('build nsis')
   rm('-rf', 'dist')
