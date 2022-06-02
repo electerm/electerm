@@ -111,12 +111,20 @@ export default (store) => {
     }
   }
   store.initData = async () => {
-    store.isSencondInstance = window.pre.runSync('isSencondInstance')
-    await store.checkForDbUpgrade()
     const ext = {}
-    for (const name of dbNames) {
-      ext[name] = await fetchInitData(name)
-    }
+    const all = dbNames.map(async name => {
+      const data = await fetchInitData(name)
+      return {
+        name,
+        data
+      }
+    })
+    await Promise.all(all)
+      .then(arr => {
+        for (const { name, data } of arr) {
+          ext[name] = data
+        }
+      })
     ext.openedCategoryIds = await getData('openedCategoryIds') || ext.bookmarkGroups.map(b => b.id)
     ext.lastDataUpdateTime = await getData('lastDataUpdateTime') || 0
     ext.configLoaded = true
