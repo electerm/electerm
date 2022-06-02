@@ -5,8 +5,10 @@
 import handleError from '../common/error-handler'
 import _ from 'lodash'
 import copy from 'json-deep-copy'
+import postMessage from '../common/post-msg'
 import {
-  statusMap
+  statusMap,
+  commonActions
 } from '../common/constants'
 
 export default store => {
@@ -36,6 +38,13 @@ export default store => {
         ...copy(store.config),
         ...ext
       }
+    },
+
+    openFileInfoModal (data) {
+      postMessage({
+        data,
+        action: commonActions.showFileInfoModal
+      })
     }
   })
 

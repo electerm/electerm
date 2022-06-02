@@ -360,23 +360,14 @@ export default class FileSection extends React.Component {
     })
   }
 
-  onCloseFileInfo = () => {
-    this.props.store.storeAssign({
-      fileInfoModalProps: {}
-    })
-  }
-
   showInfo = () => {
     const { type } = this.props
-    this.props.store.storeAssign({
-      fileInfoModalProps: {
-        file: this.state.file,
-        tab: this.props.tab,
-        visible: true,
-        uidTree: this.props[`${type}UidTree`],
-        gidTree: this.props[`${type}GidTree`],
-        onClose: this.onCloseFileInfo
-      }
+    this.props.store.openFileInfoModal({
+      file: this.state.file,
+      tab: this.props.tab,
+      visible: true,
+      uidTree: this.props[`${type}UidTree`],
+      gidTree: this.props[`${type}GidTree`]
     })
   }
 

@@ -2,8 +2,9 @@
  * file props
  */
 
-import { memo } from 'react'
+import { useState, useEffect } from 'react'
 import { Modal } from 'antd'
+import { commonActions } from '../../common/constants'
 import resolve from '../../common/resolve'
 import { mode2permission } from '../../common/mode2permission'
 import time from '../../../app/common/time'
@@ -14,15 +15,30 @@ const { prefix } = window
 const e = prefix('sftp')
 const formatTime = time
 
-export default memo(props => {
+export default function FileInfoModal () {
+  const [state, setState] = useState({})
+  function onClose () {
+    setState({})
+  }
+  function onEvent (e) {
+    const {
+      action,
+      data
+    } = e.data || {}
+    if (action === commonActions.showFileInfoModal) {
+      setState(data)
+    }
+  }
+  useEffect(() => {
+    window.addEventListener('message', onEvent)
+  }, [])
   const {
     visible,
     file,
     tab,
-    onClose,
     uidTree = {},
     gidTree = {}
-  } = props
+  } = state
   if (!visible) {
     return null
   }
@@ -99,4 +115,4 @@ export default memo(props => {
       </div>
     </Modal>
   )
-})
+}

@@ -249,6 +249,7 @@ export const fileActions = {
   renameAll: 'renameAll'
 }
 export const commonActions = {
+  showFileInfoModal: 'show-file-info-modal',
   appUpdateCheck: 'check-app-update',
   closeContextMenu: 'close-context-menu',
   addTransfer: 'add-transfer'

@@ -86,7 +86,6 @@ export default {
   transferHistory: [],
   textEditorProps: {},
   textEditorSystemProps: {},
-  fileInfoModalProps: {},
   fileModeModalProps: {},
   fileTransfers: [
   ],
