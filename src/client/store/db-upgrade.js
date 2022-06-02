@@ -7,6 +7,9 @@ import delay from '../common/wait'
 
 export default (store) => {
   store.checkForDbUpgrade = async () => {
+    if (store.isSencondInstance) {
+      return false
+    }
     const shouldUpgrade = await window.pre.runGlobalAsync('checkDbUpgrade')
     if (!shouldUpgrade) {
       return false
@@ -26,6 +29,7 @@ export default (store) => {
       }
     })
     await window.pre.runGlobalAsync('doUpgrade')
+    await store.initData()
     mod.update({
       title: 'Done',
       content: 'Database Upgraded',

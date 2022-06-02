@@ -53,7 +53,9 @@ export default class Index extends Component {
     })
     window.addEventListener('offline', store.setOffline)
     store.zoom(store.config.zoom, false, true)
+    store.isSencondInstance = window.pre.runSync('isSencondInstance')
     store.initData()
+    store.checkForDbUpgrade()
     init()
   }
 
