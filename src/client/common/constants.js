@@ -249,6 +249,8 @@ export const fileActions = {
   renameAll: 'renameAll'
 }
 export const commonActions = {
+  submitFileModeEdit: 'submit-file-mode-edit',
+  showFileModeModal: 'show-file-mode-modal',
   showFileInfoModal: 'show-file-info-modal',
   appUpdateCheck: 'check-app-update',
   closeContextMenu: 'close-context-menu',

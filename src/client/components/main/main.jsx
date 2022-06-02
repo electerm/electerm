@@ -65,7 +65,6 @@ export default class Index extends Component {
       currentTabId,
       contextMenuProps,
       contextMenuVisible,
-      fileModeModalProps,
       textEditorProps,
       textEditorSystemProps,
       storeAssign,
@@ -151,10 +150,7 @@ export default class Index extends Component {
         />
         <SystemMenu store={store} />
         <FileInfoModal />
-        <FileModeModal
-          key={_.get(fileModeModalProps, 'file.id') || ''}
-          {...fileModeModalProps}
-        />
+        <FileModeModal />
         <SettingModal store={store} />
         <div
           id='outside-context'

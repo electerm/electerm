@@ -8,8 +8,9 @@ import resolve from '../../common/resolve'
 import time from '../../../app/common/time'
 import _ from 'lodash'
 import { mode2permission, permission2mode } from '../../common/mode2permission'
+import { commonActions } from '../../common/constants'
 import renderPermission from './permission-render'
-import copy from 'json-deep-copy'
+import postMessage from '../../common/post-msg'
 import FileIcon from './file-icon'
 
 const { prefix } = window
@@ -17,10 +18,27 @@ const e = prefix('sftp')
 const formatTime = time
 
 export default class FileMode extends React.PureComponent {
-  constructor (props) {
-    super(props)
-    this.state = {
-      file: copy(props.file)
+  state = {
+    data: {},
+    file: {}
+  }
+
+  componentDidMount () {
+    window.addEventListener('message', this.onEvent)
+  }
+
+  onEvent = (e) => {
+    const {
+      action,
+      data,
+      file
+    } = e.data || {}
+    if (action === commonActions.showFileModeModal) {
+      console.log('ggg')
+      this.setState({
+        data,
+        file
+      })
     }
   }
 
@@ -55,10 +73,19 @@ export default class FileMode extends React.PureComponent {
     })
   }
 
+  onClose = () => {
+    this.setState({
+      file: {},
+      data: {}
+    })
+  }
+
   onSubmit = () => {
-    this.props.changeFileMode(
-      this.state.file
-    )
+    postMessage({
+      action: commonActions.submitFileModeEdit,
+      file: this.state.file
+    })
+    this.onClose()
   }
 
   renderFooter () {
@@ -76,10 +103,9 @@ export default class FileMode extends React.PureComponent {
     const {
       visible,
       tab,
-      onClose,
       uidTree,
       gidTree
-    } = this.props
+    } = this.state.data
     if (!visible) {
       return null
     }
@@ -108,7 +134,7 @@ export default class FileMode extends React.PureComponent {
       width: 500,
       title: `${e('edit')} ` + e(iconType) + ` ${e('permission')}`,
       footer: this.renderFooter(),
-      onCancel: onClose
+      onCancel: this.onClose
     }
     const fp = resolve(path, name)
     const ffp = type === 'local'

@@ -45,6 +45,14 @@ export default store => {
         data,
         action: commonActions.showFileInfoModal
       })
+    },
+
+    openFileModeModal (data, file) {
+      postMessage({
+        data,
+        file,
+        action: commonActions.showFileModeModal
+      })
     }
   })
 

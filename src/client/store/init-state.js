@@ -86,7 +86,6 @@ export default {
   transferHistory: [],
   textEditorProps: {},
   textEditorSystemProps: {},
-  fileModeModalProps: {},
   fileTransfers: [
   ],
   sftpSortSetting: ls.getItemJSON(sftpDefaultSortSettingKey, {

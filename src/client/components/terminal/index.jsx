@@ -574,7 +574,7 @@ export default class Term extends Component {
   }
 
   onLineFeed = e => {
-    console.log(e, 'onLineFeed')
+    // console.log(e, 'onLineFeed')
   }
 
   onTitleChange = e => {

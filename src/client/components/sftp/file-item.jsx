@@ -93,6 +93,10 @@ export default class FileSection extends React.Component {
     }
   }
 
+  componentWillUnmount () {
+    window.removeEventListener('message', this.changeFileMode)
+  }
+
   applyStyle = () => {
     const {
       id,
@@ -354,12 +358,6 @@ export default class FileSection extends React.Component {
     this.openFileModeModal(this.state.file)
   }
 
-  onCloseFileMode = () => {
-    this.props.store.storeAssign({
-      fileModeModalProps: {}
-    })
-  }
-
   showInfo = () => {
     const { type } = this.props
     this.props.store.openFileInfoModal({
@@ -484,30 +482,38 @@ export default class FileSection extends React.Component {
     })
   }
 
-  changeFileMode = async file => {
-    this.onCloseFileMode()
+  changeFileMode = async e => {
+    const {
+      file = {},
+      action
+    } = e.data || {}
+    if (
+      action !== commonActions.submitFileModeEdit ||
+      file.id !== this.state.file.id
+    ) {
+      return false
+    }
     const { permission, type, path, name } = file
     const func = type === typeMap.local
       ? fs.chmodAsync
       : this.props.sftp.chmod
     const p = resolve(path, name)
     await func(p, permission).catch(this.props.store.onError)
+    window.removeEventListener('message', this.changeFileMode)
     this.props[type + 'List']()
   }
 
   openFileModeModal = () => {
     const { type } = this.props
-    this.props.store.storeAssign({
-      fileModeModalProps: {
-        file: this.state.file,
-        tab: this.props.tab,
-        visible: true,
-        onClose: this.onCloseFileMode,
-        changeFileMode: this.changeFileMode,
-        uidTree: this.props[`${type}UidTree`],
-        gidTree: this.props[`${type}GidTree`]
-      }
-    })
+    window.addEventListener(
+      'message', this.changeFileMode
+    )
+    this.props.store.openFileModeModal({
+      tab: this.props.tab,
+      visible: true,
+      uidTree: this.props[`${type}UidTree`],
+      gidTree: this.props[`${type}GidTree`]
+    }, this.state.file)
   }
 
   onBlur = () => {
