@@ -236,6 +236,9 @@ export default class SystemMenu extends Component {
       },
       content: renderContext(store)
     }
+    if (!store.condfg) {
+      return null
+    }
     return (
       <Context
         visible={store.menuOpened}

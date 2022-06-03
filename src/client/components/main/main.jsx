@@ -63,8 +63,6 @@ export default class Index extends Component {
     const { store } = this.props
     const {
       currentTabId,
-      contextMenuProps,
-      contextMenuVisible,
       textEditorProps,
       textEditorSystemProps,
       storeAssign,
@@ -108,6 +106,7 @@ export default class Index extends Component {
     }
     const tabsProps = {
       ..._.pick(store, [
+        'fileOperation',
         'currentTabId',
         'height',
         'width',
@@ -143,11 +142,7 @@ export default class Index extends Component {
         <UpdateCheck
           store={store}
         />
-        <ContextMenu
-          {...contextMenuProps}
-          visible={contextMenuVisible}
-          closeContextMenu={store.closeContextMenu}
-        />
+        <ContextMenu />
         <SystemMenu store={store} />
         <FileInfoModal />
         <FileModeModal />

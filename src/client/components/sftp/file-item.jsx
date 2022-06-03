@@ -7,24 +7,8 @@ import ReactDOM from 'react-dom'
 import ExtIcon from './file-icon'
 import {
   FolderOutlined,
-  FileOutlined,
-  CloudDownloadOutlined,
-  CloudUploadOutlined,
-  ArrowRightOutlined,
-  CheckSquareOutlined,
-  CloseCircleOutlined,
-  ContainerOutlined,
-  CopyOutlined,
-  EditOutlined,
-  EnterOutlined,
-  FileAddOutlined,
-  FileExcelOutlined,
-  FolderAddOutlined,
-  InfoCircleOutlined,
-  LockOutlined,
-  ReloadOutlined
+  FileOutlined
 } from '@ant-design/icons'
-import { Popconfirm } from 'antd'
 import classnames from 'classnames'
 import copy from 'json-deep-copy'
 import _ from 'lodash'
@@ -56,7 +40,6 @@ import generate from '../../common/uid'
 const { prefix } = window
 const e = prefix('sftp')
 const m = prefix('menu')
-const c = prefix('common')
 
 const computePos = (e) => {
   return {
@@ -95,6 +78,7 @@ export default class FileSection extends React.Component {
 
   componentWillUnmount () {
     window.removeEventListener('message', this.changeFileMode)
+    window.removeEventListener('message', this.onContextAction)
   }
 
   applyStyle = () => {
@@ -114,7 +98,7 @@ export default class FileSection extends React.Component {
     })
   }
 
-  onCopy = (e, targetFiles, isCut) => {
+  onCopy = (targetFiles, isCut) => {
     const { file } = this.state
     const selected = this.isSelected(file)
     const files = targetFiles ||
@@ -130,13 +114,11 @@ export default class FileSection extends React.Component {
       return prefix + resolve(f.path, f.name)
     }).join('\n')
     copyToClipboard(textToCopy)
-    this.props.modifier({
-      fileOperation: isCut ? fileOperationsMap.mv : fileOperationsMap.cp
-    })
+    this.props.store.fileOperation = isCut ? fileOperationsMap.mv : fileOperationsMap.cp
   }
 
-  onCut = (e, targetFiles) => {
-    this.onCopy(e, targetFiles, true)
+  onCut = (targetFiles) => {
+    this.onCopy(targetFiles, true)
   }
 
   getTransferType = fileType => {
@@ -151,7 +133,7 @@ export default class FileSection extends React.Component {
     const clickBoardText = readClipboard()
     const fileNames = clickBoardText.split('\n')
     const res = []
-    const operation = this.props.fileOperation
+    const operation = this.props.fileOperation || fileOperationsMap.cp
     for (let i = 0, len = fileNames.length; i < len; i++) {
       const item = fileNames[i]
       const isRemote = item.startsWith('remote:')
@@ -570,7 +552,7 @@ export default class FileSection extends React.Component {
   }
 
   enterDirectory = (e, file) => {
-    e.stopPropagation()
+    e && e.stopPropagation && e.stopPropagation()
     const { type, name } = file || this.state.file
     const n = `${type}Path`
     const path = this.props[n]
@@ -590,6 +572,10 @@ export default class FileSection extends React.Component {
     const filePath = resolve(file.path, file.name)
     fs.openFile(filePath)
       .catch(this.props.store.onError)
+  }
+
+  editFile = () => {
+
   }
 
   transferOrEnterDirectory = async (e, edit) => {
@@ -756,7 +742,7 @@ export default class FileSection extends React.Component {
     const files = shouldShowSelectedMenu
       ? selectedFiles
       : [file]
-    return this.props.renderDelConfirmTitle(files)
+    return this.props.renderDelConfirmTitle(files, true)
   }
 
   showModeEdit (type, id) {
@@ -769,7 +755,7 @@ export default class FileSection extends React.Component {
     return !isWin
   }
 
-  renderContext () {
+  renderContextItems () {
     const {
       file: {
         type,
@@ -784,235 +770,160 @@ export default class FileSection extends React.Component {
     const transferText = type === typeMap.local
       ? e(transferTypeMap.upload)
       : e(transferTypeMap.download)
-    const Icon = type === typeMap.local
-      ? CloudUploadOutlined
-      : CloudDownloadOutlined
+    const iconType = type === typeMap.local
+      ? 'CloudUploadOutlined'
+      : 'CloudDownloadOutlined'
     const len = selectedFiles.length
     const shouldShowSelectedMenu = id &&
       len > 1 &&
       _.some(selectedFiles, d => d.id === id)
-    const cls = 'pd2x pd1y context-item pointer'
     const delTxt = shouldShowSelectedMenu ? `${e('deleteAll')}(${len})` : m('del')
     const canPaste = hasFileInClipboardText()
-    const clsPaste = canPaste
-      ? cls
-      : cls + ' disabled'
     const showEdit = !isDirectory && id &&
       size < maxEditFileSize
-    return (
-      <div>
-        {
-          isDirectory && id
-            ? (
-              <div
-                className={cls}
-                onClick={this.doEnterDirectory}
-              >
-                <EnterOutlined /> {e('enter')}
-              </div>
-            )
-            : null
-        }
-        {
-          shouldShowSelectedMenu && hasHost
-            ? (
-              <div
-                className={cls}
-                onClick={this.doTransferSelected}
-              >
-                <Icon /> {transferText} {e('selected')}({len})
-              </div>
-            )
-            : null
-        }
-        {
-          !id || !hasHost || shouldShowSelectedMenu
-            ? null
-            : (
-              <div
-                className={cls}
-                onClick={this.doTransfer}
-              >
-                <Icon /> {transferText}
-              </div>
-            )
-        }
-        {
-          !isDirectory && id && type === typeMap.local
-            ? (
-              <div
-                className={cls}
-                onClick={this.transferOrEnterDirectory}
-              >
-                <ArrowRightOutlined /> {e('open')}
-              </div>
-            )
-            : null
-        }
-        {
-          id && type === typeMap.local
-            ? (
-              <div
-                className={cls}
-                onClick={this.showInDefaultFileManager}
-              >
-                <ContainerOutlined /> {e('showInDefaultFileMananger')}
-              </div>
-            )
-            : null
-        }
-        {
-          showEdit
-            ? (
-              <div
-                className={cls}
-                onClick={
-                  e => this.transferOrEnterDirectory(e, true)
-                }
-              >
-                <EditOutlined /> {e('edit')}
-              </div>
-            )
-            : null
-        }
-        {
-          showEdit
-            ? (
-              <div
-                className={cls}
-                onClick={
-                  e => this.transferOrEnterDirectory(e, 1)
-                }
-              >
-                <EditOutlined /> {e('editWith')}
-              </div>
-            )
-            : null
-        }
-        {
-          id
-            ? (
-              <Popconfirm
-                cancelText={c('cancel')}
-                okText={c('ok')}
-                title={this.renderDelConfirmTitle(shouldShowSelectedMenu)}
-                onConfirm={() => this.del(shouldShowSelectedMenu)}
-              >
-                <div
-                  className={cls + ' no-auto-close-context'}
-                >
-                  <CloseCircleOutlined /> {delTxt}
-                </div>
-              </Popconfirm>
-            )
-            : null
-        }
-        {
-          id
-            ? (
-              <div
-                className={cls}
-                onClick={this.onCopy}
-              >
-                <CopyOutlined /> {m('copy')}
-                <span className='context-sub-text'>
-                  {ctrlOrCmd}+c
-                </span>
-              </div>
-            )
-            : null
+    const res = []
+    if (isDirectory && id) {
+      res.push({
+        func: 'doEnterDirectory',
+        icon: 'EnterOutlined',
+        text: e('enter')
+      })
+    }
+    if (shouldShowSelectedMenu && hasHost) {
+      res.push({
+        func: 'doTransferSelected',
+        icon: iconType,
+        text: `${e('selected')}(${len})`
+      })
+    }
+    if (!(!id || !hasHost || shouldShowSelectedMenu)) {
+      res.push({
+        func: 'doTransfer',
+        icon: iconType,
+        text: transferText
+      })
+    }
+    if (!isDirectory && id && type === typeMap.local) {
+      res.push({
+        func: 'transferOrEnterDirectory',
+        icon: 'ArrowRightOutlined',
+        text: e('open')
+      })
+    }
+    if (id && type === typeMap.local) {
+      res.push({
+        func: 'showInDefaultFileManager',
+        icon: 'ContainerOutlined',
+        text: e('showInDefaultFileMananger')
+      })
+    }
+    if (showEdit) {
+      res.push({
+        func: 'editFile',
+        icon: 'EditOutlined',
+        text: e('edit')
+      })
+      res.push({
+        func: 'editFileWith',
+        icon: 'EditOutlined',
+        text: e('editWith')
+      })
+    }
+    if (id) {
+      res.push({
+        func: 'del',
+        icon: 'CopyOutlined',
+        text: delTxt,
+        noAutoClose: true,
+        requireConfirm: true,
+        confirmTitle: this.renderDelConfirmTitle(shouldShowSelectedMenu),
+        args: [shouldShowSelectedMenu]
+      })
+      res.push({
+        func: 'onCopy',
+        icon: 'CopyOutlined',
+        text: m('copy'),
+        subText: `${ctrlOrCmd}+c`
+      })
+      res.push({
+        func: 'onCut',
+        icon: 'FileExcelOutlined',
+        text: m('cut'),
+        subText: `${ctrlOrCmd}+x`
+      })
+    }
+    res.push({
+      func: 'onPaste',
+      icon: 'CopyOutlined',
+      text: m('paste'),
+      disabled: !canPaste,
+      subText: `${ctrlOrCmd}+v`
+    })
+    if (id) {
+      res.push({
+        func: 'doRename',
+        icon: 'EditOutlined',
+        text: e('rename')
+      })
+    }
+    res.push({
+      func: 'newFile',
+      icon: 'FileAddOutlined',
+      text: e('newFile'),
+      subText: `${ctrlOrCmd}+v`
+    })
+    res.push({
+      func: 'newDirectory',
+      icon: 'FolderAddOutlined',
+      text: e('newFolder'),
+      subText: `${ctrlOrCmd}+v`
+    })
+    res.push({
+      func: 'selectAll',
+      icon: 'CheckSquareOutlined',
+      text: e('selectAll'),
+      subText: `${ctrlOrCmd}+a`
+    })
+    res.push({
+      func: 'refresh',
+      icon: 'ReloadOutlined',
+      text: e('refresh')
+    })
+    if (this.showModeEdit(type, id)) {
+      res.push({
+        func: 'editPermission',
+        icon: 'LockOutlined',
+        text: e('editPermission')
+      })
+    }
+    if (id) {
+      res.push({
+        func: 'showInfo',
+        icon: 'InfoCircleOutlined',
+        text: e('info')
+      })
+    }
+    return res
+  }
 
-        }
-        {
-          id
-            ? (
-              <div
-                className={cls}
-                onClick={this.onCut}
-              >
-                <FileExcelOutlined /> {m('cut')}
-                <span className='context-sub-text'>
-                  {ctrlOrCmd}+x
-                </span>
-              </div>
-            )
-            : null
-
-        }
-        <div
-          className={clsPaste}
-          onClick={canPaste ? this.onPaste : _.noop}
-        >
-          <CopyOutlined /> {m('paste')}
-          <span className='context-sub-text'>
-            {ctrlOrCmd}+v
-          </span>
-        </div>
-        {
-          id
-            ? (
-              <div
-                className={cls}
-                onClick={this.doRename}
-              >
-                <EditOutlined /> {e('rename')}
-              </div>
-            )
-            : null
-        }
-        <div
-          className={cls}
-          onClick={this.newFile}
-        >
-          <FileAddOutlined /> {e('newFile')}
-        </div>
-        <div
-          className={cls}
-          onClick={this.newDirectory}
-        >
-          <FolderAddOutlined /> {e('newFolder')}
-        </div>
-        <div
-          className={cls}
-          onClick={this.selectAll}
-        >
-          <CheckSquareOutlined /> {e('selectAll')}
-          <span className='context-sub-text'>
-            {ctrlOrCmd}+a
-          </span>
-        </div>
-        <div
-          className={cls}
-          onClick={this.refresh}
-        >
-          <ReloadOutlined /> {e('refresh')}
-        </div>
-        {
-          this.showModeEdit(type, id)
-            ? (
-              <div
-                className={cls}
-                onClick={this.editPermission}
-              >
-                <LockOutlined /> {e('editPermission')}
-              </div>
-            )
-            : null
-        }
-        {
-          id
-            ? (
-              <div
-                className={cls}
-                onClick={this.showInfo}
-              >
-                <InfoCircleOutlined /> {e('info')}
-              </div>
-            )
-            : null
-        }
-      </div>
-    )
+  onContextAction = e => {
+    const {
+      action,
+      id,
+      args = [],
+      func
+    } = e.data || {}
+    console.log(e.data)
+    if (
+      action !== commonActions.clickContextMenu ||
+      id !== this.uid ||
+      !this[func]
+    ) {
+      return false
+    }
+    console.log(e.data, '----')
+    window.removeEventListener('message', this.onContextAction)
+    this[func](...args)
   }
 
   onContextMenu = e => {
@@ -1025,11 +936,14 @@ export default class FileSection extends React.Component {
     this.props.modifier({
       lastClickedFile: file
     })
-    const content = this.renderContext()
+    const items = this.renderContextItems()
+    this.uid = generate()
     this.props.store.openContextMenu({
-      content,
+      items,
+      id: this.uid,
       pos: computePos(e)
     })
+    window.addEventListener('message', this.onContextAction)
   }
 
   renderEditing (file) {

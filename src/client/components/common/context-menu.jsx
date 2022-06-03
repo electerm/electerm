@@ -2,31 +2,45 @@
  * context menu
  */
 import React from 'react'
-import ReactDOM from 'react-dom'
-import PropTypes from 'prop-types'
 import './context-menu.styl'
-import findParent from '../../common/find-parent'
 import classnames from 'classnames'
 import {
   contextMenuHeight,
   contextMenuPaddingTop,
   contextMenuWidth,
-  topMenuHeight
+  topMenuHeight,
+  commonActions
 } from '../../common/constants'
+import {
+  Popconfirm
+} from 'antd'
+import postMessage from '../../common/post-msg'
 import _ from 'lodash'
+import {
+  CloudDownloadOutlined,
+  CloudUploadOutlined,
+  ArrowRightOutlined,
+  CheckSquareOutlined,
+  CloseCircleOutlined,
+  ContainerOutlined,
+  CopyOutlined,
+  EditOutlined,
+  EnterOutlined,
+  FileAddOutlined,
+  FileExcelOutlined,
+  FolderAddOutlined,
+  InfoCircleOutlined,
+  LockOutlined,
+  ReloadOutlined
+} from '@ant-design/icons'
+
+const { prefix } = window
+const c = prefix('common')
 
 export default class ContextMenu extends React.PureComponent {
-  static propTypes = {
-    content: PropTypes.element.isRequired,
-    visible: PropTypes.bool,
-    pos: PropTypes.object,
-    className: PropTypes.string,
-    closeContextMenu: PropTypes.func
-  }
-
-  static defaultProps = {
-    content: <div />,
-    visible: false,
+  state = {
+    items: [],
+    id: '',
     pos: {
       left: 0,
       top: 0
@@ -35,49 +49,76 @@ export default class ContextMenu extends React.PureComponent {
   }
 
   componentDidMount () {
-    ReactDOM.findDOMNode(this)
-      .addEventListener('click', e => {
-        const { target } = e
-        const p = findParent(target, '.context-item')
-        if (
-          p &&
-          !p.classList.contains('no-auto-close-context') &&
-          !p.classList.contains('disabled')
-        ) {
-          this.props.closeContextMenu()
-        }
-      })
     window.addEventListener('message', e => {
-      if (e.data && e.data.type && e.data.type === 'close-context-menu') {
-        this.props.closeContextMenu()
+      const {
+        type,
+        data
+      } = e.data || {}
+      if (
+        type === commonActions.closeContextMenu
+      ) {
+        this.closeContextMenu()
+      } else if (type === commonActions.openContextMenu) {
+        this.setOnCloseEvent()
+        this.setState(data)
       }
     })
   }
 
+  setOnCloseEvent = () => {
+    document
+      .getElementById('outside-context')
+      .addEventListener('click', this.onTriggerClose)
+  }
+
+  onTriggerClose = () => {
+    this.closeContextMenu()
+    document
+      .getElementById('outside-context')
+      .removeEventListener('click', this.onTriggerClose)
+  }
+
+  icons = {
+    CloudDownloadOutlined,
+    CloudUploadOutlined,
+    ArrowRightOutlined,
+    CheckSquareOutlined,
+    CloseCircleOutlined,
+    ContainerOutlined,
+    CopyOutlined,
+    EditOutlined,
+    EnterOutlined,
+    FileAddOutlined,
+    FileExcelOutlined,
+    FolderAddOutlined,
+    InfoCircleOutlined,
+    LockOutlined,
+    ReloadOutlined
+  }
+
+  closeContextMenu = () => {
+    this.setState({
+      id: '',
+      items: []
+    })
+  }
+
   computePos = () => {
-    const count = this.props.content.props.children
-      ? this.props.content.props.children.filter(c => _.identity(c) && c.type !== 'hr').length
+    const {
+      pos,
+      items
+    } = this.state
+    const { length } = items
+    const count = length
+      ? items.filter(c => c.type !== 'hr').length
       : 3
-    const countHr = this.props.content.props.children
-      ? this.props.content.props.children.filter(c => _.identity(c) && c.type === 'hr').length
+    const countHr = length
+      ? items.filter(c => c.type === 'hr').length
       : 3
-    // const { clientX, clientY } = e
-    // const res = {
-    //   left: clientX,
-    //   top: clientY
-    // }
-    // if (window.innerHeight < res.top + height + 10) {
-    //   res.top = res.top - height
-    // }
-    // if (window.innerWidth < res.left + contextMenuWidth + 10) {
-    //   res.left = res.left - contextMenuWidth
-    // }
-    // res.top = res.top > 0 ? res.top : 0
-    // return res
     let {
       left,
       top
-    } = this.props.pos
+    } = pos
     const height = count * contextMenuHeight + contextMenuPaddingTop * 2 + countHr * 1
     const maxHeight = Math.max(
       window.innerHeight - topMenuHeight - top,
@@ -103,8 +144,95 @@ export default class ContextMenu extends React.PureComponent {
     }
   }
 
+  onClick = (e, item) => {
+    const {
+      disabled,
+      func,
+      args
+    } = item
+    if (disabled) {
+      return
+    }
+    postMessage({
+      action: commonActions.clickContextMenu,
+      id: this.state.id,
+      args,
+      func
+    })
+    this.closeContextMenu()
+  }
+
+  renderItem = (item, i) => {
+    const {
+      disabled,
+      icon,
+      text,
+      noAutoClose,
+      requireConfirm,
+      confirmTitle,
+      subText
+    } = item
+    let iconElem = null
+    if (icon && this.icons[icon]) {
+      const Icon = this.icons[icon]
+      iconElem = <Icon />
+    }
+    const cls = classnames(
+      'pd2x pd1y context-item pointer',
+      {
+        disabled
+      },
+      {
+        'no-auto-close-context': noAutoClose
+      }
+    )
+    const act = requireConfirm
+      ? _.noop
+      : (e) => this.onClick(e, item)
+    const unit = (
+      <div
+        key={`context-item-${i}-${text}`}
+        className={cls}
+        onClick={act}
+      >
+        {iconElem}{iconElem ? ' ' : ''}{text}
+        {
+          subText
+            ? (<span className='context-sub-text'>{subText}</span>)
+            : null
+        }
+      </div>
+    )
+    if (!requireConfirm) {
+      return unit
+    }
+    const title = (
+      <div className='wordbreak'>{confirmTitle}</div>
+    )
+    return (
+      <Popconfirm
+        cancelText={c('cancel')}
+        key={`context-item-${i}-${text}`}
+        okText={c('ok')}
+        title={title}
+        onConfirm={(e) => this.onClick(e, item)}
+      >
+        {unit}
+      </Popconfirm>
+    )
+  }
+
+  renderItems = () => {
+    return this.state.items.map(this.renderItem)
+  }
+
   render () {
-    const { visible, content, className } = this.props
+    const { id, className } = this.state
+    console.log('hide1')
+    if (!id) {
+      console.log('hide')
+      return null
+    }
     const {
       pos,
       shouldScroll,
@@ -112,21 +240,25 @@ export default class ContextMenu extends React.PureComponent {
     } = this.computePos()
     const cls = classnames(
       className,
-      visible ? 'show' : 'hide',
+      id ? 'show' : 'hide',
       shouldScroll ? 'scroll' : ''
     )
+    const innerProps = {
+      className: 'context-menu-inner',
+      style: {
+        height: (realHeight - contextMenuPaddingTop * 2) + 'px'
+      }
+    }
+    console.log('hide3')
     return (
       <div
         className={cls}
         style={pos}
       >
         <div
-          className='context-menu-inner'
-          style={{
-            height: (realHeight - contextMenuPaddingTop * 2) + 'px'
-          }}
+          {...innerProps}
         >
-          {content}
+          {this.renderItems()}
         </div>
       </div>
     )

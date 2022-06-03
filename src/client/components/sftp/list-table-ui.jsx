@@ -239,13 +239,13 @@ export default class FileListTable extends React.Component {
 
   onContextMenu = e => {
     e && e.preventDefault()
-    const content = this.renderContext()
+    const items = this.renderContext()
     const pos = e
       ? this.computePos(e)
       : this.pos
     this.pos = pos
     this.props.store.openContextMenu({
-      content,
+      items,
       pos
     })
   }

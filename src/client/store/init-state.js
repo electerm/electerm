@@ -8,6 +8,7 @@ import {
   settingMap,
   defaultBookmarkGroupId,
   newBookmarkIdPrefix,
+  fileOperationsMap,
   syncTypes,
   settingSyncId,
   infoTabs,
@@ -73,15 +74,12 @@ export default {
 
   currentBookmarkGroupId: defaultBookmarkGroupId,
 
-  // context menu
-  contextMenuProps: {},
-  contextMenuVisible: false,
-
   // init session control
   selectedSessions: [],
   sessionModalVisible: false,
 
   // sftp
+  fileOperation: fileOperationsMap.cp, // cp or mv
   transferTab: 'transfer',
   transferHistory: [],
   textEditorProps: {},

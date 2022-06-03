@@ -37,7 +37,7 @@ export const splitDraggerWidth = 5
 export const minTerminalWidth = 90
 export const filePropMinWidth = 1
 export const contextMenuHeight = 28
-export const contextMenuWidth = 170
+export const contextMenuWidth = 220
 export const contextMenuPaddingTop = 10
 export const sftpControlHeight = 28 + 42 + 33 + 56
 export const sidebarWidth = 43
@@ -254,6 +254,8 @@ export const commonActions = {
   showFileInfoModal: 'show-file-info-modal',
   appUpdateCheck: 'check-app-update',
   closeContextMenu: 'close-context-menu',
+  clickContextMenu: 'click-context-menu',
+  openContextMenu: 'open-context-menu',
   addTransfer: 'add-transfer'
 }
 

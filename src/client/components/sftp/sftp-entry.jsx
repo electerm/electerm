@@ -68,7 +68,6 @@ export default class Sftp extends Component {
       loadingSftp: false,
       transferToConfirm: null,
       transferList: [],
-      fileOperation: '',
       pauseAll: false
     }
     this.retryCount = 0
@@ -195,7 +194,7 @@ export default class Sftp extends Component {
   }
 
   selectAll = (type, e) => {
-    e.preventDefault()
+    e && e.preventDefault && e.preventDefault()
     this.setState({
       selectedFiles: this.getFileList(type)
     })
@@ -276,9 +275,15 @@ export default class Sftp extends Component {
     this[type + 'List']()
   }
 
-  renderDelConfirmTitle (files = this.state.selectedFiles) {
+  renderDelConfirmTitle (files = this.state.selectedFiles, pureText) {
     const hasDirectory = _.some(files, f => f.isDirectory)
     const names = hasDirectory ? e('filesAndFolders') : e('files')
+    if (pureText) {
+      const t1 = hasDirectory
+        ? e('delTip1')
+        : ''
+      return `${e('delTip')} ${names} ${t1} (${files.length})`
+    }
     return (
       <div className='wordbreak'>
         {e('delTip')}
@@ -810,7 +815,6 @@ export default class Sftp extends Component {
         'transferToConfirm',
         'transferList',
         'targetTransferType',
-        'fileOperation',
         'selectedFiles',
         'pauseAll',
         'localGidTree',
