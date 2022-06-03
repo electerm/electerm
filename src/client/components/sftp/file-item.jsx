@@ -913,7 +913,6 @@ export default class FileSection extends React.Component {
       args = [],
       func
     } = e.data || {}
-    console.log(e.data)
     if (
       action !== commonActions.clickContextMenu ||
       id !== this.uid ||
@@ -921,7 +920,6 @@ export default class FileSection extends React.Component {
     ) {
       return false
     }
-    console.log(e.data, '----')
     window.removeEventListener('message', this.onContextAction)
     this[func](...args)
   }

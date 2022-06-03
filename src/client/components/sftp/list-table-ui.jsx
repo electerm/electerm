@@ -17,10 +17,10 @@ import {
   maxDragMove,
   sftpControlHeight,
   eventTypes,
-  paneMap
+  paneMap,
+  commonActions
 } from '../../common/constants'
 import copy from 'json-deep-copy'
-import { CheckOutlined } from '@ant-design/icons'
 import FileSection from './file-item'
 import PagedList from './paged-list'
 
@@ -57,6 +57,7 @@ export default class FileListTable extends React.Component {
   }
 
   componentWillUnmount () {
+    window.removeEventListener('message', this.onContextAction)
     window.removeEventListener('message', this.onMsg)
   }
 
@@ -234,7 +235,25 @@ export default class FileListTable extends React.Component {
       : [...names, name]
     const props = all.filter(g => newProps.includes(g))
     const update = this.initFromProps(props)
-    this.setState(update, this.onContextMenu)
+    this.setState(update)
+  }
+
+  onContextAction = e => {
+    const {
+      action,
+      id,
+      args = [],
+      func
+    } = e.data || {}
+    if (
+      action !== commonActions.clickContextMenu ||
+      id !== this.uid ||
+      !this[func]
+    ) {
+      return false
+    }
+    window.removeEventListener('message', this.onContextAction)
+    this[func](...args)
   }
 
   onContextMenu = e => {
@@ -244,10 +263,13 @@ export default class FileListTable extends React.Component {
       ? this.computePos(e)
       : this.pos
     this.pos = pos
+    this.uid = generate()
     this.props.store.openContextMenu({
+      id: this.uid,
       items,
       pos
     })
+    window.addEventListener('message', this.onContextAction)
   }
 
   onClickName = (e) => {
@@ -281,42 +303,26 @@ export default class FileListTable extends React.Component {
   }
 
   renderContext = () => {
-    const clsBase = 'pd2x pd1y context-item pointer'
     const { properties } = this.state
     const all = this.getPropsAll()
     const selectedNames = properties.map(d => d.name)
-    return (
-      <div>
-        {
-          all.map((p, i) => {
-            const selected = selectedNames.includes(p)
-            const disabled = !i
-            const cls = classnames(
-              clsBase,
-              { selected },
-              { unselected: !selected },
-              { disabled }
-            )
-            const onClick = disabled
-              ? _.noop
-              : this.onToggleProp
-            return (
-              <div
-                className={cls}
-                onClick={() => onClick(p)}
-              >
-                {
-                  disabled || selected
-                    ? <CheckOutlined className='mg1r' />
-                    : <span className='icon-holder mg1r' />
-                }
-                {e(p)}
-              </div>
-            )
-          })
-        }
-      </div>
-    )
+    return all.map((p, i) => {
+      const selected = selectedNames.includes(p)
+      const disabled = !i
+      const cls = classnames(
+        { selected },
+        { unselected: !selected }
+      )
+      return {
+        func: 'onToggleProp',
+        icon: disabled || selected ? 'CheckOutlined' : 'IconHolder',
+        text: e(p),
+        disabled,
+        args: [p],
+        noCloseMenu: true,
+        className: cls
+      }
+    })
   }
 
   positionProps = [

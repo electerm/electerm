@@ -16,7 +16,9 @@ import {
 } from 'antd'
 import postMessage from '../../common/post-msg'
 import _ from 'lodash'
+import IconHolder from './icon-holder'
 import {
+  CheckOutlined,
   CloudDownloadOutlined,
   CloudUploadOutlined,
   ArrowRightOutlined,
@@ -79,6 +81,8 @@ export default class ContextMenu extends React.PureComponent {
   }
 
   icons = {
+    IconHolder,
+    CheckOutlined,
     CloudDownloadOutlined,
     CloudUploadOutlined,
     ArrowRightOutlined,
@@ -148,7 +152,8 @@ export default class ContextMenu extends React.PureComponent {
     const {
       disabled,
       func,
-      args
+      args,
+      noCloseMenu
     } = item
     if (disabled) {
       return
@@ -159,7 +164,9 @@ export default class ContextMenu extends React.PureComponent {
       args,
       func
     })
-    this.closeContextMenu()
+    if (!noCloseMenu) {
+      this.closeContextMenu()
+    }
   }
 
   renderItem = (item, i) => {
@@ -170,7 +177,8 @@ export default class ContextMenu extends React.PureComponent {
       noAutoClose,
       requireConfirm,
       confirmTitle,
-      subText
+      subText,
+      className
     } = item
     let iconElem = null
     if (icon && this.icons[icon]) {
@@ -184,7 +192,8 @@ export default class ContextMenu extends React.PureComponent {
       },
       {
         'no-auto-close-context': noAutoClose
-      }
+      },
+      className
     )
     const act = requireConfirm
       ? _.noop
@@ -228,9 +237,7 @@ export default class ContextMenu extends React.PureComponent {
 
   render () {
     const { id, className } = this.state
-    console.log('hide1')
     if (!id) {
-      console.log('hide')
       return null
     }
     const {
@@ -249,7 +256,6 @@ export default class ContextMenu extends React.PureComponent {
         height: (realHeight - contextMenuPaddingTop * 2) + 'px'
       }
     }
-    console.log('hide3')
     return (
       <div
         className={cls}
