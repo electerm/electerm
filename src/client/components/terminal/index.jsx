@@ -9,13 +9,8 @@ import { runCmds } from '../terminal-info/run-cmd'
 import postMessage from '../../common/post-msg'
 
 import {
-  BorderHorizontalOutlined,
   CheckCircleOutlined,
-  CopyOutlined,
-  ReloadOutlined,
-  SearchOutlined,
-  SelectOutlined,
-  SwitcherOutlined
+  ReloadOutlined
 } from '@ant-design/icons'
 
 import {
@@ -37,7 +32,8 @@ import {
   terminalSshConfigType,
   transferTypeMap,
   defaultLoginScriptDelay,
-  terminalActions
+  terminalActions,
+  commonActions
 } from '../../common/constants'
 import deepCopy from 'json-deep-copy'
 import { readClipboard, copy } from '../../common/clipboard'
@@ -149,6 +145,7 @@ export default class Term extends Component {
     )
     window.removeEventListener('message', this.handleEvent)
     this.dom.removeEventListener('contextmenu', this.onContextMenu)
+    window.removeEventListener('message', this.onContextAction)
   }
 
   terminalConfigProps = [
@@ -525,6 +522,24 @@ export default class Term extends Component {
     this.props.doSplit(null, this.props.id)
   }
 
+  onContextAction = e => {
+    const {
+      action,
+      id,
+      args = [],
+      func
+    } = e.data || {}
+    if (
+      action !== commonActions.clickContextMenu ||
+      id !== this.uid ||
+      !this[func]
+    ) {
+      return false
+    }
+    window.removeEventListener('message', this.onContextAction)
+    this[func](...args)
+  }
+
   onContextMenu = e => {
     e.preventDefault()
     if (this.state.loading) {
@@ -533,11 +548,14 @@ export default class Term extends Component {
     if (this.props.config.pasteWhenContextMenu) {
       return this.onPaste()
     }
-    const content = this.renderContext()
+    const items = this.renderContext()
+    this.uid = generate()
     this.props.store.openContextMenu({
-      content,
+      id: this.uid,
+      items,
       pos: computePos(e)
     })
+    window.addEventListener('message', this.onContextAction)
   }
 
   onCopy = () => {
@@ -594,61 +612,51 @@ export default class Term extends Component {
   }
 
   renderContext = () => {
-    const cls = 'pd2x pd1y context-item pointer'
     const hasSlected = this.term.hasSelection()
-    const clsCopy = cls +
-      (hasSlected ? '' : ' disabled')
     const copyed = readClipboard()
-    const clsPaste = cls +
-      (copyed ? '' : ' disabled')
     const copyShortcut = isMac
       ? 'Command+C'
       : 'Ctrl+Shift+C'
     const pasteShortcut = isMac
       ? 'Command+V'
       : 'Ctrl+Shift+V'
-    return (
-      <div>
-        <div
-          className={clsCopy}
-          onClick={hasSlected ? this.onCopy : _.noop}
-        >
-          <CopyOutlined /> {m('copy')}
-          <span className='context-sub-text'>({copyShortcut})</span>
-        </div>
-        <div
-          className={clsPaste}
-          onClick={copyed ? this.onPaste : _.noop}
-        >
-          <SwitcherOutlined /> {m('paste')}
-          <span className='context-sub-text'>({pasteShortcut})</span>
-        </div>
-        <div
-          className={cls}
-          onClick={this.onClear}
-        >
-          <ReloadOutlined /> {e('clear')} (Ctrl+L)
-        </div>
-        <div
-          className={cls}
-          onClick={this.onSelectAll}
-        >
-          <SelectOutlined /> {e('selectAll')}
-        </div>
-        <div
-          className={cls}
-          onClick={this.openSearch}
-        >
-          <SearchOutlined /> {e('search')}
-        </div>
-        <div
-          className={cls}
-          onClick={this.split}
-        >
-          <BorderHorizontalOutlined /> {e('split')}
-        </div>
-      </div>
-    )
+    return [
+      {
+        func: 'onCopy',
+        icon: 'CopyOutlined',
+        text: m('copy'),
+        disabled: !hasSlected,
+        subText: copyShortcut
+      },
+      {
+        func: 'onPaste',
+        icon: 'SwitcherOutlined',
+        text: m('paste'),
+        disabled: !copyed,
+        subText: pasteShortcut
+      },
+      {
+        func: 'onClear',
+        icon: 'ReloadOutlined',
+        text: e('clear'),
+        subText: 'Ctrl+L'
+      },
+      {
+        func: 'onSelectAll',
+        icon: 'SelectOutlined',
+        text: e('selectAll')
+      },
+      {
+        func: 'openSearch',
+        icon: 'SearchOutlined',
+        text: e('search')
+      },
+      {
+        func: 'split',
+        icon: 'BorderHorizontalOutlined',
+        text: e('split')
+      }
+    ]
   }
 
   loadState = term => {
