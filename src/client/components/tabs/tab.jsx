@@ -6,13 +6,10 @@ import React from 'react'
 import runIdle from '../../common/run-idle'
 import {
   CloseOutlined,
-  CodeOutlined,
-  CopyOutlined,
-  EditOutlined,
   Loading3QuartersOutlined,
   BorderlessTableOutlined
 } from '@ant-design/icons'
-
+import generate from '../../common/uid'
 import { Tooltip, message } from 'antd'
 import classnames from 'classnames'
 import copy from 'json-deep-copy'
@@ -22,7 +19,8 @@ import createName from '../../common/create-title'
 import { addClass, removeClass } from '../../common/class'
 import {
   terminalSshConfigType,
-  ctrlOrCmd
+  ctrlOrCmd,
+  commonActions
 } from '../../common/constants'
 
 const { prefix } = window
@@ -55,6 +53,7 @@ export default class Tab extends React.Component {
 
   componentWillUnmount () {
     window.removeEventListener('message', this.onEvent)
+    window.removeEventListener('message', this.onContextAction)
     clearTimeout(this.handler)
   }
 
@@ -179,6 +178,10 @@ export default class Tab extends React.Component {
     )
   }
 
+  newTab = () => {
+    this.props.store.addTab()
+  }
+
   doRename = () => {
     const tab = copy(this.state.tab)
     tab.titleTemp = tab.title || ''
@@ -243,87 +246,85 @@ export default class Tab extends React.Component {
     const len = tabs.length
     const index = _.findIndex(tabs, t => t.id === tab.id)
     const noRight = index >= len - 1
-    const cls = 'pd2x pd1y context-item pointer'
     const isSshConfig = tab.type === terminalSshConfigType
-    return (
-      <div>
-        {
-          isOnlyTab
-            ? null
-            : (
-              <div
-                className={cls}
-                onClick={this.close}
-              >
-                <CloseOutlined /> {e('close')} ({ctrlOrCmd} + W)
-              </div>
-            )
-        }
-        {
-          isOnlyTab
-            ? null
-            : (
-              <div
-                className={cls}
-                onClick={this.closeOther}
-              >
-                <CloseOutlined /> {e('closeOtherTabs')}
-              </div>
-            )
-        }
-        {
-          noRight
-            ? null
-            : (
-              <div
-                className={cls}
-                onClick={this.closeTabsRight}
-              >
-                <CloseOutlined /> {e('closeTabRight')}
-              </div>
-            )
-        }
+    const res = []
+    if (!isOnlyTab) {
+      res.push({
+        func: 'close',
+        icon: 'CloseOutlined',
+        text: e('close'),
+        subText: `${ctrlOrCmd} + W`
+      })
+      res.push({
+        func: 'closeOther',
+        icon: 'CloseOutlined',
+        text: e('closeOtherTabs')
+      })
+    }
+    if (!noRight) {
+      res.push({
+        func: 'closeTabsRight',
+        icon: 'CloseOutlined',
+        text: e('closeTabRight')
+      })
+    }
+    res.push({
+      func: 'newTab',
+      icon: 'CodeOutlined',
+      text: e('newTab')
+    })
+    res.push({
+      func: 'dup',
+      icon: 'CopyOutlined',
+      text: e('duplicate')
+    })
+    res.push({
+      disabled: isSshConfig,
+      func: 'doRename',
+      icon: 'EditOutlined',
+      text: e('rename')
+    })
+    res.push({
+      func: 'reloadTab',
+      icon: 'Loading3QuartersOutlined',
+      text: m('reload')
+    })
+    return res
+  }
 
-        <div
-          className={cls}
-          onClick={() => this.props.store.addTab()}
-        >
-          <CodeOutlined /> {e('newTab')}
-        </div>
-        <div
-          className={cls}
-          onClick={this.dup}
-        >
-          <CopyOutlined /> {e('duplicate')}
-        </div>
-        <div
-          className={cls + (isSshConfig ? ' disabled' : '')}
-          onClick={isSshConfig ? _.noop : this.doRename}
-        >
-          <EditOutlined /> {e('rename')}
-        </div>
-        <div
-          className={cls}
-          onClick={this.reloadTab}
-        >
-          <Loading3QuartersOutlined /> {m('reload')}
-        </div>
-      </div>
-    )
+  onContextAction = e => {
+    const {
+      action,
+      id,
+      args = [],
+      func
+    } = e.data || {}
+    if (
+      action !== commonActions.clickContextMenu ||
+      id !== this.uid ||
+      !this[func]
+    ) {
+      return false
+    }
+    window.removeEventListener('message', this.onContextAction)
+    this[func](...args)
   }
 
   onContextMenu = e => {
     e.preventDefault()
     const { target } = e
     const rect = target.getBoundingClientRect()
-    const content = this.renderContext()
+    const items = this.renderContext()
+    this.uid = generate()
     this.props.store.openContextMenu({
-      content,
+      items,
       pos: {
         left: rect.left,
         top: rect.top + 20
-      }
+      },
+      id: this.uid
     })
+    window.addEventListener('message', this.onContextAction)
   }
 
   renderEditting (tab, cls) {

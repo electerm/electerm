@@ -18,6 +18,7 @@ import postMessage from '../../common/post-msg'
 import _ from 'lodash'
 import IconHolder from './icon-holder'
 import {
+  CodeOutlined,
   BorderHorizontalOutlined,
   SearchOutlined,
   SelectOutlined,
@@ -85,6 +86,7 @@ export default class ContextMenu extends React.PureComponent {
   }
 
   icons = {
+    CodeOutlined,
     BorderHorizontalOutlined,
     SearchOutlined,
     SelectOutlined,
