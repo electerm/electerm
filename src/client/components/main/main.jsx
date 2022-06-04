@@ -1,6 +1,6 @@
 
 import { Component } from '../common/react-subx'
-import Session from '../session'
+import Sessions from '../session/sessions'
 import Tabs from '../tabs'
 import _ from 'lodash'
 import copy from 'json-deep-copy'
@@ -61,7 +61,6 @@ export default class Index extends Component {
   render () {
     const { store } = this.props
     const {
-      currentTabId,
       textEditorProps,
       textEditorSystemProps,
       storeAssign,
@@ -154,33 +153,12 @@ export default class Index extends Component {
             store={store}
             {...tabsProps}
           />
-          <div className='ui-outer'>
-            {
-              tabs.map((tab) => {
-                const { id } = tab
-                const cls = id !== currentTabId
-                  ? 'hide'
-                  : 'ssh-wrap-show'
-                const tabProps = {
-                  tab: copy(tab),
-                  ..._.pick(store, [
-                    'currentTabId',
-                    'height',
-                    'width',
-                    'activeTerminalId'
-                  ]),
-                  config: cpConf
-                }
-                return (
-                  <div className={cls} key={id}>
-                    <Session
-                      store={store}
-                      {...tabProps}
-                    />
-                  </div>
-                )
-              })
-            }
+          <div className='sessions'>
+            <Sessions
+              tabs={tabs}
+              store={store}
+              config={cpConf}
+            />
             <TermSearch store={store} />
             <QuickCommandsFooterBox store={store} />
             <Footer store={store} />
