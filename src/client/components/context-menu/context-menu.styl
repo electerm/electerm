@@ -1,0 +1,85 @@
+@require '../../css/includes/theme-default'
+.context-menu
+  position: absolute
+  width 220px
+  background main-dark
+  box-shadow 0px 0px 3px 3px alpha(main-dark, .35)
+  // border 1px solid #222
+  padding 10px 0
+  z-index 999
+  -webkit-app-region no-drag
+  color text
+  &.scroll
+    .context-menu-inner
+      overflow-x hidden
+      overflow-y scroll
+.context-item
+  -webkit-app-region no-drag
+  position relative
+  color text
+  &:hover
+    background #000
+    color #eee
+  &.disabled
+    color alpha(text, .85)
+    &:hover
+      color #777
+      background #333
+      cursor not-allowed
+
+.context-sub-text
+  position absolute
+  right 16px
+  top 6px
+  opacity .65
+
+.context-menu
+  hr
+    margin 0
+    border none
+    border-bottom 1px solid main-light
+.sub-context-menu
+  display none
+  width 200px
+  position absolute
+  left 100%
+  top 0
+  background main
+  box-shadow 0px 0px 3px 3px alpha(main, .35)
+  max-height 300px
+  overflow-y scroll
+.with-sub-menu
+  &:hover
+    .sub-context-menu
+      display block
+.sub-context-menu-item
+  cursor pointer
+  padding 10px 16px
+  overflow hidden
+  white-space nowrap
+  text-overflow ellipsis
+  &:hover, &.active
+    background main-dark
+.bookmarks-sub-context-menu
+  width 380px
+  padding 20px 10px 10px 20px
+
+.menu-control
+  width 28px
+  height 28px
+  border-radius 30px
+  color text
+  font-size 16px
+  text-align center
+  display inline-block
+  line-height 28px
+  cursor pointer
+  opacity .6
+  &:hover
+    opacity 1
+.is-main
+  .menu-control
+    img
+      border 1px solid text-dark
+      border-radius 28px
+      background #000

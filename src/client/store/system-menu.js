@@ -17,18 +17,18 @@ const c = prefix('common')
 
 export default store => {
   Object.assign(store, {
-    openMenu () {
-      store.menuOpened = true
-    },
+    // openMenu () {
+    //   store.menuOpened = true
+    // },
 
-    closeMenu () {
-      store.menuOpened = false
-    },
+    // closeMenu () {
+    //   store.menuOpened = false
+    // },
 
-    onCloseMenu () {
-      const dom = document.getElementById('outside-context')
-      dom && dom.removeEventListener('click', store.closeContextMenu)
-    },
+    // onCloseMenu () {
+    //   const dom = document.getElementById('outside-context')
+    //   dom && dom.removeEventListener('click', store.closeContextMenu)
+    // },
     zoom (level = 1, plus = false, zoomOnly) {
       let nl = plus
         ? window.pre.getZoomFactor() + level
@@ -59,10 +59,10 @@ export default store => {
         store.infoModalTab = tab
       }
     },
-    initMenuEvent () {
-      const dom = document.getElementById('outside-context')
-      dom && dom.addEventListener('click', store.closeMenu)
-    },
+    // initMenuEvent () {
+    //   const dom = document.getElementById('outside-context')
+    //   dom && dom.addEventListener('click', store.closeMenu)
+    // },
 
     onNewSsh () {
       store.storeAssign({

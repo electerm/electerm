@@ -4,7 +4,7 @@ import Session from '../session'
 import Tabs from '../tabs'
 import _ from 'lodash'
 import copy from 'json-deep-copy'
-import ContextMenu from '../common/context-menu'
+import ContextMenu from '../context-menu/context-menu'
 import FileInfoModal from '../sftp/file-props-modal'
 import FileModeModal from '../sftp/file-mode-modal'
 import UpdateCheck from './upgrade'
@@ -12,7 +12,6 @@ import SettingModal from '../setting-panel/setting-modal'
 import TextEditor from '../text-editor'
 import TextEditorSystem from '../text-editor/edit-with-system-editor'
 import Sidebar from '../sidebar'
-import SystemMenu from './system-menu'
 import CssOverwrite from './css-overwrite'
 import UiTheme from './ui-theme'
 import TerminalInteractive from '../terminal/terminal-interactive'
@@ -142,8 +141,7 @@ export default class Index extends Component {
         <UpdateCheck
           store={store}
         />
-        <ContextMenu />
-        <SystemMenu store={store} />
+        <ContextMenu store={store} />
         <FileInfoModal />
         <FileModeModal />
         <SettingModal store={store} />

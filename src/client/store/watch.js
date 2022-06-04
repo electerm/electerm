@@ -18,14 +18,14 @@ export default store => {
     return store.currentTabId
   }, debounceTime(1000))
 
-  Subx.autoRun(store, () => {
-    if (store.menuOpened) {
-      store.initMenuEvent()
-    } else {
-      store.onCloseMenu()
-    }
-    return store.menuOpened
-  })
+  // Subx.autoRun(store, () => {
+  //   if (store.menuOpened) {
+  //     store.initMenuEvent()
+  //   } else {
+  //     store.onCloseMenu()
+  //   }
+  //   return store.menuOpened
+  // })
 
   Subx.autoRun(store, () => {
     const v = store.getItems('tabs').map(t => {

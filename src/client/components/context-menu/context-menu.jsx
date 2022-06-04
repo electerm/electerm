@@ -16,6 +16,10 @@ import {
 } from 'antd'
 import postMessage from '../../common/post-msg'
 import _ from 'lodash'
+import History from './history'
+import Bookmark from './boomarks'
+import Tabs from './tabs'
+import Zoom from './zoom'
 import IconHolder from './icon-holder'
 import {
   CodeOutlined,
@@ -110,6 +114,13 @@ export default class ContextMenu extends React.PureComponent {
     ReloadOutlined
   }
 
+  modules = {
+    History,
+    Bookmark,
+    Tabs,
+    Zoom
+  }
+
   closeContextMenu = () => {
     this.setState({
       id: '',
@@ -179,6 +190,22 @@ export default class ContextMenu extends React.PureComponent {
     }
   }
 
+  renderSubText = (subText) => {
+    return subText
+      ? (<span className='context-sub-text'>{subText}</span>)
+      : null
+  }
+
+  renderSubMenu = (submenu) => {
+    if (!submenu) {
+      return
+    }
+    const Mod = this.modules[submenu]
+    return (
+      <Mod store={this.props.store} />
+    )
+  }
+
   renderItem = (item, i) => {
     const {
       disabled,
@@ -188,24 +215,42 @@ export default class ContextMenu extends React.PureComponent {
       requireConfirm,
       confirmTitle,
       subText,
-      className
+      className,
+      type,
+      module,
+      submenu
     } = item
+    if (type === 'hr') {
+      return <hr />
+    }
+    const baseCls = 'pd2x pd1y context-item pointer'
+    if (module && this.modules[module]) {
+      const Mod = this.modules[module]
+      return (
+        <div className={baseCls}>
+          <Mod store={this.props.store} />
+        </div>
+      )
+    }
     let iconElem = null
     if (icon && this.icons[icon]) {
       const Icon = this.icons[icon]
       iconElem = <Icon />
     }
     const cls = classnames(
-      'pd2x pd1y context-item pointer',
+      baseCls,
       {
         disabled
       },
       {
         'no-auto-close-context': noAutoClose
       },
-      className
+      className,
+      {
+        'with-sub-menu': submenu
+      }
     )
-    const act = requireConfirm
+    const act = requireConfirm || submenu
       ? _.noop
       : (e) => this.onClick(e, item)
     const unit = (
@@ -216,9 +261,10 @@ export default class ContextMenu extends React.PureComponent {
       >
         {iconElem}{iconElem ? ' ' : ''}{text}
         {
-          subText
-            ? (<span className='context-sub-text'>{subText}</span>)
-            : null
+          this.renderSubText(subText)
+        }
+        {
+          this.renderSubMenu(submenu)
         }
       </div>
     )
