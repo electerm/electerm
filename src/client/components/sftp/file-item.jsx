@@ -77,6 +77,7 @@ export default class FileSection extends React.Component {
   }
 
   componentWillUnmount () {
+    this.removeFileEditEvent()
     window.removeEventListener('message', this.changeFileMode)
     window.removeEventListener('message', this.onContextAction)
   }
@@ -574,7 +575,94 @@ export default class FileSection extends React.Component {
       .catch(this.props.store.onError)
   }
 
+  removeFileEditEvent = () => {
+    delete this.eid
+    window.removeEventListener('message', this.onFileEditEvent)
+  }
+
+  onFileEditEvent = e => {
+    const {
+      action,
+      id,
+      text,
+      path,
+      mode,
+      type,
+      editorType
+    } = e.data || {}
+    if (id !== this.eid) {
+      return false
+    }
+    if (
+      action === commonActions.fetchTextEditorText
+    ) {
+      this.fetchEditorText(path, type, editorType)
+    } else if (action === commonActions.submitTextEditorText) {
+      this.onSubmitEditFile(mode, type, path, text, editorType)
+    } else if (action === commonActions.onCloseTextEditor) {
+      this.removeFileEditEvent()
+    }
+  }
+
+  fetchEditorText = async (path, type, editorType) => {
+    // const sftp = sftpFunc()
+    const text = typeMap.remote === type
+      ? await this.props.sftp.readFile(path)
+      : await fs.readFile(path)
+    postMessage({
+      editorType,
+      action: commonActions.loadTextEditorText,
+      data: {
+        text,
+        loading: false
+      }
+    })
+  }
+
+  onSubmitEditFile = async (mode, type, path, text, editorType) => {
+    const r = typeMap.remote === type
+      ? await this.props.sftp.writeFile(
+        path,
+        text,
+        mode
+      )
+      : await fs.writeFile(
+        path,
+        text,
+        mode
+      )
+    const data = {
+      loading: false
+    }
+    if (r) {
+      data.id = ''
+      data.file = null
+      data.text = ''
+    }
+    postMessage({
+      action: commonActions.openTextEditor,
+      data,
+      editorType
+    })
+    if (r) {
+      this.props[`${type}List`]()
+    }
+  }
+
   editFile = () => {
+    this.eid = generate()
+    postMessage({
+      editorType: commonActions.textEditorType,
+      action: commonActions.openTextEditor,
+      data: {
+        id: this.eid,
+        file: this.state.file
+      }
+    })
+    window.addEventListener('message', this.onFileEditEvent)
+  }
+
+  editFileWith = () => {
 
   }
 
@@ -587,7 +675,7 @@ export default class FileSection extends React.Component {
     if (!edit && type === typeMap.local) {
       return this.openFile(this.state.file)
     }
-    const remoteEedit = !edit && type === typeMap.remote && size < maxEditFileSize
+    const remoteEdit = !edit && type === typeMap.remote && size < maxEditFileSize
     const editProps = {
       visible: true,
       id,
@@ -596,13 +684,11 @@ export default class FileSection extends React.Component {
       afterWrite: this.props[`${type}List`]
     }
     if (
-      edit === true || remoteEedit
+      edit === true || remoteEdit
     ) {
-      return this.props.store.storeAssign({
-        textEditorProps: editProps
-      })
+      return this.editFile()
     } else if (
-      edit === 1 || remoteEedit
+      edit === 1 || remoteEdit
     ) {
       return this.props.store.storeAssign({
         textEditorSystemProps: editProps

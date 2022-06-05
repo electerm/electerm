@@ -249,6 +249,13 @@ export const fileActions = {
   renameAll: 'renameAll'
 }
 export const commonActions = {
+  textEditorSystemType: 'text-editor-system-type',
+  textEditorType: 'text-editor-type',
+  onCloseTextEditor: 'on-close-text-editor',
+  submitTextEditorText: 'submit-text-editor-text',
+  fetchTextEditorText: 'fetch-text-editor-text',
+  loadTextEditorText: 'load-text-editor-text',
+  openTextEditor: 'open-text-editor',
   submitFileModeEdit: 'submit-file-mode-edit',
   showFileModeModal: 'show-file-mode-modal',
   showFileInfoModal: 'show-file-info-modal',

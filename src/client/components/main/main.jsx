@@ -9,7 +9,7 @@ import FileInfoModal from '../sftp/file-props-modal'
 import FileModeModal from '../sftp/file-mode-modal'
 import UpdateCheck from './upgrade'
 import SettingModal from '../setting-panel/setting-modal'
-import TextEditor from '../text-editor'
+import TextEditor from '../text-editor/text-editor'
 import TextEditorSystem from '../text-editor/edit-with-system-editor'
 import Sidebar from '../sidebar'
 import CssOverwrite from './css-overwrite'
@@ -61,7 +61,6 @@ export default class Index extends Component {
   render () {
     const { store } = this.props
     const {
-      textEditorProps,
       textEditorSystemProps,
       storeAssign,
       updateConfig,
@@ -125,11 +124,7 @@ export default class Index extends Component {
           {...themeProps}
           buildTheme={store.buildTheme}
         />
-        <TextEditor
-          key={textEditorProps.id}
-          {...textEditorProps}
-          storeAssign={storeAssign}
-        />
+        <TextEditor />
         <TextEditorSystem
           key={textEditorSystemProps.id}
           {...copy(textEditorSystemProps)}

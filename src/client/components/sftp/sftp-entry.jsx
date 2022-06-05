@@ -356,7 +356,7 @@ export default class Sftp extends Component {
   }
 
   handleEvent = (e) => {
-    if (!this.isActive() || this.state.onEditFile || this.props.store.textEditorProps.id) {
+    if (!this.isActive() || this.state.onEditFile) {
       return
     }
     const lastClickedFile = this.state.lastClickedFile || {

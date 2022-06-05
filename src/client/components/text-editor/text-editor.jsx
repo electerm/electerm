@@ -2,11 +2,11 @@
  * default text editor for remote file
  */
 
-import { useState, useEffect } from 'react'
-import fs from '../../common/fs'
+import { useState, useEffect, useRef } from 'react'
 import { Button, Input, Spin, Modal, Form } from 'antd'
 import resolve from '../../common/resolve'
-import { typeMap } from '../../common/constants'
+import { commonActions } from '../../common/constants'
+import postMsg from '../../common/post-msg'
 
 const FormItem = Form.Item
 const { prefix } = window
@@ -19,8 +19,15 @@ export default function TextEditorForm (props) {
   const [state, setter] = useState({
     text: '',
     path: 'loading...',
+    file: null,
+    id: '',
     loading: true
   })
+  const ref = useRef({})
+  const {
+    loading,
+    id
+  } = state
   function setState (update) {
     setter(old => {
       return {
@@ -29,37 +36,57 @@ export default function TextEditorForm (props) {
       }
     })
   }
-  useEffect(() => {
-    if (props.visible) {
-      fetchText()
+  function onEvent (e) {
+    const {
+      action,
+      data,
+      editorType
+    } = e.data || {}
+    if (editorType !== commonActions.textEditorType) {
+      return
     }
+    if (
+      action === commonActions.openTextEditor && data
+    ) {
+      setState(data)
+      ref.current = data
+      if (data.id && data.file) {
+        fetchText(data)
+      } else if (data.id === '') {
+        cancel()
+      }
+    } else if (action === commonActions.loadTextEditorText) {
+      setState(data)
+      form.resetFields()
+    }
+  }
+  useEffect(() => {
+    window.addEventListener('message', onEvent)
   }, [])
 
-  async function fetchText () {
+  async function fetchText ({
+    id, file
+  }) {
     setState({
       loading: true
     })
     const {
-      sftpFunc,
-      file: {
-        path,
-        name,
-        type
-      }
-    } = props
+      path,
+      name,
+      type
+    } = file
     const p = resolve(path, name)
     setState({
       path: p
     })
-    const sftp = sftpFunc()
-    const text = typeMap.remote === type
-      ? await sftp.readFile(p)
-      : await fs.readFile(p)
-    setState({
-      text: text || '',
-      loading: false
+    ref.current.path = p
+    postMsg({
+      editorType: commonActions.textEditorType,
+      action: commonActions.fetchTextEditorText,
+      id,
+      path: p,
+      type
     })
-    form.resetFields()
   }
 
   function submit () {
@@ -74,31 +101,32 @@ export default function TextEditorForm (props) {
       return cancel()
     }
     const {
-      sftpFunc,
-      file: {
-        type,
-        mode
-      }
-    } = props
-    const sftp = sftpFunc()
-    const r = typeMap.remote === type
-      ? await sftp.writeFile(
-        state.path,
-        res.text,
-        mode
-      )
-      : await fs.writeFile(
-        state.path,
-        res.text,
-        mode
-      )
-    r && props.afterWrite()
-    cancel()
+      path,
+      file
+    } = ref.current
+    const {
+      type,
+      mode
+    } = file
+    postMsg({
+      id,
+      path,
+      editorType: commonActions.textEditorType,
+      action: commonActions.submitTextEditorText,
+      text: res.text,
+      mode,
+      type
+    })
   }
 
   function cancel () {
-    props.storeAssign({
-      textEditorProps: {}
+    setState({
+      id: '',
+      file: null
+    })
+    postMsg({
+      editorType: commonActions.textEditorType,
+      action: commonActions.onCloseTextEditor
     })
   }
 
@@ -155,12 +183,10 @@ export default function TextEditorForm (props) {
       </div>
     )
   }
-
-  const { visible } = props
-  if (!visible) {
+  if (!state.file) {
     return null
   }
-  const { path, loading } = state
+  const { path } = state
   const title = `${s('edit')} ${s('remote')} ${s('file')}: ${path}`
   const propsAll = {
     footer: renderFooter(),
@@ -168,7 +194,7 @@ export default function TextEditorForm (props) {
     maskClosable: false,
     onCancel: cancel,
     width: '90%',
-    visible
+    visible: true
   }
   return (
     <Modal
