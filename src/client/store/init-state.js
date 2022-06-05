@@ -82,7 +82,6 @@ export default {
   fileOperation: fileOperationsMap.cp, // cp or mv
   transferTab: 'transfer',
   transferHistory: [],
-  textEditorSystemProps: {},
   fileTransfers: [
   ],
   sftpSortSetting: ls.getItemJSON(sftpDefaultSortSettingKey, {

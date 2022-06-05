@@ -46,6 +46,7 @@ const { listSerialPorts } = require('./serial-port')
 const initApp = require('./init-app')
 const { encryptAsync, decryptAsync } = require('./enc')
 const { initCommandLine } = require('./command-line')
+const { watchFile, unwatchFile } = require('./watch-file')
 
 function initIpc () {
   global.win.on('move', () => {
@@ -162,7 +163,9 @@ function initIpc () {
       global.win && global.win.setTitle(packInfo.name + ' - ' + title)
     },
     changeHotkey: changeHotkeyReg(globalShortcut, global.win),
-    initCommandLine
+    initCommandLine,
+    watchFile,
+    unwatchFile
   }
   ipcMain.handle('async', (event, { name, args }) => {
     return asyncGlobals[name](...args)

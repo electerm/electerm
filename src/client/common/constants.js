@@ -249,8 +249,8 @@ export const fileActions = {
   renameAll: 'renameAll'
 }
 export const commonActions = {
-  textEditorSystemType: 'text-editor-system-type',
-  textEditorType: 'text-editor-type',
+  editWithSystemEditorDone: 'edit-with-system-editor-done',
+  editWithSystemEditor: 'edit-with-system-editor',
   onCloseTextEditor: 'on-close-text-editor',
   submitTextEditorText: 'submit-text-editor-text',
   fetchTextEditorText: 'fetch-text-editor-text',

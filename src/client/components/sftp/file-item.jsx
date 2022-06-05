@@ -577,6 +577,11 @@ export default class FileSection extends React.Component {
 
   removeFileEditEvent = () => {
     delete this.eid
+    if (this.watchingFile) {
+      window.pre.ipcOffEvent('file-change', this.onFileChange)
+      window.pre.runGlobalAsync('unwatchFile', this.watchingFile)
+      delete this.watchingFile
+    }
     window.removeEventListener('message', this.onFileEditEvent)
   }
 
@@ -588,7 +593,7 @@ export default class FileSection extends React.Component {
       path,
       mode,
       type,
-      editorType
+      noClose
     } = e.data || {}
     if (id !== this.eid) {
       return false
@@ -596,21 +601,60 @@ export default class FileSection extends React.Component {
     if (
       action === commonActions.fetchTextEditorText
     ) {
-      this.fetchEditorText(path, type, editorType)
+      this.fetchEditorText(path, type)
     } else if (action === commonActions.submitTextEditorText) {
-      this.onSubmitEditFile(mode, type, path, text, editorType)
+      this.onSubmitEditFile(mode, type, path, text, noClose)
     } else if (action === commonActions.onCloseTextEditor) {
       this.removeFileEditEvent()
+    } else if (action === commonActions.editWithSystemEditor) {
+      this.editWithSystemEditor(text)
     }
   }
 
-  fetchEditorText = async (path, type, editorType) => {
+  editWithSystemEditor = async (text) => {
+    const {
+      path,
+      name,
+      type
+    } = this.state.file
+    let tempPath = ''
+    if (type === typeMap.local) {
+      tempPath = window.pre.resolve(path, name)
+    } else {
+      const id = generate()
+      tempPath = window.pre.resolve(
+        window.pre.tempDir, `temp-${id}-${name}`
+      )
+      await fs.writeFile(tempPath, text)
+    }
+    this.watchingFile = tempPath
+    this.watchFile(tempPath)
+  }
+
+  onFileChange = (e, text) => {
+    postMessage({
+      action: commonActions.editWithSystemEditorDone,
+      data: {
+        id: this.eid,
+        text
+      }
+    })
+  }
+
+  watchFile = async (tempPath) => {
+    window.pre.runGlobalAsync('watchFile', tempPath)
+    fs.openFile(tempPath)
+      .catch(this.props.store.onError)
+    window.pre.showItemInFolder(tempPath)
+    window.pre.ipcOnEvent('file-change', this.onFileChange)
+  }
+
+  fetchEditorText = async (path, type) => {
     // const sftp = sftpFunc()
     const text = typeMap.remote === type
       ? await this.props.sftp.readFile(path)
       : await fs.readFile(path)
     postMessage({
-      editorType,
       action: commonActions.loadTextEditorText,
       data: {
         text,
@@ -619,7 +663,7 @@ export default class FileSection extends React.Component {
     })
   }
 
-  onSubmitEditFile = async (mode, type, path, text, editorType) => {
+  onSubmitEditFile = async (mode, type, path, text, noClose) => {
     const r = typeMap.remote === type
       ? await this.props.sftp.writeFile(
         path,
@@ -634,17 +678,16 @@ export default class FileSection extends React.Component {
     const data = {
       loading: false
     }
-    if (r) {
+    if (r && !noClose) {
       data.id = ''
       data.file = null
       data.text = ''
     }
     postMessage({
       action: commonActions.openTextEditor,
-      data,
-      editorType
+      data
     })
-    if (r) {
+    if (r && !noClose) {
       this.props[`${type}List`]()
     }
   }
@@ -652,7 +695,6 @@ export default class FileSection extends React.Component {
   editFile = () => {
     this.eid = generate()
     postMessage({
-      editorType: commonActions.textEditorType,
       action: commonActions.openTextEditor,
       data: {
         id: this.eid,
@@ -662,13 +704,9 @@ export default class FileSection extends React.Component {
     window.addEventListener('message', this.onFileEditEvent)
   }
 
-  editFileWith = () => {
-
-  }
-
   transferOrEnterDirectory = async (e, edit) => {
     const { file } = this.state
-    const { isDirectory, type, id, size } = file
+    const { isDirectory, type, size } = file
     if (isDirectory) {
       return this.enterDirectory(e)
     }
@@ -676,23 +714,10 @@ export default class FileSection extends React.Component {
       return this.openFile(this.state.file)
     }
     const remoteEdit = !edit && type === typeMap.remote && size < maxEditFileSize
-    const editProps = {
-      visible: true,
-      id,
-      sftpFunc: () => this.props.sftp,
-      file,
-      afterWrite: this.props[`${type}List`]
-    }
     if (
       edit === true || remoteEdit
     ) {
       return this.editFile()
-    } else if (
-      edit === 1 || remoteEdit
-    ) {
-      return this.props.store.storeAssign({
-        textEditorSystemProps: editProps
-      })
     }
     if (
       _.get(this.props, 'tab.host')
@@ -908,11 +933,6 @@ export default class FileSection extends React.Component {
         func: 'editFile',
         icon: 'EditOutlined',
         text: e('edit')
-      })
-      res.push({
-        func: 'editFileWith',
-        icon: 'EditOutlined',
-        text: e('editWith')
       })
     }
     if (id) {

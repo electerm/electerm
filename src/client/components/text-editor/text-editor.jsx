@@ -2,72 +2,59 @@
  * default text editor for remote file
  */
 
-import { useState, useEffect, useRef } from 'react'
-import { Button, Input, Spin, Modal, Form } from 'antd'
+import { PureComponent } from 'react'
+import TextEditorForm from './text-editor-form'
+import { Spin, Modal } from 'antd'
 import resolve from '../../common/resolve'
 import { commonActions } from '../../common/constants'
 import postMsg from '../../common/post-msg'
 
-const FormItem = Form.Item
 const { prefix } = window
-const e = prefix('form')
-const c = prefix('common')
 const s = prefix('sftp')
 
-export default function TextEditorForm (props) {
-  const [form] = Form.useForm()
-  const [state, setter] = useState({
+export default class TextEditor extends PureComponent {
+  state = {
     text: '',
     path: 'loading...',
     file: null,
     id: '',
     loading: true
-  })
-  const ref = useRef({})
-  const {
-    loading,
-    id
-  } = state
-  function setState (update) {
-    setter(old => {
-      return {
-        ...old,
-        ...update
-      }
-    })
   }
-  function onEvent (e) {
+
+  componentDidMount () {
+    window.addEventListener('message', this.onEvent)
+  }
+
+  onEvent = (e) => {
     const {
       action,
-      data,
-      editorType
+      data
     } = e.data || {}
-    if (editorType !== commonActions.textEditorType) {
-      return
-    }
     if (
       action === commonActions.openTextEditor && data
     ) {
-      setState(data)
-      ref.current = data
+      this.setState(data)
       if (data.id && data.file) {
-        fetchText(data)
+        this.fetchText(data)
       } else if (data.id === '') {
-        cancel()
+        this.cancel()
       }
     } else if (action === commonActions.loadTextEditorText) {
-      setState(data)
-      form.resetFields()
+      this.setState(data)
+    } else if (action === commonActions.editWithSystemEditorDone) {
+      let cb = this.doSubmit
+      if (data.text === this.state.text) {
+        delete data.text
+        cb = undefined
+      }
+      this.setState(data, cb)
     }
   }
-  useEffect(() => {
-    window.addEventListener('message', onEvent)
-  }, [])
 
-  async function fetchText ({
+  fetchText = async ({
     id, file
-  }) {
-    setState({
+  }) => {
+    this.setState({
       loading: true
     })
     const {
@@ -76,12 +63,10 @@ export default function TextEditorForm (props) {
       type
     } = file
     const p = resolve(path, name)
-    setState({
+    this.setState({
       path: p
     })
-    ref.current.path = p
     postMsg({
-      editorType: commonActions.textEditorType,
       action: commonActions.fetchTextEditorText,
       id,
       path: p,
@@ -89,21 +74,24 @@ export default function TextEditorForm (props) {
     })
   }
 
-  function submit () {
-    form.submit()
+  doSubmit = () => {
+    this.handleSubmit({
+      text: this.state.text
+    }, true)
   }
 
-  async function handleSubmit (res) {
-    setState({
+  handleSubmit = async (res, force = false) => {
+    this.setState({
       loading: true
     })
-    if (res.text === state.text) {
-      return cancel()
+    if (!force && res.text === this.state.text) {
+      return this.cancel()
     }
     const {
       path,
-      file
-    } = ref.current
+      file,
+      id
+    } = this.state
     const {
       type,
       mode
@@ -111,98 +99,70 @@ export default function TextEditorForm (props) {
     postMsg({
       id,
       path,
-      editorType: commonActions.textEditorType,
       action: commonActions.submitTextEditorText,
       text: res.text,
       mode,
-      type
+      type,
+      noClose: force
     })
   }
 
-  function cancel () {
-    setState({
+  editWith = () => {
+    this.setState({
+      loading: true
+    })
+    const {
+      id, text
+    } = this.state
+    postMsg({
+      action: commonActions.editWithSystemEditor,
+      id,
+      text
+    })
+  }
+
+  cancel = () => {
+    this.setState({
       id: '',
       file: null
     })
     postMsg({
-      editorType: commonActions.textEditorType,
       action: commonActions.onCloseTextEditor
     })
   }
 
-  function onPressEnter (e) {
-    e.stopPropagation()
-  }
-
-  function renderForm () {
+  render () {
     const {
+      file,
+      path,
+      loading,
       text
-    } = state
+    } = this.state
+    if (!file) {
+      return null
+    }
+    const title = `${s('edit')} ${s('remote')} ${s('file')}: ${path}`
+    const propsAll = {
+      footer: null,
+      title,
+      maskClosable: false,
+      onCancel: this.cancel,
+      width: '90%',
+      visible: true
+    }
     return (
-      <Form
-        onFinish={handleSubmit}
-        form={form}
-        name='text-edit-form'
-        layout='vertical'
-        initialValues={{ text }}
+      <Modal
+        {...propsAll}
       >
-        <FormItem
-          name='text'
-        >
-          <Input.TextArea
-            rows={20}
-            onPressEnter={onPressEnter}
-          >{text}</Input.TextArea>
-        </FormItem>
-      </Form>
+        <Spin spinning={loading}>
+          <TextEditorForm
+            submit={this.handleSubmit}
+            text={text}
+            cancel={this.cancel}
+            editWith={this.editWith}
+          />
+        </Spin>
+      </Modal>
     )
   }
-
-  function renderFooter () {
-    const { loading } = state
-    return (
-      <div>
-        <Button
-          type='primary'
-          className='mg1r mg1b'
-          disabled={loading}
-          onClick={submit}
-        >{e('save')}</Button>
-        <Button
-          type='ghost'
-          className='mg1r mg1b'
-          disabled={loading}
-          onClick={() => form.resetFields()}
-        >{s('reset')}</Button>
-        <Button
-          type='ghost'
-          onClick={cancel}
-          disabled={loading}
-          className='mg2r mg1b'
-        >{c('cancel')}</Button>
-      </div>
-    )
-  }
-  if (!state.file) {
-    return null
-  }
-  const { path } = state
-  const title = `${s('edit')} ${s('remote')} ${s('file')}: ${path}`
-  const propsAll = {
-    footer: renderFooter(),
-    title,
-    maskClosable: false,
-    onCancel: cancel,
-    width: '90%',
-    visible: true
-  }
-  return (
-    <Modal
-      {...propsAll}
-    >
-      <Spin spinning={loading}>
-        {renderForm()}
-      </Spin>
-    </Modal>
-  )
 }

@@ -37,6 +37,11 @@ const pre = {
   ipcOnEvent: (event, cb) => {
     ipcRenderer.on(event, cb)
   },
+
+  ipcOffEvent: (event, cb) => {
+    ipcRenderer.removeListener(event, cb)
+  },
+
   getZoomFactor: () => webFrame.getZoomFactor(),
   setZoomFactor: (nl) => webFrame.setZoomFactor(nl),
   lookup,
