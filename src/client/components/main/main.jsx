@@ -25,6 +25,7 @@ import './wrapper.styl'
 
 export default class Index extends Component {
   componentDidMount () {
+    init()
     const { store } = this.props
     window.lang = copy(window.lang)
     window._config = copy(window._config)
@@ -54,7 +55,6 @@ export default class Index extends Component {
     store.isSencondInstance = window.pre.runSync('isSencondInstance')
     store.initData()
     store.checkForDbUpgrade()
-    init()
   }
 
   render () {

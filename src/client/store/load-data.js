@@ -109,6 +109,9 @@ export default (store) => {
     if (!arr.length) {
       store.initFirstTab()
     }
+    const finishLoadTime = Date.now()
+    const initTime = window.pre.runSync('initTime')
+    store.loadTime = finishLoadTime - initTime
   }
   store.initData = async () => {
     const ext = {}

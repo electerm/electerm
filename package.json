@@ -1,6 +1,6 @@
 {
   "name": "electerm",
-  "version": "1.21.85",
+  "version": "1.21.86",
   "description": "Terminal/ssh/sftp client(linux, mac, win) based on electron/ssh2/node-pty/xterm/antd/subx and other libs",
   "main": "app.js",
   "bin": "npm/electerm",
@@ -48,6 +48,7 @@
     "url": "https://github.com/electerm/electerm/issues"
   },
   "homepage": "https://electerm.html5beta.com",
+  "releases": "https://github.com/electerm/electerm/releases",
   "engines": {
     "node": ">=16.0.0"
   },
@@ -129,7 +130,7 @@
     "zmodem.js": "0.1.10"
   },
   "dependencies": {
-    "@electerm/electerm-locales": "0.13.3",
+    "@electerm/electerm-locales": "0.13.4",
     "@electerm/ssh2": "1.10.0",
     "@electerm/strip-ansi": "^1.0.0",
     "@yetzt/nedb": "1.8.0",

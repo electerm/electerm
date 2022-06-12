@@ -13,6 +13,7 @@ const {
 const { onClose } = require('./on-close')
 const initIpc = require('./ipc')
 const { getDbConfig } = require('./get-config')
+const fileServer = require('./file-server')
 
 exports.createWindow = async function () {
   const userConfig = await getDbConfig() || {}
@@ -39,22 +40,13 @@ exports.createWindow = async function () {
   })
 
   initIpc()
-
-  let opts
-
-  if (isDev) {
-    const { devPort = 5570 } = process.env
-    opts = `http://127.0.0.1:${devPort}`
-  } else {
-    opts = require('url').format({
-      protocol: 'file',
-      slashes: true,
-      pathname: resolve(__dirname, '../assets/index.html')
-    })
+  const defaultPort = isDev ? 5570 : 5571
+  const { devPort = defaultPort } = process.env
+  const opts = `http://127.0.0.1:${devPort}`
+  if (!isDev && !global.isSencondInstance) {
+    await fileServer()
   }
-
   global.win.loadURL(opts)
-
   if (isDev) {
     global.win.webContents.once('dom-ready', () => {
       global.win.webContents.openDevTools()

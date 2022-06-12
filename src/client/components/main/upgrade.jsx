@@ -214,6 +214,9 @@ export default class Upgrade extends Component {
       <div className='pd1t'>
         <div className='bold'>Changelog:</div>
         <Markdown text={releaseInfo} />
+        <Link
+          to={packInfo.releases}
+        >{e('moreChangeLog')}</Link>
       </div>
     )
   }

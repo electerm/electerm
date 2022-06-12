@@ -83,14 +83,15 @@ export default class InfoModal extends Component {
       },
       homepage,
       repository: {
-        url
+        url: bugReportLink
       },
+      releases: releaseLink,
       version: packVer,
       privacyNoticeLink,
       knownIssuesLink
     } = packInfo
     const version = 'v' + packVer
-    const link = url.replace('git+', '').replace('.git', '')
+    const link = releaseLink.replace('/releases', '')
     const { env, versions } = window.pre
     const deps = {
       ...devDependencies,
@@ -100,8 +101,6 @@ export default class InfoModal extends Component {
       ...versions,
       ...env
     }
-    const bugReportLink = link + '/issues'
-    const releaseLink = link + '/releases'
     const title = (
       <div className='ant-modal-confirm-title font16'>
         <InfoCircleOutlined className='font20 mg1r' /> {m('about')} {name}

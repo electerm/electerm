@@ -112,6 +112,7 @@ function initIpc () {
     getArgs: () => {
       return global.rawArgs
     },
+    initTime: () => global.initTime,
     isMaximized,
     isSencondInstance: () => {
       return isTest ? false : global.app.isSencondInstance

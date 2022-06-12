@@ -30,6 +30,7 @@ exports.createApp = function () {
   ) {
     app.quit()
   } else if (!gotTheLock) {
+    global.isSencondInstance = true
     app.isSencondInstance = true
   }
   app.on('second-instance', (event, argv, wd) => {
