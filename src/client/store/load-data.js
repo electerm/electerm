@@ -5,12 +5,13 @@
 import { dbNames, update, getData, fetchInitData, insert, remove } from '../common/db'
 import initWatch from './watch'
 import parseInt10 from '../common/parse-int10'
-import { infoTabs, statusMap, defaultEnvLang } from '../common/constants'
+import { infoTabs, statusMap, defaultEnvLang, packInfo } from '../common/constants'
 import fs from '../common/fs'
 import generate from '../common/uid'
 import defaultSettings from '../../app/common/default-setting'
 import encodes from '../components/bookmark-form/encodes'
 import runIdle from '../common/run-idle'
+import track from '../common/track'
 
 function getHost (argv, opts) {
   const arr = argv
@@ -109,9 +110,23 @@ export default (store) => {
     if (!arr.length) {
       store.initFirstTab()
     }
-    const finishLoadTime = Date.now()
-    const initTime = window.pre.runSync('initTime')
-    store.loadTime = finishLoadTime - initTime
+
+    const { initTime, loadTime } = window.pre.runSync('getLoadTime')
+    if (loadTime) {
+      store.loadTime = loadTime
+    } else {
+      const finishLoadTime = Date.now()
+      store.loadTime = finishLoadTime - initTime
+      window.pre.runSync('setLoadTime', store.loadTime)
+    }
+    track('app_open', {
+      load_time: store.loadTime,
+      bookmark_count: store.bookmarks.length,
+      lang: store.config.language,
+      sync_with_github: !!store.config.syncSetting.githubGistId,
+      sync_with_gitee: !!store.config.syncSetting.giteeGistId,
+      version: packInfo.version
+    })
   }
   store.initData = async () => {
     const ext = {}

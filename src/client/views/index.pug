@@ -42,3 +42,12 @@ html
       script(src='external/react.production.min.js?' + version)
       script(src='external/react-dom.production.min.js?' + version)
     script(src='js/basic.js?' + version)
+    - if (ga)
+      script(async, src='https://www.googletagmanager.com/gtag/js?id=' + ga)
+      script.
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        window.gtag = gtag
+        gtag('js', new Date());
+        gtag('config', window.et.ga);
+

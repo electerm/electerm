@@ -112,7 +112,14 @@ function initIpc () {
     getArgs: () => {
       return global.rawArgs
     },
-    initTime: () => global.initTime,
+    getLoadTime: () => {
+      return global.loadTime
+        ? { loadTime: global.loadTime }
+        : { initTime: global.initTime }
+    },
+    setLoadTime: (loadTime) => {
+      global.loadTime = loadTime
+    },
     isMaximized,
     isSencondInstance: () => {
       return isTest ? false : global.app.isSencondInstance

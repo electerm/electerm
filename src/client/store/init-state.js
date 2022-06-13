@@ -60,6 +60,7 @@ const bookmarkGroups = getDefaultBookmarkGroups(bookmarks)
 
 export default {
   // common
+  loadTime: 0,
   lastDataUpdateTime: 0,
   tabs,
   currentTabId: '',
