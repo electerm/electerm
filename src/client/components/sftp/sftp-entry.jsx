@@ -31,7 +31,6 @@ import {
 import { hasFileInClipboardText } from '../../common/clipboard'
 import Client from '../../common/sftp'
 import fs from '../../common/fs'
-import ResizeWrap from '../common/resize-wrap'
 import keyControlPressed from '../../common/key-control-pressed'
 import keyPressed from '../../common/key-pressed'
 import ListTable from './list-table-ui'
@@ -1032,26 +1031,15 @@ export default class Sftp extends Component {
         }, width)
       )
     }
-    return (
-      <ResizeWrap
-        direction='horizontal'
-        noResizeEvent
-        onDragEnd={this.onResizeDragEnd}
-        minWidth={300}
-      >
-        {
-          arr.map((t, i) => {
-            const style = {
-              width: width / 2,
-              left: i * width / 2,
-              top: 0,
-              height
-            }
-            return this.renderSection(t, style, width / 2)
-          })
-        }
-      </ResizeWrap>
-    )
+    return arr.map((t, i) => {
+      const style = {
+        width: width / 2,
+        left: i * width / 2,
+        top: 0,
+        height
+      }
+      return this.renderSection(t, style, width / 2)
+    })
   }
 
   render () {
@@ -1072,11 +1060,14 @@ export default class Sftp extends Component {
       tab: this.props.tab,
       pid: this.props.pid
     }
+    const all = {
+      className: 'sftp-wrap overhide relative',
+      id: `id-${id}`,
+      style: { height }
+    }
     return (
       <div
-        className='sftp-wrap overhide relative'
-        id={`id-${id}`}
-        style={{ height }}
+        {...all}
       >
         {
           this.renderSections()

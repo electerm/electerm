@@ -2,10 +2,10 @@
  * file list module to limit files rendered to increase performance
  */
 
-import { PureComponent } from 'react'
+import { Component } from 'react'
 import { Pagination } from 'antd'
 
-export default class ScrollFiles extends PureComponent {
+export default class ScrollFiles extends Component {
   state = {
     page: 1,
     pageSize: 100
