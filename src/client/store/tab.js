@@ -99,7 +99,7 @@ export default store => {
       const tab = copy(
         tabToReload
       )
-      delete tab.pane
+      tab.pane = paneMap.terminal
       store.processTerminals(tab)
       const { id } = tab
       const tabs = store.getItems('tabs')
