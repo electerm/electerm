@@ -14,6 +14,7 @@ function formatActivities (str) {
     }
   }
   const r = str.split('\n')
+    .map(a => a.trim())
     .filter(s => s)
     .map(st => {
       const arr = st.split(/ +/)
