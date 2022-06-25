@@ -35,7 +35,7 @@ export default class BatchInput extends Component {
   }
 
   handleChange = (v = '') => {
-    const vv = v.replace(/^\d+:/, '')
+    const vv = v.replace(/^\d+:/, '').replace(/\n$/, '')
     this.setState({
       cmd: vv,
       open: false
