@@ -33,7 +33,7 @@ jobs:
       run: sudo apt-get install rpm -y
 
     - name: Install Snapcraft
-      uses: samuelmeuli/action-snapcraft@v1
+      uses: samuelmeuli/action-snapcraft@master
     # before_script:
     # - run: export DISPLAY=:99.0
     # - run: sh -e /etc/init.d/xvfb start &
