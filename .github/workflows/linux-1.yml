@@ -29,17 +29,6 @@ jobs:
     # - name: xvfb
     #   uses: GabrielBB/xvfb-action@v1
 
-    - name: Install rpm
-      run: sudo apt-get install rpm -y
-
-    - name: Install Snapcraft
-      uses: samuelmeuli/action-snapcraft@v1
-      # Only install Snapcraft on Ubuntu
-      if: startsWith(matrix.os, 'ubuntu')
-      with:
-        # Log in to Snap Store
-        snapcraft_token: ${{ secrets.SNAP_TOKEN }}
-
     # before_script:
     # - run: export DISPLAY=:99.0
     # - run: sh -e /etc/init.d/xvfb start &
