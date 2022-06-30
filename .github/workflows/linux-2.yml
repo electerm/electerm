@@ -35,7 +35,7 @@ jobs:
     - name: Install Snapcraft
       uses: samuelmeuli/action-snapcraft@master
       with:
-        snapcraft_token: ${{ secrets.SNAPCRAFT_TOKEN }}
+        snapcraft_token: ${{ secrets.SNAP_TOKEN }}
 
     # before_script:
     # - run: export DISPLAY=:99.0
