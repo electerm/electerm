@@ -57,5 +57,7 @@ jobs:
       run: npm run build-linux-2
 
     - name: upload to snap store
+      env:
+        SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAP_TOKEN }}
       run: snapcraft upload --release=edge dist/*.snap
 
