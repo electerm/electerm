@@ -34,13 +34,6 @@ jobs:
 
     - name: Install Snapcraft
       uses: samuelmeuli/action-snapcraft@v1
-      # Only install Snapcraft on Ubuntu
-      if: startsWith(matrix.os, 'ubuntu')
-      env:
-        SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAP_TOKEN }}
-      with:
-        # Log in to Snap Store
-        snapcraft_token: ${{ secrets.SNAP_TOKEN }}
     # before_script:
     # - run: export DISPLAY=:99.0
     # - run: sh -e /etc/init.d/xvfb start &
