@@ -33,12 +33,7 @@ jobs:
       run: sudo apt-get install rpm -y
 
     - name: Install Snapcraft
-      uses: samuelmeuli/action-snapcraft@v1
-      # Only install Snapcraft on Ubuntu
-      if: startsWith(matrix.os, 'ubuntu')
-      with:
-        # Log in to Snap Store
-        snapcraft_token: ${{ secrets.SNAP_TOKEN }}
+      uses: samuelmeuli/action-snapcraft@master
 
     # before_script:
     # - run: export DISPLAY=:99.0
@@ -59,4 +54,9 @@ jobs:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         BUILD_NUMBER: ${{ secrets.BUILD_NUMBER }}
       run: npm run build-linux-2
+
+    - name: upload to snap store
+      env:
+        SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAP_TOKEN }}
+      run: snapcraft upload --release=edge dist/*.snap
 
