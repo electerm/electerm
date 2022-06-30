@@ -34,6 +34,9 @@ jobs:
 
     - name: Install Snapcraft
       uses: samuelmeuli/action-snapcraft@master
+      with:
+        snapcraft_token: ${{ secrets.SNAPCRAFT_TOKEN }}
+
     # before_script:
     # - run: export DISPLAY=:99.0
     # - run: sh -e /etc/init.d/xvfb start &
@@ -50,7 +53,6 @@ jobs:
     - name: build
       if: "!contains(github.event.head_commit.message, 'skip build')"
       env:
-        SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_TOKEN }}
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         BUILD_NUMBER: ${{ secrets.BUILD_NUMBER }}
       run: npm run build-linux-2
