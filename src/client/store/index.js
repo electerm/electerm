@@ -99,6 +99,9 @@ const store = Subx.create({
   },
   get tabTitles () {
     return store.getTabs().map(d => d.title).join('#')
+  },
+  get config () {
+    return JSON.parse(store._config)
   }
 })
 

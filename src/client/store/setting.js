@@ -22,6 +22,15 @@ const m = prefix('menu')
 
 export default store => {
   Object.assign(store, {
+    setConfig (conf) {
+      const base = copy(store.config)
+      store._config = JSON.stringify(
+        {
+          ...base,
+          ...conf
+        }
+      )
+    },
     onEditHistory () {
       const all = store.getItems('history')
       store.storeAssign({

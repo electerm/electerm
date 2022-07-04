@@ -27,8 +27,8 @@ export default class Index extends Component {
   componentDidMount () {
     init()
     const { store } = this.props
-    window.lang = copy(window.lang)
-    window._config = copy(window._config)
+    // window.lang = copy(window.lang)
+    // window._config = copy(window._config)
     window.addEventListener('resize', store.onResize)
     store.onResize()
     const { ipcOnEvent } = window.pre

@@ -3,7 +3,6 @@
  */
 
 // import newTerm from '../common/new-terminal'
-import copy from 'json-deep-copy'
 import {
   settingMap,
   defaultBookmarkGroupId,
@@ -67,7 +66,7 @@ export default {
   history: [],
   bookmarks,
   bookmarkGroups,
-  config: copy(_config) || {},
+  _config: JSON.stringify(_config || {}),
   terminalThemes: [
     JSON.stringify(buildDefaultThemes())
   ],

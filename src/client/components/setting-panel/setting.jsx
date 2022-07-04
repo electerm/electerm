@@ -127,9 +127,7 @@ export default class Setting extends Component {
   saveConfig = async (_ext) => {
     const config = deepCopy(this.props.config)
     const ext = deepCopy(_ext)
-    const update = {
-      config: Object.assign({}, config, deepCopy(_ext))
-    }
+    const update = Object.assign({}, config, deepCopy(_ext))
     if (ext.hotkey && ext.hotkey !== config.hotkey) {
       const res = await window.pre.runGlobalAsync('changeHotkey', ext.hotkey)
       if (!res) {
@@ -141,7 +139,7 @@ export default class Setting extends Component {
       }
     }
     window.pre.runGlobalAsync('saveUserConfig', ext)
-    this.props.store.storeAssign(update)
+    this.props.store.setConfig(update)
   }
 
   renderOption = (m, i) => {
