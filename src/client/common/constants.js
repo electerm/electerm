@@ -249,6 +249,7 @@ export const fileActions = {
   renameAll: 'renameAll'
 }
 export const commonActions = {
+  changeCurrentTabId: 'changeCurrentTabId',
   editWithSystemEditorDone: 'edit-with-system-editor-done',
   editWithSystemEditor: 'edit-with-system-editor',
   onCloseTextEditor: 'on-close-text-editor',

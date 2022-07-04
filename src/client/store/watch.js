@@ -8,8 +8,10 @@ import copy from 'json-deep-copy'
 import { update, dbNames } from '../common/db'
 import { debounceTime } from 'rxjs/operators'
 import {
+  commonActions,
   sftpDefaultSortSettingKey
 } from '../common/constants'
+import postMsg from '../common/post-msg'
 import * as ls from '../common/safe-local-storage'
 
 export default store => {
@@ -87,6 +89,10 @@ export default store => {
       const title = createTitle(tab)
       window.pre.runGlobalAsync('setTitle', title)
     }
+    postMsg({
+      action: commonActions.changeCurrentTabId,
+      currentTabId
+    })
     return store.currentTabId
   })
 }

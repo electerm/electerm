@@ -10,8 +10,10 @@ import wait from '../common/wait'
 // import getInitItem from '../common/init-setting-item'
 import {
   statusMap,
-  paneMap
+  paneMap,
+  commonActions
 } from '../common/constants'
+import postMsg from '../common/post-msg'
 
 const defaultStatus = statusMap.processing
 
@@ -130,11 +132,15 @@ export default store => {
     },
 
     onChangeTabId (id) {
-      document.querySelector('.tab.active')?.classList.remove('active')
-      document.querySelector(`.tab-${id}`)?.classList.add('active')
-      document.querySelector('.session-current')?.classList.remove('session-current')
-      document.querySelector(`.session-${id}`)?.classList.add('session-current')
+      // document.querySelector('.tab.active')?.classList.remove('active')
+      // document.querySelector(`.tab-${id}`)?.classList.add('active')
+      // document.querySelector('.session-current')?.classList.remove('session-current')
+      // document.querySelector(`.session-${id}`)?.classList.add('session-current')
       store.currentTabId = id
+      postMsg({
+        action: commonActions.changeCurrentTabId,
+        currentTabId: id
+      })
     }
   })
   store.clickNextTab = _.debounce(() => {
