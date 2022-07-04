@@ -177,7 +177,7 @@ export default store => {
 
     async loadFontList () {
       const fonts = await window.pre.runGlobalAsync('loadFontList')
-      store.fonts = fonts
+      store._fonts = fonts.map(f => JSON.stringify(f))
     },
 
     onChangeTab (settingTab) {

@@ -105,6 +105,9 @@ const store = Subx.create({
   },
   get sftpSortSetting () {
     return JSON.parse(store._sftpSortSetting)
+  },
+  get fonts () {
+    return store._fonts.map(f => JSON.parse(f))
   }
 })
 

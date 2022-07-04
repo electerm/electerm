@@ -115,7 +115,7 @@ export default {
   isSyncDownload: false,
   syncSetting: {},
   syncType: syncTypes.github,
-  fonts: [],
+  _fonts: [],
 
   // term search
   termSearchOpen: false,
