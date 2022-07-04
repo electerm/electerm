@@ -1,3 +1,13 @@
+import { termLSPrefix } from './constants'
+
+function clear () {
+  const keys = Object.keys(window.localStorage)
+  for (const key of keys) {
+    if (key.startsWith(termLSPrefix)) {
+      window.localStorage.removeItem(key)
+    }
+  }
+}
 
 export function setItem (id, str) {
   try {
@@ -5,7 +15,7 @@ export function setItem (id, str) {
   } catch (e) {
     console.log(e)
     console.log('maybe local storage full, lets reset')
-    window.localStorage.clear()
+    clear()
     window.localStorage.setItem(id, str)
   }
 }

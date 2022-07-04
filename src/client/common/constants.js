@@ -282,3 +282,4 @@ export const srcsSkipUpgradeCheck = [
   '.snap',
   'skip-upgrade-check'
 ]
+export const termLSPrefix = 'term:sess:'

@@ -1,3 +1,5 @@
+import { termLSPrefix } from '../../common/constants'
+
 export default (id) => {
-  return `term:sess:${id}`
+  return `${termLSPrefix}${id}`
 }
