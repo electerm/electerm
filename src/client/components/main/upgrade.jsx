@@ -125,7 +125,7 @@ export default class Upgrade extends Component {
   }
 
   skipVersion = () => {
-    this.props.store.config.skipVersion = this.props.upgradeInfo.remoteVersion
+    this.props.store.config.skipVersion = this.props.store.upgradeInfo.remoteVersion
     this.close()
   }
 
