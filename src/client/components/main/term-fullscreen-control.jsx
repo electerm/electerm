@@ -12,6 +12,9 @@ export default class TermFullscreenControl extends Component {
   }
 
   render () {
+    if (!this.props.store.terminalFullScreen) {
+      return null
+    }
     return (
       <FullscreenExitOutlined
         className='mg1r icon-info font16 pointer spliter term-fullscreen-control'
