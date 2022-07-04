@@ -84,7 +84,7 @@ export default {
   transferHistory: [],
   fileTransfers: [
   ],
-  sftpSortSetting: ls.getItemJSON(sftpDefaultSortSettingKey, {
+  _sftpSortSetting: ls.getItem(sftpDefaultSortSettingKey) || JSON.stringify({
     local: {
       prop: 'modifyTime',
       direction: 'asc'

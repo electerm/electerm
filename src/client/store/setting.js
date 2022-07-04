@@ -31,6 +31,15 @@ export default store => {
         }
       )
     },
+    setSftpSortSetting (conf) {
+      const base = copy(store.sftpSortSetting)
+      store._sftpSortSetting = JSON.stringify(
+        {
+          ...base,
+          ...conf
+        }
+      )
+    },
     onEditHistory () {
       const all = store.getItems('history')
       store.storeAssign({

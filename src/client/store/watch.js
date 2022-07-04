@@ -76,7 +76,7 @@ export default store => {
 
   Subx.autoRun(store, () => {
     ls.setItemJSON(sftpDefaultSortSettingKey, store.sftpSortSetting)
-    return store.sftpSortSetting
+    return store._sftpSortSetting
   })
 
   Subx.autoRun(store, () => {

@@ -102,6 +102,9 @@ const store = Subx.create({
   },
   get config () {
     return JSON.parse(store._config)
+  },
+  get sftpSortSetting () {
+    return JSON.parse(store._sftpSortSetting)
   }
 })
 
