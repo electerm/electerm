@@ -129,8 +129,12 @@ export default store => {
       store.addTab(tab, index + 1)
     },
 
-    onChangeTabId (currentTabId) {
-      store.currentTabId = currentTabId
+    onChangeTabId (id) {
+      document.querySelector('.tab.active')?.classList.remove('active')
+      document.querySelector(`.tab-${id}`)?.classList.add('active')
+      document.querySelector('.session-current')?.classList.remove('session-current')
+      document.querySelector(`.session-${id}`)?.classList.add('session-current')
+      store.currentTabId = id
     }
   })
   store.clickNextTab = _.debounce(() => {

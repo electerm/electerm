@@ -3,7 +3,7 @@ const { expect } = require('chai')
 
 module.exports = async (client, cmd) => {
   async function focus () {
-    client.click('.ssh-wrap-show .xterm .xterm-cursor-layer')
+    client.click('.session-current .xterm .xterm-cursor-layer')
   }
   async function selectAll () {
     await client.keyboard.press('Meta+A')

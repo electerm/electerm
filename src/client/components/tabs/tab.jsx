@@ -93,6 +93,14 @@ export default class Tab extends React.Component {
     })
   }
 
+  onClick = (e) => {
+    const {
+      onChangeTabId
+    } = this.props.store
+    const { id } = this.state.tab
+    onChangeTabId(id)
+  }
+
   onDrag = () => {
     addClass(this.dom, onDragCls)
   }
@@ -357,15 +365,14 @@ export default class Tab extends React.Component {
 
   render () {
     const {
-      currentTabId,
-      onChangeTabId,
-      onDuplicateTab
+      currentTabId
     } = this.props.store
     const { isLast } = this.props
     const { tab, terminalOnData } = this.state
     const { id, isEditting, status, isTransporting } = tab
     const active = id === currentTabId
     const cls = classnames(
+      `tab-${id}`,
       'tab',
       { active },
       {
@@ -406,8 +413,8 @@ export default class Tab extends React.Component {
         >
           <div
             className='tab-title elli pd1x'
-            onClick={() => onChangeTabId(id)}
-            onDoubleClick={() => onDuplicateTab(tab)}
+            onClick={this.onClick}
+            onDoubleClick={this.dup}
             onContextMenu={this.onContextMenu}
           >
             <Loading3QuartersOutlined
@@ -422,7 +429,6 @@ export default class Tab extends React.Component {
           {
             this.renderCloseIcon()
           }
-
         </div>
       </Tooltip>
     )

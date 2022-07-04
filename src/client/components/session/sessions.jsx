@@ -9,12 +9,9 @@ export default function Sessions (props) {
   return tabs.map((tab) => {
     const { id } = tab
     const cls = classNames(
-      `session-${id}`,
+      `session-wrap session-${id}`,
       {
         'session-current': id === store.currentTabId
-      },
-      {
-        hide: id !== store.currentTabId
       }
     )
     const tabProps = {
