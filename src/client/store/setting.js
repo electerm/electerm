@@ -43,7 +43,7 @@ export default store => {
     onEditHistory () {
       const all = store.getItems('history')
       store.storeAssign({
-        tab: settingMap.history,
+        settingTab: settingMap.history,
         settingItem: all[0] || getInitItem([], settingMap.history),
         autofocustrigger: +new Date()
       })
@@ -52,7 +52,7 @@ export default store => {
 
     openBookmarkEdit (item) {
       store.storeAssign({
-        tab: settingMap.bookmarks,
+        settingTab: settingMap.bookmarks,
         settingItem: item,
         autofocustrigger: +new Date()
       })
@@ -61,7 +61,7 @@ export default store => {
 
     openQuickCommandsSetting () {
       store.storeAssign({
-        tab: settingMap.quickCommands,
+        settingTab: settingMap.quickCommands,
         settingItem: getInitItem([], settingMap.quickCommands),
         autofocustrigger: +new Date()
       })
@@ -119,13 +119,13 @@ export default store => {
 
     openSetting () {
       if (
-        store.tab === settingMap.setting &&
+        store.settingTab === settingMap.setting &&
         _.get(store.settingItem, 'id') === settingCommonId
       ) {
         return store.hideModal()
       }
       store.storeAssign({
-        tab: settingMap.setting,
+        settingTab: settingMap.setting,
         settingItem: getInitItem([], settingMap.setting)
       })
       store.openModal()
@@ -133,13 +133,13 @@ export default store => {
 
     openSettingSync () {
       if (
-        store.tab === settingMap.setting &&
+        store.settingTab === settingMap.setting &&
         _.get(store.settingItem, 'id') === store.setting[0].id
       ) {
         return store.hideModal()
       }
       store.storeAssign({
-        tab: settingMap.setting,
+        settingTab: settingMap.setting,
         settingItem: copy(store.setting[0])
       })
       store.openModal()
@@ -147,13 +147,13 @@ export default store => {
 
     openTerminalThemes () {
       if (
-        store.tab === settingMap.terminalThemes &&
+        store.settingTab === settingMap.terminalThemes &&
         _.get(store.settingItem, 'id') === ''
       ) {
         return store.hideModal()
       }
       store.storeAssign({
-        tab: settingMap.terminalThemes,
+        settingTab: settingMap.terminalThemes,
         settingItem: buildNewTheme(),
         autofocustrigger: +new Date()
       })
@@ -180,13 +180,13 @@ export default store => {
       store.fonts = fonts
     },
 
-    onChangeTab (tab) {
-      const arr = store.getItems(tab)
-      const item = getInitItem(arr, tab)
+    onChangeTab (settingTab) {
+      const arr = store.getItems(settingTab)
+      const item = getInitItem(arr, settingTab)
       store.storeAssign({
         settingItem: item,
         autofocustrigger: +new Date(),
-        tab
+        settingTab
       })
     }
   })

@@ -37,19 +37,19 @@ export default class SettingModal extends Component {
       settingMap.bookmarks,
       settingMap.terminalThemes
     ]
-    const { tab, settingItem, settingSidebarList } = store
+    const { settingTab, settingItem, settingSidebarList } = store
     const props0 = {
       store,
       activeItemId: settingItem.id,
-      type: tab,
+      type: settingTab,
       onClickItem: this.selectItem,
-      shouldConfirmDel: tabsShouldConfirmDel.includes(tab),
+      shouldConfirmDel: tabsShouldConfirmDel.includes(settingTab),
       list: settingSidebarList
     }
     const formProps = {
       store,
       formData: settingItem,
-      type: tab,
+      type: settingTab,
       hide: store.hideModal,
       ..._.pick(store, [
         'currentBookmarkGroupId',
@@ -73,7 +73,7 @@ export default class SettingModal extends Component {
 
     return (
       <Tabs
-        activeKey={tab}
+        activeKey={settingTab}
         animated={false}
         onChange={store.onChangeTab}
         className='setting-tabs'

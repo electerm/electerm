@@ -66,7 +66,7 @@ export default store => {
 
     onNewSsh () {
       store.storeAssign({
-        tab: settingMap.bookmarks,
+        settingTab: settingMap.bookmarks,
         settingItem: getInitItem([], settingMap.bookmarks),
         autofocustrigger: +new Date()
       })

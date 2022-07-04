@@ -103,7 +103,7 @@ export default {
     }
   ],
   settingItem: getInitItem([], settingMap.bookmarks),
-  tab: settingMap.bookmarks, // setting tab
+  settingTab: settingMap.bookmarks, // setting tab
   autofocustrigger: +new Date(),
   bookmarkId: undefined,
   showModal: false,
