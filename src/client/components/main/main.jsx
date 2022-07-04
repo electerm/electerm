@@ -143,10 +143,10 @@ export default class Index extends Component {
               store={store}
               config={cpConf}
             />
-            <TermSearch store={store} />
-            <QuickCommandsFooterBox store={store} />
-            <Footer store={store} />
           </div>
+          <TermSearch store={store} />
+          <QuickCommandsFooterBox store={store} />
+          <Footer store={store} />
         </div>
       </div>
     )

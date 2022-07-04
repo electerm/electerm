@@ -1,5 +1,6 @@
 import Session from './session'
 import _ from 'lodash'
+import classNames from 'classnames'
 
 export default function Sessions (props) {
   const {
@@ -7,9 +8,15 @@ export default function Sessions (props) {
   } = props
   return tabs.map((tab) => {
     const { id } = tab
-    const cls = id !== store.currentTabId
-      ? 'hide'
-      : 'ssh-wrap-show'
+    const cls = classNames(
+      `session-${id}`,
+      {
+        'session-current': id === store.currentTabId
+      },
+      {
+        hide: id !== store.currentTabId
+      }
+    )
     const tabProps = {
       tab,
       ..._.pick(store, [

@@ -340,7 +340,7 @@ export default class FileListTable extends React.Component {
       `#id-${id} .tw-${type} .sftp-table`
     ).clientWidth
     this.oldStyles = ids.reduce((prev, { id, name }) => {
-      const sel = `.ssh-wrap-show .tw-${type} .sftp-file-table-header .shi-${name || id}`
+      const sel = `.session-current .tw-${type} .sftp-file-table-header .shi-${name || id}`
       return {
         ...prev,
         [name || id]: {
@@ -370,8 +370,8 @@ export default class FileListTable extends React.Component {
       prevProp,
       nextProp
     } = splitHandle
-    const selPrev = `.ssh-wrap-show .tw-${type} .shi-${prevProp}`
-    const selNext = `.ssh-wrap-show .tw-${type} .shi-${nextProp}`
+    const selPrev = `.session-current .tw-${type} .shi-${prevProp}`
+    const selNext = `.session-current .tw-${type} .shi-${nextProp}`
     const prev = Array.from(document.querySelectorAll(selPrev))
     const next = Array.from(document.querySelectorAll(selNext))
     const { startPosition } = this
@@ -483,7 +483,7 @@ export default class FileListTable extends React.Component {
     ]
     const { type } = this.props
     ids.forEach(({ id, name }) => {
-      const sel = `.ssh-wrap-show .tw-${type} .shi-${name || id}`
+      const sel = `.session-current .tw-${type} .shi-${name || id}`
       const arr = Array.from(
         document.querySelectorAll(sel)
       )

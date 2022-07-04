@@ -37,7 +37,7 @@ export default class CssOverwrite extends PureComponent {
       st = `url(${terminalBackgroundImagePath}) !important`
     }
     if (!st) {
-      return `#container .ssh-wrap-show .xterm-viewport {
+      return `#container .session-current .xterm-viewport {
         background-image: url("./images/electerm-watermark.png");
       }`
     }
@@ -62,7 +62,7 @@ export default class CssOverwrite extends PureComponent {
       })`)
     }
 
-    return `#container .ssh-wrap-show .xterm-viewport {
+    return `#container .session-current .xterm-viewport {
       ${styles.join(';')} 
     }`
   }
