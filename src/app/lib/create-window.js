@@ -40,11 +40,11 @@ exports.createWindow = async function () {
   })
 
   initIpc()
-  const defaultPort = isDev ? 5570 : 5571
+  const defaultPort = isDev ? 5570 : 30974
   const { devPort = defaultPort } = process.env
   const opts = `http://127.0.0.1:${devPort}?v=${packInfo.version}`
   if (!isDev && !global.isSencondInstance) {
-    await fileServer()
+    await fileServer(devPort)
   }
   global.win.loadURL(opts)
   if (isDev) {

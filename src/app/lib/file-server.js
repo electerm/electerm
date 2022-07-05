@@ -1,6 +1,6 @@
 const express = require('express')
 
-module.exports = () => {
+module.exports = (port) => {
   return new Promise((resolve) => {
     const app = express()
     const conf = {
@@ -19,7 +19,6 @@ module.exports = () => {
         conf
       )
     )
-    const { devPort = 5571 } = process.env
-    app.listen(devPort, '127.0.0.1', resolve)
+    app.listen(port, '127.0.0.1', resolve)
   })
 }
