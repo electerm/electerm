@@ -113,7 +113,12 @@ const pre = {
 
 window.pre = pre
 
-window.newTrzsz = function (writeToTerminal, sendToServer, terminalColumns) {
+window.newTrzsz = function (
+  writeToTerminal,
+  sendToServer,
+  terminalColumns,
+  isWindowsShell
+) {
   // create a trzsz filter
   return new TrzszFilter({
     // write the server output to the terminal
@@ -121,18 +126,22 @@ window.newTrzsz = function (writeToTerminal, sendToServer, terminalColumns) {
     // send the user input to the server
     sendToServer: sendToServer,
     // choose some files to be sent to the server
-    chooseSendFiles: async () => {
+    chooseSendFiles: async (directory) => {
+      const properties = [
+        'openFile',
+        'multiSelections',
+        'showHiddenFiles',
+        'noResolveAliases',
+        'treatPackageAsDirectory',
+        'dontAddToRecent'
+      ]
+      if (directory) {
+        properties.push('openDirectory')
+      }
       return ipcRenderer.invoke('show-open-dialog-sync', {
         title: 'Choose some files to send',
         message: 'Choose some files to send',
-        properties: [
-          'openFile',
-          'multiSelections',
-          'showHiddenFiles',
-          'noResolveAliases',
-          'treatPackageAsDirectory',
-          'dontAddToRecent'
-        ]
+        properties: properties
       })
     },
     // choose a directory to save the received files
@@ -155,6 +164,8 @@ window.newTrzsz = function (writeToTerminal, sendToServer, terminalColumns) {
       return savePaths[0]
     },
     // the terminal columns
-    terminalColumns: terminalColumns
+    terminalColumns: terminalColumns,
+    // there is a windows shell
+    isWindowsShell: isWindowsShell
   })
 }

@@ -485,7 +485,12 @@ export default class Term extends Component {
   onZmodemEnd = () => {
     delete this.onZmodem
     this.onCancel = true
-    this.attachAddon = new AttachAddon(this.socket, undefined, this.props.tab.encode)
+    this.attachAddon = new AttachAddon(
+      this.socket,
+      undefined,
+      this.props.tab.encode,
+      isWin && !this.isRemote()
+    )
     if (this.decoder) {
       this.attachAddon.decoder = this.decode
     }
@@ -881,7 +886,12 @@ export default class Term extends Component {
     const socket = new WebSocket(wsUrl)
     socket.onclose = this.oncloseSocket
     socket.onerror = this.onerrorSocket
-    this.attachAddon = new AttachAddon(socket, undefined, encode)
+    this.attachAddon = new AttachAddon(
+      socket,
+      undefined,
+      encode,
+      isWin && !this.isRemote()
+    )
     term.loadAddon(this.attachAddon)
     socket.onopen = () => {
       socket.addEventListener('message', this.onSocketData)

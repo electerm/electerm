@@ -4,9 +4,10 @@
 import { AttachAddon } from 'xterm-addon-attach'
 
 export default class AttachAddonCustom extends AttachAddon {
-  constructor (term, options, encode) {
+  constructor (term, options, encode, isWindowsShell) {
     super(term, options)
     this.decoder = new TextDecoder(encode)
+    this.isWindowsShell = isWindowsShell
   }
 
   activate (terminal) {
@@ -30,7 +31,12 @@ export default class AttachAddonCustom extends AttachAddon {
       this._sendData(data)
     }
 
-    const trzsz = window.newTrzsz(writeToTerminal, sendToServer, terminal.cols)
+    const trzsz = window.newTrzsz(
+      writeToTerminal,
+      sendToServer,
+      terminal.cols,
+      this.isWindowsShell
+    )
 
     this._disposables.push(
       addSocketListener(this._socket, 'message', (ev) =>
