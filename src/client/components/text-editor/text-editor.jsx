@@ -25,6 +25,17 @@ export default class TextEditor extends PureComponent {
     window.addEventListener('message', this.onEvent)
   }
 
+  setStateProxy = (state, cb) => {
+    if (state && typeof state.file !== 'undefined') {
+      postMsg({
+        action: commonActions.updateStore,
+        value: !!state.file,
+        prop: 'showEditor'
+      })
+    }
+    return this.setState(state, cb)
+  }
+
   onEvent = (e) => {
     const {
       action,
@@ -33,28 +44,28 @@ export default class TextEditor extends PureComponent {
     if (
       action === commonActions.openTextEditor && data
     ) {
-      this.setState(data)
+      this.setStateProxy(data)
       if (data.id && data.file) {
         this.fetchText(data)
       } else if (data.id === '') {
         this.cancel()
       }
     } else if (action === commonActions.loadTextEditorText) {
-      this.setState(data)
+      this.setStateProxy(data)
     } else if (action === commonActions.editWithSystemEditorDone) {
       let cb = this.doSubmit
       if (data.text === this.state.text) {
         delete data.text
         cb = undefined
       }
-      this.setState(data, cb)
+      this.setStateProxy(data, cb)
     }
   }
 
   fetchText = async ({
     id, file
   }) => {
-    this.setState({
+    this.setStateProxy({
       loading: true
     })
     const {
@@ -63,7 +74,7 @@ export default class TextEditor extends PureComponent {
       type
     } = file
     const p = resolve(path, name)
-    this.setState({
+    this.setStateProxy({
       path: p
     })
     postMsg({
@@ -81,7 +92,7 @@ export default class TextEditor extends PureComponent {
   }
 
   handleSubmit = async (res, force = false) => {
-    this.setState({
+    this.setStateProxy({
       loading: true
     })
     if (!force && res.text === this.state.text) {
@@ -108,7 +119,7 @@ export default class TextEditor extends PureComponent {
   }
 
   editWith = () => {
-    this.setState({
+    this.setStateProxy({
       loading: true
     })
     const {
@@ -122,7 +133,7 @@ export default class TextEditor extends PureComponent {
   }
 
   cancel = () => {
-    this.setState({
+    this.setStateProxy({
       id: '',
       file: null
     })

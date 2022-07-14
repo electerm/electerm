@@ -31,6 +31,7 @@ export default class Index extends Component {
     window._config = copy(window._config)
     window.addEventListener('resize', store.onResize)
     store.onResize()
+    store.initStoreEvents()
     const { ipcOnEvent } = window.pre
     ipcOnEvent('checkupdate', store.onCheckUpdate)
     ipcOnEvent('open-about', store.openAbout)

@@ -5,6 +5,7 @@
 import keyControlPress from '../common/key-control-pressed'
 import keyPressed from '../common/key-pressed'
 import postMessage from '../common/post-msg'
+import { commonActions } from '../common/constants'
 
 export default store => {
   Object.assign(store, {
@@ -28,16 +29,22 @@ export default store => {
 
     onStoreEvent (e) {
       const {
-        type
+        action
       } = e.data || {}
-      if (type !== 'store-op') {
+      if (action !== commonActions.updateStore) {
         return false
       }
       const {
-        action,
-        args
+        func,
+        prop,
+        value,
+        args = []
       } = e.data || {}
-      return store[action](...args)
+      if (func) {
+        store[action](...args)
+      } else if (prop) {
+        store[prop] = value
+      }
     },
 
     focus () {

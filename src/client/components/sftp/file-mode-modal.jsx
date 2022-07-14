@@ -27,6 +27,17 @@ export default class FileMode extends React.PureComponent {
     window.addEventListener('message', this.onEvent)
   }
 
+  setStateProxy = (state, cb) => {
+    if (state && typeof state.file !== 'undefined') {
+      postMessage({
+        action: commonActions.updateStore,
+        value: !!state.file.id,
+        prop: 'showFileModal'
+      })
+    }
+    return this.setState(state, cb)
+  }
+
   onEvent = (e) => {
     const {
       action,
@@ -34,8 +45,7 @@ export default class FileMode extends React.PureComponent {
       file
     } = e.data || {}
     if (action === commonActions.showFileModeModal) {
-      console.log('ggg')
-      this.setState({
+      this.setStateProxy({
         data,
         file
       })
@@ -64,7 +74,7 @@ export default class FileMode extends React.PureComponent {
     )
     const permission = permission2mode(perms)
     const mode = Number('0o' + '10' + permission)
-    this.setState({
+    this.setStateProxy({
       file: {
         ...file,
         permission,
@@ -74,7 +84,7 @@ export default class FileMode extends React.PureComponent {
   }
 
   onClose = () => {
-    this.setState({
+    this.setStateProxy({
       file: {},
       data: {}
     })

@@ -108,6 +108,9 @@ const store = Subx.create({
   },
   get fonts () {
     return store._fonts.map(f => JSON.parse(f))
+  },
+  get onOperation () {
+    return store.showModal || store.termSearchOpen || store.showInfoModal || store.showEditor || store.showFileModal
   }
 })
 

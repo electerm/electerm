@@ -10,6 +10,7 @@ import { mode2permission } from '../../common/mode2permission'
 import time from '../../../app/common/time'
 import renderPermission from './permission-render'
 import FileIcon from './file-icon'
+import postMsg from '../../common/post-msg'
 
 const { prefix } = window
 const e = prefix('sftp')
@@ -32,6 +33,13 @@ export default function FileInfoModal () {
   useEffect(() => {
     window.addEventListener('message', onEvent)
   }, [])
+  useEffect(() => {
+    postMsg({
+      action: commonActions.updateStore,
+      value: !!state.visible,
+      prop: 'showEditor'
+    })
+  }, [state.visible])
   const {
     visible,
     file,

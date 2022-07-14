@@ -146,6 +146,12 @@ export default {
   infoModalTab: infoTabs.info,
   commandLineHelp: '',
 
+  // editor
+  showEditor: false,
+
+  // file/info modal
+  showFileModal: false,
+
   // update
   upgradeInfo: {},
 
