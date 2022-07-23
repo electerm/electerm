@@ -47,12 +47,12 @@ describe('timeout setting', function () {
 
     log('open new ssh and timeout')
     await client.click('.btns .anticon-plus-circle')
-    await delay(500)
+    await delay(2500)
     await client.setValue('#ssh-form_host', TEST_HOST)
     await client.setValue('#ssh-form_username', TEST_USER)
     await client.setValue('#ssh-form_password', TEST_PASS)
     await client.click('.setting-wrap .ant-tabs-tabpane-active .ant-btn-primary')
-    await delay(5500)
+    await delay(8500)
     const txt = await client.getText('.ant-notification-notice  .ant-notification-notice-content .common-err')
     expect(txt.includes('Timed out')).equal(true)
 
