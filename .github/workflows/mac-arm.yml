@@ -34,15 +34,6 @@ jobs:
     # script:
     - run: npm run pre-test
 
-    # - name: test
-    #   uses: GabrielBB/xvfb-action@v1
-    #   with:
-    #     run: npm run test
-    #   env:
-    #     TEST_HOST: ${{ secrets.TEST_HOST }}
-    #     TEST_USER: ${{ secrets.TEST_USER_DARWIN }}
-    #     TEST_PASS: ${{ secrets.TEST_PASS_DARWIN }}
-
     - name: build
       if: "!contains(github.event.head_commit.message, 'skip build')"
       env:
