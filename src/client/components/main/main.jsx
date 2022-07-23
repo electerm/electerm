@@ -1,8 +1,6 @@
 
 import { Component } from '../common/react-subx'
 import Sessions from '../session/sessions'
-import Tabs from '../tabs'
-import _ from 'lodash'
 import copy from 'json-deep-copy'
 import ContextMenu from '../context-menu/context-menu'
 import FileInfoModal from '../sftp/file-props-modal'
@@ -18,9 +16,6 @@ import classnames from 'classnames'
 import { isMac, isWin } from '../../common/constants'
 import TermFullscreenControl from './term-fullscreen-control'
 import { init } from '../../common/fetch-from-server'
-import Footer from '../footer/footer-entry'
-import QuickCommandsFooterBox from '../quick-commands/quick-commands-box'
-import TermSearch from '../common/term-search'
 import './wrapper.styl'
 
 export default class Index extends Component {
@@ -67,7 +62,6 @@ export default class Index extends Component {
       isSencondInstance,
       pinnedQuickCommandBar
     } = store
-    const tabs = store.getTabs()
     const cls = classnames({
       'system-ui': window._config.useSystemTitleBar,
       'is-mac': isMac,
@@ -98,18 +92,6 @@ export default class Index extends Component {
         opacity: config.opacity
       }
     }
-    const tabsProps = {
-      ..._.pick(store, [
-        'fileOperation',
-        'currentTabId',
-        'height',
-        'width',
-        'config',
-        'activeTerminalId',
-        'isMaximized'
-      ]),
-      tabs
-    }
     return (
       <div {...ext1}>
         <TermFullscreenControl
@@ -134,20 +116,10 @@ export default class Index extends Component {
           {...outerProps}
         >
           <Sidebar store={store} />
-          <Tabs
+          <Sessions
             store={store}
-            {...tabsProps}
+            config={cpConf}
           />
-          <div className='sessions'>
-            <Sessions
-              tabs={tabs}
-              store={store}
-              config={cpConf}
-            />
-          </div>
-          <TermSearch store={store} />
-          <QuickCommandsFooterBox store={store} />
-          <Footer store={store} />
         </div>
       </div>
     )

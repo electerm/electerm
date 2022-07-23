@@ -2,20 +2,11 @@
  * tabs related functions
  */
 
-import newTerm from '../common/new-terminal'
 import _ from 'lodash'
-import generate from '../common/uid'
-import copy from 'json-deep-copy'
-import wait from '../common/wait'
-// import getInitItem from '../common/init-setting-item'
 import {
-  statusMap,
-  paneMap,
-  commonActions
+  tabActions
 } from '../common/constants'
 import postMsg from '../common/post-msg'
-
-const defaultStatus = statusMap.processing
 
 export default store => {
   Object.assign(store, {
@@ -24,13 +15,10 @@ export default store => {
       const tabIds = _.uniq(
         store.getTransfers().map(d => d.tabId)
       )
-      const tabs = store.getTabs().map(d => {
-        return {
-          ...d,
-          isTransporting: tabIds.includes(d.id)
-        }
+      postMsg({
+        action: tabActions.updateTabsStatus,
+        tabIds
       })
-      store.setTabs(tabs)
     },
 
     getTabs () {
@@ -42,107 +30,23 @@ export default store => {
     },
 
     initFirstTab () {
-      const tab = newTerm(store.tabs.length)
-      tab.terminals = [{
-        id: 'electerm-init-term',
-        position: 0
-      }]
-      store.addTab(tab)
+      postMsg({
+        action: tabActions.initFirstTab
+      })
     },
 
     addTab (
-      tab = newTerm(store.tabs.length),
-      index = store.tabs.length
+      tab,
+      index
     ) {
-      store.currentTabId = tab.id
-      const tabs = store.getItems('tabs')
-      tabs.splice(index, 0, tab)
-      store.setItems('tabs', tabs)
-    },
-
-    editTab (id, update) {
-      store.editItem(id, update, 'tabs')
-    },
-
-    delTab ({ id }) {
-      const tabs = store.getItems('tabs')
-      const { currentTabId } = store
-      if (currentTabId === id) {
-        let i = _.findIndex(tabs, t => {
-          return t.id === id
-        })
-        i = i ? i - 1 : i + 1
-        const next = tabs[i] || {}
-        store.currentTabId = next.id
-      }
-      const narr = tabs.filter(t => {
-        return t.id !== id
-      })
-      store.setItems(
-        'tabs',
-        narr
-      )
-    },
-
-    processTerminals (tab) {
-      if (!tab.terminals) {
-        return tab
-      }
-      tab.terminals = tab.terminals.map(t => {
-        return {
-          ...t,
-          stateId: t.id,
-          id: generate()
-        }
-      })
-    },
-
-    async reloadTab (tabToReload) {
-      const tab = copy(
-        tabToReload
-      )
-      tab.pane = paneMap.terminal
-      store.processTerminals(tab)
-      const { id } = tab
-      const tabs = store.getItems('tabs')
-      tab.id = generate()
-      tab.status = statusMap.processing
-      const index = _.findIndex(tabs, t => t.id === id)
-      store.addTab(tab, index)
-      await wait(30)
-      store.delTab({ id: tabToReload.id })
-    },
-
-    onDuplicateTab (tabToDup) {
-      let tab = copy(tabToDup)
-      store.processTerminals(tab)
-      const tabs = store.getItems('tabs')
-      const index = _.findIndex(
-        tabs,
-        d => d.id === tab.id
-      )
-      tab = {
-        ...tab,
-        status: defaultStatus,
-        id: generate(),
-        isTransporting: undefined
-      }
-      tab.pane = paneMap.terminal
-      store.addTab(tab, index + 1)
-    },
-
-    onChangeTabId (id) {
-      // document.querySelector('.tab.active')?.classList.remove('active')
-      // document.querySelector(`.tab-${id}`)?.classList.add('active')
-      // document.querySelector('.session-current')?.classList.remove('session-current')
-      // document.querySelector(`.session-${id}`)?.classList.add('session-current')
-      store.currentTabId = id
       postMsg({
-        action: commonActions.changeCurrentTabId,
-        currentTabId: id
+        action: tabActions.addTab,
+        tab,
+        index
       })
     }
   })
+
   store.clickNextTab = _.debounce(() => {
     const tab = document.querySelector('.tabs-wrapper .tab.active')
     if (tab) {

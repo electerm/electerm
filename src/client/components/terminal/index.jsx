@@ -756,7 +756,7 @@ export default class Term extends Component {
 
   setStatus = status => {
     const id = _.get(this.props, 'tab.id')
-    this.props.store.editTab(id, {
+    this.props.editTab(id, {
       status
     })
   }
@@ -944,7 +944,7 @@ export default class Term extends Component {
     if (startDirectory || loginScript || isSshConfig) {
       this.timers.timer1 = setTimeout(this.runInitScript, loginScriptDelay)
     }
-    this.props.store.triggerReszie()
+    this.props.store.triggerResize()
   }
 
   onResize = _.debounce(() => {
@@ -1001,7 +1001,7 @@ export default class Term extends Component {
             icon={<ReloadOutlined />}
             onClick={() => {
               closeMsg()
-              this.props.store.reloadTab(
+              this.props.reloadTab(
                 this.props.tab
               )
             }}
@@ -1031,7 +1031,7 @@ export default class Term extends Component {
 
   onCancel = () => {
     const { id } = this.props.tab
-    this.props.store.delTab({ id })
+    this.props.delTab(id)
   }
 
   onToggleSavePass = () => {

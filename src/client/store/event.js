@@ -2,27 +2,11 @@
  * extend store
  */
 
-import keyControlPress from '../common/key-control-pressed'
-import keyPressed from '../common/key-pressed'
 import postMessage from '../common/post-msg'
 import { commonActions } from '../common/constants'
 
 export default store => {
   Object.assign(store, {
-    initShortcuts () {
-      window.addEventListener('keydown', e => {
-        if (keyControlPress(e) && keyPressed(e, 'w')) {
-          e.stopPropagation()
-          store.delTab({
-            id: store.currentTabId
-          })
-          if (!store.tabs.length) {
-            store.addTab()
-          }
-        }
-      })
-    },
-
     initStoreEvents () {
       window.addEventListener('message', store.onStoreEvent)
     },
@@ -41,7 +25,7 @@ export default store => {
         args = []
       } = e.data || {}
       if (func) {
-        store[action](...args)
+        store[func](...args)
       } else if (prop) {
         store[prop] = value
       }
@@ -68,13 +52,13 @@ export default store => {
       })
     },
 
-    triggerReszie () {
+    triggerResize () {
       window.dispatchEvent(new window.Event('resize'))
     },
 
     toggleTermFullscreen (terminalFullScreen) {
       store.terminalFullScreen = terminalFullScreen
-      setTimeout(store.triggerReszie, 500)
+      setTimeout(store.triggerResize, 500)
     }
   })
 }

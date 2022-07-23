@@ -7,8 +7,8 @@ import _ from 'lodash'
 import copy from 'json-deep-copy'
 import postMessage from '../common/post-msg'
 import {
-  statusMap,
-  commonActions
+  commonActions,
+  tabActions
 } from '../common/constants'
 
 export default store => {
@@ -18,15 +18,9 @@ export default store => {
     },
 
     setOffline () {
-      const tabs = store.getTabs()
-      store.setItems('tabs', tabs
-        .map(t => {
-          return {
-            ...t,
-            status: t.host ? statusMap.error : t.status
-          }
-        })
-      )
+      postMessage({
+        action: tabActions.setAllTabOffline
+      })
     },
 
     onError (e) {

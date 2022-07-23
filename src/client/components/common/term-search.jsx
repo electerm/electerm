@@ -143,17 +143,15 @@ export default class TermSearch extends Component {
   }
 
   render () {
-    const { store } = this.props
+    const { store, currentTab } = this.props
     const {
       termSearchOpen,
-      currentTab,
       termSearch
     } = store
     if (!termSearchOpen) {
       return null
     }
-    const { pane } = currentTab || {}
-    if (pane === paneMap.fileManager) {
+    if (currentTab.pane === paneMap.fileManager) {
       return null
     }
     return (

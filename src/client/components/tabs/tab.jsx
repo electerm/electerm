@@ -62,7 +62,7 @@ export default class Tab extends React.Component {
   }
 
   isOnlyTab = () => {
-    return this.props.store.tabs.length < 2
+    return this.props.tabs.length < 2
   }
 
   onEvent = (e) => {
@@ -96,7 +96,7 @@ export default class Tab extends React.Component {
   onClick = (e) => {
     const {
       onChangeTabId
-    } = this.props.store
+    } = this.props
     const { id } = this.state.tab
     onChangeTabId(id)
   }
@@ -161,13 +161,13 @@ export default class Tab extends React.Component {
     }
     tabs.splice(indexFrom, 1)
     tabs.splice(indexDrop, 0, fromTab)
-    this.props.store.setTabs(
+    this.props.setTabs(
       tabs
     )
   }
 
   reloadTab = async () => {
-    this.props.store.reloadTab(this.state.tab)
+    this.props.reloadTab(this.state.tab)
   }
 
   onDragEnd = e => {
@@ -177,17 +177,17 @@ export default class Tab extends React.Component {
   }
 
   close = () => {
-    this.props.store.delTab({ id: this.state.tab.id })
+    this.props.delTab(this.state.tab.id)
   }
 
   dup = () => {
-    this.props.store.onDuplicateTab(
+    this.props.onDuplicateTab(
       this.state.tab
     )
   }
 
   newTab = () => {
-    this.props.store.addTab()
+    this.props.addTab()
   }
 
   doRename = () => {
@@ -215,7 +215,7 @@ export default class Tab extends React.Component {
     this.setState({
       tab
     })
-    this.props.store.editTab(id, { title: titleTemp })
+    this.props.editTab(id, { title: titleTemp })
   }
 
   onChange = e => {
@@ -228,24 +228,24 @@ export default class Tab extends React.Component {
   }
 
   closeOther = () => {
-    const { store } = this.props
-    store.storeAssign({
-      currentTabId: this.props.tab.id
-    })
-    store.setTabs([this.props.tab])
+    const { setTabs, onChangeTabId } = this.props
+    onChangeTabId(this.props.tab.id)
+    setTabs([this.props.tab])
   }
 
   closeTabsRight = () => {
-    const { tab, currentTabId, store } = this.props
-    let tabs = store.getTabs()
+    const {
+      tab, currentTabId,
+      onChangeTabId,
+      setTabs
+    } = this.props
+    let tabs = copy(this.props.tabs)
     const index = _.findIndex(tabs, t => t.id === tab.id)
     tabs = tabs.slice(0, index + 1)
-    const update = {}
     if (!_.some(tabs, t => t.id === currentTabId)) {
-      update.currentTabId = tabs[0].id
+      onChangeTabId(tabs[0].id)
     }
-    store.storeAssign(update)
-    store.setTabs(tabs)
+    setTabs(tabs)
   }
 
   renderContext () {
@@ -366,7 +366,7 @@ export default class Tab extends React.Component {
   render () {
     const {
       currentTabId
-    } = this.props.store
+    } = this.props
     const { isLast } = this.props
     const { tab, terminalOnData } = this.state
     const { id, isEditting, status, isTransporting } = tab

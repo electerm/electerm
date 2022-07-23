@@ -85,7 +85,7 @@ export default class SystemMenu extends Component {
           <Select
             style={{ minWidth: 100 }}
             placeholder={f('encode')}
-            defaultValue={this.props.store.currentTab?.encode}
+            defaultValue={this.props.currentTab?.encode}
             onSelect={this.switchEncoding}
             size='small'
           >

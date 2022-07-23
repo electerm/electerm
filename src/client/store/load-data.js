@@ -149,7 +149,6 @@ export default (store) => {
     Object.assign(store, ext)
 
     store.checkDefaultTheme()
-    store.initShortcuts()
     store.loadFontList()
     store.fetchItermThemes()
     store.openInitSessions()
