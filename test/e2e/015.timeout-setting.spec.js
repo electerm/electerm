@@ -32,7 +32,9 @@ describe('timeout setting', function () {
     await delay(1500)
 
     await client.evaluate(() => {
-      window.store.config.sshReadyTimeout = 100
+      window.store.setConfig({
+        sshReadyTimeout: 100
+      })
     })
     await delay(1500)
 
@@ -60,7 +62,9 @@ describe('timeout setting', function () {
     await client.click('.btns .anticon-setting')
     await delay(1500)
     await client.evaluate(() => {
-      window.store.config.sshReadyTimeout = 50000
+      window.store.setConfig({
+        sshReadyTimeout: 50000
+      })
     })
     await delay(1555)
     const timeout1 = await client.evaluate(() => {

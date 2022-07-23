@@ -104,6 +104,7 @@ describe('sftp basic', function () {
     expect(localFileList00).equal(2)
 
     // select all and del local file
+    await delay(1000)
     await client.rightClick('.session-current .file-list.local .real-file-item', 10, 10)
     await delay(200)
     log('select all')
