@@ -81,7 +81,7 @@ export default class Tabs extends React.Component {
     if (!e.target.className.includes('tabs-wrapper')) {
       return
     }
-    this.props.store.addTab()
+    this.props.addTab()
   }
 
   adjustScroll = () => {
@@ -119,7 +119,7 @@ export default class Tabs extends React.Component {
 
   onClickMenu = ({ key }) => {
     const id = key.split('##')[1]
-    this.props.store.onChangeTabId(id)
+    this.props.onChangeTabId(id)
   }
 
   renderList = () => {
@@ -141,7 +141,8 @@ export default class Tabs extends React.Component {
   }
 
   renderMenus () {
-    const { onNewSsh, addTab } = this.props.store
+    const { addTab } = this.props
+    const { onNewSsh } = this.props.store
     const cls = 'pd2x pd1y context-item pointer'
     return (
       <div className='add-menu-wrap' style={{
@@ -174,7 +175,7 @@ export default class Tabs extends React.Component {
         <PlusCircleOutlined
           title={e('openNewTerm')}
           className='pointer tabs-add-btn font16'
-          onClick={() => this.props.store.addTab()} />
+          onClick={() => this.props.addTab()} />
       </Popover>
     )
   }

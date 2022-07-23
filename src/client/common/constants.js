@@ -248,9 +248,21 @@ export const fileActions = {
   mergeOrOverwriteAll: 'mergeOrOverwriteAll',
   renameAll: 'renameAll'
 }
+
+export const tabActions = {
+  updateTabsStatus: 'update-tabs-status',
+  setAllTabOffline: 'set-all-tab-offline',
+  changeCurrentTabId: 'changeCurrentTabId',
+  onDuplicateTab: 'on-duplicate-tab',
+  reloadTab: 'reload-tab',
+  initFirstTab: 'init-first-tab',
+  delTab: 'del-tab',
+  addTab: 'add-tab',
+  updateTabs: 'update-tabs'
+}
+
 export const commonActions = {
   updateStore: 'update-store',
-  changeCurrentTabId: 'changeCurrentTabId',
   editWithSystemEditorDone: 'edit-with-system-editor-done',
   editWithSystemEditor: 'edit-with-system-editor',
   onCloseTextEditor: 'on-close-text-editor',
@@ -285,3 +297,4 @@ export const srcsSkipUpgradeCheck = [
   'skip-upgrade-check'
 ]
 export const termLSPrefix = 'term:sess:'
+export const termInitId = 'electerm-init-term'

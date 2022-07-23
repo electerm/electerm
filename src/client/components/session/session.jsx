@@ -149,10 +149,10 @@ export default class SessionWrapper extends Component {
 
   editTab = (up) => {
     const {
-      store,
-      tab
+      tab,
+      editTab
     } = this.props
-    store.editTab(
+    editTab(
       tab.id,
       up
     )
@@ -205,8 +205,8 @@ export default class SessionWrapper extends Component {
     const { terminals } = this.state
     let newTerms = terminals.filter(t => t.id !== splitId)
     if (!newTerms.length) {
-      return this.props.store.delTab(
-        this.props.tab
+      return this.props.delTab(
+        this.props.tab.id
       )
     }
     newTerms = rebuildPosition(newTerms)
