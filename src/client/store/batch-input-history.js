@@ -3,16 +3,21 @@
  */
 
 import copy from 'json-deep-copy'
-import { maxBatchInput } from '../common/constants'
+import { maxBatchInput, batchInputLsKey } from '../common/constants'
+import _ from 'lodash'
+import * as ls from '../common/safe-local-storage'
 
 export default store => {
   Object.assign(store, {
     addBatchInput (str) {
       let batchInputs = copy(store.batchInputs)
       batchInputs.push(str)
-      if (batchInputs.length > maxBatchInput) {
-        batchInputs = batchInputs.slice(0, maxBatchInput)
+      batchInputs = _.uniq(batchInputs)
+      const len = batchInputs.length
+      if (len > maxBatchInput) {
+        batchInputs = batchInputs.slice(len - maxBatchInput)
       }
+      ls.setItemJSON(batchInputLsKey, batchInputs)
       store.batchInputs = batchInputs
     },
     clearBatchInput () {

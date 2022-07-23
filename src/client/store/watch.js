@@ -38,13 +38,6 @@ export default store => {
     return store.tabs
   }, debounceTime(1000))
 
-  Subx.autoRun(store, () => {
-    if (!store.tabs.length) {
-      setTimeout(store.addTab, 1)
-    }
-    return store.tabs
-  })
-
   for (const name of dbNames) {
     Subx.autoRun(store, async () => {
       await update(

@@ -36,14 +36,6 @@ async function fetchData (type, func, args, token, proxy) {
 }
 
 export default (store) => {
-  store.openSettingSync = () => {
-    store.storeAssign({
-      tab: settingMap.setting,
-      settingItem: copy(store.setting[0])
-    })
-    store.openModal()
-  }
-
   store.updateSyncSetting = (_data) => {
     const data = copy(_data)
     const keys = Object.keys(data)

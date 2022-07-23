@@ -13,7 +13,8 @@ import {
   infoTabs,
   openedSidebarKey,
   sidebarPinnedKey,
-  sftpDefaultSortSettingKey
+  sftpDefaultSortSettingKey,
+  batchInputLsKey
 } from '../common/constants'
 import { buildDefaultThemes, buildNewTheme } from '../common/terminal-theme'
 import * as ls from '../common/safe-local-storage'
@@ -163,7 +164,7 @@ export default {
   transports: [],
 
   // batch inputs
-  batchInputs: [],
+  batchInputs: ls.getItemJSON(batchInputLsKey, []),
 
   // ui
   innerWidth: window.innerWidth,

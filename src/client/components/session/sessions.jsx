@@ -276,9 +276,9 @@ export default class Sessions extends Component {
         }
       )
       const sessProps = {
+        currentTabId,
         tab,
         ..._.pick(store, [
-          'currentTabId',
           'height',
           'width',
           'activeTerminalId'
@@ -317,7 +317,6 @@ export default class Sessions extends Component {
       store,
       currentTabId,
       config,
-
       ..._.pick(store, [
         'fileOperation',
         'height',
