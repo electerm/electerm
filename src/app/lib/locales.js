@@ -28,7 +28,7 @@ async function loadLocales () {
         path: filePath,
         id: fileName.replace('.js', ''),
         name: lang.name,
-        match: lang.match,
+        reg: lang.match,
         lang: lang.lang
       }
     })
@@ -46,7 +46,7 @@ async function loadLocales () {
 function findLang (langs, la) {
   let res = false
   for (const l of langs) {
-    res = new RegExp(l.match).test(la)
+    res = new RegExp(l.reg).test(la)
     if (res) {
       res = l.id
       break
