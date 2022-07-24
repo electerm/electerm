@@ -79,10 +79,8 @@ export const authTypeMap = buildConst([
 ])
 
 export const maxTransferHistory = 100
-export const topMenuHeight = window._config.useSystemTitleBar ? 0 : 15
 export const footerHeight = 36
 export const quickCommandBoxHeight = 180
-export const tabsHeight = window._config.useSystemTitleBar ? 45 : 56
 
 export const isWin = window.pre.isWin
 export const isMac = window.pre.isMac
@@ -205,7 +203,6 @@ export const commonParities = [
 export const defaultLoginScriptDelay = 500
 
 export const initTabs = [newTerm()]
-export const appPath = window.pre.appPath
 export const maxBatchInput = 30
 export const windowControlWidth = 94
 export const baseUpdateCheckUrls = [
@@ -223,9 +220,6 @@ export const syncTokenCreateUrls = {
 export const settingSyncId = 'setting-sync'
 export const settingCommonId = 'setting-common'
 export const defaultEnvLang = 'en_US.UTF-8'
-// export const maxZmodemUploadSize = 1024 * 8192
-export const sshConfigItems = window.pre.sshConfigItems
-export const langs = window.langs
 const defaultThemeLightConf = _.get(
   dbDefaults, '[0].data[1]'
 )

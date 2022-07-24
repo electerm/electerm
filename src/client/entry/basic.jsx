@@ -2,6 +2,7 @@
  * init app data then write main script to html body
  */
 import '../css/basic.styl'
+import _ from 'lodash'
 
 async function loadWorker () {
   return new Promise((resolve) => {
@@ -23,7 +24,7 @@ async function loadWorker () {
 }
 
 async function load () {
-  function capitalizeFirstLetter (string) {
+  window.capitalizeFirstLetter = (string) => {
     return string.charAt(0).toUpperCase() + string.slice(1)
   }
   function loadScript () {
@@ -31,21 +32,20 @@ async function load () {
     rcs.src = 'js/electerm.js?' + window.pre.packInfo.version
     document.body.appendChild(rcs)
   }
-  const globs = await window.pre.runGlobalAsync('init')
-  window.langs = globs.langs
-  window.lang = globs.lang
-  window._config = globs._config
-  window.pre.installSrc = globs.installSrc
-  window.pre.appPath = globs.appPath
-  window.pre.sshConfigItems = globs.sshConfigItems
+  window.getLang = (lang = window.store?.config.language || 'en_us') => {
+    return _.get(window.langMap, `[${lang}].lang`)
+  }
   window.prefix = prefix => {
-    if (window._config.language === 'en_us') {
+    if (window.store?.config.language === 'en_us') {
       return (id) => {
-        return capitalizeFirstLetter(window.lang[prefix][id] || id)
+        const lang = window.getLang()
+        const str = _.get(lang, `[${prefix}][${id}]`) || id
+        return window.capitalizeFirstLetter(str)
       }
     }
     return (id) => {
-      return window.lang[prefix][id] || id
+      const lang = window.getLang()
+      return _.get(lang, `[${prefix}][${id}]`) || id
     }
   }
   await loadWorker()

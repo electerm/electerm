@@ -5,9 +5,6 @@
 // import { createLogFileName } from '../../../app/common/create-session-log-file-path'
 import { osResolve } from '../../common/resolve'
 import ShowItem from '../common/show-item'
-import {
-  appPath
-} from '../../common/constants'
 
 const { prefix } = window
 const c = prefix('common')
@@ -15,7 +12,7 @@ const st = prefix('setting')
 
 export default function TerminalInfoBase (props) {
   const { id, saveTerminalLogToFile, logName } = props
-  const path = osResolve(appPath, 'electerm', 'session_logs', logName + '.log')
+  const path = osResolve(props.appPath, 'electerm', 'session_logs', logName + '.log')
   const to = saveTerminalLogToFile
     ? <ShowItem disabled={!saveTerminalLogToFile} to={path}>{path}</ShowItem>
     : `-> ${c('setting')} -> ${st('saveTerminalLogToFile')}`

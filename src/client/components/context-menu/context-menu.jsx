@@ -8,7 +8,6 @@ import {
   contextMenuHeight,
   contextMenuPaddingTop,
   contextMenuWidth,
-  topMenuHeight,
   commonActions
 } from '../../common/constants'
 import {
@@ -144,6 +143,9 @@ export default class ContextMenu extends React.PureComponent {
       left,
       top
     } = pos
+    const {
+      topMenuHeight
+    } = this.props.store.config
     const height = count * contextMenuHeight + contextMenuPaddingTop * 2 + countHr * 1
     const maxHeight = Math.max(
       window.innerHeight - topMenuHeight - top,

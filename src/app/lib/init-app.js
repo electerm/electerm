@@ -17,26 +17,30 @@ function capitalizeFirstLetter (string) {
   return string.charAt(0).toUpperCase() + string.slice(1)
 }
 
-function initApp (language, lang, config) {
-  global.et.lang = lang
-  global.et.language = language
-  const prefix = pre => {
-    if (global.et.language === 'en_us') {
+function initApp (langMap, config) {
+  global.et.langMap = langMap
+  global.et.getLang = (lang = global.et.config.language || 'en_us') => {
+    return global.et.langMap[lang].lang
+  }
+  global.et.prefix = pre => {
+    if (global.et.config.language === 'en_us') {
       return (id) => {
-        return capitalizeFirstLetter(global.et.lang[pre][id] || id)
+        return capitalizeFirstLetter(
+          global.et.getLang()[pre][id] || id
+        )
       }
     }
     return (id) => {
-      return global.et.lang[pre][id] || id
+      return global.et.getLang()[pre][id] || id
     }
   }
   if (isMac) {
-    const dockMenu = buildDocMenu(prefix)
+    const dockMenu = buildDocMenu()
     global.app.dock.setMenu(dockMenu)
   }
-  const menu = buildMenu(prefix)
+  const menu = buildMenu()
   Menu.setApplicationMenu(menu)
-  const a = prefix('app')
+  const a = global.et.prefix('app')
   // handle autohide flag
   if (process.argv.includes('--autohide')) {
     global.et.timer = setTimeout(() => global.win.minimize(), 500)

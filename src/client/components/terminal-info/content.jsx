@@ -11,8 +11,6 @@ import TerminalInfoDisk from './disk'
 import { useState } from 'react'
 import RunCmd from './run-cmd'
 import {
-  topMenuHeight,
-  tabsHeight,
   sidebarWidth,
   termControlHeight
 } from '../../common/constants'
@@ -51,7 +49,7 @@ export default function TerminalInfoContent (props) {
       className='info-panel-wrap'
       style={{
         width: state.expand ? `calc(100% - ${sidebarWidth}px)` : '50%',
-        top: topMenuHeight + tabsHeight + termControlHeight - 4
+        top: props.topMenuHeight + props.tabsHeight + termControlHeight - 4
       }}
     >
       <div className='pd2t pd2x'>

@@ -12,6 +12,7 @@ import defaultSettings from '../../app/common/default-setting'
 import encodes from '../components/bookmark-form/encodes'
 import runIdle from '../common/run-idle'
 import track from '../common/track'
+import { initWsCommon } from '../common/fetch-from-server'
 
 function getHost (argv, opts) {
   const arr = argv
@@ -128,7 +129,24 @@ export default (store) => {
       version: packInfo.version
     })
   }
+  store.fetchSshConfigItems = async () => {
+    store._sshConfigItems = await window.pre.runGlobalAsync('loadSshConfig')
+  }
+  store.initApp = async () => {
+    const globs = await window.pre.runGlobalAsync('init')
+    window.langMap = globs.langMap
+    store.installSrc = globs.installSrc
+    store.appPath = globs.appPath
+    store._config = JSON.stringify(
+      globs.config
+    )
+    store._langs = JSON.stringify(
+      globs.langs
+    )
+    initWsCommon()
+  }
   store.initData = async () => {
+    await store.initApp()
     const ext = {}
     const all = dbNames.map(async name => {
       const data = await fetchInitData(name)
@@ -152,6 +170,7 @@ export default (store) => {
     store.loadFontList()
     store.fetchItermThemes()
     store.openInitSessions()
+    store.fetchSshConfigItems()
     initWatch(store)
     store.initCommandLine().catch(store.onError)
   }

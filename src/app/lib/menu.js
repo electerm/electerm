@@ -9,10 +9,10 @@ const {
 const openNewInstance = require('./open-new-instance')
 const { packInfo } = require('../common/runtime-constants')
 
-function buildMenu (prefix) {
-  const e = prefix('menu')
-  const c = prefix('control')
-  const s = prefix('setting')
+function buildMenu () {
+  const e = global.et.prefix('menu')
+  const c = global.et.prefix('control')
+  const s = global.et.prefix('setting')
 
   const template = [
     {

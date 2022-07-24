@@ -10,7 +10,6 @@ import generate from '../common/uid'
 import copy from 'json-deep-copy'
 import {
   settingMap,
-  sshConfigItems,
   settingCommonId
 } from '../common/constants'
 import { buildNewTheme } from '../common/terminal-theme'
@@ -84,7 +83,7 @@ export default store => {
       const bookmarks = store.getBookmarks()
       const item = copy(
         _.find(bookmarks, it => it.id === id) ||
-        _.find(sshConfigItems, it => it.id === id)
+        _.find(store.sshConfigItems, it => it.id === id)
       )
       if (!item) {
         return

@@ -15,15 +15,11 @@ import TerminalInteractive from '../terminal/terminal-interactive'
 import classnames from 'classnames'
 import { isMac, isWin } from '../../common/constants'
 import TermFullscreenControl from './term-fullscreen-control'
-import { init } from '../../common/fetch-from-server'
 import './wrapper.styl'
 
 export default class Index extends Component {
   componentDidMount () {
-    init()
     const { store } = this.props
-    window.lang = copy(window.lang)
-    window._config = copy(window._config)
     window.addEventListener('resize', store.onResize)
     store.onResize()
     store.initStoreEvents()
@@ -63,7 +59,7 @@ export default class Index extends Component {
       pinnedQuickCommandBar
     } = store
     const cls = classnames({
-      'system-ui': window._config.useSystemTitleBar,
+      'system-ui': store.config.useSystemTitleBar,
       'is-mac': isMac,
       'is-win': isWin,
       pinned,

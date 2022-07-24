@@ -80,18 +80,15 @@ function initIpc () {
       })
       global.et.serverInited = true
     }
-    const lang = langMap[language].lang
-    const sshConfigItems = await loadSshConfig()
     global.et.config = config
     const globs = {
-      _config: config,
+      config,
       langs,
-      lang,
+      langMap,
       installSrc,
-      sshConfigItems,
       appPath
     }
-    initApp(language, lang, config)
+    initApp(langMap, config)
     initShortCut(globalShortcut, global.win, config)
     return globs
   }
@@ -129,6 +126,7 @@ function initIpc () {
     event.returnValue = syncFuncs[name](...args)
   })
   const asyncGlobals = {
+    loadSshConfig,
     openNewInstance,
     init,
     listSerialPorts,

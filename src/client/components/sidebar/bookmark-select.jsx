@@ -4,9 +4,6 @@
 
 import { Component } from '../common/react-subx'
 import TreeList from '../setting-panel/tree-list'
-import {
-  sshConfigItems
-} from '../../common/constants'
 
 export default class BookmarkSelect extends Component {
   render () {
@@ -29,7 +26,7 @@ export default class BookmarkSelect extends Component {
       store,
       bookmarks: [
         ...(store.getBookmarks() || []),
-        ...sshConfigItems
+        ...store.sshConfigItems
       ],
       type: 'bookmarks',
       onClickItem,

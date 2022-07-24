@@ -19,7 +19,6 @@ import {
 import { buildDefaultThemes, buildNewTheme } from '../common/terminal-theme'
 import * as ls from '../common/safe-local-storage'
 
-const { _config } = window
 const { prefix } = window
 const t = prefix('terminalThemes')
 const e = prefix('control')
@@ -67,7 +66,7 @@ export default {
   history: [],
   bookmarks,
   bookmarkGroups,
-  _config: JSON.stringify(_config || {}),
+  _config: '{}',
   terminalThemes: [
     JSON.stringify(buildDefaultThemes())
   ],
@@ -162,6 +161,14 @@ export default {
 
   // transfer list
   transports: [],
+
+  _sshConfigItems: [],
+
+  appPath: '',
+
+  installSrc: '',
+
+  _langs: '[]',
 
   // batch inputs
   batchInputs: ls.getItemJSON(batchInputLsKey, []),
