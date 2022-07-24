@@ -64,7 +64,7 @@ function initIpc () {
       langMap,
       sysLocale
     } = await loadLocales()
-    const language = getLang(config, sysLocale)
+    const language = getLang(config, sysLocale, langs)
     config.language = language
     if (!global.et.serverInited) {
       const child = await initServer(config, {

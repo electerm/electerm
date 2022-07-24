@@ -55,13 +55,13 @@ function findLang (langs, la) {
   return res
 }
 
-const getLang = (config, sysLocale) => {
+const getLang = (config, sysLocale, langs) => {
   if (config.language) {
     return config.language
   }
   let l = sysLocale
   l = l ? l.toLowerCase().replace('-', '_') : defaultLang
-  return findLang(l) || defaultLang
+  return findLang(langs, l) || defaultLang
 }
 
 exports.getLang = getLang
