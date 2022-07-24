@@ -151,7 +151,7 @@ export default (type, id, sessionId = '', sftpId = '', persist) => {
         id,
         sessionId,
         sftpId,
-        window._config
+        window.store.config
       ]
     })
     onces[id] = {

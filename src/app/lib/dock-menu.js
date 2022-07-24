@@ -6,8 +6,8 @@ const {
 } = require('electron')
 const openNewInstance = require('./open-new-instance')
 
-exports.buildDocMenu = function (prefix) {
-  const e = prefix('control')
+exports.buildDocMenu = function () {
+  const e = global.et.prefix('control')
   return Menu.buildFromTemplate([
     {
       label: e('newWindow'),

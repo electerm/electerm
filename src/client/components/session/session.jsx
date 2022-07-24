@@ -19,7 +19,6 @@ import copy from 'json-deep-copy'
 import classnames from 'classnames'
 import {
   quickCommandBoxHeight,
-  tabsHeight,
   terminalSplitDirectionMap,
   termControlHeight,
   paneMap,
@@ -138,7 +137,8 @@ export default class SessionWrapper extends Component {
 
   computeHeight = () => {
     const {
-      pinnedQuickCommandBar
+      pinnedQuickCommandBar,
+      tabsHeight
     } = this.props.store
     return this.props.height -
       tabsHeight -
@@ -483,7 +483,10 @@ export default class SessionWrapper extends Component {
     const infoProps = {
       ..._.pick(this.props.config, ['host', 'port', 'saveTerminalLogToFile']),
       ...infoPanelProps,
+      appPath: this.props.store.appPath,
       showInfo,
+      tabsHeight: this.props.store.tabsHeight,
+      topMenuHeight: this.props.store.topMenuHeight,
       // pid,
       // sessionId,
       // isRemote: this.isRemote(),

@@ -38,7 +38,7 @@ export default class InfoModal extends Component {
   }
 
   renderCheckUpdate = () => {
-    if (srcsSkipUpgradeCheck.includes(window.pre.installSrc)) {
+    if (srcsSkipUpgradeCheck.includes(this.props.store.installSrc)) {
       return null
     }
     const { store } = this.props

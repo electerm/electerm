@@ -8,7 +8,7 @@ import generate from './uid'
 const id = 's'
 window.et.wsOpened = false
 
-export const init = async () => {
+export const initWsCommon = async () => {
   const ws = await initWs('common', id, undefined, undefined, true)
   window.et.wsOpened = true
   ws.onclose = () => {
@@ -17,11 +17,11 @@ export const init = async () => {
   window.et.commonWs = ws
 }
 
-window.pre.ipcOnEvent('power-resume', init)
+window.pre.ipcOnEvent('power-resume', initWsCommon)
 
 export default async (data) => {
   if (!window.et.wsOpened) {
-    await init()
+    await initWsCommon()
   }
   const id = generate()
   return new Promise((resolve, reject) => {

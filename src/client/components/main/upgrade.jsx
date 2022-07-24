@@ -16,7 +16,6 @@ const {
 } = packInfo
 const e = prefix('updater')
 const c = prefix('common')
-const { installSrc } = window.pre
 
 export default class Upgrade extends Component {
   state = {
@@ -104,6 +103,7 @@ export default class Upgrade extends Component {
   }
 
   doUpgrade = async () => {
+    const { installSrc } = this.props.store
     if (!isMac && !isWin && installSrc === 'npm') {
       return this.props.store.addTab(
         {
@@ -130,6 +130,7 @@ export default class Upgrade extends Component {
   }
 
   getLatestRelease = async (noSkipVersion = false) => {
+    const { installSrc } = this.props.store
     if (srcsSkipUpgradeCheck.includes(installSrc)) {
       return
     }
@@ -237,6 +238,7 @@ export default class Upgrade extends Component {
     const {
       showCount
     } = this.state
+    const { installSrc } = this.props.store
     const {
       remoteVersion,
       upgrading,

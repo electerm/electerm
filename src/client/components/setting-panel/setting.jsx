@@ -14,7 +14,7 @@ import {
   Tooltip
 } from 'antd'
 import deepCopy from 'json-deep-copy'
-import { noTerminalBgValue, appPath, langs, settingMap } from '../../common/constants'
+import { noTerminalBgValue, settingMap } from '../../common/constants'
 import defaultSettings from '../../../app/common/default-setting'
 import ShowItem from '../common/show-item'
 import { osResolve } from '../../common/resolve'
@@ -46,7 +46,7 @@ const keys = [
     return 'F' + (i + 1)
   })
 ]
-const terminalLogPath = osResolve(appPath, 'electerm', 'session_logs')
+
 export default class Setting extends Component {
   state = {
     languageChanged: false
@@ -597,7 +597,11 @@ export default class Setting extends Component {
       rendererType,
       theme
     } = this.props.config
-
+    const {
+      appPath,
+      langs
+    } = this.props.store
+    const terminalLogPath = osResolve(appPath, 'electerm', 'session_logs')
     const terminalThemes = this.props.store.getSidebarList(settingMap.terminalThemes)
     const [modifier, key] = hotkey.split('+')
     return (

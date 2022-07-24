@@ -2,10 +2,12 @@
 import _ from 'lodash'
 import { notification } from 'antd'
 
-const jsonHeader = {
-  Accept: 'application/json',
-  'Content-Type': 'application/json',
-  token: window._config.tokenElecterm
+function jsonHeader () {
+  return {
+    Accept: 'application/json',
+    'Content-Type': 'application/json',
+    token: window.store?.config.tokenElecterm
+  }
 }
 
 function parseResponse (response) {
@@ -53,7 +55,7 @@ export default class Fetch {
       body: data
         ? JSON.stringify(data)
         : undefined,
-      headers: jsonHeader,
+      headers: jsonHeader(),
       timeout: 180000,
       ...options
     }

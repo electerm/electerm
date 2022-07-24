@@ -100,8 +100,11 @@ const store = Subx.create({
   get tabTitles () {
     return store.getTabs().map(d => d.title).join('#')
   },
+  get sshConfigItems () {
+    return store._sshConfigItems.map(f => JSON.parse(f))
+  },
   get config () {
-    return JSON.parse(store._config)
+    return JSON.parse(store._config || '{}')
   },
   get sftpSortSetting () {
     return JSON.parse(store._sftpSortSetting)
@@ -111,6 +114,15 @@ const store = Subx.create({
   },
   get onOperation () {
     return store.showModal || store.termSearchOpen || store.showInfoModal || store.showEditor || store.showFileModal
+  },
+  get topMenuHeight () {
+    return store.config.useSystemTitleBar ? 0 : 15
+  },
+  get tabsHeight () {
+    return store.config.useSystemTitleBar ? 45 : 56
+  },
+  get langs () {
+    return JSON.parse(store._langs)
   }
 })
 

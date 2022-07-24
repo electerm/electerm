@@ -6,7 +6,6 @@ import _ from 'lodash'
 import {
   defaultBookmarkGroupId,
   settingMap,
-  sshConfigItems,
   terminalSshConfigType
 } from '../common/constants'
 import { insert, update } from '../common/db'
@@ -17,13 +16,13 @@ export default store => {
       return store.getItems('bookmarkGroups')
     },
     getBookmarkGroupsTotal () {
-      return sshConfigItems.length
+      return store.sshConfigItems.length
         ? [
           ...store.getBookmarkGroups(),
           {
             title: terminalSshConfigType,
             id: terminalSshConfigType,
-            bookmarkIds: sshConfigItems.map(d => d.id)
+            bookmarkIds: store.sshConfigItems.map(d => d.id)
           }
         ]
         : store.getBookmarkGroups()
