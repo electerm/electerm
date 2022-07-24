@@ -4,7 +4,6 @@
 
 const { isDev, defaultLang } = require('../common/runtime-constants')
 const fs = require('fs')
-const _ = require('lodash')
 const { resolve } = require('path')
 
 function getOsLocale () {
@@ -27,7 +26,7 @@ async function loadLocales () {
       const lang = require(filePath)
       return {
         path: filePath,
-        id: fileName.replace('.json', ''),
+        id: fileName.replace('.js', ''),
         name: lang.name,
         match: lang.match,
         lang: lang.lang
@@ -47,13 +46,7 @@ async function loadLocales () {
 function findLang (langs, la) {
   let res = false
   for (const l of langs) {
-    if (_.isRegExp(l.match)) {
-      res = l.match.test(la)
-    } else if (_.isFunction(l.match)) {
-      res = l.match(la)
-    } else {
-      res = l.id === la
-    }
+    res = new RegExp(l.match).test(la)
     if (res) {
       res = l.id
       break
