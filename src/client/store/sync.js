@@ -45,10 +45,9 @@ export default (store) => {
     )) {
       return
     }
-    store.config = {
-      ...copy(store.config),
+    store.setConfig({
       syncSetting: Object.assign({}, copy(store.config.syncSetting), data)
-    }
+    })
   }
 
   store.getSyncToken = (type) => {
@@ -102,10 +101,9 @@ export default (store) => {
   }
 
   store.clearSyncSetting = async () => {
-    store.config = {
-      ...copy(store.config),
+    store.setConfig({
       syncSetting: {}
-    }
+    })
   }
 
   store.uploadSetting = async (type) => {

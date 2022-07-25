@@ -28,10 +28,7 @@ export default store => {
     },
 
     updateConfig (ext) {
-      store.config = {
-        ...copy(store.config),
-        ...ext
-      }
+      store.setConfig(ext)
     },
 
     openFileInfoModal (data) {

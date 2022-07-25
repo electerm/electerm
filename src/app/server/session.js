@@ -261,9 +261,7 @@ class Terminal {
       this.conn = conn
       const opts = Object.assign(
         {
-          tryKeyboard: true
-        },
-        {
+          tryKeyboard: true,
           readyTimeout: _.get(initOptions, 'readyTimeout'),
           keepaliveCountMax: _.get(initOptions, 'keepaliveCountMax'),
           keepaliveInterval: _.get(initOptions, 'keepaliveInterval'),

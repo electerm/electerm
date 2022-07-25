@@ -55,7 +55,7 @@ export default store => {
   }, debounceTime(1000))
 
   Subx.autoRun(store, () => {
-    window.pre.runGlobalAsync('saveUserConfig', copy(store.config))
+    window.pre.runGlobalAsync('saveUserConfig', store.config)
     return store._config
   }, debounceTime(1000))
 
