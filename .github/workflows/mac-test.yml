@@ -43,5 +43,8 @@ jobs:
         TEST_HOST: ${{ secrets.TEST_HOST }}
         TEST_USER: ${{ secrets.TEST_USER_DARWIN }}
         TEST_PASS: ${{ secrets.TEST_PASS_DARWIN }}
-
+        GIST_TOKEN: ${{ secrets.GIST_TOKEN }}
+        GIST_ID: ${{ secrets.GIST_ID }}
+        GITEE_TOKEN: ${{ secrets.GITEE_TOKEN }}
+        GITEE_ID: ${{ secrets.GITEE_ID }}
 
