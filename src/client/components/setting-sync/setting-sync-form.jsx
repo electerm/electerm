@@ -171,7 +171,7 @@ export default function SyncForm (props) {
         <p>
           <Button
             type='ghost'
-            className='mg1r mg1b'
+            className='mg1r mg1b sync-btn-save'
             htmlType='submit'
             icon={<SaveOutlined />}
           >{e('save')}</Button>
@@ -194,14 +194,14 @@ export default function SyncForm (props) {
             type='ghost'
             onClick={download}
             disabled={disabled()}
-            className='mg1r mg1b'
+            className='mg1r mg1b sync-btn-down'
             icon={<ArrowDownOutlined />}
           >{ss('downloadSettings')}</Button>
           <Button
             type='ghost'
             onClick={props.store.clearSyncSetting}
             disabled={disabled()}
-            className='mg1r mg1b'
+            className='mg1r mg1b sync-btn-clear'
             icon={<ClearOutlined />}
           >{sh('clear')}</Button>
         </p>

@@ -4,7 +4,6 @@
 
 import handleError from '../common/error-handler'
 import _ from 'lodash'
-import copy from 'json-deep-copy'
 import postMessage from '../common/post-msg'
 import {
   commonActions,
