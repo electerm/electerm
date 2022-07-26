@@ -28,7 +28,7 @@ describe('symbolic links support', function () {
 
     await delay(5000)
     const localFileList = await client.countElem('.session-current .file-list.local .sftp-item')
-    expect(localFileList).equal(5)
+    expect(localFileList >= 5).equal(true)
     await client.click('.session-current .term-sftp-tabs .terminal')
     await delay(500)
     const cmd1 = `cd ~ && rm -rf ${tmp}`
