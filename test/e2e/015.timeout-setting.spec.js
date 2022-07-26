@@ -53,7 +53,6 @@ describe('timeout setting', function () {
     expect(txt.includes('Timed out')).equal(true)
 
     log('set timeout to 50000')
-    await client.click('.btns .anticon-setting')
     await delay(1500)
     await client.evaluate(() => {
       window.store.setConfig({
@@ -66,9 +65,7 @@ describe('timeout setting', function () {
     })
     await delay(150)
     expect(timeout1).equal(50000)
-    await client.click('.setting-wrap .close-setting-wrap')
     await delay(400)
-    await client.hasElem('.setting-wrap', false)
     await electronApp.close().catch(console.log)
   })
 })
