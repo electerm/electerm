@@ -113,7 +113,7 @@ const store = Subx.create({
     return JSON.parse(store._sftpSortSetting)
   },
   get fonts () {
-    return store._fonts.map(f => JSON.parse(f))
+    return JSON.parse(store._fonts || '[]')
   },
   get onOperation () {
     return store.showModal || store.termSearchOpen || store.showInfoModal || store.showEditor || store.showFileModal
