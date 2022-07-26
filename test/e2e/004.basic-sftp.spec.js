@@ -34,7 +34,7 @@ async function addSshConfigFile () {
   const pp = resolve(os.homedir(), '.ssh')
   if (!existsSync(pp)) {
     mkdirSync(
-      resolve(os.homedir(), '.ssh')
+      pp
     )
   }
 
