@@ -21,7 +21,7 @@ body:
     attributes:
       label: Platform detail (平台详情)
       description: |
-        windows 7/8/10/11, mac os, or linux
+        windows 7/8/10/11, mac os(ARM or x64), or linux
         UNIX: output of `uname -a`
         Windows: output of `"$([Environment]::OSVersion | ForEach-Object VersionString) $(if ([Environment]::Is64BitOperatingSystem) { "x64" } else { "x86" })"` in PowerShell console
     validations:
