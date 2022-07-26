@@ -35,7 +35,7 @@ export default store => {
       return t
     })
     update('sessions', v)
-    return store.tabs
+    return store._tabs
   }, debounceTime(1000))
 
   for (const name of dbNames) {
@@ -45,7 +45,7 @@ export default store => {
         store.getItems(name).map(d => d.id)
       )
       await store.updateLastDataUpdateTime()
-      return store[name]
+      return store['_' + name]
     }, debounceTime(500))
   }
 

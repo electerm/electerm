@@ -53,23 +53,21 @@ export const getInitItem = (arr, tab) => {
   }
 }
 
-const tabs = []
-const bookmarks = []
-const bookmarkGroups = getDefaultBookmarkGroups(bookmarks)
-
 export default {
   // common
   loadTime: 0,
   lastDataUpdateTime: 0,
-  tabs,
+  _tabs: '[]',
   currentTabId: '',
-  history: [],
-  bookmarks,
-  bookmarkGroups,
+  _history: '[]',
+  _bookmarks: '[]',
+  _bookmarkGroups: JSON.stringify(
+    getDefaultBookmarkGroups([])
+  ),
   _config: '{}',
-  terminalThemes: [
-    JSON.stringify(buildDefaultThemes())
-  ],
+  _terminalThemes: JSON.stringify([
+    buildDefaultThemes()
+  ]),
   _itermThemes: '[]',
 
   currentBookmarkGroupId: defaultBookmarkGroupId,
@@ -81,9 +79,8 @@ export default {
   // sftp
   fileOperation: fileOperationsMap.cp, // cp or mv
   transferTab: 'transfer',
-  transferHistory: [],
-  fileTransfers: [
-  ],
+  _transferHistory: '[]',
+  _fileTransfers: '[]',
   _sftpSortSetting: ls.getItem(sftpDefaultSortSettingKey) || JSON.stringify({
     local: {
       prop: 'modifyTime',
@@ -130,7 +127,7 @@ export default {
   },
 
   // quick commands
-  quickCommands: [],
+  _quickCommands: '[]',
   quickCommandId: '',
   openQuickCommandBar: false,
   pinnedQuickCommandBar: false,
@@ -156,7 +153,7 @@ export default {
   upgradeInfo: {},
 
   // serial list related
-  serials: [],
+  _serials: '[]',
   loaddingSerials: false,
 
   // transfer list

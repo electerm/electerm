@@ -57,7 +57,7 @@ export default class SettingModal extends Component {
       ]),
       bookmarkGroups: store.getBookmarkGroups(),
       bookmarks: store.getBookmarks(),
-      serials: store.serials.toJSON(),
+      serials: store.serials,
       loaddingSerials: store.loaddingSerials
     }
     const treeProps = {

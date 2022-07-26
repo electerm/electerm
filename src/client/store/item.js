@@ -5,8 +5,7 @@
 import _ from 'lodash'
 import {
   maxHistory,
-  settingMap,
-  dbsShouldParse
+  settingMap
 } from '../common/constants'
 import getInitItem from '../common/init-setting-item'
 import { update, remove, dbNames } from '../common/db'
@@ -107,26 +106,11 @@ export default store => {
     },
 
     getItems (type) {
-      if (!store.shouldParse(type)) {
-        return copy(store[type])
-      }
-      return copy(store[type]).map(d => {
-        return JSON.parse(d)
-      })
-    },
-
-    shouldParse (type) {
-      return dbsShouldParse.includes(type)
+      return JSON.parse(store['_' + type] || [])
     },
 
     setItems (type, items) {
-      if (!store.shouldParse(type)) {
-        store[type] = items
-        return store
-      }
-      store[type] = items.map(d => {
-        return JSON.stringify(d)
-      })
+      store['_' + type] = JSON.stringify(items)
     }
   })
 }

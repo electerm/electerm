@@ -274,17 +274,6 @@ export const commonActions = {
   addTransfer: 'add-transfer'
 }
 
-export const dbsShouldParse = [
-  'bookmarks',
-  'bookmarkGroups',
-  'tabs',
-  'fileTransfers',
-  'transferHistory',
-  'quickCommands',
-  'itermThemes',
-  'terminalThemes'
-]
-
 export const srcsSkipUpgradeCheck = [
   '.appx',
   '.snap',

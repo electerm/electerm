@@ -8,7 +8,7 @@ import {
 
 export default store => {
   store.clearTransferHistory = () => {
-    store.transferHistory = []
+    store.setItems('transferHistory', [])
   }
 
   store.getTransferHistory = () => {

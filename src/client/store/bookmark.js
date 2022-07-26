@@ -9,7 +9,7 @@ export default store => {
       const res = await window.pre.runGlobalAsync('listSerialPorts')
         .catch(store.onError)
       if (res) {
-        store.serials = res
+        store._serials = JSON.stringify(res)
       }
       store.loaddingSerials = false
     },

@@ -163,7 +163,7 @@ export default (store) => {
     await Promise.all(all)
       .then(arr => {
         for (const { name, data } of arr) {
-          ext[name] = data
+          ext['_' + name] = data
         }
       })
     ext.openedCategoryIds = await getData('openedCategoryIds') || ext.bookmarkGroups.map(b => b.id)

@@ -106,6 +106,34 @@ const store = Subx.create({
   get itermThemes () {
     return JSON.parse(store._itermThemes || '[]')
   },
+  get history () {
+    return JSON.parse(store._history || '[]')
+  },
+  get bookmarks () {
+    return JSON.parse(store._bookmarks || '[]')
+  },
+  get bookmarkGroups () {
+    return JSON.parse(store._bookmarkGroups || '[]')
+  },
+  get tabs () {
+    return JSON.parse(store._tabs || '[]')
+  },
+  get fileTransfers () {
+    return JSON.parse(store._fileTransfers || '[]')
+  },
+  get transferHistory () {
+    return JSON.parse(store._transferHistory || '[]')
+  },
+  get quickCommands () {
+    return JSON.parse(store._quickCommands || '[]')
+  },
+  get terminalThemes () {
+    return JSON.parse(store._terminalThemes || '[]')
+  },
+  get serials () {
+    return JSON.parse(store._serials || '[]')
+  },
+
   get config () {
     return JSON.parse(store._config || '{}')
   },
