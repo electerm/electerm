@@ -93,12 +93,12 @@ export default {
   }),
 
   // for settings related
-  setting: [
+  _setting: JSON.stringify([
     {
       id: settingSyncId,
       title: ss('settingSync')
     }
-  ],
+  ]),
   settingItem: getInitItem([], settingMap.bookmarks),
   settingTab: settingMap.bookmarks, // setting tab
   autofocustrigger: +new Date(),

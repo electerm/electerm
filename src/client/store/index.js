@@ -133,7 +133,9 @@ const store = Subx.create({
   get serials () {
     return JSON.parse(store._serials || '[]')
   },
-
+  get setting () {
+    return JSON.parse(store._setting || '[]')
+  },
   get config () {
     return JSON.parse(store._config || '{}')
   },
