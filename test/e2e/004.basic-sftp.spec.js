@@ -20,46 +20,9 @@ const log = require('./common/log')
 const { nanoid } = require('nanoid')
 const appOptions = require('./common/app-options')
 const extendClient = require('./common/client-extend')
-const { resolve } = require('path')
-const os = require('os')
-const { existsSync, writeFileSync, unlinkSync, mkdirSync } = require('fs')
-const sshConfigFile = resolve(os.homedir(), '.ssh/config')
-
-const hasSshConfig = existsSync(sshConfigFile)
-
-async function addSshConfigFile () {
-  if (hasSshConfig) {
-    return false
-  }
-  const pp = resolve(os.homedir(), '.ssh')
-  if (!existsSync(pp)) {
-    mkdirSync(
-      pp
-    )
-  }
-
-  const str = `Host my-ssh-host
-  HostName html5beta.com
-  Port 22
-  User execapp
-
-Host my-ssh-host2
-  HostName html5beta.com
-  Port 22
-  User execapp`
-  writeFileSync(sshConfigFile, str)
-}
-
-async function removeSshConfigFile () {
-  if (hasSshConfig) {
-    return false
-  }
-  unlinkSync(sshConfigFile)
-}
 
 describe('sftp basic', function () {
   it('should open window and basic sftp works', async function () {
-    addSshConfigFile()
     const electronApp = await electron.launch(appOptions)
     const client = await electronApp.firstWindow()
     extendClient(client, electronApp)
@@ -76,8 +39,7 @@ describe('sftp basic', function () {
       return window.store.sshConfigItems.length
     })
     await delay(500)
-    expect(sshConfigCount > 1).equal(true)
-    removeSshConfigFile()
+    expect(sshConfigCount).equal(0)
 
     await client.click('.btns .anticon-plus-circle')
     await delay(500)
