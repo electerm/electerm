@@ -70,7 +70,7 @@ export default {
   terminalThemes: [
     JSON.stringify(buildDefaultThemes())
   ],
-  itermThemes: [],
+  _itermThemes: '[]',
 
   currentBookmarkGroupId: defaultBookmarkGroupId,
 

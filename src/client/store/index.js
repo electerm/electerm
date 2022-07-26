@@ -103,6 +103,9 @@ const store = Subx.create({
   get sshConfigItems () {
     return JSON.parse(store._sshConfigItems || '[]')
   },
+  get itermThemes () {
+    return JSON.parse(store._itermThemes || '[]')
+  },
   get config () {
     return JSON.parse(store._config || '{}')
   },

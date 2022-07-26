@@ -100,7 +100,7 @@ export default store => {
       if (type === settingMap.terminalThemes) {
         return [
           ...store.getTerminalThemes(),
-          ...store.getItermThemes()
+          ...store.itermThemes
         ]
       }
       return store.getItems(type)

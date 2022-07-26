@@ -67,11 +67,7 @@ export default store => {
     },
 
     setItermThemes (arr) {
-      store.setItems('itermThemes', arr)
-    },
-
-    getItermThemes () {
-      return store.getItems('itermThemes')
+      store._itermThemes = JSON.stringify(arr)
     },
 
     async fetchItermThemes () {
