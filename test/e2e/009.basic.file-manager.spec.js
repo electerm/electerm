@@ -95,7 +95,7 @@ describe('local file manager', function () {
     await client.keyboard.press('Delete')
     await delay(260)
     await client.keyboard.press('Enter')
-    await delay(5000)
+    await delay(6000)
     let localFileList2 = await client.elements('.session-current .file-list.local .sftp-item')
     localFileList2 = await localFileList2.count()
     expect(localFileList2).equal(localFileListBefore)
