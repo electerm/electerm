@@ -36,11 +36,10 @@ export default class Sessions extends Component {
     window.addEventListener('keydown', e => {
       if (keyControlPress(e) && keyPressed(e, 'w')) {
         e.stopPropagation()
-        this.delTab(
-          this.state.currentTabId
-        )
-        if (!this.state.tabs.length) {
-          this.addTab()
+        if (this.state.tabs.length > 1) {
+          this.delTab(
+            this.state.currentTabId
+          )
         }
       }
     })
@@ -55,6 +54,14 @@ export default class Sessions extends Component {
       action: commonActions.updateStore,
       func: 'setTabs',
       args: [copy(tabs)]
+    })
+  }
+
+  updateStoreCurrentTabId = id => {
+    postMsg({
+      action: commonActions.updateStore,
+      value: id,
+      prop: 'currentTabId'
     })
   }
 
@@ -92,6 +99,7 @@ export default class Sessions extends Component {
       const tab = _tab || newTerm(tabs.length)
       tabs.splice(index, 0, tab)
       this.updateStoreTabs(tabs)
+      this.updateStoreCurrentTabId(tab.id)
       return {
         currentTabId: tab.id,
         tabs
@@ -111,6 +119,7 @@ export default class Sessions extends Component {
         i = i ? i - 1 : i + 1
         const next = tabs[i] || {}
         up.currentTabId = next.id
+        this.updateStoreCurrentTabId(next.id)
       }
       up.tabs = tabs.filter(t => {
         return t.id !== id
@@ -182,6 +191,7 @@ export default class Sessions extends Component {
   }
 
   onChangeTabId = id => {
+    this.updateStoreCurrentTabId(id)
     this.setState({
       currentTabId: id
     }, this.postChange)
