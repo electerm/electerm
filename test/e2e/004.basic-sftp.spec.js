@@ -22,7 +22,7 @@ const appOptions = require('./common/app-options')
 const extendClient = require('./common/client-extend')
 const { resolve } = require('path')
 const os = require('os')
-const { existsSync, writeFileSync, unlinkSync } = require('fs')
+const { existsSync, writeFileSync, unlinkSync, mkdirSync } = require('fs')
 const sshConfigFile = resolve(os.homedir(), '.ssh/config')
 
 const hasSshConfig = existsSync(sshConfigFile)
@@ -31,6 +31,13 @@ async function addSshConfigFile () {
   if (hasSshConfig) {
     return false
   }
+  const pp = resolve(os.homedir(), '.ssh')
+  if (!existsSync(pp)) {
+    mkdirSync(
+      resolve(os.homedir(), '.ssh')
+    )
+  }
+
   const str = `Host my-ssh-host
   HostName html5beta.com
   Port 22
