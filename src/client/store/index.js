@@ -101,7 +101,7 @@ const store = Subx.create({
     return store.getTabs().map(d => d.title).join('#')
   },
   get sshConfigItems () {
-    return store._sshConfigItems.map(f => JSON.parse(f))
+    return JSON.parse(store._sshConfigItems || '[]')
   },
   get config () {
     return JSON.parse(store._config || '{}')

@@ -130,7 +130,12 @@ export default (store) => {
     })
   }
   store.fetchSshConfigItems = async () => {
-    store._sshConfigItems = await window.pre.runGlobalAsync('loadSshConfig')
+    const arr = await window.pre.runGlobalAsync('loadSshConfig')
+      .catch((err) => {
+        console.log('fetchSshConfigItems error', err)
+        return []
+      })
+    store._sshConfigItems = JSON.stringify(arr)
   }
   store.initApp = async () => {
     const globs = await window.pre.runGlobalAsync('init')

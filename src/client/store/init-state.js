@@ -162,7 +162,7 @@ export default {
   // transfer list
   transports: [],
 
-  _sshConfigItems: [],
+  _sshConfigItems: '[]',
 
   appPath: '',
 
