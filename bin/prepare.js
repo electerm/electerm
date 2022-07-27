@@ -3,13 +3,29 @@
  */
 
 const pack = require('../package.json')
+const os = require('os')
 const { resolve } = require('path')
 const { version } = pack
 const { mkdir, rm, exec, echo, cp } = require('shelljs')
 const dir = 'dist/v' + version
 const cwd = process.cwd()
+
+const platform = os.platform()
+const isWin = platform === 'win32'
+
 pack.main = 'app.js'
 delete pack.scripts
+delete pack.standard
+delete pack.files
+delete pack.engines
+delete pack.preferGlobal
+
+if (isWin) {
+  delete pack.dependencies['node-bash']
+} else {
+  delete pack.dependencies['node-powershell']
+}
+
 echo('start pack prepare')
 
 const timeStart = +new Date()

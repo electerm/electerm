@@ -28,7 +28,6 @@ jobs:
 
     # before_install:
     - run: npm install -g yarn
-    - run: npm un -S node-powershell
     - run: npm i
 
     # script:
