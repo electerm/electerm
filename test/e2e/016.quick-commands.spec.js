@@ -23,7 +23,7 @@ describe('quick commands', function () {
     log('open setting')
     await delay(2000)
     await client.click('.btns .anticon-setting')
-    await delay(1500)
+    await delay(2500)
     log('click quick commands')
     await client.click('.setting-tabs [role="tab"]', 4)
     // await client.click('.setting-tabs [role="tab"]', 4)
