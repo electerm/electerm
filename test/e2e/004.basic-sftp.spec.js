@@ -33,7 +33,14 @@ describe('sftp basic', function () {
     const historyCountPrev = await client.evaluate(() => {
       return window.store.history.length
     })
+
+    log('check ssh config items')
+    const sshConfigCount = await client.evaluate(() => {
+      return window.store.sshConfigItems.length
+    })
     await delay(500)
+    expect(sshConfigCount).equal(0)
+
     await client.click('.btns .anticon-plus-circle')
     await delay(500)
     await client.setValue('#ssh-form_host', TEST_HOST)

@@ -166,7 +166,7 @@ export default (store) => {
           ext['_' + name] = data
         }
       })
-    ext.openedCategoryIds = await getData('openedCategoryIds') || ext.bookmarkGroups.map(b => b.id)
+    ext.openedCategoryIds = await getData('openedCategoryIds') || JSON.parse(ext.bookmarkGroups || '[]').map(b => b.id)
     ext.lastDataUpdateTime = await getData('lastDataUpdateTime') || 0
     ext.configLoaded = true
     Object.assign(store, ext)

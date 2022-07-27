@@ -23,7 +23,7 @@ describe('quick commands', function () {
     log('open setting')
     await delay(2000)
     await client.click('.btns .anticon-setting')
-    await delay(1500)
+    await delay(2500)
     log('click quick commands')
     await client.click('.setting-tabs [role="tab"]', 4)
     // await client.click('.setting-tabs [role="tab"]', 4)
@@ -41,6 +41,28 @@ describe('quick commands', function () {
     await delay(2550)
     const qmlist2 = await client.countElem('.setting-tabs-quick-commands .item-list-unit')
     expect(qmlist2).equal(qmlist1 + 1)
+    await client.evaluate(() => {
+      window.postMessage({
+        action: 'update-tabs',
+        update: {
+          quickCommands: [
+            {
+              name: 'xx',
+              command: 'ls'
+            }
+          ]
+        },
+        id: window.store.currentTab.id
+      }, '*')
+    })
+    await delay(1150)
+    const c1 = await client.evaluate(() => {
+      return window.store.quickCommands.length
+    })
+    const c2 = await client.evaluate(() => {
+      return window.store.currentQuickCommands.length
+    })
+    expect(c2).equal(c1 + 1)
     await electronApp.close().catch(console.log)
   })
 })
