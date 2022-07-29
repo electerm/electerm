@@ -145,7 +145,7 @@ export default class ContextMenu extends React.PureComponent {
     } = pos
     const {
       topMenuHeight
-    } = this.props.store.config
+    } = this.props.store
     const height = count * contextMenuHeight + contextMenuPaddingTop * 2 + countHr * 1
     const maxHeight = Math.max(
       window.innerHeight - topMenuHeight - top,
@@ -303,6 +303,7 @@ export default class ContextMenu extends React.PureComponent {
       shouldScroll,
       realHeight
     } = this.computePos()
+    console.log('this.computePos()', this.computePos())
     const cls = classnames(
       className,
       id ? 'show' : 'hide',
