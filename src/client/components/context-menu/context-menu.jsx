@@ -303,7 +303,6 @@ export default class ContextMenu extends React.PureComponent {
       shouldScroll,
       realHeight
     } = this.computePos()
-    console.log('this.computePos()', this.computePos())
     const cls = classnames(
       className,
       id ? 'show' : 'hide',

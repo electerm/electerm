@@ -12,7 +12,6 @@ exports.buildDocMenu = function () {
     {
       label: e('newWindow'),
       click () {
-        console.log(process.argv)
         openNewInstance()
       }
     }
