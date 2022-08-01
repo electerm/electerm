@@ -78,7 +78,7 @@ describe('sftp file transfer', function () {
     await delay(200)
     log('add file')
     await client.click('.context-menu .anticon-file-add')
-    await delay(200)
+    await delay(800)
     const fname00 = '00000test-electerm' + nanoid()
     await client.setValue('.session-current .sftp-item input', fname00)
     await client.doubleClick('.session-current .sftp-title-wrap')
