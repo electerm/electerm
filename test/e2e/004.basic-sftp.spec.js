@@ -3,11 +3,11 @@
  * need TEST_HOST TEST_PASS TEST_USER env set
  */
 
-const {
-  TEST_HOST,
-  TEST_PASS,
-  TEST_USER
-} = require('./common/env')
+// const {
+//   TEST_HOST,
+//   TEST_PASS,
+//   TEST_USER
+// } = require('./common/env')
 const { _electron: electron } = require('playwright')
 const {
   test: it
@@ -15,9 +15,9 @@ const {
 const { describe } = it
 it.setTimeout(100000)
 const { expect } = require('chai')
-const delay = require('./common/wait')
-const log = require('./common/log')
-const { nanoid } = require('nanoid')
+// const delay = require('./common/wait')
+// const log = require('./common/log')
+// const { nanoid } = require('nanoid')
 const appOptions = require('./common/app-options')
 const extendClient = require('./common/client-extend')
 
