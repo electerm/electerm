@@ -75,7 +75,7 @@ describe('sftp basic', function () {
 
     // make a local folder
     const localFileListBefore = await client.countElem('.session-current .file-list.local .sftp-item')
-    await client.rightClick('.session-current .file-list.local .real-file-item .shi-name', 10, 10)
+    await client.rightClick('.session-current .file-list.local .real-file-item .file-bg', 10, 10)
     await delay(3300)
     log('add folder')
 
@@ -112,7 +112,7 @@ describe('sftp basic', function () {
 
     // select all and del local file
     await delay(1000)
-    await client.rightClick('.session-current .file-list.local .real-file-item .shi-name', 10, 10)
+    await client.rightClick('.session-current .file-list.local .real-file-item .file-bg', 10, 10)
     await delay(200)
     log('select all')
     await client.click('.context-menu .anticon-check-square')
@@ -149,7 +149,7 @@ describe('sftp basic', function () {
     // remote test
     // make a remote folder
     const remoteFileListBefore = await client.countElem('.session-current .file-list.remote .sftp-item')
-    await client.rightClick('.session-current .file-list.remote .real-file-item .shi-name', 10, 10)
+    await client.rightClick('.session-current .file-list.remote .real-file-item .file-bg', 10, 10)
     await delay(200)
     await client.click('.context-menu .anticon-folder-add')
     await delay(200)

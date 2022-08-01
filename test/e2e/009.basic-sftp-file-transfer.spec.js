@@ -49,7 +49,7 @@ describe('sftp file transfer', function () {
     // make a local folder
     let localFileListBefore = await client.elements('.session-current .file-list.local .sftp-item')
     localFileListBefore = await localFileListBefore.count()
-    await client.rightClick('.session-current .file-list.local .real-file-item .shi-name', 10, 10)
+    await client.rightClick('.session-current .file-list.local .real-file-item .file-bg', 10, 10)
     await delay(3300)
     log('add folder')
 
@@ -91,7 +91,7 @@ describe('sftp file transfer', function () {
     // make a remote folder
     let remoteFileListBefore = await client.elements('.session-current .file-list.remote .sftp-item')
     remoteFileListBefore = await remoteFileListBefore.count()
-    await client.rightClick('.session-current .file-list.remote .real-file-item .shi-name', 10, 10)
+    await client.rightClick('.session-current .file-list.remote .real-file-item .file-bg', 10, 10)
     await delay(200)
     await client.click('.context-menu .anticon-folder-add')
     await delay(200)
@@ -115,7 +115,7 @@ describe('sftp file transfer', function () {
 
     // transfer local to remote
     await delay(200)
-    await client.rightClick('.session-current .file-list.local .sftp-item.real-file-item .shi-name', 3, 3)
+    await client.rightClick('.session-current .file-list.local .sftp-item.real-file-item .file-bg', 3, 3)
     await delay(200)
     log('do upload')
     await client.click('.context-menu .anticon-cloud-upload')
@@ -127,7 +127,7 @@ describe('sftp file transfer', function () {
     await delay(200)
 
     // select all and del local file
-    await client.rightClick('.session-current .file-list.local .real-file-item .shi-name', 10, 10)
+    await client.rightClick('.session-current .file-list.local .real-file-item .file-bg', 10, 10)
     await delay(200)
     log('select all')
     await client.click('.context-menu .anticon-check-square')
