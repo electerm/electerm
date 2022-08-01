@@ -140,9 +140,9 @@ describe('sftp basic', function () {
     await delay(200)
 
     await client.keyboard.press('Delete')
-    await delay(260)
+    await delay(2160)
     await client.keyboard.press('Enter')
-    await delay(3000)
+    await delay(5000)
     const localFileList2 = await client.countElem('.session-current .file-list.local .sftp-item')
     expect(localFileList2).equal(localFileListBefore)
 
