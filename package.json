@@ -28,7 +28,9 @@
     "postinstall": "node bin/post-install",
     "lint": "./node_modules/.bin/standard --verbose | snazzy",
     "fix": "./node_modules/.bin/standard --fix",
-    "test": "./node_modules/.bin/playwright test test/e2e/*.js --workers=1",
+    "test": "npm run test1 && npm run test2",
+    "test1": "./node_modules/.bin/playwright test test/e2e/00*.js --workers=1",
+    "test2": "./node_modules/.bin/playwright test test/e2e/01*.js --workers=1",
     "pre-test": "npm run compile && npm run prepare-file"
   },
   "license": "MIT",
