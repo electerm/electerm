@@ -139,7 +139,8 @@ export default class FileListTable extends React.Component {
       'owner',
       'group',
       'mode',
-      'path'
+      'path',
+      'ext'
     ]
   }
 

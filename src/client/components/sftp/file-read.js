@@ -18,7 +18,7 @@ export const getFileExt = fileName => {
   }
   return {
     base: arr.slice(0, len - 1).join(sep),
-    ext: arr[len - 1]
+    ext: arr[len - 1] || ''
   }
 }
 
@@ -33,9 +33,11 @@ export const getFolderFromFilePath = (filePath, isRemote) => {
   const name = isWinDisk
     ? filePath.replace(sep, '')
     : arr[len - 1]
+
   return {
     path,
-    name
+    name,
+    ...getFileExt(name)
   }
 }
 
