@@ -11,7 +11,6 @@ const { expect } = require('chai')
 const appOptions = require('./common/app-options')
 const prefixer = require('./common/lang')
 const extendClient = require('./common/client-extend')
-const uid = require('./common/uid')
 
 describe('bookmark groups', function () {
   it('all buttons open proper bookmark tab', async function () {
@@ -33,7 +32,7 @@ describe('bookmark groups', function () {
     log('click add category button')
     await client.click('.setting-wrap .anticon-folder.with-plus')
 
-    const id = uid()
+    const id = 'u567'
     await client.setValue('.setting-wrap .item-list-wrap input.ant-input', id)
 
     log('save it')
@@ -49,7 +48,7 @@ describe('bookmark groups', function () {
     expect(bookmarkGroupsCountPrev + 1).equal(bookmarkGroupsCount)
     await client.evaluate(() => {
       return window.store.setBookmarkGroups(
-        window.store.bookmarkGroups.filter(d => d !== id)
+        window.store.bookmarkGroups.filter(d => d !== 'u567')
       )
     })
     await electronApp.close().catch(console.log)
