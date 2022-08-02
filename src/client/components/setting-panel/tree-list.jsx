@@ -12,9 +12,14 @@ import {
   EditOutlined,
   FolderAddOutlined,
   FolderOutlined,
-  FolderOpenOutlined
+  FolderOpenOutlined,
+  SettingOutlined
 } from '@ant-design/icons'
-
+import {
+  readClipboard,
+  cut,
+  hasBookmarkOrGroupInClipboardText
+} from '../../common/clipboard'
 import { Popconfirm, Tree, Button, Tooltip } from 'antd'
 import createName from '../../common/create-title'
 import classnames from 'classnames'
@@ -24,7 +29,10 @@ import _ from 'lodash'
 import {
   maxBookmarkGroupTitleLength,
   defaultBookmarkGroupId,
-  settingMap
+  settingMap,
+  commonActions,
+  copyBookmarkItemPrefix,
+  copyBookmarkGroupItemPrefix
 } from '../../common/constants'
 import highlight from '../common/highlight'
 import copy from 'json-deep-copy'
@@ -54,6 +62,10 @@ export default class ItemListTree extends React.PureComponent {
       bookmarkGroupTitleSub: '',
       bookmarkGroupSubParentId: ''
     }
+  }
+
+  componentWillUnmount () {
+    window.removeEventListener('message', this.onContextAction)
   }
 
   onChange = e => {
@@ -129,6 +141,10 @@ export default class ItemListTree extends React.PureComponent {
 
   onDrop = (info) => {
     onDrop(info, this.props)
+  }
+
+  onClick = () => {
+
   }
 
   onSubmit = false
@@ -303,6 +319,143 @@ export default class ItemListTree extends React.PureComponent {
         <CloseOutlined title={e('del')} className='pointer tree-control-btn' />
       </Popconfirm>
     )
+  }
+
+  renderOperationBtn = (item, isGroup) => {
+    if (this.props.staticList) {
+      return null
+    }
+    return (
+      <SettingOutlined
+        className='pointer tree-control-btn'
+        onClick={e => this.onContextMenu(e, item, isGroup)}
+      />
+    )
+  }
+
+  onCut = (item, isGroup) => {
+    const str = isGroup
+      ? copyBookmarkGroupItemPrefix
+      : copyBookmarkItemPrefix
+    const txt = str + item.id
+    cut(txt, createName(item))
+  }
+
+  onPaste = (item) => {
+    const str = readClipboard()
+    const id = str.split(':')[1]
+    const bookmarkGroups = copy(
+      this.props.bookmarkGroups
+    )
+    const from = bookmarkGroups.find(t => {
+      return t.bookmarkIds.includes(id)
+    })
+    from.bookmarkIds = from.bookmarkIds.filter(d => {
+      return d !== id
+    })
+    const to = bookmarkGroups.find(t => {
+      return t.id === item.id
+    })
+    if (!to.bookmarkIds) {
+      to.bookmarkIds = []
+    }
+    to.bookmarkIds = _.uniq(
+      [
+        ...to.bookmarkIds,
+        id
+      ]
+    )
+    if (from) {
+      this.props.store.editBookmarkGroup(
+        from.id,
+        {
+          bookmarkIds: (from.bookmarkIds || []).filter(d => {
+            return d !== id
+          })
+        }
+      )
+    }
+    this.props.store.editBookmarkGroup(
+      item.id,
+      {
+        bookmarkIds: _.uniq(
+          [
+            ...(item.bookmarkIds || []),
+            id
+          ]
+        )
+      }
+    )
+  }
+
+  computePos = (e) => {
+    return {
+      left: e.clientX,
+      top: e.clientY
+    }
+  }
+
+  onContextAction = e => {
+    const {
+      action,
+      id,
+      args = [],
+      func
+    } = e.data || {}
+    if (
+      action !== commonActions.clickContextMenu ||
+      id !== this.uid ||
+      !this[func]
+    ) {
+      return false
+    }
+    window.removeEventListener('message', this.onContextAction)
+    this[func](...args)
+  }
+
+  onContextMenu = (e, item, isGroup) => {
+    e.preventDefault()
+    if (this.props.staticList) {
+      return null
+    }
+    const menus = this.renderContextItems(item, isGroup)
+    this.uid = generate()
+    this.props.store.openContextMenu({
+      items: menus,
+      id: this.uid,
+      pos: this.computePos(e)
+    })
+    window.addEventListener('message', this.onContextAction)
+  }
+
+  renderContextItems (item, isGroup) {
+    const res = []
+    const args = [copy(item), isGroup]
+    if (!isGroup) {
+      // res.push({
+      //   func: 'onCopy',
+      //   icon: 'CopyOutlined',
+      //   text: e('copy'),
+      //   args
+      // })
+      res.push({
+        func: 'onCut',
+        icon: 'FileExcelOutlined',
+        text: e('cut'),
+        args
+      })
+    }
+    const canPaste = hasBookmarkOrGroupInClipboardText()
+    if (isGroup) {
+      res.push({
+        func: 'onPaste',
+        icon: 'CopyOutlined',
+        text: e('paste'),
+        disabled: !canPaste,
+        args
+      })
+    }
+    return res
   }
 
   editItem = (e, item, isGroup) => {
@@ -526,7 +679,13 @@ export default class ItemListTree extends React.PureComponent {
         this.state.keyword
       )
     return (
-      <div className={cls} key={item.id || 'noid'} title={title}>
+      <div
+        className={cls}
+        key={item.id || 'noid'}
+        title={title}
+        onClick={this.onClick}
+        onContextMenu={e => this.onContextMenu(e, item, isGroup)}
+      >
         <div
           className='tree-item-title elli'
         >
@@ -542,6 +701,7 @@ export default class ItemListTree extends React.PureComponent {
             ? this.renderDuplicateBtn(item)
             : null
         }
+        {this.renderOperationBtn(item, isGroup)}
         {this.renderDelBtn(item)}
         {this.renderEditBtn(item, isGroup)}
       </div>

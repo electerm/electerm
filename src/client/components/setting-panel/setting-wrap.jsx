@@ -13,6 +13,7 @@ export default class SettingWrap extends Component {
       ? 'setting-wrap'
       : 'setting-wrap setting-wrap-hide'
     const pops = {
+      id: 'setting-wrap',
       className: cls,
       style: {
         left: sidebarWidth + 'px'

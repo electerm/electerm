@@ -938,7 +938,7 @@ export default class FileSection extends React.Component {
     if (id) {
       res.push({
         func: 'del',
-        icon: 'CopyOutlined',
+        icon: 'CloseCircleOutlined',
         text: delTxt,
         noAutoClose: true,
         requireConfirm: true,

@@ -282,3 +282,5 @@ export const srcsSkipUpgradeCheck = [
 export const termLSPrefix = 'term:sess:'
 export const termInitId = 'electerm-init-term'
 export const batchInputLsKey = 'batch-inputs'
+export const copyBookmarkItemPrefix = 'bookmark:'
+export const copyBookmarkGroupItemPrefix = 'bookmarkGroup:'

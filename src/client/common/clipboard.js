@@ -3,6 +3,9 @@
  */
 
 import { message } from 'antd'
+import {
+  copyBookmarkItemPrefix
+} from './constants'
 
 const fileRegWin = /^(remote:)?\w:\\.+/
 const fileReg = /^(remote:)?\/.+/
@@ -16,6 +19,11 @@ export const copy = (str) => {
   window.pre.writeClipboard(str)
 }
 
+export const cut = (str, itemTitle = '') => {
+  message.success('Cutted ' + itemTitle, 2)
+  window.pre.writeClipboard(str)
+}
+
 export const hasFileInClipboardText = (
   text = readClipboard()
 ) => {
@@ -23,5 +31,15 @@ export const hasFileInClipboardText = (
   return arr.reduce((prev, t) => {
     return prev &&
       (fileReg.test(t) || fileRegWin.test(t))
+  }, true)
+}
+
+export const hasBookmarkOrGroupInClipboardText = (
+  text = readClipboard()
+) => {
+  const arr = text.split('\n')
+  return arr.reduce((prev, t = '') => {
+    return prev &&
+      t.startsWith(copyBookmarkItemPrefix)
   }, true)
 }
