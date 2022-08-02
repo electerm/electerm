@@ -8,12 +8,11 @@ import {
   settingMap,
   terminalSshConfigType
 } from '../common/constants'
-import { insert, update } from '../common/db'
 
 export default store => {
   Object.assign(store, {
     getBookmarkGroups () {
-      return store.getItems('bookmarkGroups')
+      return store.getItems(settingMap.bookmarkGroups)
     },
     getBookmarkGroupsTotal () {
       return store.sshConfigItems.length
@@ -32,19 +31,11 @@ export default store => {
     },
 
     async addBookmarkGroup (group) {
-      store.bookmarkGroups.push(JSON.stringify(group))
-      await insert(settingMap.bookmarkGroups, group)
-      const _id = `${settingMap.bookmarkGroups}:order`
-      await update(_id, store.getItems('bookmarkGroups').map(d => d.id)
-      )
+      store.addItem(group, settingMap.bookmarkGroups)
     },
 
     editBookmarkGroup (id, updates) {
-      const items = store.getBookmarkGroups()
-      const item = _.find(items, t => t.id === id)
-      Object.assign(item, updates)
-      store.setBookmarkGroups(items)
-      update(id, updates, settingMap.bookmarkGroups, false)
+      store.editItem(id, updates, settingMap.bookmarkGroups)
     },
 
     openAllBookmarkInCategory (item) {
