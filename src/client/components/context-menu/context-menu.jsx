@@ -76,9 +76,11 @@ export default class ContextMenu extends React.PureComponent {
   }
 
   setOnCloseEvent = () => {
-    document
+    const dom = document
       .getElementById('setting-wrap')
-      .addEventListener('click', this.onTriggerClose)
+    if (dom) {
+      dom.addEventListener('click', this.onTriggerClose)
+    }
     document
       .getElementById('outside-context')
       .addEventListener('click', this.onTriggerClose)
