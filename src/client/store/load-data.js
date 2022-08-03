@@ -178,6 +178,9 @@ export default (store) => {
     store.fetchSshConfigItems()
     initWatch(store)
     store.initCommandLine().catch(store.onError)
+    if (store.config.checkUpdateOnStart) {
+      store.onCheckUpdate()
+    }
   }
   store.initCommandLine = async () => {
     const opts = await window.pre.runGlobalAsync('initCommandLine')
