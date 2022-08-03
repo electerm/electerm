@@ -5,7 +5,7 @@
 import fetch from './fetch-from-server'
 import _ from 'lodash'
 import {
-  baseUpdateCheckUrls
+  baseUpdateCheckUrls, packInfo
 } from './constants'
 
 async function fetchData (url, options) {
@@ -23,7 +23,8 @@ async function fetchData (url, options) {
 
 function getInfo (url) {
   const n = +new Date()
-  return fetchData(url + '?_=' + n, {
+  const tail = url.includes('?') ? '' : '?_=' + n
+  return fetchData(url + tail, {
     action: 'get-update-info',
     headers: {
       'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/59.0.3071.115 Safari/537.36'
@@ -36,10 +37,26 @@ function getInfo (url) {
 }
 
 export async function getLatestReleaseVersion () {
-  let url = `${baseUpdateCheckUrls[0]}/version.html`
+  const { store } = window
+  const info = {
+    load_time: store.loadTime,
+    bookmark_count: store.bookmarks.length,
+    lang: store.config.language,
+    sync_with_github: !!store.config.syncSetting?.githubGistId,
+    sync_with_gitee: !!store.config.syncSetting?.giteeGistId,
+    version: packInfo.version,
+    n: +new Date()
+  }
+
+  const q = Object.keys(info).reduce((p, k, i) => {
+    const pre = i ? '&' : '?'
+    return p + pre + k + '=' + encodeURIComponent(info[k])
+  }, '')
+
+  let url = `${baseUpdateCheckUrls[0]}/version.html${q}`
   let tagName = await getInfo(url)
   if (!tagName) {
-    url = `${baseUpdateCheckUrls[1]}/version.html`
+    url = `${baseUpdateCheckUrls[1]}/version.html${q}`
     tagName = await getInfo(url)
   }
   if (tagName) {

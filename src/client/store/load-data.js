@@ -5,13 +5,12 @@
 import { dbNames, update, getData, fetchInitData, insert, remove } from '../common/db'
 import initWatch from './watch'
 import parseInt10 from '../common/parse-int10'
-import { infoTabs, statusMap, defaultEnvLang, packInfo } from '../common/constants'
+import { infoTabs, statusMap, defaultEnvLang } from '../common/constants'
 import fs from '../common/fs'
 import generate from '../common/uid'
 import defaultSettings from '../../app/common/default-setting'
 import encodes from '../components/bookmark-form/encodes'
 import runIdle from '../common/run-idle'
-import track from '../common/track'
 import { initWsCommon } from '../common/fetch-from-server'
 
 function getHost (argv, opts) {
@@ -120,14 +119,6 @@ export default (store) => {
       store.loadTime = finishLoadTime - initTime
       window.pre.runSync('setLoadTime', store.loadTime)
     }
-    track('app_open', {
-      load_time: store.loadTime,
-      bookmark_count: store.bookmarks.length,
-      lang: store.config.language,
-      sync_with_github: !!store.config.syncSetting.githubGistId,
-      sync_with_gitee: !!store.config.syncSetting.giteeGistId,
-      version: packInfo.version
-    })
   }
   store.fetchSshConfigItems = async () => {
     const arr = await window.pre.runGlobalAsync('loadSshConfig')
