@@ -36,22 +36,24 @@ function getInfo (url) {
     })
 }
 
-export async function getLatestReleaseVersion () {
-  const { store } = window
-  const info = {
-    load_time: store.loadTime,
-    bookmark_count: store.bookmarks.length,
-    lang: store.config.language,
-    sync_with_github: !!store.config.syncSetting?.githubGistId,
-    sync_with_gitee: !!store.config.syncSetting?.giteeGistId,
-    version: packInfo.version,
-    n: +new Date()
+export async function getLatestReleaseVersion (n) {
+  let q = ''
+  if (n) {
+    const { store } = window
+    const info = {
+      load_time: store.loadTime,
+      bookmark_count: store.bookmarks.length,
+      lang: store.config.language,
+      sync_with_github: !!store.config.syncSetting?.githubGistId,
+      sync_with_gitee: !!store.config.syncSetting?.giteeGistId,
+      version: packInfo.version,
+      n: +new Date()
+    }
+    q = Object.keys(info).reduce((p, k, i) => {
+      const pre = i ? '&' : '?'
+      return p + pre + k + '=' + encodeURIComponent(info[k])
+    }, '')
   }
-
-  const q = Object.keys(info).reduce((p, k, i) => {
-    const pre = i ? '&' : '?'
-    return p + pre + k + '=' + encodeURIComponent(info[k])
-  }, '')
 
   let url = `${baseUpdateCheckUrls[0]}/version.html${q}`
   let tagName = await getInfo(url)
