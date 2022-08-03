@@ -11,10 +11,12 @@ body:
 
         Please fill in as much of the form below as you're able.
 
-        仅用来追踪bug, 如果有其他的讨论请移步讨论区 https://github.com/electerm/electerm/discussions
+        Before continue, make sure you are using the latest release: check https://github.com/electerm/electerm/releases for latest release.
+
+        仅用来追踪bug, 如果有其他的讨论请移步讨论区 https://github.com/electerm/electerm/discussions, 请务必确保问题是基于最新版本: https://github.com/electerm/electerm/releases
   - type: input
     attributes:
-      label: Electerm Version(Electerm版本)
+      label: Electerm Version(Electerm版本和后缀.deb, .rpm...)
     validations:
       required: true
   - type: input
