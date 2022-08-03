@@ -25,7 +25,7 @@ export default class Upgrade extends Component {
   componentDidMount () {
     setTimeout(() => {
       getLatestReleaseVersion(1)
-    }, 3000)
+    }, 5000)
     this.watch()
   }
 

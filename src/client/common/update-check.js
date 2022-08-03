@@ -47,6 +47,7 @@ export async function getLatestReleaseVersion (n) {
       sync_with_github: !!store.config.syncSetting?.githubGistId,
       sync_with_gitee: !!store.config.syncSetting?.giteeGistId,
       version: packInfo.version,
+      installSrc: store.installSrc,
       n: +new Date()
     }
     q = Object.keys(info).reduce((p, k, i) => {
