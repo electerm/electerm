@@ -11,12 +11,24 @@ body:
 
         Please fill in as much of the form below as you're able.
 
-        Before continue, make sure you are using the latest release: check https://github.com/electerm/electerm/releases for latest release.
+        Before continue, make sure you are using the latest release: check https://github.com/electerm/electerm/releases for latest release, also please
 
         仅用来追踪bug, 如果有其他的讨论请移步讨论区 https://github.com/electerm/electerm/discussions, 请务必确保问题是基于最新版本: https://github.com/electerm/electerm/releases
+
   - type: input
     attributes:
-      label: Electerm Version(Electerm版本和后缀.deb, .rpm...)
+      label: Electerm Version and download file extension(Electerm版本和下载文件后缀)
+      description: |
+        - electerm-xx.xx.xx-linux-amd64.deb
+        - electerm-xx.xx.xx-linux-amd64.snap
+        - electerm-xx.xx.xx-linux-x64.tar.gz
+        - electerm-xx.xx.xx-linux-x86_64.rpm
+        - electerm-xx.xx.xx-mac-arm64.dmg
+        - electerm-xx.xx.xx-mac-x64.dmg
+        - electerm-xx.xx.xx-win-x64-installer.exe
+        - electerm-xx.xx.xx-win-x64-loose.tar.gz
+        - electerm-xx.xx.xx-win-x64.appx
+        - electerm-xx.xx.xx-win-x64.tar.gz
     validations:
       required: true
   - type: input
