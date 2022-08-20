@@ -4,7 +4,7 @@
 
 import List from '../setting-panel/list'
 import { PlusOutlined } from '@ant-design/icons'
-import { Select, Tooltip } from 'antd'
+import { Select } from 'antd'
 import classnames from 'classnames'
 import highlight from '../common/highlight'
 import QmTransport from './quick-command-transport'
