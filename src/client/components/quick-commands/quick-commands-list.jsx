@@ -53,19 +53,14 @@ export default class QuickCommandsList extends List {
         className={cls}
         onClick={() => this.onClickItem(item)}
       >
-        <Tooltip
-          title={name}
-          placement='topLeft'
-        >
-          <div className='elli pd1y pd2x'>
-            {
-              !id
-                ? <PlusOutlined className='mg1r' />
-                : null
-            }
-            {title}
-          </div>
-        </Tooltip>
+        <div className='elli pd1y pd2x' title={name}>
+          {
+            !id
+              ? <PlusOutlined className='mg1r' />
+              : null
+          }
+          {title}
+        </div>
         {this.renderDelBtn(item)}
       </div>
     )
