@@ -33,7 +33,7 @@ describe('history', function () {
     log('tab it')
     await client.click('.setting-wrap .ant-tabs-nav-list .ant-tabs-tab')
 
-    await delay(3000)
+    await delay(5000)
     const text4 = await client.getText(sel)
     expect(text4).equal(e('history'))
 
