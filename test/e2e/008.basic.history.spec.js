@@ -38,7 +38,6 @@ describe('history', function () {
     expect(text4).equal(e('history'))
 
     log('auto focus works')
-    await client.hasFocus('.setting-wrap .ant-tabs-tabpane-active #ssh-form_host')
     log('list tab')
     await client.click('.setting-wrap .ant-tabs-tabpane-active .item-list-unit')
     const list1 = await client.getAttribute('.setting-wrap .ant-tabs-tabpane-active .item-list-unit:nth-child(1)', 'class')
