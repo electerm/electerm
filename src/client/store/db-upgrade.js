@@ -5,8 +5,9 @@
 import { Modal } from 'antd'
 import delay from '../common/wait'
 
-export default (store) => {
-  store.checkForDbUpgrade = async () => {
+export default (Store) => {
+  Store.prototype.checkForDbUpgrade = async function () {
+    const { store } = window
     if (store.isSencondInstance) {
       return false
     }

@@ -35,8 +35,9 @@ async function fetchData (type, func, args, token, proxy) {
   return fetch(data)
 }
 
-export default (store) => {
-  store.updateSyncSetting = (_data) => {
+export default (Store) => {
+  Store.prototype.updateSyncSetting = function (_data) {
+    const { store } = window
     const data = copy(_data)
     const keys = Object.keys(data)
     if (_.isEqual(
@@ -50,15 +51,16 @@ export default (store) => {
     })
   }
 
-  store.getSyncToken = (type) => {
-    return _.get(store.config, 'syncSetting.' + type + 'AccessToken')
+  Store.prototype.getSyncToken = function (type) {
+    return _.get(window.store.config, 'syncSetting.' + type + 'AccessToken')
   }
 
-  store.getSyncGistId = (type) => {
-    return _.get(store.config, 'syncSetting.' + type + 'GistId')
+  Store.prototype.getSyncGistId = function (type) {
+    return _.get(window.store.config, 'syncSetting.' + type + 'GistId')
   }
 
-  store.testSyncToken = async (type) => {
+  Store.prototype.testSyncToken = async function (type) {
+    const { store } = window
     store.isSyncingSetting = true
     const token = store.getSyncToken(type)
     const gist = await fetchData(
@@ -74,7 +76,8 @@ export default (store) => {
     return !!gist
   }
 
-  store.createGist = async (type) => {
+  Store.prototype.createGist = async function (type) {
+    const { store } = window
     store.isSyncingSetting = true
     const token = store.getSyncToken(type)
     const data = {
@@ -100,13 +103,14 @@ export default (store) => {
     store.isSyncingSetting = false
   }
 
-  store.clearSyncSetting = async () => {
-    store.setConfig({
+  Store.prototype.clearSyncSetting = async function () {
+    window.store.setConfig({
       syncSetting: {}
     })
   }
 
-  store.uploadSetting = async (type) => {
+  Store.prototype.uploadSetting = async function (type) {
+    const { store } = window
     store.isSyncingSetting = true
     store.isSyncUpload = true
     const token = store.getSyncToken(type)
@@ -152,7 +156,8 @@ export default (store) => {
     }
   }
 
-  store.downloadSetting = async (type) => {
+  Store.prototype.downloadSetting = async function (type) {
+    const { store } = window
     store.isSyncingSetting = true
     store.isSyncDownload = true
     const token = store.getSyncToken(type)
@@ -233,13 +238,14 @@ export default (store) => {
   //     store.uploadSetting()
   //   }
   // }
-  store.onChangeEncrypt = v => {
-    store.updateSyncSetting({
+  Store.prototype.onChangeEncrypt = function (v) {
+    window.store.updateSyncSetting({
       syncEncrypt: v
     })
   }
 
-  store.updateLastDataUpdateTime = _.debounce(() => {
+  Store.prototype.updateLastDataUpdateTime = _.debounce(function () {
+    const { store } = window
     store.lastDataUpdateTime = +new Date()
     update('lastDataUpdateTime', store.lastDataUpdateTime)
   }, 1000)

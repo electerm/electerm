@@ -3,24 +3,24 @@
  */
 
 import createTitle from '../common/create-title'
-import Subx from 'subx'
+import { autoRun } from '@tylerlong/use-proxy'
 import copy from 'json-deep-copy'
 import { update, dbNames } from '../common/db'
-import { debounceTime } from 'rxjs/operators'
 import {
   commonActions,
   sftpDefaultSortSettingKey
 } from '../common/constants'
 import postMsg from '../common/post-msg'
 import * as ls from '../common/safe-local-storage'
+import _ from 'lodash'
 
 export default store => {
-  Subx.autoRun(store, () => {
+  autoRun(store, () => {
     store.focus()
     return store.currentTabId
-  }, debounceTime(1000))
+  }, func => _.debounce(func, 1000))
 
-  // Subx.autoRun(store, () => {
+  // autoRun(store, () => {
   //   if (store.menuOpened) {
   //     store.initMenuEvent()
   //   } else {
@@ -29,52 +29,52 @@ export default store => {
   //   return store.menuOpened
   // })
 
-  Subx.autoRun(store, () => {
+  autoRun(store, () => {
     const v = store.getItems('tabs').map(t => {
       delete t.isTransporting
       return t
     })
     update('sessions', v)
     return store._tabs
-  }, debounceTime(1000))
+  }, func => _.debounce(func, 1000))
 
   for (const name of dbNames) {
-    Subx.autoRun(store, async () => {
+    autoRun(store, async () => {
       await update(
         `${name}:order`,
         store.getItems(name).map(d => d.id)
       )
       await store.updateLastDataUpdateTime()
       return store['_' + name]
-    }, debounceTime(500))
+    }, func => _.debounce(func, 500))
   }
 
-  Subx.autoRun(store, () => {
+  autoRun(store, () => {
     update('openedCategoryIds', copy(store.openedCategoryIds))
     return store.openedCategoryIds
-  }, debounceTime(1000))
+  }, func => _.debounce(func, 1000))
 
-  Subx.autoRun(store, () => {
+  autoRun(store, () => {
     window.pre.runGlobalAsync('saveUserConfig', store.config)
     return store._config
-  }, debounceTime(1000))
+  }, func => _.debounce(func, 1000))
 
-  Subx.autoRun(store, () => {
+  autoRun(store, () => {
     store.updateLastDataUpdateTime()
     return store.config.theme
-  }, debounceTime(1000))
+  }, func => _.debounce(func, 1000))
 
-  Subx.autoRun(store, () => {
+  autoRun(store, () => {
     store.updateTabsStatus()
     return store.fileTransfers
-  }, debounceTime(1000))
+  }, func => _.debounce(func, 1000))
 
-  Subx.autoRun(store, () => {
+  autoRun(store, () => {
     ls.setItemJSON(sftpDefaultSortSettingKey, store.sftpSortSetting)
     return store._sftpSortSetting
   })
 
-  Subx.autoRun(store, () => {
+  autoRun(store, () => {
     const tabs = store.getTabs()
     const { currentTabId } = store
     const tab = tabs.find(t => t.id === currentTabId)

@@ -8,46 +8,43 @@ import {
 } from '../common/constants'
 import postMsg from '../common/post-msg'
 
-export default store => {
-  Object.assign(store, {
+export default Store => {
+  Store.prototype.updateTabsStatus = function () {
+    const tabIds = _.uniq(
+      window.store.getTransfers().map(d => d.tabId)
+    )
+    postMsg({
+      action: tabActions.updateTabsStatus,
+      tabIds
+    })
+  }
 
-    updateTabsStatus () {
-      const tabIds = _.uniq(
-        store.getTransfers().map(d => d.tabId)
-      )
-      postMsg({
-        action: tabActions.updateTabsStatus,
-        tabIds
-      })
-    },
+  Store.prototype.getTabs = function () {
+    return window.store.getItems('tabs')
+  }
 
-    getTabs () {
-      return store.getItems('tabs')
-    },
+  Store.prototype.setTabs = function (list) {
+    return window.store.setItems('tabs', list)
+  }
 
-    setTabs (list) {
-      return store.setItems('tabs', list)
-    },
+  Store.prototype.initFirstTab = function () {
+    postMsg({
+      action: tabActions.initFirstTab
+    })
+  }
 
-    initFirstTab () {
-      postMsg({
-        action: tabActions.initFirstTab
-      })
-    },
-
-    addTab (
+  Store.prototype.addTab = function (
+    tab,
+    index
+  ) {
+    postMsg({
+      action: tabActions.addTab,
       tab,
       index
-    ) {
-      postMsg({
-        action: tabActions.addTab,
-        tab,
-        index
-      })
-    }
-  })
+    })
+  }
 
-  store.clickNextTab = _.debounce(() => {
+  Store.prototype.clickNextTab = _.debounce(function () {
     const tab = document.querySelector('.tabs-wrapper .tab.active')
     if (tab) {
       let next = tab.nextSibling

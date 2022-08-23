@@ -5,14 +5,14 @@
 import { commonActions } from '../common/constants'
 import copy from 'json-deep-copy'
 
-export default store => {
-  store.onCheckUpdate = () => {
+export default Store => {
+  Store.prototype.onCheckUpdate = () => {
     window.postMessage({
       action: commonActions.appUpdateCheck
     }, '*')
   }
-  store.getProxySetting = () => {
-    const cpConf = copy(store.config)
+  Store.prototype.getProxySetting = function () {
+    const cpConf = copy(window.store.config)
     return Object
       .keys((cpConf))
       .filter(d => d.toLowerCase().includes('proxy'))

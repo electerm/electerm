@@ -9,37 +9,37 @@ import {
 } from '../common/constants'
 import * as ls from '../common/safe-local-storage'
 
-export default store => {
-  Object.assign(store, {
-    expandBookmarks () {
-      store.storeAssign({
-        openedCategoryIds: store.getBookmarkGroups().map(g => g.id)
-      })
-    },
+export default Store => {
+  Store.prototype.expandBookmarks = function () {
+    const { store } = window
+    store.storeAssign({
+      openedCategoryIds: store.getBookmarkGroups().map(g => g.id)
+    })
+  }
 
-    collapseBookmarks () {
-      store.storeAssign({
-        openedCategoryIds: []
-      })
-    },
+  Store.prototype.collapseBookmarks = function () {
+    window.store.storeAssign({
+      openedCategoryIds: []
+    })
+  }
 
-    setOpenedSideBar (bar) {
-      ls.setItem(openedSidebarKey, bar)
-      store.openedSideBar = bar
-    },
+  Store.prototype.setOpenedSideBar = function (bar) {
+    ls.setItem(openedSidebarKey, bar)
+    window.store.openedSideBar = bar
+  }
 
-    pin (pinned) {
-      const current = !store.pinned
-      ls.setItem(sidebarPinnedKey, current + '')
-      store.pinned = current
-    },
+  Store.prototype.pin = function (pinned) {
+    const { store } = window
+    const current = !store.pinned
+    ls.setItem(sidebarPinnedKey, current + '')
+    store.pinned = current
+  }
 
-    onClickBookmark () {
-      store.onNewSsh()
-    },
+  Store.prototype.onClickBookmark = function () {
+    window.store.onNewSsh()
+  }
 
-    onClickHistory () {
-      store.onChangeTab(settingMap.history)
-    }
-  })
+  Store.prototype.onClickHistory = function () {
+    window.store.onChangeTab(settingMap.history)
+  }
 }
