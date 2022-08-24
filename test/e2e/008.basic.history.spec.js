@@ -39,6 +39,10 @@ describe('history', function () {
 
     log('auto focus works')
     log('list tab')
+    const hl = await client.evaluate(() => {
+      return window.store.history.length
+    })
+    expect(hl > 0).equal(true)
     await client.click('.setting-wrap .ant-tabs-tabpane-active .item-list-unit')
     const list1 = await client.getAttribute('.setting-wrap .ant-tabs-tabpane-active .item-list-unit:nth-child(1)', 'class')
     expect(list1.includes('active'))
