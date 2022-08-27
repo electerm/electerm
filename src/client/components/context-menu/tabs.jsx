@@ -1,4 +1,4 @@
-import { Component } from 'react-subx'
+import { Component } from '../common/react-subx'
 import createTitle from '../../common/create-title'
 
 export default class TabsSubMenu extends Component {
