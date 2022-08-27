@@ -32,7 +32,6 @@ jobs:
 
     # script:
     - run: npm run pre-test
-    - run: ls work/app/assets -al
 
     - name: test
       uses: GabrielBB/xvfb-action@v1
