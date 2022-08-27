@@ -2,10 +2,6 @@
  * sync data to github gist related
  */
 
-/**
- * central state store powered by subx - https://github.com/tylerlong/subx
- */
-
 import _ from 'lodash'
 import copy from 'json-deep-copy'
 import {

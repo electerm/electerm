@@ -1,7 +1,7 @@
 {
   "name": "electerm",
   "version": "1.22.31",
-  "description": "Terminal/ssh/sftp client(linux, mac, win) based on electron/ssh2/node-pty/xterm/antd/subx and other libs",
+  "description": "Terminal/ssh/sftp client(linux, mac, win) based on electron/ssh2/node-pty/xterm/antd/useProxy and other libs",
   "main": "app.js",
   "bin": "npm/electerm",
   "scripts": {
@@ -107,14 +107,12 @@
     "react": "17.0.2",
     "react-delta": "^1.1.2",
     "react-dom": "17.0.2",
-    "react-subx": "^0.9.0",
     "replace-in-file": "6.2.0",
     "shelljs": "0.8.5",
     "snazzy": "9.0.0",
     "standard": "^13.1.0",
     "style-loader": "3.0.0",
     "stylus-loader": "6.1.0",
-    "subx": "0.10.1",
     "url-loader": "4.1.1",
     "useragent": "2.3.0",
     "vscode-icons": "vscode-icons/vscode-icons",
@@ -134,7 +132,7 @@
     "zmodem.js": "0.1.10"
   },
   "dependencies": {
-    "@electerm/electerm-locales": "0.14.2",
+    "@electerm/electerm-locales": "0.15.0",
     "@electerm/ssh2": "1.11.2",
     "@electerm/strip-ansi": "^1.0.0",
     "@yetzt/nedb": "1.8.0",

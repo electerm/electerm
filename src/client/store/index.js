@@ -1,5 +1,5 @@
 /**
- * central state store powered by subx - https://github.com/tylerlong/subx
+ * central state store powered by use-proxy - https://github.com/tylerlong/use-proxy
  */
 
 import { useProxy } from '@tylerlong/use-proxy'
