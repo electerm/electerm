@@ -8,6 +8,7 @@ import {
 import _ from 'lodash'
 import handleError from './error-handler'
 import generate from './uid'
+import safeParse from './to-simple-obj'
 import { encObj, decObj } from './pass-enc'
 
 /**
@@ -40,7 +41,7 @@ export function insert (dbName, inst) {
       ...encObj(rest)
     }
   })
-  return dbAction(dbName, 'insert', arr)
+  return dbAction(dbName, 'insert', safeParse(arr))
 }
 
 /**
@@ -78,7 +79,7 @@ export function update (_id, value, db = 'data', upsert = true) {
     }
   return dbAction(db, 'update', {
     _id
-  }, updates, {
+  }, safeParse(updates), {
     upsert
   })
 }

@@ -6,28 +6,26 @@ import {
   settingMap
 } from '../common/constants'
 
-export default store => {
-  Object.assign(store, {
-    getQuickCommands () {
-      return store.getItems(settingMap.quickCommands)
-    },
+export default Store => {
+  Store.prototype.getQuickCommands = function () {
+    return window.store.getItems(settingMap.quickCommands)
+  }
 
-    setQuickCommands (list) {
-      return store.setItems(settingMap.quickCommands, list)
-    },
+  Store.prototype.setQuickCommands = function (list) {
+    return window.store.setItems(settingMap.quickCommands, list)
+  }
 
-    addQuickCommand (
-      qm
-    ) {
-      store.addItem(qm, settingMap.quickCommands)
-    },
+  Store.prototype.addQuickCommand = function (
+    qm
+  ) {
+    window.store.addItem(qm, settingMap.quickCommands)
+  }
 
-    editQuickCommand (id, update) {
-      store.editItem(id, update, settingMap.quickCommands)
-    },
+  Store.prototype.editQuickCommand = function (id, update) {
+    window.store.editItem(id, update, settingMap.quickCommands)
+  }
 
-    delQuickCommand ({ id }) {
-      store.delItem({ id }, settingMap.quickCommands)
-    }
-  })
+  Store.prototype.delQuickCommand = function ({ id }) {
+    window.store.delItem({ id }, settingMap.quickCommands)
+  }
 }

@@ -1,4 +1,4 @@
-import { Component } from 'react-subx'
+import { Component } from '../common/react-subx'
 import BookmarksList from '../sidebar/bookmark-select'
 
 export default class BookmarkSubMenu extends Component {

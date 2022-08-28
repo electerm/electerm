@@ -1,7 +1,6 @@
 
 import { Component } from '../common/react-subx'
 import Sessions from '../session/sessions'
-import copy from 'json-deep-copy'
 import ContextMenu from '../context-menu/context-menu'
 import FileInfoModal from '../sftp/file-props-modal'
 import FileModeModal from '../sftp/file-mode-modal'
@@ -32,7 +31,7 @@ export default class Index extends Component {
     ipcOnEvent('selectall', store.selectall)
     ipcOnEvent('focused', store.focus)
     ipcOnEvent('blur', store.onBlur)
-    ipcOnEvent('window-move', store.onResize)
+    ipcOnEvent('window-move', store.onResize.bind(store))
 
     document.addEventListener('drop', function (e) {
       e.preventDefault()
@@ -70,7 +69,7 @@ export default class Index extends Component {
     const ext1 = {
       className: cls
     }
-    const cpConf = copy(config)
+    const cpConf = config
     const confsCss = Object
       .keys((cpConf))
       .filter(d => d.startsWith('terminalBackground'))

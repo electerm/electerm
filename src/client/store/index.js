@@ -1,8 +1,8 @@
 /**
- * central state store powered by subx - https://github.com/tylerlong/subx
+ * central state store powered by use-proxy - https://github.com/tylerlong/use-proxy
  */
 
-import Subx from 'subx'
+import { useProxy } from '@tylerlong/use-proxy'
 import initState from './init-state'
 import loadDataExtend from './load-data'
 import dbUpgradeExtend from './db-upgrade'
@@ -35,15 +35,22 @@ import {
 } from '../common/constants'
 import getInitItem from '../common/init-setting-item'
 
-const store = Subx.create({
-  ...initState,
+class Store {
+  constructor () {
+    Object.assign(
+      this,
+      initState
+    )
+  }
+
   get width () {
-    return store.innerWidth - sidebarWidth -
-      (store.pinned ? sidebarPanelWidth : 0)
-  },
+    return window.store.innerWidth - sidebarWidth -
+      (window.store.pinned ? sidebarPanelWidth : 0)
+  }
+
   get currentQuickCommands () {
-    const { currentTab } = store
-    const quickCommands = store.getQuickCommands()
+    const { currentTab } = this
+    const quickCommands = window.store.getQuickCommands()
     const currentTabQuickCommands = (
       _.get(
         currentTab, 'quickCommands'
@@ -58,20 +65,22 @@ const store = Subx.create({
       ...currentTabQuickCommands,
       ...quickCommands
     ]
-  },
+  }
+
   get currentTab () {
     const {
       currentTabId
-    } = store
-    const tabs = store.getTabs()
+    } = this
+    const tabs = window.store.getTabs()
     const tab = tabs.find(t => t.id === currentTabId)
     if (!tab) {
       return false
     }
     return tab
-  },
+  }
+
   get quickCommandTags () {
-    const quickCommands = store.getQuickCommands()
+    const quickCommands = window.store.getQuickCommands()
     return _.uniq(
       quickCommands.reduce((p, q) => {
         return [
@@ -80,15 +89,17 @@ const store = Subx.create({
         ]
       }, [])
     )
-  },
+  }
+
   get isTransporting () {
-    return store.getTabs().some(t => t.isTransporting)
-  },
+    return window.store.getTabs().some(t => t.isTransporting)
+  }
+
   get settingSidebarList () {
     const {
       settingTab
-    } = store
-    const arr = store.getSidebarList(settingTab)
+    } = this
+    const arr = window.store.getSidebarList(settingTab)
     const initItem = getInitItem(arr, settingTab)
     return settingTab === settingMap.history
       ? arr
@@ -96,90 +107,112 @@ const store = Subx.create({
         copy(initItem),
         ...arr
       ]
-  },
-  get tabTitles () {
-    return store.getTabs().map(d => d.title).join('#')
-  },
-  get sshConfigItems () {
-    return JSON.parse(store._sshConfigItems || '[]')
-  },
-  get itermThemes () {
-    return JSON.parse(store._itermThemes || '[]')
-  },
-  get history () {
-    return JSON.parse(store._history || '[]')
-  },
-  get bookmarks () {
-    return JSON.parse(store._bookmarks || '[]')
-  },
-  get bookmarkGroups () {
-    return JSON.parse(store._bookmarkGroups || '[]')
-  },
-  get tabs () {
-    return JSON.parse(store._tabs || '[]')
-  },
-  get fileTransfers () {
-    return JSON.parse(store._fileTransfers || '[]')
-  },
-  get transferHistory () {
-    return JSON.parse(store._transferHistory || '[]')
-  },
-  get quickCommands () {
-    return JSON.parse(store._quickCommands || '[]')
-  },
-  get terminalThemes () {
-    return JSON.parse(store._terminalThemes || '[]')
-  },
-  get serials () {
-    return JSON.parse(store._serials || '[]')
-  },
-  get setting () {
-    return JSON.parse(store._setting || '[]')
-  },
-  get config () {
-    return JSON.parse(store._config || '{}')
-  },
-  get sftpSortSetting () {
-    return JSON.parse(store._sftpSortSetting)
-  },
-  get fonts () {
-    return JSON.parse(store._fonts || '[]')
-  },
-  get onOperation () {
-    return store.showModal || store.termSearchOpen || store.showInfoModal || store.showEditor || store.showFileModal
-  },
-  get topMenuHeight () {
-    return store.config.useSystemTitleBar ? 0 : 15
-  },
-  get tabsHeight () {
-    return store.config.useSystemTitleBar ? 45 : 56
-  },
-  get langs () {
-    return JSON.parse(store._langs)
   }
-})
 
-loadDataExtend(store)
-eventExtend(store)
-dbUpgradeExtend(store)
-syncExtend(store)
-appUpgrdeExtend(store)
-bookmarkGroupExtend(store)
-bookmarkExtend(store)
-commonExtend(store)
-contextMenuExtend(store)
-itemExtend(store)
-quickCommandExtend(store)
-sessionExtend(store)
-settingExtend(store)
-sidebarExtend(store)
-sysMenuExtend(store)
-tabExtend(store)
-terminalThemeExtend(store)
-uiThemeExtend(store)
-transferHistoryExtend(store)
-batchInputHistory(store)
-transferExtend(store)
+  get tabTitles () {
+    return window.store.getTabs().map(d => d.title).join('#')
+  }
+
+  get sshConfigItems () {
+    return JSON.parse(window.store._sshConfigItems || '[]')
+  }
+
+  get itermThemes () {
+    return JSON.parse(window.store._itermThemes || '[]')
+  }
+
+  get history () {
+    return JSON.parse(window.store._history || '[]')
+  }
+
+  get bookmarks () {
+    return JSON.parse(window.store._bookmarks || '[]')
+  }
+
+  get bookmarkGroups () {
+    return JSON.parse(window.store._bookmarkGroups || '[]')
+  }
+
+  get tabs () {
+    return JSON.parse(window.store._tabs || '[]')
+  }
+
+  get fileTransfers () {
+    return JSON.parse(window.store._fileTransfers || '[]')
+  }
+
+  get transferHistory () {
+    return JSON.parse(window.store._transferHistory || '[]')
+  }
+
+  get quickCommands () {
+    return JSON.parse(window.store._quickCommands || '[]')
+  }
+
+  get terminalThemes () {
+    return JSON.parse(window.store._terminalThemes || '[]')
+  }
+
+  get serials () {
+    return JSON.parse(window.store._serials || '[]')
+  }
+
+  get setting () {
+    return JSON.parse(window.store._setting || '[]')
+  }
+
+  get config () {
+    return JSON.parse(window.store._config || '{}')
+  }
+
+  get sftpSortSetting () {
+    return JSON.parse(window.store._sftpSortSetting)
+  }
+
+  get fonts () {
+    return JSON.parse(window.store._fonts || '[]')
+  }
+
+  get onOperation () {
+    return window.store.showModal || window.store.termSearchOpen || window.store.showInfoModal || window.store.showEditor || window.store.showFileModal
+  }
+
+  get topMenuHeight () {
+    return window.store.config.useSystemTitleBar ? 0 : 15
+  }
+
+  get tabsHeight () {
+    return window.store.config.useSystemTitleBar ? 45 : 56
+  }
+
+  get langs () {
+    return JSON.parse(window.store._langs)
+  }
+}
+
+loadDataExtend(Store)
+eventExtend(Store)
+dbUpgradeExtend(Store)
+syncExtend(Store)
+appUpgrdeExtend(Store)
+bookmarkGroupExtend(Store)
+bookmarkExtend(Store)
+commonExtend(Store)
+contextMenuExtend(Store)
+itemExtend(Store)
+quickCommandExtend(Store)
+sessionExtend(Store)
+settingExtend(Store)
+sidebarExtend(Store)
+sysMenuExtend(Store)
+tabExtend(Store)
+terminalThemeExtend(Store)
+uiThemeExtend(Store)
+transferHistoryExtend(Store)
+batchInputHistory(Store)
+transferExtend(Store)
+
+const store = useProxy(new Store())
 
 window.store = store
 export default store

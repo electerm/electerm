@@ -7,7 +7,7 @@ import generate from '../../common/uid'
 import _ from 'lodash'
 import { runCmds } from '../terminal-info/run-cmd'
 import postMessage from '../../common/post-msg'
-
+import clone from '../../common/to-simple-obj'
 import {
   CheckCircleOutlined,
   ReloadOutlined
@@ -816,7 +816,7 @@ export default class Term extends Component {
       ? typeMap.local
       : type
     const extra = this.props.sessionOptions
-    const opts = {
+    const opts = clone({
       cols,
       rows,
       term: terminalType || config.terminalType,
@@ -844,7 +844,7 @@ export default class Term extends Component {
       type: tab.host && !isSshConfig
         ? typeMap.remote
         : typeMap.local
-    }
+    })
     delete opts.terminals
     let pid = await createTerm(opts)
       .catch(err => {

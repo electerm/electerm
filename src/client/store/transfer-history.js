@@ -6,16 +6,17 @@ import {
   maxTransferHistory
 } from '../common/constants'
 
-export default store => {
-  store.clearTransferHistory = () => {
-    store.setItems('transferHistory', [])
+export default Store => {
+  Store.prototype.clearTransferHistory = function () {
+    window.store.setItems('transferHistory', [])
   }
 
-  store.getTransferHistory = () => {
-    return store.getItems('transferHistory')
+  Store.prototype.getTransferHistory = function () {
+    return window.store.getItems('transferHistory')
   }
 
-  store.addTransferHistory = (item) => {
+  Store.prototype.addTransferHistory = function (item) {
+    const { store } = window
     const transferHistory = store.getItems('transferHistory')
     transferHistory.unshift(item)
     store.setItems(

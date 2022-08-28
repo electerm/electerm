@@ -80,29 +80,30 @@ export async function addTabFromCommandLine (store, opts) {
   }
 }
 
-export default (store) => {
-  store.batchDbUpdate = async (updates) => {
+export default (Store) => {
+  Store.prototype.batchDbUpdate = async function (updates) {
     runIdle(() => {
       for (const u of updates) {
         update(u.id, u.update, u.db, u.upsert)
       }
     })
   }
-  store.batchDbAdd = async (adds) => {
+  Store.prototype.batchDbAdd = async function (adds) {
     runIdle(() => {
       for (const u of adds) {
         insert(u.db, u.obj)
       }
     })
   }
-  store.batchDbDel = async (dels) => {
+  Store.prototype.batchDbDel = async function (dels) {
     runIdle(() => {
       for (const u of dels) {
         remove(u.db, u.id)
       }
     })
   }
-  store.openInitSessions = () => {
+  Store.prototype.openInitSessions = function () {
+    const { store } = window
     const arr = store.config.onStartSessions || []
     for (const s of arr) {
       store.onSelectBookmark(s)
@@ -120,15 +121,16 @@ export default (store) => {
       window.pre.runSync('setLoadTime', store.loadTime)
     }
   }
-  store.fetchSshConfigItems = async () => {
+  Store.prototype.fetchSshConfigItems = async function () {
     const arr = await window.pre.runGlobalAsync('loadSshConfig')
       .catch((err) => {
         console.log('fetchSshConfigItems error', err)
         return []
       })
-    store._sshConfigItems = JSON.stringify(arr)
+    window.store._sshConfigItems = JSON.stringify(arr)
   }
-  store.initApp = async () => {
+  Store.prototype.initApp = async function () {
+    const { store } = window
     const globs = await window.pre.runGlobalAsync('init')
     window.langMap = globs.langMap
     store.installSrc = globs.installSrc
@@ -141,7 +143,8 @@ export default (store) => {
     )
     initWsCommon()
   }
-  store.initData = async () => {
+  Store.prototype.initData = async function () {
+    const { store } = window
     await store.initApp()
     const ext = {}
     const all = dbNames.map(async name => {
@@ -173,11 +176,11 @@ export default (store) => {
       store.onCheckUpdate()
     }
   }
-  store.initCommandLine = async () => {
+  Store.prototype.initCommandLine = async function () {
     const opts = await window.pre.runGlobalAsync('initCommandLine')
-    addTabFromCommandLine(store, opts)
+    addTabFromCommandLine(this, opts)
   }
-  store.addTabFromCommandLine = (event, opts) => {
-    addTabFromCommandLine(store, opts)
+  Store.prototype.addTabFromCommandLine = (event, opts) => {
+    addTabFromCommandLine(this, opts)
   }
 }

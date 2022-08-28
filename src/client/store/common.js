@@ -10,43 +10,41 @@ import {
   tabActions
 } from '../common/constants'
 
-export default store => {
-  Object.assign(store, {
-    storeAssign (updates) {
-      Object.assign(store, updates)
-    },
+export default Store => {
+  Store.prototype.storeAssign = function (updates) {
+    Object.assign(this, updates)
+  }
 
-    setOffline () {
-      postMessage({
-        action: tabActions.setAllTabOffline
-      })
-    },
+  Store.prototype.setOffline = function () {
+    postMessage({
+      action: tabActions.setAllTabOffline
+    })
+  }
 
-    onError (e) {
-      handleError(e)
-    },
+  Store.prototype.onError = function (e) {
+    handleError(e)
+  }
 
-    updateConfig (ext) {
-      store.setConfig(ext)
-    },
+  Store.prototype.updateConfig = function (ext) {
+    window.store.setConfig(ext)
+  }
 
-    openFileInfoModal (data) {
-      postMessage({
-        data,
-        action: commonActions.showFileInfoModal
-      })
-    },
+  Store.prototype.openFileInfoModal = function (data) {
+    postMessage({
+      data,
+      action: commonActions.showFileInfoModal
+    })
+  }
 
-    openFileModeModal (data, file) {
-      postMessage({
-        data,
-        file,
-        action: commonActions.showFileModeModal
-      })
-    }
-  })
+  Store.prototype.openFileModeModal = function (data, file) {
+    postMessage({
+      data,
+      file,
+      action: commonActions.showFileModeModal
+    })
+  }
 
-  store.onResize = _.debounce(async () => {
+  Store.prototype.onResize = _.debounce(async function () {
     const { width, height } = await window.pre.runGlobalAsync('getScreenSize')
     const isMaximized = await window.pre.runGlobalAsync('isMaximized')
     const update = {
@@ -56,7 +54,7 @@ export default store => {
       screenHeight: height,
       isMaximized
     }
-    store.storeAssign(update)
+    window.store.storeAssign(update)
     window.pre.runGlobalAsync('setWindowSize', update)
   }, 100, {
     leading: true

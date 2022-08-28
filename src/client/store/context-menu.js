@@ -7,24 +7,17 @@ import {
   commonActions
 } from '../common/constants'
 
-export default store => {
-  Object.assign(store, {
-    // initContextEvent () {
-    //   const dom = document.getElementById('outside-context')
-    //   dom && dom.addEventListener('click', store.closeContextMenu)
-    // },
+export default Store => {
+  Store.prototype.openContextMenu = function (data) {
+    postMessage({
+      data,
+      type: commonActions.openContextMenu
+    })
+  }
 
-    openContextMenu (data) {
-      postMessage({
-        data,
-        type: commonActions.openContextMenu
-      })
-    },
-
-    closeContextMenu () {
-      postMessage({
-        action: commonActions.closeContextMenu
-      })
-    }
-  })
+  Store.prototype.closeContextMenu = function () {
+    postMessage({
+      action: commonActions.closeContextMenu
+    })
+  }
 }
