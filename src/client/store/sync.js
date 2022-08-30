@@ -9,6 +9,8 @@ import {
 } from '../common/constants'
 import { remove, dbNames, insert, update } from '../common/db'
 import fetch from '../common/fetch-from-server'
+import download from '../common/download'
+import dayjs from 'dayjs'
 
 const names = _.without(dbNames, settingMap.history)
 const {
@@ -245,4 +247,69 @@ export default (Store) => {
     store.lastDataUpdateTime = +new Date()
     update('lastDataUpdateTime', store.lastDataUpdateTime)
   }, 1000)
+
+  Store.prototype.exportAll = function () {
+    const { store } = window
+    const objs = {}
+    for (const n of names) {
+      objs[n] = store.getItems(n)
+    }
+    objs.config = _.pick(store.config, [
+      'theme',
+      'useSystemTitleBar',
+      'defaultEditor',
+      'checkUpdateOnStart',
+      'confirmBeforeExit',
+      'ctrlOrMetaOpenTerminalLink',
+      'cursorStyle',
+      'defaultEditor',
+      'disableSshHistory',
+      'disableTransferHistory',
+      'enableGlobalProxy',
+      'execLinux',
+      'execLinuxArgs',
+      'execMac',
+      'execMacArgs',
+      'execWindows',
+      'execWindowsArgs',
+      'fontFamily',
+      'fontSize',
+      'hotkey',
+      'keepaliveCountMax',
+      'keepaliveInterval',
+      'language',
+      'opacity',
+      'pasteWhenContextMenu',
+      'proxyIp',
+      'proxyPassword',
+      'proxyPort',
+      'proxyType',
+      'proxyUsername',
+      'rendererType',
+      'rightClickSelectsWord',
+      'saveTerminalLogToFile',
+      'scrollback',
+      'sshReadyTimeout',
+      'syncSetting',
+      'terminalTimeout',
+      'terminalType',
+      'theme',
+      'useSystemTitleBar',
+      'zoom'
+    ])
+    const text = JSON.stringify(objs)
+    const name = dayjs().format('YYYY-MM-DD-HH-mm-ss') + '-electerm-all-data.json'
+    download(name, text)
+  }
+
+  Store.prototype.importAll = function (file) {
+    const txt = window.pre
+      .readFileSync(file.path).toString()
+    const { store } = window
+    const objs = JSON.parse(txt)
+    for (const n of names) {
+      store.setItems(n, objs[n])
+    }
+    store.updateConfig(objs.config)
+  }
 }

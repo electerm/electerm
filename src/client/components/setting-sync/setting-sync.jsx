@@ -5,7 +5,7 @@
 import { Tabs, Spin } from 'antd'
 import SyncForm from './setting-sync-form'
 import { syncTypes } from '../../common/constants'
-
+import { DataTransport } from './data-import'
 const { TabPane } = Tabs
 
 export default function SyncSettingEntry (props) {
@@ -14,6 +14,7 @@ export default function SyncSettingEntry (props) {
   }
   return (
     <div className='pd2l'>
+      <DataTransport store={props.store} />
       <Spin spinning={props.isSyncingSetting}>
         <Tabs activeKey={props.syncType} onChange={handleChange}>
           {
