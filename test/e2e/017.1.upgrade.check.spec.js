@@ -23,7 +23,7 @@ describe('auto upgrade check', function () {
         }
         return ''
       })
-      await delay(50)
+      await delay(10)
     }
     await delay(5500)
     const sel = '.animate.upgrade-panel'
