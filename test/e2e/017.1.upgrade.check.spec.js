@@ -13,7 +13,6 @@ describe('auto upgrade check', function () {
     const electronApp = await electron.launch(appOptions)
     const client = await electronApp.firstWindow()
     extendClient(client, electronApp)
-    await delay(6500)
     let v = ''
     while (v !== '0.0.0') {
       v = await client.evaluate(() => {
@@ -25,7 +24,7 @@ describe('auto upgrade check', function () {
       })
       await delay(10)
     }
-    await delay(5500)
+    await delay(12500)
     const sel = '.animate.upgrade-panel'
     await client.hasElem(sel)
     await electronApp.close().catch(console.log)
