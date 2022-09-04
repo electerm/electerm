@@ -251,10 +251,10 @@ export default class Upgrade extends Component {
     if (error) {
       return this.renderError(error)
     }
-    if (!shouldUpgrade && !showCount) {
+    if (!shouldUpgrade && showCount < 2) {
       return null
     }
-    if (!shouldUpgrade && showCount) {
+    if (!shouldUpgrade && showCount > 1) {
       return this.renderCanNotUpgrade()
     }
     if (checkingRemoteVersion) {
