@@ -23,11 +23,14 @@ module.exports = exports.default = {
   },
   terminalTypes: [
     'xterm-256color',
+    'xterm-new',
     'xterm-color',
-    'vt100',
     'xterm-vt220',
     'xterm',
-    'ansi'
+    'linux',
+    'vt100',
+    'ansi',
+    'rxvt'
   ],
   host: '127.0.0.1'
 }
