@@ -73,6 +73,9 @@ export const convertTheme = (themeTxt) => {
     } else {
       const isTerminal = key.startsWith(terminalPrefix)
       key = key.replace(terminalPrefix, '')
+      if (key.includes('selection')) {
+        key = 'selectionBackground'
+      }
       if (isTerminal) {
         prev.themeConfig[key] = value
       } else {

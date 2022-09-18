@@ -149,7 +149,7 @@ export const defaultTheme = {
     background: '#141314',
     cursor: '#b5bd68',
     cursorAccent: '#1d1f21',
-    selection: 'rgba(255, 255, 255, 0.3)',
+    selectionBackground: 'rgba(255, 255, 255, 0.3)',
     black: '#575757',
     red: '#FF2C6D',
     green: '#19f9d8',

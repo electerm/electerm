@@ -42,6 +42,7 @@ import AttachAddon from './attach-addon-custom'
 import { SearchAddon } from 'xterm-addon-search'
 import { WebLinksAddon } from 'xterm-addon-web-links'
 import { SerializeAddon } from 'xterm-addon-serialize'
+import { CanvasAddon } from 'xterm-addon-canvas'
 import { Zmodem, AddonZmodem } from './xterm-zmodem'
 import { Unicode11Addon } from 'xterm-addon-unicode11'
 import keyControlPressed from '../../common/key-control-pressed'
@@ -125,7 +126,7 @@ export default class Term extends Component {
       prevProps.themeConfig
     )
     if (themeChanged) {
-      this.term.setOption('theme', this.props.themeConfig)
+      this.term.options.theme = deepCopy(this.props.themeConfig)
     }
   }
 
@@ -693,6 +694,7 @@ export default class Term extends Component {
     // let {password, privateKey, host} = this.props.tab
     const { themeConfig, tab = {}, config = {} } = this.props
     const term = new Terminal({
+      allowProposedApi: true,
       scrollback: config.scrollback,
       rightClickSelectsWord: config.rightClickSelectsWord || false,
       fontFamily: tab.fontFamily || config.fontFamily,
@@ -719,6 +721,7 @@ export default class Term extends Component {
     term.onSelectionChange(this.onSelection)
     this.loadState(term)
     term.open(document.getElementById(id), true)
+    term.loadAddon(new CanvasAddon())
     term.textarea.addEventListener('focus', this.setActive)
     // term.textarea.addEventListener('blur', this.onBlur)
 
