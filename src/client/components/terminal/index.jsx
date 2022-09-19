@@ -178,7 +178,7 @@ export default class Term extends Component {
       if (
         prev !== curr
       ) {
-        this.term.setOption(name, curr)
+        this.term.options[name] = curr
         if (['fontFamily', 'fontSize'].includes(name)) {
           this.onResize()
         }
