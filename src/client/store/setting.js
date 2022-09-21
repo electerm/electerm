@@ -22,10 +22,9 @@ const m = prefix('menu')
 export default Store => {
   Store.prototype.setConfig = function (conf) {
     const { store } = window
-    const base = copy(store.config)
     store._config = JSON.stringify(
       {
-        ...base,
+        ...store.config,
         ...conf
       }
     )

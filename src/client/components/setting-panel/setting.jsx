@@ -138,7 +138,6 @@ export default class Setting extends Component {
         message.success(e('saved'))
       }
     }
-    window.pre.runGlobalAsync('saveUserConfig', ext)
     this.props.store.setConfig(update)
   }
 

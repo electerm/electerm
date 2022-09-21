@@ -3,7 +3,7 @@
  */
 
 import createTitle from '../common/create-title'
-import { autoRun } from '@tylerlong/use-proxy'
+import autoRun from './auto-run'
 import copy from 'json-deep-copy'
 import { update, dbNames } from '../common/db'
 import {
@@ -18,7 +18,7 @@ export default store => {
   autoRun(store, () => {
     store.focus()
     return store.currentTabId
-  }, func => _.debounce(func, 1000))
+  }, func => _.debounce(func, 100))
 
   // autoRun(store, () => {
   //   if (store.menuOpened) {
@@ -29,14 +29,14 @@ export default store => {
   //   return store.menuOpened
   // })
 
-  autoRun(store, () => {
-    const v = store.getItems('tabs').map(t => {
-      delete t.isTransporting
-      return t
-    })
-    update('sessions', v)
-    return store._tabs
-  }, func => _.debounce(func, 1000))
+  // autoRun(store, () => {
+  //   const v = store.getItems('tabs').map(t => {
+  //     delete t.isTransporting
+  //     return t
+  //   })
+  //   update('sessions', v)
+  //   return store._tabs
+  // }, func => _.debounce(func, 100))
 
   for (const name of dbNames) {
     autoRun(store, async () => {
@@ -46,28 +46,28 @@ export default store => {
       )
       await store.updateLastDataUpdateTime()
       return store['_' + name]
-    }, func => _.debounce(func, 500))
+    }, func => _.debounce(func, 100))
   }
 
   autoRun(store, () => {
     update('openedCategoryIds', copy(store.openedCategoryIds))
     return store.openedCategoryIds
-  }, func => _.debounce(func, 1000))
+  }, func => _.debounce(func, 100))
 
   autoRun(store, () => {
     window.pre.runGlobalAsync('saveUserConfig', store.config)
     return store._config
-  }, func => _.debounce(func, 1000))
+  }, func => _.debounce(func, 100))
 
   autoRun(store, () => {
     store.updateLastDataUpdateTime()
     return store.config.theme
-  }, func => _.debounce(func, 1000))
+  }, func => _.debounce(func, 100))
 
   autoRun(store, () => {
     store.updateTabsStatus()
     return store.fileTransfers
-  }, func => _.debounce(func, 1000))
+  }, func => _.debounce(func, 100))
 
   autoRun(store, () => {
     ls.setItemJSON(sftpDefaultSortSettingKey, store.sftpSortSetting)
