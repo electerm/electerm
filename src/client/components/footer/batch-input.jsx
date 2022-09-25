@@ -9,6 +9,8 @@ import {
   Switch,
   Tooltip
 } from 'antd'
+import { batchInputLsKey, commonActions } from '../../common/constants'
+import postMsg from '../../common/post-msg'
 
 const { prefix } = window
 const e = prefix('ssh')
@@ -35,7 +37,15 @@ export default class BatchInput extends Component {
   }
 
   handleChange = (v = '') => {
-    const vv = v.replace(/^\d+:/, '').replace(/\n$/, '')
+    let vv = v.replace(/^\d+:/, '').replace(/\n$/, '')
+    if (vv === batchInputLsKey) {
+      postMsg({
+        action: commonActions.updateStore,
+        prop: 'batchInputs',
+        value: []
+      })
+      vv = ''
+    }
     this.setState({
       cmd: vv,
       open: false
@@ -67,10 +77,28 @@ export default class BatchInput extends Component {
     }
   }
 
+  renderClear = () => {
+    return {
+      value: batchInputLsKey,
+      label: e('clear')
+    }
+  }
+
+  buildOptions = () => {
+    const arr = this.props.store.batchInputs.map(this.mapper)
+    if (arr.length) {
+      return [
+        ...arr,
+        this.renderClear()
+      ]
+    }
+    return []
+  }
+
   render () {
     const { cmd, open, toAll } = this.state
     const opts = {
-      options: this.props.store.batchInputs.map(this.mapper),
+      options: this.buildOptions(),
       placeholder: e('batchInput'),
       value: cmd,
       onChange: this.handleChange,
