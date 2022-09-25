@@ -1,8 +1,8 @@
 import { Component } from '../common/react-subx'
 import {
-  Tooltip,
-  Input
+  Tooltip
 } from 'antd'
+import InputAutoFocus from './input-auto-focus'
 import {
   ArrowLeftOutlined,
   ArrowRightOutlined,
@@ -156,7 +156,7 @@ export default class TermSearch extends Component {
     }
     return (
       <div className='term-search-wrap'>
-        <Input
+        <InputAutoFocus
           value={termSearch}
           className='iblock'
           onChange={this.handleChange}
