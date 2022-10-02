@@ -41,8 +41,7 @@ export default class BatchInput extends Component {
     if (vv === batchInputLsKey) {
       postMsg({
         action: commonActions.updateStore,
-        prop: 'batchInputs',
-        value: []
+        func: 'clearBatchInput'
       })
       vv = ''
     }

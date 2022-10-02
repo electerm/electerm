@@ -21,5 +21,6 @@ export default Store => {
   }
   Store.prototype.clearBatchInput = function () {
     window.store.batchInputs = []
+    ls.setItemJSON(batchInputLsKey, [])
   }
 }
