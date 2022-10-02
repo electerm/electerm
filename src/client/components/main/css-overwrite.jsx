@@ -8,7 +8,7 @@ import { noTerminalBgValue } from '../../common/constants'
 
 export default class CssOverwrite extends PureComponent {
   componentDidMount () {
-    setTimeout(this.writeCss, 1000)
+    setTimeout(this.writeCss, 3000)
   }
 
   componentDidUpdate (prevProps) {
@@ -76,6 +76,7 @@ export default class CssOverwrite extends PureComponent {
   }
 
   updateCss = async () => {
+    console.log('up')
     const style = document.getElementById('css-overwrite')
     if (style) {
       style.innerHTML = await this.createStyle()
