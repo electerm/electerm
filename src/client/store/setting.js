@@ -181,7 +181,6 @@ export default Store => {
     const { store } = window
     store.showModal = false
     store.settingItem = {}
-    store.focus()
   }
 
   Store.prototype.loadFontList = async function () {

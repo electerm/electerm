@@ -282,6 +282,13 @@ export default class Term extends Component {
       return this.term && this.term.focus()
     }
     if (
+      type === 'blur' &&
+      isActiveTerminal
+    ) {
+      e.stopPropagation()
+      return this.term && this.term.blur()
+    }
+    if (
       keyControlPressed(e) &&
       keyShiftPressed(e) &&
       keyPressed(e, 'c')

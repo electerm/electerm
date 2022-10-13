@@ -38,6 +38,13 @@ export default Store => {
     })
   }
 
+  Store.prototype.blur = function () {
+    window.focused = false
+    postMessage({
+      type: 'blur'
+    })
+  }
+
   Store.prototype.onBlur = function () {
     window.focused = false
   }

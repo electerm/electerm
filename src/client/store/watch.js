@@ -55,6 +55,15 @@ export default store => {
   }, func => _.debounce(func, 100))
 
   autoRun(store, () => {
+    if (!store.showModal) {
+      store.focus()
+    } else {
+      store.blur()
+    }
+    return store.showModal
+  })
+
+  autoRun(store, () => {
     window.pre.runGlobalAsync('saveUserConfig', store.config)
     return store._config
   }, func => _.debounce(func, 100))
