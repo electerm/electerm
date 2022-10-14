@@ -20,6 +20,7 @@ import postMsg from '../../common/post-msg'
 import TermSearch from '../common/term-search'
 import Footer from '../footer/footer-entry'
 import QuickCommandsFooterBox from '../quick-commands/quick-commands-box'
+import LogoElelm from '../common/logo-elem'
 import { Button } from 'antd'
 
 const { prefix } = window
@@ -296,6 +297,9 @@ export default class Sessions extends Component {
         >
           {c('newBookmark')}
         </Button>
+        <div className='pd3'>
+          <LogoElelm />
+        </div>
       </div>
     )
   }

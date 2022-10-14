@@ -771,6 +771,7 @@ export default class Setting extends Component {
         }
         {
           [
+            'initDefaultTabOnStart',
             'cursorBlink',
             'rightClickSelectsWord',
             'pasteWhenContextMenu',

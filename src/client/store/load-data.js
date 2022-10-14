@@ -108,7 +108,7 @@ export default (Store) => {
     for (const s of arr) {
       store.onSelectBookmark(s)
     }
-    if (!arr.length) {
+    if (!arr.length && store.config.initDefaultTabOnStart) {
       store.initFirstTab()
     }
     setTimeout(store.confirmLoad, 1300)
