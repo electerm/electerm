@@ -10,13 +10,11 @@ import {
   BugOutlined
 } from '@ant-design/icons'
 import { Component } from '../common/react-subx'
-import { Modal, Tabs, Button, Tag } from 'antd'
+import { Modal, Tabs, Button } from 'antd'
 import Link from '../common/external-link'
+import LogoElelm from '../common/logo-elem'
 
 import {
-  logoPath1,
-  logoPath2,
-  logoPath3,
   packInfo,
   infoTabs,
   srcsSkipUpgradeCheck
@@ -86,11 +84,9 @@ export default class InfoModal extends Component {
         url: bugReportLink
       },
       releases: releaseLink,
-      version: packVer,
       privacyNoticeLink,
       knownIssuesLink
     } = packInfo
-    const version = 'v' + packVer
     const link = releaseLink.replace('/releases', '')
     const { env, versions } = window.pre
     const deps = {
@@ -123,16 +119,7 @@ export default class InfoModal extends Component {
         <div className='about-wrap'>
           <Tabs activeKey={infoModalTab} onChange={this.onChangeTab}>
             <TabPane tab={m('about')} key={infoTabs.info}>
-              <h1 className='mg3y font50'>
-                <span className='iblock pd3 morph-shape mg1l mg1r'>
-                  <img src={logoPath2} height={80} className='iblock mwm-100 mg1l mg1r logo-filter' />
-                </span>
-                <img src={logoPath3} height={80} className='hide' />
-                <sup>
-                  <img src={logoPath1} height={28} className='iblock mwm-100 mg1r' />
-                </sup>
-                <Tag color='#08c'>{version}</Tag>
-              </h1>
+              <LogoElelm />
               <p className='mg2b'>{a('desc')}</p>
               <p className='mg1b'>
                 => <b className='mg1r'>{e('author')}:</b>

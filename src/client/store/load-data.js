@@ -111,7 +111,7 @@ export default (Store) => {
     if (!arr.length) {
       store.initFirstTab()
     }
-
+    setTimeout(store.confirmLoad, 1300)
     const { initTime, loadTime } = window.pre.runSync('getLoadTime')
     if (loadTime) {
       store.loadTime = loadTime
@@ -128,6 +128,9 @@ export default (Store) => {
         return []
       })
     window.store._sshConfigItems = JSON.stringify(arr)
+  }
+  Store.prototype.confirmLoad = function () {
+    window.store.configLoaded = true
   }
   Store.prototype.initApp = async function () {
     const { store } = window
@@ -162,7 +165,6 @@ export default (Store) => {
       })
     ext.openedCategoryIds = await getData('openedCategoryIds') || JSON.parse(ext.bookmarkGroups || '[]').map(b => b.id)
     ext.lastDataUpdateTime = await getData('lastDataUpdateTime') || 0
-    ext.configLoaded = true
     Object.assign(store, ext)
 
     store.checkDefaultTheme()

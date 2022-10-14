@@ -122,8 +122,9 @@ export default class SystemMenu extends Component {
   }
 
   render () {
+    const { tabs } = this.props.store
     const pane = this.props.store.currentTab?.pane
-    if (pane === paneMap.fileManager) {
+    if (pane === paneMap.fileManager || !tabs.length) {
       return null
     }
     return (

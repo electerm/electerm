@@ -20,6 +20,11 @@ import postMsg from '../../common/post-msg'
 import TermSearch from '../common/term-search'
 import Footer from '../footer/footer-entry'
 import QuickCommandsFooterBox from '../quick-commands/quick-commands-box'
+import { Button } from 'antd'
+
+const { prefix } = window
+const e = prefix('tabs')
+const c = prefix('control')
 
 export default class Sessions extends Component {
   state = {
@@ -269,6 +274,32 @@ export default class Sessions extends Component {
     this.props.store.triggerResize()
   }
 
+  renderNoSession = () => {
+    const props = {
+      style: {
+        height: this.props.store.height + 'px'
+      }
+    }
+    return (
+      <div className='no-sessions electerm-logo-bg' {...props}>
+        <Button
+          onClick={this.props.store.initFirstTab}
+          size='large'
+          className='mg1r mg1b'
+        >
+          {e('newTab')}
+        </Button>
+        <Button
+          onClick={this.props.store.onNewSsh}
+          size='large'
+          className='mg1r mg1b'
+        >
+          {c('newBookmark')}
+        </Button>
+      </div>
+    )
+  }
+
   renderSessions () {
     const {
       store, config
@@ -277,6 +308,9 @@ export default class Sessions extends Component {
       currentTabId,
       tabs
     } = this.state
+    if (!tabs.length) {
+      return this.renderNoSession()
+    }
     return tabs.map((tab) => {
       const { id } = tab
       const cls = classNames(

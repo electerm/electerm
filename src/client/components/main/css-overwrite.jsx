@@ -76,7 +76,6 @@ export default class CssOverwrite extends PureComponent {
   }
 
   updateCss = async () => {
-    console.log('up')
     const style = document.getElementById('css-overwrite')
     if (style) {
       style.innerHTML = await this.createStyle()

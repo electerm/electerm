@@ -61,10 +61,6 @@ export default class Tab extends React.Component {
     runIdle(() => this.setState(...args))
   }
 
-  isOnlyTab = () => {
-    return this.props.tabs.length < 2
-  }
-
   onEvent = (e) => {
     if (
       e.data &&
@@ -249,26 +245,23 @@ export default class Tab extends React.Component {
   }
 
   renderContext () {
-    const isOnlyTab = this.isOnlyTab()
     const { tabs, tab } = this.props
     const len = tabs.length
     const index = _.findIndex(tabs, t => t.id === tab.id)
     const noRight = index >= len - 1
     const isSshConfig = tab.type === terminalSshConfigType
     const res = []
-    if (!isOnlyTab) {
-      res.push({
-        func: 'close',
-        icon: 'CloseOutlined',
-        text: e('close'),
-        subText: `${ctrlOrCmd} + W`
-      })
-      res.push({
-        func: 'closeOther',
-        icon: 'CloseOutlined',
-        text: e('closeOtherTabs')
-      })
-    }
+    res.push({
+      func: 'close',
+      icon: 'CloseOutlined',
+      text: e('close'),
+      subText: `${ctrlOrCmd} + W`
+    })
+    res.push({
+      func: 'closeOther',
+      icon: 'CloseOutlined',
+      text: e('closeOtherTabs')
+    })
     if (!noRight) {
       res.push({
         func: 'closeTabsRight',
@@ -352,10 +345,6 @@ export default class Tab extends React.Component {
   }
 
   renderCloseIcon () {
-    const isOnlyTab = this.isOnlyTab()
-    if (isOnlyTab) {
-      return null
-    }
     return (
       <span className='tab-close pointer'>
         <CloseOutlined onClick={this.close} />

@@ -14,6 +14,7 @@ import TerminalInteractive from '../terminal/terminal-interactive'
 import classnames from 'classnames'
 import { isMac, isWin } from '../../common/constants'
 import TermFullscreenControl from './term-fullscreen-control'
+import LogoElelm from '../common/logo-elem'
 import './wrapper.styl'
 
 export default class Index extends Component {
@@ -51,6 +52,7 @@ export default class Index extends Component {
   render () {
     const { store } = this.props
     const {
+      configLoaded,
       config,
       terminalFullScreen,
       pinned,
@@ -58,6 +60,7 @@ export default class Index extends Component {
       pinnedQuickCommandBar
     } = store
     const cls = classnames({
+      loaded: configLoaded,
       'system-ui': store.config.useSystemTitleBar,
       'is-mac': isMac,
       'is-win': isWin,
@@ -89,6 +92,9 @@ export default class Index extends Component {
     }
     return (
       <div {...ext1}>
+        <div className='loading-data'>
+          <LogoElelm />
+        </div>
         <TermFullscreenControl
           store={store}
         />
