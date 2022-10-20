@@ -22,6 +22,7 @@ import Footer from '../footer/footer-entry'
 import QuickCommandsFooterBox from '../quick-commands/quick-commands-box'
 import LogoElelm from '../common/logo-elem'
 import { Button } from 'antd'
+import toSimpleObj from '../../common/to-simple-obj'
 
 const { prefix } = window
 const e = prefix('tabs')
@@ -325,7 +326,7 @@ export default class Sessions extends Component {
       )
       const sessProps = {
         currentTabId,
-        tab,
+        tab: toSimpleObj(tab),
         ..._.pick(store, [
           'height',
           'width',
