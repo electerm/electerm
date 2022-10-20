@@ -14,7 +14,7 @@ import TerminalInteractive from '../terminal/terminal-interactive'
 import classnames from 'classnames'
 import { isMac, isWin } from '../../common/constants'
 import TermFullscreenControl from './term-fullscreen-control'
-import LogoElelm from '../common/logo-elem'
+import { LoadingUI } from './loading'
 import './wrapper.styl'
 
 export default class Index extends Component {
@@ -92,9 +92,7 @@ export default class Index extends Component {
     }
     return (
       <div {...ext1}>
-        <div className='loading-data'>
-          <LogoElelm />
-        </div>
+        <LoadingUI />
         <TermFullscreenControl
           store={store}
         />
