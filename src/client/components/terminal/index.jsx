@@ -340,9 +340,14 @@ export default class Term extends Component {
   }
 
   onSelection = () => {
-    if (this.props.config.copyWhenSelect) {
-      this.copySelectionToClipboard()
+    if (
+      !this.props.config.copyWhenSelect ||
+      this.props.store.termSearchOpen ||
+      this.props.store.showModal
+    ) {
+      return false
     }
+    this.copySelectionToClipboard()
   }
 
   copySelectionToClipboard = () => {
