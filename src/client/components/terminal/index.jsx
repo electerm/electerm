@@ -257,7 +257,7 @@ export default class Term extends Component {
         propSplitId === activeSplitId
       )
     ) {
-      this.openSearch()
+      this.toggleSearch()
     } else if (
       action === terminalActions.doSearchNext &&
       (
@@ -306,7 +306,7 @@ export default class Term extends Component {
       )
     ) {
       e.stopPropagation()
-      this.openSearch()
+      this.toggleSearch()
     } else if (
       keyPressed(e, 'tab')
     ) {
@@ -605,7 +605,7 @@ export default class Term extends Component {
     this.term.focus()
   }
 
-  openSearch = () => {
+  toggleSearch = () => {
     this.props.store.termSearchOpen = true
   }
 
@@ -665,7 +665,7 @@ export default class Term extends Component {
         text: e('selectAll')
       },
       {
-        func: 'openSearch',
+        func: 'toggleSearch',
         icon: 'SearchOutlined',
         text: e('search')
       },

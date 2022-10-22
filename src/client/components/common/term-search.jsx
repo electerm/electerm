@@ -8,13 +8,16 @@ import {
   ArrowRightOutlined,
   CloseCircleOutlined
 } from '@ant-design/icons'
-import { paneMap, terminalActions } from '../../common/constants'
+import { paneMap, terminalActions, isMac } from '../../common/constants'
 import postMessage from '../../common/post-msg'
 import { MatchCaseIcon } from '../icons/match-case'
 import { MatchWholWordIcon } from '../icons/match-whole-word'
 import { RegularExpIcon } from '../icons/regular-exp'
 import classNames from 'classnames'
 import copy from 'json-deep-copy'
+import keyShiftPressed from '../../common/key-shift-pressed'
+import keyControlPressed from '../../common/key-control-pressed'
+import keyPressed from '../../common/key-pressed'
 import './term-search.styl'
 
 const { prefix } = window
@@ -48,6 +51,32 @@ export default class TermSearch extends Component {
     icon: CloseCircleOutlined,
     cls: 'mg2l'
   }]
+
+  componentDidMount () {
+    window.addEventListener('keydown', this.handleEvent)
+  }
+
+  componentWillUnmount () {
+    window.removeEventListener('keydown', this.handleEvent)
+  }
+
+  toggleSearch = () => {
+    this.props.store.termSearchOpen = false
+    setTimeout(window.store.focus, 100)
+  }
+
+  handleEvent = (e) => {
+    if (
+      keyPressed(e, 'f') && keyControlPressed(e) &&
+      (
+        isMac ||
+        (!isMac && keyShiftPressed(e))
+      )
+    ) {
+      e.stopPropagation()
+      this.toggleSearch()
+    }
+  }
 
   prev = () => {
     const { activeTerminalId } = this.props.store
