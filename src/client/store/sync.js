@@ -302,14 +302,28 @@ export default (Store) => {
     download(name, text)
   }
 
-  Store.prototype.importAll = function (file) {
+  Store.prototype.importAll = async function (file) {
     const txt = window.pre
       .readFileSync(file.path).toString()
     const { store } = window
     const objs = JSON.parse(txt)
+    const toInsert = []
     for (const n of names) {
+      let arr = objs[n]
+      if (n === settingMap.terminalThemes) {
+        arr = store.fixThemes(arr)
+      }
+      toInsert.push({
+        name: n,
+        value: arr
+      })
       store.setItems(n, objs[n])
     }
+    for (const u of toInsert) {
+      await remove(u.name)
+      await insert(u.name, u.value)
+    }
     store.updateConfig(objs.config)
+    store.setTheme(objs.config.theme)
   }
 }
