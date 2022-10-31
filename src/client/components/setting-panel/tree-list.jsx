@@ -893,6 +893,14 @@ export default class ItemListTree extends React.PureComponent {
     const level1Bookgroups = bookmarkGroups.filter(
       d => !d.level || d.level < 2
     )
+    const treeProps = {
+      onExpand: this.props.onExpand || this.onExpand,
+      expandedKeys: keyword ? bookmarkGroups.map(f => f.id) : expandedKeys,
+      onSelect: this.onSelect,
+      draggable: staticList ? false : { icon: false },
+      selectedKeys: [activeItemId],
+      onDrop: this.onDrop
+    }
     return (
       <div className={`tree-list item-type-${type}`}>
         {
@@ -906,13 +914,7 @@ export default class ItemListTree extends React.PureComponent {
         <div className='item-list-wrap pd2r' style={listStyle}>
           {this.renderNewBookmarkGroup()}
           <Tree
-            onExpand={this.props.onExpand || this.onExpand}
-            expandedKeys={expandedKeys}
-            autoExpandAll={!!keyword || !!staticList}
-            onSelect={this.onSelect}
-            draggable={staticList ? false : { icon: false }}
-            selectedKeys={[activeItemId]}
-            onDrop={this.onDrop}
+            {...treeProps}
           >
             {level1Bookgroups.map(this.renderItem)}
           </Tree>
