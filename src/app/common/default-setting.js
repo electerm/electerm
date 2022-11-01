@@ -20,7 +20,7 @@ module.exports = exports.default = {
   disableTransferHistory: false,
   terminalBackgroundImagePath: '',
   terminalBackgroundFilterOpacity: 1,
-  terminalBackgroundFilterBlur: 1,
+  terminalBackgroundFilterBlur: 0,
   terminalBackgroundFilterBrightness: 1,
   terminalBackgroundFilterGrayscale: 0,
   terminalBackgroundFilterContrast: 1,
