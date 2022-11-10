@@ -327,6 +327,11 @@ export default class Term extends Component {
       keyPressed(e, 'tab')
     ) {
       this.onClear()
+    } else if (
+      e.altKey &&
+      keyPressed(e, 'insert')
+    ) {
+      this.tryInsertSelected()
     }
   }
 
@@ -354,6 +359,13 @@ export default class Term extends Component {
     const txt = this.term.getSelection()
     if (txt) {
       copy(txt)
+    }
+  }
+
+  tryInsertSelected = () => {
+    const txt = this.term.getSelection()
+    if (txt) {
+      this.attachAddon._sendData(txt)
     }
   }
 
