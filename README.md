@@ -12,7 +12,7 @@
 [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
 [![Get it from the Snap Store](https://img.shields.io/badge/Snap-Store-green)](https://snapcraft.io/electerm)
 [![Get it from the Microsoft Store](https://img.shields.io/badge/Microsoft-Store-blue)](https://www.microsoft.com/store/apps/9NCN7272GTFF)
-
+[![open collective badge](https://opencollective.com/electerm/tiers/backer/badge.svg?label=backer&color=brightgreen)](https://opencollective.com/electerm)
 
 Terminal/ssh/sftp client(linux, mac, win) based on electron/ssh2/node-pty/xterm/antd/[useProxy](https://github.com/tylerlong/use-proxy) and other libs.
 
@@ -97,6 +97,10 @@ npm i -g electerm
 ## Support
 
 Would love to hear from you, please tell me what you think, [submit an issue](https://github.com/electerm/electerm/issues), [Start a new discussion](https://github.com/electerm/electerm/discussions/new), [create/fix language files](https://github.com/electerm/electerm-locales) or create pull requests, all welcome.
+
+## Sponsor this project
+
+[![open collective badge](https://opencollective.com/electerm/tiers/backer.svg?avatarHeight=36&width=600)](https://opencollective.com/electerm)
 
 ## Dev
 
