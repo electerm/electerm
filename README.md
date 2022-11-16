@@ -102,6 +102,8 @@ Would love to hear from you, please tell me what you think, [submit an issue](ht
 
 [![open collective badge](https://opencollective.com/electerm/tiers/backer.svg?avatarHeight=36&width=600)](https://opencollective.com/electerm)
 
+[![wechat donate](https://github.com/electerm/electerm-resource/raw/master/static/images/electerm-wechat-donate.png)](https://github.com/electerm)
+
 ## Dev
 
 ```bash
