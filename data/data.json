@@ -1,6 +1,6 @@
 [
   {
-    "id": "ar_ar.js",
+    "id": "ar_ar",
     "lang": {
       "lang": {
         "app": {
@@ -317,7 +317,7 @@
       "match": "ar",
       "flag": "🇸🇦"
     },
-    "pathHtml": "/electerm/index-ar_ar.js.html",
+    "pathHtml": "/electerm/index-ar_ar.html",
     "assets": {
       "linux": {
         "name": "linux x86 x64",
@@ -684,10 +684,10 @@
     "releaseDate": "2022-11-15T10:16:34Z",
     "siteKeywords": "electron,ternimal,electerm,ssh,sftp",
     "siteName": "electerm",
-    "path": "/home/execapp/dev/electerm.html5beta.com/index-ar_ar.js.html"
+    "path": "/home/execapp/dev/electerm.html5beta.com/index-ar_ar.html"
   },
   {
-    "id": "de_de.js",
+    "id": "de_de",
     "lang": {
       "lang": {
         "app": {
@@ -1004,7 +1004,7 @@
       "match": "de",
       "flag": "🇩🇪"
     },
-    "pathHtml": "/electerm/index-de_de.js.html",
+    "pathHtml": "/electerm/index-de_de.html",
     "assets": {
       "linux": {
         "name": "linux x86 x64",
@@ -1371,10 +1371,10 @@
     "releaseDate": "2022-11-15T10:16:34Z",
     "siteKeywords": "electron,ternimal,electerm,ssh,sftp",
     "siteName": "electerm",
-    "path": "/home/execapp/dev/electerm.html5beta.com/index-de_de.js.html"
+    "path": "/home/execapp/dev/electerm.html5beta.com/index-de_de.html"
   },
   {
-    "id": "en_us.js",
+    "id": "en_us",
     "lang": {
       "lang": {
         "app": {
@@ -1691,7 +1691,7 @@
       "match": "en",
       "flag": "🇺🇸"
     },
-    "pathHtml": "/electerm/index-en_us.js.html",
+    "pathHtml": "/electerm",
     "assets": {
       "linux": {
         "name": "linux x86 x64",
@@ -2058,10 +2058,10 @@
     "releaseDate": "2022-11-15T10:16:34Z",
     "siteKeywords": "electron,ternimal,electerm,ssh,sftp",
     "siteName": "electerm",
-    "path": "/home/execapp/dev/electerm.html5beta.com/index-en_us.js.html"
+    "path": "/home/execapp/dev/electerm.html5beta.com/index.html"
   },
   {
-    "id": "es_es.js",
+    "id": "es_es",
     "lang": {
       "lang": {
         "app": {
@@ -2378,7 +2378,7 @@
       "match": "es",
       "flag": "🇪🇸"
     },
-    "pathHtml": "/electerm/index-es_es.js.html",
+    "pathHtml": "/electerm/index-es_es.html",
     "assets": {
       "linux": {
         "name": "linux x86 x64",
@@ -2745,10 +2745,10 @@
     "releaseDate": "2022-11-15T10:16:34Z",
     "siteKeywords": "electron,ternimal,electerm,ssh,sftp",
     "siteName": "electerm",
-    "path": "/home/execapp/dev/electerm.html5beta.com/index-es_es.js.html"
+    "path": "/home/execapp/dev/electerm.html5beta.com/index-es_es.html"
   },
   {
-    "id": "fr_fr.js",
+    "id": "fr_fr",
     "lang": {
       "lang": {
         "app": {
@@ -3065,7 +3065,7 @@
       "match": "fr",
       "flag": "🇫🇷"
     },
-    "pathHtml": "/electerm/index-fr_fr.js.html",
+    "pathHtml": "/electerm/index-fr_fr.html",
     "assets": {
       "linux": {
         "name": "linux x86 x64",
@@ -3432,10 +3432,10 @@
     "releaseDate": "2022-11-15T10:16:34Z",
     "siteKeywords": "electron,ternimal,electerm,ssh,sftp",
     "siteName": "electerm",
-    "path": "/home/execapp/dev/electerm.html5beta.com/index-fr_fr.js.html"
+    "path": "/home/execapp/dev/electerm.html5beta.com/index-fr_fr.html"
   },
   {
-    "id": "ja_jp.js",
+    "id": "ja_jp",
     "lang": {
       "lang": {
         "app": {
@@ -3752,7 +3752,7 @@
       "match": "ja|ja(-|_)jp",
       "flag": "🇯🇵"
     },
-    "pathHtml": "/electerm/index-ja_jp.js.html",
+    "pathHtml": "/electerm/index-ja_jp.html",
     "assets": {
       "linux": {
         "name": "linux x86 x64",
@@ -4119,10 +4119,10 @@
     "releaseDate": "2022-11-15T10:16:34Z",
     "siteKeywords": "electron,ternimal,electerm,ssh,sftp",
     "siteName": "electerm",
-    "path": "/home/execapp/dev/electerm.html5beta.com/index-ja_jp.js.html"
+    "path": "/home/execapp/dev/electerm.html5beta.com/index-ja_jp.html"
   },
   {
-    "id": "ko_kr.js",
+    "id": "ko_kr",
     "lang": {
       "lang": {
         "app": {
@@ -4439,7 +4439,7 @@
       "match": "ko|ko(-|_)kr",
       "flag": "🇰🇷"
     },
-    "pathHtml": "/electerm/index-ko_kr.js.html",
+    "pathHtml": "/electerm/index-ko_kr.html",
     "assets": {
       "linux": {
         "name": "linux x86 x64",
@@ -4806,10 +4806,10 @@
     "releaseDate": "2022-11-15T10:16:34Z",
     "siteKeywords": "electron,ternimal,electerm,ssh,sftp",
     "siteName": "electerm",
-    "path": "/home/execapp/dev/electerm.html5beta.com/index-ko_kr.js.html"
+    "path": "/home/execapp/dev/electerm.html5beta.com/index-ko_kr.html"
   },
   {
-    "id": "pt_br.js",
+    "id": "pt_br",
     "lang": {
       "lang": {
         "app": {
@@ -5126,7 +5126,7 @@
       "match": "pt",
       "flag": "🇧🇷"
     },
-    "pathHtml": "/electerm/index-pt_br.js.html",
+    "pathHtml": "/electerm/index-pt_br.html",
     "assets": {
       "linux": {
         "name": "linux x86 x64",
@@ -5493,10 +5493,10 @@
     "releaseDate": "2022-11-15T10:16:34Z",
     "siteKeywords": "electron,ternimal,electerm,ssh,sftp",
     "siteName": "electerm",
-    "path": "/home/execapp/dev/electerm.html5beta.com/index-pt_br.js.html"
+    "path": "/home/execapp/dev/electerm.html5beta.com/index-pt_br.html"
   },
   {
-    "id": "ru_ru.js",
+    "id": "ru_ru",
     "lang": {
       "lang": {
         "app": {
@@ -5813,7 +5813,7 @@
       "match": "ru",
       "flag": "🇷🇺"
     },
-    "pathHtml": "/electerm/index-ru_ru.js.html",
+    "pathHtml": "/electerm/index-ru_ru.html",
     "assets": {
       "linux": {
         "name": "linux x86 x64",
@@ -6180,10 +6180,10 @@
     "releaseDate": "2022-11-15T10:16:34Z",
     "siteKeywords": "electron,ternimal,electerm,ssh,sftp",
     "siteName": "electerm",
-    "path": "/home/execapp/dev/electerm.html5beta.com/index-ru_ru.js.html"
+    "path": "/home/execapp/dev/electerm.html5beta.com/index-ru_ru.html"
   },
   {
-    "id": "tr_tr.js",
+    "id": "tr_tr",
     "lang": {
       "lang": {
         "app": {
@@ -6500,7 +6500,7 @@
       "match": "tr",
       "flag": "🇹🇷"
     },
-    "pathHtml": "/electerm/index-tr_tr.js.html",
+    "pathHtml": "/electerm/index-tr_tr.html",
     "assets": {
       "linux": {
         "name": "linux x86 x64",
@@ -6867,10 +6867,10 @@
     "releaseDate": "2022-11-15T10:16:34Z",
     "siteKeywords": "electron,ternimal,electerm,ssh,sftp",
     "siteName": "electerm",
-    "path": "/home/execapp/dev/electerm.html5beta.com/index-tr_tr.js.html"
+    "path": "/home/execapp/dev/electerm.html5beta.com/index-tr_tr.html"
   },
   {
-    "id": "zh_cn.js",
+    "id": "zh_cn",
     "lang": {
       "lang": {
         "app": {
@@ -7187,7 +7187,7 @@
       "match": "zh(-|_)cn|zh(-|_)mo|zh(-|_)sg",
       "flag": "🇨🇳"
     },
-    "pathHtml": "/electerm/index-zh_cn.js.html",
+    "pathHtml": "/electerm/index-zh_cn.html",
     "assets": {
       "linux": {
         "name": "linux x86 x64",
@@ -7554,10 +7554,10 @@
     "releaseDate": "2022-11-15T10:16:34Z",
     "siteKeywords": "electron,ternimal,electerm,ssh,sftp",
     "siteName": "electerm",
-    "path": "/home/execapp/dev/electerm.html5beta.com/index-zh_cn.js.html"
+    "path": "/home/execapp/dev/electerm.html5beta.com/index-zh_cn.html"
   },
   {
-    "id": "zh_tw.js",
+    "id": "zh_tw",
     "lang": {
       "lang": {
         "app": {
@@ -7874,7 +7874,7 @@
       "match": "zh(-|_)tw|zh(-|_)hk",
       "flag": "🇭🇰"
     },
-    "pathHtml": "/electerm/index-zh_tw.js.html",
+    "pathHtml": "/electerm/index-zh_tw.html",
     "assets": {
       "linux": {
         "name": "linux x86 x64",
@@ -8241,6 +8241,6 @@
     "releaseDate": "2022-11-15T10:16:34Z",
     "siteKeywords": "electron,ternimal,electerm,ssh,sftp",
     "siteName": "electerm",
-    "path": "/home/execapp/dev/electerm.html5beta.com/index-zh_tw.js.html"
+    "path": "/home/execapp/dev/electerm.html5beta.com/index-zh_tw.html"
   }
 ]
