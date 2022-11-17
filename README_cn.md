@@ -4,7 +4,7 @@
     </a>
 </h1>
 
-[中文](README_cn.md)
+[English](README.md)
 
 # electerm [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=Open%20sourced%20terminal%2Fssh%2Fsftp%20client(linux%2C%20mac%2C%20win)&url=https%3A%2F%2Fgithub.com%2Felecterm%2Felecterm&hashtags=electerm,ssh,terminal,sftp)
 
@@ -16,41 +16,41 @@
 [![Get it from the Microsoft Store](https://img.shields.io/badge/Microsoft-Store-blue)](https://www.microsoft.com/store/apps/9NCN7272GTFF)
 [![open collective badge](https://opencollective.com/electerm/tiers/backer/badge.svg?label=backer&color=brightgreen)](https://opencollective.com/electerm)
 
-Terminal/ssh/sftp client(linux, mac, win) based on electron/ssh2/node-pty/xterm/antd/[useProxy](https://github.com/tylerlong/use-proxy) and other libs.
+终端/ssh/sftp客户端(linux, mac, win)，基于 electron/ssh2/node-pty/xterm/antd/[useProxy](https://github.com/tylerlong/use-proxy)等开源组件。
 
 <div align="center">
   <img src="https://github.com/electerm/electerm-resource/raw/master/static/images/electerm.gif", alt="" />
 </div>
 
-## Features
+## 功能特性
 
-- Works as a terminal/file manager or ssh/sftp client(similar to xshell)
-- Global hotkey to toggle window visibility (similar to guake, default is `ctrl + 2`)
-- Multi platform(linux, mac, win)
-- 🇺🇸 🇨🇳 🇧🇷 🇷🇺 🇪🇸 🇫🇷 🇹🇷 🇭🇰 🇯🇵 🇸🇦 🇩🇪 🇰🇷 Multi-language support([electerm-locales](https://github.com/electerm/electerm-locales), contributions/fixes welcome)
-- Double click to directly edit (small) remote files.
-- Auth with publicKey + password.
-- Support Zmodem(rz, sz).
-- Support [Trzsz](https://github.com/trzsz/trzsz)(trz/tsz), similar to rz/sz, and compatible with tmux.
-- Transparent window(Mac, win).
-- Terminal background image.
-- Global/session proxy.
-- Quick commands
-- UI/terminal theme
-- Sync bookmarks/themes/quick commands to github/gitee secret gist
-- Support serial Port(version > 1.21.8)
-- Quick input to one or all terminals.
-- Command line usage: check [wiki](https://github.com/electerm/electerm/wiki/Command-line-usage)
+- 支持本地和远程文件管理，sftp文件传输，以及作为本地终端使用
+- 全局快捷键切换隐藏显示窗口(类似guake, 默认快捷键`ctrl + 2`)
+- 多平台支持(linux, mac, win)
+- 🇺🇸 🇨🇳 🇧🇷 🇷🇺 🇪🇸 🇫🇷 🇹🇷 🇭🇰 🇯🇵 🇸🇦 🇩🇪 🇰🇷 多国语言支持([electerm-locales](https://github.com/electerm/electerm-locales), 欢迎提交代码)
+- 双击直接编辑远程文件.
+- 支持密码或者密匙登录.
+- 支持Zmodem(rz, sz).
+- 支持[Trzsz](https://github.com/trzsz/trzsz)(trz/tsz), 类似rz/sz, 兼容tmux.
+- 支持透明窗口(Mac, win).
+- 支持设置终端背景图片.
+- 支持代理服务器.
+- 支持预设快捷命令
+- 支持主题
+- 支持同步书签等数据到github/gitee私人gist
+- 支持serial Port(version > 1.21.8)
+- 支持快速输入命令到一个或者多个终端
+- 支持命令行使用: 请参阅[wiki](https://github.com/electerm/electerm/wiki/Command-line-usage)
 
-## Download/install
+## 下载/安装
 
 - [https://electerm.github.io/electerm](https://electerm.github.io/electerm)
-- From release: [https://github.com/electerm/electerm/releases](https://github.com/electerm/electerm/releases)
-- For Mac user: `brew install --cask electerm`
-- With snap: `sudo snap install electerm --classic`
-- For some Linux distribution, you can find it from OS default App store(Ubuntu, Deepin, Mint...).
-- For some linux OS, the `rpm`, `deb`, or `snap` release may not work, you can try the `tar.gz` release.
-- For Windows users, you can install it from [windows store](https://www.microsoft.com/store/apps/9NCN7272GTFF), command-line installer [winget](https://github.com/microsoft/winget-cli) and [scoop](https://github.com/lukesampson/scoop) is also recommended:
+- 发布页面: [https://github.com/electerm/electerm/releases](https://github.com/electerm/electerm/releases)
+- Mac OS用户: `brew install --cask electerm`
+- Snap: `sudo snap install electerm --classic`
+- 一些Linux发行版的内置软件商店(Ubuntu, Deepin, Mint...).
+- 不支持`rpm`, `deb`, or `snap` 的Linux发行版可以尝试 `tar.gz`版本.
+- Windows用户可以从[windows store](https://www.microsoft.com/store/apps/9NCN7272GTFF), 命令行安装工具 [winget](https://github.com/microsoft/winget-cli)，以及[scoop](https://github.com/lukesampson/scoop) :
 
 ```powershell
 # winget https://github.com/microsoft/winget-cli
@@ -61,7 +61,7 @@ scoop bucket add dorado https://github.com/chawyehsu/dorado
 scoop install dorado/electerm
 ```
 
-- Install from npm
+- 从npm安装
 
 ```bash
 npm i -g electerm
@@ -71,19 +71,19 @@ npm i -g electerm
 
 ```
 
-## Upgrade
+## 升级
 
-- Auto upgrade: When a new version is released, you will get an upgrade notification after you start electerm again. You can then click the upgrade button to upgrade.
-- Download: Just download the latest edition, reinstall.
-- Npm: If you install from npm, just run `npm i -g electerm` again.
-- If use Snap or some other distribution system, these systems may provide upgrades.
+- 自动升级: 点击新版本的升级按钮.
+- 下载: 重新下载最新版安装.
+- Npm: 如果是从npm安装 再次运行`npm i -g electerm` 即可.
+- 如果从Linux发行版软件商店或者Snap安装，可能有自动升级机制.
 
-## Themes
+## 主题配色
 
 - https://github.com/mbadolato/iTerm2-Color-Schemes/tree/master/electerm
 - https://github.com/Hope-IT-Works/electerm-theme-termius
 
-## Known issues
+## 已知问题
 
 [https://github.com/electerm/electerm/wiki/Know-issues](https://github.com/electerm/electerm/wiki/Know-issues)
 
@@ -91,25 +91,25 @@ npm i -g electerm
 
 [https://github.com/electerm/electerm/wiki/Troubleshoot](https://github.com/electerm/electerm/wiki/Troubleshoot)
 
-## Discussion
+## 讨论区
 
 [Discussion board](https://github.com/electerm/electerm/discussions)
 
-## Support
+## 支持
 
-Would love to hear from you, please tell me what you think, [submit an issue](https://github.com/electerm/electerm/issues), [Start a new discussion](https://github.com/electerm/electerm/discussions/new), [create/fix language files](https://github.com/electerm/electerm-locales) or create pull requests, all welcome.
+欢迎提建议或者报告问题, [提交问题](https://github.com/electerm/electerm/issues), [展开讨论](https://github.com/electerm/electerm/discussions/new), [修复或者创建语言文件](https://github.com/electerm/electerm-locales)或者贡献代码。
 
-## Sponsor this project
+## 赞助项目
 
 open collective
 
 [![open collective badge](https://opencollective.com/electerm/tiers/backer.svg?avatarHeight=36&width=600)](https://opencollective.com/electerm)
 
-wechat donate
+微信赞赏码
 
 [![wechat donate](https://github.com/electerm/electerm-resource/raw/master/static/images/electerm-wechat-donate.png)](https://github.com/electerm)
 
-## Dev
+## 开发
 
 ```bash
 # tested in ubuntu16.04+/mac os 10.13+ only
@@ -134,7 +134,7 @@ npm run lint
 npm run fix
 ```
 
-## Test
+## 测试
 
 ```bash
 npm run pre-test
@@ -144,7 +144,7 @@ cp .sample.env .env
 npm run test
 ```
 
-## Test build
+## 测试构建
 
 ```bash
 # Tested only in ubuntu 16.04 x64+
@@ -158,14 +158,14 @@ npm run release -l
 # check dist/ folder
 ```
 
-## Use
+## 使用技巧
 
 - [Set autorun when login to os](https://github.com/electerm/electerm/wiki/Autorun-electerm-when-login-to-os)
 
-## Change log
+## 变更历史
 
 Visit [Releases](https://github.com/electerm/electerm/releases).
 
-## License
+## 许可证
 
 MIT
