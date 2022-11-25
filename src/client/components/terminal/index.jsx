@@ -618,7 +618,8 @@ export default class Term extends Component {
   }
 
   toggleSearch = () => {
-    this.props.store.termSearchOpen = true
+    console.log('ff1')
+    this.props.store.toggleTerminalSearch()
   }
 
   onLineFeed = e => {

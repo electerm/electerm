@@ -59,4 +59,13 @@ export default Store => {
   }, 100, {
     leading: true
   })
+
+  Store.prototype.toggleTerminalSearch = function () {
+    const now = Date.now()
+    if (window.lastToggleTerminalSearch && now - window.lastToggleTerminalSearch < 300) {
+      return
+    }
+    window.lastToggleTerminalSearch = now
+    window.store.termSearchOpen = !window.store.termSearchOpen
+  }
 }
