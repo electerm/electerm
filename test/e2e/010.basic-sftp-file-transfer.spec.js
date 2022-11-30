@@ -104,7 +104,7 @@ describe('sftp file transfer', function () {
     expect(remoteFileList).equal(remoteFileListBefore + 1)
 
     // enter folder
-    await client.doubleClick('.session-current .file-list.remote .sftp-item.real-file-item')
+    await client.doubleClick('.session-current .file-list.remote .sftp-item:not(.virtual-file-unit) .file-bg')
     await delay(9000)
     const pathCurrentRemote = await client.getValue('.session-current .sftp-remote-section .sftp-title input')
     expect(pathCurrentRemote.includes(fname0)).equal(true)
