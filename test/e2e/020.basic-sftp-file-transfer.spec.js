@@ -172,9 +172,9 @@ describe('sftp file transfer', function () {
     await delay(1200)
 
     await client.keyboard.press('Delete')
-    await delay(1260)
+    await delay(1060)
     await client.keyboard.press('Enter')
-    await delay(3000)
+    await delay(7000)
     let localFileList2 = await client.elements('.session-current .file-list.local .sftp-item')
     localFileList2 = await localFileList2.count()
     expect(localFileList2).equal(localFileListBefore)

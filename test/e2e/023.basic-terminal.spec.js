@@ -23,7 +23,7 @@ describe('terminal', function () {
     const cmd = isWin
       ? 'dir'
       : 'ls'
-    await delay(6500)
+    await delay(7500)
 
     await basicTermTest(client, cmd)
     await electronApp.close().catch(console.log)
