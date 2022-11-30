@@ -183,7 +183,9 @@ describe('sftp file transfer', function () {
     log('010 -> goto parent remote')
     await client.click('.session-current .sftp-remote-section .anticon-arrow-up')
     await delay(8000)
+    log('010 -> goto parent remote1')
     let remoteFileList1 = await client.elements('.session-current .file-list.remote .sftp-item')
+    log('010 -> goto parent remote2')
     remoteFileList1 = await remoteFileList1.count()
     expect(remoteFileList1).equal(remoteFileList)
 

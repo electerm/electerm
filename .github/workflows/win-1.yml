@@ -36,6 +36,7 @@ jobs:
     # before_install:
     # - run: npm install --global --production windows-build-tools --vs2015
     - run: npm install -g yarn
+    - run: rmdir %LocalAppData%/node-gyp/Cache
     - run: npm i
 
     # script:
