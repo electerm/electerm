@@ -35,7 +35,7 @@ describe('sftp basic', function () {
       return window.store.history.length
     })
 
-    log('check ssh config items')
+    log('004 -> check ssh config items')
     const sshConfigCount = await client.evaluate(() => {
       return window.store.sshConfigItems.length
     })
@@ -59,7 +59,7 @@ describe('sftp basic', function () {
     await basicTermTest(client, cmd)
 
     // click sftp tab
-    log('click sftp tab')
+    log('004 -> click sftp tab')
     await client.click('.session-current .term-sftp-tabs .type-tab', 1)
     await delay(2500)
 
@@ -80,7 +80,7 @@ describe('sftp basic', function () {
     const localFileListBefore = await client.countElem('.session-current .file-list.local .sftp-item')
     await client.rightClick('.session-current .file-list.local .real-file-item', 10, 10)
     await delay(3300)
-    log('add folder')
+    log('004 -> add folder')
 
     await client.click('.context-menu .anticon-folder-add')
     await delay(200)
@@ -103,7 +103,7 @@ describe('sftp basic', function () {
     await delay(200)
     await client.rightClick('.session-current .file-list.local .sftp-item', 10, 10)
     await delay(200)
-    log('add file')
+    log('004 -> add file')
     await client.click('.context-menu .anticon-file-add')
     await delay(200)
     const fname00 = '00000test-electerm' + nanoid()
@@ -117,7 +117,7 @@ describe('sftp basic', function () {
     await delay(1000)
     await client.rightClick('.session-current .file-list.local .real-file-item', 10, 10)
     await delay(200)
-    log('select all')
+    log('004 -> select all')
     await client.click('.context-menu .anticon-check-square')
     await delay(120)
     await client.keyboard.press('Delete')
@@ -130,14 +130,14 @@ describe('sftp basic', function () {
 
     // goto parent
     await delay(20)
-    log('goto parent')
+    log('004 -> goto parent')
     await client.click('.session-current .sftp-local-section .anticon-arrow-up')
     await delay(2000)
     const localFileList1 = await client.countElem('.session-current .file-list.local .sftp-item')
     expect(localFileList1).equal(localFileList)
 
     // del folder
-    log('del folder')
+    log('004 -> del folder')
     await delay(100)
     await client.click('.session-current .file-list.local .real-file-item')
     await delay(200)
@@ -151,6 +151,7 @@ describe('sftp basic', function () {
 
     // remote test
     // make a remote folder
+    log('004 -> make a remote folder')
     const remoteFileListBefore = await client.countElem('.session-current .file-list.remote .sftp-item')
     await client.rightClick('.session-current .file-list.remote .real-file-item', 10, 10)
     await delay(200)
@@ -164,6 +165,7 @@ describe('sftp basic', function () {
     expect(remoteFileList).equal(remoteFileListBefore + 1)
 
     // enter folder
+    log('004 -> enter folder')
     await client.doubleClick('.session-current .file-list.remote .sftp-item.real-file-item')
     await delay(9000)
     const pathCurrentRemote = await client.getValue('.session-current .sftp-remote-section .sftp-title input')
@@ -174,12 +176,14 @@ describe('sftp basic', function () {
     expect(remoteFileList0).equal(1)
 
     // goto parent
+    log('004 -> goto parent folder')
     await client.click('.session-current .sftp-remote-section .anticon-arrow-up')
     await delay(5000)
     const remoteFileList1 = await client.countElem('.session-current .file-list.remote .sftp-item')
     expect(remoteFileList1).equal(remoteFileList)
 
     // del folder
+    log('004 -> del folder')
     await client.click('.session-current .file-list.remote .real-file-item')
     await delay(200)
     // await client.execute(function () {

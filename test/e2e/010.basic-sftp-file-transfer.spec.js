@@ -46,7 +46,7 @@ describe('sftp file transfer', function () {
     await basicTermTest(client, cmd)
 
     // click sftp tab
-    log('click sftp tab')
+    log('010 -> click sftp tab')
     await client.click('.session-current .term-sftp-tabs .type-tab', 1)
     await delay(2500)
 
@@ -55,7 +55,7 @@ describe('sftp file transfer', function () {
     localFileListBefore = await localFileListBefore.count()
     await client.rightClick('.session-current .file-list.local .real-file-item', 10, 10)
     await delay(3300)
-    log('add folder')
+    log('010 -> add folder')
 
     await client.click('.context-menu .anticon-folder-add')
     await delay(200)
@@ -80,7 +80,7 @@ describe('sftp file transfer', function () {
     await delay(200)
     await client.rightClick('.session-current .file-list.local .sftp-item', 10, 10)
     await delay(200)
-    log('add file')
+    log('010 -> add file')
     await client.click('.context-menu .anticon-file-add')
     await delay(200)
     const fname00 = '00000test-electerm' + nanoid()
@@ -111,7 +111,6 @@ describe('sftp file transfer', function () {
     await client.doubleClick('.session-current .file-list.remote .sftp-item:not(.virtual-file-unit) .file-bg')
     await delay(9000)
     const pathCurrentRemote = await client.getValue('.session-current .sftp-remote-section .sftp-title input')
-    log(pathCurrentRemote)
     expect(pathCurrentRemote.includes(fname0)).equal(true)
     let remoteFileList0 = await client.elements('.session-current .file-list.remote .sftp-item')
     remoteFileList0 = await remoteFileList0.count()
@@ -122,19 +121,19 @@ describe('sftp file transfer', function () {
     await delay(200)
     await client.rightClick('.session-current .file-list.local .sftp-item.real-file-item', 3, 3)
     await delay(200)
-    log('do upload')
+    log('010 -> do upload')
     await client.click('.context-menu .anticon-cloud-upload')
 
     // transfer remote to local
     await delay(500)
-    log('del')
+    log('010 -> del')
     await client.click('.session-current .file-list.local .sftp-item.real-file-item .file-bg')
     await delay(200)
 
     // select all and del local file
     await client.rightClick('.session-current .file-list.local .real-file-item', 10, 10)
     await delay(200)
-    log('select all')
+    log('010 -> select all')
     await client.click('.context-menu .anticon-check-square')
     await delay(120)
     await client.keyboard.press('Delete')
@@ -159,7 +158,7 @@ describe('sftp file transfer', function () {
 
     // goto parent
     await delay(20)
-    log('goto parent')
+    log('010 -> goto parent')
     await client.click('.session-current .sftp-local-section .anticon-arrow-up')
     await delay(2000)
     let localFileList1 = await client.elements('.session-current .file-list.local .sftp-item')
@@ -167,7 +166,7 @@ describe('sftp file transfer', function () {
     expect(localFileList1).equal(localFileList)
 
     // del folder
-    log('del folder')
+    log('010 -> del folder')
     await delay(100)
     await client.click('.session-current .file-list.local .real-file-item')
     await delay(200)
@@ -181,6 +180,7 @@ describe('sftp file transfer', function () {
     expect(localFileList2).equal(localFileListBefore)
 
     // goto parent remote
+    log('010 -> goto parent remote')
     await client.click('.session-current .sftp-remote-section .anticon-arrow-up')
     await delay(5000)
     let remoteFileList1 = await client.elements('.session-current .file-list.remote .sftp-item')
@@ -188,6 +188,7 @@ describe('sftp file transfer', function () {
     expect(remoteFileList1).equal(remoteFileList)
 
     // del folder
+    log('010 -> del folder')
     await client.click('.session-current .file-list.remote .real-file-item')
     await delay(200)
     // await client.execute(function () {
