@@ -1,0 +1,49 @@
+# This workflow will do a clean install of node dependencies, build the source code and run tests across different versions of node
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
+
+name: mac-x64-test-2
+
+on:
+  push:
+    branches: [ build, test ]
+
+jobs:
+  build:
+
+    runs-on: ${{ matrix.os }}
+    environment: build
+    if: "!contains(github.event.head_commit.message, '[skip test]') && !contains(github.event.head_commit.message, '[skip ci]') && !contains(github.event.head_commit.message, '[skip mac]')"
+
+    strategy:
+      matrix:
+        os: [macos-11]
+        node-version: [ 16.x ]
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+
+    # before_install:
+    - run: npm install -g yarn
+    - run: npm i
+
+    # script:
+    - run: npm run pre-test
+
+    - name: test
+      uses: GabrielBB/xvfb-action@v1
+      with:
+        run: npm run test3
+      env:
+        NODE_TEST: 1
+        TEST_HOST: ${{ secrets.TEST_HOST }}
+        TEST_USER: ${{ secrets.TEST_USER_DARWIN }}
+        TEST_PASS: ${{ secrets.TEST_PASS_DARWIN }}
+        GIST_TOKEN: ${{ secrets.GIST_TOKEN }}
+        GIST_ID: ${{ secrets.GIST_ID }}
+        GITEE_TOKEN: ${{ secrets.GITEE_TOKEN }}
+        GITEE_ID: ${{ secrets.GITEE_ID }}
+

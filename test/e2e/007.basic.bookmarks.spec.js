@@ -70,12 +70,12 @@ describe('bookmarks', function () {
 
     // await delay(55555555)
 
-    log('tab it')
-    await client.click('.setting-wrap .ant-tabs-tab', 2)
+    // log('tab it')
+    // await client.click('.setting-wrap .ant-tabs-tab', 2)
 
-    await delay(100)
-    const text4 = await client.getText(sel)
-    expect(text4).equal(e('setting'))
-    await electronApp.close().catch(console.log)
+    // await delay(100)
+    // const text4 = await client.getText(sel)
+    // expect(text4).equal(e('setting'))
+    // await electronApp.close().catch(console.log)
   })
 })
