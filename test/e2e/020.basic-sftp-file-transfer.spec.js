@@ -69,7 +69,7 @@ describe('sftp file transfer', function () {
 
     // enter folder
     await client.doubleClick('.session-current .file-list.local .sftp-item:not(.virtual-file-unit) .file-bg')
-    await delay(5000)
+    await delay(9000)
     const pathCurrentLocal = await client.getValue('.session-current .sftp-local-section .sftp-title input')
     expect(pathCurrentLocal.includes(fname)).equal(true)
     let localFileList0 = await client.elements('.session-current .file-list.local .sftp-item')
@@ -109,7 +109,7 @@ describe('sftp file transfer', function () {
 
     // enter folder
     await client.doubleClick('.session-current .file-list.remote .sftp-item:not(.virtual-file-unit) .file-bg')
-    await delay(9000)
+    await delay(14000)
     const pathCurrentRemote = await client.getValue('.session-current .sftp-remote-section .sftp-title input')
     expect(pathCurrentRemote.includes(fname0)).equal(true)
     let remoteFileList0 = await client.elements('.session-current .file-list.remote .sftp-item')
