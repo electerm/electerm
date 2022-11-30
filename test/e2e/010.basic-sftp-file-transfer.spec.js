@@ -107,6 +107,7 @@ describe('sftp file transfer', function () {
     await client.doubleClick('.session-current .file-list.remote .sftp-item:not(.virtual-file-unit) .file-bg')
     await delay(9000)
     const pathCurrentRemote = await client.getValue('.session-current .sftp-remote-section .sftp-title input')
+    log(pathCurrentRemote)
     expect(pathCurrentRemote.includes(fname0)).equal(true)
     let remoteFileList0 = await client.elements('.session-current .file-list.remote .sftp-item')
     remoteFileList0 = await remoteFileList0.count()
