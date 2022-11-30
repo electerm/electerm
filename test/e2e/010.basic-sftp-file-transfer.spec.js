@@ -167,12 +167,12 @@ describe('sftp file transfer', function () {
 
     // del folder
     log('010 -> del folder')
-    await delay(100)
+    await delay(2100)
     await client.click('.session-current .file-list.local .real-file-item')
-    await delay(200)
+    await delay(1200)
 
     await client.keyboard.press('Delete')
-    await delay(260)
+    await delay(1260)
     await client.keyboard.press('Enter')
     await delay(3000)
     let localFileList2 = await client.elements('.session-current .file-list.local .sftp-item')
@@ -182,7 +182,7 @@ describe('sftp file transfer', function () {
     // goto parent remote
     log('010 -> goto parent remote')
     await client.click('.session-current .sftp-remote-section .anticon-arrow-up')
-    await delay(5000)
+    await delay(8000)
     let remoteFileList1 = await client.elements('.session-current .file-list.remote .sftp-item')
     remoteFileList1 = await remoteFileList1.count()
     expect(remoteFileList1).equal(remoteFileList)

@@ -20,14 +20,14 @@ describe('local file manager', function () {
 
     // click sftp tab
     await client.click('.session-current .term-sftp-tabs .type-tab', 1)
-    await delay(1500)
+    await delay(3500)
 
     // make a local folder
     let localFileListBefore = await client.elements('.session-current .file-list.local .sftp-item')
     localFileListBefore = await localFileListBefore.count()
     await client.rightClick('.session-current .file-list.local .real-file-item', 10, 10)
     await delay(3300)
-    log('add folder')
+    log('009 -> add folder')
 
     await client.click('.context-menu .anticon-folder-add')
     await delay(200)
@@ -52,7 +52,7 @@ describe('local file manager', function () {
     await delay(200)
     await client.rightClick('.session-current .file-list.local .sftp-item', 10, 10)
     await delay(200)
-    log('add file')
+    log('009 -> add file')
     await client.click('.context-menu .anticon-file-add')
     await delay(200)
     const fname00 = '00000test-electerm' + nanoid()
@@ -66,7 +66,7 @@ describe('local file manager', function () {
     // select all and del Control
     await client.rightClick('.session-current .file-list.local .real-file-item', 10, 10)
     await delay(200)
-    log('select all')
+    log('009 -> select all')
     await client.click('.context-menu .anticon-check-square')
     await delay(120)
     await client.keyboard.press('Delete')
@@ -79,7 +79,7 @@ describe('local file manager', function () {
 
     // goto parent
     await delay(20)
-    log('goto parent')
+    log('009 -> goto parent')
     await client.click('.session-current .sftp-local-section .anticon-arrow-up')
     await delay(4000)
     let localFileList1 = await client.elements('.session-current .file-list.local .sftp-item')
@@ -87,7 +87,7 @@ describe('local file manager', function () {
     expect(localFileList1).equal(localFileList)
 
     // del folder
-    log('del folder')
+    log('009 -> del folder')
     await delay(100)
     await client.click('.session-current .file-list.local .real-file-item')
     await delay(200)

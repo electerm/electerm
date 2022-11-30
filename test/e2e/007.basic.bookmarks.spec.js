@@ -62,11 +62,11 @@ describe('bookmarks', function () {
     // await delay(100)
     expect(bookmarkCount).equal(bookmarkCountPrev + 1)
 
-    log('list tab')
-    await client.click('.setting-wrap .ant-tabs-tabpane-active .tree-item')
-    // await delay(55555555)
-    const list1 = await client.getAttribute('.setting-wrap .ant-tabs-tabpane-active .ant-tree-treenode', 'class')
-    expect(list1.includes('ant-tree-treenode-selected'))
+    // log('list tab')
+    // await client.click('.setting-wrap .ant-tabs-tabpane-active .tree-item')
+    // // await delay(55555555)
+    // const list1 = await client.getAttribute('.setting-wrap .ant-tabs-tabpane-active .ant-tree-treenode', 'class')
+    // expect(list1.includes('ant-tree-treenode-selected'))
 
     // await delay(55555555)
 
