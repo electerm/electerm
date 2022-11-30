@@ -24,7 +24,7 @@ describe('bookmarks', function () {
     extendClient(client, electronApp)
     const prefix = await prefixer(electron)
     const e = prefix('common')
-    await delay(3500)
+    await delay(5500)
 
     log('button:edit')
     await client.click('.btns .anticon-plus-circle')
@@ -53,7 +53,7 @@ describe('bookmarks', function () {
     await client.setValue('.setting-wrap .ant-tabs-tabpane-active #ssh-form_username', TEST_USER)
     await client.setValue('.setting-wrap .ant-tabs-tabpane-active #ssh-form_password', TEST_PASS)
     // const list0 = await client.elements('.setting-wrap .ant-tabs-tabpane-active .tree-item')
-    await client.click('.setting-wrap .ant-tabs-tabpane-active .ant-form-item .ant-btn.ant-btn-ghost')
+    await client.click('.setting-wrap .ant-tabs-tabpane-active .ant-btn-primary')
     await delay(1000)
     const bookmarkCount = await client.evaluate(() => {
       return window.store.bookmarks.length

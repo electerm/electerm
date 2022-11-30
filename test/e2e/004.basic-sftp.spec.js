@@ -20,6 +20,7 @@ const log = require('./common/log')
 const { nanoid } = require('nanoid')
 const appOptions = require('./common/app-options')
 const extendClient = require('./common/client-extend')
+const basicTermTest = require('./common/basic-terminal-test')
 
 describe('sftp basic', function () {
   it('should open window and basic sftp works', async function () {
@@ -54,6 +55,8 @@ describe('sftp basic', function () {
     })
     expect(tabsCount).equal(2)
     await delay(4010)
+    const cmd = 'rm -rf 000*'
+    await basicTermTest(client, cmd)
 
     // click sftp tab
     log('click sftp tab')
