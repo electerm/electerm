@@ -53,7 +53,7 @@ describe('sftp file transfer', function () {
     // make a local folder
     let localFileListBefore = await client.elements('.session-current .file-list.local .sftp-item')
     localFileListBefore = await localFileListBefore.count()
-    await client.rightClick('.session-current .file-list.local .real-file-item', 10, 10)
+    await client.rightClick('.session-current .file-list.local .sftp-item:not(.virtual-file-unit) .file-bg', 10, 10)
     await delay(3300)
     log('010 -> add folder')
 
@@ -95,7 +95,7 @@ describe('sftp file transfer', function () {
     // make a remote folder
     let remoteFileListBefore = await client.elements('.session-current .file-list.remote .sftp-item')
     remoteFileListBefore = await remoteFileListBefore.count()
-    await client.rightClick('.session-current .file-list.remote .real-file-item', 10, 10)
+    await client.rightClick('.session-current .file-list.remote .sftp-item:not(.virtual-file-unit) .file-bg', 10, 10)
     await delay(200)
     await client.click('.context-menu .anticon-folder-add')
     await delay(200)
@@ -131,7 +131,7 @@ describe('sftp file transfer', function () {
     await delay(200)
 
     // select all and del local file
-    await client.rightClick('.session-current .file-list.local .real-file-item', 10, 10)
+    await client.rightClick('.session-current .file-list.local .sftp-item:not(.virtual-file-unit) .file-bg', 10, 10)
     await delay(200)
     log('010 -> select all')
     await client.click('.context-menu .anticon-check-square')
@@ -168,7 +168,7 @@ describe('sftp file transfer', function () {
     // del folder
     log('010 -> del folder')
     await delay(2100)
-    await client.click('.session-current .file-list.local .real-file-item')
+    await client.click('.session-current .file-list.local .sftp-item:not(.virtual-file-unit) .file-bg')
     await delay(1200)
 
     await client.keyboard.press('Delete')
@@ -191,7 +191,7 @@ describe('sftp file transfer', function () {
 
     // del folder
     log('010 -> del folder')
-    await client.click('.session-current .file-list.remote .real-file-item')
+    await client.click('.session-current .file-list.remote .sftp-item:not(.virtual-file-unit) .file-bg')
     await delay(200)
     // await client.execute(function () {
     //   document.querySelector('.session-current .sftp-local-section .sftp-title input').blur()
