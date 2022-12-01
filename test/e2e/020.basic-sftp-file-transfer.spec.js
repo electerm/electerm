@@ -119,7 +119,7 @@ describe('sftp file transfer', function () {
 
     // transfer local to remote
     await delay(200)
-    await client.rightClick('.session-current .file-list.local .sftp-item.real-file-item', 3, 3)
+    await client.rightClick('.session-current .file-list.local .sftp-item:not(.virtual-file-unit) .file-bg', 3, 3)
     await delay(200)
     log('010 -> do upload')
     await client.click('.context-menu .anticon-cloud-upload')
@@ -145,7 +145,7 @@ describe('sftp file transfer', function () {
     expect(localFileList11).equal(1)
 
     await delay(1800)
-    await client.rightClick('.session-current .file-list.remote .sftp-item.real-file-item .file-bg', 10, 10)
+    await client.rightClick('.session-current .file-list.remote .sftp-item:not(.virtual-file-unit) .file-bg', 10, 10)
     await delay(1123)
     await client.click('.context-menu .anticon-cloud-download')
     await delay(3000)
