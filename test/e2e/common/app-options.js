@@ -7,5 +7,9 @@ module.exports = {
     ...process.env,
     NODE_TEST: 'yes'
   },
-  args: [resolve(cwd, 'work/app')]
+  args: [
+    resolve(cwd, 'work/app'),
+    '--disable-gpu',
+    '--disable-dev-shm-usage'
+  ]
 }
