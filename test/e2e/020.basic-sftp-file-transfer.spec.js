@@ -148,7 +148,7 @@ describe('sftp file transfer', function () {
     await client.rightClick('.session-current .file-list.remote .sftp-item:not(.virtual-file-unit) .file-bg', 10, 10)
     await delay(1123)
     await client.click('.context-menu .anticon-cloud-download')
-    await delay(3000)
+    await delay(15000)
     const localFileList001 = await client.countElem('.session-current .file-list.local .sftp-item')
     expect(localFileList001).equal(2)
 
@@ -174,7 +174,7 @@ describe('sftp file transfer', function () {
     await client.keyboard.press('Delete')
     await delay(1060)
     await client.keyboard.press('Enter')
-    await delay(7000)
+    await delay(13000)
     let localFileList2 = await client.elements('.session-current .file-list.local .sftp-item')
     localFileList2 = await localFileList2.count()
     expect(localFileList2).equal(localFileListBefore)
@@ -182,7 +182,7 @@ describe('sftp file transfer', function () {
     // goto parent remote
     log('010 -> goto parent remote')
     await client.click('.session-current .sftp-remote-section .anticon-arrow-up')
-    await delay(8000)
+    await delay(13000)
     log('010 -> goto parent remote1')
     let remoteFileList1 = await client.elements('.session-current .file-list.remote .sftp-item')
     log('010 -> goto parent remote2')
