@@ -131,8 +131,17 @@ describe('sftp file transfer', function () {
     await delay(1200)
 
     // select all and del local file
-    await client.rightClick('.session-current .file-list.local .sftp-item:not(.virtual-file-unit) .file-bg', 10, 10)
+    await client.rightClick('.session-current .file-list.local .sftp-item', 10, 10)
     await delay(2200)
+    let cm = await client.elements('.session-current .file-list.local .sftp-item')
+    cm = await cm.count()
+
+    log('010 -> cm1', cm)
+    cm = await client.elements('.context-menu')
+    cm = await cm.count()
+    log('010 -> cm2', cm)
+    log('010 -> select all')
+
     log('010 -> select all')
     await client.click('.context-menu .anticon-check-square')
     await delay(2120)
