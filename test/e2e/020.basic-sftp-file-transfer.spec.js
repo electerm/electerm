@@ -36,7 +36,7 @@ describe('sftp file transfer', function () {
     await client.setValue('#ssh-form_password', TEST_PASS)
     await delay(100)
     await client.click('.setting-wrap .ant-tabs-tabpane-active .ant-btn-primary')
-    await delay(1500)
+    await delay(5500)
     const tabsCount = await await client.evaluate(() => {
       return window.store.tabs.length
     })
@@ -102,7 +102,7 @@ describe('sftp file transfer', function () {
     const fname0 = '00000test-electerm-remote' + nanoid()
     await client.setValue('.session-current .sftp-remote-section .sftp-item input', fname0)
     await client.doubleClick('.session-current .sftp-title-wrap')
-    await delay(3500)
+    await delay(4500)
     let remoteFileList = await client.elements('.session-current .file-list.remote .sftp-item')
     remoteFileList = await remoteFileList.count()
     expect(remoteFileList).equal(remoteFileListBefore + 1)
@@ -120,7 +120,7 @@ describe('sftp file transfer', function () {
     // transfer local to remote
     await delay(200)
     await client.rightClick('.session-current .file-list.local .sftp-item:not(.virtual-file-unit) .file-bg', 3, 3)
-    await delay(200)
+    await delay(1200)
     log('010 -> do upload')
     await client.click('.context-menu .anticon-cloud-upload')
 
@@ -128,16 +128,16 @@ describe('sftp file transfer', function () {
     await delay(500)
     log('010 -> del')
     await client.click('.session-current .file-list.local .sftp-item.real-file-item .file-bg')
-    await delay(200)
+    await delay(1200)
 
     // select all and del local file
     await client.rightClick('.session-current .file-list.local .sftp-item:not(.virtual-file-unit) .file-bg', 10, 10)
     await delay(200)
     log('010 -> select all')
     await client.click('.context-menu .anticon-check-square')
-    await delay(120)
+    await delay(2120)
     await client.keyboard.press('Delete')
-    await delay(420)
+    await delay(2120)
     await client.keyboard.press('Enter')
     await delay(12000)
     let localFileList11 = await client.elements('.session-current .file-list.local .sftp-item')
@@ -146,7 +146,7 @@ describe('sftp file transfer', function () {
 
     await delay(1800)
     await client.rightClick('.session-current .file-list.remote .sftp-item:not(.virtual-file-unit) .file-bg', 10, 10)
-    await delay(1123)
+    await delay(2123)
     await client.click('.context-menu .anticon-cloud-download')
     await delay(15000)
     const localFileList001 = await client.countElem('.session-current .file-list.local .sftp-item')
@@ -170,10 +170,10 @@ describe('sftp file transfer', function () {
     await delay(2100)
     await client.click('.session-current .file-list.local .sftp-item:not(.virtual-file-unit) .file-bg')
 
-    await delay(1200)
+    await delay(2200)
     log('010 -> press del')
     await client.keyboard.press('Delete')
-    await delay(1060)
+    await delay(2060)
     await client.keyboard.press('Enter')
     await delay(13000)
     let localFileList2 = await client.elements('.session-current .file-list.local .sftp-item')
@@ -193,14 +193,14 @@ describe('sftp file transfer', function () {
     // del folder
     log('010 -> del folder')
     await client.click('.session-current .file-list.remote .sftp-item:not(.virtual-file-unit) .file-bg')
-    await delay(200)
+    await delay(1200)
     // await client.execute(function () {
     //   document.querySelector('.session-current .sftp-local-section .sftp-title input').blur()
     //   document.querySelector('.session-current .sftp-remote-section .sftp-title input').blur()
     // })
     await delay(300)
     await client.keyboard.press('Delete')
-    await delay(1000)
+    await delay(2000)
     await client.keyboard.press('Enter')
     await delay(8000)
     let remoteFileList2 = await client.elements('.session-current .file-list.remote .sftp-item')
