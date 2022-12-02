@@ -137,7 +137,7 @@ describe('sftp file transfer', function () {
     cm = await cm.count()
 
     log('010 -> cm1', cm)
-    cm = await client.elements('.context-menu')
+    cm = await client.elements('.context-menu .anticon-check-square')
     cm = await cm.count()
     log('010 -> cm2', cm)
     log('010 -> select all')
