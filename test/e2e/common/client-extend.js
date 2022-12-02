@@ -11,8 +11,7 @@ module.exports = (client, app) => {
   }
   client.elements = client.locator
   client.click = async (sel, n = 0, parent) => {
-    const tail = typeof n !== 'undefined' ? '' : ` >> nth=${n}`
-    const sl = sel + tail
+    const sl = sel + ` >> nth=${n}`
     let s = client.locator(sl)
     if (parent) {
       s = s.locator('..')

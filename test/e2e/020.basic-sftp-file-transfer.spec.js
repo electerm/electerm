@@ -141,9 +141,7 @@ describe('sftp file transfer', function () {
     cm = await cm.count()
     log('010 -> cm2', cm)
     log('010 -> select all')
-
-    log('010 -> select all')
-    await client.click('.context-menu .anticon-check-square')
+    await client.click('.context-menu .context-item .anticon-check-square')
     await delay(2120)
     await client.keyboard.press('Delete')
     await delay(2120)
