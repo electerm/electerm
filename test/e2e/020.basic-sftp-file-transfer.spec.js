@@ -125,7 +125,7 @@ describe('sftp file transfer', function () {
     await client.click('.context-menu .anticon-cloud-upload')
 
     // transfer remote to local
-    await delay(500)
+    await delay(14500)
     log('010 -> del')
     await client.click('.session-current .file-list.local .sftp-item.real-file-item .file-bg')
     await delay(1200)
