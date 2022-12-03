@@ -10,9 +10,12 @@ module.exports = (client, app) => {
     return client.locator(sel).first()
   }
   client.elements = client.locator
-  client.click = async (sel, n = 0) => {
-    const sl = sel + `>> nth=${n}`
-    const s = client.locator(sl)
+  client.click = async (sel, n = 0, parent) => {
+    const sl = sel + ` >> nth=${n}`
+    let s = client.locator(sl)
+    if (parent) {
+      s = s.locator('..')
+    }
     await s.click()
   }
   client.hasElem = async (sel, target = true) => {
