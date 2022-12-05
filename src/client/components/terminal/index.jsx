@@ -874,7 +874,6 @@ export default class Term extends Component {
         : typeMap.local
     })
     delete opts.terminals
-    console.log('opts', opts)
     let pid = await createTerm(opts)
       .catch(err => {
         const text = err.message

@@ -61,7 +61,6 @@ export default class TermSearch extends Component {
   }
 
   toggleSearch = () => {
-    console.log('ff')
     this.props.store.toggleTerminalSearch()
     setTimeout(window.store.focus, 100)
   }
