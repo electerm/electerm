@@ -69,6 +69,7 @@ export const statusMap = buildConst([
 
 export const connectionMap = buildConst([
   'ssh',
+  'telnet',
   'serial',
   'local'
 ])
@@ -136,6 +137,7 @@ export const terminalSplitDirectionMap = buildConst([
 
 export const terminalSshConfigType = 'ssh-config'
 export const terminalSerialType = 'serial'
+export const terminalTelnetType = 'telnet'
 export const terminalLocalType = 'local'
 export const openedSidebarKey = 'opened-sidebar'
 export const sidebarPinnedKey = 'sidebar-pinned'

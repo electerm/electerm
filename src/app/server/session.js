@@ -120,6 +120,35 @@ class Terminal {
     }
   }
 
+  async telnetInit () {
+    const { Telnet } = require('telnet-client')
+    const connection = new Telnet()
+    const params = _.pick(
+      this.initOptions,
+      [
+        'host',
+        'port',
+        'timeout',
+        'negotiationMandatory',
+        'username',
+        'password',
+        'terminalWidth',
+        'terminalHeight'
+      ]
+    )
+    params.negotiationMandatory = false
+    await connection.connect(params)
+    await connection.shell()
+    this.channel = connection
+    global.sessions[this.initOptions.sessionId] = {
+      id: this.initOptions.sessionId,
+      sftps: {},
+      terminals: {
+        [this.pid]: this
+      }
+    }
+  }
+
   localInit (initOptions) {
     const {
       cols,
@@ -430,6 +459,11 @@ class Terminal {
     this[this.type + 'Resize'](cols, rows)
   }
 
+  telnetResize (cols, rows) {
+    this.channel.opts.terminalWidth = cols
+    this.channel.opts.terminalHeight = rows
+  }
+
   serialResize () {
 
   }
@@ -448,6 +482,10 @@ class Terminal {
 
   serialOn (event, cb) {
     this.port.on(event, cb)
+  }
+
+  telnetOn (event, cb) {
+    this.channel.on(event, cb)
   }
 
   localOn (event, cb) {
@@ -480,6 +518,11 @@ class Terminal {
   serialKill () {
     this.port && this.port.isOpen && this.port.close()
     delete this.port
+  }
+
+  telnetKill () {
+    this.channel && this.channel.destroy()
+    delete this.channel
   }
 
   localKill () {
