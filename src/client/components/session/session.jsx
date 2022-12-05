@@ -22,10 +22,10 @@ import {
   terminalSplitDirectionMap,
   termControlHeight,
   paneMap,
-  terminalSshConfigType,
   ctrlOrCmd,
   footerHeight,
-  terminalActions
+  terminalActions,
+  connectionMap
 } from '../../common/constants'
 import ResizeWrap from '../common/resize-wrap'
 import keyControlPressed from '../../common/key-control-pressed'
@@ -387,8 +387,9 @@ export default class SessionWrapper extends Component {
     const { splitDirection, terminals } = this.state
     const { props } = this
     const { pane } = props.tab
-    const host = _.get(props, 'tab.host') &&
-      _.get(props, 'tab.type') !== terminalSshConfigType
+    const termType = _.get(props, 'tab.type')
+    const isSsh = termType === connectionMap.ssh
+    const isLocal = termType === connectionMap.local || !termType
     const isHori = splitDirection === terminalSplitDirectionMap.horizontal
     const cls1 = 'mg1r icon-split pointer iblock spliter'
     const cls2 = 'icon-direction pointer iblock spliter'
@@ -403,16 +404,19 @@ export default class SessionWrapper extends Component {
       paneMap.terminal,
       paneMap.fileManager
     ]
+    const controls = [
+      isSsh ? paneMap.ssh : paneMap.terminal
+    ]
+    if (isSsh || isLocal) {
+      controls.push(isSsh ? paneMap.sftp : paneMap.fileManager)
+    }
     return (
       <div
         className='terminal-control fix'
       >
         <div className='term-sftp-tabs fleft'>
           {
-            [
-              host ? paneMap.ssh : paneMap.terminal,
-              host ? paneMap.sftp : paneMap.fileManager
-            ].map((type, i) => {
+            controls.map((type, i) => {
               const cls = classnames(
                 'type-tab',
                 type,
