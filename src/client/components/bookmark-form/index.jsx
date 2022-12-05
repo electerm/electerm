@@ -10,11 +10,13 @@ import {
   connectionMap,
   terminalSerialType,
   terminalLocalType,
+  terminalTelnetType,
   newBookmarkIdPrefix
 } from '../../common/constants'
 import SshForm from './ssh-form'
 import SerialForm from './serial-form'
 import LocalForm from './local-form'
+import TelnetForm from './telnet-form'
 
 const { prefix } = window
 const c = prefix('common')
@@ -26,7 +28,9 @@ export default class BookmarkIndex extends Component {
   constructor (props) {
     super(props)
     let initType = props.formData.type
-    if (initType === terminalSerialType) {
+    if (initType === terminalTelnetType) {
+      initType = terminalTelnetType
+    } else if (initType === terminalSerialType) {
       initType = terminalSerialType
     } else if (initType === terminalLocalType) {
       initType = terminalLocalType
@@ -40,6 +44,7 @@ export default class BookmarkIndex extends Component {
 
   static mapper = {
     [connectionMap.ssh]: SshForm,
+    [connectionMap.telnet]: TelnetForm,
     [connectionMap.serial]: SerialForm,
     [connectionMap.local]: LocalForm
   }

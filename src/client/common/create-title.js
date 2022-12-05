@@ -14,7 +14,7 @@ export default (res = {}) => {
     host, port, username, title, type,
     path
   } = res
-  const fixTitle = `${username}@${host}:${port}`
+  const fixTitle = `${username || ''}@${host}:${port}`
   const extra = host || path ? (path || fixTitle) : ''
   let f = title
     ? `${title}` + (extra ? ` - ${extra}` : '')
