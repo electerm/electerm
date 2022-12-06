@@ -388,7 +388,7 @@ export default class SessionWrapper extends Component {
     const { props } = this
     const { pane } = props.tab
     const termType = _.get(props, 'tab.type')
-    const isSsh = termType === connectionMap.ssh
+    const isSsh = props.tab.authType
     const isLocal = termType === connectionMap.local || !termType
     const isHori = splitDirection === terminalSplitDirectionMap.horizontal
     const cls1 = 'mg1r icon-split pointer iblock spliter'

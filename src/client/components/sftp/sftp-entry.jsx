@@ -26,8 +26,7 @@ import {
   fileTypeMap,
   terminalSshConfigType, terminalSerialType,
   unexpectedPacketErrorDesc, sftpRetryInterval,
-  commonActions,
-  connectionMap
+  commonActions
 } from '../../common/constants'
 import { hasFileInClipboardText } from '../../common/clipboard'
 import Client from '../../common/sftp'
@@ -1019,7 +1018,7 @@ export default class Sftp extends Component {
     const {
       height, width
     } = this.props
-    const shouldRenderRemote = _.get(this.props, 'tab.type') === connectionMap.ssh &&
+    const shouldRenderRemote = _.get(this.props, 'tab.authType') &&
       _.get(this.props, 'tab.enableSftp') !== false
     if (!shouldRenderRemote) {
       return (
