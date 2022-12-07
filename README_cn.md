@@ -16,7 +16,7 @@
 [![Get it from the Microsoft Store](https://img.shields.io/badge/Microsoft-Store-blue)](https://www.microsoft.com/store/apps/9NCN7272GTFF)
 [![open collective badge](https://opencollective.com/electerm/tiers/backer/badge.svg?label=backer&color=brightgreen)](https://opencollective.com/electerm)
 
-终端/ssh/sftp客户端(linux, mac, win)，基于 electron/ssh2/node-pty/xterm/antd/[useProxy](https://github.com/tylerlong/use-proxy)等开源组件。
+开源终端/ssh/telnet/serialport/sftp客户端(linux, mac, win)。
 
 <div align="center">
   <img src="https://github.com/electerm/electerm-resource/raw/master/static/images/electerm.gif", alt="" />
@@ -24,7 +24,7 @@
 
 ## 功能特性
 
-- 支持ssh,telnet,本地和远程文件管理，sftp文件传输，以及作为本地终端使用
+- 支持ssh,telnet,serialport,本地和远程文件管理，sftp文件传输，以及作为本地终端使用
 - 全局快捷键切换隐藏显示窗口(类似guake, 默认快捷键`ctrl + 2`)
 - 多平台支持(linux, mac, win)
 - 🇺🇸 🇨🇳 🇧🇷 🇷🇺 🇪🇸 🇫🇷 🇹🇷 🇭🇰 🇯🇵 🇸🇦 🇩🇪 🇰🇷 多国语言支持([electerm-locales](https://github.com/electerm/electerm-locales), 欢迎提交代码)
@@ -38,7 +38,6 @@
 - 支持预设快捷命令
 - 支持主题
 - 支持同步书签等数据到github/gitee私人gist
-- 支持serial Port(version > 1.21.8)
 - 支持快速输入命令到一个或者多个终端
 - 支持命令行使用: 请参阅[wiki](https://github.com/electerm/electerm/wiki/Command-line-usage)
 

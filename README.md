@@ -16,7 +16,7 @@
 [![Get it from the Microsoft Store](https://img.shields.io/badge/Microsoft-Store-blue)](https://www.microsoft.com/store/apps/9NCN7272GTFF)
 [![open collective badge](https://opencollective.com/electerm/tiers/backer/badge.svg?label=backer&color=brightgreen)](https://opencollective.com/electerm)
 
-Terminal/ssh/sftp client(linux, mac, win) based on electron/ssh2/node-pty/xterm/antd/[useProxy](https://github.com/tylerlong/use-proxy) and other libs.
+Open-sourced terminal/ssh/telnet/serialport/sftp client(linux, mac, win).
 
 <div align="center">
   <img src="https://github.com/electerm/electerm-resource/raw/master/static/images/electerm.gif", alt="" />
@@ -24,7 +24,7 @@ Terminal/ssh/sftp client(linux, mac, win) based on electron/ssh2/node-pty/xterm/
 
 ## Features
 
-- Works as a terminal/file manager or ssh/telnet/sftp client(similar to xshell)
+- Works as a terminal/file manager or ssh/telnet/serialport/sftp client
 - Global hotkey to toggle window visibility (similar to guake, default is `ctrl + 2`)
 - Multi platform(linux, mac, win)
 - 🇺🇸 🇨🇳 🇧🇷 🇷🇺 🇪🇸 🇫🇷 🇹🇷 🇭🇰 🇯🇵 🇸🇦 🇩🇪 🇰🇷 Multi-language support([electerm-locales](https://github.com/electerm/electerm-locales), contributions/fixes welcome)
@@ -38,7 +38,6 @@ Terminal/ssh/sftp client(linux, mac, win) based on electron/ssh2/node-pty/xterm/
 - Quick commands
 - UI/terminal theme
 - Sync bookmarks/themes/quick commands to github/gitee secret gist
-- Support serial Port(version > 1.21.8)
 - Quick input to one or all terminals.
 - Command line usage: check [wiki](https://github.com/electerm/electerm/wiki/Command-line-usage)
 
