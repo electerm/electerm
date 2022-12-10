@@ -165,7 +165,7 @@
     "stylus": "0.54.8",
     "tar": "^6.1.9",
     "telnet-client": "^2.0.6",
-    "trzsz": "0.4.3",
+    "trzsz": "1.0.0",
     "util-promisifyall": "1.0.6",
     "v8-compile-cache": "2.3.0"
   },
