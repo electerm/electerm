@@ -57,7 +57,8 @@ export default class Index extends Component {
       terminalFullScreen,
       pinned,
       isSencondInstance,
-      pinnedQuickCommandBar
+      pinnedQuickCommandBar,
+      wsInited
     } = store
     const cls = classnames({
       loaded: configLoaded,
@@ -92,11 +93,16 @@ export default class Index extends Component {
     }
     return (
       <div {...ext1}>
-        <LoadingUI />
-        <TermFullscreenControl
-          store={store}
+        <LoadingUI
+          wsInited={wsInited}
         />
-        <CssOverwrite {...confsCss} />
+        <TermFullscreenControl
+          terminalFullScreen={terminalFullScreen}
+        />
+        <CssOverwrite
+          {...confsCss}
+          wsInited={wsInited}
+        />
         <TerminalInteractive />
         <UiTheme
           {...themeProps}

@@ -15,6 +15,7 @@ export const initWsCommon = async () => {
     window.et.wsOpened = false
   }
   window.et.commonWs = ws
+  window.store.wsInited = true
 }
 
 window.pre.ipcOnEvent('power-resume', initWsCommon)

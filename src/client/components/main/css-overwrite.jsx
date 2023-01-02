@@ -7,9 +7,9 @@ import fs from '../../common/fs'
 import { noTerminalBgValue } from '../../common/constants'
 
 export default class CssOverwrite extends PureComponent {
-  componentDidMount () {
-    setTimeout(this.writeCss, 3000)
-  }
+  // componentDidMount () {
+  //   setTimeout(this.writeCss, 3000)
+  // }
 
   componentDidUpdate (prevProps) {
     Object.keys(this.props).some(key => {
@@ -18,6 +18,9 @@ export default class CssOverwrite extends PureComponent {
         return true
       }
     })
+    if (!prevProps.wsInited && this.props.wsInited) {
+      this.writeCss()
+    }
   }
 
   createStyle = async () => {

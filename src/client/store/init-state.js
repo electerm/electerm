@@ -55,6 +55,7 @@ export const getInitItem = (arr, tab) => {
 
 export default {
   // common
+  wsInited: false,
   configLoaded: false,
   loadTime: 0,
   lastDataUpdateTime: 0,
