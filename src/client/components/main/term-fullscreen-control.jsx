@@ -2,24 +2,20 @@
  * btns
  */
 
-import { Component } from '../common/react-subx'
 import { FullscreenExitOutlined } from '@ant-design/icons'
 import './term-fullscreen.styl'
 
-export default class TermFullscreenControl extends Component {
-  handleExitFullscreen = () => {
-    this.props.store.toggleTermFullscreen(false)
+export default function TermFullscreenControl (props) {
+  const handleExitFullscreen = () => {
+    window.store.toggleTermFullscreen(false)
   }
-
-  render () {
-    if (!this.props.store.terminalFullScreen) {
-      return null
-    }
-    return (
-      <FullscreenExitOutlined
-        className='mg1r icon-info font16 pointer spliter term-fullscreen-control'
-        onClick={this.handleExitFullscreen}
-      />
-    )
+  if (!props.terminalFullScreen) {
+    return null
   }
+  return (
+    <FullscreenExitOutlined
+      className='mg1r icon-info font16 pointer spliter term-fullscreen-control'
+      onClick={handleExitFullscreen}
+    />
+  )
 }

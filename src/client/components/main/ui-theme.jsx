@@ -1,5 +1,5 @@
 /**
- * btns
+ * ui theme
  */
 
 import { useEffect } from 'react'
