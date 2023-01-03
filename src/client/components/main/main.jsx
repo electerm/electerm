@@ -58,7 +58,9 @@ export default class Index extends Component {
       pinned,
       isSencondInstance,
       pinnedQuickCommandBar,
-      wsInited
+      wsInited,
+      upgradeInfo,
+      installSrc
     } = store
     const cls = classnames({
       loaded: configLoaded,
@@ -110,7 +112,9 @@ export default class Index extends Component {
         />
         <TextEditor />
         <UpdateCheck
-          store={store}
+          skipVersion={cpConf.skipVersion}
+          upgradeInfo={upgradeInfo}
+          installSrc={installSrc}
         />
         <ContextMenu store={store} />
         <FileInfoModal />

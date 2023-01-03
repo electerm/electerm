@@ -59,10 +59,10 @@ export default class Sidebar extends Component {
 
   showUpgrade = () => {
     this.props.store.storeAssign({
-      upgradeInfo: {
+      _upgradeInfo: JSON.stringify({
         ...this.props.store.upgradeInfo,
         showUpgradeModal: true
-      }
+      })
     })
   }
 

@@ -1,4 +1,4 @@
-import { Component } from '../common/react-subx'
+import { PureComponent } from 'react'
 import { CloseOutlined, MinusSquareOutlined, UpCircleOutlined } from '@ant-design/icons'
 import { Button } from 'antd'
 import { getLatestReleaseInfo, getLatestReleaseVersion } from '../../common/update-check'
@@ -17,7 +17,7 @@ const {
 const e = prefix('updater')
 const c = prefix('common')
 
-export default class Upgrade extends Component {
+export default class Upgrade extends PureComponent {
   state = {
     showCount: 0
   }
@@ -53,11 +53,11 @@ export default class Upgrade extends Component {
   }
 
   changeProps = (update) => {
-    this.props.store.storeAssign({
-      upgradeInfo: {
-        ...this.props.store.upgradeInfo,
+    window.store.storeAssign({
+      _upgradeInfo: JSON.stringify({
+        ...this.props.upgradeInfo,
         ...update
-      }
+      })
     })
   }
 
@@ -65,12 +65,12 @@ export default class Upgrade extends Component {
     this.changeProps({
       showUpgradeModal: false
     })
-    this.props.store.focus()
+    window.store.focus()
   }
 
   close = () => {
-    this.props.store.storeAssign({
-      upgradeInfo: {}
+    window.store.storeAssign({
+      _upgradeInfo: '{}'
     })
   }
 
@@ -103,9 +103,9 @@ export default class Upgrade extends Component {
   }
 
   doUpgrade = async () => {
-    const { installSrc } = this.props.store
+    const { installSrc } = this.props
     if (!isMac && !isWin && installSrc === 'npm') {
-      return this.props.store.addTab(
+      return window.store.addTab(
         {
           ...newTerm(),
           loginScript: 'npm i -g electerm'
@@ -125,12 +125,12 @@ export default class Upgrade extends Component {
   }
 
   skipVersion = () => {
-    this.props.store.config.skipVersion = this.props.store.upgradeInfo.remoteVersion
+    window.store.config.skipVersion = this.props.upgradeInfo.remoteVersion
     this.close()
   }
 
   getLatestRelease = async (noSkipVersion = false) => {
-    const { installSrc } = this.props.store
+    const { installSrc } = this.props
     if (srcsSkipUpgradeCheck.includes(installSrc)) {
       return
     }
@@ -147,7 +147,7 @@ export default class Upgrade extends Component {
         error: 'Can not get version info'
       })
     }
-    const { skipVersion = 'v0.0.0' } = this.props.store.config
+    const { skipVersion = 'v0.0.0' } = this.props
     const currentVer = 'v' + window.et.version.split('-')[0]
     const latestVer = releaseVer.tag_name
     if (!noSkipVersion && compare(skipVersion, latestVer) >= 0) {
@@ -189,7 +189,7 @@ export default class Upgrade extends Component {
   renderCanNotUpgrade = () => {
     const {
       showUpgradeModal
-    } = this.props.store.upgradeInfo
+    } = this.props.upgradeInfo
     const cls = `animate upgrade-panel${showUpgradeModal ? '' : ' upgrade-panel-hide'}`
     return (
       <div className={cls}>
@@ -207,7 +207,7 @@ export default class Upgrade extends Component {
   renderChangeLog = () => {
     const {
       releaseInfo
-    } = this.props.store.upgradeInfo
+    } = this.props.upgradeInfo
     if (!releaseInfo) {
       return null
     }
@@ -238,7 +238,7 @@ export default class Upgrade extends Component {
     const {
       showCount
     } = this.state
-    const { installSrc } = this.props.store
+    const { installSrc } = this.props
     const {
       remoteVersion,
       upgrading,
@@ -247,7 +247,7 @@ export default class Upgrade extends Component {
       upgradePercent,
       shouldUpgrade,
       error
-    } = this.props.store.upgradeInfo
+    } = this.props.upgradeInfo
     if (error) {
       return this.renderError(error)
     }

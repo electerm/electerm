@@ -152,7 +152,7 @@ export default {
   showFileModal: false,
 
   // update
-  upgradeInfo: {},
+  _upgradeInfo: '{}',
 
   // serial list related
   _serials: '[]',

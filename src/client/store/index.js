@@ -188,6 +188,10 @@ class Store {
   get langs () {
     return JSON.parse(window.store._langs)
   }
+
+  get upgradeInfo () {
+    return JSON.parse(window.store._upgradeInfo)
+  }
 }
 
 loadDataExtend(Store)
