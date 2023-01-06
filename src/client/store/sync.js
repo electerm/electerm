@@ -34,23 +34,26 @@ async function fetchData (type, func, args, token, proxy) {
 }
 
 export default (Store) => {
-  Store.prototype.updateSyncSetting = function (_data) {
+  Store.prototype.updateSyncSetting = function (data) {
     const { store } = window
-    const data = copy(_data)
-    const keys = Object.keys(data)
-    if (_.isEqual(
-      _.pick(store.config.syncSetting, keys),
-      data
-    )) {
-      return
+    const nd = Object.assign({}, copy(store.config.syncSetting), data)
+    if (data.giteeGistId && !data.giteeSyncPassword) {
+      delete nd.giteeSyncPassword
+    }
+    if (data.githubGistId && !data.githubSyncPassword) {
+      delete nd.githubSyncPassword
     }
     store.setConfig({
-      syncSetting: Object.assign({}, copy(store.config.syncSetting), data)
+      syncSetting: nd
     })
   }
 
   Store.prototype.getSyncToken = function (type) {
     return _.get(window.store.config, 'syncSetting.' + type + 'AccessToken')
+  }
+
+  Store.prototype.getSyncPassword = function (type) {
+    return _.get(window.store.config, 'syncSetting.' + type + 'SyncPassword')
   }
 
   Store.prototype.getSyncGistId = function (type) {
@@ -120,11 +123,12 @@ export default (Store) => {
     if (!gistId) {
       return
     }
+    const pass = store.getSyncPassword(type)
     const objs = {}
     for (const n of names) {
       let str = JSON.stringify(store.getItems(n))
-      if (n === settingMap.bookmarks && store.config.syncSetting.syncEncrypt) {
-        str = await window.pre.runGlobalAsync('encryptAsync', str, token)
+      if (n === settingMap.bookmarks && pass) {
+        str = await window.pre.runGlobalAsync('encryptAsync', str, pass)
       }
       objs[`${n}.json`] = {
         content: str
@@ -167,6 +171,7 @@ export default (Store) => {
     if (!gistId) {
       return
     }
+    const pass = store.getSyncPassword(type)
     const gist = await fetchData(
       type,
       'getOne',
@@ -183,7 +188,7 @@ export default (Store) => {
         throw new Error(('Seems you have a empty gist, you can try use existing gist ID or upload first'))
       }
       if (!isJSON(str)) {
-        str = await window.pre.runGlobalAsync('decryptAsync', str, token)
+        str = await window.pre.runGlobalAsync('decryptAsync', str, pass)
       }
       let arr = JSON.parse(
         str

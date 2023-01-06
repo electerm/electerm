@@ -23,7 +23,8 @@ export default function SyncSettingEntry (props) {
                 gistId: props[type + 'GistId'],
                 token: props[type + 'AccessToken'],
                 url: props[type + 'Url'],
-                lastSyncTime: props[type + 'LastSyncTime']
+                lastSyncTime: props[type + 'LastSyncTime'],
+                syncPassword: props[type + 'SyncPassword']
               }
               return (
                 <TabPane tab={type} key={type}>

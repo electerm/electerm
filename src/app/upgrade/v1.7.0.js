@@ -1,5 +1,5 @@
 /**
- * upgrade database to v1.5.12
+ * upgrade database to v1.7.0
  */
 
 const { dbAction } = require('../lib/nedb')

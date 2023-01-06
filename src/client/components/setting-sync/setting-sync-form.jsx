@@ -7,7 +7,7 @@
  */
 import { useDelta, useConditionalEffect } from 'react-delta'
 import { ArrowDownOutlined, ArrowUpOutlined, QuestionCircleOutlined, SaveOutlined, ClearOutlined } from '@ant-design/icons'
-import { Button, Input, notification, Tooltip, Form, Switch } from 'antd'
+import { Button, Input, notification, Tooltip, Form } from 'antd'
 import Link from '../common/external-link'
 import moment from 'moment'
 import eq from 'fast-deep-equal'
@@ -43,6 +43,9 @@ export default function SyncForm (props) {
     }
     if (res.gistId) {
       up[syncType + 'GistId'] = res.gistId
+    }
+    if (res.syncPassword) {
+      up[syncType + 'SyncPassword'] = res.syncPassword
     }
     props.store.updateSyncSetting(up)
     const test = await props.store.testSyncToken(syncType, res.gistId)
@@ -102,7 +105,7 @@ export default function SyncForm (props) {
       <Tooltip
         title={
           <span>
-            {syncType} {text}
+            {syncType} {text || name}
             <Link className='mg1l' to={getTokenCreateGuideUrl()} />
           </span>
         }
@@ -115,6 +118,8 @@ export default function SyncForm (props) {
   }
   const tokenLabel = createLabel('token', 'personal access token')
   const gistLabel = createLabel('gist', 'gist ID')
+  const syncPasswordName = s('encrypt') + ' ' + e('password')
+  const syncPasswordLabel = createLabel(syncPasswordName, '')
   return (
     <Form
       onFinish={save}
@@ -139,14 +144,6 @@ export default function SyncForm (props) {
         />
       </FormItem>
       <FormItem
-        label={s('encrypt')}
-      >
-        <Switch
-          onChange={props.store.onChangeEncrypt}
-          checked={!!props.syncEncrypt}
-        />
-      </FormItem>
-      <FormItem
         label={gistLabel}
         name='gistId'
         rules={[{
@@ -155,6 +152,18 @@ export default function SyncForm (props) {
       >
         <Input
           placeholder={syncType + ' gist id'}
+        />
+      </FormItem>
+      <FormItem
+        label={syncPasswordLabel}
+        hasFeedback
+        name='syncPassword'
+        rules={[{
+          max: 100, message: '100 chars max'
+        }]}
+      >
+        <Input.Password
+          placeholder={syncType + ' ' + syncPasswordName}
         />
       </FormItem>
       {/* <FormItem
