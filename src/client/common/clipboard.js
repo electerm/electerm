@@ -15,7 +15,11 @@ export const readClipboard = () => {
 }
 
 export const copy = (str) => {
-  message.success('Copied', 2)
+  message.success({
+    content: 'Copied',
+    duation: 2,
+    key: 'copy-message'
+  })
   window.pre.writeClipboard(str)
 }
 

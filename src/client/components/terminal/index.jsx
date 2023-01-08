@@ -5,7 +5,6 @@ import { handleErr } from '../../common/fetch'
 import { mergeProxy } from '../../common/merge-proxy'
 import generate from '../../common/uid'
 import _ from 'lodash'
-import { runCmds } from '../terminal-info/run-cmd'
 import postMessage from '../../common/post-msg'
 import clone from '../../common/to-simple-obj'
 import {
@@ -289,6 +288,18 @@ export default class Term extends Component {
       return this.term && this.term.blur()
     }
     if (
+      keyControlPressed(e) &&
+      !keyShiftPressed(e) &&
+      keyPressed(e, 'c')
+    ) {
+      const sel = this.term.getSelection()
+      if (sel) {
+        e.stopPropagation()
+        e.preventDefault()
+        this.copySelectionToClipboard()
+        return false
+      }
+    } else if (
       keyControlPressed(e) &&
       keyShiftPressed(e) &&
       keyPressed(e, 'c')
@@ -944,6 +955,7 @@ export default class Term extends Component {
       }, this)
     }
     term.attachCustomKeyEventHandler(this.handleEvent)
+    term.onKey(this.onKey)
     // this.decoder = new TextDecoder(encode)
     // const oldWrite = term.write
     // const th = this
@@ -973,6 +985,10 @@ export default class Term extends Component {
       this.timers.timer1 = setTimeout(this.runInitScript, loginScriptDelay)
     }
     this.props.store.triggerResize()
+  }
+
+  onKey = (key, e) => {
+    log.log('onKey', key, e)
   }
 
   onResize = _.debounce(() => {
