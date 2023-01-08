@@ -1132,19 +1132,19 @@ export default class Term extends Component {
     this.props.handleShowInfo(infoProps)
   }
 
-  getPwd = async () => {
-    const { sessionId, config } = this.props
-    const { pid } = this.state
-    const prps = {
-      host: config.host,
-      port: config.port,
-      pid,
-      sessionId
-    }
-    const result = await runCmds(prps, ['pwd'])
-      .catch(this.props.store.onError)
-    return result ? result[0].trim() : ''
-  }
+  // getPwd = async () => {
+  //   const { sessionId, config } = this.props
+  //   const { pid } = this.state
+  //   const prps = {
+  //     host: config.host,
+  //     port: config.port,
+  //     pid,
+  //     sessionId
+  //   }
+  //   const result = await runCmds(prps, ['pwd'])
+  //     .catch(this.props.store.onError)
+  //   return result ? result[0].trim() : ''
+  // }
 
   renderPromoteModal = () => {
     if (!this.isActiveTerminal()) {

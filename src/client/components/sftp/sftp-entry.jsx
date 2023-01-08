@@ -39,6 +39,7 @@ import isValidPath from '../../common/is-valid-path'
 import memoizeOne from 'memoize-one'
 import TransportEntry from './transport-entry'
 import postMessage from '../../common/post-msg'
+import { runCmd } from '../terminal/terminal-apis'
 import * as owner from './owner-list'
 import './sftp.styl'
 
@@ -176,6 +177,21 @@ export default class Sftp extends Component {
   isActive () {
     return this.props.enableSftp && this.props.currentTabId === this.props.tab.id &&
       this.props.pane === paneMap.fileManager
+  }
+
+  getPwd = async (username) => {
+    const home = await runCmd(
+      this.props.pid,
+      this.props.sessionId,
+      'pwd'
+    ).catch(window.store.onError)
+    if (home) {
+      return home.trim()
+    } else {
+      return username === 'root'
+        ? '/root'
+        : `/home/${this.props.tab.username}`
+    }
   }
 
   getIndex = (file) => {
@@ -563,22 +579,7 @@ export default class Sftp extends Component {
         if (startDirectory) {
           remotePath = startDirectory
         } else {
-          let home = await sftp.getHomeDir()
-            .then(r => r)
-            .catch(err => {
-              this.props.store.onError(err)
-              return ''
-            })
-          if (home.includes('error:')) {
-            home = '/'
-          }
-          if (home) {
-            remotePath = home.trim()
-          } else {
-            remotePath = username === 'root'
-              ? '/root'
-              : `/home/${tab.username}`
-          }
+          remotePath = await this.getPwd(username)
         }
       }
 
