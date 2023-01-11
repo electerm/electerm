@@ -94,7 +94,7 @@ export default function TelnetFormUI (props) {
         name='password'
         hasFeedback
         rules={[{
-          max: 128, message: '128 chars max'
+          max: 1024, message: '1024 chars max'
         }]}
       >
         <AutoComplete

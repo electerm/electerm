@@ -118,7 +118,7 @@ export default function BookmarkFormUI (props) {
         name='password'
         hasFeedback
         rules={[{
-          max: 128, message: '128 chars max'
+          max: 1024, message: '1024 chars max'
         }]}
       >
         <AutoComplete
@@ -166,7 +166,7 @@ export default function BookmarkFormUI (props) {
         name='passphrase'
         hasFeedback
         rules={[{
-          max: 128, message: '128 chars max'
+          max: 1024, message: '1024 chars max'
         }]}
       >
         <Input.Password
@@ -508,7 +508,7 @@ export default function BookmarkFormUI (props) {
           <FormItem
             name={['proxy', 'proxyPassword']}
             rules={[{
-              max: 128, message: '128 chars max'
+              max: 1024, message: '1024 chars max'
             }]}
           >
             <Input

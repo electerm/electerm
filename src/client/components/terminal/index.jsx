@@ -218,6 +218,7 @@ export default class Term extends Component {
       toAll,
       inputOnly
     } = e?.data || {}
+    console.log('e', e)
     const { id: propSplitId } = this.props
     if (
       action === terminalActions.changeEncode &&
@@ -956,6 +957,7 @@ export default class Term extends Component {
     }
     term.attachCustomKeyEventHandler(this.handleEvent)
     term.onKey(this.onKey)
+    term.onScroll(this.onScroll)
     // this.decoder = new TextDecoder(encode)
     // const oldWrite = term.write
     // const th = this
@@ -989,6 +991,10 @@ export default class Term extends Component {
 
   onKey = (key, e) => {
     log.log('onKey', key, e)
+  }
+
+  onScroll = (...args) => {
+    console.log(...args)
   }
 
   onResize = _.debounce(() => {
