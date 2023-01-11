@@ -190,6 +190,7 @@ export default class TermSearch extends Component {
           className='iblock'
           onChange={this.handleChange}
           suffix={this.renderSuffix()}
+          onPressEnter={this.next}
           addonAfter={this.renderAfter()}
         />
       </div>
