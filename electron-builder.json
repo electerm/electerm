@@ -5,6 +5,9 @@
     "output": "dist",
     "buildResources": "node_modules/@electerm/electerm-resource/build-res"
   },
+  "build": {
+    "afterSign": "build/notarize.js"
+  },
   "asar": true,
   "artifactName": "${productName}-${version}-${os}-${arch}.${ext}",
   "win": {
@@ -27,9 +30,14 @@
     "category": "public.app-category.developer-tools",
     "target": "dmg",
     "icon": "node_modules/@electerm/electerm-resource/build/icons.icns",
-    "publish": ["github"]
+    "publish": ["github"],
+    "hardenedRuntime": true,
+    "entitlements": "build/entitlements.mac.plist",
+    "entitlementsInherit": "build/entitlements.mac.plist",
+    "gatekeeperAssess": false
   },
   "dmg": {
+    "sign": false,
     "contents": [
       {
         "x": 110,
