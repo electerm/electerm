@@ -27,9 +27,7 @@
     "category": "public.app-category.developer-tools",
     "target": "dmg",
     "icon": "node_modules/@electerm/electerm-resource/build/icons.icns",
-    "publish": ["github"],
-    "entitlements": "build/entitlements.mac.plist",
-    "notarize": true
+    "publish": ["github"]
   },
   "dmg": {
     "contents": [
