@@ -43,8 +43,7 @@ rm('-rf', 'work/app/localstorage.json')
 rm('-rf', 'work/app/nohup.out')
 rm('-rf', 'work/app/assets/js/index*')
 rm('-rf', 'work/app/assets/js/*.txt')
-rm('-rf', 'work/app/node_modules/zmodem.js/src')
-rm('-rf', 'work/app/node_modules/zmodem.js/dist/zmodem.devel.js')
+
 require('fs').writeFileSync(
   resolve(__dirname, '../work/app/package.json'),
   JSON.stringify(
@@ -52,8 +51,9 @@ require('fs').writeFileSync(
   )
 )
 
-exec(`cd work/app && npm prune --production && cd ${cwd}`)
-
+exec(`cd work/app && npm i --omit=dev && cd ${cwd}`)
+rm('-rf', 'work/app/node_modules/zmodem.js/src')
+rm('-rf', 'work/app/node_modules/zmodem.js/dist/zmodem.devel.js')
 // yarn auto clean
 cp('-r', 'bin/.yarnclean', 'work/app/')
 exec(`cd work/app && yarn generate-lock-entry > yarn.lock && yarn autoclean --force && cd ${cwd}`)
