@@ -31,10 +31,10 @@
     "target": "dmg",
     "icon": "node_modules/@electerm/electerm-resource/build/icons.icns",
     "publish": ["github"],
-    "gatekeeperAssess": false
+    "hardenedRuntime": true,
+    "entitlements": "build/entitlements.mac.plist"
   },
   "dmg": {
-    "sign": false,
     "contents": [
       {
         "x": 110,
