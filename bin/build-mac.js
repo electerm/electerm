@@ -20,7 +20,7 @@ async function main () {
   echo('build dmg')
   rm('-rf', 'dist')
   writeSrc('mac-x64.dmg')
-  await run(`${pb} --mac`)
+  await run(`DEBUG=true ${pb} --mac`)
 }
 
 main()

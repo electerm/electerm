@@ -21,8 +21,8 @@ async function main () {
   echo('build dmg')
   rm('-rf', 'dist')
   writeSrc('mac-arm64.dmg')
-  await run(`${reBuild} --arch arm64 -f -p work/app`)
-  await run(`${pb} --mac --arm64`)
+  await run(`DEBUG=true ${reBuild} --arch arm64 -f work/app`)
+  await run(`DEBUG=true ${pb} --mac --arm64`)
 }
 
 main()
