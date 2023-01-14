@@ -31,7 +31,6 @@
     "target": "dmg",
     "icon": "node_modules/@electerm/electerm-resource/build/icons.icns",
     "publish": ["github"],
-    "hardenedRuntime": true,
     "entitlements": "build/entitlements.mac.plist"
   },
   "dmg": {
