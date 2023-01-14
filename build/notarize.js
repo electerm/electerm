@@ -6,11 +6,8 @@ const {
   notarize
 } = require('electron-notarize')
 
-exports.default = async function notarizing (context) {
-  const {
-    electronPlatformName
-  } = context
-  if (electronPlatformName !== 'darwin') {
+module.exports = exports.default = async function notarizing () {
+  if (process.platform !== 'darwin') {
     return
   }
   const path = resolve(
@@ -18,10 +15,12 @@ exports.default = async function notarizing (context) {
     '../dist/mac/electerm.app'
   )
   console.log('doing notarize...')
-  return notarize({
+  await notarize({
     appBundleId: 'org.electerm.electerm',
     appPath: path,
     appleId: process.env.APPLEID,
     appleIdPassword: process.env.APPLEIDPASS
+  }).catch(err => {
+    console.log(err)
   })
 }

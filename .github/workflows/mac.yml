@@ -40,5 +40,7 @@ jobs:
         BUILD_NUMBER: ${{ secrets.BUILD_NUMBER }}
         CSC_LINK: ${{ secrets.CSC_LINK }}
         CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+        APPLE_ID: ${{ secrets.APPLEID }}
+        APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLEIDPASS }}
       run: npm run build-mac
 
