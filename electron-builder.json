@@ -6,7 +6,7 @@
     "buildResources": "node_modules/@electerm/electerm-resource/build-res"
   },
   "build": {
-    "afterSign": "build/notarize.js"
+    "afterSign": "electron-builder-notarize"
   },
   "asar": true,
   "artifactName": "${productName}-${version}-${os}-${arch}.${ext}",
