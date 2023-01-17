@@ -881,7 +881,8 @@ export default class Term extends Component {
       proxy: mergeProxy(config, tab),
       type: tab.host && !isSshConfig
         ? typeMap.remote
-        : typeMap.local
+        : typeMap.local,
+      screenReaderMode: true
     })
     delete opts.terminals
     let pid = await createTerm(opts)
