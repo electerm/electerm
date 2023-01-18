@@ -35,5 +35,6 @@ module.exports = exports.default = {
   opacity: 1,
   defaultEditor: '',
   confirmBeforeExit: false,
-  initDefaultTabOnStart: true
+  initDefaultTabOnStart: true,
+  screenReaderMode: false
 }

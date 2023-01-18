@@ -286,3 +286,8 @@ export const termInitId = 'electerm-init-term'
 export const batchInputLsKey = 'batch-inputs'
 export const copyBookmarkItemPrefix = 'bookmark:'
 export const copyBookmarkGroupItemPrefix = 'bookmarkGroup:'
+export const rendererTypes = {
+  dom: 'dom',
+  canvas: 'canvas',
+  webGL: 'webGL'
+}

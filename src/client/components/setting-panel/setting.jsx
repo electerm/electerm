@@ -14,7 +14,11 @@ import {
   Tooltip
 } from 'antd'
 import deepCopy from 'json-deep-copy'
-import { noTerminalBgValue, settingMap } from '../../common/constants'
+import {
+  noTerminalBgValue,
+  settingMap,
+  rendererTypes
+} from '../../common/constants'
 import defaultSettings from '../../../app/common/default-setting'
 import ShowItem from '../common/show-item'
 import { osResolve } from '../../common/resolve'
@@ -720,7 +724,7 @@ export default class Setting extends Component {
             dropdownMatchSelectWidth={false}
           >
             {
-              ['canvas', 'dom'].map(id => {
+              Object.keys(rendererTypes).map(id => {
                 return (
                   <Option key={id} value={id}>{id}</Option>
                 )
@@ -771,6 +775,7 @@ export default class Setting extends Component {
         }
         {
           [
+            'screenReaderMode',
             'initDefaultTabOnStart',
             'cursorBlink',
             'rightClickSelectsWord',

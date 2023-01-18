@@ -32,7 +32,8 @@ import {
   transferTypeMap,
   defaultLoginScriptDelay,
   terminalActions,
-  commonActions
+  commonActions,
+  rendererTypes
 } from '../../common/constants'
 import deepCopy from 'json-deep-copy'
 import { readClipboard, copy } from '../../common/clipboard'
@@ -42,6 +43,7 @@ import { SearchAddon } from 'xterm-addon-search'
 import { WebLinksAddon } from 'xterm-addon-web-links'
 import { SerializeAddon } from 'xterm-addon-serialize'
 import { CanvasAddon } from 'xterm-addon-canvas'
+import { WebglAddon } from 'xterm-addon-webgl'
 import { Zmodem, AddonZmodem } from './xterm-zmodem'
 import { Unicode11Addon } from 'xterm-addon-unicode11'
 import keyControlPressed from '../../common/key-control-pressed'
@@ -724,6 +726,20 @@ export default class Term extends Component {
     this.notifyOnData()
   }
 
+  loadRenderer = (term, config) => {
+    if (config.rendererType === rendererTypes.canvas) {
+      term.loadAddon(new CanvasAddon())
+    } else if (config.rendererType === rendererTypes.webGL) {
+      try {
+        term.loadAddon(new WebglAddon())
+      } catch (e) {
+        log.error('render with webgl failed, fallback to canvas')
+        log.error(e)
+        term.loadAddon(new CanvasAddon())
+      }
+    }
+  }
+
   initTerminal = async () => {
     const { id } = this.state
     // let {password, privateKey, host} = this.props.tab
@@ -756,7 +772,7 @@ export default class Term extends Component {
     term.onSelectionChange(this.onSelection)
     this.loadState(term)
     term.open(document.getElementById(id), true)
-    term.loadAddon(new CanvasAddon())
+    this.loadRenderer(term, config)
     term.textarea.addEventListener('focus', this.setActive)
     // term.textarea.addEventListener('blur', this.onBlur)
 
@@ -882,7 +898,7 @@ export default class Term extends Component {
       type: tab.host && !isSshConfig
         ? typeMap.remote
         : typeMap.local,
-      screenReaderMode: true
+      screenReaderMode: config.screenReaderMode
     })
     delete opts.terminals
     let pid = await createTerm(opts)
