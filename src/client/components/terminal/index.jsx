@@ -755,7 +755,7 @@ export default class Term extends Component {
       cursorStyle: config.cursorStyle,
       cursorBlink: config.cursorBlink,
       fontSize: tab.fontSize || config.fontSize,
-      rendererType: config.rendererType
+      screenReaderMode: config.screenReaderMode
     })
     this.fitAddon = new FitAddon()
     this.searchAddon = new SearchAddon()
@@ -897,8 +897,7 @@ export default class Term extends Component {
       proxy: mergeProxy(config, tab),
       type: tab.host && !isSshConfig
         ? typeMap.remote
-        : typeMap.local,
-      screenReaderMode: config.screenReaderMode
+        : typeMap.local
     })
     delete opts.terminals
     let pid = await createTerm(opts)
