@@ -31,7 +31,8 @@ import copy from 'json-deep-copy'
 import {
   settingMap,
   sidebarWidth,
-  sidebarPanelWidth
+  sidebarPanelWidth,
+  paneMap
 } from '../common/constants'
 import getInitItem from '../common/init-setting-item'
 
@@ -77,6 +78,17 @@ class Store {
       return false
     }
     return tab
+  }
+
+  get inActiveTerminal () {
+    const { store } = window
+    return !store.showModal &&
+      store.termFocused &&
+      store.currentTab &&
+      (
+        store.currentTab.pane === paneMap.ssh ||
+        store.currentTab.pane === paneMap.terminal
+      )
   }
 
   get quickCommandTags () {

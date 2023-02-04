@@ -201,6 +201,15 @@ export default class Term extends Component {
     window.addEventListener('message', this.handleEvent)
   }
 
+  zoom = (v) => {
+    const { term } = this
+    if (!term) {
+      return
+    }
+    term.options.fontSize = term.options.fontSize + v
+    this.props.store.triggerResize()
+  }
+
   isActiveTerminal = () => {
     return this.props.id === this.props.activeSplitId &&
     this.props.tab.id === this.props.currentTabId &&
@@ -218,10 +227,16 @@ export default class Term extends Component {
       cmd,
       activeSplitId,
       toAll,
-      inputOnly
+      inputOnly,
+      zoomValue
     } = e?.data || {}
     const { id: propSplitId } = this.props
     if (
+      action === terminalActions.zoom &&
+      propSplitId === activeSplitId
+    ) {
+      this.zoom(zoomValue)
+    } else if (
       action === terminalActions.changeEncode &&
       propSplitId === activeSplitId
     ) {
@@ -280,6 +295,7 @@ export default class Term extends Component {
       isActiveTerminal
     ) {
       e.stopPropagation()
+      window.store.termFocused = true
       return this.term && this.term.focus()
     }
     if (

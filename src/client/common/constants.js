@@ -234,7 +234,8 @@ export const terminalActions = {
   quickCommand: 'quick-command',
   openTerminalSearch: 'open-terminal-search',
   doSearchNext: 'do-search-next',
-  doSearchPrev: 'do-search-prev'
+  doSearchPrev: 'do-search-prev',
+  zoom: 'zoom-terminal'
 }
 export const fileActions = {
   cancel: 'cancel',

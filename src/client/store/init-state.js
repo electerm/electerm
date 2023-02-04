@@ -61,6 +61,7 @@ export default {
   lastDataUpdateTime: 0,
   _tabs: '[]',
   currentTabId: '',
+  termFocused: false,
   _history: '[]',
   _bookmarks: '[]',
   _bookmarkGroups: JSON.stringify(
