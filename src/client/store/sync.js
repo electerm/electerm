@@ -206,11 +206,15 @@ export default (Store) => {
       _.get(gist, 'files["userConfig.json"].content')
     )
     store.setTheme(userConfig.theme)
-    store.updateSyncSetting({
+    const up = {
       [type + 'GistId']: gist.id,
       [type + 'Url']: gist.html_url,
       [type + 'LastSyncTime']: Date.now()
-    })
+    }
+    if (pass) {
+      up[type + 'SyncPassword'] = pass
+    }
+    store.updateSyncSetting(up)
     for (const u of toInsert) {
       await remove(u.name)
       await insert(u.name, u.value)
