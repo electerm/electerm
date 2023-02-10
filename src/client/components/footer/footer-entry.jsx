@@ -61,8 +61,8 @@ export default class SystemMenu extends Component {
     return (
       <div className='terminal-footer-unit terminal-footer-center'>
         <BatchInput
-          store={this.props.store}
           input={this.batchInput}
+          batchInputs={this.props.store.batchInputs}
         />
       </div>
     )

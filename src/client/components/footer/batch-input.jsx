@@ -2,7 +2,7 @@
  * batch input module
  */
 
-import { Component } from '../common/react-subx'
+import { Component } from 'react'
 import {
   AutoComplete,
   Input,
@@ -27,7 +27,7 @@ export default class BatchInput extends Component {
     if (!cmd.trim()) {
       return
     }
-    this.props.store.addBatchInput(cmd)
+    window.store.addBatchInput(cmd)
     this.props.input(cmd, toAll)
     this.setState({
       cmd: '',
@@ -84,7 +84,7 @@ export default class BatchInput extends Component {
   }
 
   buildOptions = () => {
-    const arr = this.props.store.batchInputs.map(this.mapper)
+    const arr = this.props.batchInputs.map(this.mapper)
     if (arr.length) {
       return [
         ...arr,
