@@ -2,20 +2,20 @@
  * quick commands footer selection
  */
 
-import { Component } from '../common/react-subx'
+import { PureComponent } from 'react'
 import { Button } from 'antd'
 import './qm.styl'
 
 const { prefix } = window
 const e = prefix('quickCommands')
 
-export default class QuickCommandsFooter extends Component {
+export default class QuickCommandsFooter extends PureComponent {
   open = () => {
     this.timer = setTimeout(this.act, 500)
   }
 
   act = () => {
-    this.props.store.openQuickCommandBar = true
+    window.store.openQuickCommandBar = true
   }
 
   onMouseLeave = () => {

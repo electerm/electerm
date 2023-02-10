@@ -71,9 +71,7 @@ export default class SystemMenu extends Component {
   renderQuickCommands () {
     return (
       <div className='terminal-footer-unit terminal-footer-qm'>
-        <Qm
-          store={this.props.store}
-        />
+        <Qm />
       </div>
     )
   }
