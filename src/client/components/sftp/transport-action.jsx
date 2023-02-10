@@ -28,7 +28,7 @@ export default function transportAction (props) {
           transferList
         }
       }
-      props.store.editTransfer(
+      window.store.editTransfer(
         transferList[index].id,
         up
       )
@@ -43,7 +43,7 @@ export default function transportAction (props) {
       const transferList = copy(old.transferList)
       const index = _.findIndex(transferList, t => t.id === transfer.id)
       transferList.splice(index, 1, ...insts)
-      props.store.setTransfers(transferList)
+      window.store.setTransfers(transferList)
       return {
         transferList
       }
@@ -60,7 +60,7 @@ export default function transportAction (props) {
     const cb = props[typeTo + 'List']
     const finishTime = +new Date()
     if (!props.config.disableTransferHistory) {
-      props.store.addTransferHistory(
+      window.store.addTransferHistory(
         {
           ...transfer,
           finishTime,
@@ -109,7 +109,7 @@ export default function transportAction (props) {
       const transferList = oldTrans.filter(t => {
         return t.id !== id
       })
-      props.store.setTransfers(transferList)
+      window.store.setTransfers(transferList)
       return {
         transferList
       }
@@ -378,7 +378,7 @@ export default function transportAction (props) {
       error: e.message
     }
     update(up)
-    props.store.onError(e)
+    window.store.onError(e)
   }
   async function mkdir () {
     const {

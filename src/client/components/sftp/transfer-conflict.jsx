@@ -96,7 +96,7 @@ export default (props) => {
       if (action.includes('rename')) {
         transferList[index] = rename(transferList[index])
       }
-      props.store.setTransfers(transferList)
+      window.store.setTransfers(transferList)
       return {
         transferList
       }
@@ -105,7 +105,7 @@ export default (props) => {
 
   function tagTransferError (id, errorMsg) {
     const tr = _.find(transferList, d => d.id === id)
-    props.store.addTransferHistory({
+    window.store.addTransferHistory({
       ...tr,
       host: props.host,
       error: errorMsg,
@@ -117,7 +117,7 @@ export default (props) => {
       if (index >= 0) {
         transferList.splice(index, 1)
       }
-      props.store.setTransfers(transferList)
+      window.store.setTransfers(transferList)
       return {
         transferList
       }
@@ -166,7 +166,7 @@ export default (props) => {
         }
         Object.assign(transferList[index], up)
       }
-      props.store.setTransfers(transferList)
+      window.store.setTransfers(transferList)
       return {
         transferList
       }
@@ -202,7 +202,7 @@ export default (props) => {
       if (transferList[index]) {
         transferList[index].expanded = true
       }
-      props.store.setTransfers(transferList)
+      window.store.setTransfers(transferList)
       return {
         transferList
       }

@@ -52,7 +52,7 @@ export default class TransferEntry extends PureComponent {
         ...transferList,
         ...list
       ]
-      this.props.store.setTransfers(transferList)
+      window.store.setTransfers(transferList)
       return {
         transferList
       }
@@ -74,7 +74,6 @@ export default class TransferEntry extends PureComponent {
         'remoteList',
         'sftp',
         'sessionId',
-        'store',
         'host',
         'tab'
       ])
@@ -88,7 +87,6 @@ export default class TransferEntry extends PureComponent {
       ..._.pick(this.props, [
         'sftp',
         'config',
-        'store',
         'tab',
         'sessionId',
         'pid'

@@ -265,7 +265,7 @@ export default class FileListTable extends React.Component {
       : this.pos
     this.pos = pos
     this.uid = generate()
-    this.props.store.openContextMenu({
+    window.store.openContextMenu({
       id: this.uid,
       items,
       pos
@@ -289,7 +289,7 @@ export default class FileListTable extends React.Component {
       ? this.otherDirection(sortDirection)
       : this.props.defaultDirection()
     const { type } = this.props
-    this.props.store.setSftpSortSetting({
+    window.store.setSftpSortSetting({
       [type]: {
         direction: sortDirectionNew,
         prop: name

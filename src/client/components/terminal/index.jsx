@@ -207,7 +207,7 @@ export default class Term extends Component {
       return
     }
     term.options.fontSize = term.options.fontSize + v
-    this.props.store.triggerResize()
+    window.store.triggerResize()
   }
 
   isActiveTerminal = () => {
@@ -342,7 +342,7 @@ export default class Term extends Component {
       e.stopPropagation()
       e.preventDefault()
       if (e.ctrlKey && e.type === 'keydown') {
-        this.props.store.clickNextTab()
+        window.store.clickNextTab()
         return false
       }
     } else if (
@@ -376,8 +376,8 @@ export default class Term extends Component {
   onSelection = () => {
     if (
       !this.props.config.copyWhenSelect ||
-      this.props.store.termSearchOpen ||
-      this.props.store.showModal
+      window.store.termSearchOpen ||
+      window.store.showModal
     ) {
       return false
     }
@@ -463,7 +463,7 @@ export default class Term extends Component {
           this.saveToDisk(xfer, FILE_BUFFER)
         }
       )
-      .catch(this.props.store.onError)
+      .catch(window.store.onError)
   }
 
   beforeZmodemUpload = (file, files) => {
@@ -559,7 +559,7 @@ export default class Term extends Component {
   }
 
   onZmodemCatch = (e) => {
-    this.props.store.onError(e)
+    window.store.onError(e)
     this.onZmodemEnd()
   }
 
@@ -609,7 +609,7 @@ export default class Term extends Component {
     }
     const items = this.renderContext()
     this.uid = generate()
-    this.props.store.openContextMenu({
+    window.store.openContextMenu({
       id: this.uid,
       items,
       pos: computePos(e)
@@ -647,7 +647,7 @@ export default class Term extends Component {
   }
 
   toggleSearch = () => {
-    this.props.store.toggleTerminalSearch()
+    window.store.toggleTerminalSearch()
   }
 
   onLineFeed = e => {
@@ -802,7 +802,7 @@ export default class Term extends Component {
 
   setActive = () => {
     this.props.setActive(this.props.id)
-    this.props.store.storeAssign({
+    window.store.storeAssign({
       activeTerminalId: this.props.id
     })
   }
@@ -934,7 +934,7 @@ export default class Term extends Component {
       return this.promote()
     }
     if (savePassword) {
-      this.props.store.editItem(srcId, extra, from)
+      window.store.editItem(srcId, extra, from)
     }
     this.setState({
       loading: false
@@ -1015,7 +1015,7 @@ export default class Term extends Component {
     if (startDirectory || loginScript || isSshConfig) {
       this.timers.timer1 = setTimeout(this.runInitScript, loginScriptDelay)
     }
-    this.props.store.triggerResize()
+    window.store.triggerResize()
   }
 
   onKey = (key, e) => {
@@ -1189,7 +1189,7 @@ export default class Term extends Component {
   //     sessionId
   //   }
   //   const result = await runCmds(prps, ['pwd'])
-  //     .catch(this.props.store.onError)
+  //     .catch(window.store.onError)
   //   return result ? result[0].trim() : ''
   // }
 

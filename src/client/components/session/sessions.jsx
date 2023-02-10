@@ -1,4 +1,4 @@
-import { Component } from '../common/react-subx'
+import { Component } from 'react'
 import Session from './session'
 import _ from 'lodash'
 import classNames from 'classnames'
@@ -330,10 +330,13 @@ export default class Sessions extends Component {
         ..._.pick(store, [
           'height',
           'width',
-          'activeTerminalId'
+          'activeTerminalId',
+          'pinnedQuickCommandBar',
+          'tabsHeight',
+          'appPath',
+          'topMenuHeight'
         ]),
         config,
-        store,
         ..._.pick(this, [
           'onChangeTabId',
           'onDuplicateTab',
@@ -403,13 +406,16 @@ export default class Sessions extends Component {
   render () {
     const { store } = this.props
     const currentTab = this.getCurrentTab()
+    const termProps = {
+      currentTab,
+      store
+    }
     return [
       this.renderTabs(),
       this.renderSessionsWrap(),
       <TermSearch
-        store={store}
         key='TermSearch'
-        currentTab={currentTab}
+        {...termProps}
       />,
       <QuickCommandsFooterBox
         key='QuickCommandsFooterBox'

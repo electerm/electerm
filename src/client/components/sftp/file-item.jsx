@@ -115,7 +115,7 @@ export default class FileSection extends React.Component {
       return prefix + resolve(f.path, f.name)
     }).join('\n')
     copyToClipboard(textToCopy)
-    this.props.store.fileOperation = isCut ? fileOperationsMap.mv : fileOperationsMap.cp
+    window.store.fileOperation = isCut ? fileOperationsMap.mv : fileOperationsMap.cp
   }
 
   onCut = (targetFiles) => {
@@ -343,7 +343,7 @@ export default class FileSection extends React.Component {
 
   showInfo = () => {
     const { type } = this.props
-    this.props.store.openFileInfoModal({
+    window.store.openFileInfoModal({
       file: this.state.file,
       tab: this.props.tab,
       visible: true,
@@ -369,7 +369,7 @@ export default class FileSection extends React.Component {
       : fs.touch
     const res = await func(p)
       .then(() => true)
-      .catch(this.props.store.onError)
+      .catch(window.store.onError)
     if (res) {
       this.props.localList()
     }
@@ -384,7 +384,7 @@ export default class FileSection extends React.Component {
       : sftp.touch
     const res = await func(p)
       .then(() => true)
-      .catch(this.props.store.onError)
+      .catch(window.store.onError)
     if (res) {
       await wait(500)
       await this.props.remoteList()
@@ -481,7 +481,7 @@ export default class FileSection extends React.Component {
       ? fs.chmodAsync
       : this.props.sftp.chmod
     const p = resolve(path, name)
-    await func(p, permission).catch(this.props.store.onError)
+    await func(p, permission).catch(window.store.onError)
     window.removeEventListener('message', this.changeFileMode)
     this.props[type + 'List']()
   }
@@ -491,7 +491,7 @@ export default class FileSection extends React.Component {
     window.addEventListener(
       'message', this.changeFileMode
     )
-    this.props.store.openFileModeModal({
+    window.store.openFileModeModal({
       tab: this.props.tab,
       visible: true,
       uidTree: this.props[`${type}UidTree`],
@@ -527,7 +527,7 @@ export default class FileSection extends React.Component {
     const { localPath } = this.props
     const p1 = resolve(localPath, oldname)
     const p2 = resolve(localPath, newname)
-    await fs.renameAsync(p1, p2).catch(this.props.store.onError)
+    await fs.renameAsync(p1, p2).catch(window.store.onError)
     this.props.localList()
   }
 
@@ -536,7 +536,7 @@ export default class FileSection extends React.Component {
     const p1 = resolve(remotePath, oldname)
     const p2 = resolve(remotePath, newname)
     const res = await sftp.rename(p1, p2)
-      .catch(this.props.store.onError)
+      .catch(window.store.onError)
       .then(() => true)
     if (res) {
       this.props.remoteList()
@@ -572,7 +572,7 @@ export default class FileSection extends React.Component {
   openFile = file => {
     const filePath = resolve(file.path, file.name)
     fs.openFile(filePath)
-      .catch(this.props.store.onError)
+      .catch(window.store.onError)
   }
 
   removeFileEditEvent = () => {
@@ -644,7 +644,7 @@ export default class FileSection extends React.Component {
   watchFile = async (tempPath) => {
     window.pre.runGlobalAsync('watchFile', tempPath)
     fs.openFile(tempPath)
-      .catch(this.props.store.onError)
+      .catch(window.store.onError)
     window.pre.showItemInFolder(tempPath)
     window.pre.ipcOnEvent('file-change', this.onFileChange)
   }
@@ -1042,7 +1042,7 @@ export default class FileSection extends React.Component {
     })
     const items = this.renderContextItems()
     this.uid = generate()
-    this.props.store.openContextMenu({
+    window.store.openContextMenu({
       items,
       id: this.uid,
       pos: computePos(e)

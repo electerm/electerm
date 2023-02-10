@@ -139,7 +139,7 @@ export default class SessionWrapper extends Component {
     const {
       pinnedQuickCommandBar,
       tabsHeight
-    } = this.props.store
+    } = this.props
     return this.props.height -
       tabsHeight -
       footerHeight -
@@ -215,7 +215,7 @@ export default class SessionWrapper extends Component {
       terminals: newTerms,
       activeSplitId: newActiveId
     }, this.updateTab)
-    this.props.store.focus()
+    window.store.focus()
   }
 
   changeDirection = () => {
@@ -275,8 +275,8 @@ export default class SessionWrapper extends Component {
       ? 'terms-box'
       : 'terms-box hide'
     const height = this.computeHeight()
-    const { store, width, tab } = this.props
-    const themeConfig = copy(store.getThemeConfig())
+    const { width, tab } = this.props
+    const themeConfig = copy(window.store.getThemeConfig())
     return (
       <div
         className={cls}
@@ -351,7 +351,7 @@ export default class SessionWrapper extends Component {
   }
 
   handleFullscreen = () => {
-    this.props.store.toggleTermFullscreen(true)
+    window.store.toggleTermFullscreen(true)
   }
 
   handleOpenSearch = () => {
@@ -487,10 +487,10 @@ export default class SessionWrapper extends Component {
     const infoProps = {
       ..._.pick(this.props.config, ['host', 'port', 'saveTerminalLogToFile']),
       ...infoPanelProps,
-      appPath: this.props.store.appPath,
+      appPath: this.props.appPath,
       showInfo,
-      tabsHeight: this.props.store.tabsHeight,
-      topMenuHeight: this.props.store.topMenuHeight,
+      tabsHeight: this.props.tabsHeight,
+      topMenuHeight: this.props.topMenuHeight,
       // pid,
       // sessionId,
       // isRemote: this.isRemote(),

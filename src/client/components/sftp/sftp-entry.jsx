@@ -114,8 +114,8 @@ export default class Sftp extends Component {
   defaultState = () => {
     return Object.keys(typeMap).reduce((prev, k, i) => {
       Object.assign(prev, {
-        [`sortProp.${k}`]: this.props.store.sftpSortSetting[k].prop,
-        [`sortDirection.${k}`]: this.props.store.sftpSortSetting[k].direction,
+        [`sortProp.${k}`]: window.store.sftpSortSetting[k].prop,
+        [`sortDirection.${k}`]: window.store.sftpSortSetting[k].direction,
         [k]: [],
         [`${k}FileTree`]: {},
         [`${k}Loading`]: false,
@@ -264,7 +264,7 @@ export default class Sftp extends Component {
       ? fs.unlinkAsync
       : fs.rmrf
     const p = resolve(path, name)
-    await func(p).catch(this.props.store.onError)
+    await func(p).catch(window.store.onError)
   }
 
   remoteDel = async (file) => {
@@ -274,7 +274,7 @@ export default class Sftp extends Component {
       ? sftp.rmdir
       : sftp.rm
     const p = resolve(path, name)
-    await func(p).catch(this.props.store.onError)
+    await func(p).catch(window.store.onError)
   }
 
   delFiles = async (_type, files = this.state.selectedFiles) => {
@@ -371,7 +371,7 @@ export default class Sftp extends Component {
   }
 
   handleEvent = (e) => {
-    if (!this.isActive() || this.props.store.onOperation) {
+    if (!this.isActive() || window.store.onOperation) {
       return
     }
     const lastClickedFile = this.state.lastClickedFile || {
@@ -448,7 +448,7 @@ export default class Sftp extends Component {
   }
 
   onError = e => {
-    this.props.store.onError(e)
+    window.store.onError(e)
     this.setState({
       remoteLoading: false
     })
@@ -1052,7 +1052,6 @@ export default class Sftp extends Component {
       remoteList: this.remoteList,
       sftp: this.sftp,
       sessionId: this.props.sessionId,
-      store: this.props.store,
       host: this.props.tab.host,
       localListDebounce: this.localListDebounce,
       remoteListDebounce: this.remoteListDebounce,
