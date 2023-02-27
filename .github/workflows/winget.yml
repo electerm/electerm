@@ -9,7 +9,7 @@ jobs:
     runs-on: windows-latest # action can only be run on windows
     environment: build
     steps:
-      - uses: vedantmgoyal2009/winget-releaser@v1
+      - uses: vedantmgoyal2009/winget-releaser@v2
         with:
           identifier: electerm.electerm
           installers-regex: '.*.exe$'
