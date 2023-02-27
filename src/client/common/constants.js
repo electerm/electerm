@@ -292,3 +292,8 @@ export const rendererTypes = {
   canvas: 'canvas',
   webGL: 'webGL'
 }
+export const mirrors = {
+  github: 'github',
+  sourceforge: 'sourceforge'
+}
+export const downloadUpgradeTimeout = 20000
