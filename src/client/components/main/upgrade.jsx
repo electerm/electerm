@@ -16,6 +16,7 @@ import {
 } from '../../common/constants'
 import newTerm from '../../common/new-terminal'
 import Markdown from '../common/markdown'
+import downloadMirrors from '../../common/download-mirrors'
 import './upgrade.styl'
 
 const { prefix } = window
@@ -294,8 +295,16 @@ export default class Upgrade extends PureComponent {
       : this.doUpgrade
     const getLink = (
       <div>
-        {e('goGetIt')}
-        <Link to={homepage} className='mg1l'>{homepage}</Link>
+        <p>
+          {e('manuallyDownloadFrom')}:
+          {
+            downloadMirrors.map((d) => {
+              return (
+                <Link to={d.url} className='mg1l'>{d.name}</Link>
+              )
+            })
+          }
+        </p>
         {this.renderChangeLog()}
       </div>
     )

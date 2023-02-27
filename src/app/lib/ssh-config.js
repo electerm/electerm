@@ -34,7 +34,7 @@ function loadSshConfig () {
     }).filter(d => d)
   } catch (e) {
     log.debug('error parsing $HOME/.ssh/config')
-    log.debug('maybe no $HOME/.ssh/config, but it is ok')
+    log.debug('maybe no $HOME/.ssh/config, it is ok')
   }
   return config
 }
