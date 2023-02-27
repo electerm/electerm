@@ -41,10 +41,13 @@
 - 支持快速输入命令到一个或者多个终端
 - 支持命令行使用: 请参阅[wiki](https://github.com/electerm/electerm/wiki/Command-line-usage)
 
-## 下载/安装
+## 下载
 
-- [https://electerm.github.io/electerm](https://electerm.github.io/electerm)
-- 发布页面: [https://github.com/electerm/electerm/releases](https://github.com/electerm/electerm/releases)
+- [https://sourceforge.net/projects/electerm.mirror/files/](sourceforge)
+- [https://github.com/electerm/electerm/releases](github releases)
+
+## 安装
+
 - Mac OS用户: `brew install --cask electerm`
 - Snap: `sudo snap install electerm --classic`
 - 一些Linux发行版的内置软件商店(Ubuntu, Deepin, Mint...).

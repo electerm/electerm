@@ -41,12 +41,13 @@ Open-sourced terminal/ssh/telnet/serialport/sftp client(linux, mac, win).
 - Quick input to one or all terminals.
 - Command line usage: check [wiki](https://github.com/electerm/electerm/wiki/Command-line-usage)
 
-## Download/install
+## Download
 
-- [https://electerm.github.io/electerm](https://electerm.github.io/electerm)
-- [https://electerm.html5beta.com](https://electerm.html5beta.com)
-- [https://sourceforge.net/projects/electerm.mirror/files/](https://sourceforge.net/projects/electerm.mirror/files/)
-- From release: [https://github.com/electerm/electerm/releases](https://github.com/electerm/electerm/releases)
+- [https://sourceforge.net/projects/electerm.mirror/files/](sourceforge)
+- [https://github.com/electerm/electerm/releases](github releases)
+
+## Install
+
 - For Mac user: `brew install --cask electerm`
 - With snap: `sudo snap install electerm --classic`
 - For some Linux distribution, you can find it from OS default App store(Ubuntu, Deepin, Mint...).
