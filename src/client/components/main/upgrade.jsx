@@ -5,7 +5,15 @@ import { getLatestReleaseInfo, getLatestReleaseVersion } from '../../common/upda
 import upgrade from '../../common/upgrade'
 import compare from '../../../app/common/version-compare'
 import Link from '../common/external-link'
-import { isMac, isWin, packInfo, commonActions, srcsSkipUpgradeCheck } from '../../common/constants'
+import {
+  isMac,
+  isWin,
+  packInfo,
+  commonActions,
+  srcsSkipUpgradeCheck,
+  downloadUpgradeTimeout,
+  mirrors
+} from '../../common/constants'
 import newTerm from '../../common/new-terminal'
 import Markdown from '../common/markdown'
 import './upgrade.styl'
@@ -19,8 +27,11 @@ const c = prefix('common')
 
 export default class Upgrade extends PureComponent {
   state = {
-    showCount: 0
+    showCount: 0,
+    mirror: mirrors.github
   }
+
+  downloadTimer = null
 
   componentDidMount () {
     setTimeout(() => {
@@ -75,6 +86,7 @@ export default class Upgrade extends PureComponent {
   }
 
   onData = (upgradePercent) => {
+    clearTimeout(this.downloadTimer)
     if (upgradePercent >= 100) {
       this.update && this.update.destroy()
       return this.close()
@@ -98,6 +110,20 @@ export default class Upgrade extends PureComponent {
     })
   }
 
+  timeout = () => {
+    const { mirror } = this.state
+    this.cancel()
+    const next = mirror === mirrors.github
+      ? this.doUpgrade
+      : undefined
+    const nextMirror = mirror === mirrors.github
+      ? mirrors.sourceforge
+      : mirrors.github
+    this.setState({
+      mirror: nextMirror
+    }, next)
+  }
+
   onEnd = () => {
     this.close()
   }
@@ -115,13 +141,15 @@ export default class Upgrade extends PureComponent {
     this.changeProps({
       upgrading: true
     })
-    const proxy = this.props.store.getProxySetting()
+    const proxy = window.store.getProxySetting()
     this.update = await upgrade({
+      mirror: this.state.mirror,
       proxy,
       onData: this.onData,
       onEnd: this.onEnd,
       onError: this.onError
     })
+    this.downloadTimer = setTimeout(this.timeout, downloadUpgradeTimeout)
   }
 
   skipVersion = () => {

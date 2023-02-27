@@ -13,6 +13,16 @@ const SocksProxyAgent = require('socks-proxy-agent')
 const HttpsProxyAgent = require('https-proxy-agent')
 const { openFile, rmrf } = fsExport
 
+function getUrl (url, mirror) {
+  if (mirror === 'github') {
+    return url
+  } else {
+    const arr = url.split('/')
+    const len = arr.length
+    return `https://master.dl.sourceforge.net/project/electerm.mirror/${arr[len - 2]}/${arr[len - 1]}?viasf=1`
+  }
+}
+
 function createAgent (proxy) {
   if (!proxy.enableGlobalProxy) {
     return {}
@@ -81,7 +91,8 @@ class Upgrade {
     const {
       id,
       ws,
-      proxy
+      proxy,
+      mirror
     } = this.options
     const { agent, agentType } = createAgent(proxy)
     const releaseInfoUrl = `${packInfo.homepage}/data/electerm-github-release.json?_=${+new Date()}`
@@ -105,7 +116,8 @@ class Upgrade {
       return
     }
     const localPath = resolve(tempDir, releaseInfo.name)
-    const remotePath = releaseInfo.browser_download_url
+    const remotePath = getUrl(releaseInfo.browser_download_url, mirror)
+    // console.log('ff', remotePath)
     await rmrf(localPath)
     const { size } = releaseInfo
     this.id = id
@@ -114,7 +126,14 @@ class Upgrade {
       url: remotePath,
       httpsAgent: agent,
       responseType: 'stream'
-    }).then(r => r.data)
+    })
+      .then(r => r.data)
+      .catch(err => {
+        this.onError(err, id, ws)
+      })
+    if (!readSteam) {
+      return
+    }
     const writeSteam = fs.createWriteStream(localPath)
 
     let count = 0
