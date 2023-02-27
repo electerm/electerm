@@ -355,7 +355,7 @@
             "created_at": "2023-02-05T09:15:03Z",
             "updated_at": "2023-02-05T09:15:07Z",
             "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-linux-amd64.deb",
-            "desc": "for Debian, Ubuntu..."
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-linux-amd64.deb?viasf=1"
           },
           {
             "url": "https://api.github.com/repos/electerm/electerm/releases/assets/94371954",
@@ -390,7 +390,7 @@
             "created_at": "2023-02-05T09:12:44Z",
             "updated_at": "2023-02-05T09:12:48Z",
             "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-linux-amd64.snap",
-            "desc": "for all linux that support snap"
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-linux-amd64.snap?viasf=1"
           },
           {
             "url": "https://api.github.com/repos/electerm/electerm/releases/assets/94372009",
@@ -425,7 +425,7 @@
             "created_at": "2023-02-05T09:13:28Z",
             "updated_at": "2023-02-05T09:13:33Z",
             "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-linux-x64.tar.gz",
-            "desc": "for all linux x64, just extract"
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-linux-x64.tar.gz?viasf=1"
           },
           {
             "url": "https://api.github.com/repos/electerm/electerm/releases/assets/94371826",
@@ -460,7 +460,7 @@
             "created_at": "2023-02-05T09:11:39Z",
             "updated_at": "2023-02-05T09:11:42Z",
             "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-linux-x86_64.rpm",
-            "desc": "for Red Hat, Fedora..."
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-linux-x86_64.rpm?viasf=1"
           }
         ]
       },
@@ -499,7 +499,8 @@
             "download_count": 0,
             "created_at": "2023-02-05T09:18:01Z",
             "updated_at": "2023-02-05T09:18:05Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-mac-arm64.dmg"
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-mac-arm64.dmg",
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-mac-arm64.dmg?viasf=1"
           },
           {
             "url": "https://api.github.com/repos/electerm/electerm/releases/assets/94372140",
@@ -533,7 +534,8 @@
             "download_count": 0,
             "created_at": "2023-02-05T09:15:31Z",
             "updated_at": "2023-02-05T09:15:35Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-mac-x64.dmg"
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-mac-x64.dmg",
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-mac-x64.dmg?viasf=1"
           }
         ]
       },
@@ -572,7 +574,8 @@
             "download_count": 0,
             "created_at": "2023-02-05T10:07:18Z",
             "updated_at": "2023-02-05T10:07:20Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-win-x64-installer.exe"
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-win-x64-installer.exe",
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-win-x64-installer.exe?viasf=1"
           },
           {
             "url": "https://api.github.com/repos/electerm/electerm/releases/assets/94376404",
@@ -606,7 +609,8 @@
             "download_count": 0,
             "created_at": "2023-02-05T10:11:44Z",
             "updated_at": "2023-02-05T10:11:47Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-win-x64-loose.tar.gz"
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-win-x64-loose.tar.gz",
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-win-x64-loose.tar.gz?viasf=1"
           },
           {
             "url": "https://api.github.com/repos/electerm/electerm/releases/assets/94376832",
@@ -640,7 +644,8 @@
             "download_count": 0,
             "created_at": "2023-02-05T10:18:19Z",
             "updated_at": "2023-02-05T10:18:22Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-win-x64.appx"
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-win-x64.appx",
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-win-x64.appx?viasf=1"
           },
           {
             "url": "https://api.github.com/repos/electerm/electerm/releases/assets/94376755",
@@ -674,7 +679,8 @@
             "download_count": 0,
             "created_at": "2023-02-05T10:16:44Z",
             "updated_at": "2023-02-05T10:16:48Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-win-x64.tar.gz"
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-win-x64.tar.gz",
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-win-x64.tar.gz?viasf=1"
           }
         ]
       }
@@ -1042,7 +1048,7 @@
             "created_at": "2023-02-05T09:15:03Z",
             "updated_at": "2023-02-05T09:15:07Z",
             "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-linux-amd64.deb",
-            "desc": "for Debian, Ubuntu..."
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-linux-amd64.deb?viasf=1"
           },
           {
             "url": "https://api.github.com/repos/electerm/electerm/releases/assets/94371954",
@@ -1077,7 +1083,7 @@
             "created_at": "2023-02-05T09:12:44Z",
             "updated_at": "2023-02-05T09:12:48Z",
             "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-linux-amd64.snap",
-            "desc": "for all linux that support snap"
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-linux-amd64.snap?viasf=1"
           },
           {
             "url": "https://api.github.com/repos/electerm/electerm/releases/assets/94372009",
@@ -1112,7 +1118,7 @@
             "created_at": "2023-02-05T09:13:28Z",
             "updated_at": "2023-02-05T09:13:33Z",
             "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-linux-x64.tar.gz",
-            "desc": "for all linux x64, just extract"
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-linux-x64.tar.gz?viasf=1"
           },
           {
             "url": "https://api.github.com/repos/electerm/electerm/releases/assets/94371826",
@@ -1147,7 +1153,7 @@
             "created_at": "2023-02-05T09:11:39Z",
             "updated_at": "2023-02-05T09:11:42Z",
             "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-linux-x86_64.rpm",
-            "desc": "for Red Hat, Fedora..."
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-linux-x86_64.rpm?viasf=1"
           }
         ]
       },
@@ -1186,7 +1192,8 @@
             "download_count": 0,
             "created_at": "2023-02-05T09:18:01Z",
             "updated_at": "2023-02-05T09:18:05Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-mac-arm64.dmg"
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-mac-arm64.dmg",
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-mac-arm64.dmg?viasf=1"
           },
           {
             "url": "https://api.github.com/repos/electerm/electerm/releases/assets/94372140",
@@ -1220,7 +1227,8 @@
             "download_count": 0,
             "created_at": "2023-02-05T09:15:31Z",
             "updated_at": "2023-02-05T09:15:35Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-mac-x64.dmg"
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-mac-x64.dmg",
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-mac-x64.dmg?viasf=1"
           }
         ]
       },
@@ -1259,7 +1267,8 @@
             "download_count": 0,
             "created_at": "2023-02-05T10:07:18Z",
             "updated_at": "2023-02-05T10:07:20Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-win-x64-installer.exe"
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-win-x64-installer.exe",
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-win-x64-installer.exe?viasf=1"
           },
           {
             "url": "https://api.github.com/repos/electerm/electerm/releases/assets/94376404",
@@ -1293,7 +1302,8 @@
             "download_count": 0,
             "created_at": "2023-02-05T10:11:44Z",
             "updated_at": "2023-02-05T10:11:47Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-win-x64-loose.tar.gz"
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-win-x64-loose.tar.gz",
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-win-x64-loose.tar.gz?viasf=1"
           },
           {
             "url": "https://api.github.com/repos/electerm/electerm/releases/assets/94376832",
@@ -1327,7 +1337,8 @@
             "download_count": 0,
             "created_at": "2023-02-05T10:18:19Z",
             "updated_at": "2023-02-05T10:18:22Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-win-x64.appx"
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-win-x64.appx",
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-win-x64.appx?viasf=1"
           },
           {
             "url": "https://api.github.com/repos/electerm/electerm/releases/assets/94376755",
@@ -1361,7 +1372,8 @@
             "download_count": 0,
             "created_at": "2023-02-05T10:16:44Z",
             "updated_at": "2023-02-05T10:16:48Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-win-x64.tar.gz"
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-win-x64.tar.gz",
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-win-x64.tar.gz?viasf=1"
           }
         ]
       }
@@ -1729,7 +1741,7 @@
             "created_at": "2023-02-05T09:15:03Z",
             "updated_at": "2023-02-05T09:15:07Z",
             "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-linux-amd64.deb",
-            "desc": "for Debian, Ubuntu..."
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-linux-amd64.deb?viasf=1"
           },
           {
             "url": "https://api.github.com/repos/electerm/electerm/releases/assets/94371954",
@@ -1764,7 +1776,7 @@
             "created_at": "2023-02-05T09:12:44Z",
             "updated_at": "2023-02-05T09:12:48Z",
             "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-linux-amd64.snap",
-            "desc": "for all linux that support snap"
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-linux-amd64.snap?viasf=1"
           },
           {
             "url": "https://api.github.com/repos/electerm/electerm/releases/assets/94372009",
@@ -1799,7 +1811,7 @@
             "created_at": "2023-02-05T09:13:28Z",
             "updated_at": "2023-02-05T09:13:33Z",
             "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-linux-x64.tar.gz",
-            "desc": "for all linux x64, just extract"
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-linux-x64.tar.gz?viasf=1"
           },
           {
             "url": "https://api.github.com/repos/electerm/electerm/releases/assets/94371826",
@@ -1834,7 +1846,7 @@
             "created_at": "2023-02-05T09:11:39Z",
             "updated_at": "2023-02-05T09:11:42Z",
             "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-linux-x86_64.rpm",
-            "desc": "for Red Hat, Fedora..."
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-linux-x86_64.rpm?viasf=1"
           }
         ]
       },
@@ -1873,7 +1885,8 @@
             "download_count": 0,
             "created_at": "2023-02-05T09:18:01Z",
             "updated_at": "2023-02-05T09:18:05Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-mac-arm64.dmg"
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-mac-arm64.dmg",
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-mac-arm64.dmg?viasf=1"
           },
           {
             "url": "https://api.github.com/repos/electerm/electerm/releases/assets/94372140",
@@ -1907,7 +1920,8 @@
             "download_count": 0,
             "created_at": "2023-02-05T09:15:31Z",
             "updated_at": "2023-02-05T09:15:35Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-mac-x64.dmg"
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-mac-x64.dmg",
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-mac-x64.dmg?viasf=1"
           }
         ]
       },
@@ -1946,7 +1960,8 @@
             "download_count": 0,
             "created_at": "2023-02-05T10:07:18Z",
             "updated_at": "2023-02-05T10:07:20Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-win-x64-installer.exe"
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-win-x64-installer.exe",
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-win-x64-installer.exe?viasf=1"
           },
           {
             "url": "https://api.github.com/repos/electerm/electerm/releases/assets/94376404",
@@ -1980,7 +1995,8 @@
             "download_count": 0,
             "created_at": "2023-02-05T10:11:44Z",
             "updated_at": "2023-02-05T10:11:47Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-win-x64-loose.tar.gz"
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-win-x64-loose.tar.gz",
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-win-x64-loose.tar.gz?viasf=1"
           },
           {
             "url": "https://api.github.com/repos/electerm/electerm/releases/assets/94376832",
@@ -2014,7 +2030,8 @@
             "download_count": 0,
             "created_at": "2023-02-05T10:18:19Z",
             "updated_at": "2023-02-05T10:18:22Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-win-x64.appx"
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-win-x64.appx",
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-win-x64.appx?viasf=1"
           },
           {
             "url": "https://api.github.com/repos/electerm/electerm/releases/assets/94376755",
@@ -2048,7 +2065,8 @@
             "download_count": 0,
             "created_at": "2023-02-05T10:16:44Z",
             "updated_at": "2023-02-05T10:16:48Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-win-x64.tar.gz"
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-win-x64.tar.gz",
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-win-x64.tar.gz?viasf=1"
           }
         ]
       }
@@ -2416,7 +2434,7 @@
             "created_at": "2023-02-05T09:15:03Z",
             "updated_at": "2023-02-05T09:15:07Z",
             "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-linux-amd64.deb",
-            "desc": "for Debian, Ubuntu..."
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-linux-amd64.deb?viasf=1"
           },
           {
             "url": "https://api.github.com/repos/electerm/electerm/releases/assets/94371954",
@@ -2451,7 +2469,7 @@
             "created_at": "2023-02-05T09:12:44Z",
             "updated_at": "2023-02-05T09:12:48Z",
             "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-linux-amd64.snap",
-            "desc": "for all linux that support snap"
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-linux-amd64.snap?viasf=1"
           },
           {
             "url": "https://api.github.com/repos/electerm/electerm/releases/assets/94372009",
@@ -2486,7 +2504,7 @@
             "created_at": "2023-02-05T09:13:28Z",
             "updated_at": "2023-02-05T09:13:33Z",
             "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-linux-x64.tar.gz",
-            "desc": "for all linux x64, just extract"
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-linux-x64.tar.gz?viasf=1"
           },
           {
             "url": "https://api.github.com/repos/electerm/electerm/releases/assets/94371826",
@@ -2521,7 +2539,7 @@
             "created_at": "2023-02-05T09:11:39Z",
             "updated_at": "2023-02-05T09:11:42Z",
             "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-linux-x86_64.rpm",
-            "desc": "for Red Hat, Fedora..."
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-linux-x86_64.rpm?viasf=1"
           }
         ]
       },
@@ -2560,7 +2578,8 @@
             "download_count": 0,
             "created_at": "2023-02-05T09:18:01Z",
             "updated_at": "2023-02-05T09:18:05Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-mac-arm64.dmg"
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-mac-arm64.dmg",
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-mac-arm64.dmg?viasf=1"
           },
           {
             "url": "https://api.github.com/repos/electerm/electerm/releases/assets/94372140",
@@ -2594,7 +2613,8 @@
             "download_count": 0,
             "created_at": "2023-02-05T09:15:31Z",
             "updated_at": "2023-02-05T09:15:35Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-mac-x64.dmg"
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-mac-x64.dmg",
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-mac-x64.dmg?viasf=1"
           }
         ]
       },
@@ -2633,7 +2653,8 @@
             "download_count": 0,
             "created_at": "2023-02-05T10:07:18Z",
             "updated_at": "2023-02-05T10:07:20Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-win-x64-installer.exe"
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-win-x64-installer.exe",
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-win-x64-installer.exe?viasf=1"
           },
           {
             "url": "https://api.github.com/repos/electerm/electerm/releases/assets/94376404",
@@ -2667,7 +2688,8 @@
             "download_count": 0,
             "created_at": "2023-02-05T10:11:44Z",
             "updated_at": "2023-02-05T10:11:47Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-win-x64-loose.tar.gz"
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-win-x64-loose.tar.gz",
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-win-x64-loose.tar.gz?viasf=1"
           },
           {
             "url": "https://api.github.com/repos/electerm/electerm/releases/assets/94376832",
@@ -2701,7 +2723,8 @@
             "download_count": 0,
             "created_at": "2023-02-05T10:18:19Z",
             "updated_at": "2023-02-05T10:18:22Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-win-x64.appx"
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-win-x64.appx",
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-win-x64.appx?viasf=1"
           },
           {
             "url": "https://api.github.com/repos/electerm/electerm/releases/assets/94376755",
@@ -2735,7 +2758,8 @@
             "download_count": 0,
             "created_at": "2023-02-05T10:16:44Z",
             "updated_at": "2023-02-05T10:16:48Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-win-x64.tar.gz"
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-win-x64.tar.gz",
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-win-x64.tar.gz?viasf=1"
           }
         ]
       }
@@ -3103,7 +3127,7 @@
             "created_at": "2023-02-05T09:15:03Z",
             "updated_at": "2023-02-05T09:15:07Z",
             "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-linux-amd64.deb",
-            "desc": "for Debian, Ubuntu..."
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-linux-amd64.deb?viasf=1"
           },
           {
             "url": "https://api.github.com/repos/electerm/electerm/releases/assets/94371954",
@@ -3138,7 +3162,7 @@
             "created_at": "2023-02-05T09:12:44Z",
             "updated_at": "2023-02-05T09:12:48Z",
             "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-linux-amd64.snap",
-            "desc": "for all linux that support snap"
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-linux-amd64.snap?viasf=1"
           },
           {
             "url": "https://api.github.com/repos/electerm/electerm/releases/assets/94372009",
@@ -3173,7 +3197,7 @@
             "created_at": "2023-02-05T09:13:28Z",
             "updated_at": "2023-02-05T09:13:33Z",
             "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-linux-x64.tar.gz",
-            "desc": "for all linux x64, just extract"
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-linux-x64.tar.gz?viasf=1"
           },
           {
             "url": "https://api.github.com/repos/electerm/electerm/releases/assets/94371826",
@@ -3208,7 +3232,7 @@
             "created_at": "2023-02-05T09:11:39Z",
             "updated_at": "2023-02-05T09:11:42Z",
             "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-linux-x86_64.rpm",
-            "desc": "for Red Hat, Fedora..."
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-linux-x86_64.rpm?viasf=1"
           }
         ]
       },
@@ -3247,7 +3271,8 @@
             "download_count": 0,
             "created_at": "2023-02-05T09:18:01Z",
             "updated_at": "2023-02-05T09:18:05Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-mac-arm64.dmg"
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-mac-arm64.dmg",
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-mac-arm64.dmg?viasf=1"
           },
           {
             "url": "https://api.github.com/repos/electerm/electerm/releases/assets/94372140",
@@ -3281,7 +3306,8 @@
             "download_count": 0,
             "created_at": "2023-02-05T09:15:31Z",
             "updated_at": "2023-02-05T09:15:35Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-mac-x64.dmg"
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-mac-x64.dmg",
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-mac-x64.dmg?viasf=1"
           }
         ]
       },
@@ -3320,7 +3346,8 @@
             "download_count": 0,
             "created_at": "2023-02-05T10:07:18Z",
             "updated_at": "2023-02-05T10:07:20Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-win-x64-installer.exe"
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-win-x64-installer.exe",
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-win-x64-installer.exe?viasf=1"
           },
           {
             "url": "https://api.github.com/repos/electerm/electerm/releases/assets/94376404",
@@ -3354,7 +3381,8 @@
             "download_count": 0,
             "created_at": "2023-02-05T10:11:44Z",
             "updated_at": "2023-02-05T10:11:47Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-win-x64-loose.tar.gz"
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-win-x64-loose.tar.gz",
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-win-x64-loose.tar.gz?viasf=1"
           },
           {
             "url": "https://api.github.com/repos/electerm/electerm/releases/assets/94376832",
@@ -3388,7 +3416,8 @@
             "download_count": 0,
             "created_at": "2023-02-05T10:18:19Z",
             "updated_at": "2023-02-05T10:18:22Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-win-x64.appx"
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-win-x64.appx",
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-win-x64.appx?viasf=1"
           },
           {
             "url": "https://api.github.com/repos/electerm/electerm/releases/assets/94376755",
@@ -3422,7 +3451,8 @@
             "download_count": 0,
             "created_at": "2023-02-05T10:16:44Z",
             "updated_at": "2023-02-05T10:16:48Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-win-x64.tar.gz"
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-win-x64.tar.gz",
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-win-x64.tar.gz?viasf=1"
           }
         ]
       }
@@ -3790,7 +3820,7 @@
             "created_at": "2023-02-05T09:15:03Z",
             "updated_at": "2023-02-05T09:15:07Z",
             "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-linux-amd64.deb",
-            "desc": "for Debian, Ubuntu..."
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-linux-amd64.deb?viasf=1"
           },
           {
             "url": "https://api.github.com/repos/electerm/electerm/releases/assets/94371954",
@@ -3825,7 +3855,7 @@
             "created_at": "2023-02-05T09:12:44Z",
             "updated_at": "2023-02-05T09:12:48Z",
             "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-linux-amd64.snap",
-            "desc": "for all linux that support snap"
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-linux-amd64.snap?viasf=1"
           },
           {
             "url": "https://api.github.com/repos/electerm/electerm/releases/assets/94372009",
@@ -3860,7 +3890,7 @@
             "created_at": "2023-02-05T09:13:28Z",
             "updated_at": "2023-02-05T09:13:33Z",
             "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-linux-x64.tar.gz",
-            "desc": "for all linux x64, just extract"
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-linux-x64.tar.gz?viasf=1"
           },
           {
             "url": "https://api.github.com/repos/electerm/electerm/releases/assets/94371826",
@@ -3895,7 +3925,7 @@
             "created_at": "2023-02-05T09:11:39Z",
             "updated_at": "2023-02-05T09:11:42Z",
             "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-linux-x86_64.rpm",
-            "desc": "for Red Hat, Fedora..."
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-linux-x86_64.rpm?viasf=1"
           }
         ]
       },
@@ -3934,7 +3964,8 @@
             "download_count": 0,
             "created_at": "2023-02-05T09:18:01Z",
             "updated_at": "2023-02-05T09:18:05Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-mac-arm64.dmg"
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-mac-arm64.dmg",
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-mac-arm64.dmg?viasf=1"
           },
           {
             "url": "https://api.github.com/repos/electerm/electerm/releases/assets/94372140",
@@ -3968,7 +3999,8 @@
             "download_count": 0,
             "created_at": "2023-02-05T09:15:31Z",
             "updated_at": "2023-02-05T09:15:35Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-mac-x64.dmg"
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-mac-x64.dmg",
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-mac-x64.dmg?viasf=1"
           }
         ]
       },
@@ -4007,7 +4039,8 @@
             "download_count": 0,
             "created_at": "2023-02-05T10:07:18Z",
             "updated_at": "2023-02-05T10:07:20Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-win-x64-installer.exe"
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-win-x64-installer.exe",
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-win-x64-installer.exe?viasf=1"
           },
           {
             "url": "https://api.github.com/repos/electerm/electerm/releases/assets/94376404",
@@ -4041,7 +4074,8 @@
             "download_count": 0,
             "created_at": "2023-02-05T10:11:44Z",
             "updated_at": "2023-02-05T10:11:47Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-win-x64-loose.tar.gz"
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-win-x64-loose.tar.gz",
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-win-x64-loose.tar.gz?viasf=1"
           },
           {
             "url": "https://api.github.com/repos/electerm/electerm/releases/assets/94376832",
@@ -4075,7 +4109,8 @@
             "download_count": 0,
             "created_at": "2023-02-05T10:18:19Z",
             "updated_at": "2023-02-05T10:18:22Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-win-x64.appx"
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-win-x64.appx",
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-win-x64.appx?viasf=1"
           },
           {
             "url": "https://api.github.com/repos/electerm/electerm/releases/assets/94376755",
@@ -4109,7 +4144,8 @@
             "download_count": 0,
             "created_at": "2023-02-05T10:16:44Z",
             "updated_at": "2023-02-05T10:16:48Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-win-x64.tar.gz"
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-win-x64.tar.gz",
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-win-x64.tar.gz?viasf=1"
           }
         ]
       }
@@ -4477,7 +4513,7 @@
             "created_at": "2023-02-05T09:15:03Z",
             "updated_at": "2023-02-05T09:15:07Z",
             "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-linux-amd64.deb",
-            "desc": "for Debian, Ubuntu..."
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-linux-amd64.deb?viasf=1"
           },
           {
             "url": "https://api.github.com/repos/electerm/electerm/releases/assets/94371954",
@@ -4512,7 +4548,7 @@
             "created_at": "2023-02-05T09:12:44Z",
             "updated_at": "2023-02-05T09:12:48Z",
             "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-linux-amd64.snap",
-            "desc": "for all linux that support snap"
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-linux-amd64.snap?viasf=1"
           },
           {
             "url": "https://api.github.com/repos/electerm/electerm/releases/assets/94372009",
@@ -4547,7 +4583,7 @@
             "created_at": "2023-02-05T09:13:28Z",
             "updated_at": "2023-02-05T09:13:33Z",
             "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-linux-x64.tar.gz",
-            "desc": "for all linux x64, just extract"
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-linux-x64.tar.gz?viasf=1"
           },
           {
             "url": "https://api.github.com/repos/electerm/electerm/releases/assets/94371826",
@@ -4582,7 +4618,7 @@
             "created_at": "2023-02-05T09:11:39Z",
             "updated_at": "2023-02-05T09:11:42Z",
             "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-linux-x86_64.rpm",
-            "desc": "for Red Hat, Fedora..."
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-linux-x86_64.rpm?viasf=1"
           }
         ]
       },
@@ -4621,7 +4657,8 @@
             "download_count": 0,
             "created_at": "2023-02-05T09:18:01Z",
             "updated_at": "2023-02-05T09:18:05Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-mac-arm64.dmg"
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-mac-arm64.dmg",
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-mac-arm64.dmg?viasf=1"
           },
           {
             "url": "https://api.github.com/repos/electerm/electerm/releases/assets/94372140",
@@ -4655,7 +4692,8 @@
             "download_count": 0,
             "created_at": "2023-02-05T09:15:31Z",
             "updated_at": "2023-02-05T09:15:35Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-mac-x64.dmg"
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-mac-x64.dmg",
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-mac-x64.dmg?viasf=1"
           }
         ]
       },
@@ -4694,7 +4732,8 @@
             "download_count": 0,
             "created_at": "2023-02-05T10:07:18Z",
             "updated_at": "2023-02-05T10:07:20Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-win-x64-installer.exe"
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-win-x64-installer.exe",
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-win-x64-installer.exe?viasf=1"
           },
           {
             "url": "https://api.github.com/repos/electerm/electerm/releases/assets/94376404",
@@ -4728,7 +4767,8 @@
             "download_count": 0,
             "created_at": "2023-02-05T10:11:44Z",
             "updated_at": "2023-02-05T10:11:47Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-win-x64-loose.tar.gz"
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-win-x64-loose.tar.gz",
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-win-x64-loose.tar.gz?viasf=1"
           },
           {
             "url": "https://api.github.com/repos/electerm/electerm/releases/assets/94376832",
@@ -4762,7 +4802,8 @@
             "download_count": 0,
             "created_at": "2023-02-05T10:18:19Z",
             "updated_at": "2023-02-05T10:18:22Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-win-x64.appx"
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-win-x64.appx",
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-win-x64.appx?viasf=1"
           },
           {
             "url": "https://api.github.com/repos/electerm/electerm/releases/assets/94376755",
@@ -4796,7 +4837,8 @@
             "download_count": 0,
             "created_at": "2023-02-05T10:16:44Z",
             "updated_at": "2023-02-05T10:16:48Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-win-x64.tar.gz"
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-win-x64.tar.gz",
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-win-x64.tar.gz?viasf=1"
           }
         ]
       }
@@ -5164,7 +5206,7 @@
             "created_at": "2023-02-05T09:15:03Z",
             "updated_at": "2023-02-05T09:15:07Z",
             "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-linux-amd64.deb",
-            "desc": "for Debian, Ubuntu..."
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-linux-amd64.deb?viasf=1"
           },
           {
             "url": "https://api.github.com/repos/electerm/electerm/releases/assets/94371954",
@@ -5199,7 +5241,7 @@
             "created_at": "2023-02-05T09:12:44Z",
             "updated_at": "2023-02-05T09:12:48Z",
             "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-linux-amd64.snap",
-            "desc": "for all linux that support snap"
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-linux-amd64.snap?viasf=1"
           },
           {
             "url": "https://api.github.com/repos/electerm/electerm/releases/assets/94372009",
@@ -5234,7 +5276,7 @@
             "created_at": "2023-02-05T09:13:28Z",
             "updated_at": "2023-02-05T09:13:33Z",
             "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-linux-x64.tar.gz",
-            "desc": "for all linux x64, just extract"
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-linux-x64.tar.gz?viasf=1"
           },
           {
             "url": "https://api.github.com/repos/electerm/electerm/releases/assets/94371826",
@@ -5269,7 +5311,7 @@
             "created_at": "2023-02-05T09:11:39Z",
             "updated_at": "2023-02-05T09:11:42Z",
             "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-linux-x86_64.rpm",
-            "desc": "for Red Hat, Fedora..."
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-linux-x86_64.rpm?viasf=1"
           }
         ]
       },
@@ -5308,7 +5350,8 @@
             "download_count": 0,
             "created_at": "2023-02-05T09:18:01Z",
             "updated_at": "2023-02-05T09:18:05Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-mac-arm64.dmg"
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-mac-arm64.dmg",
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-mac-arm64.dmg?viasf=1"
           },
           {
             "url": "https://api.github.com/repos/electerm/electerm/releases/assets/94372140",
@@ -5342,7 +5385,8 @@
             "download_count": 0,
             "created_at": "2023-02-05T09:15:31Z",
             "updated_at": "2023-02-05T09:15:35Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-mac-x64.dmg"
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-mac-x64.dmg",
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-mac-x64.dmg?viasf=1"
           }
         ]
       },
@@ -5381,7 +5425,8 @@
             "download_count": 0,
             "created_at": "2023-02-05T10:07:18Z",
             "updated_at": "2023-02-05T10:07:20Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-win-x64-installer.exe"
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-win-x64-installer.exe",
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-win-x64-installer.exe?viasf=1"
           },
           {
             "url": "https://api.github.com/repos/electerm/electerm/releases/assets/94376404",
@@ -5415,7 +5460,8 @@
             "download_count": 0,
             "created_at": "2023-02-05T10:11:44Z",
             "updated_at": "2023-02-05T10:11:47Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-win-x64-loose.tar.gz"
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-win-x64-loose.tar.gz",
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-win-x64-loose.tar.gz?viasf=1"
           },
           {
             "url": "https://api.github.com/repos/electerm/electerm/releases/assets/94376832",
@@ -5449,7 +5495,8 @@
             "download_count": 0,
             "created_at": "2023-02-05T10:18:19Z",
             "updated_at": "2023-02-05T10:18:22Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-win-x64.appx"
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-win-x64.appx",
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-win-x64.appx?viasf=1"
           },
           {
             "url": "https://api.github.com/repos/electerm/electerm/releases/assets/94376755",
@@ -5483,7 +5530,8 @@
             "download_count": 0,
             "created_at": "2023-02-05T10:16:44Z",
             "updated_at": "2023-02-05T10:16:48Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-win-x64.tar.gz"
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-win-x64.tar.gz",
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-win-x64.tar.gz?viasf=1"
           }
         ]
       }
@@ -5851,7 +5899,7 @@
             "created_at": "2023-02-05T09:15:03Z",
             "updated_at": "2023-02-05T09:15:07Z",
             "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-linux-amd64.deb",
-            "desc": "for Debian, Ubuntu..."
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-linux-amd64.deb?viasf=1"
           },
           {
             "url": "https://api.github.com/repos/electerm/electerm/releases/assets/94371954",
@@ -5886,7 +5934,7 @@
             "created_at": "2023-02-05T09:12:44Z",
             "updated_at": "2023-02-05T09:12:48Z",
             "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-linux-amd64.snap",
-            "desc": "for all linux that support snap"
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-linux-amd64.snap?viasf=1"
           },
           {
             "url": "https://api.github.com/repos/electerm/electerm/releases/assets/94372009",
@@ -5921,7 +5969,7 @@
             "created_at": "2023-02-05T09:13:28Z",
             "updated_at": "2023-02-05T09:13:33Z",
             "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-linux-x64.tar.gz",
-            "desc": "for all linux x64, just extract"
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-linux-x64.tar.gz?viasf=1"
           },
           {
             "url": "https://api.github.com/repos/electerm/electerm/releases/assets/94371826",
@@ -5956,7 +6004,7 @@
             "created_at": "2023-02-05T09:11:39Z",
             "updated_at": "2023-02-05T09:11:42Z",
             "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-linux-x86_64.rpm",
-            "desc": "for Red Hat, Fedora..."
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-linux-x86_64.rpm?viasf=1"
           }
         ]
       },
@@ -5995,7 +6043,8 @@
             "download_count": 0,
             "created_at": "2023-02-05T09:18:01Z",
             "updated_at": "2023-02-05T09:18:05Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-mac-arm64.dmg"
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-mac-arm64.dmg",
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-mac-arm64.dmg?viasf=1"
           },
           {
             "url": "https://api.github.com/repos/electerm/electerm/releases/assets/94372140",
@@ -6029,7 +6078,8 @@
             "download_count": 0,
             "created_at": "2023-02-05T09:15:31Z",
             "updated_at": "2023-02-05T09:15:35Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-mac-x64.dmg"
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-mac-x64.dmg",
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-mac-x64.dmg?viasf=1"
           }
         ]
       },
@@ -6068,7 +6118,8 @@
             "download_count": 0,
             "created_at": "2023-02-05T10:07:18Z",
             "updated_at": "2023-02-05T10:07:20Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-win-x64-installer.exe"
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-win-x64-installer.exe",
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-win-x64-installer.exe?viasf=1"
           },
           {
             "url": "https://api.github.com/repos/electerm/electerm/releases/assets/94376404",
@@ -6102,7 +6153,8 @@
             "download_count": 0,
             "created_at": "2023-02-05T10:11:44Z",
             "updated_at": "2023-02-05T10:11:47Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-win-x64-loose.tar.gz"
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-win-x64-loose.tar.gz",
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-win-x64-loose.tar.gz?viasf=1"
           },
           {
             "url": "https://api.github.com/repos/electerm/electerm/releases/assets/94376832",
@@ -6136,7 +6188,8 @@
             "download_count": 0,
             "created_at": "2023-02-05T10:18:19Z",
             "updated_at": "2023-02-05T10:18:22Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-win-x64.appx"
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-win-x64.appx",
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-win-x64.appx?viasf=1"
           },
           {
             "url": "https://api.github.com/repos/electerm/electerm/releases/assets/94376755",
@@ -6170,7 +6223,8 @@
             "download_count": 0,
             "created_at": "2023-02-05T10:16:44Z",
             "updated_at": "2023-02-05T10:16:48Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-win-x64.tar.gz"
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-win-x64.tar.gz",
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-win-x64.tar.gz?viasf=1"
           }
         ]
       }
@@ -6538,7 +6592,7 @@
             "created_at": "2023-02-05T09:15:03Z",
             "updated_at": "2023-02-05T09:15:07Z",
             "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-linux-amd64.deb",
-            "desc": "for Debian, Ubuntu..."
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-linux-amd64.deb?viasf=1"
           },
           {
             "url": "https://api.github.com/repos/electerm/electerm/releases/assets/94371954",
@@ -6573,7 +6627,7 @@
             "created_at": "2023-02-05T09:12:44Z",
             "updated_at": "2023-02-05T09:12:48Z",
             "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-linux-amd64.snap",
-            "desc": "for all linux that support snap"
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-linux-amd64.snap?viasf=1"
           },
           {
             "url": "https://api.github.com/repos/electerm/electerm/releases/assets/94372009",
@@ -6608,7 +6662,7 @@
             "created_at": "2023-02-05T09:13:28Z",
             "updated_at": "2023-02-05T09:13:33Z",
             "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-linux-x64.tar.gz",
-            "desc": "for all linux x64, just extract"
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-linux-x64.tar.gz?viasf=1"
           },
           {
             "url": "https://api.github.com/repos/electerm/electerm/releases/assets/94371826",
@@ -6643,7 +6697,7 @@
             "created_at": "2023-02-05T09:11:39Z",
             "updated_at": "2023-02-05T09:11:42Z",
             "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-linux-x86_64.rpm",
-            "desc": "for Red Hat, Fedora..."
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-linux-x86_64.rpm?viasf=1"
           }
         ]
       },
@@ -6682,7 +6736,8 @@
             "download_count": 0,
             "created_at": "2023-02-05T09:18:01Z",
             "updated_at": "2023-02-05T09:18:05Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-mac-arm64.dmg"
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-mac-arm64.dmg",
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-mac-arm64.dmg?viasf=1"
           },
           {
             "url": "https://api.github.com/repos/electerm/electerm/releases/assets/94372140",
@@ -6716,7 +6771,8 @@
             "download_count": 0,
             "created_at": "2023-02-05T09:15:31Z",
             "updated_at": "2023-02-05T09:15:35Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-mac-x64.dmg"
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-mac-x64.dmg",
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-mac-x64.dmg?viasf=1"
           }
         ]
       },
@@ -6755,7 +6811,8 @@
             "download_count": 0,
             "created_at": "2023-02-05T10:07:18Z",
             "updated_at": "2023-02-05T10:07:20Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-win-x64-installer.exe"
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-win-x64-installer.exe",
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-win-x64-installer.exe?viasf=1"
           },
           {
             "url": "https://api.github.com/repos/electerm/electerm/releases/assets/94376404",
@@ -6789,7 +6846,8 @@
             "download_count": 0,
             "created_at": "2023-02-05T10:11:44Z",
             "updated_at": "2023-02-05T10:11:47Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-win-x64-loose.tar.gz"
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-win-x64-loose.tar.gz",
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-win-x64-loose.tar.gz?viasf=1"
           },
           {
             "url": "https://api.github.com/repos/electerm/electerm/releases/assets/94376832",
@@ -6823,7 +6881,8 @@
             "download_count": 0,
             "created_at": "2023-02-05T10:18:19Z",
             "updated_at": "2023-02-05T10:18:22Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-win-x64.appx"
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-win-x64.appx",
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-win-x64.appx?viasf=1"
           },
           {
             "url": "https://api.github.com/repos/electerm/electerm/releases/assets/94376755",
@@ -6857,7 +6916,8 @@
             "download_count": 0,
             "created_at": "2023-02-05T10:16:44Z",
             "updated_at": "2023-02-05T10:16:48Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-win-x64.tar.gz"
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-win-x64.tar.gz",
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-win-x64.tar.gz?viasf=1"
           }
         ]
       }
@@ -7225,7 +7285,7 @@
             "created_at": "2023-02-05T09:15:03Z",
             "updated_at": "2023-02-05T09:15:07Z",
             "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-linux-amd64.deb",
-            "desc": "for Debian, Ubuntu..."
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-linux-amd64.deb?viasf=1"
           },
           {
             "url": "https://api.github.com/repos/electerm/electerm/releases/assets/94371954",
@@ -7260,7 +7320,7 @@
             "created_at": "2023-02-05T09:12:44Z",
             "updated_at": "2023-02-05T09:12:48Z",
             "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-linux-amd64.snap",
-            "desc": "for all linux that support snap"
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-linux-amd64.snap?viasf=1"
           },
           {
             "url": "https://api.github.com/repos/electerm/electerm/releases/assets/94372009",
@@ -7295,7 +7355,7 @@
             "created_at": "2023-02-05T09:13:28Z",
             "updated_at": "2023-02-05T09:13:33Z",
             "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-linux-x64.tar.gz",
-            "desc": "for all linux x64, just extract"
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-linux-x64.tar.gz?viasf=1"
           },
           {
             "url": "https://api.github.com/repos/electerm/electerm/releases/assets/94371826",
@@ -7330,7 +7390,7 @@
             "created_at": "2023-02-05T09:11:39Z",
             "updated_at": "2023-02-05T09:11:42Z",
             "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-linux-x86_64.rpm",
-            "desc": "for Red Hat, Fedora..."
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-linux-x86_64.rpm?viasf=1"
           }
         ]
       },
@@ -7369,7 +7429,8 @@
             "download_count": 0,
             "created_at": "2023-02-05T09:18:01Z",
             "updated_at": "2023-02-05T09:18:05Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-mac-arm64.dmg"
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-mac-arm64.dmg",
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-mac-arm64.dmg?viasf=1"
           },
           {
             "url": "https://api.github.com/repos/electerm/electerm/releases/assets/94372140",
@@ -7403,7 +7464,8 @@
             "download_count": 0,
             "created_at": "2023-02-05T09:15:31Z",
             "updated_at": "2023-02-05T09:15:35Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-mac-x64.dmg"
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-mac-x64.dmg",
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-mac-x64.dmg?viasf=1"
           }
         ]
       },
@@ -7442,7 +7504,8 @@
             "download_count": 0,
             "created_at": "2023-02-05T10:07:18Z",
             "updated_at": "2023-02-05T10:07:20Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-win-x64-installer.exe"
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-win-x64-installer.exe",
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-win-x64-installer.exe?viasf=1"
           },
           {
             "url": "https://api.github.com/repos/electerm/electerm/releases/assets/94376404",
@@ -7476,7 +7539,8 @@
             "download_count": 0,
             "created_at": "2023-02-05T10:11:44Z",
             "updated_at": "2023-02-05T10:11:47Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-win-x64-loose.tar.gz"
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-win-x64-loose.tar.gz",
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-win-x64-loose.tar.gz?viasf=1"
           },
           {
             "url": "https://api.github.com/repos/electerm/electerm/releases/assets/94376832",
@@ -7510,7 +7574,8 @@
             "download_count": 0,
             "created_at": "2023-02-05T10:18:19Z",
             "updated_at": "2023-02-05T10:18:22Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-win-x64.appx"
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-win-x64.appx",
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-win-x64.appx?viasf=1"
           },
           {
             "url": "https://api.github.com/repos/electerm/electerm/releases/assets/94376755",
@@ -7544,7 +7609,8 @@
             "download_count": 0,
             "created_at": "2023-02-05T10:16:44Z",
             "updated_at": "2023-02-05T10:16:48Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-win-x64.tar.gz"
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-win-x64.tar.gz",
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-win-x64.tar.gz?viasf=1"
           }
         ]
       }
@@ -7912,7 +7978,7 @@
             "created_at": "2023-02-05T09:15:03Z",
             "updated_at": "2023-02-05T09:15:07Z",
             "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-linux-amd64.deb",
-            "desc": "for Debian, Ubuntu..."
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-linux-amd64.deb?viasf=1"
           },
           {
             "url": "https://api.github.com/repos/electerm/electerm/releases/assets/94371954",
@@ -7947,7 +8013,7 @@
             "created_at": "2023-02-05T09:12:44Z",
             "updated_at": "2023-02-05T09:12:48Z",
             "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-linux-amd64.snap",
-            "desc": "for all linux that support snap"
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-linux-amd64.snap?viasf=1"
           },
           {
             "url": "https://api.github.com/repos/electerm/electerm/releases/assets/94372009",
@@ -7982,7 +8048,7 @@
             "created_at": "2023-02-05T09:13:28Z",
             "updated_at": "2023-02-05T09:13:33Z",
             "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-linux-x64.tar.gz",
-            "desc": "for all linux x64, just extract"
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-linux-x64.tar.gz?viasf=1"
           },
           {
             "url": "https://api.github.com/repos/electerm/electerm/releases/assets/94371826",
@@ -8017,7 +8083,7 @@
             "created_at": "2023-02-05T09:11:39Z",
             "updated_at": "2023-02-05T09:11:42Z",
             "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-linux-x86_64.rpm",
-            "desc": "for Red Hat, Fedora..."
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-linux-x86_64.rpm?viasf=1"
           }
         ]
       },
@@ -8056,7 +8122,8 @@
             "download_count": 0,
             "created_at": "2023-02-05T09:18:01Z",
             "updated_at": "2023-02-05T09:18:05Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-mac-arm64.dmg"
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-mac-arm64.dmg",
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-mac-arm64.dmg?viasf=1"
           },
           {
             "url": "https://api.github.com/repos/electerm/electerm/releases/assets/94372140",
@@ -8090,7 +8157,8 @@
             "download_count": 0,
             "created_at": "2023-02-05T09:15:31Z",
             "updated_at": "2023-02-05T09:15:35Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-mac-x64.dmg"
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-mac-x64.dmg",
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-mac-x64.dmg?viasf=1"
           }
         ]
       },
@@ -8129,7 +8197,8 @@
             "download_count": 0,
             "created_at": "2023-02-05T10:07:18Z",
             "updated_at": "2023-02-05T10:07:20Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-win-x64-installer.exe"
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-win-x64-installer.exe",
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-win-x64-installer.exe?viasf=1"
           },
           {
             "url": "https://api.github.com/repos/electerm/electerm/releases/assets/94376404",
@@ -8163,7 +8232,8 @@
             "download_count": 0,
             "created_at": "2023-02-05T10:11:44Z",
             "updated_at": "2023-02-05T10:11:47Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-win-x64-loose.tar.gz"
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-win-x64-loose.tar.gz",
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-win-x64-loose.tar.gz?viasf=1"
           },
           {
             "url": "https://api.github.com/repos/electerm/electerm/releases/assets/94376832",
@@ -8197,7 +8267,8 @@
             "download_count": 0,
             "created_at": "2023-02-05T10:18:19Z",
             "updated_at": "2023-02-05T10:18:22Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-win-x64.appx"
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-win-x64.appx",
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-win-x64.appx?viasf=1"
           },
           {
             "url": "https://api.github.com/repos/electerm/electerm/releases/assets/94376755",
@@ -8231,7 +8302,8 @@
             "download_count": 0,
             "created_at": "2023-02-05T10:16:44Z",
             "updated_at": "2023-02-05T10:16:48Z",
-            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-win-x64.tar.gz"
+            "browser_download_url": "https://github.com/electerm/electerm/releases/download/v1.25.14/electerm-1.25.14-win-x64.tar.gz",
+            "sourceforgeUrl": "https://master.dl.sourceforge.net/project/electerm.mirror/v1.25.14/electerm-1.25.14-win-x64.tar.gz?viasf=1"
           }
         ]
       }
