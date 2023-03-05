@@ -60,7 +60,7 @@ export default function QuickCommandForm (props) {
       <FormItem
         label={t('quickCommandName')}
         rules={[{
-          max: 30, message: '30 chars max'
+          max: 60, message: '60 chars max'
         }, {
           required: true, message: 'name required'
         }]}
@@ -76,7 +76,7 @@ export default function QuickCommandForm (props) {
         name='command'
         label={t('quickCommand')}
         rules={[{
-          max: 1000, message: '1000 chars max'
+          max: 5000, message: '5000 chars max'
         }, {
           required: true, message: 'command required'
         }]}
