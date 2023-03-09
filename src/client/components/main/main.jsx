@@ -117,7 +117,6 @@ export default class Index extends Component {
           upgradeInfo={upgradeInfo}
           installSrc={installSrc}
         />
-        <ContextMenu store={store} />
         <FileInfoModal />
         <FileModeModal />
         <SettingModal store={store} />
@@ -131,6 +130,7 @@ export default class Index extends Component {
             config={cpConf}
           />
         </div>
+        <ContextMenu store={store} />
       </div>
     )
   }
