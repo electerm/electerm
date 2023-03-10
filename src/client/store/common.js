@@ -56,6 +56,10 @@ export default Store => {
     }
     window.store.storeAssign(update)
     window.pre.runGlobalAsync('setWindowSize', update)
+    postMessage({
+      tabIds: [],
+      action: tabActions.updateTabsStatus
+    })
   }, 100, {
     leading: true
   })
