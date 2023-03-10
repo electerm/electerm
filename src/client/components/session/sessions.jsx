@@ -1,4 +1,4 @@
-import { Component } from 'react'
+import { Component } from '../common/react-subx'
 import Session from './session'
 import _ from 'lodash'
 import classNames from 'classnames'
