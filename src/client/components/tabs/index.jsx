@@ -73,7 +73,7 @@ export default class Tabs extends React.Component {
       e.code === 'Tab' &&
       e.shiftKey
     ) {
-      this.props.store.clickNextTab()
+      window.store.clickNextTab()
     }
   }
 
@@ -142,7 +142,7 @@ export default class Tabs extends React.Component {
 
   renderMenus () {
     const { addTab } = this.props
-    const { onNewSsh } = this.props.store
+    const { onNewSsh } = window.store
     const cls = 'pd2x pd1y context-item pointer'
     return (
       <div className='add-menu-wrap' style={{
@@ -161,7 +161,7 @@ export default class Tabs extends React.Component {
           <RightSquareFilled /> {t('newTab')}
         </div>
         <BookmarksList
-          store={this.props.store}
+          store={window.store}
         />
       </div>
     )
@@ -252,8 +252,7 @@ export default class Tabs extends React.Component {
         </div>
         <div className='app-drag' />
         <WindowControl
-          isMaximized={this.props.isMaximized}
-          closeApp={this.props.store.exit}
+          store={window.store}
         />
         {
           overflow

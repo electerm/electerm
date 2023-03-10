@@ -366,7 +366,6 @@ export default class Sessions extends Component {
       currentTabId
     } = this.state
     const tabsProps = {
-      store,
       currentTabId,
       config,
       ..._.pick(store, [
