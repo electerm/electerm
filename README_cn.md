@@ -43,8 +43,8 @@
 
 ## 下载
 
-- [https://sourceforge.net/projects/electerm.mirror/files/](sourceforge)
-- [https://github.com/electerm/electerm/releases](github releases)
+- [sourceforge](https://sourceforge.net/projects/electerm.mirror/files/)
+- [github releases](https://github.com/electerm/electerm/releases)
 
 ## 安装
 
@@ -89,7 +89,7 @@ npm i -g electerm
 
 [https://github.com/electerm/electerm/wiki/Know-issues](https://github.com/electerm/electerm/wiki/Know-issues)
 
-## Troubleshoot
+## 疑难解答
 
 [https://github.com/electerm/electerm/wiki/Troubleshoot](https://github.com/electerm/electerm/wiki/Troubleshoot)
 

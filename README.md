@@ -43,8 +43,8 @@ Open-sourced terminal/ssh/telnet/serialport/sftp client(linux, mac, win).
 
 ## Download
 
-- [https://sourceforge.net/projects/electerm.mirror/files/](sourceforge)
-- [https://github.com/electerm/electerm/releases](github releases)
+- [sourceforge](https://sourceforge.net/projects/electerm.mirror/files/)
+- [github releases](https://github.com/electerm/electerm/releases)
 
 ## Install
 
