@@ -317,7 +317,7 @@ export default class Tab extends React.Component {
     const rect = target.getBoundingClientRect()
     const items = this.renderContext()
     this.uid = generate()
-    this.props.store.openContextMenu({
+    window.store.openContextMenu({
       items,
       pos: {
         left: rect.left,

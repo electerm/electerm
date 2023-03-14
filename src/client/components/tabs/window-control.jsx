@@ -23,7 +23,7 @@ export default class WindowControl extends Component {
       window.pre.runGlobalAsync('unmaximize')
     }
     const closeApp = () => {
-      window.StorageEvent.exit()
+      window.store.exit()
     }
     return (
       <div className='window-controls'>
