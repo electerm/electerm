@@ -1,6 +1,6 @@
 {
   "name": "electerm",
-  "version": "1.25.22",
+  "version": "1.25.23",
   "description": "Terminal/ssh/telnet/serialport/sftp client(linux, mac, win)",
   "main": "app.js",
   "bin": "npm/electerm",
@@ -73,7 +73,7 @@
     "@electerm/pug-html-loader": "^1.1.6",
     "@electron/rebuild": "3.2.10",
     "@playwright/test": "1.28.1",
-    "@tylerlong/use-proxy": "^0.10.0",
+    "@tylerlong/use-proxy": "1.2.8",
     "antd": "4.24.4",
     "apply-loader": "2.0.0",
     "babel-eslint": "10.1.0",

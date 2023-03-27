@@ -291,6 +291,13 @@ export default class Term extends Component {
     }
     const isActiveTerminal = this.isActiveTerminal()
     if (
+      keyControlPressed(e) &&
+      keyPressed(e, 'a') &&
+      !isActiveTerminal
+    ) {
+      return false
+    }
+    if (
       type === 'focus' &&
       isActiveTerminal
     ) {
@@ -376,8 +383,7 @@ export default class Term extends Component {
   onSelection = () => {
     if (
       !this.props.config.copyWhenSelect ||
-      window.store.termSearchOpen ||
-      window.store.showModal
+      window.store.onOperation
     ) {
       return false
     }

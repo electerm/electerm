@@ -186,7 +186,14 @@ class Store {
   }
 
   get onOperation () {
-    return window.store.showModal || window.store.termSearchOpen || window.store.showInfoModal || window.store.showEditor || window.store.showFileModal
+    const {
+      store
+    } = window
+    return store.showModal ||
+      store.termSearchOpen ||
+      store.showInfoModal ||
+      store.showEditor ||
+      store.showFileModal
   }
 
   get topMenuHeight () {
