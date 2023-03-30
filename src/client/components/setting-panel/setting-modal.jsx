@@ -37,7 +37,7 @@ export default class SettingModal extends Component {
       settingMap.bookmarks,
       settingMap.terminalThemes
     ]
-    const { settingTab, settingItem, settingSidebarList } = store
+    const { settingTab, settingItem, settingSidebarList, bookmarkSelectMode } = store
     const props0 = {
       store,
       activeItemId: settingItem.id,
@@ -62,6 +62,7 @@ export default class SettingModal extends Component {
     }
     const treeProps = {
       ...props0,
+      bookmarkSelectMode,
       bookmarkGroups: store.getBookmarkGroups(),
       bookmarks: store.getBookmarks(),
       ..._.pick(store, [
