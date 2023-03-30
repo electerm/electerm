@@ -32,6 +32,7 @@ const pre = {
 
   resolve,
   showItemInFolder: (href) => shell.showItemInFolder(href),
+  openPath: (path) => shell.openPath(path),
   sep,
 
   ipcOnEvent: (event, cb) => {

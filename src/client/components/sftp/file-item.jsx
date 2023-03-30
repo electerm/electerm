@@ -645,7 +645,7 @@ export default class FileSection extends React.Component {
     window.pre.runGlobalAsync('watchFile', tempPath)
     fs.openFile(tempPath)
       .catch(window.store.onError)
-    window.pre.showItemInFolder(tempPath)
+    window.pre.openPath(tempPath)
     window.pre.ipcOnEvent('file-change', this.onFileChange)
   }
 
