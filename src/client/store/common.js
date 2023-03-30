@@ -68,4 +68,8 @@ export default Store => {
     window.lastToggleTerminalSearch = now
     window.store.termSearchOpen = !window.store.termSearchOpen
   }
+
+  Store.prototype.setState = function (name, value) {
+    window.store['_' + name] = JSON.stringify(value)
+  }
 }

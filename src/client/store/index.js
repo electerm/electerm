@@ -103,6 +103,14 @@ class Store {
     )
   }
 
+  get expandedKeys () {
+    return JSON.parse(window.store._expandedKeys || '[]')
+  }
+
+  get checkedKeys () {
+    return JSON.parse(window.store._checkedKeys || '[]')
+  }
+
   get isTransporting () {
     return window.store.getTabs().some(t => t.isTransporting)
   }

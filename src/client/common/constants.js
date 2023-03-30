@@ -297,3 +297,5 @@ export const mirrors = {
   sourceforge: 'sourceforge'
 }
 export const downloadUpgradeTimeout = 20000
+export const expandedKeysLsKey = 'expanded-keys'
+export const checkedKeysLsKey = 'checked-keys'

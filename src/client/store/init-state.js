@@ -14,7 +14,9 @@ import {
   openedSidebarKey,
   sidebarPinnedKey,
   sftpDefaultSortSettingKey,
-  batchInputLsKey
+  batchInputLsKey,
+  expandedKeysLsKey,
+  checkedKeysLsKey
 } from '../common/constants'
 import { buildDefaultThemes, buildNewTheme } from '../common/terminal-theme'
 import * as ls from '../common/safe-local-storage'
@@ -72,8 +74,12 @@ export default {
     buildDefaultThemes()
   ]),
   _itermThemes: '[]',
-
   currentBookmarkGroupId: defaultBookmarkGroupId,
+  _expandedKeys: ls.getItem(expandedKeysLsKey) || JSON.stringify([
+    defaultBookmarkGroupId
+  ]),
+  bookmarkSelectMode: false,
+  _checkedKeys: ls.getItem(checkedKeysLsKey) || '[]',
 
   // init session control
   selectedSessions: [],
@@ -137,7 +143,6 @@ export default {
 
   // sidebar
   openedSideBar: ls.getItem(openedSidebarKey),
-  openedCategoryIds: [],
   menuOpened: false,
   pinned: ls.getItem(sidebarPinnedKey) === 'true',
 

@@ -13,13 +13,13 @@ export default Store => {
   Store.prototype.expandBookmarks = function () {
     const { store } = window
     store.storeAssign({
-      openedCategoryIds: store.getBookmarkGroups().map(g => g.id)
+      expandedKeys: store.getBookmarkGroups().map(g => g.id)
     })
   }
 
   Store.prototype.collapseBookmarks = function () {
     window.store.storeAssign({
-      openedCategoryIds: []
+      expandedKeys: []
     })
   }
 
