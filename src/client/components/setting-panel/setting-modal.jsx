@@ -12,7 +12,7 @@ import QuickCommandsList from '../quick-commands/quick-commands-list'
 import QuickCommandsForm from '../quick-commands/quick-commands-form'
 import BookmarkForm from '../bookmark-form'
 import List from './list'
-import TreeList from './tree-list'
+import TreeList from './bookmark-tree-list'
 import Setting from './setting'
 import SettingCol from './col'
 import SyncSetting from '../setting-sync/setting-sync'
@@ -37,7 +37,7 @@ export default class SettingModal extends Component {
       settingMap.bookmarks,
       settingMap.terminalThemes
     ]
-    const { settingTab, settingItem, settingSidebarList } = store
+    const { settingTab, settingItem, settingSidebarList, bookmarkSelectMode } = store
     const props0 = {
       store,
       activeItemId: settingItem.id,
@@ -62,6 +62,7 @@ export default class SettingModal extends Component {
     }
     const treeProps = {
       ...props0,
+      bookmarkSelectMode,
       bookmarkGroups: store.getBookmarkGroups(),
       bookmarks: store.getBookmarks(),
       ..._.pick(store, [

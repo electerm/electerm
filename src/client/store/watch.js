@@ -4,11 +4,12 @@
 
 import createTitle from '../common/create-title'
 import autoRun from './auto-run'
-import copy from 'json-deep-copy'
 import { update, dbNames } from '../common/db'
 import {
   commonActions,
-  sftpDefaultSortSettingKey
+  sftpDefaultSortSettingKey,
+  checkedKeysLsKey,
+  expandedKeysLsKey
 } from '../common/constants'
 import postMsg from '../common/post-msg'
 import * as ls from '../common/safe-local-storage'
@@ -50,11 +51,6 @@ export default store => {
   }
 
   autoRun(store, () => {
-    update('openedCategoryIds', copy(store.openedCategoryIds))
-    return store.openedCategoryIds
-  }, func => _.debounce(func, 100))
-
-  autoRun(store, () => {
     if (!store.showModal) {
       store.focus()
     } else {
@@ -81,6 +77,16 @@ export default store => {
   autoRun(store, () => {
     ls.setItemJSON(sftpDefaultSortSettingKey, store.sftpSortSetting)
     return store._sftpSortSetting
+  })
+
+  autoRun(store, () => {
+    ls.setItemJSON(expandedKeysLsKey, store.expandedKeys)
+    return store._expandedKeys
+  })
+
+  autoRun(store, () => {
+    ls.setItemJSON(checkedKeysLsKey, store.expandedKeys)
+    return store._expandedKeys
   })
 
   autoRun(store, () => {

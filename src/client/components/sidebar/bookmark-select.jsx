@@ -11,7 +11,7 @@ export default class BookmarkSelect extends Component {
     const {
       listStyle,
       openedSideBar,
-      openedCategoryIds
+      expandedKeys
     } = store
     if (from === 'sidebar' && openedSideBar !== 'bookmarks') {
       return null
@@ -37,11 +37,9 @@ export default class BookmarkSelect extends Component {
       ...base,
       shouldConfirmDel: true,
       bookmarkGroups: store.getBookmarkGroupsTotal(),
-      expandedKeys: openedCategoryIds,
-      onExpand: openedCategoryIds => {
-        store.storeAssign({
-          openedCategoryIds
-        })
+      expandedKeys,
+      onExpand: expandedKeys => {
+        store.setState('expandedKeys', expandedKeys)
       }
     }
     return (
