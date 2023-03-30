@@ -3,7 +3,11 @@
  */
 
 import { Component } from '../common/react-subx'
-import { DownloadOutlined, UploadOutlined } from '@ant-design/icons'
+import {
+  DownloadOutlined,
+  UploadOutlined,
+  EditOutlined
+} from '@ant-design/icons'
 import { Upload, Button } from 'antd'
 import download from '../../common/download'
 import time from '../../../app/common/time'
@@ -13,6 +17,7 @@ import _ from 'lodash'
 const { prefix } = window
 const f = prefix('form')
 const t = prefix('terminalThemes')
+const m = prefix('menu')
 
 export default class BookmarkTransport extends Component {
   beforeUpload = (file) => {
@@ -104,12 +109,16 @@ export default class BookmarkTransport extends Component {
     download('bookmarks-' + stamp + '.json', txt)
   }
 
+  toggleEdit = () => {
+    this.props.store.bookmarkSelectMode = true
+  }
+
   render () {
     return [
       <Button
         icon={<DownloadOutlined />}
         onClick={this.down}
-        className='mg1x mg1t'
+        className='mg1x iblock'
         title={t('export')}
         key='export'
       />,
@@ -117,13 +126,20 @@ export default class BookmarkTransport extends Component {
         beforeUpload={this.beforeUpload}
         fileList={[]}
         key='Upload'
+        className='iblock mg1x'
       >
         <Button
           icon={<UploadOutlined />}
-          className='mg1t'
           title={f('importFromFile')}
         />
-      </Upload>
+      </Upload>,
+      <Button
+        icon={<EditOutlined />}
+        onClick={this.toggleEdit}
+        className='iblock'
+        title={m('edit')}
+        key='edit-and-del'
+      />
     ]
   }
 }

@@ -6,9 +6,9 @@ function autoRun (proxy, func, decorator) {
   let isTrigger = (event) => true
   const listener = (event) => {
     if (isTrigger(event)) {
-      proxy.__emitter__.off('event', listener)
+      proxy.$e.off('event', listener)
       runOnce()
-      proxy.__emitter__.on('event', listener)
+      proxy.$e.on('event', listener)
     }
   }
   let runOnce = () => {
@@ -20,9 +20,9 @@ function autoRun (proxy, func, decorator) {
   return {
     start: () => {
       runOnce()
-      proxy.__emitter__.on('event', listener)
+      proxy.$e.on('event', listener)
     },
-    stop: () => proxy.__emitter__.off('event', listener)
+    stop: () => proxy.$e.off('event', listener)
   }
 }
 
