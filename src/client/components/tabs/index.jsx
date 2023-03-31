@@ -20,6 +20,7 @@ import Tab from './tab'
 import './tabs.styl'
 import { tabWidth, tabMargin, extraTabWidth, windowControlWidth } from '../../common/constants'
 import createName from '../../common/create-title'
+import findParentBySel from '../../common/find-parent'
 import WindowControl from './window-control'
 import BookmarksList from '../sidebar/bookmark-select'
 
@@ -33,6 +34,7 @@ export default class Tabs extends React.Component {
   componentDidMount () {
     this.dom = document.querySelector('.tabs-inner')
     window.addEventListener('keydown', this.handleTabHotkey)
+    window.addEventListener('mousedown', this.handleClickEvent)
   }
 
   componentDidUpdate (prevProps) {
@@ -48,6 +50,7 @@ export default class Tabs extends React.Component {
 
   componentWillUnmount () {
     window.removeEventListener('keydown', this.handleTabHotkey)
+    window.removeEventListener('mousedown', this.handleClickEvent)
   }
 
   tabsWidth = () => {
@@ -74,6 +77,16 @@ export default class Tabs extends React.Component {
       e.shiftKey
     ) {
       window.store.clickNextTab()
+    }
+  }
+
+  handleClickEvent = (e) => {
+    if (e.button === 1) {
+      const p = findParentBySel(e.target, '.tab')
+      if (p) {
+        const id = p.dataset.id
+        this.props.delTab(id)
+      }
     }
   }
 
