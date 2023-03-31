@@ -23,6 +23,7 @@ import createName from '../../common/create-title'
 import findParentBySel from '../../common/find-parent'
 import WindowControl from './window-control'
 import BookmarksList from '../sidebar/bookmark-select'
+import { hasClass } from '../../common/class'
 
 const { prefix } = window
 const e = prefix('tabs')
@@ -31,10 +32,19 @@ const t = prefix('tabs')
 const MenuItem = Menu.Item
 
 export default class Tabs extends React.Component {
+  constructor (props) {
+    super(props)
+    this.tabsRef = React.createRef()
+  }
+
   componentDidMount () {
     this.dom = document.querySelector('.tabs-inner')
+    const {
+      tabsRef
+    } = this
     window.addEventListener('keydown', this.handleTabHotkey)
-    window.addEventListener('mousedown', this.handleClickEvent)
+    tabsRef.current.addEventListener('dblclick', this.handleDblClickEvent)
+    tabsRef.current.addEventListener('mousedown', this.handleClickEvent)
   }
 
   componentDidUpdate (prevProps) {
@@ -48,10 +58,13 @@ export default class Tabs extends React.Component {
     }
   }
 
-  componentWillUnmount () {
-    window.removeEventListener('keydown', this.handleTabHotkey)
-    window.removeEventListener('mousedown', this.handleClickEvent)
-  }
+  // componentWillUnmount () {
+  //   const {
+  //     tabsRef
+  //   } = this
+  //   window.removeEventListener('keydown', this.handleTabHotkey)
+  //   tabsRef.current.removeEventListener('mousedown', this.handleClickEvent)
+  // }
 
   tabsWidth = () => {
     return Array.from(
@@ -86,6 +99,23 @@ export default class Tabs extends React.Component {
       if (p) {
         const id = p.dataset.id
         this.props.delTab(id)
+      }
+    }
+  }
+
+  handleDblClickEvent = e => {
+    const t = e.target
+    if (
+      hasClass(t, 'app-drag-area') ||
+      hasClass(t, 'tabs-inner')
+    ) {
+      const {
+        isMaximized
+      } = window.store
+      if (isMaximized) {
+        window.pre.runGlobalAsync('unmaximize')
+      } else {
+        window.pre.runGlobalAsync('maximize')
       }
     }
   }
@@ -226,7 +256,7 @@ export default class Tabs extends React.Component {
       width: width - windowControlWidth
     }
     return (
-      <div className='tabs'>
+      <div className='tabs' ref={this.tabsRef}>
         <div
           className='tabs-inner'
           style={style}
@@ -264,6 +294,7 @@ export default class Tabs extends React.Component {
           </div>
         </div>
         <div className='app-drag' />
+        <div className='app-drag-area'/>
         <WindowControl
           store={window.store}
         />
