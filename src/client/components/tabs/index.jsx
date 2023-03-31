@@ -294,7 +294,7 @@ export default class Tabs extends React.Component {
           </div>
         </div>
         <div className='app-drag' />
-        <div className='app-drag-area'/>
+        <div className='app-drag-area' />
         <WindowControl
           store={window.store}
         />
