@@ -45,15 +45,30 @@ export default Store => {
   }
 
   Store.prototype.clickNextTab = _.debounce(function () {
+    window.store.clickBioTab(1)
+  }, 100)
+
+  Store.prototype.clickPrevTab = _.debounce(function () {
+    window.store.clickBioTab(-1)
+  }, 100)
+
+  Store.prototype.clickBioTab = function (diff) {
     const tab = document.querySelector('.tabs-wrapper .tab.active')
     if (tab) {
-      let next = tab.nextSibling
-      if (!next || !next.classList.contains('tab')) {
-        next = document.querySelector('.tabs-wrapper .tab')
+      const id = tab.dataset.id
+      const { tabs } = window.store
+      const i = _.findIndex(tabs, t => {
+        return t.id === id
+      })
+      const len = tabs.length
+      if (i >= 0) {
+        const next = (i + diff + len) % len
+        const nextTab = tabs[next]
+        postMsg({
+          action: tabActions.changeCurrentTabId,
+          currentTabId: nextTab.id
+        })
       }
-      next &&
-      next.querySelector('.tab-title') &&
-      next.querySelector('.tab-title').click()
     }
-  }, 100)
+  }
 }

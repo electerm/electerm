@@ -342,7 +342,11 @@ export default class Term extends Component {
       e.stopPropagation()
       e.preventDefault()
       if (e.ctrlKey && e.type === 'keydown') {
-        window.store.clickNextTab()
+        if (e.shiftKey) {
+          window.store.clickPrevTab()
+        } else {
+          window.store.clickNextTab()
+        }
         return false
       }
     } else if (
@@ -793,6 +797,8 @@ export default class Term extends Component {
 
     // term.on('keydown', this.handleEvent)
     this.term = term
+    term.attachCustomKeyEventHandler(this.handleEvent)
+    term.onKey(this.onKey)
     // if (host && !password && !privateKey) {
     //   return this.promote()
     // }
@@ -984,8 +990,7 @@ export default class Term extends Component {
         noTerminalWriteOutsideSession: true
       }, this)
     }
-    term.attachCustomKeyEventHandler(this.handleEvent)
-    term.onKey(this.onKey)
+
     // this.decoder = new TextDecoder(encode)
     // const oldWrite = term.write
     // const th = this

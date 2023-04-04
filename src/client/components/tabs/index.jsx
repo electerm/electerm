@@ -42,7 +42,7 @@ export default class Tabs extends React.Component {
     const {
       tabsRef
     } = this
-    window.addEventListener('keydown', this.handleTabHotkey)
+    window.addEventListener('keypress', this.handleTabHotkey)
     tabsRef.current.addEventListener('dblclick', this.handleDblClickEvent)
     tabsRef.current.addEventListener('mousedown', this.handleClickEvent)
   }
@@ -87,9 +87,15 @@ export default class Tabs extends React.Component {
     if (
       e.ctrlKey &&
       e.code === 'Tab' &&
-      e.shiftKey
+      !e.shiftKey
     ) {
       window.store.clickNextTab()
+    } else if (
+      e.ctrlKey &&
+      e.code === 'Tab' &&
+      e.shiftKey
+    ) {
+      window.store.clickPrevTab()
     }
   }
 
