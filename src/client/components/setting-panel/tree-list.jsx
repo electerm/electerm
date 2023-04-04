@@ -59,7 +59,8 @@ export default class ItemListTree extends React.PureComponent {
       categoryTitle: '',
       categoryId: '',
       bookmarkGroupTitleSub: '',
-      bookmarkGroupSubParentId: ''
+      bookmarkGroupSubParentId: '',
+      expandedKeys: window.store.expandedKeys
     }
   }
 
@@ -261,6 +262,9 @@ export default class ItemListTree extends React.PureComponent {
   }
 
   onExpand = (expandedKeys) => {
+    this.setState({
+      expandedKeys
+    })
     this.props.store.setState(
       'expandedKeys', expandedKeys
     )
@@ -475,17 +479,13 @@ export default class ItemListTree extends React.PureComponent {
       return {
         showNewBookmarkGroupForm: false,
         bookmarkGroupTitleSub: '',
-        bookmarkGroupSubParentId: item.id
+        bookmarkGroupSubParentId: item.id,
+        expandedKeys: _.uniq([
+          ...old.expandedKeys,
+          item.id
+        ])
       }
     })
-    const { store } = this.props
-    store.setState(
-      'expandedKeys',
-      _.uniq([
-        ...store.expandedKeys,
-        item.id
-      ])
-    )
   }
 
   renderAddNewSubGroupBtn = item => {
@@ -892,7 +892,7 @@ export default class ItemListTree extends React.PureComponent {
       listStyle = {}
     } = this.props
     const { keyword } = this.state
-    const { expandedKeys } = this.props.store
+    const { expandedKeys } = this.state
     const level1Bookgroups = bookmarkGroups.filter(
       d => !d.level || d.level < 2
     )
