@@ -897,7 +897,7 @@ export default class ItemListTree extends React.PureComponent {
       d => !d.level || d.level < 2
     )
     const treeProps = {
-      onExpand: this.props.onExpand || this.onExpand,
+      onExpand: this.onExpand,
       expandedKeys: keyword ? bookmarkGroups.map(f => f.id) : expandedKeys,
       onSelect: this.onSelect,
       draggable: staticList ? false : { icon: false },
