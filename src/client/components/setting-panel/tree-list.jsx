@@ -675,6 +675,7 @@ export default class ItemListTree extends React.PureComponent {
     const title = isGroup
       ? item.title
       : createName(item)
+    const titleAll = title + (item.description ? ' - ' + item.description : '')
     const titleHighlight = isGroup
       ? item.title || 'no title'
       : highlight(
@@ -685,7 +686,7 @@ export default class ItemListTree extends React.PureComponent {
       <div
         className={cls}
         key={item.id || 'noid'}
-        title={title}
+        title={titleAll}
         onClick={this.onClick}
         onContextMenu={e => this.onContextMenu(e, item, isGroup)}
       >
