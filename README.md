@@ -146,7 +146,7 @@ cp .sample.env .env
 npm run test
 ```
 
-## Test build
+## Test builda
 
 ```bash
 # Tested only in ubuntu 16.04 x64+
