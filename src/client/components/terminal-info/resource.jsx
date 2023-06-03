@@ -44,8 +44,8 @@ export default function TerminalInfoResource (props) {
       ? percent
       : computePercent(used, total) || 0
     const fmt = hasPercent
-      ? (p) => `${name}: ${p}%`
-      : (p) => `${name}: ${p}%(${used}/${total})`
+      ? (p) => `${name}: ${p || ''}%`
+      : (p) => `${name}: ${p || ''}%(${used || ''}/${total || ''})`
     return (
       <div className='pd1b' key={name}>
         <Progress

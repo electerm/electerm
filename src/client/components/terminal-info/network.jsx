@@ -5,6 +5,7 @@
 import { Table } from 'antd'
 import _ from 'lodash'
 import { useEffect, useState } from 'react'
+import { formatBytes } from '../../common/byte-format'
 import copy from 'json-deep-copy'
 
 export default function TerminalInfoDisk (props) {
@@ -89,7 +90,7 @@ export default function TerminalInfoDisk (props) {
       },
       render: (v) => {
         if (k === 'up' || k === 'down') {
-          return v ? v + 'k' : ''
+          return formatBytes(v)
         }
         return v
       }
