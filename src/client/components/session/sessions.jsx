@@ -206,8 +206,9 @@ export default class Sessions extends Component {
 
   setTabs = tabs => {
     this.setState({
-      tabs: copy(tabs)
+      tabs
     })
+    this.updateStoreTabs(tabs)
   }
 
   setOffline = () => {

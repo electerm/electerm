@@ -160,6 +160,7 @@ export default class Tab extends React.Component {
     this.props.setTabs(
       tabs
     )
+    window.store.focus()
   }
 
   reloadTab = async () => {
