@@ -48,6 +48,7 @@ const e = prefix('form')
 const c = prefix('common')
 const s = prefix('setting')
 const sf = prefix('sftp')
+const sh = prefix('ssh')
 
 export default function BookmarkFormUI (props) {
   const [
@@ -417,6 +418,13 @@ export default function BookmarkFormUI (props) {
     if (!keys.length) {
       return null
     }
+    const cl = sh('clear')
+    proxyList[cl] = {
+      proxyIp: '',
+      proxyPort: '',
+      proxyType: '5'
+    }
+    keys.unshift(cl)
     return (
       <FormItem
         {...tailFormItemLayout}
@@ -427,7 +435,12 @@ export default function BookmarkFormUI (props) {
           placeholder={e('selectProxy')}
           value={undefined}
           onSelect={
-            v => props.onSelectProxy(proxyList[v], form)
+            v => {
+              if (v === cl) {
+                return props.onSelectProxy(proxyList[v], form)
+              }
+              return props.onSelectProxy(proxyList[v], form)
+            }
           }
         >
           {
