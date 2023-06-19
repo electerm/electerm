@@ -16,7 +16,8 @@ import {
   sftpDefaultSortSettingKey,
   batchInputLsKey,
   expandedKeysLsKey,
-  checkedKeysLsKey
+  checkedKeysLsKey,
+  localAddrBookmarkLsKey
 } from '../common/constants'
 import { buildDefaultThemes, buildNewTheme } from '../common/terminal-theme'
 import * as ls from '../common/safe-local-storage'
@@ -80,6 +81,8 @@ export default {
   ]),
   bookmarkSelectMode: false,
   _checkedKeys: ls.getItem(checkedKeysLsKey) || '[]',
+  _addressBookmarks: '[]',
+  _addressBookmarksLocal: ls.getItem(localAddrBookmarkLsKey) || '[]',
 
   // init session control
   selectedSessions: [],

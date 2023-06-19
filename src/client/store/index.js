@@ -25,6 +25,7 @@ import terminalThemeExtend from './terminal-theme'
 import transferHistoryExtend from './transfer-history'
 import batchInputHistory from './batch-input-history'
 import transferExtend from './transfer-list'
+import addressBookmarkExtend from './address-bookmark'
 
 import _ from 'lodash'
 import copy from 'json-deep-copy'
@@ -113,6 +114,14 @@ class Store {
 
   get isTransporting () {
     return window.store.getTabs().some(t => t.isTransporting)
+  }
+
+  get addressBookmarks () {
+    return JSON.parse(window.store._addressBookmarks || '[]')
+  }
+
+  get addressBookmarksLocal () {
+    return JSON.parse(window.store._addressBookmarksLocal || '[]')
   }
 
   get settingSidebarList () {
@@ -242,6 +251,7 @@ uiThemeExtend(Store)
 transferHistoryExtend(Store)
 batchInputHistory(Store)
 transferExtend(Store)
+addressBookmarkExtend(Store)
 
 const store = useProxy(new Store())
 

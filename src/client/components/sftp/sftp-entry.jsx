@@ -2,16 +2,8 @@
 import { Component } from 'react'
 import generate from '../../common/uid'
 import { mergeProxy } from '../../common/merge-proxy'
-import {
-  ArrowUpOutlined,
-  EyeInvisibleFilled,
-  EyeFilled,
-  ReloadOutlined,
-  ArrowRightOutlined,
-  LoadingOutlined
-} from '@ant-design/icons'
 import runIdle from '../../common/run-idle'
-import { Input, Tooltip, Spin, Modal, notification } from 'antd'
+import { Spin, Modal, notification } from 'antd'
 import _ from 'lodash'
 import FileSection from './file-item'
 import resolve from '../../common/resolve'
@@ -41,6 +33,7 @@ import TransportEntry from './transport-entry'
 import postMessage from '../../common/post-msg'
 import { runCmd } from '../terminal/terminal-apis'
 import * as owner from './owner-list'
+import AddressBar from './address-bar'
 import './sftp.styl'
 
 const { prefix } = window
@@ -848,34 +841,6 @@ export default class Sftp extends Component {
     )
   }
 
-  renderAddonBefore = (type) => {
-    const isShow = this.state[`${type}ShowHiddenFile`]
-    const title = `${isShow ? e('hide') : e('show')} ${e('hfd')}`
-    const Icon = isShow ? EyeFilled : EyeInvisibleFilled
-    return (
-      <div>
-        <Tooltip
-          title={title}
-          placement='topLeft'
-          arrowPointAtCenter
-        >
-          <Icon
-            type='eye'
-            className='mg1r'
-            onClick={() => this.toggleShowHiddenFile(type)}
-          />
-        </Tooltip>
-        <Tooltip
-          title={e('goParent')}
-          arrowPointAtCenter
-          placement='topLeft'
-        >
-          <ArrowUpOutlined onClick={() => this.goParent(type)} />
-        </Tooltip>
-      </div>
-    )
-  }
-
   renderHistory = (type) => {
     const currentPath = this.state[type + 'Path']
     const options = this.state[type + 'PathHistory']
@@ -911,35 +876,6 @@ export default class Sftp extends Component {
     )
   }
 
-  renderInput (type) {
-    const {
-      loadingSftp
-    } = this.state
-    const n = `${type}PathTemp`
-    const path = this.state[n]
-    const realPath = this.state[`${type}Path`]
-    const isLoadingRemote = type === typeMap.remote && loadingSftp
-    const GoIcon = isLoadingRemote
-      ? LoadingOutlined
-      : (realPath === path ? ReloadOutlined : ArrowRightOutlined)
-    return (
-      <Input
-        value={path}
-        onChange={e => this.onChange(e, n)}
-        onPressEnter={e => this.onGoto(type, e)}
-        addonBefore={this.renderAddonBefore(type)}
-        onFocus={() => this.onInputFocus(type)}
-        onBlur={() => this.onInputBlur(type)}
-        disabled={loadingSftp}
-        addonAfter={
-          <GoIcon
-            onClick={isLoadingRemote ? () => null : () => this.onGoto(type)}
-          />
-        }
-      />
-    )
-  }
-
   renderSection (type, style, width) {
     const {
       id
@@ -967,6 +903,34 @@ export default class Sftp extends Component {
       width,
       fileList: arr
     }
+    const addrProps = {
+      host,
+      type,
+      ..._.pick(
+        this,
+        [
+          'onChange',
+          'onGoto',
+          'onInputFocus',
+          'onInputBlur',
+          'toggleShowHiddenFile',
+          'goParent',
+          'onClickHistory'
+        ]
+      ),
+      ..._.pick(
+        this.state,
+        [
+          `${type}ShowHiddenFile`,
+          'onGoto',
+          `${type}PathTemp`,
+          `${type}Path`,
+          `${type}PathHistory`,
+          `${type}InputFocus`,
+          'loadingSftp'
+        ]
+      )
+    }
     return (
       <div
         className={`sftp-section sftp-${type}-section tw-${type}`}
@@ -989,12 +953,9 @@ export default class Sftp extends Component {
                   </div>
                 )
             }
-            <div className='pd1y sftp-title-wrap'>
-              <div className='sftp-title'>
-                {this.renderInput(type)}
-                {this.renderHistory(type)}
-              </div>
-            </div>
+            <AddressBar
+              {...addrProps}
+            />
             <div
               className={`file-list ${type} relative`}
             >

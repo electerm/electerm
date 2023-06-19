@@ -28,6 +28,7 @@ const tables = [
   'history',
   'jumpHosts',
   'bookmarkGroups',
+  'addressBookmarks',
   'terminalThemes',
   'lastStates',
   'data',
