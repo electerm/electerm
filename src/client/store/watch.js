@@ -9,7 +9,8 @@ import {
   commonActions,
   sftpDefaultSortSettingKey,
   checkedKeysLsKey,
-  expandedKeysLsKey
+  expandedKeysLsKey,
+  localAddrBookmarkLsKey
 } from '../common/constants'
 import postMsg from '../common/post-msg'
 import * as ls from '../common/safe-local-storage'
@@ -82,6 +83,11 @@ export default store => {
   autoRun(store, () => {
     ls.setItemJSON(expandedKeysLsKey, store.expandedKeys)
     return store._expandedKeys
+  })
+
+  autoRun(store, () => {
+    ls.setItemJSON(localAddrBookmarkLsKey, store.addressBookmarksLocal)
+    return store._addressBookmarksLocal
   })
 
   autoRun(store, () => {

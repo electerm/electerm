@@ -104,7 +104,8 @@ export const settingMap = buildConst([
   'history',
   'terminalThemes',
   'bookmarkGroups',
-  'quickCommands'
+  'quickCommands',
+  'addressBookmarks'
 ])
 
 export const infoTabs = buildConst([
@@ -299,3 +300,4 @@ export const mirrors = {
 export const downloadUpgradeTimeout = 20000
 export const expandedKeysLsKey = 'expanded-keys'
 export const checkedKeysLsKey = 'checked-keys'
+export const localAddrBookmarkLsKey = 'local-addr-bookmark-keys'
