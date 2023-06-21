@@ -11,21 +11,12 @@ exports.getScreenCurrent = () => {
     ? global.win.getBounds()
     : {
       x: 0,
+      y: 0,
+      height: minWindowHeight,
       width: minWindowWidth
     }
   const { screen } = require('electron')
-  const all = screen
-    .getAllDisplays()
-  if (all.length === 1) {
-    return all[0]
-  }
-  for (const d of all) {
-    const right = rect.x + rect.width
-    if (right > d.bounds.x && right <= d.bounds.x + d.workArea.width) {
-      return d
-    }
-  }
-  return screen.getPrimaryDisplay()
+  return screen.getDisplayMatching(rect)
 }
 
 exports.getScreenSize = () => {
