@@ -1023,7 +1023,7 @@ export default class Term extends Component {
   }
 
   onKey = (key, e) => {
-    log.log('onKey', key, e)
+    // log.log('onKey', key, e)
   }
 
   onResize = _.debounce(() => {

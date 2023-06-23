@@ -355,9 +355,9 @@ class Terminal {
               instructionsLang,
               prompts
             }
-            const result = await this.onKeyboardEvent(options)
+            this.onKeyboardEvent(options)
+              .then(finish)
               .catch(reject)
-            finish(result)
           })
           .on('x11', function (info, accept) {
             let start = 0
