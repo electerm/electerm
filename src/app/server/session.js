@@ -17,6 +17,7 @@ const {
 } = require('./remote-common')
 const { createLogFileName } = require('../common/create-session-log-file-path')
 const SessionLog = require('./session-log')
+const sshTunnelFuncs = require('./ssh-tunnel')
 const {
   isWin
 } = require('../common/runtime-constants')
@@ -282,8 +283,9 @@ class Terminal {
   }
 
   async remoteInitProcess (initOptions, isTest) {
-    const display = await getDisplay()
-    const x11Cookie = await getX11Cookie()
+    const hasX11 = initOptions.x11 === true
+    const display = hasX11 ? await getDisplay() : ''
+    const x11Cookie = hasX11 ? await getX11Cookie() : ''
 
     return new Promise((resolve, reject) => {
       const conn = new Client()
@@ -396,7 +398,7 @@ class Terminal {
             }
             retry()
           })
-          .on('ready', () => {
+          .on('ready', async () => {
             if (isTest) {
               conn.end()
               return resolve(true)
@@ -409,6 +411,21 @@ class Terminal {
                 terminals: {}
               }
               return resolve(true)
+            }
+            const { sshTunnel } = initOptions
+            if (sshTunnel) {
+              sshTunnelFuncs[sshTunnel]({
+                ..._.pick(
+                  initOptions,
+                  [
+                    'sshTunnelRemotePort',
+                    'sshTunnelLocalPort',
+                    'sshTunnelRemoteHost',
+                    'sshTunnelLocalHost'
+                  ]
+                ),
+                conn
+              })
             }
             conn.shell(
               shellWindow,
@@ -559,6 +576,9 @@ class Terminal {
     }
     delete inst.sftps[this.pid]
     delete inst.terminals[this.pid]
+    if (this.server && this.server.end) {
+      this.server.end()
+    }
     if (
       _.isEmpty(inst.sftps) &&
       _.isEmpty(inst.terminals)
