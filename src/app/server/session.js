@@ -398,7 +398,7 @@ class Terminal {
             }
             retry()
           })
-          .on('ready', async () => {
+          .on('ready', () => {
             if (isTest) {
               conn.end()
               return resolve(true)
