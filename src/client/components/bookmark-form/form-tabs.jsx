@@ -10,6 +10,7 @@ const { prefix } = window
 const e = prefix('form')
 const s = prefix('setting')
 const h = prefix('ssh')
+const q = prefix('quickCommands')
 
 export default function renderTabs (props) {
   return (
@@ -23,7 +24,7 @@ export default function renderTabs (props) {
         {props.renderProxy(props)}
         {props.renderX11()}
       </TabPane>
-      <TabPane tab={e('portForward')} key='quickCommands' forceRender>
+      <TabPane tab={q('quickCommands')} key='quickCommands' forceRender>
         {props.qms}
       </TabPane>
       <TabPane tab={h('sshTunnel')} key='sshTunnel' forceRender>

@@ -63,6 +63,7 @@ export default function BookmarkFormUI (props) {
     encode: encodes[0],
     envLang: defaultEnvLang,
     enableSsh: true,
+    sshTunnel: '',
     category: initBookmarkGroupId,
     proxy: {
       proxyType: '5'
