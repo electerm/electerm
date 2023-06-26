@@ -48,14 +48,17 @@ export default Store => {
     const { width, height } = await window.pre.runGlobalAsync('getScreenSize')
     const isMaximized = await window.pre.runGlobalAsync('isMaximized')
     const update = {
-      height: window.outerHeight,
-      innerWidth: window.outerWidth,
+      height: window.innerHeight,
+      innerWidth: window.innerWidth,
       screenWidth: width,
       screenHeight: height,
       isMaximized
     }
     window.store.storeAssign(update)
-    window.pre.runGlobalAsync('setWindowSize', update)
+    window.pre.runGlobalAsync('setWindowSize', {
+      ...update,
+      height: window.outerHeight
+    })
   }, 100, {
     leading: true
   })
