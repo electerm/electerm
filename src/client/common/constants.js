@@ -301,3 +301,4 @@ export const downloadUpgradeTimeout = 20000
 export const expandedKeysLsKey = 'expanded-keys'
 export const checkedKeysLsKey = 'checked-keys'
 export const localAddrBookmarkLsKey = 'local-addr-bookmark-keys'
+export const sshTunnelHelpLink = 'https://github.com/electerm/electerm/wiki/How-to-use-ssh-tunnel'

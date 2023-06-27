@@ -2,8 +2,12 @@
  * bookmark form
  */
 import {
-  Tabs
+  Tabs,
+  Tooltip
 } from 'antd'
+import Link from '../common/external-link'
+import { sshTunnelHelpLink } from '../../common/constants'
+import { QuestionCircleOutlined } from '@ant-design/icons'
 
 const { TabPane } = Tabs
 const { prefix } = window
@@ -13,6 +17,22 @@ const h = prefix('ssh')
 const q = prefix('quickCommands')
 
 export default function renderTabs (props) {
+  const tunnelTag = (
+    <span>
+      {h('sshTunnel')}
+      <Tooltip
+        title={
+          <span>
+            <Link to={sshTunnelHelpLink}>{sshTunnelHelpLink}</Link>
+          </span>
+        }
+      >
+        <span className='mg1l'>
+          <QuestionCircleOutlined />
+        </span>
+      </Tooltip>
+    </span>
+  )
   return (
     <Tabs>
       <TabPane tab={e('auth')} key='auth' forceRender>
@@ -27,7 +47,7 @@ export default function renderTabs (props) {
       <TabPane tab={q('quickCommands')} key='quickCommands' forceRender>
         {props.qms}
       </TabPane>
-      <TabPane tab={h('sshTunnel')} key='sshTunnel' forceRender>
+      <TabPane tab={tunnelTag} key='sshTunnel' forceRender>
         {props.renderSshTunnel()}
       </TabPane>
     </Tabs>
