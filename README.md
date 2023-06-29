@@ -31,6 +31,7 @@ Open-sourced terminal/ssh/telnet/serialport/sftp client(linux, mac, win).
 - Double click to directly edit (small) remote files.
 - Auth with publicKey + password.
 - Support Zmodem(rz, sz).
+- Support ssh tunnel.
 - Support [Trzsz](https://github.com/trzsz/trzsz)(trz/tsz), similar to rz/sz, and compatible with tmux.
 - Transparent window(Mac, win).
 - Terminal background image.
