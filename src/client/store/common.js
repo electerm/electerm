@@ -75,4 +75,8 @@ export default Store => {
   Store.prototype.setState = function (name, value) {
     window.store['_' + name] = JSON.stringify(value)
   }
+
+  Store.prototype.toggleBatchOp = function () {
+    window.store.showBatchOp = !window.store.showBatchOp
+  }
 }

@@ -172,6 +172,11 @@ export default class SessionWrapper extends Component {
 
   setSessionState = data => {
     this.setState(data)
+    if (data.pid) {
+      this.editTab({
+        pid: data.pid
+      })
+    }
   }
 
   doSplit = (e, id) => {
@@ -196,6 +201,7 @@ export default class SessionWrapper extends Component {
     const terminals = copy(this.state.terminals)
     this.editTab(
       {
+        sessionId: this.state.sessionId,
         terminals
       }
     )

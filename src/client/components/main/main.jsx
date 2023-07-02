@@ -8,6 +8,7 @@ import UpdateCheck from './upgrade'
 import SettingModal from '../setting-panel/setting-modal'
 import TextEditor from '../text-editor/text-editor'
 import Sidebar from '../sidebar'
+import BatchOp from '../batch-op/batch-op'
 import CssOverwrite from './css-overwrite'
 import UiTheme from './ui-theme'
 import TerminalInteractive from '../terminal/terminal-interactive'
@@ -120,6 +121,7 @@ export default class Index extends Component {
         <FileInfoModal />
         <FileModeModal />
         <SettingModal store={store} />
+        <BatchOp store={store} />
         <div
           id='outside-context'
           {...outerProps}

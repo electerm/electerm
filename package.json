@@ -73,7 +73,6 @@
     "@electerm/pug-html-loader": "^1.1.6",
     "@electron/rebuild": "3.2.10",
     "@playwright/test": "1.28.1",
-    "@tylerlong/use-proxy": "1.2.8",
     "antd": "4.24.4",
     "apply-loader": "2.0.0",
     "babel-eslint": "10.1.0",
@@ -100,6 +99,7 @@
     "glob": "7.1.7",
     "html-loader": "2.1.2",
     "less-loader": "10.0.1",
+    "manate": "0.3.9",
     "memoize-one": "5.2.1",
     "mini-css-extract-plugin": "2.0.0",
     "png2icons": "2.0.1",
@@ -133,7 +133,7 @@
     "zmodem.js": "0.1.10"
   },
   "dependencies": {
-    "@electerm/electerm-locales": "0.17.1",
+    "@electerm/electerm-locales": "0.17.11",
     "@electerm/ssh2": "1.11.2",
     "@electerm/strip-ansi": "^1.0.0",
     "@yetzt/nedb": "1.8.0",
