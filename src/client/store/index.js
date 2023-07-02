@@ -1,8 +1,8 @@
 /**
- * central state store powered by use-proxy - https://github.com/tylerlong/use-proxy
+ * central state store powered by manate - https://github.com/tylerlong/manate
  */
 
-import { useProxy } from '@tylerlong/use-proxy'
+import { manage } from 'manate'
 import initState from './init-state'
 import loadDataExtend from './load-data'
 import dbUpgradeExtend from './db-upgrade'
@@ -253,7 +253,7 @@ batchInputHistory(Store)
 transferExtend(Store)
 addressBookmarkExtend(Store)
 
-const store = useProxy(new Store())
+const store = manage(new Store())
 
 window.store = store
 export default store

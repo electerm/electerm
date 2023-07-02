@@ -402,7 +402,7 @@ export default class Sftp extends Component {
     }
   }
 
-  initData = async (remoteInit) => {
+  initData = async () => {
     const { props } = this
     const host = _.get(props, 'tab.host') &&
       _.get(props, 'tab.type') !== terminalSshConfigType &&
@@ -524,10 +524,8 @@ export default class Sftp extends Component {
         const config = deepCopy(
           this.props.config
         )
-        this.setState(() => {
-          return {
-            loadingSftp: true
-          }
+        this.setState({
+          loadingSftp: true
         })
         const opts = deepCopy({
           ...tab,
@@ -562,7 +560,9 @@ export default class Sftp extends Component {
         })
         if (!r) {
           sftp.destroy()
-          return
+          return this.props.editTab(tab.id, {
+            sftpCreated: false
+          })
         } else {
           this.sftp = sftp
         }
@@ -642,7 +642,11 @@ export default class Sftp extends Component {
           ...this.state.remotePathHistory
         ]).slice(0, maxSftpHistory)
       }
-      this.setState(update)
+      this.setState(update, () => {
+        this.props.editTab(tab.id, {
+          sftpCreated: true
+        })
+      })
     } catch (e) {
       const update = {
         remoteLoading: false,

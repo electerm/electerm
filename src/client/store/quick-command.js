@@ -3,8 +3,10 @@
  */
 
 import {
-  settingMap
+  settingMap,
+  terminalActions
 } from '../common/constants'
+import postMessage from '../common/post-msg'
 
 export default Store => {
   Store.prototype.getQuickCommands = function () {
@@ -27,5 +29,15 @@ export default Store => {
 
   Store.prototype.delQuickCommand = function ({ id }) {
     window.store.delItem({ id }, settingMap.quickCommands)
+  }
+
+  Store.prototype.runQuickCommand = function (cmd, inputOnly = false) {
+    const { activeTerminalId } = window.store
+    postMessage({
+      action: terminalActions.quickCommand,
+      cmd,
+      inputOnly: inputOnly,
+      activeSplitId: activeTerminalId
+    })
   }
 }

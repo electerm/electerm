@@ -241,7 +241,8 @@ export default (props) => {
       action,
       expanded,
       renameId,
-      parentId
+      parentId,
+      skipConfirm
     } = tr
     const fromFile = tr.fromFile
       ? tr.fromFile
@@ -258,6 +259,10 @@ export default (props) => {
     } else {
       toFile = await checkExist(typeTo, toPath)
     }
+    if (fromFile.isDirectory) {
+      tr.zip = true
+      tr.skipExpand = true
+    }
     if (fromPath === toPath && typeFrom === typeTo) {
       return updateTransferAction({
         id,
@@ -268,7 +273,7 @@ export default (props) => {
           fromFile
         }
       })
-    } else if (toFile && !action) {
+    } else if (toFile && !action && !skipConfirm) {
       waitForSignal(id)
       if (!onConfirm.current) {
         onConfirm.current = true

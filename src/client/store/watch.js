@@ -3,7 +3,7 @@
  */
 
 import createTitle from '../common/create-title'
-import autoRun from './auto-run'
+import { autoRun } from 'manate'
 import { update, dbNames } from '../common/db'
 import {
   commonActions,
@@ -20,7 +20,7 @@ export default store => {
   autoRun(store, () => {
     store.focus()
     return store.currentTabId
-  }, func => _.debounce(func, 100))
+  }, func => _.debounce(func, 100)).start()
 
   // autoRun(store, () => {
   //   if (store.menuOpened) {
@@ -48,7 +48,7 @@ export default store => {
       )
       await store.updateLastDataUpdateTime()
       return store['_' + name]
-    }, func => _.debounce(func, 100))
+    }, func => _.debounce(func, 100)).start()
   }
 
   autoRun(store, () => {
@@ -58,42 +58,42 @@ export default store => {
       store.blur()
     }
     return store.showModal
-  })
+  }).start()
 
   autoRun(store, () => {
     window.pre.runGlobalAsync('saveUserConfig', store.config)
     return store._config
-  }, func => _.debounce(func, 100))
+  }, func => _.debounce(func, 100)).start()
 
   autoRun(store, () => {
     store.updateLastDataUpdateTime()
     return store.config.theme
-  }, func => _.debounce(func, 100))
+  }, func => _.debounce(func, 100)).start()
 
   autoRun(store, () => {
     store.updateTabsStatus()
     return store.fileTransfers
-  }, func => _.debounce(func, 100))
+  }, func => _.debounce(func, 100)).start()
 
   autoRun(store, () => {
     ls.setItemJSON(sftpDefaultSortSettingKey, store.sftpSortSetting)
     return store._sftpSortSetting
-  })
+  }).start()
 
   autoRun(store, () => {
     ls.setItemJSON(expandedKeysLsKey, store.expandedKeys)
     return store._expandedKeys
-  })
+  }).start()
 
   autoRun(store, () => {
     ls.setItemJSON(localAddrBookmarkLsKey, store.addressBookmarksLocal)
     return store._addressBookmarksLocal
-  })
+  }).start()
 
   autoRun(store, () => {
     ls.setItemJSON(checkedKeysLsKey, store.expandedKeys)
     return store._expandedKeys
-  })
+  }).start()
 
   autoRun(store, () => {
     const tabs = store.getTabs()
@@ -108,5 +108,5 @@ export default store => {
       currentTabId
     })
     return store.currentTabId
-  })
+  }).start()
 }

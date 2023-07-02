@@ -3,7 +3,7 @@
  */
 
 import { Component } from '../common/react-subx'
-import { isWin, terminalActions } from '../../common/constants'
+import { isWin } from '../../common/constants'
 import _ from 'lodash'
 import { Button, Input, Select } from 'antd'
 import copy from 'json-deep-copy'
@@ -13,7 +13,6 @@ import {
   CloseCircleOutlined,
   PushpinOutlined
 } from '@ant-design/icons'
-import postMessage from '../../common/post-msg'
 import './qm.styl'
 
 const { prefix } = window
@@ -54,16 +53,11 @@ export default class QuickCommandsFooterBox extends Component {
         a => a.id === id
       )
       if (qm && qm.command) {
-        const { activeTerminalId } = this.props.store
+        const { runQuickCommand } = this.props.store
         const realCmd = isWin
           ? qm.command.replace(/\n/g, '\n\r')
           : qm.command
-        postMessage({
-          action: terminalActions.quickCommand,
-          cmd: realCmd,
-          inputOnly: qm.inputOnly,
-          activeSplitId: activeTerminalId
-        }, '*')
+        runQuickCommand(realCmd, qm.inputOnly)
       }
     }
   }

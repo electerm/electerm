@@ -6,7 +6,8 @@ import {
   PictureOutlined,
   PlusCircleOutlined,
   SettingOutlined,
-  UpCircleOutlined
+  UpCircleOutlined,
+  BarsOutlined
 } from '@ant-design/icons'
 
 import { Tooltip } from 'antd'
@@ -26,6 +27,7 @@ const m = prefix('menu')
 const t = prefix('terminalThemes')
 const u = prefix('updater')
 const ss = prefix('settingSync')
+const b = prefix('batchOp')
 
 export default class Sidebar extends Component {
   handler = null
@@ -78,7 +80,8 @@ export default class Sidebar extends Component {
       openTerminalThemes,
       upgradeInfo,
       onClickBookmark,
-      onClickHistory
+      onClickHistory,
+      toggleBatchOp
     } = store
     const { showUpgradeModal, upgradePercent, checkingRemoteVersion, shouldUpgrade } = upgradeInfo
     return (
@@ -142,6 +145,12 @@ export default class Sidebar extends Component {
             title={ss('settingSync')}
           >
             <CloudSyncOutlined className='iblock font20 control-icon' onClick={openSettingSync} />
+          </div>
+          <div
+            className='control-icon-wrap'
+            title={b('batchOp')}
+          >
+            <BarsOutlined className='iblock font20 control-icon' onClick={toggleBatchOp} />
           </div>
           <div
             className='control-icon-wrap'

@@ -59,6 +59,7 @@ export const getInitItem = (arr, tab) => {
 export default {
   // common
   wsInited: false,
+  showBatchOp: false,
   configLoaded: false,
   loadTime: 0,
   lastDataUpdateTime: 0,
