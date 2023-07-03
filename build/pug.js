@@ -1,7 +1,7 @@
 
 const { env, version, ga } = require('./common')
 const { loadDevStylus } = require('./style')
-const copy = require('json-deep-copy').default
+const copy = require('json-deep-copy')
 const base = {
   env,
   version,
