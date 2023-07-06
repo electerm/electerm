@@ -118,6 +118,21 @@ export default class FileSection extends React.Component {
     window.store.fileOperation = isCut ? fileOperationsMap.mv : fileOperationsMap.cp
   }
 
+  onCopyPath = (targetFiles) => {
+    const { file } = this.state
+    const selected = this.isSelected(file)
+    const files = targetFiles ||
+      (
+        selected
+          ? this.props.selectedFiles
+          : [file]
+      )
+    const textToCopy = files.map(f => {
+      return resolve(f.path, f.name)
+    }).join('\n')
+    copyToClipboard(textToCopy)
+  }
+
   onCut = (targetFiles) => {
     this.onCopy(targetFiles, true)
   }
@@ -964,6 +979,11 @@ export default class FileSection extends React.Component {
       text: m('paste'),
       disabled: !canPaste,
       subText: `${ctrlOrCmd}+v`
+    })
+    res.push({
+      func: 'onCopyPath',
+      icon: 'CopyOutlined',
+      text: m('copyFilePath')
     })
     if (id) {
       res.push({
