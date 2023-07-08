@@ -4,6 +4,7 @@
 
 const GitHubOri = require('gist-wrapper').default
 const GiteeOri = require('gitee-client').default
+const customSync = require('electerm-sync').default
 const log = require('../common/log')
 const { createProxyAgent } = require('../lib/proxy-agent')
 
@@ -37,7 +38,8 @@ class GitHub extends GitHubOri {
 
 const dist = {
   gitee: Gitee,
-  github: GitHub
+  github: GitHub,
+  custom: customSync
 }
 
 async function doSync (type, func, args, token, proxy) {

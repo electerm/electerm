@@ -5,7 +5,7 @@
 import _ from 'lodash'
 import copy from 'json-deep-copy'
 import {
-  settingMap, packInfo
+  settingMap, packInfo, syncTypes
 } from '../common/constants'
 import { remove, dbNames, insert, update } from '../common/db'
 import fetch from '../common/fetch-from-server'
@@ -49,6 +49,13 @@ export default (Store) => {
   }
 
   Store.prototype.getSyncToken = function (type) {
+    if (type === syncTypes.custom) {
+      return ['AccessToken', 'gistId', 'apiUrl'].map(
+        p => {
+          return _.get(window.store.config, 'syncSetting.' + type + p)
+        }
+      ).join('####')
+    }
     return _.get(window.store.config, 'syncSetting.' + type + 'AccessToken')
   }
 

@@ -23,6 +23,7 @@ export default function SyncSettingEntry (props) {
                 gistId: props[type + 'GistId'],
                 token: props[type + 'AccessToken'],
                 url: props[type + 'Url'],
+                apiUrl: props[type + 'ApiUrl'],
                 lastSyncTime: props[type + 'LastSyncTime'],
                 syncPassword: props[type + 'SyncPassword']
               }

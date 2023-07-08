@@ -11,7 +11,7 @@ import { Button, Input, notification, Form } from 'antd'
 import Link from '../common/external-link'
 import dayjs from 'dayjs'
 import eq from 'fast-deep-equal'
-import { syncTokenCreateUrls } from '../../common/constants'
+import { syncTokenCreateUrls, syncTypes } from '../../common/constants'
 import './sync.styl'
 import HelpIcon from '../common/help-icon'
 
@@ -47,6 +47,9 @@ export default function SyncForm (props) {
     }
     if (res.syncPassword) {
       up[syncType + 'SyncPassword'] = res.syncPassword
+    }
+    if (res.apiUrl) {
+      up[syncType + 'ApiUrl'] = res.apiUrl
     }
     props.store.updateSyncSetting(up)
     const test = await props.store.testSyncToken(syncType, res.gistId)
@@ -109,8 +112,32 @@ export default function SyncForm (props) {
       </span>
     )
   }
-  const tokenLabel = createLabel('token', 'personal access token')
-  const gistLabel = createLabel('gist', 'gist ID')
+  function createUrlItem () {
+    if (syncType !== syncTypes.custom) {
+      return null
+    }
+    return (
+      <FormItem
+        label={createLabel('API Url')}
+        name='apiUrl'
+        rules={[{
+          max: 200, message: '200 chars max'
+        }]}
+      >
+        <Input
+          placeholder=' API Url'
+        />
+      </FormItem>
+    )
+  }
+  const desc = syncType === syncTypes.custom
+    ? 'jwt secret'
+    : 'personal access token'
+  const idDesc = syncType === syncTypes.custom
+    ? 'user id'
+    : 'gist ID'
+  const tokenLabel = createLabel('token', desc)
+  const gistLabel = createLabel('gist', idDesc)
   const syncPasswordName = s('encrypt') + ' ' + e('password')
   const syncPasswordLabel = createLabel(syncPasswordName, '')
   return (
@@ -122,6 +149,7 @@ export default function SyncForm (props) {
       layout='vertical'
       initialValues={props.formData}
     >
+      {createUrlItem()}
       <FormItem
         label={tokenLabel}
         hasFeedback

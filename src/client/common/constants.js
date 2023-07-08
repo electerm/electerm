@@ -214,11 +214,13 @@ export const baseUpdateCheckUrls = [
 ]
 export const syncTypes = buildConst([
   'github',
-  'gitee'
+  'gitee',
+  'custom'
 ])
 export const syncTokenCreateUrls = {
   gitee: 'https://gitee.com/github-zxdong262/electerm/wikis/Create%20personal%20access%20token?sort_id=3028409',
-  github: 'https://github.com/electerm/electerm/wiki/Create-personal-access-token'
+  github: 'https://github.com/electerm/electerm/wiki/Create-personal-access-token',
+  custom: 'https://github.com/electerm/electerm/wiki/Custom-sync-server'
 }
 export const settingSyncId = 'setting-sync'
 export const settingCommonId = 'setting-common'
