@@ -1,5 +1,6 @@
 {
   "appId": "org.electerm.electerm",
+  "debug": true,
   "directories": {
     "app": "work/app",
     "output": "dist",
@@ -27,7 +28,8 @@
     "category": "public.app-category.developer-tools",
     "target": "dmg",
     "icon": "node_modules/@electerm/electerm-resource/build/icons.icns",
-    "publish": ["github"]
+    "publish": ["github"],
+    "notarize": false
   },
   "dmg": {
     "contents": [

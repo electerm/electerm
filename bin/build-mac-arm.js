@@ -22,7 +22,7 @@ async function main () {
   rm('-rf', 'dist')
   writeSrc('mac-arm64.dmg')
   await run(`DEBUG=true ${reBuild} --arch arm64 -f work/app`)
-  await run(`DEBUG=true ${pb} --mac --arm64`)
+  await run(`DEBUG=electron-builder ${pb} --mac --arm64`)
 }
 
 main()
