@@ -16,12 +16,7 @@
     "applicationId": "electerm",
     "identityName": "64159ZHAOXudong.electerm",
     "publisher": "CN=9F481654-170A-434C-8259-984D2EB1FD7F",
-    "publisherDisplayName": "ZHAO Xudong",
-    "entitlements": "build/entitlements.plist",
-    "entitlementsInherit": "build/entitlements.plist",
-    "notarize": {
-      "teamId": "__teamId"
-    }
+    "publisherDisplayName": "ZHAO Xudong"
   },
   "nsis": {
     "oneClick": false,
@@ -32,7 +27,13 @@
     "category": "public.app-category.developer-tools",
     "target": "dmg",
     "icon": "node_modules/@electerm/electerm-resource/build/icons.icns",
-    "publish": ["github"]
+    "publish": ["github"],
+    "hardenedRuntime": true,
+    "entitlements": "build/entitlements.plist",
+    "entitlementsInherit": "build/entitlements.plist",
+    "notarize": {
+      "teamId": "__teamId"
+    }
   },
   "dmg": {
     "contents": [
