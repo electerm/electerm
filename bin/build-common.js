@@ -32,6 +32,7 @@ exports.reBuild = resolve(
 
 exports.changeTeamId = function () {
   const pth = resolve(__dirname, '../electron-builder.json')
+  console.log('electron-builder', pth)
   const str = readFileSync(pth)
     .toString().replace('__teamId', process.env.APPLE_TEAM_ID)
   writeFileSync(pth, str)
