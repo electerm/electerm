@@ -29,8 +29,9 @@
     "icon": "node_modules/@electerm/electerm-resource/build/icons.icns",
     "publish": ["github"],
     "hardenedRuntime": true,
-    "entitlements": "build/entitlements.plist",
-    "entitlementsInherit": "build/entitlements.plist",
+    "gatekeeperAssess": false,
+    "entitlements": "./build/entitlements.plist",
+    "entitlementsInherit": "./build/entitlements.plist",
     "notarize": {
       "teamId": "__teamId"
     }
