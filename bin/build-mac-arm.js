@@ -12,6 +12,7 @@ const {
   run,
   writeSrc,
   builder: pb,
+  changeTeamId,
   reBuild
 } = require('./build-common')
 
@@ -21,6 +22,7 @@ async function main () {
   echo('build dmg')
   rm('-rf', 'dist')
   writeSrc('mac-arm64.dmg')
+  changeTeamId()
   await run(`DEBUG=true ${reBuild} --arch arm64 -f work/app`)
   await run(`DEBUG=electron-builder ${pb} --mac --arm64`)
 }
