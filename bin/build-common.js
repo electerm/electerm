@@ -4,7 +4,7 @@
 
 const { exec } = require('child_process')
 const { resolve } = require('path')
-const { writeFileSync } = require('fs')
+const { writeFileSync, readFileSync } = require('fs')
 
 exports.run = function (cmd) {
   return new Promise((resolve, reject) => {
@@ -29,3 +29,11 @@ exports.builder = resolve(
 exports.reBuild = resolve(
   __dirname, '../node_modules/.bin/electron-rebuild'
 )
+
+exports.changeTeamId = function () {
+  const pth = resolve(__dirname, '../electron-builder.json')
+  console.log('electron-builder', pth)
+  const str = readFileSync(pth)
+    .toString().replace('__teamId', process.env.APPLE_TEAM_ID)
+  writeFileSync(pth, str)
+}

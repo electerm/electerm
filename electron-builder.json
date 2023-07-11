@@ -27,7 +27,14 @@
     "category": "public.app-category.developer-tools",
     "target": "dmg",
     "icon": "node_modules/@electerm/electerm-resource/build/icons.icns",
-    "publish": ["github"]
+    "publish": ["github"],
+    "hardenedRuntime": true,
+    "gatekeeperAssess": false,
+    "entitlements": "./build/entitlements.plist",
+    "entitlementsInherit": "./build/entitlements.plist",
+    "notarize": {
+      "teamId": "__teamId"
+    }
   },
   "dmg": {
     "contents": [
