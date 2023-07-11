@@ -31,10 +31,7 @@
     "hardenedRuntime": true,
     "gatekeeperAssess": false,
     "entitlements": "./build/entitlements.plist",
-    "entitlementsInherit": "./build/entitlements.plist",
-    "notarize": {
-      "teamId": "__teamId"
-    }
+    "entitlementsInherit": "./build/entitlements.plist"
   },
   "dmg": {
     "contents": [
