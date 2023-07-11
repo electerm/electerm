@@ -32,11 +32,25 @@ describe('auto upgrade check', function () {
     await client.hasElem(sel)
     log('start download upgrade')
     await client.click('.upgrade-panel .ant-btn-primary')
-    await delay(3500)
-    const txt = await client.getText('.upgrade-panel .ant-btn-primary')
-    console.log('txt', txt)
-    expect(txt.includes('Upgrading... 0% Cancel')).equal(false)
-    expect(txt.includes('% Cancel')).equal(true)
+    const fr = {}
+    const len = 20
+    for (let i = 0; i < len; i++) {
+      await delay(500)
+      const txt = await client.getText('.upgrade-panel .ant-btn-primary')
+      console.log('txt', txt)
+      if (txt.includes('Upgrading... 0% Cancel')) {
+        fr.zero = 1
+      } else if (
+        txt.includes('% Cancel')
+      ) {
+        fr.progress = 1
+      }
+      if (fr.zero && fr.progress) {
+        break
+      }
+    }
+    expect(fr.progress).equal(1)
+    expect(fr.zero).equal(1)
     await electronApp.close().catch(console.log)
   })
 })
