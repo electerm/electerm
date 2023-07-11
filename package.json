@@ -154,7 +154,7 @@
     "nanoid": "3.1.31",
     "node-bash": "5.0.1",
     "node-powershell": "5.0.1",
-    "node-pty": "0.11.0-beta19",
+    "node-pty": "1.0.0",
     "os-locale-s": "1.0.8",
     "serialport": "10.4.0",
     "socks": "2.6.1",
@@ -163,7 +163,7 @@
     "stylus": "0.54.8",
     "tar": "^6.1.9",
     "telnet-client": "^2.0.6",
-    "trzsz": "1.0.0",
+    "trzsz": "1.1.1",
     "util-promisifyall": "1.0.6",
     "v8-compile-cache": "2.3.0"
   },
