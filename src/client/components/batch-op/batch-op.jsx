@@ -36,6 +36,7 @@ const { prefix } = window
 const f = prefix('form')
 const t = prefix('transferHistory')
 const c = prefix('common')
+const m = prefix('menu')
 const { TabPane } = Tabs
 
 export default class BatchOp extends Component {
@@ -56,6 +57,16 @@ export default class BatchOp extends Component {
   handleChangeTab = tab => {
     this.setState({
       tab
+    })
+  }
+
+  handleDel = rec => {
+    this.setState(old => {
+      return {
+        tasks: old.tasks.filter(t => {
+          return t.id !== rec.id
+        })
+      }
     })
   }
 
@@ -314,6 +325,7 @@ export default class BatchOp extends Component {
           })
           return ''
         }
+        res.id = uid()
         return res
       })
       .filter(d => d)
@@ -524,6 +536,26 @@ export default class BatchOp extends Component {
         render: (k) => k || ''
       }
     })
+    if (tab === 'tasks') {
+      columns.push({
+        title: m('del'),
+        dataIndex: 'op',
+        key: 'op',
+        render: (k, rec) => {
+          if (this.state.loading || this.state.working) {
+            return null
+          }
+          return (
+            <span
+              className='act-del pointer'
+              onClick={() => this.handleDel(rec)}
+            >
+              {m('del')}
+            </span>
+          )
+        }
+      })
+    }
     const src = data.map((t, i) => {
       return {
         index: i + 1,
@@ -543,7 +575,7 @@ export default class BatchOp extends Component {
           bordered
           pagination={false}
           size='small'
-          rowKey='index'
+          rowKey='id'
         />
       </TabPane>
     )
