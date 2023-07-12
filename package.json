@@ -1,6 +1,6 @@
 {
   "name": "electerm",
-  "version": "1.27.5",
+  "version": "1.27.6",
   "description": "Terminal/ssh/telnet/serialport/sftp client(linux, mac, win)",
   "main": "app.js",
   "bin": "npm/electerm",
@@ -16,6 +16,7 @@
     "prepublishOnly": "node bin/prepublish",
     "postpublish": "node bin/postpublish",
     "prepare-file": "node bin/prepare",
+    "prepare-test": "PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm i -D -E playwright@1.28.1 --no-save && npm i -D -E @playwright/test@1.28.1 --no-save",
     "output": "./node_modules/.bin/electron-builder",
     "build-mac": "node bin/build-mac",
     "build-mac-arm": "node bin/build-mac-arm",
@@ -31,7 +32,7 @@
     "test": "npm run test1 && npm run test2",
     "test1": "./node_modules/.bin/playwright test test/e2e/00*.js --workers=1",
     "test2": "./node_modules/.bin/playwright test test/e2e/01*.js --workers=1",
-    "pre-test": "npm run compile && npm run prepare-file",
+    "prepare-build": "npm run compile && npm run prepare-file",
     "lock": "npm i --package-lock-only"
   },
   "license": "MIT",

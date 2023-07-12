@@ -31,7 +31,8 @@ jobs:
     - run: npm i
 
     # script:
-    - run: npm run pre-test
+    - run: npm run prepare-build
+    - run: npm run prepare-test
 
     - name: test
       uses: GabrielBB/xvfb-action@v1

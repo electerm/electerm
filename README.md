@@ -140,7 +140,8 @@ npm run fix
 ## Test
 
 ```bash
-npm run pre-test
+npm run prepare-build
+npm run prepare-test
 cp .sample.env .env
 
 # edit .env, fill your test host/username/password, may only works in mac OS
@@ -156,7 +157,7 @@ npm run test
 
 # Build linux only with -l
 npm i
-npm run pre-test
+npm run prepare-build
 npm run release -l
 # check dist/ folder
 ```
