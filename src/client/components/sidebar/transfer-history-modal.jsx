@@ -9,7 +9,7 @@ import time from '../../../app/common/time'
 import Tag from '../sftp/transfer-tag'
 import './transfer-history.styl'
 import _ from 'lodash'
-import filesize from 'filesize'
+import { filesize } from 'filesize'
 
 const { prefix } = window
 const e = prefix('transferHistory')
