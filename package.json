@@ -16,7 +16,7 @@
     "prepublishOnly": "node bin/prepublish",
     "postpublish": "node bin/postpublish",
     "prepare-file": "node bin/prepare",
-    "prepare-test": "PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm i -D -E playwright@1.28.1 --no-save && npm i -D -E @playwright/test@1.28.1 --no-save",
+    "prepare-test": "PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm i -E playwright@1.28.1 --no-save && npm i -E @playwright/test@1.28.1 --no-save",
     "output": "./node_modules/.bin/electron-builder",
     "build-mac": "node bin/build-mac",
     "build-mac-arm": "node bin/build-mac-arm",
