@@ -27,7 +27,8 @@ if (isWin) {
 }
 
 echo('start pack prepare')
-
+echo('install test deps')
+exec(`PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm i -D -E playwright@1.28.1 --no-save && npm i -D -E @playwright/test@1.28.1 --no-save`)
 const timeStart = +new Date()
 rm('-rf', dir)
 rm('-rf', 'dist/latest')
