@@ -33,7 +33,7 @@ import { getFolderFromFilePath } from './file-read'
 import { readClipboard, copy as copyToClipboard, hasFileInClipboardText } from '../../common/clipboard'
 import fs from '../../common/fs'
 import time from '../../../app/common/time'
-import filesize from 'filesize'
+import { filesize } from 'filesize'
 import { createTransferProps } from './transfer-common'
 import generate from '../../common/uid'
 
