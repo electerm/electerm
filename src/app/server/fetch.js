@@ -3,9 +3,7 @@
  */
 
 const rp = require('axios')
-const {
-  createAgent
-} = require('./download-upgrade')
+const { createProxyAgent } = require('../lib/proxy-agent')
 
 function fetch (options) {
   return rp(options)
@@ -21,15 +19,13 @@ function fetch (options) {
 
 async function wsFetchHandler (ws, msg) {
   const { id, options, proxy } = msg
-  const {
-    agent,
-    agentType
-  } = createAgent(proxy)
+  const agent = createProxyAgent(proxy)
   if (agent) {
-    options[agentType] = agent
+    options.httpsAgent = agent
   }
   const res = await fetch(options)
   if (res.error) {
+    console.log(res.error)
     ws.s({
       error: res.error,
       id

@@ -13,7 +13,7 @@ import {
   defaultBookmarkGroupId,
   newBookmarkIdPrefix
 } from '../../common/constants'
-import isIp from '../../common/is-ip'
+import { isValidIP } from '../../../app/common/is-ip'
 import runIdle from '../../common/run-idle'
 import getInitItem from '../../common/init-setting-item'
 import testCon from '../../common/test-connection'
@@ -75,7 +75,7 @@ export default class BookmarkForm extends PureComponent {
     if (
       type !== settingMap.bookmarks ||
       !value ||
-      isIp(value)
+      isValidIP(value)
     ) {
       return
     }

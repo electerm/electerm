@@ -456,9 +456,7 @@ class Terminal {
           .connect(opts)
       }
       if (
-        initOptions.proxy &&
-        initOptions.proxy.proxyIp &&
-        initOptions.proxy.proxyPort
+        initOptions.proxy
       ) {
         proxySock({
           ...initOptions,

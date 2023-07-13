@@ -4,16 +4,14 @@
 
 import { Component } from '../common/react-subx'
 import {
-  CloseCircleOutlined,
-  QuestionCircleOutlined
+  CloseCircleOutlined
 } from '@ant-design/icons'
 import {
   Upload,
   Input,
   Button,
   Table,
-  Tabs,
-  Tooltip
+  Tabs
 } from 'antd'
 import {
   sidebarWidth,
@@ -21,9 +19,9 @@ import {
   commonActions,
   batchOpHelpLink
 } from '../../common/constants'
+import HelpIcon from '../common/help-icon'
 import { autoRun } from 'manate'
 import _ from 'lodash'
-import Link from '../common/external-link'
 import { runCmd } from '../terminal/terminal-apis'
 import deepCopy from 'json-deep-copy'
 import postMsg from '../../common/post-msg'
@@ -430,17 +428,9 @@ export default class BatchOp extends Component {
         <div className='pd1y'>
           <h2>
             {c('batchOperation')}
-            <Tooltip
-              title={
-                <span>
-                  <Link to={batchOpHelpLink}>{batchOpHelpLink}</Link>
-                </span>
-              }
-            >
-              <span className='mg1l'>
-                <QuestionCircleOutlined />
-              </span>
-            </Tooltip>
+            <HelpIcon
+              link={batchOpHelpLink}
+            />
           </h2>
           <div className='pd1y'>{c('examples')}:</div>
           <pre>

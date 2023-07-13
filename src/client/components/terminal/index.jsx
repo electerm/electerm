@@ -2,7 +2,6 @@
 import { Component } from 'react'
 import ZmodemTransfer from './zmodem-transfer'
 import { handleErr } from '../../common/fetch'
-import { mergeProxy } from '../../common/merge-proxy'
 import generate from '../../common/uid'
 import _ from 'lodash'
 import postMessage from '../../common/post-msg'
@@ -44,6 +43,7 @@ import { WebLinksAddon } from 'xterm-addon-web-links'
 import { SerializeAddon } from 'xterm-addon-serialize'
 import { CanvasAddon } from 'xterm-addon-canvas'
 import { WebglAddon } from 'xterm-addon-webgl'
+import getProxy from '../../common/get-proxy'
 import { Zmodem, AddonZmodem } from './xterm-zmodem'
 import { Unicode11Addon } from 'xterm-addon-unicode11'
 import keyControlPressed from '../../common/key-control-pressed'
@@ -915,7 +915,7 @@ export default class Term extends Component {
       terminalIndex,
       termType,
       readyTimeout: config.sshReadyTimeout,
-      proxy: mergeProxy(config, tab),
+      proxy: getProxy(tab, config),
       type: tab.host && !isSshConfig
         ? typeMap.remote
         : typeMap.local

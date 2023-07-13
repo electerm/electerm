@@ -30,14 +30,14 @@ export default (Store) => {
       }
     })
     await window.pre.runGlobalAsync('doUpgrade')
-    await store.initData()
     mod.update({
       title: 'Done',
       content: 'Database Upgraded',
       okButtonProps: {}
     })
-    await delay(1000)
+    await delay(3000)
     mod.destroy()
+    await store.restart()
     return true
   }
 }
