@@ -49,7 +49,7 @@ async function doSync (type, func, args, token, proxy) {
     ? {
       httpsAgent: agent
     }
-    : undefined
+    : {}
   return inst[func](...args, conf)
     .then(r => r.data)
     .catch(e => {
