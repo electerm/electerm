@@ -5,9 +5,7 @@
 const GitHubOri = require('gist-wrapper').default
 const GiteeOri = require('gitee-client').default
 const log = require('../common/log')
-const {
-  createAgent
-} = require('./download-upgrade')
+const { createProxyAgent } = require('../lib/proxy-agent')
 
 class Gitee extends GiteeOri {
   create (data, conf) {
@@ -44,13 +42,10 @@ const dist = {
 
 async function doSync (type, func, args, token, proxy) {
   const inst = new dist[type](token)
-  const {
-    agent,
-    agentType
-  } = createAgent(proxy)
+  const agent = createProxyAgent(proxy)
   const conf = agent
     ? {
-      [agentType]: agent
+      httpsAgent: agent
     }
     : undefined
   return inst[func](...args, conf)
