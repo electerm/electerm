@@ -11,13 +11,15 @@ import {
   Alert,
   Button,
   AutoComplete,
-  Tooltip
+  Tooltip,
+  Table
 } from 'antd'
 import deepCopy from 'json-deep-copy'
 import {
   noTerminalBgValue,
   settingMap,
-  rendererTypes
+  rendererTypes,
+  proxyHelpLink
 } from '../../common/constants'
 import defaultSettings from '../../../app/common/default-setting'
 import ShowItem from '../common/show-item'
@@ -27,9 +29,9 @@ import _ from 'lodash'
 import createEditLangLink from '../../common/create-lang-edit-link'
 import mapper from '../../common/auto-complete-data-mapper'
 import StartSession from './start-session-select'
+import HelpIcon from '../common/help-icon'
 import './setting.styl'
 
-const InputGroup = Input.Group
 const { Option } = Select
 const { prefix } = window
 const e = prefix('setting')
@@ -418,7 +420,7 @@ export default class Setting extends Component {
     )
   }
 
-  renderdDefaultTerminalType = () => {
+  renderDefaultTerminalType = () => {
     const opts = this.props.config.terminalTypes.map(mapper)
     return (
       <AutoComplete
@@ -434,18 +436,59 @@ export default class Setting extends Component {
 
   renderProxy () {
     const {
-      enableGlobalProxy,
-      proxyPort,
-      proxyType,
-      proxyIp,
-      proxyUsername,
-      proxyPassword
+      enableGlobalProxy
     } = this.props.config
+    const helps = `http# http://proxy-server-over-tcp.com:3128
+      https#https://proxy-server-over-tls.com:3129
+      socks(v5)#socks://username:password@some-socks-proxy.com:9050 (username & password are optional)
+      socks5#socks5://username:password@some-socks-proxy.com:9050 (username & password are optional)
+      socks5h#socks5h://username:password@some-socks-proxy.com:9050 (username & password are optional)
+      socks4#socks4://some-socks-proxy.com:9050
+      socks4a#socks4a://some-socks-proxy.com:9050`
+      .split('\n')
+      .filter(d => d.trim())
+      .map(d => {
+        const [protocol, example] = d.split('#')
+        return {
+          protocol, example
+        }
+      })
+    const cols = Object.keys(helps[0]).map(k => {
+      return {
+        title: k,
+        dataIndex: k,
+        key: k,
+        render: (k) => k || ''
+      }
+    })
+    const table = (
+      <div>
+        <Table
+          columns={cols}
+          dataSource={helps}
+          bordered
+          pagination={false}
+          size='small'
+          rowKey='protocol'
+        />
+        <div>
+          <Link to={proxyHelpLink}>{proxyHelpLink}</Link>
+        </div>
+      </div>
+    )
+    const style = {
+      height: '414px',
+      width: '500px'
+    }
     return (
       <div className='pd1b'>
         <div className='pd1b'>
           <span className='pd1r'>
             {e('global')} {f('proxy')}
+            <HelpIcon
+              title={table}
+              overlayInnerStyle={style}
+            />
           </span>
           <Switch
             checked={enableGlobalProxy}
@@ -454,67 +497,9 @@ export default class Setting extends Component {
             }}
           />
         </div>
-        <div className='pd2b'>
-          <InputGroup compact>
-            <Select
-              value={proxyType}
-              disabled={!enableGlobalProxy}
-              onChange={v => {
-                this.onChangeValue(v, 'proxyType')
-              }}
-            >
-              <Option value='5'>sock5</Option>
-              <Option value='4'>sock4</Option>
-              <Option value='0'>http</Option>
-              <Option value='1'>https</Option>
-            </Select>
-            <Input
-              style={{ width: '65%' }}
-              value={proxyIp}
-              placeholder={f('proxyIp')}
-              disabled={!enableGlobalProxy}
-              onChange={e => {
-                this.onChangeValue(
-                  e.target.value, 'proxyIp'
-                )
-              }}
-            />
-            <InputNumber
-              value={proxyPort}
-              placeholder={f('proxyPort')}
-              disabled={!enableGlobalProxy}
-              onChange={v => {
-                this.onChangeValue(
-                  v, 'proxyPort'
-                )
-              }}
-            />
-          </InputGroup>
-          <InputGroup compact>
-            <Input
-              style={{ width: '50%' }}
-              value={proxyUsername}
-              placeholder={f('username')}
-              disabled={!enableGlobalProxy}
-              onChange={e => {
-                this.onChangeValue(
-                  e.target.value, 'proxyUsername'
-                )
-              }}
-            />
-            <Input
-              style={{ width: '45%' }}
-              value={proxyPassword}
-              placeholder={f('password')}
-              disabled={!enableGlobalProxy}
-              onChange={e => {
-                this.onChangeValue(
-                  e.target.value, 'proxyPassword'
-                )
-              }}
-            />
-          </InputGroup>
-        </div>
+        {
+          this.renderText('proxy', 'socks5://127.0.0.1:1080')
+        }
       </div>
     )
   }
@@ -747,7 +732,7 @@ export default class Setting extends Component {
         <div className='pd2b'>
           <span className='inline-title mg1r'>{e('defaultTerminalType')}</span>
           {
-            this.renderdDefaultTerminalType()
+            this.renderDefaultTerminalType()
           }
         </div>
         <div className='pd1b'>{e('terminalBackgroundImage')}</div>

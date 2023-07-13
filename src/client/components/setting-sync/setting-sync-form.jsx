@@ -6,13 +6,14 @@
  * bookmark form
  */
 import { useDelta, useConditionalEffect } from 'react-delta'
-import { ArrowDownOutlined, ArrowUpOutlined, QuestionCircleOutlined, SaveOutlined, ClearOutlined } from '@ant-design/icons'
-import { Button, Input, notification, Tooltip, Form } from 'antd'
+import { ArrowDownOutlined, ArrowUpOutlined, SaveOutlined, ClearOutlined } from '@ant-design/icons'
+import { Button, Input, notification, Form } from 'antd'
 import Link from '../common/external-link'
-import moment from 'moment'
+import dayjs from 'dayjs'
 import eq from 'fast-deep-equal'
 import { syncTokenCreateUrls } from '../../common/constants'
 import './sync.styl'
+import HelpIcon from '../common/help-icon'
 
 const FormItem = Form.Item
 const { prefix } = window
@@ -97,23 +98,15 @@ export default function SyncForm (props) {
   } = props.formData
   const { syncType } = props
   const timeFormatted = lastSyncTime
-    ? moment(lastSyncTime).format('YYYY-MM-DD HH:mm:ss')
+    ? dayjs(lastSyncTime).format('YYYY-MM-DD HH:mm:ss')
     : '-'
 
   function createLabel (name, text) {
     return (
-      <Tooltip
-        title={
-          <span>
-            {syncType} {text || name}
-            <Link className='mg1l' to={getTokenCreateGuideUrl()} />
-          </span>
-        }
-      >
-        <span>
-          {name} <QuestionCircleOutlined />
-        </span>
-      </Tooltip>
+      <span>
+        {name}
+        <HelpIcon link={getTokenCreateGuideUrl()} />
+      </span>
     )
   }
   const tokenLabel = createLabel('token', 'personal access token')

@@ -1,7 +1,6 @@
 
 import { Component } from 'react'
 import generate from '../../common/uid'
-import { mergeProxy } from '../../common/merge-proxy'
 import runIdle from '../../common/run-idle'
 import { Spin, Modal, notification } from 'antd'
 import _ from 'lodash'
@@ -34,6 +33,7 @@ import postMessage from '../../common/post-msg'
 import { runCmd } from '../terminal/terminal-apis'
 import * as owner from './owner-list'
 import AddressBar from './address-bar'
+import getProxy from '../../common/get-proxy'
 import './sftp.styl'
 
 const { prefix } = window
@@ -532,7 +532,7 @@ export default class Sftp extends Component {
           readyTimeout: _.get(config, 'sshReadyTimeout'),
           sessionId,
           keepaliveInterval: _.get(config, 'keepaliveInterval'),
-          proxy: mergeProxy(config, tab),
+          proxy: getProxy(tab, config),
           ...sessionOptions
         })
         delete opts.terminals

@@ -64,10 +64,7 @@ export default function BookmarkFormUI (props) {
     envLang: defaultEnvLang,
     enableSsh: true,
     sshTunnel: '',
-    category: initBookmarkGroupId,
-    proxy: {
-      proxyType: '5'
-    }
+    category: initBookmarkGroupId
   }
   initialValues = _.defaultsDeep(initialValues, defaultValues)
   function onChangeAuthType (e) {
