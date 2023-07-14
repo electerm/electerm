@@ -5,7 +5,7 @@
 import _ from 'lodash'
 import copy from 'json-deep-copy'
 import {
-  settingMap, packInfo
+  settingMap, packInfo, syncTypes
 } from '../common/constants'
 import { remove, dbNames, insert, update } from '../common/db'
 import fetch from '../common/fetch-from-server'
@@ -49,6 +49,13 @@ export default (Store) => {
   }
 
   Store.prototype.getSyncToken = function (type) {
+    if (type === syncTypes.custom) {
+      return ['AccessToken', 'ApiUrl', 'GistId'].map(
+        p => {
+          return _.get(window.store.config, 'syncSetting.' + type + p)
+        }
+      ).join('####')
+    }
     return _.get(window.store.config, 'syncSetting.' + type + 'AccessToken')
   }
 
@@ -95,7 +102,7 @@ export default (Store) => {
     ).catch(
       store.onError
     )
-    if (res) {
+    if (res && type !== syncTypes.custom) {
       store.updateSyncSetting({
         [type + 'GistId']: res.id,
         [type + 'Url']: res.html_url
@@ -207,9 +214,13 @@ export default (Store) => {
     )
     store.setTheme(userConfig.theme)
     const up = {
-      [type + 'GistId']: gist.id,
-      [type + 'Url']: gist.html_url,
       [type + 'LastSyncTime']: Date.now()
+    }
+    if (type !== syncTypes.custom) {
+      Object.assign(up, {
+        [type + 'GistId']: gist.id,
+        [type + 'Url']: gist.html_url
+      })
     }
     if (pass) {
       up[type + 'SyncPassword'] = pass
