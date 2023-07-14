@@ -100,14 +100,18 @@ export default function SyncForm (props) {
     lastSyncTime = ''
   } = props.formData
   const { syncType } = props
+  const isCustom = syncType === syncTypes.custom
   const timeFormatted = lastSyncTime
     ? dayjs(lastSyncTime).format('YYYY-MM-DD HH:mm:ss')
     : '-'
-
+  const customNameMapper = {
+    token: 'JWT Secret',
+    gist: 'User ID'
+  }
   function createLabel (name, text) {
     return (
       <span>
-        {name}
+        {isCustom ? (customNameMapper[name] || name) : name}
         <HelpIcon link={getTokenCreateGuideUrl()} />
       </span>
     )
