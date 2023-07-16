@@ -145,7 +145,7 @@
     "gist-wrapper": "0.4.1",
     "gitee-client": "0.2.0",
     "https-proxy-agent": "^7.0.1",
-    "json-deep-copy": "1.1.8",
+    "json-deep-copy": "^1.3.0",
     "less": "4.1.1",
     "lodash": "4.17.21",
     "nanoid": "3.1.31",
