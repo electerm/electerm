@@ -4,7 +4,7 @@
 
 const GitHubOri = require('gist-wrapper').default
 const GiteeOri = require('gitee-client').default
-const customSync = require('electerm-sync').default
+const customSync = require('electerm-sync')
 const log = require('../common/log')
 const { createProxyAgent } = require('../lib/proxy-agent')
 
