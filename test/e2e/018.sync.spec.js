@@ -63,7 +63,7 @@ describe('data sync', function () {
     })
     await delay(3000)
 
-    await client.setValue('#sync-input-token-gitee"]', GITEE_TOKEN)
+    await client.setValue('#sync-input-token-gitee', GITEE_TOKEN)
     await client.setValue('#sync-input-gistId-gitee', GITEE_ID)
     await delay(1000)
     await client.click('.setting-wrap .sync-btn-save:visible')
