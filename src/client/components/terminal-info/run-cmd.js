@@ -71,16 +71,17 @@ function formatMem (str) {
   if (!str) {
     return {}
   }
+  const names = ['mem', 'swap']
   return str
     .split('\n')
     .filter(d => d)
     .slice(1)
-    .reduce((p, d) => {
+    .reduce((p, d, i) => {
       const arr = d.split(/\s+/)
       if (!arr[1]) {
         return p
       }
-      p[arr[0].replace(':', '').toLowerCase()] = {
+      p[names[i]] = {
         total: arr[1],
         used: arr[2],
         free: arr[3]

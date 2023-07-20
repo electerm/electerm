@@ -1,11 +1,15 @@
-export function formatBytes (bytes) {
-  if (!bytes) {
+
+export function formatBytes (sizeInKB) {
+  if (!sizeInKB) {
     return ''
   }
+  const units = ['KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
+  let index = 0
 
-  const sizes = ['B', 'KB', 'MB', 'GB', 'TB']
-  const i = Math.floor(Math.log(bytes) / Math.log(1024))
-  const formattedBytes = (bytes / Math.pow(1024, i)).toFixed(2)
+  while (sizeInKB >= 1024 && index < units.length - 1) {
+    sizeInKB /= 1024
+    index++
+  }
 
-  return `${formattedBytes} ${sizes[i]}`
+  return `${sizeInKB.toFixed(2)} ${units[index]}`
 }
