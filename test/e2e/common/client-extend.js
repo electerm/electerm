@@ -18,6 +18,14 @@ module.exports = (client, app) => {
     }
     await s.click()
   }
+  client.elemExist = async (sel) => {
+    try {
+      await client.waitForSelector(sel, { timeout: 0 })
+      return true
+    } catch (error) {
+      return false
+    }
+  }
   client.hasElem = async (sel, target = true) => {
     const s = client.locator(sel)
     const c = await s.count()
