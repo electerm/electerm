@@ -47,4 +47,7 @@ jobs:
         GIST_ID: ${{ secrets.GIST_ID }}
         GITEE_TOKEN: ${{ secrets.GITEE_TOKEN }}
         GITEE_ID: ${{ secrets.GITEE_ID }}
+        CUSTOM_SYNC_URL: ${{ secrets.CUSTOM_SYNC_URL }}
+        CUSTOM_SYNC_USER: ${{ secrets.CUSTOM_SYNC_USER }}
+        CUSTOM_SYNC_SECRET: ${{ secrets.CUSTOM_SYNC_SECRET }}
 

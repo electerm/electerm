@@ -15,7 +15,10 @@ const {
   GIST_ID,
   GIST_TOKEN,
   GITEE_TOKEN,
-  GITEE_ID
+  GITEE_ID,
+  CUSTOM_SYNC_URL,
+  CUSTOM_SYNC_USER,
+  CUSTOM_SYNC_SECRET
 } = process.env
 
 describe('data sync', function () {
@@ -40,8 +43,8 @@ describe('data sync', function () {
     // create theme
     log('save github token / id')
 
-    await client.setValue('#setting-sync-form_token', GIST_TOKEN)
-    await client.setValue('#setting-sync-form_gistId', GIST_ID)
+    await client.setValue('#sync-input-token-github', GIST_TOKEN)
+    await client.setValue('#sync-input-gistId-github', GIST_ID)
     await delay(1000)
     await client.click('.setting-wrap .sync-btn-save')
     await delay(5000)
@@ -60,8 +63,8 @@ describe('data sync', function () {
     })
     await delay(3000)
 
-    await client.setValue('.setting-wrap [placeholder="gitee personal access token"]', GITEE_TOKEN)
-    await client.setValue('.setting-wrap [placeholder="gitee gist id"]', GITEE_ID)
+    await client.setValue('#sync-input-token-gitee', GITEE_TOKEN)
+    await client.setValue('#sync-input-gistId-gitee', GITEE_ID)
     await delay(1000)
     await client.click('.setting-wrap .sync-btn-save:visible')
     await delay(6000)
@@ -71,5 +74,26 @@ describe('data sync', function () {
       return window.store.getBookmarks()
     })
     expect(bks1.length > 3).equal(true)
+
+    log('save custom props')
+
+    await client.click('.setting-wrap [id*="tab-custom"]')
+    await client.evaluate(() => {
+      return window.store.setBookmarks([])
+    })
+    await delay(3000)
+
+    await client.setValue('#sync-input-url-custom', CUSTOM_SYNC_URL)
+    await client.setValue('#sync-input-token-custom', CUSTOM_SYNC_SECRET)
+    await client.setValue('#sync-input-gistId-custom', CUSTOM_SYNC_USER)
+    await delay(1000)
+    await client.click('.setting-wrap .sync-btn-save:visible')
+    await delay(6000)
+    await client.click('.setting-wrap .sync-btn-down:visible')
+    await delay(6000)
+    const bks3 = await client.evaluate(() => {
+      return window.store.getBookmarks()
+    })
+    expect(bks3.length > 3).equal(true)
   })
 })

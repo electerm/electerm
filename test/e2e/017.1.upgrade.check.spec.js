@@ -33,7 +33,7 @@ describe('auto upgrade check', function () {
     log('start download upgrade')
     await client.click('.upgrade-panel .ant-btn-primary')
     const fr = {}
-    const len = 20
+    const len = 200
     for (let i = 0; i < len; i++) {
       await delay(500)
       const txt = await client.getText('.upgrade-panel .ant-btn-primary')

@@ -108,6 +108,10 @@ export default function SyncForm (props) {
     token: 'JWT Secret',
     gist: 'User ID'
   }
+  const otherNameMapper = {
+    token: 'access token',
+    gist: 'gist id'
+  }
   function createLabel (name, text) {
     return (
       <span>
@@ -115,6 +119,15 @@ export default function SyncForm (props) {
         <HelpIcon link={getTokenCreateGuideUrl()} />
       </span>
     )
+  }
+  function createPlaceHolder (name) {
+    if (syncType === syncTypes.custom) {
+      return customNameMapper[name]
+    }
+    return syncType + ' ' + otherNameMapper[name]
+  }
+  function createId (name) {
+    return 'sync-input-' + name + '-' + syncType
   }
   function createUrlItem () {
     if (syncType !== syncTypes.custom) {
@@ -129,7 +142,8 @@ export default function SyncForm (props) {
         }]}
       >
         <Input
-          placeholder=' API Url'
+          placeholder='API Url'
+          id='sync-input-url-custom'
         />
       </FormItem>
     )
@@ -161,11 +175,12 @@ export default function SyncForm (props) {
         rules={[{
           max: 100, message: '100 chars max'
         }, {
-          required: true, message: syncType + ' access token required'
+          required: true, message: createPlaceHolder('token') + ' required'
         }]}
       >
         <Input.Password
-          placeholder={syncType + ' personal access token'}
+          placeholder={createPlaceHolder('token')}
+          id={createId('token')}
         />
       </FormItem>
       <FormItem
@@ -176,7 +191,8 @@ export default function SyncForm (props) {
         }]}
       >
         <Input
-          placeholder={syncType + ' gist id'}
+          placeholder={createPlaceHolder('gistId')}
+          id={createId('gistId')}
         />
       </FormItem>
       <FormItem
