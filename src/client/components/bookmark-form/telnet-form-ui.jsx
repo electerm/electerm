@@ -110,6 +110,14 @@ export default function TelnetFormUI (props) {
       <Tabs>
         <TabPane tab={e('auth')} key='auth' forceRender>
           {renderCommon(tprops)}
+          <FormItem
+            {...formItemLayout}
+            label={e('type')}
+            name='type'
+            className='hide'
+          >
+            <Input />
+          </FormItem>
         </TabPane>
         <TabPane tab={s('settings')} key='settings' forceRender>
           {uis}
