@@ -124,20 +124,29 @@ class Terminal {
   async telnetInit () {
     const { Telnet } = require('telnet-client')
     const connection = new Telnet()
+    const { initOptions } = this
     const params = _.pick(
-      this.initOptions,
+      initOptions,
       [
         'host',
         'port',
         'timeout',
-        'negotiationMandatory',
         'username',
         'password',
         'terminalWidth',
         'terminalHeight'
       ]
     )
-    params.negotiationMandatory = false
+    Object.assign(
+      params,
+      {
+        negotiationMandatory: false,
+        terminalWidth: initOptions.cols,
+        terminalHeight: initOptions.rows,
+        timeout: initOptions.readyTimeout,
+        sendTimeout: initOptions.readyTimeout
+      }
+    )
     await connection.connect(params)
     await connection.shell()
     this.channel = connection
