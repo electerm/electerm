@@ -3,9 +3,11 @@ const {
   resolve
 } = require('path')
 
-const p = resolve(__dirname, '../' + 'build/iTerm2-Color-Schemes')
+const p = resolve(__dirname, '../build/iTerm2-Color-Schemes')
+const run = resolve(__dirname, 'cp-iterm')
 echo('install required modules')
 echo('install iTerm2-Color-Schemes')
 rm('-rf', p)
-exec(`git clone --depth 1 https://github.com/mbadolato/iTerm2-Color-Schemes.git ${p}`)
+
+exec(run)
 echo('done install required modules')
