@@ -17,16 +17,18 @@ exports.parseCommandLine = function (argv, options) {
     .version(version)
     .name('electerm')
     .usage('[options] sshServer')
-    .description(`Connect ssh server from command line, examples:
-     electerm user@xx.com
-     electerm user@xx.com:22
-     electerm -l user -P 22 -i /path/to/private-key -pw password xx.com -T -t "XX Server"
+    .description(`
+### Connect ssh server from command line, examples:
+- electerm user@xx.com
+- electerm user@xx.com:22
+- electerm -l user -P 22 -i /path/to/private-key -pw password xx.com -T -t "XX Server"
 
-     ### other params
+### Other params
 
-     - server port:
-     electerm -sp 30976
-     `)
+- server port:
+electerm -sp 30976
+
+`)
     .option('-t, --title [Tab Name]', 'Specify the title of the new tab')
     .option('-nw, --new-window', 'Open this connection using standalone window')
     .option('-l, --user <user>', 'specify a login name')
