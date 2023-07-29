@@ -17,6 +17,7 @@ exports.createApp = function () {
     app.disableHardwareAcceleration()
   }
   const opts = initCommandLine()?.options
+  global.serverPort = opts?.serverPort
   const useStandAloneWindow = opts?.newWindow
   let gotTheLock = false
   if (!useStandAloneWindow) {
