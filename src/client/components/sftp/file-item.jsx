@@ -980,16 +980,16 @@ export default class FileSection extends React.Component {
       disabled: !canPaste,
       subText: `${ctrlOrCmd}+v`
     })
-    res.push({
-      func: 'onCopyPath',
-      icon: 'CopyOutlined',
-      text: m('copyFilePath')
-    })
     if (id) {
       res.push({
         func: 'doRename',
         icon: 'EditOutlined',
         text: e('rename')
+      })
+      res.push({
+        func: 'onCopyPath',
+        icon: 'CopyOutlined',
+        text: m('copyFilePath')
       })
     }
     res.push({
