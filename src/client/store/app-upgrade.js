@@ -11,7 +11,13 @@ export default Store => {
     }, '*')
   }
   Store.prototype.getProxySetting = function () {
-    const p = window.store.config.proxy
-    return typeof p !== 'string' ? '' : p
+    const {
+      proxy,
+      enableGlobalProxy
+    } = window.store.config
+    if (!enableGlobalProxy) {
+      return ''
+    }
+    return typeof proxy !== 'string' ? '' : proxy
   }
 }
