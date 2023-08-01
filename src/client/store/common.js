@@ -79,4 +79,47 @@ export default Store => {
   Store.prototype.toggleBatchOp = function () {
     window.store.showBatchOp = !window.store.showBatchOp
   }
+
+  Store.prototype.runBatchOp = function (path) {
+    window.store.showBatchOp = true
+    function updateText () {
+      const text = window.pre.readFileSync(path).toString()
+      postMessage({
+        action: commonActions.batchOp,
+        batchOp: {
+          func: 'setState',
+          args: [
+            {
+              text
+            }
+          ]
+        }
+      })
+    }
+    function queue () {
+      postMessage({
+        action: commonActions.batchOp,
+        batchOp: {
+          func: 'handleClick',
+          args: []
+        }
+      })
+    }
+    function run () {
+      postMessage({
+        action: commonActions.batchOp,
+        batchOp: {
+          func: 'handleExec',
+          args: []
+        }
+      })
+    }
+    try {
+      setTimeout(updateText, 2000)
+      setTimeout(queue, 3000)
+      setTimeout(run, 4000)
+    } catch (e) {
+      log.error(e)
+    }
+  }
 }

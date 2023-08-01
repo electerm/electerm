@@ -78,6 +78,9 @@ export async function addTabFromCommandLine (store, opts) {
   if (conf.username && conf.host) {
     store.addTab(conf)
   }
+  if (options && options.batchOp) {
+    window.store.runBatchOp(options.batchOp)
+  }
 }
 
 export default (Store) => {
@@ -179,9 +182,9 @@ export default (Store) => {
   }
   Store.prototype.initCommandLine = async function () {
     const opts = await window.pre.runGlobalAsync('initCommandLine')
-    addTabFromCommandLine(this, opts)
+    addTabFromCommandLine(window.store, opts)
   }
   Store.prototype.addTabFromCommandLine = (event, opts) => {
-    addTabFromCommandLine(this, opts)
+    addTabFromCommandLine(window.store, opts)
   }
 }
