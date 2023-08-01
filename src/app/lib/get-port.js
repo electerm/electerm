@@ -8,8 +8,9 @@ let port = null
 
 function getPort () {
   if (global.serverPort) {
+    port = parseInt(global.serverPort, 10)
     return Promise.resolve(
-      parseInt(global.serverPort, 10)
+      port
     )
   }
   return new Promise((resolve, reject) => {

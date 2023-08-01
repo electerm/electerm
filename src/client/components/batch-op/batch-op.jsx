@@ -48,6 +48,32 @@ export default class BatchOp extends Component {
     tab: 'tasks'
   }
 
+  componentDidMount () {
+    this.watch()
+  }
+
+  componentWillUnmount () {
+    this.unwatch()
+  }
+
+  watch () {
+    window.addEventListener('message', this.handleEvent)
+  }
+
+  unwatch () {
+    window.removeEventListener('message', this.handleEvent)
+  }
+
+  handleEvent = e => {
+    if (e && e.data && e.data.action === commonActions.batchOp) {
+      const {
+        func,
+        args
+      } = e.data.batchOp
+      this[func](...args)
+    }
+  }
+
   onCancel = () => {
     this.props.store.toggleBatchOp()
   }

@@ -262,6 +262,7 @@ export const tabActions = {
 }
 
 export const commonActions = {
+  batchOp: 'batch-op',
   updateStore: 'update-store',
   editWithSystemEditorDone: 'edit-with-system-editor-done',
   editWithSystemEditor: 'edit-with-system-editor',
