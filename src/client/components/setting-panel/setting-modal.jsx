@@ -16,7 +16,11 @@ import TreeList from './bookmark-tree-list'
 import Setting from './setting'
 import SettingCol from './col'
 import SyncSetting from '../setting-sync/setting-sync'
-import { settingMap, settingSyncId } from '../../common/constants'
+import {
+  settingMap,
+  settingSyncId,
+  modals
+} from '../../common/constants'
 
 const { prefix } = window
 const m = prefix('common')
@@ -50,7 +54,7 @@ export default class SettingModal extends Component {
       store,
       formData: settingItem,
       type: settingTab,
-      hide: store.hideModal,
+      hide: store.hideSettingModal,
       ..._.pick(store, [
         'currentBookmarkGroupId',
         'config'
@@ -182,15 +186,16 @@ export default class SettingModal extends Component {
   render () {
     const {
       showModal,
-      hideModal
+      hideSettingModal
     } = this.props.store
-    if (!showModal) {
+    const show = showModal === modals.setting
+    if (!show) {
       return null
     }
     return (
       <Modal
-        onCancel={hideModal}
-        visible={showModal}
+        onCancel={hideSettingModal}
+        visible={show}
       >
         {this.renderTabs()}
       </Modal>

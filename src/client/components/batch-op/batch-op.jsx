@@ -17,7 +17,8 @@ import {
   sidebarWidth,
   statusMap,
   commonActions,
-  batchOpHelpLink
+  batchOpHelpLink,
+  modals
 } from '../../common/constants'
 import HelpIcon from '../common/help-icon'
 import { autoRun } from 'manate'
@@ -615,8 +616,9 @@ export default class BatchOp extends Component {
 
   render () {
     const {
-      showBatchOp
+      showModal
     } = this.props.store
+    const showBatchOp = showModal === modals.batchOps
     const cls = showBatchOp
       ? 'setting-wrap'
       : 'setting-wrap setting-wrap-hide'

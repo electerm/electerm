@@ -56,7 +56,7 @@ export default Store => {
       settingItem: getInitItem([], settingMap.bookmarks),
       autofocustrigger: +new Date()
     })
-    store.openModal()
+    store.openSettingModal()
   }
 
   Store.prototype.onNewWindow = async function () {

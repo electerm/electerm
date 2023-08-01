@@ -59,7 +59,6 @@ export const getInitItem = (arr, tab) => {
 export default {
   // common
   wsInited: false,
-  showBatchOp: false,
   configLoaded: false,
   loadTime: 0,
   lastDataUpdateTime: 0,
@@ -116,7 +115,7 @@ export default {
   settingTab: settingMap.bookmarks, // setting tab
   autofocustrigger: +new Date(),
   bookmarkId: undefined,
-  showModal: false,
+  showModal: 0,
   activeTerminalId: '',
 
   // setting sync related

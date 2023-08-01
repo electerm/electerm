@@ -10,7 +10,8 @@ import generate from '../common/uid'
 import copy from 'json-deep-copy'
 import {
   settingMap,
-  settingCommonId
+  settingCommonId,
+  modals
 } from '../common/constants'
 import { buildNewTheme } from '../common/terminal-theme'
 import getInitItem from '../common/init-setting-item'
@@ -47,7 +48,7 @@ export default Store => {
       settingItem: all[0] || getInitItem([], settingMap.history),
       autofocustrigger: +new Date()
     })
-    store.openModal()
+    store.openSettingModal()
   }
 
   Store.prototype.openBookmarkEdit = function (item) {
@@ -57,7 +58,7 @@ export default Store => {
       settingItem: item,
       autofocustrigger: +new Date()
     })
-    store.openModal()
+    store.openSettingModal()
   }
 
   Store.prototype.openQuickCommandsSetting = function () {
@@ -67,7 +68,7 @@ export default Store => {
       settingItem: getInitItem([], settingMap.quickCommands),
       autofocustrigger: +new Date()
     })
-    store.openModal()
+    store.openSettingModal()
   }
 
   Store.prototype.onSelectHistory = function (id) {
@@ -125,30 +126,32 @@ export default Store => {
     const { store } = window
     if (
       store.settingTab === settingMap.setting &&
-      _.get(store.settingItem, 'id') === settingCommonId
+      _.get(store.settingItem, 'id') === settingCommonId &&
+      store.showModal === modals.setting
     ) {
-      return store.hideModal()
+      return store.hideSettingModal()
     }
     store.storeAssign({
       settingTab: settingMap.setting,
       settingItem: getInitItem([], settingMap.setting)
     })
-    store.openModal()
+    store.openSettingModal()
   }
 
   Store.prototype.openSettingSync = function () {
     const { store } = window
     if (
       store.settingTab === settingMap.setting &&
-      _.get(store.settingItem, 'id') === store.setting[0].id
+      _.get(store.settingItem, 'id') === store.setting[0].id &&
+      store.showModal === modals.setting
     ) {
-      return store.hideModal()
+      return store.hideSettingModal()
     }
     store.storeAssign({
       settingTab: settingMap.setting,
       settingItem: copy(store.setting[0])
     })
-    store.openModal()
+    store.openSettingModal()
   }
 
   Store.prototype.openTerminalThemes = function () {
@@ -157,29 +160,29 @@ export default Store => {
       store.settingTab === settingMap.terminalThemes &&
       _.get(store.settingItem, 'id') === ''
     ) {
-      return store.hideModal()
+      return store.hideSettingModal()
     }
     store.storeAssign({
       settingTab: settingMap.terminalThemes,
       settingItem: buildNewTheme(),
       autofocustrigger: +new Date()
     })
-    store.openModal()
+    store.openSettingModal()
   }
 
-  Store.prototype.openModal = function () {
+  Store.prototype.openSettingModal = function () {
     const { store } = window
     if (store.isSencondInstance) {
       return message.warn(
         m('sencondInstanceTip')
       )
     }
-    store.showModal = true
+    store.showModal = modals.setting
   }
 
-  Store.prototype.hideModal = function () {
+  Store.prototype.hideSettingModal = function () {
     const { store } = window
-    store.showModal = false
+    store.showModal = modals.hide
     store.settingItem = {}
   }
 

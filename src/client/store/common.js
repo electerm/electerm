@@ -7,7 +7,8 @@ import _ from 'lodash'
 import postMessage from '../common/post-msg'
 import {
   commonActions,
-  tabActions
+  tabActions,
+  modals
 } from '../common/constants'
 
 export default Store => {
@@ -77,11 +78,11 @@ export default Store => {
   }
 
   Store.prototype.toggleBatchOp = function () {
-    window.store.showBatchOp = !window.store.showBatchOp
+    window.store.showModal = window.store.showModal === modals.batchOps ? modals.hide : modals.batchOps
   }
 
   Store.prototype.runBatchOp = function (path) {
-    window.store.showBatchOp = true
+    window.store.showModal = modals.batchOps
     function updateText () {
       const text = window.pre.readFileSync(path).toString()
       postMessage({
