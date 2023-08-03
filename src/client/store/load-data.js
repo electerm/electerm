@@ -147,6 +147,7 @@ export default (Store) => {
     store._langs = JSON.stringify(
       globs.langs
     )
+    store.zoom(store.config.zoom, false, true)
     initWsCommon()
   }
   Store.prototype.initData = async function () {

@@ -29,7 +29,9 @@ export default Store => {
     if (zoomOnly) {
       return
     }
-    window.store.config.zoom = nl
+    window.store.updateConfig({
+      zoom: nl
+    })
   }
 
   Store.prototype.onCloseAbout = function (cb) {
