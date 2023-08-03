@@ -13,9 +13,6 @@ export default class ZoomMenu extends Component {
     const { store } = this.props
     return (
       <Group size='small'>
-        <span className='mg1r iblock'>
-          {store.config.zoom * 100}
-        </span>
         <Button onClick={() => store.zoom(0.25, true)}>
           <PlusCircleOutlined />
         </Button>
@@ -23,7 +20,7 @@ export default class ZoomMenu extends Component {
           <MinusCircleOutlined />
         </Button>
         <Button onClick={() => store.zoom()}>
-          100%
+          {store.config.zoom * 100}%
         </Button>
       </Group>
     )
