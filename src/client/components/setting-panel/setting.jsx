@@ -19,7 +19,10 @@ import {
   noTerminalBgValue,
   settingMap,
   rendererTypes,
-  proxyHelpLink
+  proxyHelpLink,
+  isPortable,
+  isWin,
+  exePath
 } from '../../common/constants'
 import defaultSettings from '../../../app/common/default-setting'
 import ShowItem from '../common/show-item'
@@ -30,6 +33,7 @@ import createEditLangLink from '../../common/create-lang-edit-link'
 import mapper from '../../common/auto-complete-data-mapper'
 import StartSession from './start-session-select'
 import HelpIcon from '../common/help-icon'
+import fs from '../../common/fs'
 import './setting.styl'
 
 const { Option } = Select
@@ -578,6 +582,37 @@ export default class Setting extends Component {
     )
   }
 
+  handlePortable = async () => {
+    const {
+      appPath
+    } = this.props
+    const tar = osResolve(exePath, 'data')
+    const cmd = `xcopy /E /I /Q /Y "${appPath}" ${tar}`
+    const x = await fs.run(cmd)
+      .catch(err => {
+        this.props.store.onError(err)
+        return false
+      })
+    if (x !== false) {
+      this.props.store.restart()
+    }
+  }
+
+  renderMakePortable () {
+    if (!isWin || isPortable) {
+      return null
+    }
+    return (
+      <div className='pd1y'>
+        <Button
+          onClick={this.handlePortable}
+        >
+          {e('makeItPortable')}
+        </Button>
+      </div>
+    )
+  }
+
   render () {
     const {
       hotkey,
@@ -778,6 +813,9 @@ export default class Setting extends Component {
         {this.renderToggle('saveTerminalLogToFile', (
           <ShowItem to={terminalLogPath} className='mg1l'>{p('open')}</ShowItem>
         ))}
+        {
+          this.renderMakePortable()
+        }
         {this.renderReset()}
       </div>
     )
