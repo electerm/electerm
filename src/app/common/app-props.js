@@ -12,20 +12,23 @@ function getDataPath () {
   if (!constants.isWin) {
     return defaultValue
   }
-  const exePath = app.getPath('exe')
-  const p = exePath + '\\' + 'data'
+  const exePath = app.getPath('exe').replace('\\\\electerm.exe', '')
+  const p = exePath + '\\' + 'electerm'
   if (
     require('fs').existsSync(
       p
     )
   ) {
     return {
-      appPath: p,
+      appPath: exePath,
       exePath,
       isPortable: true
     }
   }
-  return defaultValue
+  return {
+    ...defaultValue,
+    exePath
+  }
 }
 
 module.exports = {

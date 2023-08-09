@@ -127,7 +127,7 @@
     "zmodem.js": "0.1.10"
   },
   "dependencies": {
-    "@electerm/electerm-locales": "0.17.12",
+    "@electerm/electerm-locales": "0.18.2",
     "@electerm/ssh2": "1.11.2",
     "@electerm/strip-ansi": "1.0.0",
     "@yetzt/nedb": "1.8.0",

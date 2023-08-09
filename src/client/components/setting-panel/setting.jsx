@@ -584,16 +584,22 @@ export default class Setting extends Component {
     const {
       appPath,
       exePath
-    } = this.props
-    const tar = osResolve(exePath, 'data')
-    const cmd = `xcopy /E /I /Q /Y "${appPath}" ${tar}`
-    const x = await fs.run(cmd)
+    } = this.props.store
+    const from = osResolve(appPath, 'electerm', 'users')
+    const tar = osResolve(exePath, 'electerm', 'users')
+    const cmd = `xcopy /E /I /Q /Y "${from}" ${tar}`
+    const x = await fs.runWinCmd(cmd)
       .catch(err => {
         this.props.store.onError(err)
         return false
       })
     if (x !== false) {
-      this.props.store.restart()
+      message.success(
+        `${e('dataTransferedTo')}: ${tar}`
+      )
+      setTimeout(
+        this.props.store.restart, 5000
+      )
     }
   }
 
