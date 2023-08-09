@@ -173,7 +173,8 @@ export default {
   _sshConfigItems: '[]',
 
   appPath: '',
-
+  exePath: '',
+  isPortable: false,
   installSrc: '',
 
   _langs: '[]',

@@ -141,6 +141,8 @@ export default (Store) => {
     window.langMap = globs.langMap
     store.installSrc = globs.installSrc
     store.appPath = globs.appPath
+    store.exePath = globs.exePath
+    store.isPortable = globs.isPortable
     store._config = JSON.stringify(
       globs.config
     )

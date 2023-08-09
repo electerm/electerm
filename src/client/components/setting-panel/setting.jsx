@@ -20,9 +20,7 @@ import {
   settingMap,
   rendererTypes,
   proxyHelpLink,
-  isPortable,
-  isWin,
-  exePath
+  isWin
 } from '../../common/constants'
 import defaultSettings from '../../../app/common/default-setting'
 import ShowItem from '../common/show-item'
@@ -584,7 +582,8 @@ export default class Setting extends Component {
 
   handlePortable = async () => {
     const {
-      appPath
+      appPath,
+      exePath
     } = this.props
     const tar = osResolve(exePath, 'data')
     const cmd = `xcopy /E /I /Q /Y "${appPath}" ${tar}`
@@ -599,6 +598,9 @@ export default class Setting extends Component {
   }
 
   renderMakePortable () {
+    const {
+      isPortable
+    } = this.props.store
     if (!isWin || isPortable) {
       return null
     }

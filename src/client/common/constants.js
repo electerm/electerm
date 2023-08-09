@@ -82,10 +82,8 @@ export const authTypeMap = buildConst([
 export const maxTransferHistory = 100
 export const footerHeight = 36
 export const quickCommandBoxHeight = 180
-export const exePath = window.pre.exePath
 export const isWin = window.pre.isWin
 export const isMac = window.pre.isMac
-export const isPortable = window.pre.isPortable
 export const ctrlOrCmd = isMac ? 'cmd' : 'ctrl'
 export const typeMap = buildConst([
   'remote',
