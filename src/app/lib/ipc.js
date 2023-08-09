@@ -33,7 +33,9 @@ const {
   packInfo,
   appPath,
   isTest,
-  isMac
+  isMac,
+  exePath,
+  isPortable
 } = require('../common/app-props')
 const {
   getScreenSize,
@@ -86,7 +88,9 @@ function initIpc () {
       langs,
       langMap,
       installSrc,
-      appPath
+      appPath,
+      exePath,
+      isPortable
     }
     initApp(langMap, config)
     initShortCut(globalShortcut, global.win, config)

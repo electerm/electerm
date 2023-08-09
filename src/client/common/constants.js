@@ -82,7 +82,6 @@ export const authTypeMap = buildConst([
 export const maxTransferHistory = 100
 export const footerHeight = 36
 export const quickCommandBoxHeight = 180
-
 export const isWin = window.pre.isWin
 export const isMac = window.pre.isMac
 export const ctrlOrCmd = isMac ? 'cmd' : 'ctrl'
