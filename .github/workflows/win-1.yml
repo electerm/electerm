@@ -36,6 +36,8 @@ jobs:
     # before_install:
     # - run: npm install --global --production windows-build-tools --vs2015
     - run: npm install -g yarn
+    - run: npm i -S node-pty@1.1.0-beta2
+    - run: node_modules\\.bin\\electron-rebuild
     - run: npm i
 
     # script:
