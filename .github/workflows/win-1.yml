@@ -33,7 +33,7 @@ jobs:
     - run: mv package.json package1.json
     - run: mv package-lock.json package-lock1.json
     - run: npm i -S node-pty@1.1.0-beta2
-    - run: node_modules\\.bin\\electron-rebuild
+    - run: .\\node_modules\\.bin\\electron-rebuild
     - run: mv package-lock1.json package-lock.json
     - run: mv package1.json package.json
     - run: npm i
