@@ -10,22 +10,16 @@ on:
 jobs:
   build:
 
-    runs-on: ${{ matrix.os }}
+    runs-on: windows-2022
     environment: build
     if: "!contains(github.event.head_commit.message, '[skip build]') && !contains(github.event.head_commit.message, '[skip ci]') && !contains(github.event.head_commit.message, '[skip win]')"
 
-    strategy:
-      matrix:
-        os: [windows-2022]
-        node-version: [ 16.x ]
-        python-version: ['3.7']
-
     steps:
     - uses: actions/checkout@v3
-    - name: Use Node.js ${{ matrix.node-version }}
+    - name: Use Node.js 16.x
       uses: actions/setup-node@v3
       with:
-        node-version: ${{ matrix.node-version }}
+        node-version: 16.x
 
     - uses: actions/setup-python@v4
       with:

@@ -10,21 +10,16 @@ on:
 jobs:
   build:
 
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-20.04
     environment: build
     if: "!contains(github.event.head_commit.message, '[skip build]') && !contains(github.event.head_commit.message, '[skip ci]') && !contains(github.event.head_commit.message, '[skip linux]') && !contains(github.event.head_commit.message, '[skip linux2]')"
 
-    strategy:
-      matrix:
-        os: [ubuntu-20.04]
-        node-version: [ 16.x ]
-
     steps:
     - uses: actions/checkout@v3
-    - name: Use Node.js ${{ matrix.node-version }}
+    - name: Use Node.js 16.x
       uses: actions/setup-node@v3
       with:
-        node-version: ${{ matrix.node-version }}
+        node-version: 16.x
 
     # - name: xvfb
     #   uses: GabrielBB/xvfb-action@v1

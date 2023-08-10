@@ -10,21 +10,16 @@ on:
 jobs:
   build:
 
-    runs-on: ${{ matrix.os }}
+    runs-on: macos-11
     environment: build
     if: "!contains(github.event.head_commit.message, '[skip test]') && !contains(github.event.head_commit.message, '[skip ci]') && !contains(github.event.head_commit.message, '[skip mac]') && !contains(github.event.head_commit.message, '[skip test2]')"
 
-    strategy:
-      matrix:
-        os: [macos-11]
-        node-version: [ 16.x ]
-
     steps:
     - uses: actions/checkout@v3
-    - name: Use Node.js ${{ matrix.node-version }}
+    - name: Use Node.js 16.x
       uses: actions/setup-node@v3
       with:
-        node-version: ${{ matrix.node-version }}
+        node-version: 16.x
 
     # before_install:
     - run: npm install -g yarn

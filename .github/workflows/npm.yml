@@ -6,13 +6,9 @@ on:
     branches: [ test-npm ]
 jobs:
   test-and-release-npm:
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-20.04
     environment: build
     if: "!contains(github.event.head_commit.message, '[skip ci]') && !contains(github.event.head_commit.message, '[skip npm]')"
-    strategy:
-      matrix:
-        os: [ubuntu-20.04]
-        node-version: [ 16.x ]
     steps:
       - name: Checkout
         uses: actions/checkout@v3

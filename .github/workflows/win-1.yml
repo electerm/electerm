@@ -10,22 +10,16 @@ on:
 jobs:
   build:
 
-    runs-on: ${{ matrix.os }}
+    runs-on: windows-2022
     environment: build
     if: "!contains(github.event.head_commit.message, '[skip build]') && !contains(github.event.head_commit.message, '[skip ci]') && !contains(github.event.head_commit.message, '[skip win]')"
 
-    strategy:
-      matrix:
-        os: [windows-2022]
-        node-version: [ 16.x ]
-        python-version: ['3.7']
-
     steps:
     - uses: actions/checkout@v3
-    - name: Use Node.js ${{ matrix.node-version }}
+    - name: Use Node.js 16.x
       uses: actions/setup-node@v3
       with:
-        node-version: ${{ matrix.node-version }}
+        node-version: 16.x
 
     - uses: actions/setup-python@v4
       with:
@@ -36,8 +30,12 @@ jobs:
     # before_install:
     # - run: npm install --global --production windows-build-tools --vs2015
     - run: npm install -g yarn
+    - run: mv package.json package1.json
+    - run: mv package-lock.json package-lock1.json
     - run: npm i -S node-pty@1.1.0-beta2
     - run: node_modules\\.bin\\electron-rebuild
+    - run: mv package-lock1.json package-lock.json
+    - run: mv package1.json package.json
     - run: npm i
 
     # script:
