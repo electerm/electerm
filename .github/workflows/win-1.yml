@@ -30,13 +30,10 @@ jobs:
     # before_install:
     # - run: npm install --global --production windows-build-tools --vs2015
     - run: npm install -g yarn
-    - run: mv package.json package1.json
-    - run: mv package-lock.json package-lock1.json
-    - run: npm i -S node-pty@1.1.0-beta2
-    - run: .\\node_modules\\.bin\\electron-rebuild
-    - run: mv package-lock1.json package-lock.json
-    - run: mv package1.json package.json
+    - run: npm un node-pty serialport
     - run: npm i
+    - run: npm i -S node-pty@1.1.0-beta2
+    - run: npm i -S serialport@10.4.0
 
     # script:
     - run: npm run prepare-build
