@@ -10,22 +10,16 @@ on:
 jobs:
   build:
 
-    runs-on: ${{ matrix.os }}
+    runs-on: windows-2022
     environment: build
     if: "!contains(github.event.head_commit.message, '[skip build]') && !contains(github.event.head_commit.message, '[skip ci]') && !contains(github.event.head_commit.message, '[skip win]')"
 
-    strategy:
-      matrix:
-        os: [windows-2022]
-        node-version: [ 16.x ]
-        python-version: ['3.7']
-
     steps:
     - uses: actions/checkout@v3
-    - name: Use Node.js ${{ matrix.node-version }}
+    - name: Use Node.js 16.x
       uses: actions/setup-node@v3
       with:
-        node-version: ${{ matrix.node-version }}
+        node-version: 16.x
 
     - uses: actions/setup-python@v4
       with:
@@ -36,7 +30,10 @@ jobs:
     # before_install:
     # - run: npm install --global --production windows-build-tools --vs2015
     - run: npm install -g yarn
+    - run: npm un node-pty serialport
     - run: npm i
+    - run: npm i -S -E node-pty@1.1.0-beta2
+    - run: npm i -S -E serialport@10.4.0
 
     # script:
     - run: npm run prepare-build
