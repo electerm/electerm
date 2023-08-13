@@ -111,9 +111,7 @@ function initIpc () {
   }
 
   ipcMain.on('sync-func', (event, { name, args }) => {
-    const f = ipcSyncFuncs[name](...args)
-    console.log(name, ...args, f)
-    event.returnValue = f
+    event.returnValue = ipcSyncFuncs[name](...args)
   })
   const asyncGlobals = {
     loadSshConfig,
