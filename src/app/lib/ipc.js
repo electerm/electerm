@@ -11,6 +11,7 @@ const {
   globalShortcut,
   shell
 } = require('electron')
+const ipcSyncFuncs = require('./ipc-sync')
 const { dbAction } = require('./nedb')
 const { listItermThemes } = require('./iterm-theme')
 const installSrc = require('./install-src')
@@ -32,7 +33,6 @@ const lastStateManager = require('./last-state')
 const {
   packInfo,
   appPath,
-  isTest,
   isMac,
   exePath,
   isPortable
@@ -109,25 +109,9 @@ function initIpc () {
       x === sx &&
       y === sy
   }
-  const syncFuncs = {
-    getArgs: () => {
-      return global.rawArgs
-    },
-    getLoadTime: () => {
-      return global.loadTime
-        ? { loadTime: global.loadTime }
-        : { initTime: global.initTime }
-    },
-    setLoadTime: (loadTime) => {
-      global.loadTime = loadTime
-    },
-    isMaximized,
-    isSencondInstance: () => {
-      return isTest ? false : global.app.isSencondInstance
-    }
-  }
+
   ipcMain.on('sync-func', (event, { name, args }) => {
-    event.returnValue = syncFuncs[name](...args)
+    event.returnValue = ipcSyncFuncs[name](...args)
   })
   const asyncGlobals = {
     loadSshConfig,
