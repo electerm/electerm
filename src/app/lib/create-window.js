@@ -30,7 +30,7 @@ exports.createWindow = async function () {
     transparent: !useSystemTitleBar,
     backgroundColor: '#33333300',
     webPreferences: {
-      contextIsolation: false,
+      contextIsolation: true,
       nodeIntegration: false,
       enableRemoteModule: false,
       preload: resolve(__dirname, '../preload/preload.js')

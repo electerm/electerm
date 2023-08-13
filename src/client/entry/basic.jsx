@@ -3,6 +3,7 @@
  */
 import '../css/basic.styl'
 import _ from 'lodash'
+import '../common/pre'
 
 async function loadWorker () {
   return new Promise((resolve) => {
