@@ -20,7 +20,7 @@ async function loadLocales () {
     '../node_modules/@electerm/electerm-locales/dist'
   const localeFolder = resolve(__dirname, path)
   // languages array
-  const langs = fs.readdirSync(localeFolder)
+  const langs = require(resolve(localeFolder, 'list.json'))
     .map(fileName => {
       const filePath = resolve(localeFolder, fileName)
       const lang = require(filePath)
