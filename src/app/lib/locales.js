@@ -3,7 +3,6 @@
  */
 
 const { isDev, defaultLang } = require('../common/runtime-constants')
-const fs = require('fs')
 const { resolve } = require('path')
 
 function getOsLocale () {
