@@ -8,7 +8,7 @@ const {
 } = require('electron')
 const log = require('../common/log')
 const contants = require('../common/runtime-constants')
-const lookup = require('../common/lookup')
+
 const { transferKeys } = require('../server/transfer')
 const os = require('os')
 const {
@@ -50,7 +50,6 @@ module.exports = {
   },
   resolve: (...args) => require('path').resolve(...args),
   showItemInFolder: (href) => shell.showItemInFolder(href),
-  lookup,
   openExternal: (url) => shell.openExternal(url),
   getArgs: () => {
     return global.rawArgs

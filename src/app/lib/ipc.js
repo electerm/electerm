@@ -49,6 +49,7 @@ const initApp = require('./init-app')
 const { encryptAsync, decryptAsync } = require('./enc')
 const { initCommandLine } = require('./command-line')
 const { watchFile, unwatchFile } = require('./watch-file')
+const lookup = require('../common/lookup')
 
 function initIpc () {
   global.win.on('move', () => {
@@ -114,6 +115,7 @@ function initIpc () {
     event.returnValue = ipcSyncFuncs[name](...args)
   })
   const asyncGlobals = {
+    lookup,
     loadSshConfig,
     openNewInstance,
     init,

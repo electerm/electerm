@@ -79,7 +79,7 @@ export default class BookmarkForm extends PureComponent {
     ) {
       return
     }
-    const ip = await window.pre.lookup(value)
+    const ip = await window.pre.runGlobalAsync('lookup', value)
       .catch(err => {
         log.debug(err)
       })

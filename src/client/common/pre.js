@@ -79,8 +79,8 @@ window.log = {
   info: (...args) => runSync('info', ...args)
 }
 window.pre = {
-  readFileSync: (path) => {
-    return runSync('readFileSync', path)
+  readFileSync: (...args) => {
+    return runSync('readFileSync', ...args)
   },
 
   readClipboard: () => {
@@ -99,7 +99,6 @@ window.pre = {
 
   getZoomFactor,
   setZoomFactor,
-  lookup: (...args) => runSync('lookup', ...args),
   openExternal: (url) => runSync('openExternal', url),
 
   osInfo: () => runSync('osInfo'),
