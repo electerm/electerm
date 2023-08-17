@@ -39,8 +39,8 @@ module.exports = {
   error: (...args) => log.error(...args),
   info: (...args) => log.info(...args),
 
-  readFileSync: (path) => {
-    return require('fs').readFileSync(path)
+  readFileSync: (...args) => {
+    return require('fs').readFileSync(...args).toString()
   },
   readClipboard: () => {
     return clipboard.readText()
