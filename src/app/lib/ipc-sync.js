@@ -46,11 +46,15 @@ module.exports = {
     return clipboard.readText()
   },
   writeClipboard: str => {
-    return clipboard.writeText(str)
+    clipboard.writeText(str)
   },
   resolve: (...args) => require('path').resolve(...args),
-  showItemInFolder: (href) => shell.showItemInFolder(href),
-  openExternal: (url) => shell.openExternal(url),
+  showItemInFolder: (href) => {
+    shell.showItemInFolder(href)
+  },
+  openExternal: (url) => {
+    shell.openExternal(url)
+  },
   getArgs: () => {
     return global.rawArgs
   },
