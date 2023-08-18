@@ -22,10 +22,6 @@ module.exports = [
     ]
   },
   {
-    test: /\.less$/,
-    use: 'null-loader'
-  },
-  {
     test: /xterm\.css$/,
     use: [
       {
