@@ -14,15 +14,6 @@ import {
 import fetch from '../common/fetch'
 import copy from 'json-deep-copy'
 
-function configToLessConfig (conf) {
-  return Object.keys(conf).reduce((p, k) => {
-    return {
-      ...p,
-      ['@' + k]: conf[k]
-    }
-  }, {})
-}
-
 export default Store => {
   Store.prototype.toCss = async function (stylus) {
     const { host, port } = window._config
@@ -57,8 +48,7 @@ export default Store => {
       const v = config[key]
       stylus = stylus.replace(reg, `${key} = ${v}\n`)
     }
-    const lessConf = configToLessConfig(config)
-    return window.pre.runGlobalAsync('toCss', stylus, lessConf)
+    return window.pre.runGlobalAsync('toCss', stylus)
   }
 
   Store.prototype.getUiThemeConfig = function () {
