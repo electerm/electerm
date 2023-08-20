@@ -36,6 +36,32 @@ import {
   paneMap
 } from '../common/constants'
 import getInitItem from '../common/init-setting-item'
+import {
+  theme
+} from 'antd'
+
+function expandShorthandColor (color) {
+  if (color.length === 4) {
+    return '#' + color[1] + color[1] + color[2] + color[2] + color[3] + color[3];
+  }
+  return color
+}
+
+function isColorDark (_color) {
+  let color = expandShorthandColor(_color)
+  if (color.charAt(0) === '#') {
+    color = color.slice(1) // Remove the '#' if present
+  }
+  const r = parseInt(color.substr(0, 2), 16)
+  const g = parseInt(color.substr(2, 2), 16)
+  const b = parseInt(color.substr(4, 2), 16)
+
+  // Formula to determine brightness
+  const brightness = (r * 299 + g * 587 + b * 114) / 1000
+
+  // Decide based on brightness threshold
+  return brightness < 128 // You can adjust this threshold as needed
+}
 
 class Store {
   constructor () {
@@ -227,6 +253,25 @@ class Store {
 
   get upgradeInfo () {
     return JSON.parse(window.store._upgradeInfo)
+  }
+
+  get uiThemeConfig () {
+    const { store } = window
+    const themeConf = store.getUiThemeConfig()
+    return {
+      token: {
+        borderRadius: 3,
+        colorPrimary: themeConf.primary,
+        colorBgBase: themeConf.main,
+        colorError: themeConf.error,
+        colorInfo: themeConf.info,
+        colorSuccess: themeConf.success,
+        colorWarning: themeConf.warn,
+        colorTextBase: themeConf.text,
+        colorLink: themeConf['text-light']
+      },
+      algorithm: isColorDark(themeConf.main) ? theme.darkAlgorithm : theme.defaultAlgorithm
+    }
   }
 }
 

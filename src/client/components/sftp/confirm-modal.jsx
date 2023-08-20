@@ -160,7 +160,7 @@ export default (props) => {
     )
   }
   const modalProps = {
-    visible: true,
+    open: true,
     width: 500,
     title: e('fileConflict'),
     footer: renderFooter(),

@@ -17,8 +17,5 @@ module.exports = {
     devServer.app.use('/node_modules', express.static(
       path.resolve(__dirname, '../node_modules'), { maxAge: '170d' })
     )
-    devServer.app.use('/less', express.static(
-      path.resolve(__dirname, '../src/client/css'), { maxAge: '170d' })
-    )
   }
 }

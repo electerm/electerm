@@ -1208,7 +1208,7 @@ export default class Term extends Component {
       title: f(passType) + '?',
       content: this.renderPasswordForm(),
       onCancel: this.onCancel,
-      visible: this.state.promoteModalVisible,
+      show: this.state.promoteModalVisible,
       footer: this.renderModalFooter(),
       cancelText: c('cancel')
     }

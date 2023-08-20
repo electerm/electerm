@@ -5,7 +5,7 @@ import {
   Tabs
 } from 'antd'
 import { sshTunnelHelpLink } from '../../common/constants'
-import helpIcon from '../common/help-icon'
+import HelpIcon from '../common/help-icon'
 
 const { TabPane } = Tabs
 const { prefix } = window
@@ -18,7 +18,7 @@ export default function renderTabs (props) {
   const tunnelTag = (
     <span>
       {h('sshTunnel')}
-      <helpIcon
+      <HelpIcon
         link={sshTunnelHelpLink}
       />
     </span>

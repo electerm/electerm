@@ -644,7 +644,7 @@ export default class Setting extends Component {
             value={modifier}
             onChange={this.onChangeModifier}
             className='iblock width100'
-            dropdownMatchSelectWidth={false}
+            popupMatchSelectWidth={false}
             showSearch
           >
             {
@@ -656,7 +656,7 @@ export default class Setting extends Component {
             value={key}
             className='iblock width100'
             onChange={this.onChangeKey}
-            dropdownMatchSelectWidth={false}
+            popupMatchSelectWidth={false}
             showSearch
           >
             {
@@ -708,7 +708,7 @@ export default class Setting extends Component {
           <span className='inline-title mg1r'>{e('terminalTheme')}</span>
           <Select
             onChange={this.onChangeTerminalTheme}
-            dropdownMatchSelectWidth={false}
+            popupMatchSelectWidth={false}
             value={theme}
           >
             {
@@ -726,7 +726,7 @@ export default class Setting extends Component {
           <Select
             onChange={this.onChangeLang}
             value={language}
-            dropdownMatchSelectWidth={false}
+            popupMatchSelectWidth={false}
           >
             {
               langs.map(l => {
@@ -749,7 +749,7 @@ export default class Setting extends Component {
           <Select
             onChange={v => this.onChangeValue(v, 'rendererType')}
             value={rendererType}
-            dropdownMatchSelectWidth={false}
+            popupMatchSelectWidth={false}
           >
             {
               Object.keys(rendererTypes).map(id => {

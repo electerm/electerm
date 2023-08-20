@@ -16,10 +16,14 @@ import classnames from 'classnames'
 import { isMac, isWin } from '../../common/constants'
 import TermFullscreenControl from './term-fullscreen-control'
 import { LoadingUI } from './loading'
+import { ConfigProvider, notification } from 'antd'
 import './wrapper.styl'
 
 export default class Index extends Component {
   componentDidMount () {
+    notification.config({
+      placement: 'bottomRight'
+    })
     const { store } = this.props
     window.addEventListener('resize', store.onResize)
     store.onResize()
@@ -61,7 +65,8 @@ export default class Index extends Component {
       pinnedQuickCommandBar,
       wsInited,
       upgradeInfo,
-      installSrc
+      installSrc,
+      uiThemeConfig
     } = store
     const cls = classnames({
       loaded: configLoaded,
@@ -95,44 +100,48 @@ export default class Index extends Component {
       }
     }
     return (
-      <div {...ext1}>
-        <LoadingUI
-          wsInited={wsInited}
-        />
-        <TermFullscreenControl
-          terminalFullScreen={terminalFullScreen}
-        />
-        <CssOverwrite
-          {...confsCss}
-          wsInited={wsInited}
-        />
-        <TerminalInteractive />
-        <UiTheme
-          {...themeProps}
-          buildTheme={store.buildTheme}
-        />
-        <TextEditor />
-        <UpdateCheck
-          skipVersion={cpConf.skipVersion}
-          upgradeInfo={upgradeInfo}
-          installSrc={installSrc}
-        />
-        <FileInfoModal />
-        <FileModeModal />
-        <SettingModal store={store} />
-        <BatchOp store={store} />
-        <div
-          id='outside-context'
-          {...outerProps}
-        >
-          <Sidebar store={store} />
-          <Sessions
-            store={store}
-            config={cpConf}
+      <ConfigProvider
+        theme={uiThemeConfig}
+      >
+        <div {...ext1}>
+          <LoadingUI
+            wsInited={wsInited}
           />
+          <TermFullscreenControl
+            terminalFullScreen={terminalFullScreen}
+          />
+          <CssOverwrite
+            {...confsCss}
+            wsInited={wsInited}
+          />
+          <TerminalInteractive />
+          <UiTheme
+            {...themeProps}
+            buildTheme={store.buildTheme}
+          />
+          <TextEditor />
+          <UpdateCheck
+            skipVersion={cpConf.skipVersion}
+            upgradeInfo={upgradeInfo}
+            installSrc={installSrc}
+          />
+          <FileInfoModal />
+          <FileModeModal />
+          <SettingModal store={store} />
+          <BatchOp store={store} />
+          <div
+            id='outside-context'
+            {...outerProps}
+          >
+            <Sidebar store={store} />
+            <Sessions
+              store={store}
+              config={cpConf}
+            />
+          </div>
+          <ContextMenu store={store} />
         </div>
-        <ContextMenu store={store} />
-      </div>
+      </ConfigProvider>
     )
   }
 }

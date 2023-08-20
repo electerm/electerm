@@ -109,7 +109,7 @@ export default class InfoModal extends Component {
       okText: c('ok'),
       onCancel: onCloseAbout,
       footer: null,
-      visible: true,
+      open: true,
       wrapClassName: 'info-modal'
     }
     return (
