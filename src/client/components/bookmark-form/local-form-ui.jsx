@@ -23,7 +23,6 @@ import useQm from './use-quick-commands'
 import copy from 'json-deep-copy'
 import _ from 'lodash'
 
-const { TabPane } = Tabs
 const FormItem = Form.Item
 const { prefix } = window
 const e = prefix('form')
@@ -132,18 +131,30 @@ export default function LocalFormUi (props) {
   }
 
   function renderTabs () {
+    const items = [
+      {
+        key: 'auth',
+        label: e('auth'),
+        forceRender: true,
+        children: renderCommon()
+      },
+      {
+        key: 'settings',
+        label: s('settings'),
+        forceRender: true,
+        children: uis
+      },
+      {
+        key: 'quickCommands',
+        forceRender: true,
+        label: e('quickCommands'),
+        children: qms
+      }
+    ]
     return (
-      <Tabs>
-        <TabPane tab={e('auth')} key='auth' forceRender>
-          {renderCommon()}
-        </TabPane>
-        <TabPane tab={s('settings')} key='settings' forceRender>
-          {uis}
-        </TabPane>
-        <TabPane tab={e('quickCommands')} key='quickCommands' forceRender>
-          {qms}
-        </TabPane>
-      </Tabs>
+      <Tabs
+        items={items}
+      />
     )
   }
 

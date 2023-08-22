@@ -8,9 +8,6 @@ import TransportHistory from './transfer-history-modal'
 const { prefix } = window
 const e = prefix('sftp')
 const t = prefix('transferHistory')
-const {
-  TabPane
-} = Tabs
 
 export default class TransferModal extends Component {
   renderTransfer = () => {
@@ -57,7 +54,13 @@ export default class TransferModal extends Component {
     const activeTab = tabs.map(d => d.id).includes(transferTab)
       ? transferTab
       : tabs[0].id
-
+    const items = tabs.map(tab => {
+      return {
+        key: tab.id,
+        label: tab.title,
+        children: tab.render()
+      }
+    })
     return (
       <div
         className='pd1'
@@ -65,20 +68,8 @@ export default class TransferModal extends Component {
         <Tabs
           activeKey={activeTab}
           onChange={handleTransferTab}
-        >
-          {
-            tabs.map(tab => {
-              return (
-                <TabPane
-                  key={tab.id}
-                  tab={tab.title}
-                >
-                  {tab.render()}
-                </TabPane>
-              )
-            })
-          }
-        </Tabs>
+          items={items}
+        />
       </div>
     )
   }

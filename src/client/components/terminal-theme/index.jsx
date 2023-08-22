@@ -110,7 +110,7 @@ export default function ThemeForm (props) {
           id
             ? (
               <Button
-                type='ghost'
+                type='dashed'
                 onClick={exporter}
               >{t('export')}</Button>
             )
@@ -154,7 +154,7 @@ export default function ThemeForm (props) {
             className='mg1b'
           >
             <Button
-              type='ghost'
+              type='dashed'
               disabled={disabled}
             >
               {e('importFromFile')}
@@ -174,7 +174,7 @@ export default function ThemeForm (props) {
                   className='mg1r mg1b'
                 >{t('saveAndApply')}</Button>
                 <Button
-                  type='ghost'
+                  type='dashed'
                   className='mg1r mg1b'
                   onClick={saveOnly}
                 >{e('save')}</Button>

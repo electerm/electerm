@@ -23,7 +23,6 @@ import copy from 'json-deep-copy'
 import _ from 'lodash'
 import './bookmark-form.styl'
 
-const { TabPane } = Tabs
 const FormItem = Form.Item
 const { prefix } = window
 const e = prefix('form')
@@ -106,28 +105,40 @@ export default function TelnetFormUI (props) {
   }
 
   function renderTabs () {
+    const items = [
+      {
+        key: 'auth',
+        label: e('auth'),
+        forceRender: true,
+        children: (
+          <div>
+            {renderCommon(tprops)}
+            <FormItem {...formItemLayout} label={e('type')} name='type' className='hide'>
+              <Input />
+            </FormItem>
+          </div>
+        )
+      },
+      {
+        key: 'settings',
+        label: s('settings'),
+        forceRender: true,
+        children: uis
+      },
+      {
+        key: 'quickCommands',
+        label: e('quickCommands'),
+        forceRender: true,
+        children: qms
+      }
+    ]
     return (
-      <Tabs>
-        <TabPane tab={e('auth')} key='auth' forceRender>
-          {renderCommon(tprops)}
-          <FormItem
-            {...formItemLayout}
-            label={e('type')}
-            name='type'
-            className='hide'
-          >
-            <Input />
-          </FormItem>
-        </TabPane>
-        <TabPane tab={s('settings')} key='settings' forceRender>
-          {uis}
-        </TabPane>
-        <TabPane tab={e('quickCommands')} key='quickCommands' forceRender>
-          {qms}
-        </TabPane>
-      </Tabs>
+      <Tabs
+        items={items}
+      />
     )
   }
+
   return (
     <Form
       form={form}

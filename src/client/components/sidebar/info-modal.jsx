@@ -28,7 +28,6 @@ const m = prefix('menu')
 const c = prefix('common')
 const a = prefix('app')
 const s = prefix('setting')
-const { TabPane } = Tabs
 
 export default class InfoModal extends Component {
   onChangeTab = key => {
@@ -112,118 +111,136 @@ export default class InfoModal extends Component {
       open: true,
       wrapClassName: 'info-modal'
     }
+    const items = [
+      {
+        key: infoTabs.info,
+        label: m('about'),
+        children: (
+          <div>
+            <LogoElelm />
+            <p className='mg2b'>{a('desc')}</p>
+            <p className='mg1b'>
+              => <b className='mg1r'>{e('author')}:</b>
+              <Link to={authorUrl} className='mg1l'>
+                <UserOutlined /> {authorName} ({email})
+              </Link>
+            </p>
+            <p className='mg1b'>
+              => <b>{e('homepage')}/{e('download')}:</b>
+              <Link to={homepage} className='mg1l'>
+                <HomeOutlined /> {homepage}
+              </Link>
+            </p>
+            <p className='mg1b'>
+              => <b className='mg1r'>github:</b>
+              <Link to={link} className='mg1l'>
+                <GithubOutlined /> {link}
+              </Link>
+            </p>
+            <p className='mg1b'>
+              => <b className='mg1r'>{s('language')} repo:</b>
+              <Link to={langugeRepo} className='mg1l'>
+                <GlobalOutlined /> {langugeRepo}
+              </Link>
+            </p>
+            <p className='mg1b'>
+              => <b className='mg1r'>{e('bugReport')}:</b>
+              <Link to={bugReportLink} className='mg1l'>
+                <BugOutlined /> {bugReportLink}
+              </Link>
+            </p>
+            <p className='mg1b'>
+              => <b className='mg1r'>Changelog:</b>
+              <Link to={releaseLink} className='mg1l'>
+                <HighlightOutlined /> {releaseLink}
+              </Link>
+            </p>
+            <p className='mg1b'>
+              => <b className='mg1r'>Known issues:</b>
+              <Link to={knownIssuesLink} className='mg1l'>
+                <AlignLeftOutlined /> {knownIssuesLink}
+              </Link>
+            </p>
+            <p className='mg1b'>
+              => <b className='mg1r'>Privacy notice:</b>
+              <Link to={privacyNoticeLink} className='mg1l'>
+                <WarningOutlined /> {privacyNoticeLink}
+              </Link>
+            </p>
+            {this.renderCheckUpdate()}
+          </div>
+        )
+      },
+      {
+        key: infoTabs.deps,
+        label: e('dependencies'),
+        children: Object.keys(deps).map((k, i) => {
+          const v = deps[k]
+          return (
+            <div className='pd1b' key={i + '_dp_' + k}>
+              <b className='bold'>{k}</b>:
+              <span className='mg1l'>
+                {v}
+              </span>
+            </div>
+          )
+        })
+      },
+      {
+        key: infoTabs.env,
+        label: e('env'),
+        children: Object.keys(envs).map((k, i) => {
+          const v = envs[k]
+          return (
+            <div className='pd1b' key={i + '_env_' + k}>
+              <b className='bold'>{k}</b>:
+              <span className='mg1l'>
+                {v}
+              </span>
+            </div>
+          )
+        })
+      },
+      {
+        key: infoTabs.os,
+        label: e('os'),
+        children: window.pre.osInfo().map(({ k, v }, i) => {
+          return (
+            <div className='pd1b' key={i + '_os_' + k}>
+              <b className='bold'>{k}</b>:
+              <span className='mg1l'>
+                {v}
+              </span>
+            </div>
+          )
+        })
+      },
+      {
+        key: infoTabs.log,
+        label: e('log'),
+        children: <LogView />
+      },
+      {
+        key: infoTabs.cmd,
+        label: e('commandLineUsage'),
+        children: (
+          <pre>
+            <code>{commandLineHelp}</code>
+          </pre>
+        )
+      }
+    ]
+
     return (
       <Modal
         {...attrs}
       >
         <div className='about-wrap'>
-          <Tabs activeKey={infoModalTab} onChange={this.onChangeTab}>
-            <TabPane tab={m('about')} key={infoTabs.info}>
-              <LogoElelm />
-              <p className='mg2b'>{a('desc')}</p>
-              <p className='mg1b'>
-                => <b className='mg1r'>{e('author')}:</b>
-                <Link to={authorUrl} className='mg1l'>
-                  <UserOutlined /> {authorName} ({email})
-                </Link>
-              </p>
-              <p className='mg1b'>
-                => <b>{e('homepage')}/{e('download')}:</b>
-                <Link to={homepage} className='mg1l'>
-                  <HomeOutlined /> {homepage}
-                </Link>
-              </p>
-              <p className='mg1b'>
-                => <b className='mg1r'>github:</b>
-                <Link to={link} className='mg1l'>
-                  <GithubOutlined /> {link}
-                </Link>
-              </p>
-              <p className='mg1b'>
-                => <b className='mg1r'>{s('language')} repo:</b>
-                <Link to={langugeRepo} className='mg1l'>
-                  <GlobalOutlined /> {langugeRepo}
-                </Link>
-              </p>
-              <p className='mg1b'>
-                => <b className='mg1r'>{e('bugReport')}:</b>
-                <Link to={bugReportLink} className='mg1l'>
-                  <BugOutlined /> {bugReportLink}
-                </Link>
-              </p>
-              <p className='mg1b'>
-                => <b className='mg1r'>Changelog:</b>
-                <Link to={releaseLink} className='mg1l'>
-                  <HighlightOutlined /> {releaseLink}
-                </Link>
-              </p>
-              <p className='mg1b'>
-                => <b className='mg1r'>Known issues:</b>
-                <Link to={knownIssuesLink} className='mg1l'>
-                  <AlignLeftOutlined /> {knownIssuesLink}
-                </Link>
-              </p>
-              <p className='mg1b'>
-                => <b className='mg1r'>Privacy notice:</b>
-                <Link to={privacyNoticeLink} className='mg1l'>
-                  <WarningOutlined /> {privacyNoticeLink}
-                </Link>
-              </p>
-              {this.renderCheckUpdate()}
-            </TabPane>
-            <TabPane tab={e('dependencies')} key={infoTabs.deps}>
-              {
-                Object.keys(deps).map((k, i) => {
-                  const v = deps[k]
-                  return (
-                    <div className='pd1b' key={i + '_dp_' + k}>
-                      <b className='bold'>{k}</b>:
-                      <span className='mg1l'>
-                        {v}
-                      </span>
-                    </div>
-                  )
-                })
-              }
-            </TabPane>
-            <TabPane tab={e('env')} key={infoTabs.env}>
-              {
-                Object.keys(envs).map((k, i) => {
-                  const v = envs[k]
-                  return (
-                    <div className='pd1b' key={i + '_env_' + k}>
-                      <b className='bold'>{k}</b>:
-                      <span className='mg1l'>
-                        {v}
-                      </span>
-                    </div>
-                  )
-                })
-              }
-            </TabPane>
-            <TabPane tab={e('os')} key={infoTabs.os}>
-              {
-                window.pre.osInfo().map(({ k, v }, i) => {
-                  return (
-                    <div className='pd1b' key={i + '_os_' + k}>
-                      <b className='bold'>{k}</b>:
-                      <span className='mg1l'>
-                        {v}
-                      </span>
-                    </div>
-                  )
-                })
-              }
-            </TabPane>
-            <TabPane tab={e('log')} key={infoTabs.log}>
-              <LogView />
-            </TabPane>
-            <TabPane tab={e('commandLineUsage')} key={infoTabs.cmd}>
-              <pre>
-                <code>{commandLineHelp}</code>
-              </pre>
-            </TabPane>
-          </Tabs>
+          <Tabs
+            activeKey={infoModalTab}
+            onChange={this.onChangeTab}
+            items={items}
+          />
         </div>
       </Modal>
     )

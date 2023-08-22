@@ -45,7 +45,7 @@ describe('terminal themes', function () {
     const themeIterm = await client.evaluate(() => {
       return window.store.itermThemes.length
     })
-    await client.click('.setting-wrap .ant-tabs-tabpane-active .ant-btn-primary')
+    await client.click('.setting-wrap .ant-btn-primary')
 
     const themeNow = await client.evaluate(() => {
       return window.store.terminalThemes.length

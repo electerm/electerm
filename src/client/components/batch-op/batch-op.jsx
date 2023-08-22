@@ -36,7 +36,6 @@ const f = prefix('form')
 const t = prefix('transferHistory')
 const c = prefix('common')
 const m = prefix('menu')
-const { TabPane } = Tabs
 
 export default class BatchOp extends Component {
   state = {
@@ -475,7 +474,7 @@ export default class BatchOp extends Component {
             disabled={disabled}
           >
             <Button
-              type='ghost'
+              type='dashed'
               disabled={disabled}
             >
               {c('importFromCSV')}
@@ -524,12 +523,13 @@ export default class BatchOp extends Component {
       <Tabs
         activeKey={tab}
         onChange={this.handleChangeTab}
-      >
-        {
-          ['tasks', 'history'].map(this.renderTab)
-        }
-      </Tabs>
+        items={this.renderItems()}
+      />
     )
+  }
+
+  renderItems = () => {
+    return ['tasks', 'history'].map(this.renderTab)
   }
 
   renderTab = (tab) => {
@@ -581,11 +581,10 @@ export default class BatchOp extends Component {
     })
     const len = data.length
     const title = `${c(tab)}(${len})`
-    return (
-      <TabPane
-        tab={title}
-        key={tab}
-      >
+    return {
+      key: tab,
+      label: title,
+      children: (
         <Table
           dataSource={src}
           columns={columns}
@@ -594,8 +593,8 @@ export default class BatchOp extends Component {
           size='small'
           rowKey='id'
         />
-      </TabPane>
-    )
+      )
+    }
   }
 
   renderClose () {

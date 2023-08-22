@@ -79,7 +79,7 @@ export default function renderAuth (props) {
         fileList={[]}
       >
         <Button
-          type='ghost'
+          type='dashed'
           className='mg2b mg1t'
         >
           {e('importFromFile')}

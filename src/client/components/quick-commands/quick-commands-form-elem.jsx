@@ -109,7 +109,7 @@ export default function QuickCommandForm (props) {
       <FormItem>
         <p>
           <Button
-            type='ghost'
+            type='dashed'
             htmlType='submit'
           >{e('save')}</Button>
         </p>

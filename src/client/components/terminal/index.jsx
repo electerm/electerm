@@ -1235,7 +1235,7 @@ export default class Term extends Component {
           {c('ok')}
         </Button>
         <Button
-          type='ghost'
+          type='dashed'
           className='mg1r'
           onClick={this.onCancel}
         >

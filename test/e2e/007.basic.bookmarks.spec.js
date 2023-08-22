@@ -35,37 +35,37 @@ describe('bookmarks', function () {
     expect(text).equal(e('bookmarks'))
 
     log('auto focus works')
-    await client.hasFocus('.setting-wrap .ant-tabs-tabpane-active #ssh-form_host')
+    await client.hasFocus('.setting-wrap #ssh-form_host')
 
     log('default username = ""')
-    const v = await client.getValue('.setting-wrap .ant-tabs-tabpane-active #ssh-form_username')
+    const v = await client.getValue('.setting-wrap #ssh-form_username')
     expect(v).equal('')
 
     log('default port = 22')
-    const v1 = await client.getValue('.setting-wrap .ant-tabs-tabpane-active #ssh-form_port')
+    const v1 = await client.getValue('.setting-wrap #ssh-form_port')
     expect(v1).equal('22')
 
     log('save it')
     const bookmarkCountPrev = await client.evaluate(() => {
       return window.store.bookmarks.length
     })
-    await client.setValue('.setting-wrap .ant-tabs-tabpane-active #ssh-form_host', TEST_HOST)
-    await client.setValue('.setting-wrap .ant-tabs-tabpane-active #ssh-form_username', TEST_USER)
-    await client.setValue('.setting-wrap .ant-tabs-tabpane-active #ssh-form_password', TEST_PASS)
-    // const list0 = await client.elements('.setting-wrap .ant-tabs-tabpane-active .tree-item')
-    await client.click('.setting-wrap .ant-tabs-tabpane-active .ant-btn-primary')
+    await client.setValue('.setting-wrap #ssh-form_host', TEST_HOST)
+    await client.setValue('.setting-wrap #ssh-form_username', TEST_USER)
+    await client.setValue('.setting-wrap #ssh-form_password', TEST_PASS)
+    // const list0 = await client.elements('.setting-wrap .tree-item')
+    await client.click('.setting-wrap .ant-btn-primary')
     await delay(1000)
     const bookmarkCount = await client.evaluate(() => {
       return window.store.bookmarks.length
     })
-    // const list = await client.elements('.setting-wrap .ant-tabs-tabpane-active .tree-item')
+    // const list = await client.elements('.setting-wrap .tree-item')
     // await delay(100)
     expect(bookmarkCount).equal(bookmarkCountPrev + 1)
 
     // log('list tab')
-    // await client.click('.setting-wrap .ant-tabs-tabpane-active .tree-item')
+    // await client.click('.setting-wrap .tree-item')
     // // await delay(55555555)
-    // const list1 = await client.getAttribute('.setting-wrap .ant-tabs-tabpane-active .ant-tree-treenode', 'class')
+    // const list1 = await client.getAttribute('.setting-wrap .ant-tree-treenode', 'class')
     // expect(list1.includes('ant-tree-treenode-selected'))
 
     // await delay(55555555)

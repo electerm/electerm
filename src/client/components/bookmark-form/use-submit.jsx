@@ -48,14 +48,14 @@ export default function useBookmarkSubmit (props) {
             )
         }
         <Button
-          type='ghost'
+          type='dashed'
           className='mg1r mg1b'
           onClick={save}
         >{e('save')}</Button>
       </p>
       <p>
         <Button
-          type='ghost'
+          type='dashed'
           onClick={testConnection}
         >{e('testConnection')}</Button>
       </p>

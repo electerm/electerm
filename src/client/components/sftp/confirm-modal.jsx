@@ -99,14 +99,14 @@ export default (props) => {
     return (
       <div className='mgq1t pd1y alignright'>
         <Button
-          type='ghost'
+          type='dashed'
           className='mg1l'
           onClick={() => act(fileActions.cancel)}
         >
           {e('cancel')}
         </Button>
         <Button
-          type='ghost'
+          type='dashed'
           className='mg1l'
           onClick={() => act(fileActions.skip)}
         >
@@ -132,7 +132,7 @@ export default (props) => {
         </Button>
         <div className='pd1t'>
           <Button
-            type='ghost'
+            type='dashed'
             className='mg1l'
             title={
               isDirectory

@@ -33,7 +33,7 @@ describe('ssh', function () {
     await client.setValue('#ssh-form_host', TEST_HOST)
     await client.setValue('#ssh-form_username', TEST_USER)
     await client.setValue('#ssh-form_password', TEST_PASS)
-    await client.click('.setting-wrap .ant-tabs-tabpane-active .ant-btn-primary')
+    await client.click('.setting-wrap .ant-btn-primary')
     await delay(1500)
     let tabsCount = await client.elements('.tabs .tabs-wrapper .tab')
     tabsCount = await tabsCount.count()
