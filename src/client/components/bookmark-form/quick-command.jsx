@@ -4,12 +4,20 @@
 
 import { PureComponent } from 'react'
 import { CheckOutlined, CloseCircleOutlined, CloseOutlined, EditOutlined } from '@ant-design/icons'
-import { Input, Col, Row, message, Switch, Tooltip } from 'antd'
+import {
+  Input,
+  Col,
+  Row,
+  message,
+  Switch,
+  Tooltip,
+  Space
+} from 'antd'
 import { settingMap } from '../../common/constants'
 import generate from '../../common/uid'
 import eq from 'fast-deep-equal'
 
-const InputGroup = Input.Group
+const InputGroup = Space.Compact
 const { prefix } = window
 const t = prefix('quickCommands')
 
@@ -142,7 +150,7 @@ export default class QuickCommandItem extends PureComponent {
     return (
       <Row className='mg1t'>
         <Col span={15}>
-          <InputGroup compact>
+          <InputGroup>
             <Input
               value={item.name}
               onChange={this.onChangeName}
@@ -178,7 +186,7 @@ export default class QuickCommandItem extends PureComponent {
     return (
       <Row className='mg1t'>
         <Col span={15}>
-          <InputGroup compact>
+          <InputGroup>
             <Input
               value={item.name}
               readOnly
