@@ -123,4 +123,8 @@ export default Store => {
       log.error(e)
     }
   }
+
+  Store.prototype.setSettingItem = function (v) {
+    window.store.setState('settingItem', v)
+  }
 }

@@ -235,7 +235,7 @@ export default class ContextMenu extends React.PureComponent {
     if (type === 'hr') {
       return <hr />
     }
-    const baseCls = 'pd2x pd1y context-item pointer'
+    const baseCls = 'context-item'
     if (module && this.modules[module]) {
       const Mod = this.modules[module]
       return (

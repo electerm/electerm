@@ -35,9 +35,9 @@ export default class QuickCommandItem extends PureComponent {
       name, command, id, inputOnly
     } = this.state.item
     if (!name) {
-      return message.warn('name required')
+      return message.warning('name required')
     } else if (!command) {
-      return message.warn('command required')
+      return message.warning('command required')
     }
     const quickCommands = this.props.form.getFieldValue(settingMap.quickCommands) || []
     if (id) {

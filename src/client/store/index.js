@@ -42,7 +42,7 @@ import {
 
 function expandShorthandColor (color) {
   if (color.length === 4) {
-    return '#' + color[1] + color[1] + color[2] + color[2] + color[3] + color[3];
+    return '#' + color[1] + color[1] + color[2] + color[2] + color[3] + color[3]
   }
   return color
 }
@@ -253,6 +253,10 @@ class Store {
 
   get upgradeInfo () {
     return JSON.parse(window.store._upgradeInfo)
+  }
+
+  get settingItem () {
+    return JSON.parse(window.store._settingItem)
   }
 
   get uiThemeConfig () {

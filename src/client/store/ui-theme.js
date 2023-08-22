@@ -11,18 +11,18 @@ import {
   defaultTheme,
   settingMap
 } from '../common/constants'
-import fetch from '../common/fetch'
+// import fetch from '../common/fetch'
 import copy from 'json-deep-copy'
 
 export default Store => {
-  Store.prototype.toCss = async function (stylus) {
-    const { host, port } = window._config
-    const url = `http://${host}:${port}/to-css`
-    const data = await fetch.post(url, {
-      stylus
-    })
-    return data
-  }
+  // Store.prototype.toCss = async function (stylus) {
+  //   const { host, port } = window._config
+  //   const url = `http://${host}:${port}/to-css`
+  //   const data = await fetch.post(url, {
+  //     stylus
+  //   })
+  //   return data
+  // }
 
   Store.prototype.getDefaultUiThemeConfig = function (stylus) {
     const reg = /[^\n]+ = [^\n]+\n/g

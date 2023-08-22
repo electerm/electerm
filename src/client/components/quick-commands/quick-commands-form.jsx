@@ -36,11 +36,9 @@ export default function QuickCommandForm (props) {
       props.store.editQuickCommand(formData.id, update)
     } else {
       props.store.addQuickCommand(update1)
-      props.store.storeAssign({
-        settingItem: {
-          id: '',
-          name: t('newQuickCommand')
-        }
+      props.store.setSettingItem({
+        id: '',
+        name: t('newQuickCommand')
       })
     }
     message.success(s('saved'))

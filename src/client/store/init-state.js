@@ -111,7 +111,7 @@ export default {
       title: ss('settingSync')
     }
   ]),
-  settingItem: getInitItem([], settingMap.bookmarks),
+  _settingItem: JSON.stringify(getInitItem([], settingMap.bookmarks)),
   settingTab: settingMap.bookmarks, // setting tab
   autofocustrigger: +new Date(),
   bookmarkId: undefined,

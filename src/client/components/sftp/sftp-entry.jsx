@@ -750,7 +750,7 @@ export default class Sftp extends Component {
     const oldPath = this.state[type + 'Path']
     const np = this.state[nt]
     if (!isValidPath(np)) {
-      return notification.warn({
+      return notification.warning({
         message: 'path not valid'
       })
     }

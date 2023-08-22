@@ -11,7 +11,7 @@ const themeDomId = 'theme-css'
 export default function UiTheme (props) {
   const { themeConfig, buildTheme } = props
 
-  const delta = useDelta((themeConfig))
+  const delta = useDelta(themeConfig)
 
   async function applyTheme () {
     const stylus = document.getElementById(themeDomId)

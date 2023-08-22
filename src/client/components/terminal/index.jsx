@@ -1044,7 +1044,7 @@ export default class Term extends Component {
 
   onerrorSocket = err => {
     this.setStatus(statusMap.error)
-    log.warn('onerrorSocket', err)
+    log.warning('onerrorSocket', err)
   }
 
   oncloseSocket = () => {
@@ -1061,7 +1061,7 @@ export default class Term extends Component {
     function closeMsg () {
       notification.close(key)
     }
-    this.socketCloseWarning = notification.warn({
+    this.socketCloseWarning = notification.warning({
       key,
       message: e('socketCloseTip'),
       description: (

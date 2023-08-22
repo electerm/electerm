@@ -139,7 +139,7 @@ export default class Setting extends Component {
     if (ext.hotkey && ext.hotkey !== config.hotkey) {
       const res = await window.pre.runGlobalAsync('changeHotkey', ext.hotkey)
       if (!res) {
-        message.warn(e('hotkeyNotOk'))
+        message.warning(e('hotkeyNotOk'))
         update.config.hotkey = config.hotkey
         ext.hotkey = config.hotkey
       } else {
