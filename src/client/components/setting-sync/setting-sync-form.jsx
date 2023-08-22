@@ -163,7 +163,7 @@ export default function SyncForm (props) {
       onFinish={save}
       form={form}
       className='form-wrap pd1x'
-      name='setting-sync-form'
+      name={'setting-sync-form' + syncType}
       layout='vertical'
       initialValues={props.formData}
     >

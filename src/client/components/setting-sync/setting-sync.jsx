@@ -13,7 +13,7 @@ export default class SyncSettingEntry extends Component {
     this.props.store.syncType = key
   }
 
-  render () {
+  renderForm () {
     const {
       store
     } = this.props
@@ -31,29 +31,37 @@ export default class SyncSettingEntry extends Component {
         'syncType'
       ])
     }
+    const type = store.syncType
+    const formData = {
+      gistId: syncSetting[type + 'GistId'],
+      token: syncSetting[type + 'AccessToken'],
+      url: syncSetting[type + 'Url'],
+      apiUrl: syncSetting[type + 'ApiUrl'],
+      lastSyncTime: syncSetting[type + 'LastSyncTime'],
+      syncPassword: syncSetting[type + 'SyncPassword']
+    }
+    return (
+      <SyncForm
+        {...syncProps}
+        syncType={type}
+        encrypt={syncSetting.syncEncrypt}
+        formData={formData}
+      />
+    )
+  }
+
+  render () {
+    const {
+      store
+    } = this.props
+
     const syncItems = Object.keys(syncTypes).map(type => {
-      const formData = {
-        gistId: syncSetting[type + 'GistId'],
-        token: syncSetting[type + 'AccessToken'],
-        url: syncSetting[type + 'Url'],
-        apiUrl: syncSetting[type + 'ApiUrl'],
-        lastSyncTime: syncSetting[type + 'LastSyncTime'],
-        syncPassword: syncSetting[type + 'SyncPassword']
-      }
       return {
         key: type,
         label: type,
-        children: (
-          <SyncForm
-            {...syncProps}
-            syncType={store.syncType}
-            encrypt={syncSetting.syncEncrypt}
-            formData={formData}
-          />
-        )
+        children: null
       }
     })
-    console.log('props.syncType', store.syncType)
     return (
       <div className='pd2l'>
         <DataTransport store={store} />
@@ -63,6 +71,9 @@ export default class SyncSettingEntry extends Component {
             onChange={this.handleChange}
             items={syncItems}
           />
+          {
+            this.renderForm()
+          }
         </Spin>
       </div>
     )
