@@ -9,7 +9,6 @@ import _ from 'lodash'
 import copy from 'json-deep-copy'
 
 export default (info, props) => {
-  // console.log(info)
   const {
     dropToGap,
     dragNode,
@@ -62,7 +61,6 @@ export default (info, props) => {
 
   // drag default cateogry to nongap
   if (fromId === defaultBookmarkGroupId && !dropToGap) {
-    // console.log('return', 'drag default cateogry to nongap')
     return
   }
 

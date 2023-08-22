@@ -168,7 +168,6 @@ function formatNetwork (traffic, ips) {
 //     swap,
 //     network
 //   }
-//   console.log(final, 'fff')
 //   return final
 // }
 
@@ -200,10 +199,6 @@ function InfoGetter (props) {
       await wait(delay)
       const ress = await runCmds(props, cms)
       const update = formatter(...ress)
-      // console.log(name)
-      // console.log(ress)
-      // console.log(update)
-      // console.log(name)
       props.setState(update)
     }
     run()

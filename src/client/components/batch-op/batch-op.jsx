@@ -116,7 +116,6 @@ export default class BatchOp extends Component {
   }
 
   updateState = (str, index) => {
-    // console.log(str, index)
     this.setState(old => {
       const arr = deepCopy(old.tasks)
       arr[index].state = str

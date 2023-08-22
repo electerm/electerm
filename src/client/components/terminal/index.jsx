@@ -1004,7 +1004,6 @@ export default class Term extends Component {
     //       const fileReader = new FileReader()
     //       fileReader.addEventListener('load', () => {
     //         str = th.decoder.decode(fileReader.result)
-    //         console.log(str, '--ff-')
     //         oldWrite.call(term, str)
     //       })
     //       fileReader.readAsArrayBuffer(new window.Blob([data]))

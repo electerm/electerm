@@ -37,7 +37,6 @@ export default Store => {
       (isMac && event.metaKey) ||
       (!isMac && event.ctrlKey)
     ) {
-      console.log(event.wheelDeltaY, 'wheelDeltaY')
       event.stopPropagation()
       if (window.store.inActiveTerminal) {
         window.store.zoomTerminal(event.wheelDeltaY)
