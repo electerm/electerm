@@ -6,7 +6,6 @@ import {
   settingMap,
   settingSyncId
 } from '../../common/constants'
-import _ from 'lodash'
 
 export default function TabSettings (props) {
   const {
@@ -33,14 +32,6 @@ export default function TabSettings (props) {
             ? (
               <SyncSetting
                 store={store}
-                {...store.config.syncSetting}
-                {..._.pick(store, [
-                  'autofocustrigger',
-                  'isSyncingSetting',
-                  'isSyncDownload',
-                  'isSyncUpload',
-                  'syncType'
-                ])}
               />
             )
             : <Setting {...listProps} config={store.config} />
