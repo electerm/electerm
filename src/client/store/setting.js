@@ -45,9 +45,9 @@ export default Store => {
     const all = store.getItems('history')
     store.storeAssign({
       settingTab: settingMap.history,
-      settingItem: all[0] || getInitItem([], settingMap.history),
       autofocustrigger: +new Date()
     })
+    store.setSettingItem(all[0] || getInitItem([], settingMap.history))
     store.openSettingModal()
   }
 
@@ -55,9 +55,9 @@ export default Store => {
     const { store } = window
     store.storeAssign({
       settingTab: settingMap.bookmarks,
-      settingItem: item,
       autofocustrigger: +new Date()
     })
+    store.setSettingItem(item)
     store.openSettingModal()
   }
 
@@ -65,9 +65,9 @@ export default Store => {
     const { store } = window
     store.storeAssign({
       settingTab: settingMap.quickCommands,
-      settingItem: getInitItem([], settingMap.quickCommands),
       autofocustrigger: +new Date()
     })
+    store.setSettingItem(getInitItem([], settingMap.quickCommands))
     store.openSettingModal()
   }
 
@@ -132,9 +132,9 @@ export default Store => {
       return store.hideSettingModal()
     }
     store.storeAssign({
-      settingTab: settingMap.setting,
-      settingItem: getInitItem([], settingMap.setting)
+      settingTab: settingMap.setting
     })
+    store.setSettingItem(getInitItem([], settingMap.setting))
     store.openSettingModal()
   }
 
@@ -148,9 +148,9 @@ export default Store => {
       return store.hideSettingModal()
     }
     store.storeAssign({
-      settingTab: settingMap.setting,
-      settingItem: copy(store.setting[0])
+      settingTab: settingMap.setting
     })
+    store.setSettingItem(copy(store.setting[0]))
     store.openSettingModal()
   }
 
@@ -164,16 +164,16 @@ export default Store => {
     }
     store.storeAssign({
       settingTab: settingMap.terminalThemes,
-      settingItem: buildNewTheme(),
       autofocustrigger: +new Date()
     })
+    store.setSettingItem(buildNewTheme())
     store.openSettingModal()
   }
 
   Store.prototype.openSettingModal = function () {
     const { store } = window
     if (store.isSencondInstance) {
-      return message.warn(
+      return message.warning(
         m('sencondInstanceTip')
       )
     }
@@ -183,7 +183,7 @@ export default Store => {
   Store.prototype.hideSettingModal = function () {
     const { store } = window
     store.showModal = modals.hide
-    store.settingItem = {}
+    store.setSettingItem({})
   }
 
   Store.prototype.loadFontList = async function () {
@@ -200,9 +200,9 @@ export default Store => {
     const arr = store.getItems(settingTab)
     const item = getInitItem(arr, settingTab)
     store.storeAssign({
-      settingItem: item,
       autofocustrigger: +new Date(),
       settingTab
     })
+    store.setSettingItem(item)
   }
 }

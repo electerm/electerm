@@ -17,6 +17,7 @@ import SshForm from './ssh-form'
 import SerialForm from './serial-form'
 import LocalForm from './local-form'
 import TelnetForm from './telnet-form'
+import { LoadingOutlined } from '@ant-design/icons'
 
 const { prefix } = window
 const c = prefix('common')
@@ -38,8 +39,21 @@ export default class BookmarkIndex extends Component {
       initType = connectionMap.ssh
     }
     this.state = {
+      ready: false,
       bookmarkType: initType
     }
+  }
+
+  componentDidMount () {
+    this.timer = setTimeout(() => {
+      this.setState({
+        ready: true
+      })
+    }, 200)
+  }
+
+  componentWillUnmount () {
+    clearTimeout(this.timer)
   }
 
   static mapper = {
@@ -65,7 +79,14 @@ export default class BookmarkIndex extends Component {
     if (type !== settingMap.bookmarks && type !== settingMap.history) {
       return null
     }
-
+    const { ready } = this.state
+    if (!ready) {
+      return (
+        <div className='pd3 aligncenter'>
+          <LoadingOutlined />
+        </div>
+      )
+    }
     const {
       bookmarkType
     } = this.state

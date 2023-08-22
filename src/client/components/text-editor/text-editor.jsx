@@ -159,7 +159,7 @@ export default class TextEditor extends PureComponent {
       maskClosable: false,
       onCancel: this.cancel,
       width: '90%',
-      visible: true
+      open: true
     }
     return (
       <Modal

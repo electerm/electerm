@@ -20,22 +20,7 @@ const from3 = resolve(
   __dirname,
   'iTerm2-Color-Schemes/electerm'
 )
-// const from3 = resolve(
-//   __dirname,
-//   '../node_modules/less/dist/less.min.js'
-// )
-const from4 = resolve(
-  __dirname,
-  '../node_modules/antd'
-)
-const from5 = resolve(
-  __dirname,
-  '../src/client/css/less-prod.less'
-)
-const from6 = resolve(
-  __dirname,
-  '../src/client/css/theme.less'
-)
+
 const to1 = resolve(
   __dirname,
   '../work/app/assets/images'
@@ -73,25 +58,12 @@ const copy = new CopyWebpackPlugin({
     from: from3,
     to: to4,
     force: true
-  },
+  }
   // , {
   //   from: from3,
   //   to: to3,
   //   force: true
   // }
-  {
-    from: from5,
-    to: to3,
-    force: true
-  }, {
-    from: from6,
-    to: to3,
-    force: true
-  }, {
-    from: from4,
-    to: to3,
-    force: true,
-    filter: (p) => p.endsWith('.less')
-  }]
+  ]
 })
 module.exports = copy

@@ -18,8 +18,7 @@ const installSrc = require('./install-src')
 const { getConfig } = require('./get-config')
 const loadSshConfig = require('./ssh-config')
 const {
-  toCss,
-  clearCssCache
+  toCss
 } = require('./style')
 const initServer = require('./init-server')
 const {
@@ -121,7 +120,6 @@ function initIpc () {
     init,
     listSerialPorts,
     toCss,
-    clearCssCache,
     loadFontList,
     doUpgrade,
     checkDbUpgrade,

@@ -1,6 +1,6 @@
 
 import React, { Component } from 'react'
-import { CodeOutlined } from '@ant-design/icons'
+import { CodeOutlined, LoadingOutlined } from '@ant-design/icons'
 import {
   message,
   Select,
@@ -57,7 +57,20 @@ const keys = [
 
 export default class Setting extends Component {
   state = {
+    ready: false,
     languageChanged: false
+  }
+
+  componentDidMount () {
+    this.timer = setTimeout(() => {
+      this.setState({
+        ready: true
+      })
+    }, 200)
+  }
+
+  componentWillUnmount () {
+    clearTimeout(this.timer)
   }
 
   restart = () => {
@@ -139,7 +152,7 @@ export default class Setting extends Component {
     if (ext.hotkey && ext.hotkey !== config.hotkey) {
       const res = await window.pre.runGlobalAsync('changeHotkey', ext.hotkey)
       if (!res) {
-        message.warn(e('hotkeyNotOk'))
+        message.warning(e('hotkeyNotOk'))
         update.config.hotkey = config.hotkey
         ext.hotkey = config.hotkey
       } else {
@@ -622,6 +635,14 @@ export default class Setting extends Component {
   }
 
   render () {
+    const { ready } = this.state
+    if (!ready) {
+      return (
+        <div className='pd3 aligncenter'>
+          <LoadingOutlined />
+        </div>
+      )
+    }
     const {
       hotkey,
       language,
@@ -644,7 +665,7 @@ export default class Setting extends Component {
             value={modifier}
             onChange={this.onChangeModifier}
             className='iblock width100'
-            dropdownMatchSelectWidth={false}
+            popupMatchSelectWidth={false}
             showSearch
           >
             {
@@ -656,7 +677,7 @@ export default class Setting extends Component {
             value={key}
             className='iblock width100'
             onChange={this.onChangeKey}
-            dropdownMatchSelectWidth={false}
+            popupMatchSelectWidth={false}
             showSearch
           >
             {
@@ -708,7 +729,7 @@ export default class Setting extends Component {
           <span className='inline-title mg1r'>{e('terminalTheme')}</span>
           <Select
             onChange={this.onChangeTerminalTheme}
-            dropdownMatchSelectWidth={false}
+            popupMatchSelectWidth={false}
             value={theme}
           >
             {
@@ -726,7 +747,7 @@ export default class Setting extends Component {
           <Select
             onChange={this.onChangeLang}
             value={language}
-            dropdownMatchSelectWidth={false}
+            popupMatchSelectWidth={false}
           >
             {
               langs.map(l => {
@@ -749,7 +770,7 @@ export default class Setting extends Component {
           <Select
             onChange={v => this.onChangeValue(v, 'rendererType')}
             value={rendererType}
-            dropdownMatchSelectWidth={false}
+            popupMatchSelectWidth={false}
           >
             {
               Object.keys(rendererTypes).map(id => {

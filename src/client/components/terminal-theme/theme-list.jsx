@@ -3,7 +3,7 @@
  */
 
 import List from '../setting-panel/list'
-import { CheckCircleOutlined, PlusOutlined } from '@ant-design/icons'
+import { CheckCircleOutlined, PlusOutlined, LoadingOutlined } from '@ant-design/icons'
 import { Tooltip } from 'antd'
 import classnames from 'classnames'
 import { defaultTheme } from '../../common/constants'
@@ -84,11 +84,42 @@ export default class ThemeList extends List {
   }
 
   filter = list => {
-    const { keyword } = this.state
+    const { keyword, ready } = this.state
     return keyword
-      ? list.filter(item => {
+      ? list.slice(0, ready ? list.length : 2).filter(item => {
         return item.name.toLowerCase().includes(keyword.toLowerCase())
       })
-      : list
+      : list.slice(0, ready ? list.length : 2)
+  }
+
+  render () {
+    const { ready } = this.state
+    let {
+      list = [],
+      type,
+      listStyle = {}
+    } = this.props
+    list = this.filter(list)
+    return (
+      <div className={`item-list item-type-${type}`}>
+        {this.renderTransport ? this.renderTransport() : null}
+        {this.renderLabels ? this.renderLabels() : null}
+        {this.renderSearch()}
+        <div className='item-list-wrap' style={listStyle}>
+          {
+            list.map(this.renderItem)
+          }
+        </div>
+        {
+          ready
+            ? null
+            : (
+              <div className='pd3 aligncenter'>
+                <LoadingOutlined />
+              </div>
+            )
+        }
+      </div>
+    )
   }
 }

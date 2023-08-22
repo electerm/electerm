@@ -200,7 +200,7 @@ export default class Tab extends React.Component {
     const tab = copy(this.state.tab)
     const { titleTemp, title, id, host } = tab
     if (!titleTemp && !host) {
-      return message.warn(e('titleEmptyWarn'))
+      return message.warning(e('titleEmptyWarn'))
     }
     delete tab.isEditting
     if (title === titleTemp) {

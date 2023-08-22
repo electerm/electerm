@@ -1,7 +1,6 @@
 
 const copy = require('./copy')
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin')
-const AntdDayjsWebpackPlugin = require('@electerm/antd-dayjs-webpack-plugin')
 const {
   extractTextPlugin1,
   stylusSettingPlugin
@@ -10,7 +9,6 @@ module.exports = (config) => {
   config.plugins = [
     extractTextPlugin1,
     stylusSettingPlugin,
-    new AntdDayjsWebpackPlugin(),
     copy
   ]
   config.optimization = {

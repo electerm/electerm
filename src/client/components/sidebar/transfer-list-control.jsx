@@ -150,7 +150,7 @@ export default class TransferModalUI extends Component {
         <Select
           value={this.state.filter}
           onChange={this.handleFilter}
-          dropdownMatchSelectWidth={false}
+          popupMatchSelectWidth={false}
         >
           {
             all.map(item => {

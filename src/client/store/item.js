@@ -92,10 +92,10 @@ export default Store => {
   Store.prototype.onDelItem = function (item, type) {
     const { store } = window
     if (item.id === store.settingItem.id) {
-      store.settingItem = getInitItem(
+      store.setSettingItem(getInitItem(
         store.getItems(type),
         type
-      )
+      ))
     }
   }
 
@@ -105,7 +105,7 @@ export default Store => {
       return [
         ...store.getTerminalThemes(),
         ...store.itermThemes
-      ]
+      ].sort(window.store.sortTheme)
     }
     return store.getItems(type)
   }

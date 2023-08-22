@@ -32,7 +32,7 @@ function renderAddonBefore (props, realPath) {
       <Tooltip
         title={title}
         placement='topLeft'
-        arrowPointAtCenter
+        arrow={{ pointAtCenter: true }}
       >
         <Icon
           type='eye'
@@ -42,7 +42,7 @@ function renderAddonBefore (props, realPath) {
       </Tooltip>
       <Tooltip
         title={e('goParent')}
-        arrowPointAtCenter
+        arrow={{ pointAtCenter: true }}
         placement='topLeft'
       >
         <ArrowUpOutlined

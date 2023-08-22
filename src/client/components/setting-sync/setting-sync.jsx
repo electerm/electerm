@@ -1,46 +1,81 @@
 /**
  * sync setting module entry
  */
-
+import { Component } from '../common/react-subx'
 import { Tabs, Spin } from 'antd'
 import SyncForm from './setting-sync-form'
 import { syncTypes } from '../../common/constants'
 import { DataTransport } from './data-import'
-const { TabPane } = Tabs
+import _ from 'lodash'
 
-export default function SyncSettingEntry (props) {
-  function handleChange (key) {
-    props.store.syncType = key
+export default class SyncSettingEntry extends Component {
+  handleChange = (key) => {
+    this.props.store.syncType = key
   }
-  return (
-    <div className='pd2l'>
-      <DataTransport store={props.store} />
-      <Spin spinning={props.isSyncingSetting}>
-        <Tabs activeKey={props.syncType} onChange={handleChange}>
+
+  renderForm () {
+    const {
+      store
+    } = this.props
+    const {
+      syncSetting
+    } = store.config
+    const syncProps = {
+      store,
+      ...syncSetting,
+      ..._.pick(store, [
+        'autofocustrigger',
+        'isSyncingSetting',
+        'isSyncDownload',
+        'isSyncUpload',
+        'syncType'
+      ])
+    }
+    const type = store.syncType
+    const formData = {
+      gistId: syncSetting[type + 'GistId'],
+      token: syncSetting[type + 'AccessToken'],
+      url: syncSetting[type + 'Url'],
+      apiUrl: syncSetting[type + 'ApiUrl'],
+      lastSyncTime: syncSetting[type + 'LastSyncTime'],
+      syncPassword: syncSetting[type + 'SyncPassword']
+    }
+    return (
+      <SyncForm
+        {...syncProps}
+        syncType={type}
+        encrypt={syncSetting.syncEncrypt}
+        formData={formData}
+      />
+    )
+  }
+
+  render () {
+    const {
+      store
+    } = this.props
+
+    const syncItems = Object.keys(syncTypes).map(type => {
+      return {
+        key: type,
+        label: type,
+        children: null
+      }
+    })
+    return (
+      <div className='pd2l'>
+        <DataTransport store={store} />
+        <Spin spinning={store.isSyncingSetting}>
+          <Tabs
+            activeKey={store.syncType}
+            onChange={this.handleChange}
+            items={syncItems}
+          />
           {
-            Object.keys(syncTypes).map(type => {
-              const formData = {
-                gistId: props[type + 'GistId'],
-                token: props[type + 'AccessToken'],
-                url: props[type + 'Url'],
-                apiUrl: props[type + 'ApiUrl'],
-                lastSyncTime: props[type + 'LastSyncTime'],
-                syncPassword: props[type + 'SyncPassword']
-              }
-              return (
-                <TabPane tab={type} key={type}>
-                  <SyncForm
-                    {...props}
-                    syncType={type}
-                    encrypt={props.syncEncrypt}
-                    formData={formData}
-                  />
-                </TabPane>
-              )
-            })
+            this.renderForm()
           }
-        </Tabs>
-      </Spin>
-    </div>
-  )
+        </Spin>
+      </div>
+    )
+  }
 }

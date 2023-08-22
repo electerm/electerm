@@ -223,10 +223,11 @@ export default class BookmarkForm extends PureComponent {
     settingItem = getInitItem([],
       settingMap.bookmarks)
   ) => {
+    const { store } = this.props
     this.props.store.storeAssign({
-      autofocustrigger: +new Date(),
-      settingItem
+      autofocustrigger: +new Date()
     })
+    store.setSettingItem(settingItem)
   }
 
   test = async (update) => {

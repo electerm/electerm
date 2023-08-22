@@ -69,13 +69,13 @@ export default function TextEditorForm (props) {
           onClick={submit}
         >{e('save')}</Button>
         <Button
-          type='ghost'
+          type='dashed'
           className='mg1r mg1b'
           disabled={loading}
           onClick={reset}
         >{s('reset')}</Button>
         <Button
-          type='ghost'
+          type='dashed'
           onClick={props.cancel}
           disabled={loading}
           className='mg2r mg1b'

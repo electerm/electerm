@@ -22,11 +22,7 @@ module.exports = [
     ]
   },
   {
-    test: /\.less$/,
-    use: 'null-loader'
-  },
-  {
-    test: /xterm\.css$/,
+    test: /\.css$/,
     use: [
       {
         loader: MiniCssExtractPlugin.loader,

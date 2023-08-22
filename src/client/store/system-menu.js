@@ -55,9 +55,9 @@ export default Store => {
     const { store } = window
     store.storeAssign({
       settingTab: settingMap.bookmarks,
-      settingItem: getInitItem([], settingMap.bookmarks),
       autofocustrigger: +new Date()
     })
+    store.setSettingItem(getInitItem([], settingMap.bookmarks))
     store.openSettingModal()
   }
 

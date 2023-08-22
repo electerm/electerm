@@ -11,27 +11,18 @@ import {
   defaultTheme,
   settingMap
 } from '../common/constants'
-import fetch from '../common/fetch'
+// import fetch from '../common/fetch'
 import copy from 'json-deep-copy'
 
-function configToLessConfig (conf) {
-  return Object.keys(conf).reduce((p, k) => {
-    return {
-      ...p,
-      ['@' + k]: conf[k]
-    }
-  }, {})
-}
-
 export default Store => {
-  Store.prototype.toCss = async function (stylus) {
-    const { host, port } = window._config
-    const url = `http://${host}:${port}/to-css`
-    const data = await fetch.post(url, {
-      stylus
-    })
-    return data
-  }
+  // Store.prototype.toCss = async function (stylus) {
+  //   const { host, port } = window._config
+  //   const url = `http://${host}:${port}/to-css`
+  //   const data = await fetch.post(url, {
+  //     stylus
+  //   })
+  //   return data
+  // }
 
   Store.prototype.getDefaultUiThemeConfig = function (stylus) {
     const reg = /[^\n]+ = [^\n]+\n/g
@@ -57,8 +48,14 @@ export default Store => {
       const v = config[key]
       stylus = stylus.replace(reg, `${key} = ${v}\n`)
     }
-    const lessConf = configToLessConfig(config)
-    return window.pre.runGlobalAsync('toCss', stylus, lessConf)
+    return window.pre.runGlobalAsync('toCss', stylus)
+  }
+
+  Store.prototype.sortTheme = function (a, b) {
+    const { theme } = window.store.config
+    const ax = a.id === theme ? -1 : 1
+    const bx = b.id === theme ? -1 : 1
+    return ax - bx
   }
 
   Store.prototype.getUiThemeConfig = function () {

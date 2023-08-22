@@ -33,7 +33,6 @@ import useQm from './use-quick-commands'
 import copy from 'json-deep-copy'
 import _ from 'lodash'
 
-const { TabPane } = Tabs
 const FormItem = Form.Item
 const { Option } = Select
 const { prefix } = window
@@ -272,18 +271,28 @@ export default function SerialFormUi (props) {
   }
 
   function renderTabs () {
+    const items = [
+      {
+        key: 'auth',
+        label: e('auth'),
+        forceRender: true,
+        children: renderCommon()
+      },
+      {
+        key: 'settings',
+        label: s('settings'),
+        forceRender: true,
+        children: uis
+      },
+      {
+        key: 'quickCommands',
+        label: e('quickCommands'),
+        forceRender: true,
+        children: qms
+      }
+    ]
     return (
-      <Tabs>
-        <TabPane tab={e('auth')} key='auth' forceRender>
-          {renderCommon()}
-        </TabPane>
-        <TabPane tab={s('settings')} key='settings' forceRender>
-          {uis}
-        </TabPane>
-        <TabPane tab={e('quickCommands')} key='quickCommands' forceRender>
-          {qms}
-        </TabPane>
-      </Tabs>
+      <Tabs items={items} />
     )
   }
 

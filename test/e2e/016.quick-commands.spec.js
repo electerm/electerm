@@ -37,7 +37,7 @@ describe('quick commands', function () {
     )
     const qmlist1 = await client.countElem('.setting-tabs-quick-commands .item-list-unit')
     await delay(150)
-    await client.click('.setting-tabs-quick-commands .ant-btn-ghost')
+    await client.click('.setting-tabs-quick-commands .ant-btn-dashed')
     await delay(2550)
     const qmlist2 = await client.countElem('.setting-tabs-quick-commands .item-list-unit')
     expect(qmlist2).equal(qmlist1 + 1)

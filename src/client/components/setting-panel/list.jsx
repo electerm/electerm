@@ -2,7 +2,7 @@
  * history list
  */
 import React from 'react'
-import { CloseOutlined, EditOutlined } from '@ant-design/icons'
+import { CloseOutlined, EditOutlined, LoadingOutlined } from '@ant-design/icons'
 import { Popconfirm } from 'antd'
 import Search from '../common/search'
 import createName from '../../common/create-title'
@@ -20,7 +20,20 @@ const s = prefix('setting')
 export default class ItemList extends React.PureComponent {
   state = {
     keyword: '',
+    ready: false,
     labels: []
+  }
+
+  componentDidMount () {
+    this.timer = setTimeout(() => {
+      this.setState({
+        ready: true
+      })
+    }, 200)
+  }
+
+  componentWillUnmount () {
+    clearTimeout(this.timer)
   }
 
   onChange = e => {
@@ -137,6 +150,14 @@ export default class ItemList extends React.PureComponent {
   }
 
   render () {
+    const { ready } = this.state
+    if (!ready) {
+      return (
+        <div className='pd3 aligncenter'>
+          <LoadingOutlined />
+        </div>
+      )
+    }
     let {
       list = [],
       type,

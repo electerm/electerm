@@ -13,14 +13,20 @@ import {
   FolderAddOutlined,
   FolderOutlined,
   FolderOpenOutlined,
-  SettingOutlined
+  SettingOutlined,
+  LoadingOutlined
 } from '@ant-design/icons'
 import {
   readClipboard,
   cut,
   hasBookmarkOrGroupInClipboardText
 } from '../../common/clipboard'
-import { Popconfirm, Tree, Button, Tooltip } from 'antd'
+import {
+  Popconfirm,
+  Tree,
+  Button,
+  Tooltip
+} from 'antd'
 import createName from '../../common/create-title'
 import classnames from 'classnames'
 import generate from '../../common/uid'
@@ -53,6 +59,7 @@ export default class ItemListTree extends React.PureComponent {
   constructor (props) {
     super(props)
     this.state = {
+      ready: false,
       keyword: '',
       showNewBookmarkGroupForm: false,
       bookmarkGroupTitle: '',
@@ -64,7 +71,16 @@ export default class ItemListTree extends React.PureComponent {
     }
   }
 
+  componentDidMount () {
+    this.timer = setTimeout(() => {
+      this.setState({
+        ready: true
+      })
+    }, 100)
+  }
+
   componentWillUnmount () {
+    clearTimeout(this.timer)
     window.removeEventListener('message', this.onContextAction)
   }
 
@@ -885,6 +901,14 @@ export default class ItemListTree extends React.PureComponent {
   }
 
   render () {
+    const { ready } = this.state
+    if (!ready) {
+      return (
+        <div className='pd3 aligncenter'>
+          <LoadingOutlined />
+        </div>
+      )
+    }
     const {
       bookmarkGroups,
       type,
@@ -892,11 +916,12 @@ export default class ItemListTree extends React.PureComponent {
       staticList,
       listStyle = {}
     } = this.props
-    const { keyword } = this.state
-    const { expandedKeys } = this.state
-    const level1Bookgroups = bookmarkGroups.filter(
-      d => !d.level || d.level < 2
-    )
+    const { keyword, expandedKeys } = this.state
+    const level1Bookgroups = ready
+      ? bookmarkGroups.filter(
+        d => !d.level || d.level < 2
+      )
+      : []
     const treeProps = {
       onExpand: this.onExpand,
       expandedKeys: keyword ? bookmarkGroups.map(f => f.id) : expandedKeys,

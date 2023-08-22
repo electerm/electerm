@@ -1004,7 +1004,6 @@ export default class Term extends Component {
     //       const fileReader = new FileReader()
     //       fileReader.addEventListener('load', () => {
     //         str = th.decoder.decode(fileReader.result)
-    //         console.log(str, '--ff-')
     //         oldWrite.call(term, str)
     //       })
     //       fileReader.readAsArrayBuffer(new window.Blob([data]))
@@ -1044,7 +1043,7 @@ export default class Term extends Component {
 
   onerrorSocket = err => {
     this.setStatus(statusMap.error)
-    log.warn('onerrorSocket', err)
+    log.warning('onerrorSocket', err)
   }
 
   oncloseSocket = () => {
@@ -1061,7 +1060,7 @@ export default class Term extends Component {
     function closeMsg () {
       notification.close(key)
     }
-    this.socketCloseWarning = notification.warn({
+    this.socketCloseWarning = notification.warning({
       key,
       message: e('socketCloseTip'),
       description: (
@@ -1208,7 +1207,7 @@ export default class Term extends Component {
       title: f(passType) + '?',
       content: this.renderPasswordForm(),
       onCancel: this.onCancel,
-      visible: this.state.promoteModalVisible,
+      show: this.state.promoteModalVisible,
       footer: this.renderModalFooter(),
       cancelText: c('cancel')
     }
@@ -1235,7 +1234,7 @@ export default class Term extends Component {
           {c('ok')}
         </Button>
         <Button
-          type='ghost'
+          type='dashed'
           className='mg1r'
           onClick={this.onCancel}
         >

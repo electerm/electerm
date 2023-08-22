@@ -163,7 +163,7 @@ export default function SyncForm (props) {
       onFinish={save}
       form={form}
       className='form-wrap pd1x'
-      name='setting-sync-form'
+      name={'setting-sync-form' + syncType}
       layout='vertical'
       initialValues={props.formData}
     >
@@ -220,13 +220,13 @@ export default function SyncForm (props) {
       <FormItem>
         <p>
           <Button
-            type='ghost'
+            type='dashed'
             className='mg1r mg1b sync-btn-save'
             htmlType='submit'
             icon={<SaveOutlined />}
           >{e('save')}</Button>
           {/* <Button
-            type='ghost'
+            type='dashed'
             onClick={this.sync}
             disabled={this.disabled()}
             className='mg1r'
@@ -234,21 +234,21 @@ export default function SyncForm (props) {
             icon='swap'
           >{ss('sync')}</Button> */}
           <Button
-            type='ghost'
+            type='dashed'
             onClick={upload}
             disabled={disabled()}
             className='mg1r mg1b'
             icon={<ArrowUpOutlined />}
           >{ss('uploadSettings')}</Button>
           <Button
-            type='ghost'
+            type='dashed'
             onClick={download}
             disabled={disabled()}
             className='mg1r mg1b sync-btn-down'
             icon={<ArrowDownOutlined />}
           >{ss('downloadSettings')}</Button>
           <Button
-            type='ghost'
+            type='dashed'
             onClick={props.store.clearSyncSetting}
             disabled={disabled()}
             className='mg1r mg1b sync-btn-clear'

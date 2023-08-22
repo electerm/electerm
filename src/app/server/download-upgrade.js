@@ -76,7 +76,6 @@ class Upgrade {
     }
     const localPath = resolve(tempDir, releaseInfo.name)
     const remotePath = getUrl(releaseInfo.browser_download_url, mirror)
-    // console.log('ff', remotePath)
     await rmrf(localPath)
     const { size } = releaseInfo
     this.id = id

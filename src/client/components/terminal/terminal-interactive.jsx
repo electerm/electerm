@@ -101,7 +101,7 @@ export default function TermInteractive () {
     onCancel,
     onOk,
     closable: false,
-    visible: true,
+    open: true,
     title: '?',
     footer: null
   }

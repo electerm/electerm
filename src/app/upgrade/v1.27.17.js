@@ -15,7 +15,6 @@ async function fixConf () {
   }
   const conf = await dbAction('data', 'findOne', q)
   const proxy = buildProxyString(conf)
-  console.log('global proxy:', proxy)
   if (proxy) {
     conf.proxy = proxy
   }

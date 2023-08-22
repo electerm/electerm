@@ -1,4 +1,5 @@
 import { render } from 'react-dom'
+import '../../../node_modules/antd/dist/reset.css'
 import '../../../node_modules/xterm/css/xterm.css'
 import Main from '../components/main'
 import { notification } from 'antd'

@@ -27,7 +27,7 @@ export default class QuickCommandsFooter extends PureComponent {
       <div className='fleft relative'>
         <Button
           size='small'
-          type='ghost'
+          type='dashed'
           className='qm-trigger'
           onMouseEnter={this.open}
           onMouseLeave={this.onMouseLeave}
