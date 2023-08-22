@@ -3,8 +3,13 @@
   max-height calc(100vh - 100px)
   overflow-y scroll
 .qm-trigger
-  color text-disabled
-  background main-dark
+  .qm-full
+    display none
+  &:hover
+    .qm-full
+      display inline
+    .qm-compact
+      display none
 .qm-wrap-tooltip
   background main
   position absolute

@@ -7,10 +7,12 @@ import {
   AutoComplete,
   Input,
   Switch,
-  Tooltip
+  Tooltip,
+  Button
 } from 'antd'
 import { batchInputLsKey, commonActions } from '../../common/constants'
 import postMsg from '../../common/post-msg'
+import classNames from 'classnames'
 
 const { prefix } = window
 const e = prefix('ssh')
@@ -19,7 +21,12 @@ export default class BatchInput extends Component {
   state = {
     cmd: '',
     toAll: false,
-    open: false
+    open: false,
+    enter: false
+  }
+
+  componentWillUnmount () {
+    clearTimeout(this.timer)
   }
 
   handleEnter = (e) => {
@@ -94,8 +101,25 @@ export default class BatchInput extends Component {
     return []
   }
 
+  handleMouseEnter = () => {
+    clearTimeout(this.timer)
+    this.setState({
+      enter: true
+    })
+  }
+
+  leave = () => {
+    this.setState({
+      enter: false
+    })
+  }
+
+  handleMouseLeave = () => {
+    this.timer = setTimeout(this.leave, 5000)
+  }
+
   render () {
-    const { cmd, open, toAll } = this.state
+    const { cmd, open, toAll, enter } = this.state
     const opts = {
       options: this.buildOptions(),
       placeholder: e('batchInput'),
@@ -106,26 +130,47 @@ export default class BatchInput extends Component {
       allowClear: true,
       className: 'batch-input-wrap'
     }
+    const cls = classNames(
+      'batch-input-outer',
+      {
+        'bi-show': open || enter
+      }
+    )
+    console.log('cls', cls)
     return (
-      <span>
-        <AutoComplete
-          {...opts}
-        >
-          <Input.TextArea
-            onPressEnter={this.handleEnter}
-            onClick={this.handleClick}
-            onBlur={this.handleBlur}
+      <span
+        className={cls}
+        onMouseEnter={this.handleMouseEnter}
+        onMouseLeave={this.handleMouseLeave}
+      >
+        <span className='bi-compact'>
+          <Button
             size='small'
-            row={1}
-          />
-        </AutoComplete>
-        <Tooltip title={e('runInAllTerminals')}>
-          <Switch
-            className='mg1l'
-            checked={toAll}
-            onChange={this.handleChangeAll}
-          />
-        </Tooltip>
+            type='ghost'
+          >
+            B
+          </Button>
+        </span>
+        <span className='bi-full'>
+          <AutoComplete
+            {...opts}
+          >
+            <Input.TextArea
+              onPressEnter={this.handleEnter}
+              onClick={this.handleClick}
+              onBlur={this.handleBlur}
+              size='small'
+              row={1}
+            />
+          </AutoComplete>
+          <Tooltip title={e('runInAllTerminals')}>
+            <Switch
+              className='mg1l'
+              checked={toAll}
+              onChange={this.handleChangeAll}
+            />
+          </Tooltip>
+        </span>
       </span>
     )
   }

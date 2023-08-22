@@ -104,19 +104,20 @@ export default class SystemMenu extends Component {
 
   renderInfoIcon () {
     const loading = this.isLoading()
-    return loading
-      ? null
-      : (
-        <div className='terminal-footer-unit terminal-footer-info'>
-          <Tooltip
-            title='Terminal Info'
-          >
-            <InfoCircleOutlined
-              onClick={this.showInfoPanel}
-              className='pointer font18 terminal-info-icon' />
-          </Tooltip>
-        </div>
-      )
+    if (loading) {
+      return null
+    }
+    return (
+      <div className='terminal-footer-unit terminal-footer-info'>
+        <Tooltip
+          title='Terminal Info'
+        >
+          <InfoCircleOutlined
+            onClick={this.showInfoPanel}
+            className='pointer font18 terminal-info-icon' />
+        </Tooltip>
+      </div>
+    )
   }
 
   render () {
