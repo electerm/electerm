@@ -105,7 +105,7 @@ export default Store => {
       return [
         ...store.getTerminalThemes(),
         ...store.itermThemes
-      ]
+      ].sort(window.store.sortTheme)
     }
     return store.getItems(type)
   }

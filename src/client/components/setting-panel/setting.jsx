@@ -1,6 +1,6 @@
 
 import React, { Component } from 'react'
-import { CodeOutlined } from '@ant-design/icons'
+import { CodeOutlined, LoadingOutlined } from '@ant-design/icons'
 import {
   message,
   Select,
@@ -57,7 +57,20 @@ const keys = [
 
 export default class Setting extends Component {
   state = {
+    ready: false,
     languageChanged: false
+  }
+
+  componentDidMount () {
+    this.timer = setTimeout(() => {
+      this.setState({
+        ready: true
+      })
+    }, 200)
+  }
+
+  componentWillUnmount () {
+    clearTimeout(this.timer)
   }
 
   restart = () => {
@@ -622,6 +635,14 @@ export default class Setting extends Component {
   }
 
   render () {
+    const { ready } = this.state
+    if (!ready) {
+      return (
+        <div className='pd3 aligncenter'>
+          <LoadingOutlined />
+        </div>
+      )
+    }
     const {
       hotkey,
       language,

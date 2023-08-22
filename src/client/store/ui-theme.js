@@ -51,6 +51,13 @@ export default Store => {
     return window.pre.runGlobalAsync('toCss', stylus)
   }
 
+  Store.prototype.sortTheme = function (a, b) {
+    const { theme } = window.store.config
+    const ax = a.id === theme ? -1 : 1
+    const bx = b.id === theme ? -1 : 1
+    return ax - bx
+  }
+
   Store.prototype.getUiThemeConfig = function () {
     const { store } = window
     const theme = _.find(

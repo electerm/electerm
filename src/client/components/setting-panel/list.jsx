@@ -32,6 +32,10 @@ export default class ItemList extends React.PureComponent {
     }, 200)
   }
 
+  componentWillUnmount () {
+    clearTimeout(this.timer)
+  }
+
   onChange = e => {
     this.setState({
       keyword: e.target.value
