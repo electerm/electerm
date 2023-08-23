@@ -136,7 +136,6 @@ export default class BatchInput extends Component {
         'bi-show': open || enter
       }
     )
-    console.log('cls', cls)
     return (
       <span
         className={cls}
