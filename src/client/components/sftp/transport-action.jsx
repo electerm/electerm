@@ -58,7 +58,7 @@ export default function transportAction (props) {
       next
     } = transfer
     const cb = props[typeTo + 'List']
-    const finishTime = +new Date()
+    const finishTime = Date.now()
     if (!props.config.disableTransferHistory) {
       window.store.addTransferHistory(
         {
@@ -350,7 +350,7 @@ export default function transportAction (props) {
       unzip,
       inited
     } = transfer
-    const t = +new Date()
+    const t = Date.now()
     update({
       startTime: t
     })

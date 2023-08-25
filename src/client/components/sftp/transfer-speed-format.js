@@ -11,7 +11,7 @@ const day = hour * 24
 const month = day * 30
 
 export default (bytes, startTime) => {
-  let now = +new Date()
+  let now = Date.now()
   if (now <= startTime) {
     now = startTime + 1
   }
@@ -42,12 +42,12 @@ function formatTime (ms) {
 }
 
 export const computePassedTime = (startTime) => {
-  const allTimeNeed = (+new Date()) - startTime
+  const allTimeNeed = (Date.now()) - startTime
   return formatTime(allTimeNeed)
 }
 
 export const computeLeftTime = (bytes, total, startTime) => {
-  let now = +new Date()
+  let now = Date.now()
   if (now <= startTime) {
     now = startTime + 1
   }

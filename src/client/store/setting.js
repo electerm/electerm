@@ -45,7 +45,7 @@ export default Store => {
     const all = store.getItems('history')
     store.storeAssign({
       settingTab: settingMap.history,
-      autofocustrigger: +new Date()
+      autofocustrigger: Date.now()
     })
     store.setSettingItem(all[0] || getInitItem([], settingMap.history))
     store.openSettingModal()
@@ -55,7 +55,7 @@ export default Store => {
     const { store } = window
     store.storeAssign({
       settingTab: settingMap.bookmarks,
-      autofocustrigger: +new Date()
+      autofocustrigger: Date.now()
     })
     store.setSettingItem(item)
     store.openSettingModal()
@@ -65,7 +65,7 @@ export default Store => {
     const { store } = window
     store.storeAssign({
       settingTab: settingMap.quickCommands,
-      autofocustrigger: +new Date()
+      autofocustrigger: Date.now()
     })
     store.setSettingItem(getInitItem([], settingMap.quickCommands))
     store.openSettingModal()
@@ -164,7 +164,7 @@ export default Store => {
     }
     store.storeAssign({
       settingTab: settingMap.terminalThemes,
-      autofocustrigger: +new Date()
+      autofocustrigger: Date.now()
     })
     store.setSettingItem(buildNewTheme())
     store.openSettingModal()
@@ -200,7 +200,7 @@ export default Store => {
     const arr = store.getItems(settingTab)
     const item = getInitItem(arr, settingTab)
     store.storeAssign({
-      autofocustrigger: +new Date(),
+      autofocustrigger: Date.now(),
       settingTab
     })
     store.setSettingItem(item)

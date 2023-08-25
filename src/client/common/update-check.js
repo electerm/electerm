@@ -22,7 +22,7 @@ async function fetchData (url, options) {
 }
 
 function getInfo (url) {
-  const n = +new Date()
+  const n = Date.now()
   const tail = url.includes('?') ? '' : '?_=' + n
   return fetchData(url + tail, {
     action: 'get-update-info',
@@ -48,7 +48,7 @@ export async function getLatestReleaseVersion (n) {
       sync_with_gitee: !!store.config.syncSetting?.giteeGistId,
       version: packInfo.version,
       installSrc: store.installSrc,
-      n: +new Date()
+      n: Date.now()
     }
     q = Object.keys(info).reduce((p, k, i) => {
       const pre = i ? '&' : '?'

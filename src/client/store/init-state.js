@@ -43,7 +43,7 @@ export const getInitItem = (arr, tab) => {
   if (tab === settingMap.history) {
     return arr[0] || {}
   } else if (tab === settingMap.bookmarks) {
-    return { id: newBookmarkIdPrefix + ':' + (+new Date()), title: '' }
+    return { id: newBookmarkIdPrefix + ':' + (Date.now()), title: '' }
   } else if (tab === settingMap.setting) {
     return { id: '', title: e('common') }
   } else if (tab === settingMap.terminalThemes) {
@@ -113,7 +113,7 @@ export default {
   ]),
   _settingItem: JSON.stringify(getInitItem([], settingMap.bookmarks)),
   settingTab: settingMap.bookmarks, // setting tab
-  autofocustrigger: +new Date(),
+  autofocustrigger: Date.now(),
   bookmarkId: undefined,
   showModal: 0,
   activeTerminalId: '',

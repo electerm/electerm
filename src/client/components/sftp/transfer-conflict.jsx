@@ -109,7 +109,7 @@ export default (props) => {
       ...tr,
       host: props.host,
       error: errorMsg,
-      finishTime: +new Date()
+      finishTime: Date.now()
     })
     props.modifier(old => {
       const transferList = copy(old.transferList)

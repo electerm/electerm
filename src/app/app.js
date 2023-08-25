@@ -2,7 +2,7 @@
 /**
  * app entry
  */
-// require('v8-compile-cache')
+require('v8-compile-cache')
 const log = require('./common/log')
 const { createApp } = require('./lib/create-app')
 

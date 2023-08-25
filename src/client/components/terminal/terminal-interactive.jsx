@@ -3,7 +3,8 @@
  */
 
 import { useEffect, useState } from 'react'
-import { Modal, Form, Input, Button } from 'antd'
+import { Modal, Form, Button } from 'antd'
+import InputAutoFocus from '../common/input-auto-focus'
 import wait from '../../common/wait'
 
 const { prefix } = window
@@ -12,6 +13,7 @@ const c = prefix('common')
 const FormItem = Form.Item
 
 export default function TermInteractive () {
+  const [trigger] = useState(0)
   const [opts, setter] = useState(null)
   const [form] = Form.useForm()
   function onMsg (e) {
@@ -53,9 +55,9 @@ export default function TermInteractive () {
       echo
     } = pro
     const note = (opts.options.instructions || [])[i]
-    const InputDom = echo
-      ? Input
-      : Input.Password
+    const type = echo
+      ? 'input'
+      : 'password'
     return (
       <FormItem
         key={prompt + i}
@@ -68,7 +70,9 @@ export default function TermInteractive () {
           <pre>{note}</pre>
         </div>
         <FormItem noStyle name={'item' + i}>
-          <InputDom
+          <InputAutoFocus
+            type={type}
+            autofocustrigger={trigger}
             placeholder={note}
           />
         </FormItem>

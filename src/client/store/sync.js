@@ -264,7 +264,7 @@ export default (Store) => {
 
   Store.prototype.updateLastDataUpdateTime = _.debounce(function () {
     const { store } = window
-    store.lastDataUpdateTime = +new Date()
+    store.lastDataUpdateTime = Date.now()
     update('lastDataUpdateTime', store.lastDataUpdateTime)
   }, 1000)
 
