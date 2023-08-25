@@ -20,7 +20,7 @@ let config = {
     worker: './src/client/entry/worker.js'
   },
   output: {
-    path: path.resolve(__dirname, '../work/app/assets'),
+    path: path.resolve(__dirname, '../../work/app/assets'),
     filename: 'js/[name].js',
     publicPath: '/',
     chunkFilename: 'js/[name].js',
@@ -36,14 +36,14 @@ let config = {
   resolve: {
     extensions: ['.js', '.jsx', '.ts', '.json'],
     alias: {
-      client: path.resolve(__dirname, '../src/client'),
-      node_modules: path.resolve(__dirname, '../node_modules'),
-      'app-common': path.resolve(__dirname, '../src/app/common')
+      client: path.resolve(__dirname, '../../src/client'),
+      node_modules: path.resolve(__dirname, '../../node_modules'),
+      'app-common': path.resolve(__dirname, '../../src/app/common')
     }
   },
   resolveLoader: {
     modules: [
-      path.resolve(__dirname, '../src/client/loaders'),
+      path.resolve(__dirname, '../../src/client/loaders'),
       path.join(process.cwd(), 'node_modules')
     ]
   },

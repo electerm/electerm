@@ -1,6 +1,6 @@
 #!/bin/bash
 cd `dirname $0`
-cd ..
+cd ../..
 
 sourceFolder="temp/iTerm2-Color-Schemes"
 destinationFolder="build/"

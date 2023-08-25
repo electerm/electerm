@@ -4,7 +4,7 @@
 const { cp, exec } = require('shelljs')
 const { existsSync } = require('fs')
 const { resolve } = require('path')
-const prePushPath = resolve(__dirname, '../.git/hooks/pre-push')
+const prePushPath = resolve(__dirname, '../../.git/hooks/pre-push')
 const prePushPathFrom = resolve(__dirname, 'pre-push')
 const os = require('os')
 

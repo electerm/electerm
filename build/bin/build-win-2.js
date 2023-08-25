@@ -7,7 +7,7 @@ const {
   builder
 } = require('./build-common')
 const options = {
-  files: require('path').resolve(__dirname, '../electron-builder.json'),
+  files: require('path').resolve(__dirname, '../../electron-builder.json'),
   from: ['"asar": true', '${productName}-${version}-${os}-${arch}.${ext}', ', "appx", "nsis"'], // eslint-disable-line
   to: ['"asar": false', '${productName}-${version}-${os}-${arch}-loose.${ext}', ''] // eslint-disable-line
 }

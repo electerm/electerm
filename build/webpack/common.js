@@ -1,4 +1,4 @@
-const pack = require('../package.json')
+const pack = require('../../package.json')
 const version = pack.version
 
 exports.version = version
