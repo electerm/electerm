@@ -15,7 +15,7 @@ module.exports = {
   port: devPort,
   onBeforeSetupMiddleware: (devServer) => {
     devServer.app.use('/node_modules', express.static(
-      path.resolve(__dirname, '../node_modules'), { maxAge: '170d' })
+      path.resolve(__dirname, '../../node_modules'), { maxAge: '170d' })
     )
   }
 }

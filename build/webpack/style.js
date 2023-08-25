@@ -12,7 +12,7 @@ function findFiles (pattern) {
 }
 
 function loadDevStylus () {
-  const dir = resolve(__dirname, '../src/client')
+  const dir = resolve(__dirname, '../../src/client')
   const pat = dir + '/**/*.styl'
   const arr = findFiles(pat)
   const key = 'theme-default.styl'

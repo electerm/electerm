@@ -2,7 +2,7 @@
  * prepare the files to be packed
  */
 
-const pack = require('../package.json')
+const pack = require('../../package.json')
 const os = require('os')
 const { resolve } = require('path')
 const { version } = pack
@@ -47,7 +47,7 @@ rm('-rf', 'work/app/assets/js/*.txt')
 rm('-rf', 'work/app/node_modules/zmodem.js/src')
 rm('-rf', 'work/app/node_modules/zmodem.js/dist/zmodem.devel.js')
 require('fs').writeFileSync(
-  resolve(__dirname, '../work/app/package.json'),
+  resolve(__dirname, '../../work/app/package.json'),
   JSON.stringify(
     pack, null, 2
   )
@@ -56,7 +56,7 @@ require('fs').writeFileSync(
 exec(`cd work/app && npm prune --production && cd ${cwd}`)
 
 // yarn auto clean
-cp('-r', 'bin/.yarnclean', 'work/app/')
+cp('-r', 'build/bin/.yarnclean', 'work/app/')
 exec(`cd work/app && yarn generate-lock-entry > yarn.lock && yarn autoclean --force && cd ${cwd}`)
 rm('-rf', 'work/app/.yarnclean')
 rm('-rf', 'work/app/package-lock.json')

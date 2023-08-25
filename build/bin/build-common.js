@@ -18,20 +18,20 @@ exports.run = function (cmd) {
 }
 
 exports.writeSrc = function (src) {
-  const p = resolve(__dirname, '../work/app/lib/install-src.js')
+  const p = resolve(__dirname, '../../work/app/lib/install-src.js')
   writeFileSync(p, `module.exports = '${src}'`)
 }
 
 exports.builder = resolve(
-  __dirname, '../node_modules/.bin/electron-builder'
+  __dirname, '../../node_modules/.bin/electron-builder'
 )
 
 exports.reBuild = resolve(
-  __dirname, '../node_modules/.bin/electron-rebuild'
+  __dirname, '../../node_modules/.bin/electron-rebuild'
 )
 
 exports.changeTeamId = function () {
-  const pth = resolve(__dirname, '../electron-builder.json')
+  const pth = resolve(__dirname, '../../electron-builder.json')
   console.log('electron-builder', pth)
   const str = readFileSync(pth)
     .toString().replace('__teamId', process.env.APPLE_TEAM_ID)

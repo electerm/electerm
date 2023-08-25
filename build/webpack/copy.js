@@ -2,40 +2,40 @@ const CopyWebpackPlugin = require('copy-webpack-plugin')
 const { resolve } = require('path')
 const from = resolve(
   __dirname,
-  '../node_modules/@electerm/electerm-resource/tray-icons'
+  '../../node_modules/@electerm/electerm-resource/tray-icons'
 )
 const from0 = resolve(
   __dirname,
-  '../node_modules/vscode-icons/icons'
+  '../../node_modules/vscode-icons/icons'
 )
 const from1 = resolve(
   __dirname,
-  '../node_modules/react/umd/react.production.min.js'
+  '../../node_modules/react/umd/react.production.min.js'
 )
 const from2 = resolve(
   __dirname,
-  '../node_modules/react-dom/umd/react-dom.production.min.js'
+  '../../node_modules/react-dom/umd/react-dom.production.min.js'
 )
 const from3 = resolve(
   __dirname,
-  'iTerm2-Color-Schemes/electerm'
+  '../iTerm2-Color-Schemes/electerm'
 )
 
 const to1 = resolve(
   __dirname,
-  '../work/app/assets/images'
+  '../../work/app/assets/images'
 )
 const to2 = resolve(
   __dirname,
-  '../work/app/assets/icons'
+  '../../work/app/assets/icons'
 )
 const to3 = resolve(
   __dirname,
-  '../work/app/assets/external'
+  '../../work/app/assets/external'
 )
 const to4 = resolve(
   __dirname,
-  '../work/app/assets/iTerm2-Color-Schemes'
+  '../../work/app/assets/iTerm2-Color-Schemes'
 )
 const copy = new CopyWebpackPlugin({
   patterns: [{
