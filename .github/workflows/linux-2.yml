@@ -47,7 +47,7 @@ jobs:
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         BUILD_NUMBER: ${{ secrets.BUILD_NUMBER }}
-      run: npm run build-linux-2
+      run: node build/bin/build-linux-2
 
     - name: upload to snap store
       env:
