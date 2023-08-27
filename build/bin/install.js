@@ -7,7 +7,7 @@ const os = require('os')
 const platform = os.platform()
 const isWin = platform === 'win32'
 
-const p = resolve(__dirname, '../build/iTerm2-Color-Schemes')
+const p = resolve(__dirname, '../iTerm2-Color-Schemes')
 const run = resolve(__dirname, 'cp-iterm')
 echo('install required modules')
 echo('install iTerm2-Color-Schemes')
