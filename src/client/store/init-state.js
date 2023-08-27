@@ -129,14 +129,14 @@ export default {
   // term search
   termSearchOpen: false,
   termSearch: '',
-  termSearchOptions: {
+  _termSearchOptions: JSON.stringify({
     caseSensitive: false,
     wholeWord: false,
     regex: false,
     decorations: {
       activeMatchColorOverviewRuler: 'yellow'
     }
-  },
+  }),
 
   // quick commands
   _quickCommands: '[]',

@@ -127,4 +127,14 @@ export default Store => {
   Store.prototype.setSettingItem = function (v) {
     window.store.setState('settingItem', v)
   }
+
+  Store.prototype.setTermSearchOption = function (update) {
+    const {
+      store
+    } = window
+    store.setState('termSearchOptions', {
+      ...JSON.parse(window.store._termSearchOptions),
+      ...update
+    })
+  }
 }

@@ -133,8 +133,13 @@ export default class TermSearch extends Component {
   }
 
   toggle = prop => {
-    const v = this.props.store.termSearchOptions[prop]
-    this.props.store.termSearchOptions[prop] = !v
+    const {
+      store
+    } = this.props
+    const v = store.termSearchOptions[prop]
+    store.setTermSearchOption({
+      [prop]: !v
+    })
     this.next()
   }
 

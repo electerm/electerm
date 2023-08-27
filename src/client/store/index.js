@@ -164,6 +164,22 @@ class Store {
       ]
   }
 
+  get termSearchOptions () {
+    const {
+      store
+    } = window
+    const theme = store.getThemeConfig()
+    return {
+      ...JSON.parse(window.store._termSearchOptions),
+      decorations: {
+        activeMatchColorOverviewRuler: theme.selectionBackground,
+        matchBackground: theme.background,
+        matchOverviewRuler: theme.selectionBackground,
+        matchBorder: theme.selectionBackground
+      }
+    }
+  }
+
   get tabTitles () {
     return window.store.getTabs().map(d => d.title).join('#')
   }
