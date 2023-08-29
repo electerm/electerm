@@ -42,6 +42,45 @@ module.exports = {
   readFileSync: (...args) => {
     return require('fs').readFileSync(...args).toString()
   },
+  existsSync: (...args) => {
+    return require('fs').existsSync(...args)
+  },
+  statSync: (...args) => {
+    const st = require('fs').statSync(...args)
+    st.isD = st.isDirectory()
+    return st
+  },
+  mkdirSync: (...args) => {
+    return require('fs').mkdirSync(...args)
+  },
+  accessSync: (...args) => {
+    try {
+      return require('fs').accessSync(...args)
+    } catch (e) {
+      return e.message
+    }
+  },
+  openSync: (...args) => {
+    return require('fs').openSync(...args)
+  },
+  realpathSync: (...args) => {
+    return require('fs').realpathSync(...args)
+  },
+  readSync: (...args) => {
+    return require('fs').readSync(...args)
+  },
+  closeSync: (...args) => {
+    return require('fs').closeSync(...args)
+  },
+  readdirSync: (...args) => {
+    return require('fs').readdirSync(...args)
+  },
+  writeSync: (...args) => {
+    return require('fs').writeSync(...args)
+  },
+  getFsContants: () => {
+    return require('fs').constants
+  },
   readClipboard: () => {
     return clipboard.readText()
   },
@@ -49,6 +88,8 @@ module.exports = {
     clipboard.writeText(str)
   },
   resolve: (...args) => require('path').resolve(...args),
+  join: (...args) => require('path').join(...args),
+  basename: (...args) => require('path').basename(...args),
   showItemInFolder: (href) => {
     shell.showItemInFolder(href)
   },

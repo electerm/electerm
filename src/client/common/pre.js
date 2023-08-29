@@ -1,4 +1,4 @@
-import { TrzszFilter } from 'trzsz'
+import { TrzszFilter } from '@electerm/trzsz'
 
 const {
   runSync,
@@ -92,6 +92,8 @@ window.pre = {
   },
 
   resolve: (...args) => runSync('resolve', ...args),
+  join: (...args) => runSync('join', ...args),
+  basename: (...args) => runSync('basename', ...args),
   showItemInFolder: (href) => runSync('showItemInFolder', href),
   ...props,
   ipcOnEvent,
@@ -105,3 +107,59 @@ window.pre = {
   runGlobalAsync,
   runSync
 }
+
+const path = {
+  resolve: window.pre.resolve,
+  join: window.pre.join,
+  basename: window.pre.basename
+}
+
+const fs = {
+  existsSync: (...args) => {
+    return runSync('existsSync', ...args)
+  },
+  statSync: (...args) => {
+    const obj = runSync('statSync', ...args)
+    obj.isDirectory = () => obj.isD
+    return obj
+  },
+  accessSync: (...args) => {
+    const r = runSync('accessSync', ...args)
+    if (r) {
+      throw new Error(r)
+    }
+  },
+  openSync: (...args) => {
+    return runSync('openSync', ...args)
+  },
+  readSync: (...args) => {
+    return runSync('readSync', ...args)
+  },
+  closeSync: (...args) => {
+    return runSync('closeSync', ...args)
+  },
+  readdirSync: (...args) => {
+    return runSync('readdirSync', ...args)
+  },
+  mkdirSync: (...args) => {
+    return runSync('mkdirSync', ...args)
+  },
+  writeSync: (...args) => {
+    return runSync('writeSync', ...args)
+  },
+  realpathSync: (...args) => {
+    return runSync('realpathSync', ...args)
+  },
+  constants: runSync('getFsContants')
+}
+
+window.reqs = {
+  path,
+  fs
+}
+
+function require (name) {
+  return window.reqs[name]
+}
+
+window.require = require

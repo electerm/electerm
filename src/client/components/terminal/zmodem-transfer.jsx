@@ -5,9 +5,9 @@
  */
 
 import { memo } from 'react'
-import { Progress, Button, Upload } from 'antd'
+import { Progress, Button, Upload, Tag } from 'antd'
 import { transferTypeMap } from '../../common/constants'
-// import Link from '../common/external-link'
+import Link from '../common/external-link'
 import './zmodem.styl'
 
 const { prefix } = window
@@ -28,6 +28,14 @@ export default memo((props) => {
   } = zmodemTransfer
   let btn = null
   let progress = null
+  const recm = (
+    <Tag color='success'>
+      <div className='pd1y'>
+        <b className='mg1r'>Recommend Use trzsz instead:</b>
+        <Link to='https://github.com/trzsz/trzsz'>https://github.com/trzsz/trzsz</Link>
+      </div>
+    </Tag>
+  )
   const cancelBtn = (
     <Button
       type='danger'
@@ -82,6 +90,7 @@ export default memo((props) => {
       <div className='zmodem-transfer-inner'>
         {btn}
         {progress}
+        {recm}
       </div>
     </div>
   )

@@ -418,6 +418,7 @@ export default class Term extends Component {
     //  * zmodem transfer
     //  * then run rz to send from your browser or
     //  * sz <file> to send from the remote peer.
+    this.term.write('\r\nRecommmend use trzsz instead: https://github.com/trzsz/trzsz\r\n')
     this.zsession.on('offer', this.onOfferReceive)
     this.zsession.start()
     return new Promise((resolve) => {
