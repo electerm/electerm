@@ -465,7 +465,7 @@ class Terminal {
           .connect(opts)
       }
       if (
-        initOptions.proxy && initOptions.enableGlobalProxy
+        initOptions.proxy
       ) {
         proxySock({
           ...initOptions,
