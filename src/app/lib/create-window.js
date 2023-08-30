@@ -14,6 +14,7 @@ const { onClose } = require('./on-close')
 const initIpc = require('./ipc')
 const { getDbConfig } = require('./get-config')
 const fileServer = require('./file-server')
+const { disableShortCuts } = require('./key-bind')
 
 exports.createWindow = async function () {
   const userConfig = await getDbConfig() || {}
@@ -52,6 +53,8 @@ exports.createWindow = async function () {
       global.win.webContents.openDevTools()
     })
   }
+
+  disableShortCuts(global.win)
 
   global.win.on('unmaximize', () => {
     const { width, height } = global.win.getBounds()
