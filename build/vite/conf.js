@@ -1,6 +1,6 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
-import htmlPurge from 'vite-plugin-purgecss'
+// import htmlPurge from 'vite-plugin-purgecss'
 import { cwd } from './common.js'
 import { resolve } from 'path'
 import def from './def.js'
@@ -18,7 +18,7 @@ function buildInput () {
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
-    htmlPurge(),
+    // htmlPurge(),
     commonjs(),
     // externalGlobals({
     //   react: 'React',

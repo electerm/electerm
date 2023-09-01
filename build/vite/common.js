@@ -1,7 +1,6 @@
 import { config as conf } from 'dotenv'
 import { readFileSync } from 'fs'
 import { resolve } from 'path'
-import { exec } from 'child_process'
 
 conf()
 
@@ -13,18 +12,6 @@ export const pack = JSON.parse(readFileSync(packPath).toString())
 export const version = pack.version
 export const viewPath = resolve(cwd, '../../src/client/views')
 export const staticPaths = [
-  {
-    dir: resolve(cwd, '../../node_modules/lodash'),
-    path: '/external'
-  },
-  {
-    dir: resolve(cwd, '../../node_modules/react/umd'),
-    path: '/external'
-  },
-  {
-    dir: resolve(cwd, '../../node_modules/react-dom/umd'),
-    path: '/external'
-  },
   {
     dir: resolve(cwd, '../../node_modules/vscode-icons/icons'),
     path: '/icons'
@@ -38,15 +25,3 @@ export const staticPaths = [
     path: '/images'
   }
 ]
-
-export function exe (command) {
-  return new Promise((resolve, reject) => {
-    exec(command, (error, stdout, stderr) => {
-      if (error) {
-        reject(error)
-        return
-      }
-      resolve(stdout.trim())
-    })
-  })
-}
