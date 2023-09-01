@@ -31,7 +31,7 @@ import useSubmit from './use-submit'
 import useUI from './use-ui'
 import useQm from './use-quick-commands'
 import copy from 'json-deep-copy'
-import _ from 'lodash'
+import { defaults } from 'lodash-es'
 
 const FormItem = Form.Item
 const { Option } = Select
@@ -82,7 +82,7 @@ export default function SerialFormUi (props) {
     category: initBookmarkGroupId,
     ignoreKeyboardInteractive: false
   }
-  initialValues = _.defaults(initialValues, defaultValues)
+  initialValues = defaults(initialValues, defaultValues)
   function renderCommon () {
     const {
       bookmarkGroups = [],

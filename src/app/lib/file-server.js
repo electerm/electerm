@@ -12,13 +12,6 @@ module.exports = (port) => {
         conf
       )
     )
-    app.use(
-      '/node_modules',
-      express.static(
-        require('path').resolve(__dirname, '../node_modules'),
-        conf
-      )
-    )
     app.listen(port, '127.0.0.1', resolve)
   })
 }

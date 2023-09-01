@@ -2,7 +2,7 @@
  * sync data to github gist related
  */
 
-import _ from 'lodash'
+import { without, get, pick, debounce } from 'lodash-es'
 import copy from 'json-deep-copy'
 import {
   settingMap, packInfo, syncTypes
@@ -12,7 +12,7 @@ import fetch from '../common/fetch-from-server'
 import download from '../common/download'
 import dayjs from 'dayjs'
 
-const names = _.without(dbNames, settingMap.history)
+const names = without(dbNames, settingMap.history)
 const {
   version: packVer
 } = packInfo
@@ -52,19 +52,19 @@ export default (Store) => {
     if (type === syncTypes.custom) {
       return ['AccessToken', 'ApiUrl', 'GistId'].map(
         p => {
-          return _.get(window.store.config, 'syncSetting.' + type + p)
+          return get(window.store.config, 'syncSetting.' + type + p)
         }
       ).join('####')
     }
-    return _.get(window.store.config, 'syncSetting.' + type + 'AccessToken')
+    return get(window.store.config, 'syncSetting.' + type + 'AccessToken')
   }
 
   Store.prototype.getSyncPassword = function (type) {
-    return _.get(window.store.config, 'syncSetting.' + type + 'SyncPassword')
+    return get(window.store.config, 'syncSetting.' + type + 'SyncPassword')
   }
 
   Store.prototype.getSyncGistId = function (type) {
-    return _.get(window.store.config, 'syncSetting.' + type + 'GistId')
+    return get(window.store.config, 'syncSetting.' + type + 'GistId')
   }
 
   Store.prototype.testSyncToken = async function (type) {
@@ -146,7 +146,7 @@ export default (Store) => {
       files: {
         ...objs,
         'userConfig.json': {
-          content: JSON.stringify(_.pick(store.config, ['theme']))
+          content: JSON.stringify(pick(store.config, ['theme']))
         },
         'electerm-status.json': {
           content: JSON.stringify({
@@ -188,7 +188,7 @@ export default (Store) => {
     )
     const toInsert = []
     for (const n of names) {
-      let str = _.get(gist, `files["${n}.json"].content`)
+      let str = get(gist, `files["${n}.json"].content`)
       if (!str) {
         store.isSyncingSetting = false
         store.isSyncDownload = false
@@ -210,7 +210,7 @@ export default (Store) => {
       store.setItems(n, arr)
     }
     const userConfig = JSON.parse(
-      _.get(gist, 'files["userConfig.json"].content')
+      get(gist, 'files["userConfig.json"].content')
     )
     store.setTheme(userConfig.theme)
     const up = {
@@ -252,7 +252,7 @@ export default (Store) => {
   // }
 
   // store.checkSettingSync = () => {
-  //   if (_.get(store, 'config.syncSetting.autoSync')) {
+  //   if (get(store, 'config.syncSetting.autoSync')) {
   //     store.uploadSetting()
   //   }
   // }
@@ -262,7 +262,7 @@ export default (Store) => {
     })
   }
 
-  Store.prototype.updateLastDataUpdateTime = _.debounce(function () {
+  Store.prototype.updateLastDataUpdateTime = debounce(function () {
     const { store } = window
     store.lastDataUpdateTime = Date.now()
     update('lastDataUpdateTime', store.lastDataUpdateTime)
@@ -274,7 +274,7 @@ export default (Store) => {
     for (const n of names) {
       objs[n] = store.getItems(n)
     }
-    objs.config = _.pick(store.config, [
+    objs.config = pick(store.config, [
       'theme',
       'useSystemTitleBar',
       'defaultEditor',

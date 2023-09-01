@@ -7,7 +7,7 @@ import { Popconfirm } from 'antd'
 import Search from '../common/search'
 import createName from '../../common/create-title'
 import classnames from 'classnames'
-import _ from 'lodash'
+import { noop } from 'lodash-es'
 import highlight from '../common/highlight'
 import { settingSyncId, settingCommonId } from '../../common/constants'
 import './list.styl'
@@ -74,7 +74,7 @@ export default class ItemList extends React.PureComponent {
         className='pointer list-item-remove'
         onClick={
           shouldConfirmDel
-            ? _.noop
+            ? noop
             : e => this.del(item, e)
         } />
     )

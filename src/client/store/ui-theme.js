@@ -6,7 +6,7 @@
  * theme related functions
  */
 
-import _ from 'lodash'
+import { escapeRegExp, find } from 'lodash-es'
 import {
   defaultTheme,
   settingMap
@@ -44,7 +44,7 @@ export default Store => {
     let { stylus } = window.et
     const keys = Object.keys(config)
     for (const key of keys) {
-      const reg = new RegExp(_.escapeRegExp(key) + ' = [^\\n]+\\n')
+      const reg = new RegExp(escapeRegExp(key) + ' = [^\\n]+\\n')
       const v = config[key]
       stylus = stylus.replace(reg, `${key} = ${v}\n`)
     }
@@ -60,7 +60,7 @@ export default Store => {
 
   Store.prototype.getUiThemeConfig = function () {
     const { store } = window
-    const theme = _.find(
+    const theme = find(
       store.getSidebarList(settingMap.terminalThemes),
       d => d.id === store.config.theme
     )

@@ -6,7 +6,7 @@ import TransfersHandler from './transports-action'
 import deepCopy from 'json-deep-copy'
 import runIdle from '../../common/run-idle'
 import { commonActions } from '../../common/constants'
-import _ from 'lodash'
+import { pick } from 'lodash-es'
 
 export default class TransferEntry extends PureComponent {
   constructor (props) {
@@ -69,7 +69,7 @@ export default class TransferEntry extends PureComponent {
       modifier: this.modifier,
       addTransferList: this.addTransferList,
       transferToConfirm: this.state.transferToConfirm,
-      ..._.pick(this.props, [
+      ...pick(this.props, [
         'localList',
         'remoteList',
         'sftp',
@@ -84,7 +84,7 @@ export default class TransferEntry extends PureComponent {
       pauseAll: this.state.pauseAll,
       localList: this.props.localListDebounce,
       remoteList: this.props.remoteListDebounce,
-      ..._.pick(this.props, [
+      ...pick(this.props, [
         'sftp',
         'config',
         'tab',

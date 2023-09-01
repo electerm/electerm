@@ -1,6 +1,5 @@
 
 doctype html
-- var isDev = env !== 'production'
 html
   head
     meta(charset='UTF-8')
@@ -26,22 +25,32 @@ html
       .electerm-logo-bg {
         background: transparent 50% 50% no-repeat url("./images/electerm-watermark.png");
       }
-    link(rel='stylesheet', href='css/electerm.styles.css?' + version)
-    link(rel='stylesheet', href='css/basic.styles.css?' + version)
-    style(id='theme-css').
+    - if (!isDev)
+      link(rel='stylesheet', href='css/basic.css?' + version)
+      link(rel='stylesheet', href='css/index.css?' + version)
+      style(id='theme-css').
   body
+    - if (isDev)
+      style(id='theme-css').
     #container
     #content-loading
       .morph-shape.iblock.pd3
         img.iblock.logo-filter(src='images/electerm.png', alt='', height=80)
     script.
       window.et = !{JSON.stringify(_global)}
-    script(src='../node_modules/lodash/lodash.min.js')
     - if (isDev)
-      script(src='../node_modules/react/umd/react.development.js?' + version)
-      script(src='../node_modules/react-dom/umd/react-dom.development.js?' + version)
+      //- script(src='/external/react.development.js?' + version)
+      //- script(src='/external/react-dom.development.js?' + version)
+      script(type='module').
+        import RefreshRuntime from '/@react-refresh'
+        RefreshRuntime.injectIntoGlobalHook(window)
+        window.$RefreshReg$ = () => {}
+        window.$RefreshSig$ = () => (type) => type
+        window.__vite_plugin_react_preamble_installed__ = true
+      script(src='/@vite/client', type='module')
+      script(src='/src/client/entry/basic.js?' + version, type='module')
     - else
-      script(src='external/react.production.min.js?' + version)
-      script(src='external/react-dom.production.min.js?' + version)
-    script(src='js/basic.js?' + version)
+      //- script(src='/external/react.production.min.js?' + version)
+      //- script(src='/external/react-dom.production.min.js?' + version)
+      script(src='/js/basic.js?' + version, type='module')
 

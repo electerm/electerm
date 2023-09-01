@@ -14,7 +14,7 @@ import {
   Popconfirm
 } from 'antd'
 import postMessage from '../../common/post-msg'
-import _ from 'lodash'
+import { noop } from 'lodash-es'
 import History from './history'
 import Bookmark from './boomarks'
 import Tabs from './tabs'
@@ -263,7 +263,7 @@ export default class ContextMenu extends React.PureComponent {
       }
     )
     const act = requireConfirm || submenu
-      ? _.noop
+      ? noop
       : (e) => this.onClick(e, item)
     const unit = (
       <div

@@ -4,14 +4,14 @@
 
 import copy from 'json-deep-copy'
 import { maxBatchInput, batchInputLsKey } from '../common/constants'
-import _ from 'lodash'
+import { uniq } from 'lodash-es'
 import * as ls from '../common/safe-local-storage'
 
 export default Store => {
   Store.prototype.addBatchInput = function (str) {
     let batchInputs = copy(window.store.batchInputs)
     batchInputs.push(str)
-    batchInputs = _.uniq(batchInputs)
+    batchInputs = uniq(batchInputs)
     const len = batchInputs.length
     if (len > maxBatchInput) {
       batchInputs = batchInputs.slice(len - maxBatchInput)

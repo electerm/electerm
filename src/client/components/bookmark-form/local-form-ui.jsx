@@ -21,7 +21,7 @@ import useSubmit from './use-submit'
 import useUI from './use-ui'
 import useQm from './use-quick-commands'
 import copy from 'json-deep-copy'
-import _ from 'lodash'
+import { defaults } from 'lodash-es'
 
 const FormItem = Form.Item
 const { prefix } = window
@@ -62,7 +62,7 @@ export default function LocalFormUi (props) {
     type: terminalLocalType,
     enableSsh: true
   }
-  initialValues = _.defaults(initialValues, defaultValues)
+  initialValues = defaults(initialValues, defaultValues)
   function renderCommon () {
     const {
       bookmarkGroups = []

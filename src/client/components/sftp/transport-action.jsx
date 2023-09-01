@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { useDelta, useConditionalEffect } from 'react-delta'
 import copy from 'json-deep-copy'
-import _ from 'lodash'
+import { findIndex, isFunction, noop } from 'lodash-es'
 import generate from '../../common/uid'
 import { typeMap, transferTypeMap } from '../../common/constants'
 import fs from '../../common/fs'
@@ -22,7 +22,7 @@ export default function transportAction (props) {
   function update (up) {
     props.modifier((old) => {
       const transferList = copy(old.transferList)
-      const index = _.findIndex(transferList, t => t.id === transfer.id)
+      const index = findIndex(transferList, t => t.id === transfer.id)
       if (index < 0) {
         return {
           transferList
@@ -41,7 +41,7 @@ export default function transportAction (props) {
   function insert (insts) {
     props.modifier((old) => {
       const transferList = copy(old.transferList)
-      const index = _.findIndex(transferList, t => t.id === transfer.id)
+      const index = findIndex(transferList, t => t.id === transfer.id)
       transferList.splice(index, 1, ...insts)
       window.store.setTransfers(transferList)
       return {
@@ -113,7 +113,7 @@ export default function transportAction (props) {
       return {
         transferList
       }
-    }, _.isFunction(callback) ? callback : _.noop)
+    }, isFunction(callback) ? callback : noop)
   }
 
   function pause () {
@@ -139,9 +139,9 @@ export default function transportAction (props) {
   }
 
   function onMessage (e) {
-    const action = _.get(e, 'data.action')
-    const id = _.get(e, 'data.id')
-    const ids = _.get(e, 'data.ids')
+    const action = e?.data?.action
+    const id = e?.data?.id
+    const ids = e?.data?.ids
     if (id === transfer.id) {
       switch (action) {
         case transportTypes.cancelTransport:

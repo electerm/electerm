@@ -6,7 +6,7 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import classnames from 'classnames'
-import _ from 'lodash'
+import { isNull, pick, isUndefined } from 'lodash-es'
 import parseInt10 from '../../common/parse-int10'
 import generate from '../../common/uid'
 import memoizeOne from 'memoize-one'
@@ -53,7 +53,7 @@ export default class ResizeWrap extends React.Component {
     const next = dom.nextSibling
     const { direction } = this.props
     const { startPosition } = this
-    if (_.isNull(e.pageX)) {
+    if (isNull(e.pageX)) {
       return
     }
     const currentPosition = {
@@ -65,12 +65,12 @@ export default class ResizeWrap extends React.Component {
     const doms = [dom, prev, next]
     const styles = doms.map(d => {
       const { style } = d
-      const obj = _.pick(style, this.positionProps)
+      const obj = pick(style, this.positionProps)
       return Object.keys(obj).reduce((prev, k) => {
         const v = obj[k]
         return {
           ...prev,
-          [k]: _.isUndefined(v)
+          [k]: isUndefined(v)
             ? v
             : parseInt10(obj[k].replace('px', ''))
         }
@@ -176,7 +176,7 @@ export default class ResizeWrap extends React.Component {
       }
     const props = {
       style,
-      ..._.pick(this, [
+      ...pick(this, [
         'onDoubleClick',
         'onDrag',
         'onDragStart',

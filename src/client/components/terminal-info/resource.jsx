@@ -2,7 +2,7 @@
  * cpu/swap/mem general usage
  */
 
-import _ from 'lodash'
+import { isEmpty, isUndefined } from 'lodash-es'
 import { Progress } from 'antd'
 import parseInt10 from '../../common/parse-int10'
 
@@ -30,7 +30,7 @@ export default function TerminalInfoResource (props) {
     return null
   }
   function renderItem (obj) {
-    if (_.isEmpty(obj)) {
+    if (isEmpty(obj)) {
       return <div className='pd1b' key={obj.name}>NA</div>
     }
     const {
@@ -39,7 +39,7 @@ export default function TerminalInfoResource (props) {
       percent,
       name
     } = obj
-    const hasPercent = !_.isUndefined(percent)
+    const hasPercent = !isUndefined(percent)
     const p = hasPercent
       ? percent
       : computePercent(used, total) || 0

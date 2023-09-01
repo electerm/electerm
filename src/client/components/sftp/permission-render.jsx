@@ -3,7 +3,7 @@
  */
 
 import { Button } from 'antd'
-import _ from 'lodash'
+import { isFunction, noop } from 'lodash-es'
 
 const { prefix } = window
 const e = prefix('permission')
@@ -14,9 +14,9 @@ export default (perm, _onClick) => {
     name,
     permission
   } = perm
-  const onClick = _.isFunction(_onClick)
+  const onClick = isFunction(_onClick)
     ? _onClick
-    : _.noop
+    : noop
   return (
     <div key={name + 'pr'} className='pd1b'>
       <span className='iblock mg1r'>{e(name)}</span>

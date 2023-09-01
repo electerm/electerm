@@ -4,7 +4,7 @@
  */
 
 import { Modal, Button } from 'antd'
-import _ from 'lodash'
+import { isString } from 'lodash-es'
 import AnimateText from '../common/animate-text'
 import formatTime from '../../../app/common/time'
 import { FolderOutlined, FileOutlined } from '@ant-design/icons'
@@ -17,7 +17,7 @@ const { prefix } = window
 const e = prefix('sftp')
 
 function formatTimeAuto (strOrDigit) {
-  if (_.isString(strOrDigit)) {
+  if (isString(strOrDigit)) {
     return formatTime(strOrDigit)
   }
   return formatTime(strOrDigit * 1000)

@@ -1,5 +1,5 @@
 // the final fetch wrapper
-import _ from 'lodash'
+import { isString, isFunction } from 'lodash-es'
 import { notification } from 'antd'
 
 function jsonHeader () {
@@ -19,11 +19,11 @@ function parseResponse (response) {
 export async function handleErr (res) {
   log.debug(res)
   let text = res.message || res.statusText
-  if (!_.isString(text)) {
+  if (!isString(text)) {
     try {
-      text = _.isFunction(res.text)
+      text = isFunction(res.text)
         ? await res.text()
-        : _.isFunction(res.json) ? await res.json() : ''
+        : isFunction(res.json) ? await res.json() : ''
     } catch (e) {
       log.error('fetch response parse fails', e)
     }

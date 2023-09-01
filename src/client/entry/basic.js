@@ -2,7 +2,7 @@
  * init app data then write main script to html body
  */
 import '../css/basic.styl'
-import _ from 'lodash'
+import { get as _get } from 'lodash-es'
 import '../common/pre'
 
 async function loadWorker () {
@@ -31,15 +31,16 @@ async function load () {
   function loadScript () {
     const rcs = document.createElement('script')
     rcs.src = 'js/electerm.js?' + window.pre.packInfo.version
+    rcs.type = 'module'
     document.body.appendChild(rcs)
   }
   window.getLang = (lang = window.store?.config.language || 'en_us') => {
-    return _.get(window.langMap, `[${lang}].lang`)
+    return _get(window.langMap, `[${lang}].lang`)
   }
   window.prefix = prefix => {
     return (id) => {
       const lang = window.getLang()
-      const str = _.get(lang, `[${prefix}][${id}]`) || id
+      const str = _get(lang, `[${prefix}][${id}]`) || id
       return window.capitalizeFirstLetter(str)
     }
   }

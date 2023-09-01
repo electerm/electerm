@@ -5,7 +5,6 @@ import { useRef, useEffect } from 'react'
 import Transport from './transport-action'
 import postMessage from '../../common/post-msg'
 import { transportTypes } from './transport-types'
-import _ from 'lodash'
 
 export default function TransportsUI (props) {
   const {
@@ -53,8 +52,8 @@ export default function TransportsUI (props) {
   }
 
   function onMessage (e) {
-    const action = _.get(e, 'data.action')
-    const id = _.get(e, 'data.id')
+    const action = e?.data?.action
+    const id = e?.data?.id
     if (id === props.sessionId || id === 'all') {
       switch (action) {
         case transportTypes.cancelAll:

@@ -3,7 +3,7 @@
  */
 
 import { Component } from '../common/react-subx'
-import _ from 'lodash'
+import { pick } from 'lodash-es'
 import { Tabs } from 'antd'
 import SettingModal from './setting-wrap'
 import {
@@ -47,7 +47,7 @@ export default class SettingModalWrap extends Component {
       formData: settingItem,
       type: settingTab,
       hide: store.hideSettingModal,
-      ..._.pick(store, [
+      ...pick(store, [
         'currentBookmarkGroupId',
         'config'
       ]),
@@ -61,7 +61,7 @@ export default class SettingModalWrap extends Component {
       bookmarkSelectMode,
       bookmarkGroups: store.getBookmarkGroups(),
       bookmarks: store.getBookmarks(),
-      ..._.pick(store, [
+      ...pick(store, [
         'currentBookmarkGroupId',
         'autofocustrigger',
         'config'

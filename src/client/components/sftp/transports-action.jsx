@@ -8,7 +8,7 @@ import copy from 'json-deep-copy'
 import Transports from './transports-ui'
 import { maxTransport } from '../../common/constants'
 import eq from 'fast-deep-equal'
-import _ from 'lodash'
+import { isUndefined } from 'lodash-es'
 
 export default (props) => {
   const { transferList, pauseAll } = props
@@ -104,7 +104,7 @@ export default (props) => {
   }, pauseControl && pauseControl.prev && pauseControl.prev !== pauseControl.curr)
   useConditionalEffect(() => {
     control()
-  }, delta && !_.isUndefined(delta.prev) && !eq(delta.prev, delta.curr))
+  }, delta && !isUndefined(delta.prev) && !eq(delta.prev, delta.curr))
   return (
     <Transports {...props} />
   )

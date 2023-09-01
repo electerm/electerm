@@ -120,51 +120,51 @@ export default class InfoModal extends Component {
             <LogoElelm />
             <p className='mg2b'>{a('desc')}</p>
             <p className='mg1b'>
-              => <b className='mg1r'>{e('author')}:</b>
+              <UserOutlined /> <b className='mg1r'>{e('author')} ➾</b>
               <Link to={authorUrl} className='mg1l'>
-                <UserOutlined /> {authorName} ({email})
+                {authorName} ({email})
               </Link>
             </p>
             <p className='mg1b'>
-              => <b>{e('homepage')}/{e('download')}:</b>
+              <HomeOutlined /> <b>{e('homepage')}/{e('download')} ➾</b>
               <Link to={homepage} className='mg1l'>
-                <HomeOutlined /> {homepage}
+                {homepage}
               </Link>
             </p>
             <p className='mg1b'>
-              => <b className='mg1r'>github:</b>
+              <GithubOutlined /> <b className='mg1r'>github ➾</b>
               <Link to={link} className='mg1l'>
-                <GithubOutlined /> {link}
+                {link}
               </Link>
             </p>
             <p className='mg1b'>
-              => <b className='mg1r'>{s('language')} repo:</b>
+              <GlobalOutlined /> <b className='mg1r'>{s('language')} repo ➾</b>
               <Link to={langugeRepo} className='mg1l'>
-                <GlobalOutlined /> {langugeRepo}
+                {langugeRepo}
               </Link>
             </p>
             <p className='mg1b'>
-              => <b className='mg1r'>{e('bugReport')}:</b>
+              <BugOutlined /> <b className='mg1r'>{e('bugReport')} ➾</b>
               <Link to={bugReportLink} className='mg1l'>
-                <BugOutlined /> {bugReportLink}
+                {bugReportLink}
               </Link>
             </p>
             <p className='mg1b'>
-              => <b className='mg1r'>Changelog:</b>
+              <HighlightOutlined /> <b className='mg1r'>Changelog ➾</b>
               <Link to={releaseLink} className='mg1l'>
-                <HighlightOutlined /> {releaseLink}
+                {releaseLink}
               </Link>
             </p>
             <p className='mg1b'>
-              => <b className='mg1r'>Known issues:</b>
+              <AlignLeftOutlined /> <b className='mg1r'>Known issues ➾</b>
               <Link to={knownIssuesLink} className='mg1l'>
-                <AlignLeftOutlined /> {knownIssuesLink}
+                {knownIssuesLink}
               </Link>
             </p>
             <p className='mg1b'>
-              => <b className='mg1r'>Privacy notice:</b>
+              <WarningOutlined /> <b className='mg1r'>Privacy notice ➾</b>
               <Link to={privacyNoticeLink} className='mg1l'>
-                <WarningOutlined /> {privacyNoticeLink}
+                {privacyNoticeLink}
               </Link>
             </p>
             {this.renderCheckUpdate()}

@@ -81,7 +81,7 @@ export default memo((props) => {
             {s(type)}: {name}
           </span>
         </h2>
-        <h4 className='pd2t pd2x'>Upload file(>1M) may not show progress and may not end properly, but still would finish uploading in background.</h4>
+        <h4 className='pd2t pd2x'>Upload file(❯1M) may not show progress and may not end properly, but still would finish uploading in background.</h4>
       </div>
     )
   }

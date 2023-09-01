@@ -4,7 +4,7 @@
 
 import { Component } from '../common/react-subx'
 import { isWin } from '../../common/constants'
-import _ from 'lodash'
+import { find } from 'lodash-es'
 import { Button, Input, Select } from 'antd'
 import copy from 'json-deep-copy'
 import CmdItem from './quick-command-item'
@@ -48,7 +48,7 @@ export default class QuickCommandsFooterBox extends Component {
     if (id === addQuickCommands) {
       this.props.store.openQuickCommandsSetting()
     } else {
-      const qm = _.find(
+      const qm = find(
         this.props.store.currentQuickCommands,
         a => a.id === id
       )

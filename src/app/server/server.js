@@ -3,8 +3,7 @@ const app = express()
 const cors = require('cors')
 const strip = require('@electerm/strip-ansi').default
 const log = require('../common/log')
-// const logs = {}
-const bodyParser = require('body-parser')
+
 const { verifyWs, initWs } = require('./dispatch-center')
 const {
   terminals
@@ -12,10 +11,10 @@ const {
 app.use(cors())
 
 // parse application/x-www-form-urlencoded
-app.use(bodyParser.urlencoded({ extended: false }))
+app.use(express.urlencoded({ extended: false }))
 
 // parse application/json
-app.use(bodyParser.json())
+app.use(express.json())
 
 require('express-ws')(app, undefined, {
   wsOptions: {

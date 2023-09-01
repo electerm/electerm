@@ -3,7 +3,7 @@
  */
 
 import { message } from 'antd'
-import _ from 'lodash'
+import { find, isEqual } from 'lodash-es'
 import {
   defaultTheme,
   settingMap,
@@ -48,7 +48,7 @@ export default Store => {
   Store.prototype.getThemeConfig = function () {
     const { store } = window
     const all = store.getSidebarList(settingMap.terminalThemes)
-    return (_.find(all, d => d.id === store.config.theme) || {}).themeConfig || {}
+    return (find(all, d => d.id === store.config.theme) || {}).themeConfig || {}
   }
 
   Store.prototype.fixThemes = function (themes) {
@@ -88,11 +88,11 @@ export default Store => {
   Store.prototype.checkDefaultTheme = async function (terminalThemes) {
     const { store } = window
     const themeId = defaultTheme.id
-    const currentDefaultTheme = _.find(store.terminalThemes, d => d.id === themeId)
+    const currentDefaultTheme = find(store.terminalThemes, d => d.id === themeId)
     if (
       currentDefaultTheme &&
       (
-        !_.isEqual(currentDefaultTheme.themeConfig, defaultTheme.themeConfig) || !_.isEqual(currentDefaultTheme.uiThemeConfig, defaultTheme.uiThemeConfig) ||
+        !isEqual(currentDefaultTheme.themeConfig, defaultTheme.themeConfig) || !isEqual(currentDefaultTheme.uiThemeConfig, defaultTheme.uiThemeConfig) ||
         currentDefaultTheme.name !== defaultTheme.name
       )
     ) {
@@ -108,7 +108,7 @@ export default Store => {
         `${t('default')} ${t('themeConfig')} ${t('updated')}`
       )
     }
-    const hasLightTheme = _.find(store.getTerminalThemes(), d => d.id === defaultThemeLight.id)
+    const hasLightTheme = find(store.getTerminalThemes(), d => d.id === defaultThemeLight.id)
     if (!hasLightTheme) {
       store.addTheme(defaultThemeLight)
     }

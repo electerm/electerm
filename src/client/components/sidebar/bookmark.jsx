@@ -4,7 +4,7 @@
 
 import { Component } from '../common/react-subx'
 import BookmarkSelect from './bookmark-select'
-import _ from 'lodash'
+import { pick } from 'lodash-es'
 import { ArrowsAltOutlined, EditOutlined, PlusCircleOutlined, ShrinkOutlined, PushpinOutlined } from '@ant-design/icons'
 import { Tooltip } from 'antd'
 
@@ -26,7 +26,7 @@ export default class BookmarkPanel extends Component {
     return (
       <div
         className='sidebar-panel bookmarks-panel animate-fast'
-        {..._.pick(props, ['onMouseEnter', 'onMouseLeave'])}
+        {...pick(props, ['onMouseEnter', 'onMouseLeave'])}
       >
         <div className='pd1y pd2t pd2x'>
           <div className='fix'>

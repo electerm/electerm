@@ -13,7 +13,7 @@ import generate from '../../common/uid'
 import { Tooltip, message } from 'antd'
 import classnames from 'classnames'
 import copy from 'json-deep-copy'
-import _ from 'lodash'
+import { isEqual, findIndex, some, pick } from 'lodash-es'
 import Input from '../common/input-auto-focus'
 import createName from '../../common/create-title'
 import { addClass, removeClass } from '../../common/class'
@@ -44,7 +44,7 @@ export default class Tab extends React.Component {
   }
 
   componentDidUpdate (prevProps) {
-    if (!_.isEqual(prevProps.tab, this.props.tab)) {
+    if (!isEqual(prevProps.tab, this.props.tab)) {
       this.setState({
         tab: copy(this.props.tab)
       })
@@ -150,8 +150,8 @@ export default class Tab extends React.Component {
     }
     const { id } = fromTab
     const tabs = copy(this.props.tabs)
-    const indexFrom = _.findIndex(tabs, t => t.id === id)
-    let indexDrop = _.findIndex(tabs, t => t.id === dropId)
+    const indexFrom = findIndex(tabs, t => t.id === id)
+    let indexDrop = findIndex(tabs, t => t.id === dropId)
     if (indexDrop > indexFrom) {
       indexDrop = indexDrop - 1
     }
@@ -237,9 +237,9 @@ export default class Tab extends React.Component {
       setTabs
     } = this.props
     let tabs = copy(this.props.tabs)
-    const index = _.findIndex(tabs, t => t.id === tab.id)
+    const index = findIndex(tabs, t => t.id === tab.id)
     tabs = tabs.slice(0, index + 1)
-    if (!_.some(tabs, t => t.id === currentTabId)) {
+    if (!some(tabs, t => t.id === currentTabId)) {
       onChangeTabId(tabs[0].id)
     }
     setTabs(tabs)
@@ -248,7 +248,7 @@ export default class Tab extends React.Component {
   renderContext () {
     const { tabs, tab } = this.props
     const len = tabs.length
-    const index = _.findIndex(tabs, t => t.id === tab.id)
+    const index = findIndex(tabs, t => t.id === tab.id)
     const noRight = index >= len - 1
     const isSshConfig = tab.type === terminalSshConfigType
     const res = []
@@ -390,7 +390,7 @@ export default class Tab extends React.Component {
           draggable
           id={'id' + id}
           data-id={id}
-          {..._.pick(this, [
+          {...pick(this, [
             'onDrag',
             'onDragEnter',
             'onDragExit',

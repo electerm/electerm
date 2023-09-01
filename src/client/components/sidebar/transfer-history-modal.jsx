@@ -8,7 +8,7 @@ import { Table } from 'antd'
 import time from '../../../app/common/time'
 import Tag from '../sftp/transfer-tag'
 import './transfer-history.styl'
-import _ from 'lodash'
+import { get as _get } from 'lodash-es'
 import { filesize } from 'filesize'
 
 const { prefix } = window
@@ -18,7 +18,7 @@ const m = prefix('menu')
 const timeRender = t => time(t)
 const sorterFactory = prop => {
   return (a, b) => {
-    return _.get(a, prop) > _.get(b, prop) ? 1 : -1
+    return _get(a, prop) > _get(b, prop) ? 1 : -1
   }
 }
 export default class TransferHistoryModal extends Component {

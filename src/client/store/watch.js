@@ -14,13 +14,13 @@ import {
 } from '../common/constants'
 import postMsg from '../common/post-msg'
 import * as ls from '../common/safe-local-storage'
-import _ from 'lodash'
+import { debounce } from 'lodash-es'
 
 export default store => {
   autoRun(store, () => {
     store.focus()
     return store.currentTabId
-  }, func => _.debounce(func, 100)).start()
+  }, func => debounce(func, 100)).start()
 
   // autoRun(store, () => {
   //   if (store.menuOpened) {
@@ -38,7 +38,7 @@ export default store => {
   //   })
   //   update('sessions', v)
   //   return store._tabs
-  // }, func => _.debounce(func, 100))
+  // }, func => debounce(func, 100))
 
   for (const name of dbNames) {
     autoRun(store, async () => {
@@ -48,7 +48,7 @@ export default store => {
       )
       await store.updateLastDataUpdateTime()
       return store['_' + name]
-    }, func => _.debounce(func, 100)).start()
+    }, func => debounce(func, 100)).start()
   }
 
   autoRun(store, () => {
@@ -63,17 +63,17 @@ export default store => {
   autoRun(store, () => {
     window.pre.runGlobalAsync('saveUserConfig', store.config)
     return store._config
-  }, func => _.debounce(func, 100)).start()
+  }, func => debounce(func, 100)).start()
 
   autoRun(store, () => {
     store.updateLastDataUpdateTime()
     return store.config.theme
-  }, func => _.debounce(func, 100)).start()
+  }, func => debounce(func, 100)).start()
 
   autoRun(store, () => {
     store.updateTabsStatus()
     return store.fileTransfers
-  }, func => _.debounce(func, 100)).start()
+  }, func => debounce(func, 100)).start()
 
   autoRun(store, () => {
     ls.setItemJSON(sftpDefaultSortSettingKey, store.sftpSortSetting)

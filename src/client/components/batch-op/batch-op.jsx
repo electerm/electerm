@@ -22,7 +22,7 @@ import {
 } from '../../common/constants'
 import HelpIcon from '../common/help-icon'
 import { autoRun } from 'manate'
-import _ from 'lodash'
+import { pick } from 'lodash-es'
 import { runCmd } from '../terminal/terminal-apis'
 import deepCopy from 'json-deep-copy'
 import postMsg from '../../common/post-msg'
@@ -238,7 +238,7 @@ export default class BatchOp extends Component {
   createTab = conf => {
     return new Promise((resolve, reject) => {
       const tab = {
-        ..._.pick(conf, [
+        ...pick(conf, [
           'host',
           'port',
           'username',

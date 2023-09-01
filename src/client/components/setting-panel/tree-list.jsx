@@ -31,7 +31,7 @@ import createName from '../../common/create-title'
 import classnames from 'classnames'
 import generate from '../../common/uid'
 import InputAutoFocus from '../common/input-auto-focus'
-import _ from 'lodash'
+import { find, uniq, findIndex, isEqual, filter } from 'lodash-es'
 import {
   maxBookmarkGroupTitleLength,
   defaultBookmarkGroupId,
@@ -131,7 +131,7 @@ export default class ItemListTree extends React.PureComponent {
     const bookmarkGroups = copy(
       this.props.bookmarkGroups
     )
-    const obj = _.find(
+    const obj = find(
       bookmarkGroups,
       bg => bg.id === categoryId
     )
@@ -231,7 +231,7 @@ export default class ItemListTree extends React.PureComponent {
         newCat,
         ...bookmarkGroups
       ]
-      const cat = _.find(
+      const cat = find(
         bookmarkGroups,
         d => d.id === id
       )
@@ -303,7 +303,7 @@ export default class ItemListTree extends React.PureComponent {
       })
     }
     const bookmarks = copy(this.props.bookmarks)
-    const bookmark = _.find(
+    const bookmark = find(
       bookmarks,
       d => d.id === id
     )
@@ -378,7 +378,7 @@ export default class ItemListTree extends React.PureComponent {
     if (!to.bookmarkIds) {
       to.bookmarkIds = []
     }
-    to.bookmarkIds = _.uniq(
+    to.bookmarkIds = uniq(
       [
         ...to.bookmarkIds,
         id
@@ -397,7 +397,7 @@ export default class ItemListTree extends React.PureComponent {
     this.props.store.editBookmarkGroup(
       item.id,
       {
-        bookmarkIds: _.uniq(
+        bookmarkIds: uniq(
           [
             ...(item.bookmarkIds || []),
             id
@@ -496,7 +496,7 @@ export default class ItemListTree extends React.PureComponent {
         showNewBookmarkGroupForm: false,
         bookmarkGroupTitleSub: '',
         bookmarkGroupSubParentId: item.id,
-        expandedKeys: _.uniq([
+        expandedKeys: uniq([
           ...old.expandedKeys,
           item.id
         ])
@@ -604,12 +604,12 @@ export default class ItemListTree extends React.PureComponent {
   }
 
   updateBookmarkGroups = (bookmarkGroups, bookmark, categoryId) => {
-    let index = _.findIndex(
+    let index = findIndex(
       bookmarkGroups,
       bg => bg.id === categoryId
     )
     if (index < 0) {
-      index = _.findIndex(
+      index = findIndex(
         bookmarkGroups,
         bg => bg.id === defaultBookmarkGroupId
       )
@@ -621,8 +621,8 @@ export default class ItemListTree extends React.PureComponent {
     if (!bg.bookmarkIds.includes(bid)) {
       bg.bookmarkIds.unshift(bid)
     }
-    bg.bookmarkIds = _.uniq(bg.bookmarkIds)
-    if (!_.isEqual(old, copy(bg.bookmarkIds))) {
+    bg.bookmarkIds = uniq(bg.bookmarkIds)
+    if (!isEqual(old, copy(bg.bookmarkIds))) {
       updates.push({
         id: bg.id,
         db: 'bookmarkGroups',
@@ -640,7 +640,7 @@ export default class ItemListTree extends React.PureComponent {
       bg.bookmarkIds = bg.bookmarkIds.filter(
         g => g !== bid
       )
-      if (!_.isEqual(old, copy(bg.bookmarkIds))) {
+      if (!isEqual(old, copy(bg.bookmarkIds))) {
         updates.push({
           id: bg.id,
           db: 'bookmarkGroups',
@@ -659,7 +659,7 @@ export default class ItemListTree extends React.PureComponent {
   }
 
   findBookmarkByTitle = (bookmarks, oldBookmark) => {
-    return _.filter(bookmarks, bookmark => {
+    return filter(bookmarks, bookmark => {
       return (bookmark.title || '').includes(oldBookmark.title) && bookmark.host === oldBookmark.host && bookmark.port === oldBookmark.port
     })
   }
@@ -767,7 +767,7 @@ export default class ItemListTree extends React.PureComponent {
 
   renderGroupChildNodes = bookmarkGroupIds => {
     const bookmarkGroups = bookmarkGroupIds.map(id => {
-      return _.find(this.props.bookmarkGroups, d => d.id === id)
+      return find(this.props.bookmarkGroups, d => d.id === id)
     }).filter(d => d)
     return bookmarkGroups.map((node, i) => {
       const { bookmarkIds = [], id } = node

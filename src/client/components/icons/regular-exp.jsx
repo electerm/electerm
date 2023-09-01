@@ -7,4 +7,4 @@ const regExpSvg = () => (
   </svg>
 )
 
-export const RegularExpIcon = props => <Icon component={regExpSvg} {...props} />
+export const RegularExpIcon = props => (<Icon component={regExpSvg} {...props} />)

@@ -2,7 +2,7 @@
  * common db op
  */
 
-import _ from 'lodash'
+import { find } from 'lodash-es'
 import {
   maxHistory,
   settingMap
@@ -55,11 +55,11 @@ export default Store => {
   Store.prototype.editItem = function (id, updates, type) {
     const { store } = window
     const items = store.getItems(type)
-    const item = _.find(items, t => t.id === id)
+    const item = find(items, t => t.id === id)
     if (!item) {
       return
     }
-    // let index = _.findIndex(items, t => t.id === id)
+    // let index = findIndex(items, t => t.id === id)
     Object.assign(item, updates)
     store.setItems(type, items)
     if (dbNames.includes(type)) {

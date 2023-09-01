@@ -7,4 +7,4 @@ const matchCaseSvg = () => (
   </svg>
 )
 
-export const MatchCaseIcon = props => <Icon component={matchCaseSvg} {...props} />
+export const MatchCaseIcon = props => (<Icon component={matchCaseSvg} {...props} />)

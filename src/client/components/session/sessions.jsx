@@ -1,6 +1,6 @@
 import { Component } from '../common/react-subx'
 import Session from './session'
-import _ from 'lodash'
+import { findIndex, pick } from 'lodash-es'
 import classNames from 'classnames'
 import generate from '../../common/uid'
 import copy from 'json-deep-copy'
@@ -120,7 +120,7 @@ export default class Sessions extends Component {
       const { currentTabId } = oldState
       const up = {}
       if (currentTabId === id) {
-        let i = _.findIndex(tabs, t => {
+        let i = findIndex(tabs, t => {
           return t.id === id
         })
         i = i ? i - 1 : i + 1
@@ -169,7 +169,7 @@ export default class Sessions extends Component {
       const tabs = copy(oldState.tabs)
       tab.id = generate()
       tab.status = statusMap.processing
-      const index = _.findIndex(tabs, t => t.id === id)
+      const index = findIndex(tabs, t => t.id === id)
       this.addTab(tab, index)
       await wait(30)
       this.delTab(id)
@@ -182,7 +182,7 @@ export default class Sessions extends Component {
       let tab = copy(tabToDup)
       this.processTerminals(tab)
       const tabs = copy(oldState.tabs)
-      const index = _.findIndex(
+      const index = findIndex(
         tabs,
         d => d.id === tab.id
       )
@@ -328,7 +328,7 @@ export default class Sessions extends Component {
       const sessProps = {
         currentTabId,
         tab: toSimpleObj(tab),
-        ..._.pick(store, [
+        ...pick(store, [
           'height',
           'width',
           'activeTerminalId',
@@ -338,7 +338,7 @@ export default class Sessions extends Component {
           'topMenuHeight'
         ]),
         config,
-        ..._.pick(this, [
+        ...pick(this, [
           'onChangeTabId',
           'onDuplicateTab',
           'reloadTab',
@@ -369,7 +369,7 @@ export default class Sessions extends Component {
     const tabsProps = {
       currentTabId,
       config,
-      ..._.pick(store, [
+      ...pick(store, [
         'fileOperation',
         'height',
         'width',
@@ -377,7 +377,7 @@ export default class Sessions extends Component {
         'isMaximized'
       ]),
       tabs,
-      ..._.pick(this, [
+      ...pick(this, [
         'setTabs',
         'onChangeTabId',
         'onDuplicateTab',

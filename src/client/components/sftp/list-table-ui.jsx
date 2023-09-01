@@ -8,7 +8,7 @@
 
 import React from 'react'
 import classnames from 'classnames'
-import _ from 'lodash'
+import { isEqual, pick, find, isNull, isArray, isUndefined } from 'lodash-es'
 import generate from '../../common/uid'
 import parseInt10 from '../../common/parse-int10'
 import {
@@ -43,7 +43,7 @@ export default class FileListTable extends React.Component {
       return
     }
     if (
-      !_.isEqual(prevState.properties, this.state.properties) ||
+      !isEqual(prevState.properties, this.state.properties) ||
       (
         this.toVisible(prevProps, this.props) &&
         !this.inited
@@ -195,7 +195,7 @@ export default class FileListTable extends React.Component {
       isSorting ? sortDirection : ''
     )
     const props = isHandle
-      ? _.pick(this, [
+      ? pick(this, [
         'onDoubleClick',
         'onDrag',
         'onDragStart',
@@ -276,7 +276,7 @@ export default class FileListTable extends React.Component {
   onClickName = (e) => {
     const id = e.target.getAttribute('id')
     const { properties } = this.state
-    const propObj = _.find(
+    const propObj = find(
       properties,
       p => p.id === id
     )
@@ -345,8 +345,8 @@ export default class FileListTable extends React.Component {
       return {
         ...prev,
         [name || id]: {
-          style: _.pick(
-            _.get(document.querySelector(sel), 'style') || {},
+          style: pick(
+            document.querySelector(sel)?.style || {},
             this.positionProps
           ),
           parentWidth
@@ -356,14 +356,14 @@ export default class FileListTable extends React.Component {
   }
 
   onDrag = (e) => {
-    if (_.isNull(e.pageX)) {
+    if (isNull(e.pageX)) {
       return
     }
     const dom = e.target
     const { splitHandles } = this.state
     const { type } = this.props
     const id = dom.getAttribute('id')
-    const splitHandle = _.find(
+    const splitHandle = find(
       splitHandles,
       s => s.id === id
     )
@@ -383,15 +383,15 @@ export default class FileListTable extends React.Component {
     const types = ['dom', 'prev', 'next']
     const doms = [dom, prev, next]
     const styles = doms.map(d => {
-      const dd = _.isArray(d) ? d[0] : d
+      const dd = isArray(d) ? d[0] : d
       const { style } = dd
       const rect = dd.getBoundingClientRect()
-      const obj = _.pick(style, this.positionProps)
+      const obj = pick(style, this.positionProps)
       const res = Object.keys(obj).reduce((prev, k) => {
         const v = obj[k]
         return {
           ...prev,
-          [k]: _.isUndefined(v)
+          [k]: isUndefined(v)
             ? v
             : parseInt10(obj[k].replace('px', ''))
         }

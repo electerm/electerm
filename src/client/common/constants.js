@@ -7,7 +7,7 @@ import logoPath2Ref from '@electerm/electerm-resource/res/imgs/electerm.png'
 import logoPath3Ref from '@electerm/electerm-resource/res/imgs/electerm-watermark.png'
 import newTerm from '../common/new-terminal'
 import dbDefaults from '../../app/upgrade/db-defaults'
-import _ from 'lodash'
+import { get as _get } from 'lodash-es'
 
 export const { packInfo } = window.pre
 
@@ -224,7 +224,7 @@ export const syncTokenCreateUrls = {
 export const settingSyncId = 'setting-sync'
 export const settingCommonId = 'setting-common'
 export const defaultEnvLang = 'en_US.UTF-8'
-const defaultThemeLightConf = _.get(
+const defaultThemeLightConf = _get(
   dbDefaults, '[0].data[1]'
 )
 defaultThemeLightConf.id = defaultThemeLightConf._id

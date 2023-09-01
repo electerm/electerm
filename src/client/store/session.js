@@ -5,7 +5,7 @@
 import { getData } from '../common/db'
 import copy from 'json-deep-copy'
 import { isMac, terminalActions } from '../common/constants'
-import _ from 'lodash'
+import { debounce } from 'lodash-es'
 import postMsg from '../common/post-msg'
 
 export default Store => {
@@ -47,7 +47,7 @@ export default Store => {
     }
   }
 
-  Store.prototype.zoomTerminal = _.debounce(function (delta) {
+  Store.prototype.zoomTerminal = debounce(function (delta) {
     postMsg({
       action: terminalActions.zoom,
       zoomValue: delta > 0 ? 1 : -1,

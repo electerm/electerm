@@ -27,7 +27,7 @@ import batchInputHistory from './batch-input-history'
 import transferExtend from './transfer-list'
 import addressBookmarkExtend from './address-bookmark'
 
-import _ from 'lodash'
+import { uniq } from 'lodash-es'
 import copy from 'json-deep-copy'
 import {
   settingMap,
@@ -80,9 +80,7 @@ class Store {
     const { currentTab } = this
     const quickCommands = window.store.getQuickCommands()
     const currentTabQuickCommands = (
-      _.get(
-        currentTab, 'quickCommands'
-      ) || []
+      currentTab.quickCommands || []
     ).map((d, i) => {
       return {
         ...d,
@@ -120,7 +118,7 @@ class Store {
 
   get quickCommandTags () {
     const quickCommands = window.store.getQuickCommands()
-    return _.uniq(
+    return uniq(
       quickCommands.reduce((p, q) => {
         return [
           ...p,
