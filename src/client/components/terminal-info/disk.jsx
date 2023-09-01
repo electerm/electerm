@@ -3,12 +3,12 @@
  */
 
 import { Table } from 'antd'
-import _ from 'lodash'
+import { isEmpty } from 'lodash-es'
 import colsParser from './data-cols-parser'
 
 export default function TerminalInfoDisk (props) {
   const { disks } = props
-  if (_.isEmpty(disks) || !props.isRemote) {
+  if (isEmpty(disks) || !props.isRemote) {
     return null
   }
   const col = colsParser(disks[0])

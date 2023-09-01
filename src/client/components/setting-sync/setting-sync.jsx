@@ -6,7 +6,7 @@ import { Tabs, Spin } from 'antd'
 import SyncForm from './setting-sync-form'
 import { syncTypes } from '../../common/constants'
 import { DataTransport } from './data-import'
-import _ from 'lodash'
+import { pick } from 'lodash-es'
 
 export default class SyncSettingEntry extends Component {
   handleChange = (key) => {
@@ -23,7 +23,7 @@ export default class SyncSettingEntry extends Component {
     const syncProps = {
       store,
       ...syncSetting,
-      ..._.pick(store, [
+      ...pick(store, [
         'autofocustrigger',
         'isSyncingSetting',
         'isSyncDownload',

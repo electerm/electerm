@@ -13,7 +13,7 @@ import {
   FullscreenOutlined
 } from '@ant-design/icons'
 import { Tooltip } from 'antd'
-import _ from 'lodash'
+import { last, findIndex, pick } from 'lodash-es'
 import generate from '../../common/uid'
 import copy from 'json-deep-copy'
 import classnames from 'classnames'
@@ -53,7 +53,7 @@ const rebuildPosition = terminals => {
 }
 
 const getPrevTerminal = terminals => {
-  return _.last(terminals)
+  return last(terminals)
 }
 
 const { prefix } = window
@@ -181,7 +181,7 @@ export default class SessionWrapper extends Component {
 
   doSplit = (e, id) => {
     let terminals = copy(this.state.terminals)
-    let index = _.findIndex(terminals, t => t.id === id)
+    let index = findIndex(terminals, t => t.id === id)
     if (index === -1) {
       index = terminals.length
     } else {
@@ -304,7 +304,7 @@ export default class SessionWrapper extends Component {
                 activeSplitId,
                 themeConfig,
                 pane,
-                ..._.pick(
+                ...pick(
                   this,
                   [
                     'setActive',
@@ -393,7 +393,7 @@ export default class SessionWrapper extends Component {
     const { splitDirection, terminals } = this.state
     const { props } = this
     const { pane } = props.tab
-    const termType = _.get(props, 'tab.type')
+    const termType = props.tab?.type
     const isSsh = props.tab.authType
     const isLocal = termType === connectionMap.local || !termType
     const isHori = splitDirection === terminalSplitDirectionMap.horizontal
@@ -491,7 +491,7 @@ export default class SessionWrapper extends Component {
     } = this.state
     const { pane } = this.props.tab
     const infoProps = {
-      ..._.pick(this.props.config, ['host', 'port', 'saveTerminalLogToFile']),
+      ...pick(this.props.config, ['host', 'port', 'saveTerminalLogToFile']),
       ...infoPanelProps,
       appPath: this.props.appPath,
       showInfo,

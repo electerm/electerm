@@ -12,7 +12,7 @@ import { Upload, Button } from 'antd'
 import download from '../../common/download'
 import time from '../../../app/common/time'
 import copy from 'json-deep-copy'
-import _ from 'lodash'
+import { find, uniq, isEqual } from 'lodash-es'
 
 const { prefix } = window
 const f = prefix('form')
@@ -65,18 +65,18 @@ export default class BookmarkTransport extends Component {
             obj: bg
           })
         } else {
-          const bg1 = _.find(
+          const bg1 = find(
             bookmarkGroups,
             b => b.id === bg.id
           )
           const old = copy(bg1.bookmarkIds)
-          bg1.bookmarkIds = _.uniq(
+          bg1.bookmarkIds = uniq(
             [
               ...bg1.bookmarkIds,
               ...bg.bookmarkIds
             ]
           )
-          if (!_.isEqual(bg1.bookmarkIds, old)) {
+          if (!isEqual(bg1.bookmarkIds, old)) {
             updates.push({
               id: bg1.id,
               db: 'bookmarkGroups',

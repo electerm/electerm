@@ -3,14 +3,14 @@
  */
 
 import { Table } from 'antd'
-import _ from 'lodash'
+import { isEmpty } from 'lodash-es'
 import { useEffect, useState } from 'react'
 import { formatBytes } from '../../common/byte-format'
 import copy from 'json-deep-copy'
 
 export default function TerminalInfoDisk (props) {
   const { network } = props
-  if (_.isEmpty(network) || !props.isRemote) {
+  if (isEmpty(network) || !props.isRemote) {
     return null
   }
   const [state, setter] = useState({
@@ -59,7 +59,7 @@ export default function TerminalInfoDisk (props) {
   useEffect(() => {
     updateTraffic()
   }, [props.network])
-  if (_.isEmpty(state)) {
+  if (isEmpty(state)) {
     return null
   }
   const arr = Object.keys(state.network).map(k => {

@@ -5,7 +5,7 @@
 import {
   settingMap
 } from '../common/constants'
-import _ from 'lodash'
+import { without, isArray, findIndex } from 'lodash-es'
 import handleError from './error-handler'
 import generate from './uid'
 import safeParse from './to-simple-obj'
@@ -23,7 +23,7 @@ const dbAction = (...args) => {
 /**
  * standalone db names
  */
-export const dbNames = _.without(
+export const dbNames = without(
   Object.keys(settingMap), settingMap.setting
 )
 
@@ -33,7 +33,7 @@ export const dbNames = _.without(
  * @param {object or array} inst
  */
 export function insert (dbName, inst) {
-  let arr = _.isArray(inst) ? inst : [inst]
+  let arr = isArray(inst) ? inst : [inst]
   arr = arr.map(obj => {
     const { id, _id, ...rest } = obj
     return {
@@ -140,8 +140,8 @@ export async function fetchInitData (dbName) {
   const res = await find(dbName)
   const order = await getData(`${dbName}:order`)
   const r = res.sort((a, b) => {
-    const ai = _.findIndex(order, r => r === a.id)
-    const bi = _.findIndex(order, r => r === b.id)
+    const ai = findIndex(order, r => r === a.id)
+    const bi = findIndex(order, r => r === b.id)
     return ai - bi
   })
   return JSON.stringify(r)

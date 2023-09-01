@@ -3,7 +3,6 @@
  */
 
 import fetch from './fetch-from-server'
-import _ from 'lodash'
 import {
   baseUpdateCheckUrls, packInfo
 } from './constants'
@@ -72,9 +71,9 @@ export async function getLatestReleaseVersion (n) {
 export async function getLatestReleaseInfo () {
   let url = `${baseUpdateCheckUrls[0]}/data/electerm-github-release.json`
   let res = await getInfo(url)
-  if (!_.get(res, 'release.body')) {
+  if (!res?.release?.body) {
     url = `${baseUpdateCheckUrls[1]}/data/electerm-github-release.json`
     res = await getInfo(url)
   }
-  return _.get(res, 'release.body')
+  return res?.release?.body
 }

@@ -8,7 +8,7 @@ import { useDelta, useConditionalEffect } from 'react-delta'
 import { maxTransport, typeMap } from '../../common/constants'
 import { getLocalFileInfo, getRemoteFileInfo, getFolderFromFilePath, getFileExt } from './file-read'
 import copy from 'json-deep-copy'
-import _ from 'lodash'
+import { findIndex, find } from 'lodash-es'
 import generate from '../../common/uid'
 import resolve from '../../common/resolve'
 import eq from 'fast-deep-equal'
@@ -70,7 +70,7 @@ export default (props) => {
     clear()
     props.modifier((old) => {
       let transferList = copy(old.transferList)
-      const index = _.findIndex(transferList, d => d.id === id)
+      const index = findIndex(transferList, d => d.id === id)
       if (index < 0) {
         return {
           transferList
@@ -104,7 +104,7 @@ export default (props) => {
   }
 
   function tagTransferError (id, errorMsg) {
-    const tr = _.find(transferList, d => d.id === id)
+    const tr = find(transferList, d => d.id === id)
     window.store.addTransferHistory({
       ...tr,
       host: props.host,
@@ -113,7 +113,7 @@ export default (props) => {
     })
     props.modifier(old => {
       const transferList = copy(old.transferList)
-      const index = _.findIndex(transferList, d => d.id === id)
+      const index = findIndex(transferList, d => d.id === id)
       if (index >= 0) {
         transferList.splice(index, 1)
       }
@@ -156,7 +156,7 @@ export default (props) => {
     clear()
     props.modifier((old) => {
       const transferList = copy(old.transferList)
-      const index = _.findIndex(transferList, t => {
+      const index = findIndex(transferList, t => {
         return t.id === tr.id
       })
       if (index >= 0) {
@@ -195,7 +195,7 @@ export default (props) => {
     clear()
     props.modifier((old) => {
       const transferList = copy(old.transferList)
-      const index = _.findIndex(transferList, t => {
+      const index = findIndex(transferList, t => {
         return t.id === tr.id
       })
       transferList.splice(index + 1, 0, ...list)

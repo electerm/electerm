@@ -3,7 +3,7 @@
  */
 
 import { Table, Tooltip, Popconfirm } from 'antd'
-import _ from 'lodash'
+import { isEmpty } from 'lodash-es'
 import { CloseCircleOutlined } from '@ant-design/icons'
 import colsParser from './data-cols-parser'
 
@@ -12,7 +12,7 @@ const m = prefix('menu')
 
 export default function TerminalInfoActivities (props) {
   const { activities } = props
-  if (_.isEmpty(activities) || !props.isRemote) {
+  if (isEmpty(activities) || !props.isRemote) {
     return null
   }
   const col = colsParser(activities[0])

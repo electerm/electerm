@@ -20,7 +20,7 @@ import useUI from './use-ui'
 import useQm from './use-quick-commands'
 import renderCommon from './form-ssh-common'
 import copy from 'json-deep-copy'
-import _ from 'lodash'
+import { defaultsDeep, uniqBy } from 'lodash-es'
 import './bookmark-form.styl'
 
 const FormItem = Form.Item
@@ -63,10 +63,10 @@ export default function TelnetFormUI (props) {
     type: terminalTelnetType,
     category: initBookmarkGroupId
   }
-  initialValues = _.defaultsDeep(initialValues, defaultValues)
+  initialValues = defaultsDeep(initialValues, defaultValues)
   function renderAuth () {
     const opts = {
-      options: _.uniqBy(
+      options: uniqBy(
         props.store.getBookmarks()
           .filter(d => d.password),
         (d) => d.password

@@ -2,7 +2,7 @@
  * setting modal
  */
 
-import _ from 'lodash'
+import { find, isEqual, pick, without, findIndex } from 'lodash-es'
 import {
   message
 } from 'antd'
@@ -74,7 +74,7 @@ export default Store => {
   Store.prototype.onSelectHistory = function (id) {
     const { store } = window
     const history = store.getItems('history')
-    const item = _.find(history, it => it.id === id)
+    const item = find(history, it => it.id === id)
     store.addTab({
       ...copy(item),
       from: 'history',
@@ -88,8 +88,8 @@ export default Store => {
     const history = store.getItems('history')
     const bookmarks = store.getBookmarks()
     const item = copy(
-      _.find(bookmarks, it => it.id === id) ||
-      _.find(store.sshConfigItems, it => it.id === id)
+      find(bookmarks, it => it.id === id) ||
+      find(store.sshConfigItems, it => it.id === id)
     )
     if (!item) {
       return
@@ -104,18 +104,18 @@ export default Store => {
     if (store.config.disableSshHistory) {
       return
     }
-    const existItem = _.find(history, j => {
+    const existItem = find(history, j => {
       const keysj = Object.keys(j)
       const keysi = Object.keys(item)
-      return _.isEqual(
-        _.pick(item, _.without(keysi, 'id')),
-        _.pick(j, _.without(keysj, 'id'))
+      return isEqual(
+        pick(item, without(keysi, 'id')),
+        pick(j, without(keysj, 'id'))
       )
     })
     if (!existItem) {
       store.addItem(item, settingMap.history)
     } else {
-      const index = _.findIndex(history, f => f.id === existItem.id)
+      const index = findIndex(history, f => f.id === existItem.id)
       history.splice(index, 1)
       history.unshift(existItem)
       store.setItems('history', history)
@@ -126,7 +126,7 @@ export default Store => {
     const { store } = window
     if (
       store.settingTab === settingMap.setting &&
-      _.get(store.settingItem, 'id') === settingCommonId &&
+      store.settingItem.id === settingCommonId &&
       store.showModal === modals.setting
     ) {
       return store.hideSettingModal()
@@ -142,7 +142,7 @@ export default Store => {
     const { store } = window
     if (
       store.settingTab === settingMap.setting &&
-      _.get(store.settingItem, 'id') === store.setting[0].id &&
+      store.settingItem.id === store.setting[0].id &&
       store.showModal === modals.setting
     ) {
       return store.hideSettingModal()
@@ -158,7 +158,7 @@ export default Store => {
     const { store } = window
     if (
       store.settingTab === settingMap.terminalThemes &&
-      _.get(store.settingItem, 'id') === ''
+      store.settingItem.id === ''
     ) {
       return store.hideSettingModal()
     }

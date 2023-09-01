@@ -3,7 +3,7 @@
  */
 
 import handleError from '../common/error-handler'
-import _ from 'lodash'
+import { debounce } from 'lodash-es'
 import postMessage from '../common/post-msg'
 import {
   commonActions,
@@ -45,7 +45,7 @@ export default Store => {
     })
   }
 
-  Store.prototype.onResize = _.debounce(async function () {
+  Store.prototype.onResize = debounce(async function () {
     const { width, height } = await window.pre.runGlobalAsync('getScreenSize')
     const isMaximized = await window.pre.runGlobalAsync('isMaximized')
     const update = {

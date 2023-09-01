@@ -3,7 +3,7 @@ import { Component } from 'react'
 import ZmodemTransfer from './zmodem-transfer'
 import { handleErr } from '../../common/fetch'
 import generate from '../../common/uid'
-import _ from 'lodash'
+import { isEqual, pick, debounce } from 'lodash-es'
 import postMessage from '../../common/post-msg'
 import clone from '../../common/to-simple-obj'
 import {
@@ -107,9 +107,9 @@ export default class Term extends Component {
       'top'
     ]
     if (
-      !_.isEqual(
-        _.pick(this.props, names),
-        _.pick(prevProps, names)
+      !isEqual(
+        pick(this.props, names),
+        pick(prevProps, names)
       ) ||
       shouldChange
     ) {
@@ -122,7 +122,7 @@ export default class Term extends Component {
       prevProps,
       this.props
     )
-    const themeChanged = !_.isEqual(
+    const themeChanged = !isEqual(
       this.props.themeConfig,
       prevProps.themeConfig
     )
@@ -369,7 +369,7 @@ export default class Term extends Component {
   }
 
   onDrop = e => {
-    const files = _.get(e, 'dataTransfer.files')
+    const files = e?.dataTransfer?.files
     if (files && files.length) {
       this.attachAddon._sendData(
         Array.from(files).map(f => `"${f.path}"`).join(' ')
@@ -637,8 +637,8 @@ export default class Term extends Component {
   }
 
   isRemote = () => {
-    return _.get(this.props, 'tab.host') &&
-    _.get(this.props, 'tab.type') !== terminalSshConfigType
+    return this.props.tab?.host &&
+    this.props.tab?.type !== terminalSshConfigType
   }
 
   onPaste = () => {
@@ -730,7 +730,7 @@ export default class Term extends Component {
     }
   }
 
-  notifyOnData = _.debounce(() => {
+  notifyOnData = debounce(() => {
     const str = this.serializeAddon.serialize()
     const id = createLsId(this.state.id)
     ls.setItem(id, str)
@@ -831,7 +831,7 @@ export default class Term extends Component {
   count = 0
 
   setStatus = status => {
-    const id = _.get(this.props, 'tab.id')
+    const id = this.props.tab?.id
     this.props.editTab(id, {
       status
     })
@@ -900,7 +900,7 @@ export default class Term extends Component {
       ...tab,
       ...extra,
       logName,
-      ..._.pick(config, [
+      ...pick(config, [
         'keepaliveInterval',
         'keepaliveCountMax',
         'execWindows',
@@ -976,11 +976,11 @@ export default class Term extends Component {
     this.socket = socket
     // term.onRrefresh(this.onRefresh)
     term.onResize(this.onResizeTerminal)
-    if (_.pick(term, 'buffer._onBufferChange._listeners')) {
+    if (pick(term, 'buffer._onBufferChange._listeners')) {
       term.buffer._onBufferChange._listeners.push(this.onBufferChange)
     }
-    const cid = _.get(this.props, 'currentTabId')
-    const tid = _.get(this.props, 'tab.id')
+    const cid = this.props.currentTabId
+    const tid = this.props.tab.id
     if (cid === tid && this.props.tab.status === statusMap.success) {
       term.loadAddon(new WebLinksAddon(this.webLinkHandler))
       term.focus()
@@ -1026,9 +1026,9 @@ export default class Term extends Component {
     // log.log('onKey', key, e)
   }
 
-  onResize = _.debounce(() => {
-    const cid = _.get(this.props, 'currentTabId')
-    const tid = _.get(this.props, 'tab.id')
+  onResize = debounce(() => {
+    const cid = this.props.currentTabId
+    const tid = this.props.tab?.id
     if (
       this.props.tab.status === statusMap.success &&
       cid === tid &&

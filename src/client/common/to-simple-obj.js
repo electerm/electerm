@@ -1,5 +1,5 @@
-import _ from 'lodash'
+import { cloneDeep } from 'lodash-es'
 
 export default (obj) => {
-  return _.cloneDeep(obj)
+  return cloneDeep(obj)
 }

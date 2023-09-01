@@ -7,7 +7,7 @@ import {
   PlayCircleOutlined,
   PauseCircleOutlined
 } from '@ant-design/icons'
-import _ from 'lodash'
+import { get } from 'lodash-es'
 import {
   transportTypes
 } from '../sftp/transport-types'
@@ -87,7 +87,7 @@ export default class TransferModalUI extends Component {
 
   computePercent = () => {
     const { all, transfered } = this.getTransferList().reduce((prev, c) => {
-      prev.all += _.get(c, 'fromFile.size') || 0
+      prev.all += c?.fromFile?.size || 0
       prev.transfered += (c.transferred || 0)
       return prev
     }, {
@@ -103,7 +103,7 @@ export default class TransferModalUI extends Component {
 
   computeLeftTime = () => {
     const sorted = this.getCurrentTransports().sort((b, a) => a.leftTimeInt - b.leftTimeInt)
-    return _.get(sorted, '[0].leftTime') || '-'
+    return get(sorted, '[0].leftTime') || '-'
   }
 
   computePausing = () => {

@@ -5,7 +5,7 @@
 import { Input } from 'antd'
 import React from 'react'
 import ReactDOM from 'react-dom'
-import _ from 'lodash'
+import { findLastIndex } from 'lodash-es'
 
 export default class InputAutoFocus extends React.PureComponent {
   componentDidMount () {
@@ -29,7 +29,7 @@ export default class InputAutoFocus extends React.PureComponent {
     const dom = this.getDom()
     if (dom && dom.focus) {
       const { value, selectall = false } = this.props
-      const index = _.findLastIndex(value, v => v === '.')
+      const index = findLastIndex(value, v => v === '.')
       const hasExt = index > 0
       if (value && !selectall && hasExt) {
         dom.focus()

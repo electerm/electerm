@@ -28,7 +28,6 @@ jobs:
 
     # script:
     - run: npm run prepare-build
-
     - name: test
       uses: GabrielBB/xvfb-action@v1
       with:

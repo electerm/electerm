@@ -5,7 +5,7 @@ import { PureComponent } from 'react'
 import {
   message
 } from 'antd'
-import _ from 'lodash'
+import { findIndex, uniq, isEqual, pick } from 'lodash-es'
 import copy from 'json-deep-copy'
 import generate from '../../common/uid'
 import {
@@ -102,12 +102,12 @@ export default class BookmarkForm extends PureComponent {
   }
 
   updateBookmarkGroups = (bookmarkGroups, bookmark, categoryId) => {
-    let index = _.findIndex(
+    let index = findIndex(
       bookmarkGroups,
       bg => bg.id === categoryId
     )
     if (index < 0) {
-      index = _.findIndex(
+      index = findIndex(
         bookmarkGroups,
         bg => bg.id === defaultBookmarkGroupId
       )
@@ -119,8 +119,8 @@ export default class BookmarkForm extends PureComponent {
     if (!bg.bookmarkIds.includes(bid)) {
       bg.bookmarkIds.unshift(bid)
     }
-    bg.bookmarkIds = _.uniq(bg.bookmarkIds)
-    if (!_.isEqual(bg.bookmarkIds, old)) {
+    bg.bookmarkIds = uniq(bg.bookmarkIds)
+    if (!isEqual(bg.bookmarkIds, old)) {
       updates.push({
         id: bg.id,
         db: 'bookmarkGroups',
@@ -137,7 +137,7 @@ export default class BookmarkForm extends PureComponent {
       bg.bookmarkIds = bg.bookmarkIds.filter(
         g => g !== bid
       )
-      if (!_.isEqual(bg.bookmarkIds, olde)) {
+      if (!isEqual(bg.bookmarkIds, olde)) {
         updates.push({
           id: bg.id,
           db: 'bookmarkGroups',
@@ -326,7 +326,7 @@ export default class BookmarkForm extends PureComponent {
   }
 
   getProps = () => {
-    const funcs = _.pick(this, [
+    const funcs = pick(this, [
       'beforeUpload',
       'handleFinish',
       'testConnection',

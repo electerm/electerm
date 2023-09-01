@@ -17,7 +17,7 @@ import useSubmit from './use-submit'
 import useUI from './use-ui'
 import useQm from './use-quick-commands'
 import copy from 'json-deep-copy'
-import _ from 'lodash'
+import { defaultsDeep } from 'lodash-es'
 import renderTabs from './form-tabs'
 import renderCommon from './form-ssh-common'
 import renderEnableSftp from './sftp-enable'
@@ -66,7 +66,7 @@ export default function BookmarkFormUI (props) {
     sshTunnel: '',
     category: initBookmarkGroupId
   }
-  initialValues = _.defaultsDeep(initialValues, defaultValues)
+  initialValues = defaultsDeep(initialValues, defaultValues)
   function onChangeAuthType (e) {
     setAuthType(e.target.value)
   }

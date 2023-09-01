@@ -27,8 +27,8 @@ if (isWin) {
 }
 
 echo('start pack prepare')
-echo('install test deps')
-exec(`PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm i -D -E playwright@1.28.1 --no-save && npm i -D -E @playwright/test@1.28.1 --no-save`)
+// echo('install test deps')
+// exec(`PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm i -D -E playwright@1.28.1 --no-save && npm i -D -E @playwright/test@1.28.1 --no-save`)
 const timeStart = +new Date()
 rm('-rf', dir)
 rm('-rf', 'dist/latest')
@@ -44,8 +44,6 @@ rm('-rf', 'work/app/localstorage.json')
 rm('-rf', 'work/app/nohup.out')
 rm('-rf', 'work/app/assets/js/index*')
 rm('-rf', 'work/app/assets/js/*.txt')
-rm('-rf', 'work/app/node_modules/zmodem.js/src')
-rm('-rf', 'work/app/node_modules/zmodem.js/dist/zmodem.devel.js')
 require('fs').writeFileSync(
   resolve(__dirname, '../../work/app/package.json'),
   JSON.stringify(

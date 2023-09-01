@@ -9,7 +9,7 @@ import {
   Form
 } from 'antd'
 import { formItemLayout } from '../../common/form-layout'
-import _ from 'lodash'
+import { uniqBy } from 'lodash-es'
 import './bookmark-form.styl'
 
 const { TextArea } = Input
@@ -25,7 +25,7 @@ export default function renderAuth (props) {
   } = props
   if (authType === 'password') {
     const opts = {
-      options: _.uniqBy(
+      options: uniqBy(
         store.getBookmarks()
           .filter(d => d.password),
         (d) => d.password

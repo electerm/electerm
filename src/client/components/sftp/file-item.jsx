@@ -11,7 +11,7 @@ import {
 } from '@ant-design/icons'
 import classnames from 'classnames'
 import copy from 'json-deep-copy'
-import _ from 'lodash'
+import { pick, some } from 'lodash-es'
 import Input from '../common/input-auto-focus'
 import resolve from '../../common/resolve'
 import { addClass, removeClass } from '../../common/class'
@@ -93,7 +93,7 @@ export default class FileSection extends React.Component {
     this.dom.querySelectorAll('.sftp-file-prop').forEach((n, i) => {
       const h = headers[i]
       if (h) {
-        const s = _.pick(h.style, ['width', 'left'])
+        const s = pick(h.style, ['width', 'left'])
         Object.assign(n.style, s)
       }
     })
@@ -234,7 +234,7 @@ export default class FileSection extends React.Component {
 
   onDrop = async e => {
     e.preventDefault()
-    const fromFileManager = !!_.get(e, 'dataTransfer.files.length')
+    const fromFileManager = !!e?.dataTransfer?.files?.length
     let { target } = e
     if (!target) {
       return
@@ -334,7 +334,7 @@ export default class FileSection extends React.Component {
   }
 
   isSelected = file => {
-    return _.some(
+    return some(
       this.props.selectedFiles,
       f => f.id === file.id
     )
@@ -460,7 +460,7 @@ export default class FileSection extends React.Component {
         (e.ctrlKey && !isMac) ||
         (e.metaKey && isMac)
       ) {
-        const isSelected = _.some(
+        const isSelected = some(
           selectedFilesOld,
           s => s.id === id
         )
@@ -735,7 +735,7 @@ export default class FileSection extends React.Component {
       return this.editFile()
     }
     if (
-      _.get(this.props, 'tab.host')
+      this.props.tab?.host
     ) {
       this.transfer()
     }
@@ -892,7 +892,7 @@ export default class FileSection extends React.Component {
       selectedFiles,
       tab
     } = this.props
-    const hasHost = !!_.get(tab, 'host')
+    const hasHost = !!tab.host
     const transferText = type === typeMap.local
       ? e(transferTypeMap.upload)
       : e(transferTypeMap.download)
@@ -902,7 +902,7 @@ export default class FileSection extends React.Component {
     const len = selectedFiles.length
     const shouldShowSelectedMenu = id &&
       len > 1 &&
-      _.some(selectedFiles, d => d.id === id)
+      some(selectedFiles, d => d.id === id)
     const delTxt = shouldShowSelectedMenu ? `${e('deleteAll')}(${len})` : m('del')
     const canPaste = hasFileInClipboardText()
     const showEdit = !isDirectory && id &&
@@ -1148,7 +1148,7 @@ export default class FileSection extends React.Component {
     if (isEditing) {
       return this.renderEditing(file)
     }
-    const selected = _.some(selectedFiles.filter(d => d), s => s.id === id)
+    const selected = some(selectedFiles.filter(d => d), s => s.id === id)
     const className = classnames('sftp-item', cls, type, {
       directory: isDirectory,
       selected
@@ -1157,7 +1157,7 @@ export default class FileSection extends React.Component {
       className,
       draggable,
       onDoubleClick: this.transferOrEnterDirectory,
-      ..._.pick(this, [
+      ...pick(this, [
         'onContextMenu',
         'onClick',
         'onDrag',

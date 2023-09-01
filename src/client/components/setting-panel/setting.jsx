@@ -26,7 +26,7 @@ import defaultSettings from '../../../app/common/default-setting'
 import ShowItem from '../common/show-item'
 import { osResolve } from '../../common/resolve'
 import Link from '../common/external-link'
-import _ from 'lodash'
+import { isNumber, isNaN } from 'lodash-es'
 import createEditLangLink from '../../common/create-lang-edit-link'
 import mapper from '../../common/auto-complete-data-mapper'
 import StartSession from './start-session-select'
@@ -178,7 +178,7 @@ export default class Setting extends Component {
           unCheckedChildren={e(name)}
           onChange={v => this.onChangeValue(v, name)}
         />
-        {_.isNumber(extra) ? null : extra}
+        {isNumber(extra) ? null : extra}
       </div>
     )
   }
@@ -233,10 +233,10 @@ export default class Setting extends Component {
     if (title) {
       opts.formatter = v => `${title}${options.extraDesc || ''}: ${v}`
       opts.parser = (v) => {
-        let vv = _.isNumber(v)
+        let vv = isNumber(v)
           ? v
           : Number(v.split(': ')[1], 10)
-        if (_.isNaN(vv)) {
+        if (isNaN(vv)) {
           vv = defaultValue
         }
         return vv

@@ -3,7 +3,7 @@
  */
 
 import { Modal } from 'antd'
-import _ from 'lodash'
+import { isFunction, isString } from 'lodash-es'
 import getInitItem from '../common/init-setting-item'
 import {
   settingMap,
@@ -37,7 +37,7 @@ export default Store => {
   Store.prototype.onCloseAbout = function (cb) {
     const { store } = window
     store.showInfoModal = false
-    if (_.isFunction(cb)) {
+    if (isFunction(cb)) {
       cb()
     }
     store.focus()
@@ -46,7 +46,7 @@ export default Store => {
   Store.prototype.openAbout = function (tab) {
     const { store } = window
     store.showInfoModal = true
-    if (_.isString(tab)) {
+    if (isString(tab)) {
       store.infoModalTab = tab
     }
   }

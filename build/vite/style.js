@@ -4,15 +4,17 @@
  */
 
 // const { isDev } = require('../utils/app-props')
-const { resolve } = require('path')
-const { readFileSync } = require('fs')
+import { resolve } from 'path'
+import { readFileSync } from 'fs'
+import { cwd } from './common.js'
+import glob from 'glob'
 
 function findFiles (pattern) {
-  return require('glob').sync(pattern)
+  return glob.sync(pattern)
 }
 
-function loadDevStylus () {
-  const dir = resolve(__dirname, '../../src/client')
+export function loadDevStylus () {
+  const dir = resolve(cwd, '../../src/client')
   const pat = dir + '/**/*.styl'
   const arr = findFiles(pat)
   const key = 'theme-default.styl'
@@ -31,5 +33,3 @@ function loadDevStylus () {
   all = all.replace(/@require[^\n]+\n/g, '\n')
   return all
 }
-
-exports.loadDevStylus = loadDevStylus

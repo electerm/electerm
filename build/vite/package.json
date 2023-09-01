@@ -1,0 +1,11 @@
+{
+  "name": "electerm",
+  "version": "1.29.5",
+  "main": "app.js",
+  "type": "module",
+  "scripts": {
+    "start": "npm run c",
+    "c": "node ./dev-server.js",
+    "build": "NODE_ENV=production vite build --config ./conf.js"
+  }
+}

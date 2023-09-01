@@ -4,7 +4,7 @@
  */
 
 import React from 'react'
-import _ from 'lodash'
+import { findIndex } from 'lodash-es'
 
 import {
   CodeFilled,
@@ -135,7 +135,7 @@ export default class Tabs extends React.Component {
 
   adjustScroll = () => {
     const { width, tabs, currentTabId } = this.props
-    const index = _.findIndex(tabs, t => t.id === currentTabId)
+    const index = findIndex(tabs, t => t.id === currentTabId)
     const tabsDomWith = Array.from(
       document.querySelectorAll('.tab')
     ).slice(0, index + 2).reduce((prev, c) => {

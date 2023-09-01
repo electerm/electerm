@@ -2,7 +2,7 @@
  * tabs related functions
  */
 
-import _ from 'lodash'
+import { uniq, debounce, findIndex } from 'lodash-es'
 import {
   tabActions
 } from '../common/constants'
@@ -10,7 +10,7 @@ import postMsg from '../common/post-msg'
 
 export default Store => {
   Store.prototype.updateTabsStatus = function () {
-    const tabIds = _.uniq(
+    const tabIds = uniq(
       window.store.getTransfers().map(d => d.tabId)
     )
     postMsg({
@@ -44,11 +44,11 @@ export default Store => {
     })
   }
 
-  Store.prototype.clickNextTab = _.debounce(function () {
+  Store.prototype.clickNextTab = debounce(function () {
     window.store.clickBioTab(1)
   }, 100)
 
-  Store.prototype.clickPrevTab = _.debounce(function () {
+  Store.prototype.clickPrevTab = debounce(function () {
     window.store.clickBioTab(-1)
   }, 100)
 
@@ -57,7 +57,7 @@ export default Store => {
     if (tab) {
       const id = tab.dataset.id
       const { tabs } = window.store
-      const i = _.findIndex(tabs, t => {
+      const i = findIndex(tabs, t => {
         return t.id === id
       })
       const len = tabs.length
