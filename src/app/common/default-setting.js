@@ -36,5 +36,6 @@ module.exports = exports.default = {
   defaultEditor: '',
   confirmBeforeExit: false,
   initDefaultTabOnStart: true,
-  screenReaderMode: false
+  screenReaderMode: false,
+  autoRefreshWhenSwitchToSftp: false
 }

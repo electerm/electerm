@@ -1,6 +1,6 @@
 {
   "name": "electerm",
-  "version": "1.30.0",
+  "version": "1.30.3",
   "description": "Terminal/ssh/telnet/serialport/sftp client(linux, mac, win)",
   "main": "app.js",
   "bin": "npm/electerm",
@@ -101,7 +101,7 @@
     "zmodem.js": "0.1.10"
   },
   "dependencies": {
-    "@electerm/electerm-locales": "0.18.2",
+    "@electerm/electerm-locales": "0.18.4",
     "@electerm/ssh2": "1.11.2",
     "@electerm/strip-ansi": "1.0.0",
     "@yetzt/nedb": "1.8.0",

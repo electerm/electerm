@@ -824,6 +824,7 @@ export default class Setting extends Component {
         }
         {
           [
+            'autoRefreshWhenSwitchToSftp',
             'screenReaderMode',
             'initDefaultTabOnStart',
             'cursorBlink',
