@@ -95,7 +95,7 @@ export default class Sftp extends Component {
       this.state.inited
     ) {
       this.onGoto(typeMap.local)
-      this.localList(typeMap.remote)
+      this.onGoto(typeMap.remote)
     }
   }
 
