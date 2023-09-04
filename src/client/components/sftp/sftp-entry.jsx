@@ -61,7 +61,8 @@ export default class Sftp extends Component {
       loadingSftp: false,
       transferToConfirm: null,
       transferList: [],
-      pauseAll: false
+      pauseAll: false,
+      inited: false
     }
     this.retryCount = 0
   }
@@ -86,6 +87,15 @@ export default class Sftp extends Component {
     ) {
       this.initEvent()
       this.initData(true)
+    }
+    if (
+      this.props.config.autoRefreshWhenSwitchToSftp &&
+      prevProps.pane !== this.props.pane &&
+      (this.props.pane === paneMap.fileManager || this.props.pane.sftp) &&
+      this.state.inited
+    ) {
+      this.onGoto(typeMap.local)
+      this.localList(typeMap.remote)
     }
   }
 
@@ -625,6 +635,7 @@ export default class Sftp extends Component {
       const update = {
         remote,
         remoteFileTree: buildTree(remote),
+        inited: true,
         remoteLoading: false
       }
       if (!noPathInit) {
@@ -686,6 +697,7 @@ export default class Sftp extends Component {
       }
       const update = {
         local,
+        inited: true,
         localFileTree: buildTree(local),
         localLoading: false
       }
