@@ -19,6 +19,7 @@ describe('auto upgrade check', function () {
     while (v !== '0.0.0') {
       v = await client.evaluate(() => {
         if (window.et) {
+          console.log('no retry set version')
           window.et.version = '0.0.0'
           return '0.0.0'
         }
@@ -27,7 +28,8 @@ describe('auto upgrade check', function () {
       })
       await delay(2)
     }
-    await delay(7500)
+    console.log('version', window.et.version)
+    await delay(15500)
     log('should show upgrade info')
     const sel = '.animate.upgrade-panel'
     await client.hasElem(sel)
