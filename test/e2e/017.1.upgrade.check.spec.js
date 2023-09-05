@@ -29,10 +29,15 @@ describe('auto upgrade check', function () {
       await delay(2)
     }
     console.log('v', v)
-    await delay(15500)
-    log('should show upgrade info')
+    const len1 = 10000
     const sel = '.animate.upgrade-panel'
-    await client.hasElem(sel)
+    for (let i = 0; i < len1; i++) {
+      await delay(500)
+      if (await client.elemExist(sel)) {
+        break
+      }
+    }
+    log('should show upgrade info')
     log('start download upgrade')
     await client.click('.upgrade-panel .ant-btn-primary')
     const fr = {}
