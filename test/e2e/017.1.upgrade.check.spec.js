@@ -28,7 +28,7 @@ describe('auto upgrade check', function () {
       })
       await delay(2)
     }
-    console.log('version', window.et.version)
+    console.log('v', v)
     await delay(15500)
     log('should show upgrade info')
     const sel = '.animate.upgrade-panel'
