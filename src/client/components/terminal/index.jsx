@@ -1059,7 +1059,7 @@ export default class Term extends Component {
     }
     const key = `open${Date.now()}`
     function closeMsg () {
-      notification.close(key)
+      notification.destroy(key)
     }
     this.socketCloseWarning = notification.warning({
       key,
