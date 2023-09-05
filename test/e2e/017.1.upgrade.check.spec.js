@@ -22,9 +22,10 @@ describe('auto upgrade check', function () {
           window.et.version = '0.0.0'
           return '0.0.0'
         }
+        console.log('retry set version')
         return ''
       })
-      await delay(10)
+      await delay(2)
     }
     await delay(12500)
     log('should show upgrade info')
