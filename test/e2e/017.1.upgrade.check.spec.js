@@ -27,7 +27,7 @@ describe('auto upgrade check', function () {
       })
       await delay(2)
     }
-    await delay(12500)
+    await delay(7500)
     log('should show upgrade info')
     const sel = '.animate.upgrade-panel'
     await client.hasElem(sel)
