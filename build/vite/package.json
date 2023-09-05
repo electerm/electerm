@@ -6,6 +6,6 @@
   "scripts": {
     "start": "npm run c",
     "c": "node ./dev-server.js",
-    "build": "NODE_ENV=production vite build --config ./conf.js"
+    "build": "cross-env NODE_ENV=production vite build --config ./conf.js"
   }
 }
