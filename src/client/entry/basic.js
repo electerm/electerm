@@ -5,9 +5,12 @@ import '../css/basic.styl'
 import { get as _get } from 'lodash-es'
 import '../common/pre'
 
+const { version, isDev } = window.et
+
 async function loadWorker () {
   return new Promise((resolve) => {
-    window.worker = new window.Worker('js/worker.js')
+    const url = !isDev ? `js/worker-${version}.js` : 'js/worker.js'
+    window.worker = new window.Worker(url)
     function onInit (e) {
       if (!e || !e.data) {
         return false
@@ -30,7 +33,8 @@ async function load () {
   }
   function loadScript () {
     const rcs = document.createElement('script')
-    rcs.src = 'js/electerm.js?' + window.pre.packInfo.version
+    const url = !isDev ? `js/electerm-${version}.js` : 'js/electerm.js'
+    rcs.src = url
     rcs.type = 'module'
     document.body.appendChild(rcs)
   }

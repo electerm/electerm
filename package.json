@@ -30,6 +30,7 @@
     "test2": "./node_modules/.bin/playwright test test/e2e/01*.js --workers=1",
     "prepare-build": "npm run clean && npm run compile && npm run prepare-file",
     "r": "./build/bin/release",
+    "t": "./node_modules/.bin/electron work/app/app.js",
     "lock": "npm i --package-lock-only"
   },
   "license": "MIT",

@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 // import htmlPurge from 'vite-plugin-purgecss'
-import { cwd } from './common.js'
+import { cwd, version } from './common.js'
 import { resolve } from 'path'
 import def from './def.js'
 import commonjs from 'vite-plugin-commonjs'
@@ -49,15 +49,17 @@ export default defineConfig({
       //   'react-dom'
       // ],
       output: {
-        manualChunks: undefined,
+        manualChunks: {
+          react: ['react', 'react-dom']
+        },
         inlineDynamicImports: false,
         format: 'esm',
-        entryFileNames: `js/[name].js`,
-        chunkFileNames: 'chunk/[name]-[hash].js',
+        entryFileNames: `js/[name]-${version}.js`,
+        chunkFileNames: `chunk/[name]-${version}-[hash].js`,
         assetFileNames: chunkInfo => {
           const { name } = chunkInfo
           return name.endsWith('.css')
-            ? `css/${name}`
+            ? `css/${version}-${name}`
             : `images/${name}`
         },
         dir: resolve(cwd, '../../work/app/assets')

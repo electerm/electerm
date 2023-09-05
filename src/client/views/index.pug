@@ -26,8 +26,8 @@ html
         background: transparent 50% 50% no-repeat url("./images/electerm-watermark.png");
       }
     - if (!isDev)
-      link(rel='stylesheet', href='css/basic.css?' + version)
-      link(rel='stylesheet', href='css/index.css?' + version)
+      link(rel='stylesheet', href='css/' + version + '-basic.css')
+      link(rel='stylesheet', href='css/' + version + '-index.css')
       style(id='theme-css').
   body
     - if (isDev)
@@ -38,6 +38,7 @@ html
         img.iblock.logo-filter(src='images/electerm.png', alt='', height=80)
     script.
       window.et = !{JSON.stringify(_global)}
+    - var url = '/src/client/entry/basic.js'
     - if (isDev)
       //- script(src='/external/react.development.js?' + version)
       //- script(src='/external/react-dom.development.js?' + version)
@@ -48,9 +49,10 @@ html
         window.$RefreshSig$ = () => (type) => type
         window.__vite_plugin_react_preamble_installed__ = true
       script(src='/@vite/client', type='module')
-      script(src='/src/client/entry/basic.js?' + version, type='module')
+      script(src=url, type='module')
     - else
       //- script(src='/external/react.production.min.js?' + version)
       //- script(src='/external/react-dom.production.min.js?' + version)
-      script(src='/js/basic.js?' + version, type='module')
+      - var url = src='/js/basic-' + version + '.js'
+      script(src=url, type='module')
 
