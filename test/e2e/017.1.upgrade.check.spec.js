@@ -19,17 +19,25 @@ describe('auto upgrade check', function () {
     while (v !== '0.0.0') {
       v = await client.evaluate(() => {
         if (window.et) {
+          console.log('no retry set version')
           window.et.version = '0.0.0'
           return '0.0.0'
         }
+        console.log('retry set version')
         return ''
       })
-      await delay(10)
+      await delay(2)
     }
-    await delay(12500)
-    log('should show upgrade info')
+    console.log('v', v)
+    const len1 = 10000
     const sel = '.animate.upgrade-panel'
-    await client.hasElem(sel)
+    for (let i = 0; i < len1; i++) {
+      await delay(500)
+      if (await client.elemExist(sel)) {
+        break
+      }
+    }
+    log('should show upgrade info')
     log('start download upgrade')
     await client.click('.upgrade-panel .ant-btn-primary')
     const fr = {}

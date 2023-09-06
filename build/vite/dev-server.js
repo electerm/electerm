@@ -68,7 +68,7 @@ async function createServer () {
   // Use vite's connect instance as middleware. If you use your own
   // express router (express.Router()), you should use router.use
   app.use(vite.middlewares)
-  app.get('/', handleIndex)
+  app.get(['/', '/index.html'], handleIndex)
   app.get('/:dir/:name.:ext', redirect)
   app.listen(devPort, host, () => {
     console.log('cwd:', cwd)
