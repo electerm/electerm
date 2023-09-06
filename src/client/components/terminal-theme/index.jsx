@@ -4,7 +4,6 @@ import { Button, Input, message, Upload, Form } from 'antd'
 import { convertTheme, convertThemeToText, exportTheme, validThemeProps, requiredThemeProps } from '../../common/terminal-theme'
 import { defaultTheme, defaultThemeLight } from '../../common/constants'
 import generate from '../../common/uid'
-import { formItemLayout, tailFormItemLayout } from '../../common/form-layout'
 import Link from '../common/external-link'
 import InputAutoFocus from '../common/input-auto-focus'
 
