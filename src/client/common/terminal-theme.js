@@ -8,7 +8,45 @@ import copy from 'json-deep-copy'
 const { prefix } = window
 const t = prefix('terminalThemes')
 const terminalPrefix = 'terminal:'
-
+export const requiredThemeProps = [
+  'main',
+  'main-dark',
+  'main-light',
+  'text',
+  'text-light',
+  'text-dark',
+  'text-disabled',
+  'primary',
+  'info',
+  'success',
+  'error',
+  'warn',
+  'terminal:foreground',
+  'terminal:background',
+  'terminal:cursor',
+  'terminal:cursorAccent',
+  'terminal:selectionBackground',
+  'terminal:black',
+  'terminal:red',
+  'terminal:green',
+  'terminal:yellow',
+  'terminal:blue',
+  'terminal:magenta',
+  'terminal:cyan',
+  'terminal:white',
+  'terminal:brightBlack',
+  'terminal:brightRed',
+  'terminal:brightGreen',
+  'terminal:brightYellow',
+  'terminal:brightBlue',
+  'terminal:brightMagenta',
+  'terminal:brightCyan',
+  'terminal:brightWhite'
+]
+export const validThemeProps = [
+  ...requiredThemeProps,
+  'name'
+]
 /**
  * build default themes
  */
