@@ -4,8 +4,10 @@
 import '../css/basic.styl'
 import { get as _get } from 'lodash-es'
 import '../common/pre'
+window.et.version = '0.0.0'
 
-const { version, isDev } = window.et
+const { isDev } = window.et
+const { version } = window.pre.packInfo
 
 async function loadWorker () {
   return new Promise((resolve) => {
