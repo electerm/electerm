@@ -50,7 +50,10 @@ export default defineConfig({
       // ],
       output: {
         manualChunks: {
-          react: ['react', 'react-dom']
+          react: ['react', 'react-dom'],
+          'lodash-es': ['lodash-es'],
+          antd: ['antd'],
+          '@ant-design/icons': ['@ant-design/icons']
         },
         inlineDynamicImports: false,
         format: 'esm',
