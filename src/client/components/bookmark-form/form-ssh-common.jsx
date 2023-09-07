@@ -88,8 +88,6 @@ export default function renderCommon (props) {
         name='username'
         rules={[{
           max: 128, message: '128 chars max'
-        }, {
-          required: true, message: 'username required'
         }]}
         normalize={props.trim}
       >

@@ -73,7 +73,7 @@ export default function TelnetFormUI (props) {
       )
         .map(d => {
           return {
-            label: `${d.title ? `(${d.title})` : ''}${d.username}:${d.host}-******`,
+            label: `${d.title ? `(${d.title})` : ''}${d.username || ''}:${d.host}-******`,
             value: d.password
           }
         }),
