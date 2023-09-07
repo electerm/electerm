@@ -118,7 +118,7 @@ wechat donate
 # tested in ubuntu16.04+/mac os 10.13+ only
 # needs nodejs/npm, suggest using nvm to install nodejs/npm
 # https://github.com/creationix/nvm
-# with nodejs 16+
+# with nodejs 18.x
 
 git clone git@github.com:electerm/electerm.git
 cd electerm

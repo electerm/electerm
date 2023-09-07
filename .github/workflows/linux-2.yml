@@ -16,10 +16,10 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - name: Use Node.js 16.x
+    - name: Use Node.js 18.x
       uses: actions/setup-node@v3
       with:
-        node-version: 16.x
+        node-version: 18.x
 
     # - name: xvfb
     #   uses: GabrielBB/xvfb-action@v1
