@@ -53,7 +53,9 @@ export default defineConfig({
           react: ['react', 'react-dom'],
           'lodash-es': ['lodash-es'],
           antd: ['antd'],
-          '@ant-design/icons': ['@ant-design/icons']
+          '@ant-design/icons': ['@ant-design/icons'],
+          xterm: ['xterm'],
+          manate: ['manate']
         },
         inlineDynamicImports: false,
         format: 'esm',
