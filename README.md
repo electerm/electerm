@@ -14,7 +14,7 @@
 [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
 [![Get it from the Snap Store](https://img.shields.io/badge/Snap-Store-green)](https://snapcraft.io/electerm)
 [![Get it from the Microsoft Store](https://img.shields.io/badge/Microsoft-Store-blue)](https://www.microsoft.com/store/apps/9NCN7272GTFF)
-[![open collective badge](https://opencollective.com/electerm/tiers/backer/badge.svg?label=backer&color=brightgreen)](https://opencollective.com/electerm)
+[![GitHub Sponsors](https://img.shields.io/github/sponsors/electerm?label=Sponsors)](https://github.com/sponsors/electerm)
 
 Open-sourced terminal/ssh/telnet/serialport/sftp client(linux, mac, win).
 
