@@ -40,6 +40,19 @@ import {
   theme
 } from 'antd'
 
+function getReverseColor (hex) {
+  // Check if the input is a valid hex color code
+  if (!/^#[0-9a-fA-F]{6}$/.test(hex)) {
+    return hex
+  }
+  // Convert the hex color code to an integer
+  const num = parseInt(hex.slice(1), 16)
+  // Bitwise XOR the integer with 0xFFFFFF to get the reverse color
+  const reverse = num ^ 0xFFFFFF
+  // Convert the reverse color to a hex string and pad with zeros if needed
+  return '#' + reverse.toString(16).padStart(6, '0')
+}
+
 function expandShorthandColor (color) {
   if (color.length === 4) {
     return '#' + color[1] + color[1] + color[2] + color[2] + color[3] + color[3]
@@ -173,7 +186,7 @@ class Store {
         activeMatchColorOverviewRuler: theme.selectionBackground,
         matchBackground: theme.background,
         matchOverviewRuler: theme.selectionBackground,
-        matchBorder: theme.selectionBackground
+        matchBorder: getReverseColor(theme.background)
       }
     }
   }
