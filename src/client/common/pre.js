@@ -62,6 +62,7 @@ const fs = {
   statSync: (...args) => {
     const obj = runSync('statSync', ...args)
     obj.isDirectory = () => obj.isD
+    obj.isFile = () => obj.isF
     return obj
   },
   accessSync: (...args) => {

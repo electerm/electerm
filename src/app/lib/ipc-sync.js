@@ -48,6 +48,7 @@ module.exports = {
   statSync: (...args) => {
     const st = require('fs').statSync(...args)
     st.isD = st.isDirectory()
+    st.isF = st.isFile()
     return st
   },
   mkdirSync: (...args) => {
