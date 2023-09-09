@@ -7,7 +7,8 @@ import {
   WarningOutlined,
   InfoCircleOutlined,
   AlignLeftOutlined,
-  BugOutlined
+  BugOutlined,
+  HeartOutlined
 } from '@ant-design/icons'
 import { Component } from '../common/react-subx'
 import { Modal, Tabs, Button } from 'antd'
@@ -79,11 +80,12 @@ export default class InfoModal extends Component {
         url: authorUrl
       },
       homepage,
-      repository: {
+      bugs: {
         url: bugReportLink
       },
       releases: releaseLink,
       privacyNoticeLink,
+      sponsorLink,
       knownIssuesLink
     } = packInfo
     const link = releaseLink.replace('/releases', '')
@@ -150,21 +152,27 @@ export default class InfoModal extends Component {
               </Link>
             </p>
             <p className='mg1b'>
-              <HighlightOutlined /> <b className='mg1r'>Changelog ➾</b>
+              <HighlightOutlined /> <b className='mg1r'>{a('changeLog')} ➾</b>
               <Link to={releaseLink} className='mg1l'>
                 {releaseLink}
               </Link>
             </p>
             <p className='mg1b'>
-              <AlignLeftOutlined /> <b className='mg1r'>Known issues ➾</b>
+              <AlignLeftOutlined /> <b className='mg1r'>{a('knownIssues')} ➾</b>
               <Link to={knownIssuesLink} className='mg1l'>
                 {knownIssuesLink}
               </Link>
             </p>
             <p className='mg1b'>
-              <WarningOutlined /> <b className='mg1r'>Privacy notice ➾</b>
+              <WarningOutlined /> <b className='mg1r'>{a('privacyNotice')} ➾</b>
               <Link to={privacyNoticeLink} className='mg1l'>
                 {privacyNoticeLink}
+              </Link>
+            </p>
+            <p className='mg1b'>
+              <HeartOutlined /> <b className='mg1r'>{a('sponsorElecterm')} ➾</b>
+              <Link to={sponsorLink} className='mg1l'>
+                {sponsorLink}
               </Link>
             </p>
             {this.renderCheckUpdate()}

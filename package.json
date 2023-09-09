@@ -37,6 +37,7 @@
   "langugeRepo": "https://github.com/electerm/electerm-locales",
   "privacyNoticeLink": "https://github.com/electerm/electerm/wiki/privacy-notice",
   "knownIssuesLink": "https://github.com/electerm/electerm/wiki/Know-issues",
+  "sponsorLink": "https://github.com/electerm/electerm/wiki/Sponsor-electerm",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/electerm/electerm.git"
@@ -103,7 +104,7 @@
     "zmodem.js": "0.1.10"
   },
   "dependencies": {
-    "@electerm/electerm-locales": "0.18.4",
+    "@electerm/electerm-locales": "1.0.0",
     "@electerm/ssh2": "1.11.2",
     "@electerm/strip-ansi": "1.0.0",
     "@yetzt/nedb": "1.8.0",
