@@ -37,10 +37,7 @@ export default class BookmarkSelect extends Component {
       ...base,
       shouldConfirmDel: true,
       bookmarkGroups: store.getBookmarkGroupsTotal(),
-      expandedKeys,
-      onExpand: expandedKeys => {
-        store.setState('expandedKeys', expandedKeys)
-      }
+      expandedKeys
     }
     return (
       <TreeList

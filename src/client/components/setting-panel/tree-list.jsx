@@ -2,8 +2,7 @@
  * tree list for bookmarks
  */
 
-import React from 'react'
-
+import { Component } from 'react'
 import {
   BookOutlined,
   CheckOutlined,
@@ -47,6 +46,7 @@ import Search from '../common/search'
 import Btns from './bookmark-transport'
 import findBookmarkGroupId from '../../common/find-bookmark-group-id'
 import getInitItem from '../../common/init-setting-item'
+import deepEqual from 'fast-deep-equal'
 import './tree-list.styl'
 
 const { TreeNode } = Tree
@@ -55,7 +55,7 @@ const e = prefix('menu')
 const c = prefix('common')
 const s = prefix('setting')
 
-export default class ItemListTree extends React.PureComponent {
+export default class ItemListTree extends Component {
   constructor (props) {
     super(props)
     this.state = {
@@ -77,6 +77,17 @@ export default class ItemListTree extends React.PureComponent {
         ready: true
       })
     }, 100)
+  }
+
+  componentDidUpdate (prevProps, prevState) {
+    if (
+      !deepEqual(prevProps.expandedKeys, this.props.expandedKeys) &&
+      !deepEqual(this.props.expandedKeys, this.state.expandedKeys)
+    ) {
+      this.setState({
+        expandedKeys: this.props.expandedKeys
+      })
+    }
   }
 
   componentWillUnmount () {

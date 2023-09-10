@@ -91,8 +91,8 @@ export default store => {
   }).start()
 
   autoRun(store, () => {
-    ls.setItemJSON(checkedKeysLsKey, store.expandedKeys)
-    return store._expandedKeys
+    ls.setItemJSON(checkedKeysLsKey, store.checkedKeys)
+    return store._checkedKeys
   }).start()
 
   autoRun(store, () => {

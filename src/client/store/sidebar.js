@@ -12,15 +12,18 @@ import * as ls from '../common/safe-local-storage'
 export default Store => {
   Store.prototype.expandBookmarks = function () {
     const { store } = window
-    store.storeAssign({
-      expandedKeys: store.getBookmarkGroups().map(g => g.id)
-    })
+    window.store.setState(
+      'expandedKeys',
+      store.getBookmarkGroupsTotal().map(g => g.id)
+    )
   }
 
   Store.prototype.collapseBookmarks = function () {
-    window.store.storeAssign({
-      expandedKeys: []
-    })
+    const { store } = window
+    store.setState(
+      'expandedKeys',
+      []
+    )
   }
 
   Store.prototype.setOpenedSideBar = function (bar) {

@@ -32,7 +32,7 @@ export default class BookmarkPanel extends Component {
           <div className='fix'>
             <div className='fleft'>{c('bookmarks')}</div>
             <div className='fright'>
-              <Tooltip title={e('newSsh')}>
+              <Tooltip title={e('newBookmark')}>
                 <PlusCircleOutlined
                   {...prps}
                   onClick={store.onNewSsh} />
