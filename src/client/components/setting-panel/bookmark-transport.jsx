@@ -13,6 +13,7 @@ import download from '../../common/download'
 import time from '../../../app/common/time'
 import copy from 'json-deep-copy'
 import { find, uniq, isEqual } from 'lodash-es'
+import { fixBookmarks } from '../../common/db-fix'
 
 const { prefix } = window
 const f = prefix('form')
@@ -88,7 +89,7 @@ export default class BookmarkTransport extends Component {
         }
       })
       store.setBookmarkGroups(bookmarkGroups)
-      store.setBookmarks(bookmarks)
+      store.setBookmarks(fixBookmarks(bookmarks))
       store.batchDbAdd(dbAdd)
       store.batchDbUpdate(updates)
     } catch (e) {

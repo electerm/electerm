@@ -10,6 +10,7 @@ import {
 import { remove, dbNames, insert, update } from '../common/db'
 import fetch from '../common/fetch-from-server'
 import download from '../common/download'
+import { fixBookmarks } from '../common/db-fix'
 import dayjs from 'dayjs'
 
 const names = without(dbNames, settingMap.history)
@@ -202,6 +203,8 @@ export default (Store) => {
       )
       if (n === settingMap.terminalThemes) {
         arr = store.fixThemes(arr)
+      } else if (n === settingMap.bookmarks) {
+        arr = fixBookmarks(arr)
       }
       toInsert.push({
         name: n,
@@ -332,6 +335,8 @@ export default (Store) => {
       let arr = objs[n]
       if (n === settingMap.terminalThemes) {
         arr = store.fixThemes(arr)
+      } else if (n === settingMap.bookmarks) {
+        arr = fixBookmarks(arr)
       }
       toInsert.push({
         name: n,
