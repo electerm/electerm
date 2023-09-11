@@ -104,13 +104,17 @@ npm i -g electerm
 
 ## 赞助项目
 
+github sponsor
+
+[https://github.com/sponsors/electerm](https://github.com/sponsors/electerm)
+
 open collective
 
 [![open collective badge](https://opencollective.com/electerm/tiers/backer.svg?avatarHeight=36&width=600)](https://opencollective.com/electerm)
 
 微信赞赏码
 
-[![wechat donate](https://github.com/electerm/electerm-resource/raw/master/static/images/electerm-wechat-donate.png)](https://github.com/electerm)
+[![wechat donate](https://electerm.html5beta.com/electerm-wechat-donate.png)](https://github.com/electerm)
 
 ## 开发
 
