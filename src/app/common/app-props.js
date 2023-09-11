@@ -3,6 +3,7 @@
  */
 const { app } = require('electron')
 const constants = require('./runtime-constants')
+const installSrc = require('../lib/install-src')
 
 function getDataPath () {
   const defaultValue = {
@@ -15,6 +16,7 @@ function getDataPath () {
   const exePath = app.getPath('exe').replace('\\electerm.exe', '')
   const p = exePath + '\\' + 'electerm'
   if (
+    installSrc === 'win-x64-portable.tar.gz' ||
     require('fs').existsSync(
       p
     )
