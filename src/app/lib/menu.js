@@ -98,15 +98,21 @@ function buildMenu () {
           type: 'separator'
         },
         {
-          role: 'resetzoom',
+          click () {
+            global.win.webContents.send('zoom-reset', null)
+          },
           label: e('resetzoom')
         },
         {
-          role: 'zoomin',
+          click () {
+            global.win.webContents.send('zoomin', null)
+          },
           label: e('zoomin')
         },
         {
-          role: 'zoomout',
+          click () {
+            global.win.webContents.send('zoomout', null)
+          },
           label: e('zoomout')
         },
         {

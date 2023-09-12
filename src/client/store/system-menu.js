@@ -34,6 +34,18 @@ export default Store => {
     })
   }
 
+  Store.prototype.onZoomIn = function () {
+    window.store.zoom(0.25, true)
+  }
+
+  Store.prototype.onZoomout = function () {
+    window.store.zoom(-0.25, true)
+  }
+
+  Store.prototype.onZoomReset = function () {
+    window.store.zoom()
+  }
+
   Store.prototype.onCloseAbout = function (cb) {
     const { store } = window
     store.showInfoModal = false

@@ -37,7 +37,9 @@ export default class Index extends Component {
     ipcOnEvent('selectall', store.selectall)
     ipcOnEvent('focused', store.focus)
     ipcOnEvent('blur', store.onBlur)
-    ipcOnEvent('window-move', store.onResize.bind(store))
+    ipcOnEvent('zoom-reset', store.onZoomReset)
+    ipcOnEvent('zoomin', store.onZoomIn)
+    ipcOnEvent('zoomout', store.onZoomout)
 
     document.addEventListener('drop', function (e) {
       e.preventDefault()
@@ -49,6 +51,7 @@ export default class Index extends Component {
     })
     window.addEventListener('offline', store.setOffline)
     window.addEventListener('mousewheel', store.onMouseWheel)
+    window.addEventListener('keydown', store.onKeyDown)
     store.isSencondInstance = window.pre.runSync('isSencondInstance')
     store.initData()
     store.checkForDbUpgrade()
