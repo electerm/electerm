@@ -8,6 +8,7 @@ import {
 import {
   Button
 } from 'antd'
+import classNames from 'classnames'
 
 export default class QuickCommandsItem extends PureComponent {
   onSelect = (id) => {
@@ -17,11 +18,15 @@ export default class QuickCommandsItem extends PureComponent {
   }
 
   render () {
-    const { name, id } = this.props.item
+    const { name, id, nameMatch, labelMatch } = this.props.item
+    const cls = classNames('qm-item mg1r mg1b', {
+      'name-match': nameMatch,
+      'label-match': labelMatch
+    })
     return (
       <Button
         key={id}
-        className='mg1r mg1b'
+        className={cls}
         onClick={this.onSelect}
       >
         {name}

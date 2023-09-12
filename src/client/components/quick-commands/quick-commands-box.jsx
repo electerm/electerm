@@ -4,8 +4,8 @@
 
 import { Component } from '../common/react-subx'
 import { isWin } from '../../common/constants'
-import { find } from 'lodash-es'
-import { Button, Input, Select } from 'antd'
+import { find, sortBy } from 'lodash-es'
+import { Button, Input, Select, Space } from 'antd'
 import copy from 'json-deep-copy'
 import CmdItem from './quick-command-item'
 import {
@@ -13,6 +13,7 @@ import {
   CloseCircleOutlined,
   PushpinOutlined
 } from '@ant-design/icons'
+import classNames from 'classnames'
 import './qm.styl'
 
 const { prefix } = window
@@ -45,8 +46,11 @@ export default class QuickCommandsFooterBox extends Component {
   }
 
   onSelect = (id) => {
+    const {
+      store
+    } = this.props
     if (id === addQuickCommands) {
-      this.props.store.openQuickCommandsSetting()
+      store.openQuickCommandsSetting()
     } else {
       const qm = find(
         this.props.store.currentQuickCommands,
@@ -58,6 +62,9 @@ export default class QuickCommandsFooterBox extends Component {
           ? qm.command.replace(/\n/g, '\n\r')
           : qm.command
         runQuickCommand(realCmd, qm.inputOnly)
+        store.editQuickCommand(qm.id, {
+          clickCount: ((qm.clickCount || 0) + 1)
+        })
       }
     }
   }
@@ -120,6 +127,17 @@ export default class QuickCommandsFooterBox extends Component {
     )
   }
 
+  sortArray (array, keyword, labels) {
+    return sortBy(array, [
+      // First, sort by the keyword match
+      (obj) => !(keyword && obj.name.toLowerCase().includes(keyword)),
+      // Then, sort by the label match
+      (obj) => !labels.some((label) => obj.labels.includes(label)),
+      // Finally, sort by the clickCount
+      (obj) => -(obj.clickCount || 0)
+    ])
+  }
+
   render () {
     const {
       openQuickCommandBar,
@@ -133,21 +151,17 @@ export default class QuickCommandsFooterBox extends Component {
       return this.renderNoCmd()
     }
     const keyword = this.state.keyword.toLowerCase()
-    let filtered = keyword
-      ? all.filter(d => {
-        return d.name.toLowerCase().includes(keyword) || d.command.toLowerCase().includes(keyword)
-      })
-      : all
     const { labels } = this.state
-    if (labels.length) {
-      filtered = filtered.filter(d => {
-        return labels.some(label => {
-          return (d.labels || []).includes(label)
-        })
+    const filtered = this.sortArray(all, keyword, labels)
+      .map(d => {
+        return {
+          ...d,
+          nameMatch: d.name.toLowerCase().includes(keyword),
+          labelMatch: labels.some((label) => d.labels.includes(label))
+        }
       })
-    }
     const sprops = {
-      value: this.state.labels,
+      value: labels,
       mode: 'multiple',
       onChange: this.handleChangeLabels,
       placeholder: e('labels'),
@@ -159,6 +173,11 @@ export default class QuickCommandsFooterBox extends Component {
     const tp = pinnedQuickCommandBar
       ? 'primary'
       : 'ghost'
+    const cls = classNames(
+      'qm-list-wrap',
+      { 'fil-label': !!this.state.labels.length },
+      { 'fil-keyword': !!keyword }
+    )
     return (
       <div
         className='qm-wrap-tooltip'
@@ -185,22 +204,24 @@ export default class QuickCommandsFooterBox extends Component {
               </Select>
             </span>
             <span className='fright'>
-              <Button
-                onClick={this.togglePinned}
-                icon={<PushpinOutlined />}
-                type={tp}
-              />
-              <Button
-                onClick={this.props.store.openQuickCommandsSetting}
-                icon={<EditOutlined />}
-              />
-              <Button
-                onClick={this.close}
-                icon={<CloseCircleOutlined />}
-              />
+              <Space.Compact>
+                <Button
+                  onClick={this.togglePinned}
+                  icon={<PushpinOutlined />}
+                  type={tp}
+                />
+                <Button
+                  onClick={this.props.store.openQuickCommandsSetting}
+                  icon={<EditOutlined />}
+                />
+                <Button
+                  onClick={this.close}
+                  icon={<CloseCircleOutlined />}
+                />
+              </Space.Compact>
             </span>
           </div>
-          <div className='qm-list-wrap'>
+          <div className={cls}>
             {filtered.map(this.renderItem)}
           </div>
         </div>
