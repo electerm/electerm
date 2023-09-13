@@ -77,6 +77,7 @@ export default class FileSection extends React.Component {
   }
 
   componentWillUnmount () {
+    clearTimeout(this.timer)
     this.removeFileEditEvent()
     window.removeEventListener('message', this.changeFileMode)
     window.removeEventListener('message', this.onContextAction)
@@ -664,6 +665,22 @@ export default class FileSection extends React.Component {
     window.pre.ipcOnEvent('file-change', this.onFileChange)
   }
 
+  gotoFolderInTerminal = () => {
+    const {
+      path, name
+    } = this.state.file
+    const rp = resolve(path, name)
+    ;(
+      document.querySelector('.session-current .term-sftp-tabs .type-tab.terminal') ||
+      document.querySelector('.session-current .term-sftp-tabs .type-tab.ssh')
+    ).click()
+    this.timer = setTimeout(() => {
+      window.store.runQuickCommand(
+        `cd "${rp}"`
+      )
+    }, 500)
+  }
+
   fetchEditorText = async (path, type) => {
     // const sftp = sftpFunc()
     const text = typeMap.remote === type
@@ -893,6 +910,7 @@ export default class FileSection extends React.Component {
       tab
     } = this.props
     const hasHost = !!tab.host
+    const { enableSsh } = tab
     const transferText = type === typeMap.local
       ? e(transferTypeMap.upload)
       : e(transferTypeMap.download)
@@ -920,6 +938,19 @@ export default class FileSection extends React.Component {
         func: 'doTransferSelected',
         icon: iconType,
         text: `${e('selected')}(${len})`
+      })
+    }
+    if (
+      isDirectory && id &&
+      (
+        (hasHost && enableSsh && type === typeMap.remote) ||
+        (type === typeMap.local && !hasHost)
+      )
+    ) {
+      res.push({
+        func: 'gotoFolderInTerminal',
+        icon: 'CodeOutlined',
+        text: e('gotoFolderInTerminal')
       })
     }
     if (!(!id || !hasHost || shouldShowSelectedMenu)) {
