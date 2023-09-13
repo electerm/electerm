@@ -89,6 +89,12 @@ export default class Term extends Component {
   componentDidMount () {
     this.initTerminal()
     this.initEvt()
+    if (this.props.tab.enableSsh === false) {
+      ;(
+        document.querySelector('.session-current .term-sftp-tabs .type-tab.sftp') ||
+        document.querySelector('.session-current .term-sftp-tabs .type-tab.fileManager')
+      ).click()
+    }
   }
 
   componentDidUpdate (prevProps) {
