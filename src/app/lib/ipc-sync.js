@@ -67,8 +67,9 @@ module.exports = {
   realpathSync: (...args) => {
     return require('fs').realpathSync(...args)
   },
-  readSync: (...args) => {
-    return require('fs').readSync(...args)
+  readSyncCustom: (p1, arr, ...args) => {
+    const n = require('fs').readSync(p1, arr, ...args)
+    return { n, newArr: arr }
   },
   closeSync: (...args) => {
     return require('fs').closeSync(...args)

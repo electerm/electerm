@@ -74,8 +74,13 @@ const fs = {
   openSync: (...args) => {
     return runSync('openSync', ...args)
   },
-  readSync: (...args) => {
-    return runSync('readSync', ...args)
+  readSync: (p1, arr, ...args) => {
+    const { n, newArr } = runSync('readSyncCustom', p1, arr, ...args)
+    const len = arr.length
+    for (let i = 0; i < len; i++) {
+      arr[i] = newArr[i]
+    }
+    return n
   },
   closeSync: (...args) => {
     return runSync('closeSync', ...args)

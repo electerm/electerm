@@ -48,7 +48,6 @@ export default Store => {
   }
 
   Store.prototype.onKeyDown = function (event) {
-    console.log(event)
     if (
       event.key === '=' &&
       (
