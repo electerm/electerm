@@ -148,6 +148,22 @@ export default function ThemeForm (props) {
     return false
   }
 
+  function renderFuncs (id) {
+    if (!id) {
+      return null
+    }
+    return (
+      <FormItem>
+        <Button
+          type='dashed'
+          onClick={exporter}
+        >
+          {t('export')}
+        </Button>
+      </FormItem>
+    )
+  }
+
   const {
     readOnly,
     id,
@@ -170,18 +186,7 @@ export default function ThemeForm (props) {
       name='terminal-theme-form'
       layout='vertical'
     >
-      <FormItem>
-        {
-          id
-            ? (
-              <Button
-                type='dashed'
-                onClick={exporter}
-              >{t('export')}</Button>
-            )
-            : null
-        }
-      </FormItem>
+      {renderFuncs(id)}
       <FormItem
         label={t('themeName')}
         hasFeedback

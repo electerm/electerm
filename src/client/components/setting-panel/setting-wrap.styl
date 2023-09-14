@@ -3,7 +3,7 @@
 .setting-wrap
   position fixed
   left 0
-  right 0
+  width calc(100% - 43px)
   top 0
   height 100%
   z-index 888
@@ -11,18 +11,10 @@
   background main-light
   color text
   animation-duration .5s
-.setting-wrap-content
-  position absolute
-  left 0
-  top 0
-  width 100%
-  height 100%
-  overflow-y scroll
+
 .setting-wrap-hide
   width 0
   border-left-width 0
-.setting-wrap-inner
-  padding-top 55px
 .close-setting-wrap
   position absolute
   right 20px
@@ -33,20 +25,36 @@
   z-index 889
   &:hover
     color text
-
+.setting-row
+  position fixed
+  top 117px
+  overflow-y scroll
 .setting-row-left
-  position fixed
-  left 60px
-  top 120px
-  width 400px
-  bottom 20px
-  overflow-y scroll
-  padding-right 10px
+  left 43px
+  width 340px
+  bottom 0
+  padding 20px 0 20px 20px
+  .ant-tree
+    background none
 .setting-row-right
+  left 383px
+  right 0
+  bottom 0
+  top 129px
+  padding 20px
+.setting-tabs-bookmarks
+  .setting-row-left
+    width 440px
+  .setting-row-right
+    left 483px
+.setting-tabs
   position fixed
-  right 20px
-  top 120px
-  left 460px
-  bottom 20px
-  padding 0 10px
-  overflow-y scroll
+  z-index 4
+  left 43px
+  top 0
+  right 0
+  padding 55px 20px 0 20px
+  background main-light
+.setting-col
+  ::-webkit-scrollbar
+    width 0

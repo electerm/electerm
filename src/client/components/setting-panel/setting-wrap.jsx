@@ -25,11 +25,7 @@ export default class SettingWrap extends Component {
           className='close-setting-wrap'
           onClick={this.props.onCancel}
         />
-        <div className='setting-wrap-content'>
-          <div className='pd2b pd2x setting-wrap-inner'>
-            {this.props.visible ? this.props.children : null}
-          </div>
-        </div>
+        {this.props.visible ? this.props.children : null}
       </div>
     )
   }
