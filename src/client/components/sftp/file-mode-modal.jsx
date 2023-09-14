@@ -140,7 +140,7 @@ export default class FileMode extends React.PureComponent {
     } = tab
     const iconType = isDirectory ? 'folder' : 'file'
     const ps = {
-      visible,
+      open: visible,
       width: 500,
       title: `${e('edit')} ` + e(iconType) + ` ${e('permission')}`,
       footer: this.renderFooter(),

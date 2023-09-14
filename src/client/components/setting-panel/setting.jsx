@@ -12,7 +12,8 @@ import {
   Button,
   AutoComplete,
   Tooltip,
-  Table
+  Table,
+  Space
 } from 'antd'
 import deepCopy from 'json-deep-copy'
 import {
@@ -289,7 +290,7 @@ export default class Setting extends Component {
     }
     return (
       <div className='pd2b'>
-        <Input.Group compact>
+        <Space.Compact>
           <Input
             value={value}
             {...style}
@@ -313,7 +314,7 @@ export default class Setting extends Component {
               })
             }
           </Select>
-        </Input.Group>
+        </Space.Compact>
       </div>
     )
   }

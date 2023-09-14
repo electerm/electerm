@@ -70,7 +70,7 @@ export default function FileInfoModal () {
   } = tab
   const iconType = isDirectory ? 'folder' : 'file'
   const ps = {
-    visible,
+    open: visible,
     width: 500,
     title: e(iconType) + ` ${e('attributes')}`,
     footer: null,

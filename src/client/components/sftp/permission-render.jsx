@@ -2,12 +2,11 @@
  * file permission render
  */
 
-import { Button } from 'antd'
+import { Button, Space } from 'antd'
 import { isFunction, noop } from 'lodash-es'
 
 const { prefix } = window
 const e = prefix('permission')
-const { Group } = Button
 
 export default (perm, _onClick) => {
   const {
@@ -20,7 +19,7 @@ export default (perm, _onClick) => {
   return (
     <div key={name + 'pr'} className='pd1b'>
       <span className='iblock mg1r'>{e(name)}</span>
-      <Group className='iblock'>
+      <Space.Compact className='iblock'>
         {
           Object.keys(permission).map(n => {
             const type = permission[n]
@@ -37,7 +36,7 @@ export default (perm, _onClick) => {
             )
           })
         }
-      </Group>
+      </Space.Compact>
     </div>
   )
 }

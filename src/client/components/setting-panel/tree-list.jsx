@@ -24,7 +24,8 @@ import {
   Popconfirm,
   Tree,
   Button,
-  Tooltip
+  Tooltip,
+  Space
 } from 'antd'
 import createName from '../../common/create-title'
 import classnames from 'classnames'
@@ -834,23 +835,23 @@ export default class ItemListTree extends Component {
   renderNewButtons = () => {
     return (
       <div className='pd1b pd2r'>
-        <Button
-          className='mg1r mg1t'
-          onClick={this.newBookmark}
-          title={`${s('new')} ${c('bookmarks')}`}
-        >
-          <BookOutlined className='with-plus' />
-        </Button>
-        <Button
-          className='mg1t'
-          onClick={this.newBookmarkGroup}
-          title={`${s('new')} ${c('bookmarkCategory')}`}
-        >
-          <FolderOutlined className='with-plus' />
-        </Button>
-        <Btns
-          store={this.props.store}
-        />
+        <Space.Compact>
+          <Button
+            onClick={this.newBookmark}
+            title={`${s('new')} ${c('bookmarks')}`}
+          >
+            <BookOutlined className='with-plus' />
+          </Button>
+          <Button
+            onClick={this.newBookmarkGroup}
+            title={`${s('new')} ${c('bookmarkCategory')}`}
+          >
+            <FolderOutlined className='with-plus' />
+          </Button>
+          <Btns
+            store={this.props.store}
+          />
+        </Space.Compact>
       </div>
     )
   }

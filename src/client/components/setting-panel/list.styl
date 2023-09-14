@@ -20,13 +20,13 @@
   line-height 1.8
   cu
   &.active
-    background #333
-    color #aaa
+    background primary
+    color contrastColor(primary)
   &.current
     font-weight bold
   &:hover
-    background #333
-    color #999
+    background darken(primary, 30%)
+    color contrastColor(darken(primary, 30%))
     .list-item-apply
     .list-item-edit
     .list-item-remove

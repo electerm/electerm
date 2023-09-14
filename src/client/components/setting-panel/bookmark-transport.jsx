@@ -117,9 +117,14 @@ export default class BookmarkTransport extends Component {
   render () {
     return [
       <Button
+        icon={<EditOutlined />}
+        onClick={this.toggleEdit}
+        title={m('edit')}
+        key='edit-and-del'
+      />,
+      <Button
         icon={<DownloadOutlined />}
         onClick={this.down}
-        className='mg1x iblock'
         title={t('export')}
         key='export'
       />,
@@ -127,20 +132,12 @@ export default class BookmarkTransport extends Component {
         beforeUpload={this.beforeUpload}
         fileList={[]}
         key='Upload'
-        className='iblock mg1x'
       >
         <Button
           icon={<UploadOutlined />}
           title={f('importFromFile')}
         />
-      </Upload>,
-      <Button
-        icon={<EditOutlined />}
-        onClick={this.toggleEdit}
-        className='iblock'
-        title={m('edit')}
-        key='edit-and-del'
-      />
+      </Upload>
     ]
   }
 }

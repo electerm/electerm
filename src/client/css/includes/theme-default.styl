@@ -1,3 +1,11 @@
+
+// Function to determine font color based on background color
+contrastColor(color)
+  if (luminance(color) > 0.5)
+    return #000000 // Black font for bright colors
+  else
+    return #ffffff // White font for dark colors
+
 main = #141314
 main-dark = #000
 main-light = #2E3338

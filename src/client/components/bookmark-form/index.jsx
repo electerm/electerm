@@ -17,7 +17,10 @@ import SshForm from './ssh-form'
 import SerialForm from './serial-form'
 import LocalForm from './local-form'
 import TelnetForm from './telnet-form'
-import { LoadingOutlined } from '@ant-design/icons'
+import {
+  LoadingOutlined,
+  BookOutlined
+} from '@ant-design/icons'
 
 const { prefix } = window
 const c = prefix('common')
@@ -99,6 +102,7 @@ export default class BookmarkIndex extends Component {
     return (
       <div className='form-wrap pd1x'>
         <div className='form-title pd1t pd1x pd2b'>
+          <BookOutlined className='mg1r' />
           {
             (!isNew
               ? m('edit')

@@ -21,11 +21,11 @@
   &:hover
     .sftp-file-prop
       background-color primary
-      color text
+      color contrastColor(primary)
   &.selected
     .sftp-file-prop
-      background-color lighten(primary, -30%)
-      color text-light
+      background-color darken(primary, 30%)
+      color contrastColor(primary)
 .sftp-history
   position absolute
   left 0
