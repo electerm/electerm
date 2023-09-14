@@ -17,6 +17,7 @@ import SshForm from './ssh-form'
 import SerialForm from './serial-form'
 import LocalForm from './local-form'
 import TelnetForm from './telnet-form'
+import createTitle from '../../common/create-title'
 import {
   LoadingOutlined,
   BookOutlined
@@ -72,10 +73,47 @@ export default class BookmarkIndex extends Component {
     })
   }
 
+  renderTypes (bookmarkType, isNew, keys) {
+    if (!isNew) {
+      return null
+    }
+    return (
+      <Radio.Group
+        buttonStyle='solid'
+        size='small'
+        className='mg1l'
+        value={bookmarkType}
+        disabled={!isNew}
+        onChange={this.handleChange}
+      >
+        {
+          keys.map(k => {
+            const v = connectionMap[k]
+            return (
+              <Radio.Button key={v} value={v}>{p(v)}</Radio.Button>
+            )
+          })
+        }
+      </Radio.Group>
+    )
+  }
+
+  renderTitle (formData, isNew) {
+    if (isNew) {
+      return null
+    }
+    return (
+      <b className='mg1x'>
+        {createTitle(formData)}
+      </b>
+    )
+  }
+
   render () {
+    const { formData } = this.props
     const {
       id = ''
-    } = this.props.formData
+    } = formData
     const {
       type
     } = this.props
@@ -103,29 +141,16 @@ export default class BookmarkIndex extends Component {
       <div className='form-wrap pd1x'>
         <div className='form-title pd1t pd1x pd2b'>
           <BookOutlined className='mg1r' />
-          {
-            (!isNew
-              ? m('edit')
-              : s('new')
-            ) + ' ' + c(settingMap.bookmarks)
-          }
-          <Radio.Group
-            buttonStyle='solid'
-            size='small'
-            className='mg1l'
-            value={bookmarkType}
-            disabled={!isNew}
-            onChange={this.handleChange}
-          >
+          <span>
             {
-              keys.map(k => {
-                const v = connectionMap[k]
-                return (
-                  <Radio.Button key={v} value={v}>{p(v)}</Radio.Button>
-                )
-              })
+              (!isNew
+                ? m('edit')
+                : s('new')
+              ) + ' ' + c(settingMap.bookmarks)
             }
-          </Radio.Group>
+          </span>
+          {this.renderTitle(formData, isNew)}
+          {this.renderTypes(bookmarkType, isNew, keys)}
         </div>
         <Form {...this.props} />
       </div>
