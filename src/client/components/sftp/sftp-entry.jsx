@@ -72,7 +72,7 @@ export default class Sftp extends Component {
   //   // this.initEvent()
   // }
 
-  componentDidUpdate (prevProps) {
+  componentDidUpdate (prevProps, prevState) {
     if (
       (
         prevProps.enableSftp !== false &&
@@ -96,6 +96,21 @@ export default class Sftp extends Component {
     ) {
       this.onGoto(typeMap.local)
       this.onGoto(typeMap.remote)
+    }
+    if (
+      prevState.remotePath !== this.state.remotePath &&
+      this.state.selectedFiles.some(f => f.type === typeMap.remote)
+    ) {
+      this.setState({
+        selectedFiles: []
+      })
+    } else if (
+      prevState.localPath !== this.state.localPath &&
+      this.state.selectedFiles.some(f => f.type === typeMap.local)
+    ) {
+      this.setState({
+        selectedFiles: []
+      })
     }
   }
 
