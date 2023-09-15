@@ -2,7 +2,6 @@
  * init static state
  */
 
-// import newTerm from '../common/new-terminal'
 import {
   settingMap,
   defaultBookmarkGroupId,

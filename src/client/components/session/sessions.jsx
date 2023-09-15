@@ -13,7 +13,7 @@ import {
   paneMap,
   statusMap
 } from '../../common/constants'
-import newTerm from '../../common/new-terminal'
+import newTerm, { updateCount } from '../../common/new-terminal'
 import keyControlPress from '../../common/key-control-pressed'
 import keyPressed from '../../common/key-pressed'
 import postMsg from '../../common/post-msg'
@@ -103,7 +103,12 @@ export default class Sessions extends Component {
       const index = typeof _index === 'undefined'
         ? tabs.length
         : _index
-      const tab = _tab || newTerm(tabs.length)
+      let tab = _tab
+      if (!tab) {
+        tab = newTerm()
+      } else {
+        updateCount(tab)
+      }
       tabs.splice(index, 0, tab)
       this.updateStoreTabs(tabs)
       this.updateStoreCurrentTabId(tab.id)
@@ -137,7 +142,7 @@ export default class Sessions extends Component {
   }
 
   initFirstTab = () => {
-    const tab = newTerm(this.state.tabs.length)
+    const tab = newTerm()
     tab.terminals = [{
       id: termInitId,
       position: 0
@@ -180,6 +185,7 @@ export default class Sessions extends Component {
     this.setState(oldState => {
       const defaultStatus = statusMap.processing
       let tab = copy(tabToDup)
+      updateCount(tab)
       this.processTerminals(tab)
       const tabs = copy(oldState.tabs)
       const index = findIndex(

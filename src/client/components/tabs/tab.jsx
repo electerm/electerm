@@ -359,7 +359,7 @@ export default class Tab extends React.Component {
     } = this.props
     const { isLast } = this.props
     const { tab, terminalOnData } = this.state
-    const { id, isEditting, status, isTransporting } = tab
+    const { id, isEditting, status, isTransporting, tabCount } = tab
     const active = id === currentTabId
     const cls = classnames(
       `tab-${id}`,
@@ -410,8 +410,9 @@ export default class Tab extends React.Component {
             <Loading3QuartersOutlined
               className='pointer tab-reload mg1r'
               onClick={this.reloadTab}
-              title={m('reload')} />
-            {title}
+              title={m('reload')}
+            />
+            {tabCount}. {title}
           </div>
           <div className={'tab-status ' + status} />
           <div className='tab-traffic' />

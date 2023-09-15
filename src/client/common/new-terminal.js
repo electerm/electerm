@@ -9,22 +9,23 @@ import {
 
 const { prefix } = window
 const e = prefix('control')
-window.et.tabIndex = 1
+window.et.tabCount = 1
 
-export default (len) => {
-  let i = 0
-  if (len) {
-    i = window.et.tabIndex
-    window.et.tabIndex = window.et.tabIndex + 1
-  }
+export function updateCount (tab) {
+  tab.tabCount = window.et.tabCount
+  window.et.tabCount++
+}
+
+export default (removeTitle) => {
   const res = {
     id: generate(),
     status: 'processing',
     pane: paneMap.terminal,
-    title: e('newTerminal') + (len ? `(${i})` : '')
+    title: e('newTerminal')
   }
-  if (len === false) {
+  if (removeTitle) {
     delete res.title
   }
+  updateCount(res)
   return res
 }

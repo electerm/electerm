@@ -5,7 +5,6 @@ import { getUiThemeConfig } from './ui-theme'
 import logoPath1Ref from '@electerm/electerm-resource/res/imgs/electerm-round-128x128.png'
 import logoPath2Ref from '@electerm/electerm-resource/res/imgs/electerm.png'
 import logoPath3Ref from '@electerm/electerm-resource/res/imgs/electerm-watermark.png'
-import newTerm from '../common/new-terminal'
 import dbDefaults from '../../app/upgrade/db-defaults'
 import { get as _get } from 'lodash-es'
 
@@ -204,7 +203,6 @@ export const commonParities = [
 
 export const defaultLoginScriptDelay = 500
 
-export const initTabs = [newTerm()]
 export const maxBatchInput = 30
 export const windowControlWidth = 94
 export const baseUpdateCheckUrls = [

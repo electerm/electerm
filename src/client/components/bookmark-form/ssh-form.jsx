@@ -310,7 +310,7 @@ export default class BookmarkForm extends PureComponent {
     if (evt !== 'save' && evt !== 'saveAndCreateNew') {
       this.props.store.addTab({
         ...copy(obj),
-        ...newTerm(false)
+        ...newTerm(true)
       })
       this.props.hide()
     }
