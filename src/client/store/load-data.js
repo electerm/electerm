@@ -59,7 +59,11 @@ export async function addTabFromCommandLine (store, opts) {
     encode: encodes[0],
     enableSftp: true,
     envLang: defaultEnvLang,
+    enableSsh: true,
     term: defaultSettings.terminalType
+  }
+  if (options.sftpOnly) {
+    update.enableSsh = false
   }
   if (options.title) {
     update.title = options.title
