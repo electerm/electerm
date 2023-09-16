@@ -9,7 +9,7 @@ import {
 
 const { prefix } = window
 const e = prefix('control')
-window.et.tabCount = 1
+window.et.tabCount = 0
 
 export function updateCount (tab) {
   tab.tabCount = window.et.tabCount
