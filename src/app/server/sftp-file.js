@@ -30,7 +30,8 @@ function writeRemoteFile (sftp, path, str, mode) {
       highWaterMark: 64 * 1024 * 4 * 4,
       mode
     })
-    writeStream.on('finish', () => {
+    writeStream.on('close', () => {
+      console.log('write finish')
       resolve('ok')
     })
     writeStream.on('error', (e) => {
