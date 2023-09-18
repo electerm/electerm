@@ -440,8 +440,7 @@ class Terminal {
               }
               return resolve(true)
             }
-            const { sshTunnels } = initOptions
-            console.log(sshTunnels)
+            const { sshTunnels = [] } = initOptions
             for (const sshTunnel of sshTunnels) {
               if (
                 sshTunnel &&
