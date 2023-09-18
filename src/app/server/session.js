@@ -22,12 +22,25 @@ const {
   isWin
 } = require('../common/runtime-constants')
 
+function customEnv (envs) {
+  if (!envs) {
+    return {}
+  }
+  return envs.split(' ').reduce((p, k) => {
+    const [key, value] = k.split('=')
+    if (key && value) {
+      p[key] = value
+    }
+    return p
+  }, {})
+}
+
 // const { MockBinding } = require('@serialport/binding-mock')
 // MockBinding.createPort('/dev/ROBOT', { echo: true, record: true })
 
 function getDisplay () {
   return new Promise((resolve) => {
-    exec('echo $DISPLAY', (err, out, e) => {
+    exec('echo $DISPLAY', this.getExecOpts(), (err, out, e) => {
       if (err || e) {
         resolve('')
       } else {
@@ -39,7 +52,7 @@ function getDisplay () {
 
 function getX11Cookie () {
   return new Promise((resolve) => {
-    exec('xauth list :0', (err, out, e) => {
+    exec('xauth list :0', this.getExecOpts(), (err, out, e) => {
       if (err || e) {
         resolve('')
       } else {
@@ -205,6 +218,7 @@ class Terminal {
   }
 
   remoteInit (initOptions, isTest) {
+    this.initOptions = initOptions
     const { sessionId } = initOptions
     if (isTest || !sessionId || !global.sessions[sessionId]) {
       return this.remoteInitProcess(initOptions, isTest)
@@ -251,7 +265,7 @@ class Terminal {
 
   remoteInitSftp (initOptions) {
     this.transfers = {}
-    this.initOptions = initOptions
+
     const connInst = global.sessions[initOptions.sessionId]
     const {
       conn
@@ -267,6 +281,13 @@ class Terminal {
         resolve('ok')
       })
     })
+  }
+
+  getEnv (initOptions = this.initOptions) {
+    return {
+      LANG: initOptions.envLang || 'en_US.UTF-8',
+      ...customEnv(initOptions.setEnv)
+    }
   }
 
   onKeyboardEvent (options) {
@@ -335,9 +356,7 @@ class Terminal {
       const shellOpts = {
         x11
       }
-      shellOpts.env = {
-        LANG: initOptions.envLang || 'en_US.UTF-8'
-      }
+      shellOpts.env = this.getEnv(initOptions)
       const shellWindow = this.getShellWindow()
       const run = (info) => {
         if (info && info.socket) {
@@ -682,10 +701,16 @@ class Terminal {
     return this.runCmd('eval echo "~$different_user"')
   }
 
+  getExecOpts () {
+    return {
+      env: this.getEnv()
+    }
+  }
+
   runCmd (cmd) {
     return new Promise((resolve, reject) => {
       const client = this.conn || this.client
-      client.exec(cmd, (err, stream) => {
+      client.exec(cmd, this.getExecOpts(), (err, stream) => {
         if (err) reject(err)
         if (stream) {
           let r = ''
@@ -716,7 +741,7 @@ class Terminal {
     return new Promise((resolve, reject) => {
       const { client } = this
       const cmd = `rm -rf "${remotePath}"`
-      client.exec(cmd, err => {
+      client.exec(cmd, this.getExecOpts(), err => {
         if (err) reject(err)
         else resolve()
       })
@@ -874,7 +899,7 @@ class Terminal {
     return new Promise((resolve, reject) => {
       const { client } = this
       const cmd = `touch "${remotePath}"`
-      client.exec(cmd, err => {
+      client.exec(cmd, this.getExecOpts(), err => {
         if (err) reject(err)
         else resolve()
       })
@@ -893,7 +918,7 @@ class Terminal {
     return new Promise((resolve, reject) => {
       const { client } = this
       const cmd = `mv "${from}" "${to}"`
-      client.exec(cmd, (err) => {
+      client.exec(cmd, this.getExecOpts(), (err) => {
         if (err) reject(err)
         else resolve()
       })
@@ -912,7 +937,7 @@ class Terminal {
     return new Promise((resolve, reject) => {
       const { client } = this
       const cmd = `cp -r "${from}" "${to}"`
-      client.exec(cmd, (err) => {
+      client.exec(cmd, this.getExecOpts(), (err) => {
         if (err) reject(err)
         else resolve()
       })

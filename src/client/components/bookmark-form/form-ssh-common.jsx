@@ -160,6 +160,13 @@ export default function renderCommon (props) {
       </FormItem>
       <FormItem
         {...formItemLayout}
+        name='setEnv'
+        label='SetEnv'
+      >
+        <Input placeholder='SEC=xxx BEC=xxxx' />
+      </FormItem>
+      <FormItem
+        {...formItemLayout}
         name='startDirectoryLocal'
         label={`${e('startDirectory')}:${sf('local')}`}
       >

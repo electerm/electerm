@@ -63,6 +63,9 @@ export async function addTabFromCommandLine (store, opts) {
     pane: 'terminal',
     term: defaultSettings.terminalType
   }
+  if (options.setEnv) {
+    update.setEnv = options.setEnv
+  }
   if (options.title) {
     update.title = options.title
   }

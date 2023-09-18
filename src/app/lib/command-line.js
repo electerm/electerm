@@ -21,6 +21,7 @@ exports.parseCommandLine = function (argv, options) {
 ### Connect ssh server from command line examples:
 - electerm user@xx.com
 - electerm user@xx.com:22
+- electerm --password password --set-env "SECRET=xxx USER=hhhh" user@xx.com:22
 - electerm -l user -P 22 -i /path/to/private-key -pw password xx.com -T -t "XX Server"
 
 ### Other params examples:
@@ -41,6 +42,7 @@ electerm -bo "/home/root/works.csv"
     .option('-i, --private-key-path <path>', 'specify an SSH private key path')
     .option('-ps, --passphrase <passphrase>', 'specify an SSH private key passphrase')
     .option('-pw, --password <password>', 'specify ssh server password')
+    .option('-pw, --set-env <setEnv>', 'specify envs')
     .option('-so, --sftp-only', 'only show sftp panel')
     .exitOverride()
 
