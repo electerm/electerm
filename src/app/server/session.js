@@ -440,20 +440,20 @@ class Terminal {
               }
               return resolve(true)
             }
-            const { sshTunnel } = initOptions
-            if (sshTunnel) {
-              sshTunnelFuncs[sshTunnel]({
-                ..._.pick(
-                  initOptions,
-                  [
-                    'sshTunnelRemotePort',
-                    'sshTunnelLocalPort',
-                    'sshTunnelRemoteHost',
-                    'sshTunnelLocalHost'
-                  ]
-                ),
-                conn
-              })
+            const { sshTunnels } = initOptions
+            console.log(sshTunnels)
+            for (const sshTunnel of sshTunnels) {
+              if (
+                sshTunnel &&
+                sshTunnel.sshTunnel &&
+                sshTunnel.sshTunnelLocalPort &&
+                sshTunnel.sshTunnelRemotePort
+              ) {
+                sshTunnelFuncs[sshTunnel.sshTunnel]({
+                  ...sshTunnel,
+                  conn
+                })
+              }
             }
             conn.shell(
               shellWindow,

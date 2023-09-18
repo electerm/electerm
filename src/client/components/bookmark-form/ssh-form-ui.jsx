@@ -63,7 +63,7 @@ export default function BookmarkFormUI (props) {
     encode: encodes[0],
     envLang: defaultEnvLang,
     enableSsh: true,
-    sshTunnel: '',
+    sshTunnels: [{}],
     category: initBookmarkGroupId
   }
   initialValues = defaultsDeep(initialValues, defaultValues)

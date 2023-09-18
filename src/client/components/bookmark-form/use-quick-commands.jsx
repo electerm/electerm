@@ -52,7 +52,7 @@ export default function useQuickCmds (form, formData) {
   return (
     <FormList
       {...formItemLayout}
-      label='quick commands'
+      label={t('quickCommands')}
       name='quickCommands'
     >
       {
