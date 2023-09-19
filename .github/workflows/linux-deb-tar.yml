@@ -1,7 +1,7 @@
 # This workflow will do a clean install of node dependencies, build the source code and run tests across different versions of node
 # For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
 
-name: win-2
+name: linux-1
 
 on:
   push:
@@ -10,9 +10,9 @@ on:
 jobs:
   build:
 
-    runs-on: windows-2022
+    runs-on: ubuntu-20.04
     environment: build
-    if: "!contains(github.event.head_commit.message, '[skip build]') && !contains(github.event.head_commit.message, '[skip ci]') && !contains(github.event.head_commit.message, '[skip win]')"
+    if: "!contains(github.event.head_commit.message, '[skip build]') && !contains(github.event.head_commit.message, '[skip ci]') && !contains(github.event.head_commit.message, '[skip linux]') && !contains(github.event.head_commit.message, '[skip linux1]')"
 
     steps:
     - uses: actions/checkout@v4
@@ -21,19 +21,17 @@ jobs:
       with:
         node-version: 18.x
 
-    - uses: actions/setup-python@v4
-      with:
-        python-version: '3.7' # Version range or exact version of a Python version to use, using SemVer's version range syntax
-        architecture: 'x64' # optional x64 or x86. Defaults to x64 if not specified
-    - run: npm install -g node-gyp
+    # - name: xvfb
+    #   uses: GabrielBB/xvfb-action@v1
+
+    # before_script:
+    # - run: export DISPLAY=:99.0
+    # - run: sh -e /etc/init.d/xvfb start &
+    # - run: sleep 3
 
     # before_install:
-    # - run: npm install --global --production windows-build-tools --vs2015
     - run: npm install -g yarn
-    - run: npm un node-pty serialport
     - run: npm i
-    - run: npm i -S -E node-pty@1.1.0-beta2
-    - run: npm i -S -E serialport@10.4.0
 
     # script:
     - run: npm run prepare-build
@@ -43,5 +41,5 @@ jobs:
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         BUILD_NUMBER: ${{ secrets.BUILD_NUMBER }}
-      run: node build/bin/build-win-2
+      run: node build/bin/build-linux-deb-tar
 
