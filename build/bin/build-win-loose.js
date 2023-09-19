@@ -26,13 +26,6 @@ function replaceRun () {
 
 async function main () {
   const pb = builder
-  echo('running build for win part 2')
-
-  echo('build nsis')
-  rm('-rf', 'dist')
-  writeSrc('win-x64-installer.exe')
-  await run(`${pb} --win nsis`)
-
   echo('build loose tar.gz')
   await replaceRun()
   rm('-rf', 'dist')
