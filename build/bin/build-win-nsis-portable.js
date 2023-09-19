@@ -12,7 +12,7 @@ async function main () {
 
   echo('build nsis')
   rm('-rf', 'dist')
-  writeSrc('win-x64-installer.exe')
+  writeSrc('win-x64-portable-installer.exe')
   await run(`${pb} --win nsis portable`)
 }
 
