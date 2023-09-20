@@ -312,189 +312,231 @@ class Terminal {
     })
   }
 
+  getPrivateKey (opts) {
+    if (this.sshKeys) {
+      if (this.sshKeys.length > 0) {
+        opts.privateKey = require('fs').readFileSync(this.sshKeys.shift(), 'utf8')
+      }
+      return
+    }
+    try {
+      const { sshKeysPath } = process.env
+      const list = require('fs')
+        .readdirSync(sshKeysPath)
+        .filter(file => file.endsWith('.pub'))
+        .map(file => resolve(sshKeysPath, file.replace('.pub', '')))
+      if (list.length) {
+        opts.privateKey = require('fs').readFileSync(list[0], 'utf8')
+      }
+      if (list.length > 1) {
+        this.sshKeys = list.slice(1)
+      }
+    } catch (err) {
+      log.error('getPrivateKey failed', err)
+    }
+  }
+
   async remoteInitProcess (initOptions, isTest) {
     const hasX11 = initOptions.x11 === true
     const display = hasX11 ? await getDisplay() : ''
     const x11Cookie = hasX11 ? await getX11Cookie() : ''
-
-    return new Promise((resolve, reject) => {
-      const conn = new Client()
-      this.conn = conn
-      const opts = Object.assign(
-        {
-          tryKeyboard: true,
-          readyTimeout: _.get(initOptions, 'readyTimeout'),
-          keepaliveCountMax: _.get(initOptions, 'keepaliveCountMax'),
-          keepaliveInterval: _.get(initOptions, 'keepaliveInterval'),
-          agent: process.env.SSH_AUTH_SOCK,
-          algorithms: alg
-        },
-        _.pick(initOptions, [
-          'host',
-          'port',
-          'username',
-          'password',
-          'privateKey',
-          'passphrase'
-        ])
-      )
-      if (initOptions.debug) {
-        opts.debug = log.log
-      }
-      if (!opts.password) {
-        delete opts.password
-      }
-      if (!opts.passphrase) {
-        delete opts.passphrase
-      }
-      let x11
-      if (initOptions.x11 === true) {
-        x11 = {
-          cookie: x11Cookie
+    this.rerun = () => {
+      return new Promise((resolve, reject) => {
+        const conn = new Client()
+        this.conn = conn
+        const opts = Object.assign(
+          {
+            tryKeyboard: true,
+            readyTimeout: _.get(initOptions, 'readyTimeout'),
+            keepaliveCountMax: _.get(initOptions, 'keepaliveCountMax'),
+            keepaliveInterval: _.get(initOptions, 'keepaliveInterval'),
+            agent: process.env.SSH_AUTH_SOCK,
+            algorithms: alg
+          },
+          _.pick(initOptions, [
+            'host',
+            'port',
+            'username',
+            'password',
+            'privateKey',
+            'passphrase'
+          ])
+        )
+        if (initOptions.debug) {
+          opts.debug = log.log
         }
-      }
-      const shellOpts = {
-        x11
-      }
-      shellOpts.env = this.getEnv(initOptions)
-      const shellWindow = this.getShellWindow()
-      const run = (info) => {
-        if (info && info.socket) {
-          delete opts.host
-          delete opts.port
-          opts.sock = info.socket
+        if (!opts.password) {
+          delete opts.password
         }
-        conn
-          .on('keyboard-interactive', async (
-            name,
-            instructions,
-            instructionsLang,
-            prompts,
-            finish
-          ) => {
-            if (initOptions.ignoreKeyboardInteractive) {
-              return finish(
-                (prompts || []).map((n, i) => {
-                  return i ? '' : (opts.password || '')
-                })
-              )
-            }
-            const options = {
+        if (!opts.passphrase) {
+          delete opts.passphrase
+        }
+        if (!opts.privateKey && !opts.password) {
+          this.getPrivateKey(opts)
+        }
+        let x11
+        if (initOptions.x11 === true) {
+          x11 = {
+            cookie: x11Cookie
+          }
+        }
+        const shellOpts = {
+          x11
+        }
+        shellOpts.env = this.getEnv(initOptions)
+        const shellWindow = this.getShellWindow()
+        this.opts = opts
+        this.run = (info) => {
+          if (info && info.socket) {
+            delete opts.host
+            delete opts.port
+            opts.sock = info.socket
+          }
+          conn
+            .on('keyboard-interactive', async (
               name,
               instructions,
               instructionsLang,
-              prompts
-            }
-            this.onKeyboardEvent(options)
-              .then(finish)
-              .catch(reject)
-          })
-          .on('x11', function (info, accept) {
-            let start = 0
-            const maxRetry = 100
-            const portStart = 6000
-            const maxPort = portStart + maxRetry
-            function retry () {
-              if (start >= maxPort) {
-                return
+              prompts,
+              finish
+            ) => {
+              if (initOptions.ignoreKeyboardInteractive) {
+                return finish(
+                  (prompts || []).map((n, i) => {
+                    return i ? '' : (opts.password || '')
+                  })
+                )
               }
-              const xserversock = new net.Socket()
-              let xclientsock
-              xserversock
-                .on('connect', function () {
-                  xclientsock = accept()
-                  xclientsock.pipe(xserversock).pipe(xclientsock)
-                })
-                .on('error', (e) => {
-                  log.error(e)
-                  xserversock.destroy()
-                  start = start === maxRetry ? portStart : start + 1
-                  retry()
-                })
-                .on('close', () => {
-                  xserversock.destroy()
-                  xclientsock && xclientsock.destroy()
-                })
-              if (start < portStart) {
-                const addr = display.includes('/tmp')
-                  ? display
-                  : `/tmp/.X11-unix/X${start}`
-                xserversock.connect(addr)
-              } else {
-                xserversock.connect(start, '127.0.0.1')
+              const options = {
+                name,
+                instructions,
+                instructionsLang,
+                prompts
               }
-            }
-            retry()
-          })
-          .on('ready', () => {
-            if (isTest) {
-              conn.end()
-              return resolve(true)
-            } else if (initOptions.enableSsh === false) {
-              global.sessions[initOptions.sessionId] = {
-                conn,
-                id: initOptions.sessionId,
-                shellOpts,
-                sftps: {},
-                terminals: {}
-              }
-              return resolve(true)
-            }
-            const { sshTunnels = [] } = initOptions
-            for (const sshTunnel of sshTunnels) {
-              if (
-                sshTunnel &&
-                sshTunnel.sshTunnel &&
-                sshTunnel.sshTunnelLocalPort &&
-                sshTunnel.sshTunnelRemotePort
-              ) {
-                sshTunnelFuncs[sshTunnel.sshTunnel]({
-                  ...sshTunnel,
-                  conn
-                })
-              }
-            }
-            conn.shell(
-              shellWindow,
-              shellOpts,
-              (err, channel) => {
-                if (err) {
-                  return reject(err)
+              this.onKeyboardEvent(options)
+                .then(finish)
+                .catch(reject)
+            })
+            .on('x11', function (info, accept) {
+              let start = 0
+              const maxRetry = 100
+              const portStart = 6000
+              const maxPort = portStart + maxRetry
+              function retry () {
+                if (start >= maxPort) {
+                  return
                 }
-                this.channel = channel
+                const xserversock = new net.Socket()
+                let xclientsock
+                xserversock
+                  .on('connect', function () {
+                    xclientsock = accept()
+                    xclientsock.pipe(xserversock).pipe(xclientsock)
+                  })
+                  .on('error', (e) => {
+                    log.error(e)
+                    xserversock.destroy()
+                    start = start === maxRetry ? portStart : start + 1
+                    retry()
+                  })
+                  .on('close', () => {
+                    xserversock.destroy()
+                    xclientsock && xclientsock.destroy()
+                  })
+                if (start < portStart) {
+                  const addr = display.includes('/tmp')
+                    ? display
+                    : `/tmp/.X11-unix/X${start}`
+                  xserversock.connect(addr)
+                } else {
+                  xserversock.connect(start, '127.0.0.1')
+                }
+              }
+              retry()
+            })
+            .on('ready', () => {
+              if (isTest) {
+                conn.end()
+                return resolve(true)
+              } else if (initOptions.enableSsh === false) {
                 global.sessions[initOptions.sessionId] = {
                   conn,
                   id: initOptions.sessionId,
                   shellOpts,
                   sftps: {},
-                  terminals: {
-                    [this.pid]: this
-                  }
+                  terminals: {}
                 }
-                resolve(true)
+                return resolve(true)
               }
-            )
+              const { sshTunnels = [] } = initOptions
+              for (const sshTunnel of sshTunnels) {
+                if (
+                  sshTunnel &&
+                  sshTunnel.sshTunnel &&
+                  sshTunnel.sshTunnelLocalPort &&
+                  sshTunnel.sshTunnelRemotePort
+                ) {
+                  sshTunnelFuncs[sshTunnel.sshTunnel]({
+                    ...sshTunnel,
+                    conn
+                  })
+                }
+              }
+              conn.shell(
+                shellWindow,
+                shellOpts,
+                (err, channel) => {
+                  if (err) {
+                    return reject(err)
+                  }
+                  this.channel = channel
+                  global.sessions[initOptions.sessionId] = {
+                    conn,
+                    id: initOptions.sessionId,
+                    shellOpts,
+                    sftps: {},
+                    terminals: {
+                      [this.pid]: this
+                    }
+                  }
+                  resolve(true)
+                }
+              )
+            })
+            .on('error', err => {
+              log.error('errored terminal', err)
+              if (this.sshKeys.length) {
+                log.log('retry with next ssh key')
+                return this.run()
+              }
+              conn.end()
+              reject(err)
+            })
+            .connect(opts)
+        }
+        if (
+          initOptions.proxy
+        ) {
+          proxySock({
+            ...initOptions,
+            ...opts
           })
-          .on('error', err => {
-            log.error('errored terminal', err)
-            conn.end()
-            reject(err)
-          })
-          .connect(opts)
-      }
-      if (
-        initOptions.proxy
-      ) {
-        proxySock({
-          ...initOptions,
-          ...opts
-        })
-          .then(run)
-          .catch(reject)
-      } else {
-        run()
-      }
-    })
+            .then(this.run)
+            .catch(reject)
+        } else {
+          this.run()
+        }
+      }).catch(err => {
+        log.error('error in terminal', err)
+        if (this.sshKeys.length) {
+          log.log('retry with next ssh key')
+          return this.rerun()
+        } else {
+          throw err
+        }
+      })
+    }
+    return this.rerun()
   }
 
   resize (cols, rows) {

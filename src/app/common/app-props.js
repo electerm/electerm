@@ -2,6 +2,7 @@
  * app path
  */
 const { app } = require('electron')
+const { resolve } = require('path')
 const constants = require('./runtime-constants')
 const installSrc = require('../lib/install-src')
 
@@ -35,5 +36,9 @@ function getDataPath () {
 
 module.exports = {
   ...getDataPath(),
+  sshKeysPath: resolve(
+    app.getPath('home'),
+    '.ssh'
+  ),
   ...constants
 }

@@ -34,7 +34,8 @@ const {
   appPath,
   isMac,
   exePath,
-  isPortable
+  isPortable,
+  sshKeysPath
 } = require('../common/app-props')
 const {
   getScreenSize,
@@ -71,7 +72,8 @@ function initIpc () {
     if (!global.et.serverInited) {
       const child = await initServer(config, {
         ...process.env,
-        appPath
+        appPath,
+        sshKeysPath
       }, sysLocale)
       child.on('message', (m) => {
         if (m && m.showFileInFolder) {
