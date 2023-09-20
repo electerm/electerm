@@ -21,9 +21,6 @@ import FormUi from './ssh-form-ui'
 import findBookmarkGroupId from '../../common/find-bookmark-group-id'
 import newTerm from '../../common/new-terminal'
 
-const { prefix } = window
-const e = prefix('form')
-
 export default class BookmarkForm extends PureComponent {
   state = {
     testing: false,
@@ -288,17 +285,11 @@ export default class BookmarkForm extends PureComponent {
     this.handleSubmit('test', res, true)
   }
 
+  connect = (res) => {
+    this.handleSubmit('connect', res, false)
+  }
+
   handleSubmit = async (evt, res, isTest = false) => {
-    if (
-      res.proxy && (
-        (!res.proxy.proxyIp && res.proxy.proxyPort) ||
-        (!res.proxy.proxyPort && res.proxy.proxyIp)
-      )
-    ) {
-      return message.error(
-        `${e('proxyIp')} and ${e('proxyPort')} ${e('required')}`
-      )
-    }
     const obj = {
       ...this.props.formData,
       ...res
@@ -306,7 +297,9 @@ export default class BookmarkForm extends PureComponent {
     if (isTest) {
       return this.test(obj)
     }
-    evt && this.submit(evt, obj)
+    if (evt && evt !== 'connect') {
+      this.submit(evt, obj)
+    }
     if (evt !== 'save' && evt !== 'saveAndCreateNew') {
       this.props.store.addTab({
         ...copy(obj),
@@ -330,6 +323,7 @@ export default class BookmarkForm extends PureComponent {
       'beforeUpload',
       'handleFinish',
       'testConnection',
+      'connect',
       'save',
       'saveAndCreateNew',
       'onSelectProxy',

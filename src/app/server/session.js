@@ -505,10 +505,6 @@ class Terminal {
             })
             .on('error', err => {
               log.error('errored terminal', err)
-              if (this.sshKeys.length) {
-                log.log('retry with next ssh key')
-                return this.run()
-              }
               conn.end()
               reject(err)
             })
@@ -528,8 +524,11 @@ class Terminal {
         }
       }).catch(err => {
         log.error('error in terminal', err)
-        if (this.sshKeys.length) {
+        if (this.sshKeys?.length) {
           log.log('retry with next ssh key')
+          if (this.conn) {
+            this.conn.end()
+          }
           return this.rerun()
         } else {
           throw err

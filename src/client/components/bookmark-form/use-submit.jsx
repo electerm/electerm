@@ -25,6 +25,7 @@ export default function useBookmarkSubmit (props) {
     form,
     save,
     saveAndCreateNew,
+    connect,
     testConnection,
     handleFinish
   ] = useFuncs(props)
@@ -56,7 +57,13 @@ export default function useBookmarkSubmit (props) {
       <p>
         <Button
           type='dashed'
+          onClick={connect}
+          className='mg1r mg1b'
+        >{e('connect')}</Button>
+        <Button
+          type='dashed'
           onClick={testConnection}
+          className='mg1r mg1b'
         >{e('testConnection')}</Button>
       </p>
     </FormItem>

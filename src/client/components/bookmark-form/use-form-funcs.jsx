@@ -21,11 +21,17 @@ export default function useFormFuncs (props) {
     action.current = 'testConnection'
     form.submit()
   }
+  function connect () {
+    action.current = 'connect'
+    form.submit()
+  }
   function handleFinish (res) {
     if (action.current === 'save') {
       props.save(res)
     } else if (action.current === 'saveAndCreateNew') {
       props.saveAndCreateNew(res)
+    } else if (action.current === 'connect') {
+      props.connect(res)
     } else if (action.current === 'testConnection') {
       props.testConnection(res)
     } else {
@@ -37,6 +43,7 @@ export default function useFormFuncs (props) {
     form,
     save,
     saveAndCreateNew,
+    connect,
     testConnection,
     handleFinish
   ]
