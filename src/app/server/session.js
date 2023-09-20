@@ -313,13 +313,13 @@ class Terminal {
   }
 
   getPrivateKey (opts) {
-    if (this.sshKeys) {
-      if (this.sshKeys.length > 0) {
-        opts.privateKey = require('fs').readFileSync(this.sshKeys.shift(), 'utf8')
-      }
-      return
-    }
     try {
+      if (this.sshKeys) {
+        if (this.sshKeys.length > 0) {
+          opts.privateKey = require('fs').readFileSync(this.sshKeys.shift(), 'utf8')
+        }
+        return
+      }
       const { sshKeysPath } = process.env
       const list = require('fs')
         .readdirSync(sshKeysPath)
