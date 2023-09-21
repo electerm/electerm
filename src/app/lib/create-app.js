@@ -6,7 +6,7 @@ const { createWindow } = require('./create-window')
 const {
   packInfo
 } = require('../common/runtime-constants')
-const { parseCommandLine, initCommandLine } = require('./command-line')
+const { initCommandLine } = require('./command-line')
 
 exports.createApp = function () {
   app.setName(packInfo.name)
@@ -41,7 +41,9 @@ exports.createApp = function () {
         global.win.restore()
       }
       global.win.focus()
-      global.win.webContents.send('add-tab-from-command-line', opts)
+      if (opts) {
+        global.win.webContents.send('add-tab-from-command-line', opts)
+      }
     }
   })
   // This method will be called when Electron has finished
@@ -55,10 +57,6 @@ exports.createApp = function () {
       createWindow()
     }
   })
-  app.createWindow = createWindow
-  return app
-}
-)
   app.createWindow = createWindow
   return app
 }

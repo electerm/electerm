@@ -10,7 +10,7 @@ let helpInfo
 let options
 let program
 
-exports.parseCommandLine = function (argv, options) {
+function parseCommandLine (argv, options) {
   const prog = new Command()
 
   prog
@@ -57,7 +57,7 @@ electerm -bo "/home/root/works.csv"
 }
 
 if (!isTest) {
-  program = exports.parseCommandLine()
+  program = parseCommandLine()
   options = program.opts()
   helpInfo = program.helpInformation()
 }
