@@ -36,14 +36,14 @@ export default function renderSshTunnel () {
               value='forwardRemoteToLocal'
             >
               <Tooltip title={e('remoteToLocal')}>
-                <span>R->L <QuestionCircleOutlined /></span>
+                <span>R→L <QuestionCircleOutlined /></span>
               </Tooltip>
             </RadioButton>
             <RadioButton
               value='forwardLocalToRemote'
             >
               <Tooltip title={e('localToRemote')}>
-                <span>L->R <QuestionCircleOutlined /></span>
+                <span>L→R <QuestionCircleOutlined /></span>
               </Tooltip>
             </RadioButton>
           </RadioGroup>
