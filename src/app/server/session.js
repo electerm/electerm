@@ -38,35 +38,6 @@ function customEnv (envs) {
 // const { MockBinding } = require('@serialport/binding-mock')
 // MockBinding.createPort('/dev/ROBOT', { echo: true, record: true })
 
-function getDisplay () {
-  return new Promise((resolve) => {
-    exec('echo $DISPLAY', this.getExecOpts(), (err, out, e) => {
-      if (err || e) {
-        resolve('')
-      } else {
-        resolve((out || '').trim())
-      }
-    })
-  })
-}
-
-function getX11Cookie () {
-  return new Promise((resolve) => {
-    exec('xauth list :0', this.getExecOpts(), (err, out, e) => {
-      if (err || e) {
-        resolve('')
-      } else {
-        const s = out || ''
-        const reg = /MIT-MAGIC-COOKIE-1 +([\d\w]{1,38})/
-        const arr = s.match(reg)
-        resolve(
-          arr ? arr[1] || '' : ''
-        )
-      }
-    })
-  })
-}
-
 class Terminal {
   constructor (initOptions, ws) {
     this.type = initOptions.termType || initOptions.type
@@ -80,6 +51,35 @@ class Terminal {
     if (ws) {
       this.ws = ws
     }
+  }
+
+  getDisplay () {
+    return new Promise((resolve) => {
+      exec('echo $DISPLAY', this.getExecOpts(), (err, out, e) => {
+        if (err || e) {
+          resolve('')
+        } else {
+          resolve((out || '').trim())
+        }
+      })
+    })
+  }
+
+  getX11Cookie () {
+    return new Promise((resolve) => {
+      exec('xauth list :0', this.getExecOpts(), (err, out, e) => {
+        if (err || e) {
+          resolve('')
+        } else {
+          const s = out || ''
+          const reg = /MIT-MAGIC-COOKIE-1 +([\d\w]{1,38})/
+          const arr = s.match(reg)
+          resolve(
+            arr ? arr[1] || '' : ''
+          )
+        }
+      })
+    })
   }
 
   init () {
@@ -338,8 +338,8 @@ class Terminal {
 
   async remoteInitProcess (initOptions, isTest) {
     const hasX11 = initOptions.x11 === true
-    const display = hasX11 ? await getDisplay() : ''
-    const x11Cookie = hasX11 ? await getX11Cookie() : ''
+    const display = hasX11 ? await this.getDisplay() : ''
+    const x11Cookie = hasX11 ? await this.getX11Cookie() : ''
     this.rerun = () => {
       return new Promise((resolve, reject) => {
         const conn = new Client()

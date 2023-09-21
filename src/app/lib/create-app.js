@@ -16,12 +16,13 @@ exports.createApp = function () {
     app.commandLine.appendSwitch('--in-process-gpu')
     app.disableHardwareAcceleration()
   }
-  const opts = initCommandLine()?.options
+  const progs = initCommandLine()
+  const opts = progs?.options
   global.serverPort = opts?.serverPort
   const useStandAloneWindow = opts?.newWindow
   let gotTheLock = false
   if (!useStandAloneWindow) {
-    gotTheLock = app.requestSingleInstanceLock()
+    gotTheLock = app.requestSingleInstanceLock(progs)
   }
   if (
     !gotTheLock &&
@@ -34,13 +35,7 @@ exports.createApp = function () {
     global.isSencondInstance = true
     app.isSencondInstance = true
   }
-  app.on('second-instance', (event, argv, wd) => {
-    const prog = parseCommandLine(argv)
-    const opts = {
-      options: prog.opts(),
-      argv,
-      helpInfo: prog.helpInformation()
-    }
+  app.on('second-instance', (event, argv, wd, opts) => {
     if (global.win) {
       if (global.win.isMinimized()) {
         global.win.restore()
@@ -60,6 +55,10 @@ exports.createApp = function () {
       createWindow()
     }
   })
+  app.createWindow = createWindow
+  return app
+}
+)
   app.createWindow = createWindow
   return app
 }
