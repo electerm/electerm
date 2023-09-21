@@ -711,8 +711,8 @@ export default class Setting extends Component {
         {
           this.renderNumber('keepaliveInterval', {
             step: 1000,
-            min: 1000,
-            max: 20000,
+            min: 0,
+            max: 20000000,
             cls: 'keepalive-interval-desc',
             extraDesc: '(ms)'
           }, e('keepaliveIntervalDesc'), 400)
