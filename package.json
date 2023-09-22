@@ -37,7 +37,7 @@
   "langugeRepo": "https://github.com/electerm/electerm-locales",
   "privacyNoticeLink": "https://github.com/electerm/electerm/wiki/privacy-notice",
   "knownIssuesLink": "https://github.com/electerm/electerm/wiki/Know-issues",
-  "sponsorLink": "https://github.com/electerm/electerm/wiki/Sponsor-electerm",
+  "sponsorLink": "https://electerm.html5beta.com/sponsor-electerm.html",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/electerm/electerm.git"

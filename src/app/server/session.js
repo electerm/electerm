@@ -547,7 +547,7 @@ class Terminal {
           readyTimeout: initOptions.readyTimeout,
           host: initOptions.host,
           port: initOptions.port,
-          proxy: initOptions.port
+          proxy: initOptions.proxy
         })
           .then((info) => this.doSshConnect(info, reject, resolve))
           .catch(reject)
