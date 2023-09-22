@@ -6,6 +6,7 @@ import generate from '../../common/uid'
 import { isEqual, pick, debounce } from 'lodash-es'
 import postMessage from '../../common/post-msg'
 import clone from '../../common/to-simple-obj'
+import runIdle from '../../common/run-idle'
 import {
   CheckCircleOutlined,
   ReloadOutlined
@@ -32,7 +33,8 @@ import {
   defaultLoginScriptDelay,
   terminalActions,
   commonActions,
-  rendererTypes
+  rendererTypes,
+  termInitId
 } from '../../common/constants'
 import deepCopy from 'json-deep-copy'
 import { readClipboard, copy } from '../../common/clipboard'
@@ -640,6 +642,7 @@ export default class Term extends Component {
   onClear = () => {
     this.term.clear()
     this.term.focus()
+    this.notifyOnData('')
   }
 
   isRemote = () => {
@@ -729,10 +732,15 @@ export default class Term extends Component {
   }
 
   loadState = term => {
-    const id = createLsId(this.props.stateId || this.state.id)
-    const str = ls.getItem(id)
-    if (str) {
-      term.write(str)
+    const uid = this.props.stateId || this.state.id
+    if (uid === termInitId) {
+      const id = createLsId(this.props.stateId || this.state.id)
+      let str = ls.getItem(id)
+      const after = '\r\n\r\n=======\r\nload from history\r\n=======\r\n\r\n'
+      str = str.replace(/\s+=======\s+load from history\s+=======\s+/g, '\r\n').trim()
+      if (str) {
+        term.write(str + after)
+      }
     }
   }
 
@@ -744,12 +752,12 @@ export default class Term extends Component {
       action: 'terminal-receive-data',
       tabId: this.props.tab.id
     })
-  }, 1000, {
-    leading: true
-  })
+  }, 100)
 
   onSocketData = () => {
-    this.notifyOnData()
+    if (this.state.id === termInitId) {
+      runIdle(this.notifyOnData)
+    }
   }
 
   loadRenderer = (term, config) => {
