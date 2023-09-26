@@ -21,6 +21,7 @@ const sshTunnelFuncs = require('./ssh-tunnel')
 const {
   isWin
 } = require('../common/runtime-constants')
+const deepCopy = require('json-deep-copy')
 
 function customEnv (envs) {
   if (!envs) {
@@ -117,7 +118,6 @@ class Terminal {
         xany
       }, (err) => {
         if (err) {
-          console.log(err)
           reject(err)
         } else {
           resolve('ok')
@@ -316,50 +316,283 @@ class Terminal {
     })
   }
 
-  getPrivateKey (connectOptions) {
-    try {
-      if (this.sshKeys) {
-        if (this.sshKeys.length > 0) {
-          connectOptions.privateKey = require('fs').readFileSync(this.sshKeys.shift(), 'utf8')
-        }
-        return
+  async getPrivateKeysInJumpServer (conn) {
+    const r = await this.runCmd('ls ~/.ssh', conn)
+    return r.split('\n')
+      .filter(d => d.endsWith('.pub'))
+      .map(d => `~/.ssh/${d}`.replace('.pub', ''))
+  }
+
+  catPrivateKeyInJumpServer (conn, filePath) {
+    return this.runCmd(`cat ${filePath}`, conn)
+  }
+
+  async readPrivateKeyInJumpServer (conn) {
+    const { hoppingOptions } = this
+    if (this.jumpSshKeys) {
+      if (this.jumpSshKeys.length > 0) {
+        const p = this.jumpSshKeys.shift()
+        this.jumpPrivateKeyPathFrom = p
+        hoppingOptions.privateKey = await this.catPrivateKeyInJumpServer(conn, p)
+      } else if (this.jumpSshKeys.length === 0) {
+        delete hoppingOptions.privateKey
+        delete this.jumpSshKeys
+        hoppingOptions.sshKeysDrain = true
       }
-      const { sshKeysPath } = process.env
-      const list = require('fs')
-        .readdirSync(sshKeysPath)
-        .filter(file => file.endsWith('.pub'))
-        .map(file => pathResolve(sshKeysPath, file.replace('.pub', '')))
-      if (list.length) {
-        connectOptions.privateKey = require('fs').readFileSync(list[0], 'utf8')
-      }
-      if (list.length > 1) {
-        this.sshKeys = list.slice(1)
-      }
-    } catch (err) {
-      log.error('getPrivateKey failed', err)
+      return
     }
+    if (hoppingOptions.sshKeysDrain || hoppingOptions.password || hoppingOptions.privateKey) {
+      return null
+    }
+    const list = await this.getPrivateKeysInJumpServer(conn)
+    if (list.length) {
+      const p = list.shift()
+      this.jumpPrivateKeyPathFrom = p
+      hoppingOptions.privateKey = await this.catPrivateKeyInJumpServer(conn, p)
+      this.jumpSshKeys = list
+    }
+  }
+
+  retryJump () {
+    return this.doSshConnect(
+      undefined,
+      this.nextConn,
+      this.hoppingOptions
+    )
+      .then(() => {
+        this.jumpHostFrom = this.nextHost
+        this.jumpPortFrom = this.nextPort
+        return this.nextConn
+      })
+      .catch(err => {
+        log.error('error when do jump connect', err, this.nextHost, this.nextPort)
+        if (err.message.includes('passphrase')) {
+          const options = {
+            name: `passphase for ${this.jumpHostFrom}/${this.jumpPrivateKeyPathFrom}`,
+            instructions: [''],
+            prompts: [{
+              echo: false,
+              prompt: 'passphase'
+            }]
+          }
+          return this.onKeyboardEvent(options)
+            .then(data => {
+              if (data && data[0]) {
+                this.hoppingOptions.passphrase = data[0]
+                this.jumpSshKeys.unshift(this.jumpPrivateKeyPathFrom)
+              }
+              return this.jumpConnect(true)
+            })
+            .catch(e => {
+              log.error('errored get passphrase for', this.jumpHostFrom, this.jumpPrivateKeyPathFrom, e)
+              return this.jumpConnect(true)
+            })
+        } else if (
+          !this.jumpSshKeys &&
+          !this.hoppingOptions.password &&
+          !this.hoppingOptions.privateKey &&
+          err.message.includes('All configured authentication methods failed')
+        ) {
+          const options = {
+            name: `password for ${this.hoppingOptions.username}@${this.nextHost}`,
+            instructions: [''],
+            prompts: [{
+              echo: false,
+              prompt: 'password'
+            }]
+          }
+          return this.onKeyboardEvent(options)
+            .then(data => {
+              if (data && data[0]) {
+                this.hoppingOptions.password = data[0]
+                return this.jumpConnect(true)
+              } else if (data && data[0] === '') {
+                throw err
+              }
+            })
+            .catch(err => {
+              log.error('errored get password for', err)
+              throw err
+            })
+        } else if (
+          this.jumpSshKeys
+        ) {
+          return this.jumpConnect(true)
+        } else {
+          throw err
+        }
+      })
+  }
+
+  async jumpConnect (reBuildSock = false) {
+    if (reBuildSock) {
+      this.hoppingOptions.sock.end()
+      this.hoppingOptions.sock = await this.forwardOut(this.conn, this.initHoppingOptions)
+    }
+    await this.readPrivateKeyInJumpServer(this.conn)
+    return this.retryJump()
+  }
+
+  forwardOut (conn, hopping) {
+    return new Promise((resolve, reject) => {
+      conn.forwardOut('127.0.0.1', 0, hopping.host, hopping.port, async (err, stream) => {
+        if (err) {
+          log.error(`forwardOut to ${hopping.host}:${hopping.port} error: ` + err)
+          this.endConns()
+          return reject(err)
+        }
+        resolve(stream)
+      })
+    })
+  }
+
+  async jump (init) {
+    const sock = await this.forwardOut(this.conn, this.initHoppingOptions)
+    const hopping = deepCopy(this.initHoppingOptions)
+    delete hopping.host
+    delete hopping.port
+    this.nextHost = hopping.host
+    this.nextPort = hopping.port
+    this.hoppingOptions = {
+      sock,
+      ...hopping
+    }
+    this.nextConn = new Client()
+    await this.jumpConnect()
+    return this.nextConn
+  }
+
+  async hopping (connectionHoppings) {
+    this.conns = []
+    this.jumpHostFrom = this.initOptions.host
+    this.jumpPortFrom = this.initOptions.port
+    for (const hopping of connectionHoppings) {
+      this.conns.push(this.conn)
+      this.initHoppingOptions = {
+        ...hopping,
+        ...this.getShareOptions()
+      }
+      const conn = await this.jump(true)
+      if (conn) {
+        this.conn = conn
+      }
+    }
+  }
+
+  endConns () {
+    this.conn && this.conn.end && this.conn.end()
+    while (this.conns && this.conns.length) {
+      const conn = this.conns.shift()
+      conn && conn.end()
+    }
+  }
+
+  async onInitSshReady () {
+    const {
+      initOptions,
+      isTest,
+      shellOpts,
+      shellWindow
+    } = this
+    if (
+      initOptions.connectionHoppings?.length
+    ) {
+      await this.hopping(initOptions.connectionHoppings)
+    }
+    if (isTest) {
+      this.endConns()
+    } else if (initOptions.enableSsh === false) {
+      global.sessions[initOptions.sessionId] = {
+        conn: this.conn,
+        id: initOptions.sessionId,
+        shellOpts,
+        sftps: {},
+        terminals: {}
+      }
+    }
+    const { sshTunnels = [] } = initOptions
+    for (const sshTunnel of sshTunnels) {
+      if (
+        sshTunnel &&
+        sshTunnel.sshTunnel &&
+        sshTunnel.sshTunnelLocalPort &&
+        sshTunnel.sshTunnelRemotePort
+      ) {
+        sshTunnelFuncs[sshTunnel.sshTunnel]({
+          ...sshTunnel,
+          conn: this.conn
+        })
+      }
+    }
+    const channel = await this.shell(this.conn, shellOpts, shellWindow)
+    this.channel = channel
+    global.sessions[initOptions.sessionId] = {
+      conn: this.conn,
+      id: initOptions.sessionId,
+      shellOpts,
+      sftps: {},
+      terminals: {
+        [this.pid]: this
+      }
+    }
+  }
+
+  shell (conn, shellWindow, shellOpts) {
+    return new Promise((resolve, reject) => {
+      conn.shell(
+        shellWindow,
+        shellOpts,
+        (err, channel) => {
+          if (err) {
+            return reject(err)
+          }
+          resolve(channel)
+        }
+      )
+    })
+  }
+
+  getPrivateKey (connectOptions) {
+    if (this.sshKeys) {
+      if (this.sshKeys.length > 0) {
+        const p = this.sshKeys.shift()
+        this.privateKeyPath = p
+        connectOptions.privateKey = require('fs').readFileSync(p, 'utf8')
+      } else if (this.sshKeys.length === 0) {
+        this.connectOptions.passphrase = this.initOptions.passphrase
+        delete this.connectOptions.privateKey
+        delete this.sshKeys
+      }
+      return
+    }
+    const { sshKeysPath } = process.env
+    const list = require('fs')
+      .readdirSync(sshKeysPath)
+      .filter(file => file.endsWith('.pub'))
+      .map(file => pathResolve(sshKeysPath, file.replace('.pub', '')))
+    if (list.length) {
+      const p = list.shift()
+      this.privateKeyPath = p
+      connectOptions.privateKey = require('fs').readFileSync(p, 'utf8')
+    }
+    this.sshKeys = list
   }
 
   doSshConnect = (
     info,
-    reject,
-    resolve
+    conn = this.conn,
+    connectOptions = this.connectOptions
   ) => {
     const {
-      shellOpts,
-      isTest,
-      conn,
-      connectOptions,
-      initOptions,
-      shellWindow
+      initOptions
     } = this
     if (info && info.socket) {
       delete connectOptions.host
       delete connectOptions.port
       connectOptions.sock = info.socket
     }
-    conn
-      .on('keyboard-interactive', async (
+    return new Promise((resolve, reject) => {
+      conn.on('keyboard-interactive', async (
         name,
         instructions,
         instructionsLang,
@@ -383,110 +616,68 @@ class Terminal {
           .then(finish)
           .catch(reject)
       })
-      .on('x11', function (info, accept) {
-        let start = 0
-        const maxRetry = 100
-        const portStart = 6000
-        const maxPort = portStart + maxRetry
-        function retry () {
-          if (start >= maxPort) {
-            return
-          }
-          const xserversock = new net.Socket()
-          let xclientsock
-          xserversock
-            .on('connect', function () {
-              xclientsock = accept()
-              xclientsock.pipe(xserversock).pipe(xclientsock)
-            })
-            .on('error', (e) => {
-              log.error(e)
-              xserversock.destroy()
-              start = start === maxRetry ? portStart : start + 1
-              retry()
-            })
-            .on('close', () => {
-              xserversock.destroy()
-              xclientsock && xclientsock.destroy()
-            })
-          if (start < portStart) {
-            const addr = this.display?.includes('/tmp')
-              ? this.display
-              : `/tmp/.X11-unix/X${start}`
-            xserversock.connect(addr)
-          } else {
-            xserversock.connect(start, '127.0.0.1')
-          }
-        }
-        retry()
-      })
-      .on('ready', () => {
-        if (isTest) {
-          conn.end()
-          return resolve(true)
-        } else if (initOptions.enableSsh === false) {
-          global.sessions[initOptions.sessionId] = {
-            conn,
-            id: initOptions.sessionId,
-            shellOpts,
-            sftps: {},
-            terminals: {}
-          }
-          return resolve(true)
-        }
-        const { sshTunnels = [] } = initOptions
-        for (const sshTunnel of sshTunnels) {
-          if (
-            sshTunnel &&
-            sshTunnel.sshTunnel &&
-            sshTunnel.sshTunnelLocalPort &&
-            sshTunnel.sshTunnelRemotePort
-          ) {
-            sshTunnelFuncs[sshTunnel.sshTunnel]({
-              ...sshTunnel,
-              conn
-            })
-          }
-        }
-        conn.shell(
-          shellWindow,
-          shellOpts,
-          (err, channel) => {
-            if (err) {
-              return reject(err)
+        .on('x11', function (info, accept) {
+          let start = 0
+          const maxRetry = 100
+          const portStart = 6000
+          const maxPort = portStart + maxRetry
+          function retry () {
+            if (start >= maxPort) {
+              return
             }
-            this.channel = channel
-            global.sessions[initOptions.sessionId] = {
-              conn,
-              id: initOptions.sessionId,
-              shellOpts,
-              sftps: {},
-              terminals: {
-                [this.pid]: this
-              }
+            const xserversock = new net.Socket()
+            let xclientsock
+            xserversock
+              .on('connect', function () {
+                xclientsock = accept()
+                xclientsock.pipe(xserversock).pipe(xclientsock)
+              })
+              .on('error', (e) => {
+                log.error(e)
+                xserversock.destroy()
+                start = start === maxRetry ? portStart : start + 1
+                retry()
+              })
+              .on('close', () => {
+                xserversock.destroy()
+                xclientsock && xclientsock.destroy()
+              })
+            if (start < portStart) {
+              const addr = this.display?.includes('/tmp')
+                ? this.display
+                : `/tmp/.X11-unix/X${start}`
+              xserversock.connect(addr)
+            } else {
+              xserversock.connect(start, '127.0.0.1')
             }
-            resolve(true)
           }
-        )
-      })
-      .on('error', err => {
-        log.error('errored terminal', err)
-        conn.end()
-        reject(err)
-      })
-      .connect(connectOptions)
+          retry()
+        })
+        .on('ready', () => resolve(true))
+        .on('error', err => {
+          reject(err)
+        })
+        .connect(connectOptions)
+    })
+  }
+
+  getShareOptions () {
+    const { initOptions } = this
+    return {
+      tryKeyboard: true,
+      readyTimeout: initOptions.readyTimeout,
+      keepaliveCountMax: initOptions.keepaliveCountMax,
+      keepaliveInterval: initOptions.keepaliveInterval,
+      algorithms: alg
+    }
   }
 
   buildConnectOptions () {
     const { initOptions } = this
     const connectOptions = Object.assign(
+      this.getShareOptions(),
       {
-        tryKeyboard: true,
-        readyTimeout: _.get(initOptions, 'readyTimeout'),
-        keepaliveCountMax: _.get(initOptions, 'keepaliveCountMax'),
-        keepaliveInterval: _.get(initOptions, 'keepaliveInterval'),
-        agent: process.env.SSH_AUTH_SOCK,
-        algorithms: alg
+        agent: process.env.SSH_AUTH_SOCK
       },
       _.pick(initOptions, [
         'host',
@@ -506,9 +697,6 @@ class Terminal {
     if (!connectOptions.passphrase) {
       delete connectOptions.passphrase
     }
-    if (!connectOptions.privateKey && !connectOptions.password) {
-      this.getPrivateKey(connectOptions)
-    }
     return connectOptions
   }
 
@@ -527,45 +715,95 @@ class Terminal {
     return shellOpts
   }
 
-  sshConnect = () => {
+  async sshConnect () {
     const { initOptions } = this
-    return new Promise((resolve, reject) => {
-      this.conn = new Client()
-      this.connectOptions = this.connectOptions || this.buildConnectOptions()
-      const {
-        connectOptions
-      } = this
-      if (!connectOptions.privateKey && !connectOptions.password) {
-        this.getPrivateKey(this.connectOptions)
-      }
-      this.shellWindow = this.shellWindow || this.getShellWindow()
-      this.shellOpts = this.shellOpts || this.buildShellOpts()
-      if (
-        initOptions.proxy
-      ) {
-        proxySock({
-          readyTimeout: initOptions.readyTimeout,
-          host: initOptions.host,
-          port: initOptions.port,
-          proxy: initOptions.proxy
-        })
-          .then((info) => this.doSshConnect(info, reject, resolve))
-          .catch(reject)
-      } else {
-        this.doSshConnect(undefined, reject, resolve)
-      }
-    }).catch(err => {
-      log.error('error in terminal', err)
-      if (this.sshKeys?.length) {
-        log.log('retry with next ssh key')
-        if (this.conn) {
-          this.conn.end()
+    this.conn = new Client()
+    this.connectOptions = this.connectOptions || this.buildConnectOptions()
+    const {
+      connectOptions
+    } = this
+    if (
+      this.sshKeys ||
+      (!connectOptions.privateKey && !connectOptions.password)
+    ) {
+      this.getPrivateKey(this.connectOptions)
+    }
+    this.shellWindow = this.shellWindow || this.getShellWindow()
+    this.shellOpts = this.shellOpts || this.buildShellOpts()
+    const info = initOptions.proxy
+      ? await proxySock({
+        readyTimeout: initOptions.readyTimeout,
+        host: initOptions.host,
+        port: initOptions.port,
+        proxy: initOptions.proxy
+      })
+      : undefined
+    await this.doSshConnect(info).catch(err => {
+      log.error('error when do sshConnect', err)
+      if (err.message.includes('passphrase')) {
+        const options = {
+          name: `passphase for ${this.privateKeyPath}`,
+          instructions: [''],
+          prompts: [{
+            echo: false,
+            prompt: 'passphase'
+          }]
         }
-        return this.sshConnect()
-      } else {
-        throw err
+        return this.onKeyboardEvent(options)
+          .then(data => {
+            if (data && data[0]) {
+              this.connectOptions.passphrase = data[0]
+              this.sshKeys.unshift(this.privateKeyPath)
+            }
+            return this.nextTry(err)
+          })
+          .catch(e => {
+            log.error('errored get passphrase for', this.privateKeyPath, e)
+            return this.nextTry(err)
+          })
+      } else if (
+        !this.sshKeys &&
+        !this.connectOptions.password &&
+        !this.connectOptions.privateKey &&
+        err.message.includes('All configured authentication methods failed')
+      ) {
+        const options = {
+          name: `password?`,
+          instructions: [''],
+          prompts: [{
+            echo: false,
+            prompt: 'password'
+          }]
+        }
+        return this.onKeyboardEvent(options)
+          .then(data => {
+            if (data && data[0]) {
+              this.connectOptions.password = data[0]
+              return this.sshConnect()
+            } else if (data && data[0] === '') {
+              throw err
+            }
+          })
+          .catch(err => {
+            log.error('errored get password for', err)
+            throw err
+          })
       }
+      return this.nextTry(err)
     })
+    await this.onInitSshReady()
+  }
+
+  nextTry (err) {
+    if (this.sshKeys) {
+      log.log('retry with next ssh key')
+      if (this.conn) {
+        this.conn.end()
+      }
+      return this.sshConnect()
+    } else {
+      throw err
+    }
   }
 
   async remoteInitProcess () {
@@ -689,7 +927,7 @@ class Terminal {
       _.isEmpty(inst.sftps) &&
       _.isEmpty(inst.terminals)
     ) {
-      inst.conn && inst.conn.end && inst.conn.end()
+      this.endConns()
       delete global.sessions[
         this.initOptions.sessionId
       ]
@@ -787,9 +1025,9 @@ class Terminal {
     }
   }
 
-  runCmd (cmd) {
+  runCmd (cmd, conn) {
     return new Promise((resolve, reject) => {
-      const client = this.conn || this.client
+      const client = conn || this.conn || this.client
       client.exec(cmd, this.getExecOpts(), (err, stream) => {
         if (err) reject(err)
         if (stream) {

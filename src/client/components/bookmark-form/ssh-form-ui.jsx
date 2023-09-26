@@ -25,6 +25,7 @@ import renderProxy from './proxy'
 import renderX11 from './x11'
 import renderAuth from './render-auth-ssh'
 import renderSshTunnel from './render-ssh-tunnel'
+import renderConnectionHopping from './render-connection-hopping'
 import './bookmark-form.styl'
 
 export default function BookmarkFormUI (props) {
@@ -64,7 +65,8 @@ export default function BookmarkFormUI (props) {
     envLang: defaultEnvLang,
     enableSsh: true,
     sshTunnels: [{}],
-    category: initBookmarkGroupId
+    category: initBookmarkGroupId,
+    connectionHoppings: []
   }
   initialValues = defaultsDeep(initialValues, defaultValues)
   function onChangeAuthType (e) {
@@ -82,7 +84,8 @@ export default function BookmarkFormUI (props) {
     renderProxy,
     renderX11,
     renderAuth,
-    renderSshTunnel
+    renderSshTunnel,
+    renderConnectionHopping
   }
   return (
     <Form

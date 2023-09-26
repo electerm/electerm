@@ -76,7 +76,7 @@ export default function renderSshTunnel () {
         <Button
           icon={<MinusCircleOutlined />}
           onClick={() => remove(field.name)}
-          className='mg20b'
+          className='mg24b'
         />
       </Space>
     )

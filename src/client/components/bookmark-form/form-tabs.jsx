@@ -53,6 +53,12 @@ export default function renderTabs (props) {
       label: tunnelTag,
       forceRender: true,
       children: props.renderSshTunnel(props)
+    },
+    {
+      key: 'connectionHopping',
+      label: e('connectionHopping'),
+      forceRender: true,
+      children: props.renderConnectionHopping(props)
     }
   ]
   return (

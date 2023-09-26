@@ -106,7 +106,7 @@ export default function TermInteractive () {
     onOk,
     closable: false,
     open: true,
-    title: '?',
+    title: opts.options?.name || '?',
     footer: null
   }
   return (
