@@ -379,7 +379,7 @@ class Terminal {
             .then(data => {
               if (data && data[0]) {
                 this.hoppingOptions.passphrase = data[0]
-                this.jumpSshKeys.unshift(this.jumpPrivateKeyPathFrom)
+                this.jumpSshKeys && this.jumpSshKeys.unshift(this.jumpPrivateKeyPathFrom)
               }
               return this.jumpConnect(true)
             })
@@ -751,11 +751,12 @@ class Terminal {
         }
         return this.onKeyboardEvent(options)
           .then(data => {
-            if (data && data[0]) {
+            const pass = data ? data[0] : ''
+            if (pass) {
               this.connectOptions.passphrase = data[0]
-              this.sshKeys.unshift(this.privateKeyPath)
+              this.sshKeys && this.sshKeys.unshift(this.privateKeyPath)
             }
-            return this.nextTry(err)
+            return this.nextTry(err, !!pass)
           })
           .catch(e => {
             log.error('errored get passphrase for', this.privateKeyPath, e)
@@ -794,8 +795,10 @@ class Terminal {
     await this.onInitSshReady()
   }
 
-  nextTry (err) {
-    if (this.sshKeys) {
+  nextTry (err, forceRetry = false) {
+    if (
+      this.sshKeys || forceRetry
+    ) {
       log.log('retry with next ssh key')
       if (this.conn) {
         this.conn.end()
