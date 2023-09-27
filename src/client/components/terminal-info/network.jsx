@@ -78,9 +78,10 @@ export default function TerminalInfoDisk (props) {
   const map = {
     up: '↑',
     down: '↓',
-    name: 'name'
+    name: 'name',
+    ip: 'ipv4'
   }
-  const col = ['name', 'up', 'down'].map((k, i) => {
+  const col = ['name', 'ip', 'up', 'down'].map((k, i) => {
     return {
       title: map[k],
       dataIndex: k,
