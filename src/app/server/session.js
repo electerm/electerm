@@ -360,8 +360,8 @@ class Terminal {
       this.hoppingOptions
     )
       .then(() => {
-        this.jumpHostFrom = this.nextHost
-        this.jumpPortFrom = this.nextPort
+        this.jumpHostFrom = this.initHoppingOptions.host
+        this.jumpPortFrom = this.initHoppingOptions.port
         return this.nextConn
       })
       .catch(err => {
@@ -739,10 +739,10 @@ class Terminal {
       })
       : undefined
     await this.doSshConnect(info).catch(err => {
-      log.error('error when do sshConnect', err)
+      log.error('error when do sshConnect', err, this.privateKeyPath)
       if (err.message.includes('passphrase')) {
         const options = {
-          name: `passphase for ${this.privateKeyPath}`,
+          name: `passphase for ${this.privateKeyPath || 'privateKey'}`,
           instructions: [''],
           prompts: [{
             echo: false,
@@ -769,7 +769,7 @@ class Terminal {
         err.message.includes('All configured authentication methods failed')
       ) {
         const options = {
-          name: `password?`,
+          name: `password for ${this.connectOptions.username}@${this.connectOptions.host}`,
           instructions: [''],
           prompts: [{
             echo: false,
