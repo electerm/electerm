@@ -394,7 +394,7 @@ class Terminal {
           err.message.includes('All configured authentication methods failed')
         ) {
           const options = {
-            name: `password for ${this.hoppingOptions.username}@${this.nextHost}`,
+            name: `password for ${this.hoppingOptions.username}@${this.initHoppingOptions.host}`,
             instructions: [''],
             prompts: [{
               echo: false,
