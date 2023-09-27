@@ -12,13 +12,16 @@ const p = prefix('sftp')
 export default (res = {}) => {
   const {
     host, port, username, title, type,
-    path
+    path, connectionHoppings
   } = res
   const fixTitle = `${username || ''}@${host}:${port}`
   const extra = host || path ? (path || fixTitle) : ''
   let f = title
     ? `${title}` + (extra ? ` - ${extra}` : '')
     : extra
+  if (connectionHoppings && connectionHoppings.length) {
+    f = `[⋙]${f}`
+  }
   if (type) {
     f = `[${type}]${f}`
   }
