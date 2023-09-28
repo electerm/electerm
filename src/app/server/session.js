@@ -824,8 +824,8 @@ class Terminal {
   }
 
   telnetResize (cols, rows) {
-    this.channel.connectOptions.terminalWidth = cols
-    this.channel.connectOptions.terminalHeight = rows
+    this.channel.opts.terminalWidth = cols
+    this.channel.opts.terminalHeight = rows
   }
 
   serialResize () {

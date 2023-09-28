@@ -52,9 +52,6 @@ const { watchFile, unwatchFile } = require('./watch-file')
 const lookup = require('../common/lookup')
 
 function initIpc () {
-  global.win.on('move', () => {
-    global.win.webContents.send('window-move', null)
-  })
   powerMonitor.on('resume', () => {
     global.win.webContents.send('power-resume', null)
   })
