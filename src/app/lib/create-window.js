@@ -21,7 +21,7 @@ exports.createWindow = async function () {
   const { width, height } = await getWindowSize()
   const { useSystemTitleBar } = userConfig
 
-  global.win = new BrowserWindow({
+  const win = new BrowserWindow({
     width,
     height,
     fullscreenable: true,
@@ -40,6 +40,8 @@ exports.createWindow = async function () {
     icon: iconPath
   })
 
+  global.win = win
+
   initIpc()
 
   const defaultPort = isDev ? 5570 : 30974
@@ -48,33 +50,32 @@ exports.createWindow = async function () {
   if (!isDev && !global.isSencondInstance) {
     await fileServer(devPort)
   }
-  global.win.loadURL(opts)
-  if (isDev) {
-    global.win.webContents.once('dom-ready', () => {
-      global.win.webContents.openDevTools()
-    })
-  }
-
-  disableShortCuts(global.win)
-
-  global.win.on('unmaximize', () => {
-    const { width, height } = global.win.getBounds()
-    if (width < minWindowWidth || height < minWindowHeight) {
-      global.win.setBounds({
-        x: 0,
-        y: 0,
-        width: minWindowWidth,
-        height: minWindowHeight
-      })
-      global.win.center()
+  win.loadURL(opts)
+  win.webContents.once('dom-ready', () => {
+    if (isDev) {
+      win.webContents.openDevTools()
     }
+    win.on('unmaximize', () => {
+      const { width, height } = win.getBounds()
+      if (width < minWindowWidth || height < minWindowHeight) {
+        win.setBounds({
+          x: 0,
+          y: 0,
+          width: minWindowWidth,
+          height: minWindowHeight
+        })
+        win.center()
+      }
+    })
+    // Emitted when the window is closed.
+
+    win.on('focus', () => {
+      win.webContents.send('focused', null)
+    })
+    win.on('blur', () => {
+      win.webContents.send('blur', null)
+    })
   })
-  // Emitted when the window is closed.
-  global.win.on('close', onClose)
-  global.win.on('focus', () => {
-    global.win.webContents.send('focused', null)
-  })
-  global.win.on('blur', () => {
-    global.win.webContents.send('blur', null)
-  })
+  win.on('close', onClose)
+  disableShortCuts(global.win)
 }
