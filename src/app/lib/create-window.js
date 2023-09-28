@@ -41,6 +41,7 @@ exports.createWindow = async function () {
   })
 
   initIpc()
+
   const defaultPort = isDev ? 5570 : 30974
   const { devPort = defaultPort } = process.env
   const opts = `http://127.0.0.1:${devPort}/index.html?v=${packInfo.version}`
