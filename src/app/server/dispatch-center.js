@@ -3,7 +3,7 @@
  * run functions in seprate process, avoid using electron.remote directly
  */
 
-const { Terminal: Sftp } = require('./session')
+const { Sftp } = require('./session-sftp')
 const {
   sftp,
   transfer,

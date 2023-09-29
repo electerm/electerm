@@ -31,7 +31,6 @@ function writeRemoteFile (sftp, path, str, mode) {
       mode
     })
     writeStream.on('close', () => {
-      console.log('write finish')
       resolve('ok')
     })
     writeStream.on('error', (e) => {
