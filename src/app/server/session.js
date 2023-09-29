@@ -22,6 +22,10 @@ const {
   isWin
 } = require('../common/runtime-constants')
 const deepCopy = require('json-deep-copy')
+const {
+  terminalTelnet,
+  testConnectionTelnet
+} = require('./session-telnet')
 
 function customEnv (envs) {
   if (!envs) {
@@ -124,44 +128,6 @@ class Terminal {
         }
       })
     })
-    global.sessions[this.initOptions.sessionId] = {
-      id: this.initOptions.sessionId,
-      sftps: {},
-      terminals: {
-        [this.pid]: this
-      }
-    }
-  }
-
-  async telnetInit () {
-    const { Telnet } = require('telnet-client')
-    const connection = new Telnet()
-    const { initOptions } = this
-    const params = _.pick(
-      initOptions,
-      [
-        'host',
-        'port',
-        'timeout',
-        'username',
-        'password',
-        'terminalWidth',
-        'terminalHeight'
-      ]
-    )
-    Object.assign(
-      params,
-      {
-        negotiationMandatory: false,
-        terminalWidth: initOptions.cols,
-        terminalHeight: initOptions.rows,
-        timeout: initOptions.readyTimeout,
-        sendTimeout: initOptions.readyTimeout
-      }
-    )
-    await connection.connect(params)
-    await connection.shell()
-    this.channel = connection
     global.sessions[this.initOptions.sessionId] = {
       id: this.initOptions.sessionId,
       sftps: {},
@@ -823,11 +789,6 @@ class Terminal {
     this[this.type + 'Resize'](cols, rows)
   }
 
-  telnetResize (cols, rows) {
-    this.channel.opts.terminalWidth = cols
-    this.channel.opts.terminalHeight = rows
-  }
-
   serialResize () {
 
   }
@@ -846,10 +807,6 @@ class Terminal {
 
   serialOn (event, cb) {
     this.port.on(event, cb)
-  }
-
-  telnetOn (event, cb) {
-    this.channel.on(event, cb)
   }
 
   localOn (event, cb) {
@@ -882,11 +839,6 @@ class Terminal {
   serialKill () {
     this.port && this.port.isOpen && this.port.close()
     delete this.port
-  }
-
-  telnetKill () {
-    this.channel && this.channel.destroy()
-    delete this.channel
   }
 
   localKill () {
@@ -1290,6 +1242,9 @@ class Terminal {
 }
 
 exports.terminal = async function (initOptions, ws) {
+  if (initOptions.termType === 'telnet') {
+    return terminalTelnet(initOptions, ws)
+  }
   const term = new Terminal(initOptions, ws)
   await term.init()
   return term
@@ -1302,6 +1257,9 @@ exports.Terminal = Terminal
  * @param {object} options
  */
 exports.testConnection = (options) => {
+  if (options.termType === 'telnet') {
+    return testConnectionTelnet(options)
+  }
   return (new Terminal(options, undefined, true))
     .remoteInit()
     .catch(() => {

@@ -16,5 +16,4 @@ global.childPid = null
 log.debug('electerm start')
 
 const app = createApp()
-
 global.app = app

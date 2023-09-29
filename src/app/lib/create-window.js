@@ -75,7 +75,7 @@ exports.createWindow = async function () {
     win.on('blur', () => {
       win.webContents.send('blur', null)
     })
+    disableShortCuts(win)
   })
   win.on('close', onClose)
-  disableShortCuts(global.win)
 }

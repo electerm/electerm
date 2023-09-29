@@ -8,6 +8,7 @@ const { verifyWs, initWs } = require('./dispatch-center')
 const {
   terminals
 } = require('./remote-common')
+
 app.use(cors())
 
 // parse application/x-www-form-urlencoded
@@ -96,3 +97,10 @@ const runServer = function () {
 
 // start
 runServer()
+
+process.on('uncaughtException', (err) => {
+  log.error('uncaughtException', err)
+})
+process.on('unhandledRejection', (err) => {
+  log.error('unhandledRejection', err)
+})
