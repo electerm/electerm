@@ -136,7 +136,6 @@
     "ssh-config": "4.2.1",
     "stylus": "0.59.0",
     "tar": "6.1.15",
-    "telnet-client": "2.0.8",
     "util-promisifyall": "1.0.6",
     "v8-compile-cache": "2.3.0"
   },
