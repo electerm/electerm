@@ -77,7 +77,7 @@ class TerminalSshBase extends TerminalBase {
       shellOpts
     } = connInst
     if (initOptions.enableSsh === false) {
-      return true
+      return Promise.resolve(this)
     }
     return new Promise((resolve, reject) => {
       conn.shell(
@@ -90,7 +90,7 @@ class TerminalSshBase extends TerminalBase {
           this.channel = channel
           this.conn = conn
           connInst.terminals[this.pid] = this
-          resolve(true)
+          resolve(this)
         }
       )
     })
@@ -326,17 +326,28 @@ class TerminalSshBase extends TerminalBase {
         })
       }
     }
-    const channel = await this.shell(this.conn, shellOpts, shellWindow)
-    this.channel = channel
-    global.sessions[initOptions.sessionId] = {
-      conn: this.conn,
-      id: initOptions.sessionId,
-      shellOpts,
-      sftps: {},
-      terminals: {
-        [this.pid]: this
-      }
-    }
+    return new Promise((resolve, reject) => {
+      this.conn.shell(
+        shellWindow,
+        shellOpts,
+        (err, channel) => {
+          if (err) {
+            return reject(err)
+          }
+          this.channel = channel
+          global.sessions[initOptions.sessionId] = {
+            conn: this.conn,
+            id: initOptions.sessionId,
+            shellOpts,
+            sftps: {},
+            terminals: {
+              [this.pid]: this
+            }
+          }
+          resolve(this)
+        }
+      )
+    })
   }
 
   shell (conn, shellWindow, shellOpts) {
@@ -594,7 +605,7 @@ class TerminalSshBase extends TerminalBase {
       }
       return this.nextTry(err)
     })
-    await this.onInitSshReady()
+    return this.onInitSshReady()
   }
 
   nextTry (err, forceRetry = false) {
@@ -653,10 +664,8 @@ class TerminalSshBase extends TerminalBase {
 
 const TerminalSsh = commonExtends(TerminalSshBase)
 
-exports.terminalSsh = async function (initOptions, ws) {
-  const term = new TerminalSsh(initOptions, ws)
-  await term.init()
-  return term
+exports.terminalSsh = function (initOptions, ws) {
+  return (new TerminalSsh(initOptions, ws)).init()
 }
 
 /**
@@ -665,7 +674,7 @@ exports.terminalSsh = async function (initOptions, ws) {
  */
 exports.testConnectionSsh = (options) => {
   return (new TerminalSsh(options, undefined, true))
-    .remoteInit()
+    .init()
     .catch(() => {
       return false
     })

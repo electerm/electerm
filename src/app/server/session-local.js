@@ -55,7 +55,7 @@ class TerminalLocal extends TerminalBase {
         [this.pid]: this
       }
     }
-    return Promise.resolve()
+    return Promise.resolve(this)
   }
 
   resize (cols, rows) {
@@ -88,10 +88,8 @@ class TerminalLocal extends TerminalBase {
   }
 }
 
-exports.terminalLocal = async function (initOptions, ws) {
-  const term = new TerminalLocal(initOptions, ws)
-  await term.init()
-  return term
+exports.terminalLocal = function (initOptions, ws) {
+  return (new TerminalLocal(initOptions, ws)).init()
 }
 
 /**

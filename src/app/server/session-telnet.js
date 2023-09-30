@@ -110,7 +110,6 @@ class TerminalTelnet {
 }
 
 exports.terminalTelnet = async function (initOptions, ws) {
-  console.log('terminalTelnet')
   const term = new TerminalTelnet(initOptions, ws)
   await term.init()
   return term

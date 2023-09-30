@@ -89,7 +89,6 @@ class TerminalSerial extends TerminalBase {
 }
 
 exports.terminalSerial = async function (initOptions, ws) {
-  console.log('terminalSerial')
   const term = new TerminalSerial(initOptions, ws)
   await term.init()
   return term
