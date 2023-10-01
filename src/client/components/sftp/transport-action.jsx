@@ -282,7 +282,7 @@ export default function transportAction (props) {
       }
     } else {
       if (newName) {
-        await fs.mkdirAsync(path)
+        await fs.mkdir(path)
       }
       await fs.unzipFile(toPath, path)
       if (newName) {
@@ -386,7 +386,7 @@ export default function transportAction (props) {
       toPath
     } = transfer
     if (typeTo === typeMap.local) {
-      return fs.mkdirAsync(toPath)
+      return fs.mkdir(toPath)
         .catch(onError)
     }
     return props.sftp.mkdir(toPath)

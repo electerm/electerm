@@ -4,8 +4,17 @@
 
 const crypto = require('crypto')
 const algorithmDefault = 'aes-192-cbc'
-const promisifyAll = require('util-promisifyall')
-const cpt = promisifyAll(crypto)
+
+function scryptAsync (...args) {
+  return new Promise((resolve, reject) =>
+    crypto.scrypt(...args, (err, result) => {
+      if (err) {
+        reject(err)
+      }
+      resolve(result)
+    })
+  )
+}
 
 exports.encrypt = function (
   str = '',
@@ -42,7 +51,7 @@ exports.encryptAsync = async function (
   algorithm = algorithmDefault,
   iv = Buffer.alloc(16, 0)
 ) {
-  const key = await cpt.scryptAsync(password, 'salt', 24)
+  const key = await scryptAsync(password, 'salt', 24)
   // Use `crypto.randomBytes` to generate a random iv instead of the static iv
   const cipher = crypto.createCipheriv(algorithm, key, iv)
   let encrypted = cipher.update(str, 'utf8', 'hex')
@@ -57,7 +66,7 @@ exports.decryptAsync = async function (
   iv = Buffer.alloc(16, 0)
 ) {
   // Use the async `crypto.scrypt()` instead.
-  const key = await cpt.scryptAsync(password, 'salt', 24)
+  const key = await scryptAsync(password, 'salt', 24)
   const decipher = crypto.createDecipheriv(algorithm, key, iv)
   // Encrypted using same algorithm, key and iv.
   let decrypted = decipher.update(encrypted, 'hex', 'utf8')

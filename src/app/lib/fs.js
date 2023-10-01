@@ -1,7 +1,5 @@
-const promisifyAll = require('util-promisifyall')
 const { spawn } = require('child_process')
-const fs = require('original-fs')
-const fss = promisifyAll(fs)
+const fss = require('fs/promises')
 const log = require('../common/log')
 const tar = require('tar')
 const { isWin, isMac, tempDir } = require('../common/runtime-constants')
@@ -78,7 +76,7 @@ const cp = (from, to) => {
  * @param {string} localFolderPath absolute path
  */
 const touch = (localFilePath) => {
-  return fss.writeFileAsync(localFilePath, '')
+  return fss.writeFile(localFilePath, '')
 }
 
 /**
@@ -193,10 +191,10 @@ const fsExport = Object.assign(
       if (isWin && isWinDrive(path)) {
         path = path + '\\'
       }
-      return fss.readdirAsync(path)
+      return fss.readdir(path)
     },
     statAsync: (...args) => {
-      return fss.statAsync(...args)
+      return fss.stat(...args)
         .then(res => {
           return Promise.resolve(Object.assign(res, {
             isDirectory: res.isDirectory()
@@ -204,7 +202,7 @@ const fsExport = Object.assign(
         })
     },
     lstatAsync: (...args) => {
-      return fss.lstatAsync(...args)
+      return fss.lstat(...args)
         .then(res => {
           return Promise.resolve(Object.assign(res, {
             isDirectory: res.isDirectory(),
@@ -213,19 +211,19 @@ const fsExport = Object.assign(
         })
     },
     readFile: (...args) => {
-      return fss.readFileAsync(...args)
+      return fss.readFile(...args)
         .then(res => {
           return res.toString()
         })
     },
     readFileAsBase64: (...args) => {
-      return fss.readFileAsync(...args)
+      return fss.readFile(...args)
         .then(res => {
           return res.toString('base64')
         })
     },
     writeFile: (path, txt, mode) => {
-      return fss.writeFileAsync(path, txt, { mode })
+      return fss.writeFile(path, txt, { mode })
         .then(() => true)
         .catch((e) => {
           log.error('fs.writeFile', e)

@@ -279,7 +279,7 @@ export default class Sftp extends Component {
   localDel = async (file) => {
     const { name, isDirectory, path } = file
     const func = !isDirectory
-      ? fs.unlinkAsync
+      ? fs.unlink
       : fs.rmrf
     const p = resolve(path, name)
     await func(p).catch(window.store.onError)

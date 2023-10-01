@@ -383,7 +383,7 @@ export default class FileSection extends React.Component {
     const { localPath } = this.props
     const p = resolve(localPath, nameTemp)
     const func = isDirectory
-      ? fs.mkdirAsync
+      ? fs.mkdir
       : fs.touch
     const res = await func(p)
       .then(() => true)
@@ -496,7 +496,7 @@ export default class FileSection extends React.Component {
     }
     const { permission, type, path, name } = file
     const func = type === typeMap.local
-      ? fs.chmodAsync
+      ? fs.chmod
       : this.props.sftp.chmod
     const p = resolve(path, name)
     await func(p, permission).catch(window.store.onError)
@@ -545,7 +545,7 @@ export default class FileSection extends React.Component {
     const { localPath } = this.props
     const p1 = resolve(localPath, oldname)
     const p2 = resolve(localPath, newname)
-    await fs.renameAsync(p1, p2).catch(window.store.onError)
+    await fs.rename(p1, p2).catch(window.store.onError)
     this.props.localList()
   }
 
