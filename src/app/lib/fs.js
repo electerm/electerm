@@ -4,9 +4,12 @@ const log = require('../common/log')
 const tar = require('tar')
 const { isWin, isMac, tempDir } = require('../common/runtime-constants')
 const uid = require('../common/uid')
-const { isWinDrive } = require('../common/is-win-drive')
 const path = require('path')
 const ROOT_PATH = '/'
+
+const isWinDrive = function (path) {
+  return /^\w+:$/.test(path)
+}
 
 /**
  * run cmd

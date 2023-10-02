@@ -13,7 +13,7 @@ import {
   defaultBookmarkGroupId,
   newBookmarkIdPrefix
 } from '../../common/constants'
-import { isValidIP } from '../../../app/common/is-ip'
+import { isValidIP } from '../../common/is-ip'
 import runIdle from '../../common/run-idle'
 import getInitItem from '../../common/init-setting-item'
 import testCon from '../../common/test-connection'
