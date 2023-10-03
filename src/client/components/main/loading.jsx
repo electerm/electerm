@@ -6,22 +6,6 @@ export class LoadingUI extends PureComponent {
     show: true
   }
 
-  // componentDidMount () {
-  //   setTimeout(this.hide, 5000)
-  // }
-
-  componentDidUpdate (prevProps) {
-    Object.keys(this.props).some(key => {
-      if (key.startsWith('terminalBackground') && prevProps[key] !== this.props[key]) {
-        this.updateCss()
-        return true
-      }
-    })
-    if (!prevProps.wsInited && this.props.wsInited) {
-      this.hide()
-    }
-  }
-
   hide = () => {
     this.setState({
       show: false

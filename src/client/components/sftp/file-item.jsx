@@ -3,7 +3,6 @@
  */
 
 import React from 'react'
-import ReactDOM from 'react-dom'
 import ExtIcon from './file-icon'
 import {
   FolderOutlined,
@@ -60,10 +59,11 @@ export default class FileSection extends React.Component {
       file: copy(props.file),
       overwriteStrategy: ''
     }
+    this.id = 'FileSection-' + (props.file?.id || generate())
   }
 
   componentDidMount () {
-    this.dom = ReactDOM.findDOMNode(this)
+    this.dom = document.getElementById(this.id)
     this.applyStyle()
   }
 
@@ -84,6 +84,9 @@ export default class FileSection extends React.Component {
   }
 
   applyStyle = () => {
+    if (!this.dom) {
+      return
+    }
     const {
       id,
       type
@@ -275,7 +278,7 @@ export default class FileSection extends React.Component {
       const dt = e.dataTransfer
       if (dt.items) {
         // Use DataTransferItemList interface to remove the drag data
-        for (var i = 0, len = dt.items.length; i < len; i++) {
+        for (let i = 0, len = dt.items.length; i < len; i++) {
           dt.items.remove(i)
         }
       }
@@ -470,9 +473,9 @@ export default class FileSection extends React.Component {
         selectedFiles = isSelected
           ? selectedFilesOld.filter(s => s.id !== id)
           : [
-            ...copy(selectedFilesOld),
-            file
-          ]
+              ...copy(selectedFilesOld),
+              file
+            ]
       } else if (e.shiftKey) {
         selectedFiles = this.getShiftSelected(file, type)
       }
@@ -517,7 +520,7 @@ export default class FileSection extends React.Component {
     }, this.state.file)
   }
 
-  onBlur = () => {
+  handleBlur = () => {
     const file = copy(this.state.file)
     const { nameTemp, name, id, type } = this.state.file
     if (name === nameTemp) {
@@ -561,7 +564,7 @@ export default class FileSection extends React.Component {
     }
   }
 
-  onChange = e => {
+  handleChange = e => {
     const nameTemp = e.target.value
     const file = copy(this.state.file)
     file.nameTemp = nameTemp
@@ -1115,9 +1118,9 @@ export default class FileSection extends React.Component {
         <Input
           value={nameTemp}
           addonBefore={pre}
-          onChange={this.onChange}
-          onBlur={this.onBlur}
-          onPressEnter={this.onBlur}
+          onChange={this.handleChange}
+          onBlur={this.handleBlur}
+          onPressEnter={this.handleBlur}
         />
       </div>
     )
@@ -1207,6 +1210,7 @@ export default class FileSection extends React.Component {
       <div
         {...props}
         data-id={id}
+        id={this.id}
         data-type={type}
         title={file.name}
       >

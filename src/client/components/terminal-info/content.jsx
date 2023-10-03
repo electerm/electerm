@@ -44,6 +44,10 @@ export default function TerminalInfoContent (props) {
     const cmd = `kill ${id}`
     runCmd(pid, sessionId, cmd)
   }
+  const pops = {
+    onClick: props.hideInfoPanel,
+    className: 'pointer font20 hide-info-panel-wrap'
+  }
   return (
     <div
       className='info-panel-wrap'
@@ -54,8 +58,8 @@ export default function TerminalInfoContent (props) {
     >
       <div className='pd2t pd2x'>
         <CloseCircleOutlined
-          onClick={props.hideInfoPanel}
-          className='pointer font20 hide-info-panel-wrap' />
+          {...pops}
+        />
         {
           state.expand
             ? (
@@ -63,15 +67,17 @@ export default function TerminalInfoContent (props) {
                 onClick={() => setState({
                   expand: false
                 })}
-                className='pointer font20 mg1l' />
-            )
+                className='pointer font20 mg1l'
+              />
+              )
             : (
               <LeftCircleOutlined
                 onClick={() => setState({
                   expand: true
                 })}
-                className='pointer font20 mg1l' />
-            )
+                className='pointer font20 mg1l'
+              />
+              )
         }
 
       </div>

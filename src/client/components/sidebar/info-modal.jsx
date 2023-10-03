@@ -31,7 +31,7 @@ const a = prefix('app')
 const s = prefix('setting')
 
 export default class InfoModal extends Component {
-  onChangeTab = key => {
+  handleChangeTab = key => {
     this.props.store.infoModalTab = key
   }
 
@@ -246,7 +246,7 @@ export default class InfoModal extends Component {
         <div className='about-wrap'>
           <Tabs
             activeKey={infoModalTab}
-            onChange={this.onChangeTab}
+            onChange={this.handleChangeTab}
             items={items}
           />
         </div>

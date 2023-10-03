@@ -17,13 +17,13 @@ export default Store => {
     const { store } = window
     return store.sshConfigItems.length
       ? [
-        ...store.getBookmarkGroups(),
-        {
-          title: terminalSshConfigType,
-          id: terminalSshConfigType,
-          bookmarkIds: store.sshConfigItems.map(d => d.id)
-        }
-      ]
+          ...store.getBookmarkGroups(),
+          {
+            title: terminalSshConfigType,
+            id: terminalSshConfigType,
+            bookmarkIds: store.sshConfigItems.map(d => d.id)
+          }
+        ]
       : store.getBookmarkGroups()
   }
 

@@ -1,4 +1,3 @@
-
 const { resolve } = require('path')
 const { cp, rm } = require('shelljs')
 

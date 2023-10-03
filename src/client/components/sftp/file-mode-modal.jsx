@@ -90,7 +90,7 @@ export default class FileMode extends React.PureComponent {
     })
   }
 
-  onSubmit = () => {
+  handleSubmit = () => {
     postMessage({
       action: commonActions.submitFileModeEdit,
       file: this.state.file
@@ -102,7 +102,7 @@ export default class FileMode extends React.PureComponent {
     return (
       <Button
         type='primary'
-        onClick={this.onSubmit}
+        onClick={this.handleSubmit}
       >
         {e('submit')}
       </Button>

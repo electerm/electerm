@@ -224,7 +224,8 @@ export default function SyncForm (props) {
             className='mg1r mg1b sync-btn-save'
             htmlType='submit'
             icon={<SaveOutlined />}
-          >{e('save')}</Button>
+          >{e('save')}
+          </Button>
           {/* <Button
             type='dashed'
             onClick={this.sync}
@@ -239,21 +240,24 @@ export default function SyncForm (props) {
             disabled={disabled()}
             className='mg1r mg1b'
             icon={<ArrowUpOutlined />}
-          >{ss('uploadSettings')}</Button>
+          >{ss('uploadSettings')}
+          </Button>
           <Button
             type='dashed'
             onClick={download}
             disabled={disabled()}
             className='mg1r mg1b sync-btn-down'
             icon={<ArrowDownOutlined />}
-          >{ss('downloadSettings')}</Button>
+          >{ss('downloadSettings')}
+          </Button>
           <Button
             type='dashed'
-            onClick={props.store.clearSyncSetting}
+            onClick={props.store.handleClearSyncSetting}
             disabled={disabled()}
             className='mg1r mg1b sync-btn-clear'
             icon={<ClearOutlined />}
-          >{sh('clear')}</Button>
+          >{sh('clear')}
+          </Button>
         </p>
         <p>
           {ss('lastSyncTime')}: {timeFormatted}

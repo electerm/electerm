@@ -26,13 +26,13 @@ class Gitee extends GiteeOri {
   }
 
   test (conf) {
-    return this.get(`/v5/gists?page=1&per_page=1`, conf)
+    return this.get('/v5/gists?page=1&per_page=1', conf)
   }
 }
 
 class GitHub extends GitHubOri {
   test (conf) {
-    return this.get(`/gists?page=1&per_page=1`, conf)
+    return this.get('/gists?page=1&per_page=1', conf)
   }
 }
 
@@ -47,8 +47,8 @@ async function doSync (type, func, args, token, proxy) {
   const agent = createProxyAgent(proxy)
   const conf = agent
     ? {
-      httpsAgent: agent
-    }
+        httpsAgent: agent
+      }
     : {}
   return inst[func](...args, conf)
     .then(r => r.data)

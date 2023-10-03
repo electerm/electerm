@@ -33,7 +33,7 @@ export default function TabSettings (props) {
               <SyncSetting
                 store={store}
               />
-            )
+              )
             : <Setting {...listProps} config={store.config} />
         }
       </SettingCol>

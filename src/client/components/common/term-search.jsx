@@ -113,11 +113,14 @@ export default class TermSearch extends Component {
       icon: Icon,
       cls
     } = item
+    const props = {
+      onClick: this[id],
+      className: 'term-search-act mg1x ' + cls
+    }
     return (
       <Icon
         key={id}
-        onClick={this[id]}
-        className={'term-search-act mg1x ' + cls}
+        {...props}
       />
     )
   }
@@ -188,15 +191,18 @@ export default class TermSearch extends Component {
     if (currentTab.pane === paneMap.fileManager) {
       return null
     }
+    const props = {
+      value: termSearch,
+      className: 'iblock',
+      onChange: this.handleChange,
+      suffix: this.renderSuffix(),
+      onPressEnter: this.next,
+      addonAfter: this.renderAfter()
+    }
     return (
       <div className='term-search-wrap'>
         <InputAutoFocus
-          value={termSearch}
-          className='iblock'
-          onChange={this.handleChange}
-          suffix={this.renderSuffix()}
-          onPressEnter={this.next}
-          addonAfter={this.renderAfter()}
+          {...props}
         />
       </div>
     )

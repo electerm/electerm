@@ -1,4 +1,3 @@
-
 /**
  * terminal/sftp wrapper
  */
@@ -118,7 +117,7 @@ export default class SessionWrapper extends Component {
       return
     }
     if (keyControlPressed(e) && keyPressed(e, '/')) {
-      this.doSplit()
+      this.handleSplit()
     }
   }
 
@@ -179,7 +178,7 @@ export default class SessionWrapper extends Component {
     }
   }
 
-  doSplit = (e, id) => {
+  handleSplit = (e, id) => {
     let terminals = copy(this.state.terminals)
     let index = findIndex(terminals, t => t.id === id)
     if (index === -1) {
@@ -224,7 +223,7 @@ export default class SessionWrapper extends Component {
     window.store.focus()
   }
 
-  changeDirection = () => {
+  handleChangeDirection = () => {
     const { splitDirection } = this.state
     this.setState({
       splitDirection: splitDirection === terminalSplitDirectionMap.horizontal
@@ -308,7 +307,7 @@ export default class SessionWrapper extends Component {
                   this,
                   [
                     'setActive',
-                    'doSplit',
+                    'handleSplit',
                     'delSplit',
                     'setSessionState',
                     'handleShowInfo',
@@ -373,7 +372,8 @@ export default class SessionWrapper extends Component {
       <Tooltip title={title}>
         <SearchOutlined
           className='mg1r icon-info font16 iblock pointer spliter'
-          onClick={this.handleOpenSearch} />
+          onClick={this.handleOpenSearch}
+        />
       </Tooltip>
     )
   }
@@ -384,7 +384,8 @@ export default class SessionWrapper extends Component {
       <Tooltip title={title}>
         <FullscreenOutlined
           className='mg1r icon-info font16 iblock pointer spliter'
-          onClick={this.handleFullscreen} />
+          onClick={this.handleFullscreen}
+        />
       </Tooltip>
     )
   }
@@ -456,15 +457,16 @@ export default class SessionWrapper extends Component {
                       <CloseSquareFilled
                         className='mg1r icon-trash font16 iblock pointer spliter'
                         onClick={() => this.delSplit()}
-                        title={m('del')} />
-                    )
+                        title={m('del')}
+                      />
+                      )
                 }
                 <Tooltip
                   title={`${e('split')}(${ctrlOrCmd} + /)`}
                 >
                   <Icon1
                     className={cls1}
-                    onClick={this.doSplit}
+                    onClick={this.handleSplit}
                   />
                 </Tooltip>
                 <Tooltip
@@ -472,11 +474,11 @@ export default class SessionWrapper extends Component {
                 >
                   <Icon2
                     className={cls2}
-                    onClick={this.changeDirection}
+                    onClick={this.handleChangeDirection}
                   />
                 </Tooltip>
               </div>
-            )
+              )
             : null
         }
       </div>

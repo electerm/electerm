@@ -52,8 +52,8 @@ export function insert (dbName, inst) {
 export async function remove (dbName, id) {
   const q = id
     ? {
-      _id: id
-    }
+        _id: id
+      }
     : {}
   const multi = !id
   await dbAction(dbName, 'remove', q, { multi })
@@ -68,15 +68,15 @@ export async function remove (dbName, id) {
 export function update (_id, value, db = 'data', upsert = true) {
   const updates = dbNames.includes(db)
     ? {
-      $set: {
-        ...encObj(value)
+        $set: {
+          ...encObj(value)
+        }
       }
-    }
     : {
-      $set: {
-        value
+        $set: {
+          value
+        }
       }
-    }
   return dbAction(db, 'update', {
     _id
   }, safeParse(updates), {

@@ -1,4 +1,3 @@
-
 const { _electron: electron } = require('playwright')
 const {
   test: it

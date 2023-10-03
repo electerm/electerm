@@ -1,4 +1,3 @@
-
 import { Button, Input, Switch, Form, message, Select } from 'antd'
 import copy from 'json-deep-copy'
 import generate from '../../common/uid'
@@ -111,7 +110,8 @@ export default function QuickCommandForm (props) {
           <Button
             type='dashed'
             htmlType='submit'
-          >{e('save')}</Button>
+          >{e('save')}
+          </Button>
         </p>
       </FormItem>
     </Form>

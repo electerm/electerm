@@ -1,4 +1,3 @@
-
 export default Store => {
   Store.prototype.handleTransferTab = function (tab) {
     window.store.transferTab = tab

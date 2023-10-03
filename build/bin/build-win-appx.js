@@ -1,4 +1,3 @@
-
 const { rm, echo } = require('shelljs')
 const {
   run,

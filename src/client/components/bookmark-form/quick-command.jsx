@@ -38,7 +38,7 @@ export default class QuickCommandItem extends PureComponent {
     }
   }
 
-  submit = () => {
+  handleSubmit = () => {
     const {
       name, command, id, inputOnly
     } = this.state.item
@@ -74,7 +74,7 @@ export default class QuickCommandItem extends PureComponent {
     })
   }
 
-  del = () => {
+  handleDel = () => {
     let quickCommands = this.props.form.getFieldValue(settingMap.quickCommands) || []
     quickCommands = quickCommands.filter(d => {
       return d.id !== this.state.item.id
@@ -84,13 +84,13 @@ export default class QuickCommandItem extends PureComponent {
     })
   }
 
-  edit = () => {
+  handleEdit = () => {
     this.setState({
       edit: true
     })
   }
 
-  cancel = () => {
+  handleCancel = () => {
     this.setState({
       item: this.props.item,
       edit: false
@@ -98,7 +98,7 @@ export default class QuickCommandItem extends PureComponent {
   }
 
   renderNew = (item) => {
-    return <CheckOutlined className='pointer mg1l' onClick={this.submit} />
+    return <CheckOutlined className='pointer mg1l' onClick={this.handleSubmit} />
   }
 
   renderIcons = (item) => {
@@ -107,13 +107,13 @@ export default class QuickCommandItem extends PureComponent {
     }
     return (
       <span>
-        <CheckOutlined className='pointer mg1x' onClick={this.submit} />
-        <CloseOutlined className='pointer' onClick={this.cancel} />
+        <CheckOutlined className='pointer mg1x' onClick={this.handleSubmit} />
+        <CloseOutlined className='pointer' onClick={this.handleCancel} />
       </span>
     )
   }
 
-  onChangeName = e => {
+  handleChangeName = e => {
     const v = e.target.value
     this.setState({
       item: {
@@ -123,7 +123,7 @@ export default class QuickCommandItem extends PureComponent {
     })
   }
 
-  onChangeCommand = e => {
+  handleChangeCommand = e => {
     const v = e.target.value
     this.setState(old => {
       return {
@@ -135,7 +135,7 @@ export default class QuickCommandItem extends PureComponent {
     })
   }
 
-  onChangeInputOnly = v => {
+  handleChangeInputOnly = v => {
     this.setState(old => {
       return {
         item: {
@@ -153,14 +153,14 @@ export default class QuickCommandItem extends PureComponent {
           <InputGroup>
             <Input
               value={item.name}
-              onChange={this.onChangeName}
+              onChange={this.handleChangeName}
               className='width-40'
               title={item.name}
               placeholder={t('quickCommandName')}
             />
             <Input
               value={item.command}
-              onChange={this.onChangeCommand}
+              onChange={this.handleChangeCommand}
               className='width-60'
               placeholder={t('quickCommand')}
               title={item.command}
@@ -171,7 +171,7 @@ export default class QuickCommandItem extends PureComponent {
           <Tooltip title={t('inputOnly')}>
             <Switch
               checked={!!item.inputOnly}
-              onChange={this.onChangeInputOnly}
+              onChange={this.handleChangeInputOnly}
             />
           </Tooltip>
         </Col>
@@ -212,8 +212,8 @@ export default class QuickCommandItem extends PureComponent {
           </Tooltip>
         </Col>
         <Col span={6}>
-          <EditOutlined className='pointer font16 mg1x' onClick={this.edit} />
-          <CloseCircleOutlined className='pointer font16' onClick={this.del} />
+          <EditOutlined className='pointer font16 mg1x' onClick={this.handleEdit} />
+          <CloseCircleOutlined className='pointer font16' onClick={this.handleDel} />
         </Col>
       </Row>
     )

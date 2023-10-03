@@ -12,7 +12,7 @@ import uid from '../../common/uid'
 import './address-bookmark.styl'
 
 export default class AddrBookmark extends Component {
-  handleDel = (item) => {
+  onDel = (item) => {
     this.props.store.delAddressBookmark(item)
   }
 
@@ -48,7 +48,7 @@ export default class AddrBookmark extends Component {
             handleClick={onClickHistory}
             type={type}
             key={o.id}
-            handleDel={this.handleDel}
+            handleDel={this.onDel}
             item={o}
           />
         )

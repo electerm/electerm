@@ -41,7 +41,8 @@ export default memo((props) => {
       type='danger'
       className='iblock mg2l'
       onClick={cancelZmodem}
-    >{c('cancel')}</Button>
+    >{c('cancel')}
+    </Button>
   )
   if (type === transferTypeMap.upload) {
     btn = (

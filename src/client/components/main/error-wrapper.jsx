@@ -26,7 +26,7 @@ export default class ErrorBoundary extends React.PureComponent {
     })
   }
 
-  reload = () => {
+  handleReload = () => {
     window.location.reload()
   }
 
@@ -42,7 +42,7 @@ export default class ErrorBoundary extends React.PureComponent {
             <FrownOutlined className='mg1r iblock' />
             <span className='iblock mg1r'>{e('error')}</span>
             <Button
-              onClick={this.reload}
+              onClick={this.handleReload}
               className='iblock'
               icon={<ReloadOutlined />}
             >

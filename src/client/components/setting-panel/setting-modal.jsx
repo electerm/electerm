@@ -100,7 +100,7 @@ export default class SettingModalWrap extends Component {
           activeKey={settingTab}
           animated={false}
           items={items}
-          onChange={store.onChangeTab}
+          onChange={store.handleChangeSettingTab}
           className='setting-tabs'
         />
         <TabHistory

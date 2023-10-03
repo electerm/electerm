@@ -17,6 +17,7 @@ export default class CssOverwrite extends PureComponent {
         this.updateCss()
         return true
       }
+      return false
     })
     if (!prevProps.wsInited && this.props.wsInited) {
       this.writeCss()

@@ -238,7 +238,7 @@ export default (props) => {
     },
     {
       name: 'cpu',
-      cmd: `(grep 'cpu ' /proc/stat;sleep 0.1;grep 'cpu ' /proc/stat)|awk -v RS="" '{print "CPU "($13-$2+$15-$4)*100/($13-$2+$15-$4+$16-$5)"%"}'`,
+      cmd: '(grep \'cpu \' /proc/stat;sleep 0.1;grep \'cpu \' /proc/stat)|awk -v RS="" \'{print "CPU "($13-$2+$15-$4)*100/($13-$2+$15-$4+$16-$5)"%"}\'',
       interval: 5000,
       formatter: formatCpu,
       delay: 2400

@@ -1,5 +1,5 @@
 import { Component } from '../common/react-subx'
-import createTitle from '../../common/create-title'
+import TabsSubMenuChild from './sub-tab-menu'
 
 export default class TabsSubMenu extends Component {
   render () {
@@ -8,16 +8,11 @@ export default class TabsSubMenu extends Component {
       <div className='sub-context-menu'>
         {
           store.getTabs().map(item => {
-            const title = createTitle(item)
             return (
-              <div
-                className='sub-context-menu-item'
-                title={title}
+              <TabsSubMenuChild
                 key={item.id}
-                onClick={() => store.onChangeTabId(item.id)}
-              >
-                {title}
-              </div>
+                item={item}
+              />
             )
           })
         }

@@ -31,7 +31,7 @@ export default Store => {
     window.store.openedSideBar = bar
   }
 
-  Store.prototype.pin = function (pinned) {
+  Store.prototype.handlePin = function (pinned) {
     const { store } = window
     const current = !store.pinned
     ls.setItem(sidebarPinnedKey, current + '')
@@ -43,6 +43,6 @@ export default Store => {
   }
 
   Store.prototype.onClickHistory = function () {
-    window.store.onChangeTab(settingMap.history)
+    window.store.handleChangeSettingTab(settingMap.history)
   }
 }

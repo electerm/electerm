@@ -3,7 +3,7 @@
  */
 
 export default Store => {
-  Store.prototype.getSerials = async function () {
+  Store.prototype.handleGetSerials = async function () {
     const { store } = window
     store.loaddingSerials = true
     const res = await window.pre.runGlobalAsync('listSerialPorts')

@@ -112,7 +112,7 @@ export default (Store) => {
     store.isSyncingSetting = false
   }
 
-  Store.prototype.clearSyncSetting = async function () {
+  Store.prototype.handleClearSyncSetting = async function () {
     window.store.setConfig({
       syncSetting: {}
     })
@@ -271,7 +271,7 @@ export default (Store) => {
     update('lastDataUpdateTime', store.lastDataUpdateTime)
   }, 1000)
 
-  Store.prototype.exportAll = function () {
+  Store.prototype.handleExportAllData = function () {
     const { store } = window
     const objs = {}
     for (const n of names) {

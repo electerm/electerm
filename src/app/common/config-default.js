@@ -1,4 +1,3 @@
-
 const defaultSettings = require('./default-setting')
 
 module.exports = exports.default = {

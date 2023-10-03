@@ -170,9 +170,9 @@ class Store {
     return settingTab === settingMap.history
       ? arr
       : [
-        copy(initItem),
-        ...arr
-      ]
+          copy(initItem),
+          ...arr
+        ]
   }
 
   get termSearchOptions () {

@@ -40,12 +40,14 @@ export default class HistoryPanel extends Component {
               <Tooltip title={`${m('edit')} ${c('history')}`}>
                 <EditOutlined
                   className='font16 mg1x mg2l pointer iblock control-icon icon-do-edit'
-                  onClick={store.onEditHistory} />
+                  onClick={store.handleEditHistory}
+                />
               </Tooltip>
               <Tooltip title={c('pin')}>
                 <PushpinOutlined
                   {...prps1}
-                  onClick={store.pin} />
+                  onClick={store.handlePin}
+                />
               </Tooltip>
             </div>
           </div>

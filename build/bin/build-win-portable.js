@@ -1,4 +1,3 @@
-
 const replace = require('replace-in-file')
 const { rm, echo } = require('shelljs')
 const {

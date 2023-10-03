@@ -11,7 +11,7 @@ import {
 import classNames from 'classnames'
 
 export default class QuickCommandsItem extends PureComponent {
-  onSelect = (id) => {
+  handleSelect = (id) => {
     this.props.onSelect(
       this.props.item.id
     )
@@ -27,7 +27,7 @@ export default class QuickCommandsItem extends PureComponent {
       <Button
         key={id}
         className={cls}
-        onClick={this.onSelect}
+        onClick={this.handleSelect}
       >
         {name}
       </Button>

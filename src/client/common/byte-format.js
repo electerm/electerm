@@ -1,4 +1,3 @@
-
 export function formatBytes (sizeInKB) {
   if (!sizeInKB) {
     return ''

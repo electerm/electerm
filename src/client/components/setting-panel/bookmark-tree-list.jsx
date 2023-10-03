@@ -7,8 +7,8 @@ export default function BookmarkTreeList (props) {
       <BookmarkTreeDelete
         store={props.store}
       />
-    )
+      )
     : (
       <TreeList {...props} />
-    )
+      )
 }

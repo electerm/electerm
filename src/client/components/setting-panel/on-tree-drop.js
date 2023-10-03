@@ -112,16 +112,16 @@ export default (info, props) => {
         }
       )
       : (
-        toLeaf
-          ? find(
-            bookmarkGroups,
-            d => (d.bookmarkIds || []).includes(toId)
-          )
-          : find(
-            bookmarkGroups,
-            d => d.id === toId
-          )
-      )
+          toLeaf
+            ? find(
+              bookmarkGroups,
+              d => (d.bookmarkIds || []).includes(toId)
+            )
+            : find(
+              bookmarkGroups,
+              d => d.id === toId
+            )
+        )
   }
   let nodeIndex = 0
   if (toGroup) {

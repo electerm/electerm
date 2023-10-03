@@ -1,4 +1,3 @@
-
 const fs = require('original-fs')
 
 function onWatch (curr, prev) {

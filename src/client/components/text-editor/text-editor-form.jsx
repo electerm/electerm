@@ -39,6 +39,18 @@ export default function TextEditorForm (props) {
     text,
     loading
   } = props
+  const popsEdit = {
+    type: 'primary',
+    className: 'mg3r mg1b',
+    disabled: loading,
+    onClick: props.editWith
+  }
+  const popsCancel = {
+    type: 'dashed',
+    onClick: props.cancel,
+    disabled: loading,
+    className: 'mg2r mg1b'
+  }
   return (
     <Form
       onFinish={handleSubmit}
@@ -53,33 +65,32 @@ export default function TextEditorForm (props) {
         <Input.TextArea
           rows={20}
           onPressEnter={onPressEnter}
-        >{text}</Input.TextArea>
+        >{text}
+        </Input.TextArea>
       </FormItem>
       <div className='pd1t pd2b'>
         <Button
-          type='primary'
-          className='mg3r mg1b'
-          disabled={loading}
-          onClick={props.editWith}
-        >{s('editWithSystemEditor')}</Button>
+          {...popsEdit}
+        >{s('editWithSystemEditor')}
+        </Button>
         <Button
           type='primary'
           className='mg1r mg1b'
           disabled={loading}
           onClick={submit}
-        >{e('save')}</Button>
+        >{e('save')}
+        </Button>
         <Button
           type='dashed'
           className='mg1r mg1b'
           disabled={loading}
           onClick={reset}
-        >{s('reset')}</Button>
+        >{s('reset')}
+        </Button>
         <Button
-          type='dashed'
-          onClick={props.cancel}
-          disabled={loading}
-          className='mg2r mg1b'
-        >{c('cancel')}</Button>
+          {...popsCancel}
+        >{c('cancel')}
+        </Button>
       </div>
     </Form>
   )

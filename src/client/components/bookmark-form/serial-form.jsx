@@ -6,7 +6,7 @@ import SerialFormUi from './serial-form-ui'
 
 export default class SerialForm extends BookmarkForm {
   componentDidMount () {
-    this.props.store.getSerials()
+    this.props.store.handleGetSerials()
   }
 
   render () {

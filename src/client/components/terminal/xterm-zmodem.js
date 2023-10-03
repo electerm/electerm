@@ -1,7 +1,7 @@
 import zmodem from 'zmodem.js/src/zmodem_browser'
 
 function zmodemAttach (ws, opts, ctx) {
-  if (opts === void 0) { opts = {} }
+  if (opts === undefined) { opts = {} }
   const term = this
   const senderFunc = function (octets) { return ws.send(new Uint8Array(octets)) }
   let zsentry = null

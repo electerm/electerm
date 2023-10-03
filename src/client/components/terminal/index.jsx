@@ -1,4 +1,3 @@
-
 import { Component } from 'react'
 import ZmodemTransfer from './zmodem-transfer'
 import { handleErr } from '../../common/fetch'
@@ -435,7 +434,7 @@ export default class Term extends Component {
   }
 
   updateProgress = (xfer, type) => {
-    if (this.onCancel) {
+    if (this.onCanceling) {
       return
     }
     const fileInfo = xfer.get_details()
@@ -550,7 +549,7 @@ export default class Term extends Component {
 
   onZmodemEnd = () => {
     delete this.onZmodem
-    this.onCancel = true
+    this.onCanceling = true
     this.attachAddon = new AttachAddon(
       this.socket,
       undefined,
@@ -576,7 +575,7 @@ export default class Term extends Component {
   }
 
   onZmodemDetect = detection => {
-    this.onCancel = false
+    this.onCanceling = false
     this.attachAddon.dispose()
     this.term.blur()
     this.onZmodem = true
@@ -590,7 +589,7 @@ export default class Term extends Component {
   }
 
   split = () => {
-    this.props.doSplit(null, this.props.id)
+    this.props.handleSplit(null, this.props.id)
   }
 
   onContextAction = e => {
@@ -1122,12 +1121,12 @@ export default class Term extends Component {
     })
   }
 
-  onCancel = () => {
+  handleCancel = () => {
     const { id } = this.props.tab
     this.props.delTab(id)
   }
 
-  onToggleSavePass = () => {
+  handleToggleSavePass = () => {
     this.setState({
       savePassword: !this.state.savePassword
     })
@@ -1143,8 +1142,8 @@ export default class Term extends Component {
           type='password'
           autofocustrigger={promoteModalVisible ? 1 : 2}
           selectall='yes'
-          onChange={this.onChangePass}
-          onPressEnter={this.onClickConfirmPass}
+          onChange={this.handleChangePass}
+          onPressEnter={this.handleClickConfirmPass}
         />
         {
           type !== terminalSshConfigType
@@ -1152,23 +1151,24 @@ export default class Term extends Component {
               <div className='pd1t'>
                 <Checkbox
                   checked={savePassword}
-                  onChange={this.onToggleSavePass}
-                >{f('save')}</Checkbox>
+                  onChange={this.handleToggleSavePass}
+                >{f('save')}
+                </Checkbox>
               </div>
-            )
+              )
             : null
         }
       </div>
     )
   }
 
-  onChangePass = e => {
+  handleChangePass = e => {
     this.setState({
       tempPassword: e.target.value
     })
   }
 
-  onClickConfirmPass = () => {
+  handleClickConfirmPass = () => {
     const {
       tempPassword,
       passType
@@ -1221,7 +1221,7 @@ export default class Term extends Component {
     const props = {
       title: f(passType) + '?',
       content: this.renderPasswordForm(),
-      onCancel: this.onCancel,
+      onCancel: this.handleCancel,
       show: this.state.promoteModalVisible,
       footer: this.renderModalFooter(),
       cancelText: c('cancel')
@@ -1243,7 +1243,7 @@ export default class Term extends Component {
           type='primary'
           icon={<CheckCircleOutlined />}
           disabled={disabled}
-          onClick={this.onClickConfirmPass}
+          onClick={this.handleClickConfirmPass}
           className='mg1r'
         >
           {c('ok')}
@@ -1251,7 +1251,7 @@ export default class Term extends Component {
         <Button
           type='dashed'
           className='mg1r'
-          onClick={this.onCancel}
+          onClick={this.handleCancel}
         >
           {c('cancel')}
         </Button>

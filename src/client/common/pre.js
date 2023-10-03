@@ -1,4 +1,3 @@
-
 const {
   runSync,
   ipcOnEvent,

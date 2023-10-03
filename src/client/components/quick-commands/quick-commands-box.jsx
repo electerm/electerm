@@ -27,13 +27,13 @@ export default class QuickCommandsFooterBox extends Component {
     labels: []
   }
 
-  onMouseLeave = () => {
+  handleMouseLeave = () => {
     this.timer = setTimeout(() => {
       this.toggle(false)
     }, 500)
   }
 
-  onMouseEnter = () => {
+  handleMouseEnter = () => {
     clearTimeout(this.timer)
   }
 
@@ -41,16 +41,16 @@ export default class QuickCommandsFooterBox extends Component {
     this.props.store.openQuickCommandBar = openQuickCommandBar
   }
 
-  togglePinned = () => {
+  handleTogglePinned = () => {
     this.props.store.pinnedQuickCommandBar = !this.props.store.pinnedQuickCommandBar
   }
 
-  onSelect = (id) => {
+  handleSelect = (id) => {
     const {
       store
     } = this.props
     if (id === addQuickCommands) {
-      store.openQuickCommandsSetting()
+      store.handleOpenQuickCommandsSetting()
     } else {
       const qm = find(
         this.props.store.currentQuickCommands,
@@ -69,7 +69,7 @@ export default class QuickCommandsFooterBox extends Component {
     }
   }
 
-  close = () => {
+  handleClose = () => {
     this.props.store.pinnedQuickCommandBar = false
     this.props.store.openQuickCommandBar = false
   }
@@ -98,7 +98,7 @@ export default class QuickCommandsFooterBox extends Component {
       <div className='pd1'>
         <Button
           type='primary'
-          onClick={this.props.store.openQuickCommandsSetting}
+          onClick={this.props.store.handleOpenQuickCommandsSetting}
         >
           {e(addQuickCommands)}
         </Button>
@@ -111,7 +111,7 @@ export default class QuickCommandsFooterBox extends Component {
       <CmdItem
         item={item}
         key={item.id}
-        onSelect={this.onSelect}
+        onSelect={this.handleSelect}
       />
     )
   }
@@ -181,8 +181,8 @@ export default class QuickCommandsFooterBox extends Component {
     return (
       <div
         className='qm-wrap-tooltip'
-        onMouseLeave={this.onMouseLeave}
-        onMouseEnter={this.onMouseEnter}
+        onMouseLeave={this.handleMouseLeave}
+        onMouseEnter={this.handleMouseEnter}
       >
         <div className='pd2'>
           <div className='pd2b fix'>
@@ -206,16 +206,16 @@ export default class QuickCommandsFooterBox extends Component {
             <span className='fright'>
               <Space.Compact>
                 <Button
-                  onClick={this.togglePinned}
+                  onClick={this.handleTogglePinned}
                   icon={<PushpinOutlined />}
                   type={tp}
                 />
                 <Button
-                  onClick={this.props.store.openQuickCommandsSetting}
+                  onClick={this.props.store.handleOpenQuickCommandsSetting}
                   icon={<EditOutlined />}
                 />
                 <Button
-                  onClick={this.close}
+                  onClick={this.handleClose}
                   icon={<CloseCircleOutlined />}
                 />
               </Space.Compact>

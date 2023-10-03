@@ -10,11 +10,11 @@ exports.getScreenCurrent = () => {
   const rect = global.win
     ? global.win.getBounds()
     : {
-      x: 0,
-      y: 0,
-      height: minWindowHeight,
-      width: minWindowWidth
-    }
+        x: 0,
+        y: 0,
+        height: minWindowHeight,
+        width: minWindowWidth
+      }
   const { screen } = require('electron')
   return screen.getDisplayMatching(rect)
 }

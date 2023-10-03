@@ -30,10 +30,12 @@ export default class WindowControl extends Component {
         <div className='window-control-box window-control-minimize' onClick={minimize}>
           <MinusOutlined title={m('minimize')} className='iblock font12 widnow-control-icon' />
         </div>
-        <div className='window-control-box window-control-maximize'
+        <div
+          className='window-control-box window-control-maximize'
           onClick={
             isMaximized ? unmaximize : maximize
-          }>
+          }
+        >
           <span
             title={
               isMaximized ? m('unmaximize') : m('maximize')
