@@ -576,9 +576,7 @@ class TerminalSshBase extends TerminalBase {
             return this.nextTry(err)
           })
       } else if (
-        !this.sshKeys &&
         !this.connectOptions.password &&
-        !this.connectOptions.privateKey &&
         err.message.includes('All configured authentication methods failed')
       ) {
         const options = {
