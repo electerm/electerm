@@ -1,4 +1,3 @@
-
 // version number creator
 const pack = require('../../package.json')
 const { version } = pack

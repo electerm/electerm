@@ -162,7 +162,7 @@ export default class FileListTable extends React.Component {
     return (
       <div
         className='sftp-file-table-header relative'
-        onContextMenu={this.onContextMenu}
+        onContextMenu={this.handleContextMenu}
       >
         {
           arr.map(this.renderHeaderItem)
@@ -202,8 +202,8 @@ export default class FileListTable extends React.Component {
         'onDragEnd'
       ])
       : {
-        onClick: this.onClickName
-      }
+          onClick: this.onClickName
+        }
     const text = e(name || '')
     return (
       <div
@@ -257,7 +257,7 @@ export default class FileListTable extends React.Component {
     this[func](...args)
   }
 
-  onContextMenu = e => {
+  handleContextMenu = e => {
     e && e.preventDefault()
     const items = this.renderContext()
     const pos = e

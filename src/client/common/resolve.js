@@ -1,4 +1,3 @@
-
 /**
  * smart resolve function
  * @param {String} basePath

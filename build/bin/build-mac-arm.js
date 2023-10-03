@@ -1,4 +1,3 @@
-
 // const cmd = 'rm -rf dist && ' +
 // 'echo "build x64 mac" && ' +
 // './node_modules/.bin/electron-builder --mac --x64'

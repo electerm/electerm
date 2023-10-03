@@ -36,7 +36,7 @@ export default Store => {
     postMessage({
       action: terminalActions.quickCommand,
       cmd,
-      inputOnly: inputOnly,
+      inputOnly,
       activeSplitId: activeTerminalId
     })
   }

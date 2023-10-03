@@ -9,6 +9,10 @@ export default memo(function NormalBuffer (props) {
   if (!props.lines.length) {
     return null
   }
+  const pops = {
+    className: 'terminal-normal-buffer-close',
+    onClick: props.close
+  }
   return (
     <div className='terminal-normal-buffer'>
       <div className='terminal-normal-buffer-body'>
@@ -20,8 +24,7 @@ export default memo(function NormalBuffer (props) {
         </span>
         <span className='fright pd1r'>
           <CloseCircleOutlined
-            className='terminal-normal-buffer-close'
-            onClick={props.close}
+            {...pops}
           />
         </span>
       </div>

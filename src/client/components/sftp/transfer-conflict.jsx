@@ -162,7 +162,7 @@ export default (props) => {
       if (index >= 0) {
         const up = {
           action: 'transfer',
-          fromFile: fromFile
+          fromFile
         }
         Object.assign(transferList[index], up)
       }

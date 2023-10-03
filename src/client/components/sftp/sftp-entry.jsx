@@ -1,4 +1,3 @@
-
 import { Component } from 'react'
 import generate from '../../common/uid'
 import runIdle from '../../common/run-idle'
@@ -977,12 +976,12 @@ export default class Sftp extends Component {
                   <div className='pd1t pd1b pd1x alignright'>
                     {e('remote')}: {username}@{host}
                   </div>
-                )
+                  )
                 : (
                   <div className='pd1t pd1b pd1x'>
                     {e('local')}
                   </div>
-                )
+                  )
             }
             <AddressBar
               {...addrProps}

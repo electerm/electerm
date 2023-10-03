@@ -10,7 +10,7 @@ const { prefix } = window
 const e = prefix('quickCommands')
 
 export default class QuickCommandsFooter extends PureComponent {
-  open = () => {
+  handleOpen = () => {
     this.timer = setTimeout(this.act, 500)
   }
 
@@ -18,7 +18,7 @@ export default class QuickCommandsFooter extends PureComponent {
     window.store.openQuickCommandBar = true
   }
 
-  onMouseLeave = () => {
+  handleMouseLeave = () => {
     clearTimeout(this.timer)
   }
 
@@ -29,8 +29,8 @@ export default class QuickCommandsFooter extends PureComponent {
           size='small'
           type='ghost'
           className='qm-trigger'
-          onMouseEnter={this.open}
-          onMouseLeave={this.onMouseLeave}
+          onMouseEnter={this.handleOpen}
+          onMouseLeave={this.handleMouseLeave}
         >
           <span className='qm-full'>{e('quickCommands')}</span>
           <span className='qm-compact'>Q</span>

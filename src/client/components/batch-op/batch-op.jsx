@@ -74,7 +74,7 @@ export default class BatchOp extends Component {
     }
   }
 
-  onCancel = () => {
+  handleCancel = () => {
     this.props.store.toggleBatchOp()
   }
 
@@ -414,7 +414,8 @@ export default class BatchOp extends Component {
         <Button
           onClick={this.handleExec}
           loading={this.state.working}
-        >{c('execute')}</Button>
+        >{c('execute')}
+        </Button>
       </div>
     )
   }
@@ -495,7 +496,8 @@ export default class BatchOp extends Component {
               loading={loading}
               disabled={disabled}
               htmlType='button'
-            >{c('addToQueue')}</Button>
+            >{c('addToQueue')}
+            </Button>
           </div>
           <div className='fright'>
             <Button
@@ -504,7 +506,8 @@ export default class BatchOp extends Component {
               disabled={disabled || !tasks.length}
               type='primary'
               htmlType='button'
-            >{c('execute')}</Button>
+            >{c('execute')}
+            </Button>
           </div>
         </div>
         <div className='pd1y'>
@@ -607,7 +610,7 @@ export default class BatchOp extends Component {
     return (
       <CloseCircleOutlined
         className='close-setting-wrap'
-        onClick={this.onCancel}
+        onClick={this.handleCancel}
       />
     )
   }

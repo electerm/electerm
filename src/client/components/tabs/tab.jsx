@@ -89,7 +89,7 @@ export default class Tab extends React.Component {
     })
   }
 
-  onClick = (e) => {
+  handleClick = (e) => {
     const {
       onChangeTabId
     } = this.props
@@ -163,7 +163,7 @@ export default class Tab extends React.Component {
     window.store.focus()
   }
 
-  reloadTab = async () => {
+  handleReloadTab = async () => {
     this.props.reloadTab(this.state.tab)
   }
 
@@ -173,11 +173,11 @@ export default class Tab extends React.Component {
     e && e.dataTransfer && e.dataTransfer.clearData()
   }
 
-  close = () => {
+  handleClose = () => {
     this.props.delTab(this.state.tab.id)
   }
 
-  dup = () => {
+  handleDup = () => {
     this.props.onDuplicateTab(
       this.state.tab
     )
@@ -196,7 +196,7 @@ export default class Tab extends React.Component {
     })
   }
 
-  onBlur = () => {
+  handleBlur = () => {
     const tab = copy(this.state.tab)
     const { titleTemp, title, id, host } = tab
     if (!titleTemp && !host) {
@@ -215,7 +215,7 @@ export default class Tab extends React.Component {
     this.props.editTab(id, { title: titleTemp })
   }
 
-  onChange = e => {
+  handleChange = e => {
     const titleTemp = e.target.value
     const tab = copy(this.state.tab)
     tab.titleTemp = titleTemp
@@ -253,7 +253,7 @@ export default class Tab extends React.Component {
     const isSshConfig = tab.type === terminalSshConfigType
     const res = []
     res.push({
-      func: 'close',
+      func: 'handleClose',
       icon: 'CloseOutlined',
       text: e('close'),
       subText: `${ctrlOrCmd} + W`
@@ -276,7 +276,7 @@ export default class Tab extends React.Component {
       text: e('newTab')
     })
     res.push({
-      func: 'dup',
+      func: 'handleDup',
       icon: 'CopyOutlined',
       text: e('duplicate')
     })
@@ -287,7 +287,7 @@ export default class Tab extends React.Component {
       text: e('rename')
     })
     res.push({
-      func: 'reloadTab',
+      func: 'handleReloadTab',
       icon: 'Loading3QuartersOutlined',
       text: m('reload')
     })
@@ -312,7 +312,7 @@ export default class Tab extends React.Component {
     this[func](...args)
   }
 
-  onContextMenu = e => {
+  handleContextMenu = e => {
     e.preventDefault()
     const { target } = e
     const rect = target.getBoundingClientRect()
@@ -337,9 +337,9 @@ export default class Tab extends React.Component {
       <div className={cls + ' pd1x'}>
         <Input
           value={titleTemp}
-          onChange={this.onChange}
-          onBlur={this.onBlur}
-          onPressEnter={this.onBlur}
+          onChange={this.handleChange}
+          onBlur={this.handleBlur}
+          onPressEnter={this.handleBlur}
         />
       </div>
     )
@@ -348,7 +348,7 @@ export default class Tab extends React.Component {
   renderCloseIcon () {
     return (
       <span className='tab-close pointer'>
-        <CloseOutlined onClick={this.close} />
+        <CloseOutlined onClick={this.handleClose} />
       </span>
     )
   }
@@ -403,13 +403,13 @@ export default class Tab extends React.Component {
         >
           <div
             className='tab-title elli pd1x'
-            onClick={this.onClick}
-            onDoubleClick={this.dup}
-            onContextMenu={this.onContextMenu}
+            onClick={this.handleClick}
+            onDoubleClick={this.handleDup}
+            onContextMenu={this.handleContextMenu}
           >
             <Loading3QuartersOutlined
               className='pointer tab-reload mg1r'
-              onClick={this.reloadTab}
+              onClick={this.handleReloadTab}
               title={m('reload')}
             />
             {tabCount}. {title}

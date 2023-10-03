@@ -1,4 +1,3 @@
-
 const { resolve } = require('path')
 const cwd = process.cwd()
 

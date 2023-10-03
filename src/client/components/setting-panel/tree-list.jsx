@@ -29,7 +29,6 @@ import {
 } from 'antd'
 import createName from '../../common/create-title'
 import classnames from 'classnames'
-import generate from '../../common/uid'
 import InputAutoFocus from '../common/input-auto-focus'
 import { find, uniq, findIndex, isEqual, filter } from 'lodash-es'
 import {
@@ -47,6 +46,7 @@ import Search from '../common/search'
 import Btns from './bookmark-transport'
 import findBookmarkGroupId from '../../common/find-bookmark-group-id'
 import getInitItem from '../../common/init-setting-item'
+import uid from '../../common/uid'
 import deepEqual from 'fast-deep-equal'
 import './tree-list.styl'
 
@@ -96,33 +96,33 @@ export default class ItemListTree extends Component {
     window.removeEventListener('message', this.onContextAction)
   }
 
-  onChange = e => {
+  handleChange = e => {
     this.setState({
       keyword: e.target.value
     })
   }
 
-  cancelNew = () => {
+  handleCancelNew = () => {
     this.setState({
       showNewBookmarkGroupForm: false,
       bookmarkGroupTitle: ''
     })
   }
 
-  cancelNewSub = () => {
+  handleCancelNewSub = () => {
     this.setState({
       bookmarkGroupSubParentId: ''
     })
   }
 
-  cancelEdit = () => {
+  handleCancelEdit = () => {
     this.setState({
       categoryId: '',
       categoryTitle: ''
     })
   }
 
-  onChangeEdit = e => {
+  handleChangeEdit = e => {
     let { value } = e.target
     if (value.length > maxBookmarkGroupTitleLength) {
       value = value.slice(0, maxBookmarkGroupTitleLength)
@@ -132,7 +132,7 @@ export default class ItemListTree extends Component {
     })
   }
 
-  submitEdit = () => {
+  handleSubmitEdit = () => {
     const {
       categoryTitle,
       categoryId
@@ -148,7 +148,7 @@ export default class ItemListTree extends Component {
       bg => bg.id === categoryId
     )
     if (!obj) {
-      return this.cancelEdit()
+      return this.handleCancelEdit()
     }
     obj.title = categoryTitle
     this.setState({
@@ -179,7 +179,7 @@ export default class ItemListTree extends Component {
 
   onSubmitEdit = false
 
-  onChangeBookmarkGroupTitle = e => {
+  handleChangeBookmarkGroupTitle = e => {
     let { value } = e.target
     if (value.length > maxBookmarkGroupTitleLength) {
       value = value.slice(0, maxBookmarkGroupTitleLength)
@@ -189,7 +189,7 @@ export default class ItemListTree extends Component {
     })
   }
 
-  onChangeBookmarkGroupTitleSub = e => {
+  handleChangeBookmarkGroupTitleSub = e => {
     let { value } = e.target
     if (value.length > maxBookmarkGroupTitleLength) {
       value = value.slice(0, maxBookmarkGroupTitleLength)
@@ -199,11 +199,11 @@ export default class ItemListTree extends Component {
     })
   }
 
-  newBookmark = () => {
+  handleNewBookmark = () => {
     this.props.onClickItem(getInitItem([], settingMap.bookmarks))
   }
 
-  submit = () => {
+  handleSubmit = () => {
     if (this.onSubmit) {
       return
     }
@@ -213,14 +213,14 @@ export default class ItemListTree extends Component {
     }, () => {
       this.onSubmit = false
       this.props.store.addBookmarkGroup({
-        id: generate(),
+        id: uid(),
         title: this.state.bookmarkGroupTitle,
         bookmarkIds: []
       })
     })
   }
 
-  submitSub = () => {
+  handleSubmitSub = () => {
     if (this.onSubmit) {
       return
     }
@@ -234,7 +234,7 @@ export default class ItemListTree extends Component {
         this.props.bookmarkGroups
       )
       const newCat = {
-        id: generate(),
+        id: uid(),
         title: this.state.bookmarkGroupTitleSub,
         level: 2,
         bookmarkIds: []
@@ -272,7 +272,7 @@ export default class ItemListTree extends Component {
     })
   }
 
-  newBookmarkGroup = () => {
+  handleNewBookmarkGroup = () => {
     this.setState({
       showNewBookmarkGroupForm: true,
       bookmarkGroupTitle: '',
@@ -328,7 +328,7 @@ export default class ItemListTree extends Component {
     return (
       <div className='pd1y pd2r'>
         <Search
-          onChange={this.onChange}
+          onChange={this.handleChange}
           value={this.state.keyword}
         />
       </div>
@@ -450,7 +450,7 @@ export default class ItemListTree extends Component {
       return null
     }
     const menus = this.renderContextItems(item, isGroup)
-    this.uid = generate()
+    this.uid = uid()
     this.props.store.openContextMenu({
       items: menus,
       id: this.uid,
@@ -525,7 +525,8 @@ export default class ItemListTree extends Component {
         key='new-tree'
         title={`${s('new')} ${c('bookmarkCategory')}`}
         onClick={(e) => this.addSubCat(e, item)}
-        className='pointer tree-control-btn' />
+        className='pointer tree-control-btn'
+      />
     )
   }
 
@@ -541,7 +542,8 @@ export default class ItemListTree extends Component {
         title={e('edit')}
         key='edit-tree'
         onClick={(e) => this.editItem(e, item, isGroup)}
-        className='pointer tree-control-btn' />
+        className='pointer tree-control-btn'
+      />
     )
   }
 
@@ -569,15 +571,15 @@ export default class ItemListTree extends Component {
     } = this.state
     const confirm = (
       <span>
-        <CheckOutlined className='pointer' onClick={this.submitEdit} />
-        <CloseOutlined className='mg1l pointer' onClick={this.cancelEdit} />
+        <CheckOutlined className='pointer' onClick={this.handleSubmitEdit} />
+        <CloseOutlined className='mg1l pointer' onClick={this.handleCancelEdit} />
       </span>
     )
     return (
       <InputAutoFocus
         value={categoryTitle}
-        onChange={this.onChangeEdit}
-        onPressEnter={this.submitEdit}
+        onChange={this.handleChangeEdit}
+        onPressEnter={this.handleSubmitEdit}
         addonAfter={confirm}
       />
     )
@@ -591,7 +593,7 @@ export default class ItemListTree extends Component {
     )
 
     const newbookmark = copy(item)
-    newbookmark.id = generate()
+    newbookmark.id = uid()
     const bookmarkWithSameTitle = this.findBookmarkByTitle(this.props.bookmarks, item)
     let deplicateIndex
     if (bookmarkWithSameTitle.length === 1) {
@@ -684,7 +686,8 @@ export default class ItemListTree extends Component {
       <CopyOutlined
         title={e('duplicate')}
         className='pointer tree-control-btn'
-        onClick={(e) => this.duplicateItem(e, item)} />
+        onClick={(e) => this.duplicateItem(e, item)}
+      />
     )
     return icon
   }
@@ -713,9 +716,8 @@ export default class ItemListTree extends Component {
     return (
       <div
         className={cls}
-        key={item.id || 'noid'}
+        key={item.id || uid()}
         title={titleAll}
-        onClick={this.onClick}
         onContextMenu={e => this.onContextMenu(e, item, isGroup)}
       >
         <div
@@ -761,9 +763,9 @@ export default class ItemListTree extends Component {
     const nodes = bookmarkIds.reduce((prev, id) => {
       return map[id]
         ? [
-          ...prev,
-          map[id]
-        ]
+            ...prev,
+            map[id]
+          ]
         : prev
     }, [])
     return nodes.map((node, i) => {
@@ -837,13 +839,13 @@ export default class ItemListTree extends Component {
       <div className='pd1b pd2r'>
         <Space.Compact>
           <Button
-            onClick={this.newBookmark}
+            onClick={this.handleNewBookmark}
             title={`${s('new')} ${c('bookmarks')}`}
           >
             <BookOutlined className='with-plus' />
           </Button>
           <Button
-            onClick={this.newBookmarkGroup}
+            onClick={this.handleNewBookmarkGroup}
             title={`${s('new')} ${c('bookmarkCategory')}`}
           >
             <FolderOutlined className='with-plus' />
@@ -866,8 +868,8 @@ export default class ItemListTree extends Component {
     }
     const confirm = (
       <span>
-        <CheckOutlined className='pointer' onClick={this.submitSub} />
-        <CloseOutlined className='mg1l pointer' onClick={this.cancelNewSub} />
+        <CheckOutlined className='pointer' onClick={this.handleSubmitSub} />
+        <CloseOutlined className='mg1l pointer' onClick={this.handleCancelNewSub} />
       </span>
     )
     return (
@@ -877,8 +879,8 @@ export default class ItemListTree extends Component {
         title={(
           <InputAutoFocus
             value={bookmarkGroupTitleSub}
-            onPressEnter={this.submitSub}
-            onChange={this.onChangeBookmarkGroupTitleSub}
+            onPressEnter={this.handleSubmitSub}
+            onChange={this.handleChangeBookmarkGroupTitleSub}
             addonAfter={confirm}
           />
         )}
@@ -896,16 +898,16 @@ export default class ItemListTree extends Component {
     }
     const confirm = (
       <span>
-        <CheckOutlined className='pointer' onClick={this.submit} />
-        <CloseOutlined className='mg1l pointer' onClick={this.cancelNew} />
+        <CheckOutlined className='pointer' onClick={this.handleSubmit} />
+        <CloseOutlined className='mg1l pointer' onClick={this.handleCancelNew} />
       </span>
     )
     return (
       <div className='pd1y'>
         <InputAutoFocus
           value={bookmarkGroupTitle}
-          onPressEnter={this.submit}
-          onChange={this.onChangeBookmarkGroupTitle}
+          onPressEnter={this.handleSubmit}
+          onChange={this.handleChangeBookmarkGroupTitle}
           addonAfter={confirm}
         />
       </div>

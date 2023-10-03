@@ -164,16 +164,17 @@ export default class ResizeWrap extends React.Component {
     const { left, top, width, height } = prevComponent.props
     const style = direction === terminalSplitDirectionMap.vertical
       ? {
-        left: 0,
-        right: 0,
-        zIndex,
-        top: top + height - 2
-      } : {
-        top: 0,
-        bottom: 0,
-        zIndex,
-        left: left + width - 2
-      }
+          left: 0,
+          right: 0,
+          zIndex,
+          top: top + height - 2
+        }
+      : {
+          top: 0,
+          bottom: 0,
+          zIndex,
+          left: left + width - 2
+        }
     const props = {
       style,
       ...pick(this, [

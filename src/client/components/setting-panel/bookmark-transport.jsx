@@ -98,7 +98,7 @@ export default class BookmarkTransport extends Component {
     return false
   }
 
-  down = () => {
+  handleDownload = () => {
     const { store } = this.props
     const bookmarkGroups = store.getBookmarkGroups()
     const bookmarks = store.getBookmarks()
@@ -110,7 +110,7 @@ export default class BookmarkTransport extends Component {
     download('bookmarks-' + stamp + '.json', txt)
   }
 
-  toggleEdit = () => {
+  handleToggleEdit = () => {
     this.props.store.bookmarkSelectMode = true
   }
 
@@ -118,13 +118,13 @@ export default class BookmarkTransport extends Component {
     return [
       <Button
         icon={<EditOutlined />}
-        onClick={this.toggleEdit}
+        onClick={this.handleToggleEdit}
         title={m('edit')}
         key='edit-and-del'
       />,
       <Button
         icon={<DownloadOutlined />}
-        onClick={this.down}
+        onClick={this.handleDownload}
         title={t('export')}
         key='export'
       />,

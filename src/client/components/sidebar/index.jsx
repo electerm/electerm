@@ -32,7 +32,7 @@ const b = prefix('batchOp')
 export default class Sidebar extends Component {
   handler = null
 
-  onMouseLeave = () => {
+  handleMouseLeave = () => {
     if (this.props.store.pinned) {
       return false
     }
@@ -43,7 +43,7 @@ export default class Sidebar extends Component {
     )
   }
 
-  onMouseEnterBookmark = () => {
+  handleMouseEnterBookmark = () => {
     if (this.props.store.pinned) {
       return false
     }
@@ -51,7 +51,7 @@ export default class Sidebar extends Component {
     this.props.store.setOpenedSideBar('bookmarks')
   }
 
-  onMouseEnterHistory = () => {
+  handleMouseEnterHistory = () => {
     if (this.props.store.pinned) {
       return false
     }
@@ -59,7 +59,7 @@ export default class Sidebar extends Component {
     this.props.store.setOpenedSideBar('history')
   }
 
-  showUpgrade = () => {
+  handleShowUpgrade = () => {
     this.props.store.storeAssign({
       _upgradeInfo: JSON.stringify({
         ...this.props.store.upgradeInfo,
@@ -110,20 +110,22 @@ export default class Sidebar extends Component {
             title={c('bookmarks')}
           >
             <BookOutlined
-              onMouseEnter={this.onMouseEnterBookmark}
-              onMouseLeave={this.onMouseLeave}
+              onMouseEnter={this.handleMouseEnterBookmark}
+              onMouseLeave={this.handleMouseLeave}
               onClick={onClickBookmark}
-              className='font20 iblock control-icon' />
+              className='font20 iblock control-icon'
+            />
           </div>
           <div
             className='control-icon-wrap'
             title={c('history')}
           >
             <ClockCircleOutlined
-              onMouseEnter={this.onMouseEnterHistory}
-              onMouseLeave={this.onMouseLeave}
+              onMouseEnter={this.handleMouseEnterHistory}
+              onMouseLeave={this.handleMouseLeave}
               onClick={onClickHistory}
-              className='font20 iblock control-icon' />
+              className='font20 iblock control-icon'
+            />
           </div>
           <TransferList store={store} />
           <div
@@ -132,7 +134,8 @@ export default class Sidebar extends Component {
           >
             <PictureOutlined
               className='font20 iblock pointer control-icon'
-              onClick={openTerminalThemes} />
+              onClick={openTerminalThemes}
+            />
           </div>
           <div
             className='control-icon-wrap'
@@ -158,7 +161,8 @@ export default class Sidebar extends Component {
           >
             <InfoCircleOutlined
               className='iblock font16 control-icon open-about-icon'
-              onClick={openAbout} />
+              onClick={openAbout}
+            />
           </div>
           {
             !checkingRemoteVersion && !showUpgradeModal && shouldUpgrade
@@ -172,10 +176,11 @@ export default class Sidebar extends Component {
                   >
                     <UpCircleOutlined
                       className='iblock font18 control-icon hvr-bob upgrade-icon'
-                      onClick={this.showUpgrade} />
+                      onClick={this.handleShowUpgrade}
+                    />
                   </div>
                 </Tooltip>
-              )
+                )
               : null
           }
         </div>
@@ -185,13 +190,13 @@ export default class Sidebar extends Component {
         >
           <BookMarksWrap
             store={store}
-            onMouseEnter={this.onMouseEnterBookmark}
-            onMouseLeave={this.onMouseLeave}
+            onMouseEnter={this.handleMouseEnterBookmark}
+            onMouseLeave={this.handleMouseLeave}
           />
           <HistoryWrap
             store={store}
-            onMouseEnter={this.onMouseEnterHistory}
-            onMouseLeave={this.onMouseLeave}
+            onMouseEnter={this.handleMouseEnterHistory}
+            onMouseLeave={this.handleMouseLeave}
           />
         </div>
       </div>

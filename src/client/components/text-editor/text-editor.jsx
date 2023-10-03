@@ -161,16 +161,19 @@ export default class TextEditor extends PureComponent {
       width: '90%',
       open: true
     }
+    const pops = {
+      submit: this.handleSubmit,
+      text,
+      cancel: this.cancel,
+      editWith: this.editWith
+    }
     return (
       <Modal
         {...propsAll}
       >
         <Spin spinning={loading}>
           <TextEditorForm
-            submit={this.handleSubmit}
-            text={text}
-            cancel={this.cancel}
-            editWith={this.editWith}
+            {...pops}
           />
         </Spin>
       </Modal>

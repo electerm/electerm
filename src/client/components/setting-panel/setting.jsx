@@ -1,4 +1,3 @@
-
 import React, { Component } from 'react'
 import { CodeOutlined, LoadingOutlined } from '@ant-design/icons'
 import {
@@ -74,17 +73,17 @@ export default class Setting extends Component {
     clearTimeout(this.timer)
   }
 
-  restart = () => {
+  handleRestart = () => {
     window.location.reload()
   }
 
-  resetAll = () => {
+  handleResetAll = () => {
     this.saveConfig(
       deepCopy(defaultSettings)
     )
   }
 
-  onChangeModifier = modifier => {
+  handleChangeModifier = modifier => {
     const { hotkey } = this.props.config
     const key = hotkey.split('+')[1]
     return this.saveConfig({
@@ -94,11 +93,11 @@ export default class Setting extends Component {
 
   onChangeTimeout = sshReadyTimeout => {
     return this.saveConfig({
-      sshReadyTimeout: sshReadyTimeout
+      sshReadyTimeout
     })
   }
 
-  onChangeKey = key => {
+  handleChangeKey = key => {
     const { hotkey } = this.props.config
     const modifier = hotkey.split('+')[0]
     return this.saveConfig({
@@ -106,7 +105,7 @@ export default class Setting extends Component {
     })
   }
 
-  onChangeLang = language => {
+  handleChangeLang = language => {
     this.setState({
       languageChanged: true
     })
@@ -115,7 +114,7 @@ export default class Setting extends Component {
     })
   }
 
-  onChangeTerminalTheme = id => {
+  handleChangeTerminalTheme = id => {
     this.props.store.setTheme(id)
   }
 
@@ -195,7 +194,7 @@ export default class Setting extends Component {
             <div>
               {e('saveLang')}
               <Button
-                onClick={this.restart}
+                onClick={this.handleRestart}
                 className='mg1l'
               >
                 {e('restartNow')}
@@ -428,7 +427,7 @@ export default class Setting extends Component {
     return (
       <div className='pd1b pd1t'>
         <Button
-          onClick={this.resetAll}
+          onClick={this.handleResetAll}
         >
           {e('resetAllToDefault')}
         </Button>
@@ -585,7 +584,9 @@ export default class Setting extends Component {
               <Option value={f} key={f}>
                 <span style={{
                   fontFamily: f
-                }}>{f}</span>
+                }}
+                >{f}
+                </span>
               </Option>
             )
           })
@@ -657,6 +658,11 @@ export default class Setting extends Component {
     const terminalLogPath = osResolve(appPath, 'electerm', 'session_logs')
     const terminalThemes = this.props.store.getSidebarList(settingMap.terminalThemes)
     const [modifier, key] = hotkey.split('+')
+    const pops = {
+      onStartSessions: this.props.config.onStartSessions,
+      store: this.props.store,
+      onChangeStartSessions: this.onChangeStartSessions
+    }
     return (
       <div className='form-wrap pd1y pd2x'>
         <h2>{e('settings')}</h2>
@@ -664,7 +670,7 @@ export default class Setting extends Component {
         <div className='pd2b'>
           <Select
             value={modifier}
-            onChange={this.onChangeModifier}
+            onChange={this.handleChangeModifier}
             className='iblock width100'
             popupMatchSelectWidth={false}
             showSearch
@@ -677,7 +683,7 @@ export default class Setting extends Component {
           <Select
             value={key}
             className='iblock width100'
-            onChange={this.onChangeKey}
+            onChange={this.handleChangeKey}
             popupMatchSelectWidth={false}
             showSearch
           >
@@ -689,9 +695,7 @@ export default class Setting extends Component {
         <div className='pd1b'>{e('onStartBookmarks')}</div>
         <div className='pd2b'>
           <StartSession
-            onStartSessions={this.props.config.onStartSessions}
-            store={this.props.store}
-            onChangeStartSessions={this.onChangeStartSessions}
+            {...pops}
           />
         </div>
         {this.renderProxy()}
@@ -729,7 +733,7 @@ export default class Setting extends Component {
         <div className='pd2b'>
           <span className='inline-title mg1r'>{e('terminalTheme')}</span>
           <Select
-            onChange={this.onChangeTerminalTheme}
+            onChange={this.handleChangeTerminalTheme}
             popupMatchSelectWidth={false}
             value={theme}
           >
@@ -746,7 +750,7 @@ export default class Setting extends Component {
         <div className='pd2b'>
           <span className='inline-title mg1r'>{e('language')}</span>
           <Select
-            onChange={this.onChangeLang}
+            onChange={this.handleChangeLang}
             value={language}
             popupMatchSelectWidth={false}
           >

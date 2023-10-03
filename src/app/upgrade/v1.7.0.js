@@ -18,9 +18,9 @@ async function fixAll () {
     const updates = q._id === 'default'
       ? defaultThemeConfig
       : {
-        ...item,
-        uiThemeConfig: defaultThemeConfig.uiThemeConfig
-      }
+          ...item,
+          uiThemeConfig: defaultThemeConfig.uiThemeConfig
+        }
     await dbAction('terminalThemes', 'update', q, updates).catch(log.error)
   }
   await dbAction('terminalThemes', 'insert', defaultLightThemeConfig).catch(log.error)

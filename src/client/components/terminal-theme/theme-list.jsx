@@ -30,7 +30,8 @@ export default class ThemeList extends List {
       >
         <CheckCircleOutlined
           className='pointer list-item-apply'
-          onClick={() => this.props.store.setTheme(item.id)} />
+          onClick={() => this.props.store.setTheme(item.id)}
+        />
       </Tooltip>
     )
   }
@@ -117,7 +118,7 @@ export default class ThemeList extends List {
               <div className='pd3 aligncenter'>
                 <LoadingOutlined />
               </div>
-            )
+              )
         }
       </div>
     )

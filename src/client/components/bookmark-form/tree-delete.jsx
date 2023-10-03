@@ -23,7 +23,7 @@ export default class BookmarkTreeDelete extends StartSessionSelect {
     )
   }
 
-  del = () => {
+  handleDel = () => {
     const { store } = window
     const {
       checkedKeys,
@@ -46,7 +46,7 @@ export default class BookmarkTreeDelete extends StartSessionSelect {
     store.setState('checkedKeys', [])
   }
 
-  cancel = () => {
+  handleCancel = () => {
     const { store } = window
     store.bookmarkSelectMode = false
     store.setState('checkedKeys', [])
@@ -70,12 +70,12 @@ export default class BookmarkTreeDelete extends StartSessionSelect {
           <Button
             type='primary'
             disabled={!len}
-            onClick={this.del}
+            onClick={this.handleDel}
           >
             {m('delSelected')} ({len})
           </Button>
           <Button
-            onClick={this.cancel}
+            onClick={this.handleCancel}
           >
             {m('cancel')}
           </Button>

@@ -206,13 +206,16 @@ export default class MenuBtn extends Component {
   }
 
   render () {
+    const pops = {
+      className: 'menu-control',
+      onMouseDown: evt => evt.preventDefault(),
+      onClick: this.openMenu,
+      title: e('menu')
+    }
     return (
       <div
-        className='menu-control'
         key='menu-control'
-        onMouseDown={evt => evt.preventDefault()}
-        onClick={this.openMenu}
-        title={e('menu')}
+        {...pops}
       >
         <img src={logo} width={28} height={28} />
       </div>

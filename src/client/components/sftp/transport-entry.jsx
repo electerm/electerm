@@ -1,4 +1,3 @@
-
 import { PureComponent } from 'react'
 import Confirms from './confirm-modal'
 import ConflictHandler from './transfer-conflict'

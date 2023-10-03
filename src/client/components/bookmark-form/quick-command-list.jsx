@@ -15,10 +15,12 @@ export default memo(function QMList (props) {
       />
       {
         quickCommands.map((item, i) => {
+          const k = 'qmitem' + i
           return (
             <QmItem
               form={this.props.form}
               item={item}
+              key={k}
               i={i}
             />
           )

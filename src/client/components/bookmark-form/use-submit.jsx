@@ -36,7 +36,8 @@ export default function useBookmarkSubmit (props) {
           type='primary'
           htmlType='submit'
           className='mg1r mg1b'
-        >{e('saveAndConnect')}</Button>
+        >{e('saveAndConnect')}
+        </Button>
         {
           settingMap.history === props.type
             ? null
@@ -45,26 +46,30 @@ export default function useBookmarkSubmit (props) {
                 type='primary'
                 className='mg1r mg1b'
                 onClick={saveAndCreateNew}
-              >{e('saveAndCreateNew')}</Button>
-            )
+              >{e('saveAndCreateNew')}
+              </Button>
+              )
         }
         <Button
           type='dashed'
           className='mg1r mg1b'
           onClick={save}
-        >{e('save')}</Button>
+        >{e('save')}
+        </Button>
       </p>
       <p>
         <Button
           type='dashed'
           onClick={connect}
           className='mg1r mg1b'
-        >{e('connect')}</Button>
+        >{e('connect')}
+        </Button>
         <Button
           type='dashed'
           onClick={testConnection}
           className='mg1r mg1b'
-        >{e('testConnection')}</Button>
+        >{e('testConnection')}
+        </Button>
       </p>
     </FormItem>
   )

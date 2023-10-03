@@ -126,7 +126,7 @@ export default class Tabs extends React.Component {
     }
   }
 
-  onAdd = e => {
+  handleAdd = e => {
     if (!e.target.className.includes('tabs-wrapper')) {
       return
     }
@@ -148,7 +148,7 @@ export default class Tabs extends React.Component {
     this.dom.scrollLeft = scrollLeft
   }
 
-  scrollLeft = () => {
+  handleScrollLeft = () => {
     let { scrollLeft } = this.dom
     scrollLeft = scrollLeft - tabMargin - tabWidth
     if (scrollLeft < 0) {
@@ -157,7 +157,7 @@ export default class Tabs extends React.Component {
     this.dom.scrollLeft = scrollLeft
   }
 
-  scrollRight = () => {
+  handleScrollRight = () => {
     let { scrollLeft } = this.dom
     scrollLeft = scrollLeft + tabMargin + tabWidth
     if (scrollLeft < 0) {
@@ -166,7 +166,7 @@ export default class Tabs extends React.Component {
     this.dom.scrollLeft = scrollLeft
   }
 
-  onClickMenu = ({ key }) => {
+  handleClickMenu = ({ key }) => {
     const id = key.split('##')[1]
     this.props.onChangeTabId(id)
   }
@@ -174,7 +174,7 @@ export default class Tabs extends React.Component {
   renderList = () => {
     const { tabs = [] } = this.props
     return (
-      <Menu onClick={this.onClickMenu}>
+      <Menu onClick={this.handleClickMenu}>
         {
           tabs.map((t, i) => {
             return (
@@ -194,9 +194,11 @@ export default class Tabs extends React.Component {
     const { onNewSsh } = window.store
     const cls = 'pd2x pd1y context-item pointer'
     return (
-      <div className='add-menu-wrap' style={{
-        maxHeight: window.innerHeight - 200
-      }}>
+      <div
+        className='add-menu-wrap' style={{
+          maxHeight: window.innerHeight - 200
+        }}
+      >
         <div
           className={cls}
           onClick={onNewSsh}
@@ -224,7 +226,8 @@ export default class Tabs extends React.Component {
         <PlusCircleOutlined
           title={e('openNewTerm')}
           className='pointer tabs-add-btn font16'
-          onClick={() => this.props.addTab()} />
+          onClick={() => this.props.addTab()}
+        />
       </Popover>
     )
   }
@@ -235,10 +238,12 @@ export default class Tabs extends React.Component {
         {this.renderAddBtn()}
         <LeftOutlined
           className='mg1l iblock pointer font12 tab-scroll-icon'
-          onClick={this.scrollLeft} />
+          onClick={this.handleScrollLeft}
+        />
         <RightOutlined
           className='mg1x iblock pointer font12 tab-scroll-icon'
-          onClick={this.scrollRight} />
+          onClick={this.handleScrollRight}
+        />
         <Dropdown
           className='iblock'
           placement='bottomRight'
@@ -277,7 +282,7 @@ export default class Tabs extends React.Component {
             style={{
               width: tabsWidthAll + extraTabWidth + 10
             }}
-            onDoubleClick={this.onAdd}
+            onDoubleClick={this.handleAdd}
           >
             {
               tabs.map((tab, i) => {

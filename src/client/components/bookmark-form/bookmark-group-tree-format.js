@@ -23,10 +23,10 @@ export default (bookmarkGroups = []) => {
           const o = dict[k]
           return o
             ? {
-              title: o.title,
-              value: o.id,
-              key: o.id
-            }
+                title: o.title,
+                value: o.id,
+                key: o.id
+              }
             : null
         })
         r.children = r.children.filter(d => d)

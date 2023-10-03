@@ -73,14 +73,14 @@ export default class Upgrade extends PureComponent {
     })
   }
 
-  minimize = () => {
+  handleMinimize = () => {
     this.changeProps({
       showUpgradeModal: false
     })
     window.store.focus()
   }
 
-  close = () => {
+  handleClose = () => {
     window.store.storeAssign({
       _upgradeInfo: '{}'
     })
@@ -153,7 +153,7 @@ export default class Upgrade extends PureComponent {
     this.downloadTimer = setTimeout(this.timeout, downloadUpgradeTimeout)
   }
 
-  skipVersion = () => {
+  handleSkipVersion = () => {
     window.store.config.skipVersion = this.props.upgradeInfo.remoteVersion
     this.close()
   }
@@ -201,7 +201,7 @@ export default class Upgrade extends PureComponent {
     return (
       <div className='upgrade-panel'>
         <div className='upgrade-panel-title'>
-          <CloseOutlined className='pointer font16 close-upgrade-panel' onClick={this.close} />
+          <CloseOutlined className='pointer font16 close-upgrade-panel' onClick={this.handleClose} />
           {e('fail')}: {err}
         </div>
         <div className='upgrade-panel-body'>
@@ -209,7 +209,8 @@ export default class Upgrade extends PureComponent {
           <Link
             to={homepage}
             className='mg1x'
-          >{homepage}</Link> to download new version.
+          >{homepage}
+          </Link> to download new version.
         </div>
       </div>
     )
@@ -223,7 +224,7 @@ export default class Upgrade extends PureComponent {
     return (
       <div className={cls}>
         <div className='upgrade-panel-title'>
-          <CloseOutlined className='pointer font16 close-upgrade-panel' onClick={this.close} />
+          <CloseOutlined className='pointer font16 close-upgrade-panel' onClick={this.handleClose} />
           {e('noNeed')}
         </div>
         <div className='upgrade-panel-body'>
@@ -246,7 +247,8 @@ export default class Upgrade extends PureComponent {
         <Markdown text={releaseInfo} />
         <Link
           to={packInfo.releases}
-        >{e('moreChangeLog')}</Link>
+        >{e('moreChangeLog')}
+        </Link>
       </div>
     )
   }
@@ -254,7 +256,7 @@ export default class Upgrade extends PureComponent {
   renderSkipVersion = () => {
     return (
       <Button
-        onClick={this.skipVersion}
+        onClick={this.handleSkipVersion}
         icon={<CloseOutlined />}
         className='mg1l mg1b'
       >
@@ -300,7 +302,7 @@ export default class Upgrade extends PureComponent {
           {
             downloadMirrors.map((d) => {
               return (
-                <Link to={d.url} className='mg1l'>{d.name}</Link>
+                <Link to={d.url} className='mg1l' key={d.url}>{d.name}</Link>
               )
             })
           }
@@ -312,7 +314,7 @@ export default class Upgrade extends PureComponent {
     return (
       <div className={cls}>
         <div className='upgrade-panel-title'>
-          <MinusSquareOutlined className='pointer font16 close-upgrade-panel' onClick={this.minimize} />
+          <MinusSquareOutlined className='pointer font16 close-upgrade-panel' onClick={this.handleMinimize} />
           {e('newVersion')} <b>{remoteVersion}</b>
         </div>
         <div className='upgrade-panel-body'>
@@ -339,7 +341,7 @@ export default class Upgrade extends PureComponent {
                     {getLink}
                   </div>
                 </div>
-              )
+                )
               : getLink
           }
         </div>

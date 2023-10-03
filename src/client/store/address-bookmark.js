@@ -1,4 +1,3 @@
-
 function getType (item) {
   return item.host
     ? 'addressBookmarks'

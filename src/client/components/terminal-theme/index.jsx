@@ -1,4 +1,3 @@
-
 import { useRef } from 'react'
 import { Button, Input, message, Upload, Form } from 'antd'
 import { convertTheme, convertThemeToText, exportTheme, validThemeProps, requiredThemeProps } from '../../common/terminal-theme'
@@ -128,7 +127,8 @@ export default function ThemeForm (props) {
           <span className='mg1r'>src:</span>
           <Link
             to={url}
-          >{url}</Link>
+          >{url}
+          </Link>
         </FormItem>
       )
     }
@@ -245,15 +245,17 @@ export default function ThemeForm (props) {
                   type='primary'
                   htmlType='submit'
                   className='mg1r mg1b'
-                >{t('saveAndApply')}</Button>
+                >{t('saveAndApply')}
+                </Button>
                 <Button
                   type='dashed'
                   className='mg1r mg1b'
                   onClick={saveOnly}
-                >{e('save')}</Button>
+                >{e('save')}
+                </Button>
               </p>
             </FormItem>
-          )
+            )
       }
       {
         renderSrc(type)

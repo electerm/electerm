@@ -63,7 +63,6 @@
     "@types/node": "20.5.7",
     "@vitejs/plugin-react": "4.0.4",
     "antd": "5.8.3",
-    "babel-eslint": "^10.1.0",
     "chai": "4.3.10",
     "classnames": "2.3.2",
     "cross-env": "7.0.3",
@@ -85,7 +84,7 @@
     "react-dom": "17.0.2",
     "replace-in-file": "6.3.5",
     "shelljs": "0.8.5",
-    "standard": "13.1.0",
+    "standard": "^17.1.0",
     "trzsz": "1.1.1",
     "vite": "4.4.9",
     "vite-plugin-commonjs": "0.9.0",
@@ -144,7 +143,7 @@
     "LICENSE"
   ],
   "standard": {
-    "parser": "babel-eslint",
+    "sourceType": "module",
     "ignore": [
       "/app/assets/"
     ],

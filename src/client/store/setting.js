@@ -40,7 +40,7 @@ export default Store => {
       }
     )
   }
-  Store.prototype.onEditHistory = function () {
+  Store.prototype.handleEditHistory = function () {
     const { store } = window
     const all = store.getItems('history')
     store.storeAssign({
@@ -61,7 +61,7 @@ export default Store => {
     store.openSettingModal()
   }
 
-  Store.prototype.openQuickCommandsSetting = function () {
+  Store.prototype.handleOpenQuickCommandsSetting = function () {
     const { store } = window
     store.storeAssign({
       settingTab: settingMap.quickCommands,
@@ -195,7 +195,7 @@ export default Store => {
     window.store._fonts = JSON.stringify(fonts)
   }
 
-  Store.prototype.onChangeTab = function (settingTab) {
+  Store.prototype.handleChangeSettingTab = function (settingTab) {
     const { store } = window
     const arr = store.getItems(settingTab)
     const item = getInitItem(arr, settingTab)

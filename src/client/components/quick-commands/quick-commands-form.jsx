@@ -1,4 +1,3 @@
-
 import { PureComponent } from 'react'
 import QuickCommandForm from './quick-commands-form-elem'
 import { LoadingOutlined } from '@ant-design/icons'

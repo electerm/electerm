@@ -35,7 +35,7 @@ export default function TabHistory (props) {
                 key={settingItem.id}
                 {...formProps}
               />
-            )
+              )
             : <div className='form-wrap pd2 aligncenter'>{c('notFoundContent')}</div>
         }
       </SettingCol>

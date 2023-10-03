@@ -21,7 +21,7 @@ export function DataTransport (props) {
       <Button
         icon={<ExportOutlined />}
         className='mg1r'
-        onClick={props.store.exportAll}
+        onClick={props.store.handleExportAllData}
       >
         {t('export')}
       </Button>

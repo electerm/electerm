@@ -65,12 +65,12 @@ export default function renderCommon (props) {
                   {e('use')}
                 </span>
               </div>
-            )
+              )
             : (
               <div className='dns-section'>
                 hostname or ip
               </div>
-            )
+              )
         }
         <FormItem noStyle name='host'>
           <InputAutoFocus

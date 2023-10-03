@@ -57,7 +57,8 @@ export default function Transporter (props) {
     <CloseCircleOutlined
       className='transfer-control-icon pointer hover-black font14'
       onClick={cancel}
-      title={e('cancel')} />
+      title={e('cancel')}
+    />
   )
   const controlIcon = isTransfer
     ? (
@@ -66,7 +67,7 @@ export default function Transporter (props) {
         onClick={handlePauseOrResume}
         title={pauseTitle}
       />
-    )
+      )
     : null
   return (
     <div className={cls} title={title} id={`transfer-unit-${id}`}>
@@ -81,13 +82,15 @@ export default function Transporter (props) {
       <span
         className='flex-child sftp-file sftp-local-file elli'
         title={fromPath}
-      >{fromPathReal || fromPath}</span>
+      >{fromPathReal || fromPath}
+      </span>
       <span className='flex-child sftp-transfer-arrow'>
         →
       </span>
       <span
         className='flex-child sftp-file sftp-remote-file elli'
-      >{toPathReal || toPath}</span>
+      >{toPathReal || toPath}
+      </span>
       <span
         className='flex-child sftp-file-percent'
       >

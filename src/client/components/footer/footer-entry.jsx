@@ -19,7 +19,7 @@ const { prefix } = window
 const f = prefix('form')
 
 export default class SystemMenu extends Component {
-  showInfoPanel = () => {
+  handleInfoPanel = () => {
     const { activeTerminalId } = this.props.store
     postMessage({
       action: terminalActions.showInfoPanel,
@@ -37,7 +37,7 @@ export default class SystemMenu extends Component {
     })
   }
 
-  switchEncoding = encode => {
+  handleSwitchEncoding = encode => {
     const { activeTerminalId } = this.props.store
     postMessage({
       encode,
@@ -84,7 +84,7 @@ export default class SystemMenu extends Component {
             style={{ minWidth: 100 }}
             placeholder={f('encode')}
             defaultValue={this.props.currentTab?.encode}
-            onSelect={this.switchEncoding}
+            onSelect={this.handleSwitchEncoding}
             size='small'
           >
             {
@@ -113,8 +113,9 @@ export default class SystemMenu extends Component {
           title='Terminal Info'
         >
           <InfoCircleOutlined
-            onClick={this.showInfoPanel}
-            className='pointer font18 terminal-info-icon' />
+            onClick={this.handleInfoPanel}
+            className='pointer font18 terminal-info-icon'
+          />
         </Tooltip>
       </div>
     )

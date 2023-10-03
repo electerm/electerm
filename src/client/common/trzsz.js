@@ -13,9 +13,9 @@ window.newTrzsz = function (
   // create a trzsz filter
   return new TrzszFilter({
     // write the server output to the terminal
-    writeToTerminal: writeToTerminal,
+    writeToTerminal,
     // send the user input to the server
-    sendToServer: sendToServer,
+    sendToServer,
     // choose some files to be sent to the server
     chooseSendFiles: async (directory) => {
       const properties = [
@@ -32,7 +32,7 @@ window.newTrzsz = function (
       return openDialog({
         title: 'Choose some files to send',
         message: 'Choose some files to send',
-        properties: properties
+        properties
       })
     },
     // choose a directory to save the received files
@@ -55,8 +55,8 @@ window.newTrzsz = function (
       return savePaths[0]
     },
     // the terminal columns
-    terminalColumns: terminalColumns,
+    terminalColumns,
     // there is a windows shell
-    isWindowsShell: isWindowsShell
+    isWindowsShell
   })
 }

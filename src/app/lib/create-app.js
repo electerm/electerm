@@ -1,4 +1,3 @@
-
 const {
   app
 } = require('electron')

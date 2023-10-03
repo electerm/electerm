@@ -1,4 +1,3 @@
-
 export default (eventName, value) => {
   if (!window.gtag) {
     return

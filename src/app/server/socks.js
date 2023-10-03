@@ -82,7 +82,7 @@ module.exports = (initOptions) => {
       port: proxyPort,
       type,
       userId: username,
-      password: password
+      password
     },
 
     command: 'connect',

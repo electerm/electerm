@@ -213,7 +213,8 @@ class Telnet extends EventEmitter {
         this.destroy()
       } else if (promptIndex >= 0) {
         const shellPrompt = this.opts.shellPrompt instanceof RegExp
-          ? stringData.substring(promptIndex) : this.opts.shellPrompt
+          ? stringData.substring(promptIndex)
+          : this.opts.shellPrompt
         this.state = 'standby'
         this.inputBuffer = ''
         this.loginPromptReceived = false

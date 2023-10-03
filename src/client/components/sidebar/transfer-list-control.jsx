@@ -27,14 +27,14 @@ export default class TransferModalUI extends Component {
     return this.getTransferList().filter(t => t.inited)
   }
 
-  pauseOrResumeAll = () => {
+  handlePauseOrResumeAll = () => {
     postMessage({
       action: transportTypes.pauseOrResumeAll,
       id: this.state.filter
     })
   }
 
-  cancelAll = () => {
+  handleCancelAll = () => {
     postMessage({
       action: transportTypes.cancelAll,
       id: this.state.filter
@@ -183,7 +183,7 @@ export default class TransferModalUI extends Component {
           <div className='fright'>
             <span
               className='pointer'
-              onClick={this.pauseOrResumeAll}
+              onClick={this.handlePauseOrResumeAll}
             >
               {this.renderTransportIcon()} {this.computePercent()}%({this.computeLeftTime()})
               <span className='mg1x'>
@@ -192,7 +192,7 @@ export default class TransferModalUI extends Component {
             </span>
             <span
               className='color-red pointer'
-              onClick={this.cancelAll}
+              onClick={this.handleCancelAll}
             >
               {e('cancelAll')}
             </span>

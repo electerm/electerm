@@ -9,7 +9,7 @@ const log = require('../common/log')
 const { buildProxyString } = require('../lib/build-proxy')
 
 async function fixConf () {
-  log.info(`Start update global proxy config`)
+  log.info('Start update global proxy config')
   const q = {
     _id: userConfigId
   }
@@ -31,7 +31,7 @@ async function fixConf () {
 }
 
 async function fixBookmarks () {
-  log.info(`Start update bookmark proxy config`)
+  log.info('Start update bookmark proxy config')
   const arr = await dbAction('bookmarks', 'find', {})
   const len = arr.length
   let i = 0

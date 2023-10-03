@@ -1,4 +1,3 @@
-
 const {
   BrowserWindow
 } = require('electron')

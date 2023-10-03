@@ -110,7 +110,7 @@ export default function SerialFormUi (props) {
             />
           </FormItem>
           <Spin spinning={loaddingSerials}>
-            <span onClick={props.store.getSerials}>
+            <span onClick={props.store.handleGetSerials}>
               <ReloadOutlined /> {m('reload')} serials
             </span>
           </Spin>

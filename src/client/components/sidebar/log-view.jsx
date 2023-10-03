@@ -31,7 +31,7 @@ export default function LogView () {
         log
           ? (
             <TextArea value={log} rows={10} />
-          )
+            )
           : null
       }
     </div>

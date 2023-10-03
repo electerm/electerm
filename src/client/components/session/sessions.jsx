@@ -283,6 +283,14 @@ export default class Sessions extends Component {
     this.props.store.triggerResize()
   }
 
+  handleNewTab = () => {
+    this.props.store.initFirstTab()
+  }
+
+  handleNewSsh = () => {
+    this.props.store.onNewSsh()
+  }
+
   renderNoSession = () => {
     const props = {
       style: {
@@ -292,14 +300,14 @@ export default class Sessions extends Component {
     return (
       <div className='no-sessions electerm-logo-bg' {...props}>
         <Button
-          onClick={this.props.store.initFirstTab}
+          onClick={this.handleNewTab}
           size='large'
           className='mg1r mg1b'
         >
           {e('newTab')}
         </Button>
         <Button
-          onClick={this.props.store.onNewSsh}
+          onClick={this.handleNewSsh}
           size='large'
           className='mg1r mg1b'
         >

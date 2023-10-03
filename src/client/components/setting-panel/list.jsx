@@ -36,7 +36,7 @@ export default class ItemList extends React.PureComponent {
     clearTimeout(this.timer)
   }
 
-  onChange = e => {
+  handleChange = e => {
     this.setState({
       keyword: e.target.value
     })
@@ -56,7 +56,7 @@ export default class ItemList extends React.PureComponent {
     return (
       <div className='pd1y'>
         <Search
-          onChange={this.onChange}
+          onChange={this.handleChange}
           value={this.state.keyword}
         />
       </div>
@@ -76,7 +76,8 @@ export default class ItemList extends React.PureComponent {
           shouldConfirmDel
             ? noop
             : e => this.del(item, e)
-        } />
+        }
+      />
     )
     if (shouldConfirmDel) {
       return (
@@ -118,7 +119,8 @@ export default class ItemList extends React.PureComponent {
         <div
           title={title}
           className='elli pd1y pd2x list-item-title'
-        >{titleHighlight || s('new')}</div>
+        >{titleHighlight || s('new')}
+        </div>
         {this.renderDelBtn(item)}
         {this.renderEditBtn(item, isGroup)}
       </div>
@@ -145,7 +147,8 @@ export default class ItemList extends React.PureComponent {
       <EditOutlined
         title={e('edit')}
         onClick={(e) => this.editItem(e, item, isGroup)}
-        className='pointer list-item-edit' />
+        className='pointer list-item-edit'
+      />
     )
   }
 
