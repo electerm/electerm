@@ -46,7 +46,7 @@ export default class InputAutoFocus extends React.PureComponent {
   }
 
   getDom () {
-    const root = document.getElementById(this.uid)
+    const root = document.querySelector(`[data-id="${this.uid}"]`)
     const dom = root.tagName === 'INPUT'
       ? root
       : root.querySelector('input')
@@ -61,7 +61,7 @@ export default class InputAutoFocus extends React.PureComponent {
     return (
       <Dom
         {...rest}
-        id={this.uid}
+        data-id={this.uid}
       />
     )
   }
