@@ -63,7 +63,6 @@ export default class FileSection extends React.Component {
   }
 
   componentDidMount () {
-    console.log('this.id', this.id)
     this.dom = document.getElementById(this.id)
     this.applyStyle()
   }
@@ -85,6 +84,9 @@ export default class FileSection extends React.Component {
   }
 
   applyStyle = () => {
+    if (!this.dom) {
+      return
+    }
     const {
       id,
       type
