@@ -101,6 +101,7 @@ export default class SettingModalWrap extends Component {
           animated={false}
           items={items}
           onChange={store.handleChangeSettingTab}
+          destroyInactiveTabPane
           className='setting-tabs'
         />
         <TabHistory

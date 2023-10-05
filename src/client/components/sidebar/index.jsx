@@ -17,7 +17,12 @@ import HistoryWrap from './history'
 import TransferList from './transfer-list'
 import MenuBtn from '../context-menu/menu-btn'
 import InfoModal from './info-modal'
-import { sidebarWidth } from '../../common/constants'
+import {
+  sidebarWidth,
+  settingMap,
+  modals
+} from '../../common/constants'
+import SideIcon from './side-icon'
 import './sidebar.styl'
 
 const { prefix } = window
@@ -81,9 +86,25 @@ export default class Sidebar extends Component {
       upgradeInfo,
       onClickBookmark,
       onClickHistory,
-      toggleBatchOp
+      toggleBatchOp,
+      settingTab,
+      showModal,
+      showInfoModal,
+      settingItem
     } = store
-    const { showUpgradeModal, upgradePercent, checkingRemoteVersion, shouldUpgrade } = upgradeInfo
+    const {
+      showUpgradeModal,
+      upgradePercent,
+      checkingRemoteVersion,
+      shouldUpgrade
+    } = upgradeInfo
+    const showSetting = showModal === modals.setting
+    const showBatchOp = showModal === modals.batchOps
+    const settingActive = showSetting && settingTab === settingMap.setting && settingItem.id === 'setting-common'
+    const syncActive = showSetting && settingTab === settingMap.setting && settingItem.id === 'setting-sync'
+    const themeActive = showSetting && settingTab === settingMap.terminalThemes
+    const historyActive = showSetting && settingTab === settingMap.history
+    const bookmarksActive = showSetting && settingTab === settingMap.bookmarks
     return (
       <div
         className={`sidebar type-${openedSideBar}`}
@@ -96,18 +117,17 @@ export default class Sidebar extends Component {
           <div className='control-icon-wrap'>
             <MenuBtn store={store} />
           </div>
-          <div
-            className='control-icon-wrap'
+          <SideIcon
             title={e('newBookmark')}
           >
             <PlusCircleOutlined
               className='font22 iblock control-icon'
               onClick={onNewSsh}
             />
-          </div>
-          <div
-            className='control-icon-wrap'
-            title={c('bookmarks')}
+          </SideIcon>
+          <SideIcon
+            title={c(settingMap.bookmarks)}
+            active={bookmarksActive}
           >
             <BookOutlined
               onMouseEnter={this.handleMouseEnterBookmark}
@@ -115,10 +135,10 @@ export default class Sidebar extends Component {
               onClick={onClickBookmark}
               className='font20 iblock control-icon'
             />
-          </div>
-          <div
-            className='control-icon-wrap'
-            title={c('history')}
+          </SideIcon>
+          <SideIcon
+            title={c(settingMap.history)}
+            active={historyActive}
           >
             <ClockCircleOutlined
               onMouseEnter={this.handleMouseEnterHistory}
@@ -126,44 +146,44 @@ export default class Sidebar extends Component {
               onClick={onClickHistory}
               className='font20 iblock control-icon'
             />
-          </div>
+          </SideIcon>
           <TransferList store={store} />
-          <div
-            className='control-icon-wrap'
-            title={t('terminalThemes')}
+          <SideIcon
+            title={t(settingMap.terminalThemes)}
+            active={themeActive}
           >
             <PictureOutlined
               className='font20 iblock pointer control-icon'
               onClick={openTerminalThemes}
             />
-          </div>
-          <div
-            className='control-icon-wrap'
-            title={c('setting')}
+          </SideIcon>
+          <SideIcon
+            title={c(settingMap.setting)}
+            active={settingActive}
           >
             <SettingOutlined className='iblock font20 control-icon' onClick={openSetting} />
-          </div>
-          <div
-            className='control-icon-wrap'
+          </SideIcon>
+          <SideIcon
             title={ss('settingSync')}
+            active={syncActive}
           >
             <CloudSyncOutlined className='iblock font20 control-icon' onClick={openSettingSync} />
-          </div>
-          <div
-            className='control-icon-wrap'
+          </SideIcon>
+          <SideIcon
             title={b('batchOp')}
+            active={showBatchOp}
           >
             <BarsOutlined className='iblock font20 control-icon' onClick={toggleBatchOp} />
-          </div>
-          <div
-            className='control-icon-wrap'
+          </SideIcon>
+          <SideIcon
             title={m('about')}
+            active={showInfoModal}
           >
             <InfoCircleOutlined
               className='iblock font16 control-icon open-about-icon'
               onClick={openAbout}
             />
-          </div>
+          </SideIcon>
           {
             !checkingRemoteVersion && !showUpgradeModal && shouldUpgrade
               ? (

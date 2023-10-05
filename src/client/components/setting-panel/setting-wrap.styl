@@ -1,43 +1,37 @@
 @require '../../css/includes/theme-default'
 
 .setting-wrap
-  position fixed
-  left 0
-  width calc(100% - 43px)
-  top 0
-  height 100%
-  z-index 888
-  overflow hidden
   background main-light
   color text
-  animation-duration .5s
 
-.setting-wrap-hide
-  width 0
-  border-left-width 0
+body .ant-drawer .ant-drawer-content-wrapper
+  left 43px
+// .setting-wrap-hide
+//   width 0
+//   border-left-width 0
 .close-setting-wrap
   position absolute
-  right 20px
-  top 75px
-  font-size 24px
+  left 20px
+  top 70px
+  font-size 16px
   color text-disabled
   cursor pointer
   z-index 889
   &:hover
     color text
 .setting-row
-  position fixed
-  top 117px
+  position absolute
+  top 127px
   overflow-y scroll
 .setting-row-left
-  left 43px
+  left 0
   width 340px
   bottom 0
   padding 20px 0 20px 20px
   .ant-tree
     background none
 .setting-row-right
-  left 383px
+  left 340px
   right 0
   bottom 0
   top 129px
@@ -48,12 +42,12 @@
   .setting-row-right
     left 483px
 .setting-tabs
-  position fixed
+  position absolute
   z-index 4
-  left 43px
+  left 0
   top 0
   right 0
-  padding 55px 20px 0 20px
+  padding 55px 20px 0 50px
   background main-light
 .setting-col
   ::-webkit-scrollbar

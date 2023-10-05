@@ -11,6 +11,7 @@ import {
   Input,
   Button,
   Table,
+  Drawer,
   Tabs
 } from 'antd'
 import {
@@ -620,25 +621,30 @@ export default class BatchOp extends Component {
       showModal
     } = this.props.store
     const showBatchOp = showModal === modals.batchOps
-    const cls = showBatchOp
-      ? 'setting-wrap'
-      : 'setting-wrap setting-wrap-hide'
     const pops = {
-      id: 'batch-op-wrap',
-      className: cls,
-      style: {
-        left: sidebarWidth + 'px'
+      open: showBatchOp,
+      onClose: this.handleCancel,
+      className: 'setting-wrap',
+      width: window.innerWidth - sidebarWidth - 30,
+      zIndex: 888,
+      placement: 'left',
+      headerStyle: {
+        display: 'none'
       }
     }
     return (
-      <div {...pops}>
-        {this.renderClose()}
-        <div className='setting-wrap-content'>
-          <div className='pd2b pd2x setting-wrap-inner'>
-            {showBatchOp ? this.renderContent() : null}
+      <Drawer
+        {...pops}
+      >
+        <div id='batch-op-wrap'>
+          {this.renderClose()}
+          <div className='setting-wrap-content'>
+            <div className='pd3 setting-wrap-inner'>
+              {showBatchOp ? this.renderContent() : null}
+            </div>
           </div>
         </div>
-      </div>
+      </Drawer>
     )
   }
 }
