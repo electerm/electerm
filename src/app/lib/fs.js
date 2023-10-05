@@ -1,11 +1,22 @@
 const { spawn } = require('child_process')
 const fss = require('fs/promises')
+const fs = require('fs')
 const log = require('../common/log')
 const tar = require('tar')
 const { isWin, isMac, tempDir } = require('../common/runtime-constants')
 const uid = require('../common/uid')
 const path = require('path')
 const ROOT_PATH = '/'
+
+// Encoding function
+function encodeUint8Array (uint8Arr) {
+  return Buffer.from(uint8Arr).toString('base64')
+}
+
+// Decoding function
+function decodeBase64String (base64String) {
+  return new Uint8Array(Buffer.from(base64String, 'base64'))
+}
 
 const isWinDrive = function (path) {
   return /^\w+:$/.test(path)
@@ -171,6 +182,59 @@ async function listWindowsRootPath () {
   })
 }
 
+const readCustom = (p1, arr, ...args) => {
+  return new Promise((resolve, reject) => {
+    const narr = decodeBase64String(arr)
+    fs.read(p1, narr, ...args, (err, n) => {
+      if (err) {
+        return reject(err)
+      }
+      return resolve({ n, newArr: encodeUint8Array(narr) })
+    })
+  })
+}
+
+const writeCustom = (p1, arr) => {
+  return new Promise((resolve, reject) => {
+    const narr = decodeBase64String(arr)
+    fs.write(p1, narr, (err, n) => {
+      if (err) {
+        return reject(err)
+      }
+      return resolve(1)
+    })
+  })
+}
+
+const statCustom = async (...args) => {
+  const st = await fss.stat(...args)
+  st.isD = st.isDirectory()
+  st.isF = st.isFile()
+  return st
+}
+
+const openCustom = async (...args) => {
+  return new Promise((resolve, reject) => {
+    fs.open(...args, (err, n) => {
+      if (err) {
+        return reject(err)
+      }
+      return resolve(n)
+    })
+  })
+}
+
+const closeCustom = async (...args) => {
+  return new Promise((resolve, reject) => {
+    fs.close(...args, (err) => {
+      if (err) {
+        return reject(err)
+      }
+      return resolve(true)
+    })
+  })
+}
+
 const fsExport = Object.assign(
   {},
   fss,
@@ -183,7 +247,12 @@ const fsExport = Object.assign(
     mv,
     openFile,
     zipFolder,
-    unzipFile
+    unzipFile,
+    readCustom,
+    statCustom,
+    openCustom,
+    closeCustom,
+    writeCustom
   },
   {
     readdirAsync: (_path) => {
@@ -199,18 +268,20 @@ const fsExport = Object.assign(
     statAsync: (...args) => {
       return fss.stat(...args)
         .then(res => {
-          return Promise.resolve(Object.assign(res, {
+          return {
+            ...res,
             isDirectory: res.isDirectory()
-          }))
+          }
         })
     },
     lstatAsync: (...args) => {
       return fss.lstat(...args)
         .then(res => {
-          return Promise.resolve(Object.assign(res, {
+          return {
+            ...res,
             isDirectory: res.isDirectory(),
             isSymbolicLink: res.isSymbolicLink()
-          }))
+          }
         })
     },
     readFile: (...args) => {

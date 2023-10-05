@@ -1,20 +1,14 @@
 /**
  * terminal/sftp/serial class
  */
-const generate = require('../common/uid')
 const {
   readRemoteFile,
   writeRemoteFile
 } = require('./sftp-file')
 const { commonExtends } = require('./session-common')
+const { TerminalBase } = require('./session-base')
 
-class Sftp {
-  constructor (initOptions) {
-    this.type = initOptions.type
-    this.pid = initOptions.uid || generate()
-    this.initOptions = initOptions
-  }
-
+class Sftp extends TerminalBase {
   connect (initOptions) {
     return this.remoteInitSftp(initOptions)
   }

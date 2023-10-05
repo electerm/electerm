@@ -12,6 +12,32 @@ const props = runSync('getConstants')
 props.env = JSON.parse(props.env)
 props.versions = JSON.parse(props.versions)
 
+// Encoding function
+function encodeUint8Array (uint8Array) {
+  let str = ''
+  const len = uint8Array.byteLength
+
+  for (let i = 0; i < len; i++) {
+    str += String.fromCharCode(uint8Array[i])
+  }
+
+  return btoa(str)
+}
+
+// Decoding function
+function decodeBase64String (base64String) {
+  const str = atob(base64String)
+  const len = str.length
+
+  const uint8Array = new Uint8Array(len)
+
+  for (let i = 0; i < len; i++) {
+    uint8Array[i] = str.charCodeAt(i)
+  }
+
+  return uint8Array
+}
+
 window.log = {
   debug: (...args) => runSync('debug', ...args),
   log: (...args) => runSync('log', ...args),
@@ -55,52 +81,77 @@ const path = {
 }
 
 const fs = {
-  existsSync: (...args) => {
-    return runSync('existsSync', ...args)
+  stat: (path, cb) => {
+    window.fs.statCustom(path)
+      .catch(err => cb(err))
+      .then(obj => {
+        obj.isDirectory = () => obj.isD
+        obj.isFile = () => obj.isF
+        cb(undefined, obj)
+      })
   },
-  statSync: (...args) => {
-    const obj = runSync('statSync', ...args)
-    obj.isDirectory = () => obj.isD
-    obj.isFile = () => obj.isF
-    return obj
+  access: (...args) => {
+    const cb = args.pop()
+    window.fs.access(...args)
+      .then((data) => cb(undefined, data))
+      .catch((err) => cb(err))
   },
-  accessSync: (...args) => {
-    const r = runSync('accessSync', ...args)
-    if (r) {
-      throw new Error(r)
-    }
+  open: (...args) => {
+    const cb = args.pop()
+    window.fs.openCustom(...args)
+      .then((data) => cb(undefined, data))
+      .catch((err) => cb(err))
   },
-  openSync: (...args) => {
-    return runSync('openSync', ...args)
+  read: (p1, arr, ...args) => {
+    const cb = args.pop()
+    window.fs.readCustom(
+      p1,
+      encodeUint8Array(arr),
+      ...args
+    )
+      .then((data) => {
+        const { n, newArr } = data
+        const newArr1 = decodeBase64String(newArr)
+        const len = arr.length
+        for (let i = 0; i < len; i++) {
+          arr[i] = newArr1[i]
+        }
+        cb(undefined, n)
+      })
+      .catch(err => cb(err))
   },
-  readSync: (p1, arr, ...args) => {
-    const { n, newArr } = runSync('readSyncCustom', p1, arr, ...args)
-    const len = arr.length
-    for (let i = 0; i < len; i++) {
-      arr[i] = newArr[i]
-    }
-    return n
+  close: (fd, cb) => {
+    window.fs.closeCustom(fd)
+      .then((data) => cb(undefined, data))
+      .catch((err) => cb(err))
   },
-  closeSync: (...args) => {
-    return runSync('closeSync', ...args)
+  readdir: (p, cb) => {
+    window.fs.readdir(p)
+      .then((data) => cb(undefined, data))
+      .catch((err) => cb(err))
   },
-  readdirSync: (...args) => {
-    return runSync('readdirSync', ...args)
+  mkdir: (...args) => {
+    const cb = args.pop()
+    window.fs.mkdir(...args)
+      .then((data) => cb(undefined, data))
+      .catch((err) => cb(err))
   },
-  mkdirSync: (...args) => {
-    return runSync('mkdirSync', ...args)
+  write: (p1, buf, cb) => {
+    window.fs.writeCustom(p1, encodeUint8Array(buf))
+      .then((data) => cb(undefined, data))
+      .catch((err) => cb(err))
   },
-  writeSync: (...args) => {
-    return runSync('writeSync', ...args)
-  },
-  realpathSync: (...args) => {
-    return runSync('realpathSync', ...args)
+  realpath: (p, cb) => {
+    window.fs.realpath(p)
+      .then((data) => cb(undefined, data))
+      .catch((err) => cb(err))
   },
   constants: runSync('getFsContants')
 }
 
 window.reqs = {
   path,
+  'fs/promises': fs,
   fs
 }
 

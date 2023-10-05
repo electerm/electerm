@@ -159,7 +159,16 @@ module.exports = {
         'writeFile',
         'openFile',
         'zipFolder',
-        'unzipFile'
+        'unzipFile',
+        'readCustom',
+        'exists',
+        'readdir',
+        'mkdir',
+        'realpath',
+        'statCustom',
+        'openCustom',
+        'closeCustom',
+        'writeCustom'
       ]
     }
   }

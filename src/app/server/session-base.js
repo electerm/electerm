@@ -19,8 +19,12 @@ class TerminalBase {
         fileName: createLogFileName(initOptions.logName)
       })
     }
-    this.ws = ws
-    this.isTest = isTest
+    if (ws) {
+      this.ws = ws
+    }
+    if (isTest) {
+      this.isTest = isTest
+    }
   }
 
   onEndConn () {
