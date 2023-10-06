@@ -184,12 +184,11 @@ async function listWindowsRootPath () {
 
 const readCustom = (p1, arr, ...args) => {
   return new Promise((resolve, reject) => {
-    const narr = decodeBase64String(arr)
-    fs.read(p1, narr, ...args, (err, n) => {
+    fs.read(p1, decodeBase64String(arr), ...args, (err, n, buffer) => {
       if (err) {
         return reject(err)
       }
-      return resolve({ n, newArr: encodeUint8Array(narr) })
+      return resolve({ n, newArr: encodeUint8Array(buffer) })
     })
   })
 }

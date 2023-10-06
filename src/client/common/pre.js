@@ -112,11 +112,7 @@ const fs = {
       .then((data) => {
         const { n, newArr } = data
         const newArr1 = decodeBase64String(newArr)
-        const len = arr.length
-        for (let i = 0; i < len; i++) {
-          arr[i] = newArr1[i]
-        }
-        cb(undefined, n)
+        cb(undefined, n, newArr1)
       })
       .catch(err => cb(err))
   },

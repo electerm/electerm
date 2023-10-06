@@ -1,4 +1,4 @@
-import { TrzszFilter } from '@electerm/trzsz'
+import { TrzszFilter } from 'trzsz'
 
 const {
   openDialog
