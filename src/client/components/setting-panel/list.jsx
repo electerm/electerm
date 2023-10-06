@@ -21,7 +21,9 @@ export default class ItemList extends React.PureComponent {
   state = {
     keyword: '',
     ready: false,
-    labels: []
+    labels: [],
+    page: 1,
+    pageSize: 10
   }
 
   componentDidMount () {
@@ -38,6 +40,7 @@ export default class ItemList extends React.PureComponent {
 
   handleChange = e => {
     this.setState({
+      page: 1,
       keyword: e.target.value
     })
   }

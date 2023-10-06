@@ -4,7 +4,7 @@
 
 import List from '../setting-panel/list'
 import { CheckCircleOutlined, PlusOutlined, LoadingOutlined } from '@ant-design/icons'
-import { Tooltip } from 'antd'
+import { Tooltip, Pagination } from 'antd'
 import classnames from 'classnames'
 import { defaultTheme } from '../../common/constants'
 import highlight from '../common/highlight'
@@ -17,6 +17,10 @@ export default class ThemeList extends List {
   del = (item, e) => {
     e.stopPropagation()
     this.props.store.delTheme(item)
+  }
+
+  handlePager = page => {
+    this.setState({ page })
   }
 
   renderApplyBtn = item => {
@@ -93,14 +97,24 @@ export default class ThemeList extends List {
       : list.slice(0, ready ? list.length : 2)
   }
 
+  paged = list => {
+    const { pageSize, ready, page } = this.state
+    if (!ready) {
+      return list
+    }
+    return list.slice((page - 1) * pageSize, pageSize * page)
+  }
+
   render () {
-    const { ready } = this.state
+    const { ready, page, pageSize } = this.state
     let {
       list = [],
       type,
       listStyle = {}
     } = this.props
     list = this.filter(list)
+    const all = list.length
+    list = this.paged(this.filter(list))
     return (
       <div className={`item-list item-type-${type}`}>
         {this.renderTransport ? this.renderTransport() : null}
@@ -111,6 +125,12 @@ export default class ThemeList extends List {
             list.map(this.renderItem)
           }
         </div>
+        <Pagination
+          onChange={this.handlePager}
+          total={all}
+          current={page}
+          pageSize={pageSize}
+        />
         {
           ready
             ? null
