@@ -625,7 +625,7 @@ export default class BatchOp extends Component {
       open: showBatchOp,
       onClose: this.handleCancel,
       className: 'setting-wrap',
-      width: window.innerWidth - sidebarWidth - 30,
+      width: window.innerWidth - sidebarWidth,
       zIndex: 888,
       placement: 'left',
       headerStyle: {

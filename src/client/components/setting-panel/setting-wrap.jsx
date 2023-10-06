@@ -5,6 +5,7 @@
 import { Component } from 'react'
 import { Drawer } from 'antd'
 import { CloseCircleOutlined } from '@ant-design/icons'
+import { sidebarWidth } from '../../common/constants'
 import './setting-wrap.styl'
 
 export default class SettingWrap extends Component {
@@ -13,7 +14,7 @@ export default class SettingWrap extends Component {
       open: this.props.visible,
       onClose: this.props.onCancel,
       className: 'setting-wrap',
-      width: window.innerWidth - 73,
+      width: window.innerWidth - sidebarWidth,
       zIndex: 888,
       placement: 'left',
       destroyOnClose: true,
