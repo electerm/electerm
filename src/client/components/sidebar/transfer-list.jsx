@@ -22,6 +22,14 @@ export default class TransferList extends Component {
     if (!fileTransfers.length && !transferHistory.length) {
       return null
     }
+    const color = fileTransfers.some(item => item.error) ? 'red' : 'green'
+    const bdProps = {
+      count: fileTransfers.length,
+      size: 'small',
+      offset: [-10, -5],
+      color,
+      overflowCount: 99
+    }
     return (
       <div
         className='control-icon-wrap'
@@ -34,11 +42,7 @@ export default class TransferList extends Component {
           content={<TransferModal store={store} />}
         >
           <Badge
-            count={fileTransfers.length}
-            size='small'
-            offset={[-10, -5]}
-            color='green'
-            overflowCount={99}
+            {...bdProps}
           >
             <SwapOutlined
               className='iblock font20 control-icon'

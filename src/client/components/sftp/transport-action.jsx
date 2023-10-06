@@ -49,7 +49,7 @@ export default function transportAction (props) {
       }
     })
   }
-  function onEnd () {
+  function onEnd (update = {}) {
     if (inst.current.onCancel) {
       return
     }
@@ -63,6 +63,7 @@ export default function transportAction (props) {
       window.store.addTransferHistory(
         {
           ...transfer,
+          ...update,
           finishTime,
           startTime: inst.current.startTime,
           speed: format(transfer.fromFile.size, inst.current.startTime),
@@ -377,7 +378,7 @@ export default function transportAction (props) {
       status: 'exception',
       error: e.message
     }
-    update(up)
+    onEnd(up)
     window.store.onError(e)
   }
   async function mkdir () {

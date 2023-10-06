@@ -53,11 +53,13 @@ class Transfer {
     ws.addEventListener('message', this.onData)
     ws.once((arg) => {
       onEnd(arg)
+      th.onDestroy(ws)
     }, 'transfer:end:' + id)
     ws.once((arg) => {
       log.debug('sftp transfer error')
       log.debug(arg.error.stack)
       onError(new Error(arg.error.message))
+      th.onDestroy(ws)
     }, 'transfer:err:' + id)
   }
 

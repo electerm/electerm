@@ -34,6 +34,7 @@ export default function TransferTag (props) {
       <span className='sftp-transfer-type'>
         {typeToTitle}
       </span>
+      <span className='mg1l'>[{title}]</span>
     </span>
   )
 }
