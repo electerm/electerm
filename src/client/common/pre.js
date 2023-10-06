@@ -44,11 +44,8 @@ window.log = {
   error: (...args) => runSync('error', ...args),
   info: (...args) => runSync('info', ...args)
 }
-window.pre = {
-  readFileSync: (...args) => {
-    return runSync('readFileSync', ...args)
-  },
 
+window.pre = {
   readClipboard: () => {
     return runSync('readClipboard')
   },
@@ -147,7 +144,6 @@ const fs = {
 
 window.reqs = {
   path,
-  'fs/promises': fs,
   fs
 }
 

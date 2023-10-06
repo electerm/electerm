@@ -309,9 +309,8 @@ export default class BookmarkForm extends PureComponent {
     }
   }
 
-  beforeUpload = (file, form) => {
-    const privateKey = window.pre
-      .readFileSync(file.path).toString()
+  beforeUpload = async (file, form) => {
+    const privateKey = await window.fs.readFile(file.path)
     form.setFieldsValue({
       privateKey
     })

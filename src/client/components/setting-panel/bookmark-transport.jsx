@@ -21,10 +21,9 @@ const t = prefix('terminalThemes')
 const m = prefix('menu')
 
 export default class BookmarkTransport extends Component {
-  beforeUpload = (file) => {
+  beforeUpload = async (file) => {
     const { store } = this.props
-    const txt = window.pre
-      .readFileSync(file.path).toString()
+    const txt = await window.fs.readFile(file.path)
     try {
       const content = JSON.parse(txt)
       const {

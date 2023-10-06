@@ -372,9 +372,8 @@ export default class BatchOp extends Component {
     })
   }
 
-  beforeUpload = (file) => {
-    const text = window.pre
-      .readFileSync(file.path).toString()
+  beforeUpload = async (file) => {
+    const text = await window.fs.readFile(file.path)
     this.setState({
       text
     })

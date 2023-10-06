@@ -38,48 +38,6 @@ module.exports = {
   log: (...args) => log.log(...args),
   error: (...args) => log.error(...args),
   info: (...args) => log.info(...args),
-
-  readFileSync: (...args) => {
-    return require('fs').readFileSync(...args).toString()
-  },
-  existsSync: (...args) => {
-    return require('fs').existsSync(...args)
-  },
-  statSync: (...args) => {
-    const st = require('fs').statSync(...args)
-    st.isD = st.isDirectory()
-    st.isF = st.isFile()
-    return st
-  },
-  mkdirSync: (...args) => {
-    return require('fs').mkdirSync(...args)
-  },
-  accessSync: (...args) => {
-    try {
-      return require('fs').accessSync(...args)
-    } catch (e) {
-      return e.message
-    }
-  },
-  openSync: (...args) => {
-    return require('fs').openSync(...args)
-  },
-  realpathSync: (...args) => {
-    return require('fs').realpathSync(...args)
-  },
-  readSyncCustom: (p1, arr, ...args) => {
-    const n = require('fs').readSync(p1, arr, ...args)
-    return { n, newArr: arr }
-  },
-  closeSync: (...args) => {
-    return require('fs').closeSync(...args)
-  },
-  readdirSync: (...args) => {
-    return require('fs').readdirSync(...args)
-  },
-  writeSync: (...args) => {
-    return require('fs').writeSync(...args)
-  },
   getFsContants: () => {
     return require('fs').constants
   },

@@ -284,10 +284,7 @@ const fsExport = Object.assign(
         })
     },
     readFile: (...args) => {
-      return fss.readFile(...args)
-        .then(res => {
-          return res.toString()
-        })
+      return fss.readFile(...args, 'utf8')
     },
     readFileAsBase64: (...args) => {
       return fss.readFile(...args)

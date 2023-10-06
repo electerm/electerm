@@ -4,10 +4,9 @@ import time from '../../../app/common/time'
 import copy from 'json-deep-copy'
 
 export default class QmTransport extends BookmarkTransport {
-  beforeUpload = (file) => {
+  beforeUpload = async (file) => {
     const { store } = this.props
-    const txt = window.pre
-      .readFileSync(file.path).toString()
+    const txt = await window.fs.readFileSync(file.path)
     try {
       const quickCommands = JSON.parse(txt)
       const quickCommandsOld = copy(store.quickCommands)
