@@ -82,7 +82,8 @@ export default (props) => {
         transferList.splice(index, 1)
       } else if (action === 'cancel') {
         transferList = transferList.slice(0, index)
-      } else if (action.includes('All')) {
+      }
+      if (action.includes('All')) {
         transferList = transferList.map((t, i) => {
           if (i < index) {
             return t
@@ -95,6 +96,8 @@ export default (props) => {
       }
       if (action.includes('rename')) {
         transferList[index] = rename(transferList[index])
+      } else if (action === 'skipAll') {
+        transferList.splice(index, 1)
       }
       window.store.setTransfers(transferList)
       return {

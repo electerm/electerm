@@ -113,7 +113,14 @@ export default (props) => {
           {e('skip')}
         </Button>
         <Button
-          type='primary'
+          type='dashed'
+          className='mg1l'
+          onClick={() => act(fileActions.skipAll)}
+        >
+          {e('skipAll')}
+        </Button>
+        <Button
+          danger
           className='mg1l'
           onClick={
             () => act(fileActions.mergeOrOverwrite)
@@ -133,6 +140,7 @@ export default (props) => {
         <div className='pd1t'>
           <Button
             type='dashed'
+            danger
             className='mg1l'
             title={
               isDirectory

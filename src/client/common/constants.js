@@ -240,6 +240,7 @@ export const terminalActions = {
 export const fileActions = {
   cancel: 'cancel',
   skip: 'skip',
+  skipAll: 'skipAll',
   mergeOrOverwrite: 'mergeOrOverwrite',
   rename: 'rename',
   mergeOrOverwriteAll: 'mergeOrOverwriteAll',
