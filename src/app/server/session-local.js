@@ -97,5 +97,5 @@ exports.terminalLocal = function (initOptions, ws) {
  * @param {object} options
  */
 exports.testConnectionLocal = (initOptions) => {
-  return true
+  return Promise.resolve(true)
 }

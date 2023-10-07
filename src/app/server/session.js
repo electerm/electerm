@@ -36,11 +36,12 @@ exports.terminal = async function (initOptions, ws) {
  * @param {object} options
  */
 exports.testConnection = (initOptions) => {
-  if (initOptions.termType === 'telnet') {
+  const type = initOptions.termType || initOptions.type
+  if (type === 'telnet') {
     return testConnectionTelnet(initOptions)
-  } else if (initOptions.termType === 'local') {
+  } else if (type === 'local') {
     return testConnectionLocal(initOptions)
-  } else if (initOptions.termType === 'serial') {
+  } else if (type === 'serial') {
     return testConnectionSerial(initOptions)
   } else {
     return testConnectionSsh(initOptions)

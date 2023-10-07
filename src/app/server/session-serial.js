@@ -101,6 +101,7 @@ exports.terminalSerial = async function (initOptions, ws) {
 exports.testConnectionSerial = (initOptions) => {
   return (new TerminalSerial(initOptions, undefined, true))
     .init()
+    .then(() => true)
     .catch(() => {
       return false
     })

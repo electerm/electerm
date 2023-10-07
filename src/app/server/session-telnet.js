@@ -122,6 +122,7 @@ exports.terminalTelnet = async function (initOptions, ws) {
 exports.testConnectionTelnet = (options) => {
   return (new TerminalTelnet(options, undefined, true))
     .init()
+    .then(() => true)
     .catch(() => {
       return false
     })

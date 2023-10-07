@@ -303,6 +303,7 @@ class TerminalSshBase extends TerminalBase {
     }
     if (isTest) {
       this.endConns()
+      return
     } else if (initOptions.enableSsh === false) {
       global.sessions[initOptions.sessionId] = {
         conn: this.conn,
@@ -673,7 +674,9 @@ exports.terminalSsh = function (initOptions, ws) {
 exports.testConnectionSsh = (options) => {
   return (new TerminalSsh(options, undefined, true))
     .init()
-    .catch(() => {
+    .then(() => true)
+    .catch((err) => {
+      console.log('test ssh error', err)
       return false
     })
 }
