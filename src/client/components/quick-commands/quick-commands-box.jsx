@@ -3,9 +3,10 @@
  */
 
 import { Component } from '../common/react-subx'
-import { isWin } from '../../common/constants'
+import { isWin, quickCommandLabelsLsKey } from '../../common/constants'
 import { find, sortBy } from 'lodash-es'
 import { Button, Input, Select, Space } from 'antd'
+import * as ls from '../../common/safe-local-storage'
 import copy from 'json-deep-copy'
 import CmdItem from './quick-command-item'
 import {
@@ -24,7 +25,7 @@ const { Option } = Select
 export default class QuickCommandsFooterBox extends Component {
   state = {
     keyword: '',
-    labels: []
+    labels: ls.getItemJSON(quickCommandLabelsLsKey, [])
   }
 
   handleMouseLeave = () => {
@@ -81,6 +82,7 @@ export default class QuickCommandsFooterBox extends Component {
   }
 
   handleChangeLabels = (v) => {
+    ls.setItemJSON(quickCommandLabelsLsKey, v)
     this.setState({
       labels: v
     })
