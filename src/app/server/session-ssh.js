@@ -19,9 +19,15 @@ const { TerminalBase } = require('./session-base')
 const { commonExtends } = require('./session-common')
 
 class TerminalSshBase extends TerminalBase {
+  getLocalEnv () {
+    return {
+      env: process.env
+    }
+  }
+
   getDisplay () {
     return new Promise((resolve) => {
-      exec('echo $DISPLAY', this.getExecOpts(), (err, out, e) => {
+      exec('echo $DISPLAY', this.getLocalEnv(), (err, out, e) => {
         if (err || e) {
           resolve('')
         } else {
@@ -33,7 +39,7 @@ class TerminalSshBase extends TerminalBase {
 
   getX11Cookie () {
     return new Promise((resolve) => {
-      exec('xauth list :0', this.getExecOpts(), (err, out, e) => {
+      exec('xauth list :0', this.getLocalEnv(), (err, out, e) => {
         if (err || e) {
           resolve('')
         } else {
@@ -159,7 +165,8 @@ class TerminalSshBase extends TerminalBase {
     return this.doSshConnect(
       undefined,
       this.nextConn,
-      this.hoppingOptions
+      this.hoppingOptions,
+      !this.isLast
     )
       .then(() => {
         this.jumpHostFrom = this.initHoppingOptions.host
@@ -248,7 +255,7 @@ class TerminalSshBase extends TerminalBase {
     })
   }
 
-  async jump (init) {
+  async jump () {
     const sock = await this.forwardOut(this.conn, this.initHoppingOptions)
     const hopping = deepCopy(this.initHoppingOptions)
     delete hopping.host
@@ -268,13 +275,16 @@ class TerminalSshBase extends TerminalBase {
     this.conns = []
     this.jumpHostFrom = this.initOptions.host
     this.jumpPortFrom = this.initOptions.port
-    for (const hopping of connectionHoppings) {
+    const len = connectionHoppings.length
+    for (let i = 0; i < len; i++) {
+      const hopping = connectionHoppings[i]
       this.conns.push(this.conn)
       this.initHoppingOptions = {
         ...hopping,
         ...this.getShareOptions()
       }
-      const conn = await this.jump(true)
+      this.isLast = i === len - 1
+      const conn = await this.jump()
       if (conn) {
         this.conn = conn
       }
@@ -395,7 +405,8 @@ class TerminalSshBase extends TerminalBase {
   doSshConnect = (
     info,
     conn = this.conn,
-    connectOptions = this.connectOptions
+    connectOptions = this.connectOptions,
+    skipX11 = false
   ) => {
     const {
       initOptions
@@ -430,12 +441,13 @@ class TerminalSshBase extends TerminalBase {
           .then(finish)
           .catch(reject)
       })
-        .on('x11', function (info, accept) {
+      if (!skipX11) {
+        conn.on('x11', (inf, accept) => {
           let start = 0
           const maxRetry = 100
           const portStart = 6000
           const maxPort = portStart + maxRetry
-          function retry () {
+          const retry = () => {
             if (start >= maxPort) {
               return
             }
@@ -457,7 +469,7 @@ class TerminalSshBase extends TerminalBase {
                 xclientsock && xclientsock.destroy()
               })
             if (start < portStart) {
-              const addr = this.display?.includes('/tmp')
+              const addr = (this.display || '').includes('/tmp')
                 ? this.display
                 : `/tmp/.X11-unix/X${start}`
               xserversock.connect(addr)
@@ -467,6 +479,8 @@ class TerminalSshBase extends TerminalBase {
           }
           retry()
         })
+      }
+      conn
         .on('ready', () => resolve(true))
         .on('error', err => {
           reject(err)
@@ -552,7 +566,13 @@ class TerminalSshBase extends TerminalBase {
         proxy: initOptions.proxy
       })
       : undefined
-    await this.doSshConnect(info).catch(err => {
+    const skipX11 = !!initOptions.connectionHoppings?.length
+    await this.doSshConnect(
+      info,
+      undefined,
+      undefined,
+      skipX11
+    ).catch(err => {
       log.error('error when do sshConnect', err, this.privateKeyPath)
       if (err.message.includes('passphrase')) {
         const options = {
