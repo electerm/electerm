@@ -38,7 +38,11 @@ export default class QmTransport extends BookmarkTransport {
     return false
   }
 
-  down = () => {
+  renderEdit () {
+    return null
+  }
+
+  handleDownload = () => {
     const { store } = this.props
     const {
       quickCommands

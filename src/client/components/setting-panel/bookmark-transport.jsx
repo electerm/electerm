@@ -113,14 +113,20 @@ export default class BookmarkTransport extends Component {
     this.props.store.bookmarkSelectMode = true
   }
 
-  render () {
-    return [
+  renderEdit () {
+    return (
       <Button
         icon={<EditOutlined />}
         onClick={this.handleToggleEdit}
         title={m('edit')}
         key='edit-and-del'
-      />,
+      />
+    )
+  }
+
+  render () {
+    return [
+      this.renderEdit(),
       <Button
         icon={<DownloadOutlined />}
         onClick={this.handleDownload}
