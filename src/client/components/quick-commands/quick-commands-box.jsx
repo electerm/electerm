@@ -158,7 +158,7 @@ export default class QuickCommandsFooterBox extends Component {
       .map(d => {
         return {
           ...d,
-          nameMatch: d.name.toLowerCase().includes(keyword),
+          nameMatch: keyword && d.name.toLowerCase().includes(keyword),
           labelMatch: labels.some((label) => d.labels.includes(label))
         }
       })
