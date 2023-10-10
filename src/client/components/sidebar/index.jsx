@@ -90,7 +90,8 @@ export default class Sidebar extends Component {
       settingTab,
       showModal,
       showInfoModal,
-      settingItem
+      settingItem,
+      isSyncingSetting
     } = store
     const {
       showUpgradeModal,
@@ -167,7 +168,11 @@ export default class Sidebar extends Component {
             title={ss('settingSync')}
             active={syncActive}
           >
-            <CloudSyncOutlined className='iblock font20 control-icon' onClick={openSettingSync} />
+            <CloudSyncOutlined
+              className='iblock font20 control-icon'
+              onClick={openSettingSync}
+              spin={isSyncingSetting}
+            />
           </SideIcon>
           <SideIcon
             title={b('batchOp')}

@@ -39,7 +39,6 @@ export default store => {
   //   update('sessions', v)
   //   return store._tabs
   // }, func => debounce(func, 100))
-
   for (const name of dbNames) {
     autoRun(store, async () => {
       await update(
@@ -47,6 +46,9 @@ export default store => {
         store.getItems(name).map(d => d.id)
       )
       await store.updateLastDataUpdateTime()
+      if (store.config.autoSync) {
+        await store.uploadSettingAll()
+      }
       return store['_' + name]
     }, func => debounce(func, 100)).start()
   }

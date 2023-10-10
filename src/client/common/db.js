@@ -24,7 +24,10 @@ const dbAction = (...args) => {
  * standalone db names
  */
 export const dbNames = without(
-  Object.keys(settingMap), settingMap.setting
+  Object.keys(settingMap),
+  settingMap.setting,
+  settingMap.history,
+  settingMap.addressBookmarks
 )
 
 /**

@@ -118,7 +118,32 @@ export default (Store) => {
     })
   }
 
+  Store.prototype.uploadSettingAll = async function () {
+    const { store, onSyncAll, syncCount = 0 } = window
+    const max = dbNames.length * 2
+    if (syncCount < max) {
+      window.syncCount = syncCount + 1
+      return
+    }
+    if (onSyncAll) {
+      return
+    }
+    window.onSyncAll = true
+    const types = Object.keys(syncTypes)
+    for (const type of types) {
+      const gistId = store.getSyncGistId(type)
+      if (gistId) {
+        await store.uploadSetting(type)
+      }
+    }
+    window.onSyncAll = false
+  }
+
   Store.prototype.uploadSetting = async function (type) {
+    if (window[type + 'IsSyncing']) {
+      return false
+    }
+    window[type + 'IsSyncing'] = true
     const { store } = window
     store.isSyncingSetting = true
     store.isSyncUpload = true
@@ -129,6 +154,9 @@ export default (Store) => {
       gistId = store.getSyncGistId(type)
     }
     if (!gistId) {
+      window.isSyncing = false
+      store.isSyncingSetting = false
+      store.isSyncUpload = false
       return
     }
     const pass = store.getSyncPassword(type)
@@ -159,6 +187,7 @@ export default (Store) => {
     }], token, store.getProxySetting()).catch(store.onError)
     store.isSyncingSetting = false
     store.isSyncUpload = false
+    window[type + 'IsSyncing'] = false
     if (res) {
       store.updateSyncSetting({
         [type + 'LastSyncTime']: Date.now()
@@ -350,5 +379,12 @@ export default (Store) => {
     }
     store.updateConfig(objs.config)
     store.setTheme(objs.config.theme)
+  }
+
+  Store.prototype.handleAutoSync = function (v) {
+    const { store } = window
+    store.setConfig({
+      autoSync: v
+    })
   }
 }

@@ -4,6 +4,7 @@
 
 import initWs from './ws'
 import generate from './uid'
+import { NewPromise } from './promise-timeout'
 
 const id = 's'
 window.et.wsOpened = false
@@ -25,7 +26,7 @@ export default async (data) => {
     await initWsCommon()
   }
   const id = generate()
-  return new Promise((resolve, reject) => {
+  return new NewPromise((resolve, reject) => {
     window.et.commonWs.once((arg) => {
       if (arg.error) {
         log.error('fetch error', arg.error)
