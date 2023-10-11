@@ -4,7 +4,7 @@
 
 import createTitle from '../common/create-title'
 import { autoRun } from 'manate'
-import { update, dbNames } from '../common/db'
+import { update, dbNamesForWatch } from '../common/db'
 import {
   commonActions,
   sftpDefaultSortSettingKey,
@@ -39,7 +39,7 @@ export default store => {
   //   update('sessions', v)
   //   return store._tabs
   // }, func => debounce(func, 100))
-  for (const name of dbNames) {
+  for (const name of dbNamesForWatch) {
     autoRun(store, async () => {
       await update(
         `${name}:order`,
