@@ -201,8 +201,6 @@ export const commonParities = [
   'none', 'even', 'mark', 'odd', 'space'
 ]
 
-export const defaultLoginScriptDelay = 500
-
 export const maxBatchInput = 30
 export const windowControlWidth = 94
 export const baseUpdateCheckUrls = [

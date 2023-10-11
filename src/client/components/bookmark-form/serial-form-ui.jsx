@@ -80,6 +80,7 @@ export default function SerialFormUi (props) {
     type: terminalSerialType,
     term: defaultSettings.terminalType,
     category: initBookmarkGroupId,
+    runScripts: [{}],
     ignoreKeyboardInteractive: false
   }
   initialValues = defaults(initialValues, defaultValues)

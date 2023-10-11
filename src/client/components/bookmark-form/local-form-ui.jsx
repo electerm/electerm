@@ -5,7 +5,6 @@
 import { useEffect } from 'react'
 import {
   Tabs,
-  InputNumber,
   Input,
   TreeSelect,
   Form
@@ -22,6 +21,7 @@ import useUI from './use-ui'
 import useQm from './use-quick-commands'
 import copy from 'json-deep-copy'
 import { defaults } from 'lodash-es'
+import renderRunScripts from './render-delayed-scripts.jsx'
 
 const FormItem = Form.Item
 const { prefix } = window
@@ -56,10 +56,10 @@ export default function LocalFormUi (props) {
     : currentBookmarkGroupId
   let initialValues = copy(props.formData)
   const defaultValues = {
-    loginScriptDelay: 500,
     category: initBookmarkGroupId,
     term: props.store.config.terminalType,
     type: terminalLocalType,
+    runScripts: [{}],
     enableSsh: true
   }
   initialValues = defaults(initialValues, defaultValues)
@@ -70,27 +70,7 @@ export default function LocalFormUi (props) {
     const tree = formatBookmarkGroups(bookmarkGroups)
     return (
       <div className='pd1x'>
-        <FormItem
-          {...formItemLayout}
-          label={e('loginScript')}
-          name='loginScript'
-          help={`* ${e('loginScriptTip')}`}
-        >
-          <Input.TextArea row={1} />
-        </FormItem>
-        <FormItem
-          {...formItemLayout}
-          name='loginScriptDelay'
-          label={e('loginScriptDelay')}
-        >
-          <InputNumber
-            placeholder='loginScriptDelay'
-            min={1}
-            max={65535}
-            step={1}
-            formatter={value => `${value} ms`}
-          />
-        </FormItem>
+        {renderRunScripts()}
         <FormItem
           {...formItemLayout}
           label={e('title')}

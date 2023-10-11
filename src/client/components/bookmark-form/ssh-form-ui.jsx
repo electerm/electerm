@@ -7,7 +7,6 @@ import {
 } from 'antd'
 import {
   authTypeMap,
-  defaultLoginScriptDelay,
   newBookmarkIdPrefix,
   defaultEnvLang
 } from '../../common/constants'
@@ -57,7 +56,6 @@ export default function BookmarkFormUI (props) {
   let initialValues = copy(props.formData)
   const defaultValues = {
     port: 22,
-    loginScriptDelay: defaultLoginScriptDelay,
     authType: authTypeMap.password,
     id: '',
     term: props.store.config.terminalType,
@@ -65,6 +63,7 @@ export default function BookmarkFormUI (props) {
     envLang: defaultEnvLang,
     enableSsh: true,
     sshTunnels: [{}],
+    runScripts: [{}],
     category: initBookmarkGroupId,
     connectionHoppings: []
   }

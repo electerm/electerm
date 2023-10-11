@@ -29,7 +29,6 @@ import {
   isMac,
   terminalSshConfigType,
   transferTypeMap,
-  defaultLoginScriptDelay,
   terminalActions,
   commonActions,
   rendererTypes,
@@ -142,7 +141,6 @@ export default class Term extends Component {
     Object.keys(this.timers).forEach(k => {
       clearTimeout(this.timers[k])
     })
-    clearTimeout(this.timers)
     this.onClose = true
     this.socket && this.socket.close()
     if (this.term) {
@@ -827,18 +825,37 @@ export default class Term extends Component {
   }
 
   runInitScript = () => {
-    const { type, title, loginScript, startDirectory } = this.props.tab
-    let cmd = ''
+    const {
+      type,
+      title,
+      startDirectory,
+      runScripts
+    } = this.props.tab
     if (type === terminalSshConfigType) {
-      cmd = `ssh ${title.split(/\s/g)[0]}\r`
-    } else if (startDirectory && !loginScript) {
-      cmd = `cd ${startDirectory}\r`
-    } else if (!startDirectory && loginScript) {
-      cmd = loginScript + '\r'
-    } else if (startDirectory && loginScript) {
-      cmd = `cd ${startDirectory} && ${loginScript}\r`
+      const cmd = `ssh ${title.split(/\s/g)[0]}\r`
+      return this.attachAddon._sendData(cmd)
     }
-    this.attachAddon._sendData(cmd)
+    if (startDirectory) {
+      const cmd = `cd ${startDirectory}\r`
+      this.attachAddon._sendData(cmd)
+    }
+    if (runScripts && runScripts.length) {
+      this.delayedScripts = deepCopy(runScripts)
+      this.timers.timerDelay = setTimeout(this.runDelayedScripts, this.delayedScripts[0].delay || 0)
+    }
+  }
+
+  runDelayedScripts = () => {
+    const { delayedScripts } = this
+    if (delayedScripts && delayedScripts.length > 0) {
+      const obj = delayedScripts.shift()
+      if (obj.script) {
+        this.attachAddon._sendData(obj.script + '\r')
+      }
+      if (delayedScripts.length > 0) {
+        this.timers.timerDelay = setTimeout(this.runDelayedScripts, this.delayedScripts[0].delay || 0)
+      }
+    }
   }
 
   count = 0
@@ -893,11 +910,9 @@ export default class Term extends Component {
     const tab = deepCopy(this.props.tab || {})
     const {
       srcId, from = 'bookmarks',
-      type, loginScript,
-      loginScriptDelay = defaultLoginScriptDelay,
+      type,
       encode,
-      term: terminalType,
-      startDirectory
+      term: terminalType
     } = tab
     const { savePassword } = this.state
     const isSshConfig = type === terminalSshConfigType
@@ -1029,9 +1044,7 @@ export default class Term extends Component {
     //   }
     // }
     this.term = term
-    if (startDirectory || loginScript || isSshConfig) {
-      this.timers.timer1 = setTimeout(this.runInitScript, loginScriptDelay)
-    }
+    this.runInitScript()
     window.store.triggerResize()
   }
 

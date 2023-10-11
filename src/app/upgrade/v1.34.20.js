@@ -1,30 +1,29 @@
 /**
- * upgrade database to v1.32.36
+ * upgrade database to v1.34.20
  */
 
 const { dbAction } = require('../lib/nedb')
 const { updateDBVersion } = require('./version-upgrade')
 const log = require('../common/log')
-const { buildSshTunnels } = require('../common/build-ssh-tunnel')
+const { buildRunScripts } = require('../common/build-run-scripts')
 
 async function fixBookmarks () {
-  log.info('Start update bookmark Ssh Tunnels config')
+  log.info('Start update bookmark loginScript config')
   const arr = await dbAction('bookmarks', 'find', {})
   const len = arr.length
   let i = 0
   log.info('bookmarks count:', len)
   for (const b of arr) {
-    console.log(i + 1, b._id, b.sshTunnel ? 'has sshTunnel' : 'no sshTunnel')
-    if (b.sshTunnel) {
-      const sshTunnels = buildSshTunnels(b)
-      delete b.sshTunnel
-      delete b.sshTunnelRemotePort
-      delete b.sshTunnelLocalPort
+    console.log(i + 1, b._id, b.loginScript ? 'has loginScript' : 'no loginScript')
+    if (b.loginScript) {
+      const runScripts = buildRunScripts(b)
+      delete b.loginScript
+      delete b.loginScriptDelay
       await dbAction('bookmarks', 'update', {
         _id: b._id
       }, {
         ...b,
-        sshTunnels
+        runScripts
       })
     }
     i = i + 1
@@ -36,7 +35,7 @@ async function fixAll () {
 }
 
 module.exports = async () => {
-  const versionTo = '1.32.36'
+  const versionTo = '1.34.20'
   log.info(`Start: upgrading to v${versionTo}`)
   await fixAll()
   await updateDBVersion(versionTo)

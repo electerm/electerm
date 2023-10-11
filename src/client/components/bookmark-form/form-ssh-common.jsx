@@ -17,6 +17,7 @@ import { formItemLayout, tailFormItemLayout } from '../../common/form-layout'
 import InputAutoFocus from '../common/input-auto-focus'
 import encodes from './encodes'
 import formatBookmarkGroups from './bookmark-group-tree-format'
+import renderRunScripts from './render-delayed-scripts.jsx'
 import './bookmark-form.styl'
 
 const authTypes = Object.keys(authTypeMap).map(k => {
@@ -179,27 +180,7 @@ export default function renderCommon (props) {
       >
         <Input />
       </FormItem>
-      <FormItem
-        {...formItemLayout}
-        label={e('loginScript')}
-        name='loginScript'
-        help={`* ${e('loginScriptTip')}`}
-      >
-        <Input.TextArea row={1} />
-      </FormItem>
-      <FormItem
-        {...formItemLayout}
-        name='loginScriptDelay'
-        label={e('loginScriptDelay')}
-      >
-        <InputNumber
-          placeholder='loginScriptDelay'
-          min={1}
-          max={65535}
-          step={1}
-          formatter={value => `${value} ms`}
-        />
-      </FormItem>
+      {renderRunScripts()}
       <FormItem
         {...formItemLayout}
         key='encode-select'
