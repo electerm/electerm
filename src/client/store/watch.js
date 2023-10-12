@@ -19,6 +19,8 @@ import { debounce } from 'lodash-es'
 export default store => {
   autoRun(store, () => {
     store.focus()
+    // store.termSearchOpen = false
+    store.termSearchMatchCount = 0
     return store.currentTabId
   }, func => debounce(func, 100)).start()
 

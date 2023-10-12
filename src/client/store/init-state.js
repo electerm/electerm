@@ -128,6 +128,8 @@ export default {
   // term search
   termSearchOpen: false,
   termSearch: '',
+  termSearchMatchCount: 0,
+  termSearchMatchIndex: 0,
   _termSearchOptions: JSON.stringify({
     caseSensitive: false,
     wholeWord: false,

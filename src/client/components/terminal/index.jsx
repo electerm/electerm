@@ -668,6 +668,13 @@ export default class Term extends Component {
     log.debug(e, 'title change')
   }
 
+  onSearchResultsChange = ({ resultIndex, resultCount }) => {
+    window.store.storeAssign({
+      termSearchMatchCount: resultCount,
+      termSearchMatchIndex: resultIndex
+    })
+  }
+
   searchPrev = (searchInput, options) => {
     this.searchAddon.findPrevious(
       searchInput, options
@@ -675,6 +682,7 @@ export default class Term extends Component {
   }
 
   searchNext = (searchInput, options) => {
+    console.log(this.searchAddon.onDidChangeResults, 'searchAddon')
     this.searchAddon.findNext(
       searchInput, options
     )
@@ -790,6 +798,7 @@ export default class Term extends Component {
     })
     this.fitAddon = new FitAddon()
     this.searchAddon = new SearchAddon()
+    this.searchAddon.onDidChangeResults(this.onSearchResultsChange)
     const unicode11Addon = new Unicode11Addon()
     this.serializeAddon = new SerializeAddon()
     term.loadAddon(this.serializeAddon)

@@ -2,7 +2,7 @@ import { Component } from '../common/react-subx'
 import {
   Tooltip
 } from 'antd'
-import InputAutoFocus from './input-auto-focus'
+import InputAutoFocus from '../common/input-auto-focus'
 import {
   ArrowLeftOutlined,
   ArrowRightOutlined,
@@ -125,9 +125,23 @@ export default class TermSearch extends Component {
     )
   }
 
+  renderMatchData = () => {
+    const {
+      termSearchMatchCount,
+      termSearchMatchIndex
+    } = this.props.store
+    if (!termSearchMatchCount) {
+      return null
+    }
+    return <span className='mg1x'>({termSearchMatchIndex + 1}/{termSearchMatchCount})</span>
+  }
+
   renderAfter = () => {
     return (
       <div>
+        {
+          this.renderMatchData()
+        }
         {
           this.searchActions.map(this.renderSearchAction)
         }
