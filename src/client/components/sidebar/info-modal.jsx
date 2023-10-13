@@ -20,7 +20,6 @@ import {
   infoTabs,
   srcsSkipUpgradeCheck
 } from '../../common/constants'
-import LogView from './log-view'
 import './info.styl'
 
 const { prefix } = window
@@ -222,11 +221,6 @@ export default class InfoModal extends Component {
             </div>
           )
         })
-      },
-      {
-        key: infoTabs.log,
-        label: e('log'),
-        children: <LogView />
       },
       {
         key: infoTabs.cmd,
