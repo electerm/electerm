@@ -289,10 +289,18 @@ export default class ItemListTree extends Component {
     this.props.store.delItem(item, this.props.type)
   }
 
+  closeNewGroupForm = () => {
+    this.setState({
+      showNewBookmarkGroupForm: false,
+      bookmarkGroupSubParentId: ''
+    })
+  }
+
   onExpand = (expandedKeys) => {
     this.setState({
       expandedKeys
     })
+    this.closeNewGroupForm()
     this.props.store.setState(
       'expandedKeys', expandedKeys
     )
@@ -457,6 +465,7 @@ export default class ItemListTree extends Component {
       pos: this.computePos(e)
     })
     window.addEventListener('message', this.onContextAction)
+    this.closeNewGroupForm()
   }
 
   renderContextItems (item, isGroup) {
@@ -909,6 +918,7 @@ export default class ItemListTree extends Component {
           onPressEnter={this.handleSubmit}
           onChange={this.handleChangeBookmarkGroupTitle}
           addonAfter={confirm}
+          onBlur={this.handleBlurBookmarkGroupTitle}
         />
       </div>
     )
