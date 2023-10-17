@@ -71,6 +71,7 @@ export default class AddrBookmark extends Component {
       <Popover
         content={content}
         title={title}
+        placement='bottom'
         trigger='click'
       >
         <StarOutlined />
