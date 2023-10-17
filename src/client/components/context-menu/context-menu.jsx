@@ -77,7 +77,7 @@ export default class ContextMenu extends React.PureComponent {
 
   setOnCloseEvent = () => {
     const dom = document
-      .querySelector('.setting-wrap')
+      .querySelector('.ant-drawer')
     if (dom) {
       dom.addEventListener('click', this.onTriggerClose)
     }
@@ -89,7 +89,7 @@ export default class ContextMenu extends React.PureComponent {
   onTriggerClose = () => {
     this.closeContextMenu()
     const dom = document
-      .getElementById('setting-wrap')
+      .querySelector('.ant-drawer')
     if (dom) {
       dom.removeEventListener('click', this.onTriggerClose)
     }
