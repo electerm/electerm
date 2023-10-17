@@ -617,14 +617,15 @@ export default class BatchOp extends Component {
 
   render () {
     const {
-      showModal
+      showModal,
+      innerWidth
     } = this.props.store
     const showBatchOp = showModal === modals.batchOps
     const pops = {
       open: showBatchOp,
       onClose: this.handleCancel,
       className: 'setting-wrap',
-      width: window.innerWidth - sidebarWidth,
+      width: innerWidth - sidebarWidth,
       zIndex: 888,
       placement: 'left',
       headerStyle: {

@@ -14,7 +14,7 @@ export default class SettingWrap extends Component {
       open: this.props.visible,
       onClose: this.props.onCancel,
       className: 'setting-wrap',
-      width: window.innerWidth - sidebarWidth,
+      width: this.props.innerWidth - sidebarWidth,
       zIndex: 888,
       placement: 'left',
       destroyOnClose: true,

@@ -143,7 +143,8 @@ export default class SettingModalWrap extends Component {
   render () {
     const {
       showModal,
-      hideSettingModal
+      hideSettingModal,
+      innerWidth
     } = this.props.store
     const show = showModal === modals.setting
     if (!show) {
@@ -153,6 +154,7 @@ export default class SettingModalWrap extends Component {
       <SettingModal
         onCancel={hideSettingModal}
         visible={show}
+        innerWidth={innerWidth}
       >
         {this.renderTabs()}
       </SettingModal>
