@@ -23,7 +23,6 @@ export const logoPath1 = logoPath1Ref.replace(/^\//, '')
 export const logoPath2 = logoPath2Ref.replace(/^\//, '')
 export const logoPath3 = logoPath3Ref.replace(/^\//, '')
 export const maxEditFileSize = 1024 * 30
-export const defaultUserName = 'root'
 export const defaultBookmarkGroupId = 'default'
 export const newBookmarkIdPrefix = 'new-bookmark'
 export const unexpectedPacketErrorDesc = 'Unexpected packet'

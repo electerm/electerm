@@ -10,8 +10,7 @@ import {
   Form
 } from 'antd'
 import {
-  authTypeMap,
-  defaultUserName
+  authTypeMap
 } from '../../common/constants'
 import { formItemLayout, tailFormItemLayout } from '../../common/form-layout'
 import InputAutoFocus from '../common/input-auto-focus'
@@ -92,7 +91,7 @@ export default function renderCommon (props) {
         }]}
         normalize={props.trim}
       >
-        <Input placeholder={defaultUserName} />
+        <Input />
       </FormItem>
       <FormItem
         {...tailFormItemLayout}

@@ -14,8 +14,7 @@ import {
 import RenderAuth from './render-auth-ssh'
 import uid from '../../common/uid'
 import {
-  authTypeMap,
-  defaultUserName
+  authTypeMap
 } from '../../common/constants'
 import { useState } from 'react'
 
@@ -170,7 +169,7 @@ export default function renderConnectionHopping (props) {
           }]}
           normalize={props.trim}
         >
-          <Input placeholder={defaultUserName} />
+          <Input />
         </FormItem>
         <FormItem
           {...tailFormItemLayout}
