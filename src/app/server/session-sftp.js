@@ -112,6 +112,25 @@ class Sftp extends TerminalBase {
   }
 
   /**
+   * mv
+   *
+   * @param {String} from
+   * @param {String} to
+   * https://github.com/mscdex/ssh2-streams/blob/master/SFTPStream.md
+   * @return {Promise}
+   */
+  mv (from, to) {
+    return new Promise((resolve, reject) => {
+      const { client } = this
+      const cmd = `mv "${from}" "${to}"`
+      client.exec(cmd, this.getExecOpts(), (err) => {
+        if (err) reject(err)
+        else resolve()
+      })
+    })
+  }
+
+  /**
    * list remote directory
    *
    * @param {String} remotePath
