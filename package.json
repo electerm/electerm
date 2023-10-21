@@ -13,8 +13,6 @@
     "clean": "node build/bin/clean",
     "compile": "node build/bin/build",
     "vite-build": "node build/bin/vite-build.js",
-    "local-test": "LOCAL_TEST=1 npm run test",
-    "init": "npm i && cd src/vite && npm i",
     "prepublishOnly": "node build/bin/prepublish",
     "postpublish": "node build/bin/postpublish",
     "prepare-file": "node build/bin/prepare",
