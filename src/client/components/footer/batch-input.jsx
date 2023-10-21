@@ -7,8 +7,7 @@ import {
   AutoComplete,
   Input,
   Switch,
-  Tooltip,
-  Button
+  Tooltip
 } from 'antd'
 import { batchInputLsKey, commonActions } from '../../common/constants'
 import postMsg from '../../common/post-msg'
@@ -136,6 +135,11 @@ export default class BatchInput extends Component {
         'bi-show': open || enter
       }
     )
+    const inputProps = {
+      size: 'small',
+      placeholder: e('batchInput'),
+      className: 'batch-input-holder'
+    }
     return (
       <span
         className={cls}
@@ -143,12 +147,9 @@ export default class BatchInput extends Component {
         onMouseLeave={this.handleMouseLeave}
       >
         <span className='bi-compact'>
-          <Button
-            size='small'
-            type='ghost'
-          >
-            B
-          </Button>
+          <Input
+            {...inputProps}
+          />
         </span>
         <span className='bi-full'>
           <AutoComplete

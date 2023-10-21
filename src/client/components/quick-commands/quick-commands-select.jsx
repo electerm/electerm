@@ -27,13 +27,10 @@ export default class QuickCommandsFooter extends PureComponent {
       <div className='fleft relative'>
         <Button
           size='small'
-          type='ghost'
-          className='qm-trigger'
           onMouseEnter={this.handleOpen}
           onMouseLeave={this.handleMouseLeave}
         >
-          <span className='qm-full'>{e('quickCommands')}</span>
-          <span className='qm-compact'>Q</span>
+          {e('quickCommands')}
         </Button>
       </div>
     )
