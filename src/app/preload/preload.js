@@ -17,12 +17,6 @@ contextBridge.exposeInMainWorld(
     ipcOffEvent: (event, cb) => {
       ipcRenderer.removeListener(event, cb)
     },
-    getGlobalSync: (name, ...args) => {
-      return ipcRenderer.sendSync('sync', {
-        name,
-        args
-      })
-    },
     runGlobalAsync: (name, ...args) => {
       return ipcRenderer.invoke('async', {
         name,
