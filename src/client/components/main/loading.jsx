@@ -1,4 +1,4 @@
-import LogoElelm from '../common/logo-elem'
+import LogoElem from '../common/logo-elem'
 import { PureComponent } from 'react'
 
 export class LoadingUI extends PureComponent {
@@ -18,7 +18,7 @@ export class LoadingUI extends PureComponent {
     }
     return (
       <div className='loading-data'>
-        <LogoElelm />
+        <LogoElem />
       </div>
     )
   }

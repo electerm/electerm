@@ -13,7 +13,7 @@ import {
 import { Component } from '../common/react-subx'
 import { Modal, Tabs, Button } from 'antd'
 import Link from '../common/external-link'
-import LogoElelm from '../common/logo-elem'
+import LogoElem from '../common/logo-elem'
 
 import {
   packInfo,
@@ -118,7 +118,7 @@ export default class InfoModal extends Component {
         label: m('about'),
         children: (
           <div>
-            <LogoElelm />
+            <LogoElem />
             <p className='mg2b'>{a('desc')}</p>
             <p className='mg1b'>
               <UserOutlined /> <b className='mg1r'>{e('author')} ➾</b>

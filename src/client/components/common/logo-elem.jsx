@@ -6,7 +6,7 @@ import {
 } from '../../common/constants'
 import { Tag } from 'antd'
 
-export default function LogoElelm () {
+export default function LogoElem () {
   return (
     <h1 className='mg3y font50'>
       <span className='iblock pd3 morph-shape mg1l mg1r'>
