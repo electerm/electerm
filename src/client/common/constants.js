@@ -7,9 +7,7 @@ import logoPath2Ref from '@electerm/electerm-resource/res/imgs/electerm.png'
 import logoPath3Ref from '@electerm/electerm-resource/res/imgs/electerm-watermark.png'
 import dbDefaults from '../../app/upgrade/db-defaults'
 import { get as _get } from 'lodash-es'
-
-export const { packInfo } = window.pre
-
+export const packInfo = typeof window.et.packInfo === 'undefined' ? window.pre.packInfo : window.et.packInfo
 const buildConst = (props) => {
   return props.reduce((prev, key) => {
     return {
@@ -80,8 +78,8 @@ export const authTypeMap = buildConst([
 export const maxTransferHistory = 100
 export const footerHeight = 36
 export const quickCommandBoxHeight = 180
-export const isWin = window.pre.isWin
-export const isMac = window.pre.isMac
+export const isWin = typeof window.et.isWin === 'undefined' ? window.pre.isWin : window.et.isWin
+export const isMac = typeof window.et.isMac === 'undefined' ? window.pre.isMac : window.et.isMac
 export const ctrlOrCmd = isMac ? 'cmd' : 'ctrl'
 export const typeMap = buildConst([
   'remote',
