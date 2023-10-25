@@ -10,6 +10,9 @@ const id = 's'
 window.et.wsOpened = false
 
 export const initWsCommon = async () => {
+  if (window.et.wsOpened) {
+    return
+  }
   const ws = await initWs('common', id, undefined, undefined, true)
   window.et.wsOpened = true
   ws.onclose = () => {
