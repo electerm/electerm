@@ -3,7 +3,7 @@
  */
 import fetch from './fetch-from-server'
 
-const { fsFunctions } = window.pre
+const fsFunctions = typeof window.pre.fsFunctions === 'undefined' ? window.et.fsFunctions : window.pre.fsFunctions
 
 const fs = fsFunctions.reduce((prev, func) => {
   prev[func] = (...args) => {
