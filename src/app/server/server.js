@@ -1,6 +1,5 @@
 const express = require('express')
 const app = express()
-const cors = require('cors')
 const strip = require('@electerm/strip-ansi').default
 const log = require('../common/log')
 
@@ -8,8 +7,6 @@ const { verifyWs, initWs } = require('./dispatch-center')
 const {
   terminals
 } = require('./remote-common')
-
-app.use(cors())
 
 // parse application/x-www-form-urlencoded
 app.use(express.urlencoded({ extended: false }))

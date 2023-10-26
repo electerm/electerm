@@ -108,7 +108,6 @@
     "@yetzt/nedb": "1.8.0",
     "axios": "0.26.0",
     "commander": "11.0.0",
-    "cors": "2.8.5",
     "electerm-sync": "1.1.0",
     "electron-log": "4.3.5",
     "express": "4.18.2",
