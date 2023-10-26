@@ -24,7 +24,7 @@ export const initWsCommon = async () => {
 
 window.pre.ipcOnEvent('power-resume', initWsCommon)
 
-export default async (data) => {
+const wsFetch = async (data) => {
   if (!window.et.wsOpened) {
     await initWsCommon()
   }
@@ -43,3 +43,5 @@ export default async (data) => {
     })
   })
 }
+window.wsFetch = wsFetch
+export default wsFetch

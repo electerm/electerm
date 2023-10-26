@@ -95,19 +95,6 @@ function initIpc () {
     initShortCut(globalShortcut, global.win, config)
     return globs
   }
-  const isMaximized = () => {
-    const {
-      width: widthMax,
-      height: heightMax,
-      x: sx,
-      y: sy
-    } = getScreenSize()
-    const { width, height, x, y } = global.win.getBounds()
-    return widthMax === width &&
-      heightMax === height &&
-      x === sx &&
-      y === sy
-  }
 
   ipcMain.on('sync-func', (event, { name, args }) => {
     event.returnValue = ipcSyncFuncs[name](...args)
@@ -122,7 +109,6 @@ function initIpc () {
     loadFontList,
     doUpgrade,
     checkDbUpgrade,
-    isMaximized,
     getExitStatus: () => global.et.exitStatus,
     setExitStatus: (status) => {
       global.et.exitStatus = status

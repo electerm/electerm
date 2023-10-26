@@ -47,7 +47,7 @@ export default Store => {
 
   Store.prototype.onResize = debounce(async function () {
     const { width, height } = await window.pre.runGlobalAsync('getScreenSize')
-    const isMaximized = await window.pre.runGlobalAsync('isMaximized')
+    const isMaximized = window.pre.runSync('isMaximized')
     const update = {
       height: window.innerHeight,
       innerWidth: window.innerWidth,
