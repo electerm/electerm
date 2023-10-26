@@ -408,10 +408,10 @@ export default class Term extends Component {
 
   webLinkHandler = (event, url) => {
     if (!this.props.config.ctrlOrMetaOpenTerminalLink) {
-      return window.open(url, '_blank')
+      return window.openLink(url, '_blank')
     }
     if (keyControlPressed(event)) {
-      window.open(url, '_blank')
+      window.openLink(url, '_blank')
     }
   }
 

@@ -5,7 +5,7 @@
 import { memo } from 'react'
 import { LinkOutlined } from '@ant-design/icons'
 
-window.open = (url) => {
+window.openLink = (url) => {
   window.pre.openExternal(url)
 }
 
