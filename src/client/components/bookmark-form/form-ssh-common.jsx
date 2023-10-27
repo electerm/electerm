@@ -118,7 +118,6 @@ export default function renderCommon (props) {
       <FormItem
         {...formItemLayout}
         label={e('port')}
-        hasFeedback
         name='port'
         rules={[{
           required: true, message: 'port required'

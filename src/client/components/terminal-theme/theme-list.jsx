@@ -23,6 +23,10 @@ export default class ThemeList extends List {
     this.setState({ page })
   }
 
+  handlePageSizeChange = (page, pageSize) => {
+    this.setState({ pageSize, page })
+  }
+
   renderApplyBtn = item => {
     if (!item.id) {
       return null
@@ -130,6 +134,7 @@ export default class ThemeList extends List {
           total={all}
           current={page}
           pageSize={pageSize}
+          onShowSizeChange={this.handlePageSizeChange}
         />
         {
           ready
