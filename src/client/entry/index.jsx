@@ -1,6 +1,6 @@
 import { render } from 'react-dom'
-import '../../../node_modules/antd/dist/reset.css'
-import '../../../node_modules/xterm/css/xterm.css'
+import 'antd/dist/reset.css'
+import 'xterm/css/xterm.css'
 import '../common/trzsz'
 import Main from '../components/main'
 import { notification } from 'antd'

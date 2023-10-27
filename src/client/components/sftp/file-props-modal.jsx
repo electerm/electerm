@@ -14,7 +14,7 @@ import {
 } from '../../common/constants'
 import resolve from '../../common/resolve'
 import { mode2permission } from '../../common/mode2permission'
-import time from '../../../app/common/time'
+import time from '../../common/time'
 import renderPermission from './permission-render'
 import FileIcon from './file-icon'
 import fs from '../../common/fs'

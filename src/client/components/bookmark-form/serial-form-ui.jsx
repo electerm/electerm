@@ -25,7 +25,7 @@ import {
   newBookmarkIdPrefix
 } from '../../common/constants'
 import formatBookmarkGroups from './bookmark-group-tree-format'
-import defaultSettings from '../../../app/common/default-setting'
+import defaultSettings from '../../common/default-setting'
 import findBookmarkGroupId from '../../common/find-bookmark-group-id'
 import useSubmit from './use-submit'
 import useUI from './use-ui'

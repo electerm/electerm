@@ -6,7 +6,7 @@
 import { Modal, Button } from 'antd'
 import { isString } from 'lodash-es'
 import AnimateText from '../common/animate-text'
-import formatTime from '../../../app/common/time'
+import formatTime from '../../common/time'
 import { FolderOutlined, FileOutlined } from '@ant-design/icons'
 import {
   fileActions

@@ -5,7 +5,7 @@
 import React from 'react'
 import { Modal, Button } from 'antd'
 import resolve from '../../common/resolve'
-import time from '../../../app/common/time'
+import time from '../../common/time'
 import { findIndex, update } from 'lodash-es'
 import { mode2permission, permission2mode } from '../../common/mode2permission'
 import { commonActions } from '../../common/constants'

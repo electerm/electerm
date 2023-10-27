@@ -5,7 +5,7 @@
 import { Component } from '../common/react-subx'
 import { CloseOutlined } from '@ant-design/icons'
 import { Table } from 'antd'
-import time from '../../../app/common/time'
+import time from '../../common/time'
 import Tag from '../sftp/transfer-tag'
 import './transfer-history.styl'
 import { get as _get } from 'lodash-es'

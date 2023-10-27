@@ -22,7 +22,7 @@ import {
   proxyHelpLink,
   isWin
 } from '../../common/constants'
-import defaultSettings from '../../../app/common/default-setting'
+import defaultSettings from '../../common/default-setting'
 import ShowItem from '../common/show-item'
 import { osResolve } from '../../common/resolve'
 import Link from '../common/external-link'

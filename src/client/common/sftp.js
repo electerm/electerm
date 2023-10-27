@@ -4,9 +4,8 @@
 
 import generate from './uid'
 import Transfer from './transfer'
-import { transferTypeMap } from './constants'
+import { transferTypeMap, instSftpKeys as keys } from './constants'
 import initWs from './ws'
-import { instSftpKeys as keys } from '../../app/common/constants'
 
 const transferKeys = Object.keys(transferTypeMap)
 

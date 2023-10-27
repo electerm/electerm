@@ -10,7 +10,7 @@ import {
 } from '@ant-design/icons'
 import { Upload, Button } from 'antd'
 import download from '../../common/download'
-import time from '../../../app/common/time'
+import time from '../../common/time'
 import copy from 'json-deep-copy'
 import { find, uniq, isEqual } from 'lodash-es'
 import { fixBookmarks } from '../../common/db-fix'
