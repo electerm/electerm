@@ -18,6 +18,7 @@ jobs:
           node-version: '18'
           registry-url: https://registry.npmjs.org/
       - run: npm install shelljs
+      - run: npm install -g npm-publish
       - name: build
         env:
           token: ${{secrets.NPM_TOKEN}}
