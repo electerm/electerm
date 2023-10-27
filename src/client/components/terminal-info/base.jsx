@@ -2,7 +2,6 @@
  * show base terminal info, id sessionID
  */
 
-// import { createLogFileName } from '../../../app/common/create-session-log-file-path'
 import { osResolve } from '../../common/resolve'
 import ShowItem from '../common/show-item'
 

@@ -5,7 +5,7 @@ import { getUiThemeConfig } from './ui-theme'
 import logoPath1Ref from '@electerm/electerm-resource/res/imgs/electerm-round-128x128.png'
 import logoPath2Ref from '@electerm/electerm-resource/res/imgs/electerm.png'
 import logoPath3Ref from '@electerm/electerm-resource/res/imgs/electerm-watermark.png'
-import dbDefaults from '../../app/upgrade/db-defaults'
+import dbDefaults from './db-defaults'
 import { get as _get } from 'lodash-es'
 export const packInfo = typeof window.et.packInfo === 'undefined' ? window.pre.packInfo : window.et.packInfo
 const buildConst = (props) => {
@@ -306,3 +306,24 @@ export const modals = {
   setting: 1,
   batchOps: 2
 }
+export const instSftpKeys = [
+  'connect',
+  'list',
+  'download',
+  'upload',
+  'mkdir',
+  'getHomeDir',
+  'rmdir',
+  'stat',
+  'lstat',
+  'chmod',
+  'rename',
+  'rm',
+  'touch',
+  'readlink',
+  'realpath',
+  'mv',
+  'cp',
+  'readFile',
+  'writeFile'
+]

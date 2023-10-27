@@ -1,6 +1,6 @@
 import BookmarkTransport from '../setting-panel/bookmark-transport'
 import download from '../../common/download'
-import time from '../../../app/common/time'
+import time from '../../common/time'
 import copy from 'json-deep-copy'
 
 export default class QmTransport extends BookmarkTransport {

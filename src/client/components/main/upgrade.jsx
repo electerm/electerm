@@ -3,7 +3,7 @@ import { CloseOutlined, MinusSquareOutlined, UpCircleOutlined } from '@ant-desig
 import { Button } from 'antd'
 import { getLatestReleaseInfo, getLatestReleaseVersion } from '../../common/update-check'
 import upgrade from '../../common/upgrade'
-import compare from '../../../app/common/version-compare'
+import compare from '../../common/version-compare'
 import Link from '../common/external-link'
 import {
   isMac,

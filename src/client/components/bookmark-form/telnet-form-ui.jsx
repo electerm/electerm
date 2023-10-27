@@ -14,7 +14,7 @@ import {
 } from '../../common/constants'
 import { formItemLayout } from '../../common/form-layout'
 import findBookmarkGroupId from '../../common/find-bookmark-group-id'
-import defaultSettings from '../../../app/common/default-setting'
+import defaultSettings from '../../common/default-setting'
 import useSubmit from './use-submit'
 import useUI from './use-ui'
 import useQm from './use-quick-commands'

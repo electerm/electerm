@@ -1,0 +1,33 @@
+{
+  "name": "@electerm/electerm-react",
+  "version": "1.34.30",
+  "description": "react components src for electerm",
+  "main": "./client/components/main/main.jsx",
+  "license": "MIT",
+  "langugeRepo": "https://github.com/electerm/electerm-locales",
+  "privacyNoticeLink": "https://github.com/electerm/electerm/wiki/privacy-notice",
+  "knownIssuesLink": "https://github.com/electerm/electerm/wiki/Know-issues",
+  "sponsorLink": "https://electerm.html5beta.com/sponsor-electerm.html",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/electerm/electerm.git"
+  },
+  "author": {
+    "name": "ZHAO Xudong",
+    "email": "zxdong@gmail.com",
+    "url": "https://github.com/zxdong262"
+  },
+  "bugs": {
+    "url": "https://github.com/electerm/electerm/issues"
+  },
+  "homepage": "https://electerm.html5beta.com",
+  "releases": "https://github.com/electerm/electerm/releases",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "files": [
+    "client",
+    "README.md",
+    "LICENSE"
+  ]
+}

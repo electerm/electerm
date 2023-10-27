@@ -1,7 +1,7 @@
 // make old data imported compatible
-import { buildProxyString } from '../../app/lib/build-proxy.js'
-import { buildSshTunnels } from '../../app/common/build-ssh-tunnel.js'
-import { buildRunScripts } from '../../app/common/build-run-scripts.js'
+import { buildProxyString } from './build-proxy.js'
+import { buildSshTunnels } from './build-ssh-tunnel.js'
+import { buildRunScripts } from './build-run-scripts.js'
 
 export function fixBookmarks (arr) {
   return arr.map(bookmark => {

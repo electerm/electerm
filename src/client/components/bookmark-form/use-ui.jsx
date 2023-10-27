@@ -13,7 +13,7 @@ import {
   Form
 } from 'antd'
 import { formItemLayout } from '../../common/form-layout'
-import defaultSettings from '../../../app/common/default-setting'
+import defaultSettings from '../../common/default-setting'
 import mapper from '../../common/auto-complete-data-mapper'
 import { defaultEnvLang } from '../../common/constants'
 
