@@ -1,9 +1,9 @@
-name: publish-to-npm
+name: publish-to-npm2
 on:
   release:
     types: [published]
   push:
-    branches: [ test-npm ]
+    branches: [ test-npm2 ]
 jobs:
   release-npm:
     runs-on: ubuntu-20.04
@@ -17,7 +17,8 @@ jobs:
         with:
           node-version: '18'
           registry-url: https://registry.npmjs.org/
-      - run: npm i
-      - uses: JS-DevTools/npm-publish@v3
-        with:
+
+      - name: build
+        env:
           token: ${{secrets.NPM_TOKEN}}
+        run: node build/bin/publish-electerm-react.js
