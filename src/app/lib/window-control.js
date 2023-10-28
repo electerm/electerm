@@ -54,6 +54,7 @@ exports.unmaximize = () => {
 
 exports.getWindowSize = async () => {
   const windowSizeLastState = await lastStateManager.get('windowSize')
+  const windowPosLastState = await lastStateManager.get('windowPos')
   const {
     width: maxWidth,
     height: maxHeight
@@ -61,7 +62,9 @@ exports.getWindowSize = async () => {
   if (!windowSizeLastState || isDev) {
     return {
       width: maxWidth,
-      height: maxHeight
+      height: maxHeight,
+      x: 0,
+      y: 0
     }
   }
   const {
@@ -82,8 +85,18 @@ exports.getWindowSize = async () => {
   if (h < minH) {
     h = minH
   }
+  const {
+    x = 0,
+    y = 0
+  } = windowPosLastState || {}
   return {
     width: w,
-    height: h
+    height: h,
+    x,
+    y
   }
+}
+
+exports.setWindowPos = (pos) => {
+  lastStateManager.set('windowPos', pos)
 }

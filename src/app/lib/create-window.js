@@ -7,7 +7,8 @@ const {
   minWindowWidth, minWindowHeight
 } = require('../common/runtime-constants')
 const {
-  getWindowSize
+  getWindowSize,
+  setWindowPos
 } = require('./window-control')
 const { onClose } = require('./on-close')
 const initIpc = require('./ipc')
@@ -17,14 +18,14 @@ const { disableShortCuts } = require('./key-bind')
 
 exports.createWindow = async function () {
   const userConfig = await getDbConfig() || {}
-  const { width, height } = await getWindowSize()
+  const { width, height, x, y } = await getWindowSize()
   const { useSystemTitleBar } = userConfig
-
   const win = new BrowserWindow({
     width,
     height,
+    x,
+    y,
     fullscreenable: true,
-    // fullscreen: true,
     title: packInfo.name,
     frame: useSystemTitleBar,
     transparent: !useSystemTitleBar,
@@ -66,7 +67,10 @@ exports.createWindow = async function () {
         win.center()
       }
     })
-    // Emitted when the window is closed.
+    win.on('move', () => {
+      const { x, y } = win.getBounds()
+      setWindowPos({ x, y })
+    })
 
     win.on('focus', () => {
       win.webContents.send('focused', null)

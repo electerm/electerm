@@ -133,7 +133,6 @@ function initIpc () {
     openDevTools: () => {
       global.win.webContents.openDevTools()
     },
-    lastStateManager,
     setWindowSize: (update) => {
       lastStateManager.set('windowSize', update)
     },
