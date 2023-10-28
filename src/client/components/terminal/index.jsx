@@ -86,6 +86,8 @@ export default class Term extends Component {
     }
   }
 
+  dataCache = ''
+
   componentDidMount () {
     this.initTerminal()
     this.initEvt()
@@ -765,6 +767,18 @@ export default class Term extends Component {
     }
   }
 
+  onData = (d) => {
+    if (!d.includes('\r') && !d.includes('\r')) {
+      this.dataCache += d
+    } else {
+      const data = this.dataCache.trim()
+      this.dataCache = ''
+      if (data === 'exit') {
+        this.props.delSplit(this.state.id)
+      }
+    }
+  }
+
   loadRenderer = (term, config) => {
     if (config.rendererType === rendererTypes.canvas) {
       term.loadAddon(new CanvasAddon())
@@ -817,6 +831,7 @@ export default class Term extends Component {
     // term.textarea.addEventListener('blur', this.onBlur)
 
     // term.on('keydown', this.handleEvent)
+    term.onData(this.onData)
     this.term = term
     term.attachCustomKeyEventHandler(this.handleEvent)
     term.onKey(this.onKey)
