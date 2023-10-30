@@ -770,11 +770,15 @@ export default class Term extends Component {
   onData = (d) => {
     if (!d.includes('\r') && !d.includes('\r')) {
       this.dataCache += d
+      delete this.userTypeExit
     } else {
       const data = this.dataCache.trim()
       this.dataCache = ''
       if (data === 'exit') {
-        this.props.delSplit(this.state.id)
+        this.userTypeExit = true
+        this.timers.userTypeExit = setTimeout(() => {
+          delete this.userTypeExit
+        }, 2000)
       }
     }
   }
@@ -1106,6 +1110,9 @@ export default class Term extends Component {
     )
     if (!this.isActiveTerminal() || !window.focused) {
       return false
+    }
+    if (this.userTypeExit) {
+      return this.props.delSplit(this.state.id)
     }
     const key = `open${Date.now()}`
     function closeMsg () {
