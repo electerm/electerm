@@ -1018,15 +1018,16 @@ export default class Term extends Component {
     const socket = new WebSocket(wsUrl)
     socket.onclose = this.oncloseSocket
     socket.onerror = this.onerrorSocket
-    this.attachAddon = new AttachAddon(
-      socket,
-      undefined,
-      encode,
-      isWin && !this.isRemote()
-    )
-    term.loadAddon(this.attachAddon)
     socket.onopen = () => {
+      this.attachAddon = new AttachAddon(
+        socket,
+        undefined,
+        encode,
+        isWin && !this.isRemote()
+      )
+      term.loadAddon(this.attachAddon)
       socket.addEventListener('message', this.onSocketData)
+      this.runInitScript()
       term._initialized = true
     }
     this.socket = socket
@@ -1072,7 +1073,6 @@ export default class Term extends Component {
     //   }
     // }
     this.term = term
-    this.runInitScript()
     window.store.triggerResize()
   }
 
