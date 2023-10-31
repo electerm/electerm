@@ -39,6 +39,8 @@ exports.createWindow = async function () {
     titleBarStyle: useSystemTitleBar ? 'default' : 'customButtonsOnHover',
     icon: iconPath
   })
+  // hides the traffic lights
+  win.setWindowButtonVisibility(useSystemTitleBar)
 
   global.win = win
 
