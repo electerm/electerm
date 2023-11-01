@@ -19,8 +19,7 @@ import {
   noTerminalBgValue,
   settingMap,
   rendererTypes,
-  proxyHelpLink,
-  isWin
+  proxyHelpLink
 } from '../../common/constants'
 import defaultSettings from '../../common/default-setting'
 import ShowItem from '../common/show-item'
