@@ -11,7 +11,10 @@ const st = prefix('setting')
 
 export default function TerminalInfoBase (props) {
   const { id, saveTerminalLogToFile, logName } = props
-  const path = osResolve(props.appPath, 'electerm', 'session_logs', logName + '.log')
+  const base = props.appPath
+    ? osResolve(props.appPath, 'electerm', 'session_logs')
+    : window.et.sessionLogPath
+  const path = osResolve(base, logName + '.log')
   const to = saveTerminalLogToFile
     ? <ShowItem disabled={!saveTerminalLogToFile} to={path}>{path}</ShowItem>
     : `-> ${c('setting')} -> ${st('saveTerminalLogToFile')}`

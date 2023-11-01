@@ -618,24 +618,6 @@ export default class Setting extends Component {
     }
   }
 
-  renderMakePortable () {
-    const {
-      isPortable
-    } = this.props.store
-    if (!isWin || isPortable) {
-      return null
-    }
-    return (
-      <div className='pd1y'>
-        <Button
-          onClick={this.handlePortable}
-        >
-          {e('makeItPortable')}
-        </Button>
-      </div>
-    )
-  }
-
   render () {
     const { ready } = this.state
     if (!ready) {
@@ -655,7 +637,7 @@ export default class Setting extends Component {
       appPath,
       langs
     } = this.props.store
-    const terminalLogPath = osResolve(appPath, 'electerm', 'session_logs')
+    const terminalLogPath = appPath ? osResolve(appPath, 'electerm', 'session_logs') : window.et.sessionLogPath
     const terminalThemes = this.props.store.getSidebarList(settingMap.terminalThemes)
     const [modifier, key] = hotkey.split('+')
     const pops = {
@@ -848,9 +830,6 @@ export default class Setting extends Component {
         {this.renderToggle('saveTerminalLogToFile', (
           <ShowItem to={terminalLogPath} className='mg1l'>{p('open')}</ShowItem>
         ))}
-        {
-          this.renderMakePortable()
-        }
         {this.renderReset()}
       </div>
     )
