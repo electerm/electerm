@@ -137,7 +137,7 @@ export default class Sftp extends Component {
         [`${k}FileTree`]: {},
         [`${k}Loading`]: false,
         [`${k}InputFocus`]: false,
-        [`${k}ShowHiddenFile`]: false,
+        [`${k}ShowHiddenFile`]: true,
         [`${k}Path`]: '',
         [`${k}PathTemp`]: '',
         [`${k}PathHistory`]: [],
