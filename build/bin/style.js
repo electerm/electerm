@@ -12,7 +12,58 @@ function findFiles (pattern) {
   return glob.sync(pattern)
 }
 
-function loadDevStylus () {
+function removeUnused (str) {
+  const names = [
+    'contrastColor',
+    'main',
+    'main-dark',
+    'main-light',
+    'text',
+    'text-light',
+    'text-dark',
+    'text-disabled',
+    'primary',
+    'info',
+    'success',
+    'error',
+    'warn'
+  ]
+  const lines = str.split('\n').filter(d => {
+    return d &&
+      !d.startsWith('@require') &&
+      !/^ *\/\//.test(d) &&
+      !/^ *\*/.test(d) &&
+      !/^ *\/\*/.test(d)
+  })
+  const sections = []
+  let section = []
+  let prevIsHead = false
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i]
+    const isIndent = line.startsWith('  ')
+    if (
+      isIndent
+    ) {
+      prevIsHead = false
+      section.push(line)
+    } else if (!isIndent && (prevIsHead || !section.length)) {
+      section.push(line)
+      prevIsHead = true
+    } else {
+      sections.push(section.join('\n'))
+      section = [line]
+      prevIsHead = true
+    }
+  }
+  if (section.length) {
+    sections.push(section.join('\n'))
+  }
+  return sections.filter(s => {
+    return names.some(name => s.includes(name))
+  }).join('\n') + '\n'
+}
+
+export function loadDevStylus () {
   const dir = resolve(__dirname, '../../src/client')
   const pat = dir + '/**/*.styl'
   const arr = findFiles(pat)
@@ -25,11 +76,13 @@ function loadDevStylus () {
   let all = ''
   for (const p of arr) {
     const text = readFileSync(p).toString()
-    if (text.includes('@require') || text.includes(' = ')) {
+    if (text.includes(' = ')) {
       all = all + text
+    } else if (text.includes('@require')) {
+      const after = removeUnused(text)
+      all = all + after
     }
   }
-  all = all.replace(/@require[^\n]+\n/g, '\n')
   return all
 }
 

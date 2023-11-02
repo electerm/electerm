@@ -27,7 +27,7 @@ async function wsFetchHandler (ws, msg) {
   if (res.error) {
     console.log(res.error)
     ws.s({
-      error: res.error,
+      error: res.error.message,
       id
     })
   } else {
