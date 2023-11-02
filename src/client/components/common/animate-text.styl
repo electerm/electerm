@@ -1,54 +1,39 @@
+// animate.css -http://daneden.me/animate
+// Version - 3.5.2
+// Licensed under the MIT license - http://opensource.org/licenses/MIT
+// Copyright (c) 2017 Daniel Eden
 
-/*!
- * animate.css -http://daneden.me/animate
- * Version - 3.5.2
- * Licensed under the MIT license - http://opensource.org/licenses/MIT
- *
- * Copyright (c) 2017 Daniel Eden
- */
+.animated
+  animation-duration 1s
+  animation-fill-mode both
 
-.animated {
-  animation-duration: 1s;
-  animation-fill-mode: both;
-}
+.animated.bounceIn
+  animation-duration .45s
 
-.animated.bounceIn {
-  animation-duration: .45s;
-}
+@keyframes bounceIn
+  from, 20%, 40%, 60%, 80%, to
+    animation-timing-function cubic-bezier(0.215, 0.610, 0.355, 1.000)
 
-@keyframes bounceIn {
-  from, 20%, 40%, 60%, 80%, to {
-    animation-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000);
-  }
+  0%
+    opacity 0
+    transform scale3d(.3, .3, .3)
 
-  0% {
-    opacity: 0;
-    transform: scale3d(.3, .3, .3);
-  }
+  20%
+    transform scale3d(1.1, 1.1, 1.1)
 
-  20% {
-    transform: scale3d(1.1, 1.1, 1.1);
-  }
+  40%
+    transform scale3d(.9, .9, .9)
 
-  40% {
-    transform: scale3d(.9, .9, .9);
-  }
+  60%
+    opacity 1
+    transform scale3d(1.03, 1.03, 1.03)
 
-  60% {
-    opacity: 1;
-    transform: scale3d(1.03, 1.03, 1.03);
-  }
+  80%
+    transform scale3d(.97, .97, .97)
 
-  80% {
-    transform: scale3d(.97, .97, .97);
-  }
+  to
+    opacity 1
+    transform scale3d(1, 1, 1)
 
-  to {
-    opacity: 1;
-    transform: scale3d(1, 1, 1);
-  }
-}
-
-.bounceIn {
-  animation-name: bounceIn;
-}
+.bounceIn
+  animation-name bounceIn
