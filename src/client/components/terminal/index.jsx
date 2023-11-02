@@ -684,7 +684,6 @@ export default class Term extends Component {
   }
 
   searchNext = (searchInput, options) => {
-    console.log(this.searchAddon.onDidChangeResults, 'searchAddon')
     this.searchAddon.findNext(
       searchInput, options
     )
