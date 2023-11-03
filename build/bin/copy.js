@@ -8,11 +8,6 @@ const from0 = resolve(
   __dirname,
   '../../node_modules/vscode-icons/icons'
 )
-const from3 = resolve(
-  __dirname,
-  '../iTerm2-Color-Schemes/electerm/*'
-)
-
 const to1 = resolve(
   __dirname,
   '../../work/app/assets/images/'
@@ -20,10 +15,6 @@ const to1 = resolve(
 const to2 = resolve(
   __dirname,
   '../../work/app/assets/icons'
-)
-const to4 = resolve(
-  __dirname,
-  '../../work/app/assets/iTerm2-Color-Schemes/'
 )
 const arr = [
   {
@@ -33,9 +24,6 @@ const arr = [
   }, {
     from: from0,
     to: to2
-  }, {
-    from: from3,
-    to: to4
   }
 ]
 
