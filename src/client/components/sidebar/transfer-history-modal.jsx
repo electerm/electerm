@@ -83,6 +83,16 @@ export default class TransferHistoryModal extends Component {
       key: 'speed',
       sorter: sorterFactory('speed')
     }]
+    const tabConf = {
+      dataSource: transferHistory,
+      columns,
+      bordered: true,
+      pagination: {
+        pageSize: 10
+      },
+      size: 'small',
+      rowKey: 'id'
+    }
     return (
       <div className='pd2'>
         <div>
@@ -96,12 +106,7 @@ export default class TransferHistoryModal extends Component {
         </div>
         <div className='table-scroll-wrap'>
           <Table
-            dataSource={transferHistory}
-            columns={columns}
-            bordered
-            pagination={false}
-            size='small'
-            rowKey='id'
+            {...tabConf}
           />
         </div>
       </div>
