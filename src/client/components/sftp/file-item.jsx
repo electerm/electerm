@@ -871,7 +871,7 @@ export default class FileSection extends React.Component {
 
   newItem = (isDirectory) => {
     const { type } = this.state.file
-    const list = this.props[type]
+    const list = copy(this.props[type])
     list.unshift({
       name: '',
       nameTemp: '',
@@ -1031,14 +1031,12 @@ export default class FileSection extends React.Component {
     res.push({
       func: 'newFile',
       icon: 'FileAddOutlined',
-      text: e('newFile'),
-      subText: `${ctrlOrCmd}+v`
+      text: e('newFile')
     })
     res.push({
       func: 'newDirectory',
       icon: 'FolderAddOutlined',
-      text: e('newFolder'),
-      subText: `${ctrlOrCmd}+v`
+      text: e('newFolder')
     })
     res.push({
       func: 'selectAll',
