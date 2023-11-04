@@ -63,7 +63,7 @@ function removeUnused (str) {
   }).join('\n') + '\n'
 }
 
-export function loadDevStylus () {
+function loadDevStylus () {
   const dir = resolve(__dirname, '../../src/client')
   const pat = dir + '/**/*.styl'
   const arr = findFiles(pat)
