@@ -3,7 +3,7 @@ const {
 } = require('electron')
 const { resolve } = require('path')
 const {
-  isDev, packInfo, iconPath,
+  isDev, packInfo, iconPath, isMac,
   minWindowWidth, minWindowHeight
 } = require('../common/runtime-constants')
 const {
@@ -40,7 +40,9 @@ exports.createWindow = async function () {
     icon: iconPath
   })
   // hides the traffic lights
-  win.setWindowButtonVisibility(useSystemTitleBar)
+  if (isMac) {
+    win.setWindowButtonVisibility(useSystemTitleBar)
+  }
 
   global.win = win
 
