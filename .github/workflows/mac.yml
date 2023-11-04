@@ -22,6 +22,7 @@ jobs:
         node-version: 18.x
 
     # before_install:
+    - run: pip install setuptools
     - run: npm install -g yarn
     - run: npm i
 
