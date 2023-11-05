@@ -18,6 +18,8 @@
 
 Open-sourced terminal/ssh/telnet/serialport/sftp client(linux, mac, win).
 
+For experienced developers, you may try the web app version running in browser: [electerm-web](https://github.com/electerm/electerm-web)
+
 <div align="center">
   <img src="https://github.com/electerm/electerm-resource/raw/master/static/images/electerm.gif", alt="" />
 </div>
