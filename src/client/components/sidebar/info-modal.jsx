@@ -221,8 +221,11 @@ export default class InfoModal extends Component {
             </div>
           )
         })
-      },
-      {
+      }
+    ]
+
+    if (!window.et.isWebApp) {
+      items.push({
         key: infoTabs.cmd,
         label: e('commandLineUsage'),
         children: (
@@ -230,8 +233,8 @@ export default class InfoModal extends Component {
             <code>{commandLineHelp}</code>
           </pre>
         )
-      }
-    ]
+      })
+    }
 
     return (
       <Modal
