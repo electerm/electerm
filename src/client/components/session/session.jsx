@@ -80,7 +80,7 @@ export default class SessionWrapper extends Component {
       key: Math.random(),
       sessionOptions: null,
       sessionId: generate(),
-      terminals,
+      terminals: terminals.slice(0, 1),
       showInfo: false,
       infoPanelProps: {}
     }

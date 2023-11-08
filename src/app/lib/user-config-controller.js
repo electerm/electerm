@@ -12,6 +12,8 @@ exports.saveUserConfig = (userConfig) => {
   delete userConfig.host
   delete userConfig.terminalTypes
   delete userConfig.tokenElecterm
+  delete userConfig.server
+  delete userConfig.port
   Object.assign(
     global.et.config,
     userConfig
