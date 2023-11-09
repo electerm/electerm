@@ -80,7 +80,7 @@ export default class SessionWrapper extends Component {
       key: Math.random(),
       sessionOptions: null,
       sessionId: generate(),
-      terminals,
+      terminals: terminals.slice(0, 1),
       showInfo: false,
       infoPanelProps: {}
     }
@@ -437,8 +437,10 @@ export default class SessionWrapper extends Component {
                   key={type + '_' + i}
                   onClick={() => this.onChangePane(types[i])}
                 >
-                  {e(type)}
-                  <span className='type-tab-line' />
+                  <span className='type-tab-txt'>
+                    {e(type)}
+                    <span className='type-tab-line' />
+                  </span>
                 </span>
               )
             })

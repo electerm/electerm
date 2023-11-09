@@ -134,7 +134,7 @@ export default class Upgrade extends PureComponent {
     if (!isMac && !isWin && installSrc === 'npm') {
       return window.store.addTab(
         {
-          ...newTerm(),
+          ...newTerm(undefined, true),
           loginScript: 'npm i -g electerm'
         }
       )

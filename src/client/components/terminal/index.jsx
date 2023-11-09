@@ -932,7 +932,7 @@ export default class Term extends Component {
     })
     const { cols, rows } = term
     const { config } = this.props
-    const { host, port, tokenElecterm } = config
+    const { host, port, tokenElecterm, server = '' } = config
     const { sessionId, terminalIndex, id, logName } = this.props
     const tab = deepCopy(this.props.tab || {})
     const {
@@ -1013,7 +1013,11 @@ export default class Term extends Component {
     this.setState({
       pid
     })
-    const wsUrl = `ws://${host}:${port}/terminals/${pid}?sessionId=${sessionId}&token=${tokenElecterm}`
+    const hs = server
+      ? server.replace(/https?:\/\//, '')
+      : `${host}:${port}`
+    const pre = server.startsWith('https') ? 'wss' : 'ws'
+    const wsUrl = `${pre}://${hs}/terminals/${pid}?sessionId=${sessionId}&token=${tokenElecterm}`
     const socket = new WebSocket(wsUrl)
     socket.onclose = this.oncloseSocket
     socket.onerror = this.onerrorSocket
