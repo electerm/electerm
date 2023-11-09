@@ -16,7 +16,7 @@ export function updateCount (tab) {
   window.et.tabCount++
 }
 
-export default (removeTitle) => {
+export default (removeTitle, noUpdateCount) => {
   const res = {
     id: generate(),
     status: 'processing',
@@ -26,6 +26,8 @@ export default (removeTitle) => {
   if (removeTitle) {
     delete res.title
   }
-  updateCount(res)
+  if (!noUpdateCount) {
+    updateCount(res)
+  }
   return res
 }
