@@ -808,6 +808,7 @@ export default class Term extends Component {
       theme: themeConfig,
       allowTransparency: true,
       // lineHeight: 1.2,
+      wordSeparator: config.terminalWordSeparator,
       cursorStyle: config.cursorStyle,
       cursorBlink: config.cursorBlink,
       fontSize: tab.fontSize || config.fontSize,

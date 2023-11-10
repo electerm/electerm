@@ -789,9 +789,9 @@ export default class Setting extends Component {
         {
           this.renderTerminalBgSelect('terminalBackgroundImagePath')
         }
-        <div className='pd1b'>{t('default')} {e('editorTip')}</div>
+        <div className='pd1b'>{e('terminalWordSeparator')}</div>
         {
-          this.renderText('defaultEditor', e('editorTip'))
+          this.renderText('terminalWordSeparator', e('terminalWordSeparator'))
         }
         <div className='pd1b'>{t('default')} {e('execWindows')}</div>
         {
