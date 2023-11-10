@@ -6,7 +6,7 @@ import copy from 'json-deep-copy'
 export default class QmTransport extends BookmarkTransport {
   beforeUpload = async (file) => {
     const { store } = this.props
-    const txt = await window.fs.readFileSync(file.path)
+    const txt = await window.fs.readFile(file.path)
     try {
       const quickCommands = JSON.parse(txt)
       const quickCommandsOld = copy(store.quickCommands)

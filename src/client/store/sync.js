@@ -356,7 +356,7 @@ export default (Store) => {
 
   Store.prototype.importAll = async function (file) {
     const txt = await window.fs
-      .readFileSync(file.path)
+      .readFile(file.path)
     const { store } = window
     const objs = JSON.parse(txt)
     const toInsert = []

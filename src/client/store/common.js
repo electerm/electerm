@@ -83,8 +83,8 @@ export default Store => {
 
   Store.prototype.runBatchOp = function (path) {
     window.store.showModal = modals.batchOps
-    function updateText () {
-      const text = window.pre.readFileSync(path).toString()
+    async function updateText () {
+      const text = await window.fs.readFile(path)
       postMessage({
         action: commonActions.batchOp,
         batchOp: {
