@@ -107,7 +107,7 @@
     "@electerm/ssh2": "1.11.2",
     "@electerm/strip-ansi": "1.0.0",
     "@yetzt/nedb": "1.8.0",
-    "axios": "0.26.0",
+    "axios": "1.6.0",
     "commander": "11.0.0",
     "electerm-sync": "1.1.0",
     "electron-log": "4.3.5",
