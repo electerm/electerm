@@ -62,6 +62,9 @@ function verify (req) {
   if (to !== tokenElecterm) {
     throw new Error('not valid request')
   }
+  if (process.env.requireAuth === 'yes' && !global.authed) {
+    throw new Error('auth required')
+  }
 }
 
 const initWs = function (app) {

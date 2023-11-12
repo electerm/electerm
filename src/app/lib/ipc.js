@@ -18,6 +18,10 @@ const installSrc = require('./install-src')
 const { getConfig } = require('./get-config')
 const loadSshConfig = require('./ssh-config')
 const {
+  setPassword,
+  checkPassword
+} = require('./auth')
+const {
   toCss
 } = require('./style')
 const initServer = require('./init-server')
@@ -100,6 +104,8 @@ function initIpc () {
     event.returnValue = ipcSyncFuncs[name](...args)
   })
   const asyncGlobals = {
+    setPassword,
+    checkPassword,
     lookup,
     loadSshConfig,
     openNewInstance,

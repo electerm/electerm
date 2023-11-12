@@ -1,11 +1,10 @@
 import ErrorBoundary from './error-wrapper'
-import Main from './main'
-import store from '../../store'
+import Login from '../auth/login'
 
 export default function MainEntry () {
   return (
     <ErrorBoundary>
-      <Main store={store} />
+      <Login />
     </ErrorBoundary>
   )
 }

@@ -59,6 +59,7 @@ module.exports = {
   getArgs: () => {
     return global.rawArgs
   },
+  shouldAuth: () => global.et.requireAuth,
   getLoadTime: () => {
     return global.loadTime
       ? { loadTime: global.loadTime }

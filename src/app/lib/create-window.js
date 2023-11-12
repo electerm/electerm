@@ -18,6 +18,7 @@ const { disableShortCuts } = require('./key-bind')
 
 exports.createWindow = async function () {
   const userConfig = await getDbConfig() || {}
+  global.et.requireAuth = !!userConfig.hashedPassword
   const { width, height, x, y } = await getWindowSize()
   const { useSystemTitleBar } = userConfig
   const win = new BrowserWindow({

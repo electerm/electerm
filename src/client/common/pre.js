@@ -46,6 +46,7 @@ window.log = {
 }
 
 window.pre = {
+  requireAuth: runSync('shouldAuth'),
   readClipboard: () => {
     return runSync('readClipboard')
   },

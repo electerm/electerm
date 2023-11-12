@@ -81,6 +81,13 @@ app.ws('/terminals/:pid', function (ws, req) {
 app.get('/run', function (req, res) {
   res.send('ok')
 })
+app.post('/auth', function (req, res) {
+  const { token } = req.body
+  if (token === process.env.requireAuth) {
+    global.authed = true
+  }
+  res.send('ok')
+})
 
 initWs(app)
 
@@ -100,4 +107,8 @@ process.on('uncaughtException', (err) => {
 })
 process.on('unhandledRejection', (err) => {
   log.error('unhandledRejection', err)
+})
+
+process.on('SIGTERM', () => {
+  process.exit(0)
 })

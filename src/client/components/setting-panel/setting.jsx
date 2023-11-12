@@ -1,5 +1,9 @@
 import React, { Component } from 'react'
-import { CodeOutlined, LoadingOutlined } from '@ant-design/icons'
+import {
+  CodeOutlined,
+  ArrowRightOutlined,
+  LoadingOutlined
+} from '@ant-design/icons'
 import {
   message,
   Select,
@@ -57,7 +61,12 @@ const keys = [
 export default class Setting extends Component {
   state = {
     ready: false,
-    languageChanged: false
+    languageChanged: false,
+    passwordChanged: false,
+    submittingPass: false,
+    passInputFocused: false,
+    placeholderLogin: window.pre.requireAuth ? '********' : f('notSet'),
+    loginPass: ''
   }
 
   componentDidMount () {
@@ -70,6 +79,61 @@ export default class Setting extends Component {
 
   componentWillUnmount () {
     clearTimeout(this.timer)
+    clearTimeout(this.timer1)
+  }
+
+  handleLoginSubmit = async () => {
+    if (this.submitting) {
+      return
+    }
+    this.setState({
+      submittingPass: true
+    })
+    this.submitting = true
+    const pass = this.state.loginPass
+    const r = await window.pre.runGlobalAsync(
+      'setPassword',
+      pass
+    )
+    if (r === true) {
+      window.pre.requireAuth = !!pass
+      this.setState({
+        loginPass: pass ? '********' : '',
+        submittingPass: false,
+        passwordChanged: true,
+        placeholder: pass ? '********' : f('notSet')
+      })
+      message.success('OK')
+    } else {
+      this.setState({
+        submittingPass: false
+      })
+    }
+    this.submitting = false
+  }
+
+  handleLoginPassFocus = () => {
+    this.setState({
+      passInputFocused: true
+    })
+  }
+
+  blurPassInput = () => {
+    this.setState({
+      passInputFocused: false
+    })
+  }
+
+  handleLoginPassBlur = () => {
+    this.timer1 = setTimeout(
+      this.blurPassInput, 300
+    )
+  }
+
+  handleChangeLoginPass = e => {
+    this.setState({
+      loginPass: e.target.value
+    })
   }
 
   handleRestart = () => {
@@ -182,8 +246,8 @@ export default class Setting extends Component {
     )
   }
 
-  renderLanguageChangeTip = () => {
-    if (!this.state.languageChanged) {
+  renderRestart = (name) => {
+    if (!this.state[name]) {
       return null
     }
     return (
@@ -617,6 +681,57 @@ export default class Setting extends Component {
     }
   }
 
+  renderLoginPassAfter () {
+    const {
+      loginPass,
+      submittingPass,
+      passInputFocused
+    } = this.state
+    if (!loginPass && !passInputFocused) {
+      return null
+    } else if (
+      submittingPass
+    ) {
+      return <LoadingOutlined />
+    }
+    return (
+      <ArrowRightOutlined
+        className='pointer'
+        onClick={this.handleLoginSubmit}
+      />
+    )
+  }
+
+  renderLoginPass () {
+    if (window.et.isWebApp) {
+      return null
+    }
+    const {
+      loginPass,
+      submittingPass,
+      placeholderLogin
+    } = this.state
+    const props = {
+      value: loginPass,
+      disabled: submittingPass,
+      onFocus: this.handleLoginPassFocus,
+      onBlur: this.handleLoginPassBlur,
+      onChange: this.handleChangeLoginPass,
+      addonAfter: this.renderLoginPassAfter(),
+      placeholder: placeholderLogin
+    }
+    return (
+      <div>
+        <div className='pd1b'>{f('loginPassword')}</div>
+        <div className='pd2b'>
+          <Input.Password
+            {...props}
+          />
+        </div>
+      </div>
+    )
+  }
+
   render () {
     const { ready } = this.state
     if (!ready) {
@@ -746,7 +861,7 @@ export default class Setting extends Component {
           </Select>
           <Link className='mg1l' to={createEditLangLink(language)}>{p('edit')}</Link>
         </div>
-        {this.renderLanguageChangeTip()}
+        {this.renderRestart('languageChanged')}
         <div className='pd1y font16 bold'>
           <CodeOutlined className='mg1r' />
           {s('terminal')} {e('settings')}
@@ -829,6 +944,9 @@ export default class Setting extends Component {
         {this.renderToggle('saveTerminalLogToFile', (
           <ShowItem to={terminalLogPath} className='mg1l'>{p('open')}</ShowItem>
         ))}
+
+        {this.renderLoginPass()}
+        {this.renderRestart('passwordChanged')}
         {this.renderReset()}
       </div>
     )

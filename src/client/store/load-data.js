@@ -142,7 +142,7 @@ export default (Store) => {
   }
   Store.prototype.initApp = async function () {
     const { store } = window
-    const globs = await window.pre.runGlobalAsync('init')
+    const globs = window.et.globs || await window.pre.runGlobalAsync('init')
     window.langMap = globs.langMap
     store.installSrc = globs.installSrc
     store.appPath = globs.appPath
