@@ -4,8 +4,9 @@
 
 const { dbAction } = require('./nedb')
 const { userConfigId } = require('../common/constants')
+const { getDbConfig } = require('./get-config')
 
-exports.saveUserConfig = (userConfig) => {
+exports.saveUserConfig = async (userConfig) => {
   const q = {
     _id: userConfigId
   }
@@ -18,8 +19,10 @@ exports.saveUserConfig = (userConfig) => {
     global.et.config,
     userConfig
   )
-  dbAction('data', 'update', q, {
+  const conf = await getDbConfig()
+  return dbAction('data', 'update', q, {
     ...q,
+    ...conf,
     ...userConfig
   }, {
     upsert: true

@@ -10,6 +10,7 @@ import {
   ArrowRightOutlined
 } from '@ant-design/icons'
 import Main from '../main/main.jsx'
+import './login.styl'
 
 const { prefix } = window
 const f = prefix('form')
@@ -26,6 +27,9 @@ export default class Login extends Component {
   }
 
   init = async () => {
+    if (!window.pre.requireAuth) {
+      return
+    }
     const globs = await window.pre.runGlobalAsync('init')
     window.et.globs = globs
   }
@@ -84,22 +88,24 @@ export default class Login extends Component {
       loading
     } = this.state
     return (
-      <div className='pd3 aligncenter'>
-        <LogoElem />
+      <div className='login-wrap'>
         <div className='pd3 aligncenter'>
-          <Input.Password
-            value={pass}
-            readOnly={loading}
-            onChange={this.handlePassChange}
-            placeholder={f('password')}
-            addonAfter={this.renderAfter()}
-            onPressEnter={this.handleSubmit}
-          />
-        </div>
-        <div className='aligncenter'>
-          <Spin
-            spinning={loading}
-          />
+          <LogoElem />
+          <div className='pd3 aligncenter'>
+            <Input.Password
+              value={pass}
+              readOnly={loading}
+              onChange={this.handlePassChange}
+              placeholder={f('password')}
+              addonAfter={this.renderAfter()}
+              onPressEnter={this.handleSubmit}
+            />
+          </div>
+          <div className='aligncenter'>
+            <Spin
+              spinning={loading}
+            />
+          </div>
         </div>
       </div>
     )
