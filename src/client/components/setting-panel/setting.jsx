@@ -101,7 +101,7 @@ export default class Setting extends Component {
         loginPass: pass ? '********' : '',
         submittingPass: false,
         passwordChanged: true,
-        placeholder: pass ? '********' : f('notSet')
+        placeholderLogin: pass ? '********' : f('notSet')
       })
       message.success('OK')
     } else {
@@ -946,7 +946,6 @@ export default class Setting extends Component {
         ))}
 
         {this.renderLoginPass()}
-        {this.renderRestart('passwordChanged')}
         {this.renderReset()}
       </div>
     )
