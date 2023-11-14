@@ -35,6 +35,7 @@ import mapper from '../../common/auto-complete-data-mapper'
 import StartSession from './start-session-select'
 import HelpIcon from '../common/help-icon'
 import fs from '../../common/fs'
+import delay from '../../common/wait.js'
 import './setting.styl'
 
 const { Option } = Select
@@ -86,15 +87,16 @@ export default class Setting extends Component {
     if (this.submitting) {
       return
     }
+    this.submitting = true
     this.setState({
       submittingPass: true
     })
-    this.submitting = true
     const pass = this.state.loginPass
     const r = await window.pre.runGlobalAsync(
       'setPassword',
       pass
     )
+    await delay(600)
     if (r === true) {
       window.pre.requireAuth = !!pass
       this.setState({
@@ -102,14 +104,17 @@ export default class Setting extends Component {
         submittingPass: false,
         passwordChanged: true,
         placeholderLogin: pass ? '********' : f('notSet')
+      }, () => {
+        this.submitting = false
       })
       message.success('OK')
     } else {
       this.setState({
         submittingPass: false
+      }, () => {
+        this.submitting = false
       })
     }
-    this.submitting = false
   }
 
   handleLoginPassFocus = () => {
