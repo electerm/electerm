@@ -237,6 +237,7 @@ export default class Term extends Component {
       inputOnly,
       zoomValue
     } = e?.data || {}
+    console.log('e', e)
     const { id: propSplitId } = this.props
     if (
       action === terminalActions.zoom &&

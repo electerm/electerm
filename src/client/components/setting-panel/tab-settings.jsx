@@ -1,10 +1,12 @@
 import Setting from './setting'
 import SettingCol from './col'
 import SyncSetting from '../setting-sync/setting-sync'
+import Shortcuts from '../shortcuts/shortcuts'
 import List from './list'
 import {
   settingMap,
-  settingSyncId
+  settingSyncId,
+  settingShortcutsId
 } from '../../common/constants'
 
 export default function TabSettings (props) {
@@ -19,6 +21,15 @@ export default function TabSettings (props) {
     listProps,
     store
   } = props
+  let elem = null
+  const sid = settingItem.id
+  if (sid === settingSyncId) {
+    elem = <SyncSetting store={store} />
+  } else if (sid === settingShortcutsId) {
+    elem = <Shortcuts store={store} />
+  } else {
+    elem = <Setting {...listProps} config={store.config} />
+  }
   return (
     <div
       className='setting-tabs-setting'
@@ -27,15 +38,7 @@ export default function TabSettings (props) {
         <List
           {...listProps}
         />
-        {
-          settingItem.id === settingSyncId
-            ? (
-              <SyncSetting
-                store={store}
-              />
-              )
-            : <Setting {...listProps} config={store.config} />
-        }
+        {elem}
       </SettingCol>
     </div>
   )

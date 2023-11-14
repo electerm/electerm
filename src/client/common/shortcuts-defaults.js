@@ -1,35 +1,51 @@
 export default () => {
   return [
     {
-      scope: 'app',
-      title: 'close',
-      func: 'store.close',
-      shortcut: 'ctrl+w'
+      name: 'app.closeCurrentTab',
+      shortcut: 'ctrl+w',
+      shortcutMac: 'ctrl+w'
     },
     {
-      scope: 'terminal',
-      title: 'copy',
-      shortcut: 'ctrl+c'
+      name: 'app.prevTab',
+      shortcut: 'ctrl+shift+tab',
+      shortcutMac: 'ctrl+shift+tab'
     },
     {
-      scope: 'terminal',
-      title: 'paste',
-      shortcut: 'ctrl+v'
+      name: 'app.nextTab',
+      shortcut: 'ctrl+tab',
+      shortcutMac: 'ctrl+tab'
     },
     {
-      scope: 'terminal',
-      title: 'clear',
-      shortcut: 'ctrl+l'
+      name: 'terminal.clear',
+      shortcut: 'ctrl+l,ctrl+shift+l',
+      shortcutMac: 'meta+l'
     },
     {
-      scope: 'terminal',
-      title: 'selectAll',
-      shortcut: 'ctrl+a'
+      name: 'terminal.selectAll',
+      shortcut: 'ctrl+a,ctrl+shift+a',
+      shortcutMac: 'meta+a',
+      readonly: true
     },
     {
-      scope: 'terminal',
-      title: 'focus',
-      shortcut: 'ctrl+shift+i'
+      name: 'terminal.copy',
+      shortcut: 'ctrl+c,ctrl+shift+c',
+      shortcutMac: 'meta+c',
+      readonly: true
+    },
+    {
+      name: 'terminal.search',
+      shortcut: 'ctrl+shift+f',
+      shortcutMac: 'meta+f'
+    },
+    {
+      name: 'terminal.pasteSelected',
+      shortcut: 'alt+insert',
+      shortcutMac: 'alt+insert'
+    },
+    {
+      name: 'terminal.showNormalBuffer',
+      shortcut: 'ctrl+ArrowUp',
+      shortcutMac: 'meta+ArrowUp'
     }
   ]
 }
