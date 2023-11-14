@@ -34,7 +34,7 @@ export default {
   useSystemTitleBar: false,
   opacity: 1,
   defaultEditor: '',
-  terminalWordSeparator: './\\()"\'-:,.;<>~!@#$%^&*|+=[]{}`~?',
+  terminalWordSeparator: './\\()"\'-:,.;<>~!@#$%^&*|+=[]{}`~ ?',
   confirmBeforeExit: false,
   initDefaultTabOnStart: true,
   screenReaderMode: false,
