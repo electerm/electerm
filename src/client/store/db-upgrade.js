@@ -35,7 +35,9 @@ export default (Store) => {
       content: 'Database Upgraded',
       okButtonProps: {}
     })
-    await delay(3000)
+    await store.initApp()
+    await store.initData()
+    await delay(2000)
     mod.destroy()
     await store.restart()
     return true
