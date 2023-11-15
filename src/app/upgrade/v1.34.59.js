@@ -13,7 +13,7 @@ async function fixAll () {
     _id: userConfigId
   }
   const conf = await dbAction('data', 'findOne', q)
-  if (conf.terminalWordSeparator && !conf.terminalWordSeparator.includes(' ')) {
+  if (conf && conf.terminalWordSeparator && !conf.terminalWordSeparator.includes(' ')) {
     conf.terminalWordSeparator = conf.terminalWordSeparator.slice(0, 1) + ' ' +
       conf.terminalWordSeparator.slice(1)
     await dbAction('data', 'update', q, {

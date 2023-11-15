@@ -124,7 +124,6 @@
     "lodash": "4.17.21",
     "nanoid": "3.1.31",
     "node-bash": "5.0.1",
-    "node-powershell": "5.0.1",
     "node-pty": "1.1.0-beta2",
     "os-locale-s": "1.0.8",
     "serialport": "10.4.0",
