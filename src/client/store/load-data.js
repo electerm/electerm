@@ -3,7 +3,6 @@
  */
 
 import { dbNames, update, getData, fetchInitData, insert, remove } from '../common/db'
-import initWatch from './watch'
 import parseInt10 from '../common/parse-int10'
 import { infoTabs, statusMap, defaultEnvLang } from '../common/constants'
 import fs from '../common/fs'
@@ -182,7 +181,6 @@ export default (Store) => {
     store.fetchItermThemes()
     store.openInitSessions()
     store.fetchSshConfigItems()
-    initWatch(store)
     store.initCommandLine().catch(store.onError)
     if (store.config.checkUpdateOnStart) {
       store.onCheckUpdate()
