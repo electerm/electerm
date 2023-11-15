@@ -6,6 +6,10 @@ const tar = require('tar')
 const { isWin, isMac, tempDir } = require('../common/runtime-constants')
 const uid = require('../common/uid')
 const path = require('path')
+const { promisify } = require('util')
+const execAsync = promisify(
+  require('child_process').exec
+)
 const ROOT_PATH = '/'
 
 // Encoding function
@@ -42,14 +46,7 @@ const run = (cmd) => {
  * @param {string} cmd
  */
 const runWinCmd = (cmd) => {
-  const { PowerShell } = require('node-powershell')
-  const ps = new PowerShell({
-    executableOptions: {
-      '-ExecutionPolicy': 'Bypass',
-      '-NoProfile': true
-    }
-  })
-  return ps.invokeCommand(cmd)
+  return execAsync(`powershell.exe -Command "${cmd}"`)
 }
 
 /**
@@ -58,7 +55,7 @@ const runWinCmd = (cmd) => {
  */
 const rmrf = (localFolderPath) => {
   const cmd = isWin
-    ? `Remove-Item "${localFolderPath}" -Force -Recurse -ErrorAction SilentlyContinue`
+    ? `Remove-Item '${localFolderPath}' -Force -Recurse -ErrorAction SilentlyContinue`
     : `rm -rf "${localFolderPath}"`
   return isWin ? runWinCmd(cmd) : run(cmd)
 }
@@ -69,8 +66,8 @@ const rmrf = (localFolderPath) => {
  */
 const mv = (from, to) => {
   const cmd = isWin
-    ? `Move-Item "${from}" "${to}"`
-    : `mv "${from}" "${to}"`
+    ? `Move-Item '${(from)}' '${to}'`
+    : `mv '${from}' '${to}'`
   return isWin ? runWinCmd(cmd) : run(cmd)
 }
 
@@ -80,7 +77,7 @@ const mv = (from, to) => {
  */
 const cp = (from, to) => {
   const cmd = isWin
-    ? `Copy-Item "${from}" -Destination "${to}" -Recurse`
+    ? `Copy-Item '${from}' -Destination '${to}' -Recurse`
     : `cp -r "${from}" "${to}"`
   return isWin ? runWinCmd(cmd) : run(cmd)
 }
@@ -100,7 +97,7 @@ const touch = (localFilePath) => {
 const openFile = (localFilePath) => {
   let cmd
   if (isWin) {
-    cmd = `Invoke-Item "${localFilePath}"`
+    cmd = `Invoke-Item '${localFilePath}'`
     return runWinCmd(cmd)
   }
   cmd = (isMac

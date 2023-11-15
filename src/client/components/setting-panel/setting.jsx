@@ -34,7 +34,6 @@ import createEditLangLink from '../../common/create-lang-edit-link'
 import mapper from '../../common/auto-complete-data-mapper'
 import StartSession from './start-session-select'
 import HelpIcon from '../common/help-icon'
-import fs from '../../common/fs'
 import delay from '../../common/wait.js'
 import './setting.styl'
 
@@ -661,29 +660,6 @@ export default class Setting extends Component {
         }
       </Select>
     )
-  }
-
-  handlePortable = async () => {
-    const {
-      appPath,
-      exePath
-    } = this.props.store
-    const from = osResolve(appPath, 'electerm', 'users')
-    const tar = osResolve(exePath, 'electerm', 'users')
-    const cmd = `xcopy /E /I /Q /Y "${from}" ${tar}`
-    const x = await fs.runWinCmd(cmd)
-      .catch(err => {
-        this.props.store.onError(err)
-        return false
-      })
-    if (x !== false) {
-      message.success(
-        `${e('dataTransferedTo')}: ${tar}`
-      )
-      setTimeout(
-        this.props.store.restart, 5000
-      )
-    }
   }
 
   renderLoginPassAfter () {

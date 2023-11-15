@@ -4,7 +4,6 @@
 
 const { dbAction } = require('../lib/nedb')
 const { userConfigId } = require('../common/constants')
-const defs = require('../common/default-setting.js')
 const { updateDBVersion } = require('./version-upgrade')
 const log = require('../common/log')
 
@@ -14,13 +13,14 @@ async function fixAll () {
     _id: userConfigId
   }
   const conf = await dbAction('data', 'findOne', q)
-  if (conf.terminalWordSeparator === './\\()"\'-:,.;<>~!@#$%^&*|+=[]{}`~?') {
-    conf.terminalWordSeparator = defs.terminalWordSeparator
+  if (conf && conf.terminalWordSeparator && !conf.terminalWordSeparator.includes(' ')) {
+    conf.terminalWordSeparator = conf.terminalWordSeparator.slice(0, 1) + ' ' +
+      conf.terminalWordSeparator.slice(1)
+    await dbAction('data', 'update', q, {
+      ...q,
+      ...conf
+    })
   }
-  await dbAction('data', 'update', q, {
-    ...q,
-    ...conf
-  })
 }
 
 module.exports = async () => {
