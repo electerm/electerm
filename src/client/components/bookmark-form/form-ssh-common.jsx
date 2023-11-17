@@ -17,6 +17,8 @@ import InputAutoFocus from '../common/input-auto-focus'
 import encodes from './encodes'
 import formatBookmarkGroups from './bookmark-group-tree-format'
 import renderRunScripts from './render-delayed-scripts.jsx'
+import { ColorPickerItem } from './color-picker-item.jsx'
+
 import './bookmark-form.styl'
 
 const authTypes = Object.keys(authTypeMap).map(k => {
@@ -76,8 +78,10 @@ export default function renderCommon (props) {
           <InputAutoFocus
             autofocustrigger={autofocustrigger}
             selectall='yes'
+            name='host'
             onBlur={props.onBlur}
             onPaste={e => props.onPaste(e, form)}
+            addonBefore={<ColorPickerItem />}
           />
         </FormItem>
       </FormItem>

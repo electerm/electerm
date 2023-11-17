@@ -25,6 +25,7 @@ import renderX11 from './x11'
 import renderAuth from './render-auth-ssh'
 import renderSshTunnel from './render-ssh-tunnel'
 import renderConnectionHopping from './render-connection-hopping'
+import { getRandomDefaultColor } from '../../common/rand-hex-color.js'
 import './bookmark-form.styl'
 
 export default function BookmarkFormUI (props) {
@@ -58,6 +59,7 @@ export default function BookmarkFormUI (props) {
     port: 22,
     authType: authTypeMap.password,
     id: '',
+    color: getRandomDefaultColor(),
     term: props.store.config.terminalType,
     encode: encodes[0],
     envLang: defaultEnvLang,
