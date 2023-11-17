@@ -32,6 +32,8 @@ import useUI from './use-ui'
 import useQm from './use-quick-commands'
 import copy from 'json-deep-copy'
 import { defaults } from 'lodash-es'
+import { getRandomDefaultColor } from '../../common/rand-hex-color.js'
+import { ColorPickerItem } from './color-picker-item.jsx'
 
 const FormItem = Form.Item
 const { Option } = Select
@@ -68,6 +70,7 @@ export default function SerialFormUi (props) {
     : currentBookmarkGroupId
   let initialValues = copy(props.formData)
   const defaultValues = {
+    color: getRandomDefaultColor(),
     baudRate: 9600,
     dataBits: 8,
     lock: true,
@@ -93,6 +96,14 @@ export default function SerialFormUi (props) {
     const tree = formatBookmarkGroups(bookmarkGroups)
     return (
       <div className='pd1x'>
+        <FormItem
+          {...formItemLayout}
+          label={e('title')}
+          name='title'
+          hasFeedback
+        >
+          <Input addonBefore={<ColorPickerItem />} />
+        </FormItem>
         <FormItem
           {...formItemLayout}
           label='path'
@@ -231,14 +242,6 @@ export default function SerialFormUi (props) {
           valuePropName='checked'
         >
           <Switch />
-        </FormItem>
-        <FormItem
-          {...formItemLayout}
-          label={e('title')}
-          name='title'
-          hasFeedback
-        >
-          <Input />
         </FormItem>
         <FormItem
           {...formItemLayout}

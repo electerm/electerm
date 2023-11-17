@@ -359,7 +359,7 @@ export default class Tab extends React.Component {
     } = this.props
     const { isLast } = this.props
     const { tab, terminalOnData } = this.state
-    const { id, isEditting, status, isTransporting, tabCount } = tab
+    const { id, isEditting, status, isTransporting, tabCount, color } = tab
     const active = id === currentTabId
     const cls = classnames(
       `tab-${id}`,
@@ -380,6 +380,9 @@ export default class Tab extends React.Component {
     if (isEditting) {
       return this.renderEditting(tab, cls)
     }
+    const styleTag = color
+      ? { color }
+      : {}
     return (
       <Tooltip
         title={title}
@@ -412,7 +415,7 @@ export default class Tab extends React.Component {
               onClick={this.handleReloadTab}
               title={m('reload')}
             />
-            {tabCount}. {title}
+            <span style={styleTag}>♦</span> {tabCount}. {title}
           </div>
           <div className={'tab-status ' + status} />
           <div className='tab-traffic' />

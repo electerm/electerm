@@ -51,7 +51,7 @@
   "homepage": "https://electerm.html5beta.com",
   "releases": "https://github.com/electerm/electerm/releases",
   "engines": {
-    "node": ">=16.0.0"
+    "node": ">=18.0.0"
   },
   "preferGlobal": true,
   "devDependencies": {
@@ -78,6 +78,7 @@
     "prop-types": "15.7.2",
     "pug": "3.0.2",
     "react": "17.0.2",
+    "react-colorful": "^5.6.1",
     "react-delta": "1.1.2",
     "react-dom": "17.0.2",
     "replace-in-file": "6.3.5",
