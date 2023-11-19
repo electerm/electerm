@@ -12,6 +12,7 @@ import CssOverwrite from './css-overwrite'
 import UiTheme from './ui-theme'
 import TerminalInteractive from '../terminal/terminal-interactive'
 import classnames from 'classnames'
+import ShortcutControl from '../shortcuts/shortcut-control.jsx'
 import { isMac, isWin } from '../../common/constants'
 import TermFullscreenControl from './term-fullscreen-control'
 import { LoadingUI } from './loading'
@@ -106,6 +107,7 @@ export default class Index extends Component {
         theme={uiThemeConfig}
       >
         <div {...ext1}>
+          <ShortcutControl config={config} />
           <LoadingUI
             wsInited={wsInited}
           />

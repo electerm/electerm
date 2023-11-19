@@ -8,22 +8,20 @@ import {
   ArrowRightOutlined,
   CloseCircleOutlined
 } from '@ant-design/icons'
-import { paneMap, terminalActions, isMac } from '../../common/constants'
+import { paneMap, terminalActions } from '../../common/constants'
 import postMessage from '../../common/post-msg'
 import { MatchCaseIcon } from '../icons/match-case'
 import { MatchWholWordIcon } from '../icons/match-whole-word'
 import { RegularExpIcon } from '../icons/regular-exp'
 import classNames from 'classnames'
 import copy from 'json-deep-copy'
-import keyShiftPressed from '../../common/key-shift-pressed'
-import keyControlPressed from '../../common/key-control-pressed'
-import keyPressed from '../../common/key-pressed'
+import { shortcutExtend } from '../shortcuts/shortcut-handler.js'
 import './term-search.styl'
 
 const { prefix } = window
 const s = prefix('ssh')
 
-export default class TermSearch extends Component {
+class TermSearch extends Component {
   searchControls = [{
     id: 'matchCase',
     icon: MatchCaseIcon,
@@ -53,11 +51,7 @@ export default class TermSearch extends Component {
   }]
 
   componentDidMount () {
-    window.addEventListener('keydown', this.handleEvent)
-  }
-
-  componentWillUnmount () {
-    window.removeEventListener('keydown', this.handleEvent)
+    window.addEventListener('keydown', this.handleKeyboardEvent.bind(this))
   }
 
   toggleSearch = () => {
@@ -65,17 +59,9 @@ export default class TermSearch extends Component {
     setTimeout(window.store.focus, 100)
   }
 
-  handleEvent = (e) => {
-    if (
-      keyPressed(e, 'f') && keyControlPressed(e) &&
-      (
-        isMac ||
-        (!isMac && keyShiftPressed(e))
-      )
-    ) {
-      e.stopPropagation()
-      this.toggleSearch()
-    }
+  searchShortcut = (e) => {
+    e.stopPropagation()
+    this.toggleSearch()
   }
 
   prev = () => {
@@ -222,3 +208,5 @@ export default class TermSearch extends Component {
     )
   }
 }
+
+export default shortcutExtend(TermSearch)

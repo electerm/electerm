@@ -14,8 +14,6 @@ import {
   statusMap
 } from '../../common/constants'
 import newTerm, { updateCount } from '../../common/new-terminal'
-import keyControlPress from '../../common/key-control-pressed'
-import keyPressed from '../../common/key-pressed'
 import postMsg from '../../common/post-msg'
 import TermSearch from '../terminal/term-search'
 import Footer from '../footer/footer-entry'
@@ -23,12 +21,13 @@ import QuickCommandsFooterBox from '../quick-commands/quick-commands-box'
 import LogoElem from '../common/logo-elem'
 import { Button } from 'antd'
 import toSimpleObj from '../../common/to-simple-obj'
+import { shortcutExtend } from '../shortcuts/shortcut-handler.js'
 
 const { prefix } = window
 const e = prefix('tabs')
 const c = prefix('control')
 
-export default class Sessions extends Component {
+class Sessions extends Component {
   state = {
     tabs: [],
     currentTabId: ''
@@ -40,16 +39,14 @@ export default class Sessions extends Component {
   }
 
   initShortcuts () {
-    window.addEventListener('keydown', e => {
-      if (keyControlPress(e) && keyPressed(e, 'w')) {
-        e.stopPropagation()
-        if (this.state.tabs.length > 1) {
-          this.delTab(
-            this.state.currentTabId
-          )
-        }
-      }
-    })
+    window.addEventListener('keydown', this.handleKeyboardEvent.bind(this))
+  }
+
+  closeCurrentTabShortcut = (e) => {
+    e.stopPropagation()
+    this.delTab(
+      this.state.currentTabId
+    )
   }
 
   watch = () => {
@@ -418,11 +415,12 @@ export default class Sessions extends Component {
   }
 
   render () {
-    const { store } = this.props
+    const { store, config } = this.props
     const currentTab = this.getCurrentTab()
     const termProps = {
       currentTab,
-      store
+      store,
+      config
     }
     return [
       this.renderTabs(),
@@ -443,3 +441,5 @@ export default class Sessions extends Component {
     ]
   }
 }
+
+export default shortcutExtend(Sessions)
