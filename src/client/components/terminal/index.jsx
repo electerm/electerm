@@ -25,7 +25,6 @@ import {
   paneMap,
   typeMap,
   isWin,
-  isMac,
   terminalSshConfigType,
   transferTypeMap,
   terminalActions,
@@ -51,7 +50,7 @@ import * as ls from '../../common/safe-local-storage'
 import NormalBuffer from './normal-buffer'
 import { createTerm, resizeTerm } from './terminal-apis'
 import createLsId from './build-ls-term-id'
-import { shortcutExtend } from '../shortcuts/shortcut-handler.js'
+import { shortcutExtend, shortcutDescExtend } from '../shortcuts/shortcut-handler.js'
 
 const { prefix } = window
 const e = prefix('ssh')
@@ -355,67 +354,6 @@ class Term extends Component {
       e.stopPropagation()
       return this.term && this.term.blur()
     }
-    // if (
-    //   keyControlPressed(e) &&
-    //   !keyShiftPressed(e) &&
-    //   keyPressed(e, 'c')
-    // ) {
-    //   const sel = this.term.getSelection()
-    //   if (sel) {
-    //     e.stopPropagation()
-    //     e.preventDefault()
-    //     this.copySelectionToClipboard()
-    //     return false
-    //   }
-    // } else if (
-    //   keyControlPressed(e) &&
-    //   keyShiftPressed(e) &&
-    //   keyPressed(e, 'c')
-    // ) {
-    //   e.stopPropagation()
-    //   this.copySelectionToClipboard()
-    // } else if (id === this.props.id) {
-    //   e.stopPropagation()
-    //   this.term.selectAll()
-    // } else if (
-    //   keyPressed(e, 'f') && keyControlPressed(e) &&
-    //   (
-    //     isMac ||
-    //     (!isMac && keyShiftPressed(e))
-    //   )
-    // ) {
-    //   e.stopPropagation()
-    //   this.toggleSearch()
-    // } else if (
-    //   keyPressed(e, 'tab')
-    // ) {
-    //   e.stopPropagation()
-    //   e.preventDefault()
-    //   if (e.ctrlKey && e.type === 'keydown') {
-    //     if (e.shiftKey) {
-    //       window.store.clickPrevTab()
-    //     } else {
-    //       window.store.clickNextTab()
-    //     }
-    //     return false
-    //   }
-    // } else if (
-    //   keyControlPressed(e) &&
-    //   keyPressed(e, 'ArrowUp') && this.bufferMode === 'alternate'
-    // ) {
-    //   e.stopPropagation()
-    //   this.openNormalBuffer()
-    // } else if (
-    //   e.ctrlKey &&
-    //   keyPressed(e, 'tab')
-    // ) {
-    //   this.onClear()
-    // } else if (
-    //   e.altKey &&
-    //   keyPressed(e, 'insert')
-    // ) {
-    //   this.tryInsertSelected()
-    // }
   }
 
   onDrop = e => {
@@ -735,12 +673,11 @@ class Term extends Component {
   renderContext = () => {
     const hasSlected = this.term.hasSelection()
     const copyed = readClipboard()
-    const copyShortcut = isMac
-      ? 'Command+C'
-      : 'Ctrl+Shift+C'
-    const pasteShortcut = isMac
-      ? 'Command+V'
-      : 'Ctrl+Shift+V'
+    const copyShortcut = this.getShortcut('terminal_copy')
+    const pasteShortcut = this.getShortcut('terminal_paste')
+    const clearShortcut = this.getShortcut('terminal_clear')
+    const selectAllShortcut = this.getShortcut('terminal_selectAll')
+    const searchShortcut = this.getShortcut('terminal_search')
     return [
       {
         func: 'onCopy',
@@ -760,17 +697,19 @@ class Term extends Component {
         func: 'onClear',
         icon: 'ReloadOutlined',
         text: e('clear'),
-        subText: 'Ctrl+L'
+        subText: clearShortcut
       },
       {
         func: 'onSelectAll',
         icon: 'SelectOutlined',
-        text: e('selectAll')
+        text: e('selectAll'),
+        subText: selectAllShortcut
       },
       {
         func: 'toggleSearch',
         icon: 'SearchOutlined',
-        text: e('search')
+        text: e('search'),
+        subText: searchShortcut
       },
       {
         func: 'split',
@@ -1416,4 +1355,4 @@ class Term extends Component {
   }
 }
 
-export default shortcutExtend(Term)
+export default shortcutDescExtend(shortcutExtend(Term))

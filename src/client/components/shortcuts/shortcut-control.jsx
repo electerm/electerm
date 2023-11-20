@@ -21,6 +21,11 @@ class ShortcutControl extends React.PureComponent {
     window.store.clickNextTab()
   }
 
+  newBookmarkShortcut = (e) => {
+    e.stopPropagation()
+    window.store.onNewSsh()
+  }
+
   render () {
     return null
   }

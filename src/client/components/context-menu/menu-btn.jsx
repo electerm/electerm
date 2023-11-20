@@ -4,7 +4,8 @@
 
 import { Component } from '../common/react-subx'
 import logoRef from '@electerm/electerm-resource/res/imgs/electerm.svg'
-import { commonActions, ctrlOrCmd } from '../../common/constants'
+import { commonActions } from '../../common/constants'
+import { shortcutDescExtend } from '../shortcuts/shortcut-handler.js'
 import generate from '../../common/uid'
 
 const { prefix } = window
@@ -15,7 +16,7 @@ const t = prefix('tabs')
 const s = prefix('setting')
 const logo = logoRef.replace(/^\//, '')
 
-export default class MenuBtn extends Component {
+class MenuBtn extends Component {
   state = {
     opened: false
   }
@@ -109,7 +110,7 @@ export default class MenuBtn extends Component {
         func: 'onNewSsh',
         icon: 'CodeFilled',
         text: e('newBookmark'),
-        subText: `${ctrlOrCmd}+N`
+        subText: this.getShortcut('app_newBookmark')
       },
       {
         func: 'addTab',
@@ -222,3 +223,5 @@ export default class MenuBtn extends Component {
     )
   }
 }
+
+export default shortcutDescExtend(MenuBtn)

@@ -48,10 +48,24 @@ export function shortcutExtend (Cls) {
       const k = keys[i]
       const conf = shortcutsConfig[k]
       const funcName = conf.func + 'Shortcut'
-      if (conf.shortcut.split(',').includes(r) && this[funcName]) {
-        this[funcName](event)
+      if (conf.shortcut.split(',').includes(r)) {
+        if (this[funcName]) {
+          this[funcName](event)
+        } else {
+          return false
+        }
       }
     }
+  }
+  return Cls
+}
+
+export function shortcutDescExtend (Cls) {
+  Cls.prototype.getShortcut = function (name) {
+    const shortcutsConfig = buildConfig(this.props.config)
+    const propName = isMacJs ? 'shortcutMac' : 'shortcut'
+    const n = `${name}_${propName}`
+    return shortcutsConfig[n].shortcut
   }
   return Cls
 }

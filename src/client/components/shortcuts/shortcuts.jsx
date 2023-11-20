@@ -12,6 +12,7 @@ import {
 
 const { prefix } = window
 const e = prefix('form')
+const c = prefix('control')
 const m = prefix('menu')
 const ss = prefix('ssh')
 const s = prefix('setting')
@@ -96,6 +97,8 @@ export default class Shortcuts extends Component {
             return pre + ss(b)
           } else if (b === 'copy') {
             return pre + m(b)
+          } else if (b === 'newBookmark') {
+            return pre + c(b)
           } else {
             return pre + s(b)
           }

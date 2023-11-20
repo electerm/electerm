@@ -6,6 +6,11 @@ export default () => {
       shortcutMac: 'ctrl+w'
     },
     {
+      name: 'app_newBookmark',
+      shortcut: 'ctrl+b',
+      shortcutMac: 'meta+b'
+    },
+    {
       name: 'app_prevTab',
       shortcut: 'ctrl+shift+tab',
       shortcutMac: 'ctrl+shift+tab'
@@ -30,6 +35,12 @@ export default () => {
       name: 'terminal_copy',
       shortcut: 'ctrl+c,ctrl+shift+c',
       shortcutMac: 'meta+c',
+      readonly: true
+    },
+    {
+      name: 'terminal_paste',
+      shortcut: 'ctrl+v,ctrl+shift+v',
+      shortcutMac: 'meta+v',
       readonly: true
     },
     {
