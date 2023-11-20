@@ -26,6 +26,11 @@ class ShortcutControl extends React.PureComponent {
     window.store.onNewSsh()
   }
 
+  togglefullscreenShortcut = (e) => {
+    e.stopPropagation()
+    document.querySelector('.term-fullscreen-control').click()
+  }
+
   render () {
     return null
   }

@@ -359,7 +359,7 @@ export default class SessionWrapper extends Component {
     return (
       <Tooltip title={title}>
         <FullscreenOutlined
-          className='mg1r icon-info font16 iblock pointer spliter'
+          className='mg1r icon-info font16 iblock pointer spliter term-fullscreen-control'
           onClick={this.handleFullscreen}
         />
       </Tooltip>

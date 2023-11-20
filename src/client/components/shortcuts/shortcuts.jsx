@@ -99,6 +99,8 @@ export default class Shortcuts extends Component {
             return pre + m(b)
           } else if (b === 'newBookmark') {
             return pre + c(b)
+          } else if (b === 'togglefullscreen') {
+            return pre + m(b)
           } else {
             return pre + s(b)
           }

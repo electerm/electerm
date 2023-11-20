@@ -11,6 +11,11 @@ export default () => {
       shortcutMac: 'meta+b'
     },
     {
+      name: 'app_togglefullscreen',
+      shortcut: 'alt+f',
+      shortcutMac: 'alt+f'
+    },
+    {
       name: 'app_prevTab',
       shortcut: 'ctrl+shift+tab',
       shortcutMac: 'ctrl+shift+tab'
@@ -45,7 +50,7 @@ export default () => {
     },
     {
       name: 'terminal_search',
-      shortcut: 'ctrl+shift+f',
+      shortcut: 'ctrl+f',
       shortcutMac: 'meta+f'
     },
     {
