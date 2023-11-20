@@ -22,6 +22,14 @@ const sorterFactory = prop => {
   }
 }
 export default class TransferHistoryModal extends Component {
+  state = {
+    pageSize: 5
+  }
+
+  handlePageSizeChange = (page, pageSize) => {
+    this.setState({ pageSize })
+  }
+
   render () {
     const {
       getTransferHistory,
@@ -88,7 +96,11 @@ export default class TransferHistoryModal extends Component {
       columns,
       bordered: true,
       pagination: {
-        pageSize: 10
+        pageSize: this.state.pageSize,
+        showSizeChanger: true,
+        pageSizeOptions: [5, 10, 20, 50, 100],
+        onChange: this.handlePageSizeChange,
+        position: ['topRight']
       },
       size: 'small',
       rowKey: 'id'
