@@ -10,7 +10,6 @@ import {
   CheckCircleOutlined,
   ReloadOutlined
 } from '@ant-design/icons'
-
 import {
   notification,
   Spin,
@@ -26,7 +25,6 @@ import {
   paneMap,
   typeMap,
   isWin,
-  isMac,
   terminalSshConfigType,
   transferTypeMap,
   terminalActions,
@@ -47,13 +45,12 @@ import getProxy from '../../common/get-proxy'
 import { Zmodem, AddonZmodem } from './xterm-zmodem'
 import { Unicode11Addon } from 'xterm-addon-unicode11'
 import keyControlPressed from '../../common/key-control-pressed'
-import keyShiftPressed from '../../common/key-shift-pressed'
-import keyPressed from '../../common/key-pressed'
 import { Terminal } from 'xterm'
 import * as ls from '../../common/safe-local-storage'
 import NormalBuffer from './normal-buffer'
 import { createTerm, resizeTerm } from './terminal-apis'
 import createLsId from './build-ls-term-id'
+import { shortcutExtend, shortcutDescExtend } from '../shortcuts/shortcut-handler.js'
 
 const { prefix } = window
 const e = prefix('ssh')
@@ -70,7 +67,7 @@ const computePos = (e) => {
   }
 }
 
-export default class Term extends Component {
+class Term extends Component {
   constructor (props) {
     super(props)
     this.state = {
@@ -223,13 +220,58 @@ export default class Term extends Component {
     this.props.pane === paneMap.terminal
   }
 
+  clearShortcut = (e) => {
+    e.stopPropagation()
+    this.onClear()
+  }
+
+  selectAllShortcut = (e) => {
+    e.stopPropagation()
+    this.term.selectAll()
+  }
+
+  copyShortcut = (e) => {
+    const sel = this.term.getSelection()
+    if (sel) {
+      e.stopPropagation()
+      e.preventDefault()
+      this.copySelectionToClipboard()
+      return false
+    }
+  }
+
+  searchShortcut = (e) => {
+    e.stopPropagation()
+    this.toggleSearch()
+  }
+
+  pasteSelectedShortcut = (e) => {
+    e.stopPropagation()
+    this.tryInsertSelected()
+  }
+
+  showNormalBufferShortcut = (e) => {
+    e.stopPropagation()
+    this.openNormalBuffer()
+  }
+
+  prevTabShortcut = debounce((e) => {
+    e.stopPropagation()
+    window.store.clickPrevTab()
+  }, 300)
+
+  nextTabShortcut = debounce((e) => {
+    e.stopPropagation()
+    window.store.clickNextTab()
+  }, 300)
+
   handleEvent = (e) => {
     const {
       keyword,
       options,
       action,
       encode,
-      id,
+      // id,
       type,
       cmd,
       activeSplitId,
@@ -311,67 +353,6 @@ export default class Term extends Component {
     ) {
       e.stopPropagation()
       return this.term && this.term.blur()
-    }
-    if (
-      keyControlPressed(e) &&
-      !keyShiftPressed(e) &&
-      keyPressed(e, 'c')
-    ) {
-      const sel = this.term.getSelection()
-      if (sel) {
-        e.stopPropagation()
-        e.preventDefault()
-        this.copySelectionToClipboard()
-        return false
-      }
-    } else if (
-      keyControlPressed(e) &&
-      keyShiftPressed(e) &&
-      keyPressed(e, 'c')
-    ) {
-      e.stopPropagation()
-      this.copySelectionToClipboard()
-    } else if (id === this.props.id) {
-      e.stopPropagation()
-      this.term.selectAll()
-    } else if (
-      keyPressed(e, 'f') && keyControlPressed(e) &&
-      (
-        isMac ||
-        (!isMac && keyShiftPressed(e))
-      )
-    ) {
-      e.stopPropagation()
-      this.toggleSearch()
-    } else if (
-      keyPressed(e, 'tab')
-    ) {
-      e.stopPropagation()
-      e.preventDefault()
-      if (e.ctrlKey && e.type === 'keydown') {
-        if (e.shiftKey) {
-          window.store.clickPrevTab()
-        } else {
-          window.store.clickNextTab()
-        }
-        return false
-      }
-    } else if (
-      keyControlPressed(e) &&
-      keyPressed(e, 'ArrowUp') && this.bufferMode === 'alternate'
-    ) {
-      e.stopPropagation()
-      this.openNormalBuffer()
-    } else if (
-      e.ctrlKey &&
-      keyPressed(e, 'tab')
-    ) {
-      this.onClear()
-    } else if (
-      e.altKey &&
-      keyPressed(e, 'insert')
-    ) {
-      this.tryInsertSelected()
     }
   }
 
@@ -692,12 +673,11 @@ export default class Term extends Component {
   renderContext = () => {
     const hasSlected = this.term.hasSelection()
     const copyed = readClipboard()
-    const copyShortcut = isMac
-      ? 'Command+C'
-      : 'Ctrl+Shift+C'
-    const pasteShortcut = isMac
-      ? 'Command+V'
-      : 'Ctrl+Shift+V'
+    const copyShortcut = this.getShortcut('terminal_copy')
+    const pasteShortcut = this.getShortcut('terminal_paste')
+    const clearShortcut = this.getShortcut('terminal_clear')
+    const selectAllShortcut = this.getShortcut('terminal_selectAll')
+    const searchShortcut = this.getShortcut('terminal_search')
     return [
       {
         func: 'onCopy',
@@ -717,17 +697,19 @@ export default class Term extends Component {
         func: 'onClear',
         icon: 'ReloadOutlined',
         text: e('clear'),
-        subText: 'Ctrl+L'
+        subText: clearShortcut
       },
       {
         func: 'onSelectAll',
         icon: 'SelectOutlined',
-        text: e('selectAll')
+        text: e('selectAll'),
+        subText: selectAllShortcut
       },
       {
         func: 'toggleSearch',
         icon: 'SearchOutlined',
-        text: e('search')
+        text: e('search'),
+        subText: searchShortcut
       },
       {
         func: 'split',
@@ -837,7 +819,7 @@ export default class Term extends Component {
     // term.on('keydown', this.handleEvent)
     term.onData(this.onData)
     this.term = term
-    term.attachCustomKeyEventHandler(this.handleEvent)
+    term.attachCustomKeyEventHandler(this.handleKeyboardEvent.bind(this))
     term.onKey(this.onKey)
     // if (host && !password && !privateKey) {
     //   return this.promote()
@@ -893,16 +875,6 @@ export default class Term extends Component {
     this.props.editTab(id, {
       status
     })
-  }
-
-  watchNormalBufferTrigger = e => {
-    if (
-      keyControlPressed(e) &&
-      keyPressed(e, 'ArrowUp')
-    ) {
-      e.stopPropagation()
-      this.copySelectionToClipboard()
-    }
   }
 
   openNormalBuffer = () => {
@@ -1382,3 +1354,5 @@ export default class Term extends Component {
     )
   }
 }
+
+export default shortcutDescExtend(shortcutExtend(Term))

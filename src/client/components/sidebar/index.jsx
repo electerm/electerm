@@ -116,7 +116,7 @@ export default class Sidebar extends Component {
       >
         <div className='sidebar-bar btns'>
           <div className='control-icon-wrap'>
-            <MenuBtn store={store} />
+            <MenuBtn store={store} config={store.config} />
           </div>
           <SideIcon
             title={e('newBookmark')}

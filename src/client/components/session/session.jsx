@@ -21,14 +21,11 @@ import {
   terminalSplitDirectionMap,
   termControlHeight,
   paneMap,
-  ctrlOrCmd,
   footerHeight,
   terminalActions,
   connectionMap
 } from '../../common/constants'
 import ResizeWrap from '../common/resize-wrap'
-import keyControlPressed from '../../common/key-control-pressed'
-import keyPressed from '../../common/key-pressed'
 import safeName from '../../common/safe-name'
 import TerminalInfoContent from '../terminal-info/content'
 import uid from '../../common/id-with-stamp'
@@ -88,38 +85,17 @@ export default class SessionWrapper extends Component {
 
   componentDidMount () {
     this.updateTab()
-    this.initEvent()
+    // this.initEvent()
   }
 
-  componentWillUnmount () {
-    this.destroyEvent()
-  }
-
-  initEvent () {
-    window.addEventListener('keydown', this.handleEvent)
-  }
-
-  destroyEvent () {
-    window.removeEventListener('keydown', this.handleEvent)
-  }
-
-  isActive () {
-    const {
-      tab,
-      currentTabId
-    } = this.props
-    return currentTabId === tab.id &&
-      tab.pane === paneMap.terminal
-  }
-
-  handleEvent = (e) => {
-    if (!this.isActive()) {
-      return
-    }
-    if (keyControlPressed(e) && keyPressed(e, '/')) {
-      this.handleSplit()
-    }
-  }
+  // isActive () {
+  //   const {
+  //     tab,
+  //     currentTabId
+  //   } = this.props
+  //   return currentTabId === tab.id &&
+  //     tab.pane === paneMap.terminal
+  // }
 
   handleShowInfo = (infoPanelProps) => {
     this.setState({
@@ -464,7 +440,7 @@ export default class SessionWrapper extends Component {
                       )
                 }
                 <Tooltip
-                  title={`${e('split')}(${ctrlOrCmd} + /)`}
+                  title={`${e('split')}`}
                 >
                   <Icon1
                     className={cls1}

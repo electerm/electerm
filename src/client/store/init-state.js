@@ -8,7 +8,6 @@ import {
   newBookmarkIdPrefix,
   fileOperationsMap,
   syncTypes,
-  settingSyncId,
   infoTabs,
   openedSidebarKey,
   sidebarPinnedKey,
@@ -26,7 +25,6 @@ const t = prefix('terminalThemes')
 const e = prefix('control')
 const newQuickCommand = 'newQuickCommand'
 const q = prefix('quickCommands')
-const ss = prefix('settingSync')
 
 function getDefaultBookmarkGroups (bookmarks) {
   return [
@@ -104,12 +102,7 @@ export default {
   }),
 
   // for settings related
-  _setting: JSON.stringify([
-    {
-      id: settingSyncId,
-      title: ss('settingSync')
-    }
-  ]),
+  _setting: '',
   _settingItem: JSON.stringify(getInitItem([], settingMap.bookmarks)),
   settingTab: settingMap.bookmarks, // setting tab
   autofocustrigger: Date.now(),

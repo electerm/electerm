@@ -42,7 +42,6 @@ export default class Tabs extends React.Component {
     const {
       tabsRef
     } = this
-    window.addEventListener('keypress', this.handleTabHotkey)
     tabsRef.current.addEventListener('dblclick', this.handleDblClickEvent)
     tabsRef.current.addEventListener('mousedown', this.handleClickEvent)
   }
@@ -57,14 +56,6 @@ export default class Tabs extends React.Component {
       this.adjustScroll()
     }
   }
-
-  // componentWillUnmount () {
-  //   const {
-  //     tabsRef
-  //   } = this
-  //   window.removeEventListener('keydown', this.handleTabHotkey)
-  //   tabsRef.current.removeEventListener('mousedown', this.handleClickEvent)
-  // }
 
   tabsWidth = () => {
     return Array.from(
@@ -81,22 +72,6 @@ export default class Tabs extends React.Component {
     const tabsWidth = this.tabsWidth()
     const tabsWidthAll = tabMargin * len + 130 + tabsWidth
     return width < (tabsWidthAll + addBtnWidth)
-  }
-
-  handleTabHotkey = e => {
-    if (
-      e.ctrlKey &&
-      e.code === 'Tab' &&
-      !e.shiftKey
-    ) {
-      window.store.clickNextTab()
-    } else if (
-      e.ctrlKey &&
-      e.code === 'Tab' &&
-      e.shiftKey
-    ) {
-      window.store.clickPrevTab()
-    }
   }
 
   handleClickEvent = (e) => {

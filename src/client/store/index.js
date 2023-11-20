@@ -33,12 +33,18 @@ import {
   settingMap,
   sidebarWidth,
   sidebarPanelWidth,
-  paneMap
+  paneMap,
+  settingSyncId,
+  settingShortcutsId
 } from '../common/constants'
 import getInitItem from '../common/init-setting-item'
 import {
   theme
 } from 'antd'
+
+const { prefix } = window
+const ss = prefix('settingSync')
+const s = prefix('setting')
 
 function getReverseColor (hex) {
   // Check if the input is a valid hex color code
@@ -240,7 +246,16 @@ class Store {
   }
 
   get setting () {
-    return JSON.parse(window.store._setting || '[]')
+    return [
+      {
+        id: settingSyncId,
+        title: ss('settingSync')
+      },
+      {
+        id: settingShortcutsId,
+        title: s('settingShortcuts')
+      }
+    ]
   }
 
   get config () {

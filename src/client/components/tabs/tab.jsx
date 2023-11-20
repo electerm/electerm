@@ -19,7 +19,6 @@ import createName from '../../common/create-title'
 import { addClass, removeClass } from '../../common/class'
 import {
   terminalSshConfigType,
-  ctrlOrCmd,
   commonActions
 } from '../../common/constants'
 
@@ -255,8 +254,7 @@ export default class Tab extends React.Component {
     res.push({
       func: 'handleClose',
       icon: 'CloseOutlined',
-      text: e('close'),
-      subText: `${ctrlOrCmd} + W`
+      text: e('close')
     })
     res.push({
       func: 'closeOther',

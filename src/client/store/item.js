@@ -111,6 +111,9 @@ export default Store => {
   }
 
   Store.prototype.getItems = function (type) {
+    if (type === 'setting') {
+      return window.store.setting
+    }
     return JSON.parse(this['_' + type] || [])
   }
 

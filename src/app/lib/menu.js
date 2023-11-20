@@ -20,14 +20,12 @@ function buildMenu () {
       submenu: [
         {
           label: c('newBookmark'),
-          accelerator: 'CmdOrCtrl+T',
           click () {
             global.win.webContents.send('new-ssh', null)
           }
         },
         {
           label: c('newWindow'),
-          accelerator: 'CmdOrCtrl+N',
           click () {
             openNewInstance()
           }

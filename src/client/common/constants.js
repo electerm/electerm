@@ -80,7 +80,8 @@ export const footerHeight = 36
 export const quickCommandBoxHeight = 180
 export const isWin = typeof window.et.isWin === 'undefined' ? window.pre.isWin : window.et.isWin
 export const isMac = typeof window.et.isMac === 'undefined' ? window.pre.isMac : window.et.isMac
-export const ctrlOrCmd = isMac ? 'cmd' : 'ctrl'
+export const isMacJs = /Macintosh|Mac|Mac OS|MacIntel|MacPPC|Mac68K/gi.test(window.navigator.userAgent)
+export const ctrlOrCmd = isMacJs ? 'cmd' : 'ctrl'
 export const typeMap = buildConst([
   'remote',
   'local'
@@ -215,6 +216,7 @@ export const syncTokenCreateUrls = {
   custom: 'https://github.com/electerm/electerm/wiki/Custom-sync-server'
 }
 export const settingSyncId = 'setting-sync'
+export const settingShortcutsId = 'setting-shortcuts'
 export const settingCommonId = 'setting-common'
 export const defaultEnvLang = 'en_US.UTF-8'
 const defaultThemeLightConf = _get(
