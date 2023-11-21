@@ -8,7 +8,8 @@ import { shortcutExtend } from './shortcut-handler.js'
 
 class ShortcutControl extends React.PureComponent {
   componentDidMount () {
-    window.addEventListener('keypress', this.handleKeyboardEvent.bind(this))
+    window.addEventListener('keydown', this.handleKeyboardEvent.bind(this))
+    window.addEventListener('mousewheel', this.handleKeyboardEvent.bind(this))
   }
 
   prevTabShortcut = (e) => {
@@ -29,6 +30,29 @@ class ShortcutControl extends React.PureComponent {
   togglefullscreenShortcut = (e) => {
     e.stopPropagation()
     document.querySelector('.term-fullscreen-control').click()
+  }
+
+  zoominShortcut = (e) => {
+    e.stopPropagation()
+    window.store.zoom(0.25, true)
+  }
+
+  zoomoutShortcut = (e) => {
+    e.stopPropagation()
+    window.store.zoom(-0.25, true)
+  }
+
+  zoominTerminalShortcut = (event) => {
+    if (window.store.inActiveTerminal) {
+      window.store.zoomTerminal(event.wheelDeltaY)
+    } else {
+      const plus = event.wheelDeltaY > 0 ? 0.2 : -0.2
+      window.store.zoom(plus, true)
+    }
+  }
+
+  zoomoutTerminalShortcut = (event) => {
+    this.zoominTerminalShortcut(event)
   }
 
   render () {

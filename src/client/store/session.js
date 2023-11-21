@@ -22,28 +22,6 @@ export default Store => {
     }
   }
 
-  Store.prototype.onKeyDown = function (event) {
-    if (
-      event.key === '=' &&
-      (
-        (isMac && event.metaKey) ||
-        (!isMac && event.ctrlKey)
-      )
-    ) {
-      event.stopPropagation()
-      window.store.zoom(0.25, true)
-    } else if (
-      event.key === '-' &&
-      (
-        (isMac && event.metaKey) ||
-        (!isMac && event.ctrlKey)
-      )
-    ) {
-      event.stopPropagation()
-      window.store.zoom(-0.25, true)
-    }
-  }
-
   Store.prototype.zoomTerminal = debounce(function (delta) {
     postMsg({
       action: terminalActions.zoom,

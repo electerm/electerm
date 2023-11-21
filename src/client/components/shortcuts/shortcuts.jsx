@@ -99,7 +99,11 @@ export default class Shortcuts extends Component {
             return pre + m(b)
           } else if (b === 'newBookmark') {
             return pre + c(b)
-          } else if (b === 'togglefullscreen') {
+          } else if (b.includes('zoomin')) {
+            return pre + m('zoomin')
+          } else if (b.includes('zoomout')) {
+            return pre + m('zoomout')
+          } else if (['togglefullscreen'].includes(b)) {
             return pre + m(b)
           } else {
             return pre + s(b)

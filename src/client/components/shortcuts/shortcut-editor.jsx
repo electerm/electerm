@@ -23,12 +23,14 @@ export default class ShortcutEdit extends PureComponent {
     const elem = document.querySelector('.ant-drawer')
     elem?.addEventListener('click', this.handleClickOuter)
     document.addEventListener('keydown', this.handleKeyDown)
+    document.addEventListener('mousewheel', this.handleKeyDown)
   }
 
   removeEventListener = () => {
     const elem = document.querySelector('.ant-drawer')
     elem?.removeEventListener('click', this.handleClickOuter)
     document.removeEventListener('keydown', this.handleKeyDown)
+    document.removeEventListener('mousewheel', this.handleKeyDown)
   }
 
   isInsideElement = (event) => {
@@ -101,9 +103,13 @@ export default class ShortcutEdit extends PureComponent {
       ctrlKey,
       shiftKey,
       metaKey,
-      altKey
+      altKey,
+      wheelDeltaY
     } = e
-    const codeK = getKeyCharacter(code)
+    const codeName = e instanceof window.WheelEvent
+      ? (wheelDeltaY > 0 ? 'mouseWheelUp' : 'mouseWheelDown')
+      : code
+    const codeK = getKeyCharacter(codeName)
     const noControlKey = !ctrlKey && !shiftKey && !metaKey && !altKey
     if (noControlKey && codeK === 'Escape') {
       return this.handleCancel()

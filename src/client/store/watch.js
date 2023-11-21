@@ -65,7 +65,9 @@ export default store => {
   }).start()
 
   autoRun(store, () => {
-    window.pre.runGlobalAsync('saveUserConfig', store.config)
+    if (store.config) {
+      window.pre.runGlobalAsync('saveUserConfig', store.config)
+    }
     return store._config
   }, func => debounce(func, 100)).start()
 

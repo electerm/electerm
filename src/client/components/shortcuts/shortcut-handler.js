@@ -24,14 +24,19 @@ function buildConfig (config) {
 
 export function shortcutExtend (Cls) {
   Cls.prototype.handleKeyboardEvent = function (event) {
+    // console.log('event', event)
     const {
       code,
       ctrlKey,
       shiftKey,
       metaKey,
-      altKey
+      altKey,
+      wheelDeltaY
     } = event
-    const codeK = getKeyCharacter(code)
+    const codeName = event instanceof window.WheelEvent
+      ? (wheelDeltaY > 0 ? 'mouseWheelUp' : 'mouseWheelDown')
+      : code
+    const codeK = getKeyCharacter(codeName)
     const noControlKey = !ctrlKey && !shiftKey && !metaKey && !altKey
     if (noControlKey) {
       return

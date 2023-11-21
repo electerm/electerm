@@ -16,6 +16,16 @@ export default () => {
       shortcutMac: 'alt+f'
     },
     {
+      name: 'app_zoomin',
+      shortcut: 'ctrl+=',
+      shortcutMac: 'meta+='
+    },
+    {
+      name: 'app_zoomout',
+      shortcut: 'ctrl+-',
+      shortcutMac: 'meta+-'
+    },
+    {
       name: 'app_prevTab',
       shortcut: 'ctrl+shift+tab',
       shortcutMac: 'ctrl+shift+tab'
@@ -61,7 +71,17 @@ export default () => {
     {
       name: 'terminal_showNormalBuffer',
       shortcut: 'ctrl+ArrowUp',
-      shortcutMac: 'meta+ArrowUp'
+      shortcutMac: 'meta+↑'
+    },
+    {
+      name: 'terminal_zoominTerminal',
+      shortcut: 'ctrl+▲',
+      shortcutMac: 'meta+▲'
+    },
+    {
+      name: 'terminal_zoomoutTerminal',
+      shortcut: 'ctrl+▼',
+      shortcutMac: 'meta+▼'
     }
   ]
 }
