@@ -182,6 +182,8 @@ export default class BatchOp extends Component {
         toPath: resolveFilePath(isDown ? conf.localPath : conf.remotePath, name),
         typeFrom: isDown ? 'remote' : 'local',
         typeTo: isDown ? 'local' : 'remote',
+        skipExpand: true,
+        zip: true,
         skipConfirm: true
       }
       postMsg({
@@ -195,7 +197,9 @@ export default class BatchOp extends Component {
       }, 1000 * 60 * 60)
       this.ref1 = autoRun(store, () => {
         const { transferHistory } = store
-        const first = transferHistory.find(t => t.id === obj.id)
+        const first = transferHistory.find(t => {
+          return (t.id === obj.id || t.originalId === obj.id) && t.unzip
+        })
         if (first && first.sessionId === tab.sessionId) {
           this.ref1 && this.ref1.stop()
           delete this.ref1
@@ -315,7 +319,7 @@ export default class BatchOp extends Component {
         }
         const res = {
           host,
-          port,
+          port: Number(port),
           username,
           password
         }

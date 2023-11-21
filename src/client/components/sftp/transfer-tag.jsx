@@ -21,7 +21,7 @@ export default function TransferTag (props) {
   const typeFromTitle = e(typeFrom)
   const typeToTitle = e(typeTo)
   const title = error
-    ? `error: ${error}`
+    ? `[error: ${error}]`
     : ''
   return (
     <span className={'flex-child transfer-tag transfer-status-' + tagStatus} title={title}>
@@ -34,7 +34,7 @@ export default function TransferTag (props) {
       <span className='sftp-transfer-type'>
         {typeToTitle}
       </span>
-      <span className='mg1l'>[{title}]</span>
+      <span className='mg1l'>{title}</span>
     </span>
   )
 }

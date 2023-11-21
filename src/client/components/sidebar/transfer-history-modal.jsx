@@ -35,7 +35,7 @@ export default class TransferHistoryModal extends Component {
       getTransferHistory,
       clearTransferHistory
     } = this.props.store
-    const transferHistory = getTransferHistory()
+    const transferHistory = getTransferHistory().filter(d => !d.unzip)
     const columns = [{
       title: e('startTime'),
       dataIndex: 'startTime',

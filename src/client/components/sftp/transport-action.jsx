@@ -222,6 +222,7 @@ export default function transportAction (props) {
       fromPathReal: transfer.fromPath,
       toPath: nTo,
       fromPath: p,
+      originalId: transfer.id,
       id: generate()
     }
     delete newTrans1.fromFile
