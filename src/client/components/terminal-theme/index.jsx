@@ -164,7 +164,7 @@ export default function ThemeForm (props) {
   }
 
   const {
-    readOnly,
+    readonly,
     id,
     type,
     name: themeName
@@ -175,7 +175,7 @@ export default function ThemeForm (props) {
   }
   const { autofocustrigger } = props.store
   const isDefaultTheme = id === defaultTheme.id || id === defaultThemeLight.id
-  const disabled = readOnly || isDefaultTheme
+  const disabled = readonly || isDefaultTheme
   return (
     <Form
       onFinish={handleSubmit}
@@ -226,7 +226,8 @@ export default function ThemeForm (props) {
           rules={[{
             max: 1000, message: '1000 chars max'
           }, {
-            required: true, message: 'theme Config required'
+            required: true,
+            message: 'theme config required'
           }, {
             validator: validateInput
           }]}
