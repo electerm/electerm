@@ -58,6 +58,7 @@ export default function LocalFormUi (props) {
   const defaultValues = {
     category: initBookmarkGroupId,
     term: props.store.config.terminalType,
+    displayRaw: false,
     type: terminalLocalType,
     runScripts: [{}],
     enableSsh: true

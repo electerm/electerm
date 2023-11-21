@@ -61,6 +61,7 @@ export default function BookmarkFormUI (props) {
     id: '',
     color: getRandomDefaultColor(),
     term: props.store.config.terminalType,
+    displayRaw: false,
     encode: encodes[0],
     envLang: defaultEnvLang,
     enableSsh: true,

@@ -61,6 +61,7 @@ export default function TelnetFormUI (props) {
     password: 'guest',
     runScripts: [{}],
     term: defaultSettings.terminalType,
+    displayRaw: false,
     type: terminalTelnetType,
     category: initBookmarkGroupId
   }

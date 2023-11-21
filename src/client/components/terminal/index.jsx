@@ -912,7 +912,8 @@ class Term extends Component {
       srcId, from = 'bookmarks',
       type,
       encode,
-      term: terminalType
+      term: terminalType,
+      displayRaw
     } = tab
     const { savePassword } = this.state
     const isSshConfig = type === terminalSshConfigType
@@ -1026,30 +1027,38 @@ class Term extends Component {
     }
 
     // this.decoder = new TextDecoder(encode)
-    // const oldWrite = term.write
-    // const th = this
-    // term.write = function (data) {
-    //   let str = ''
-    //   if (typeof data === 'object') {
-    //     if (data instanceof ArrayBuffer) {
-    //       str = th.decoder.decode(data)
-    //       oldWrite.call(term, str)
-    //     } else {
-    //       const fileReader = new FileReader()
-    //       fileReader.addEventListener('load', () => {
-    //         str = th.decoder.decode(fileReader.result)
-    //         oldWrite.call(term, str)
-    //       })
-    //       fileReader.readAsArrayBuffer(new window.Blob([data]))
-    //     }
-    //   } else if (typeof data === 'string') {
-    //     oldWrite.call(term, data)
-    //   } else {
-    //     throw Error(`Cannot handle ${typeof data} websocket message.`)
-    //   }
-    // }
+    if (displayRaw) {
+      const oldWrite = term.write
+      const th = this
+      term.write = function (data) {
+        // let str = ''
+        // if (typeof data === 'object') {
+        //   if (data instanceof ArrayBuffer) {
+        //     str = th.decoder.decode(data)
+        //     oldWrite.call(term, th.escape(str))
+        //   } else {
+        //     const fileReader = new FileReader()
+        //     fileReader.addEventListener('load', () => {
+        //       str = th.decoder.decode(fileReader.result)
+        //       oldWrite.call(term, th.escape(str))
+        //     })
+        //     fileReader.readAsArrayBuffer(new window.Blob([data]))
+        //   }
+        // } else if (typeof data === 'string') {
+        //   oldWrite.call(term, th.escape(data))
+        // } else {
+        //   throw Error(`Cannot handle ${typeof data} websocket message.`)
+        // }
+        oldWrite.call(term, th.escape(data))
+      }
+    }
     this.term = term
     window.store.triggerResize()
+  }
+
+  escape = str => {
+    return str.replace(/\\x1B/g, '\\x1B')
+      .replace(/\033/g, '\\033')
   }
 
   onKey = (key, e) => {

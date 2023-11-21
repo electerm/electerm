@@ -10,7 +10,8 @@ import {
   Input,
   InputNumber,
   AutoComplete,
-  Form
+  Form,
+  Switch
 } from 'antd'
 import { formItemLayout } from '../../common/form-layout'
 import defaultSettings from '../../common/default-setting'
@@ -53,6 +54,15 @@ export default function useBookmarkFormUI (props) {
       <AutoComplete
         options={terminalTypes.map(mapper)}
       />
+    </FormItem>,
+    <FormItem
+      {...formItemLayout}
+      label={e('displayRaw')}
+      name='displayRaw'
+      key='displayRaw'
+      valuePropName='checked'
+    >
+      <Switch />
     </FormItem>,
     <FormItem
       {...formItemLayout}
