@@ -9,7 +9,7 @@ import {
   CheckOutlined,
   CloseOutlined
 } from '@ant-design/icons'
-import { debounce } from 'lodash-es'
+import { throttle } from 'lodash-es'
 import { getKeyCharacter } from './get-key-char.js'
 
 export default class ShortcutEdit extends PureComponent {
@@ -83,14 +83,14 @@ export default class ShortcutEdit extends PureComponent {
     return 'shortcut-control-' + index
   }
 
-  warnCtrolKey = debounce(() => {
+  warnCtrolKey = throttle(() => {
     message.info(
       'Must have one of Ctrl or Shift or Alt or Meta key',
       undefined
     )
   }, 3000)
 
-  warnExist = debounce(() => {
+  warnExist = throttle(() => {
     message.info(
       'Shortcut already exists',
       undefined

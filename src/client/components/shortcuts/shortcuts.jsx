@@ -91,7 +91,7 @@ export default class Shortcuts extends Component {
           const pre = a === 'terminal' ? `[${ss('terminal')}] ` : ''
           if (
             [
-              'clear', 'selectAll', 'search'
+              'clear', 'selectAll', 'search', 'split'
             ].includes(b)
           ) {
             return pre + ss(b)

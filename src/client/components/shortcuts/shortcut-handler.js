@@ -24,7 +24,6 @@ function buildConfig (config) {
 
 export function shortcutExtend (Cls) {
   Cls.prototype.handleKeyboardEvent = function (event) {
-    // console.log('event', event)
     const {
       code,
       ctrlKey,

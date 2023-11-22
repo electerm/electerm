@@ -5,6 +5,7 @@
 
 import React from 'react'
 import { shortcutExtend } from './shortcut-handler.js'
+import { throttle } from 'lodash-es'
 
 class ShortcutControl extends React.PureComponent {
   componentDidMount () {
@@ -27,10 +28,18 @@ class ShortcutControl extends React.PureComponent {
     window.store.onNewSsh()
   }
 
-  togglefullscreenShortcut = (e) => {
+  togglefullscreenShortcut = throttle((e) => {
     e.stopPropagation()
-    document.querySelector('.term-fullscreen-control').click()
-  }
+    const x = document.querySelector('.term-fullscreen-control') ||
+    document.querySelector('.term-fullscreen-control1')
+    x && x.click()
+  }, 300)
+
+  splitShortcut = throttle((e) => {
+    e.stopPropagation()
+    const x = document.querySelector('.icon-split')
+    x && x.click()
+  }, 300)
 
   zoominShortcut = (e) => {
     e.stopPropagation()

@@ -2,7 +2,7 @@ import { Component } from 'react'
 import ZmodemTransfer from './zmodem-transfer'
 import { handleErr } from '../../common/fetch'
 import generate from '../../common/uid'
-import { isEqual, pick, debounce } from 'lodash-es'
+import { isEqual, pick, debounce, throttle } from 'lodash-es'
 import postMessage from '../../common/post-msg'
 import clone from '../../common/to-simple-obj'
 import runIdle from '../../common/run-idle'
@@ -255,12 +255,12 @@ class Term extends Component {
     this.openNormalBuffer()
   }
 
-  prevTabShortcut = debounce((e) => {
+  prevTabShortcut = throttle((e) => {
     e.stopPropagation()
     window.store.clickPrevTab()
   }, 300)
 
-  nextTabShortcut = debounce((e) => {
+  nextTabShortcut = throttle((e) => {
     e.stopPropagation()
     window.store.clickNextTab()
   }, 300)
@@ -1065,7 +1065,7 @@ class Term extends Component {
     // log.log('onKey', key, e)
   }
 
-  onResize = debounce(() => {
+  onResize = throttle(() => {
     const cid = this.props.currentTabId
     const tid = this.props.tab?.id
     if (

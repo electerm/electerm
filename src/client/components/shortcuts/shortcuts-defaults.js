@@ -2,8 +2,8 @@ export default () => {
   return [
     {
       name: 'app_closeCurrentTab',
-      shortcut: 'ctrl+w',
-      shortcutMac: 'ctrl+w'
+      shortcut: 'alt+w',
+      shortcutMac: 'alt+w'
     },
     {
       name: 'app_newBookmark',
@@ -34,6 +34,11 @@ export default () => {
       name: 'app_nextTab',
       shortcut: 'ctrl+tab',
       shortcutMac: 'ctrl+tab'
+    },
+    {
+      name: 'terminal_split',
+      shortcut: 'ctrl+/',
+      shortcutMac: 'meta+/'
     },
     {
       name: 'terminal_clear',
