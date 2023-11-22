@@ -94,7 +94,7 @@ export default class FileListTable extends React.Component {
         style: {
           width: w + 'px',
           left: (w * i) + 'px',
-          zIndex: 3 + i
+          zIndex: 3 + i * 2
         }
       }
     })
@@ -110,7 +110,8 @@ export default class FileListTable extends React.Component {
           nextProp: properties[i + 1].name,
           style: {
             left: (w * (i + 1) - (splitDraggerWidth / 2)) + 'px',
-            width: splitDraggerWidth + 'px'
+            width: splitDraggerWidth + 'px',
+            zIndex: 4 + i * 2
           }
         }
       ]
