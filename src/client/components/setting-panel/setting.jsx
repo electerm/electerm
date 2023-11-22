@@ -185,6 +185,10 @@ export default class Setting extends Component {
     this.props.store.setTheme(id)
   }
 
+  handleCustomCss = (e) => {
+    this.onChangeValue(e.target.value, 'customCss')
+  }
+
   onChangeValue = (value, name) => {
     if (name === 'useSystemTitleBar') {
       message.info(e('useSystemTitleBarTip'), 5)
@@ -212,21 +216,18 @@ export default class Setting extends Component {
     )
   }
 
-  saveConfig = async (_ext) => {
-    const config = deepCopy(this.props.config)
-    const ext = deepCopy(_ext)
-    const update = Object.assign({}, config, deepCopy(_ext))
+  saveConfig = async (ext) => {
+    const { config } = this.props
     if (ext.hotkey && ext.hotkey !== config.hotkey) {
       const res = await window.pre.runGlobalAsync('changeHotkey', ext.hotkey)
       if (!res) {
         message.warning(e('hotkeyNotOk'))
-        update.config.hotkey = config.hotkey
-        ext.hotkey = config.hotkey
+        delete ext.hotkey
       } else {
         message.success(e('saved'))
       }
     }
-    this.props.store.setConfig(update)
+    this.props.store.setConfig(ext)
   }
 
   renderOption = (m, i) => {
@@ -726,7 +727,8 @@ export default class Setting extends Component {
       hotkey,
       language,
       rendererType,
-      theme
+      theme,
+      customCss
     } = this.props.config
     const {
       appPath,
@@ -824,6 +826,16 @@ export default class Setting extends Component {
             }
           </Select>
         </div>
+
+        <div className='pd2b'>
+          <span className='inline-title mg1r'>{e('customCss')}</span>
+          <Input.TextArea
+            onChange={this.handleCustomCss}
+            value={customCss}
+            rows={3}
+          />
+        </div>
+
         <div className='pd2b'>
           <span className='inline-title mg1r'>{e('language')}</span>
           <Select

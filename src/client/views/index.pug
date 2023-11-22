@@ -29,9 +29,11 @@ html
       link(rel='stylesheet', href='css/' + version + '-basic.css')
       link(rel='stylesheet', href='css/' + version + '-index.css')
       style(id='theme-css').
+      style(id='custom-css').
   body
     - if (isDev)
       style(id='theme-css').
+      style(id='custom-css').
     #container
     #content-loading
       .morph-shape.iblock.pd3

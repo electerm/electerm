@@ -10,6 +10,7 @@ import Sidebar from '../sidebar'
 import BatchOp from '../batch-op/batch-op'
 import CssOverwrite from './css-overwrite'
 import UiTheme from './ui-theme'
+import CustomCss from './custom-css.jsx'
 import TerminalInteractive from '../terminal/terminal-interactive'
 import classnames from 'classnames'
 import ShortcutControl from '../shortcuts/shortcut-control.jsx'
@@ -122,7 +123,8 @@ export default class Index extends Component {
             {...themeProps}
             buildTheme={store.buildTheme}
           />
-          <TextEditor />
+          <CustomCss customCss={config.customCss} />
+          <TextEditor customCss={cpConf.customCss} />
           <UpdateCheck
             skipVersion={cpConf.skipVersion}
             upgradeInfo={upgradeInfo}
