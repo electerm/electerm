@@ -7,8 +7,8 @@ export default () => {
     },
     {
       name: 'app_newBookmark',
-      shortcut: 'ctrl+b',
-      shortcutMac: 'meta+b'
+      shortcut: 'ctrl+n',
+      shortcutMac: 'meta+n'
     },
     {
       name: 'app_togglefullscreen',
