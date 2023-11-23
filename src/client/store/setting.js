@@ -11,6 +11,7 @@ import copy from 'json-deep-copy'
 import {
   settingMap,
   settingCommonId,
+  settingSyncId,
   modals
 } from '../common/constants'
 import { buildNewTheme } from '../common/terminal-theme'
@@ -150,7 +151,7 @@ export default Store => {
     store.storeAssign({
       settingTab: settingMap.setting
     })
-    store.setSettingItem(copy(store.setting[0]))
+    store.setSettingItem(copy(store.setting.find(d => d.id === settingSyncId)))
     store.openSettingModal()
   }
 
