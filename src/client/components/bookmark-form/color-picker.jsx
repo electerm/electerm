@@ -3,6 +3,7 @@ import { Popover } from 'antd'
 import { HexColorPicker } from 'react-colorful'
 import { defaultColors, getRandomHexColor } from '../../common/rand-hex-color.js'
 import { HexInput } from './hex-input.jsx'
+import './color-picker.styl'
 
 // Your Custom Color Picker component
 export const ColorPicker = React.forwardRef((props, ref) => {

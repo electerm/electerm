@@ -51,6 +51,7 @@ import NormalBuffer from './normal-buffer'
 import { createTerm, resizeTerm } from './terminal-apis'
 import createLsId from './build-ls-term-id'
 import { shortcutExtend, shortcutDescExtend } from '../shortcuts/shortcut-handler.js'
+import { KeywordHighlighterAddon } from './highlight-addon.js'
 
 const { prefix } = window
 const e = prefix('ssh')
@@ -820,10 +821,6 @@ class Term extends Component {
     term.onData(this.onData)
     this.term = term
     term.attachCustomKeyEventHandler(this.handleKeyboardEvent.bind(this))
-    term.onKey(this.onKey)
-    // if (host && !password && !privateKey) {
-    //   return this.promote()
-    // }
     await this.remoteInit(term)
   }
 
@@ -905,7 +902,13 @@ class Term extends Component {
     })
     const { cols, rows } = term
     const { config } = this.props
-    const { host, port, tokenElecterm, server = '' } = config
+    const {
+      host,
+      port,
+      tokenElecterm,
+      keywords = [],
+      server = ''
+    } = config
     const { sessionId, terminalIndex, id, logName } = this.props
     const tab = deepCopy(this.props.tab || {})
     const {
@@ -1025,44 +1028,12 @@ class Term extends Component {
         noTerminalWriteOutsideSession: true
       }, this)
     }
-
-    // this.decoder = new TextDecoder(encode)
-    if (displayRaw) {
-      const oldWrite = term.write
-      const th = this
-      term.write = function (data) {
-        // let str = ''
-        // if (typeof data === 'object') {
-        //   if (data instanceof ArrayBuffer) {
-        //     str = th.decoder.decode(data)
-        //     oldWrite.call(term, th.escape(str))
-        //   } else {
-        //     const fileReader = new FileReader()
-        //     fileReader.addEventListener('load', () => {
-        //       str = th.decoder.decode(fileReader.result)
-        //       oldWrite.call(term, th.escape(str))
-        //     })
-        //     fileReader.readAsArrayBuffer(new window.Blob([data]))
-        //   }
-        // } else if (typeof data === 'string') {
-        //   oldWrite.call(term, th.escape(data))
-        // } else {
-        //   throw Error(`Cannot handle ${typeof data} websocket message.`)
-        // }
-        oldWrite.call(term, th.escape(data))
-      }
-    }
+    term.displayRaw = displayRaw
+    term.loadAddon(
+      new KeywordHighlighterAddon(keywords)
+    )
     this.term = term
     window.store.triggerResize()
-  }
-
-  escape = str => {
-    return str.replace(/\\x1B/g, '\\x1B')
-      .replace(/\033/g, '\\033')
-  }
-
-  onKey = (key, e) => {
-    // log.log('onKey', key, e)
   }
 
   onResize = throttle(() => {

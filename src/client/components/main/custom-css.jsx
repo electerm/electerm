@@ -23,6 +23,6 @@ export default function CustomCss (props) {
   }, [])
   useConditionalEffect(() => {
     applyTheme()
-  }, delta && delta.prev && !eq(delta.prev, delta.curr))
+  }, delta && !eq(delta.prev, delta.curr))
   return null
 }

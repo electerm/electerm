@@ -1,6 +1,5 @@
 import React, { Component } from 'react'
 import {
-  CodeOutlined,
   ArrowRightOutlined,
   LoadingOutlined
 } from '@ant-design/icons'
@@ -9,29 +8,21 @@ import {
   Select,
   Switch,
   Input,
-  Upload,
   InputNumber,
   Alert,
   Button,
-  AutoComplete,
-  Tooltip,
   Table,
   Space
 } from 'antd'
 import deepCopy from 'json-deep-copy'
 import {
-  noTerminalBgValue,
   settingMap,
-  rendererTypes,
   proxyHelpLink
 } from '../../common/constants'
 import defaultSettings from '../../common/default-setting'
-import ShowItem from '../common/show-item'
-import { osResolve } from '../../common/resolve'
 import Link from '../common/external-link'
 import { isNumber, isNaN } from 'lodash-es'
 import createEditLangLink from '../../common/create-lang-edit-link'
-import mapper from '../../common/auto-complete-data-mapper'
 import StartSession from './start-session-select'
 import HelpIcon from '../common/help-icon'
 import delay from '../../common/wait.js'
@@ -41,7 +32,6 @@ const { Option } = Select
 const { prefix } = window
 const e = prefix('setting')
 const f = prefix('form')
-const s = prefix('ssh')
 const p = prefix('sftp')
 const t = prefix('terminalThemes')
 
@@ -58,7 +48,7 @@ const keys = [
   })
 ]
 
-export default class Setting extends Component {
+export default class SettingCommon extends Component {
   state = {
     ready: false,
     languageChanged: false,
@@ -200,20 +190,6 @@ export default class Setting extends Component {
 
   onChangeStartSessions = value => {
     this.onChangeValue(value, 'onStartSessions')
-  }
-
-  handleChangeFont = (values) => {
-    this.onChangeValue(
-      values.join(', '),
-      'fontFamily'
-    )
-  }
-
-  handleChangeCursorStyle = (cursorStyle) => {
-    this.onChangeValue(
-      cursorStyle,
-      'cursorStyle'
-    )
   }
 
   saveConfig = async (ext) => {
@@ -386,111 +362,6 @@ export default class Setting extends Component {
     )
   }
 
-  renderBgOption = item => {
-    return {
-      value: item.value,
-      label: item.desc
-    }
-  }
-
-  renderTerminalBgSelect = (name) => {
-    const value = this.props.config[name]
-    const defaultValue = defaultSettings[name]
-    const onChange = (v) => this.onChangeValue(v, name)
-    const after = (
-      <Upload
-        beforeUpload={(file) => {
-          this.onChangeValue(file.path, name)
-          return false
-        }}
-        showUploadList={false}
-      >
-        <span>{e('chooseFile')}</span>
-      </Upload>
-    )
-    const dataSource = [
-      {
-        value: '',
-        desc: t('default')
-      },
-      {
-        value: noTerminalBgValue,
-        desc: e('noTerminalBg')
-      }
-    ]
-    const numberOpts = { step: 0.05, min: 0, max: 1, cls: 'bg-img-setting' }
-
-    const renderFilter = () => {
-      if (this.props.config[name] === noTerminalBgValue) return
-
-      return (
-        <div>
-          {
-            this.renderNumber(
-              'terminalBackgroundFilterOpacity',
-              numberOpts,
-              e('Opacity')
-            )
-          }
-          {
-            this.renderNumber(
-              'terminalBackgroundFilterBlur',
-              { ...numberOpts, min: 0, max: 50, step: 0.5 },
-              e('Blur')
-            )
-          }
-          {
-            this.renderNumber(
-              'terminalBackgroundFilterBrightness',
-              { ...numberOpts, min: 0, max: 10, step: 0.1 },
-              e('Brightness')
-            )
-          }
-          {
-            this.renderNumber(
-              'terminalBackgroundFilterGrayscale',
-              numberOpts,
-              e('Grayscale')
-            )
-          }
-          {
-            this.renderNumber(
-              'terminalBackgroundFilterContrast',
-              { ...numberOpts, min: 0, max: 10, step: 0.1 },
-              e('Contrast')
-            )
-          }
-        </div>
-      )
-    }
-
-    return (
-      <div className='pd2b'>
-        <div className='pd1b'>
-          <Tooltip
-            title='eg: https://xx.com/xx.png or /path/to/xx.png'
-          >
-            <AutoComplete
-              value={value}
-              onChange={onChange}
-              placeholder={defaultValue}
-              className='width-100'
-              options={dataSource.map(this.renderBgOption)}
-            >
-              <Input
-                addonAfter={after}
-              />
-            </AutoComplete>
-          </Tooltip>
-        </div>
-
-        {
-          renderFilter()
-        }
-      </div>
-    )
-  }
-
   renderReset = () => {
     return (
       <div className='pd1b pd1t'>
@@ -500,20 +371,6 @@ export default class Setting extends Component {
           {e('resetAllToDefault')}
         </Button>
       </div>
-    )
-  }
-
-  renderDefaultTerminalType = () => {
-    const opts = this.props.config.terminalTypes.map(mapper)
-    return (
-      <AutoComplete
-        options={opts}
-        style={{
-          width: '200px'
-        }}
-        value={this.props.config.terminalType}
-        onChange={(v) => this.onChangeValue(v, 'terminalType')}
-      />
     )
   }
 
@@ -587,82 +444,6 @@ export default class Setting extends Component {
     )
   }
 
-  renderCursorStyleSelect = () => {
-    const {
-      cursorStyle = 'block'
-    } = this.props.config
-    const sets = [
-      {
-        id: 'block',
-        title: '▊'
-      },
-      {
-        id: 'underline',
-        title: '_'
-      },
-      {
-        id: 'bar',
-        title: '|'
-      }
-    ]
-    const props = {
-      onChange: this.handleChangeCursorStyle,
-      value: cursorStyle,
-      style: {
-        width: '100px'
-      }
-    }
-    return (
-      <div className='pd1b'>
-        <span className='inline-title mg1r'>{e('cursorStyle')}</span>
-        <Select
-          {...props}
-          showSearch
-        >
-          {
-            sets.map(f => {
-              return (
-                <Option value={f.id} key={f.id}>
-                  <b>{f.title}</b>
-                </Option>
-              )
-            })
-          }
-        </Select>
-      </div>
-    )
-  }
-
-  renderFontFamily = () => {
-    const { fonts } = this.props.store
-    const { fontFamily } = this.props.config
-    const props = {
-      mode: 'multiple',
-      onChange: this.handleChangeFont,
-      value: fontFamily.split(/, */g)
-    }
-    return (
-      <Select
-        {...props}
-        showSearch
-      >
-        {
-          fonts.map(f => {
-            return (
-              <Option value={f} key={f}>
-                <span style={{
-                  fontFamily: f
-                }}
-                >{f}
-                </span>
-              </Option>
-            )
-          })
-        }
-      </Select>
-    )
-  }
-
   renderLoginPassAfter () {
     const {
       loginPass,
@@ -726,15 +507,12 @@ export default class Setting extends Component {
     const {
       hotkey,
       language,
-      rendererType,
       theme,
       customCss
     } = this.props.config
     const {
-      appPath,
       langs
     } = this.props.store
-    const terminalLogPath = appPath ? osResolve(appPath, 'electerm', 'session_logs') : window.et.sessionLogPath
     const terminalThemes = this.props.store.getSidebarList(settingMap.terminalThemes)
     const [modifier, key] = hotkey.split('+')
     const pops = {
@@ -779,12 +557,6 @@ export default class Setting extends Component {
         </div>
         {this.renderProxy()}
         {
-          this.renderNumber('scrollback', {
-            step: 200,
-            min: 1000
-          }, e('scrollBackDesc'), 400)
-        }
-        {
           this.renderNumber('sshReadyTimeout', {
             step: 200,
             min: 100,
@@ -810,7 +582,7 @@ export default class Setting extends Component {
         }
 
         <div className='pd2b'>
-          <span className='inline-title mg1r'>{e('terminalTheme')}</span>
+          <span className='inline-title mg1r'>{t('uiThemes')}</span>
           <Select
             onChange={this.handleChangeTerminalTheme}
             popupMatchSelectWidth={false}
@@ -855,52 +627,6 @@ export default class Setting extends Component {
           <Link className='mg1l' to={createEditLangLink(language)}>{p('edit')}</Link>
         </div>
         {this.renderRestart('languageChanged')}
-        <div className='pd1y font16 bold'>
-          <CodeOutlined className='mg1r' />
-          {s('terminal')} {e('settings')}
-        </div>
-        <div className='pd2b'>
-          <span className='inline-title mg1r'>{e('rendererType')}</span>
-          <Select
-            onChange={v => this.onChangeValue(v, 'rendererType')}
-            value={rendererType}
-            popupMatchSelectWidth={false}
-          >
-            {
-              Object.keys(rendererTypes).map(id => {
-                return (
-                  <Option key={id} value={id}>{id}</Option>
-                )
-              })
-            }
-          </Select>
-        </div>
-        {
-          this.renderNumber('fontSize', {
-            step: 1,
-            min: 9
-          }, `${t('default')} ${e('fontSize')}`, 400)
-        }
-        <div className='pd2b'>
-          <span className='inline-title mg1r'>{t('default')} {e('fontFamily')}</span>
-          {
-            this.renderFontFamily()
-          }
-        </div>
-        <div className='pd2b'>
-          <span className='inline-title mg1r'>{e('defaultTerminalType')}</span>
-          {
-            this.renderDefaultTerminalType()
-          }
-        </div>
-        <div className='pd1b'>{e('terminalBackgroundImage')}</div>
-        {
-          this.renderTerminalBgSelect('terminalBackgroundImagePath')
-        }
-        <div className='pd1b'>{e('terminalWordSeparator')}</div>
-        {
-          this.renderText('terminalWordSeparator', e('terminalWordSeparator'))
-        }
         <div className='pd1b'>{t('default')} {e('execWindows')}</div>
         {
           this.renderTextExec('execWindows')
@@ -914,30 +640,18 @@ export default class Setting extends Component {
           this.renderTextExec('execLinux')
         }
         {
-          this.renderCursorStyleSelect()
-        }
-        {
           [
             'autoRefreshWhenSwitchToSftp',
             'screenReaderMode',
             'initDefaultTabOnStart',
-            'cursorBlink',
-            'rightClickSelectsWord',
-            'pasteWhenContextMenu',
-            'copyWhenSelect',
             'disableSshHistory',
             'disableTransferHistory',
-            'ctrlOrMetaOpenTerminalLink',
             'checkUpdateOnStart',
             'useSystemTitleBar',
             'confirmBeforeExit',
             'debug'
           ].map(this.renderToggle)
         }
-        {this.renderToggle('saveTerminalLogToFile', (
-          <ShowItem to={terminalLogPath} className='mg1l'>{p('open')}</ShowItem>
-        ))}
-
         {this.renderLoginPass()}
         {this.renderReset()}
       </div>

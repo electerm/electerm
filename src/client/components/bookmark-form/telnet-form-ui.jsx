@@ -19,6 +19,7 @@ import useSubmit from './use-submit'
 import useUI from './use-ui'
 import useQm from './use-quick-commands'
 import renderCommon from './form-ssh-common'
+import { getRandomDefaultColor } from '../../common/rand-hex-color.js'
 import copy from 'json-deep-copy'
 import { defaultsDeep, uniqBy } from 'lodash-es'
 import './bookmark-form.styl'
@@ -59,6 +60,7 @@ export default function TelnetFormUI (props) {
     id: '',
     username: 'root',
     password: 'guest',
+    color: getRandomDefaultColor(),
     runScripts: [{}],
     term: defaultSettings.terminalType,
     displayRaw: false,

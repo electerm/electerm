@@ -1,4 +1,5 @@
-import Setting from './setting'
+import SettingCommon from './setting-common'
+import SettingTerminal from './setting-terminal'
 import SettingCol from './col'
 import SyncSetting from '../setting-sync/setting-sync'
 import Shortcuts from '../shortcuts/shortcuts'
@@ -6,6 +7,7 @@ import List from './list'
 import {
   settingMap,
   settingSyncId,
+  settingTerminalId,
   settingShortcutsId
 } from '../../common/constants'
 
@@ -25,10 +27,12 @@ export default function TabSettings (props) {
   const sid = settingItem.id
   if (sid === settingSyncId) {
     elem = <SyncSetting store={store} />
+  } else if (sid === settingTerminalId) {
+    elem = <SettingTerminal {...listProps} config={store.config} />
   } else if (sid === settingShortcutsId) {
     elem = <Shortcuts store={store} />
   } else {
-    elem = <Setting {...listProps} config={store.config} />
+    elem = <SettingCommon {...listProps} config={store.config} />
   }
   return (
     <div

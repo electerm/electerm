@@ -216,6 +216,7 @@ export const syncTokenCreateUrls = {
   custom: 'https://github.com/electerm/electerm/wiki/Custom-sync-server'
 }
 export const settingSyncId = 'setting-sync'
+export const settingTerminalId = 'setting-terminal'
 export const settingShortcutsId = 'setting-shortcuts'
 export const settingCommonId = 'setting-common'
 export const defaultEnvLang = 'en_US.UTF-8'

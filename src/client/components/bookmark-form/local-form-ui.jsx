@@ -22,6 +22,8 @@ import useQm from './use-quick-commands'
 import copy from 'json-deep-copy'
 import { defaults } from 'lodash-es'
 import renderRunScripts from './render-delayed-scripts.jsx'
+import { ColorPickerItem } from './color-picker-item.jsx'
+import { getRandomDefaultColor } from '../../common/rand-hex-color.js'
 
 const FormItem = Form.Item
 const { prefix } = window
@@ -60,6 +62,7 @@ export default function LocalFormUi (props) {
     term: props.store.config.terminalType,
     displayRaw: false,
     type: terminalLocalType,
+    color: getRandomDefaultColor(),
     runScripts: [{}],
     enableSsh: true
   }
@@ -75,10 +78,11 @@ export default function LocalFormUi (props) {
         <FormItem
           {...formItemLayout}
           label={e('title')}
-          name='title'
           hasFeedback
         >
-          <Input />
+          <FormItem noStyle name='title'>
+            <Input addonBefore={<ColorPickerItem />} />
+          </FormItem>
         </FormItem>
         <FormItem
           {...formItemLayout}
