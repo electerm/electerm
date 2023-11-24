@@ -29,7 +29,6 @@ export class KeywordHighlighterAddon {
   }
 
   highlightKeywords = (text) => {
-    console.log('this.keywords', this.keywords)
     for (const obj of this.keywords) {
       const {
         keyword,

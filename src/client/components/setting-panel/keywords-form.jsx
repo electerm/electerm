@@ -21,7 +21,6 @@ export default function KeywordForm (props) {
   const {
     formData
   } = props
-  console.log('formData', formData)
   const [formChild] = Form.useForm()
   function handleTrigger () {
     formChild.submit()

@@ -51,7 +51,6 @@ export default class Index extends Component {
       e.stopPropagation()
     })
     window.addEventListener('offline', store.setOffline)
-    window.addEventListener('mousewheel', store.onMouseWheel)
     store.isSencondInstance = window.pre.runSync('isSencondInstance')
     store.initData()
     store.checkForDbUpgrade()
