@@ -15,6 +15,8 @@ import './login.styl'
 const { prefix } = window
 const f = prefix('form')
 
+window.store = store
+
 export default class Login extends Component {
   state = {
     pass: '',

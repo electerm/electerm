@@ -53,132 +53,134 @@ export const getInitItem = (arr, tab) => {
   }
 }
 
-export default {
-  // common
-  wsInited: false,
-  configLoaded: false,
-  loadTime: 0,
-  lastDataUpdateTime: 0,
-  _tabs: '[]',
-  currentTabId: '',
-  termFocused: false,
-  _history: '[]',
-  _bookmarks: '[]',
-  _bookmarkGroups: JSON.stringify(
-    getDefaultBookmarkGroups([])
-  ),
-  _config: '{}',
-  _terminalThemes: JSON.stringify([
-    buildDefaultThemes()
-  ]),
-  _itermThemes: '[]',
-  currentBookmarkGroupId: defaultBookmarkGroupId,
-  _expandedKeys: ls.getItem(expandedKeysLsKey) || JSON.stringify([
-    defaultBookmarkGroupId
-  ]),
-  bookmarkSelectMode: false,
-  _checkedKeys: ls.getItem(checkedKeysLsKey) || '[]',
-  _addressBookmarks: '[]',
-  _addressBookmarksLocal: ls.getItem(localAddrBookmarkLsKey) || '[]',
+export default () => {
+  return {
+    // common
+    wsInited: false,
+    configLoaded: false,
+    loadTime: 0,
+    lastDataUpdateTime: 0,
+    _tabs: '[]',
+    currentTabId: '',
+    termFocused: false,
+    _history: '[]',
+    _bookmarks: '[]',
+    _bookmarkGroups: JSON.stringify(
+      getDefaultBookmarkGroups([])
+    ),
+    _config: '{}',
+    _terminalThemes: JSON.stringify([
+      buildDefaultThemes()
+    ]),
+    _itermThemes: '[]',
+    currentBookmarkGroupId: defaultBookmarkGroupId,
+    _expandedKeys: ls.getItem(expandedKeysLsKey) || JSON.stringify([
+      defaultBookmarkGroupId
+    ]),
+    bookmarkSelectMode: false,
+    _checkedKeys: ls.getItem(checkedKeysLsKey) || '[]',
+    _addressBookmarks: '[]',
+    _addressBookmarksLocal: ls.getItem(localAddrBookmarkLsKey) || '[]',
 
-  // init session control
-  selectedSessions: [],
-  sessionModalVisible: false,
+    // init session control
+    selectedSessions: [],
+    sessionModalVisible: false,
 
-  // sftp
-  fileOperation: fileOperationsMap.cp, // cp or mv
-  transferTab: 'transfer',
-  _transferHistory: '[]',
-  _fileTransfers: '[]',
-  _sftpSortSetting: ls.getItem(sftpDefaultSortSettingKey) || JSON.stringify({
-    local: {
-      prop: 'modifyTime',
-      direction: 'asc'
-    },
-    remote: {
-      prop: 'modifyTime',
-      direction: 'desc'
-    }
-  }),
+    // sftp
+    fileOperation: fileOperationsMap.cp, // cp or mv
+    transferTab: 'transfer',
+    _transferHistory: '[]',
+    _fileTransfers: '[]',
+    _sftpSortSetting: ls.getItem(sftpDefaultSortSettingKey) || JSON.stringify({
+      local: {
+        prop: 'modifyTime',
+        direction: 'asc'
+      },
+      remote: {
+        prop: 'modifyTime',
+        direction: 'desc'
+      }
+    }),
 
-  // for settings related
-  _setting: '',
-  _settingItem: JSON.stringify(getInitItem([], settingMap.bookmarks)),
-  settingTab: settingMap.bookmarks, // setting tab
-  autofocustrigger: Date.now(),
-  bookmarkId: undefined,
-  showModal: 0,
-  activeTerminalId: '',
+    // for settings related
+    _setting: '',
+    _settingItem: JSON.stringify(getInitItem([], settingMap.bookmarks)),
+    settingTab: settingMap.bookmarks, // setting tab
+    autofocustrigger: Date.now(),
+    bookmarkId: undefined,
+    showModal: 0,
+    activeTerminalId: '',
 
-  // setting sync related
-  isSyncingSetting: false,
-  isSyncUpload: false,
-  isSyncDownload: false,
-  syncSetting: {},
-  syncType: syncTypes.github,
-  _fonts: '[]',
+    // setting sync related
+    isSyncingSetting: false,
+    isSyncUpload: false,
+    isSyncDownload: false,
+    syncSetting: {},
+    syncType: syncTypes.github,
+    _fonts: '[]',
 
-  // term search
-  termSearchOpen: false,
-  termSearch: '',
-  termSearchMatchCount: 0,
-  termSearchMatchIndex: 0,
-  _termSearchOptions: JSON.stringify({
-    caseSensitive: false,
-    wholeWord: false,
-    regex: false,
-    decorations: {
-      activeMatchColorOverviewRuler: 'yellow'
-    }
-  }),
+    // term search
+    termSearchOpen: false,
+    termSearch: '',
+    termSearchMatchCount: 0,
+    termSearchMatchIndex: 0,
+    _termSearchOptions: JSON.stringify({
+      caseSensitive: false,
+      wholeWord: false,
+      regex: false,
+      decorations: {
+        activeMatchColorOverviewRuler: 'yellow'
+      }
+    }),
 
-  // quick commands
-  _quickCommands: '[]',
-  quickCommandId: '',
-  openQuickCommandBar: false,
-  pinnedQuickCommandBar: false,
+    // quick commands
+    _quickCommands: '[]',
+    quickCommandId: '',
+    openQuickCommandBar: false,
+    pinnedQuickCommandBar: false,
 
-  // sidebar
-  openedSideBar: ls.getItem(openedSidebarKey),
-  menuOpened: false,
-  pinned: ls.getItem(sidebarPinnedKey) === 'true',
+    // sidebar
+    openedSideBar: ls.getItem(openedSidebarKey),
+    menuOpened: false,
+    pinned: ls.getItem(sidebarPinnedKey) === 'true',
 
-  // info/help modal
-  showInfoModal: false,
-  infoModalTab: infoTabs.info,
-  commandLineHelp: '',
+    // info/help modal
+    showInfoModal: false,
+    infoModalTab: infoTabs.info,
+    commandLineHelp: '',
 
-  // editor
-  showEditor: false,
+    // editor
+    showEditor: false,
 
-  // file/info modal
-  showFileModal: false,
+    // file/info modal
+    showFileModal: false,
 
-  // update
-  _upgradeInfo: '{}',
+    // update
+    _upgradeInfo: '{}',
 
-  // serial list related
-  _serials: '[]',
-  loaddingSerials: false,
+    // serial list related
+    _serials: '[]',
+    loaddingSerials: false,
 
-  // transfer list
-  transports: [],
+    // transfer list
+    transports: [],
 
-  _sshConfigItems: '[]',
+    _sshConfigItems: '[]',
 
-  appPath: '',
-  exePath: '',
-  isPortable: false,
-  installSrc: '',
+    appPath: '',
+    exePath: '',
+    isPortable: false,
+    installSrc: '',
 
-  _langs: '[]',
+    _langs: '[]',
 
-  // batch inputs
-  batchInputs: ls.getItemJSON(batchInputLsKey, []),
+    // batch inputs
+    batchInputs: ls.getItemJSON(batchInputLsKey, []),
 
-  // ui
-  innerWidth: window.innerWidth,
-  height: 500,
-  isMaximized: window.pre.runSync('isMaximized'),
-  terminalFullScreen: false
+    // ui
+    innerWidth: window.innerWidth,
+    height: 500,
+    isMaximized: window.pre.runSync('isMaximized'),
+    terminalFullScreen: false
+  }
 }

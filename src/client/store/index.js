@@ -88,7 +88,7 @@ class Store {
   constructor () {
     Object.assign(
       this,
-      initState
+      initState()
     )
   }
 
@@ -350,7 +350,7 @@ batchInputHistory(Store)
 transferExtend(Store)
 addressBookmarkExtend(Store)
 
+export const StateStore = Store
 const store = manage(new Store())
 
-window.store = store
 export default store
