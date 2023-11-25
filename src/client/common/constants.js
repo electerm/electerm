@@ -258,6 +258,9 @@ export const tabActions = {
 }
 
 export const commonActions = {
+  returnTermLogState: 'return-term-log-state',
+  getTermLogState: 'get-term-log-state',
+  setTermLogState: 'set-term-log-state',
   batchOp: 'batch-op',
   updateStore: 'update-store',
   editWithSystemEditorDone: 'edit-with-system-editor-done',

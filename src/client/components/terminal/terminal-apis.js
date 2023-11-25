@@ -29,3 +29,11 @@ export function resizeTerm (pid, sessionId, cols, rows) {
     action: 'resize-terminal'
   })
 }
+
+export function toggleTerminalLog (pid, sessionId) {
+  return fetch({
+    pid,
+    sessionId,
+    action: 'toggle-terminal-log'
+  })
+}

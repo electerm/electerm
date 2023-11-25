@@ -77,6 +77,7 @@ class Term extends Component {
       loading: false,
       promoteModalVisible: false,
       savePassword: false,
+      saveTerminalLogToFile: !!this.props.config.saveTerminalLogToFile,
       tempPassword: '',
       passType: 'password',
       zmodemTransfer: null,
@@ -272,15 +273,18 @@ class Term extends Component {
       options,
       action,
       encode,
-      // id,
+      saveTerminalLogToFile,
       type,
       cmd,
       activeSplitId,
+      pid,
       toAll,
       inputOnly,
       zoomValue
     } = e?.data || {}
+
     const { id: propSplitId } = this.props
+    const { pid: statePid } = this.state
     if (
       action === terminalActions.zoom &&
       propSplitId === activeSplitId
@@ -338,6 +342,32 @@ class Term extends Component {
       )
     ) {
       this.searchPrev(keyword, options)
+    } else if (
+      action === commonActions.getTermLogState &&
+      pid === statePid
+    ) {
+      postMessage({
+        action: commonActions.returnTermLogState,
+        state: this.state.saveTerminalLogToFile,
+        pid: statePid
+      })
+      postMessage({
+        action: commonActions.returnTermLogState,
+        state: this.state.saveTerminalLogToFile,
+        pid: statePid
+      })
+      postMessage({
+        action: commonActions.returnTermLogState,
+        state: this.state.saveTerminalLogToFile,
+        pid: statePid
+      })
+    } else if (
+      action === commonActions.setTermLogState &&
+      pid === statePid
+    ) {
+      this.setState({
+        saveTerminalLogToFile
+      })
     }
     const isActiveTerminal = this.isActiveTerminal()
     if (
@@ -644,9 +674,9 @@ class Term extends Component {
     window.store.toggleTerminalSearch()
   }
 
-  onLineFeed = e => {
-    // console.log(e, 'onLineFeed')
-  }
+  // onLineFeed = e => {
+  //   // console.log(e, 'onLineFeed')
+  // }
 
   onTitleChange = e => {
     log.debug(e, 'title change')
@@ -808,7 +838,7 @@ class Term extends Component {
     term.unicode.activeVersion = '11'
     term.loadAddon(this.fitAddon)
     term.loadAddon(this.searchAddon)
-    term.onLineFeed(this.onLineFeed)
+    // term.onLineFeed(this.onLineFeed)
     term.onTitleChange(this.onTitleChange)
     term.onSelectionChange(this.onSelection)
     this.loadState(term)

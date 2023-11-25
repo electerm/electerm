@@ -20,7 +20,8 @@ const {
   createTerm,
   testTerm,
   resize,
-  runCmd
+  runCmd,
+  toggleTerminalLog
 } = require('./terminal-api')
 
 global.upgradeInsts = {}
@@ -200,6 +201,8 @@ const initWs = function (app) {
         testTerm(ws, msg)
       } else if (action === 'resize-terminal') {
         resize(ws, msg)
+      } else if (action === 'toggle-terminal-log') {
+        toggleTerminalLog(ws, msg)
       } else if (action === 'run-cmd') {
         runCmd(ws, msg)
       }
