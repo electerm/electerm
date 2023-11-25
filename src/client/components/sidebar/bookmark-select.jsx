@@ -24,14 +24,14 @@ export default class BookmarkSelect extends Component {
     }
     const base = {
       store,
-      bookmarks: [
-        ...(store.getBookmarks() || []),
-        ...store.sshConfigItems
-      ],
+      bookmarks: store.getBookmarks() || [],
       type: 'bookmarks',
       onClickItem,
       listStyle,
       staticList: true
+    }
+    if (!store.config.hideSshConfig) {
+      base.bookmarks.push(...store.sshConfigItems)
     }
     const propsTree = {
       ...base,

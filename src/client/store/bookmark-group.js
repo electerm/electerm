@@ -15,7 +15,7 @@ export default Store => {
   }
   Store.prototype.getBookmarkGroupsTotal = function () {
     const { store } = window
-    return store.sshConfigItems.length
+    return store.sshConfigItems.length && !store.config.hideSshConfig
       ? [
           ...store.getBookmarkGroups(),
           {

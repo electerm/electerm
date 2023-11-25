@@ -180,7 +180,9 @@ export default (Store) => {
     store.loadFontList()
     store.fetchItermThemes()
     store.openInitSessions()
-    store.fetchSshConfigItems()
+    if (!store.config.hideSshConfig) {
+      store.fetchSshConfigItems()
+    }
     store.initCommandLine().catch(store.onError)
     if (store.config.checkUpdateOnStart) {
       store.onCheckUpdate()
