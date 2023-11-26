@@ -5,7 +5,7 @@
 
 import React from 'react'
 import { findIndex } from 'lodash-es'
-
+import TabTitle from './tab-title'
 import {
   CodeFilled,
   DownOutlined,
@@ -19,11 +19,10 @@ import { Dropdown, Menu, Popover } from 'antd'
 import Tab from './tab'
 import './tabs.styl'
 import { tabWidth, tabMargin, extraTabWidth, windowControlWidth } from '../../common/constants'
-import createName from '../../common/create-title'
 import findParentBySel from '../../common/find-parent'
 import WindowControl from './window-control'
 import BookmarksList from '../sidebar/bookmark-select'
-import { hasClass } from '../../common/class'
+import AppDrag from './app-drag'
 
 const { prefix } = window
 const e = prefix('tabs')
@@ -42,7 +41,6 @@ export default class Tabs extends React.Component {
     const {
       tabsRef
     } = this
-    tabsRef.current.addEventListener('dblclick', this.handleDblClickEvent)
     tabsRef.current.addEventListener('mousedown', this.handleClickEvent)
   }
 
@@ -70,7 +68,7 @@ export default class Tabs extends React.Component {
     const len = tabs.length
     const addBtnWidth = 22
     const tabsWidth = this.tabsWidth()
-    const tabsWidthAll = tabMargin * len + 130 + tabsWidth
+    const tabsWidthAll = tabMargin * len + 216 + tabsWidth
     return width < (tabsWidthAll + addBtnWidth)
   }
 
@@ -80,23 +78,6 @@ export default class Tabs extends React.Component {
       if (p) {
         const id = p.dataset.id
         this.props.delTab(id)
-      }
-    }
-  }
-
-  handleDblClickEvent = e => {
-    const t = e.target
-    if (
-      hasClass(t, 'app-drag-area') ||
-      hasClass(t, 'tabs-inner')
-    ) {
-      const {
-        isMaximized
-      } = window.store
-      if (isMaximized) {
-        window.pre.runGlobalAsync('unmaximize')
-      } else {
-        window.pre.runGlobalAsync('maximize')
       }
     }
   }
@@ -155,7 +136,8 @@ export default class Tabs extends React.Component {
             return (
               <MenuItem
                 key={i + '##' + t.id}
-              >{createName(t)}
+              >
+                <TabTitle tab={t} />
               </MenuItem>
             )
           })
@@ -194,6 +176,9 @@ export default class Tabs extends React.Component {
   }
 
   renderAddBtn = () => {
+    if (!this.props.tabs.length) {
+      return null
+    }
     return (
       <Popover
         content={this.renderMenus()}
@@ -239,48 +224,48 @@ export default class Tabs extends React.Component {
       ? '100%'
       : tabsWidthAll
     const style = {
-      width: width - windowControlWidth
+      width: width - windowControlWidth - 86
     }
     return (
       <div className='tabs' ref={this.tabsRef}>
-        <div
-          className='tabs-inner'
-          style={style}
-        >
+        <AppDrag>
           <div
-            style={{
-              left
-            }}
-          />
-          <div
-            className='tabs-wrapper relative'
-            style={{
-              width: tabsWidthAll + extraTabWidth + 10
-            }}
-            onDoubleClick={this.handleAdd}
+            className='tabs-inner'
+            style={style}
           >
-            {
-              tabs.map((tab, i) => {
-                const isLast = i === len - 1
-                return (
-                  <Tab
-                    {...this.props}
-                    tab={tab}
-                    isLast={isLast}
-                    key={tab.id}
-                  />
-                )
-              })
-            }
-            {
-              !overflow
-                ? this.renderAddBtn()
-                : null
-            }
+            <div
+              style={{
+                left
+              }}
+            />
+            <div
+              className='tabs-wrapper relative'
+              style={{
+                width: tabsWidthAll + extraTabWidth + 10
+              }}
+              onDoubleClick={this.handleAdd}
+            >
+              {
+                tabs.map((tab, i) => {
+                  const isLast = i === len - 1
+                  return (
+                    <Tab
+                      {...this.props}
+                      tab={tab}
+                      isLast={isLast}
+                      key={tab.id}
+                    />
+                  )
+                })
+              }
+              {
+                !overflow
+                  ? this.renderAddBtn()
+                  : null
+              }
+            </div>
           </div>
-        </div>
-        <div className='app-drag' />
-        <div className='app-drag-area' />
+        </AppDrag>
         <WindowControl
           store={window.store}
         />

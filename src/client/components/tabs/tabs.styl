@@ -1,34 +1,23 @@
 @require '../../css/includes/theme-default'
 .tabs
   position relative
-  height 56px
+  height 45px
   overflow hidden
   background main-dark
-.app-drag-area
-.app-drag
-  position absolute
-  left 0
-  top 0
-  height 15px
-  right 0
-  z-index 1
-.app-drag
-  -webkit-app-region drag
+
 .tabs-inner
   position relative
   z-index 2
-  padding 0 5px 0 0
-  margin-top 10px
+  padding 0
+  margin-top 0
   display inline-block
   height 63px
   overflow-x scroll
   overflow-y hidden
   margin-left 42px
-  -webkit-app-region drag
 .tabs-wrapper
   z-index 3
 .tab
-  -webkit-app-region no-drag
   display inline-block
   vertical-align middle
   cursor pointer
@@ -137,8 +126,8 @@
 .tabs-extra
   position absolute
   height 20px
-  top 34px
-  right 0
+  top 14px
+  right 96px
   line-height 20px
   z-index 20
   -webkit-app-region no-drag
@@ -212,9 +201,4 @@
 
 .system-ui
   .window-controls
-  .app-drag
     display none
-  .tabs
-    height 45px
-  .tabs-inner
-    margin-top 0

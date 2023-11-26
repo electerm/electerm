@@ -292,7 +292,7 @@ class Store {
   }
 
   get tabsHeight () {
-    return window.store.config.useSystemTitleBar ? 45 : 56
+    return 45 // window.store.config.useSystemTitleBar ? 45 : 56
   }
 
   get langs () {

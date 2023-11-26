@@ -40,6 +40,7 @@ export default Store => {
 
   Store.prototype.blur = function () {
     window.focused = false
+    window.pre.runSync('windowMove', false)
     postMessage({
       type: 'blur'
     })

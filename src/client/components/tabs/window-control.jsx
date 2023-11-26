@@ -11,8 +11,12 @@ const m = prefix('menu')
 export default class WindowControl extends Component {
   render () {
     const {
-      isMaximized
+      isMaximized,
+      config
     } = this.props.store
+    if (config.useSystemTitleBar) {
+      return null
+    }
     const minimize = () => {
       window.pre.runGlobalAsync('minimize')
     }

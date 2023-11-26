@@ -8,6 +8,7 @@ const {
 } = require('electron')
 const log = require('../common/log')
 const contants = require('../common/runtime-constants')
+const windowMove = require('./window-drag-move.js')
 
 const { transferKeys } = require('../server/transfer')
 const os = require('os')
@@ -34,6 +35,7 @@ const isMaximized = () => {
 }
 
 module.exports = {
+  windowMove,
   debug: (...args) => log.debug(...args),
   log: (...args) => log.log(...args),
   error: (...args) => log.error(...args),
