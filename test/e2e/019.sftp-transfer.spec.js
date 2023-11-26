@@ -26,7 +26,7 @@ describe('sftp file transfer', function () {
     const electronApp = await electron.launch(appOptions)
     const client = await electronApp.firstWindow()
     extendClient(client, electronApp)
-    await delay(3500)
+    await delay(5500)
     await client.click('.btns .anticon-plus-circle')
     await delay(6500)
     await client.setValue('#ssh-form_host', TEST_HOST)

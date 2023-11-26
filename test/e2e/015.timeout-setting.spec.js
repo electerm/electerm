@@ -25,7 +25,7 @@ describe('timeout setting', function () {
     const electronApp = await electron.launch(appOptions)
     const client = await electronApp.firstWindow()
     extendClient(client, electronApp)
-    await delay(4000)
+    await delay(6000)
 
     log('set timeout to 100')
     await client.evaluate(() => {
