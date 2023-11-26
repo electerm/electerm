@@ -25,7 +25,7 @@ describe('timeout setting', function () {
     const electronApp = await electron.launch(appOptions)
     const client = await electronApp.firstWindow()
     extendClient(client, electronApp)
-    await delay(4000)
+    await delay(6000)
 
     log('set timeout to 100')
     await client.evaluate(() => {
@@ -43,7 +43,7 @@ describe('timeout setting', function () {
 
     log('open new ssh and timeout')
     await client.click('.btns .anticon-plus-circle')
-    await delay(2500)
+    await delay(6500)
     await client.setValue('#ssh-form_host', TEST_HOST)
     await client.setValue('#ssh-form_username', TEST_USER)
     await client.setValue('#ssh-form_password', TEST_PASS)
