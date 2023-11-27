@@ -114,12 +114,12 @@ const openFile = (localFilePath) => {
 const zipFolder = (localFolerPath) => {
   return new Promise((resolve, reject) => {
     const n = uid()
-    const p = path.resolve(tempDir, `electerm-temp-${n}.tar.gz`)
+    const p = path.resolve(tempDir, `electerm-temp-${n}.tar`)
     const cwd = path.dirname(localFolerPath)
     const file = path.basename(localFolerPath)
     try {
       tar.c({
-        gzip: true,
+        gzip: false,
         file: p,
         cwd
       }, [file], () => {

@@ -12,17 +12,17 @@ const isRemote = true
 const temp = '/tmp'
 
 export async function zipCmd (pid, sessionId, filePath) {
-  // tar -czf bin.tar.gz bin
+  // tar -czf bin.tar bin
   const id = generate()
   const { path, name } = getFolderFromFilePath(filePath, isRemote)
-  const np = resolve(temp, `electerm-${id}.tar.gz`)
-  const cmd = `tar -C ${path} -czf ${np} ${name}`
+  const np = resolve(temp, `electerm-${id}.tar`)
+  const cmd = `tar -C ${path} -cf ${np} ${name}`
   await runCmd(pid, sessionId, cmd)
   return np
 }
 
 export function unzipCmd (pid, sessionId, from, to) {
-  const cmd = `tar -xzf "${from}" -C "${to}"`
+  const cmd = `tar -xf "${from}" -C "${to}"`
   return runCmd(pid, sessionId, cmd)
 }
 
