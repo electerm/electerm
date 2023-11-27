@@ -69,8 +69,8 @@ class TerminalLocal extends TerminalBase {
   write (data) {
     try {
       this.term.write(data)
-      if (this.sshLogger) {
-        this.sshLogger.write(data)
+      if (this.sessionLogger) {
+        this.sessionLogger.write(data)
       }
     } catch (e) {
       log.error(e)
@@ -78,8 +78,8 @@ class TerminalLocal extends TerminalBase {
   }
 
   kill () {
-    if (this.sshLogger) {
-      this.sshLogger.destroy()
+    if (this.sessionLogger) {
+      this.sessionLogger.destroy()
     }
     if (!isWin) {
       this.term && this.term.kill()

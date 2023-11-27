@@ -663,8 +663,8 @@ class TerminalSshBase extends TerminalBase {
   write (data) {
     try {
       this.channel.write(data)
-      if (this.sshLogger) {
-        this.sshLogger.write(data)
+      if (this.sessionLogger) {
+        this.sessionLogger.write(data)
       }
     } catch (e) {
       log.error(e)
@@ -672,8 +672,8 @@ class TerminalSshBase extends TerminalBase {
   }
 
   kill () {
-    if (this.sshLogger) {
-      this.sshLogger.destroy()
+    if (this.sessionLogger) {
+      this.sessionLogger.destroy()
     }
     this.channel && this.channel.end()
     delete this.channel

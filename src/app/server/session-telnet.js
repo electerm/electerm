@@ -79,8 +79,8 @@ class TerminalTelnet {
   write = (data) => {
     try {
       this.port.write(data)
-      if (this.sshLogger) {
-        this.sshLogger.write(data)
+      if (this.sessionLogger) {
+        this.sessionLogger.write(data)
       }
     } catch (e) {
       log.error(e)
@@ -89,8 +89,8 @@ class TerminalTelnet {
 
   kill = () => {
     this.channel && this.channel.end()
-    if (this.sshLogger) {
-      this.sshLogger.destroy()
+    if (this.sessionLogger) {
+      this.sessionLogger.destroy()
     }
     const inst = global.sessions[
       this.initOptions.sessionId

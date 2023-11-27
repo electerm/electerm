@@ -70,8 +70,8 @@ class TerminalSerial extends TerminalBase {
   write (data) {
     try {
       this.port.write(data)
-      if (this.sshLogger) {
-        this.sshLogger.write(data)
+      if (this.sessionLogger) {
+        this.sessionLogger.write(data)
       }
     } catch (e) {
       log.error(e)
@@ -79,8 +79,8 @@ class TerminalSerial extends TerminalBase {
   }
 
   kill () {
-    if (this.sshLogger) {
-      this.sshLogger.destroy()
+    if (this.sessionLogger) {
+      this.sessionLogger.destroy()
     }
     this.port && this.port.isOpen && this.port.close()
     delete this.port
