@@ -41,6 +41,7 @@ import { WebLinksAddon } from 'xterm-addon-web-links'
 import { SerializeAddon } from 'xterm-addon-serialize'
 import { CanvasAddon } from 'xterm-addon-canvas'
 import { WebglAddon } from 'xterm-addon-webgl'
+import { LigaturesAddon } from 'xterm-addon-ligatures'
 import getProxy from '../../common/get-proxy'
 import { Zmodem, AddonZmodem } from './xterm-zmodem'
 import { Unicode11Addon } from 'xterm-addon-unicode11'
@@ -815,17 +816,7 @@ class Term extends Component {
       fontSize: tab.fontSize || config.fontSize,
       screenReaderMode: config.screenReaderMode
     })
-    this.fitAddon = new FitAddon()
-    this.searchAddon = new SearchAddon()
-    this.searchAddon.onDidChangeResults(this.onSearchResultsChange)
-    const unicode11Addon = new Unicode11Addon()
-    this.serializeAddon = new SerializeAddon()
-    term.loadAddon(this.serializeAddon)
-    term.loadAddon(unicode11Addon)
-    // activate the new version
-    term.unicode.activeVersion = '11'
-    term.loadAddon(this.fitAddon)
-    term.loadAddon(this.searchAddon)
+
     // term.onLineFeed(this.onLineFeed)
     // term.onTitleChange(this.onTitleChange)
     term.onSelectionChange(this.onSelection)
@@ -836,6 +827,19 @@ class Term extends Component {
     // term.textarea.addEventListener('blur', this.onBlur)
 
     // term.on('keydown', this.handleEvent)
+    this.fitAddon = new FitAddon()
+    this.searchAddon = new SearchAddon()
+    const ligtureAddon = new LigaturesAddon()
+    this.searchAddon.onDidChangeResults(this.onSearchResultsChange)
+    const unicode11Addon = new Unicode11Addon()
+    this.serializeAddon = new SerializeAddon()
+    term.loadAddon(this.serializeAddon)
+    term.loadAddon(unicode11Addon)
+    term.loadAddon(ligtureAddon)
+    // activate the new version
+    term.unicode.activeVersion = '11'
+    term.loadAddon(this.fitAddon)
+    term.loadAddon(this.searchAddon)
     term.onData(this.onData)
     this.term = term
     term.attachCustomKeyEventHandler(this.handleKeyboardEvent.bind(this))
