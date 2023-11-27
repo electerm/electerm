@@ -39,7 +39,7 @@ class ShortcutControl extends React.PureComponent {
     e.stopPropagation()
     const x = document.querySelector('.icon-split')
     x && x.click()
-  }, 300)
+  }, 1200)
 
   zoominShortcut = (e) => {
     e.stopPropagation()

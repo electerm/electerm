@@ -36,16 +36,18 @@ export default class Shortcuts extends Component {
 
   getData () {
     const { shortcuts = {} } = this.props.store.config
-    return shortcutsDefaults.map((c, i) => {
-      const propName = isMac ? 'shortcutMac' : 'shortcut'
-      const name = c.name + '_' + propName
-      return {
-        index: i + 1,
-        name,
-        readonly: c.readonly,
-        shortcut: c.readonly ? c[propName] : (shortcuts[name] || c[propName])
-      }
-    })
+    return shortcutsDefaults
+      .filter(g => !g.readonly)
+      .map((c, i) => {
+        const propName = isMac ? 'shortcutMac' : 'shortcut'
+        const name = c.name + '_' + propName
+        return {
+          index: i + 1,
+          name,
+          readonly: c.readonly,
+          shortcut: c.readonly ? c[propName] : (shortcuts[name] || c[propName])
+        }
+      })
   }
 
   getKeysTakenData = () => {

@@ -4,8 +4,8 @@ import {
   isMacJs
 } from '../../common/constants'
 
-function buildConfig (config) {
-  const defs = shortcutsDefaultsGen()
+function buildConfig (config, filter = d => d) {
+  const defs = shortcutsDefaultsGen().filter(filter)
   const { shortcuts = {} } = config
   return defs.reduce((p, c) => {
     const propName = isMacJs ? 'shortcutMac' : 'shortcut'
@@ -45,7 +45,7 @@ export function shortcutExtend (Cls) {
       (shiftKey ? 'shift+' : '') +
       (altKey ? 'alt+' : '') +
       codeK.toLowerCase()
-    const shortcutsConfig = buildConfig(this.props.config)
+    const shortcutsConfig = buildConfig(this.props.config, d => !d.readonly)
     const keys = Object.keys(shortcutsConfig)
     const len = keys.length
     for (let i = 0; i < len; i++) {

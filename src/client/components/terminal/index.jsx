@@ -233,15 +233,15 @@ class Term extends Component {
     this.term.selectAll()
   }
 
-  copyShortcut = (e) => {
-    const sel = this.term.getSelection()
-    if (sel) {
-      e.stopPropagation()
-      e.preventDefault()
-      this.copySelectionToClipboard()
-      return false
-    }
-  }
+  // copyShortcut = (e) => {
+  //   const sel = this.term.getSelection()
+  //   if (sel) {
+  //     e.stopPropagation()
+  //     e.preventDefault()
+  //     this.copySelectionToClipboard()
+  //     return false
+  //   }
+  // }
 
   searchShortcut = (e) => {
     e.stopPropagation()
@@ -670,14 +670,6 @@ class Term extends Component {
     window.store.toggleTerminalSearch()
   }
 
-  // onLineFeed = e => {
-  //   // console.log(e, 'onLineFeed')
-  // }
-
-  onTitleChange = e => {
-    // log.debug(e, 'title change')
-  }
-
   onSearchResultsChange = ({ resultIndex, resultCount }) => {
     window.store.storeAssign({
       termSearchMatchCount: resultCount,
@@ -835,7 +827,7 @@ class Term extends Component {
     term.loadAddon(this.fitAddon)
     term.loadAddon(this.searchAddon)
     // term.onLineFeed(this.onLineFeed)
-    term.onTitleChange(this.onTitleChange)
+    // term.onTitleChange(this.onTitleChange)
     term.onSelectionChange(this.onSelection)
     this.loadState(term)
     term.open(document.getElementById(id), true)
