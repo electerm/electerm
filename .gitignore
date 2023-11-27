@@ -112,3 +112,5 @@ dist
 /*.txt
 /build/iTerm2-Color-Schemes
 /build/web-app/client
+/*.tar
+/*.gz

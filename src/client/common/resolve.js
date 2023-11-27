@@ -6,7 +6,7 @@
  */
 
 export default (basePath, nameOrDot) => {
-  const sep = basePath.includes('\\') || basePath.includes(':')
+  const sep = basePath.includes('\\') || basePath.includes(':\\')
     ? '\\'
     : '/'
   if (nameOrDot === '..') {
@@ -18,7 +18,7 @@ export default (basePath, nameOrDot) => {
     const res = arr.slice(0, length - 1).join(sep)
     return res || '/'
   }
-  const pre = nameOrDot.includes(':') && basePath === '/'
+  const pre = nameOrDot.includes(':\\') && basePath === '/'
     ? ''
     : basePath
   return pre +
