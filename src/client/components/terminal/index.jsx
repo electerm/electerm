@@ -78,6 +78,7 @@ class Term extends Component {
       promoteModalVisible: false,
       savePassword: false,
       saveTerminalLogToFile: !!this.props.config.saveTerminalLogToFile,
+      addTimeStampToTermLog: !!this.props.config.addTimeStampToTermLog,
       tempPassword: '',
       passType: 'password',
       zmodemTransfer: null,
@@ -274,6 +275,7 @@ class Term extends Component {
       action,
       encode,
       saveTerminalLogToFile,
+      addTimeStampToTermLog,
       type,
       cmd,
       activeSplitId,
@@ -348,17 +350,10 @@ class Term extends Component {
     ) {
       postMessage({
         action: commonActions.returnTermLogState,
-        state: this.state.saveTerminalLogToFile,
-        pid: statePid
-      })
-      postMessage({
-        action: commonActions.returnTermLogState,
-        state: this.state.saveTerminalLogToFile,
-        pid: statePid
-      })
-      postMessage({
-        action: commonActions.returnTermLogState,
-        state: this.state.saveTerminalLogToFile,
+        state: {
+          saveTerminalLogToFile: this.state.saveTerminalLogToFile,
+          addTimeStampToTermLog: this.state.addTimeStampToTermLog
+        },
         pid: statePid
       })
     } else if (
@@ -366,6 +361,7 @@ class Term extends Component {
       pid === statePid
     ) {
       this.setState({
+        addTimeStampToTermLog,
         saveTerminalLogToFile
       })
     }
@@ -679,7 +675,7 @@ class Term extends Component {
   // }
 
   onTitleChange = e => {
-    log.debug(e, 'title change')
+    // log.debug(e, 'title change')
   }
 
   onSearchResultsChange = ({ resultIndex, resultCount }) => {
@@ -963,6 +959,7 @@ class Term extends Component {
       ...extra,
       logName,
       ...pick(config, [
+        'addTimeStampToTermLog',
         'keepaliveInterval',
         'keepaliveCountMax',
         'execWindows',

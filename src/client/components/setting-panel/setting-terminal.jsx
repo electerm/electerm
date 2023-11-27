@@ -475,8 +475,12 @@ export default class SettingTerminal extends Component {
         {
           this.renderCursorStyleSelect()
         }
+        {this.renderToggle('saveTerminalLogToFile', (
+          <ShowItem to={terminalLogPath} className='mg1l'>{p('open')}</ShowItem>
+        ))}
         {
           [
+            'addTimeStampToTermLog',
             'cursorBlink',
             'rightClickSelectsWord',
             'pasteWhenContextMenu',
@@ -484,9 +488,6 @@ export default class SettingTerminal extends Component {
             'ctrlOrMetaOpenTerminalLink'
           ].map(this.renderToggle)
         }
-        {this.renderToggle('saveTerminalLogToFile', (
-          <ShowItem to={terminalLogPath} className='mg1l'>{p('open')}</ShowItem>
-        ))}
         {this.renderReset()}
       </div>
     )

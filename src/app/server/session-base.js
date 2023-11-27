@@ -27,6 +27,10 @@ class TerminalBase {
     }
   }
 
+  toggleTerminalLogTimestamp () {
+    this.initOptions.addTimeStampToTermLog = !this.initOptions.addTimeStampToTermLog
+  }
+
   toggleTerminalLog () {
     if (this.sessionLogger) {
       this.sessionLogger.destroy()

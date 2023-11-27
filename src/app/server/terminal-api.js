@@ -44,6 +44,18 @@ function toggleTerminalLog (ws, msg) {
   })
 }
 
+function toggleTerminalLogTimestamp (ws, msg) {
+  const { id, pid, sessionId } = msg
+  const term = terminals(pid, sessionId)
+  if (term) {
+    term.toggleTerminalLogTimestamp()
+  }
+  ws.s({
+    id,
+    data: 'ok'
+  })
+}
+
 function createTerm (ws, msg) {
   const { id, body } = msg
   terminal(body, ws)
@@ -90,3 +102,4 @@ exports.testTerm = testTerm
 exports.resize = resize
 exports.runCmd = runCmd
 exports.toggleTerminalLog = toggleTerminalLog
+exports.toggleTerminalLogTimestamp = toggleTerminalLogTimestamp

@@ -11,14 +11,15 @@ import {
 } from 'antd'
 import ShowItem from '../common/show-item'
 import postMsg from '../../common/post-msg'
-import { toggleTerminalLog } from '../terminal/terminal-apis'
+import { toggleTerminalLog, toggleTerminalLogTimestamp } from '../terminal/terminal-apis'
 
 const { prefix } = window
 const st = prefix('setting')
 
 export default class TerminalInfoBase extends Component {
   state = {
-    saveTerminalLogToFile: false
+    saveTerminalLogToFile: false,
+    addTimeStampToTermLog: false
   }
 
   componentDidMount () {
@@ -30,8 +31,31 @@ export default class TerminalInfoBase extends Component {
     this.exit()
   }
 
+  handleToggleTimestamp = () => {
+    const { saveTerminalLogToFile, addTimeStampToTermLog } = this.state
+    const {
+      pid,
+      sessionId
+    } = this.props
+    toggleTerminalLogTimestamp(
+      pid,
+      sessionId
+    )
+    const nv = !addTimeStampToTermLog
+    this.setState({
+      addTimeStampToTermLog: nv
+    })
+    postMsg({
+      action: commonActions.setTermLogState,
+      pid,
+      addTimeStampToTermLog: nv,
+      saveTerminalLogToFile,
+      sessionId
+    })
+  }
+
   handleToggle = () => {
-    const { saveTerminalLogToFile } = this.state
+    const { saveTerminalLogToFile, addTimeStampToTermLog } = this.state
     const {
       pid,
       sessionId
@@ -48,6 +72,7 @@ export default class TerminalInfoBase extends Component {
       action: commonActions.setTermLogState,
       pid,
       saveTerminalLogToFile: nv,
+      addTimeStampToTermLog,
       sessionId
     })
   }
@@ -62,9 +87,7 @@ export default class TerminalInfoBase extends Component {
       action === commonActions.returnTermLogState &&
       this.props.pid === ppid
     ) {
-      this.setState({
-        saveTerminalLogToFile: state
-      })
+      this.setState(state)
       window.removeEventListener('message', this.onEvent)
     }
   }
@@ -83,6 +106,22 @@ export default class TerminalInfoBase extends Component {
 
   exit = () => {
     window.removeEventListener('message', this.onEvent)
+  }
+
+  renderTimestamp () {
+    const { saveTerminalLogToFile, addTimeStampToTermLog } = this.state
+    if (!saveTerminalLogToFile) {
+      return null
+    }
+    const name = st('addTimeStampToTermLog')
+    return (
+      <Switch
+        checkedChildren={name}
+        unCheckedChildren={name}
+        checked={addTimeStampToTermLog}
+        onChange={this.handleToggleTimestamp}
+      />
+    )
   }
 
   render () {
@@ -110,7 +149,11 @@ export default class TerminalInfoBase extends Component {
               unCheckedChildren={name}
               checked={saveTerminalLogToFile}
               onChange={this.handleToggle}
+              className='mg1r'
             />
+            {
+              this.renderTimestamp()
+            }
           </span>
         </div>
         <p><b>log:</b> {to}</p>

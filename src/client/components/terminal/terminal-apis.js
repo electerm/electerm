@@ -37,3 +37,11 @@ export function toggleTerminalLog (pid, sessionId) {
     action: 'toggle-terminal-log'
   })
 }
+
+export function toggleTerminalLogTimestamp (pid, sessionId) {
+  return fetch({
+    pid,
+    sessionId,
+    action: 'toggle-terminal-log-timestamp'
+  })
+}
