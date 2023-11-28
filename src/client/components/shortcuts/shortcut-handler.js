@@ -3,6 +3,7 @@ import shortcutsDefaultsGen from './shortcuts-defaults.js'
 import {
   isMacJs
 } from '../../common/constants'
+import { throttle } from 'lodash-es'
 
 function buildConfig (config, filter = d => d) {
   const defs = shortcutsDefaultsGen().filter(filter)
@@ -23,7 +24,7 @@ function buildConfig (config, filter = d => d) {
 }
 
 export function shortcutExtend (Cls) {
-  Cls.prototype.handleKeyboardEvent = function (event) {
+  Cls.prototype.handleKeyboardEvent = throttle(function (event) {
     const {
       code,
       ctrlKey,
@@ -60,7 +61,7 @@ export function shortcutExtend (Cls) {
         }
       }
     }
-  }
+  }, 300)
   return Cls
 }
 
