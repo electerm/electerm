@@ -307,6 +307,7 @@ export const localAddrBookmarkLsKey = 'local-addr-bookmark-keys'
 export const sshTunnelHelpLink = 'https://github.com/electerm/electerm/wiki/How-to-use-ssh-tunnel'
 export const batchOpHelpLink = 'https://github.com/electerm/electerm/wiki/batch-operation'
 export const proxyHelpLink = 'https://github.com/electerm/electerm/wiki/proxy-format'
+export const regexHelpLink = 'https://github.com/electerm/electerm/wiki/Terminal-keywords-highlight-regular-expression-exmaples'
 export const modals = {
   hide: 0,
   setting: 1,

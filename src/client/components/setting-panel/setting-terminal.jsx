@@ -17,7 +17,8 @@ import {
 import deepCopy from 'json-deep-copy'
 import {
   noTerminalBgValue,
-  rendererTypes
+  rendererTypes,
+  regexHelpLink
 } from '../../common/constants'
 import defaultSettings from '../../common/default-setting'
 import ShowItem from '../common/show-item'
@@ -25,6 +26,7 @@ import { osResolve } from '../../common/resolve'
 import { isNumber, isNaN } from 'lodash-es'
 import mapper from '../../common/auto-complete-data-mapper'
 import KeywordForm from './keywords-form'
+import Link from '../common/external-link'
 import HelpIcon from '../common/help-icon'
 import './setting.styl'
 
@@ -406,7 +408,15 @@ export default class SettingTerminal extends Component {
       },
       submit: this.handleSubmitKeywords
     }
-    const terminalLogPath = appPath ? osResolve(appPath, 'electerm', 'session_logs') : window.et.sessionLogPath
+    const terminalLogPath = appPath
+      ? osResolve(appPath, 'electerm', 'session_logs')
+      : window.et.sessionLogPath
+    const tip = (
+      <div>
+        <span className='mg1r'>{f('supportRegexp')}</span>
+        <Link to={regexHelpLink}>wiki</Link>
+      </div>
+    )
     return (
       <div className='form-wrap pd1y pd2x'>
         <div className='pd1y font16 bold'>
@@ -451,7 +461,7 @@ export default class SettingTerminal extends Component {
           <div className='pd1b'>
             <span className='inline-title mg1r'>{f('keywordsHighlight')}</span>
             <HelpIcon
-              title={f('supportRegexp')}
+              title={tip}
             />
           </div>
           <KeywordForm
