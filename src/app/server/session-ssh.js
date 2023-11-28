@@ -663,9 +663,7 @@ class TerminalSshBase extends TerminalBase {
   write (data) {
     try {
       this.channel.write(data)
-      if (this.sessionLogger) {
-        this.sessionLogger.write(data)
-      }
+      // this.writeLog(data)
     } catch (e) {
       log.error(e)
     }

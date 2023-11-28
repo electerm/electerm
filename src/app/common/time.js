@@ -2,9 +2,9 @@
  * time formatter
  */
 
-import dayjs from 'dayjs'
+const dayjs = require('dayjs')
 
-export default (
+module.exports = (
   time = new Date(),
   format = 'YYYY-MM-DD HH:mm:ss'
 ) => {

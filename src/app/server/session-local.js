@@ -69,9 +69,7 @@ class TerminalLocal extends TerminalBase {
   write (data) {
     try {
       this.term.write(data)
-      if (this.sessionLogger) {
-        this.sessionLogger.write(data)
-      }
+      // this.writeLog(data)
     } catch (e) {
       log.error(e)
     }

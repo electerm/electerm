@@ -5,6 +5,8 @@ const generate = require('../common/uid')
 const { createLogFileName } = require('../common/create-session-log-file-path')
 const SessionLog = require('./session-log')
 const _ = require('lodash')
+const time = require('../common/time.js')
+const strip = require('@electerm/strip-ansi').default
 
 // const { MockBinding } = require('@serialport/binding-mock')
 // MockBinding.createPort('/dev/ROBOT', { echo: true, record: true })
@@ -27,6 +29,9 @@ class TerminalBase {
     }
   }
 
+  cache = ''
+  prevNewLine = true
+
   toggleTerminalLogTimestamp () {
     this.initOptions.addTimeStampToTermLog = !this.initOptions.addTimeStampToTermLog
   }
@@ -40,6 +45,38 @@ class TerminalBase {
         fileName: createLogFileName(this.initOptions.logName)
       })
     }
+  }
+
+  parse (rawText) {
+    let result = ''
+    const len = rawText.length
+    for (let i = 0; i < len; i++) {
+      if (rawText[i] === '\b') {
+        result = result.slice(0, -1)
+      } else {
+        result += rawText[i]
+      }
+    }
+    return result
+  }
+
+  writeLog (data) {
+    if (!this.sessionLogger) {
+      return
+    }
+    const s = data.toString()
+    if (!s.includes('\r\n')) {
+      this.cache += s
+      return
+    }
+    const p = this.parse(this.cache)
+    const dt = this.prevNewLine && this.initOptions.addTimeStampToTermLog
+      ? `[${time()}] `
+      : ''
+    const str = strip(dt + p + s)
+    this.sessionLogger.write(str)
+    this.cache = ''
+    this.prevNewLine = str.endsWith('\n')
   }
 
   onEndConn () {

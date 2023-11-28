@@ -79,9 +79,7 @@ class TerminalTelnet {
   write = (data) => {
     try {
       this.port.write(data)
-      if (this.sessionLogger) {
-        this.sessionLogger.write(data)
-      }
+      // this.writeLog(data)
     } catch (e) {
       log.error(e)
     }

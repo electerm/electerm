@@ -768,12 +768,32 @@ class Term extends Component {
     }
   }
 
+  parse (rawText) {
+    let result = ''
+    const len = rawText.length
+    for (let i = 0; i < len; i++) {
+      if (rawText[i] === '\b') {
+        result = result.slice(0, -1)
+      } else {
+        result += rawText[i]
+      }
+    }
+    return result
+  }
+
+  onKey = ({ key }) => {
+    if (key === '\x7F') {
+      this.dataCache = this.dataCache.slice(0, -1)
+    } else {
+      this.dataCache += key
+    }
+  }
+
   onData = (d) => {
-    if (!d.includes('\r') && !d.includes('\r')) {
-      this.dataCache += d
+    if (!d.includes('\r')) {
       delete this.userTypeExit
     } else {
-      const data = this.dataCache.trim()
+      const data = this.parse(this.dataCache.trim())
       this.dataCache = ''
       if (data === 'exit') {
         this.userTypeExit = true
@@ -824,6 +844,7 @@ class Term extends Component {
     term.open(document.getElementById(id), true)
     this.loadRenderer(term, config)
     term.textarea.addEventListener('focus', this.setActive)
+    term.onKey(this.onKey)
     // term.textarea.addEventListener('blur', this.onBlur)
 
     // term.on('keydown', this.handleEvent)

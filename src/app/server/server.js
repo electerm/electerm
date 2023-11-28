@@ -1,8 +1,6 @@
 const express = require('express')
 const app = express()
-const strip = require('@electerm/strip-ansi').default
 const log = require('../common/log')
-
 const { verifyWs, initWs } = require('./dispatch-center')
 const {
   terminals
@@ -47,12 +45,7 @@ app.ws('/terminals/:pid', function (ws, req) {
 
   term.on('data', function (data) {
     try {
-      if (term.sessionLogger) {
-        const dt = term.initOptions.addTimeStampToTermLog
-          ? `[${new Date()}] `
-          : ''
-        term.sessionLogger.write(`${dt}${strip(data.toString())}`)
-      }
+      term.writeLog(data)
       ws.send(Buffer.from(data))
     } catch (ex) {
       console.log(ex)

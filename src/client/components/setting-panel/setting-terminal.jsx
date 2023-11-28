@@ -480,7 +480,6 @@ export default class SettingTerminal extends Component {
         ))}
         {
           [
-            'addTimeStampToTermLog',
             'cursorBlink',
             'rightClickSelectsWord',
             'pasteWhenContextMenu',

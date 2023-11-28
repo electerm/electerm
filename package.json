@@ -64,7 +64,6 @@
     "chai": "4.3.10",
     "classnames": "2.3.2",
     "cross-env": "7.0.3",
-    "dayjs": "1.11.9",
     "dotenv": "16.3.1",
     "electron": "26.2.4",
     "electron-builder": "24.6.4",
@@ -103,13 +102,14 @@
     "zmodem.js": "0.1.10"
   },
   "dependencies": {
-    "@electerm/electerm-locales": "1.2.7",
+    "@electerm/electerm-locales": "1.2.8",
     "@electerm/electerm-themes": "^1.0.1",
     "@electerm/ssh2": "1.11.2",
     "@electerm/strip-ansi": "1.0.0",
     "@yetzt/nedb": "1.8.0",
     "axios": "0.26.0",
     "commander": "11.0.0",
+    "dayjs": "^1.11.9",
     "electerm-sync": "1.1.0",
     "electron-log": "4.3.5",
     "express": "4.18.2",
