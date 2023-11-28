@@ -30,16 +30,31 @@ export default function KeywordForm (props) {
     props.submit(data)
   }
 
+  function checker (_, value) {
+    try {
+      return Promise.resolve(!!new RegExp(`(${value})`, 'gi'))
+    } catch (e) {
+      console.log(e)
+      return Promise.reject(e)
+    }
+  }
+
   function renderItem (field, i, add, remove) {
     return (
       <Space
         align='center'
         key={field.key}
+        className='mg3r'
       >
         <FormItem
           hasFeedback
         >
-          <FormItem noStyle required name={[field.name, 'keyword']}>
+          <FormItem
+            noStyle
+            required
+            name={[field.name, 'keyword']}
+            rules={[{ validator: checker }]}
+          >
             <Input
               addonBefore={renderBefore(field.name)}
             />
