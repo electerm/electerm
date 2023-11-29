@@ -234,15 +234,12 @@ class Term extends Component {
     this.term.selectAll()
   }
 
-  // copyShortcut = (e) => {
-  //   const sel = this.term.getSelection()
-  //   if (sel) {
-  //     e.stopPropagation()
-  //     e.preventDefault()
-  //     this.copySelectionToClipboard()
-  //     return false
-  //   }
-  // }
+  copyShortcut = (e) => {
+    const sel = this.term.getSelection()
+    if (sel) {
+      this.copySelectionToClipboard()
+    }
+  }
 
   searchShortcut = (e) => {
     e.stopPropagation()
