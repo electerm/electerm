@@ -87,6 +87,8 @@ class Term extends Component {
     }
   }
 
+  isTerm = true
+
   dataCache = ''
 
   componentDidMount () {
@@ -234,15 +236,14 @@ class Term extends Component {
     this.term.selectAll()
   }
 
-  // copyShortcut = (e) => {
-  //   const sel = this.term.getSelection()
-  //   if (sel) {
-  //     e.stopPropagation()
-  //     e.preventDefault()
-  //     this.copySelectionToClipboard()
-  //     return false
-  //   }
-  // }
+  copyShortcut = (e) => {
+    const sel = this.term.getSelection()
+    if (sel) {
+      e.stopPropagation()
+      this.copySelectionToClipboard()
+      return false
+    }
+  }
 
   searchShortcut = (e) => {
     e.stopPropagation()
