@@ -87,6 +87,8 @@ class Term extends Component {
     }
   }
 
+  isTerm = true
+
   dataCache = ''
 
   componentDidMount () {
@@ -237,7 +239,9 @@ class Term extends Component {
   copyShortcut = (e) => {
     const sel = this.term.getSelection()
     if (sel) {
+      e.stopPropagation()
       this.copySelectionToClipboard()
+      return false
     }
   }
 

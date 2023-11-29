@@ -76,9 +76,9 @@ export function shortcutExtend (Cls) {
       const funcName = conf.func + 'Shortcut'
       if (conf.shortcut.split(',').includes(r)) {
         if (this[funcName]) {
-          this[funcName](event)
-        } else {
-          return false
+          return this[funcName](event)
+        } else if (this.isTerm) {
+          return true
         }
       }
     }
