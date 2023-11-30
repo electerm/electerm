@@ -1,17 +1,14 @@
 // from https://zhuanlan.zhihu.com/p/112564936
 
 const { screen } = require('electron')
-let winStartPosition = { x: 0, y: 0 }
 let mouseStartPosition = { x: 0, y: 0 }
 let movingInterval = null
 
 function windowMove (canMoving) {
   const { win } = global
+  const size = win.getBounds()
   if (canMoving) {
     win.setResizable(false)
-    const size = win.getBounds()
-    const winPosition = win.getPosition()
-    winStartPosition = { x: winPosition[0], y: winPosition[1] }
     mouseStartPosition = screen.getCursorScreenPoint()
 
     if (movingInterval) {
@@ -20,10 +17,14 @@ function windowMove (canMoving) {
 
     movingInterval = setInterval(() => {
       const cursorPosition = screen.getCursorScreenPoint()
-      const x = winStartPosition.x + cursorPosition.x - mouseStartPosition.x
-      const y = winStartPosition.y + cursorPosition.y - mouseStartPosition.y
-      win.setSize(size.width, size.height)
-      win.setPosition(x, y, true)
+      const x = size.x + cursorPosition.x - mouseStartPosition.x
+      const y = size.y + cursorPosition.y - mouseStartPosition.y
+      win.setBounds({
+        width: size.width,
+        height: size.height,
+        x,
+        y
+      })
     }, 1)
   } else {
     win.setResizable(true)
