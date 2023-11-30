@@ -6,7 +6,7 @@
  */
 
 export default (basePath, nameOrDot) => {
-  const sep = basePath.includes('\\') || basePath.includes(':\\')
+  const sep = basePath.includes('\\') || basePath.includes(':\\') || /^[a-z]+:$/i.test(basePath)
     ? '\\'
     : '/'
   if (nameOrDot === '..') {
