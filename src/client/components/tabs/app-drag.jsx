@@ -6,7 +6,7 @@ export default function AppDrag (props) {
     if (
       target instanceof window.SVGElement ||
       target.classList.contains('tab-title') ||
-      target.classList.contains('tab-title')
+      target.classList.contains('ant-tooltip-inner')
     ) {
       window.pre.runSync('windowMove', false)
       return false
