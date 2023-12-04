@@ -17,7 +17,12 @@ export default function TermInteractive () {
   const [opts, setter] = useState(null)
   const [form] = Form.useForm()
   function onMsg (e) {
-    if (e.data.includes('session-interactive')) {
+    if (
+      e &&
+      e.data &&
+      typeof e.data === 'string' &&
+      e.data.includes('session-interactive')
+    ) {
       setter(JSON.parse(e.data))
     }
   }
