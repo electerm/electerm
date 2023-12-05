@@ -20,6 +20,8 @@
 
 有经验的开发者也可以尝试运行于浏览器的web app版本: [electerm-web](https://github.com/electerm/electerm-web)
 
+在线演示: [https://electerm-demo.html5beta.com](https://electerm-demo.html5beta.com)
+
 <div align="center">
   <img src="https://github.com/electerm/electerm-resource/raw/master/static/images/electerm.gif", alt="" />
 </div>
