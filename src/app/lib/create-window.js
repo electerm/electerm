@@ -15,6 +15,7 @@ const initIpc = require('./ipc')
 const { getDbConfig } = require('./get-config')
 const fileServer = require('./file-server')
 const { disableShortCuts } = require('./key-bind')
+const _ = require('lodash')
 
 exports.createWindow = async function () {
   const userConfig = await getDbConfig() || {}
@@ -72,10 +73,10 @@ exports.createWindow = async function () {
         win.center()
       }
     })
-    win.on('move', () => {
+    win.on('move', _.debounce(() => {
       const { x, y } = win.getBounds()
       setWindowPos({ x, y })
-    })
+    }, 100))
 
     win.on('focus', () => {
       win.webContents.send('focused', null)

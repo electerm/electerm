@@ -32,6 +32,10 @@ tables.forEach(table => {
 })
 
 const dbAction = (dbName, op, ...args) => {
+  if (op === 'compactDatafile') {
+    db[dbName].persistence.compactDatafile()
+    return
+  }
   return new Promise((resolve, reject) => {
     db[dbName][op](...args, (err, result) => {
       if (err) {

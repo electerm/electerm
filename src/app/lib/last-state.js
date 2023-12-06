@@ -4,8 +4,13 @@
 
 const { dbAction } = require('./nedb')
 const log = require('../common/log')
-
+let count = 0
 const set = (key, value) => {
+  count = count + 1
+  if (count > 100) {
+    count = 0
+    dbAction('compactDatafile')
+  }
   return dbAction('lastStates', 'update', {
     _id: key
   }, {
