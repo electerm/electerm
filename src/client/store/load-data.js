@@ -185,7 +185,7 @@ export default (Store) => {
     }
     store.initCommandLine().catch(store.onError)
     if (store.config.checkUpdateOnStart) {
-      store.onCheckUpdate()
+      store.onCheckUpdate(false)
     }
   }
   Store.prototype.initCommandLine = async function () {

@@ -60,7 +60,7 @@ export default class Upgrade extends PureComponent {
           showCount: old.showCount + 1
         }
       })
-      this.getLatestRelease(true)
+      this.getLatestRelease(e.data.noSkip)
     }
   }
 
@@ -90,7 +90,7 @@ export default class Upgrade extends PureComponent {
     clearTimeout(this.downloadTimer)
     if (upgradePercent >= 100) {
       this.update && this.update.destroy()
-      return this.close()
+      return this.handleClose()
     }
     this.changeProps({
       upgradePercent
@@ -126,7 +126,7 @@ export default class Upgrade extends PureComponent {
   }
 
   onEnd = () => {
-    this.close()
+    this.handleClose()
   }
 
   doUpgrade = async () => {
@@ -154,8 +154,10 @@ export default class Upgrade extends PureComponent {
   }
 
   handleSkipVersion = () => {
-    window.store.config.skipVersion = this.props.upgradeInfo.remoteVersion
-    this.close()
+    window.store.setConfig({
+      skipVersion: this.props.upgradeInfo.remoteVersion
+    })
+    this.handleClose()
   }
 
   getLatestRelease = async (noSkipVersion = false) => {

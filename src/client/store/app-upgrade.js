@@ -5,9 +5,10 @@
 import { commonActions } from '../common/constants'
 
 export default Store => {
-  Store.prototype.onCheckUpdate = () => {
+  Store.prototype.onCheckUpdate = (noSkip = true) => {
     window.postMessage({
-      action: commonActions.appUpdateCheck
+      action: commonActions.appUpdateCheck,
+      noSkip
     }, '*')
   }
   Store.prototype.getProxySetting = function () {
