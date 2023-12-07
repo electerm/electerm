@@ -6,7 +6,11 @@
  */
 
 export default (basePath, nameOrDot) => {
-  const sep = basePath.includes('\\') || basePath.includes(':\\') || /^[a-z]+:$/i.test(basePath)
+  const sep = (basePath.includes('\\') ||
+  basePath.includes(':\\') ||
+  /^[a-z]+:$/i.test(basePath) ||
+  /^[a-z]+:$/i.test(nameOrDot)
+  )
     ? '\\'
     : '/'
   if (nameOrDot === '..') {
@@ -18,12 +22,15 @@ export default (basePath, nameOrDot) => {
     const res = arr.slice(0, length - 1).join(sep)
     return res || '/'
   }
-  const pre = nameOrDot.includes(':\\') && basePath === '/'
+  const pre = (nameOrDot.includes(':\\') || /^[a-z]+:$/i.test(nameOrDot)) && basePath === '/'
     ? ''
     : basePath
-  return pre +
-    (basePath.endsWith(sep) ? '' : sep) +
-    nameOrDot
+  const mid = (basePath.endsWith(sep) ? '' : sep)
+  let ff = pre + mid + nameOrDot
+  if (/^\\[a-z]+:$/i.test(ff)) {
+    ff = ff.slice(1)
+  }
+  return ff
 }
 
 export const osResolve = (...args) => {
