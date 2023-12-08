@@ -6,6 +6,7 @@ import fetch from './fetch-from-server'
 import {
   baseUpdateCheckUrls, packInfo
 } from './constants'
+import dayjs from 'dayjs'
 
 async function fetchData (url, options) {
   const data = {
@@ -75,5 +76,11 @@ export async function getLatestReleaseInfo () {
     url = `${baseUpdateCheckUrls[1]}/data/electerm-github-release.json`
     res = await getInfo(url)
   }
-  return res?.release?.body
+  console.log('res', res)
+  return res && res.release
+    ? {
+        body: res.release.body,
+        date: dayjs(res.release.published_at).format('YYYY-MM-DD')
+      }
+    : undefined
 }

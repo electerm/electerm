@@ -246,7 +246,7 @@ export default class Upgrade extends PureComponent {
     return (
       <div className='pd1t'>
         <div className='bold'>Changelog:</div>
-        <Markdown text={releaseInfo} />
+        <Markdown text={releaseInfo.body} />
         <Link
           to={packInfo.releases}
         >{e('moreChangeLog')}
@@ -279,6 +279,7 @@ export default class Upgrade extends PureComponent {
       showUpgradeModal,
       upgradePercent,
       shouldUpgrade,
+      releaseInfo,
       error
     } = this.props.upgradeInfo
     if (error) {
@@ -317,7 +318,7 @@ export default class Upgrade extends PureComponent {
       <div className={cls}>
         <div className='upgrade-panel-title'>
           <MinusSquareOutlined className='pointer font16 close-upgrade-panel' onClick={this.handleMinimize} />
-          {e('newVersion')} <b>{remoteVersion}</b>
+          {e('newVersion')} <b>{remoteVersion} [{releaseInfo.date}]</b>
         </div>
         <div className='upgrade-panel-body'>
           {
