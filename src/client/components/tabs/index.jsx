@@ -23,6 +23,7 @@ import findParentBySel from '../../common/find-parent'
 import WindowControl from './window-control'
 import BookmarksList from '../sidebar/bookmark-select'
 import AppDrag from './app-drag'
+import classNames from 'classnames'
 
 const { prefix } = window
 const e = prefix('tabs')
@@ -176,16 +177,19 @@ export default class Tabs extends React.Component {
   }
 
   renderAddBtn = () => {
-    if (!this.props.tabs.length) {
-      return null
-    }
+    const cls = classNames(
+      'pointer tabs-add-btn font16',
+      {
+        empty: !this.props.tabs.length
+      }
+    )
     return (
       <Popover
         content={this.renderMenus()}
       >
         <PlusCircleOutlined
           title={e('openNewTerm')}
-          className='pointer tabs-add-btn font16'
+          className={cls}
           onClick={() => this.props.addTab()}
         />
       </Popover>
