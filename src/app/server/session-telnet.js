@@ -2,25 +2,11 @@
  * terminal/sftp/serial class
  */
 const _ = require('lodash')
-const generate = require('../common/uid')
 const log = require('../common/log')
-const { createLogFileName } = require('../common/create-session-log-file-path')
-const SessionLog = require('./session-log')
 const { Telnet } = require('./telnet')
+const { TerminalBase } = require('./session-base')
 
-class TerminalTelnet {
-  constructor (initOptions, ws, isTest) {
-    this.pid = initOptions.uid || generate()
-    this.initOptions = initOptions
-    if (initOptions.saveTerminalLogToFile) {
-      this.sessionLogger = new SessionLog({
-        fileName: createLogFileName(initOptions.logName)
-      })
-    }
-    this.ws = ws
-    this.isTest = isTest
-  }
-
+class TerminalTelnet extends TerminalBase {
   init = async () => {
     const connection = new Telnet()
 
