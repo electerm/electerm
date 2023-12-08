@@ -373,11 +373,11 @@ export default class Sftp extends Component {
   }
 
   doCopy = (type, e) => {
-    this[type + 'Dom'].onCopy(e, this.state.selectedFiles)
+    this[type + 'Dom'].onCopy(this.state.selectedFiles)
   }
 
   doCut = (type, e) => {
-    this[type + 'Dom'].onCut(e, this.state.selectedFiles)
+    this[type + 'Dom'].onCut(this.state.selectedFiles)
   }
 
   doPaste = (type) => {
@@ -396,7 +396,7 @@ export default class Sftp extends Component {
     }
     const { type } = lastClickedFile
     const { inputFocus, onDelete } = this
-    if (keyControlPressed(e) && keyPressed(e, 'a') && !inputFocus) {
+    if (keyControlPressed(e) && keyPressed(e, 'keyA') && !inputFocus) {
       e.stopPropagation()
       this.selectAll(type, e)
     } else if (keyPressed(e, 'arrowdown') && !inputFocus) {
@@ -411,13 +411,13 @@ export default class Sftp extends Component {
     } else if (keyPressed(e, 'enter') && !inputFocus && !onDelete) {
       e.stopPropagation()
       this.enter(type, e)
-    } else if (keyControlPressed(e) && keyPressed(e, 'c') && !inputFocus) {
+    } else if (keyControlPressed(e) && keyPressed(e, 'keyC') && !inputFocus) {
       e.stopPropagation()
       this.doCopy(type, e)
-    } else if (keyControlPressed(e) && keyPressed(e, 'x') && !inputFocus) {
+    } else if (keyControlPressed(e) && keyPressed(e, 'keyX') && !inputFocus) {
       e.stopPropagation()
       this.doCut(type, e)
-    } else if (keyControlPressed(e) && keyPressed(e, 'v') && !inputFocus) {
+    } else if (keyControlPressed(e) && keyPressed(e, 'keyV') && !inputFocus) {
       e.stopPropagation()
       this.doPaste(type, e)
     } else if (keyPressed(e, 'f5')) {
