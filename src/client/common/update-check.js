@@ -76,7 +76,6 @@ export async function getLatestReleaseInfo () {
     url = `${baseUpdateCheckUrls[1]}/data/electerm-github-release.json`
     res = await getInfo(url)
   }
-  console.log('res', res)
   return res && res.release
     ? {
         body: res.release.body,
