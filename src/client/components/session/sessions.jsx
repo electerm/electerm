@@ -407,8 +407,20 @@ class Sessions extends Component {
   }
 
   renderSessionsWrap = () => {
+    const { leftSidebarWidth, openedSideBar } = this.props.store
+    const w = leftSidebarWidth + 43
+    const ptp = openedSideBar
+      ? {
+          className: 'sessions',
+          style: {
+            marginLeft: `${w}px`
+          }
+        }
+      : {
+          className: 'sessions'
+        }
     return (
-      <div className='sessions' key='main-sess'>
+      <div {...ptp} key='main-sess'>
         {this.renderSessions()}
       </div>
     )

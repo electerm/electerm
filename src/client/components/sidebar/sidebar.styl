@@ -3,9 +3,9 @@
   animation-duration .2s
 .sidebar-panel
   position absolute
-  left 43px
-  top 46px
-  bottom 36px
+  left 0
+  top 0
+  bottom 0
   z-index 200
   width 0
   overflow-y scroll
@@ -15,8 +15,6 @@
     .list-item-remove
       display none !important
 
-.pinned .sidebar-panel
-  bottom 0
 .sidebar
   position absolute
   left 0
@@ -30,10 +28,10 @@
     padding-right 0
 .type-bookmarks
   .bookmarks-panel
-    width 300px
+    width 100%
 .type-history
   .history-panel
-    width 300px
+    width 100%
 .control-icon-text
   color text
   &:hover
@@ -50,11 +48,21 @@
     &:hover
       color text-light
 .sidebar-list
-  .pinned
-    color success
-    &:hover
-      color success
+  position absolute
+  left 43px
+  top 45px
+  bottom 36px
+  z-index 200
+  width 0
+  border-top 5px solid main
 
+.pinned
+  .sidebar-list
+    bottom 0
+  .drag-handle
+    display block
+  .sidebar-panel .pinned
+    color success
 //btns
 .btns
   background main-dark
@@ -69,7 +77,15 @@
   //   background transparent
   //   color #aaa
   //   border-color #555
-
+.drag-handle
+  position absolute
+  right 0
+  top 0
+  width 3px
+  bottom 0
+  cursor ew-resize
+  display none
+  z-index 201
 // Hover.css (http://ianlunn.github.io/Hover/)
 // Version: 2.3.2
 // Author: Ian Lunn @IanLunn

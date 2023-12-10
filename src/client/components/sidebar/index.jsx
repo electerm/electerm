@@ -23,6 +23,7 @@ import {
   modals
 } from '../../common/constants'
 import SideIcon from './side-icon'
+import SidePanel from './side-panel'
 import './sidebar.styl'
 
 const { prefix } = window
@@ -91,7 +92,9 @@ export default class Sidebar extends Component {
       showModal,
       showInfoModal,
       settingItem,
-      isSyncingSetting
+      isSyncingSetting,
+      leftSidebarWidth,
+      setLeftSidePanelWidth
     } = store
     const {
       showUpgradeModal,
@@ -106,6 +109,16 @@ export default class Sidebar extends Component {
     const themeActive = showSetting && settingTab === settingMap.terminalThemes
     const historyActive = showSetting && settingTab === settingMap.history
     const bookmarksActive = showSetting && settingTab === settingMap.bookmarks
+    const sideProps = openedSideBar
+      ? {
+          className: 'sidebar-list',
+          style: {
+            width: `${leftSidebarWidth}px`
+          }
+        }
+      : {
+          className: 'sidebar-list'
+        }
     return (
       <div
         className={`sidebar type-${openedSideBar}`}
@@ -210,8 +223,10 @@ export default class Sidebar extends Component {
           }
         </div>
         <InfoModal store={store} />
-        <div
-          className='sidebar-list'
+        <SidePanel
+          sideProps={sideProps}
+          setLeftSidePanelWidth={setLeftSidePanelWidth}
+          leftSidebarWidth={leftSidebarWidth}
         >
           <BookMarksWrap
             store={store}
@@ -223,7 +238,7 @@ export default class Sidebar extends Component {
             onMouseEnter={this.handleMouseEnterHistory}
             onMouseLeave={this.handleMouseLeave}
           />
-        </div>
+        </SidePanel>
       </div>
     )
   }

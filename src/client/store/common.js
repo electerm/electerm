@@ -8,8 +8,10 @@ import postMessage from '../common/post-msg'
 import {
   commonActions,
   tabActions,
-  modals
+  modals,
+  leftSidebarWidthKey
 } from '../common/constants'
+import * as ls from '../common/safe-local-storage'
 
 export default Store => {
   Store.prototype.storeAssign = function (updates) {
@@ -136,5 +138,10 @@ export default Store => {
       ...JSON.parse(window.store._termSearchOptions),
       ...update
     })
+  }
+
+  Store.prototype.setLeftSidePanelWidth = function (v) {
+    ls.setItem(leftSidebarWidthKey, v)
+    window.store.leftSidebarWidth = v
   }
 }

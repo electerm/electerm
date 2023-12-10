@@ -122,13 +122,24 @@ export default class SystemMenu extends Component {
   }
 
   render () {
-    const { tabs } = this.props.store
+    const { tabs, leftSidebarWidth, openedSideBar } = this.props.store
     const pane = this.props.store.currentTab?.pane
     if (pane === paneMap.fileManager || !tabs.length) {
       return null
     }
+    const w = 43 + leftSidebarWidth
+    const sideProps = openedSideBar
+      ? {
+          className: 'main-footer',
+          style: {
+            left: `${w}px`
+          }
+        }
+      : {
+          className: 'main-footer'
+        }
     return (
-      <div className='main-footer'>
+      <div {...sideProps}>
         <div className='terminal-footer-flex'>
           {this.renderQuickCommands()}
           {this.renderBatchInputs()}
