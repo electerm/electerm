@@ -2,7 +2,7 @@
  * setting modal
  */
 
-import { find, isEqual, pick, without, findIndex } from 'lodash-es'
+import { find, isEqual, pick, without } from 'lodash-es'
 import {
   message
 } from 'antd'
@@ -113,14 +113,8 @@ export default Store => {
         pick(j, without(keysj, 'id'))
       )
     })
-    if (!existItem) {
-      store.addItem(item, settingMap.history)
-    } else {
-      const index = findIndex(history, f => f.id === existItem.id)
-      history.splice(index, 1)
-      history.unshift(existItem)
-      store.setItems('history', history)
-    }
+    history.unshift(existItem)
+    store.setItems('history', history)
   }
 
   Store.prototype.openSetting = function () {
