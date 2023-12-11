@@ -11,6 +11,7 @@ const installSrc = require('../lib/install-src')
 const { fsExport } = require('../lib/fs')
 const { createProxyAgent } = require('../lib/proxy-agent')
 const { openFile, rmrf } = fsExport
+const log = require('../common/log')
 
 function getUrl (url, mirror) {
   if (mirror === 'github') {
@@ -76,7 +77,7 @@ class Upgrade {
     }
     const localPath = resolve(tempDir, releaseInfo.name)
     const remotePath = getUrl(releaseInfo.browser_download_url, mirror)
-    await rmrf(localPath)
+    await rmrf(localPath).catch(log.error)
     const { size } = releaseInfo
     this.id = id
     this.localPath = localPath
