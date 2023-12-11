@@ -16,7 +16,8 @@ import {
   expandedKeysLsKey,
   checkedKeysLsKey,
   localAddrBookmarkLsKey,
-  leftSidebarWidthKey
+  leftSidebarWidthKey,
+  rightSidebarWidthKey
 } from '../common/constants'
 import { buildDefaultThemes, buildNewTheme } from '../common/terminal-theme'
 import * as ls from '../common/safe-local-storage'
@@ -143,6 +144,7 @@ export default () => {
     // sidebar
     openedSideBar: ls.getItem(openedSidebarKey),
     leftSidebarWidth: parseInt(ls.getItem(leftSidebarWidthKey), 10) || 300,
+    rightSidebarWidth: parseInt(ls.getItem(rightSidebarWidthKey), 10) || 500,
     menuOpened: false,
     pinned: ls.getItem(sidebarPinnedKey) === 'true',
 

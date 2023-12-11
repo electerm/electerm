@@ -74,6 +74,7 @@ export default class SessionWrapper extends Component {
       enableSftp: false,
       splitDirection: terminalSplitDirectionMap.horizontal,
       activeSplitId,
+      infoPanelPinned: false,
       key: Math.random(),
       sessionOptions: null,
       sessionId: generate(),
@@ -101,6 +102,12 @@ export default class SessionWrapper extends Component {
     this.setState({
       showInfo: true,
       infoPanelProps
+    })
+  }
+
+  toggleInfoPinned = () => {
+    this.setState({
+      infoPanelPinned: !this.state.infoPanelPinned
     })
   }
 
@@ -217,7 +224,7 @@ export default class SessionWrapper extends Component {
 
   computePosition = (index) => {
     const len = this.state.terminals.length || 1
-    const { width: windowWidth } = this.props
+    const windowWidth = this.getWidth()
     const { splitDirection } = this.state
     const isHori = splitDirection === terminalSplitDirectionMap.horizontal
     const heightAll = this.computeHeight()
@@ -241,6 +248,18 @@ export default class SessionWrapper extends Component {
     }
   }
 
+  getWidth = () => {
+    const {
+      infoPanelPinned,
+      showInfo
+    } = this.state
+    if (!infoPanelPinned || !showInfo) {
+      return this.props.width
+    }
+    const { rightSidebarWidth, width } = this.props
+    return width - rightSidebarWidth
+  }
+
   renderTerminals = () => {
     const {
       terminals,
@@ -256,7 +275,8 @@ export default class SessionWrapper extends Component {
       ? 'terms-box'
       : 'terms-box hide'
     const height = this.computeHeight()
-    const { width, tab } = this.props
+    const { tab } = this.props
+    const width = this.getWidth()
     const themeConfig = copy(window.store.getThemeConfig())
     return (
       <div
@@ -467,20 +487,20 @@ export default class SessionWrapper extends Component {
     const {
       splitDirection,
       infoPanelProps,
-      showInfo
+      showInfo,
+      infoPanelPinned
     } = this.state
     const { pane } = this.props.tab
     const infoProps = {
+      infoPanelPinned,
       ...pick(this.props.config, ['host', 'port', 'saveTerminalLogToFile']),
       ...infoPanelProps,
       appPath: this.props.appPath,
+      rightSidebarWidth: this.props.rightSidebarWidth,
       showInfo,
       tabsHeight: this.props.tabsHeight,
       topMenuHeight: this.props.topMenuHeight,
-      // pid,
-      // sessionId,
-      // isRemote: this.isRemote(),
-      // isActive: this.isActiveTerminal(),
+      toggleInfoPinned: this.toggleInfoPinned,
       hideInfoPanel: this.hideInfoPanel
     }
     const cls = classnames(

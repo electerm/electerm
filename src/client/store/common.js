@@ -9,7 +9,8 @@ import {
   commonActions,
   tabActions,
   modals,
-  leftSidebarWidthKey
+  leftSidebarWidthKey,
+  rightSidebarWidthKey
 } from '../common/constants'
 import * as ls from '../common/safe-local-storage'
 
@@ -143,5 +144,10 @@ export default Store => {
   Store.prototype.setLeftSidePanelWidth = function (v) {
     ls.setItem(leftSidebarWidthKey, v)
     window.store.leftSidebarWidth = v
+  }
+
+  Store.prototype.setRightSidePanelWidth = function (v) {
+    ls.setItem(rightSidebarWidthKey, v)
+    window.store.rightSidebarWidth = v
   }
 }

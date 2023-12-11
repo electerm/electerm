@@ -346,7 +346,8 @@ class Sessions extends Component {
           'pinnedQuickCommandBar',
           'tabsHeight',
           'appPath',
-          'topMenuHeight'
+          'topMenuHeight',
+          'rightSidebarWidth'
         ]),
         config,
         ...pick(this, [
@@ -420,7 +421,10 @@ class Sessions extends Component {
           className: 'sessions'
         }
     return (
-      <div {...ptp} key='main-sess'>
+      <div
+        {...ptp}
+        key='main-sess'
+      >
         {this.renderSessions()}
       </div>
     )
