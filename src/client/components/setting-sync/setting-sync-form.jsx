@@ -110,7 +110,7 @@ export default function SyncForm (props) {
   }
   const otherNameMapper = {
     token: 'access token',
-    gist: 'gist id'
+    gistId: 'gist id'
   }
   function createLabel (name, text) {
     return (
