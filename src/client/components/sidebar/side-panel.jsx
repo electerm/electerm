@@ -3,8 +3,8 @@ export default class SidePanel extends PureComponent {
   handleMousedown = (e) => {
     this.dragStart = true
     this.clientX = e.clientX
-    document.body.addEventListener('mouseup', this.handleMouseup)
-    document.body.addEventListener('mousemove', this.handleMousemove)
+    window.addEventListener('mouseup', this.handleMouseup)
+    window.addEventListener('mousemove', this.handleMousemove)
   }
 
   handleMouseup = (e) => {
@@ -12,15 +12,15 @@ export default class SidePanel extends PureComponent {
     const {
       clientX
     } = e
-    let nw = clientX - this.clientX + 300
+    let nw = clientX - this.clientX + this.props.leftSidebarWidth
     if (nw < 343) {
       nw = 343
     } else if (nw > 600) {
       nw = 600
     }
     this.props.setLeftSidePanelWidth(nw)
-    document.body.removeEventListener('mouseup', this.handleMouseup)
-    document.body.removeEventListener('mousemove', this.handleMousemove)
+    window.removeEventListener('mouseup', this.handleMouseup)
+    window.removeEventListener('mousemove', this.handleMousemove)
   }
 
   handleMousemove = (e) => {
@@ -28,8 +28,17 @@ export default class SidePanel extends PureComponent {
       clientX
     } = e
     const el = document.getElementById('side-panel')
-    const nw = clientX - this.clientX + this.props.leftSidebarWidth
+    let nw = clientX - this.clientX + this.props.leftSidebarWidth
+    if (nw < 343) {
+      nw = 343
+    } else if (nw > 600) {
+      nw = 600
+    }
     el.style.width = nw + 'px'
+    const el1 = document.querySelector('.sessions')
+    if (el1) {
+      el1.style.marginLeft = (nw + 43) + 'px'
+    }
   }
 
   render () {

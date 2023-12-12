@@ -67,8 +67,12 @@ export default class TerminalInfoContent extends PureComponent {
       clientX
     } = e
     const el = document.getElementById('info-panel-wrap')
-    const nw = this.clientX - clientX + this.props.rightSidebarWidth
-    console.log(nw, this.clientX, clientX, this.props.rightSidebarWidth)
+    let nw = this.clientX - clientX + this.props.rightSidebarWidth
+    if (nw < 400) {
+      nw = 400
+    } else if (nw > 1000) {
+      nw = 1000
+    }
     el.style.width = nw + 'px'
   }
 
