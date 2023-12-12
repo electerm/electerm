@@ -34,6 +34,9 @@ export default class QuickCommandsList extends List {
   }
 
   renderItem = (item, i) => {
+    if (!item) {
+      return null
+    }
     const { activeItemId } = this.props
     const { name, id } = item
     const cls = classnames(

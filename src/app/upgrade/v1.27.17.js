@@ -14,6 +14,9 @@ async function fixConf () {
     _id: userConfigId
   }
   const conf = await dbAction('data', 'findOne', q)
+  if (!conf) {
+    return
+  }
   const proxy = buildProxyString(conf)
   if (proxy) {
     conf.proxy = proxy

@@ -12,6 +12,9 @@ async function fixAll () {
     _id: userConfigId
   }
   const conf = await dbAction('data', 'findOne', q)
+  if (!conf) {
+    return
+  }
   if (!conf.syncSetting) {
     conf.syncSetting = {}
   }
