@@ -9,7 +9,10 @@ import {
 const { prefix } = window
 const p = prefix('sftp')
 
-export default (res = {}) => {
+export default (res) => {
+  if (!res) {
+    return ''
+  }
   const {
     host, port, username, title, type,
     path, connectionHoppings
