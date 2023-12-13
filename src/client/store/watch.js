@@ -14,7 +14,7 @@ import {
 } from '../common/constants'
 import postMsg from '../common/post-msg'
 import * as ls from '../common/safe-local-storage'
-import { debounce } from 'lodash-es'
+import { debounce, isEmpty } from 'lodash-es'
 
 export default store => {
   autoRun(store, () => {
@@ -65,7 +65,7 @@ export default store => {
   }).start()
 
   autoRun(store, () => {
-    if (store.config) {
+    if (!isEmpty(store.config)) {
       window.pre.runGlobalAsync('saveUserConfig', store.config)
     }
     return store._config

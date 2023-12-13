@@ -154,7 +154,7 @@ export default (Store) => {
       globs.langs
     )
     store.zoom(store.config.zoom, false, true)
-    initWsCommon()
+    await initWsCommon()
   }
   Store.prototype.initData = async function () {
     const { store } = window
