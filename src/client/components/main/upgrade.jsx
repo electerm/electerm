@@ -202,9 +202,13 @@ export default class Upgrade extends PureComponent {
   renderError = (err) => {
     return (
       <div className='upgrade-panel'>
-        <div className='upgrade-panel-title'>
-          <CloseOutlined className='pointer font16 close-upgrade-panel' onClick={this.handleClose} />
-          {e('fail')}: {err}
+        <div className='upgrade-panel-title fix'>
+          <span className='fleft'>
+            {e('fail')}: {err}
+          </span>
+          <span className='fright'>
+            <CloseOutlined className='pointer font16 close-upgrade-panel' onClick={this.handleClose} />
+          </span>
         </div>
         <div className='upgrade-panel-body'>
           You can visit
@@ -225,9 +229,13 @@ export default class Upgrade extends PureComponent {
     const cls = `animate upgrade-panel${showUpgradeModal ? '' : ' upgrade-panel-hide'}`
     return (
       <div className={cls}>
-        <div className='upgrade-panel-title'>
-          <CloseOutlined className='pointer font16 close-upgrade-panel' onClick={this.handleClose} />
-          {e('noNeed')}
+        <div className='upgrade-panel-title fix'>
+          <span className='fleft'>
+            {e('noNeed')}
+          </span>
+          <span className='fright'>
+            <CloseOutlined className='pointer font16 close-upgrade-panel' onClick={this.handleClose} />
+          </span>
         </div>
         <div className='upgrade-panel-body'>
           {e('noNeedDesc')}
@@ -316,9 +324,13 @@ export default class Upgrade extends PureComponent {
     const skip = srcsSkipUpgradeCheck.includes(installSrc)
     return (
       <div className={cls}>
-        <div className='upgrade-panel-title'>
-          <MinusSquareOutlined className='pointer font16 close-upgrade-panel' onClick={this.handleMinimize} />
-          {e('newVersion')} <b>{remoteVersion} [{releaseInfo.date}]</b>
+        <div className='upgrade-panel-title fix'>
+          <span className='fleft'>
+            {e('newVersion')} <b>{remoteVersion} [{releaseInfo.date}]</b>
+          </span>
+          <span className='fright'>
+            <MinusSquareOutlined className='pointer font16 close-upgrade-panel' onClick={this.handleMinimize} />
+          </span>
         </div>
         <div className='upgrade-panel-body'>
           {
