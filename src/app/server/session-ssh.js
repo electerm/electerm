@@ -126,9 +126,14 @@ class TerminalSshBase extends TerminalBase {
 
   async getPrivateKeysInJumpServer (conn) {
     const r = await this.runCmd('ls ~/.ssh', conn)
-    return r.split('\n')
-      .filter(d => d.endsWith('.pub'))
-      .map(d => `~/.ssh/${d}`.replace('.pub', ''))
+      .catch(err => {
+        log.error(err)
+      })
+    return r
+      ? r.split('\n')
+        .filter(d => d.endsWith('.pub'))
+        .map(d => `~/.ssh/${d}`.replace('.pub', ''))
+      : []
   }
 
   catPrivateKeyInJumpServer (conn, filePath) {
@@ -376,6 +381,19 @@ class TerminalSshBase extends TerminalBase {
     })
   }
 
+  getSSHKeys () {
+    const { sshKeysPath } = process.env
+    try {
+      return require('fs')
+        .readdirSync(sshKeysPath)
+        .filter(file => file.endsWith('.pub'))
+        .map(file => pathResolve(sshKeysPath, file.replace('.pub', '')))
+    } catch (e) {
+      log.error(e)
+      return []
+    }
+  }
+
   getPrivateKey (connectOptions) {
     if (this.sshKeys) {
       if (this.sshKeys.length > 0) {
@@ -389,17 +407,13 @@ class TerminalSshBase extends TerminalBase {
       }
       return
     }
-    const { sshKeysPath } = process.env
-    const list = require('fs')
-      .readdirSync(sshKeysPath)
-      .filter(file => file.endsWith('.pub'))
-      .map(file => pathResolve(sshKeysPath, file.replace('.pub', '')))
+    const list = this.getSSHKeys()
     if (list.length) {
       const p = list.shift()
       this.privateKeyPath = p
       connectOptions.privateKey = require('fs').readFileSync(p, 'utf8')
+      this.sshKeys = list
     }
-    this.sshKeys = list
   }
 
   doSshConnect = (

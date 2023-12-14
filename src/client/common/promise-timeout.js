@@ -3,7 +3,7 @@
  */
 
 export class NewPromise extends Promise {
-  constructor (executor, timeout = 30000) {
+  constructor (executor, timeout = 120000) {
     let timeoutId
 
     super((resolve, reject) => {
