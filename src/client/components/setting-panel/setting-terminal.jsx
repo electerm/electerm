@@ -361,8 +361,9 @@ export default class SettingTerminal extends Component {
     const { fontFamily } = this.props.config
     const props = {
       mode: 'multiple',
+      className: 'font-sel',
       onChange: this.handleChangeFont,
-      value: fontFamily.split(/, */g)
+      value: fontFamily.split(/, */g).filter(d => d.trim())
     }
     return (
       <Select
@@ -373,10 +374,13 @@ export default class SettingTerminal extends Component {
           fonts.map(f => {
             return (
               <Option value={f} key={f}>
-                <span style={{
-                  fontFamily: f
-                }}
-                >{f}
+                <span
+                  className='font-option'
+                  style={{
+                    fontFamily: f
+                  }}
+                >
+                  {f}
                 </span>
               </Option>
             )
