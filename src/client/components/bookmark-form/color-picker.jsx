@@ -75,9 +75,9 @@ export const ColorPicker = React.forwardRef((props, ref) => {
     <Popover
       content={renderContent()}
       trigger='click'
-      visible={visible}
+      open={visible}
       placement='bottomLeft'
-      onVisibleChange={handleVisibleChange}
+      onOpenChange={handleVisibleChange}
     >
       <div
         ref={ref}
