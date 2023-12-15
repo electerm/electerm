@@ -99,7 +99,7 @@ class Store {
 
   get currentQuickCommands () {
     const { currentTab } = this
-    const quickCommands = window.store.getQuickCommands()
+    const { quickCommands } = window.store
     const currentTabQuickCommands = (
       currentTab.quickCommands || []
     ).map((d, i) => {
@@ -138,7 +138,7 @@ class Store {
   }
 
   get quickCommandTags () {
-    const quickCommands = window.store.getQuickCommands()
+    const { quickCommands } = window.store
     return uniq(
       quickCommands.reduce((p, q) => {
         return [
@@ -149,25 +149,25 @@ class Store {
     )
   }
 
-  get expandedKeys () {
-    return JSON.parse(window.store._expandedKeys || '[]')
-  }
+  // get expandedKeys () {
+  //   return JSON.parse(window.store._expandedKeys || '[]')
+  // }
 
-  get checkedKeys () {
-    return JSON.parse(window.store._checkedKeys || '[]')
-  }
+  // get checkedKeys () {
+  //   return JSON.parse(window.store._checkedKeys || '[]')
+  // }
 
   get isTransporting () {
     return window.store.getTabs().some(t => t.isTransporting)
   }
 
-  get addressBookmarks () {
-    return JSON.parse(window.store._addressBookmarks || '[]')
-  }
+  // get addressBookmarks () {
+  //   return JSON.parse(window.store._addressBookmarks || '[]')
+  // }
 
-  get addressBookmarksLocal () {
-    return JSON.parse(window.store._addressBookmarksLocal || '[]')
-  }
+  // get addressBookmarksLocal () {
+  //   return JSON.parse(window.store._addressBookmarksLocal || '[]')
+  // }
 
   get settingSidebarList () {
     const {
@@ -203,49 +203,49 @@ class Store {
     return window.store.getTabs().map(d => d.title).join('#')
   }
 
-  get sshConfigItems () {
-    return JSON.parse(window.store._sshConfigItems || '[]')
-  }
+  // get sshConfigItems () {
+  //   return JSON.parse(window.store._sshConfigItems || '[]')
+  // }
 
-  get itermThemes () {
-    return JSON.parse(window.store._itermThemes || '[]')
-  }
+  // get itermThemes () {
+  //   return JSON.parse(window.store._itermThemes || '[]')
+  // }
 
-  get history () {
-    return JSON.parse(window.store._history || '[]')
-  }
+  // get history () {
+  //   return JSON.parse(window.store._history || '[]')
+  // }
 
-  get bookmarks () {
-    return JSON.parse(window.store._bookmarks || '[]')
-  }
+  // get bookmarks () {
+  //   return JSON.parse(window.store._bookmarks || '[]')
+  // }
 
-  get bookmarkGroups () {
-    return JSON.parse(window.store._bookmarkGroups || '[]')
-  }
+  // get bookmarkGroups () {
+  //   return JSON.parse(window.store._bookmarkGroups || '[]')
+  // }
 
-  get tabs () {
-    return JSON.parse(window.store._tabs || '[]')
-  }
+  // get tabs () {
+  //   return JSON.parse(window.store._tabs || '[]')
+  // }
 
-  get fileTransfers () {
-    return JSON.parse(window.store._fileTransfers || '[]')
-  }
+  // get fileTransfers () {
+  //   return JSON.parse(window.store._fileTransfers || '[]')
+  // }
 
-  get transferHistory () {
-    return JSON.parse(window.store._transferHistory || '[]')
-  }
+  // get transferHistory () {
+  //   return JSON.parse(window.store._transferHistory || '[]')
+  // }
 
-  get quickCommands () {
-    return JSON.parse(window.store._quickCommands || '[]')
-  }
+  // get quickCommands () {
+  //   return JSON.parse(window.store._quickCommands || '[]')
+  // }
 
-  get terminalThemes () {
-    return JSON.parse(window.store._terminalThemes || '[]')
-  }
+  // get terminalThemes () {
+  //   return JSON.parse(window.store._terminalThemes || '[]')
+  // }
 
-  get serials () {
-    return JSON.parse(window.store._serials || '[]')
-  }
+  // get serials () {
+  //   return JSON.parse(window.store._serials || '[]')
+  // }
 
   get setting () {
     return [
@@ -272,9 +272,9 @@ class Store {
     return JSON.parse(window.store._sftpSortSetting)
   }
 
-  get fonts () {
-    return JSON.parse(window.store._fonts || '[]')
-  }
+  // get fonts () {
+  //   return JSON.parse(window.store._fonts || '[]')
+  // }
 
   get onOperation () {
     const {
@@ -325,6 +325,33 @@ class Store {
       algorithm: isColorDark(themeConf.main) ? theme.darkAlgorithm : theme.defaultAlgorithm
     }
   }
+}
+
+const getterProps = [
+  'expandedKeys',
+  'checkedKeys',
+  'addressBookmarks',
+  'addressBookmarksLocal',
+  'sshConfigItems',
+  'itermThemes',
+  'history',
+  'bookmarks',
+  'bookmarkGroups',
+  'tabs',
+  'fileTransfers',
+  'transferHistory',
+  'quickCommands',
+  'terminalThemes',
+  'serials',
+  'fonts'
+]
+
+for (const prop of getterProps) {
+  Object.defineProperty(Store.prototype, prop, {
+    get: function () {
+      return JSON.parse(window.store[`_${prop}`] || '[]').filter(d => d)
+    }
+  })
 }
 
 loadDataExtend(Store)

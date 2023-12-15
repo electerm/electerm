@@ -30,8 +30,8 @@ export default class BookmarkTransport extends Component {
         bookmarkGroups: bookmarkGroups1,
         bookmarks: bookmarks1
       } = content
-      const bookmarkGroups = copy(store.getBookmarkGroups())
-      const bookmarks = copy(store.getBookmarks())
+      const bookmarkGroups = copy(store.bookmarkGroups)
+      const bookmarks = copy(store.bookmarks)
       const bmTree = bookmarks.reduce((p, v) => {
         return {
           ...p,
@@ -99,8 +99,8 @@ export default class BookmarkTransport extends Component {
 
   handleDownload = () => {
     const { store } = this.props
-    const bookmarkGroups = store.getBookmarkGroups()
-    const bookmarks = store.getBookmarks()
+    const bookmarkGroups = store.bookmarkGroups
+    const bookmarks = store.bookmarks
     const txt = JSON.stringify({
       bookmarkGroups: copy(bookmarkGroups),
       bookmarks: copy(bookmarks)

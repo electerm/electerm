@@ -26,7 +26,7 @@ export default function renderAuth (props) {
   if (authType === 'password') {
     const opts = {
       options: uniqBy(
-        store.getBookmarks()
+        store.bookmarks
           .filter(d => d.password),
         (d) => d.password
       )

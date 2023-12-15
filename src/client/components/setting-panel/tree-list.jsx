@@ -319,7 +319,7 @@ export default class ItemListTree extends Component {
       })
     } else {
       this.props.store.storeAssign({
-        currentBookmarkGroupId: findBookmarkGroupId(this.props.store.getBookmarkGroups(), id)
+        currentBookmarkGroupId: findBookmarkGroupId(this.props.store.bookmarkGroups, id)
       })
     }
     const bookmarks = copy(this.props.bookmarks)

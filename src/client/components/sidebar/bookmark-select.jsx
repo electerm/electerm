@@ -24,7 +24,7 @@ export default class BookmarkSelect extends Component {
     }
     const base = {
       store,
-      bookmarks: store.getBookmarks() || [],
+      bookmarks: store.bookmarks || [],
       type: 'bookmarks',
       onClickItem,
       listStyle,

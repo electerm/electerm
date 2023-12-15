@@ -10,21 +10,18 @@ import {
 } from '../common/constants'
 
 export default Store => {
-  Store.prototype.getBookmarkGroups = function () {
-    return window.store.getItems(settingMap.bookmarkGroups)
-  }
   Store.prototype.getBookmarkGroupsTotal = function () {
     const { store } = window
     return store.sshConfigItems.length && !store.config.hideSshConfig
       ? [
-          ...store.getBookmarkGroups(),
+          ...store.bookmarkGroups,
           {
             title: terminalSshConfigType,
             id: terminalSshConfigType,
             bookmarkIds: store.sshConfigItems.map(d => d.id)
           }
         ]
-      : store.getBookmarkGroups()
+      : store.bookmarkGroups
   }
 
   Store.prototype.setBookmarkGroups = function (items) {
@@ -43,7 +40,7 @@ export default Store => {
     const { store } = window
     let ids = item.bookmarkIds
     const gids = item.bookmarkGroupIds || []
-    const bookmarkGroups = store.getBookmarkGroups()
+    const bookmarkGroups = store.bookmarkGroups
     for (const gid of gids) {
       const g = find(bookmarkGroups, g => g.id === gid)
       if (g && g.bookmarkIds && g.bookmarkIds.length) {
@@ -63,7 +60,7 @@ export default Store => {
     if (id === defaultBookmarkGroupId) {
       return
     }
-    let bookmarkGroups = store.getBookmarkGroups()
+    let bookmarkGroups = store.bookmarkGroups
     const tobeDel = find(bookmarkGroups, bg => bg.id === id)
     if (!tobeDel) {
       return

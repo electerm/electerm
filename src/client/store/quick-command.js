@@ -9,10 +9,6 @@ import {
 import postMessage from '../common/post-msg'
 
 export default Store => {
-  Store.prototype.getQuickCommands = function () {
-    return window.store.getItems(settingMap.quickCommands)
-  }
-
   Store.prototype.setQuickCommands = function (list) {
     return window.store.setItems(settingMap.quickCommands, list)
   }

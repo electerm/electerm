@@ -51,16 +51,16 @@ export default class SettingModalWrap extends Component {
         'currentBookmarkGroupId',
         'config'
       ]),
-      bookmarkGroups: store.getBookmarkGroups(),
-      bookmarks: store.getBookmarks(),
+      bookmarkGroups: store.bookmarkGroups,
+      bookmarks: store.bookmarks,
       serials: store.serials,
       loaddingSerials: store.loaddingSerials
     }
     const treeProps = {
       ...props0,
       bookmarkSelectMode,
-      bookmarkGroups: store.getBookmarkGroups(),
-      bookmarks: store.getBookmarks(),
+      bookmarkGroups: store.bookmarkGroups,
+      bookmarks: store.bookmarks,
       ...pick(store, [
         'currentBookmarkGroupId',
         'autofocustrigger',

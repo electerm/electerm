@@ -13,9 +13,6 @@ export default Store => {
     }
     store.loaddingSerials = false
   }
-  Store.prototype.getBookmarks = function () {
-    return window.store.getItems('bookmarks')
-  }
   Store.prototype.setBookmarks = function (items) {
     return window.store.setItems('bookmarks', items)
   }

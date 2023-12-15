@@ -71,7 +71,7 @@ export default function TelnetFormUI (props) {
   function renderAuth () {
     const opts = {
       options: uniqBy(
-        props.store.getBookmarks()
+        props.store.bookmarks
           .filter(d => d.password),
         (d) => d.password
       )

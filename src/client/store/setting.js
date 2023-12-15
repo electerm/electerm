@@ -2,7 +2,7 @@
  * setting modal
  */
 
-import { find, isEqual, pick, without } from 'lodash-es'
+import { find } from 'lodash-es'
 import {
   message
 } from 'antd'
@@ -43,7 +43,7 @@ export default Store => {
   }
   Store.prototype.handleEditHistory = function () {
     const { store } = window
-    const all = store.getItems('history')
+    const all = store.history
     store.storeAssign({
       settingTab: settingMap.history,
       autofocustrigger: Date.now()
@@ -74,7 +74,7 @@ export default Store => {
 
   Store.prototype.onSelectHistory = function (id) {
     const { store } = window
-    const history = store.getItems('history')
+    const history = store.history
     const item = find(history, it => it.id === id)
     store.addTab({
       ...copy(item),
@@ -86,8 +86,8 @@ export default Store => {
 
   Store.prototype.onSelectBookmark = function (id) {
     const { store } = window
-    const history = store.getItems('history')
-    const bookmarks = store.getBookmarks()
+    const history = store.history
+    const bookmarks = store.bookmarks
     const item = copy(
       find(bookmarks, it => it.id === id) ||
       find(store.sshConfigItems, it => it.id === id)
@@ -105,15 +105,7 @@ export default Store => {
     if (store.config.disableSshHistory) {
       return
     }
-    const existItem = find(history, j => {
-      const keysj = Object.keys(j)
-      const keysi = Object.keys(item)
-      return isEqual(
-        pick(item, without(keysi, 'id')),
-        pick(j, without(keysj, 'id'))
-      )
-    })
-    history.unshift(existItem)
+    history.unshift(item)
     store.setItems('history', history)
   }
 
