@@ -632,8 +632,10 @@ export default class BatchOp extends Component {
       width: innerWidth - sidebarWidth,
       zIndex: 888,
       placement: 'left',
-      headerStyle: {
-        display: 'none'
+      styles: {
+        header: {
+          display: 'none'
+        }
       }
     }
     return (

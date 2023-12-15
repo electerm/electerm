@@ -60,7 +60,7 @@
     "@electron/rebuild": "^3.3.0",
     "@types/node": "20.5.7",
     "@vitejs/plugin-react": "4.2.1",
-    "antd": "5.8.3",
+    "antd": "5.12.2",
     "chai": "4.3.10",
     "classnames": "2.3.2",
     "cross-env": "7.0.3",

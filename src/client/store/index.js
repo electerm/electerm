@@ -149,25 +149,9 @@ class Store {
     )
   }
 
-  // get expandedKeys () {
-  //   return JSON.parse(window.store._expandedKeys || '[]')
-  // }
-
-  // get checkedKeys () {
-  //   return JSON.parse(window.store._checkedKeys || '[]')
-  // }
-
   get isTransporting () {
     return window.store.getTabs().some(t => t.isTransporting)
   }
-
-  // get addressBookmarks () {
-  //   return JSON.parse(window.store._addressBookmarks || '[]')
-  // }
-
-  // get addressBookmarksLocal () {
-  //   return JSON.parse(window.store._addressBookmarksLocal || '[]')
-  // }
 
   get settingSidebarList () {
     const {
@@ -203,50 +187,6 @@ class Store {
     return window.store.getTabs().map(d => d.title).join('#')
   }
 
-  // get sshConfigItems () {
-  //   return JSON.parse(window.store._sshConfigItems || '[]')
-  // }
-
-  // get itermThemes () {
-  //   return JSON.parse(window.store._itermThemes || '[]')
-  // }
-
-  // get history () {
-  //   return JSON.parse(window.store._history || '[]')
-  // }
-
-  // get bookmarks () {
-  //   return JSON.parse(window.store._bookmarks || '[]')
-  // }
-
-  // get bookmarkGroups () {
-  //   return JSON.parse(window.store._bookmarkGroups || '[]')
-  // }
-
-  // get tabs () {
-  //   return JSON.parse(window.store._tabs || '[]')
-  // }
-
-  // get fileTransfers () {
-  //   return JSON.parse(window.store._fileTransfers || '[]')
-  // }
-
-  // get transferHistory () {
-  //   return JSON.parse(window.store._transferHistory || '[]')
-  // }
-
-  // get quickCommands () {
-  //   return JSON.parse(window.store._quickCommands || '[]')
-  // }
-
-  // get terminalThemes () {
-  //   return JSON.parse(window.store._terminalThemes || '[]')
-  // }
-
-  // get serials () {
-  //   return JSON.parse(window.store._serials || '[]')
-  // }
-
   get setting () {
     return [
       {
@@ -271,10 +211,6 @@ class Store {
   get sftpSortSetting () {
     return JSON.parse(window.store._sftpSortSetting)
   }
-
-  // get fonts () {
-  //   return JSON.parse(window.store._fonts || '[]')
-  // }
 
   get onOperation () {
     const {

@@ -18,8 +18,10 @@ export default class SettingWrap extends Component {
       zIndex: 888,
       placement: 'left',
       destroyOnClose: true,
-      headerStyle: {
-        display: 'none'
+      styles: {
+        header: {
+          display: 'none'
+        }
       }
     }
     return (
