@@ -51,7 +51,7 @@ describe('data sync', function () {
     await client.click('.setting-wrap .sync-btn-down')
     await delay(5000)
     const bks = await client.evaluate(() => {
-      return window.store.getBookmarks()
+      return window.store.bookmarks
     })
     expect(bks.length > 3).equal(true)
 
@@ -71,7 +71,7 @@ describe('data sync', function () {
     await client.click('.setting-wrap .sync-btn-down:visible')
     await delay(6000)
     const bks1 = await client.evaluate(() => {
-      return window.store.getBookmarks()
+      return window.store.bookmarks
     })
     expect(bks1.length > 3).equal(true)
 
@@ -92,7 +92,7 @@ describe('data sync', function () {
     await client.click('.setting-wrap .sync-btn-down:visible')
     await delay(6000)
     const bks3 = await client.evaluate(() => {
-      return window.store.getBookmarks()
+      return window.store.bookmarks
     })
     expect(bks3.length > 3).equal(true)
   })
