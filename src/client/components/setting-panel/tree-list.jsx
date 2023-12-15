@@ -27,7 +27,7 @@ import {
   Tooltip,
   Space
 } from 'antd'
-import createName from '../../common/create-title'
+import createName, { createTitleTag } from '../../common/create-title'
 import classnames from 'classnames'
 import InputAutoFocus from '../common/input-auto-focus'
 import { find, uniq, findIndex, isEqual, filter } from 'lodash-es'
@@ -712,6 +712,7 @@ export default class ItemListTree extends Component {
         level2: item.level === 2
       }
     )
+    const tag = isGroup ? '' : createTitleTag(item)
     const title = isGroup
       ? item.title
       : createName(item)
@@ -732,7 +733,7 @@ export default class ItemListTree extends Component {
         <div
           className='tree-item-title elli'
         >
-          {titleHighlight}
+          {tag}{titleHighlight}
         </div>
         {
           isGroup

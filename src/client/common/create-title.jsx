@@ -9,7 +9,7 @@ import {
 const { prefix } = window
 const p = prefix('sftp')
 
-export default (res) => {
+export default function createTitle (res) {
   if (!res) {
     return ''
   }
@@ -29,4 +29,22 @@ export default (res) => {
     f = `[${type}]${f}`
   }
   return f || p(terminalLocalType)
+}
+
+export function createTitleTag (obj) {
+  const { color } = obj
+  const styleTag = color
+    ? { color }
+    : {}
+  return (
+    <span style={styleTag}>♦</span>
+  )
+}
+
+export function createTitleWithTag (obj) {
+  return (
+    <span className='tab-title'>
+      {createTitleTag(obj)} {createTitle(obj)}
+    </span>
+  )
 }

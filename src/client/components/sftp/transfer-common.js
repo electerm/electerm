@@ -1,8 +1,8 @@
-import createTitle from '../../common/create-title'
+import { createTitleWithTag } from '../../common/create-title'
 
 export function createTransferProps (props) {
   return {
-    title: createTitle(props.tab),
+    title: createTitleWithTag(props.tab),
     tabId: props.tab.id,
     sessionId: props.sessionId
   }

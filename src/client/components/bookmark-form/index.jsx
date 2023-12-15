@@ -17,7 +17,7 @@ import SshForm from './ssh-form'
 import SerialForm from './serial-form'
 import LocalForm from './local-form'
 import TelnetForm from './telnet-form'
-import createTitle from '../../common/create-title'
+import { createTitleWithTag } from '../../common/create-title'
 import {
   LoadingOutlined,
   BookOutlined
@@ -104,7 +104,7 @@ export default class BookmarkIndex extends Component {
     }
     return (
       <b className='mg1x'>
-        {createTitle(formData)}
+        {createTitleWithTag(formData)}
       </b>
     )
   }

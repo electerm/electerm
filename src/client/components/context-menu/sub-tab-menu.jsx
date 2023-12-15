@@ -1,5 +1,5 @@
 import { PureComponent } from 'react'
-import createTitle from '../../common/create-title'
+import { createTitleWithTag } from '../../common/create-title'
 
 export default class TabsSubMenuChild extends PureComponent {
   handleClick = () => {
@@ -8,7 +8,7 @@ export default class TabsSubMenuChild extends PureComponent {
 
   render () {
     const { item } = this.props
-    const title = createTitle(item)
+    const title = createTitleWithTag(item)
     return (
       <div
         className='sub-context-menu-item'

@@ -1,5 +1,5 @@
 import { Component } from '../common/react-subx'
-import createTitle from '../../common/create-title'
+import { createTitleWithTag } from '../../common/create-title'
 
 export default class HistorySubMenu extends Component {
   render () {
@@ -8,7 +8,7 @@ export default class HistorySubMenu extends Component {
       <div className='sub-context-menu'>
         {
           store.history.map(item => {
-            const title = createTitle(item)
+            const title = createTitleWithTag(item)
             return (
               <div
                 className='sub-context-menu-item'

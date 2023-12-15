@@ -5,7 +5,7 @@ import React from 'react'
 import { CloseOutlined, EditOutlined, LoadingOutlined } from '@ant-design/icons'
 import { Popconfirm } from 'antd'
 import Search from '../common/search'
-import createName from '../../common/create-title'
+import createName, { createTitleTag } from '../../common/create-title'
 import classnames from 'classnames'
 import { noop } from 'lodash-es'
 import highlight from '../common/highlight'
@@ -102,6 +102,7 @@ export default class ItemList extends React.PureComponent {
     const { onClickItem, type, activeItemId } = this.props
     const { id } = item
     const title = createName(item)
+    const tag = createTitleTag(item)
     const cls = classnames(
       'item-list-unit',
       {
@@ -122,7 +123,8 @@ export default class ItemList extends React.PureComponent {
         <div
           title={title}
           className='elli pd1y pd2x list-item-title'
-        >{titleHighlight || s('new')}
+        >
+          {tag}{titleHighlight || s('new')}
         </div>
         {this.renderDelBtn(item)}
         {this.renderEditBtn(item, isGroup)}
