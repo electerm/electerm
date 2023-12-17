@@ -611,11 +611,15 @@ class TerminalSshBase extends TerminalBase {
             return this.nextTry(err)
           })
       } else if (
-        !this.connectOptions.password &&
+        this.sshKeys &&
+        err.message.includes('All configured authentication methods failed')
+      ) {
+        return this.nextTry(err)
+      } else if (
         err.message.includes('All configured authentication methods failed')
       ) {
         const options = {
-          name: `password for ${this.connectOptions.username}@${this.connectOptions.host}`,
+          name: `password for ${this.initOptions.username}@${this.initOptions.host}`,
           instructions: [''],
           prompts: [{
             echo: false,

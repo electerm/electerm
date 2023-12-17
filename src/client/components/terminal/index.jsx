@@ -7,17 +7,13 @@ import postMessage from '../../common/post-msg'
 import clone from '../../common/to-simple-obj'
 import runIdle from '../../common/run-idle'
 import {
-  CheckCircleOutlined,
   ReloadOutlined
 } from '@ant-design/icons'
 import {
   notification,
   Spin,
-  Modal,
-  Button,
-  Checkbox
+  Button
 } from 'antd'
-import Input from '../common/input-auto-focus'
 import classnames from 'classnames'
 import './terminal.styl'
 import {
@@ -57,10 +53,6 @@ import { KeywordHighlighterAddon } from './highlight-addon.js'
 const { prefix } = window
 const e = prefix('ssh')
 const m = prefix('menu')
-const f = prefix('form')
-const c = prefix('common')
-const authFailMsg = 'All configured authentication methods failed'
-const privateKeyMsg = 'no passphrase'
 
 const computePos = (e) => {
   return {
@@ -76,11 +68,8 @@ class Term extends Component {
       pid: '',
       id: props.id || 'id' + generate(),
       loading: false,
-      promoteModalVisible: false,
-      savePassword: false,
       saveTerminalLogToFile: !!this.props.config.saveTerminalLogToFile,
       addTimeStampToTermLog: !!this.props.config.addTimeStampToTermLog,
-      tempPassword: '',
       passType: 'password',
       zmodemTransfer: null,
       lines: []
@@ -1002,15 +991,7 @@ class Term extends Component {
     let pid = await createTerm(opts)
       .catch(err => {
         const text = err.message
-        if (text.includes(authFailMsg)) {
-          this.setState(() => ({ passType: 'password' }))
-          return 'fail'
-        } else if (text.includes(privateKeyMsg)) {
-          this.setState(() => ({ passType: 'passphrase' }))
-          return 'fail-private'
-        } else {
-          handleErr({ message: text })
-        }
+        handleErr({ message: text })
       })
     pid = pid || ''
     if (pid.includes('fail')) {
@@ -1159,73 +1140,9 @@ class Term extends Component {
     resizeTerm(this.pid, this.props.sessionId, cols, rows)
   }
 
-  promote = () => {
-    this.setState({
-      promoteModalVisible: true,
-      tempPassword: ''
-    })
-  }
-
   handleCancel = () => {
     const { id } = this.props.tab
     this.props.delTab(id)
-  }
-
-  handleToggleSavePass = () => {
-    this.setState({
-      savePassword: !this.state.savePassword
-    })
-  }
-
-  renderPasswordForm = () => {
-    const { tempPassword, savePassword, promoteModalVisible } = this.state
-    const { type } = this.props.tab
-    return (
-      <div>
-        <Input
-          value={tempPassword}
-          type='password'
-          autofocustrigger={promoteModalVisible ? 1 : 2}
-          selectall='yes'
-          onChange={this.handleChangePass}
-          onPressEnter={this.handleClickConfirmPass}
-        />
-        {
-          type !== terminalSshConfigType
-            ? (
-              <div className='pd1t'>
-                <Checkbox
-                  checked={savePassword}
-                  onChange={this.handleToggleSavePass}
-                >{f('save')}
-                </Checkbox>
-              </div>
-              )
-            : null
-        }
-      </div>
-    )
-  }
-
-  handleChangePass = e => {
-    this.setState({
-      tempPassword: e.target.value
-    })
-  }
-
-  handleClickConfirmPass = () => {
-    const {
-      tempPassword,
-      passType
-    } = this.state
-    this.props.setSessionState(old => {
-      const sessionOptions = deepCopy(old.sessionOptions) || {}
-      sessionOptions[passType] = tempPassword
-      return { sessionOptions }
-    })
-    this.setState({
-      promoteModalVisible: false
-    }, this.remoteInit)
   }
 
   handleShowInfo = () => {
@@ -1255,54 +1172,6 @@ class Term extends Component {
   //     .catch(window.store.onError)
   //   return result ? result[0].trim() : ''
   // }
-
-  renderPromoteModal = () => {
-    if (!this.isActiveTerminal()) {
-      return null
-    }
-    const {
-      passType = 'password'
-    } = this.state
-    const props = {
-      title: f(passType) + '?',
-      content: this.renderPasswordForm(),
-      onCancel: this.handleCancel,
-      show: this.state.promoteModalVisible,
-      footer: this.renderModalFooter(),
-      cancelText: c('cancel')
-    }
-    return (
-      <Modal
-        {...props}
-      >
-        {this.renderPasswordForm()}
-      </Modal>
-    )
-  }
-
-  renderModalFooter = () => {
-    const disabled = !this.state.tempPassword
-    return (
-      <div className='alignright pd1'>
-        <Button
-          type='primary'
-          icon={<CheckCircleOutlined />}
-          disabled={disabled}
-          onClick={this.handleClickConfirmPass}
-          className='mg1r'
-        >
-          {c('ok')}
-        </Button>
-        <Button
-          type='dashed'
-          className='mg1r'
-          onClick={this.handleCancel}
-        >
-          {c('cancel')}
-        </Button>
-      </div>
-    )
-  }
 
   switchEncoding = encode => {
     this.decode = new TextDecoder(encode)
@@ -1357,7 +1226,6 @@ class Term extends Component {
       <div
         {...prps1}
       >
-        {this.renderPromoteModal()}
         <div
           {...prps2}
         >
