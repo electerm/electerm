@@ -10,7 +10,7 @@ import {
   CodeFilled,
   DownOutlined,
   LeftOutlined,
-  PlusCircleOutlined,
+  PlusOutlined,
   RightOutlined,
   RightSquareFilled
 } from '@ant-design/icons'
@@ -187,7 +187,7 @@ export default class Tabs extends React.Component {
       <Popover
         content={this.renderMenus()}
       >
-        <PlusCircleOutlined
+        <PlusOutlined
           title={e('openNewTerm')}
           className={cls}
           onClick={() => this.props.addTab()}
