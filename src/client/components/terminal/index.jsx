@@ -854,7 +854,23 @@ class Term extends Component {
     term.onData(this.onData)
     this.term = term
     term.attachCustomKeyEventHandler(this.handleKeyboardEvent.bind(this))
+    term.attachCustomKeyEventHandler(this.handleKey)
     await this.remoteInit(term)
+  }
+
+  handleKey = ev => {
+    const keymap = [
+      { key: 'Backspace', shiftKey: false, mapCode: 8 },
+      { key: 'Backspace', shiftKey: true, mapCode: 127 }
+    ]
+    if (ev.type === 'keydown') {
+      for (const i in keymap) {
+        if (keymap[i].key === ev.key && keymap[i].shiftKey === ev.shiftKey) {
+          this.socket.send(String.fromCharCode(keymap[i].mapCode))
+          return false
+        }
+      }
+    }
   }
 
   setActive = () => {
