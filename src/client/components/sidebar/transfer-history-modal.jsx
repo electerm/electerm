@@ -81,9 +81,9 @@ export default class TransferHistoryModal extends Component {
       sorter: sorterFactory('toPath')
     }, {
       title: f('size'),
-      dataIndex: 'fromFile.size',
-      key: 'fromFile.size',
-      sorter: sorterFactory('fromFile.size'),
+      dataIndex: 'size',
+      key: 'size',
+      sorter: sorterFactory('size'),
       render: (v) => filesize(v || 0)
     }, {
       title: e('speed'),

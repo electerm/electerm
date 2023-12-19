@@ -66,6 +66,7 @@ export default function transportAction (props) {
           ...update,
           finishTime,
           startTime: inst.current.startTime,
+          size: transfer.fromFile.size,
           speed: format(transfer.fromFile.size, inst.current.startTime),
           host: props.tab.host
         }
