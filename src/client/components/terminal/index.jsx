@@ -25,8 +25,7 @@ import {
   transferTypeMap,
   terminalActions,
   commonActions,
-  rendererTypes,
-  termInitId
+  rendererTypes
 } from '../../common/constants'
 import deepCopy from 'json-deep-copy'
 import { readClipboard, copy } from '../../common/clipboard'
@@ -34,7 +33,6 @@ import { FitAddon } from 'xterm-addon-fit'
 import AttachAddon from './attach-addon-custom'
 import { SearchAddon } from 'xterm-addon-search'
 import { WebLinksAddon } from 'xterm-addon-web-links'
-import { SerializeAddon } from 'xterm-addon-serialize'
 import { CanvasAddon } from 'xterm-addon-canvas'
 import { WebglAddon } from 'xterm-addon-webgl'
 import { LigaturesAddon } from 'xterm-addon-ligatures'
@@ -43,10 +41,8 @@ import { Zmodem, AddonZmodem } from './xterm-zmodem'
 import { Unicode11Addon } from 'xterm-addon-unicode11'
 import keyControlPressed from '../../common/key-control-pressed'
 import { Terminal } from 'xterm'
-import * as ls from '../../common/safe-local-storage'
 import NormalBuffer from './normal-buffer'
 import { createTerm, resizeTerm } from './terminal-apis'
-import createLsId from './build-ls-term-id'
 import { shortcutExtend, shortcutDescExtend } from '../shortcuts/shortcut-handler.js'
 import { KeywordHighlighterAddon } from './highlight-addon.js'
 
@@ -729,33 +725,15 @@ class Term extends Component {
     ]
   }
 
-  loadState = term => {
-    const uid = this.props.stateId || this.state.id
-    if (uid === termInitId) {
-      const id = createLsId(this.props.stateId || this.state.id)
-      let str = ls.getItem(id)
-      const after = '\r\n\r\n=======\r\nload from history\r\n=======\r\n\r\n'
-      str = str.replace(/\s+=======\s+load from history\s+=======\s+/g, '\r\n').trim()
-      if (str) {
-        term.write(str + after)
-      }
-    }
-  }
-
   notifyOnData = debounce(() => {
-    const str = this.serializeAddon.serialize()
-    const id = createLsId(this.state.id)
-    ls.setItem(id, str)
     postMessage({
       action: 'terminal-receive-data',
       tabId: this.props.tab.id
     })
-  }, 100)
+  }, 1000)
 
   onSocketData = () => {
-    if (this.state.id === termInitId) {
-      runIdle(this.notifyOnData)
-    }
+    runIdle(this.notifyOnData)
   }
 
   parse (rawText) {
@@ -830,7 +808,6 @@ class Term extends Component {
     // term.onLineFeed(this.onLineFeed)
     // term.onTitleChange(this.onTitleChange)
     term.onSelectionChange(this.onSelection)
-    this.loadState(term)
     term.open(document.getElementById(id), true)
     this.loadRenderer(term, config)
     term.textarea.addEventListener('focus', this.setActive)
@@ -843,8 +820,6 @@ class Term extends Component {
     const ligtureAddon = new LigaturesAddon()
     this.searchAddon.onDidChangeResults(this.onSearchResultsChange)
     const unicode11Addon = new Unicode11Addon()
-    this.serializeAddon = new SerializeAddon()
-    term.loadAddon(this.serializeAddon)
     term.loadAddon(unicode11Addon)
     term.loadAddon(ligtureAddon)
     // activate the new version
