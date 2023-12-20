@@ -175,9 +175,11 @@ class Store {
     return {
       ...JSON.parse(window.store._termSearchOptions),
       decorations: {
+        activeMatchBorder: theme.yellow,
+        activeMatchBackground: theme.selectionBackground,
         activeMatchColorOverviewRuler: theme.selectionBackground,
         matchBackground: theme.background,
-        matchOverviewRuler: theme.selectionBackground,
+        matchOverviewRuler: theme.yellow,
         matchBorder: getReverseColor(theme.background)
       }
     }

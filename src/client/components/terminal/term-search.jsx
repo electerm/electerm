@@ -56,7 +56,7 @@ class TermSearch extends Component {
 
   toggleSearch = () => {
     this.props.store.toggleTerminalSearch()
-    setTimeout(window.store.focus, 100)
+    setTimeout(window.store.focus, 200)
   }
 
   searchShortcut = (e) => {
@@ -86,7 +86,7 @@ class TermSearch extends Component {
 
   handleChange = e => {
     this.props.store.termSearch = e.target.value
-    this.next()
+    this.prev()
   }
 
   close = () => {
