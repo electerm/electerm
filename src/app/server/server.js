@@ -5,6 +5,9 @@ const { verifyWs, initWs } = require('./dispatch-center')
 const {
   terminals
 } = require('./remote-common')
+const {
+  isWin
+} = require('../common/runtime-constants')
 
 // parse application/x-www-form-urlencoded
 app.use(express.urlencoded({ extended: false }))
@@ -61,6 +64,9 @@ app.ws('/terminals/:pid', function (ws, req) {
   }
 
   term.on('close', onClose)
+  if (term.isLocal && isWin) {
+    term.on('exit', onClose)
+  }
 
   ws.on('message', function (msg) {
     try {

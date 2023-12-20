@@ -763,7 +763,11 @@ class Term extends Component {
     } else {
       const data = this.parse(this.dataCache.trim())
       this.dataCache = ''
-      if (data === 'exit') {
+      const exitCmds = [
+        'exit',
+        'logout'
+      ]
+      if (exitCmds.includes(data)) {
         this.userTypeExit = true
         this.timers.userTypeExit = setTimeout(() => {
           delete this.userTypeExit
