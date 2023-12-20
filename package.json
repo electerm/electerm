@@ -1,6 +1,6 @@
 {
   "name": "electerm",
-  "version": "1.37.68",
+  "version": "1.37.76",
   "description": "Terminal/ssh/telnet/serialport/sftp client(linux, mac, win)",
   "main": "app.js",
   "bin": "npm/electerm",
@@ -104,7 +104,7 @@
   "dependencies": {
     "@electerm/electerm-locales": "1.2.8",
     "@electerm/electerm-themes": "^1.0.1",
-    "@electerm/ssh2": "1.11.2",
+    "ssh2": "1.15.0",
     "@electerm/strip-ansi": "1.0.0",
     "@yetzt/nedb": "1.8.0",
     "axios": "0.26.0",
