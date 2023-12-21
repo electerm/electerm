@@ -20,7 +20,8 @@ function buildConfig (config, filter = d => d) {
       [name]: {
         shortcut: c.readonly ? c[propName] : (shortcuts[name] || c[propName]),
         type,
-        func
+        func,
+        readonly: c.readonly
       }
     }
   }, {})
@@ -54,6 +55,20 @@ export function shortcutExtend (Cls) {
       altKey,
       wheelDeltaY
     } = event
+    if (this.isTerm) {
+      const keymap = [
+        { key: 'Backspace', shiftKey: false, mapCode: 8 },
+        { key: 'Backspace', shiftKey: true, mapCode: 127 }
+      ]
+      if (event.type === 'keydown') {
+        for (const i in keymap) {
+          if (keymap[i].key === event.key && keymap[i].shiftKey === shiftKey) {
+            this.socket.send(String.fromCharCode(keymap[i].mapCode))
+            return false
+          }
+        }
+      }
+    }
     const codeName = event instanceof window.WheelEvent
       ? (wheelDeltaY > 0 ? 'mouseWheelUp' : 'mouseWheelDown')
       : code
@@ -77,8 +92,10 @@ export function shortcutExtend (Cls) {
       if (conf.shortcut.split(',').includes(r)) {
         if (this[funcName]) {
           return this[funcName](event)
-        } else if (this.isTerm) {
+        } else if (this.isTerm && conf.readonly) {
           return true
+        } else {
+          return false
         }
       }
     }
