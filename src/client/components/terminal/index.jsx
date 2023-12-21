@@ -45,6 +45,8 @@ import NormalBuffer from './normal-buffer'
 import { createTerm, resizeTerm } from './terminal-apis'
 import { shortcutExtend, shortcutDescExtend } from '../shortcuts/shortcut-handler.js'
 import { KeywordHighlighterAddon } from './highlight-addon.js'
+import { SerializeAddon } from 'xterm-addon-serialize'
+import strip from '@electerm/strip-ansi'
 
 const { prefix } = window
 const e = prefix('ssh')
@@ -750,18 +752,26 @@ class Term extends Component {
   }
 
   onKey = ({ key }) => {
-    if (key === '\x7F') {
-      this.dataCache = this.dataCache.slice(0, -1)
-    } else {
-      this.dataCache += key
+    console.log('key', JSON.stringify(key))
+    if (key === '\r') {
+      this.getCmd()
     }
+  }
+
+  getCmd = () => {
+    const str = this.serializeAddon.serialize()
+    const arr = strip(str).split(/ +/)
+    const len = arr.length
+    const last = arr[len - 1]
+    this.dataCache = last
   }
 
   onData = (d) => {
     if (!d.includes('\r')) {
       delete this.userTypeExit
     } else {
-      const data = this.parse(this.dataCache.trim())
+      this.getCmd()
+      const data = this.dataCache
       this.dataCache = ''
       const exitCmds = [
         'exit',
@@ -825,6 +835,8 @@ class Term extends Component {
     this.searchAddon.onDidChangeResults(this.onSearchResultsChange)
     const unicode11Addon = new Unicode11Addon()
     term.loadAddon(unicode11Addon)
+    this.serializeAddon = new SerializeAddon()
+    term.loadAddon(this.serializeAddon)
     term.loadAddon(ligtureAddon)
     // activate the new version
     term.unicode.activeVersion = '11'
