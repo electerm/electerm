@@ -734,9 +734,10 @@ class Term extends Component {
     })
   }, 1000)
 
-  onSocketData = () => {
-    runIdle(this.notifyOnData)
-  }
+  // onSocketData = (a) => {
+  //   console.log('onSocketData', a)
+  //   runIdle(this.notifyOnData)
+  // }
 
   parse (rawText) {
     let result = ''
@@ -751,12 +752,11 @@ class Term extends Component {
     return result
   }
 
-  onKey = ({ key }) => {
-    console.log('key', JSON.stringify(key))
-    if (key === '\r') {
-      this.getCmd()
-    }
-  }
+  // onKey = ({ key }) => {
+  //   if (key === '\r') {
+  //     this.getCmd()
+  //   }
+  // }
 
   getCmd = () => {
     const str = this.serializeAddon.serialize()
@@ -767,6 +767,7 @@ class Term extends Component {
   }
 
   onData = (d) => {
+    runIdle(this.notifyOnData)
     if (!d.includes('\r')) {
       delete this.userTypeExit
     } else {
@@ -825,7 +826,7 @@ class Term extends Component {
     term.open(document.getElementById(id), true)
     this.loadRenderer(term, config)
     term.textarea.addEventListener('focus', this.setActive)
-    term.onKey(this.onKey)
+    // term.onKey(this.onKey)
     // term.textarea.addEventListener('blur', this.onBlur)
 
     // term.on('keydown', this.handleEvent)
@@ -1039,7 +1040,7 @@ class Term extends Component {
         isWin && !this.isRemote()
       )
       term.loadAddon(this.attachAddon)
-      socket.addEventListener('message', this.onSocketData)
+      // socket.addEventListener('message', this.onSocketData)
       this.runInitScript()
       term._initialized = true
     }
