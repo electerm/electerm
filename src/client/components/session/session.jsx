@@ -72,6 +72,8 @@ export default class SessionWrapper extends Component {
     this.state = {
       pid: null,
       enableSftp: false,
+      cwd: '',
+      sftpPathFollowSsh: !!props.config.sftpPathFollowSsh,
       splitDirection: terminalSplitDirectionMap.horizontal,
       activeSplitId,
       infoPanelPinned: false,
@@ -88,15 +90,6 @@ export default class SessionWrapper extends Component {
     this.updateTab()
     // this.initEvent()
   }
-
-  // isActive () {
-  //   const {
-  //     tab,
-  //     currentTabId
-  //   } = this.props
-  //   return currentTabId === tab.id &&
-  //     tab.pane === paneMap.terminal
-  // }
 
   handleShowInfo = (infoPanelProps) => {
     this.setState({
@@ -330,22 +323,34 @@ export default class SessionWrapper extends Component {
   }
 
   renderSftp = () => {
-    const { sessionOptions, sessionId, pid, enableSftp } = this.state
+    const {
+      sessionOptions,
+      sessionId,
+      pid,
+      enableSftp,
+      sftpPathFollowSsh,
+      cwd
+    } = this.state
     const { pane } = this.props.tab
     const height = this.computeHeight()
     const cls = pane === paneMap.terminal
       ? 'hide'
       : ''
+    const exts = {
+      sftpPathFollowSsh,
+      cwd,
+      pid,
+      enableSftp,
+      sessionOptions,
+      height,
+      sessionId,
+      pane,
+      ...this.props
+    }
     return (
       <div className={cls}>
         <Sftp
-          pid={pid}
-          enableSftp={enableSftp}
-          sessionOptions={sessionOptions}
-          height={height}
-          sessionId={sessionId}
-          pane={pane}
-          {...this.props}
+          {...exts}
         />
       </div>
     )

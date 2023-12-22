@@ -336,3 +336,4 @@ export const instSftpKeys = [
   'readFile',
   'writeFile'
 ]
+export const cwdId = '\xF0\x9F\x98\x80'

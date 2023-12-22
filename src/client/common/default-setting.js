@@ -40,5 +40,6 @@ export default {
   screenReaderMode: false,
   autoRefreshWhenSwitchToSftp: false,
   hideSshConfig: false,
-  addTimeStampToTermLog: false
+  addTimeStampToTermLog: false,
+  sftpPathFollowSsh: false
 }

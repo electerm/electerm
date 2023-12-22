@@ -25,7 +25,8 @@ import {
   transferTypeMap,
   terminalActions,
   commonActions,
-  rendererTypes
+  rendererTypes,
+  cwdId
 } from '../../common/constants'
 import deepCopy from 'json-deep-copy'
 import { readClipboardAsync, copy } from '../../common/clipboard'
@@ -75,8 +76,6 @@ class Term extends Component {
   }
 
   isTerm = true
-
-  dataCache = ''
 
   componentDidMount () {
     this.initTerminal()
@@ -762,18 +761,23 @@ class Term extends Component {
     const str = this.serializeAddon.serialize()
     const arr = strip(str).split(/ +/)
     const len = arr.length
-    const last = arr[len - 1]
-    this.dataCache = last
+    return arr[len - 1]
+  }
+
+  getCwd = () => {
+    const cmd = `\recho "${cwdId}$PWD"`
+    this.term.cwdId = cwdId
+    this.socket.send(cmd)
   }
 
   onData = (d) => {
+    console.log("ondat", d)
     runIdle(this.notifyOnData)
     if (!d.includes('\r')) {
       delete this.userTypeExit
     } else {
-      this.getCmd()
-      const data = this.dataCache
-      this.dataCache = ''
+      const data = this.getCmd()
+      this.getCwd()
       const exitCmds = [
         'exit',
         'logout'
