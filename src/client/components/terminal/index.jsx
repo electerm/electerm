@@ -28,7 +28,7 @@ import {
   rendererTypes
 } from '../../common/constants'
 import deepCopy from 'json-deep-copy'
-import { readClipboard, copy } from '../../common/clipboard'
+import { readClipboardAsync, copy } from '../../common/clipboard'
 import { FitAddon } from 'xterm-addon-fit'
 import AttachAddon from './attach-addon-custom'
 import { SearchAddon } from 'xterm-addon-search'
@@ -646,12 +646,12 @@ class Term extends Component {
     this.props.tab?.type !== terminalSshConfigType
   }
 
-  onPaste = () => {
-    let selected = readClipboard()
+  onPaste = async () => {
+    let selected = await readClipboardAsync()
     if (isWin && this.isRemote()) {
       selected = selected.replace(/\r\n/g, '\n')
     }
-    this.term.paste(selected)
+    this.term.paste(selected || '')
     this.term.focus()
   }
 
@@ -680,7 +680,7 @@ class Term extends Component {
 
   renderContext = () => {
     const hasSlected = this.term.hasSelection()
-    const copyed = readClipboard()
+    const copyed = true
     const copyShortcut = this.getShortcut('terminal_copy')
     const pasteShortcut = this.getShortcut('terminal_paste')
     const clearShortcut = this.getShortcut('terminal_clear')

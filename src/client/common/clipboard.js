@@ -14,6 +14,14 @@ export const readClipboard = () => {
   return window.pre.readClipboard()
 }
 
+export const readClipboardAsync = () => {
+  const {
+    readClipboardSync,
+    readClipboard
+  } = window.pre
+  return readClipboardSync ? readClipboardSync() : Promise.resolve(readClipboard())
+}
+
 export const copy = (str) => {
   message.success({
     content: 'Copied',
