@@ -771,7 +771,6 @@ class Term extends Component {
   }
 
   onData = (d) => {
-    console.log("ondat", d)
     runIdle(this.notifyOnData)
     if (!d.includes('\r')) {
       delete this.userTypeExit
