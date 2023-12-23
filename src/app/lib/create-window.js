@@ -28,6 +28,8 @@ exports.createWindow = async function () {
     x,
     y,
     fullscreenable: true,
+    minWidth: minWindowWidth,
+    minHeight: minWindowHeight,
     title: packInfo.name,
     frame: useSystemTitleBar,
     transparent: !useSystemTitleBar,

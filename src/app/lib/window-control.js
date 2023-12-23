@@ -4,7 +4,12 @@
 
 const lastStateManager = require('./last-state')
 // const log = require('./log')
-const { isDev, minWindowWidth, minWindowHeight } = require('../common/runtime-constants')
+const {
+  isDev,
+  minWindowWidth,
+  minWindowHeight,
+  isLinux
+} = require('../common/runtime-constants')
 
 exports.getScreenCurrent = () => {
   const rect = global.win
@@ -16,7 +21,7 @@ exports.getScreenCurrent = () => {
         width: minWindowWidth
       }
   const { screen } = require('electron')
-  return screen.getDisplayMatching(rect)
+  return screen.getDisplayNearestPoint(rect)
 }
 
 exports.getScreenSize = () => {
@@ -44,15 +49,34 @@ exports.unmaximize = () => {
     oldRectangle = {
       width: minWindowWidth,
       height: minWindowHeight,
-      x: 0,
-      y: 0
+      x: 200,
+      y: 200
     }
   } = global
-  global.win.setPosition(oldRectangle.x, oldRectangle.y)
-  global.win.setSize(oldRectangle.width, oldRectangle.height)
+  global.win.setBounds(oldRectangle)
 }
 
 exports.getWindowSize = async () => {
+  const rect = await exports.getWindowSizeDep()
+  if (!isLinux) {
+    return rect
+  }
+  const {
+    width,
+    height
+  } = exports.getScreenSize()
+  if (rect.width >= width - 200) {
+    rect.width = width - 200
+    rect.x = 100
+  }
+  if (rect.height >= height - 200) {
+    rect.height = height - 200
+    rect.y = 100
+  }
+  return rect
+}
+
+exports.getWindowSizeDep = async () => {
   const windowSizeLastState = await lastStateManager.get('windowSize')
   const windowPosLastState = await lastStateManager.get('windowPos')
   const {
