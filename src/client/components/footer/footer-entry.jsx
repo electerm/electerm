@@ -1,6 +1,5 @@
 import { Component } from '../common/react-subx'
 import {
-  Tooltip,
   Select
 } from 'antd'
 import { InfoCircleOutlined } from '@ant-design/icons'
@@ -109,14 +108,10 @@ export default class SystemMenu extends Component {
     }
     return (
       <div className='terminal-footer-unit terminal-footer-info'>
-        <Tooltip
-          title='Terminal Info'
-        >
-          <InfoCircleOutlined
-            onClick={this.handleInfoPanel}
-            className='pointer font18 terminal-info-icon'
-          />
-        </Tooltip>
+        <InfoCircleOutlined
+          onClick={this.handleInfoPanel}
+          className='pointer font18 terminal-info-icon'
+        />
       </div>
     )
   }
