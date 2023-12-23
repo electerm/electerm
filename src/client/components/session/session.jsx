@@ -365,7 +365,7 @@ export default class SessionWrapper extends Component {
   renderSearchIcon = () => {
     const title = e('search')
     return (
-      <Tooltip title={title}>
+      <Tooltip title={title} placement='bottomLeft'>
         <SearchOutlined
           className='mg1r icon-info font16 iblock pointer spliter'
           onClick={this.handleOpenSearch}
@@ -377,7 +377,7 @@ export default class SessionWrapper extends Component {
   fullscreenIcon = () => {
     const title = e('fullscreen')
     return (
-      <Tooltip title={title}>
+      <Tooltip title={title} placement='bottomLeft'>
         <FullscreenOutlined
           className='mg1r icon-info font16 iblock pointer spliter term-fullscreen-control1'
           onClick={this.handleFullscreen}
@@ -461,6 +461,7 @@ export default class SessionWrapper extends Component {
                 }
                 <Tooltip
                   title={`${e('split')}`}
+                  placement='bottomLeft'
                 >
                   <Icon1
                     className={cls1}
@@ -469,6 +470,7 @@ export default class SessionWrapper extends Component {
                 </Tooltip>
                 <Tooltip
                   title={e('changeDirection')}
+                  placement='bottomLeft'
                 >
                   <Icon2
                     className={cls2}
