@@ -53,21 +53,17 @@ export function shortcutExtend (Cls) {
       shiftKey,
       metaKey,
       altKey,
-      wheelDeltaY
+      wheelDeltaY,
+      type,
+      key
     } = event
-    if (this.isTerm) {
-      const keymap = [
-        { key: 'Backspace', shiftKey: false, mapCode: 8 },
-        { key: 'Backspace', shiftKey: true, mapCode: 127 }
-      ]
-      if (event.type === 'keydown') {
-        for (const i in keymap) {
-          if (keymap[i].key === event.key && keymap[i].shiftKey === shiftKey) {
-            this.socket.send(String.fromCharCode(keymap[i].mapCode))
-            return false
-          }
-        }
-      }
+    if (key === 'Backspace' && this.isTerm && type === 'keydown') {
+      this.socket.send(
+        String.fromCharCode(
+          shiftKey ? 127 : 8
+        )
+      )
+      return false
     }
     const codeName = event instanceof window.WheelEvent
       ? (wheelDeltaY > 0 ? 'mouseWheelUp' : 'mouseWheelDown')
