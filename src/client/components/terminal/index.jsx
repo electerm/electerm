@@ -129,6 +129,7 @@ class Term extends Component {
   }
 
   componentWillUnmount () {
+    delete this.term.parent
     Object.keys(this.timers).forEach(k => {
       clearTimeout(this.timers[k])
     })
@@ -765,9 +766,17 @@ class Term extends Component {
   }
 
   getCwd = () => {
-    const cmd = `\recho "${cwdId}$PWD"`
-    this.term.cwdId = cwdId
-    this.socket.send(cmd)
+    if (this.props.sftpPathFollowSsh) {
+      const cmd = `\recho "${cwdId}$PWD"`
+      this.term.cwdId = cwdId
+      this.socket.send(cmd)
+    }
+  }
+
+  setCwd = (cwd) => {
+    runIdle(() => {
+      this.props.setCwd(cwd, this.state.id)
+    })
   }
 
   onData = (d) => {
@@ -825,6 +834,7 @@ class Term extends Component {
 
     // term.onLineFeed(this.onLineFeed)
     // term.onTitleChange(this.onTitleChange)
+    term.parent = this
     term.onSelectionChange(this.onSelection)
     term.open(document.getElementById(id), true)
     this.loadRenderer(term, config)

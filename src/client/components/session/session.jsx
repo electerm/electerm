@@ -9,9 +9,13 @@ import {
   BorderHorizontalOutlined,
   CloseSquareFilled,
   SearchOutlined,
-  FullscreenOutlined
+  FullscreenOutlined,
+  LinkOutlined,
+  DisconnectOutlined
 } from '@ant-design/icons'
-import { Tooltip } from 'antd'
+import {
+  Tooltip
+} from 'antd'
 import { last, findIndex, pick } from 'lodash-es'
 import generate from '../../common/uid'
 import copy from 'json-deep-copy'
@@ -91,6 +95,23 @@ export default class SessionWrapper extends Component {
     // this.initEvent()
   }
 
+  setCwd = (cwd, tid) => {
+    this.setState(old => {
+      return {
+        cwd,
+        terminals: old.terminals.map(t => {
+          if (t.id === tid) {
+            return {
+              ...t,
+              cwd
+            }
+          }
+          return t
+        })
+      }
+    })
+  }
+
   handleShowInfo = (infoPanelProps) => {
     this.setState({
       showInfo: true,
@@ -101,6 +122,12 @@ export default class SessionWrapper extends Component {
   toggleInfoPinned = () => {
     this.setState({
       infoPanelPinned: !this.state.infoPanelPinned
+    })
+  }
+
+  toggleCheckSftpPathFollowSsh = () => {
+    this.setState({
+      sftpPathFollowSsh: !this.state.sftpPathFollowSsh
     })
   }
 
@@ -259,7 +286,8 @@ export default class SessionWrapper extends Component {
       activeSplitId,
       splitDirection,
       sessionOptions,
-      sessionId
+      sessionId,
+      sftpPathFollowSsh
     } = this.state
     const {
       pane
@@ -290,6 +318,7 @@ export default class SessionWrapper extends Component {
                 ...this.props,
                 ...t,
                 activeSplitId,
+                sftpPathFollowSsh,
                 themeConfig,
                 pane,
                 ...pick(
@@ -301,7 +330,8 @@ export default class SessionWrapper extends Component {
                     'setSessionState',
                     'handleShowInfo',
                     'onChangePane',
-                    'hideInfoPanel'
+                    'hideInfoPanel',
+                    'setCwd'
                   ]),
                 ...this.computePosition(t.position / 10)
               }
@@ -392,7 +422,7 @@ export default class SessionWrapper extends Component {
   }
 
   renderControl = () => {
-    const { splitDirection, terminals } = this.state
+    const { splitDirection, terminals, sftpPathFollowSsh } = this.state
     const { props } = this
     const { pane } = props.tab
     const termType = props.tab?.type
@@ -418,6 +448,17 @@ export default class SessionWrapper extends Component {
     if (isSsh || isLocal) {
       controls.push(isSsh ? paneMap.sftp : paneMap.fileManager)
     }
+    const checkTxt = e('sftpPathFollowSsh') + ' [Beta]'
+    const checkProps = {
+      onClick: this.toggleCheckSftpPathFollowSsh,
+      className: classnames(
+        'sftp-follow-ssh-icon',
+        {
+          active: sftpPathFollowSsh
+        }
+      )
+    }
+    const Icon = sftpPathFollowSsh ? LinkOutlined : DisconnectOutlined
     return (
       <div
         className='terminal-control fix'
@@ -446,6 +487,11 @@ export default class SessionWrapper extends Component {
               )
             })
           }
+          <Tooltip title={checkTxt}>
+            <span {...checkProps}>
+              <Icon />
+            </span>
+          </Tooltip>
         </div>
         {
           pane === paneMap.terminal
