@@ -10,8 +10,7 @@ import {
   CloseSquareFilled,
   SearchOutlined,
   FullscreenOutlined,
-  LinkOutlined,
-  DisconnectOutlined
+  PaperClipOutlined
 } from '@ant-design/icons'
 import {
   Tooltip
@@ -458,7 +457,6 @@ export default class SessionWrapper extends Component {
         }
       )
     }
-    const Icon = sftpPathFollowSsh ? LinkOutlined : DisconnectOutlined
     return (
       <div
         className='terminal-control fix'
@@ -487,12 +485,18 @@ export default class SessionWrapper extends Component {
               )
             })
           }
-          <Tooltip title={checkTxt}>
-            <span {...checkProps}>
-              <Icon />
-            </span>
-          </Tooltip>
         </div>
+        {
+          isSsh || isLocal
+            ? (
+              <Tooltip title={checkTxt}>
+                <span {...checkProps}>
+                  <PaperClipOutlined />
+                </span>
+              </Tooltip>
+              )
+            : null
+        }
         {
           pane === paneMap.terminal
             ? (
