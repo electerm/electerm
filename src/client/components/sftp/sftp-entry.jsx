@@ -111,6 +111,12 @@ export default class Sftp extends Component {
         selectedFiles: []
       })
     }
+    if (
+      this.props.sftpPathFollowSsh &&
+      prevProps.cwd !== this.props.cwd
+    ) {
+      this.updateCwd(this.props.cwd)
+    }
   }
 
   componentWillUnmount () {
@@ -196,7 +202,42 @@ export default class Sftp extends Component {
       this.props.pane === paneMap.fileManager
   }
 
+  getCwdLocal = () => {
+    if (
+      !this.shouldRenderRemote() &&
+      this.props.sftpPathFollowSsh &&
+      this.props.cwd
+    ) {
+      return this.props.cwd
+    }
+  }
+
+  updateCwd = (cwd) => {
+    if (!this.state.inited) {
+      return
+    }
+    const type = this.shouldRenderRemote()
+      ? typeMap.remote
+      : typeMap.local
+    // this.setState({
+    //   [`${type}PathTemp`]: cwd
+    // }, () => {
+    //   this.onGoto(
+    //     type
+    //   )
+    // })
+    const n = `${type}Path`
+    const nt = n + 'Temp'
+    this.setState({
+      [n]: cwd,
+      [nt]: cwd
+    }, () => this[`${type}List`]())
+  }
+
   getPwd = async (username) => {
+    if (this.props.sftpPathFollowSsh && this.props.cwd) {
+      return this.props.cwd
+    }
     const home = await runCmd(
       this.props.pid,
       this.props.sessionId,
@@ -427,14 +468,17 @@ export default class Sftp extends Component {
   }
 
   initData = async () => {
-    const { props } = this
-    const host = props.tab?.host &&
-      props.tab?.type !== terminalSshConfigType &&
-      props.tab?.type !== terminalSerialType
-    if (host) {
+    if (this.shouldRenderRemote()) {
       this.initRemoteAll()
     }
     this.initLocalAll()
+  }
+
+  shouldRenderRemote = () => {
+    const { props } = this
+    return props.tab?.host &&
+      props.tab?.type !== terminalSshConfigType &&
+      props.tab?.type !== terminalSerialType
   }
 
   initLocalAll = () => {
@@ -699,7 +743,10 @@ export default class Sftp extends Component {
     )
     try {
       const noPathInit = localPathReal || this.state.localPath
-      const localPath = noPathInit || this.props.tab.startDirectoryLocal || window.pre.homeOrtmp
+      const localPath = noPathInit ||
+        this.getCwdLocal() ||
+        this.props.tab.startDirectoryLocal ||
+        window.pre.homeOrTmp
       const locals = await fs.readdirAsync(localPath)
       const local = []
       for (const name of locals) {
@@ -1010,8 +1057,7 @@ export default class Sftp extends Component {
     const {
       height, width
     } = this.props
-    const shouldRenderRemote = this.props.tab?.authType &&
-      this.props.tab?.enableSftp !== false
+    const shouldRenderRemote = this.shouldRenderRemote()
     if (!shouldRenderRemote) {
       return (
         this.renderSection(arr[0], {

@@ -25,7 +25,8 @@ import {
   transferTypeMap,
   terminalActions,
   commonActions,
-  rendererTypes
+  rendererTypes,
+  cwdId
 } from '../../common/constants'
 import deepCopy from 'json-deep-copy'
 import { readClipboardAsync, copy } from '../../common/clipboard'
@@ -75,8 +76,6 @@ class Term extends Component {
   }
 
   isTerm = true
-
-  dataCache = ''
 
   componentDidMount () {
     this.initTerminal()
@@ -130,6 +129,7 @@ class Term extends Component {
   }
 
   componentWillUnmount () {
+    delete this.term.parent
     Object.keys(this.timers).forEach(k => {
       clearTimeout(this.timers[k])
     })
@@ -762,8 +762,21 @@ class Term extends Component {
     const str = this.serializeAddon.serialize()
     const arr = strip(str).split(/ +/)
     const len = arr.length
-    const last = arr[len - 1]
-    this.dataCache = last
+    return arr[len - 1]
+  }
+
+  getCwd = () => {
+    if (this.props.sftpPathFollowSsh) {
+      const cmd = `\recho "${cwdId}$PWD"`
+      this.term.cwdId = cwdId
+      this.socket.send(cmd)
+    }
+  }
+
+  setCwd = (cwd) => {
+    runIdle(() => {
+      this.props.setCwd(cwd, this.state.id)
+    })
   }
 
   onData = (d) => {
@@ -771,9 +784,8 @@ class Term extends Component {
     if (!d.includes('\r')) {
       delete this.userTypeExit
     } else {
-      this.getCmd()
-      const data = this.dataCache
-      this.dataCache = ''
+      const data = this.getCmd()
+      this.getCwd()
       const exitCmds = [
         'exit',
         'logout'
@@ -822,6 +834,7 @@ class Term extends Component {
 
     // term.onLineFeed(this.onLineFeed)
     // term.onTitleChange(this.onTitleChange)
+    term.parent = this
     term.onSelectionChange(this.onSelection)
     term.open(document.getElementById(id), true)
     this.loadRenderer(term, config)

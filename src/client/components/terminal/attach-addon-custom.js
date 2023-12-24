@@ -2,6 +2,7 @@
  * customize AttachAddon
  */
 import { AttachAddon } from 'xterm-addon-attach'
+import strip from '@electerm/strip-ansi'
 
 export default class AttachAddonCustom extends AttachAddon {
   constructor (term, options, encode, isWindowsShell) {
@@ -22,7 +23,29 @@ export default class AttachAddonCustom extends AttachAddon {
       const fileReader = new FileReader()
       fileReader.addEventListener('load', () => {
         const str = this.decoder.decode(fileReader.result)
-        terminal.write(str)
+        if (terminal.parent.props.sftpPathFollowSsh) {
+          const {
+            cwdId
+          } = terminal
+          const nss = str.split('\r')
+          const nnss = []
+          for (const str1 of nss) {
+            const ns = strip(str1).trim()
+            if (ns.includes(cwdId) && ns.includes('$PWD')) {
+              nnss.push(str1.replace(`echo "${cwdId}$PWD"`, ''))
+            } else if (cwdId && ns.startsWith(cwdId)) {
+              delete terminal.cwdId
+              const cwd = ns.replace(cwdId, '').trim()
+              terminal.parent.setCwd(cwd)
+              nnss.push('\x1b[1A\x1b[2K\r')
+            } else {
+              nnss.push(str1)
+            }
+          }
+          terminal.write(nnss.join('\r'))
+        } else {
+          terminal.write(str)
+        }
       })
       fileReader.readAsArrayBuffer(new window.Blob([data]))
     }
