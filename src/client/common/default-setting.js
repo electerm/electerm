@@ -41,5 +41,6 @@ export default {
   autoRefreshWhenSwitchToSftp: false,
   hideSshConfig: false,
   addTimeStampToTermLog: false,
-  sftpPathFollowSsh: false
+  sftpPathFollowSsh: false,
+  keepaliveInterval: 0
 }
