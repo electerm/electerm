@@ -58,12 +58,20 @@ export function shortcutExtend (Cls) {
       key
     } = event
     if (key === 'Backspace' && this.isTerm && type === 'keydown') {
+      const now = Date.now()
+      this.lastTimePressDel = this.lastTimePressDel || now
+      const timer = now - this.lastTimePressDel
+      const count = Math.ceil(timer / 800)
+      let char = String.fromCharCode(
+        shiftKey ? 127 : 8
+      )
+      char = new Array(count).fill(char).join('')
       this.socket.send(
-        String.fromCharCode(
-          shiftKey ? 127 : 8
-        )
+        char
       )
       return false
+    } else if (key === 'Backspace' && this.isTerm && type === 'keyup') {
+      delete this.lastTimePressDel
     }
     const codeName = event instanceof window.WheelEvent
       ? (wheelDeltaY > 0 ? 'mouseWheelUp' : 'mouseWheelDown')
