@@ -59,7 +59,9 @@ export function shortcutExtend (Cls) {
     } = event
     if (key === 'Backspace' && this.isTerm && type === 'keydown') {
       const now = Date.now()
-      this.lastTimePressDel = this.lastTimePressDel || now
+      if (!this.lastTimePressDel) {
+        this.lastTimePressDel = now
+      }
       const timer = now - this.lastTimePressDel
       const count = Math.ceil(timer / 800)
       let char = String.fromCharCode(
