@@ -320,23 +320,16 @@ export default class SettingCommon extends Component {
     const defaultValue = defaultSettings[name]
     const onChange = (e) => this.onChangeValue(e.target.value, name)
     const onChangeArgs = (v) => this.onChangeValue(v, agrsProp)
-    const style = {
+    const styleArg = {
       style: {
         width: '40%'
       }
     }
-    const styleArg = {
-      style: {
-        width: '40%',
-        marginLeft: '3px'
-      }
-    }
     return (
       <div className='pd2b'>
-        <Space.Compact>
+        <Space.Compact block>
           <Input
             value={value}
-            {...style}
             onChange={onChange}
             placeholder={defaultValue}
           />
