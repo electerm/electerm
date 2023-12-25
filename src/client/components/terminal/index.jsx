@@ -26,7 +26,8 @@ import {
   terminalActions,
   commonActions,
   rendererTypes,
-  cwdId
+  cwdId,
+  isMac
 } from '../../common/constants'
 import deepCopy from 'json-deep-copy'
 import { readClipboardAsync, copy } from '../../common/clipboard'
@@ -240,6 +241,19 @@ class Term extends Component {
   pasteSelectedShortcut = (e) => {
     e.stopPropagation()
     this.tryInsertSelected()
+  }
+
+  pasteShortcut = (e) => {
+    if (isMac) {
+      return true
+    }
+    if (!this.isRemote()) {
+      return true
+    }
+    if (this.term.buffer.active.type !== 'alternate') {
+      return false
+    }
+    return true
   }
 
   showNormalBufferShortcut = (e) => {
