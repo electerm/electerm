@@ -766,17 +766,18 @@ class Term extends Component {
   }
 
   getCwd = () => {
-    if (this.props.sftpPathFollowSsh) {
-      const cmd = `\recho "${cwdId}$PWD"`
+    if (
+      this.props.sftpPathFollowSsh &&
+      this.term.buffer.active.type !== 'alternate'
+    ) {
+      const cmd = `\recho "${cwdId}$PWD"\r`
       this.term.cwdId = cwdId
       this.socket.send(cmd)
     }
   }
 
   setCwd = (cwd) => {
-    runIdle(() => {
-      this.props.setCwd(cwd, this.state.id)
-    })
+    this.props.setCwd(cwd, this.state.id)
   }
 
   onData = (d) => {
@@ -785,7 +786,9 @@ class Term extends Component {
       delete this.userTypeExit
     } else {
       const data = this.getCmd()
-      this.getCwd()
+      if (this.term.buffer.active.type !== 'alternate') {
+        setTimeout(this.getCwd, 200)
+      }
       const exitCmds = [
         'exit',
         'logout'

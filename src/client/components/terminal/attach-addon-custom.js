@@ -23,7 +23,7 @@ export default class AttachAddonCustom extends AttachAddon {
       const fileReader = new FileReader()
       fileReader.addEventListener('load', () => {
         const str = this.decoder.decode(fileReader.result)
-        if (terminal.parent.props.sftpPathFollowSsh) {
+        if (terminal.parent.props.sftpPathFollowSsh && terminal.buffer.active.type !== 'alternate') {
           const {
             cwdId
           } = terminal
@@ -33,11 +33,13 @@ export default class AttachAddonCustom extends AttachAddon {
             const ns = strip(str1).trim()
             if (ns.includes(cwdId) && ns.includes('$PWD')) {
               nnss.push(str1.replace(`echo "${cwdId}$PWD"`, ''))
-            } else if (cwdId && ns.startsWith(cwdId)) {
+            } else if (
+              (cwdId && ns.startsWith(cwdId))
+            ) {
               delete terminal.cwdId
               const cwd = ns.replace(cwdId, '').trim()
               terminal.parent.setCwd(cwd)
-              nnss.push('\x1b[1A\x1b[2K\r')
+              nnss.push('\x1b[2A\x1b[0J')
             } else {
               nnss.push(str1)
             }
