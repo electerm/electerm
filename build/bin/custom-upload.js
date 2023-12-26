@@ -28,24 +28,24 @@ async function uploadFile (filePath, fileName, conf) {
   })
 }
 
-const p = resolve(__dirname, '../../dist')
-const exts = [
-  'exe',
-  'dmg',
-  'gz',
-  'snap',
-  'deb',
-  'rpm',
-  'appx'
-]
-const list0 = fs.readdirSync(p)
-console.log('list0', list0)
-const list = list0.filter(f => {
-  const extName = f.indexOf('.') !== -1 ? f.split('.').pop() : null
-  return exts.includes(extName)
-})
-
 async function main () {
+  const p = resolve(__dirname, '../../dist')
+  const exts = [
+    'exe',
+    'dmg',
+    'gz',
+    'snap',
+    'deb',
+    'rpm',
+    'appx'
+  ]
+  const list0 = fs.readdirSync(p)
+  console.log('list0', list0)
+  const list = list0.filter(f => {
+    const extName = f.indexOf('.') !== -1 ? f.split('.').pop() : null
+    return exts.includes(extName)
+  })
+
   console.log('try upload to custom server')
   const {
     CUSTOM_UPLOAD_URL
