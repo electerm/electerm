@@ -61,4 +61,4 @@ async function main () {
   }
 }
 
-main()
+exports.upload = main
