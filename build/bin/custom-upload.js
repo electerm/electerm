@@ -9,16 +9,20 @@ async function uploadFile (filePath, fileName, conf) {
     const fileStream = fs.createReadStream(filePath)
     const formData = new FormData()
     formData.append('file', fileStream, fileName)
-    const request = https.request({
+    const confs = {
       method: 'post',
       port: 443,
       protocol: 'https:',
       headers: formData.getHeaders(),
       ...conf
-    })
+    }
+    const request = https.request(confs)
     formData.pipe(request)
     request.on('response', function (res) {
       console.log('res.statusCode', res.statusCode)
+      if (res.statusCode !== 200) {
+        return reject(res.statusCode)
+      }
       resolve(res.statusCode)
     })
     request.on('error', function (err) {
@@ -55,7 +59,6 @@ async function main () {
   }
   const host = CUSTOM_UPLOAD_URL.split('/')[2]
   const path = '/' + CUSTOM_UPLOAD_URL.split('/').slice(3).join('/')
-  console.log('try upload to custom server', list)
   for (const n of list) {
     const filePath = resolve(p, n)
     console.log('try upload to custom server', filePath)
