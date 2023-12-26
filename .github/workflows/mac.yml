@@ -40,5 +40,6 @@ jobs:
         APPLE_ID: ${{ secrets.APPLEID }}
         APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLEIDPASS }}
         APPLE_TEAM_ID: ${{secrets.APPLE_TEAM_ID}}
+        CUSTOM_UPLOAD_URL: ${{ secrets.CUSTOM_UPLOAD_URL }}
       run: node build/bin/build-mac
 

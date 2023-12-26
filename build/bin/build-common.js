@@ -50,4 +50,5 @@ exports.addCustomUpload = function () {
   const str = readFileSync(pth)
     .toString().replace(/, "_custom"/, rep)
   writeFileSync(pth, str)
+  console.log('electron-builder new', readFileSync(pth).toString())
 }
