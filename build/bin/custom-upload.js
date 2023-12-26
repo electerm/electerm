@@ -57,7 +57,7 @@ async function main () {
   const path = '/' + CUSTOM_UPLOAD_URL.split('/').slice(3).join('/')
   console.log('try upload to custom server', list)
   for (const n of list) {
-    const filePath = path.join(p, n)
+    const filePath = resolve(p, n)
     console.log('try upload to custom server', filePath)
     await uploadFile(filePath, n, {
       host,
