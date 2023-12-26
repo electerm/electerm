@@ -5,6 +5,7 @@
 
 import React from 'react'
 import { shortcutExtend } from './shortcut-handler.js'
+import { throttle } from 'lodash-es'
 
 class ShortcutControl extends React.PureComponent {
   componentDidMount () {
@@ -40,33 +41,33 @@ class ShortcutControl extends React.PureComponent {
     x && x.click()
   }
 
-  zoominShortcut = (e) => {
+  zoominShortcut = throttle((e) => {
     e.stopPropagation()
     window.store.zoom(0.25, true)
-  }
+  }, 1000)
 
-  zoomoutShortcut = (e) => {
+  zoomoutShortcut = throttle((e) => {
     e.stopPropagation()
     window.store.zoom(-0.25, true)
-  }
+  }, 1000)
 
-  zoominTerminalShortcut = (event) => {
+  zoominTerminalShortcut = throttle((event) => {
     if (window.store.inActiveTerminal) {
       window.store.zoomTerminal(event.wheelDeltaY || 120)
     } else {
       const plus = 0.2
       window.store.zoom(plus, true)
     }
-  }
+  }, 1000)
 
-  zoomoutTerminalShortcut = (event) => {
+  zoomoutTerminalShortcut = throttle((event) => {
     if (window.store.inActiveTerminal) {
       window.store.zoomTerminal(event.wheelDeltaY || -120)
     } else {
       const plus = -0.2
       window.store.zoom(plus, true)
     }
-  }
+  }, 1000)
 
   render () {
     return null

@@ -9,7 +9,7 @@ const set = (key, value) => {
   count = count + 1
   if (count > 100) {
     count = 0
-    dbAction('compactDatafile')
+    dbAction('compactDatafile').catch(log.error)
   }
   return dbAction('lastStates', 'update', {
     _id: key

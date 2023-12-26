@@ -42,7 +42,7 @@ export const maxHistory = 50
 export const maxTransport = 5
 export const maxSftpHistory = 20
 export const maxZoom = 8
-export const minZoom = 0.25
+export const minZoom = 0.5
 export const extraTabWidth = 113
 // export const maxTabs = 20
 
