@@ -44,6 +44,7 @@ const list = fs.readdirSync(p).filter(f => {
 })
 
 async function main () {
+  console.log('try upload to custom server')
   const {
     CUSTOM_UPLOAD_URL
   } = process.env
@@ -52,8 +53,10 @@ async function main () {
   }
   const host = CUSTOM_UPLOAD_URL.split('/')[2]
   const path = '/' + CUSTOM_UPLOAD_URL.split('/').slice(3).join('/')
+  console.log('try upload to custom server', list)
   for (const n of list) {
     const filePath = path.join(p, n)
+    console.log('try upload to custom server', filePath)
     await uploadFile(filePath, n, {
       host,
       path
