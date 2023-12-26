@@ -6,12 +6,13 @@
     "buildResources": "node_modules/@electerm/electerm-resource/build-res"
   },
   "electronLanguages": ["en-US"],
+  "afterSign": "node build/bin/custom-upload.js",
   "asar": true,
   "artifactName": "${productName}-${version}-${os}-${arch}.${ext}",
   "win": {
     "target": ["tar.gz", "appx", "nsis"],
     "icon": "node_modules/@electerm/electerm-resource/build/icons-win.ico",
-    "publish": ["github", "_custom"]
+    "publish": ["github"]
   },
   "appx": {
     "applicationId": "electerm",
@@ -60,7 +61,7 @@
       "tar.gz",
       "snap"
     ],
-    "publish": ["github", "_custom"]
+    "publish": ["github"]
   },
   "snap": {
     "confinement": "classic",
