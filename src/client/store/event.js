@@ -48,6 +48,7 @@ export default Store => {
 
   Store.prototype.onBlur = function () {
     window.focused = false
+    window.pre.runSync('windowMove', false)
   }
 
   Store.prototype.selectall = function () {

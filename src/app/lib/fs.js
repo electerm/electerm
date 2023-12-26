@@ -112,24 +112,16 @@ const openFile = (localFilePath) => {
  * @param {string} localFolerPath absolute path of a folder
  */
 const zipFolder = (localFolerPath) => {
-  return new Promise((resolve, reject) => {
-    const n = uid()
-    const p = path.resolve(tempDir, `electerm-temp-${n}.tar`)
-    const cwd = path.dirname(localFolerPath)
-    const file = path.basename(localFolerPath)
-    try {
-      tar.c({
-        gzip: false,
-        file: p,
-        cwd
-      }, [file], () => {
-        resolve(p)
-      })
-    } catch (e) {
-      log.error(e)
-      reject(e)
-    }
-  })
+  const n = uid()
+  const p = path.resolve(tempDir, `electerm-temp-${n}.tar`)
+  const cwd = path.dirname(localFolerPath)
+  const file = path.basename(localFolerPath)
+  return tar.c({
+    gzip: false,
+    file: p,
+    cwd
+  }, [file])
+    .then(() => p)
 }
 
 /**
