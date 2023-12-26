@@ -1,3 +1,5 @@
+import { useEffect } from 'react'
+
 export default function AppDrag (props) {
   function canOperate (e) {
     const {
@@ -37,6 +39,10 @@ export default function AppDrag (props) {
       window.pre.runGlobalAsync('maximize')
     }
   }
+
+  useEffect(() => {
+    window.addEventListener('contextmenu', onMouseUp)
+  }, [])
   return (
     <div
       className='app-drag'

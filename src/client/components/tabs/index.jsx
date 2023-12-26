@@ -219,7 +219,19 @@ export default class Tabs extends React.Component {
     )
   }
 
-  render () {
+  renderContent () {
+    const { config } = this.props
+    if (config.useSystemTitleBar) {
+      return this.renderContentInner()
+    }
+    return (
+      <AppDrag>
+        {this.renderContentInner()}
+      </AppDrag>
+    )
+  }
+
+  renderContentInner () {
     const { tabs = [], width } = this.props
     const len = tabs.length
     const tabsWidthAll = tabMargin * len + 10 + this.tabsWidth()
@@ -231,45 +243,50 @@ export default class Tabs extends React.Component {
       width: width - windowControlWidth - 86
     }
     return (
+      <div
+        className='tabs-inner'
+        style={style}
+      >
+        <div
+          style={{
+            left
+          }}
+        />
+        <div
+          className='tabs-wrapper relative'
+          style={{
+            width: tabsWidthAll + extraTabWidth + 10
+          }}
+          onDoubleClick={this.handleAdd}
+        >
+          {
+            tabs.map((tab, i) => {
+              const isLast = i === len - 1
+              return (
+                <Tab
+                  {...this.props}
+                  tab={tab}
+                  isLast={isLast}
+                  key={tab.id}
+                />
+              )
+            })
+          }
+          {
+            !overflow
+              ? this.renderAddBtn()
+              : null
+          }
+        </div>
+      </div>
+    )
+  }
+
+  render () {
+    const overflow = this.isOverflow()
+    return (
       <div className='tabs' ref={this.tabsRef}>
-        <AppDrag>
-          <div
-            className='tabs-inner'
-            style={style}
-          >
-            <div
-              style={{
-                left
-              }}
-            />
-            <div
-              className='tabs-wrapper relative'
-              style={{
-                width: tabsWidthAll + extraTabWidth + 10
-              }}
-              onDoubleClick={this.handleAdd}
-            >
-              {
-                tabs.map((tab, i) => {
-                  const isLast = i === len - 1
-                  return (
-                    <Tab
-                      {...this.props}
-                      tab={tab}
-                      isLast={isLast}
-                      key={tab.id}
-                    />
-                  )
-                })
-              }
-              {
-                !overflow
-                  ? this.renderAddBtn()
-                  : null
-              }
-            </div>
-          </div>
-        </AppDrag>
+        {this.renderContent()}
         <WindowControl
           store={window.store}
         />
