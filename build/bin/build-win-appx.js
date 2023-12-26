@@ -1,5 +1,6 @@
 const { rm, echo } = require('shelljs')
 const { resolve } = require('path')
+const { upload } = require('./custom-upload')
 const fs = require('fs')
 const {
   run,
@@ -17,6 +18,7 @@ async function main () {
   rm('-rf', 'dist')
   writeSrc('.appx')
   await run(`${pb} --win appx`)
+  await upload()
 }
 
 main()

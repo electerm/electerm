@@ -1,5 +1,6 @@
 const replace = require('replace-in-file')
 const { rm, echo } = require('shelljs')
+const { upload } = require('./custom-upload')
 const {
   run,
   writeSrc,
@@ -30,6 +31,7 @@ async function main () {
   rm('-rf', 'dist')
   writeSrc('win-x64-loose.tar.gz')
   await run(`${pb} --win tar.gz`)
+  await upload()
 }
 
 main()
