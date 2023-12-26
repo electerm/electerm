@@ -340,6 +340,8 @@ class Sessions extends Component {
         currentTabId,
         tab: toSimpleObj(tab),
         ...pick(store, [
+          'fileOperation',
+          'file',
           'height',
           'width',
           'activeTerminalId',
@@ -382,7 +384,6 @@ class Sessions extends Component {
       currentTabId,
       config,
       ...pick(store, [
-        'fileOperation',
         'height',
         'width',
         'activeTerminalId',
