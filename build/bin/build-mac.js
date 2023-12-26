@@ -7,6 +7,7 @@
 // const cmd = './node_modules/.bin/electron-builder --mac'
 
 const { echo, rm } = require('shelljs')
+const { upload } = require('./custom-upload')
 const {
   run,
   writeSrc,
@@ -21,7 +22,8 @@ async function main () {
   changeTeamId()
   rm('-rf', 'dist')
   writeSrc('mac-x64.dmg')
-  await run(`DEBUG=* ${pb}`)
+  await run(`${pb} --mac`)
+  await upload()
 }
 
 main()
