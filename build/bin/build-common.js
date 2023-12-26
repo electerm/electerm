@@ -37,3 +37,17 @@ exports.changeTeamId = function () {
     .toString().replace('__teamId', process.env.APPLE_TEAM_ID)
   writeFileSync(pth, str)
 }
+
+exports.addCustomUpload = function () {
+  const {
+    CUSTOM_UPLOAD_URL
+  } = process.env
+  const pth = resolve(__dirname, '../../electron-builder.json')
+  console.log('electron-builder', pth)
+  const rep = CUSTOM_UPLOAD_URL
+    ? `, {"provider":"generic", "url":"${CUSTOM_UPLOAD_URL}"}`
+    : ''
+  const str = readFileSync(pth)
+    .toString().replace(/, "_custom"/, rep)
+  writeFileSync(pth, str)
+}

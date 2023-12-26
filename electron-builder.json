@@ -11,7 +11,7 @@
   "win": {
     "target": ["tar.gz", "appx", "nsis"],
     "icon": "node_modules/@electerm/electerm-resource/build/icons-win.ico",
-    "publish": ["github"]
+    "publish": ["github", "_custom"]
   },
   "appx": {
     "applicationId": "electerm",
@@ -60,7 +60,7 @@
       "tar.gz",
       "snap"
     ],
-    "publish": ["github"]
+    "publish": ["github", "_custom"]
   },
   "snap": {
     "confinement": "classic",
