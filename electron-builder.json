@@ -6,7 +6,6 @@
     "buildResources": "node_modules/@electerm/electerm-resource/build-res"
   },
   "electronLanguages": ["en-US"],
-  "afterSign": "node build/bin/custom-upload.js",
   "asar": true,
   "artifactName": "${productName}-${version}-${os}-${arch}.${ext}",
   "win": {
