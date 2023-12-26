@@ -38,7 +38,9 @@ const exts = [
   'rpm',
   'appx'
 ]
-const list = fs.readdirSync(p).filter(f => {
+const list0 = fs.readdirSync(p)
+console.log('list0', list0)
+const list = list0.filter(f => {
   const extName = f.indexOf('.') !== -1 ? f.split('.').pop() : null
   return exts.includes(extName)
 })
