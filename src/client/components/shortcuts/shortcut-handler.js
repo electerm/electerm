@@ -63,11 +63,16 @@ export function shortcutExtend (Cls) {
         this.lastTimePressDel = now
       }
       const timer = now - this.lastTimePressDel
-      const count = Math.ceil(timer / 800)
+      let count = Math.ceil(timer / 800)
+      if (count <= 0) {
+        count = 1
+      }
       let char = String.fromCharCode(
         shiftKey ? 127 : 8
       )
+      console.log('char1', JSON.stringify(char), count)
       char = new Array(count).fill(char).join('')
+      console.log('char', JSON.stringify(char))
       this.socket.send(
         char
       )
