@@ -65,7 +65,7 @@ async function main () {
     await uploadFile(filePath, n, {
       host,
       path
-    })
+    }).catch(console.log)
   }
 }
 
