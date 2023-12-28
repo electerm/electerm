@@ -340,6 +340,7 @@ class Sessions extends Component {
         currentTabId,
         tab: toSimpleObj(tab),
         ...pick(store, [
+          'hideDelKeyTip',
           'fileOperation',
           'file',
           'height',

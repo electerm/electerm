@@ -70,6 +70,9 @@ export default class SettingTerminal extends Component {
     })
   }
 
+  handleChangeDelMode = v => this.onChangeValue(v, 'backspaceMode')
+  handleChangeRenderType = v => this.onChangeValue(v, 'renderType')
+
   handleChangeFont = (values) => {
     this.onChangeValue(
       values.join(', '),
@@ -401,6 +404,7 @@ export default class SettingTerminal extends Component {
     }
     const {
       rendererType,
+      backspaceMode = '^?',
       keywords = [{ color: 'red' }]
     } = this.props.config
     const {
@@ -436,7 +440,7 @@ export default class SettingTerminal extends Component {
         <div className='pd2b'>
           <span className='inline-title mg1r'>{e('rendererType')}</span>
           <Select
-            onChange={v => this.onChangeValue(v, 'rendererType')}
+            onChange={this.handleChangeRenderType}
             value={rendererType}
             popupMatchSelectWidth={false}
           >
@@ -501,6 +505,20 @@ export default class SettingTerminal extends Component {
             'ctrlOrMetaOpenTerminalLink'
           ].map(this.renderToggle)
         }
+        <div className='pd1b'>{e('terminalBackSpaceMode')}</div>
+        <Select
+          onChange={this.handleChangeDelMode}
+          value={backspaceMode}
+          popupMatchSelectWidth={false}
+        >
+          {
+            ['^?', '^H'].map(id => {
+              return (
+                <Option key={id} value={id}>{id}</Option>
+              )
+            })
+          }
+        </Select>
         {this.renderReset()}
       </div>
     )

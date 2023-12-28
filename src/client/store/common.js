@@ -10,7 +10,8 @@ import {
   tabActions,
   modals,
   leftSidebarWidthKey,
-  rightSidebarWidthKey
+  rightSidebarWidthKey,
+  dismissDelKeyTipLsKey
 } from '../common/constants'
 import * as ls from '../common/safe-local-storage'
 
@@ -149,5 +150,9 @@ export default Store => {
   Store.prototype.setRightSidePanelWidth = function (v) {
     ls.setItem(rightSidebarWidthKey, v)
     window.store.rightSidebarWidth = v
+  }
+  Store.prototype.dismissDelKeyTip = function (v) {
+    ls.setItem(dismissDelKeyTipLsKey, 'y')
+    window.store.hideDelKeyTip = true
   }
 }

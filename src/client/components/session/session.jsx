@@ -10,7 +10,8 @@ import {
   CloseSquareFilled,
   SearchOutlined,
   FullscreenOutlined,
-  PaperClipOutlined
+  PaperClipOutlined,
+  CloseOutlined
 } from '@ant-design/icons'
 import {
   Tooltip
@@ -84,6 +85,7 @@ export default class SessionWrapper extends Component {
       sessionOptions: null,
       sessionId: generate(),
       terminals: terminals.slice(0, 1),
+      delKeyPressed: false,
       showInfo: false,
       infoPanelProps: {}
     }
@@ -92,6 +94,31 @@ export default class SessionWrapper extends Component {
   componentDidMount () {
     this.updateTab()
     // this.initEvent()
+  }
+
+  componentWillUnmount () {
+    clearTimeout(this.backspaceKeyPressedTimer)
+  }
+
+  onDelKeyPressed = () => {
+    this.setState({
+      delKeyPressed: true
+    })
+    this.backspaceKeyPressedTimer = setTimeout(() => {
+      this.setState({
+        delKeyPressed: false
+      })
+    }, 5000)
+  }
+
+  handleChangeDelMode = (backspaceMode) => {
+    this.setState({
+      backspaceMode
+    })
+  }
+
+  handleDismissDelKeyTip = () => {
+    window.store.dismissDelKeyTip()
   }
 
   setCwd = (cwd, tid) => {
@@ -330,7 +357,8 @@ export default class SessionWrapper extends Component {
                     'handleShowInfo',
                     'onChangePane',
                     'hideInfoPanel',
-                    'setCwd'
+                    'setCwd',
+                    'onDelKeyPressed'
                   ]),
                 ...this.computePosition(t.position / 10)
               }
@@ -420,6 +448,21 @@ export default class SessionWrapper extends Component {
     )
   }
 
+  renderDelTip = (isSsh) => {
+    if (!isSsh || this.props.hideDelKeyTip || !this.state.delKeyPressed) {
+      return null
+    }
+    return (
+      <div className='type-tab'>
+        <span className='mg1r'>Try <b>Shift + Backspace</b>?</span>
+        <CloseOutlined
+          onClick={this.handleDismissDelKeyTip}
+          className='pointer'
+        />
+      </div>
+    )
+  }
+
   renderControl = () => {
     const { splitDirection, terminals, sftpPathFollowSsh } = this.state
     const { props } = this
@@ -496,6 +539,9 @@ export default class SessionWrapper extends Component {
               </Tooltip>
               )
             : null
+        }
+        {
+          this.renderDelTip(pane === paneMap.terminal)
         }
         {
           pane === paneMap.terminal

@@ -1,6 +1,6 @@
 {
   "name": "electerm",
-  "version": "1.37.93",
+  "version": "1.37.96",
   "description": "Terminal/ssh/telnet/serialport/sftp client(linux, mac, win)",
   "main": "app.js",
   "bin": "npm/electerm",
@@ -102,7 +102,7 @@
     "zmodem.js": "0.1.10"
   },
   "dependencies": {
-    "@electerm/electerm-locales": "1.2.9",
+    "@electerm/electerm-locales": "1.2.10",
     "@electerm/electerm-themes": "^1.0.1",
     "ssh2": "1.15.0",
     "@electerm/strip-ansi": "1.0.0",
@@ -153,6 +153,7 @@
       "FileReader",
       "CustomEvent",
       "onmessage",
+      "requestAnimationFrame",
       "self"
     ]
   }

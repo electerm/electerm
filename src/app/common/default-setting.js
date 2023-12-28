@@ -40,5 +40,7 @@ module.exports = exports.default = {
   screenReaderMode: false,
   autoRefreshWhenSwitchToSftp: false,
   hideSshConfig: false,
-  addTimeStampToTermLog: false
+  addTimeStampToTermLog: false,
+  keepaliveInterval: 0,
+  backspaceMode: '^?'
 }

@@ -17,7 +17,8 @@ import {
   checkedKeysLsKey,
   localAddrBookmarkLsKey,
   leftSidebarWidthKey,
-  rightSidebarWidthKey
+  rightSidebarWidthKey,
+  dismissDelKeyTipLsKey
 } from '../common/constants'
 import { buildDefaultThemes, buildNewTheme } from '../common/terminal-theme'
 import * as ls from '../common/safe-local-storage'
@@ -185,6 +186,7 @@ export default () => {
     innerWidth: window.innerWidth,
     height: 500,
     isMaximized: window.pre.runSync('isMaximized'),
-    terminalFullScreen: false
+    terminalFullScreen: false,
+    hideDelKeyTip: ls.getItem(dismissDelKeyTipLsKey) === 'y'
   }
 }

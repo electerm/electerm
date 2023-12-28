@@ -261,16 +261,6 @@ class Term extends Component {
     this.openNormalBuffer()
   }
 
-  prevTabShortcut = throttle((e) => {
-    e.stopPropagation()
-    window.store.clickPrevTab()
-  }, 300)
-
-  nextTabShortcut = throttle((e) => {
-    e.stopPropagation()
-    window.store.clickNextTab()
-  }, 300)
-
   handleEvent = (e) => {
     const {
       keyword,
@@ -747,11 +737,6 @@ class Term extends Component {
       tabId: this.props.tab.id
     })
   }, 1000)
-
-  // onSocketData = (a) => {
-  //   console.log('onSocketData', a)
-  //   runIdle(this.notifyOnData)
-  // }
 
   parse (rawText) {
     let result = ''

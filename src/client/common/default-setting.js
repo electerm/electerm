@@ -42,5 +42,6 @@ export default {
   hideSshConfig: false,
   addTimeStampToTermLog: false,
   sftpPathFollowSsh: false,
-  keepaliveInterval: 0
+  keepaliveInterval: 0,
+  backspaceMode: '^?'
 }

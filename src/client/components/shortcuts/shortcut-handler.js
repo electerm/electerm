@@ -3,7 +3,6 @@ import shortcutsDefaultsGen from './shortcuts-defaults.js'
 import {
   isMacJs
 } from '../../common/constants'
-import { throttle } from 'lodash-es'
 
 function buildConfig (config, filter = d => d) {
   const defs = shortcutsDefaultsGen().filter(filter)
@@ -46,7 +45,7 @@ function buildConfigForSearch (config) {
 }
 
 export function shortcutExtend (Cls) {
-  Cls.prototype.handleKeyboardEvent = throttle(function (event) {
+  Cls.prototype.handleKeyboardEvent = function (event) {
     const {
       code,
       ctrlKey,
@@ -57,28 +56,13 @@ export function shortcutExtend (Cls) {
       type,
       key
     } = event
-    if (key === 'Backspace' && this.isTerm && type === 'keydown') {
-      const now = Date.now()
-      if (!this.lastTimePressDel) {
-        this.lastTimePressDel = now
-      }
-      const timer = now - this.lastTimePressDel
-      let count = Math.ceil(timer / 800)
-      if (count <= 0) {
-        count = 1
-      }
-      let char = String.fromCharCode(
-        shiftKey ? 127 : 8
-      )
-      console.log('char1', JSON.stringify(char), count)
-      char = new Array(count).fill(char).join('')
-      console.log('char', JSON.stringify(char))
-      this.socket.send(
-        char
-      )
+    if (this.isTerm && key === 'Backspace' && this.isTerm && type === 'keydown') {
+      this.props.onDelKeyPressed()
+      const delKey = this.props.config.backspaceMode === '^?' ? 8 : 127
+      const altDelDelKey = delKey === 8 ? 127 : 8
+      const char = String.fromCharCode(shiftKey ? delKey : altDelDelKey)
+      this.socket.send(char)
       return false
-    } else if (key === 'Backspace' && this.isTerm && type === 'keyup') {
-      delete this.lastTimePressDel
     }
     const codeName = event instanceof window.WheelEvent
       ? (wheelDeltaY > 0 ? 'mouseWheelUp' : 'mouseWheelDown')
@@ -110,7 +94,7 @@ export function shortcutExtend (Cls) {
         }
       }
     }
-  }, 300)
+  }
   return Cls
 }
 

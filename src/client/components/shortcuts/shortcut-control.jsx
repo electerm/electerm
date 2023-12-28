@@ -13,33 +13,33 @@ class ShortcutControl extends React.PureComponent {
     window.addEventListener('mousewheel', this.handleKeyboardEvent.bind(this))
   }
 
-  prevTabShortcut = (e) => {
+  prevTabShortcut = throttle((e) => {
     e.stopPropagation()
     window.store.clickPrevTab()
-  }
+  }, 500)
 
-  nextTabShortcut = (e) => {
+  nextTabShortcut = throttle((e) => {
     e.stopPropagation()
     window.store.clickNextTab()
-  }
+  }, 500)
 
-  newBookmarkShortcut = (e) => {
+  newBookmarkShortcut = throttle((e) => {
     e.stopPropagation()
     window.store.onNewSsh()
-  }
+  }, 500)
 
-  togglefullscreenShortcut = (e) => {
+  togglefullscreenShortcut = throttle((e) => {
     e.stopPropagation()
     const x = document.querySelector('.term-fullscreen-control') ||
     document.querySelector('.session-current .term-fullscreen-control1')
     x && x.click()
-  }
+  }, 500)
 
-  splitShortcut = (e) => {
+  splitShortcut = throttle((e) => {
     e.stopPropagation()
     const x = document.querySelector('.session-current .icon-split')
     x && x.click()
-  }
+  }, 1000)
 
   zoominShortcut = throttle((e) => {
     e.stopPropagation()
