@@ -76,8 +76,6 @@ class Term extends Component {
     }
   }
 
-  isTerm = true
-
   componentDidMount () {
     this.initTerminal()
     this.initEvt()

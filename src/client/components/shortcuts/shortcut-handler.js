@@ -57,9 +57,8 @@ export function shortcutExtend (Cls) {
       key
     } = event
     if (
-      this.isTerm &&
+      this.term &&
       key === 'Backspace' &&
-      this.isTerm &&
       type === 'keydown' &&
       !altKey &&
       !ctrlKey
@@ -70,6 +69,11 @@ export function shortcutExtend (Cls) {
       const char = String.fromCharCode(shiftKey ? delKey : altDelDelKey)
       this.socket.send(char)
       return false
+    } else if (
+      this.term &&
+      this.term.buffer.active.type === 'alternate'
+    ) {
+      return true
     }
     const codeName = event instanceof window.WheelEvent
       ? (wheelDeltaY > 0 ? 'mouseWheelUp' : 'mouseWheelDown')
@@ -94,14 +98,14 @@ export function shortcutExtend (Cls) {
       if (conf.shortcut.split(',').includes(r)) {
         if (this[funcName]) {
           return this[funcName](event)
-        } else if (this.isTerm && conf.readonly) {
+        } else if (this.term && conf.readonly) {
           return true
         } else {
           return false
         }
       }
     }
-    return this.isTerm
+    return !!this.term
   }
   return Cls
 }
