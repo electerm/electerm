@@ -56,7 +56,14 @@ export function shortcutExtend (Cls) {
       type,
       key
     } = event
-    if (this.isTerm && key === 'Backspace' && this.isTerm && type === 'keydown') {
+    if (
+      this.isTerm &&
+      key === 'Backspace' &&
+      this.isTerm &&
+      type === 'keydown' &&
+      !altKey &&
+      !ctrlKey
+    ) {
       this.props.onDelKeyPressed()
       const delKey = this.props.config.backspaceMode === '^?' ? 8 : 127
       const altDelDelKey = delKey === 8 ? 127 : 8
@@ -94,6 +101,7 @@ export function shortcutExtend (Cls) {
         }
       }
     }
+    return this.isTerm
   }
   return Cls
 }
