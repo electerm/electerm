@@ -1,5 +1,4 @@
 const { echo, rm } = require('shelljs')
-const { upload } = require('./custom-upload')
 const {
   run,
   writeSrc,
@@ -8,20 +7,19 @@ const {
 } = require('./build-common')
 
 async function main () {
-  echo('running build for linux part 3 arm64')
+  echo('running build for linux part 3 arm64/armv7l')
 
-  echo('build linux.arm64.deb')
+  echo('build linux.arm64.tar.gz')
   rm('-rf', 'dist')
-  writeSrc('linux-arm64.deb')
+  writeSrc('linux-arm64.tar.gz')
   await run(`${reBuild} --arch arm64 -f work/app`)
   await run(`${pb} --linux --arm64`)
-  await upload()
 
-  // echo('build deb')
-  // rm('-rf', 'dist')
-  // writeSrc('.deb')
-  // await run(`${pb} --linux --arm64 deb`)
-  // await upload()
+  echo('build linux.armv7l.tar.gz')
+  rm('-rf', 'dist')
+  writeSrc('linux-armv7l.tar.gz')
+  await run(`${reBuild} --arch armv7l -f work/app`)
+  await run(`${pb} --linux --armv7l`)
 }
 
 main()
