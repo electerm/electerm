@@ -25,7 +25,7 @@ import * as ls from '../common/safe-local-storage'
 
 const { prefix } = window
 const t = prefix('terminalThemes')
-const e = prefix('control')
+const e = prefix('common')
 const newQuickCommand = 'newQuickCommand'
 const q = prefix('quickCommands')
 
