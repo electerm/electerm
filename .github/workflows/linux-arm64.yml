@@ -27,6 +27,10 @@ jobs:
     # - run: export DISPLAY=:99.0
     # - run: sh -e /etc/init.d/xvfb start &
     # - run: sleep 3
+    - name: Build for Linux arm64
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libgtk-3-dev libx11-dev libxkbfile-dev libsecret-1-dev fakeroot rpm
 
     # before_install:
     - run: npm install -g yarn
