@@ -14,7 +14,7 @@ async function main () {
   rm('-rf', 'dist')
   writeSrc('linux-arm64.deb')
   await run(`${reBuild} --arch arm64 -f work/app`)
-  await run(`${pb} --linux --arm64 deb`)
+  await run(`${pb} --linux --arm64`)
   await upload()
 
   // echo('build deb')
