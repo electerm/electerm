@@ -70,6 +70,7 @@
     "eventemitter3": "5.0.1",
     "filesize": "10.0.7",
     "filesize-parser": "1.5.0",
+    "firacode": "^6.2.0",
     "lodash-es": "^4.17.21",
     "manate": "0.3.9",
     "memoize-one": "6.0.0",
@@ -104,7 +105,6 @@
   "dependencies": {
     "@electerm/electerm-locales": "1.2.10",
     "@electerm/electerm-themes": "^1.0.1",
-    "ssh2": "1.15.0",
     "@electerm/strip-ansi": "1.0.0",
     "@yetzt/nedb": "1.8.0",
     "axios": "0.26.0",
@@ -132,6 +132,7 @@
     "socks": "2.7.1",
     "socks-proxy-agent": "8.0.1",
     "ssh-config": "4.2.1",
+    "ssh2": "1.15.0",
     "stylus": "0.59.0",
     "tar": "6.2.0",
     "v8-compile-cache": "2.3.0"
