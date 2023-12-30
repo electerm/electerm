@@ -110,7 +110,7 @@ export default class TerminalInfoContent extends PureComponent {
       draggable: false,
       style: {
         width: props.rightSidebarWidth,
-        top: props.topMenuHeight + props.tabsHeight + termControlHeight - 4
+        top: props.topMenuHeight + props.tabsHeight + termControlHeight
       }
     }
     return (

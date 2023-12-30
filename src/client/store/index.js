@@ -231,7 +231,7 @@ class Store {
   }
 
   get topMenuHeight () {
-    return window.store.config.useSystemTitleBar ? 0 : 15
+    return 0
   }
 
   get tabsHeight () {
