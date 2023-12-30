@@ -3,7 +3,8 @@ const { upload } = require('./custom-upload')
 const {
   run,
   writeSrc,
-  builder: pb
+  builder: pb,
+  reBuild
 } = require('./build-common')
 
 async function main () {
@@ -12,7 +13,8 @@ async function main () {
   echo('build arm64-tar.gz')
   rm('-rf', 'dist')
   writeSrc('linux-arm64.tar.gz')
-  await run(`${pb} --arm64 tar.gz`)
+  await run(`${reBuild} --arch arm64 -f work/app`)
+  await run(`${pb} --linux --arm64 tar.gz`)
   await upload()
 
   // echo('build deb')
