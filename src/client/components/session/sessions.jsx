@@ -411,7 +411,7 @@ class Sessions extends Component {
 
   renderSessionsWrap = () => {
     const { leftSidebarWidth, openedSideBar } = this.props.store
-    const w = leftSidebarWidth + 43
+    const w = leftSidebarWidth + 42
     const ptp = openedSideBar
       ? {
           className: 'sessions',

@@ -19,6 +19,7 @@ export default class SidePanel extends PureComponent {
       nw = 600
     }
     this.props.setLeftSidePanelWidth(nw)
+    window.store.onResize()
     window.removeEventListener('mouseup', this.handleMouseup)
     window.removeEventListener('mousemove', this.handleMousemove)
   }

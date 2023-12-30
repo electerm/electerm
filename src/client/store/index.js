@@ -32,7 +32,6 @@ import copy from 'json-deep-copy'
 import {
   settingMap,
   sidebarWidth,
-  sidebarPanelWidth,
   paneMap,
   settingSyncId,
   settingShortcutsId,
@@ -93,8 +92,14 @@ class Store {
   }
 
   get width () {
-    return window.store.innerWidth - sidebarWidth -
-      (window.store.pinned ? sidebarPanelWidth : 0)
+    const {
+      openedSideBar,
+      pinned,
+      leftSidebarWidth
+    } = window.store
+    return window.store.innerWidth -
+      sidebarWidth -
+      (openedSideBar && pinned ? leftSidebarWidth : 0)
   }
 
   get currentQuickCommands () {
