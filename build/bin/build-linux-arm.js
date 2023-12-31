@@ -3,7 +3,8 @@ const {
   run,
   writeSrc,
   builder: pb,
-  reBuild
+  reBuild,
+  replaceArr
 } = require('./build-common')
 
 async function main () {
@@ -12,14 +13,32 @@ async function main () {
   echo('build linux.arm64.tar.gz')
   rm('-rf', 'dist')
   writeSrc('linux-arm64.tar.gz')
+  replaceArr(
+    [
+      '  "tar.gz",',
+      '"snap"'
+    ],
+    [
+      '  "tar.gz"', ''
+    ]
+  )
   await run(`${reBuild} --arch arm64 -f work/app`)
   await run(`${pb} --linux --arm64`)
 
-  echo('build linux.armv7l.tar.gz')
+  echo('build linux.arm64.tar.gz')
   rm('-rf', 'dist')
-  writeSrc('linux-armv7l.tar.gz')
-  await run(`${reBuild} --arch armv7l -f work/app`)
-  await run(`${pb} --linux --armv7l`)
+  writeSrc('linux-arm64.tar.gz')
+  replaceArr(
+    [
+      '  "tar.gz",',
+      '"snap"'
+    ],
+    [
+      '  "tar.gz"', ''
+    ]
+  )
+  await run(`${reBuild} --arch arm64 -f work/app`)
+  await run(`${pb} --linux --arm64`)
 }
 
 main()
