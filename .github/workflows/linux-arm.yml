@@ -1,0 +1,49 @@
+# This workflow will do a clean install of node dependencies, build the source code and run tests across different versions of node
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
+
+name: linux-arm
+
+on:
+  push:
+    branches: [ build, test ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-20.04
+    environment: build
+    if: "!contains(github.event.head_commit.message, '[skip build]') && !contains(github.event.head_commit.message, '[skip ci]') && !contains(github.event.head_commit.message, '[skip arm-linux]') && !contains(github.event.head_commit.message, '[skip linux3]')"
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Use Node.js 18.x
+      uses: actions/setup-node@v4
+      with:
+        node-version: 18.x
+    # - name: xvfb
+    #   uses: GabrielBB/xvfb-action@v1
+
+    # before_script:
+    # - run: export DISPLAY=:99.0
+    # - run: sh -e /etc/init.d/xvfb start &
+    # - run: sleep 3
+    - name: Build for Linux arm64
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libgtk-3-dev libx11-dev libxkbfile-dev libsecret-1-dev fakeroot rpm
+
+    # before_install:
+    - run: npm install -g yarn
+    - run: npm i
+
+    # script:
+    - run: npm run prepare-build
+
+    - name: build
+      if: "!contains(github.event.head_commit.message, 'skip build')"
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        BUILD_NUMBER: ${{ secrets.BUILD_NUMBER }}
+        CUSTOM_UPLOAD_URL: ${{ secrets.CUSTOM_UPLOAD_URL }}
+      run: node build/bin/build-linux-arm
+

@@ -30,10 +30,23 @@ exports.reBuild = resolve(
   __dirname, '../../node_modules/.bin/electron-rebuild'
 )
 
-exports.changeTeamId = function () {
+exports.replaceArr = function (froms, tos) {
   const pth = resolve(__dirname, '../../electron-builder.json')
   console.log('electron-builder', pth)
-  const str = readFileSync(pth)
-    .toString().replace('__teamId', process.env.APPLE_TEAM_ID)
+  let str = readFileSync(pth, 'utf8')
+  for (let i = 0; i < froms.length; i++) {
+    str = str.replace(froms[i], tos[i])
+  }
   writeFileSync(pth, str)
+}
+
+exports.changeTeamId = function () {
+  exports.replaceArr(['__teamId'], [process.env.APPLE_TEAM_ID])
+}
+
+exports.replaceJSON = function (func) {
+  const pth = resolve(__dirname, '../../electron-builder.json')
+  const js = require(pth)
+  func(js)
+  writeFileSync(pth, JSON.stringify(js, null, 2))
 }
