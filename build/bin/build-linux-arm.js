@@ -31,9 +31,9 @@ async function main () {
   )
   await run(`${pb} --linux --arm64`)
 
-  echo('build linux.arm64.rpm')
+  echo('build linux.aarch64.rpm')
   rm('-rf', 'dist')
-  writeSrc('linux-arm64.rpm')
+  writeSrc('linux-aarch64.rpm')
   replaceJSON(
     (data) => {
       data.linux.target = ['rpm']
