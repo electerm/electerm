@@ -18,6 +18,7 @@ export default function AppDrag (props) {
   }
 
   function onMouseDown (e) {
+    e.stopPropagation()
     if (canOperate(e)) {
       window.pre.runSync('windowMove', true)
     }
@@ -28,10 +29,13 @@ export default function AppDrag (props) {
   }
 
   function onDoubleClick (e) {
+    e.stopPropagation()
+    if (!canOperate(e)) {
+      return
+    }
     const {
       isMaximized
     } = window.store
-    window.pre.runSync('windowMove', false)
     if (isMaximized) {
       window.pre.runGlobalAsync('unmaximize')
     } else {
