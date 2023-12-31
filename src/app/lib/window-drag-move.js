@@ -7,6 +7,7 @@ const {
 
 let mouseStartPosition = { x: 0, y: 0 }
 let movingInterval = null
+let dragCount = 0
 
 function windowMove (canMoving) {
   const { win } = global
@@ -21,6 +22,10 @@ function windowMove (canMoving) {
     }
 
     movingInterval = setInterval(() => {
+      dragCount = dragCount + 1
+      if (dragCount > 1000) {
+        dragCount = 1000
+      }
       const cursorPosition = screen.getCursorScreenPoint()
       const x = size.x + cursorPosition.x - mouseStartPosition.x
       const y = size.y + cursorPosition.y - mouseStartPosition.y
@@ -29,6 +34,7 @@ function windowMove (canMoving) {
       let nh = size.height
       if (
         isLinux &&
+        dragCount > 200 &&
         size.width === workAreaSize.width &&
         size.height === workAreaSize.height
       ) {
@@ -44,6 +50,7 @@ function windowMove (canMoving) {
     }, 1)
   } else {
     win.setResizable(true)
+    dragCount = 0
     clearInterval(movingInterval)
   }
 }

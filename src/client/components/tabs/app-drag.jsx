@@ -5,10 +5,11 @@ export default function AppDrag (props) {
     const {
       target
     } = e
+    const { classList = [] } = target || {}
     if (
-      target instanceof window.SVGElement ||
-      target.tagName.toLowerCase() === 'span' ||
-      target.classList.contains('ant-tooltip-inner')
+      !classList.contains('app-drag') &&
+      !classList.contains('tabs-inner') &&
+      !classList.contains('tabs-wrapper')
     ) {
       window.pre.runSync('windowMove', false)
       return false
@@ -27,12 +28,10 @@ export default function AppDrag (props) {
   }
 
   function onDoubleClick (e) {
-    if (!canOperate(e)) {
-      return window.pre.runSync('windowMove', false)
-    }
     const {
       isMaximized
     } = window.store
+    window.pre.runSync('windowMove', false)
     if (isMaximized) {
       window.pre.runGlobalAsync('unmaximize')
     } else {
