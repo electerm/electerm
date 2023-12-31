@@ -43,3 +43,10 @@ exports.replaceArr = function (froms, tos) {
 exports.changeTeamId = function () {
   exports.replaceArr(['__teamId'], [process.env.APPLE_TEAM_ID])
 }
+
+exports.replaceJSON = function (func) {
+  const pth = resolve(__dirname, '../../electron-builder.json')
+  const js = require(pth)
+  func(js)
+  writeFileSync(pth, JSON.stringify(js, null, 2))
+}

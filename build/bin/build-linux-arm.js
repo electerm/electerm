@@ -4,7 +4,7 @@ const {
   writeSrc,
   builder: pb,
   reBuild,
-  replaceArr
+  replaceJSON
 } = require('./build-common')
 
 async function main () {
@@ -13,32 +13,68 @@ async function main () {
   echo('build linux.arm64.tar.gz')
   rm('-rf', 'dist')
   writeSrc('linux-arm64.tar.gz')
-  replaceArr(
-    [
-      '  "tar.gz",',
-      '"snap"'
-    ],
-    [
-      '  "tar.gz"', ''
-    ]
+  replaceJSON(
+    (data) => {
+      data.linux.target = ['tar.gz']
+    }
   )
   await run(`${reBuild} --arch arm64 -f work/app`)
   await run(`${pb} --linux --arm64`)
 
-  echo('build linux.arm64.tar.gz')
+  echo('build linux.arm64.deb')
   rm('-rf', 'dist')
-  writeSrc('linux-arm64.tar.gz')
-  replaceArr(
-    [
-      '  "tar.gz",',
-      '"snap"'
-    ],
-    [
-      '  "tar.gz"', ''
-    ]
+  writeSrc('linux-arm64.deb')
+  replaceJSON(
+    (data) => {
+      data.linux.target = ['deb']
+    }
   )
   await run(`${reBuild} --arch arm64 -f work/app`)
   await run(`${pb} --linux --arm64`)
+
+  echo('build linux.arm64.rpm')
+  rm('-rf', 'dist')
+  writeSrc('linux-arm64.rpm')
+  replaceJSON(
+    (data) => {
+      data.linux.target = ['rpm']
+    }
+  )
+  await run(`${reBuild} --arch arm64 -f work/app`)
+  await run(`${pb} --linux --arm64`)
+
+  echo('build linux.armv7l.tar.gz')
+  rm('-rf', 'dist')
+  writeSrc('linux-armv7l.tar.gz')
+  replaceJSON(
+    (data) => {
+      data.linux.target = ['tar.gz']
+    }
+  )
+  await run(`${reBuild} --arch armv7l -f work/app`)
+  await run(`${pb} --linux --armv7l`)
+
+  echo('build linux.armv7l.deb')
+  rm('-rf', 'dist')
+  writeSrc('linux-armv7l.deb')
+  replaceJSON(
+    (data) => {
+      data.linux.target = ['deb']
+    }
+  )
+  await run(`${reBuild} --arch armv7l -f work/app`)
+  await run(`${pb} --linux --armv7l`)
+
+  echo('build linux.armv7l.rpm')
+  rm('-rf', 'dist')
+  replaceJSON(
+    (data) => {
+      data.linux.target = ['rpm']
+    }
+  )
+  writeSrc('linux-armv7l.rpm')
+  await run(`${reBuild} --arch armv7l -f work/app`)
+  await run(`${pb} --linux --armv7l`)
 }
 
 main()
