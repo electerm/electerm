@@ -29,7 +29,6 @@ async function main () {
       data.linux.target = ['deb']
     }
   )
-  await run(`${reBuild} --arch arm64 -f work/app`)
   await run(`${pb} --linux --arm64`)
 
   echo('build linux.arm64.rpm')
@@ -40,7 +39,6 @@ async function main () {
       data.linux.target = ['rpm']
     }
   )
-  await run(`${reBuild} --arch arm64 -f work/app`)
   await run(`${pb} --linux --arm64`)
 
   echo('build linux.armv7l.tar.gz')
@@ -62,7 +60,6 @@ async function main () {
       data.linux.target = ['deb']
     }
   )
-  await run(`${reBuild} --arch armv7l -f work/app`)
   await run(`${pb} --linux --armv7l`)
 
   echo('build linux.armv7l.rpm')
@@ -73,7 +70,6 @@ async function main () {
     }
   )
   writeSrc('linux-armv7l.rpm')
-  await run(`${reBuild} --arch armv7l -f work/app`)
   await run(`${pb} --linux --armv7l`)
 }
 
