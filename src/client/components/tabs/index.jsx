@@ -240,7 +240,7 @@ export default class Tabs extends React.Component {
       ? '100%'
       : tabsWidthAll
     const style = {
-      width: width - windowControlWidth - 86
+      width: width - windowControlWidth - 136
     }
     return (
       <div

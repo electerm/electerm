@@ -350,7 +350,10 @@ class Sessions extends Component {
           'tabsHeight',
           'appPath',
           'topMenuHeight',
-          'rightSidebarWidth'
+          'rightSidebarWidth',
+          'leftSidebarWidth',
+          'pinned',
+          'openedSideBar'
         ]),
         config,
         ...pick(this, [

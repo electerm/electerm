@@ -31,7 +31,6 @@ import { uniq } from 'lodash-es'
 import copy from 'json-deep-copy'
 import {
   settingMap,
-  sidebarWidth,
   paneMap,
   settingSyncId,
   settingShortcutsId,
@@ -92,14 +91,7 @@ class Store {
   }
 
   get width () {
-    const {
-      openedSideBar,
-      pinned,
-      leftSidebarWidth
-    } = window.store
-    return window.store.innerWidth -
-      sidebarWidth -
-      (openedSideBar && pinned ? leftSidebarWidth : 0)
+    return window.store.innerWidth
   }
 
   get currentQuickCommands () {

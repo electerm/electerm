@@ -299,9 +299,10 @@ export default class SessionWrapper extends Component {
       infoPanelPinned,
       showInfo
     } = this.state
-    const { rightSidebarWidth, width } = this.props
+    const { rightSidebarWidth, width, leftSidebarWidth, pinned, openedSideBar } = this.props
     const rt = infoPanelPinned && showInfo ? rightSidebarWidth : 0
-    return width - rt
+    const lt = pinned && openedSideBar ? leftSidebarWidth : 0
+    return width - rt - lt - 42
   }
 
   renderTerminals = () => {
