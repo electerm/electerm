@@ -305,6 +305,12 @@ export default class SessionWrapper extends Component {
     return width - rt - lt - 42
   }
 
+  getWidthSftp = () => {
+    const { width, leftSidebarWidth, pinned, openedSideBar } = this.props
+    const lt = pinned && openedSideBar ? leftSidebarWidth : 0
+    return width - lt - 42
+  }
+
   renderTerminals = () => {
     const {
       terminals,
@@ -401,7 +407,8 @@ export default class SessionWrapper extends Component {
       height,
       sessionId,
       pane,
-      ...this.props
+      ...this.props,
+      width: this.getWidthSftp()
     }
     return (
       <div className={cls}>
