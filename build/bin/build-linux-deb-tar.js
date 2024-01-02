@@ -22,9 +22,9 @@ async function main () {
   await run(`${pb} --linux deb`)
   await upload()
 
-  echo('build linux-amd64.AppImage')
+  echo('build linux-x86_64.AppImage')
   rm('-rf', 'dist')
-  writeSrc('linux-amd64.AppImage')
+  writeSrc('linux-x86_64.AppImage')
   replaceJSON(
     (data) => {
       data.linux.target = ['AppImage']
