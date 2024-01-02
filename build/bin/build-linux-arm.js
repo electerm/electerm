@@ -41,6 +41,16 @@ async function main () {
   )
   await run(`${pb} --linux --arm64`)
 
+  echo('build linux.arm64.AppImage')
+  rm('-rf', 'dist')
+  writeSrc('linux-arm64.AppImage')
+  replaceJSON(
+    (data) => {
+      data.linux.target = ['AppImage']
+    }
+  )
+  await run(`${pb} --linux --arm64`)
+
   echo('build linux.armv7l.tar.gz')
   rm('-rf', 'dist')
   writeSrc('linux-armv7l.tar.gz')
@@ -70,6 +80,16 @@ async function main () {
     }
   )
   writeSrc('linux-armv7l.rpm')
+  await run(`${pb} --linux --armv7l`)
+
+  echo('build linux.armv7l.AppImage')
+  rm('-rf', 'dist')
+  replaceJSON(
+    (data) => {
+      data.linux.target = ['AppImage']
+    }
+  )
+  writeSrc('linux-armv7l.AppImage')
   await run(`${pb} --linux --armv7l`)
 }
 

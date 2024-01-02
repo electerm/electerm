@@ -3,7 +3,8 @@ const { upload } = require('./custom-upload')
 const {
   run,
   writeSrc,
-  builder: pb
+  builder: pb,
+  replaceJSON
 } = require('./build-common')
 
 async function main () {
@@ -20,6 +21,16 @@ async function main () {
   writeSrc('.deb')
   await run(`${pb} --linux deb`)
   await upload()
+
+  echo('build linux-x86_64.AppImage')
+  rm('-rf', 'dist')
+  writeSrc('linux-x86_64.AppImage')
+  replaceJSON(
+    (data) => {
+      data.linux.target = ['AppImage']
+    }
+  )
+  await run(`${pb} --linux`)
 }
 
 main()
