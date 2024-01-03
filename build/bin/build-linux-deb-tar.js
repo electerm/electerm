@@ -1,5 +1,4 @@
 const { echo, rm } = require('shelljs')
-const { upload } = require('./custom-upload')
 const {
   run,
   writeSrc,
@@ -14,13 +13,11 @@ async function main () {
   rm('-rf', 'dist')
   writeSrc('linux-x64.tar.gz')
   await run(`${pb} --linux tar.gz`)
-  await upload()
 
   echo('build deb')
   rm('-rf', 'dist')
   writeSrc('linux-x64.deb')
   await run(`${pb} --linux deb`)
-  await upload()
 
   echo('build linux-x86_64.AppImage')
   rm('-rf', 'dist')

@@ -41,7 +41,8 @@ async function main () {
     'snap',
     'deb',
     'rpm',
-    'appx'
+    'appx',
+    'AppImage'
   ]
   const list0 = fs.readdirSync(p)
   console.log('list0', list0)
