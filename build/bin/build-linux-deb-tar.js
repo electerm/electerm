@@ -18,7 +18,7 @@ async function main () {
 
   echo('build deb')
   rm('-rf', 'dist')
-  writeSrc('.deb')
+  writeSrc('linux-x64.deb')
   await run(`${pb} --linux deb`)
   await upload()
 

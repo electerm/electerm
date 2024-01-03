@@ -10,12 +10,12 @@ async function main () {
 
   echo('build rpm')
   rm('-rf', 'dist')
-  writeSrc('.rpm')
+  writeSrc('linux-x86_64.rpm')
   await run(`${pb} --linux rpm`)
 
   echo('build snap')
   rm('-rf', 'dist')
-  writeSrc('.snap')
+  writeSrc('linux-amd64.snap')
   await run(`${pb} --linux snap -p always`)
 }
 

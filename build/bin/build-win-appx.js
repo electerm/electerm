@@ -16,7 +16,7 @@ async function main () {
   delete txt.electronLanguages
   fs.writeFileSync(p, JSON.stringify(txt, null, 2))
   rm('-rf', 'dist')
-  writeSrc('.appx')
+  writeSrc('win-x64.appx')
   await run(`${pb} --win appx`)
   await upload()
 }
