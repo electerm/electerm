@@ -109,10 +109,16 @@ exports.getWindowSizeDep = async () => {
   if (h < minH) {
     h = minH
   }
-  const {
+  let {
     x = 0,
     y = 0
   } = windowPosLastState || {}
+  if (x < 0 || x > maxWidth - 100) {
+    x = 0
+  }
+  if (y < 0 || y > maxHeight - 100) {
+    y = 0
+  }
   return {
     width: w,
     height: h,
