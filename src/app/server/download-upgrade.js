@@ -14,7 +14,9 @@ const { openFile, rmrf } = fsExport
 const log = require('../common/log')
 
 function getUrl (url, mirror) {
-  if (mirror === 'github') {
+  if (mirror === 'download-electerm') {
+    return url.replace('github.com', 'download-electerm.html5beta.com')
+  } else if (mirror === 'github') {
     return url
   } else {
     const arr = url.split('/')

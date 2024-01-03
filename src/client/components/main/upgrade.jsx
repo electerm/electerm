@@ -29,7 +29,7 @@ const c = prefix('common')
 export default class Upgrade extends PureComponent {
   state = {
     showCount: 0,
-    mirror: mirrors.github
+    mirror: mirrors['download-electerm']
   }
 
   downloadTimer = null
@@ -114,7 +114,7 @@ export default class Upgrade extends PureComponent {
   timeout = () => {
     const { mirror } = this.state
     this.cancel()
-    const next = mirror === mirrors.github
+    const next = mirror !== mirrors.sourceforge
       ? this.doUpgrade
       : undefined
     const nextMirror = mirror === mirrors.github

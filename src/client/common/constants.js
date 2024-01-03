@@ -297,6 +297,7 @@ export const rendererTypes = {
   webGL: 'webGL'
 }
 export const mirrors = {
+  'download-electerm': 'download-electerm',
   github: 'github',
   sourceforge: 'sourceforge'
 }
