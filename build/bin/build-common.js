@@ -5,6 +5,7 @@
 const { exec } = require('child_process')
 const { resolve } = require('path')
 const { writeFileSync, readFileSync } = require('fs')
+const replace = require('replace-in-file')
 
 exports.run = function (cmd) {
   return new Promise((resolve, reject) => {
@@ -49,4 +50,22 @@ exports.replaceJSON = function (func) {
   const js = require(pth)
   func(js)
   writeFileSync(pth, JSON.stringify(js, null, 2))
+}
+
+const options = {
+  files: require('path').resolve(__dirname, '../../electron-builder.json'),
+  from: ['"asar": true', '${productName}-${version}-${os}-${arch}.${ext}', ', "appx", "nsis"'], // eslint-disable-line
+  to: ['"asar": false', '${productName}-${version}-${os}-${arch}-loose.${ext}', ''] // eslint-disable-line
+}
+
+exports.replaceRun = function () {
+  return new Promise((resolve, reject) => {
+    replace(options, (err) => {
+      if (err) {
+        return reject(err)
+      }
+      console.log('start build loose file(no asar)')
+      resolve()
+    })
+  })
 }
