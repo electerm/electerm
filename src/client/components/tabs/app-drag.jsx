@@ -52,7 +52,6 @@ export default function AppDrag (props) {
       onMouseDown={onMouseDown}
       onMouseUp={onMouseUp}
       onDoubleClick={onDoubleClick}
-      onMouseLeave={onMouseUp}
     >
       {props.children}
     </div>
