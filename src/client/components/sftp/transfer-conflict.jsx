@@ -263,7 +263,7 @@ export default (props) => {
       toFile = await checkExist(typeTo, toPath)
     }
     if (fromFile.isDirectory) {
-      tr.zip = true
+      tr.zip = typeFrom !== typeTo
       tr.skipExpand = true
     }
     if (fromPath === toPath && typeFrom === typeTo) {

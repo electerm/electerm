@@ -28,7 +28,7 @@ import {
 } from '../../common/constants'
 import findParent from '../../common/find-parent'
 import sorter from '../../common/index-sorter'
-import { getFolderFromFilePath } from './file-read'
+import { getFolderFromFilePath, getLocalFileInfo } from './file-read'
 import { readClipboard, copy as copyToClipboard, hasFileInClipboardText } from '../../common/clipboard'
 import fs from '../../common/fs'
 import time from '../../common/time'
@@ -286,7 +286,7 @@ export default class FileSection extends React.Component {
     }
   }
 
-  onDropFile = (fromFiles, toFile, fromFileManager) => {
+  onDropFile = async (fromFiles, toFile, fromFileManager) => {
     const { type: fromType } = fromFiles[0]
     const {
       id,
@@ -321,7 +321,25 @@ export default class FileSection extends React.Component {
     }
 
     // other side, do transfer
-    this.transferDrop(fromFiles, toFile, operation)
+    let files = fromFiles
+    if (fromFileManager) {
+      files = await this.filterFiles(fromFiles)
+    }
+    this.transferDrop(files, toFile, operation)
+  }
+
+  filterFiles = async (files) => {
+    const res = []
+    for (const file of files) {
+      const { base, path } = file
+      const info = await getLocalFileInfo(
+        resolve(path, base)
+      )
+      if (info) {
+        res.push(info)
+      }
+    }
+    return res
   }
 
   transferDrop = (fromFiles, toFile, operation) => {
