@@ -48,6 +48,7 @@ Online demo: [https://electerm-demo.html5beta.com](https://electerm-demo.html5be
 
 ## Download
 
+- [Homepage](https://electerm.html5beta.com)
 - [sourceforge](https://sourceforge.net/projects/electerm.mirror/files/)
 - [github releases](https://github.com/electerm/electerm/releases)
 
