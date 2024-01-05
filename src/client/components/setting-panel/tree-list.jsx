@@ -334,7 +334,7 @@ export default class ItemListTree extends Component {
 
   renderSearch = () => {
     return (
-      <div className='pd1y pd2r'>
+      <div className='pd1y'>
         <Search
           onChange={this.handleChange}
           value={this.state.keyword}
@@ -965,7 +965,7 @@ export default class ItemListTree extends Component {
         {
           this.renderSearch()
         }
-        <div className='item-list-wrap pd2r' style={listStyle}>
+        <div className='item-list-wrap' style={listStyle}>
           {this.renderNewBookmarkGroup()}
           <Tree
             {...treeProps}
