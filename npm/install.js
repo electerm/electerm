@@ -7,8 +7,13 @@ const { resolve } = require('path')
 const { exec, rm, mv } = require('shelljs')
 const rp = require('phin').promisified
 const download = require('download')
-const isWin = os.platform() === 'win32'
-const isMac = os.platform() === 'darwin'
+const plat = os.platform()
+const isWin = plat === 'win32'
+const isMac = plat === 'darwin'
+const isLinux = plat === 'linux'
+const arch = os.arch()
+const isArm = arch === 'arm'
+const isArm64 = arch === 'arm64'
 const { homepage } = require('../package.json')
 const releaseInfoUrl = `${homepage}/data/electerm-github-release.json?_=${+new Date()}`
 const versionUrl = `${homepage}/version.html?_=${+new Date()}`
@@ -42,12 +47,12 @@ function getReleaseInfo (filter) {
     })
 }
 
-async function runLinux () {
+async function runLinux (name, nameWithExt) {
   const ver = await getVer()
-  const target = resolve(__dirname, `../electerm-${ver.replace('v', '')}-linux-x64`)
+  const target = resolve(__dirname, `../electerm-${ver.replace('v', '')}-${name}`)
   const targetNew = resolve(__dirname, '../electerm')
   exec(`rm -rf ${target} ${targetNew}`)
-  const releaseInfo = await getReleaseInfo(r => /linux-x64\.tar\.gz/.test(r.name))
+  const releaseInfo = await getReleaseInfo(r => r.name.includes(nameWithExt))
   await down(releaseInfo.browser_download_url)
   // await down('http://192.168.0.67:7500/electerm-0.16.1.tar.gz')
   exec(`mv ${target} ${targetNew}`)
@@ -81,6 +86,10 @@ if (isWin) {
   runWin()
 } else if (isMac) {
   runMac()
+} else if (isLinux && isArm) {
+  runLinux('linux-armv7l', 'linux-armv7l.tar.gz')
+} else if (isLinux && isArm64) {
+  runLinux('linux-arm64', 'linux-arm64.tar.gz')
 } else {
-  runLinux()
+  throw new Error(`platform: ${plat}, arch: ${arch} not supported`)
 }
