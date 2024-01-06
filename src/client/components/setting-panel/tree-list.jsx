@@ -723,15 +723,25 @@ export default class ItemListTree extends Component {
         title,
         this.state.keyword
       )
+    const propsAll = {
+      className: cls,
+      title: titleAll,
+      onContextMenu: e => this.onContextMenu(e, item, isGroup)
+    }
+    const titleProps = {
+      className: 'tree-item-title elli',
+      style: this.props.staticList
+        ? { maxWidth: (this.props.store.leftSidebarWidth - 110) + 'px' }
+        : undefined
+    }
+    const key = item.id || uid()
     return (
       <div
-        className={cls}
-        key={item.id || uid()}
-        title={titleAll}
-        onContextMenu={e => this.onContextMenu(e, item, isGroup)}
+        {...propsAll}
+        key={key}
       >
         <div
-          className='tree-item-title elli'
+          {...titleProps}
         >
           {tag}{titleHighlight}
         </div>
