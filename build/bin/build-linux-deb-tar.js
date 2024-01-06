@@ -4,9 +4,9 @@ const {
   writeSrc,
   builder: pb,
   replaceRun,
-  replaceJSON,
-  upload
+  replaceJSON
 } = require('./build-common')
+const { upload } = require('./custom-upload')
 
 async function main () {
   echo('running build for linux part 1')
