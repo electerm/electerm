@@ -6,7 +6,13 @@
 import { useRef } from 'react'
 import { useDelta, useConditionalEffect } from 'react-delta'
 import { maxTransport, typeMap } from '../../common/constants'
-import { getLocalFileInfo, getRemoteFileInfo, getFolderFromFilePath, getFileExt } from './file-read'
+import {
+  getLocalFileInfo,
+  getRemoteFileInfo,
+  getFolderFromFilePath,
+  getFileExt,
+  checkFolderSize
+} from './file-read'
 import copy from 'json-deep-copy'
 import { findIndex, find } from 'lodash-es'
 import generate from '../../common/uid'
@@ -263,8 +269,10 @@ export default (props) => {
       toFile = await checkExist(typeTo, toPath)
     }
     if (fromFile.isDirectory) {
-      tr.zip = typeFrom !== typeTo
-      tr.skipExpand = true
+      const skip = await checkFolderSize(props, fromFile)
+        .then(d => d && typeFrom !== typeTo)
+      tr.zip = skip
+      tr.skipExpand = skip
     }
     if (fromPath === toPath && typeFrom === typeTo) {
       return updateTransferAction({

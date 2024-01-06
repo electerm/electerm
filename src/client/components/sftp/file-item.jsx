@@ -28,7 +28,7 @@ import {
 } from '../../common/constants'
 import findParent from '../../common/find-parent'
 import sorter from '../../common/index-sorter'
-import { getFolderFromFilePath, getLocalFileInfo } from './file-read'
+import { getFolderFromFilePath, getLocalFileInfo, checkFolderSize } from './file-read'
 import { readClipboard, copy as copyToClipboard, hasFileInClipboardText } from '../../common/clipboard'
 import fs from '../../common/fs'
 import time from '../../common/time'
@@ -781,7 +781,7 @@ export default class FileSection extends React.Component {
     }
   }
 
-  getTransferList = (
+  getTransferList = async (
     file,
     toPathBase,
     _typeTo,
@@ -811,15 +811,16 @@ export default class FileSection extends React.Component {
       operation
     }
     if (isDirectory) {
+      const zip = await checkFolderSize(this.props, file)
       Object.assign(obj, {
-        zip: true,
-        skipExpand: true
+        zip,
+        skipExpand: zip
       })
     }
     return [obj]
   }
 
-  doTransferSelected = (
+  doTransferSelected = async (
     e,
     selectedFiles = this.props.selectedFiles,
     toPathBase,
@@ -828,7 +829,7 @@ export default class FileSection extends React.Component {
   ) => {
     let all = []
     for (const f of selectedFiles) {
-      const arr = this.getTransferList(f, toPathBase, typeTo, operation)
+      const arr = await this.getTransferList(f, toPathBase, typeTo, operation)
       all = [
         ...all,
         ...arr

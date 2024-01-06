@@ -5,8 +5,9 @@ const {
   readRemoteFile,
   writeRemoteFile
 } = require('./sftp-file')
-const { commonExtends } = require('./session-common')
-const { TerminalBase } = require('./session-base')
+const { commonExtends } = require('./session-common.js')
+const { TerminalBase } = require('./session-base.js')
+const { getSizeCount } = require('../common/get-folder-size-and-file-count.js')
 
 class Sftp extends TerminalBase {
   connect (initOptions) {
@@ -126,6 +127,22 @@ class Sftp extends TerminalBase {
       client.exec(cmd, this.getExecOpts(), (err) => {
         if (err) reject(err)
         else resolve()
+      })
+    })
+  }
+
+  getFolderSize (folderPath) {
+    return new Promise((resolve, reject) => {
+      const { client } = this
+      const cmd = `du -sh "${folderPath}" && find "${folderPath}" -type f | wc -l`
+      client.exec(cmd, this.getExecOpts(), (err, output) => {
+        if (err) {
+          reject(err)
+        } else {
+          resolve(
+            getSizeCount(output)
+          )
+        }
       })
     })
   }

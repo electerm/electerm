@@ -322,6 +322,7 @@ export const instSftpKeys = [
   'download',
   'upload',
   'mkdir',
+  'getFolderSize',
   'getHomeDir',
   'rmdir',
   'stat',

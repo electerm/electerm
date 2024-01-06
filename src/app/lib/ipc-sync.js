@@ -129,7 +129,8 @@ module.exports = {
         'statCustom',
         'openCustom',
         'closeCustom',
-        'writeCustom'
+        'writeCustom',
+        'getFolderSize'
       ]
     }
   }

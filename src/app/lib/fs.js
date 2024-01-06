@@ -10,6 +10,8 @@ const { promisify } = require('util')
 const execAsync = promisify(
   require('child_process').exec
 )
+const { getSizeCount, getSizeCountWin } = require('../common/get-folder-size-and-file-count.js')
+
 const ROOT_PATH = '/'
 
 // Encoding function
@@ -47,6 +49,20 @@ const run = (cmd) => {
  */
 const runWinCmd = (cmd) => {
   return execAsync(`powershell.exe -Command "${cmd}"`)
+}
+
+function getFolderSizeWin (folderPath) {
+  return runWinCmd(
+    `Get-ChildItem -Path "${folderPath}" -Recurse | Where-Object { ! $_.PSIsContainer } | Measure-Object -Property Length -Sum`
+  ).then(getSizeCountWin)
+}
+
+function getFolderSize (folderPath) {
+  if (isWin) {
+    return getFolderSizeWin(folderPath)
+  }
+  return run(`du -sh "${folderPath}" && find "${folderPath}" -type f | wc -l`)
+    .then(getSizeCount)
 }
 
 /**
@@ -227,6 +243,7 @@ const fsExport = Object.assign(
   {},
   fss,
   {
+    getFolderSize,
     run,
     runWinCmd,
     rmrf,

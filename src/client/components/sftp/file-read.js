@@ -4,7 +4,8 @@
 
 import generate from '../../common/uid'
 import fs from '../../common/fs'
-import { isWin } from '../../common/constants'
+import { isWin, typeMap } from '../../common/constants'
+import resolve from '../../common/resolve'
 
 export const getFileExt = fileName => {
   const sep = '.'
@@ -78,4 +79,22 @@ export const getRemoteFileInfo = async (sftp, filePath) => {
     id: generate(),
     isDirectory: stat.isDirectory
   }
+}
+
+export async function checkFolderSize (props, f) {
+  const pth = resolve(f.path, f.name)
+  const func = f.type === typeMap.remote
+    ? props.sftp
+    : window.fs
+  const {
+    size,
+    count
+  } = await func.getFolderSize(pth)
+  if (size >= 600) {
+    return false
+  }
+  if (size / count >= 100) {
+    return false
+  }
+  return true
 }
