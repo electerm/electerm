@@ -840,13 +840,7 @@ export default class FileSection extends React.Component {
 
   transfer = async () => {
     const { file } = this.state
-    const arr = this.getTransferList(file)
-    this.props.addTransferList(arr)
-  }
-
-  zipTransferDirectory = () => {
-    const { file } = this.state
-    const arr = this.getTransferList(file)
+    const arr = await this.getTransferList(file)
     this.props.addTransferList(arr)
   }
 
