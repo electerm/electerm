@@ -90,6 +90,13 @@ export async function checkFolderSize (props, f) {
     size,
     count
   } = await func.getFolderSize(pth)
+    .catch(err => {
+      console.log('get folder size fail', err)
+      return { size: 0, count: 0 }
+    })
+  if (count === 0) {
+    return true
+  }
   if (size >= 600) {
     return false
   }

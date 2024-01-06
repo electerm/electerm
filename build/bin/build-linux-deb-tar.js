@@ -3,10 +3,8 @@ const {
   run,
   writeSrc,
   builder: pb,
-  replaceRun,
   replaceJSON
 } = require('./build-common')
-const { upload } = require('./custom-upload')
 
 async function main () {
   echo('running build for linux part 1')
@@ -30,13 +28,6 @@ async function main () {
     }
   )
   await run(`${pb} --linux`)
-
-  echo('build linux loose tar.gz')
-  await replaceRun()
-  rm('-rf', 'dist')
-  writeSrc('linux-x64-loose.tar.gz')
-  await run(`${pb} --linux tar.gz`)
-  await upload()
 }
 
 main()

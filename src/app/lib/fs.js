@@ -54,7 +54,7 @@ const runWinCmd = (cmd) => {
 function getFolderSizeWin (folderPath) {
   return runWinCmd(
     `Get-ChildItem -Path "${folderPath}" -Recurse | Where-Object { ! $_.PSIsContainer } | Measure-Object -Property Length -Sum`
-  ).then(getSizeCountWin)
+  ).then(res => getSizeCountWin(res.stdout))
 }
 
 function getFolderSize (folderPath) {
