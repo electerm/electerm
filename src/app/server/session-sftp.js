@@ -131,20 +131,29 @@ class Sftp extends TerminalBase {
     })
   }
 
-  getFolderSize (folderPath) {
+  runExec (cmd) {
     return new Promise((resolve, reject) => {
       const { client } = this
-      const cmd = `du -sh "${folderPath}" && find "${folderPath}" -type f | wc -l`
-      client.exec(cmd, this.getExecOpts(), (err, output) => {
+      client.exec(cmd, this.getExecOpts(), (err, stream) => {
         if (err) {
           reject(err)
         } else {
-          resolve(
-            getSizeCount(output)
-          )
+          let out = Buffer.from('')
+          stream.on('end', (data) => {
+            resolve(out.toString())
+          }).on('data', (data) => {
+            out = Buffer.concat([out, data])
+          }).stderr.on('data', (data) => {
+            reject(data.toString())
+          })
         }
       })
     })
+  }
+
+  getFolderSize (folderPath) {
+    return this.runExec(`du -sh "${folderPath}" && find "${folderPath}" -type f | wc -l`)
+      .then(getSizeCount)
   }
 
   /**
