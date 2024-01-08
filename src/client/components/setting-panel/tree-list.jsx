@@ -590,6 +590,7 @@ export default class ItemListTree extends Component {
         onChange={this.handleChangeEdit}
         onPressEnter={this.handleSubmitEdit}
         addonAfter={confirm}
+        type='native'
       />
     )
   }
@@ -902,6 +903,7 @@ export default class ItemListTree extends Component {
             onPressEnter={this.handleSubmitSub}
             onChange={this.handleChangeBookmarkGroupTitleSub}
             addonAfter={confirm}
+            type='native'
           />
         )}
       />

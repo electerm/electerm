@@ -3,6 +3,7 @@
  */
 
 import { Input } from 'antd'
+import InputNative from './native-input'
 import React from 'react'
 import { findLastIndex } from 'lodash-es'
 import uid from '../../common/uid'
@@ -57,7 +58,7 @@ export default class InputAutoFocus extends React.PureComponent {
     const { type, ...rest } = this.props
     const Dom = type === 'password'
       ? Input.Password
-      : Input
+      : type === 'native' ? InputNative : Input
     return (
       <Dom
         {...rest}
