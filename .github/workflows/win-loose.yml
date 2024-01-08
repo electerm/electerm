@@ -29,7 +29,7 @@ jobs:
 
     # before_install:
     # - run: npm install --global --production windows-build-tools --vs2015
-    - run: npm install -g yarn
+    - run: npm install -g yarn electron-builder@24.9.1
     - run: npm un node-pty serialport
     - run: npm i
     - run: npm i -S -E node-pty@1.1.0-beta2

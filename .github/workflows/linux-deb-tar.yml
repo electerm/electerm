@@ -29,7 +29,7 @@ jobs:
     # - run: sleep 3
 
     # before_install:
-    - run: npm install -g yarn
+    - run: npm install -g yarn electron-builder@24.9.1
     - run: npm i
 
     # script:

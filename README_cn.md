@@ -165,14 +165,14 @@ npm run test
 # See https://yarnpkg.com/en/docs/install
 
 # Build linux only with -l
-npm i
+npm i -g electron-builder@24.9.1
 npm run prepare-build
-./node_modules/.bin/electron-builder --linux tar.gz
+electron-builder --linux tar.gz
 # or replace tar.gz to rpm/deb/AppImage
 # check dist/ folder
 
 # build for linux arm/
-./node_modules/.bin/electron-builder --linux --arm64
+electron-builder --linux --arm64
 ```
 
 ## 使用技巧
