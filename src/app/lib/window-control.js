@@ -21,7 +21,7 @@ exports.getScreenCurrent = () => {
         width: minWindowWidth
       }
   const { screen } = require('electron')
-  return screen.getDisplayNearestPoint(rect)
+  return screen.getDisplayMatching(rect)
 }
 
 exports.getScreenSize = () => {
