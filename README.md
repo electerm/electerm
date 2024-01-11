@@ -113,9 +113,9 @@ github sponsor
 
 [https://github.com/sponsors/electerm](https://github.com/sponsors/electerm)
 
-open collective
+kofi
 
-[![open collective badge](https://opencollective.com/electerm/tiers/backer.svg?avatarHeight=36&width=600)](https://opencollective.com/electerm)
+[https://ko-fi.com/zhaoxudong](https://ko-fi.com/zhaoxudong)
 
 wechat donate
 
