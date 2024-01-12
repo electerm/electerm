@@ -295,7 +295,6 @@ export default class FileSection extends React.Component {
     } = toFile
 
     let operation = ''
-
     // same side and drop to file = drop to folder
     if (!fromFileManager && fromType === toType && !isDirectoryTo) {
       return
@@ -331,9 +330,9 @@ export default class FileSection extends React.Component {
   filterFiles = async (files) => {
     const res = []
     for (const file of files) {
-      const { base, path } = file
+      const { name, path } = file
       const info = await getLocalFileInfo(
-        resolve(path, base)
+        resolve(path, name)
       )
       if (info) {
         res.push(info)
