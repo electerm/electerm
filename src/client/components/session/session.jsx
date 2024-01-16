@@ -506,6 +506,11 @@ export default class SessionWrapper extends Component {
         }
       )
     }
+    const simpleMapper = {
+      [paneMap.terminal]: 'T',
+      [paneMap.fileManager]: 'F',
+      [paneMap.ssh]: 'T'
+    }
     return (
       <div
         className='terminal-control fix'
@@ -527,7 +532,8 @@ export default class SessionWrapper extends Component {
                   onClick={() => this.onChangePane(types[i])}
                 >
                   <span className='type-tab-txt'>
-                    {e(type)}
+                    <span className='w500'>{e(type)}</span>
+                    <span className='l500'>{simpleMapper[type]}</span>
                     <span className='type-tab-line' />
                   </span>
                 </span>

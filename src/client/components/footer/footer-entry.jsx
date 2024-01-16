@@ -80,7 +80,7 @@ export default class SystemMenu extends Component {
       <div className='terminal-footer-unit terminal-footer-info'>
         <div className='fleft relative'>
           <Select
-            style={{ minWidth: 100 }}
+            style={{ minWidth: 30 }}
             placeholder={f('encode')}
             defaultValue={this.props.currentTab?.encode}
             onSelect={this.handleSwitchEncoding}

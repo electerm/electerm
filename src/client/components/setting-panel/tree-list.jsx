@@ -2,7 +2,7 @@
  * tree list for bookmarks
  */
 
-import { Component } from '../common/react-subx'
+import { Component } from 'react'
 import {
   BookOutlined,
   CheckOutlined,

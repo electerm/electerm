@@ -21,7 +21,7 @@
     line-height 24px
 .terminal-footer-unit
   margin-left 10px
-  line-height 34px
+  line-height 39px
   textarea.ant-input
     min-height 26px
     height 26px
@@ -45,3 +45,12 @@
       display none
 .batch-input-holder
   width 100px
+@media (max-width: 500px)
+  .batch-input-outer
+    &.bi-show
+      position fixed
+      left 100px
+      right 0
+      bottom 0
+      z-index 100
+      background main

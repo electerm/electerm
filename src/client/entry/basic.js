@@ -2,6 +2,7 @@
  * init app data then write main script to html body
  */
 import '../css/basic.styl'
+import '../css/mobile.styl'
 import { get as _get } from 'lodash-es'
 import '../common/pre'
 

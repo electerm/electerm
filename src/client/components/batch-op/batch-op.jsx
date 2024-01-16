@@ -540,6 +540,11 @@ export default class BatchOp extends Component {
 
   renderTab = (tab) => {
     const data = this.state[tab]
+    const keeps = [
+      'index',
+      'host',
+      'state'
+    ]
     const columns = [
       'index',
       'host',
@@ -556,7 +561,8 @@ export default class BatchOp extends Component {
         title: this.translate(k),
         dataIndex: k,
         key: k,
-        render: (k) => k || ''
+        render: (k) => k || '',
+        responsive: keeps.includes(k) ? undefined : ['md', 'lg', 'xl', 'xxl']
       }
     })
     if (tab === 'tasks') {

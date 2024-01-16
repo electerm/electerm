@@ -193,7 +193,7 @@ export default class QuickCommandsFooterBox extends Component {
                 value={this.state.keyword}
                 onChange={this.handleChange}
                 placeholder=''
-                className='iblock'
+                className='iblock qm-search-input'
               />
             </span>
             <span className='fleft mg1l'>

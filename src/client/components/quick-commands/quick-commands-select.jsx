@@ -30,7 +30,8 @@ export default class QuickCommandsFooter extends PureComponent {
           onMouseEnter={this.handleOpen}
           onMouseLeave={this.handleMouseLeave}
         >
-          {e('quickCommands')}
+          <span className='w500'>{e('quickCommands')}</span>
+          <span className='l500'>Q</span>
         </Button>
       </div>
     )

@@ -48,3 +48,30 @@ body .ant-drawer .ant-drawer-content-wrapper
 .setting-col
   ::-webkit-scrollbar
     width 0
+@media (max-width: 1100px)
+  .setting-col
+    position fixed
+    top 128px
+    bottom 0
+    left 43px
+    right 0
+    overflow-y scroll
+  .setting-row
+    position static
+    top auto
+  .setting-row-left
+    left auto
+    width auto
+    bottom auto
+    padding 138px 10px 10px 10px
+  .setting-row-right
+    left auto
+    right auto
+    bottom auto
+    top auto
+    padding 10px
+  .setting-tabs-bookmarks
+    .setting-row-left
+      width auto
+    .setting-row-right
+      left auto

@@ -251,7 +251,7 @@ export default class SettingCommon extends Component {
     )
   }
 
-  renderNumber = (name, options, title = '', width = 136) => {
+  renderNumber = (name, options, title = '', width = '100%') => {
     let value = this.props.config[name]
     if (options.valueParser) {
       value = options.valueParser(value)
@@ -286,7 +286,7 @@ export default class SettingCommon extends Component {
         return vv
       }
       opts.style = {
-        width: width + 'px'
+        width
       }
     }
     return (
@@ -554,7 +554,7 @@ export default class SettingCommon extends Component {
             step: 200,
             min: 100,
             cls: 'timeout-desc'
-          }, e('timeoutDesc'), 400)
+          }, e('timeoutDesc'))
         }
         {
           this.renderNumber('keepaliveInterval', {
@@ -563,7 +563,7 @@ export default class SettingCommon extends Component {
             max: 20000000,
             cls: 'keepalive-interval-desc',
             extraDesc: '(ms)'
-          }, e('keepaliveIntervalDesc'), 400)
+          }, e('keepaliveIntervalDesc'))
         }
         {
           this.renderNumber('opacity', {
@@ -571,7 +571,7 @@ export default class SettingCommon extends Component {
             min: 0,
             max: 1,
             cls: 'opacity'
-          }, e('opacity'), 400)
+          }, e('opacity'))
         }
 
         <div className='pd2b'>
