@@ -5,6 +5,7 @@ export default function AppDrag (props) {
     const {
       target
     } = e
+    console.log('ttt')
     const { classList = [] } = target || {}
     if (
       !classList.contains('app-drag') &&

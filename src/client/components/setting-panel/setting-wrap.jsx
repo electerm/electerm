@@ -6,9 +6,16 @@ import { Component } from 'react'
 import { Drawer } from 'antd'
 import { CloseCircleOutlined } from '@ant-design/icons'
 import { sidebarWidth } from '../../common/constants'
+import AppDrag from '../tabs/app-drag'
 import './setting-wrap.styl'
 
 export default class SettingWrap extends Component {
+  renderDrag () {
+    return (
+      <AppDrag />
+    )
+  }
+
   render () {
     const pops = {
       open: this.props.visible,
@@ -32,6 +39,9 @@ export default class SettingWrap extends Component {
           className='close-setting-wrap'
           onClick={this.props.onCancel}
         />
+        {
+          this.props.useSystemTitleBar ? null : <AppDrag />
+        }
         {this.props.visible ? this.props.children : null}
       </Drawer>
     )
