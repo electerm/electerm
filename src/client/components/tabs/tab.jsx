@@ -2,7 +2,7 @@
  * file section
  */
 
-import React from 'react'
+import { Component } from 'react'
 import runIdle from '../../common/run-idle'
 import {
   CloseOutlined,
@@ -22,6 +22,7 @@ import {
   commonActions
 } from '../../common/constants'
 import TabTitle from './tab-title'
+import { shortcutDescExtend } from '../shortcuts/shortcut-handler.js'
 
 const { prefix } = window
 const e = prefix('tabs')
@@ -29,7 +30,7 @@ const m = prefix('menu')
 const onDragCls = 'ondrag-tab'
 const onDragOverCls = 'dragover-tab'
 
-export default class Tab extends React.Component {
+class Tab extends Component {
   constructor (props) {
     super(props)
     this.state = {
@@ -245,13 +246,14 @@ export default class Tab extends React.Component {
     setTabs(tabs)
   }
 
-  renderContext () {
+  renderContext = () => {
     const { tabs, tab } = this.props
     const len = tabs.length
     const index = findIndex(tabs, t => t.id === tab.id)
     const noRight = index >= len - 1
     const isSshConfig = tab.type === terminalSshConfigType
     const res = []
+    const reloadShortcut = this.getShortcut('app_reloadCurrentTab')
     res.push({
       func: 'handleClose',
       icon: 'CloseOutlined',
@@ -288,7 +290,8 @@ export default class Tab extends React.Component {
     res.push({
       func: 'handleReloadTab',
       icon: 'Loading3QuartersOutlined',
-      text: m('reload')
+      text: m('reload'),
+      subText: reloadShortcut
     })
     return res
   }
@@ -424,3 +427,5 @@ export default class Tab extends React.Component {
     )
   }
 }
+
+export default shortcutDescExtend(Tab)

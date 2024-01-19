@@ -6,6 +6,11 @@ export default () => {
       shortcutMac: 'alt+w'
     },
     {
+      name: 'app_reloadCurrentTab',
+      shortcut: 'alt+r',
+      shortcutMac: 'alt+r'
+    },
+    {
       name: 'app_newBookmark',
       shortcut: 'ctrl+n',
       shortcutMac: 'meta+n'

@@ -49,6 +49,13 @@ class Sessions extends Component {
     )
   }
 
+  reloadCurrentTabShortcut = (e) => {
+    e.stopPropagation()
+    this.reloadTab(
+      this.getCurrentTab()
+    )
+  }
+
   watch = () => {
     window.addEventListener('message', this.onEvent)
   }
