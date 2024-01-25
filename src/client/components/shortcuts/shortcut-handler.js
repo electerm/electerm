@@ -75,6 +75,17 @@ export function shortcutExtend (Cls) {
     ) {
       return true
     }
+    if (
+      this.term &&
+      key === 'c' &&
+      type === 'keydown' &&
+      !altKey &&
+      !shiftKey &&
+      ctrlKey &&
+      this.onZmodem
+    ) {
+      this.onZmodemEnd()
+    }
     const codeName = event instanceof window.WheelEvent
       ? (wheelDeltaY > 0 ? 'mouseWheelUp' : 'mouseWheelDown')
       : code

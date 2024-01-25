@@ -104,7 +104,7 @@ const fs = {
     const cb = args.pop()
     window.fs.readCustom(
       p1,
-      encodeUint8Array(arr),
+      arr.length,
       ...args
     )
       .then((data) => {
