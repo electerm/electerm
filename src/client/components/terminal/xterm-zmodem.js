@@ -1,48 +1,55 @@
 import zmodem from 'zmodem.js/src/zmodem_browser'
 
-function zmodemAttach (ws, opts, ctx) {
-  if (opts === undefined) { opts = {} }
-  const term = this
-  const senderFunc = function (octets) { return ws.send(new Uint8Array(octets)) }
-  let zsentry = null
-  function shouldWrite () {
-    return !!zsentry.get_confirmed_session() || !opts.noTerminalWriteOutsideSession
-  }
-  zsentry = new zmodem.Sentry({
-    to_terminal: function (octets) {
-      if (shouldWrite()) {
-        term.write(String.fromCharCode.apply(String, octets))
-      }
-    },
-    sender: senderFunc,
-    on_retract: ctx.onzmodemRetract,
-    on_detect: ctx.onZmodemDetect
-  })
-  function handleWSMessage (evt) {
-    if (typeof evt.data === 'string') {
-      if (shouldWrite()) {
-        term.write(evt.data)
-      }
-    } else {
-      zsentry.consume(evt.data)
-    }
-  }
-  ws.binaryType = 'arraybuffer'
-  ws.addEventListener('message', handleWSMessage)
-}
-
 export class AddonZmodem {
   _disposables = []
 
   activate (terminal) {
-    terminal.zmodemAttach = zmodemAttach
-    terminal.zmodemBrowser = zmodem.Browser
+    terminal.zmodemAttach = this.zmodemAttach.bind(this)
+  }
+
+  sendWebSocket (octets) {
+    const { socket } = this
+    if (socket && socket.readyState === WebSocket.OPEN) {
+      return socket.send(new Uint8Array(octets))
+    } else {
+      console.error('WebSocket is not open')
+    }
+  }
+
+  zmodemAttach (ctx) {
+    this.socket = ctx.socket
+    this.term = ctx.term
+    this.ctx = ctx
+    this.zsentry = new zmodem.Sentry({
+      to_terminal: (octets) => {
+        if (ctx.onZmodem) {
+          this.term.write(String.fromCharCode.apply(String, octets))
+        }
+      },
+      sender: this.sendWebSocket.bind(this),
+      on_retract: ctx.onzmodemRetract,
+      on_detect: ctx.onZmodemDetect
+    })
+    this.socket.binaryType = 'arraybuffer'
+    this.socket.addEventListener('message', this.handleWSMessage.bind(this))
+  }
+
+  handleWSMessage (evt) {
+    if (typeof evt.data === 'string') {
+      if (this.ctx.onZmodem) {
+        this.term.write(evt.data)
+      }
+    } else {
+      this.zsentry.consume(evt.data)
+    }
   }
 
   dispose () {
+    this.socket && this.socket.removeEventListener('message', this.handleWSMessage)
     this._disposables.forEach(d => d.dispose())
     this._disposables.length = 0
+    this.term = null
+    this.zsentry = null
+    this.socket = null
   }
 }
-
-export const Zmodem = zmodem

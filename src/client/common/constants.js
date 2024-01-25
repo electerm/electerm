@@ -339,3 +339,4 @@ export const instSftpKeys = [
   'writeFile'
 ]
 export const cwdId = '=__+__'
+export const zmodemTransferPackSize = 1024 * 1024 * 2

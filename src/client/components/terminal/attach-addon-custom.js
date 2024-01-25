@@ -7,12 +7,16 @@ import strip from '@electerm/strip-ansi'
 export default class AttachAddonCustom extends AttachAddon {
   constructor (term, options, encode, isWindowsShell) {
     super(term, options)
+    this.term = term
     this.decoder = new TextDecoder(encode)
     this.isWindowsShell = isWindowsShell
   }
 
-  activate (terminal) {
+  activate (terminal = this.term) {
     const writeToTerminal = (data) => {
+      if (terminal.parent?.onZmodem) {
+        return
+      }
       if (typeof data === 'string') {
         return terminal.write(data)
       }
@@ -79,9 +83,16 @@ export default class AttachAddonCustom extends AttachAddon {
     this._disposables.push(addSocketListener(this._socket, 'close', () => this.dispose()))
     this._disposables.push(addSocketListener(this._socket, 'error', () => this.dispose()))
   }
+
+  dispose () {
+    this.term = null
+    this._disposables.forEach(d => d.dispose())
+    this._disposables.length = 0
+  }
 }
 
 function addSocketListener (socket, type, handler) {
+  console.log('init handler', type)
   socket.addEventListener(type, handler)
   return {
     dispose: () => {
@@ -89,6 +100,7 @@ function addSocketListener (socket, type, handler) {
         // Already disposed
         return
       }
+      console.log('dispose', type)
       socket.removeEventListener(type, handler)
     }
   }

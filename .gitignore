@@ -114,3 +114,4 @@ dist
 /build/web-app/client
 /*.tar
 /*.gz
+.vscode
