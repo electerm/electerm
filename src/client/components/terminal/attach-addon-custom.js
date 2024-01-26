@@ -92,15 +92,12 @@ export default class AttachAddonCustom extends AttachAddon {
 }
 
 function addSocketListener (socket, type, handler) {
-  console.log('init handler', type)
   socket.addEventListener(type, handler)
   return {
     dispose: () => {
       if (!handler) {
-        // Already disposed
         return
       }
-      console.log('dispose', type)
       socket.removeEventListener(type, handler)
     }
   }

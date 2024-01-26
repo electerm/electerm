@@ -50,6 +50,7 @@ import { KeywordHighlighterAddon } from './highlight-addon.js'
 import { getLocalFileInfo } from '../sftp/file-read.js'
 import { SerializeAddon } from 'xterm-addon-serialize'
 import strip from '@electerm/strip-ansi'
+import { formatBytes } from '../../common/byte-format.js'
 import * as fs from './fs.js'
 
 const { prefix } = window
@@ -73,7 +74,6 @@ class Term extends Component {
       saveTerminalLogToFile: !!this.props.config.saveTerminalLogToFile,
       addTimeStampToTermLog: !!this.props.config.addTimeStampToTermLog,
       passType: 'password',
-      zmodemTransfers: {},
       lines: []
     }
   }
@@ -167,11 +167,6 @@ class Term extends Component {
   ]
 
   initAttachAddon = (encode) => {
-    if (this.attachAddon) {
-      // this.attachAddon.dispose()
-      // this.attachAddon.activate(this.term)
-      return
-    }
     this.attachAddon = new AttachAddon(
       this.socket,
       undefined,
@@ -445,17 +440,26 @@ class Term extends Component {
     log.debug('zmodemRetract')
   }
 
+  writeBanner = (type) => {
+    this.term.write('\r\nRecommmend use trzsz instead: https://github.com/trzsz/trzsz\r\n')
+    this.term.write(`\x1b[32mZMODEM::${type}::START\x1b[0m\r\n\r\n`)
+  }
+
   onReceiveZmodemSession = async () => {
     const savePath = await this.openSaveFolderSelect()
     this.zsession.on('offer', this.onOfferReceive)
     this.zsession.start()
+    this.term.write('\r\n\x1b[2A\r\n')
     if (!savePath) {
       return this.onZmodemEnd()
     }
+    this.writeBanner('RECEIVE')
     this.zmodemSavePath = savePath
     return new Promise((resolve) => {
       this.zsession.on('session_end', resolve)
-    }).then(this.onZmodemEnd).catch(this.onZmodemCatch)
+    })
+      .then(this.onZmodemEnd)
+      .catch(this.onZmodemCatch)
   }
 
   initZmodemDownload = async (name, size) => {
@@ -473,8 +477,8 @@ class Term extends Component {
     this.downloadFd = fd
     this.downloadPath = pth
     this.downloadCount = 0
+    this.zmodemStartTime = Date.now()
     this.downloadSize = size
-    this.term.write('\r\n\x1b[2A\n')
     this.updateZmodemProgress(
       0, pth, size, transferTypeMap.download
     )
@@ -490,15 +494,39 @@ class Term extends Component {
       await this.initZmodemDownload(name, size)
     }
     xfer.on('input', this.onZmodemDownload)
-    await xfer.accept().catch(this.onZmodemEnd)
+    this.xfer = xfer
+    await xfer.accept()
+      .then(this.finishZmodemTransfer)
+      .catch(this.onZmodemEnd)
+  }
+
+  checkCache = async () => {
+    if (this.DownloadCache?.length > 0) {
+      return fs.write(this.downloadFd, new Uint8Array(this.DownloadCache))
+    }
   }
 
   onZmodemDownload = async payload => {
     if (this.onCanceling || !this.downloadFd) {
       return
     }
-    await fs.write(this.downloadFd, new Uint8Array(payload))
+    // if (!this.DownloadCache) {
+    //   this.DownloadCache = []
+    // }
+    // this.DownloadCache = this.DownloadCache.concat(payload)
+    // this.downloadCount += payload.length
+    // if (this.DownloadCache.length < zmodemTransferPackSize) {
+    //   return this.updateZmodemProgress(
+    //     this.downloadCount,
+    //     this.downloadPath,
+    //     this.downloadSize,
+    //     transferTypeMap.download
+    //   )
+    // }
+    // this.writeCache = this.DownloadCache
+    // this.DownloadCache = []
     this.downloadCount += payload.length
+    await fs.write(this.downloadFd, new Uint8Array(payload))
     this.updateZmodemProgress(
       this.downloadCount,
       this.downloadPath,
@@ -508,26 +536,37 @@ class Term extends Component {
   }
 
   updateZmodemProgress = throttle((start, name, size, type) => {
-    this.setState({
-      zmodemTransfer: {
-        type,
-        start,
-        name,
-        size
-      }
-    }, this.writeZmodemProgress)
+    this.zmodemTransfer = {
+      type,
+      start,
+      name,
+      size
+    }
+    this.writeZmodemProgress()
   }, 500)
 
+  finishZmodemTransfer = () => {
+    this.zmodemTransfer = {
+      ...this.zmodemTransfer,
+      start: this.zmodemTransfer.size
+    }
+    this.writeZmodemProgress()
+  }
+
   writeZmodemProgress = () => {
+    if (this.onCanceling) {
+      return
+    }
     const {
-      size, start, name, type
-    } = this.state.zmodemTransfer
+      size, start, name
+    } = this.zmodemTransfer
+    const speed = size > 0 ? formatBytes(start * 1000 / 1024 / (Date.now() - this.zmodemStartTime)) : 0
     const percent = size > 0 ? Math.floor(start * 100 / size) : 100
-    const str = `\x1b[32m${type}\x1b[0m:${name}:${percent}%(${start}/${size})`
+    const str = `\x1b[32m${name}\x1b[0m::${percent}%,${start}/${size},${speed}/s`
     this.term.write('\r\n\x1b[2A' + str + '\n')
   }
 
-  zmodemTransfer = async (file, filesRemaining, sizeRemaining) => {
+  zmodemTransferFile = async (file, filesRemaining, sizeRemaining) => {
     const offer = {
       obj: file,
       name: file.name,
@@ -540,6 +579,7 @@ class Term extends Component {
       this.onZmodemEnd()
       return window.store.onError(new Error('Transfer cancelled, maybe file already exists'))
     }
+    this.zmodemStartTime = Date.now()
     const fd = await fs.open(file.filePath, 'r')
     let start = 0
     const { size } = file
@@ -559,6 +599,7 @@ class Term extends Component {
       }
     }
     await fs.close(fd)
+    this.finishZmodemTransfer()
     await xfer.end()
   }
 
@@ -610,10 +651,11 @@ class Term extends Component {
     if (!files || !files.length) {
       return false
     }
+    this.writeBanner('SEND')
     let filesRemaining = files.length
     let sizeRemaining = files.reduce((a, b) => a + b.size, 0)
     for (const f of files) {
-      await this.zmodemTransfer(f, filesRemaining, sizeRemaining)
+      await this.zmodemTransferFile(f, filesRemaining, sizeRemaining)
       filesRemaining = filesRemaining - 1
       sizeRemaining = sizeRemaining - f.size
     }
@@ -621,6 +663,7 @@ class Term extends Component {
   }
 
   onSendZmodemSession = async () => {
+    this.term.write('\r\n\x1b[2A\n')
     const files = await this.openFileSelect()
     this.beforeZmodemUpload(files)
   }
@@ -628,28 +671,28 @@ class Term extends Component {
   onZmodemEnd = async () => {
     delete this.zmodemSavePath
     this.onCanceling = true
+    if (this.downloadFd) {
+      await fs.close(this.downloadFd)
+    }
+    if (this.xfer && this.xfer.end) {
+      await this.xfer.end().catch(
+        console.error
+      )
+    }
+    delete this.xfer
     if (this.zsession && this.zsession.close) {
       await this.zsession.close().catch(
         console.error
       )
     }
     delete this.zsession
-    // this.initAttachAddon()
     this.term.focus()
-    // this.timers.endZmodem = setTimeout(() => {
-    //   this.term.write('\r\n')
-    // }, 100)
-    if (this.downloadFd) {
-      await fs.close(this.downloadFd)
-    }
+    this.term.write('\r\n')
     delete this.downloadFd
     delete this.downloadPath
     delete this.downloadCount
     delete this.downloadSize
-    // this.timers.endZmodem1 = setTimeout(() => {
-    //   delete this.onZmodem
-    //   this.term.write('\r\n')
-    // }, 500)
+    delete this.DownloadCache
   }
 
   onZmodemCatch = (e) => {
