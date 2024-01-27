@@ -18,7 +18,7 @@
 
 Open-sourced terminal/ssh/telnet/serialport/sftp client(linux, mac, win).
 
-For experienced developers, you may try the web app version running in browser: [electerm-web](https://github.com/electerm/electerm-web)
+For experienced developers, you may try the web app version running in browser(including mobile device): [electerm-web](https://github.com/electerm/electerm-web)
 
 Online demo: [https://electerm-demo.html5beta.com](https://electerm-demo.html5beta.com)
 

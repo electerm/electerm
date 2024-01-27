@@ -18,7 +18,7 @@
 
 开源终端/ssh/telnet/serialport/sftp客户端(linux, mac, win)。
 
-有经验的开发者也可以尝试运行于浏览器的web app版本: [electerm-web](https://github.com/electerm/electerm-web)
+有经验的开发者也可以尝试运行于浏览器(支持移动设备)的web app版本: [electerm-web](https://github.com/electerm/electerm-web)
 
 在线演示: [https://electerm-demo.html5beta.com](https://electerm-demo.html5beta.com)
 
