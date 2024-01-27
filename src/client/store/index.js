@@ -216,7 +216,6 @@ class Store {
       store
     } = window
     return store.showModal ||
-      store.termSearchOpen ||
       store.showInfoModal ||
       store.showEditor ||
       store.showFileModal

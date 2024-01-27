@@ -29,6 +29,7 @@ export default class QuickCommandsFooter extends PureComponent {
           size='small'
           onMouseEnter={this.handleOpen}
           onMouseLeave={this.handleMouseLeave}
+          type='ghost'
         >
           <span className='w500'>{e('quickCommands')}</span>
           <span className='l500'>Q</span>
