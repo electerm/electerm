@@ -469,7 +469,7 @@ class Term extends Component {
     let pth = window.pre.resolve(
       this.zmodemSavePath, name
     )
-    const exist = await fs.exists(pth)
+    const exist = await fs.exists(pth).catch(() => false)
     if (exist) {
       pth = pth + '.' + generate()
     }
