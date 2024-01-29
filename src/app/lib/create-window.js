@@ -6,6 +6,7 @@ const {
   isDev, packInfo, iconPath, isMac,
   minWindowWidth, minWindowHeight
 } = require('../common/runtime-constants')
+const defaults = require('../common/default-setting')
 const {
   getWindowSize,
   setWindowPos
@@ -21,7 +22,7 @@ exports.createWindow = async function () {
   const userConfig = await getDbConfig() || {}
   global.et.requireAuth = !!userConfig.hashedPassword
   const { width, height, x, y } = await getWindowSize()
-  const { useSystemTitleBar } = userConfig
+  const { useSystemTitleBar = defaults.useSystemTitleBar } = userConfig
   const win = new BrowserWindow({
     width,
     height,
@@ -40,7 +41,7 @@ exports.createWindow = async function () {
       enableRemoteModule: false,
       preload: resolve(__dirname, '../preload/preload.js')
     },
-    titleBarStyle: useSystemTitleBar ? 'default' : 'customButtonsOnHover',
+    titleBarStyle: useSystemTitleBar ? 'default' : 'hidden',
     icon: iconPath
   })
   // hides the traffic lights
