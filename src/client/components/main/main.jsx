@@ -73,6 +73,7 @@ export default class Index extends Component {
     const cls = classnames({
       loaded: configLoaded,
       'system-ui': store.config.useSystemTitleBar,
+      'not-system-ui': !store.config.useSystemTitleBar,
       'is-mac': isMac,
       'is-win': isWin,
       pinned,

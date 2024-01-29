@@ -187,6 +187,7 @@ export default () => {
     height: 500,
     isMaximized: window.pre.runSync('isMaximized'),
     terminalFullScreen: false,
-    hideDelKeyTip: ls.getItem(dismissDelKeyTipLsKey) === 'y'
+    hideDelKeyTip: ls.getItem(dismissDelKeyTipLsKey) === 'y',
+    tabsHeight: 36
   }
 }

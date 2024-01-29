@@ -225,10 +225,6 @@ class Store {
     return 0
   }
 
-  get tabsHeight () {
-    return 45 // window.store.config.useSystemTitleBar ? 45 : 56
-  }
-
   get langs () {
     return JSON.parse(window.store._langs)
   }

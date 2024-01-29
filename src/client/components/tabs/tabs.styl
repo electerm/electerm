@@ -1,17 +1,24 @@
 @require '../../css/includes/theme-default'
 .tabs
   position relative
-  height 45px
+  height 36px
   overflow hidden
   background main-dark
-
+  ::-webkit-scrollbar
+    width 0
+    display none
+.not-system-ui.is-mac
+  .tabs-inner
+    margin-left 72px
+  .tabs-extra
+    right 0
 .tabs-inner
   position relative
   z-index 2
   padding 0
   margin-top 0
   display inline-block
-  height 63px
+  height 36px
   overflow-x scroll
   overflow-y hidden
   margin-left 42px
@@ -25,7 +32,7 @@
   min-width 100px
   max-width 200px
   line-height 36px
-  margin 10px 1px 0 0
+  margin 0 1px 0 0
   border-radius 3px 3px 0 0
   background main-dark
   text-align center
@@ -118,13 +125,13 @@
 .tabs-add-btn
   display inline-block
   vertical-align middle
-  margin 10px 3px 0 3px
+  margin 0 3px 0 3px
   -webkit-app-region no-drag
   color text
   &.empty
     font-size 20px
     margin-left 20px
-    margin-top 20px
+    margin-top 10px
   &:hover
     color text-light
 .tabs-extra

@@ -46,7 +46,7 @@ exports.createWindow = async function () {
   })
   // hides the traffic lights
   if (isMac) {
-    win.setWindowButtonVisibility(useSystemTitleBar)
+    win.setWindowButtonVisibility(true)
   }
 
   global.win = win

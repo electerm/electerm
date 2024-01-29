@@ -21,7 +21,6 @@ import {
   terminalSshConfigType,
   commonActions
 } from '../../common/constants'
-import TabTitle from './tab-title'
 import { shortcutDescExtend } from '../shortcuts/shortcut-handler.js'
 
 const { prefix } = window
@@ -382,6 +381,10 @@ class Tab extends Component {
     if (isEditting) {
       return this.renderEditting(tab, cls)
     }
+    const { tabCount, color } = tab
+    const styleTag = color
+      ? { borderTop: `1px solid ${color}` }
+      : {}
     return (
       <Tooltip
         title={title}
@@ -407,6 +410,7 @@ class Tab extends Component {
             className='tab-title elli pd1x'
             onClick={this.handleClick}
             onDoubleClick={this.handleDup}
+            style={styleTag}
             onContextMenu={this.handleContextMenu}
           >
             <Loading3QuartersOutlined
@@ -414,7 +418,9 @@ class Tab extends Component {
               onClick={this.handleReloadTab}
               title={m('reload')}
             />
-            <TabTitle tab={tab} />
+            <span className='tab-title'>
+              {tabCount}. {title}
+            </span>
           </div>
           <div className={'tab-status ' + status} />
           <div className='tab-traffic' />

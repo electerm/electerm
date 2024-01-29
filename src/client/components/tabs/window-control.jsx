@@ -4,6 +4,9 @@
 
 import { CloseOutlined, MinusOutlined } from '@ant-design/icons'
 import { Component } from '../common/react-subx'
+import {
+  isMacJs
+} from '../../common/constants'
 
 const { prefix } = window
 const m = prefix('menu')
@@ -14,7 +17,7 @@ export default class WindowControl extends Component {
       isMaximized,
       config
     } = this.props.store
-    if (config.useSystemTitleBar) {
+    if (config.useSystemTitleBar || isMacJs) {
       return null
     }
     const minimize = () => {

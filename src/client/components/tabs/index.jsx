@@ -18,7 +18,13 @@ import {
 import { Dropdown, Menu, Popover } from 'antd'
 import Tab from './tab'
 import './tabs.styl'
-import { tabWidth, tabMargin, extraTabWidth, windowControlWidth } from '../../common/constants'
+import {
+  tabWidth,
+  tabMargin,
+  extraTabWidth,
+  windowControlWidth,
+  isMacJs
+} from '../../common/constants'
 import findParentBySel from '../../common/find-parent'
 import WindowControl from './window-control'
 import BookmarksList from '../sidebar/bookmark-select'
@@ -239,8 +245,9 @@ export default class Tabs extends React.Component {
     const left = overflow
       ? '100%'
       : tabsWidthAll
+    const w1 = isMacJs ? 30 : windowControlWidth
     const style = {
-      width: width - windowControlWidth - 136
+      width: width - w1 - 136
     }
     return (
       <div
