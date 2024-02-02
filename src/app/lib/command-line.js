@@ -42,7 +42,7 @@ electerm -bo "/home/root/works.csv"
     .option('-i, --private-key-path <path>', 'specify an SSH private key path')
     .option('-ps, --passphrase <passphrase>', 'specify an SSH private key passphrase')
     .option('-pw, --password <password>', 'specify ssh server password')
-    .option('-pw, --set-env <setEnv>', 'specify envs')
+    .option('-se, --set-env <setEnv>', 'specify envs')
     .option('-so, --sftp-only', 'only show sftp panel')
     .exitOverride()
 
