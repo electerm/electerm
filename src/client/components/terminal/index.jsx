@@ -166,18 +166,15 @@ class Term extends Component {
     }
   ]
 
-  initAttachAddon = (encode) => {
+  initAttachAddon = () => {
     this.attachAddon = new AttachAddon(
+      this.term,
       this.socket,
-      undefined,
-      this.props.tab.encode,
       isWin && !this.isRemote()
     )
-    if (encode || this.decode) {
-      this.attachAddon.decoder = encode
-        ? new TextDecoder(encode)
-        : this.decode
-    }
+    this.attachAddon.decoder = new TextDecoder(
+      this.encode || this.props.tab.encode || 'utf-8'
+    )
     this.term.loadAddon(this.attachAddon)
   }
 
@@ -688,6 +685,7 @@ class Term extends Component {
     delete this.zsession
     this.term.focus()
     this.term.write('\r\n')
+    this.onZmodem = false
     delete this.downloadFd
     delete this.downloadPath
     delete this.downloadCount
@@ -1078,7 +1076,6 @@ class Term extends Component {
     const {
       srcId, from = 'bookmarks',
       type,
-      encode,
       term: terminalType,
       displayRaw
     } = tab
@@ -1155,19 +1152,13 @@ class Term extends Component {
     const socket = new WebSocket(wsUrl)
     socket.onclose = this.oncloseSocket
     socket.onerror = this.onerrorSocket
+    this.socket = socket
+    this.term = term
     socket.onopen = () => {
-      this.attachAddon = new AttachAddon(
-        socket,
-        undefined,
-        encode,
-        isWin && !this.isRemote()
-      )
-      term.loadAddon(this.attachAddon)
-      // socket.addEventListener('message', this.onSocketData)
+      this.initAttachAddon()
       this.runInitScript()
       term._initialized = true
     }
-    this.socket = socket
     // term.onRrefresh(this.onRefresh)
     term.onResize(this.onResizeTerminal)
     if (pick(term, 'buffer._onBufferChange._listeners')) {
@@ -1187,7 +1178,6 @@ class Term extends Component {
     term.loadAddon(
       new KeywordHighlighterAddon(keywords)
     )
-    this.term = term
     window.store.triggerResize()
   }
 
@@ -1303,8 +1293,8 @@ class Term extends Component {
   // }
 
   switchEncoding = encode => {
-    this.decode = new TextDecoder(encode)
-    this.attachAddon.decoder = this.decode
+    this.encode = encode
+    this.attachAddon.decoder = new TextDecoder(encode)
   }
 
   render () {

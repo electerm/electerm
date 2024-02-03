@@ -4,10 +4,10 @@ export class AddonZmodem {
   _disposables = []
 
   activate (terminal) {
-    terminal.zmodemAttach = this.zmodemAttach.bind(this)
+    terminal.zmodemAttach = this.zmodemAttach
   }
 
-  sendWebSocket (octets) {
+  sendWebSocket = (octets) => {
     const { socket } = this
     if (socket && socket.readyState === WebSocket.OPEN) {
       return socket.send(new Uint8Array(octets))
@@ -16,7 +16,7 @@ export class AddonZmodem {
     }
   }
 
-  zmodemAttach (ctx) {
+  zmodemAttach = (ctx) => {
     this.socket = ctx.socket
     this.term = ctx.term
     this.ctx = ctx
@@ -26,15 +26,15 @@ export class AddonZmodem {
           this.term.write(String.fromCharCode.apply(String, octets))
         }
       },
-      sender: this.sendWebSocket.bind(this),
+      sender: this.sendWebSocket,
       on_retract: ctx.onzmodemRetract,
       on_detect: ctx.onZmodemDetect
     })
     this.socket.binaryType = 'arraybuffer'
-    this.socket.addEventListener('message', this.handleWSMessage.bind(this))
+    this.socket.addEventListener('message', this.handleWSMessage)
   }
 
-  handleWSMessage (evt) {
+  handleWSMessage = (evt) => {
     if (typeof evt.data === 'string') {
       if (this.ctx.onZmodem) {
         this.term.write(evt.data)
@@ -44,7 +44,7 @@ export class AddonZmodem {
     }
   }
 
-  dispose () {
+  dispose = () => {
     this.socket && this.socket.removeEventListener('message', this.handleWSMessage)
     this._disposables.forEach(d => d.dispose())
     this._disposables.length = 0

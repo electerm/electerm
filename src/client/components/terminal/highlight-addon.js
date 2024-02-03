@@ -62,5 +62,7 @@ export class KeywordHighlighterAddon {
   dispose () {
     // Restore the original write method when disposing the addon
     this.terminal.write = this.originalWrite
+    this.originalWrite = null
+    this.term = null
   }
 }
