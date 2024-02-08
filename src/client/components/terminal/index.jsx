@@ -613,7 +613,7 @@ class Term extends Component {
       title: 'Choose some files to send',
       message: 'Choose some files to send',
       properties
-    })
+    }).catch(() => false)
     if (!files || !files.length) {
       return this.onZmodemEnd()
     }
@@ -637,7 +637,7 @@ class Term extends Component {
         'treatPackageAsDirectory',
         'dontAddToRecent'
       ]
-    })
+    }).catch(() => false)
     if (!savePaths || !savePaths.length) {
       return false
     }
