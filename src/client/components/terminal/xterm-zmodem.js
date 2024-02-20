@@ -1,5 +1,5 @@
-import zmodem from 'zmodem.js/src/zmodem_browser'
-
+// import zmodem from 'zmodem-ts/dist/zmodem.mjs'
+import Sentry from 'zmodem-ts/dist/zsentry.js'
 export class AddonZmodem {
   _disposables = []
 
@@ -20,7 +20,7 @@ export class AddonZmodem {
     this.socket = ctx.socket
     this.term = ctx.term
     this.ctx = ctx
-    this.zsentry = new zmodem.Sentry({
+    this.zsentry = new Sentry({
       to_terminal: (octets) => {
         if (ctx.onZmodem) {
           this.term.write(String.fromCharCode.apply(String, octets))
