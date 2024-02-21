@@ -557,6 +557,29 @@ class TerminalSshBase extends TerminalBase {
     return shellOpts
   }
 
+  getUserName (connectOptions) {
+    const options = {
+      name: 'username',
+      instructions: [''],
+      prompts: [{
+        echo: false,
+        prompt: ''
+      }]
+    }
+    return this.onKeyboardEvent(options)
+      .then(data => {
+        const username = data ? data[0] : ''
+        if (username) {
+          this.connectOptions.username = data[0]
+        }
+        return this.sshConnect()
+      })
+      .catch(e => {
+        log.error('errored get username for', this.privateKeyPath, e)
+        return this.nextTry(e)
+      })
+  }
+
   async sshConnect () {
     const { initOptions } = this
     this.conn = new Client()
@@ -564,6 +587,9 @@ class TerminalSshBase extends TerminalBase {
     const {
       connectOptions
     } = this
+    if (!connectOptions.username) {
+      return this.getUserName(connectOptions)
+    }
     if (
       this.sshKeys ||
       (!connectOptions.privateKey && !connectOptions.password)
