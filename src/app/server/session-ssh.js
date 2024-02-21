@@ -575,7 +575,7 @@ class TerminalSshBase extends TerminalBase {
         return this.sshConnect()
       })
       .catch(e => {
-        log.error('errored get username for', this.privateKeyPath, e)
+        log.error('errored get username for', e)
         return this.nextTry(e)
       })
   }
