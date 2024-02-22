@@ -71,6 +71,7 @@ export default function KeywordForm (props) {
 
   function renderBefore (name) {
     const colors = ['red', 'green', 'yellow', 'blue', 'magenta', 'cyan', 'white']
+    const { themeConfig } = props
     return (
       <FormItem name={[name, 'color']} noStyle>
         <Select>
@@ -79,7 +80,7 @@ export default function KeywordForm (props) {
               const ps = {
                 className: 'color-picker-choose iblock',
                 style: {
-                  backgroundColor: color
+                  backgroundColor: themeConfig[color]
                 }
               }
               return (

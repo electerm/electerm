@@ -408,13 +408,15 @@ export default class SettingTerminal extends Component {
       keywords = [{ color: 'red' }]
     } = this.props.config
     const {
-      appPath
+      appPath,
+      getThemeConfig
     } = this.props.store
     const ps = {
       formData: {
         keywords
       },
-      submit: this.handleSubmitKeywords
+      submit: this.handleSubmitKeywords,
+      themeConfig: getThemeConfig()
     }
     const terminalLogPath = appPath
       ? osResolve(appPath, 'electerm', 'session_logs')
