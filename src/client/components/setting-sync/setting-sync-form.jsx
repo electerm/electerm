@@ -45,9 +45,7 @@ export default function SyncForm (props) {
     if (res.gistId) {
       up[syncType + 'GistId'] = res.gistId
     }
-    if (res.syncPassword) {
-      up[syncType + 'SyncPassword'] = res.syncPassword
-    }
+    up[syncType + 'SyncPassword'] = res.syncPassword || ''
     if (res.apiUrl) {
       up[syncType + 'ApiUrl'] = res.apiUrl
     }
