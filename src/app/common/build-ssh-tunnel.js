@@ -3,6 +3,6 @@ exports.buildSshTunnels = function (inst) {
     sshTunnel: inst.sshTunnel,
     sshTunnelRemotePort: inst.sshTunnelRemotePort,
     sshTunnelLocalPort: inst.sshTunnelLocalPort,
-    sshTunnelRemoteHost: inst.sshTunnelRemoteHost,
+    sshTunnelRemoteHost: inst.sshTunnelRemoteHost
   }]
 }

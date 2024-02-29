@@ -52,7 +52,7 @@ export default function renderSshTunnel () {
           <FormItem
             label={e('destination')}
             name={[field.name, 'sshTunnelRemoteHost']}
-            initialValue={'127.0.0.1'}
+            initialValue='127.0.0.1'
             required
           >
             <Input
