@@ -75,7 +75,7 @@ export default class Tabs extends React.Component {
     const len = tabs.length
     const addBtnWidth = 22
     const tabsWidth = this.tabsWidth()
-    const tabsWidthAll = tabMargin * len + 216 + tabsWidth
+    const tabsWidthAll = tabMargin * len + 166 + tabsWidth
     return width < (tabsWidthAll + addBtnWidth)
   }
 
