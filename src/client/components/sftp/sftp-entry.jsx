@@ -562,6 +562,22 @@ export default class Sftp extends Component {
     })
   }
 
+  sftpList = (sftp, remotePath) => {
+    return sftp.list(remotePath)
+      .then(arr => {
+        return arr.map(item => {
+          const { type } = item
+          return {
+            ...pick(item, ['name', 'size', 'accessTime', 'modifyTime', 'mode', 'owner', 'group']),
+            isDirectory: type === fileTypeMap.directory,
+            type: typeMap.remote,
+            path: remotePath,
+            id: generate()
+          }
+        })
+      })
+  }
+
   remoteList = async (
     returnList = false,
     remotePathReal,
@@ -644,52 +660,8 @@ export default class Sftp extends Component {
         }
       }
 
-      let remote = await sftp.list(remotePath)
+      const remote = await this.sftpList(sftp, remotePath)
       this.sftp = sftp
-      const remotes = deepCopy(remote)
-      remote = []
-      for (const _r of remotes) {
-        const r = _r
-        const { type, name } = r
-        const f = {
-          ...pick(r, ['name', 'size', 'accessTime', 'modifyTime', 'mode', 'owner', 'group']),
-          isDirectory: r.type === fileTypeMap.directory,
-          type: typeMap.remote,
-          path: remotePath,
-          id: generate()
-        }
-        if (type === fileTypeMap.link) {
-          const linkPath = resolve(remotePath, name)
-          let realpath = await sftp.readlink(linkPath)
-            .catch(e => {
-              console.debug(e)
-              return null
-            })
-          if (!realpath) {
-            continue
-          }
-          if (!isAbsPath(realpath)) {
-            realpath = resolve(remotePath, realpath)
-            realpath = await sftp.realpath(realpath)
-          }
-          const realFileInfo = await getRemoteFileInfo(
-            sftp,
-            realpath
-          ).catch(e => {
-            log.debug('seems a bad symbolic link')
-            log.debug(e)
-            return null
-          })
-          if (!realFileInfo) {
-            continue
-          }
-          f.isSymbolicLink = true
-          f.isDirectory = realFileInfo.isDirectory
-        } else {
-          f.isSymbolicLink = false
-        }
-        remote.push(f)
-      }
       const update = {
         remote,
         remoteFileTree: buildTree(remote),
@@ -712,6 +684,7 @@ export default class Sftp extends Component {
         ]).slice(0, maxSftpHistory)
       }
       this.setState(update, () => {
+        this.updateRemoteList(remote, remotePath, sftp)
         this.props.editTab(tab.id, {
           sftpCreated: true
         })
@@ -729,6 +702,53 @@ export default class Sftp extends Component {
       this.setState(update)
       this.onError(e)
     }
+  }
+
+  updateRemoteList = async (
+    remotes,
+    remotePath,
+    sftp
+  ) => {
+    const remote = []
+    for (const r of remotes) {
+      const { type, name } = r
+      if (type === fileTypeMap.link) {
+        const linkPath = resolve(remotePath, name)
+        let realpath = await sftp.readlink(linkPath)
+          .catch(e => {
+            console.debug(e)
+            return null
+          })
+        if (!realpath) {
+          continue
+        }
+        if (!isAbsPath(realpath)) {
+          realpath = resolve(remotePath, realpath)
+          realpath = await sftp.realpath(realpath)
+        }
+        const realFileInfo = await getRemoteFileInfo(
+          sftp,
+          realpath
+        ).catch(e => {
+          log.debug('seems a bad symbolic link')
+          log.debug(e)
+          return null
+        })
+        if (!realFileInfo) {
+          continue
+        }
+        r.isSymbolicLink = true
+        r.isDirectory = realFileInfo.isDirectory
+      } else {
+        r.isSymbolicLink = false
+      }
+      remote.push(r)
+    }
+    const update = {
+      remote,
+      remoteFileTree: buildTree(remote)
+    }
+    this.setState(update)
   }
 
   localList = async (returnList = false, localPathReal, oldPath) => {
