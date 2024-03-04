@@ -1,5 +1,6 @@
 import {
   Form,
+  Input,
   InputNumber,
   Radio,
   Space,
@@ -47,29 +48,46 @@ export default function renderSshTunnel () {
             </RadioButton>
           </RadioGroup>
         </FormItem>
+        <Space.Compact className='mg2x'>
+          <FormItem
+            label={e('destination')}
+            name={[field.name, 'sshTunnelRemoteHost']}
+            initialValue='127.0.0.1'
+            required
+          >
+            <Input
+              className='compact-input'
+              placeholder={e('host')}
+            />
+          </FormItem>
+          <FormItem
+            label=''
+            name={[field.name, 'sshTunnelRemotePort']}
+            initialValue={22}
+            required
+          >
+            <InputNumber
+              min={1}
+              max={65535}
+              // addonBefore={e('remotePort')}
+              className='compact-input'
+              placeholder={e('port')}
+            />
+          </FormItem>
+        </Space.Compact>
         <FormItem
-          label=''
-          name={[field.name, 'sshTunnelRemotePort']}
-          required
-        >
-          <InputNumber
-            min={1}
-            max={65535}
-            addonBefore={e('remotePort')}
-            className='compact-input'
-          />
-        </FormItem>
-        <FormItem
-          label=''
+          label={e('localPort')}
           name={[field.name, 'sshTunnelLocalPort']}
+          initialValue={22}
           required
           className='mg2x'
         >
           <InputNumber
             min={1}
             max={65535}
-            addonBefore={e('localPort')}
+            // addonBefore={e('localPort')}
             className='compact-input'
+            placeholder={e('port')}
           />
         </FormItem>
         <Button
