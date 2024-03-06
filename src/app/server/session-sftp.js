@@ -24,7 +24,7 @@ class Sftp extends TerminalBase {
     return new Promise((resolve, reject) => {
       conn.sftp((err, sftp) => {
         if (err) {
-          reject(err)
+          return reject(err)
         }
         this.sftp = sftp
         connInst.sftps[this.pid] = this

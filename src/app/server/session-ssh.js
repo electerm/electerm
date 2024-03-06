@@ -83,6 +83,8 @@ class TerminalSshBase extends TerminalBase {
       shellOpts
     } = connInst
     if (initOptions.enableSsh === false) {
+      this.conn = conn
+      connInst.terminals[this.pid] = this
       return Promise.resolve(this)
     }
     return new Promise((resolve, reject) => {
