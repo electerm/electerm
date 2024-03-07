@@ -472,10 +472,11 @@ export default class SessionWrapper extends Component {
   renderControl = () => {
     const { splitDirection, terminals, sftpPathFollowSsh } = this.state
     const { props } = this
-    const { pane } = props.tab
+    const { pane, enableSsh } = props.tab
+
     const termType = props.tab?.type
     const isSsh = props.tab.authType
-    const isLocal = termType === connectionMap.local || !termType
+    const isLocal = !isSsh && (termType === connectionMap.local || !termType)
     const isHori = splitDirection === terminalSplitDirectionMap.horizontal
     const cls1 = 'mg1r icon-split pointer iblock spliter'
     const cls2 = 'icon-direction pointer iblock spliter'
@@ -542,7 +543,7 @@ export default class SessionWrapper extends Component {
           }
         </div>
         {
-          isSsh || isLocal
+          (isSsh && enableSsh) || isLocal
             ? (
               <Tooltip title={checkTxt}>
                 <span {...checkProps}>

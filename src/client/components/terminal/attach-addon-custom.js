@@ -55,7 +55,7 @@ export default class AttachAddonCustom extends AttachAddon {
     const data = ev.target.result
     const { term } = this
     const str = this.decoder.decode(data)
-    if (term?.parent.props.sftpPathFollowSsh && term?.buffer.active.type !== 'alternate') {
+    if (term?.parent?.props.sftpPathFollowSsh && term?.buffer.active.type !== 'alternate') {
       const {
         cwdId
       } = term
