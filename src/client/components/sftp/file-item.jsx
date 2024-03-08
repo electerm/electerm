@@ -112,7 +112,7 @@ export default class FileSection extends React.Component {
           ? this.props.selectedFiles
           : [file]
       )
-    const prefix = file.type === typeMap.remote
+    const prefix = file.isRemote
       ? 'remote:'
       : ''
     const textToCopy = files.map(f => {
@@ -761,13 +761,15 @@ export default class FileSection extends React.Component {
   transferOrEnterDirectory = async (e, edit) => {
     const { file } = this.state
     const { isDirectory, type, size } = file
+    const isLocal = type === typeMap.local
+    const isRemote = type === typeMap.remote
     if (isDirectory) {
       return this.enterDirectory(e)
     }
-    if (!edit && type === typeMap.local) {
+    if (!edit && isLocal) {
       return this.openFile(this.state.file)
     }
-    const remoteEdit = !edit && type === typeMap.remote && size < maxEditFileSize
+    const remoteEdit = !edit && isRemote && size < maxEditFileSize
     if (
       edit === true || remoteEdit
     ) {
@@ -787,13 +789,14 @@ export default class FileSection extends React.Component {
     operation
   ) => {
     const { name, path, type, isDirectory } = file
-    let typeTo = type === typeMap.local
+    const isLocal = type === typeMap.local
+    let typeTo = isLocal
       ? typeMap.remote
       : typeMap.local
     if (_typeTo) {
       typeTo = _typeTo
     }
-    let toPath = type === typeMap.local
+    let toPath = isLocal
       ? this.props[typeMap.remote + 'Path']
       : this.props[typeMap.local + 'Path']
     if (toPathBase) {
@@ -928,10 +931,12 @@ export default class FileSection extends React.Component {
     } = this.props
     const hasHost = !!tab.host
     const { enableSsh } = tab
-    const transferText = type === typeMap.local
+    const isLocal = type === typeMap.local
+    const isRemote = type === typeMap.remote
+    const transferText = isLocal
       ? e(transferTypeMap.upload)
       : e(transferTypeMap.download)
-    const iconType = type === typeMap.local
+    const iconType = isLocal
       ? 'CloudUploadOutlined'
       : 'CloudDownloadOutlined'
     const len = selectedFiles.length
@@ -960,8 +965,8 @@ export default class FileSection extends React.Component {
     if (
       isDirectory && id &&
       (
-        (hasHost && enableSsh && type === typeMap.remote) ||
-        (type === typeMap.local && !hasHost)
+        (hasHost && enableSsh && isRemote) ||
+        (isLocal && !hasHost)
       )
     ) {
       res.push({
@@ -977,14 +982,14 @@ export default class FileSection extends React.Component {
         text: transferText
       })
     }
-    if (!isDirectory && id && type === typeMap.local) {
+    if (!isDirectory && id && isLocal) {
       res.push({
         func: 'transferOrEnterDirectory',
         icon: 'ArrowRightOutlined',
         text: e('open')
       })
     }
-    if (id && type === typeMap.local) {
+    if (id && isLocal) {
       res.push({
         func: 'showInDefaultFileManager',
         icon: 'ContainerOutlined',
@@ -1040,16 +1045,18 @@ export default class FileSection extends React.Component {
         text: m('copyFilePath')
       })
     }
-    res.push({
-      func: 'newFile',
-      icon: 'FileAddOutlined',
-      text: e('newFile')
-    })
-    res.push({
-      func: 'newDirectory',
-      icon: 'FolderAddOutlined',
-      text: e('newFolder')
-    })
+    if (enableSsh || isLocal) {
+      res.push({
+        func: 'newFile',
+        icon: 'FileAddOutlined',
+        text: e('newFile')
+      })
+      res.push({
+        func: 'newDirectory',
+        icon: 'FolderAddOutlined',
+        text: e('newFolder')
+      })
+    }
     res.push({
       func: 'selectAll',
       icon: 'CheckSquareOutlined',

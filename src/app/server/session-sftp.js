@@ -21,6 +21,7 @@ class Sftp extends TerminalBase {
       conn
     } = connInst
     this.client = conn
+    this.enableSsh = initOptions.enableSsh
     return new Promise((resolve, reject) => {
       conn.sftp((err, sftp) => {
         if (err) {
@@ -48,7 +49,7 @@ class Sftp extends TerminalBase {
   /**
    * getHomeDir
    *
-   * https://github.com/mscdex/ssh2-streams/blob/master/SFTPStream.md
+   * https://github.com/mscdex/ssh2/blob/master/SFTP.md
    * only support linux / mac
    * @return {Promise}
    */
@@ -60,37 +61,90 @@ class Sftp extends TerminalBase {
    * rmdir
    *
    * @param {String} remotePath
-   * https://github.com/mscdex/ssh2-streams/blob/master/SFTPStream.md
+   * https://github.com/mscdex/ssh2/blob/master/SFTP.md
    * only support rm -rf
    * @return {Promise}
    */
   rmdir (remotePath) {
-    return new Promise((resolve, reject) => {
-      const { client } = this
-      const cmd = `rm -rf "${remotePath}"`
-      client.exec(cmd, this.getExecOpts(), err => {
-        if (err) reject(err)
-        else resolve()
+    if (this.enableSsh) {
+      return new Promise((resolve, reject) => {
+        const { client } = this
+        const cmd = `rm -rf "${remotePath}"`
+        client.exec(cmd, this.getExecOpts(), err => {
+          if (err) reject(err)
+          else resolve(1)
+        })
       })
-    })
+    } else {
+      return this.removeDirectoryRecursively(remotePath)
+    }
+  }
+
+  async removeDirectoryRecursively (remotePath) {
+    const {
+      sftp
+    } = this
+    const contents = await sftp.list(remotePath)
+    for (const item of contents) {
+      const itemPath = `${remotePath}/${item.name}`
+      if (item.type === 'd') {
+        // Recursively delete subdirectories
+        await this.removeDirectoryRecursively(itemPath)
+      } else {
+        // Delete files
+        await this.rm(itemPath)
+      }
+    }
+    // Finally, remove the directory itself
+    await this.rmFolder(remotePath)
   }
 
   /**
    * touch a file
    *
    * @param {String} remotePath
-   * https://github.com/mscdex/ssh2-streams/blob/master/SFTPStream.md
+   * https://github.com/mscdex/ssh2/blob/master/SFTP.md
    * @return {Promise}
    */
   touch (remotePath) {
+    if (this.enableSsh) {
+      return new Promise((resolve, reject) => {
+        const { client } = this
+        const cmd = `touch "${remotePath}"`
+        client.exec(cmd, this.getExecOpts(), err => {
+          if (err) reject(err)
+          else resolve(1)
+        })
+      })
+    }
+    return this.touchFile(remotePath)
+  }
+
+  openFile (remotePath) {
     return new Promise((resolve, reject) => {
-      const { client } = this
-      const cmd = `touch "${remotePath}"`
-      client.exec(cmd, this.getExecOpts(), err => {
-        if (err) reject(err)
-        else resolve()
+      this.sftp.open(remotePath, 'r', (err, fd) => {
+        if (err) {
+          return reject(err)
+        }
+        resolve(fd)
       })
     })
+  }
+
+  closeFile (fd) {
+    return new Promise((resolve, reject) => {
+      this.sftp.close(fd, err => {
+        if (err) {
+          return reject(err)
+        }
+        resolve(true)
+      })
+    })
+  }
+
+  touchFile (remotePath) {
+    return this.openFile(remotePath)
+      .then(this.closeFile)
   }
 
   /**
@@ -98,16 +152,19 @@ class Sftp extends TerminalBase {
    *
    * @param {String} from
    * @param {String} to
-   * https://github.com/mscdex/ssh2-streams/blob/master/SFTPStream.md
+   * https://github.com/mscdex/ssh2/blob/master/SFTP.md
    * @return {Promise}
    */
   cp (from, to) {
     return new Promise((resolve, reject) => {
+      if (!this.enableSsh) {
+        return reject(new Error('do not support copy operation in sftp mode'))
+      }
       const { client } = this
       const cmd = `cp -r "${from}" "${to}"`
       client.exec(cmd, this.getExecOpts(), (err) => {
         if (err) reject(err)
-        else resolve()
+        else resolve(1)
       })
     })
   }
@@ -117,22 +174,28 @@ class Sftp extends TerminalBase {
    *
    * @param {String} from
    * @param {String} to
-   * https://github.com/mscdex/ssh2-streams/blob/master/SFTPStream.md
+   * https://github.com/mscdex/ssh2/blob/master/SFTP.md
    * @return {Promise}
    */
   mv (from, to) {
     return new Promise((resolve, reject) => {
+      if (!this.enableSsh) {
+        return reject(new Error('do not support move operation in sftp mode'))
+      }
       const { client } = this
       const cmd = `mv "${from}" "${to}"`
       client.exec(cmd, this.getExecOpts(), (err) => {
         if (err) reject(err)
-        else resolve()
+        else resolve(1)
       })
     })
   }
 
   runExec (cmd) {
     return new Promise((resolve, reject) => {
+      if (!this.enableSsh) {
+        return reject(new Error(`do not support ${cmd.split(' ')[0]} operation in sftp mode`))
+      }
       const { client } = this
       client.exec(cmd, this.getExecOpts(), (err, stream) => {
         if (err) {
@@ -217,7 +280,7 @@ class Sftp extends TerminalBase {
       When supplying an ATTRS object to one of the SFTP methods:
       atime and mtime can be either a Date instance or a UNIX timestamp.
       mode can either be an integer or a string containing an octal number.
-   * https://github.com/mscdex/ssh2-streams/blob/master/SFTPStream.md
+   * https://github.com/mscdex/ssh2/blob/master/SFTP.md
    * @return {Promise}
    */
   mkdir (remotePath, options = {}) {
@@ -225,7 +288,7 @@ class Sftp extends TerminalBase {
       const { sftp } = this
       sftp.mkdir(remotePath, options, err => {
         if (err) reject(err)
-        else resolve()
+        else resolve(1)
       })
     })
   }
@@ -234,7 +297,7 @@ class Sftp extends TerminalBase {
    * stat
    *
    * @param {String} remotePath
-   * https://github.com/mscdex/ssh2-streams/blob/master/SFTPStream.md
+   * https://github.com/mscdex/ssh2/blob/master/SFTP.md
    * @return {Promise} stat
    *  stats.isDirectory()
       stats.isFile()
@@ -264,7 +327,7 @@ class Sftp extends TerminalBase {
    * readlink
    *
    * @param {String} remotePath
-   * https://github.com/mscdex/ssh2-streams/blob/master/SFTPStream.md
+   * https://github.com/mscdex/ssh2/blob/master/SFTP.md
    * @return {Promise} target
    */
   readlink (remotePath) {
@@ -281,7 +344,7 @@ class Sftp extends TerminalBase {
    * realpath
    *
    * @param {String} remotePath
-   * https://github.com/mscdex/ssh2-streams/blob/master/SFTPStream.md
+   * https://github.com/mscdex/ssh2/blob/master/SFTP.md
    * @return {Promise} target
    */
   realpath (remotePath) {
@@ -298,7 +361,7 @@ class Sftp extends TerminalBase {
    * lstat
    *
    * @param {String} remotePath
-   * https://github.com/mscdex/ssh2-streams/blob/master/SFTPStream.md
+   * https://github.com/mscdex/ssh2/blob/master/SFTP.md
    * @return {Promise} stat
    *  stats.isDirectory()
       stats.isFile()
@@ -322,7 +385,7 @@ class Sftp extends TerminalBase {
    * chmod
    *
    * @param {String} remotePath
-   * https://github.com/mscdex/ssh2-streams/blob/master/SFTPStream.md
+   * https://github.com/mscdex/ssh2/blob/master/SFTP.md
    * @return {Promise}
    */
   chmod (remotePath, mode) {
@@ -330,7 +393,7 @@ class Sftp extends TerminalBase {
       const { sftp } = this
       sftp.chmod(remotePath, mode, (err) => {
         if (err) reject(err)
-        else resolve()
+        else resolve(1)
       })
     })
   }
@@ -340,7 +403,7 @@ class Sftp extends TerminalBase {
    *
    * @param {String} remotePath
    * @param {String} remotePathNew
-   * https://github.com/mscdex/ssh2-streams/blob/master/SFTPStream.md
+   * https://github.com/mscdex/ssh2/blob/master/SFTP.md
    * @return {Promise}
    */
   rename (remotePath, remotePathNew) {
@@ -348,7 +411,7 @@ class Sftp extends TerminalBase {
       const { sftp } = this
       sftp.rename(remotePath, remotePathNew, (err) => {
         if (err) reject(err)
-        else resolve()
+        else resolve(1)
       })
     })
   }
@@ -357,7 +420,24 @@ class Sftp extends TerminalBase {
    * rm delete single file
    *
    * @param {String} remotePath
-   * https://github.com/mscdex/ssh2-streams/blob/master/SFTPStream.md
+   * https://github.com/mscdex/ssh2/blob/master/SFTP.md
+   * @return {Promise}
+   */
+  rmFolder (remotePath) {
+    return new Promise((resolve, reject) => {
+      const { sftp } = this
+      sftp.rmdir(remotePath, (err) => {
+        if (err) reject(err)
+        else resolve(1)
+      })
+    })
+  }
+
+  /**
+   * rm delete single file
+   *
+   * @param {String} remotePath
+   * https://github.com/mscdex/ssh2/blob/master/SFTP.md
    * @return {Promise}
    */
   rm (remotePath) {
@@ -365,7 +445,7 @@ class Sftp extends TerminalBase {
       const { sftp } = this
       sftp.unlink(remotePath, (err) => {
         if (err) reject(err)
-        else resolve()
+        else resolve(1)
       })
     })
   }
@@ -374,7 +454,7 @@ class Sftp extends TerminalBase {
    * readFile single file
    *
    * @param {String} remotePath
-   * https://github.com/mscdex/ssh2-streams/blob/master/SFTPStream.md
+   * https://github.com/mscdex/ssh2/blob/master/SFTP.md
    * @return {Promise}
    */
   readFile (remotePath) {
@@ -385,7 +465,7 @@ class Sftp extends TerminalBase {
    * writeFile single file
    *
    * @param {String} remotePath
-   * https://github.com/mscdex/ssh2-streams/blob/master/SFTPStream.md
+   * https://github.com/mscdex/ssh2/blob/master/SFTP.md
    * @return {Promise}
    */
   writeFile (remotePath, str, mode) {

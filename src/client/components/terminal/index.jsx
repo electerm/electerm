@@ -1203,7 +1203,7 @@ class Term extends Component {
   }
 
   oncloseSocket = () => {
-    if (this.onClose) {
+    if (this.onClose || !this.props.tab.enableSsh) {
       return
     }
     this.setStatus(
