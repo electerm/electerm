@@ -112,7 +112,7 @@ export default class FileSection extends React.Component {
           ? this.props.selectedFiles
           : [file]
       )
-    const prefix = file.isRemote
+    const prefix = file.type === typeMap.remote
       ? 'remote:'
       : ''
     const textToCopy = files.map(f => {
