@@ -25,12 +25,11 @@ function stylus2Css (str) {
 
 async function toCss (stylus) {
   const stylusCss = await stylus2Css(stylus)
-  const up = {
+  return {
     stylusCss,
     version,
     isDev
   }
-  return up
 }
 
 exports.toCss = toCss

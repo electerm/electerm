@@ -91,30 +91,20 @@ export default Store => {
   }
 
   Store.prototype.exit = function () {
-    const { store } = window
-    if (
-      !store.isTransporting &&
-      !store.config.confirmBeforeExit
-    ) {
-      return store.doExit()
-    }
-    store.confirmExit()
+    window.exitFunction = 'doExit'
+    window.store.doExit()
   }
 
   Store.prototype.restart = function () {
-    const { store } = window
-    if (store.isTransporting) {
-      store.confirmExit('doRestart')
-    } else {
-      store.doRestart()
-    }
+    window.exitFunction = 'doRestart'
+    window.store.doRestart()
   }
 
   Store.prototype.doExit = function () {
-    window.pre.runGlobalAsync('closeApp')
+    window.pre.runGlobalAsync('closeApp', 'exit')
   }
 
   Store.prototype.doRestart = function () {
-    window.pre.runGlobalAsync('restart')
+    window.pre.runGlobalAsync('restart', 'restart')
   }
 }

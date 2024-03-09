@@ -59,7 +59,7 @@ export default function QuickCommandForm (props) {
         rules={[{
           max: 60, message: '60 chars max'
         }, {
-          required: true, message: 'name required'
+          required: true, message: 'Name required'
         }]}
         hasFeedback
         name='name'
@@ -75,7 +75,7 @@ export default function QuickCommandForm (props) {
         rules={[{
           max: 5000, message: '5000 chars max'
         }, {
-          required: true, message: 'command required'
+          required: true, message: 'Command required'
         }]}
       >
         <TextArea rows={3} />

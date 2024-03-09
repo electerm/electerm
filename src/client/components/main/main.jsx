@@ -41,6 +41,7 @@ export default class Index extends Component {
     ipcOnEvent('zoom-reset', store.onZoomReset)
     ipcOnEvent('zoomin', store.onZoomIn)
     ipcOnEvent('zoomout', store.onZoomout)
+    ipcOnEvent('confirm-exit', store.beforeExitApp)
 
     document.addEventListener('drop', function (e) {
       e.preventDefault()
@@ -51,6 +52,9 @@ export default class Index extends Component {
       e.stopPropagation()
     })
     window.addEventListener('offline', store.setOffline)
+    if (window.et.isWebApp) {
+      window.onbeforeunload = store.beforeExit
+    }
     store.isSencondInstance = window.pre.runSync('isSencondInstance')
     store.initData()
     store.checkForDbUpgrade()

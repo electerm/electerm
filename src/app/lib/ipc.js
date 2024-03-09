@@ -104,6 +104,9 @@ function initIpc () {
     event.returnValue = ipcSyncFuncs[name](...args)
   })
   const asyncGlobals = {
+    confirmExit: () => {
+      global.et.confirmExit = true
+    },
     setPassword,
     checkPassword,
     lookup,
@@ -123,12 +126,17 @@ function initIpc () {
     decryptAsync,
     dbAction,
     getScreenSize,
-    closeApp: () => {
+    closeApp: (closeAction = '') => {
+      global.et.closeAction = closeAction
       global.win && global.win.close()
     },
-    restart: () => {
+    restart: (closeAction = '') => {
+      global.et.closeAction = ''
       global.win.close()
       app.relaunch()
+    },
+    setCloseAction: (closeAction = '') => {
+      global.et.closeAction = closeAction
     },
     minimize: () => {
       global.win.minimize()

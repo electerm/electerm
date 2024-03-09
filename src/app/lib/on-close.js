@@ -12,7 +12,15 @@ exports.getExitStatus = async () => {
   return res && res.value ? res.value : ''
 }
 
-exports.onClose = async function () {
+exports.onClose = async function (e) {
+  if (global.et.config.confirmBeforeExit && global.et.closeAction) {
+    global.win?.webContents.send(
+      'confirm-exit',
+      global.et.closeAction
+    )
+    global.et.closeAction = ''
+    return e.preventDefault()
+  }
   log.debug('Closing app')
   global.childPid && process.kill(global.childPid)
   process.on('uncaughtException', function () {

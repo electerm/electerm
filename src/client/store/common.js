@@ -3,6 +3,7 @@
  */
 
 import handleError from '../common/error-handler'
+import { Modal } from 'antd'
 import { debounce } from 'lodash-es'
 import postMessage from '../common/post-msg'
 import {
@@ -14,6 +15,10 @@ import {
   dismissDelKeyTipLsKey
 } from '../common/constants'
 import * as ls from '../common/safe-local-storage'
+
+const { prefix } = window
+const m = prefix('menu')
+const c = prefix('common')
 
 export default Store => {
   Store.prototype.storeAssign = function (updates) {
@@ -154,5 +159,46 @@ export default Store => {
   Store.prototype.dismissDelKeyTip = function (v) {
     ls.setItem(dismissDelKeyTipLsKey, 'y')
     window.store.hideDelKeyTip = true
+  }
+  Store.prototype.beforeExit = function (e) {
+    const { confirmBeforeExit } = window.store.config
+    if (
+      (confirmBeforeExit &&
+      !window.confirmExit) ||
+      window.store.isTransporting
+    ) {
+      e.returnValue = false
+      let mod = null
+      mod = Modal.confirm({
+        onCancel: () => {
+          window.confirmExit = false
+          mod.destroy()
+        },
+        onOk: () => {
+          window.confirmExit = true
+          window.store[window.exitFunction]()
+        },
+        title: m('quit'),
+        okText: c('ok'),
+        cancelText: c('cancel'),
+        content: ''
+      })
+    }
+  }
+  Store.prototype.beforeExitApp = function (e, name) {
+    let mod = null
+    mod = Modal.confirm({
+      onCancel: () => {
+        window.pre.runGlobalAsync('setCloseAction', 'closeApp')
+        mod.destroy()
+      },
+      onOk: () => {
+        window.pre.runGlobalAsync(name)
+      },
+      title: m('quit'),
+      okText: c('ok'),
+      cancelText: c('cancel'),
+      content: ''
+    })
   }
 }

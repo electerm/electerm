@@ -16,5 +16,5 @@ exports.watchFile = (path) => {
 
 exports.unwatchFile = (path) => {
   global.watchFilePath = ''
-  fs.watchFile(path, onWatch)
+  fs.unwatchFile(path, onWatch)
 }

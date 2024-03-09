@@ -20,6 +20,7 @@ const _ = require('lodash')
 
 exports.createWindow = async function () {
   const userConfig = await getDbConfig() || {}
+  global.et.closeAction = 'closeApp'
   global.et.requireAuth = !!userConfig.hashedPassword
   const { width, height, x, y } = await getWindowSize()
   const { useSystemTitleBar = defaults.useSystemTitleBar } = userConfig
