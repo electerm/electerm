@@ -7,8 +7,8 @@ import { isEmpty } from 'lodash-es'
 import colsParser from './data-cols-parser'
 
 export default function TerminalInfoDisk (props) {
-  const { disks } = props
-  if (isEmpty(disks) || !props.isRemote) {
+  const { disks, isRemote, terminalInfos } = props
+  if (isEmpty(disks) || !isRemote || !terminalInfos.includes('disks')) {
     return null
   }
   const col = colsParser(disks[0])

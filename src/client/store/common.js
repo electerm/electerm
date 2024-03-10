@@ -201,4 +201,9 @@ export default Store => {
       content: ''
     })
   }
+  Store.prototype.setTerminalInfos = function (arr) {
+    window.store.setConfig({
+      terminalInfos: arr
+    })
+  }
 }

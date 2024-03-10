@@ -42,5 +42,13 @@ module.exports = exports.default = {
   hideSshConfig: false,
   addTimeStampToTermLog: false,
   keepaliveInterval: 0,
-  backspaceMode: '^?'
+  backspaceMode: '^?',
+  terminalInfos: [
+    'uptime',
+    'cpu',
+    'mem',
+    'activities',
+    'network',
+    'disks'
+  ]
 }

@@ -7,9 +7,12 @@ import {
   commonActions
 } from '../../common/constants'
 import {
-  Switch
+  Switch,
+  Space,
+  Button
 } from 'antd'
 import ShowItem from '../common/show-item'
+import defaults from '../../common/default-setting'
 import postMsg from '../../common/post-msg'
 import { toggleTerminalLog, toggleTerminalLogTimestamp } from '../terminal/terminal-apis'
 
@@ -51,6 +54,16 @@ export default class TerminalInfoBase extends Component {
       addTimeStampToTermLog: nv,
       saveTerminalLogToFile,
       sessionId
+    })
+  }
+
+  toggleTerminalLogInfo = (h) => {
+    const { terminalInfos } = this.props
+    const nv = terminalInfos.includes(h)
+      ? terminalInfos.filter(f => f !== h)
+      : [...terminalInfos, h]
+    window.store.setConfig({
+      terminalInfos: nv
     })
   }
 
@@ -120,7 +133,34 @@ export default class TerminalInfoBase extends Component {
         unCheckedChildren={name}
         checked={addTimeStampToTermLog}
         onChange={this.handleToggleTimestamp}
+        className='mg1b'
       />
+    )
+  }
+
+  renderInfoSelection () {
+    const {
+      terminalInfos
+    } = this.props
+    return (
+      <Space.Compact block>
+        {
+          defaults.terminalInfos.map(f => {
+            const type = terminalInfos.includes(f) ? 'primary' : 'default'
+            return (
+              <Button
+                key={f + 'term-info-sel'}
+                type={type}
+                size='small'
+                onClick={() => this.toggleTerminalLogInfo(f)}
+                className='cap'
+              >
+                {f}
+              </Button>
+            )
+          })
+        }
+      </Space.Compact>
     )
   }
 
@@ -149,12 +189,17 @@ export default class TerminalInfoBase extends Component {
               unCheckedChildren={name}
               checked={saveTerminalLogToFile}
               onChange={this.handleToggle}
-              className='mg1r'
+              className='mg1r mg1b'
             />
             {
               this.renderTimestamp()
             }
           </span>
+        </div>
+        <div className='pd1y'>
+          {
+            this.renderInfoSelection()
+          }
         </div>
         <p><b>log:</b> {to}</p>
       </div>

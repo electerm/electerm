@@ -43,5 +43,13 @@ export default {
   addTimeStampToTermLog: false,
   sftpPathFollowSsh: false,
   keepaliveInterval: 0,
-  backspaceMode: '^?'
+  backspaceMode: '^?',
+  terminalInfos: [
+    'uptime',
+    'cpu',
+    'mem',
+    'activities',
+    'network',
+    'disks'
+  ]
 }

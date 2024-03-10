@@ -3,8 +3,8 @@
  */
 
 export default function TerminalInfoUp (props) {
-  const { uptime } = props
-  if (!props.isRemote) {
+  const { uptime, isRemote, terminalInfos } = props
+  if (!isRemote || !terminalInfos.includes('uptime')) {
     return null
   }
   return (

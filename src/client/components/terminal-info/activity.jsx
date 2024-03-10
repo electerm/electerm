@@ -11,8 +11,8 @@ const { prefix } = window
 const m = prefix('menu')
 
 export default function TerminalInfoActivities (props) {
-  const { activities } = props
-  if (isEmpty(activities) || !props.isRemote) {
+  const { activities, isRemote, terminalInfos } = props
+  if (isEmpty(activities) || !isRemote || !terminalInfos.includes('activities')) {
     return null
   }
   const col = colsParser(activities[0])

@@ -609,7 +609,7 @@ export default class SessionWrapper extends Component {
     const { pane } = this.props.tab
     const infoProps = {
       infoPanelPinned,
-      ...pick(this.props.config, ['host', 'port', 'saveTerminalLogToFile']),
+      ...pick(this.props.config, ['host', 'port', 'saveTerminalLogToFile', 'terminalInfos']),
       ...infoPanelProps,
       appPath: this.props.appPath,
       rightSidebarWidth: this.props.rightSidebarWidth,

@@ -9,8 +9,8 @@ import { formatBytes } from '../../common/byte-format'
 import copy from 'json-deep-copy'
 
 export default function TerminalInfoDisk (props) {
-  const { network } = props
-  if (isEmpty(network) || !props.isRemote) {
+  const { network, isRemote, terminalInfos } = props
+  if (isEmpty(network) || !isRemote || !terminalInfos.includes('network')) {
     return null
   }
   const [state, setter] = useState({
