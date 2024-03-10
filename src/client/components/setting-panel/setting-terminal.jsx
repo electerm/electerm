@@ -498,6 +498,7 @@ export default class SettingTerminal extends Component {
         {this.renderToggle('saveTerminalLogToFile', (
           <ShowItem to={terminalLogPath} className='mg1l'>{p('open')}</ShowItem>
         ))}
+        {this.renderToggle('addTimeStampToTermLog')}
         {
           [
             'cursorBlink',
