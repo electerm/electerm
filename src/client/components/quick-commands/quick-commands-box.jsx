@@ -8,7 +8,9 @@ import { find, sortBy } from 'lodash-es'
 import { Button, Input, Select, Space } from 'antd'
 import * as ls from '../../common/safe-local-storage'
 import copy from 'json-deep-copy'
+import generate from '../../common/uid'
 import CmdItem from './quick-command-item'
+import delay from '../../common/wait'
 import {
   EditOutlined,
   CloseCircleOutlined,
@@ -46,7 +48,7 @@ export default class QuickCommandsFooterBox extends Component {
     this.props.store.pinnedQuickCommandBar = !this.props.store.pinnedQuickCommandBar
   }
 
-  handleSelect = (id) => {
+  handleSelect = async (id) => {
     const {
       store
     } = this.props
@@ -57,11 +59,24 @@ export default class QuickCommandsFooterBox extends Component {
         this.props.store.currentQuickCommands,
         a => a.id === id
       )
-      if (qm && qm.command) {
-        const { runQuickCommand } = this.props.store
+      const { runQuickCommand } = this.props.store
+      const qms = qm && qm.commands
+        ? qm.commands
+        : (qm && qm.command
+            ? [
+                {
+                  command: qm.command,
+                  id: generate(),
+                  delay: 100
+                }
+              ]
+            : []
+          )
+      for (const q of qms) {
         const realCmd = isWin
-          ? qm.command.replace(/\n/g, '\n\r')
-          : qm.command
+          ? q.command.replace(/\n/g, '\n\r')
+          : q.command
+        await delay(q.delay || 100)
         runQuickCommand(realCmd, qm.inputOnly)
         store.editQuickCommand(qm.id, {
           clickCount: ((qm.clickCount || 0) + 1)

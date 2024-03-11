@@ -1,8 +1,8 @@
-import { Button, Input, Switch, Form, message, Select } from 'antd'
+import { Button, Switch, Form, message, Select } from 'antd'
 import copy from 'json-deep-copy'
 import generate from '../../common/uid'
 import InputAutoFocus from '../common/input-auto-focus'
-const { TextArea } = Input
+import renderQm from './quick-commands-list-form'
 const FormItem = Form.Item
 const { Option } = Select
 const { prefix } = window
@@ -17,13 +17,13 @@ export default function QuickCommandForm (props) {
     const { formData } = props
     const {
       name,
-      command,
+      commands,
       inputOnly,
       labels
     } = res
     const update = copy({
       name,
-      command,
+      commands,
       inputOnly,
       labels
     })
@@ -45,6 +45,13 @@ export default function QuickCommandForm (props) {
   const initialValues = props.formData
   if (!initialValues.labels) {
     initialValues.labels = []
+  }
+  if (!initialValues.commands) {
+    initialValues.commands = [{
+      command: initialValues.command || '',
+      id: generate(),
+      delay: 100
+    }]
   }
   return (
     <Form
@@ -69,17 +76,7 @@ export default function QuickCommandForm (props) {
           autofocustrigger={autofocustrigger}
         />
       </FormItem>
-      <FormItem
-        name='command'
-        label={t('quickCommand')}
-        rules={[{
-          max: 5000, message: '5000 chars max'
-        }, {
-          required: true, message: 'Command required'
-        }]}
-      >
-        <TextArea rows={3} />
-      </FormItem>
+      {renderQm()}
       <FormItem
         name='labels'
         label={t('label')}
