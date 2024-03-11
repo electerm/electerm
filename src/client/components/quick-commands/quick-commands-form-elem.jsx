@@ -105,7 +105,7 @@ export default function QuickCommandForm (props) {
       <FormItem>
         <p>
           <Button
-            type='dashed'
+            type='primary'
             htmlType='submit'
           >{e('save')}
           </Button>
