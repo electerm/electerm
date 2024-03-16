@@ -49,6 +49,7 @@ export default class Tabs extends React.Component {
       tabsRef
     } = this
     tabsRef.current.addEventListener('mousedown', this.handleClickEvent)
+    tabsRef.current.addEventListener('mousewheel', this.handleWheelEvent)
   }
 
   componentDidUpdate (prevProps) {
@@ -127,6 +128,16 @@ export default class Tabs extends React.Component {
       scrollLeft = 0
     }
     this.dom.scrollLeft = scrollLeft
+  }
+
+  handleWheelEvent = (e) => {
+    if (this.isOverflow()) {
+      if (e.deltaY < 0) {
+        this.handleScrollLeft()
+      } else {
+        this.handleScrollRight()
+      }
+    }
   }
 
   handleClickMenu = ({ key }) => {
