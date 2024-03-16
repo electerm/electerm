@@ -15,9 +15,19 @@ import ShowItem from '../common/show-item'
 import defaults from '../../common/default-setting'
 import postMsg from '../../common/post-msg'
 import { toggleTerminalLog, toggleTerminalLogTimestamp } from '../terminal/terminal-apis'
+import { ClockCircleOutlined, BorderlessTableOutlined, DatabaseOutlined, BarsOutlined, ApiOutlined, PartitionOutlined } from '@ant-design/icons'
 
 const { prefix } = window
 const st = prefix('setting')
+
+const mapper = {
+  uptime: <ClockCircleOutlined />,
+  cpu: <BorderlessTableOutlined />,
+  mem: <DatabaseOutlined />,
+  activities: <BarsOutlined />,
+  network: <ApiOutlined />,
+  disks: <PartitionOutlined />
+}
 
 export default class TerminalInfoBase extends Component {
   state = {
@@ -154,6 +164,7 @@ export default class TerminalInfoBase extends Component {
                 size='small'
                 onClick={() => this.toggleTerminalLogInfo(f)}
                 className='cap'
+                icon={mapper[f]}
               >
                 {f}
               </Button>
@@ -196,7 +207,7 @@ export default class TerminalInfoBase extends Component {
             }
           </span>
         </div>
-        <div className='pd1y'>
+        <div className='pd2y'>
           {
             this.renderInfoSelection()
           }

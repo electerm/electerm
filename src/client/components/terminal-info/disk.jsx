@@ -5,6 +5,7 @@
 import { Table } from 'antd'
 import { isEmpty } from 'lodash-es'
 import colsParser from './data-cols-parser'
+import { PartitionOutlined } from '@ant-design/icons'
 
 export default function TerminalInfoDisk (props) {
   const { disks, isRemote, terminalInfos } = props
@@ -22,7 +23,7 @@ export default function TerminalInfoDisk (props) {
   }
   return (
     <div className='terminal-info-section terminal-info-disk'>
-      <div className='pd1y bold'>File system</div>
+      <div className='pd1y bold'><PartitionOutlined /> File system</div>
       <Table {...ps} />
     </div>
   )

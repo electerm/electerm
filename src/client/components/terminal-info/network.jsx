@@ -7,6 +7,7 @@ import { isEmpty } from 'lodash-es'
 import { useEffect, useState } from 'react'
 import { formatBytes } from '../../common/byte-format'
 import copy from 'json-deep-copy'
+import { ApiOutlined } from '@ant-design/icons'
 
 export default function TerminalInfoDisk (props) {
   const { network, isRemote, terminalInfos } = props
@@ -107,7 +108,7 @@ export default function TerminalInfoDisk (props) {
   }
   return (
     <div className='terminal-info-section terminal-info-network'>
-      <div className='pd1y bold'>Network</div>
+      <div className='pd1y bold'><ApiOutlined /> Network</div>
       <Table {...ps} />
     </div>
   )

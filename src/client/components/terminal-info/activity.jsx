@@ -4,7 +4,7 @@
 
 import { Table, Tooltip, Popconfirm } from 'antd'
 import { isEmpty } from 'lodash-es'
-import { CloseCircleOutlined } from '@ant-design/icons'
+import { CloseCircleOutlined, BarsOutlined } from '@ant-design/icons'
 import colsParser from './data-cols-parser'
 
 const { prefix } = window
@@ -47,7 +47,7 @@ export default function TerminalInfoActivities (props) {
   }
   return (
     <div className='terminal-info-section terminal-info-act'>
-      <div className='pd1y bold'>Activities</div>
+      <div className='pd1y bold'><BarsOutlined /> Activities</div>
       <Table {...ps} />
     </div>
   )

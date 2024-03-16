@@ -2,6 +2,8 @@
  * up time info
  */
 
+import { ClockCircleOutlined } from '@ant-design/icons'
+
 export default function TerminalInfoUp (props) {
   const { uptime, isRemote, terminalInfos } = props
   if (!isRemote || !terminalInfos.includes('uptime')) {
@@ -9,7 +11,7 @@ export default function TerminalInfoUp (props) {
   }
   return (
     <div className='terminal-info-section terminal-info-up'>
-      <b>uptime</b>: {uptime}
+      <b><ClockCircleOutlined /> uptime</b>: {uptime}
     </div>
   )
 }
