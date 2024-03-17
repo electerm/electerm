@@ -425,6 +425,9 @@ class Term extends Component {
   }
 
   webLinkHandler = (event, url) => {
+    if (event?.button === 2) {
+      return false
+    }
     if (!this.props.config.ctrlOrMetaOpenTerminalLink) {
       return window.openLink(url, '_blank')
     }
