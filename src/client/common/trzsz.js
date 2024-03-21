@@ -1,4 +1,5 @@
 import { TrzszFilter } from 'trzsz'
+import { chooseSaveDirectory } from './choose-save-folder'
 
 const {
   openDialog
@@ -36,24 +37,7 @@ window.newTrzsz = function (
       })
     },
     // choose a directory to save the received files
-    chooseSaveDirectory: async () => {
-      const savePaths = await openDialog({
-        title: 'Choose a folder to save file(s)',
-        message: 'Choose a folder to save file(s)',
-        properties: [
-          'openDirectory',
-          'showHiddenFiles',
-          'createDirectory',
-          'noResolveAliases',
-          'treatPackageAsDirectory',
-          'dontAddToRecent'
-        ]
-      })
-      if (!savePaths || !savePaths.length) {
-        return undefined
-      }
-      return savePaths[0]
-    },
+    chooseSaveDirectory,
     // the terminal columns
     terminalColumns,
     // there is a windows shell
