@@ -4,9 +4,6 @@
 const pty = require('node-pty')
 const { resolve: pathResolve } = require('path')
 const log = require('../common/log')
-const {
-  isWin
-} = require('../common/runtime-constants')
 const { TerminalBase } = require('./session-base')
 
 // const { MockBinding } = require('@serialport/binding-mock')
@@ -80,9 +77,7 @@ class TerminalLocal extends TerminalBase {
     if (this.sessionLogger) {
       this.sessionLogger.destroy()
     }
-    if (!isWin) {
-      this.term && this.term.kill()
-    }
+    this.term && this.term.kill()
     this.onEndConn()
   }
 }
