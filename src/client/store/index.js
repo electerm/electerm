@@ -8,7 +8,7 @@ import loadDataExtend from './load-data'
 import dbUpgradeExtend from './db-upgrade'
 import eventExtend from './event'
 import syncExtend from './sync'
-import appUpgrdeExtend from './app-upgrade'
+import appUpgradeExtend from './app-upgrade'
 import bookmarkGroupExtend from './bookmark-group'
 import bookmarkExtend from './bookmark'
 import commonExtend from './common'
@@ -288,7 +288,7 @@ loadDataExtend(Store)
 eventExtend(Store)
 dbUpgradeExtend(Store)
 syncExtend(Store)
-appUpgrdeExtend(Store)
+appUpgradeExtend(Store)
 bookmarkGroupExtend(Store)
 bookmarkExtend(Store)
 commonExtend(Store)

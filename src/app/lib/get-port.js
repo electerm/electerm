@@ -6,7 +6,7 @@ const log = require('../common/log')
 
 let port = null
 
-function getPort () {
+function getPort (fromPort = 30975) {
   if (global.serverPort) {
     port = parseInt(global.serverPort, 10)
     return Promise.resolve(
@@ -14,7 +14,7 @@ function getPort () {
     )
   }
   return new Promise((resolve, reject) => {
-    require('find-free-port')(30975, '127.0.0.1', function (err, freePort) {
+    require('find-free-port')(fromPort, '127.0.0.1', function (err, freePort) {
       if (err) {
         reject(err)
       } else {

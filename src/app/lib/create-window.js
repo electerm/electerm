@@ -12,11 +12,11 @@ const {
   setWindowPos
 } = require('./window-control')
 const { onClose } = require('./on-close')
-const initIpc = require('./ipc')
+const { initIpc, initAppServer } = require('./ipc')
 const { getDbConfig } = require('./get-config')
-const fileServer = require('./file-server')
 const { disableShortCuts } = require('./key-bind')
 const _ = require('lodash')
+const getPort = require('./get-port')
 
 exports.createWindow = async function () {
   const userConfig = await getDbConfig() || {}
@@ -52,14 +52,12 @@ exports.createWindow = async function () {
 
   global.win = win
 
+  await initAppServer()
   initIpc()
-
-  const defaultPort = isDev ? 5570 : 30974
+  const defaultPort = isDev ? 5570 : await getPort()
   const { devPort = defaultPort } = process.env
   const opts = `http://127.0.0.1:${devPort}/index.html?v=${packInfo.version}`
-  if (!isDev && !global.isSencondInstance) {
-    await fileServer(devPort)
-  }
+
   win.loadURL(opts)
   win.webContents.once('dom-ready', () => {
     if (isDev) {

@@ -1,8 +1,7 @@
 const express = require('express')
 
-module.exports = (port) => {
+module.exports = (app) => {
   return new Promise((resolve) => {
-    const app = express()
     const conf = {
       maxAge: 1000 * 60 * 60 * 24 * 365
     }
@@ -12,6 +11,5 @@ module.exports = (port) => {
         conf
       )
     )
-    app.listen(port, '127.0.0.1', resolve)
   })
 }

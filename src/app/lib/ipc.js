@@ -55,37 +55,44 @@ const { initCommandLine } = require('./command-line')
 const { watchFile, unwatchFile } = require('./watch-file')
 const lookup = require('../common/lookup')
 
+async function initAppServer () {
+  const {
+    config
+  } = await getConfig(global.et.serverInited)
+  const {
+    langs,
+    sysLocale
+  } = await loadLocales()
+  const language = getLang(config, sysLocale, langs)
+  config.language = language
+  if (!global.et.serverInited) {
+    const child = await initServer(config, {
+      ...process.env,
+      appPath,
+      sshKeysPath
+    }, sysLocale)
+    child.on('message', (m) => {
+      if (m && m.showFileInFolder) {
+        if (!isMac) {
+          shell.showItemInFolder(m.showFileInFolder)
+        }
+      }
+    })
+    global.et.serverInited = true
+  }
+  global.et.config = config
+}
+
 function initIpc () {
   powerMonitor.on('resume', () => {
     global.win.webContents.send('power-resume', null)
   })
   async function init () {
     const {
-      config
-    } = await getConfig(global.et.serverInited)
-    const {
       langs,
-      langMap,
-      sysLocale
+      langMap
     } = await loadLocales()
-    const language = getLang(config, sysLocale, langs)
-    config.language = language
-    if (!global.et.serverInited) {
-      const child = await initServer(config, {
-        ...process.env,
-        appPath,
-        sshKeysPath
-      }, sysLocale)
-      child.on('message', (m) => {
-        if (m && m.showFileInFolder) {
-          if (!isMac) {
-            shell.showItemInFolder(m.showFileInFolder)
-          }
-        }
-      })
-      global.et.serverInited = true
-    }
-    global.et.config = config
+    const { config } = global.et
     const globs = {
       config,
       langs,
@@ -168,4 +175,5 @@ function initIpc () {
   })
 }
 
-module.exports = initIpc
+exports.initIpc = initIpc
+exports.initAppServer = initAppServer

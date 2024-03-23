@@ -6,8 +6,10 @@ const {
   terminals
 } = require('./remote-common')
 const {
-  isWin
+  isWin,
+  isDev
 } = require('../common/runtime-constants')
+const initFileServer = require('../lib/file-server')
 
 // parse application/x-www-form-urlencoded
 app.use(express.urlencoded({ extended: false }))
@@ -91,7 +93,9 @@ app.post('/auth', function (req, res) {
   }
   res.send('ok')
 })
-
+if (!isDev) {
+  initFileServer(app)
+}
 initWs(app)
 
 const runServer = function () {
