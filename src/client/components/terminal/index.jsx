@@ -234,10 +234,10 @@ class Term extends Component {
     this.onClear()
   }
 
-  selectAllShortcut = (e) => {
-    e.stopPropagation()
-    this.term.selectAll()
-  }
+  // selectAllShortcut = (e) => {
+  //   e.stopPropagation()
+  //   this.term.selectAll()
+  // }
 
   copyShortcut = (e) => {
     const sel = this.term.getSelection()
@@ -760,9 +760,9 @@ class Term extends Component {
     this.term.focus()
   }
 
-  onSelectAll = () => {
-    this.term.selectAll()
-  }
+  // onSelectAll = () => {
+  //   this.term.selectAll()
+  // }
 
   onClear = () => {
     this.term.clear()
@@ -813,7 +813,7 @@ class Term extends Component {
     const copyShortcut = this.getShortcut('terminal_copy')
     const pasteShortcut = this.getShortcut('terminal_paste')
     const clearShortcut = this.getShortcut('terminal_clear')
-    const selectAllShortcut = this.getShortcut('terminal_selectAll')
+    // const selectAllShortcut = this.getShortcut('terminal_selectAll')
     const searchShortcut = this.getShortcut('terminal_search')
     return [
       {
@@ -836,12 +836,12 @@ class Term extends Component {
         text: e('clear'),
         subText: clearShortcut
       },
-      {
-        func: 'onSelectAll',
-        icon: 'SelectOutlined',
-        text: e('selectAll'),
-        subText: selectAllShortcut
-      },
+      // {
+      //   func: 'onSelectAll',
+      //   icon: 'SelectOutlined',
+      //   text: e('selectAll'),
+      //   subText: selectAllShortcut
+      // },
       {
         func: 'toggleSearch',
         icon: 'SearchOutlined',
