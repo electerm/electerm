@@ -2,12 +2,12 @@
  * sync data to github gist related
  */
 
-import { without, get, pick, debounce } from 'lodash-es'
+import { without, get, pick, debounce, findIndex } from 'lodash-es'
 import copy from 'json-deep-copy'
 import {
   settingMap, packInfo, syncTypes
 } from '../common/constants'
-import { remove, dbNames, insert, update } from '../common/db'
+import { remove, dbNames, insert, update, getData } from '../common/db'
 import fetch from '../common/fetch-from-server'
 import download from '../common/download'
 import { fixBookmarks } from '../common/db-fix'
@@ -169,6 +169,10 @@ export default (Store) => {
       objs[`${n}.json`] = {
         content: str
       }
+      const order = await getData(`${n}:order`)
+      objs[`${n}.order.json`] = {
+        content: JSON.stringify(order)
+      }
     }
     const res = await fetchData(type, 'update', [gistId, {
       description: 'sync electerm data',
@@ -234,6 +238,15 @@ export default (Store) => {
         arr = store.fixThemes(arr)
       } else if (n === settingMap.bookmarks) {
         arr = fixBookmarks(arr)
+      }
+      let strOrder = get(gist, `files["${n}.order.json"].content`)
+      if (strOrder) {
+        strOrder = JSON.parse(strOrder)
+        arr.sort((a, b) => {
+          const ai = findIndex(strOrder, r => r === a.id)
+          const bi = findIndex(strOrder, r => r === b.id)
+          return ai - bi
+        })
       }
       toInsert.push({
         name: n,
