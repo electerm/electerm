@@ -9,9 +9,6 @@
   width 16px
   line-height 26px
   height 20px
-  position absolute
-  right 0
-  top 0
 .tree-item
   display flex
   &.is-category
@@ -28,7 +25,6 @@
   overflow hidden
   white-space nowrap
   text-overflow ellipsis
-  padding-right 20px
 .sidebar-panel .tree-item-title
   max-width 180px
 .with-plus
@@ -38,3 +34,16 @@
     font-size 16px
     top 2px
     right 2px
+.add-menu-wrap
+  .tree-item-title
+    padding-right 20px
+  .is-category
+    .tree-item-title
+      padding-right 40px
+  .edit-icon.tree-control-btn
+  .open-all-icon.tree-control-btn
+    position absolute
+    right 0
+    top 0
+  .open-all-icon.tree-control-btn
+    right 20px

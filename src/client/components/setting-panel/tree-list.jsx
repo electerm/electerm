@@ -551,7 +551,7 @@ export default class ItemListTree extends Component {
         title={e('edit')}
         key='edit-tree'
         onClick={(e) => this.editItem(e, item, isGroup)}
-        className='pointer tree-control-btn'
+        className='pointer edit-icon tree-control-btn'
       />
     )
   }
@@ -568,7 +568,7 @@ export default class ItemListTree extends Component {
         <FolderOpenOutlined
           key='open-all-tree'
           onClick={(e) => this.props.store.openAllBookmarkInCategory(item)}
-          className='pointer tree-control-btn'
+          className='pointer open-all-icon tree-control-btn'
         />
       </Tooltip>
     )
