@@ -56,6 +56,10 @@ export default class InfoModal extends Component {
     )
   }
 
+  formatJSON = (jsonStr) => {
+    return JSON.stringify(JSON.parse(jsonStr), null, 2)
+  }
+
   render () {
     const { store } = this.props
     const {
@@ -216,7 +220,11 @@ export default class InfoModal extends Component {
             <div className='pd1b' key={i + '_os_' + k}>
               <b className='bold'>{k}</b>:
               <span className='mg1l'>
-                {v}
+                {
+                  v.length > 30
+                    ? <pre>{this.formatJSON(v)}</pre>
+                    : v
+                }
               </span>
             </div>
           )
