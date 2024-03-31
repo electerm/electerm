@@ -170,8 +170,10 @@ export default (Store) => {
         content: str
       }
       const order = await getData(`${n}:order`)
-      objs[`${n}.order.json`] = {
-        content: JSON.stringify(order)
+      if (order && order.length) {
+        objs[`${n}.order.json`] = {
+          content: JSON.stringify(order)
+        }
       }
     }
     const res = await fetchData(type, 'update', [gistId, {
@@ -240,7 +242,7 @@ export default (Store) => {
         arr = fixBookmarks(arr)
       }
       let strOrder = get(gist, `files["${n}.order.json"].content`)
-      if (strOrder) {
+      if (isJSON(strOrder)) {
         strOrder = JSON.parse(strOrder)
         arr.sort((a, b) => {
           const ai = findIndex(strOrder, r => r === a.id)
