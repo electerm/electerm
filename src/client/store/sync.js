@@ -162,18 +162,24 @@ export default (Store) => {
     const pass = store.getSyncPassword(type)
     const objs = {}
     for (const n of names) {
-      let str = JSON.stringify(store.getItems(n))
+      let str = store.getItems(n)
+      const order = await getData(`${n}:order`)
+      if (order && order.length) {
+        str.sort((a, b) => {
+          const ai = findIndex(order, r => r === a.id)
+          const bi = findIndex(order, r => r === b.id)
+          return ai - bi
+        })
+      }
+      str = JSON.stringify(str)
       if (n === settingMap.bookmarks && pass) {
         str = await window.pre.runGlobalAsync('encryptAsync', str, pass)
       }
       objs[`${n}.json`] = {
         content: str
       }
-      const order = await getData(`${n}:order`)
-      if (order && order.length) {
-        objs[`${n}.order.json`] = {
-          content: JSON.stringify(order)
-        }
+      objs[`${n}.order.json`] = {
+        content: 'empty'
       }
     }
     const res = await fetchData(type, 'update', [gistId, {
@@ -315,11 +321,19 @@ export default (Store) => {
     update('lastDataUpdateTime', store.lastDataUpdateTime)
   }, 1000)
 
-  Store.prototype.handleExportAllData = function () {
+  Store.prototype.handleExportAllData = async function () {
     const { store } = window
     const objs = {}
     for (const n of names) {
       objs[n] = store.getItems(n)
+      const order = await getData(`${n}:order`)
+      if (order && order.length) {
+        objs[n].sort((a, b) => {
+          const ai = findIndex(order, r => r === a.id)
+          const bi = findIndex(order, r => r === b.id)
+          return ai - bi
+        })
+      }
     }
     objs.config = pick(store.config, [
       'theme',
