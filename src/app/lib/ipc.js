@@ -137,6 +137,9 @@ function initIpc () {
       global.et.closeAction = closeAction
       global.win && global.win.close()
     },
+    exit: () => {
+      global.win && global.win.close()
+    },
     restart: (closeAction = '') => {
       global.et.closeAction = ''
       global.win.close()
