@@ -21,7 +21,7 @@ import eq from 'fast-deep-equal'
 import { createTransferProps } from './transfer-common'
 
 export default (props) => {
-  const { transferList } = props
+  const { transferList, sessionId } = props
   const delta = useDelta(transferList)
   const currentId = useRef('')
   const timer = useRef(null)
@@ -105,7 +105,7 @@ export default (props) => {
       } else if (action === 'skipAll') {
         transferList.splice(index, 1)
       }
-      window.store.setTransfers(transferList)
+      window.store.setTransfers(transferList, sessionId)
       return {
         transferList
       }
@@ -126,7 +126,7 @@ export default (props) => {
       if (index >= 0) {
         transferList.splice(index, 1)
       }
-      window.store.setTransfers(transferList)
+      window.store.setTransfers(transferList, sessionId)
       return {
         transferList
       }
@@ -175,7 +175,7 @@ export default (props) => {
         }
         Object.assign(transferList[index], up)
       }
-      window.store.setTransfers(transferList)
+      window.store.setTransfers(transferList, sessionId)
       return {
         transferList
       }
@@ -211,7 +211,7 @@ export default (props) => {
       if (transferList[index]) {
         transferList[index].expanded = true
       }
-      window.store.setTransfers(transferList)
+      window.store.setTransfers(transferList, sessionId)
       return {
         transferList
       }

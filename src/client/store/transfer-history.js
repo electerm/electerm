@@ -2,10 +2,6 @@
  * transfer history related functions
  */
 
-import {
-  maxTransferHistory
-} from '../common/constants'
-
 export default Store => {
   Store.prototype.clearTransferHistory = function () {
     window.store.setItems('transferHistory', [])
@@ -21,7 +17,7 @@ export default Store => {
     transferHistory.unshift(item)
     store.setItems(
       'transferHistory',
-      transferHistory.slice(0, maxTransferHistory)
+      transferHistory
     )
   }
 }

@@ -11,7 +11,7 @@ import eq from 'fast-deep-equal'
 import { isUndefined } from 'lodash-es'
 
 export default (props) => {
-  const { transferList, pauseAll } = props
+  const { transferList, pauseAll, sessionId } = props
   const delta = useDelta(transferList)
   const pauseControl = useDelta(pauseAll)
   async function control () {
@@ -31,7 +31,7 @@ export default (props) => {
         return t
       })
       if (old.pauseAll) {
-        window.store.setTransfers(transferList)
+        window.store.setTransfers(transferList, sessionId)
         return {
           transferList
         }
@@ -45,7 +45,7 @@ export default (props) => {
         return typeTo !== typeFrom && inited
       }).length
       if (count >= maxTransport) {
-        window.store.setTransfers(transferList)
+        window.store.setTransfers(transferList, sessionId)
         return {
           transferList
         }
@@ -93,7 +93,7 @@ export default (props) => {
           tr.inited = true
         }
       }
-      window.store.setTransfers(transferList)
+      window.store.setTransfers(transferList, sessionId)
       return {
         transferList
       }

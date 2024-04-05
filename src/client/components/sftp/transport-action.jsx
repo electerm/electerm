@@ -43,7 +43,7 @@ export default function transportAction (props) {
       const transferList = copy(old.transferList)
       const index = findIndex(transferList, t => t.id === transfer.id)
       transferList.splice(index, 1, ...insts)
-      window.store.setTransfers(transferList)
+      window.store.setTransfers(transferList, transfer.sessionId)
       return {
         transferList
       }
@@ -111,7 +111,7 @@ export default function transportAction (props) {
       const transferList = oldTrans.filter(t => {
         return t.id !== id
       })
-      window.store.setTransfers(transferList)
+      window.store.setTransfers(transferList, transfer.sessionId)
       return {
         transferList
       }

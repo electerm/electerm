@@ -74,7 +74,6 @@ export const authTypeMap = buildConst([
   'privateKey'
 ])
 
-export const maxTransferHistory = 100
 export const footerHeight = 36
 export const quickCommandBoxHeight = 180
 export const isWin = typeof window.et.isWin === 'undefined' ? window.pre.isWin : window.et.isWin
