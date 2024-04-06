@@ -55,7 +55,9 @@ export default class AddrBookmark extends Component {
       })
       : null
     const content = (
-      <div>
+      <div
+        className='addr-bookmark-list'
+      >
         {inner}
       </div>
     )
