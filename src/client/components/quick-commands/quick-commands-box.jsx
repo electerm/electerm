@@ -109,6 +109,35 @@ export default class QuickCommandsFooterBox extends Component {
     return c.includes(vv) || m.includes(vv)
   }
 
+  onDragOver = e => {
+    e.preventDefault()
+  }
+
+  onDragStart = e => {
+    e.dataTransfer.setData('idDragged', e.target.getAttribute('data-id'))
+  }
+
+  // sort quick commands array when drop, so that the dragged item will be placed at the right position, e.target.getAttribute('data-id') would target item id, e.dataTransfer.getData('idDragged') would target dragged item id, then set window.store.quickCommands use window.store.setItems
+  onDrop = e => {
+    e.preventDefault()
+    const { store } = window
+    const { quickCommands } = store
+    const idDragged = e.dataTransfer.getData('idDragged')
+    const idDrop = e.target.getAttribute('data-id')
+    const idDraggedIndex = quickCommands.findIndex(
+      ({ id }) => id === idDragged
+    )
+    const targetIndex = quickCommands.findIndex(
+      ({ id }) => id === idDrop
+    )
+    if (idDraggedIndex < targetIndex) {
+      quickCommands.splice(targetIndex, 0, quickCommands.splice(idDraggedIndex, 1)[0])
+    } else {
+      quickCommands.splice(targetIndex + 1, 0, quickCommands.splice(idDraggedIndex, 1)[0])
+    }
+    store.setItems('quickCommands', quickCommands)
+  }
+
   renderNoCmd = () => {
     return (
       <div className='pd1'>
@@ -123,11 +152,18 @@ export default class QuickCommandsFooterBox extends Component {
   }
 
   renderItem = (item) => {
+    const {
+      qmSortByFrequency
+    } = this.props.store
     return (
       <CmdItem
         item={item}
         key={item.id}
         onSelect={this.handleSelect}
+        draggable={!qmSortByFrequency}
+        handleDragOver={this.onDragOver}
+        handleDragStart={this.onDragStart}
+        handleDrop={this.onDrop}
       />
     )
   }
