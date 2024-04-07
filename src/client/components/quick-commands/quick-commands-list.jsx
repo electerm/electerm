@@ -33,6 +33,35 @@ export default class QuickCommandsList extends List {
     return this.props.store.quickCommandTags
   }
 
+  handleDragOver = e => {
+    e.preventDefault()
+  }
+
+  handleDragStart = e => {
+    e.dataTransfer.setData('idDragged', e.target.getAttribute('data-id'))
+  }
+
+  // adjust window.store.quickCommands array order when drop, so that the dragged item will be placed at the right position, e.target.getAttribute('data-id') would target item id, e.dataTransfer.getData('idDragged') would target dragged item id
+  handleDrop = e => {
+    e.preventDefault()
+    const { store } = window
+    const { quickCommands } = store
+    const idDragged = e.dataTransfer.getData('idDragged')
+    const idDrop = e.target.getAttribute('data-id')
+    const idDraggedIndex = quickCommands.findIndex(
+      ({ id }) => id === idDragged
+    )
+    const targetIndex = quickCommands.findIndex(
+      ({ id }) => id === idDrop
+    )
+    if (idDraggedIndex < targetIndex) {
+      quickCommands.splice(targetIndex, 0, quickCommands.splice(idDraggedIndex, 1)[0])
+    } else {
+      quickCommands.splice(targetIndex + 1, 0, quickCommands.splice(idDraggedIndex, 1)[0])
+    }
+    store.setItems('quickCommands', quickCommands)
+  }
+
   renderItem = (item, i) => {
     if (!item) {
       return null
@@ -55,6 +84,11 @@ export default class QuickCommandsList extends List {
         key={i + id}
         className={cls}
         onClick={() => this.onClickItem(item)}
+        data-id={id}
+        draggable
+        onDragOver={this.handleDragOver}
+        onDragStart={this.handleDragStart}
+        onDrop={this.handleDrop}
       >
         <div className='elli pd1y pd2x' title={name}>
           {

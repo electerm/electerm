@@ -139,6 +139,7 @@ export const sidebarPinnedKey = 'sidebar-pinned'
 export const leftSidebarWidthKey = 'left-sidebar-width'
 export const rightSidebarWidthKey = 'right-sidebar-width'
 export const sftpDefaultSortSettingKey = 'sftp-default-sort'
+export const qmSortByFrequencyKey = 'qm-sort-by-frequency'
 // https://github.com/tinkertrain/panda-syntax-vscode/blob/master/themes/workbench.yaml
 export const defaultTheme = {
   id: 'default',

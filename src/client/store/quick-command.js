@@ -4,9 +4,11 @@
 
 import {
   settingMap,
+  qmSortByFrequencyKey,
   terminalActions
 } from '../common/constants'
 import postMessage from '../common/post-msg'
+import * as ls from '../common/safe-local-storage'
 
 export default Store => {
   Store.prototype.setQuickCommands = function (list) {
@@ -35,5 +37,14 @@ export default Store => {
       inputOnly,
       activeSplitId: activeTerminalId
     })
+  }
+
+  Store.prototype.setQmSortByFrequency = function (v) {
+    window.store.qmSortByFrequency = v
+    ls.setItem(qmSortByFrequencyKey, v ? 'yes' : 'no')
+  }
+
+  Store.prototype.handleSortByFrequency = function () {
+    window.store.setQmSortByFrequency(!window.store.qmSortByFrequency)
   }
 }

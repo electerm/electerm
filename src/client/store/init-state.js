@@ -18,7 +18,8 @@ import {
   localAddrBookmarkLsKey,
   leftSidebarWidthKey,
   rightSidebarWidthKey,
-  dismissDelKeyTipLsKey
+  dismissDelKeyTipLsKey,
+  qmSortByFrequencyKey
 } from '../common/constants'
 import { buildDefaultThemes, buildNewTheme } from '../common/terminal-theme'
 import * as ls from '../common/safe-local-storage'
@@ -141,6 +142,7 @@ export default () => {
     quickCommandId: '',
     openQuickCommandBar: false,
     pinnedQuickCommandBar: false,
+    qmSortByFrequency: ls.getItem(qmSortByFrequencyKey) === 'yes',
 
     // sidebar
     openedSideBar: ls.getItem(openedSidebarKey),

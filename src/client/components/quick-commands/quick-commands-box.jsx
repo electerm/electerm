@@ -7,7 +7,6 @@ import { isWin, quickCommandLabelsLsKey } from '../../common/constants'
 import { find, sortBy } from 'lodash-es'
 import { Button, Input, Select, Space } from 'antd'
 import * as ls from '../../common/safe-local-storage'
-import copy from 'json-deep-copy'
 import generate from '../../common/uid'
 import CmdItem from './quick-command-item'
 import delay from '../../common/wait'
@@ -144,32 +143,33 @@ export default class QuickCommandsFooterBox extends Component {
     )
   }
 
-  sortArray (array, keyword, labels) {
-    return sortBy(array, [
-      // First, sort by the keyword match
+  sortArray (array, keyword, labels, qmSortByFrequency) {
+    const sorters = [
       (obj) => !(keyword && obj.name.toLowerCase().includes(keyword)),
-      // Then, sort by the label match
-      (obj) => !labels.some((label) => obj.labels.includes(label)),
-      // Finally, sort by the clickCount
-      (obj) => -(obj.clickCount || 0)
-    ])
+      (obj) => !labels.some((label) => obj.labels.includes(label))
+    ]
+    if (qmSortByFrequency) {
+      sorters.push((obj) => -(obj.clickCount || 0))
+    }
+    return sortBy(array, sorters)
   }
 
   render () {
     const {
       openQuickCommandBar,
-      pinnedQuickCommandBar
+      pinnedQuickCommandBar,
+      qmSortByFrequency
     } = this.props.store
     if (!openQuickCommandBar && !pinnedQuickCommandBar) {
       return null
     }
-    const all = copy(this.props.store.currentQuickCommands)
+    const all = this.props.store.currentQuickCommands
     if (!all.length) {
       return this.renderNoCmd()
     }
     const keyword = this.state.keyword.toLowerCase()
     const { labels } = this.state
-    const filtered = this.sortArray(all, keyword, labels)
+    const filtered = this.sortArray(all, keyword, labels, qmSortByFrequency)
       .map(d => {
         return {
           ...d,
@@ -195,6 +195,7 @@ export default class QuickCommandsFooterBox extends Component {
       { 'fil-label': !!this.state.labels.length },
       { 'fil-keyword': !!keyword }
     )
+    const type = qmSortByFrequency ? 'primary' : 'default'
     return (
       <div
         className='qm-wrap-tooltip'
@@ -219,6 +220,13 @@ export default class QuickCommandsFooterBox extends Component {
                   this.renderTag
                 )}
               </Select>
+              <Button
+                className='mg1l iblock'
+                type={type}
+                onClick={this.props.store.handleSortByFrequency}
+              >
+                {e('sortByFrequency')}
+              </Button>
             </span>
             <span className='fright'>
               <Space.Compact>
