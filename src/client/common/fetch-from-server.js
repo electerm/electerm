@@ -14,6 +14,9 @@ export const initWsCommon = async () => {
     return
   }
   const ws = await initWs('common', id, undefined, undefined, true)
+  if (!ws) {
+    return
+  }
   window.et.wsOpened = true
   ws.onclose = () => {
     window.et.wsOpened = false
