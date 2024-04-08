@@ -182,7 +182,7 @@ export default class QuickCommandsFooterBox extends Component {
   sortArray (array, keyword, labels, qmSortByFrequency) {
     const sorters = [
       (obj) => !(keyword && obj.name.toLowerCase().includes(keyword)),
-      (obj) => !labels.some((label) => obj.labels.includes(label))
+      (obj) => !labels.some((label) => (obj.labels || []).includes(label))
     ]
     if (qmSortByFrequency) {
       sorters.push((obj) => -(obj.clickCount || 0))
@@ -210,7 +210,7 @@ export default class QuickCommandsFooterBox extends Component {
         return {
           ...d,
           nameMatch: keyword && d.name.toLowerCase().includes(keyword),
-          labelMatch: labels.some((label) => d.labels.includes(label))
+          labelMatch: labels.some((label) => (d.labels || []).includes(label))
         }
       })
     const sprops = {
