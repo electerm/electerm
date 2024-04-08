@@ -194,9 +194,10 @@ export default class QuickCommandsFooterBox extends Component {
     const {
       openQuickCommandBar,
       pinnedQuickCommandBar,
-      qmSortByFrequency
+      qmSortByFrequency,
+      inActiveTerminal
     } = this.props.store
-    if (!openQuickCommandBar && !pinnedQuickCommandBar) {
+    if ((!openQuickCommandBar && !pinnedQuickCommandBar) || !inActiveTerminal) {
       return null
     }
     const all = this.props.store.currentQuickCommands
