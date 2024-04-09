@@ -568,10 +568,14 @@ export default class Sftp extends Component {
         return arr.map(item => {
           const { type } = item
           return {
-            ...pick(item, ['name', 'size', 'accessTime', 'modifyTime', 'mode', 'owner', 'group']),
+            ...pick(
+              item,
+              ['name', 'size', 'accessTime', 'modifyTime', 'mode', 'owner', 'group']
+            ),
             isDirectory: type === fileTypeMap.directory,
             type: typeMap.remote,
             path: remotePath,
+            isSymbol: type === fileTypeMap.link,
             id: generate()
           }
         })
@@ -711,8 +715,8 @@ export default class Sftp extends Component {
   ) => {
     const remote = []
     for (const r of remotes) {
-      const { type, name } = r
-      if (type === fileTypeMap.link) {
+      const { name } = r
+      if (r.isSymbol) {
         const linkPath = resolve(remotePath, name)
         let realpath = await sftp.readlink(linkPath)
           .catch(e => {
