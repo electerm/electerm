@@ -13,6 +13,15 @@ export default function TerminalInfoDisk (props) {
     return null
   }
   const col = colsParser(disks[0])
+  disks.sort((a, b) => {
+    if (a.filesystem.startsWith('/') && !b.filesystem.startsWith('/')) {
+      return -1
+    }
+    if (!a.filesystem.startsWith('/') && b.filesystem.startsWith('/')) {
+      return 1
+    }
+    return 0
+  })
   const ps = {
     rowKey: (rec) => `${rec.mount}_${rec.filesystem}`,
     dataSource: disks,
