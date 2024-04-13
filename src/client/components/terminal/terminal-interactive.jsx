@@ -5,7 +5,9 @@
 import { useEffect, useState } from 'react'
 import { Modal, Form, Button } from 'antd'
 import InputAutoFocus from '../common/input-auto-focus'
+import { tabActions } from '../../common/constants'
 import wait from '../../common/wait'
+import postMsg from '../../common/post-msg'
 
 const { prefix } = window
 const e = prefix('sftp')
@@ -16,6 +18,13 @@ export default function TermInteractive () {
   const [trigger] = useState(0)
   const [opts, setter] = useState(null)
   const [form] = Form.useForm()
+  function updateTab (data) {
+    postMsg({
+      action: tabActions.updateTabs,
+      id: data.tabId,
+      update: data.update
+    })
+  }
   function onMsg (e) {
     if (
       e &&
@@ -24,6 +33,12 @@ export default function TermInteractive () {
       e.data.includes('session-interactive')
     ) {
       setter(JSON.parse(e.data))
+    } else if (
+      e &&
+      e.data &&
+      e.data.includes('ssh-tunnel-result')
+    ) {
+      updateTab(JSON.parse(e.data))
     }
   }
   function clear () {

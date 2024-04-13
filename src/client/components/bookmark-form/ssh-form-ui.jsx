@@ -65,12 +65,7 @@ export default function BookmarkFormUI (props) {
     encode: encodes[0],
     envLang: defaultEnvLang,
     enableSsh: true,
-    sshTunnels: [{
-      sshTunnelLocalPort: 12200,
-      sshTunnelLocalHost: '127.0.0.1',
-      sshTunnelRemotePort: 12300,
-      sshTunnelRemoteHost: '127.0.0.1'
-    }],
+    sshTunnels: [],
     runScripts: [{}],
     category: initBookmarkGroupId,
     connectionHoppings: []

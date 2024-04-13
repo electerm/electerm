@@ -331,6 +331,7 @@ class TerminalSshBase extends TerminalBase {
       }
     }
     const { sshTunnels = [] } = initOptions
+    const sshTunnelResults = []
     for (const sshTunnel of sshTunnels) {
       if (
         sshTunnel &&
@@ -338,12 +339,32 @@ class TerminalSshBase extends TerminalBase {
         sshTunnel.sshTunnelLocalPort &&
         sshTunnel.sshTunnelRemotePort
       ) {
-        sshTunnelFuncs[sshTunnel.sshTunnel]({
+        const result = await sshTunnelFuncs[sshTunnel.sshTunnel]({
           ...sshTunnel,
           conn: this.conn
         })
+          .then(r => {
+            return {
+              sshTunnel
+            }
+          })
+          .catch(err => {
+            log.error('error when do sshTunnel', err)
+            return {
+              error: err.message,
+              sshTunnel
+            }
+          })
+        sshTunnelResults.push(result)
       }
     }
+    this.ws.s({
+      update: {
+        sshTunnelResults
+      },
+      action: 'ssh-tunnel-result',
+      tabId: this.initOptions.srcTabId
+    })
     return new Promise((resolve, reject) => {
       this.conn.shell(
         shellWindow,
@@ -740,7 +761,7 @@ exports.testConnectionSsh = (options) => {
     .init()
     .then(() => true)
     .catch((err) => {
-      console.log('test ssh error', err)
+      log.error('test ssh error', err)
       return false
     })
 }

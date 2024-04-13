@@ -1110,6 +1110,7 @@ class Term extends Component {
       ]),
       sessionId,
       tabId: id,
+      srcTabId: tab.id,
       terminalIndex,
       termType,
       readyTimeout: config.sshReadyTimeout,

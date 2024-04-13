@@ -15,7 +15,7 @@ export default function createTitle (res) {
   }
   const {
     host, port, username, title, type,
-    path, connectionHoppings
+    path, connectionHoppings, sshTunnels
   } = res
   const fixTitle = `${username || ''}@${host}:${port}`
   const extra = host || path ? (path || fixTitle) : ''
@@ -24,6 +24,14 @@ export default function createTitle (res) {
     : extra
   if (connectionHoppings && connectionHoppings.length) {
     f = `[⋙]${f}`
+  }
+  if (
+    sshTunnels &&
+    sshTunnels.length &&
+    sshTunnels[0].sshTunnel &&
+    sshTunnels[0].sshTunnelRemoteHost
+  ) {
+    f = `[T]${f}`
   }
   if (type) {
     f = `[${type}]${f}`

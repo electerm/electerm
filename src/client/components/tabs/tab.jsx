@@ -26,6 +26,7 @@ import { shortcutDescExtend } from '../shortcuts/shortcut-handler.js'
 const { prefix } = window
 const e = prefix('tabs')
 const m = prefix('menu')
+const s = prefix('sftp')
 const onDragCls = 'ondrag-tab'
 const onDragOverCls = 'dragover-tab'
 
@@ -346,6 +347,36 @@ class Tab extends Component {
     )
   }
 
+  // sshTunnelResults is a array of { sshTunnel, error? }, sshTunnel is a object has props of sshTunnelLocalPort, sshTunnelRemoteHost, sshTunnelRemotePort, sshTunnel, sshTunnelLocalHost, should build sshTunnel string from sshTunnel object, when error exist, this string should start with "error:", return title and sshTunnelResults list in react element.
+  renderTitle = (sshTunnelResults, title) => {
+    const list = sshTunnelResults.map(({ sshTunnel: obj, error }, i) => {
+      const {
+        sshTunnelLocalPort,
+        sshTunnelRemoteHost = '127.0.0.1',
+        sshTunnelRemotePort,
+        sshTunnel,
+        sshTunnelLocalHost = '127.0.0.1',
+        name
+      } = obj
+      let tunnel = sshTunnel === 'forwardRemoteToLocal'
+        ? `-> ${s('remote')}:${sshTunnelRemoteHost}:${sshTunnelRemotePort} -> ${sshTunnelLocalHost}:${sshTunnelLocalPort}`
+        : `-> ${s('local')}:${sshTunnelLocalHost}:${sshTunnelLocalPort} -> ${sshTunnelRemoteHost}:${sshTunnelRemotePort}`
+      if (error) {
+        tunnel = `error: ${tunnel}`
+      }
+      if (name) {
+        tunnel = `[${name}] ${tunnel}`
+      }
+      return <div key={tunnel}>{tunnel}</div>
+    })
+    return (
+      <div>
+        <div>${title}</div>
+        {list}
+      </div>
+    )
+  }
+
   renderCloseIcon () {
     return (
       <span className='tab-close pointer'>
@@ -360,7 +391,13 @@ class Tab extends Component {
     } = this.props
     const { isLast } = this.props
     const { tab, terminalOnData } = this.state
-    const { id, isEditting, status, isTransporting } = tab
+    const {
+      id,
+      isEditting,
+      status,
+      isTransporting,
+      sshTunnelResults
+    } = tab
     const active = id === currentTabId
     const cls = classnames(
       `tab-${id}`,
@@ -378,6 +415,10 @@ class Tab extends Component {
       }
     )
     const title = createName(tab)
+    let tooltipTitle = title
+    if (sshTunnelResults) {
+      tooltipTitle = this.renderTitle(sshTunnelResults, title)
+    }
     if (isEditting) {
       return this.renderEditting(tab, cls)
     }
@@ -387,7 +428,7 @@ class Tab extends Component {
       : {}
     return (
       <Tooltip
-        title={title}
+        title={tooltipTitle}
         placement='top'
       >
         <div
