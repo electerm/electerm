@@ -132,7 +132,7 @@
     "ssh-config": "4.2.1",
     "ssh2": "1.15.0",
     "stylus": "0.59.0",
-    "tar": "6.2.0",
+    "tar": "6.2.1",
     "v8-compile-cache": "2.3.0"
   },
   "files": [
