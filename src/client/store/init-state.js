@@ -169,9 +169,6 @@ export default () => {
     _serials: '[]',
     loaddingSerials: false,
 
-    // transfer list
-    transports: [],
-
     _sshConfigItems: '[]',
 
     appPath: '',
