@@ -8,10 +8,6 @@ import {
   PauseCircleOutlined
 } from '@ant-design/icons'
 import { get } from 'lodash-es'
-import {
-  transportTypes
-} from '../sftp/transport-types'
-import postMessage from '../../common/post-msg'
 
 const { Option } = Select
 
@@ -28,21 +24,16 @@ export default class TransferModalUI extends Component {
   }
 
   handlePauseOrResumeAll = () => {
-    postMessage({
-      action: transportTypes.pauseOrResumeAll,
-      id: this.state.filter
-    })
+    const { store } = window
+    store.pauseAllTransfer ? store.resumeAll() : store.pauseAll()
   }
 
   handleCancelAll = () => {
-    postMessage({
-      action: transportTypes.cancelAll,
-      id: this.state.filter
-    })
+    window.store.cancelAll()
   }
 
   getGroups = () => {
-    const fileTransfers = this.props.store.getTransfers()
+    const fileTransfers = this.props.store.fileTransfers
     const tree = fileTransfers.reduce((p, k) => {
       const {
         id,
@@ -79,7 +70,7 @@ export default class TransferModalUI extends Component {
     const {
       filter
     } = this.state
-    const fileTransfers = this.props.store.getTransfers()
+    const fileTransfers = this.props.store.fileTransfers
     return filter === 'all'
       ? fileTransfers
       : fileTransfers.filter(d => d.sessionId === filter)

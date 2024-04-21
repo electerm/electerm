@@ -26,7 +26,6 @@ import { autoRun } from 'manate'
 import { pick } from 'lodash-es'
 import { runCmd } from '../terminal/terminal-apis'
 import deepCopy from 'json-deep-copy'
-import postMsg from '../../common/post-msg'
 import uid from '../../common/uid'
 import wait from '../../common/wait'
 import { getFolderFromFilePath } from '../sftp/file-read'
@@ -186,11 +185,7 @@ export default class BatchOp extends Component {
         zip: true,
         skipConfirm: true
       }
-      postMsg({
-        list: [obj],
-        action: commonActions.addTransfer,
-        sessionId: tab.sessionId
-      })
+      window.store.addTransferList([obj])
       const { store } = window
       this.tm = setTimeout(() => {
         reject(new Error('timeout'))
