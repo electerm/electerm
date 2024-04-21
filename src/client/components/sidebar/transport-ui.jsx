@@ -8,10 +8,6 @@ import {
   PlayCircleOutlined,
   PauseCircleOutlined
 } from '@ant-design/icons'
-import {
-  transportTypes
-} from '../sftp/transport-types'
-import postMessage from '../../common/post-msg'
 import './transfer.styl'
 
 const { prefix } = window
@@ -35,16 +31,10 @@ export default function Transporter (props) {
     id
   } = props.transfer
   function cancel () {
-    postMessage({
-      action: transportTypes.cancelTransport,
-      id
-    })
+    window.store.cancelTransfer(id)
   }
   function handlePauseOrResume () {
-    postMessage({
-      action: transportTypes.pauseOrResumeTransfer,
-      id
-    })
+    window.store.toggleTransfer(id)
   }
   const isTransfer = typeTo !== typeFrom
   const Icon = !pausing ? PauseCircleOutlined : PlayCircleOutlined

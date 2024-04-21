@@ -33,14 +33,6 @@ export default store => {
   //   return store.menuOpened
   // })
 
-  // autoRun(store, () => {
-  //   const v = store.getItems('tabs').map(t => {
-  //     delete t.isTransporting
-  //     return t
-  //   })
-  //   update('sessions', v)
-  //   return store._tabs
-  // }, func => debounce(func, 100))
   for (const name of dbNamesForWatch) {
     autoRun(store, async () => {
       await update(

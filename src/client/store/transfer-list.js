@@ -4,10 +4,9 @@ export default Store => {
     window.store.transferTab = tab
   }
 
-  // should update any item with same id in oldList from list array, should add any new item from list array to oldList, should remove any item with same id and sessionId in oldList but not in list array
   Store.prototype.setTransfers = function (list, _sessId) {
     const { store } = window
-    let oldList = store.getTransfers()
+    let oldList = store.fileTransfers
     const sessId = _sessId || list[0].sessionId
     const arr2 = oldList.filter(t => {
       return t.sessionId === sessId
@@ -47,5 +46,59 @@ export default Store => {
   }
   Store.prototype.addTransfers = function (objs) {
     return window.store.addItems(objs, 'fileTransfers')
+  }
+  Store.prototype.setFileTransfers = function (objs) {
+    return window.store.setState('fileTransfers', objs)
+  }
+  Store.prototype.addTransferList = function (objs) {
+    const { store } = window
+    store.setFileTransfers([
+      ...store.fileTransfers,
+      ...objs
+    ])
+  }
+  Store.prototype.toggleTransfer = function (itemId) {
+    const { store } = window
+    const { fileTransfers } = store
+    const index = findIndex(fileTransfers, t => t.id === itemId)
+    if (index < 0) {
+      return
+    }
+    fileTransfers[index].pausing = !fileTransfers[index].pausing
+    store.setFileTransfers(fileTransfers)
+  }
+
+  Store.prototype.pauseAll = function () {
+    const { store } = window
+    store.pauseAllTransfer = true
+    store.setFileTransfers(store.fileTransfers.map(t => {
+      t.pausing = true
+      return t
+    }))
+  }
+  Store.prototype.resumeAll = function () {
+    const { store } = window
+    store.pauseAllTransfer = false
+    store.setFileTransfers(store.fileTransfers.map(t => {
+      t.pausing = false
+      return t
+    }))
+  }
+  Store.prototype.cancelAll = function () {
+    const { store } = window
+    store.setFileTransfers(store.fileTransfers.map(t => {
+      t.cancel = true
+      return t
+    }))
+  }
+  Store.prototype.cancelTransfer = function (itemId) {
+    const { store } = window
+    const { fileTransfers } = store
+    const index = findIndex(fileTransfers, t => t.id === itemId)
+    if (index < 0) {
+      return
+    }
+    fileTransfers[index].cancel = true
+    store.setFileTransfers(fileTransfers)
   }
 }

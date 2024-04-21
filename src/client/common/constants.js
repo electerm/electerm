@@ -38,7 +38,7 @@ export const contextMenuPaddingTop = 10
 export const sftpControlHeight = 28 + 42 + 33 + 36
 export const sidebarWidth = 43
 export const maxHistory = 50
-export const maxTransport = 5
+export const maxTransport = 1
 export const maxSftpHistory = 20
 export const maxZoom = 8
 export const minZoom = 0.5
@@ -278,7 +278,8 @@ export const commonActions = {
   closeContextMenu: 'close-context-menu',
   clickContextMenu: 'click-context-menu',
   openContextMenu: 'open-context-menu',
-  addTransfer: 'add-transfer'
+  addTransfer: 'add-transfer',
+  sftpList: 'sftp-list'
 }
 
 export const srcsSkipUpgradeCheck = [

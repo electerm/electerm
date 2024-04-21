@@ -3,6 +3,7 @@
  *
  */
 
+import { Component } from '../common/react-subx'
 import { Modal, Button } from 'antd'
 import { isString } from 'lodash-es'
 import AnimateText from '../common/animate-text'
@@ -23,42 +24,51 @@ function formatTimeAuto (strOrDigit) {
   return formatTime(strOrDigit * 1000)
 }
 
-export default (props) => {
-  if (!props.transferToConfirm) {
-    return null
-  }
-  const {
-    fromPath,
-    toPath,
-    fromFile: {
-      isDirectory,
-      name,
-      id: fileId,
-      modifyTime: modifyTimeFrom,
-      size: sizeFrom,
-      type: typeFrom
-    },
-    toFile: {
-      modifyTime: modifyTimeTo,
-      size: sizeTo,
-      type: typeTo
-    },
-    id,
-    transferGroupId
-  } = props.transferToConfirm
-  function act (action) {
-    props.modifier({
-      transferToConfirm: null
-    })
+export default class ConfirmModalStore extends Component {
+  act (action) {
+    const { store } = this.props
+    const {
+      transferToConfirm
+    } = store
+    store.setState(
+      'transferToConfirm', {}
+    )
+    const {
+      fromFile: {
+        id: fileId
+      },
+      id,
+      transferGroupId
+    } = transferToConfirm
     postMessage({
       transferGroupId,
       fileId,
       id,
-      transfer: props.transferToConfirm,
+      transfer: transferToConfirm,
       action
     })
   }
-  function renderContent () {
+
+  renderContent () {
+    const {
+      transferToConfirm
+    } = this.props.store
+    const {
+      fromPath,
+      toPath,
+      fromFile: {
+        isDirectory,
+        name,
+        modifyTime: modifyTimeFrom,
+        size: sizeFrom,
+        type: typeFrom
+      },
+      toFile: {
+        modifyTime: modifyTimeTo,
+        size: sizeTo,
+        type: typeTo
+      }
+    } = transferToConfirm
     const action = isDirectory ? e('merge') : e('replace')
     const typeTxt = isDirectory ? e('folder') : e('file')
     const Icon = isDirectory ? FolderOutlined : FileOutlined
@@ -95,27 +105,39 @@ export default (props) => {
       </div>
     )
   }
-  function renderFooter () {
+
+  renderFooter () {
+    const {
+      transferToConfirm
+    } = this.props.store
+    if (!transferToConfirm) {
+      return null
+    }
+    const {
+      fromFile: {
+        isDirectory
+      }
+    } = transferToConfirm
     return (
       <div className='mgq1t pd1y alignright'>
         <Button
           type='dashed'
           className='mg1l'
-          onClick={() => act(fileActions.cancel)}
+          onClick={() => this.act(fileActions.cancel)}
         >
           {e('cancel')}
         </Button>
         <Button
           type='dashed'
           className='mg1l'
-          onClick={() => act(fileActions.skip)}
+          onClick={() => this.act(fileActions.skip)}
         >
           {e('skip')}
         </Button>
         <Button
           type='dashed'
           className='mg1l'
-          onClick={() => act(fileActions.skipAll)}
+          onClick={() => this.act(fileActions.skipAll)}
         >
           {e('skipAll')}
         </Button>
@@ -123,7 +145,7 @@ export default (props) => {
           danger
           className='mg1l'
           onClick={
-            () => act(fileActions.mergeOrOverwrite)
+            () => this.act(fileActions.mergeOrOverwrite)
           }
         >
           {isDirectory ? e('merge') : e('overwrite')}
@@ -132,7 +154,7 @@ export default (props) => {
           type='primary'
           className='mg1l'
           onClick={
-            () => act(fileActions.rename)
+            () => this.act(fileActions.rename)
           }
         >
           {e('rename')}
@@ -148,7 +170,7 @@ export default (props) => {
                 : e('overwriteDesc')
             }
             onClick={
-              () => act(fileActions.mergeOrOverwriteAll)
+              () => this.act(fileActions.mergeOrOverwriteAll)
             }
           >
             {isDirectory ? e('mergeAll') : e('overwriteAll')}
@@ -158,7 +180,7 @@ export default (props) => {
             className='mg1l'
             title={e('renameDesc')}
             onClick={
-              () => act(fileActions.renameAll)
+              () => this.act(fileActions.renameAll)
             }
           >
             {e('renameAll')}
@@ -167,18 +189,27 @@ export default (props) => {
       </div>
     )
   }
-  const modalProps = {
-    open: true,
-    width: 500,
-    title: e('fileConflict'),
-    footer: renderFooter(),
-    onCancel: () => act(fileActions.cancel)
+
+  render () {
+    const {
+      transferToConfirm
+    } = this.props.store
+    if (!transferToConfirm.id) {
+      return null
+    }
+    const modalProps = {
+      open: true,
+      width: 500,
+      title: e('fileConflict'),
+      footer: this.renderFooter(),
+      onCancel: () => this.act(fileActions.cancel)
+    }
+    return (
+      <Modal
+        {...modalProps}
+      >
+        {this.renderContent()}
+      </Modal>
+    )
   }
-  return (
-    <Modal
-      {...modalProps}
-    >
-      {renderContent()}
-    </Modal>
-  )
 }
