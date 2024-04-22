@@ -1226,6 +1226,7 @@ class Term extends Component {
     this.socketCloseWarning = notification.warning({
       key,
       message: e('socketCloseTip'),
+      duration: 30,
       description: (
         <div className='pd2y'>
           <Button
