@@ -12,6 +12,9 @@ import CssOverwrite from './css-overwrite'
 import UiTheme from './ui-theme'
 import CustomCss from './custom-css.jsx'
 import TerminalInteractive from '../terminal/terminal-interactive'
+import ConfirmModalStore from '../sftp/confirm-modal-store.jsx'
+import TransferConflictStore from '../sftp/transfer-conflict-store.jsx'
+import TransportsActionStore from '../sftp/transports-action-store.jsx'
 import classnames from 'classnames'
 import ShortcutControl from '../shortcuts/shortcut-control.jsx'
 import { isMac, isWin } from '../../common/constants'
@@ -149,6 +152,17 @@ export default class Index extends Component {
             />
           </div>
           <ContextMenu store={store} />
+          <ConfirmModalStore
+            store={store}
+          />
+          <TransferConflictStore
+            store={store}
+            _fileTransfers={store._fileTransfers}
+          />
+          <TransportsActionStore
+            store={store}
+            _fileTransfers={store._fileTransfers}
+          />
         </div>
       </ConfigProvider>
     )

@@ -12,6 +12,7 @@ import fetch from '../common/fetch-from-server'
 import download from '../common/download'
 import { fixBookmarks } from '../common/db-fix'
 import dayjs from 'dayjs'
+import parseJsonSafe from '../common/parse-json-safe'
 
 const names = without(dbNames, settingMap.history)
 const {
@@ -262,10 +263,12 @@ export default (Store) => {
       })
       store.setItems(n, arr)
     }
-    const userConfig = JSON.parse(
+    const userConfig = parseJsonSafe(
       get(gist, 'files["userConfig.json"].content')
     )
-    store.setTheme(userConfig.theme)
+    if (userConfig && userConfig.theme) {
+      store.setTheme(userConfig.theme)
+    }
     const up = {
       [type + 'LastSyncTime']: Date.now()
     }

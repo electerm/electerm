@@ -1110,6 +1110,7 @@ class Term extends Component {
       ]),
       sessionId,
       tabId: id,
+      srcTabId: tab.id,
       terminalIndex,
       termType,
       readyTimeout: config.sshReadyTimeout,
@@ -1225,6 +1226,7 @@ class Term extends Component {
     this.socketCloseWarning = notification.warning({
       key,
       message: e('socketCloseTip'),
+      duration: 30,
       description: (
         <div className='pd2y'>
           <Button

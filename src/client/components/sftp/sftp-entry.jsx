@@ -14,8 +14,10 @@ import {
   typeMap, maxSftpHistory, paneMap,
   eventTypes,
   fileTypeMap,
-  terminalSshConfigType, terminalSerialType,
-  unexpectedPacketErrorDesc, sftpRetryInterval,
+  terminalSshConfigType,
+  terminalSerialType,
+  unexpectedPacketErrorDesc,
+  sftpRetryInterval,
   commonActions
 } from '../../common/constants'
 import { hasFileInClipboardText } from '../../common/clipboard'
@@ -27,7 +29,6 @@ import ListTable from './list-table-ui'
 import deepCopy from 'json-deep-copy'
 import isValidPath from '../../common/is-valid-path'
 import memoizeOne from 'memoize-one'
-import TransportEntry from './transport-entry'
 import postMessage from '../../common/post-msg'
 import { runCmd } from '../terminal/terminal-apis'
 import * as owner from './owner-list'
@@ -58,9 +59,6 @@ export default class Sftp extends Component {
       onEditFile: false,
       ...this.defaultState(),
       loadingSftp: false,
-      transferToConfirm: null,
-      transferList: [],
-      pauseAll: false,
       inited: false
     }
     this.retryCount = 0
@@ -190,11 +188,27 @@ export default class Sftp extends Component {
   }, isEqual)
 
   initEvent () {
+    window.addEventListener('message', this.handleMsg)
     window.addEventListener('keydown', this.handleEvent)
   }
 
   destroyEvent () {
     window.removeEventListener('keydown', this.handleEvent)
+    window.removeEventListener('message', this.handleMsg)
+  }
+
+  handleMsg = event => {
+    const {
+      action,
+      sessionId,
+      type
+    } = event?.data || {}
+    if (
+      action === commonActions.sftpList &&
+      sessionId === this.props.sessionId
+    ) {
+      this[type + 'List']()
+    }
   }
 
   isActive () {
@@ -437,32 +451,28 @@ export default class Sftp extends Component {
     }
     const { type } = lastClickedFile
     const { inputFocus, onDelete } = this
+    e.stopPropagation()
     if (keyControlPressed(e) && keyPressed(e, 'keyA') && !inputFocus) {
-      e.stopPropagation()
       this.selectAll(type, e)
     } else if (keyPressed(e, 'arrowdown') && !inputFocus) {
-      e.stopPropagation()
       this.selectNext(type)
     } else if (keyPressed(e, 'arrowup') && !inputFocus) {
-      e.stopPropagation()
       this.selectPrev(type)
-    } else if (keyPressed(e, 'delete') && !inputFocus) {
-      e.stopPropagation()
+    } else if (
+      keyPressed(e, 'delete') &&
+      !inputFocus &&
+      !this.state.onEditFile
+    ) {
       this.onDel(type)
     } else if (keyPressed(e, 'enter') && !inputFocus && !onDelete) {
-      e.stopPropagation()
       this.enter(type, e)
     } else if (keyControlPressed(e) && keyPressed(e, 'keyC') && !inputFocus) {
-      e.stopPropagation()
       this.doCopy(type, e)
     } else if (keyControlPressed(e) && keyPressed(e, 'keyX') && !inputFocus) {
-      e.stopPropagation()
       this.doCut(type, e)
     } else if (keyControlPressed(e) && keyPressed(e, 'keyV') && !inputFocus) {
-      e.stopPropagation()
       this.doPaste(type, e)
     } else if (keyPressed(e, 'f5')) {
-      e.stopPropagation()
       this.onGoto(type)
     }
   }
@@ -496,11 +506,7 @@ export default class Sftp extends Component {
   }
 
   addTransferList = list => {
-    postMessage({
-      list,
-      action: commonActions.addTransfer,
-      sessionId: this.props.sessionId
-    })
+    window.store.addTransferList(list)
   }
 
   computeListHeight = () => {
@@ -906,11 +912,8 @@ export default class Sftp extends Component {
         typeMap.remote,
         'lastClickedFile',
         'lastMataKey',
-        'transferToConfirm',
-        'transferList',
         'targetTransferType',
         'selectedFiles',
-        'pauseAll',
         'localGidTree',
         'remoteUidTree',
         'localUidTree',
@@ -1108,18 +1111,6 @@ export default class Sftp extends Component {
     const {
       id
     } = this.state
-    const prps = {
-      localList: this.localList,
-      remoteList: this.remoteList,
-      sftp: this.sftp,
-      sessionId: this.props.sessionId,
-      host: this.props.tab.host,
-      localListDebounce: this.localListDebounce,
-      remoteListDebounce: this.remoteListDebounce,
-      config: this.props.config,
-      tab: this.props.tab,
-      pid: this.props.pid
-    }
     const all = {
       className: 'sftp-wrap overhide relative',
       id: `id-${id}`,
@@ -1132,7 +1123,6 @@ export default class Sftp extends Component {
         {
           this.renderSections()
         }
-        <TransportEntry {...prps} />
       </div>
     )
   }

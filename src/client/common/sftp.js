@@ -7,6 +7,7 @@ import Transfer from './transfer'
 import { transferTypeMap, instSftpKeys as keys } from './constants'
 import initWs from './ws'
 
+window.sftps = {}
 const transferKeys = Object.keys(transferTypeMap)
 
 class Sftp {
@@ -56,6 +57,7 @@ class Sftp {
   }
 
   async destroy () {
+    delete window.sftps[this.sessionId]
     const { ws } = this
     ws.s({
       action: 'sftp-destroy',
@@ -69,5 +71,6 @@ class Sftp {
 export default async (sessionId) => {
   const sftp = new Sftp()
   await sftp.init(sessionId)
+  window.sftps[sessionId] = sftp
   return sftp
 }

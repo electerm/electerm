@@ -168,6 +168,7 @@ export default class FileSection extends React.Component {
         fromPath,
         toPath,
         id: generate(),
+        host: this.props.tab?.host,
         ...createTransferProps(this.props),
         operation
       })
@@ -804,6 +805,7 @@ export default class FileSection extends React.Component {
     }
     toPath = resolve(toPath, name)
     const obj = {
+      host: this.props.tab?.host,
       typeFrom: type,
       typeTo,
       fromPath: resolve(path, name),

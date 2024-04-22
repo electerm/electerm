@@ -233,6 +233,10 @@ class Store {
     return JSON.parse(window.store._upgradeInfo)
   }
 
+  get transferToConfirm () {
+    return JSON.parse(window.store._transferToConfirm)
+  }
+
   get settingItem () {
     return JSON.parse(window.store._settingItem)
   }

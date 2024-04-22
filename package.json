@@ -1,6 +1,6 @@
 {
   "name": "electerm",
-  "version": "1.38.65",
+  "version": "1.38.70",
   "description": "Terminal/ssh/telnet/serialport/sftp client(linux, mac, win)",
   "main": "app.js",
   "bin": "npm/electerm",
@@ -98,10 +98,10 @@
     "xterm-addon-unicode11": "0.5.0",
     "xterm-addon-web-links": "0.8.0",
     "xterm-addon-webgl": "0.15.0",
-    "zmodem-ts": "^1.0.3"
+    "zmodem-ts": "1.0.4"
   },
   "dependencies": {
-    "@electerm/electerm-locales": "1.2.10",
+    "@electerm/electerm-locales": "1.2.11",
     "@electerm/electerm-themes": "^1.0.1",
     "@electerm/strip-ansi": "1.0.0",
     "@yetzt/nedb": "1.8.0",
@@ -133,7 +133,7 @@
     "ssh-config": "4.2.1",
     "ssh2": "1.15.0",
     "stylus": "0.59.0",
-    "tar": "6.2.0",
+    "tar": "6.2.1",
     "v8-compile-cache": "2.3.0"
   },
   "files": [

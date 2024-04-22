@@ -92,9 +92,11 @@ export default () => {
 
     // sftp
     fileOperation: fileOperationsMap.cp, // cp or mv
+    pauseAllTransfer: false,
     transferTab: 'transfer',
     _transferHistory: '[]',
     _fileTransfers: '[]',
+    _transferToConfirm: '{}',
     _sftpSortSetting: ls.getItem(sftpDefaultSortSettingKey) || JSON.stringify({
       local: {
         prop: 'modifyTime',
@@ -168,9 +170,6 @@ export default () => {
     // serial list related
     _serials: '[]',
     loaddingSerials: false,
-
-    // transfer list
-    transports: [],
 
     _sshConfigItems: '[]',
 

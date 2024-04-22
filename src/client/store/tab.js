@@ -11,7 +11,7 @@ import postMsg from '../common/post-msg'
 export default Store => {
   Store.prototype.updateTabsStatus = function () {
     const tabIds = uniq(
-      window.store.getTransfers().map(d => d.tabId)
+      window.store.fileTransfers.map(d => d.tabId)
     )
     postMsg({
       action: tabActions.updateTabsStatus,
