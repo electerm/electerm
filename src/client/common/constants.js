@@ -66,7 +66,8 @@ export const connectionMap = buildConst([
   'ssh',
   'telnet',
   'serial',
-  'local'
+  'local',
+  'web'
 ])
 
 export const authTypeMap = buildConst([
@@ -131,6 +132,7 @@ export const terminalSplitDirectionMap = buildConst([
 ])
 
 export const terminalSshConfigType = 'ssh-config'
+export const terminalWebType = 'web'
 export const terminalSerialType = 'serial'
 export const terminalTelnetType = 'telnet'
 export const terminalLocalType = 'local'
