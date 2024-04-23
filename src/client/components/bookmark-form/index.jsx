@@ -9,6 +9,7 @@ import {
   settingMap,
   connectionMap,
   terminalSerialType,
+  terminalWebType,
   terminalLocalType,
   terminalTelnetType,
   newBookmarkIdPrefix
@@ -17,6 +18,7 @@ import SshForm from './ssh-form'
 import SerialForm from './serial-form'
 import LocalForm from './local-form'
 import TelnetForm from './telnet-form'
+import WebForm from './web-form'
 import { createTitleWithTag } from '../../common/create-title'
 import {
   LoadingOutlined,
@@ -33,13 +35,14 @@ export default class BookmarkIndex extends Component {
   constructor (props) {
     super(props)
     let initType = props.formData.type
-    if (initType === terminalTelnetType) {
-      initType = terminalTelnetType
-    } else if (initType === terminalSerialType) {
-      initType = terminalSerialType
-    } else if (initType === terminalLocalType) {
-      initType = terminalLocalType
-    } else {
+    if (
+      ![
+        terminalTelnetType,
+        terminalWebType,
+        terminalLocalType,
+        terminalSerialType
+      ].includes(initType)
+    ) {
       initType = connectionMap.ssh
     }
     this.state = {
@@ -64,7 +67,8 @@ export default class BookmarkIndex extends Component {
     [connectionMap.ssh]: SshForm,
     [connectionMap.telnet]: TelnetForm,
     [connectionMap.serial]: SerialForm,
-    [connectionMap.local]: LocalForm
+    [connectionMap.local]: LocalForm,
+    [connectionMap.web]: WebForm
   }
 
   handleChange = (e) => {

@@ -1,5 +1,6 @@
 import { Component } from '../common/react-subx'
 import Session from './session'
+import WebSession from './web-session'
 import { findIndex, pick } from 'lodash-es'
 import classNames from 'classnames'
 import generate from '../../common/uid'
@@ -11,7 +12,8 @@ import {
   tabActions,
   termInitId,
   paneMap,
-  statusMap
+  statusMap,
+  terminalWebType
 } from '../../common/constants'
 import newTerm, { updateCount } from '../../common/new-terminal'
 import postMsg from '../../common/post-msg'
@@ -102,6 +104,7 @@ class Sessions extends Component {
     _tab,
     _index
   ) => {
+    console.log(_tab, '_tab')
     this.setState((oldState) => {
       const tabs = copy(oldState.tabs)
       const index = typeof _index === 'undefined'
@@ -336,7 +339,7 @@ class Sessions extends Component {
       return this.renderNoSession()
     }
     return tabs.map((tab) => {
-      const { id } = tab
+      const { id, type } = tab
       const cls = classNames(
         `session-wrap session-${id}`,
         {
@@ -371,6 +374,18 @@ class Sessions extends Component {
           'addTab',
           'editTab'
         ])
+      }
+      if (type === terminalWebType) {
+        const webProps = {
+          tab
+        }
+        return (
+          <div className={cls} key={id}>
+            <WebSession
+              {...webProps}
+            />
+          </div>
+        )
       }
       return (
         <div className={cls} key={id}>
