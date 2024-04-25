@@ -104,7 +104,6 @@ class Sessions extends Component {
     _tab,
     _index
   ) => {
-    console.log(_tab, '_tab')
     this.setState((oldState) => {
       const tabs = copy(oldState.tabs)
       const index = typeof _index === 'undefined'

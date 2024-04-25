@@ -63,7 +63,18 @@ function expandShorthandColor (color) {
   if (color.length === 4) {
     return '#' + color[1] + color[1] + color[2] + color[2] + color[3] + color[3]
   }
-  return color
+  if (color.length === 7) {
+    return color
+  }
+  if (color.length < 7) {
+    return expandShorthandColor(color + 'f')
+  }
+  if (color.length > 7) {
+    return expandShorthandColor(color.slice(0, 7))
+  }
+  if (!/^#[A-Fa-f0-9]{6}$/.test(color)) {
+    return '#141314'
+  }
 }
 
 function isColorDark (_color) {
