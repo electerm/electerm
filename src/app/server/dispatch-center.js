@@ -56,7 +56,7 @@ const wsDec = (ws) => {
     }
     ws.addEventListener('message', func)
   }
-  ws._socket.setKeepAlive(true, 1 * 60 * 1000)
+  ws._socket.setKeepAlive(true, 30 * 1000)
 }
 
 function verify (req) {
@@ -188,26 +188,30 @@ const initWs = function (app) {
     verify(req)
     wsDec(ws)
     ws.on('message', async (message) => {
-      const msg = JSON.parse(message)
-      const { action } = msg
-      if (action === 'fetch') {
-        fetch(ws, msg)
-      } else if (action === 'sync') {
-        sync(ws, msg)
-      } else if (action === 'fs') {
-        fs(ws, msg)
-      } else if (action === 'create-terminal') {
-        createTerm(ws, msg)
-      } else if (action === 'test-terminal') {
-        testTerm(ws, msg)
-      } else if (action === 'resize-terminal') {
-        resize(ws, msg)
-      } else if (action === 'toggle-terminal-log') {
-        toggleTerminalLog(ws, msg)
-      } else if (action === 'toggle-terminal-log-timestamp') {
-        toggleTerminalLogTimestamp(ws, msg)
-      } else if (action === 'run-cmd') {
-        runCmd(ws, msg)
+      try {
+        const msg = JSON.parse(message)
+        const { action } = msg
+        if (action === 'fetch') {
+          fetch(ws, msg)
+        } else if (action === 'sync') {
+          sync(ws, msg)
+        } else if (action === 'fs') {
+          fs(ws, msg)
+        } else if (action === 'create-terminal') {
+          createTerm(ws, msg)
+        } else if (action === 'test-terminal') {
+          testTerm(ws, msg)
+        } else if (action === 'resize-terminal') {
+          resize(ws, msg)
+        } else if (action === 'toggle-terminal-log') {
+          toggleTerminalLog(ws, msg)
+        } else if (action === 'toggle-terminal-log-timestamp') {
+          toggleTerminalLogTimestamp(ws, msg)
+        } else if (action === 'run-cmd') {
+          runCmd(ws, msg)
+        }
+      } catch (err) {
+        log.error('common ws error', err)
       }
     })
   })

@@ -16,7 +16,11 @@ function createWs (
   const wsUrl = `ws://${host}:${port}/${type}/${id}?sessionId=${sessionId}&sftpId=${sftpId}&token=${tokenElecterm}`
   const ws = new WebSocket(wsUrl)
   ws.s = msg => {
-    ws.send(JSON.stringify(msg))
+    try {
+      ws.send(JSON.stringify(msg))
+    } catch (e) {
+      console.error('ws send error', e)
+    }
   }
   ws.id = id
   ws.once = (callack, id) => {
