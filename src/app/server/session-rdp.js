@@ -8,6 +8,10 @@ const { TerminalBase } = require('./session-base')
 
 class TerminalRdp extends TerminalBase {
   init = async () => {
+    return Promise.resolve(this)
+  }
+
+  start = async () => {
     const {
       host,
       port,
@@ -83,6 +87,9 @@ class TerminalRdp extends TerminalBase {
   }
 
   kill = () => {
+    if (this.ws) {
+      delete this.ws
+    }
     this.channel && this.channel.end()
     if (this.sessionLogger) {
       this.sessionLogger.destroy()
