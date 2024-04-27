@@ -5,12 +5,13 @@
 import { useEffect } from 'react'
 import {
   Input,
-  Form
+  Form,
+  InputNumber
 } from 'antd'
 import { formItemLayout } from '../../common/form-layout'
 import {
   newBookmarkIdPrefix,
-  terminalWebType
+  terminalRdpType
 } from '../../common/constants'
 import useSubmit from './use-submit'
 import copy from 'json-deep-copy'
@@ -37,7 +38,8 @@ export default function LocalFormUi (props) {
   }, [props.currentBookmarkGroupId])
   let initialValues = copy(props.formData)
   const defaultValues = {
-    type: terminalWebType,
+    type: terminalRdpType,
+    port: 3389,
     color: getRandomDefaultColor()
   }
   initialValues = defaults(initialValues, defaultValues)
@@ -55,12 +57,28 @@ export default function LocalFormUi (props) {
         </FormItem>
         <FormItem
           {...formItemLayout}
-          label={e('URL')}
+          label={e('host')}
           hasFeedback
-          name='url'
+          name='host'
           required
         >
-          <Input addonBefore={<ColorPickerItem />} />
+          <Input />
+        </FormItem>
+        <FormItem
+          {...formItemLayout}
+          label={e('port')}
+          hasFeedback
+          name='port'
+          rules={[{
+            required: true, message: 'port required'
+          }]}
+        >
+          <InputNumber
+            placeholder={e('port')}
+            min={1}
+            max={65535}
+            step={1}
+          />
         </FormItem>
         <FormItem
           {...formItemLayout}
@@ -87,7 +105,7 @@ export default function LocalFormUi (props) {
       form={form}
       onFinish={handleFinish}
       initialValues={initialValues}
-      name='web-form'
+      name='rdp-form'
     >
       {renderCommon()}
       {submitUi}

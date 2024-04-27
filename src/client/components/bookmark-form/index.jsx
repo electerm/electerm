@@ -10,6 +10,7 @@ import {
   connectionMap,
   terminalSerialType,
   terminalWebType,
+  terminalRdpType,
   terminalLocalType,
   terminalTelnetType,
   newBookmarkIdPrefix
@@ -19,6 +20,7 @@ import SerialForm from './serial-form'
 import LocalForm from './local-form'
 import TelnetForm from './telnet-form'
 import WebForm from './web-form'
+import RdpForm from './rdp-form'
 import { createTitleWithTag } from '../../common/create-title'
 import {
   LoadingOutlined,
@@ -40,7 +42,8 @@ export default class BookmarkIndex extends Component {
         terminalTelnetType,
         terminalWebType,
         terminalLocalType,
-        terminalSerialType
+        terminalSerialType,
+        terminalRdpType
       ].includes(initType)
     ) {
       initType = connectionMap.ssh
@@ -68,7 +71,8 @@ export default class BookmarkIndex extends Component {
     [connectionMap.telnet]: TelnetForm,
     [connectionMap.serial]: SerialForm,
     [connectionMap.local]: LocalForm,
-    [connectionMap.web]: WebForm
+    [connectionMap.web]: WebForm,
+    [connectionMap.rdp]: RdpForm
   }
 
   handleChange = (e) => {
