@@ -60,6 +60,9 @@ class TerminalRdp extends TerminalBase {
   }
 
   kill = () => {
+    if (this.ws) {
+      delete this.ws
+    }
     this.channel && this.channel.end()
     if (this.sessionLogger) {
       this.sessionLogger.destroy()

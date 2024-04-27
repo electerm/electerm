@@ -86,6 +86,9 @@ class TerminalBase {
     if (!inst) {
       return
     }
+    if (this.ws) {
+      delete this.ws
+    }
     delete inst.sftps[this.pid]
     delete inst.terminals[this.pid]
     if (this.server && this.server.end) {
