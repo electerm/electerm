@@ -138,9 +138,13 @@ class Term extends Component {
       clearTimeout(this.timers[k])
     })
     this.onClose = true
-    this.socket && this.socket.close()
+    if (this.socket) {
+      this.socket.close()
+      delete this.socket
+    }
     if (this.term) {
       this.term.dispose()
+      delete this.term
     }
     window.removeEventListener(
       'resize',
@@ -149,6 +153,13 @@ class Term extends Component {
     window.removeEventListener('message', this.handleEvent)
     this.dom.removeEventListener('contextmenu', this.onContextMenu)
     window.removeEventListener('message', this.onContextAction)
+    delete this.dom
+    delete this.attachAddon
+    delete this.fitAddon
+    delete this.zmodemAddon
+    delete this.searchAddon
+    delete this.serializeAddon
+    delete this.fitAddon
   }
 
   terminalConfigProps = [
