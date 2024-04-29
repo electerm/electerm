@@ -104,6 +104,7 @@
     "@electerm/electerm-locales": "1.2.11",
     "@electerm/electerm-themes": "^1.0.1",
     "@electerm/strip-ansi": "1.0.0",
+    "@thi.ng/rle-pack": "^3.1.67",
     "@yetzt/nedb": "1.8.0",
     "axios": "0.26.0",
     "commander": "11.0.0",

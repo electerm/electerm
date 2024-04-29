@@ -3,27 +3,45 @@
  */
 const _ = require('lodash')
 const log = require('../common/log')
-const rdp = require('node-rdpjs')
+const rdp = require('node-rdpjs-2')
 const { TerminalBase } = require('./session-base')
 
 class TerminalRdp extends TerminalBase {
   init = async () => {
+    console.log('init')
+    global.sessions[this.initOptions.sessionId] = {
+      id: this.initOptions.sessionId,
+      terminals: {
+        [this.pid]: this
+      }
+    }
     return Promise.resolve(this)
   }
 
-  start = async () => {
+  start = async (width, height) => {
+    console.log('start')
     const {
       host,
       port,
       ...rest
     } = this.initOptions
-    const channel = rdp.createClient(rest)
+    const channel = rdp.createClient({
+      ...rest,
+      screen: {
+        width,
+        height
+      }
+    })
       .on('error', this.onError)
       .on('connect', this.onConnect)
       .on('bitmap', this.onBitmap)
       .on('end', this.kill)
       .connect(host, port)
     this.channel = channel
+  }
+
+  onError = (err) => {
+    log.error('rdp error', err)
   }
 
   test = async () => {
@@ -46,21 +64,25 @@ class TerminalRdp extends TerminalBase {
   }
 
   onConnect = () => {
-    this.ws.s({
-      action: 'session-rdp-connected',
-      ..._.pick(this.initOptions, [
-        'sessionId',
-        'tabId'
-      ])
-    })
+    console.log('onConnect')
+    this.ws.send(
+      JSON.stringify(
+        {
+          action: 'session-rdp-connected',
+          ..._.pick(this.initOptions, [
+            'sessionId',
+            'tabId'
+          ])
+        }
+      )
+    )
   }
 
   onBitmap = (bitmap) => {
-    this.ws.s({
-      action: 'session-rdp-bitmap',
-      sessionId: this.initOptions.sessionId,
+    console.log('onBitmap', bitmap)
+    this.ws.send(JSON.stringify(
       bitmap
-    })
+    ))
   }
 
   // action: 'sendPointerEvent', params: x, y, button, isPressed
@@ -111,7 +133,7 @@ class TerminalRdp extends TerminalBase {
   }
 }
 
-exports.TerminalRdp = async function (initOptions, ws) {
+exports.terminalRdp = async function (initOptions, ws) {
   const term = new TerminalRdp(initOptions, ws)
   await term.init()
   return term

@@ -57,6 +57,14 @@ export default function LocalFormUi (props) {
         </FormItem>
         <FormItem
           {...formItemLayout}
+          label={e('domain')}
+          hasFeedback
+          name='domain'
+        >
+          <Input />
+        </FormItem>
+        <FormItem
+          {...formItemLayout}
           label={e('host')}
           hasFeedback
           name='host'
@@ -79,6 +87,24 @@ export default function LocalFormUi (props) {
             max={65535}
             step={1}
           />
+        </FormItem>
+        <FormItem
+          {...formItemLayout}
+          label={e('username')}
+          hasFeedback
+          name='username'
+          required
+        >
+          <Input />
+        </FormItem>
+        <FormItem
+          {...formItemLayout}
+          label={e('password')}
+          hasFeedback
+          name='password'
+          required
+        >
+          <Input.Password />
         </FormItem>
         <FormItem
           {...formItemLayout}

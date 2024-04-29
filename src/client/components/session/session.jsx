@@ -4,6 +4,7 @@
 import { Component } from 'react'
 import Term from '../terminal'
 import Sftp from '../sftp/sftp-entry'
+import RdpSession from './rdp-session'
 import {
   BorderVerticleOutlined,
   BorderHorizontalOutlined,
@@ -27,7 +28,8 @@ import {
   paneMap,
   footerHeight,
   terminalActions,
-  connectionMap
+  connectionMap,
+  terminalRdpType
 } from '../../common/constants'
 import ResizeWrap from '../common/resize-wrap'
 import safeName from '../../common/safe-name'
@@ -321,8 +323,35 @@ export default class SessionWrapper extends Component {
       sftpPathFollowSsh
     } = this.state
     const {
-      pane
+      pane, type
     } = this.props.tab
+    if (type === terminalRdpType) {
+      const rdpProps = {
+        tab: this.props.tab,
+        sessionId,
+        ...pick(this.props, [
+          'height',
+          'width',
+          'tabsHeight',
+          'leftSidebarWidth',
+          'pinned',
+          'openedSideBar',
+          'delTab',
+          'config',
+          'editTab'
+        ]),
+        ...pick(
+          this,
+          [
+            'setSessionState'
+          ])
+      }
+      return (
+        <RdpSession
+          {...rdpProps}
+        />
+      )
+    }
     const cls = pane === paneMap.terminal
       ? 'terms-box'
       : 'terms-box hide'
@@ -393,7 +422,10 @@ export default class SessionWrapper extends Component {
       sftpPathFollowSsh,
       cwd
     } = this.state
-    const { pane } = this.props.tab
+    const { pane, type } = this.props.tab
+    if (type === terminalRdpType) {
+      return null
+    }
     const height = this.computeHeight()
     const cls = pane === paneMap.terminal
       ? 'hide'
@@ -472,8 +504,10 @@ export default class SessionWrapper extends Component {
   renderControl = () => {
     const { splitDirection, terminals, sftpPathFollowSsh } = this.state
     const { props } = this
-    const { pane, enableSsh } = props.tab
-
+    const { pane, enableSsh, type } = props.tab
+    if (type === terminalRdpType) {
+      return null
+    }
     const termType = props.tab?.type
     const isSsh = props.tab.authType
     const isLocal = !isSsh && (termType === connectionMap.local || !termType)
