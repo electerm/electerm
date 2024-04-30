@@ -62,6 +62,7 @@
     "chai": "4.3.10",
     "classnames": "2.3.2",
     "cross-env": "7.0.3",
+    "dicom-rle": "^0.0.10",
     "dotenv": "16.3.1",
     "electron": "26.2.4",
     "electron-builder": "24.9.1",

@@ -14,7 +14,8 @@ import {
 import {
   ReloadOutlined
 } from '@ant-design/icons'
-import { decode } from "@thi.ng/rle-pack";
+import { RleDecoder } from 'dicom-rle'
+import './rle.js'
 
 const { prefix } = window
 const e = prefix('ssh')
@@ -119,23 +120,62 @@ export default class RdpSession extends Component {
     socket.onmessage = this.onData
   }
 
-  decompress = (arr) => {
-    const decompressedArray = []
-    let i = 0
-
-    while (i < arr.length) {
-      const value = arr[i]
-      const count = arr[i + 1]
-
-      // Repeat the value 'count' times
-      for (let j = 0; j < count; j++) {
-        decompressedArray.push(value)
-      }
-
-      i += 2 // Move to the next RLE pair
+  decompress = (bitmap) => {
+    let fName = null
+    switch (bitmap.bitsPerPixel) {
+      case 15:
+        fName = 'bitmap_decompress_15'
+        break
+      case 16:
+        fName = 'bitmap_decompress_16'
+        break
+      case 24:
+        fName = 'bitmap_decompress_24'
+        break
+      case 32:
+        fName = 'bitmap_decompress_32'
+        break
+      default:
+        throw 'invalid bitmap data format'
     }
 
-    return decompressedArray
+    const input = new Uint8Array(bitmap.data)
+    const inputPtr = Module._malloc(input.length)
+    const inputHeap = new Uint8Array(Module.HEAPU8.buffer, inputPtr, input.length)
+    inputHeap.set(input)
+
+    const output_width = bitmap.destRight - bitmap.destLeft + 1
+    const output_height = bitmap.destBottom - bitmap.destTop + 1
+    const ouputSize = output_width * output_height * 4
+    const outputPtr = Module._malloc(ouputSize)
+
+    const outputHeap = new Uint8Array(Module.HEAPU8.buffer, outputPtr, ouputSize)
+
+    const res = Module.ccall(fName,
+      'number',
+      ['number', 'number', 'number', 'number', 'number', 'number', 'number', 'number'],
+      [outputHeap.byteOffset, output_width, output_height, bitmap.width, bitmap.height, inputHeap.byteOffset, input.length]
+    )
+
+    const output = new Uint8ClampedArray(outputHeap.buffer, outputHeap.byteOffset, ouputSize)
+
+    Module._free(inputPtr)
+    Module._free(outputPtr)
+
+    return { width: output_width, height: output_height, data: output }
+  }
+
+  output = (data) => {
+    if (data.isCompress) {
+      return {
+        width: data.width,
+        height: data.height,
+        arr: new Uint8ClampedArray(data.data)
+      }
+    }
+    const w = data.destRight - data.destLeft + 1
+    const h = data.destBottom - data.destTop + 1
+    return this.decompress(data)
   }
 
   onData = async (msg) => {
@@ -147,34 +187,17 @@ export default class RdpSession extends Component {
         loading: false
       })
     }
-    const {
-      destTop,
-      destLeft,
-      destBottom,
-      destRight,
-      width,
-      height,
-      bitsPerPixel,
-      isCompress,
-      data: bitmap // number[] converted from JSON.stringify(Buffer)
-    } = data
     const id = 'canvas_' + this.props.tab.id
     const canvas = document.getElementById(id)
     const ctx = canvas.getContext('2d')
-    console.log(ctx)
+    const {
+      width,
+      height,
+      arr
+    } = this.output(data)
     const imageData = ctx.createImageData(width, height)
-    const dataView = new DataView(imageData.data.buffer)
-
-    // Fill the ImageData with pixel values (grayscale)
-    const uarr = new Uint8Array(bitmap.data.length)
-    uarr.set(bitmap.data)
-    const arr = decode(uarr)
-    console.log('arr length', arr.length, dataView.length)
-    for (let i = 0; i < dataView.byteLength; i++) {
-      const pixelValue = arr[i] // Assuming bitmap is your array of numbers
-      dataView.setUint8(i, pixelValue)
-    }
-    ctx.putImageData(imageData, destLeft, destTop)
+    imageData.data.set(arr)
+    ctx.putImageData(imageData, data.destLeft, data.destTop)
   }
 
   onerrorSocket = err => {
