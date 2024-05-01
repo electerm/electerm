@@ -4,351 +4,345 @@ const TOTAL_MEMORY = 16777216
 const buffer = new ArrayBuffer(TOTAL_MEMORY)
 export const HEAPU8 = new Uint8Array(buffer)
 export const HEAP32 = new Int32Array(buffer)
+const HEAP8 = new Int8Array(buffer)
 HEAP32[0] = 255
 const PAGE_SIZE = 4096
 let DYNAMICTOP = 0
 let STACKTOP = 0
-
-const Runtime = {
-  stackSave: function () {
-    return STACKTOP
-  },
-  stackRestore: function (stackTop) {
-    STACKTOP = stackTop
-  },
-  // forceAlign: function (target, quantum) {
-  //   quantum = quantum || 4
-  //   if (quantum === 1) return target
-  //   if (isNumber(target) && isNumber(quantum)) {
-  //     return Math.ceil(target / quantum) * quantum
-  //   } else if (isNumber(quantum) && isPowerOfTwo(quantum)) {
-  //     return '(((' + target + ')+' + (quantum - 1) + ')&' + -quantum + ')'
-  //   }
-  //   return 'Math.ceil((' + target + ')/' + quantum + ')*' + quantum
-  // },
-  isNumberType: function (type) {
-    return type in Runtime.INT_TYPES || type in Runtime.FLOAT_TYPES
-  },
-  isPointerType: function isPointerType (type) {
-    return type[type.length - 1] === '*'
-  },
-  isStructType: function isStructType (type) {
-    if (isPointerType(type)) return false
-    if (isArrayType(type)) return true
-    if (/<?{ ?[^}]* ?}>?/.test(type)) return true // { i32, i8 } etc. - anonymous struct types
-    // See comment in isStructPointerType()
-    return type[0] === '%'
-  },
-  INT_TYPES: { i1: 0, i8: 0, i16: 0, i32: 0, i64: 0 },
-  FLOAT_TYPES: { float: 0, double: 0 },
-  or64: function (x, y) {
-    const l = (x | 0) | (y | 0)
-    const h = (Math.round(x / 4294967296) | Math.round(y / 4294967296)) * 4294967296
-    return l + h
-  },
-  and64: function (x, y) {
-    const l = (x | 0) & (y | 0)
-    const h = (Math.round(x / 4294967296) & Math.round(y / 4294967296)) * 4294967296
-    return l + h
-  },
-  xor64: function (x, y) {
-    const l = (x | 0) ^ (y | 0)
-    const h = (Math.round(x / 4294967296) ^ Math.round(y / 4294967296)) * 4294967296
-    return l + h
-  },
-  getNativeTypeSize: function (type) {
-    switch (type) {
-      case 'i1': case 'i8': return 1
-      case 'i16': return 2
-      case 'i32': return 4
-      case 'i64': return 8
-      case 'float': return 4
-      case 'double': return 8
-      default: {
-        if (type[type.length - 1] === '*') {
-          return Runtime.QUANTUM_SIZE // A pointer
-        } else if (type[0] === 'i') {
-          const bits = parseInt(type.substr(1))
-          assert(bits % 8 === 0)
-          return bits / 8
-        } else {
-          return 0
-        }
-      }
-    }
-  },
-  getNativeFieldSize: function (type) {
-    return Math.max(Runtime.getNativeTypeSize(type), Runtime.QUANTUM_SIZE)
-  },
-  dedup: function dedup (items, ident) {
-    const seen = {}
-    if (ident) {
-      return items.filter(function (item) {
-        if (seen[item[ident]]) return false
-        seen[item[ident]] = true
-        return true
-      })
-    } else {
-      return items.filter(function (item) {
-        if (seen[item]) return false
-        seen[item] = true
-        return true
-      })
-    }
-  },
-  set: function set () {
-    const args = typeof arguments[0] === 'object' ? arguments[0] : arguments
-    const ret = {}
-    for (let i = 0; i < args.length; i++) {
-      ret[args[i]] = 0
-    }
-    return ret
-  },
-  STACK_ALIGN: 8,
-  getAlignSize: function (type, size, vararg) {
-    // we align i64s and doubles on 64-bit boundaries, unlike x86
-    if (vararg) return 8
-    if (!vararg && (type === 'i64' || type === 'double')) return 8
-    if (!type) return Math.min(size, 8) // align structures internally to 64 bits
-    return Math.min(size || (type ? Runtime.getNativeFieldSize(type) : 0), Runtime.QUANTUM_SIZE)
-  },
-  calculateStructAlignment: function calculateStructAlignment (type) {
-    type.flatSize = 0
-    type.alignSize = 0
-    const diffs = []
-    let prev = -1
-    let index = 0
-    type.flatIndexes = type.fields.map(function (field) {
-      index++
-      let size, alignSize
-      if (Runtime.isNumberType(field) || Runtime.isPointerType(field)) {
-        size = Runtime.getNativeTypeSize(field) // pack char; char; in structs, also char[X]s.
-        alignSize = Runtime.getAlignSize(field, size)
-      } else if (Runtime.isStructType(field)) {
-        if (field[1] === '0') {
-          // this is [0 x something]. When inside another structure like here, it must be at the end,
-          // and it adds no size
-          // XXX this happens in java-nbody for example... assert(index === type.fields.length, 'zero-length in the middle!');
-          size = 0
-          if (Types.types[field]) {
-            alignSize = Runtime.getAlignSize(null, Types.types[field].alignSize)
-          } else {
-            alignSize = type.alignSize || QUANTUM_SIZE
-          }
-        } else {
-          size = Types.types[field].flatSize
-          alignSize = Runtime.getAlignSize(null, Types.types[field].alignSize)
-        }
-      } else if (field[0] === 'b') {
-        // bN, large number field, like a [N x i8]
-        size = field.substr(1) | 0
-        alignSize = 1
-      } else if (field[0] === '<') {
-        // vector type
-        size = alignSize = Types.types[field].flatSize // fully aligned
-      } else if (field[0] === 'i') {
-        // illegal integer field, that could not be legalized because it is an internal structure field
-        // it is ok to have such fields, if we just use them as markers of field size and nothing more complex
-        size = alignSize = parseInt(field.substr(1)) / 8
-        assert(size % 1 === 0, 'cannot handle non-byte-size field ' + field)
-      } else {
-        assert(false, 'invalid type for calculateStructAlignment')
-      }
-      if (type.packed) alignSize = 1
-      type.alignSize = Math.max(type.alignSize, alignSize)
-      const curr = Runtime.alignMemory(type.flatSize, alignSize) // if necessary, place this on aligned memory
-      type.flatSize = curr + size
-      if (prev >= 0) {
-        diffs.push(curr - prev)
-      }
-      prev = curr
-      return curr
-    })
-    if (type.name_ && type.name_[0] === '[') {
-      // arrays have 2 elements, so we get the proper difference. then we scale here. that way we avoid
-      // allocating a potentially huge array for [999999 x i8] etc.
-      type.flatSize = parseInt(type.name_.substr(1)) * type.flatSize / 2
-    }
-    type.flatSize = Runtime.alignMemory(type.flatSize, type.alignSize)
-    if (diffs.length === 0) {
-      type.flatFactor = type.flatSize
-    } else if (Runtime.dedup(diffs).length === 1) {
-      type.flatFactor = diffs[0]
-    }
-    type.needsFlattening = (type.flatFactor != 1)
-    return type.flatIndexes
-  },
-  generateStructInfo: function (struct, typeName, offset) {
-    var type, alignment
-    if (typeName) {
-      offset = offset || 0
-      type = (typeof Types === 'undefined' ? Runtime.typeInfo : Types.types)[typeName]
-      if (!type) return null
-      if (type.fields.length != struct.length) {
-        printErr('Number of named fields must match the type for ' + typeName + ': possibly duplicate struct names. Cannot return structInfo')
-        return null
-      }
-      alignment = type.flatIndexes
-    } else {
-      var type = { fields: struct.map(function (item) { return item[0] }) }
-      alignment = Runtime.calculateStructAlignment(type)
-    }
-    const ret = {
-      __size__: type.flatSize
-    }
-    if (typeName) {
-      struct.forEach(function (item, i) {
-        if (typeof item === 'string') {
-          ret[item] = alignment[i] + offset
-        } else {
-          // embedded struct
-          let key
-          for (const k in item) key = k
-          ret[key] = Runtime.generateStructInfo(item[key], type.fields[i], alignment[i])
-        }
-      })
-    } else {
-      struct.forEach(function (item, i) {
-        ret[item[1]] = alignment[i]
-      })
-    }
-    return ret
-  },
-  dynCall: function (sig, ptr, args) {
-    if (args && args.length) {
-      assert(args.length === sig.length - 1)
-      return FUNCTION_TABLE[ptr].apply(null, args)
-    } else {
-      assert(sig.length === 1)
-      return FUNCTION_TABLE[ptr]()
-    }
-  },
-  addFunction: function (func) {
-    const table = FUNCTION_TABLE
-    const ret = table.length
-    assert(ret % 2 === 0)
-    table.push(func)
-    for (let i = 0; i < 2 - 1; i++) table.push(0)
-    return ret
-  },
-  removeFunction: function (index) {
-    const table = FUNCTION_TABLE
-    table[index] = null
-  },
-  getAsmConst: function (code, numArgs) {
-    // code is a constant string on the heap, so we can cache these
-    if (!Runtime.asmConstCache) Runtime.asmConstCache = {}
-    const func = Runtime.asmConstCache[code]
-    if (func) return func
-    const args = []
-    for (let i = 0; i < numArgs; i++) {
-      args.push(String.fromCharCode(36) + i) // $0, $1 etc
-    }
-    code = Pointer_stringify(code)
-    if (code[0] === '"') {
-      // tolerate EM_ASM("..code..") even though EM_ASM(..code..) is correct
-      if (code.indexOf('"', 1) === code.length - 1) {
-        code = code.substr(1, code.length - 2)
-      } else {
-        // something invalid happened, e.g. EM_ASM("..code($0)..", input)
-        abort('invalid EM_ASM input |' + code + '|. Please use EM_ASM(..code..) (no quotes) or EM_ASM({ ..code($0).. }, input) (to input values)')
-      }
-    }
-    return Runtime.asmConstCache[code] = eval('(function(' + args.join(',') + '){ ' + code + ' })') // new Function does not allow upvars in node
-  },
-  warnOnce: function (text) {
-    if (!Runtime.warnOnce.shown) Runtime.warnOnce.shown = {}
-    if (!Runtime.warnOnce.shown[text]) {
-      Runtime.warnOnce.shown[text] = 1
-      Module.printErr(text)
-    }
-  },
-  funcWrappers: {},
-  getFuncWrapper: function (func, sig) {
-    assert(sig)
-    if (!Runtime.funcWrappers[func]) {
-      Runtime.funcWrappers[func] = function dynCall_wrapper () {
-        return Runtime.dynCall(sig, func, arguments)
-      }
-    }
-    return Runtime.funcWrappers[func]
-  },
-  UTF8Processor: function () {
-    const buffer = []
-    let needed = 0
-    this.processCChar = function (code) {
-      code = code & 0xFF
-
-      if (buffer.length === 0) {
-        if ((code & 0x80) === 0x00) { // 0xxxxxxx
-          return String.fromCharCode(code)
-        }
-        buffer.push(code)
-        if ((code & 0xE0) === 0xC0) { // 110xxxxx
-          needed = 1
-        } else if ((code & 0xF0) === 0xE0) { // 1110xxxx
-          needed = 2
-        } else { // 11110xxx
-          needed = 3
-        }
-        return ''
-      }
-
-      if (needed) {
-        buffer.push(code)
-        needed--
-        if (needed > 0) return ''
-      }
-
-      const c1 = buffer[0]
-      const c2 = buffer[1]
-      const c3 = buffer[2]
-      const c4 = buffer[3]
-      let ret
-      if (buffer.length === 2) {
-        ret = String.fromCharCode(((c1 & 0x1F) << 6) | (c2 & 0x3F))
-      } else if (buffer.length === 3) {
-        ret = String.fromCharCode(((c1 & 0x0F) << 12) | ((c2 & 0x3F) << 6) | (c3 & 0x3F))
-      } else {
-        // http://mathiasbynens.be/notes/javascript-encoding#surrogate-formulae
-        const codePoint = ((c1 & 0x07) << 18) | ((c2 & 0x3F) << 12) |
-                        ((c3 & 0x3F) << 6) | (c4 & 0x3F)
-        ret = String.fromCharCode(
-          Math.floor((codePoint - 0x10000) / 0x400) + 0xD800,
-          (codePoint - 0x10000) % 0x400 + 0xDC00)
-      }
-      buffer.length = 0
-      return ret
-    }
-    this.processJSString = function processJSString (string) {
-      string = unescape(encodeURIComponent(string))
-      const ret = []
-      for (let i = 0; i < string.length; i++) {
-        ret.push(string.charCodeAt(i))
-      }
-      return ret
-    }
-  },
-  stackAlloc: function (size) { const ret = STACKTOP; STACKTOP = (STACKTOP + size) | 0; STACKTOP = (((STACKTOP) + 7) & -8); (assert((STACKTOP | 0) < (STACK_MAX | 0)) | 0); return ret },
-  staticAlloc: function (size) { const ret = STATICTOP; STATICTOP = (STATICTOP + (assert(!staticSealed), size)) | 0; STATICTOP = (((STATICTOP) + 7) & -8); return ret },
-  dynamicAlloc: function (size) { const ret = DYNAMICTOP; DYNAMICTOP = (DYNAMICTOP + (assert(DYNAMICTOP > 0), size)) | 0; DYNAMICTOP = (((DYNAMICTOP) + 7) & -8); if (DYNAMICTOP >= TOTAL_MEMORY) enlargeMemory(); return ret },
-  alignMemory: function (size, quantum) { const ret = size = Math.ceil((size) / (quantum || 8)) * (quantum || 8); return ret },
-  makeBigInt: function (low, high, unsigned) { const ret = (unsigned ? ((low >>> 0) + ((high >>> 0) * 4294967296)) : ((low >>> 0) + ((high | 0) * 4294967296))); return ret },
-  GLOBAL_BASE: 8,
-  QUANTUM_SIZE: 4,
-  __dummy__: 0
+// const STATICTOP = 0
+const Math_imul = Math.imul
+const ___errno_state = 0
+function ___errno_location () {
+  return ___errno_state
 }
-
+function abort (text) {
+  throw new Error('abort() at ' + text)
+}
+function assert (condition, text) {
+  if (!condition) {
+    throw new Error('Assertion failed: ' + condition + ' : ' + text)
+  }
+}
 function alignMemoryPage (x) {
   return (x + 4095) & -4096
 }
-
 function _time (ptr) {
   const ret = Math.floor(Date.now() / 1000)
   if (ptr) {
     HEAP32[((ptr) >> 2)] = ret
   }
   return ret
+}
+const Runtime = {
+  dynamicAlloc: function (size) {
+    const ret = DYNAMICTOP
+    DYNAMICTOP = size
+    DYNAMICTOP = (((DYNAMICTOP) + 7) & -8)
+    return ret
+  }
+}
+
+function _process_plane ($in, $width, $height, $out, $size) {
+  let label = 0
+  const sp = STACKTOP
+  label = 1
+  while (1) {
+    switch (label) {
+      case 1:
+        var $1
+        var $2
+        var $3
+        var $4
+        // var $5
+        var $indexw
+        var $indexh
+        var $code
+        var $collen
+        var $replen
+        var $color
+        var $x
+        var $revcode
+        var $last_line
+        var $this_line
+        var $org_in
+        var $org_out
+        $1 = $in
+        $2 = $width
+        $3 = $height
+        $4 = $out
+        // $5 = $size
+        var $6 = $1
+        $org_in = $6
+        var $7 = $4
+        $org_out = $7
+        $last_line = 0
+        $indexh = 0
+        label = 2; break
+      case 2:
+        var $9 = $indexh
+        var $10 = $3
+        var $11 = ($9 | 0) < ($10 | 0)
+        if ($11) { label = 3; break } else { label = 34; break }
+      case 3:
+        var $13 = $org_out
+        var $14 = $2
+        var $15 = $3
+        var $16 = (Math_imul($14, $15) | 0)
+        var $17 = ($16 << 2)
+        var $18 = (($13 + $17) | 0)
+        var $19 = $indexh
+        var $20 = ((($19) + (1)) | 0)
+        var $21 = $2
+        var $22 = (Math_imul($20, $21) | 0)
+        var $23 = ($22 << 2)
+        var $24 = (((-$23)) | 0)
+        var $25 = (($18 + $24) | 0)
+        $4 = $25
+        $color = 0
+        var $26 = $4
+        $this_line = $26
+        $indexw = 0
+        var $27 = $last_line
+        var $28 = ($27 | 0) == 0
+        if ($28) { label = 4; break } else { label = 17; break }
+      case 4:
+        label = 5; break
+      case 5:
+        var $31 = $indexw
+        var $32 = $2
+        var $33 = ($31 | 0) < ($32 | 0)
+        if ($33) { label = 6; break } else { label = 16; break }
+      case 6:
+        var $35 = $1
+        var $36 = (($35 + 1) | 0)
+        $1 = $36
+        var $37 = HEAP8[($35)]
+        var $38 = ($37 & 255)
+        $code = $38
+        var $39 = $code
+        var $40 = $39 & 15
+        $replen = $40
+        var $41 = $code
+        var $42 = $41 >> 4
+        var $43 = $42 & 15
+        $collen = $43
+        var $44 = $replen
+        var $45 = $44 << 4
+        var $46 = $collen
+        var $47 = $45 | $46
+        $revcode = $47
+        var $48 = $revcode
+        var $49 = ($48 | 0) <= 47
+        if ($49) { label = 7; break } else { label = 9; break }
+      case 7:
+        var $51 = $revcode
+        var $52 = ($51 | 0) >= 16
+        if ($52) { label = 8; break } else { label = 9; break }
+      case 8:
+        var $54 = $revcode
+        $replen = $54
+        $collen = 0
+        label = 9; break
+      case 9:
+        label = 10; break
+      case 10:
+        var $57 = $collen
+        var $58 = ($57 | 0) > 0
+        if ($58) { label = 11; break } else { label = 12; break }
+      case 11:
+        var $60 = $1
+        var $61 = (($60 + 1) | 0)
+        $1 = $61
+        var $62 = HEAP8[($60)]
+        var $63 = ($62 & 255)
+        $color = $63
+        var $64 = $color
+        var $65 = (($64) & 255)
+        var $66 = $4
+        HEAP8[($66)] = $65
+        var $67 = $4
+        var $68 = (($67 + 4) | 0)
+        $4 = $68
+        var $69 = $indexw
+        var $70 = ((($69) + (1)) | 0)
+        $indexw = $70
+        var $71 = $collen
+        var $72 = ((($71) - (1)) | 0)
+        $collen = $72
+        label = 10; break
+      case 12:
+        label = 13; break
+      case 13:
+        var $75 = $replen
+        var $76 = ($75 | 0) > 0
+        if ($76) { label = 14; break } else { label = 15; break }
+      case 14:
+        var $78 = $color
+        var $79 = (($78) & 255)
+        var $80 = $4
+        HEAP8[($80)] = $79
+        var $81 = $4
+        var $82 = (($81 + 4) | 0)
+        $4 = $82
+        var $83 = $indexw
+        var $84 = ((($83) + (1)) | 0)
+        $indexw = $84
+        var $85 = $replen
+        var $86 = ((($85) - (1)) | 0)
+        $replen = $86
+        label = 13; break
+      case 15:
+        label = 5; break
+      case 16:
+        label = 33; break
+      case 17:
+        label = 18; break
+      case 18:
+        var $91 = $indexw
+        var $92 = $2
+        var $93 = ($91 | 0) < ($92 | 0)
+        if ($93) { label = 19; break } else { label = 32; break }
+      case 19:
+        var $95 = $1
+        var $96 = (($95 + 1) | 0)
+        $1 = $96
+        var $97 = HEAP8[($95)]
+        var $98 = ($97 & 255)
+        $code = $98
+        var $99 = $code
+        var $100 = $99 & 15
+        $replen = $100
+        var $101 = $code
+        var $102 = $101 >> 4
+        var $103 = $102 & 15
+        $collen = $103
+        var $104 = $replen
+        var $105 = $104 << 4
+        var $106 = $collen
+        var $107 = $105 | $106
+        $revcode = $107
+        var $108 = $revcode
+        var $109 = ($108 | 0) <= 47
+        if ($109) { label = 20; break } else { label = 22; break }
+      case 20:
+        var $111 = $revcode
+        var $112 = ($111 | 0) >= 16
+        if ($112) { label = 21; break } else { label = 22; break }
+      case 21:
+        var $114 = $revcode
+        $replen = $114
+        $collen = 0
+        label = 22; break
+      case 22:
+        label = 23; break
+      case 23:
+        var $117 = $collen
+        var $118 = ($117 | 0) > 0
+        if ($118) { label = 24; break } else { label = 28; break }
+      case 24:
+        var $120 = $1
+        var $121 = (($120 + 1) | 0)
+        $1 = $121
+        var $122 = HEAP8[($120)]
+        var $123 = ($122 & 255)
+        $x = $123
+        var $124 = $x
+        var $125 = $124 & 1
+        var $126 = ($125 | 0) !== 0
+        if ($126) { label = 25; break } else { label = 26; break }
+      case 25:
+        var $128 = $x
+        var $129 = $128 >> 1
+        $x = $129
+        var $130 = $x
+        var $131 = ((($130) + (1)) | 0)
+        $x = $131
+        var $132 = $x
+        var $133 = (((-$132)) | 0)
+        $color = $133
+        label = 27; break
+      case 26:
+        var $135 = $x
+        var $136 = $135 >> 1
+        $x = $136
+        var $137 = $x
+        $color = $137
+        label = 27; break
+      case 27:
+        var $139 = $indexw
+        var $140 = ($139 << 2)
+        var $141 = $last_line
+        var $142 = (($141 + $140) | 0)
+        var $143 = HEAP8[($142)]
+        var $144 = ($143 & 255)
+        var $145 = $color
+        var $146 = ((($144) + ($145)) | 0)
+        $x = $146
+        var $147 = $x
+        var $148 = (($147) & 255)
+        var $149 = $4
+        HEAP8[($149)] = $148
+        var $150 = $4
+        var $151 = (($150 + 4) | 0)
+        $4 = $151
+        var $152 = $indexw
+        var $153 = ((($152) + (1)) | 0)
+        $indexw = $153
+        var $154 = $collen
+        var $155 = ((($154) - (1)) | 0)
+        $collen = $155
+        label = 23; break
+      case 28:
+        label = 29; break
+      case 29:
+        var $158 = $replen
+        var $159 = ($158 | 0) > 0
+        if ($159) { label = 30; break } else { label = 31; break }
+      case 30:
+        var $161 = $indexw
+        var $162 = ($161 << 2)
+        var $163 = $last_line
+        var $164 = (($163 + $162) | 0)
+        var $165 = HEAP8[($164)]
+        var $166 = ($165 & 255)
+        var $167 = $color
+        var $168 = ((($166) + ($167)) | 0)
+        $x = $168
+        var $169 = $x
+        var $170 = (($169) & 255)
+        var $171 = $4
+        HEAP8[($171)] = $170
+        var $172 = $4
+        var $173 = (($172 + 4) | 0)
+        $4 = $173
+        var $174 = $indexw
+        var $175 = ((($174) + (1)) | 0)
+        $indexw = $175
+        var $176 = $replen
+        var $177 = ((($176) - (1)) | 0)
+        $replen = $177
+        label = 29; break
+      case 31:
+        label = 18; break
+      case 32:
+        label = 33; break
+      case 33:
+        var $181 = $indexh
+        var $182 = ((($181) + (1)) | 0)
+        $indexh = $182
+        var $183 = $this_line
+        $last_line = $183
+        label = 2; break
+      case 34:
+        var $185 = $1
+        var $186 = $org_in
+        var $187 = $185
+        var $188 = $186
+        var $189 = ((($187) - ($188)) | 0)
+        STACKTOP = sp; return $189
+      default: assert(0, 'bad label: ' + label)
+    }
+  }
 }
 
 function _sbrk (bytes) {
@@ -509,10 +503,8 @@ function _sysconf (name) {
   return -1
 }
 
-function _malloc ($bytes) {
-  let label = 0
-
-  label = 1
+export function _malloc ($bytes) {
+  let label = 1
   while (1) {
     switch (label) {
       case 1:
@@ -1752,15 +1744,15 @@ function _malloc ($bytes) {
         var $820 = $818 & $819
         var $821 = ((($776) - ($812)) | 0)
         var $822 = ((($821) + ($820)) | 0)
-        var $ssize_0_i = $822; label = 184; break
+        $ssize_0_i = $822; label = 184; break
       case 184:
-        var $ssize_0_i
+        // var $ssize_0_i
         var $824 = HEAP32[((472) >> 2)]
         var $825 = ((($824) + ($ssize_0_i)) | 0)
         var $826 = ($ssize_0_i >>> 0) > ($nb_0 >>> 0)
         var $827 = ($ssize_0_i >>> 0) < 2147483647
         var $or_cond_i31 = $826 & $827
-        if ($or_cond_i31) { label = 185; break } else { var $tsize_03141_i = 0; label = 197; break }
+        if ($or_cond_i31) { label = 185; break } else { $tsize_03141_i = 0; label = 197; break }
       case 185:
         var $829 = HEAP32[((480) >> 2)]
         var $830 = ($829 | 0) === 0
@@ -1769,7 +1761,7 @@ function _malloc ($bytes) {
         var $832 = ($825 >>> 0) <= ($824 >>> 0)
         var $833 = ($825 >>> 0) > ($829 >>> 0)
         var $or_cond2_i = $832 | $833
-        if ($or_cond2_i) { var $tsize_03141_i = 0; label = 197; break } else { label = 187; break }
+        if ($or_cond2_i) { $tsize_03141_i = 0; label = 197; break } else { label = 187; break }
       case 187:
         var $835 = _sbrk($ssize_0_i)
         var $836 = ($835 | 0) === ($809 | 0)
@@ -1779,24 +1771,24 @@ function _malloc ($bytes) {
         var $839 = ((($774) - ($838)) | 0)
         var $840 = $839 & $775
         var $841 = ($840 >>> 0) < 2147483647
-        if ($841) { label = 189; break } else { var $tsize_03141_i = 0; label = 197; break }
+        if ($841) { label = 189; break } else { $tsize_03141_i = 0; label = 197; break }
       case 189:
         var $843 = _sbrk($840)
         var $844 = HEAP32[(($796) >> 2)]
         var $845 = HEAP32[(($800) >> 2)]
         var $846 = (($844 + $845) | 0)
         var $847 = ($843 | 0) === ($846 | 0)
-        if ($847) { var $br_0_i = $843; var $ssize_1_i = $840; label = 190; break } else { var $ssize_129_i = $840; var $br_030_i = $843; label = 191; break }
+        if ($847) { $br_0_i = $843; $ssize_1_i = $840; label = 190; break } else { $ssize_129_i = $840; $br_030_i = $843; label = 191; break }
       case 190:
-        var $ssize_1_i
-        var $br_0_i
+        // var $ssize_1_i
+        // var $br_0_i
         var $849 = ($br_0_i | 0) === -1
-        if ($849) { var $tsize_03141_i = $ssize_1_i; label = 197; break } else { var $tsize_244_i = $ssize_1_i; var $tbase_245_i = $br_0_i; label = 201; break }
+        if ($849) { $tsize_03141_i = $ssize_1_i; label = 197; break } else { var $tsize_244_i = $ssize_1_i; var $tbase_245_i = $br_0_i; label = 201; break }
       case 191:
-        var $br_030_i
-        var $ssize_129_i
-        var $850 = (((-$ssize_129_i)) | 0)
-        var $851 = ($br_030_i | 0) != -1
+        // var $br_030_i
+        // var $ssize_129_i
+        // var $850 = (((-$ssize_129_i)) | 0)
+        var $851 = ($br_030_i | 0) !== -1
         var $852 = ($ssize_129_i >>> 0) < 2147483647
         var $or_cond5_i = $851 & $852
         var $853 = ($771 >>> 0) > ($ssize_129_i >>> 0)
@@ -1809,36 +1801,36 @@ function _malloc ($bytes) {
         var $858 = (((-$855)) | 0)
         var $859 = $857 & $858
         var $860 = ($859 >>> 0) < 2147483647
-        if ($860) { label = 193; break } else { var $ssize_2_i = $ssize_129_i; label = 196; break }
+        if ($860) { label = 193; break } else { $ssize_2_i = $ssize_129_i; label = 196; break }
       case 193:
         var $862 = _sbrk($859)
         var $863 = ($862 | 0) === -1
         if ($863) { label = 195; break } else { label = 194; break }
       case 194:
         var $865 = ((($859) + ($ssize_129_i)) | 0)
-        var $ssize_2_i = $865; label = 196; break
+        $ssize_2_i = $865; label = 196; break
       case 195:
-        var $866 = _sbrk($850)
-        var $tsize_03141_i = 0; label = 197; break
+        // var $866 = _sbrk($850)
+        $tsize_03141_i = 0; label = 197; break
       case 196:
-        var $ssize_2_i
+        // var $ssize_2_i
         var $868 = ($br_030_i | 0) === -1
-        if ($868) { var $tsize_03141_i = 0; label = 197; break } else { var $tsize_244_i = $ssize_2_i; var $tbase_245_i = $br_030_i; label = 201; break }
+        if ($868) { $tsize_03141_i = 0; label = 197; break } else { $tsize_244_i = $ssize_2_i; $tbase_245_i = $br_030_i; label = 201; break }
       case 197:
-        var $tsize_03141_i
+        // var $tsize_03141_i
         var $869 = HEAP32[((484) >> 2)]
         var $870 = $869 | 4
         HEAP32[((484) >> 2)] = $870
-        var $tsize_1_i = $tsize_03141_i; label = 198; break
+        $tsize_1_i = $tsize_03141_i; label = 198; break
       case 198:
-        var $tsize_1_i
+        // var $tsize_1_i
         var $872 = ($776 >>> 0) < 2147483647
         if ($872) { label = 199; break } else { label = 340; break }
       case 199:
         var $874 = _sbrk($776)
         var $875 = _sbrk(0)
-        var $876 = ($874 | 0) != -1
-        var $877 = ($875 | 0) != -1
+        var $876 = ($874 | 0) !== -1
+        var $877 = ($875 | 0) !== -1
         var $or_cond3_i = $876 & $877
         var $878 = ($874 >>> 0) < ($875 >>> 0)
         var $or_cond6_i = $or_cond3_i & $878
@@ -1850,10 +1842,10 @@ function _malloc ($bytes) {
         var $883 = ((($nb_0) + (40)) | 0)
         var $884 = ($882 >>> 0) > ($883 >>> 0)
         var $_tsize_1_i = ($884 ? $882 : $tsize_1_i)
-        if ($884) { var $tsize_244_i = $_tsize_1_i; var $tbase_245_i = $874; label = 201; break } else { label = 340; break }
+        if ($884) { $tsize_244_i = $_tsize_1_i; $tbase_245_i = $874; label = 201; break } else { label = 340; break }
       case 201:
-        var $tbase_245_i
-        var $tsize_244_i
+        // var $tbase_245_i
+        // var $tsize_244_i
         var $885 = HEAP32[((472) >> 2)]
         var $886 = ((($885) + ($tsize_244_i)) | 0)
         HEAP32[((472) >> 2)] = $886
@@ -1885,7 +1877,7 @@ function _malloc ($bytes) {
         HEAP32[((72) >> 2)] = -1
         var $i_02_i_i = 0; label = 207; break
       case 207:
-        var $i_02_i_i
+        // var $i_02_i_i
         var $901 = $i_02_i_i << 1
         var $902 = ((80 + ($901 << 2)) | 0)
         var $903 = $902
@@ -1897,7 +1889,7 @@ function _malloc ($bytes) {
         HEAP32[(($905) >> 2)] = $903
         var $906 = ((($i_02_i_i) + (1)) | 0)
         var $907 = ($906 >>> 0) < 32
-        if ($907) { var $i_02_i_i = $906; label = 207; break } else { label = 208; break }
+        if ($907) { $i_02_i_i = $906; label = 207; break } else { label = 208; break }
       case 208:
         var $908 = ((($tsize_244_i) - (40)) | 0)
         var $909 = (($tbase_245_i + 8) | 0)
@@ -1908,9 +1900,9 @@ function _malloc ($bytes) {
       case 209:
         var $914 = (((-$910)) | 0)
         var $915 = $914 & 7
-        var $916 = $915; label = 210; break
+        $916 = $915; label = 210; break
       case 210:
-        var $916
+        // var $916
         var $917 = (($tbase_245_i + $916) | 0)
         var $918 = $917
         var $919 = ((($908) - ($916)) | 0)
@@ -1929,7 +1921,7 @@ function _malloc ($bytes) {
         HEAP32[((68) >> 2)] = $925
         label = 338; break
       case 211:
-        var $sp_073_i
+        // var $sp_073_i
         var $926 = (($sp_073_i) | 0)
         var $927 = HEAP32[(($926) >> 2)]
         var $928 = (($sp_073_i + 4) | 0)
@@ -1941,7 +1933,7 @@ function _malloc ($bytes) {
         var $933 = (($sp_073_i + 8) | 0)
         var $934 = HEAP32[(($933) >> 2)]
         var $935 = ($934 | 0) === 0
-        if ($935) { label = 218; break } else { var $sp_073_i = $934; label = 211; break }
+        if ($935) { label = 218; break } else { $sp_073_i = $934; label = 211; break }
       case 213:
         var $936 = (($sp_073_i + 12) | 0)
         var $937 = HEAP32[(($936) >> 2)]
@@ -1969,9 +1961,9 @@ function _malloc ($bytes) {
       case 216:
         var $955 = (((-$951)) | 0)
         var $956 = $955 & 7
-        var $957 = $956; label = 217; break
+        $957 = $956; label = 217; break
       case 217:
-        var $957
+        // var $957
         var $958 = (($949 + $957) | 0)
         var $959 = $958
         var $960 = ((($948) - ($957)) | 0)
@@ -2000,7 +1992,7 @@ function _malloc ($bytes) {
         var $970 = (($tbase_245_i + $tsize_244_i) | 0)
         var $sp_166_i = 488; label = 221; break
       case 221:
-        var $sp_166_i
+        // var $sp_166_i
         var $972 = (($sp_166_i) | 0)
         var $973 = HEAP32[(($972) >> 2)]
         var $974 = ($973 | 0) === ($970 | 0)
@@ -2009,7 +2001,7 @@ function _malloc ($bytes) {
         var $976 = (($sp_166_i + 8) | 0)
         var $977 = HEAP32[(($976) >> 2)]
         var $978 = ($977 | 0) === 0
-        if ($978) { label = 304; break } else { var $sp_166_i = $977; label = 221; break }
+        if ($978) { label = 304; break } else { $sp_166_i = $977; label = 221; break }
       case 223:
         var $979 = (($sp_166_i + 12) | 0)
         var $980 = HEAP32[(($979) >> 2)]
@@ -2030,9 +2022,9 @@ function _malloc ($bytes) {
       case 225:
         var $992 = (((-$988)) | 0)
         var $993 = $992 & 7
-        var $995 = $993; label = 226; break
+        $995 = $993; label = 226; break
       case 226:
-        var $995
+        // var $995
         var $996 = (($tbase_245_i + $995) | 0)
         var $_sum102_i = ((($tsize_244_i) + (8)) | 0)
         var $997 = (($tbase_245_i + $_sum102_i) | 0)
@@ -2043,9 +2035,9 @@ function _malloc ($bytes) {
       case 227:
         var $1002 = (((-$998)) | 0)
         var $1003 = $1002 & 7
-        var $1005 = $1003; label = 228; break
+        $1005 = $1003; label = 228; break
       case 228:
-        var $1005
+        // var $1005
         var $_sum103_i = ((($1005) + ($tsize_244_i)) | 0)
         var $1006 = (($tbase_245_i + $_sum103_i) | 0)
         var $1007 = $1006
@@ -2159,9 +2151,9 @@ function _malloc ($bytes) {
         var $1078 = (($1052 + 8) | 0)
         var $1079 = HEAP32[(($1078) >> 2)]
         var $1080 = ($1079 | 0) === ($1007 | 0)
-        if ($1080) { var $_pre_phi63_i_i = $1078; label = 243; break } else { label = 244; break }
+        if ($1080) { $_pre_phi63_i_i = $1078; label = 243; break } else { label = 244; break }
       case 243:
-        var $_pre_phi63_i_i
+        // var $_pre_phi63_i_i
         var $1081 = (($1049 + 12) | 0)
         HEAP32[(($1081) >> 2)] = $1052
         HEAP32[(($_pre_phi63_i_i) >> 2)] = $1049
@@ -2227,19 +2219,19 @@ function _malloc ($bytes) {
         var $1114 = $1113
         var $1115 = HEAP32[(($1114) >> 2)]
         var $1116 = ($1115 | 0) === 0
-        if ($1116) { var $R_1_i_i = 0; label = 259; break } else { var $R_0_i_i = $1115; var $RP_0_i_i = $1114; label = 254; break }
+        if ($1116) { $R_1_i_i = 0; label = 259; break } else { $R_0_i_i = $1115; $RP_0_i_i = $1114; label = 254; break }
       case 254:
-        var $RP_0_i_i
-        var $R_0_i_i
+        // var $RP_0_i_i
+        // var $R_0_i_i
         var $1117 = (($R_0_i_i + 20) | 0)
         var $1118 = HEAP32[(($1117) >> 2)]
         var $1119 = ($1118 | 0) === 0
-        if ($1119) { label = 255; break } else { var $R_0_i_i = $1118; var $RP_0_i_i = $1117; label = 254; break }
+        if ($1119) { label = 255; break } else { $R_0_i_i = $1118; $RP_0_i_i = $1117; label = 254; break }
       case 255:
         var $1121 = (($R_0_i_i + 16) | 0)
         var $1122 = HEAP32[(($1121) >> 2)]
         var $1123 = ($1122 | 0) === 0
-        if ($1123) { label = 256; break } else { var $R_0_i_i = $1122; var $RP_0_i_i = $1121; label = 254; break }
+        if ($1123) { label = 256; break } else { $R_0_i_i = $1122; $RP_0_i_i = $1121; label = 254; break }
       case 256:
         var $1125 = $RP_0_i_i
         var $1126 = HEAP32[((56) >> 2)]
@@ -2247,12 +2239,12 @@ function _malloc ($bytes) {
         if ($1127) { label = 258; break } else { label = 257; break }
       case 257:
         HEAP32[(($RP_0_i_i) >> 2)] = 0
-        var $R_1_i_i = $R_0_i_i; label = 259; break
+        $R_1_i_i = $R_0_i_i; label = 259; break
       case 258:
 
         throw new Error('Reached an unreachable!')
       case 259:
-        var $R_1_i_i
+        // var $R_1_i_i
         var $1131 = ($1086 | 0) === 0
         if ($1131) { label = 279; break } else { label = 260; break }
       case 260:
@@ -2359,10 +2351,10 @@ function _malloc ($bytes) {
         var $1192 = (($tbase_245_i + $_sum111_i) | 0)
         var $1193 = $1192
         var $1194 = ((($1043) + ($1013)) | 0)
-        var $oldfirst_0_i_i = $1193; var $qsize_0_i_i = $1194; label = 280; break
+        $oldfirst_0_i_i = $1193; $qsize_0_i_i = $1194; label = 280; break
       case 280:
-        var $qsize_0_i_i
-        var $oldfirst_0_i_i
+        // var $qsize_0_i_i
+        // var $oldfirst_0_i_i
         var $1196 = (($oldfirst_0_i_i + 4) | 0)
         var $1197 = HEAP32[(($1196) >> 2)]
         var $1198 = $1197 & -2
@@ -2401,13 +2393,13 @@ function _malloc ($bytes) {
         var $1219 = $1218
         var $1220 = HEAP32[((56) >> 2)]
         var $1221 = ($1219 >>> 0) < ($1220 >>> 0)
-        if ($1221) { label = 284; break } else { var $F4_0_i_i = $1218; var $_pre_phi_i23_i = $1217; label = 285; break }
+        if ($1221) { label = 284; break } else { $F4_0_i_i = $1218; $_pre_phi_i23_i = $1217; label = 285; break }
       case 284:
 
         throw new Error('Reached an unreachable!')
       case 285:
-        var $_pre_phi_i23_i
-        var $F4_0_i_i
+        // var $_pre_phi_i23_i
+        // var $F4_0_i_i
         HEAP32[(($_pre_phi_i23_i) >> 2)] = $1012
         var $1224 = (($F4_0_i_i + 12) | 0)
         HEAP32[(($1224) >> 2)] = $1012
@@ -2427,7 +2419,7 @@ function _malloc ($bytes) {
         if ($1232) { var $I7_0_i_i = 0; label = 289; break } else { label = 287; break }
       case 287:
         var $1234 = ($qsize_0_i_i >>> 0) > 16777215
-        if ($1234) { var $I7_0_i_i = 31; label = 289; break } else { label = 288; break }
+        if ($1234) { $I7_0_i_i = 31; label = 289; break } else { label = 288; break }
       case 288:
         var $1236 = ((($1231) + (1048320)) | 0)
         var $1237 = $1236 >>> 16
@@ -2451,9 +2443,9 @@ function _malloc ($bytes) {
         var $1255 = $qsize_0_i_i >>> ($1254 >>> 0)
         var $1256 = $1255 & 1
         var $1257 = $1256 | $1253
-        var $I7_0_i_i = $1257; label = 289; break
+        $I7_0_i_i = $1257; label = 289; break
       case 289:
-        var $I7_0_i_i
+        // var $I7_0_i_i
         var $1259 = ((344 + ($I7_0_i_i << 2)) | 0)
         var $_sum12_i24_i = ((($_sum_i19_i) + (28)) | 0)
         var $1260 = (($tbase_245_i + $_sum12_i24_i) | 0)
@@ -2497,9 +2489,9 @@ function _malloc ($bytes) {
       case 292:
         var $1283 = $I7_0_i_i >>> 1
         var $1284 = (((25) - ($1283)) | 0)
-        var $1286 = $1284; label = 293; break
+        $1286 = $1284; label = 293; break
       case 293:
-        var $1286
+        // var $1286
         var $1287 = (($1280 + 4) | 0)
         var $1288 = HEAP32[(($1287) >> 2)]
         var $1289 = $1288 & -8
@@ -2509,18 +2501,19 @@ function _malloc ($bytes) {
         var $1291 = $qsize_0_i_i << $1286
         var $T_056_i_i = $1280; var $K8_057_i_i = $1291; label = 296; break
       case 295:
+        var $1301 = 0
         var $1293 = $K8_057_i_i << 1
         var $1294 = (($1301 + 4) | 0)
         var $1295 = HEAP32[(($1294) >> 2)]
         var $1296 = $1295 & -8
         var $1297 = ($1296 | 0) === ($qsize_0_i_i | 0)
-        if ($1297) { var $T_0_lcssa_i26_i = $1301; label = 300; break } else { var $T_056_i_i = $1301; var $K8_057_i_i = $1293; label = 296; break }
+        if ($1297) { $T_0_lcssa_i26_i = $1301; label = 300; break } else { $T_056_i_i = $1301; $K8_057_i_i = $1293; label = 296; break }
       case 296:
-        var $K8_057_i_i
-        var $T_056_i_i
+        // var $K8_057_i_i
+        // var $T_056_i_i
         var $1299 = $K8_057_i_i >>> 31
         var $1300 = (($T_056_i_i + 16 + ($1299 << 2)) | 0)
-        var $1301 = HEAP32[(($1300) >> 2)]
+        $1301 = HEAP32[(($1300) >> 2)]
         var $1302 = ($1301 | 0) === 0
         if ($1302) { label = 297; break } else { label = 295; break }
       case 297:
@@ -2547,7 +2540,7 @@ function _malloc ($bytes) {
 
         throw new Error('Reached an unreachable!')
       case 300:
-        var $T_0_lcssa_i26_i
+        // var $T_0_lcssa_i26_i
         var $1315 = (($T_0_lcssa_i26_i + 8) | 0)
         var $1316 = HEAP32[(($1315) >> 2)]
         var $1317 = $T_0_lcssa_i26_i
@@ -2580,12 +2573,12 @@ function _malloc ($bytes) {
       case 303:
         var $_sum1819_i_i = $995 | 8
         var $1330 = (($tbase_245_i + $_sum1819_i_i) | 0)
-        var $mem_0 = $1330; label = 341; break
+        $mem_0 = $1330; label = 341; break
       case 304:
         var $1331 = $891
         var $sp_0_i_i_i = 488; label = 305; break
       case 305:
-        var $sp_0_i_i_i
+        // var $sp_0_i_i_i
         var $1333 = (($sp_0_i_i_i) | 0)
         var $1334 = HEAP32[(($1333) >> 2)]
         var $1335 = ($1334 >>> 0) > ($1331 >>> 0)
@@ -2599,7 +2592,7 @@ function _malloc ($bytes) {
       case 307:
         var $1342 = (($sp_0_i_i_i + 8) | 0)
         var $1343 = HEAP32[(($1342) >> 2)]
-        var $sp_0_i_i_i = $1343; label = 305; break
+        $sp_0_i_i_i = $1343; label = 305; break
       case 308:
         var $_sum_i13_i = ((($1338) - (47)) | 0)
         var $_sum1_i14_i = ((($1338) - (39)) | 0)
@@ -2611,9 +2604,9 @@ function _malloc ($bytes) {
       case 309:
         var $1349 = (((-$1345)) | 0)
         var $1350 = $1349 & 7
-        var $1352 = $1350; label = 310; break
+        $1352 = $1350; label = 310; break
       case 310:
-        var $1352
+        // var $1352
         var $_sum2_i15_i = ((($_sum_i13_i) + ($1352)) | 0)
         var $1353 = (($1334 + $_sum2_i15_i) | 0)
         var $1354 = (($891 + 16) | 0)
@@ -2631,9 +2624,9 @@ function _malloc ($bytes) {
       case 311:
         var $1366 = (((-$1362)) | 0)
         var $1367 = $1366 & 7
-        var $1368 = $1367; label = 312; break
+        $1368 = $1367; label = 312; break
       case 312:
-        var $1368
+        // var $1368
         var $1369 = (($tbase_245_i + $1368) | 0)
         var $1370 = $1369
         var $1371 = ((($1360) - ($1368)) | 0)
@@ -2665,13 +2658,13 @@ function _malloc ($bytes) {
         var $1383 = ($1382 >>> 0) < ($1339 >>> 0)
         if ($1383) { var $1384 = $1381; label = 313; break } else { label = 314; break }
       case 313:
-        var $1384
+        // var $1384
         var $1385 = (($1384 + 4) | 0)
         HEAP32[(($1385) >> 2)] = 7
         var $1386 = (($1384 + 8) | 0)
         var $1387 = $1386
         var $1388 = ($1387 >>> 0) < ($1339 >>> 0)
-        if ($1388) { var $1384 = $1385; label = 313; break } else { label = 314; break }
+        if ($1388) { $1384 = $1385; label = 313; break } else { label = 314; break }
       case 314:
         var $1389 = ($1357 | 0) === ($1331 | 0)
         if ($1389) { label = 338; break } else { label = 315; break }
@@ -2716,13 +2709,13 @@ function _malloc ($bytes) {
         var $1417 = $1416
         var $1418 = HEAP32[((56) >> 2)]
         var $1419 = ($1417 >>> 0) < ($1418 >>> 0)
-        if ($1419) { label = 319; break } else { var $F_0_i_i = $1416; var $_pre_phi_i_i = $1415; label = 320; break }
+        if ($1419) { label = 319; break } else { $F_0_i_i = $1416; $_pre_phi_i_i = $1415; label = 320; break }
       case 319:
 
         throw new Error('Reached an unreachable!')
       case 320:
-        var $_pre_phi_i_i
-        var $F_0_i_i
+        // var $_pre_phi_i_i
+        // var $F_0_i_i
         HEAP32[(($_pre_phi_i_i) >> 2)] = $891
         var $1422 = (($F_0_i_i + 12) | 0)
         HEAP32[(($1422) >> 2)] = $891
@@ -2738,7 +2731,7 @@ function _malloc ($bytes) {
         if ($1428) { var $I1_0_i_i = 0; label = 324; break } else { label = 322; break }
       case 322:
         var $1430 = ($1393 >>> 0) > 16777215
-        if ($1430) { var $I1_0_i_i = 31; label = 324; break } else { label = 323; break }
+        if ($1430) { $I1_0_i_i = 31; label = 324; break } else { label = 323; break }
       case 323:
         var $1432 = ((($1427) + (1048320)) | 0)
         var $1433 = $1432 >>> 16
@@ -2762,9 +2755,9 @@ function _malloc ($bytes) {
         var $1451 = $1393 >>> ($1450 >>> 0)
         var $1452 = $1451 & 1
         var $1453 = $1452 | $1449
-        var $I1_0_i_i = $1453; label = 324; break
+        $I1_0_i_i = $1453; label = 324; break
       case 324:
-        var $I1_0_i_i
+        // var $I1_0_i_i
         var $1455 = ((344 + ($I1_0_i_i << 2)) | 0)
         var $1456 = (($891 + 28) | 0)
         var $I1_0_c_i_i = $I1_0_i_i
@@ -2797,9 +2790,9 @@ function _malloc ($bytes) {
       case 327:
         var $1472 = $I1_0_i_i >>> 1
         var $1473 = (((25) - ($1472)) | 0)
-        var $1475 = $1473; label = 328; break
+        $1475 = $1473; label = 328; break
       case 328:
-        var $1475
+        // var $1475
         var $1476 = (($1469 + 4) | 0)
         var $1477 = HEAP32[(($1476) >> 2)]
         var $1478 = $1477 & -8
@@ -2809,18 +2802,19 @@ function _malloc ($bytes) {
         var $1480 = $1393 << $1475
         var $T_015_i_i = $1469; var $K2_016_i_i = $1480; label = 331; break
       case 330:
+        var $1490 = 0
         var $1482 = $K2_016_i_i << 1
         var $1483 = (($1490 + 4) | 0)
         var $1484 = HEAP32[(($1483) >> 2)]
         var $1485 = $1484 & -8
         var $1486 = ($1485 | 0) === ($1393 | 0)
-        if ($1486) { var $T_0_lcssa_i_i = $1490; label = 335; break } else { var $T_015_i_i = $1490; var $K2_016_i_i = $1482; label = 331; break }
+        if ($1486) { $T_0_lcssa_i_i = $1490; label = 335; break } else { $T_015_i_i = $1490; $K2_016_i_i = $1482; label = 331; break }
       case 331:
-        var $K2_016_i_i
-        var $T_015_i_i
+        // var $K2_016_i_i
+        // var $T_015_i_i
         var $1488 = $K2_016_i_i >>> 31
         var $1489 = (($T_015_i_i + 16 + ($1488 << 2)) | 0)
-        var $1490 = HEAP32[(($1489) >> 2)]
+        $1490 = HEAP32[(($1489) >> 2)]
         var $1491 = ($1490 | 0) === 0
         if ($1491) { label = 332; break } else { label = 330; break }
       case 332:
@@ -2842,7 +2836,7 @@ function _malloc ($bytes) {
 
         throw new Error('Reached an unreachable!')
       case 335:
-        var $T_0_lcssa_i_i
+        // var $T_0_lcssa_i_i
         var $1501 = (($T_0_lcssa_i_i + 8) | 0)
         var $1502 = HEAP32[(($1501) >> 2)]
         var $1503 = $T_0_lcssa_i_i
@@ -2890,13 +2884,13 @@ function _malloc ($bytes) {
         HEAP32[(($1525) >> 2)] = $1524
         var $1526 = (($1517 + 8) | 0)
         var $1527 = $1526
-        var $mem_0 = $1527; label = 341; break
+        $mem_0 = $1527; label = 341; break
       case 340:
         var $1528 = ___errno_location()
         HEAP32[(($1528) >> 2)] = 12
-        var $mem_0 = 0; label = 341; break
+        $mem_0 = 0; label = 341; break
       case 341:
-        var $mem_0
+        // var $mem_0
         return $mem_0
       default: assert(0, 'bad label: ' + label)
     }
@@ -2985,7 +2979,7 @@ function _free ($mem) {
         var $56 = HEAP32[((40) >> 2)]
         var $57 = $56 & $55
         HEAP32[((40) >> 2)] = $57
-        var $p_0 = $25; var $psize_0 = $26; label = 56; break
+        $p_0 = $25; $psize_0 = $26; label = 56; break
       case 14:
         var $59 = ($40 | 0) === ($43 | 0)
         if ($59) { label = 15; break } else { label = 16; break }
@@ -3000,13 +2994,13 @@ function _free ($mem) {
         var $64 = (($40 + 8) | 0)
         var $65 = HEAP32[(($64) >> 2)]
         var $66 = ($65 | 0) === ($25 | 0)
-        if ($66) { var $_pre_phi83 = $64; label = 18; break } else { label = 19; break }
+        if ($66) { $_pre_phi83 = $64; label = 18; break } else { label = 19; break }
       case 18:
-        var $_pre_phi83
+        // var $_pre_phi83
         var $67 = (($37 + 12) | 0)
         HEAP32[(($67) >> 2)] = $40
         HEAP32[(($_pre_phi83) >> 2)] = $37
-        var $p_0 = $25; var $psize_0 = $26; label = 56; break
+        $p_0 = $25; $psize_0 = $26; label = 56; break
       case 19:
 
         throw new Error('Reached an unreachable!')
@@ -3063,33 +3057,33 @@ function _free ($mem) {
         var $99 = $98
         var $100 = HEAP32[(($99) >> 2)]
         var $101 = ($100 | 0) === 0
-        if ($101) { var $R_1 = 0; label = 34; break } else { var $R_0 = $100; var $RP_0 = $99; label = 29; break }
+        if ($101) { $R_1 = 0; label = 34; break } else { $R_0 = $100; $RP_0 = $99; label = 29; break }
       case 29:
-        var $RP_0
-        var $R_0
+        // var $RP_0
+        // var $R_0
         var $102 = (($R_0 + 20) | 0)
         var $103 = HEAP32[(($102) >> 2)]
         var $104 = ($103 | 0) === 0
-        if ($104) { label = 30; break } else { var $R_0 = $103; var $RP_0 = $102; label = 29; break }
+        if ($104) { label = 30; break } else { $R_0 = $103; $RP_0 = $102; label = 29; break }
       case 30:
         var $106 = (($R_0 + 16) | 0)
         var $107 = HEAP32[(($106) >> 2)]
         var $108 = ($107 | 0) === 0
-        if ($108) { label = 31; break } else { var $R_0 = $107; var $RP_0 = $106; label = 29; break }
+        if ($108) { label = 31; break } else { $R_0 = $107; $RP_0 = $106; label = 29; break }
       case 31:
         var $110 = $RP_0
         var $111 = ($110 >>> 0) < ($5 >>> 0)
         if ($111) { label = 33; break } else { label = 32; break }
       case 32:
         HEAP32[(($RP_0) >> 2)] = 0
-        var $R_1 = $R_0; label = 34; break
+        $R_1 = $R_0; label = 34; break
       case 33:
 
         throw new Error('Reached an unreachable!')
       case 34:
-        var $R_1
+        // var $R_1
         var $115 = ($72 | 0) === 0
-        if ($115) { var $p_0 = $25; var $psize_0 = $26; label = 56; break } else { label = 35; break }
+        if ($115) { $p_0 = $25; $psize_0 = $26; label = 56; break } else { label = 35; break }
       case 35:
         var $_sum41 = ((($_sum3) + (28)) | 0)
         var $117 = (($mem + $_sum41) | 0)
@@ -3110,7 +3104,7 @@ function _free ($mem) {
         var $127 = HEAP32[((44) >> 2)]
         var $128 = $127 & $126
         HEAP32[((44) >> 2)] = $128
-        var $p_0 = $25; var $psize_0 = $26; label = 56; break
+        $p_0 = $25; $psize_0 = $26; label = 56; break
       case 38:
         var $130 = $72
         var $131 = HEAP32[((56) >> 2)]
@@ -3133,7 +3127,7 @@ function _free ($mem) {
         throw new Error('Reached an unreachable!')
       case 43:
         var $142 = ($R_1 | 0) === 0
-        if ($142) { var $p_0 = $25; var $psize_0 = $26; label = 56; break } else { label = 44; break }
+        if ($142) { $p_0 = $25; $psize_0 = $26; label = 56; break } else { label = 44; break }
       case 44:
         var $144 = $R_1
         var $145 = HEAP32[((56) >> 2)]
@@ -3168,7 +3162,7 @@ function _free ($mem) {
         var $163 = $162
         var $164 = HEAP32[(($163) >> 2)]
         var $165 = ($164 | 0) === 0
-        if ($165) { var $p_0 = $25; var $psize_0 = $26; label = 56; break } else { label = 50; break }
+        if ($165) { $p_0 = $25; $psize_0 = $26; label = 56; break } else { label = 50; break }
       case 50:
         var $167 = $164
         var $168 = HEAP32[((56) >> 2)]
@@ -3179,7 +3173,7 @@ function _free ($mem) {
         HEAP32[(($171) >> 2)] = $164
         var $172 = (($164 + 24) | 0)
         HEAP32[(($172) >> 2)] = $R_1
-        var $p_0 = $25; var $psize_0 = $26; label = 56; break
+        $p_0 = $25; $psize_0 = $26; label = 56; break
       case 52:
 
         throw new Error('Reached an unreachable!')
@@ -3193,7 +3187,7 @@ function _free ($mem) {
         var $178 = HEAP32[(($177) >> 2)]
         var $179 = $178 & 3
         var $180 = ($179 | 0) === 3
-        if ($180) { label = 55; break } else { var $p_0 = $25; var $psize_0 = $26; label = 56; break }
+        if ($180) { label = 55; break } else { $p_0 = $25; $psize_0 = $26; label = 56; break }
       case 55:
         HEAP32[((48) >> 2)] = $26
         var $182 = HEAP32[(($177) >> 2)]
@@ -3208,8 +3202,8 @@ function _free ($mem) {
         HEAP32[(($187) >> 2)] = $26
         label = 140; break
       case 56:
-        var $psize_0
-        var $p_0
+        // var $psize_0
+        // var $p_0
         var $189 = $p_0
         var $190 = ($189 >>> 0) < ($15 >>> 0)
         if ($190) { label = 57; break } else { label = 139; break }
@@ -3314,9 +3308,9 @@ function _free ($mem) {
         var $257 = (($231 + 8) | 0)
         var $258 = HEAP32[(($257) >> 2)]
         var $259 = ($258 | 0) === ($16 | 0)
-        if ($259) { var $_pre_phi81 = $257; label = 74; break } else { label = 75; break }
+        if ($259) { $_pre_phi81 = $257; label = 74; break } else { label = 75; break }
       case 74:
-        var $_pre_phi81
+        // var $_pre_phi81
         var $260 = (($228 + 12) | 0)
         HEAP32[(($260) >> 2)] = $231
         HEAP32[(($_pre_phi81) >> 2)] = $228
@@ -3377,19 +3371,19 @@ function _free ($mem) {
         var $293 = $292
         var $294 = HEAP32[(($293) >> 2)]
         var $295 = ($294 | 0) === 0
-        if ($295) { var $R7_1 = 0; label = 90; break } else { var $R7_0 = $294; var $RP9_0 = $293; label = 85; break }
+        if ($295) { $R7_1 = 0; label = 90; break } else { $R7_0 = $294; $RP9_0 = $293; label = 85; break }
       case 85:
-        var $RP9_0
-        var $R7_0
+        // var $RP9_0
+        // var $R7_0
         var $296 = (($R7_0 + 20) | 0)
         var $297 = HEAP32[(($296) >> 2)]
         var $298 = ($297 | 0) === 0
-        if ($298) { label = 86; break } else { var $R7_0 = $297; var $RP9_0 = $296; label = 85; break }
+        if ($298) { label = 86; break } else { $R7_0 = $297; $RP9_0 = $296; label = 85; break }
       case 86:
         var $300 = (($R7_0 + 16) | 0)
         var $301 = HEAP32[(($300) >> 2)]
         var $302 = ($301 | 0) === 0
-        if ($302) { label = 87; break } else { var $R7_0 = $301; var $RP9_0 = $300; label = 85; break }
+        if ($302) { label = 87; break } else { $R7_0 = $301; $RP9_0 = $300; label = 85; break }
       case 87:
         var $304 = $RP9_0
         var $305 = HEAP32[((56) >> 2)]
@@ -3397,12 +3391,12 @@ function _free ($mem) {
         if ($306) { label = 89; break } else { label = 88; break }
       case 88:
         HEAP32[(($RP9_0) >> 2)] = 0
-        var $R7_1 = $R7_0; label = 90; break
+        $R7_1 = $R7_0; label = 90; break
       case 89:
 
         throw new Error('Reached an unreachable!')
       case 90:
-        var $R7_1
+        // var $R7_1
         var $310 = ($265 | 0) === 0
         if ($310) { label = 110; break } else { label = 91; break }
       case 91:
@@ -3523,9 +3517,9 @@ function _free ($mem) {
         var $382 = (($189 + $psize_0) | 0)
         var $383 = $382
         HEAP32[(($383) >> 2)] = $psize_0
-        var $psize_1 = $psize_0; label = 113; break
+        $psize_1 = $psize_0; label = 113; break
       case 113:
-        var $psize_1
+        // var $psize_1
         var $385 = $psize_1 >>> 3
         var $386 = ($psize_1 >>> 0) < 256
         if ($386) { label = 114; break } else { label = 119; break }
@@ -3551,13 +3545,13 @@ function _free ($mem) {
         var $400 = $399
         var $401 = HEAP32[((56) >> 2)]
         var $402 = ($400 >>> 0) < ($401 >>> 0)
-        if ($402) { label = 117; break } else { var $F16_0 = $399; var $_pre_phi = $398; label = 118; break }
+        if ($402) { label = 117; break } else { $F16_0 = $399; $_pre_phi = $398; label = 118; break }
       case 117:
 
         throw new Error('Reached an unreachable!')
       case 118:
-        var $_pre_phi
-        var $F16_0
+        // var $_pre_phi
+        // var $F16_0
         HEAP32[(($_pre_phi) >> 2)] = $p_0
         var $405 = (($F16_0 + 12) | 0)
         HEAP32[(($405) >> 2)] = $p_0
@@ -3573,7 +3567,7 @@ function _free ($mem) {
         if ($411) { var $I18_0 = 0; label = 122; break } else { label = 120; break }
       case 120:
         var $413 = ($psize_1 >>> 0) > 16777215
-        if ($413) { var $I18_0 = 31; label = 122; break } else { label = 121; break }
+        if ($413) { $I18_0 = 31; label = 122; break } else { label = 121; break }
       case 121:
         var $415 = ((($410) + (1048320)) | 0)
         var $416 = $415 >>> 16
@@ -3597,9 +3591,9 @@ function _free ($mem) {
         var $434 = $psize_1 >>> ($433 >>> 0)
         var $435 = $434 & 1
         var $436 = $435 | $432
-        var $I18_0 = $436; label = 122; break
+        $I18_0 = $436; label = 122; break
       case 122:
-        var $I18_0
+        // var $I18_0
         var $438 = ((344 + ($I18_0 << 2)) | 0)
         var $439 = (($p_0 + 28) | 0)
         var $I18_0_c = $I18_0
@@ -3632,9 +3626,9 @@ function _free ($mem) {
       case 125:
         var $455 = $I18_0 >>> 1
         var $456 = (((25) - ($455)) | 0)
-        var $458 = $456; label = 126; break
+        $458 = $456; label = 126; break
       case 126:
-        var $458
+        // var $458
         var $459 = (($452 + 4) | 0)
         var $460 = HEAP32[(($459) >> 2)]
         var $461 = $460 & -8
@@ -3644,18 +3638,19 @@ function _free ($mem) {
         var $463 = $psize_1 << $458
         var $T_072 = $452; var $K19_073 = $463; label = 129; break
       case 128:
+        var $473 = 0
         var $465 = $K19_073 << 1
         var $466 = (($473 + 4) | 0)
         var $467 = HEAP32[(($466) >> 2)]
         var $468 = $467 & -8
         var $469 = ($468 | 0) === ($psize_1 | 0)
-        if ($469) { var $T_0_lcssa = $473; label = 133; break } else { var $T_072 = $473; var $K19_073 = $465; label = 129; break }
+        if ($469) { $T_0_lcssa = $473; label = 133; break } else { $T_072 = $473; $K19_073 = $465; label = 129; break }
       case 129:
-        var $K19_073
-        var $T_072
+        // var $K19_073
+        // var $T_072
         var $471 = $K19_073 >>> 31
         var $472 = (($T_072 + 16 + ($471 << 2)) | 0)
-        var $473 = HEAP32[(($472) >> 2)]
+        $473 = HEAP32[(($472) >> 2)]
         var $474 = ($473 | 0) === 0
         if ($474) { label = 130; break } else { label = 128; break }
       case 130:
@@ -3677,7 +3672,7 @@ function _free ($mem) {
 
         throw new Error('Reached an unreachable!')
       case 133:
-        var $T_0_lcssa
+        // var $T_0_lcssa
         var $484 = (($T_0_lcssa + 8) | 0)
         var $485 = HEAP32[(($484) >> 2)]
         var $486 = $T_0_lcssa
@@ -3710,11 +3705,11 @@ function _free ($mem) {
         var $499 = ($498 | 0) === 0
         if ($499) { var $sp_0_in_i = 496; label = 137; break } else { label = 140; break }
       case 137:
-        var $sp_0_in_i
+        // var $sp_0_in_i
         var $sp_0_i = HEAP32[(($sp_0_in_i) >> 2)]
         var $500 = ($sp_0_i | 0) === 0
         var $501 = (($sp_0_i + 8) | 0)
-        if ($500) { label = 138; break } else { var $sp_0_in_i = $501; label = 137; break }
+        if ($500) { label = 138; break } else { $sp_0_in_i = $501; label = 137; break }
       case 138:
         HEAP32[((72) >> 2)] = -1
         label = 140; break
@@ -3727,9 +3722,10 @@ function _free ($mem) {
     }
   }
 }
-function _bitmap_decompress_32 ($output, $output_width, $output_height, $input_width, $input_height, $input, $size) {
+
+export function _bitmap_decompress_32 ($output, $output_width, $output_height, $input_width, $input_height, $input, $size) {
   let label = 0
-  const sp = STACKTOP; (assert((STACKTOP | 0) < (STACK_MAX | 0)) | 0)
+  const sp = STACKTOP
   label = 1
   while (1) {
     switch (label) {
@@ -3748,7 +3744,7 @@ function _bitmap_decompress_32 ($output, $output_width, $output_height, $input_w
         var $r
         var $g
         var $b
-        var $a
+        // var $a
         $1 = $output
         $2 = $output_width
         $3 = $output_height
@@ -3817,17 +3813,17 @@ function _bitmap_decompress_32 ($output, $output_width, $output_height, $input_w
         var $56 = (($55 + $54) | 0)
         var $57 = HEAP8[($56)]
         $b = $57
-        var $58 = $y
-        var $59 = $4
-        var $60 = (Math_imul($58, $59) | 0)
-        var $61 = $x
-        var $62 = ((($60) + ($61)) | 0)
-        var $63 = ($62 << 2)
-        var $64 = ((($63) + (3)) | 0)
-        var $65 = $temp
-        var $66 = (($65 + $64) | 0)
-        var $67 = HEAP8[($66)]
-        $a = $67
+        // var $58 = $y
+        // var $59 = $4
+        // var $60 = (Math_imul($58, $59) | 0)
+        // var $61 = $x
+        // var $62 = ((($60) + ($61)) | 0)
+        // var $63 = ($62 << 2)
+        // var $64 = ((($63) + (3)) | 0)
+        // var $65 = $temp
+        // var $66 = (($65 + $64) | 0)
+        // var $67 = HEAP8[($66)]
+        // $a = $67
         var $68 = $r
         var $69 = ($68 & 255)
         var $70 = $69 << 16
@@ -3866,6 +3862,123 @@ function _bitmap_decompress_32 ($output, $output_width, $output_height, $input_w
         _free($95)
         var $96 = $rv
         STACKTOP = sp; return $96
+      default: assert(0, 'bad label: ' + label)
+    }
+  }
+}
+
+function _bitmap_decompress4 ($output, $width, $height, $input, $size) {
+  let label = 0
+  const sp = STACKTOP
+  label = 1
+  while (1) {
+    switch (label) {
+      case 1:
+        var $1
+        var $2
+        var $3
+        var $4
+        var $5
+        var $6
+        var $code
+        var $bytes_pro
+        var $total_pro
+        $2 = $output
+        $3 = $width
+        $4 = $height
+        $5 = $input
+        $6 = $size
+        var $7 = $5
+        var $8 = (($7 + 1) | 0)
+        $5 = $8
+        var $9 = HEAP8[($7)]
+        var $10 = ($9 & 255)
+        $code = $10
+        var $11 = $code
+        var $12 = ($11 | 0) !== 16
+        if ($12) { label = 2; break } else { label = 3; break }
+      case 2:
+        $1 = 0
+        label = 4; break
+      case 3:
+        $total_pro = 1
+        var $15 = $5
+        var $16 = $3
+        var $17 = $4
+        var $18 = $2
+        var $19 = (($18 + 3) | 0)
+        var $20 = $6
+        var $21 = $total_pro
+        var $22 = ((($20) - ($21)) | 0)
+        var $23 = _process_plane($15, $16, $17, $19, $22)
+        $bytes_pro = $23
+        var $24 = $bytes_pro
+        var $25 = $total_pro
+        var $26 = ((($25) + ($24)) | 0)
+        $total_pro = $26
+        var $27 = $bytes_pro
+        var $28 = $5
+        var $29 = (($28 + $27) | 0)
+        $5 = $29
+        var $30 = $5
+        var $31 = $3
+        var $32 = $4
+        var $33 = $2
+        var $34 = (($33 + 2) | 0)
+        var $35 = $6
+        var $36 = $total_pro
+        var $37 = ((($35) - ($36)) | 0)
+        var $38 = _process_plane($30, $31, $32, $34, $37)
+        $bytes_pro = $38
+        var $39 = $bytes_pro
+        var $40 = $total_pro
+        var $41 = ((($40) + ($39)) | 0)
+        $total_pro = $41
+        var $42 = $bytes_pro
+        var $43 = $5
+        var $44 = (($43 + $42) | 0)
+        $5 = $44
+        var $45 = $5
+        var $46 = $3
+        var $47 = $4
+        var $48 = $2
+        var $49 = (($48 + 1) | 0)
+        var $50 = $6
+        var $51 = $total_pro
+        var $52 = ((($50) - ($51)) | 0)
+        var $53 = _process_plane($45, $46, $47, $49, $52)
+        $bytes_pro = $53
+        var $54 = $bytes_pro
+        var $55 = $total_pro
+        var $56 = ((($55) + ($54)) | 0)
+        $total_pro = $56
+        var $57 = $bytes_pro
+        var $58 = $5
+        var $59 = (($58 + $57) | 0)
+        $5 = $59
+        var $60 = $5
+        var $61 = $3
+        var $62 = $4
+        var $63 = $2
+        var $64 = (($63) | 0)
+        var $65 = $6
+        var $66 = $total_pro
+        var $67 = ((($65) - ($66)) | 0)
+        var $68 = _process_plane($60, $61, $62, $64, $67)
+        $bytes_pro = $68
+        var $69 = $bytes_pro
+        var $70 = $total_pro
+        var $71 = ((($70) + ($69)) | 0)
+        $total_pro = $71
+        var $72 = $6
+        var $73 = $total_pro
+        var $74 = ($72 | 0) === ($73 | 0)
+        var $75 = ($74 & 1)
+        $1 = $75
+        label = 4; break
+      case 4:
+        var $77 = $1
+        STACKTOP = sp; return $77
       default: assert(0, 'bad label: ' + label)
     }
   }
