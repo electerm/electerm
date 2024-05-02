@@ -1,6 +1,6 @@
 {
   "name": "electerm",
-  "version": "1.38.80",
+  "version": "1.38.81",
   "description": "Terminal/ssh/telnet/serialport/sftp client(linux, mac, win)",
   "main": "app.js",
   "bin": "npm/electerm",
@@ -124,7 +124,7 @@
     "lodash": "4.17.21",
     "nanoid": "3.1.31",
     "node-bash": "5.0.1",
-    "node-pty": "1.1.0-beta2",
+    "node-pty": "1.1.0-beta14",
     "os-locale-s": "1.0.8",
     "serialport": "10.4.0",
     "socks": "2.7.1",
