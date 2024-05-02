@@ -11,7 +11,8 @@ function buildInput () {
   return {
     electerm: resolve(cwd, '../../src/client/entry/index.jsx'),
     basic: resolve(cwd, '../../src/client/entry/basic.js'),
-    worker: resolve(cwd, '../../src/client/entry/worker.js')
+    worker: resolve(cwd, '../../src/client/entry/worker.js'),
+    rle: resolve(cwd, '../../src/client/entry/c32.out.js')
   }
 }
 

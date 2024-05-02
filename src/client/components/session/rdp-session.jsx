@@ -14,8 +14,6 @@ import {
 import {
   ReloadOutlined
 } from '@ant-design/icons'
-import { RleDecoder } from 'dicom-rle'
-import * as utils from './bitmap-utils'
 
 const { prefix } = window
 const e = prefix('ssh')
@@ -28,6 +26,7 @@ export default class RdpSession extends Component {
   }
 
   componentDidMount () {
+    console.log(window.Module)
     this.remoteInit()
   }
 
@@ -108,7 +107,9 @@ export default class RdpSession extends Component {
       ? server.replace(/https?:\/\//, '')
       : `${host}:${port}`
     const pre = server.startsWith('https') ? 'wss' : 'ws'
-    const { width, height } = this.computeProps()
+    // const { width, height } = this.computeProps()
+    const width = 800
+    const height = 600
     const wsUrl = `${pre}://${hs}/rdp/${pid}?sessionId=${sessionId}&token=${tokenElecterm}&width=${width}&height=${height}`
     const socket = new WebSocket(wsUrl)
     socket.onclose = this.oncloseSocket
@@ -120,84 +121,67 @@ export default class RdpSession extends Component {
     socket.onmessage = this.onData
   }
 
-  decompressBitmap = (uint8Arr, width, height, bitsPerPixel) => {
-    // Calculate the number of bytes per pixel
-    const bytesPerPixel = bitsPerPixel / 8
-
-    // Calculate the total size of the image data
-    const dataSize = width * height * bytesPerPixel
-
-    // Allocate memory for the decompressed pixel data
-    const decompressedData = new Uint8Array(dataSize)
-
-    // Perform decompression
-    let decompressedIndex = 0
-
-    // Assuming no compression for simplicity, directly copy data
-    for (let i = 0; i < uint8Arr.length; i += bytesPerPixel) {
-      decompressedData[decompressedIndex++] = uint8Arr[i] // Assuming data is in RGBA order
-      decompressedData[decompressedIndex++] = uint8Arr[i + 1]
-      decompressedData[decompressedIndex++] = uint8Arr[i + 2]
-      decompressedData[decompressedIndex++] = uint8Arr[i + 3] // Assuming 32 bits per pixel (RGBA)
+  decompress = (bitmap) => {
+    let fName = null
+    switch (bitmap.bitsPerPixel) {
+      case 15:
+        fName = 'bitmap_decompress_15'
+        break
+      case 16:
+        fName = 'bitmap_decompress_16'
+        break
+      case 24:
+        fName = 'bitmap_decompress_24'
+        break
+      case 32:
+        fName = 'bitmap_decompress_32'
+        break
+      default:
+        throw new Error('invalid bitmap data format')
     }
-    return decompressedData
-  }
+    const utils = window.Module
+    const input = new Uint8Array(bitmap.data)
+    const inputPtr = utils._malloc(input.length)
+    const inputHeap = new Uint8Array(utils.HEAPU8.buffer, inputPtr, input.length)
+    inputHeap.set(input)
 
-  decompress4 = (data, w, h, conf) => {
-    /*
-    bitmap_decompress_32(uint8 * output, int output_width, int output_height, int input_width, int input_height, uint8* input, int size) {
-      uint8 * temp = (uint8*)malloc(input_width * input_height * 4);
-      RD_BOOL rv = bitmap_decompress4(temp, input_width, input_height, input, size);
-      // convert to rgba
-      for (int y = 0; y < output_height; y++) {
-        for (int x = 0; x < output_width; x++) {
-          uint8 r = temp[(y * input_width + x) * 4];
-          uint8 g = temp[(y * input_width + x) * 4 + 1];
-          uint8 b = temp[(y * input_width + x) * 4 + 2];
-          uint8 a = temp[(y * input_width + x) * 4 + 3];
-          ((uint32*)output)[y * output_width + x] = 0xff << 24 | r << 16 | g << 8 | b;
-        }
-      }
-      free(temp);
-      return rv;
-    }
-    */
-    const {
-      width,
-      confbitsPerPixel
-    } = conf
-    const bytesPerPixel = confbitsPerPixel / 8
-    const dataSize = w * h * bytesPerPixel
-    const decompressedData = new Uint8Array(dataSize)
-    // convert to rgba
-    for (let y = 0; y < h; y++) {
-      for (let x = 0; x < w; x++) {
-        const r = data[(y * width + x) * 4]
-        const g = data[(y * width + x) * 4 + 1]
-        const b = data[(y * width + x) * 4 + 2]
-        // const a = temp[(y * inputWidth + x) * 4 + 3]
-        decompressedData[y * w + x] = 0xff << 24 | r << 16 | g << 8 | b
-      }
-    }
-    return decompressedData
+    const outputWidth = bitmap.destRight - bitmap.destLeft + 1
+    const outputHeight = bitmap.destBottom - bitmap.destTop + 1
+    const ouputSize = outputWidth * outputHeight * 4
+    const outputPtr = utils._malloc(ouputSize)
+
+    const outputHeap = new Uint8Array(utils.HEAPU8.buffer, outputPtr, ouputSize)
+
+    utils.ccall(fName,
+      'number',
+      ['number', 'number', 'number', 'number', 'number', 'number', 'number', 'number'],
+      [outputHeap.byteOffset, outputWidth, outputHeight, bitmap.width, bitmap.height, inputHeap.byteOffset, input.length]
+    )
+
+    const output = new Uint8ClampedArray(outputHeap.buffer, outputHeap.byteOffset, ouputSize)
+
+    utils._free(inputPtr)
+    utils._free(outputPtr)
+
+    return { width: outputWidth, height: outputHeight, arr: output }
   }
 
   output = (data) => {
-    if (data.isCompress) {
+    if (!data.isCompress) {
       return {
         width: data.width,
         height: data.height,
         arr: new Uint8ClampedArray(data.data)
       }
     }
-    // return this.decompress2(data)
-    const w = data.destRight - data.destLeft + 1
-    const h = data.destBottom - data.destTop + 1
-    return {
-      width: w,
-      height: h,
-      arr: new Uint8ClampedArray(this.decompressBitmap(data.data, w, h, data.bitsPerPixel))
-    }
+    return this.decompress(data)
+    // const w = data.destRight - data.destLeft + 1
+    // const h = data.destBottom - data.destTop + 1
+    // return {
+    //   width: w,
+    //   height: h,
+    //   arr: new Uint8ClampedArray(this.decompressBitmap(data.data, w, h, data.bitsPerPixel))
+    // }
   }
 
   onData = async (msg) => {
@@ -281,8 +265,8 @@ export default class RdpSession extends Component {
       }
     }
     const canvasProps = {
-      width,
-      height
+      width: 800,
+      height: 600
     }
     return (
       <div

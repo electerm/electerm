@@ -40,6 +40,7 @@ html
         img.iblock.logo-filter(src='images/electerm.png', alt='', height=80)
     script.
       window.et = !{JSON.stringify(_global)}
+    - var url1 = '/src/client/entry/c32.out.js'
     - var url = '/src/client/entry/basic.js'
     - if (isDev)
       //- script(src='/external/react.development.js?' + version)
@@ -51,6 +52,7 @@ html
         window.$RefreshSig$ = () => (type) => type
         window.__vite_plugin_react_preamble_installed__ = true
       script(src='/@vite/client', type='module')
+      script(src=url1, type='module')
       script(src=url, type='module')
     - else
       //- script(src='/external/react.production.min.js?' + version)
