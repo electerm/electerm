@@ -60,7 +60,13 @@ exports.createApp = function () {
       const opts = url.slice(11)
       const optsObj = require('querystring').parse(opts)
       if (global.win) {
-        global.win.webContents.send('add-tab-from-command-line', optsObj)
+        const port = optsObj.port ? ':' + optsObj.port : ''
+        global.win.webContents.send('add-tab-from-command-line', {
+          options: optsObj,
+          argv: [
+            `${optsObj.user || ''}@${optsObj.host || ''}${port}`
+          ]
+        })
       }
     }
   })
