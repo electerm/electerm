@@ -53,5 +53,16 @@ exports.createApp = function () {
       app.once('ready', createWindow)
     }
   })
+  app.setAsDefaultProtocolClient('electerm')
+  app.on('open-url', (event, url) => {
+    event.preventDefault()
+    if (url.startsWith('electerm://')) {
+      const opts = url.slice(11)
+      const optsObj = require('querystring').parse(opts)
+      if (global.win) {
+        global.win.webContents.send('add-tab-from-command-line', optsObj)
+      }
+    }
+  })
   return app
 }
