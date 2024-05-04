@@ -31,7 +31,6 @@ exports.terminal = async function (initOptions, ws) {
   } else if (type === 'local') {
     return terminalLocal(initOptions, ws)
   } else if (type === 'rdp') {
-    console.log('initOptions', initOptions)
     return terminalRdp(initOptions, ws)
   } else {
     return terminalSsh(initOptions, ws)

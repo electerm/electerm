@@ -3,7 +3,6 @@
  */
 const _ = require('lodash')
 const log = require('../common/log')
-const rdp = require('node-rdpjs')
 const { TerminalBase } = require('./session-base')
 
 // complete rdp session related functions

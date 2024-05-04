@@ -9,24 +9,110 @@ import {
 import {
   notification,
   Spin,
-  Button
+  Button,
+  Select
 } from 'antd'
 import {
   ReloadOutlined
 } from '@ant-design/icons'
+import * as ls from '../../common/safe-local-storage'
 
 const { prefix } = window
 const e = prefix('ssh')
 const m = prefix('menu')
 
 export default class RdpSession extends Component {
-  state = {
-    loading: false,
-    bitmapProps: {}
+  static resolutions = [
+    {
+      width: 1024,
+      height: 768
+    },
+    {
+      width: 1280,
+      height: 720
+    },
+    {
+      width: 1280,
+      height: 800
+    },
+    {
+      width: 1280,
+      height: 1024
+    },
+    {
+      width: 1366,
+      height: 768
+    },
+    {
+      width: 1440,
+      height: 900
+    },
+    {
+      width: 1600,
+      height: 900
+    },
+    {
+      width: 1600,
+      height: 1200
+    },
+    {
+      width: 1920,
+      height: 1080
+    },
+    {
+      width: 1920,
+      height: 1200
+    },
+    {
+      width: 1920,
+      height: 1440
+    },
+    {
+      width: 2560,
+      height: 1440
+    },
+    {
+      width: 2560,
+      height: 1600
+    },
+    {
+      width: 2560,
+      height: 1920
+    },
+    {
+      width: 3840,
+      height: 2160
+    },
+    {
+      width: 3840,
+      height: 2400
+    },
+    {
+      width: 5120,
+      height: 2880
+    },
+    {
+      width: 7680,
+      height: 4320
+    }
+  ]
+
+  constructor (props) {
+    const id = `rdp-res-${props.tab.host}`
+    const resObj = ls.getItemJSON(id, {
+      width: 1024,
+      height: 768
+    })
+    super(props)
+    this.state = {
+      loading: false,
+      bitmapProps: {},
+      aspectRatio: 4 / 3,
+      ...resObj
+    }
   }
 
   componentDidMount () {
-    console.log(window.Module)
     this.remoteInit()
   }
 
@@ -86,14 +172,12 @@ export default class RdpSession extends Component {
       termType: type,
       ...tab
     })
-    console.log('opts', opts)
     let pid = await createTerm(opts)
       .catch(err => {
         const text = err.message
         handleErr({ message: text })
       })
     pid = pid || ''
-    console.log('pid', pid)
     this.setState({
       loading: false
     })
@@ -107,9 +191,7 @@ export default class RdpSession extends Component {
       ? server.replace(/https?:\/\//, '')
       : `${host}:${port}`
     const pre = server.startsWith('https') ? 'wss' : 'ws'
-    // const { width, height } = this.computeProps()
-    const width = 800
-    const height = 600
+    const { width, height } = this.state
     const wsUrl = `${pre}://${hs}/rdp/${pid}?sessionId=${sessionId}&token=${tokenElecterm}&width=${width}&height=${height}`
     const socket = new WebSocket(wsUrl)
     socket.onclose = this.oncloseSocket
@@ -139,20 +221,20 @@ export default class RdpSession extends Component {
       default:
         throw new Error('invalid bitmap data format')
     }
-    const utils = window.Module
-    const input = new Uint8Array(bitmap.data)
-    const inputPtr = utils._malloc(input.length)
-    const inputHeap = new Uint8Array(utils.HEAPU8.buffer, inputPtr, input.length)
+    const rle = window.Module
+    const input = new Uint8Array(bitmap.data.data)
+    const inputPtr = rle._malloc(input.length)
+    const inputHeap = new Uint8Array(rle.HEAPU8.buffer, inputPtr, input.length)
     inputHeap.set(input)
 
     const outputWidth = bitmap.destRight - bitmap.destLeft + 1
     const outputHeight = bitmap.destBottom - bitmap.destTop + 1
     const ouputSize = outputWidth * outputHeight * 4
-    const outputPtr = utils._malloc(ouputSize)
+    const outputPtr = rle._malloc(ouputSize)
 
-    const outputHeap = new Uint8Array(utils.HEAPU8.buffer, outputPtr, ouputSize)
+    const outputHeap = new Uint8Array(rle.HEAPU8.buffer, outputPtr, ouputSize)
 
-    utils.ccall(fName,
+    rle.ccall(fName,
       'number',
       ['number', 'number', 'number', 'number', 'number', 'number', 'number', 'number'],
       [outputHeap.byteOffset, outputWidth, outputHeight, bitmap.width, bitmap.height, inputHeap.byteOffset, input.length]
@@ -160,8 +242,8 @@ export default class RdpSession extends Component {
 
     const output = new Uint8ClampedArray(outputHeap.buffer, outputHeap.byteOffset, ouputSize)
 
-    utils._free(inputPtr)
-    utils._free(outputPtr)
+    rle._free(inputPtr)
+    rle._free(outputPtr)
 
     return { width: outputWidth, height: outputHeight, arr: output }
   }
@@ -175,17 +257,10 @@ export default class RdpSession extends Component {
       }
     }
     return this.decompress(data)
-    // const w = data.destRight - data.destLeft + 1
-    // const h = data.destBottom - data.destTop + 1
-    // return {
-    //   width: w,
-    //   height: h,
-    //   arr: new Uint8ClampedArray(this.decompressBitmap(data.data, w, h, data.bitsPerPixel))
-    // }
   }
 
   onData = async (msg) => {
-    console.log('msg', msg.data)
+    // console.log('msg', msg.data)
     let { data } = msg
     data = JSON.parse(data)
     if (data.action === 'session-rdp-connected') {
@@ -256,27 +331,78 @@ export default class RdpSession extends Component {
     })
   }
 
-  render () {
-    const { width, height } = this.computeProps()
-    const rdpProps = {
-      style: {
-        width: width + 'px',
-        height: height + 'px'
-      }
-    }
-    const canvasProps = {
-      width: 800,
-      height: 600
+  handleResChange = (value) => {
+    const [width, height] = value.split('x').map(d => parseInt(d, 10))
+    const id = `rdp-res-${this.props.tab.host}`
+    ls.setItemJSON(id, {
+      width,
+      height
+    })
+    this.setState({
+      width,
+      height
+    })
+  }
+
+  renderControl = () => {
+    const {
+      width,
+      height
+    } = this.state
+    const sleProps = {
+      value: `${width}x${height}`,
+      onChange: this.handleResChange,
+      popupMatchSelectWidth: false
     }
     return (
-      <div
-        {...rdpProps}
-        className='rdp-session-wrap'
-      >
-        <Spin spinning={this.state.loading}>
-          <canvas {...canvasProps} id={'canvas_' + this.props.tab.id} />
-        </Spin>
+      <div className='pd1'>
+        <Select
+          {...sleProps}
+        >
+          {
+            RdpSession.resolutions.map(d => {
+              const v = `${d.width}x${d.height}`
+              return (
+                <Option
+                  key={v}
+                  value={v}
+                >
+                  {v}
+                </Option>
+              )
+            })
+          }
+        </Select>
       </div>
+    )
+  }
+
+  render () {
+    const { width: w, height: h } = this.computeProps()
+    const rdpProps = {
+      style: {
+        width: w + 'px',
+        height: h + 'px'
+      }
+    }
+    const { width, height, loading } = this.state
+    const canvasProps = {
+      width,
+      height
+    }
+    return (
+      <Spin spinning={loading}>
+        <div
+          {...rdpProps}
+          className='rdp-session-wrap'
+        >
+          {this.renderControl()}
+          <canvas
+            {...canvasProps}
+            id={'canvas_' + this.props.tab.id}
+          />
+        </div>
+      </Spin>
     )
   }
 }

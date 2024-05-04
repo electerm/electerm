@@ -8,7 +8,6 @@ const { TerminalBase } = require('./session-base')
 
 class TerminalRdp extends TerminalBase {
   init = async () => {
-    console.log('init')
     global.sessions[this.initOptions.sessionId] = {
       id: this.initOptions.sessionId,
       terminals: {
@@ -19,7 +18,6 @@ class TerminalRdp extends TerminalBase {
   }
 
   start = async (width, height) => {
-    console.log('start')
     const {
       host,
       port,
@@ -64,7 +62,6 @@ class TerminalRdp extends TerminalBase {
   }
 
   onConnect = () => {
-    console.log('onConnect')
     this.ws.send(
       JSON.stringify(
         {
@@ -79,7 +76,6 @@ class TerminalRdp extends TerminalBase {
   }
 
   onBitmap = (bitmap) => {
-    console.log('onBitmap', bitmap)
     this.ws.send(JSON.stringify(
       bitmap
     ))

@@ -26,7 +26,7 @@ function parseUrl (str) {
   try {
     return new URL(str)
   } catch (e) {
-    console.log(e)
+    console.log(`parse url error: ${e.message}, url: ${str}`)
   }
 }
 
