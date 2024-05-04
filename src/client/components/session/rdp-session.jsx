@@ -17,6 +17,7 @@ import {
 } from '@ant-design/icons'
 import * as ls from '../../common/safe-local-storage'
 
+const { Option } = Select
 const { prefix } = window
 const e = prefix('ssh')
 const m = prefix('menu')

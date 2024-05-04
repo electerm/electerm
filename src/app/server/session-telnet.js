@@ -3,55 +3,68 @@
  */
 const _ = require('lodash')
 const log = require('../common/log')
+const { Telnet } = require('./telnet')
 const { TerminalBase } = require('./session-base')
 
-// complete rdp session related functions
-class TerminalRdp extends TerminalBase {
+class TerminalTelnet extends TerminalBase {
   init = async () => {
-    const {
-      domain,
-      username,
-      password,
-      enablePerf,
-      autoLogin,
-      decompress,
-      screen,
-      locale,
-      logLevel,
-      host,
-      port
-    } = this.initOptions
-    const channel = rdp.createClient({
-      domain,
-      username,
-      password,
-      enablePerf,
-      autoLogin,
-      decompress,
-      screen,
-      locale,
-      logLevel
-    })
-      .on('error', (err) => {
-        log.error(err)
-      })
-      .on('end', this.kill)
-      .connect(host, port)
-    this.channel = channel
+    const connection = new Telnet()
+
+    const { initOptions } = this
+    const shellOpts = {
+      highWaterMark: 64 * 1024 * 16
+    }
+    const params = _.pick(
+      initOptions,
+      [
+        'host',
+        'port',
+        'timeout',
+        'username',
+        'password',
+        'terminalWidth',
+        'terminalHeight'
+      ]
+    )
+    Object.assign(
+      params,
+      {
+        negotiationMandatory: false,
+        // terminalWidth: initOptions.cols,
+        // terminalHeight: initOptions.rows,
+        timeout: initOptions.readyTimeout,
+        sendTimeout: initOptions.readyTimeout,
+        socketConnectOptions: shellOpts
+      }
+    )
+    await connection.connect(params)
+    this.port = connection.shell(shellOpts)
+    this.channel = connection
+    if (this.isTest) {
+      this.kill()
+      return true
+    }
+    global.sessions[this.initOptions.sessionId] = {
+      id: this.initOptions.sessionId,
+      sftps: {},
+      terminals: {
+        [this.pid]: this
+      }
+    }
   }
 
   resize = (cols, rows) => {
-    this.channel.screen.width = cols
-    this.channel.screen.height = rows
+    this.channel.opts.terminalWidth = cols
+    this.channel.opts.terminalHeight = rows
   }
 
   on = (event, cb) => {
-    this.channel.on(event, cb)
+    this.port.on(event, cb)
   }
 
   write = (data) => {
     try {
-      this.channel.write(data)
+      this.port.write(data)
       // this.writeLog(data)
     } catch (e) {
       log.error(e)
@@ -59,9 +72,6 @@ class TerminalRdp extends TerminalBase {
   }
 
   kill = () => {
-    if (this.ws) {
-      delete this.ws
-    }
     this.channel && this.channel.end()
     if (this.sessionLogger) {
       this.sessionLogger.destroy()
@@ -83,8 +93,8 @@ class TerminalRdp extends TerminalBase {
   }
 }
 
-exports.TerminalRdp = async function (initOptions, ws) {
-  const term = new TerminalRdp(initOptions, ws)
+exports.terminalTelnet = async function (initOptions, ws) {
+  const term = new TerminalTelnet(initOptions, ws)
   await term.init()
   return term
 }
@@ -93,8 +103,8 @@ exports.TerminalRdp = async function (initOptions, ws) {
  * test ssh connection
  * @param {object} options
  */
-exports.testConnectionRdp = (options) => {
-  return (new TerminalRdp(options, undefined, true))
+exports.testConnectionTelnet = (options) => {
+  return (new TerminalTelnet(options, undefined, true))
     .init()
     .then(() => true)
     .catch(() => {

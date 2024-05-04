@@ -144,7 +144,8 @@
   "standard": {
     "sourceType": "module",
     "ignore": [
-      "/app/assets/"
+      "/app/assets/",
+      "src/client/entry/rle.js"
     ],
     "globals": [
       "log",
