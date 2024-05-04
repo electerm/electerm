@@ -45,6 +45,7 @@
 - 支持同步书签等数据到github/gitee私人gist
 - 支持快速输入命令到一个或者多个终端
 - 支持命令行使用: 请参阅[wiki](https://github.com/electerm/electerm/wiki/Command-line-usage)
+- 深度链接支持: 请参阅[wiki](https://github.com/electerm/electerm/wiki/Deep-link-support)
 
 ## 下载
 

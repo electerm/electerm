@@ -45,6 +45,7 @@ Online demo: [https://electerm-demo.html5beta.com](https://electerm-demo.html5be
 - Sync bookmarks/themes/quick commands to github/gitee secret gist
 - Quick input to one or all terminals.
 - Command line usage: check [wiki](https://github.com/electerm/electerm/wiki/Command-line-usage)
+- Deep link support: check [wiki](https://github.com/electerm/electerm/wiki/Deep-link-support)
 
 ## Download
 
