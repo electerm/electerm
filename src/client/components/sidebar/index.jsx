@@ -119,14 +119,15 @@ export default class Sidebar extends Component {
       : {
           className: 'sidebar-list'
         }
+    const sidebarProps = {
+      className: `sidebar type-${openedSideBar}`,
+      style: {
+        width: sidebarWidth,
+        height
+      }
+    }
     return (
-      <div
-        className={`sidebar type-${openedSideBar}`}
-        style={{
-          width: sidebarWidth,
-          height
-        }}
-      >
+      <div {...sidebarProps}>
         <div className='sidebar-bar btns'>
           <div className='control-icon-wrap'>
             <MenuBtn store={store} config={store.config} />

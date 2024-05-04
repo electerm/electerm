@@ -9,7 +9,7 @@ import {
   Table
 } from 'antd'
 import { useState } from 'react'
-import { PlusOutlined, QuestionCircleOutlined, MinusCircleFilled } from '@ant-design/icons'
+import { PlusOutlined, QuestionCircleOutlined, MinusCircleFilled, UserOutlined } from '@ant-design/icons'
 import { formItemLayout, tailFormItemLayout } from '../../common/form-layout'
 import uid from '../../common/uid'
 
@@ -135,6 +135,19 @@ export default function renderSshTunnels (props) {
     )
   }
 
+  // direction = localToRemote or remoteToLocal, should render user, remote port, local port visit directions connected with arrows accordingly
+  function renderSshTunnelFlow (direction) {
+    const localToRemote = direction === 'localToRemote'
+    const middle = localToRemote ? e('local') : e('remote')
+    const last = localToRemote ? e('remote') : e('local')
+    return (
+      <div>
+        <p>{e(direction)}</p>
+        <p><UserOutlined /> → {middle} → {last}</p>
+      </div>
+    )
+  }
+
   return (
     <div>
       <FormItem
@@ -159,14 +172,14 @@ export default function renderSshTunnels (props) {
             <RadioButton
               value='forwardRemoteToLocal'
             >
-              <Tooltip title={e('remoteToLocal')}>
+              <Tooltip title={renderSshTunnelFlow('remoteToLocal')}>
                 <span>R→L <QuestionCircleOutlined /></span>
               </Tooltip>
             </RadioButton>
             <RadioButton
               value='forwardLocalToRemote'
             >
-              <Tooltip title={e('localToRemote')}>
+              <Tooltip title={renderSshTunnelFlow('localToRemote')}>
                 <span>L→R <QuestionCircleOutlined /></span>
               </Tooltip>
             </RadioButton>

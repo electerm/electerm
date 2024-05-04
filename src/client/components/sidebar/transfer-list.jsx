@@ -19,12 +19,14 @@ export default class TransferList extends Component {
       fileTransfers,
       transferHistory
     } = store
-    if (!fileTransfers.length && !transferHistory.length) {
+    const len = fileTransfers.length
+    if (!len && !transferHistory.length) {
       return null
     }
     const color = fileTransfers.some(item => item.error) ? 'red' : 'green'
     const bdProps = {
-      count: fileTransfers.length,
+      className: len ? 'hvr-bob hvr-bob-fast' : '',
+      count: len,
       size: 'small',
       offset: [-10, -5],
       color,
