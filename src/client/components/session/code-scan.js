@@ -121,10 +121,10 @@ const KeyMap = {
   VolumeUp: 0xE030,
   BrowserHome: 0xE032,
   NumpadDivide: 0xE035,
-  PrintScreen: 0xE037,
+  // PrintScreen: 0xE037,
   AltRight: 0xE038,
   NumLock: 0xE045,
-  Pause: 0xE046,
+  // Pause: 0xE046,
   Home: 0xE047,
   ArrowUp: 0xE048,
   PageUp: 0xE049,
@@ -150,11 +150,6 @@ const KeyMap = {
   MediaSelect: 0xE06D
 }
 
-/**
-	 * Scancode of keyevent
-	 * @param e {keyboardevent}
-	 * @return {integer} scancode
-	 */
 export default function scancode (e) {
   return KeyMap[e.code]
 }

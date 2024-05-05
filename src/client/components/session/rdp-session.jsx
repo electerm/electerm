@@ -9,7 +9,7 @@ import {
 import {
   notification,
   Spin,
-  Button,
+  // Button,
   Select
 } from 'antd'
 import {
@@ -19,9 +19,9 @@ import * as ls from '../../common/safe-local-storage'
 import scanCode from './code-scan'
 
 const { Option } = Select
-const { prefix } = window
-const e = prefix('ssh')
-const m = prefix('menu')
+// const { prefix } = window
+// const e = prefix('ssh')
+// const m = prefix('menu')
 
 export default class RdpSession extends Component {
   static resolutions = [
@@ -286,9 +286,7 @@ export default class RdpSession extends Component {
     const {
       type,
       clientX,
-      clientY,
-      pageX,
-      pageY
+      clientY
     } = e
     const {
       left,
@@ -355,10 +353,10 @@ export default class RdpSession extends Component {
 
   handleClickClose = () => {
     this.closeMsg()
-    this.reInit()
+    this.handleReInit()
   }
 
-  reInit = () => {
+  handleReInit = () => {
     this.socket.send(JSON.stringify({
       action: 'reload',
       params: [
@@ -417,7 +415,7 @@ export default class RdpSession extends Component {
     this.setState({
       width,
       height
-    }, this.reInit)
+    }, this.handleReInit)
   }
 
   renderControl = () => {
@@ -438,7 +436,7 @@ export default class RdpSession extends Component {
     return (
       <div className='pd1 fix'>
         <ReloadOutlined
-          onClick={this.reInit}
+          onClick={this.handleReInit}
           className='mg2r mg1l pointer'
         />
         <Select
