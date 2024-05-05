@@ -18,6 +18,11 @@ class TerminalRdp extends TerminalBase {
   }
 
   start = async (width, height) => {
+    console.log('start', width, height)
+    if (this.channel) {
+      this.channel.close()
+      delete this.channel
+    }
     const {
       host,
       port,
@@ -36,10 +41,20 @@ class TerminalRdp extends TerminalBase {
       .on('end', this.kill)
       .connect(host, port)
     this.channel = channel
+    this.width = width
+    this.height = height
+    this.ws.on('message', this.onAction)
   }
 
   onError = (err) => {
-    log.error('rdp error', err)
+    if (err.message.includes('read ECONNRESET')) {
+      this.start(
+        this.width,
+        this.height
+      )
+    } else {
+      log.error('rdp error', err)
+    }
   }
 
   test = async () => {
@@ -85,12 +100,18 @@ class TerminalRdp extends TerminalBase {
   // action: 'sendWheelEvent', params: x, y, step, isNegative, isHorizontal
   // action: 'sendKeyEventScancode', params: code, isPressed
   // action: 'sendKeyEventUnicode', params: code, isPressed
-  action = (data) => {
+  onAction = (_data) => {
+    const data = JSON.parse(_data)
+    console.log('ddd', data)
     const {
       action,
       params
     } = data
-    if (
+    if (action === 'reload') {
+      this.start(
+        ...params
+      )
+    } else if (
       [
         'sendPointerEvent',
         'sendWheelEvent',

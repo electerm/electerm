@@ -16,6 +16,7 @@ import {
   ReloadOutlined
 } from '@ant-design/icons'
 import * as ls from '../../common/safe-local-storage'
+import scanCode from './code-scan'
 
 const { Option } = Select
 const { prefix } = window
@@ -198,9 +199,7 @@ export default class RdpSession extends Component {
     socket.onclose = this.oncloseSocket
     socket.onerror = this.onerrorSocket
     this.socket = socket
-    socket.onopen = () => {
-      this.runInitScript()
-    }
+    socket.onopen = this.runInitScript
     socket.onmessage = this.onData
   }
 
@@ -260,6 +259,69 @@ export default class RdpSession extends Component {
     return this.decompress(data)
   }
 
+  getButtonCode (button) {
+    if (button === 0) {
+      return 1
+    } else if (button === 2) {
+      return 2
+    } else {
+      return 0
+    }
+  }
+
+  getKeyCode (event) {
+    const { type, button } = event
+    if (type.startsWith('key')) {
+      return scanCode(event)
+    } else if (type === 'mousemove') {
+      return 0
+    } else {
+      return this.getButtonCode(button)
+    }
+  }
+
+  handleCanvasEvent = e => {
+    e.preventDefault()
+    // console.log('e', e)
+    const {
+      type,
+      clientX,
+      clientY,
+      pageX,
+      pageY
+    } = e
+    const {
+      left,
+      top
+    } = e.target.getBoundingClientRect()
+    const x = clientX - left
+    const y = clientY - top
+    // console.log('x,y', x, y, left, top, clientX, clientY, pageX, pageY)
+    const keyCode = this.getKeyCode(e)
+    const action = type.startsWith('key')
+      ? 'sendKeyEventScancode'
+      : type === 'mousewheel'
+        ? 'sendWheelEvent'
+        : 'sendPointerEvent'
+    const pressed = type === 'mousedown' || type === 'keydown'
+    let params = []
+    if (type.startsWith('mouse') || type.startsWith('context')) {
+      params = [x, y, keyCode, pressed]
+    } else if (type === 'wheel') {
+      const isHorizontal = false
+      const delta = isHorizontal ? e.deltaX : e.deltaY
+      const step = Math.round(Math.abs(delta) * 15 / 8)
+      // console.log(x, y, step, delta, isHorizontal)
+      params = [x, y, step, delta > 0, isHorizontal]
+    } else if (type === 'keydown' || type === 'keyup') {
+      params = [keyCode, pressed]
+    }
+    this.socket.send(JSON.stringify({
+      action,
+      params
+    }))
+  }
+
   onData = async (msg) => {
     // console.log('msg', msg.data)
     let { data } = msg
@@ -293,7 +355,20 @@ export default class RdpSession extends Component {
 
   handleClickClose = () => {
     this.closeMsg()
-    this.props.delSplit(this.state.id)
+    this.reInit()
+  }
+
+  reInit = () => {
+    this.socket.send(JSON.stringify({
+      action: 'reload',
+      params: [
+        this.state.width,
+        this.state.height
+      ]
+    }))
+    this.setState({
+      loading: true
+    })
   }
 
   handleReload = () => {
@@ -304,32 +379,32 @@ export default class RdpSession extends Component {
   }
 
   oncloseSocket = () => {
-    this.setStatus(
-      statusMap.error
-    )
-    this.warningKey = `open${Date.now()}`
-    notification.warning({
-      key: this.warningKey,
-      message: e('socketCloseTip'),
-      duration: 30,
-      description: (
-        <div className='pd2y'>
-          <Button
-            className='mg1r'
-            type='primary'
-            onClick={this.handleClickClose}
-          >
-            {m('close')}
-          </Button>
-          <Button
-            icon={<ReloadOutlined />}
-            onClick={this.handleReload}
-          >
-            {m('reload')}
-          </Button>
-        </div>
-      )
-    })
+    // this.setStatus(
+    //   statusMap.error
+    // )
+    // this.warningKey = `open${Date.now()}`
+    // notification.warning({
+    //   key: this.warningKey,
+    //   message: e('socketCloseTip'),
+    //   duration: 30,
+    //   description: (
+    //     <div className='pd2y'>
+    //       <Button
+    //         className='mg1r'
+    //         type='primary'
+    //         onClick={this.handleClickClose}
+    //       >
+    //         {m('close')}
+    //       </Button>
+    //       <Button
+    //         icon={<ReloadOutlined />}
+    //         onClick={this.handleReload}
+    //       >
+    //         {m('reload')}
+    //       </Button>
+    //     </div>
+    //   )
+    // })
   }
 
   handleResChange = (value) => {
@@ -342,7 +417,7 @@ export default class RdpSession extends Component {
     this.setState({
       width,
       height
-    })
+    }, this.reInit)
   }
 
   renderControl = () => {
@@ -355,8 +430,17 @@ export default class RdpSession extends Component {
       onChange: this.handleResChange,
       popupMatchSelectWidth: false
     }
+    const {
+      host,
+      port,
+      username
+    } = this.props.tab
     return (
-      <div className='pd1'>
+      <div className='pd1 fix'>
+        <ReloadOutlined
+          onClick={this.reInit}
+          className='mg2r mg1l pointer'
+        />
         <Select
           {...sleProps}
         >
@@ -374,6 +458,9 @@ export default class RdpSession extends Component {
             })
           }
         </Select>
+        <span className='mg2l'>
+          {username}@{host}:{port}
+        </span>
       </div>
     )
   }
@@ -389,13 +476,21 @@ export default class RdpSession extends Component {
     const { width, height, loading } = this.state
     const canvasProps = {
       width,
-      height
+      height,
+      onMouseDown: this.handleCanvasEvent,
+      onMouseUp: this.handleCanvasEvent,
+      onMouseMove: this.handleCanvasEvent,
+      onKeyDown: this.handleCanvasEvent,
+      onKeyUp: this.handleCanvasEvent,
+      onWheel: this.handleCanvasEvent,
+      onContextMenu: this.handleCanvasEvent,
+      tabIndex: 0
     }
     return (
       <Spin spinning={loading}>
         <div
           {...rdpProps}
-          className='rdp-session-wrap'
+          className='rdp-session-wrap pd1'
         >
           {this.renderControl()}
           <canvas

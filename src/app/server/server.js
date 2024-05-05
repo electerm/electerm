@@ -104,14 +104,6 @@ app.ws('/rdp/:pid', function (ws, req) {
     term.on('exit', onClose)
   }
 
-  ws.on('message', function (msg) {
-    try {
-      term.action(JSON.parse(msg))
-    } catch (ex) {
-      log.error(ex)
-    }
-  })
-
   ws.on('error', log.error)
 
   ws.on('close', onClose)

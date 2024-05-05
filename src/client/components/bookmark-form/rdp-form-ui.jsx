@@ -57,14 +57,6 @@ export default function LocalFormUi (props) {
         </FormItem>
         <FormItem
           {...formItemLayout}
-          label={e('domain')}
-          hasFeedback
-          name='domain'
-        >
-          <Input />
-        </FormItem>
-        <FormItem
-          {...formItemLayout}
           label={e('host')}
           hasFeedback
           name='host'
@@ -113,6 +105,14 @@ export default function LocalFormUi (props) {
           hasFeedback
         >
           <Input.TextArea rows={1} />
+        </FormItem>
+        <FormItem
+          {...formItemLayout}
+          label={e('domain')}
+          hasFeedback
+          name='domain'
+        >
+          <Input />
         </FormItem>
         <FormItem
           {...formItemLayout}
