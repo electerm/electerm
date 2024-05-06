@@ -104,6 +104,8 @@ npm i -g electerm
 
 [Discussion board](https://github.com/electerm/electerm/discussions)
 
+![electerm-wechat-group-qr.jpg](https://electerm.html5beta.com/electerm-wechat-group-qr.jpg)
+
 ## 支持
 
 欢迎[提交问题/建议](https://github.com/electerm/electerm/issues), [展开讨论](https://github.com/electerm/electerm/discussions/new), [修复或者创建语言文件](https://github.com/electerm/electerm-locales)或者贡献代码。

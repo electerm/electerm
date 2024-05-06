@@ -104,6 +104,8 @@ npm i -g electerm
 
 [Discussion board](https://github.com/electerm/electerm/discussions)
 
+![electerm-wechat-group-qr.jpg](https://electerm.html5beta.com/electerm-wechat-group-qr.jpg)
+
 ## Support
 
 Would love to hear from you, please tell me what you think, [submit an issue](https://github.com/electerm/electerm/issues), [Start a new discussion](https://github.com/electerm/electerm/discussions/new), [create/fix language files](https://github.com/electerm/electerm-locales) or create pull requests, all welcome.
