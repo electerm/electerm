@@ -330,6 +330,7 @@ export default class SessionWrapper extends Component {
         tab: this.props.tab,
         sessionId,
         ...pick(this.props, [
+          'resolutions',
           'height',
           'width',
           'tabsHeight',

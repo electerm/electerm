@@ -201,6 +201,11 @@ export default Store => {
       content: ''
     })
   }
+
+  Store.prototype.toggleResolutionEdit = function () {
+    window.store.openResolutionEdit = !window.store.openResolutionEdit
+  }
+
   Store.prototype.setTerminalInfos = function (arr) {
     window.store.setConfig({
       terminalInfos: arr

@@ -288,7 +288,8 @@ const getterProps = [
   'quickCommands',
   'terminalThemes',
   'serials',
-  'fonts'
+  'fonts',
+  'resolutions'
 ]
 
 for (const prop of getterProps) {

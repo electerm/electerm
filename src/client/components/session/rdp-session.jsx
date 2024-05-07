@@ -13,10 +13,12 @@ import {
   Select
 } from 'antd'
 import {
-  ReloadOutlined
+  ReloadOutlined,
+  EditOutlined
 } from '@ant-design/icons'
 import * as ls from '../../common/safe-local-storage'
 import scanCode from './code-scan'
+import resolutions from './resolutions'
 
 const { Option } = Select
 // const { prefix } = window
@@ -24,87 +26,9 @@ const { Option } = Select
 // const m = prefix('menu')
 
 export default class RdpSession extends Component {
-  static resolutions = [
-    {
-      width: 1024,
-      height: 768
-    },
-    {
-      width: 1280,
-      height: 720
-    },
-    {
-      width: 1280,
-      height: 800
-    },
-    {
-      width: 1280,
-      height: 1024
-    },
-    {
-      width: 1366,
-      height: 768
-    },
-    {
-      width: 1440,
-      height: 900
-    },
-    {
-      width: 1600,
-      height: 900
-    },
-    {
-      width: 1600,
-      height: 1200
-    },
-    {
-      width: 1920,
-      height: 1080
-    },
-    {
-      width: 1920,
-      height: 1200
-    },
-    {
-      width: 1920,
-      height: 1440
-    },
-    {
-      width: 2560,
-      height: 1440
-    },
-    {
-      width: 2560,
-      height: 1600
-    },
-    {
-      width: 2560,
-      height: 1920
-    },
-    {
-      width: 3840,
-      height: 2160
-    },
-    {
-      width: 3840,
-      height: 2400
-    },
-    {
-      width: 5120,
-      height: 2880
-    },
-    {
-      width: 7680,
-      height: 4320
-    }
-  ]
-
   constructor (props) {
-    const id = `rdp-res-${props.tab.host}`
-    const resObj = ls.getItemJSON(id, {
-      width: 1024,
-      height: 768
-    })
+    const id = `rdp-reso-${props.tab.host}`
+    const resObj = ls.getItemJSON(id, resolutions[0])
     super(props)
     this.state = {
       loading: false,
@@ -281,7 +205,7 @@ export default class RdpSession extends Component {
   }
 
   handleCanvasEvent = e => {
-    e.preventDefault()
+    // e.preventDefault()
     // console.log('e', e)
     const {
       type,
@@ -309,7 +233,7 @@ export default class RdpSession extends Component {
       const isHorizontal = false
       const delta = isHorizontal ? e.deltaX : e.deltaY
       const step = Math.round(Math.abs(delta) * 15 / 8)
-      // console.log(x, y, step, delta, isHorizontal)
+      console.log(x, y, step, delta, isHorizontal)
       params = [x, y, step, delta > 0, isHorizontal]
     } else if (type === 'keydown' || type === 'keyup') {
       params = [keyCode, pressed]
@@ -376,6 +300,10 @@ export default class RdpSession extends Component {
     )
   }
 
+  handleEditResolutions = () => {
+    window.store.toggleResolutionEdit()
+  }
+
   oncloseSocket = () => {
     // this.setStatus(
     //   statusMap.error
@@ -405,26 +333,26 @@ export default class RdpSession extends Component {
     // })
   }
 
-  handleResChange = (value) => {
-    const [width, height] = value.split('x').map(d => parseInt(d, 10))
-    const id = `rdp-res-${this.props.tab.host}`
-    ls.setItemJSON(id, {
-      width,
-      height
-    })
-    this.setState({
-      width,
-      height
-    }, this.handleReInit)
+  getAllRes = () => {
+    return [
+      ...this.props.resolutions,
+      ...resolutions
+    ]
+  }
+
+  handleResChange = (v) => {
+    const res = this.getAllRes().find(d => d.id === v)
+    const id = `rdp-reso-${this.props.tab.host}`
+    ls.setItemJSON(id, res)
+    this.setState(res, this.handleReInit)
   }
 
   renderControl = () => {
     const {
-      width,
-      height
+      id
     } = this.state
     const sleProps = {
-      value: `${width}x${height}`,
+      value: id,
       onChange: this.handleResChange,
       popupMatchSelectWidth: false
     }
@@ -443,19 +371,23 @@ export default class RdpSession extends Component {
           {...sleProps}
         >
           {
-            RdpSession.resolutions.map(d => {
-              const v = `${d.width}x${d.height}`
+            this.getAllRes().map(d => {
+              const v = d.id
               return (
                 <Option
                   key={v}
                   value={v}
                 >
-                  {v}
+                  {d.width}x{d.height}
                 </Option>
               )
             })
           }
         </Select>
+        <EditOutlined
+          onClick={this.handleEditResolutions}
+          className='mg2r mg1l pointer'
+        />
         <span className='mg2l'>
           {username}@{host}:{port}
         </span>

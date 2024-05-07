@@ -308,6 +308,7 @@ export const mirrors = {
 }
 export const downloadUpgradeTimeout = 20000
 export const expandedKeysLsKey = 'expanded-keys'
+export const resolutionsLsKey = 'custom-resolution-key'
 export const checkedKeysLsKey = 'checked-keys'
 export const quickCommandLabelsLsKey = 'quick-command-labels'
 export const localAddrBookmarkLsKey = 'local-addr-bookmark-keys'

@@ -5,6 +5,7 @@ const _ = require('lodash')
 const log = require('../common/log')
 const rdp = require('node-rdpjs-2')
 const { TerminalBase } = require('./session-base')
+const { isDev } = require('../common/runtime-constants')
 
 class TerminalRdp extends TerminalBase {
   init = async () => {
@@ -18,7 +19,10 @@ class TerminalRdp extends TerminalBase {
   }
 
   start = async (width, height) => {
-    console.log('start', width, height)
+    if (this.isRunning) {
+      return
+    }
+    this.isRunning = true
     if (this.channel) {
       this.channel.close()
       delete this.channel
@@ -30,6 +34,7 @@ class TerminalRdp extends TerminalBase {
     } = this.initOptions
     const channel = rdp.createClient({
       ...rest,
+      logLevel: isDev ? 'DEBUG' : 'ERROR',
       screen: {
         width,
         height
@@ -43,12 +48,15 @@ class TerminalRdp extends TerminalBase {
     this.channel = channel
     this.width = width
     this.height = height
-    this.ws.on('message', this.onAction)
+  }
+
+  resize () {
+
   }
 
   onError = (err) => {
     if (err.message.includes('read ECONNRESET')) {
-      this.start(
+      this.ws && this.start(
         this.width,
         this.height
       )
@@ -77,21 +85,29 @@ class TerminalRdp extends TerminalBase {
   }
 
   onConnect = () => {
-    this.ws.send(
-      JSON.stringify(
-        {
-          action: 'session-rdp-connected',
-          ..._.pick(this.initOptions, [
-            'sessionId',
-            'tabId'
-          ])
-        }
+    this.isRunning = false
+    if (this.ws) {
+      if (!this.isWsEventRegistered) {
+        this.ws.on('message', this.onAction)
+        this.ws.on('close', this.kill)
+        this.isWsEventRegistered = true
+      }
+      this.ws.send(
+        JSON.stringify(
+          {
+            action: 'session-rdp-connected',
+            ..._.pick(this.initOptions, [
+              'sessionId',
+              'tabId'
+            ])
+          }
+        )
       )
-    )
+    }
   }
 
   onBitmap = (bitmap) => {
-    this.ws.send(JSON.stringify(
+    this.ws && this.ws.send(JSON.stringify(
       bitmap
     ))
   }
@@ -101,8 +117,10 @@ class TerminalRdp extends TerminalBase {
   // action: 'sendKeyEventScancode', params: code, isPressed
   // action: 'sendKeyEventUnicode', params: code, isPressed
   onAction = (_data) => {
+    if (!this.channel || this.isRunning) {
+      return
+    }
     const data = JSON.parse(_data)
-    console.log('ddd', data)
     const {
       action,
       params
@@ -126,10 +144,11 @@ class TerminalRdp extends TerminalBase {
   }
 
   kill = () => {
+    log.debug('Closed rdp session ' + this.pid)
     if (this.ws) {
       delete this.ws
     }
-    this.channel && this.channel.end()
+    this.channel && this.channel.close()
     if (this.sessionLogger) {
       this.sessionLogger.destroy()
     }

@@ -10,6 +10,7 @@ import {
   sftpDefaultSortSettingKey,
   checkedKeysLsKey,
   expandedKeysLsKey,
+  resolutionsLsKey,
   localAddrBookmarkLsKey
 } from '../common/constants'
 import postMsg from '../common/post-msg'
@@ -46,6 +47,11 @@ export default store => {
       return store['_' + name]
     }, func => debounce(func, 100)).start()
   }
+
+  autoRun(store, async () => {
+    ls.setItem(resolutionsLsKey, store._resolutions)
+    return store._resolutions
+  }).start()
 
   autoRun(store, () => {
     if (!store.showModal) {

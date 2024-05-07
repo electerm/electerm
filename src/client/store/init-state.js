@@ -19,7 +19,8 @@ import {
   leftSidebarWidthKey,
   rightSidebarWidthKey,
   dismissDelKeyTipLsKey,
-  qmSortByFrequencyKey
+  qmSortByFrequencyKey,
+  resolutionsLsKey
 } from '../common/constants'
 import { buildDefaultThemes, buildNewTheme } from '../common/terminal-theme'
 import * as ls from '../common/safe-local-storage'
@@ -85,6 +86,8 @@ export default () => {
     _checkedKeys: ls.getItem(checkedKeysLsKey) || '[]',
     _addressBookmarks: '[]',
     _addressBookmarksLocal: ls.getItem(localAddrBookmarkLsKey) || '[]',
+    openResolutionEdit: false,
+    _resolutions: ls.getItem(resolutionsLsKey) || '[]',
 
     // init session control
     selectedSessions: [],

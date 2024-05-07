@@ -11,6 +11,7 @@ import BatchOp from '../batch-op/batch-op'
 import CssOverwrite from './css-overwrite'
 import UiTheme from './ui-theme'
 import CustomCss from './custom-css.jsx'
+import Resolutions from '../session/resolution-edit'
 import TerminalInteractive from '../terminal/terminal-interactive'
 import ConfirmModalStore from '../sftp/confirm-modal-store.jsx'
 import TransferConflictStore from '../sftp/transfer-conflict-store.jsx'
@@ -163,6 +164,7 @@ export default class Index extends Component {
             store={store}
             _fileTransfers={store._fileTransfers}
           />
+          <Resolutions store={store} />
         </div>
       </ConfigProvider>
     )

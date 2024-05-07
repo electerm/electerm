@@ -91,22 +91,7 @@ app.ws('/rdp/:pid', function (ws, req) {
   term.start(width, height)
   const { pid } = term
   log.debug('ws: connected to terminal ->', pid)
-
-  function onClose () {
-    term.kill()
-    log.debug('Closed rdp session ' + pid)
-    // Clean things up
-    ws.close && ws.close()
-  }
-
-  term.on('close', onClose)
-  if (term.isLocal && isWin) {
-    term.on('exit', onClose)
-  }
-
   ws.on('error', log.error)
-
-  ws.on('close', onClose)
 })
 
 app.get('/run', function (req, res) {
