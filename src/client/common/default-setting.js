@@ -44,6 +44,7 @@ export default {
   sftpPathFollowSsh: false,
   keepaliveInterval: 0,
   backspaceMode: '^?',
+  showHiddenFilesOnSftpStart: true,
   terminalInfos: [
     'uptime',
     'cpu',
