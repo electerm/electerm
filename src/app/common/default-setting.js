@@ -43,6 +43,7 @@ module.exports = exports.default = {
   addTimeStampToTermLog: false,
   keepaliveInterval: 0,
   backspaceMode: '^?',
+  showHiddenFilesOnSftpStart: true,
   terminalInfos: [
     'uptime',
     'cpu',

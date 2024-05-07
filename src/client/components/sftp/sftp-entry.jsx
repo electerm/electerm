@@ -134,6 +134,7 @@ export default class Sftp extends Component {
   }
 
   defaultState = () => {
+    const def = this.props.config.showHiddenFilesOnSftpStart
     return Object.keys(typeMap).reduce((prev, k, i) => {
       Object.assign(prev, {
         [`sortProp.${k}`]: window.store.sftpSortSetting[k].prop,
@@ -142,7 +143,7 @@ export default class Sftp extends Component {
         [`${k}FileTree`]: {},
         [`${k}Loading`]: false,
         [`${k}InputFocus`]: false,
-        [`${k}ShowHiddenFile`]: true,
+        [`${k}ShowHiddenFile`]: def,
         [`${k}Path`]: '',
         [`${k}PathTemp`]: '',
         [`${k}PathHistory`]: [],
