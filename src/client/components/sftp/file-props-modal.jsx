@@ -116,7 +116,7 @@ export default function FileInfoModal () {
   }
   function getSize (str = '') {
     if (isWin) {
-      const s = str.split('\n').find(s => s.trim().startsWith('Sum'))
+      const s = (str.stdout || '').split('\n').find(s => s.trim().startsWith('Sum'))
       return s ? filesize(parseInt((s.split(':')[1]).trim(), 10)) : 0
     } else {
       return str.split(/\s+/)[0]
