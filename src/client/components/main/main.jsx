@@ -62,6 +62,7 @@ export default class Index extends Component {
     store.isSencondInstance = window.pre.runSync('isSencondInstance')
     store.initData()
     store.checkForDbUpgrade()
+    window.pre.runGlobalAsync('registerDeepLink')
   }
 
   render () {
