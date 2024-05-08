@@ -37,11 +37,31 @@ export default function renderCommon (props) {
   const {
     autofocustrigger,
     bookmarkGroups = [],
-    dns,
+    ips,
     form,
     onChangeAuthType
   } = props
   const tree = formatBookmarkGroups(bookmarkGroups)
+
+  // ips is ipaddress string[]
+  function renderIps () {
+    return ips.map(ip => {
+      return (
+        <div
+          key={ip}
+          className='iblock mg2r pointer ip-item'
+          onClick={() => props.useIp(form, ip)}
+        >
+          <b>{ip}</b>
+          <span
+            className='mg1l item-item-use'
+          >
+            {e('use')}
+          </span>
+        </div>
+      )
+    })
+  }
   return (
     <div>
       <FormItem
@@ -56,18 +76,8 @@ export default function renderCommon (props) {
         normalize={props.trim}
       >
         {
-          dns
-            ? (
-              <div className='dns-section'>
-                ip: {dns}
-                <span
-                  className='color-blue pointer mg1l'
-                  onClick={() => props.useIp(form)}
-                >
-                  {e('use')}
-                </span>
-              </div>
-              )
+          ips.length
+            ? renderIps()
             : (
               <div className='dns-section'>
                 hostname or ip

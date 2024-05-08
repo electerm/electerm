@@ -24,19 +24,16 @@ import newTerm from '../../common/new-terminal'
 export default class BookmarkForm extends PureComponent {
   state = {
     testing: false,
-    dns: ''
+    ips: []
   }
 
   trim = (v) => {
     return (v || '').replace(/^\s+|\s+$/g, '')
   }
 
-  useIp = (form) => {
+  useIp = (form, ip) => {
     form.setFieldsValue({
-      host: this.state.dns
-    })
-    this.setState({
-      dns: ''
+      host: ip
     })
   }
 
@@ -76,12 +73,12 @@ export default class BookmarkForm extends PureComponent {
     ) {
       return
     }
-    const ip = await window.pre.runGlobalAsync('lookup', value)
+    const ips = await window.pre.runGlobalAsync('lookup', value)
       .catch(err => {
         log.debug(err)
       })
     this.setState({
-      dns: ip || ''
+      ips: ips || []
     })
   }
 
