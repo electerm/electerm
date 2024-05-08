@@ -1,13 +1,15 @@
 exports.getSizeCount = function (str) {
-  const [s1, s2] = str.trim().split('\n')
-  let size = parseFloat(s1.split(/\s+/)[0])
-  const unit = s1.slice(-1)
-  if (unit === 'G') {
-    size = (size * 1024).toFixed(1)
+  const [s1, s2] = str.split('\n').map(d => d.trim())
+  const arr = s1.split(/\s+/)
+  const d1 = arr[0]
+  let size = parseFloat(d1)
+  const unit = d1.slice(-1)
+  if (unit === 'M') {
+    size = size / 1024
   } else if (unit === 'K') {
-    size = (size / 1024).toFixed(1)
+    size = size / 1024 / 1024
   }
-  const count = parseInt(s2)
+  const count = parseInt(s2, 10)
   return {
     count,
     size
@@ -22,14 +24,14 @@ exports.getSizeCountWin = function (str) {
   for (const s of arr) {
     const [s1, s2] = s.trim().split(/\s+/)
     if (s1 === 'Count') {
-      count = parseInt(s2)
+      count = parseInt(s2, 10)
       all = all + 1
       if (all > 1) {
         break
       }
     } else if (s1 === 'Sum') {
       all = all + 1
-      size = (parseInt(s2) / 1024).toFixed(1)
+      size = parseInt(s2, 10) / 1024
       if (all > 1) {
         break
       }
