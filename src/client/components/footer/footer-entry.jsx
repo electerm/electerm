@@ -119,7 +119,13 @@ export default class SystemMenu extends Component {
   render () {
     const { tabs, leftSidebarWidth, openedSideBar } = this.props.store
     const pane = this.props.store.currentTab?.pane
-    if (pane === paneMap.fileManager || !tabs.length) {
+    const type = this.props.store.currentTab?.type
+    if (
+      type === 'rdp' ||
+      type === 'web' ||
+      pane === paneMap.fileManager ||
+      !tabs.length
+    ) {
       return null
     }
     const w = 43 + leftSidebarWidth

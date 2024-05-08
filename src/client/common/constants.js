@@ -67,7 +67,8 @@ export const connectionMap = buildConst([
   'telnet',
   'serial',
   'local',
-  'web'
+  'web',
+  'rdp'
 ])
 
 export const authTypeMap = buildConst([
@@ -133,6 +134,7 @@ export const terminalSplitDirectionMap = buildConst([
 
 export const terminalSshConfigType = 'ssh-config'
 export const terminalWebType = 'web'
+export const terminalRdpType = 'rdp'
 export const terminalSerialType = 'serial'
 export const terminalTelnetType = 'telnet'
 export const terminalLocalType = 'local'
@@ -306,6 +308,7 @@ export const mirrors = {
 }
 export const downloadUpgradeTimeout = 20000
 export const expandedKeysLsKey = 'expanded-keys'
+export const resolutionsLsKey = 'custom-resolution-key'
 export const checkedKeysLsKey = 'checked-keys'
 export const quickCommandLabelsLsKey = 'quick-command-labels'
 export const localAddrBookmarkLsKey = 'local-addr-bookmark-keys'

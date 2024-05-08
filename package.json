@@ -125,6 +125,7 @@
     "nanoid": "3.1.31",
     "node-bash": "5.0.1",
     "node-pty": "1.1.0-beta14",
+    "node-rdpjs-2": "^0.3.5",
     "os-locale-s": "1.0.8",
     "serialport": "10.4.0",
     "socks": "2.7.1",
@@ -143,7 +144,8 @@
   "standard": {
     "sourceType": "module",
     "ignore": [
-      "/app/assets/"
+      "/app/assets/",
+      "src/client/entry/rle.js"
     ],
     "globals": [
       "log",

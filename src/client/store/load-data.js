@@ -59,7 +59,7 @@ export async function addTabFromCommandLine (store, opts) {
     envLang: defaultEnvLang,
     enableSsh: !options.sftpOnly,
     authType: 'password',
-    pane: 'terminal',
+    pane: options.type || 'terminal',
     term: defaultSettings.terminalType
   }
   if (options.setEnv) {

@@ -83,6 +83,17 @@ app.ws('/terminals/:pid', function (ws, req) {
   ws.on('close', onClose)
 })
 
+app.ws('/rdp/:pid', function (ws, req) {
+  const { sessionId, width, height } = req.query
+  verifyWs(req)
+  const term = terminals(req.params.pid, sessionId)
+  term.ws = ws
+  term.start(width, height)
+  const { pid } = term
+  log.debug('ws: connected to terminal ->', pid)
+  ws.on('error', log.error)
+})
+
 app.get('/run', function (req, res) {
   res.send('ok')
 })
