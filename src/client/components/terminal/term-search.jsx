@@ -55,6 +55,9 @@ class TermSearch extends Component {
   }
 
   toggleSearch = () => {
+    if (this.props.store.termSearchOpen) {
+      this.clearSearch()
+    }
     this.props.store.toggleTerminalSearch()
     setTimeout(window.store.focus, 200)
   }
@@ -89,7 +92,16 @@ class TermSearch extends Component {
     this.prev()
   }
 
+  clearSearch = () => {
+    const { activeTerminalId } = this.props.store
+    postMessage({
+      action: terminalActions.clearSearch,
+      activeSplitId: activeTerminalId
+    })
+  }
+
   close = () => {
+    this.clearSearch()
     this.props.store.termSearchOpen = false
   }
 

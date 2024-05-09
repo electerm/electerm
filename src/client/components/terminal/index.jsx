@@ -364,6 +364,13 @@ class Term extends Component {
     ) {
       this.searchPrev(keyword, options)
     } else if (
+      action === terminalActions.clearSearch &&
+      (
+        propSplitId === activeSplitId
+      )
+    ) {
+      this.searchAddon.clearDecorations()
+    } else if (
       action === commonActions.getTermLogState &&
       pid === statePid
     ) {
