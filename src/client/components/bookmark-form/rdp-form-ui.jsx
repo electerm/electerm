@@ -6,7 +6,8 @@ import { useEffect } from 'react'
 import {
   Input,
   Form,
-  InputNumber
+  InputNumber,
+  TreeSelect
 } from 'antd'
 import { formItemLayout } from '../../common/form-layout'
 import {
@@ -18,10 +19,13 @@ import copy from 'json-deep-copy'
 import { defaults } from 'lodash-es'
 import { ColorPickerItem } from './color-picker-item.jsx'
 import { getRandomDefaultColor } from '../../common/rand-hex-color.js'
+import formatBookmarkGroups from './bookmark-group-tree-format'
+import findBookmarkGroupId from '../../common/find-bookmark-group-id'
 
 const FormItem = Form.Item
 const { prefix } = window
 const e = prefix('form')
+const c = prefix('common')
 
 export default function LocalFormUi (props) {
   const [
@@ -36,14 +40,29 @@ export default function LocalFormUi (props) {
       })
     }
   }, [props.currentBookmarkGroupId])
+  const {
+    id = ''
+  } = props.formData
+  const {
+    bookmarkGroups = [],
+    currentBookmarkGroupId
+  } = props
   let initialValues = copy(props.formData)
+  const initBookmarkGroupId = !id.startsWith(newBookmarkIdPrefix)
+    ? findBookmarkGroupId(bookmarkGroups, id)
+    : currentBookmarkGroupId
   const defaultValues = {
     type: terminalRdpType,
     port: 3389,
+    category: initBookmarkGroupId,
     color: getRandomDefaultColor()
   }
   initialValues = defaults(initialValues, defaultValues)
   function renderCommon () {
+    const {
+      bookmarkGroups = []
+    } = props
+    const tree = formatBookmarkGroups(bookmarkGroups)
     return (
       <div className='pd1x'>
         <FormItem
@@ -113,6 +132,17 @@ export default function LocalFormUi (props) {
           name='domain'
         >
           <Input />
+        </FormItem>
+        <FormItem
+          {...formItemLayout}
+          label={c('bookmarkCategory')}
+          name='category'
+        >
+          <TreeSelect
+            treeData={tree}
+            treeDefaultExpandAll
+            showSearch
+          />
         </FormItem>
         <FormItem
           {...formItemLayout}
