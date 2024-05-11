@@ -318,6 +318,7 @@ export const sshTunnelHelpLink = 'https://github.com/electerm/electerm/wiki/How-
 export const batchOpHelpLink = 'https://github.com/electerm/electerm/wiki/batch-operation'
 export const proxyHelpLink = 'https://github.com/electerm/electerm/wiki/proxy-format'
 export const regexHelpLink = 'https://github.com/electerm/electerm/wiki/Terminal-keywords-highlight-regular-expression-exmaples'
+export const rdpHelpLink = 'https://github.com/electerm/electerm/wiki/RDP-limitation'
 export const modals = {
   hide: 0,
   setting: 1,

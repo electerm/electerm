@@ -4,7 +4,8 @@ import deepCopy from 'json-deep-copy'
 import clone from '../../common/to-simple-obj'
 import { handleErr } from '../../common/fetch'
 import {
-  statusMap
+  statusMap,
+  rdpHelpLink
 } from '../../common/constants'
 import {
   notification,
@@ -16,6 +17,7 @@ import {
   ReloadOutlined,
   EditOutlined
 } from '@ant-design/icons'
+import HelpIcon from '../common/help-icon'
 import * as ls from '../../common/safe-local-storage'
 import scanCode from './code-scan'
 import resolutions from './resolutions'
@@ -388,9 +390,12 @@ export default class RdpSession extends Component {
           onClick={this.handleEditResolutions}
           className='mg2r mg1l pointer'
         />
-        <span className='mg2l'>
+        <span className='mg2l mg2r'>
           {username}@{host}:{port}
         </span>
+        <HelpIcon
+          link={rdpHelpLink}
+        />
       </div>
     )
   }

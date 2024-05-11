@@ -12,10 +12,12 @@ import {
 import { formItemLayout } from '../../common/form-layout'
 import {
   newBookmarkIdPrefix,
-  terminalRdpType
+  terminalRdpType,
+  rdpHelpLink
 } from '../../common/constants'
 import useSubmit from './use-submit'
 import copy from 'json-deep-copy'
+import Link from '../common/external-link.jsx'
 import { defaults } from 'lodash-es'
 import { ColorPickerItem } from './color-picker-item.jsx'
 import { getRandomDefaultColor } from '../../common/rand-hex-color.js'
@@ -65,6 +67,9 @@ export default function LocalFormUi (props) {
     const tree = formatBookmarkGroups(bookmarkGroups)
     return (
       <div className='pd1x'>
+        <p className='alignright'>
+          <Link to={rdpHelpLink}>Wiki: {rdpHelpLink}</Link>
+        </p>
         <FormItem
           {...formItemLayout}
           label={e('title')}
