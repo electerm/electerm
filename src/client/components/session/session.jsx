@@ -4,7 +4,7 @@
 import { Component } from 'react'
 import Term from '../terminal'
 import Sftp from '../sftp/sftp-entry'
-import RdpSession from './rdp-session'
+import RdpSession from '../rdp/rdp-session'
 import {
   BorderVerticleOutlined,
   BorderHorizontalOutlined,

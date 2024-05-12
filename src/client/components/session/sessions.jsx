@@ -1,6 +1,6 @@
 import { Component } from '../common/react-subx'
 import Session from './session'
-import WebSession from './web-session'
+import WebSession from '../web/web-session.jsx'
 import { findIndex, pick } from 'lodash-es'
 import classNames from 'classnames'
 import generate from '../../common/uid'
