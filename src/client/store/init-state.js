@@ -110,6 +110,7 @@ export default () => {
         direction: 'desc'
       }
     }),
+    splitTerminalSftp: '',
 
     // for settings related
     _setting: '',

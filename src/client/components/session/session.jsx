@@ -502,6 +502,32 @@ export default class SessionWrapper extends Component {
     )
   }
 
+  handleSplitVert = () => {
+    window.store.splitTerminalSftp = 'vertical'
+  }
+
+  handleSplitHori = () => {
+    window.store.splitTerminalSftp = 'horizontal'
+  }
+
+  renderToggles = (shouldHaveSpliter) => {
+    if (!shouldHaveSpliter) {
+      return null
+    }
+    return [
+      <BorderVerticleOutlined
+        className='pointer iblock spliter-ver'
+        onClick={this.handleSplitVert}
+        key='split1'
+      />,
+      <BorderHorizontalOutlined
+        className='pointer iblock spliter-hori mg1x'
+        onClick={this.handleSplitHori}
+        key='split2'
+      />
+    ]
+  }
+
   renderControl = () => {
     const { splitDirection, terminals, sftpPathFollowSsh } = this.state
     const { props } = this
@@ -547,6 +573,7 @@ export default class SessionWrapper extends Component {
       [paneMap.fileManager]: 'F',
       [paneMap.ssh]: 'T'
     }
+    const shouldHaveSpliter = (isSsh && enableSsh) || isLocal
     return (
       <div
         className='terminal-control fix'
@@ -578,7 +605,7 @@ export default class SessionWrapper extends Component {
           }
         </div>
         {
-          (isSsh && enableSsh) || isLocal
+          shouldHaveSpliter
             ? (
               <Tooltip title={checkTxt}>
                 <span {...checkProps}>
@@ -587,6 +614,9 @@ export default class SessionWrapper extends Component {
               </Tooltip>
               )
             : null
+        }
+        {
+          this.renderToggles(shouldHaveSpliter)
         }
         {
           this.renderDelTip(pane === paneMap.terminal)
