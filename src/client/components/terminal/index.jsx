@@ -732,9 +732,9 @@ class Term extends Component {
     }
   }
 
-  split = () => {
-    this.props.handleSplit(null, this.props.id)
-  }
+  // split = () => {
+  //   this.props.handleSplit(null, this.props.id)
+  // }
 
   onContextAction = e => {
     const {
@@ -865,12 +865,12 @@ class Term extends Component {
         icon: 'SearchOutlined',
         text: e('search'),
         subText: searchShortcut
-      },
-      {
-        func: 'split',
-        icon: 'BorderHorizontalOutlined',
-        text: e('split')
-      }
+      } // ,
+      // {
+      //   func: 'split',
+      //   icon: 'BorderHorizontalOutlined',
+      //   text: e('split')
+      // }
     ]
   }
 

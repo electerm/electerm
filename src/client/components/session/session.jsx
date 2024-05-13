@@ -37,6 +37,7 @@ import TerminalInfoContent from '../terminal-info/content'
 import uid from '../../common/id-with-stamp'
 import postMessage from '../../common/post-msg'
 import './session.styl'
+import classNames from 'classnames'
 
 const rebuildPosition = terminals => {
   const indexs = terminals.map(t => t.position).sort((a, b) => a - b)
@@ -76,17 +77,17 @@ export default class SessionWrapper extends Component {
     } = props.tab
     const activeSplitId = terminals[0].id
     this.state = {
+      id: uid(),
       pid: null,
       enableSftp: false,
       cwd: '',
       sftpPathFollowSsh: !!props.config.sftpPathFollowSsh,
-      splitDirection: terminalSplitDirectionMap.horizontal,
+      // splitDirection: terminalSplitDirectionMap.horizontal,
       activeSplitId,
       infoPanelPinned: false,
       key: Math.random(),
       sessionOptions: null,
       sessionId: generate(),
-      terminals: terminals.slice(0, 1),
       delKeyPressed: false,
       showInfo: false,
       infoPanelProps: {}
@@ -209,23 +210,23 @@ export default class SessionWrapper extends Component {
     }
   }
 
-  handleSplit = (e, id) => {
-    let terminals = copy(this.state.terminals)
-    let index = findIndex(terminals, t => t.id === id)
-    if (index === -1) {
-      index = terminals.length
-    } else {
-      index = index + 1
-    }
-    terminals.push({
-      id: uid(),
-      position: terminals[index - 1].position + 5
-    })
-    terminals = rebuildPosition(terminals)
-    this.setState({
-      terminals
-    }, this.updateTab)
-  }
+  // handleSplit = (e, id) => {
+  //   let terminals = copy(this.state.terminals)
+  //   let index = findIndex(terminals, t => t.id === id)
+  //   if (index === -1) {
+  //     index = terminals.length
+  //   } else {
+  //     index = index + 1
+  //   }
+  //   terminals.push({
+  //     id: uid(),
+  //     position: terminals[index - 1].position + 5
+  //   })
+  //   terminals = rebuildPosition(terminals)
+  //   this.setState({
+  //     terminals
+  //   }, this.updateTab)
+  // }
 
   updateTab = () => {
     const terminals = copy(this.state.terminals)
@@ -237,31 +238,20 @@ export default class SessionWrapper extends Component {
     )
   }
 
-  delSplit = (splitId = this.state.activeSplitId) => {
-    const { terminals } = this.state
-    let newTerms = terminals.filter(t => t.id !== splitId)
-    if (!newTerms.length) {
-      return this.props.delTab(
-        this.props.tab.id
-      )
-    }
-    newTerms = rebuildPosition(newTerms)
-    const newActiveId = getPrevTerminal(newTerms).id
-    this.setState({
-      terminals: newTerms,
-      activeSplitId: newActiveId
-    }, this.updateTab)
-    window.store.focus()
+  delSplit = () => {
+    return this.props.delTab(
+      this.props.tab.id
+    )
   }
 
-  handleChangeDirection = () => {
-    const { splitDirection } = this.state
-    this.setState({
-      splitDirection: splitDirection === terminalSplitDirectionMap.horizontal
-        ? terminalSplitDirectionMap.vertical
-        : terminalSplitDirectionMap.horizontal
-    })
-  }
+  // handleChangeDirection = () => {
+  //   const { splitDirection } = this.state
+  //   this.setState({
+  //     splitDirection: splitDirection === terminalSplitDirectionMap.horizontal
+  //       ? terminalSplitDirectionMap.vertical
+  //       : terminalSplitDirectionMap.horizontal
+  //   })
+  // }
 
   setActive = activeSplitId => {
     const up = {
@@ -313,11 +303,10 @@ export default class SessionWrapper extends Component {
     return width - lt - 42
   }
 
-  renderTerminals = () => {
+  renderTerminal = () => {
     const {
-      terminals,
       activeSplitId,
-      splitDirection,
+      id,
       sessionOptions,
       sessionId,
       sftpPathFollowSsh
@@ -360,6 +349,28 @@ export default class SessionWrapper extends Component {
     const { tab } = this.props
     const width = this.getWidth()
     const themeConfig = copy(window.store.getThemeConfig())
+    const logName = safeName(`${tab.title ? tab.title + '_' : ''}${tab.host ? tab.host + '_' : ''}${id}`)
+    const pops = {
+      ...this.props,
+      activeSplitId,
+      sftpPathFollowSsh,
+      themeConfig,
+      pane,
+      ...pick(
+        this,
+        [
+          'setActive',
+          // 'handleSplit',
+          'delSplit',
+          'setSessionState',
+          'handleShowInfo',
+          'onChangePane',
+          'hideInfoPanel',
+          'setCwd',
+          'onDelKeyPressed'
+        ]),
+      ...this.computePosition()
+    }
     return (
       <div
         className={cls}
@@ -368,48 +379,12 @@ export default class SessionWrapper extends Component {
           height
         }}
       >
-        <ResizeWrap
-          direction={splitDirection}
-          tab={tab}
-        >
-          {
-            terminals.map((t, index) => {
-              const logName = safeName(`${tab.title ? tab.title + '_' : ''}${tab.host ? tab.host + '_' : ''}${t.id}`)
-              const pops = {
-                ...this.props,
-                ...t,
-                activeSplitId,
-                sftpPathFollowSsh,
-                themeConfig,
-                pane,
-                ...pick(
-                  this,
-                  [
-                    'setActive',
-                    'handleSplit',
-                    'delSplit',
-                    'setSessionState',
-                    'handleShowInfo',
-                    'onChangePane',
-                    'hideInfoPanel',
-                    'setCwd',
-                    'onDelKeyPressed'
-                  ]),
-                ...this.computePosition(t.position / 10)
-              }
-              return (
-                <Term
-                  key={t.id}
-                  logName={logName}
-                  sessionId={sessionId}
-                  terminalIndex={index}
-                  sessionOptions={sessionOptions}
-                  {...pops}
-                />
-              )
-            })
-          }
-        </ResizeWrap>
+        <Term
+          logName={logName}
+          sessionId={sessionId}
+          sessionOptions={sessionOptions}
+          {...pops}
+        />
       </div>
     )
   }
@@ -423,12 +398,13 @@ export default class SessionWrapper extends Component {
       sftpPathFollowSsh,
       cwd
     } = this.state
+    const { splitTerminalSftp } = this.props
     const { pane, type } = this.props.tab
     if (type === terminalRdpType) {
       return null
     }
     const height = this.computeHeight()
-    const cls = pane === paneMap.terminal
+    const cls = pane === paneMap.terminal && !splitTerminalSftp
       ? 'hide'
       : ''
     const exts = {
@@ -510,26 +486,8 @@ export default class SessionWrapper extends Component {
     window.store.splitTerminalSftp = 'horizontal'
   }
 
-  renderToggles = (shouldHaveSpliter) => {
-    if (!shouldHaveSpliter) {
-      return null
-    }
-    return [
-      <BorderVerticleOutlined
-        className='pointer iblock spliter-ver'
-        onClick={this.handleSplitVert}
-        key='split1'
-      />,
-      <BorderHorizontalOutlined
-        className='pointer iblock spliter-hori mg1x'
-        onClick={this.handleSplitHori}
-        key='split2'
-      />
-    ]
-  }
-
   renderControl = () => {
-    const { splitDirection, terminals, sftpPathFollowSsh } = this.state
+    const { sftpPathFollowSsh } = this.state
     const { props } = this
     const { pane, enableSsh, type } = props.tab
     if (type === terminalRdpType) {
@@ -538,16 +496,8 @@ export default class SessionWrapper extends Component {
     const termType = props.tab?.type
     const isSsh = props.tab.authType
     const isLocal = !isSsh && (termType === connectionMap.local || !termType)
-    const isHori = splitDirection === terminalSplitDirectionMap.horizontal
     const cls1 = 'mg1r icon-split pointer iblock spliter'
     const cls2 = 'icon-direction pointer iblock spliter'
-    const Icon1 = isHori
-      ? BorderHorizontalOutlined
-      : BorderVerticleOutlined
-    const Icon2 = !isHori
-      ? BorderHorizontalOutlined
-      : BorderVerticleOutlined
-    const hide = terminals.length < 2
     const types = [
       paneMap.terminal,
       paneMap.fileManager
@@ -616,9 +566,6 @@ export default class SessionWrapper extends Component {
             : null
         }
         {
-          this.renderToggles(shouldHaveSpliter)
-        }
-        {
           this.renderDelTip(pane === paneMap.terminal)
         }
         {
@@ -627,39 +574,45 @@ export default class SessionWrapper extends Component {
               <div className='fright term-controls'>
                 {this.fullscreenIcon()}
                 {this.renderSearchIcon()}
-                {
-                  hide
-                    ? null
-                    : (
-                      <CloseSquareFilled
-                        className='mg1r icon-trash font16 iblock pointer spliter'
-                        onClick={() => this.delSplit()}
-                        title={m('del')}
-                      />
-                      )
-                }
-                <Tooltip
-                  title={`${e('split')}`}
-                  placement='bottomLeft'
-                >
-                  <Icon1
-                    className={cls1}
-                    onClick={this.handleSplit}
-                  />
-                </Tooltip>
-                <Tooltip
-                  title={e('changeDirection')}
-                  placement='bottomLeft'
-                >
-                  <Icon2
-                    className={cls2}
-                    onClick={this.handleChangeDirection}
-                  />
-                </Tooltip>
+                <BorderVerticleOutlined
+                  className={cls1}
+                  onClick={this.handleSplitVert}
+                />
+                <BorderHorizontalOutlined
+                  className={cls2}
+                  onClick={this.handleSplitHori}
+                />
               </div>
               )
             : null
         }
+      </div>
+    )
+  }
+
+  renderContent = () => {
+    const { splitTerminalSftp } = this.props
+    if (!splitTerminalSftp) {
+      return (
+        <div>
+          {this.renderTerminal()}
+          {this.renderSftp()}
+        </div>
+      )
+    }
+    const cls = classNames(
+      'session-split-wrap',
+      splitTerminalSftp
+    )
+    return (
+      <div className={cls}>
+        <div className='session-split-term'>
+          {this.renderTerminal()}
+        </div>
+        <div className='session-split-handle' />
+        <div className='session-split-sftp'>
+          {this.renderSftp()}
+        </div>
       </div>
     )
   }
@@ -701,8 +654,7 @@ export default class SessionWrapper extends Component {
         id={`is-${this.props.tab.id}`}
       >
         {this.renderControl()}
-        {this.renderTerminals()}
-        {this.renderSftp()}
+        {this.renderContent()}
         <TerminalInfoContent
           {...infoProps}
         />
