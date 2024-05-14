@@ -34,17 +34,17 @@ exports.createApp = function () {
     global.isSencondInstance = true
     app.isSencondInstance = true
   }
-  // app.on('second-instance', (event, argv, wd, opts) => {
-  //   if (global.win) {
-  //     if (global.win.isMinimized()) {
-  //       global.win.restore()
-  //     }
-  //     global.win.focus()
-  //     if (opts) {
-  //       global.win.webContents.send('add-tab-from-command-line', opts)
-  //     }
-  //   }
-  // })
+  app.on('second-instance', (event, argv, wd, opts) => {
+    if (global.win) {
+      if (global.win.isMinimized()) {
+        global.win.restore()
+      }
+      global.win.focus()
+      if (opts) {
+        global.win.webContents.send('add-tab-from-command-line', opts)
+      }
+    }
+  })
   app.on('ready', createWindow)
   app.on('activate', () => {
     // On macOS it's common to re-create a window in the app when the
