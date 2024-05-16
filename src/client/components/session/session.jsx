@@ -260,29 +260,61 @@ export default class SessionWrapper extends Component {
     this.setState(up)
   }
 
-  computePosition = (index) => {
-    const len = this.state.terminals.length || 1
-    const windowWidth = this.getWidth()
-    const { splitDirection } = this.state
-    const isHori = splitDirection === terminalSplitDirectionMap.horizontal
-    const heightAll = this.computeHeight()
-    const width = isHori
-      ? windowWidth / len
-      : windowWidth
-    const height = isHori
-      ? heightAll
-      : heightAll / len
-    const left = isHori
-      ? index * width
-      : 0
-    const top = isHori
-      ? 0
-      : index * height
-    return {
-      height,
-      width,
-      left,
-      top
+  computePosition = () => {
+    const {
+      splitTerminalSftp
+    } = this.props
+    const allowedHeight = this.computeHeight()
+    const allowedWidth = this.getWidth()
+    const handleSize = 4
+    if (splitTerminalSftp === terminalSplitDirectionMap.vertical) {
+      const h = (allowedHeight - handleSize) / 2
+      return {
+        termPos: {
+          left: 0,
+          top: 0,
+          width: allowedWidth + 'px',
+          height: h + 'px'
+        },
+        sftpPos: {
+          left: 0,
+          top: h + handleSize + 'px',
+          width: allowedWidth + 'px',
+          height: h + 'px'
+        },
+        handlePos: {
+          style: {
+            left: 0,
+            top: h + 'px',
+            width: allowedWidth + 'px',
+            height: handleSize + 'px'
+          }
+        }
+      }
+    } else {
+      const w = (allowedWidth - handleSize) / 2
+      return {
+        termPos: {
+          left: 0,
+          top: 0,
+          width: w + 'px',
+          height: allowedHeight + 'px'
+        },
+        sftpPos: {
+          left: w + handleSize + 'px',
+          top: 0,
+          width: w + 'px',
+          height: allowedHeight + 'px'
+        },
+        handlePos: {
+          style: {
+            left: w + 'px',
+            top: 0,
+            width: handleSize + 'px',
+            height: allowedHeight + 'px'
+          }
+        }
+      }
     }
   }
 
@@ -303,7 +335,7 @@ export default class SessionWrapper extends Component {
     return width - lt - 42
   }
 
-  renderTerminal = () => {
+  renderTerminal = (termPos) => {
     const {
       activeSplitId,
       id,
@@ -342,7 +374,8 @@ export default class SessionWrapper extends Component {
         />
       )
     }
-    const cls = pane === paneMap.terminal
+    const { splitTerminalSftp } = this.props
+    const cls = pane === paneMap.terminal && !splitTerminalSftp
       ? 'terms-box'
       : 'terms-box hide'
     const height = this.computeHeight()
@@ -368,16 +401,12 @@ export default class SessionWrapper extends Component {
           'hideInfoPanel',
           'setCwd',
           'onDelKeyPressed'
-        ]),
-      ...this.computePosition()
+        ])
     }
     return (
       <div
         className={cls}
-        style={{
-          width,
-          height
-        }}
+        style={termPos}
       >
         <Term
           logName={logName}
@@ -389,7 +418,7 @@ export default class SessionWrapper extends Component {
     )
   }
 
-  renderSftp = () => {
+  renderSftp = (sftpPos) => {
     const {
       sessionOptions,
       sessionId,
@@ -413,14 +442,15 @@ export default class SessionWrapper extends Component {
       pid,
       enableSftp,
       sessionOptions,
-      height,
       sessionId,
       pane,
-      ...this.props,
-      width: this.getWidthSftp()
+      ...this.props
     }
     return (
-      <div className={cls}>
+      <div
+        className={cls}
+        style={sftpPos}
+      >
         <Sftp
           {...exts}
         />
@@ -604,15 +634,16 @@ export default class SessionWrapper extends Component {
       'session-split-wrap',
       splitTerminalSftp
     )
+    const {
+      termPos,
+      handlePos,
+      sftpPos
+    } = this.computePosition()
     return (
       <div className={cls}>
-        <div className='session-split-term'>
-          {this.renderTerminal()}
-        </div>
-        <div className='session-split-handle' />
-        <div className='session-split-sftp'>
-          {this.renderSftp()}
-        </div>
+        {this.renderTerminal(termPos)}
+        <div className='session-split-handle' {...handlePos} />
+        {this.renderSftp(sftpPos)}
       </div>
     )
   }
@@ -648,10 +679,17 @@ export default class SessionWrapper extends Component {
         'disable-ssh': this.props.tab.enableSsh === false
       }
     )
+    const allProps = {
+      className: cls,
+      id: `is-${this.props.tab.id}`,
+      style: {
+        width: this.getWidth() + 'px',
+        height: this.computeHeight() + 'px'
+      }
+    }
     return (
       <div
-        className={cls}
-        id={`is-${this.props.tab.id}`}
+        {...allProps}
       >
         {this.renderControl()}
         {this.renderContent()}

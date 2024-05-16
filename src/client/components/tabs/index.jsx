@@ -12,10 +12,17 @@ import {
   LeftOutlined,
   PlusOutlined,
   RightOutlined,
-  RightSquareFilled
+  RightSquareFilled,
+  BorderVerticleOutlined,
+  BorderHorizontalOutlined
 } from '@ant-design/icons'
 
-import { Dropdown, Menu, Popover } from 'antd'
+import {
+  Dropdown,
+  Menu,
+  Popover,
+  Button
+} from 'antd'
 import Tab from './tab'
 import './tabs.styl'
 import {
@@ -23,7 +30,9 @@ import {
   tabMargin,
   extraTabWidth,
   windowControlWidth,
-  isMacJs
+  isMacJs,
+  splitMap,
+  splitMapDesc
 } from '../../common/constants'
 import findParentBySel from '../../common/find-parent'
 import WindowControl from './window-control'
@@ -232,6 +241,7 @@ export default class Tabs extends React.Component {
         >
           <DownOutlined className='tabs-dd-icon' />
         </Dropdown>
+        {this.renderSplitIcon()}
       </div>
     )
   }
@@ -300,6 +310,28 @@ export default class Tabs extends React.Component {
     )
   }
 
+  // should return dropdown use antd Dropdown, BorderVerticleOutlined as content,
+  // two columns, two rows, three columns, three rows, two rows right, two column bottom, grid(2x2) as dropdown list
+  renderSplitIcon () {
+    const items = Object.keys(splitMap).map(key => {
+      return {
+        key,
+        label: e(splitMapDesc[key]),
+        onClick: () => {
+          window.store.setSplit(key)
+        }
+      }
+    })
+    return (
+      <Dropdown
+        menu={{ items }}
+        placement='bottomRight'
+      >
+        <BorderVerticleOutlined />
+      </Dropdown>
+    )
+  }
+
   render () {
     const overflow = this.isOverflow()
     return (
@@ -311,7 +343,7 @@ export default class Tabs extends React.Component {
         {
           overflow
             ? this.renderExtra()
-            : null
+            : this.renderSplitIcon()
         }
       </div>
     )
