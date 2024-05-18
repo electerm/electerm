@@ -96,7 +96,7 @@ export default class SystemMenu extends Component {
               encodes.map(k => {
                 return (
                   <Option key={k} value={k}>
-                    {k}
+                    {k.toUpperCase()}
                   </Option>
                 )
               })

@@ -209,7 +209,7 @@ export default function renderCommon (props) {
                   value={k}
                   key={k}
                 >
-                  {k}
+                  {k.toUpperCase()}
                 </Option>
               )
             })
