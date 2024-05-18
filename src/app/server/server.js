@@ -65,7 +65,7 @@ app.ws('/terminals/:pid', function (ws, req) {
     ws.close && ws.close()
   }
 
-  term.on('close', onClose)
+  // term.on('close', onClose)
   if (term.isLocal && isWin) {
     term.on('exit', onClose)
   }
