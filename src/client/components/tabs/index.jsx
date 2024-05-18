@@ -258,7 +258,7 @@ export default class Tabs extends React.Component {
       : tabsWidthAll
     const w1 = isMacJs ? 30 : windowControlWidth
     const style = {
-      width: width - w1 - 136
+      width: width - w1 - 166
     }
     return (
       <div
