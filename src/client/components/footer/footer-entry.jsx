@@ -76,15 +76,21 @@ export default class SystemMenu extends Component {
   }
 
   renderEncodingInfo () {
+    const selectProps = {
+      style: {
+        minWidth: 30
+      },
+      placeholder: f('encode'),
+      defaultValue: this.props.currentTab?.encode,
+      onSelect: this.handleSwitchEncoding,
+      size: 'small',
+      popupMatchSelectWidth: false
+    }
     return (
       <div className='terminal-footer-unit terminal-footer-info'>
         <div className='fleft relative'>
           <Select
-            style={{ minWidth: 30 }}
-            placeholder={f('encode')}
-            defaultValue={this.props.currentTab?.encode}
-            onSelect={this.handleSwitchEncoding}
-            size='small'
+            {...selectProps}
           >
             {
               encodes.map(k => {
