@@ -87,6 +87,18 @@ export default function useBookmarkFormUI (props) {
         step={1}
         placeholder={defaultFontSize}
       />
+    </FormItem>,
+    <FormItem
+      key='keepaliveInterval'
+      {...formItemLayout}
+      label={s('keepaliveIntervalDesc')}
+      name='keepaliveInterval'
+    >
+      <InputNumber
+        min={0}
+        max={20000000}
+        step={1000}
+      />
     </FormItem>
   ]
 }

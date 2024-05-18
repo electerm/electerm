@@ -1126,6 +1126,7 @@ class Term extends Component {
         'execLinuxArgs',
         'debug'
       ]),
+      keepaliveInterval: tab.keepaliveInterval === undefined ? config.keepaliveInterval : tab.keepaliveInterval,
       sessionId,
       tabId: id,
       srcTabId: tab.id,
