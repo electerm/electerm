@@ -94,15 +94,18 @@ export default class SettingModalWrap extends Component {
         children: null
       }
     ]
+    const tabsProps = {
+      activeKey: settingTab,
+      animated: false,
+      items,
+      onChange: store.handleChangeSettingTab,
+      destroyInactiveTabPane: true,
+      className: 'setting-tabs'
+    }
     return (
       <div>
         <Tabs
-          activeKey={settingTab}
-          animated={false}
-          items={items}
-          onChange={store.handleChangeSettingTab}
-          destroyInactiveTabPane
-          className='setting-tabs'
+          {...tabsProps}
         />
         <TabHistory
           listProps={props0}
