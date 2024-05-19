@@ -44,6 +44,7 @@ electerm -bo "/home/root/works.csv"
     .option('-pw, --password <password>', 'specify ssh server password')
     .option('-se, --set-env <setEnv>', 'specify envs')
     .option('-so, --sftp-only', 'only show sftp panel')
+    .option('-d, --init-folder', 'init folder got init terminal')
     .exitOverride()
 
   try {

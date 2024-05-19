@@ -233,9 +233,13 @@ export default (Store) => {
     for (const n of names) {
       let str = get(gist, `files["${n}.json"].content`)
       if (!str) {
-        store.isSyncingSetting = false
-        store.isSyncDownload = false
-        throw new Error(('Seems you have a empty gist, you can try use existing gist ID or upload first'))
+        if (n === settingMap.bookmarks) {
+          store.isSyncingSetting = false
+          store.isSyncDownload = false
+          throw new Error(('Seems you have a empty gist, you can try use existing gist ID or upload first'))
+        } else {
+          continue
+        }
       }
       if (!isJSON(str)) {
         str = await window.pre.runGlobalAsync('decryptAsync', str, pass)
