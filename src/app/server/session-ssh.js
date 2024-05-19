@@ -336,8 +336,7 @@ class TerminalSshBase extends TerminalBase {
       if (
         sshTunnel &&
         sshTunnel.sshTunnel &&
-        sshTunnel.sshTunnelLocalPort &&
-        sshTunnel.sshTunnelRemotePort
+        sshTunnel.sshTunnelLocalPort
       ) {
         const result = await sshTunnelFuncs[sshTunnel.sshTunnel]({
           ...sshTunnel,
