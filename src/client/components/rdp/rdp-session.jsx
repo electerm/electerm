@@ -235,7 +235,7 @@ export default class RdpSession extends Component {
       const isHorizontal = false
       const delta = isHorizontal ? e.deltaX : e.deltaY
       const step = Math.round(Math.abs(delta) * 15 / 8)
-      console.log(x, y, step, delta, isHorizontal)
+      // console.log(x, y, step, delta, isHorizontal)
       params = [x, y, step, delta > 0, isHorizontal]
     } else if (type === 'keydown' || type === 'keyup') {
       params = [keyCode, pressed]
