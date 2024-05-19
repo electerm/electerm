@@ -60,7 +60,8 @@ export async function addTabFromCommandLine (store, opts) {
     enableSsh: !options.sftpOnly,
     authType: 'password',
     pane: options.type || 'terminal',
-    term: defaultSettings.terminalType
+    term: defaultSettings.terminalType,
+    startDirectoryLocal: options.initFolder
   }
   if (options.setEnv) {
     update.setEnv = options.setEnv
@@ -79,8 +80,15 @@ export async function addTabFromCommandLine (store, opts) {
     conf.privateKey = await fs.readFile(options.privateKeyPath)
   }
   log.debug('command line opts', conf)
+  console.log(options.initFolder, !(store.config.onStartSessions || []).length, store.config.initDefaultTabOnStart)
   if (conf.username && conf.host) {
     store.addTab(conf)
+  } else if (
+    options.initFolder &&
+    !(store.config.onStartSessions || []).length &&
+    store.config.initDefaultTabOnStart
+  ) {
+    window.initFolder = options.initFolder
   }
   if (options && options.batchOp) {
     window.store.runBatchOp(options.batchOp)

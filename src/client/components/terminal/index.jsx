@@ -1025,8 +1025,9 @@ class Term extends Component {
       const cmd = `ssh ${title.split(/\s/g)[0]}\r`
       return this.attachAddon._sendData(cmd)
     }
-    if (startDirectory) {
-      const cmd = `cd ${startDirectory}\r`
+    const startFolder = startDirectory || window.initFolder
+    if (startFolder) {
+      const cmd = `cd ${startFolder}\r`
       this.attachAddon._sendData(cmd)
     }
     if (runScripts && runScripts.length) {
