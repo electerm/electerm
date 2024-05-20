@@ -1027,7 +1027,7 @@ class Term extends Component {
     }
     const startFolder = startDirectory || window.initFolder
     if (startFolder) {
-      const cmd = `cd ${startFolder}\r`
+      const cmd = `cd "${startFolder}"\r`
       this.attachAddon._sendData(cmd)
     }
     if (runScripts && runScripts.length) {

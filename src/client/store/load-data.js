@@ -80,7 +80,6 @@ export async function addTabFromCommandLine (store, opts) {
     conf.privateKey = await fs.readFile(options.privateKeyPath)
   }
   log.debug('command line opts', conf)
-  console.log(options.initFolder, !(store.config.onStartSessions || []).length, store.config.initDefaultTabOnStart)
   if (conf.username && conf.host) {
     store.addTab(conf)
   } else if (
