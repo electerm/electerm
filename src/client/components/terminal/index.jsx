@@ -1049,8 +1049,6 @@ class Term extends Component {
     }
   }
 
-  count = 0
-
   setStatus = status => {
     const id = this.props.tab?.id
     this.props.editTab(id, {

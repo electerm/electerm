@@ -9,7 +9,16 @@ import {
 const { prefix } = window
 const p = prefix('sftp')
 
-export default function createTitle (res) {
+function maskHost (hostOrIp = '') {
+  if (/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(hostOrIp)) {
+    const arr = hostOrIp.split('.')
+    return arr.slice(0, arr.length - 2).join('.') + '.*.*'
+  } else {
+    return hostOrIp.replace(/^.{3}/, '***')
+  }
+}
+
+export default function createTitle (res, hide = true) {
   if (!res) {
     return ''
   }
@@ -17,7 +26,8 @@ export default function createTitle (res) {
     host, port, username, title, type,
     path, connectionHoppings, sshTunnels
   } = res
-  const fixTitle = `${username || ''}@${host}:${port}`
+  const h = hide ? maskHost(host) : host
+  const fixTitle = `${username || ''}@${h}:${port}`
   const extra = host || path ? (path || fixTitle) : ''
   let f = title
     ? `${title}` + (extra ? ` - ${extra}` : '')
