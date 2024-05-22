@@ -29,7 +29,7 @@ const { prefix } = window
 const e = prefix('form')
 const c = prefix('common')
 
-export default function RdpFormUi (props) {
+export default function VncFormUi (props) {
   const [
     form,
     handleFinish,
@@ -166,7 +166,7 @@ export default function RdpFormUi (props) {
       form={form}
       onFinish={handleFinish}
       initialValues={initialValues}
-      name='rdp-form'
+      name='vnc-form'
     >
       {renderCommon()}
       {submitUi}

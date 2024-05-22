@@ -90,7 +90,18 @@ app.ws('/rdp/:pid', function (ws, req) {
   term.ws = ws
   term.start(width, height)
   const { pid } = term
-  log.debug('ws: connected to terminal ->', pid)
+  log.debug('ws: connected to rdp session ->', pid)
+  ws.on('error', log.error)
+})
+
+app.ws('/rdp/:pid', function (ws, req) {
+  const { sessionId, ...rest } = req.query
+  verifyWs(req)
+  const term = terminals(req.params.pid, sessionId)
+  term.ws = ws
+  term.start(rest)
+  const { pid } = term
+  log.debug('ws: connected to vnc session ->', pid)
   ws.on('error', log.error)
 })
 
