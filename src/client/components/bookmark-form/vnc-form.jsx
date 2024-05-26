@@ -2,12 +2,12 @@
  * bookmark form
  */
 import BookmarkForm from './ssh-form'
-import RdpFormUi from './rdp-form-ui'
+import VncFormUi from './vnc-form-ui'
 
-export default class RdpForm extends BookmarkForm {
+export default class VncForm extends BookmarkForm {
   render () {
     return (
-      <RdpFormUi
+      <VncFormUi
         {...this.props}
         {...this.getProps()}
       />

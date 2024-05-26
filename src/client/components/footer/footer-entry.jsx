@@ -129,6 +129,7 @@ export default class SystemMenu extends Component {
     if (
       type === 'rdp' ||
       type === 'web' ||
+      type === 'vnc' ||
       pane === paneMap.fileManager ||
       !tabs.length
     ) {
