@@ -3,11 +3,10 @@
  */
 const _ = require('lodash')
 const log = require('../common/log')
-const rdp = require('node-rdpjs-2')
 const { TerminalBase } = require('./session-base')
-const { isDev } = require('../common/runtime-constants')
+const net = require('net')
 
-class TerminalRdp extends TerminalBase {
+class TerminalVnc extends TerminalBase {
   init = async () => {
     global.sessions[this.initOptions.sessionId] = {
       id: this.initOptions.sessionId,
@@ -29,25 +28,32 @@ class TerminalRdp extends TerminalBase {
     }
     const {
       host,
-      port,
-      ...rest
+      port
     } = this.initOptions
-    const channel = rdp.createClient({
-      ...rest,
-      logLevel: isDev ? 'DEBUG' : 'ERROR',
-      screen: {
-        width,
-        height
-      }
+    const target = net.createConnection(port, host, this.onConnect)
+    this.channel = target
+    target.on('data', this.onData)
+    target.on('end', function () {
+      log.log('target disconnected')
     })
-      .on('error', this.onError)
-      .on('connect', this.onConnect)
-      .on('bitmap', this.onBitmap)
-      .on('end', this.kill)
-      .connect(host, port)
-    this.channel = channel
+    target.on('error', this.onError)
+
+    this.ws.on('message', this.onMsg)
+    this.ws.on('close', this.kill)
     this.width = width
     this.height = height
+  }
+
+  onMsg = (msg) => {
+    this.channel.write(msg)
+  }
+
+  onData = (data) => {
+    try {
+      this.ws?.send(data)
+    } catch (e) {
+      log.error('Client closed, cleaning up target', e)
+    }
   }
 
   resize () {
@@ -55,100 +61,21 @@ class TerminalRdp extends TerminalBase {
   }
 
   onError = (err) => {
-    if (err.message.includes('read ECONNRESET')) {
-      this.ws && this.start(
-        this.width,
-        this.height
-      )
-    } else {
-      log.error('rdp error', err)
-    }
+    log.error('vnc error', err)
+    this.kill()
   }
 
   test = async () => {
-    return new Promise((resolve, reject) => {
-      const {
-        host,
-        port,
-        ...rest
-      } = this.initOptions
-      const client = rdp.createClient(rest)
-        .on('error', (err) => {
-          log.error(err)
-          reject(err)
-        })
-        .on('connect', () => {
-          resolve(client)
-        })
-        .connect(host, port)
-    })
-  }
-
-  onConnect = () => {
-    this.isRunning = false
-    if (this.ws) {
-      if (!this.isWsEventRegistered) {
-        this.ws.on('message', this.onAction)
-        this.ws.on('close', this.kill)
-        this.isWsEventRegistered = true
-      }
-      this.ws.send(
-        JSON.stringify(
-          {
-            action: 'session-rdp-connected',
-            ..._.pick(this.initOptions, [
-              'sessionId',
-              'tabId'
-            ])
-          }
-        )
-      )
-    }
-  }
-
-  onBitmap = (bitmap) => {
-    this.ws && this.ws.send(JSON.stringify(
-      bitmap
-    ))
-  }
-
-  // action: 'sendPointerEvent', params: x, y, button, isPressed
-  // action: 'sendWheelEvent', params: x, y, step, isNegative, isHorizontal
-  // action: 'sendKeyEventScancode', params: code, isPressed
-  // action: 'sendKeyEventUnicode', params: code, isPressed
-  onAction = (_data) => {
-    if (!this.channel || this.isRunning) {
-      return
-    }
-    const data = JSON.parse(_data)
-    const {
-      action,
-      params
-    } = data
-    if (action === 'reload') {
-      this.start(
-        ...params
-      )
-    } else if (
-      [
-        'sendPointerEvent',
-        'sendWheelEvent',
-        'sendKeyEventScancode',
-        'sendKeyEventUnicode'
-      ].includes(action)
-    ) {
-      this.channel[action](...params)
-    } else {
-      log.error('invalid action', action)
-    }
+    return Promise.resolve(true)
   }
 
   kill = () => {
-    log.debug('Closed rdp session ' + this.pid)
+    log.debug('Closed vnc session ' + this.pid)
     if (this.ws) {
+      this.ws.close()
       delete this.ws
     }
-    this.channel && this.channel.close()
+    this.channel && this.channel.end()
     if (this.sessionLogger) {
       this.sessionLogger.destroy()
     }
@@ -169,8 +96,8 @@ class TerminalRdp extends TerminalBase {
   }
 }
 
-exports.terminalRdp = async function (initOptions, ws) {
-  const term = new TerminalRdp(initOptions, ws)
+exports.terminalVnc = async function (initOptions, ws) {
+  const term = new TerminalVnc(initOptions, ws)
   await term.init()
   return term
 }
@@ -179,11 +106,10 @@ exports.terminalRdp = async function (initOptions, ws) {
  * test ssh connection
  * @param {object} options
  */
-exports.testConnectionRdp = (options) => {
-  return (new TerminalRdp(options, undefined, true))
+exports.testConnectionVnc = (options) => {
+  return (new TerminalVnc(options, undefined, true))
     .test()
-    .then((res) => {
-      res.close()
+    .then(() => {
       return true
     })
     .catch(() => {

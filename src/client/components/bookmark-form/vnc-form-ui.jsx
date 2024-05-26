@@ -7,17 +7,16 @@ import {
   Input,
   Form,
   InputNumber,
-  TreeSelect
+  TreeSelect,
+  Switch
 } from 'antd'
 import { formItemLayout } from '../../common/form-layout'
 import {
   newBookmarkIdPrefix,
-  terminalRdpType,
-  rdpHelpLink
+  terminalVncType
 } from '../../common/constants'
 import useSubmit from './use-submit'
 import copy from 'json-deep-copy'
-import Link from '../common/external-link.jsx'
 import { defaults } from 'lodash-es'
 import { ColorPickerItem } from './color-picker-item.jsx'
 import { getRandomDefaultColor } from '../../common/rand-hex-color.js'
@@ -54,10 +53,12 @@ export default function VncFormUi (props) {
     ? findBookmarkGroupId(bookmarkGroups, id)
     : currentBookmarkGroupId
   const defaultValues = {
-    type: terminalRdpType,
+    type: terminalVncType,
     port: 3389,
     category: initBookmarkGroupId,
-    color: getRandomDefaultColor()
+    color: getRandomDefaultColor(),
+    viewOnly: false,
+    scaleViewport: true
   }
   initialValues = defaults(initialValues, defaultValues)
   function renderCommon () {
@@ -67,9 +68,6 @@ export default function VncFormUi (props) {
     const tree = formatBookmarkGroups(bookmarkGroups)
     return (
       <div className='pd1x'>
-        <p className='alignright'>
-          <Link to={rdpHelpLink}>Wiki: {rdpHelpLink}</Link>
-        </p>
         <FormItem
           {...formItemLayout}
           label={e('title')}
@@ -106,10 +104,25 @@ export default function VncFormUi (props) {
         </FormItem>
         <FormItem
           {...formItemLayout}
+          label={e('viewOnly')}
+          name='viewOnly'
+          valuePropName='checked'
+        >
+          <Switch />
+        </FormItem>
+        <FormItem
+          {...formItemLayout}
+          label={e('scaleViewport')}
+          name='scaleViewport'
+          valuePropName='checked'
+        >
+          <Switch />
+        </FormItem>
+        <FormItem
+          {...formItemLayout}
           label={e('username')}
           hasFeedback
           name='username'
-          required
         >
           <Input />
         </FormItem>
@@ -118,7 +131,6 @@ export default function VncFormUi (props) {
           label={e('password')}
           hasFeedback
           name='password'
-          required
         >
           <Input.Password />
         </FormItem>
@@ -129,14 +141,6 @@ export default function VncFormUi (props) {
           hasFeedback
         >
           <Input.TextArea rows={1} />
-        </FormItem>
-        <FormItem
-          {...formItemLayout}
-          label={e('domain')}
-          hasFeedback
-          name='domain'
-        >
-          <Input />
         </FormItem>
         <FormItem
           {...formItemLayout}

@@ -94,7 +94,7 @@ app.ws('/rdp/:pid', function (ws, req) {
   ws.on('error', log.error)
 })
 
-app.ws('/rdp/:pid', function (ws, req) {
+app.ws('/vnc/:pid', function (ws, req) {
   const { sessionId, ...rest } = req.query
   verifyWs(req)
   const term = terminals(req.params.pid, sessionId)

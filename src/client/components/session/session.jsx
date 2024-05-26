@@ -5,6 +5,7 @@ import { Component } from 'react'
 import Term from '../terminal'
 import Sftp from '../sftp/sftp-entry'
 import RdpSession from '../rdp/rdp-session'
+import VncSession from '../vnc/vnc-session'
 import {
   BorderVerticleOutlined,
   BorderHorizontalOutlined,
@@ -29,7 +30,8 @@ import {
   footerHeight,
   terminalActions,
   connectionMap,
-  terminalRdpType
+  terminalRdpType,
+  terminalVncType
 } from '../../common/constants'
 import ResizeWrap from '../common/resize-wrap'
 import safeName from '../../common/safe-name'
@@ -325,7 +327,7 @@ export default class SessionWrapper extends Component {
     const {
       pane, type
     } = this.props.tab
-    if (type === terminalRdpType) {
+    if (type === terminalRdpType || type === terminalVncType) {
       const rdpProps = {
         tab: this.props.tab,
         sessionId,
@@ -339,6 +341,7 @@ export default class SessionWrapper extends Component {
           'openedSideBar',
           'delTab',
           'config',
+          'reloadTab',
           'editTab'
         ]),
         ...pick(
@@ -346,6 +349,13 @@ export default class SessionWrapper extends Component {
           [
             'setSessionState'
           ])
+      }
+      if (type === terminalVncType) {
+        return (
+          <VncSession
+            {...rdpProps}
+          />
+        )
       }
       return (
         <RdpSession
@@ -506,7 +516,7 @@ export default class SessionWrapper extends Component {
     const { splitDirection, terminals, sftpPathFollowSsh } = this.state
     const { props } = this
     const { pane, enableSsh, type } = props.tab
-    if (type === terminalRdpType) {
+    if (type === terminalRdpType || type === terminalVncType) {
       return null
     }
     const termType = props.tab?.type

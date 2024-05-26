@@ -70,7 +70,7 @@ export default class RdpSession extends Component {
       openedSideBar
     } = this.props
     return {
-      width: width - (pinned && openedSideBar ? leftSidebarWidth : 0),
+      width: width - (pinned && openedSideBar ? leftSidebarWidth : 0) - 42,
       height: height - tabsHeight
     }
   }
