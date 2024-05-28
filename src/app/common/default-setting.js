@@ -51,5 +51,10 @@ module.exports = exports.default = {
     'activities',
     'network',
     'disks'
+  ],
+  filePropsEnabled: [
+    'name',
+    'size',
+    'modifyTime'
   ]
 }

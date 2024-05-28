@@ -6,7 +6,7 @@
  * - click header to sort
  */
 
-import React from 'react'
+import { Component } from '../common/react-subx'
 import classnames from 'classnames'
 import { isEqual, pick, find, isNull, isArray, isUndefined } from 'lodash-es'
 import generate from '../../common/uid'
@@ -31,7 +31,7 @@ import {
 const { prefix } = window
 const e = prefix('sftp')
 
-export default class FileListTable extends React.Component {
+export default class FileListTable extends Component {
   constructor (props) {
     super(props)
     this.state = this.initFromProps()
@@ -128,7 +128,7 @@ export default class FileListTable extends React.Component {
   }
 
   getPropsDefault = () => {
-    return [
+    return this.props.store.config.filePropsEnabled || [
       'name',
       'size',
       'modifyTime'
@@ -244,6 +244,9 @@ export default class FileListTable extends React.Component {
       : [...names, name]
     const props = all.filter(g => newProps.includes(g))
     const update = this.initFromProps(props)
+    this.props.store.setConfig({
+      filePropsEnabled: props
+    })
     this.setState(update)
   }
 

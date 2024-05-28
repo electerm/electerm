@@ -52,5 +52,10 @@ export default {
     'activities',
     'network',
     'disks'
+  ],
+  filePropsEnabled: [
+    'name',
+    'size',
+    'modifyTime'
   ]
 }
