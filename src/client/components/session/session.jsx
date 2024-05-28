@@ -347,6 +347,7 @@ export default class SessionWrapper extends Component {
         ...pick(
           this,
           [
+            'fullscreenIcon',
             'setSessionState'
           ])
       }

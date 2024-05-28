@@ -358,45 +358,56 @@ export default class RdpSession extends Component {
       onChange: this.handleResChange,
       popupMatchSelectWidth: false
     }
+    return (
+      <div className='pd1 fix session-v-info'>
+        <div className='fleft'>
+          <ReloadOutlined
+            onClick={this.handleReInit}
+            className='mg2r mg1l pointer'
+          />
+          <Select
+            {...sleProps}
+          >
+            {
+              this.getAllRes().map(d => {
+                const v = d.id
+                return (
+                  <Option
+                    key={v}
+                    value={v}
+                  >
+                    {d.width}x{d.height}
+                  </Option>
+                )
+              })
+            }
+          </Select>
+          <EditOutlined
+            onClick={this.handleEditResolutions}
+            className='mg2r mg1l pointer'
+          />
+          {this.renderInfo()}
+          <HelpIcon
+            link={rdpHelpLink}
+          />
+        </div>
+        <div className='fright'>
+          {this.props.fullscreenIcon()}
+        </div>
+      </div>
+    )
+  }
+
+  renderInfo () {
     const {
       host,
       port,
       username
     } = this.props.tab
     return (
-      <div className='pd1 fix'>
-        <ReloadOutlined
-          onClick={this.handleReInit}
-          className='mg2r mg1l pointer'
-        />
-        <Select
-          {...sleProps}
-        >
-          {
-            this.getAllRes().map(d => {
-              const v = d.id
-              return (
-                <Option
-                  key={v}
-                  value={v}
-                >
-                  {d.width}x{d.height}
-                </Option>
-              )
-            })
-          }
-        </Select>
-        <EditOutlined
-          onClick={this.handleEditResolutions}
-          className='mg2r mg1l pointer'
-        />
-        <span className='mg2l mg2r'>
-          {username}@{host}:{port}
-        </span>
-        <HelpIcon
-          link={rdpHelpLink}
-        />
-      </div>
+      <span className='mg2l mg2r'>
+        {username}@{host}:{port}
+      </span>
     )
   }
 
@@ -425,7 +436,7 @@ export default class RdpSession extends Component {
       <Spin spinning={loading}>
         <div
           {...rdpProps}
-          className='rdp-session-wrap pd1'
+          className='rdp-session-wrap session-v-wrap'
         >
           {this.renderControl()}
           <canvas

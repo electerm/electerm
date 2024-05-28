@@ -10,20 +10,14 @@ import {
   notification,
   Spin,
   message,
-  Select,
   Modal
 } from 'antd'
-import {
-  ReloadOutlined,
-  EditOutlined
-} from '@ant-design/icons'
 import * as ls from '../../common/safe-local-storage'
 import { copy } from '../../common/clipboard'
 import resolutions from '../rdp/resolutions'
 import RFB from '@novnc/novnc/core/rfb'
 import VncForm from './vnc-form'
 
-const { Option } = Select
 const { prefix } = window
 const e = prefix('form')
 
@@ -265,52 +259,19 @@ export default class VncSession extends RdpSession {
     this.setState(res)
   }
 
-  renderControl = () => {
+  renderInfo () {
     const {
-      id,
       name
     } = this.state
-    const sleProps = {
-      value: id,
-      onChange: this.handleResChange,
-      popupMatchSelectWidth: false
-    }
     const {
       host,
       port,
       username
     } = this.props.tab
     return (
-      <div className='pd1 fix'>
-        <ReloadOutlined
-          onClick={this.handleReInit}
-          className='mg2r mg1l pointer'
-        />
-        <Select
-          {...sleProps}
-        >
-          {
-            this.getAllRes().map(d => {
-              const v = d.id
-              return (
-                <Option
-                  key={v}
-                  value={v}
-                >
-                  {d.width}x{d.height}
-                </Option>
-              )
-            })
-          }
-        </Select>
-        <EditOutlined
-          onClick={this.handleEditResolutions}
-          className='mg2r mg1l pointer'
-        />
-        <span className='mg2l mg2r'>
-          <b>{name}</b> {username}@{host}:{port}
-        </span>
-      </div>
+      <span className='mg2l mg2r'>
+        <b>{name}</b> {username}@{host}:{port}
+      </span>
     )
   }
 
@@ -360,7 +321,7 @@ export default class VncSession extends RdpSession {
           {this.renderControl()}
           <div
             {...divProps}
-            className='vnc-session-wrap'
+            className='vnc-session-wrap session-v-wrap'
             id={'canvas_' + this.props.tab.id}
           />
           {this.renderConfirm()}
