@@ -57,6 +57,10 @@ function forwardLocalToRemote ({
       log.log(`Local server listening on port ${sshTunnelLocalPort}`)
       resolve(1)
     })
+    localServer.on('error', (err) => {
+      log.error('Error listening for local connections:', err)
+      reject(err)
+    })
     conn.on('close', () => {
       localServer && localServer.close()
     })
