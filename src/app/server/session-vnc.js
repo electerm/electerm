@@ -33,9 +33,7 @@ class TerminalVnc extends TerminalBase {
     const target = net.createConnection(port, host, this.onConnect)
     this.channel = target
     target.on('data', this.onData)
-    target.on('end', function () {
-      log.log('target disconnected')
-    })
+    target.on('end', this.kill)
     target.on('error', this.onError)
 
     this.ws.on('message', this.onMsg)
@@ -52,7 +50,7 @@ class TerminalVnc extends TerminalBase {
     try {
       this.ws?.send(data)
     } catch (e) {
-      log.error('Client closed, cleaning up target', e)
+      log.error('vnc connection send data error', e)
     }
   }
 
