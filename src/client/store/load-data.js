@@ -177,7 +177,7 @@ export default (Store) => {
     await Promise.all(all)
       .then(arr => {
         for (const { name, data } of arr) {
-          ext['_' + name] = data
+          ext['_' + name] = data || '[]'
         }
       })
     ext.lastDataUpdateTime = await getData('lastDataUpdateTime') || 0

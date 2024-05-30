@@ -15,11 +15,13 @@ import TabHistory from './tab-history'
 import TabQuickCommands from './tab-quick-commands'
 import TabSettings from './tab-settings'
 import TabThemes from './tab-themes'
+import TabProfiles from './tab-profiles'
 
 const { prefix } = window
 const m = prefix('common')
 const t = prefix('terminalThemes')
 const q = prefix('quickCommands')
+const f = prefix('profiles')
 
 export default class SettingModalWrap extends Component {
   selectItem = (item) => {
@@ -89,6 +91,11 @@ export default class SettingModalWrap extends Component {
         children: null
       },
       {
+        key: settingMap.profiles,
+        label: f(settingMap.profiles),
+        children: null
+      },
+      {
         key: settingMap.quickCommands,
         label: q(settingMap.quickCommands),
         children: null
@@ -114,6 +121,13 @@ export default class SettingModalWrap extends Component {
           settingTab={settingTab}
         />
         <TabQuickCommands
+          listProps={props0}
+          settingItem={settingItem}
+          formProps={formProps}
+          store={store}
+          settingTab={settingTab}
+        />
+        <TabProfiles
           listProps={props0}
           settingItem={settingItem}
           formProps={formProps}

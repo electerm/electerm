@@ -74,7 +74,8 @@ export const connectionMap = buildConst([
 
 export const authTypeMap = buildConst([
   'password',
-  'privateKey'
+  'privateKey',
+  'profiles'
 ])
 
 export const footerHeight = 36
@@ -102,7 +103,8 @@ export const settingMap = buildConst([
   'terminalThemes',
   'bookmarkGroups',
   'quickCommands',
-  'addressBookmarks'
+  'addressBookmarks',
+  'profiles'
 ])
 
 export const infoTabs = buildConst([

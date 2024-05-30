@@ -211,4 +211,25 @@ export default Store => {
       terminalInfos: arr
     })
   }
+
+  Store.prototype.applyProfile = function (tab) {
+    const {
+      authType,
+      profile
+    } = tab
+    if (authType !== 'profiles') {
+      return tab
+    }
+    const p = window.store.profiles.find(x => x.id === profile)
+    if (!p) {
+      return tab
+    }
+    // delete tab.password
+    // delete tab.privateKey
+    // delete tab.passphrase
+    return {
+      ...tab,
+      ...p
+    }
+  }
 }

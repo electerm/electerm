@@ -13,6 +13,7 @@ const { prefix } = window
 const e = prefix('control')
 const newQuickCommand = 'newQuickCommand'
 const q = prefix('quickCommands')
+const f = prefix('form')
 
 export default (arr, tab) => {
   if (tab === settingMap.history) {
@@ -27,6 +28,11 @@ export default (arr, tab) => {
     return {
       id: '',
       name: q(newQuickCommand)
+    }
+  } else if (tab === settingMap.profiles) {
+    return {
+      id: '',
+      name: f(settingMap.profiles)
     }
   }
 }

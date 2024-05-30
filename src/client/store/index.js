@@ -282,6 +282,7 @@ const getterProps = [
   'history',
   'bookmarks',
   'bookmarkGroups',
+  'profiles',
   'tabs',
   'fileTransfers',
   'transferHistory',
