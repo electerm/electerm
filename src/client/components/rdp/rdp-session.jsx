@@ -349,6 +349,14 @@ export default class RdpSession extends Component {
     this.setState(res, this.handleReInit)
   }
 
+  renderHelp = () => {
+    return (
+      <HelpIcon
+        link={rdpHelpLink}
+      />
+    )
+  }
+
   renderControl = () => {
     const {
       id
@@ -387,9 +395,7 @@ export default class RdpSession extends Component {
             className='mg2r mg1l pointer'
           />
           {this.renderInfo()}
-          <HelpIcon
-            link={rdpHelpLink}
-          />
+          {this.renderHelp()}
         </div>
         <div className='fright'>
           {this.props.fullscreenIcon()}

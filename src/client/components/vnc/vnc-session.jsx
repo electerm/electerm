@@ -7,10 +7,10 @@ import {
   statusMap
 } from '../../common/constants'
 import {
-  notification,
   Spin,
   message,
-  Modal
+  Modal,
+  Tag
 } from 'antd'
 import * as ls from '../../common/safe-local-storage'
 import { copy } from '../../common/clipboard'
@@ -43,17 +43,6 @@ export default class VncSession extends RdpSession {
   componentWillUnmount () {
     this.rfb && this.rfb.disconnect()
     delete this.rfb
-  }
-
-  runInitScript = () => {
-
-  }
-
-  setStatus = status => {
-    const id = this.props.tab?.id
-    this.props.editTab(id, {
-      status
-    })
   }
 
   // computeProps = () => {
@@ -223,40 +212,10 @@ export default class VncSession extends RdpSession {
     return document.getElementById(id)
   }
 
-  closeMsg = () => {
-    notification.destroy(this.warningKey)
-  }
-
-  handleClickClose = () => {
-    this.closeMsg()
-    this.handleReInit()
-  }
-
   handleReInit = () => {
     this.rfb?.disconnect()
     delete this.rfb
     this.remoteInit()
-  }
-
-  handleEditResolutions = () => {
-    window.store.toggleResolutionEdit()
-  }
-
-  oncloseSocket = () => {
-  }
-
-  getAllRes = () => {
-    return [
-      ...this.props.resolutions,
-      ...resolutions
-    ]
-  }
-
-  handleResChange = (v) => {
-    const res = this.getAllRes().find(d => d.id === v)
-    const id = `vnc-reso-${this.props.tab.host}`
-    ls.setItemJSON(id, res)
-    this.setState(res)
   }
 
   renderInfo () {
@@ -272,6 +231,12 @@ export default class VncSession extends RdpSession {
       <span className='mg2l mg2r'>
         <b>{name}</b> {username}@{host}:{port}
       </span>
+    )
+  }
+
+  renderHelp = () => {
+    return (
+      <Tag color='red' className='mg1l'>Beta</Tag>
     )
   }
 
