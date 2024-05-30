@@ -99,7 +99,7 @@ export default class SettingModalWrap extends Component {
         key: settingMap.profiles,
         label: f(settingMap.profiles),
         children: null
-      },
+      }
     ]
     const tabsProps = {
       activeKey: settingTab,
