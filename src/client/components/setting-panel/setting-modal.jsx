@@ -91,15 +91,15 @@ export default class SettingModalWrap extends Component {
         children: null
       },
       {
+        key: settingMap.quickCommands,
+        label: q(settingMap.quickCommands),
+        children: null
+      },
+      {
         key: settingMap.profiles,
         label: f(settingMap.profiles),
         children: null
       },
-      {
-        key: settingMap.quickCommands,
-        label: q(settingMap.quickCommands),
-        children: null
-      }
     ]
     const tabsProps = {
       activeKey: settingTab,
@@ -127,13 +127,6 @@ export default class SettingModalWrap extends Component {
           store={store}
           settingTab={settingTab}
         />
-        <TabProfiles
-          listProps={props0}
-          settingItem={settingItem}
-          formProps={formProps}
-          store={store}
-          settingTab={settingTab}
-        />
         <TabBookmarks
           treeProps={treeProps}
           settingItem={settingItem}
@@ -147,6 +140,13 @@ export default class SettingModalWrap extends Component {
           store={store}
         />
         <TabThemes
+          listProps={props0}
+          settingItem={settingItem}
+          formProps={formProps}
+          store={store}
+          settingTab={settingTab}
+        />
+        <TabProfiles
           listProps={props0}
           settingItem={settingItem}
           formProps={formProps}
