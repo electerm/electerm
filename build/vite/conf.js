@@ -124,7 +124,7 @@ export default defineConfig({
           'zmodem-ts': ['zmodem-ts'],
           'vscode-icons-js': ['vscode-icons-js'],
           'react-utils': ['react', 'react-colorful', 'react-delta', 'memoize-one', 'prop-types'],
-          novnc: '@novnc/novnc'
+          novnc: ['@novnc/novnc']
         },
         inlineDynamicImports: false,
         format: 'esm',
