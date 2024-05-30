@@ -46,7 +46,7 @@ describe('profile', function () {
     const c1 = await client.evaluate(() => {
       return window.store.profiles.length
     })
-    expect(qmlist2 + 1).equal(c1)
+    expect(qmlist1 + 1).equal(c1)
     await electronApp.close().catch(console.log)
   })
 })
