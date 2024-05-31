@@ -54,7 +54,7 @@ export default function VncFormUi (props) {
     : currentBookmarkGroupId
   const defaultValues = {
     type: terminalVncType,
-    port: 3389,
+    port: 5900,
     category: initBookmarkGroupId,
     color: getRandomDefaultColor(),
     viewOnly: false,
