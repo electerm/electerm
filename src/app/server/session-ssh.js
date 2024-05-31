@@ -17,6 +17,7 @@ const sshTunnelFuncs = require('./ssh-tunnel')
 const deepCopy = require('json-deep-copy')
 const { TerminalBase } = require('./session-base')
 const { commonExtends } = require('./session-common')
+const failMsg = 'All configured authentication methods failed'
 
 class TerminalSshBase extends TerminalBase {
   getLocalEnv () {
@@ -207,7 +208,7 @@ class TerminalSshBase extends TerminalBase {
           !this.jumpSshKeys &&
           !this.hoppingOptions.password &&
           !this.hoppingOptions.privateKey &&
-          err.message.includes('All configured authentication methods failed')
+          err.message.includes(failMsg)
         ) {
           const options = {
             name: `password for ${this.hoppingOptions.username}@${this.initHoppingOptions.host}`,
@@ -660,11 +661,11 @@ class TerminalSshBase extends TerminalBase {
           })
       } else if (
         this.sshKeys &&
-        err.message.includes('All configured authentication methods failed')
+        err.message.includes(failMsg)
       ) {
         return this.nextTry(err)
       } else if (
-        err.message.includes('All configured authentication methods failed')
+        err.message.includes(failMsg)
       ) {
         const options = {
           name: `password for ${this.initOptions.username}@${this.initOptions.host}`,
