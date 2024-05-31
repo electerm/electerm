@@ -21,7 +21,7 @@ const { prefix } = window
 const m = prefix('common')
 const t = prefix('terminalThemes')
 const q = prefix('quickCommands')
-const f = prefix('profiles')
+const f = prefix('form')
 
 export default class SettingModalWrap extends Component {
   selectItem = (item) => {
