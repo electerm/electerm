@@ -26,7 +26,7 @@ export default function createTitle (res, hide = true) {
     host, port, username, title, type,
     path, connectionHoppings, sshTunnels
   } = res
-  const h = hide ? maskHost(host) : host
+  const h = hide && window.store.config.hideIP ? maskHost(host) : host
   const fixTitle = `${username || ''}@${h}:${port}`
   const extra = host || path ? (path || fixTitle) : ''
   let f = title

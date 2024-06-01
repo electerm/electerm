@@ -644,6 +644,7 @@ export default class SettingCommon extends Component {
             'checkUpdateOnStart',
             'useSystemTitleBar',
             'confirmBeforeExit',
+            'hideIP',
             'debug'
           ].map(this.renderToggle)
         }

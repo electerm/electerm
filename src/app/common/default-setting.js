@@ -56,5 +56,6 @@ module.exports = exports.default = {
     'name',
     'size',
     'modifyTime'
-  ]
+  ],
+  hideIP: false
 }
