@@ -57,5 +57,6 @@ export default {
     'name',
     'size',
     'modifyTime'
-  ]
+  ],
+  hideIP: false
 }
