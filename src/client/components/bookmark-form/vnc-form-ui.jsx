@@ -22,6 +22,7 @@ import { ColorPickerItem } from './color-picker-item.jsx'
 import { getRandomDefaultColor } from '../../common/rand-hex-color.js'
 import formatBookmarkGroups from './bookmark-group-tree-format'
 import findBookmarkGroupId from '../../common/find-bookmark-group-id'
+import renderProxy from './proxy'
 
 const FormItem = Form.Item
 const { prefix } = window
@@ -153,6 +154,9 @@ export default function VncFormUi (props) {
             showSearch
           />
         </FormItem>
+        {
+          renderProxy(props)
+        }
         <FormItem
           {...formItemLayout}
           label='type'

@@ -5,6 +5,7 @@ const _ = require('lodash')
 const log = require('../common/log')
 const { TerminalBase } = require('./session-base')
 const net = require('net')
+const proxySock = require('./socks')
 
 class TerminalVnc extends TerminalBase {
   init = async () => {
@@ -28,9 +29,24 @@ class TerminalVnc extends TerminalBase {
     }
     const {
       host,
-      port
+      port,
+      proxy,
+      readyTimeout
     } = this.initOptions
-    const target = net.createConnection(port, host, this.onConnect)
+    console.log('proxy', proxy)
+    const info = proxy
+      ? await proxySock({
+        readyTimeout,
+        host,
+        port,
+        proxy
+      })
+      : undefined
+    const target = net.createConnection({
+      port,
+      host,
+      ...info
+    }, this.onConnect)
     this.channel = target
     target.on('data', this.onData)
     target.on('end', this.kill)
