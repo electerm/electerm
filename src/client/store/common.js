@@ -4,7 +4,7 @@
 
 import handleError from '../common/error-handler'
 import { Modal } from 'antd'
-import { debounce } from 'lodash-es'
+import { debounce, some } from 'lodash-es'
 import postMessage from '../common/post-msg'
 import {
   commonActions,
@@ -233,5 +233,17 @@ export default Store => {
       ...tab,
       ...p
     }
+  }
+  Store.prototype.applyProfileToTabs = function (tab) {
+    if (
+      tab.connectionHoppings &&
+      tab.connectionHoppings.length &&
+      some(tab.connectionHoppings, s => s.profile)
+    ) {
+      tab.connectionHoppings = tab.connectionHoppings.map(s => {
+        return window.store.applyProfile(s)
+      })
+    }
+    return window.store.applyProfile(tab)
   }
 }

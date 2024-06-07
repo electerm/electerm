@@ -225,7 +225,7 @@ export default class BookmarkForm extends PureComponent {
   }
 
   test = async (update) => {
-    const options = {
+    let options = {
       ...this.props.formData,
       ...update
     }
@@ -233,6 +233,7 @@ export default class BookmarkForm extends PureComponent {
     this.setState({
       testing: true
     })
+    options = window.store.applyProfileToTabs(options)
     const res = await testCon(options)
       .then(r => r)
       .catch((e) => {
