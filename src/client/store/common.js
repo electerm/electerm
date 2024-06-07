@@ -227,6 +227,8 @@ export default Store => {
     // delete tab.password
     // delete tab.privateKey
     // delete tab.passphrase
+    delete p.name
+    delete p.id
     return {
       ...tab,
       ...p

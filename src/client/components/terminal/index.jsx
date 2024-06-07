@@ -1,7 +1,7 @@
 import { Component } from 'react'
 import { handleErr } from '../../common/fetch'
 import generate from '../../common/uid'
-import { isEqual, pick, debounce, throttle } from 'lodash-es'
+import { isEqual, pick, debounce, throttle, some } from 'lodash-es'
 import postMessage from '../../common/post-msg'
 import clone from '../../common/to-simple-obj'
 import runIdle from '../../common/run-idle'
@@ -1093,6 +1093,15 @@ class Term extends Component {
     } = config
     const { sessionId, terminalIndex, id, logName } = this.props
     const tab = window.store.applyProfile(deepCopy(this.props.tab || {}))
+    if (
+      tab.connectionHoppings &&
+      tab.connectionHoppings.length &&
+      some(tab.connectionHoppings, s => s.profile)
+    ) {
+      tab.connectionHoppings = tab.connectionHoppings.map(s => {
+        return window.store.applyProfile(s)
+      })
+    }
     const {
       srcId, from = 'bookmarks',
       type,

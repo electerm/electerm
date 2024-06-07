@@ -8,7 +8,8 @@ import {
   Form,
   InputNumber,
   TreeSelect,
-  Switch
+  Switch,
+  Tabs
 } from 'antd'
 import { formItemLayout } from '../../common/form-layout'
 import {
@@ -23,6 +24,7 @@ import { getRandomDefaultColor } from '../../common/rand-hex-color.js'
 import formatBookmarkGroups from './bookmark-group-tree-format'
 import findBookmarkGroupId from '../../common/find-bookmark-group-id'
 import renderProxy from './proxy'
+import ConnectionHopping from './render-connection-hopping.jsx'
 
 const FormItem = Form.Item
 const { prefix } = window
@@ -59,9 +61,42 @@ export default function VncFormUi (props) {
     category: initBookmarkGroupId,
     color: getRandomDefaultColor(),
     viewOnly: false,
-    scaleViewport: true
+    scaleViewport: true,
+    connectionHoppings: []
   }
   initialValues = defaults(initialValues, defaultValues)
+
+  function renderTabs (props) {
+    const items = [
+      {
+        key: 'auth',
+        label: e('auth'),
+        forceRender: true,
+        children: renderCommon()
+      },
+      {
+        key: 'connectionHopping',
+        label: e('connectionHopping'),
+        forceRender: true,
+        children: renderHopping()
+      }
+    ]
+    return (
+      <Tabs
+        items={items}
+      />
+    )
+  }
+
+  function renderHopping () {
+    return (
+      <ConnectionHopping
+        {...props}
+        form={form}
+      />
+    )
+  }
+
   function renderCommon () {
     const {
       bookmarkGroups = []
@@ -176,7 +211,7 @@ export default function VncFormUi (props) {
       initialValues={initialValues}
       name='vnc-form'
     >
-      {renderCommon()}
+      {renderTabs()}
       {submitUi}
     </Form>
   )
