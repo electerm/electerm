@@ -107,7 +107,7 @@ class TerminalSshBase extends TerminalBase {
 
   onKeyboardEvent (options) {
     const id = generate()
-    this.ws.s({
+    this.ws?.s({
       id,
       action: 'session-interactive',
       ..._.pick(this.initOptions, [
@@ -117,7 +117,7 @@ class TerminalSshBase extends TerminalBase {
       options
     })
     return new Promise((resolve, reject) => {
-      this.ws.once((arg) => {
+      this.ws?.once((arg) => {
         const { results } = arg
         if (_.isEmpty(results)) {
           return reject(new Error('User cancel'))
@@ -358,13 +358,24 @@ class TerminalSshBase extends TerminalBase {
         sshTunnelResults.push(result)
       }
     }
-    this.ws.s({
+    this.ws?.s({
       update: {
         sshTunnelResults
       },
       action: 'ssh-tunnel-result',
       tabId: this.initOptions.srcTabId
     })
+    if (!this.ws) {
+      this.sshTunnelResults = sshTunnelResults
+    } else {
+      this.ws.s({
+        update: {
+          sshTunnelResults
+        },
+        action: 'ssh-tunnel-result',
+        tabId: this.initOptions.srcTabId
+      })
+    }
     return new Promise((resolve, reject) => {
       this.conn.shell(
         shellWindow,

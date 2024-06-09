@@ -1092,7 +1092,7 @@ class Term extends Component {
       server = ''
     } = config
     const { sessionId, terminalIndex, id, logName } = this.props
-    const tab = window.store.applyProfile(deepCopy(this.props.tab || {}))
+    const tab = window.store.applyProfileToTabs(deepCopy(this.props.tab || {}))
     const {
       srcId, from = 'bookmarks',
       type,

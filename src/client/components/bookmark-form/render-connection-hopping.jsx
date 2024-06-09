@@ -37,11 +37,11 @@ export default function renderConnectionHopping (props) {
     authType: authTypeMap.password
   })
   const [list, setList] = useState(formData.connectionHoppings || [])
-  function onChangeAuthType (authType) {
+  function onChangeAuthType (e) {
     editState(old => {
       return {
         ...old,
-        authType
+        authType: e.target.value
       }
     })
   }
@@ -68,7 +68,7 @@ export default function renderConnectionHopping (props) {
     })
     formChild.resetFields()
   }
-  const authTypes = Object.keys(authTypeMap).map(k => {
+  const authTypes = props.authTypes || Object.keys(authTypeMap).map(k => {
     return k
   })
 
@@ -95,7 +95,8 @@ export default function renderConnectionHopping (props) {
         const pass = item.password ? ':*****' : ''
         const ph = item.passphase ? '(passphase:*****)' : ''
         const pk = item.privateKey ? '(privateKey:*****)' : ''
-        return <span>{item.username}{pass}@{item.host}:{item.port}{pk}{ph}</span>
+        const useProfile = item.profile ? '[profile] ' : ''
+        return <span>{useProfile}{item.username}{pass}@{item.host}:{item.port}{pk}{ph}</span>
       }
     }, {
       title: m('del'),
@@ -161,6 +162,22 @@ export default function renderConnectionHopping (props) {
         </FormItem>
         <FormItem
           {...formItemLayout}
+          label={f('port')}
+          hasFeedback
+          name='port'
+          rules={[{
+            required: true, message: 'port required'
+          }]}
+        >
+          <InputNumber
+            placeholder={f('port')}
+            min={1}
+            max={65535}
+            step={1}
+          />
+        </FormItem>
+        <FormItem
+          {...formItemLayout}
           label={f('username')}
           hasFeedback
           name='username'
@@ -191,22 +208,6 @@ export default function renderConnectionHopping (props) {
               })
             }
           </RadioGroup>
-        </FormItem>
-        <FormItem
-          {...formItemLayout}
-          label={f('port')}
-          hasFeedback
-          name='port'
-          rules={[{
-            required: true, message: 'port required'
-          }]}
-        >
-          <InputNumber
-            placeholder={f('port')}
-            min={1}
-            max={65535}
-            step={1}
-          />
         </FormItem>
         <RenderAuth
           form={formChild}

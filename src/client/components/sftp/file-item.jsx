@@ -10,7 +10,7 @@ import {
 } from '@ant-design/icons'
 import classnames from 'classnames'
 import copy from 'json-deep-copy'
-import { pick, some } from 'lodash-es'
+import { pick, some, without } from 'lodash-es'
 import Input from '../common/input-auto-focus'
 import resolve from '../../common/resolve'
 import { addClass, removeClass } from '../../common/class'
@@ -382,7 +382,7 @@ export default class FileSection extends React.Component {
     const { type } = this.props
     window.store.openFileInfoModal({
       file: this.state.file,
-      tab: this.props.tab,
+      tab: without(this.props.tab, 'terminals'),
       visible: true,
       pid: this.props.pid,
       sessionId: this.props.sessionId,
@@ -531,7 +531,7 @@ export default class FileSection extends React.Component {
       'message', this.changeFileMode
     )
     window.store.openFileModeModal({
-      tab: this.props.tab,
+      tab: without(this.props.tab, 'terminals'),
       visible: true,
       uidTree: this.props[`${type}UidTree`],
       gidTree: this.props[`${type}GidTree`]

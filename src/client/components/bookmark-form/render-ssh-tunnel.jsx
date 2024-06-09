@@ -88,13 +88,14 @@ export default function renderSshTunnels (props) {
         const {
           sshTunnel,
           sshTunnelRemoteHost = '127.0.0.1',
-          sshTunnelRemotePort,
+          sshTunnelRemotePort = '',
           sshTunnelLocalHost = '127.0.0.1',
-          sshTunnelLocalPort,
+          sshTunnelLocalPort = '',
           name
         } = item
         if (sshTunnel === 'dynamicForward') {
-          return `socks5://${sshTunnelLocalHost}:${sshTunnelLocalPort}`
+          const n = name ? `[${name}] ` : ''
+          return `${n}socks5://${sshTunnelLocalHost}:${sshTunnelLocalPort}`
         }
         const to = sshTunnel === 'forwardRemoteToLocal'
           ? `${s('local')}:${sshTunnelLocalHost}:${sshTunnelLocalPort}`
