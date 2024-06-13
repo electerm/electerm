@@ -7,12 +7,7 @@ import {
   BookOutlined,
   CheckOutlined,
   CloseOutlined,
-  CopyOutlined,
-  EditOutlined,
-  FolderAddOutlined,
   FolderOutlined,
-  FolderOpenOutlined,
-  SettingOutlined,
   LoadingOutlined
 } from '@ant-design/icons'
 import {
@@ -21,16 +16,12 @@ import {
   hasBookmarkOrGroupInClipboardText
 } from '../../common/clipboard'
 import {
-  Popconfirm,
-  Tree,
   Button,
-  Tooltip,
   Space
 } from 'antd'
-import createName, { createTitleTag } from '../../common/create-title'
-import classnames from 'classnames'
+import createName from '../../common/create-title'
 import InputAutoFocus from '../common/input-auto-focus'
-import { find, uniq, findIndex, isEqual, filter } from 'lodash-es'
+import { find, uniq, findIndex, isEqual, filter, pick } from 'lodash-es'
 import {
   maxBookmarkGroupTitleLength,
   defaultBookmarkGroupId,
@@ -39,9 +30,8 @@ import {
   copyBookmarkItemPrefix,
   copyBookmarkGroupItemPrefix
 } from '../../common/constants'
-import highlight from '../common/highlight'
+import findParentBySel from '../../common/find-parent'
 import copy from 'json-deep-copy'
-import onDrop from './on-tree-drop'
 import Search from '../common/search'
 import Btns from './bookmark-transport'
 import findBookmarkGroupId from '../../common/find-bookmark-group-id'
@@ -50,8 +40,8 @@ import uid from '../../common/uid'
 import deepEqual from 'fast-deep-equal'
 import './tree-list.styl'
 import TreeExpander from './tree-expander'
+import TreeListItem from './tree-list-item'
 
-const { TreeNode } = Tree
 const { prefix } = window
 const e = prefix('menu')
 const c = prefix('common')
@@ -68,8 +58,6 @@ export default class ItemListTree extends Component {
       bookmarkGroupTitle: '',
       categoryTitle: '',
       categoryId: '',
-      bookmarkGroupTitleSub: '',
-      bookmarkGroupSubParentId: '',
       expandedKeys: window.store.expandedKeys
     }
   }
@@ -96,6 +84,22 @@ export default class ItemListTree extends Component {
   componentWillUnmount () {
     clearTimeout(this.timer)
     window.removeEventListener('message', this.onContextAction)
+  }
+
+  filter = list => {
+    const { keyword } = this.state
+    return keyword
+      ? list.filter(item => {
+        return createName(item).toLowerCase().includes(keyword.toLowerCase())
+      })
+      : list
+  }
+
+  getBookmarkTree = () => {
+    return this.filter(this.props.bookmarks).reduce((tree, bookmark) => {
+      tree[bookmark.id] = bookmark
+      return tree
+    }, {})
   }
 
   onExpandKey = group => {
@@ -184,10 +188,6 @@ export default class ItemListTree extends Component {
     }])
   }
 
-  onDrop = (info) => {
-    onDrop(info, this.props)
-  }
-
   onClick = () => {
 
   }
@@ -206,16 +206,6 @@ export default class ItemListTree extends Component {
     })
   }
 
-  handleChangeBookmarkGroupTitleSub = e => {
-    let { value } = e.target
-    if (value.length > maxBookmarkGroupTitleLength) {
-      value = value.slice(0, maxBookmarkGroupTitleLength)
-    }
-    this.setState({
-      bookmarkGroupTitleSub: value
-    })
-  }
-
   handleNewBookmark = () => {
     this.props.onClickItem(getInitItem([], settingMap.bookmarks))
   }
@@ -223,6 +213,9 @@ export default class ItemListTree extends Component {
   handleSubmit = () => {
     if (this.onSubmit) {
       return
+    }
+    if (this.state.parentId) {
+      return this.handleSubmitSub()
     }
     this.onSubmit = true
     this.setState({
@@ -242,9 +235,10 @@ export default class ItemListTree extends Component {
       return
     }
     this.onSubmit = true
-    const id = this.state.bookmarkGroupSubParentId
+    const id = this.state.parentId
     this.setState({
-      bookmarkGroupSubParentId: ''
+      showNewBookmarkGroupForm: false,
+      parentId: ''
     }, () => {
       this.onSubmit = false
       let bookmarkGroups = copy(
@@ -252,7 +246,7 @@ export default class ItemListTree extends Component {
       )
       const newCat = {
         id: uid(),
-        title: this.state.bookmarkGroupTitleSub,
+        title: this.state.bookmarkGroupTitle,
         level: 2,
         bookmarkIds: []
       }
@@ -293,7 +287,7 @@ export default class ItemListTree extends Component {
     this.setState({
       showNewBookmarkGroupForm: true,
       bookmarkGroupTitle: '',
-      bookmarkGroupSubParentId: ''
+      parentId: ''
     })
   }
 
@@ -309,7 +303,7 @@ export default class ItemListTree extends Component {
   closeNewGroupForm = () => {
     this.setState({
       showNewBookmarkGroupForm: false,
-      bookmarkGroupSubParentId: ''
+      parentId: ''
     })
   }
 
@@ -324,13 +318,11 @@ export default class ItemListTree extends Component {
   }
 
   onSelect = (
-    selectedKeys,
-    {
-      node
-    }
+    e
   ) => {
-    const [id] = selectedKeys
-    if (!node.isLeaf) {
+    const id = e.target.getAttribute('data-item-id')
+    const isGroup = e.target.getAttribute('data-is-group') === 'true'
+    if (isGroup) {
       this.props.store.storeAssign({
         currentBookmarkGroupId: id
       })
@@ -338,14 +330,14 @@ export default class ItemListTree extends Component {
       this.props.store.storeAssign({
         currentBookmarkGroupId: findBookmarkGroupId(this.props.store.bookmarkGroups, id)
       })
-    }
-    const bookmarks = copy(this.props.bookmarks)
-    const bookmark = find(
-      bookmarks,
-      d => d.id === id
-    )
-    if (bookmark) {
-      this.props.onClickItem(bookmark)
+      const { bookmarks } = this.props
+      const bookmark = find(
+        bookmarks,
+        d => d.id === id
+      )
+      if (bookmark) {
+        this.props.onClickItem(bookmark)
+      }
     }
   }
 
@@ -357,35 +349,6 @@ export default class ItemListTree extends Component {
           value={this.state.keyword}
         />
       </div>
-    )
-  }
-
-  renderDelBtn = item => {
-    if (item.id === defaultBookmarkGroupId || this.props.staticList) {
-      return null
-    }
-    return (
-      <Popconfirm
-        title={e('del') + '?'}
-        onConfirm={e => this.del(item, e)}
-        okText={e('del')}
-        cancelText={c('cancel')}
-        placement='top'
-      >
-        <CloseOutlined title={e('del')} className='pointer tree-control-btn' />
-      </Popconfirm>
-    )
-  }
-
-  renderOperationBtn = (item, isGroup) => {
-    if (this.props.staticList) {
-      return null
-    }
-    return (
-      <SettingOutlined
-        className='pointer tree-control-btn'
-        onClick={e => this.onContextMenu(e, item, isGroup)}
-      />
     )
   }
 
@@ -520,7 +483,7 @@ export default class ItemListTree extends Component {
     if (isGroup) {
       this.setState({
         categoryTitle: '' + item.title,
-        categoryId: item.id + '',
+        categoryId: item.id,
         bookmarkGroupSubParentId: ''
       })
     } else {
@@ -531,9 +494,9 @@ export default class ItemListTree extends Component {
   addSubCat = (e, item) => {
     this.setState(old => {
       return {
-        showNewBookmarkGroupForm: false,
-        bookmarkGroupTitleSub: '',
-        bookmarkGroupSubParentId: item.id,
+        showNewBookmarkGroupForm: true,
+        parentId: item.id,
+        bookmarkGroupTitle: '',
         expandedKeys: uniq([
           ...old.expandedKeys,
           item.id
@@ -542,53 +505,212 @@ export default class ItemListTree extends Component {
     })
   }
 
-  renderAddNewSubGroupBtn = item => {
-    if (this.props.staticList || item.level === 2) {
-      return null
-    }
-    return (
-      <FolderAddOutlined
-        key='new-tree'
-        title={`${s('new')} ${c('bookmarkCategory')}`}
-        onClick={(e) => this.addSubCat(e, item)}
-        className='pointer tree-control-btn'
-      />
-    )
+  openAll = (item) => {
+    this.props.store.openAllBookmarkInCategory(this.props.item)
   }
 
-  renderEditBtn = (item, isGroup) => {
-    if (
-      (this.props.staticList && isGroup) ||
-      (!this.props.staticList && !isGroup)
-    ) {
-      return null
+  onDragStart = e => {
+    let {
+      target
+    } = e
+    const tar = findParentBySel(target, '.tree-item')
+    if (tar) {
+      target = tar
     }
-    return (
-      <EditOutlined
-        title={e('edit')}
-        key='edit-tree'
-        onClick={(e) => this.editItem(e, item, isGroup)}
-        className='pointer edit-icon tree-control-btn'
-      />
-    )
+    const id = target.getAttribute('data-item-id')
+    const pid = target.getAttribute('data-parent-id')
+    const isGroup = target.getAttribute('data-is-group')
+    e.dataTransfer
+      .setData(
+        'idDragged', `${id}@${pid}@${isGroup}`
+      )
   }
 
-  renderOpenAll = (item, isGroup) => {
-    if (
-      (this.props.staticList && isGroup) ||
-      (!this.props.staticList && !isGroup)
-    ) {
-      return null
+  onDragLeave = e => {
+    e.preventDefault()
+    let {
+      target
+    } = e
+    const tar = findParentBySel(target, '.tree-item')
+    if (tar) {
+      target = tar
     }
-    return (
-      <Tooltip title={s('openAll')}>
-        <FolderOpenOutlined
-          key='open-all-tree'
-          onClick={(e) => this.props.store.openAllBookmarkInCategory(item)}
-          className='pointer open-all-icon tree-control-btn'
-        />
-      </Tooltip>
-    )
+    target.classList.remove('item-dragover')
+  }
+
+  onDragOver = e => {
+    let {
+      target
+    } = e
+    const tar = findParentBySel(target, '.tree-item')
+    if (tar) {
+      target = tar
+    }
+    target.classList.add('item-dragover')
+  }
+
+  onDrop = e => {
+    e.preventDefault()
+    let {
+      target
+    } = e
+    const tar = findParentBySel(target, '.tree-item')
+    if (tar) {
+      target = tar
+    }
+    const dataDragged = e.dataTransfer.getData('idDragged')
+    const [idDragged, pidDrags, isGroupDragged] = dataDragged.split('@')
+    const isGroupDrag = isGroupDragged === 'true'
+    const pidDragsArr = pidDrags.split('#')
+    const pidDragged = pidDragsArr[pidDragsArr.length - 1]
+    const idDrop = target.getAttribute('data-item-id')
+    const isGroupDrop = target.getAttribute('data-is-group') === 'true'
+    const pidDrops = target.getAttribute('data-parent-id') || ''
+    const pidDropsArr = pidDrops.split('#')
+    const pidDrop = pidDropsArr[pidDropsArr.length - 1]
+
+    // can not drag item to its own children
+    if (
+      (pidDragged === 'default' &&
+      pidDrop !== '') ||
+      (
+        pidDrops &&
+        pidDrags !== pidDrops &&
+        pidDrops.includes(pidDrags)
+      )
+    ) {
+      return
+    }
+
+    const {
+      bookmarkGroups
+    } = window.store
+
+    if (!pidDragged && !pidDrop) {
+      const indexDrag = findIndex(bookmarkGroups, item => item.id === idDragged)
+      if (indexDrag < 0) {
+        return
+      }
+      const dragItem = bookmarkGroups.splice(indexDrag, 1)[0]
+      dragItem.level = 1
+      const indexDrop = findIndex(bookmarkGroups, item => item.id === idDrop)
+      if (indexDrop < 0) {
+        return
+      }
+      bookmarkGroups.splice(
+        indexDrop,
+        0,
+        dragItem
+      )
+      return window.store.setState('bookmarkGroups', bookmarkGroups)
+    }
+    const updates = []
+    if (isGroupDrag) {
+      const parentDrag = pidDragged
+        ? bookmarkGroups.find(
+          item => item.id === pidDragged
+        )
+        : false
+      if (parentDrag) {
+        parentDrag.bookmarkGroupIds = (parentDrag.bookmarkGroupIds || []).filter(
+          id => id !== idDragged
+        )
+        updates.push({
+          upsert: false,
+          id: parentDrag.id,
+          update: {
+            bookmarkGroupIds: parentDrag.bookmarkGroupIds
+          },
+          db: 'bookmarkGroups'
+        })
+      }
+      const parentDrop = pidDrop
+        ? bookmarkGroups.find(
+          item => item.id === pidDrop
+        )
+        : bookmarkGroups.find(
+          item => item.id === idDrop
+        )
+      if (!parentDrop) {
+        return
+      }
+      if (!pidDrop) {
+        parentDrop.bookmarkGroupIds = uniq(
+          [
+            ...(parentDrop.bookmarkGroupIds || []),
+            idDragged
+          ]
+        )
+      } else {
+        const arr = parentDrop.bookmarkGroupIds || []
+        let index = findIndex(arr, item => item === idDrop)
+        if (index < 0) {
+          index = 0
+        }
+        arr.splice(index, 0, idDragged)
+      }
+      updates.push({
+        upsert: false,
+        id: parentDrop.id,
+        update: {
+          bookmarkGroupIds: parentDrop.bookmarkGroupIds
+        },
+        db: 'bookmarkGroups'
+      })
+    } else {
+      const parentDrag = bookmarkGroups.find(
+        item => item.id === pidDragged
+      )
+      if (!parentDrag) {
+        return
+      }
+      parentDrag.bookmarkIds = (parentDrag.bookmarkIds || []).filter(
+        id => id !== idDragged
+      )
+      updates.push({
+        upsert: false,
+        id: parentDrag.id,
+        update: {
+          bookmarkIds: parentDrag.bookmarkIds
+        },
+        db: 'bookmarks'
+      })
+      const parentDrop = isGroupDrop
+        ? bookmarkGroups.find(
+          item => item.id === idDrop
+        )
+        : bookmarkGroups.find(
+          item => item.id === pidDrop
+        )
+      if (!parentDrop) {
+        return
+      }
+      if (isGroupDrop) {
+        parentDrop.bookmarkIds = uniq(
+          [
+            ...(parentDrop.bookmarkIds || []),
+            idDragged
+          ]
+        )
+      } else {
+        const arr = parentDrop.bookmarkIds || []
+        let index = findIndex(arr, item => item === idDrop)
+        if (index < 0) {
+          index = 0
+        }
+        arr.splice(index, 0, idDragged)
+      }
+      updates.push({
+        upsert: false,
+        id: parentDrop.id,
+        update: {
+          bookmarkIds: parentDrop.bookmarkIds
+        },
+        db: 'bookmarks'
+      })
+    }
+    window.store.batchDbUpdate(updates)
+    return window.store.setState('bookmarkGroups', bookmarkGroups)
   }
 
   editCategory = () => {
@@ -607,7 +729,6 @@ export default class ItemListTree extends Component {
         onChange={this.handleChangeEdit}
         onPressEnter={this.handleSubmitEdit}
         addonAfter={confirm}
-        type='native'
       />
     )
   }
@@ -705,174 +826,51 @@ export default class ItemListTree extends Component {
     })
   }
 
-  renderDuplicateBtn = (item, isGroup) => {
-    if (!item.id || this.props.staticList) {
-      return null
-    }
-    const icon = (
-      <CopyOutlined
-        title={e('duplicate')}
-        className='pointer tree-control-btn'
-        onClick={(e) => this.duplicateItem(e, item)}
-      />
-    )
-    return icon
-  }
-
-  renderItemTitle = (item, isGroup) => {
+  renderItemTitle = (item, isGroup, parentId) => {
     if (isGroup && item.id === this.state.categoryId) {
       return this.editCategory(item)
     }
-    const cls = classnames(
-      {
-        selected: this.props.selectedItemId === item.id
-      },
-      'tree-item elli',
-      {
-        'is-category': isGroup,
-        level2: item.level === 2
-      }
-    )
-    const tag = isGroup ? '' : createTitleTag(item)
-    const title = isGroup
-      ? item.title
-      : createName(item)
-    const titleAll = title + (item.description ? ' - ' + item.description : '')
-    const titleHighlight = isGroup
-      ? item.title || 'no title'
-      : highlight(
-        title,
-        this.state.keyword
+    const itemProps = {
+      item,
+      isGroup,
+      parentId,
+      leftSidebarWidth: this.props.store.leftSidebarWidth,
+      staticList: this.props.staticList,
+      selectedItemId: this.props.activeItemId,
+      ...pick(
+        this,
+        [
+          'del',
+          'openAll',
+          'onContextMenu',
+          'editItem',
+          'addSubCat',
+          'onSelect',
+          'duplicateItem',
+          'onDragStart',
+          'onDrop',
+          'onDragLeave',
+          'onDragOver'
+        ]
+      ),
+      ...pick(
+        this.state,
+        [
+          'keyword',
+          'openAll',
+          'onContextMenu',
+          'editItem',
+          'addSubCat',
+          'onSelect',
+          'duplicateItem'
+        ]
       )
-    const propsAll = {
-      className: cls,
-      title: titleAll,
-      onContextMenu: e => this.onContextMenu(e, item, isGroup)
     }
-    const titleProps = {
-      className: 'tree-item-title elli',
-      style: this.props.staticList
-        ? { maxWidth: (this.props.store.leftSidebarWidth - 110) + 'px' }
-        : undefined
-    }
-    const key = item.id || uid()
     return (
-      <div
-        {...propsAll}
-        key={key}
-      >
-        <div
-          {...titleProps}
-        >
-          {tag}{titleHighlight}
-        </div>
-        {
-          isGroup
-            ? this.renderGroupBtns(item)
-            : null
-        }
-        {
-          !isGroup
-            ? this.renderDuplicateBtn(item)
-            : null
-        }
-        {this.renderOperationBtn(item, isGroup)}
-        {this.renderDelBtn(item)}
-        {this.renderEditBtn(item, isGroup)}
-      </div>
+      <TreeListItem
+        {...itemProps}
+      />
     )
-  }
-
-  renderGroupBtns = (item) => {
-    return [
-      this.renderAddNewSubGroupBtn(item),
-      this.renderEditBtn(item),
-      this.renderOpenAll(item)
-    ]
-  }
-
-  renderChildNodes = bookmarkIds => {
-    const bookmarks = this.filter(
-      this.props.bookmarks
-    )
-    const map = bookmarks.reduce((p, b) => {
-      return {
-        ...p,
-        [b.id]: b
-      }
-    }, {})
-    const nodes = bookmarkIds.reduce((prev, id) => {
-      return map[id]
-        ? [
-            ...prev,
-            map[id]
-          ]
-        : prev
-    }, [])
-    return nodes.map((node, i) => {
-      return (
-        <TreeNode
-          key={node.id}
-          isLeaf
-          title={this.renderItemTitle(node)}
-        />
-      )
-    })
-  }
-
-  renderGroupChildNodes = bookmarkGroupIds => {
-    const bookmarkGroups = bookmarkGroupIds.map(id => {
-      return find(this.props.bookmarkGroups, d => d.id === id)
-    }).filter(d => d)
-    return bookmarkGroups.map((node, i) => {
-      const { bookmarkIds = [], id } = node
-      return (
-        <TreeNode
-          key={id}
-          title={this.renderItemTitle(node, true)}
-        >
-          {
-            bookmarkIds.length
-              ? this.renderChildNodes(bookmarkIds)
-              : null
-          }
-        </TreeNode>
-      )
-    })
-  }
-
-  renderItem = (item, i) => {
-    const {
-      bookmarkIds = [],
-      bookmarkGroupIds = []
-    } = item
-    return (
-      <TreeNode
-        key={item.id}
-        title={this.renderItemTitle(item, true)}
-      >
-        {this.renderNewSubBookmarkGroup(item)}
-        {
-          bookmarkGroupIds.length
-            ? this.renderGroupChildNodes(bookmarkGroupIds)
-            : null
-        }
-        {
-          bookmarkIds.length
-            ? this.renderChildNodes(bookmarkIds)
-            : null
-        }
-      </TreeNode>
-    )
-  }
-
-  filter = list => {
-    const { keyword } = this.state
-    return keyword
-      ? list.filter(item => {
-        return createName(item).toLowerCase().includes(keyword.toLowerCase())
-      })
-      : list
   }
 
   renderNewButtons = () => {
@@ -899,79 +897,25 @@ export default class ItemListTree extends Component {
     )
   }
 
-  renderNewSubBookmarkGroup = item => {
-    const {
-      bookmarkGroupTitleSub,
-      bookmarkGroupSubParentId
-    } = this.state
-    if (!bookmarkGroupSubParentId || item.id !== bookmarkGroupSubParentId) {
-      return null
-    }
-    const confirm = (
-      <span>
-        <CheckOutlined className='pointer' onClick={this.handleSubmitSub} />
-        <CloseOutlined className='mg1l pointer' onClick={this.handleCancelNewSub} />
-      </span>
-    )
-    return (
-      <TreeNode
-        key={bookmarkGroupSubParentId}
-        isLeaf
-        title={(
-          <InputAutoFocus
-            value={bookmarkGroupTitleSub}
-            onPressEnter={this.handleSubmitSub}
-            onChange={this.handleChangeBookmarkGroupTitleSub}
-            addonAfter={confirm}
-            type='native'
-          />
-        )}
-      />
-    )
-  }
-
-  renderNewBookmarkGroup = () => {
-    const {
-      bookmarkGroupTitle,
-      showNewBookmarkGroupForm
-    } = this.state
-    if (!showNewBookmarkGroupForm) {
-      return null
-    }
-    const confirm = (
-      <span>
-        <CheckOutlined className='pointer' onClick={this.handleSubmit} />
-        <CloseOutlined className='mg1l pointer' onClick={this.handleCancelNew} />
-      </span>
-    )
-    return (
-      <div className='pd1y'>
-        <InputAutoFocus
-          value={bookmarkGroupTitle}
-          onPressEnter={this.handleSubmit}
-          onChange={this.handleChangeBookmarkGroupTitle}
-          addonAfter={confirm}
-          onBlur={this.handleBlurBookmarkGroupTitle}
-        />
-      </div>
-    )
-  }
-
-  renderGroup = (group, level = 1) => {
+  renderGroup = (group, index, parentId) => {
+    const pids = typeof parentId === 'string' ? parentId : ''
+    const pid = pids + '#' + group.id
     return (
       <div key={group.id} className='group-container'>
         {
-          this.renderNewCat(group, level)
+          this.renderExpander(group, pid)
         }
         {
-          this.renderExpander(group, level)
+          this.renderGroupTitle(group, pids)
         }
-        {
-          this.renderGroupTitle(group, level)
-        }
-        {
-          this.renderGroupChildren(group, level)
-        }
+        <div className='group-container-sub'>
+          {
+            this.renderNewCat(group, pid)
+          }
+          {
+            this.renderGroupChildren(group, pid)
+          }
+        </div>
       </div>
     )
   }
@@ -1008,6 +952,7 @@ export default class ItemListTree extends Component {
     const expProps = {
       level,
       group,
+      keyword: this.state.keyword,
       expandedKeys: this.state.expandedKeys,
       onExpand: this.onExpandKey,
       onUnExpand: this.onUnExpandKey
@@ -1019,11 +964,11 @@ export default class ItemListTree extends Component {
     )
   }
 
-  renderGroupTitle = (group, level) => {
-    return this.renderItemTitle(group, true, level)
+  renderGroupTitle = (group, parentId) => {
+    return this.renderItemTitle(group, true, parentId)
   }
 
-  renderGroupChildren = (group, level) => {
+  renderGroupChildren = (group, parentId) => {
     const {
       bookmarkIds = [],
       bookmarkGroupIds = [],
@@ -1032,37 +977,27 @@ export default class ItemListTree extends Component {
     if (!this.state.expandedKeys.includes(id)) {
       return null
     }
-    return (
-      <div>
-        {
-          bookmarkGroupIds.length
-            ? this.renderSubGroup(bookmarkGroupIds, level)
-            : null
-        }
-        {
-          bookmarkIds.length
-            ? this.renderChilds(bookmarkIds, level)
-            : null
-        }
-      </div>
-    )
+    return [
+      ...this.renderSubGroup(bookmarkGroupIds, parentId),
+      ...this.renderChilds(bookmarkIds, parentId)
+    ]
   }
 
-  renderSubGroup = (bookmarkGroupIds, level) => {
+  renderSubGroup = (bookmarkGroupIds, parentId) => {
     const bookmarkGroups = bookmarkGroupIds.map(id => {
       return window.store.bookmarkGroupTree[id]
     }).filter(d => d)
-    return bookmarkGroups.map((node) => {
-      return this.renderGroup(node, level + 1)
+    return bookmarkGroups.map((node, i) => {
+      return this.renderGroup(node, i, parentId)
     })
   }
 
-  renderChilds = (bookmarkIds, level) => {
+  renderChilds = (bookmarkIds, pid) => {
     const bookmarks = bookmarkIds.map(id => {
-      return window.store.bookmarkTree[id]
+      return this.getBookmarkTree()[id]
     }).filter(d => d)
     return bookmarks.map((node) => {
-      return this.renderItemTitle(node, false, level + 1)
+      return this.renderItemTitle(node, false, pid)
     })
   }
 
@@ -1097,7 +1032,7 @@ export default class ItemListTree extends Component {
           this.renderSearch()
         }
         <div className='item-list-wrap' style={listStyle}>
-          {this.renderNewBookmarkGroup({ parentId: '' })}
+          {this.renderNewCat({ id: '' })}
           {level1Bookgroups.map(this.renderGroup)}
         </div>
       </div>

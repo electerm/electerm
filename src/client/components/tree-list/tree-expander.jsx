@@ -2,8 +2,9 @@ import {
   CaretDownOutlined,
   CaretRightOutlined
 } from '@ant-design/icons'
+import { memo } from 'react'
 
-export default function TreeExpander (props) {
+export default memo(function TreeExpander (props) {
   function onExpand () {
     props.onExpand(group)
   }
@@ -12,22 +13,24 @@ export default function TreeExpander (props) {
   }
   const { group } = props
   if (
-    !group.bookmarkGroupIds &&
-    !group.bookmarkGroupIds.length
+    !group?.bookmarkIds?.length &&
+    !group?.bookmarkGroupIds?.length
   ) {
     return null
   }
-  return props.expandedKeys.includes(group.id)
-    ? (
-      <CaretDownOutlined
-        className='tree-expander pointer'
-        onClick={onUnExpand}
-      />
-      )
-    : (
-      <CaretRightOutlined
-        className='tree-expander pointer'
-        onClick={onExpand}
-      />
-      )
-}
+  const shouldOpen = props.keyword || props.expandedKeys.includes(group.id)
+  const Icon = shouldOpen
+    ? CaretDownOutlined
+    : CaretRightOutlined
+  const func = shouldOpen
+    ? onUnExpand
+    : onExpand
+  return (
+    <div
+      className='tree-expander pointer'
+      onClick={func}
+    >
+      <Icon />
+    </div>
+  )
+})

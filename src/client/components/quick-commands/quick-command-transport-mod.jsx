@@ -1,4 +1,4 @@
-import BookmarkTransport from '../setting-panel/bookmark-transport'
+import BookmarkTransport from '../tree-list/bookmark-transport'
 import download from '../../common/download'
 import time from '../../common/time'
 import copy from 'json-deep-copy'
