@@ -83,7 +83,7 @@ export default class Index extends Component {
       loaded: configLoaded,
       'system-ui': store.config.useSystemTitleBar,
       'not-system-ui': !store.config.useSystemTitleBar,
-      'is-mac': isMac,
+      'is-mac': isMac && !window.et.isWebApp,
       'is-win': isWin,
       pinned,
       'qm-pinned': pinnedQuickCommandBar,
