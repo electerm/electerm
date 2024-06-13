@@ -1,4 +1,4 @@
-import TreeList from './tree-list'
+import TreeList from '../tree-list/tree-list'
 import BookmarkTreeDelete from '../bookmark-form/tree-delete'
 
 export default function BookmarkTreeList (props) {

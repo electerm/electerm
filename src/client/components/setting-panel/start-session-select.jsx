@@ -34,9 +34,10 @@ export default class StartSessionSelect extends Component {
         value: x.id,
         title: x.title
       }
-      if (x.bookmarkIds && x.bookmarkIds.length) {
-        y.children = x.bookmarkIds.map(buildLeaf).filter(d => d)
-      }
+      y.children = [
+        ...(x.bookmarkGroupIds || []).map(buildSubCats),
+        ...(x.bookmarkIds || []).map(buildLeaf)
+      ].filter(d => d)
       if (y.children && !y.children.length) {
         delete y.children
       }

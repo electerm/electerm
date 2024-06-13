@@ -3,37 +3,41 @@
  */
 
 export default (bookmarkGroups = []) => {
-  const dict = bookmarkGroups
+  const btree = bookmarkGroups
     .reduce((prev, k) => {
       return {
         ...prev,
         [k.id]: k
       }
     }, {})
-  return bookmarkGroups
-    .filter(d => d.level !== 2)
-    .map(j => {
+  function buildSubCats (id) {
+    const x = btree[id]
+    if (!x) {
+      return ''
+    }
+    const y = {
+      key: x.id,
+      value: x.id,
+      title: x.title
+    }
+    y.children = (x.bookmarkGroupIds || []).map(buildSubCats).filter(d => d)
+    if (!y.children.length) {
+      delete y.children
+    }
+    return y
+  }
+  const level1 = bookmarkGroups.filter(d => d.level !== 2)
+    .map(d => {
       const r = {
-        title: j.title,
-        value: j.id,
-        key: j.id
+        title: d.title,
+        value: d.id,
+        key: d.id,
+        children: (d.bookmarkGroupIds || []).map(buildSubCats).filter(d => d)
       }
-      if (j.bookmarkGroupIds && j.bookmarkGroupIds.length) {
-        r.children = j.bookmarkGroupIds.map(k => {
-          const o = dict[k]
-          return o
-            ? {
-                title: o.title,
-                value: o.id,
-                key: o.id
-              }
-            : null
-        })
-        r.children = r.children.filter(d => d)
-        if (!r.children.length) {
-          delete r.children
-        }
+      if (!r.children.length) {
+        return ''
       }
       return r
-    })
+    }).filter(d => d)
+  return level1
 }
