@@ -106,11 +106,15 @@ class TerminalSshBase extends TerminalBase {
   }
 
   onKeyboardEvent (options) {
+    if (this.initOptions.interactiveValues) {
+      return Promise.resolve(this.initOptions.interactiveValues.split('\n'))
+    }
     const id = generate()
     this.ws?.s({
       id,
       action: 'session-interactive',
       ..._.pick(this.initOptions, [
+        'interactiveValues',
         'sessionId',
         'tabId'
       ]),
