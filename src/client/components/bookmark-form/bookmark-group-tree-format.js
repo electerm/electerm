@@ -34,9 +34,6 @@ export default (bookmarkGroups = []) => {
         key: d.id,
         children: (d.bookmarkGroupIds || []).map(buildSubCats).filter(d => d)
       }
-      if (!r.children.length) {
-        return ''
-      }
       return r
     }).filter(d => d)
   return level1

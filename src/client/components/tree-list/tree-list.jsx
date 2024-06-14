@@ -571,12 +571,12 @@ export default class ItemListTree extends Component {
 
     // can not drag item to its own children
     if (
-      (pidDragged === 'default' &&
+      (idDragged === 'default' &&
       pidDrop !== '') ||
       (
-        pidDrops &&
+        pidDrop &&
         pidDrags !== pidDrops &&
-        pidDrops.includes(pidDrags)
+        pidDrops.includes(idDragged)
       )
     ) {
       return
@@ -673,7 +673,7 @@ export default class ItemListTree extends Component {
         update: {
           bookmarkIds: parentDrag.bookmarkIds
         },
-        db: 'bookmarks'
+        db: 'bookmarkGroups'
       })
       const parentDrop = isGroupDrop
         ? bookmarkGroups.find(
@@ -706,9 +706,29 @@ export default class ItemListTree extends Component {
         update: {
           bookmarkIds: parentDrop.bookmarkIds
         },
-        db: 'bookmarks'
+        db: 'bookmarkGroups'
       })
     }
+    if (
+      isGroupDrag &&
+      ((!pidDrop && pidDragged) ||
+      (pidDrop && !pidDragged))
+    ) {
+      const i = findIndex(bookmarkGroups, item => item.id === idDragged)
+      if (i >= 0) {
+        const item = bookmarkGroups[i]
+        item.level = pidDrop ? 2 : 1
+        updates.push({
+          upsert: false,
+          id: item.id,
+          update: {
+            level: item.level
+          },
+          db: 'bookmarkGroups'
+        })
+      }
+    }
+    console.log('updates:', updates)
     window.store.batchDbUpdate(updates)
     return window.store.setState('bookmarkGroups', bookmarkGroups)
   }
