@@ -82,7 +82,6 @@ class TerminalVnc extends TerminalBase {
     }
     const [hop, ...rest] = connectionHoppings
     const fp = await getPort(12023)
-    console.log('get free port', fp)
     const initOpts = {
       connectionHoppings: rest,
       ...hop,
@@ -113,61 +112,6 @@ class TerminalVnc extends TerminalBase {
       port,
       proxy: proxyA
     })
-    /*
-    this.initOptions {
-      cols: 80,
-      rows: 24,
-      term: 'xterm-256color',
-      saveTerminalLogToFile: false,
-      id: '4GVMkvc',
-      title: 'dynamic proxy sock5: 12200',
-      host: '192.168.2.26',
-      username: 'zxd',
-      authType: 'password',
-      password: 'zxd',
-      port: 22,
-      loginScriptDelay: 500,
-      encode: 'utf-8',
-      enableSsh: true,
-      envLang: 'en_US.UTF-8',
-      sshTunnels: [
-        {
-          sshTunnel: 'dynamicForward',
-          sshTunnelLocalHost: '127.0.0.1',
-          sshTunnelLocalPort: 12200,
-          name: 'proxy',
-          id: 'izPzwUB'
-        }
-      ],
-      connectionHoppings: [],
-      proxy: '',
-      color: '#d73a49',
-      runScripts: [ {} ],
-      displayRaw: false,
-      from: 'bookmarks',
-      srcId: 'lMg7jTx',
-      status: 'processing',
-      pane: 'terminal',
-      tabCount: 2,
-      logName: 'dynamic proxy sock5꞉ 12200_192.168.2.26_c-okdK8_2024-06-06-18-59-15',
-      addTimeStampToTermLog: false,
-      keepaliveInterval: 10000,
-      keepaliveCountMax: 10,
-      execWindows: 'System32/WindowsPowerShell/v1.0/powershell.exe',
-      execMac: 'zsh',
-      execLinux: 'bash',
-      execWindowsArgs: [],
-      execMacArgs: [],
-      execLinuxArgs: [],
-      debug: false,
-      sessionId: 'dkBMppP',
-      tabId: 'c-okdK8_2024-06-06-18-59-15',
-      srcTabId: '4GVMkvc',
-      terminalIndex: 0,
-      readyTimeout: 50000,
-      type: 'remote'
-    }
-    */
   }
 
   onMsg = (msg) => {

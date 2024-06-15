@@ -21,7 +21,6 @@ export default function QuickCommandForm (props) {
   const { autofocustrigger } = props.store
   async function handleSubmit (res) {
     const { formData } = props
-    console.log(res)
     const update1 = {
       ...res,
       id: generate()

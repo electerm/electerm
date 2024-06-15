@@ -551,6 +551,10 @@ export default class ItemListTree extends Component {
 
   onDrop = e => {
     e.preventDefault()
+    const elems = document.querySelectorAll('.tree-item.item-dragover')
+    elems.forEach(elem => {
+      elem.classList.remove('item-dragover')
+    })
     let {
       target
     } = e
@@ -711,13 +715,13 @@ export default class ItemListTree extends Component {
     }
     if (
       isGroupDrag &&
-      ((!pidDrop && pidDragged) ||
-      (pidDrop && !pidDragged))
+      pidDrop &&
+      !pidDragged
     ) {
       const i = findIndex(bookmarkGroups, item => item.id === idDragged)
       if (i >= 0) {
         const item = bookmarkGroups[i]
-        item.level = pidDrop ? 2 : 1
+        item.level = 2
         updates.push({
           upsert: false,
           id: item.id,
@@ -728,7 +732,6 @@ export default class ItemListTree extends Component {
         })
       }
     }
-    console.log('updates:', updates)
     window.store.batchDbUpdate(updates)
     return window.store.setState('bookmarkGroups', bookmarkGroups)
   }
