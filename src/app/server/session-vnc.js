@@ -50,7 +50,7 @@ class TerminalVnc extends TerminalBase {
       port,
       host,
       ...info
-    }, this.onConnect)
+    })
     this.channel = target
     target.on('data', this.onData)
     target.on('end', this.kill)
@@ -136,7 +136,23 @@ class TerminalVnc extends TerminalBase {
   }
 
   test = async () => {
-    return Promise.resolve(true)
+    return new Promise((resolve, reject) => {
+      const {
+        host,
+        port
+      } = this.initOptions
+      return this.hop()
+        .then(info => {
+          net.createConnection({
+            port,
+            host,
+            ...info
+          }, () => {
+            resolve(true)
+          })
+        })
+        .catch(err => reject(err))
+    })
   }
 
   kill = () => {
@@ -181,12 +197,14 @@ exports.terminalVnc = async function (initOptions, ws) {
  * @param {object} options
  */
 exports.testConnectionVnc = (options) => {
-  return (new TerminalVnc(options, undefined, true))
-    .test()
+  const inst = new TerminalVnc(options, undefined, true)
+  return inst.test()
     .then(() => {
+      inst.kill()
       return true
     })
     .catch(() => {
+      inst.kill()
       return false
     })
 }
