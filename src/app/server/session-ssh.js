@@ -362,17 +362,10 @@ class TerminalSshBase extends TerminalBase {
         sshTunnelResults.push(result)
       }
     }
-    this.ws?.s({
-      update: {
-        sshTunnelResults
-      },
-      action: 'ssh-tunnel-result',
-      tabId: this.initOptions.srcTabId
-    })
     if (!this.ws) {
       this.sshTunnelResults = sshTunnelResults
     } else {
-      this.ws.s({
+      this.ws?.s({
         update: {
           sshTunnelResults
         },
