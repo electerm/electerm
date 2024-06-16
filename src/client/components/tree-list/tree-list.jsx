@@ -506,7 +506,7 @@ export default class ItemListTree extends Component {
   }
 
   openAll = (item) => {
-    this.props.store.openAllBookmarkInCategory(this.props.item)
+    window.store.openAllBookmarkInCategory(item)
   }
 
   onDragStart = e => {
