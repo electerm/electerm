@@ -51,7 +51,7 @@ export default class ThemeList extends List {
   renderItem = (item, i) => {
     const { activeItemId } = this.props
     const { theme } = this.props
-    const { name, id } = item
+    const { name, id, type } = item
     const cls = classnames(
       'item-list-unit theme-item',
       {
@@ -83,7 +83,7 @@ export default class ThemeList extends List {
           {title}
         </div>
         {
-          id === defaultTheme.id
+          id === defaultTheme.id || type === 'iterm'
             ? null
             : this.renderDelBtn(item)
         }
