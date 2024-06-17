@@ -163,7 +163,6 @@ export default memo(function TreeListItem (props) {
   const renderGroupBtns = () => {
     return [
       renderAddNewSubGroupBtn(),
-      renderEditBtn(),
       renderOpenAll()
     ]
   }
