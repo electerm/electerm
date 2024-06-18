@@ -1110,12 +1110,14 @@ export default class Sftp extends Component {
   }
 
   render () {
+    const { height } = this.props
     const {
       id
     } = this.state
     const all = {
       className: 'sftp-wrap overhide relative',
-      id: `id-${id}`
+      id: `id-${id}`,
+      style: { height }
     }
     return (
       <div

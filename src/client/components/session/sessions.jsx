@@ -413,8 +413,7 @@ class Sessions extends Component {
         'height',
         'width',
         'activeTerminalId',
-        'isMaximized',
-        'splitTerminalSftp'
+        'isMaximized'
       ]),
       tabs,
       ...pick(this, [

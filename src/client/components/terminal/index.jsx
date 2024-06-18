@@ -732,9 +732,9 @@ class Term extends Component {
     }
   }
 
-  // split = () => {
-  //   this.props.handleSplit(null, this.props.id)
-  // }
+  split = () => {
+    this.props.handleSplit(null, this.props.id)
+  }
 
   onContextAction = e => {
     const {
@@ -865,12 +865,12 @@ class Term extends Component {
         icon: 'SearchOutlined',
         text: e('search'),
         subText: searchShortcut
-      } // ,
-      // {
-      //   func: 'split',
-      //   icon: 'BorderHorizontalOutlined',
-      //   text: e('split')
-      // }
+      },
+      {
+        func: 'split',
+        icon: 'BorderHorizontalOutlined',
+        text: e('split')
+      }
     ]
   }
 
@@ -1044,8 +1044,7 @@ class Term extends Component {
         this.attachAddon._sendData(obj.script + '\r')
       }
       if (delayedScripts.length > 0) {
-        const nextDelay = delayedScripts[0].delay || 0
-        this.timers.timerDelay = setTimeout(this.runDelayedScripts, nextDelay)
+        this.timers.timerDelay = setTimeout(this.runDelayedScripts, this.delayedScripts[0].delay || 0)
       }
     }
   }
