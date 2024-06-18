@@ -13,15 +13,13 @@ import {
   PlusOutlined,
   RightOutlined,
   RightSquareFilled,
-  BorderVerticleOutlined,
-  BorderHorizontalOutlined
+  BorderVerticleOutlined
 } from '@ant-design/icons'
 
 import {
   Dropdown,
   Menu,
-  Popover,
-  Button
+  Popover
 } from 'antd'
 import Tab from './tab'
 import './tabs.styl'

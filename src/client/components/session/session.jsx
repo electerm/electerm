@@ -9,7 +9,6 @@ import VncSession from '../vnc/vnc-session'
 import {
   BorderVerticleOutlined,
   BorderHorizontalOutlined,
-  CloseSquareFilled,
   SearchOutlined,
   FullscreenOutlined,
   PaperClipOutlined,
@@ -18,10 +17,9 @@ import {
 import {
   Tooltip
 } from 'antd'
-import { last, findIndex, pick } from 'lodash-es'
+import { pick } from 'lodash-es'
 import generate from '../../common/uid'
 import copy from 'json-deep-copy'
-import classnames from 'classnames'
 import {
   quickCommandBoxHeight,
   terminalSplitDirectionMap,
@@ -33,7 +31,6 @@ import {
   terminalRdpType,
   terminalVncType
 } from '../../common/constants'
-import ResizeWrap from '../common/resize-wrap'
 import safeName from '../../common/safe-name'
 import TerminalInfoContent from '../terminal-info/content'
 import uid from '../../common/id-with-stamp'
@@ -41,29 +38,8 @@ import postMessage from '../../common/post-msg'
 import './session.styl'
 import classNames from 'classnames'
 
-const rebuildPosition = terminals => {
-  const indexs = terminals.map(t => t.position).sort((a, b) => a - b)
-  const indexMap = indexs.reduce((prev, pos, index) => {
-    return {
-      ...prev,
-      [pos]: index * 10
-    }
-  }, {})
-  return terminals.map(t => {
-    return {
-      ...t,
-      position: indexMap[t.position]
-    }
-  })
-}
-
-const getPrevTerminal = terminals => {
-  return last(terminals)
-}
-
 const { prefix } = window
 const e = prefix('ssh')
-const m = prefix('menu')
 
 export default class SessionWrapper extends Component {
   constructor (props) {
@@ -389,9 +365,9 @@ export default class SessionWrapper extends Component {
     const cls = pane === paneMap.terminal && !splitTerminalSftp
       ? 'terms-box'
       : 'terms-box hide'
-    const height = this.computeHeight()
+    // const height = this.computeHeight()
     const { tab } = this.props
-    const width = this.getWidth()
+    // const width = this.getWidth()
     const themeConfig = copy(window.store.getThemeConfig())
     const logName = safeName(`${tab.title ? tab.title + '_' : ''}${tab.host ? tab.host + '_' : ''}${id}`)
     const pops = {
@@ -443,7 +419,7 @@ export default class SessionWrapper extends Component {
     if (type === terminalRdpType) {
       return null
     }
-    const height = this.computeHeight()
+    // const height = this.computeHeight()
     const cls = pane === paneMap.terminal && !splitTerminalSftp
       ? 'hide'
       : ''
@@ -552,7 +528,7 @@ export default class SessionWrapper extends Component {
     const checkTxt = e('sftpPathFollowSsh') + ' [Beta]'
     const checkProps = {
       onClick: this.toggleCheckSftpPathFollowSsh,
-      className: classnames(
+      className: classNames(
         'sftp-follow-ssh-icon',
         {
           active: sftpPathFollowSsh
@@ -572,7 +548,7 @@ export default class SessionWrapper extends Component {
         <div className='term-sftp-tabs fleft'>
           {
             controls.map((type, i) => {
-              const cls = classnames(
+              const cls = classNames(
                 'type-tab',
                 type,
                 {
@@ -679,7 +655,7 @@ export default class SessionWrapper extends Component {
       toggleInfoPinned: this.toggleInfoPinned,
       hideInfoPanel: this.hideInfoPanel
     }
-    const cls = classnames(
+    const cls = classNames(
       'term-sftp-box',
       pane,
       splitDirection,
