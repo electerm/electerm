@@ -1044,7 +1044,8 @@ class Term extends Component {
         this.attachAddon._sendData(obj.script + '\r')
       }
       if (delayedScripts.length > 0) {
-        this.timers.timerDelay = setTimeout(this.runDelayedScripts, this.delayedScripts[0].delay || 0)
+        const nextDelay = delayedScripts[0].delay || 0
+        this.timers.timerDelay = setTimeout(this.runDelayedScripts, nextDelay)
       }
     }
   }
