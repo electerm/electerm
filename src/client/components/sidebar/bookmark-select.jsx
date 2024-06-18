@@ -3,7 +3,7 @@
  */
 
 import { Component } from '../common/react-subx'
-import TreeList from '../setting-panel/tree-list'
+import TreeList from '../tree-list/tree-list'
 
 export default class BookmarkSelect extends Component {
   render () {

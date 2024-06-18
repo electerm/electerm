@@ -6,7 +6,8 @@ import {
   Input,
   Upload,
   AutoComplete,
-  Form
+  Form,
+  Select
 } from 'antd'
 import { formItemLayout } from '../../common/form-layout'
 import { uniqBy } from 'lodash-es'
@@ -54,6 +55,31 @@ export default function renderAuth (props) {
         >
           <Input.Password />
         </AutoComplete>
+      </FormItem>
+    )
+  }
+  if (authType === 'profiles') {
+    const opts = {
+      options: store.profiles
+        .map(d => {
+          return {
+            label: d.name,
+            value: d.id
+          }
+        }),
+      placeholder: e('profiles'),
+      allowClear: false
+    }
+    return (
+      <FormItem
+        {...formItemLayout}
+        label={e('profiles')}
+        name='profile'
+        hasFeedback
+      >
+        <Select
+          {...opts}
+        />
       </FormItem>
     )
   }

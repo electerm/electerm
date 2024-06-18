@@ -5,7 +5,6 @@
 import {
   settingMap,
   defaultBookmarkGroupId,
-  newBookmarkIdPrefix,
   fileOperationsMap,
   syncTypes,
   infoTabs,
@@ -22,14 +21,12 @@ import {
   qmSortByFrequencyKey,
   resolutionsLsKey
 } from '../common/constants'
-import { buildDefaultThemes, buildNewTheme } from '../common/terminal-theme'
+import { buildDefaultThemes } from '../common/terminal-theme'
 import * as ls from '../common/safe-local-storage'
+import initSettingItem from '../common/init-setting-item'
 
 const { prefix } = window
 const t = prefix('terminalThemes')
-const e = prefix('common')
-const newQuickCommand = 'newQuickCommand'
-const q = prefix('quickCommands')
 
 function getDefaultBookmarkGroups (bookmarks) {
   return [
@@ -39,23 +36,6 @@ function getDefaultBookmarkGroups (bookmarks) {
       bookmarkIds: bookmarks.map(d => d.id)
     })
   ]
-}
-
-export const getInitItem = (arr, tab) => {
-  if (tab === settingMap.history) {
-    return arr[0] || {}
-  } else if (tab === settingMap.bookmarks) {
-    return { id: newBookmarkIdPrefix + ':' + (Date.now()), title: '' }
-  } else if (tab === settingMap.setting) {
-    return { id: '', title: e('common') }
-  } else if (tab === settingMap.terminalThemes) {
-    return buildNewTheme()
-  } else if (tab === settingMap.quickCommands) {
-    return {
-      id: '',
-      name: q(newQuickCommand)
-    }
-  }
 }
 
 export default () => {
@@ -70,6 +50,7 @@ export default () => {
     termFocused: false,
     _history: '[]',
     _bookmarks: '[]',
+    _profiles: '[]',
     _bookmarkGroups: JSON.stringify(
       getDefaultBookmarkGroups([])
     ),
@@ -114,7 +95,7 @@ export default () => {
 
     // for settings related
     _setting: '',
-    _settingItem: JSON.stringify(getInitItem([], settingMap.bookmarks)),
+    _settingItem: JSON.stringify(initSettingItem([], settingMap.bookmarks)),
     settingTab: settingMap.bookmarks, // setting tab
     autofocustrigger: Date.now(),
     bookmarkId: undefined,

@@ -192,6 +192,16 @@ export default function renderCommon (props) {
       >
         <Input />
       </FormItem>
+      <FormItem
+        {...formItemLayout}
+        label={e('interactiveValues')}
+        name='interactiveValues'
+        hasFeedback
+      >
+        <Input.TextArea
+          rows={1}
+        />
+      </FormItem>
       {renderRunScripts()}
       <FormItem
         {...formItemLayout}
@@ -209,7 +219,7 @@ export default function renderCommon (props) {
                   value={k}
                   key={k}
                 >
-                  {k}
+                  {k.toUpperCase()}
                 </Option>
               )
             })

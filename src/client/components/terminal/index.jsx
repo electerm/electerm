@@ -1025,8 +1025,9 @@ class Term extends Component {
       const cmd = `ssh ${title.split(/\s/g)[0]}\r`
       return this.attachAddon._sendData(cmd)
     }
-    if (startDirectory) {
-      const cmd = `cd ${startDirectory}\r`
+    const startFolder = startDirectory || window.initFolder
+    if (startFolder) {
+      const cmd = `cd "${startFolder}"\r`
       this.attachAddon._sendData(cmd)
     }
     if (runScripts && runScripts.length) {
@@ -1043,12 +1044,11 @@ class Term extends Component {
         this.attachAddon._sendData(obj.script + '\r')
       }
       if (delayedScripts.length > 0) {
-        this.timers.timerDelay = setTimeout(this.runDelayedScripts, this.delayedScripts[0].delay || 0)
+        const nextDelay = delayedScripts[0].delay || 0
+        this.timers.timerDelay = setTimeout(this.runDelayedScripts, nextDelay)
       }
     }
   }
-
-  count = 0
 
   setStatus = status => {
     const id = this.props.tab?.id
@@ -1093,7 +1093,7 @@ class Term extends Component {
       server = ''
     } = config
     const { sessionId, terminalIndex, id, logName } = this.props
-    const tab = deepCopy(this.props.tab || {})
+    const tab = window.store.applyProfileToTabs(deepCopy(this.props.tab || {}))
     const {
       srcId, from = 'bookmarks',
       type,
@@ -1126,6 +1126,7 @@ class Term extends Component {
         'execLinuxArgs',
         'debug'
       ]),
+      keepaliveInterval: tab.keepaliveInterval === undefined ? config.keepaliveInterval : tab.keepaliveInterval,
       sessionId,
       tabId: id,
       srcTabId: tab.id,

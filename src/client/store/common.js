@@ -4,7 +4,7 @@
 
 import handleError from '../common/error-handler'
 import { Modal } from 'antd'
-import { debounce } from 'lodash-es'
+import { debounce, some } from 'lodash-es'
 import postMessage from '../common/post-msg'
 import {
   commonActions,
@@ -210,5 +210,40 @@ export default Store => {
     window.store.setConfig({
       terminalInfos: arr
     })
+  }
+
+  Store.prototype.applyProfile = function (tab) {
+    const {
+      authType,
+      profile
+    } = tab
+    if (authType !== 'profiles') {
+      return tab
+    }
+    const p = window.store.profiles.find(x => x.id === profile)
+    if (!p) {
+      return tab
+    }
+    // delete tab.password
+    // delete tab.privateKey
+    // delete tab.passphrase
+    delete p.name
+    delete p.id
+    return {
+      ...tab,
+      ...p
+    }
+  }
+  Store.prototype.applyProfileToTabs = function (tab) {
+    if (
+      tab.connectionHoppings &&
+      tab.connectionHoppings.length &&
+      some(tab.connectionHoppings, s => s.profile)
+    ) {
+      tab.connectionHoppings = tab.connectionHoppings.map(s => {
+        return window.store.applyProfile(s)
+      })
+    }
+    return window.store.applyProfile(tab)
   }
 }

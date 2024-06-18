@@ -60,7 +60,8 @@ export async function addTabFromCommandLine (store, opts) {
     enableSsh: !options.sftpOnly,
     authType: 'password',
     pane: options.type || 'terminal',
-    term: defaultSettings.terminalType
+    term: defaultSettings.terminalType,
+    startDirectoryLocal: options.initFolder
   }
   if (options.setEnv) {
     update.setEnv = options.setEnv
@@ -81,6 +82,12 @@ export async function addTabFromCommandLine (store, opts) {
   log.debug('command line opts', conf)
   if (conf.username && conf.host) {
     store.addTab(conf)
+  } else if (
+    options.initFolder &&
+    !(store.config.onStartSessions || []).length &&
+    store.config.initDefaultTabOnStart
+  ) {
+    window.initFolder = options.initFolder
   }
   if (options && options.batchOp) {
     window.store.runBatchOp(options.batchOp)
@@ -170,7 +177,7 @@ export default (Store) => {
     await Promise.all(all)
       .then(arr => {
         for (const { name, data } of arr) {
-          ext['_' + name] = data
+          ext['_' + name] = data || '[]'
         }
       })
     ext.lastDataUpdateTime = await getData('lastDataUpdateTime') || 0

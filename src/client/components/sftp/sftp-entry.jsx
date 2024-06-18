@@ -990,6 +990,7 @@ export default class Sftp extends Component {
     const loading = this.state[`${type}Loading`]
     const { host, username } = this.props.tab
     const listProps = {
+      store: window.store,
       id,
       type,
       ...this.props,

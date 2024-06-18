@@ -36,7 +36,11 @@ export default class SettingWrap extends Component {
         {...pops}
       >
         <CloseCircleOutlined
-          className='close-setting-wrap'
+          className='close-setting-wrap-icon close-setting-wrap'
+          onClick={this.props.onCancel}
+        />
+        <CloseCircleOutlined
+          className='close-setting-wrap-icon alt-close-setting-wrap'
           onClick={this.props.onCancel}
         />
         {

@@ -270,6 +270,30 @@ class Store {
       algorithm: isColorDark(themeConf.main) ? theme.darkAlgorithm : theme.defaultAlgorithm
     }
   }
+
+  get bookmarkTree () {
+    const {
+      bookmarks
+    } = window.store
+    return bookmarks.reduce((p, v) => {
+      return {
+        ...p,
+        [v.id]: v
+      }
+    }, {})
+  }
+
+  get bookmarkGroupTree () {
+    const {
+      bookmarkGroups
+    } = window.store
+    return bookmarkGroups.reduce((p, v) => {
+      return {
+        ...p,
+        [v.id]: v
+      }
+    }, {})
+  }
 }
 
 const getterProps = [
@@ -282,6 +306,7 @@ const getterProps = [
   'history',
   'bookmarks',
   'bookmarkGroups',
+  'profiles',
   'tabs',
   'fileTransfers',
   'transferHistory',

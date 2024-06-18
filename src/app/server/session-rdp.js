@@ -146,6 +146,7 @@ class TerminalRdp extends TerminalBase {
   kill = () => {
     log.debug('Closed rdp session ' + this.pid)
     if (this.ws) {
+      this.ws.close()
       delete this.ws
     }
     this.channel && this.channel.close()

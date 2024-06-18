@@ -21,6 +21,10 @@ const {
   terminalRdp,
   testConnectionRdp
 } = require('./session-rdp')
+const {
+  terminalVnc,
+  testConnectionVnc
+} = require('./session-vnc')
 
 exports.terminal = async function (initOptions, ws) {
   const type = initOptions.termType || initOptions.type
@@ -32,6 +36,8 @@ exports.terminal = async function (initOptions, ws) {
     return terminalLocal(initOptions, ws)
   } else if (type === 'rdp') {
     return terminalRdp(initOptions, ws)
+  } else if (type === 'vnc') {
+    return terminalVnc(initOptions, ws)
   } else {
     return terminalSsh(initOptions, ws)
   }
@@ -51,6 +57,8 @@ exports.testConnection = (initOptions) => {
     return testConnectionSerial(initOptions)
   } else if (type === 'rdp') {
     return testConnectionRdp(initOptions)
+  } else if (type === 'vnc') {
+    return testConnectionVnc(initOptions)
   } else {
     return testConnectionSsh(initOptions)
   }

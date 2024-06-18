@@ -17,6 +17,7 @@ const sshTunnelFuncs = require('./ssh-tunnel')
 const deepCopy = require('json-deep-copy')
 const { TerminalBase } = require('./session-base')
 const { commonExtends } = require('./session-common')
+const failMsg = 'All configured authentication methods failed'
 
 class TerminalSshBase extends TerminalBase {
   getLocalEnv () {
@@ -105,18 +106,22 @@ class TerminalSshBase extends TerminalBase {
   }
 
   onKeyboardEvent (options) {
+    if (this.initOptions.interactiveValues) {
+      return Promise.resolve(this.initOptions.interactiveValues.split('\n'))
+    }
     const id = generate()
-    this.ws.s({
+    this.ws?.s({
       id,
       action: 'session-interactive',
       ..._.pick(this.initOptions, [
+        'interactiveValues',
         'sessionId',
         'tabId'
       ]),
       options
     })
     return new Promise((resolve, reject) => {
-      this.ws.once((arg) => {
+      this.ws?.once((arg) => {
         const { results } = arg
         if (_.isEmpty(results)) {
           return reject(new Error('User cancel'))
@@ -207,7 +212,7 @@ class TerminalSshBase extends TerminalBase {
           !this.jumpSshKeys &&
           !this.hoppingOptions.password &&
           !this.hoppingOptions.privateKey &&
-          err.message.includes('All configured authentication methods failed')
+          err.message.includes(failMsg)
         ) {
           const options = {
             name: `password for ${this.hoppingOptions.username}@${this.initHoppingOptions.host}`,
@@ -336,8 +341,7 @@ class TerminalSshBase extends TerminalBase {
       if (
         sshTunnel &&
         sshTunnel.sshTunnel &&
-        sshTunnel.sshTunnelLocalPort &&
-        sshTunnel.sshTunnelRemotePort
+        sshTunnel.sshTunnelLocalPort
       ) {
         const result = await sshTunnelFuncs[sshTunnel.sshTunnel]({
           ...sshTunnel,
@@ -358,13 +362,17 @@ class TerminalSshBase extends TerminalBase {
         sshTunnelResults.push(result)
       }
     }
-    this.ws.s({
-      update: {
-        sshTunnelResults
-      },
-      action: 'ssh-tunnel-result',
-      tabId: this.initOptions.srcTabId
-    })
+    if (!this.ws) {
+      this.sshTunnelResults = sshTunnelResults
+    } else {
+      this.ws?.s({
+        update: {
+          sshTunnelResults
+        },
+        action: 'ssh-tunnel-result',
+        tabId: this.initOptions.srcTabId
+      })
+    }
     return new Promise((resolve, reject) => {
       this.conn.shell(
         shellWindow,
@@ -661,11 +669,11 @@ class TerminalSshBase extends TerminalBase {
           })
       } else if (
         this.sshKeys &&
-        err.message.includes('All configured authentication methods failed')
+        err.message.includes(failMsg)
       ) {
         return this.nextTry(err)
       } else if (
-        err.message.includes('All configured authentication methods failed')
+        err.message.includes(failMsg)
       ) {
         const options = {
           name: `password for ${this.initOptions.username}@${this.initOptions.host}`,

@@ -266,9 +266,9 @@ export default class Tabs extends React.Component {
     const left = overflow
       ? '100%'
       : tabsWidthAll
-    const w1 = isMacJs ? 30 : windowControlWidth
+    const w1 = isMacJs && window.et.isWebApp ? 30 : windowControlWidth
     const style = {
-      width: width - w1 - 136
+      width: width - w1 - 166
     }
     return (
       <div

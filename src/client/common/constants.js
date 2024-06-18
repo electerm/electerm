@@ -68,12 +68,14 @@ export const connectionMap = buildConst([
   'serial',
   'local',
   'web',
-  'rdp'
+  'rdp',
+  'vnc'
 ])
 
 export const authTypeMap = buildConst([
   'password',
-  'privateKey'
+  'privateKey',
+  'profiles'
 ])
 
 export const footerHeight = 36
@@ -101,7 +103,8 @@ export const settingMap = buildConst([
   'terminalThemes',
   'bookmarkGroups',
   'quickCommands',
-  'addressBookmarks'
+  'addressBookmarks',
+  'profiles'
 ])
 
 export const infoTabs = buildConst([
@@ -135,6 +138,7 @@ export const terminalSplitDirectionMap = buildConst([
 export const terminalSshConfigType = 'ssh-config'
 export const terminalWebType = 'web'
 export const terminalRdpType = 'rdp'
+export const terminalVncType = 'vnc'
 export const terminalSerialType = 'serial'
 export const terminalTelnetType = 'telnet'
 export const terminalLocalType = 'local'

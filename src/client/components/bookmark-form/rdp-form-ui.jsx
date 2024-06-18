@@ -29,7 +29,7 @@ const { prefix } = window
 const e = prefix('form')
 const c = prefix('common')
 
-export default function LocalFormUi (props) {
+export default function RdpFormUi (props) {
   const [
     form,
     handleFinish,

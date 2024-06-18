@@ -1,7 +1,3 @@
-.tree-list
-    .ant-tree-child-tree
-      span.ant-tree-switcher.ant-tree-switcher-noop
-        display none
 
 .tree-control-btn
   display none
@@ -11,20 +7,33 @@
   height 20px
 .tree-item
   display flex
+  line-height 26px
+  padding-left 5px
+  border-radius 3px
   &.is-category
     .tree-item-title
       font-weight bold
+      font-size 14px
+  &.selected
+  &.item-dragover
+  &:hover
+    background #000
+    color #eee
+    cursor pointer
   &:hover
     .tree-control-btn
       display inline-block
       vertical-align middle
+  &.item-dragover-top
+    border-top 1px solid #18d551
 .tree-item-title
   flex-grow 1
-  height 20px
+  line-height 26px
   max-width 300px
   overflow hidden
   white-space nowrap
   text-overflow ellipsis
+
 .sidebar-panel .tree-item-title
   max-width 180px
 .with-plus
@@ -47,3 +56,14 @@
     top 0
   .open-all-icon.tree-control-btn
     right 20px
+.group-container
+  padding-left 12px
+  position relative
+  line-height 30px
+.tree-expander
+  position absolute
+  left 0
+  top 0
+  width 12px
+  font-size 11px
+  line-height 30px

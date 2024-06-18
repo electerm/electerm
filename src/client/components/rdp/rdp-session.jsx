@@ -70,7 +70,7 @@ export default class RdpSession extends Component {
       openedSideBar
     } = this.props
     return {
-      width: width - (pinned && openedSideBar ? leftSidebarWidth : 0),
+      width: width - (pinned && openedSideBar ? leftSidebarWidth : 0) - 42,
       height: height - tabsHeight
     }
   }
@@ -235,7 +235,7 @@ export default class RdpSession extends Component {
       const isHorizontal = false
       const delta = isHorizontal ? e.deltaX : e.deltaY
       const step = Math.round(Math.abs(delta) * 15 / 8)
-      console.log(x, y, step, delta, isHorizontal)
+      // console.log(x, y, step, delta, isHorizontal)
       params = [x, y, step, delta > 0, isHorizontal]
     } else if (type === 'keydown' || type === 'keyup') {
       params = [keyCode, pressed]
@@ -349,6 +349,14 @@ export default class RdpSession extends Component {
     this.setState(res, this.handleReInit)
   }
 
+  renderHelp = () => {
+    return (
+      <HelpIcon
+        link={rdpHelpLink}
+      />
+    )
+  }
+
   renderControl = () => {
     const {
       id
@@ -358,45 +366,54 @@ export default class RdpSession extends Component {
       onChange: this.handleResChange,
       popupMatchSelectWidth: false
     }
+    return (
+      <div className='pd1 fix session-v-info'>
+        <div className='fleft'>
+          <ReloadOutlined
+            onClick={this.handleReInit}
+            className='mg2r mg1l pointer'
+          />
+          <Select
+            {...sleProps}
+          >
+            {
+              this.getAllRes().map(d => {
+                const v = d.id
+                return (
+                  <Option
+                    key={v}
+                    value={v}
+                  >
+                    {d.width}x{d.height}
+                  </Option>
+                )
+              })
+            }
+          </Select>
+          <EditOutlined
+            onClick={this.handleEditResolutions}
+            className='mg2r mg1l pointer'
+          />
+          {this.renderInfo()}
+          {this.renderHelp()}
+        </div>
+        <div className='fright'>
+          {this.props.fullscreenIcon()}
+        </div>
+      </div>
+    )
+  }
+
+  renderInfo () {
     const {
       host,
       port,
       username
     } = this.props.tab
     return (
-      <div className='pd1 fix'>
-        <ReloadOutlined
-          onClick={this.handleReInit}
-          className='mg2r mg1l pointer'
-        />
-        <Select
-          {...sleProps}
-        >
-          {
-            this.getAllRes().map(d => {
-              const v = d.id
-              return (
-                <Option
-                  key={v}
-                  value={v}
-                >
-                  {d.width}x{d.height}
-                </Option>
-              )
-            })
-          }
-        </Select>
-        <EditOutlined
-          onClick={this.handleEditResolutions}
-          className='mg2r mg1l pointer'
-        />
-        <span className='mg2l mg2r'>
-          {username}@{host}:{port}
-        </span>
-        <HelpIcon
-          link={rdpHelpLink}
-        />
-      </div>
+      <span className='mg2l mg2r'>
+        {username}@{host}:{port}
+      </span>
     )
   }
 
@@ -425,7 +442,7 @@ export default class RdpSession extends Component {
       <Spin spinning={loading}>
         <div
           {...rdpProps}
-          className='rdp-session-wrap pd1'
+          className='rdp-session-wrap session-v-wrap'
         >
           {this.renderControl()}
           <canvas

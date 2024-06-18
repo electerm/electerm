@@ -16,7 +16,7 @@
 [![Get it from the Microsoft Store](https://img.shields.io/badge/Microsoft-Store-blue)](https://www.microsoft.com/store/apps/9NCN7272GTFF)
 [![GitHub Sponsors](https://img.shields.io/github/sponsors/electerm?label=Sponsors)](https://github.com/sponsors/electerm)
 
-Open-sourced terminal/ssh/telnet/serialport/sftp client(linux, mac, win).
+Open-sourced terminal/ssh/telnet/serialport/RDP/VNC/sftp client(linux, mac, win).
 
 For experienced developers, you may try the web app version running in browser(including mobile device): [electerm-web](https://github.com/electerm/electerm-web)
 
@@ -28,7 +28,7 @@ Online demo: [https://electerm-demo.html5beta.com](https://electerm-demo.html5be
 
 ## Features
 
-- Works as a terminal/file manager or ssh/telnet/serialport/RDP/sftp client
+- Works as a terminal/file manager or ssh/telnet/serialport/RDP/VNC/sftp client
 - Global hotkey to toggle window visibility (similar to guake, default is `ctrl + 2`)
 - Multi platform(linux, mac, win)
 - 🇺🇸 🇨🇳 🇧🇷 🇷🇺 🇪🇸 🇫🇷 🇹🇷 🇭🇰 🇯🇵 🇸🇦 🇩🇪 🇰🇷 Multi-language support([electerm-locales](https://github.com/electerm/electerm-locales), contributions/fixes welcome)

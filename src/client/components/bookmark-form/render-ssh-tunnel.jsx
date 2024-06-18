@@ -35,9 +35,13 @@ export default function renderSshTunnels (props) {
     sshTunnelRemotePort: 12300,
     sshTunnelRemoteHost: '127.0.0.1'
   })
+  const [isDynamic, setter] = useState(formData.sshTunnel === 'dynamicForward')
   const [list, setList] = useState(formData.sshTunnels || [])
   function onSubmit () {
     formChild.submit()
+  }
+  function onChange (e) {
+    setter(e.target.value === 'dynamicForward')
   }
   function handleFinish (data) {
     const nd = {
@@ -80,15 +84,19 @@ export default function renderSshTunnels (props) {
       title: e('sshTunnel'),
       key: 'sshTunnel',
       render: (k, item) => {
-        // sshTunnel is forwardRemoteToLocal or forwardLocalToRemote
+        // sshTunnel is forwardRemoteToLocal or forwardLocalToRemote or dynamicForward
         const {
           sshTunnel,
           sshTunnelRemoteHost = '127.0.0.1',
-          sshTunnelRemotePort,
+          sshTunnelRemotePort = '',
           sshTunnelLocalHost = '127.0.0.1',
-          sshTunnelLocalPort,
+          sshTunnelLocalPort = '',
           name
         } = item
+        if (sshTunnel === 'dynamicForward') {
+          const n = name ? `[${name}] ` : ''
+          return `${n}socks5://${sshTunnelLocalHost}:${sshTunnelLocalPort}`
+        }
         const to = sshTunnel === 'forwardRemoteToLocal'
           ? `${s('local')}:${sshTunnelLocalHost}:${sshTunnelLocalPort}`
           : `${s('remote')}:${sshTunnelRemoteHost}:${sshTunnelRemotePort}`
@@ -148,6 +156,49 @@ export default function renderSshTunnels (props) {
     )
   }
 
+  function renderDynamicForward () {
+    return (
+      <p><UserOutlined /> → socks proxy → url</p>
+    )
+  }
+
+  function renderRemote () {
+    if (isDynamic) {
+      return null
+    }
+    return (
+      <FormItem
+        label={s('remote')}
+        {...formItemLayout}
+        required
+        className='ssh-tunnels-host'
+      >
+        <Space.Compact>
+          <FormItem
+            name='sshTunnelRemoteHost'
+            label=''
+            required
+          >
+            <Input
+              placeholder={e('host')}
+            />
+          </FormItem>
+          <FormItem
+            label=''
+            name='sshTunnelRemotePort'
+            required
+          >
+            <InputNumber
+              min={1}
+              max={65535}
+              placeholder={e('port')}
+            />
+          </FormItem>
+        </Space.Compact>
+      </FormItem>
+    )
+  }
+
   return (
     <div>
       <FormItem
@@ -168,7 +219,7 @@ export default function renderSshTunnels (props) {
           {...formItemLayout}
           required
         >
-          <RadioGroup>
+          <RadioGroup onChange={onChange}>
             <RadioButton
               value='forwardRemoteToLocal'
             >
@@ -183,37 +234,16 @@ export default function renderSshTunnels (props) {
                 <span>L→R <QuestionCircleOutlined /></span>
               </Tooltip>
             </RadioButton>
+            <RadioButton
+              value='dynamicForward'
+            >
+              <Tooltip title={renderDynamicForward()}>
+                <span>{e('dynamicForward')}(socks proxy) <QuestionCircleOutlined /></span>
+              </Tooltip>
+            </RadioButton>
           </RadioGroup>
         </FormItem>
-        <FormItem
-          label={s('remote')}
-          {...formItemLayout}
-          required
-          className='ssh-tunnels-host'
-        >
-          <Space.Compact>
-            <FormItem
-              name='sshTunnelRemoteHost'
-              label=''
-              required
-            >
-              <Input
-                placeholder={e('host')}
-              />
-            </FormItem>
-            <FormItem
-              label=''
-              name='sshTunnelRemotePort'
-              required
-            >
-              <InputNumber
-                min={1}
-                max={65535}
-                placeholder={e('port')}
-              />
-            </FormItem>
-          </Space.Compact>
-        </FormItem>
+        {renderRemote()}
         <FormItem
           label={s('local')}
           {...formItemLayout}

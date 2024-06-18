@@ -59,10 +59,15 @@
 .web-session-wrap
   height 100vh
   background main
-.rdp-session-wrap
+.session-v-wrap
   background main
   overflow scroll
 .term-sftp-box
   position relative
 .session-split-handle
   position absolute
+  z-index 99
+.vnc-session-wrap > div
+  display block !important
+  width auto !important
+  height auto !important

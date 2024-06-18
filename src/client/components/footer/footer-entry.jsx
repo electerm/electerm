@@ -76,21 +76,27 @@ export default class SystemMenu extends Component {
   }
 
   renderEncodingInfo () {
+    const selectProps = {
+      style: {
+        minWidth: 30
+      },
+      placeholder: f('encode'),
+      defaultValue: this.props.currentTab?.encode,
+      onSelect: this.handleSwitchEncoding,
+      size: 'small',
+      popupMatchSelectWidth: false
+    }
     return (
       <div className='terminal-footer-unit terminal-footer-info'>
         <div className='fleft relative'>
           <Select
-            style={{ minWidth: 30 }}
-            placeholder={f('encode')}
-            defaultValue={this.props.currentTab?.encode}
-            onSelect={this.handleSwitchEncoding}
-            size='small'
+            {...selectProps}
           >
             {
               encodes.map(k => {
                 return (
                   <Option key={k} value={k}>
-                    {k}
+                    {k.toUpperCase()}
                   </Option>
                 )
               })
@@ -123,6 +129,7 @@ export default class SystemMenu extends Component {
     if (
       type === 'rdp' ||
       type === 'web' ||
+      type === 'vnc' ||
       pane === paneMap.fileManager ||
       !tabs.length
     ) {

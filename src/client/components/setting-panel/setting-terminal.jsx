@@ -71,7 +71,7 @@ export default class SettingTerminal extends Component {
   }
 
   handleChangeDelMode = v => this.onChangeValue(v, 'backspaceMode')
-  handleChangeRenderType = v => this.onChangeValue(v, 'renderType')
+  handleChangeRenderType = v => this.onChangeValue(v, 'rendererType')
 
   handleChangeFont = (values) => {
     this.onChangeValue(

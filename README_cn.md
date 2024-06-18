@@ -16,7 +16,7 @@
 [![Get it from the Microsoft Store](https://img.shields.io/badge/Microsoft-Store-blue)](https://www.microsoft.com/store/apps/9NCN7272GTFF)
 [![GitHub Sponsors](https://img.shields.io/github/sponsors/electerm?label=Sponsors)](https://github.com/sponsors/electerm)
 
-开源终端/ssh/telnet/serialport/sftp客户端(linux, mac, win)。
+开源终端/ssh/telnet/serialport/RDP/VNC/sftp客户端(linux, mac, win)。
 
 有经验的开发者也可以尝试运行于浏览器(支持移动设备)的web app版本: [electerm-web](https://github.com/electerm/electerm-web)
 
@@ -28,7 +28,7 @@
 
 ## 功能特性
 
-- 支持ssh,telnet,serialport,RDP,本地和远程文件管理，sftp文件传输，以及作为本地终端使用
+- 支持ssh,telnet,serialport,RDP,VNC,本地和远程文件管理，sftp文件传输，以及作为本地终端使用
 - 全局快捷键切换隐藏显示窗口(类似guake, 默认快捷键`ctrl + 2`)
 - 多平台支持(linux, mac, win)
 - 🇺🇸 🇨🇳 🇧🇷 🇷🇺 🇪🇸 🇫🇷 🇹🇷 🇭🇰 🇯🇵 🇸🇦 🇩🇪 🇰🇷 多国语言支持([electerm-locales](https://github.com/electerm/electerm-locales), 欢迎提交代码)
