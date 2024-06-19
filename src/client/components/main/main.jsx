@@ -81,9 +81,11 @@ export default class Index extends Component {
     } = store
     const cls = classnames({
       loaded: configLoaded,
+      'not-webapp': !window.et.isWebApp,
       'system-ui': store.config.useSystemTitleBar,
       'not-system-ui': !store.config.useSystemTitleBar,
-      'is-mac': isMac && !window.et.isWebApp,
+      'is-mac': isMac,
+      'not-mac': !isMac,
       'is-win': isWin,
       pinned,
       'qm-pinned': pinnedQuickCommandBar,
