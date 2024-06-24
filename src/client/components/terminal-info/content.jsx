@@ -19,6 +19,7 @@ import {
   PushpinOutlined
 } from '@ant-design/icons'
 import classNames from 'classnames'
+import './terminal-info.styl'
 
 export default class TerminalInfoContent extends PureComponent {
   state = {
