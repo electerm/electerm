@@ -410,6 +410,7 @@ class Sessions extends Component {
       currentTabId,
       config,
       ...pick(store, [
+        'layout',
         'height',
         'width',
         'activeTerminalId',

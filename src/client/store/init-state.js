@@ -19,7 +19,8 @@ import {
   rightSidebarWidthKey,
   dismissDelKeyTipLsKey,
   qmSortByFrequencyKey,
-  resolutionsLsKey
+  resolutionsLsKey,
+  splitMap
 } from '../common/constants'
 import { buildDefaultThemes } from '../common/terminal-theme'
 import * as ls from '../common/safe-local-storage'
@@ -91,7 +92,8 @@ export default () => {
         direction: 'desc'
       }
     }),
-    splitTerminalSftp: '',
+    layout: splitMap.c1,
+    layouts: '',
 
     // for settings related
     _setting: '',

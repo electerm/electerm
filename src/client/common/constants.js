@@ -372,3 +372,37 @@ export const splitMapDesc = {
   '1x2r': 'twoRowsRight',
   '1x1c': 'twoColumnsBottom'
 }
+export const splitConfig = {
+  c1: {
+    children: 1,
+    handle: 0
+  },
+  c2: {
+    children: 2,
+    handle: 1
+  },
+  c3: {
+    children: 3,
+    handle: 2
+  },
+  r2: {
+    children: 2,
+    handle: 1
+  },
+  r3: {
+    children: 3,
+    handle: 2
+  },
+  '2x2': {
+    children: 4,
+    handle: 3
+  },
+  '1x2r': {
+    children: 3,
+    handle: 2
+  },
+  '1x2c': {
+    children: 3,
+    handle: 2
+  }
+}

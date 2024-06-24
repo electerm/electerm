@@ -14,7 +14,16 @@ import {
   RightOutlined,
   RightSquareFilled
 } from '@ant-design/icons'
-
+import {
+  SingleIcon,
+  TwoColumnsIcon,
+  ThreeColumnsIcon,
+  TwoRowsIcon,
+  ThreeRowsIcon,
+  Grid2x2Icon,
+  TwoRowsRightIcon,
+  TwoColumnsBottomIcon
+} from '../icons/split-icons'
 import { Dropdown, Menu, Popover } from 'antd'
 import Tab from './tab'
 import './tabs.styl'
@@ -23,7 +32,8 @@ import {
   tabMargin,
   extraTabWidth,
   windowControlWidth,
-  isMacJs
+  isMacJs,
+  splitMapDesc
 } from '../../common/constants'
 import findParentBySel from '../../common/find-parent'
 import WindowControl from './window-control'
@@ -145,6 +155,10 @@ export default class Tabs extends React.Component {
     this.props.onChangeTabId(id)
   }
 
+  handleChangeLayout = ({ key }) => {
+    window.store.layout = key
+  }
+
   renderList = () => {
     const { tabs = [] } = this.props
     return (
@@ -213,6 +227,14 @@ export default class Tabs extends React.Component {
     )
   }
 
+  renderNoExtra () {
+    return (
+      <div className='tabs-extra pd1x'>
+        {this.renderLayoutMenu()}
+      </div>
+    )
+  }
+
   renderExtra () {
     return (
       <div className='tabs-extra pd1x'>
@@ -232,6 +254,9 @@ export default class Tabs extends React.Component {
         >
           <DownOutlined className='tabs-dd-icon' />
         </Dropdown>
+        {
+          this.renderLayoutMenu()
+        }
       </div>
     )
   }
@@ -300,6 +325,58 @@ export default class Tabs extends React.Component {
     )
   }
 
+  getLayoutIcon = (layout) => {
+    const iconMaps = {
+      single: SingleIcon,
+      twoColumns: TwoColumnsIcon,
+      threeColumns: ThreeColumnsIcon,
+      twoRows: TwoRowsIcon,
+      threeRows: ThreeRowsIcon,
+      grid2x2: Grid2x2Icon,
+      twoRowsRight: TwoRowsRightIcon,
+      twoColumnsBottom: TwoColumnsBottomIcon
+    }
+    return iconMaps[layout]
+  }
+
+  renderLayoutMenuItems = () => {
+    return (
+      <Menu onClick={this.handleChangeLayout}>
+        {
+          Object.keys(splitMapDesc).map((t, i) => {
+            const v = splitMapDesc[t]
+            const Icon = this.getLayoutIcon(v)
+            return (
+              <MenuItem
+                key={t}
+              >
+                <Icon /> {e(v)}
+              </MenuItem>
+            )
+          })
+        }
+      </Menu>
+    )
+  }
+
+  renderLayoutMenu = () => {
+    const dprops = {
+      overlay: this.renderLayoutMenuItems(),
+      placement: 'bottomRight'
+    }
+    const v = splitMapDesc[this.props.layout]
+    const Icon = this.getLayoutIcon(v)
+    return (
+      <Dropdown
+        {...dprops}
+      >
+        <span className='tabs-dd-icon mg1l'>
+          <Icon /> <DownOutlined />
+        </span>
+      </Dropdown>
+    )
+  }
+
   render () {
     const overflow = this.isOverflow()
     return (
@@ -311,7 +388,7 @@ export default class Tabs extends React.Component {
         {
           overflow
             ? this.renderExtra()
-            : null
+            : this.renderNoExtra()
         }
       </div>
     )
