@@ -5,8 +5,11 @@
 import {
   settingMap,
   qmSortByFrequencyKey,
-  terminalActions
+  terminalActions,
+  isWin
 } from '../common/constants'
+import delay from '../common/wait'
+import generate from '../common/uid'
 import postMessage from '../common/post-msg'
 import * as ls from '../common/safe-local-storage'
 
@@ -37,6 +40,39 @@ export default Store => {
       inputOnly,
       activeSplitId: activeTerminalId
     })
+  }
+
+  Store.prototype.runQuickCommandItem = async (id) => {
+    const {
+      store
+    } = window
+
+    const qm = store.currentQuickCommands.find(
+      a => a.id === id
+    )
+    const { runQuickCommand } = store
+    const qms = qm && qm.commands
+      ? qm.commands
+      : (qm && qm.command
+          ? [
+              {
+                command: qm.command,
+                id: generate(),
+                delay: 100
+              }
+            ]
+          : []
+        )
+    for (const q of qms) {
+      const realCmd = isWin
+        ? q.command.replace(/\n/g, '\n\r')
+        : q.command
+      await delay(q.delay || 100)
+      runQuickCommand(realCmd, qm.inputOnly)
+      store.editQuickCommand(qm.id, {
+        clickCount: ((qm.clickCount || 0) + 1)
+      })
+    }
   }
 
   Store.prototype.setQmSortByFrequency = function (v) {

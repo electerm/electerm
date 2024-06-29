@@ -51,26 +51,41 @@ export default class Shortcuts extends Component {
   }
 
   getKeysTakenData = () => {
-    const { shortcuts = {} } = this.props.store.config
-    return shortcutsDefaults
-      .reduce((p, k) => {
-        const propName = isMac ? 'shortcutMac' : 'shortcut'
-        const name = k.name + '_' + propName
-        const vv = k.readonly ? k[propName] : (shortcuts[name] || k[propName])
-        const v = vv
-          .split(',')
-          .map(f => f.trim())
-          .reduce((p, k, i) => {
-            return {
-              ...p,
-              [k]: true
-            }
-          }, {})
-        return {
+    const { store } = this.props
+    const { shortcuts = {} } = store.config
+    const { quickCommands = [] } = store
+
+    // Gather system shortcuts
+    const systemShortcuts = shortcutsDefaults.reduce((p, k) => {
+      const propName = isMac ? 'shortcutMac' : 'shortcut'
+      const name = k.name + '_' + propName
+      const vv = k.readonly ? k[propName] : (shortcuts[name] || k[propName])
+      const v = vv
+        .split(',')
+        .map(f => f.trim())
+        .reduce((p, k) => ({
           ...p,
-          ...v
-        }
-      }, {})
+          [k]: true
+        }), {})
+      return {
+        ...p,
+        ...v
+      }
+    }, {})
+
+    // Gather quick command shortcuts
+    const quickCommandShortcuts = quickCommands.reduce((acc, command) => {
+      if (command.shortcut) {
+        acc[command.shortcut] = true
+      }
+      return acc
+    }, {})
+
+    // Combine system shortcuts and quick command shortcuts
+    return {
+      ...systemShortcuts,
+      ...quickCommandShortcuts
+    }
   }
 
   render () {
@@ -113,7 +128,7 @@ export default class Shortcuts extends Component {
         }
       },
       {
-        title: s('shortcut'),
+        title: s('settingShortcuts'),
         dataIndex: 'shortcut',
         key: 'shortcut',
         render: (shortcut, inst) => {
