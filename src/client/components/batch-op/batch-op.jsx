@@ -22,6 +22,7 @@ import {
   modals
 } from '../../common/constants'
 import HelpIcon from '../common/help-icon'
+import download from '../../common/download'
 import { autoRun } from 'manate'
 import { pick } from 'lodash-es'
 import { runCmd } from '../terminal/terminal-apis'
@@ -48,6 +49,45 @@ export default class BatchOp extends Component {
     tab: 'tasks'
   }
 
+  exampleColumns = [
+    { title: f('host'), dataIndex: 'host', key: 'host' },
+    { title: f('port'), dataIndex: 'port', key: 'port', responsive: ['md'] },
+    { title: f('username'), dataIndex: 'username', key: 'username', responsive: ['lg'] },
+    { title: f('password'), dataIndex: 'password', key: 'password', responsive: ['xl'] },
+    { title: 'Command', dataIndex: 'command', key: 'command', responsive: ['lg'] },
+    { title: t('localPath'), dataIndex: 'localPath', key: 'localPath', responsive: ['xl'] },
+    { title: t('remotePath'), dataIndex: 'remotePath', key: 'remotePath', responsive: ['xl'] },
+    { title: 'Action', dataIndex: 'action', key: 'action', responsive: ['md'] },
+    { title: 'Command After', dataIndex: 'commandAfter', key: 'commandAfter', responsive: ['xl'] }
+  ]
+
+  exampleData = [
+    {
+      key: '1',
+      host: '192.168.1.3',
+      port: '22',
+      username: 'username',
+      password: 'password',
+      command: 'touch yy.js && ls -al',
+      localPath: '/home/user/some_local_file_or_folder_to_upload',
+      remotePath: '/server/some_server_folder_for_upload',
+      action: 'upload',
+      commandAfter: 'touch yy1.js && ls -al'
+    },
+    {
+      key: '2',
+      host: '192.168.1.3',
+      port: '22',
+      username: 'username',
+      password: 'password',
+      command: 'ls -al',
+      localPath: '/home/user/some_local_folder_for_download',
+      remotePath: '/server/some_server_file_or_folder',
+      action: 'download',
+      commandAfter: 'ls'
+    }
+  ]
+
   componentDidMount () {
     this.watch()
   }
@@ -62,6 +102,15 @@ export default class BatchOp extends Component {
 
   unwatch () {
     window.removeEventListener('message', this.handleEvent)
+  }
+
+  handleDownloadExample = () => {
+    const csvText = this.exampleData.map(d => {
+      return Object.keys(d).filter(d => d !== 'key').map(k => {
+        return d[k]
+      }).join(',')
+    }).join('\n')
+    download('batch-op-example.csv', csvText)
   }
 
   handleEvent = e => {
@@ -448,6 +497,14 @@ export default class BatchOp extends Component {
       working
     } = this.state
     const disabled = loading || working
+    const exampleTableProps = {
+      dataSource: this.exampleData,
+      columns: this.exampleColumns,
+      pagination: false,
+      size: 'small',
+      rowKey: 'key'
+    }
+
     return (
       <div>
         <div className='pd1y'>
@@ -458,12 +515,25 @@ export default class BatchOp extends Component {
             />
           </h2>
           <div className='pd1y'>{c('examples')}:</div>
-          <pre>
-            <code>"192.168.1.3","22","username","password","touch yy.js && ls -al","/home/user/some_local_file_or_folder_to_upload","/server/some_server_folder_for_upload","upload","touch yy1.js && ls -al"</code>
-          </pre>
-          <pre>
-            <code>"192.168.1.3","22","username","password","ls -al","/home/user/some_local_folder_for_download","/server/some_server_file_or_folder","download","ls"</code>
-          </pre>
+          <Table
+            {...exampleTableProps}
+          />
+          <div className='pd1t pd2b'>
+            <Button
+              onClick={this.handleDownloadExample}
+              type='dashed'
+            >
+              Download example csv
+            </Button>
+          </div>
+          <div className='pd2y'>
+            <pre>
+              <code>"192.168.1.3","22","username","password","touch yy.js && ls -al","/home/user/some_local_file_or_folder_to_upload","/server/some_server_folder_for_upload","upload","touch yy1.js && ls -al"</code>
+            </pre>
+            <pre>
+              <code>"192.168.1.3","22","username","password","ls -al","/home/user/some_local_folder_for_download","/server/some_server_file_or_folder","download","ls"</code>
+            </pre>
+          </div>
         </div>
         {this.renderErrors()}
         <div className='pd1y'>
