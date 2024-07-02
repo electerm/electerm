@@ -3,13 +3,11 @@
  */
 
 import { Component } from '../common/react-subx'
-import { isWin, quickCommandLabelsLsKey } from '../../common/constants'
-import { find, sortBy } from 'lodash-es'
+import { quickCommandLabelsLsKey } from '../../common/constants'
+import { sortBy } from 'lodash-es'
 import { Button, Input, Select, Space } from 'antd'
 import * as ls from '../../common/safe-local-storage'
-import generate from '../../common/uid'
 import CmdItem from './quick-command-item'
-import delay from '../../common/wait'
 import {
   EditOutlined,
   CloseCircleOutlined,
@@ -54,33 +52,7 @@ export default class QuickCommandsFooterBox extends Component {
     if (id === addQuickCommands) {
       store.handleOpenQuickCommandsSetting()
     } else {
-      const qm = find(
-        this.props.store.currentQuickCommands,
-        a => a.id === id
-      )
-      const { runQuickCommand } = this.props.store
-      const qms = qm && qm.commands
-        ? qm.commands
-        : (qm && qm.command
-            ? [
-                {
-                  command: qm.command,
-                  id: generate(),
-                  delay: 100
-                }
-              ]
-            : []
-          )
-      for (const q of qms) {
-        const realCmd = isWin
-          ? q.command.replace(/\n/g, '\n\r')
-          : q.command
-        await delay(q.delay || 100)
-        runQuickCommand(realCmd, qm.inputOnly)
-        store.editQuickCommand(qm.id, {
-          clickCount: ((qm.clickCount || 0) + 1)
-        })
-      }
+      store.runQuickCommandItem(id)
     }
   }
 

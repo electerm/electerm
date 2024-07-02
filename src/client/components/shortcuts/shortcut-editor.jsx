@@ -143,14 +143,28 @@ export default class ShortcutEdit extends PureComponent {
     return (
       <Button
         className='edit-shortcut-button'
-        onClick={this.handleEditClick}
       >
         <span>{shortcut}</span>
         <EditFilled
           className='shortcut-edit-icon pointer mg1l'
+          onClick={this.handleEditClick}
         />
+        {
+          this.renderClear()
+        }
       </Button>
     )
+  }
+
+  renderClear () {
+    if (this.props.renderClear && this.props.data.shortcut) {
+      return (
+        <CloseOutlined
+          className='pointer mg1l'
+          onClick={this.props.handleClear}
+        />
+      )
+    }
   }
 
   renderAfter () {

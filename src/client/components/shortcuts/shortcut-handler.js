@@ -102,6 +102,14 @@ export function shortcutExtend (Cls) {
     const shortcutsConfig = buildConfig(this.props.config, d => !d.hidden)
     const keys = Object.keys(shortcutsConfig)
     const len = keys.length
+    if (this.term) {
+      const qmMatch = window.store.quickCommands.find(d => d.shortcut === r)
+      if (qmMatch) {
+        window.store.runQuickCommandItem(
+          qmMatch.id
+        )
+      }
+    }
     for (let i = 0; i < len; i++) {
       const k = keys[i]
       const conf = shortcutsConfig[k]

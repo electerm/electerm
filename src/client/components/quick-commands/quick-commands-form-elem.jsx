@@ -1,48 +1,118 @@
-import { Button, Switch, Form, message, Select } from 'antd'
-import copy from 'json-deep-copy'
+import {
+  Button,
+  Switch,
+  Form,
+  message,
+  Select,
+  Input
+} from 'antd'
+import { useState } from 'react'
 import generate from '../../common/uid'
 import InputAutoFocus from '../common/input-auto-focus'
 import renderQm from './quick-commands-list-form'
+import ShortcutEdit from '../shortcuts/shortcut-editor'
+import shortcutsDefaultsGen from '../shortcuts/shortcuts-defaults'
+import deepCopy from 'json-deep-copy'
+import {
+  isMacJs as isMac
+} from '../../common/constants.js'
+
 const FormItem = Form.Item
 const { Option } = Select
 const { prefix } = window
 const e = prefix('form')
 const t = prefix('quickCommands')
 const s = prefix('setting')
+const shortcutsDefaults = shortcutsDefaultsGen()
 
 export default function QuickCommandForm (props) {
   const [form] = Form.useForm()
-  const { autofocustrigger, quickCommandTags = [] } = props.store
+  const { store, formData } = props
+  const { autofocustrigger, quickCommandTags = [] } = store
+  const [shortcut, setShortcut] = useState(formData.shortcut || '')
+  const uid = formData.id || generate()
+  const updateConfig = (name, value) => {
+    form.setFieldsValue({
+      shortcut: value
+    })
+    setShortcut(value)
+  }
+  const handleClear = () => {
+    console.log('handleClear')
+    form.setFieldsValue({
+      shortcut: ''
+    })
+    setShortcut('')
+  }
+  const getKeysTakenData = () => {
+    const { shortcuts = {} } = store.config
+    const { quickCommands = [] } = store
+
+    // Gather system shortcuts
+    const systemShortcuts = shortcutsDefaults.reduce((p, k) => {
+      const propName = isMac ? 'shortcutMac' : 'shortcut'
+      const name = k.name + '_' + propName
+      const vv = k.readonly ? k[propName] : (shortcuts[name] || k[propName])
+      const v = vv
+        .split(',')
+        .map(f => f.trim())
+        .reduce((p, k) => ({
+          ...p,
+          [k]: true
+        }), {})
+      return {
+        ...p,
+        ...v
+      }
+    }, {})
+
+    // Gather quick command shortcuts
+    const quickCommandShortcuts = quickCommands.reduce((acc, command) => {
+      if (command.shortcut) {
+        acc[command.shortcut] = true
+      }
+      return acc
+    }, {})
+
+    // Combine system shortcuts and quick command shortcuts
+    return {
+      ...systemShortcuts,
+      ...quickCommandShortcuts
+    }
+  }
+
   async function handleSubmit (res) {
     const { formData } = props
     const {
       name,
       commands,
       inputOnly,
-      labels
+      labels,
+      shortcut
     } = res
-    const update = copy({
+    const update = deepCopy({
       name,
       commands,
       inputOnly,
-      labels
+      labels,
+      shortcut
     })
     const update1 = {
       ...update,
-      id: generate()
+      id: uid
     }
     if (formData.id) {
-      props.store.editQuickCommand(formData.id, update)
+      store.editQuickCommand(formData.id, update)
     } else {
-      props.store.addQuickCommand(update1)
-      props.store.setSettingItem({
+      store.addQuickCommand(update1)
+      store.setSettingItem({
         id: '',
         name: t('newQuickCommand')
       })
     }
     message.success(s('saved'))
   }
-  const initialValues = props.formData
+  const initialValues = formData
   if (!initialValues.labels) {
     initialValues.labels = []
   }
@@ -52,6 +122,18 @@ export default function QuickCommandForm (props) {
       id: generate(),
       delay: 100
     }]
+  }
+  console.log('initialValues', initialValues, formData)
+  const editorProps = {
+    data: {
+      name: uid,
+      shortcut
+    },
+    keysTaken: getKeysTakenData(),
+    store,
+    updateConfig,
+    handleClear,
+    renderClear: true
   }
   return (
     <Form
@@ -94,6 +176,17 @@ export default function QuickCommandForm (props) {
             })
           }
         </Select>
+      </FormItem>
+      <FormItem
+        label={s('settingShortcuts')}
+        name='shortcut'
+      >
+        <div>
+          <Input className='hide' />
+          <ShortcutEdit
+            {...editorProps}
+          />
+        </div>
       </FormItem>
       <FormItem
         label={t('inputOnly')}

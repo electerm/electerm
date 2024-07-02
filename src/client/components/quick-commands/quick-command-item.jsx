@@ -18,7 +18,7 @@ export default class QuickCommandsItem extends PureComponent {
   }
 
   render () {
-    const { name, id, nameMatch, labelMatch } = this.props.item
+    const { name, id, nameMatch, labelMatch, shortcut } = this.props.item
     const {
       draggable,
       handleDragOver,
@@ -29,16 +29,20 @@ export default class QuickCommandsItem extends PureComponent {
       'name-match': nameMatch,
       'label-match': labelMatch
     })
+    const btnProps = {
+      className: cls,
+      onClick: this.handleSelect,
+      'data-id': id,
+      title: shortcut,
+      draggable,
+      onDragOver: handleDragOver,
+      onDragStart: handleDragStart,
+      onDrop: handleDrop
+    }
     return (
       <Button
         key={id}
-        className={cls}
-        onClick={this.handleSelect}
-        data-id={id}
-        draggable={draggable}
-        onDragOver={handleDragOver}
-        onDragStart={handleDragStart}
-        onDrop={handleDrop}
+        {...btnProps}
       >
         {name}
       </Button>

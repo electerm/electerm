@@ -26,6 +26,10 @@ export default function KeywordForm (props) {
     formChild.submit()
   }
 
+  function handleChange (e) {
+    formChild.submit()
+  }
+
   function handleFinish (data) {
     props.submit(data)
   }
@@ -34,7 +38,7 @@ export default function KeywordForm (props) {
     try {
       return Promise.resolve(!!new RegExp(`(${value})`, 'gi'))
     } catch (e) {
-      console.log(e)
+      console.log(e, 'check keyword error')
       return Promise.reject(e)
     }
   }
@@ -57,6 +61,7 @@ export default function KeywordForm (props) {
           >
             <Input
               addonBefore={renderBefore(field.name)}
+              onChange={handleChange}
             />
           </FormItem>
         </FormItem>
@@ -121,7 +126,9 @@ export default function KeywordForm (props) {
                     <FormItem>
                       <Button
                         type='dashed'
-                        onClick={() => add()}
+                        onClick={() => add({
+                          color: 'red'
+                        })}
                         icon={<PlusOutlined />}
                       >
                         {f('keyword')}
