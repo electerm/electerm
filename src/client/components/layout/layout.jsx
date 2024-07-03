@@ -1,6 +1,6 @@
 import { Component } from '../common/react-subx'
 import Layouts from './layouts'
-// import Sessions from '../session/sessions'
+import Sessions from '../session/sessions'
 import {
   splitConfig,
   quickCommandBoxHeight,
@@ -8,6 +8,7 @@ import {
   termControlHeight
 } from '../../common/constants'
 import layoutAlg from './layout-alg'
+import calcSessionSize from './session-size-alg'
 
 export default class Layout extends Component {
   handleMousedown = (e) => {
@@ -66,8 +67,38 @@ export default class Layout extends Component {
     return layoutAlg(layout, w, h)
   }
 
-  renderSessions () {
-
+  renderSessions (conf, layout) {
+    const {
+      width,
+      height
+    } = this.calcLayoutStyle()
+    const {
+      store
+    } = this.props
+    const { tabs } = store
+    const tabsBatch = {}
+    for (const tab of tabs) {
+      const { batch } = tab
+      if (!tabsBatch[batch]) {
+        tabsBatch[batch] = []
+      }
+      tabsBatch[batch].push(tab)
+    }
+    return calcSessionSize(layout, width, height).map((v, i) => {
+      const sessProps = {
+        layout,
+        ...v,
+        store,
+        config: store.config,
+        tabs: tabsBatch['batch' + i]
+      }
+      return (
+        <Sessions
+          key={'sess' + i}
+          {...sessProps}
+        />
+      )
+    })
   }
 
   render () {
@@ -78,13 +109,13 @@ export default class Layout extends Component {
     const conf = splitConfig[layout]
     const layoutProps = {
       layout,
-      ...this.buildLayoutStyles(conf),
+      ...this.buildLayoutStyles(conf, layout),
       layoutStyle: this.calcLayoutStyle(),
       handleMousedown: this.handleMousedown
     }
     return (
       <Layouts {...layoutProps}>
-        {this.renderSessions()}
+        {this.renderSessions(conf, layout)}
       </Layouts>
     )
   }

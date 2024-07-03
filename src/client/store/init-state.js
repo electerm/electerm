@@ -93,7 +93,7 @@ export default () => {
       }
     }),
     layout: splitMap.c1,
-    layouts: '',
+    prevLayout: '',
 
     // for settings related
     _setting: '',
