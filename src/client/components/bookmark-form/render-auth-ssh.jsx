@@ -24,6 +24,13 @@ export default function renderAuth (props) {
     form,
     authType
   } = props
+  const beforeUpload = async (file) => {
+    const privateKey = await window.fs.readFile(file.path)
+    form.setFieldsValue({
+      privateKey
+    })
+    return false
+  }
   if (authType === 'password') {
     const opts = {
       options: uniqBy(
@@ -101,7 +108,7 @@ export default function renderAuth (props) {
         />
       </FormItem>
       <Upload
-        beforeUpload={file => props.beforeUpload(file, form)}
+        beforeUpload={beforeUpload}
         fileList={[]}
       >
         <Button
