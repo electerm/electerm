@@ -1,6 +1,5 @@
 /**
  * session tabs component
- * @param {array} props.tabs {id, title}
  */
 
 import React from 'react'
@@ -281,7 +280,7 @@ export default class Tabs extends React.Component {
     const left = overflow
       ? '100%'
       : tabsWidthAll
-    const w1 = isMacJs && window.et.isWebApp ? 30 : windowControlWidth
+    const w1 = isMacJs && window.et.isWebApp ? 30 : this.getExtraTabWidth()
     const style = {
       width: width - w1 - 166
     }
@@ -360,6 +359,9 @@ export default class Tabs extends React.Component {
   }
 
   renderLayoutMenu = () => {
+    if (!this.shouldRenderWindowControl()) {
+      return null
+    }
     const dprops = {
       overlay: this.renderLayoutMenuItems(),
       placement: 'bottomRight'
@@ -377,14 +379,46 @@ export default class Tabs extends React.Component {
     )
   }
 
+  shouldRenderWindowControl = () => {
+    const { layout, batch } = this.props
+    const batchToRender = {
+      single: 0,
+      twoColumns: 1,
+      threeColumns: 2,
+      twoRows: 0,
+      threeRows: 0,
+      grid2x2: 1,
+      twoRowsRight: 1,
+      twoColumnsBottom: 0
+    }
+    return batch === batchToRender[layout]
+  }
+
+  getExtraTabWidth = () => {
+    return this.shouldRenderWindowControl()
+      ? windowControlWidth
+      : 0
+  }
+
+  renderWindowControl = () => {
+    if (this.shouldRenderWindowControl()) {
+      return (
+        <WindowControl
+          store={window.store}
+        />
+      )
+    }
+    return null
+  }
+
   render () {
     const overflow = this.isOverflow()
     return (
       <div className='tabs' ref={this.tabsRef}>
         {this.renderContent()}
-        <WindowControl
-          store={window.store}
-        />
+        {
+          this.renderWindowControl()
+        }
         {
           overflow
             ? this.renderExtra()

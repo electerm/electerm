@@ -1,6 +1,6 @@
 import { Component } from '../common/react-subx'
 import Layouts from './layouts'
-import Sessions from '../session/sessions'
+import Sessions from '../session2/sessions'
 import {
   splitConfig,
   quickCommandBoxHeight,
@@ -9,6 +9,9 @@ import {
 } from '../../common/constants'
 import layoutAlg from './layout-alg'
 import calcSessionSize from './session-size-alg'
+import TermSearch from '../terminal/term-search.jsx'
+import Footer from '../footer/footer-entry.jsx'
+import QuickCommandsFooterBox from '../quick-commands/quick-commands-box.jsx'
 
 export default class Layout extends Component {
   handleMousedown = (e) => {
@@ -86,11 +89,12 @@ export default class Layout extends Component {
     }
     return calcSessionSize(layout, width, height).map((v, i) => {
       const sessProps = {
+        batch: i,
         layout,
         ...v,
         store,
         config: store.config,
-        tabs: tabsBatch['batch' + i]
+        tabs: tabsBatch[i]
       }
       return (
         <Sessions
@@ -104,7 +108,7 @@ export default class Layout extends Component {
   render () {
     const { store } = this.props
     const {
-      layout
+      layout, config, currentTab
     } = store
     const conf = splitConfig[layout]
     const layoutProps = {
@@ -113,10 +117,31 @@ export default class Layout extends Component {
       layoutStyle: this.calcLayoutStyle(),
       handleMousedown: this.handleMousedown
     }
-    return (
-      <Layouts {...layoutProps}>
+    const termProps = {
+      currentTab,
+      store,
+      config
+    }
+    const footerProps = {
+      store,
+      currentTab
+    }
+    return [
+      <Layouts {...layoutProps} key='layouts'>
         {this.renderSessions(conf, layout)}
-      </Layouts>
-    )
+      </Layouts>,
+      <TermSearch
+        key='TermSearch'
+        {...termProps}
+      />,
+      <QuickCommandsFooterBox
+        key='QuickCommandsFooterBox'
+        store={store}
+      />,
+      <Footer
+        key='Footer'
+        {...footerProps}
+      />
+    ]
   }
 }

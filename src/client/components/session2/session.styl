@@ -1,0 +1,69 @@
+@require '../../css/includes/theme-default'
+@keyframes rotate
+  from
+    background-position -3000px
+  to
+    background-position 0px
+.type-tab-line
+  position absolute
+  bottom 0
+  left 0
+  width 100%
+  height 1px
+  background text-dark
+  display none
+.type-tab-txt
+  position relative
+  display inline-block
+
+.sftp-follow-ssh-icon
+.type-tab
+  display inline-block
+  vertical-align middle
+  line-height 30px
+  color text-dark
+  padding 0 20px 0 0
+  margin-right 0px
+  font-size 14px
+  cursor pointer
+  &:hover
+  &.active
+    color text
+  &.active
+    .type-tab-line
+      display inline-block
+
+.is-transporting
+  .type-tab.sftp
+    .type-tab-line
+      display inline-block
+      background linear-gradient(to right, success 0%, main 25%, error 50%, primary 75%, success 100%)
+      animation: rotate 60s infinite linear
+.disable-ssh
+  .type-tab.ssh
+    display none
+.spliter
+  color text
+  font-size 16px
+  &:hover
+    color text-light
+
+.session-wrap
+  display none
+.session-current
+  display block
+.no-sessions
+  background main-dark
+  text-align center
+  padding 50px 0
+.web-session-wrap
+  height 100vh
+  background main
+.session-v-wrap
+  background main
+  overflow scroll
+  z-index 99
+.vnc-session-wrap > div
+  display block !important
+  width auto !important
+  height auto !important

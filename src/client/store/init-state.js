@@ -94,6 +94,11 @@ export default () => {
     }),
     layout: splitMap.c1,
     prevLayout: '',
+    currentLayoutBatch: 0,
+    currentTabId0: '',
+    currentTabId1: '',
+    currentTabId2: '',
+    currentTabId3: '',
 
     // for settings related
     _setting: '',
