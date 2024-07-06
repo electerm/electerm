@@ -60,21 +60,6 @@ export default class RdpSession extends Component {
     })
   }
 
-  computeProps = () => {
-    const {
-      height,
-      width,
-      tabsHeight,
-      leftSidebarWidth,
-      pinned,
-      openedSideBar
-    } = this.props
-    return {
-      width: width - (pinned && openedSideBar ? leftSidebarWidth : 0) - 42,
-      height: height - tabsHeight
-    }
-  }
-
   remoteInit = async (term = this.term) => {
     this.setState({
       loading: true
@@ -418,7 +403,7 @@ export default class RdpSession extends Component {
   }
 
   render () {
-    const { width: w, height: h } = this.computeProps()
+    const { width: w, height: h } = this.props
     const rdpProps = {
       style: {
         width: w + 'px',

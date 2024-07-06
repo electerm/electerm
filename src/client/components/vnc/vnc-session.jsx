@@ -263,7 +263,7 @@ export default class VncSession extends RdpSession {
   }
 
   render () {
-    const { width: w, height: h } = this.computeProps()
+    const { width: w, height: h } = this.props
     const vncProps = {
       style: {
         width: w + 'px',
