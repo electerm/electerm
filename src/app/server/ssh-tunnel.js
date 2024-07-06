@@ -1,5 +1,5 @@
 const log = require('../common/log')
-const socks = require('socksv5-electron')
+const socks = require('socksv5')
 
 function forwardRemoteToLocal ({
   conn,
@@ -73,7 +73,7 @@ function dynamicForward ({
   sshTunnelLocalHost = '127.0.0.1'
 }) {
   return new Promise((resolve, reject) => {
-    socks.createServer((info, accept, deny) => {
+    const dproxyServer = socks.createServer((info, accept, deny) => {
       conn.forwardOut(
         info.srcAddr,
         info.srcPort,
@@ -87,14 +87,21 @@ function dynamicForward ({
           const clientSocket = accept(true)
           if (clientSocket) {
             stream.pipe(clientSocket).pipe(stream).on('close', () => {
-              conn.end()
+			  //do not close the ssh connection when pipe closed
+              //conn.end()
             })
           }
         })
-    }).listen(sshTunnelLocalPort, sshTunnelLocalHost, () => {
+    })
+	dproxyServer.listen(sshTunnelLocalPort, sshTunnelLocalHost, () => {
       log.log(`SOCKS server listening on ${sshTunnelLocalHost}:${sshTunnelLocalPort}`)
       resolve(1)
     }).useAuth(socks.auth.None())
+	
+	//close socks proxy when ssh connection is closed.
+    conn.on('close', () => {
+      dproxyServer && dproxyServer.close()
+    })
   })
 }
 
