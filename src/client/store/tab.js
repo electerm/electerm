@@ -5,8 +5,7 @@
 import { uniq, debounce, findIndex } from 'lodash-es'
 import {
   tabActions,
-  splitConfig,
-  splitMap
+  splitConfig
 } from '../common/constants'
 import postMsg from '../common/post-msg'
 
