@@ -17,7 +17,7 @@ const {
 const { prefix } = window
 const f = prefix('form')
 
-export default class SystemMenu extends Component {
+export default class FooterEntry extends Component {
   handleInfoPanel = () => {
     const { activeTerminalId } = this.props.store
     postMessage({
