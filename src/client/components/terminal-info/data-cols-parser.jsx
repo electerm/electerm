@@ -2,9 +2,6 @@ import { copy } from '../../common/clipboard'
 import filesizeParser from 'filesize-parser'
 import { formatBytes } from '../../common/byte-format'
 
-const { prefix } = window
-const m = prefix('menu')
-
 const valueParserMaps = {
   size: v => v,
   used: filesizeParser,
@@ -19,19 +16,24 @@ function valueParse (obj, k) {
   return obj[k]
 }
 
+function copyValue (event) {
+  copy(event.target.getAttribute('data-content'))
+}
+
 export default (data) => {
   return Object.keys(data).map(k => {
     const rd = (txt) => {
       const r = k === 'mem' ? formatBytes(parseInt(txt, 10)) : txt
+      const itemProps = {
+        className: 'activity-item pointer',
+        'data-content': r,
+        onClick: copyValue
+      }
       return (
-        <div className='activity-item'>
-          <span>{r}</span>
-          <span
-            className='pointer activity-item-copy mg1l bold color-blue'
-            onClick={() => copy(txt)}
-          >
-            {m('copy')}
-          </span>
+        <div
+          {...itemProps}
+        >
+          {r}
         </div>
       )
     }
