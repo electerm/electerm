@@ -55,10 +55,10 @@ export function createTitleTag (obj) {
     return null
   }
   const styleTag = color
-    ? { color }
+    ? { color, marginRight: '5px', fontSize: '16px' } // 增加间距、增大图标
     : {}
   return (
-    <span style={styleTag}>♦</span>
+    <span style={styleTag}>●</span>
   )
 }
 

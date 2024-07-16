@@ -48,7 +48,7 @@ export const ColorPicker = React.forwardRef((props, ref) => {
                     {...props}
                     key={color}
                   >
-                    ♦ {color}
+                    ● {color}
                   </div>
                 )
               })
