@@ -1,6 +1,7 @@
 import { PureComponent } from 'react'
 export default class SidePanel extends PureComponent {
   handleMousedown = (e) => {
+    e.stopPropagation()
     this.dragStart = true
     this.clientX = e.clientX
     window.addEventListener('mouseup', this.handleMouseup)
