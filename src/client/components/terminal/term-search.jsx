@@ -201,12 +201,12 @@ class TermSearch extends Component {
       return null
     }
     if (!currentTab) { // 解决无打开tab情况下ctrl+f报错的bug
-      return null 
+      return null
     }
     if (currentTab.pane === paneMap.fileManager) {
       return null
     }
-      const props = {
+    const props = {
       value: termSearch,
       className: 'iblock',
       onChange: this.handleChange,
