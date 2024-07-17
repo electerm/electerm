@@ -10,13 +10,13 @@ const os = require('os')
 
 const platform = os.platform()
 const isWin = platform === 'win32'
-const rest = ''
+// const rest = ''
 if (isWin && process.env.CI) {
   exec('npm cache clear -f')
   exec('npm uninstall node-gyp -g')
   exec('npm install node-gyp -g')
 }
-exec(resolve('./node_modules/.bin/electron-rebuild') + rest)
+// exec(resolve('./node_modules/.bin/electron-rebuild') + rest)
 
 if (!existsSync(prePushPath)) {
   cp(prePushPathFrom, prePushPath)

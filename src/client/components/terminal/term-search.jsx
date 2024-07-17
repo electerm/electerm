@@ -200,6 +200,9 @@ class TermSearch extends Component {
     if (!termSearchOpen) {
       return null
     }
+    if (!currentTab) { // 解决无打开tab情况下ctrl+f报错的bug
+      return null
+    }
     if (currentTab.pane === paneMap.fileManager) {
       return null
     }
