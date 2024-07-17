@@ -132,7 +132,7 @@
     "serialport": "10.4.0",
     "socks": "2.7.1",
     "socks-proxy-agent": "8.0.1",
-    "socksv5-electron": "^0.0.6",
+    "socksv5": "^0.0.6",
     "ssh-config": "4.2.1",
     "ssh2": "1.15.0",
     "stylus": "0.59.0",
