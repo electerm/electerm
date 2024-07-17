@@ -197,13 +197,11 @@ class TermSearch extends Component {
       termSearchOpen,
       termSearch
     } = store
-    if (!termSearchOpen) {
-      return null
-    }
-    if (!currentTab) { // 解决无打开tab情况下ctrl+f报错的bug
-      return null
-    }
-    if (currentTab.pane === paneMap.fileManager) {
+    if (
+      !termSearchOpen ||
+      !currentTab ||
+      currentTab.pane === paneMap.fileManager
+    ) {
       return null
     }
     const props = {

@@ -55,10 +55,10 @@ export function createTitleTag (obj) {
     return null
   }
   const styleTag = color
-    ? { color, marginRight: '5px', fontSize: '16px' } // 增加间距、增大图标
+    ? { color }
     : {}
   return (
-    <span style={styleTag}>●</span>
+    <span style={styleTag} className='tab-title-tag'>●</span>
   )
 }
 
