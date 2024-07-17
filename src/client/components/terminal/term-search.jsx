@@ -197,10 +197,11 @@ class TermSearch extends Component {
       termSearchOpen,
       termSearch
     } = store
-    if (!termSearchOpen) {
-      return null
-    }
-    if (currentTab.pane === paneMap.fileManager) {
+    if (
+      !termSearchOpen ||
+      !currentTab ||
+      currentTab.pane === paneMap.fileManager
+    ) {
       return null
     }
     const props = {

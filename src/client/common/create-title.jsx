@@ -58,7 +58,7 @@ export function createTitleTag (obj) {
     ? { color }
     : {}
   return (
-    <span style={styleTag}>♦</span>
+    <span style={styleTag} className='tab-title-tag'>●</span>
   )
 }
 

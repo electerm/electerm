@@ -1,6 +1,7 @@
 import { PureComponent } from 'react'
 export default class SidePanel extends PureComponent {
   handleMousedown = (e) => {
+    e.stopPropagation()
     this.dragStart = true
     this.clientX = e.clientX
     window.addEventListener('mouseup', this.handleMouseup)
@@ -13,8 +14,8 @@ export default class SidePanel extends PureComponent {
       clientX
     } = e
     let nw = clientX - this.clientX + this.props.leftSidebarWidth
-    if (nw < 343) {
-      nw = 343
+    if (nw < 150) {
+      nw = 150
     } else if (nw > 600) {
       nw = 600
     }

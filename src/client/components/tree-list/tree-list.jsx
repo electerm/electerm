@@ -997,7 +997,8 @@ export default class ItemListTree extends Component {
       bookmarkGroupIds = [],
       id
     } = group
-    if (!this.state.expandedKeys.includes(id)) {
+    const shouldRender = this.state.keyword || this.state.expandedKeys.includes(id)
+    if (!shouldRender) {
       return null
     }
     return [

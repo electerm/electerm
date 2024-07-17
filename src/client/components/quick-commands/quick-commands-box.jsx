@@ -167,7 +167,9 @@ export default class QuickCommandsFooterBox extends Component {
       openQuickCommandBar,
       pinnedQuickCommandBar,
       qmSortByFrequency,
-      inActiveTerminal
+      inActiveTerminal,
+      leftSidebarWidth,
+      openedSideBar
     } = this.props.store
     if ((!openQuickCommandBar && !pinnedQuickCommandBar) || !inActiveTerminal) {
       return null
@@ -205,11 +207,18 @@ export default class QuickCommandsFooterBox extends Component {
       { 'fil-keyword': !!keyword }
     )
     const type = qmSortByFrequency ? 'primary' : 'default'
+    const w = openedSideBar ? 43 + leftSidebarWidth : 43
+    const qmProps = {
+      className: 'qm-wrap-tooltip',
+      style: {
+        left: w
+      },
+      onMouseLeave: this.handleMouseLeave,
+      onMouseEnter: this.handleMouseEnter
+    }
     return (
       <div
-        className='qm-wrap-tooltip'
-        onMouseLeave={this.handleMouseLeave}
-        onMouseEnter={this.handleMouseEnter}
+        {...qmProps}
       >
         <div className='pd2'>
           <div className='pd2b fix'>
