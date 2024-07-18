@@ -58,6 +58,28 @@ class Tab extends Component {
     clearTimeout(this.handler)
   }
 
+  shouldComponentUpdate (nextProps, nextState) {
+    return this.shouldUpdate(this.props, nextProps) || this.shouldUpdateState(this.state, nextState)
+  }
+
+  shouldUpdateState = (prevState, nextState) => {
+    return !isEqual(prevState, nextState)
+  }
+
+  shouldUpdate = (prevProps, nextProps) => {
+    // todo currentTabId still need improve
+    const pickKeys = [
+      'currentTabId',
+      'height',
+      'isLast',
+      'isMaximized',
+      'width'
+    ]
+
+    // compare only the relevant props
+    return !isEqual(pick(prevProps, pickKeys), pick(nextProps, pickKeys))
+  }
+
   modifier = (...args) => {
     runIdle(() => this.setState(...args))
   }
