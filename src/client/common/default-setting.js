@@ -58,5 +58,6 @@ export default {
     'size',
     'modifyTime'
   ],
-  hideIP: false
+  hideIP: false,
+  dataSyncSelected: 'all'
 }

@@ -2,10 +2,10 @@
  * sync data to github gist related
  */
 
-import { without, get, pick, debounce, findIndex } from 'lodash-es'
+import { get, pick, debounce, findIndex } from 'lodash-es'
 import copy from 'json-deep-copy'
 import {
-  settingMap, packInfo, syncTypes
+  settingMap, packInfo, syncTypes, syncDataMaps
 } from '../common/constants'
 import { remove, dbNames, insert, update, getData } from '../common/db'
 import fetch from '../common/fetch-from-server'
@@ -14,7 +14,6 @@ import { fixBookmarks } from '../common/db-fix'
 import dayjs from 'dayjs'
 import parseJsonSafe from '../common/parse-json-safe'
 
-const names = without(dbNames, settingMap.history)
 const {
   version: packVer
 } = packInfo
@@ -162,6 +161,7 @@ export default (Store) => {
     }
     const pass = store.getSyncPassword(type)
     const objs = {}
+    const { names, syncConfig } = store.getDataSyncNames()
     for (const n of names) {
       let str = store.getItems(n)
       const order = await getData(`${n}:order`)
@@ -182,14 +182,18 @@ export default (Store) => {
       objs[`${n}.order.json`] = {
         content: 'empty'
       }
+      if (syncConfig) {
+        objs['userConfig.json'] = {
+          content: JSON.stringify(
+            store.getSyncConfig()
+          )
+        }
+      }
     }
     const res = await fetchData(type, 'update', [gistId, {
       description: 'sync electerm data',
       files: {
         ...objs,
-        'userConfig.json': {
-          content: JSON.stringify(pick(store.config, ['theme']))
-        },
         'electerm-status.json': {
           content: JSON.stringify({
             lastSyncTime: Date.now(),
@@ -230,6 +234,7 @@ export default (Store) => {
       store.getProxySetting()
     )
     const toInsert = []
+    const { names, syncConfig } = store.getDataSyncNames()
     for (const n of names) {
       let str = get(gist, `files["${n}.json"].content`)
       if (!str) {
@@ -267,12 +272,18 @@ export default (Store) => {
       })
       store.setItems(n, arr)
     }
-    const userConfig = parseJsonSafe(
-      get(gist, 'files["userConfig.json"].content')
-    )
-    if (userConfig && userConfig.theme) {
-      store.setTheme(userConfig.theme)
+    if (syncConfig) {
+      const userConfig = parseJsonSafe(
+        get(gist, 'files["userConfig.json"].content')
+      )
+      if (userConfig) {
+        store.setConfig(userConfig)
+      }
+      if (userConfig && userConfig.theme) {
+        store.setTheme(userConfig.theme)
+      }
     }
+
     const up = {
       [type + 'LastSyncTime']: Date.now()
     }
@@ -331,6 +342,7 @@ export default (Store) => {
   Store.prototype.handleExportAllData = async function () {
     const { store } = window
     const objs = {}
+    const names = store.getDataSyncNames(true)
     for (const n of names) {
       objs[n] = store.getItems(n)
       const order = await getData(`${n}:order`)
@@ -342,49 +354,7 @@ export default (Store) => {
         })
       }
     }
-    objs.config = pick(store.config, [
-      'theme',
-      'useSystemTitleBar',
-      'defaultEditor',
-      'checkUpdateOnStart',
-      'confirmBeforeExit',
-      'ctrlOrMetaOpenTerminalLink',
-      'cursorStyle',
-      'defaultEditor',
-      'disableSshHistory',
-      'disableTransferHistory',
-      'enableGlobalProxy',
-      'execLinux',
-      'execLinuxArgs',
-      'execMac',
-      'execMacArgs',
-      'execWindows',
-      'execWindowsArgs',
-      'fontFamily',
-      'fontSize',
-      'hotkey',
-      'keepaliveCountMax',
-      'keepaliveInterval',
-      'language',
-      'opacity',
-      'pasteWhenContextMenu',
-      'proxyIp',
-      'proxyPassword',
-      'proxyPort',
-      'proxyType',
-      'proxyUsername',
-      'rendererType',
-      'rightClickSelectsWord',
-      'saveTerminalLogToFile',
-      'scrollback',
-      'sshReadyTimeout',
-      'syncSetting',
-      'terminalTimeout',
-      'terminalType',
-      'theme',
-      'useSystemTitleBar',
-      'zoom'
-    ])
+    objs.config = store.config
     const text = JSON.stringify(objs)
     const name = dayjs().format('YYYY-MM-DD-HH-mm-ss') + '-electerm-all-data.json'
     download(name, text)
@@ -396,6 +366,7 @@ export default (Store) => {
     const { store } = window
     const objs = JSON.parse(txt)
     const toInsert = []
+    const { names } = store.getDataSyncNames(true)
     for (const n of names) {
       let arr = objs[n]
       if (n === settingMap.terminalThemes) {
@@ -422,5 +393,84 @@ export default (Store) => {
     store.setConfig({
       autoSync: v
     })
+  }
+
+  Store.prototype.toggleDataSyncSelected = function (key) {
+    const { store } = window
+    const {
+      dataSyncSelected
+    } = store.config
+    let arr = dataSyncSelected && dataSyncSelected !== 'all'
+      ? dataSyncSelected.split(',')
+      : Object.keys(syncDataMaps)
+    if (arr.includes(key)) {
+      arr = arr.filter(d => d !== key)
+    } else {
+      arr.push(key)
+    }
+    store.setConfig({
+      dataSyncSelected: arr.join(',')
+    })
+  }
+  Store.prototype.getDataSyncNames = function (all) {
+    const { store } = window
+    const {
+      dataSyncSelected
+    } = store.config
+    const syncAll = all || dataSyncSelected === 'all'
+    const keys = syncAll
+      ? Object.keys(syncDataMaps)
+      : dataSyncSelected.split(',')
+    const names = keys
+      .filter(d => d !== 'settings')
+      .map(d => syncDataMaps[d]).flat()
+    const syncConfig = keys.includes('settings')
+    return {
+      names,
+      syncConfig
+    }
+  }
+  Store.prototype.getSyncConfig = function () {
+    const { store } = window
+    const configSyncKeys = [
+      'keepaliveInterval',
+      'rightClickSelectsWord',
+      'pasteWhenContextMenu',
+      'ctrlOrMetaOpenTerminalLink',
+      'hotkey',
+      'sshReadyTimeout',
+      'scrollback',
+      'fontSize',
+      'execWindows',
+      'execMac',
+      'execLinux',
+      'execWindowsArgs',
+      'execMacArgs',
+      'execLinuxArgs',
+      'disableSshHistory',
+      'disableTransferHistory',
+      'terminalType',
+      'keepaliveCountMax',
+      'saveTerminalLogToFile',
+      'checkUpdateOnStart',
+      'cursorBlink',
+      'cursorStyle',
+      'terminalWordSeparator',
+      'confirmBeforeExit',
+      'autoRefreshWhenSwitchToSftp',
+      'addTimeStampToTermLog',
+      'showHiddenFilesOnSftpStart',
+      'terminalInfos',
+      'filePropsEnabled',
+      'hideIP',
+      'terminalTimeout',
+      'theme',
+      'terminalTypes',
+      'language',
+      'copyWhenSelect',
+      'customCss',
+      'dataSyncSelected'
+    ]
+    return pick(store.config, configSyncKeys)
   }
 }
