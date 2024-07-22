@@ -40,6 +40,7 @@ class Tab extends Component {
   }
 
   componentDidMount () {
+    console.log(this.props)
     this.dom = document.getElementById('id' + this.state.tab.id)
     window.addEventListener('message', this.onEvent)
   }
@@ -73,6 +74,9 @@ class Tab extends Component {
       'height',
       'isLast',
       'isMaximized',
+      'activeTerminalId',
+      'config',
+      'tab',
       'width'
     ]
 
