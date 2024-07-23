@@ -354,8 +354,9 @@ export const cwdId = '=__+__'
 export const zmodemTransferPackSize = 1024 * 1024 * 2
 export const syncDataMaps = {
   settings: ['config'],
-  bookmarks: ['bookmarks', 'bookmarkGroups', 'profiles'],
+  bookmarks: ['bookmarks', 'bookmarkGroups'],
   terminalThemes: ['terminalThemes'],
   quickCommands: ['quickCommands'],
+  profiles: ['profiles'],
   addressBookmarks: ['addressBookmarks']
 }

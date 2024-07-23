@@ -7,6 +7,7 @@ const { prefix } = window
 const e = prefix('common')
 const f = prefix('config')
 const t = prefix('terminalThemes')
+const p = prefix('form')
 const q = prefix('quickCommands')
 
 const translateMap = {
@@ -14,6 +15,7 @@ const translateMap = {
   terminalThemes: t,
   quickCommands: q,
   bookmarks: e,
+  profiles: p,
   addressBookmarks: e
 }
 
