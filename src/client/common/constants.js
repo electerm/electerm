@@ -405,6 +405,7 @@ export const splitConfig = {
     children: 3,
     handle: 2
   }
+}
 export const syncDataMaps = {
   settings: ['config'],
   bookmarks: ['bookmarks', 'bookmarkGroups', 'profiles'],
