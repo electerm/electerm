@@ -9,7 +9,7 @@ const delay = require('./common/wait')
 const log = require('./common/log')
 const { expect } = require('chai')
 const appOptions = require('./common/app-options')
-const prefixer = require('./common/lang')
+const e = require('./common/lang')
 const extendClient = require('./common/client-extend')
 const {
   GIST_ID,
@@ -26,8 +26,6 @@ describe('data sync', function () {
     const electronApp = await electron.launch(appOptions)
     const client = await electronApp.firstWindow()
     extendClient(client, electronApp)
-    const prefix = await prefixer(electron)
-    const e = prefix('common')
 
     await delay(3500)
 
