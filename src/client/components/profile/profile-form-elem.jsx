@@ -1,9 +1,9 @@
 import {
   Form,
   message,
-  Button
+  Button,
+  Input
 } from 'antd'
-import generate from '../../common/uid'
 import InputAutoFocus from '../common/input-auto-focus'
 import renderAuth from '../bookmark-form/render-auth-ssh'
 import { formItemLayout } from '../../common/form-layout'
@@ -18,12 +18,21 @@ const ss = prefix('sftp')
 
 export default function QuickCommandForm (props) {
   const [form] = Form.useForm()
-  const { autofocustrigger } = props.store
+  const { autofocustrigger, profiles } = props.store
+  function genId () {
+    let count = profiles.length ? profiles.length : ''
+    let id = 'PROFILE' + count
+    while (profiles.find(d => d.id === id)) {
+      count = count + 1
+      id = 'PROFILE' + count
+    }
+    return id
+  }
   async function handleSubmit (res) {
     const { formData } = props
     const update1 = {
       ...res,
-      id: generate()
+      id: genId()
     }
     if (formData.id) {
       props.store.editItem(formData.id, res, settingMap.profiles)
@@ -44,6 +53,7 @@ export default function QuickCommandForm (props) {
       layout='vertical'
       initialValues={props.formData}
     >
+      <p>ID: {props.formData.id || genId()}</p>
       <FormItem
         label={e('profileName')}
         {...formItemLayout}
@@ -59,6 +69,17 @@ export default function QuickCommandForm (props) {
           selectall='yes'
           autofocustrigger={autofocustrigger}
         />
+      </FormItem>
+      <FormItem
+        {...formItemLayout}
+        label={e('username')}
+        hasFeedback
+        name='username'
+        rules={[{
+          max: 128, message: '128 chars max'
+        }]}
+      >
+        <Input />
       </FormItem>
       {
         renderAuth({
