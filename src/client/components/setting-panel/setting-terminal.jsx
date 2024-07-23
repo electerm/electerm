@@ -107,12 +107,13 @@ export default class SettingTerminal extends Component {
 
   renderToggle = (name, extra = null) => {
     const checked = !!this.props.config[name]
+    const txt = name === 'sftpPathFollowSsh' ? s(name) : e(name)
     return (
       <div className='pd2b' key={'rt' + name}>
         <Switch
           checked={checked}
-          checkedChildren={e(name)}
-          unCheckedChildren={e(name)}
+          checkedChildren={txt}
+          unCheckedChildren={txt}
           onChange={v => this.onChangeValue(v, name)}
         />
         {isNumber(extra) ? null : extra}
@@ -505,7 +506,8 @@ export default class SettingTerminal extends Component {
             'rightClickSelectsWord',
             'pasteWhenContextMenu',
             'copyWhenSelect',
-            'ctrlOrMetaOpenTerminalLink'
+            'ctrlOrMetaOpenTerminalLink',
+            'sftpPathFollowSsh'
           ].map(this.renderToggle)
         }
         <div className='pd1b'>{e('terminalBackSpaceMode')}</div>
