@@ -9,7 +9,7 @@ it.setTimeout(100000)
 const delay = require('./common/wait')
 const log = require('./common/log')
 const appOptions = require('./common/app-options')
-const prefixer = require('./common/lang')
+const e = require('./common/lang')
 const extendClient = require('./common/client-extend')
 
 describe('init setting buttons', function () {
@@ -23,8 +23,6 @@ describe('init setting buttons', function () {
     // console.log(app)
     const client = await electronApp.firstWindow()
     extendClient(client, electronApp)
-    const prefix = await prefixer()
-    const e = prefix('common')
     // await client.waitUntilWindowLoaded()
     await delay(3500)
 
