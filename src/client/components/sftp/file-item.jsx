@@ -967,7 +967,7 @@ export default class FileSection extends React.Component {
     if (
       isDirectory && id &&
       (
-        (hasHost && enableSsh && isRemote) ||
+        (hasHost && enableSsh !== false && isRemote) ||
         (isLocal && !hasHost)
       )
     ) {
@@ -1047,7 +1047,7 @@ export default class FileSection extends React.Component {
         text: m('copyFilePath')
       })
     }
-    if (enableSsh || isLocal) {
+    if (enableSsh !== false || isLocal) {
       res.push({
         func: 'newFile',
         icon: 'FileAddOutlined',

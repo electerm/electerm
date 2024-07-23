@@ -4,8 +4,9 @@
 import { Component } from '../common/react-subx'
 import { Tabs, Spin } from 'antd'
 import SyncForm from './setting-sync-form'
-import { syncTypes } from '../../common/constants'
+import { syncTypes, syncDataMaps } from '../../common/constants'
 import { DataTransport } from './data-import'
+import DataSelect from './data-select'
 import { pick } from 'lodash-es'
 
 export default class SyncSettingEntry extends Component {
@@ -62,6 +63,15 @@ export default class SyncSettingEntry extends Component {
         children: null
       }
     })
+    const {
+      dataSyncSelected
+    } = store.config
+    const arr = dataSyncSelected && dataSyncSelected !== 'all'
+      ? dataSyncSelected.split(',')
+      : Object.keys(syncDataMaps)
+    const dataSelectProps = {
+      dataSyncSelected: arr
+    }
     return (
       <div className='pd2l'>
         <DataTransport store={store} />
@@ -74,6 +84,7 @@ export default class SyncSettingEntry extends Component {
           {
             this.renderForm()
           }
+          <DataSelect {...dataSelectProps} />
         </Spin>
       </div>
     )

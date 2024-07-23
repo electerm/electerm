@@ -589,7 +589,7 @@ export default class SessionWrapper extends Component {
           }
         </div>
         {
-          (isSsh && enableSsh) || isLocal
+          (isSsh && enableSsh !== false) || isLocal
             ? (
               <Tooltip title={checkTxt}>
                 <span {...checkProps}>

@@ -18,7 +18,7 @@ export default ({ text = '' }) => {
     )
   }
   return (
-    <div className='pd1y'>
+    <div className='markdown-wrap'>
       {
         arr.map(render)
       }

@@ -57,5 +57,6 @@ module.exports = exports.default = {
     'size',
     'modifyTime'
   ],
-  hideIP: false
+  hideIP: false,
+  dataSyncSelected: 'all'
 }
