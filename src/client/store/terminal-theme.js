@@ -12,9 +12,7 @@ import {
 import copy from 'json-deep-copy'
 import { convertTheme } from '../common/terminal-theme'
 
-const { terminalThemes } = settingMap
-const { prefix } = window
-const t = prefix(terminalThemes)
+const e = window.translate
 
 export default Store => {
   Store.prototype.getTerminalThemes = function () {
@@ -105,7 +103,7 @@ export default Store => {
         }
       )
       message.info(
-        `${t('default')} ${t('themeConfig')} ${t('updated')}`
+        `${e('default')} ${e('themeConfig')} ${e('updated')}`
       )
     }
     const hasLightTheme = find(store.getTerminalThemes(), d => d.id === defaultThemeLight.id)

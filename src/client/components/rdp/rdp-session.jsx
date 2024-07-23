@@ -23,9 +23,6 @@ import scanCode from './code-scan'
 import resolutions from './resolutions'
 
 const { Option } = Select
-// const { prefix } = window
-// const e = prefix('ssh')
-// const m = prefix('menu')
 
 export default class RdpSession extends Component {
   constructor (props) {

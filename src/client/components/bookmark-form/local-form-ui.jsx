@@ -26,10 +26,7 @@ import { ColorPickerItem } from './color-picker-item.jsx'
 import { getRandomDefaultColor } from '../../common/rand-hex-color.js'
 
 const FormItem = Form.Item
-const { prefix } = window
-const e = prefix('form')
-const c = prefix('common')
-const s = prefix('setting')
+const e = window.translate
 
 export default function LocalFormUi (props) {
   const [
@@ -94,7 +91,7 @@ export default function LocalFormUi (props) {
         </FormItem>
         <FormItem
           {...formItemLayout}
-          label={c('bookmarkCategory')}
+          label={e('bookmarkCategory')}
           name='category'
         >
           <TreeSelect
@@ -125,7 +122,7 @@ export default function LocalFormUi (props) {
       },
       {
         key: 'settings',
-        label: s('settings'),
+        label: e('settings'),
         forceRender: true,
         children: uis
       },

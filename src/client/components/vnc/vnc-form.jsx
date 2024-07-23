@@ -10,9 +10,7 @@ import {
 import { formItemLayout, tailFormItemLayout } from '../../common/form-layout'
 
 const FormItem = Form.Item
-const { prefix } = window
-const e = prefix('form')
-const s = prefix('sftp')
+const e = window.translate
 
 export default function VncForm (props) {
   const [form] = Form.useForm()
@@ -57,7 +55,7 @@ export default function VncForm (props) {
             type='primary'
             htmlType='submit'
           >
-            {s('submit')}
+            {e('submit')}
           </Button>
         </FormItem>
       </div>

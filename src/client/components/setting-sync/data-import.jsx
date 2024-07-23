@@ -15,14 +15,11 @@ import {
 } from '@ant-design/icons'
 import { Component } from '../common/react-subx'
 
-const { prefix } = window
-const e = prefix('form')
-const t = prefix('terminalThemes')
-const s = prefix('settingSync')
+const e = window.translate
 
 export class DataTransport extends Component {
   render () {
-    const txt = s('autoSync')
+    const txt = e('autoSync')
     const {
       store
     } = this.props
@@ -34,7 +31,7 @@ export class DataTransport extends Component {
             className='mg1r'
             onClick={store.handleExportAllData}
           >
-            {t('export')}
+            {e('export')}
           </Button>
           <Upload
             beforeUpload={store.importAll}
@@ -55,7 +52,7 @@ export class DataTransport extends Component {
             unCheckedChildren={txt}
             className='mg3l mg1r'
           />
-          <Tooltip title={s('autoSyncTip')}>
+          <Tooltip title={e('autoSyncTip')}>
             <InfoCircleOutlined />
           </Tooltip>
         </div>

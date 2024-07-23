@@ -28,10 +28,7 @@ const RadioButton = Radio.Button
 const RadioGroup = Radio.Group
 const FormItem = Form.Item
 const { Option } = Select
-const { prefix } = window
-const e = prefix('form')
-const c = prefix('common')
-const sf = prefix('sftp')
+const e = window.translate
 
 export default function renderCommon (props) {
   const {
@@ -146,7 +143,7 @@ export default function renderCommon (props) {
       </FormItem>
       <FormItem
         {...formItemLayout}
-        label={c('bookmarkCategory')}
+        label={e('bookmarkCategory')}
         name='category'
       >
         <TreeSelect
@@ -181,14 +178,14 @@ export default function renderCommon (props) {
       <FormItem
         {...formItemLayout}
         name='startDirectoryLocal'
-        label={`${e('startDirectory')}:${sf('local')}`}
+        label={`${e('startDirectory')}:${e('local')}`}
       >
         <Input />
       </FormItem>
       <FormItem
         {...formItemLayout}
         name='startDirectory'
-        label={`${e('startDirectory')}:${sf('remote')}`}
+        label={`${e('startDirectory')}:${e('remote')}`}
       >
         <Input />
       </FormItem>

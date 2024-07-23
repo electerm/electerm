@@ -3,28 +3,14 @@ import {
 } from '../../common/constants'
 import DataSelectItem from './data-select-item'
 
-const { prefix } = window
-const e = prefix('common')
-const f = prefix('config')
-const t = prefix('terminalThemes')
-const p = prefix('form')
-const q = prefix('quickCommands')
-
-const translateMap = {
-  settings: f,
-  terminalThemes: t,
-  quickCommands: q,
-  bookmarks: e,
-  profiles: p,
-  addressBookmarks: e
-}
+const e = window.translate
 
 export default function DataSelect (props) {
   const {
     dataSyncSelected
   } = props
-  function onChange (e) {
-    const key = e.target['data-key']
+  function onChange (evt) {
+    const key = evt.target['data-key']
     window.store.toggleDataSyncSelected(key)
   }
   return (
@@ -33,7 +19,7 @@ export default function DataSelect (props) {
         Object.keys(syncDataMaps)
           .map(d => {
             const checked = dataSyncSelected.includes(d)
-            const title = translateMap[d](d)
+            const title = e(d)
             const boxProps = {
               checked,
               onChange,

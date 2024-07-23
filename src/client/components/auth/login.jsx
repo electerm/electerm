@@ -12,8 +12,7 @@ import {
 import Main from '../main/main.jsx'
 import './login.styl'
 
-const { prefix } = window
-const f = prefix('form')
+const e = window.translate
 
 window.store = store
 
@@ -98,7 +97,7 @@ export default class Login extends Component {
               value={pass}
               readOnly={loading}
               onChange={this.handlePassChange}
-              placeholder={f('password')}
+              placeholder={e('password')}
               addonAfter={this.renderAfter()}
               onPressEnter={this.handleSubmit}
             />

@@ -14,8 +14,7 @@ import { useRef } from 'react'
 
 const FormItem = Form.Item
 const FormList = Form.List
-const { prefix } = window
-const t = prefix('quickCommands')
+const e = window.translate
 
 export default function renderQm () {
   const focused = useRef(0)
@@ -34,7 +33,7 @@ export default function renderQm () {
             min={1}
             step={1}
             max={65535}
-            addonBefore={t('delay')}
+            addonBefore={e('delay')}
             placeholder={100}
             className='compact-input'
           />
@@ -47,7 +46,7 @@ export default function renderQm () {
         >
           <Input.TextArea
             rows={1}
-            placeholder={t('quickCommand')}
+            placeholder={e('quickCommand')}
             className='compact-input qm-input'
             onFocus={() => {
               focused.current = i
@@ -100,7 +99,7 @@ export default function renderQm () {
   })
   const label = (
     <div>
-      {t('commonCommands')}
+      {e('commonCommands')}
       <HelpIcon
         title={cmds}
       />
@@ -127,7 +126,7 @@ export default function renderQm () {
                     block
                     icon={<PlusOutlined />}
                   >
-                    {t('quickCommand')}
+                    {e('quickCommand')}
                   </Button>
                 </FormItem>
               </div>

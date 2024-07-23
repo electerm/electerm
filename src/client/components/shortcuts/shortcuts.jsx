@@ -10,12 +10,7 @@ import {
   isMacJs as isMac
 } from '../../common/constants.js'
 
-const { prefix } = window
-const e = prefix('form')
-const c = prefix('control')
-const m = prefix('menu')
-const ss = prefix('ssh')
-const s = prefix('setting')
+const e = window.translate
 const shortcutsDefaults = shortcutsDefaultsGen()
 
 export default class Shortcuts extends Component {
@@ -105,30 +100,12 @@ export default class Shortcuts extends Component {
         key: 'name',
         render: (name) => {
           const [a, b] = name.split('_')
-          const pre = a === 'terminal' ? `[${ss('terminal')}] ` : ''
-          if (
-            [
-              'clear', 'selectAll', 'search', 'split'
-            ].includes(b)
-          ) {
-            return pre + ss(b)
-          } else if (b === 'copy') {
-            return pre + m(b)
-          } else if (b === 'newBookmark') {
-            return pre + c(b)
-          } else if (b.includes('zoomin')) {
-            return pre + m('zoomin')
-          } else if (b.includes('zoomout')) {
-            return pre + m('zoomout')
-          } else if (['togglefullscreen'].includes(b)) {
-            return pre + m(b)
-          } else {
-            return pre + s(b)
-          }
+          const pre = a === 'terminal' ? `[${e('terminal')}] ` : ''
+          return pre + e(b)
         }
       },
       {
-        title: s('settingShortcuts'),
+        title: e('settingShortcuts'),
         dataIndex: 'shortcut',
         key: 'shortcut',
         render: (shortcut, inst) => {
@@ -174,7 +151,7 @@ export default class Shortcuts extends Component {
           <Button
             onClick={this.handleResetAll}
           >
-            {s('resetAllToDefault')}
+            {e('resetAllToDefault')}
           </Button>
         </div>
       </div>

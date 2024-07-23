@@ -41,10 +41,7 @@ import {
   theme
 } from 'antd'
 
-const { prefix } = window
-const ss = prefix('settingSync')
-const s = prefix('setting')
-const sss = prefix('ssh')
+const e = window.translate
 
 function getReverseColor (hex) {
   // Check if the input is a valid hex color code
@@ -201,15 +198,15 @@ class Store {
     return [
       {
         id: settingTerminalId,
-        title: sss('terminal')
+        title: e('terminal')
       },
       {
         id: settingShortcutsId,
-        title: s('settingShortcuts')
+        title: e('settingShortcuts')
       },
       {
         id: settingSyncId,
-        title: ss('settingSync')
+        title: e('settingSync')
       }
     ]
   }

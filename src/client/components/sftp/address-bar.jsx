@@ -16,8 +16,7 @@ import {
 import classnames from 'classnames'
 import AddrBookmark from './address-bookmark'
 
-const { prefix } = window
-const e = prefix('sftp')
+const e = window.translate
 
 function renderAddonBefore (props, realPath) {
   const {

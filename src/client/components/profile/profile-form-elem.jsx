@@ -11,10 +11,7 @@ import {
   settingMap
 } from '../../common/constants'
 const FormItem = Form.Item
-const { prefix } = window
-const e = prefix('form')
-const s = prefix('setting')
-const ss = prefix('sftp')
+const e = window.translate
 
 export default function QuickCommandForm (props) {
   const [form] = Form.useForm()
@@ -43,7 +40,7 @@ export default function QuickCommandForm (props) {
         name: e('profile')
       })
     }
-    message.success(s('saved'))
+    message.success(e('saved'))
   }
   return (
     <Form
@@ -99,7 +96,7 @@ export default function QuickCommandForm (props) {
           type='primary'
           htmlType='submit'
         >
-          {ss('submit')}
+          {e('submit')}
         </Button>
       </FormItem>
     </Form>

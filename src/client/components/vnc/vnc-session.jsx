@@ -18,8 +18,7 @@ import resolutions from '../rdp/resolutions'
 import RFB from '@novnc/novnc/core/rfb'
 import VncForm from './vnc-form'
 
-const { prefix } = window
-const e = prefix('form')
+const e = window.translate
 
 export default class VncSession extends RdpSession {
   constructor (props) {

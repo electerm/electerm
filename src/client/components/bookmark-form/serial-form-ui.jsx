@@ -37,11 +37,7 @@ import { ColorPickerItem } from './color-picker-item.jsx'
 
 const FormItem = Form.Item
 const { Option } = Select
-const { prefix } = window
-const e = prefix('form')
-const c = prefix('common')
-const s = prefix('setting')
-const m = prefix('menu')
+const e = window.translate
 
 export default function SerialFormUi (props) {
   const [
@@ -124,7 +120,7 @@ export default function SerialFormUi (props) {
           </FormItem>
           <Spin spinning={loaddingSerials}>
             <span onClick={props.store.handleGetSerials}>
-              <ReloadOutlined /> {m('reload')} serials
+              <ReloadOutlined /> {e('reload')} serials
             </span>
           </Spin>
         </FormItem>
@@ -262,7 +258,7 @@ export default function SerialFormUi (props) {
         </FormItem>
         <FormItem
           {...formItemLayout}
-          label={c('bookmarkCategory')}
+          label={e('bookmarkCategory')}
           name='category'
         >
           <TreeSelect
@@ -285,7 +281,7 @@ export default function SerialFormUi (props) {
       },
       {
         key: 'settings',
-        label: s('settings'),
+        label: e('settings'),
         forceRender: true,
         children: uis
       },

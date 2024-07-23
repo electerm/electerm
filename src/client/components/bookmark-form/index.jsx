@@ -29,11 +29,7 @@ import {
   BookOutlined
 } from '@ant-design/icons'
 
-const { prefix } = window
-const c = prefix('common')
-const m = prefix('menu')
-const s = prefix('setting')
-const p = prefix('sftp')
+const e = window.translate
 
 export default class BookmarkIndex extends Component {
   constructor (props) {
@@ -102,7 +98,7 @@ export default class BookmarkIndex extends Component {
           keys.map(k => {
             const v = connectionMap[k]
             return (
-              <Radio.Button key={v} value={v}>{p(v)}</Radio.Button>
+              <Radio.Button key={v} value={v}>{e(v)}</Radio.Button>
             )
           })
         }
@@ -156,9 +152,9 @@ export default class BookmarkIndex extends Component {
           <span>
             {
               (!isNew
-                ? m('edit')
-                : s('new')
-              ) + ' ' + c(settingMap.bookmarks)
+                ? e('edit')
+                : e('new')
+              ) + ' ' + e(settingMap.bookmarks)
             }
           </span>
           {this.renderTitle(formData, isNew)}

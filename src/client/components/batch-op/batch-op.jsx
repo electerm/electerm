@@ -32,11 +32,7 @@ import wait from '../../common/wait'
 import { getFolderFromFilePath } from '../sftp/file-read'
 import resolveFilePath from '../../common/resolve'
 
-const { prefix } = window
-const f = prefix('form')
-const t = prefix('transferHistory')
-const c = prefix('common')
-const m = prefix('menu')
+const e = window.translate
 
 export default class BatchOp extends Component {
   state = {
@@ -50,13 +46,13 @@ export default class BatchOp extends Component {
   }
 
   exampleColumns = [
-    { title: f('host'), dataIndex: 'host', key: 'host' },
-    { title: f('port'), dataIndex: 'port', key: 'port', responsive: ['md'] },
-    { title: f('username'), dataIndex: 'username', key: 'username', responsive: ['lg'] },
-    { title: f('password'), dataIndex: 'password', key: 'password', responsive: ['xl'] },
+    { title: e('host'), dataIndex: 'host', key: 'host' },
+    { title: e('port'), dataIndex: 'port', key: 'port', responsive: ['md'] },
+    { title: e('username'), dataIndex: 'username', key: 'username', responsive: ['lg'] },
+    { title: e('password'), dataIndex: 'password', key: 'password', responsive: ['xl'] },
     { title: 'Command', dataIndex: 'command', key: 'command', responsive: ['lg'] },
-    { title: t('localPath'), dataIndex: 'localPath', key: 'localPath', responsive: ['xl'] },
-    { title: t('remotePath'), dataIndex: 'remotePath', key: 'remotePath', responsive: ['xl'] },
+    { title: e('localPath'), dataIndex: 'localPath', key: 'localPath', responsive: ['xl'] },
+    { title: e('remotePath'), dataIndex: 'remotePath', key: 'remotePath', responsive: ['xl'] },
     { title: 'Action', dataIndex: 'action', key: 'action', responsive: ['md'] },
     { title: 'Command After', dataIndex: 'commandAfter', key: 'commandAfter', responsive: ['xl'] }
   ]
@@ -209,7 +205,7 @@ export default class BatchOp extends Component {
       await runCmd(tab.pid, tab.sessionId, conf.cmdAfterTransfer)
       this.updateState('run cmd2 done', index)
     }
-    this.updateState(c('finished'), index)
+    this.updateState(e('finished'), index)
     document.querySelector('.tabs .tab.active .tab-close .anticon').click()
   }
 
@@ -462,7 +458,7 @@ export default class BatchOp extends Component {
         <Button
           onClick={this.handleExec}
           loading={this.state.working}
-        >{c('execute')}
+        >{e('execute')}
         </Button>
       </div>
     )
@@ -471,22 +467,8 @@ export default class BatchOp extends Component {
   translate = k => {
     if (k === 'index') {
       return 'NO.'
-    } else if (
-      [
-        'host',
-        'port',
-        'username',
-        'password'
-      ].includes(k)
-    ) {
-      return f(k)
-    } else if (
-      k.includes('Path')
-    ) {
-      return t(k)
-    } else {
-      return c(k)
     }
+    return e(k)
   }
 
   renderContent () {
@@ -509,12 +491,12 @@ export default class BatchOp extends Component {
       <div>
         <div className='pd1y'>
           <h2>
-            {c('batchOperation')}
+            {e('batchOperation')}
             <HelpIcon
               link={batchOpHelpLink}
             />
           </h2>
-          <div className='pd1y'>{c('examples')}:</div>
+          <div className='pd1y'>{e('examples')}:</div>
           <Table
             {...exampleTableProps}
           />
@@ -546,7 +528,7 @@ export default class BatchOp extends Component {
               type='dashed'
               disabled={disabled}
             >
-              {c('importFromCSV')}
+              {e('importFromCSV')}
             </Button>
           </Upload>
         </div>
@@ -565,7 +547,7 @@ export default class BatchOp extends Component {
               loading={loading}
               disabled={disabled}
               htmlType='button'
-            >{c('addToQueue')}
+            >{e('addToQueue')}
             </Button>
           </div>
           <div className='fright'>
@@ -575,7 +557,7 @@ export default class BatchOp extends Component {
               disabled={disabled || !tasks.length}
               type='primary'
               htmlType='button'
-            >{c('execute')}
+            >{e('execute')}
             </Button>
           </div>
         </div>
@@ -632,7 +614,7 @@ export default class BatchOp extends Component {
     })
     if (tab === 'tasks') {
       columns.push({
-        title: m('del'),
+        title: e('del'),
         dataIndex: 'op',
         key: 'op',
         render: (k, rec) => {
@@ -644,7 +626,7 @@ export default class BatchOp extends Component {
               className='act-del pointer'
               onClick={() => this.handleDel(rec)}
             >
-              {m('del')}
+              {e('del')}
             </span>
           )
         }
@@ -657,7 +639,7 @@ export default class BatchOp extends Component {
       }
     })
     const len = data.length
-    const title = `${c(tab)}(${len})`
+    const title = `${e(tab)}(${len})`
     return {
       key: tab,
       label: title,

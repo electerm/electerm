@@ -11,10 +11,7 @@ import { formItemLayout, tailFormItemLayout } from '../../common/form-layout'
 import resolutions from './resolutions'
 
 const FormItem = Form.Item
-const { prefix } = window
-const e = prefix('ssh')
-const c = prefix('common')
-const m = prefix('menu')
+const e = window.translate
 
 export default function ResolutionForm (props) {
   const {
@@ -43,7 +40,7 @@ export default function ResolutionForm (props) {
         return `${item.width}x${item.height}`
       }
     }, {
-      title: m('del'),
+      title: e('del'),
       key: 'op',
       dataIndex: 'id',
       render: (id, item) => {
@@ -91,7 +88,7 @@ export default function ResolutionForm (props) {
         initialValues={initialValues}
       >
         <FormItem
-          label={c('resolutions')}
+          label={e('resolutions')}
           {...formItemLayout}
           required
           className='ssh-tunnels-host'

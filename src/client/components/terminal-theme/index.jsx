@@ -8,10 +8,7 @@ import InputAutoFocus from '../common/input-auto-focus'
 
 const { TextArea } = Input
 const FormItem = Form.Item
-const { prefix } = window
-const e = prefix('form')
-const s = prefix('setting')
-const t = prefix('terminalThemes')
+const e = window.translate
 
 export default function ThemeForm (props) {
   const [form] = Form.useForm()
@@ -115,7 +112,7 @@ export default function ThemeForm (props) {
         formData.id || update1.id
       )
     }
-    message.success(s('saved'))
+    message.success(e('saved'))
     action.current = 'submit'
   }
 
@@ -157,7 +154,7 @@ export default function ThemeForm (props) {
           type='dashed'
           onClick={exporter}
         >
-          {t('export')}
+          {e('export')}
         </Button>
       </FormItem>
     )
@@ -187,7 +184,7 @@ export default function ThemeForm (props) {
     >
       {renderFuncs(id)}
       <FormItem
-        label={t('themeName')}
+        label={e('themeName')}
         hasFeedback
         name='themeName'
         rules={[{
@@ -203,7 +200,7 @@ export default function ThemeForm (props) {
         />
       </FormItem>
       <FormItem
-        label={t('themeConfig')}
+        label={e('themeConfig')}
       >
         <div className='pd1b'>
           <Upload
@@ -245,7 +242,7 @@ export default function ThemeForm (props) {
                   type='primary'
                   htmlType='submit'
                   className='mg1r mg1b'
-                >{t('saveAndApply')}
+                >{e('saveAndApply')}
                 </Button>
                 <Button
                   type='dashed'

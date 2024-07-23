@@ -27,9 +27,7 @@ import renderProxy from './proxy'
 import ConnectionHopping from './render-connection-hopping.jsx'
 
 const FormItem = Form.Item
-const { prefix } = window
-const e = prefix('form')
-const c = prefix('common')
+const e = window.translate
 
 export default function VncFormUi (props) {
   const [
@@ -180,7 +178,7 @@ export default function VncFormUi (props) {
         </FormItem>
         <FormItem
           {...formItemLayout}
-          label={c('bookmarkCategory')}
+          label={e('bookmarkCategory')}
           name='category'
         >
           <TreeSelect

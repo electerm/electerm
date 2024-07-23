@@ -15,8 +15,7 @@ import './bookmark-form.styl'
 
 const { TextArea } = Input
 const FormItem = Form.Item
-const { prefix } = window
-const e = prefix('form')
+const e = window.translate
 
 export default function renderAuth (props) {
   const {

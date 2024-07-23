@@ -10,8 +10,7 @@ import highlight from '../common/highlight'
 import QmTransport from './quick-command-transport'
 
 const { Option } = Select
-const { prefix } = window
-const q = prefix('quickCommands')
+const e = window.translate
 
 export default class QuickCommandsList extends List {
   del = (item, e) => {
@@ -114,7 +113,7 @@ export default class QuickCommandsList extends List {
   renderLabels = () => {
     const arr = this.getLabels()
     const props = {
-      placeholder: q('labels'),
+      placeholder: e('labels'),
       mode: 'multiple',
       value: this.state.labels,
       onChange: this.handleChange,

@@ -43,12 +43,10 @@ async function load () {
   window.getLang = (lang = window.store?.config.language || 'en_us') => {
     return _get(window.langMap, `[${lang}].lang`)
   }
-  window.prefix = prefix => {
-    return (id) => {
-      const lang = window.getLang()
-      const str = _get(lang, `[${prefix}][${id}]`) || id
-      return window.capitalizeFirstLetter(str)
-    }
+  window.translate = txt => {
+    const lang = window.getLang()
+    const str = _get(lang, `[${txt}]`) || txt
+    return window.capitalizeFirstLetter(str)
   }
   await loadWorker()
   loadScript()

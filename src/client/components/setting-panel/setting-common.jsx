@@ -29,11 +29,7 @@ import delay from '../../common/wait.js'
 import './setting.styl'
 
 const { Option } = Select
-const { prefix } = window
-const e = prefix('setting')
-const f = prefix('form')
-const p = prefix('sftp')
-const t = prefix('terminalThemes')
+const e = window.translate
 
 const modifiers = [
   'Command',
@@ -55,7 +51,7 @@ export default class SettingCommon extends Component {
     passwordChanged: false,
     submittingPass: false,
     passInputFocused: false,
-    placeholderLogin: window.pre.requireAuth ? '********' : f('notSet'),
+    placeholderLogin: window.pre.requireAuth ? '********' : e('notSet'),
     loginPass: ''
   }
 
@@ -92,7 +88,7 @@ export default class SettingCommon extends Component {
         loginPass: pass ? '********' : '',
         submittingPass: false,
         passwordChanged: true,
-        placeholderLogin: pass ? '********' : f('notSet')
+        placeholderLogin: pass ? '********' : e('notSet')
       }, () => {
         this.submitting = false
       })
@@ -417,7 +413,7 @@ export default class SettingCommon extends Component {
       <div className='pd1b'>
         <div className='pd1b'>
           <span className='pd1r'>
-            {e('global')} {f('proxy')}
+            {e('global')} {e('proxy')}
             <HelpIcon
               title={table}
               overlayInnerStyle={style}
@@ -478,7 +474,7 @@ export default class SettingCommon extends Component {
     }
     return (
       <div>
-        <div className='pd1b'>{f('loginPassword')}</div>
+        <div className='pd1b'>{e('loginPassword')}</div>
         <div className='pd2b'>
           <Input.Password
             {...props}
@@ -575,7 +571,7 @@ export default class SettingCommon extends Component {
         }
 
         <div className='pd2b'>
-          <span className='inline-title mg1r'>{t('uiThemes')}</span>
+          <span className='inline-title mg1r'>{e('uiThemes')}</span>
           <Select
             onChange={this.handleChangeTerminalTheme}
             popupMatchSelectWidth={false}
@@ -617,18 +613,18 @@ export default class SettingCommon extends Component {
               })
             }
           </Select>
-          <Link className='mg1l' to={createEditLangLink(language)}>{p('edit')}</Link>
+          <Link className='mg1l' to={createEditLangLink(language)}>{e('edit')}</Link>
         </div>
         {this.renderRestart('languageChanged')}
-        <div className='pd1b'>{t('default')} {e('execWindows')}</div>
+        <div className='pd1b'>{e('default')} {e('execWindows')}</div>
         {
           this.renderTextExec('execWindows')
         }
-        <div className='pd1b'>{t('default')} {e('execMac')}</div>
+        <div className='pd1b'>{e('default')} {e('execMac')}</div>
         {
           this.renderTextExec('execMac')
         }
-        <div className='pd1b'>{t('default')} {e('execLinux')}</div>
+        <div className='pd1b'>{e('default')} {e('execLinux')}</div>
         {
           this.renderTextExec('execLinux')
         }

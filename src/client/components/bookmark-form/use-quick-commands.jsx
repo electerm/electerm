@@ -18,8 +18,7 @@ import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons'
 
 const FormItem = Form.Item
 const FormList = Form.List
-const { prefix } = window
-const t = prefix('quickCommands')
+const e = window.translate
 
 export default function useQuickCmds (form, formData) {
   function renderItem (field, i, add, remove) {
@@ -35,7 +34,7 @@ export default function useQuickCmds (form, formData) {
           fieldKey={[field.fieldKey, 'first']}
           rules={[{ required: true, max: 30 }]}
         >
-          <Input placeholder={t('quickCommandName')} />
+          <Input placeholder={e('quickCommandName')} />
         </FormItem>
         <FormItem
           {...field}
@@ -43,7 +42,7 @@ export default function useQuickCmds (form, formData) {
           fieldKey={[field.fieldKey, 'first']}
           rules={[{ required: true, max: 300 }]}
         >
-          <Input placeholder={t('quickCommand')} />
+          <Input placeholder={e('quickCommand')} />
         </FormItem>
         <MinusCircleOutlined onClick={() => remove(field.name)} />
       </Space>
@@ -52,7 +51,7 @@ export default function useQuickCmds (form, formData) {
   return (
     <FormList
       {...formItemLayout}
-      label={t('quickCommands')}
+      label={e('quickCommands')}
       name='quickCommands'
     >
       {
@@ -71,7 +70,7 @@ export default function useQuickCmds (form, formData) {
                   block
                   icon={<PlusOutlined />}
                 >
-                  {t('newQuickCommand')}
+                  {e('newQuickCommand')}
                 </Button>
               </FormItem>
             </div>

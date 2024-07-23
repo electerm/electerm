@@ -12,10 +12,7 @@ import highlight from '../common/highlight'
 import { settingSyncId, settingCommonId } from '../../common/constants'
 import './list.styl'
 
-const { prefix } = window
-const e = prefix('menu')
-const c = prefix('common')
-const s = prefix('setting')
+const e = window.translate
 
 export default class ItemList extends React.PureComponent {
   state = {
@@ -88,7 +85,7 @@ export default class ItemList extends React.PureComponent {
           title={e('del') + '?'}
           onConfirm={e => this.del(item, e)}
           okText={e('del')}
-          cancelText={c('cancel')}
+          cancelText={e('cancel')}
           placement='top'
         >
           {icon}
@@ -124,7 +121,7 @@ export default class ItemList extends React.PureComponent {
           title={title}
           className='elli pd1y pd2x list-item-title'
         >
-          {tag}{titleHighlight || s('new')}
+          {tag}{titleHighlight || e('new')}
         </div>
         {this.renderDelBtn(item)}
         {this.renderEditBtn(item, isGroup)}

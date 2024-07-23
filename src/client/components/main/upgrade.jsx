@@ -19,12 +19,10 @@ import Markdown from '../common/markdown'
 import downloadMirrors from '../../common/download-mirrors'
 import './upgrade.styl'
 
-const { prefix } = window
+const e = window.translate
 const {
   homepage
 } = packInfo
-const e = prefix('updater')
-const c = prefix('common')
 
 export default class Upgrade extends PureComponent {
   state = {
@@ -347,7 +345,7 @@ export default class Upgrade extends PureComponent {
                   >
                     {
                       upgrading
-                        ? <span>{`${e('upgrading')}... ${upgradePercent || 0}% ${c('cancel')}`}</span>
+                        ? <span>{`${e('upgrading')}... ${upgradePercent || 0}% ${e('cancel')}`}</span>
                         : e('upgrade')
                     }
                   </Button>

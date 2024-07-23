@@ -5,8 +5,7 @@
 import { Button, Space } from 'antd'
 import { isFunction, noop } from 'lodash-es'
 
-const { prefix } = window
-const e = prefix('permission')
+const e = window.translate
 
 export default (perm, _onClick) => {
   const {

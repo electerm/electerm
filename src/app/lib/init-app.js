@@ -22,17 +22,13 @@ function initApp (langMap, config) {
   global.et.getLang = (lang = global.et.config.language || 'en_us') => {
     return global.et.langMap[lang].lang
   }
-  global.et.prefix = pre => {
+  global.et.translate = txt => {
     if (global.et.config.language === 'en_us') {
-      return (id) => {
-        return capitalizeFirstLetter(
-          global.et.getLang()[pre][id] || id
-        )
-      }
+      return capitalizeFirstLetter(
+        global.et.getLang()[txt] || txt
+      )
     }
-    return (id) => {
-      return global.et.getLang()[pre][id] || id
-    }
+    return global.et.getLang()[txt] || txt
   }
   if (isMac) {
     const dockMenu = buildDocMenu()
@@ -40,13 +36,13 @@ function initApp (langMap, config) {
   }
   const menu = buildMenu()
   Menu.setApplicationMenu(menu)
-  const a = global.et.prefix('app')
+  const e = global.et.translate
   // handle autohide flag
   if (process.argv.includes('--autohide')) {
     global.et.timer = setTimeout(() => global.win.minimize(), 500)
     if (Notification.isSupported()) {
       const notice = new Notification({
-        title: `${packInfo.name} ${a('isRunning')}, ${a('press')} ${config.hotkey} ${a('toShow')}`
+        title: `${packInfo.name} ${e('isRunning')}, ${e('press')} ${config.hotkey} ${e('toShow')}`
       })
       notice.show()
     }

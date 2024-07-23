@@ -18,8 +18,7 @@ import { buildNewTheme } from '../common/terminal-theme'
 import getInitItem from '../common/init-setting-item'
 import newTerm from '../common/new-terminal'
 
-const { prefix } = window
-const m = prefix('menu')
+const e = window.translate
 
 export default Store => {
   Store.prototype.setConfig = function (conf) {
@@ -161,7 +160,7 @@ export default Store => {
     const { store } = window
     if (store.isSencondInstance) {
       return message.warning(
-        m('sencondInstanceTip')
+        e('sencondInstanceTip')
       )
     }
     store.showModal = modals.setting

@@ -19,10 +19,7 @@ import {
 
 const FormItem = Form.Item
 const { Option } = Select
-const { prefix } = window
-const e = prefix('form')
-const t = prefix('quickCommands')
-const s = prefix('setting')
+const e = window.translate
 const shortcutsDefaults = shortcutsDefaultsGen()
 
 export default function QuickCommandForm (props) {
@@ -38,7 +35,6 @@ export default function QuickCommandForm (props) {
     setShortcut(value)
   }
   const handleClear = () => {
-    console.log('handleClear')
     form.setFieldsValue({
       shortcut: ''
     })
@@ -107,10 +103,10 @@ export default function QuickCommandForm (props) {
       store.addQuickCommand(update1)
       store.setSettingItem({
         id: '',
-        name: t('newQuickCommand')
+        name: e('newQuickCommand')
       })
     }
-    message.success(s('saved'))
+    message.success(e('saved'))
   }
   const initialValues = formData
   if (!initialValues.labels) {
@@ -123,7 +119,6 @@ export default function QuickCommandForm (props) {
       delay: 100
     }]
   }
-  console.log('initialValues', initialValues, formData)
   const editorProps = {
     data: {
       name: uid,
@@ -144,7 +139,7 @@ export default function QuickCommandForm (props) {
       initialValues={initialValues}
     >
       <FormItem
-        label={t('quickCommandName')}
+        label={e('quickCommandName')}
         rules={[{
           max: 60, message: '60 chars max'
         }, {
@@ -161,7 +156,7 @@ export default function QuickCommandForm (props) {
       {renderQm()}
       <FormItem
         name='labels'
-        label={t('label')}
+        label={e('label')}
       >
         <Select
           mode='tags'
@@ -178,7 +173,7 @@ export default function QuickCommandForm (props) {
         </Select>
       </FormItem>
       <FormItem
-        label={s('settingShortcuts')}
+        label={e('settingShortcuts')}
         name='shortcut'
       >
         <div>
@@ -189,7 +184,7 @@ export default function QuickCommandForm (props) {
         </div>
       </FormItem>
       <FormItem
-        label={t('inputOnly')}
+        label={e('inputOnly')}
         name='inputOnly'
         valuePropName='checked'
       >

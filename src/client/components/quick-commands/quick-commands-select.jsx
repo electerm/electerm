@@ -6,8 +6,7 @@ import { PureComponent } from 'react'
 import { Button } from 'antd'
 import './qm.styl'
 
-const { prefix } = window
-const e = prefix('quickCommands')
+const e = window.translate
 
 export default class QuickCommandsFooter extends PureComponent {
   handleOpen = () => {

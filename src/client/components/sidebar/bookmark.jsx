@@ -8,10 +8,7 @@ import { pick } from 'lodash-es'
 import { ArrowsAltOutlined, EditOutlined, PlusCircleOutlined, ShrinkOutlined, PushpinOutlined } from '@ant-design/icons'
 import { Tooltip } from 'antd'
 
-const { prefix } = window
-const c = prefix('common')
-const m = prefix('menu')
-const e = prefix('control')
+const e = window.translate
 
 export default class BookmarkPanel extends Component {
   render () {
@@ -42,29 +39,29 @@ export default class BookmarkPanel extends Component {
       >
         <div className='pd1y pd2t pd2x'>
           <div className='fix'>
-            <div className='fleft'>{c('bookmarks')}</div>
+            <div className='fleft'>{e('bookmarks')}</div>
             <div className='fright'>
               <Tooltip title={e('newBookmark')}>
                 <PlusCircleOutlined
                   {...pop1}
                 />
               </Tooltip>
-              <Tooltip title={`${m('edit')} ${c('bookmarks')}`}>
+              <Tooltip title={`${e('edit')} ${e('bookmarks')}`}>
                 <EditOutlined
                   {...pop1}
                 />
               </Tooltip>
-              <Tooltip title={c('expandAll')}>
+              <Tooltip title={e('expandAll')}>
                 <ArrowsAltOutlined
                   {...pop2}
                 />
               </Tooltip>
-              <Tooltip title={c('collapseAll')}>
+              <Tooltip title={e('collapseAll')}>
                 <ShrinkOutlined
                   {...pop3}
                 />
               </Tooltip>
-              <Tooltip title={c('pin')}>
+              <Tooltip title={e('pin')}>
                 <PushpinOutlined
                   {...prps1}
                   onClick={store.handlePin}

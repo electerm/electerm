@@ -22,8 +22,7 @@ import postMsg from '../../common/post-msg'
 import { filesize } from 'filesize'
 import { runCmd } from '../terminal/terminal-apis'
 
-const { prefix } = window
-const e = prefix('sftp')
+const e = window.translate
 const formatTime = time
 
 export default function FileInfoModal () {

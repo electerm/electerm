@@ -7,7 +7,7 @@ const {
 const openNewInstance = require('./open-new-instance')
 
 exports.buildDocMenu = function () {
-  const e = global.et.prefix('control')
+  const e = global.et.translate
   return Menu.buildFromTemplate([
     {
       label: e('newWindow'),

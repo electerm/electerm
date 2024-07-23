@@ -16,11 +16,7 @@ import './sync.styl'
 import HelpIcon from '../common/help-icon'
 
 const FormItem = Form.Item
-const { prefix } = window
-const e = prefix('form')
-const ss = prefix('settingSync')
-const s = prefix('setting')
-const sh = prefix('ssh')
+const e = window.translate
 
 export default function SyncForm (props) {
   const [form] = Form.useForm()
@@ -154,7 +150,7 @@ export default function SyncForm (props) {
     : 'gist ID'
   const tokenLabel = createLabel('token', desc)
   const gistLabel = createLabel('gist', idDesc)
-  const syncPasswordName = s('encrypt') + ' ' + e('password')
+  const syncPasswordName = e('encrypt') + ' ' + e('password')
   const syncPasswordLabel = createLabel(syncPasswordName, '')
   return (
     <Form
@@ -207,7 +203,7 @@ export default function SyncForm (props) {
       </FormItem>
       {/* <FormItem
         {...formItemLayout}
-        label={ss('autoSync')}
+        label={e('autoSync')}
       >
         <Switch
           checked={autoSync}
@@ -231,14 +227,14 @@ export default function SyncForm (props) {
             className='mg1r'
             loading={isSyncingSetting}
             icon='swap'
-          >{ss('sync')}</Button> */}
+          >{e('sync')}</Button> */}
           <Button
             type='dashed'
             onClick={upload}
             disabled={disabled()}
             className='mg1r mg1b'
             icon={<ArrowUpOutlined />}
-          >{ss('uploadSettings')}
+          >{e('uploadSettings')}
           </Button>
           <Button
             type='dashed'
@@ -246,7 +242,7 @@ export default function SyncForm (props) {
             disabled={disabled()}
             className='mg1r mg1b sync-btn-down'
             icon={<ArrowDownOutlined />}
-          >{ss('downloadSettings')}
+          >{e('downloadSettings')}
           </Button>
           <Button
             type='dashed'
@@ -254,11 +250,11 @@ export default function SyncForm (props) {
             disabled={disabled()}
             className='mg1r mg1b sync-btn-clear'
             icon={<ClearOutlined />}
-          >{sh('clear')}
+          >{e('clear')}
           </Button>
         </p>
         <p>
-          {ss('lastSyncTime')}: {timeFormatted}
+          {e('lastSyncTime')}: {timeFormatted}
         </p>
         <p>
           {renderGistUrl()}

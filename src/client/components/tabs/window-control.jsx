@@ -8,8 +8,7 @@ import {
   isMacJs
 } from '../../common/constants'
 
-const { prefix } = window
-const m = prefix('menu')
+const e = window.translate
 
 export default class WindowControl extends Component {
   render () {
@@ -35,7 +34,7 @@ export default class WindowControl extends Component {
     return (
       <div className='window-controls'>
         <div className='window-control-box window-control-minimize' onClick={minimize}>
-          <MinusOutlined title={m('minimize')} className='iblock font12 widnow-control-icon' />
+          <MinusOutlined title={e('minimize')} className='iblock font12 widnow-control-icon' />
         </div>
         <div
           className='window-control-box window-control-maximize'
@@ -45,7 +44,7 @@ export default class WindowControl extends Component {
         >
           <span
             title={
-              isMaximized ? m('unmaximize') : m('maximize')
+              isMaximized ? e('unmaximize') : e('maximize')
             }
             className={
               'iblock font12 icon-maximize widnow-control-icon ' +
@@ -54,7 +53,7 @@ export default class WindowControl extends Component {
           />
         </div>
         <div className='window-control-box window-control-close' onClick={closeApp}>
-          <CloseOutlined title={m('close')} className='iblock font12 widnow-control-icon' />
+          <CloseOutlined title={e('close')} className='iblock font12 widnow-control-icon' />
         </div>
       </div>
     )

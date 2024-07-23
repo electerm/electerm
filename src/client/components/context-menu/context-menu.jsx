@@ -44,8 +44,7 @@ import {
   ReloadOutlined
 } from '@ant-design/icons'
 
-const { prefix } = window
-const c = prefix('common')
+const e = window.translate
 
 export default class ContextMenu extends React.PureComponent {
   state = {
@@ -288,9 +287,9 @@ export default class ContextMenu extends React.PureComponent {
     )
     return (
       <Popconfirm
-        cancelText={c('cancel')}
+        cancelText={e('cancel')}
         key={`context-item-${i}-${text}`}
-        okText={c('ok')}
+        okText={e('ok')}
         title={title}
         onConfirm={(e) => this.onClick(e, item)}
       >

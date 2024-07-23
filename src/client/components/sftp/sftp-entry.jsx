@@ -36,9 +36,7 @@ import AddressBar from './address-bar'
 import getProxy from '../../common/get-proxy'
 import './sftp.styl'
 
-const { prefix } = window
-const e = prefix('sftp')
-const c = prefix('common')
+const e = window.translate
 
 const buildTree = arr => {
   return arr.reduce((prev, curr) => {
@@ -390,8 +388,8 @@ export default class Sftp extends Component {
   onDel = (type, files) => {
     this.onDelete = true
     Modal.confirm({
-      cancelText: c('cancel'),
-      okText: c('ok'),
+      cancelText: e('cancel'),
+      okText: e('ok'),
       title: this.renderDelConfirmTitle(files),
       onOk: () => this.delFiles(type, files)
     })

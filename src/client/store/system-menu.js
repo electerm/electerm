@@ -11,9 +11,7 @@ import {
   minZoom
 } from '../common/constants'
 
-const { prefix } = window
-const m = prefix('menu')
-const c = prefix('common')
+const e = window.translate
 
 export default Store => {
   Store.prototype.zoom = function (level = 1, plus = false, zoomOnly) {
@@ -83,9 +81,9 @@ export default Store => {
     mod = Modal.confirm({
       onCancel: () => mod.destroy(),
       onOk: store.doExit,
-      title: m('quit'),
-      okText: c('ok'),
-      cancelText: c('cancel'),
+      title: e('quit'),
+      okText: e('ok'),
+      cancelText: e('cancel'),
       content: ''
     })
   }

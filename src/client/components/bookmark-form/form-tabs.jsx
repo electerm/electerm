@@ -7,16 +7,12 @@ import {
 import { sshTunnelHelpLink } from '../../common/constants'
 import HelpIcon from '../common/help-icon'
 
-const { prefix } = window
-const e = prefix('form')
-const s = prefix('setting')
-const h = prefix('ssh')
-const q = prefix('quickCommands')
+const e = window.translate
 
 export default function renderTabs (props) {
   const tunnelTag = (
     <span>
-      {h('sshTunnel')}
+      {e('sshTunnel')}
       <HelpIcon
         link={sshTunnelHelpLink}
       />
@@ -31,7 +27,7 @@ export default function renderTabs (props) {
     },
     {
       key: 'settings',
-      label: s('settings'),
+      label: e('settings'),
       forceRender: true,
       children: (
         <div>
@@ -44,7 +40,7 @@ export default function renderTabs (props) {
     },
     {
       key: 'quickCommands',
-      label: q('quickCommands'),
+      label: e('quickCommands'),
       forceRender: true,
       children: props.qms
     },

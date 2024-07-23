@@ -31,10 +31,7 @@ import BookmarksList from '../sidebar/bookmark-select'
 import AppDrag from './app-drag'
 import classNames from 'classnames'
 
-const { prefix } = window
-const e = prefix('tabs')
-const c = prefix('control')
-const t = prefix('tabs')
+const e = window.translate
 const MenuItem = Menu.Item
 
 export default class Tabs extends React.Component {
@@ -178,13 +175,13 @@ export default class Tabs extends React.Component {
           className={cls}
           onClick={onNewSsh}
         >
-          <CodeFilled /> {c('newBookmark')}
+          <CodeFilled /> {e('newBookmark')}
         </div>
         <div
           className={cls}
           onClick={() => addTab()}
         >
-          <RightSquareFilled /> {t('newTab')}
+          <RightSquareFilled /> {e('newTab')}
         </div>
         <BookmarksList
           store={window.store}

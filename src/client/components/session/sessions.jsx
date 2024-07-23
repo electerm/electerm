@@ -25,9 +25,7 @@ import { Button } from 'antd'
 import toSimpleObj from '../../common/to-simple-obj'
 import { shortcutExtend } from '../shortcuts/shortcut-handler.js'
 
-const { prefix } = window
-const e = prefix('tabs')
-const c = prefix('control')
+const e = window.translate
 
 class Sessions extends Component {
   state = {
@@ -317,7 +315,7 @@ class Sessions extends Component {
           size='large'
           className='mg1r mg1b'
         >
-          {c('newBookmark')}
+          {e('newBookmark')}
         </Button>
         <div className='pd3'>
           <LogoElem />

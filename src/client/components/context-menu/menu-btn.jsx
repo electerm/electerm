@@ -8,12 +8,7 @@ import { commonActions } from '../../common/constants'
 import { shortcutDescExtend } from '../shortcuts/shortcut-handler.js'
 import generate from '../../common/uid'
 
-const { prefix } = window
-const e = prefix('control')
-const m = prefix('menu')
-const c = prefix('common')
-const t = prefix('tabs')
-const s = prefix('setting')
+const e = window.translate
 const logo = logoRef.replace(/^\//, '')
 
 class MenuBtn extends Component {
@@ -115,7 +110,7 @@ class MenuBtn extends Component {
       {
         func: 'addTab',
         icon: 'RightSquareFilled',
-        text: t('newTab')
+        text: e('newTab')
       },
       {
         func: 'onNewWindow',
@@ -128,19 +123,19 @@ class MenuBtn extends Component {
       {
         noCloseMenu: true,
         icon: 'BookOutlined',
-        text: c('bookmarks'),
+        text: e('bookmarks'),
         submenu: 'Bookmark'
       },
       {
         noCloseMenu: true,
         icon: 'ClockCircleOutlined',
-        text: c('history'),
+        text: e('history'),
         submenu: 'History'
       },
       {
         noCloseMenu: true,
         icon: 'BarsOutlined',
-        text: t('sessions'),
+        text: e('sessions'),
         submenu: 'Tabs'
       },
       // {
@@ -149,17 +144,17 @@ class MenuBtn extends Component {
       {
         func: 'openAbout',
         icon: 'InfoCircleOutlined',
-        text: m('about')
+        text: e('about')
       },
       {
         func: 'openSetting',
         icon: 'SettingOutlined',
-        text: s('settings')
+        text: e('settings')
       },
       {
         func: 'openDevTools',
         icon: 'LeftSquareFilled',
-        text: m('toggledevtools')
+        text: e('toggledevtools')
       },
       // {
       //   type: 'hr'
@@ -170,17 +165,17 @@ class MenuBtn extends Component {
       {
         func: 'minimize',
         icon: 'SwitcherFilled',
-        text: m('minimize')
+        text: e('minimize')
       },
       {
         func: 'maximize',
         icon: 'LayoutFilled',
-        text: m('maximize')
+        text: e('maximize')
       },
       {
         func: 'reload',
         icon: 'ReloadOutlined',
-        text: m('reload')
+        text: e('reload')
       },
       // {
       //   type: 'hr'
@@ -196,12 +191,12 @@ class MenuBtn extends Component {
       {
         func: 'restart',
         icon: 'RedoOutlined',
-        text: m('restart')
+        text: e('restart')
       },
       {
         func: 'close',
         icon: 'CloseOutlined',
-        text: m('close')
+        text: e('close')
       }
     ]
   }

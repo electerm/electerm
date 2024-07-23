@@ -18,10 +18,7 @@ const {
   Button: RadioButton,
   Group: RadioGroup
 } = Radio
-const { prefix } = window
-const e = prefix('ssh')
-const s = prefix('sftp')
-const m = prefix('menu')
+const e = window.translate
 
 export default function renderSshTunnels (props) {
   const {
@@ -98,11 +95,11 @@ export default function renderSshTunnels (props) {
           return `${n}socks5://${sshTunnelLocalHost}:${sshTunnelLocalPort}`
         }
         const to = sshTunnel === 'forwardRemoteToLocal'
-          ? `${s('local')}:${sshTunnelLocalHost}:${sshTunnelLocalPort}`
-          : `${s('remote')}:${sshTunnelRemoteHost}:${sshTunnelRemotePort}`
+          ? `${e('local')}:${sshTunnelLocalHost}:${sshTunnelLocalPort}`
+          : `${e('remote')}:${sshTunnelRemoteHost}:${sshTunnelRemotePort}`
         const from = sshTunnel === 'forwardRemoteToLocal'
-          ? `${s('remote')}:${sshTunnelRemoteHost}:${sshTunnelRemotePort}`
-          : `${s('local')}:${sshTunnelLocalHost}:${sshTunnelLocalPort}`
+          ? `${e('remote')}:${sshTunnelRemoteHost}:${sshTunnelRemotePort}`
+          : `${e('local')}:${sshTunnelLocalHost}:${sshTunnelLocalPort}`
         return (
           <span>
             {name ? `[${name}] ` : ''}→ {from} → {to}
@@ -110,7 +107,7 @@ export default function renderSshTunnels (props) {
         )
       }
     }, {
-      title: m('del'),
+      title: e('del'),
       key: 'op',
       dataIndex: 'id',
       render: (id) => {
@@ -168,7 +165,7 @@ export default function renderSshTunnels (props) {
     }
     return (
       <FormItem
-        label={s('remote')}
+        label={e('remote')}
         {...formItemLayout}
         required
         className='ssh-tunnels-host'
@@ -245,7 +242,7 @@ export default function renderSshTunnels (props) {
         </FormItem>
         {renderRemote()}
         <FormItem
-          label={s('local')}
+          label={e('local')}
           {...formItemLayout}
           required
           className='ssh-tunnels-host'
@@ -276,7 +273,7 @@ export default function renderSshTunnels (props) {
         </FormItem>
         <FormItem
           name='name'
-          label={s('name')}
+          label={e('name')}
           {...formItemLayout}
         >
           <Input

@@ -6,8 +6,7 @@ import {
   terminalLocalType
 } from './constants'
 
-const { prefix } = window
-const p = prefix('sftp')
+const e = window.translate
 
 function maskHost (hostOrIp = '') {
   if (/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(hostOrIp)) {
@@ -46,7 +45,7 @@ export default function createTitle (res, hide = true) {
   if (type) {
     f = `[${type}]${f}`
   }
-  return f || p(terminalLocalType)
+  return f || e(terminalLocalType)
 }
 
 export function createTitleTag (obj) {

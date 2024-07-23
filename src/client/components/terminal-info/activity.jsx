@@ -7,8 +7,7 @@ import { isEmpty } from 'lodash-es'
 import { CloseCircleOutlined, BarsOutlined } from '@ant-design/icons'
 import colsParser from './data-cols-parser'
 
-const { prefix } = window
-const m = prefix('menu')
+const e = window.translate
 
 export default function TerminalInfoActivities (props) {
   const { activities, isRemote, terminalInfos } = props
@@ -19,14 +18,14 @@ export default function TerminalInfoActivities (props) {
   col.unshift({
     dataIndex: 'kill',
     key: 'kill',
-    title: m('close'),
+    title: e('close'),
     render: (txt, inst) => {
       return (
         <Tooltip
-          title={m('close')}
+          title={e('close')}
         >
           <Popconfirm
-            title={m('close') + ' pid:' + inst.pid + ' ?'}
+            title={e('close') + ' pid:' + inst.pid + ' ?'}
             onConfirm={() => props.killProcess(inst.pid)}
           >
             <CloseCircleOutlined
