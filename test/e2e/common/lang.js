@@ -8,7 +8,7 @@ function capitalizeFirstLetter (string) {
   return string.charAt(0).toUpperCase() + string.slice(1)
 }
 
-module.exports = async (id) => {
+module.exports = (id) => {
   const lang = require('@electerm/electerm-locales/dist/en_us.js').lang
   return capitalizeFirstLetter(_.get(lang, `${id}`) || id)
 }
