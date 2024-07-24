@@ -4,7 +4,8 @@
 
 import { uniq, debounce, findIndex } from 'lodash-es'
 import {
-  tabActions
+  tabActions,
+  splitConfig
 } from '../common/constants'
 import postMsg from '../common/post-msg'
 
@@ -69,6 +70,45 @@ export default Store => {
           currentTabId: nextTab.id
         })
       }
+    }
+  }
+
+  Store.prototype.setLayout = function (newLayout) {
+    const {
+      store
+    } = window
+    const {
+      layout
+    } = store
+    if (layout !== newLayout) {
+      store.prevLayout = layout
+      store.layout = newLayout
+    }
+  }
+
+  Store.prototype.onLayoutChange = function () {
+    const {
+      store
+    } = window
+    const {
+      layout,
+      prevLayout
+    } = store
+    const len = splitConfig[layout].children
+    const prevLen = splitConfig[prevLayout].children
+    if (len < prevLen) {
+      const {
+        tabs
+      } = store
+      // Update tabs where batch > len - 1
+      const updatedTabs = tabs.map(tab => {
+        if (tab.batch > len - 1) {
+          return { ...tab, batch: len - 1 }
+        }
+        return tab
+      })
+      // Set the updated tabs back to the store
+      store.setTabs(updatedTabs)
     }
   }
 }

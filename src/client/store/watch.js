@@ -100,6 +100,11 @@ export default store => {
   }).start()
 
   autoRun(store, () => {
+    window.store.onLayoutChange()
+    return store.layout
+  }).start()
+
+  autoRun(store, () => {
     const tabs = store.getTabs()
     const { currentTabId } = store
     const tab = tabs.find(t => t.id === currentTabId)

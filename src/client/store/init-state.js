@@ -19,7 +19,8 @@ import {
   rightSidebarWidthKey,
   dismissDelKeyTipLsKey,
   qmSortByFrequencyKey,
-  resolutionsLsKey
+  resolutionsLsKey,
+  splitMap
 } from '../common/constants'
 import { buildDefaultThemes } from '../common/terminal-theme'
 import * as ls from '../common/safe-local-storage'
@@ -90,6 +91,13 @@ export default () => {
         direction: 'desc'
       }
     }),
+    layout: splitMap.c1,
+    prevLayout: '',
+    currentLayoutBatch: 0,
+    currentTabId0: '',
+    currentTabId1: '',
+    currentTabId2: '',
+    currentTabId3: '',
 
     // for settings related
     _setting: '',

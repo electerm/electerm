@@ -352,6 +352,60 @@ export const instSftpKeys = [
 ]
 export const cwdId = '=__+__'
 export const zmodemTransferPackSize = 1024 * 1024 * 2
+export const splitMap = {
+  c1: 'c1',
+  c2: 'c2',
+  c3: 'c3',
+  r2: 'r2',
+  r3: 'r3',
+  c2x2: 'c2x2',
+  c1x2r: 'c1x2r',
+  c1x1c: 'c1x2c'
+}
+export const splitMapDesc = {
+  c1: 'single',
+  c2: 'twoColumns',
+  c3: 'threeColumns',
+  r2: 'twoRows',
+  r3: 'threeRows',
+  c2x2: 'grid2x2',
+  c1x2r: 'twoRowsRight',
+  c1x1c: 'twoColumnsBottom'
+}
+export const splitConfig = {
+  c1: {
+    children: 1,
+    handle: 0
+  },
+  c2: {
+    children: 2,
+    handle: 1
+  },
+  c3: {
+    children: 3,
+    handle: 2
+  },
+  r2: {
+    children: 2,
+    handle: 1
+  },
+  r3: {
+    children: 3,
+    handle: 2
+  },
+  c2x2: {
+    children: 4,
+    handle: 3
+  },
+  c1x2r: {
+    children: 3,
+    handle: 2
+  },
+  c1x2c: {
+    children: 3,
+    handle: 2
+  }
+}
 export const syncDataMaps = {
   settings: ['config'],
   bookmarks: ['bookmarks', 'bookmarkGroups'],

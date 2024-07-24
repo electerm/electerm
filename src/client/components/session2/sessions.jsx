@@ -1,12 +1,12 @@
-import { Component } from '../common/react-subx'
-import Session from './session'
+import { Component } from '../common/react-subx.jsx'
+import Session from './session.jsx'
 import WebSession from '../web/web-session.jsx'
 import { findIndex, pick } from 'lodash-es'
 import classNames from 'classnames'
-import generate from '../../common/uid'
+import generate from '../../common/uid.js'
 import copy from 'json-deep-copy'
-import wait from '../../common/wait'
-import Tabs from '../tabs'
+import wait from '../../common/wait.js'
+import Tabs from '../tabs/index.jsx'
 import {
   commonActions,
   tabActions,
@@ -14,18 +14,18 @@ import {
   paneMap,
   statusMap,
   terminalWebType
-} from '../../common/constants'
-import newTerm, { updateCount } from '../../common/new-terminal'
-import postMsg from '../../common/post-msg'
-import TermSearch from '../terminal/term-search'
-import Footer from '../footer/footer-entry'
-import QuickCommandsFooterBox from '../quick-commands/quick-commands-box'
-import LogoElem from '../common/logo-elem'
+} from '../../common/constants.js'
+import newTerm, { updateCount } from '../../common/new-terminal.js'
+import postMsg from '../../common/post-msg.js'
+
+import LogoElem from '../common/logo-elem.jsx'
 import { Button } from 'antd'
-import toSimpleObj from '../../common/to-simple-obj'
+import toSimpleObj from '../../common/to-simple-obj.js'
 import { shortcutExtend } from '../shortcuts/shortcut-handler.js'
 
-const e = window.translate
+const { prefix } = window
+const e = prefix('tabs')
+const c = prefix('control')
 
 class Sessions extends Component {
   state = {
@@ -73,6 +73,11 @@ class Sessions extends Component {
       action: commonActions.updateStore,
       value: id,
       prop: 'currentTabId'
+    })
+    postMsg({
+      action: commonActions.updateStore,
+      value: id,
+      prop: 'currentTabId' + this.props.batch
     })
   }
 
@@ -149,6 +154,7 @@ class Sessions extends Component {
     const tab = newTerm()
     tab.terminals = [{
       id: termInitId,
+      batch: this.props.batch,
       position: 0
     }]
     this.addTab(tab)
@@ -315,7 +321,7 @@ class Sessions extends Component {
           size='large'
           className='mg1r mg1b'
         >
-          {e('newBookmark')}
+          {c('newBookmark')}
         </Button>
         <div className='pd3'>
           <LogoElem />
@@ -326,7 +332,7 @@ class Sessions extends Component {
 
   renderSessions () {
     const {
-      store, config
+      store, config, width, height
     } = this.props
     const {
       currentTabId,
@@ -346,13 +352,13 @@ class Sessions extends Component {
       const sessProps = {
         currentTabId,
         tab: toSimpleObj(tab),
+        width,
+        height,
         ...pick(store, [
           'resolutions',
           'hideDelKeyTip',
           'fileOperation',
           'file',
-          'height',
-          'width',
           'activeTerminalId',
           'pinnedQuickCommandBar',
           'tabsHeight',
@@ -398,19 +404,23 @@ class Sessions extends Component {
   renderTabs = () => {
     const {
       store,
-      config
+      config,
+      width,
+      height,
+      batch
     } = this.props
     const {
       tabs,
       currentTabId
     } = this.state
     const tabsProps = {
+      batch,
       currentTabId,
       config,
+      width,
+      height,
       ...pick(store, [
         'layout',
-        'height',
-        'width',
         'activeTerminalId',
         'isMaximized'
       ]),
@@ -427,7 +437,7 @@ class Sessions extends Component {
     }
     return (
       <Tabs
-        key='main-tabs'
+        key={'main-tabs' + batch}
         {...tabsProps}
       />
     )
@@ -457,29 +467,9 @@ class Sessions extends Component {
   }
 
   render () {
-    const { store, config } = this.props
-    const currentTab = this.getCurrentTab()
-    const termProps = {
-      currentTab,
-      store,
-      config
-    }
     return [
       this.renderTabs(),
-      this.renderSessionsWrap(),
-      <TermSearch
-        key='TermSearch'
-        {...termProps}
-      />,
-      <QuickCommandsFooterBox
-        key='QuickCommandsFooterBox'
-        store={store}
-      />,
-      <Footer
-        key='Footer'
-        store={store}
-        currentTab={currentTab}
-      />
+      this.renderSessionsWrap()
     ]
   }
 }
