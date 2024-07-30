@@ -21,7 +21,7 @@ import TermSearch from '../terminal/term-search'
 import Footer from '../footer/footer-entry'
 import QuickCommandsFooterBox from '../quick-commands/quick-commands-box'
 import LogoElem from '../common/logo-elem'
-import { Button } from 'antd'
+import { Button, message } from 'antd'
 import toSimpleObj from '../../common/to-simple-obj'
 import { shortcutExtend } from '../shortcuts/shortcut-handler.js'
 
@@ -185,12 +185,17 @@ class Sessions extends Component {
     })
   }
 
-  onDuplicateTab = (tabToDup) => {
-    this.setState(oldState => {
+  onDuplicateTab = async (tabToDup) => {
+    this.setState(async oldState => {
       const defaultStatus = statusMap.processing
       let tab = copy(tabToDup)
       updateCount(tab)
       this.processTerminals(tab)
+
+      if (tab.sshTunnels && tab.sshTunnels.some(t => t.sshTunnel === 'dynamicForward')) {
+        return message.error('Can not clone session with dynamic port forwarding')
+      }
+
       const tabs = copy(oldState.tabs)
       const index = findIndex(
         tabs,
