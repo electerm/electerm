@@ -11,6 +11,7 @@ import defaultSettings from '../common/default-setting'
 import encodes from '../components/bookmark-form/encodes'
 import runIdle from '../common/run-idle'
 import { initWsCommon } from '../common/fetch-from-server'
+import safeParse from '../common/parse-json-safe'
 
 function getHost (argv, opts) {
   const arr = argv
@@ -74,6 +75,15 @@ export async function addTabFromCommandLine (store, opts) {
   }
   if (options.port && parseInt10(options.port)) {
     update.port = parseInt10(options.port)
+  }
+  if (options.opts) {
+    const opts = safeParse(options.opts)
+    if (opts !== options.opts) {
+      Object.assign(update, opts)
+    }
+  }
+  if (options.type) {
+    update.type = options.type
   }
   Object.assign(conf, update)
   if (options.privateKeyPath) {
