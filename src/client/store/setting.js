@@ -94,17 +94,45 @@ export default Store => {
     if (!item) {
       return
     }
+
     store.addTab({
       ...item,
       from: 'bookmarks',
       srcId: item.id,
       ...newTerm(true, true)
     })
-    item.id = generate()
+
     if (store.config.disableSshHistory) {
       return
     }
-    history.unshift(item)
+
+    // Critical Change: Use bookmarkId for matching instead of history id
+    const bookmarkId = item.id
+    const existingIndex = history.findIndex(h => h.bookmarkId === bookmarkId)
+    if (existingIndex >= 0) {
+      history[existingIndex].count = (history[existingIndex].count || 0) + 1
+      history[existingIndex].lastUse = Date.now()
+      const updatedItem = history.splice(existingIndex, 1)[0]
+      history.unshift(updatedItem)
+    } else {
+      const historyItem = {
+        ...item,
+        id: generate(), // History item gets a unique id
+        bookmarkId, // Store original bookmark id for future matching
+        count: 1,
+        lastUse: Date.now()
+      }
+      history.unshift(historyItem)
+    }
+
+    history.sort((a, b) => b.count - a.count || b.lastUse - a.lastUse)
+
+    // Optional: Consider max history length
+    const maxHistoryLength = store.config.maxHistoryLength || 50
+    if (history.length > maxHistoryLength) {
+      history.length = maxHistoryLength
+    }
+
     store.setItems('history', history)
   }
 
