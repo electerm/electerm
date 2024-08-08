@@ -13,6 +13,8 @@ const { createProxyAgent } = require('../lib/proxy-agent')
 const { openFile, rmrf } = fsExport
 const log = require('../common/log')
 
+rp.defaults.proxy = false
+
 function getUrl (url, mirror) {
   if (mirror === 'download-electerm') {
     return url.replace('github.com', 'download-electerm.html5beta.com')

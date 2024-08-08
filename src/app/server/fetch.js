@@ -5,6 +5,8 @@
 const rp = require('axios')
 const { createProxyAgent } = require('../lib/proxy-agent')
 
+rp.defaults.proxy = false
+
 function fetch (options) {
   return rp(options)
     .then((res) => {

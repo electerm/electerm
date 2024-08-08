@@ -4,6 +4,8 @@ const { dbAction } = require('./nedb')
 const axios = require('axios')
 const getPort = require('./get-port')
 
+axios.defaults.proxy = false
+
 function hashPassword (password) {
   const salt = crypto.randomBytes(16).toString('hex')
   const hashedPassword = crypto.pbkdf2Sync(password, salt, 1000, 64, 'sha512').toString('hex')
