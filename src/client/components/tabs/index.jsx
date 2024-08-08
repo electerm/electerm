@@ -257,14 +257,16 @@ export default class Tabs extends React.Component {
   }
 
   renderContentInner () {
-    const { tabs = [], width } = this.props
+    const { tabs = [], width, config } = this.props
     const len = tabs.length
     const tabsWidthAll = tabMargin * len + 10 + this.tabsWidth()
     const { overflow } = this.state
     const left = overflow
       ? '100%'
       : tabsWidthAll
-    const w1 = isMacJs && window.et.isWebApp ? 30 : windowControlWidth
+    const w1 = isMacJs && (config.useSystemTitleBar || window.et.isWebApp)
+      ? 30
+      : windowControlWidth
     const style = {
       width: width - w1 - 166
     }
