@@ -10,6 +10,8 @@ import {
   ArrowRightOutlined
 } from '@ant-design/icons'
 import Main from '../main/main.jsx'
+import AppDrag from '../tabs/app-drag'
+import WindowControl from '../tabs/window-control'
 import './login.styl'
 
 const e = window.translate
@@ -90,6 +92,10 @@ export default class Login extends Component {
     } = this.state
     return (
       <div className='login-wrap'>
+        <AppDrag />
+        <WindowControl
+          store={window.store}
+        />
         <div className='pd3 aligncenter'>
           <LogoElem />
           <div className='pd3 aligncenter'>
