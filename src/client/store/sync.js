@@ -50,8 +50,12 @@ export default (Store) => {
   }
 
   Store.prototype.getSyncToken = function (type) {
-    if (type === syncTypes.custom) {
-      return ['AccessToken', 'ApiUrl', 'GistId'].map(
+    if (type === syncTypes.custom || type === syncTypes.cloud) {
+      const arr = ['AccessToken', 'ApiUrl']
+      if (type === syncTypes.custom) {
+        arr.push('GistId')
+      }
+      return arr.map(
         p => {
           return get(window.store.config, 'syncSetting.' + type + p)
         }
@@ -149,11 +153,11 @@ export default (Store) => {
     store.isSyncUpload = true
     const token = store.getSyncToken(type)
     let gistId = store.getSyncGistId(type)
-    if (!gistId) {
+    if (!gistId && type !== syncTypes.cloud && type !== syncTypes.custom) {
       await store.createGist(type)
       gistId = store.getSyncGistId(type)
     }
-    if (!gistId) {
+    if (!gistId && type !== syncTypes.custom && type !== syncTypes.cloud) {
       window.isSyncing = false
       store.isSyncingSetting = false
       store.isSyncUpload = false
@@ -218,11 +222,11 @@ export default (Store) => {
     store.isSyncDownload = true
     const token = store.getSyncToken(type)
     let gistId = store.getSyncGistId(type)
-    if (!gistId) {
+    if (!gistId && type !== syncTypes.cloud && type !== syncTypes.custom) {
       await store.createGist(type)
       gistId = store.getSyncGistId(type)
     }
-    if (!gistId) {
+    if (!gistId && type !== syncTypes.custom && type !== syncTypes.cloud) {
       return
     }
     const pass = store.getSyncPassword(type)
