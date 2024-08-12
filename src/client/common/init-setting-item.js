@@ -9,11 +9,8 @@ import {
 } from './constants'
 import { buildNewTheme } from '../common/terminal-theme'
 
-const { prefix } = window
-const e = prefix('control')
+const e = window.translate
 const newQuickCommand = 'newQuickCommand'
-const q = prefix('quickCommands')
-const f = prefix('form')
 
 export default (arr, tab) => {
   if (tab === settingMap.history) {
@@ -27,12 +24,12 @@ export default (arr, tab) => {
   } else if (tab === settingMap.quickCommands) {
     return {
       id: '',
-      name: q(newQuickCommand)
+      name: encodeURIComponent(newQuickCommand)
     }
   } else if (tab === settingMap.profiles) {
     return {
       id: '',
-      name: f(settingMap.profiles)
+      name: e(settingMap.profiles)
     }
   }
 }

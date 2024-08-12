@@ -8,7 +8,7 @@ const delay = require('./common/wait')
 const log = require('./common/log')
 const { expect } = require('chai')
 const appOptions = require('./common/app-options')
-const prefixer = require('./common/lang')
+const e = require('./common/lang')
 const extendClient = require('./common/client-extend')
 
 describe('terminal themes', function () {
@@ -16,9 +16,6 @@ describe('terminal themes', function () {
     const electronApp = await electron.launch(appOptions)
     const client = await electronApp.firstWindow()
     extendClient(client, electronApp)
-    const prefix = await prefixer(electron)
-    const e = prefix('common')
-    const t = prefix('terminalThemes')
     await delay(3500)
 
     log('button:edit')
@@ -28,14 +25,14 @@ describe('terminal themes', function () {
     await client.hasElem(sel)
     await delay(500)
     const text = await client.getText(sel)
-    expect(text).equal(t('uiThemes'))
+    expect(text).equal(e('uiThemes'))
 
     const v = await client.getValue('.setting-wrap #terminal-theme-form_themeName')
     const tx = await client.getText('.setting-wrap .item-list-unit.active')
     const txd = await client.getText('.setting-wrap .item-list-unit.current')
-    expect(v).equal(t('newTheme'))
-    expect(tx).equal(t('newTheme'))
-    expect(txd).equal(t('default'))
+    expect(v).equal(e('newTheme'))
+    expect(tx).equal(e('newTheme'))
+    expect(txd).equal(e('default'))
 
     // create theme
     log('create theme')

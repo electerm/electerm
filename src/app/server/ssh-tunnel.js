@@ -90,6 +90,10 @@ function dynamicForward ({
           }
         })
     })
+    dproxyServer.on('error', (err) => {
+      log.error('Error listening for local connections:', err)
+      reject(err)
+    })
     dproxyServer.listen(sshTunnelLocalPort, sshTunnelLocalHost, () => {
       log.log(`SOCKS server listening on ${sshTunnelLocalHost}:${sshTunnelLocalPort}`)
       resolve(1)

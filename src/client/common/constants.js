@@ -217,12 +217,14 @@ export const baseUpdateCheckUrls = [
 export const syncTypes = buildConst([
   'github',
   'gitee',
-  'custom'
+  'custom',
+  'cloud'
 ])
 export const syncTokenCreateUrls = {
   gitee: 'https://gitee.com/github-zxdong262/electerm/wikis/Create%20personal%20access%20token?sort_id=3028409',
   github: 'https://github.com/electerm/electerm/wiki/Create-personal-access-token',
-  custom: 'https://github.com/electerm/electerm/wiki/Custom-sync-server'
+  custom: 'https://github.com/electerm/electerm/wiki/Custom-sync-server',
+  cloud: 'https://electerm-cloud.html5beta.com'
 }
 export const settingSyncId = 'setting-sync'
 export const settingTerminalId = 'setting-terminal'
@@ -408,8 +410,9 @@ export const splitConfig = {
 }
 export const syncDataMaps = {
   settings: ['config'],
-  bookmarks: ['bookmarks', 'bookmarkGroups', 'profiles'],
+  bookmarks: ['bookmarks', 'bookmarkGroups'],
   terminalThemes: ['terminalThemes'],
   quickCommands: ['quickCommands'],
+  profiles: ['profiles'],
   addressBookmarks: ['addressBookmarks']
 }

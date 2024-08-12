@@ -22,12 +22,7 @@ import {
 } from '../../common/constants'
 import './info.styl'
 
-const { prefix } = window
-const e = prefix('control')
-const m = prefix('menu')
-const c = prefix('common')
-const a = prefix('app')
-const s = prefix('setting')
+const e = window.translate
 
 export default class InfoModal extends Component {
   handleChangeTab = key => {
@@ -103,14 +98,14 @@ export default class InfoModal extends Component {
     }
     const title = (
       <div className='ant-modal-confirm-title font16'>
-        <InfoCircleOutlined className='font20 mg1r' /> {m('about')} {name}
+        <InfoCircleOutlined className='font20 mg1r' /> {e('about')} {name}
       </div>
     )
     const attrs = {
       title,
       width: window.innerWidth - 100,
       maskClosable: true,
-      okText: c('ok'),
+      okText: e('ok'),
       onCancel: onCloseAbout,
       footer: null,
       open: true,
@@ -119,11 +114,11 @@ export default class InfoModal extends Component {
     const items = [
       {
         key: infoTabs.info,
-        label: m('about'),
+        label: e('about'),
         children: (
           <div>
             <LogoElem />
-            <p className='mg2b'>{a('desc')}</p>
+            <p className='mg2b'>{e('desc')}</p>
             <p className='mg1b'>
               <UserOutlined /> <b className='mg1r'>{e('author')} ➾</b>
               <Link to={authorUrl} className='mg1l'>
@@ -143,7 +138,7 @@ export default class InfoModal extends Component {
               </Link>
             </p>
             <p className='mg1b'>
-              <GlobalOutlined /> <b className='mg1r'>{s('language')} repo ➾</b>
+              <GlobalOutlined /> <b className='mg1r'>{e('language')} repo ➾</b>
               <Link to={langugeRepo} className='mg1l'>
                 {langugeRepo}
               </Link>
@@ -155,25 +150,25 @@ export default class InfoModal extends Component {
               </Link>
             </p>
             <p className='mg1b'>
-              <HighlightOutlined /> <b className='mg1r'>{a('changeLog')} ➾</b>
+              <HighlightOutlined /> <b className='mg1r'>{e('changeLog')} ➾</b>
               <Link to={releaseLink} className='mg1l'>
                 {releaseLink}
               </Link>
             </p>
             <p className='mg1b'>
-              <AlignLeftOutlined /> <b className='mg1r'>{a('knownIssues')} ➾</b>
+              <AlignLeftOutlined /> <b className='mg1r'>{e('knownIssues')} ➾</b>
               <Link to={knownIssuesLink} className='mg1l'>
                 {knownIssuesLink}
               </Link>
             </p>
             <p className='mg1b'>
-              <WarningOutlined /> <b className='mg1r'>{a('privacyNotice')} ➾</b>
+              <WarningOutlined /> <b className='mg1r'>{e('privacyNotice')} ➾</b>
               <Link to={privacyNoticeLink} className='mg1l'>
                 {privacyNoticeLink}
               </Link>
             </p>
             <p className='mg1b'>
-              <HeartOutlined /> <b className='mg1r'>{a('sponsorElecterm')} ➾</b>
+              <HeartOutlined /> <b className='mg1r'>{e('sponsorElecterm')} ➾</b>
               <Link to={sponsorLink} className='mg1l'>
                 {sponsorLink}
               </Link>

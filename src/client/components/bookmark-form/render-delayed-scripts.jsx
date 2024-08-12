@@ -10,8 +10,7 @@ import { formItemLayout } from '../../common/form-layout'
 
 const FormItem = Form.Item
 const FormList = Form.List
-const { prefix } = window
-const e = prefix('form')
+const e = window.translate
 
 export default function renderRunScripts () {
   function renderItem (field, i, add, remove) {

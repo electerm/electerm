@@ -5,8 +5,7 @@
 import { defaultTheme, settingMap } from '../common/constants'
 import download from '../common/download'
 import copy from 'json-deep-copy'
-const { prefix } = window
-const t = prefix('terminalThemes')
+const e = window.translate
 const terminalPrefix = 'terminal:'
 export const requiredThemeProps = [
   'main',
@@ -64,7 +63,7 @@ export const buildNewTheme = (theme = defaultTheme) => {
     copy(theme),
     {
       id: '',
-      name: t('newTheme')
+      name: e('newTheme')
     }
   )
 }

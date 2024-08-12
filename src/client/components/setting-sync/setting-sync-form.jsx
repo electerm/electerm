@@ -16,11 +16,7 @@ import './sync.styl'
 import HelpIcon from '../common/help-icon'
 
 const FormItem = Form.Item
-const { prefix } = window
-const e = prefix('form')
-const ss = prefix('settingSync')
-const s = prefix('setting')
-const sh = prefix('ssh')
+const e = window.translate
 
 export default function SyncForm (props) {
   const [form] = Form.useForm()
@@ -28,8 +24,11 @@ export default function SyncForm (props) {
   useConditionalEffect(() => {
     form.resetFields()
   }, delta && delta.prev && !eq(delta.prev, delta.curr))
-
+  const { syncType } = props
   function disabled () {
+    if (syncType === syncTypes.cloud) {
+      return !props.formData.token
+    }
     const {
       token,
       gistId
@@ -44,10 +43,15 @@ export default function SyncForm (props) {
     }
     if (res.gistId) {
       up[syncType + 'GistId'] = res.gistId
+    } else if (syncType === syncTypes.cloud) {
+      up[syncType + 'GistId'] = 'cloud'
     }
     up[syncType + 'SyncPassword'] = res.syncPassword || ''
     if (res.apiUrl) {
       up[syncType + 'ApiUrl'] = res.apiUrl
+    } else if (syncType === syncTypes.cloud) {
+      up[syncType + 'ApiUrl'] = 'https://electerm-cloud.html5beta.com/api/sync'
+      // up[syncType + 'ApiUrl'] = 'http://127.0.0.1:5678/api/sync'
     }
     props.store.updateSyncSetting(up)
     const test = await props.store.testSyncToken(syncType, res.gistId)
@@ -56,7 +60,7 @@ export default function SyncForm (props) {
         message: 'token invalid'
       })
     }
-    if (!res.gistId) {
+    if (!res.gistId && syncType !== syncTypes.custom && syncType !== syncTypes.cloud) {
       props.store.createGist(syncType)
     }
   }
@@ -97,7 +101,7 @@ export default function SyncForm (props) {
   const {
     lastSyncTime = ''
   } = props.formData
-  const { syncType } = props
+
   const isCustom = syncType === syncTypes.custom
   const timeFormatted = lastSyncTime
     ? dayjs(lastSyncTime).format('YYYY-MM-DD HH:mm:ss')
@@ -128,6 +132,15 @@ export default function SyncForm (props) {
     return 'sync-input-' + name + '-' + syncType
   }
   function createUrlItem () {
+    if (syncType === syncTypes.cloud) {
+      return (
+        <p>
+          <Link to='https://electerm-cloud.html5beta.com'>
+            https://electerm-cloud.html5beta.com[Beta]
+          </Link>
+        </p>
+      )
+    }
     if (syncType !== syncTypes.custom) {
       return null
     }
@@ -154,8 +167,46 @@ export default function SyncForm (props) {
     : 'gist ID'
   const tokenLabel = createLabel('token', desc)
   const gistLabel = createLabel('gist', idDesc)
-  const syncPasswordName = s('encrypt') + ' ' + e('password')
+  const syncPasswordName = e('encrypt') + ' ' + e('password')
   const syncPasswordLabel = createLabel(syncPasswordName, '')
+  function createIdItem () {
+    if (syncType === syncTypes.cloud) {
+      return null
+    }
+    return (
+      <FormItem
+        label={gistLabel}
+        name='gistId'
+        rules={[{
+          max: 100, message: '100 chars max'
+        }]}
+      >
+        <Input
+          placeholder={createPlaceHolder('gistId')}
+          id={createId('gistId')}
+        />
+      </FormItem>
+    )
+  }
+  function createPasswordItem () {
+    if (syncType === syncTypes.cloud) {
+      return null
+    }
+    return (
+      <FormItem
+        label={syncPasswordLabel}
+        hasFeedback
+        name='syncPassword'
+        rules={[{
+          max: 100, message: '100 chars max'
+        }]}
+      >
+        <Input.Password
+          placeholder={syncType + ' ' + syncPasswordName}
+        />
+      </FormItem>
+    )
+  }
   return (
     <Form
       onFinish={save}
@@ -171,7 +222,7 @@ export default function SyncForm (props) {
         hasFeedback
         name='token'
         rules={[{
-          max: 100, message: '100 chars max'
+          max: 1100, message: '1100 chars max'
         }, {
           required: true, message: createPlaceHolder('token') + ' required'
         }]}
@@ -181,40 +232,12 @@ export default function SyncForm (props) {
           id={createId('token')}
         />
       </FormItem>
-      <FormItem
-        label={gistLabel}
-        name='gistId'
-        rules={[{
-          max: 100, message: '100 chars max'
-        }]}
-      >
-        <Input
-          placeholder={createPlaceHolder('gistId')}
-          id={createId('gistId')}
-        />
-      </FormItem>
-      <FormItem
-        label={syncPasswordLabel}
-        hasFeedback
-        name='syncPassword'
-        rules={[{
-          max: 100, message: '100 chars max'
-        }]}
-      >
-        <Input.Password
-          placeholder={syncType + ' ' + syncPasswordName}
-        />
-      </FormItem>
-      {/* <FormItem
-        {...formItemLayout}
-        label={ss('autoSync')}
-      >
-        <Switch
-          checked={autoSync}
-          disabled={this.disabled()}
-          onChange={this.onChangeAutoSync}
-        />
-      </FormItem> */}
+      {
+        createIdItem()
+      }
+      {
+        createPasswordItem()
+      }
       <FormItem>
         <p>
           <Button
@@ -231,14 +254,14 @@ export default function SyncForm (props) {
             className='mg1r'
             loading={isSyncingSetting}
             icon='swap'
-          >{ss('sync')}</Button> */}
+          >{e('sync')}</Button> */}
           <Button
             type='dashed'
             onClick={upload}
             disabled={disabled()}
             className='mg1r mg1b'
             icon={<ArrowUpOutlined />}
-          >{ss('uploadSettings')}
+          >{e('uploadSettings')}
           </Button>
           <Button
             type='dashed'
@@ -246,7 +269,7 @@ export default function SyncForm (props) {
             disabled={disabled()}
             className='mg1r mg1b sync-btn-down'
             icon={<ArrowDownOutlined />}
-          >{ss('downloadSettings')}
+          >{e('downloadSettings')}
           </Button>
           <Button
             type='dashed'
@@ -254,11 +277,11 @@ export default function SyncForm (props) {
             disabled={disabled()}
             className='mg1r mg1b sync-btn-clear'
             icon={<ClearOutlined />}
-          >{sh('clear')}
+          >{e('clear')}
           </Button>
         </p>
         <p>
-          {ss('lastSyncTime')}: {timeFormatted}
+          {e('lastSyncTime')}: {timeFormatted}
         </p>
         <p>
           {renderGistUrl()}

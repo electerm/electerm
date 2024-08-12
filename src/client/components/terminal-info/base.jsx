@@ -17,8 +17,7 @@ import postMsg from '../../common/post-msg'
 import { toggleTerminalLog, toggleTerminalLogTimestamp } from '../terminal/terminal-apis'
 import { ClockCircleOutlined, BorderlessTableOutlined, DatabaseOutlined, BarsOutlined, ApiOutlined, PartitionOutlined } from '@ant-design/icons'
 
-const { prefix } = window
-const st = prefix('setting')
+const e = window.translate
 
 const mapper = {
   uptime: <ClockCircleOutlined />,
@@ -136,7 +135,7 @@ export default class TerminalInfoBase extends Component {
     if (!saveTerminalLogToFile) {
       return null
     }
-    const name = st('addTimeStampToTermLog')
+    const name = e('addTimeStampToTermLog')
     return (
       <Switch
         checkedChildren={name}
@@ -186,7 +185,7 @@ export default class TerminalInfoBase extends Component {
       ? osResolve(appPath, 'electerm', 'session_logs')
       : window.et.sessionLogPath
     const path = osResolve(base, logName + '.log')
-    const name = st('saveTerminalLogToFile')
+    const name = e('saveTerminalLogToFile')
     const to = saveTerminalLogToFile
       ? <ShowItem disabled={!saveTerminalLogToFile} to={path}>{path}</ShowItem>
       : path

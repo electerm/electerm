@@ -18,8 +18,7 @@ import generate from '../../common/uid'
 import eq from 'fast-deep-equal'
 
 const InputGroup = Space.Compact
-const { prefix } = window
-const t = prefix('quickCommands')
+const e = window.translate
 
 export default class QuickCommandItem extends PureComponent {
   constructor (props) {
@@ -156,19 +155,19 @@ export default class QuickCommandItem extends PureComponent {
               onChange={this.handleChangeName}
               className='width-40'
               title={item.name}
-              placeholder={t('quickCommandName')}
+              placeholder={e('quickCommandName')}
             />
             <Input
               value={item.command}
               onChange={this.handleChangeCommand}
               className='width-60'
-              placeholder={t('quickCommand')}
+              placeholder={e('quickCommand')}
               title={item.command}
             />
           </InputGroup>
         </Col>
         <Col span={3}>
-          <Tooltip title={t('inputOnly')}>
+          <Tooltip title={e('inputOnly')}>
             <Switch
               checked={!!item.inputOnly}
               onChange={this.handleChangeInputOnly}
@@ -192,7 +191,7 @@ export default class QuickCommandItem extends PureComponent {
               readOnly
               className='width-40'
               title={item.name}
-              placeholder={t('quickCommandName')}
+              placeholder={e('quickCommandName')}
             />
             <Input
               value={item.command}
@@ -203,10 +202,10 @@ export default class QuickCommandItem extends PureComponent {
           </InputGroup>
         </Col>
         <Col span={3}>
-          <Tooltip title={t('inputOnly')}>
+          <Tooltip title={e('inputOnly')}>
             <Switch
               checked={!!item.inputOnly}
-              title={t('inputOnly')}
+              title={e('inputOnly')}
               readOnly
             />
           </Tooltip>

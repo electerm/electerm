@@ -6,7 +6,10 @@ const GitHubOri = require('gist-wrapper').default
 const GiteeOri = require('gitee-client').default
 const customSync = require('electerm-sync')
 const log = require('../common/log')
+const rp = require('axios')
 const { createProxyAgent } = require('../lib/proxy-agent')
+
+rp.defaults.proxy = false
 
 class Gitee extends GiteeOri {
   create (data, conf) {
@@ -39,19 +42,28 @@ class GitHub extends GitHubOri {
 const dist = {
   gitee: Gitee,
   github: GitHub,
-  custom: customSync
+  custom: customSync,
+  cloud: customSync
 }
 
 async function doSync (type, func, args, token, proxy) {
+  const argsArr = [...args]
   const inst = new dist[type](token)
+  if (type === 'cloud') {
+    argsArr[0] = ''
+  }
   const agent = createProxyAgent(proxy)
   const conf = agent
     ? {
         httpsAgent: agent
       }
-    : {}
-  return inst[func](...args, conf)
-    .then(r => r.data)
+    : {
+        proxy: false
+      }
+  return inst[func](...argsArr, conf)
+    .then(r => {
+      return r.data
+    })
     .catch(e => {
       log.error('sync error')
       log.error(e)

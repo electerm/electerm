@@ -10,8 +10,7 @@ import { defaultTheme } from '../../common/constants'
 import highlight from '../common/highlight'
 import './terminal-theme-list.styl'
 
-const { prefix } = window
-const e = prefix('terminalThemes')
+const e = window.translate
 
 export default class ThemeList extends List {
   del = (item, e) => {

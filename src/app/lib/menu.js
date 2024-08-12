@@ -10,22 +10,20 @@ const openNewInstance = require('./open-new-instance')
 const { packInfo } = require('../common/runtime-constants')
 
 function buildMenu () {
-  const e = global.et.prefix('menu')
-  const c = global.et.prefix('control')
-  const s = global.et.prefix('setting')
+  const e = global.et.translate
 
   const template = [
     {
       label: e('edit'),
       submenu: [
         {
-          label: c('newBookmark'),
+          label: e('newBookmark'),
           click () {
             global.win.webContents.send('new-ssh', null)
           }
         },
         {
-          label: c('newWindow'),
+          label: e('newWindow'),
           click () {
             openNewInstance()
           }
@@ -74,7 +72,7 @@ function buildMenu () {
           type: 'separator'
         },
         {
-          label: s('settings'),
+          label: e('settings'),
           click () {
             global.win.webContents.send('openSettings', null)
           }

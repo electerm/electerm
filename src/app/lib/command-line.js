@@ -32,6 +32,17 @@ electerm -sp 30976
 - load and run batch operation from csv file:
 electerm -bo "/home/root/works.csv"
 
+### other connection types
+- telnet:
+electerm -tp "telnet" -opts '{"host":"192.168.1.1","port":21","username":"root","password":"123456"}'
+
+- rdp: electerm -tp "rdp" -opts '{"host":"192.168.1.1","port":3389","username":"root","password":"123456"}'
+
+- vnc: electerm -tp "vnc" -opts '{"host":"192.168.1.1","port":3389","username":"root","password":"123456"}'
+
+- serial: electerm -tp "serial" -opts '{"port":"COM1","baudRate":115200,"dataBits":8,"stopBits":1,"parity":"none"}'
+
+- local: electerm -tp "local" -opts '{"title": "local terminal"}'
 `)
     .option('-t, --title [Tab Name]', 'Specify the title of the new tab')
     .option('-nw, --new-window', 'Open this connection using standalone window')
@@ -45,6 +56,8 @@ electerm -bo "/home/root/works.csv"
     .option('-se, --set-env <setEnv>', 'specify envs')
     .option('-so, --sftp-only', 'only show sftp panel')
     .option('-d, --init-folder <initFolder>', 'init folder got init terminal')
+    .option('-tp, --tp <tp>', 'specify connection type')
+    .option('-opts, --opts <opts>', 'specify connection options, json string')
     .exitOverride()
 
   try {

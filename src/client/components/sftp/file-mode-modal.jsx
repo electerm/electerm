@@ -13,8 +13,7 @@ import renderPermission from './permission-render'
 import postMessage from '../../common/post-msg'
 import FileIcon from './file-icon'
 
-const { prefix } = window
-const e = prefix('sftp')
+const e = window.translate
 const formatTime = time
 
 export default class FileMode extends React.PureComponent {

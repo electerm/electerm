@@ -13,8 +13,7 @@ import { batchInputLsKey, commonActions } from '../../common/constants'
 import postMsg from '../../common/post-msg'
 import classNames from 'classnames'
 
-const { prefix } = window
-const e = prefix('ssh')
+const e = window.translate
 
 export default class BatchInput extends Component {
   state = {

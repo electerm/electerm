@@ -5,9 +5,7 @@ import {
 import Transports from './transfer-list-control'
 import TransportHistory from './transfer-history-modal'
 
-const { prefix } = window
-const e = prefix('sftp')
-const t = prefix('transferHistory')
+const e = window.translate
 
 export default class TransferModal extends Component {
   renderTransfer = () => {
@@ -46,7 +44,7 @@ export default class TransferModal extends Component {
     }
     if (transferHistory.length) {
       tabs.push({
-        title: t('transferHistory'),
+        title: e('transferHistory'),
         id: 'history',
         render: this.renderHistory
       })

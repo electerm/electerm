@@ -10,8 +10,7 @@ import {
 } from '@ant-design/icons'
 import './transfer.styl'
 
-const { prefix } = window
-const e = prefix('sftp')
+const e = window.translate
 
 export default function Transporter (props) {
   const {

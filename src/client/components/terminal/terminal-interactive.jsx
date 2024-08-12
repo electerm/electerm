@@ -9,9 +9,7 @@ import { tabActions } from '../../common/constants'
 import wait from '../../common/wait'
 import postMsg from '../../common/post-msg'
 
-const { prefix } = window
-const e = prefix('sftp')
-const c = prefix('common')
+const e = window.translate
 const FormItem = Form.Item
 
 export default function TermInteractive () {
@@ -153,7 +151,7 @@ export default function TermInteractive () {
             className='mg1l'
             onClick={onIgnore}
           >
-            {c('ignore')}
+            {e('ignore')}
           </Button>
           <Button
             className='mg1l'

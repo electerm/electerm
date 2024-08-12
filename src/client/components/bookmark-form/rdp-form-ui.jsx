@@ -25,9 +25,7 @@ import formatBookmarkGroups from './bookmark-group-tree-format'
 import findBookmarkGroupId from '../../common/find-bookmark-group-id'
 
 const FormItem = Form.Item
-const { prefix } = window
-const e = prefix('form')
-const c = prefix('common')
+const e = window.translate
 
 export default function RdpFormUi (props) {
   const [
@@ -140,7 +138,7 @@ export default function RdpFormUi (props) {
         </FormItem>
         <FormItem
           {...formItemLayout}
-          label={c('bookmarkCategory')}
+          label={e('bookmarkCategory')}
           name='category'
         >
           <TreeSelect

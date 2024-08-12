@@ -16,9 +16,7 @@ import {
 } from '../common/constants'
 import * as ls from '../common/safe-local-storage'
 
-const { prefix } = window
-const m = prefix('menu')
-const c = prefix('common')
+const e = window.translate
 
 export default Store => {
   Store.prototype.storeAssign = function (updates) {
@@ -160,14 +158,14 @@ export default Store => {
     ls.setItem(dismissDelKeyTipLsKey, 'y')
     window.store.hideDelKeyTip = true
   }
-  Store.prototype.beforeExit = function (e) {
+  Store.prototype.beforeExit = function (evt) {
     const { confirmBeforeExit } = window.store.config
     if (
       (confirmBeforeExit &&
       !window.confirmExit) ||
       window.store.isTransporting
     ) {
-      e.returnValue = false
+      evt.returnValue = false
       let mod = null
       mod = Modal.confirm({
         onCancel: () => {
@@ -178,14 +176,14 @@ export default Store => {
           window.confirmExit = true
           window.store[window.exitFunction]()
         },
-        title: m('quit'),
-        okText: c('ok'),
-        cancelText: c('cancel'),
+        title: e('quit'),
+        okText: e('ok'),
+        cancelText: e('cancel'),
         content: ''
       })
     }
   }
-  Store.prototype.beforeExitApp = function (e, name) {
+  Store.prototype.beforeExitApp = function (evt, name) {
     let mod = null
     mod = Modal.confirm({
       onCancel: () => {
@@ -195,9 +193,9 @@ export default Store => {
       onOk: () => {
         window.pre.runGlobalAsync(name)
       },
-      title: m('quit'),
-      okText: c('ok'),
-      cancelText: c('cancel'),
+      title: e('quit'),
+      okText: e('ok'),
+      cancelText: e('cancel'),
       content: ''
     })
   }

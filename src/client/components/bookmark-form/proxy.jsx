@@ -6,8 +6,7 @@ import {
 import { formItemLayout } from '../../common/form-layout'
 
 const FormItem = Form.Item
-const { prefix } = window
-const e = prefix('form')
+const e = window.translate
 
 export default function renderProxy (props) {
   const proxyTree = props.bookmarks

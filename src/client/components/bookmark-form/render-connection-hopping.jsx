@@ -21,9 +21,7 @@ import { useState } from 'react'
 const FormItem = Form.Item
 const RadioButton = Radio.Button
 const RadioGroup = Radio.Group
-const { prefix } = window
-const f = prefix('form')
-const m = prefix('menu')
+const e = window.translate
 
 export default function renderConnectionHopping (props) {
   const {
@@ -89,7 +87,7 @@ export default function renderConnectionHopping (props) {
       key: 'index',
       render: (k) => k
     }, {
-      title: f('connectionHopping'),
+      title: e('connectionHopping'),
       key: 'connectionHopping',
       render: (k, item) => {
         const pass = item.password ? ':*****' : ''
@@ -99,7 +97,7 @@ export default function renderConnectionHopping (props) {
         return <span>{useProfile}{item.username}{pass}@{item.host}:{item.port}{pk}{ph}</span>
       }
     }, {
-      title: m('del'),
+      title: e('del'),
       key: 'op',
       dataIndex: 'id',
       render: (id) => {
@@ -148,7 +146,7 @@ export default function renderConnectionHopping (props) {
         {renderList()}
         <FormItem
           {...formItemLayout}
-          label={f('host')}
+          label={e('host')}
           hasFeedback
           rules={[{
             max: 520, message: '520 chars max'
@@ -162,7 +160,7 @@ export default function renderConnectionHopping (props) {
         </FormItem>
         <FormItem
           {...formItemLayout}
-          label={f('port')}
+          label={e('port')}
           hasFeedback
           name='port'
           rules={[{
@@ -170,7 +168,7 @@ export default function renderConnectionHopping (props) {
           }]}
         >
           <InputNumber
-            placeholder={f('port')}
+            placeholder={e('port')}
             min={1}
             max={65535}
             step={1}
@@ -178,7 +176,7 @@ export default function renderConnectionHopping (props) {
         </FormItem>
         <FormItem
           {...formItemLayout}
-          label={f('username')}
+          label={e('username')}
           hasFeedback
           name='username'
           rules={[{
@@ -202,7 +200,7 @@ export default function renderConnectionHopping (props) {
               authTypes.map(t => {
                 return (
                   <RadioButton value={t} key={t}>
-                    {f(t)}
+                    {e(t)}
                   </RadioButton>
                 )
               })
@@ -221,7 +219,7 @@ export default function renderConnectionHopping (props) {
             icon={<PlusOutlined />}
             onClick={onSubmit}
           >
-            {f('connectionHopping')}
+            {e('connectionHopping')}
           </Button>
         </FormItem>
       </Form>

@@ -40,16 +40,16 @@ import BookmarksList from '../sidebar/bookmark-select'
 import AppDrag from './app-drag'
 import classNames from 'classnames'
 
-const { prefix } = window
-const e = prefix('tabs')
-const c = prefix('control')
-const t = prefix('tabs')
+const e = window.translate
 const MenuItem = Menu.Item
 
 export default class Tabs extends React.Component {
   constructor (props) {
     super(props)
     this.tabsRef = React.createRef()
+    this.state = {
+      overflow: false
+    }
   }
 
   componentDidMount () {
@@ -62,11 +62,10 @@ export default class Tabs extends React.Component {
   }
 
   componentDidUpdate (prevProps) {
-    prevProps = prevProps || {}
     if (
       prevProps.currentTabId !== this.props.currentTabId ||
       prevProps.width !== this.props.width ||
-      prevProps.tabs.map(d => d.title).join('#') !== this.props.tabs.map(d => d.title).join('#')
+      prevProps.tabs.length !== this.props.tabs.length
     ) {
       this.adjustScroll()
     }
@@ -81,12 +80,17 @@ export default class Tabs extends React.Component {
   }
 
   isOverflow = () => {
-    const { tabs = [], width } = this.props
+    const { tabs = [] } = this.props
     const len = tabs.length
     const addBtnWidth = 22
-    const tabsWidth = this.tabsWidth()
-    const tabsWidthAll = tabMargin * len + 166 + tabsWidth
-    return width < (tabsWidthAll + addBtnWidth)
+    const tabsWidth = this.tabsWidth() + tabMargin * len + addBtnWidth
+    const tabsInnerWidth = this.getInnerWidth()
+    return tabsWidth > tabsInnerWidth
+  }
+
+  getInnerWidth = () => {
+    const inner = document.querySelector('.tabs-inner')
+    return inner ? inner.clientWidth : 0
   }
 
   handleClickEvent = (e) => {
@@ -107,7 +111,7 @@ export default class Tabs extends React.Component {
   }
 
   adjustScroll = () => {
-    const { width, tabs, currentTabId } = this.props
+    const { tabs, currentTabId } = this.props
     const index = findIndex(tabs, t => t.id === currentTabId)
     const tabsDomWith = Array.from(
       document.querySelectorAll('.tab')
@@ -115,10 +119,14 @@ export default class Tabs extends React.Component {
       return prev + c.clientWidth
     }, 0)
     const w = (index + 1) * tabMargin + 5 + tabsDomWith
-    const scrollLeft = w > width - extraTabWidth
-      ? w - width + extraTabWidth
+    const tabsInnerWidth = this.getInnerWidth()
+    const scrollLeft = w > tabsInnerWidth
+      ? w - tabsInnerWidth
       : 0
     this.dom.scrollLeft = scrollLeft
+    this.setState({
+      overflow: this.isOverflow()
+    })
   }
 
   handleScrollLeft = () => {
@@ -191,13 +199,13 @@ export default class Tabs extends React.Component {
           className={cls}
           onClick={onNewSsh}
         >
-          <CodeFilled /> {c('newBookmark')}
+          <CodeFilled /> {e('newBookmark')}
         </div>
         <div
           className={cls}
           onClick={() => addTab()}
         >
-          <RightSquareFilled /> {t('newTab')}
+          <RightSquareFilled /> {e('newTab')}
         </div>
         <BookmarksList
           store={window.store}
@@ -273,14 +281,16 @@ export default class Tabs extends React.Component {
   }
 
   renderContentInner () {
-    const { tabs = [], width } = this.props
+    const { tabs = [], width, config } = this.props
     const len = tabs.length
     const tabsWidthAll = tabMargin * len + 10 + this.tabsWidth()
-    const overflow = this.isOverflow()
+    const { overflow } = this.state
     const left = overflow
       ? '100%'
       : tabsWidthAll
-    const w1 = isMacJs && window.et.isWebApp ? 30 : this.getExtraTabWidth()
+    const w1 = isMacJs && (config.useSystemTitleBar || window.et.isWebApp)
+      ? 30
+      : this.getExtraTabWidth()
     const style = {
       width: width - w1 - 166
     }
@@ -315,9 +325,9 @@ export default class Tabs extends React.Component {
             })
           }
           {
-            !overflow
-              ? this.renderAddBtn()
-              : null
+            overflow
+              ? null
+              : this.renderAddBtn()
           }
         </div>
       </div>
@@ -412,7 +422,7 @@ export default class Tabs extends React.Component {
   }
 
   render () {
-    const overflow = this.isOverflow()
+    const { overflow } = this.state
     return (
       <div className='tabs' ref={this.tabsRef}>
         {this.renderContent()}

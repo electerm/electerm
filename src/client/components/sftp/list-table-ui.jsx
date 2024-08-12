@@ -29,8 +29,7 @@ import {
 } from '@ant-design/icons'
 import IconHolder from '../context-menu/icon-holder'
 
-const { prefix } = window
-const e = prefix('sftp')
+const e = window.translate
 
 export default class FileListTable extends Component {
   constructor (props) {

@@ -9,8 +9,7 @@ import {
 import TransferModal from './transfer-modal'
 import './transfer.styl'
 
-const { prefix } = window
-const e = prefix('sftp')
+const e = window.translate
 
 export default class TransferList extends Component {
   render () {

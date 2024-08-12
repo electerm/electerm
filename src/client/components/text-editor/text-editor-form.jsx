@@ -6,11 +6,7 @@ import { useEffect } from 'react'
 import { Input, Form, Button } from 'antd'
 
 const FormItem = Form.Item
-
-const { prefix } = window
-const e = prefix('form')
-const c = prefix('common')
-const s = prefix('sftp')
+const e = window.translate
 
 export default function TextEditorForm (props) {
   const [form] = Form.useForm()
@@ -71,7 +67,7 @@ export default function TextEditorForm (props) {
       <div className='pd1t pd2b'>
         <Button
           {...popsEdit}
-        >{s('editWithSystemEditor')}
+        >{e('editWithSystemEditor')}
         </Button>
         <Button
           type='primary'
@@ -85,11 +81,11 @@ export default function TextEditorForm (props) {
           className='mg1r mg1b'
           disabled={loading}
           onClick={reset}
-        >{s('reset')}
+        >{e('reset')}
         </Button>
         <Button
           {...popsCancel}
-        >{c('cancel')}
+        >{e('cancel')}
         </Button>
       </div>
     </Form>

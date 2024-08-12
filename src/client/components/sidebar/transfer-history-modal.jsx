@@ -11,10 +11,7 @@ import './transfer-history.styl'
 import { get as _get } from 'lodash-es'
 import { filesize } from 'filesize'
 
-const { prefix } = window
-const e = prefix('transferHistory')
-const f = prefix('sftp')
-const m = prefix('menu')
+const e = window.translate
 const timeRender = t => time(t)
 const sorterFactory = prop => {
   return (a, b) => {
@@ -59,7 +56,7 @@ export default class TransferHistoryModal extends Component {
         )
       }
     }, {
-      title: m('host'),
+      title: e('host'),
       dataIndex: 'host',
       key: 'host',
       sorter: sorterFactory('host')
@@ -80,7 +77,7 @@ export default class TransferHistoryModal extends Component {
       },
       sorter: sorterFactory('toPath')
     }, {
-      title: f('size'),
+      title: e('size'),
       dataIndex: 'size',
       key: 'size',
       sorter: sorterFactory('size'),

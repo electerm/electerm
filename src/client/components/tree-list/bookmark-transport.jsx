@@ -15,10 +15,7 @@ import copy from 'json-deep-copy'
 import { find, uniq, isEqual } from 'lodash-es'
 import { fixBookmarks } from '../../common/db-fix'
 
-const { prefix } = window
-const f = prefix('form')
-const t = prefix('terminalThemes')
-const m = prefix('menu')
+const e = window.translate
 
 export default class BookmarkTransport extends Component {
   beforeUpload = async (file) => {
@@ -118,7 +115,7 @@ export default class BookmarkTransport extends Component {
       <Button
         icon={<EditOutlined />}
         onClick={this.handleToggleEdit}
-        title={m('edit')}
+        title={e('edit')}
         key='edit-and-del'
       />
     )
@@ -130,7 +127,7 @@ export default class BookmarkTransport extends Component {
       <Button
         icon={<DownloadOutlined />}
         onClick={this.handleDownload}
-        title={t('export')}
+        title={e('export')}
         key='export'
       />,
       <Upload
@@ -140,7 +137,7 @@ export default class BookmarkTransport extends Component {
       >
         <Button
           icon={<UploadOutlined />}
-          title={f('importFromFile')}
+          title={e('importFromFile')}
         />
       </Upload>
     ]

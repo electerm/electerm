@@ -26,13 +26,12 @@ import { buildDefaultThemes } from '../common/terminal-theme'
 import * as ls from '../common/safe-local-storage'
 import initSettingItem from '../common/init-setting-item'
 
-const { prefix } = window
-const t = prefix('terminalThemes')
+const e = window.translate
 
 function getDefaultBookmarkGroups (bookmarks) {
   return [
     JSON.stringify({
-      title: t(defaultBookmarkGroupId),
+      title: e(defaultBookmarkGroupId),
       id: defaultBookmarkGroupId,
       bookmarkIds: bookmarks.map(d => d.id)
     })

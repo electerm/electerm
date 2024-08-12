@@ -14,8 +14,7 @@ const {
   Option
 } = Select
 
-const { prefix } = window
-const f = prefix('form')
+const e = window.translate
 
 export default class FooterEntry extends Component {
   handleInfoPanel = () => {
@@ -80,7 +79,7 @@ export default class FooterEntry extends Component {
       style: {
         minWidth: 30
       },
-      placeholder: f('encode'),
+      placeholder: e('encode'),
       defaultValue: this.props.currentTab?.encode,
       onSelect: this.handleSwitchEncoding,
       size: 'small',

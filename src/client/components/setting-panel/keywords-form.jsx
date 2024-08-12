@@ -14,8 +14,7 @@ import {
 const FormItem = Form.Item
 const FormList = Form.List
 const OptionSel = Select.Option
-const { prefix } = window
-const f = prefix('form')
+const e = window.translate
 
 export default function KeywordForm (props) {
   const {
@@ -131,7 +130,7 @@ export default function KeywordForm (props) {
                         })}
                         icon={<PlusOutlined />}
                       >
-                        {f('keyword')}
+                        {e('keyword')}
                       </Button>
                     </FormItem>
                   </div>

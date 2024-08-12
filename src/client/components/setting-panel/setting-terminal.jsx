@@ -31,12 +31,7 @@ import HelpIcon from '../common/help-icon'
 import './setting.styl'
 
 const { Option } = Select
-const { prefix } = window
-const e = prefix('setting')
-const s = prefix('ssh')
-const p = prefix('sftp')
-const t = prefix('terminalThemes')
-const f = prefix('form')
+const e = window.translate
 
 export default class SettingTerminal extends Component {
   state = {
@@ -107,12 +102,13 @@ export default class SettingTerminal extends Component {
 
   renderToggle = (name, extra = null) => {
     const checked = !!this.props.config[name]
+    const txt = e(name)
     return (
       <div className='pd2b' key={'rt' + name}>
         <Switch
           checked={checked}
-          checkedChildren={e(name)}
-          unCheckedChildren={e(name)}
+          checkedChildren={txt}
+          unCheckedChildren={txt}
           onChange={v => this.onChangeValue(v, name)}
         />
         {isNumber(extra) ? null : extra}
@@ -207,7 +203,7 @@ export default class SettingTerminal extends Component {
     const dataSource = [
       {
         value: '',
-        desc: t('default')
+        desc: e('default')
       },
       {
         value: noTerminalBgValue,
@@ -423,7 +419,7 @@ export default class SettingTerminal extends Component {
       : window.et.sessionLogPath
     const tip = (
       <div>
-        <span className='mg1r'>{f('supportRegexp')}</span>
+        <span className='mg1r'>{e('supportRegexp')}</span>
         <Link to={regexHelpLink}>wiki</Link>
       </div>
     )
@@ -431,7 +427,7 @@ export default class SettingTerminal extends Component {
       <div className='form-wrap pd1y pd2x'>
         <div className='pd1y font16 bold'>
           <CodeOutlined className='mg1r' />
-          {s('terminal')} {e('settings')}
+          {e('terminal')} {e('settings')}
         </div>
         {
           this.renderNumber('scrollback', {
@@ -459,17 +455,17 @@ export default class SettingTerminal extends Component {
           this.renderNumber('fontSize', {
             step: 1,
             min: 9
-          }, `${t('default')} ${e('fontSize')}`, 400)
+          }, `${e('default')} ${e('fontSize')}`, 400)
         }
         <div className='pd2b'>
-          <span className='inline-title mg1r'>{t('default')} {e('fontFamily')}</span>
+          <span className='inline-title mg1r'>{e('default')} {e('fontFamily')}</span>
           {
             this.renderFontFamily()
           }
         </div>
         <div className='pd2b'>
           <div className='pd1b'>
-            <span className='inline-title mg1r'>{f('keywordsHighlight')}</span>
+            <span className='inline-title mg1r'>{e('keywordsHighlight')}</span>
             <HelpIcon
               title={tip}
             />
@@ -496,7 +492,7 @@ export default class SettingTerminal extends Component {
           this.renderCursorStyleSelect()
         }
         {this.renderToggle('saveTerminalLogToFile', (
-          <ShowItem to={terminalLogPath} className='mg1l'>{p('open')}</ShowItem>
+          <ShowItem to={terminalLogPath} className='mg1l'>{e('open')}</ShowItem>
         ))}
         {this.renderToggle('addTimeStampToTermLog')}
         {
@@ -505,7 +501,8 @@ export default class SettingTerminal extends Component {
             'rightClickSelectsWord',
             'pasteWhenContextMenu',
             'copyWhenSelect',
-            'ctrlOrMetaOpenTerminalLink'
+            'ctrlOrMetaOpenTerminalLink',
+            'sftpPathFollowSsh'
           ].map(this.renderToggle)
         }
         <div className='pd1b'>{e('terminalBackSpaceMode')}</div>

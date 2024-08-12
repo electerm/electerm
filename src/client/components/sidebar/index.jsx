@@ -26,14 +26,7 @@ import SideIcon from './side-icon'
 import SidePanel from './side-panel'
 import './sidebar.styl'
 
-const { prefix } = window
-const e = prefix('control')
-const c = prefix('common')
-const m = prefix('menu')
-const t = prefix('terminalThemes')
-const u = prefix('updater')
-const ss = prefix('settingSync')
-const b = prefix('batchOp')
+const e = window.translate
 
 export default class Sidebar extends Component {
   handler = null
@@ -141,7 +134,7 @@ export default class Sidebar extends Component {
             />
           </SideIcon>
           <SideIcon
-            title={c(settingMap.bookmarks)}
+            title={e(settingMap.bookmarks)}
             active={bookmarksActive}
           >
             <BookOutlined
@@ -152,7 +145,7 @@ export default class Sidebar extends Component {
             />
           </SideIcon>
           <SideIcon
-            title={c(settingMap.history)}
+            title={e(settingMap.history)}
             active={historyActive}
           >
             <ClockCircleOutlined
@@ -164,7 +157,7 @@ export default class Sidebar extends Component {
           </SideIcon>
           <TransferList store={store} />
           <SideIcon
-            title={t(settingMap.terminalThemes)}
+            title={e(settingMap.terminalThemes)}
             active={themeActive}
           >
             <PictureOutlined
@@ -173,13 +166,13 @@ export default class Sidebar extends Component {
             />
           </SideIcon>
           <SideIcon
-            title={c(settingMap.setting)}
+            title={e(settingMap.setting)}
             active={settingActive}
           >
             <SettingOutlined className='iblock font20 control-icon' onClick={openSetting} />
           </SideIcon>
           <SideIcon
-            title={ss('settingSync')}
+            title={e('settingSync')}
             active={syncActive}
           >
             <CloudSyncOutlined
@@ -189,13 +182,13 @@ export default class Sidebar extends Component {
             />
           </SideIcon>
           <SideIcon
-            title={b('batchOp')}
+            title={e('batchOp')}
             active={showBatchOp}
           >
             <BarsOutlined className='iblock font20 control-icon' onClick={toggleBatchOp} />
           </SideIcon>
           <SideIcon
-            title={m('about')}
+            title={e('about')}
             active={showInfoModal}
           >
             <InfoCircleOutlined
@@ -207,7 +200,7 @@ export default class Sidebar extends Component {
             !checkingRemoteVersion && !showUpgradeModal && shouldUpgrade
               ? (
                 <Tooltip
-                  title={`${u('upgrading')} ${upgradePercent || 0}%`}
+                  title={`${e('upgrading')} ${upgradePercent || 0}%`}
                   placement='right'
                 >
                   <div

@@ -23,10 +23,7 @@ import {
 } from '../../common/constants'
 import { shortcutDescExtend } from '../shortcuts/shortcut-handler.js'
 
-const { prefix } = window
-const e = prefix('tabs')
-const m = prefix('menu')
-const s = prefix('sftp')
+const e = window.translate
 const onDragCls = 'ondrag-tab'
 const onDragOverCls = 'dragover-tab'
 
@@ -40,7 +37,6 @@ class Tab extends Component {
   }
 
   componentDidMount () {
-    console.log(this.props)
     this.dom = document.getElementById('id' + this.state.tab.id)
     window.addEventListener('message', this.onEvent)
   }
@@ -316,7 +312,7 @@ class Tab extends Component {
     res.push({
       func: 'handleReloadTab',
       icon: 'Loading3QuartersOutlined',
-      text: m('reload'),
+      text: e('reload'),
       subText: reloadShortcut
     })
     return res
@@ -389,8 +385,8 @@ class Tab extends Component {
         tunnel = `sock5://${sshTunnelLocalHost}:${sshTunnelLocalPort}`
       } else {
         tunnel = sshTunnel === 'forwardRemoteToLocal'
-          ? `-> ${s('remote')}:${sshTunnelRemoteHost}:${sshTunnelRemotePort} -> ${sshTunnelLocalHost}:${sshTunnelLocalPort}`
-          : `-> ${s('local')}:${sshTunnelLocalHost}:${sshTunnelLocalPort} -> ${sshTunnelRemoteHost}:${sshTunnelRemotePort}`
+          ? `-> ${e('remote')}:${sshTunnelRemoteHost}:${sshTunnelRemotePort} -> ${sshTunnelLocalHost}:${sshTunnelLocalPort}`
+          : `-> ${e('local')}:${sshTunnelLocalHost}:${sshTunnelLocalPort} -> ${sshTunnelRemoteHost}:${sshTunnelRemotePort}`
       }
       if (error) {
         tunnel = `error: ${tunnel}`
@@ -488,7 +484,7 @@ class Tab extends Component {
             <Loading3QuartersOutlined
               className='pointer tab-reload mg1r'
               onClick={this.handleReloadTab}
-              title={m('reload')}
+              title={e('reload')}
             />
             <span className='tab-title'>
               {tabCount}. {title}

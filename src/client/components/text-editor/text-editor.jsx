@@ -9,8 +9,7 @@ import resolve from '../../common/resolve'
 import { commonActions } from '../../common/constants'
 import postMsg from '../../common/post-msg'
 
-const { prefix } = window
-const s = prefix('sftp')
+const e = window.translate
 
 export default class TextEditor extends PureComponent {
   state = {
@@ -152,7 +151,7 @@ export default class TextEditor extends PureComponent {
     if (!file) {
       return null
     }
-    const title = `${s('edit')} ${s('remote')} ${s('file')}: ${path}`
+    const title = `${e('edit')} ${e('remote')} ${e('file')}: ${path}`
     const propsAll = {
       footer: null,
       title,

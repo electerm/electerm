@@ -36,9 +36,7 @@ import AddressBar from './address-bar'
 import getProxy from '../../common/get-proxy'
 import './sftp.styl'
 
-const { prefix } = window
-const e = prefix('sftp')
-const c = prefix('common')
+const e = window.translate
 
 const buildTree = arr => {
   return arr.reduce((prev, curr) => {
@@ -390,8 +388,8 @@ export default class Sftp extends Component {
   onDel = (type, files) => {
     this.onDelete = true
     Modal.confirm({
-      cancelText: c('cancel'),
-      okText: c('ok'),
+      cancelText: e('cancel'),
+      okText: e('ok'),
       title: this.renderDelConfirmTitle(files),
       onOk: () => this.delFiles(type, files)
     })
@@ -845,6 +843,22 @@ export default class Sftp extends Component {
     }, () => this[`${type}List`](undefined, undefined, oldPath))
   }
 
+  parsePath = (type, pth) => {
+    const reg = /^%([^%]+)%/
+    if (!reg.test(pth)) {
+      return pth
+    }
+    const m = pth.match(reg)
+    if (!m || !m[1]) {
+      return pth
+    }
+    const envName = m[1]
+    const envPath = window.pre.env[envName]
+    if (envPath) {
+      return pth.replace(reg, envPath)
+    }
+  }
+
   onGoto = (type, e) => {
     e && e.preventDefault()
     if (type === typeMap.remote && !this.sftp) {
@@ -853,14 +867,14 @@ export default class Sftp extends Component {
     const n = `${type}Path`
     const nt = n + 'Temp'
     const oldPath = this.state[type + 'Path']
-    const np = this.state[nt]
+    const np = this.parsePath(type, this.state[nt])
     if (!isValidPath(np)) {
       return notification.warning({
         message: 'path not valid'
       })
     }
     this.setState({
-      [n]: this.state[nt]
+      [n]: np
     }, () => this[`${type}List`](undefined, undefined, oldPath))
   }
 

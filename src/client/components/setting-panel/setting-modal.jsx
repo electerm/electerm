@@ -17,11 +17,7 @@ import TabSettings from './tab-settings'
 import TabThemes from './tab-themes'
 import TabProfiles from './tab-profiles'
 
-const { prefix } = window
-const m = prefix('common')
-const t = prefix('terminalThemes')
-const q = prefix('quickCommands')
-const f = prefix('form')
+const e = window.translate
 
 export default class SettingModalWrap extends Component {
   selectItem = (item) => {
@@ -72,32 +68,32 @@ export default class SettingModalWrap extends Component {
     const items = [
       {
         key: settingMap.history,
-        label: m(settingMap.history),
+        label: e(settingMap.history),
         children: null
       },
       {
         key: settingMap.bookmarks,
-        label: m(settingMap.bookmarks),
+        label: e(settingMap.bookmarks),
         children: null
       },
       {
         key: settingMap.setting,
-        label: m(settingMap.setting),
+        label: e(settingMap.setting),
         children: null
       },
       {
         key: settingMap.terminalThemes,
-        label: t('uiThemes'),
+        label: e('uiThemes'),
         children: null
       },
       {
         key: settingMap.quickCommands,
-        label: q(settingMap.quickCommands),
+        label: e(settingMap.quickCommands),
         children: null
       },
       {
         key: settingMap.profiles,
-        label: f(settingMap.profiles),
+        label: e(settingMap.profiles),
         children: null
       }
     ]

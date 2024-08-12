@@ -17,8 +17,7 @@ import { tailFormItemLayout } from '../../common/form-layout'
 import useFuncs from './use-form-funcs'
 
 const FormItem = Form.Item
-const { prefix } = window
-const e = prefix('form')
+const e = window.translate
 
 export default function useBookmarkSubmit (props) {
   const [

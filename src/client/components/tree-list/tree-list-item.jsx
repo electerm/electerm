@@ -24,10 +24,7 @@ import uid from '../../common/uid'
 import { memo } from 'react'
 import './tree-list.styl'
 
-const { prefix } = window
-const e = prefix('menu')
-const c = prefix('common')
-const s = prefix('setting')
+const e = window.translate
 
 export default memo(function TreeListItem (props) {
   const handleDel = (e) => {
@@ -43,7 +40,7 @@ export default memo(function TreeListItem (props) {
         title={e('del') + '?'}
         onConfirm={handleDel}
         okText={e('del')}
-        cancelText={c('cancel')}
+        cancelText={e('cancel')}
         placement='top'
       >
         <CloseOutlined title={e('del')} className='pointer tree-control-btn' />
@@ -86,7 +83,7 @@ export default memo(function TreeListItem (props) {
     return (
       <FolderAddOutlined
         key='new-tree'
-        title={`${s('new')} ${c('bookmarkCategory')}`}
+        title={`${e('new')} ${e('bookmarkCategory')}`}
         onClick={handleAddSubCat}
         className='pointer tree-control-btn'
       />
@@ -129,7 +126,7 @@ export default memo(function TreeListItem (props) {
       return null
     }
     return (
-      <Tooltip title={s('openAll')}>
+      <Tooltip title={e('openAll')}>
         <FolderOpenOutlined
           key='open-all-tree'
           onClick={handleOpenAll}

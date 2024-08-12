@@ -102,7 +102,7 @@ export default defineConfig({
             'throttle-debounce'
           ],
           antd: ['antd'],
-          '@ant-design/icons': ['@ant-design/icons'],
+          'ant-icons': ['@ant-design/icons'],
           xterm: [
             'xterm'
           ],
@@ -118,7 +118,6 @@ export default defineConfig({
             'xterm-addon-web-links',
             'xterm-addon-webgl'
           ],
-          '@electerm/electerm-themes': ['@electerm/electerm-themes'],
           trzsz: ['trzsz'],
           manate: ['manate'],
           'zmodem-ts': ['zmodem-ts'],

@@ -42,10 +42,7 @@ import './tree-list.styl'
 import TreeExpander from './tree-expander'
 import TreeListItem from './tree-list-item'
 
-const { prefix } = window
-const e = prefix('menu')
-const c = prefix('common')
-const s = prefix('setting')
+const e = window.translate
 
 export default class ItemListTree extends Component {
   constructor (props) {
@@ -902,13 +899,13 @@ export default class ItemListTree extends Component {
         <Space.Compact>
           <Button
             onClick={this.handleNewBookmark}
-            title={`${s('new')} ${c('bookmarks')}`}
+            title={`${e('new')} ${e('bookmarks')}`}
           >
             <BookOutlined className='with-plus' />
           </Button>
           <Button
             onClick={this.handleNewBookmarkGroup}
-            title={`${s('new')} ${c('bookmarkCategory')}`}
+            title={`${e('new')} ${e('bookmarkCategory')}`}
           >
             <FolderOutlined className='with-plus' />
           </Button>

@@ -7,8 +7,7 @@ import {
   paneMap
 } from './constants'
 
-const { prefix } = window
-const e = prefix('control')
+const e = window.translate
 window.et.tabCount = 0
 
 export function updateCount (tab) {

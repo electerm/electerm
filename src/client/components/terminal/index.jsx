@@ -53,9 +53,7 @@ import strip from '@electerm/strip-ansi'
 import { formatBytes } from '../../common/byte-format.js'
 import * as fs from './fs.js'
 
-const { prefix } = window
-const e = prefix('ssh')
-const m = prefix('menu')
+const e = window.translate
 
 const computePos = (e) => {
   return {
@@ -837,14 +835,14 @@ class Term extends Component {
       {
         func: 'onCopy',
         icon: 'CopyOutlined',
-        text: m('copy'),
+        text: e('copy'),
         disabled: !hasSlected,
         subText: copyShortcut
       },
       {
         func: 'onPaste',
         icon: 'SwitcherOutlined',
-        text: m('paste'),
+        text: e('paste'),
         disabled: !copyed,
         subText: pasteShortcut
       },
@@ -1256,7 +1254,7 @@ class Term extends Component {
               this.props.delSplit(this.state.id)
             }}
           >
-            {m('close')}
+            {e('close')}
           </Button>
           <Button
             icon={<ReloadOutlined />}
@@ -1267,7 +1265,7 @@ class Term extends Component {
               )
             }}
           >
-            {m('reload')}
+            {e('reload')}
           </Button>
         </div>
       )

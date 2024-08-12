@@ -8,9 +8,7 @@ import { pick } from 'lodash-es'
 import { EditOutlined, PushpinOutlined } from '@ant-design/icons'
 import { Tooltip } from 'antd'
 
-const { prefix } = window
-const c = prefix('common')
-const m = prefix('menu')
+const e = window.translate
 
 export default class HistoryPanel extends Component {
   render () {
@@ -35,15 +33,15 @@ export default class HistoryPanel extends Component {
       >
         <div className='pd1y pd2t pd2x'>
           <div className='fix'>
-            <div className='fleft'>{c('history')}</div>
+            <div className='fleft'>{e('history')}</div>
             <div className='fleft'>
-              <Tooltip title={`${m('edit')} ${c('history')}`}>
+              <Tooltip title={`${e('edit')} ${e('history')}`}>
                 <EditOutlined
                   className='font16 mg1x mg2l pointer iblock control-icon icon-do-edit'
                   onClick={store.handleEditHistory}
                 />
               </Tooltip>
-              <Tooltip title={c('pin')}>
+              <Tooltip title={e('pin')}>
                 <PushpinOutlined
                   {...prps1}
                   onClick={store.handlePin}

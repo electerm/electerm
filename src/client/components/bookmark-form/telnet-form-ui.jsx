@@ -25,9 +25,7 @@ import { defaultsDeep, uniqBy } from 'lodash-es'
 import './bookmark-form.styl'
 
 const FormItem = Form.Item
-const { prefix } = window
-const e = prefix('form')
-const s = prefix('setting')
+const e = window.translate
 
 export default function TelnetFormUI (props) {
   const [
@@ -125,7 +123,7 @@ export default function TelnetFormUI (props) {
       },
       {
         key: 'settings',
-        label: s('settings'),
+        label: e('settings'),
         forceRender: true,
         children: uis
       },

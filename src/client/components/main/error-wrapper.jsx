@@ -5,9 +5,7 @@ import {
   logoPath1
 } from '../../common/constants'
 
-const { prefix } = window
-const e = prefix('main')
-const m = prefix('menu')
+const e = window.translate
 
 export default class ErrorBoundary extends React.PureComponent {
   constructor (props) {
@@ -46,7 +44,7 @@ export default class ErrorBoundary extends React.PureComponent {
               className='iblock'
               icon={<ReloadOutlined />}
             >
-              {m('reload')}
+              {e('reload')}
             </Button>
           </h1>
           <div className='pd1y'>{message}</div>

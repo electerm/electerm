@@ -18,8 +18,7 @@ import copy from 'json-deep-copy'
 import { shortcutExtend } from '../shortcuts/shortcut-handler.js'
 import './term-search.styl'
 
-const { prefix } = window
-const s = prefix('ssh')
+const e = window.translate
 
 class TermSearch extends Component {
   searchControls = [{
@@ -171,7 +170,7 @@ class TermSearch extends Component {
     return (
       <Tooltip
         key={id}
-        title={s(id)}
+        title={e(id)}
       >
         <Icon
           className={cls}

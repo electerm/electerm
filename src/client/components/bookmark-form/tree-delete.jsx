@@ -5,8 +5,7 @@ import {
 } from 'antd'
 import { defaultBookmarkGroupId, settingMap } from '../../common/constants'
 
-const { prefix } = window
-const m = prefix('common')
+const e = window.translate
 
 export default class BookmarkTreeDelete extends StartSessionSelect {
   onExpand = (expandedKeys) => {
@@ -72,12 +71,12 @@ export default class BookmarkTreeDelete extends StartSessionSelect {
             disabled={!len}
             onClick={this.handleDel}
           >
-            {m('delSelected')} ({len})
+            {e('delSelected')} ({len})
           </Button>
           <Button
             onClick={this.handleCancel}
           >
-            {m('cancel')}
+            {e('cancel')}
           </Button>
         </div>
         <Tree {...rProps} />

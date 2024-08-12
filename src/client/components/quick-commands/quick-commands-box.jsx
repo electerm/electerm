@@ -16,8 +16,7 @@ import {
 import classNames from 'classnames'
 import './qm.styl'
 
-const { prefix } = window
-const e = prefix('quickCommands')
+const e = window.translate
 const addQuickCommands = 'addQuickCommands'
 const { Option } = Select
 

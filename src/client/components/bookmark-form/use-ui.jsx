@@ -19,9 +19,7 @@ import mapper from '../../common/auto-complete-data-mapper'
 import { defaultEnvLang } from '../../common/constants'
 
 const FormItem = Form.Item
-const { prefix } = window
-const e = prefix('form')
-const s = prefix('setting')
+const e = window.translate
 
 export default function useBookmarkFormUI (props) {
   const {
@@ -66,7 +64,7 @@ export default function useBookmarkFormUI (props) {
     </FormItem>,
     <FormItem
       {...formItemLayout}
-      label={s('fontFamily')}
+      label={e('fontFamily')}
       key='fontFamily'
       name='fontFamily'
       rules={[{
@@ -78,7 +76,7 @@ export default function useBookmarkFormUI (props) {
     <FormItem
       key='fontSize'
       {...formItemLayout}
-      label={s('fontSize')}
+      label={e('fontSize')}
       name='fontSize'
     >
       <InputNumber
@@ -91,7 +89,7 @@ export default function useBookmarkFormUI (props) {
     <FormItem
       key='keepaliveInterval'
       {...formItemLayout}
-      label={s('keepaliveIntervalDesc')}
+      label={e('keepaliveIntervalDesc')}
       name='keepaliveInterval'
     >
       <InputNumber

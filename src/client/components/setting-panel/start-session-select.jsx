@@ -3,8 +3,7 @@ import { Component } from '../common/react-subx'
 import copy from 'json-deep-copy'
 import { createTitleWithTag } from '../../common/create-title'
 
-const { prefix } = window
-const e = prefix('setting')
+const e = window.translate
 const { SHOW_CHILD } = TreeSelect
 
 export default class StartSessionSelect extends Component {

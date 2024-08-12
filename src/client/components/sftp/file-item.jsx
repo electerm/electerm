@@ -36,9 +36,7 @@ import { filesize } from 'filesize'
 import { createTransferProps } from './transfer-common'
 import generate from '../../common/uid'
 
-const { prefix } = window
-const e = prefix('sftp')
-const m = prefix('menu')
+const e = window.translate
 
 const computePos = (e) => {
   return {
@@ -945,7 +943,7 @@ export default class FileSection extends React.Component {
     const shouldShowSelectedMenu = id &&
       len > 1 &&
       some(selectedFiles, d => d.id === id)
-    const delTxt = shouldShowSelectedMenu ? `${e('deleteAll')}(${len})` : m('del')
+    const delTxt = shouldShowSelectedMenu ? `${e('deleteAll')}(${len})` : e('del')
     const canPaste = hasFileInClipboardText()
     const showEdit = !isDirectory && id &&
       size < maxEditFileSize
@@ -1018,20 +1016,20 @@ export default class FileSection extends React.Component {
       res.push({
         func: 'onCopy',
         icon: 'CopyOutlined',
-        text: m('copy'),
+        text: e('copy'),
         subText: `${ctrlOrCmd}+c`
       })
       res.push({
         func: 'onCut',
         icon: 'FileExcelOutlined',
-        text: m('cut'),
+        text: e('cut'),
         subText: `${ctrlOrCmd}+x`
       })
     }
     res.push({
       func: 'onPaste',
       icon: 'CopyOutlined',
-      text: m('paste'),
+      text: e('paste'),
       disabled: !canPaste,
       subText: `${ctrlOrCmd}+v`
     })
@@ -1044,7 +1042,7 @@ export default class FileSection extends React.Component {
       res.push({
         func: 'onCopyPath',
         icon: 'CopyOutlined',
-        text: m('copyFilePath')
+        text: e('copyFilePath')
       })
     }
     if (enableSsh !== false || isLocal) {

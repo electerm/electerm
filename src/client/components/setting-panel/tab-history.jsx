@@ -5,8 +5,7 @@ import {
   settingMap
 } from '../../common/constants'
 
-const { prefix } = window
-const c = prefix('control')
+const e = window.translate
 
 export default function TabHistory (props) {
   const {
@@ -36,7 +35,7 @@ export default function TabHistory (props) {
                 {...formProps}
               />
               )
-            : <div className='form-wrap pd2 aligncenter'>{c('notFoundContent')}</div>
+            : <div className='form-wrap pd2 aligncenter'>{e('notFoundContent')}</div>
         }
       </SettingCol>
     </div>

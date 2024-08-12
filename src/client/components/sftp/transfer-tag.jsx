@@ -4,8 +4,7 @@
  */
 
 import './transfer-tag.styl'
-const { prefix } = window
-const e = prefix('sftp')
+const e = window.translate
 
 export default function TransferTag (props) {
   const {

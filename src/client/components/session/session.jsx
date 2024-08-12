@@ -13,7 +13,8 @@ import {
   SearchOutlined,
   FullscreenOutlined,
   PaperClipOutlined,
-  CloseOutlined
+  CloseOutlined,
+  QuestionCircleOutlined
 } from '@ant-design/icons'
 import {
   Tooltip
@@ -37,6 +38,7 @@ import ResizeWrap from '../common/resize-wrap'
 import safeName from '../../common/safe-name'
 import TerminalInfoContent from '../terminal-info/content'
 import uid from '../../common/id-with-stamp'
+import Link from '../common/external-link'
 import postMessage from '../../common/post-msg'
 import './session.styl'
 
@@ -60,9 +62,7 @@ const getPrevTerminal = terminals => {
   return last(terminals)
 }
 
-const { prefix } = window
-const e = prefix('ssh')
-const m = prefix('menu')
+const e = window.translate
 
 export default class SessionWrapper extends Component {
   constructor (props) {
@@ -543,7 +543,18 @@ export default class SessionWrapper extends Component {
     if (isSsh || isLocal) {
       controls.push(isSsh ? paneMap.sftp : paneMap.fileManager)
     }
-    const checkTxt = e('sftpPathFollowSsh') + ' [Beta]'
+    const checkTxt = (
+      <div>
+        <span>{e('sftpPathFollowSsh')}</span>
+        <span className='mg1l color-red'>[Beta]</span>
+        <Link
+          to='https://github.com/electerm/electerm/wiki/Warning-about-sftp-follow-ssh-path-function'
+          className='mg1l'
+        >
+          Wiki <QuestionCircleOutlined />
+        </Link>
+      </div>
+    )
     const checkProps = {
       onClick: this.toggleCheckSftpPathFollowSsh,
       className: classnames(
@@ -615,7 +626,7 @@ export default class SessionWrapper extends Component {
                       <CloseSquareFilled
                         className='mg1r icon-trash font16 iblock pointer spliter'
                         onClick={() => this.delSplit()}
-                        title={m('del')}
+                        title={e('del')}
                       />
                       )
                 }

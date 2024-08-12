@@ -14,8 +14,7 @@ import {
 } from '../../common/constants'
 import postMessage from '../../common/post-msg'
 
-const { prefix } = window
-const e = prefix('sftp')
+const e = window.translate
 
 function formatTimeAuto (strOrDigit) {
   if (isString(strOrDigit)) {
