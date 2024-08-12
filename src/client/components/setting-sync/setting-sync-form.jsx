@@ -259,7 +259,7 @@ export default function SyncForm (props) {
             type='dashed'
             onClick={upload}
             disabled={disabled()}
-            className='mg1r mg1b'
+            className='mg1r mg1b sync-btn-up'
             icon={<ArrowUpOutlined />}
           >{e('uploadSettings')}
           </Button>

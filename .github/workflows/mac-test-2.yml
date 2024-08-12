@@ -48,4 +48,5 @@ jobs:
         CUSTOM_SYNC_URL: ${{ secrets.CUSTOM_SYNC_URL }}
         CUSTOM_SYNC_USER: ${{ secrets.CUSTOM_SYNC_USER }}
         CUSTOM_SYNC_SECRET: ${{ secrets.CUSTOM_SYNC_SECRET }}
+        CLOUD_TOKEN: ${{ secrets.CLOUD_TOKEN }}
 
