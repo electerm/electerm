@@ -18,7 +18,8 @@ const {
   GITEE_ID,
   CUSTOM_SYNC_URL,
   CUSTOM_SYNC_USER,
-  CUSTOM_SYNC_SECRET
+  CUSTOM_SYNC_SECRET,
+  CLOUD_TOKEN
 } = process.env
 
 describe('data sync', function () {
@@ -93,5 +94,26 @@ describe('data sync', function () {
       return window.store.bookmarks
     })
     expect(bks3.length > 3).equal(true)
+
+    log('save cloud props')
+
+    await client.click('.setting-wrap [id*="tab-cloud"]')
+    await delay(3000)
+
+    await client.setValue('#sync-input-token-cloud', CLOUD_TOKEN)
+    await delay(1000)
+    await client.click('.setting-wrap .sync-btn-save:visible')
+    await delay(6000)
+    await client.click('.setting-wrap .sync-btn-up:visible')
+    await delay(6000)
+    await client.evaluate(() => {
+      return window.store.setBookmarks([])
+    })
+    await client.click('.setting-wrap .sync-btn-down:visible')
+    await delay(6000)
+    const bks4 = await client.evaluate(() => {
+      return window.store.bookmarks
+    })
+    expect(bks4.length > 3).equal(true)
   })
 })
