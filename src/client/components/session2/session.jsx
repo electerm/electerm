@@ -60,9 +60,7 @@ const getPrevTerminal = terminals => {
   return last(terminals)
 }
 
-const { prefix } = window
-const e = prefix('ssh')
-const m = prefix('menu')
+const e = window.translate
 
 export default class SessionWrapper extends Component {
   constructor (props) {
@@ -615,7 +613,7 @@ export default class SessionWrapper extends Component {
                       <CloseSquareFilled
                         className='mg1r icon-trash font16 iblock pointer spliter'
                         onClick={() => this.delSplit()}
-                        title={m('del')}
+                        title={e('del')}
                       />
                       )
                 }
