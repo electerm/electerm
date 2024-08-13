@@ -103,7 +103,7 @@ export default function renderAuth (props) {
       <FormItem noStyle name='privateKey'>
         <TextArea
           placeholder={e('privateKeyDesc')}
-          rows={1}
+          autoSize={{ minRows: 1 }}
         />
       </FormItem>
       <Upload

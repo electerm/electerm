@@ -246,7 +246,7 @@ export default function SerialFormUi (props) {
           name='description'
           hasFeedback
         >
-          <Input.TextArea rows={1} />
+          <Input.TextArea autoSize={{ minRows: 1 }} />
         </FormItem>
         <FormItem
           {...formItemLayout}
