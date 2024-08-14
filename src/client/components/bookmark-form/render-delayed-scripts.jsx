@@ -40,7 +40,7 @@ export default function renderRunScripts () {
             className='mg2x'
           >
             <Input.TextArea
-              rows={1}
+              autoSize={{ minRows: 1 }}
               placeholder={e('loginScript')}
               className='compact-input'
             />

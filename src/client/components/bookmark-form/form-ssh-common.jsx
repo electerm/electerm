@@ -166,7 +166,7 @@ export default function renderCommon (props) {
         name='description'
         hasFeedback
       >
-        <Input.TextArea rows={1} />
+        <Input.TextArea autoSize={{ minRows: 1 }} />
       </FormItem>
       <FormItem
         {...formItemLayout}
@@ -196,7 +196,7 @@ export default function renderCommon (props) {
         hasFeedback
       >
         <Input.TextArea
-          rows={1}
+          autoSize={{ minRows: 1 }}
         />
       </FormItem>
       {renderRunScripts()}

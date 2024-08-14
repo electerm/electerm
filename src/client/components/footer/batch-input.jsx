@@ -159,7 +159,7 @@ export default class BatchInput extends Component {
               onClick={this.handleClick}
               onBlur={this.handleBlur}
               size='small'
-              row={1}
+              autoSize={{ minRows: 1 }}
             />
           </AutoComplete>
           <Tooltip title={e('runInAllTerminals')}>

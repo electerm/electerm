@@ -45,7 +45,7 @@ export default function renderQm () {
           className='mg2x'
         >
           <Input.TextArea
-            rows={1}
+            autoSize={{ minRows: 1 }}
             placeholder={e('quickCommand')}
             className='compact-input qm-input'
             onFocus={() => {
