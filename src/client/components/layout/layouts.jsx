@@ -3,6 +3,16 @@ import {
   splitConfig
 } from '../../common/constants'
 
+function pixed (style) {
+  return Object.keys(style).reduce((prev, k) => {
+    const v = style[k]
+    return {
+      ...prev,
+      [k]: v + 'px'
+    }
+  }, {})
+}
+
 export default memo(function LayoutWrap (props) {
   const {
     children,
@@ -18,8 +28,9 @@ export default memo(function LayoutWrap (props) {
   } = splitConfig[layout]
   const wrapStyle = {
     className: 'layout-wrap layout-wrap-' + layout,
-    style: layoutStyle
+    style: pixed(layoutStyle)
   }
+  console.log('wrapStyles', wrapStyles)
   return (
     <div {...wrapStyle}>
       {
@@ -28,6 +39,7 @@ export default memo(function LayoutWrap (props) {
             style: wrapStyles[i],
             className: 'layout-item v' + (i + 1)
           }
+          console.log('itemProps', itemProps)
           return (
             <div
               key={i + 'layout-item'}

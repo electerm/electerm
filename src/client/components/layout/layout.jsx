@@ -12,6 +12,7 @@ import calcSessionSize from './session-size-alg'
 import TermSearch from '../terminal/term-search.jsx'
 import Footer from '../footer/footer-entry.jsx'
 import QuickCommandsFooterBox from '../quick-commands/quick-commands-box.jsx'
+import './layout.styl'
 
 export default class Layout extends Component {
   handleMousedown = (e) => {
@@ -23,21 +24,20 @@ export default class Layout extends Component {
       width,
       height,
       pinnedQuickCommandBar,
-      tabsHeight,
+      // tabsHeight,
       leftSidebarWidth,
-      infoPanelPinned,
-      pinned,
-      rightSidebarWidth
+      // infoPanelPinned,
+      pinned
+      // rightSidebarWidth
     } = this.props.store
-    const h = height - tabsHeight - footerHeight - termControlHeight - (pinnedQuickCommandBar ? quickCommandBoxHeight : 0)
-    const l = pinned ? leftSidebarWidth : 0
-    const r = infoPanelPinned ? rightSidebarWidth : 0
+    const h = height - footerHeight - (pinnedQuickCommandBar ? quickCommandBoxHeight : 0)
+    const l = pinned ? 43 + leftSidebarWidth : 43
+    // const r = infoPanelPinned ? rightSidebarWidth : 0
     return {
       height: h,
       top: 0,
       left: l,
-      right: r,
-      width: width - l - r - 42
+      width: width - l
     }
   }
 

@@ -5,8 +5,8 @@ const layoutConfigs = {
   r2: { cols: 1, rows: 2 },
   r3: { cols: 1, rows: 3 },
   c2x2: { cols: 2, rows: 2 },
-  c1x2r: { cols: 2, rows: 2, special: 'right', length: 3 },
-  c1x2c: { cols: 2, rows: 2, special: 'bottom', length: 3 }
+  c1r2: { cols: 2, rows: 2, special: 'right', length: 3 },
+  r12c: { cols: 2, rows: 2, special: 'bottom', length: 3 }
 }
 
 export default function calcSessionSize (layout, w, h) {

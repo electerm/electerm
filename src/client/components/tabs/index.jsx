@@ -392,15 +392,16 @@ export default class Tabs extends React.Component {
   shouldRenderWindowControl = () => {
     const { layout, batch } = this.props
     const batchToRender = {
-      single: 0,
-      twoColumns: 1,
-      threeColumns: 2,
-      twoRows: 0,
-      threeRows: 0,
-      grid2x2: 1,
-      twoRowsRight: 1,
-      twoColumnsBottom: 0
+      c1: 0,
+      c2: 1,
+      c3: 2,
+      r2: 0,
+      r3: 0,
+      c2x2: 1,
+      c1r2: 1,
+      r1c2: 0
     }
+    console.log('batchToRender', batchToRender, layout, batch)
     return batch === batchToRender[layout]
   }
 

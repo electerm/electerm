@@ -361,8 +361,8 @@ export const splitMap = {
   r2: 'r2',
   r3: 'r3',
   c2x2: 'c2x2',
-  c1x2r: 'c1x2r',
-  c1x1c: 'c1x2c'
+  c1r2: 'c1r2',
+  r1c2: 'r1c2'
 }
 export const splitMapDesc = {
   c1: 'single',
@@ -371,8 +371,8 @@ export const splitMapDesc = {
   r2: 'twoRows',
   r3: 'threeRows',
   c2x2: 'grid2x2',
-  c1x2r: 'twoRowsRight',
-  c1x1c: 'twoColumnsBottom'
+  c1r2: 'twoRowsRight',
+  r1c2: 'twoColumnsBottom'
 }
 export const splitConfig = {
   c1: {
@@ -399,11 +399,11 @@ export const splitConfig = {
     children: 4,
     handle: 3
   },
-  c1x2r: {
+  c1r2: {
     children: 3,
     handle: 2
   },
-  c1x2c: {
+  r1c2: {
     children: 3,
     handle: 2
   }

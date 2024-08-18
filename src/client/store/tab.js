@@ -95,7 +95,7 @@ export default Store => {
       prevLayout
     } = store
     const len = splitConfig[layout].children
-    const prevLen = splitConfig[prevLayout].children
+    const prevLen = prevLayout ? splitConfig[prevLayout].children : 0
     if (len < prevLen) {
       const {
         tabs
