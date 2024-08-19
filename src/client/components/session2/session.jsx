@@ -23,11 +23,9 @@ import generate from '../../common/uid'
 import copy from 'json-deep-copy'
 import classnames from 'classnames'
 import {
-  quickCommandBoxHeight,
   terminalSplitDirectionMap,
   termControlHeight,
   paneMap,
-  footerHeight,
   terminalActions,
   connectionMap,
   terminalRdpType,
@@ -167,14 +165,11 @@ export default class SessionWrapper extends Component {
 
   computeHeight = () => {
     const {
-      pinnedQuickCommandBar,
       tabsHeight
     } = this.props
     return this.props.height -
       tabsHeight -
-      footerHeight -
-      termControlHeight -
-      (pinnedQuickCommandBar ? quickCommandBoxHeight : 0)
+      termControlHeight
   }
 
   editTab = (up) => {
@@ -297,20 +292,11 @@ export default class SessionWrapper extends Component {
   }
 
   getWidth = () => {
-    const {
-      infoPanelPinned,
-      showInfo
-    } = this.state
-    const { rightSidebarWidth, width, leftSidebarWidth, pinned, openedSideBar } = this.props
-    const rt = infoPanelPinned && showInfo ? rightSidebarWidth : 0
-    const lt = pinned && openedSideBar ? leftSidebarWidth : 0
-    return width - rt - lt - 42
+    return this.props.width
   }
 
   getWidthSftp = () => {
-    const { width, leftSidebarWidth, pinned, openedSideBar } = this.props
-    const lt = pinned && openedSideBar ? leftSidebarWidth : 0
-    return width - lt - 42
+    return this.props.width
   }
 
   renderTerminals = () => {
@@ -436,7 +422,7 @@ export default class SessionWrapper extends Component {
     if (type === terminalRdpType) {
       return null
     }
-    const height = this.computeHeight()
+    const height = this.computeHeight(pane)
     const cls = pane === paneMap.terminal
       ? 'hide'
       : ''
