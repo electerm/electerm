@@ -346,7 +346,7 @@ export default (Store) => {
   Store.prototype.handleExportAllData = async function () {
     const { store } = window
     const objs = {}
-    const names = store.getDataSyncNames(true)
+    const { names } = store.getDataSyncNames(true)
     for (const n of names) {
       objs[n] = store.getItems(n)
       const order = await getData(`${n}:order`)
