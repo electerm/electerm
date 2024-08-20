@@ -30,7 +30,6 @@ import deepCopy from 'json-deep-copy'
 import isValidPath from '../../common/is-valid-path'
 import memoizeOne from 'memoize-one'
 import postMessage from '../../common/post-msg'
-import { runCmd } from '../terminal/terminal-apis'
 import * as owner from './owner-list'
 import AddressBar from './address-bar'
 import getProxy from '../../common/get-proxy'
@@ -252,11 +251,7 @@ export default class Sftp extends Component {
     if (this.props.sftpPathFollowSsh && this.props.cwd) {
       return this.props.cwd
     }
-    const home = await runCmd(
-      this.props.pid,
-      this.props.sessionId,
-      'pwd'
-    ).catch(window.store.onError)
+    const home = await this.sftp.getHomeDir()
     if (home) {
       return home.trim()
     } else {
