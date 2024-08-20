@@ -117,8 +117,21 @@ export default (Store) => {
   }
 
   Store.prototype.handleClearSyncSetting = async function () {
-    window.store.setConfig({
-      syncSetting: {}
+    const { store } = window
+    const currentSyncType = store.syncType
+    const currentSettings = store.config.syncSetting || {}
+    console.log('currentSettings: ', currentSyncType, currentSettings)
+    // Create a new object without the current sync type's settings
+    const updatedSettings = Object.keys(currentSettings).reduce((acc, key) => {
+      if (!key.startsWith(currentSyncType)) {
+        acc[key] = currentSettings[key]
+      }
+      return acc
+    }, {})
+    console.log('updatedSettings: ', updatedSettings)
+
+    store.setConfig({
+      syncSetting: updatedSettings
     })
   }
 
