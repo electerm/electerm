@@ -94,7 +94,8 @@ export default class QuickCommandsFooterBox extends Component {
     const { store } = window
     const { quickCommands } = store
     const idDragged = e.dataTransfer.getData('idDragged')
-    const idDrop = e.target.getAttribute('data-id')
+    const tar = e.target.closest('.qm-item')
+    const idDrop = tar.getAttribute('data-id')
     const idDraggedIndex = quickCommands.findIndex(
       ({ id }) => id === idDragged
     )
