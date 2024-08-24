@@ -14,6 +14,7 @@ import {
   PushpinOutlined
 } from '@ant-design/icons'
 import classNames from 'classnames'
+import onDrop from './on-drop'
 import './qm.styl'
 
 const e = window.translate
@@ -90,24 +91,7 @@ export default class QuickCommandsFooterBox extends Component {
 
   // sort quick commands array when drop, so that the dragged item will be placed at the right position, e.target.getAttribute('data-id') would target item id, e.dataTransfer.getData('idDragged') would target dragged item id, then set window.store.quickCommands use window.store.setItems
   onDrop = e => {
-    e.preventDefault()
-    const { store } = window
-    const { quickCommands } = store
-    const idDragged = e.dataTransfer.getData('idDragged')
-    const tar = e.target.closest('.qm-item')
-    const idDrop = tar.getAttribute('data-id')
-    const idDraggedIndex = quickCommands.findIndex(
-      ({ id }) => id === idDragged
-    )
-    const targetIndex = quickCommands.findIndex(
-      ({ id }) => id === idDrop
-    )
-    if (idDraggedIndex < targetIndex) {
-      quickCommands.splice(targetIndex, 0, quickCommands.splice(idDraggedIndex, 1)[0])
-    } else {
-      quickCommands.splice(targetIndex + 1, 0, quickCommands.splice(idDraggedIndex, 1)[0])
-    }
-    store.setItems('quickCommands', quickCommands)
+    onDrop(e, '.qm-item')
   }
 
   renderNoCmd = () => {
