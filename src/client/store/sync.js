@@ -190,7 +190,10 @@ export default (Store) => {
         })
       }
       str = JSON.stringify(str)
-      if (n === settingMap.bookmarks && pass) {
+      if (
+        (n === settingMap.bookmarks || n === settingMap.profiles) &&
+        pass
+      ) {
         str = await window.pre.runGlobalAsync('encryptAsync', str, pass)
       }
       objs[`${n}.json`] = {
