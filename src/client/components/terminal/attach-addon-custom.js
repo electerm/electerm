@@ -54,6 +54,7 @@ export default class AttachAddonCustom extends AttachAddon {
   onRead = (ev) => {
     const data = ev.target.result
     const { term } = this
+    term?.parent?.notifyOnData()
     const str = this.decoder.decode(data)
     if (term?.parent?.props.sftpPathFollowSsh && term?.buffer.active.type !== 'alternate') {
       const {

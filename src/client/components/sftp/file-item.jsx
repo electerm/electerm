@@ -722,12 +722,12 @@ export default class FileSection extends React.Component {
         path,
         text,
         mode
-      )
+      ).catch(window.store.onError)
       : await fs.writeFile(
         path,
         text,
         mode
-      )
+      ).catch(window.store.onError)
     const data = {
       loading: false
     }

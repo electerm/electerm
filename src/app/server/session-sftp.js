@@ -54,7 +54,26 @@ class Sftp extends TerminalBase {
    * @return {Promise}
    */
   getHomeDir () {
-    return this.runCmd('eval echo "~$different_user"')
+    // return this.runCmd('eval echo "~$different_user"')
+    // ext_home_dir
+    return this.getSftpHomeDir()
+      .catch(err => {
+        console.error('get home dir error', err)
+        return this.realpath('')
+      })
+  }
+
+  getSftpHomeDir () {
+    // return this.runCmd('eval echo "~$different_user"')
+    // ext_home_dir
+    return new Promise((resolve, reject) => {
+      this.sftp.ext_home_dir('', (err, path) => {
+        if (err) {
+          return reject(err)
+        }
+        resolve(path)
+      })
+    })
   }
 
   /**
@@ -353,6 +372,7 @@ class Sftp extends TerminalBase {
     return new Promise((resolve, reject) => {
       const { sftp } = this
       sftp.realpath(remotePath, (err, target) => {
+        console.log(remotePath, err, target)
         if (err) reject(err)
         else resolve(target)
       })

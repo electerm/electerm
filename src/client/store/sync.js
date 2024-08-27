@@ -117,8 +117,21 @@ export default (Store) => {
   }
 
   Store.prototype.handleClearSyncSetting = async function () {
-    window.store.setConfig({
-      syncSetting: {}
+    const { store } = window
+    const currentSyncType = store.syncType
+    const currentSettings = store.config.syncSetting || {}
+    console.log('currentSettings: ', currentSyncType, currentSettings)
+    // Create a new object without the current sync type's settings
+    const updatedSettings = Object.keys(currentSettings).reduce((acc, key) => {
+      if (!key.startsWith(currentSyncType)) {
+        acc[key] = currentSettings[key]
+      }
+      return acc
+    }, {})
+    console.log('updatedSettings: ', updatedSettings)
+
+    store.setConfig({
+      syncSetting: updatedSettings
     })
   }
 
@@ -177,7 +190,10 @@ export default (Store) => {
         })
       }
       str = JSON.stringify(str)
-      if (n === settingMap.bookmarks && pass) {
+      if (
+        (n === settingMap.bookmarks || n === settingMap.profiles) &&
+        pass
+      ) {
         str = await window.pre.runGlobalAsync('encryptAsync', str, pass)
       }
       objs[`${n}.json`] = {
@@ -346,7 +362,7 @@ export default (Store) => {
   Store.prototype.handleExportAllData = async function () {
     const { store } = window
     const objs = {}
-    const names = store.getDataSyncNames(true)
+    const { names } = store.getDataSyncNames(true)
     for (const n of names) {
       objs[n] = store.getItems(n)
       const order = await getData(`${n}:order`)

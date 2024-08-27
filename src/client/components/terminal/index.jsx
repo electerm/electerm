@@ -4,7 +4,7 @@ import generate from '../../common/uid'
 import { isEqual, pick, debounce, throttle } from 'lodash-es'
 import postMessage from '../../common/post-msg'
 import clone from '../../common/to-simple-obj'
-import runIdle from '../../common/run-idle'
+// import runIdle from '../../common/run-idle'
 import {
   ReloadOutlined
 } from '@ant-design/icons'
@@ -783,7 +783,7 @@ class Term extends Component {
   onClear = () => {
     this.term.clear()
     this.term.focus()
-    this.notifyOnData('')
+    // this.notifyOnData('')
   }
 
   isRemote = () => {
@@ -921,7 +921,7 @@ class Term extends Component {
   }
 
   onData = (d) => {
-    runIdle(this.notifyOnData)
+    // runIdle(this.notifyOnData)
     if (!d.includes('\r')) {
       delete this.userTypeExit
     } else {
