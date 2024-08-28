@@ -58,13 +58,13 @@ class Sessions extends Component {
     window.addEventListener('message', this.onEvent)
   }
 
-  updateStoreTabs = (tabs) => {
-    postMsg({
-      action: commonActions.updateStore,
-      func: 'setTabs',
-      args: [copy(tabs)]
-    })
-  }
+  // updateStoreTabs = (tabs) => {
+  //   postMsg({
+  //     action: commonActions.updateStore,
+  //     func: 'setTabs',
+  //     args: [copy(tabs)]
+  //   })
+  // }
 
   updateStoreCurrentTabId = id => {
     postMsg({
@@ -94,7 +94,7 @@ class Sessions extends Component {
       if (tab) {
         Object.assign(tab, update)
       }
-      this.updateStoreTabs(tabs)
+      window.store.updateStoreTabs(tabs)
       return {
         tabs
       }
@@ -116,8 +116,9 @@ class Sessions extends Component {
       } else {
         updateCount(tab)
       }
+      tab.batch = this.props.batch
       tabs.splice(index, 0, tab)
-      this.updateStoreTabs(tabs)
+      window.store.updateStoreTabs(tabs)
       this.updateStoreCurrentTabId(tab.id)
       return {
         currentTabId: tab.id,
@@ -143,13 +144,14 @@ class Sessions extends Component {
       up.tabs = tabs.filter(t => {
         return t.id !== id
       })
-      this.updateStoreTabs(up.tabs)
+      window.store.updateStoreTabs(up.tabs)
       return up
     })
   }
 
   initFirstTab = () => {
     const tab = newTerm()
+    tab.batch = this.props.batch
     tab.terminals = [{
       id: termInitId,
       batch: this.props.batch,
@@ -222,7 +224,7 @@ class Sessions extends Component {
     this.setState({
       tabs
     })
-    this.updateStoreTabs(tabs)
+    window.store.updateStoreTabs(tabs)
   }
 
   setOffline = () => {
@@ -234,7 +236,7 @@ class Sessions extends Component {
             status: t.host ? statusMap.error : t.status
           }
         })
-      this.updateStoreTabs(tabs)
+      window.store.updateStoreTabs(tabs)
       return {
         tabs
       }
@@ -249,7 +251,7 @@ class Sessions extends Component {
           isTransporting: tabIds.includes(d.id)
         }
       })
-      this.updateStoreTabs(tabs)
+      window.store.updateStoreTabs(tabs)
       return {
         tabs
       }

@@ -20,6 +20,17 @@ export default Store => {
     })
   }
 
+  Store.prototype.updateStoreTabs = function (tabs0) {
+    if (!tabs0.length) {
+      return false
+    }
+    const { batch } = tabs0[0]
+    const tabs = window.store.getTabs()
+      .filter(t => t.batch !== batch)
+      .concat(tabs0)
+    window.store.setTabs(tabs)
+  }
+
   Store.prototype.getTabs = function () {
     return window.store.getItems('tabs')
   }
