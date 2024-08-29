@@ -23,7 +23,7 @@ export default class QuickCommandsList extends List {
     this.props.onClickItem(item)
   }
 
-  handleChange = v => {
+  handleChangeLabel = v => {
     this.setState({
       labels: v
     })
@@ -101,7 +101,7 @@ export default class QuickCommandsList extends List {
       placeholder: e('labels'),
       mode: 'multiple',
       value: this.state.labels,
-      onChange: this.handleChange,
+      onChange: this.handleChangeLabel,
       style: {
         width: '100%'
       }
