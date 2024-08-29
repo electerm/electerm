@@ -28,6 +28,7 @@ import mapper from '../../common/auto-complete-data-mapper'
 import KeywordForm from './keywords-form'
 import Link from '../common/external-link'
 import HelpIcon from '../common/help-icon'
+import KeywordsTransport from './keywords-transport'
 import './setting.styl'
 
 const { Option } = Select
@@ -35,7 +36,8 @@ const e = window.translate
 
 export default class SettingTerminal extends Component {
   state = {
-    ready: false
+    ready: false,
+    keywordFormReset: 1
   }
 
   componentDidMount () {
@@ -48,6 +50,12 @@ export default class SettingTerminal extends Component {
 
   componentWillUnmount () {
     clearTimeout(this.timer)
+  }
+
+  resetKeywordForm = () => {
+    this.setState({
+      keywordFormReset: Date.now()
+    })
   }
 
   handleResetAll = () => {
@@ -411,6 +419,7 @@ export default class SettingTerminal extends Component {
       formData: {
         keywords
       },
+      keywordFormReset: this.state.keywordFormReset,
       submit: this.handleSubmitKeywords,
       themeConfig: getThemeConfig()
     }
@@ -469,6 +478,12 @@ export default class SettingTerminal extends Component {
             <HelpIcon
               title={tip}
             />
+            <span className='mg1l'>
+              <KeywordsTransport
+                store={this.props.store}
+                resetKeywordForm={this.resetKeywordForm}
+              />
+            </span>
           </div>
           <KeywordForm
             {...ps}
