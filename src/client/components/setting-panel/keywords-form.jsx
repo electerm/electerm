@@ -10,6 +10,7 @@ import {
   MinusCircleOutlined,
   PlusOutlined
 } from '@ant-design/icons'
+import { useEffect } from 'react'
 
 const FormItem = Form.Item
 const FormList = Form.List
@@ -100,6 +101,10 @@ export default function KeywordForm (props) {
       </FormItem>
     )
   }
+
+  useEffect(() => {
+    formChild.resetFields()
+  }, [props.keywordFormReset])
 
   return (
     <div>

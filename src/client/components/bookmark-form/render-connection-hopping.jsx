@@ -17,6 +17,7 @@ import {
   authTypeMap
 } from '../../common/constants'
 import { useState } from 'react'
+import BookmarkSelect from './bookmark-select'
 
 const FormItem = Form.Item
 const RadioButton = Radio.Button
@@ -129,7 +130,13 @@ export default function renderConnectionHopping (props) {
       </FormItem>
     )
   }
-
+  const treeProps = {
+    bookmarks: store.bookmarks.filter(d => {
+      return d.host && d.port && d.username
+    }),
+    bookmarkGroups: store.bookmarkGroups,
+    onSelect: handleFinish
+  }
   return (
     <div>
       <FormItem
@@ -144,6 +151,13 @@ export default function renderConnectionHopping (props) {
         initialValues={initialValues}
       >
         {renderList()}
+        <FormItem
+          {...formItemLayout}
+          label={e('chooseFromBookmarks')}
+          className='mg60b'
+        >
+          <BookmarkSelect {...treeProps} />
+        </FormItem>
         <FormItem
           {...formItemLayout}
           label={e('host')}
