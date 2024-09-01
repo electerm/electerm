@@ -294,7 +294,7 @@ class Sessions extends Component {
   }
 
   handleNewTab = () => {
-    this.props.store.initFirstTab()
+    this.initFirstTab()
   }
 
   handleNewSsh = () => {
@@ -444,21 +444,9 @@ class Sessions extends Component {
   }
 
   renderSessionsWrap = () => {
-    const { leftSidebarWidth, openedSideBar } = this.props.store
-    const w = leftSidebarWidth + 42
-    const ptp = openedSideBar
-      ? {
-          className: 'sessions',
-          style: {
-            marginLeft: `${w}px`
-          }
-        }
-      : {
-          className: 'sessions'
-        }
     return (
       <div
-        {...ptp}
+        className='sessions'
         key='main-sess'
       >
         {this.renderSessions()}
