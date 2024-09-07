@@ -36,6 +36,14 @@ class Sessions extends Component {
     this.initShortcuts()
   }
 
+  componentDidUpdate (prevProps) {
+    if (prevProps.tabs !== this.props.tabs) {
+      this.setState({
+        tabs: copy(this.props.tabs)
+      })
+    }
+  }
+
   initShortcuts () {
     window.addEventListener('keydown', this.handleKeyboardEvent.bind(this))
   }
@@ -151,9 +159,10 @@ class Sessions extends Component {
 
   initFirstTab = () => {
     const tab = newTerm()
-    tab.batch = this.props.batch
+    const { batch } = this.props
+    tab.batch = batch
     tab.terminals = [{
-      id: termInitId,
+      id: termInitId + batch,
       batch: this.props.batch,
       position: 0
     }]
@@ -276,7 +285,7 @@ class Sessions extends Component {
       this.onChangeTabId(currentTabId)
     } else if (action === tabActions.updateTabs) {
       this.editTab(id, update)
-    } else if (action === tabActions.addTab) {
+    } else if (action === tabActions.addTab && tab.batch === this.props.batch) {
       this.addTab(tab, index)
     } else if (action === tabActions.initFirstTab) {
       this.initFirstTab()

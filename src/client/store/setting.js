@@ -96,6 +96,7 @@ export default Store => {
     }
 
     store.addTab({
+      batch: store.currentLayoutBatch,
       ...item,
       from: 'bookmarks',
       srcId: item.id,

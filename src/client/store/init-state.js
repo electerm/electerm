@@ -39,6 +39,7 @@ function getDefaultBookmarkGroups (bookmarks) {
 }
 
 export default () => {
+  const layout = ls.getItem('layout') ?? splitMap.c1
   return {
     // common
     wsInited: false,
@@ -91,8 +92,8 @@ export default () => {
         direction: 'desc'
       }
     }),
-    layout: splitMap.c1,
-    prevLayout: '',
+    layout,
+    prevLayout: layout,
     currentLayoutBatch: 0,
     currentTabId0: '',
     currentTabId1: '',

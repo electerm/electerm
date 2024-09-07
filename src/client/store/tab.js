@@ -8,6 +8,7 @@ import {
   splitConfig
 } from '../common/constants'
 import postMsg from '../common/post-msg'
+import * as ls from '../common/safe-local-storage'
 
 export default Store => {
   Store.prototype.updateTabsStatus = function () {
@@ -84,27 +85,18 @@ export default Store => {
     }
   }
 
-  Store.prototype.setLayout = function (newLayout) {
+  Store.prototype.setLayout = function (layout) {
     const {
       store
     } = window
-    const {
-      layout
-    } = store
-    if (layout !== newLayout) {
-      store.prevLayout = layout
-      store.layout = newLayout
+    const prevLayout = store.layout
+    if (prevLayout === layout) {
+      return
     }
-  }
-
-  Store.prototype.onLayoutChange = function () {
-    const {
-      store
-    } = window
-    const {
-      layout,
-      prevLayout
-    } = store
+    store.prevLayout = prevLayout
+    ls.setItem('layout', layout)
+    console.log('setLayout', layout, prevLayout)
+    store.layout = layout
     const len = splitConfig[layout].children
     const prevLen = prevLayout ? splitConfig[prevLayout].children : 0
     if (len < prevLen) {
@@ -122,4 +114,32 @@ export default Store => {
       store.setTabs(updatedTabs)
     }
   }
+
+  // Store.prototype.onLayoutChange = function () {
+  //   const {
+  //     store
+  //   } = window
+  //   const {
+  //     layout,
+  //     prevLayout
+  //   } = store
+  //   ls.setItem('layout', layout)
+  //   console.log('onLayoutChange', layout, prevLayout)
+  //   const len = splitConfig[layout].children
+  //   const prevLen = prevLayout ? splitConfig[prevLayout].children : 0
+  //   if (len < prevLen) {
+  //     const {
+  //       tabs
+  //     } = store
+  //     // Update tabs where batch > len - 1
+  //     const updatedTabs = tabs.map(tab => {
+  //       if (tab.batch > len - 1) {
+  //         return { ...tab, batch: len - 1 }
+  //       }
+  //       return tab
+  //     })
+  //     // Set the updated tabs back to the store
+  //     store.setTabs(updatedTabs)
+  //   }
+  // }
 }

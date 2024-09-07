@@ -1008,6 +1008,7 @@ class Term extends Component {
   setActive = () => {
     this.props.setActive(this.props.id)
     window.store.storeAssign({
+      currentLayoutBatch: this.props.batch,
       activeTerminalId: this.props.id
     })
   }

@@ -163,7 +163,7 @@ export default class Tabs extends React.Component {
   }
 
   handleChangeLayout = ({ key }) => {
-    window.store.layout = key
+    window.store.setLayout(key)
   }
 
   renderList = () => {
