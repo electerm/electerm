@@ -69,8 +69,7 @@ export default class AttachAddonCustom extends AttachAddon {
           const dirRegex = new RegExp(`${cwdIdEscaped}([^\\n]+?)${cwdIdEscaped}`, 'g')
           if (ns.match(dirRegex)) {
             const cwd = dirRegex.exec(ns)[1].trim()
-            console.log('cwd: '+cwd)
-            if (cwd === '~' || cwd=='%d'||cwd === '%/' || cwd === '$PWD') term.parent.setCwd('')
+            if (cwd === '~' || cwd === '%d' || cwd === '%/' || cwd === '$PWD') term.parent.setCwd('')
             else term.parent.setCwd(cwd)
             nnss.push(ns.replaceAll(dirRegex, ''))
           } else nnss.push(str1)
