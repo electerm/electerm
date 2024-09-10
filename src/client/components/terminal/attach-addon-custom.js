@@ -64,7 +64,7 @@ export default class AttachAddonCustom extends AttachAddon {
       const nnss = []
       for (const str1 of nss) {
         const ns = str1.trim()
-        if (ns.includes('PS1') || ns.includes('prompt_bak')) { nnss.push('') } else if (cwdId) {
+        if (cwdId) {
           const cwdIdEscaped = regEscape(cwdId)
           const dirRegex = new RegExp(`${cwdIdEscaped}([^\\n]+?)${cwdIdEscaped}`, 'g')
           if (ns.match(dirRegex)) {
