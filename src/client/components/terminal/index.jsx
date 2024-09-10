@@ -136,11 +136,13 @@ class Term extends Component {
 echo $0|grep zsh >/dev/null && PS1_bak=$PS1&&PS1=$PS1'${cwdId}%d${cwdId}'\r
 echo $0|grep ash >/dev/null && PS1_bak=$PS1&&PS1=$PS1'\`echo ${cwdId}$PWD${cwdId}\`'\r
 echo $0|grep ksh >/dev/null && PS1_bak=$PS1&&PS1=$PS1'\`echo ${cwdId}$PWD${cwdId}\`'\r
+echo $0|grep '^sh' >/dev/null && PS1_bak=$PS1&&PS1=$PS1'\`echo ${cwdId}$PWD${cwdId}\`'\r
 clear\r`
       const ps1RestoreCmd = `\recho $0|grep csh >/dev/null && set prompt="$prompt_bak"\r
 echo $0|grep zsh >/dev/null && PS1="$PS1_bak"\r
 echo $0|grep ash >/dev/null && PS1="$PS1_bak"\r
 echo $0|grep ksh >/dev/null && PS1="$PS1_bak"\r
+echo $0|grep '^sh' >/dev/null && PS1="$PS1_bak"\r
 clear\r`
 
       if (this.props.sftpPathFollowSsh) {
