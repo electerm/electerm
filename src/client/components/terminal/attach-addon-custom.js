@@ -2,7 +2,7 @@
  * customize AttachAddon
  */
 import { AttachAddon } from 'xterm-addon-attach'
-import strip from '@electerm/strip-ansi'
+const regEscape = require('escape-string-regexp')
 
 export default class AttachAddonCustom extends AttachAddon {
   constructor (term, socket, isWindowsShell) {
@@ -63,16 +63,16 @@ export default class AttachAddonCustom extends AttachAddon {
       const nss = str.split('\r')
       const nnss = []
       for (const str1 of nss) {
-        const ns = strip(str1).trim()
-        if (ns.includes(cwdId) && ns.includes('$PWD')) {
-          nnss.push(str1.replace(`echo "${cwdId}$PWD"`, ''))
-        } else if (
-          (cwdId && ns.startsWith(cwdId))
-        ) {
-          delete term.cwdId
-          const cwd = ns.replace(cwdId, '').trim()
-          term.parent.setCwd(cwd)
-          nnss.push('\x1b[2A\x1b[0J')
+        const ns = str1.trim()
+        if (ns.includes('PS1') || ns.includes('prompt_bak')) { nnss.push('') } else if (cwdId) {
+          const cwdIdEscaped = regEscape(cwdId)
+          const dirRegex = new RegExp(`${cwdIdEscaped}([^\\n]+?)${cwdIdEscaped}`, 'g')
+          if (ns.match(dirRegex)) {
+            const cwd = dirRegex.exec(ns)[1].trim()
+            if (cwd === '~' || cwd === '%/' || cwd === '$PWD') term.parent.setCwd('')
+            else term.parent.setCwd(cwd)
+            nnss.push(ns.replaceAll(dirRegex, ''))
+          } else nnss.push(str1)
         } else {
           nnss.push(str1)
         }
