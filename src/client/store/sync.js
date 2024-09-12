@@ -120,7 +120,6 @@ export default (Store) => {
     const { store } = window
     const currentSyncType = store.syncType
     const currentSettings = store.config.syncSetting || {}
-    console.log('currentSettings: ', currentSyncType, currentSettings)
     // Create a new object without the current sync type's settings
     const updatedSettings = Object.keys(currentSettings).reduce((acc, key) => {
       if (!key.startsWith(currentSyncType)) {
@@ -128,8 +127,6 @@ export default (Store) => {
       }
       return acc
     }, {})
-    console.log('updatedSettings: ', updatedSettings)
-
     store.setConfig({
       syncSetting: updatedSettings
     })
