@@ -230,7 +230,7 @@ export default function ThemeForm (props) {
   const { autofocustrigger } = props.store
   const isDefaultTheme = id === defaultTheme.id || id === defaultThemeLight.id
   const disabled = readonly || isDefaultTheme
-  const switchTxt = editor === 'theme-editor-txt' ? 'Color Picker' : 'TXT Editor'
+  const switchTxt = editor === 'theme-editor-txt' ? e('editWithColorPicker') : e('editWithTextEditor')
   const pickerProps = {
     onChange: onPickerChange,
     themeText: txt,
