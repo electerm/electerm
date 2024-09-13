@@ -4,8 +4,7 @@ import deepCopy from 'json-deep-copy'
 import clone from '../../common/to-simple-obj'
 import { handleErr } from '../../common/fetch'
 import {
-  statusMap,
-  rdpHelpLink
+  statusMap
 } from '../../common/constants'
 import {
   notification,
@@ -17,7 +16,6 @@ import {
   ReloadOutlined,
   EditOutlined
 } from '@ant-design/icons'
-import HelpIcon from '../common/help-icon'
 import * as ls from '../../common/safe-local-storage'
 import scanCode from './code-scan'
 import resolutions from './resolutions'
@@ -347,11 +345,7 @@ export default class RdpSession extends Component {
   }
 
   renderHelp = () => {
-    return (
-      <HelpIcon
-        link={rdpHelpLink}
-      />
-    )
+    return null
   }
 
   renderControl = () => {

@@ -2,7 +2,7 @@
  * customize AttachAddon
  */
 import { AttachAddon } from 'xterm-addon-attach'
-const regEscape = require('escape-string-regexp')
+import regEscape from 'escape-string-regexp'
 
 export default class AttachAddonCustom extends AttachAddon {
   constructor (term, socket, isWindowsShell) {

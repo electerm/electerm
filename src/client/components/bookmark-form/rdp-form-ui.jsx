@@ -104,9 +104,9 @@ export default function RdpFormUi (props) {
         </FormItem>
         <FormItem
           {...formItemLayout}
-          label={e('username')}
+          label={e('userName')}
           hasFeedback
-          name='username'
+          name='userName'
           required
         >
           <Input />
