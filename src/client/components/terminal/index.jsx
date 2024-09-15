@@ -125,6 +125,34 @@ class Term extends Component {
     if (themeChanged) {
       this.term.options.theme = deepCopy(this.props.themeConfig)
     }
+
+    const sftpPathFollowSshChanged = !isEqual(
+      this.props.sftpPathFollowSsh,
+      prevProps.sftpPathFollowSsh
+    )
+
+    if (sftpPathFollowSshChanged) {
+      const ps1Cmd = `\recho $0|grep csh >/dev/null && set prompt_bak="$prompt" && set prompt="$prompt${cwdId}%/${cwdId}"\r
+echo $0|grep zsh >/dev/null && PS1_bak=$PS1&&PS1=$PS1'${cwdId}%d${cwdId}'\r
+echo $0|grep ash >/dev/null && PS1_bak=$PS1&&PS1=$PS1'\`echo ${cwdId}$PWD${cwdId}\`'\r
+echo $0|grep ksh >/dev/null && PS1_bak=$PS1&&PS1=$PS1'\`echo ${cwdId}$PWD${cwdId}\`'\r
+echo $0|grep '^sh' >/dev/null && PS1_bak=$PS1&&PS1=$PS1'\`echo ${cwdId}$PWD${cwdId}\`'\r
+clear\r`
+      const ps1RestoreCmd = `\recho $0|grep csh >/dev/null && set prompt="$prompt_bak"\r
+echo $0|grep zsh >/dev/null && PS1="$PS1_bak"\r
+echo $0|grep ash >/dev/null && PS1="$PS1_bak"\r
+echo $0|grep ksh >/dev/null && PS1="$PS1_bak"\r
+echo $0|grep '^sh' >/dev/null && PS1="$PS1_bak"\r
+clear\r`
+
+      if (this.props.sftpPathFollowSsh) {
+        this.socket.send(ps1Cmd)
+        this.term.cwdId = cwdId
+      } else {
+        this.socket.send(ps1RestoreCmd)
+        delete this.term.cwdId
+      }
+    }
   }
 
   componentWillUnmount () {
@@ -908,11 +936,17 @@ class Term extends Component {
   getCwd = () => {
     if (
       this.props.sftpPathFollowSsh &&
-      this.term.buffer.active.type !== 'alternate'
+      this.term.buffer.active.type !== 'alternate' && !this.term.cwdId
     ) {
-      const cmd = `\recho "${cwdId}$PWD"\r`
       this.term.cwdId = cwdId
-      this.socket.send(cmd)
+
+      const ps1Cmd = `\recho $0|grep csh >/dev/null && set prompt_bak="$prompt" && set prompt="$prompt${cwdId}%/${cwdId}"\r
+echo $0|grep zsh >/dev/null && PS1_bak=$PS1&&PS1=$PS1'${cwdId}%d${cwdId}'\r
+echo $0|grep ash >/dev/null && PS1_bak=$PS1&&PS1=$PS1'\`echo ${cwdId}$PWD${cwdId}\`'\r
+echo $0|grep ksh >/dev/null && PS1_bak=$PS1&&PS1=$PS1'\`echo ${cwdId}$PWD${cwdId}\`'\r
+clear\r`
+
+      this.socket.send(ps1Cmd)
     }
   }
 

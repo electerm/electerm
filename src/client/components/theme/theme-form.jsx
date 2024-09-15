@@ -1,10 +1,12 @@
-import { useRef } from 'react'
-import { Button, Input, message, Upload, Form } from 'antd'
+import { useRef, useState } from 'react'
+import { Button, Input, message, Upload, Form, Space } from 'antd'
 import { convertTheme, convertThemeToText, exportTheme, validThemeProps, requiredThemeProps } from '../../common/terminal-theme'
 import { defaultTheme, defaultThemeLight } from '../../common/constants'
 import generate from '../../common/uid'
 import Link from '../common/external-link'
 import InputAutoFocus from '../common/input-auto-focus'
+import ThemePicker from './theme-editor'
+// import './theme-form.styl'
 
 const { TextArea } = Input
 const FormItem = Form.Item
@@ -12,6 +14,8 @@ const e = window.translate
 
 export default function ThemeForm (props) {
   const [form] = Form.useForm()
+  const [txt, setTxt] = useState(convertThemeToText(props.formData))
+  const [editor, setEditor] = useState('theme-editor-color-picker')
   const action = useRef('submit')
   function exporter () {
     exportTheme(props.formData.id)
@@ -82,18 +86,27 @@ export default function ThemeForm (props) {
       return Promise.reject(message)
     }
     // Return an object with the flag and the message
+    setTxt(value)
     return Promise.resolve()
   }
 
   async function handleSubmit (res) {
+    if (!res.themeText) {
+      res.themeText = txt
+    }
     const { formData } = props
     const {
       themeName,
       themeText
     } = res
+    const converted = convertTheme(themeText)
+
+    if (converted.uiThemeConfig.main !== converted.themeConfig.background) {
+      converted.themeConfig.background = converted.uiThemeConfig.main
+    }
     const update = {
       name: themeName,
-      ...convertTheme(themeText)
+      ...converted
     }
     const update1 = {
       ...update,
@@ -135,13 +148,20 @@ export default function ThemeForm (props) {
   async function beforeUpload (file) {
     const txt = await window.fs.readFile(file.path)
     const { name, themeConfig, uiThemeConfig } = convertTheme(txt)
+    const tt = convertThemeToText({
+      themeConfig, uiThemeConfig
+    })
     form.setFieldsValue({
       themeName: name,
-      themeText: convertThemeToText({
-        themeConfig, uiThemeConfig
-      })
+      themeText: tt
     })
+    setTxt(tt)
     return false
+  }
+
+  function handleSwitchEditor (e) {
+    e.preventDefault()
+    setEditor(editor === 'theme-editor-txt' ? 'theme-editor-color-picker' : 'theme-editor-txt')
   }
 
   function renderFuncs (id) {
@@ -160,6 +180,43 @@ export default function ThemeForm (props) {
     )
   }
 
+  function onPickerChange (value, name) {
+    const realName = name.includes('terminal:')
+      ? name.replace('terminal:', '')
+      : name
+    const text = form.getFieldValue('themeText')
+    const obj = convertTheme(text)
+    if (obj.themeConfig[realName]) {
+      obj.themeConfig[realName] = value
+    } else if (obj.uiThemeConfig[realName]) {
+      obj.uiThemeConfig[realName] = value
+    }
+    form.setFieldsValue({
+      themeText: convertThemeToText(obj)
+    })
+    setTxt(convertThemeToText(obj))
+  }
+
+  function renderTxt () {
+    return (
+      <FormItem
+        noStyle
+        name='themeText'
+        hasFeedback
+        rules={[{
+          max: 1000, message: '1000 chars max'
+        }, {
+          required: true,
+          message: 'theme config required'
+        }, {
+          validator: validateInput
+        }]}
+      >
+        <TextArea rows={33} disabled={disabled} />
+      </FormItem>
+    )
+  }
+
   const {
     readonly,
     id,
@@ -173,12 +230,18 @@ export default function ThemeForm (props) {
   const { autofocustrigger } = props.store
   const isDefaultTheme = id === defaultTheme.id || id === defaultThemeLight.id
   const disabled = readonly || isDefaultTheme
+  const switchTxt = editor === 'theme-editor-txt' ? e('editWithColorPicker') : e('editWithTextEditor')
+  const pickerProps = {
+    onChange: onPickerChange,
+    themeText: txt,
+    disabled
+  }
   return (
     <Form
       onFinish={handleSubmit}
       form={form}
       initialValues={initialValues}
-      className='form-wrap'
+      className={editor}
       name='terminal-theme-form'
       layout='vertical'
     >
@@ -202,35 +265,41 @@ export default function ThemeForm (props) {
       <FormItem
         label={e('themeConfig')}
       >
-        <div className='pd1b'>
-          <Upload
-            beforeUpload={beforeUpload}
-            fileList={[]}
-            className='mg1b'
-          >
-            <Button
-              type='dashed'
-              disabled={disabled}
+        <div className='mg1b fix'>
+          <span className='fleft'>
+            <Space compact>
+              <Button
+                type='dashed'
+                onClick={handleSwitchEditor}
+              >
+                {switchTxt}
+              </Button>
+            </Space>
+          </span>
+          <span className='fright'>
+            <Upload
+              beforeUpload={beforeUpload}
+              fileList={[]}
+              className='mg1b'
             >
-              {e('importFromFile')}
-            </Button>
-          </Upload>
+              <Button
+                type='dashed'
+                disabled={disabled}
+              >
+                {e('importFromFile')}
+              </Button>
+            </Upload>
+          </span>
         </div>
-        <FormItem
-          noStyle
-          name='themeText'
-          hasFeedback
-          rules={[{
-            max: 1000, message: '1000 chars max'
-          }, {
-            required: true,
-            message: 'theme config required'
-          }, {
-            validator: validateInput
-          }]}
-        >
-          <TextArea rows={33} disabled={disabled} />
-        </FormItem>
+        {
+          editor === 'theme-editor-txt'
+            ? renderTxt()
+            : (
+              <ThemePicker
+                {...pickerProps}
+              />
+              )
+        }
       </FormItem>
       {
         disabled

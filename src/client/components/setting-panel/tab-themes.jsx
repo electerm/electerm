@@ -1,6 +1,6 @@
 import SettingCol from './col'
-import TerminalThemeForm from '../terminal-theme'
-import TerminalThemeList from '../terminal-theme/theme-list'
+import TerminalThemeForm from '../theme/theme-form'
+import TerminalThemeList from '../theme/theme-list'
 import {
   settingMap
 } from '../../common/constants'

@@ -102,8 +102,9 @@
     "zmodem-ts": "1.0.4"
   },
   "dependencies": {
-    "@electerm/electerm-locales": "2.0.1",
+    "@electerm/electerm-locales": "2.0.3",
     "@electerm/electerm-themes": "^1.0.1",
+    "@electerm/rdpjs": "^1.0.0",
     "@electerm/strip-ansi": "1.0.0",
     "@yetzt/nedb": "1.8.0",
     "axios": "^1.7.3",
@@ -127,7 +128,6 @@
     "nanoid": "3.1.31",
     "node-bash": "5.0.1",
     "node-pty": "1.1.0-beta14",
-    "node-rdpjs-2": "^0.3.5",
     "os-locale-s": "1.0.8",
     "serialport": "10.4.0",
     "socks": "2.7.1",
