@@ -1,16 +1,18 @@
 /**
  * bookmark form
  */
-import { useEffect } from 'react'
+
 import {
   Input,
   Tabs,
   AutoComplete,
   Form
 } from 'antd'
+import { useState, useEffect } from 'react'
 import {
   newBookmarkIdPrefix,
-  terminalTelnetType
+  terminalTelnetType,
+  authTypeMap
 } from '../../common/constants'
 import { formItemLayout } from '../../common/form-layout'
 import findBookmarkGroupId from '../../common/find-bookmark-group-id'
@@ -21,7 +23,8 @@ import useQm from './use-quick-commands'
 import renderCommon from './form-ssh-common'
 import { getRandomDefaultColor } from '../../common/rand-hex-color.js'
 import copy from 'json-deep-copy'
-import { defaultsDeep, uniqBy } from 'lodash-es'
+import { defaultsDeep } from 'lodash-es'
+import renderAuth from './render-auth-ssh'
 import './bookmark-form.styl'
 
 const FormItem = Form.Item
@@ -33,6 +36,7 @@ export default function TelnetFormUI (props) {
     handleFinish,
     submitUi
   ] = useSubmit(props)
+  const [authType, setAuthType] = useState(props.formData.authType || authTypeMap.password)
   useEffect(() => {
     if ((props.formData.id || '').startsWith(newBookmarkIdPrefix)) {
       form.setFieldsValue({
@@ -53,6 +57,9 @@ export default function TelnetFormUI (props) {
     ? findBookmarkGroupId(bookmarkGroups, id)
     : currentBookmarkGroupId
   let initialValues = copy(props.formData)
+  function onChangeAuthType (e) {
+    setAuthType(e.target.value)
+  }
   const defaultValues = {
     port: 23,
     id: '',
@@ -63,47 +70,20 @@ export default function TelnetFormUI (props) {
     term: defaultSettings.terminalType,
     displayRaw: false,
     type: terminalTelnetType,
-    category: initBookmarkGroupId
+    category: initBookmarkGroupId,
+    authType: authTypeMap.password
   }
   initialValues = defaultsDeep(initialValues, defaultValues)
-  function renderAuth () {
-    const opts = {
-      options: uniqBy(
-        props.store.bookmarks
-          .filter(d => d.password),
-        (d) => d.password
-      )
-        .map(d => {
-          return {
-            label: `${d.title ? `(${d.title})` : ''}${d.username || ''}:${d.host}-******`,
-            value: d.password
-          }
-        }),
-      placeholder: e('password'),
-      allowClear: false
-    }
-    return (
-      <FormItem
-        {...formItemLayout}
-        label={e('password')}
-        name='password'
-        hasFeedback
-        rules={[{
-          max: 1024, message: '1024 chars max'
-        }]}
-      >
-        <AutoComplete
-          {...opts}
-        >
-          <Input.Password />
-        </AutoComplete>
-      </FormItem>
-    )
-  }
+
   const tprops = {
     ...props,
     renderAuth,
-    form
+    authType,
+    onChangeAuthType,
+    form,
+    bookmarkType: terminalTelnetType,
+    filterAuthType: a => a !== 'privateKey',
+    profileFilter: d => d.telnet
   }
 
   function renderTabs () {
