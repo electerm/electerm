@@ -21,7 +21,9 @@ export default function renderAuth (props) {
   const {
     store,
     form,
-    authType
+    authType,
+    formItemName = 'password',
+    profileFilter = (d) => d
   } = props
   const beforeUpload = async (file) => {
     const privateKey = await window.fs.readFile(file.path)
@@ -50,7 +52,7 @@ export default function renderAuth (props) {
       <FormItem
         {...formItemLayout}
         label={e('password')}
-        name='password'
+        name={formItemName}
         hasFeedback
         rules={[{
           max: 1024, message: '1024 chars max'
@@ -67,6 +69,7 @@ export default function renderAuth (props) {
   if (authType === 'profiles') {
     const opts = {
       options: store.profiles
+        .filter(profileFilter)
         .map(d => {
           return {
             label: d.name,

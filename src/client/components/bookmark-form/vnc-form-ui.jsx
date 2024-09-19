@@ -18,13 +18,14 @@ import {
 } from '../../common/constants'
 import useSubmit from './use-submit'
 import copy from 'json-deep-copy'
-import { defaults } from 'lodash-es'
+import { defaults, isEmpty } from 'lodash-es'
 import { ColorPickerItem } from './color-picker-item.jsx'
 import { getRandomDefaultColor } from '../../common/rand-hex-color.js'
 import formatBookmarkGroups from './bookmark-group-tree-format'
 import findBookmarkGroupId from '../../common/find-bookmark-group-id'
 import renderProxy from './proxy'
 import ConnectionHopping from './render-connection-hopping.jsx'
+import ProfileItem from './profile-form-item'
 
 const FormItem = Form.Item
 const e = window.translate
@@ -152,6 +153,10 @@ export default function VncFormUi (props) {
         >
           <Switch />
         </FormItem>
+        <ProfileItem
+          store={props.store}
+          profileFilter={d => !isEmpty(d.vnc)}
+        />
         <FormItem
           {...formItemLayout}
           label={e('username')}
