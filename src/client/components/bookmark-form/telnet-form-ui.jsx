@@ -22,7 +22,7 @@ import useQm from './use-quick-commands'
 import renderCommon from './form-ssh-common'
 import { getRandomDefaultColor } from '../../common/rand-hex-color.js'
 import copy from 'json-deep-copy'
-import { defaultsDeep } from 'lodash-es'
+import { defaultsDeep, isEmpty } from 'lodash-es'
 import renderAuth from './render-auth-ssh'
 import './bookmark-form.styl'
 
@@ -82,7 +82,7 @@ export default function TelnetFormUI (props) {
     form,
     bookmarkType: terminalTelnetType,
     filterAuthType: a => a !== 'privateKey',
-    profileFilter: d => d.telnet
+    profileFilter: d => !isEmpty(d.telnet)
   }
 
   function renderTabs () {

@@ -10,21 +10,20 @@ export default function ProfileTabs (props) {
   const { activeTab, onChangeTab, form, store } = props
   const tabsProps = {
     activeKey: activeTab,
-    onChange: onChangeTab,
-    forceRender: true
+    onChange: onChangeTab
   }
   return (
     <Tabs {...tabsProps}>
-      <TabPane tab='ssh' key='ssh'>
+      <TabPane tab='ssh' key='ssh' forceRender>
         <ProfileFormSsh form={form} store={store} />
       </TabPane>
-      <TabPane tab='telnet' key='telnet'>
+      <TabPane tab='telnet' key='telnet' forceRender>
         <ProfileFormTelnet form={form} store={store} />
       </TabPane>
-      <TabPane tab='vnc' key='vnc'>
+      <TabPane tab='vnc' key='vnc' forceRender>
         <ProfileFormVnc />
       </TabPane>
-      <TabPane tab='rdp' key='rdp'>
+      <TabPane tab='rdp' key='rdp' forceRender>
         <ProfileFormRdp />
       </TabPane>
     </Tabs>

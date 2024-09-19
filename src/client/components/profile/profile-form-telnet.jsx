@@ -15,7 +15,7 @@ export default function ProfileFormTelnet (props) {
         {...formItemLayout}
         label={e('username')}
         hasFeedback
-        name='telnet.username'
+        name={['telnet', 'username']}
         rules={[{
           max: 128, message: '128 chars max'
         }]}
@@ -27,7 +27,7 @@ export default function ProfileFormTelnet (props) {
           store: props.store,
           form: props.form,
           authType: 'password',
-          formItemName: 'telnet.password'
+          formItemName: ['telnet', 'password']
         })
       }
     </>

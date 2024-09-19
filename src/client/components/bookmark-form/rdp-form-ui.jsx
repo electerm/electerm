@@ -16,11 +16,12 @@ import {
 } from '../../common/constants'
 import useSubmit from './use-submit'
 import copy from 'json-deep-copy'
-import { defaults } from 'lodash-es'
+import { defaults, isEmpty } from 'lodash-es'
 import { ColorPickerItem } from './color-picker-item.jsx'
 import { getRandomDefaultColor } from '../../common/rand-hex-color.js'
 import formatBookmarkGroups from './bookmark-group-tree-format'
 import findBookmarkGroupId from '../../common/find-bookmark-group-id'
+import ProfileItem from './profile-form-item'
 
 const FormItem = Form.Item
 const e = window.translate
@@ -54,6 +55,7 @@ export default function RdpFormUi (props) {
     port: 3389,
     category: initBookmarkGroupId,
     color: getRandomDefaultColor()
+
   }
   initialValues = defaults(initialValues, defaultValues)
   function renderCommon () {
@@ -97,6 +99,10 @@ export default function RdpFormUi (props) {
             step={1}
           />
         </FormItem>
+        <ProfileItem
+          store={props.store}
+          profileFilter={d => !isEmpty(d.rdp)}
+        />
         <FormItem
           {...formItemLayout}
           label={e('userName')}

@@ -42,8 +42,6 @@ export default function renderCommon (props) {
   const tree = formatBookmarkGroups(bookmarkGroups)
   const authTypesFiltered = authTypes.filter(filterAuthType)
 
-  console.log('authTypesFiltered', authTypesFiltered)
-
   // ips is ipaddress string[]
   function renderIps () {
     return ips.map(ip => {

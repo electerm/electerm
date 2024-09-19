@@ -12,10 +12,9 @@ export default function ProfileFormRdp (props) {
     <>
       <FormItem
         {...formItemLayout}
-        label={e('userName')}
+        label={e('username')}
         hasFeedback
-        name='rdp.userName'
-        required
+        name={['rdp', 'userName']}
       >
         <Input />
       </FormItem>
@@ -23,8 +22,7 @@ export default function ProfileFormRdp (props) {
         {...formItemLayout}
         label={e('password')}
         hasFeedback
-        name='rdp.password'
-        required
+        name={['rdp', 'password']}
       >
         <Input.Password />
       </FormItem>

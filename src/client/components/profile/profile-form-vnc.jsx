@@ -14,7 +14,7 @@ export default function ProfileFormVnc (props) {
         {...formItemLayout}
         label={e('username')}
         hasFeedback
-        name='vnc.username'
+        name={['vnc', 'username']}
       >
         <Input />
       </FormItem>
@@ -22,7 +22,7 @@ export default function ProfileFormVnc (props) {
         {...formItemLayout}
         label={e('password')}
         hasFeedback
-        name='vnc.password'
+        name={['vnc', 'password']}
       >
         <Input.Password />
       </FormItem>
