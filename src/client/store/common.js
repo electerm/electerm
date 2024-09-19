@@ -214,9 +214,10 @@ export default Store => {
   Store.prototype.applyProfile = function (tab) {
     const {
       profile,
-      type
+      type,
+      authType
     } = tab
-    if (!profile) {
+    if (!profile || authType !== 'profiles') {
       return tab
     }
     const p = window.store.profiles.find(x => x.id === profile)

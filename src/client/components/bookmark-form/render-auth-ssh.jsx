@@ -77,7 +77,7 @@ export default function renderAuth (props) {
           }
         }),
       placeholder: e('profiles'),
-      allowClear: false
+      allowClear: true
     }
     return (
       <FormItem

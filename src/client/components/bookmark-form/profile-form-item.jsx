@@ -16,7 +16,6 @@ export default function ProfileItem (props) {
     store,
     profileFilter = (d) => d
   } = props
-
   const opts = {
     options: store.profiles
       .filter(profileFilter)
@@ -27,7 +26,7 @@ export default function ProfileItem (props) {
         }
       }),
     placeholder: e('profiles'),
-    allowClear: false
+    allowClear: true
   }
   return (
     <FormItem
