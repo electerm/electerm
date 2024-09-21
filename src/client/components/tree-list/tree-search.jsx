@@ -1,5 +1,5 @@
 import React, { useState, memo } from 'react'
-import debounce from 'lodash/debounce'
+import { debounce } from 'lodash-es'
 import Search from '../common/search'
 import runIdle from '../../common/run-idle'
 
