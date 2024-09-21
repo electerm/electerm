@@ -21,7 +21,7 @@ import {
 } from 'antd'
 import createName from '../../common/create-title'
 import InputAutoFocus from '../common/input-auto-focus'
-import { find, uniq, findIndex, isEqual, filter, pick, debounce } from 'lodash-es'
+import { find, uniq, findIndex, isEqual, filter, pick } from 'lodash-es'
 import {
   maxBookmarkGroupTitleLength,
   defaultBookmarkGroupId,
@@ -32,7 +32,6 @@ import {
 } from '../../common/constants'
 import findParentBySel from '../../common/find-parent'
 import copy from 'json-deep-copy'
-import Search from '../common/search'
 import Btns from './bookmark-transport'
 import findBookmarkGroupId from '../../common/find-bookmark-group-id'
 import getInitItem from '../../common/init-setting-item'
