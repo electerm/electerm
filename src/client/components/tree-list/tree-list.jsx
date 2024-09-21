@@ -21,7 +21,7 @@ import {
 } from 'antd'
 import createName from '../../common/create-title'
 import InputAutoFocus from '../common/input-auto-focus'
-import { find, uniq, findIndex, isEqual, filter, pick } from 'lodash-es'
+import { find, uniq, findIndex, isEqual, filter, pick, debounce } from 'lodash-es'
 import {
   maxBookmarkGroupTitleLength,
   defaultBookmarkGroupId,
@@ -41,6 +41,7 @@ import deepEqual from 'fast-deep-equal'
 import './tree-list.styl'
 import TreeExpander from './tree-expander'
 import TreeListItem from './tree-list-item'
+import TreeSearch from './tree-search'
 
 const e = window.translate
 
@@ -114,9 +115,9 @@ export default class ItemListTree extends Component {
     this.onExpand(nkeys)
   }
 
-  handleChange = e => {
+  handleChange = keyword => {
     this.setState({
-      keyword: e.target.value
+      keyword
     })
   }
 
@@ -341,9 +342,9 @@ export default class ItemListTree extends Component {
   renderSearch = () => {
     return (
       <div className='pd1y'>
-        <Search
-          onChange={this.handleChange}
-          value={this.state.keyword}
+        <TreeSearch
+          onSearch={this.handleChange}
+          keyword={this.state.keyword}
         />
       </div>
     )
