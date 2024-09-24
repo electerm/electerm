@@ -17,7 +17,7 @@ rp.defaults.proxy = false
 
 function getUrl (url, mirror) {
   if (mirror === 'download-electerm') {
-    return url.replace('github.com', 'download-electerm.html5beta.com')
+    return `https://sciproxy.com/${url}`
   } else if (mirror === 'github') {
     return url
   } else {
