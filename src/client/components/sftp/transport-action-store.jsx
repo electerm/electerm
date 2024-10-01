@@ -380,12 +380,12 @@ export default class TransportAction extends Component {
     })
     this.inst.startTime = t
     this.inst.started = true
-    if (unzip && inited) {
+    if (typeFrom === typeTo) {
+      return this.mvOrCp()
+    } else if (unzip && inited) {
       this.unzipFile()
     } else if (zip && inited) {
       this.zipTransfer()
-    } else if (typeFrom === typeTo) {
-      return this.mvOrCp()
     } else if (isDirectory && expanded && this.isTransferAction(action)) {
       return this.mkdir()
         .then(this.onEnd)
