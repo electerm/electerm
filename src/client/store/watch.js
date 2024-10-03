@@ -99,6 +99,11 @@ export default store => {
     return store._checkedKeys
   }).start()
 
+  // autoRun(store, () => {
+  //   window.store.onLayoutChange()
+  //   return store.layout
+  // }).start()
+
   autoRun(store, () => {
     const tabs = store.getTabs()
     const { currentTabId } = store
