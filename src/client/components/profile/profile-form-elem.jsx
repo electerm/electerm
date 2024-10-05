@@ -1,20 +1,23 @@
+import { useState } from 'react'
 import {
   Form,
   message,
-  Button,
-  Input
+  Button
 } from 'antd'
 import InputAutoFocus from '../common/input-auto-focus'
-import renderAuth from '../bookmark-form/render-auth-ssh'
 import { formItemLayout } from '../../common/form-layout'
 import {
   settingMap
 } from '../../common/constants'
+
+import ProfileTabs from './profile-tabs'
+
 const FormItem = Form.Item
 const e = window.translate
 
-export default function QuickCommandForm (props) {
+export default function ProfileFormElem (props) {
   const [form] = Form.useForm()
+  const [activeTab, setActiveTab] = useState('ssh')
   const { autofocustrigger, profiles } = props.store
   function genId () {
     let count = profiles.length ? profiles.length : ''
@@ -42,6 +45,12 @@ export default function QuickCommandForm (props) {
     }
     message.success(e('saved'))
   }
+  const tabsProps = {
+    activeTab,
+    onChangeTab: setActiveTab,
+    form,
+    store: props.store
+  }
   return (
     <Form
       form={form}
@@ -67,30 +76,7 @@ export default function QuickCommandForm (props) {
           autofocustrigger={autofocustrigger}
         />
       </FormItem>
-      <FormItem
-        {...formItemLayout}
-        label={e('username')}
-        hasFeedback
-        name='username'
-        rules={[{
-          max: 128, message: '128 chars max'
-        }]}
-      >
-        <Input />
-      </FormItem>
-      {
-        renderAuth({
-          store: props.store,
-          form,
-          authType: 'password'
-        })
-      }
-      {
-        renderAuth({
-          store: props.store,
-          form
-        })
-      }
+      <ProfileTabs {...tabsProps} />
       <FormItem>
         <Button
           type='primary'

@@ -32,7 +32,6 @@ import {
 } from '../../common/constants'
 import findParentBySel from '../../common/find-parent'
 import copy from 'json-deep-copy'
-import Search from '../common/search'
 import Btns from './bookmark-transport'
 import findBookmarkGroupId from '../../common/find-bookmark-group-id'
 import getInitItem from '../../common/init-setting-item'
@@ -41,6 +40,7 @@ import deepEqual from 'fast-deep-equal'
 import './tree-list.styl'
 import TreeExpander from './tree-expander'
 import TreeListItem from './tree-list-item'
+import TreeSearch from './tree-search'
 
 const e = window.translate
 
@@ -114,9 +114,9 @@ export default class ItemListTree extends Component {
     this.onExpand(nkeys)
   }
 
-  handleChange = e => {
+  handleChange = keyword => {
     this.setState({
-      keyword: e.target.value
+      keyword
     })
   }
 
@@ -341,9 +341,9 @@ export default class ItemListTree extends Component {
   renderSearch = () => {
     return (
       <div className='pd1y'>
-        <Search
-          onChange={this.handleChange}
-          value={this.state.keyword}
+        <TreeSearch
+          onSearch={this.handleChange}
+          keyword={this.state.keyword}
         />
       </div>
     )

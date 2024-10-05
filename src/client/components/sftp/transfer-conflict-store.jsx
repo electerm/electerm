@@ -240,7 +240,7 @@ export default class TransferConflictStore extends Component {
     } else {
       toFile = await this.checkExist(typeTo, toPath, sessionId)
     }
-    if (fromFile.isDirectory) {
+    if (fromFile.isDirectory && typeFrom !== typeTo) {
       const props = {
         sftp: window.sftps[sessionId]
       }

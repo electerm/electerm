@@ -77,7 +77,7 @@ export default function LocalFormUi (props) {
           name='url'
           required
         >
-          <Input addonBefore={<ColorPickerItem />} />
+          <Input />
         </FormItem>
         <FormItem
           {...formItemLayout}

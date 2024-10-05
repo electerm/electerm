@@ -415,7 +415,7 @@ export default (Store) => {
   Store.prototype.toggleDataSyncSelected = function (key) {
     const { store } = window
     const {
-      dataSyncSelected
+      dataSyncSelected = 'all'
     } = store.config
     let arr = dataSyncSelected && dataSyncSelected !== 'all'
       ? dataSyncSelected.split(',')
@@ -432,7 +432,7 @@ export default (Store) => {
   Store.prototype.getDataSyncNames = function (all) {
     const { store } = window
     const {
-      dataSyncSelected
+      dataSyncSelected = 'all'
     } = store.config
     const syncAll = all || dataSyncSelected === 'all'
     const keys = syncAll

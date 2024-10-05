@@ -32,14 +32,18 @@ class TerminalRdp extends TerminalBase {
       port,
       ...rest
     } = this.initOptions
-    const channel = rdp.createClient({
+    const opts = {
       ...rest,
       logLevel: isDev ? 'DEBUG' : 'ERROR',
       screen: {
         width,
         height
       }
-    })
+    }
+    if (!opts.domain) {
+      opts.domain = host
+    }
+    const channel = rdp.createClient(opts)
       .on('error', this.onError)
       .on('connect', this.onConnect)
       .on('bitmap', this.onBitmap)

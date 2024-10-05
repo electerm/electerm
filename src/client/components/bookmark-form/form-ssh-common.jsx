@@ -36,9 +36,11 @@ export default function renderCommon (props) {
     bookmarkGroups = [],
     ips,
     form,
-    onChangeAuthType
+    onChangeAuthType,
+    filterAuthType = a => a
   } = props
   const tree = formatBookmarkGroups(bookmarkGroups)
+  const authTypesFiltered = authTypes.filter(filterAuthType)
 
   // ips is ipaddress string[]
   function renderIps () {
@@ -115,7 +117,7 @@ export default function renderCommon (props) {
           buttonStyle='solid'
         >
           {
-            authTypes.map(t => {
+            authTypesFiltered.map(t => {
               return (
                 <RadioButton value={t} key={t}>
                   {e(t)}

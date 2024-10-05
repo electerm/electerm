@@ -67,7 +67,7 @@ export default class RdpSession extends Component {
       server = ''
     } = config
     const { sessionId, id } = this.props
-    const tab = deepCopy(this.props.tab || {})
+    const tab = window.store.applyProfile(deepCopy(this.props.tab || {}))
     const {
       type,
       term: terminalType

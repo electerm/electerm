@@ -12,7 +12,8 @@ import {
   modals,
   leftSidebarWidthKey,
   rightSidebarWidthKey,
-  dismissDelKeyTipLsKey
+  dismissDelKeyTipLsKey,
+  connectionMap
 } from '../common/constants'
 import * as ls from '../common/safe-local-storage'
 
@@ -212,10 +213,11 @@ export default Store => {
 
   Store.prototype.applyProfile = function (tab) {
     const {
-      authType,
-      profile
+      profile,
+      type,
+      authType
     } = tab
-    if (authType !== 'profiles') {
+    if (!profile || authType !== 'profiles') {
       return tab
     }
     const p = window.store.profiles.find(x => x.id === profile)
@@ -227,6 +229,25 @@ export default Store => {
     // delete tab.passphrase
     delete p.name
     delete p.id
+    if (type === connectionMap.rdp) {
+      return {
+        ...tab,
+        ...p.rdp
+      }
+    } else if (type === connectionMap.vnc) {
+      return {
+        ...tab,
+        ...p.vnc
+      }
+    } else if (type === connectionMap.telnet) {
+      return {
+        ...tab,
+        ...p.telnet
+      }
+    }
+    delete p.rdp
+    delete p.vnc
+    delete p.telnet
     return {
       ...tab,
       ...p

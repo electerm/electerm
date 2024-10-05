@@ -27,7 +27,7 @@ const {
 export default class Upgrade extends PureComponent {
   state = {
     showCount: 0,
-    mirror: mirrors['download-electerm']
+    mirror: mirrors.github
   }
 
   downloadTimer = null
@@ -115,9 +115,9 @@ export default class Upgrade extends PureComponent {
     const next = mirror !== mirrors.sourceforge
       ? this.doUpgrade
       : undefined
-    const nextMirror = mirror === mirrors.github
+    const nextMirror = mirror === mirrors['download-electerm']
       ? mirrors.sourceforge
-      : mirrors.github
+      : mirrors['download-electerm']
     this.setState({
       mirror: nextMirror
     }, next)
