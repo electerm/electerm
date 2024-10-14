@@ -22,6 +22,7 @@ export default memo(function LayoutWrap (props) {
     layoutStyle,
     handleMousedown
   } = props
+  console.log('layout', layout)
   const {
     children: childrenCount,
     handle: handleCount
