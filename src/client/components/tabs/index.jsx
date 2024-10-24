@@ -1,6 +1,5 @@
 /**
  * session tabs component
- * @param {array} props.tabs {id, title}
  */
 
 import React from 'react'
@@ -14,7 +13,16 @@ import {
   RightOutlined,
   RightSquareFilled
 } from '@ant-design/icons'
-
+import {
+  SingleIcon,
+  TwoColumnsIcon,
+  ThreeColumnsIcon,
+  TwoRowsIcon,
+  ThreeRowsIcon,
+  Grid2x2Icon,
+  TwoRowsRightIcon,
+  TwoColumnsBottomIcon
+} from '../icons/split-icons'
 import { Dropdown, Menu, Popover } from 'antd'
 import Tab from './tab'
 import './tabs.styl'
@@ -23,7 +31,8 @@ import {
   tabMargin,
   extraTabWidth,
   windowControlWidth,
-  isMacJs
+  isMacJs,
+  splitMapDesc
 } from '../../common/constants'
 import findParentBySel from '../../common/find-parent'
 import WindowControl from './window-control'
@@ -153,6 +162,10 @@ export default class Tabs extends React.Component {
     this.props.onChangeTabId(id)
   }
 
+  handleChangeLayout = ({ key }) => {
+    window.store.setLayout(key)
+  }
+
   renderList = () => {
     const { tabs = [] } = this.props
     return (
@@ -221,6 +234,14 @@ export default class Tabs extends React.Component {
     )
   }
 
+  renderNoExtra () {
+    return (
+      <div className='tabs-extra pd1x'>
+        {this.renderLayoutMenu()}
+      </div>
+    )
+  }
+
   renderExtra () {
     return (
       <div className='tabs-extra pd1x'>
@@ -240,6 +261,9 @@ export default class Tabs extends React.Component {
         >
           <DownOutlined className='tabs-dd-icon' />
         </Dropdown>
+        {
+          this.renderLayoutMenu()
+        }
       </div>
     )
   }
@@ -266,7 +290,7 @@ export default class Tabs extends React.Component {
       : tabsWidthAll
     const w1 = isMacJs && (config.useSystemTitleBar || window.et.isWebApp)
       ? 30
-      : windowControlWidth
+      : this.getExtraTabWidth()
     const style = {
       width: width - w1 - 166
     }
@@ -310,18 +334,106 @@ export default class Tabs extends React.Component {
     )
   }
 
+  getLayoutIcon = (layout) => {
+    const iconMaps = {
+      single: SingleIcon,
+      twoColumns: TwoColumnsIcon,
+      threeColumns: ThreeColumnsIcon,
+      twoRows: TwoRowsIcon,
+      threeRows: ThreeRowsIcon,
+      grid2x2: Grid2x2Icon,
+      twoRowsRight: TwoRowsRightIcon,
+      twoColumnsBottom: TwoColumnsBottomIcon
+    }
+    return iconMaps[layout]
+  }
+
+  renderLayoutMenuItems = () => {
+    return (
+      <Menu onClick={this.handleChangeLayout}>
+        {
+          Object.keys(splitMapDesc).map((t, i) => {
+            const v = splitMapDesc[t]
+            const Icon = this.getLayoutIcon(v)
+            return (
+              <MenuItem
+                key={t}
+              >
+                <Icon /> {e(v)}
+              </MenuItem>
+            )
+          })
+        }
+      </Menu>
+    )
+  }
+
+  renderLayoutMenu = () => {
+    if (!this.shouldRenderWindowControl()) {
+      return null
+    }
+    const dprops = {
+      overlay: this.renderLayoutMenuItems(),
+      placement: 'bottomRight'
+    }
+    const v = splitMapDesc[this.props.layout]
+    const Icon = this.getLayoutIcon(v)
+    return (
+      <Dropdown
+        {...dprops}
+      >
+        <span className='tabs-dd-icon mg1l'>
+          <Icon /> <DownOutlined />
+        </span>
+      </Dropdown>
+    )
+  }
+
+  shouldRenderWindowControl = () => {
+    const { layout, batch } = this.props
+    const batchToRender = {
+      c1: 0,
+      c2: 1,
+      c3: 2,
+      r2: 0,
+      r3: 0,
+      c2x2: 1,
+      c1r2: 1,
+      r1c2: 0
+    }
+    console.log('batchToRender', batchToRender, layout, batch)
+    return batch === batchToRender[layout]
+  }
+
+  getExtraTabWidth = () => {
+    return this.shouldRenderWindowControl()
+      ? windowControlWidth
+      : 0
+  }
+
+  renderWindowControl = () => {
+    if (this.shouldRenderWindowControl()) {
+      return (
+        <WindowControl
+          store={window.store}
+        />
+      )
+    }
+    return null
+  }
+
   render () {
     const { overflow } = this.state
     return (
       <div className='tabs' ref={this.tabsRef}>
         {this.renderContent()}
-        <WindowControl
-          store={window.store}
-        />
+        {
+          this.renderWindowControl()
+        }
         {
           overflow
             ? this.renderExtra()
-            : null
+            : this.renderNoExtra()
         }
       </div>
     )

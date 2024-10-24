@@ -1,5 +1,5 @@
 import { Component } from '../common/react-subx'
-import Sessions from '../session/sessions'
+import Layout from '../layout/layout'
 import ContextMenu from '../context-menu/context-menu'
 import FileInfoModal from '../sftp/file-props-modal'
 import FileModeModal from '../sftp/file-mode-modal'
@@ -150,9 +150,8 @@ export default class Index extends Component {
             {...outerProps}
           >
             <Sidebar store={store} />
-            <Sessions
+            <Layout
               store={store}
-              config={cpConf}
             />
           </div>
           <ContextMenu store={store} />
