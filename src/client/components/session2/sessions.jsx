@@ -37,7 +37,8 @@ class Sessions extends Component {
   }
 
   componentDidUpdate (prevProps) {
-    if (prevProps.tabs !== this.props.tabs) {
+    if (this.props.tabs && prevProps.tabs !== this.props.tabs) {
+      console.log('this.props.tabs', this.props.tabs)
       this.setState({
         tabs: copy(this.props.tabs)
       })
@@ -66,13 +67,9 @@ class Sessions extends Component {
     window.addEventListener('message', this.onEvent)
   }
 
-  // updateStoreTabs = (tabs) => {
-  //   postMsg({
-  //     action: commonActions.updateStore,
-  //     func: 'setTabs',
-  //     args: [copy(tabs)]
-  //   })
-  // }
+  updateStoreTabs = (tabs) => {
+    window.store.updateStoreTabs(tabs, this.props.batch)
+  }
 
   updateStoreCurrentTabId = id => {
     postMsg({
@@ -102,7 +99,7 @@ class Sessions extends Component {
       if (tab) {
         Object.assign(tab, update)
       }
-      window.store.updateStoreTabs(tabs)
+      this.updateStoreTabs(tabs)
       return {
         tabs
       }
@@ -126,7 +123,7 @@ class Sessions extends Component {
       }
       tab.batch = this.props.batch
       tabs.splice(index, 0, tab)
-      window.store.updateStoreTabs(tabs)
+      this.updateStoreTabs(tabs)
       this.updateStoreCurrentTabId(tab.id)
       return {
         currentTabId: tab.id,
@@ -152,7 +149,7 @@ class Sessions extends Component {
       up.tabs = tabs.filter(t => {
         return t.id !== id
       })
-      window.store.updateStoreTabs(up.tabs)
+      this.updateStoreTabs(up.tabs)
       return up
     })
   }
@@ -233,7 +230,7 @@ class Sessions extends Component {
     this.setState({
       tabs
     })
-    window.store.updateStoreTabs(tabs)
+    this.updateStoreTabs(tabs)
   }
 
   setOffline = () => {
@@ -245,7 +242,7 @@ class Sessions extends Component {
             status: t.host ? statusMap.error : t.status
           }
         })
-      window.store.updateStoreTabs(tabs)
+      this.updateStoreTabs(tabs)
       return {
         tabs
       }
@@ -260,7 +257,7 @@ class Sessions extends Component {
           isTransporting: tabIds.includes(d.id)
         }
       })
-      window.store.updateStoreTabs(tabs)
+      this.updateStoreTabs(tabs)
       return {
         tabs
       }
@@ -347,7 +344,8 @@ class Sessions extends Component {
       currentTabId,
       tabs
     } = this.state
-    if (!tabs.length) {
+    console.log('tabs in  renderSessions', tabs)
+    if (!tabs || !tabs.length) {
       return this.renderNoSession()
     }
     return tabs.map((tab) => {

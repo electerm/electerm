@@ -9,6 +9,7 @@ import {
 } from '../common/constants'
 import postMsg from '../common/post-msg'
 import * as ls from '../common/safe-local-storage'
+import deepCopy from 'json-deep-copy'
 
 export default Store => {
   Store.prototype.updateTabsStatus = function () {
@@ -21,14 +22,23 @@ export default Store => {
     })
   }
 
-  Store.prototype.updateStoreTabs = function (tabs0) {
+  Store.prototype.updateStoreTabs = function (tabs0, batch0) {
+    console.log('updateStoreTabs0', tabs0, batch0, window.store.getTabs())
+    if (!tabs0.length && batch0 !== undefined) {
+      const tabs = window.store.getTabs().filter(t => t.batch !== batch0)
+      console.log('updateStoreTabs', tabs0, batch0, tabs)
+      window.store.setTabs(tabs)
+      return true
+    }
+    console.log('ffffff')
     if (!tabs0.length) {
       return false
     }
+    console.log('ffffff1')
     const { batch } = tabs0[0]
     const tabs = window.store.getTabs()
       .filter(t => t.batch !== batch)
-      .concat(tabs0)
+      .concat(deepCopy(tabs0))
     window.store.setTabs(tabs)
   }
 
