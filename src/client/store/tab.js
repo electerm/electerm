@@ -50,6 +50,10 @@ export default Store => {
     return window.store.setItems('tabs', list)
   }
 
+  Store.prototype.delTab = function (id) {
+    return window.store.delItem({ id }, 'tabs')
+  }
+
   Store.prototype.initFirstTab = function () {
     postMsg({
       action: tabActions.initFirstTab
