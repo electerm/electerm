@@ -53,7 +53,8 @@ export default class Tabs extends React.Component {
   }
 
   componentDidMount () {
-    this.dom = document.querySelector('.tabs-inner')
+    const { batch } = this.props
+    this.dom = document.querySelector(`.v${batch + 1} .tabs-inner`)
     const {
       tabsRef
     } = this
@@ -72,8 +73,9 @@ export default class Tabs extends React.Component {
   }
 
   tabsWidth = () => {
+    const { batch } = this.props
     return Array.from(
-      document.querySelectorAll('.tab')
+      document.querySelectorAll(`.v${batch + 1} .tab`)
     ).reduce((prev, c) => {
       return prev + c.clientWidth
     }, 0)
@@ -89,7 +91,9 @@ export default class Tabs extends React.Component {
   }
 
   getInnerWidth = () => {
-    const inner = document.querySelector('.tabs-inner')
+    const { batch } = this.props
+    const cls = `.v${batch + 1} .tabs-inner`
+    const inner = document.querySelector(cls)
     return inner ? inner.clientWidth : 0
   }
 
@@ -111,10 +115,10 @@ export default class Tabs extends React.Component {
   }
 
   adjustScroll = () => {
-    const { tabs, currentTabId } = this.props
+    const { tabs, currentTabId, batch } = this.props
     const index = findIndex(tabs, t => t.id === currentTabId)
     const tabsDomWith = Array.from(
-      document.querySelectorAll('.tab')
+      document.querySelectorAll(`.v${batch + 1} .tab`)
     ).slice(0, index + 2).reduce((prev, c) => {
       return prev + c.clientWidth
     }, 0)

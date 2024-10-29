@@ -183,7 +183,7 @@ class Tab extends Component {
         if (closeBtn) {
           closeBtn.click()
         }
-      }, 50)
+      }, 10)
       fromTab.batch = dropTab.batch
     } else {
       if (indexDrop > indexFrom) {
