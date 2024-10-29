@@ -161,6 +161,14 @@ export default (Store) => {
     const { store } = window
     store.isSyncingSetting = true
     store.isSyncUpload = true
+    await store.uploadSettingAction(type).catch(store.onError)
+    store.isSyncingSetting = false
+    store.isSyncUpload = false
+    window[type + 'IsSyncing'] = false
+  }
+
+  Store.prototype.uploadSettingAction = async function (type) {
+    const { store } = window
     const token = store.getSyncToken(type)
     let gistId = store.getSyncGistId(type)
     if (!gistId && type !== syncTypes.cloud && type !== syncTypes.custom) {
@@ -168,9 +176,6 @@ export default (Store) => {
       gistId = store.getSyncGistId(type)
     }
     if (!gistId && type !== syncTypes.custom && type !== syncTypes.cloud) {
-      window.isSyncing = false
-      store.isSyncingSetting = false
-      store.isSyncUpload = false
       return
     }
     const pass = store.getSyncPassword(type)
@@ -218,10 +223,7 @@ export default (Store) => {
           })
         }
       }
-    }], token, store.getProxySetting()).catch(store.onError)
-    store.isSyncingSetting = false
-    store.isSyncUpload = false
-    window[type + 'IsSyncing'] = false
+    }], token, store.getProxySetting())
     if (res) {
       store.updateSyncSetting({
         [type + 'LastSyncTime']: Date.now()
@@ -233,6 +235,13 @@ export default (Store) => {
     const { store } = window
     store.isSyncingSetting = true
     store.isSyncDownload = true
+    await store.downloadSettingAction(type).catch(store.onError)
+    store.isSyncingSetting = false
+    store.isSyncDownload = false
+  }
+
+  Store.prototype.downloadSettingAction = async function (type) {
+    const { store } = window
     const token = store.getSyncToken(type)
     let gistId = store.getSyncGistId(type)
     if (!gistId && type !== syncTypes.cloud && type !== syncTypes.custom) {
@@ -256,8 +265,6 @@ export default (Store) => {
       let str = get(gist, `files["${n}.json"].content`)
       if (!str) {
         if (n === settingMap.bookmarks) {
-          store.isSyncingSetting = false
-          store.isSyncDownload = false
           throw new Error(('Seems you have a empty gist, you can try use existing gist ID or upload first'))
         } else {
           continue
