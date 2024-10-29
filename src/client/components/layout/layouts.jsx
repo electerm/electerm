@@ -8,11 +8,10 @@ function pixed (style) {
     const v = style[k]
     return {
       ...prev,
-      [k]: v + 'px'
+      [k]: isNaN(v) ? v : v + 'px'
     }
   }, {})
 }
-
 export default memo(function LayoutWrap (props) {
   const {
     children,
@@ -37,7 +36,7 @@ export default memo(function LayoutWrap (props) {
       {
         new Array(childrenCount).fill(0).map((v, i) => {
           const itemProps = {
-            style: wrapStyles[i],
+            style: pixed(wrapStyles[i]),
             className: 'layout-item v' + (i + 1)
           }
           console.log('itemProps', itemProps)

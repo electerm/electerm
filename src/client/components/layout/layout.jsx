@@ -4,8 +4,7 @@ import Sessions from '../session2/sessions'
 import {
   splitConfig,
   quickCommandBoxHeight,
-  footerHeight,
-  termControlHeight
+  footerHeight
 } from '../../common/constants'
 import layoutAlg from './layout-alg'
 import calcSessionSize from './session-size-alg'
@@ -57,7 +56,6 @@ export default class Layout extends Component {
       height,
       width,
       pinnedQuickCommandBar,
-      tabsHeight,
       leftSidebarWidth,
       infoPanelPinned,
       pinned,
@@ -66,7 +64,7 @@ export default class Layout extends Component {
     const l = pinned ? leftSidebarWidth : 0
     const r = infoPanelPinned ? rightSidebarWidth : 0
     const w = width - l - r - 42
-    const h = height - tabsHeight - footerHeight - termControlHeight - (pinnedQuickCommandBar ? quickCommandBoxHeight : 0)
+    const h = height - footerHeight - (pinnedQuickCommandBar ? quickCommandBoxHeight : 0)
     return layoutAlg(layout, w, h)
   }
 

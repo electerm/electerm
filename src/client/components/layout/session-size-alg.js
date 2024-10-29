@@ -6,7 +6,7 @@ const layoutConfigs = {
   r3: { cols: 1, rows: 3 },
   c2x2: { cols: 2, rows: 2 },
   c1r2: { cols: 2, rows: 2, special: 'right', length: 3 },
-  r12c: { cols: 2, rows: 2, special: 'bottom', length: 3 }
+  r1c2: { cols: 2, rows: 2, special: 'bottom', length: 3 }
 }
 
 export default function calcSessionSize (layout, w, h) {
@@ -24,7 +24,7 @@ export default function calcSessionSize (layout, w, h) {
   if (special === 'right') {
     sessions[0].height = h
   } else if (special === 'bottom') {
-    sessions[2].width = w
+    sessions[0].width = w
   }
 
   return sessions

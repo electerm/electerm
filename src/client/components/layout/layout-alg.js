@@ -251,7 +251,7 @@ const layoutFunctions = {
   [splitMap.r3]: layoutThreeRows,
   [splitMap.c2x2]: layoutGrid2x2,
   [splitMap.c1r2]: layoutTwoRowsRight,
-  [splitMap.c1c2]: layoutTwoColumnsBottom
+  [splitMap.r1c2]: layoutTwoColumnsBottom
 }
 
 export default function layoutAlg (layout, w, h) {
