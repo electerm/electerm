@@ -114,6 +114,10 @@ export default class Tabs extends React.Component {
     this.props.addTab()
   }
 
+  handleTabAdd = () => {
+    this.props.addTab()
+  }
+
   adjustScroll = () => {
     const { tabs, currentTabId, batch } = this.props
     const index = findIndex(tabs, t => t.id === currentTabId)
@@ -170,6 +174,12 @@ export default class Tabs extends React.Component {
     window.store.setLayout(key)
   }
 
+  handleOpenChange = (open) => {
+    if (open) {
+      window.openTabBatch = this.props.batch
+    }
+  }
+
   renderList = () => {
     const { tabs = [] } = this.props
     return (
@@ -190,7 +200,6 @@ export default class Tabs extends React.Component {
   }
 
   renderMenus () {
-    const { addTab } = this.props
     const { onNewSsh } = window.store
     const cls = 'pd2x pd1y context-item pointer'
     return (
@@ -207,7 +216,7 @@ export default class Tabs extends React.Component {
         </div>
         <div
           className={cls}
-          onClick={() => addTab()}
+          onClick={this.handleTabAdd}
         >
           <RightSquareFilled /> {e('newTab')}
         </div>
@@ -228,11 +237,12 @@ export default class Tabs extends React.Component {
     return (
       <Popover
         content={this.renderMenus()}
+        onOpenChange={this.handleOpenChange}
       >
         <PlusOutlined
           title={e('openNewTerm')}
           className={cls}
-          onClick={() => this.props.addTab()}
+          onClick={this.handleTabAdd}
         />
       </Popover>
     )

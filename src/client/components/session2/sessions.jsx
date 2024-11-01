@@ -296,6 +296,7 @@ class Sessions extends Component {
   }
 
   postChange = () => {
+    this.props.store.currentLayoutBatch = this.props.batch
     this.props.store.triggerResize()
   }
 
@@ -361,6 +362,7 @@ class Sessions extends Component {
         tab: toSimpleObj(tab),
         width,
         height,
+        batch: this.props.batch,
         ...pick(store, [
           'resolutions',
           'hideDelKeyTip',
