@@ -38,7 +38,6 @@ class Sessions extends Component {
 
   componentDidUpdate (prevProps) {
     if (this.props.tabs && prevProps.tabs !== this.props.tabs) {
-      console.log('this.props.tabs', this.props.tabs)
       this.setState({
         tabs: copy(this.props.tabs)
       })
@@ -345,7 +344,6 @@ class Sessions extends Component {
       currentTabId,
       tabs
     } = this.state
-    console.log('tabs in  renderSessions', tabs)
     if (!tabs || !tabs.length) {
       return this.renderNoSession()
     }

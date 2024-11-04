@@ -72,7 +72,6 @@ export default class VncSession extends RdpSession {
     } = config
     const { sessionId, id } = this.props
     const tab = window.store.applyProfile(deepCopy(this.props.tab || {}))
-    console.log('vnc tab', this.props.tab)
     const {
       type,
       term: terminalType,

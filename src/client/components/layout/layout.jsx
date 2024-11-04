@@ -94,7 +94,6 @@ export default class Layout extends Component {
         config: store.config,
         tabs: tabsBatch[i]
       }
-      console.log('sessProps', sessProps)
       return (
         <Sessions
           key={'sess' + i}

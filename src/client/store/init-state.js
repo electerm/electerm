@@ -40,7 +40,6 @@ function getDefaultBookmarkGroups (bookmarks) {
 
 export default () => {
   const layout = ls.getItem('layout') || splitMap.c1
-  console.log('layout init state', layout)
   return {
     // common
     wsInited: false,

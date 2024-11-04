@@ -1041,9 +1041,7 @@ clear\r`
 
   setActive = () => {
     this.props.setActive(this.props.id)
-    console.log('setActive', this.props.batch)
     window.store.storeAssign({
-      // currentLayoutBatch: this.props.batch,
       activeTerminalId: this.props.id
     })
   }

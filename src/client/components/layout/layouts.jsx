@@ -21,7 +21,6 @@ export default memo(function LayoutWrap (props) {
     layoutStyle,
     handleMousedown
   } = props
-  console.log('layout', layout)
   const {
     children: childrenCount,
     handle: handleCount
@@ -30,7 +29,6 @@ export default memo(function LayoutWrap (props) {
     className: 'layout-wrap layout-wrap-' + layout,
     style: pixed(layoutStyle)
   }
-  console.log('wrapStyles', wrapStyles)
   return (
     <div {...wrapStyle}>
       {
@@ -39,7 +37,6 @@ export default memo(function LayoutWrap (props) {
             style: pixed(wrapStyles[i]),
             className: 'layout-item v' + (i + 1)
           }
-          console.log('itemProps', itemProps)
           return (
             <div
               key={i + 'layout-item'}

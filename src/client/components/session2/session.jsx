@@ -355,7 +355,6 @@ export default class SessionWrapper extends Component {
     const { tab } = this.props
     const width = this.getWidth()
     const themeConfig = copy(window.store.getThemeConfig())
-    console.log('this.props.batch', this.props.batch)
     return (
       <div
         className={cls}

@@ -94,7 +94,6 @@ export default Store => {
     if (!item) {
       return
     }
-    console.log('window.openTabBatch ?? store.currentLayoutBatch', window.openTabBatch, store.currentLayoutBatch)
     store.addTab({
       batch: window.openTabBatch ?? store.currentLayoutBatch,
       ...item,

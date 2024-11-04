@@ -415,7 +415,6 @@ export default class Tabs extends React.Component {
       c1r2: 1,
       r1c2: 0
     }
-    console.log('batchToRender', batchToRender, layout, batch)
     return batch === batchToRender[layout]
   }
 
