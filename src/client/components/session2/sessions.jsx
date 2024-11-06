@@ -10,7 +10,6 @@ import Tabs from '../tabs/index.jsx'
 import {
   commonActions,
   tabActions,
-  termInitId,
   paneMap,
   statusMap,
   terminalWebType
@@ -158,7 +157,7 @@ class Sessions extends Component {
     const { batch } = this.props
     tab.batch = batch
     tab.terminals = [{
-      id: termInitId + batch,
+      id: generate(),
       batch: this.props.batch,
       position: 0
     }]

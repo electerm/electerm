@@ -121,6 +121,7 @@ export default Store => {
       })
       // Set the updated tabs back to the store
       store.setTabs(updatedTabs)
+      document.querySelector('.tabs-wrapper .tab.active').click()
     }
   }
 
