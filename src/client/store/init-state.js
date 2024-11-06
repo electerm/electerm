@@ -19,7 +19,8 @@ import {
   rightSidebarWidthKey,
   dismissDelKeyTipLsKey,
   qmSortByFrequencyKey,
-  resolutionsLsKey
+  resolutionsLsKey,
+  splitMap
 } from '../common/constants'
 import { buildDefaultThemes } from '../common/terminal-theme'
 import * as ls from '../common/safe-local-storage'
@@ -38,6 +39,7 @@ function getDefaultBookmarkGroups (bookmarks) {
 }
 
 export default () => {
+  const layout = ls.getItem('layout') || splitMap.c1
   return {
     // common
     wsInited: false,
@@ -90,6 +92,13 @@ export default () => {
         direction: 'desc'
       }
     }),
+    layout,
+    prevLayout: layout,
+    currentLayoutBatch: 0,
+    currentTabId0: '',
+    currentTabId1: '',
+    currentTabId2: '',
+    currentTabId3: '',
 
     // for settings related
     _setting: '',

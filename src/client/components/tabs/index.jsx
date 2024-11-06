@@ -1,6 +1,5 @@
 /**
  * session tabs component
- * @param {array} props.tabs {id, title}
  */
 
 import React from 'react'
@@ -14,7 +13,16 @@ import {
   RightOutlined,
   RightSquareFilled
 } from '@ant-design/icons'
-
+import {
+  SingleIcon,
+  TwoColumnsIcon,
+  ThreeColumnsIcon,
+  TwoRowsIcon,
+  ThreeRowsIcon,
+  Grid2x2Icon,
+  TwoRowsRightIcon,
+  TwoColumnsBottomIcon
+} from '../icons/split-icons'
 import { Dropdown, Menu, Popover } from 'antd'
 import Tab from './tab'
 import './tabs.styl'
@@ -23,7 +31,8 @@ import {
   tabMargin,
   extraTabWidth,
   windowControlWidth,
-  isMacJs
+  isMacJs,
+  splitMapDesc
 } from '../../common/constants'
 import findParentBySel from '../../common/find-parent'
 import WindowControl from './window-control'
@@ -44,7 +53,8 @@ export default class Tabs extends React.Component {
   }
 
   componentDidMount () {
-    this.dom = document.querySelector('.tabs-inner')
+    const { batch } = this.props
+    this.dom = document.querySelector(`.v${batch + 1} .tabs-inner`)
     const {
       tabsRef
     } = this
@@ -63,8 +73,9 @@ export default class Tabs extends React.Component {
   }
 
   tabsWidth = () => {
+    const { batch } = this.props
     return Array.from(
-      document.querySelectorAll('.tab')
+      document.querySelectorAll(`.v${batch + 1} .tab`)
     ).reduce((prev, c) => {
       return prev + c.clientWidth
     }, 0)
@@ -80,7 +91,9 @@ export default class Tabs extends React.Component {
   }
 
   getInnerWidth = () => {
-    const inner = document.querySelector('.tabs-inner')
+    const { batch } = this.props
+    const cls = `.v${batch + 1} .tabs-inner`
+    const inner = document.querySelector(cls)
     return inner ? inner.clientWidth : 0
   }
 
@@ -101,11 +114,15 @@ export default class Tabs extends React.Component {
     this.props.addTab()
   }
 
+  handleTabAdd = () => {
+    this.props.addTab()
+  }
+
   adjustScroll = () => {
-    const { tabs, currentTabId } = this.props
+    const { tabs, currentTabId, batch } = this.props
     const index = findIndex(tabs, t => t.id === currentTabId)
     const tabsDomWith = Array.from(
-      document.querySelectorAll('.tab')
+      document.querySelectorAll(`.v${batch + 1} .tab`)
     ).slice(0, index + 2).reduce((prev, c) => {
       return prev + c.clientWidth
     }, 0)
@@ -153,6 +170,16 @@ export default class Tabs extends React.Component {
     this.props.onChangeTabId(id)
   }
 
+  handleChangeLayout = ({ key }) => {
+    window.store.setLayout(key)
+  }
+
+  handleOpenChange = (open) => {
+    if (open) {
+      window.openTabBatch = this.props.batch
+    }
+  }
+
   renderList = () => {
     const { tabs = [] } = this.props
     return (
@@ -173,7 +200,6 @@ export default class Tabs extends React.Component {
   }
 
   renderMenus () {
-    const { addTab } = this.props
     const { onNewSsh } = window.store
     const cls = 'pd2x pd1y context-item pointer'
     return (
@@ -190,7 +216,7 @@ export default class Tabs extends React.Component {
         </div>
         <div
           className={cls}
-          onClick={() => addTab()}
+          onClick={this.handleTabAdd}
         >
           <RightSquareFilled /> {e('newTab')}
         </div>
@@ -211,13 +237,22 @@ export default class Tabs extends React.Component {
     return (
       <Popover
         content={this.renderMenus()}
+        onOpenChange={this.handleOpenChange}
       >
         <PlusOutlined
           title={e('openNewTerm')}
           className={cls}
-          onClick={() => this.props.addTab()}
+          onClick={this.handleTabAdd}
         />
       </Popover>
+    )
+  }
+
+  renderNoExtra () {
+    return (
+      <div className='tabs-extra pd1x'>
+        {this.renderLayoutMenu()}
+      </div>
     )
   }
 
@@ -240,6 +275,9 @@ export default class Tabs extends React.Component {
         >
           <DownOutlined className='tabs-dd-icon' />
         </Dropdown>
+        {
+          this.renderLayoutMenu()
+        }
       </div>
     )
   }
@@ -266,7 +304,7 @@ export default class Tabs extends React.Component {
       : tabsWidthAll
     const w1 = isMacJs && (config.useSystemTitleBar || window.et.isWebApp)
       ? 30
-      : windowControlWidth
+      : this.getExtraTabWidth()
     const style = {
       width: width - w1 - 166
     }
@@ -310,18 +348,105 @@ export default class Tabs extends React.Component {
     )
   }
 
+  getLayoutIcon = (layout) => {
+    const iconMaps = {
+      single: SingleIcon,
+      twoColumns: TwoColumnsIcon,
+      threeColumns: ThreeColumnsIcon,
+      twoRows: TwoRowsIcon,
+      threeRows: ThreeRowsIcon,
+      grid2x2: Grid2x2Icon,
+      twoRowsRight: TwoRowsRightIcon,
+      twoColumnsBottom: TwoColumnsBottomIcon
+    }
+    return iconMaps[layout]
+  }
+
+  renderLayoutMenuItems = () => {
+    return (
+      <Menu onClick={this.handleChangeLayout}>
+        {
+          Object.keys(splitMapDesc).map((t, i) => {
+            const v = splitMapDesc[t]
+            const Icon = this.getLayoutIcon(v)
+            return (
+              <MenuItem
+                key={t}
+              >
+                <Icon /> {e(v)}
+              </MenuItem>
+            )
+          })
+        }
+      </Menu>
+    )
+  }
+
+  renderLayoutMenu = () => {
+    if (!this.shouldRenderWindowControl()) {
+      return null
+    }
+    const dprops = {
+      overlay: this.renderLayoutMenuItems(),
+      placement: 'bottomRight'
+    }
+    const v = splitMapDesc[this.props.layout]
+    const Icon = this.getLayoutIcon(v)
+    return (
+      <Dropdown
+        {...dprops}
+      >
+        <span className='tabs-dd-icon mg1l'>
+          <Icon /> <DownOutlined />
+        </span>
+      </Dropdown>
+    )
+  }
+
+  shouldRenderWindowControl = () => {
+    const { layout, batch } = this.props
+    const batchToRender = {
+      c1: 0,
+      c2: 1,
+      c3: 2,
+      r2: 0,
+      r3: 0,
+      c2x2: 1,
+      c1r2: 1,
+      r1c2: 0
+    }
+    return batch === batchToRender[layout]
+  }
+
+  getExtraTabWidth = () => {
+    return this.shouldRenderWindowControl()
+      ? windowControlWidth
+      : 0
+  }
+
+  renderWindowControl = () => {
+    if (this.shouldRenderWindowControl()) {
+      return (
+        <WindowControl
+          store={window.store}
+        />
+      )
+    }
+    return null
+  }
+
   render () {
     const { overflow } = this.state
     return (
       <div className='tabs' ref={this.tabsRef}>
         {this.renderContent()}
-        <WindowControl
-          store={window.store}
-        />
+        {
+          this.renderWindowControl()
+        }
         {
           overflow
             ? this.renderExtra()
-            : null
+            : this.renderNoExtra()
         }
       </div>
     )

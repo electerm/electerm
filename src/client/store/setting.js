@@ -94,13 +94,15 @@ export default Store => {
     if (!item) {
       return
     }
-
     store.addTab({
+      batch: window.openTabBatch ?? store.currentLayoutBatch,
       ...item,
       from: 'bookmarks',
       srcId: item.id,
       ...newTerm(true, true)
     })
+
+    delete window.openTabBatch
 
     if (store.config.disableSshHistory) {
       return

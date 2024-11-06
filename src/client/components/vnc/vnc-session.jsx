@@ -72,7 +72,6 @@ export default class VncSession extends RdpSession {
     } = config
     const { sessionId, id } = this.props
     const tab = window.store.applyProfile(deepCopy(this.props.tab || {}))
-    console.log('vnc tab', this.props.tab)
     const {
       type,
       term: terminalType,
@@ -263,7 +262,7 @@ export default class VncSession extends RdpSession {
   }
 
   render () {
-    const { width: w, height: h } = this.computeProps()
+    const { width: w, height: h } = this.props
     const vncProps = {
       style: {
         width: w + 'px',

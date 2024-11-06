@@ -7,14 +7,10 @@ import Sftp from '../sftp/sftp-entry'
 import RdpSession from '../rdp/rdp-session'
 import VncSession from '../vnc/vnc-session'
 import {
-  BorderVerticleOutlined,
-  BorderHorizontalOutlined,
-  CloseSquareFilled,
   SearchOutlined,
   FullscreenOutlined,
   PaperClipOutlined,
-  CloseOutlined,
-  QuestionCircleOutlined
+  CloseOutlined
 } from '@ant-design/icons'
 import {
   Tooltip
@@ -24,11 +20,9 @@ import generate from '../../common/uid'
 import copy from 'json-deep-copy'
 import classnames from 'classnames'
 import {
-  quickCommandBoxHeight,
   terminalSplitDirectionMap,
   termControlHeight,
   paneMap,
-  footerHeight,
   terminalActions,
   connectionMap,
   terminalRdpType,
@@ -38,7 +32,6 @@ import ResizeWrap from '../common/resize-wrap'
 import safeName from '../../common/safe-name'
 import TerminalInfoContent from '../terminal-info/content'
 import uid from '../../common/id-with-stamp'
-import Link from '../common/external-link'
 import postMessage from '../../common/post-msg'
 import './session.styl'
 
@@ -169,14 +162,11 @@ export default class SessionWrapper extends Component {
 
   computeHeight = () => {
     const {
-      pinnedQuickCommandBar,
       tabsHeight
     } = this.props
     return this.props.height -
       tabsHeight -
-      footerHeight -
-      termControlHeight -
-      (pinnedQuickCommandBar ? quickCommandBoxHeight : 0)
+      termControlHeight
   }
 
   editTab = (up) => {
@@ -299,20 +289,11 @@ export default class SessionWrapper extends Component {
   }
 
   getWidth = () => {
-    const {
-      infoPanelPinned,
-      showInfo
-    } = this.state
-    const { rightSidebarWidth, width, leftSidebarWidth, pinned, openedSideBar } = this.props
-    const rt = infoPanelPinned && showInfo ? rightSidebarWidth : 0
-    const lt = pinned && openedSideBar ? leftSidebarWidth : 0
-    return width - rt - lt - 42
+    return this.props.width
   }
 
   getWidthSftp = () => {
-    const { width, leftSidebarWidth, pinned, openedSideBar } = this.props
-    const lt = pinned && openedSideBar ? leftSidebarWidth : 0
-    return width - lt - 42
+    return this.props.width
   }
 
   renderTerminals = () => {
@@ -438,7 +419,7 @@ export default class SessionWrapper extends Component {
     if (type === terminalRdpType) {
       return null
     }
-    const height = this.computeHeight()
+    const height = this.computeHeight(pane)
     const cls = pane === paneMap.terminal
       ? 'hide'
       : ''
@@ -513,8 +494,22 @@ export default class SessionWrapper extends Component {
     )
   }
 
+  renderTermControls = () => {
+    const { props } = this
+    const { pane } = props.tab
+    if (pane !== paneMap.terminal) {
+      return null
+    }
+    return (
+      <div className='fright term-controls'>
+        {this.fullscreenIcon()}
+        {this.renderSearchIcon()}
+      </div>
+    )
+  }
+
   renderControl = () => {
-    const { splitDirection, terminals, sftpPathFollowSsh } = this.state
+    const { sftpPathFollowSsh } = this.state
     const { props } = this
     const { pane, enableSsh, type } = props.tab
     if (type === terminalRdpType || type === terminalVncType) {
@@ -523,16 +518,6 @@ export default class SessionWrapper extends Component {
     const termType = props.tab?.type
     const isSsh = props.tab.authType
     const isLocal = !isSsh && (termType === connectionMap.local || !termType)
-    const isHori = splitDirection === terminalSplitDirectionMap.horizontal
-    const cls1 = 'mg1r icon-split pointer iblock spliter'
-    const cls2 = 'icon-direction pointer iblock spliter'
-    const Icon1 = isHori
-      ? BorderHorizontalOutlined
-      : BorderVerticleOutlined
-    const Icon2 = !isHori
-      ? BorderHorizontalOutlined
-      : BorderVerticleOutlined
-    const hide = terminals.length < 2
     const types = [
       paneMap.terminal,
       paneMap.fileManager
@@ -543,18 +528,7 @@ export default class SessionWrapper extends Component {
     if (isSsh || isLocal) {
       controls.push(isSsh ? paneMap.sftp : paneMap.fileManager)
     }
-    const checkTxt = (
-      <div>
-        <span>{e('sftpPathFollowSsh')}</span>
-        <span className='mg1l color-red'>[Beta]</span>
-        <Link
-          to='https://github.com/electerm/electerm/wiki/Warning-about-sftp-follow-ssh-path-function'
-          className='mg1l'
-        >
-          Wiki <QuestionCircleOutlined />
-        </Link>
-      </div>
-    )
+    const checkTxt = e('sftpPathFollowSsh') + ' [Beta]'
     const checkProps = {
       onClick: this.toggleCheckSftpPathFollowSsh,
       className: classnames(
@@ -600,7 +574,7 @@ export default class SessionWrapper extends Component {
           }
         </div>
         {
-          (isSsh && enableSsh !== false) || isLocal
+          (isSsh && enableSsh) || isLocal
             ? (
               <Tooltip title={checkTxt}>
                 <span {...checkProps}>
@@ -613,45 +587,7 @@ export default class SessionWrapper extends Component {
         {
           this.renderDelTip(pane === paneMap.terminal)
         }
-        {
-          pane === paneMap.terminal
-            ? (
-              <div className='fright term-controls'>
-                {this.fullscreenIcon()}
-                {this.renderSearchIcon()}
-                {
-                  hide
-                    ? null
-                    : (
-                      <CloseSquareFilled
-                        className='mg1r icon-trash font16 iblock pointer spliter'
-                        onClick={() => this.delSplit()}
-                        title={e('del')}
-                      />
-                      )
-                }
-                <Tooltip
-                  title={`${e('split')}`}
-                  placement='bottomLeft'
-                >
-                  <Icon1
-                    className={cls1}
-                    onClick={this.handleSplit}
-                  />
-                </Tooltip>
-                <Tooltip
-                  title={e('changeDirection')}
-                  placement='bottomLeft'
-                >
-                  <Icon2
-                    className={cls2}
-                    onClick={this.handleChangeDirection}
-                  />
-                </Tooltip>
-              </div>
-              )
-            : null
-        }
+        {this.renderTermControls()}
       </div>
     )
   }

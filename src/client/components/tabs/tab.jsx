@@ -173,12 +173,24 @@ class Tab extends Component {
     }
     const { id } = fromTab
     const tabs = copy(this.props.tabs)
-    const indexFrom = findIndex(tabs, t => t.id === id)
     let indexDrop = findIndex(tabs, t => t.id === dropId)
-    if (indexDrop > indexFrom) {
-      indexDrop = indexDrop - 1
+    const dropTab = tabs[indexDrop]
+    const indexFrom = findIndex(tabs, t => t.id === id)
+    if (indexFrom === -1) {
+      const fromBatch = fromTab.batch
+      setTimeout(() => {
+        const closeBtn = document.querySelector(`.v${fromBatch + 1} .tab-${id} .tab-close .anticon`)
+        if (closeBtn) {
+          closeBtn.click()
+        }
+      }, 10)
+      fromTab.batch = dropTab.batch
+    } else {
+      if (indexDrop > indexFrom) {
+        indexDrop = indexDrop - 1
+      }
+      tabs.splice(indexFrom, 1)
     }
-    tabs.splice(indexFrom, 1)
     tabs.splice(indexDrop, 0, fromTab)
     this.props.setTabs(
       tabs

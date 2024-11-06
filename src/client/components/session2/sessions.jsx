@@ -1,28 +1,25 @@
-import { Component } from '../common/react-subx'
-import Session from './session'
+import { Component } from '../common/react-subx.jsx'
+import Session from './session.jsx'
 import WebSession from '../web/web-session.jsx'
 import { findIndex, pick } from 'lodash-es'
 import classNames from 'classnames'
-import generate from '../../common/uid'
+import generate from '../../common/uid.js'
 import copy from 'json-deep-copy'
-import wait from '../../common/wait'
-import Tabs from '../tabs'
+import wait from '../../common/wait.js'
+import Tabs from '../tabs/index.jsx'
 import {
   commonActions,
   tabActions,
-  termInitId,
   paneMap,
   statusMap,
   terminalWebType
-} from '../../common/constants'
-import newTerm, { updateCount } from '../../common/new-terminal'
-import postMsg from '../../common/post-msg'
-import TermSearch from '../terminal/term-search'
-import Footer from '../footer/footer-entry'
-import QuickCommandsFooterBox from '../quick-commands/quick-commands-box'
-import LogoElem from '../common/logo-elem'
+} from '../../common/constants.js'
+import newTerm, { updateCount } from '../../common/new-terminal.js'
+import postMsg from '../../common/post-msg.js'
+
+import LogoElem from '../common/logo-elem.jsx'
 import { Button } from 'antd'
-import toSimpleObj from '../../common/to-simple-obj'
+import toSimpleObj from '../../common/to-simple-obj.js'
 import { shortcutExtend } from '../shortcuts/shortcut-handler.js'
 
 const e = window.translate
@@ -36,6 +33,14 @@ class Sessions extends Component {
   componentDidMount () {
     this.watch()
     this.initShortcuts()
+  }
+
+  componentDidUpdate (prevProps) {
+    if (this.props.tabs && prevProps.tabs !== this.props.tabs) {
+      this.setState({
+        tabs: copy(this.props.tabs)
+      })
+    }
   }
 
   initShortcuts () {
@@ -61,11 +66,7 @@ class Sessions extends Component {
   }
 
   updateStoreTabs = (tabs) => {
-    postMsg({
-      action: commonActions.updateStore,
-      func: 'setTabs',
-      args: [copy(tabs)]
-    })
+    window.store.updateStoreTabs(tabs, this.props.batch)
   }
 
   updateStoreCurrentTabId = id => {
@@ -73,6 +74,11 @@ class Sessions extends Component {
       action: commonActions.updateStore,
       value: id,
       prop: 'currentTabId'
+    })
+    postMsg({
+      action: commonActions.updateStore,
+      value: id,
+      prop: 'currentTabId' + this.props.batch
     })
   }
 
@@ -113,6 +119,7 @@ class Sessions extends Component {
       } else {
         updateCount(tab)
       }
+      tab.batch = this.props.batch
       tabs.splice(index, 0, tab)
       this.updateStoreTabs(tabs)
       this.updateStoreCurrentTabId(tab.id)
@@ -147,8 +154,11 @@ class Sessions extends Component {
 
   initFirstTab = () => {
     const tab = newTerm()
+    const { batch } = this.props
+    tab.batch = batch
     tab.terminals = [{
-      id: termInitId,
+      id: generate(),
+      batch: this.props.batch,
       position: 0
     }]
     this.addTab(tab)
@@ -185,8 +195,8 @@ class Sessions extends Component {
     })
   }
 
-  onDuplicateTab = async (tabToDup) => {
-    this.setState(async oldState => {
+  onDuplicateTab = (tabToDup) => {
+    this.setState(oldState => {
       const defaultStatus = statusMap.processing
       let tab = copy(tabToDup)
       updateCount(tab)
@@ -270,7 +280,7 @@ class Sessions extends Component {
       this.onChangeTabId(currentTabId)
     } else if (action === tabActions.updateTabs) {
       this.editTab(id, update)
-    } else if (action === tabActions.addTab) {
+    } else if (action === tabActions.addTab && tab.batch === this.props.batch) {
       this.addTab(tab, index)
     } else if (action === tabActions.initFirstTab) {
       this.initFirstTab()
@@ -284,11 +294,12 @@ class Sessions extends Component {
   }
 
   postChange = () => {
+    this.props.store.currentLayoutBatch = this.props.batch
     this.props.store.triggerResize()
   }
 
   handleNewTab = () => {
-    this.props.store.initFirstTab()
+    this.initFirstTab()
   }
 
   handleNewSsh = () => {
@@ -326,13 +337,13 @@ class Sessions extends Component {
 
   renderSessions () {
     const {
-      store, config
+      store, config, width, height
     } = this.props
     const {
       currentTabId,
       tabs
     } = this.state
-    if (!tabs.length) {
+    if (!tabs || !tabs.length) {
       return this.renderNoSession()
     }
     return tabs.map((tab) => {
@@ -346,13 +357,14 @@ class Sessions extends Component {
       const sessProps = {
         currentTabId,
         tab: toSimpleObj(tab),
+        width,
+        height,
+        batch: this.props.batch,
         ...pick(store, [
           'resolutions',
           'hideDelKeyTip',
           'fileOperation',
           'file',
-          'height',
-          'width',
           'activeTerminalId',
           'pinnedQuickCommandBar',
           'tabsHeight',
@@ -398,18 +410,23 @@ class Sessions extends Component {
   renderTabs = () => {
     const {
       store,
-      config
+      config,
+      width,
+      height,
+      batch
     } = this.props
     const {
       tabs,
       currentTabId
     } = this.state
     const tabsProps = {
+      batch,
       currentTabId,
       config,
+      width,
+      height,
       ...pick(store, [
-        'height',
-        'width',
+        'layout',
         'activeTerminalId',
         'isMaximized'
       ]),
@@ -426,28 +443,16 @@ class Sessions extends Component {
     }
     return (
       <Tabs
-        key='main-tabs'
+        key={'main-tabs' + batch}
         {...tabsProps}
       />
     )
   }
 
   renderSessionsWrap = () => {
-    const { leftSidebarWidth, openedSideBar } = this.props.store
-    const w = leftSidebarWidth + 42
-    const ptp = openedSideBar
-      ? {
-          className: 'sessions',
-          style: {
-            marginLeft: `${w}px`
-          }
-        }
-      : {
-          className: 'sessions'
-        }
     return (
       <div
-        {...ptp}
+        className='sessions'
         key='main-sess'
       >
         {this.renderSessions()}
@@ -456,29 +461,9 @@ class Sessions extends Component {
   }
 
   render () {
-    const { store, config } = this.props
-    const currentTab = this.getCurrentTab()
-    const termProps = {
-      currentTab,
-      store,
-      config
-    }
     return [
       this.renderTabs(),
-      this.renderSessionsWrap(),
-      <TermSearch
-        key='TermSearch'
-        {...termProps}
-      />,
-      <QuickCommandsFooterBox
-        key='QuickCommandsFooterBox'
-        store={store}
-      />,
-      <Footer
-        key='Footer'
-        store={store}
-        currentTab={currentTab}
-      />
+      this.renderSessionsWrap()
     ]
   }
 }
