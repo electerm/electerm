@@ -9,7 +9,6 @@ import {
   Loading3QuartersOutlined,
   BorderlessTableOutlined
 } from '@ant-design/icons'
-import generate from '../../common/uid'
 import { Tooltip, message } from 'antd'
 import classnames from 'classnames'
 import copy from 'json-deep-copy'
@@ -18,8 +17,7 @@ import Input from '../common/input-auto-focus'
 import createName from '../../common/create-title'
 import { addClass, removeClass } from '../../common/class'
 import {
-  terminalSshConfigType,
-  commonActions
+  terminalSshConfigType
 } from '../../common/constants'
 import { shortcutDescExtend } from '../shortcuts/shortcut-handler.js'
 
@@ -31,7 +29,6 @@ class Tab extends Component {
   constructor (props) {
     super(props)
     this.state = {
-      terminalOnData: false,
       tab: copy(props.tab)
     }
   }
@@ -47,12 +44,19 @@ class Tab extends Component {
         tab: copy(this.props.tab)
       })
     }
+    if (this.props.openContextMenu && !prevProps.openContextMenu) {
+      this.handleContextMenu()
+    }
+    if (this.props.contextFunc && !prevProps.contextFunc) {
+      this[this.props.contextFunc](...this.props.contextArgs)
+    }
   }
 
   componentWillUnmount () {
-    window.removeEventListener('message', this.onEvent)
-    window.removeEventListener('message', this.onContextAction)
-    clearTimeout(this.handler)
+    this.dom = null
+    // window.removeEventListener('message', this.onEvent)
+    // window.removeEventListener('message', this.onContextAction)
+    // clearTimeout(this.handler)
   }
 
   shouldComponentUpdate (nextProps, nextState) {
@@ -73,7 +77,9 @@ class Tab extends Component {
       'activeTerminalId',
       'config',
       'tab',
-      'width'
+      'width',
+      'openContextMenu',
+      'contextFunc'
     ]
 
     // compare only the relevant props
@@ -82,28 +88,6 @@ class Tab extends Component {
 
   modifier = (...args) => {
     runIdle(() => this.setState(...args))
-  }
-
-  onEvent = (e) => {
-    if (
-      e.data &&
-      e.data.action === 'terminal-receive-data' &&
-      e.data.tabId === this.state.tab.id
-    ) {
-      this.modifier({
-        terminalOnData: true
-      })
-      if (this.handler) {
-        clearTimeout(this.handler)
-      }
-      this.handler = setTimeout(this.offTerminalOnData, 4000)
-    }
-  }
-
-  offTerminalOnData = () => {
-    this.modifier({
-      terminalOnData: false
-    })
   }
 
   clearCls = () => {
@@ -330,39 +314,17 @@ class Tab extends Component {
     return res
   }
 
-  onContextAction = e => {
-    const {
-      action,
-      id,
-      args = [],
-      func
-    } = e.data || {}
-    if (
-      action !== commonActions.clickContextMenu ||
-      id !== this.uid ||
-      !this[func]
-    ) {
-      return false
-    }
-    window.removeEventListener('message', this.onContextAction)
-    this[func](...args)
-  }
-
-  handleContextMenu = e => {
-    e.preventDefault()
-    const { target } = e
-    const rect = target.getBoundingClientRect()
+  handleContextMenu = () => {
+    const rect = this.dom.getBoundingClientRect()
     const items = this.renderContext()
-    this.uid = generate()
     window.store.openContextMenu({
       items,
       pos: {
         left: rect.left,
         top: rect.top + 20
       },
-      id: this.uid
+      id: this.state.tab.id
     })
-    window.addEventListener('message', this.onContextAction)
   }
 
   renderEditting (tab, cls) {
@@ -428,8 +390,8 @@ class Tab extends Component {
     const {
       currentTabId
     } = this.props
-    const { isLast } = this.props
-    const { tab, terminalOnData } = this.state
+    const { isLast, terminalOnData } = this.props
+    const { tab } = this.state
     const {
       id,
       isEditting,
@@ -491,7 +453,6 @@ class Tab extends Component {
             onClick={this.handleClick}
             onDoubleClick={this.handleDup}
             style={styleTag}
-            onContextMenu={this.handleContextMenu}
           >
             <Loading3QuartersOutlined
               className='pointer tab-reload mg1r'

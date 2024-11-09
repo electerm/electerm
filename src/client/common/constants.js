@@ -287,6 +287,7 @@ export const commonActions = {
   showFileInfoModal: 'show-file-info-modal',
   appUpdateCheck: 'check-app-update',
   closeContextMenu: 'close-context-menu',
+  closeContextMenuAfter: 'close-context-menu-after',
   clickContextMenu: 'click-context-menu',
   openContextMenu: 'open-context-menu',
   addTransfer: 'add-transfer',

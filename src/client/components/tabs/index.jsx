@@ -3,7 +3,8 @@
  */
 
 import React from 'react'
-import { findIndex } from 'lodash-es'
+import runIdle from '../../common/run-idle'
+import { findIndex, debounce } from 'lodash-es'
 import TabTitle from './tab-title'
 import {
   CodeFilled,
@@ -32,7 +33,8 @@ import {
   extraTabWidth,
   windowControlWidth,
   isMacJs,
-  splitMapDesc
+  splitMapDesc,
+  commonActions
 } from '../../common/constants'
 import findParentBySel from '../../common/find-parent'
 import WindowControl from './window-control'
@@ -48,7 +50,12 @@ export default class Tabs extends React.Component {
     super(props)
     this.tabsRef = React.createRef()
     this.state = {
-      overflow: false
+      overflow: false,
+      receiveDataTabId: '',
+      onContextMenuTabId: '',
+      contextFuncTabId: '',
+      contextFunc: '',
+      contextArgs: []
     }
   }
 
@@ -58,6 +65,7 @@ export default class Tabs extends React.Component {
     const {
       tabsRef
     } = this
+    window.addEventListener('message', this.onEvent)
     tabsRef.current.addEventListener('mousedown', this.handleClickEvent)
     tabsRef.current.addEventListener('mousewheel', this.handleWheelEvent)
   }
@@ -70,6 +78,91 @@ export default class Tabs extends React.Component {
     ) {
       this.adjustScroll()
     }
+  }
+
+  componentWillUnmount () {
+    window.removeEventListener('message', this.onEvent)
+    this.offTimer()
+  }
+
+  modifier = (...args) => {
+    runIdle(() => this.setState(...args))
+  }
+
+  onEvent = (e) => {
+    const {
+      action,
+      tabId
+    } = e.data || {}
+    if (
+      action === commonActions.closeContextMenuAfter
+    ) {
+      this.offContextMenu()
+    } else if (
+      action === 'terminal-receive-data' &&
+      tabId
+    ) {
+      this.modifier({
+        receiveDataTabId: tabId
+      })
+      this.timer = setTimeout(this.clearReceiveData, 4000)
+    }
+  }
+
+  clearReceiveData = () => {
+    this.modifier({
+      receiveDataTabId: ''
+    })
+  }
+
+  offTimer = () => {
+    clearTimeout(this.timer)
+  }
+
+  offContextMenu = () => {
+    window.removeEventListener('message', this.onContextAction)
+    this.setState({
+      onContextMenuTabId: ''
+    })
+  }
+
+  handleContextMenu = e => {
+    e.preventDefault()
+    const { target } = e
+    const tabElem = findParentBySel(target, '.tab')
+    if (!tabElem) {
+      return
+    }
+    this.setState({
+      contextFuncTabId: '',
+      onContextMenuTabId: tabElem.dataset.id
+    })
+    window.addEventListener('message', this.onContextAction)
+  }
+
+  onContextAction = e => {
+    const {
+      action,
+      id,
+      args = [],
+      func
+    } = e.data || {}
+    if (
+      action !== commonActions.clickContextMenu ||
+      id !== this.state.onContextMenuTabId
+    ) {
+      return false
+    }
+    this.offContextMenu()
+    this.setContextFunc(id, func, args)
+  }
+
+  setContextFunc = (id, func, args) => {
+    this.setState({
+      contextFuncTabId: id,
+      contextFunc: func,
+      contextArgs: args
+    })
   }
 
   tabsWidth = () => {
@@ -155,7 +248,7 @@ export default class Tabs extends React.Component {
     this.dom.scrollLeft = scrollLeft
   }
 
-  handleWheelEvent = (e) => {
+  handleWheelEvent = debounce((e) => {
     if (this.isOverflow()) {
       if (e.deltaY < 0) {
         this.handleScrollLeft()
@@ -163,7 +256,7 @@ export default class Tabs extends React.Component {
         this.handleScrollRight()
       }
     }
-  }
+  }, 100)
 
   handleClickMenu = ({ key }) => {
     const id = key.split('##')[1]
@@ -172,6 +265,7 @@ export default class Tabs extends React.Component {
 
   handleChangeLayout = ({ key }) => {
     window.store.setLayout(key)
+    window.store.focus()
   }
 
   handleOpenChange = (open) => {
@@ -298,7 +392,7 @@ export default class Tabs extends React.Component {
     const { tabs = [], width, config } = this.props
     const len = tabs.length
     const tabsWidthAll = tabMargin * len + 10 + this.tabsWidth()
-    const { overflow } = this.state
+    const { overflow, receiveDataTabId, onContextMenuTabId } = this.state
     const left = overflow
       ? '100%'
       : tabsWidthAll
@@ -328,11 +422,20 @@ export default class Tabs extends React.Component {
           {
             tabs.map((tab, i) => {
               const isLast = i === len - 1
+              const tabProps = {
+                ...this.props,
+                tab,
+                isLast,
+                receiveData: receiveDataTabId === tab.id,
+                openContextMenu: onContextMenuTabId === tab.id
+              }
+              if (this.state.contextFuncTabId === tab.id) {
+                tabProps.contextFunc = this.state.contextFunc
+                tabProps.contextArgs = this.state.contextArgs
+              }
               return (
                 <Tab
-                  {...this.props}
-                  tab={tab}
-                  isLast={isLast}
+                  {...tabProps}
                   key={tab.id}
                 />
               )
@@ -438,7 +541,7 @@ export default class Tabs extends React.Component {
   render () {
     const { overflow } = this.state
     return (
-      <div className='tabs' ref={this.tabsRef}>
+      <div className='tabs' ref={this.tabsRef} onContextMenu={this.handleContextMenu}>
         {this.renderContent()}
         {
           this.renderWindowControl()

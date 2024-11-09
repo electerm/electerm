@@ -134,6 +134,9 @@ export default class ContextMenu extends React.PureComponent {
       id: '',
       items: []
     })
+    postMessage({
+      action: commonActions.closeContextMenuAfter
+    })
   }
 
   computePos = () => {
