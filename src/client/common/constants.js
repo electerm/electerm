@@ -283,6 +283,7 @@ export const commonActions = {
   loadTextEditorText: 'load-text-editor-text',
   openTextEditor: 'open-text-editor',
   submitFileModeEdit: 'submit-file-mode-edit',
+  submitFileModeClose: 'submit-file-mode-close',
   showFileModeModal: 'show-file-mode-modal',
   showFileInfoModal: 'show-file-info-modal',
   appUpdateCheck: 'check-app-update',

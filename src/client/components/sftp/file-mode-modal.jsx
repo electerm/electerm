@@ -83,6 +83,9 @@ export default class FileMode extends React.PureComponent {
   }
 
   onClose = () => {
+    postMessage({
+      action: commonActions.submitFileModeClose
+    })
     this.setStateProxy({
       file: {},
       data: {}

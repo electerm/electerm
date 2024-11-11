@@ -76,6 +76,9 @@ export default class FileSection extends React.Component {
 
   componentWillUnmount () {
     clearTimeout(this.timer)
+    this.timer = null
+    this.dom = null
+    this.dropTarget = null
     this.removeFileEditEvent()
     window.removeEventListener('message', this.changeFileMode)
     window.removeEventListener('message', this.onContextAction)
@@ -507,6 +510,10 @@ export default class FileSection extends React.Component {
       file = {},
       action
     } = e.data || {}
+    if (action === commonActions.submitFileModeClose) {
+      window.removeEventListener('message', this.changeFileMode)
+      return false
+    }
     if (
       action !== commonActions.submitFileModeEdit ||
       file.id !== this.state.file.id
@@ -1092,6 +1099,10 @@ export default class FileSection extends React.Component {
       args = [],
       func
     } = e.data || {}
+    if (action === commonActions.closeContextMenuAfter) {
+      window.removeEventListener('message', this.onContextAction)
+      return false
+    }
     if (
       action !== commonActions.clickContextMenu ||
       id !== this.uid ||

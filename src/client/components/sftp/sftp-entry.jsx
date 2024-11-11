@@ -117,8 +117,9 @@ export default class Sftp extends Component {
   componentWillUnmount () {
     this.destroyEvent()
     this.sftp && this.sftp.destroy()
-    delete this.sftp
+    this.sftp = null
     clearTimeout(this.timer4)
+    this.timer4 = null
   }
 
   directions = [
