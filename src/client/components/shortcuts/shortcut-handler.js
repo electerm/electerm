@@ -109,6 +109,7 @@ export function shortcutExtend (Cls) {
           qmMatch.id
         )
       }
+      return false
     }
     for (let i = 0; i < len; i++) {
       const k = keys[i]

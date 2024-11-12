@@ -12,6 +12,7 @@ import delay from '../common/wait'
 import generate from '../common/uid'
 import postMessage from '../common/post-msg'
 import * as ls from '../common/safe-local-storage'
+import { debounce } from 'lodash-es'
 
 export default Store => {
   Store.prototype.setQuickCommands = function (list) {
@@ -42,7 +43,7 @@ export default Store => {
     })
   }
 
-  Store.prototype.runQuickCommandItem = async (id) => {
+  Store.prototype.runQuickCommandItem = debounce(async (id) => {
     const {
       store
     } = window
@@ -73,7 +74,7 @@ export default Store => {
         clickCount: ((qm.clickCount || 0) + 1)
       })
     }
-  }
+  }, 100)
 
   Store.prototype.setQmSortByFrequency = function (v) {
     window.store.qmSortByFrequency = v

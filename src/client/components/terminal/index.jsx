@@ -713,7 +713,7 @@ clear\r`
   }
 
   onZmodemEnd = async () => {
-    delete this.zmodemSavePath
+    this.zmodemSavePath = null
     this.onCanceling = true
     if (this.downloadFd) {
       await fs.close(this.downloadFd)
@@ -723,21 +723,21 @@ clear\r`
         console.error
       )
     }
-    delete this.xfer
+    this.xfer = null
     if (this.zsession && this.zsession.close) {
       await this.zsession.close().catch(
         console.error
       )
     }
-    delete this.zsession
+    this.zsession = null
     this.term.focus()
     this.term.write('\r\n')
     this.onZmodem = false
-    delete this.downloadFd
-    delete this.downloadPath
-    delete this.downloadCount
-    delete this.downloadSize
-    delete this.DownloadCache
+    this.downloadFd = null
+    // delete this.downloadPath
+    // delete this.downloadCount
+    // delete this.downloadSize
+    this.DownloadCache = null
   }
 
   onZmodemCatch = (e) => {
