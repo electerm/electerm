@@ -832,6 +832,12 @@ clear\r`
     this.term.focus()
   }
 
+  onPasteSelected = () => {
+    const selected = this.term.getSelection()
+    this.term.paste(selected || '')
+    this.term.focus()
+  }
+
   toggleSearch = () => {
     window.store.toggleTerminalSearch()
   }
@@ -877,6 +883,12 @@ clear\r`
         text: e('paste'),
         disabled: !copyed,
         subText: pasteShortcut
+      },
+      {
+        func: 'onPasteSelected',
+        icon: 'SwitcherOutlined',
+        text: e('pasteSelected'),
+        disabled: !hasSlected
       },
       {
         func: 'onClear',
