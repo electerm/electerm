@@ -9,6 +9,7 @@ import {
   Loading3QuartersOutlined,
   BorderlessTableOutlined
 } from '@ant-design/icons'
+import generate from '../../common/uid'
 import { Tooltip, message } from 'antd'
 import classnames from 'classnames'
 import copy from 'json-deep-copy'
@@ -17,7 +18,10 @@ import Input from '../common/input-auto-focus'
 import createName from '../../common/create-title'
 import { addClass, removeClass } from '../../common/class'
 import {
-  terminalSshConfigType
+  terminalSshConfigType,
+  splitConfig,
+  paneMap,
+  statusMap
 } from '../../common/constants'
 import { shortcutDescExtend } from '../shortcuts/shortcut-handler.js'
 
@@ -199,6 +203,29 @@ class Tab extends Component {
     )
   }
 
+  cloneToNextLayout = () => {
+    const defaultStatus = statusMap.processing
+    const { batch, layout } = this.props
+    const ntb = copy(this.state.tab)
+    Object.assign(ntb, {
+      id: generate(),
+      status: defaultStatus,
+      isTransporting: undefined,
+      pane: paneMap.terminal
+    })
+    if (ntb.terminals) {
+      ntb.terminals = ntb.terminals.map(t => {
+        return {
+          ...t,
+          id: generate()
+        }
+      })
+    }
+    const maxBatch = splitConfig[layout].children
+    ntb.batch = (batch + 1) % maxBatch
+    window.store.addTab(ntb)
+  }
+
   newTab = () => {
     this.props.addTab()
   }
@@ -262,7 +289,7 @@ class Tab extends Component {
   }
 
   renderContext = () => {
-    const { tabs, tab } = this.props
+    const { tabs, tab, layout } = this.props
     const len = tabs.length
     const index = findIndex(tabs, t => t.id === tab.id)
     const noRight = index >= len - 1
@@ -296,6 +323,13 @@ class Tab extends Component {
       icon: 'CopyOutlined',
       text: e('duplicate')
     })
+    if (layout !== 'c1') {
+      res.push({
+        func: 'cloneToNextLayout',
+        icon: 'CopyOutlined',
+        text: e('cloneToNextLayout')
+      })
+    }
     res.push({
       disabled: isSshConfig,
       func: 'doRename',
