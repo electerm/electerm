@@ -418,6 +418,10 @@ export default class ItemListTree extends Component {
       args = [],
       func
     } = e.data || {}
+    if (action === commonActions.closeContextMenuAfter) {
+      window.removeEventListener('message', this.onContextAction)
+      return false
+    }
     if (
       action !== commonActions.clickContextMenu ||
       id !== this.uid ||

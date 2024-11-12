@@ -54,9 +54,6 @@ class Tab extends Component {
 
   componentWillUnmount () {
     this.dom = null
-    // window.removeEventListener('message', this.onEvent)
-    // window.removeEventListener('message', this.onContextAction)
-    // clearTimeout(this.handler)
   }
 
   shouldComponentUpdate (nextProps, nextState) {

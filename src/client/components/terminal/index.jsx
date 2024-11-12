@@ -159,18 +159,18 @@ clear\r`
     if (this.zsession) {
       this.onZmodemEnd()
     }
-    delete this.term.parent
+    this.term.parent = null
     Object.keys(this.timers).forEach(k => {
       clearTimeout(this.timers[k])
     })
     this.onClose = true
     if (this.socket) {
       this.socket.close()
-      delete this.socket
+      this.socket = null
     }
     if (this.term) {
       this.term.dispose()
-      delete this.term
+      this.term = null
     }
     window.removeEventListener(
       'resize',
@@ -179,13 +179,13 @@ clear\r`
     window.removeEventListener('message', this.handleEvent)
     this.dom.removeEventListener('contextmenu', this.onContextMenu)
     window.removeEventListener('message', this.onContextAction)
-    delete this.dom
-    delete this.attachAddon
-    delete this.fitAddon
-    delete this.zmodemAddon
-    delete this.searchAddon
-    delete this.serializeAddon
-    delete this.fitAddon
+    this.dom = null
+    this.attachAddon = null
+    this.fitAddon = null
+    this.zmodemAddon = null
+    this.searchAddon = null
+    this.serializeAddon = null
+    this.fitAddon = null
   }
 
   terminalConfigProps = [
@@ -769,6 +769,10 @@ clear\r`
       args = [],
       func
     } = e.data || {}
+    if (action === commonActions.closeContextMenuAfter) {
+      window.removeEventListener('message', this.onContextAction)
+      return false
+    }
     if (
       action !== commonActions.clickContextMenu ||
       id !== this.uid ||
