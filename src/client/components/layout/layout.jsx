@@ -1,6 +1,6 @@
 import { Component } from '../common/react-subx'
 import Layouts from './layouts'
-import Sessions from '../session2/sessions'
+import Sessions from '../session/sessions'
 import {
   splitConfig,
   quickCommandBoxHeight,
