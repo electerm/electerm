@@ -1,4 +1,4 @@
-import { Component } from '../common/react-subx'
+import React, { useState, useEffect } from 'react'
 import LogoElem from '../common/logo-elem.jsx'
 import store from '../../store'
 import {
@@ -18,18 +18,17 @@ const e = window.translate
 
 window.store = store
 
-export default class Login extends Component {
-  state = {
-    pass: '',
-    logined: !window.pre.requireAuth,
-    loading: false
-  }
+export default function Login () {
+  const [pass, setPass] = useState('')
+  const [logined, setLogined] = useState(!window.pre.requireAuth)
+  const [loading, setLoading] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
 
-  componentDidMount () {
-    this.init()
-  }
+  useEffect(() => {
+    init()
+  }, [])
 
-  init = async () => {
+  const init = async () => {
     if (!window.pre.requireAuth) {
       return
     }
@@ -37,59 +36,42 @@ export default class Login extends Component {
     window.et.globs = globs
   }
 
-  handlePassChange = e => {
-    this.setState({
-      pass: e.target.value
-    })
+  const handlePassChange = e => {
+    setPass(e.target.value)
   }
 
-  handleSubmit = () => {
-    const {
-      pass
-    } = this.state
+  const handleSubmit = () => {
     if (!pass) {
       return message.warning('password required')
-    } else if (
-      this.submitting
-    ) {
+    } else if (submitting) {
       return
     }
-    this.login(
-      this.state.pass
-    )
+    login(pass)
   }
 
-  login = async (pass) => {
-    this.submitting = true
+  const login = async (pass) => {
+    setSubmitting(true)
     const r = await window.pre.runGlobalAsync('checkPassword', pass)
     if (r) {
-      this.setState({
-        logined: true,
-        loading: false
-      })
+      setLogined(true)
+      setLoading(false)
     } else {
       message.error('Login failed')
-      this.setState({
-        loading: false
-      })
+      setLoading(false)
     }
-    this.submitting = false
+    setSubmitting(false)
   }
 
-  renderAfter = () => {
+  const renderAfter = () => {
     return (
       <ArrowRightOutlined
         className='mg1x pointer'
-        onClick={this.handleSubmit}
+        onClick={handleSubmit}
       />
     )
   }
 
-  renderLogin () {
-    const {
-      pass,
-      loading
-    } = this.state
+  const renderLogin = () => {
     return (
       <div className='login-wrap'>
         <AppDrag />
@@ -102,10 +84,10 @@ export default class Login extends Component {
             <Input.Password
               value={pass}
               readOnly={loading}
-              onChange={this.handlePassChange}
+              onChange={handlePassChange}
               placeholder={e('password')}
-              addonAfter={this.renderAfter()}
-              onPressEnter={this.handleSubmit}
+              addonAfter={renderAfter()}
+              onPressEnter={handleSubmit}
             />
           </div>
           <div className='aligncenter'>
@@ -118,17 +100,12 @@ export default class Login extends Component {
     )
   }
 
-  render () {
-    const {
-      logined
-    } = this.state
-    if (!logined) {
-      return this.renderLogin()
-    }
-    return (
-      <Main
-        store={store}
-      />
-    )
+  if (!logined) {
+    return renderLogin()
   }
+  return (
+    <Main
+      store={store}
+    />
+  )
 }

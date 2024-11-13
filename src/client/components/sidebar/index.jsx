@@ -9,14 +9,12 @@ import {
   UpCircleOutlined,
   BarsOutlined
 } from '@ant-design/icons'
-
+import { useRef, memo } from 'react'
 import { Tooltip } from 'antd'
-import { Component } from '../common/react-subx'
 import BookMarksWrap from './bookmark'
 import HistoryWrap from './history'
 import TransferList from './transfer-list'
 import MenuBtn from '../context-menu/menu-btn'
-import InfoModal from './info-modal'
 import {
   sidebarWidth,
   settingMap,
@@ -28,212 +26,217 @@ import './sidebar.styl'
 
 const e = window.translate
 
-export default class Sidebar extends Component {
-  handler = null
+export default memo(function Sidebar (props) {
+  const handler = useRef(null)
 
-  handleMouseLeave = () => {
-    if (this.props.store.pinned) {
+  const {
+    height,
+    upgradeInfo,
+    settingTab,
+    settingItem,
+    isSyncingSetting,
+    leftSidebarWidth,
+    pinned
+  } = props
+
+  const { store } = window
+
+  const handleMouseLeave = () => {
+    if (pinned) {
       return false
     }
-    const interval = 400
-    this.handler = setTimeout(
-      () => this.props.store.setOpenedSideBar(''),
-      interval
+    handler.current = setTimeout(
+      () => store.setOpenedSideBar(''),
+      400
     )
   }
 
-  handleMouseEnterBookmark = () => {
-    if (this.props.store.pinned) {
+  const handleMouseEnterBookmark = () => {
+    if (pinned) {
       return false
     }
-    clearTimeout(this.handler)
-    this.props.store.setOpenedSideBar('bookmarks')
+    clearTimeout(handler.current)
+    store.setOpenedSideBar('bookmarks')
   }
 
-  handleMouseEnterHistory = () => {
-    if (this.props.store.pinned) {
+  const handleMouseEnterHistory = () => {
+    if (pinned) {
       return false
     }
-    clearTimeout(this.handler)
-    this.props.store.setOpenedSideBar('history')
+    clearTimeout(handler.current)
+    store.setOpenedSideBar('history')
   }
 
-  handleShowUpgrade = () => {
-    this.props.store.storeAssign({
+  const handleShowUpgrade = () => {
+    store.storeAssign({
       _upgradeInfo: JSON.stringify({
-        ...this.props.store.upgradeInfo,
+        ...props.store.upgradeInfo,
         showUpgradeModal: true
       })
     })
   }
 
-  render () {
-    const { store } = this.props
-    const {
-      openedSideBar,
-      onNewSsh,
-      openSetting,
-      openAbout,
-      openSettingSync,
-      height,
-      openTerminalThemes,
-      upgradeInfo,
-      onClickBookmark,
-      onClickHistory,
-      toggleBatchOp,
-      settingTab,
-      showModal,
-      showInfoModal,
-      settingItem,
-      isSyncingSetting,
-      leftSidebarWidth,
-      setLeftSidePanelWidth
-    } = store
-    const {
-      showUpgradeModal,
-      upgradePercent,
-      checkingRemoteVersion,
-      shouldUpgrade
-    } = upgradeInfo
-    const showSetting = showModal === modals.setting
-    const showBatchOp = showModal === modals.batchOps
-    const settingActive = showSetting && settingTab === settingMap.setting && settingItem.id === 'setting-common'
-    const syncActive = showSetting && settingTab === settingMap.setting && settingItem.id === 'setting-sync'
-    const themeActive = showSetting && settingTab === settingMap.terminalThemes
-    const historyActive = showSetting && settingTab === settingMap.history
-    const bookmarksActive = showSetting && settingTab === settingMap.bookmarks
-    const sideProps = openedSideBar
-      ? {
-          className: 'sidebar-list',
-          style: {
-            width: `${leftSidebarWidth}px`
-          }
+  const {
+    openedSideBar,
+    onNewSsh,
+    openSetting,
+    openAbout,
+    openSettingSync,
+    openTerminalThemes,
+    onClickBookmark,
+    onClickHistory,
+    toggleBatchOp,
+    showModal,
+    showInfoModal,
+    setLeftSidePanelWidth
+  } = store
+  const {
+    showUpgradeModal,
+    upgradePercent,
+    checkingRemoteVersion,
+    shouldUpgrade
+  } = upgradeInfo
+  const showSetting = showModal === modals.setting
+  const showBatchOp = showModal === modals.batchOps
+  const settingActive = showSetting && settingTab === settingMap.setting && settingItem.id === 'setting-common'
+  const syncActive = showSetting && settingTab === settingMap.setting && settingItem.id === 'setting-sync'
+  const themeActive = showSetting && settingTab === settingMap.terminalThemes
+  const historyActive = showSetting && settingTab === settingMap.history
+  const bookmarksActive = showSetting && settingTab === settingMap.bookmarks
+  const sideProps = openedSideBar
+    ? {
+        className: 'sidebar-list',
+        style: {
+          width: `${leftSidebarWidth}px`
         }
-      : {
-          className: 'sidebar-list'
-        }
-    const sidebarProps = {
-      className: `sidebar type-${openedSideBar}`,
-      style: {
-        width: sidebarWidth,
-        height
       }
+    : {
+        className: 'sidebar-list'
+      }
+  const sidebarProps = {
+    className: `sidebar type-${openedSideBar}`,
+    style: {
+      width: sidebarWidth,
+      height
     }
-    return (
-      <div {...sidebarProps}>
-        <div className='sidebar-bar btns'>
-          <div className='control-icon-wrap'>
-            <MenuBtn store={store} config={store.config} />
-          </div>
-          <SideIcon
-            title={e('newBookmark')}
-          >
-            <PlusCircleOutlined
-              className='font22 iblock control-icon'
-              onClick={onNewSsh}
-            />
-          </SideIcon>
-          <SideIcon
-            title={e(settingMap.bookmarks)}
-            active={bookmarksActive}
-          >
-            <BookOutlined
-              onMouseEnter={this.handleMouseEnterBookmark}
-              onMouseLeave={this.handleMouseLeave}
-              onClick={onClickBookmark}
-              className='font20 iblock control-icon'
-            />
-          </SideIcon>
-          <SideIcon
-            title={e(settingMap.history)}
-            active={historyActive}
-          >
-            <ClockCircleOutlined
-              onMouseEnter={this.handleMouseEnterHistory}
-              onMouseLeave={this.handleMouseLeave}
-              onClick={onClickHistory}
-              className='font20 iblock control-icon'
-            />
-          </SideIcon>
-          <TransferList store={store} />
-          <SideIcon
-            title={e(settingMap.terminalThemes)}
-            active={themeActive}
-          >
-            <PictureOutlined
-              className='font20 iblock pointer control-icon'
-              onClick={openTerminalThemes}
-            />
-          </SideIcon>
-          <SideIcon
-            title={e(settingMap.setting)}
-            active={settingActive}
-          >
-            <SettingOutlined className='iblock font20 control-icon' onClick={openSetting} />
-          </SideIcon>
-          <SideIcon
-            title={e('settingSync')}
-            active={syncActive}
-          >
-            <CloudSyncOutlined
-              className='iblock font20 control-icon'
-              onClick={openSettingSync}
-              spin={isSyncingSetting}
-            />
-          </SideIcon>
-          <SideIcon
-            title={e('batchOp')}
-            active={showBatchOp}
-          >
-            <BarsOutlined className='iblock font20 control-icon' onClick={toggleBatchOp} />
-          </SideIcon>
-          <SideIcon
-            title={e('about')}
-            active={showInfoModal}
-          >
-            <InfoCircleOutlined
-              className='iblock font16 control-icon open-about-icon'
-              onClick={openAbout}
-            />
-          </SideIcon>
-          {
-            !checkingRemoteVersion && !showUpgradeModal && shouldUpgrade
-              ? (
-                <Tooltip
-                  title={`${e('upgrading')} ${upgradePercent || 0}%`}
-                  placement='right'
-                >
-                  <div
-                    className='control-icon-wrap'
-                  >
-                    <UpCircleOutlined
-                      className='iblock font18 control-icon hvr-bob upgrade-icon'
-                      onClick={this.handleShowUpgrade}
-                    />
-                  </div>
-                </Tooltip>
-                )
-              : null
-          }
-        </div>
-        <InfoModal store={store} />
-        <SidePanel
-          sideProps={sideProps}
-          setLeftSidePanelWidth={setLeftSidePanelWidth}
-          leftSidebarWidth={leftSidebarWidth}
-        >
-          <BookMarksWrap
-            store={store}
-            onMouseEnter={this.handleMouseEnterBookmark}
-            onMouseLeave={this.handleMouseLeave}
-          />
-          <HistoryWrap
-            store={store}
-            onMouseEnter={this.handleMouseEnterHistory}
-            onMouseLeave={this.handleMouseLeave}
-          />
-        </SidePanel>
-      </div>
-    )
   }
-}
+  const transferProps = {
+    fileTransfers: store.fileTransfers,
+    transferHistory: store.transferHistory
+  }
+  return (
+    <div {...sidebarProps}>
+      <div className='sidebar-bar btns'>
+        <div className='control-icon-wrap'>
+          <MenuBtn store={store} config={store.config} />
+        </div>
+        <SideIcon
+          title={e('newBookmark')}
+        >
+          <PlusCircleOutlined
+            className='font22 iblock control-icon'
+            onClick={onNewSsh}
+          />
+        </SideIcon>
+        <SideIcon
+          title={e(settingMap.bookmarks)}
+          active={bookmarksActive}
+        >
+          <BookOutlined
+            onMouseEnter={handleMouseEnterBookmark}
+            onMouseLeave={handleMouseLeave}
+            onClick={onClickBookmark}
+            className='font20 iblock control-icon'
+          />
+        </SideIcon>
+        <SideIcon
+          title={e(settingMap.history)}
+          active={historyActive}
+        >
+          <ClockCircleOutlined
+            onMouseEnter={handleMouseEnterHistory}
+            onMouseLeave={handleMouseLeave}
+            onClick={onClickHistory}
+            className='font20 iblock control-icon'
+          />
+        </SideIcon>
+        <TransferList {...transferProps} />
+        <SideIcon
+          title={e(settingMap.terminalThemes)}
+          active={themeActive}
+        >
+          <PictureOutlined
+            className='font20 iblock pointer control-icon'
+            onClick={openTerminalThemes}
+          />
+        </SideIcon>
+        <SideIcon
+          title={e(settingMap.setting)}
+          active={settingActive}
+        >
+          <SettingOutlined className='iblock font20 control-icon' onClick={openSetting} />
+        </SideIcon>
+        <SideIcon
+          title={e('settingSync')}
+          active={syncActive}
+        >
+          <CloudSyncOutlined
+            className='iblock font20 control-icon'
+            onClick={openSettingSync}
+            spin={isSyncingSetting}
+          />
+        </SideIcon>
+        <SideIcon
+          title={e('batchOp')}
+          active={showBatchOp}
+        >
+          <BarsOutlined className='iblock font20 control-icon' onClick={toggleBatchOp} />
+        </SideIcon>
+        <SideIcon
+          title={e('about')}
+          active={showInfoModal}
+        >
+          <InfoCircleOutlined
+            className='iblock font16 control-icon open-about-icon'
+            onClick={openAbout}
+          />
+        </SideIcon>
+        {
+          !checkingRemoteVersion && !showUpgradeModal && shouldUpgrade
+            ? (
+              <Tooltip
+                title={`${e('upgrading')} ${upgradePercent || 0}%`}
+                placement='right'
+              >
+                <div
+                  className='control-icon-wrap'
+                >
+                  <UpCircleOutlined
+                    className='iblock font18 control-icon hvr-bob upgrade-icon'
+                    onClick={handleShowUpgrade}
+                  />
+                </div>
+              </Tooltip>
+              )
+            : null
+        }
+      </div>
+      <SidePanel
+        sideProps={sideProps}
+        setLeftSidePanelWidth={setLeftSidePanelWidth}
+        leftSidebarWidth={leftSidebarWidth}
+      >
+        <BookMarksWrap
+          store={store}
+          onMouseEnter={handleMouseEnterBookmark}
+          onMouseLeave={handleMouseLeave}
+        />
+        <HistoryWrap
+          store={store}
+          onMouseEnter={handleMouseEnterHistory}
+          onMouseLeave={handleMouseLeave}
+        />
+      </SidePanel>
+    </div>
+  )
+})

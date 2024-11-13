@@ -22,6 +22,7 @@ import { isMac, isWin } from '../../common/constants'
 import TermFullscreenControl from './term-fullscreen-control'
 import { LoadingUI } from './loading'
 import { ConfigProvider, notification } from 'antd'
+import InfoModal from '../sidebar/info-modal.jsx'
 import './wrapper.styl'
 
 export default class Index extends Component {
@@ -113,6 +114,23 @@ export default class Index extends Component {
         opacity: config.opacity
       }
     }
+    const sidebarProps = {
+      openedSideBar: store.openedSideBar,
+      height: store.height,
+      upgradeInfo: store.upgradeInfo,
+      settingTab: store.settingTab,
+      settingItem: store.settingItem,
+      isSyncingSetting: store.isSyncingSetting,
+      leftSidebarWidth: store.leftSidebarWidth,
+      pinned: store.pinned
+    }
+    const infoModalProps = {
+      infoModalTab: store.infoModalTab,
+      showInfoModal: store.showInfoModal,
+      commandLineHelp: store.commandLineHelp,
+      installSrc: store.installSrc,
+      upgradeInfo: store.upgradeInfo
+    }
     return (
       <ConfigProvider
         theme={uiThemeConfig}
@@ -149,7 +167,7 @@ export default class Index extends Component {
             id='outside-context'
             {...outerProps}
           >
-            <Sidebar store={store} />
+            <Sidebar {...sidebarProps} />
             <Layout
               store={store}
             />
@@ -167,6 +185,7 @@ export default class Index extends Component {
             _fileTransfers={store._fileTransfers}
           />
           <Resolutions store={store} />
+          <InfoModal {...infoModalProps} />
         </div>
       </ConfigProvider>
     )
