@@ -36,7 +36,10 @@ export default memo(function Sidebar (props) {
     settingItem,
     isSyncingSetting,
     leftSidebarWidth,
-    pinned
+    pinned,
+    fileTransfers,
+    transferHistory,
+    transferTab
   } = props
 
   const { store } = window
@@ -121,8 +124,9 @@ export default memo(function Sidebar (props) {
     }
   }
   const transferProps = {
-    fileTransfers: store.fileTransfers,
-    transferHistory: store.transferHistory
+    fileTransfers,
+    transferTab,
+    transferHistory
   }
   return (
     <div {...sidebarProps}>

@@ -14,6 +14,7 @@ const e = window.translate
 export default memo(function TransferList (props) {
   const {
     fileTransfers,
+    transferTab,
     transferHistory
   } = props
   const len = fileTransfers.length
@@ -29,6 +30,11 @@ export default memo(function TransferList (props) {
     color,
     overflowCount: 99
   }
+  const transferModalProps = {
+    fileTransfers,
+    transferHistory,
+    transferTab
+  }
   return (
     <div
       className='control-icon-wrap'
@@ -38,7 +44,7 @@ export default memo(function TransferList (props) {
         placement='right'
         destroyTooltipOnHide
         overlayClassName='transfer-list-card'
-        content={<TransferModal store={window.store} />}
+        content={<TransferModal {...transferModalProps} />}
       >
         <Badge
           {...bdProps}

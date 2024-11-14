@@ -23,6 +23,7 @@ import TermFullscreenControl from './term-fullscreen-control'
 import { LoadingUI } from './loading'
 import { ConfigProvider, notification } from 'antd'
 import InfoModal from '../sidebar/info-modal.jsx'
+import { pick } from 'lodash-es'
 import './wrapper.styl'
 
 export default class Index extends Component {
@@ -115,21 +116,29 @@ export default class Index extends Component {
       }
     }
     const sidebarProps = {
-      openedSideBar: store.openedSideBar,
-      height: store.height,
-      upgradeInfo: store.upgradeInfo,
-      settingTab: store.settingTab,
-      settingItem: store.settingItem,
-      isSyncingSetting: store.isSyncingSetting,
-      leftSidebarWidth: store.leftSidebarWidth,
-      pinned: store.pinned
+      ...pick(store, [
+        'openedSideBar',
+        'height',
+        'settingTab',
+        'settingItem',
+        'isSyncingSetting',
+        'leftSidebarWidth',
+        'fileTransfers',
+        'transferHistory',
+        'transferTab'
+      ]),
+      upgradeInfo,
+      pinned
     }
+
     const infoModalProps = {
-      infoModalTab: store.infoModalTab,
-      showInfoModal: store.showInfoModal,
-      commandLineHelp: store.commandLineHelp,
-      installSrc: store.installSrc,
-      upgradeInfo: store.upgradeInfo
+      ...pick(store, [
+        'infoModalTab',
+        'showInfoModal',
+        'commandLineHelp'
+      ]),
+      installSrc,
+      upgradeInfo
     }
     return (
       <ConfigProvider
