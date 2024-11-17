@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import {
   SwapOutlined
 } from '@ant-design/icons'
@@ -10,7 +11,7 @@ import './transfer.styl'
 
 const e = window.translate
 
-export default function TransferList (props) {
+export default memo(function TransferList (props) {
   const {
     fileTransfers,
     transferTab,
@@ -55,4 +56,4 @@ export default function TransferList (props) {
       </Popover>
     </div>
   )
-}
+})

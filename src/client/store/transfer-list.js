@@ -85,14 +85,7 @@ export default Store => {
     }))
   }
   Store.prototype.cancelAll = function () {
-    console.log('cancelAll', window.store.fileTransfers)
-    // window.store.setFileTransfers(window.store.fileTransfers.map((t, i) => {
-    //   t.cancel = false
-    //   t.delay = (i + 1) * 100
-    //   return t
-    // }))
     const arr = document.querySelectorAll('.sftp-transport .transfer-control-cancel')
-    console.log(arr, 'arr')
     arr.forEach(d => {
       d.click()
     })

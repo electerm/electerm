@@ -146,31 +146,6 @@ function formatNetwork (traffic, ips) {
   }
 }
 
-// function format (arr) {
-//   if (!arr) {
-//     return {}
-//   }
-//   // const arr = res.split(sepStr)
-//   // console.log(arr)
-//   const uptime = arr[0]
-//   const activities = formatActivities(arr[1])
-//   const disks = formatDisks(arr[2])
-//   const cpu = formatCpu(arr[3])
-//   const { mem, swap } = formatMem(arr[4])
-//   const { network, ip } = formatNetwork(arr[5], arr[6])
-//   const final = {
-//     ip,
-//     uptime,
-//     activities,
-//     disks,
-//     cpu,
-//     mem,
-//     swap,
-//     network
-//   }
-//   return final
-// }
-
 export async function runCmds (props, cmds) {
   const {
     pid,

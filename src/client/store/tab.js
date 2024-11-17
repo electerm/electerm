@@ -124,32 +124,4 @@ export default Store => {
       document.querySelector('.tabs-wrapper .tab.active').click()
     }
   }
-
-  // Store.prototype.onLayoutChange = function () {
-  //   const {
-  //     store
-  //   } = window
-  //   const {
-  //     layout,
-  //     prevLayout
-  //   } = store
-  //   ls.setItem('layout', layout)
-  //   console.log('onLayoutChange', layout, prevLayout)
-  //   const len = splitConfig[layout].children
-  //   const prevLen = prevLayout ? splitConfig[prevLayout].children : 0
-  //   if (len < prevLen) {
-  //     const {
-  //       tabs
-  //     } = store
-  //     // Update tabs where batch > len - 1
-  //     const updatedTabs = tabs.map(tab => {
-  //       if (tab.batch > len - 1) {
-  //         return { ...tab, batch: len - 1 }
-  //       }
-  //       return tab
-  //     })
-  //     // Set the updated tabs back to the store
-  //     store.setTabs(updatedTabs)
-  //   }
-  // }
 }

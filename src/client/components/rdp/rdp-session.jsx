@@ -187,8 +187,6 @@ export default class RdpSession extends PureComponent {
   }
 
   handleCanvasEvent = e => {
-    // e.preventDefault()
-    // console.log('e', e)
     const {
       type,
       clientX,
@@ -200,7 +198,6 @@ export default class RdpSession extends PureComponent {
     } = e.target.getBoundingClientRect()
     const x = clientX - left
     const y = clientY - top
-    // console.log('x,y', x, y, left, top, clientX, clientY, pageX, pageY)
     const keyCode = this.getKeyCode(e)
     const action = type.startsWith('key')
       ? 'sendKeyEventScancode'
@@ -215,7 +212,6 @@ export default class RdpSession extends PureComponent {
       const isHorizontal = false
       const delta = isHorizontal ? e.deltaX : e.deltaY
       const step = Math.round(Math.abs(delta) * 15 / 8)
-      // console.log(x, y, step, delta, isHorizontal)
       params = [x, y, step, delta > 0, isHorizontal]
     } else if (type === 'keydown' || type === 'keyup') {
       params = [keyCode, pressed]
@@ -227,7 +223,6 @@ export default class RdpSession extends PureComponent {
   }
 
   onData = async (msg) => {
-    // console.log('msg', msg.data)
     let { data } = msg
     data = JSON.parse(data)
     if (data.action === 'session-rdp-connected') {

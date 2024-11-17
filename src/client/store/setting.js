@@ -79,8 +79,10 @@ export default Store => {
       ...copy(item),
       from: 'history',
       srcId: item.id,
-      ...newTerm(true, true)
+      ...newTerm(true, true),
+      batch: window.openTabBatch ?? store.currentLayoutBatch
     })
+    delete window.openTabBatch
   }
 
   Store.prototype.onSelectBookmark = function (id) {
@@ -95,11 +97,11 @@ export default Store => {
       return
     }
     store.addTab({
-      batch: window.openTabBatch ?? store.currentLayoutBatch,
       ...item,
       from: 'bookmarks',
       srcId: item.id,
-      ...newTerm(true, true)
+      ...newTerm(true, true),
+      batch: window.openTabBatch ?? store.currentLayoutBatch
     })
 
     delete window.openTabBatch

@@ -147,7 +147,6 @@ export default class VncSession extends RdpSession {
   }
 
   onConnect = (event) => {
-    // console.log('onConnect', event)
     this.setStatus(statusMap.success)
     this.setState({
       loading: false
@@ -159,7 +158,6 @@ export default class VncSession extends RdpSession {
   }
 
   onSecurityfailure = (event) => {
-    // console.log('onSecurityFailure', event)
     message.error('Security Failure: ' + event.detail?.reason)
   }
 
@@ -187,12 +185,10 @@ export default class VncSession extends RdpSession {
   }
 
   onClipboard = (event) => {
-    // console.log('onClipboard', event)
     copy(event.detail.text)
   }
 
   onBell = (event) => {
-    // console.log('Bell', event)
     message.warning('Bell')
   }
 

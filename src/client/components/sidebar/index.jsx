@@ -38,10 +38,12 @@ export default memo(function Sidebar (props) {
     leftSidebarWidth,
     pinned,
     fileTransfers,
+    openedSideBar,
     transferHistory,
     transferTab,
     showModal,
-    showInfoModal
+    showInfoModal,
+    activeItemId
   } = props
 
   const { store } = window
@@ -82,7 +84,6 @@ export default memo(function Sidebar (props) {
   }
 
   const {
-    openedSideBar,
     onNewSsh,
     openSetting,
     openAbout,
@@ -236,9 +237,12 @@ export default memo(function Sidebar (props) {
           onMouseLeave={handleMouseLeave}
         />
         <HistoryWrap
-          store={store}
+          history={props.history}
+          openedSideBar={openedSideBar}
           onMouseEnter={handleMouseEnterHistory}
           onMouseLeave={handleMouseLeave}
+          activeItemId={activeItemId}
+          pinned={pinned}
         />
       </SidePanel>
     </div>

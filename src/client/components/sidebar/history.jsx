@@ -2,7 +2,7 @@
  * history select
  */
 
-import { auto } from 'manate/react'
+import { memo } from 'react'
 import ItemList from '../setting-panel/list'
 import { pick } from 'lodash-es'
 import { EditOutlined, PushpinOutlined } from '@ant-design/icons'
@@ -10,11 +10,14 @@ import { Tooltip } from 'antd'
 
 const e = window.translate
 
-export default auto(function HistoryPanel (props) {
-  const { store } = props
+export default memo(function HistoryPanel (props) {
+  const { store } = window
   const {
-    openedSideBar
-  } = store
+    openedSideBar,
+    pinned,
+    history,
+    activeItemId
+  } = props
   if (openedSideBar !== 'history') {
     return null
   }
@@ -22,7 +25,10 @@ export default auto(function HistoryPanel (props) {
     className: 'font16 mg1x mg2l pointer iblock control-icon'
   }
   const prps1 = {
-    className: prps.className + (store.pinned ? ' pinned' : '')
+    className: prps.className + (pinned ? ' pinned' : '')
+  }
+  function handleClickItem (item) {
+    store.onSelectHistory(item.id)
   }
   return (
     <div
@@ -51,9 +57,9 @@ export default auto(function HistoryPanel (props) {
       <div className='pd2x'>
         <ItemList
           type='history'
-          list={store.history || []}
-          onClickItem={item => store.onSelectHistory(item.id)}
-          activeItemId={store.activeItemId}
+          list={history || []}
+          onClickItem={handleClickItem}
+          activeItemId={activeItemId}
         />
       </div>
     </div>

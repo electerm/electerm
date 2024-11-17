@@ -121,6 +121,8 @@ export default auto(function Index (props) {
   }
   const sidebarProps = {
     ...pick(store, [
+      'activeItemId',
+      'history',
       'showModal',
       'showInfoModal',
       'openedSideBar',
