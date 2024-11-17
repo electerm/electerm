@@ -3,7 +3,6 @@
  *
  */
 
-import { Component } from '../common/react-subx'
 import { Modal, Button } from 'antd'
 import { isString } from 'lodash-es'
 import AnimateText from '../common/animate-text'
@@ -23,13 +22,10 @@ function formatTimeAuto (strOrDigit) {
   return formatTime(strOrDigit * 1000)
 }
 
-export default class ConfirmModalStore extends Component {
-  act (action) {
-    const { store } = this.props
-    const {
-      transferToConfirm
-    } = store
-    store.setState(
+export default function ConfirmModalStore (props) {
+  function act (action) {
+    const { transferToConfirm } = props
+    window.store.setState(
       'transferToConfirm', {}
     )
     const {
@@ -48,10 +44,10 @@ export default class ConfirmModalStore extends Component {
     })
   }
 
-  renderContent () {
+  function renderContent () {
     const {
       transferToConfirm
-    } = this.props.store
+    } = props
     const {
       fromPath,
       toPath,
@@ -105,10 +101,10 @@ export default class ConfirmModalStore extends Component {
     )
   }
 
-  renderFooter () {
+  function renderFooter () {
     const {
       transferToConfirm
-    } = this.props.store
+    } = props
     if (!transferToConfirm) {
       return null
     }
@@ -122,21 +118,21 @@ export default class ConfirmModalStore extends Component {
         <Button
           type='dashed'
           className='mg1l'
-          onClick={() => this.act(fileActions.cancel)}
+          onClick={() => act(fileActions.cancel)}
         >
           {e('cancel')}
         </Button>
         <Button
           type='dashed'
           className='mg1l'
-          onClick={() => this.act(fileActions.skip)}
+          onClick={() => act(fileActions.skip)}
         >
           {e('skip')}
         </Button>
         <Button
           type='dashed'
           className='mg1l'
-          onClick={() => this.act(fileActions.skipAll)}
+          onClick={() => act(fileActions.skipAll)}
         >
           {e('skipAll')}
         </Button>
@@ -144,7 +140,7 @@ export default class ConfirmModalStore extends Component {
           danger
           className='mg1l'
           onClick={
-            () => this.act(fileActions.mergeOrOverwrite)
+            () => act(fileActions.mergeOrOverwrite)
           }
         >
           {isDirectory ? e('merge') : e('overwrite')}
@@ -153,7 +149,7 @@ export default class ConfirmModalStore extends Component {
           type='primary'
           className='mg1l'
           onClick={
-            () => this.act(fileActions.rename)
+            () => act(fileActions.rename)
           }
         >
           {e('rename')}
@@ -169,7 +165,7 @@ export default class ConfirmModalStore extends Component {
                 : e('overwriteDesc')
             }
             onClick={
-              () => this.act(fileActions.mergeOrOverwriteAll)
+              () => act(fileActions.mergeOrOverwriteAll)
             }
           >
             {isDirectory ? e('mergeAll') : e('overwriteAll')}
@@ -179,7 +175,7 @@ export default class ConfirmModalStore extends Component {
             className='mg1l'
             title={e('renameDesc')}
             onClick={
-              () => this.act(fileActions.renameAll)
+              () => act(fileActions.renameAll)
             }
           >
             {e('renameAll')}
@@ -189,26 +185,24 @@ export default class ConfirmModalStore extends Component {
     )
   }
 
-  render () {
-    const {
-      transferToConfirm
-    } = this.props.store
-    if (!transferToConfirm.id) {
-      return null
-    }
-    const modalProps = {
-      open: true,
-      width: 500,
-      title: e('fileConflict'),
-      footer: this.renderFooter(),
-      onCancel: () => this.act(fileActions.cancel)
-    }
-    return (
-      <Modal
-        {...modalProps}
-      >
-        {this.renderContent()}
-      </Modal>
-    )
+  const {
+    transferToConfirm
+  } = props
+  if (!transferToConfirm.id) {
+    return null
   }
+  const modalProps = {
+    open: true,
+    width: 500,
+    title: e('fileConflict'),
+    footer: renderFooter(),
+    onCancel: () => act(fileActions.cancel)
+  }
+  return (
+    <Modal
+      {...modalProps}
+    >
+      {renderContent()}
+    </Modal>
+  )
 }

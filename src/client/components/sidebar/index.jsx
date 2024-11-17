@@ -39,7 +39,9 @@ export default memo(function Sidebar (props) {
     pinned,
     fileTransfers,
     transferHistory,
-    transferTab
+    transferTab,
+    showModal,
+    showInfoModal
   } = props
 
   const { store } = window
@@ -89,8 +91,6 @@ export default memo(function Sidebar (props) {
     onClickBookmark,
     onClickHistory,
     toggleBatchOp,
-    showModal,
-    showInfoModal,
     setLeftSidePanelWidth
   } = store
   const {
@@ -231,7 +231,7 @@ export default memo(function Sidebar (props) {
         leftSidebarWidth={leftSidebarWidth}
       >
         <BookMarksWrap
-          store={store}
+          pinned={pinned}
           onMouseEnter={handleMouseEnterBookmark}
           onMouseLeave={handleMouseLeave}
         />

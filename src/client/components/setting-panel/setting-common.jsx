@@ -493,20 +493,22 @@ export default class SettingCommon extends Component {
         </div>
       )
     }
+    const { props } = this
     const {
       hotkey,
       language,
       theme,
       customCss
-    } = this.props.config
+    } = props.config
     const {
       langs
     } = this.props.store
-    const terminalThemes = this.props.store.getSidebarList(settingMap.terminalThemes)
+    const terminalThemes = props.store.getSidebarList(settingMap.terminalThemes)
     const [modifier, key] = hotkey.split('+')
     const pops = {
-      onStartSessions: this.props.config.onStartSessions,
-      store: this.props.store,
+      onStartSessions: props.config.onStartSessions,
+      bookmarks: props.bookmarks,
+      bookmarkGroups: props.bookmarkGroups,
       onChangeStartSessions: this.onChangeStartSessions
     }
     return (

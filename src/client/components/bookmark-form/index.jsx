@@ -1,7 +1,7 @@
 /**
  * bookmark form
  */
-import { Component } from '../common/react-subx'
+import { PureComponent } from 'react'
 import {
   Radio
 } from 'antd'
@@ -31,7 +31,7 @@ import {
 
 const e = window.translate
 
-export default class BookmarkIndex extends Component {
+export default class BookmarkIndex extends PureComponent {
   constructor (props) {
     super(props)
     let initType = props.formData.type

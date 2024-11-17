@@ -2,7 +2,7 @@
  * hisotry/bookmark/setting modal
  */
 
-import { Component } from '../common/react-subx'
+import { auto } from 'manate/react'
 import { pick } from 'lodash-es'
 import { Tabs } from 'antd'
 import SettingModal from './setting-wrap'
@@ -19,14 +19,13 @@ import TabProfiles from './tab-profiles'
 
 const e = window.translate
 
-export default class SettingModalWrap extends Component {
-  selectItem = (item) => {
-    const { store } = this.props
-    store.setSettingItem(item)
+export default auto(function SettingModalWrap (props) {
+  const selectItem = (item) => {
+    window.store.setSettingItem(item)
   }
 
-  renderTabs () {
-    const { store } = this.props
+  function renderTabs () {
+    const { store } = props
     const tabsShouldConfirmDel = [
       settingMap.bookmarks,
       settingMap.terminalThemes
@@ -36,7 +35,7 @@ export default class SettingModalWrap extends Component {
       store,
       activeItemId: settingItem.id,
       type: settingTab,
-      onClickItem: this.selectItem,
+      onClickItem: selectItem,
       shouldConfirmDel: tabsShouldConfirmDel.includes(settingTab),
       list: settingSidebarList
     }
@@ -62,7 +61,10 @@ export default class SettingModalWrap extends Component {
       ...pick(store, [
         'currentBookmarkGroupId',
         'autofocustrigger',
-        'config'
+        'config',
+        'checkedKeys',
+        'expandedKeys',
+        'leftSidebarWidth'
       ])
     }
     const items = [
@@ -153,26 +155,24 @@ export default class SettingModalWrap extends Component {
     )
   }
 
-  render () {
-    const {
-      showModal,
-      hideSettingModal,
-      innerWidth,
-      useSystemTitleBar
-    } = this.props.store
-    const show = showModal === modals.setting
-    if (!show) {
-      return null
-    }
-    return (
-      <SettingModal
-        onCancel={hideSettingModal}
-        visible={show}
-        useSystemTitleBar={useSystemTitleBar}
-        innerWidth={innerWidth}
-      >
-        {this.renderTabs()}
-      </SettingModal>
-    )
+  const {
+    showModal,
+    hideSettingModal,
+    innerWidth,
+    useSystemTitleBar
+  } = props.store
+  const show = showModal === modals.setting
+  if (!show) {
+    return null
   }
-}
+  return (
+    <SettingModal
+      onCancel={hideSettingModal}
+      visible={show}
+      useSystemTitleBar={useSystemTitleBar}
+      innerWidth={innerWidth}
+    >
+      {renderTabs()}
+    </SettingModal>
+  )
+})

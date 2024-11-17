@@ -229,10 +229,6 @@ class Store {
       store.showFileModal
   }
 
-  get topMenuHeight () {
-    return 0
-  }
-
   get langs () {
     return JSON.parse(window.store._langs)
   }
@@ -346,6 +342,6 @@ transferExtend(Store)
 addressBookmarkExtend(Store)
 
 export const StateStore = Store
-const store = manage(new Store())
+const store = manage(new Store(), 1)
 
 export default store

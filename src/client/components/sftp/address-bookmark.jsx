@@ -1,4 +1,4 @@
-import { Component } from '../common/react-subx'
+import { auto } from 'manate/react'
 import {
   StarOutlined,
   PlusSquareOutlined
@@ -11,16 +11,16 @@ import { typeMap } from '../../common/constants'
 import uid from '../../common/uid'
 import './address-bookmark.styl'
 
-export default class AddrBookmark extends Component {
-  onDel = (item) => {
-    this.props.store.delAddressBookmark(item)
+export default auto(function AddrBookmark (props) {
+  function onDel (item) {
+    window.store.delAddressBookmark(item)
   }
 
-  handleAddAddr = () => {
+  function handleAddAddr () {
     const {
-      store, host, realPath, type
-    } = this.props
-    store.addAddressBookmark(
+      host, realPath, type
+    } = props
+    window.store.addAddressBookmark(
       {
         addr: realPath,
         host: type === typeMap.local ? '' : host,
@@ -29,55 +29,54 @@ export default class AddrBookmark extends Component {
     )
   }
 
-  render () {
-    const { type, onClickHistory, store, host } = this.props
-    // const cls = classnames(
-    //   'sftp-history',
-    //   'animated',
-    //   `sftp-history-${type}`
-    // )
-    const addrs = type === typeMap.local
-      ? store.addressBookmarksLocal
-      : store.addressBookmarks.filter(
-        g => g.host === host
-      )
-    const inner = addrs.length
-      ? addrs.map(o => {
-        return (
-          <AddrBookmarkItem
-            handleClick={onClickHistory}
-            type={type}
-            key={o.id}
-            handleDel={this.onDel}
-            item={o}
-          />
-        )
-      })
-      : null
-    const content = (
-      <div
-        className='addr-bookmark-list'
-      >
-        {inner}
-      </div>
+  const { type, onClickHistory, host } = props
+  const { store } = window
+  // const cls = classnames(
+  //   'sftp-history',
+  //   'animated',
+  //   `sftp-history-${type}`
+  // )
+  const addrs = type === typeMap.local
+    ? store.addressBookmarksLocal
+    : store.addressBookmarks.filter(
+      g => g.host === host
     )
-    const title = (
-      <div>
-        <PlusSquareOutlined
-          className='add-addr-bookmark'
-          onClick={this.handleAddAddr}
+  const inner = addrs.length
+    ? addrs.map(o => {
+      return (
+        <AddrBookmarkItem
+          handleClick={onClickHistory}
+          type={type}
+          key={o.id}
+          handleDel={onDel}
+          item={o}
         />
-      </div>
-    )
-    return (
-      <Popover
-        content={content}
-        title={title}
-        placement='bottom'
-        trigger='click'
-      >
-        <StarOutlined />
-      </Popover>
-    )
-  }
-}
+      )
+    })
+    : null
+  const content = (
+    <div
+      className='addr-bookmark-list'
+    >
+      {inner}
+    </div>
+  )
+  const title = (
+    <div>
+      <PlusSquareOutlined
+        className='add-addr-bookmark'
+        onClick={handleAddAddr}
+      />
+    </div>
+  )
+  return (
+    <Popover
+      content={content}
+      title={title}
+      placement='bottom'
+      trigger='click'
+    >
+      <StarOutlined />
+    </Popover>
+  )
+})

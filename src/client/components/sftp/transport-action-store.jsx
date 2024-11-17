@@ -1,4 +1,4 @@
-import { Component } from '../common/react-subx'
+import { Component } from 'react'
 import copy from 'json-deep-copy'
 import { findIndex, isFunction } from 'lodash-es'
 import generate from '../../common/uid'
@@ -52,15 +52,15 @@ export default class TransportAction extends Component {
   }
 
   update = (up) => {
-    const { store, transfer } = this.props
+    const { fileTransfers, transfer } = this.props
     const {
-      fileTransfers
-    } = store
+      store
+    } = window
     const index = findIndex(fileTransfers, t => t.id === transfer.id)
     if (index < 0) {
       return store.setFileTransfers(fileTransfers)
     }
-    window.store.editTransfer(
+    store.editTransfer(
       fileTransfers[index].id,
       up
     )
@@ -69,13 +69,10 @@ export default class TransportAction extends Component {
   }
 
   insert = (insts) => {
-    const { store, transfer } = this.props
-    const {
-      fileTransfers
-    } = store
+    const { fileTransfers, transfer } = this.props
     const index = findIndex(fileTransfers, t => t.id === transfer.id)
     fileTransfers.splice(index, 1, ...insts)
-    store.setFileTransfers(fileTransfers)
+    window.store.setFileTransfers(fileTransfers)
   }
 
   remoteList = () => {
@@ -99,7 +96,8 @@ export default class TransportAction extends Component {
       return
     }
     const {
-      transfer
+      transfer,
+      config
     } = this.props
     const {
       typeTo,
@@ -107,7 +105,7 @@ export default class TransportAction extends Component {
     } = transfer
     const cb = this[typeTo + 'List']
     const finishTime = Date.now()
-    if (!this.props.store.config.disableTransferHistory) {
+    if (!config.disableTransferHistory) {
       window.store.addTransferHistory(
         {
           ...transfer,
@@ -155,19 +153,18 @@ export default class TransportAction extends Component {
       return
     }
     const {
-      transfer,
-      store
+      transfer
+    } = this.props
+    let {
+      fileTransfers
     } = this.props
     this.inst.onCancel = true
     const { id } = transfer
     this.inst.transport && this.inst.transport.destroy()
-    let {
-      fileTransfers
-    } = store
     fileTransfers = fileTransfers.filter(t => {
       return t.id !== id
     })
-    store.setFileTransfers(fileTransfers)
+    window.store.setFileTransfers(fileTransfers)
     if (isFunction(callback)) {
       callback()
     }

@@ -5,7 +5,7 @@ export default function BookmarkTreeList (props) {
   return props.bookmarkSelectMode
     ? (
       <BookmarkTreeDelete
-        store={props.store}
+        {...props}
       />
       )
     : (

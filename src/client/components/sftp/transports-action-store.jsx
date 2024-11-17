@@ -3,7 +3,7 @@
  * when list changes, do transfer and other op
  */
 
-import { Component } from '../common/react-subx'
+import { Component } from 'react'
 import Transports from './transports-ui-store'
 import { maxTransport } from '../../common/constants'
 
@@ -21,10 +21,10 @@ export default class TransportsActionStore extends Component {
   }
 
   control = async () => {
-    const { store } = this.props
+    const { store } = window
     let {
       fileTransfers
-    } = store
+    } = this.props
 
     fileTransfers = fileTransfers.map(t => {
       const {

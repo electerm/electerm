@@ -32,7 +32,7 @@ import {
 } from '../../common/constants'
 import findParentBySel from '../../common/find-parent'
 import copy from 'json-deep-copy'
-import Btns from './bookmark-transport'
+import BookmarkTransport from './bookmark-transport'
 import findBookmarkGroupId from '../../common/find-bookmark-group-id'
 import getInitItem from '../../common/init-setting-item'
 import uid from '../../common/uid'
@@ -55,7 +55,7 @@ export default class ItemListTree extends Component {
       bookmarkGroupTitle: '',
       categoryTitle: '',
       categoryId: '',
-      expandedKeys: window.store.expandedKeys
+      expandedKeys: props.expandedKeys
     }
   }
 
@@ -172,10 +172,11 @@ export default class ItemListTree extends Component {
     this.setState({
       categoryId: ''
     })
-    this.props.store.setBookmarkGroups(
+    const { store } = window
+    store.setBookmarkGroups(
       bookmarkGroups
     )
-    this.props.store.batchDbUpdate([{
+    store.batchDbUpdate([{
       id: categoryId,
       db: 'bookmarkGroups',
       upsert: false,
@@ -219,7 +220,7 @@ export default class ItemListTree extends Component {
       showNewBookmarkGroupForm: false
     }, () => {
       this.onSubmit = false
-      this.props.store.addBookmarkGroup({
+      window.store.addBookmarkGroup({
         id: uid(),
         title: this.state.bookmarkGroupTitle,
         bookmarkIds: []
@@ -262,14 +263,15 @@ export default class ItemListTree extends Component {
         ...(cat.bookmarkGroupIds || []),
         newCat.id
       ]
-      this.props.store.setBookmarkGroups(
+      const { store } = window
+      store.setBookmarkGroups(
         bookmarkGroups
       )
-      this.props.store.batchDbAdd([{
+      store.batchDbAdd([{
         db: 'bookmarkGroups',
         obj: newCat
       }])
-      this.props.store.batchDbUpdate([{
+      store.batchDbUpdate([{
         upsert: false,
         id,
         update: {
@@ -290,11 +292,12 @@ export default class ItemListTree extends Component {
 
   del = (item, e) => {
     e.stopPropagation()
+    const { store } = window
     if (item.bookmarkIds) {
-      return this.props.store.delBookmarkGroup(item)
+      return store.delBookmarkGroup(item)
     }
-    this.props.store.onDelItem(item, this.props.type)
-    this.props.store.delItem(item, this.props.type)
+    store.onDelItem(item, this.props.type)
+    store.delItem(item, this.props.type)
   }
 
   closeNewGroupForm = () => {
@@ -309,7 +312,7 @@ export default class ItemListTree extends Component {
       expandedKeys
     })
     this.closeNewGroupForm()
-    this.props.store.setState(
+    window.store.setState(
       'expandedKeys', expandedKeys
     )
   }
@@ -319,13 +322,14 @@ export default class ItemListTree extends Component {
   ) => {
     const id = e.target.getAttribute('data-item-id')
     const isGroup = e.target.getAttribute('data-is-group') === 'true'
+    const { store } = window
     if (isGroup) {
-      this.props.store.storeAssign({
+      store.storeAssign({
         currentBookmarkGroupId: id
       })
     } else {
-      this.props.store.storeAssign({
-        currentBookmarkGroupId: findBookmarkGroupId(this.props.store.bookmarkGroups, id)
+      store.storeAssign({
+        currentBookmarkGroupId: findBookmarkGroupId(store.bookmarkGroups, id)
       })
       const { bookmarks } = this.props
       const bookmark = find(
@@ -381,8 +385,9 @@ export default class ItemListTree extends Component {
         id
       ]
     )
+    const { store } = window
     if (from) {
-      this.props.store.editBookmarkGroup(
+      store.editBookmarkGroup(
         from.id,
         {
           bookmarkIds: (from.bookmarkIds || []).filter(d => {
@@ -391,7 +396,7 @@ export default class ItemListTree extends Component {
         }
       )
     }
-    this.props.store.editBookmarkGroup(
+    store.editBookmarkGroup(
       item.id,
       {
         bookmarkIds: uniq(
@@ -440,7 +445,7 @@ export default class ItemListTree extends Component {
     }
     const menus = this.renderContextItems(item, isGroup)
     this.uid = uid()
-    this.props.store.openContextMenu({
+    window.store.openContextMenu({
       items: menus,
       id: this.uid,
       pos: this.computePos(e)
@@ -488,7 +493,7 @@ export default class ItemListTree extends Component {
         bookmarkGroupSubParentId: ''
       })
     } else {
-      this.props.store.openBookmarkEdit(item)
+      window.store.openBookmarkEdit(item)
     }
   }
 
@@ -759,7 +764,7 @@ export default class ItemListTree extends Component {
 
   duplicateItem = (e, item) => {
     e.stopPropagation()
-    const { addItem } = this.props.store
+    const { addItem } = window.store
     const bookmarkGroups = copy(
       this.props.bookmarkGroups
     )
@@ -775,7 +780,7 @@ export default class ItemListTree extends Component {
     }
     newbookmark.title = item.title + '(' + deplicateIndex + ')'
     const categoryId = findBookmarkGroupId(bookmarkGroups, item.id)
-    this.props.store.storeAssign({
+    window.store.storeAssign({
       currentBookmarkGroupId: categoryId
     })
     // add bookmark to store
@@ -838,10 +843,10 @@ export default class ItemListTree extends Component {
       }
       return bg
     })
-    this.props.store.setBookmarkGroups(
+    window.store.setBookmarkGroups(
       bookmarkGroups
     )
-    this.props.store.batchDbUpdate(updates)
+    window.store.batchDbUpdate(updates)
   }
 
   findBookmarkByTitle = (bookmarks, oldBookmark) => {
@@ -858,7 +863,7 @@ export default class ItemListTree extends Component {
       item,
       isGroup,
       parentId,
-      leftSidebarWidth: this.props.store.leftSidebarWidth,
+      leftSidebarWidth: this.props.leftSidebarWidth,
       staticList: this.props.staticList,
       selectedItemId: this.props.activeItemId,
       ...pick(
@@ -913,8 +918,9 @@ export default class ItemListTree extends Component {
           >
             <FolderOutlined className='with-plus' />
           </Button>
-          <Btns
-            store={this.props.store}
+          <BookmarkTransport
+            bookmarkGroups={this.props.bookmarkGroups}
+            bookmarks={this.props.bookmarks}
           />
         </Space.Compact>
       </div>

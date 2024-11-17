@@ -28,7 +28,7 @@ export default class BookmarkTreeDelete extends StartSessionSelect {
       checkedKeys,
       bookmarks,
       bookmarkGroups
-    } = store
+    } = this.props
     store.setBookmarks(
       bookmarks.filter(f => {
         return !checkedKeys.includes(f.id)
@@ -52,17 +52,17 @@ export default class BookmarkTreeDelete extends StartSessionSelect {
   }
 
   render () {
-    const { store } = this.props
+    const { expandedKeys, checkedKeys } = this.props
     const rProps = {
       checkable: true,
       autoExpandParent: true,
       onCheck: this.onCheck,
-      expandedKeys: store.expandedKeys,
-      checkedKeys: store.checkedKeys,
+      expandedKeys,
+      checkedKeys,
       onExpand: this.onExpand,
       treeData: this.buildData()
     }
-    const len = store.checkedKeys.length
+    const len = checkedKeys.length
     return (
       <div>
         <div className='pd1'>

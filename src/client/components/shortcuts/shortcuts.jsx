@@ -1,4 +1,4 @@
-import { Component } from '../common/react-subx'
+import { PureComponent } from 'react'
 import shortcutsDefaultsGen from './shortcuts-defaults'
 import ShortcutEdit from './shortcut-editor'
 import deepCopy from 'json-deep-copy'
@@ -13,24 +13,24 @@ import {
 const e = window.translate
 const shortcutsDefaults = shortcutsDefaultsGen()
 
-export default class Shortcuts extends Component {
+export default class Shortcuts extends PureComponent {
   handleResetAll = () => {
-    this.props.store.updateConfig({
+    window.store.updateConfig({
       shortcuts: {}
     })
   }
 
   updateConfig = (name, value) => {
-    const { store } = this.props
-    const shortcuts = deepCopy(store.config.shortcuts || {})
+    const { config } = this.props
+    const shortcuts = deepCopy(config.shortcuts || {})
     shortcuts[name] = value
-    this.props.store.updateConfig({
+    window.store.updateConfig({
       shortcuts
     })
   }
 
   getData () {
-    const { shortcuts = {} } = this.props.store.config
+    const { shortcuts = {} } = this.props.config
     return shortcutsDefaults
       .filter(g => !g.readonly)
       .map((c, i) => {
@@ -46,9 +46,8 @@ export default class Shortcuts extends Component {
   }
 
   getKeysTakenData = () => {
-    const { store } = this.props
-    const { shortcuts = {} } = store.config
-    const { quickCommands = [] } = store
+    const { config, quickCommands = [] } = this.props
+    const { shortcuts = {} } = config
 
     // Gather system shortcuts
     const systemShortcuts = shortcutsDefaults.reduce((p, k) => {
@@ -84,7 +83,6 @@ export default class Shortcuts extends Component {
   }
 
   render () {
-    const { store } = this.props
     const columns = [
       {
         title: 'NO.',
@@ -127,7 +125,6 @@ export default class Shortcuts extends Component {
             <ShortcutEdit
               data={inst}
               keysTaken={this.getKeysTakenData()}
-              store={store}
               updateConfig={this.updateConfig}
             />
           )

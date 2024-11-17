@@ -2,7 +2,7 @@
  * bookmark import/export
  */
 
-import { Component } from '../common/react-subx'
+import { PureComponent } from 'react'
 import {
   DownloadOutlined,
   UploadOutlined,
@@ -17,9 +17,9 @@ import { fixBookmarks } from '../../common/db-fix'
 
 const e = window.translate
 
-export default class BookmarkTransport extends Component {
+export default class BookmarkTransport extends PureComponent {
   beforeUpload = async (file) => {
-    const { store } = this.props
+    const { store } = window
     const txt = await window.fs.readFile(file.path)
     try {
       const content = JSON.parse(txt)
@@ -27,8 +27,9 @@ export default class BookmarkTransport extends Component {
         bookmarkGroups: bookmarkGroups1,
         bookmarks: bookmarks1
       } = content
-      const bookmarkGroups = copy(store.bookmarkGroups)
-      const bookmarks = copy(store.bookmarks)
+      const { props } = this
+      const bookmarkGroups = copy(props.bookmarkGroups)
+      const bookmarks = copy(props.bookmarks)
       const bmTree = bookmarks.reduce((p, v) => {
         return {
           ...p,
@@ -95,9 +96,7 @@ export default class BookmarkTransport extends Component {
   }
 
   handleDownload = () => {
-    const { store } = this.props
-    const bookmarkGroups = store.bookmarkGroups
-    const bookmarks = store.bookmarks
+    const { bookmarkGroups, bookmarks } = this.props
     const txt = JSON.stringify({
       bookmarkGroups: copy(bookmarkGroups),
       bookmarks: copy(bookmarks)
@@ -107,7 +106,7 @@ export default class BookmarkTransport extends Component {
   }
 
   handleToggleEdit = () => {
-    this.props.store.bookmarkSelectMode = true
+    window.store.bookmarkSelectMode = true
   }
 
   renderEdit () {

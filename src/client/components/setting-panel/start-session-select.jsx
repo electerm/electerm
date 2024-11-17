@@ -1,15 +1,15 @@
 import { TreeSelect } from 'antd'
-import { Component } from '../common/react-subx'
+import { PureComponent } from 'react'
 import copy from 'json-deep-copy'
 import { createTitleWithTag } from '../../common/create-title'
 
 const e = window.translate
 const { SHOW_CHILD } = TreeSelect
 
-export default class StartSessionSelect extends Component {
+export default class StartSessionSelect extends PureComponent {
   buildData = () => {
-    const cats = this.props.store.bookmarkGroups
-    const tree = this.props.store.bookmarks
+    const cats = this.props.bookmarkGroups
+    const tree = this.props.bookmarks
       .reduce((p, k) => {
         return {
           ...p,

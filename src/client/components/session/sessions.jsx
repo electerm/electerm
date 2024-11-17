@@ -1,4 +1,4 @@
-import { Component } from '../common/react-subx.jsx'
+import { PureComponent } from 'react'
 import Session from './session.jsx'
 import WebSession from '../web/web-session.jsx'
 import { findIndex, pick } from 'lodash-es'
@@ -24,7 +24,7 @@ import { shortcutExtend } from '../shortcuts/shortcut-handler.js'
 
 const e = window.translate
 
-class Sessions extends Component {
+class Sessions extends PureComponent {
   state = {
     tabs: [],
     currentTabId: ''
@@ -294,8 +294,8 @@ class Sessions extends Component {
   }
 
   postChange = () => {
-    this.props.store.currentLayoutBatch = this.props.batch
-    this.props.store.triggerResize()
+    window.store.currentLayoutBatch = this.props.batch
+    window.store.triggerResize()
   }
 
   handleNewTab = () => {
@@ -303,13 +303,13 @@ class Sessions extends Component {
   }
 
   handleNewSsh = () => {
-    this.props.store.onNewSsh()
+    window.store.onNewSsh()
   }
 
   renderNoSession = () => {
     const props = {
       style: {
-        height: this.props.store.height + 'px'
+        height: this.props.height + 'px'
       }
     }
     return (
@@ -337,7 +337,7 @@ class Sessions extends Component {
 
   renderSessions () {
     const {
-      store, config, width, height
+      config, width, height
     } = this.props
     const {
       currentTabId,
@@ -359,8 +359,8 @@ class Sessions extends Component {
         tab: toSimpleObj(tab),
         width,
         height,
-        batch: this.props.batch,
-        ...pick(store, [
+        ...pick(this.props, [
+          'batch',
           'resolutions',
           'hideDelKeyTip',
           'fileOperation',
@@ -369,7 +369,6 @@ class Sessions extends Component {
           'pinnedQuickCommandBar',
           'tabsHeight',
           'appPath',
-          'topMenuHeight',
           'rightSidebarWidth',
           'leftSidebarWidth',
           'pinned',
@@ -409,11 +408,13 @@ class Sessions extends Component {
 
   renderTabs = () => {
     const {
-      store,
       config,
       width,
       height,
-      batch
+      batch,
+      layout,
+      activeTerminalId,
+      isMaximized
     } = this.props
     const {
       tabs,
@@ -425,11 +426,9 @@ class Sessions extends Component {
       config,
       width,
       height,
-      ...pick(store, [
-        'layout',
-        'activeTerminalId',
-        'isMaximized'
-      ]),
+      layout,
+      activeTerminalId,
+      isMaximized,
       tabs,
       ...pick(this, [
         'setTabs',

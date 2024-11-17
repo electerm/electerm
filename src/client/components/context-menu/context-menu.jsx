@@ -1,7 +1,7 @@
 /**
  * context menu
  */
-import React from 'react'
+import { PureComponent } from 'react'
 import './context-menu.styl'
 import classnames from 'classnames'
 import {
@@ -46,7 +46,7 @@ import {
 
 const e = window.translate
 
-export default class ContextMenu extends React.PureComponent {
+export default class ContextMenu extends PureComponent {
   state = {
     items: [],
     id: '',
@@ -155,16 +155,13 @@ export default class ContextMenu extends React.PureComponent {
       left,
       top
     } = pos
-    const {
-      topMenuHeight
-    } = this.props.store
     const height = count * contextMenuHeight + contextMenuPaddingTop * 2 + countHr * 1
     const maxHeight = Math.max(
-      window.innerHeight - topMenuHeight - top,
-      top - topMenuHeight
+      window.innerHeight - top,
+      top
     )
     const shouldScroll = maxHeight < height
-    const startTop = top > (window.innerHeight - topMenuHeight) / 2
+    const startTop = top > window.innerHeight / 2
     const realHeight = Math.min(maxHeight, height)
     if (startTop) {
       top = top - realHeight
@@ -216,7 +213,7 @@ export default class ContextMenu extends React.PureComponent {
     }
     const Mod = this.modules[submenu]
     return (
-      <Mod store={this.props.store} />
+      <Mod store={window.store} />
     )
   }
 
@@ -242,7 +239,7 @@ export default class ContextMenu extends React.PureComponent {
       const Mod = this.modules[module]
       return (
         <div className={baseCls}>
-          <Mod store={this.props.store} />
+          <Mod store={window.store} />
         </div>
       )
     }

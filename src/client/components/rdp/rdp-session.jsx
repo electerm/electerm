@@ -1,4 +1,4 @@
-import { Component } from '../common/react-subx'
+import { PureComponent } from 'react'
 import { createTerm } from '../terminal/terminal-apis'
 import deepCopy from 'json-deep-copy'
 import clone from '../../common/to-simple-obj'
@@ -22,7 +22,7 @@ import resolutions from './resolutions'
 
 const { Option } = Select
 
-export default class RdpSession extends Component {
+export default class RdpSession extends PureComponent {
   constructor (props) {
     const id = `rdp-reso-${props.tab.host}`
     const resObj = ls.getItemJSON(id, resolutions[0])

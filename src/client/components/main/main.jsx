@@ -1,4 +1,5 @@
-import { Component } from '../common/react-subx'
+import { auto } from 'manate/react'
+import { useEffect } from 'react'
 import Layout from '../layout/layout'
 import ContextMenu from '../context-menu/context-menu'
 import FileInfoModal from '../sftp/file-props-modal'
@@ -26,12 +27,12 @@ import InfoModal from '../sidebar/info-modal.jsx'
 import { pick } from 'lodash-es'
 import './wrapper.styl'
 
-export default class Index extends Component {
-  componentDidMount () {
+export default auto(function Index (props) {
+  useEffect(() => {
     notification.config({
       placement: 'bottomRight'
     })
-    const { store } = this.props
+    const { store } = props
     window.addEventListener('resize', store.onResize)
     store.onResize()
     store.initStoreEvents()
@@ -65,138 +66,155 @@ export default class Index extends Component {
     store.initData()
     store.checkForDbUpgrade()
     window.pre.runGlobalAsync('registerDeepLink')
-  }
+  }, [])
 
-  render () {
-    const { store } = this.props
-    const {
-      configLoaded,
-      config,
-      terminalFullScreen,
-      pinned,
-      isSencondInstance,
-      pinnedQuickCommandBar,
-      wsInited,
-      upgradeInfo,
-      installSrc,
-      uiThemeConfig
-    } = store
-    const cls = classnames({
-      loaded: configLoaded,
-      'not-webapp': !window.et.isWebApp,
-      'system-ui': store.config.useSystemTitleBar,
-      'not-system-ui': !store.config.useSystemTitleBar,
-      'is-mac': isMac,
-      'not-mac': !isMac,
-      'is-win': isWin,
-      pinned,
-      'qm-pinned': pinnedQuickCommandBar,
-      'term-fullscreen': terminalFullScreen,
-      'is-main': !isSencondInstance
-    })
-    const ext1 = {
-      className: cls
-    }
-    const cpConf = config
-    const confsCss = Object
-      .keys((cpConf))
-      .filter(d => d.startsWith('terminalBackground'))
-      .reduce((p, k) => {
-        return {
-          ...p,
-          [k]: cpConf[k]
-        }
-      }, {})
-    const themeProps = {
-      themeConfig: store.getUiThemeConfig()
-    }
-    const outerProps = {
-      style: {
-        opacity: config.opacity
+  const { store } = props
+  const {
+    configLoaded,
+    config,
+    terminalFullScreen,
+    pinned,
+    isSencondInstance,
+    pinnedQuickCommandBar,
+    wsInited,
+    upgradeInfo,
+    installSrc,
+    fileTransfers,
+    uiThemeConfig,
+    transferHistory,
+    transferToConfirm,
+    openResolutionEdit
+  } = store
+  const cls = classnames({
+    loaded: configLoaded,
+    'not-webapp': !window.et.isWebApp,
+    'system-ui': store.config.useSystemTitleBar,
+    'not-system-ui': !store.config.useSystemTitleBar,
+    'is-mac': isMac,
+    'not-mac': !isMac,
+    'is-win': isWin,
+    pinned,
+    'qm-pinned': pinnedQuickCommandBar,
+    'term-fullscreen': terminalFullScreen,
+    'is-main': !isSencondInstance
+  })
+  const ext1 = {
+    className: cls
+  }
+  const cpConf = config
+  const confsCss = Object
+    .keys((cpConf))
+    .filter(d => d.startsWith('terminalBackground'))
+    .reduce((p, k) => {
+      return {
+        ...p,
+        [k]: cpConf[k]
       }
-    }
-    const sidebarProps = {
-      ...pick(store, [
-        'openedSideBar',
-        'height',
-        'settingTab',
-        'settingItem',
-        'isSyncingSetting',
-        'leftSidebarWidth',
-        'fileTransfers',
-        'transferHistory',
-        'transferTab'
-      ]),
-      upgradeInfo,
-      pinned
-    }
-
-    const infoModalProps = {
-      ...pick(store, [
-        'infoModalTab',
-        'showInfoModal',
-        'commandLineHelp'
-      ]),
-      installSrc,
-      upgradeInfo
-    }
-    return (
-      <ConfigProvider
-        theme={uiThemeConfig}
-      >
-        <div {...ext1}>
-          <ShortcutControl config={config} />
-          <LoadingUI
-            wsInited={wsInited}
-          />
-          <TermFullscreenControl
-            terminalFullScreen={terminalFullScreen}
-          />
-          <CssOverwrite
-            {...confsCss}
-            wsInited={wsInited}
-          />
-          <TerminalInteractive />
-          <UiTheme
-            {...themeProps}
-            buildTheme={store.buildTheme}
-          />
-          <CustomCss customCss={config.customCss} />
-          <TextEditor customCss={cpConf.customCss} />
-          <UpdateCheck
-            skipVersion={cpConf.skipVersion}
-            upgradeInfo={upgradeInfo}
-            installSrc={installSrc}
-          />
-          <FileInfoModal />
-          <FileModeModal />
-          <SettingModal store={store} />
-          <BatchOp store={store} />
-          <div
-            id='outside-context'
-            {...outerProps}
-          >
-            <Sidebar {...sidebarProps} />
-            <Layout
-              store={store}
-            />
-          </div>
-          <ContextMenu store={store} />
-          <ConfirmModalStore
-            store={store}
-          />
-          <TransferConflictStore
-            store={store}
-            _fileTransfers={store._fileTransfers}
-          />
-          <TransportsActionStore
-            store={store}
-            _fileTransfers={store._fileTransfers}
-          />
-          <Resolutions store={store} />
-          <InfoModal {...infoModalProps} />
-        </div>
-      </ConfigProvider>
-    )
+    }, {})
+  const themeProps = {
+    themeConfig: store.getUiThemeConfig()
   }
-}
+  const outerProps = {
+    style: {
+      opacity: config.opacity
+    }
+  }
+  const sidebarProps = {
+    ...pick(store, [
+      'showModal',
+      'showInfoModal',
+      'openedSideBar',
+      'height',
+      'settingTab',
+      'settingItem',
+      'isSyncingSetting',
+      'leftSidebarWidth',
+      'transferTab'
+    ]),
+    fileTransfers,
+    transferHistory,
+    upgradeInfo,
+    pinned
+  }
+
+  const infoModalProps = {
+    ...pick(store, [
+      'infoModalTab',
+      'showInfoModal',
+      'commandLineHelp'
+    ]),
+    installSrc,
+    upgradeInfo
+  }
+  const conflictStoreProps = {
+    fileTransfers,
+    _fileTransfers: store._fileTransfers
+  }
+  const batchOpProps = {
+    transferHistory,
+    showModal: store.showModal,
+    innerWidth: store.innerWidth
+  }
+  const resProps = {
+    resolutions: store.resolutions,
+    openResolutionEdit
+  }
+  return (
+    <ConfigProvider
+      theme={uiThemeConfig}
+    >
+      <div {...ext1}>
+        <ShortcutControl config={config} />
+        <LoadingUI
+          wsInited={wsInited}
+        />
+        <TermFullscreenControl
+          terminalFullScreen={terminalFullScreen}
+        />
+        <CssOverwrite
+          {...confsCss}
+          wsInited={wsInited}
+        />
+        <TerminalInteractive />
+        <UiTheme
+          {...themeProps}
+          buildTheme={store.buildTheme}
+        />
+        <CustomCss customCss={config.customCss} />
+        <TextEditor customCss={cpConf.customCss} />
+        <UpdateCheck
+          skipVersion={cpConf.skipVersion}
+          upgradeInfo={upgradeInfo}
+          installSrc={installSrc}
+        />
+        <FileInfoModal />
+        <FileModeModal />
+        <SettingModal store={store} />
+        <BatchOp {...batchOpProps} />
+        <div
+          id='outside-context'
+          {...outerProps}
+        >
+          <Sidebar {...sidebarProps} />
+          <Layout
+            store={store}
+          />
+        </div>
+        <ContextMenu />
+        <ConfirmModalStore
+          transferToConfirm={transferToConfirm}
+        />
+        <TransferConflictStore
+          {...conflictStoreProps}
+          transferToConfirm={transferToConfirm}
+        />
+        <TransportsActionStore
+          {...conflictStoreProps}
+          config={config}
+        />
+        <Resolutions {...resProps} />
+        <InfoModal {...infoModalProps} />
+      </div>
+    </ConfigProvider>
+  )
+})

@@ -608,7 +608,6 @@ export default class SessionWrapper extends Component {
       rightSidebarWidth: this.props.rightSidebarWidth,
       showInfo,
       tabsHeight: this.props.tabsHeight,
-      topMenuHeight: this.props.topMenuHeight,
       toggleInfoPinned: this.toggleInfoPinned,
       hideInfoPanel: this.hideInfoPanel
     }

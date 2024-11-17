@@ -6,12 +6,11 @@ import {
   Popover
 } from 'antd'
 import TransferModal from './transfer-modal'
-import { memo } from 'react'
 import './transfer.styl'
 
 const e = window.translate
 
-export default memo(function TransferList (props) {
+export default function TransferList (props) {
   const {
     fileTransfers,
     transferTab,
@@ -56,4 +55,4 @@ export default memo(function TransferList (props) {
       </Popover>
     </div>
   )
-})
+}

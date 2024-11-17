@@ -6,7 +6,7 @@
  * - click header to sort
  */
 
-import { Component } from '../common/react-subx'
+import { PureComponent } from 'react'
 import classnames from 'classnames'
 import { isEqual, pick, find, isNull, isArray, isUndefined } from 'lodash-es'
 import generate from '../../common/uid'
@@ -31,7 +31,7 @@ import IconHolder from '../context-menu/icon-holder'
 
 const e = window.translate
 
-export default class FileListTable extends Component {
+export default class FileListTable extends PureComponent {
   constructor (props) {
     super(props)
     this.state = {
@@ -162,7 +162,7 @@ export default class FileListTable extends Component {
   }
 
   getPropsDefault = () => {
-    return this.props.store.config.filePropsEnabled || [
+    return this.props.config.filePropsEnabled || [
       'name',
       'size',
       'modifyTime'
@@ -275,7 +275,7 @@ export default class FileListTable extends Component {
       : [...names, name]
     const props = all.filter(g => newProps.includes(g))
     const update = this.initFromProps(props)
-    this.props.store.setConfig({
+    window.store.setConfig({
       filePropsEnabled: props
     })
     this.setState(update)

@@ -1,63 +1,61 @@
-import { Component } from '../common/react-subx'
+import { memo } from 'react'
 import ResolutionForm from './resolution-form'
 import {
   Modal
 } from 'antd'
 import uid from '../../common/uid'
 
-export default class Resolutions extends Component {
-  remove = id => {
-    const { store } = this.props
-    const { resolutions } = store
+export default function Resolutions (props) {
+  function remove (id) {
+    const { resolutions } = props
     const index = resolutions.findIndex(d => d.id === id)
     if (index < 0) {
       return
     }
     resolutions.splice(index, 1)
-    store.setState('resolutions', resolutions)
+    window.store.setState('resolutions', resolutions)
   }
 
-  submit = (data) => {
-    const { store } = this.props
-    const { resolutions } = store
+  function submit (data) {
+    const { resolutions } = props
     resolutions.push({
       ...data,
       id: uid()
     })
-    store.setState('resolutions', resolutions)
+    window.store.setState('resolutions', resolutions)
   }
 
-  render () {
-    const {
-      openResolutionEdit,
-      toggleResolutionEdit,
-      resolutions
-    } = this.props.store
-    if (!openResolutionEdit) {
-      return null
-    }
-    const modalProps = {
-      footer: null,
-      visible: true,
-      onCancel: () => toggleResolutionEdit()
-    }
-    const resList = {
-      list: resolutions,
-      initialValues: {
-        width: 1600,
-        height: 900
-      },
-      remove: this.remove,
-      submit: this.submit
-    }
-    return (
-      <Modal
-        {...modalProps}
-      >
-        <ResolutionForm
-          {...resList}
-        />
-      </Modal>
-    )
+  const {
+    resolutions
+  } = props
+  const {
+    openResolutionEdit,
+    toggleResolutionEdit
+  } = window.store
+  if (!openResolutionEdit) {
+    return null
   }
+  const modalProps = {
+    footer: null,
+    visible: true,
+    onCancel: () => toggleResolutionEdit()
+  }
+  const resList = {
+    list: resolutions,
+    initialValues: {
+      width: 1600,
+      height: 900
+    },
+    remove,
+    submit
+  }
+  return (
+    <Modal
+      {...modalProps}
+    >
+      <ResolutionForm
+        {...resList}
+      />
+    </Modal>
+  )
 }

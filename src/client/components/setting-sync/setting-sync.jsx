@@ -1,23 +1,23 @@
 /**
  * sync setting module entry
  */
-import { Component } from '../common/react-subx'
+import { auto } from 'manate/react'
 import { Tabs, Spin } from 'antd'
 import SyncForm from './setting-sync-form'
 import { syncTypes, syncDataMaps } from '../../common/constants'
-import { DataTransport } from './data-import'
+import DataTransport from './data-import'
 import DataSelect from './data-select'
 import { pick } from 'lodash-es'
 
-export default class SyncSettingEntry extends Component {
-  handleChange = (key) => {
-    this.props.store.syncType = key
+export default auto(function SyncSettingEntry (props) {
+  const handleChange = (key) => {
+    window.store.syncType = key
   }
 
-  renderForm () {
+  function renderForm () {
     const {
       store
-    } = this.props
+    } = props
     const {
       syncSetting
     } = store.config
@@ -51,42 +51,40 @@ export default class SyncSettingEntry extends Component {
     )
   }
 
-  render () {
-    const {
-      store
-    } = this.props
+  const {
+    store
+  } = props
 
-    const syncItems = Object.keys(syncTypes).map(type => {
-      return {
-        key: type,
-        label: type,
-        children: null
-      }
-    })
-    const {
-      dataSyncSelected
-    } = store.config
-    const arr = dataSyncSelected && dataSyncSelected !== 'all'
-      ? dataSyncSelected.split(',')
-      : Object.keys(syncDataMaps)
-    const dataSelectProps = {
-      dataSyncSelected: arr
+  const syncItems = Object.keys(syncTypes).map(type => {
+    return {
+      key: type,
+      label: type,
+      children: null
     }
-    return (
-      <div className='pd2l'>
-        <DataTransport store={store} />
-        <Spin spinning={store.isSyncingSetting}>
-          <Tabs
-            activeKey={store.syncType}
-            onChange={this.handleChange}
-            items={syncItems}
-          />
-          {
-            this.renderForm()
-          }
-          <DataSelect {...dataSelectProps} />
-        </Spin>
-      </div>
-    )
+  })
+  const {
+    dataSyncSelected
+  } = store.config
+  const arr = dataSyncSelected && dataSyncSelected !== 'all'
+    ? dataSyncSelected.split(',')
+    : Object.keys(syncDataMaps)
+  const dataSelectProps = {
+    dataSyncSelected: arr
   }
-}
+  return (
+    <div className='pd2l'>
+      <DataTransport store={store} />
+      <Spin spinning={store.isSyncingSetting}>
+        <Tabs
+          activeKey={store.syncType}
+          onChange={handleChange}
+          items={syncItems}
+        />
+        {
+          renderForm()
+        }
+        <DataSelect {...dataSelectProps} />
+      </Spin>
+    </div>
+  )
+})

@@ -60,9 +60,7 @@ export default class ProfileList extends List {
 
   renderTransport = () => {
     return (
-      <ProfileTransport
-        store={this.props.store}
-      />
+      <ProfileTransport />
     )
   }
 

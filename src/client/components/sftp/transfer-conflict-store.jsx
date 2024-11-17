@@ -3,7 +3,7 @@
  * when list changes, do transfer and other op
  */
 
-import { Component } from '../common/react-subx'
+import { PureComponent } from 'react'
 import { typeMap } from '../../common/constants'
 import {
   getLocalFileInfo,
@@ -16,7 +16,7 @@ import { findIndex, find } from 'lodash-es'
 import generate from '../../common/uid'
 import resolve from '../../common/resolve'
 
-export default class TransferConflictStore extends Component {
+export default class TransferConflictStore extends PureComponent {
   state = {
     currentId: ''
   }
@@ -79,10 +79,8 @@ export default class TransferConflictStore extends Component {
       fromFile
     } = transfer
     this.clear()
-    const { store } = this.props
-    let {
-      fileTransfers
-    } = store
+    let { fileTransfers } = this.props
+    const { store } = window
     const index = findIndex(fileTransfers, d => d.id === id)
     if (index < 0) {
       return store.setFileTransfers(fileTransfers)
@@ -114,15 +112,13 @@ export default class TransferConflictStore extends Component {
   }
 
   tagTransferError = (id, errorMsg) => {
-    const { store } = this.props
-    const {
-      fileTransfers
-    } = store
+    const { fileTransfers } = this.props
     const tr = find(fileTransfers, d => d.id === id)
     if (!tr) {
       return
     }
-    window.store.addTransferHistory({
+    const { store } = window
+    store.addTransferHistory({
       ...tr,
       host: tr.host,
       error: errorMsg,
@@ -136,7 +132,7 @@ export default class TransferConflictStore extends Component {
   }
 
   setConflict (tr) {
-    if (window.store.transferToConfirm.id) {
+    if (this.props.transferToConfirm.id) {
       return
     }
     window.store.setState(
@@ -165,10 +161,10 @@ export default class TransferConflictStore extends Component {
     this.clear()
     const {
       store
-    } = this.props
+    } = window
     const {
       fileTransfers
-    } = store
+    } = this.props
     const index = findIndex(fileTransfers, t => {
       return t.id === tr.id
     })
@@ -189,10 +185,10 @@ export default class TransferConflictStore extends Component {
   }
 
   watchFile = async () => {
-    const { store } = this.props
+    const { store } = window
     const {
       fileTransfers
-    } = store
+    } = this.props
     if (!fileTransfers.length && this.currentId) {
       return this.clear()
     }

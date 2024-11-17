@@ -1,4 +1,4 @@
-import { Component } from '../common/react-subx'
+import { PureComponent } from 'react'
 import {
   Tooltip
 } from 'antd'
@@ -20,7 +20,7 @@ import './term-search.styl'
 
 const e = window.translate
 
-class TermSearch extends Component {
+class TermSearch extends PureComponent {
   searchControls = [{
     id: 'matchCase',
     icon: MatchCaseIcon,
@@ -54,10 +54,10 @@ class TermSearch extends Component {
   }
 
   toggleSearch = () => {
-    if (this.props.store.termSearchOpen) {
+    if (this.props.termSearchOpen) {
       this.clearSearch()
     }
-    this.props.store.toggleTerminalSearch()
+    window.store.toggleTerminalSearch()
     setTimeout(window.store.focus, 200)
   }
 
@@ -67,32 +67,36 @@ class TermSearch extends Component {
   }
 
   prev = () => {
-    const { activeTerminalId } = this.props.store
+    const {
+      activeTerminalId,
+      termSearch,
+      termSearchOptions
+    } = this.props
     postMessage({
       action: terminalActions.doSearchPrev,
-      keyword: this.props.store.termSearch,
+      keyword: termSearch,
       activeSplitId: activeTerminalId,
-      options: copy(this.props.store.termSearchOptions)
+      options: copy(termSearchOptions)
     })
   }
 
   next = () => {
-    const { activeTerminalId } = this.props.store
+    const { activeTerminalId } = this.props
     postMessage({
       action: terminalActions.doSearchNext,
       activeSplitId: activeTerminalId,
-      keyword: this.props.store.termSearch,
-      options: copy(this.props.store.termSearchOptions)
+      keyword: this.props.termSearch,
+      options: copy(this.props.termSearchOptions)
     })
   }
 
   handleChange = e => {
-    this.props.store.termSearch = e.target.value
+    window.store.termSearch = e.target.value
     this.prev()
   }
 
   clearSearch = () => {
-    const { activeTerminalId } = this.props.store
+    const { activeTerminalId } = this.props
     postMessage({
       action: terminalActions.clearSearch,
       activeSplitId: activeTerminalId
@@ -101,7 +105,7 @@ class TermSearch extends Component {
 
   close = () => {
     this.clearSearch()
-    this.props.store.termSearchOpen = false
+    window.store.termSearchOpen = false
   }
 
   renderSearchAction = item => {
@@ -126,7 +130,7 @@ class TermSearch extends Component {
     const {
       termSearchMatchCount,
       termSearchMatchIndex
-    } = this.props.store
+    } = this.props
     if (!termSearchMatchCount) {
       return null
     }
@@ -148,10 +152,10 @@ class TermSearch extends Component {
 
   toggle = prop => {
     const {
-      store
+      termSearchOptions
     } = this.props
-    const v = store.termSearchOptions[prop]
-    store.setTermSearchOption({
+    const v = termSearchOptions[prop]
+    window.store.setTermSearchOption({
       [prop]: !v
     })
     this.next()
@@ -163,7 +167,7 @@ class TermSearch extends Component {
       icon: Icon,
       prop
     } = item
-    const v = this.props.store.termSearchOptions[prop]
+    const v = this.props.termSearchOptions[prop]
     const cls = classNames('term-search-opt-icon', {
       'term-search-on': v
     })
@@ -191,11 +195,11 @@ class TermSearch extends Component {
   }
 
   render () {
-    const { store, currentTab } = this.props
     const {
       termSearchOpen,
-      termSearch
-    } = store
+      termSearch,
+      currentTab
+    } = this.props
     if (
       !termSearchOpen ||
       !currentTab ||

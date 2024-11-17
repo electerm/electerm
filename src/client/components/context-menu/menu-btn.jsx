@@ -2,7 +2,7 @@
  * btns
  */
 
-import { Component } from '../common/react-subx'
+import { PureComponent } from 'react'
 import logoRef from '@electerm/electerm-resource/res/imgs/electerm.svg'
 import { commonActions } from '../../common/constants'
 import { shortcutDescExtend } from '../shortcuts/shortcut-handler.js'
@@ -11,7 +11,7 @@ import generate from '../../common/uid'
 const e = window.translate
 const logo = logoRef.replace(/^\//, '')
 
-class MenuBtn extends Component {
+class MenuBtn extends PureComponent {
   state = {
     opened: false
   }
@@ -37,7 +37,7 @@ class MenuBtn extends Component {
   openMenu = () => {
     const items = this.renderContext()
     this.uid = generate()
-    this.props.store.openContextMenu({
+    window.store.openContextMenu({
       items,
       pos: {
         left: 40,
@@ -52,23 +52,23 @@ class MenuBtn extends Component {
   }
 
   onNewSsh = () => {
-    this.props.store.onNewSsh()
+    window.store.onNewSsh()
   }
 
   addTab = () => {
-    this.props.store.addTab()
+    window.store.addTab()
   }
 
   onNewWindow = () => {
-    this.props.store.onNewWindow()
+    window.store.onNewWindow()
   }
 
   openAbout = () => {
-    this.props.store.openAbout()
+    window.store.openAbout()
   }
 
   openSetting = () => {
-    this.props.store.openSetting()
+    window.store.openSetting()
   }
 
   openDevTools = () => {
@@ -88,15 +88,15 @@ class MenuBtn extends Component {
   }
 
   onCheckUpdate = () => {
-    this.props.store.onCheckUpdate()
+    window.store.onCheckUpdate()
   }
 
   restart = () => {
-    this.props.store.restart()
+    window.store.restart()
   }
 
   close = () => {
-    this.props.store.exit()
+    window.store.exit()
   }
 
   renderContext = () => {

@@ -2,7 +2,7 @@
  * settings page
  */
 
-import { Component } from '../common/react-subx'
+import { PureComponent } from 'react'
 import {
   CloseCircleOutlined
 } from '@ant-design/icons'
@@ -34,7 +34,7 @@ import resolveFilePath from '../../common/resolve'
 
 const e = window.translate
 
-export default class BatchOp extends Component {
+export default class BatchOp extends PureComponent {
   state = {
     text: '',
     loading: false,
@@ -120,7 +120,7 @@ export default class BatchOp extends Component {
   }
 
   handleCancel = () => {
-    this.props.store.toggleBatchOp()
+    window.store.toggleBatchOp()
   }
 
   handleChangeTab = tab => {
@@ -230,8 +230,9 @@ export default class BatchOp extends Component {
         zip: true,
         skipConfirm: true
       }
-      window.store.addTransferList([obj])
       const { store } = window
+      store.addTransferList([obj])
+
       this.tm = setTimeout(() => {
         reject(new Error('timeout'))
       }, 1000 * 60 * 60)
@@ -676,7 +677,7 @@ export default class BatchOp extends Component {
     const {
       showModal,
       innerWidth
-    } = this.props.store
+    } = this.props
     const showBatchOp = showModal === modals.batchOps
     const pops = {
       open: showBatchOp,

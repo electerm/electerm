@@ -1,4 +1,4 @@
-import { memo, useState } from 'react'
+import { Component } from 'react'
 import {
   Select
 } from 'antd'
@@ -13,24 +13,26 @@ const { Option } = Select
 
 const e = window.translate
 
-export default memo(function TransferModalUI (props) {
-  const [filter, setFilter] = useState('all')
-
-  function getCurrentTransports () {
-    return getTransferList().filter(t => t.inited)
+export default class TransferModalUI extends Component {
+  state = {
+    filter: 'all'
   }
 
-  function handlePauseOrResumeAll () {
+  getCurrentTransports = () => {
+    return this.getTransferList().filter(t => t.inited)
+  }
+
+  handlePauseOrResumeAll = () => {
     const { store } = window
     store.pauseAllTransfer ? store.resumeAll() : store.pauseAll()
   }
 
-  function handleCancelAll () {
+  handleCancelAll = () => {
     window.store.cancelAll()
   }
 
-  function getGroups () {
-    const { fileTransfers } = props
+  getGroups = () => {
+    const { fileTransfers } = this.props
     const tree = fileTransfers.reduce((p, k) => {
       const {
         id,
@@ -57,19 +59,24 @@ export default memo(function TransferModalUI (props) {
       })
   }
 
-  function handleFilter (filter) {
-    setFilter(filter)
+  handleFilter = (filter) => {
+    this.setState({
+      filter
+    })
   }
 
-  function getTransferList () {
-    const fileTransfers = props.fileTransfers
+  getTransferList = () => {
+    const {
+      filter
+    } = this.state
+    const fileTransfers = this.props.fileTransfers
     return filter === 'all'
       ? fileTransfers
       : fileTransfers.filter(d => d.sessionId === filter)
   }
 
-  function computePercent () {
-    const { all, transfered } = getTransferList().reduce((prev, c) => {
+  computePercent = () => {
+    const { all, transfered } = this.getTransferList().reduce((prev, c) => {
       prev.all += c?.fromFile?.size || 0
       prev.transfered += (c.transferred || 0)
       return prev
@@ -84,28 +91,28 @@ export default memo(function TransferModalUI (props) {
     return percent
   }
 
-  function computeLeftTime () {
-    const sorted = getCurrentTransports().sort((b, a) => a.leftTimeInt - b.leftTimeInt)
+  computeLeftTime = () => {
+    const sorted = this.getCurrentTransports().sort((b, a) => a.leftTimeInt - b.leftTimeInt)
     return get(sorted, '[0].leftTime') || '-'
   }
 
-  function computePausing () {
-    return getCurrentTransports().reduce((prev, c) => {
+  computePausing = () => {
+    return this.getCurrentTransports().reduce((prev, c) => {
       return prev && c.pausing
     }, true)
   }
 
-  function renderTransportIcon () {
-    const pausing = computePausing()
+  renderTransportIcon = () => {
+    const pausing = this.computePausing()
     const Icon = pausing ? PlayCircleOutlined : PauseCircleOutlined
     return <Icon className='font14' />
   }
 
-  function renderTransfers () {
+  renderTransfers = () => {
     return (
       <div className='transports-content overscroll-y'>
         {
-          getTransferList().map((t, i) => {
+          this.getTransferList().map((t, i) => {
             const { id } = t
             return (
               <Transport
@@ -119,8 +126,8 @@ export default memo(function TransferModalUI (props) {
     )
   }
 
-  function renderFilters () {
-    const groups = getGroups()
+  renderFilters = () => {
+    const groups = this.getGroups()
     const all = [
       {
         id: 'all',
@@ -131,8 +138,8 @@ export default memo(function TransferModalUI (props) {
     return (
       <div>
         <Select
-          value={filter}
-          onChange={handleFilter}
+          value={this.state.filter}
+          onChange={this.handleFilter}
           popupMatchSelectWidth={false}
         >
           {
@@ -152,35 +159,37 @@ export default memo(function TransferModalUI (props) {
     )
   }
 
-  return (
-    <div className='pd1t'>
-      <div className='transports-wrap-side fix pd1y'>
-        <div
-          className='fleft'
-        >
-          {
-            renderFilters()
-          }
-        </div>
-        <div className='fright'>
-          <span
-            className='pointer'
-            onClick={handlePauseOrResumeAll}
+  render () {
+    return (
+      <div className='pd1t'>
+        <div className='transports-wrap-side fix pd1y'>
+          <div
+            className='fleft'
           >
-            {renderTransportIcon()} {computePercent()}%({computeLeftTime()})
-            <span className='mg1x'>
-              [{getCurrentTransports().length} / {getTransferList().length}]
+            {
+              this.renderFilters()
+            }
+          </div>
+          <div className='fright'>
+            <span
+              className='pointer'
+              onClick={this.handlePauseOrResumeAll}
+            >
+              {this.renderTransportIcon()} {this.computePercent()}%({this.computeLeftTime()})
+              <span className='mg1x'>
+                [{this.getCurrentTransports().length} / {this.getTransferList().length}]
+              </span>
             </span>
-          </span>
-          <span
-            className='color-red pointer'
-            onClick={handleCancelAll}
-          >
-            {e('cancelAll')}
-          </span>
+            <span
+              className='color-red pointer'
+              onClick={this.handleCancelAll}
+            >
+              {e('cancelAll')}
+            </span>
+          </div>
         </div>
+        {this.renderTransfers()}
       </div>
-      {renderTransfers()}
-    </div>
-  )
-})
+    )
+  }
+}

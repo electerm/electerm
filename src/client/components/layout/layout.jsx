@@ -1,4 +1,4 @@
-import { Component } from '../common/react-subx'
+import { auto } from 'manate/react'
 import Layouts from './layouts'
 import Sessions from '../session/sessions'
 import {
@@ -8,17 +8,18 @@ import {
 } from '../../common/constants'
 import layoutAlg from './layout-alg'
 import calcSessionSize from './session-size-alg'
-import TermSearch from '../terminal/term-search.jsx'
-import Footer from '../footer/footer-entry.jsx'
-import QuickCommandsFooterBox from '../quick-commands/quick-commands-box.jsx'
+import TermSearch from '../terminal/term-search'
+import Footer from '../footer/footer-entry'
+import QuickCommandsFooterBox from '../quick-commands/quick-commands-box'
+import { pick } from 'lodash-es'
 import './layout.styl'
 
-export default class Layout extends Component {
-  handleMousedown = (e) => {
+export default auto(function Layout (props) {
+  const handleMousedown = (e) => {
 
   }
 
-  calcLayoutStyle = () => {
+  const calcLayoutStyle = () => {
     const {
       width,
       height,
@@ -28,7 +29,7 @@ export default class Layout extends Component {
       // infoPanelPinned,
       pinned
       // rightSidebarWidth
-    } = this.props.store
+    } = props.store
     const h = height - footerHeight - (pinnedQuickCommandBar ? quickCommandBoxHeight : 0)
     const l = pinned ? 43 + leftSidebarWidth : 43
     // const r = infoPanelPinned ? rightSidebarWidth : 0
@@ -40,17 +41,7 @@ export default class Layout extends Component {
     }
   }
 
-  toCssStyle = (conf) => {
-    return Object.keys(conf).reduce((prev, key) => {
-      const v = conf[key]
-      return {
-        ...prev,
-        [key]: v + 'px'
-      }
-    }, {})
-  }
-
-  buildLayoutStyles = () => {
+  const buildLayoutStyles = () => {
     const {
       layout,
       height,
@@ -60,7 +51,7 @@ export default class Layout extends Component {
       infoPanelPinned,
       pinned,
       rightSidebarWidth
-    } = this.props.store
+    } = props.store
     const l = pinned ? leftSidebarWidth : 0
     const r = infoPanelPinned ? rightSidebarWidth : 0
     const w = width - l - r - 42
@@ -68,14 +59,14 @@ export default class Layout extends Component {
     return layoutAlg(layout, w, h)
   }
 
-  renderSessions (conf, layout) {
+  function renderSessions (conf, layout) {
     const {
       width,
       height
-    } = this.calcLayoutStyle()
+    } = calcLayoutStyle()
     const {
       store
-    } = this.props
+    } = props
     const { tabs } = store
     const tabsBatch = {}
     for (const tab of tabs) {
@@ -90,9 +81,23 @@ export default class Layout extends Component {
         batch: i,
         layout,
         ...v,
-        store,
-        config: store.config,
-        tabs: tabsBatch[i]
+        tabs: tabsBatch[i],
+        ...pick(store, [
+          'isMaximized',
+          'config',
+          'resolutions',
+          'hideDelKeyTip',
+          'fileOperation',
+          'file',
+          'activeTerminalId',
+          'pinnedQuickCommandBar',
+          'tabsHeight',
+          'appPath',
+          'rightSidebarWidth',
+          'leftSidebarWidth',
+          'pinned',
+          'openedSideBar'
+        ])
       }
       return (
         <Sessions
@@ -103,43 +108,46 @@ export default class Layout extends Component {
     })
   }
 
-  render () {
-    const { store } = this.props
-    const {
-      layout, config, currentTab
-    } = store
-    const conf = splitConfig[layout]
-    const layoutProps = {
-      layout,
-      ...this.buildLayoutStyles(conf, layout),
-      layoutStyle: this.calcLayoutStyle(),
-      handleMousedown: this.handleMousedown
-    }
-    const termProps = {
-      currentTab,
-      store,
-      config
-    }
-    const footerProps = {
-      store,
-      currentTab
-    }
-    return [
-      <Layouts {...layoutProps} key='layouts'>
-        {this.renderSessions(conf, layout)}
-      </Layouts>,
-      <TermSearch
-        key='TermSearch'
-        {...termProps}
-      />,
-      <QuickCommandsFooterBox
-        key='QuickCommandsFooterBox'
-        store={store}
-      />,
-      <Footer
-        key='Footer'
-        {...footerProps}
-      />
-    ]
+  const { store } = props
+  const {
+    layout, config, currentTab
+  } = store
+  const conf = splitConfig[layout]
+  const layoutProps = {
+    layout,
+    ...buildLayoutStyles(conf, layout),
+    layoutStyle: calcLayoutStyle(),
+    handleMousedown
   }
-}
+  const termProps = {
+    currentTab,
+    config,
+    termSearchOpen: store.termSearchOpen,
+    termSearch: store.termSearch,
+    termSearchOptions: store.termSearchOptions,
+    activeTerminalId: store.activeTerminalId,
+    termSearchMatchCount: store.termSearchMatchCount,
+    termSearchMatchIndex: store.termSearchMatchIndex
+  }
+  const footerProps = {
+    store,
+    currentTab
+  }
+  return [
+    <Layouts {...layoutProps} key='layouts'>
+      {renderSessions(conf, layout)}
+    </Layouts>,
+    <TermSearch
+      key='TermSearch'
+      {...termProps}
+    />,
+    <QuickCommandsFooterBox
+      key='QuickCommandsFooterBox'
+      store={store}
+    />,
+    <Footer
+      key='Footer'
+      {...footerProps}
+    />
+  ]
+})

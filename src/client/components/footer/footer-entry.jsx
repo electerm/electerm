@@ -1,4 +1,4 @@
-import { Component } from '../common/react-subx'
+import { auto } from 'manate/react'
 import {
   Select
 } from 'antd'
@@ -16,17 +16,17 @@ const {
 
 const e = window.translate
 
-export default class FooterEntry extends Component {
-  handleInfoPanel = () => {
-    const { activeTerminalId } = this.props.store
+export default auto(function FooterEntry (props) {
+  function handleInfoPanel () {
+    const { activeTerminalId } = props.store
     postMessage({
       action: terminalActions.showInfoPanel,
       activeSplitId: activeTerminalId
     })
   }
 
-  batchInput = (cmd, toAll) => {
-    const { activeTerminalId } = this.props.store
+  function batchInput (cmd, toAll) {
+    const { activeTerminalId } = props.store
     postMessage({
       action: terminalActions.batchInput,
       activeSplitId: activeTerminalId,
@@ -35,8 +35,8 @@ export default class FooterEntry extends Component {
     })
   }
 
-  handleSwitchEncoding = encode => {
-    const { activeTerminalId } = this.props.store
+  function handleSwitchEncoding (encode) {
+    const { activeTerminalId } = props.store
     postMessage({
       encode,
       action: terminalActions.changeEncode,
@@ -44,8 +44,8 @@ export default class FooterEntry extends Component {
     })
   }
 
-  isLoading = () => {
-    const { currentTab } = this.props.store
+  function isLoading () {
+    const { currentTab } = props.store
     if (!currentTab) {
       return true
     }
@@ -55,18 +55,18 @@ export default class FooterEntry extends Component {
     return status !== statusMap.success
   }
 
-  renderBatchInputs () {
+  function renderBatchInputs () {
     return (
       <div className='terminal-footer-unit terminal-footer-center'>
         <BatchInput
-          input={this.batchInput}
-          batchInputs={this.props.store.batchInputs}
+          input={batchInput}
+          batchInputs={props.store.batchInputs}
         />
       </div>
     )
   }
 
-  renderQuickCommands () {
+  function renderQuickCommands () {
     return (
       <div className='terminal-footer-unit terminal-footer-qm'>
         <Qm />
@@ -74,14 +74,14 @@ export default class FooterEntry extends Component {
     )
   }
 
-  renderEncodingInfo () {
+  function renderEncodingInfo () {
     const selectProps = {
       style: {
         minWidth: 30
       },
       placeholder: e('encode'),
-      defaultValue: this.props.currentTab?.encode,
-      onSelect: this.handleSwitchEncoding,
+      defaultValue: props.currentTab?.encode,
+      onSelect: handleSwitchEncoding,
       size: 'small',
       popupMatchSelectWidth: false
     }
@@ -106,54 +106,52 @@ export default class FooterEntry extends Component {
     )
   }
 
-  renderInfoIcon () {
-    const loading = this.isLoading()
+  function renderInfoIcon () {
+    const loading = isLoading()
     if (loading) {
       return null
     }
     return (
       <div className='terminal-footer-unit terminal-footer-info'>
         <InfoCircleOutlined
-          onClick={this.handleInfoPanel}
+          onClick={handleInfoPanel}
           className='pointer font18 terminal-info-icon'
         />
       </div>
     )
   }
 
-  render () {
-    const { tabs, leftSidebarWidth, openedSideBar } = this.props.store
-    const pane = this.props.store.currentTab?.pane
-    const type = this.props.store.currentTab?.type
-    if (
-      type === 'rdp' ||
-      type === 'web' ||
-      type === 'vnc' ||
-      pane === paneMap.fileManager ||
-      !tabs.length
-    ) {
-      return null
-    }
-    const w = 43 + leftSidebarWidth
-    const sideProps = openedSideBar
-      ? {
-          className: 'main-footer',
-          style: {
-            left: `${w}px`
-          }
-        }
-      : {
-          className: 'main-footer'
-        }
-    return (
-      <div {...sideProps}>
-        <div className='terminal-footer-flex'>
-          {this.renderQuickCommands()}
-          {this.renderBatchInputs()}
-          {this.renderEncodingInfo()}
-          {this.renderInfoIcon()}
-        </div>
-      </div>
-    )
+  const { tabs, leftSidebarWidth, openedSideBar, currentTab } = props.store
+  const pane = currentTab?.pane
+  const type = currentTab?.type
+  if (
+    type === 'rdp' ||
+    type === 'web' ||
+    type === 'vnc' ||
+    pane === paneMap.fileManager ||
+    !tabs.length
+  ) {
+    return null
   }
-}
+  const w = 43 + leftSidebarWidth
+  const sideProps = openedSideBar
+    ? {
+        className: 'main-footer',
+        style: {
+          left: `${w}px`
+        }
+      }
+    : {
+        className: 'main-footer'
+      }
+  return (
+    <div {...sideProps}>
+      <div className='terminal-footer-flex'>
+        {renderQuickCommands()}
+        {renderBatchInputs()}
+        {renderEncodingInfo()}
+        {renderInfoIcon()}
+      </div>
+    </div>
+  )
+})
