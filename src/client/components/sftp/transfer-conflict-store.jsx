@@ -174,7 +174,7 @@ export default class TransferConflictStore extends PureComponent {
         fromFile
       }
       Object.assign(fileTransfers[index], up)
-    } else {
+    } else if (fileTransfers[0]) {
       fileTransfers[0].r = Math.random()
     }
     store.setFileTransfers(fileTransfers)

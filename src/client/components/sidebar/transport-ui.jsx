@@ -44,7 +44,7 @@ export default function Transporter (props) {
   const title = `${typeFromTitle}→${typeToTitle}: ${fromPath} -> ${toPath} ${speed || ''} ${percent || 0}%`
   const cancelIcon = (
     <CloseCircleOutlined
-      className='transfer-control-icon pointer hover-black font14'
+      className='transfer-control-icon transfer-control-cancel pointer hover-black font14'
       onClick={cancel}
       title={e('cancel')}
     />

@@ -51,6 +51,13 @@ export default class TransportAction extends Component {
     }
   }
 
+  componentWillUnmount () {
+    this.transport && this.transport.destroy()
+    this.transport = null
+    clearTimeout(this.timer)
+    this.timer = null
+  }
+
   update = (up) => {
     const { fileTransfers, transfer } = this.props
     const {
@@ -92,7 +99,7 @@ export default class TransportAction extends Component {
   }
 
   onEnd = (update = {}) => {
-    if (this.inst.onCancel) {
+    if (this.onCancel) {
       return
     }
     const {
@@ -111,10 +118,10 @@ export default class TransportAction extends Component {
           ...transfer,
           ...update,
           finishTime,
-          startTime: this.inst.startTime,
+          startTime: this.startTime,
           size: transfer.fromFile.size,
           next: null,
-          speed: format(transfer.fromFile.size, this.inst.startTime)
+          speed: format(transfer.fromFile.size, this?.startTime)
         }
       )
     }
@@ -125,7 +132,7 @@ export default class TransportAction extends Component {
   }
 
   onData = (transferred) => {
-    if (this.inst.onCancel) {
+    if (this.onCancel) {
       return
     }
     const { transfer } = this.props
@@ -138,7 +145,7 @@ export default class TransportAction extends Component {
     up.percent = percent
     up.status = 'active'
     up.transferred = transferred
-    up.startTime = this.inst.startTime
+    up.startTime = this.startTime
     up.speed = format(transferred, up.startTime)
     Object.assign(
       up,
@@ -149,33 +156,36 @@ export default class TransportAction extends Component {
   }
 
   cancel = (callback) => {
-    if (this.inst.onCancel) {
+    if (this.onCancel) {
       return
     }
+    this.onCancel = true
     const {
       transfer
     } = this.props
     let {
       fileTransfers
     } = this.props
-    this.inst.onCancel = true
     const { id } = transfer
-    this.inst.transport && this.inst.transport.destroy()
+    this.transport && this.transport.destroy()
+    this.transport = null
     fileTransfers = fileTransfers.filter(t => {
       return t.id !== id
     })
-    window.store.setFileTransfers(fileTransfers)
+    this.timer = setTimeout(() => {
+      window.store.setFileTransfers(fileTransfers)
+    }, 100)
     if (isFunction(callback)) {
       callback()
     }
   }
 
   pause = () => {
-    this.inst.transport && this.inst.transport.pause()
+    this.transport && this.transport.pause()
   }
 
   resume = () => {
-    this.inst.transport && this.inst.transport.resume()
+    this.transport && this.transport.resume()
   }
 
   mvOrCp = () => {
@@ -340,7 +350,7 @@ export default class TransportAction extends Component {
       : toPath
     const mode = toFile.mode || fromMode
     const sftp = window.sftps[this.sessionId]
-    this.inst.transport = await sftp[transferType]({
+    this.transport = await sftp[transferType]({
       remotePath,
       localPath,
       options: { mode },
@@ -355,7 +365,7 @@ export default class TransportAction extends Component {
   }
 
   initTransfer = async () => {
-    if (this.inst.started) {
+    if (this.started) {
       return
     }
     const { transfer } = this.props
@@ -375,8 +385,8 @@ export default class TransportAction extends Component {
     this.update({
       startTime: t
     })
-    this.inst.startTime = t
-    this.inst.started = true
+    this.startTime = t
+    this.started = true
     if (typeFrom === typeTo) {
       return this.mvOrCp()
     } else if (unzip && inited) {

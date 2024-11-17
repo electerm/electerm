@@ -70,12 +70,12 @@ export default auto(function QuickCommandsFooterBox (props) {
     setLabels(v)
   }
 
-  function filterFunc (v, opt) {
-    const c = opt.props.children.toLowerCase()
-    const m = opt.props.cmd.toLowerCase()
-    const vv = v.toLowerCase()
-    return c.includes(vv) || m.includes(vv)
-  }
+  // function filterFunc (v, opt) {
+  //   const c = opt.props.children.toLowerCase()
+  //   const m = opt.props.cmd.toLowerCase()
+  //   const vv = v.toLowerCase()
+  //   return c.includes(vv) || m.includes(vv)
+  // }
 
   function onDragOver (e) {
     e.preventDefault()

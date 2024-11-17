@@ -48,7 +48,7 @@ export default Store => {
     return window.store.addItems(objs, 'fileTransfers')
   }
   Store.prototype.setFileTransfers = function (objs) {
-    return window.store.setState('fileTransfers', objs)
+    return window.store.setState('fileTransfers', objs.filter(d => !d.cancel))
   }
   Store.prototype.addTransferList = function (objs) {
     const { store } = window
@@ -85,11 +85,17 @@ export default Store => {
     }))
   }
   Store.prototype.cancelAll = function () {
-    const { store } = window
-    store.setFileTransfers(store.fileTransfers.map(t => {
-      t.cancel = true
-      return t
-    }))
+    console.log('cancelAll', window.store.fileTransfers)
+    // window.store.setFileTransfers(window.store.fileTransfers.map((t, i) => {
+    //   t.cancel = false
+    //   t.delay = (i + 1) * 100
+    //   return t
+    // }))
+    const arr = document.querySelectorAll('.sftp-transport .transfer-control-cancel')
+    console.log(arr, 'arr')
+    arr.forEach(d => {
+      d.click()
+    })
   }
   Store.prototype.cancelTransfer = function (itemId) {
     const { store } = window
