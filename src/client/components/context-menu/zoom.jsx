@@ -1,4 +1,3 @@
-import { auto } from 'manate/react'
 import InputNumberConfirm from '../common/input-confirm'
 
 import {
@@ -6,15 +5,15 @@ import {
   PlusCircleOutlined
 } from '@ant-design/icons'
 
-export default auto(function ZoomMenu (props) {
+export default function ZoomMenu (props) {
+  const { store } = window
   const handleChange = (v) => {
-    window.store.zoom(v / 100)
+    store.zoom(v / 100)
   }
 
-  const { store } = props
   return (
     <InputNumberConfirm
-      value={parseInt(store.config.zoom * 100, 10)}
+      value={parseInt(props.config.zoom * 100, 10)}
       onChange={handleChange}
       step={1}
       min={25}
@@ -34,4 +33,4 @@ export default auto(function ZoomMenu (props) {
       }
     />
   )
-})
+}

@@ -270,6 +270,7 @@ class Sessions extends PureComponent {
       update,
       tab,
       index,
+      batch,
       tabIds
     } = e.data || {}
     if (
@@ -280,7 +281,7 @@ class Sessions extends PureComponent {
       this.onChangeTabId(currentTabId)
     } else if (action === tabActions.updateTabs) {
       this.editTab(id, update)
-    } else if (action === tabActions.addTab && tab.batch === this.props.batch) {
+    } else if (action === tabActions.addTab && (batch ?? tab.batch) === this.props.batch) {
       this.addTab(tab, index)
     } else if (action === tabActions.initFirstTab) {
       this.initFirstTab()

@@ -122,17 +122,30 @@ export default auto(function Layout (props) {
   const termProps = {
     currentTab,
     config,
-    termSearchOpen: store.termSearchOpen,
-    termSearch: store.termSearch,
-    termSearchOptions: store.termSearchOptions,
-    activeTerminalId: store.activeTerminalId,
-    termSearchMatchCount: store.termSearchMatchCount,
-    termSearchMatchIndex: store.termSearchMatchIndex
+    ...pick(store, [
+      'termSearchOpen',
+      'termSearch',
+      'termSearchOptions',
+      'activeTerminalId',
+      'termSearchMatchCount',
+      'termSearchMatchIndex'
+    ])
   }
   const footerProps = {
     store,
     currentTab
   }
+  const qmProps = pick(store, [
+    'quickCommandTags',
+    'qmSortByFrequency',
+    'openQuickCommandBar',
+    'pinnedQuickCommandBar',
+    'qmSortByFrequency',
+    'inActiveTerminal',
+    'leftSidebarWidth',
+    'openedSideBar',
+    'currentQuickCommands'
+  ])
   return [
     <Layouts {...layoutProps} key='layouts'>
       {renderSessions(conf, layout)}
@@ -143,7 +156,7 @@ export default auto(function Layout (props) {
     />,
     <QuickCommandsFooterBox
       key='QuickCommandsFooterBox'
-      store={store}
+      {...qmProps}
     />,
     <Footer
       key='Footer'

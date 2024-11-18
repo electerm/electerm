@@ -63,6 +63,7 @@ export default Store => {
     postMsg({
       action: tabActions.addTab,
       tab,
+      batch: window.openTabBatch ?? window.store.currentLayoutBatch,
       index
     })
   }

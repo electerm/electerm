@@ -161,6 +161,13 @@ export default auto(function Index (props) {
     resolutions: store.resolutions,
     openResolutionEdit
   }
+  const contextMenuProps = {
+    ...pick(store, [
+      'history'
+    ]),
+    tabs: store.getTabs(),
+    config
+  }
   return (
     <ConfigProvider
       theme={uiThemeConfig}
@@ -202,7 +209,7 @@ export default auto(function Index (props) {
             store={store}
           />
         </div>
-        <ContextMenu />
+        <ContextMenu {...contextMenuProps} />
         <ConfirmModalStore
           transferToConfirm={transferToConfirm}
         />

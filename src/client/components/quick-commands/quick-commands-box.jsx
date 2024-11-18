@@ -2,7 +2,6 @@
  * quick commands footer selection wrap
  */
 
-import { auto } from 'manate/react'
 import { useState, useRef } from 'react'
 import { quickCommandLabelsLsKey } from '../../common/constants'
 import { sortBy } from 'lodash-es'
@@ -22,7 +21,7 @@ const e = window.translate
 const addQuickCommands = 'addQuickCommands'
 const { Option } = Select
 
-export default auto(function QuickCommandsFooterBox (props) {
+export default function QuickCommandsFooterBox (props) {
   const [keyword, setKeyword] = useState('')
   const [labels, setLabels] = useState(ls.getItemJSON(quickCommandLabelsLsKey, []))
   const timer = useRef(null)
@@ -38,17 +37,17 @@ export default auto(function QuickCommandsFooterBox (props) {
   }
 
   function toggle (openQuickCommandBar) {
-    props.store.openQuickCommandBar = openQuickCommandBar
+    window.store.openQuickCommandBar = openQuickCommandBar
   }
 
   function handleTogglePinned () {
-    props.store.pinnedQuickCommandBar = !props.store.pinnedQuickCommandBar
+    window.store.pinnedQuickCommandBar = !window.store.pinnedQuickCommandBar
   }
 
   async function handleSelect (id) {
     const {
       store
-    } = props
+    } = window
     if (id === addQuickCommands) {
       store.handleOpenQuickCommandsSetting()
     } else {
@@ -57,8 +56,8 @@ export default auto(function QuickCommandsFooterBox (props) {
   }
 
   function handleClose () {
-    props.store.pinnedQuickCommandBar = false
-    props.store.openQuickCommandBar = false
+    window.store.pinnedQuickCommandBar = false
+    window.store.openQuickCommandBar = false
   }
 
   function handleChange (e) {
@@ -85,7 +84,6 @@ export default auto(function QuickCommandsFooterBox (props) {
     e.dataTransfer.setData('idDragged', e.target.getAttribute('data-id'))
   }
 
-  // sort quick commands array when drop, so that the dragged item will be placed at the right position, e.target.getAttribute('data-id') would target item id, e.dataTransfer.getData('idDragged') would target dragged item id, then set window.store.quickCommands use window.store.setItems
   function onDrop (e) {
     onDropFunc(e, '.qm-item')
   }
@@ -95,7 +93,7 @@ export default auto(function QuickCommandsFooterBox (props) {
       <div className='pd1'>
         <Button
           type='primary'
-          onClick={props.store.handleOpenQuickCommandsSetting}
+          onClick={window.store.handleOpenQuickCommandsSetting}
         >
           {e(addQuickCommands)}
         </Button>
@@ -106,7 +104,7 @@ export default auto(function QuickCommandsFooterBox (props) {
   function renderItem (item) {
     const {
       qmSortByFrequency
-    } = props.store
+    } = props
     return (
       <CmdItem
         item={item}
@@ -149,11 +147,11 @@ export default auto(function QuickCommandsFooterBox (props) {
     inActiveTerminal,
     leftSidebarWidth,
     openedSideBar
-  } = props.store
+  } = props
   if ((!openQuickCommandBar && !pinnedQuickCommandBar) || !inActiveTerminal) {
     return null
   }
-  const all = props.store.currentQuickCommands
+  const all = props.currentQuickCommands
   if (!all.length) {
     return renderNoCmd()
   }
@@ -212,14 +210,14 @@ export default auto(function QuickCommandsFooterBox (props) {
             <Select
               {...sprops}
             >
-              {props.store.quickCommandTags.map(
+              {props.quickCommandTags.map(
                 renderTag
               )}
             </Select>
             <Button
               className='mg1l iblock'
               type={type}
-              onClick={props.store.handleSortByFrequency}
+              onClick={window.store.handleSortByFrequency}
             >
               {e('sortByFrequency')}
             </Button>
@@ -232,7 +230,7 @@ export default auto(function QuickCommandsFooterBox (props) {
                 type={tp}
               />
               <Button
-                onClick={props.store.handleOpenQuickCommandsSetting}
+                onClick={window.store.handleOpenQuickCommandsSetting}
                 icon={<EditOutlined />}
               />
               <Button
@@ -248,4 +246,4 @@ export default auto(function QuickCommandsFooterBox (props) {
       </div>
     </div>
   )
-})
+}

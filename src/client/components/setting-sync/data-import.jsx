@@ -13,15 +13,14 @@ import {
   ExportOutlined,
   InfoCircleOutlined
 } from '@ant-design/icons'
-import { auto } from 'manate/react'
 
 const e = window.translate
 
-export default auto(function DataTransport (props) {
+export default function DataTransport (props) {
   const txt = e('autoSync')
   const {
     store
-  } = props
+  } = window
   return (
     <div className='pd2 fix'>
       <div className='fleft'>
@@ -45,7 +44,7 @@ export default auto(function DataTransport (props) {
       </div>
       <div className='fright'>
         <Switch
-          checked={store.config.autoSync || false}
+          checked={props.config.autoSync || false}
           checkedChildren={txt}
           onChange={store.handleAutoSync}
           unCheckedChildren={txt}
@@ -57,4 +56,4 @@ export default auto(function DataTransport (props) {
       </div>
     </div>
   )
-})
+}

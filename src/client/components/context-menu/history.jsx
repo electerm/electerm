@@ -1,12 +1,11 @@
-import { auto } from 'manate/react'
 import { createTitleWithTag } from '../../common/create-title'
 
-export default auto(function HistorySubMenu (props) {
-  const { store } = props
+export default function HistorySubMenu (props) {
+  const { store } = window
   return (
     <div className='sub-context-menu'>
       {
-        store.history.map(item => {
+        props.history.map(item => {
           const title = createTitleWithTag(item)
           return (
             <div
@@ -22,4 +21,4 @@ export default auto(function HistorySubMenu (props) {
       }
     </div>
   )
-})
+}

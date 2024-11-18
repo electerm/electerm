@@ -53,34 +53,34 @@ export default function SyncForm (props) {
       up[syncType + 'ApiUrl'] = 'https://electerm-cloud.html5beta.com/api/sync'
       // up[syncType + 'ApiUrl'] = 'http://127.0.0.1:5678/api/sync'
     }
-    props.store.updateSyncSetting(up)
-    const test = await props.store.testSyncToken(syncType, res.gistId)
+    window.store.updateSyncSetting(up)
+    const test = await window.store.testSyncToken(syncType, res.gistId)
     if (!test) {
       return notification.error({
         message: 'token invalid'
       })
     }
     if (!res.gistId && syncType !== syncTypes.custom && syncType !== syncTypes.cloud) {
-      props.store.createGist(syncType)
+      window.store.createGist(syncType)
     }
   }
 
   function upload () {
-    props
+    window
       .store
       .uploadSetting(props.syncType)
-      .catch(props.store.onError)
+      .catch(window.store.onError)
   }
 
   function download () {
-    props
+    window
       .store
       .downloadSetting(props.syncType)
-      .catch(props.store.onError)
+      .catch(window.store.onError)
   }
 
   // onChangeAutoSync = checked => {
-  //   this.props.store.updateSyncSetting({
+  //   this.window.store.updateSyncSetting({
   //     autoSync: checked
   //   })
   // }
@@ -273,7 +273,7 @@ export default function SyncForm (props) {
           </Button>
           <Button
             type='dashed'
-            onClick={props.store.handleClearSyncSetting}
+            onClick={window.store.handleClearSyncSetting}
             disabled={disabled()}
             className='mg1r mg1b sync-btn-clear'
             icon={<ClearOutlined />}

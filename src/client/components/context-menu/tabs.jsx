@@ -1,12 +1,10 @@
-import { auto } from 'manate/react'
 import TabsSubMenuChild from './sub-tab-menu'
 
-export default auto(function TabsSubMenu (props) {
-  const { store } = props
+export default function TabsSubMenu (props) {
   return (
     <div className='sub-context-menu'>
       {
-        store.getTabs().map(item => {
+        props.tabs.map(item => {
           return (
             <TabsSubMenuChild
               key={item.id}
@@ -17,4 +15,4 @@ export default auto(function TabsSubMenu (props) {
       }
     </div>
   )
-})
+}

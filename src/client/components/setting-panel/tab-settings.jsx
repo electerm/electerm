@@ -11,6 +11,7 @@ import {
   settingTerminalId,
   settingShortcutsId
 } from '../../common/constants'
+import { pick } from 'lodash-es'
 
 export default auto(function TabSettings (props) {
   const {
@@ -27,7 +28,15 @@ export default auto(function TabSettings (props) {
   let elem = null
   const sid = settingItem.id
   if (sid === settingSyncId) {
-    elem = <SyncSetting store={store} />
+    const syncProps = pick(store, [
+      'config',
+      'autofocustrigger',
+      'isSyncingSetting',
+      'isSyncDownload',
+      'isSyncUpload',
+      'syncType'
+    ])
+    elem = <SyncSetting {...syncProps} />
   } else if (sid === settingTerminalId) {
     elem = <SettingTerminal {...listProps} config={store.config} />
   } else if (sid === settingShortcutsId) {

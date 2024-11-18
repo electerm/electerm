@@ -213,7 +213,7 @@ export default class ContextMenu extends PureComponent {
     }
     const Mod = this.modules[submenu]
     return (
-      <Mod store={window.store} />
+      <Mod {...this.props} />
     )
   }
 
@@ -239,7 +239,7 @@ export default class ContextMenu extends PureComponent {
       const Mod = this.modules[module]
       return (
         <div className={baseCls}>
-          <Mod store={window.store} />
+          <Mod {...this.props} />
         </div>
       )
     }
