@@ -108,8 +108,8 @@ export function shortcutExtend (Cls) {
         window.store.runQuickCommandItem(
           qmMatch.id
         )
+        return false
       }
-      return false
     }
     for (let i = 0; i < len; i++) {
       const k = keys[i]
