@@ -14,8 +14,6 @@ module.exports = async (client, cmd) => {
     await client.keyboard.press('Meta+C')
     await delay(401)
   }
-  await client.keyboard.press('Enter')
-  await delay(801)
   await copy()
   const text1 = await client.readClipboard()
   await delay(301)
