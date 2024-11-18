@@ -54,9 +54,10 @@ exports.createWindow = async function () {
 
   await initAppServer()
   initIpc()
-  const defaultPort = isDev ? 5570 : await getPort()
-  const { devPort = defaultPort } = process.env
-  const opts = `http://127.0.0.1:${devPort}/index.html?v=${packInfo.version}`
+  const port = isDev
+    ? process.env.devPort || 5570
+    : await getPort()
+  const opts = `http://127.0.0.1:${port}/index.html?v=${packInfo.version}`
 
   win.loadURL(opts)
   win.webContents.once('dom-ready', () => {
