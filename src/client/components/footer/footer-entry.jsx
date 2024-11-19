@@ -129,9 +129,12 @@ export default auto(function FooterEntry (props) {
     type === 'web' ||
     type === 'vnc' ||
     pane === paneMap.fileManager ||
+    pane === paneMap.sftp ||
     !tabs.length
   ) {
-    return null
+    return (
+      <div className='main-footer' />
+    )
   }
   const w = 43 + leftSidebarWidth
   const sideProps = openedSideBar

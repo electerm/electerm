@@ -47,6 +47,10 @@ class Sessions extends PureComponent {
     window.addEventListener('keydown', this.handleKeyboardEvent.bind(this))
   }
 
+  handleClick = (e) => {
+    window.store.currentTabId = this.state.currentTabId
+  }
+
   closeCurrentTabShortcut = (e) => {
     e.stopPropagation()
     this.delTab(
@@ -461,10 +465,12 @@ class Sessions extends PureComponent {
   }
 
   render () {
-    return [
-      this.renderTabs(),
-      this.renderSessionsWrap()
-    ]
+    return (
+      <div onClick={this.handleClick}>
+        {this.renderTabs()}
+        {this.renderSessionsWrap()}
+      </div>
+    )
   }
 }
 

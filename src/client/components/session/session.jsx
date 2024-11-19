@@ -28,7 +28,6 @@ import {
   terminalRdpType,
   terminalVncType
 } from '../../common/constants'
-import ResizeWrap from '../common/resize-wrap'
 import safeName from '../../common/safe-name'
 import TerminalInfoContent from '../terminal-info/content'
 import uid from '../../common/id-with-stamp'
@@ -300,7 +299,6 @@ export default class SessionWrapper extends Component {
     const {
       terminals,
       activeSplitId,
-      splitDirection,
       sessionOptions,
       sessionId,
       sftpPathFollowSsh
@@ -360,48 +358,43 @@ export default class SessionWrapper extends Component {
           height
         }}
       >
-        <ResizeWrap
-          direction={splitDirection}
-          tab={tab}
-        >
-          {
-            terminals.map((t, index) => {
-              const logName = safeName(`${tab.title ? tab.title + '_' : ''}${tab.host ? tab.host + '_' : ''}${t.id}`)
-              const pops = {
-                ...this.props,
-                ...t,
-                activeSplitId,
-                sftpPathFollowSsh,
-                themeConfig,
-                pane,
-                ...pick(
-                  this,
-                  [
-                    'setActive',
-                    'handleSplit',
-                    'delSplit',
-                    'setSessionState',
-                    'handleShowInfo',
-                    'onChangePane',
-                    'hideInfoPanel',
-                    'setCwd',
-                    'onDelKeyPressed'
-                  ]),
-                ...this.computePosition(t.position / 10)
-              }
-              return (
-                <Term
-                  key={t.id}
-                  logName={logName}
-                  sessionId={sessionId}
-                  terminalIndex={index}
-                  sessionOptions={sessionOptions}
-                  {...pops}
-                />
-              )
-            })
-          }
-        </ResizeWrap>
+        {
+          terminals.map((t, index) => {
+            const logName = safeName(`${tab.title ? tab.title + '_' : ''}${tab.host ? tab.host + '_' : ''}${t.id}`)
+            const pops = {
+              ...this.props,
+              ...t,
+              activeSplitId,
+              sftpPathFollowSsh,
+              themeConfig,
+              pane,
+              ...pick(
+                this,
+                [
+                  'setActive',
+                  'handleSplit',
+                  'delSplit',
+                  'setSessionState',
+                  'handleShowInfo',
+                  'onChangePane',
+                  'hideInfoPanel',
+                  'setCwd',
+                  'onDelKeyPressed'
+                ]),
+              ...this.computePosition(t.position / 10)
+            }
+            return (
+              <Term
+                key={t.id}
+                logName={logName}
+                sessionId={sessionId}
+                terminalIndex={index}
+                sessionOptions={sessionOptions}
+                {...pops}
+              />
+            )
+          })
+        }
       </div>
     )
   }
@@ -424,6 +417,7 @@ export default class SessionWrapper extends Component {
       ? 'hide'
       : ''
     const exts = {
+      ...this.props,
       sftpPathFollowSsh,
       cwd,
       pid,
@@ -432,7 +426,6 @@ export default class SessionWrapper extends Component {
       height,
       sessionId,
       pane,
-      ...this.props,
       width: this.getWidthSftp()
     }
     return (

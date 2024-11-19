@@ -2,6 +2,7 @@ import { memo } from 'react'
 import {
   splitConfig
 } from '../../common/constants'
+import LayoutItem from './layout-item'
 
 function pixed (style) {
   return Object.keys(style).reduce((prev, k) => {
@@ -34,16 +35,17 @@ export default memo(function LayoutWrap (props) {
       {
         new Array(childrenCount).fill(0).map((v, i) => {
           const itemProps = {
+            i,
             style: pixed(wrapStyles[i]),
             className: 'layout-item v' + (i + 1)
           }
           return (
-            <div
+            <LayoutItem
               key={i + 'layout-item'}
               {...itemProps}
             >
               {children[i] || null}
-            </div>
+            </LayoutItem>
           )
         })
       }
