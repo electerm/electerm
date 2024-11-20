@@ -322,7 +322,7 @@ class Sessions extends PureComponent {
         <Button
           onClick={this.handleNewTab}
           size='large'
-          className='mg1r mg1b'
+          className='mg1r mg1b add-new-tab-btn'
         >
           {e('newTab')}
         </Button>
