@@ -1405,7 +1405,6 @@ clear\r`
         width: '100%'
       }
     }
-    console.log('render')
     return (
       <div
         {...prps1}
