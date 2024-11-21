@@ -9,7 +9,7 @@ import {
   Loading3QuartersOutlined,
   BorderlessTableOutlined
 } from '@ant-design/icons'
-import generate from '../../common/uid'
+import generate from '../../common/id-with-stamp'
 import { Tooltip, message } from 'antd'
 import classnames from 'classnames'
 import copy from 'json-deep-copy'
@@ -75,7 +75,6 @@ class Tab extends Component {
       'height',
       'isLast',
       'isMaximized',
-      'activeTerminalId',
       'config',
       'tab',
       'width',
@@ -213,14 +212,6 @@ class Tab extends Component {
       isTransporting: undefined,
       pane: paneMap.terminal
     })
-    if (ntb.terminals) {
-      ntb.terminals = ntb.terminals.map(t => {
-        return {
-          ...t,
-          id: generate()
-        }
-      })
-    }
     const maxBatch = splitConfig[layout].children
     ntb.batch = (batch + 1) % maxBatch
     window.store.addTab(ntb)

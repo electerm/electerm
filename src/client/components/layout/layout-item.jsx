@@ -4,8 +4,16 @@ export default function LayoutItem (props) {
     i,
     ...itemProps
   } = props
-  function handleClick () {
-    window.store.currentLayoutBatch = i
+  function handleClick (e) {
+    let currentElement = e.target
+    while (currentElement) {
+      if (currentElement.classList && currentElement.classList.contains('tabs-dd-icon')) {
+        return false
+      }
+      currentElement = currentElement.parentElement
+    }
+
+    window.StorageEvent.currentLayoutBatch = i
   }
   return (
     <div

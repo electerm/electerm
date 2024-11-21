@@ -66,8 +66,6 @@ class Term extends Component {
   constructor (props) {
     super(props)
     this.state = {
-      pid: '',
-      id: props.id || 'id' + generate(),
       loading: false,
       saveTerminalLogToFile: !!this.props.config.saveTerminalLogToFile,
       addTimeStampToTermLog: !!this.props.config.addTimeStampToTermLog,
@@ -162,7 +160,9 @@ clear\r`
     this.term.parent = null
     Object.keys(this.timers).forEach(k => {
       clearTimeout(this.timers[k])
+      this.timers[k] = null
     })
+    this.timers = null
     this.onClose = true
     if (this.socket) {
       this.socket.close()
@@ -239,9 +239,12 @@ clear\r`
 
   timers = {}
 
+  getDomId = () => {
+    return `term-${this.props.tab.id}`
+  }
+
   initEvt = () => {
-    const { id } = this.state
-    const dom = document.getElementById(id)
+    const dom = document.getElementById(this.getDomId())
     this.dom = dom
     dom.addEventListener('contextmenu', this.onContextMenu)
     window.addEventListener(
@@ -261,8 +264,7 @@ clear\r`
   }
 
   isActiveTerminal = () => {
-    return this.props.id === this.props.activeSplitId &&
-    this.props.tab.id === this.props.currentTabId &&
+    return this.props.tab.id === this.props.currentTabId &&
     this.props.pane === paneMap.terminal
   }
 
@@ -323,43 +325,43 @@ clear\r`
       addTimeStampToTermLog,
       type,
       cmd,
-      activeSplitId,
+      currentTabId,
       pid,
       toAll,
       inputOnly,
       zoomValue
     } = e?.data || {}
 
-    const { id: propSplitId } = this.props
-    const { pid: statePid } = this.state
+    const { id: currentTabIdProp } = this.props.tab
+    const tabIdMatch = currentTabId === currentTabIdProp
     if (
       action === terminalActions.zoom &&
-      propSplitId === activeSplitId
+      tabIdMatch
     ) {
       this.zoom(zoomValue)
     } else if (
       action === terminalActions.changeEncode &&
-      propSplitId === activeSplitId
+      tabIdMatch
     ) {
       this.switchEncoding(encode)
     } else if (
       action === terminalActions.batchInput &&
       (
-        toAll || propSplitId === activeSplitId
+        toAll || tabIdMatch
       )
     ) {
       this.batchInput(cmd)
     } else if (
       action === terminalActions.showInfoPanel &&
       (
-        propSplitId === activeSplitId
+        tabIdMatch
       )
     ) {
       this.handleShowInfo()
     } else if (
       action === terminalActions.quickCommand &&
       (
-        propSplitId === activeSplitId
+        tabIdMatch
       )
     ) {
       e.stopPropagation()
@@ -371,34 +373,34 @@ clear\r`
     } else if (
       action === terminalActions.openTerminalSearch &&
       (
-        propSplitId === activeSplitId
+        tabIdMatch
       )
     ) {
       this.toggleSearch()
     } else if (
       action === terminalActions.doSearchNext &&
       (
-        propSplitId === activeSplitId
+        tabIdMatch
       )
     ) {
       this.searchNext(keyword, options)
     } else if (
       action === terminalActions.doSearchPrev &&
       (
-        propSplitId === activeSplitId
+        tabIdMatch
       )
     ) {
       this.searchPrev(keyword, options)
     } else if (
       action === terminalActions.clearSearch &&
       (
-        propSplitId === activeSplitId
+        tabIdMatch
       )
     ) {
       this.searchAddon.clearDecorations()
     } else if (
       action === commonActions.getTermLogState &&
-      pid === statePid
+      pid === currentTabIdProp
     ) {
       postMessage({
         action: commonActions.returnTermLogState,
@@ -406,11 +408,11 @@ clear\r`
           saveTerminalLogToFile: this.state.saveTerminalLogToFile,
           addTimeStampToTermLog: this.state.addTimeStampToTermLog
         },
-        pid: statePid
+        pid: currentTabIdProp
       })
     } else if (
       action === commonActions.setTermLogState &&
-      pid === statePid
+      pid === currentTabIdProp
     ) {
       this.setState({
         addTimeStampToTermLog,
@@ -758,10 +760,6 @@ clear\r`
     }
   }
 
-  split = () => {
-    this.props.handleSplit(null, this.props.id)
-  }
-
   onContextAction = e => {
     const {
       action,
@@ -907,11 +905,6 @@ clear\r`
         icon: 'SearchOutlined',
         text: e('search'),
         subText: searchShortcut
-      },
-      {
-        func: 'split',
-        icon: 'BorderHorizontalOutlined',
-        text: e('split')
       }
     ]
   }
@@ -1007,7 +1000,6 @@ clear\r`
   }
 
   initTerminal = async () => {
-    const { id } = this.state
     // let {password, privateKey, host} = this.props.tab
     const { themeConfig, tab = {}, config = {} } = this.props
     const term = new Terminal({
@@ -1029,7 +1021,7 @@ clear\r`
     // term.onTitleChange(this.onTitleChange)
     term.parent = this
     term.onSelectionChange(this.onSelection)
-    term.open(document.getElementById(id), true)
+    term.open(document.getElementById(this.getDomId()), true)
     this.loadRenderer(term, config)
     term.textarea.addEventListener('focus', this.setActive)
     // term.onKey(this.onKey)
@@ -1056,9 +1048,11 @@ clear\r`
   }
 
   setActive = () => {
-    this.props.setActive(this.props.id)
+    const name = `currentTabId${this.props.batch}`
+    const tabId = this.props.tab.id
     window.store.storeAssign({
-      activeTerminalId: this.props.id
+      currentTabId: tabId,
+      [name]: tabId
     })
   }
 
@@ -1140,13 +1134,14 @@ clear\r`
       keywords = [],
       server = ''
     } = config
-    const { sessionId, terminalIndex, id, logName } = this.props
+    const { sessionId, logName } = this.props
     const tab = window.store.applyProfileToTabs(deepCopy(this.props.tab || {}))
     const {
       srcId, from = 'bookmarks',
       type,
       term: terminalType,
-      displayRaw
+      displayRaw,
+      id
     } = tab
     const { savePassword } = this.state
     const isSshConfig = type === terminalSshConfigType
@@ -1177,8 +1172,8 @@ clear\r`
       keepaliveInterval: tab.keepaliveInterval === undefined ? config.keepaliveInterval : tab.keepaliveInterval,
       sessionId,
       tabId: id,
+      uid: id,
       srcTabId: tab.id,
-      terminalIndex,
       termType,
       readyTimeout: config.sshReadyTimeout,
       proxy: getProxy(tab, config),
@@ -1186,14 +1181,13 @@ clear\r`
         ? typeMap.remote
         : typeMap.local
     })
-    delete opts.terminals
-    let pid = await createTerm(opts)
+    let r = await createTerm(opts)
       .catch(err => {
         const text = err.message
         handleErr({ message: text })
       })
-    pid = pid || ''
-    if (pid.includes('fail')) {
+    r = r || ''
+    if (r.includes('fail')) {
       return this.promote()
     }
     if (savePassword) {
@@ -1202,24 +1196,18 @@ clear\r`
     this.setState({
       loading: false
     })
-    if (!pid) {
+    if (!r) {
       this.setStatus(statusMap.error)
       return
     }
     this.setStatus(statusMap.success)
-    this.props.setSessionState({
-      pid
-    })
-    term.pid = pid
-    this.pid = pid
-    this.setState({
-      pid
-    })
+    term.pid = id
+    this.pid = id
     const hs = server
       ? server.replace(/https?:\/\//, '')
       : `${host}:${port}`
     const pre = server.startsWith('https') ? 'wss' : 'ws'
-    const wsUrl = `${pre}://${hs}/terminals/${pid}?sessionId=${sessionId}&token=${tokenElecterm}`
+    const wsUrl = `${pre}://${hs}/terminals/${id}?sessionId=${sessionId}&token=${tokenElecterm}`
     const socket = new WebSocket(wsUrl)
     socket.onclose = this.oncloseSocket
     socket.onerror = this.onerrorSocket
@@ -1284,7 +1272,7 @@ clear\r`
       return false
     }
     if (this.userTypeExit) {
-      return this.props.delSplit(this.state.id)
+      return this.props.delTab(this.props.tab.id)
     }
     const key = `open${Date.now()}`
     function closeMsg () {
@@ -1301,7 +1289,7 @@ clear\r`
             type='primary'
             onClick={() => {
               closeMsg()
-              this.props.delSplit(this.state.id)
+              this.props.delTab(this.props.tab.id)
             }}
           >
             {e('close')}
@@ -1370,13 +1358,17 @@ clear\r`
   }
 
   render () {
-    const { id, loading } = this.state
-    const { height, width, left, top, position, id: pid, activeSplitId } = this.props
-    const cls = classnames('term-wrap', {
-      'not-first-term': !!position
-    }, 'tw-' + pid, {
-      'terminal-not-active': activeSplitId !== pid
-    })
+    const { loading } = this.state
+    const { height, width, left, top } = this.props
+    const { id } = this.props.tab
+    const isActive = this.isActiveTerminal()
+    const cls = classnames(
+      'term-wrap',
+      'tw-' + id,
+      {
+        'terminal-not-active': !isActive
+      }
+    )
     const prps1 = {
       className: cls,
       style: {
@@ -1384,7 +1376,7 @@ clear\r`
         width,
         left,
         top,
-        zIndex: position / 10
+        zIndex: 10
       },
       onDrop: this.onDrop
     }
@@ -1404,7 +1396,7 @@ clear\r`
       }
     }
     const prps3 = {
-      id,
+      id: this.getDomId(),
       className: 'absolute term-wrap-2',
       style: {
         left: 0,

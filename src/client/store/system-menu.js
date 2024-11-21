@@ -44,15 +44,6 @@ export default Store => {
     window.store.zoom()
   }
 
-  Store.prototype.onCloseAbout = function (cb) {
-    const { store } = window
-    store.showInfoModal = false
-    if (isFunction(cb)) {
-      cb()
-    }
-    store.focus()
-  }
-
   Store.prototype.openAbout = function (tab) {
     const { store } = window
     store.showInfoModal = true

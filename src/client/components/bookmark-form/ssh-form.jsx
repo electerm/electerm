@@ -299,12 +299,12 @@ export default class BookmarkForm extends PureComponent {
       this.submit(evt, obj)
     }
     if (evt !== 'save' && evt !== 'saveAndCreateNew') {
+      window.store.currentLayoutBatch = window.openTabBatch || 0
       this.props.store.addTab({
         ...copy(obj),
         ...newTerm(true, true),
         batch: window.openTabBatch ?? window.store.currentLayoutBatch
       })
-      window.store.currentLayoutBatch = window.openTabBatch
       delete window.openTabBatch
       this.props.hide()
     }

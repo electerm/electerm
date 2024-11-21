@@ -89,7 +89,6 @@ export default auto(function Layout (props) {
           'hideDelKeyTip',
           'fileOperation',
           'file',
-          'activeTerminalId',
           'pinnedQuickCommandBar',
           'tabsHeight',
           'appPath',
@@ -123,10 +122,10 @@ export default auto(function Layout (props) {
     currentTab,
     config,
     ...pick(store, [
+      'currentTabId',
       'termSearchOpen',
       'termSearch',
       'termSearchOptions',
-      'activeTerminalId',
       'termSearchMatchCount',
       'termSearchMatchIndex'
     ])

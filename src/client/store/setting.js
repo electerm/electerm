@@ -121,8 +121,8 @@ export default Store => {
     } else {
       const historyItem = {
         ...item,
-        id: generate(), // History item gets a unique id
-        bookmarkId, // Store original bookmark id for future matching
+        id: generate(),
+        bookmarkId,
         count: 1,
         lastUse: Date.now()
       }
