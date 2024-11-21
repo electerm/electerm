@@ -34,12 +34,11 @@ export default Store => {
   }
 
   Store.prototype.runQuickCommand = function (cmd, inputOnly = false) {
-    const { activeTerminalId } = window.store
     postMessage({
       action: terminalActions.quickCommand,
       cmd,
       inputOnly,
-      activeSplitId: activeTerminalId
+      currentTabId: window.store.currentTabId
     })
   }
 

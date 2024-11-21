@@ -18,29 +18,26 @@ const e = window.translate
 
 export default auto(function FooterEntry (props) {
   function handleInfoPanel () {
-    const { activeTerminalId } = props.store
     postMessage({
       action: terminalActions.showInfoPanel,
-      activeSplitId: activeTerminalId
+      currentTabId: props.store.currentTabId
     })
   }
 
   function batchInput (cmd, toAll) {
-    const { activeTerminalId } = props.store
     postMessage({
       action: terminalActions.batchInput,
-      activeSplitId: activeTerminalId,
+      currentTabId: props.store.currentTabId,
       toAll,
       cmd
     })
   }
 
   function handleSwitchEncoding (encode) {
-    const { activeTerminalId } = props.store
     postMessage({
       encode,
       action: terminalActions.changeEncode,
-      activeSplitId: activeTerminalId
+      currentTabId: props.store.currentTabId
     })
   }
 

@@ -17,6 +17,7 @@ describe('layouts', function () {
     extendClient(client, electronApp)
     await delay(3500)
     const splitMapDesc = {
+      c1: 'single',
       c2: 'twoColumns',
       c3: 'threeColumns',
       r2: 'twoRows',
@@ -76,7 +77,7 @@ describe('layouts', function () {
     }
 
     // Test each layout type
-    const layouts = Object.keys(splitMapDesc).slice(1)
+    const layouts = Object.keys(splitMapDesc).reverse()
     for (const layout of layouts) {
       await testLayout(layout, splitConfig[layout].children)
     }

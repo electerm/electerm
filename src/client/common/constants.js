@@ -130,11 +130,6 @@ export const fileOperationsMap = buildConst([
   'mv'
 ])
 
-export const terminalSplitDirectionMap = buildConst([
-  'horizontal',
-  'vertical'
-])
-
 export const terminalSshConfigType = 'ssh-config'
 export const terminalWebType = 'web'
 export const terminalRdpType = 'rdp'

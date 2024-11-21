@@ -68,23 +68,22 @@ class TermSearch extends PureComponent {
 
   prev = () => {
     const {
-      activeTerminalId,
+      currentTabId,
       termSearch,
       termSearchOptions
     } = this.props
     postMessage({
       action: terminalActions.doSearchPrev,
       keyword: termSearch,
-      activeSplitId: activeTerminalId,
+      currentTabId,
       options: copy(termSearchOptions)
     })
   }
 
   next = () => {
-    const { activeTerminalId } = this.props
     postMessage({
       action: terminalActions.doSearchNext,
-      activeSplitId: activeTerminalId,
+      currentTabId: this.props.currentTabId,
       keyword: this.props.termSearch,
       options: copy(this.props.termSearchOptions)
     })
@@ -96,10 +95,9 @@ class TermSearch extends PureComponent {
   }
 
   clearSearch = () => {
-    const { activeTerminalId } = this.props
     postMessage({
       action: terminalActions.clearSearch,
-      activeSplitId: activeTerminalId
+      currentTabId: this.props.currentTabId
     })
   }
 

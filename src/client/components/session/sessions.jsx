@@ -3,7 +3,7 @@ import Session from './session.jsx'
 import WebSession from '../web/web-session.jsx'
 import { findIndex, pick } from 'lodash-es'
 import classNames from 'classnames'
-import generate from '../../common/uid.js'
+import generate from '../../common/id-with-stamp'
 import copy from 'json-deep-copy'
 import wait from '../../common/wait.js'
 import Tabs from '../tabs/index.jsx'
@@ -74,6 +74,10 @@ class Sessions extends PureComponent {
   }
 
   updateStoreCurrentTabId = id => {
+    window.store.storeAssign({
+      currentTabId: id,
+      [id + this.props.batch]: id
+    })
     postMsg({
       action: commonActions.updateStore,
       value: id,
@@ -160,25 +164,7 @@ class Sessions extends PureComponent {
     const tab = newTerm()
     const { batch } = this.props
     tab.batch = batch
-    tab.terminals = [{
-      id: generate(),
-      batch: this.props.batch,
-      position: 0
-    }]
     this.addTab(tab)
-  }
-
-  processTerminals = (tab) => {
-    if (!tab.terminals) {
-      return tab
-    }
-    tab.terminals = tab.terminals.map(t => {
-      return {
-        ...t,
-        stateId: t.id,
-        id: generate()
-      }
-    })
   }
 
   reloadTab = async (tabToReload) => {
@@ -187,7 +173,6 @@ class Sessions extends PureComponent {
         tabToReload
       )
       tab.pane = paneMap.terminal
-      this.processTerminals(tab)
       const { id } = tab
       const tabs = copy(oldState.tabs)
       tab.id = generate()
@@ -204,7 +189,6 @@ class Sessions extends PureComponent {
       const defaultStatus = statusMap.processing
       let tab = copy(tabToDup)
       updateCount(tab)
-      this.processTerminals(tab)
       const tabs = copy(oldState.tabs)
       const index = findIndex(
         tabs,
@@ -370,7 +354,6 @@ class Sessions extends PureComponent {
           'hideDelKeyTip',
           'fileOperation',
           'file',
-          'activeTerminalId',
           'pinnedQuickCommandBar',
           'tabsHeight',
           'appPath',
@@ -418,7 +401,6 @@ class Sessions extends PureComponent {
       height,
       batch,
       layout,
-      activeTerminalId,
       isMaximized
     } = this.props
     const {
@@ -432,7 +414,6 @@ class Sessions extends PureComponent {
       width,
       height,
       layout,
-      activeTerminalId,
       isMaximized,
       tabs,
       ...pick(this, [

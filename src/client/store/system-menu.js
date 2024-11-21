@@ -3,7 +3,7 @@
  */
 
 import { Modal } from 'antd'
-import { isFunction, isString } from 'lodash-es'
+import { isString } from 'lodash-es'
 import getInitItem from '../common/init-setting-item'
 import {
   settingMap,
@@ -42,15 +42,6 @@ export default Store => {
 
   Store.prototype.onZoomReset = function () {
     window.store.zoom()
-  }
-
-  Store.prototype.onCloseAbout = function (cb) {
-    const { store } = window
-    store.showInfoModal = false
-    if (isFunction(cb)) {
-      cb()
-    }
-    store.focus()
   }
 
   Store.prototype.openAbout = function (tab) {

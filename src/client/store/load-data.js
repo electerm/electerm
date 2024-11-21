@@ -6,7 +6,7 @@ import { dbNames, update, getData, fetchInitData, insert, remove } from '../comm
 import parseInt10 from '../common/parse-int10'
 import { infoTabs, statusMap, defaultEnvLang } from '../common/constants'
 import fs from '../common/fs'
-import generate from '../common/uid'
+import generate from '../common/id-with-stamp'
 import defaultSettings from '../common/default-setting'
 import encodes from '../components/bookmark-form/encodes'
 import runIdle from '../common/run-idle'

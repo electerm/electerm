@@ -107,7 +107,6 @@ export default () => {
     autofocustrigger: Date.now(),
     bookmarkId: undefined,
     showModal: 0,
-    activeTerminalId: '',
 
     // setting sync related
     isSyncingSetting: false,

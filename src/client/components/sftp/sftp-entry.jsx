@@ -625,7 +625,6 @@ export default class Sftp extends Component {
           proxy: getProxy(tab, config),
           ...sessionOptions
         })
-        delete opts.terminals
         const r = await sftp.connect(opts)
           .catch(e => {
             if (

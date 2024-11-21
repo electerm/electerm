@@ -2,7 +2,7 @@
  * output default new terminal data obj
  */
 
-import generate from './uid'
+import uid from './id-with-stamp'
 import {
   paneMap
 } from './constants'
@@ -17,7 +17,7 @@ export function updateCount (tab) {
 
 export default (removeTitle, noUpdateCount) => {
   const res = {
-    id: generate(),
+    id: uid(),
     status: 'processing',
     pane: paneMap.terminal,
     title: e('newTerminal')

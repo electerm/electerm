@@ -15,12 +15,11 @@ import {
 import {
   Tooltip
 } from 'antd'
-import { last, findIndex, pick } from 'lodash-es'
+import { pick } from 'lodash-es'
 import generate from '../../common/uid'
 import copy from 'json-deep-copy'
 import classnames from 'classnames'
 import {
-  terminalSplitDirectionMap,
   termControlHeight,
   paneMap,
   terminalActions,
@@ -30,57 +29,22 @@ import {
 } from '../../common/constants'
 import safeName from '../../common/safe-name'
 import TerminalInfoContent from '../terminal-info/content'
-import uid from '../../common/id-with-stamp'
 import postMessage from '../../common/post-msg'
 import './session.styl'
-
-const rebuildPosition = terminals => {
-  const indexs = terminals.map(t => t.position).sort((a, b) => a - b)
-  const indexMap = indexs.reduce((prev, pos, index) => {
-    return {
-      ...prev,
-      [pos]: index * 10
-    }
-  }, {})
-  return terminals.map(t => {
-    return {
-      ...t,
-      position: indexMap[t.position]
-    }
-  })
-}
-
-const getPrevTerminal = terminals => {
-  return last(terminals)
-}
 
 const e = window.translate
 
 export default class SessionWrapper extends Component {
   constructor (props) {
     super(props)
-    const id = uid()
-    const {
-      terminals = [
-        {
-          id,
-          position: 0
-        }
-      ]
-    } = props.tab
-    const activeSplitId = terminals[0].id
     this.state = {
-      pid: null,
       enableSftp: false,
       cwd: '',
       sftpPathFollowSsh: !!props.config.sftpPathFollowSsh,
-      splitDirection: terminalSplitDirectionMap.horizontal,
-      activeSplitId,
       infoPanelPinned: false,
       key: Math.random(),
       sessionOptions: null,
       sessionId: generate(),
-      terminals: terminals.slice(0, 1),
       delKeyPressed: false,
       showInfo: false,
       infoPanelProps: {}
@@ -117,20 +81,9 @@ export default class SessionWrapper extends Component {
     window.store.dismissDelKeyTip()
   }
 
-  setCwd = (cwd, tid) => {
-    this.setState(old => {
-      return {
-        cwd,
-        terminals: old.terminals.map(t => {
-          if (t.id === tid) {
-            return {
-              ...t,
-              cwd
-            }
-          }
-          return t
-        })
-      }
+  setCwd = (cwd) => {
+    this.setState({
+      cwd
     })
   }
 
@@ -191,99 +144,22 @@ export default class SessionWrapper extends Component {
     this.editTab(update)
   }
 
-  setSessionState = data => {
-    this.setState(data)
-    if (data.pid) {
-      this.editTab({
-        pid: data.pid
-      })
-    }
-  }
-
-  handleSplit = (e, id) => {
-    let terminals = copy(this.state.terminals)
-    let index = findIndex(terminals, t => t.id === id)
-    if (index === -1) {
-      index = terminals.length
-    } else {
-      index = index + 1
-    }
-    terminals.push({
-      id: uid(),
-      position: terminals[index - 1].position + 5
-    })
-    terminals = rebuildPosition(terminals)
-    this.setState({
-      terminals
-    }, this.updateTab)
-  }
-
   updateTab = () => {
-    const terminals = copy(this.state.terminals)
     this.editTab(
       {
-        sessionId: this.state.sessionId,
-        terminals
+        sessionId: this.state.sessionId
       }
     )
   }
 
-  delSplit = (splitId = this.state.activeSplitId) => {
-    const { terminals } = this.state
-    let newTerms = terminals.filter(t => t.id !== splitId)
-    if (!newTerms.length) {
-      return this.props.delTab(
-        this.props.tab.id
-      )
-    }
-    newTerms = rebuildPosition(newTerms)
-    const newActiveId = getPrevTerminal(newTerms).id
-    this.setState({
-      terminals: newTerms,
-      activeSplitId: newActiveId
-    }, this.updateTab)
-    window.store.focus()
-  }
-
-  handleChangeDirection = () => {
-    const { splitDirection } = this.state
-    this.setState({
-      splitDirection: splitDirection === terminalSplitDirectionMap.horizontal
-        ? terminalSplitDirectionMap.vertical
-        : terminalSplitDirectionMap.horizontal
-    })
-  }
-
-  setActive = activeSplitId => {
-    const up = {
-      activeSplitId
-    }
-    this.setState(up)
-  }
-
   computePosition = (index) => {
-    const len = this.state.terminals.length || 1
     const windowWidth = this.getWidth()
-    const { splitDirection } = this.state
-    const isHori = splitDirection === terminalSplitDirectionMap.horizontal
     const heightAll = this.computeHeight()
-    const width = isHori
-      ? windowWidth / len
-      : windowWidth
-    const height = isHori
-      ? heightAll
-      : heightAll / len
-    const left = isHori
-      ? index * width
-      : 0
-    const top = isHori
-      ? 0
-      : index * height
     return {
-      height,
-      width,
-      left,
-      top
+      height: heightAll,
+      width: windowWidth,
+      left: 0,
+      top: 0
     }
   }
 
@@ -297,8 +173,6 @@ export default class SessionWrapper extends Component {
 
   renderTerminals = () => {
     const {
-      terminals,
-      activeSplitId,
       sessionOptions,
       sessionId,
       sftpPathFollowSsh
@@ -326,8 +200,7 @@ export default class SessionWrapper extends Component {
         ...pick(
           this,
           [
-            'fullscreenIcon',
-            'setSessionState'
+            'fullscreenIcon'
           ])
       }
       if (type === terminalVncType) {
@@ -350,6 +223,24 @@ export default class SessionWrapper extends Component {
     const { tab } = this.props
     const width = this.getWidth()
     const themeConfig = copy(window.store.getThemeConfig())
+    const logName = safeName(`${tab.title ? tab.title + '_' : ''}${tab.host ? tab.host + '_' : ''}${tab.id}`)
+    const pops = {
+      ...this.props,
+      sftpPathFollowSsh,
+      themeConfig,
+      pane,
+      ...pick(
+        this,
+        [
+          'setActive',
+          'handleShowInfo',
+          'onChangePane',
+          'hideInfoPanel',
+          'setCwd',
+          'onDelKeyPressed'
+        ]),
+      ...this.computePosition()
+    }
     return (
       <div
         className={cls}
@@ -358,43 +249,13 @@ export default class SessionWrapper extends Component {
           height
         }}
       >
-        {
-          terminals.map((t, index) => {
-            const logName = safeName(`${tab.title ? tab.title + '_' : ''}${tab.host ? tab.host + '_' : ''}${t.id}`)
-            const pops = {
-              ...this.props,
-              ...t,
-              activeSplitId,
-              sftpPathFollowSsh,
-              themeConfig,
-              pane,
-              ...pick(
-                this,
-                [
-                  'setActive',
-                  'handleSplit',
-                  'delSplit',
-                  'setSessionState',
-                  'handleShowInfo',
-                  'onChangePane',
-                  'hideInfoPanel',
-                  'setCwd',
-                  'onDelKeyPressed'
-                ]),
-              ...this.computePosition(t.position / 10)
-            }
-            return (
-              <Term
-                key={t.id}
-                logName={logName}
-                sessionId={sessionId}
-                terminalIndex={index}
-                sessionOptions={sessionOptions}
-                {...pops}
-              />
-            )
-          })
-        }
+        <Term
+          key={tab.id}
+          logName={logName}
+          sessionId={sessionId}
+          sessionOptions={sessionOptions}
+          {...pops}
+        />
       </div>
     )
   }
@@ -403,12 +264,11 @@ export default class SessionWrapper extends Component {
     const {
       sessionOptions,
       sessionId,
-      pid,
       enableSftp,
       sftpPathFollowSsh,
       cwd
     } = this.state
-    const { pane, type } = this.props.tab
+    const { pane, type, id } = this.props.tab
     if (type === terminalRdpType) {
       return null
     }
@@ -420,7 +280,7 @@ export default class SessionWrapper extends Component {
       ...this.props,
       sftpPathFollowSsh,
       cwd,
-      pid,
+      pid: id,
       enableSftp,
       sessionOptions,
       height,
@@ -444,7 +304,7 @@ export default class SessionWrapper extends Component {
   handleOpenSearch = () => {
     postMessage({
       action: terminalActions.openTerminalSearch,
-      activeSplitId: this.state.activeSplitId
+      currentTabId: this.props.tab.id
     })
   }
 
