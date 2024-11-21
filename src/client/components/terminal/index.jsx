@@ -1023,7 +1023,7 @@ clear\r`
     term.onSelectionChange(this.onSelection)
     term.open(document.getElementById(this.getDomId()), true)
     this.loadRenderer(term, config)
-    term.textarea.addEventListener('focus', this.setActive)
+    term.textarea.addEventListener('click', this.setActive)
     // term.onKey(this.onKey)
     // term.textarea.addEventListener('blur', this.onBlur)
 
@@ -1405,6 +1405,7 @@ clear\r`
         width: '100%'
       }
     }
+    console.log('render')
     return (
       <div
         {...prps1}

@@ -18,12 +18,12 @@ import * as ls from '../common/safe-local-storage'
 import { debounce, isEmpty } from 'lodash-es'
 
 export default store => {
-  autoRun(store, () => {
-    store.focus()
-    // store.termSearchOpen = false
-    store.termSearchMatchCount = 0
-    return store.currentTabId
-  }, func => debounce(func, 100)).start()
+  // autoRun(store, () => {
+  //   store.focus()
+  //   // store.termSearchOpen = false
+  //   store.termSearchMatchCount = 0
+  //   return store.currentTabId
+  // }).start()
 
   // autoRun(store, () => {
   //   if (store.menuOpened) {
