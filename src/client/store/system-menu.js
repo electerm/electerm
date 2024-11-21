@@ -3,7 +3,7 @@
  */
 
 import { Modal } from 'antd'
-import { isFunction, isString } from 'lodash-es'
+import { isString } from 'lodash-es'
 import getInitItem from '../common/init-setting-item'
 import {
   settingMap,
