@@ -1,4 +1,4 @@
-import { PureComponent } from 'react'
+import { Component } from 'react'
 import Session from './session.jsx'
 import WebSession from '../web/web-session.jsx'
 import { findIndex, pick } from 'lodash-es'
@@ -21,10 +21,11 @@ import LogoElem from '../common/logo-elem.jsx'
 import { Button } from 'antd'
 import toSimpleObj from '../../common/to-simple-obj.js'
 import { shortcutExtend } from '../shortcuts/shortcut-handler.js'
+import deepEqual from 'fast-deep-equal'
 
 const e = window.translate
 
-class Sessions extends PureComponent {
+class Sessions extends Component {
   state = {
     tabs: [],
     currentTabId: ''
@@ -36,7 +37,10 @@ class Sessions extends PureComponent {
   }
 
   componentDidUpdate (prevProps) {
-    if (this.props.tabs && prevProps.tabs !== this.props.tabs) {
+    if (
+      this.props.tabs &&
+      !deepEqual(prevProps.tabs, this.props.tabs)
+    ) {
       this.setState({
         tabs: copy(this.props.tabs)
       })
@@ -74,10 +78,17 @@ class Sessions extends PureComponent {
   }
 
   updateStoreCurrentTabId = id => {
-    window.store.storeAssign({
-      currentTabId: id,
-      [id + this.props.batch]: id
-    })
+    if (id) {
+      window.store.storeAssign({
+        currentTabId: id,
+        [id + this.props.batch]: id
+      })
+      this.setState({
+        currentTabId: id
+      })
+    } else {
+      window.store.focus()
+    }
     postMsg({
       action: commonActions.updateStore,
       value: id,
@@ -149,7 +160,7 @@ class Sessions extends PureComponent {
         })
         i = i ? i - 1 : i + 1
         const next = tabs[i] || {}
-        up.currentTabId = next.id
+        up.currentTabId = next.id || ''
         this.updateStoreCurrentTabId(next.id)
       }
       up.tabs = tabs.filter(t => {
