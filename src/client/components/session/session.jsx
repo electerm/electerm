@@ -28,7 +28,6 @@ import {
   terminalVncType
 } from '../../common/constants'
 import safeName from '../../common/safe-name'
-import TerminalInfoContent from '../terminal-info/content'
 import postMessage from '../../common/post-msg'
 import './session.styl'
 
@@ -41,13 +40,10 @@ export default class SessionWrapper extends Component {
       enableSftp: false,
       cwd: '',
       sftpPathFollowSsh: !!props.config.sftpPathFollowSsh,
-      infoPanelPinned: false,
       key: Math.random(),
       sessionOptions: null,
       sessionId: generate(),
-      delKeyPressed: false,
-      showInfo: false,
-      infoPanelProps: {}
+      delKeyPressed: false
     }
   }
 
@@ -87,28 +83,9 @@ export default class SessionWrapper extends Component {
     })
   }
 
-  handleShowInfo = (infoPanelProps) => {
-    this.setState({
-      showInfo: true,
-      infoPanelProps
-    })
-  }
-
-  toggleInfoPinned = () => {
-    this.setState({
-      infoPanelPinned: !this.state.infoPanelPinned
-    })
-  }
-
   toggleCheckSftpPathFollowSsh = () => {
     this.setState({
       sftpPathFollowSsh: !this.state.sftpPathFollowSsh
-    })
-  }
-
-  hideInfoPanel = () => {
-    this.setState({
-      showInfo: false
     })
   }
 
@@ -232,10 +209,7 @@ export default class SessionWrapper extends Component {
       ...pick(
         this,
         [
-          'setActive',
-          'handleShowInfo',
           'onChangePane',
-          'hideInfoPanel',
           'setCwd',
           'onDelKeyPressed'
         ]),
@@ -447,23 +421,9 @@ export default class SessionWrapper extends Component {
 
   render () {
     const {
-      splitDirection,
-      infoPanelProps,
-      showInfo,
-      infoPanelPinned
+      splitDirection
     } = this.state
-    const { pane } = this.props.tab
-    const infoProps = {
-      infoPanelPinned,
-      ...pick(this.props.config, ['host', 'port', 'saveTerminalLogToFile', 'terminalInfos']),
-      ...infoPanelProps,
-      appPath: this.props.appPath,
-      rightSidebarWidth: this.props.rightSidebarWidth,
-      showInfo,
-      tabsHeight: this.props.tabsHeight,
-      toggleInfoPinned: this.toggleInfoPinned,
-      hideInfoPanel: this.hideInfoPanel
-    }
+    const { pane, id } = this.props.tab
     const cls = classnames(
       'term-sftp-box',
       pane,
@@ -478,14 +438,11 @@ export default class SessionWrapper extends Component {
     return (
       <div
         className={cls}
-        id={`is-${this.props.tab.id}`}
+        id={`is-${id}`}
       >
         {this.renderControl()}
         {this.renderTerminals()}
         {this.renderSftp()}
-        <TerminalInfoContent
-          {...infoProps}
-        />
       </div>
     )
   }

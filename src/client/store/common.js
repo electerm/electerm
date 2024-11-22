@@ -153,7 +153,7 @@ export default Store => {
 
   Store.prototype.setRightSidePanelWidth = function (v) {
     ls.setItem(rightSidebarWidthKey, v)
-    window.store.rightSidebarWidth = v
+    window.store.rightPanelWidth = v
   }
   Store.prototype.dismissDelKeyTip = function (v) {
     ls.setItem(dismissDelKeyTipLsKey, 'y')

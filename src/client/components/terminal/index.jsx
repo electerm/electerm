@@ -1335,7 +1335,10 @@ clear\r`
       isRemote: this.isRemote(),
       isActive: this.isActiveTerminal()
     }
-    this.props.handleShowInfo(infoProps)
+    window.store.setState(
+      'terminalInfoProps',
+      infoProps
+    )
   }
 
   // getPwd = async () => {
@@ -1386,15 +1389,6 @@ clear\r`
     //   id: `${id}-file-sel`,
     //   className: 'hide'
     // }
-    const prps2 = {
-      className: 'absolute term-wrap-1',
-      style: {
-        left: '10px',
-        top: '10px',
-        right: 0,
-        bottom: 0
-      }
-    }
     const prps3 = {
       id: this.getDomId(),
       className: 'absolute term-wrap-2',
@@ -1410,16 +1404,12 @@ clear\r`
         {...prps1}
       >
         <div
-          {...prps2}
-        >
-          <div
-            {...prps3}
-          />
-          <NormalBuffer
-            lines={this.state.lines}
-            close={this.closeNormalBuffer}
-          />
-        </div>
+          {...prps3}
+        />
+        <NormalBuffer
+          lines={this.state.lines}
+          close={this.closeNormalBuffer}
+        />
         <Spin className='loading-wrapper' spinning={loading} />
       </div>
     )

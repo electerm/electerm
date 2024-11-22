@@ -357,7 +357,6 @@ class Sessions extends PureComponent {
           'pinnedQuickCommandBar',
           'tabsHeight',
           'appPath',
-          'rightSidebarWidth',
           'leftSidebarWidth',
           'pinned',
           'openedSideBar'

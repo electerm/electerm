@@ -99,6 +99,10 @@ export default () => {
     currentTabId1: '',
     currentTabId2: '',
     currentTabId3: '',
+    _terminalInfoProps: '{}',
+    rightPanelVisible: false,
+    rightPanelPinned: false,
+    rightPanelWidth: parseInt(ls.getItem(rightSidebarWidthKey), 10) || 500,
 
     // for settings related
     _setting: '',

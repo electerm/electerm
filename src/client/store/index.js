@@ -211,14 +211,6 @@ class Store {
     ]
   }
 
-  get config () {
-    return JSON.parse(window.store._config || '{}')
-  }
-
-  get sftpSortSetting () {
-    return JSON.parse(window.store._sftpSortSetting)
-  }
-
   get onOperation () {
     const {
       store
@@ -227,22 +219,6 @@ class Store {
       store.showInfoModal ||
       store.showEditor ||
       store.showFileModal
-  }
-
-  get langs () {
-    return JSON.parse(window.store._langs)
-  }
-
-  get upgradeInfo () {
-    return JSON.parse(window.store._upgradeInfo)
-  }
-
-  get transferToConfirm () {
-    return JSON.parse(window.store._transferToConfirm)
-  }
-
-  get settingItem () {
-    return JSON.parse(window.store._settingItem)
   }
 
   get uiThemeConfig () {
@@ -289,7 +265,7 @@ class Store {
   }
 }
 
-const getterProps = [
+const arrGetterProps = [
   'expandedKeys',
   'checkedKeys',
   'addressBookmarks',
@@ -310,10 +286,28 @@ const getterProps = [
   'resolutions'
 ]
 
-for (const prop of getterProps) {
+for (const prop of arrGetterProps) {
   Object.defineProperty(Store.prototype, prop, {
     get: function () {
       return JSON.parse(window.store[`_${prop}`] || '[]').filter(d => d)
+    }
+  })
+}
+
+const getterProps = [
+  'langs',
+  'config',
+  'sftpSortSetting',
+  'upgradeInfo',
+  'transferToConfirm',
+  'terminalInfoProps',
+  'settingItem'
+]
+
+for (const prop of getterProps) {
+  Object.defineProperty(Store.prototype, prop, {
+    get: function () {
+      return JSON.parse(window.store[`_${prop}`] || '{}')
     }
   })
 }

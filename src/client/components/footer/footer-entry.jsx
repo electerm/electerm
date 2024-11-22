@@ -18,9 +18,11 @@ const e = window.translate
 
 export default auto(function FooterEntry (props) {
   function handleInfoPanel () {
+    const { store } = window
+    store.rightPanelVisible = !store.rightPanelVisible
     postMessage({
       action: terminalActions.showInfoPanel,
-      currentTabId: props.store.currentTabId
+      currentTabId: store.currentTabId
     })
   }
 

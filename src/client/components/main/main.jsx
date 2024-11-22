@@ -21,9 +21,11 @@ import classnames from 'classnames'
 import ShortcutControl from '../shortcuts/shortcut-control.jsx'
 import { isMac, isWin } from '../../common/constants'
 import TermFullscreenControl from './term-fullscreen-control'
+import TerminalInfo from '../terminal-info/terminal-info'
 import { LoadingUI } from './loading'
 import { ConfigProvider, notification } from 'antd'
 import InfoModal from '../sidebar/info-modal.jsx'
+import RightSidePanel from '../side-panel-r/side-panel-r'
 import { pick } from 'lodash-es'
 import './wrapper.styl'
 
@@ -168,6 +170,21 @@ export default auto(function Index (props) {
     tabs: store.getTabs(),
     config
   }
+  const rightPanelProps = {
+    rightPanelVisible: store.rightPanelVisible,
+    rightPanelPinned: store.rightPanelPinned,
+    rightPanelWidth: store.rightPanelWidth
+  }
+  const terminalInfoProps = {
+    ...store.terminalInfoProps,
+    ...pick(
+      config,
+      ['host', 'port', 'saveTerminalLogToFile', 'terminalInfos']
+    ),
+    ...pick(store, [
+      'appPath'
+    ])
+  }
   return (
     <ConfigProvider
       theme={uiThemeConfig}
@@ -223,6 +240,9 @@ export default auto(function Index (props) {
         />
         <Resolutions {...resProps} />
         <InfoModal {...infoModalProps} />
+        <RightSidePanel {...rightPanelProps}>
+          <TerminalInfo {...terminalInfoProps} />
+        </RightSidePanel>
       </div>
     </ConfigProvider>
   )

@@ -27,17 +27,19 @@ export default auto(function Layout (props) {
       // tabsHeight,
       leftSidebarWidth,
       // infoPanelPinned,
-      pinned
-      // rightSidebarWidth
+      pinned,
+      rightPanelVisible,
+      rightPanelPinned,
+      rightPanelWidth
     } = props.store
     const h = height - footerHeight - (pinnedQuickCommandBar ? quickCommandBoxHeight : 0)
     const l = pinned ? 43 + leftSidebarWidth : 43
-    // const r = infoPanelPinned ? rightSidebarWidth : 0
+    const r = rightPanelVisible && rightPanelPinned ? rightPanelWidth : 0
     return {
       height: h,
       top: 0,
       left: l,
-      width: width - l
+      width: width - l - r
     }
   }
 
@@ -92,7 +94,6 @@ export default auto(function Layout (props) {
           'pinnedQuickCommandBar',
           'tabsHeight',
           'appPath',
-          'rightSidebarWidth',
           'leftSidebarWidth',
           'pinned',
           'openedSideBar'
