@@ -1393,10 +1393,10 @@ clear\r`
       id: this.getDomId(),
       className: 'absolute term-wrap-2',
       style: {
-        left: 0,
-        top: 0,
-        height: '100%',
-        width: '100%'
+        left: '10px',
+        top: '10px',
+        right: 0,
+        bottom: 0
       }
     }
     return (

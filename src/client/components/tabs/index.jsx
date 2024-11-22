@@ -24,7 +24,7 @@ import {
   TwoRowsRightIcon,
   TwoColumnsBottomIcon
 } from '../icons/split-icons'
-import { Dropdown, Menu, Popover } from 'antd'
+import { Dropdown, Popover } from 'antd'
 import Tab from './tab'
 import './tabs.styl'
 import {
@@ -43,7 +43,6 @@ import AppDrag from './app-drag'
 import classNames from 'classnames'
 
 const e = window.translate
-const MenuItem = Menu.Item
 
 export default class Tabs extends React.Component {
   constructor (props) {
@@ -273,25 +272,6 @@ export default class Tabs extends React.Component {
     }
   }
 
-  renderList = () => {
-    const { tabs = [] } = this.props
-    return (
-      <Menu onClick={this.handleClickMenu}>
-        {
-          tabs.map((t, i) => {
-            return (
-              <MenuItem
-                key={i + '##' + t.id}
-              >
-                <TabTitle tab={t} />
-              </MenuItem>
-            )
-          })
-        }
-      </Menu>
-    )
-  }
-
   renderMenus () {
     const { onNewSsh } = window.store
     const cls = 'pd2x pd1y context-item pointer'
@@ -350,6 +330,22 @@ export default class Tabs extends React.Component {
   }
 
   renderExtra () {
+    const items = this.props.tabs.map((t, i) => {
+      return {
+        key: i + '##' + t.id,
+        label: (
+          <span><TabTitle tab={t} /></span>
+        ),
+        onClick: () => this.handleClickMenu({ key: i + '##' + t.id })
+      }
+    })
+    const dropProps = {
+      className: 'tabs-add-btn font16',
+      menu: {
+        items
+      },
+      placement: 'bottomRight'
+    }
     return (
       <div className='tabs-extra pd1x'>
         {this.renderAddBtn()}
@@ -362,9 +358,7 @@ export default class Tabs extends React.Component {
           onClick={this.handleScrollRight}
         />
         <Dropdown
-          className='iblock'
-          placement='bottomRight'
-          overlay={this.renderList()}
+          {...dropProps}
         >
           <DownOutlined className='tabs-dd-icon' />
         </Dropdown>
@@ -464,39 +458,29 @@ export default class Tabs extends React.Component {
     return iconMaps[layout]
   }
 
-  renderLayoutMenuItems = () => {
-    return (
-      <Menu onClick={this.handleChangeLayout}>
-        {
-          Object.keys(splitMapDesc).map((t, i) => {
-            const v = splitMapDesc[t]
-            const Icon = this.getLayoutIcon(v)
-            return (
-              <MenuItem
-                key={t}
-              >
-                <Icon /> {e(v)}
-              </MenuItem>
-            )
-          })
-        }
-      </Menu>
-    )
-  }
-
   renderLayoutMenu = () => {
     if (!this.shouldRenderWindowControl()) {
       return null
     }
-    const dprops = {
-      overlay: this.renderLayoutMenuItems(),
-      placement: 'bottomRight'
-    }
+    const items = Object.keys(splitMapDesc).map((t) => {
+      const v = splitMapDesc[t]
+      const Icon = this.getLayoutIcon(v)
+      return {
+        key: t,
+        label: (
+          <span>
+            <Icon /> {e(v)}
+          </span>
+        ),
+        onClick: () => this.handleChangeLayout({ key: t })
+      }
+    })
     const v = splitMapDesc[this.props.layout]
     const Icon = this.getLayoutIcon(v)
     return (
       <Dropdown
-        {...dprops}
+        menu={{ items }}
+        placement='bottomRight'
       >
         <span className='tabs-dd-icon mg1l'>
           <Icon /> <DownOutlined />
