@@ -11,7 +11,7 @@ const layoutConfigs = {
 
 export default function calcSessionSize (layout, w, h) {
   const { cols, rows, special, length = cols * rows } = layoutConfigs[layout] || layoutConfigs.c1
-  const spacing = 2
+  const spacing = 0
 
   const sessionWidth = (w - (cols - 1) * spacing) / cols
   const sessionHeight = (h - (rows - 1) * spacing) / rows

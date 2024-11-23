@@ -125,10 +125,6 @@ export default Store => {
       if (store.currentLayoutBatch > len - 1) {
         store.currentLayoutBatch = len - 1
       }
-    } else if (len > prevLen) {
-      setTimeout(() => {
-        document.querySelector('.add-new-tab-btn').click()
-      }, 100)
     }
   }
 }

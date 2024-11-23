@@ -59,9 +59,11 @@ export default memo(function InfoModal (props) {
 
   const { infoModalTab, commandLineHelp } = props
   const {
-    onCloseAbout,
     showInfoModal
   } = window.store
+  function onCloseAbout () {
+    window.store.showInfoModal = false
+  }
   if (!showInfoModal) {
     return null
   }
