@@ -177,20 +177,20 @@ export default class BatchOp extends PureComponent {
       .catch(err => {
         return 'Error: ' + err.message
       })
-    if (!tab || !tab.pid) {
+    if (!tab) {
       return this.updateState(tab, index)
     }
 
     this.updateState('tab created', index)
     if (conf.cmd) {
       this.updateState('running cmd', index)
-      await runCmd(tab.pid, tab.sessionId, conf.cmd)
+      await runCmd(tab.id, tab.sessionId, conf.cmd)
       this.updateState('running cmd done', index)
     }
     if (conf.remotePath) {
       this.updateState('creating sftp', index)
       tab = await this.createSftp(tab)
-      if (!tab || !tab.pid) {
+      if (!tab) {
         return this.updateState('Error: ' + tab, index)
       }
       this.updateState('sftp created', index)
@@ -202,7 +202,7 @@ export default class BatchOp extends PureComponent {
       this.updateState('run cmd2', index)
       document.querySelector('.session-current .type-tab.ssh').click()
       await wait(200)
-      await runCmd(tab.pid, tab.sessionId, conf.cmdAfterTransfer)
+      await runCmd(tab.id, tab.sessionId, conf.cmdAfterTransfer)
       this.updateState('run cmd2 done', index)
     }
     this.updateState(e('finished'), index)
@@ -300,7 +300,8 @@ export default class BatchOp extends PureComponent {
         pane: 'terminal',
         status: 'processing',
         term: 'xterm-256color',
-        x11: false
+        x11: false,
+        batch: window.store.batch
       }
       const { store } = window
       store.addTab(tab)
@@ -310,7 +311,6 @@ export default class BatchOp extends PureComponent {
         const last = tabs[len - 1]
         if (
           last &&
-          last.pid &&
           last.id === tab.id &&
           last.status === statusMap.success
         ) {
