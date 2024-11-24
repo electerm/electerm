@@ -38,7 +38,7 @@ class Tab extends Component {
   }
 
   componentDidMount () {
-    this.dom = document.getElementById('id' + this.state.tab.id)
+    this.dom = document.getElementById('tab-' + this.state.tab.id)
     window.addEventListener('message', this.onEvent)
   }
 
@@ -457,7 +457,7 @@ class Tab extends Component {
         <div
           className={cls}
           draggable
-          id={'id' + id}
+          id={'tab-' + id}
           data-id={id}
           {...pick(this, [
             'onDrag',

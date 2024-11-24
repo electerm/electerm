@@ -122,6 +122,15 @@ export default Store => {
       })
       // Set the updated tabs back to the store
       store.setTabs(updatedTabs)
+      setTimeout(
+        () => {
+          postMsg({
+            action: tabActions.changeCurrentTabId,
+            currentTabId: store.currentTabId
+          })
+        },
+        1000
+      )
       if (store.currentLayoutBatch > len - 1) {
         store.currentLayoutBatch = len - 1
       }

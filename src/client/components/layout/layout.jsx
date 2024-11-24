@@ -30,9 +30,10 @@ export default auto(function Layout (props) {
       pinned,
       rightPanelVisible,
       rightPanelPinned,
-      rightPanelWidth
+      rightPanelWidth,
+      resizeTrigger
     } = props.store
-    const h = height - footerHeight - (pinnedQuickCommandBar ? quickCommandBoxHeight : 0)
+    const h = height - footerHeight - (pinnedQuickCommandBar ? quickCommandBoxHeight : 0) + resizeTrigger
     const l = pinned ? 43 + leftSidebarWidth : 43
     const r = rightPanelVisible && rightPanelPinned ? rightPanelWidth : 0
     return {

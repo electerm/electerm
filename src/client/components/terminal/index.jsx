@@ -425,7 +425,6 @@ clear\r`
       isActiveTerminal
     ) {
       e.stopPropagation()
-      window.store.termFocused = true
       return this.term && this.term.focus()
     }
     if (

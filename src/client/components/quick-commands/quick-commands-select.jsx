@@ -9,6 +9,11 @@ import './qm.styl'
 const e = window.translate
 
 export default class QuickCommandsFooter extends PureComponent {
+  componentWillUnmount () {
+    clearTimeout(this.timer)
+    this.timer = null
+  }
+
   handleOpen = () => {
     this.timer = setTimeout(this.act, 500)
   }
@@ -23,11 +28,13 @@ export default class QuickCommandsFooter extends PureComponent {
 
   render () {
     return (
-      <div className='fleft relative'>
+      <div
+        className='fleft relative'
+        onMouseEnter={this.handleOpen}
+        onMouseLeave={this.handleMouseLeave}
+      >
         <Button
           size='small'
-          onMouseEnter={this.handleOpen}
-          onMouseLeave={this.handleMouseLeave}
           type='ghost'
         >
           <span className='w500'>{e('quickCommands')}</span>

@@ -73,7 +73,7 @@ export default class Tabs extends React.Component {
     if (
       prevProps.currentTabId !== this.props.currentTabId ||
       prevProps.width !== this.props.width ||
-      prevProps.tabs.length !== this.props.tabs.length
+      (prevProps.tabs || []).length !== (this.props.tabs || []).length
     ) {
       this.adjustScroll()
     }
@@ -116,6 +116,7 @@ export default class Tabs extends React.Component {
 
   offTimer = () => {
     clearTimeout(this.timer)
+    this.timer = null
   }
 
   offContextMenu = () => {
@@ -304,7 +305,7 @@ export default class Tabs extends React.Component {
     const cls = classNames(
       'pointer tabs-add-btn font16',
       {
-        empty: !this.props.tabs.length
+        empty: !this.props.tabs?.length
       }
     )
     return (

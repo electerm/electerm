@@ -134,7 +134,6 @@ class Store {
   get inActiveTerminal () {
     const { store } = window
     return !store.showModal &&
-      store.termFocused &&
       store.currentTab &&
       (
         store.currentTab.pane === paneMap.ssh ||

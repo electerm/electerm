@@ -26,9 +26,13 @@ import deepEqual from 'fast-deep-equal'
 const e = window.translate
 
 class Sessions extends Component {
-  state = {
-    tabs: [],
-    currentTabId: ''
+  constructor (props) {
+    super(props)
+    this.state = {
+      tabs: copy(props.tabs || []),
+      currentTabId: props.currentTabId
+    }
+    this.bindHandleKeyboardEvent = this.handleKeyboardEvent.bind(this)
   }
 
   componentDidMount () {
@@ -47,12 +51,15 @@ class Sessions extends Component {
     }
   }
 
-  initShortcuts () {
-    window.addEventListener('keydown', this.handleKeyboardEvent.bind(this))
+  componentWillUnmount () {
+    window.removeEventListener('message', this.onEvent)
+    window.removeEventListener('keydown', this.bindHandleKeyboardEvent)
+    this.timer && clearTimeout(this.timer)
+    this.timer = null
   }
 
-  handleClick = (e) => {
-    window.store.currentTabId = this.state.currentTabId
+  initShortcuts () {
+    window.addEventListener('keydown', this.bindHandleKeyboardEvent)
   }
 
   closeCurrentTabShortcut = (e) => {
@@ -217,6 +224,11 @@ class Sessions extends Component {
   }
 
   onChangeTabId = id => {
+    const matchedTab = this.state.tabs.find(t => t.id === id)
+    if (!matchedTab) {
+      return
+    }
+    this.timer = setTimeout(window.store.triggerResize, 500)
     this.updateStoreCurrentTabId(id)
     this.setState({
       currentTabId: id
@@ -457,7 +469,7 @@ class Sessions extends Component {
 
   render () {
     return (
-      <div onClick={this.handleClick}>
+      <div>
         {this.renderTabs()}
         {this.renderSessionsWrap()}
       </div>
