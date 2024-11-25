@@ -1,4 +1,4 @@
-import { render } from 'react-dom'
+import { createRoot } from 'react-dom/client'
 import 'antd/dist/reset.css'
 import 'xterm/css/xterm.css'
 import '../common/trzsz'
@@ -9,8 +9,7 @@ notification.config({
   placement: 'bottomRight'
 })
 
-const rootElement = document.getElementById('container')
-render(
-  <Main />,
-  rootElement
+const rootElement = createRoot(document.getElementById('container'))
+rootElement.render(
+  <Main />
 )

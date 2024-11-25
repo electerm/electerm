@@ -24,14 +24,14 @@ function createWs (
   }
   ws.id = id
   ws.once = (callack, id) => {
-    const func = (evt) => {
+    ws.func = (evt) => {
       const arg = JSON.parse(evt.data)
       if (id === arg.id) {
         callack(arg)
-        ws.removeEventListener('message', func)
+        ws.removeEventListener('message', ws.func)
       }
     }
-    ws.addEventListener('message', func)
+    ws.addEventListener('message', ws.func)
   }
   ws.onclose = () => {
     if (ws.dup) {
@@ -41,6 +41,16 @@ function createWs (
       id: ws.id,
       action: 'close'
     })
+    ws.clean()
+  }
+  ws.onerror = () => {
+    ws.clean()
+  }
+  ws.clean = () => {
+    ws.removeEventListener('message', ws.func)
+    ws.removeEventListener('message', ws.cb)
+    ws.func = null
+    ws.cb = null
     delete self.insts[ws.id]
   }
   return new Promise((resolve) => {
