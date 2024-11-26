@@ -45,9 +45,7 @@ class Sessions extends Component {
       this.props.tabs &&
       !deepEqual(prevProps.tabs, this.props.tabs)
     ) {
-      this.setState({
-        tabs: copy(this.props.tabs)
-      })
+      this.updateTabs(this.props.tabs)
     }
   }
 
@@ -56,6 +54,17 @@ class Sessions extends Component {
     window.removeEventListener('keydown', this.bindHandleKeyboardEvent)
     this.timer && clearTimeout(this.timer)
     this.timer = null
+  }
+
+  updateTabs = (propTabs) => {
+    const update = {
+      tabs: copy(propTabs)
+    }
+    const currentTab = propTabs.find(t => t.id === this.state.currentTabId)
+    if (!currentTab) {
+      update.currentTabId = propTabs[0]?.id
+    }
+    this.setState(update)
   }
 
   initShortcuts () {

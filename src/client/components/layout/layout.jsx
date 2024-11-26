@@ -84,7 +84,7 @@ export default auto(function Layout (props) {
         batch: i,
         layout,
         ...v,
-        tabs: tabsBatch[i],
+        tabs: tabsBatch[i] || [],
         ...pick(store, [
           'isMaximized',
           'config',

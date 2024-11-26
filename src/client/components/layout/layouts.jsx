@@ -37,7 +37,8 @@ export default memo(function LayoutWrap (props) {
           const itemProps = {
             i,
             style: pixed(wrapStyles[i]),
-            className: 'layout-item v' + (i + 1)
+            className: 'layout-item v' + (i + 1),
+            batch: i
           }
           return (
             <LayoutItem
