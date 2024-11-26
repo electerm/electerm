@@ -122,7 +122,7 @@ export default defineConfig({
           manate: ['manate'],
           'zmodem-ts': ['zmodem-ts'],
           'vscode-icons-js': ['vscode-icons-js'],
-          'react-utils': ['react', 'react-colorful', 'react-delta', 'memoize-one', 'prop-types'],
+          'react-utils': ['react', 'react-colorful', 'react-delta', 'memoize-one'],
           novnc: ['@novnc/novnc']
         },
         inlineDynamicImports: false,
@@ -137,11 +137,6 @@ export default defineConfig({
         },
         dir: resolve(cwd, '../../work/app/assets')
       }
-    }
-  },
-  resolve: {
-    alias: {
-      events: 'eventemitter3'
     }
   }
 })

@@ -5,7 +5,7 @@
 /**
  * bookmark form
  */
-import { useDelta, useConditionalEffect } from 'react-delta'
+import { useDelta, useConditionalEffect } from 'react-delta-hooks'
 import { ArrowDownOutlined, ArrowUpOutlined, SaveOutlined, ClearOutlined } from '@ant-design/icons'
 import { Button, Input, notification, Form } from 'antd'
 import Link from '../common/external-link'

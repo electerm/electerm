@@ -1,7 +1,7 @@
 /**
  * customize AttachAddon
  */
-import { AttachAddon } from 'xterm-addon-attach'
+import { AttachAddon } from '@xterm/addon-attach'
 import regEscape from 'escape-string-regexp'
 
 export default class AttachAddonCustom extends AttachAddon {

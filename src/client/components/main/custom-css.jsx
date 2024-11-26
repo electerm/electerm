@@ -3,7 +3,7 @@
  */
 
 import { useEffect } from 'react'
-import { useDelta, useConditionalEffect } from 'react-delta'
+import { useDelta, useConditionalEffect } from 'react-delta-hooks'
 import eq from 'fast-deep-equal'
 
 const themeDomId = 'custom-css'
