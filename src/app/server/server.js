@@ -1,4 +1,5 @@
 const express = require('express')
+const globalState = require('./global-state')
 const app = express()
 const log = require('../common/log')
 const { verifyWs, initWs } = require('./dispatch-center')
@@ -111,7 +112,7 @@ app.get('/run', function (req, res) {
 app.post('/auth', function (req, res) {
   const { token } = req.body
   if (token === process.env.requireAuth) {
-    global.authed = true
+    globalState.authed = true
   }
   res.send('ok')
 })

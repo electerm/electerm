@@ -24,11 +24,7 @@ const {
   toggleTerminalLog,
   toggleTerminalLogTimestamp
 } = require('./terminal-api')
-
-global.upgradeInsts = {}
-
-// for remote sessions
-global.sessions = {}
+const globalState = require('./global-state')
 
 const { tokenElecterm } = process.env
 
@@ -64,7 +60,7 @@ function verify (req) {
   if (to !== tokenElecterm) {
     throw new Error('not valid request')
   }
-  if (process.env.requireAuth === 'yes' && !global.authed) {
+  if (process.env.requireAuth === 'yes' && !globalState.authed) {
     throw new Error('auth required')
   }
 }
@@ -160,7 +156,7 @@ const initWs = function (app) {
     wsDec(ws)
     const { id } = req.params
     ws.on('close', () => {
-      const inst = global.upgradeInsts[id]
+      const inst = globalState.getUpgradeInst(id)
       if (inst) {
         inst.destroy()
       }
@@ -174,11 +170,12 @@ const initWs = function (app) {
         const opts = Object.assign({}, msg, {
           ws
         })
-        global.upgradeInsts[id] = new Upgrade(opts)
-        await global.upgradeInsts[id].init()
+        const inst = new Upgrade(opts)
+        globalState.setUpgradeInst(id, inst)
+        await inst.init()
       } else if (action === 'upgrade-func') {
         const { id, func, args } = msg
-        global.upgradeInsts[id][func](...args)
+        globalState.getUpgradeInst(id)[func](...args)
       }
     })
   })

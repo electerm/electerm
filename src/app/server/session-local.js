@@ -5,6 +5,7 @@ const pty = require('node-pty')
 const { resolve: pathResolve } = require('path')
 const log = require('../common/log')
 const { TerminalBase } = require('./session-base')
+const globalState = require('./global-state')
 
 // const { MockBinding } = require('@serialport/binding-mock')
 // MockBinding.createPort('/dev/ROBOT', { echo: true, record: true })
@@ -46,13 +47,13 @@ class TerminalLocal extends TerminalBase {
     })
     this.term.termType = termType
     const { sessionId } = this.initOptions
-    global.sessions[sessionId] = {
+    globalState.setSession(sessionId, {
       id: sessionId,
       sftps: {},
       terminals: {
         [this.pid]: this
       }
-    }
+    })
     return Promise.resolve(this)
   }
 

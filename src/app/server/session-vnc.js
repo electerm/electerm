@@ -8,6 +8,7 @@ const net = require('net')
 const proxySock = require('./socks')
 const uid = require('../common/uid')
 const { terminalSsh } = require('./session-ssh')
+const globalState = require('./global-state')
 
 function getPort (fromPort = 120023) {
   return new Promise((resolve, reject) => {
@@ -23,12 +24,13 @@ function getPort (fromPort = 120023) {
 
 class TerminalVnc extends TerminalBase {
   init = async () => {
-    global.sessions[this.initOptions.sessionId] = {
+    globalState.setSession(this.initOptions.sessionId, {
       id: this.initOptions.sessionId,
+      sftps: {},
       terminals: {
         [this.pid]: this
       }
-    }
+    })
     return Promise.resolve(this)
   }
 
@@ -169,9 +171,7 @@ class TerminalVnc extends TerminalBase {
     if (this.sessionLogger) {
       this.sessionLogger.destroy()
     }
-    const inst = global.sessions[
-      this.initOptions.sessionId
-    ]
+    const inst = globalState.getSession(this.initOptions.sessionId)
     if (!inst) {
       return
     }
@@ -179,9 +179,7 @@ class TerminalVnc extends TerminalBase {
     if (
       _.isEmpty(inst.terminals)
     ) {
-      delete global.sessions[
-        this.initOptions.sessionId
-      ]
+      globalState.removeSession(this.initOptions.sessionId)
     }
   }
 }

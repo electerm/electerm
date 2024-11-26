@@ -18,6 +18,7 @@ const deepCopy = require('json-deep-copy')
 const { TerminalBase } = require('./session-base')
 const { commonExtends } = require('./session-common')
 const failMsg = 'All configured authentication methods failed'
+const globalState = require('./global-state')
 
 class TerminalSshBase extends TerminalBase {
   getLocalEnv () {
@@ -61,7 +62,7 @@ class TerminalSshBase extends TerminalBase {
       initOptions
     } = this
     const { sessionId } = initOptions
-    if (isTest || !sessionId || !global.sessions[sessionId]) {
+    if (isTest || !sessionId || !globalState.getSession(sessionId)) {
       return this.remoteInitProcess()
     } else {
       return this.remoteInitTerminal()
@@ -327,13 +328,14 @@ class TerminalSshBase extends TerminalBase {
       this.endConns()
       return
     } else if (initOptions.enableSsh === false) {
-      global.sessions[initOptions.sessionId] = {
+      globalState.setSession(initOptions.sessionId, {
         conn: this.conn,
         id: initOptions.sessionId,
         shellOpts,
         sftps: {},
         terminals: {}
-      }
+      })
+      return
     }
     const { sshTunnels = [] } = initOptions
     const sshTunnelResults = []
@@ -382,7 +384,7 @@ class TerminalSshBase extends TerminalBase {
             return reject(err)
           }
           this.channel = channel
-          global.sessions[initOptions.sessionId] = {
+          globalState.setSession(initOptions.sessionId, {
             conn: this.conn,
             id: initOptions.sessionId,
             shellOpts,
@@ -390,7 +392,7 @@ class TerminalSshBase extends TerminalBase {
             terminals: {
               [this.pid]: this
             }
-          }
+          })
           resolve(this)
         }
       )

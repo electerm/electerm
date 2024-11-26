@@ -6,15 +6,17 @@ const log = require('../common/log')
 const rdp = require('@electerm/rdpjs')
 const { TerminalBase } = require('./session-base')
 const { isDev } = require('../common/runtime-constants')
+const globalState = require('./global-state')
 
 class TerminalRdp extends TerminalBase {
   init = async () => {
-    global.sessions[this.initOptions.sessionId] = {
+    globalState.setSession(this.initOptions.sessionId, {
       id: this.initOptions.sessionId,
+      sftps: {},
       terminals: {
         [this.pid]: this
       }
-    }
+    })
     return Promise.resolve(this)
   }
 
@@ -157,9 +159,7 @@ class TerminalRdp extends TerminalBase {
     if (this.sessionLogger) {
       this.sessionLogger.destroy()
     }
-    const inst = global.sessions[
-      this.initOptions.sessionId
-    ]
+    const inst = globalState.getSession(this.initOptions.sessionId)
     if (!inst) {
       return
     }
@@ -167,9 +167,7 @@ class TerminalRdp extends TerminalBase {
     if (
       _.isEmpty(inst.terminals)
     ) {
-      delete global.sessions[
-        this.initOptions.sessionId
-      ]
+      globalState.removeSession(this.initOptions.sessionId)
     }
   }
 }

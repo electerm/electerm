@@ -3,7 +3,7 @@
  */
 const { TerminalBase } = require('./session-base')
 const log = require('../common/log')
-
+const globalState = require('./global-state')
 // const { MockBinding } = require('@serialport/binding-mock')
 // MockBinding.createPort('/dev/ROBOT', { echo: true, record: true })
 
@@ -50,13 +50,14 @@ class TerminalSerial extends TerminalBase {
       this.kill()
       return true
     }
-    global.sessions[this.initOptions.sessionId] = {
+    globalState.setSession(this.initOptions.sessionId, {
       id: this.initOptions.sessionId,
       sftps: {},
       terminals: {
         [this.pid]: this
       }
-    }
+    })
+    return Promise.resolve(this)
   }
 
   resize () {

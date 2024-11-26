@@ -5,6 +5,7 @@ const _ = require('lodash')
 const log = require('../common/log')
 const { Telnet } = require('./telnet')
 const { TerminalBase } = require('./session-base')
+const globalState = require('./global-state')
 
 class TerminalTelnet extends TerminalBase {
   init = async () => {
@@ -44,13 +45,14 @@ class TerminalTelnet extends TerminalBase {
       this.kill()
       return true
     }
-    global.sessions[this.initOptions.sessionId] = {
+    globalState.setSession(this.initOptions.sessionId, {
       id: this.initOptions.sessionId,
       sftps: {},
       terminals: {
         [this.pid]: this
       }
-    }
+    })
+    return Promise.resolve(this)
   }
 
   resize = (cols, rows) => {
@@ -76,9 +78,7 @@ class TerminalTelnet extends TerminalBase {
     if (this.sessionLogger) {
       this.sessionLogger.destroy()
     }
-    const inst = global.sessions[
-      this.initOptions.sessionId
-    ]
+    const inst = globalState.getSession(this.initOptions.sessionId)
     if (!inst) {
       return
     }
@@ -86,9 +86,7 @@ class TerminalTelnet extends TerminalBase {
     if (
       _.isEmpty(inst.terminals)
     ) {
-      delete global.sessions[
-        this.initOptions.sessionId
-      ]
+      globalState.removeSession(this.initOptions.sessionId)
     }
   }
 }

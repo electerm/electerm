@@ -8,6 +8,7 @@ const {
 const { commonExtends } = require('./session-common.js')
 const { TerminalBase } = require('./session-base.js')
 const { getSizeCount } = require('../common/get-folder-size-and-file-count.js')
+const globalState = require('./global-state')
 
 class Sftp extends TerminalBase {
   connect (initOptions) {
@@ -16,7 +17,7 @@ class Sftp extends TerminalBase {
 
   remoteInitSftp (initOptions) {
     this.transfers = {}
-    const connInst = global.sessions[initOptions.sessionId]
+    const connInst = globalState.getSession(initOptions.sessionId)
     const {
       conn
     } = connInst

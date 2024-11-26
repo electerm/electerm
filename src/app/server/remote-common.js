@@ -3,10 +3,10 @@
  * for sftp, terminal and transfer
  */
 
-// const _ = require('loadsh')
+const globalState = require('./global-state')
 
 function session (sessionId) {
-  return global.sessions[sessionId]
+  return globalState.getSession(sessionId)
 }
 
 function sftp (id, sessionId, inst) {

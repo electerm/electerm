@@ -12,6 +12,7 @@ const { fsExport } = require('../lib/fs')
 const { createProxyAgent } = require('../lib/proxy-agent')
 const { openFile, rmrf } = fsExport
 const log = require('../common/log')
+const globalState = require('./global-state')
 
 rp.defaults.proxy = false
 
@@ -180,7 +181,7 @@ class Upgrade {
     this.onDestroy = true
     this.readSteam && this.readSteam.destroy()
     this.ws && this.ws.close()
-    delete global.upgradeInsts[this.id]
+    globalState.removeUpgradeInst(this.id)
   }
 
   // end

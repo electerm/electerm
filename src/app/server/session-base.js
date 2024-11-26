@@ -7,6 +7,7 @@ const SessionLog = require('./session-log')
 const _ = require('lodash')
 const time = require('../common/time.js')
 const strip = require('@electerm/strip-ansi').default
+const globalState = require('./global-state')
 
 // const { MockBinding } = require('@serialport/binding-mock')
 // MockBinding.createPort('/dev/ROBOT', { echo: true, record: true })
@@ -80,9 +81,7 @@ class TerminalBase {
   }
 
   onEndConn () {
-    const inst = global.sessions[
-      this.initOptions.sessionId
-    ]
+    const inst = globalState.getSession(this.initOptions.sessionId)
     if (!inst) {
       return
     }
@@ -99,9 +98,7 @@ class TerminalBase {
       _.isEmpty(inst.terminals)
     ) {
       this.endConns && this.endConns()
-      delete global.sessions[
-        this.initOptions.sessionId
-      ]
+      globalState.removeSession(this.initOptions.sessionId)
     }
   }
 }
