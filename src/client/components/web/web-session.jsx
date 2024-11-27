@@ -13,7 +13,7 @@ import Link from '../common/external-link'
 //   return (
 //     <div className='web-session-wrap'>
 //       {tab.enableShowInSession ? (
-//         <webview 
+//         <webview
 //           disablewebsecurity={tab.disableWebSecurity}
 //           disableblinkfeatures='true'
 //           src={tab.url}
@@ -37,12 +37,12 @@ export default function WebSession (props) {
 
   return (
     <div className='web-session-wrap'>
-      <webview 
+      <webview
         disablewebsecurity='true'
         disableblinkfeatures='true'
         src={tab.url}
         style={{ width: '100%', height: '100%' }}
-      ></webview>
+      />
     </div>
   )
 }
