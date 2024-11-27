@@ -38,7 +38,7 @@ export default function WebSession (props) {
   useEffect(() => {
     tab.url
   }, [])
-  
+
   return (
     <div className='web-session-wrap'>
       <webview
