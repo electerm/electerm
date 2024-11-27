@@ -9,7 +9,7 @@ import initWatch from './watch'
 export default (Store) => {
   Store.prototype.checkForDbUpgrade = async function () {
     const { store } = window
-    if (store.isSencondInstance) {
+    if (store.isSecondInstance) {
       return false
     }
     const shouldUpgrade = await window.pre.runGlobalAsync('checkDbUpgrade')

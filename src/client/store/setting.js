@@ -190,7 +190,7 @@ export default Store => {
 
   Store.prototype.openSettingModal = function () {
     const { store } = window
-    if (store.isSencondInstance) {
+    if (store.isSecondInstance) {
       return message.warning(
         e('sencondInstanceTip')
       )

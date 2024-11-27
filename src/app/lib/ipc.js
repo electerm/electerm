@@ -11,6 +11,7 @@ const {
   globalShortcut,
   shell
 } = require('electron')
+const globalState = require('./glob-state')
 const ipcSyncFuncs = require('./ipc-sync')
 const { dbAction } = require('./nedb')
 const { listItermThemes } = require('./iterm-theme')
@@ -59,14 +60,14 @@ const lookup = require('../common/lookup')
 async function initAppServer () {
   const {
     config
-  } = await getConfig(global.et.serverInited)
+  } = await getConfig(globalState.get('serverInited'))
   const {
     langs,
     sysLocale
   } = await loadLocales()
   const language = getLang(config, sysLocale, langs)
   config.language = language
-  if (!global.et.serverInited) {
+  if (!globalState.get('serverInited')) {
     const child = await initServer(config, {
       ...process.env,
       appPath,
@@ -79,21 +80,21 @@ async function initAppServer () {
         }
       }
     })
-    global.et.serverInited = true
+    globalState.set('serverInited', true)
   }
-  global.et.config = config
+  globalState.set('config', config)
 }
 
 function initIpc () {
   powerMonitor.on('resume', () => {
-    global.win.webContents.send('power-resume', null)
+    globalState.get('win').webContents.send('power-resume', null)
   })
   async function init () {
     const {
       langs,
       langMap
     } = await loadLocales()
-    const { config } = global.et
+    const config = globalState.get('config')
     const globs = {
       config,
       langs,
@@ -104,16 +105,17 @@ function initIpc () {
       isPortable
     }
     initApp(langMap, config)
-    initShortCut(globalShortcut, global.win, config)
+    initShortCut(globalShortcut, globalState.get('win'), config)
     return globs
   }
 
   ipcMain.on('sync-func', (event, { name, args }) => {
+    console.log('ipc sync', event, name, args)
     event.returnValue = ipcSyncFuncs[name](...args)
   })
   const asyncGlobals = {
     confirmExit: () => {
-      global.et.confirmExit = true
+      globalState.set('confirmExit', true)
     },
     setPassword,
     checkPassword,
@@ -126,46 +128,49 @@ function initIpc () {
     loadFontList,
     doUpgrade,
     checkDbUpgrade,
-    getExitStatus: () => global.et.exitStatus,
+    getExitStatus: () => globalState.get('exitStatus'),
     setExitStatus: (status) => {
-      global.et.exitStatus = status
+      globalState.set('exitStatus', status)
     },
     encryptAsync,
     decryptAsync,
     dbAction,
     getScreenSize,
     closeApp: (closeAction = '') => {
-      global.et.closeAction = closeAction
-      global.win && global.win.close()
+      globalState.set('closeAction', closeAction)
+      const win = globalState.get('win')
+      win && win.close()
     },
     exit: () => {
-      global.win && global.win.close()
+      const win = globalState.get('win')
+      win && win.close()
     },
     restart: (closeAction = '') => {
-      global.et.closeAction = ''
-      global.win.close()
+      globalState.set('closeAction', '')
+      globalState.get('win').close()
       app.relaunch()
     },
     setCloseAction: (closeAction = '') => {
-      global.et.closeAction = closeAction
+      globalState.set('closeAction', closeAction)
     },
     minimize: () => {
-      global.win.minimize()
+      globalState.get('win').minimize()
     },
     listItermThemes,
     maximize,
     unmaximize,
     openDevTools: () => {
-      global.win.webContents.openDevTools()
+      globalState.get('win').webContents.openDevTools()
     },
     setWindowSize: (update) => {
       lastStateManager.set('windowSize', update)
     },
     saveUserConfig,
     setTitle: (title) => {
-      global.win && global.win.setTitle(packInfo.name + ' - ' + title)
+      const win = globalState.get('win')
+      win && win.setTitle(packInfo.name + ' - ' + title)
     },
-    changeHotkey: changeHotkeyReg(globalShortcut, global.win),
+    changeHotkey: changeHotkeyReg(globalShortcut, globalState.get('win')),
     initCommandLine,
     watchFile,
     unwatchFile,

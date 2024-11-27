@@ -17,11 +17,12 @@ const { getDbConfig } = require('./get-config')
 const { disableShortCuts } = require('./key-bind')
 const _ = require('lodash')
 const getPort = require('./get-port')
+const globalState = require('./glob-state')
 
 exports.createWindow = async function () {
   const userConfig = await getDbConfig() || {}
-  global.et.closeAction = 'closeApp'
-  global.et.requireAuth = !!userConfig.hashedPassword
+  globalState.set('closeAction', 'closeApp')
+  globalState.set('requireAuth', !!userConfig.hashedPassword)
   const { width, height, x, y } = await getWindowSize()
   const { useSystemTitleBar = defaults.useSystemTitleBar } = userConfig
   const win = new BrowserWindow({
@@ -50,7 +51,7 @@ exports.createWindow = async function () {
     win.setWindowButtonVisibility(true)
   }
 
-  global.win = win
+  globalState.set('win', win)
 
   await initAppServer()
   initIpc()

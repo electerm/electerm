@@ -4,13 +4,14 @@ const { screen } = require('electron')
 const {
   isLinux
 } = require('../common/runtime-constants')
+const globalState = require('./glob-state')
 
 let mouseStartPosition = { x: 0, y: 0 }
 let movingInterval = null
 let dragCount = 0
 
 function windowMove (canMoving) {
-  const { win } = global
+  const win = globalState.get('win')
   const size = win.getBounds()
   const scr = screen.getDisplayNearestPoint(size)
 

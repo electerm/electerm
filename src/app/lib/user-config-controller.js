@@ -5,6 +5,7 @@
 const { dbAction } = require('./nedb')
 const { userConfigId } = require('../common/constants')
 const { getDbConfig } = require('./get-config')
+const globalState = require('./glob-state')
 
 exports.saveUserConfig = async (userConfig) => {
   const q = {
@@ -15,10 +16,7 @@ exports.saveUserConfig = async (userConfig) => {
   delete userConfig.tokenElecterm
   delete userConfig.server
   delete userConfig.port
-  Object.assign(
-    global.et.config,
-    userConfig
-  )
+  globalState.update('config', userConfig)
   const conf = await getDbConfig()
   return dbAction('data', 'update', q, {
     ...q,

@@ -4,6 +4,7 @@
 
 const { dbAction } = require('./nedb')
 const log = require('../common/log')
+const globalState = require('./glob-state')
 
 exports.getExitStatus = async () => {
   const res = await dbAction('data', 'findOne', {
@@ -13,18 +14,22 @@ exports.getExitStatus = async () => {
 }
 
 exports.onClose = async function (e) {
-  if (global.et.config.confirmBeforeExit && global.et.closeAction) {
-    global.win?.webContents.send(
+  const config = globalState.get('config')
+  if (config.confirmBeforeExit && globalState.get('closeAction')) {
+    const win = globalState.get('win')
+    win?.webContents.send(
       'confirm-exit',
-      global.et.closeAction
+      globalState.get('closeAction')
     )
-    global.et.closeAction = ''
+    globalState.set('closeAction', '')
     return e.preventDefault()
   }
   log.debug('Closing app')
-  global.childPid && process.kill(global.childPid)
+  const childPid = globalState.get('childPid')
+  childPid && process.kill(childPid)
   process.on('uncaughtException', function () {
-    global.childPid && process.kill(global.childPid)
+    const childPid = globalState.get('childPid')
+    childPid && process.kill(childPid)
     process.exit(0)
   })
   log.debug('Child process killed')
@@ -45,7 +50,8 @@ exports.onClose = async function (e) {
   //   upsert: true
   // })
   // log.debug('session saved')
-  clearTimeout(global.et.timer)
-  global.win = null
-  global.app.quit()
+  clearTimeout(globalState.get('timer'))
+  globalState.set('win', null)
+  const app = globalState.get('app')
+  app.quit()
 }

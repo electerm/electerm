@@ -8,9 +8,10 @@ const {
 } = require('electron')
 const openNewInstance = require('./open-new-instance')
 const { packInfo } = require('../common/runtime-constants')
+const globalState = require('./glob-state')
 
 function buildMenu () {
-  const e = global.et.translate
+  const e = globalState.get('translate')
 
   const template = [
     {
@@ -19,7 +20,7 @@ function buildMenu () {
         {
           label: e('newBookmark'),
           click () {
-            global.win.webContents.send('new-ssh', null)
+            globalState.get('win').webContents.send('new-ssh', null)
           }
         },
         {
@@ -95,7 +96,7 @@ function buildMenu () {
         },
         {
           click () {
-            global.win.webContents.send('zoom-reset', null)
+            globalState.get('win').webContents.send('zoom-reset', null)
           },
           label: e('resetzoom')
         },
@@ -131,7 +132,7 @@ function buildMenu () {
         {
           label: e('maximize'),
           click () {
-            global.win.maximize()
+            globalState.get('win').maximize()
           }
         },
         {
@@ -150,7 +151,7 @@ function buildMenu () {
         {
           label: e('about'),
           click () {
-            global.win.webContents.send('open-about', null)
+            globalState.get('win').webContents.send('open-about', null)
           }
         },
         {
@@ -183,7 +184,7 @@ function buildMenu () {
         {
           label: e('toggledevtools'),
           click () {
-            global.win.webContents.openDevTools()
+            globalState.get('win').webContents.openDevTools()
           }
         }
       ]

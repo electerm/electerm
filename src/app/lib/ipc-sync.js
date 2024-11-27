@@ -9,7 +9,7 @@ const {
 const log = require('../common/log')
 const contants = require('../common/runtime-constants')
 const windowMove = require('./window-drag-move.js')
-
+const globalState = require('./glob-state')
 const { transferKeys } = require('../server/transfer')
 const os = require('os')
 const {
@@ -27,7 +27,8 @@ const isMaximized = () => {
     x: sx,
     y: sy
   } = getScreenSize()
-  const { width, height, x, y } = global.win.getBounds()
+  const win = globalState.get('win')
+  const { width, height, x, y } = win.getBounds()
   return widthMax === width &&
     heightMax === height &&
     x === sx &&
@@ -59,20 +60,20 @@ module.exports = {
     shell.openExternal(url)
   },
   getArgs: () => {
-    return global.rawArgs
+    return globalState.get('rawArgs')
   },
-  shouldAuth: () => global.et.requireAuth,
+  shouldAuth: () => globalState.get('requireAuth'),
   getLoadTime: () => {
-    return global.loadTime
-      ? { loadTime: global.loadTime }
-      : { initTime: global.initTime }
+    return globalState.get('loadTime')
+      ? { loadTime: globalState.get('loadTime') }
+      : { initTime: globalState.get('initTime') }
   },
   setLoadTime: (loadTime) => {
-    global.loadTime = loadTime
+    globalState.set('loadTime', loadTime)
   },
   isMaximized,
-  isSencondInstance: () => {
-    return isTest ? false : global.app.isSencondInstance
+  isSecondInstance: () => {
+    return isTest ? false : globalState.get('isSecondInstance')
   },
   osInfo: () => {
     return Object.keys(os).map((k, i) => {

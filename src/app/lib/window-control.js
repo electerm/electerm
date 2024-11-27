@@ -3,17 +3,17 @@
  */
 
 const lastStateManager = require('./last-state')
-// const log = require('./log')
 const {
   isDev,
   minWindowWidth,
   minWindowHeight,
   isLinux
 } = require('../common/runtime-constants')
+const globalState = require('./glob-state')
 
 exports.getScreenCurrent = () => {
-  const rect = global.win
-    ? global.win.getBounds()
+  const rect = globalState.get('win')
+    ? globalState.get('win').getBounds()
     : {
         x: 0,
         y: 0,
@@ -34,26 +34,25 @@ exports.getScreenSize = () => {
 }
 
 exports.maximize = () => {
-  global.oldRectangle = global.win.getBounds()
-  // global.win.setPosition(0, 0)
+  const win = globalState.get('win')
+  globalState.set('oldRectangle', win.getBounds())
   const p = exports.getScreenCurrent()
   const {
     width, height, x, y
   } = p.workArea
-  global.win.setPosition(x, y)
-  global.win.setSize(width, height)
+
+  win.setPosition(x, y)
+  win.setSize(width, height)
 }
 
 exports.unmaximize = () => {
-  const {
-    oldRectangle = {
-      width: minWindowWidth,
-      height: minWindowHeight,
-      x: 200,
-      y: 200
-    }
-  } = global
-  global.win.setBounds(oldRectangle)
+  const oldRectangle = globalState.get('oldRectangle') || {
+    width: minWindowWidth,
+    height: minWindowHeight,
+    x: 200,
+    y: 200
+  }
+  globalState.get('win').setBounds(oldRectangle)
 }
 
 exports.getWindowSize = async () => {

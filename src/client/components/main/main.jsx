@@ -64,7 +64,7 @@ export default auto(function Index (props) {
     if (window.et.isWebApp) {
       window.onbeforeunload = store.beforeExit
     }
-    store.isSencondInstance = window.pre.runSync('isSencondInstance')
+    store.isSecondInstance = window.pre.runSync('isSecondInstance')
     store.initData()
     store.checkForDbUpgrade()
     window.pre.runGlobalAsync('registerDeepLink')
@@ -76,7 +76,7 @@ export default auto(function Index (props) {
     config,
     terminalFullScreen,
     pinned,
-    isSencondInstance,
+    isSecondInstance,
     pinnedQuickCommandBar,
     wsInited,
     upgradeInfo,
@@ -98,7 +98,7 @@ export default auto(function Index (props) {
     pinned,
     'qm-pinned': pinnedQuickCommandBar,
     'term-fullscreen': terminalFullScreen,
-    'is-main': !isSencondInstance
+    'is-main': !isSecondInstance
   })
   const ext1 = {
     className: cls

@@ -3,12 +3,13 @@
  */
 
 const log = require('../common/log')
-
+const globalState = require('./glob-state')
 let port = null
 
 function getPort (fromPort = 30975) {
-  if (global.serverPort) {
-    port = parseInt(global.serverPort, 10)
+  const serverPort = globalState.get('serverPort')
+  if (serverPort) {
+    port = parseInt(serverPort, 10)
     return Promise.resolve(
       port
     )
