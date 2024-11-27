@@ -36,7 +36,7 @@ export default function WebSession (props) {
   } = props
 
   useEffect(() => {
-    tab.url
+
   }, [])
 
   return (
