@@ -6,7 +6,8 @@ import { useEffect } from 'react'
 import {
   Input,
   Form,
-  TreeSelect
+  TreeSelect,
+  Switch
 } from 'antd'
 import { formItemLayout } from '../../common/form-layout'
 import {
@@ -97,6 +98,14 @@ export default function LocalFormUi (props) {
             treeDefaultExpandAll
             showSearch
           />
+        </FormItem>
+        <FormItem
+          {...formItemLayout}
+          label={e('enableShowInSession')} // 启用在Electerm打开网站
+          name='enableShowInSession'
+          valuePropName='checked'
+        >
+          <Switch />
         </FormItem>
         <FormItem
           {...formItemLayout}

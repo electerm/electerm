@@ -41,7 +41,8 @@ exports.createWindow = async function () {
       contextIsolation: true,
       nodeIntegration: false,
       enableRemoteModule: false,
-      preload: resolve(__dirname, '../preload/preload.js')
+      preload: resolve(__dirname, '../preload/preload.js'),
+      webviewTag: true
     },
     titleBarStyle: useSystemTitleBar ? 'default' : 'hidden',
     icon: iconPath
