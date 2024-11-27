@@ -405,7 +405,12 @@ class Sessions extends Component {
       }
       if (type === terminalWebType) {
         const webProps = {
-          tab
+          tab,
+          width,
+          height,
+          ...pick(this, [
+            'reloadTab'
+          ])
         }
         return (
           <div className={cls} key={id}>

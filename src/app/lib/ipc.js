@@ -110,7 +110,6 @@ function initIpc () {
   }
 
   ipcMain.on('sync-func', (event, { name, args }) => {
-    console.log('ipc sync', event, name, args)
     event.returnValue = ipcSyncFuncs[name](...args)
   })
   const asyncGlobals = {
