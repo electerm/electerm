@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import Link from '../common/external-link'
+// import Link from '../common/external-link'
 
 // export default function WebSession (props) {
 //   const {
