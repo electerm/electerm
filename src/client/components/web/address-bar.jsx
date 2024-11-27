@@ -2,7 +2,7 @@ import {
   Input,
   Tooltip
 } from 'antd'
-
+import { copy } from '../../common/clipboard'
 import {
   ReloadOutlined,
   GlobalOutlined
@@ -22,6 +22,9 @@ export default function AddressBar (props) {
       <p>{description}</p>
     </div>
   )
+  function handleClick () {
+    copy(url)
+  }
   return (
     <div className='web-address-bar pd1'>
       <Tooltip
@@ -29,6 +32,7 @@ export default function AddressBar (props) {
       >
         <Input
           value={url}
+          onClick={handleClick}
           addonBefore={
             <ReloadOutlined
               onClick={onReload}
