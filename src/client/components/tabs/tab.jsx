@@ -212,9 +212,15 @@ class Tab extends Component {
       isTransporting: undefined,
       pane: paneMap.terminal
     })
-    const maxBatch = splitConfig[layout].children
+    let maxBatch = splitConfig[layout].children
+    if (maxBatch < 2) {
+      maxBatch = 2
+    }
     ntb.batch = (batch + 1) % maxBatch
     window.store.addTab(ntb)
+    if (layout === 'c1') {
+      window.store.setLayout('c2')
+    }
   }
 
   newTab = () => {
@@ -280,7 +286,7 @@ class Tab extends Component {
   }
 
   renderContext = () => {
-    const { tabs, tab, layout } = this.props
+    const { tabs, tab } = this.props
     const len = tabs.length
     const index = findIndex(tabs, t => t.id === tab.id)
     const noRight = index >= len - 1
@@ -314,13 +320,11 @@ class Tab extends Component {
       icon: 'CopyOutlined',
       text: e('duplicate')
     })
-    if (layout !== 'c1') {
-      res.push({
-        func: 'cloneToNextLayout',
-        icon: 'CopyOutlined',
-        text: e('cloneToNextLayout')
-      })
-    }
+    res.push({
+      func: 'cloneToNextLayout',
+      icon: 'CopyOutlined',
+      text: e('cloneToNextLayout')
+    })
     res.push({
       disabled: isSshConfig,
       func: 'doRename',
