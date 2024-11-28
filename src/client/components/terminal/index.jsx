@@ -1237,6 +1237,7 @@ clear\r`
       new KeywordHighlighterAddon(keywords)
     )
     window.store.triggerResize()
+    window.store.focus()
   }
 
   onResize = throttle(() => {
