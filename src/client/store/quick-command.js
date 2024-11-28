@@ -73,7 +73,7 @@ export default Store => {
         clickCount: ((qm.clickCount || 0) + 1)
       })
     }
-  }, 100)
+  }, 200)
 
   Store.prototype.setQmSortByFrequency = function (v) {
     window.store.qmSortByFrequency = v
