@@ -5,11 +5,14 @@
 import { uniq, debounce, findIndex } from 'lodash-es'
 import {
   tabActions,
-  splitConfig
+  splitConfig,
+  statusMap,
+  paneMap
 } from '../common/constants'
 import postMsg from '../common/post-msg'
 import * as ls from '../common/safe-local-storage'
 import deepCopy from 'json-deep-copy'
+import generate from '../common/id-with-stamp'
 
 export default Store => {
   Store.prototype.updateTabsStatus = function () {
@@ -93,6 +96,28 @@ export default Store => {
           currentTabId: nextTab.id
         })
       }
+    }
+  }
+
+  Store.prototype.cloneToNextLayout = function () {
+    const { store } = window
+    const defaultStatus = statusMap.processing
+    const { currentTab, layout, currentLayoutBatch } = store
+    const ntb = deepCopy(currentTab)
+    Object.assign(ntb, {
+      id: generate(),
+      status: defaultStatus,
+      isTransporting: undefined,
+      pane: paneMap.terminal
+    })
+    let maxBatch = splitConfig[layout].children
+    if (maxBatch < 2) {
+      maxBatch = 2
+    }
+    ntb.batch = (currentLayoutBatch + 1) % maxBatch
+    store.addTab(ntb)
+    if (layout === 'c1') {
+      store.setLayout('c2')
     }
   }
 

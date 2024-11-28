@@ -9,7 +9,6 @@ import {
   Loading3QuartersOutlined,
   BorderlessTableOutlined
 } from '@ant-design/icons'
-import generate from '../../common/id-with-stamp'
 import { Tooltip, message } from 'antd'
 import classnames from 'classnames'
 import copy from 'json-deep-copy'
@@ -18,10 +17,7 @@ import Input from '../common/input-auto-focus'
 import createName from '../../common/create-title'
 import { addClass, removeClass } from '../../common/class'
 import {
-  terminalSshConfigType,
-  splitConfig,
-  paneMap,
-  statusMap
+  terminalSshConfigType
 } from '../../common/constants'
 import { shortcutDescExtend } from '../shortcuts/shortcut-handler.js'
 
@@ -203,24 +199,7 @@ class Tab extends Component {
   }
 
   cloneToNextLayout = () => {
-    const defaultStatus = statusMap.processing
-    const { batch, layout } = this.props
-    const ntb = copy(this.state.tab)
-    Object.assign(ntb, {
-      id: generate(),
-      status: defaultStatus,
-      isTransporting: undefined,
-      pane: paneMap.terminal
-    })
-    let maxBatch = splitConfig[layout].children
-    if (maxBatch < 2) {
-      maxBatch = 2
-    }
-    ntb.batch = (batch + 1) % maxBatch
-    window.store.addTab(ntb)
-    if (layout === 'c1') {
-      window.store.setLayout('c2')
-    }
+    window.store.cloneToNextLayout()
   }
 
   newTab = () => {
@@ -293,10 +272,13 @@ class Tab extends Component {
     const isSshConfig = tab.type === terminalSshConfigType
     const res = []
     const reloadShortcut = this.getShortcut('app_reloadCurrentTab')
+    const closeShortcut = this.getShortcut('app_closeCurrentTab')
+    const cloneToNextShortcut = this.getShortcut('app_cloneToNextLayout')
     res.push({
       func: 'handleClose',
       icon: 'CloseOutlined',
-      text: e('close')
+      text: e('close'),
+      subText: closeShortcut
     })
     res.push({
       func: 'closeOther',
@@ -323,7 +305,8 @@ class Tab extends Component {
     res.push({
       func: 'cloneToNextLayout',
       icon: 'CopyOutlined',
-      text: e('cloneToNextLayout')
+      text: e('cloneToNextLayout'),
+      subText: cloneToNextShortcut
     })
     res.push({
       disabled: isSshConfig,

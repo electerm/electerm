@@ -11,6 +11,11 @@ export default () => {
       shortcutMac: 'alt+r'
     },
     {
+      name: 'app_cloneToNextLayout',
+      shortcut: 'ctrl+/',
+      shortcutMac: 'meta+/'
+    },
+    {
       name: 'app_newBookmark',
       shortcut: 'ctrl+n',
       shortcutMac: 'meta+n'
@@ -39,11 +44,6 @@ export default () => {
       name: 'app_nextTab',
       shortcut: 'ctrl+tab',
       shortcutMac: 'ctrl+tab'
-    },
-    {
-      name: 'terminal_split',
-      shortcut: 'ctrl+/',
-      shortcutMac: 'meta+/'
     },
     {
       name: 'terminal_clear',

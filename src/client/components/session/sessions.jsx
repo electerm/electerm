@@ -8,7 +8,6 @@ import copy from 'json-deep-copy'
 import wait from '../../common/wait.js'
 import Tabs from '../tabs/index.jsx'
 import {
-  commonActions,
   tabActions,
   paneMap,
   statusMap,
@@ -16,8 +15,6 @@ import {
   termControlHeight
 } from '../../common/constants.js'
 import newTerm, { updateCount } from '../../common/new-terminal.js'
-import postMsg from '../../common/post-msg.js'
-
 import LogoElem from '../common/logo-elem.jsx'
 import { Button } from 'antd'
 import toSimpleObj from '../../common/to-simple-obj.js'
@@ -72,7 +69,14 @@ class Sessions extends Component {
     window.addEventListener('keydown', this.bindHandleKeyboardEvent)
   }
 
+  notCurrentTab = (tab) => {
+    return this.state.currentTabId !== window.store.currentTabId
+  }
+
   closeCurrentTabShortcut = (e) => {
+    if (this.notCurrentTab()) {
+      return
+    }
     e.stopPropagation()
     this.delTab(
       this.state.currentTabId
@@ -80,13 +84,21 @@ class Sessions extends Component {
   }
 
   reloadCurrentTabShortcut = (e) => {
-    e.stopPropagation()
-    if (this.state.currentTabId !== window.store.currentTabId) {
+    if (this.notCurrentTab()) {
       return
     }
+    e.stopPropagation()
     this.reloadTab(
       this.getCurrentTab()
     )
+  }
+
+  cloneToNextLayoutShortcut = (e) => {
+    if (this.notCurrentTab()) {
+      return
+    }
+    e.stopPropagation()
+    window.store.cloneToNextLayout()
   }
 
   watch = () => {
@@ -107,18 +119,8 @@ class Sessions extends Component {
         currentTabId: id
       })
     } else {
-      window.store.focus()
+      document.querySelector('.tab.active').click()
     }
-    postMsg({
-      action: commonActions.updateStore,
-      value: id,
-      prop: 'currentTabId'
-    })
-    postMsg({
-      action: commonActions.updateStore,
-      value: id,
-      prop: 'currentTabId' + this.props.batch
-    })
   }
 
   getCurrentTab = () => {
