@@ -24,7 +24,7 @@ export default function WebSession (props) {
     src: tab.url,
     style: {
       width: width + 'px',
-      height: (height - 30) + 'px'
+      height: (height - 80) + 'px'
     },
     disableblinkfeatures: 'true',
     disablewebsecurity: 'true'
