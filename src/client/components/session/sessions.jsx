@@ -81,6 +81,9 @@ class Sessions extends Component {
 
   reloadCurrentTabShortcut = (e) => {
     e.stopPropagation()
+    if (this.state.currentTabId !== window.store.currentTabId) {
+      return
+    }
     this.reloadTab(
       this.getCurrentTab()
     )
@@ -193,6 +196,10 @@ class Sessions extends Component {
     const { batch } = this.props
     tab.batch = batch
     this.addTab(tab)
+  }
+
+  handleClick = () => {
+    window.store.currentTabId = this.state.currentTabId
   }
 
   reloadTab = async (tabToReload) => {
@@ -486,6 +493,7 @@ class Sessions extends Component {
       <div
         className='sessions'
         key='main-sess'
+        onClick={this.handleClick}
       >
         {this.renderSessions()}
       </div>
