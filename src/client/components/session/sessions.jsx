@@ -12,7 +12,8 @@ import {
   tabActions,
   paneMap,
   statusMap,
-  terminalWebType
+  terminalWebType,
+  termControlHeight
 } from '../../common/constants.js'
 import newTerm, { updateCount } from '../../common/new-terminal.js'
 import postMsg from '../../common/post-msg.js'
@@ -356,6 +357,15 @@ class Sessions extends Component {
     )
   }
 
+  computeHeight = () => {
+    const {
+      tabsHeight
+    } = this.props
+    return this.props.height -
+      tabsHeight -
+      termControlHeight
+  }
+
   renderSessions () {
     const {
       config, width, height
@@ -398,6 +408,7 @@ class Sessions extends Component {
           'onChangeTabId',
           'onDuplicateTab',
           'reloadTab',
+          'computeHeight',
           'delTab',
           'addTab',
           'editTab'
@@ -407,7 +418,7 @@ class Sessions extends Component {
         const webProps = {
           tab,
           width,
-          height,
+          height: this.computeHeight(),
           ...pick(this, [
             'reloadTab'
           ])

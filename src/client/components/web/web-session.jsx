@@ -23,8 +23,8 @@ export default function WebSession (props) {
   const viewProps = {
     src: tab.url,
     style: {
-      width: width + 'px',
-      height: (height - 80) + 'px'
+      width: (width - 10) + 'px',
+      height: (height - 12) + 'px'
     },
     disableblinkfeatures: 'true',
     disablewebsecurity: 'true'
@@ -32,9 +32,11 @@ export default function WebSession (props) {
   return (
     <div className='web-session-wrap'>
       <AddressBar {...addrProps} />
-      <webview
-        {...viewProps}
-      />
+      <div className='pd1'>
+        <webview
+          {...viewProps}
+        />
+      </div>
     </div>
   )
 }

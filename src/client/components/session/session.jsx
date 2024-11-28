@@ -20,7 +20,6 @@ import generate from '../../common/uid'
 import copy from 'json-deep-copy'
 import classnames from 'classnames'
 import {
-  termControlHeight,
   paneMap,
   terminalActions,
   connectionMap,
@@ -89,15 +88,6 @@ export default class SessionWrapper extends Component {
     })
   }
 
-  computeHeight = () => {
-    const {
-      tabsHeight
-    } = this.props
-    return this.props.height -
-      tabsHeight -
-      termControlHeight
-  }
-
   editTab = (up) => {
     const {
       tab,
@@ -131,7 +121,7 @@ export default class SessionWrapper extends Component {
 
   computePosition = (index) => {
     const windowWidth = this.getWidth()
-    const heightAll = this.computeHeight()
+    const heightAll = this.props.computeHeight()
     return {
       height: heightAll,
       width: windowWidth,
@@ -196,7 +186,7 @@ export default class SessionWrapper extends Component {
     const cls = pane === paneMap.terminal
       ? 'terms-box'
       : 'terms-box hide'
-    const height = this.computeHeight()
+    const height = this.props.computeHeight()
     const { tab } = this.props
     const width = this.getWidth()
     const themeConfig = copy(window.store.getThemeConfig())
@@ -246,7 +236,7 @@ export default class SessionWrapper extends Component {
     if (type === terminalRdpType) {
       return null
     }
-    const height = this.computeHeight(pane)
+    const height = this.props.computeHeight(pane)
     const cls = pane === paneMap.terminal
       ? 'hide'
       : ''
