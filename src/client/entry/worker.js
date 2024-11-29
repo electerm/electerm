@@ -44,7 +44,7 @@ function createWs (
     ws.clean()
   }
   ws.onerror = () => {
-    ws.clean()
+    ws.close()
   }
   ws.clean = () => {
     ws.removeEventListener('message', ws.func)
