@@ -68,13 +68,11 @@ function loadDevStylus () {
   const pat = dir + '/**/*.styl'
   const arr = findFiles(pat)
   const key = 'theme-default.styl'
-  console.log('arr', arr)
   arr.sort((a, b) => {
     const ai = a.includes(key) ? 1 : 0
     const bi = b.includes(key) ? 1 : 0
     return bi - ai
   })
-  console.log('arr1', arr)
   let all = ''
   for (const p of arr) {
     const text = readFileSync(p, 'utf8')

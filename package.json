@@ -1,6 +1,6 @@
 {
   "name": "electerm",
-  "version": "1.50.31",
+  "version": "1.50.32",
   "description": "Terminal/ssh/telnet/serialport/sftp client(linux, mac, win)",
   "main": "app.js",
   "bin": "npm/electerm",
@@ -134,9 +134,8 @@
     "socksv5-electron": "^0.0.6",
     "ssh-config": "5.0.1",
     "ssh2": "1.16.0",
-    "stylus": "0.59.0",
-    "tar": "7.4.3",
-    "v8-compile-cache": "2.4.0"
+    "stylus": "0.64.0",
+    "tar": "7.4.3"
   },
   "files": [
     "npm",

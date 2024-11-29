@@ -19,9 +19,6 @@ const targetFilePath = resolve(
 )
 const pugContent = fs.readFileSync(entryPug, 'utf-8')
 const stylusString = loadDevStylus()
-console.log('============')
-console.log(stylusString)
-console.log('============')
 const data = {
   version: pack.version,
   siteName: pack.name,
