@@ -18,11 +18,15 @@ const targetFilePath = resolve(
   '../../work/app/assets/index.html'
 )
 const pugContent = fs.readFileSync(entryPug, 'utf-8')
+const stylusString = loadDevStylus()
+console.log('============')
+console.log(stylusString)
+console.log('============')
 const data = {
   version: pack.version,
   siteName: pack.name,
   isDev: false,
-  stylus: loadDevStylus()
+  stylus: stylusString
 }
 const htmlContent = pug.render(pugContent, {
   filename: entryPug,
