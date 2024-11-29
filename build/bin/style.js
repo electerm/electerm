@@ -6,10 +6,10 @@
 // const { isDev } = require('../utils/app-props')
 const { resolve } = require('path')
 const { readFileSync } = require('fs')
-const glob = require('glob')
+const { globSync } = require('glob')
 
 function findFiles (pattern) {
-  return glob.sync(pattern)
+  return globSync(pattern)
 }
 
 function removeUnused (str) {
