@@ -64,7 +64,6 @@
     "@xterm/addon-fit": "0.10.0",
     "@xterm/addon-ligatures": "0.9.0",
     "@xterm/addon-search": "0.15.0",
-    "@xterm/addon-serialize": "0.13.0",
     "@xterm/addon-unicode11": "0.8.0",
     "@xterm/addon-web-links": "0.11.0",
     "@xterm/addon-webgl": "0.18.0",

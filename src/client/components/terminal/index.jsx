@@ -48,8 +48,7 @@ import { createTerm, resizeTerm } from './terminal-apis'
 import { shortcutExtend, shortcutDescExtend } from '../shortcuts/shortcut-handler.js'
 import { KeywordHighlighterAddon } from './highlight-addon.js'
 import { getLocalFileInfo } from '../sftp/file-read.js'
-import { SerializeAddon } from '@xterm/addon-serialize'
-import strip from '@electerm/strip-ansi'
+import { CommandTrackerAddon } from './command-tracker-addon.js'
 import { formatBytes } from '../../common/byte-format.js'
 import * as fs from './fs.js'
 
@@ -184,8 +183,13 @@ clear\r`
     this.fitAddon = null
     this.zmodemAddon = null
     this.searchAddon = null
-    this.serializeAddon = null
     this.fitAddon = null
+    this.cmdAddon = null
+    // Clear the notification if it exists
+    if (this.socketCloseWarning) {
+      notification.destroy(this.socketCloseWarning.key)
+      this.socketCloseWarning = null
+    }
   }
 
   terminalConfigProps = [
@@ -928,17 +932,8 @@ clear\r`
     return result
   }
 
-  // onKey = ({ key }) => {
-  //   if (key === '\r') {
-  //     this.getCmd()
-  //   }
-  // }
-
   getCmd = () => {
-    const str = this.serializeAddon.serialize()
-    const arr = strip(str).split(/ +/)
-    const len = arr.length
-    return arr[len - 1]
+    return this.cmdAddon.getCurrentCommand()
   }
 
   getCwd = () => {
@@ -967,9 +962,9 @@ clear\r`
     if (!d.includes('\r')) {
       delete this.userTypeExit
     } else {
-      const data = this.getCmd()
+      const data = this.getCmd().trim()
       if (this.term.buffer.active.type !== 'alternate') {
-        setTimeout(this.getCwd, 200)
+        this.timers.getCwd = setTimeout(this.getCwd, 200)
       }
       const exitCmds = [
         'exit',
@@ -1028,18 +1023,18 @@ clear\r`
 
     // term.on('keydown', this.handleEvent)
     this.fitAddon = new FitAddon()
+    this.cmdAddon = new CommandTrackerAddon()
     this.searchAddon = new SearchAddon()
     const ligtureAddon = new LigaturesAddon()
     this.searchAddon.onDidChangeResults(this.onSearchResultsChange)
     const unicode11Addon = new Unicode11Addon()
     term.loadAddon(unicode11Addon)
-    this.serializeAddon = new SerializeAddon()
-    term.loadAddon(this.serializeAddon)
     term.loadAddon(ligtureAddon)
     // activate the new version
     term.unicode.activeVersion = '11'
     term.loadAddon(this.fitAddon)
     term.loadAddon(this.searchAddon)
+    term.loadAddon(this.cmdAddon)
     term.onData(this.onData)
     this.term = term
     term.attachCustomKeyEventHandler(this.handleKeyboardEvent.bind(this))
