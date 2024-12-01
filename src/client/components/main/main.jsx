@@ -23,17 +23,28 @@ import { isMac, isWin } from '../../common/constants'
 import TermFullscreenControl from './term-fullscreen-control'
 import TerminalInfo from '../terminal-info/terminal-info'
 import { LoadingUI } from './loading'
-import { ConfigProvider, notification } from 'antd'
+import { ConfigProvider, notification, message } from 'antd'
 import InfoModal from '../sidebar/info-modal.jsx'
 import RightSidePanel from '../side-panel-r/side-panel-r'
 import { pick } from 'lodash-es'
 import './wrapper.styl'
+
+function setupGlobalMessageDismiss () {
+  document.addEventListener('click', (event) => {
+    const messageElement = event.target.closest('.ant-message-notice')
+    if (messageElement) {
+      message.destroy()
+    }
+  })
+}
 
 export default auto(function Index (props) {
   useEffect(() => {
     notification.config({
       placement: 'bottomRight'
     })
+
+    setupGlobalMessageDismiss()
     const { store } = props
     window.addEventListener('resize', store.onResize)
     store.onResize()
