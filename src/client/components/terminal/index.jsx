@@ -958,7 +958,9 @@ clear\r`
   }
 
   onData = (d) => {
-    // runIdle(this.notifyOnData)
+    if (this.cmdAddon) {
+      this.cmdAddon.handleData(d)
+    }
     if (!d.includes('\r')) {
       delete this.userTypeExit
     } else {

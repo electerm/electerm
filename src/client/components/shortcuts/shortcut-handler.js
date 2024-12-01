@@ -56,6 +56,9 @@ export function shortcutExtend (Cls) {
       type,
       key
     } = event
+    if (this.cmdAddon) {
+      this.cmdAddon.handleKey(event)
+    }
     if (
       this.term &&
       key === 'Backspace' &&

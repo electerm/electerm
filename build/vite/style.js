@@ -7,10 +7,10 @@
 import { resolve } from 'path'
 import { readFileSync } from 'fs'
 import { cwd } from './common.js'
-import glob from 'glob'
+import { globSync } from 'glob'
 
 function findFiles (pattern) {
-  return glob.sync(pattern)
+  return globSync(pattern)
 }
 
 export function loadDevStylus () {
