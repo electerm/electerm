@@ -119,7 +119,7 @@ class Sessions extends Component {
         currentTabId: id
       })
     } else {
-      document.querySelector('.tab.active').click()
+      document.querySelector('.tab.active')?.click()
     }
   }
 
