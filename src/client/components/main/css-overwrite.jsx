@@ -48,7 +48,6 @@ export default class CssOverwrite extends PureComponent {
 
     const styles = [
       `background-image: ${st}`,
-      'background-size: cover',
       'background-position: center'
     ]
 
