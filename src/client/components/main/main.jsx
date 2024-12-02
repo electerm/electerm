@@ -47,7 +47,7 @@ export default auto(function Index (props) {
     setupGlobalMessageDismiss()
     const { store } = props
     window.addEventListener('resize', store.onResize)
-    store.onResize()
+    store.triggerResize()
     store.initStoreEvents()
     const { ipcOnEvent } = window.pre
     ipcOnEvent('checkupdate', store.onCheckUpdate)
