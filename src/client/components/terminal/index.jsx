@@ -1053,6 +1053,7 @@ clear\r`
   }
 
   runInitScript = () => {
+    window.store.triggerResize()
     const {
       type,
       title,

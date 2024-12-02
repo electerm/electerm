@@ -138,17 +138,15 @@ class Sessions extends Component {
       if (tab) {
         Object.assign(tab, update)
       }
-      this.updateStoreTabs(tabs)
       return {
         tabs
       }
+    }, () => {
+      this.updateStoreTabs(this.state.tabs)
     })
   }
 
-  addTab = (
-    _tab,
-    _index
-  ) => {
+  addTab = (_tab, _index) => {
     this.setState((oldState) => {
       const tabs = copy(oldState.tabs)
       const index = typeof _index === 'undefined'
@@ -162,15 +160,17 @@ class Sessions extends Component {
       }
       tab.batch = this.props.batch
       tabs.splice(index, 0, tab)
-      this.updateStoreTabs(tabs)
-      this.updateStoreCurrentTabId(tab.id)
       return {
         currentTabId: tab.id,
         tabs
       }
+    }, () => {
+      this.updateStoreTabs(this.state.tabs)
+      this.updateStoreCurrentTabId(this.state.currentTabId)
     })
   }
 
+  // After
   delTab = (id) => {
     this.setState((oldState) => {
       const tabs = copy(oldState.tabs)
@@ -183,13 +183,16 @@ class Sessions extends Component {
         i = i ? i - 1 : i + 1
         const next = tabs[i] || {}
         up.currentTabId = next.id || ''
-        this.updateStoreCurrentTabId(next.id)
       }
       up.tabs = tabs.filter(t => {
         return t.id !== id
       })
-      this.updateStoreTabs(up.tabs)
       return up
+    }, () => {
+      this.updateStoreTabs(this.state.tabs)
+      if (this.state.currentTabId !== id) {
+        this.updateStoreCurrentTabId(this.state.currentTabId)
+      }
     })
   }
 
@@ -247,11 +250,15 @@ class Sessions extends Component {
     if (!matchedTab) {
       return
     }
-    this.timer = setTimeout(window.store.triggerResize, 500)
-    this.updateStoreCurrentTabId(id)
+
+    // Batch the updates
     this.setState({
       currentTabId: id
-    }, this.postChange)
+    }, () => {
+      this.updateStoreCurrentTabId(id)
+      this.timer = setTimeout(window.store.triggerResize, 500)
+      this.postChange()
+    })
   }
 
   setTabs = tabs => {

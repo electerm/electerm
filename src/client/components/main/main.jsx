@@ -43,11 +43,10 @@ export default auto(function Index (props) {
     notification.config({
       placement: 'bottomRight'
     })
-
     setupGlobalMessageDismiss()
     const { store } = props
     window.addEventListener('resize', store.onResize)
-    store.triggerResize()
+    setTimeout(store.triggerResize, 200)
     store.initStoreEvents()
     const { ipcOnEvent } = window.pre
     ipcOnEvent('checkupdate', store.onCheckUpdate)

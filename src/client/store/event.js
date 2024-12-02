@@ -63,6 +63,7 @@ export default Store => {
 
   Store.prototype.triggerResize = function () {
     window.store.resizeTrigger = window.store.resizeTrigger ? 0 : 1
+    window.dispatchEvent(new Event('resize'))
   }
 
   Store.prototype.toggleTermFullscreen = function (terminalFullScreen) {
