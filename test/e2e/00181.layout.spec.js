@@ -81,6 +81,11 @@ describe('layouts', function () {
     for (const layout of layouts) {
       await testLayout(layout, splitConfig[layout].children)
     }
+    let dd = await client.countElem('.ant-dropdown')
+    expect(dd).equal(0)
+    await client.hover('.tabs .layout-dd-icon')
+    dd = await client.countElem('.ant-dropdown')
+    expect(dd).equal(1)
 
     await electronApp.close().catch(console.log)
   })

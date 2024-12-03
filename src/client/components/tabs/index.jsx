@@ -483,7 +483,7 @@ export default class Tabs extends React.Component {
         menu={{ items }}
         placement='bottomRight'
       >
-        <span className='tabs-dd-icon mg1l'>
+        <span className='tabs-dd-icon layout-dd-icon mg1l'>
           <Icon /> <DownOutlined />
         </span>
       </Dropdown>

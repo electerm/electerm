@@ -5,6 +5,8 @@
 const {
   expect
 } = require('@playwright/test')
+const delay = require('./wait')
+
 module.exports = (client, app) => {
   client.element = (sel) => {
     return client.locator(sel).first()
@@ -81,6 +83,11 @@ module.exports = (client, app) => {
     return client.$eval(sel, (e, name) => {
       return e.getAttribute(name)
     }, name)
+  }
+  client.hover = async (sel) => {
+    const element = await client.locator(sel).first()
+    await element.hover()
+    await delay(400)
   }
 
   return client

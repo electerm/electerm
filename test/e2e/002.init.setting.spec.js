@@ -25,6 +25,14 @@ describe('init setting buttons', function () {
     extendClient(client, electronApp)
     // await client.waitUntilWindowLoaded()
     await delay(3500)
+    log('close current tab')
+    await client.hover('.tabs .tab')
+    await client.click('.tabs .tab .tab-close')
+    await delay(1000)
+
+    log('verify tab count')
+    const tabCount = await client.countElem('.tabs .tab')
+    expect(tabCount).toEqual(0)
 
     log('button:edit')
     await client.click('.btns .anticon-plus-circle')
