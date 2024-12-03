@@ -1,4 +1,5 @@
 import AddressBar from './address-bar'
+// import React, { useEffect } from 'react'
 
 export default function WebSession (props) {
   const {
@@ -20,6 +21,18 @@ export default function WebSession (props) {
       )
     }
   }
+
+  // TODO: 支持自定义Header和Cookie
+  // useEffect(() => {
+  //   const webview = document.querySelector('webview')
+  //   if (webview) {
+  //     // 添加事件监听，输出所有的事件
+  //     webview.addEventListener('did-start-loading', (e) => {
+  //       console.log('did-start-loading', e)
+  //     })
+  //   }
+  // }, []);
+
   const viewProps = {
     src: tab.url,
     style: {
@@ -27,7 +40,9 @@ export default function WebSession (props) {
       height: (height - 12) + 'px'
     },
     disableblinkfeatures: 'true',
-    disablewebsecurity: 'true'
+    disablewebsecurity: 'true',
+    allowpopups: 'true'
+
   }
   return (
     <div className='web-session-wrap'>
