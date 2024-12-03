@@ -15,7 +15,7 @@ exports.run = function (cmd) {
       }
       resolve(stdout)
     })
-  }).then(console.log).catch(console.error)
+  }).then(console.log)
 }
 
 exports.writeSrc = function (src) {

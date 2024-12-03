@@ -14,7 +14,7 @@ async function main () {
   rm('-rf', 'dist')
   writeSrc('mac-arm64.dmg')
   changeTeamId()
-  await run(`${reBuild} --arch arm64 -f work/app`)
+  await run(`${reBuild} --arch arm64 -f work/app DEBUG=electron-rebuild:*`)
   await run(`${pb} --mac --arm64`)
 }
 
