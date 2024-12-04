@@ -76,6 +76,18 @@ export default function LocalFormUi (props) {
           hasFeedback
           name='url'
           required
+          rules={[
+            {
+              required: true,
+              message: e('Please input URL')
+            },
+            {
+              validator: (_, value) =>
+                !value || value.startsWith('http://') || value.startsWith('https://')
+                  ? Promise.resolve()
+                  : Promise.reject(new Error(e('URL must start with http:// or https://')))
+            }
+          ]}
         >
           <Input />
         </FormItem>
