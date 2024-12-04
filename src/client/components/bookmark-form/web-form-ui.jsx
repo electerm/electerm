@@ -112,8 +112,8 @@ export default function LocalFormUi (props) {
         </FormItem>
         <FormItem
           {...formItemLayout}
-          label={e('User-Agent')}
-          name='web_useragent'
+          label={e('useragent')}
+          name='useragent'
         >
           <Input />
         </FormItem>

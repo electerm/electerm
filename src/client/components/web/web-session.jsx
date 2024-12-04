@@ -52,7 +52,7 @@ export default function WebSession (props) {
     disableblinkfeatures: 'true',
     disablewebsecurity: 'true',
     allowpopups: 'true',
-    useragent: tab.web_useragent || 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36'
+    useragent: tab.useragent || 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36'
 
   }
   return (
