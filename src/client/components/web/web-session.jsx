@@ -1,3 +1,4 @@
+import { use } from 'chai'
 import AddressBar from './address-bar'
 // import React, { useEffect } from 'react'
 
@@ -33,6 +34,16 @@ export default function WebSession (props) {
   //   }
   // }, []);
 
+  // 打开webview的开发者工具
+  // useEffect(() => {
+  //   const webview = document.querySelector('webview')
+  //   if (webview) {
+  //     webview.addEventListener('dom-ready', () => {
+  //       webview.openDevTools()
+  //     })
+  //   }
+  // }, [])
+
   const viewProps = {
     src: tab.url,
     style: {
@@ -41,7 +52,8 @@ export default function WebSession (props) {
     },
     disableblinkfeatures: 'true',
     disablewebsecurity: 'true',
-    allowpopups: 'true'
+    allowpopups: 'true',
+    useragent: tab.web_useragent || 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36'
 
   }
   return (
