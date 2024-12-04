@@ -29,7 +29,7 @@ function redirect (req, res) {
     name
   } = req.params
   const mapper = {
-    electerm: '/src/client/entry/index.jsx',
+    electerm: '/src/client/entry/electerm.jsx',
     worker: '/src/client/entry/worker.js'
   }
   res.redirect(mapper[name])
