@@ -16,11 +16,6 @@ function buildInput () {
   }
 }
 
-function isNode16() {
-  const nodeVersion = process.version
-  return nodeVersion.startsWith('v16.')
-}
-
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
@@ -46,7 +41,6 @@ export default defineConfig({
   },
   root: resolve(cwd, '../..'),
   build: {
-    target: isNode16() ? 'es2015' : undefined,
     emptyOutDir: false,
     outDir: resolve(cwd, '../../work/app/assets'),
     rollupOptions: {
