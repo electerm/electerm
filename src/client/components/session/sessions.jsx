@@ -5,7 +5,6 @@ import { findIndex, pick } from 'lodash-es'
 import classNames from 'classnames'
 import generate from '../../common/id-with-stamp'
 import copy from 'json-deep-copy'
-import wait from '../../common/wait.js'
 import Tabs from '../tabs/index.jsx'
 import {
   tabActions,
