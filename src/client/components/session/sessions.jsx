@@ -146,7 +146,7 @@ class Sessions extends Component {
     })
   }
 
-  addTab = (_tab, _index) => {
+  addTab = (_tab, _index, callback) => {
     this.setState((oldState) => {
       const tabs = copy(oldState.tabs)
       const index = typeof _index === 'undefined'
@@ -167,6 +167,9 @@ class Sessions extends Component {
     }, () => {
       this.updateStoreTabs(this.state.tabs)
       this.updateStoreCurrentTabId(this.state.currentTabId)
+      if (callback) {
+        callback()
+      }
     })
   }
 
@@ -207,7 +210,7 @@ class Sessions extends Component {
     window.store.currentTabId = this.state.currentTabId
   }
 
-  reloadTab = async (tabToReload) => {
+  reloadTab = (tabToReload) => {
     this.setState(async oldState => {
       const tab = copy(
         tabToReload
@@ -218,31 +221,29 @@ class Sessions extends Component {
       tab.id = generate()
       tab.status = statusMap.processing
       const index = findIndex(tabs, t => t.id === id)
-      this.addTab(tab, index)
-      await wait(30)
-      this.delTab(id)
+      this.addTab(tab, index, () => {
+        this.delTab(id)
+      })
     })
   }
 
   onDuplicateTab = (tabToDup) => {
-    this.setState(oldState => {
-      const defaultStatus = statusMap.processing
-      let tab = copy(tabToDup)
-      updateCount(tab)
-      const tabs = copy(oldState.tabs)
-      const index = findIndex(
-        tabs,
-        d => d.id === tab.id
-      )
-      tab = {
-        ...tab,
-        status: defaultStatus,
-        id: generate(),
-        isTransporting: undefined
-      }
-      tab.pane = paneMap.terminal
-      this.addTab(tab, index + 1)
-    })
+    const defaultStatus = statusMap.processing
+    let tab = copy(tabToDup)
+    updateCount(tab)
+    const tabs = copy(this.state.tabs)
+    const index = findIndex(
+      tabs,
+      d => d.id === tab.id
+    )
+    tab = {
+      ...tab,
+      status: defaultStatus,
+      id: generate(),
+      isTransporting: undefined
+    }
+    tab.pane = paneMap.terminal
+    this.addTab(tab, index + 1)
   }
 
   onChangeTabId = id => {
