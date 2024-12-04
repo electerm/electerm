@@ -86,7 +86,7 @@ export default function LocalFormUi (props) {
                 !value || value.startsWith('http://') || value.startsWith('https://')
                   ? Promise.resolve()
                   : Promise.reject(new Error(e('URL must start with http:// or https://'))),
-            }
+            },
           ]}
         >
           <Input />
