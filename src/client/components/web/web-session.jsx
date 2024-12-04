@@ -1,4 +1,3 @@
-import { use } from 'chai'
 import AddressBar from './address-bar'
 // import React, { useEffect } from 'react'
 
