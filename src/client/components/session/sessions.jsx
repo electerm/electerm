@@ -210,19 +210,17 @@ class Sessions extends Component {
   }
 
   reloadTab = (tabToReload) => {
-    this.setState(async oldState => {
-      const tab = copy(
-        tabToReload
-      )
-      tab.pane = paneMap.terminal
-      const { id } = tab
-      const tabs = copy(oldState.tabs)
-      tab.id = generate()
-      tab.status = statusMap.processing
-      const index = findIndex(tabs, t => t.id === id)
-      this.addTab(tab, index, () => {
-        this.delTab(id)
-      })
+    const tab = copy(
+      tabToReload
+    )
+    tab.pane = paneMap.terminal
+    const { id } = tab
+    const { tabs } = this.state
+    tab.id = generate()
+    tab.status = statusMap.processing
+    const index = findIndex(tabs, t => t.id === id)
+    this.addTab(tab, index, () => {
+      this.delTab(id)
     })
   }
 
