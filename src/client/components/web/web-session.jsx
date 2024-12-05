@@ -8,8 +8,9 @@ export default function WebSession (props) {
     height,
     reloadTab
   } = props
-  const urlRegex = /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/i
-  const url = urlRegex.test(tab.url) ? tab.url : 'https://' + tab.url
+  const urlRegex = /^[a-z\d.+-]+:\/\/[^\s/$.?#].[^\s]*$/i
+
+  const { url = '' } = tab
   const addrProps = {
     url,
     title: tab.title,
@@ -46,6 +47,13 @@ export default function WebSession (props) {
   // }, [])
 
   function renderView () {
+    if (!urlRegex.test(tab.url)) {
+      return (
+        <div>
+          URL: <b>{url}</b> not valid
+        </div>
+      )
+    }
     if (window.et.isWebApp) {
       const iframeProps = {
         src: url,
