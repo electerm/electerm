@@ -8,8 +8,10 @@ export default function WebSession (props) {
     height,
     reloadTab
   } = props
+  const urlRegex = /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/i
+  const url = urlRegex.test(tab.url) ? tab.url : 'https://' + tab.url
   const addrProps = {
-    url: tab.url,
+    url,
     title: tab.title,
     description: tab.description,
     onOpen: () => {
@@ -43,25 +45,40 @@ export default function WebSession (props) {
   //   }
   // }, [])
 
-  const viewProps = {
-    src: tab.url,
-    style: {
-      width: (width - 10) + 'px',
-      height: (height - 12) + 'px'
-    },
-    disableblinkfeatures: 'true',
-    disablewebsecurity: 'true',
-    allowpopups: 'true',
-    useragent: tab.useragent || 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36'
-
+  function renderView () {
+    if (window.et.isWebApp) {
+      const iframeProps = {
+        src: url,
+        style: {
+          width: (width - 10) + 'px',
+          height: (height - 12) + 'px'
+        }
+      }
+      return (
+        <iframe {...iframeProps} />
+      )
+    }
+    const viewProps = {
+      src: url,
+      style: {
+        width: (width - 10) + 'px',
+        height: (height - 12) + 'px'
+      },
+      disableblinkfeatures: 'true',
+      disablewebsecurity: 'true',
+      allowpopups: 'true',
+      useragent: tab.useragent || 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36'
+    }
+    return (
+      <webview {...viewProps} />
+    )
   }
+
   return (
     <div className='web-session-wrap'>
       <AddressBar {...addrProps} />
       <div className='pd1'>
-        <webview
-          {...viewProps}
-        />
+        {renderView()}
       </div>
     </div>
   )
