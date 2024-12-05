@@ -29,7 +29,7 @@ jobs:
 
     # before_install:
     # - run: npm install --global --production windows-build-tools --vs2015
-    - run: npm install -g yarn npm
+    - run: npm install -g yarn
     - run: npm rm --save vite node-pty serialport electron electron-app-universal-protocol-client
     - run: npm i
     - run: npm i -d electron@22.3.27
