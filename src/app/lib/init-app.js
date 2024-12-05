@@ -41,7 +41,7 @@ function initApp (langMap, config) {
   const e = globalState.get('translate')
   // handle autohide flag
   if (process.argv.includes('--autohide')) {
-    globalState.set('timer', setTimeout(() => global.win.minimize(), 500))
+    globalState.set('timer', setTimeout(() => globalState.get('win').minimize(), 500))
     if (Notification.isSupported()) {
       const notice = new Notification({
         title: `${packInfo.name} ${e('isRunning')}, ${e('press')} ${config.hotkey} ${e('toShow')}`

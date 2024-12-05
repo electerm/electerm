@@ -66,7 +66,7 @@ function buildMenu () {
           label: e('selectall'),
           accelerator: 'CmdOrCtrl+A',
           click () {
-            global.win.webContents.send('selectall', null)
+            globalState.get('win').webContents.send('selectall', null)
           }
         },
         {
@@ -75,7 +75,7 @@ function buildMenu () {
         {
           label: e('settings'),
           click () {
-            global.win.webContents.send('openSettings', null)
+            globalState.get('win').webContents.send('openSettings', null)
           }
         }
       ]
@@ -102,13 +102,13 @@ function buildMenu () {
         },
         {
           click () {
-            global.win.webContents.send('zoomin', null)
+            globalState.get('win').webContents.send('zoomin', null)
           },
           label: e('zoomin')
         },
         {
           click () {
-            global.win.webContents.send('zoomout', null)
+            globalState.get('win').webContents.send('zoomout', null)
           },
           label: e('zoomout')
         },
@@ -138,7 +138,7 @@ function buildMenu () {
         {
           label: e('restart'),
           click () {
-            global.win.close()
+            globalState.get('win').close()
             app.relaunch()
           }
         }
@@ -157,7 +157,7 @@ function buildMenu () {
         {
           label: e('checkUpdate'),
           click () {
-            global.win.webContents.send('checkupdate', null)
+            globalState.get('win').webContents.send('checkupdate', null)
           }
         },
         {
