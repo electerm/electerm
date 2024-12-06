@@ -6,7 +6,8 @@ import { useEffect } from 'react'
 import {
   Input,
   Form,
-  TreeSelect
+  TreeSelect,
+  Switch
 } from 'antd'
 import { formItemLayout } from '../../common/form-layout'
 import {
@@ -116,6 +117,14 @@ export default function LocalFormUi (props) {
           name='useragent'
         >
           <Input />
+        </FormItem>
+        <FormItem
+          {...formItemLayout}
+          label='hideAddressBar'
+          name='hideAddressBar'
+          valuePropName='checked'
+        >
+          <Switch />
         </FormItem>
         <FormItem
           {...formItemLayout}
