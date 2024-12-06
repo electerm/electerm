@@ -22,7 +22,7 @@ export default function WebSession (props) {
       reloadTab(
         tab
       )
-    },
+    }
   }
 
   // TODO: 支持自定义Header和Cookie
