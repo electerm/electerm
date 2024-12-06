@@ -34,6 +34,13 @@ export default function TerminalInfoResource (props) {
   ) {
     return null
   }
+  function getColorForPercent (percent) {
+    if (percent >= 90) return '#ff4d4f'
+    if (percent >= 70) return '#faad14'
+    if (percent >= 50) return '#1890ff'
+    return '#52c41a'
+  }
+
   function renderItem (obj) {
     if (isEmpty(obj)) {
       return <div className='pd1b' key={obj.name}>NA</div>
@@ -48,6 +55,7 @@ export default function TerminalInfoResource (props) {
     const p = hasPercent
       ? percent
       : computePercent(used, total) || 0
+    const color = getColorForPercent(p)
     const fmt = hasPercent
       ? (p) => `${name}: ${p || ''}%`
       : (p) => `${name}: ${p || ''}%(${used || ''}/${total || ''})`
@@ -57,6 +65,7 @@ export default function TerminalInfoResource (props) {
           style={{ width: '50%' }}
           percent={p}
           format={fmt}
+          strokeColor={color}
         />
       </div>
     )
