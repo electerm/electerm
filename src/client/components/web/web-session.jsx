@@ -54,12 +54,13 @@ export default function WebSession (props) {
         </div>
       )
     }
+    const hOffset = tab.hideAddressBar ? 30 : -12
     if (window.et.isWebApp) {
       const iframeProps = {
         src: url,
         style: {
           width: (width - 10) + 'px',
-          height: (height - 12) + 'px'
+          height: (height + hOffset) + 'px'
         }
       }
       return (
@@ -70,7 +71,7 @@ export default function WebSession (props) {
       src: url,
       style: {
         width: (width - 10) + 'px',
-        height: (height - 12) + 'px'
+        height: (height + hOffset) + 'px'
       },
       disableblinkfeatures: 'true',
       disablewebsecurity: 'true',
@@ -84,7 +85,9 @@ export default function WebSession (props) {
 
   return (
     <div className='web-session-wrap'>
-      <AddressBar {...addrProps} />
+      {!tab.hideAddressBar && (
+        <AddressBar {...addrProps} />
+      )}
       <div className='pd1'>
         {renderView()}
       </div>
