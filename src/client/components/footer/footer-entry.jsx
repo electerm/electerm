@@ -26,11 +26,10 @@ export default auto(function FooterEntry (props) {
     })
   }
 
-  function batchInput (cmd, toAll) {
+  function batchInput (cmd, selectedTabIds) {
     postMessage({
       action: terminalActions.batchInput,
-      currentTabId: props.store.currentTabId,
-      toAll,
+      selectedTabIds,
       cmd
     })
   }
@@ -55,11 +54,16 @@ export default auto(function FooterEntry (props) {
   }
 
   function renderBatchInputs () {
+    const batchProps = {
+      input: batchInput,
+      batchInputs: props.store.batchInputs,
+      tabs: props.store.tabs,
+      currentTabId: props.store.currentTabId
+    }
     return (
       <div className='terminal-footer-unit terminal-footer-center'>
         <BatchInput
-          input={batchInput}
-          batchInputs={props.store.batchInputs}
+          {...batchProps}
         />
       </div>
     )
@@ -79,7 +83,7 @@ export default auto(function FooterEntry (props) {
         minWidth: 30
       },
       placeholder: e('encode'),
-      defaultValue: props.currentTab?.encode,
+      defaultValue: props.store.currentTab?.encode,
       onSelect: handleSwitchEncoding,
       size: 'small',
       popupMatchSelectWidth: false

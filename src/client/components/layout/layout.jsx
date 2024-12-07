@@ -133,8 +133,7 @@ export default auto(function Layout (props) {
     ])
   }
   const footerProps = {
-    store,
-    currentTab
+    store
   }
   const qmProps = pick(store, [
     'quickCommandTags',

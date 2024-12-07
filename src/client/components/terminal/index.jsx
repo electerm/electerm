@@ -329,15 +329,14 @@ clear\r`
       addTimeStampToTermLog,
       type,
       cmd,
-      currentTabId,
+      selectedTabIds = [],
       pid,
-      toAll,
       inputOnly,
       zoomValue
     } = e?.data || {}
 
     const { id: currentTabIdProp } = this.props.tab
-    const tabIdMatch = currentTabId === currentTabIdProp
+    const tabIdMatch = selectedTabIds.includes(currentTabIdProp)
     if (
       action === terminalActions.zoom &&
       tabIdMatch
@@ -351,7 +350,7 @@ clear\r`
     } else if (
       action === terminalActions.batchInput &&
       (
-        toAll || tabIdMatch
+        tabIdMatch
       )
     ) {
       this.batchInput(cmd)
