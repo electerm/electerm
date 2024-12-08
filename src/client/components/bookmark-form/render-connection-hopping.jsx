@@ -112,6 +112,14 @@ export default function renderConnectionHopping (props) {
     }
   ]
 
+  function renderPaths () {
+    return [
+      '👤',
+      ...list.map(d => d.host),
+      form.getFieldValue('host')
+    ].join(' -> ')
+  }
+
   function renderList () {
     return (
       <FormItem {...tailFormItemLayout}>
@@ -127,6 +135,7 @@ export default function renderConnectionHopping (props) {
             }
           })}
         />
+        {renderPaths()}
       </FormItem>
     )
   }
