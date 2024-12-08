@@ -82,10 +82,10 @@ class TerminalVnc extends TerminalBase {
         })
         : undefined
     }
-    const [hop, ...rest] = connectionHoppings
+    const hop = connectionHoppings.pop()
     const fp = await getPort(12023)
     const initOpts = {
-      connectionHoppings: rest,
+      connectionHoppings,
       ...hop,
       cols: 80,
       rows: 24,

@@ -75,6 +75,26 @@ class TerminalSshBase extends TerminalBase {
     ])
   }
 
+  adjustConnectionOrder () {
+    const { initOptions } = this
+    if (!initOptions.connectionHoppings || initOptions.connectionHoppings.length === 0) {
+      return
+    }
+
+    const currentHostHopping = {
+      host: initOptions.host,
+      port: initOptions.port,
+      username: initOptions.username,
+      password: initOptions.password,
+      privateKey: initOptions.privateKey,
+      passphrase: initOptions.passphrase
+    }
+
+    const [firstHopping, ...restHoppings] = initOptions.connectionHoppings
+    Object.assign(initOptions, firstHopping)
+    initOptions.connectionHoppings = [...restHoppings, currentHostHopping]
+  }
+
   remoteInitTerminal () {
     const {
       initOptions
@@ -719,6 +739,7 @@ class TerminalSshBase extends TerminalBase {
   }
 
   async remoteInitProcess () {
+    this.adjustConnectionOrder()
     const {
       initOptions
     } = this
