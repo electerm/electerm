@@ -221,7 +221,7 @@ class Sessions extends Component {
     const index = findIndex(tabs, t => t.id === id)
     this.addTab(tab, index, () => {
       this.delTab(id)
-      this.changeCurrentTabId(tab.id)
+      this.onChangeTabId(tab.id)
     })
   }
 
