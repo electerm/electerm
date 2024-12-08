@@ -37,7 +37,9 @@ export class KeywordHighlighterAddon {
       if (keyword) {
         try {
           const regex = new RegExp(`(${keyword})`, 'gi')
-          text = text.replace(regex, this.colorize(color))
+          if (regex.test(text)) {
+            return text.replace(regex, this.colorize(color))
+          }
         } catch (e) {
           window.store.onError(e)
         }
