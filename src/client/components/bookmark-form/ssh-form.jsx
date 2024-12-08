@@ -158,6 +158,9 @@ export default class BookmarkForm extends PureComponent {
       item.host = item.host.trim()
     }
     const obj = item
+    if (obj.connectionHoppings?.length) {
+      obj.hasHopping = true
+    }
     const { addItem, editItem } = this.props.store
     const categoryId = obj.category
     delete obj.category

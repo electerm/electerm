@@ -77,7 +77,7 @@ class TerminalSshBase extends TerminalBase {
 
   adjustConnectionOrder () {
     const { initOptions } = this
-    if (!initOptions.connectionHoppings || initOptions.connectionHoppings.length === 0) {
+    if (!initOptions.hasHopping || !initOptions.connectionHoppings || initOptions.connectionHoppings.length === 0) {
       return
     }
 

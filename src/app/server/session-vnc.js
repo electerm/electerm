@@ -87,6 +87,7 @@ class TerminalVnc extends TerminalBase {
     const initOpts = {
       connectionHoppings,
       ...hop,
+      hasHopping: true,
       cols: 80,
       rows: 24,
       term: 'xterm-256color',
