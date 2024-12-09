@@ -1219,22 +1219,16 @@ clear\r`
     if (pick(term, 'buffer._onBufferChange._listeners')) {
       term.buffer._onBufferChange._listeners.push(this.onBufferChange)
     }
-    const cid = this.props.currentTabId
-    const tid = this.props.tab.id
-    if (cid === tid && this.props.tab.status === statusMap.success) {
-      term.loadAddon(new WebLinksAddon(this.webLinkHandler))
-      term.focus()
-      this.zmodemAddon = new AddonZmodem()
-      this.fitAddon.fit()
-      term.loadAddon(this.zmodemAddon)
-      term.zmodemAttach(this)
-    }
+    term.loadAddon(new WebLinksAddon(this.webLinkHandler))
+    term.focus()
+    this.zmodemAddon = new AddonZmodem()
+    this.fitAddon.fit()
+    term.loadAddon(this.zmodemAddon)
+    term.zmodemAttach(this)
     term.displayRaw = displayRaw
     term.loadAddon(
       new KeywordHighlighterAddon(keywords)
     )
-    window.store.triggerResize()
-    window.store.focus()
   }
 
   onResize = throttle(() => {
