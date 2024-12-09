@@ -18,14 +18,14 @@ import * as ls from '../common/safe-local-storage'
 import { debounce, isEmpty } from 'lodash-es'
 
 export default store => {
-  // autoRun(store, () => {
+  // autoRun(() => {
   //   store.focus()
   //   // store.termSearchOpen = false
   //   store.termSearchMatchCount = 0
   //   return store.currentTabId
   // }).start()
 
-  // autoRun(store, () => {
+  // autoRun(() => {
   //   if (store.menuOpened) {
   //     store.initMenuEvent()
   //   } else {
@@ -35,7 +35,7 @@ export default store => {
   // })
 
   for (const name of dbNamesForWatch) {
-    autoRun(store, async () => {
+    autoRun(async () => {
       await update(
         `${name}:order`,
         store.getItems(name).map(d => d.id)
@@ -48,12 +48,12 @@ export default store => {
     }, func => debounce(func, 100)).start()
   }
 
-  autoRun(store, async () => {
+  autoRun(async () => {
     ls.setItem(resolutionsLsKey, store._resolutions)
     return store._resolutions
   }).start()
 
-  autoRun(store, () => {
+  autoRun(() => {
     if (!store.showModal) {
       store.focus()
     } else {
@@ -62,44 +62,44 @@ export default store => {
     return store.showModal
   }).start()
 
-  autoRun(store, () => {
+  autoRun(() => {
     if (!isEmpty(store.config)) {
       window.pre.runGlobalAsync('saveUserConfig', store.config)
     }
     return store._config
   }, func => debounce(func, 100)).start()
 
-  autoRun(store, () => {
+  autoRun(() => {
     store.updateLastDataUpdateTime()
     return store.config.theme
   }, func => debounce(func, 100)).start()
 
-  autoRun(store, () => {
+  autoRun(() => {
     store.updateTabsStatus()
     return store.fileTransfers
   }, func => debounce(func, 100)).start()
 
-  autoRun(store, () => {
+  autoRun(() => {
     ls.setItemJSON(sftpDefaultSortSettingKey, store.sftpSortSetting)
     return store._sftpSortSetting
   }).start()
 
-  autoRun(store, () => {
+  autoRun(() => {
     ls.setItemJSON(expandedKeysLsKey, store.expandedKeys)
     return store._expandedKeys
   }).start()
 
-  autoRun(store, () => {
+  autoRun(() => {
     ls.setItemJSON(localAddrBookmarkLsKey, store.addressBookmarksLocal)
     return store._addressBookmarksLocal
   }).start()
 
-  autoRun(store, () => {
+  autoRun(() => {
     ls.setItemJSON(checkedKeysLsKey, store.checkedKeys)
     return store._checkedKeys
   }).start()
 
-  autoRun(store, () => {
+  autoRun(() => {
     const tabs = store.getTabs()
     const { currentTabId } = store
     const tab = tabs.find(t => t.id === currentTabId)

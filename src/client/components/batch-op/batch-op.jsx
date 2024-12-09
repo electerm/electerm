@@ -236,7 +236,7 @@ export default class BatchOp extends PureComponent {
       this.tm = setTimeout(() => {
         reject(new Error('timeout'))
       }, 1000 * 60 * 60)
-      this.ref1 = autoRun(store, () => {
+      this.ref1 = autoRun(() => {
         const { transferHistory } = store
         const first = transferHistory.find(t => {
           return (t.id === obj.id || t.originalId === obj.id) && t.unzip
@@ -257,7 +257,7 @@ export default class BatchOp extends PureComponent {
     return new Promise((resolve, reject) => {
       document.querySelector('.session-current .type-tab.sftp').click()
       const { store } = window
-      this.ref2 = autoRun(store, () => {
+      this.ref2 = autoRun(() => {
         const { tabs } = store
         const last = tabs.find(t => t.id === tab.id)
         if (
@@ -305,7 +305,7 @@ export default class BatchOp extends PureComponent {
       }
       const { store } = window
       store.addTab(tab)
-      this.ref = autoRun(store, () => {
+      this.ref = autoRun(() => {
         const { tabs } = store
         const len = tabs.length
         const last = tabs[len - 1]
