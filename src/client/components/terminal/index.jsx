@@ -330,13 +330,14 @@ clear\r`
       type,
       cmd,
       selectedTabIds = [],
+      currentTabId,
       pid,
       inputOnly,
       zoomValue
     } = e?.data || {}
 
     const { id: currentTabIdProp } = this.props.tab
-    const tabIdMatch = selectedTabIds.includes(currentTabIdProp)
+    const tabIdMatch = selectedTabIds.includes(currentTabIdProp) || currentTabId === currentTabIdProp
     if (
       action === terminalActions.zoom &&
       tabIdMatch
@@ -348,10 +349,7 @@ clear\r`
     ) {
       this.switchEncoding(encode)
     } else if (
-      action === terminalActions.batchInput &&
-      (
-        tabIdMatch
-      )
+      action === terminalActions.batchInput && tabIdMatch
     ) {
       this.batchInput(cmd)
     } else if (
