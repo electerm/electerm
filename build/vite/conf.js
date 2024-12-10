@@ -5,7 +5,52 @@ import { cwd, version } from './common.js'
 import { resolve } from 'path'
 import def from './def.js'
 import commonjs from 'vite-plugin-commonjs'
-// import externalGlobals from 'rollup-plugin-external-globals'
+
+// Custom plugin to combine CSS with separate basic.css
+function combineCSSPlugin () {
+  return {
+    name: 'combine-css',
+    generateBundle (options, bundle) {
+      let mainCSS = ''
+      let basicCSS = ''
+
+      for (const fileName in bundle) {
+        if (fileName.endsWith('.css')) {
+          // Get the CSS source
+          const cssSource = bundle[fileName].source
+          // Check if this CSS is from basic.js's imports
+          // We can check the source for imports from mobile.styl or basic.styl
+          if (fileName.includes('basic.css')) {
+            basicCSS += cssSource
+          } else {
+            mainCSS += cssSource
+          }
+
+          // Remove the original CSS chunk
+          delete bundle[fileName]
+        }
+      }
+
+      // Emit main CSS bundle
+      if (mainCSS) {
+        this.emitFile({
+          type: 'asset',
+          fileName: `css/${version}-electerm.css`,
+          source: mainCSS
+        })
+      }
+
+      // Emit basic CSS bundle
+      if (basicCSS) {
+        this.emitFile({
+          type: 'asset',
+          fileName: `css/${version}-basic.css`,
+          source: basicCSS
+        })
+      }
+    }
+  }
+}
 
 function buildInput () {
   return {
@@ -25,7 +70,8 @@ export default defineConfig({
     //   react: 'React',
     //   'react-dom': 'ReactDOM'
     // }),
-    react({ include: /\.(mdx|js|jsx|ts|tsx|mjs)$/ })
+    react({ include: /\.(mdx|js|jsx|ts|tsx|mjs)$/ }),
+    combineCSSPlugin()
   ],
   // optimizeDeps: {
   //   esbuildOptions: {
@@ -50,81 +96,56 @@ export default defineConfig({
       //   'react-dom'
       // ],
       output: {
-        manualChunks: {
-          react: ['react-dom'],
-          'lodash-es': ['lodash-es'],
-          dayjs: ['dayjs'],
-          antd0: [
-            '@ant-design/colors',
-            '@ant-design/cssinjs',
-            '@ant-design/react-slick',
-            '@ctrl/tinycolor',
-            'classnames',
-            '@rc-component/color-picker',
-            '@rc-component/mutate-observer',
-            '@rc-component/tour',
-            '@rc-component/trigger'
-          ],
-          antd1: [
-            'copy-to-clipboard',
-            'rc-cascader',
-            'rc-checkbox',
-            'rc-collapse',
-            'rc-dialog',
-            'rc-drawer',
-            'rc-dropdown',
-            'rc-field-form',
-            'rc-image',
-            'rc-input',
-            'rc-input-number',
-            'rc-mentions',
-            'rc-menu',
-            'rc-motion',
-            'rc-notification',
-            'rc-pagination',
-            'rc-picker',
-            'rc-progress',
-            'rc-rate',
-            'rc-resize-observer',
-            'rc-segmented',
-            'rc-select',
-            'rc-slider',
-            'rc-steps',
-            'rc-switch',
-            'rc-table',
-            'rc-tabs',
-            'rc-textarea',
-            'rc-tooltip',
-            'rc-tree',
-            'rc-tree-select',
-            'rc-upload',
-            'rc-util',
-            'scroll-into-view-if-needed',
-            'throttle-debounce'
-          ],
-          antd: ['antd'],
-          'ant-icons': ['@ant-design/icons'],
-          xterm: [
-            '@xterm/xterm'
-          ],
-          'xterm-addon1': [
-            '@xterm/addon-attach',
-            '@xterm/addon-canvas',
-            '@xterm/addon-fit',
-            '@xterm/addon-ligatures'
-          ],
-          'xterm-addon2': [
-            '@xterm/addon-search',
-            '@xterm/addon-unicode11',
-            '@xterm/addon-web-links',
-            '@xterm/addon-webgl'
-          ],
-          trzsz: ['trzsz'],
-          manate: ['manate'],
-          'zmodem-ts': ['zmodem-ts'],
-          'vscode-icons-js': ['vscode-icons-js'],
-          'react-utils': ['react', 'react-colorful', 'react-delta-hooks'],
-          novnc: ['@novnc/novnc']
+        manualChunks: (id) => {
+          if (id.includes('node_modules')) {
+            if (id.includes('react') ||
+              id.includes('react-dom') ||
+              id.includes('scheduler') ||
+              id.includes('prop-types')) {
+              return 'react-vendor'
+            }
+            if (id.includes('react-colorful') || id.includes('react-delta-hooks')) {
+              return 'react-utils'
+            }
+            if (id.includes('lodash-es')) {
+              return 'lodash-es'
+            }
+            if (id.includes('dayjs')) {
+              return 'dayjs'
+            }
+            if (id.includes('@ant-design/icons')) {
+              return 'ant-icons'
+            }
+            if (id.includes('@ant-design') || id.includes('@rc-component') || id.includes('classnames') || id.includes('@ctrl/tinycolor')) {
+              return 'antd-deps'
+            }
+            if (id.includes('antd')) {
+              return 'antd'
+            }
+            if (id.includes('@xterm/addon')) {
+              return 'xterm-addons'
+            }
+            if (id.includes('@xterm')) {
+              return 'xterm'
+            }
+            if (id.includes('trzsz')) {
+              return 'trzsz'
+            }
+            if (id.includes('manate')) {
+              return 'manate'
+            }
+            if (id.includes('zmodem-ts')) {
+              return 'zmodem-ts'
+            }
+            if (id.includes('vscode-icons-js')) {
+              return 'vscode-icons-js'
+            }
+            if (id.includes('@novnc/novnc')) {
+              return 'novnc'
+            }
+            // Combine rest of node_modules into one chunk
+            return 'vendor'
+          }
         },
         inlineDynamicImports: false,
         format: 'esm',
@@ -133,7 +154,7 @@ export default defineConfig({
         assetFileNames: chunkInfo => {
           const { name } = chunkInfo
           return name.endsWith('.css')
-            ? `css/${version}-${name}`
+            ? `css/_temp_${name}`
             : `images/${name}`
         },
         dir: resolve(cwd, '../../work/app/assets')
