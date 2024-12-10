@@ -54,7 +54,7 @@ export default defineConfig({
           react: ['react-dom'],
           'lodash-es': ['lodash-es'],
           dayjs: ['dayjs'],
-          antd1: [
+          antd0: [
             '@ant-design/colors',
             '@ant-design/cssinjs',
             '@ant-design/react-slick',
@@ -63,7 +63,9 @@ export default defineConfig({
             '@rc-component/color-picker',
             '@rc-component/mutate-observer',
             '@rc-component/tour',
-            '@rc-component/trigger',
+            '@rc-component/trigger'
+          ],
+          antd1: [
             'copy-to-clipboard',
             'rc-cascader',
             'rc-checkbox',
@@ -121,7 +123,7 @@ export default defineConfig({
           manate: ['manate'],
           'zmodem-ts': ['zmodem-ts'],
           'vscode-icons-js': ['vscode-icons-js'],
-          'react-utils': ['react', 'react-colorful', 'react-delta-hooks', 'memoize-one'],
+          'react-utils': ['react', 'react-colorful', 'react-delta-hooks'],
           novnc: ['@novnc/novnc']
         },
         inlineDynamicImports: false,
