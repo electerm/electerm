@@ -6,7 +6,6 @@ const { createLogFileName } = require('../common/create-session-log-file-path')
 const SessionLog = require('./session-log')
 const _ = require('lodash')
 const time = require('../common/time.js')
-const strip = require('@electerm/strip-ansi').default
 const globalState = require('./global-state')
 
 // const { MockBinding } = require('@serialport/binding-mock')
@@ -74,6 +73,7 @@ class TerminalBase {
     const dt = this.prevNewLine && this.initOptions.addTimeStampToTermLog
       ? `[${time()}] `
       : ''
+    const strip = require('@electerm/strip-ansi').default
     const str = strip(dt + p + s)
     this.sessionLogger.write(str)
     this.cache = ''

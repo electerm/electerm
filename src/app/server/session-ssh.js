@@ -1,7 +1,7 @@
 /**
  * terminal/sftp/serial class
  */
-const { Client } = require('ssh2')
+
 const proxySock = require('./socks')
 const _ = require('lodash')
 const generate = require('../common/uid')
@@ -299,6 +299,7 @@ class TerminalSshBase extends TerminalBase {
       sock,
       ...hopping
     }
+    const { Client } = require('ssh2')
     this.nextConn = new Client()
     await this.jumpConnect()
     return this.nextConn
@@ -635,6 +636,7 @@ class TerminalSshBase extends TerminalBase {
 
   async sshConnect () {
     const { initOptions } = this
+    const { Client } = require('ssh2')
     this.conn = new Client()
     this.connectOptions = this.connectOptions || this.buildConnectOptions()
     const {

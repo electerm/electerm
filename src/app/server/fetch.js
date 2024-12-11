@@ -2,12 +2,11 @@
  * node fetch in server side
  */
 
-const rp = require('axios')
 const { createProxyAgent } = require('../lib/proxy-agent')
 
-rp.defaults.proxy = false
-
 function fetch (options) {
+  const rp = require('axios')
+  rp.defaults.proxy = false
   return rp(options)
     .then((res) => {
       return res.data

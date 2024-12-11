@@ -3,7 +3,11 @@ const {
   isDev
 } = require('../common/runtime-constants')
 
-exports.registerDeepLink = function () {
+exports.registerDeepLink = async function () {
+  // Early return if already registered
+  if (globalState.get('deepLinkRegistered')) {
+    return
+  }
   try {
     const electronAppUniversalProtocolClient = require('electron-app-universal-protocol-client').default
     electronAppUniversalProtocolClient.on(
@@ -26,10 +30,11 @@ exports.registerDeepLink = function () {
       }
     )
 
-    return electronAppUniversalProtocolClient.initialize({
+    await electronAppUniversalProtocolClient.initialize({
       protocol: 'electerm',
       mode: isDev ? 'development' : 'production' // Make sure to use 'production' when script is executed in bundled app
     })
+    globalState.set('deepLinkRegistered', true)
   } catch (e) {
     console.error(e)
   }

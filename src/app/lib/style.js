@@ -3,7 +3,6 @@
  * collect all stylus files in src/client and merge into one str
  */
 
-const stylus = require('stylus')
 const {
   packInfo: {
     version
@@ -12,6 +11,7 @@ const {
 } = require('../common/runtime-constants')
 
 function stylus2Css (str) {
+  const stylus = require('stylus')
   return new Promise((resolve, reject) => {
     stylus.render(str, (err, css) => {
       if (err) {

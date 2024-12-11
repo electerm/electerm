@@ -1,7 +1,7 @@
 /**
  * terminal/sftp/serial class
  */
-const pty = require('node-pty')
+
 const { resolve: pathResolve } = require('path')
 const log = require('../common/log')
 const { TerminalBase } = require('./session-base')
@@ -37,6 +37,7 @@ class TerminalLocal extends TerminalBase {
       : platform === 'darwin' ? execMacArgs : execLinuxArgs
     const cwd = process.env[platform === 'win32' ? 'USERPROFILE' : 'HOME']
     const argv = platform.startsWith('darwin') ? ['--login', ...arg] : arg
+    const pty = require('node-pty')
     this.term = pty.spawn(exec, argv, {
       name: term,
       encoding: null,
