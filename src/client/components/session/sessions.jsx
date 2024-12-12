@@ -351,9 +351,9 @@ class Sessions extends Component {
       }
     }
 
-    const {store} = window
+    const { store } = window
 
-    if(store.bookmarks.length > 0){
+    if (store.bookmarks.length > 0) {
       return this.renderCards()
     }
 
@@ -505,9 +505,6 @@ class Sessions extends Component {
   }
 
   renderSessionsWrap = () => {
-    const {store} = window
-    const bookmarksCount = store.bookmarks.length ?? 0
-
     return (
       <div
         className='sessions'
@@ -519,63 +516,61 @@ class Sessions extends Component {
     )
   }
 
-
-  getBookmarks = ()=>{
-    const {store} = window
-    const groups = Object.values (this.addConcatTitle(store.bookmarkGroupTree))
+  getBookmarks = () => {
+    const { store } = window
+    const groups = Object.values(this.addConcatTitle(store.bookmarkGroupTree))
     console.log(groups)
 
-    const bookmarks = store.bookmarks.map(function (item){
-      const parent = groups.find((g)=>g.bookmarkIds.includes(item.id))
+    const bookmarks = store.bookmarks.map(function (item) {
+      const parent = groups.find((g) => g.bookmarkIds.includes(item.id))
       item.parent = parent
       return item
     })
-    return bookmarks.map(function(item){
-      return (<Card key={item.id} item={item}/>)
-    })    
+    return bookmarks.map(function (item) {
+      return (<Card key={item.id} item={item} />)
+    })
   }
 
-  addConcatTitle(data) {
+  addConcatTitle (data) {
     // Helper function to recursively find the path of titles
-    function findTitlePath(id, currentPath = []) {
-        const element = data[id];
-        if (!element) return currentPath;
+    function findTitlePath (id, currentPath = []) {
+      const element = data[id]
+      if (!element) return currentPath
 
-        // Add current element's title to the path
-        currentPath.unshift(element.title);
+      // Add current element's title to the path
+      currentPath.unshift(element.title)
 
-        // Find parent elements that include this element in their bookmarkGroupIds
-        for (const key in data) {
-            if (data[key].bookmarkGroupIds && data[key].bookmarkGroupIds.includes(id)) {
-                return findTitlePath(key, currentPath);
-            }
+      // Find parent elements that include this element in their bookmarkGroupIds
+      for (const key in data) {
+        if (data[key].bookmarkGroupIds && data[key].bookmarkGroupIds.includes(id)) {
+          return findTitlePath(key, currentPath)
         }
+      }
 
-        return currentPath;
+      return currentPath
     }
 
     // Iterate over each element in the data
     for (const id in data) {
-        const titlePath = findTitlePath(id);
-        if(typeof data[id] === 'object'){
-          data[id].titles = titlePath;
-        }
-      
+      const titlePath = findTitlePath(id)
+      if (typeof data[id] === 'object') {
+        data[id].titles = titlePath
+      }
     }
 
-    return data;
+    return data
   }
 
   /**
    * render connection cards
    */
-  renderCards = ()=>{
+  renderCards = () => {
     const cards = this.getBookmarks()
 
     return (
-    <div className='bookmarks'>
-      {cards}
-    </div>
+      <div className='bookmarks'>
+        {cards}
+      </div>
     )
   }
 
