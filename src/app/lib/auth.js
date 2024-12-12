@@ -1,18 +1,16 @@
-const crypto = require('crypto')
 const { userConfigId } = require('../common/constants')
 const { dbAction } = require('./nedb')
-const axios = require('axios')
 const getPort = require('./get-port')
 
-axios.defaults.proxy = false
-
 function hashPassword (password) {
+  const crypto = require('crypto')
   const salt = crypto.randomBytes(16).toString('hex')
   const hashedPassword = crypto.pbkdf2Sync(password, salt, 1000, 64, 'sha512').toString('hex')
   return { salt, hashedPassword }
 }
 
 function comparePasswords (password, salt, hashedPassword) {
+  const crypto = require('crypto')
   const hash = crypto.pbkdf2Sync(password, salt, 1000, 64, 'sha512').toString('hex')
   return hash === hashedPassword
 }
@@ -46,6 +44,8 @@ exports.setPassword = async function setPassword (password) {
 }
 
 exports.checkPassword = async function checkPassword (password) {
+  const axios = require('axios')
+  axios.defaults.proxy = false
   if (!password) {
     return false
   }

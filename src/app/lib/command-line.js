@@ -2,7 +2,6 @@
  * command line support
  */
 
-const { Command } = require('commander')
 const { packInfo, isTest } = require('../common/app-props')
 const { version } = packInfo
 
@@ -11,6 +10,7 @@ let options
 let program
 
 function parseCommandLine (argv, options) {
+  const { Command } = require('commander')
   const prog = new Command()
 
   prog

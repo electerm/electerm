@@ -2,7 +2,6 @@
  * socks proxy wrapper
  */
 
-const { SocksClient } = require('socks')
 const { request } = require('http')
 
 function isValidIP (input) {
@@ -101,5 +100,6 @@ module.exports = (initOptions) => {
   }
 
   // use socks proxy
+  const { SocksClient } = require('socks')
   return SocksClient.createConnection(options)
 }

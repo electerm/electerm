@@ -2,10 +2,10 @@
  * data encrypt/decrypt
  */
 
-const crypto = require('crypto')
 const algorithmDefault = 'aes-192-cbc'
 
 function scryptAsync (...args) {
+  const crypto = require('crypto')
   return new Promise((resolve, reject) =>
     crypto.scrypt(...args, (err, result) => {
       if (err) {
@@ -22,6 +22,7 @@ exports.encrypt = function (
   algorithm = algorithmDefault,
   iv = Buffer.alloc(16, 0)
 ) {
+  const crypto = require('crypto')
   const key = crypto.scryptSync(password, 'salt', 24)
   // Use `crypto.randomBytes` to generate a random iv instead of the static iv
   const cipher = crypto.createCipheriv(algorithm, key, iv)
@@ -36,6 +37,7 @@ exports.decrypt = function (
   algorithm = algorithmDefault,
   iv = Buffer.alloc(16, 0)
 ) {
+  const crypto = require('crypto')
   // Use the async `crypto.scrypt()` instead.
   const key = crypto.scryptSync(password, 'salt', 24)
   const decipher = crypto.createDecipheriv(algorithm, key, iv)
@@ -51,6 +53,7 @@ exports.encryptAsync = async function (
   algorithm = algorithmDefault,
   iv = Buffer.alloc(16, 0)
 ) {
+  const crypto = require('crypto')
   const key = await scryptAsync(password, 'salt', 24)
   // Use `crypto.randomBytes` to generate a random iv instead of the static iv
   const cipher = crypto.createCipheriv(algorithm, key, iv)
@@ -65,6 +68,7 @@ exports.decryptAsync = async function (
   algorithm = algorithmDefault,
   iv = Buffer.alloc(16, 0)
 ) {
+  const crypto = require('crypto')
   // Use the async `crypto.scrypt()` instead.
   const key = await scryptAsync(password, 'salt', 24)
   const decipher = crypto.createDecipheriv(algorithm, key, iv)

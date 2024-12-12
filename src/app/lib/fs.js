@@ -2,7 +2,7 @@ const { spawn } = require('child_process')
 const fss = require('fs/promises')
 const fs = require('fs')
 const log = require('../common/log')
-const tar = require('tar')
+
 const { isWin, isMac, tempDir } = require('../common/runtime-constants')
 const uid = require('../common/uid')
 const path = require('path')
@@ -132,6 +132,7 @@ const zipFolder = (localFolerPath) => {
   const p = path.resolve(tempDir, `electerm-temp-${n}.tar`)
   const cwd = path.dirname(localFolerPath)
   const file = path.basename(localFolerPath)
+  const tar = require('tar')
   return tar.c({
     gzip: false,
     file: p,
@@ -147,6 +148,7 @@ const zipFolder = (localFolerPath) => {
  */
 const unzipFile = (localFilePath, targetFolderPath) => {
   return new Promise((resolve, reject) => {
+    const tar = require('tar')
     try {
       tar.x({
         file: localFilePath,

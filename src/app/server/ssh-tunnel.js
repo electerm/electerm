@@ -1,5 +1,4 @@
 const log = require('../common/log')
-const socks = require('socksv5-electron')
 
 function forwardRemoteToLocal ({
   conn,
@@ -72,6 +71,7 @@ function dynamicForward ({
   sshTunnelLocalPort,
   sshTunnelLocalHost = '127.0.0.1'
 }) {
+  const socks = require('socksv5-electron')
   return new Promise((resolve, reject) => {
     const dproxyServer = socks.createServer((info, accept, deny) => {
       conn.forwardOut(
