@@ -67,3 +67,107 @@
   display block !important
   width auto !important
   height auto !important
+
+// bookmarks
+bookmark-width = 25rem
+bookmark-height = 10rem
+border-color=rgb(84, 84, 84)
+
+.bookmarks
+  margin: 10px
+  display: grid
+  justify-content: start
+  grid-template-columns: repeat(auto-fill, minmax(bookmark-width, 1fr)) // Используем minmax для адаптивности
+  grid-template-rows: repeat(auto-fill, 1fr)
+  border: 2px solid border-color
+  min-height: 100px
+  gap: 5px
+  padding: 5px
+  overflow: auto
+  max-height: 100vh
+  .clipboard
+    cursor: pointer
+    &:hover
+      opacity: 0.8
+    
+
+  .bookmark
+    display: block
+    border: 2px solid border-color
+    padding: 1rem
+    width: 100%
+    height: auto
+    background-color: rgba(50, 50, 50, 0.8)
+    border-radius: 5px
+    transition: transform 0.2s
+    min-height: bookmark-height
+    min-width bookmark-width
+
+    &:hover
+      transform: scale(1.02)
+
+    .bookmark-header
+      display: flex
+      justify-content: space-between
+      align-items: center
+      margin-bottom: 0.5rem
+
+      .color-indicator
+        border: 1px solid border-color
+        width: 15px 
+        height: 15px 
+        border-radius: 3px 
+        margin-right: 0.5rem
+
+      .badge
+        background-color: rgba(255, 255, 255, 0.2)
+        padding: 0.2rem 0.5rem
+        border-radius: 3px
+        margin-right: 0.5rem // Отступ слева от значка  
+
+      h3
+        word-break: break-all;
+        margin: 0
+        font-size: 1.2rem
+        flex-grow: 1
+
+      .protocol
+        background-color: rgba(255, 255, 255, 0.2)
+        padding: 0.2rem 0.5rem
+        font-size: 0.7rem
+        border-radius: 3px
+
+    .bookmark-body
+      margin-bottom: 0.5rem
+      color: #ddd
+
+      p
+        margin: 0.2rem 0
+
+    .bookmark-footer
+      text-align: right
+
+      .connect-button
+        background-color: rgb(3, 119, 176)
+        border: none
+        padding: 0.5rem 1rem
+        border-radius: 3px
+        cursor: pointer
+        transition: background-color 0.2s
+
+        &:hover
+          background-color: rgb(34, 148, 197)
+
+      .edit-button
+        margin-right: 0.5rem 
+        background-color: rgb(38, 38, 38)
+        color: #fff
+        border: 1px dashed rgb(84, 84, 84)
+        padding: 0.5rem 1rem
+        border-radius: 3px
+        cursor: pointer
+        transition: background-color 0.2s
+
+        &:hover
+          color: rgb(34, 148, 197)
+          border-color: rgb(34, 148, 197)

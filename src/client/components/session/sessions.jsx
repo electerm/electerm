@@ -19,6 +19,7 @@ import { Button } from 'antd'
 import toSimpleObj from '../../common/to-simple-obj.js'
 import { shortcutExtend } from '../shortcuts/shortcut-handler.js'
 import deepEqual from 'fast-deep-equal'
+import Card from './Card.jsx'
 
 const e = window.translate
 
@@ -349,6 +350,13 @@ class Sessions extends Component {
         height: this.props.height + 'px'
       }
     }
+
+    const {store} = window
+
+    if(store.bookmarks.length > 0){
+      return this.renderCards()
+    }
+
     return (
       <div className='no-sessions electerm-logo-bg' {...props}>
         <Button
@@ -497,6 +505,9 @@ class Sessions extends Component {
   }
 
   renderSessionsWrap = () => {
+    const {store} = window
+    const bookmarksCount = store.bookmarks.length ?? 0
+
     return (
       <div
         className='sessions'
@@ -505,6 +516,66 @@ class Sessions extends Component {
       >
         {this.renderSessions()}
       </div>
+    )
+  }
+
+
+  getBookmarks = ()=>{
+    const {store} = window
+    const groups = Object.values (this.addConcatTitle(store.bookmarkGroupTree))
+    console.log(groups)
+
+    const bookmarks = store.bookmarks.map(function (item){
+      const parent = groups.find((g)=>g.bookmarkIds.includes(item.id))
+      item.parent = parent
+      return item
+    })
+    return bookmarks.map(function(item){
+      return (<Card key={item.id} item={item}/>)
+    })    
+  }
+
+  addConcatTitle(data) {
+    // Helper function to recursively find the path of titles
+    function findTitlePath(id, currentPath = []) {
+        const element = data[id];
+        if (!element) return currentPath;
+
+        // Add current element's title to the path
+        currentPath.unshift(element.title);
+
+        // Find parent elements that include this element in their bookmarkGroupIds
+        for (const key in data) {
+            if (data[key].bookmarkGroupIds && data[key].bookmarkGroupIds.includes(id)) {
+                return findTitlePath(key, currentPath);
+            }
+        }
+
+        return currentPath;
+    }
+
+    // Iterate over each element in the data
+    for (const id in data) {
+        const titlePath = findTitlePath(id);
+        if(typeof data[id] === 'object'){
+          data[id].titles = titlePath;
+        }
+      
+    }
+
+    return data;
+  }
+
+  /**
+   * render connection cards
+   */
+  renderCards = ()=>{
+    const cards = this.getBookmarks()
+
+    return (
+    <div className='bookmarks'>
+      {cards}
+    </div>
     )
   }
 
