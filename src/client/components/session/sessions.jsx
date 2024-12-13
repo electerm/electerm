@@ -1,7 +1,7 @@
 import { Component } from 'react'
 import Session from './session.jsx'
 import WebSession from '../web/web-session.jsx'
-import { findIndex, pick, memoize } from 'lodash-es'
+import { findIndex, pick } from 'lodash-es'
 import classNames from 'classnames'
 import generate from '../../common/id-with-stamp'
 import copy from 'json-deep-copy'
@@ -33,7 +33,6 @@ class Sessions extends Component {
       search: ''
     }
     this.bindHandleKeyboardEvent = this.handleKeyboardEvent.bind(this)
-    this.getBookmarks = memoize(this.getBookmarks.bind(this))
   }
 
   componentDidMount () {
@@ -525,6 +524,9 @@ class Sessions extends Component {
     const bookmarks = store.bookmarks.map(function (item) {
       const parent = groups.find((g) => g.bookmarkIds.includes(item.id))
       item.parent = parent
+      if (item.type === undefined) {
+        item.type = 'ssh'
+      }
       return item
     })
 
@@ -569,9 +571,11 @@ class Sessions extends Component {
     let bookmarks = this.getBookmarks()
     const fuseOptions = {
       keys: [
+        'type',
         'title',
         'host',
         'username',
+        'description',
         'parent.titles'
       ]
     }

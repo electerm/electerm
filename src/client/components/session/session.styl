@@ -89,6 +89,11 @@ border-color=rgb(84, 84, 84)
     padding: 5px
     overflow: auto
     max-height: calc(100vh - 125px)
+
+    .runScripts-limit
+      max-height: 5rem
+      max-width: 15rem
+      overflow: hidden
     .clipboard
       cursor: pointer
       &:hover
@@ -126,6 +131,7 @@ border-color=rgb(84, 84, 84)
           margin-right: 0.5rem
 
         .badge
+          text-transform: uppercase
           background-color: rgba(255, 255, 255, 0.2)
           padding: 0.2rem 0.5rem
           border-radius: 3px

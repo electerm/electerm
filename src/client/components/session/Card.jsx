@@ -8,6 +8,7 @@ class Card extends Component {
   constructor (props) {
     super(props)
     this.item = props.item
+    console.log(this.item)
   }
 
   title () {
@@ -16,20 +17,44 @@ class Card extends Component {
 
   url () {
     switch (this.item.type) {
-      case 'rdp':
-        return `rdp://${this.item.username}@${this.item.host}` // TODO: serial
-      default:
+      case 'local':
+        return null
+      case 'web':
+        return this.item.url
+      case 'telnet':
+        return ''
+      case undefined:
+      case 'ssh':
         return `ssh ${this.item.username}@${this.item.host} -p ${this.item.port}`
+      default:
+        return `${this.item.type}://${this.item.username}@${this.item.host}`
     }
   }
 
   body () {
     switch (this.item.type) {
-      case 'rdp':
-        return this.bodyRdp() // TODO: serial
+      case 'web':
+        return this.bodyWeb()
+      case 'serial':
+        return this.bodySerial()
+      case 'local':
+        return this.bodyLocal()
       default:
         return this.bodySsh()
     }
+  }
+
+  bodyLocal () {
+    return (
+      <>
+        {this.bodyRunScripts()}
+        {this.bodyDescription()}
+      </>
+    )
+  }
+
+  bodyWeb () {
+    return <>{this.bodyDescription()}</>
   }
 
   bodySsh () {
@@ -44,6 +69,52 @@ class Card extends Component {
         <p>
           <strong>{e('username')}:</strong> {this.item.username}
         </p>
+        {this.bodyPassword()}
+        {this.bodyDescription()}
+      </>
+    )
+  }
+
+  bodySerial () {
+    return (
+      <>
+        <p>
+          <strong>{e('path')}:</strong> {this.item.path}
+        </p>
+        {this.bodyDescription()}
+      </>
+    )
+  }
+
+  bodyDescription () {
+    return (
+      <>
+        {this.item?.description?.length > 0
+          ? (
+            <p>
+              <strong>{e('description')}:</strong> {this.item.description}
+            </p>
+            )
+          : (
+            <></>
+            )}
+      </>
+    )
+  }
+
+  bodyRunScripts () {
+    return (
+      <ol className='runScripts-limit'>
+        {this.item?.runScripts.map((script, index) => (
+          <li key={index}>{script.script}</li>
+        ))}
+      </ol>
+    )
+  }
+
+  bodyPassword () {
+    return (
+      <>
         {this.item?.password?.length > 0
           ? (
             <p>
@@ -61,10 +132,6 @@ class Card extends Component {
             )}
       </>
     )
-  }
-
-  bodyRdp () {
-    return this.bodySsh()
   }
 
   renderBreadcrumb () {
@@ -91,9 +158,9 @@ class Card extends Component {
     return breadcrumbs
   }
 
-  edit (id) {
+  edit (item) {
     const { store } = window
-    store.openBookmarkEdit(id)
+    store.openBookmarkEdit(item)
   }
 
   connect (id) {
@@ -102,6 +169,8 @@ class Card extends Component {
   }
 
   render () {
+    const url = this.url()
+
     return (
       <div className='bookmark'>
         <div className='breadcrumb'>{this.renderBreadcrumb()}</div>
@@ -112,17 +181,30 @@ class Card extends Component {
             style={{ backgroundColor: this.item.color }}
           />
           <h3>{this.title()}</h3>
-          <span
-            className='protocol clipboard'
-            onClick={() => navigator.clipboard.writeText(this.url())}
-          >
-            {this.url()}
-          </span>
+          {url
+            ? (
+              <span
+                className='protocol clipboard'
+                onClick={() => navigator.clipboard.writeText(url)}
+              >
+                {url}
+              </span>
+              )
+            : (
+              <></>
+              )}
         </div>
         <div className='bookmark-body'>{this.body()}</div>
         <div className='bookmark-footer'>
-          <button className='edit-button' onClick={() => this.edit(this.item.id)}>{e('edit')}</button>
-          <button className='connect-button' onClick={() => this.connect(this.item.id)}>{e('connect')}</button>
+          <button className='edit-button' onClick={() => this.edit(this.item)}>
+            {e('edit')}
+          </button>
+          <button
+            className='connect-button'
+            onClick={() => this.connect(this.item.id)}
+          >
+            {e('connect')}
+          </button>
         </div>
       </div>
     )
