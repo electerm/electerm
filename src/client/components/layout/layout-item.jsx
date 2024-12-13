@@ -33,7 +33,6 @@ export default function LayoutItem (props) {
       }
       currentElement = currentElement.parentElement
     }
-    // debug('target drop', target)
     const fromTab = JSON.parse(e.dataTransfer.getData('fromFile'))
     const onDropElem = getDom
     if (!onDropElem || !fromTab || fromTab.batch === batch) {
@@ -46,7 +45,6 @@ export default function LayoutItem (props) {
       return
     }
     t.batch = batch
-    store.setTabs(tabs)
     clearCls()
   }
 
