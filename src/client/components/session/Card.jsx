@@ -8,7 +8,6 @@ class Card extends Component {
   constructor (props) {
     super(props)
     this.item = props.item
-    console.log(this.item)
   }
 
   title () {

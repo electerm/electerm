@@ -1,7 +1,7 @@
 import { Component } from 'react'
 import Session from './session.jsx'
 import WebSession from '../web/web-session.jsx'
-import { findIndex, pick } from 'lodash-es'
+import { findIndex, pick, memoize } from 'lodash-es'
 import classNames from 'classnames'
 import generate from '../../common/id-with-stamp'
 import copy from 'json-deep-copy'
@@ -15,11 +15,12 @@ import {
 } from '../../common/constants.js'
 import newTerm, { updateCount } from '../../common/new-terminal.js'
 import LogoElem from '../common/logo-elem.jsx'
-import { Button } from 'antd'
+import { Button, Input } from 'antd'
 import toSimpleObj from '../../common/to-simple-obj.js'
 import { shortcutExtend } from '../shortcuts/shortcut-handler.js'
 import deepEqual from 'fast-deep-equal'
 import Card from './Card.jsx'
+import Fuse from 'fuse.js'
 
 const e = window.translate
 
@@ -28,9 +29,11 @@ class Sessions extends Component {
     super(props)
     this.state = {
       tabs: copy(props.tabs || []),
-      currentTabId: props.currentTabId
+      currentTabId: props.currentTabId,
+      search: ""
     }
     this.bindHandleKeyboardEvent = this.handleKeyboardEvent.bind(this)
+    this.getBookmarks = memoize(this.getBookmarks.bind(this));
   }
 
   componentDidMount () {
@@ -519,16 +522,13 @@ class Sessions extends Component {
   getBookmarks = () => {
     const { store } = window
     const groups = Object.values(this.addConcatTitle(store.bookmarkGroupTree))
-    console.log(groups)
-
     const bookmarks = store.bookmarks.map(function (item) {
       const parent = groups.find((g) => g.bookmarkIds.includes(item.id))
       item.parent = parent
       return item
     })
-    return bookmarks.map(function (item) {
-      return (<Card key={item.id} item={item} />)
-    })
+
+    return bookmarks
   }
 
   addConcatTitle (data) {
@@ -565,13 +565,37 @@ class Sessions extends Component {
    * render connection cards
    */
   renderCards = () => {
-    const cards = this.getBookmarks()
+    const { search } = this.state; // Получаем значение поиска из состояния
+    let bookmarks = this.getBookmarks();
+    const fuseOptions = {
+      keys: [
+        "title",
+        "host",
+        "username",
+        "parent.titles"
+      ]
+    };
+    const fuse = new Fuse(bookmarks, fuseOptions);
+    if (search) {
+      const searchResult = fuse.search(search);
+      bookmarks = searchResult.map((elem) => elem.item);
+    }
 
     return (
-      <div className='bookmarks'>
-        {cards}
+      <div className='panel'>
+        <Input
+          type='search'
+          placeholder={e('search')}
+          value={search}
+          onChange={(e) => this.setState({ search: e.target.value })}
+        />
+        <div className='bookmarks'>
+          {bookmarks.map((item) => (
+            <Card key={item.id} item={item} />
+          ))}
+        </div>
       </div>
-    )
+    );
   }
 
   render () {
