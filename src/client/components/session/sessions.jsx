@@ -30,10 +30,10 @@ class Sessions extends Component {
     this.state = {
       tabs: copy(props.tabs || []),
       currentTabId: props.currentTabId,
-      search: ""
+      search: ''
     }
     this.bindHandleKeyboardEvent = this.handleKeyboardEvent.bind(this)
-    this.getBookmarks = memoize(this.getBookmarks.bind(this));
+    this.getBookmarks = memoize(this.getBookmarks.bind(this))
   }
 
   componentDidMount () {
@@ -565,20 +565,20 @@ class Sessions extends Component {
    * render connection cards
    */
   renderCards = () => {
-    const { search } = this.state; // Получаем значение поиска из состояния
-    let bookmarks = this.getBookmarks();
+    const { search } = this.state // Получаем значение поиска из состояния
+    let bookmarks = this.getBookmarks()
     const fuseOptions = {
       keys: [
-        "title",
-        "host",
-        "username",
-        "parent.titles"
+        'title',
+        'host',
+        'username',
+        'parent.titles'
       ]
-    };
-    const fuse = new Fuse(bookmarks, fuseOptions);
+    }
+    const fuse = new Fuse(bookmarks, fuseOptions)
     if (search) {
-      const searchResult = fuse.search(search);
-      bookmarks = searchResult.map((elem) => elem.item);
+      const searchResult = fuse.search(search)
+      bookmarks = searchResult.map((elem) => elem.item)
     }
 
     return (
@@ -595,7 +595,7 @@ class Sessions extends Component {
           ))}
         </div>
       </div>
-    );
+    )
   }
 
   render () {

@@ -91,13 +91,13 @@ class Card extends Component {
     return breadcrumbs
   }
 
-  edit(id){
-    const {store} = window
+  edit (id) {
+    const { store } = window
     store.openBookmarkEdit(id)
   }
 
-  connect(id){
-    const {store} = window
+  connect (id) {
+    const { store } = window
     store.onSelectBookmark(id)
   }
 
@@ -121,8 +121,8 @@ class Card extends Component {
         </div>
         <div className='bookmark-body'>{this.body()}</div>
         <div className='bookmark-footer'>
-          <button className='edit-button' onClick={()=>this.edit(this.item.id)}>{e('edit')}</button>
-          <button className='connect-button' onClick={()=>this.connect(this.item.id)}>{e('connect')}</button>
+          <button className='edit-button' onClick={() => this.edit(this.item.id)}>{e('edit')}</button>
+          <button className='connect-button' onClick={() => this.connect(this.item.id)}>{e('connect')}</button>
         </div>
       </div>
     )
