@@ -29,7 +29,7 @@ export default class QuickCommandsFooter extends PureComponent {
   render () {
     return (
       <div
-        className='fleft relative'
+        className='fleft relative quick-command-trigger-wrap'
         onMouseEnter={this.handleOpen}
         onMouseLeave={this.handleMouseLeave}
       >

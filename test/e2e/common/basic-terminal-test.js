@@ -1,7 +1,7 @@
 const delay = require('./wait')
 const { expect } = require('chai')
 
-module.exports = async (client, cmd) => {
+exports.basicTerminalTest = async (client, cmd) => {
   async function focus () {
     client.click('.session-current .xterm .xterm-cursor-layer')
   }
@@ -26,4 +26,17 @@ module.exports = async (client, cmd) => {
   await delay(101)
   const text2 = await client.readClipboard()
   expect(text1.trim().length).lessThan(text2.trim().length)
+}
+
+exports.getTerminalContent = async function (client) {
+  await client.click('.session-current .term-wrap')
+  await delay(300)
+  await client.keyboard.press('Meta+A')
+  await delay(300)
+  await client.keyboard.press('Meta+C')
+  await delay(300)
+  const clipboardText = await client.readClipboard()
+  await client.keyboard.press('Escape')
+  await delay(300)
+  return clipboardText
 }

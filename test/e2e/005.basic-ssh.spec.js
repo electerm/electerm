@@ -16,7 +16,7 @@ const { describe } = it
 it.setTimeout(100000)
 const { expect } = require('chai')
 const delay = require('./common/wait')
-const basicTermTest = require('./common/basic-terminal-test')
+const { basicTerminalTest } = require('./common/basic-terminal-test')
 const appOptions = require('./common/app-options')
 const extendClient = require('./common/client-extend')
 
@@ -39,7 +39,7 @@ describe('ssh', function () {
     tabsCount = await tabsCount.count()
     expect(tabsCount).equal(2)
     await delay(4010)
-    await basicTermTest(client, cmd)
+    await basicTerminalTest(client, cmd)
     await electronApp.close().catch(console.log)
   })
 })

@@ -7,6 +7,7 @@ const { describe } = it
 const delay = require('./common/wait')
 const appOptions = require('./common/app-options')
 const extendClient = require('./common/client-extend')
+const { getTerminalContent } = require('./common/basic-terminal-test')
 
 describe('batch input', function () {
   it('should execute ls command in selected tabs', async function () {
@@ -25,21 +26,7 @@ describe('batch input', function () {
     const tabsCount = await client.countElem('.tabs .tab')
     expect(tabsCount).toEqual(2)
 
-    // Get initial terminal content
-    async function focusAndCopy () {
-      await client.click('.session-current .term-wrap')
-      await delay(300)
-      await client.keyboard.press('Meta+A')
-      await delay(300)
-      await client.keyboard.press('Meta+C')
-      await delay(300)
-      const clipboardText = await client.readClipboard()
-      await client.keyboard.press('Escape')
-      await delay(300)
-      return clipboardText
-    }
-
-    const text1 = await focusAndCopy()
+    const text1 = await getTerminalContent(client)
 
     // Switch to second tab
     // await client.click('.tabs .tab', 0)
@@ -58,12 +45,12 @@ describe('batch input', function () {
     // Check first tab output
     await client.click('.tabs .tab', 0)
     await delay(1000)
-    const newText1 = await focusAndCopy()
+    const newText1 = await getTerminalContent(client)
 
     // Check second tab output
     await client.click('.tabs .tab', 1)
     await delay(1000)
-    const newText2 = await focusAndCopy()
+    const newText2 = await getTerminalContent(client)
 
     // Verify command output in both terminals
     expect(newText1.length).toBeGreaterThan(text1.length)

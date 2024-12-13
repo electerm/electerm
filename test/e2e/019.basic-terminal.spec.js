@@ -6,7 +6,7 @@ const { describe } = it
 it.setTimeout(100000)
 const os = require('os')
 const delay = require('./common/wait')
-const basicTermTest = require('./common/basic-terminal-test')
+const { basicTerminalTest } = require('./common/basic-terminal-test')
 const platform = os.platform()
 const isWin = platform.startsWith('win')
 const appOptions = require('./common/app-options')
@@ -25,7 +25,7 @@ describe('terminal', function () {
       : 'ls'
     await delay(13500)
 
-    await basicTermTest(client, cmd)
+    await basicTerminalTest(client, cmd)
     await electronApp.close().catch(console.log)
   })
 })
