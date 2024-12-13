@@ -74,17 +74,17 @@ class Card extends Component {
       const title = titles[index]
       if (index < titles.length - 1) {
         breadcrumbs.push(
-          <>
+          <span key={index}>
             {' '}
             <a href='#'>{title}</a> &gt;
-          </>
+          </span>
         )
       } else {
         breadcrumbs.push(
-          <>
+          <span key={index}>
             {' '}
             <span>{title}</span>
-          </>
+          </span>
         )
       }
     }
