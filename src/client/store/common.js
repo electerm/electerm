@@ -24,12 +24,6 @@ export default Store => {
     Object.assign(this, updates)
   }
 
-  Store.prototype.setOffline = function () {
-    postMessage({
-      action: tabActions.setAllTabOffline
-    })
-  }
-
   Store.prototype.onError = function (e) {
     handleError(e)
   }

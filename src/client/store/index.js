@@ -123,7 +123,7 @@ class Store {
     const {
       currentTabId
     } = this
-    const tabs = window.store.getTabs()
+    const { tabs } = window.store
     const tab = tabs.find(t => t.id === currentTabId)
     if (!tab) {
       return false
@@ -154,7 +154,7 @@ class Store {
   }
 
   get isTransporting () {
-    return window.store.getTabs().some(t => t.isTransporting)
+    return window.store.tabs.some(t => t.isTransporting)
   }
 
   get settingSidebarList () {
@@ -190,7 +190,7 @@ class Store {
   }
 
   get tabTitles () {
-    return window.store.getTabs().map(d => d.title).join('#')
+    return window.store.tabs.map(d => d.title).join('#')
   }
 
   get setting () {
@@ -275,7 +275,6 @@ const arrGetterProps = [
   'bookmarks',
   'bookmarkGroups',
   'profiles',
-  'tabs',
   'fileTransfers',
   'transferHistory',
   'quickCommands',

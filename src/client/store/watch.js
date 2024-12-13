@@ -6,14 +6,12 @@ import createTitle from '../common/create-title'
 import { autoRun } from 'manate'
 import { update, dbNamesForWatch } from '../common/db'
 import {
-  commonActions,
   sftpDefaultSortSettingKey,
   checkedKeysLsKey,
   expandedKeysLsKey,
   resolutionsLsKey,
   localAddrBookmarkLsKey
 } from '../common/constants'
-import postMsg from '../common/post-msg'
 import * as ls from '../common/safe-local-storage'
 import { debounce, isEmpty } from 'lodash-es'
 
@@ -107,10 +105,6 @@ export default store => {
       const title = createTitle(tab)
       window.pre.runGlobalAsync('setTitle', title)
     }
-    postMsg({
-      action: commonActions.changeCurrentTabId,
-      currentTabId
-    })
     return store.currentTabId
   }).start()
 }

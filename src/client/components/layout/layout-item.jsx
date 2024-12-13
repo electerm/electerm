@@ -1,8 +1,3 @@
-import {
-  tabActions
-} from '../../common/constants'
-import postMsg from '../../common/post-msg'
-
 export default function LayoutItem (props) {
   const {
     children,
@@ -51,10 +46,6 @@ export default function LayoutItem (props) {
       return
     }
     t.batch = batch
-    postMsg({
-      action: tabActions.changeCurrentTabId,
-      currentTabId: store.currentTabId
-    })
     store.setTabs(tabs)
     clearCls()
   }
