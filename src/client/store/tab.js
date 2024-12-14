@@ -87,7 +87,7 @@ export default Store => {
     }
   }
 
-  Store.prototype.reloadTab = function (tabId) {
+  Store.prototype.reloadTab = function (tabId = window.store.currentTabId) {
     const { store } = window
     const { tabs } = store
     const index = tabs.findIndex(t => t.id === tabId)
@@ -208,11 +208,16 @@ export default Store => {
     }
   }
 
-  Store.prototype.initFirstTab = function () {
+  Store.prototype.initFirstTab = function (batch) {
     const { store } = window
+    if (batch !== undefined) {
+      const newTab = newTerm()
+      newTab.batch = batch // Set batch number
+      store.addTab(newTab)
+      return
+    }
     const { layout } = store
     const batchCount = splitConfig[layout].children || 1
-
     for (let i = 0; i < batchCount; i++) {
       const newTab = newTerm()
       newTab.batch = i // Set batch number
@@ -304,11 +309,14 @@ export default Store => {
     }
   }
 
-  Store.prototype.cloneToNextLayout = function () {
+  Store.prototype.cloneToNextLayout = function (tab = window.store.currentTab) {
+    if (!tab) {
+      return
+    }
     const { store } = window
     const defaultStatus = statusMap.processing
-    const { currentTab, layout, currentLayoutBatch } = store
-    const ntb = deepCopy(currentTab)
+    const { layout, currentLayoutBatch } = store
+    const ntb = deepCopy(tab)
     Object.assign(ntb, {
       id: generate(),
       status: defaultStatus,

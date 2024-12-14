@@ -1,6 +1,6 @@
 import { auto } from 'manate/react'
 import Layouts from './layouts'
-import Sessions from '../session/sessions'
+import TabsWrap from '../tabs/index'
 import {
   splitConfig,
   quickCommandBoxHeight,
@@ -10,11 +10,18 @@ import layoutAlg from './layout-alg'
 import calcSessionSize from './session-size-alg'
 import TermSearch from '../terminal/term-search'
 import Footer from '../footer/footer-entry'
+import SessionsWrap from '../session/sessions'
 import QuickCommandsFooterBox from '../quick-commands/quick-commands-box'
 import { pick } from 'lodash-es'
 import './layout.styl'
 
 export default auto(function Layout (props) {
+  const { store } = props
+  const {
+    layout, config, currentTab
+  } = store
+  const conf = splitConfig[layout]
+
   const handleMousedown = (e) => {
 
   }
@@ -61,12 +68,20 @@ export default auto(function Layout (props) {
     const h = height - footerHeight - (pinnedQuickCommandBar ? quickCommandBoxHeight : 0)
     return layoutAlg(layout, w, h)
   }
+  const {
+    width,
+    height
+  } = calcLayoutStyle()
+  const styles = buildLayoutStyles(conf, layout)
+  const layoutProps = {
+    layout,
+    ...styles,
+    layoutStyle: calcLayoutStyle(),
+    handleMousedown
+  }
+  const sizes = calcSessionSize(layout, width, height)
 
   function renderSessions (conf, layout) {
-    const {
-      width,
-      height
-    } = calcLayoutStyle()
     const {
       store
     } = props
@@ -79,7 +94,7 @@ export default auto(function Layout (props) {
       }
       tabsBatch[batch].push(tab)
     }
-    return calcSessionSize(layout, width, height).map((v, i) => {
+    return sizes.map((v, i) => {
       const sessProps = {
         batch: i,
         layout,
@@ -91,7 +106,6 @@ export default auto(function Layout (props) {
           'resolutions',
           'hideDelKeyTip',
           'fileOperation',
-          'file',
           'pinnedQuickCommandBar',
           'tabsHeight',
           'appPath',
@@ -101,7 +115,7 @@ export default auto(function Layout (props) {
         ])
       }
       return (
-        <Sessions
+        <TabsWrap
           key={'sess' + i}
           {...sessProps}
         />
@@ -109,17 +123,6 @@ export default auto(function Layout (props) {
     })
   }
 
-  const { store } = props
-  const {
-    layout, config, currentTab
-  } = store
-  const conf = splitConfig[layout]
-  const layoutProps = {
-    layout,
-    ...buildLayoutStyles(conf, layout),
-    layoutStyle: calcLayoutStyle(),
-    handleMousedown
-  }
   const termProps = {
     currentTab,
     config,
@@ -146,10 +149,33 @@ export default auto(function Layout (props) {
     'openedSideBar',
     'currentQuickCommands'
   ])
+  const sessionsProps = {
+    styles: styles.wrapStyles,
+    ...pick(store, [
+      'currentTabId',
+      'currentTabId0',
+      'currentTabId1',
+      'currentTabId2',
+      'currentTabId3',
+      'batch',
+      'resolutions',
+      'hideDelKeyTip',
+      'fileOperation',
+      'file',
+      'pinnedQuickCommandBar',
+      'tabsHeight',
+      'appPath',
+      'leftSidebarWidth',
+      'pinned',
+      'openedSideBar',
+      'tabs'
+    ])
+  }
   return [
     <Layouts {...layoutProps} key='layouts'>
       {renderSessions(conf, layout)}
     </Layouts>,
+    <SessionsWrap key='SessionsWrap' {...sessionsProps} />,
     <TermSearch
       key='TermSearch'
       {...termProps}

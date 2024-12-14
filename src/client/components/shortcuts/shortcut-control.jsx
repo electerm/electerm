@@ -13,6 +13,24 @@ class ShortcutControl extends React.PureComponent {
     window.addEventListener('mousewheel', this.handleKeyboardEvent.bind(this))
   }
 
+  closeCurrentTabShortcut = throttle((e) => {
+    e.stopPropagation()
+    const { currentTabId } = window.store
+    if (currentTabId) {
+      window.store.delTab(currentTabId)
+    }
+  }, 500)
+
+  reloadCurrentTabShortcut = throttle((e) => {
+    e.stopPropagation()
+    window.store.reloadTab()
+  }, 500)
+
+  cloneToNextLayoutShortcut = throttle((e) => {
+    e.stopPropagation()
+    window.store.cloneToNextLayout()
+  }, 500)
+
   prevTabShortcut = throttle((e) => {
     e.stopPropagation()
     window.store.clickPrevTab()
@@ -34,12 +52,6 @@ class ShortcutControl extends React.PureComponent {
     document.querySelector('.session-current .term-fullscreen-control1')
     x && x.click()
   }, 500)
-
-  splitShortcut = throttle((e) => {
-    e.stopPropagation()
-    const x = document.querySelector('.session-current .icon-split')
-    x && x.click()
-  }, 1000)
 
   zoominShortcut = throttle((e) => {
     e.stopPropagation()
