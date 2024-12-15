@@ -3,7 +3,6 @@
  */
 
 import { Component } from 'react'
-import runIdle from '../../common/run-idle'
 import {
   CloseOutlined,
   Loading3QuartersOutlined,
@@ -11,8 +10,7 @@ import {
 } from '@ant-design/icons'
 import { Tooltip, message } from 'antd'
 import classnames from 'classnames'
-import copy from 'json-deep-copy'
-import { isEqual, findIndex, some, pick } from 'lodash-es'
+import { isEqual, findIndex, pick } from 'lodash-es'
 import Input from '../common/input-auto-focus'
 import createName from '../../common/create-title'
 import { addClass, removeClass } from '../../common/class'
@@ -26,24 +24,12 @@ const onDragCls = 'ondrag-tab'
 const onDragOverCls = 'dragover-tab'
 
 class Tab extends Component {
-  constructor (props) {
-    super(props)
-    this.state = {
-      tab: copy(props.tab)
-    }
-  }
-
   componentDidMount () {
-    this.dom = document.getElementById('tab-' + this.state.tab.id)
+    this.dom = document.getElementById('tab-' + this.props.tab.id)
     window.addEventListener('message', this.onEvent)
   }
 
   componentDidUpdate (prevProps) {
-    if (!isEqual(prevProps.tab, this.props.tab)) {
-      this.setState({
-        tab: copy(this.props.tab)
-      })
-    }
     if (this.props.openContextMenu && !prevProps.openContextMenu) {
       this.handleContextMenu()
     }
@@ -56,35 +42,27 @@ class Tab extends Component {
     this.dom = null
   }
 
-  shouldComponentUpdate (nextProps, nextState) {
-    return this.shouldUpdate(this.props, nextProps) || this.shouldUpdateState(this.state, nextState)
-  }
+  // shouldComponentUpdate (nextProps) {
+  //   return this.shouldUpdate(this.props, nextProps)
+  // }
 
-  shouldUpdateState = (prevState, nextState) => {
-    return !isEqual(prevState, nextState)
-  }
+  // shouldUpdate = (prevProps, nextProps) => {
+  //   // todo currentTabId still need improve
+  //   const pickKeys = [
+  //     'currentTabId',
+  //     'height',
+  //     'isLast',
+  //     'isMaximized',
+  //     'config',
+  //     'tab',
+  //     'width',
+  //     'openContextMenu',
+  //     'contextFunc'
+  //   ]
 
-  shouldUpdate = (prevProps, nextProps) => {
-    // todo currentTabId still need improve
-    const pickKeys = [
-      'currentTabId',
-      'height',
-      'isLast',
-      'isMaximized',
-      'config',
-      'tab',
-      'width',
-      'openContextMenu',
-      'contextFunc'
-    ]
-
-    // compare only the relevant props
-    return !isEqual(pick(prevProps, pickKeys), pick(nextProps, pickKeys))
-  }
-
-  modifier = (...args) => {
-    runIdle(() => this.setState(...args))
-  }
+  //   // compare only the relevant props
+  //   return !isEqual(pick(prevProps, pickKeys), pick(nextProps, pickKeys))
+  // }
 
   clearCls = () => {
     document.querySelectorAll('.' + onDragOverCls).forEach((d) => {
@@ -93,11 +71,7 @@ class Tab extends Component {
   }
 
   handleClick = (e) => {
-    const {
-      onChangeTabId
-    } = this.props
-    const { id } = this.state.tab
-    onChangeTabId(id)
+    window.store.clickTab(this.props.tab.id, this.props.batch)
   }
 
   onDrag = () => {
@@ -131,7 +105,7 @@ class Tab extends Component {
   onDragStart = e => {
     // debug('ondragstart')
     // debug(e.target)
-    e.dataTransfer.setData('fromFile', JSON.stringify(this.state.tab))
+    e.dataTransfer.setData('fromFile', JSON.stringify(this.props.tab))
     // e.effectAllowed = 'copyMove'
   }
 
@@ -141,45 +115,46 @@ class Tab extends Component {
     if (!target) {
       return
     }
-    // debug('target drop', target)
+
     const fromTab = JSON.parse(e.dataTransfer.getData('fromFile'))
     const onDropTab = document.querySelector('.' + onDragOverCls)
     if (!onDropTab || !fromTab) {
       return
     }
+
     const dropId = onDropTab.getAttribute('data-id')
     if (!dropId || dropId === fromTab.id) {
       return
     }
+
     const { id } = fromTab
-    const tabs = copy(this.props.tabs)
-    let indexDrop = findIndex(tabs, t => t.id === dropId)
-    const dropTab = tabs[indexDrop]
-    const indexFrom = findIndex(tabs, t => t.id === id)
-    if (indexFrom === -1) {
+    const storeTabs = window.store.tabs
+    const indexFrom = findIndex(storeTabs, t => t.id === id)
+    const indexDrop = findIndex(storeTabs, t => t.id === dropId)
+
+    if (indexFrom >= 0 && indexDrop >= 0) {
+      const targetTab = storeTabs[indexDrop]
       const fromBatch = fromTab.batch
-      setTimeout(() => {
-        const closeBtn = document.querySelector(`.v${fromBatch + 1} .tab-${id} .tab-close .anticon`)
-        if (closeBtn) {
-          closeBtn.click()
-        }
-      }, 10)
-      fromTab.batch = dropTab.batch
-    } else {
-      if (indexDrop > indexFrom) {
-        indexDrop = indexDrop - 1
+
+      // Handle currentTab change if needed
+      if (window.store[`currentTabId${fromBatch}`] === id && fromBatch === targetTab.batch) {
+        // Find next tab in the same batch
+        const nextTab = storeTabs.find((t, i) =>
+          i !== indexFrom && t.batch === fromBatch
+        )
+        window.store[`currentTabId${fromBatch}`] = nextTab ? nextTab.id : ''
       }
-      tabs.splice(indexFrom, 1)
+
+      // Reorder tabs and update batch
+      const [tab] = storeTabs.splice(indexFrom, 1)
+      tab.batch = targetTab.batch // Update the batch to match target tab's batch
+      storeTabs.splice(indexDrop, 0, tab)
+      window.store.focus()
     }
-    tabs.splice(indexDrop, 0, fromTab)
-    this.props.setTabs(
-      tabs
-    )
-    window.store.focus()
   }
 
   handleReloadTab = async () => {
-    this.props.reloadTab(this.state.tab)
+    window.store.reloadTab(this.props.tab.id)
   }
 
   onDragEnd = e => {
@@ -189,17 +164,17 @@ class Tab extends Component {
   }
 
   handleClose = () => {
-    this.props.delTab(this.state.tab.id)
+    window.store.delTab(this.props.tab.id)
   }
 
   handleDup = () => {
-    this.props.onDuplicateTab(
-      this.state.tab
+    window.store.duplicateTab(
+      this.props.tab.id
     )
   }
 
   cloneToNextLayout = () => {
-    window.store.cloneToNextLayout()
+    window.store.cloneToNextLayout(this.props.tab)
   }
 
   newTab = () => {
@@ -207,67 +182,42 @@ class Tab extends Component {
   }
 
   doRename = () => {
-    const tab = copy(this.state.tab)
+    const { tab } = this.props
     tab.titleTemp = tab.title || ''
     tab.isEditting = true
-    this.setState({
-      tab
-    })
   }
 
   handleBlur = () => {
-    const tab = copy(this.state.tab)
-    const { titleTemp, title, id, host } = tab
+    const { tab } = this.props
+    const { titleTemp, title, host } = tab
     if (!titleTemp && !host) {
       return message.warning(e('titleEmptyWarn'))
     }
     delete tab.isEditting
     if (title === titleTemp) {
       delete tab.titleTemp
-      return this.setState({
-        tab
-      })
     }
-    this.setState({
-      tab
-    })
-    this.props.editTab(id, { title: titleTemp })
+    tab.title = titleTemp
   }
 
   handleChange = e => {
+    const { tab } = this.props
     const titleTemp = e.target.value
-    const tab = copy(this.state.tab)
     tab.titleTemp = titleTemp
-    this.setState({
-      tab
-    })
   }
 
   closeOther = () => {
-    const { setTabs, onChangeTabId } = this.props
-    onChangeTabId(this.props.tab.id)
-    setTabs([this.props.tab])
+    window.store.closeOtherTabs(this.props.tab.id)
   }
 
   closeTabsRight = () => {
-    const {
-      tab, currentTabId,
-      onChangeTabId,
-      setTabs
-    } = this.props
-    let tabs = copy(this.props.tabs)
-    const index = findIndex(tabs, t => t.id === tab.id)
-    tabs = tabs.slice(0, index + 1)
-    if (!some(tabs, t => t.id === currentTabId)) {
-      onChangeTabId(tabs[0].id)
-    }
-    setTabs(tabs)
+    window.store.closeTabsRight(this.props.tab.id)
   }
 
   renderContext = () => {
-    const { tabs, tab } = this.props
+    const { tabs, tab, tabIndex } = this.props
     const len = tabs.length
-    const index = findIndex(tabs, t => t.id === tab.id)
+    const index = tabIndex
     const noRight = index >= len - 1
     const isSshConfig = tab.type === terminalSshConfigType
     const res = []
@@ -332,7 +282,7 @@ class Tab extends Component {
         left: rect.left,
         top: rect.top + 20
       },
-      id: this.state.tab.id
+      id: this.props.tab.id
     })
   }
 
@@ -352,7 +302,6 @@ class Tab extends Component {
     )
   }
 
-  // sshTunnelResults is a array of { sshTunnel, error? }, sshTunnel is a object has props of sshTunnelLocalPort, sshTunnelRemoteHost, sshTunnelRemotePort, sshTunnel, sshTunnelLocalHost, should build sshTunnel string from sshTunnel object, when error exist, this string should start with "error:", return title and sshTunnelResults list in react element.
   renderTitle = (sshTunnelResults, title) => {
     const list = sshTunnelResults.map(({ sshTunnel: obj, error }, i) => {
       const {
@@ -396,11 +345,7 @@ class Tab extends Component {
   }
 
   render () {
-    const {
-      currentTabId
-    } = this.props
-    const { isLast, terminalOnData } = this.props
-    const { tab } = this.state
+    const { isLast, terminalOnData, tab, currentBatchTabId, batch } = this.props
     const {
       id,
       isEditting,
@@ -408,7 +353,8 @@ class Tab extends Component {
       isTransporting,
       sshTunnelResults
     } = tab
-    const active = id === currentTabId
+    console.log('currentBatchTabId, batch', currentBatchTabId, batch)
+    const active = id === currentBatchTabId
     const cls = classnames(
       `tab-${id}`,
       'tab',

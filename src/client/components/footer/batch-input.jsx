@@ -17,6 +17,7 @@ import {
 import TabSelect from './tab-select'
 import postMsg from '../../common/post-msg'
 import classNames from 'classnames'
+import deepCopy from 'json-deep-copy'
 
 const e = window.translate
 
@@ -178,11 +179,11 @@ export default class BatchInput extends Component {
 
   getTabs = () => {
     const { currentTabId } = this.props
-    return this.props.tabs.filter(tab => {
+    return deepCopy(this.props.tabs.filter(tab => {
       return tab.type !== terminalWebType &&
         tab.type !== terminalRdpType &&
         tab.type !== terminalVncType
-    }).sort((a, b) => {
+    })).sort((a, b) => {
       // Current tab goes first
       if (a.id === currentTabId) return -1
       if (b.id === currentTabId) return 1

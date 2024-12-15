@@ -1352,6 +1352,7 @@ clear\r`
   render () {
     const { loading } = this.state
     const { height, width, left, top } = this.props
+    console.log('props', height, width, left, top)
     const { id } = this.props.tab
     const isActive = this.isActiveTerminal()
     const cls = classnames(

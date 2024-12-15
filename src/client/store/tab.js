@@ -11,7 +11,7 @@ import {
 import * as ls from '../common/safe-local-storage'
 import deepCopy from 'json-deep-copy'
 import generate from '../common/id-with-stamp'
-import newTerm from '../../common/new-terminal.js'
+import newTerm from '../common/new-terminal.js'
 
 export default Store => {
   Store.prototype.getTabs = function () {
@@ -150,7 +150,7 @@ export default Store => {
     store[`currentTabId${sourceTab.batch}`] = duplicatedTab.id
   }
 
-  Store.closeOtherTabs = function (id) {
+  Store.prototype.closeOtherTabs = function (id) {
     const { store } = window
     const { tabs } = store
     const targetTab = tabs.find(t => t.id === id)
@@ -175,9 +175,13 @@ export default Store => {
 
   Store.prototype.removeTabs = function (condition) {
     const { tabs } = window.store
+    const removedIds = []
+
     if (typeof condition === 'function') {
       for (let i = tabs.length - 1; i >= 0; i--) {
-        if (condition(tabs[i], i)) {
+        const tab = tabs[i]
+        if (condition(tab, i)) {
+          removedIds.push(tab.id)
           tabs.splice(i, 1)
         }
       }
@@ -187,22 +191,56 @@ export default Store => {
         const key = keys[0]
         const value = condition[key]
         for (let i = tabs.length - 1; i >= 0; i--) {
-          if (tabs[i][key] === value) {
+          const tab = tabs[i]
+          if (tab[key] === value) {
+            removedIds.push(tab.id)
             tabs.splice(i, 1)
           }
         }
       } else {
         for (let i = tabs.length - 1; i >= 0; i--) {
           let match = true
+          const tab = tabs[i]
           for (const key in condition) {
-            if (tabs[i][key] !== condition[key]) {
+            if (tab[key] !== condition[key]) {
               match = false
               break
             }
           }
           if (match) {
+            removedIds.push(tab.id)
             tabs.splice(i, 1)
           }
+        }
+      }
+    }
+
+    if (removedIds.length) {
+      window.store.fixCurrentTabIds(tabs, removedIds)
+    }
+  }
+
+  Store.prototype.fixCurrentTabIds = function (remainingTabs, removedIds) {
+    const store = window.store
+    const removedSet = new Set(removedIds)
+    const batchFirstTabs = {}
+
+    // Get first valid tab and fix batch currentTabIds
+    for (const tab of remainingTabs) {
+      if (!batchFirstTabs[tab.batch]) {
+        batchFirstTabs[tab.batch] = tab.id
+      }
+    }
+
+    // Fix currentTabIds
+    const currentIdNeedFix = removedSet.has(store.currentTabId)
+    for (let i = 0; i < 3; i++) {
+      const tabId = `currentTabId${i}`
+      if (removedSet.has(tabId)) {
+        const fid = batchFirstTabs[i]
+        store[tabId] = fid || ''
+        if (currentIdNeedFix && fid) {
+          store.currentTabId = fid
         }
       }
     }
@@ -254,11 +292,12 @@ export default Store => {
 
   Store.prototype.addTab = function (
     newTab = newTerm(),
-    index
+    index,
+    batch
   ) {
     const { store } = window
     const { tabs } = store
-    newTab.batch = newTab.batch ?? window.openTabBatch ?? window.store.currentLayoutBatch
+    newTab.batch = batch ?? newTab.batch ?? window.openTabBatch ?? window.store.currentLayoutBatch
     if (typeof index === 'number' && index >= 0 && index <= tabs.length) {
       tabs.splice(index, 0, newTab)
     } else {

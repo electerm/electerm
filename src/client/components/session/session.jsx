@@ -120,11 +120,7 @@ export default class SessionWrapper extends Component {
   }
 
   computePosition = (index) => {
-    const windowWidth = this.getWidth()
-    const heightAll = this.props.computeHeight()
     return {
-      height: heightAll,
-      width: windowWidth,
       left: 0,
       top: 0
     }
@@ -186,9 +182,11 @@ export default class SessionWrapper extends Component {
     const cls = pane === paneMap.terminal
       ? 'terms-box'
       : 'terms-box hide'
-    const height = this.props.computeHeight()
     const { tab } = this.props
     const width = this.getWidth()
+    const height = this.props.computeHeight(
+      this.props.height
+    )
     const themeConfig = copy(window.store.getThemeConfig())
     const logName = safeName(`${tab.title ? tab.title + '_' : ''}${tab.host ? tab.host + '_' : ''}${tab.id}`)
     const pops = {
@@ -203,7 +201,9 @@ export default class SessionWrapper extends Component {
           'setCwd',
           'onDelKeyPressed'
         ]),
-      ...this.computePosition()
+      ...this.computePosition(),
+      width,
+      height
     }
     return (
       <div
@@ -214,7 +214,6 @@ export default class SessionWrapper extends Component {
         }}
       >
         <Term
-          key={tab.id}
           logName={logName}
           sessionId={sessionId}
           sessionOptions={sessionOptions}
@@ -236,7 +235,9 @@ export default class SessionWrapper extends Component {
     if (type === terminalRdpType) {
       return null
     }
-    const height = this.props.computeHeight(pane)
+    const height = this.props.computeHeight(
+      this.props.height
+    )
     const cls = pane === paneMap.terminal
       ? 'hide'
       : ''
@@ -410,14 +411,10 @@ export default class SessionWrapper extends Component {
   }
 
   render () {
-    const {
-      splitDirection
-    } = this.state
     const { pane, id } = this.props.tab
     const cls = classnames(
       'term-sftp-box',
       pane,
-      splitDirection,
       {
         'is-transporting': this.props.tab.isTransporting
       },

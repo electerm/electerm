@@ -12,6 +12,7 @@ import TermSearch from '../terminal/term-search'
 import Footer from '../footer/footer-entry'
 import SessionsWrap from '../session/sessions'
 import QuickCommandsFooterBox from '../quick-commands/quick-commands-box'
+import pixed from './pixed'
 import { pick } from 'lodash-es'
 import './layout.styl'
 
@@ -68,15 +69,17 @@ export default auto(function Layout (props) {
     const h = height - footerHeight - (pinnedQuickCommandBar ? quickCommandBoxHeight : 0)
     return layoutAlg(layout, w, h)
   }
+  const layoutSize = calcLayoutStyle()
   const {
     width,
     height
-  } = calcLayoutStyle()
+  } = layoutSize
+  const pixedLayoutStyle = pixed(layoutSize)
   const styles = buildLayoutStyles(conf, layout)
   const layoutProps = {
     layout,
     ...styles,
-    layoutStyle: calcLayoutStyle(),
+    layoutStyle: pixedLayoutStyle,
     handleMousedown
   }
   const sizes = calcSessionSize(layout, width, height)
@@ -95,9 +98,11 @@ export default auto(function Layout (props) {
       tabsBatch[batch].push(tab)
     }
     return sizes.map((v, i) => {
+      console.log('v', v)
       const sessProps = {
         batch: i,
         layout,
+        currentBatchTabId: store[`currentTabId${i}`],
         ...v,
         tabs: tabsBatch[i] || [],
         ...pick(store, [
@@ -149,8 +154,13 @@ export default auto(function Layout (props) {
     'openedSideBar',
     'currentQuickCommands'
   ])
+  console.log('styles.wrapStyles', styles.wrapStyles)
   const sessionsProps = {
     styles: styles.wrapStyles,
+    sizes,
+    width,
+    height,
+    layoutStyle: pixedLayoutStyle,
     ...pick(store, [
       'currentTabId',
       'currentTabId0',
@@ -168,7 +178,8 @@ export default auto(function Layout (props) {
       'leftSidebarWidth',
       'pinned',
       'openedSideBar',
-      'tabs'
+      'tabs',
+      'config'
     ])
   }
   return [

@@ -8,7 +8,6 @@ import { debounce, some } from 'lodash-es'
 import postMessage from '../common/post-msg'
 import {
   commonActions,
-  tabActions,
   modals,
   leftSidebarWidthKey,
   rightSidebarWidthKey,

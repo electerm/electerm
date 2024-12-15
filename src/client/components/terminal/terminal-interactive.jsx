@@ -5,9 +5,7 @@
 import { useEffect, useState } from 'react'
 import { Modal, Form, Button } from 'antd'
 import InputAutoFocus from '../common/input-auto-focus'
-import { tabActions } from '../../common/constants'
 import wait from '../../common/wait'
-import postMsg from '../../common/post-msg'
 
 const e = window.translate
 const FormItem = Form.Item
@@ -17,11 +15,7 @@ export default function TermInteractive () {
   const [opts, setter] = useState(null)
   const [form] = Form.useForm()
   function updateTab (data) {
-    postMsg({
-      action: tabActions.updateTabs,
-      id: data.tabId,
-      update: data.update
-    })
+    window.store.updateTab(data.tabId, data.update)
   }
   function onMsg (e) {
     if (

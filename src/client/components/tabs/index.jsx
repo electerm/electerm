@@ -204,11 +204,17 @@ export default class Tabs extends React.Component {
     if (!e.target.className.includes('tabs-wrapper')) {
       return
     }
-    this.props.addTab()
+    window.store.addTab(
+      undefined, undefined,
+      this.props.batch
+    )
   }
 
   handleTabAdd = () => {
-    this.props.addTab()
+    window.store.addTab(
+      undefined, undefined,
+      this.props.batch
+    )
   }
 
   adjustScroll = () => {
@@ -384,6 +390,7 @@ export default class Tabs extends React.Component {
 
   renderContentInner () {
     const { tabs = [], width, config } = this.props
+    console.log('tabs', tabs)
     const len = tabs.length
     const tabsWidthAll = tabMargin * len + 10 + this.tabsWidth()
     const { overflow, receiveDataTabId, onContextMenuTabId } = this.state
@@ -421,7 +428,8 @@ export default class Tabs extends React.Component {
                 tab,
                 isLast,
                 receiveData: receiveDataTabId === tab.id,
-                openContextMenu: onContextMenuTabId === tab.id
+                openContextMenu: onContextMenuTabId === tab.id,
+                tabIndex: i
               }
               if (this.state.contextFuncTabId === tab.id) {
                 tabProps.contextFunc = this.state.contextFunc

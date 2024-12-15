@@ -104,6 +104,7 @@ export default store => {
     if (tab) {
       const title = createTitle(tab)
       window.pre.runGlobalAsync('setTitle', title)
+      window.store.currentLayoutBatch = tab.batch
     }
     return store.currentTabId
   }).start()

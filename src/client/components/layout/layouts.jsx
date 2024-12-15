@@ -3,16 +3,8 @@ import {
   splitConfig
 } from '../../common/constants'
 import LayoutItem from './layout-item'
+import pixed from './pixed'
 
-function pixed (style) {
-  return Object.keys(style).reduce((prev, k) => {
-    const v = style[k]
-    return {
-      ...prev,
-      [k]: isNaN(v) ? v : v + 'px'
-    }
-  }, {})
-}
 export default memo(function LayoutWrap (props) {
   const {
     children,
@@ -28,7 +20,7 @@ export default memo(function LayoutWrap (props) {
   } = splitConfig[layout]
   const wrapStyle = {
     className: 'layout-wrap layout-wrap-' + layout,
-    style: pixed(layoutStyle)
+    style: layoutStyle
   }
   return (
     <div {...wrapStyle}>

@@ -14,10 +14,6 @@ import { Button } from 'antd'
 const e = window.translate
 
 export default class Sessions extends Component {
-  handleClick = () => {
-    window.store.currentTabId = this.props.tab.currentTabId
-  }
-
   handleNewTab = () => {
     window.store.addTab(undefined, undefined, this.props.batch)
   }
@@ -70,17 +66,16 @@ export default class Sessions extends Component {
     )
   }
 
-  computeHeight = () => {
+  computeHeight = (height) => {
     const {
       tabsHeight
     } = this.props
-    return this.props.height -
+    return height -
       tabsHeight -
       termControlHeight
   }
 
-  computeSessionStyle = (tab) => {
-    const { batch } = tab
+  computeSessionStyle = (batch) => {
     const style = this.props.styles[batch]
     return style
   }
@@ -88,18 +83,20 @@ export default class Sessions extends Component {
   renderSessions () {
     const {
       config,
-      width,
-      height,
-      batch,
       tabs,
-      currentTabId
+      currentTabId,
+      sizes
     } = this.props
-    const currentBatchActiveTabId = this.props[currentTabId + batch]
+
     if (!tabs || !tabs.length) {
       return this.renderNoSession()
     }
     return tabs.map((tab) => {
-      const { id, type } = tab
+      const { id, type, batch } = tab
+      const { height, width } = sizes[batch]
+      console.log('height, width', height, width)
+      const currentBatchActiveTabId = this.props['currentTabId' + batch]
+      console.log('currentBatchActiveTabId', currentBatchActiveTabId, tab, id, id === currentBatchActiveTabId)
       const cls = classNames(
         `session-wrap session-${id}`,
         {
@@ -108,14 +105,14 @@ export default class Sessions extends Component {
         }
       )
       const sessionWrapProps = {
-        style: this.computeSessionStyle(tab),
+        style: this.computeSessionStyle(batch),
         className: cls
       }
       if (type === terminalWebType) {
         const webProps = {
           tab,
           width,
-          height: this.computeHeight(),
+          height: this.computeHeight(height),
           ...pick(this, [
             'reloadTab'
           ])
@@ -164,10 +161,14 @@ export default class Sessions extends Component {
   }
 
   render () {
+    const { layoutStyle } = this.props
+    const sessProps = {
+      style: layoutStyle,
+      className: 'sessions'
+    }
     return (
       <div
-        className='sessions'
-        onClick={this.handleClick}
+        {...sessProps}
       >
         {this.renderSessions()}
       </div>
