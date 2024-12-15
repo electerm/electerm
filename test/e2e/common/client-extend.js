@@ -44,6 +44,10 @@ module.exports = (client, app) => {
     const s = await client.locator(sel).nth(0)
     expect(s).toBeFocused()
   }
+  client.getValue = async (sel) => {
+    const s = await client.locator(sel)
+    return s.inputValue()
+  }
   client.getText = async (sel) => {
     const s = await client.locator(sel).nth(0)
     return s.innerText()
@@ -72,14 +76,12 @@ module.exports = (client, app) => {
     await s.dblclick()
   }
   client.readClipboard = async () => {
-    return app.evaluate(
-      async ({ clipboard }) => clipboard.readText()
-    )
+    return app.evaluate(async ({ clipboard }) => clipboard.readText())
   }
-  client.writeClipboard = (clipboardContentToWrite) => {
-    app.evaluate(
-      async ({ clipboard }, text) => clipboard.writeText(text), clipboardContentToWrite
-    )
+  client.writeClipboard = async (clipboardContentToWrite) => {
+    await app.evaluate(async ({ clipboard }, text) => {
+      await clipboard.writeText(text)
+    }, clipboardContentToWrite)
   }
   client.getAttribute = async (sel, name) => {
     return client.$eval(sel, (e, name) => {
