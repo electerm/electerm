@@ -1,4 +1,4 @@
-const { _electron: electron } = require('playwright')
+const { _electron: electron } = require('@playwright/test')
 const {
   test: it
 } = require('@playwright/test')
@@ -6,7 +6,7 @@ const { describe } = it
 it.setTimeout(100000)
 const delay = require('./common/wait')
 const log = require('./common/log')
-const { expect } = require('chai')
+const { expect } = require('./common/expect')
 const appOptions = require('./common/app-options')
 const {
   TEST_HOST,

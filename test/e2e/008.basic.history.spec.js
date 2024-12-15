@@ -1,4 +1,4 @@
-const { _electron: electron } = require('playwright')
+const { _electron: electron } = require('@playwright/test')
 const {
   test: it
 } = require('@playwright/test')
@@ -6,7 +6,7 @@ const { describe } = it
 it.setTimeout(100000)
 const delay = require('./common/wait')
 const log = require('./common/log')
-const { expect } = require('chai')
+const { expect } = require('./common/expect')
 const appOptions = require('./common/app-options')
 const e = require('./common/lang')
 const extendClient = require('./common/client-extend')
@@ -42,7 +42,7 @@ describe('history', function () {
     expect(hl > 0).equal(true)
     await client.click('.setting-wrap .item-list-unit')
     const list1 = await client.getAttribute('.setting-wrap .item-list-unit:nth-child(1)', 'class')
-    expect(list1.includes('active'))
+    expect(list1.includes('active')).equal(true)
     await electronApp.close().catch(console.log)
   })
 })

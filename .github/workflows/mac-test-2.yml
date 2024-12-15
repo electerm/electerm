@@ -27,7 +27,7 @@ jobs:
     - run: pip install setuptools
     - run: npm install -g yarn
     - run: npm i
-    - run: PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm i -D -E playwright@1.28.1 @playwright/test@1.28.1
+    - run: PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm i -D -E playwright@1.49.1 && npm i -D -E @playwright/test@1.49.1
 
     # script:
     - run: npm run prepare-build
