@@ -24,6 +24,9 @@ describe('terminal', function () {
       ? 'dir'
       : 'ls'
     await delay(13500)
+    await client.evaluate(() => {
+      return window.store.setLayout('c1')
+    })
 
     await basicTerminalTest(client, cmd)
     await electronApp.close().catch(console.log)

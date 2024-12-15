@@ -18,6 +18,10 @@ describe('history', function () {
     extendClient(client, electronApp)
     await delay(4500)
 
+    await client.evaluate(() => {
+      return window.store.setLayout('c1')
+    })
+
     log('button:edit')
     await client.click('.btns .anticon-plus-circle')
     await delay(3500)

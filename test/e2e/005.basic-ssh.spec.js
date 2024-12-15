@@ -26,6 +26,9 @@ describe('ssh', function () {
     const client = await electronApp.firstWindow()
     extendClient(client, electronApp)
     await delay(4500)
+    await client.evaluate(() => {
+      return window.store.setLayout('c1')
+    })
     const cmd = 'ls'
     await delay(4500)
     await client.click('.btns .anticon-plus-circle')

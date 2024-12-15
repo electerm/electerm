@@ -27,6 +27,9 @@ describe('ssh', function () {
     const tabsCount = await client.evaluate(() => {
       return window.store.tabs.length
     })
+    await client.evaluate(() => {
+      return window.store.setLayout('c1')
+    })
     expect(tabsCount).equal(2)
   })
 })
