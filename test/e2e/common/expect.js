@@ -1,28 +1,28 @@
 // expect.js
 const { expect: playwrightExpect } = require('@playwright/test')
 
-function extend(value) {
+function extend (value) {
   const originalExpect = playwrightExpect(value)
-  
+
   return {
     // Maintain Chai's equal/equals syntax
-    equal(expected) {
+    equal (expected) {
       return originalExpect.toEqual(expected)
     },
-    equals(expected) {
+    equals (expected) {
       return originalExpect.toEqual(expected)
     },
 
     // Common Chai length checks
-    lessThan(expected) {
+    lessThan (expected) {
       return originalExpect.toBeLessThan(expected)
     },
-    greaterThan(expected) {
+    greaterThan (expected) {
       return originalExpect.toBeGreaterThan(expected)
     },
 
     // Chai's includes
-    includes(expected) {
+    includes (expected) {
       return originalExpect.toContain(expected)
     }
   }
