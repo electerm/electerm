@@ -115,5 +115,6 @@ describe('data sync', function () {
       return window.store.bookmarks
     })
     expect(bks4.length > 3).equal(true)
+    electronApp.close().catch(console.log)
   })
 })
