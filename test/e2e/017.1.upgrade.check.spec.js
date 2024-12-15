@@ -1,4 +1,4 @@
-const { _electron: electron } = require('playwright')
+const { _electron: electron } = require('@playwright/test')
 const {
   test: it
 } = require('@playwright/test')
@@ -8,7 +8,7 @@ const delay = require('./common/wait')
 const appOptions = require('./common/app-options')
 const extendClient = require('./common/client-extend')
 const log = require('./common/log')
-const { expect } = require('chai')
+const { expect } = require('./common/expect')
 
 describe('auto upgrade check', function () {
   it('auto upgrade check should work', async function () {

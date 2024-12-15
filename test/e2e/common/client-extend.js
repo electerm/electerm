@@ -9,9 +9,11 @@ const delay = require('./wait')
 
 module.exports = (client, app) => {
   client.element = (sel) => {
-    return client.locator(sel).first()
+    return client.locator(sel).nth(0)
   }
-  client.elements = client.locator
+  client.elements = (selector) => {
+    return client.locator(selector)
+  }
   client.click = async (sel, n = 0, parent) => {
     const sl = sel + ` >> nth=${n}`
     let s = client.locator(sl)
@@ -22,7 +24,7 @@ module.exports = (client, app) => {
   }
   client.elemExist = async (sel) => {
     try {
-      await client.waitForSelector(sel, { timeout: 0 })
+      await client.locator(sel).waitFor({ timeout: 100 })
       return true
     } catch (error) {
       return false
@@ -39,23 +41,27 @@ module.exports = (client, app) => {
     return c
   }
   client.hasFocus = async (sel) => {
-    const s = await client.locator(sel).first()
+    const s = await client.locator(sel).nth(0)
     expect(s).toBeFocused()
-  }
-  client.getText = async (sel) => {
-    const s = await client.locator(sel).first()
-    return s.textContent()
-  }
-  client.setValue = async (sel, v) => {
-    const s = await client.locator(sel)
-    return s.fill(v)
   }
   client.getValue = async (sel) => {
     const s = await client.locator(sel)
     return s.inputValue()
   }
+  client.getText = async (sel) => {
+    const s = await client.locator(sel).nth(0)
+    return s.innerText()
+  }
+  client.setValue = async (sel, v) => {
+    const s = await client.locator(sel)
+    return s.fill(v)
+  }
+  client.getAttribute = async (sel, name) => {
+    const element = await client.locator(sel).nth(0)
+    return element.getAttribute(name)
+  }
   client.rightClick = async function (sel, x, y) {
-    const s = await client.locator(sel).first()
+    const s = await client.locator(sel).nth(0)
     await s.click({
       button: 'right',
       position: {
@@ -70,14 +76,12 @@ module.exports = (client, app) => {
     await s.dblclick()
   }
   client.readClipboard = async () => {
-    return app.evaluate(
-      async ({ clipboard }) => clipboard.readText()
-    )
+    return app.evaluate(async ({ clipboard }) => clipboard.readText())
   }
-  client.writeClipboard = (clipboardContentToWrite) => {
-    app.evaluate(
-      async ({ clipboard }, text) => clipboard.writeText(text), clipboardContentToWrite
-    )
+  client.writeClipboard = async (clipboardContentToWrite) => {
+    await app.evaluate(async ({ clipboard }, text) => {
+      await clipboard.writeText(text)
+    }, clipboardContentToWrite)
   }
   client.getAttribute = async (sel, name) => {
     return client.$eval(sel, (e, name) => {
@@ -85,7 +89,7 @@ module.exports = (client, app) => {
     }, name)
   }
   client.hover = async (sel) => {
-    const element = await client.locator(sel).first()
+    const element = await client.locator(sel).nth(0)
     await element.hover()
     await delay(400)
   }
