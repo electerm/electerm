@@ -1,4 +1,4 @@
-const { _electron: electron } = require('playwright')
+const { _electron: electron } = require('@playwright/test')
 const {
   test: it
 } = require('@playwright/test')
@@ -24,7 +24,6 @@ describe('terminal', function () {
       ? 'dir'
       : 'ls'
     await delay(13500)
-
     await basicTerminalTest(client, cmd)
     await electronApp.close().catch(console.log)
   })

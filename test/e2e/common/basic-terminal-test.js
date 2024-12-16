@@ -1,9 +1,9 @@
 const delay = require('./wait')
-const { expect } = require('chai')
+const { expect } = require('./expect')
 
 exports.basicTerminalTest = async (client, cmd) => {
   async function focus () {
-    client.click('.session-current .xterm .xterm-cursor-layer')
+    client.click('.session-current .term-wrap')
   }
   async function selectAll () {
     await client.keyboard.press('Meta+A')

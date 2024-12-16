@@ -1,8 +1,8 @@
-const { _electron: electron } = require('playwright')
+const { _electron: electron } = require('@playwright/test')
 const {
   test: it
 } = require('@playwright/test')
-const { expect } = require('chai')
+const { expect } = require('./common/expect')
 const delay = require('./common/wait')
 const log = require('./common/log')
 const appOptions = require('./common/app-options')

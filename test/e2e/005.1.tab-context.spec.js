@@ -3,13 +3,13 @@
  * need TEST_HOST TEST_PASS TEST_USER env set
  */
 
-const { _electron: electron } = require('playwright')
+const { _electron: electron } = require('@playwright/test')
 const {
   test: it
 } = require('@playwright/test')
 const { describe } = it
 it.setTimeout(100000)
-const { expect } = require('chai')
+const { expect } = require('./common/expect')
 const delay = require('./common/wait')
 const appOptions = require('./common/app-options')
 const extendClient = require('./common/client-extend')
@@ -28,5 +28,6 @@ describe('ssh', function () {
       return window.store.tabs.length
     })
     expect(tabsCount).equal(2)
+    await electronApp.close().catch(console.log)
   })
 })

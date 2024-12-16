@@ -8,13 +8,13 @@ const {
   TEST_PASS,
   TEST_USER
 } = require('./common/env')
-const { _electron: electron } = require('playwright')
+const { _electron: electron } = require('@playwright/test')
 const {
   test: it
 } = require('@playwright/test')
 const { describe } = it
 it.setTimeout(100000)
-const { expect } = require('chai')
+const { expect } = require('./common/expect')
 const delay = require('./common/wait')
 const { basicTerminalTest } = require('./common/basic-terminal-test')
 const appOptions = require('./common/app-options')
@@ -34,7 +34,7 @@ describe('ssh', function () {
     await client.setValue('#ssh-form_username', TEST_USER)
     await client.setValue('#ssh-form_password', TEST_PASS)
     await client.click('.setting-wrap .ant-btn-primary')
-    await delay(1500)
+    await delay(5500)
     let tabsCount = await client.elements('.tabs .tabs-wrapper .tab')
     tabsCount = await tabsCount.count()
     expect(tabsCount).equal(2)

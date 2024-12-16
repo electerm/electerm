@@ -1,4 +1,4 @@
-const { _electron: electron } = require('playwright')
+const { _electron: electron } = require('@playwright/test')
 const {
   test: it,
   expect
@@ -15,12 +15,6 @@ const extendClient = require('./common/client-extend')
 describe('init setting buttons', function () {
   it('all buttons open proper setting tab', async function () {
     const electronApp = await electron.launch(appOptions)
-    // const app = await electronApp.evaluate(async ({ app }) => {
-    //   // This runs in the main Electron process, parameter here is always
-    //   // the result of the require('electron') in the main app script.
-    //   return app
-    // })
-    // console.log(app)
     const client = await electronApp.firstWindow()
     extendClient(client, electronApp)
     // await client.waitUntilWindowLoaded()

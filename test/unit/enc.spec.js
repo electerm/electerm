@@ -1,5 +1,5 @@
 const { enc, dec } = require('../../src/app/common/pass-enc')
-const { expect } = require('chai')
+const { expect } = require('../common/expect')
 const {
   test: it
 } = require('@playwright/test')

@@ -69,7 +69,6 @@
     "@xterm/addon-webgl": "0.18.0",
     "@xterm/xterm": "5.5.0",
     "antd": "5.22.2",
-    "chai": "4.3.10",
     "classnames": "2.5.1",
     "cross-env": "7.0.3",
     "dotenv": "16.4.5",

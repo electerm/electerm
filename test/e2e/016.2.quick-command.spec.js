@@ -1,7 +1,7 @@
 /**
  * quick commands execution test
  */
-const { _electron: electron } = require('playwright')
+const { _electron: electron } = require('@playwright/test')
 const {
   test: it,
   expect
