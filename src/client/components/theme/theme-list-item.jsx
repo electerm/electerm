@@ -2,7 +2,12 @@
  * theme list render
  */
 
-import { CheckCircleOutlined, PlusOutlined } from '@ant-design/icons'
+import {
+  CheckCircleOutlined,
+  PlusOutlined,
+  SunOutlined,
+  MoonOutlined
+} from '@ant-design/icons'
 import { Tooltip, Tag } from 'antd'
 import classnames from 'classnames'
 import { defaultTheme } from '../../common/constants'
@@ -85,7 +90,7 @@ export default function ThemeListItem (props) {
     }
     const { main, text } = item.uiThemeConfig
     const isDark = isColorDark(main)
-    const txt = isDark ? '☾' : '☀'
+    const txt = isDark ? <MoonOutlined /> : <SunOutlined />
     return (
       <Tag
         color={main}
