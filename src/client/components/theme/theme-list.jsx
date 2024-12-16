@@ -3,21 +3,13 @@
  */
 
 import List from '../setting-panel/list'
-import { CheckCircleOutlined, PlusOutlined, LoadingOutlined } from '@ant-design/icons'
-import { Tooltip, Pagination } from 'antd'
-import classnames from 'classnames'
-import { defaultTheme } from '../../common/constants'
-import highlight from '../common/highlight'
+import { LoadingOutlined } from '@ant-design/icons'
+import { pick } from 'lodash-es'
+import { Pagination } from 'antd'
+import ThemeListItem from './theme-list-item'
 import './terminal-theme-list.styl'
 
-const e = window.translate
-
 export default class ThemeList extends List {
-  del = (item, e) => {
-    e.stopPropagation()
-    this.props.store.delTheme(item)
-  }
-
   handlePager = page => {
     this.setState({ page })
   }
@@ -26,68 +18,21 @@ export default class ThemeList extends List {
     this.setState({ pageSize, page })
   }
 
-  renderApplyBtn = item => {
-    if (!item.id) {
-      return null
+  renderItem = (item, i) => {
+    const itemProps = {
+      item,
+      renderDelBtn: this.renderDelBtn,
+      ...pick(
+        this.props,
+        [
+          'onClickItem',
+          'theme',
+          'keyword'
+        ]
+      )
     }
     return (
-      <Tooltip
-        title={e('apply')}
-        placement='topLeft'
-      >
-        <CheckCircleOutlined
-          className='pointer list-item-apply'
-          onClick={() => this.props.store.setTheme(item.id)}
-        />
-      </Tooltip>
-    )
-  }
-
-  onClickTheme = item => {
-    this.props.onClickItem(item)
-  }
-
-  renderItem = (item, i) => {
-    const { activeItemId } = this.props
-    const { theme } = this.props
-    const { name, id, type } = item
-    const cls = classnames(
-      'item-list-unit theme-item',
-      {
-        current: theme === id
-      },
-      {
-        active: activeItemId === id
-      }
-    )
-    let title = id === defaultTheme.id
-      ? e(id)
-      : name
-    title = highlight(
-      title,
-      this.state.keyword
-    )
-    return (
-      <div
-        key={i + id}
-        className={cls}
-        onClick={() => this.onClickTheme(item)}
-      >
-        <div className='elli pd1y pd2x' title={name}>
-          {
-            !id
-              ? <PlusOutlined className='mg1r' />
-              : null
-          }
-          {title}
-        </div>
-        {
-          id === defaultTheme.id || type === 'iterm'
-            ? null
-            : this.renderDelBtn(item)
-        }
-        {this.renderApplyBtn(item)}
-      </div>
+      <ThemeListItem key={item.id} {...itemProps} />
     )
   }
 
