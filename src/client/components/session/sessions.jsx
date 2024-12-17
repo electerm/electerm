@@ -15,10 +15,12 @@ import {
 } from '../../common/constants.js'
 import newTerm, { updateCount } from '../../common/new-terminal.js'
 import LogoElem from '../common/logo-elem.jsx'
-import { Button } from 'antd'
+import { Button, Input } from 'antd'
 import toSimpleObj from '../../common/to-simple-obj.js'
 import { shortcutExtend } from '../shortcuts/shortcut-handler.js'
 import deepEqual from 'fast-deep-equal'
+import Card from './Card.jsx'
+import Fuse from 'fuse.js'
 
 const e = window.translate
 
@@ -27,7 +29,8 @@ class Sessions extends Component {
     super(props)
     this.state = {
       tabs: copy(props.tabs || []),
-      currentTabId: props.currentTabId
+      currentTabId: props.currentTabId,
+      search: ''
     }
     this.bindHandleKeyboardEvent = this.handleKeyboardEvent.bind(this)
   }
@@ -349,6 +352,13 @@ class Sessions extends Component {
         height: this.props.height + 'px'
       }
     }
+
+    const { store } = window
+
+    if (store.bookmarks.length > 0) {
+      return this.renderCards()
+    }
+
     return (
       <div className='no-sessions electerm-logo-bg' {...props}>
         <Button
@@ -504,6 +514,90 @@ class Sessions extends Component {
         onClick={this.handleClick}
       >
         {this.renderSessions()}
+      </div>
+    )
+  }
+
+  getBookmarks = () => {
+    const { store } = window
+    const groups = Object.values(this.addConcatTitle(store.bookmarkGroupTree))
+    const bookmarks = store.bookmarks.map(function (item) {
+      const parent = groups.find((g) => g.bookmarkIds.includes(item.id))
+      item.parent = parent
+      if (item.type === undefined) {
+        item.type = 'ssh'
+      }
+      return item
+    })
+
+    return bookmarks
+  }
+
+  addConcatTitle (data) {
+    // Helper function to recursively find the path of titles
+    function findTitlePath (id, currentPath = []) {
+      const element = data[id]
+      if (!element) return currentPath
+
+      // Add current element's title to the path
+      currentPath.unshift(element.title)
+
+      // Find parent elements that include this element in their bookmarkGroupIds
+      for (const key in data) {
+        if (data[key].bookmarkGroupIds && data[key].bookmarkGroupIds.includes(id)) {
+          return findTitlePath(key, currentPath)
+        }
+      }
+
+      return currentPath
+    }
+
+    // Iterate over each element in the data
+    for (const id in data) {
+      const titlePath = findTitlePath(id)
+      if (typeof data[id] === 'object') {
+        data[id].titles = titlePath
+      }
+    }
+
+    return data
+  }
+
+  /**
+   * render connection cards
+   */
+  renderCards = () => {
+    const { search } = this.state // Получаем значение поиска из состояния
+    let bookmarks = this.getBookmarks()
+    const fuseOptions = {
+      keys: [
+        'type',
+        'title',
+        'host',
+        'username',
+        'description',
+        'parent.titles'
+      ]
+    }
+    const fuse = new Fuse(bookmarks, fuseOptions)
+    if (search) {
+      const searchResult = fuse.search(search)
+      bookmarks = searchResult.map((elem) => elem.item)
+    }
+
+    return (
+      <div className='panel'>
+        <Input
+          type='search'
+          placeholder={e('search')}
+          value={search}
+          onChange={(e) => this.setState({ search: e.target.value })}
+        />
+        <div className='bookmarks'>
+          {bookmarks.map((item) => (
+            <Card key={item.id} item={item} />
+          ))}
+        </div>
       </div>
     )
   }
