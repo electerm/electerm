@@ -267,7 +267,7 @@ export default function ThemeForm (props) {
       >
         <div className='mg1b fix'>
           <span className='fleft'>
-            <Space compact>
+            <Space>
               <Button
                 type='dashed'
                 onClick={handleSwitchEditor}
