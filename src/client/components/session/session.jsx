@@ -67,13 +67,6 @@ export default class SessionWrapper extends Component {
     if (!target) {
       return
     }
-    let currentElement = target
-    while (currentElement) {
-      if (currentElement.classList && currentElement.classList.contains('tab')) {
-        return
-      }
-      currentElement = currentElement.parentElement
-    }
     const fromTab = JSON.parse(e.dataTransfer.getData('fromFile'))
     const onDropElem = this.getDom()
     const { batch } = this.props.tab
