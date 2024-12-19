@@ -10,7 +10,7 @@ import {
 } from '@ant-design/icons'
 import { Tooltip, message } from 'antd'
 import classnames from 'classnames'
-import { isEqual, findIndex, pick } from 'lodash-es'
+import { findIndex, pick } from 'lodash-es'
 import Input from '../common/input-auto-focus'
 import createName from '../../common/create-title'
 import { addClass, removeClass } from '../../common/class'
@@ -130,14 +130,14 @@ class Tab extends Component {
     const { id } = fromTab
     const storeTabs = window.store.tabs
     const indexFrom = findIndex(storeTabs, t => t.id === id)
-    const indexDrop = findIndex(storeTabs, t => t.id === dropId)
+    let indexDrop = findIndex(storeTabs, t => t.id === dropId)
 
     if (indexFrom >= 0 && indexDrop >= 0) {
       const targetTab = storeTabs[indexDrop]
       const fromBatch = fromTab.batch
 
       // Handle currentTab change if needed
-      if (window.store[`currentTabId${fromBatch}`] === id && fromBatch === targetTab.batch) {
+      if (window.store[`currentTabId${fromBatch}`] === id && fromBatch !== targetTab.batch) {
         // Find next tab in the same batch
         const nextTab = storeTabs.find((t, i) =>
           i !== indexFrom && t.batch === fromBatch
@@ -148,6 +148,9 @@ class Tab extends Component {
       // Reorder tabs and update batch
       const [tab] = storeTabs.splice(indexFrom, 1)
       tab.batch = targetTab.batch // Update the batch to match target tab's batch
+      if (indexFrom < indexDrop) {
+        indexDrop = indexDrop - 1
+      }
       storeTabs.splice(indexDrop, 0, tab)
       window.store.focus()
     }
@@ -345,7 +348,7 @@ class Tab extends Component {
   }
 
   render () {
-    const { isLast, terminalOnData, tab, currentBatchTabId, batch } = this.props
+    const { isLast, terminalOnData, tab, currentBatchTabId } = this.props
     const {
       id,
       isEditting,
@@ -353,7 +356,6 @@ class Tab extends Component {
       isTransporting,
       sshTunnelResults
     } = tab
-    console.log('currentBatchTabId, batch', currentBatchTabId, batch)
     const active = id === currentBatchTabId
     const cls = classnames(
       `tab-${id}`,

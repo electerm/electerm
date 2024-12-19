@@ -39,7 +39,7 @@ export default class SidePanel extends PureComponent {
     el.style.width = nw + 'px'
     const el1 = document.querySelector('.sessions')
     if (el1) {
-      el1.style.marginLeft = (nw + 43) + 'px'
+      el1.style.left = (nw + 43) + 'px'
     }
   }
 

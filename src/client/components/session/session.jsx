@@ -6,6 +6,7 @@ import Term from '../terminal'
 import Sftp from '../sftp/sftp-entry'
 import RdpSession from '../rdp/rdp-session'
 import VncSession from '../vnc/vnc-session'
+import WebSession from '../web/web-session.jsx'
 import {
   SearchOutlined,
   FullscreenOutlined,
@@ -24,7 +25,8 @@ import {
   terminalActions,
   connectionMap,
   terminalRdpType,
-  terminalVncType
+  terminalVncType,
+  terminalWebType
 } from '../../common/constants'
 import safeName from '../../common/safe-name'
 import postMessage from '../../common/post-msg'
@@ -53,6 +55,60 @@ export default class SessionWrapper extends Component {
 
   componentWillUnmount () {
     clearTimeout(this.backspaceKeyPressedTimer)
+  }
+
+  getDom = () => {
+    return document.getElementById(`is-${this.props.tab.id}`)
+  }
+
+  onDrop = (e) => {
+    e.preventDefault()
+    const { target } = e
+    if (!target) {
+      return
+    }
+    let currentElement = target
+    while (currentElement) {
+      if (currentElement.classList && currentElement.classList.contains('tab')) {
+        return
+      }
+      currentElement = currentElement.parentElement
+    }
+    const fromTab = JSON.parse(e.dataTransfer.getData('fromFile'))
+    const onDropElem = this.getDom()
+    const { batch } = this.props.tab
+    if (!onDropElem || !fromTab || fromTab.batch === batch) {
+      return
+    }
+    const { store } = window
+    const { tabs } = store
+    const t = tabs.find(t => t.id === fromTab.id)
+    if (!t) {
+      return
+    }
+    t.batch = batch
+    this.clearCls()
+  }
+
+  clearCls = () => {
+    this.getDom()?.classList.remove('drag-over')
+  }
+
+  addCls = () => {
+    this.getDom()?.classList.add('drag-over')
+  }
+
+  onDragEnter = () => {
+    this.addCls()
+  }
+
+  onDragLeave = (e) => {
+    this.clearCls()
+  }
+
+  onDragEnd = (e) => {
+    this.clearCls()
+    e && e.dataTransfer && e.dataTransfer.clearData()
   }
 
   onDelKeyPressed = () => {
@@ -141,8 +197,25 @@ export default class SessionWrapper extends Component {
       sftpPathFollowSsh
     } = this.state
     const {
+      tab
+    } = this.props
+    const {
       pane, type
-    } = this.props.tab
+    } = tab
+    if (type === terminalWebType) {
+      const webProps = {
+        tab,
+        width: this.props.width,
+        height: this.props.height,
+        reloadTab: this.props.reloadTab,
+        currentBatchTabId: this.props.currentBatchTabId
+      }
+      return (
+        <WebSession
+          {...webProps}
+        />
+      )
+    }
     if (type === terminalRdpType || type === terminalVncType) {
       const rdpProps = {
         tab: this.props.tab,
@@ -182,7 +255,6 @@ export default class SessionWrapper extends Component {
     const cls = pane === paneMap.terminal
       ? 'terms-box'
       : 'terms-box hide'
-    const { tab } = this.props
     const width = this.getWidth()
     const height = this.props.computeHeight(
       this.props.height
@@ -232,7 +304,11 @@ export default class SessionWrapper extends Component {
       cwd
     } = this.state
     const { pane, type, id } = this.props.tab
-    if (type === terminalRdpType) {
+    if (
+      type === terminalRdpType ||
+      type === terminalVncType ||
+      type === terminalWebType
+    ) {
       return null
     }
     const height = this.props.computeHeight(
@@ -329,12 +405,17 @@ export default class SessionWrapper extends Component {
   renderControl = () => {
     const { sftpPathFollowSsh } = this.state
     const { props } = this
-    const { pane, enableSsh, type } = props.tab
-    if (type === terminalRdpType || type === terminalVncType) {
+    const { tab } = props
+    const { pane, enableSsh, type } = tab
+    if (
+      type === terminalRdpType ||
+      type === terminalVncType ||
+      type === terminalWebType
+    ) {
       return null
     }
-    const termType = props.tab?.type
-    const isSsh = props.tab.authType
+    const termType = tab?.type
+    const isSsh = tab.authType
     const isLocal = !isSsh && (termType === connectionMap.local || !termType)
     const types = [
       paneMap.terminal,
@@ -422,10 +503,17 @@ export default class SessionWrapper extends Component {
         'disable-ssh': this.props.tab.enableSsh === false
       }
     )
+    const divProps = {
+      className: cls,
+      id: `is-${id}`,
+      onDragEnter: this.onDragEnter,
+      onDragLeave: this.onDragLeave,
+      onDrop: this.onDrop,
+      onDragEnd: this.onDragEnd
+    }
     return (
       <div
-        className={cls}
-        id={`is-${id}`}
+        {...divProps}
       >
         {this.renderControl()}
         {this.renderTerminals()}

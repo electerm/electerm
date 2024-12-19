@@ -301,6 +301,6 @@ transferExtend(Store)
 addressBookmarkExtend(Store)
 
 export const StateStore = Store
-const store = manage(new Store(), 1)
+const store = manage(new Store())
 
 export default store

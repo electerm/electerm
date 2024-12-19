@@ -37,22 +37,6 @@ export default Store => {
     })
   }
 
-  Store.prototype.updateStoreTabs = function (tabs0, batch0) {
-    const { store } = window
-    if (!tabs0.length && batch0 !== undefined) {
-      // const tabs = window.store.tabs.filter(t => t.batch !== batch0)
-      // window.store.setTabs(tabs)
-      store.removeTabs(t => t.batch !== batch0)
-      return true
-    }
-    if (!tabs0.length) {
-      return false
-    }
-    const { batch } = tabs0[0]
-    store.removeTabs(t => t.batch !== batch)
-    store.tabs.push(...tabs0)
-  }
-
   Store.prototype.setTabs = function (list) {
     window.store.tabs = list
   }
@@ -224,26 +208,43 @@ export default Store => {
     const store = window.store
     const removedSet = new Set(removedIds)
     const batchFirstTabs = {}
+    const currentIdNeedFix = removedSet.has(store.currentTabId)
 
-    // Get first valid tab and fix batch currentTabIds
+    // Get first valid tab for each batch
     for (const tab of remainingTabs) {
       if (!batchFirstTabs[tab.batch]) {
         batchFirstTabs[tab.batch] = tab.id
       }
     }
 
-    // Fix currentTabIds
-    const currentIdNeedFix = removedSet.has(store.currentTabId)
-    for (let i = 0; i < 3; i++) {
-      const tabId = `currentTabId${i}`
-      if (removedSet.has(tabId)) {
-        const fid = batchFirstTabs[i]
-        store[tabId] = fid || ''
-        if (currentIdNeedFix && fid) {
-          store.currentTabId = fid
-        }
+    // If current tab was removed, we need to set a new one
+    if (currentIdNeedFix) {
+      // Try to find current batch's first tab
+      const currentTab = remainingTabs.find(t => t.id === store.currentTabId)
+      const currentBatch = currentTab ? currentTab.batch : store.currentLayoutBatch
+      const newCurrentId = batchFirstTabs[currentBatch] || batchFirstTabs[0] || ''
+
+      if (newCurrentId) {
+        store.currentTabId = newCurrentId
+        // Also update the batch-specific current tab id
+        store[`currentTabId${currentBatch}`] = newCurrentId
+      } else {
+        // No tabs left in any batch
+        store.currentTabId = ''
       }
     }
+
+    // Fix batch-specific current tab IDs
+    for (const batch in batchFirstTabs) {
+      const batchTabId = `currentTabId${batch}`
+      const currentBatchId = store[batchTabId]
+
+      // If the batch's current tab was removed or doesn't exist
+      if (removedSet.has(currentBatchId) || !currentBatchId) {
+        store[batchTabId] = batchFirstTabs[batch]
+      }
+    }
+    store.focus()
   }
 
   Store.prototype.initFirstTab = function (batch) {
@@ -272,7 +273,6 @@ export default Store => {
     if (targetIndex === -1) {
       return
     }
-
     // Directly update the tab properties
     Object.assign(tabs[targetIndex], update)
   }
@@ -411,5 +411,6 @@ export default Store => {
         store.currentLayoutBatch = newBatchCount - 1
       }
     }
+    store.focus()
   }
 }

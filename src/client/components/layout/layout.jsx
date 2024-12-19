@@ -13,6 +13,7 @@ import Footer from '../footer/footer-entry'
 import SessionsWrap from '../session/sessions'
 import QuickCommandsFooterBox from '../quick-commands/quick-commands-box'
 import pixed from './pixed'
+import copy from 'json-deep-copy'
 import { pick } from 'lodash-es'
 import './layout.styl'
 
@@ -98,7 +99,6 @@ export default auto(function Layout (props) {
       tabsBatch[batch].push(tab)
     }
     return sizes.map((v, i) => {
-      console.log('v', v)
       const sessProps = {
         batch: i,
         layout,
@@ -154,7 +154,6 @@ export default auto(function Layout (props) {
     'openedSideBar',
     'currentQuickCommands'
   ])
-  console.log('styles.wrapStyles', styles.wrapStyles)
   const sessionsProps = {
     styles: styles.wrapStyles,
     sizes,
@@ -178,9 +177,9 @@ export default auto(function Layout (props) {
       'leftSidebarWidth',
       'pinned',
       'openedSideBar',
-      'tabs',
       'config'
-    ])
+    ]),
+    tabs: copy(store.tabs)
   }
   return [
     <Layouts {...layoutProps} key='layouts'>
