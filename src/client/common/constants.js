@@ -43,7 +43,6 @@ export const maxSftpHistory = 20
 export const maxZoom = 8
 export const minZoom = 0.5
 export const extraTabWidth = 113
-// export const maxTabs = 20
 
 export const tabWidth = 160
 
@@ -250,18 +249,6 @@ export const fileActions = {
   rename: 'rename',
   mergeOrOverwriteAll: 'mergeOrOverwriteAll',
   renameAll: 'renameAll'
-}
-
-export const tabActions = {
-  updateTabsStatus: 'update-tabs-status',
-  setAllTabOffline: 'set-all-tab-offline',
-  changeCurrentTabId: 'changeCurrentTabId',
-  onDuplicateTab: 'on-duplicate-tab',
-  reloadTab: 'reload-tab',
-  initFirstTab: 'init-first-tab',
-  delTab: 'del-tab',
-  addTab: 'add-tab',
-  updateTabs: 'update-tabs'
 }
 
 export const commonActions = {

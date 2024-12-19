@@ -46,7 +46,7 @@ export default () => {
     configLoaded: false,
     loadTime: 0,
     lastDataUpdateTime: 0,
-    _tabs: '[]',
+    tabs: [],
     currentTabId: '',
     _history: '[]',
     _bookmarks: '[]',

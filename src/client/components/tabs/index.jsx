@@ -24,8 +24,9 @@ import {
   TwoRowsRightIcon,
   TwoColumnsBottomIcon
 } from '../icons/split-icons'
-import { Dropdown, Popover } from 'antd'
+import { Dropdown, Popover, Button } from 'antd'
 import Tab from './tab'
+import LogoElem from '../common/logo-elem.jsx'
 import './tabs.styl'
 import {
   tabWidth,
@@ -71,7 +72,7 @@ export default class Tabs extends React.Component {
 
   componentDidUpdate (prevProps) {
     if (
-      prevProps.currentTabId !== this.props.currentTabId ||
+      prevProps.currentBatchTabId !== this.props.currentBatchTabId ||
       prevProps.width !== this.props.width ||
       (prevProps.tabs || []).length !== (this.props.tabs || []).length
     ) {
@@ -86,6 +87,14 @@ export default class Tabs extends React.Component {
 
   modifier = (...args) => {
     runIdle(() => this.setState(...args))
+  }
+
+  handleNewTab = () => {
+    window.store.addTab(undefined, undefined, this.props.batch)
+  }
+
+  handleNewSsh = () => {
+    window.store.onNewSsh()
   }
 
   onEvent = (e) => {
@@ -204,16 +213,22 @@ export default class Tabs extends React.Component {
     if (!e.target.className.includes('tabs-wrapper')) {
       return
     }
-    this.props.addTab()
+    window.store.addTab(
+      undefined, undefined,
+      this.props.batch
+    )
   }
 
   handleTabAdd = () => {
-    this.props.addTab()
+    window.store.addTab(
+      undefined, undefined,
+      this.props.batch
+    )
   }
 
   adjustScroll = () => {
-    const { tabs, currentTabId, batch } = this.props
-    const index = findIndex(tabs, t => t.id === currentTabId)
+    const { tabs, currentBatchTabId, batch } = this.props
+    const index = findIndex(tabs, t => t.id === currentBatchTabId)
     const tabsDomWith = Array.from(
       document.querySelectorAll(`.v${batch + 1} .tab`)
     ).slice(0, index + 2).reduce((prev, c) => {
@@ -260,7 +275,7 @@ export default class Tabs extends React.Component {
 
   handleClickMenu = ({ key }) => {
     const id = key.split('##')[1]
-    this.props.onChangeTabId(id)
+    window.store['currentTabId' + this.props.batch] = id
   }
 
   handleChangeLayout = ({ key }) => {
@@ -312,6 +327,7 @@ export default class Tabs extends React.Component {
       <Popover
         content={this.renderMenus()}
         onOpenChange={this.handleOpenChange}
+        placement='bottomRight'
       >
         <PlusOutlined
           title={e('openNewTerm')}
@@ -421,7 +437,8 @@ export default class Tabs extends React.Component {
                 tab,
                 isLast,
                 receiveData: receiveDataTabId === tab.id,
-                openContextMenu: onContextMenuTabId === tab.id
+                openContextMenu: onContextMenuTabId === tab.id,
+                tabIndex: i
               }
               if (this.state.contextFuncTabId === tab.id) {
                 tabProps.contextFunc = this.state.contextFunc
@@ -522,7 +539,7 @@ export default class Tabs extends React.Component {
     return null
   }
 
-  render () {
+  renderTabs () {
     const { overflow } = this.state
     return (
       <div className='tabs' ref={this.tabsRef} onContextMenu={this.handleContextMenu}>
@@ -537,5 +554,49 @@ export default class Tabs extends React.Component {
         }
       </div>
     )
+  }
+
+  renderNoSession = () => {
+    const props = {
+      style: {
+        height: this.props.height + 'px'
+      }
+    }
+    return (
+      <div className='no-sessions electerm-logo-bg' {...props}>
+        <Button
+          onClick={this.handleNewTab}
+          size='large'
+          className='mg1r mg1b add-new-tab-btn'
+        >
+          {e('newTab')}
+        </Button>
+        <Button
+          onClick={this.handleNewSsh}
+          size='large'
+          className='mg1r mg1b'
+        >
+          {e('newBookmark')}
+        </Button>
+        <div className='pd3'>
+          <LogoElem />
+        </div>
+      </div>
+    )
+  }
+
+  render () {
+    const {
+      tabs
+    } = this.props
+    if (!tabs || !tabs.length) {
+      return (
+        <div className='tabs-outer'>
+          {this.renderTabs()}
+          {this.renderNoSession()}
+        </div>
+      )
+    }
+    return this.renderTabs()
   }
 }

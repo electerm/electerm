@@ -373,7 +373,6 @@ class Sftp extends TerminalBase {
     return new Promise((resolve, reject) => {
       const { sftp } = this
       sftp.realpath(remotePath, (err, target) => {
-        console.log(remotePath, err, target)
         if (err) reject(err)
         else resolve(target)
       })

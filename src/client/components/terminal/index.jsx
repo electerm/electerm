@@ -86,8 +86,8 @@ class Term extends Component {
 
   componentDidUpdate (prevProps) {
     const shouldChange = (
-      prevProps.currentTabId !== this.props.currentTabId &&
-      this.props.tab.id === this.props.currentTabId &&
+      prevProps.currentBatchTabId !== this.props.currentBatchTabId &&
+      this.props.tab.id === this.props.currentBatchTabId &&
       this.props.pane === paneMap.terminal
     ) || (
       this.props.pane !== prevProps.pane &&
@@ -268,7 +268,7 @@ clear\r`
   }
 
   isActiveTerminal = () => {
-    return this.props.tab.id === this.props.currentTabId &&
+    return this.props.tab.id === this.props.currentBatchTabId &&
     this.props.pane === paneMap.terminal
   }
 
@@ -1230,7 +1230,7 @@ clear\r`
   }
 
   onResize = throttle(() => {
-    const cid = this.props.currentTabId
+    const cid = this.props.currentBatchTabId
     const tid = this.props.tab?.id
     if (
       this.props.tab.status === statusMap.success &&

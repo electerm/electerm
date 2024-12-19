@@ -8,7 +8,6 @@ import { debounce, some } from 'lodash-es'
 import postMessage from '../common/post-msg'
 import {
   commonActions,
-  tabActions,
   modals,
   leftSidebarWidthKey,
   rightSidebarWidthKey,
@@ -22,12 +21,6 @@ const e = window.translate
 export default Store => {
   Store.prototype.storeAssign = function (updates) {
     Object.assign(this, updates)
-  }
-
-  Store.prototype.setOffline = function () {
-    postMessage({
-      action: tabActions.setAllTabOffline
-    })
   }
 
   Store.prototype.onError = function (e) {

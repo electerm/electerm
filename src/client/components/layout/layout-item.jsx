@@ -1,8 +1,3 @@
-import {
-  tabActions
-} from '../../common/constants'
-import postMsg from '../../common/post-msg'
-
 export default function LayoutItem (props) {
   const {
     children,
@@ -10,16 +5,6 @@ export default function LayoutItem (props) {
     batch,
     ...itemProps
   } = props
-  function handleClick (e) {
-    let currentElement = e.target
-    while (currentElement) {
-      if (currentElement.classList && currentElement.classList.contains('tabs-dd-icon')) {
-        return false
-      }
-      currentElement = currentElement.parentElement
-    }
-    window.store.currentLayoutBatch = i
-  }
 
   function getDom () {
     return document.querySelector(`.layout-item.v${batch + 1}`)
@@ -38,9 +23,8 @@ export default function LayoutItem (props) {
       }
       currentElement = currentElement.parentElement
     }
-    // debug('target drop', target)
     const fromTab = JSON.parse(e.dataTransfer.getData('fromFile'))
-    const onDropElem = getDom
+    const onDropElem = getDom()
     if (!onDropElem || !fromTab || fromTab.batch === batch) {
       return
     }
@@ -51,11 +35,6 @@ export default function LayoutItem (props) {
       return
     }
     t.batch = batch
-    postMsg({
-      action: tabActions.changeCurrentTabId,
-      currentTabId: store.currentTabId
-    })
-    store.setTabs(tabs)
     clearCls()
   }
 
@@ -82,7 +61,6 @@ export default function LayoutItem (props) {
   return (
     <div
       {...itemProps}
-      onClick={handleClick}
       onDragEnter={onDragEnter}
       onDragLeave={onDragLeave}
       onDragEnd={onDragEnd}

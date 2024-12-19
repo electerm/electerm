@@ -212,7 +212,7 @@ export default class Sftp extends Component {
   }
 
   isActive () {
-    return this.props.enableSftp && this.props.currentTabId === this.props.tab.id &&
+    return this.props.enableSftp && this.props.currentBatchTabId === this.props.tab.id &&
       this.props.pane === paneMap.fileManager
   }
 
