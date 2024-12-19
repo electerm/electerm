@@ -42,18 +42,14 @@ describe('quick commands', function () {
     const qmlist2 = await client.countElem('.setting-tabs-quick-commands .item-list-unit')
     expect(qmlist2).equal(qmlist1 + 1)
     await client.evaluate(() => {
-      window.postMessage({
-        action: 'update-tabs',
-        update: {
-          quickCommands: [
-            {
-              name: 'xx',
-              command: 'ls'
-            }
-          ]
-        },
-        id: window.store.currentTab.id
-      }, '*')
+      window.store.updateTab(window.store.currentTabId, {
+        quickCommands: [
+          {
+            name: 'xx',
+            command: 'ls'
+          }
+        ]
+      })
     })
     await delay(1150)
     const c1 = await client.evaluate(() => {

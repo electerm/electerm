@@ -22,6 +22,7 @@ export default class ThemeList extends List {
     const itemProps = {
       item,
       renderDelBtn: this.renderDelBtn,
+      activeItemId: this.props.activeItemId,
       ...pick(
         this.props,
         [
