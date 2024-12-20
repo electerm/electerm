@@ -79,7 +79,7 @@ export default () => {
     pauseAllTransfer: false,
     transferTab: 'transfer',
     _transferHistory: '[]',
-    _fileTransfers: '[]',
+    fileTransfers: [],
     _transferToConfirm: '{}',
     _sftpSortSetting: ls.getItem(sftpDefaultSortSettingKey) || JSON.stringify({
       local: {

@@ -69,6 +69,10 @@ class Store {
     return window.store.innerWidth
   }
 
+  get _fileTransfers () {
+    return JSON.stringify(window.store.fileTransfers)
+  }
+
   get currentQuickCommands () {
     const { currentTab } = this
     const { quickCommands } = window.store
@@ -242,7 +246,6 @@ const arrGetterProps = [
   'bookmarks',
   'bookmarkGroups',
   'profiles',
-  'fileTransfers',
   'transferHistory',
   'quickCommands',
   'terminalThemes',
