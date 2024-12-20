@@ -61,6 +61,10 @@ export default class SessionWrapper extends Component {
     return document.getElementById(`is-${this.props.tab.id}`)
   }
 
+  handleClick = () => {
+    window.store.activeTabId = this.props.tab.id
+  }
+
   onDrop = (e) => {
     e.preventDefault()
     const { target } = e
@@ -501,7 +505,8 @@ export default class SessionWrapper extends Component {
       onDragEnter: this.onDragEnter,
       onDragLeave: this.onDragLeave,
       onDrop: this.onDrop,
-      onDragEnd: this.onDragEnd
+      onDragEnd: this.onDragEnd,
+      onClick: this.handleClick
     }
     return (
       <div
