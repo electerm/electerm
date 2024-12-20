@@ -271,7 +271,7 @@ clear\r`
   }
 
   isActiveTerminal = () => {
-    return this.props.tab.id === this.props.currentBatchTabId &&
+    return this.props.tab.id === this.props.currentTabId &&
     this.props.pane === paneMap.terminal
   }
 

@@ -200,8 +200,7 @@ export default class SessionWrapper extends Component {
         tab,
         width: this.props.width,
         height: this.props.height,
-        reloadTab: this.props.reloadTab,
-        currentBatchTabId: this.props.currentBatchTabId
+        reloadTab: this.props.reloadTab
       }
       return (
         <WebSession
