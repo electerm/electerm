@@ -120,7 +120,10 @@ class Term extends Component {
       prevProps.themeConfig
     )
     if (themeChanged) {
-      this.term.options.theme = deepCopy(this.props.themeConfig)
+      this.term.options.theme = {
+        ...deepCopy(this.props.themeConfig),
+        background: 'rgba(0,0,0,0)'
+      }
     }
 
     const sftpPathFollowSshChanged = !isEqual(
@@ -995,12 +998,14 @@ clear\r`
   initTerminal = async () => {
     // let {password, privateKey, host} = this.props.tab
     const { themeConfig, tab = {}, config = {} } = this.props
+    const tc = deepCopy(themeConfig)
+    tc.background = 'rgba(0,0,0,0)'
     const term = new Terminal({
       allowProposedApi: true,
       scrollback: config.scrollback,
       rightClickSelectsWord: config.rightClickSelectsWord || false,
       fontFamily: tab.fontFamily || config.fontFamily,
-      theme: themeConfig,
+      theme: tc,
       allowTransparency: true,
       // lineHeight: 1.2,
       wordSeparator: config.terminalWordSeparator,
