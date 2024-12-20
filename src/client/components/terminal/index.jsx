@@ -357,9 +357,7 @@ clear\r`
       this.batchInput(cmd)
     } else if (
       action === terminalActions.showInfoPanel &&
-      (
-        tabIdMatch
-      )
+      tabIdMatch
     ) {
       this.handleShowInfo()
     } else if (
@@ -1319,12 +1317,11 @@ clear\r`
   }
 
   handleShowInfo = () => {
-    const { id, sessionId, logName } = this.props
-    const { pid } = this.state
+    const { id, sessionId, logName, tab } = this.props
     const infoProps = {
       logName,
       id,
-      pid,
+      pid: tab.id,
       sessionId,
       isRemote: this.isRemote(),
       isActive: this.isActiveTerminal()

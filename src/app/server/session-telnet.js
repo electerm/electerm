@@ -56,8 +56,11 @@ class TerminalTelnet extends TerminalBase {
   }
 
   resize = (cols, rows) => {
-    this.channel.opts.terminalWidth = cols
-    this.channel.opts.terminalHeight = rows
+    Object.assign(this.channel.options, {
+      terminalWidth: cols,
+      terminalHeight: rows
+    })
+    this.channel.sendWindowSize()
   }
 
   on = (event, cb) => {
