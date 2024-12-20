@@ -9,7 +9,8 @@ import {
   InfoCircleOutlined,
   AlignLeftOutlined,
   BugOutlined,
-  HeartOutlined
+  HeartOutlined,
+  JavaScriptOutlined
 } from '@ant-design/icons'
 import { Modal, Tabs, Button } from 'antd'
 import Link from '../common/external-link'
@@ -172,6 +173,12 @@ export default memo(function InfoModal (props) {
             <HeartOutlined /> <b className='mg1r'>{e('sponsorElecterm')} ➾</b>
             <Link to={sponsorLink} className='mg1l'>
               {sponsorLink}
+            </Link>
+          </p>
+          <p className='mg1b'>
+            <JavaScriptOutlined /> <b className='mg1r'>Powered by</b>
+            <Link to='https://github.com/tylerlong/manate'>
+              manate
             </Link>
           </p>
           {renderCheckUpdate()}
