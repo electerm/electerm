@@ -20,7 +20,7 @@ export default store => {
   //   store.focus()
   //   // store.termSearchOpen = false
   //   store.termSearchMatchCount = 0
-  //   return store.currentTabId
+  //   return store.activeTabId
   // }).start()
 
   // autoRun(() => {
@@ -99,13 +99,13 @@ export default store => {
 
   autoRun(() => {
     const tabs = store.getTabs()
-    const { currentTabId } = store
-    const tab = tabs.find(t => t.id === currentTabId)
+    const { activeTabId } = store
+    const tab = tabs.find(t => t.id === activeTabId)
     if (tab) {
       const title = createTitle(tab)
       window.pre.runGlobalAsync('setTitle', title)
       window.store.currentLayoutBatch = tab.batch
     }
-    return store.currentTabId
+    return store.activeTabId
   }).start()
 }

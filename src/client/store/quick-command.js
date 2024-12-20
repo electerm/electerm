@@ -38,7 +38,7 @@ export default Store => {
       action: terminalActions.quickCommand,
       cmd,
       inputOnly,
-      currentTabId: window.store.currentTabId
+      activeTabId: window.store.activeTabId
     })
   }
 

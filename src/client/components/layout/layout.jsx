@@ -102,7 +102,7 @@ export default auto(function Layout (props) {
       const sessProps = {
         batch: i,
         layout,
-        currentBatchTabId: store[`currentTabId${i}`],
+        currentBatchTabId: store[`activeTabId${i}`],
         ...v,
         tabs: tabsBatch[i] || [],
         ...pick(store, [
@@ -132,7 +132,7 @@ export default auto(function Layout (props) {
     currentTab,
     config,
     ...pick(store, [
-      'currentTabId',
+      'activeTabId',
       'termSearchOpen',
       'termSearch',
       'termSearchOptions',
@@ -161,11 +161,11 @@ export default auto(function Layout (props) {
     height,
     layoutStyle: pixedLayoutStyle,
     ...pick(store, [
-      'currentTabId',
-      'currentTabId0',
-      'currentTabId1',
-      'currentTabId2',
-      'currentTabId3',
+      'activeTabId',
+      'activeTabId0',
+      'activeTabId1',
+      'activeTabId2',
+      'activeTabId3',
       'batch',
       'resolutions',
       'hideDelKeyTip',

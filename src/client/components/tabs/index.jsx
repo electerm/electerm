@@ -275,7 +275,7 @@ export default class Tabs extends React.Component {
 
   handleClickMenu = ({ key }) => {
     const id = key.split('##')[1]
-    window.store['currentTabId' + this.props.batch] = id
+    window.store['activeTabId' + this.props.batch] = id
   }
 
   handleChangeLayout = ({ key }) => {

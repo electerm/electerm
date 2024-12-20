@@ -60,10 +60,10 @@ export default Store => {
       const closingTab = tabs[i]
       if (closingTab.batch === targetBatch) {
         // Handle current tab closure
-        if (closingTab.id === store.currentTabId) {
-          store.currentTabId = id
-        } else if (closingTab.id === store[`currentTabId${targetBatch}`]) {
-          store[`currentTabId${targetBatch}`] = id
+        if (closingTab.id === store.activeTabId) {
+          store.activeTabId = id
+        } else if (closingTab.id === store[`activeTabId${targetBatch}`]) {
+          store[`activeTabId${targetBatch}`] = id
         }
 
         tabs.splice(i, 1)
@@ -71,7 +71,7 @@ export default Store => {
     }
   }
 
-  Store.prototype.reloadTab = function (tabId = window.store.currentTabId) {
+  Store.prototype.reloadTab = function (tabId = window.store.activeTabId) {
     const { store } = window
     const { tabs } = store
     const index = tabs.findIndex(t => t.id === tabId)
@@ -97,12 +97,12 @@ export default Store => {
     tabs.splice(index, 1)
 
     // Update current tab ID if needed
-    if (store.currentTabId === tabId) {
-      store.currentTabId = newTab.id
+    if (store.activeTabId === tabId) {
+      store.activeTabId = newTab.id
     }
 
     // Update batch current tab ID if needed
-    const batchProp = `currentTabId${oldTab.batch}`
+    const batchProp = `activeTabId${oldTab.batch}`
     if (store[batchProp] === tabId) {
       store[batchProp] = newTab.id
     }
@@ -130,8 +130,8 @@ export default Store => {
     tabs.splice(targetIndex + 1, 0, duplicatedTab)
 
     // Set the duplicated tab as current
-    store.currentTabId = duplicatedTab.id
-    store[`currentTabId${sourceTab.batch}`] = duplicatedTab.id
+    store.activeTabId = duplicatedTab.id
+    store[`activeTabId${sourceTab.batch}`] = duplicatedTab.id
   }
 
   Store.prototype.closeOtherTabs = function (id) {
@@ -146,11 +146,11 @@ export default Store => {
     for (let i = tabs.length - 1; i >= 0; i--) {
       const tab = tabs[i]
       if (tab.batch === currentBatch && tab.id !== id) {
-        if (tab.id === store.currentTabId) {
-          store.currentTabId = id
+        if (tab.id === store.activeTabId) {
+          store.activeTabId = id
         }
-        if (tab.id === store[`currentTabId${currentBatch}`]) {
-          store[`currentTabId${currentBatch}`] = id
+        if (tab.id === store[`activeTabId${currentBatch}`]) {
+          store[`activeTabId${currentBatch}`] = id
         }
         tabs.splice(i, 1)
       }
@@ -208,7 +208,7 @@ export default Store => {
     const store = window.store
     const removedSet = new Set(removedIds)
     const batchFirstTabs = {}
-    const currentIdNeedFix = removedSet.has(store.currentTabId)
+    const currentIdNeedFix = removedSet.has(store.activeTabId)
 
     // Get first valid tab for each batch
     for (const tab of remainingTabs) {
@@ -220,23 +220,23 @@ export default Store => {
     // If current tab was removed, we need to set a new one
     if (currentIdNeedFix) {
       // Try to find current batch's first tab
-      const currentTab = remainingTabs.find(t => t.id === store.currentTabId)
+      const currentTab = remainingTabs.find(t => t.id === store.activeTabId)
       const currentBatch = currentTab ? currentTab.batch : store.currentLayoutBatch
       const newCurrentId = batchFirstTabs[currentBatch] || batchFirstTabs[0] || ''
 
       if (newCurrentId) {
-        store.currentTabId = newCurrentId
+        store.activeTabId = newCurrentId
         // Also update the batch-specific current tab id
-        store[`currentTabId${currentBatch}`] = newCurrentId
+        store[`activeTabId${currentBatch}`] = newCurrentId
       } else {
         // No tabs left in any batch
-        store.currentTabId = ''
+        store.activeTabId = ''
       }
     }
 
     // Fix batch-specific current tab IDs
     for (const batch in batchFirstTabs) {
-      const batchTabId = `currentTabId${batch}`
+      const batchTabId = `activeTabId${batch}`
       const currentBatchId = store[batchTabId]
 
       // If the batch's current tab was removed or doesn't exist
@@ -284,10 +284,10 @@ export default Store => {
     store.currentLayoutBatch = batch
 
     // Update current tab id
-    store.currentTabId = id
+    store.activeTabId = id
 
     // Update batch-specific current tab id
-    store[`currentTabId${batch}`] = id
+    store[`activeTabId${batch}`] = id
   }
 
   Store.prototype.addTab = function (
@@ -304,8 +304,8 @@ export default Store => {
       tabs.push(newTab)
     }
     const batchNum = newTab.batch
-    store[`currentTabId${batchNum}`] = newTab.id
-    store.currentTabId = newTab.id
+    store[`activeTabId${batchNum}`] = newTab.id
+    store.activeTabId = newTab.id
     store.currentLayoutBatch = batchNum
   }
 
@@ -319,10 +319,10 @@ export default Store => {
 
   Store.prototype.clickBioTab = function (diff) {
     const { store } = window
-    const { tabs, currentTabId } = store
+    const { tabs, activeTabId } = store
 
     // Find the current tab index and its batch
-    const currentIndex = tabs.findIndex(t => t.id === currentTabId)
+    const currentIndex = tabs.findIndex(t => t.id === activeTabId)
     if (currentIndex === -1) return // Current tab not found, do nothing
 
     const currentBatch = tabs[currentIndex].batch
@@ -342,9 +342,9 @@ export default Store => {
     // Find the next tab index
     const nextIndex = findNextTabIndex(currentIndex, diff)
 
-    // If a valid next tab is found, update the currentTabId
+    // If a valid next tab is found, update the activeTabId
     if (nextIndex !== -1 && nextIndex !== currentIndex) {
-      store.currentTabId = tabs[nextIndex].id
+      store.activeTabId = tabs[nextIndex].id
     }
   }
 
@@ -376,7 +376,7 @@ export default Store => {
   Store.prototype.setLayout = function (layout) {
     const { store } = window
     const prevLayout = store.layout
-    const { currentTabId } = store
+    const { activeTabId } = store
 
     // If layout hasn't changed, do nothing
     if (prevLayout === layout) {
@@ -400,8 +400,8 @@ export default Store => {
         const tab = store.tabs[i]
         if (tab.batch >= newBatchCount) {
           store.tabs[i].batch = nb
-          if (tab.id === currentTabId) {
-            store[`currentTabId${nb}`] = currentTabId
+          if (tab.id === activeTabId) {
+            store[`activeTabId${nb}`] = activeTabId
           }
         }
       }

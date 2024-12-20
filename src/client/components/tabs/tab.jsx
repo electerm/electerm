@@ -47,9 +47,9 @@ class Tab extends Component {
   // }
 
   // shouldUpdate = (prevProps, nextProps) => {
-  //   // todo currentTabId still need improve
+  //   // todo activeTabId still need improve
   //   const pickKeys = [
-  //     'currentTabId',
+  //     'activeTabId',
   //     'height',
   //     'isLast',
   //     'isMaximized',
@@ -137,12 +137,12 @@ class Tab extends Component {
       const fromBatch = fromTab.batch
 
       // Handle currentTab change if needed
-      if (window.store[`currentTabId${fromBatch}`] === id && fromBatch !== targetTab.batch) {
+      if (window.store[`activeTabId${fromBatch}`] === id && fromBatch !== targetTab.batch) {
         // Find next tab in the same batch
         const nextTab = storeTabs.find((t, i) =>
           i !== indexFrom && t.batch === fromBatch
         )
-        window.store[`currentTabId${fromBatch}`] = nextTab ? nextTab.id : ''
+        window.store[`activeTabId${fromBatch}`] = nextTab ? nextTab.id : ''
       }
 
       // Reorder tabs and update batch

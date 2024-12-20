@@ -22,7 +22,7 @@ export default auto(function FooterEntry (props) {
     store.rightPanelVisible = !store.rightPanelVisible
     postMessage({
       action: terminalActions.showInfoPanel,
-      currentTabId: store.currentTabId
+      activeTabId: store.activeTabId
     })
   }
 
@@ -38,7 +38,7 @@ export default auto(function FooterEntry (props) {
     postMessage({
       encode,
       action: terminalActions.changeEncode,
-      currentTabId: props.store.currentTabId
+      activeTabId: props.store.activeTabId
     })
   }
 
@@ -58,7 +58,7 @@ export default auto(function FooterEntry (props) {
       input: batchInput,
       batchInputs: props.store.batchInputs,
       tabs: props.store.tabs,
-      currentTabId: props.store.currentTabId
+      activeTabId: props.store.activeTabId
     }
     return (
       <div className='terminal-footer-unit terminal-footer-center'>

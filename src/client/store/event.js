@@ -57,7 +57,7 @@ export default Store => {
     document.activeElement.select()
     postMessage({
       event: 'selectall',
-      id: window.store.currentTabId
+      id: window.store.activeTabId
     })
   }
 

@@ -337,7 +337,7 @@ export default class SessionWrapper extends Component {
   handleOpenSearch = () => {
     postMessage({
       action: terminalActions.openTerminalSearch,
-      currentTabId: this.props.tab.id
+      activeTabId: this.props.tab.id
     })
   }
 

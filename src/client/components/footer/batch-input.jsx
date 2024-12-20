@@ -26,19 +26,19 @@ export default class BatchInput extends Component {
     super(props)
     this.state = {
       cmd: '',
-      selectedTabIds: [props.currentTabId],
+      selectedTabIds: [props.activeTabId],
       open: false,
       enter: false
     }
   }
 
   componentDidUpdate (prevProps) {
-    if (prevProps.currentTabId !== this.props.currentTabId) {
+    if (prevProps.activeTabId !== this.props.activeTabId) {
       this.setState(prevState => {
         const newSelectedTabIds = prevState.selectedTabIds.filter(
-          id => id !== this.props.currentTabId
+          id => id !== this.props.activeTabId
         )
-        newSelectedTabIds.unshift(this.props.currentTabId)
+        newSelectedTabIds.unshift(this.props.activeTabId)
         return {
           selectedTabIds: newSelectedTabIds
         }
@@ -72,7 +72,7 @@ export default class BatchInput extends Component {
 
   onSelectNone = () => {
     this.setState({
-      selectedTabIds: [this.props.currentTabId]
+      selectedTabIds: [this.props.activeTabId]
     })
   }
 
@@ -91,7 +91,7 @@ export default class BatchInput extends Component {
       // Ensure at least the current tab is selected
       if (selectedTabIds.length === 0) {
         return {
-          selectedTabIds: [this.props.currentTabId]
+          selectedTabIds: [this.props.activeTabId]
         }
       }
 
@@ -178,15 +178,15 @@ export default class BatchInput extends Component {
   }
 
   getTabs = () => {
-    const { currentTabId } = this.props
+    const { activeTabId } = this.props
     return deepCopy(this.props.tabs.filter(tab => {
       return tab.type !== terminalWebType &&
         tab.type !== terminalRdpType &&
         tab.type !== terminalVncType
     })).sort((a, b) => {
       // Current tab goes first
-      if (a.id === currentTabId) return -1
-      if (b.id === currentTabId) return 1
+      if (a.id === activeTabId) return -1
+      if (b.id === activeTabId) return 1
       return 0
     })
   }
@@ -215,7 +215,7 @@ export default class BatchInput extends Component {
       className: 'batch-input-holder'
     }
     const tabSelectProps = {
-      currentTabId: this.props.currentTabId,
+      activeTabId: this.props.activeTabId,
       tabs: this.getTabs(),
       selectedTabIds,
       onSelectAll: this.onSelectAll,

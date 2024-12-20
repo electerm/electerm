@@ -7,7 +7,7 @@ import {
 } from '@ant-design/icons'
 
 export default function TabSelect (props) {
-  const { selectedTabIds, tabs, currentTabId } = props
+  const { selectedTabIds, tabs, activeTabId } = props
   function renderTabs () {
     return tabs.map(tab => {
       const selected = selectedTabIds.includes(tab.id)
@@ -16,7 +16,7 @@ export default function TabSelect (props) {
         selected,
         onSelect: props.onSelect,
         id: tab.id,
-        isCurrent: tab.id === currentTabId
+        isCurrent: tab.id === activeTabId
       }
       return (
         <TabItem

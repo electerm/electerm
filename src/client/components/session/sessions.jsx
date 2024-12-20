@@ -42,17 +42,17 @@ export default class Sessions extends Component {
     const {
       config,
       tabs,
-      currentTabId,
+      activeTabId,
       sizes
     } = this.props
     return tabs.map((tab) => {
       const { id, batch } = tab
       const { height, width } = sizes[batch]
-      const currentBatchTabId = this.props['currentTabId' + batch]
+      const currentBatchTabId = this.props['activeTabId' + batch]
       const cls = classNames(
         `session-wrap session-${id}`,
         {
-          'session-current': id === currentTabId,
+          'session-current': id === activeTabId,
           'session-batch-active': id === currentBatchTabId
         }
       )
@@ -61,7 +61,7 @@ export default class Sessions extends Component {
         className: cls
       }
       const sessProps = {
-        currentTabId,
+        activeTabId,
         tab,
         width,
         height,
