@@ -42,7 +42,7 @@ describe('quick commands', function () {
     const qmlist2 = await client.countElem('.setting-tabs-quick-commands .item-list-unit')
     expect(qmlist2).equal(qmlist1 + 1)
     await client.evaluate(() => {
-      window.store.updateTab(window.store.currentTabId, {
+      window.store.updateTab(window.store.activeTabId, {
         quickCommands: [
           {
             name: 'xx',
