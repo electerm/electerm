@@ -380,7 +380,7 @@ export default Store => {
 
     // If layout hasn't changed, do nothing
     if (prevLayout === layout) {
-      return
+      return store.focus()
     }
 
     // Update layout related properties
