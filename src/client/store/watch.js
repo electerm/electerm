@@ -106,6 +106,9 @@ export default store => {
       window.pre.runGlobalAsync('setTitle', title)
       window.store.currentLayoutBatch = tab.batch
     }
+    if (tab && store.rightPanelVisible) {
+      window.store.openInfoPanel()
+    }
     return store.activeTabId
   }).start()
 }

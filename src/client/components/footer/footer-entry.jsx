@@ -18,12 +18,7 @@ const e = window.translate
 
 export default auto(function FooterEntry (props) {
   function handleInfoPanel () {
-    const { store } = window
-    store.rightPanelVisible = !store.rightPanelVisible
-    postMessage({
-      action: terminalActions.showInfoPanel,
-      activeTabId: store.activeTabId
-    })
+    window.store.openInfoPanel()
   }
 
   function batchInput (cmd, selectedTabIds) {
