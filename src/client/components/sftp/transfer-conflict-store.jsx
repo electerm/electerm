@@ -12,9 +12,12 @@ import {
   getFileExt,
   checkFolderSize
 } from './file-read'
-import { findIndex, find } from 'lodash-es'
+import { findIndex } from 'lodash-es'
 import generate from '../../common/uid'
 import resolve from '../../common/resolve'
+import deepCopy from 'json-deep-copy'
+
+const { assign } = Object
 
 export default class TransferConflictStore extends PureComponent {
   state = {
@@ -27,7 +30,7 @@ export default class TransferConflictStore extends PureComponent {
 
   componentDidUpdate (prevProps) {
     if (
-      prevProps._fileTransfers !== this.props._fileTransfers
+      prevProps.fileTransferChanged !== this.props.fileTransferChanged
     ) {
       this.watchFile()
     }
@@ -56,17 +59,16 @@ export default class TransferConflictStore extends PureComponent {
     const newName = ext
       ? `${base}(rename-${renameId}).${ext}`
       : `${base}(rename-${renameId})`
-    const res = {
-      ...tr,
+    assign(tr, {
       renameId,
       newName,
       oldName: base,
       toPath: resolve(path, newName)
-    }
+    })
     if (action) {
-      res.action = action
+      tr.action = action
     }
-    return res
+    return tr
   }
 
   updateTransferAction = (data) => {
@@ -79,56 +81,47 @@ export default class TransferConflictStore extends PureComponent {
       fromFile
     } = transfer
     this.clear()
-    let { fileTransfers } = this.props
+
     const { store } = window
-    const index = findIndex(fileTransfers, d => d.id === id)
+    const { fileTransfers } = store
+    const index = fileTransfers.findIndex(d => d.id === id)
     if (index < 0) {
-      return store.setFileTransfers(fileTransfers)
+      return
     }
-    fileTransfers[index].fromFile = fromFile
-    fileTransfers[index].action = action
+    const tr = fileTransfers[index]
+    tr.fromFile = deepCopy(fromFile)
+    tr.action = action
+    tr.r = Math.random()
     if (action === 'skip') {
-      fileTransfers.splice(index, 1)
+      return fileTransfers.splice(index, 1)
     } else if (action === 'cancel') {
-      fileTransfers = fileTransfers.slice(0, index)
+      return store.skipAllTransfersSinceIndex(index)
     }
     if (action.includes('All')) {
-      fileTransfers = fileTransfers.map((t, i) => {
-        if (i < index) {
-          return t
-        }
-        return {
-          ...t,
-          action: action.replace('All', '')
-        }
+      return store.updateTransfersFromIndex(index, {
+        action: action.replace('All', '')
       })
     }
     if (action.includes('rename')) {
-      fileTransfers[index] = this.rename(fileTransfers[index])
-    } else if (action === 'skipAll') {
-      fileTransfers.splice(index, 1)
+      return this.rename(tr)
     }
-    store.setFileTransfers(fileTransfers)
   }
 
   tagTransferError = (id, errorMsg) => {
-    const { fileTransfers } = this.props
-    const tr = find(fileTransfers, d => d.id === id)
-    if (!tr) {
+    const { store } = window
+    const { fileTransfers } = store
+    const index = findIndex(fileTransfers, d => d.id === id)
+    if (index < 0) {
       return
     }
-    const { store } = window
-    store.addTransferHistory({
-      ...tr,
+
+    const [tr] = fileTransfers.splice(index, 1)
+    assign(tr, {
       host: tr.host,
       error: errorMsg,
       finishTime: Date.now()
     })
-    const index = findIndex(fileTransfers, d => d.id === id)
-    if (index >= 0) {
-      fileTransfers.splice(index, 1)
-    }
-    store.setFileTransfers(fileTransfers)
+    store.addTransferHistory(tr)
   }
 
   setConflict (tr) {
@@ -164,20 +157,19 @@ export default class TransferConflictStore extends PureComponent {
     } = window
     const {
       fileTransfers
-    } = this.props
-    const index = findIndex(fileTransfers, t => {
+    } = store
+    const index = fileTransfers.findIndex(t => {
       return t.id === tr.id
     })
-    if (index >= 0) {
-      const up = {
-        action: 'transfer',
-        fromFile
-      }
-      Object.assign(fileTransfers[index], up)
-    } else if (fileTransfers[0]) {
-      fileTransfers[0].r = Math.random()
+    if (index < 0) {
+      return
     }
-    store.setFileTransfers(fileTransfers)
+    const up = {
+      action: 'transfer',
+      fromFile
+    }
+    assign(fileTransfers[index], up)
+    // may have issue
   }
 
   clear = () => {
@@ -188,25 +180,25 @@ export default class TransferConflictStore extends PureComponent {
     const { store } = window
     const {
       fileTransfers
-    } = this.props
+    } = store
     if (!fileTransfers.length && this.currentId) {
       return this.clear()
     }
     const tr = fileTransfers
-      .filter(t => {
+      .find(t => {
         return (
           !t.action ||
           !t.fromFile ||
           t.fromFile.isDirectory
         )
-      })[0]
+      })
     if (!tr) {
       this.onConfirm = false
       return this.clear()
     }
     if (this.currentId) {
       // fileTransfers[0].r = Math.random()
-      return store.setFileTransfers(fileTransfers)
+      return
     }
     this.currentId = tr.id
     const {
@@ -249,33 +241,33 @@ export default class TransferConflictStore extends PureComponent {
       tr.skipExpand = true
     }
     if (fromPath === toPath && typeFrom === typeTo) {
+      assign(tr, {
+        operation: 'cp',
+        fromFile
+      })
       return this.updateTransferAction({
         id,
         action: 'rename',
-        transfer: {
-          ...tr,
-          operation: 'cp',
-          fromFile
-        }
+        transfer: tr
       })
     } else if (toFile && !action && !skipConfirm) {
       this.waitForSignal(id)
       if (!this.onConfirm) {
         this.onConfirm = true
-        return this.setConflict({
-          ...tr,
+        assign(tr, {
           fromFile,
           toFile
         })
+        return this.setConflict(tr)
       }
     } else if (toFile && !tr.fromFile && action) {
+      assign(tr, {
+        fromFile
+      })
       return this.updateTransferAction({
         id,
         action,
-        transfer: {
-          ...tr,
-          fromFile
-        }
+        transfer: tr
       })
     }
     this.setCanTransfer(fromFile, tr)

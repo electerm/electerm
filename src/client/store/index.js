@@ -69,7 +69,7 @@ class Store {
     return window.store.innerWidth
   }
 
-  get _fileTransfers () {
+  get fileTransferChanged () {
     return JSON.stringify(window.store.fileTransfers)
   }
 
@@ -246,7 +246,6 @@ const arrGetterProps = [
   'bookmarks',
   'bookmarkGroups',
   'profiles',
-  'transferHistory',
   'quickCommands',
   'terminalThemes',
   'serials',

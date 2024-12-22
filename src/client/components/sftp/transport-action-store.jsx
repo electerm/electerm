@@ -1,6 +1,6 @@
 import { Component } from 'react'
 import copy from 'json-deep-copy'
-import { findIndex, isFunction } from 'lodash-es'
+import { isFunction } from 'lodash-es'
 import generate from '../../common/uid'
 import { typeMap, transferTypeMap, commonActions } from '../../common/constants'
 import fs from '../../common/fs'
@@ -35,12 +35,6 @@ export default class TransportAction extends Component {
       this.initTransfer()
     }
     if (
-      this.props.cancel === true &&
-      prevProps.cancel !== true
-    ) {
-      this.cancel()
-    }
-    if (
       this.props.pause !== prevProps.pause
     ) {
       if (this.props.pause) {
@@ -54,32 +48,24 @@ export default class TransportAction extends Component {
   componentWillUnmount () {
     this.transport && this.transport.destroy()
     this.transport = null
-    clearTimeout(this.timer)
-    this.timer = null
+    this.inst = null
   }
 
   update = (up) => {
-    const { fileTransfers, transfer } = this.props
+    const { transfer } = this.props
     const {
       store
     } = window
-    const index = findIndex(fileTransfers, t => t.id === transfer.id)
-    if (index < 0) {
-      return store.setFileTransfers(fileTransfers)
-    }
-    store.editTransfer(
-      fileTransfers[index].id,
+    store.updateTransfer(
+      transfer.id,
       up
     )
-    Object.assign(fileTransfers[index], up)
-    store.setFileTransfers(fileTransfers)
   }
 
   insert = (insts) => {
-    const { fileTransfers, transfer } = this.props
-    const index = findIndex(fileTransfers, t => t.id === transfer.id)
+    const { fileTransfers } = window.store
+    const { index } = this.props
     fileTransfers.splice(index, 1, ...insts)
-    window.store.setFileTransfers(fileTransfers)
   }
 
   remoteList = () => {
@@ -112,21 +98,21 @@ export default class TransportAction extends Component {
     } = transfer
     const cb = this[typeTo + 'List']
     const finishTime = Date.now()
-    if (!config.disableTransferHistory) {
-      window.store.addTransferHistory(
-        {
-          ...transfer,
-          ...update,
-          finishTime,
-          startTime: this.startTime,
-          size: transfer.fromFile.size,
-          next: null,
-          speed: format(transfer.fromFile.size, this?.startTime)
-        }
-      )
-    }
     if (next) {
       this.insert([copy(next)])
+    }
+    if (!config.disableTransferHistory) {
+      delete transfer.next
+      Object.assign(transfer, update, {
+        finishTime,
+        startTime: this.startTime,
+        size: transfer.fromFile.size,
+        next: null,
+        speed: format(transfer.fromFile.size, this?.startTime)
+      })
+      window.store.addTransferHistory(
+        transfer
+      )
     }
     this.cancel(cb)
   }
@@ -160,21 +146,11 @@ export default class TransportAction extends Component {
       return
     }
     this.onCancel = true
-    const {
-      transfer
-    } = this.props
-    let {
-      fileTransfers
-    } = this.props
-    const { id } = transfer
     this.transport && this.transport.destroy()
     this.transport = null
-    fileTransfers = fileTransfers.filter(t => {
-      return t.id !== id
-    })
-    this.timer = setTimeout(() => {
-      window.store.setFileTransfers(fileTransfers)
-    }, 100)
+    window.store.fileTransfers.splice(
+      this.props.index, 1
+    )
     if (isFunction(callback)) {
       callback()
     }

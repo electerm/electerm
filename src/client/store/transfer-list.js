@@ -17,7 +17,7 @@ export default Store => {
     assign(fileTransfers[index], update)
   }
 
-  Store.prototype.addTransferItems = function (items) {
+  Store.prototype.addTransferList = function (items) {
     const { fileTransfers } = window.store
     fileTransfers.push(...items)
   }
@@ -76,12 +76,8 @@ export default Store => {
     }
   }
 
-  Store.prototype.skipAllTransfersSinceId = function (id) {
-    const { fileTransfers } = window.store
-    const index = fileTransfers.findIndex(t => t.id === id)
-    if (index > -1) {
-      fileTransfers.splice(index)
-    }
+  Store.prototype.skipAllTransfersSinceIndex = function (index) {
+    window.store.fileTransfers.splice(index)
   }
 
   Store.prototype.updateTransfersFromIndex = function (index, update) {

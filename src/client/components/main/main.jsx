@@ -27,6 +27,7 @@ import { ConfigProvider, notification, message } from 'antd'
 import InfoModal from '../sidebar/info-modal.jsx'
 import RightSidePanel from '../side-panel-r/side-panel-r'
 import { pick } from 'lodash-es'
+import deepCopy from 'json-deep-copy'
 import './wrapper.styl'
 
 function setupGlobalMessageDismiss () {
@@ -131,6 +132,8 @@ export default auto(function Index (props) {
       opacity: config.opacity
     }
   }
+  const copiedTransfer = deepCopy(fileTransfers)
+  const copiedHistory = deepCopy(transferHistory)
   const sidebarProps = {
     ...pick(store, [
       'activeItemId',
@@ -145,8 +148,8 @@ export default auto(function Index (props) {
       'leftSidebarWidth',
       'transferTab'
     ]),
-    fileTransfers,
-    transferHistory,
+    fileTransfers: copiedTransfer,
+    transferHistory: copiedHistory,
     upgradeInfo,
     pinned
   }
@@ -161,8 +164,8 @@ export default auto(function Index (props) {
     upgradeInfo
   }
   const conflictStoreProps = {
-    fileTransfers,
-    _fileTransfers: store._fileTransfers
+    fileTransferChanged: store.fileTransferChanged,
+    fileTransfers: copiedTransfer
   }
   const batchOpProps = {
     transferHistory,

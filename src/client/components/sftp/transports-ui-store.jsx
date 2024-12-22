@@ -11,13 +11,17 @@ export default function TransportsUI (props) {
   }
   return fileTransfers.map((t, i) => {
     const { id } = t
+    const trProps = {
+      transfer: t,
+      index: i,
+      inited: t.inited,
+      cancel: t.cancel,
+      pause: t.pausing,
+      config: props.config
+    }
     return (
       <Transport
-        {...props}
-        transfer={t}
-        inited={t.inited}
-        cancel={t.cancel}
-        pause={t.pausing}
+        {...trProps}
         key={id + ':tr:' + i}
       />
     )
