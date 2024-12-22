@@ -11,7 +11,7 @@ export default Store => {
     postMsg({
       action: terminalActions.zoom,
       zoomValue: delta > 0 ? 1 : -1,
-      currentTabId: window.store.currentTabId
+      activeTabId: window.store.activeTabId
     })
   }, 500)
 }

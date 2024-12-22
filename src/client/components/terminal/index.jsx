@@ -271,7 +271,7 @@ clear\r`
   }
 
   isActiveTerminal = () => {
-    return this.props.tab.id === this.props.currentBatchTabId &&
+    return this.props.tab.id === this.props.activeTabId &&
     this.props.pane === paneMap.terminal
   }
 
@@ -333,14 +333,14 @@ clear\r`
       type,
       cmd,
       selectedTabIds = [],
-      currentTabId,
+      activeTabId,
       pid,
       inputOnly,
       zoomValue
     } = e?.data || {}
 
-    const { id: currentTabIdProp } = this.props.tab
-    const tabIdMatch = selectedTabIds.includes(currentTabIdProp) || currentTabId === currentTabIdProp
+    const { id: activeTabIdProp } = this.props.tab
+    const tabIdMatch = selectedTabIds.includes(activeTabIdProp) || activeTabId === activeTabIdProp
     if (
       action === terminalActions.zoom &&
       tabIdMatch
@@ -357,9 +357,7 @@ clear\r`
       this.batchInput(cmd)
     } else if (
       action === terminalActions.showInfoPanel &&
-      (
-        tabIdMatch
-      )
+      tabIdMatch
     ) {
       this.handleShowInfo()
     } else if (
@@ -404,7 +402,7 @@ clear\r`
       this.searchAddon.clearDecorations()
     } else if (
       action === commonActions.getTermLogState &&
-      pid === currentTabIdProp
+      pid === activeTabIdProp
     ) {
       postMessage({
         action: commonActions.returnTermLogState,
@@ -412,11 +410,11 @@ clear\r`
           saveTerminalLogToFile: this.state.saveTerminalLogToFile,
           addTimeStampToTermLog: this.state.addTimeStampToTermLog
         },
-        pid: currentTabIdProp
+        pid: activeTabIdProp
       })
     } else if (
       action === commonActions.setTermLogState &&
-      pid === currentTabIdProp
+      pid === activeTabIdProp
     ) {
       this.setState({
         addTimeStampToTermLog,
@@ -1046,10 +1044,10 @@ clear\r`
   }
 
   setActive = () => {
-    const name = `currentTabId${this.props.batch}`
+    const name = `activeTabId${this.props.batch}`
     const tabId = this.props.tab.id
     window.store.storeAssign({
-      currentTabId: tabId,
+      activeTabId: tabId,
       [name]: tabId
     })
   }
@@ -1319,12 +1317,11 @@ clear\r`
   }
 
   handleShowInfo = () => {
-    const { id, sessionId, logName } = this.props
-    const { pid } = this.state
+    const { id, sessionId, logName, tab } = this.props
     const infoProps = {
       logName,
       id,
-      pid,
+      pid: tab.id,
       sessionId,
       isRemote: this.isRemote(),
       isActive: this.isActiveTerminal()

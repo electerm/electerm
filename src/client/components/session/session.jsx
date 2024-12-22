@@ -61,6 +61,10 @@ export default class SessionWrapper extends Component {
     return document.getElementById(`is-${this.props.tab.id}`)
   }
 
+  handleClick = () => {
+    window.store.activeTabId = this.props.tab.id
+  }
+
   onDrop = (e) => {
     e.preventDefault()
     const { target } = e
@@ -200,8 +204,7 @@ export default class SessionWrapper extends Component {
         tab,
         width: this.props.width,
         height: this.props.height,
-        reloadTab: this.props.reloadTab,
-        currentBatchTabId: this.props.currentBatchTabId
+        reloadTab: this.props.reloadTab
       }
       return (
         <WebSession
@@ -338,7 +341,7 @@ export default class SessionWrapper extends Component {
   handleOpenSearch = () => {
     postMessage({
       action: terminalActions.openTerminalSearch,
-      currentTabId: this.props.tab.id
+      activeTabId: this.props.tab.id
     })
   }
 
@@ -502,7 +505,8 @@ export default class SessionWrapper extends Component {
       onDragEnter: this.onDragEnter,
       onDragLeave: this.onDragLeave,
       onDrop: this.onDrop,
-      onDragEnd: this.onDragEnd
+      onDragEnd: this.onDragEnd,
+      onClick: this.handleClick
     }
     return (
       <div

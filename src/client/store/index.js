@@ -92,10 +92,10 @@ class Store {
 
   get currentTab () {
     const {
-      currentTabId
+      activeTabId
     } = this
     const { tabs } = window.store
-    const tab = tabs.find(t => t.id === currentTabId)
+    const tab = tabs.find(t => t.id === activeTabId)
     if (!tab) {
       return false
     }

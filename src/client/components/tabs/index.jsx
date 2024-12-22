@@ -60,8 +60,7 @@ export default class Tabs extends React.Component {
   }
 
   componentDidMount () {
-    const { batch } = this.props
-    this.dom = document.querySelector(`.v${batch + 1} .tabs-inner`)
+    this.domRef = React.createRef()
     const {
       tabsRef
     } = this
@@ -239,28 +238,28 @@ export default class Tabs extends React.Component {
     const scrollLeft = w > tabsInnerWidth
       ? w - tabsInnerWidth
       : 0
-    this.dom.scrollLeft = scrollLeft
+    this.domRef.current.scrollTo({ left: scrollLeft, behavior: 'smooth' })
     this.setState({
       overflow: this.isOverflow()
     })
   }
 
   handleScrollLeft = () => {
-    let { scrollLeft } = this.dom
+    let { scrollLeft } = this.domRef.current
     scrollLeft = scrollLeft - tabMargin - tabWidth
     if (scrollLeft < 0) {
       scrollLeft = 0
     }
-    this.dom.scrollLeft = scrollLeft
+    this.domRef.current.scrollTo({ left: scrollLeft, behavior: 'smooth' })
   }
 
   handleScrollRight = () => {
-    let { scrollLeft } = this.dom
+    let { scrollLeft } = this.domRef.current
     scrollLeft = scrollLeft + tabMargin + tabWidth
     if (scrollLeft < 0) {
       scrollLeft = 0
     }
-    this.dom.scrollLeft = scrollLeft
+    this.domRef.current.scrollTo({ left: scrollLeft, behavior: 'smooth' })
   }
 
   handleWheelEvent = debounce((e) => {
@@ -275,7 +274,7 @@ export default class Tabs extends React.Component {
 
   handleClickMenu = ({ key }) => {
     const id = key.split('##')[1]
-    window.store['currentTabId' + this.props.batch] = id
+    window.store['activeTabId' + this.props.batch] = id
   }
 
   handleChangeLayout = ({ key }) => {
@@ -415,6 +414,7 @@ export default class Tabs extends React.Component {
     return (
       <div
         className='tabs-inner'
+        ref={this.domRef}
         style={style}
       >
         <div

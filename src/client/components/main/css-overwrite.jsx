@@ -41,7 +41,7 @@ export default class CssOverwrite extends PureComponent {
       st = `url(${terminalBackgroundImagePath}) !important`
     }
     if (!st) {
-      return `#container .session-batch-active .xterm-screen {
+      return `#container .session-batch-active .xterm-screen::before {
         background-image: url("./images/electerm-watermark.png");
       }`
     }
@@ -65,7 +65,7 @@ export default class CssOverwrite extends PureComponent {
       })`)
     }
 
-    return `#container .session-batch-active .xterm-screen {
+    return `#container .session-batch-active .xterm-screen::before {
       ${styles.join(';')} 
     }`
   }

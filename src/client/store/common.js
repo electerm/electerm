@@ -12,7 +12,8 @@ import {
   leftSidebarWidthKey,
   rightSidebarWidthKey,
   dismissDelKeyTipLsKey,
-  connectionMap
+  connectionMap,
+  terminalActions
 } from '../common/constants'
 import * as ls from '../common/safe-local-storage'
 
@@ -43,6 +44,15 @@ export default Store => {
       data,
       file,
       action: commonActions.showFileModeModal
+    })
+  }
+
+  Store.prototype.openInfoPanel = function () {
+    const { store } = window
+    store.rightPanelVisible = true
+    postMessage({
+      action: terminalActions.showInfoPanel,
+      activeTabId: store.activeTabId
     })
   }
 

@@ -15,9 +15,9 @@ class ShortcutControl extends React.PureComponent {
 
   closeCurrentTabShortcut = throttle((e) => {
     e.stopPropagation()
-    const { currentTabId } = window.store
-    if (currentTabId) {
-      window.store.delTab(currentTabId)
+    const { activeTabId } = window.store
+    if (activeTabId) {
+      window.store.delTab(activeTabId)
     }
   }, 500)
 

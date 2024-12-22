@@ -18,12 +18,7 @@ const e = window.translate
 
 export default auto(function FooterEntry (props) {
   function handleInfoPanel () {
-    const { store } = window
-    store.rightPanelVisible = !store.rightPanelVisible
-    postMessage({
-      action: terminalActions.showInfoPanel,
-      currentTabId: store.currentTabId
-    })
+    window.store.openInfoPanel()
   }
 
   function batchInput (cmd, selectedTabIds) {
@@ -38,7 +33,7 @@ export default auto(function FooterEntry (props) {
     postMessage({
       encode,
       action: terminalActions.changeEncode,
-      currentTabId: props.store.currentTabId
+      activeTabId: props.store.activeTabId
     })
   }
 
@@ -58,7 +53,7 @@ export default auto(function FooterEntry (props) {
       input: batchInput,
       batchInputs: props.store.batchInputs,
       tabs: props.store.tabs,
-      currentTabId: props.store.currentTabId
+      activeTabId: props.store.activeTabId
     }
     return (
       <div className='terminal-footer-unit terminal-footer-center'>
