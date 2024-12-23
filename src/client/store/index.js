@@ -69,10 +69,6 @@ class Store {
     return window.store.innerWidth
   }
 
-  get fileTransferChanged () {
-    return JSON.stringify(window.store.fileTransfers)
-  }
-
   get currentQuickCommands () {
     const { currentTab } = this
     const { quickCommands } = window.store

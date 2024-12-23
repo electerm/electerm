@@ -108,6 +108,7 @@ export default class TransferConflictStore extends PureComponent {
   }
 
   tagTransferError = (id, errorMsg) => {
+    this.clear()
     const { store } = window
     const { fileTransfers } = store
     const index = findIndex(fileTransfers, d => d.id === id)
@@ -150,6 +151,18 @@ export default class TransferConflictStore extends PureComponent {
     window.addEventListener('message', this.onDecision)
   }
 
+  updateData = () => {
+    const {
+      store
+    } = window
+    const {
+      fileTransfers
+    } = store
+    if (fileTransfers.length > 0) {
+      fileTransfers[0].r = Math.random()
+    }
+  }
+
   setCanTransfer = (fromFile, tr) => {
     this.clear()
     const {
@@ -162,6 +175,7 @@ export default class TransferConflictStore extends PureComponent {
       return t.id === tr.id
     })
     if (index < 0) {
+      setTimeout(this.updateData, 0)
       return
     }
     const up = {
@@ -181,7 +195,7 @@ export default class TransferConflictStore extends PureComponent {
     const {
       fileTransfers
     } = store
-    if (!fileTransfers.length && this.currentId) {
+    if (!fileTransfers.length) {
       return this.clear()
     }
     const tr = fileTransfers
@@ -197,7 +211,6 @@ export default class TransferConflictStore extends PureComponent {
       return this.clear()
     }
     if (this.currentId) {
-      // fileTransfers[0].r = Math.random()
       return
     }
     this.currentId = tr.id
@@ -217,7 +230,6 @@ export default class TransferConflictStore extends PureComponent {
       ? tr.fromFile
       : await this.checkExist(typeFrom, fromPath, sessionId)
     if (!fromFile) {
-      this.currentId = ''
       return this.tagTransferError(id, 'file not exist')
     }
     let toFile = false

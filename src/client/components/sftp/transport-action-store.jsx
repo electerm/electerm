@@ -5,7 +5,9 @@ import generate from '../../common/uid'
 import { typeMap, transferTypeMap, commonActions } from '../../common/constants'
 import fs from '../../common/fs'
 import format, { computeLeftTime, computePassedTime } from './transfer-speed-format'
-import { getFolderFromFilePath } from './file-read'
+import {
+  getFolderFromFilePath
+} from './file-read'
 import resolve from '../../common/resolve'
 import delay from '../../common/wait'
 import postMsg from '../../common/post-msg'
@@ -99,7 +101,11 @@ export default class TransportAction extends Component {
     const cb = this[typeTo + 'List']
     const finishTime = Date.now()
     if (next) {
-      this.insert([copy(next)])
+      setTimeout(() => {
+        window.store.fileTransfers.splice(
+          this.props.index, 0, copy(next)
+        )
+      }, 0)
     }
     if (!config.disableTransferHistory) {
       delete transfer.next
@@ -223,9 +229,9 @@ export default class TransportAction extends Component {
       originalId: transfer.id,
       id: generate()
     }
-    delete newTrans1.fromFile
     delete newTrans1.inited
     delete newTrans1.zip
+    delete newTrans1.fromFile
     const newTrans2 = copy(newTrans1)
     newTrans2.unzip = true
     newTrans2.id = generate()
@@ -368,6 +374,7 @@ export default class TransportAction extends Component {
     } else if (unzip && inited) {
       this.unzipFile()
     } else if (zip && inited) {
+      console.log('shgoould zip tr')
       this.zipTransfer()
     } else if (isDirectory && expanded && this.isTransferAction(action)) {
       return this.mkdir()

@@ -16,7 +16,6 @@ export default class TransportsActionStore extends Component {
     if (
       prevProps.fileTransferChanged !== this.props.fileTransferChanged
     ) {
-      console.log('df')
       this.control()
     }
   }
@@ -87,6 +86,9 @@ export default class TransportsActionStore extends Component {
       ) {
         count++
         tr.inited = true
+      }
+      if (count >= maxTransport) {
+        break
       }
     }
   }

@@ -164,7 +164,7 @@ export default auto(function Index (props) {
     upgradeInfo
   }
   const conflictStoreProps = {
-    fileTransferChanged: store.fileTransferChanged,
+    fileTransferChanged: JSON.stringify(copiedTransfer),
     fileTransfers: copiedTransfer
   }
   const batchOpProps = {
