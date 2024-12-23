@@ -130,13 +130,6 @@ export default function ConfirmModalStore (props) {
           {e('skip')}
         </Button>
         <Button
-          type='dashed'
-          className='mg1l'
-          onClick={() => act(fileActions.skipAll)}
-        >
-          {e('skipAll')}
-        </Button>
-        <Button
           danger
           className='mg1l'
           onClick={

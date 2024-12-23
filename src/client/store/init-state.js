@@ -78,8 +78,8 @@ export default () => {
     fileOperation: fileOperationsMap.cp, // cp or mv
     pauseAllTransfer: false,
     transferTab: 'transfer',
-    _transferHistory: '[]',
-    _fileTransfers: '[]',
+    transferHistory: [],
+    fileTransfers: [],
     _transferToConfirm: '{}',
     _sftpSortSetting: ls.getItem(sftpDefaultSortSettingKey) || JSON.stringify({
       local: {

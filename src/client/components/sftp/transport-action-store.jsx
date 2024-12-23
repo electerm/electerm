@@ -1,11 +1,13 @@
 import { Component } from 'react'
 import copy from 'json-deep-copy'
-import { findIndex, isFunction } from 'lodash-es'
+import { isFunction } from 'lodash-es'
 import generate from '../../common/uid'
 import { typeMap, transferTypeMap, commonActions } from '../../common/constants'
 import fs from '../../common/fs'
 import format, { computeLeftTime, computePassedTime } from './transfer-speed-format'
-import { getFolderFromFilePath } from './file-read'
+import {
+  getFolderFromFilePath
+} from './file-read'
 import resolve from '../../common/resolve'
 import delay from '../../common/wait'
 import postMsg from '../../common/post-msg'
@@ -35,12 +37,6 @@ export default class TransportAction extends Component {
       this.initTransfer()
     }
     if (
-      this.props.cancel === true &&
-      prevProps.cancel !== true
-    ) {
-      this.cancel()
-    }
-    if (
       this.props.pause !== prevProps.pause
     ) {
       if (this.props.pause) {
@@ -54,32 +50,24 @@ export default class TransportAction extends Component {
   componentWillUnmount () {
     this.transport && this.transport.destroy()
     this.transport = null
-    clearTimeout(this.timer)
-    this.timer = null
+    this.inst = null
   }
 
   update = (up) => {
-    const { fileTransfers, transfer } = this.props
+    const { transfer } = this.props
     const {
       store
     } = window
-    const index = findIndex(fileTransfers, t => t.id === transfer.id)
-    if (index < 0) {
-      return store.setFileTransfers(fileTransfers)
-    }
-    store.editTransfer(
-      fileTransfers[index].id,
+    store.updateTransfer(
+      transfer.id,
       up
     )
-    Object.assign(fileTransfers[index], up)
-    store.setFileTransfers(fileTransfers)
   }
 
   insert = (insts) => {
-    const { fileTransfers, transfer } = this.props
-    const index = findIndex(fileTransfers, t => t.id === transfer.id)
+    const { fileTransfers } = window.store
+    const { index } = this.props
     fileTransfers.splice(index, 1, ...insts)
-    window.store.setFileTransfers(fileTransfers)
   }
 
   remoteList = () => {
@@ -112,21 +100,25 @@ export default class TransportAction extends Component {
     } = transfer
     const cb = this[typeTo + 'List']
     const finishTime = Date.now()
-    if (!config.disableTransferHistory) {
-      window.store.addTransferHistory(
-        {
-          ...transfer,
-          ...update,
-          finishTime,
-          startTime: this.startTime,
-          size: transfer.fromFile.size,
-          next: null,
-          speed: format(transfer.fromFile.size, this?.startTime)
-        }
-      )
-    }
     if (next) {
-      this.insert([copy(next)])
+      setTimeout(() => {
+        window.store.fileTransfers.splice(
+          this.props.index, 0, copy(next)
+        )
+      }, 0)
+    }
+    if (!config.disableTransferHistory) {
+      delete transfer.next
+      Object.assign(transfer, update, {
+        finishTime,
+        startTime: this.startTime,
+        size: transfer.fromFile.size,
+        next: null,
+        speed: format(transfer.fromFile.size, this?.startTime)
+      })
+      window.store.addTransferHistory(
+        transfer
+      )
     }
     this.cancel(cb)
   }
@@ -160,21 +152,11 @@ export default class TransportAction extends Component {
       return
     }
     this.onCancel = true
-    const {
-      transfer
-    } = this.props
-    let {
-      fileTransfers
-    } = this.props
-    const { id } = transfer
     this.transport && this.transport.destroy()
     this.transport = null
-    fileTransfers = fileTransfers.filter(t => {
-      return t.id !== id
-    })
-    this.timer = setTimeout(() => {
-      window.store.setFileTransfers(fileTransfers)
-    }, 100)
+    window.store.fileTransfers.splice(
+      this.props.index, 1
+    )
     if (isFunction(callback)) {
       callback()
     }
@@ -247,9 +229,9 @@ export default class TransportAction extends Component {
       originalId: transfer.id,
       id: generate()
     }
-    delete newTrans1.fromFile
     delete newTrans1.inited
     delete newTrans1.zip
+    delete newTrans1.fromFile
     const newTrans2 = copy(newTrans1)
     newTrans2.unzip = true
     newTrans2.id = generate()
@@ -392,6 +374,7 @@ export default class TransportAction extends Component {
     } else if (unzip && inited) {
       this.unzipFile()
     } else if (zip && inited) {
+      console.log('shgoould zip tr')
       this.zipTransfer()
     } else if (isDirectory && expanded && this.isTransferAction(action)) {
       return this.mkdir()

@@ -14,7 +14,7 @@ export default class TransportsActionStore extends Component {
 
   componentDidUpdate (prevProps) {
     if (
-      prevProps._fileTransfers !== this.props._fileTransfers
+      prevProps.fileTransferChanged !== this.props.fileTransferChanged
     ) {
       this.control()
     }
@@ -22,11 +22,11 @@ export default class TransportsActionStore extends Component {
 
   control = async () => {
     const { store } = window
-    let {
+    const {
       fileTransfers
-    } = this.props
+    } = store
 
-    fileTransfers = fileTransfers.map(t => {
+    fileTransfers.forEach(t => {
       const {
         typeTo,
         typeFrom,
@@ -37,7 +37,6 @@ export default class TransportsActionStore extends Component {
       if (typeTo === typeFrom && ready && !inited) {
         t.inited = true
       }
-      return t
     })
     // if (pauseAllTransfer) {
     //   return store.setFileTransfers(fileTransfers)
@@ -51,10 +50,10 @@ export default class TransportsActionStore extends Component {
       return typeTo !== typeFrom && inited
     }).length
     if (count >= maxTransport) {
-      return store.setFileTransfers(fileTransfers)
+      return
     }
     const len = fileTransfers.length
-    const ids = []
+    // const ids = []
     for (let i = 0; i < len; i++) {
       const tr = fileTransfers[i]
       const {
@@ -62,13 +61,11 @@ export default class TransportsActionStore extends Component {
         typeFrom,
         inited,
         fromFile,
-        error,
-        id,
         action
       } = tr
-      if (!error) {
-        ids.push(id)
-      }
+      // if (!error) {
+      //   ids.push(id)
+      // }
       const isTransfer = typeTo !== typeFrom
       const ready = (
         action && fromFile
@@ -90,8 +87,10 @@ export default class TransportsActionStore extends Component {
         count++
         tr.inited = true
       }
+      if (count >= maxTransport) {
+        break
+      }
     }
-    store.setFileTransfers(fileTransfers)
   }
 
   render () {

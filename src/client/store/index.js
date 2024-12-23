@@ -242,8 +242,6 @@ const arrGetterProps = [
   'bookmarks',
   'bookmarkGroups',
   'profiles',
-  'fileTransfers',
-  'transferHistory',
   'quickCommands',
   'terminalThemes',
   'serials',

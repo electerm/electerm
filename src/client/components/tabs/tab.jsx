@@ -17,6 +17,7 @@ import { addClass, removeClass } from '../../common/class'
 import {
   terminalSshConfigType
 } from '../../common/constants'
+import { action } from 'manate'
 import { shortcutDescExtend } from '../shortcuts/shortcut-handler.js'
 
 const e = window.translate
@@ -146,12 +147,14 @@ class Tab extends Component {
       }
 
       // Reorder tabs and update batch
-      const [tab] = storeTabs.splice(indexFrom, 1)
-      tab.batch = targetTab.batch // Update the batch to match target tab's batch
-      if (indexFrom < indexDrop) {
-        indexDrop = indexDrop - 1
-      }
-      storeTabs.splice(indexDrop, 0, tab)
+      action(function () {
+        const [tab] = storeTabs.splice(indexFrom, 1)
+        tab.batch = targetTab.batch // Update the batch to match target tab's batch
+        if (indexFrom < indexDrop) {
+          indexDrop = indexDrop - 1
+        }
+        storeTabs.splice(indexDrop, 0, tab)
+      })()
       window.store.focus()
     }
   }

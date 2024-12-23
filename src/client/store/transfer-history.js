@@ -4,20 +4,14 @@
 
 export default Store => {
   Store.prototype.clearTransferHistory = function () {
-    window.store.setItems('transferHistory', [])
+    window.store.transferHistory = []
   }
 
   Store.prototype.getTransferHistory = function () {
-    return window.store.getItems('transferHistory')
+    return window.store.transferHistory
   }
 
   Store.prototype.addTransferHistory = function (item) {
-    const { store } = window
-    const transferHistory = store.getItems('transferHistory')
-    transferHistory.unshift(item)
-    store.setItems(
-      'transferHistory',
-      transferHistory
-    )
+    window.store.transferHistory.unshift(item)
   }
 }
