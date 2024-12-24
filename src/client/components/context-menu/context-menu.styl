@@ -2,7 +2,7 @@
 .context-menu
   position: absolute
   width 280px
-  background main-dark
+  background main
   box-shadow 0px 0px 3px 3px alpha(main-dark, .35)
   padding 10px 0
   z-index 999
@@ -20,7 +20,7 @@
   line-height 28px
   padding 0 16px
   &:hover
-    background #000
+    background #08c
     color #eee
     cursor pointer
   &.disabled
@@ -47,7 +47,7 @@
   position absolute
   left 100%
   top 0
-  background main-dark
+  background main
   box-shadow 0px 0px 3px 3px alpha(main, .35)
   max-height 300px
   overflow-y scroll
@@ -62,8 +62,8 @@
   white-space nowrap
   text-overflow ellipsis
   &:hover, &.active
-    background-color primary
-    color contrastColor(primary)
+    background-color #08c
+    color #eee
 .bookmarks-sub-context-menu
   width 380px
   padding 20px 10px 10px 20px
