@@ -6,7 +6,8 @@ import { debounce, isEqual } from 'lodash-es'
 import {
   splitConfig,
   statusMap,
-  paneMap
+  paneMap,
+  maxHistory
 } from '../common/constants'
 import * as ls from '../common/safe-local-storage'
 import deepCopy from 'json-deep-copy'
@@ -474,6 +475,9 @@ export default Store => {
     action(function () {
       const [m] = history.splice(index, 1)
       history.unshift(m)
+      if (history.length > maxHistory) {
+        history.pop()
+      }
     })()
   }
 }

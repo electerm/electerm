@@ -16,10 +16,11 @@ export default auto(function HistoryPanel (props) {
     >
       <div className='pd2x'>
         {
-          history.map((item) => {
+          history.map((item, i) => {
             return (
               <HistoryItem
                 key={item.id}
+                index={i}
                 item={item}
               />
             )
