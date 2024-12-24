@@ -3,7 +3,7 @@ import { createTitleWithTag } from '../../common/create-title'
 
 export default class TabsSubMenuChild extends PureComponent {
   handleClick = () => {
-    window.store.onChangeTabId(this.props.item.id)
+    window.store.changeActiveTabId(this.props.item.id)
   }
 
   render () {

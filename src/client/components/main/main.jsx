@@ -146,7 +146,8 @@ export default auto(function Index (props) {
       'settingItem',
       'isSyncingSetting',
       'leftSidebarWidth',
-      'transferTab'
+      'transferTab',
+      'sidebarPanelTab'
     ]),
     fileTransfers: copiedTransfer,
     transferHistory: copiedHistory,

@@ -10,9 +10,6 @@ import {
   Button,
   Form
 } from 'antd'
-import {
-  settingMap
-} from '../../common/constants'
 import { tailFormItemLayout } from '../../common/form-layout'
 import useFuncs from './use-form-funcs'
 
@@ -37,18 +34,12 @@ export default function useBookmarkSubmit (props) {
           className='mg1r mg1b'
         >{e('saveAndConnect')}
         </Button>
-        {
-          settingMap.history === props.type
-            ? null
-            : (
-              <Button
-                type='primary'
-                className='mg1r mg1b'
-                onClick={saveAndCreateNew}
-              >{e('saveAndCreateNew')}
-              </Button>
-              )
-        }
+        <Button
+          type='primary'
+          className='mg1r mg1b'
+          onClick={saveAndCreateNew}
+        >{e('saveAndCreateNew')}
+        </Button>
         <Button
           type='dashed'
           className='mg1r mg1b'

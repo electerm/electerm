@@ -3,7 +3,6 @@
  */
 
 import {
-  settingMap,
   openedSidebarKey,
   sidebarPinnedKey
 } from '../common/constants'
@@ -26,11 +25,6 @@ export default Store => {
     )
   }
 
-  Store.prototype.setOpenedSideBar = function (bar) {
-    ls.setItem(openedSidebarKey, bar)
-    window.store.openedSideBar = bar
-  }
-
   Store.prototype.handlePin = function (pinned) {
     const { store } = window
     const current = !store.pinned
@@ -42,7 +36,12 @@ export default Store => {
     window.store.onNewSsh()
   }
 
-  Store.prototype.onClickHistory = function () {
-    window.store.handleChangeSettingTab(settingMap.history)
+  Store.prototype.handleSidebarPanelTab = function (tab) {
+    window.store.sidebarPanelTab = tab
+  }
+
+  Store.prototype.setOpenedSideBar = function (v) {
+    ls.setItem(openedSidebarKey, v)
+    window.store.openedSideBar = v
   }
 }

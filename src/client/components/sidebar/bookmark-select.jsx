@@ -1,5 +1,5 @@
 /**
- * history select
+ * bookmark select
  */
 
 import { auto } from 'manate/react'

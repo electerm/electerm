@@ -98,6 +98,11 @@ export default store => {
   }).start()
 
   autoRun(() => {
+    ls.setItemJSON('history', store.history)
+    return store.history
+  }).start()
+
+  autoRun(() => {
     const tabs = store.getTabs()
     const { activeTabId } = store
     const tab = tabs.find(t => t.id === activeTabId)

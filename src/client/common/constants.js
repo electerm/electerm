@@ -98,7 +98,6 @@ export const paneMap = buildConst([
 export const settingMap = buildConst([
   'setting',
   'bookmarks',
-  'history',
   'terminalThemes',
   'bookmarkGroups',
   'quickCommands',

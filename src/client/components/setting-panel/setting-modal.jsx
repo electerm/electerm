@@ -11,7 +11,6 @@ import {
   modals
 } from '../../common/constants'
 import TabBookmarks from './tab-bookmarks'
-import TabHistory from './tab-history'
 import TabQuickCommands from './tab-quick-commands'
 import TabSettings from './tab-settings'
 import TabThemes from './tab-themes'
@@ -69,11 +68,6 @@ export default auto(function SettingModalWrap (props) {
     }
     const items = [
       {
-        key: settingMap.history,
-        label: e(settingMap.history),
-        children: null
-      },
-      {
         key: settingMap.bookmarks,
         label: e(settingMap.bookmarks),
         children: null
@@ -112,12 +106,6 @@ export default auto(function SettingModalWrap (props) {
       <div>
         <Tabs
           {...tabsProps}
-        />
-        <TabHistory
-          listProps={props0}
-          settingItem={settingItem}
-          formProps={formProps}
-          settingTab={settingTab}
         />
         <TabQuickCommands
           listProps={props0}

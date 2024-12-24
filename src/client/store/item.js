@@ -4,24 +4,12 @@
 
 import { find } from 'lodash-es'
 import {
-  maxHistory,
   settingMap
 } from '../common/constants'
 import getInitItem from '../common/init-setting-item'
 import { update, remove, dbNames } from '../common/db'
-import copy from 'json-deep-copy'
 
 export default Store => {
-  Store.prototype.removeOldHistoryFromDb = function (items) {
-    const arr = items.slice(maxHistory).map(k => {
-      return {
-        db: 'history',
-        id: k.id
-      }
-    })
-    window.store.batchDbDel(arr)
-  }
-
   Store.prototype.addItem = function (item, type) {
     return window.store.addItems([item], type)
   }
@@ -33,12 +21,6 @@ export default Store => {
       ...objs,
       ...items
     ]
-    if (type === settingMap.history && items.length > maxHistory) {
-      store.removeOldHistoryFromDb(
-        copy(items)
-      )
-      items.slice(0, maxHistory)
-    }
     store.setItems(type, items)
     if (dbNames.includes(type)) {
       store.batchDbAdd(

@@ -2,7 +2,7 @@
  * tabs related functions
  */
 
-import { debounce } from 'lodash-es'
+import { debounce, isEqual } from 'lodash-es'
 import {
   splitConfig,
   statusMap,
@@ -11,7 +11,9 @@ import {
 import * as ls from '../common/safe-local-storage'
 import deepCopy from 'json-deep-copy'
 import generate from '../common/id-with-stamp'
+import uid from '../common/uid'
 import newTerm from '../common/new-terminal.js'
+import { action } from 'manate'
 
 export default Store => {
   Store.prototype.getTabs = function () {
@@ -92,6 +94,7 @@ export default Store => {
 
     // Add new tab at next index
     tabs.splice(index + 1, 0, newTab)
+    store.updateHistory(newTab)
 
     // Remove old tab
     tabs.splice(index, 1)
@@ -128,6 +131,7 @@ export default Store => {
 
     // Insert the duplicated tab after the source tab
     tabs.splice(targetIndex + 1, 0, duplicatedTab)
+    store.updateHistory(duplicatedTab)
 
     // Set the duplicated tab as current
     store.activeTabId = duplicatedTab.id
@@ -307,6 +311,7 @@ export default Store => {
     store[`activeTabId${batchNum}`] = newTab.id
     store.activeTabId = newTab.id
     store.currentLayoutBatch = batchNum
+    store.updateHistory(newTab)
   }
 
   Store.prototype.clickNextTab = debounce(function () {
@@ -412,5 +417,63 @@ export default Store => {
       }
     }
     store.focus()
+  }
+
+  Store.prototype.changeActiveTabId = function (id) {
+    const { store } = window
+    const { tabs } = store
+    const tab = tabs.find(t => t.id === id)
+    if (!tab) {
+      return
+    }
+    store.activeTabId = id
+    store[`activeTabId${tab.batch}`] = id
+    store.focus()
+  }
+
+  Store.prototype.updateHistory = function (tab) {
+    if (!tab.type && !tab.host) {
+      return
+    }
+    const { store } = window
+    const tabPropertiesExcludes = [
+      'id',
+      'from',
+      'srcId',
+      'status',
+      'pane',
+      'batch'
+    ]
+    const { history } = store
+    const index = history.findIndex(d => {
+      for (const key in tab) {
+        if (tabPropertiesExcludes.includes(key)) {
+          continue
+        }
+        if (!isEqual(d.tab[key], tab[key])) {
+          return false
+        }
+      }
+      return true
+    })
+    if (index === -1) {
+      const copiedTab = deepCopy(tab)
+      tabPropertiesExcludes.forEach(d => {
+        delete copiedTab[d]
+      })
+      return history.unshift({
+        tab: copiedTab,
+        time: Date.now(),
+        count: 1,
+        id: uid()
+      })
+    }
+    const match = history[index]
+    match.count = (match.count || 0) + 1
+    match.time = Date.now()
+    action(function () {
+      const [m] = history.splice(index, 1)
+      history.unshift(m)
+    })()
   }
 }
