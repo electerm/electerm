@@ -12,7 +12,6 @@ const reso = (name) => {
 }
 const tables = [
   'bookmarks',
-  'history',
   'bookmarkGroups',
   'addressBookmarks',
   'terminalThemes',

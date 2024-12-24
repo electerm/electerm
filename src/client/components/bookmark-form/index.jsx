@@ -125,7 +125,7 @@ export default class BookmarkIndex extends PureComponent {
     const {
       type
     } = this.props
-    if (type !== settingMap.bookmarks && type !== settingMap.history) {
+    if (type !== settingMap.bookmarks) {
       return null
     }
     const { ready } = this.state

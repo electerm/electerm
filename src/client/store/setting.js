@@ -6,7 +6,6 @@ import { find } from 'lodash-es'
 import {
   message
 } from 'antd'
-import generate from '../common/uid'
 import copy from 'json-deep-copy'
 import {
   settingMap,
@@ -40,16 +39,6 @@ export default Store => {
       }
     )
   }
-  Store.prototype.handleEditHistory = function () {
-    const { store } = window
-    const all = store.history
-    store.storeAssign({
-      settingTab: settingMap.history,
-      autofocustrigger: Date.now()
-    })
-    store.setSettingItem(all[0] || getInitItem([], settingMap.history))
-    store.openSettingModal()
-  }
 
   Store.prototype.openBookmarkEdit = function (item) {
     const { store } = window
@@ -71,14 +60,10 @@ export default Store => {
     store.openSettingModal()
   }
 
-  Store.prototype.onSelectHistory = function (id) {
+  Store.prototype.onSelectHistory = function (tab) {
     const { store } = window
-    const history = store.history
-    const item = find(history, it => it.id === id)
     store.addTab({
-      ...copy(item),
-      from: 'history',
-      srcId: item.id,
+      ...copy(tab),
       ...newTerm(true, true),
       batch: window.openTabBatch ?? store.currentLayoutBatch
     })
@@ -87,7 +72,6 @@ export default Store => {
 
   Store.prototype.onSelectBookmark = function (id) {
     const { store } = window
-    const history = store.history
     const bookmarks = store.bookmarks
     const item = copy(
       find(bookmarks, it => it.id === id) ||
@@ -105,39 +89,6 @@ export default Store => {
     })
 
     delete window.openTabBatch
-
-    if (store.config.disableSshHistory) {
-      return
-    }
-
-    // Critical Change: Use bookmarkId for matching instead of history id
-    const bookmarkId = item.id
-    const existingIndex = history.findIndex(h => h.bookmarkId === bookmarkId)
-    if (existingIndex >= 0) {
-      history[existingIndex].count = (history[existingIndex].count || 0) + 1
-      history[existingIndex].lastUse = Date.now()
-      const updatedItem = history.splice(existingIndex, 1)[0]
-      history.unshift(updatedItem)
-    } else {
-      const historyItem = {
-        ...item,
-        id: generate(),
-        bookmarkId,
-        count: 1,
-        lastUse: Date.now()
-      }
-      history.unshift(historyItem)
-    }
-
-    history.sort((a, b) => b.count - a.count || b.lastUse - a.lastUse)
-
-    // Optional: Consider max history length
-    const maxHistoryLength = store.config.maxHistoryLength || 50
-    if (history.length > maxHistoryLength) {
-      history.length = maxHistoryLength
-    }
-
-    store.setItems('history', history)
   }
 
   Store.prototype.openSetting = function () {

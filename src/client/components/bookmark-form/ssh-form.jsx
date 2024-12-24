@@ -167,19 +167,6 @@ export default class BookmarkForm extends PureComponent {
     const bookmarkGroups = copy(
       this.props.bookmarkGroups
     )
-    if (type === settingMap.history) {
-      obj.id = generate()
-      runIdle(() => {
-        addItem(obj, settingMap.bookmarks)
-      })
-      this.updateBookmarkGroups(
-        bookmarkGroups,
-        obj,
-        categoryId
-      )
-      message.success('OK', 3)
-      return
-    }
     if (!obj.id.startsWith(newBookmarkIdPrefix)) {
       const tar = copy(obj)
       delete tar.id
@@ -196,11 +183,6 @@ export default class BookmarkForm extends PureComponent {
       }
     } else {
       obj.id = generate()
-      if (evt !== 'save' && evt !== 'saveAndCreateNew') {
-        runIdle(() => {
-          addItem(obj, settingMap.history)
-        })
-      }
       runIdle(() => {
         addItem(obj, settingMap.bookmarks)
       })

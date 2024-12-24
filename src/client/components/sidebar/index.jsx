@@ -1,6 +1,5 @@
 import {
   BookOutlined,
-  ClockCircleOutlined,
   CloudSyncOutlined,
   InfoCircleOutlined,
   PictureOutlined,
@@ -11,8 +10,7 @@ import {
 } from '@ant-design/icons'
 import { useRef, memo } from 'react'
 import { Tooltip } from 'antd'
-import BookMarksWrap from './bookmark'
-import HistoryWrap from './history'
+import SideBarPanel from './sidebar-panel'
 import TransferList from './transfer-list'
 import MenuBtn from '../context-menu/menu-btn'
 import {
@@ -43,7 +41,7 @@ export default memo(function Sidebar (props) {
     transferTab,
     showModal,
     showInfoModal,
-    activeItemId
+    sidebarPanelTab
   } = props
 
   const { store } = window
@@ -66,14 +64,6 @@ export default memo(function Sidebar (props) {
     store.setOpenedSideBar('bookmarks')
   }
 
-  const handleMouseEnterHistory = () => {
-    if (pinned) {
-      return false
-    }
-    clearTimeout(handler.current)
-    store.setOpenedSideBar('history')
-  }
-
   const handleShowUpgrade = () => {
     store.storeAssign({
       _upgradeInfo: JSON.stringify({
@@ -90,7 +80,6 @@ export default memo(function Sidebar (props) {
     openSettingSync,
     openTerminalThemes,
     onClickBookmark,
-    onClickHistory,
     toggleBatchOp,
     setLeftSidePanelWidth
   } = store
@@ -105,7 +94,6 @@ export default memo(function Sidebar (props) {
   const settingActive = showSetting && settingTab === settingMap.setting && settingItem.id === 'setting-common'
   const syncActive = showSetting && settingTab === settingMap.setting && settingItem.id === 'setting-sync'
   const themeActive = showSetting && settingTab === settingMap.terminalThemes
-  const historyActive = showSetting && settingTab === settingMap.history
   const bookmarksActive = showSetting && settingTab === settingMap.bookmarks
   const sideProps = openedSideBar
     ? {
@@ -151,17 +139,6 @@ export default memo(function Sidebar (props) {
             onMouseEnter={handleMouseEnterBookmark}
             onMouseLeave={handleMouseLeave}
             onClick={onClickBookmark}
-            className='font20 iblock control-icon'
-          />
-        </SideIcon>
-        <SideIcon
-          title={e(settingMap.history)}
-          active={historyActive}
-        >
-          <ClockCircleOutlined
-            onMouseEnter={handleMouseEnterHistory}
-            onMouseLeave={handleMouseLeave}
-            onClick={onClickHistory}
             className='font20 iblock control-icon'
           />
         </SideIcon>
@@ -231,18 +208,11 @@ export default memo(function Sidebar (props) {
         setLeftSidePanelWidth={setLeftSidePanelWidth}
         leftSidebarWidth={leftSidebarWidth}
       >
-        <BookMarksWrap
+        <SideBarPanel
           pinned={pinned}
+          sidebarPanelTab={sidebarPanelTab}
           onMouseEnter={handleMouseEnterBookmark}
           onMouseLeave={handleMouseLeave}
-        />
-        <HistoryWrap
-          history={props.history}
-          openedSideBar={openedSideBar}
-          onMouseEnter={handleMouseEnterHistory}
-          onMouseLeave={handleMouseLeave}
-          activeItemId={activeItemId}
-          pinned={pinned}
         />
       </SidePanel>
     </div>

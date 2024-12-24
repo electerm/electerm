@@ -48,8 +48,9 @@ export default () => {
     lastDataUpdateTime: 0,
     tabs: [],
     activeTabId: '',
-    _history: '[]',
+    history: ls.getItemJSON('history', []),
     _bookmarks: '[]',
+    sidebarPanelTab: 'bookmarks',
     _profiles: '[]',
     _bookmarkGroups: JSON.stringify(
       getDefaultBookmarkGroups([])

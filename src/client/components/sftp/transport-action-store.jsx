@@ -374,7 +374,6 @@ export default class TransportAction extends Component {
     } else if (unzip && inited) {
       this.unzipFile()
     } else if (zip && inited) {
-      console.log('shgoould zip tr')
       this.zipTransfer()
     } else if (isDirectory && expanded && this.isTransferAction(action)) {
       return this.mkdir()

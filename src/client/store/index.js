@@ -238,7 +238,6 @@ const arrGetterProps = [
   'addressBookmarksLocal',
   'sshConfigItems',
   'itermThemes',
-  'history',
   'bookmarks',
   'bookmarkGroups',
   'profiles',
