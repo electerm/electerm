@@ -6,7 +6,7 @@ import React from 'react'
 import { Modal, Button } from 'antd'
 import resolve from '../../common/resolve'
 import time from '../../common/time'
-import { findIndex, update } from 'lodash-es'
+import { update } from 'lodash-es'
 import { mode2permission, permission2mode } from '../../common/mode2permission'
 import { commonActions } from '../../common/constants'
 import renderPermission from './permission-render'
@@ -65,7 +65,7 @@ export default class FileMode extends React.PureComponent {
   onChangePermission = (name, permName) => {
     const { file } = this.state
     const perms = mode2permission(file.mode)
-    const i = findIndex(perms, p => p.name === name)
+    const i = perms.findIndex(p => p.name === name)
     update(
       perms,
       `[${i}].permission.${permName}`,

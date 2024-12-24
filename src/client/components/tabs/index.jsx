@@ -4,7 +4,7 @@
 
 import React from 'react'
 import runIdle from '../../common/run-idle'
-import { findIndex, debounce } from 'lodash-es'
+import { debounce } from 'lodash-es'
 import TabTitle from './tab-title'
 import {
   CodeFilled,
@@ -227,7 +227,7 @@ export default class Tabs extends React.Component {
 
   adjustScroll = () => {
     const { tabs, currentBatchTabId, batch } = this.props
-    const index = findIndex(tabs, t => t.id === currentBatchTabId)
+    const index = tabs.findIndex(t => t.id === currentBatchTabId)
     const tabsDomWith = Array.from(
       document.querySelectorAll(`.v${batch + 1} .tab`)
     ).slice(0, index + 2).reduce((prev, c) => {

@@ -21,7 +21,7 @@ import {
 } from 'antd'
 import createName from '../../common/create-title'
 import InputAutoFocus from '../common/input-auto-focus'
-import { find, uniq, findIndex, isEqual, filter, pick } from 'lodash-es'
+import { find, uniq, isEqual, filter, pick } from 'lodash-es'
 import {
   maxBookmarkGroupTitleLength,
   defaultBookmarkGroupId,
@@ -597,13 +597,13 @@ export default class ItemListTree extends Component {
     } = window.store
 
     if (!pidDragged && !pidDrop) {
-      const indexDrag = findIndex(bookmarkGroups, item => item.id === idDragged)
+      const indexDrag = bookmarkGroups.findIndex(item => item.id === idDragged)
       if (indexDrag < 0) {
         return
       }
       const dragItem = bookmarkGroups.splice(indexDrag, 1)[0]
       dragItem.level = 1
-      const indexDrop = findIndex(bookmarkGroups, item => item.id === idDrop)
+      const indexDrop = bookmarkGroups.findIndex(item => item.id === idDrop)
       if (indexDrop < 0) {
         return
       }
@@ -653,7 +653,7 @@ export default class ItemListTree extends Component {
         )
       } else {
         const arr = parentDrop.bookmarkGroupIds || []
-        let index = findIndex(arr, item => item === idDrop)
+        let index = arr.findIndex(item => item === idDrop)
         if (index < 0) {
           index = 0
         }
@@ -704,7 +704,7 @@ export default class ItemListTree extends Component {
         )
       } else {
         const arr = parentDrop.bookmarkIds || []
-        let index = findIndex(arr, item => item === idDrop)
+        let index = arr.findIndex(item => item === idDrop)
         if (index < 0) {
           index = 0
         }
@@ -724,7 +724,7 @@ export default class ItemListTree extends Component {
       pidDrop &&
       !pidDragged
     ) {
-      const i = findIndex(bookmarkGroups, item => item.id === idDragged)
+      const i = bookmarkGroups.findIndex(item => item.id === idDragged)
       if (i >= 0) {
         const item = bookmarkGroups[i]
         item.level = 2
@@ -795,13 +795,11 @@ export default class ItemListTree extends Component {
   }
 
   updateBookmarkGroups = (bookmarkGroups, bookmark, categoryId) => {
-    let index = findIndex(
-      bookmarkGroups,
+    let index = bookmarkGroups.findIndex(
       bg => bg.id === categoryId
     )
     if (index < 0) {
-      index = findIndex(
-        bookmarkGroups,
+      index = bookmarkGroups.findIndex(
         bg => bg.id === defaultBookmarkGroupId
       )
     }

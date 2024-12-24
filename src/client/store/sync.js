@@ -2,7 +2,7 @@
  * sync data to github gist related
  */
 
-import { get, pick, debounce, findIndex } from 'lodash-es'
+import { get, pick, debounce } from 'lodash-es'
 import copy from 'json-deep-copy'
 import {
   settingMap, packInfo, syncTypes, syncDataMaps
@@ -186,8 +186,8 @@ export default (Store) => {
       const order = await getData(`${n}:order`)
       if (order && order.length) {
         str.sort((a, b) => {
-          const ai = findIndex(order, r => r === a.id)
-          const bi = findIndex(order, r => r === b.id)
+          const ai = order.findIndex(r => r === a.id)
+          const bi = order.findIndex(r => r === b.id)
           return ai - bi
         })
       }
@@ -285,8 +285,8 @@ export default (Store) => {
       if (isJSON(strOrder)) {
         strOrder = JSON.parse(strOrder)
         arr.sort((a, b) => {
-          const ai = findIndex(strOrder, r => r === a.id)
-          const bi = findIndex(strOrder, r => r === b.id)
+          const ai = strOrder.findIndex(r => r === a.id)
+          const bi = strOrder.findIndex(r => r === b.id)
           return ai - bi
         })
       }
@@ -372,8 +372,8 @@ export default (Store) => {
       const order = await getData(`${n}:order`)
       if (order && order.length) {
         objs[n].sort((a, b) => {
-          const ai = findIndex(order, r => r === a.id)
-          const bi = findIndex(order, r => r === b.id)
+          const ai = order.findIndex(r => r === a.id)
+          const bi = order.findIndex(r => r === b.id)
           return ai - bi
         })
       }

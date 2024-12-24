@@ -5,7 +5,7 @@ import { PureComponent } from 'react'
 import {
   message
 } from 'antd'
-import { findIndex, uniq, isEqual, pick } from 'lodash-es'
+import { uniq, isEqual, pick } from 'lodash-es'
 import copy from 'json-deep-copy'
 import generate from '../../common/uid'
 import {
@@ -96,13 +96,11 @@ export default class BookmarkForm extends PureComponent {
   }
 
   updateBookmarkGroups = (bookmarkGroups, bookmark, categoryId) => {
-    let index = findIndex(
-      bookmarkGroups,
+    let index = bookmarkGroups.findIndex(
       bg => bg.id === categoryId
     )
     if (index < 0) {
-      index = findIndex(
-        bookmarkGroups,
+      index = bookmarkGroups.findIndex(
         bg => bg.id === defaultBookmarkGroupId
       )
     }

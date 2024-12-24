@@ -5,7 +5,7 @@
 import {
   settingMap
 } from '../common/constants'
-import { without, isArray, findIndex } from 'lodash-es'
+import { without, isArray } from 'lodash-es'
 import handleError from './error-handler'
 import generate from './uid'
 import safeParse from './to-simple-obj'
@@ -146,8 +146,8 @@ export async function fetchInitData (dbName) {
   const res = await find(dbName)
   const order = await getData(`${dbName}:order`)
   const r = res.sort((a, b) => {
-    const ai = findIndex(order, r => r === a.id)
-    const bi = findIndex(order, r => r === b.id)
+    const ai = order.findIndex(r => r === a.id)
+    const bi = order.findIndex(r => r === b.id)
     return ai - bi
   })
   return JSON.stringify(r)

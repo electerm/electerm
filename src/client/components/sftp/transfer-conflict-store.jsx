@@ -12,7 +12,6 @@ import {
   getFileExt,
   checkFolderSize
 } from './file-read'
-import { findIndex } from 'lodash-es'
 import generate from '../../common/uid'
 import resolve from '../../common/resolve'
 import deepCopy from 'json-deep-copy'
@@ -111,7 +110,7 @@ export default class TransferConflictStore extends PureComponent {
     this.clear()
     const { store } = window
     const { fileTransfers } = store
-    const index = findIndex(fileTransfers, d => d.id === id)
+    const index = fileTransfers.findIndex(d => d.id === id)
     if (index < 0) {
       return
     }

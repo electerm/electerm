@@ -41,7 +41,6 @@ export default Store => {
     if (!item) {
       return
     }
-    // let index = findIndex(items, t => t.id === id)
     Object.assign(item, updates)
     store.setItems(type, items)
     if (dbNames.includes(type)) {

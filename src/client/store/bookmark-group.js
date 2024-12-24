@@ -2,7 +2,7 @@
  * bookmark group functions
  */
 
-import { find, findIndex } from 'lodash-es'
+import { find } from 'lodash-es'
 import {
   defaultBookmarkGroupId,
   settingMap,
@@ -82,12 +82,10 @@ export default Store => {
     const groupIds = groups.map(g => g.id)
     const updates = []
     const defaultCatIndex = tobeDel.level !== 2
-      ? findIndex(
-        bookmarkGroups,
+      ? bookmarkGroups.findIndex(
         g => g.id === defaultBookmarkGroupId
       )
-      : findIndex(
-        bookmarkGroups,
+      : bookmarkGroups.findIndex(
         g => (g.bookmarkGroupIds || []).includes(tobeDel.id)
       )
     for (const g of groups) {

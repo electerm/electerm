@@ -5,7 +5,7 @@
 import {
   defaultBookmarkGroupId
 } from '../../common/constants'
-import { isEqual, find, findIndex, last, remove } from 'lodash-es'
+import { isEqual, find, last, remove } from 'lodash-es'
 import copy from 'json-deep-copy'
 
 export default (info, props) => {
@@ -129,7 +129,7 @@ export default (info, props) => {
       ? toGroup.bookmarkIds || []
       : toGroup.bookmarkGroupIds || []
     nodeIndex = dropToGap
-      ? findIndex(pool, d => d === toId)
+      ? pool.findIndex(d => d === toId)
       : pool.length
     if (dropToGap) {
       if (fromLeaf) {
@@ -143,7 +143,7 @@ export default (info, props) => {
       }
     }
   } else {
-    nodeIndex = findIndex(bookmarkGroups, d => {
+    nodeIndex = bookmarkGroups.findIndex(d => {
       return d.id === toId
     })
     if (fromLeaf) {
@@ -165,7 +165,7 @@ export default (info, props) => {
   }
   const updates = []
   if (toFirstLevel) {
-    fromIndex = findIndex(bookmarkGroups, d => d.id === fromId)
+    fromIndex = bookmarkGroups.findIndex(d => d.id === fromId)
     from = copy(from)
     bookmarkGroups.splice(fromIndex, 1, 'tobedel')
     bookmarkGroups.splice(nodeIndex, 0, from)
@@ -177,7 +177,7 @@ export default (info, props) => {
     const arr = fromLeaf
       ? fromGroup.bookmarkIds
       : fromGroup.bookmarkGroupIds
-    fromIndex = findIndex(arr, d => d === fromId)
+    fromIndex = arr.findIndex(d => d === fromId)
     isSameCat
       ? arr.splice(fromIndex, 1, 'tobedel')
       : remove(arr, d => d === fromId)

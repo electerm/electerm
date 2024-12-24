@@ -10,7 +10,7 @@ import {
 } from '@ant-design/icons'
 import { Tooltip, message } from 'antd'
 import classnames from 'classnames'
-import { findIndex, pick } from 'lodash-es'
+import { pick } from 'lodash-es'
 import Input from '../common/input-auto-focus'
 import createName from '../../common/create-title'
 import { addClass, removeClass } from '../../common/class'
@@ -130,8 +130,8 @@ class Tab extends Component {
 
     const { id } = fromTab
     const storeTabs = window.store.tabs
-    const indexFrom = findIndex(storeTabs, t => t.id === id)
-    let indexDrop = findIndex(storeTabs, t => t.id === dropId)
+    const indexFrom = storeTabs.findIndex(t => t.id === id)
+    let indexDrop = storeTabs.findIndex(t => t.id === dropId)
 
     if (indexFrom >= 0 && indexDrop >= 0) {
       const targetTab = storeTabs[indexDrop]

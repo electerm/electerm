@@ -2,7 +2,7 @@ import { Component } from 'react'
 import generate from '../../common/uid'
 import runIdle from '../../common/run-idle'
 import { Spin, Modal, notification } from 'antd'
-import { find, isString, findIndex, isEqual, last, isNumber, some, isArray, pick, uniq, debounce } from 'lodash-es'
+import { find, isString, isEqual, last, isNumber, some, isArray, pick, uniq, debounce } from 'lodash-es'
 import FileSection from './file-item'
 import resolve from '../../common/resolve'
 import wait from '../../common/wait'
@@ -264,7 +264,7 @@ export default class Sftp extends Component {
 
   getIndex = (file) => {
     const { type } = file
-    return findIndex(this.getFileList(type), f => f.id === file.id)
+    return this.getFileList(type).findIndex(f => f.id === file.id)
   }
 
   onResizeDragEnd = () => {
