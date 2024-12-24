@@ -173,11 +173,15 @@ export default class BatchOp extends PureComponent {
   run = async (conf, index) => {
     this.updateState('working', index)
     let tab = await this.createTab(conf)
-      .then(r => r)
       .catch(err => {
+        console.log('create tab error', err)
+        if (this.ref) {
+          this.ref.stop()
+          delete this.ref
+        }
         return 'Error: ' + err.message
       })
-    if (!tab) {
+    if (typeof tab === 'string') {
       return this.updateState(tab, index)
     }
 
@@ -189,9 +193,16 @@ export default class BatchOp extends PureComponent {
     }
     if (conf.remotePath) {
       this.updateState('creating sftp', index)
-      tab = await this.createSftp(tab)
-      if (!tab) {
-        return this.updateState('Error: ' + tab, index)
+      tab = await this.createSftp(tab).catch(err => {
+        console.log('create sftp error', err)
+        if (this.ref2) {
+          this.ref2.stop()
+          delete this.ref2
+        }
+        return 'Error: ' + err.message
+      })
+      if (typeof tab === 'string') {
+        return this.updateState(tab, index)
       }
       this.updateState('sftp created', index)
       this.updateState('transferring file', index)
