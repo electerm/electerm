@@ -117,6 +117,7 @@ export default class TransferModalUI extends Component {
             return (
               <Transport
                 transfer={t}
+                index={i}
                 key={id + ':tr:' + i}
               />
             )

@@ -3,10 +3,12 @@
  */
 import { useRef } from 'react'
 import Tag from '../sftp/transfer-tag'
+import { Flex } from 'antd'
 import {
   CloseCircleOutlined,
   PlayCircleOutlined,
-  PauseCircleOutlined
+  PauseCircleOutlined,
+  VerticalAlignTopOutlined
 } from '@ant-design/icons'
 import { action } from 'manate'
 import { addClass, removeClass } from '../../common/class'
@@ -32,9 +34,18 @@ export default function Transporter (props) {
     inited,
     id
   } = props.transfer
+  const { index } = props
   const onDragCls = 'ondrag-tr'
   const onDragOverCls = 'dragover-tr'
-
+  function moveToTop () {
+    action(function () {
+      const arr = window.store.fileTransfers
+      if (index > 0) {
+        const [item] = arr.splice(index, 1)
+        arr.unshift(item)
+      }
+    })()
+  }
   function cancel () {
     window.store.cancelTransfer(id)
   }
@@ -140,6 +151,12 @@ export default function Transporter (props) {
       title={e('cancel')}
     />
   )
+  const toTopIcon = (
+    <VerticalAlignTopOutlined
+      className='transfer-control-icon pointer hover-black font14'
+      onClick={moveToTop}
+    />
+  )
   const controlIcon = isTransfer
     ? (
       <Icon
@@ -149,56 +166,73 @@ export default function Transporter (props) {
       />
       )
     : null
+  const flexProps = {
+    className: cls,
+    gap: 3,
+    title,
+    ref: dom,
+    id: `transfer-unit-${id}`,
+    draggable: true,
+    'data-id': id,
+    onDrag,
+    onDragEnter,
+    onDragExit,
+    onDragLeave,
+    onDragOver,
+    onDragStart,
+    onDrop,
+    onDragEnd
+  }
   return (
-    <div
-      className={cls}
-      title={title}
-      ref={dom}
-      id={`transfer-unit-${id}`}
-      draggable
-      data-id={id}
-      onDrag={onDrag}
-      onDragEnter={onDragEnter}
-      onDragExit={onDragExit}
-      onDragLeave={onDragLeave}
-      onDragOver={onDragOver}
-      onDragStart={onDragStart}
-      onDrop={onDrop}
-      onDragEnd={onDragEnd}
+    <Flex
+      {...flexProps}
     >
-      <Tag
-        transfer={{
-          typeTo,
-          typeFrom,
-          error,
-          inited
-        }}
-      />
-      <span
-        className='flex-child sftp-file sftp-local-file elli'
-        title={fromPath}
-      >{fromPathReal || fromPath}
-      </span>
-      <span className='flex-child sftp-transfer-arrow'>
-        →
-      </span>
-      <span
-        className='flex-child sftp-file sftp-remote-file elli'
-      >{toPathReal || toPath}
-      </span>
-      <span
-        className='flex-child sftp-file-percent'
-      >
-        {percent || 0}%
-        {speed ? `(${speed})` : null}
-      </span>
-      <span
-        className='flex-child sftp-file-percent'
-      >
-        {passedTime || '-'}|{leftTime || '-'}
-      </span>
-      {controlIcon}
-      {cancelIcon}
-    </div>
+      <Flex>
+        <Tag
+          transfer={{
+            typeTo,
+            typeFrom,
+            error,
+            inited
+          }}
+        />
+      </Flex>
+      <Flex>
+        <span
+          className='sftp-file sftp-local-file elli'
+          title={fromPath}
+        >{fromPathReal || fromPath}
+        </span>
+      </Flex>
+      <Flex>
+        <span className='sftp-transfer-arrow'>
+          →
+        </span>
+      </Flex>
+      <Flex>
+        <span
+          className='sftp-file sftp-remote-file elli'
+        >{toPathReal || toPath}
+        </span>
+      </Flex>
+      <Flex>
+        <span
+          className='sftp-file-percent'
+        >
+          {percent || 0}%
+          {speed ? `(${speed})` : null}
+        </span>
+      </Flex>
+      <Flex>
+        <span
+          className='sftp-file-percent'
+        >
+          {passedTime || '-'}|{leftTime || '-'}
+        </span>
+      </Flex>
+      <Flex>{controlIcon}</Flex>
+      <Flex>{cancelIcon}</Flex>
+      <Flex>{toTopIcon}</Flex>
+    </Flex>
   )
 }
