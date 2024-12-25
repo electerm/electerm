@@ -18,8 +18,8 @@ export default function LayoutItem (props) {
     }
     let currentElement = target
     while (currentElement) {
-      if (currentElement.classList && currentElement.classList.contains('tab')) {
-        return
+      if (currentElement.classList && currentElement.classList.contains('layout-item')) {
+        break
       }
       currentElement = currentElement.parentElement
     }

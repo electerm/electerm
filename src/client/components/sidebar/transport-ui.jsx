@@ -1,18 +1,21 @@
 /**
  * transporter UI component
  */
-import React from 'react'
+import { useRef } from 'react'
 import Tag from '../sftp/transfer-tag'
 import {
   CloseCircleOutlined,
   PlayCircleOutlined,
   PauseCircleOutlined
 } from '@ant-design/icons'
+import { action } from 'manate'
+import { addClass, removeClass } from '../../common/class'
 import './transfer.styl'
 
 const e = window.translate
 
 export default function Transporter (props) {
+  const dom = useRef()
   const {
     fromPath,
     toPath,
@@ -29,11 +32,99 @@ export default function Transporter (props) {
     inited,
     id
   } = props.transfer
+  const onDragCls = 'ondrag-tr'
+  const onDragOverCls = 'dragover-tr'
+
   function cancel () {
     window.store.cancelTransfer(id)
   }
   function handlePauseOrResume () {
     window.store.toggleTransfer(id)
+  }
+
+  function clearCls () {
+    document.querySelectorAll('.' + onDragOverCls).forEach((d) => {
+      removeClass(d, onDragOverCls)
+    })
+  }
+
+  function onDrag () {
+    addClass(dom.current, onDragCls)
+  }
+
+  function onDragEnter () {
+    clearCls()
+    addClass(dom.current, onDragOverCls)
+  }
+
+  function onDragExit () {
+    // debug('ondragexit')
+    // let {target} = e
+    // removeClass(target, 'sftp-dragover')
+  }
+
+  function onDragLeave (e) {
+    // debug('ondragleave')
+    const { target } = e
+    removeClass(target, onDragOverCls)
+  }
+
+  function onDragOver (e) {
+    // debug('ondragover')
+    // debug(e.target)
+    // removeClass(dom.current, 'sftp-dragover')
+    e.preventDefault()
+  }
+
+  function onDragStart (e) {
+    // debug('ondragstart')
+    // debug(e.target)
+    e.dataTransfer.setData('id', JSON.stringify(dom.current.getAttribute('data-id')))
+    // e.effectAllowed = 'copyMove'
+  }
+
+  function onDrop (e) {
+    e.preventDefault()
+    const { target } = e
+    if (!target) {
+      return
+    }
+    let onDropTab = target
+    while (onDropTab) {
+      if (onDropTab.classList && onDropTab.classList.contains('sftp-transport')) {
+        break
+      }
+      onDropTab = onDropTab.parentElement
+    }
+    const fromId = JSON.parse(e.dataTransfer.getData('id'))
+    if (!onDropTab || !fromId) {
+      return
+    }
+
+    const dropId = onDropTab.getAttribute('data-id')
+    if (!dropId || dropId === fromId) {
+      return
+    }
+
+    const arr = window.store.fileTransfers
+    const indexFrom = arr.findIndex(t => t.id === fromId)
+    let indexDrop = arr.findIndex(t => t.id === dropId)
+    if (indexFrom >= 0 && indexDrop >= 0) {
+      // Reorder tabs and update batch
+      action(function () {
+        const [tr] = arr.splice(indexFrom, 1)
+        if (indexFrom < indexDrop) {
+          indexDrop = indexDrop - 1
+        }
+        arr.splice(indexDrop, 0, tr)
+      })()
+    }
+  }
+
+  function onDragEnd (e) {
+    removeClass(dom.current, onDragCls)
+    clearCls()
+    e && e.dataTransfer && e.dataTransfer.clearData()
   }
   const isTransfer = typeTo !== typeFrom
   const Icon = !pausing ? PauseCircleOutlined : PlayCircleOutlined
@@ -59,7 +150,22 @@ export default function Transporter (props) {
       )
     : null
   return (
-    <div className={cls} title={title} id={`transfer-unit-${id}`}>
+    <div
+      className={cls}
+      title={title}
+      ref={dom}
+      id={`transfer-unit-${id}`}
+      draggable
+      data-id={id}
+      onDrag={onDrag}
+      onDragEnter={onDragEnter}
+      onDragExit={onDragExit}
+      onDragLeave={onDragLeave}
+      onDragOver={onDragOver}
+      onDragStart={onDragStart}
+      onDrop={onDrop}
+      onDragEnd={onDragEnd}
+    >
       <Tag
         transfer={{
           typeTo,

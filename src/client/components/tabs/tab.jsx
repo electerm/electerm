@@ -118,7 +118,13 @@ class Tab extends Component {
     }
 
     const fromTab = JSON.parse(e.dataTransfer.getData('fromFile'))
-    const onDropTab = document.querySelector('.' + onDragOverCls)
+    let onDropTab = target
+    while (onDropTab) {
+      if (onDropTab.classList && onDropTab.classList.contains('tab')) {
+        break
+      }
+      onDropTab = onDropTab.parentElement
+    }
     if (!onDropTab || !fromTab) {
       return
     }
