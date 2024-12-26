@@ -151,12 +151,14 @@ export default function Transporter (props) {
       title={e('cancel')}
     />
   )
-  const toTopIcon = (
-    <VerticalAlignTopOutlined
-      className='transfer-control-icon pointer hover-black font14'
-      onClick={moveToTop}
-    />
-  )
+  const toTopIcon = index === 0
+    ? null
+    : (
+      <VerticalAlignTopOutlined
+        className='transfer-control-icon pointer hover-black font14'
+        onClick={moveToTop}
+      />
+      )
   const controlIcon = isTransfer
     ? (
       <Icon

@@ -48,6 +48,24 @@ export default memo(function SidebarPanel (props) {
     ...prps,
     onClick: store.collapseBookmarks
   }
+
+  function renderExpandIcons () {
+    if (sidebarPanelTab !== 'bookmarks') {
+      return null
+    }
+    return [
+      <Tooltip title={e('expandAll')} key='expand'>
+        <ArrowsAltOutlined
+          {...pop2}
+        />
+      </Tooltip>,
+      <Tooltip title={e('collapseAll')} key='collapse'>
+        <ShrinkOutlined
+          {...pop3}
+        />
+      </Tooltip>
+    ]
+  }
   return (
     <div
       className='sidebar-panel bookmarks-panel animate-fast'
@@ -65,16 +83,9 @@ export default memo(function SidebarPanel (props) {
               {...pop1}
             />
           </Tooltip>
-          <Tooltip title={e('expandAll')}>
-            <ArrowsAltOutlined
-              {...pop2}
-            />
-          </Tooltip>
-          <Tooltip title={e('collapseAll')}>
-            <ShrinkOutlined
-              {...pop3}
-            />
-          </Tooltip>
+          {
+            renderExpandIcons()
+          }
           <Tooltip title={e('pin')}>
             <PushpinOutlined
               {...prps1}
