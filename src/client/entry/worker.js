@@ -136,6 +136,8 @@ async function onMsg (e) {
 }
 
 self.addEventListener('message', onMsg)
-send({
-  action: 'worker-init'
-})
+setTimeout(() => {
+  send({
+    action: 'worker-init'
+  })
+}, 10)
