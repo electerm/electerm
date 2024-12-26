@@ -71,7 +71,12 @@ export default class SessionWrapper extends Component {
     if (!target) {
       return
     }
-    const fromTab = JSON.parse(e.dataTransfer.getData('fromFile'))
+    let fromTab
+    try {
+      fromTab = JSON.parse(e.dataTransfer.getData('fromFile'))
+    } catch (e) {
+      return
+    }
     const onDropElem = this.getDom()
     const { batch } = this.props.tab
     if (!onDropElem || !fromTab || fromTab.batch === batch) {
@@ -82,6 +87,15 @@ export default class SessionWrapper extends Component {
     const t = tabs.find(t => t.id === fromTab.id)
     if (!t) {
       return
+    }
+    // Handle currentTab change if needed
+    const fromBatch = fromTab.batch
+    if (window.store[`activeTabId${fromBatch}`] === fromTab.id && fromBatch !== batch) {
+      // Find next tab in the same batch
+      const nextTab = tabs.find((t, i) =>
+        t.id !== fromTab.id && t.batch === fromBatch
+      )
+      window.store[`activeTabId${fromBatch}`] = nextTab ? nextTab.id : ''
     }
     t.batch = batch
     this.clearCls()
