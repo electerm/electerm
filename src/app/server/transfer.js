@@ -33,13 +33,13 @@ class Transfer {
     this.concurrency = options.concurrency || 64
     this.chunkSize = options.chunkSize || 32768
     this.mode = options.mode
-    this.bufsize = this.chunkSize * this.concurrency
     this.onData = _.throttle((count) => {
       ws.s({
         id: 'transfer:data:' + id,
         data: count
       })
     }, 3000)
+    this.timers = {}
 
     this.ws = ws
     this.fastXfer(options, type)
@@ -53,46 +53,6 @@ class Transfer {
     }
   }
 
-  onerror = (err) => {
-    if (this.hadError) {
-      return
-    }
-    this.hadError = true
-    const {
-      src,
-      dst,
-      isUpload,
-      srcHandle,
-      dstHandle
-    } = this
-    const th = this
-
-    let left = 0
-    let cbfinal
-
-    if (srcHandle || dstHandle) {
-      cbfinal = function () {
-        if (--left === 0) {
-          th.onError(err)
-        }
-      }
-      if (this.srcHandle && (isUpload || src.writable)) {
-        ++left
-      }
-      if (this.dstHandle && (!isUpload || dst.writable)) {
-        ++left
-      }
-      if (this.srcHandle && (isUpload || src.writable)) {
-        src.close(srcHandle, cbfinal)
-      }
-      if (this.dstHandle && (!isUpload || dst.writable)) {
-        dst.close(dstHandle, cbfinal)
-      }
-    } else {
-      this.onError(err)
-    }
-  }
-
   // from https://github.com/mscdex/ssh2-streams/blob/master/lib/sftp.js
   fastXfer = () => {
     const { src, srcPath } = this
@@ -101,7 +61,10 @@ class Transfer {
 
   onSrcOpen = (err, sourceHandle) => {
     if (err) {
-      return this.onerror(err)
+      return this.onError(err)
+    }
+    if (this.onDestroy) {
+      return
     }
     const { src } = this
     const th = this
@@ -120,13 +83,13 @@ class Transfer {
         // whatever reason
         src.stat(srcPath, (err_, attrs_) => {
           if (err_) {
-            return th.onerror(err)
+            return th.onError(err_)
           }
           this.tryStat(null, attrs_)
         })
         return
       }
-      return th.onerror(err)
+      return th.onError(err)
     }
     this.fsize = attrs.size
     dst.open(dstPath, 'w', this.onDstOpen)
@@ -134,7 +97,11 @@ class Transfer {
 
   onDstOpen = (err, destHandle) => {
     if (err) {
-      return this.onerror(err)
+      return this.onError(err)
+    }
+
+    if (this.onDestroy) {
+      return
     }
 
     let {
@@ -144,7 +111,6 @@ class Transfer {
     } = this
     const onstep = this.onData
     const { src, dst, dstPath } = this
-    const cb = this.onError
     const th = this
 
     // internal state variables
@@ -157,7 +123,7 @@ class Transfer {
     th.dstHandle = destHandle
 
     if (fsize <= 0) {
-      return th.onerror()
+      return th.onError()
     }
 
     // Use less memory where possible
@@ -172,7 +138,7 @@ class Transfer {
 
     const readbuf = th.tryCreateBuffer(bufsize)
     if (readbuf instanceof Error) {
-      return th.onerror(readbuf)
+      return th.onError(readbuf)
     }
 
     if (mode !== undefined) {
@@ -193,7 +159,11 @@ class Transfer {
 
     function onread (err, nb, data, dstpos, datapos, origChunkLen) {
       if (err) {
-        return th.onerror(err)
+        return th.onError(err)
+      }
+
+      if (th.onDestroy) {
+        return
       }
 
       datapos = datapos || 0
@@ -202,7 +172,7 @@ class Transfer {
 
       function writeCb (err) {
         if (err) {
-          return th.onerror(err)
+          return th.onError(err)
         }
 
         total += nb
@@ -216,14 +186,14 @@ class Transfer {
           dst.close(th.dstHandle, (err) => {
             th.dstHandle = undefined
             if (err) {
-              return th.onerror(err)
+              return th.onError(err)
             }
             src.close(th.srcHandle, (err) => {
               th.srcHandle = undefined
               if (err) {
-                return th.onerror(err)
+                return th.onError(err)
               }
-              cb()
+              th.onError()
             })
           })
           return
@@ -246,10 +216,14 @@ class Transfer {
     }
 
     function singleRead (psrc, pdst, chunk) {
+      if (th.onDestroy) {
+        return
+      }
       if (th.pausing) {
-        return setTimeout(
-          () => singleRead(psrc, pdst, chunk), 2
-        )
+        th.timers[psrc + ':' + pdst] = setTimeout(() => {
+          singleRead(psrc, pdst, chunk)
+        }, 2)
+        return
       }
       src.read(
         th.srcHandle,
@@ -302,21 +276,33 @@ class Transfer {
     this.pausing = false
   }
 
-  destroy = () => {
+  kill = () => {
     if (this.src && this.srcHandle) {
       this.src.close(this.srcHandle, log.error)
     }
     if (this.dst && this.dstHandle) {
       this.dst.close(this.dstHandle, log.error)
     }
-    if (this.ws) {
-      this.ws.close()
-      this.ws = null
-    }
     this.src = null
     this.dst = null
     this.srcHandle = null
     this.dstHandle = null
+  }
+
+  destroy = () => {
+    this.onDestroy = true
+    setTimeout(this.kill, 200)
+    if (this.ws) {
+      this.ws.close()
+      this.ws = null
+    }
+    if (this.timers) {
+      Object.keys(this.timers).forEach(k => {
+        clearTimeout(this.timers[k])
+        this.timers[k] = null
+      })
+      this.timers = null
+    }
   }
 
   // end

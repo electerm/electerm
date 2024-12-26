@@ -101,6 +101,7 @@
     "@electerm/electerm-locales": "2.0.11",
     "@electerm/electerm-themes": "^1.0.1",
     "@electerm/rdpjs": "^1.0.0",
+    "@electerm/ssh2": "1.16.0",
     "@electerm/strip-ansi": "1.0.0",
     "@yetzt/nedb": "1.8.0",
     "axios": "^1.7.7",
@@ -130,7 +131,6 @@
     "socks-proxy-agent": "8.0.1",
     "socksv5-electron": "^0.0.6",
     "ssh-config": "5.0.1",
-    "ssh2": "1.16.0",
     "stylus": "0.64.0",
     "tar": "7.4.3"
   },
