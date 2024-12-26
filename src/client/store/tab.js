@@ -85,6 +85,7 @@ export default Store => {
     }
 
     const oldTab = tabs[index]
+    const oldBatch = oldTab.batch
 
     // Create copy of old tab with new ID
     const newTab = {
@@ -106,7 +107,7 @@ export default Store => {
     }
 
     // Update batch current tab ID if needed
-    const batchProp = `activeTabId${oldTab.batch}`
+    const batchProp = `activeTabId${oldBatch}`
     if (store[batchProp] === tabId) {
       store[batchProp] = newTab.id
     }
