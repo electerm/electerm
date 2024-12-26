@@ -45,9 +45,10 @@ export default class TransportsActionStore extends Component {
       const {
         typeTo,
         typeFrom,
-        inited
+        inited,
+        pausing
       } = t
-      return typeTo !== typeFrom && inited
+      return typeTo !== typeFrom && inited && pausing !== true
     }).length
     if (count >= maxTransport) {
       return

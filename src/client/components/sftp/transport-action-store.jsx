@@ -37,9 +37,9 @@ export default class TransportAction extends Component {
       this.initTransfer()
     }
     if (
-      this.props.pause !== prevProps.pause
+      this.props.pausing !== prevProps.pausing
     ) {
-      if (this.props.pause) {
+      if (this.props.pausing) {
         this.pause()
       } else {
         this.resume()
