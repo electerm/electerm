@@ -6,14 +6,6 @@ const fs = require('original-fs')
 const _ = require('lodash')
 const log = require('../common/log')
 
-function tryCreateBuffer (size) {
-  try {
-    return Buffer.allocUnsafe(size)
-  } catch (ex) {
-    return ex
-  }
-}
-
 class Transfer {
   constructor ({
     remotePath,
@@ -35,7 +27,13 @@ class Transfer {
     this.srcPath = isd ? remotePath : localPath
     this.dstPath = !isd ? remotePath : localPath
     this.pausing = false
-
+    this.hadError = false
+    this.isUpload = isd
+    this.options = options
+    this.concurrency = options.concurrency || 64
+    this.chunkSize = options.chunkSize || 32768
+    this.mode = options.mode
+    this.bufsize = this.chunkSize * this.concurrency
     this.onData = _.throttle((count) => {
       ws.s({
         id: 'transfer:data:' + id,
@@ -47,17 +45,64 @@ class Transfer {
     this.fastXfer(options, type)
   }
 
+  tryCreateBuffer = (size) => {
+    try {
+      return Buffer.allocUnsafe(size)
+    } catch (ex) {
+      return ex
+    }
+  }
+
+  onerror = (err) => {
+    if (this.hadError) {
+      return
+    }
+    this.hadError = true
+    const {
+      src,
+      dst,
+      isUpload,
+      srcHandle,
+      dstHandle
+    } = this
+    const th = this
+
+    let left = 0
+    let cbfinal
+
+    if (srcHandle || dstHandle) {
+      cbfinal = function () {
+        if (--left === 0) {
+          th.onError(err)
+        }
+      }
+      if (this.srcHandle && (isUpload || src.writable)) {
+        ++left
+      }
+      if (this.dstHandle && (!isUpload || dst.writable)) {
+        ++left
+      }
+      if (this.srcHandle && (isUpload || src.writable)) {
+        src.close(srcHandle, cbfinal)
+      }
+      if (this.dstHandle && (!isUpload || dst.writable)) {
+        dst.close(dstHandle, cbfinal)
+      }
+    } else {
+      this.onError(err)
+    }
+  }
+
   // from https://github.com/mscdex/ssh2-streams/blob/master/lib/sftp.js
-  fastXfer = (opts, type) => {
+  fastXfer = () => {
     let {
-      concurrency = 64,
-      chunkSize = 32768,
+      concurrency,
+      chunkSize,
       mode
-    } = opts
+    } = this
     const onstep = this.onData
     const { src, dst, srcPath, dstPath } = this
     let fileSize
-    const isUpload = type === 'upload'
     const cb = this.onError
     const th = this
 
@@ -65,45 +110,12 @@ class Transfer {
     let fsize
     let pdst = 0
     let total = 0
-    let hadError = false
     let readbuf
     let bufsize = chunkSize * concurrency
 
-    function onerror (err) {
-      if (hadError) {
-        return
-      }
-      hadError = true
-
-      let left = 0
-      let cbfinal
-
-      if (th.srcHandle || th.dstHandle) {
-        cbfinal = function () {
-          if (--left === 0) {
-            cb(err)
-          }
-        }
-        if (th.srcHandle && (isUpload || src.writable)) {
-          ++left
-        }
-        if (th.dstHandle && (!isUpload || dst.writable)) {
-          ++left
-        }
-        if (th.srcHandle && (isUpload || src.writable)) {
-          src.close(th.srcHandle, cbfinal)
-        }
-        if (th.dstHandle && (!isUpload || dst.writable)) {
-          dst.close(th.dstHandle, cbfinal)
-        }
-      } else {
-        cb(err)
-      }
-    }
-
     src.open(srcPath, 'r', (err, sourceHandle) => {
       if (err) {
-        return onerror(err)
+        return th.onerror(err)
       }
 
       th.srcHandle = sourceHandle
@@ -121,24 +133,24 @@ class Transfer {
             // whatever reason
             src.stat(srcPath, (err_, attrs_) => {
               if (err_) {
-                return onerror(err)
+                return th.onerror(err)
               }
               tryStat(null, attrs_)
             })
             return
           }
-          return onerror(err)
+          return th.onerror(err)
         }
         fsize = attrs.size
         dst.open(dstPath, 'w', (err, destHandle) => {
           if (err) {
-            return onerror(err)
+            return th.onerror(err)
           }
 
           th.dstHandle = destHandle
 
           if (fsize <= 0) {
-            return onerror()
+            return th.onerror()
           }
 
           // Use less memory where possible
@@ -151,9 +163,9 @@ class Transfer {
             --concurrency
           }
 
-          readbuf = tryCreateBuffer(bufsize)
+          readbuf = th.tryCreateBuffer(bufsize)
           if (readbuf instanceof Error) {
-            return onerror(readbuf)
+            return th.onerror(readbuf)
           }
 
           if (mode !== undefined) {
@@ -174,7 +186,7 @@ class Transfer {
 
           function onread (err, nb, data, dstpos, datapos, origChunkLen) {
             if (err) {
-              return onerror(err)
+              return th.onerror(err)
             }
 
             datapos = datapos || 0
@@ -183,7 +195,7 @@ class Transfer {
 
             function writeCb (err) {
               if (err) {
-                return onerror(err)
+                return th.onerror(err)
               }
 
               total += nb
@@ -197,12 +209,12 @@ class Transfer {
                 dst.close(th.dstHandle, (err) => {
                   th.dstHandle = undefined
                   if (err) {
-                    return onerror(err)
+                    return th.onerror(err)
                   }
                   src.close(th.srcHandle, (err) => {
                     th.srcHandle = undefined
                     if (err) {
-                      return onerror(err)
+                      return th.onerror(err)
                     }
                     cb()
                   })
@@ -293,7 +305,14 @@ class Transfer {
     if (this.dst && this.dstHandle) {
       this.dst.close(this.dstHandle, log.error)
     }
-    this.ws.close()
+    if (this.ws) {
+      this.ws.close()
+      this.ws = null
+    }
+    this.src = null
+    this.dst = null
+    this.srcHandle = null
+    this.dstHandle = null
   }
 
   // end
