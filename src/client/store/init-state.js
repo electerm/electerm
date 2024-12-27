@@ -164,7 +164,7 @@ export default () => {
     _upgradeInfo: '{}',
 
     // serial list related
-    _serials: '[]',
+    serials: [],
     loaddingSerials: false,
 
     _sshConfigItems: '[]',
