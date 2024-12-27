@@ -1326,10 +1326,7 @@ clear\r`
       isRemote: this.isRemote(),
       isActive: this.isActiveTerminal()
     }
-    window.store.setState(
-      'terminalInfoProps',
-      infoProps
-    )
+    Object.assign(window.store.terminalInfoProps, infoProps)
   }
 
   // getPwd = async () => {

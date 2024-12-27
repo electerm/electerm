@@ -259,7 +259,6 @@ const getterProps = [
   'sftpSortSetting',
   'upgradeInfo',
   'transferToConfirm',
-  'terminalInfoProps',
   'settingItem'
 ]
 

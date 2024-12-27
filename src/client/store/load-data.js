@@ -168,7 +168,7 @@ export default (Store) => {
     store._config = JSON.stringify(
       globs.config
     )
-    window.langs = globs.langs
+    window.et.langs = globs.langs
     store.zoom(store.config.zoom, false, true)
     await initWsCommon()
   }

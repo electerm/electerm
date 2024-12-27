@@ -190,7 +190,7 @@ export default auto(function Index (props) {
     rightPanelWidth: store.rightPanelWidth
   }
   const terminalInfoProps = {
-    ...store.terminalInfoProps,
+    ...deepCopy(store.terminalInfoProps),
     ...pick(
       config,
       ['host', 'port', 'saveTerminalLogToFile', 'terminalInfos']

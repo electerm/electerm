@@ -99,7 +99,7 @@ export default () => {
     activeTabId1: '',
     activeTabId2: '',
     activeTabId3: '',
-    _terminalInfoProps: '{}',
+    terminalInfoProps: {},
     rightPanelVisible: false,
     rightPanelPinned: false,
     rightPanelWidth: parseInt(ls.getItem(rightSidebarWidthKey), 10) || 500,
@@ -116,7 +116,6 @@ export default () => {
     isSyncingSetting: false,
     isSyncUpload: false,
     isSyncDownload: false,
-    syncSetting: {},
     syncType: syncTypes.github,
 
     // term search
