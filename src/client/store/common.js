@@ -140,13 +140,7 @@ export default Store => {
   }
 
   Store.prototype.setTermSearchOption = function (update) {
-    const {
-      store
-    } = window
-    store.setState('termSearchOptions', {
-      ...JSON.parse(window.store._termSearchOptions),
-      ...update
-    })
+    Object.assign(window.store._termSearchOptions, update)
   }
 
   Store.prototype.setLeftSidePanelWidth = function (v) {

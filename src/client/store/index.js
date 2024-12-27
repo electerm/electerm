@@ -144,7 +144,7 @@ class Store {
     } = window
     const theme = store.getThemeConfig()
     return {
-      ...JSON.parse(window.store._termSearchOptions),
+      ...window.store._termSearchOptions,
       decorations: {
         activeMatchBorder: theme.yellow,
         activeMatchBackground: theme.selectionBackground,

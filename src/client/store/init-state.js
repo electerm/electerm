@@ -125,14 +125,14 @@ export default () => {
     termSearch: '',
     termSearchMatchCount: 0,
     termSearchMatchIndex: 0,
-    _termSearchOptions: JSON.stringify({
+    _termSearchOptions: {
       caseSensitive: false,
       wholeWord: false,
       regex: false,
       decorations: {
         activeMatchColorOverviewRuler: 'yellow'
       }
-    }),
+    },
 
     // quick commands
     _quickCommands: '[]',
