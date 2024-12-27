@@ -5,7 +5,6 @@ const delay = require('./common/wait')
 const { nanoid } = require('nanoid')
 const appOptions = require('./common/app-options')
 const extendClient = require('./common/client-extend')
-const terminalLocalType = 'local'
 
 describe('Local bookmark', function () {
   it('should create a local bookmark and verify history', async function () {
@@ -14,6 +13,11 @@ describe('Local bookmark', function () {
     extendClient(client, electronApp)
 
     await delay(3500)
+
+    // Get initial history count
+    const initialHistoryCount = await client.evaluate(() => {
+      return window.store.history.length
+    })
 
     // Open bookmark form
     await client.click('.btns .anticon-plus-circle')
@@ -25,6 +29,7 @@ describe('Local bookmark', function () {
 
     // Generate a unique title for the bookmark
     const bookmarkTitle = `Local-${nanoid()}`
+    const type = 'local'
 
     // Fill in bookmark details
     await client.setValue('.setting-wrap input[id="local-form_title"]', bookmarkTitle)
@@ -41,7 +46,13 @@ describe('Local bookmark', function () {
     })
 
     expect(historyItem.tab.title).toEqual(bookmarkTitle)
-    expect(historyItem.tab.type).toEqual(terminalLocalType)
+    expect(historyItem.tab.type).toEqual(type)
+
+    // Verify history count has increased
+    const newHistoryCount = await client.evaluate(() => {
+      return window.store.history.length
+    })
+    expect(newHistoryCount).toEqual(initialHistoryCount + 1)
 
     await electronApp.close().catch(console.log)
   })
