@@ -501,8 +501,8 @@ export default class SettingCommon extends Component {
       customCss
     } = props.config
     const {
-      langs
-    } = this.props.store
+      langs = []
+    } = window
     const terminalThemes = props.store.getSidebarList(settingMap.terminalThemes)
     const [modifier, key] = hotkey.split('+')
     const pops = {

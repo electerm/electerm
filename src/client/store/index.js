@@ -256,7 +256,6 @@ for (const prop of arrGetterProps) {
 }
 
 const getterProps = [
-  'langs',
   'config',
   'sftpSortSetting',
   'upgradeInfo',

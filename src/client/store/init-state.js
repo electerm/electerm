@@ -1,7 +1,6 @@
 /**
  * init static state
  */
-
 import {
   settingMap,
   defaultBookmarkGroupId,
@@ -173,8 +172,6 @@ export default () => {
     exePath: '',
     isPortable: false,
     installSrc: '',
-
-    _langs: '[]',
 
     // batch inputs
     batchInputs: ls.getItemJSON(batchInputLsKey, []),
