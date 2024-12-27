@@ -43,7 +43,7 @@ export default store => {
         await store.uploadSettingAll()
       }
       return store['_' + name]
-    }, func => debounce(func, 100)).start()
+    }).start()
   }
 
   autoRun(async () => {

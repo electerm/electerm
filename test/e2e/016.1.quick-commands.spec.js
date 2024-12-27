@@ -25,7 +25,7 @@ describe('quick commands', function () {
     await client.click('.btns .anticon-setting')
     await delay(2500)
     log('click quick commands')
-    await client.click('.setting-tabs [role="tab"]', 4)
+    await client.click('.setting-tabs [role="tab"]', 3)
     // await client.click('.setting-tabs [role="tab"]', 4)
     await client.setValue(
       '.setting-tabs-quick-commands input#name',

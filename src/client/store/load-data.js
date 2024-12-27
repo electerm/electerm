@@ -12,6 +12,7 @@ import encodes from '../components/bookmark-form/encodes'
 import runIdle from '../common/run-idle'
 import { initWsCommon } from '../common/fetch-from-server'
 import safeParse from '../common/parse-json-safe'
+import initWatch from './watch'
 
 function getHost (argv, opts) {
   const arr = argv
@@ -201,6 +202,7 @@ export default (Store) => {
       store.fetchSshConfigItems()
     }
     store.initCommandLine().catch(store.onError)
+    initWatch(store)
     if (store.config.checkUpdateOnStart) {
       store.onCheckUpdate(false)
     }
