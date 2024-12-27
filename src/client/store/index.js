@@ -243,7 +243,6 @@ const arrGetterProps = [
   'profiles',
   'quickCommands',
   'terminalThemes',
-  'fonts',
   'resolutions'
 ]
 

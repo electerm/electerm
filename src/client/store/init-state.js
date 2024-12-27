@@ -118,7 +118,6 @@ export default () => {
     isSyncDownload: false,
     syncSetting: {},
     syncType: syncTypes.github,
-    _fonts: '[]',
 
     // term search
     termSearchOpen: false,

@@ -364,7 +364,7 @@ export default class SettingTerminal extends Component {
   }
 
   renderFontFamily = () => {
-    const { fonts } = this.props.store
+    const { fonts = [] } = window
     const { fontFamily } = this.props.config
     const props = {
       mode: 'multiple',

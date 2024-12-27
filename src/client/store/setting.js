@@ -161,7 +161,7 @@ export default Store => {
         console.log('loadFontList error', err)
         return []
       })
-    window.store._fonts = JSON.stringify(fonts)
+    window.fonts = fonts
   }
 
   Store.prototype.handleChangeSettingTab = function (settingTab) {
