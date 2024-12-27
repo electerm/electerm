@@ -80,7 +80,7 @@ export default () => {
     transferTab: 'transfer',
     transferHistory: [],
     fileTransfers: [],
-    _transferToConfirm: '{}',
+    transferToConfirm: {},
     _sftpSortSetting: ls.getItem(sftpDefaultSortSettingKey) || JSON.stringify({
       local: {
         prop: 'modifyTime',

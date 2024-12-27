@@ -128,9 +128,7 @@ export default class TransferConflictStore extends PureComponent {
     if (this.props.transferToConfirm.id) {
       return
     }
-    window.store.setState(
-      'transferToConfirm', tr
-    )
+    window.store.transferToConfirm = tr
   }
 
   onDecision = (event) => {

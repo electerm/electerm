@@ -11,6 +11,7 @@ import { FolderOutlined, FileOutlined } from '@ant-design/icons'
 import {
   fileActions
 } from '../../common/constants'
+import deepCopy from 'json-deep-copy'
 import postMessage from '../../common/post-msg'
 
 const e = window.translate
@@ -25,9 +26,7 @@ function formatTimeAuto (strOrDigit) {
 export default function ConfirmModalStore (props) {
   function act (action) {
     const { transferToConfirm } = props
-    window.store.setState(
-      'transferToConfirm', {}
-    )
+    window.store.transferToConfirm = {}
     const {
       fromFile: {
         id: fileId
@@ -39,7 +38,7 @@ export default function ConfirmModalStore (props) {
       transferGroupId,
       fileId,
       id,
-      transfer: transferToConfirm,
+      transfer: deepCopy(transferToConfirm),
       action
     })
   }
