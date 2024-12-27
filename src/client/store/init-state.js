@@ -106,7 +106,7 @@ export default () => {
 
     // for settings related
     _setting: '',
-    _settingItem: JSON.stringify(initSettingItem([], settingMap.bookmarks)),
+    settingItem: initSettingItem([], settingMap.bookmarks),
     settingTab: settingMap.bookmarks, // setting tab
     autofocustrigger: Date.now(),
     bookmarkId: undefined,

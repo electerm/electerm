@@ -197,8 +197,7 @@ export default class BookmarkForm extends PureComponent {
   }
 
   setNewItem = (
-    settingItem = getInitItem([],
-      settingMap.bookmarks)
+    settingItem = getInitItem([], settingMap.bookmarks)
   ) => {
     const { store } = this.props
     this.props.store.storeAssign({

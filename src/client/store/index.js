@@ -29,7 +29,7 @@ import addressBookmarkExtend from './address-bookmark'
 import isColorDark from '../common/is-color-dark'
 
 import { uniq } from 'lodash-es'
-import copy from 'json-deep-copy'
+import deepCopy from 'json-deep-copy'
 import {
   settingMap,
   paneMap,
@@ -133,7 +133,7 @@ class Store {
     return settingTab === settingMap.history
       ? arr
       : [
-          copy(initItem),
+          deepCopy(initItem),
           ...arr
         ]
   }
@@ -255,8 +255,7 @@ for (const prop of arrGetterProps) {
 }
 
 const getterProps = [
-  'config',
-  'settingItem'
+  'config'
 ]
 
 for (const prop of getterProps) {
