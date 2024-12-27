@@ -90,7 +90,6 @@ export default auto(function Index (props) {
     isSecondInstance,
     pinnedQuickCommandBar,
     wsInited,
-    upgradeInfo,
     installSrc,
     fileTransfers,
     uiThemeConfig,
@@ -98,6 +97,7 @@ export default auto(function Index (props) {
     transferToConfirm,
     openResolutionEdit
   } = store
+  const upgradeInfo = deepCopy(store.upgradeInfo)
   const cls = classnames({
     loaded: configLoaded,
     'not-webapp': !window.et.isWebApp,

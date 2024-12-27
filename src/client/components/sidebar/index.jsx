@@ -65,12 +65,7 @@ export default memo(function Sidebar (props) {
   }
 
   const handleShowUpgrade = () => {
-    store.storeAssign({
-      _upgradeInfo: JSON.stringify({
-        ...props.store.upgradeInfo,
-        showUpgradeModal: true
-      })
-    })
+    window.store.upgradeInfo.showUpgradeModal = true
   }
 
   const {

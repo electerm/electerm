@@ -158,7 +158,7 @@ export default () => {
     showFileModal: false,
 
     // update
-    _upgradeInfo: '{}',
+    upgradeInfo: {},
 
     // serial list related
     serials: [],

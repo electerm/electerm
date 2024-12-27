@@ -256,7 +256,6 @@ for (const prop of arrGetterProps) {
 
 const getterProps = [
   'config',
-  'upgradeInfo',
   'settingItem'
 ]
 

@@ -63,12 +63,9 @@ export default class Upgrade extends PureComponent {
   }
 
   changeProps = (update) => {
-    window.store.storeAssign({
-      _upgradeInfo: JSON.stringify({
-        ...this.props.upgradeInfo,
-        ...update
-      })
-    })
+    Object.assign(
+      window.store.upgradeInfo, update
+    )
   }
 
   handleMinimize = () => {
@@ -79,9 +76,7 @@ export default class Upgrade extends PureComponent {
   }
 
   handleClose = () => {
-    window.store.storeAssign({
-      _upgradeInfo: '{}'
-    })
+    window.store.upgradeInfo = {}
   }
 
   onData = (upgradePercent) => {
