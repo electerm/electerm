@@ -30,13 +30,9 @@ export default Store => {
     )
   }
   Store.prototype.setSftpSortSetting = function (conf) {
-    const { store } = window
-    const base = copy(store.sftpSortSetting)
-    store._sftpSortSetting = JSON.stringify(
-      {
-        ...base,
-        ...conf
-      }
+    Object.assign(
+      window.store.sftpSortSetting,
+      conf
     )
   }
 

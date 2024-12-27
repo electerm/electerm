@@ -79,7 +79,7 @@ export default store => {
 
   autoRun(() => {
     ls.setItemJSON(sftpDefaultSortSettingKey, store.sftpSortSetting)
-    return store._sftpSortSetting
+    return store.sftpSortSetting
   }).start()
 
   autoRun(() => {
