@@ -15,15 +15,6 @@ import {
 import copy from 'json-deep-copy'
 
 export default Store => {
-  // Store.prototype.toCss = async function (stylus) {
-  //   const { host, port } = window._config
-  //   const url = `http://${host}:${port}/to-css`
-  //   const data = await fetch.post(url, {
-  //     stylus
-  //   })
-  //   return data
-  // }
-
   Store.prototype.getDefaultUiThemeConfig = function (stylus) {
     const reg = /[^\n]+ = [^\n]+\n/g
     const arr = stylus.match(reg)

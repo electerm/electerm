@@ -397,3 +397,14 @@ export const syncDataMaps = {
   profiles: ['profiles'],
   addressBookmarks: ['addressBookmarks']
 }
+export const terminalTypes = [
+  'xterm-256color',
+  'xterm-new',
+  'xterm-color',
+  'xterm-vt220',
+  'xterm',
+  'linux',
+  'vt100',
+  'ansi',
+  'rxvt'
+]

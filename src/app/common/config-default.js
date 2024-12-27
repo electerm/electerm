@@ -15,16 +15,6 @@ module.exports = exports.default = {
     lastUpdateTime: Date.now(),
     autoSync: false
   },
-  terminalTypes: [
-    'xterm-256color',
-    'xterm-new',
-    'xterm-color',
-    'xterm-vt220',
-    'xterm',
-    'linux',
-    'vt100',
-    'ansi',
-    'rxvt'
-  ],
+
   host: '127.0.0.1'
 }

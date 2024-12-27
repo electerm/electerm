@@ -489,7 +489,6 @@ export default (Store) => {
       'hideIP',
       'terminalTimeout',
       'theme',
-      'terminalTypes',
       'language',
       'copyWhenSelect',
       'customCss',

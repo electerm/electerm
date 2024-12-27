@@ -18,7 +18,8 @@ import deepCopy from 'json-deep-copy'
 import {
   noTerminalBgValue,
   rendererTypes,
-  regexHelpLink
+  regexHelpLink,
+  terminalTypes
 } from '../../common/constants'
 import defaultSettings from '../../common/default-setting'
 import ShowItem from '../common/show-item'
@@ -304,7 +305,7 @@ export default class SettingTerminal extends Component {
   }
 
   renderDefaultTerminalType = () => {
-    const opts = this.props.config.terminalTypes.map(mapper)
+    const opts = terminalTypes.map(mapper)
     return (
       <AutoComplete
         options={opts}

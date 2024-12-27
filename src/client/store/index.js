@@ -69,6 +69,10 @@ class Store {
     return window.store.innerWidth
   }
 
+  get config () {
+    return deepCopy(window.store._config)
+  }
+
   get currentQuickCommands () {
     const { currentTab } = this
     const { quickCommands } = window.store
@@ -250,18 +254,6 @@ for (const prop of arrGetterProps) {
   Object.defineProperty(Store.prototype, prop, {
     get: function () {
       return JSON.parse(window.store[`_${prop}`] || '[]').filter(d => d)
-    }
-  })
-}
-
-const getterProps = [
-  'config'
-]
-
-for (const prop of getterProps) {
-  Object.defineProperty(Store.prototype, prop, {
-    get: function () {
-      return JSON.parse(window.store[`_${prop}`] || '{}')
     }
   })
 }

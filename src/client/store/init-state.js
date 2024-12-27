@@ -54,7 +54,7 @@ export default () => {
     _bookmarkGroups: JSON.stringify(
       getDefaultBookmarkGroups([])
     ),
-    _config: '{}',
+    _config: {},
     _terminalThemes: JSON.stringify([
       buildDefaultThemes()
     ]),

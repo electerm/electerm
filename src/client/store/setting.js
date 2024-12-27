@@ -22,11 +22,9 @@ const e = window.translate
 export default Store => {
   Store.prototype.setConfig = function (conf) {
     const { store } = window
-    store._config = JSON.stringify(
-      {
-        ...store.config,
-        ...conf
-      }
+    Object.assign(
+      store._config,
+      copy(conf)
     )
   }
   Store.prototype.setSftpSortSetting = function (conf) {

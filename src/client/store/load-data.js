@@ -165,9 +165,7 @@ export default (Store) => {
     store.appPath = globs.appPath
     store.exePath = globs.exePath
     store.isPortable = globs.isPortable
-    store._config = JSON.stringify(
-      globs.config
-    )
+    store._config = globs.config
     window.et.langs = globs.langs
     store.zoom(store.config.zoom, false, true)
     await initWsCommon()

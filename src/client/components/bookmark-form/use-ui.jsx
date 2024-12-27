@@ -16,7 +16,7 @@ import {
 import { formItemLayout } from '../../common/form-layout'
 import defaultSettings from '../../common/default-setting'
 import mapper from '../../common/auto-complete-data-mapper'
-import { defaultEnvLang } from '../../common/constants'
+import { defaultEnvLang, terminalTypes } from '../../common/constants'
 
 const FormItem = Form.Item
 const e = window.translate
@@ -26,7 +26,6 @@ export default function useBookmarkFormUI (props) {
     fontFamily: defaultFontFamily,
     fontSize: defaultFontSize
   } = defaultSettings
-  const { terminalTypes } = props.store.config
   return [
     <FormItem
       {...formItemLayout}
