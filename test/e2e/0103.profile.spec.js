@@ -25,7 +25,7 @@ describe('profile', function () {
     await client.click('.btns .anticon-setting')
     await delay(2500)
     log('click profiles')
-    await client.click('.setting-tabs [role="tab"]', 5)
+    await client.click('.setting-tabs [role="tab"]', 4)
     // await client.click('.setting-tabs [role="tab"]', 4)
     await client.setValue(
       '.setting-tabs-profile input#name',

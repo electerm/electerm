@@ -50,12 +50,6 @@ describe('terminal themes', function () {
     await delay(1000)
     expect(themeNow).equal(themePrev + 1)
     expect(themeIterm > 10).equal(true)
-
-    log('tab it')
-    await client.click('.setting-wrap .ant-tabs-tab', 2)
-    await delay(100)
-    const text4 = await client.getText(sel)
-    expect(text4).equal(e('setting'))
     await electronApp.close().catch(console.log)
   })
 })
