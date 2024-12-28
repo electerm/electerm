@@ -1,11 +1,14 @@
-import { useCallback, useRef } from 'react'
+import { useCallback, useRef, useState } from 'react'
+import './drag-handle.styl'
 
 export default function SidePanel (props) {
+  const [isDragging, setIsDragging] = useState(false)
   const dragStartRef = useRef(false)
   const clientXRef = useRef(0)
 
   const handleMousedown = useCallback((e) => {
     e.stopPropagation()
+    setIsDragging(true)
     dragStartRef.current = true
     clientXRef.current = e.clientX
     window.addEventListener('mouseup', handleMouseup)
@@ -13,6 +16,7 @@ export default function SidePanel (props) {
   }, [])
 
   const handleMouseup = useCallback((e) => {
+    setIsDragging(false)
     dragStartRef.current = false
     const clientX = e.clientX
     let nw = clientX - clientXRef.current + props.leftSidebarWidth
@@ -42,19 +46,14 @@ export default function SidePanel (props) {
       el1.style.left = (nw + 43) + 'px'
     }
   }, [props.leftSidebarWidth])
-
+  const divProps = {
+    className: 'drag-handle' + (isDragging ? ' dragging' : ''),
+    onMouseDown: handleMousedown,
+    draggable: false
+  }
   return (
     <div
-      {...props.sideProps}
-      id='side-panel'
-      draggable={false}
-    >
-      <div
-        className='drag-handle'
-        onMouseDown={handleMousedown}
-        draggable={false}
-      />
-      {props.children}
-    </div>
+      {...divProps}
+    />
   )
 }
