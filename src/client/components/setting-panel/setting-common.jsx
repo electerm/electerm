@@ -1,7 +1,9 @@
 import React, { Component } from 'react'
 import {
   ArrowRightOutlined,
-  LoadingOutlined
+  LoadingOutlined,
+  SunOutlined,
+  MoonOutlined
 } from '@ant-design/icons'
 import {
   message,
@@ -12,7 +14,8 @@ import {
   Alert,
   Button,
   Table,
-  Space
+  Space,
+  Tag
 } from 'antd'
 import deepCopy from 'json-deep-copy'
 import {
@@ -26,6 +29,7 @@ import createEditLangLink from '../../common/create-lang-edit-link'
 import StartSession from './start-session-select'
 import HelpIcon from '../common/help-icon'
 import delay from '../../common/wait.js'
+import isColorDark from '../../common/is-color-dark'
 import './setting.styl'
 
 const { Option } = Select
@@ -581,9 +585,27 @@ export default class SettingCommon extends Component {
           >
             {
               terminalThemes.map(l => {
-                const { id, name } = l
+                const { id, name, uiThemeConfig } = l
+                const { main, text } = uiThemeConfig
+                const isDark = isColorDark(main)
+                const txt = isDark ? <MoonOutlined /> : <SunOutlined />
+                const tag = (
+                  <Tag
+                    color={main}
+                    className='mg1l'
+                    style={
+                      {
+                        color: text
+                      }
+                    }
+                  >
+                    {txt}
+                  </Tag>
+                )
                 return (
-                  <Option key={id} value={id}>{name}</Option>
+                  <Option key={id} value={id}>
+                    {tag} {name}
+                  </Option>
                 )
               })
             }
