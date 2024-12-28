@@ -104,12 +104,24 @@ class Store {
 
   get inActiveTerminal () {
     const { store } = window
-    return !store.showModal &&
-      store.currentTab &&
-      (
-        store.currentTab.pane === paneMap.ssh ||
-        store.currentTab.pane === paneMap.terminal
-      )
+    if (store.showModal) {
+      return false
+    }
+    const {
+      currentTab
+    } = store
+    if (!currentTab) {
+      return false
+    }
+    const {
+      type,
+      pane
+    } = currentTab
+    if (type === 'rdp' || type === 'vnc' || type === 'web') {
+      return false
+    }
+    return pane === paneMap.ssh ||
+        pane === paneMap.terminal
   }
 
   get quickCommandTags () {
