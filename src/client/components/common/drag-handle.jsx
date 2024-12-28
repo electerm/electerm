@@ -1,10 +1,28 @@
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useRef, useState, memo } from 'react'
 import './drag-handle.styl'
 
-export default function SidePanel (props) {
+export default memo(function DragHandle (props) {
   const [isDragging, setIsDragging] = useState(false)
   const dragStartRef = useRef(false)
   const clientXRef = useRef(0)
+  const {
+    max,
+    min,
+    width,
+    left = true
+  } = props
+
+  const calc = useCallback((clientX) => {
+    let nw = left
+      ? clientX - clientXRef.current + width
+      : clientXRef.current - clientX + width
+    if (nw < min) {
+      nw = min
+    } else if (nw > max) {
+      nw = max
+    }
+    return nw
+  }, [props.max, props.min, props.left])
 
   const handleMousedown = useCallback((e) => {
     e.stopPropagation()
@@ -18,34 +36,17 @@ export default function SidePanel (props) {
   const handleMouseup = useCallback((e) => {
     setIsDragging(false)
     dragStartRef.current = false
-    const clientX = e.clientX
-    let nw = clientX - clientXRef.current + props.leftSidebarWidth
-    if (nw < 150) {
-      nw = 150
-    } else if (nw > 600) {
-      nw = 600
-    }
-    props.setLeftSidePanelWidth(nw)
+    const nw = calc(e.clientX)
+    props.onDragEnd(nw)
     window.store.onResize()
     window.removeEventListener('mouseup', handleMouseup)
     window.removeEventListener('mousemove', handleMousemove)
-  }, [props])
+  }, [])
 
   const handleMousemove = useCallback((e) => {
-    const clientX = e.clientX
-    const el = document.getElementById('side-panel')
-    let nw = clientX - clientXRef.current + props.leftSidebarWidth
-    if (nw < 343) {
-      nw = 343
-    } else if (nw > 600) {
-      nw = 600
-    }
-    el.style.width = nw + 'px'
-    const el1 = document.querySelector('.sessions')
-    if (el1) {
-      el1.style.left = (nw + 43) + 'px'
-    }
-  }, [props.leftSidebarWidth])
+    const nw = calc(e.clientX)
+    props.onDragMove(nw)
+  }, [width])
   const divProps = {
     className: 'drag-handle' + (isDragging ? ' dragging' : ''),
     onMouseDown: handleMousedown,
@@ -56,4 +57,4 @@ export default function SidePanel (props) {
       {...divProps}
     />
   )
-}
+})
