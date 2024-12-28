@@ -1,4 +1,5 @@
-import React, { useRef, memo } from 'react'
+import React, { memo } from 'react'
+import DragHandle from '../common/drag-handle'
 import './right-side-panel.styl'
 import {
   CloseCircleOutlined,
@@ -17,43 +18,12 @@ export default memo(function RightSidePanel (
     return null
   }
 
-  const dragStart = useRef(false)
-  const clientX = useRef(0)
-
-  function handleMousedown (e) {
-    dragStart.current = true
-    clientX.current = e.clientX
-    document.body.addEventListener('mouseup', handleMouseup)
-    document.body.addEventListener('mousemove', handleMousemove)
-  }
-
-  function handleMouseup (e) {
-    dragStart.current = false
-    const {
-      clientX: cx
-    } = e
-    let nw = clientX.current - cx + rightPanelWidth
-    if (nw < 400) {
-      nw = 400
-    } else if (nw > 1000) {
-      nw = 1000
-    }
+  function onDragEnd (nw) {
     window.store.setRightSidePanelWidth(nw)
-    document.body.removeEventListener('mouseup', handleMouseup)
-    document.body.removeEventListener('mousemove', handleMousemove)
   }
 
-  function handleMousemove (e) {
-    const {
-      clientX: cx
-    } = e
+  function onDragMove (nw) {
     const el = document.getElementById('right-side-panel')
-    let nw = clientX.current - cx + rightPanelWidth
-    if (nw < 400) {
-      nw = 400
-    } else if (nw > 1000) {
-      nw = 1000
-    }
     el.style.width = nw + 'px'
   }
 
@@ -77,16 +47,19 @@ export default memo(function RightSidePanel (
     className: 'right-side-panel-pin right-side-panel-controls' + (rightPanelPinned ? ' pinned' : ''),
     onClick: togglePin
   }
-
+  const dragProps = {
+    min: 400,
+    max: 1000,
+    width: rightPanelWidth,
+    onDragEnd,
+    onDragMove,
+    left: false
+  }
   return (
     <div
       {...panelProps}
     >
-      <div
-        className='drag-handle'
-        onMouseDown={handleMousedown}
-        draggable={false}
-      />
+      <DragHandle {...dragProps} />
       <CloseCircleOutlined
         className='right-side-panel-close right-side-panel-controls'
         onClick={onClose}

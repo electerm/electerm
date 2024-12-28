@@ -1,62 +1,38 @@
-import { PureComponent } from 'react'
-export default class SidePanel extends PureComponent {
-  handleMousedown = (e) => {
-    e.stopPropagation()
-    this.dragStart = true
-    this.clientX = e.clientX
-    window.addEventListener('mouseup', this.handleMouseup)
-    window.addEventListener('mousemove', this.handleMousemove)
-  }
+import { useCallback } from 'react'
+import DragHandle from '../common/drag-handle'
 
-  handleMouseup = (e) => {
-    this.dragStart = false
-    const {
-      clientX
-    } = e
-    let nw = clientX - this.clientX + this.props.leftSidebarWidth
-    if (nw < 150) {
-      nw = 150
-    } else if (nw > 600) {
-      nw = 600
-    }
-    this.props.setLeftSidePanelWidth(nw)
+export default function SidePanel (props) {
+  const onDragEnd = useCallback((nw) => {
+    props.setLeftSidePanelWidth(nw)
     window.store.onResize()
-    window.removeEventListener('mouseup', this.handleMouseup)
-    window.removeEventListener('mousemove', this.handleMousemove)
-  }
+  }, [props])
 
-  handleMousemove = (e) => {
-    const {
-      clientX
-    } = e
+  const onDragMove = useCallback((nw) => {
     const el = document.getElementById('side-panel')
-    let nw = clientX - this.clientX + this.props.leftSidebarWidth
-    if (nw < 343) {
-      nw = 343
-    } else if (nw > 600) {
-      nw = 600
-    }
     el.style.width = nw + 'px'
     const el1 = document.querySelector('.sessions')
     if (el1) {
       el1.style.left = (nw + 43) + 'px'
     }
+  }, [props.leftSidebarWidth])
+  const dragProps = {
+    min: 343,
+    max: 600,
+    width: props.leftSidebarWidth,
+    onDragEnd,
+    onDragMove,
+    left: true
   }
-
-  render () {
-    return (
-      <div
-        {...this.props.sideProps}
-        id='side-panel'
-        draggable={false}
-      >
-        <div
-          className='drag-handle'
-          onMouseDown={this.handleMousedown}
-          draggable={false}
-        />
-        {this.props.children}
-      </div>
-    )
-  }
+  return (
+    <div
+      {...props.sideProps}
+      id='side-panel'
+      draggable={false}
+    >
+      <DragHandle
+        {...dragProps}
+      />
+      {props.children}
+    </div>
+  )
 }
