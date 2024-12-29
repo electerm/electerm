@@ -101,16 +101,17 @@ export default Store => {
     // Remove old tab
     tabs.splice(index, 1)
 
-    // Update current tab ID if needed
-    if (store.activeTabId === tabId) {
-      store.activeTabId = newTab.id
-    }
+    setTimeout(() => {
+      if (store.activeTabId === tabId) {
+        store.activeTabId = newTab.id
+      }
 
-    // Update batch current tab ID if needed
-    const batchProp = `activeTabId${oldBatch}`
-    if (store[batchProp] === tabId) {
-      store[batchProp] = newTab.id
-    }
+      // Update batch current tab ID if needed
+      const batchProp = `activeTabId${oldBatch}`
+      if (store[batchProp] === tabId) {
+        store[batchProp] = newTab.id
+      }
+    }, 0)
   }
 
   Store.prototype.duplicateTab = function (tabId) {
