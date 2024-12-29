@@ -4,11 +4,11 @@
 
 const { app } = require('electron')
 const home = app.getPath('home')
-const sshConfig = require('ssh-config')
 const { resolve } = require('path')
 const log = require('../common/log')
 
 function loadSshConfig () {
+  const sshConfig = require('ssh-config')
   const defaultPort = 22
   let config = []
   try {

@@ -68,8 +68,7 @@ export default Store => {
     const { store } = window
     const bookmarks = store.bookmarks
     const item = copy(
-      find(bookmarks, it => it.id === id) ||
-      find(store.sshConfigItems, it => it.id === id)
+      find(bookmarks, it => it.id === id)
     )
     if (!item) {
       return

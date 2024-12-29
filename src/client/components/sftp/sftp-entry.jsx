@@ -14,7 +14,6 @@ import {
   typeMap, maxSftpHistory, paneMap,
   eventTypes,
   fileTypeMap,
-  terminalSshConfigType,
   terminalSerialType,
   unexpectedPacketErrorDesc,
   sftpRetryInterval,
@@ -482,9 +481,7 @@ export default class Sftp extends Component {
 
   shouldRenderRemote = () => {
     const { props } = this
-    return props.tab?.host &&
-      props.tab?.type !== terminalSshConfigType &&
-      props.tab?.type !== terminalSerialType
+    return props.tab?.host && props.tab?.type !== terminalSerialType
   }
 
   initLocalAll = () => {

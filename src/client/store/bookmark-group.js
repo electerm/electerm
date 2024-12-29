@@ -5,23 +5,12 @@
 import { find } from 'lodash-es'
 import {
   defaultBookmarkGroupId,
-  settingMap,
-  terminalSshConfigType
+  settingMap
 } from '../common/constants'
 
 export default Store => {
   Store.prototype.getBookmarkGroupsTotal = function () {
-    const { store } = window
-    return store.sshConfigItems.length && !store.config.hideSshConfig
-      ? [
-          ...store.bookmarkGroups,
-          {
-            title: terminalSshConfigType,
-            id: terminalSshConfigType,
-            bookmarkIds: store.sshConfigItems.map(d => d.id)
-          }
-        ]
-      : store.bookmarkGroups
+    return window.store.bookmarkGroups
   }
 
   Store.prototype.setBookmarkGroups = function (items) {

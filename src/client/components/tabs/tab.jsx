@@ -14,9 +14,6 @@ import { pick } from 'lodash-es'
 import Input from '../common/input-auto-focus'
 import createName from '../../common/create-title'
 import { addClass, removeClass } from '../../common/class'
-import {
-  terminalSshConfigType
-} from '../../common/constants'
 import { action } from 'manate'
 import { shortcutDescExtend } from '../shortcuts/shortcut-handler.js'
 
@@ -227,11 +224,10 @@ class Tab extends Component {
   }
 
   renderContext = () => {
-    const { tabs, tab, tabIndex } = this.props
+    const { tabs, tabIndex } = this.props
     const len = tabs.length
     const index = tabIndex
     const noRight = index >= len - 1
-    const isSshConfig = tab.type === terminalSshConfigType
     const res = []
     const reloadShortcut = this.getShortcut('app_reloadCurrentTab')
     const closeShortcut = this.getShortcut('app_closeCurrentTab')
@@ -271,7 +267,6 @@ class Tab extends Component {
       subText: cloneToNextShortcut
     })
     res.push({
-      disabled: isSshConfig,
       func: 'doRename',
       icon: 'EditOutlined',
       text: e('rename')

@@ -35,7 +35,8 @@ import {
   paneMap,
   settingSyncId,
   settingShortcutsId,
-  settingTerminalId
+  settingTerminalId,
+  terminalSshConfigType
 } from '../common/constants'
 import getInitItem from '../common/init-setting-item'
 import {
@@ -234,6 +235,12 @@ class Store {
     }, {})
   }
 
+  hasSshConfig () {
+    return !!window.store
+      .bookmarkGroups
+      .find(b => b.id === terminalSshConfigType)
+  }
+
   get bookmarkGroupTree () {
     const {
       bookmarkGroups
@@ -252,7 +259,6 @@ const arrGetterProps = [
   'checkedKeys',
   'addressBookmarks',
   'addressBookmarksLocal',
-  'sshConfigItems',
   'itermThemes',
   'bookmarks',
   'bookmarkGroups',
