@@ -14,9 +14,6 @@ import { pick } from 'lodash-es'
 import Input from '../common/input-auto-focus'
 import createName from '../../common/create-title'
 import { addClass, removeClass } from '../../common/class'
-import {
-  terminalSshConfigType
-} from '../../common/constants'
 import isDark from '../../common/is-color-dark'
 import { action } from 'manate'
 import { shortcutDescExtend } from '../shortcuts/shortcut-handler.js'
