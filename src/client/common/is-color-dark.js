@@ -17,17 +17,21 @@ function expandShorthandColor (color) {
 }
 
 export default function isColorDark (_color) {
-  let color = expandShorthandColor(_color)
-  if (color.charAt(0) === '#') {
-    color = color.slice(1) // Remove the '#' if present
+  try {
+    let color = expandShorthandColor(_color)
+    if (color.charAt(0) === '#') {
+      color = color.slice(1) // Remove the '#' if present
+    }
+    const r = parseInt(color.substr(0, 2), 16)
+    const g = parseInt(color.substr(2, 2), 16)
+    const b = parseInt(color.substr(4, 2), 16)
+
+    // Formula to determine brightness
+    const brightness = (r * 299 + g * 587 + b * 114) / 1000
+
+    // Decide based on brightness threshold
+    return brightness < 128 // You can adjust this threshold as needed
+  } catch (e) {
+    return true
   }
-  const r = parseInt(color.substr(0, 2), 16)
-  const g = parseInt(color.substr(2, 2), 16)
-  const b = parseInt(color.substr(4, 2), 16)
-
-  // Formula to determine brightness
-  const brightness = (r * 299 + g * 587 + b * 114) / 1000
-
-  // Decide based on brightness threshold
-  return brightness < 128 // You can adjust this threshold as needed
 }

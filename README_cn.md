@@ -20,7 +20,7 @@
 
 Powered by [manate](https://github.com/tylerlong/manate)
 
-有经验的开发者也可以尝试运行于浏览器(支持移动设备)的web app版本: [electerm-web](https://github.com/electerm/electerm-web)
+有经验的开发者也可以尝试运行于浏览器(支持移动设备)的web app版本: [electerm-web](https://github.com/electerm/electerm-web) 或者 [docker image for electerm-web](https://github.com/electerm/electerm-web-docker)
 
 在线演示: [https://electerm-demo.html5beta.com](https://electerm-demo.html5beta.com)
 
