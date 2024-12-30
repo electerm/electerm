@@ -14,6 +14,10 @@ import { pick } from 'lodash-es'
 import Input from '../common/input-auto-focus'
 import createName from '../../common/create-title'
 import { addClass, removeClass } from '../../common/class'
+import {
+  terminalSshConfigType
+} from '../../common/constants'
+import isDark from '../../common/is-color-dark'
 import { action } from 'manate'
 import { shortcutDescExtend } from '../shortcuts/shortcut-handler.js'
 
@@ -386,7 +390,10 @@ class Tab extends Component {
     }
     const { tabCount, color } = tab
     const styleTag = color
-      ? { borderTop: `1px solid ${color}` }
+      ? {
+          background: color,
+          color: isDark(color) ? '#fff' : '#000'
+        }
       : {}
     return (
       <Tooltip
@@ -413,7 +420,6 @@ class Tab extends Component {
             className='tab-title elli pd1x'
             onClick={this.handleClick}
             onDoubleClick={this.handleDup}
-            style={styleTag}
           >
             <Loading3QuartersOutlined
               className='pointer tab-reload mg1r'
@@ -421,7 +427,8 @@ class Tab extends Component {
               title={e('reload')}
             />
             <span className='tab-title'>
-              {tabCount}. {title}
+              <span className='iblock mg1r tab-count' style={styleTag}>{tabCount}</span>
+              <span className='mg1r'>{title}</span>
             </span>
           </div>
           <div className={'tab-status ' + status} />
