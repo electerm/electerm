@@ -20,7 +20,7 @@ Open-sourced terminal/ssh/telnet/serialport/RDP/VNC/sftp client(linux, mac, win)
 
 Powered by [manate](https://github.com/tylerlong/manate)
 
-For experienced developers, you may try the web app version running in browser(including mobile device): [electerm-web](https://github.com/electerm/electerm-web)
+For experienced developers, you may try the web app version running in browser(including mobile device): [electerm-web](https://github.com/electerm/electerm-web) or [docker image for electerm-web](https://github.com/electerm/electerm-web-docker)
 
 Online demo: [https://electerm-demo.html5beta.com](https://electerm-demo.html5beta.com)
 
