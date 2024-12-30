@@ -54,12 +54,20 @@ export default class ErrorBoundary extends React.PureComponent {
 
   handleClearData = async () => {
     await fs.rmrf(troubleshootContent.clearData[os])
-    message.success('Data cleared')
+      .then(
+        () => {
+          message.success('Data cleared')
+        }
+      )
   }
 
   handleClearConfig = async () => {
     await fs.rmrf(troubleshootContent.clearConfig[os])
-    message.success('Config cleared')
+      .then(
+        () => {
+          message.success('Config cleared')
+        }
+      )
   }
 
   handleCopy = () => {
@@ -126,7 +134,7 @@ export default class ErrorBoundary extends React.PureComponent {
         <div className='pd3y'>
           <img
             src='https://electerm.html5beta.com/electerm-wechat-group-qr.jpg'
-            class='mwm-100'
+            className='mwm-100'
           />
         </div>
       </div>
