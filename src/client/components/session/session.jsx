@@ -14,7 +14,8 @@ import {
   CloseOutlined
 } from '@ant-design/icons'
 import {
-  Tooltip
+  Tooltip,
+  message
 } from 'antd'
 import { pick } from 'lodash-es'
 import generate from '../../common/uid'
@@ -150,8 +151,12 @@ export default class SessionWrapper extends Component {
   }
 
   toggleCheckSftpPathFollowSsh = () => {
+    const nv = !this.state.sftpPathFollowSsh
+    if (nv) {
+      message.warning(e('sftpPathFollowSshTip'), 8)
+    }
     this.setState({
-      sftpPathFollowSsh: !this.state.sftpPathFollowSsh
+      sftpPathFollowSsh: nv
     })
   }
 
