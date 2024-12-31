@@ -23,6 +23,7 @@ import {
 } from '../common/constants'
 import { buildDefaultThemes } from '../common/terminal-theme'
 import * as ls from '../common/safe-local-storage'
+import { exclude } from 'manate'
 import initSettingItem from '../common/init-setting-item'
 
 const e = window.translate
@@ -58,7 +59,7 @@ export default () => {
     _terminalThemes: JSON.stringify([
       buildDefaultThemes()
     ]),
-    _itermThemes: '[]',
+    itermThemes: exclude([]),
     currentBookmarkGroupId: defaultBookmarkGroupId,
     _expandedKeys: ls.getItem(expandedKeysLsKey) || JSON.stringify([
       defaultBookmarkGroupId

@@ -246,7 +246,6 @@ const arrGetterProps = [
   'checkedKeys',
   'addressBookmarks',
   'addressBookmarksLocal',
-  'itermThemes',
   'bookmarks',
   'bookmarkGroups',
   'profiles',

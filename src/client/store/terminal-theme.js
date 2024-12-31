@@ -65,7 +65,7 @@ export default Store => {
   }
 
   Store.prototype.setItermThemes = function (arr) {
-    window.store._itermThemes = JSON.stringify(arr)
+    window.store.itermThemes = arr
   }
 
   Store.prototype.fetchItermThemes = async function () {
