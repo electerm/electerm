@@ -408,3 +408,5 @@ export const terminalTypes = [
   'ansi',
   'rxvt'
 ]
+export const sshConfigLoadKey = 'ssh-config-loaded'
+export const sshConfigKey = 'ignore-ssh-config'

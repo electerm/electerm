@@ -1,9 +1,12 @@
 import React, { useEffect } from 'react'
 import { notification, Button } from 'antd'
 import * as ls from '../../common/safe-local-storage'
+import {
+  sshConfigKey,
+  sshConfigLoadKey
+} from '../../common/constants'
 
 const e = window.translate
-const sshConfigKey = 'ignore-ssh-config'
 
 function handleLoad () {
   window.store.showSshConfigModal = true
@@ -17,7 +20,7 @@ function handleIgnore () {
 
 function showNotification () {
   notification.info({
-    message: e('loadSshConfig'),
+    message: e('loadSshConfigs'),
     duration: 0,
     placement: 'bottom',
     key: 'sshConfigNotify',
@@ -40,10 +43,12 @@ export default function SshConfigLoadNotify (props) {
 
   useEffect(() => {
     const ignoreSshConfig = ls.getItem(sshConfigKey)
+    const sshConfigLoaded = ls.getItem(sshConfigLoadKey)
     const shouldShow =
       ignoreSshConfig !== 'yes' &&
       settingTab === 'bookmarks' &&
-      showModal
+      showModal &&
+      sshConfigLoaded !== 'yes'
 
     if (shouldShow) {
       showNotification()

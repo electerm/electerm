@@ -385,7 +385,7 @@ class Tab extends Component {
     if (isEditting) {
       return this.renderEditting(tab, cls)
     }
-    const { tabCount, color } = tab
+    const { tabCount, color = '#0088cc' } = tab
     const styleTag = color
       ? {
           background: color,
