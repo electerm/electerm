@@ -29,9 +29,6 @@ export default auto(function BookmarkSelect (props) {
     listStyle,
     staticList: true
   }
-  if (!store.config.hideSshConfig) {
-    base.bookmarks.push(...store.sshConfigItems)
-  }
   const propsTree = {
     ...base,
     shouldConfirmDel: true,

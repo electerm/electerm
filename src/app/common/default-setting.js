@@ -39,7 +39,6 @@ module.exports = exports.default = {
   initDefaultTabOnStart: true,
   screenReaderMode: false,
   autoRefreshWhenSwitchToSftp: false,
-  hideSshConfig: false,
   addTimeStampToTermLog: false,
   keepaliveInterval: 0,
   backspaceMode: '^?',

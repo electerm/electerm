@@ -655,7 +655,6 @@ export default class SettingCommon extends Component {
         {
           [
             'autoRefreshWhenSwitchToSftp',
-            'hideSshConfig',
             'showHiddenFilesOnSftpStart',
             'screenReaderMode',
             'initDefaultTabOnStart',

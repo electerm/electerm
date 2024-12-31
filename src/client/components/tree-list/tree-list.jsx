@@ -4,10 +4,8 @@
 
 import { Component } from 'react'
 import {
-  BookOutlined,
   CheckOutlined,
   CloseOutlined,
-  FolderOutlined,
   LoadingOutlined
 } from '@ant-design/icons'
 import {
@@ -15,10 +13,6 @@ import {
   cut,
   hasBookmarkOrGroupInClipboardText
 } from '../../common/clipboard'
-import {
-  Button,
-  Space
-} from 'antd'
 import createName from '../../common/create-title'
 import InputAutoFocus from '../common/input-auto-focus'
 import { find, uniq, isEqual, filter, pick } from 'lodash-es'
@@ -32,7 +26,7 @@ import {
 } from '../../common/constants'
 import findParentBySel from '../../common/find-parent'
 import copy from 'json-deep-copy'
-import BookmarkTransport from './bookmark-transport'
+import NewButtonsGroup from './bookmark-toolbar'
 import findBookmarkGroupId from '../../common/find-bookmark-group-id'
 import getInitItem from '../../common/init-setting-item'
 import uid from '../../common/uid'
@@ -900,28 +894,29 @@ export default class ItemListTree extends Component {
     )
   }
 
+  handleImport = () => {
+    document.querySelector('.upload-bookmark-icon input')?.click()
+  }
+
+  handleExport = () => {
+    document.querySelector('.download-bookmark-icon')?.click()
+  }
+
+  handleSshConfigs = () => {
+    window.store.showSshConfigModal = true
+  }
+
   renderNewButtons = () => {
     return (
-      <div className='pd1b pd2r'>
-        <Space.Compact>
-          <Button
-            onClick={this.handleNewBookmark}
-            title={`${e('new')} ${e('bookmarks')}`}
-          >
-            <BookOutlined className='with-plus' />
-          </Button>
-          <Button
-            onClick={this.handleNewBookmarkGroup}
-            title={`${e('new')} ${e('bookmarkCategory')}`}
-          >
-            <FolderOutlined className='with-plus' />
-          </Button>
-          <BookmarkTransport
-            bookmarkGroups={this.props.bookmarkGroups}
-            bookmarks={this.props.bookmarks}
-          />
-        </Space.Compact>
-      </div>
+      <NewButtonsGroup
+        onNewBookmark={this.handleNewBookmark}
+        onNewBookmarkGroup={this.handleNewBookmarkGroup}
+        onImport={this.handleImport}
+        onExport={this.handleExport}
+        onSshConfigs={this.handleSshConfigs}
+        bookmarkGroups={this.props.bookmarkGroups}
+        bookmarks={this.props.bookmarks}
+      />
     )
   }
 

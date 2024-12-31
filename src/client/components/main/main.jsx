@@ -26,6 +26,8 @@ import { LoadingUI } from './loading'
 import { ConfigProvider, notification, message } from 'antd'
 import InfoModal from '../sidebar/info-modal.jsx'
 import RightSidePanel from '../side-panel-r/side-panel-r'
+import SshConfigLoadNotify from '../ssh-config/ssh-config-load-notify'
+import LoadSshConfigs from '../ssh-config/load-ssh-configs'
 import { pick } from 'lodash-es'
 import deepCopy from 'json-deep-copy'
 import './wrapper.styl'
@@ -199,6 +201,12 @@ export default auto(function Index (props) {
       'appPath'
     ])
   }
+  const sshConfigProps = {
+    ...pick(store, [
+      'settingTab',
+      'showModal'
+    ])
+  }
   return (
     <ConfigProvider
       theme={uiThemeConfig}
@@ -257,6 +265,8 @@ export default auto(function Index (props) {
         <RightSidePanel {...rightPanelProps}>
           <TerminalInfo {...terminalInfoProps} />
         </RightSidePanel>
+        <SshConfigLoadNotify {...sshConfigProps} />
+        <LoadSshConfigs showSshConfigModal={store.showSshConfigModal} />
       </div>
     </ConfigProvider>
   )

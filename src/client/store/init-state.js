@@ -164,12 +164,11 @@ export default () => {
     serials: [],
     loaddingSerials: false,
 
-    _sshConfigItems: '[]',
-
     appPath: '',
     exePath: '',
     isPortable: false,
     installSrc: '',
+    showSshConfigModal: false,
 
     // batch inputs
     batchInputs: ls.getItemJSON(batchInputLsKey, []),

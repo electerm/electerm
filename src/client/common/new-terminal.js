@@ -11,11 +11,11 @@ const e = window.translate
 window.et.tabCount = 0
 
 export function updateCount (tab) {
-  tab.tabCount = window.et.tabCount
   window.et.tabCount++
+  return window.et.tabCount
 }
 
-export default (removeTitle, noUpdateCount) => {
+export default (removeTitle) => {
   const res = {
     id: uid(),
     status: 'processing',
@@ -24,9 +24,6 @@ export default (removeTitle, noUpdateCount) => {
   }
   if (removeTitle) {
     delete res.title
-  }
-  if (!noUpdateCount) {
-    updateCount(res)
   }
   return res
 }

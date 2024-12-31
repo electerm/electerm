@@ -147,12 +147,11 @@ export default (Store) => {
     }
   }
   Store.prototype.fetchSshConfigItems = async function () {
-    const arr = await window.pre.runGlobalAsync('loadSshConfig')
+    return window.pre.runGlobalAsync('loadSshConfig')
       .catch((err) => {
         console.log('fetchSshConfigItems error', err)
         return []
       })
-    window.store._sshConfigItems = JSON.stringify(arr)
   }
   Store.prototype.confirmLoad = function () {
     window.store.configLoaded = true
@@ -194,9 +193,6 @@ export default (Store) => {
     store.loadFontList()
     store.fetchItermThemes()
     store.openInitSessions()
-    if (!store.config.hideSshConfig) {
-      store.fetchSshConfigItems()
-    }
     store.initCommandLine().catch(store.onError)
     initWatch(store)
     if (store.config.checkUpdateOnStart) {

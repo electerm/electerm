@@ -13,10 +13,14 @@ import * as ls from '../common/safe-local-storage'
 import deepCopy from 'json-deep-copy'
 import generate from '../common/id-with-stamp'
 import uid from '../common/uid'
-import newTerm from '../common/new-terminal.js'
+import newTerm, { updateCount } from '../common/new-terminal.js'
 import { action } from 'manate'
 
 export default Store => {
+  Store.prototype.nextTabCount = function () {
+    return updateCount()
+  }
+
   Store.prototype.getTabs = function () {
     return window.store.tabs
   }
@@ -90,6 +94,7 @@ export default Store => {
     // Create copy of old tab with new ID
     const newTab = {
       ...oldTab,
+      tabCount: store.nextTabCount(),
       id: generate(), // Need to create new ID
       status: statusMap.processing // Reset status
     }
@@ -128,6 +133,7 @@ export default Store => {
     const duplicatedTab = {
       ...deepCopy(sourceTab),
       id: generate(),
+      tabCount: store.nextTabCount(),
       status: statusMap.processing,
       isTransporting: undefined
     }
@@ -304,6 +310,7 @@ export default Store => {
   ) {
     const { store } = window
     const { tabs } = store
+    newTab.tabCount = store.nextTabCount()
     newTab.batch = batch ?? newTab.batch ?? window.openTabBatch ?? window.store.currentLayoutBatch
     if (typeof index === 'number' && index >= 0 && index <= tabs.length) {
       tabs.splice(index, 0, newTab)

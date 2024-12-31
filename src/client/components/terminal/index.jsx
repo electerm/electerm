@@ -20,7 +20,6 @@ import {
   paneMap,
   typeMap,
   isWin,
-  terminalSshConfigType,
   transferTypeMap,
   terminalActions,
   commonActions,
@@ -818,8 +817,7 @@ clear\r`
   }
 
   isRemote = () => {
-    return this.props.tab?.host &&
-    this.props.tab?.type !== terminalSshConfigType
+    return this.props.tab?.host
   }
 
   onPaste = async () => {
@@ -1055,15 +1053,9 @@ clear\r`
   runInitScript = () => {
     window.store.triggerResize()
     const {
-      type,
-      title,
       startDirectory,
       runScripts
     } = this.props.tab
-    if (type === terminalSshConfigType) {
-      const cmd = `ssh ${title.split(/\s/g)[0]}\r`
-      return this.attachAddon._sendData(cmd)
-    }
     const startFolder = startDirectory || window.initFolder
     if (startFolder) {
       const cmd = `cd "${startFolder}"\r`
@@ -1141,10 +1133,7 @@ clear\r`
       id
     } = tab
     const { savePassword } = this.state
-    const isSshConfig = type === terminalSshConfigType
-    const termType = isSshConfig
-      ? typeMap.local
-      : type
+    const termType = type
     const extra = this.props.sessionOptions
     const opts = clone({
       cols,
@@ -1174,7 +1163,7 @@ clear\r`
       termType,
       readyTimeout: config.sshReadyTimeout,
       proxy: getProxy(tab, config),
-      type: tab.host && !isSshConfig
+      type: tab.host
         ? typeMap.remote
         : typeMap.local
     })

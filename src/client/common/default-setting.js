@@ -39,7 +39,6 @@ export default {
   initDefaultTabOnStart: true,
   screenReaderMode: false,
   autoRefreshWhenSwitchToSftp: false,
-  hideSshConfig: false,
   addTimeStampToTermLog: false,
   sftpPathFollowSsh: false,
   keepaliveInterval: 0,

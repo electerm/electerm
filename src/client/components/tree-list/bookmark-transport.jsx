@@ -127,11 +127,13 @@ export default class BookmarkTransport extends PureComponent {
         icon={<DownloadOutlined />}
         onClick={this.handleDownload}
         title={e('export')}
+        className='download-bookmark-icon'
         key='export'
       />,
       <Upload
         beforeUpload={this.beforeUpload}
         fileList={[]}
+        className='upload-bookmark-icon'
         key='Upload'
       >
         <Button
