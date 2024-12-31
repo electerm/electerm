@@ -98,18 +98,11 @@ export default class TransportAction extends Component {
       typeTo,
       next
     } = transfer
-    const cb = this[typeTo + 'List']
     const finishTime = Date.now()
-    if (next) {
-      setTimeout(() => {
-        window.store.fileTransfers.splice(
-          this.props.index, 0, copy(next)
-        )
-      }, 0)
-    }
     if (!config.disableTransferHistory) {
+      const r = copy(transfer)
       delete transfer.next
-      Object.assign(transfer, update, {
+      Object.assign(r, update, {
         finishTime,
         startTime: this.startTime,
         size: transfer.fromFile.size,
@@ -117,8 +110,26 @@ export default class TransportAction extends Component {
         speed: format(transfer.fromFile.size, this?.startTime)
       })
       window.store.addTransferHistory(
-        transfer
+        r
       )
+    }
+    const cbs = [
+      this[typeTo + 'List']
+    ]
+    if (next) {
+      cbs.push(() => {
+        setTimeout(
+          () => {
+            window.store.fileTransfers.splice(
+              this.props.index, 0, copy(next)
+            )
+          },
+          100
+        )
+      })
+    }
+    const cb = () => {
+      cbs.forEach(cb => cb())
     }
     this.cancel(cb)
   }
