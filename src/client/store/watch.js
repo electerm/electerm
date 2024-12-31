@@ -47,8 +47,8 @@ export default store => {
   }
 
   autoRun(async () => {
-    ls.setItem(resolutionsLsKey, store._resolutions)
-    return store._resolutions
+    ls.setItemJSON(resolutionsLsKey, store.resolutions)
+    return store.resolutions
   }).start()
 
   autoRun(() => {

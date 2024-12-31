@@ -250,8 +250,7 @@ const arrGetterProps = [
   'bookmarkGroups',
   'profiles',
   'quickCommands',
-  'terminalThemes',
-  'resolutions'
+  'terminalThemes'
 ]
 
 for (const prop of arrGetterProps) {

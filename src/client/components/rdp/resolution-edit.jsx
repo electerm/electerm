@@ -7,22 +7,20 @@ import uid from '../../common/uid'
 
 export default function Resolutions (props) {
   function remove (id) {
-    const { resolutions } = props
+    const { resolutions } = window.store
     const index = resolutions.findIndex(d => d.id === id)
     if (index < 0) {
       return
     }
     resolutions.splice(index, 1)
-    window.store.setState('resolutions', resolutions)
   }
 
   function submit (data) {
-    const { resolutions } = props
+    const { resolutions } = window.store
     resolutions.push({
       ...data,
       id: uid()
     })
-    window.store.setState('resolutions', resolutions)
   }
 
   const {
@@ -37,7 +35,7 @@ export default function Resolutions (props) {
   }
   const modalProps = {
     footer: null,
-    visible: true,
+    open: true,
     onCancel: () => toggleResolutionEdit()
   }
   const resList = {

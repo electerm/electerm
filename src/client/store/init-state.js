@@ -69,7 +69,7 @@ export default () => {
     _addressBookmarks: '[]',
     _addressBookmarksLocal: ls.getItem(localAddrBookmarkLsKey) || '[]',
     openResolutionEdit: false,
-    _resolutions: ls.getItem(resolutionsLsKey) || '[]',
+    resolutions: ls.getItemJSON(resolutionsLsKey, []),
 
     // init session control
     selectedSessions: [],

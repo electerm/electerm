@@ -176,7 +176,7 @@ export default auto(function Index (props) {
     innerWidth: store.innerWidth
   }
   const resProps = {
-    resolutions: store.resolutions,
+    resolutions: deepCopy(store.resolutions),
     openResolutionEdit
   }
   const contextMenuProps = {
