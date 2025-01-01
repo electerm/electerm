@@ -206,7 +206,7 @@ export default class Sftp extends Component {
       action === commonActions.sftpList &&
       sessionId === this.props.sessionId
     ) {
-      this[type + 'List']()
+      this[type + 'ListDebounce']()
     }
   }
 
