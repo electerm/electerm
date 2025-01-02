@@ -16,7 +16,7 @@ const e = window.translate
 
 export default function LoadSshConfigs (props) {
   const [loading, setLoading] = useState(false)
-  const [sshConfigs, setSshConfigs] = useState([])
+  const { sshConfigs } = props
 
   const {
     store
@@ -29,8 +29,7 @@ export default function LoadSshConfigs (props) {
   }
   const loadSshConfig = async function () {
     setLoading(true)
-    const arr = await store.fetchSshConfigItems()
-    setSshConfigs(arr)
+    await store.fetchSshConfigItems()
     setLoading(false)
   }
 
@@ -54,10 +53,10 @@ export default function LoadSshConfigs (props) {
   }
 
   useEffect(() => {
-    if (ls.getItem('ssh-config-loaded') !== 'yes') {
+    if (sshConfigs.length && ls.getItem(sshConfigLoadKey) !== 'yes') {
       loadSshConfig()
     }
-  }, [])
+  }, [sshConfigs.length])
   if (!showSshConfigModal) {
     return null
   }

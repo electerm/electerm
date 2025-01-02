@@ -39,12 +39,13 @@ function showNotification () {
 }
 
 export default function SshConfigLoadNotify (props) {
-  const { settingTab, showModal } = props
+  const { settingTab, showModal, sshConfigs } = props
 
   useEffect(() => {
     const ignoreSshConfig = ls.getItem(sshConfigKey)
     const sshConfigLoaded = ls.getItem(sshConfigLoadKey)
     const shouldShow =
+      sshConfigs.length &&
       ignoreSshConfig !== 'yes' &&
       settingTab === 'bookmarks' &&
       showModal &&
@@ -53,7 +54,7 @@ export default function SshConfigLoadNotify (props) {
     if (shouldShow) {
       showNotification()
     }
-  }, [settingTab, showModal])
+  }, [settingTab, showModal, sshConfigs.length])
 
   return null
 }

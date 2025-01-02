@@ -49,6 +49,7 @@ export default () => {
     tabs: [],
     activeTabId: '',
     history: ls.getItemJSON('history', []),
+    sshConfigs: [],
     _bookmarks: '[]',
     sidebarPanelTab: 'bookmarks',
     _profiles: '[]',

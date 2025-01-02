@@ -205,7 +205,8 @@ export default auto(function Index (props) {
   const sshConfigProps = {
     ...pick(store, [
       'settingTab',
-      'showModal'
+      'showModal',
+      'sshConfigs'
     ])
   }
   const warningProps = {
@@ -271,7 +272,10 @@ export default auto(function Index (props) {
           <TerminalInfo {...terminalInfoProps} />
         </RightSidePanel>
         <SshConfigLoadNotify {...sshConfigProps} />
-        <LoadSshConfigs showSshConfigModal={store.showSshConfigModal} />
+        <LoadSshConfigs
+          showSshConfigModal={store.showSshConfigModal}
+          sshConfigs={store.sshConfigs}
+        />
         <ConnectionHoppingWarning {...warningProps} />
       </div>
     </ConfigProvider>
