@@ -14,10 +14,7 @@ export default class BookmarkTreeDelete extends StartSessionSelect {
   }
 
   onCheck = (checkedKeys) => {
-    window.store.setState(
-      'checkedKeys',
-      checkedKeys
-    )
+    window.store.checkedKeys = deepCopy(checkedKeys)
   }
 
   handleDel = () => {
@@ -40,13 +37,13 @@ export default class BookmarkTreeDelete extends StartSessionSelect {
     const arr = checkedKeys.filter(d => d !== defaultBookmarkGroupId)
     store.delItems(arr, settingMap.bookmarks)
     store.delItems(arr, settingMap.bookmarkGroups)
-    store.setState('checkedKeys', [])
+    store.checkedKeys = []
   }
 
   handleCancel = () => {
     const { store } = window
     store.bookmarkSelectMode = false
-    store.setState('checkedKeys', [])
+    store.checkedKeys = []
   }
 
   render () {

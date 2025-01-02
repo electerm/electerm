@@ -66,7 +66,7 @@ export default () => {
       defaultBookmarkGroupId
     ]),
     bookmarkSelectMode: false,
-    _checkedKeys: ls.getItem(checkedKeysLsKey) || '[]',
+    checkedKeys: ls.getItemJSON(checkedKeysLsKey, []),
     _addressBookmarks: '[]',
     _addressBookmarksLocal: ls.getItem(localAddrBookmarkLsKey) || '[]',
     openResolutionEdit: false,
