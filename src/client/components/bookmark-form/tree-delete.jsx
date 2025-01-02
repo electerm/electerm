@@ -4,15 +4,13 @@ import {
   Button
 } from 'antd'
 import { defaultBookmarkGroupId, settingMap } from '../../common/constants'
+import deepCopy from 'json-deep-copy'
 
 const e = window.translate
 
 export default class BookmarkTreeDelete extends StartSessionSelect {
   onExpand = (expandedKeys) => {
-    window.store.setState(
-      'expandedKeys',
-      expandedKeys
-    )
+    window.store.expandedKeys = deepCopy(expandedKeys)
   }
 
   onCheck = (checkedKeys) => {

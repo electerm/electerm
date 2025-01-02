@@ -25,7 +25,7 @@ import {
   copyBookmarkGroupItemPrefix
 } from '../../common/constants'
 import findParentBySel from '../../common/find-parent'
-import copy from 'json-deep-copy'
+import copy, { deepCopy } from 'json-deep-copy'
 import NewButtonsGroup from './bookmark-toolbar'
 import findBookmarkGroupId from '../../common/find-bookmark-group-id'
 import getInitItem from '../../common/init-setting-item'
@@ -67,7 +67,7 @@ export default class ItemListTree extends Component {
       !deepEqual(this.props.expandedKeys, this.state.expandedKeys)
     ) {
       this.setState({
-        expandedKeys: this.props.expandedKeys
+        expandedKeys: deepCopy(this.props.expandedKeys)
       })
     }
   }
@@ -306,9 +306,7 @@ export default class ItemListTree extends Component {
       expandedKeys
     })
     this.closeNewGroupForm()
-    window.store.setState(
-      'expandedKeys', expandedKeys
-    )
+    window.store.expandedKeys = deepCopy(expandedKeys)
   }
 
   onSelect = (

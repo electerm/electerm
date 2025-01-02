@@ -248,7 +248,6 @@ class Store {
 }
 
 const arrGetterProps = [
-  'expandedKeys',
   'checkedKeys',
   'addressBookmarks',
   'addressBookmarksLocal',

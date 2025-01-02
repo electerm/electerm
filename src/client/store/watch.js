@@ -84,7 +84,8 @@ export default store => {
 
   autoRun(() => {
     ls.setItemJSON(expandedKeysLsKey, store.expandedKeys)
-    return store._expandedKeys
+    console.log(store._expandedKeys)
+    return store.expandedKeys
   }).start()
 
   autoRun(() => {

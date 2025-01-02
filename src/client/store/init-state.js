@@ -62,7 +62,7 @@ export default () => {
     ]),
     itermThemes: exclude([]),
     currentBookmarkGroupId: defaultBookmarkGroupId,
-    _expandedKeys: ls.getItem(expandedKeysLsKey) || JSON.stringify([
+    expandedKeys: ls.getItemJSON(expandedKeysLsKey, [
       defaultBookmarkGroupId
     ]),
     bookmarkSelectMode: false,
