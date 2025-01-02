@@ -9,7 +9,7 @@ const FormItem = Form.Item
 const e = window.translate
 
 export default function ProfileFormSsh (props) {
-  const { form } = props.store
+  const { form } = props
   return (
     <>
       <FormItem
