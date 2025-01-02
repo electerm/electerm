@@ -306,6 +306,7 @@ export const sshTunnelHelpLink = 'https://github.com/electerm/electerm/wiki/How-
 export const batchOpHelpLink = 'https://github.com/electerm/electerm/wiki/batch-operation'
 export const proxyHelpLink = 'https://github.com/electerm/electerm/wiki/proxy-format'
 export const regexHelpLink = 'https://github.com/electerm/electerm/wiki/Terminal-keywords-highlight-regular-expression-exmaples'
+export const connectionHoppingWikiLink = 'https://github.com/electerm/electerm/wiki/Connection-Hopping-Behavior-Change-in-electerm-since-v1.50.65'
 export const modals = {
   hide: 0,
   setting: 1,
@@ -410,3 +411,4 @@ export const terminalTypes = [
 ]
 export const sshConfigLoadKey = 'ssh-config-loaded'
 export const sshConfigKey = 'ignore-ssh-config'
+export const connectionHoppingWarnKey = 'connectionHoppingWarnned'

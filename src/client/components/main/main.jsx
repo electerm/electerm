@@ -26,6 +26,7 @@ import { LoadingUI } from './loading'
 import { ConfigProvider, notification, message } from 'antd'
 import InfoModal from '../sidebar/info-modal.jsx'
 import RightSidePanel from '../side-panel-r/side-panel-r'
+import ConnectionHoppingWarning from './connection-hopping-warnning'
 import SshConfigLoadNotify from '../ssh-config/ssh-config-load-notify'
 import LoadSshConfigs from '../ssh-config/load-ssh-configs'
 import { pick } from 'lodash-es'
@@ -207,6 +208,10 @@ export default auto(function Index (props) {
       'showModal'
     ])
   }
+  const warningProps = {
+    hasOldConnectionHoppingBookmark: store.hasOldConnectionHoppingBookmark,
+    configLoaded
+  }
   return (
     <ConfigProvider
       theme={uiThemeConfig}
@@ -267,6 +272,7 @@ export default auto(function Index (props) {
         </RightSidePanel>
         <SshConfigLoadNotify {...sshConfigProps} />
         <LoadSshConfigs showSshConfigModal={store.showSshConfigModal} />
+        <ConnectionHoppingWarning {...warningProps} />
       </div>
     </ConfigProvider>
   )

@@ -239,6 +239,12 @@ class Store {
       }
     }, {})
   }
+
+  get hasOldConnectionHoppingBookmark () {
+    return window.store.bookmarks.some(b => {
+      return b.connectionHoppings?.length && !b.hasHopping
+    })
+  }
 }
 
 const arrGetterProps = [

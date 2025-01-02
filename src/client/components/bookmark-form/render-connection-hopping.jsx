@@ -6,7 +6,10 @@ import {
   Button,
   Table
 } from 'antd'
-import { formItemLayout, tailFormItemLayout } from '../../common/form-layout'
+import {
+  formItemLayout,
+  tailFormItemLayout
+} from '../../common/form-layout'
 import {
   MinusCircleFilled,
   PlusOutlined
@@ -14,10 +17,13 @@ import {
 import RenderAuth from './render-auth-ssh'
 import uid from '../../common/uid'
 import {
-  authTypeMap
+  authTypeMap,
+  connectionHoppingWarnKey
 } from '../../common/constants'
 import { useState } from 'react'
+import ConnectionHoppingWarningText from '../common/connection-hopping-warning-text'
 import BookmarkSelect from './bookmark-select'
+import * as ls from '../../common/safe-local-storage'
 
 const FormItem = Form.Item
 const RadioButton = Radio.Button
@@ -35,6 +41,12 @@ export default function renderConnectionHopping (props) {
     port: 22,
     authType: authTypeMap.password
   })
+  const [showWarn, setShowWarn] = useState(
+    window.store.hasOldConnectionHoppingBookmark && ls.getItem(connectionHoppingWarnKey) !== 'yes'
+  )
+  function closeWarn () {
+    setShowWarn(false)
+  }
   const [list, setList] = useState(formData.connectionHoppings || [])
   function onChangeAuthType (e) {
     editState(old => {
@@ -139,6 +151,16 @@ export default function renderConnectionHopping (props) {
       </FormItem>
     )
   }
+  function renderWarn () {
+    if (!showWarn) {
+      return null
+    }
+    return (
+      <FormItem {...tailFormItemLayout}>
+        <ConnectionHoppingWarningText closeWarn={closeWarn} />
+      </FormItem>
+    )
+  }
   const treeProps = {
     bookmarks: store.bookmarks.filter(d => {
       return d.host && d.port && d.username
@@ -160,6 +182,7 @@ export default function renderConnectionHopping (props) {
         initialValues={initialValues}
       >
         {renderList()}
+        {renderWarn()}
         <FormItem
           {...formItemLayout}
           label={e('chooseFromBookmarks')}
