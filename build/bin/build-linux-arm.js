@@ -1,4 +1,4 @@
-const { echo, rm } = require('shelljs')
+const { echo, rm, cp } = require('shelljs')
 const {
   run,
   writeSrc,
@@ -8,6 +8,7 @@ const {
 } = require('./build-common')
 
 async function main () {
+  const shouldKeepFile = !!process.env.KEEP_FILE
   echo('running build for linux part 3 arm64/armv7l')
 
   echo('build linux.arm64.tar.gz')
@@ -20,6 +21,9 @@ async function main () {
   )
   await run(`${reBuild} --arch arm64 -f work/app`)
   await run(`${pb} --linux --arm64`)
+  if (shouldKeepFile) {
+    cp('dist/linux-arm64.tar.gz', './linux-arm64.tar.gz')
+  }
 
   echo('build linux.arm64.deb')
   rm('-rf', 'dist')
@@ -30,6 +34,9 @@ async function main () {
     }
   )
   await run(`${pb} --linux --arm64`)
+  if (shouldKeepFile) {
+    cp('dist/linux-arm64.deb', './linux-arm64.deb')
+  }
 
   echo('build linux.aarch64.rpm')
   rm('-rf', 'dist')
@@ -40,6 +47,9 @@ async function main () {
     }
   )
   await run(`${pb} --linux --arm64`)
+  if (shouldKeepFile) {
+    cp('dist/linux-aarch64.rpm', './linux-aarch64.rpm')
+  }
 
   echo('build linux.arm64.AppImage')
   rm('-rf', 'dist')
@@ -50,6 +60,9 @@ async function main () {
     }
   )
   await run(`${pb} --linux --arm64`)
+  if (shouldKeepFile) {
+    cp('dist/linux-arm64.AppImage', './linux-arm64.AppImage')
+  }
 
   echo('build linux.armv7l.tar.gz')
   rm('-rf', 'dist')
@@ -61,6 +74,9 @@ async function main () {
   )
   await run(`${reBuild} --arch armv7l -f work/app`)
   await run(`${pb} --linux --armv7l`)
+  if (shouldKeepFile) {
+    cp('dist/linux-armv7l.tar.gz', './linux-armv7l.tar.gz')
+  }
 
   echo('build linux.armv7l.deb')
   rm('-rf', 'dist')
@@ -71,6 +87,9 @@ async function main () {
     }
   )
   await run(`${pb} --linux --armv7l`)
+  if (shouldKeepFile) {
+    cp('dist/linux-armv7l.deb', './linux-armv7l.deb')
+  }
 
   echo('build linux.armv7l.rpm')
   rm('-rf', 'dist')
@@ -81,6 +100,9 @@ async function main () {
   )
   writeSrc('linux-armv7l.rpm')
   await run(`${pb} --linux --armv7l`)
+  if (shouldKeepFile) {
+    cp('dist/linux-armv7l.rpm', './linux-armv7l.rpm')
+  }
 
   echo('build linux.armv7l.AppImage')
   rm('-rf', 'dist')
@@ -91,6 +113,9 @@ async function main () {
   )
   writeSrc('linux-armv7l.AppImage')
   await run(`${pb} --linux --armv7l`)
+  if (shouldKeepFile) {
+    cp('dist/linux-armv7l.AppImage', './linux-armv7l.AppImage')
+  }
 }
 
 main()
