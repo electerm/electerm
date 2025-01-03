@@ -1,5 +1,4 @@
-const { echo, rm, cp } = require('shelljs')
-const path = require('path')
+const { echo, rm, mv } = require('shelljs')
 const {
   run,
   writeSrc,
@@ -8,23 +7,20 @@ const {
   replaceJSON
 } = require('./build-common')
 
-async function main () {
-  const shouldKeepFile = !!process.env.KEEP_FILE
-  const rootDir = path.resolve(__dirname, '..', '..')
+const shouldKeepFile = !!process.env.KEEP_FILE
 
-  // Define the keep function with a single parameter using absolute paths
-  const keep = (filename) => {
-    if (shouldKeepFile) {
-      const src = path.resolve(rootDir, 'dist', filename)
-      const dest = path.resolve(rootDir, filename)
-      cp(src, dest)
-    }
+function renameDist () {
+  if (!shouldKeepFile) {
+    return rm('-rf', 'dist')
   }
+  mv('dist', 'dist' + new Date().getTime())
+}
 
+async function main () {
   echo('running build for linux part 3 arm64/armv7l')
 
   echo('build linux.arm64.tar.gz')
-  rm('-rf', 'dist')
+  renameDist()
   writeSrc('linux-arm64.tar.gz')
   replaceJSON(
     (data) => {
@@ -33,10 +29,9 @@ async function main () {
   )
   await run(`${reBuild} --arch arm64 -f work/app`)
   await run(`${pb} --linux --arm64`)
-  keep('linux-arm64.tar.gz')
 
   echo('build linux.arm64.deb')
-  rm('-rf', 'dist')
+  renameDist()
   writeSrc('linux-arm64.deb')
   replaceJSON(
     (data) => {
@@ -44,10 +39,9 @@ async function main () {
     }
   )
   await run(`${pb} --linux --arm64`)
-  keep('linux-arm64.deb')
 
   echo('build linux.aarch64.rpm')
-  rm('-rf', 'dist')
+  renameDist()
   writeSrc('linux-aarch64.rpm')
   replaceJSON(
     (data) => {
@@ -55,10 +49,9 @@ async function main () {
     }
   )
   await run(`${pb} --linux --arm64`)
-  keep('linux-aarch64.rpm')
 
   echo('build linux.arm64.AppImage')
-  rm('-rf', 'dist')
+  renameDist()
   writeSrc('linux-arm64.AppImage')
   replaceJSON(
     (data) => {
@@ -66,10 +59,9 @@ async function main () {
     }
   )
   await run(`${pb} --linux --arm64`)
-  keep('linux-arm64.AppImage')
 
   echo('build linux.armv7l.tar.gz')
-  rm('-rf', 'dist')
+  renameDist()
   writeSrc('linux-armv7l.tar.gz')
   replaceJSON(
     (data) => {
@@ -78,10 +70,9 @@ async function main () {
   )
   await run(`${reBuild} --arch armv7l -f work/app`)
   await run(`${pb} --linux --armv7l`)
-  keep('linux-armv7l.tar.gz')
 
   echo('build linux.armv7l.deb')
-  rm('-rf', 'dist')
+  renameDist()
   writeSrc('linux-armv7l.deb')
   replaceJSON(
     (data) => {
@@ -89,10 +80,9 @@ async function main () {
     }
   )
   await run(`${pb} --linux --armv7l`)
-  keep('linux-armv7l.deb')
 
   echo('build linux.armv7l.rpm')
-  rm('-rf', 'dist')
+  renameDist()
   replaceJSON(
     (data) => {
       data.linux.target = ['rpm']
@@ -100,10 +90,9 @@ async function main () {
   )
   writeSrc('linux-armv7l.rpm')
   await run(`${pb} --linux --armv7l`)
-  keep('linux-armv7l.rpm')
 
   echo('build linux.armv7l.AppImage')
-  rm('-rf', 'dist')
+  renameDist()
   replaceJSON(
     (data) => {
       data.linux.target = ['AppImage']
@@ -111,7 +100,6 @@ async function main () {
   )
   writeSrc('linux-armv7l.AppImage')
   await run(`${pb} --linux --armv7l`)
-  keep('linux-armv7l.AppImage')
 }
 
 main()
