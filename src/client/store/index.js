@@ -128,6 +128,10 @@ class Store {
     return window.store.tabs.some(t => t.isTransporting)
   }
 
+  get transferCount () {
+    return window.store.fileTransfers.length
+  }
+
   get settingSidebarList () {
     const {
       settingTab

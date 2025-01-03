@@ -40,7 +40,10 @@ export default Store => {
       store.fileTransfers.map(d => d.tabId)
     )
     store.tabs.forEach(tab => {
-      tab.isTransporting = tabIdSet.has(tab.id)
+      const t = tabIdSet.has(tab.id)
+      if (Boolean(tab.isTransporting) !== t) {
+        tab.isTransporting = t
+      }
     })
   }
 

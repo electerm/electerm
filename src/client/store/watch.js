@@ -74,8 +74,8 @@ export default store => {
 
   autoRun(() => {
     store.updateTabsStatus()
-    return store.fileTransfers
-  }, func => debounce(func, 100)).start()
+    return store.transferCount
+  }).start()
 
   autoRun(() => {
     ls.setItemJSON(sftpDefaultSortSettingKey, store.sftpSortSetting)
@@ -84,7 +84,6 @@ export default store => {
 
   autoRun(() => {
     ls.setItemJSON(expandedKeysLsKey, store.expandedKeys)
-    console.log(store._expandedKeys)
     return store.expandedKeys
   }).start()
 

@@ -18,7 +18,6 @@ function loadSshConfig () {
     const sshConf = sshConfig.parse(configStr)
     config = sshConf.map((c, i) => {
       const { value } = c
-      console.log('c', c)
       const obj = sshConf.compute(value.split(/\s/g)[0])
       const { HostName, User, Port = defaultPort, Host } = obj
       if (!Host) {

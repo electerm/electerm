@@ -68,14 +68,6 @@ export default Store => {
     fileTransfers.splice(index, 1)
   }
 
-  Store.prototype.removeTransfer = function (id) {
-    const { fileTransfers } = window.store
-    const index = fileTransfers.findIndex(t => t.id === id)
-    if (index > -1) {
-      fileTransfers.splice(index, 1)
-    }
-  }
-
   Store.prototype.skipAllTransfersSinceIndex = function (index) {
     window.store.fileTransfers.splice(index)
   }
