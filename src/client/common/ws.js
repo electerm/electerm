@@ -153,7 +153,11 @@ export default (type, id, sessionId = '', sftpId = '', persist) => {
         sessionId,
         sftpId,
         pick(window.store.config, [
-          'host', 'port', 'tokenElecterm'
+          'host',
+          'port',
+          'tokenElecterm',
+          'server',
+          'urlPath'
         ])
       ]
     })
