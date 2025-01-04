@@ -16,15 +16,16 @@ import download from '../../common/download'
 
 const e = window.translate
 
-export default function BookmarkToolbar ({
-  onNewBookmark,
-  onNewBookmarkGroup,
-  onImport,
-  onExport,
-  onSshConfigs,
-  bookmarkGroups,
-  bookmarks
-}) {
+export default function BookmarkToolbar (props) {
+  const {
+    onNewBookmark,
+    onNewBookmarkGroup,
+    onImport,
+    onExport,
+    onSshConfigs,
+    bookmarkGroups,
+    bookmarks
+  } = props
   const beforeUpload = async (file) => {
     const { store } = window
     const txt = await window.fs.readFile(file.path)
@@ -34,16 +35,15 @@ export default function BookmarkToolbar ({
         bookmarkGroups: bookmarkGroups1,
         bookmarks: bookmarks1
       } = content
-      const { props } = this
-      const bookmarkGroups = copy(props.bookmarkGroups)
-      const bookmarks = copy(props.bookmarks)
-      const bmTree = bookmarks.reduce((p, v) => {
+      const bookmarkGroups0 = copy(bookmarkGroups)
+      const bookmarks0 = copy(bookmarks)
+      const bmTree = bookmarks0.reduce((p, v) => {
         return {
           ...p,
           [v.id]: v
         }
       }, {})
-      const bmgTree = bookmarkGroups.reduce((p, v) => {
+      const bmgTree = bookmarkGroups0.reduce((p, v) => {
         return {
           ...p,
           [v.id]: v
@@ -102,7 +102,6 @@ export default function BookmarkToolbar ({
     return false
   }
   const handleDownload = () => {
-    const { bookmarkGroups, bookmarks } = this.props
     const txt = JSON.stringify({
       bookmarkGroups: copy(bookmarkGroups),
       bookmarks: copy(bookmarks)
