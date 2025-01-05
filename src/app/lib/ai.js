@@ -2,53 +2,26 @@
  * AI integration with DeepSeek API
  */
 const OpenAI = require('openai')
-const { getConfig } = require('./get-config')
 const log = require('../common/log')
-
-const DEFAULT_SYSTEM_ROLE = `You are a terminal command expert.
-- Provide clear, safe, and efficient shell commands
-- Always explain what each command does
-- Warn about potentially dangerous operations
-- Format command output with markdown code blocks
-- If multiple steps are needed, number them
-- Mention any prerequisites or dependencies
-- Include common flags and options
-- Specify which OS (Linux/Mac/Windows) the command is for`
+const defaultSettings = require('../common/config-default')
 
 // Initialize OpenAI with DeepSeek configuration
-const initAIClient = async () => {
-  try {
-    const { config } = await getConfig()
-    const { apiKey } = config
-
-    if (!apiKey) {
-      return null
-    }
-
-    return new OpenAI({
-      baseURL: 'https://api.deepseek.com',
-      apiKey
-    })
-  } catch (e) {
-    log.error('AI client init error')
-    log.error(e)
-    return null
-  }
+const initAIClient = async (config) => {
+  return new OpenAI(config)
 }
 
 exports.chat = async (
   prompt,
-  model = 'deepseek-chat',
-  role = 'You are a helpful assistant.'
+  model = defaultSettings.modelAI,
+  role = defaultSettings.roleAI,
+  baseURL = defaultSettings.baseURLAI,
+  apiKey
 ) => {
   try {
-    const client = await initAIClient()
-    if (!client) {
-      return {
-        error: 'AI not configured. Please set API key in settings.'
-      }
-    }
-
+    const client = await initAIClient({
+      baseURL,
+      apiKey
+    })
     const completion = await client.chat.completions.create({
       messages: [
         {
@@ -70,7 +43,8 @@ exports.chat = async (
     log.error('AI chat error')
     log.error(e)
     return {
-      error: e.message
+      error: e.message,
+      stack: e.stack
     }
   }
 }
