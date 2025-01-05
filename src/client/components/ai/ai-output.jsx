@@ -1,73 +1,59 @@
-// import React from 'react'
-// import ReactMarkdown from 'react-markdown'
-// import { Button, Tooltip } from 'antd'
-// import { CopyOutlined, PlayCircleOutlined } from '@ant-design/icons'
+import React from 'react'
+import ReactMarkdown from 'react-markdown'
+import { copy } from '../../common/clipboard'
+import { CopyOutlined, PlayCircleOutlined } from '@ant-design/icons'
 
-// const AIOutput = ({ content }) => {
-//   // const copyToClipboard = (text) => {
-//   //   navigator.clipboard.writeText(text)
-//   // }
+export default function AIOutput ({ content }) {
+  if (!content) {
+    return null
+  }
 
-//   // const runInTerminal = (command) => {
-//   //   window.store.runCommandInTerminal(command)
-//   // }
+  const renderCode = ({ node, inline, className, children, ...props }) => {
+    const code = String(children).replace(/\n$/, '')
 
-// //   const renderCode = ({ node, inline, className, children, ...props }) => {
-// //     const match = /language-(\w+)/.exec(className || '')
-// //     const language = match ? match[1] : ''
-// //     const isCommand = language === 'bash' || language === 'shell'
-// //     const code = String(children).replace(/\n$/, '')
+    if (inline) {
+      return (
+        <code className={className} {...props}>
+          {children}
+        </code>
+      )
+    }
 
-// //     if (inline) {
-// //       return (
-// //         <code>
-// //           {children}
-// //         </code>
-// //       )
-// //     }
+    const copyToClipboard = () => {
+      copy(code)
+    }
 
-// //     return (
-// //       <div>
-// //         <pre>
-// //           <code>
-// //             {code}
+    const runInTerminal = () => {
+      window.store.runCommandInTerminal(code)
+    }
 
-// //           </code>
-// //         </pre>
-// //         <div className='code-block-actions'>
-// //           <Tooltip>
-// //             <Button
-// //               icon={
-// //                 <CopyOutlined />
-// // }
-// //               onClick={() => copyToClipboard(code)}
-// //             />
+    return (
+      <div className='code-block'>
+        <pre>
+          <code className={className} {...props}>
+            {children}
+          </code>
+        </pre>
+        <div className='code-block-actions'>
+          <CopyOutlined
+            className='code-action-icon pointer'
+            onClick={copyToClipboard}
+          />
+          <PlayCircleOutlined
+            className='code-action-icon pointer mg1l'
+            onClick={runInTerminal}
+          />
+        </div>
+      </div>
+    )
+  }
 
-// //           </Tooltip>
-// //           {isCommand && (
-// //             <Tooltip>
-// //               <Button
-// //                 icon={
-// //                   <PlayCircleOutlined />
-// // }
-// //                 onClick={() => runInTerminal(code)}
-// //               />
+  const mdProps = {
+    children: content,
+    components: {
+      code: renderCode
+    }
+  }
 
-// //             </Tooltip>
-// //           )}
-// //         </div>
-// //       </div>
-// //     )
-// //   }
-
-//   return (
-
-//     <div>
-//       <ReactMarkdown>
-//         {content}
-//       </ReactMarkdown>
-//     </div>
-//   )
-// }
-
-// export default AIOutput
+  return <ReactMarkdown {...mdProps} />
+}

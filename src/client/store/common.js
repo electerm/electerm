@@ -262,4 +262,9 @@ export default Store => {
     }
     return window.store.applyProfile(tab)
   }
+
+  Store.prototype.handleOpenAIPanel = function () {
+    window.store.rightPanelVisible = true
+    window.store.rightPanelTab = 'ai'
+  }
 }

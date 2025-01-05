@@ -72,6 +72,19 @@ export default auto(function FooterEntry (props) {
     )
   }
 
+  function renderAIIcon () {
+    return (
+      <div className='terminal-footer-unit terminal-footer-ai'>
+        <span
+          className='ai-icon'
+          onClick={window.store.handleOpenAIPanel}
+        >
+          AI
+        </span>
+      </div>
+    )
+  }
+
   function renderEncodingInfo () {
     const selectProps = {
       style: {
@@ -148,6 +161,7 @@ export default auto(function FooterEntry (props) {
   return (
     <div {...sideProps}>
       <div className='terminal-footer-flex'>
+        {renderAIIcon()}
         {renderQuickCommands()}
         {renderBatchInputs()}
         {renderEncodingInfo()}
