@@ -1,31 +1,48 @@
-// a ai chat component, has promote input and response output, also could choose which terminal to send command
-import { useState } from 'react'
-import { Tabs, Input } from 'antd'
+import React, { useState } from 'react'
+import { Tabs, Input, Button, List } from 'antd'
 import { AIConfigForm } from './ai-config'
+import AIOutput from './ai-output'
 import TabSelect from '../footer/tab-select'
 
 const { TextArea } = Input
-const { TabPane } = Tabs
-const e = window.translate
+
+const MAX_HISTORY = 100
 
 export default function AIChat (props) {
   const [prompt, setPrompt] = useState('')
-  const [selectedTabIds, setSelectedTabIds] = useState([props.activeTabId])
-  // const [activeTab, setActiveTab] = useState('chat')
+  const [activeTab, setActiveTab] = useState('chat')
+  const [response, setResponse] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
 
   function handlePromptChange (e) {
     setPrompt(e.target.value)
   }
 
-  function handleSubmit () {
-    if (!prompt.trim()) {
-      return
+  async function handleSubmit () {
+    if (!prompt.trim() || isLoading) return
+
+    setIsLoading(true)
+    try {
+      const aiResponse = await props.aiChat(prompt)
+      setResponse(aiResponse)
+
+      window.store.aiChatHistory.unshift({
+        prompt,
+        response: aiResponse,
+        timestamp: new Date().toISOString()
+      })
+
+      if (window.store.aiChatHistory.length > MAX_HISTORY) {
+        window.store.aiChatHistory.splice(MAX_HISTORY)
+      }
+
+      setPrompt('')
+    } catch (error) {
+      console.error('Error in AI chat:', error)
+      setResponse('An error occurred while processing your request.')
+    } finally {
+      setIsLoading(false)
     }
-    props.onSubmit({
-      prompt,
-      selectedTabIds
-    })
-    setPrompt('')
   }
 
   function handleKeyDown (e) {
@@ -40,41 +57,34 @@ export default function AIChat (props) {
   }
 
   function renderChat () {
-    const tabSelectProps = {
-      selectedTabIds,
-      tabs: props.tabs,
-      activeTabId: props.activeTabId,
-      onSelect: (id) => {
-        setSelectedTabIds(prev =>
-          prev.includes(id)
-            ? prev.filter(tabId => tabId !== id)
-            : [...prev, id]
-        )
-      },
-      onSelectAll: () => {
-        setSelectedTabIds(props.tabs.map(tab => tab.id))
-      },
-      onSelectNone: () => {
-        setSelectedTabIds([props.activeTabId])
-      }
-    }
-
     return (
       <div>
         <div className='ai-chat-terminals pd1b'>
-          <TabSelect {...tabSelectProps} />
-
+          <TabSelect
+            selectedTabIds={props.selectedTabIds}
+            tabs={props.tabs}
+            activeTabId={props.activeTabId}
+          />
         </div>
         <TextArea
           value={prompt}
           onChange={handlePromptChange}
           onKeyDown={handleKeyDown}
-          placeholder={e('enterPrompt')}
-          autoSize={{ minRows: 2, maxRows: 6 }}
+          placeholder='Enter your prompt here'
+          autoSize={{ minRows: 3, maxRows: 6 }}
+          disabled={isLoading}
         />
-        <pre>
-          {props.response}
-        </pre>
+        <Button>
+          Submit
+        </Button>
+        <div>
+          <h3>
+
+            Response:
+
+          </h3>
+          <AIOutput content={response} />
+        </div>
       </div>
     )
   }
@@ -88,17 +98,66 @@ export default function AIChat (props) {
     )
   }
 
+  function renderHistory () {
+    return (
+      <List
+        dataSource={window.store.aiChatHistory}
+        renderItem={item => (
+          <List.Item>
+            <List.Item.Meta
+              title={new Date(item.timestamp).toLocaleString()}
+              description={
+                <>
+
+                  <strong>
+
+                    Prompt:
+
+                  </strong>
+
+                  {item.prompt}
+
+                  <br />
+                  <strong>
+
+                    Response:
+
+                  </strong>
+                  <AIOutput content={item.response} />
+                </>
+          }
+            />
+          </List.Item>
+        )}
+      />
+    )
+  }
+
+  const items = [
+    {
+      key: 'chat',
+      label: 'Chat',
+      children: renderChat()
+    },
+    {
+      key: 'config',
+      label: 'Config',
+      children: renderConfig()
+    },
+    {
+      key: 'history',
+      label: 'History',
+      children: renderHistory()
+    }
+  ]
+
   return (
 
-    <div>
-      <Tabs>
-        <TabPane>
-          {renderChat()}
-        </TabPane>
-        <TabPane>
-          {renderConfig()}
-        </TabPane>
-      </Tabs>
-    </div>
+    <Tabs
+      activeKey={activeTab}
+      onChange={setActiveTab}
+      items={items}
+    />
+
   )
 }
