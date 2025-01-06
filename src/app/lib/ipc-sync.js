@@ -71,6 +71,9 @@ module.exports = {
   setLoadTime: (loadTime) => {
     globalState.set('loadTime', loadTime)
   },
+  getInitTime: () => {
+    return globalState.get('initTime')
+  },
   isMaximized,
   isSecondInstance: () => {
     return isTest ? false : globalState.get('isSecondInstance')

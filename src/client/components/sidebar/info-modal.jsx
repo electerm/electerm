@@ -15,6 +15,7 @@ import {
 import { Modal, Tabs, Button } from 'antd'
 import Link from '../common/external-link'
 import LogoElem from '../common/logo-elem'
+import RunningTime from './app-running-time'
 
 import {
   packInfo,
@@ -121,6 +122,7 @@ export default memo(function InfoModal (props) {
         <div>
           <LogoElem />
           <p className='mg2b'>{e('desc')}</p>
+          <RunningTime />
           <p className='mg1b'>
             <UserOutlined /> <b className='mg1r'>{e('author')} ➾</b>
             <Link to={authorUrl} className='mg1l'>
