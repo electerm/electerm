@@ -76,6 +76,9 @@ export default () => {
     selectedSessions: [],
     sessionModalVisible: false,
 
+    // batch input selected tab ids
+    _batchInputSelectedTabIds: new Set(),
+
     // sftp
     fileOperation: fileOperationsMap.cp, // cp or mv
     pauseAllTransfer: false,

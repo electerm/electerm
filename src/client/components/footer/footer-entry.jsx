@@ -49,11 +49,13 @@ export default auto(function FooterEntry (props) {
   }
 
   function renderBatchInputs () {
+    const { store } = props
     const batchProps = {
       input: batchInput,
-      batchInputs: props.store.batchInputs,
-      tabs: props.store.tabs,
-      activeTabId: props.store.activeTabId
+      tabs: store.tabs,
+      batchInputs: store.batchInputs,
+      batchInputSelectedTabIds: store.batchInputSelectedTabIds,
+      activeTabId: store.activeTabId
     }
     return (
       <div className='terminal-footer-unit terminal-footer-center'>

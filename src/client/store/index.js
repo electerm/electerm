@@ -132,6 +132,10 @@ class Store {
     return window.store.fileTransfers.length
   }
 
+  get batchInputSelectedTabIds () {
+    return Array.from(window.store._batchInputSelectedTabIds)
+  }
+
   get settingSidebarList () {
     const {
       settingTab

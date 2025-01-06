@@ -103,6 +103,11 @@ export default store => {
   }).start()
 
   autoRun(() => {
+    store.updateBatchInputSelectedTabIds()
+    return store.activeTabId
+  }).start()
+
+  autoRun(() => {
     const tabs = store.getTabs()
     const { activeTabId } = store
     const tab = tabs.find(t => t.id === activeTabId)

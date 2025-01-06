@@ -492,4 +492,53 @@ export default Store => {
       }
     })()
   }
+
+  Store.prototype.updateBatchInputSelectedTabIds = function () {
+    const { store } = window
+    store._batchInputSelectedTabIds.add(store.activeTabId)
+  }
+
+  Store.prototype.onSelectBatchInputSelectedTabId = action(function (id) {
+    const { store } = window
+    const { _batchInputSelectedTabIds } = store
+    if (_batchInputSelectedTabIds.has(id)) {
+      _batchInputSelectedTabIds.delete(id)
+    } else {
+      _batchInputSelectedTabIds.add(id)
+    }
+    if (_batchInputSelectedTabIds.size === 0) {
+      _batchInputSelectedTabIds.add(store.activeTabId)
+    }
+  })
+
+  Store.prototype.filterBatchInputSelectedTabIds = action(function () {
+    const { store } = window
+    const { _batchInputSelectedTabIds, tabs } = store
+    const validTabIds = new Set(tabs.map(tab => tab.id))
+
+    // Filter out invalid tab IDs
+    for (const id of _batchInputSelectedTabIds) {
+      if (!validTabIds.has(id)) {
+        _batchInputSelectedTabIds.delete(id)
+      }
+    }
+
+    // If no valid tabs are selected, add the active tab
+    if (_batchInputSelectedTabIds.size === 0) {
+      _batchInputSelectedTabIds.add(store.activeTabId)
+    }
+  })
+
+  Store.prototype.selectAllBatchInputTabs = function () {
+    const { store } = window
+    const { tabs } = store
+    store._batchInputSelectedTabIds = new Set(tabs.map(tab => tab.id))
+  }
+
+  Store.prototype.selectNoneBatchInputTabs = action(function () {
+    const { store } = window
+    store._batchInputSelectedTabIds.clear()
+    // Ensure at least the active tab is selected
+    store._batchInputSelectedTabIds.add(store.activeTabId)
+  })
 }
