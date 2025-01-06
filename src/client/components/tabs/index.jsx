@@ -230,7 +230,7 @@ export default class Tabs extends React.Component {
     const index = tabs.findIndex(t => t.id === currentBatchTabId)
     const tabsDomWith = Array.from(
       document.querySelectorAll(`.v${batch + 1} .tab`)
-    ).slice(0, index + 1).reduce((prev, c) => {
+    ).slice(0, index + 2).reduce((prev, c) => {
       return prev + c.clientWidth
     }, 0)
     const w = (index + 1) * tabMargin + tabsDomWith
