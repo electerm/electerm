@@ -29,6 +29,7 @@ import RightSidePanel from '../side-panel-r/side-panel-r'
 import ConnectionHoppingWarning from './connection-hopping-warnning'
 import SshConfigLoadNotify from '../ssh-config/ssh-config-load-notify'
 import LoadSshConfigs from '../ssh-config/load-ssh-configs'
+import AIChat from '../ai/ai-chat'
 import { pick } from 'lodash-es'
 import deepCopy from 'json-deep-copy'
 import './wrapper.styl'
@@ -213,6 +214,17 @@ export default auto(function Index (props) {
     hasOldConnectionHoppingBookmark: store.hasOldConnectionHoppingBookmark,
     configLoaded
   }
+  const aiChatProps = {
+    aiChatHistory: store.aiChatHistory,
+    config,
+    selectedTabIds: store.batchInputSelectedTabIds,
+    tabs: store.getTabs(),
+    activeTabId: store.activeTabId
+  }
+  console.log(store.rightPanelTab, 'rightPanelTab')
+  const rightPanelContent = store.rightPanelTab === 'ai'
+    ? <AIChat {...aiChatProps} />
+    : <TerminalInfo {...terminalInfoProps} />
   return (
     <ConfigProvider
       theme={uiThemeConfig}
@@ -269,7 +281,7 @@ export default auto(function Index (props) {
         <Resolutions {...resProps} />
         <InfoModal {...infoModalProps} />
         <RightSidePanel {...rightPanelProps}>
-          <TerminalInfo {...terminalInfoProps} />
+          {rightPanelContent}
         </RightSidePanel>
         <SshConfigLoadNotify {...sshConfigProps} />
         <LoadSshConfigs

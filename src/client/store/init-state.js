@@ -19,6 +19,7 @@ import {
   dismissDelKeyTipLsKey,
   qmSortByFrequencyKey,
   resolutionsLsKey,
+  aiChatHistoryKey,
   splitMap
 } from '../common/constants'
 import { buildDefaultThemes } from '../common/terminal-theme'
@@ -78,6 +79,7 @@ export default () => {
 
     // batch input selected tab ids
     _batchInputSelectedTabIds: new Set(),
+    aiChatHistory: ls.getItemJSON(aiChatHistoryKey, []),
 
     // sftp
     fileOperation: fileOperationsMap.cp, // cp or mv

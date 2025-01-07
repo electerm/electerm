@@ -1,15 +1,13 @@
 import React, { useState } from 'react'
 import { Flex, Input } from 'antd'
-import { AIConfigForm } from './ai-config'
+import AIConfigForm from './ai-config'
 import TabSelect from '../footer/tab-select'
-import AiChatHistory from './chat-history'
+import AiChatHistory from './ai-chat-history'
 import uid from '../../common/uid'
 import { SettingOutlined, SendOutlined } from '@ant-design/icons'
 import './ai.styl'
 
 const { TextArea } = Input
-const FlexItem = Flex.Item
-
 const MAX_HISTORY = 100
 
 export default function AIChat (props) {
@@ -79,15 +77,15 @@ export default function AIChat (props) {
 
   return (
     <Flex vertical className='ai-chat-container'>
-      <FlexItem className='ai-chat-history' flex='auto'>
+      <Flex className='ai-chat-history' flex='auto'>
         {renderHistory()}
-      </FlexItem>
+      </Flex>
       {showConfig && (
-        <FlexItem className='ai-config-form'>
+        <Flex className='ai-config-form'>
           {renderConfig()}
-        </FlexItem>
+        </Flex>
       )}
-      <FlexItem className='ai-chat-input'>
+      <Flex className='ai-chat-input'>
         <TextArea
           value={prompt}
           onChange={handlePromptChange}
@@ -96,23 +94,23 @@ export default function AIChat (props) {
           disabled={isLoading}
         />
         <Flex className='ai-chat-terminals' justify='space-between' align='center'>
-          <TabSelect
-            selectedTabIds={props.selectedTabIds}
-            tabs={props.tabs}
-            activeTabId={props.activeTabId}
-          />
-          <Flex>
+          <Flex align='center'>
+            <TabSelect
+              selectedTabIds={props.selectedTabIds}
+              tabs={props.tabs}
+              activeTabId={props.activeTabId}
+            />
             <SettingOutlined
               onClick={toggleConfig}
               className='mg1l pointer icon-hover'
             />
-            <SendOutlined
-              onClick={handleSubmit}
-              className={`mg1l pointer icon-hover ${isLoading ? 'disabled' : ''}`}
-            />
           </Flex>
+          <SendOutlined
+            onClick={handleSubmit}
+            className={`mg1l pointer icon-hover ${isLoading ? 'disabled' : ''}`}
+          />
         </Flex>
-      </FlexItem>
+      </Flex>
     </Flex>
   )
 }

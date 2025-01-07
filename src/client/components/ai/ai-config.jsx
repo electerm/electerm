@@ -6,7 +6,7 @@ import providers from './providers'
 
 const e = window.translate
 
-export function AIConfigForm ({ initialValues, onSubmit }) {
+export default function AIConfigForm ({ initialValues, onSubmit }) {
   const [form] = Form.useForm()
 
   useEffect(() => {

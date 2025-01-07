@@ -49,14 +49,20 @@ export default Store => {
     })
   }
 
-  Store.prototype.openInfoPanel = function () {
+  Store.prototype.openInfoPanel = action(function () {
     const { store } = window
     store.rightPanelVisible = true
+    store.rightPanelTab = 'info'
+    store.openInfoPanelAction()
+  })
+
+  Store.prototype.openInfoPanelAction = action(function () {
+    const { store } = window
     postMessage({
       action: terminalActions.showInfoPanel,
       activeTabId: store.activeTabId
     })
-  }
+  })
 
   Store.prototype.onResize = debounce(async function () {
     const { width, height } = await window.pre.runGlobalAsync('getScreenSize')
@@ -265,8 +271,10 @@ export default Store => {
     return window.store.applyProfile(tab)
   }
 
-  Store.prototype.handleOpenAIPanel = action(function () {
-    window.store.rightPanelVisible = true
-    window.store.rightPanelTab = 'ai'
-  })
+  Store.prototype.handleOpenAIPanel = function () {
+    console.log('handleOpenAIPanel')
+    const { store } = window
+    store.rightPanelVisible = true
+    store.rightPanelTab = 'ai'
+  }
 }
