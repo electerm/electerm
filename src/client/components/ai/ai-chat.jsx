@@ -1,8 +1,10 @@
 import React, { useState } from 'react'
-import { Tabs, Input, Button, List } from 'antd'
+import { Flex, Input, Button } from 'antd'
 import { AIConfigForm } from './ai-config'
-import AIOutput from './ai-output'
 import TabSelect from '../footer/tab-select'
+import AiChatHistory from './chat-history'
+import uid from '../../common/uid'
+import { SettingOutlined } from '@ant-design/icons'
 
 const { TextArea } = Input
 
@@ -10,8 +12,7 @@ const MAX_HISTORY = 100
 
 export default function AIChat (props) {
   const [prompt, setPrompt] = useState('')
-  const [activeTab, setActiveTab] = useState('chat')
-  const [response, setResponse] = useState('')
+  const [showConfig, setShowConfig] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
 
   function handlePromptChange (e) {
@@ -20,76 +21,42 @@ export default function AIChat (props) {
 
   async function handleSubmit () {
     if (!prompt.trim() || isLoading) return
-
     setIsLoading(true)
-    try {
-      const aiResponse = await props.aiChat(prompt)
-      setResponse(aiResponse)
-
-      window.store.aiChatHistory.unshift({
-        prompt,
-        response: aiResponse,
-        timestamp: new Date().toISOString()
-      })
-
-      if (window.store.aiChatHistory.length > MAX_HISTORY) {
-        window.store.aiChatHistory.splice(MAX_HISTORY)
-      }
-
-      setPrompt('')
-    } catch (error) {
-      console.error('Error in AI chat:', error)
-      setResponse('An error occurred while processing your request.')
-    } finally {
-      setIsLoading(false)
+    const aiResponse = await window.performance.runAsync(
+      'AIchat',
+      prompt,
+      props.config.modelAI,
+      props.config.roleAI,
+      props.config.baseURLAI,
+      props.config.apiKeyAI
+    ).catch(
+      window.store.onError
+    )
+    if (aiResponse && aiResponse.error) {
+      return window.store.onError(
+        new Error(aiResponse.error)
+      )
     }
-  }
+    window.store.aiChatHistory.unshift({
+      prompt,
+      response: aiResponse.response,
+      timestamp: Date.now(),
+      id: uid()
+    })
 
-  function handleKeyDown (e) {
-    if (e.keyCode === 13 && !e.shiftKey) {
-      e.preventDefault()
-      handleSubmit()
+    if (window.store.aiChatHistory.length > MAX_HISTORY) {
+      window.store.aiChatHistory.splice(MAX_HISTORY)
     }
+    setPrompt('')
+    setIsLoading(false)
   }
 
   function handleConfigSubmit (values) {
-    props.onConfigSubmit(values)
-  }
-
-  function renderChat () {
-    return (
-      <div>
-        <div className='ai-chat-terminals pd1b'>
-          <TabSelect
-            selectedTabIds={props.selectedTabIds}
-            tabs={props.tabs}
-            activeTabId={props.activeTabId}
-          />
-        </div>
-        <TextArea
-          value={prompt}
-          onChange={handlePromptChange}
-          onKeyDown={handleKeyDown}
-          placeholder='Enter your prompt here'
-          autoSize={{ minRows: 3, maxRows: 6 }}
-          disabled={isLoading}
-        />
-        <Button>
-          Submit
-        </Button>
-        <div>
-          <h3>
-
-            Response:
-
-          </h3>
-          <AIOutput content={response} />
-        </div>
-      </div>
-    )
+    window.store.updateConfig(values)
   }
 
   function renderConfig () {
+    if (!showConfig) return null
     return (
       <AIConfigForm
         initialValues={props.config}
@@ -100,64 +67,40 @@ export default function AIChat (props) {
 
   function renderHistory () {
     return (
-      <List
-        dataSource={window.store.aiChatHistory}
-        renderItem={item => (
-          <List.Item>
-            <List.Item.Meta
-              title={new Date(item.timestamp).toLocaleString()}
-              description={
-                <>
-
-                  <strong>
-
-                    Prompt:
-
-                  </strong>
-
-                  {item.prompt}
-
-                  <br />
-                  <strong>
-
-                    Response:
-
-                  </strong>
-                  <AIOutput content={item.response} />
-                </>
-          }
-            />
-          </List.Item>
-        )}
-      />
+      <AiChatHistory history={props.aiChatHistory} />
     )
   }
 
-  const items = [
-    {
-      key: 'chat',
-      label: 'Chat',
-      children: renderChat()
-    },
-    {
-      key: 'config',
-      label: 'Config',
-      children: renderConfig()
-    },
-    {
-      key: 'history',
-      label: 'History',
-      children: renderHistory()
-    }
-  ]
-
   return (
+    <Flex>
+      {renderHistory()}
+      {renderConfig()}
 
-    <Tabs
-      activeKey={activeTab}
-      onChange={setActiveTab}
-      items={items}
-    />
-
+      <TextArea
+        value={prompt}
+        onChange={handlePromptChange}
+        placeholder='Enter your prompt here'
+        autoSize={{ minRows: 3, maxRows: 6 }}
+        disabled={isLoading}
+      />
+      <div className='ai-chat-terminals pd1b'>
+        <TabSelect
+          selectedTabIds={props.selectedTabIds}
+          tabs={props.tabs}
+          activeTabId={props.activeTabId}
+        />
+        <SettingOutlined
+          onClick={() => setShowConfig(!showConfig)}
+          className='mg1l pointer'
+        />
+        <Button
+          type='primary'
+          onClick={handleSubmit}
+          disabled={isLoading}
+        >
+          Submit
+        </Button>
+      </div>
+    </Flex>
   )
 }

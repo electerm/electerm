@@ -10,7 +10,7 @@ const initAIClient = async (config) => {
   return new OpenAI(config)
 }
 
-exports.chat = async (
+exports.AIchat = async (
   prompt,
   model = defaultSettings.modelAI,
   role = defaultSettings.roleAI,

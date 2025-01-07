@@ -1,9 +1,16 @@
 import React from 'react'
 import ReactMarkdown from 'react-markdown'
 import { copy } from '../../common/clipboard'
+import Link from '../common/external-link'
+import { Tag } from 'antd'
 import { CopyOutlined, PlayCircleOutlined } from '@ant-design/icons'
 
-export default function AIOutput ({ content }) {
+const brands = {
+  openai: 'https://openai.com',
+  deepseek: 'https://deepseek.com'
+}
+
+export default function AIOutput ({ content, brand }) {
   if (!content) {
     return null
   }
@@ -48,6 +55,18 @@ export default function AIOutput ({ content }) {
     )
   }
 
+  function renderBrand () {
+    if (!brand) {
+      return null
+    }
+    const link = brands[brand.toLowerCase()]
+    return (
+      <Link to={link}>
+        <Tag>{brand}</Tag>
+      </Link>
+    )
+  }
+
   const mdProps = {
     children: content,
     components: {
@@ -55,5 +74,12 @@ export default function AIOutput ({ content }) {
     }
   }
 
-  return <ReactMarkdown {...mdProps} />
+  return (
+    <div className='pd1'>
+      <p>
+        {renderBrand()}
+      </p>
+      <ReactMarkdown {...mdProps} />
+    </div>
+  )
 }

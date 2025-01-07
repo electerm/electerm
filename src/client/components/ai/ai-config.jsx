@@ -2,18 +2,7 @@ import { Form, Input, Button, AutoComplete } from 'antd'
 import { useEffect } from 'react'
 
 // Comprehensive API provider configurations
-const API_PROVIDERS = [
-  {
-    label: 'OpenAI',
-    baseURL: 'https://api.openai.com/v1',
-    models: ['gpt-4', 'gpt-3.5-turbo', 'gpt-3.5-turbo-16k']
-  },
-  {
-    label: 'DeepSeek',
-    baseURL: 'https://api.deepseek.com/v1',
-    models: ['deepseek-chat', 'deepseek-coder']
-  }
-]
+import providers from './providers'
 
 const e = window.translate
 
@@ -31,14 +20,14 @@ export function AIConfigForm ({ initialValues, onSubmit }) {
   }
 
   const getBaseURLOptions = () => {
-    return API_PROVIDERS.map(provider => ({
+    return providers.map(provider => ({
       value: provider.baseURL,
       label: provider.label
     }))
   }
 
   const getModelOptions = (baseURL) => {
-    const provider = API_PROVIDERS.find(p => p.baseURL === baseURL)
+    const provider = providers.find(p => p.baseURL === baseURL)
     if (!provider) return []
 
     return provider.models.map(model => ({
@@ -59,7 +48,7 @@ export function AIConfigForm ({ initialValues, onSubmit }) {
     >
       <Form.Item
         label='API Provider URL'
-        name='baseURL'
+        name='baseURLAI'
         rules={[
           { required: true, message: 'Please input or select API provider URL!' },
           { type: 'url', message: 'Please enter a valid URL!' }
@@ -74,7 +63,7 @@ export function AIConfigForm ({ initialValues, onSubmit }) {
 
       <Form.Item
         label='Model'
-        name='model'
+        name='modelAI'
         rules={[{ required: true, message: 'Please input or select a model!' }]}
       >
         <AutoComplete
@@ -86,7 +75,7 @@ export function AIConfigForm ({ initialValues, onSubmit }) {
 
       <Form.Item
         label='API Key'
-        name='apiKey'
+        name='apiKeyAI'
         rules={[{ required: true, message: 'Please input your API key!' }]}
       >
         <Input.Password placeholder='Enter your API key' />
@@ -94,7 +83,7 @@ export function AIConfigForm ({ initialValues, onSubmit }) {
 
       <Form.Item
         label='System Role'
-        name='role'
+        name='roleAI'
         rules={[{ required: true, message: 'Please input the AI role!' }]}
       >
         <Input.TextArea

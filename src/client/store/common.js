@@ -16,12 +16,14 @@ import {
   terminalActions
 } from '../common/constants'
 import * as ls from '../common/safe-local-storage'
+import { action } from 'manate'
 
 const e = window.translate
+const { assign } = Object
 
 export default Store => {
   Store.prototype.storeAssign = function (updates) {
-    Object.assign(this, updates)
+    assign(window.store, updates)
   }
 
   Store.prototype.onError = function (e) {
@@ -263,8 +265,8 @@ export default Store => {
     return window.store.applyProfile(tab)
   }
 
-  Store.prototype.handleOpenAIPanel = function () {
+  Store.prototype.handleOpenAIPanel = action(function () {
     window.store.rightPanelVisible = true
     window.store.rightPanelTab = 'ai'
-  }
+  })
 }
