@@ -1,0 +1,42 @@
+.ai-chat-container
+  height 100%
+  display flex
+  flex-direction column
+
+.ai-chat-history
+  overflow-y auto
+  flex-grow 1
+
+.ai-config-form
+  height 200px
+  overflow-y auto
+
+.ai-chat-input
+  position relative
+  margin-top 10px
+
+  .ant-input
+    padding-bottom 40px
+
+  .ai-chat-terminals
+    position absolute
+    bottom 5px
+    left 5px
+    right 5px
+    background transparent
+    z-index 1
+
+.icon-hover
+  font-size 16px
+  color rgba(0, 0, 0, 0.45)
+  transition color 0.3s
+
+  &:hover
+    color rgba(0, 0, 0, 0.85)
+
+  &.disabled
+    color rgba(0, 0, 0, 0.25)
+    cursor not-allowed
+
+    &:hover
+      color rgba(0, 0, 0, 0.25)

@@ -1,12 +1,14 @@
 import React, { useState } from 'react'
-import { Flex, Input, Button } from 'antd'
+import { Flex, Input } from 'antd'
 import { AIConfigForm } from './ai-config'
 import TabSelect from '../footer/tab-select'
 import AiChatHistory from './chat-history'
 import uid from '../../common/uid'
-import { SettingOutlined } from '@ant-design/icons'
+import { SettingOutlined, SendOutlined } from '@ant-design/icons'
+import './ai.styl'
 
 const { TextArea } = Input
+const FlexItem = Flex.Item
 
 const MAX_HISTORY = 100
 
@@ -71,36 +73,46 @@ export default function AIChat (props) {
     )
   }
 
-  return (
-    <Flex>
-      {renderHistory()}
-      {renderConfig()}
+  function toggleConfig () {
+    setShowConfig(!showConfig)
+  }
 
-      <TextArea
-        value={prompt}
-        onChange={handlePromptChange}
-        placeholder='Enter your prompt here'
-        autoSize={{ minRows: 3, maxRows: 6 }}
-        disabled={isLoading}
-      />
-      <div className='ai-chat-terminals pd1b'>
-        <TabSelect
-          selectedTabIds={props.selectedTabIds}
-          tabs={props.tabs}
-          activeTabId={props.activeTabId}
-        />
-        <SettingOutlined
-          onClick={() => setShowConfig(!showConfig)}
-          className='mg1l pointer'
-        />
-        <Button
-          type='primary'
-          onClick={handleSubmit}
+  return (
+    <Flex vertical className='ai-chat-container'>
+      <FlexItem className='ai-chat-history' flex='auto'>
+        {renderHistory()}
+      </FlexItem>
+      {showConfig && (
+        <FlexItem className='ai-config-form'>
+          {renderConfig()}
+        </FlexItem>
+      )}
+      <FlexItem className='ai-chat-input'>
+        <TextArea
+          value={prompt}
+          onChange={handlePromptChange}
+          placeholder='Enter your prompt here'
+          autoSize={{ minRows: 3, maxRows: 10 }}
           disabled={isLoading}
-        >
-          Submit
-        </Button>
-      </div>
+        />
+        <Flex className='ai-chat-terminals' justify='space-between' align='center'>
+          <TabSelect
+            selectedTabIds={props.selectedTabIds}
+            tabs={props.tabs}
+            activeTabId={props.activeTabId}
+          />
+          <Flex>
+            <SettingOutlined
+              onClick={toggleConfig}
+              className='mg1l pointer icon-hover'
+            />
+            <SendOutlined
+              onClick={handleSubmit}
+              className={`mg1l pointer icon-hover ${isLoading ? 'disabled' : ''}`}
+            />
+          </Flex>
+        </Flex>
+      </FlexItem>
     </Flex>
   )
 }
