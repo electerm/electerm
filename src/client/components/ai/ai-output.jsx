@@ -4,20 +4,58 @@ import { copy } from '../../common/clipboard'
 import Link from '../common/external-link'
 import { Tag } from 'antd'
 import { CopyOutlined, PlayCircleOutlined } from '@ant-design/icons'
+import providers from './providers'
 
-const brands = {
-  openai: 'https://openai.com',
-  deepseek: 'https://deepseek.com'
+function getBrand (baseURLAI) {
+  // First, try to match with providers
+  const provider = providers.find(p => p.baseURL === baseURLAI)
+  if (provider) {
+    return {
+      brand: provider.label,
+      brandUrl: provider.homepage
+    }
+  }
+
+  // If no match, extract brand from URL
+  try {
+    const url = new URL(baseURLAI)
+    const hostname = url.hostname
+    const parts = hostname.split('.')
+    let brand = parts[parts.length - 2] // Usually the brand name is the second-to-last part
+
+    // Capitalize the first letter
+    brand = brand.charAt(0).toUpperCase() + brand.slice(1)
+
+    return {
+      brand,
+      brandUrl: `https://${parts[parts.length - 2]}.${parts[parts.length - 1]}`
+    }
+  } catch (error) {
+    // If URL parsing fails, return null
+    return {
+      brand: null,
+      brandUrl: null
+    }
+  }
 }
 
-export default function AIOutput ({ content, brand }) {
-  if (!content) {
+const e = window.translate
+
+export default function AIOutput ({ item }) {
+  const {
+    response,
+    baseURLAI
+  } = item
+  if (!response) {
     return null
   }
 
-  const renderCode = ({ node, inline, className, children, ...props }) => {
-    const code = String(children).replace(/\n$/, '')
+  const { brand, brandUrl } = getBrand(baseURLAI)
 
+  const renderCode = (props) => {
+    const { node, className = '', children, ...rest } = props
+    const code = String(children).replace(/\n$/, '')
+    const inline = !className.includes('language-')
     if (inline) {
       return (
         <code className={className} {...props}>
@@ -37,7 +75,7 @@ export default function AIOutput ({ content, brand }) {
     return (
       <div className='code-block'>
         <pre>
-          <code className={className} {...props}>
+          <code className={className} {...rest}>
             {children}
           </code>
         </pre>
@@ -45,6 +83,7 @@ export default function AIOutput ({ content, brand }) {
           <CopyOutlined
             className='code-action-icon pointer'
             onClick={copyToClipboard}
+            title={e('copy')}
           />
           <PlayCircleOutlined
             className='code-action-icon pointer mg1l'
@@ -59,16 +98,17 @@ export default function AIOutput ({ content, brand }) {
     if (!brand) {
       return null
     }
-    const link = brands[brand.toLowerCase()]
     return (
-      <Link to={link}>
-        <Tag>{brand}</Tag>
-      </Link>
+      <div className='pd1y'>
+        <Link to={brandUrl}>
+          <Tag>{brand}</Tag>
+        </Link>
+      </div>
     )
   }
 
   const mdProps = {
-    children: content,
+    children: response,
     components: {
       code: renderCode
     }
@@ -76,9 +116,7 @@ export default function AIOutput ({ content, brand }) {
 
   return (
     <div className='pd1'>
-      <p>
-        {renderBrand()}
-      </p>
+      {renderBrand()}
       <ReactMarkdown {...mdProps} />
     </div>
   )

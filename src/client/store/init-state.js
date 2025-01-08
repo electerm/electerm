@@ -79,6 +79,7 @@ export default () => {
 
     // batch input selected tab ids
     _batchInputSelectedTabIds: new Set(),
+    showAIConfig: false,
     aiChatHistory: ls.getItemJSON(aiChatHistoryKey, []),
 
     // sftp
@@ -150,7 +151,6 @@ export default () => {
     // sidebar
     openedSideBar: ls.getItem(openedSidebarKey),
     leftSidebarWidth: parseInt(ls.getItem(leftSidebarWidthKey), 10) || 300,
-    rightSidebarWidth: parseInt(ls.getItem(rightSidebarWidthKey), 10) || 500,
     menuOpened: false,
     pinned: ls.getItem(sidebarPinnedKey) === 'true',
 

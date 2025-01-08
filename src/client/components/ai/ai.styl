@@ -8,10 +8,25 @@
 .ai-chat-history
   overflow-y auto
   flex-grow 1
+  &::-webkit-scrollbar
+    width 0
 
 .ai-config-form
   height 200px
   overflow-y auto
+
+.chat-history-item
+  .code-block
+    border 1px dashed text
+    padding 5px
+    border-radius 3px
+    pre
+      margin-bottom 0
+    .code-block-actions
+      display none
+    &:hover
+      .code-block-actions
+        display block
 
 .ai-chat-input
   position relative
@@ -27,3 +42,4 @@
     right 5px
     background transparent
     z-index 1
+    font-size 16px

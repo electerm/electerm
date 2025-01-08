@@ -219,9 +219,9 @@ export default auto(function Index (props) {
     config,
     selectedTabIds: store.batchInputSelectedTabIds,
     tabs: store.getTabs(),
-    activeTabId: store.activeTabId
+    activeTabId: store.activeTabId,
+    showAIConfig: store.showAIConfig
   }
-  console.log(store.rightPanelTab, 'rightPanelTab')
   const rightPanelContent = store.rightPanelTab === 'ai'
     ? <AIChat {...aiChatProps} />
     : <TerminalInfo {...terminalInfoProps} />

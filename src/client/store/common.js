@@ -64,6 +64,10 @@ export default Store => {
     })
   })
 
+  Store.prototype.toggleAIConfig = function () {
+    window.store.showAIConfig = !window.store.showAIConfig
+  }
+
   Store.prototype.onResize = debounce(async function () {
     const { width, height } = await window.pre.runGlobalAsync('getScreenSize')
     const isMaximized = window.pre.runSync('isMaximized')
@@ -272,9 +276,16 @@ export default Store => {
   }
 
   Store.prototype.handleOpenAIPanel = function () {
-    console.log('handleOpenAIPanel')
     const { store } = window
     store.rightPanelVisible = true
     store.rightPanelTab = 'ai'
+  }
+
+  Store.prototype.runCommandInTerminal = function (cmd) {
+    postMessage({
+      action: terminalActions.quickCommand,
+      cmd,
+      selectedTabIds: window.store.batchInputSelectedTabIds
+    })
   }
 }

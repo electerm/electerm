@@ -1,18 +1,24 @@
-import React, { useState } from 'react'
-import { Flex, Input } from 'antd'
+import { useState, useCallback, useEffect } from 'react'
+import { Flex, Input, message } from 'antd'
 import AIConfigForm from './ai-config'
 import TabSelect from '../footer/tab-select'
 import AiChatHistory from './ai-chat-history'
 import uid from '../../common/uid'
+import { pick } from 'lodash-es'
 import { SettingOutlined, SendOutlined } from '@ant-design/icons'
 import './ai.styl'
 
 const { TextArea } = Input
 const MAX_HISTORY = 100
+const aiConfigsArr = [
+  'baseURLAI',
+  'modelAI',
+  'roleAI',
+  'apiKeyAI'
+]
 
 export default function AIChat (props) {
   const [prompt, setPrompt] = useState('')
-  const [showConfig, setShowConfig] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
 
   function handlePromptChange (e) {
@@ -20,9 +26,12 @@ export default function AIChat (props) {
   }
 
   async function handleSubmit () {
+    if (aiConfigMissing()) {
+      window.store.toggleAIConfig()
+    }
     if (!prompt.trim() || isLoading) return
     setIsLoading(true)
-    const aiResponse = await window.performance.runAsync(
+    const aiResponse = await window.pre.runGlobalAsync(
       'AIchat',
       prompt,
       props.config.modelAI,
@@ -37,9 +46,14 @@ export default function AIChat (props) {
         new Error(aiResponse.error)
       )
     }
-    window.store.aiChatHistory.unshift({
+    window.store.aiChatHistory.push({
       prompt,
       response: aiResponse.response,
+      ...pick(props.config, [
+        'modelAI',
+        'roleAI',
+        'baseURLAI'
+      ]),
       timestamp: Date.now(),
       id: uid()
     })
@@ -53,38 +67,49 @@ export default function AIChat (props) {
 
   function handleConfigSubmit (values) {
     window.store.updateConfig(values)
+    message.success('Saved')
   }
 
-  function renderConfig () {
-    if (!showConfig) return null
+  const renderConfig = useCallback(() => {
+    if (!props.showAIConfig) return null
+    const aiConfigs = pick(props.config, aiConfigsArr)
     return (
       <AIConfigForm
-        initialValues={props.config}
+        initialValues={aiConfigs}
         onSubmit={handleConfigSubmit}
+        showAIConfig={props.showAIConfig}
+      />
+    )
+  }, [props.showAIConfig, props.config])
+
+  function renderHistory () {
+    return (
+      <AiChatHistory
+        history={props.aiChatHistory}
       />
     )
   }
 
-  function renderHistory () {
-    return (
-      <AiChatHistory history={props.aiChatHistory} />
-    )
+  function toggleConfig () {
+    window.store.toggleAIConfig()
   }
 
-  function toggleConfig () {
-    setShowConfig(!showConfig)
+  function aiConfigMissing () {
+    return aiConfigsArr.some(k => !props.config[k])
   }
+
+  useEffect(() => {
+    if (aiConfigMissing()) {
+      window.store.toggleAIConfig()
+    }
+  }, [])
 
   return (
     <Flex vertical className='ai-chat-container'>
       <Flex className='ai-chat-history' flex='auto'>
         {renderHistory()}
       </Flex>
-      {showConfig && (
-        <Flex className='ai-config-form'>
-          {renderConfig()}
-        </Flex>
-      )}
+
       <Flex className='ai-chat-input'>
         <TextArea
           value={prompt}
@@ -104,6 +129,7 @@ export default function AIChat (props) {
               onClick={toggleConfig}
               className='mg1l pointer icon-hover'
             />
+            {renderConfig()}
           </Flex>
           <SendOutlined
             onClick={handleSubmit}

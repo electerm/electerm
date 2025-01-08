@@ -1,17 +1,28 @@
 // ai-chat-history-item.jsx
-
-import React from 'react'
-import { Tag } from 'antd'
 import AIOutput from './ai-output'
+import {
+  Alert
+} from 'antd'
+import {
+  UserOutlined
+} from '@ant-design/icons'
 
-export default function AIChatHistoryItem ({ prompt, response, brand }) {
+export default function AIChatHistoryItem ({ item }) {
+  const {
+    prompt
+  } = item
+  const alertProps = {
+    message: (
+      <div><UserOutlined />: {prompt}</div>
+    ),
+    type: 'info'
+  }
   return (
-    <div>
-      <p>
-        <Tag>Prompt:</Tag>
-        <b>{prompt}</b>
-      </p>
-      <AIOutput content={response} brand={brand} />
+    <div className='chat-history-item'>
+      <div className='mg1y'>
+        <Alert {...alertProps} />
+      </div>
+      <AIOutput item={item} />
     </div>
   )
 }
