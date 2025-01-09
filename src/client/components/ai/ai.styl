@@ -6,10 +6,13 @@
   color text
 
 .ai-chat-history
-  overflow-y auto
   flex-grow 1
   &::-webkit-scrollbar
     width 0
+.ai-history-wrap
+  width 100%
+  overflow-y auto
+  overflow-x hidden
 
 .ai-config-form
   height 200px
@@ -43,3 +46,24 @@
     background transparent
     z-index 1
     font-size 16px
+
+.code-block
+  width 100%
+  pre
+    white-space pre-wrap
+    word-wrap break-word
+    overflow-x auto
+    max-width 100%
+  code
+    white-space pre-wrap
+    word-break break-all
+
+.clear-ai-icon
+  position relative
+  &::after
+    content '×'
+    position absolute
+    font-size 12px
+    top 8px
+    right -4px
+    font-weight bold

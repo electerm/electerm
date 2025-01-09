@@ -288,4 +288,13 @@ export default Store => {
       selectedTabIds: window.store.batchInputSelectedTabIds
     })
   }
+
+  Store.prototype.removeAiHistory = function (id) {
+    const { store } = window
+    const index = store.aiChatHistory.findIndex(d => d.id === id)
+    if (index === -1) {
+      return
+    }
+    window.store.aiChatHistory.splice(index, 1)
+  }
 }

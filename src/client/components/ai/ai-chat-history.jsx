@@ -1,20 +1,21 @@
 // ai-chat-history.jsx
-import { useEffect, useRef } from 'react'
+import { useLayoutEffect, useRef } from 'react'
+import { auto } from 'manate/react'
 import AIChatHistoryItem from './ai-chat-history-item'
 
-export default function AIChatHistory ({ history }) {
+export default auto(function AIChatHistory ({ history }) {
   const historyRef = useRef(null)
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (historyRef.current) {
       historyRef.current.scrollTop = historyRef.current.scrollHeight
     }
-  }, [history])
+  }, [history.length])
   if (!history.length) {
     return <div />
   }
   return (
-    <div ref={historyRef}>
+    <div ref={historyRef} className='ai-history-wrap'>
       {
         history.map((item) => {
           return (
@@ -27,4 +28,4 @@ export default function AIChatHistory ({ history }) {
       }
     </div>
   )
-}
+})

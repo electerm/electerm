@@ -5,7 +5,12 @@ import TabSelect from '../footer/tab-select'
 import AiChatHistory from './ai-chat-history'
 import uid from '../../common/uid'
 import { pick } from 'lodash-es'
-import { SettingOutlined, SendOutlined } from '@ant-design/icons'
+import {
+  SettingOutlined,
+  LoadingOutlined,
+  SendOutlined,
+  UnorderedListOutlined
+} from '@ant-design/icons'
 import './ai.styl'
 
 const { TextArea } = Input
@@ -94,8 +99,24 @@ export default function AIChat (props) {
     window.store.toggleAIConfig()
   }
 
+  function clearHistory () {
+    window.store.aiChatHistory = []
+  }
+
   function aiConfigMissing () {
     return aiConfigsArr.some(k => !props.config[k])
+  }
+
+  function renderSendIcon () {
+    if (isLoading) {
+      return <LoadingOutlined />
+    }
+    return (
+      <SendOutlined
+        onClick={handleSubmit}
+        className='mg1l pointer icon-hover'
+      />
+    )
   }
 
   useEffect(() => {
@@ -127,14 +148,15 @@ export default function AIChat (props) {
             />
             <SettingOutlined
               onClick={toggleConfig}
-              className='mg1l pointer icon-hover'
+              className='mg1l pointer icon-hover toggle-ai-setting-icon'
+            />
+            <UnorderedListOutlined
+              onClick={clearHistory}
+              className='mg2l pointer clear-ai-icon icon-hover'
             />
             {renderConfig()}
           </Flex>
-          <SendOutlined
-            onClick={handleSubmit}
-            className={`mg1l pointer icon-hover ${isLoading ? 'disabled' : ''}`}
-          />
+          {renderSendIcon()}
         </Flex>
       </Flex>
     </Flex>
