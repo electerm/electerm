@@ -9,8 +9,10 @@ import { throttle } from 'lodash-es'
 
 class ShortcutControl extends React.PureComponent {
   componentDidMount () {
-    window.addEventListener('keydown', this.handleKeyboardEvent.bind(this))
-    window.addEventListener('mousewheel', this.handleKeyboardEvent.bind(this))
+    const onEvent = this.handleKeyboardEvent.bind(this)
+    window.addEventListener('keydown', onEvent)
+    window.addEventListener('mousedown', onEvent)
+    window.addEventListener('mousewheel', onEvent)
   }
 
   closeCurrentTabShortcut = throttle((e) => {
@@ -18,6 +20,19 @@ class ShortcutControl extends React.PureComponent {
     const { activeTabId } = window.store
     if (activeTabId) {
       window.store.delTab(activeTabId)
+    }
+  }, 500)
+
+  mouseWheelDownCloseTabShortcut = throttle((e) => {
+    e.stopPropagation()
+
+    // Check if the event target is within a .tab element
+    const tabElement = e.target.closest('.tab')
+    if (tabElement) {
+      const tabId = tabElement.getAttribute('data-id')
+      if (tabId) {
+        window.store.delTab(tabId)
+      }
     }
   }, 500)
 

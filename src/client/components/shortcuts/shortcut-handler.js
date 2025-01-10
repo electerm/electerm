@@ -53,12 +53,14 @@ export function shortcutExtend (Cls) {
       metaKey,
       altKey,
       wheelDeltaY,
+      button,
       type,
       key
     } = event
     if (this.cmdAddon) {
       this.cmdAddon.handleKey(event)
     }
+
     if (
       this.term &&
       key === 'Backspace' &&
@@ -66,6 +68,7 @@ export function shortcutExtend (Cls) {
       !altKey &&
       !ctrlKey
     ) {
+      console.log('handleKeyboardEvent: Handling Backspace key')
       this.props.onDelKeyPressed()
       const delKey = this.props.config.backspaceMode === '^?' ? 8 : 127
       const altDelDelKey = delKey === 8 ? 127 : 8
@@ -78,6 +81,7 @@ export function shortcutExtend (Cls) {
     ) {
       return true
     }
+
     if (
       this.term &&
       key === 'c' &&
@@ -89,31 +93,42 @@ export function shortcutExtend (Cls) {
     ) {
       this.onZmodemEnd()
     }
-    const codeName = event instanceof window.WheelEvent
-      ? (wheelDeltaY > 0 ? 'mouseWheelUp' : 'mouseWheelDown')
-      : code
+
+    let codeName
+    if (type === 'mousedown' && button === 1) {
+      codeName = 'mouseWheel'
+    } else {
+      codeName = event instanceof window.WheelEvent
+        ? (wheelDeltaY > 0 ? 'mouseWheelUp' : 'mouseWheelDown')
+        : code
+    }
+
     const codeK = getKeyCharacter(codeName)
-    const noControlKey = !ctrlKey && !shiftKey && !metaKey && !altKey
+
+    const noControlKey = type !== 'mousedown' && !ctrlKey && !shiftKey && !metaKey && !altKey
     if (noControlKey) {
       return
     }
-    const r = (ctrlKey ? 'ctrl+' : '') +
+    const r = codeName === 'mouseWheel'
+      ? 'mouseWheel'
+      : (ctrlKey ? 'ctrl+' : '') +
       (metaKey ? 'meta+' : '') +
       (shiftKey ? 'shift+' : '') +
       (altKey ? 'alt+' : '') +
       codeK.toLowerCase()
+
     const shortcutsConfig = buildConfig(this.props.config, d => !d.hidden)
     const keys = Object.keys(shortcutsConfig)
     const len = keys.length
+
     if (this.term) {
       const qmMatch = window.store.quickCommands.find(d => d.shortcut === r)
       if (qmMatch) {
-        window.store.runQuickCommandItem(
-          qmMatch.id
-        )
+        window.store.runQuickCommandItem(qmMatch.id)
         return false
       }
     }
+
     for (let i = 0; i < len; i++) {
       const k = keys[i]
       const conf = shortcutsConfig[k]
@@ -128,6 +143,7 @@ export function shortcutExtend (Cls) {
         }
       }
     }
+
     return !!this.term
   }
   return Cls

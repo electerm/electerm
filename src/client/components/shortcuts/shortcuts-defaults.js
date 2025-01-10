@@ -6,6 +6,12 @@ export default () => {
       shortcutMac: 'alt+w'
     },
     {
+      name: 'app_mouseWheelDownCloseTab',
+      shortcut: 'mouseWheel',
+      shortcutMac: 'mouseWheel',
+      readonly: true
+    },
+    {
       name: 'app_reloadCurrentTab',
       shortcut: 'alt+r',
       shortcutMac: 'alt+r'

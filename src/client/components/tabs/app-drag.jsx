@@ -18,7 +18,7 @@ export default function AppDrag (props) {
   }
 
   function onMouseDown (e) {
-    e.stopPropagation()
+    // e.stopPropagation()
     if (canOperate(e)) {
       window.pre.runSync('windowMove', true)
     }

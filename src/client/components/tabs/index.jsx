@@ -65,7 +65,6 @@ export default class Tabs extends React.Component {
       tabsRef
     } = this
     window.addEventListener('message', this.onEvent)
-    tabsRef.current.addEventListener('mousedown', this.handleClickEvent)
     tabsRef.current.addEventListener('mousewheel', this.handleWheelEvent)
   }
 
@@ -196,16 +195,6 @@ export default class Tabs extends React.Component {
     const cls = `.v${batch + 1} .tabs-inner`
     const inner = document.querySelector(cls)
     return inner ? inner.clientWidth : 0
-  }
-
-  handleClickEvent = (e) => {
-    if (e.button === 1) {
-      const p = findParentBySel(e.target, '.tab')
-      if (p) {
-        const id = p.dataset.id
-        this.props.delTab(id)
-      }
-    }
   }
 
   handleAdd = e => {
