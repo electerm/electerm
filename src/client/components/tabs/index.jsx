@@ -4,7 +4,7 @@
 
 import React from 'react'
 import runIdle from '../../common/run-idle'
-import { debounce } from 'lodash-es'
+import { throttle } from 'lodash-es'
 import TabTitle from './tab-title'
 import {
   CodeFilled,
@@ -49,6 +49,7 @@ export default class Tabs extends React.Component {
   constructor (props) {
     super(props)
     this.tabsRef = React.createRef()
+    this.domRef = React.createRef()
     this.state = {
       overflow: false,
       receiveDataTabId: '',
@@ -60,12 +61,13 @@ export default class Tabs extends React.Component {
   }
 
   componentDidMount () {
-    this.domRef = React.createRef()
     const {
       tabsRef
     } = this
     window.addEventListener('message', this.onEvent)
-    tabsRef.current.addEventListener('mousewheel', this.handleWheelEvent)
+    tabsRef.current.addEventListener('wheel', this.handleWheelEvent, {
+      passive: false
+    })
   }
 
   componentDidUpdate (prevProps) {
@@ -251,7 +253,7 @@ export default class Tabs extends React.Component {
     this.domRef.current.scrollTo({ left: scrollLeft, behavior: 'smooth' })
   }
 
-  handleWheelEvent = debounce((e) => {
+  handleWheelEvent = throttle((e) => {
     if (this.isOverflow()) {
       if (e.deltaY < 0) {
         this.handleScrollLeft()
@@ -259,7 +261,7 @@ export default class Tabs extends React.Component {
         this.handleScrollRight()
       }
     }
-  }, 100)
+  }, 100, { leading: true, trailing: true })
 
   handleClickMenu = ({ key }) => {
     const id = key.split('##')[1]
