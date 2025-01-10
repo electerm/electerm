@@ -61,12 +61,13 @@ export default auto(function Layout (props) {
       width,
       pinnedQuickCommandBar,
       leftSidebarWidth,
-      infoPanelPinned,
-      pinned,
-      rightSidebarWidth
+      rightPanelVisible,
+      rightPanelPinned,
+      rightPanelWidth,
+      pinned
     } = props.store
     const l = pinned ? leftSidebarWidth : 0
-    const r = infoPanelPinned ? rightSidebarWidth : 0
+    const r = rightPanelPinned && rightPanelVisible ? rightPanelWidth : 0
     const w = width - l - r - 42
     const h = height - footerHeight - (pinnedQuickCommandBar ? quickCommandBoxHeight : 0)
     return layoutAlg(layout, w, h)

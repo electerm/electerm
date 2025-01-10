@@ -10,7 +10,8 @@ import {
   checkedKeysLsKey,
   expandedKeysLsKey,
   resolutionsLsKey,
-  localAddrBookmarkLsKey
+  localAddrBookmarkLsKey,
+  aiChatHistoryKey
 } from '../common/constants'
 import * as ls from '../common/safe-local-storage'
 import { debounce, isEmpty } from 'lodash-es'
@@ -103,6 +104,12 @@ export default store => {
   }).start()
 
   autoRun(() => {
+    ls.setItemJSON(aiChatHistoryKey, store.aiChatHistory)
+    return store.aiChatHistory
+  }).start()
+
+  autoRun(() => {
+    store.updateBatchInputSelectedTabIds()
     const tabs = store.getTabs()
     const { activeTabId } = store
     const tab = tabs.find(t => t.id === activeTabId)
@@ -112,7 +119,7 @@ export default store => {
       window.store.currentLayoutBatch = tab.batch
     }
     if (tab && store.rightPanelVisible) {
-      window.store.openInfoPanel()
+      window.store.openInfoPanelAction()
     }
     return store.activeTabId
   }).start()

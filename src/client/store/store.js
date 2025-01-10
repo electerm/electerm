@@ -89,6 +89,10 @@ class Store {
     return tab
   }
 
+  get batchInputSelectedTabIds () {
+    return Array.from(window.store._batchInputSelectedTabIds)
+  }
+
   get inActiveTerminal () {
     const { store } = window
     if (store.showModal) {

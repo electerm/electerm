@@ -14,7 +14,7 @@ export default function TabSelect (props) {
       const itemProps = {
         tab,
         selected,
-        onSelect: props.onSelect,
+        onSelect: window.store.onSelectBatchInputSelectedTabId,
         id: tab.id,
         isCurrent: tab.id === activeTabId
       }
@@ -26,18 +26,24 @@ export default function TabSelect (props) {
       )
     })
   }
+  function onSelectAll () {
+    window.store.selectAllBatchInputTabs()
+  }
+  function onSelectNone () {
+    window.store.selectNoneBatchInputTabs()
+  }
   function renderBtns () {
     return (
       <div className='pd1t pd2b font12'>
         <span
           className='mg1r pointer'
-          onClick={props.onSelectAll}
+          onClick={onSelectAll}
         >
           All
         </span>
         <span
           className='pointer'
-          onClick={props.onSelectNone}
+          onClick={onSelectNone}
         >
           None
         </span>

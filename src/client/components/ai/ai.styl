@@ -1,0 +1,69 @@
+@require '../../css/includes/theme-default'
+.ai-chat-container
+  height 100%
+  display flex
+  flex-direction column
+  color text
+
+.ai-chat-history
+  flex-grow 1
+  &::-webkit-scrollbar
+    width 0
+.ai-history-wrap
+  width 100%
+  overflow-y auto
+  overflow-x hidden
+
+.ai-config-form
+  height 200px
+  overflow-y auto
+
+.chat-history-item
+  .code-block
+    border 1px dashed text
+    padding 5px
+    border-radius 3px
+    pre
+      margin-bottom 0
+    .code-block-actions
+      display none
+    &:hover
+      .code-block-actions
+        display block
+
+.ai-chat-input
+  position relative
+  margin-top 10px
+
+  .ant-input
+    padding-bottom 40px
+
+  .ai-chat-terminals
+    position absolute
+    bottom 5px
+    left 5px
+    right 5px
+    background transparent
+    z-index 1
+    font-size 16px
+
+.code-block
+  width 100%
+  pre
+    white-space pre-wrap
+    word-wrap break-word
+    overflow-x auto
+    max-width 100%
+  code
+    white-space pre-wrap
+    word-break break-all
+
+.clear-ai-icon
+  position relative
+  &::after
+    content '×'
+    position absolute
+    font-size 12px
+    top 8px
+    right -4px
+    font-weight bold

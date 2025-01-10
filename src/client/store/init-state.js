@@ -19,6 +19,7 @@ import {
   dismissDelKeyTipLsKey,
   qmSortByFrequencyKey,
   resolutionsLsKey,
+  aiChatHistoryKey,
   splitMap
 } from '../common/constants'
 import { buildDefaultThemes } from '../common/terminal-theme'
@@ -76,6 +77,11 @@ export default () => {
     selectedSessions: [],
     sessionModalVisible: false,
 
+    // batch input selected tab ids
+    _batchInputSelectedTabIds: new Set(),
+    showAIConfig: false,
+    aiChatHistory: ls.getItemJSON(aiChatHistoryKey, []),
+
     // sftp
     fileOperation: fileOperationsMap.cp, // cp or mv
     pauseAllTransfer: false,
@@ -103,6 +109,7 @@ export default () => {
     activeTabId3: '',
     terminalInfoProps: {},
     rightPanelVisible: false,
+    rightPanelTab: 'info',
     rightPanelPinned: false,
     rightPanelWidth: parseInt(ls.getItem(rightSidebarWidthKey), 10) || 500,
 
@@ -144,7 +151,6 @@ export default () => {
     // sidebar
     openedSideBar: ls.getItem(openedSidebarKey),
     leftSidebarWidth: parseInt(ls.getItem(leftSidebarWidthKey), 10) || 300,
-    rightSidebarWidth: parseInt(ls.getItem(rightSidebarWidthKey), 10) || 500,
     menuOpened: false,
     pinned: ls.getItem(sidebarPinnedKey) === 'true',
 

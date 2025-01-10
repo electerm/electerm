@@ -57,5 +57,16 @@ module.exports = exports.default = {
     'modifyTime'
   ],
   hideIP: false,
-  dataSyncSelected: 'all'
+  dataSyncSelected: 'all',
+  baseURLAI: 'https://api.deepseek.com',
+  modelAI: 'deepseek-chat',
+  roleAI: `You are a terminal command expert.
+- Provide clear, safe, and efficient shell commands
+- Always explain what each command does
+- Warn about potentially dangerous operations
+- Format command output with markdown code blocks
+- If multiple steps are needed, number them
+- Mention any prerequisites or dependencies
+- Include common flags and options
+- Specify which OS (Linux/Mac/Windows) the command is for`
 }

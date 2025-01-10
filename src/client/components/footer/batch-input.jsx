@@ -26,23 +26,8 @@ export default class BatchInput extends Component {
     super(props)
     this.state = {
       cmd: '',
-      selectedTabIds: [props.activeTabId],
       open: false,
       enter: false
-    }
-  }
-
-  componentDidUpdate (prevProps) {
-    if (prevProps.activeTabId !== this.props.activeTabId) {
-      this.setState(prevState => {
-        const newSelectedTabIds = prevState.selectedTabIds.filter(
-          id => id !== this.props.activeTabId
-        )
-        newSelectedTabIds.unshift(this.props.activeTabId)
-        return {
-          selectedTabIds: newSelectedTabIds
-        }
-      })
     }
   }
 
@@ -51,54 +36,18 @@ export default class BatchInput extends Component {
   }
 
   handleEnter = (e) => {
-    const { cmd, selectedTabIds } = this.state
+    const { batchInputSelectedTabIds } = window.store
+    const { cmd } = this.state
     if (!cmd.trim()) {
       return
     }
     window.store.addBatchInput(cmd)
-    this.props.input(cmd, selectedTabIds)
+    this.props.input(cmd, Array.from(batchInputSelectedTabIds))
     this.setState({
       cmd: '',
       open: false
     })
     e.stopPropagation()
-  }
-
-  onSelectAll = () => {
-    this.setState({
-      selectedTabIds: this.getTabs().map(tab => tab.id)
-    })
-  }
-
-  onSelectNone = () => {
-    this.setState({
-      selectedTabIds: [this.props.activeTabId]
-    })
-  }
-
-  filterValidTabIds = (tabIds) => {
-    return tabIds.filter(id => {
-      return this.props.tabs.some(tab => tab.id === id)
-    })
-  }
-
-  onSelect = (id) => {
-    this.setState(prevState => {
-      const selectedTabIds = prevState.selectedTabIds.includes(id)
-        ? prevState.selectedTabIds.filter(tabId => tabId !== id)
-        : [...prevState.selectedTabIds, id]
-
-      // Ensure at least the current tab is selected
-      if (selectedTabIds.length === 0) {
-        return {
-          selectedTabIds: [this.props.activeTabId]
-        }
-      }
-
-      return {
-        selectedTabIds
-      }
-    })
   }
 
   handleChange = (v = '') => {
@@ -118,15 +67,9 @@ export default class BatchInput extends Component {
 
   handleClick = () => {
     this.setState({
-      open: true,
-      selectedTabIds: this.filterValidTabIds(this.state.selectedTabIds)
+      open: true
     })
-  }
-
-  handleChangeAll = toAll => {
-    this.setState({
-      toAll
-    })
+    window.store.filterBatchInputSelectedTabIds()
   }
 
   handleBlur = () => {
@@ -192,7 +135,10 @@ export default class BatchInput extends Component {
   }
 
   render () {
-    const { cmd, open, selectedTabIds, enter } = this.state
+    const { cmd, open, enter } = this.state
+    const {
+      batchInputSelectedTabIds
+    } = this.props
     const opts = {
       options: this.buildOptions(),
       placeholder: e('batchInput'),
@@ -217,10 +163,10 @@ export default class BatchInput extends Component {
     const tabSelectProps = {
       activeTabId: this.props.activeTabId,
       tabs: this.getTabs(),
-      selectedTabIds,
-      onSelectAll: this.onSelectAll,
-      onSelectNone: this.onSelectNone,
-      onSelect: this.onSelect
+      selectedTabIds: batchInputSelectedTabIds,
+      onSelectAll: window.store.selectAllBatchInputTabs,
+      onSelectNone: window.store.selectNoneBatchInputTabs,
+      onSelect: window.store.onSelectBatchInputSelectedTabId
     }
     return (
       <span

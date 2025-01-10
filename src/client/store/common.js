@@ -16,12 +16,14 @@ import {
   terminalActions
 } from '../common/constants'
 import * as ls from '../common/safe-local-storage'
+import { action } from 'manate'
 
 const e = window.translate
+const { assign } = Object
 
 export default Store => {
   Store.prototype.storeAssign = function (updates) {
-    Object.assign(this, updates)
+    assign(window.store, updates)
   }
 
   Store.prototype.onError = function (e) {
@@ -47,13 +49,23 @@ export default Store => {
     })
   }
 
-  Store.prototype.openInfoPanel = function () {
+  Store.prototype.openInfoPanel = action(function () {
     const { store } = window
     store.rightPanelVisible = true
+    store.rightPanelTab = 'info'
+    store.openInfoPanelAction()
+  })
+
+  Store.prototype.openInfoPanelAction = action(function () {
+    const { store } = window
     postMessage({
       action: terminalActions.showInfoPanel,
       activeTabId: store.activeTabId
     })
+  })
+
+  Store.prototype.toggleAIConfig = function () {
+    window.store.showAIConfig = !window.store.showAIConfig
   }
 
   Store.prototype.onResize = debounce(async function () {
@@ -261,5 +273,28 @@ export default Store => {
       })
     }
     return window.store.applyProfile(tab)
+  }
+
+  Store.prototype.handleOpenAIPanel = function () {
+    const { store } = window
+    store.rightPanelVisible = true
+    store.rightPanelTab = 'ai'
+  }
+
+  Store.prototype.runCommandInTerminal = function (cmd) {
+    postMessage({
+      action: terminalActions.quickCommand,
+      cmd,
+      selectedTabIds: window.store.batchInputSelectedTabIds
+    })
+  }
+
+  Store.prototype.removeAiHistory = function (id) {
+    const { store } = window
+    const index = store.aiChatHistory.findIndex(d => d.id === id)
+    if (index === -1) {
+      return
+    }
+    window.store.aiChatHistory.splice(index, 1)
   }
 }

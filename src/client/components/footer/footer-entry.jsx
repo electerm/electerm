@@ -49,11 +49,13 @@ export default auto(function FooterEntry (props) {
   }
 
   function renderBatchInputs () {
+    const { store } = props
     const batchProps = {
       input: batchInput,
-      batchInputs: props.store.batchInputs,
-      tabs: props.store.tabs,
-      activeTabId: props.store.activeTabId
+      tabs: store.tabs,
+      batchInputs: store.batchInputs,
+      batchInputSelectedTabIds: store.batchInputSelectedTabIds,
+      activeTabId: store.activeTabId
     }
     return (
       <div className='terminal-footer-unit terminal-footer-center'>
@@ -68,6 +70,19 @@ export default auto(function FooterEntry (props) {
     return (
       <div className='terminal-footer-unit terminal-footer-qm'>
         <Qm />
+      </div>
+    )
+  }
+
+  function renderAIIcon () {
+    return (
+      <div className='terminal-footer-unit terminal-footer-ai'>
+        <span
+          className='ai-icon'
+          onClick={window.store.handleOpenAIPanel}
+        >
+          AI
+        </span>
       </div>
     )
   }
@@ -148,6 +163,7 @@ export default auto(function FooterEntry (props) {
   return (
     <div {...sideProps}>
       <div className='terminal-footer-flex'>
+        {renderAIIcon()}
         {renderQuickCommands()}
         {renderBatchInputs()}
         {renderEncodingInfo()}
