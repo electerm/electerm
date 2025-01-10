@@ -341,7 +341,10 @@ export default Store => {
 
     // Find the current tab index and its batch
     const currentIndex = tabs.findIndex(t => t.id === activeTabId)
-    if (currentIndex === -1) return // Current tab not found, do nothing
+
+    if (currentIndex === -1) {
+      return // Current tab not found, do nothing
+    }
 
     const currentBatch = tabs[currentIndex].batch
 
@@ -363,6 +366,7 @@ export default Store => {
     // If a valid next tab is found, update the activeTabId
     if (nextIndex !== -1 && nextIndex !== currentIndex) {
       store.activeTabId = tabs[nextIndex].id
+      store[`activeTabId${currentBatch}`] = tabs[nextIndex].id
     }
   }
 
