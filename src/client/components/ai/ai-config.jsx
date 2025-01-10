@@ -5,7 +5,7 @@ import {
   AutoComplete,
   Modal
 } from 'antd'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 
 // Comprehensive API provider configurations
 import providers from './providers'
@@ -14,6 +14,7 @@ const e = window.translate
 
 export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig }) {
   const [form] = Form.useForm()
+  const [modelOptions, setModelOptions] = useState([])
 
   useEffect(() => {
     if (initialValues) {
@@ -21,8 +22,8 @@ export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig })
     }
   }, [initialValues])
 
-  function filter (inputValue, option) {
-    return option.label.toLowerCase().includes(inputValue.toLowerCase())
+  function filter () {
+    return true
   }
 
   const getBaseURLOptions = () => {
@@ -49,12 +50,22 @@ export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig })
   function handleCancel () {
     window.store.toggleAIConfig()
   }
+
+  function handleChange (v) {
+    const options = getModelOptions(v)
+    setModelOptions(options)
+    form.setFieldsValue({
+      modelAI: options[0]?.value || ''
+    })
+  }
+
   if (!showAIConfig) {
     return null
   }
+  const title = 'AI ' + e('setting')
   return (
     <Modal
-      title='AI Configuration'
+      title={title}
       open
       onCancel={handleCancel}
       footer={null}
@@ -65,7 +76,7 @@ export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig })
         initialValues={initialValues}
       >
         <Form.Item
-          label='API Provider URL'
+          label='API URL'
           name='baseURLAI'
           rules={[
             { required: true, message: 'Please input or select API provider URL!' },
@@ -76,6 +87,8 @@ export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig })
             options={getBaseURLOptions()}
             placeholder='Enter or select API provider URL'
             filterOption={filter}
+            onChange={handleChange}
+            allowClear
           />
         </Form.Item>
 
@@ -85,7 +98,7 @@ export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig })
           rules={[{ required: true, message: 'Please input or select a model!' }]}
         >
           <AutoComplete
-            options={getModelOptions(form.getFieldValue('baseURL'))}
+            options={modelOptions}
             placeholder='Enter or select AI model'
             filterOption={filter}
           />
