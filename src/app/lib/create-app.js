@@ -16,6 +16,19 @@ exports.createApp = function () {
     app.commandLine.appendSwitch('--in-process-gpu')
     app.disableHardwareAcceleration()
   }
+  // Handle proxy-related command-line arguments
+  if (process.env.NO_PROXY_SERVER) {
+    app.commandLine.appendSwitch('no-proxy-server')
+  }
+  if (process.env.PROXY_BYPASS_LIST) {
+    app.commandLine.appendSwitch('proxy-bypass-list', process.env.PROXY_BYPASS_LIST)
+  }
+  if (process.env.PROXY_PAC_URL) {
+    app.commandLine.appendSwitch('proxy-pac-url', process.env.PROXY_PAC_URL)
+  }
+  if (process.env.PROXY_SERVER) {
+    app.commandLine.appendSwitch('proxy-server', process.env.PROXY_SERVER)
+  }
   const progs = initCommandLine()
   const opts = progs?.options
   globalState.set('serverPort', opts?.serverPort)
