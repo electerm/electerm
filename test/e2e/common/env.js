@@ -1,7 +1,9 @@
 /**
  * export test username/password/host/port
  */
-require('dotenv').config()
+require('dotenv').config({
+  override: true
+})
 const os = require('os').platform()
 const {
   env

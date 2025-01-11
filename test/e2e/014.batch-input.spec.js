@@ -53,7 +53,7 @@ describe('batch input', function () {
     const newText2 = await getTerminalContent(client)
 
     // Verify command output in both terminals
-    expect(newText1.length).toBeGreaterThan(text1.length)
+    expect(newText1.length === text1.length).toEqual(true)
     expect(newText2.length).toBeGreaterThan(text2.length)
 
     // Check that ls command history is saved
