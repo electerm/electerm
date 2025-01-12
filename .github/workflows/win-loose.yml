@@ -33,7 +33,7 @@ jobs:
     - run: npm un node-pty serialport
     - run: npm i
     - run: npm i -S -E node-pty@1.1.0-beta14
-    - run: npm i -S -E serialport@10.4.0
+    - run: npm i -S -E serialport@13.0.0
 
     # script:
     - run: npm run prepare-build
