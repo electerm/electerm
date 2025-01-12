@@ -84,6 +84,8 @@ describe('ssh profile login', function () {
       tab: sshTab
     })
     await delay(5500)
+    await client.keyboard.press('Enter')
+    await delay(2010)
 
     // Verify connection works
     await basicTerminalTest(client, 'ls')
