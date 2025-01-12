@@ -17,7 +17,7 @@ async function main () {
   fs.writeFileSync(p, JSON.stringify(txt, null, 2))
   rm('-rf', 'dist')
   writeSrc('win-x64.appx')
-  await run(`DEBUG=* ${pb} --win appx`)
+  await run(`${pb} --win appx`)
   await upload()
 }
 

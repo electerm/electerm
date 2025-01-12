@@ -12,7 +12,6 @@ async function main () {
   echo('build nsis')
   rm('-rf', 'dist')
   writeSrc('win-x64-installer.exe')
-  process.env.DEBUG = '*'
   await run(`${pb} --win nsis`)
 }
 

@@ -31,7 +31,6 @@ async function main () {
   await replaceRun()
   rm('-rf', 'dist')
   writeSrc('win-x64-portable.tar.gz')
-  process.env.DEBUG = 'electron-builder,electron-builder:*'
   await run(`${pb} --win tar.gz`)
 }
 

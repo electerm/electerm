@@ -27,7 +27,6 @@ async function main () {
       data.linux.target = ['AppImage']
     }
   )
-  process.env.DEBUG = '*'
   await run(`${pb} --linux`)
 }
 

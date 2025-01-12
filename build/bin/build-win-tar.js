@@ -12,7 +12,6 @@ async function main () {
   echo('build tar.gz')
   rm('-rf', 'dist')
   writeSrc('win-x64.tar.gz')
-  process.env.DEBUG = 'electron-builder,electron-builder:*'
   await run(`${pb} --win tar.gz`)
 }
 
