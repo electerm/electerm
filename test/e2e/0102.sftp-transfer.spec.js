@@ -82,7 +82,7 @@ describe('sftp file transfer', function () {
     const fname00 = '00000test-electerm' + nanoid()
     await client.setValue('.session-current .sftp-item input', fname00)
     await client.doubleClick('.session-current .sftp-title-wrap')
-    await delay(4500)
+    await delay(2500)
     let localFileList00 = await client.elements('.session-current .file-list.local .sftp-item')
     localFileList00 = await localFileList00.count()
     expect(localFileList00).equal(2)
