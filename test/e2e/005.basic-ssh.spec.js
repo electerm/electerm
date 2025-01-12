@@ -38,7 +38,7 @@ describe('ssh', function () {
     let tabsCount = await client.elements('.tabs .tabs-wrapper .tab')
     tabsCount = await tabsCount.count()
     expect(tabsCount).equal(2)
-    await delay(5010)
+    await delay(12010)
     await client.keyboard.press('Enter')
     await delay(2010)
     await basicTerminalTest(client, cmd)
