@@ -22,7 +22,7 @@ async function main () {
   changeTeamId()
   rm('-rf', 'dist')
   writeSrc('mac-x64.dmg')
-  process.env.DEBUG = 'electron-builder,electron-builder:*'
+  process.env.DEBUG = '*'
   await run(`${pb} --mac`)
   await upload()
 }
