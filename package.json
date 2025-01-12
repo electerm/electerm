@@ -55,7 +55,7 @@
   "devDependencies": {
     "@ant-design/icons": "5.5.1",
     "@electerm/electerm-resource": "1.3.7",
-    "@electron/rebuild": "^3.4.1",
+    "@electron/rebuild": "3.7.1",
     "@novnc/novnc": "1.4.0",
     "@types/node": "22.9.3",
     "@vitejs/plugin-react": "4.3.4",

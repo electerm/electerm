@@ -27,7 +27,7 @@ async function main () {
       data.linux.target = ['AppImage']
     }
   )
-  await run(`${pb} --linux`)
+  await run(`DEBUG=* ${pb} --linux`)
 }
 
 main()

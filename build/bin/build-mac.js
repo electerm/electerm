@@ -22,7 +22,7 @@ async function main () {
   changeTeamId()
   rm('-rf', 'dist')
   writeSrc('mac-x64.dmg')
-  await run(`${pb} --mac`)
+  await run(`DEBUG=* ${pb} --mac`)
   await upload()
 }
 
