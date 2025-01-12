@@ -27,7 +27,6 @@ jobs:
     - run: pip install setuptools
     - run: npm install -g yarn
     - run: npm i
-    - run: npm un electron-app-universal-protocol-client
 
     # script:
     - run: npm run prepare-build

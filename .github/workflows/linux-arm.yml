@@ -35,7 +35,6 @@ jobs:
     # before_install:
     - run: npm install -g yarn
     - run: npm i
-    - run: npm un electron-app-universal-protocol-client
 
     # script:
     - run: npm run prepare-build
