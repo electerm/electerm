@@ -27,7 +27,8 @@ async function main () {
       data.linux.target = ['AppImage']
     }
   )
-  await run(`DEBUG=* ${pb} --linux`)
+  process.env.DEBUG = 'electron-builder,electron-builder:*'
+  await run(`${pb} --linux`)
 }
 
 main()
