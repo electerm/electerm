@@ -19,7 +19,7 @@ jobs:
     - name: Use Node.js 18.x
       uses: actions/setup-node@v4
       with:
-        node-version: 18.x
+        node-version: 20.x
 
     - uses: actions/setup-python@v5
       with:
@@ -33,7 +33,7 @@ jobs:
     - run: npm un node-pty serialport
     - run: npm i
     - run: npm i -S -E node-pty@1.1.0-beta14
-    - run: npm i -S -E serialport@10.4.0
+    - run: npm i -S -E serialport@13.0.0
 
     # script:
     - run: npm run prepare-build

@@ -82,7 +82,7 @@ export default auto(function Index (props) {
     store.isSecondInstance = window.pre.runSync('isSecondInstance')
     store.initData()
     store.checkForDbUpgrade()
-    window.pre.runGlobalAsync('registerDeepLink')
+    // window.pre.runGlobalAsync('registerDeepLink')
   }, [])
 
   const { store } = props
