@@ -16,7 +16,6 @@ async function main () {
   echo('build snap')
   rm('-rf', 'dist')
   writeSrc('linux-amd64.snap')
-  process.env.DEBUG = '*'
   await run(`${pb} --linux snap -p always`)
 }
 
