@@ -38,6 +38,7 @@ jobs:
     # before_install:
     - run: npm install -g yarn
     - run: npm i
+    - run: npm i -D -E electron-builder@24.13.3
 
     # script:
     - run: npm run prepare-build
