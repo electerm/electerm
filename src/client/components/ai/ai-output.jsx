@@ -1,14 +1,15 @@
-import React from 'react'
+import { useState, useMemo } from 'react'
 import ReactMarkdown from 'react-markdown'
 import { copy } from '../../common/clipboard'
 import Link from '../common/external-link'
 import { Tag } from 'antd'
-import { CopyOutlined, PlayCircleOutlined } from '@ant-design/icons'
+import { CopyOutlined, PlayCircleOutlined, DownCircleOutlined } from '@ant-design/icons'
 import getBrand from './get-brand'
 
 const e = window.translate
 
 export default function AIOutput ({ item }) {
+  const [showFull, setShowFull] = useState(false)
   const {
     response,
     baseURLAI
@@ -18,6 +19,18 @@ export default function AIOutput ({ item }) {
   }
 
   const { brand, brandUrl } = getBrand(baseURLAI)
+
+  const truncatedResponse = useMemo(() => {
+    if (!response) return ''
+    const codeBlockRegex = /```[\s\S]*?```/
+    const match = response.match(codeBlockRegex)
+    if (match) {
+      const index = match.index + match[0].length
+      return response.slice(0, index) + '\n\n... ...'
+    }
+    // If no code block found, show first 5 lines
+    return response.split('\n').slice(0, 5).join('\n') + '\n\n... ...'
+  }, [response])
 
   const renderCode = (props) => {
     const { node, className = '', children, ...rest } = props
@@ -74,8 +87,22 @@ export default function AIOutput ({ item }) {
     )
   }
 
+  function renderShowMore () {
+    if (showFull) {
+      return null
+    }
+    return (
+      <span
+        onClick={() => setShowFull(true)}
+        className='mg1t pointer'
+      >
+        <DownCircleOutlined /> {e('fullContent')}
+      </span>
+    )
+  }
+
   const mdProps = {
-    children: response,
+    children: showFull ? response : truncatedResponse,
     components: {
       code: renderCode
     }
@@ -85,6 +112,7 @@ export default function AIOutput ({ item }) {
     <div className='pd1'>
       {renderBrand()}
       <ReactMarkdown {...mdProps} />
+      {renderShowMore()}
     </div>
   )
 }
