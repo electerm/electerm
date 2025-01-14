@@ -492,7 +492,10 @@ export default (Store) => {
       'language',
       'copyWhenSelect',
       'customCss',
-      'dataSyncSelected'
+      'dataSyncSelected',
+      'baseURLAI',
+      'modelAI',
+      'roleAI'
     ]
     return pick(store.config, configSyncKeys)
   }
