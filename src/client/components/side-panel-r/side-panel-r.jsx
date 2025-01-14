@@ -3,20 +3,31 @@ import DragHandle from '../common/drag-handle'
 import './right-side-panel.styl'
 import {
   CloseCircleOutlined,
-  PushpinOutlined
+  PushpinOutlined,
+  InfoCircleOutlined
 } from '@ant-design/icons'
+import {
+  Typography,
+  Flex,
+  Tag
+} from 'antd'
 
 export default memo(function RightSidePanel (
   {
     rightPanelVisible,
     rightPanelPinned,
     rightPanelWidth,
-    children
+    children,
+    title,
+    rightPanelTab
   }
 ) {
   if (!rightPanelVisible) {
     return null
   }
+  const tag = rightPanelTab === 'ai'
+    ? <Tag className='mg1r'>AI</Tag>
+    : <InfoCircleOutlined className='mg1r' />
 
   function onDragEnd (nw) {
     window.store.setRightSidePanelWidth(nw)
@@ -60,13 +71,24 @@ export default memo(function RightSidePanel (
       {...panelProps}
     >
       <DragHandle {...dragProps} />
-      <CloseCircleOutlined
-        className='right-side-panel-close right-side-panel-controls'
-        onClick={onClose}
-      />
-      <PushpinOutlined
-        {...pinProps}
-      />
+      <Flex
+        className='right-panel-title pd2'
+        justify='space-between'
+        align='center'
+      >
+        <Typography.Text level={4} ellipsis style={{ margin: 0, flex: 1 }}>
+          {tag} {title}
+        </Typography.Text>
+        <Flex>
+          <PushpinOutlined
+            {...pinProps}
+          />
+          <CloseCircleOutlined
+            className='right-side-panel-close right-side-panel-controls mg1l'
+            onClick={onClose}
+          />
+        </Flex>
+      </Flex>
       <div className='right-side-panel-content'>
         {children}
       </div>

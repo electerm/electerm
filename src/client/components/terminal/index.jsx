@@ -1306,10 +1306,10 @@ clear\r`
   }
 
   handleShowInfo = () => {
-    const { id, sessionId, logName, tab } = this.props
+    const { sessionId, logName, tab } = this.props
     const infoProps = {
       logName,
-      id,
+      id: tab.id,
       pid: tab.id,
       sessionId,
       isRemote: this.isRemote(),

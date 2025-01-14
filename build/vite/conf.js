@@ -104,7 +104,11 @@ export default defineConfig({
               id.includes('prop-types')) {
               return 'react-vendor'
             }
-            if (id.includes('react-colorful') || id.includes('react-delta-hooks')) {
+            if (
+              id.includes('react-colorful') ||
+              id.includes('react-delta-hooks') ||
+              id.includes('react-markdown')
+            ) {
               return 'react-utils'
             }
             if (id.includes('lodash-es')) {

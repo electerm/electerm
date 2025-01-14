@@ -29,6 +29,7 @@ import isColorDark from '../common/is-color-dark'
 import { getReverseColor } from '../common/reverse-color'
 import { uniq } from 'lodash-es'
 import deepCopy from 'json-deep-copy'
+import getBrand from '../components/ai/get-brand'
 import {
   settingMap,
   paneMap,
@@ -38,6 +39,7 @@ import {
   terminalSshConfigType
 } from '../common/constants'
 import getInitItem from '../common/init-setting-item'
+import createTitle from '../common/create-title'
 import {
   theme
 } from 'antd'
@@ -91,6 +93,19 @@ class Store {
 
   get batchInputSelectedTabIds () {
     return Array.from(window.store._batchInputSelectedTabIds)
+  }
+
+  get rightPanelTitle () {
+    const {
+      rightPanelTab,
+      config: {
+        baseURLAI
+      }
+    } = window.store
+    if (rightPanelTab === 'ai') {
+      return getBrand(baseURLAI).brand || 'Custom AI Model'
+    }
+    return createTitle(window.store.currentTab)
   }
 
   get inActiveTerminal () {

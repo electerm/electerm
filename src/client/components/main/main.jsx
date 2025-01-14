@@ -99,7 +99,9 @@ export default auto(function Index (props) {
     uiThemeConfig,
     transferHistory,
     transferToConfirm,
-    openResolutionEdit
+    openResolutionEdit,
+    rightPanelTitle,
+    rightPanelTab
   } = store
   const upgradeInfo = deepCopy(store.upgradeInfo)
   const cls = classnames({
@@ -191,7 +193,9 @@ export default auto(function Index (props) {
   const rightPanelProps = {
     rightPanelVisible: store.rightPanelVisible,
     rightPanelPinned: store.rightPanelPinned,
-    rightPanelWidth: store.rightPanelWidth
+    rightPanelWidth: store.rightPanelWidth,
+    title: rightPanelTitle,
+    rightPanelTab
   }
   const terminalInfoProps = {
     ...deepCopy(store.terminalInfoProps),
@@ -222,7 +226,7 @@ export default auto(function Index (props) {
     activeTabId: store.activeTabId,
     showAIConfig: store.showAIConfig
   }
-  const rightPanelContent = store.rightPanelTab === 'ai'
+  const rightPanelContent = rightPanelTab === 'ai'
     ? <AIChat {...aiChatProps} />
     : <TerminalInfo {...terminalInfoProps} />
   return (
