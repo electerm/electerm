@@ -125,7 +125,6 @@
     "nanoid": "3.1.31",
     "node-bash": "5.0.1",
     "node-pty": "1.1.0-beta13",
-    "openai": "4.77.3",
     "os-locale-s": "1.0.8",
     "serialport": "13.0.0",
     "socks": "2.7.1",
