@@ -11,6 +11,10 @@ import {
   SendOutlined,
   UnorderedListOutlined
 } from '@ant-design/icons'
+import {
+  aiConfigWikiLink
+} from '../../common/constants'
+import HelpIcon from '../common/help-icon'
 import './ai.styl'
 
 const { TextArea } = Input
@@ -152,7 +156,11 @@ export default function AIChat (props) {
             />
             <UnorderedListOutlined
               onClick={clearHistory}
-              className='mg2l pointer clear-ai-icon icon-hover'
+              className='mg2x pointer clear-ai-icon icon-hover'
+              title='Clear AI chat history'
+            />
+            <HelpIcon
+              link={aiConfigWikiLink}
             />
             {renderConfig()}
           </Flex>

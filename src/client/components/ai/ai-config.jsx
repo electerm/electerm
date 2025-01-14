@@ -3,9 +3,14 @@ import {
   Input,
   Button,
   AutoComplete,
-  Modal
+  Modal,
+  Alert
 } from 'antd'
 import { useEffect, useState } from 'react'
+import Link from '../common/external-link'
+import {
+  aiConfigWikiLink
+} from '../../common/constants'
 
 // Comprehensive API provider configurations
 import providers from './providers'
@@ -70,6 +75,13 @@ export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig })
       onCancel={handleCancel}
       footer={null}
     >
+      <Alert
+        message={
+          <Link to={aiConfigWikiLink}>WIKI: {aiConfigWikiLink}</Link>
+        }
+        type='info'
+        className='mg2y'
+      />
       <Form
         form={form}
         onFinish={handleSubmit}
