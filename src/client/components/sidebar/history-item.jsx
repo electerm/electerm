@@ -8,7 +8,9 @@ export default function HistoryItem (props) {
     index
   } = props
   function handleClick () {
-    store.onSelectHistory(item.tab)
+    setTimeout(() => {
+      store.onSelectHistory(item.tab)
+    }, 10)
   }
   function handleDelete (e) {
     e.stopPropagation()

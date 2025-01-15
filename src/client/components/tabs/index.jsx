@@ -24,9 +24,8 @@ import {
   TwoRowsRightIcon,
   TwoColumnsBottomIcon
 } from '../icons/split-icons'
-import { Dropdown, Popover, Button } from 'antd'
+import { Dropdown, Popover } from 'antd'
 import Tab from './tab'
-import LogoElem from '../common/logo-elem.jsx'
 import './tabs.styl'
 import {
   tabWidth,
@@ -41,6 +40,7 @@ import findParentBySel from '../../common/find-parent'
 import WindowControl from './window-control'
 import BookmarksList from '../sidebar/bookmark-select'
 import AppDrag from './app-drag'
+import NoSession from './no-session'
 import classNames from 'classnames'
 
 const e = window.translate
@@ -548,31 +548,13 @@ export default class Tabs extends React.Component {
   }
 
   renderNoSession = () => {
-    const props = {
-      style: {
-        height: this.props.height + 'px'
-      }
-    }
     return (
-      <div className='no-sessions electerm-logo-bg' {...props}>
-        <Button
-          onClick={this.handleNewTab}
-          size='large'
-          className='mg1r mg1b add-new-tab-btn'
-        >
-          {e('newTab')}
-        </Button>
-        <Button
-          onClick={this.handleNewSsh}
-          size='large'
-          className='mg1r mg1b'
-        >
-          {e('newBookmark')}
-        </Button>
-        <div className='pd3'>
-          <LogoElem />
-        </div>
-      </div>
+      <NoSession
+        height={this.props.height}
+        onNewTab={this.handleNewTab}
+        onNewSsh={this.handleNewSsh}
+        batch={this.props.batch}
+      />
     )
   }
 

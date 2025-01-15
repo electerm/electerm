@@ -459,7 +459,8 @@ export default Store => {
       'srcId',
       'status',
       'pane',
-      'batch'
+      'batch',
+      'tabCount'
     ]
     const { history } = store
     const index = history.findIndex(d => {
