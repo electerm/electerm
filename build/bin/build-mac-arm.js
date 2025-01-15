@@ -14,6 +14,7 @@ async function main () {
   rm('-rf', 'dist')
   writeSrc('mac-arm64.dmg')
   changeTeamId()
+  process.env.DEBUG = '*'
   await run(`${reBuild} --arch arm64 -f work/app`)
   await run(`${pb} --mac --arm64`)
 }
