@@ -47,7 +47,7 @@ export default memo(function RightSidePanel (
   }
 
   const panelProps = {
-    className: 'right-side-panel animate-fast',
+    className: 'right-side-panel animate-fast' + (rightPanelPinned ? ' right-side-panel-pinned' : ''),
     id: 'right-side-panel',
     style: {
       width: `${rightPanelWidth}px`
