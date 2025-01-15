@@ -1,3 +1,4 @@
+import React, { useCallback, useEffect, useRef } from 'react'
 import createTitle, { createTitleWithTag } from '../../common/create-title'
 import { DeleteOutlined } from '@ant-design/icons'
 
@@ -7,11 +8,25 @@ export default function HistoryItem (props) {
     item,
     index
   } = props
-  function handleClick () {
-    setTimeout(() => {
+  const timeoutRef = useRef(null)
+
+  const handleClick = useCallback(() => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current)
+    }
+    timeoutRef.current = setTimeout(() => {
       store.onSelectHistory(item.tab)
     }, 10)
-  }
+  }, [item.tab])
+
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current)
+      }
+    }
+  }, [])
+
   function handleDelete (e) {
     e.stopPropagation()
     store.history.splice(index, 1)
