@@ -9,6 +9,7 @@ import {
   paneMap,
   maxHistory
 } from '../common/constants'
+import refs from '../components/common/ref'
 import * as ls from '../common/safe-local-storage'
 import deepCopy from 'json-deep-copy'
 import generate from '../common/id-with-stamp'
@@ -546,4 +547,11 @@ export default Store => {
     // Ensure at least the active tab is selected
     store._batchInputSelectedTabIds.add(store.activeTabId)
   })
+
+  Store.prototype.notifyTabOnData = function (tabId) {
+    const tab = refs.get('tab-' + tabId)
+    if (tab) {
+      tab.notifyOnData()
+    }
+  }
 }

@@ -3,6 +3,7 @@
  */
 
 import { Component } from 'react'
+import refs from '../common/ref'
 import {
   CloseOutlined,
   Loading3QuartersOutlined,
@@ -23,9 +24,15 @@ const onDragCls = 'ondrag-tab'
 const onDragOverCls = 'dragover-tab'
 
 class Tab extends Component {
+  state = {
+    terminalOnData: false
+  }
+
   componentDidMount () {
     this.dom = document.getElementById('tab-' + this.props.tab.id)
     window.addEventListener('message', this.onEvent)
+    this.id = this.props.tab.id
+    refs.add('tab-' + this.id, this)
   }
 
   componentDidUpdate (prevProps) {
@@ -39,6 +46,26 @@ class Tab extends Component {
 
   componentWillUnmount () {
     this.dom = null
+    refs.remove('tab-' + this.id)
+    clearTimeout(this.timer)
+    this.timer = null
+  }
+
+  notifyOnData = () => {
+    if (this.timer) {
+      clearTimeout(this.timer)
+      this.timer = null
+    }
+    this.setState({
+      terminalOnData: true
+    })
+    this.timer = setTimeout(this.clearTerminalOnData, 4000)
+  }
+
+  clearTerminalOnData = () => {
+    this.setState({
+      terminalOnData: false
+    })
   }
 
   // shouldComponentUpdate (nextProps) {
@@ -353,7 +380,7 @@ class Tab extends Component {
   }
 
   render () {
-    const { isLast, terminalOnData, tab, currentBatchTabId } = this.props
+    const { isLast, tab, currentBatchTabId } = this.props
     const {
       id,
       isEditting,
@@ -361,6 +388,9 @@ class Tab extends Component {
       isTransporting,
       sshTunnelResults
     } = tab
+    const {
+      terminalOnData
+    } = this.state
     const active = id === currentBatchTabId
     const cls = classnames(
       `tab-${id}`,

@@ -52,7 +52,6 @@ export default class Tabs extends React.Component {
     this.domRef = React.createRef()
     this.state = {
       overflow: false,
-      receiveDataTabId: '',
       onContextMenuTabId: '',
       contextFuncTabId: '',
       contextFunc: '',
@@ -82,7 +81,6 @@ export default class Tabs extends React.Component {
 
   componentWillUnmount () {
     window.removeEventListener('message', this.onEvent)
-    this.offTimer()
   }
 
   modifier = (...args) => {
@@ -99,33 +97,13 @@ export default class Tabs extends React.Component {
 
   onEvent = (e) => {
     const {
-      action,
-      tabId
+      action
     } = e.data || {}
     if (
       action === commonActions.closeContextMenuAfter
     ) {
       this.offContextMenu()
-    } else if (
-      action === 'terminal-receive-data' &&
-      tabId
-    ) {
-      this.modifier({
-        receiveDataTabId: tabId
-      })
-      this.timer = setTimeout(this.clearReceiveData, 4000)
     }
-  }
-
-  clearReceiveData = () => {
-    this.modifier({
-      receiveDataTabId: ''
-    })
-  }
-
-  offTimer = () => {
-    clearTimeout(this.timer)
-    this.timer = null
   }
 
   offContextMenu = () => {
@@ -392,7 +370,7 @@ export default class Tabs extends React.Component {
     const { tabs = [], width, config } = this.props
     const len = tabs.length
     const tabsWidthAll = tabMargin * len + 10 + this.tabsWidth()
-    const { overflow, receiveDataTabId, onContextMenuTabId } = this.state
+    const { overflow, onContextMenuTabId } = this.state
     const left = overflow
       ? '100%'
       : tabsWidthAll
@@ -427,7 +405,6 @@ export default class Tabs extends React.Component {
                 ...this.props,
                 tab,
                 isLast,
-                receiveData: receiveDataTabId === tab.id,
                 openContextMenu: onContextMenuTabId === tab.id,
                 tabIndex: i
               }

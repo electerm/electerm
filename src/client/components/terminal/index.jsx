@@ -909,10 +909,7 @@ clear\r`
   }
 
   notifyOnData = debounce(() => {
-    postMessage({
-      action: 'terminal-receive-data',
-      tabId: this.props.tab.id
-    })
+    window.store.notifyTabOnData(this.props.tab.id)
   }, 1000)
 
   parse (rawText) {
