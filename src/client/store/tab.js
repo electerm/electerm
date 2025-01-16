@@ -554,4 +554,18 @@ export default Store => {
       tab.notifyOnData()
     }
   }
+
+  Store.prototype.remoteList = function (sessionId) {
+    const sftp = refs.get('sftp-' + sessionId)
+    if (sftp) {
+      sftp.remoteListDebounce()
+    }
+  }
+
+  Store.prototype.localList = function (sessionId) {
+    const sftp = refs.get('sftp-' + sessionId)
+    if (sftp) {
+      sftp.localListDebounce()
+    }
+  }
 }

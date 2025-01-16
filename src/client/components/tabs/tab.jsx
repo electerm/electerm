@@ -29,10 +29,10 @@ class Tab extends Component {
   }
 
   componentDidMount () {
-    this.dom = document.getElementById('tab-' + this.props.tab.id)
+    this.id = 'tab-' + this.props.tab.id
+    refs.add(this.id, this)
+    this.dom = document.getElementById(this.id)
     window.addEventListener('message', this.onEvent)
-    this.id = this.props.tab.id
-    refs.add('tab-' + this.id, this)
   }
 
   componentDidUpdate (prevProps) {
@@ -46,7 +46,7 @@ class Tab extends Component {
 
   componentWillUnmount () {
     this.dom = null
-    refs.remove('tab-' + this.id)
+    refs.remove(this.id)
     clearTimeout(this.timer)
     this.timer = null
   }

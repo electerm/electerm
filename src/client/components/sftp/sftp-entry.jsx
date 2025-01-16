@@ -1,4 +1,5 @@
 import { Component } from 'react'
+import refs from '../common/ref'
 import generate from '../../common/uid'
 import runIdle from '../../common/run-idle'
 import { Spin, Modal, notification } from 'antd'
@@ -60,10 +61,10 @@ export default class Sftp extends Component {
     this.retryCount = 0
   }
 
-  // componentDidMount () {
-  //   // this.initData()
-  //   // this.initEvent()
-  // }
+  componentDidMount () {
+    this.id = 'sftp-' + this.props.sessionId
+    refs.add(this.id, this)
+  }
 
   componentDidUpdate (prevProps, prevState) {
     if (
@@ -114,6 +115,7 @@ export default class Sftp extends Component {
   }
 
   componentWillUnmount () {
+    refs.remove(this.id)
     this.destroyEvent()
     this.sftp && this.sftp.destroy()
     this.sftp = null
@@ -187,12 +189,10 @@ export default class Sftp extends Component {
   }, isEqual)
 
   initEvent () {
-    window.addEventListener('message', this.handleMsg)
     window.addEventListener('keydown', this.handleEvent)
   }
 
   destroyEvent () {
-    window.removeEventListener('keydown', this.handleEvent)
     window.removeEventListener('message', this.handleMsg)
   }
 

@@ -2,7 +2,7 @@ import { Component } from 'react'
 import copy from 'json-deep-copy'
 import { isFunction } from 'lodash-es'
 import generate from '../../common/uid'
-import { typeMap, transferTypeMap, commonActions } from '../../common/constants'
+import { typeMap, transferTypeMap } from '../../common/constants'
 import fs from '../../common/fs'
 import format, { computeLeftTime, computePassedTime } from './transfer-speed-format'
 import {
@@ -10,7 +10,6 @@ import {
 } from './file-read'
 import resolve from '../../common/resolve'
 import delay from '../../common/wait'
-import postMsg from '../../common/post-msg'
 import { zipCmd, unzipCmd, rmCmd, mvCmd, mkdirCmd } from './zip'
 import './transfer.styl'
 
@@ -71,19 +70,11 @@ export default class TransportAction extends Component {
   }
 
   remoteList = () => {
-    postMsg({
-      action: commonActions.sftpList,
-      sessionId: this.sessionId,
-      type: typeMap.remote
-    })
+    window.store.remoteList(this.sessionId)
   }
 
   localList = () => {
-    postMsg({
-      action: commonActions.sftpList,
-      sessionId: this.sessionId,
-      type: typeMap.local
-    })
+    window.store.localList(this.sessionId)
   }
 
   onEnd = (update = {}) => {
