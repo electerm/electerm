@@ -14,6 +14,7 @@ import {
   downloadUpgradeTimeout,
   mirrors
 } from '../../common/constants'
+import { debounce } from 'lodash-es'
 import newTerm from '../../common/new-terminal'
 import Markdown from '../common/markdown'
 import downloadMirrors from '../../common/download-mirrors'
@@ -122,7 +123,7 @@ export default class Upgrade extends PureComponent {
     this.handleClose()
   }
 
-  doUpgrade = async () => {
+  doUpgrade = debounce(async () => {
     const { installSrc } = this.props
     if (!isMac && !isWin && installSrc === 'npm') {
       return window.store.addTab(
@@ -144,7 +145,7 @@ export default class Upgrade extends PureComponent {
       onError: this.onError
     })
     this.downloadTimer = setTimeout(this.timeout, downloadUpgradeTimeout)
-  }
+  }, 100)
 
   handleSkipVersion = () => {
     window.store.setConfig({
