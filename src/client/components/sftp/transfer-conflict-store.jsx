@@ -12,6 +12,7 @@ import {
   getFileExt,
   checkFolderSize
 } from './file-read'
+import refs from '../common/ref'
 import generate from '../../common/uid'
 import resolve from '../../common/resolve'
 import deepCopy from 'json-deep-copy'
@@ -40,7 +41,7 @@ export default class TransferConflictStore extends PureComponent {
   }
 
   remoteCheckExist = (path, sessionId) => {
-    const sftp = window.sftps[sessionId]
+    const sftp = refs.get('sftp-' + sessionId).sftp
     return getRemoteFileInfo(sftp, path)
       .then(r => r)
       .catch(() => false)
@@ -239,7 +240,7 @@ export default class TransferConflictStore extends PureComponent {
     }
     if (fromFile.isDirectory && typeFrom !== typeTo) {
       const props = {
-        sftp: window.sftps[sessionId]
+        sftp: refs.get('sftp-' + sessionId).sftp
       }
       const skip = await checkFolderSize(props, fromFile)
         .then(d => d && typeFrom !== typeTo)

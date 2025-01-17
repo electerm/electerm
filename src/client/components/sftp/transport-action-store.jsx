@@ -10,6 +10,7 @@ import {
 } from './file-read'
 import resolve from '../../common/resolve'
 import delay from '../../common/wait'
+import refs from '../common/ref'
 import { zipCmd, unzipCmd, rmCmd, mvCmd, mkdirCmd } from './zip'
 import './transfer.styl'
 
@@ -191,7 +192,7 @@ export default class TransportAction extends Component {
           this.onError(e)
         })
     }
-    const sftp = window.sftps[sessionId]
+    const sftp = refs.get('sftp-' + sessionId).sftp
     return sftp[operation](fromPath, toPath)
       .then(this.onEnd)
       .catch(e => {
@@ -333,7 +334,7 @@ export default class TransportAction extends Component {
       ? fromPath
       : toPath
     const mode = toFile.mode || fromMode
-    const sftp = window.sftps[this.sessionId]
+    const sftp = refs.get('sftp-' + this.sessionId).sftp
     this.transport = await sftp[transferType]({
       remotePath,
       localPath,
@@ -410,7 +411,7 @@ export default class TransportAction extends Component {
       return fs.mkdir(toPath)
         .catch(this.onError)
     }
-    const sftp = window.sftps[sessionId]
+    const sftp = refs.get('sftp-' + sessionId).sftp
     return sftp.mkdir(toPath)
       .catch(this.onError)
   }
