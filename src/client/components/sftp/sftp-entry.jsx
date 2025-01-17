@@ -17,8 +17,7 @@ import {
   fileTypeMap,
   terminalSerialType,
   unexpectedPacketErrorDesc,
-  sftpRetryInterval,
-  commonActions
+  sftpRetryInterval
 } from '../../common/constants'
 import { hasFileInClipboardText } from '../../common/clipboard'
 import Client from '../../common/sftp'
@@ -193,21 +192,7 @@ export default class Sftp extends Component {
   }
 
   destroyEvent () {
-    window.removeEventListener('message', this.handleMsg)
-  }
-
-  handleMsg = event => {
-    const {
-      action,
-      sessionId,
-      type
-    } = event?.data || {}
-    if (
-      action === commonActions.sftpList &&
-      sessionId === this.props.sessionId
-    ) {
-      this[type + 'ListDebounce']()
-    }
+    window.removeEventListener('keydown', this.handleEvent)
   }
 
   isActive () {

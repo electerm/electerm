@@ -16,7 +16,7 @@ export default {
   execMacArgs: [],
   execLinuxArgs: [],
   enableGlobalProxy: false,
-  disableSshHistory: false,
+  disableConnectionHistory: false,
   disableTransferHistory: false,
   terminalBackgroundImagePath: '',
   terminalBackgroundFilterOpacity: 1,

@@ -7,6 +7,9 @@ import HistoryItem from './history-item'
 
 export default auto(function HistoryPanel (props) {
   const { store } = window
+  if (store.config.disableConnectionHistory) {
+    return null
+  }
   const {
     history
   } = store

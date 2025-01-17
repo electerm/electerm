@@ -183,6 +183,9 @@ export default class SettingCommon extends Component {
     if (name === 'useSystemTitleBar') {
       message.info(e('useSystemTitleBarTip'), 5)
     }
+    if (name === 'disableConnectionHistory' && value) {
+      window.store.history = []
+    }
     this.saveConfig({
       [name]: value
     })
@@ -658,7 +661,7 @@ export default class SettingCommon extends Component {
             'showHiddenFilesOnSftpStart',
             'screenReaderMode',
             'initDefaultTabOnStart',
-            'disableSshHistory',
+            'disableConnectionHistory',
             'disableTransferHistory',
             'checkUpdateOnStart',
             'useSystemTitleBar',

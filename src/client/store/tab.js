@@ -450,10 +450,16 @@ export default Store => {
   }
 
   Store.prototype.updateHistory = function (tab) {
-    if (!tab.type && !tab.host) {
+    if (
+      !tab.type &&
+      !tab.host
+    ) {
       return
     }
     const { store } = window
+    if (store.config.disableConnectionHistory) {
+      return
+    }
     const tabPropertiesExcludes = [
       'id',
       'from',
