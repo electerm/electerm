@@ -72,7 +72,7 @@ export default memo(function SidebarPanel (props) {
       {...pick(props, ['onMouseEnter', 'onMouseLeave'])}
     >
       <div className='sidebar-pin-top'>
-        <div className='pd1y pd2t pd2x sidebar-panel-control'>
+        <div className='pd1y pd2t pd2x sidebar-panel-control alignright'>
           <Tooltip title={e('newBookmark')}>
             <PlusCircleOutlined
               {...pop1}

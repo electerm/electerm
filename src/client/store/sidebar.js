@@ -11,18 +11,12 @@ import * as ls from '../common/safe-local-storage'
 export default Store => {
   Store.prototype.expandBookmarks = function () {
     const { store } = window
-    window.store.setState(
-      'expandedKeys',
-      store.getBookmarkGroupsTotal().map(g => g.id)
-    )
+    window.store.expandedKeys = store.getBookmarkGroupsTotal().map(g => g.id)
   }
 
   Store.prototype.collapseBookmarks = function () {
     const { store } = window
-    store.setState(
-      'expandedKeys',
-      []
-    )
+    store.expandedKeys = []
   }
 
   Store.prototype.handlePin = function (pinned) {
