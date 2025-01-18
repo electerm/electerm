@@ -10,9 +10,9 @@ import { throttle } from 'lodash-es'
 class ShortcutControl extends React.PureComponent {
   componentDidMount () {
     const onEvent = this.handleKeyboardEvent.bind(this)
-    window.addEventListener('keydown', onEvent)
-    window.addEventListener('mousedown', onEvent)
-    window.addEventListener('mousewheel', onEvent)
+    document.addEventListener('keydown', onEvent, true)
+    document.addEventListener('mousedown', onEvent)
+    document.addEventListener('mousewheel', onEvent)
   }
 
   closeCurrentTabShortcut = throttle((e) => {
