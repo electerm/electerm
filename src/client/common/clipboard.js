@@ -24,7 +24,7 @@ export const readClipboardAsync = () => {
 
 export const copy = (str) => {
   message.success({
-    content: 'Copied',
+    content: window.translate('copied'),
     duation: 2,
     key: 'copy-message'
   })
