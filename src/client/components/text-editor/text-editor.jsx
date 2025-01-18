@@ -26,11 +26,7 @@ export default class TextEditor extends PureComponent {
 
   setStateProxy = (state, cb) => {
     if (state && typeof state.file !== 'undefined') {
-      postMsg({
-        action: commonActions.updateStore,
-        value: !!state.file,
-        prop: 'showEditor'
-      })
+      window.store.showEditor = !!state.file
     }
     return this.setState(state, cb)
   }

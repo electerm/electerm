@@ -52,7 +52,6 @@ export default auto(function Index (props) {
     const { store } = props
     window.addEventListener('resize', store.onResize)
     setTimeout(store.triggerResize, 200)
-    store.initStoreEvents()
     const { ipcOnEvent } = window.pre
     ipcOnEvent('checkupdate', store.onCheckUpdate)
     ipcOnEvent('open-about', store.openAbout)

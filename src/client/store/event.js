@@ -3,34 +3,8 @@
  */
 
 import postMessage from '../common/post-msg'
-import { commonActions } from '../common/constants'
 
 export default Store => {
-  Store.prototype.initStoreEvents = function () {
-    window.addEventListener('message', window.store.onStoreEvent)
-  }
-
-  Store.prototype.onStoreEvent = function (e) {
-    const { store } = window
-    const {
-      action
-    } = e.data || {}
-    if (action !== commonActions.updateStore) {
-      return false
-    }
-    const {
-      func,
-      prop,
-      value,
-      args = []
-    } = e.data || {}
-    if (func) {
-      store[func](...args)
-    } else if (prop) {
-      store[prop] = value
-    }
-  }
-
   Store.prototype.focus = function () {
     window.focused = true
     postMessage({

@@ -28,11 +28,7 @@ export default class FileMode extends React.PureComponent {
 
   setStateProxy = (state, cb) => {
     if (state && typeof state.file !== 'undefined') {
-      postMessage({
-        action: commonActions.updateStore,
-        value: !!state.file.id,
-        prop: 'showFileModal'
-      })
+      window.store.showFileModal = !!state.file.id
     }
     return this.setState(state, cb)
   }

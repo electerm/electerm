@@ -18,7 +18,6 @@ import time from '../../common/time'
 import renderPermission from './permission-render'
 import FileIcon from './file-icon'
 import fs from '../../common/fs'
-import postMsg from '../../common/post-msg'
 import { filesize } from 'filesize'
 import { runCmd } from '../terminal/terminal-apis'
 
@@ -51,11 +50,7 @@ export default function FileInfoModal () {
     window.addEventListener('message', onEvent)
   }, [])
   useEffect(() => {
-    postMsg({
-      action: commonActions.updateStore,
-      value: !!state.visible,
-      prop: 'showEditor'
-    })
+    window.store.showEditor = !!state.visible
   }, [state.visible])
   const {
     visible,

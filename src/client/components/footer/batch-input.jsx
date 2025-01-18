@@ -9,13 +9,11 @@ import {
 } from 'antd'
 import {
   batchInputLsKey,
-  commonActions,
   terminalWebType,
   terminalRdpType,
   terminalVncType
 } from '../../common/constants'
 import TabSelect from './tab-select'
-import postMsg from '../../common/post-msg'
 import classNames from 'classnames'
 import deepCopy from 'json-deep-copy'
 
@@ -53,10 +51,7 @@ export default class BatchInput extends Component {
   handleChange = (v = '') => {
     let vv = v.replace(/^\d+:/, '').replace(/\n$/, '')
     if (vv === batchInputLsKey) {
-      postMsg({
-        action: commonActions.updateStore,
-        func: 'clearBatchInput'
-      })
+      window.store.clearBatchInput()
       vv = ''
     }
     this.setState({
