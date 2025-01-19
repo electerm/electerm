@@ -10,9 +10,10 @@ import {
 import { Button, Space, Dropdown, Upload } from 'antd'
 import copy from 'json-deep-copy'
 import time from '../../common/time'
-import { find, uniq, isEqual } from 'lodash-es'
+import { find, uniq } from 'lodash-es'
 import { fixBookmarks } from '../../common/db-fix'
 import download from '../../common/download'
+import { action } from 'manate'
 
 const e = window.translate
 
@@ -26,7 +27,7 @@ export default function BookmarkToolbar (props) {
     bookmarkGroups,
     bookmarks
   } = props
-  const beforeUpload = async (file) => {
+  const beforeUpload = action(async (file) => {
     const { store } = window
     const txt = await window.fs.readFile(file.path)
     try {
@@ -37,70 +38,45 @@ export default function BookmarkToolbar (props) {
       } = content
       const bookmarkGroups0 = copy(bookmarkGroups)
       const bookmarks0 = copy(bookmarks)
-      const bmTree = bookmarks0.reduce((p, v) => {
-        return {
-          ...p,
-          [v.id]: v
-        }
-      }, {})
-      const bmgTree = bookmarkGroups0.reduce((p, v) => {
-        return {
-          ...p,
-          [v.id]: v
-        }
-      }, {})
-      const add = []
-      const dbAdd = []
-      const updates = []
-      bookmarks1.forEach(bg => {
-        if (!bmTree[bg.id]) {
-          bookmarks.push(bg)
-          add.push(bg)
-          dbAdd.push({
-            db: 'bookmarks',
-            obj: bg
-          })
+
+      // Using Map instead of reduce
+      const bmTree = new Map(
+        bookmarks0.map(bookmark => [bookmark.id, bookmark])
+      )
+      const bmgTree = new Map(
+        bookmarkGroups0.map(group => [group.id, group])
+      )
+
+      const fixed = fixBookmarks(bookmarks1)
+
+      fixed.forEach(bg => {
+        if (!bmTree.has(bg.id)) {
+          store.bookmarks.push(bg)
         }
       })
+
       bookmarkGroups1.forEach(bg => {
-        if (!bmgTree[bg.id]) {
-          bookmarkGroups.push(bg)
-          dbAdd.push({
-            db: 'bookmarkGroups',
-            obj: bg
-          })
+        if (!bmgTree.has(bg.id)) {
+          store.bookmarkGroups.push(bg)
         } else {
           const bg1 = find(
-            bookmarkGroups,
+            store.bookmarkGroups,
             b => b.id === bg.id
           )
-          const old = copy(bg1.bookmarkIds)
           bg1.bookmarkIds = uniq(
             [
               ...bg1.bookmarkIds,
               ...bg.bookmarkIds
             ]
           )
-          if (!isEqual(bg1.bookmarkIds, old)) {
-            updates.push({
-              id: bg1.id,
-              db: 'bookmarkGroups',
-              update: {
-                bookmarkIds: bg1.bookmarkIds
-              }
-            })
-          }
         }
       })
-      store.setBookmarkGroups(bookmarkGroups)
-      store.setBookmarks(fixBookmarks(bookmarks))
-      store.batchDbAdd(dbAdd)
-      store.batchDbUpdate(updates)
     } catch (e) {
       store.onError(e)
     }
     return false
-  }
+  })
+
   const handleDownload = () => {
     const txt = JSON.stringify({
       bookmarkGroups: copy(bookmarkGroups),

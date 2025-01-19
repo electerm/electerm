@@ -68,7 +68,6 @@ export function shortcutExtend (Cls) {
       !altKey &&
       !ctrlKey
     ) {
-      console.log('handleKeyboardEvent: Handling Backspace key')
       this.props.onDelKeyPressed()
       const delKey = this.props.config.backspaceMode === '^?' ? 8 : 127
       const altDelDelKey = delKey === 8 ? 127 : 8

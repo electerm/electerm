@@ -7,8 +7,9 @@ import {
 } from '../../common/constants'
 import { isEqual, find, last, remove } from 'lodash-es'
 import copy from 'json-deep-copy'
+import { action } from 'manate'
 
-export default (info, props) => {
+export default action((info, props) => {
   const {
     dropToGap,
     dragNode,
@@ -23,10 +24,7 @@ export default (info, props) => {
   const toPosesLevel = toPoses.slice(0, toPoses.length - 1)
   const isSameLevel = fromPosesLevel.length === toPosesLevel.length
   const isSameCat = isEqual(fromPosesLevel, toPosesLevel) && dropToGap
-  const bookmarks = copy(props.bookmarks)
-  const bookmarkGroups = copy(
-    props.bookmarkGroups
-  )
+  const { bookmarks, bookmarkGroups } = window.store
   let from = find(
     bookmarks,
     d => d.id === fromId
@@ -163,7 +161,6 @@ export default (info, props) => {
   if (!fromLeaf) {
     from.level = toFirstLevel ? 1 : 2
   }
-  const updates = []
   if (toFirstLevel) {
     fromIndex = bookmarkGroups.findIndex(d => d.id === fromId)
     from = copy(from)
@@ -191,32 +188,4 @@ export default (info, props) => {
       remove(arr, d => d === 'tobedel')
     }
   }
-  if (fromGroup) {
-    const { id, ...rest } = fromGroup
-    updates.push({
-      id,
-      db: 'bookmarkGroups',
-      update: rest,
-      upsert: false
-    })
-  }
-  if (toGroup) {
-    const { id, ...rest } = toGroup
-    updates.push({
-      id,
-      db: 'bookmarkGroups',
-      update: rest,
-      upsert: false
-    })
-  } else if (from) {
-    const { id, ...rest } = from
-    updates.push({
-      id,
-      db: 'bookmarkGroups',
-      update: rest,
-      upsert: false
-    })
-  }
-  props.store.setBookmarkGroups(bookmarkGroups)
-  props.store.batchDbUpdate(updates)
-}
+})

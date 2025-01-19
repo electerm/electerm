@@ -19,10 +19,6 @@ export default Store => {
     return window.store.getItems(settingMap.terminalThemes)
   }
 
-  Store.prototype.setTerminalThemes = function (arr) {
-    return window.store.setItems(settingMap.terminalThemes, arr)
-  }
-
   Store.prototype.setTheme = function (id) {
     window.store.updateConfig({
       theme: id

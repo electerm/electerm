@@ -15,10 +15,6 @@ import * as ls from '../common/safe-local-storage'
 import { debounce } from 'lodash-es'
 
 export default Store => {
-  Store.prototype.setQuickCommands = function (list) {
-    return window.store.setItems(settingMap.quickCommands, list)
-  }
-
   Store.prototype.addQuickCommand = function (
     qm
   ) {

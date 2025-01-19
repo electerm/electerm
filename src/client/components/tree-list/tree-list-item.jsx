@@ -176,7 +176,6 @@ export default memo(function TreeListItem (props) {
     props.onDragLeave(e)
   }
 
-  // sort quick commands array when drop, so that the dragged item will be placed at the right position, e.target.getAttribute('data-id') would target item id, e.dataTransfer.getData('idDragged') would target dragged item id, then set window.store.quickCommands use window.store.setItems
   const onDrop = e => {
     props.onDrop(e)
   }

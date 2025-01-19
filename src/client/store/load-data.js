@@ -186,12 +186,14 @@ export default (Store) => {
     await Promise.all(all)
       .then(arr => {
         for (const { name, data } of arr) {
-          refs.add('oldState-' + name, JSON.parse(data || '[]'))
-          ext['_' + name] = data || '[]'
+          const dt = JSON.parse(data || '[]')
+          refs.add('oldState-' + name, dt)
+          ext[name] = dt
         }
       })
     ext.lastDataUpdateTime = await getData('lastDataUpdateTime') || 0
     Object.assign(store, ext)
+    await store.fixBookmarkGroups()
 
     store.checkDefaultTheme()
     store.loadFontList()

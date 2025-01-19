@@ -5,6 +5,13 @@
  * @returns {Object} Object containing arrays of items to update, add, and remove
  */
 export default function compare (oldArr, newArr) {
+  if (!oldArr || !newArr) {
+    return {
+      updated: [],
+      added: [],
+      removed: []
+    }
+  }
   // Create maps for faster lookup
   const oldMap = new Map(
     oldArr.map(item => [item.id, item])

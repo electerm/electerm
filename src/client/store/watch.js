@@ -15,6 +15,7 @@ import {
 } from '../common/constants'
 import * as ls from '../common/safe-local-storage'
 import { debounce, isEmpty } from 'lodash-es'
+import deepCopy from 'json-deep-copy'
 import refs from '../components/common/ref'
 import dataCompare from '../common/data-compare'
 
@@ -39,8 +40,6 @@ export default store => {
     autoRun(async () => {
       const old = refs.get('oldState-' + name)
       const n = store.getItems(name)
-      console.log('old', name, old)
-      console.log('new', name, n)
       const { updated, added, removed } = dataCompare(
         old,
         n
@@ -59,13 +58,14 @@ export default store => {
       }))
       await update(
         `${name}:order`,
-        store.getItems(name).map(d => d.id)
+        (n || []).map(d => d.id)
       )
+      refs.add('oldState-' + name, deepCopy(n) || [])
       await store.updateLastDataUpdateTime()
       if (store.config.autoSync) {
         await store.uploadSettingAll()
       }
-      return store['_' + name]
+      return store[name]
     }).start()
   }
 
@@ -112,7 +112,7 @@ export default store => {
 
   autoRun(() => {
     ls.setItemJSON(localAddrBookmarkLsKey, store.addressBookmarksLocal)
-    return store._addressBookmarksLocal
+    return store.addressBookmarksLocal
   }).start()
 
   autoRun(() => {

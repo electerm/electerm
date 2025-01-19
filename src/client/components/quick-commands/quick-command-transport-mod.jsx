@@ -10,29 +10,19 @@ export default class QmTransport extends BookmarkTransport {
     const txt = await window.fs.readFile(file.path)
     try {
       const arr = JSON.parse(txt)
-      const arrOld = copy(store[this.name])
+      const state = store[this.name]
+      const arrOld = copy(state)
       const bmTreeOld = arrOld.reduce((p, v) => {
         return {
           ...p,
           [v.id]: v
         }
       }, {})
-      const add = []
-      const dbAdd = []
       arr.forEach(bg => {
         if (!bmTreeOld[bg.id]) {
-          arrOld.push(bg)
-          add.push(bg)
-          dbAdd.push({
-            db: this.name,
-            obj: bg
-          })
+          state.push(bg)
         }
       })
-      store.setState(
-        this.name, arrOld
-      )
-      store.batchDbAdd(dbAdd)
     } catch (e) {
       store.onError(e)
     }

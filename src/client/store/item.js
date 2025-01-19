@@ -3,6 +3,7 @@
  */
 
 import { find } from 'lodash-es'
+import deepCopy from 'json-deep-copy'
 import {
   settingMap
 } from '../common/constants'
@@ -15,12 +16,8 @@ export default Store => {
 
   Store.prototype.addItems = function (objs, type) {
     const { store } = window
-    let items = store.getItems(type)
-    items = [
-      ...objs,
-      ...items
-    ]
-    store.setItems(type, items)
+    const items = store.getItems(type)
+    items.push(...objs)
   }
 
   Store.prototype.editItem = function (id, updates, type) {
@@ -31,23 +28,26 @@ export default Store => {
       return
     }
     Object.assign(item, updates)
-    store.setItems(type, items)
   }
 
   Store.prototype.delItem = function ({ id }, type) {
     const { store } = window
-    const items = store.getItems(type).filter(t => {
-      return t.id !== id
-    })
-    store.setItems(type, items)
+    const items = store.getItems(type)
+    const index = items.findIndex(t => t.id === id)
+    if (index < 0) {
+      return
+    }
+    items.splice(index, 1)
   }
 
   Store.prototype.delItems = function (ids, type) {
     const { store } = window
-    const items = store.getItems(type).filter(t => {
-      return !ids.includes(t.id)
-    })
-    store.setItems(type, items)
+    const items = store.getItems(type)
+    for (let i = items.length - 1; i >= 0; i--) {
+      if (ids.includes(items[i].id)) {
+        items.splice(i, 1)
+      }
+    }
   }
 
   Store.prototype.onDelItem = function (item, type) {
@@ -63,22 +63,37 @@ export default Store => {
   Store.prototype.getSidebarList = function (type) {
     const { store } = window
     if (type === settingMap.terminalThemes) {
-      return [
+      return deepCopy([
         ...store.getTerminalThemes(),
         ...store.itermThemes
-      ].sort(window.store.sortTheme)
+      ]).sort(window.store.sortTheme)
     }
-    return store.getItems(type)
+    return deepCopy(store.getItems(type))
   }
 
   Store.prototype.getItems = function (type) {
     if (type === 'setting') {
       return window.store.setting
     }
-    return JSON.parse(this['_' + type] || [])
+    return window.store[type]
   }
 
-  Store.prototype.setItems = function (type, items) {
-    this['_' + type] = JSON.stringify(items)
+  Store.prototype.setItems = function (type, arr) {
+    window.store[type] = arr
+  }
+
+  Store.prototype.adjustOrder = function (type, fromId, toId) {
+    const { store } = window
+    const items = store.getItems(type)
+    const fromIndex = items.findIndex(t => t.id === fromId)
+    let toIndex = items.findIndex(t => t.id === toId)
+    if (fromIndex < 0 || toIndex < 0 || fromIndex === toIndex) {
+      return
+    }
+    if (fromIndex < toIndex) {
+      toIndex = toIndex - 1
+    }
+    const [removed] = items.splice(fromIndex, 1)
+    items.splice(toIndex, 0, removed)
   }
 }
