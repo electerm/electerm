@@ -7,7 +7,6 @@ import {
   settingMap
 } from '../common/constants'
 import getInitItem from '../common/init-setting-item'
-import { update, remove, dbNames } from '../common/db'
 
 export default Store => {
   Store.prototype.addItem = function (item, type) {
@@ -22,16 +21,6 @@ export default Store => {
       ...items
     ]
     store.setItems(type, items)
-    if (dbNames.includes(type)) {
-      store.batchDbAdd(
-        objs.map(obj => {
-          return {
-            db: type,
-            obj
-          }
-        })
-      )
-    }
   }
 
   Store.prototype.editItem = function (id, updates, type) {
@@ -43,9 +32,6 @@ export default Store => {
     }
     Object.assign(item, updates)
     store.setItems(type, items)
-    if (dbNames.includes(type)) {
-      update(id, updates, type, false)
-    }
   }
 
   Store.prototype.delItem = function ({ id }, type) {
@@ -54,9 +40,6 @@ export default Store => {
       return t.id !== id
     })
     store.setItems(type, items)
-    if (dbNames.includes(type)) {
-      remove(type, id)
-    }
   }
 
   Store.prototype.delItems = function (ids, type) {
@@ -65,9 +48,6 @@ export default Store => {
       return !ids.includes(t.id)
     })
     store.setItems(type, items)
-    if (dbNames.includes(type)) {
-      ids.map(id => remove(type, id))
-    }
   }
 
   Store.prototype.onDelItem = function (item, type) {
