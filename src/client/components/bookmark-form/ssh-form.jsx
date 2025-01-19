@@ -5,7 +5,7 @@ import { PureComponent } from 'react'
 import {
   message
 } from 'antd'
-import { uniq, isEqual, pick } from 'lodash-es'
+import { uniq, pick } from 'lodash-es'
 import copy from 'json-deep-copy'
 import generate from '../../common/uid'
 import {
@@ -20,6 +20,7 @@ import testCon from '../../common/test-connection'
 import FormUi from './ssh-form-ui'
 import findBookmarkGroupId from '../../common/find-bookmark-group-id'
 import newTerm from '../../common/new-terminal'
+import { action } from 'manate'
 
 export default class BookmarkForm extends PureComponent {
   state = {
@@ -95,7 +96,10 @@ export default class BookmarkForm extends PureComponent {
       : currentBookmarkGroupId
   }
 
-  updateBookmarkGroups = (bookmarkGroups, bookmark, categoryId) => {
+  updateBookmarkGroups = action((bookmark, categoryId) => {
+    const {
+      bookmarkGroups
+    } = window.store
     let index = bookmarkGroups.findIndex(
       bg => bg.id === categoryId
     )
@@ -106,50 +110,21 @@ export default class BookmarkForm extends PureComponent {
     }
     const bid = bookmark.id
     const bg = bookmarkGroups[index]
-    const updates = []
-    const old = copy(bg.bookmarkIds)
     if (!bg.bookmarkIds.includes(bid)) {
       bg.bookmarkIds.unshift(bid)
     }
     bg.bookmarkIds = uniq(bg.bookmarkIds)
-    if (!isEqual(bg.bookmarkIds, old)) {
-      updates.push({
-        id: bg.id,
-        db: 'bookmarkGroups',
-        update: {
-          bookmarkIds: bg.bookmarkIds
-        }
-      })
-    }
-    bookmarkGroups = bookmarkGroups.map((bg, i) => {
+    bookmarkGroups.forEach((bg, i) => {
       if (i === index) {
         return bg
       }
-      const olde = copy(bg.bookmarkIds)
       bg.bookmarkIds = bg.bookmarkIds.filter(
         g => g !== bid
       )
-      if (!isEqual(bg.bookmarkIds, olde)) {
-        updates.push({
-          id: bg.id,
-          db: 'bookmarkGroups',
-          update: {
-            bookmarkIds: bg.bookmarkIds
-          }
-        })
-      }
       return bg
     })
-    runIdle(() => {
-      this.props.store.setBookmarkGroups(
-        bookmarkGroups
-      )
-    })
-    runIdle(() => {
-      this.props.store.batchDbUpdate(updates)
-    })
     message.success('OK', 3)
-  }
+  })
 
   submit = (evt, item, type = this.props.type) => {
     if (item.host) {
@@ -162,9 +137,6 @@ export default class BookmarkForm extends PureComponent {
     const { addItem, editItem } = this.props.store
     const categoryId = obj.category
     delete obj.category
-    const bookmarkGroups = copy(
-      this.props.bookmarkGroups
-    )
     if (!obj.id.startsWith(newBookmarkIdPrefix)) {
       const tar = copy(obj)
       delete tar.id
@@ -172,7 +144,6 @@ export default class BookmarkForm extends PureComponent {
         editItem(obj.id, tar, settingMap.bookmarks)
       })
       this.updateBookmarkGroups(
-        bookmarkGroups,
         obj,
         categoryId
       )
@@ -185,7 +156,6 @@ export default class BookmarkForm extends PureComponent {
         addItem(obj, settingMap.bookmarks)
       })
       this.updateBookmarkGroups(
-        bookmarkGroups,
         obj,
         categoryId
       )

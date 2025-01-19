@@ -269,24 +269,6 @@ class Store {
   }
 }
 
-const arrGetterProps = [
-  'addressBookmarks',
-  'addressBookmarksLocal',
-  'bookmarks',
-  'bookmarkGroups',
-  'profiles',
-  'quickCommands',
-  'terminalThemes'
-]
-
-for (const prop of arrGetterProps) {
-  Object.defineProperty(Store.prototype, prop, {
-    get: function () {
-      return JSON.parse(window.store[`_${prop}`] || '[]').filter(d => d)
-    }
-  })
-}
-
 loadDataExtend(Store)
 eventExtend(Store)
 dbUpgradeExtend(Store)

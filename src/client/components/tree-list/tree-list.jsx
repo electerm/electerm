@@ -15,7 +15,7 @@ import {
 } from '../../common/clipboard'
 import createName from '../../common/create-title'
 import InputAutoFocus from '../common/input-auto-focus'
-import { find, uniq, isEqual, filter, pick } from 'lodash-es'
+import { find, uniq, filter, pick } from 'lodash-es'
 import {
   maxBookmarkGroupTitleLength,
   defaultBookmarkGroupId,
@@ -152,9 +152,7 @@ export default class ItemListTree extends Component {
     if (!categoryTitle) {
       return
     }
-    const bookmarkGroups = copy(
-      this.props.bookmarkGroups
-    )
+    const { bookmarkGroups } = window.store
     const obj = find(
       bookmarkGroups,
       bg => bg.id === categoryId
@@ -166,18 +164,6 @@ export default class ItemListTree extends Component {
     this.setState({
       categoryId: ''
     })
-    const { store } = window
-    store.setBookmarkGroups(
-      bookmarkGroups
-    )
-    store.batchDbUpdate([{
-      id: categoryId,
-      db: 'bookmarkGroups',
-      upsert: false,
-      update: {
-        title: categoryTitle
-      }
-    }])
   }
 
   onClick = () => {
@@ -233,19 +219,14 @@ export default class ItemListTree extends Component {
       parentId: ''
     }, () => {
       this.onSubmit = false
-      let bookmarkGroups = copy(
-        this.props.bookmarkGroups
-      )
+      const { bookmarkGroups } = window.store
       const newCat = {
         id: uid(),
         title: this.state.bookmarkGroupTitle,
         level: 2,
         bookmarkIds: []
       }
-      bookmarkGroups = [
-        newCat,
-        ...bookmarkGroups
-      ]
+      bookmarkGroups.unshift(newCat)
       const cat = find(
         bookmarkGroups,
         d => d.id === id
@@ -257,22 +238,6 @@ export default class ItemListTree extends Component {
         ...(cat.bookmarkGroupIds || []),
         newCat.id
       ]
-      const { store } = window
-      store.setBookmarkGroups(
-        bookmarkGroups
-      )
-      store.batchDbAdd([{
-        db: 'bookmarkGroups',
-        obj: newCat
-      }])
-      store.batchDbUpdate([{
-        upsert: false,
-        id,
-        update: {
-          bookmarkGroupIds: cat.bookmarkGroupIds
-        },
-        db: 'bookmarkGroups'
-      }])
     })
   }
 
@@ -604,9 +569,8 @@ export default class ItemListTree extends Component {
         0,
         dragItem
       )
-      return window.store.setState('bookmarkGroups', bookmarkGroups)
+      return
     }
-    const updates = []
     if (isGroupDrag) {
       const parentDrag = pidDragged
         ? bookmarkGroups.find(
@@ -617,14 +581,6 @@ export default class ItemListTree extends Component {
         parentDrag.bookmarkGroupIds = (parentDrag.bookmarkGroupIds || []).filter(
           id => id !== idDragged
         )
-        updates.push({
-          upsert: false,
-          id: parentDrag.id,
-          update: {
-            bookmarkGroupIds: parentDrag.bookmarkGroupIds
-          },
-          db: 'bookmarkGroups'
-        })
       }
       const parentDrop = pidDrop
         ? bookmarkGroups.find(
@@ -651,14 +607,6 @@ export default class ItemListTree extends Component {
         }
         arr.splice(index, 0, idDragged)
       }
-      updates.push({
-        upsert: false,
-        id: parentDrop.id,
-        update: {
-          bookmarkGroupIds: parentDrop.bookmarkGroupIds
-        },
-        db: 'bookmarkGroups'
-      })
     } else {
       const parentDrag = bookmarkGroups.find(
         item => item.id === pidDragged
@@ -669,14 +617,6 @@ export default class ItemListTree extends Component {
       parentDrag.bookmarkIds = (parentDrag.bookmarkIds || []).filter(
         id => id !== idDragged
       )
-      updates.push({
-        upsert: false,
-        id: parentDrag.id,
-        update: {
-          bookmarkIds: parentDrag.bookmarkIds
-        },
-        db: 'bookmarkGroups'
-      })
       const parentDrop = isGroupDrop
         ? bookmarkGroups.find(
           item => item.id === idDrop
@@ -702,14 +642,6 @@ export default class ItemListTree extends Component {
         }
         arr.splice(index, 0, idDragged)
       }
-      updates.push({
-        upsert: false,
-        id: parentDrop.id,
-        update: {
-          bookmarkIds: parentDrop.bookmarkIds
-        },
-        db: 'bookmarkGroups'
-      })
     }
     if (
       isGroupDrag &&
@@ -720,18 +652,8 @@ export default class ItemListTree extends Component {
       if (i >= 0) {
         const item = bookmarkGroups[i]
         item.level = 2
-        updates.push({
-          upsert: false,
-          id: item.id,
-          update: {
-            level: item.level
-          },
-          db: 'bookmarkGroups'
-        })
       }
     }
-    window.store.batchDbUpdate(updates)
-    return window.store.setState('bookmarkGroups', bookmarkGroups)
   }
 
   editCategory = () => {
@@ -757,9 +679,7 @@ export default class ItemListTree extends Component {
   duplicateItem = (e, item) => {
     e.stopPropagation()
     const { addItem } = window.store
-    const bookmarkGroups = copy(
-      this.props.bookmarkGroups
-    )
+    const { bookmarkGroups } = this.props
 
     const newbookmark = copy(item)
     newbookmark.id = uid()
@@ -779,14 +699,16 @@ export default class ItemListTree extends Component {
     addItem(newbookmark, settingMap.bookmarks)
     // update bookmark groups
     this.updateBookmarkGroups(
-      bookmarkGroups,
       newbookmark,
       categoryId
     )
     this.props.onClickItem(newbookmark)
   }
 
-  updateBookmarkGroups = (bookmarkGroups, bookmark, categoryId) => {
+  updateBookmarkGroups = (bookmark, categoryId) => {
+    const {
+      bookmarkGroups
+    } = window.store
     let index = bookmarkGroups.findIndex(
       bg => bg.id === categoryId
     )
@@ -795,48 +717,20 @@ export default class ItemListTree extends Component {
         bg => bg.id === defaultBookmarkGroupId
       )
     }
-    const updates = []
     const bid = bookmark.id
     const bg = bookmarkGroups[index]
-    const old = copy(bg.bookmarkIds)
     if (!bg.bookmarkIds.includes(bid)) {
       bg.bookmarkIds.unshift(bid)
     }
     bg.bookmarkIds = uniq(bg.bookmarkIds)
-    if (!isEqual(old, copy(bg.bookmarkIds))) {
-      updates.push({
-        id: bg.id,
-        db: 'bookmarkGroups',
-        upsert: false,
-        update: {
-          bookmarkIds: bg.bookmarkIds
-        }
-      })
-    }
-    bookmarkGroups = bookmarkGroups.map((bg, i) => {
+    bookmarkGroups.forEach((bg, i) => {
       if (i === index) {
-        return bg
+        return
       }
-      const old = copy(bg.bookmarkIds)
       bg.bookmarkIds = bg.bookmarkIds.filter(
         g => g !== bid
       )
-      if (!isEqual(old, copy(bg.bookmarkIds))) {
-        updates.push({
-          id: bg.id,
-          db: 'bookmarkGroups',
-          upsert: false,
-          update: {
-            bookmarkIds: bg.bookmarkIds
-          }
-        })
-      }
-      return bg
     })
-    window.store.setBookmarkGroups(
-      bookmarkGroups
-    )
-    window.store.batchDbUpdate(updates)
   }
 
   findBookmarkByTitle = (bookmarks, oldBookmark) => {

@@ -13,6 +13,7 @@ import runIdle from '../common/run-idle'
 import { initWsCommon } from '../common/fetch-from-server'
 import safeParse from '../common/parse-json-safe'
 import initWatch from './watch'
+import refs from '../components/common/ref'
 
 function getHost (argv, opts) {
   const arr = argv
@@ -185,11 +186,14 @@ export default (Store) => {
     await Promise.all(all)
       .then(arr => {
         for (const { name, data } of arr) {
-          ext['_' + name] = data || '[]'
+          const dt = JSON.parse(data || '[]')
+          refs.add('oldState-' + name, dt)
+          ext[name] = dt
         }
       })
     ext.lastDataUpdateTime = await getData('lastDataUpdateTime') || 0
     Object.assign(store, ext)
+    await store.fixBookmarkGroups()
 
     store.checkDefaultTheme()
     store.loadFontList()

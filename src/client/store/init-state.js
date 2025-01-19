@@ -51,16 +51,14 @@ export default () => {
     activeTabId: '',
     history: ls.getItemJSON('history', []),
     sshConfigs: [],
-    _bookmarks: '[]',
+    bookmarks: [],
     sidebarPanelTab: 'bookmarks',
-    _profiles: '[]',
-    _bookmarkGroups: JSON.stringify(
-      getDefaultBookmarkGroups([])
-    ),
+    profiles: [],
+    bookmarkGroups: getDefaultBookmarkGroups([]),
     _config: {},
-    _terminalThemes: JSON.stringify([
+    terminalThemes: [
       buildDefaultThemes()
-    ]),
+    ],
     itermThemes: exclude([]),
     currentBookmarkGroupId: defaultBookmarkGroupId,
     expandedKeys: ls.getItemJSON(expandedKeysLsKey, [
@@ -68,8 +66,8 @@ export default () => {
     ]),
     bookmarkSelectMode: false,
     checkedKeys: ls.getItemJSON(checkedKeysLsKey, []),
-    _addressBookmarks: '[]',
-    _addressBookmarksLocal: ls.getItem(localAddrBookmarkLsKey) || '[]',
+    addressBookmarks: [],
+    addressBookmarksLocal: ls.getItemJSON(localAddrBookmarkLsKey, []),
     openResolutionEdit: false,
     resolutions: ls.getItemJSON(resolutionsLsKey, []),
 
@@ -142,7 +140,7 @@ export default () => {
     },
 
     // quick commands
-    _quickCommands: '[]',
+    quickCommands: [],
     quickCommandId: '',
     openQuickCommandBar: false,
     pinnedQuickCommandBar: false,
