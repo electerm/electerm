@@ -4,18 +4,22 @@
 import { Component } from 'react'
 import { osResolve } from '../../common/resolve'
 import {
-  commonActions
-} from '../../common/constants'
-import {
   Switch,
   Space,
   Button
 } from 'antd'
 import ShowItem from '../common/show-item'
 import defaults from '../../common/default-setting'
-import postMsg from '../../common/post-msg'
 import { toggleTerminalLog, toggleTerminalLogTimestamp } from '../terminal/terminal-apis'
-import { ClockCircleOutlined, BorderlessTableOutlined, DatabaseOutlined, BarsOutlined, ApiOutlined, PartitionOutlined } from '@ant-design/icons'
+import {
+  ClockCircleOutlined,
+  BorderlessTableOutlined,
+  DatabaseOutlined,
+  BarsOutlined,
+  ApiOutlined,
+  PartitionOutlined
+} from '@ant-design/icons'
+import refs from '../common/ref'
 
 const e = window.translate
 
@@ -36,11 +40,6 @@ export default class TerminalInfoBase extends Component {
 
   componentDidMount () {
     this.getState()
-    window.addEventListener('message', this.onEvent)
-  }
-
-  componentWillUnmount () {
-    this.exit()
   }
 
   handleToggleTimestamp = () => {
@@ -57,12 +56,9 @@ export default class TerminalInfoBase extends Component {
     this.setState({
       addTimeStampToTermLog: nv
     })
-    postMsg({
-      action: commonActions.setTermLogState,
-      pid,
+    refs.get('term-' + pid)?.setState({
       addTimeStampToTermLog: nv,
-      saveTerminalLogToFile,
-      sessionId
+      saveTerminalLogToFile
     })
   }
 
@@ -90,44 +86,23 @@ export default class TerminalInfoBase extends Component {
     this.setState({
       saveTerminalLogToFile: nv
     })
-    postMsg({
-      action: commonActions.setTermLogState,
-      pid,
+    refs.get('term-' + pid)?.setState({
       saveTerminalLogToFile: nv,
-      addTimeStampToTermLog,
-      sessionId
+      addTimeStampToTermLog
     })
-  }
-
-  onEvent = (e) => {
-    const {
-      action,
-      state,
-      pid: ppid
-    } = e.data || {}
-    if (
-      action === commonActions.returnTermLogState &&
-      this.props.pid === ppid
-    ) {
-      this.setState(state)
-      window.removeEventListener('message', this.onEvent)
-    }
   }
 
   getState = () => {
     const {
-      pid,
-      sessionId
+      pid
     } = this.props
-    postMsg({
-      action: commonActions.getTermLogState,
-      pid,
-      sessionId
-    })
-  }
-
-  exit = () => {
-    window.removeEventListener('message', this.onEvent)
+    const term = refs.get('term-' + pid)
+    if (term) {
+      this.setState({
+        saveTerminalLogToFile: term.state.saveTerminalLogToFile,
+        addTimeStampToTermLog: term.state.addTimeStampToTermLog
+      })
+    }
   }
 
   renderTimestamp () {

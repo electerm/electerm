@@ -23,14 +23,13 @@ import copy from 'json-deep-copy'
 import classnames from 'classnames'
 import {
   paneMap,
-  terminalActions,
   connectionMap,
   terminalRdpType,
   terminalVncType,
   terminalWebType
 } from '../../common/constants'
+import refs from '../common/ref'
 import safeName from '../../common/safe-name'
-import postMessage from '../../common/post-msg'
 import './session.styl'
 
 const e = window.translate
@@ -358,10 +357,7 @@ export default class SessionWrapper extends Component {
   }
 
   handleOpenSearch = () => {
-    postMessage({
-      action: terminalActions.openTerminalSearch,
-      activeTabId: this.props.tab.id
-    })
+    refs.get('term-' + this.props.tab.id)?.toggleSearch()
   }
 
   renderSearchIcon = () => {

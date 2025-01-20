@@ -3,21 +3,18 @@
  */
 
 import postMessage from '../common/post-msg'
+import refs from '../components/common/ref'
 
 export default Store => {
   Store.prototype.focus = function () {
     window.focused = true
-    postMessage({
-      type: 'focus'
-    })
+    refs.get('term-' + window.store.activeTabId)?.term?.focus()
   }
 
   Store.prototype.blur = function () {
     window.focused = false
     window.pre.runSync('windowMove', false)
-    postMessage({
-      type: 'blur'
-    })
+    refs.get('term-' + window.store.activeTabId)?.term?.blur()
   }
 
   Store.prototype.onBlur = function () {

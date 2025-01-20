@@ -229,17 +229,6 @@ const defaultThemeLightConf = _get(
 )
 defaultThemeLightConf.id = defaultThemeLightConf._id
 export const defaultThemeLight = defaultThemeLightConf
-export const terminalActions = {
-  showInfoPanel: 'show-info-panel',
-  changeEncode: 'change-encode',
-  batchInput: 'batch-input',
-  quickCommand: 'quick-command',
-  openTerminalSearch: 'open-terminal-search',
-  doSearchNext: 'do-search-next',
-  doSearchPrev: 'do-search-prev',
-  clearSearch: 'clear-search',
-  zoom: 'zoom-terminal'
-}
 export const fileActions = {
   cancel: 'cancel',
   skip: 'skip',

@@ -5,14 +5,13 @@
 import {
   settingMap,
   qmSortByFrequencyKey,
-  terminalActions,
   isWin
 } from '../common/constants'
 import delay from '../common/wait'
 import generate from '../common/uid'
-import postMessage from '../common/post-msg'
 import * as ls from '../common/safe-local-storage'
 import { debounce } from 'lodash-es'
+import refs from '../components/common/ref'
 
 export default Store => {
   Store.prototype.addQuickCommand = function (
@@ -30,12 +29,7 @@ export default Store => {
   }
 
   Store.prototype.runQuickCommand = function (cmd, inputOnly = false) {
-    postMessage({
-      action: terminalActions.quickCommand,
-      cmd,
-      inputOnly,
-      activeTabId: window.store.activeTabId
-    })
+    refs.get('term-' + window.store.activeTabId)?.runQuickCommand(cmd, inputOnly)
   }
 
   Store.prototype.runQuickCommandItem = debounce(async (id) => {

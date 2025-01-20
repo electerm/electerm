@@ -4,10 +4,10 @@ import {
 } from 'antd'
 import { InfoCircleOutlined } from '@ant-design/icons'
 import './footer.styl'
-import { paneMap, terminalActions, statusMap } from '../../common/constants'
-import postMessage from '../../common/post-msg'
+import { paneMap, statusMap } from '../../common/constants'
 import BatchInput from './batch-input'
 import encodes from '../bookmark-form/encodes'
+import refs from '../common/ref'
 import Qm from '../quick-commands/quick-commands-select'
 
 const {
@@ -22,19 +22,18 @@ export default auto(function FooterEntry (props) {
   }
 
   function batchInput (cmd, selectedTabIds) {
-    postMessage({
-      action: terminalActions.batchInput,
-      selectedTabIds,
-      cmd
+    selectedTabIds.map(id => {
+      return refs.get('term-' + id)
+    }).forEach(term => {
+      term?.batchInput(cmd)
     })
   }
 
   function handleSwitchEncoding (encode) {
-    postMessage({
-      encode,
-      action: terminalActions.changeEncode,
-      activeTabId: props.store.activeTabId
-    })
+    const term = refs.get('term-' + props.store.activeTabId)
+    if (term) {
+      term.switchEncoding(encode)
+    }
   }
 
   function isLoading () {

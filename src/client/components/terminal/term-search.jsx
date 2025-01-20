@@ -8,14 +8,14 @@ import {
   ArrowRightOutlined,
   CloseCircleOutlined
 } from '@ant-design/icons'
-import { paneMap, terminalActions } from '../../common/constants'
-import postMessage from '../../common/post-msg'
+import { paneMap } from '../../common/constants'
 import { MatchCaseIcon } from '../icons/match-case'
 import { MatchWholWordIcon } from '../icons/match-whole-word'
 import { RegularExpIcon } from '../icons/regular-exp'
 import classNames from 'classnames'
 import copy from 'json-deep-copy'
 import { shortcutExtend } from '../shortcuts/shortcut-handler.js'
+import refs from '../common/ref'
 import './term-search.styl'
 
 const e = window.translate
@@ -72,21 +72,19 @@ class TermSearch extends PureComponent {
       termSearch,
       termSearchOptions
     } = this.props
-    postMessage({
-      action: terminalActions.doSearchPrev,
-      keyword: termSearch,
-      activeTabId,
-      options: copy(termSearchOptions)
-    })
+    refs.get('term-' + activeTabId)
+      ?.searchPrev(
+        termSearch,
+        copy(termSearchOptions)
+      )
   }
 
   next = () => {
-    postMessage({
-      action: terminalActions.doSearchNext,
-      activeTabId: this.props.activeTabId,
-      keyword: this.props.termSearch,
-      options: copy(this.props.termSearchOptions)
-    })
+    refs.get('term-' + this.props.activeTabId)
+      ?.searchNext(
+        this.props.termSearch,
+        copy(this.props.termSearchOptions)
+      )
   }
 
   handleChange = e => {
@@ -95,10 +93,8 @@ class TermSearch extends PureComponent {
   }
 
   clearSearch = () => {
-    postMessage({
-      action: terminalActions.clearSearch,
-      activeTabId: this.props.activeTabId
-    })
+    refs.get('term-' + this.props.activeTabId)
+      ?.searchAddon.clearDecorations()
   }
 
   close = () => {

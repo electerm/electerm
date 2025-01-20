@@ -12,10 +12,10 @@ import {
   leftSidebarWidthKey,
   rightSidebarWidthKey,
   dismissDelKeyTipLsKey,
-  connectionMap,
-  terminalActions
+  connectionMap
 } from '../common/constants'
 import * as ls from '../common/safe-local-storage'
+import refs from '../components/common/ref'
 import { action } from 'manate'
 
 const e = window.translate
@@ -58,10 +58,8 @@ export default Store => {
 
   Store.prototype.openInfoPanelAction = action(function () {
     const { store } = window
-    postMessage({
-      action: terminalActions.showInfoPanel,
-      activeTabId: store.activeTabId
-    })
+    const term = refs.get('term-' + store.activeTabId)
+    term && term.handleShowInfo()
   })
 
   Store.prototype.toggleAIConfig = function () {
@@ -282,10 +280,8 @@ export default Store => {
   }
 
   Store.prototype.runCommandInTerminal = function (cmd) {
-    postMessage({
-      action: terminalActions.quickCommand,
-      cmd,
-      selectedTabIds: window.store.batchInputSelectedTabIds
+    window.store.batchInputSelectedTabIds.forEach(id => {
+      refs.get('term-' + id)?.runQuickCommand(cmd)
     })
   }
 

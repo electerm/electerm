@@ -2,7 +2,6 @@ import { Component } from 'react'
 import { handleErr } from '../../common/fetch'
 import generate from '../../common/uid'
 import { isEqual, pick, debounce, throttle } from 'lodash-es'
-import postMessage from '../../common/post-msg'
 import clone from '../../common/to-simple-obj'
 // import runIdle from '../../common/run-idle'
 import {
@@ -21,7 +20,6 @@ import {
   typeMap,
   isWin,
   transferTypeMap,
-  terminalActions,
   commonActions,
   rendererTypes,
   cwdId,
@@ -50,6 +48,7 @@ import { getLocalFileInfo } from '../sftp/file-read.js'
 import { CommandTrackerAddon } from './command-tracker-addon.js'
 import { formatBytes } from '../../common/byte-format.js'
 import * as fs from './fs.js'
+import refs from '../common/ref'
 
 const e = window.translate
 
@@ -73,6 +72,8 @@ class Term extends Component {
   }
 
   componentDidMount () {
+    this.id = `term-${this.props.tab.id}`
+    refs.add(this.id, this)
     this.initTerminal()
     this.initEvt()
     if (this.props.tab.enableSsh === false) {
@@ -155,6 +156,7 @@ clear\r`
   }
 
   componentWillUnmount () {
+    refs.remove(this.id)
     if (this.zsession) {
       this.onZmodemEnd()
     }
@@ -177,7 +179,6 @@ clear\r`
       'resize',
       this.onResize
     )
-    window.removeEventListener('message', this.handleEvent)
     this.dom.removeEventListener('contextmenu', this.onContextMenu)
     window.removeEventListener('message', this.onContextAction)
     this.dom = null
@@ -257,7 +258,6 @@ clear\r`
       'resize',
       this.onResize
     )
-    window.addEventListener('message', this.handleEvent)
   }
 
   zoom = (v) => {
@@ -321,120 +321,12 @@ clear\r`
     this.openNormalBuffer()
   }
 
-  handleEvent = (e) => {
-    const {
-      keyword,
-      options,
-      action,
-      encode,
-      saveTerminalLogToFile,
-      addTimeStampToTermLog,
-      type,
-      cmd,
-      selectedTabIds = [],
-      activeTabId,
-      pid,
-      inputOnly,
-      zoomValue
-    } = e?.data || {}
-
-    const { id: activeTabIdProp } = this.props.tab
-    const tabIdMatch = selectedTabIds.includes(activeTabIdProp) || activeTabId === activeTabIdProp
-    if (
-      action === terminalActions.zoom &&
-      tabIdMatch
-    ) {
-      this.zoom(zoomValue)
-    } else if (
-      action === terminalActions.changeEncode &&
-      tabIdMatch
-    ) {
-      this.switchEncoding(encode)
-    } else if (
-      action === terminalActions.batchInput && tabIdMatch
-    ) {
-      this.batchInput(cmd)
-    } else if (
-      action === terminalActions.showInfoPanel &&
-      tabIdMatch
-    ) {
-      this.handleShowInfo()
-    } else if (
-      action === terminalActions.quickCommand &&
-      (
-        tabIdMatch
-      )
-    ) {
-      e.stopPropagation()
-      this.term && this.attachAddon._sendData(
-        cmd +
-        (inputOnly ? '' : '\r')
-      )
-      this.term.focus()
-    } else if (
-      action === terminalActions.openTerminalSearch &&
-      (
-        tabIdMatch
-      )
-    ) {
-      this.toggleSearch()
-    } else if (
-      action === terminalActions.doSearchNext &&
-      (
-        tabIdMatch
-      )
-    ) {
-      this.searchNext(keyword, options)
-    } else if (
-      action === terminalActions.doSearchPrev &&
-      (
-        tabIdMatch
-      )
-    ) {
-      this.searchPrev(keyword, options)
-    } else if (
-      action === terminalActions.clearSearch &&
-      (
-        tabIdMatch
-      )
-    ) {
-      this.searchAddon.clearDecorations()
-    } else if (
-      action === commonActions.getTermLogState &&
-      pid === activeTabIdProp
-    ) {
-      postMessage({
-        action: commonActions.returnTermLogState,
-        state: {
-          saveTerminalLogToFile: this.state.saveTerminalLogToFile,
-          addTimeStampToTermLog: this.state.addTimeStampToTermLog
-        },
-        pid: activeTabIdProp
-      })
-    } else if (
-      action === commonActions.setTermLogState &&
-      pid === activeTabIdProp
-    ) {
-      this.setState({
-        addTimeStampToTermLog,
-        saveTerminalLogToFile
-      })
-    }
-    const isActiveTerminal = this.isActiveTerminal()
-    if (
-      type === 'focus' &&
-      isActiveTerminal
-    ) {
-      e.stopPropagation()
-      return this.term && this.term.focus()
-    }
-    if (
-      type === 'blur' &&
-      isActiveTerminal
-    ) {
-      e.stopPropagation()
-      return this.term && this.term.blur()
-    }
+  runQuickCommand = (cmd, inputOnly = false) => {
+    this.term && this.attachAddon._sendData(
+      cmd +
+      (inputOnly ? '' : '\r')
+    )
+    this.term.focus()
   }
 
   onDrop = e => {
