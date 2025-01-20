@@ -227,7 +227,6 @@ export default function ThemeForm (props) {
     themeName,
     themeText: convertThemeToText(props.formData)
   }
-  const { autofocustrigger } = props.store
   const isDefaultTheme = id === defaultTheme.id || id === defaultThemeLight.id
   const disabled = readonly || isDefaultTheme
   const switchTxt = editor === 'theme-editor-txt' ? e('editWithColorPicker') : e('editWithTextEditor')
@@ -259,7 +258,6 @@ export default function ThemeForm (props) {
         <InputAutoFocus
           selectall='yes'
           disabled={disabled}
-          autofocustrigger={autofocustrigger}
         />
       </FormItem>
       <FormItem

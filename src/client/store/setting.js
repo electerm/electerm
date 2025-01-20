@@ -37,8 +37,7 @@ export default Store => {
   Store.prototype.openBookmarkEdit = function (item) {
     const { store } = window
     store.storeAssign({
-      settingTab: settingMap.bookmarks,
-      autofocustrigger: Date.now()
+      settingTab: settingMap.bookmarks
     })
     store.setSettingItem(item)
     store.openSettingModal()
@@ -47,8 +46,7 @@ export default Store => {
   Store.prototype.handleOpenQuickCommandsSetting = function () {
     const { store } = window
     store.storeAssign({
-      settingTab: settingMap.quickCommands,
-      autofocustrigger: Date.now()
+      settingTab: settingMap.quickCommands
     })
     store.setSettingItem(getInitItem([], settingMap.quickCommands))
     store.openSettingModal()
@@ -125,8 +123,7 @@ export default Store => {
       return store.hideSettingModal()
     }
     store.storeAssign({
-      settingTab: settingMap.terminalThemes,
-      autofocustrigger: Date.now()
+      settingTab: settingMap.terminalThemes
     })
     store.setSettingItem(buildNewTheme())
     store.openSettingModal()
@@ -162,7 +159,6 @@ export default Store => {
     const arr = store.getItems(settingTab)
     const item = getInitItem(arr, settingTab)
     store.storeAssign({
-      autofocustrigger: Date.now(),
       settingTab
     })
     store.setSettingItem(item)

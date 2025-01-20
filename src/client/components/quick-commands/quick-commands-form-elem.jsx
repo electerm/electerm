@@ -25,7 +25,7 @@ const shortcutsDefaults = shortcutsDefaultsGen()
 export default function QuickCommandForm (props) {
   const [form] = Form.useForm()
   const { store, formData } = props
-  const { autofocustrigger, quickCommandTags = [] } = store
+  const { quickCommandTags = [] } = store
   const [shortcut, setShortcut] = useState(formData.shortcut || '')
   const uid = formData.id || generate()
   const updateConfig = (name, value) => {
@@ -150,7 +150,6 @@ export default function QuickCommandForm (props) {
       >
         <InputAutoFocus
           selectall='yes'
-          autofocustrigger={autofocustrigger}
         />
       </FormItem>
       {renderQm()}

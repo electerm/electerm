@@ -26,7 +26,6 @@ export default function SyncSettingEntry (props) {
     const syncProps = {
       ...syncSetting,
       ...pick(props, [
-        'autofocustrigger',
         'isSyncingSetting',
         'isSyncDownload',
         'isSyncUpload',

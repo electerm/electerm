@@ -115,7 +115,6 @@ export default () => {
     _setting: '',
     settingItem: initSettingItem([], settingMap.bookmarks),
     settingTab: settingMap.bookmarks, // setting tab
-    autofocustrigger: Date.now(),
     bookmarkId: undefined,
     showModal: 0,
 

@@ -62,7 +62,6 @@ export default auto(function SettingModalWrap (props) {
       bookmarks,
       ...pick(store, [
         'currentBookmarkGroupId',
-        'autofocustrigger',
         'config',
         'checkedKeys',
         'expandedKeys',

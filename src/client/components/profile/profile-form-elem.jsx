@@ -18,7 +18,7 @@ const e = window.translate
 export default function ProfileFormElem (props) {
   const [form] = Form.useForm()
   const [activeTab, setActiveTab] = useState('ssh')
-  const { autofocustrigger, profiles } = props.store
+  const { profiles } = props.store
   function genId () {
     let count = profiles.length ? profiles.length : ''
     let id = 'PROFILE' + count
@@ -73,7 +73,6 @@ export default function ProfileFormElem (props) {
       >
         <InputAutoFocus
           selectall='yes'
-          autofocustrigger={autofocustrigger}
         />
       </FormItem>
       <ProfileTabs {...tabsProps} />

@@ -32,7 +32,6 @@ const e = window.translate
 
 export default function renderCommon (props) {
   const {
-    autofocustrigger,
     bookmarkGroups = [],
     ips,
     form,
@@ -85,7 +84,6 @@ export default function renderCommon (props) {
         }
         <FormItem noStyle name='host'>
           <InputAutoFocus
-            autofocustrigger={autofocustrigger}
             selectall='yes'
             name='host'
             onBlur={props.onBlur}

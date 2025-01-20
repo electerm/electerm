@@ -55,8 +55,7 @@ export default Store => {
   Store.prototype.onNewSsh = function () {
     const { store } = window
     store.storeAssign({
-      settingTab: settingMap.bookmarks,
-      autofocustrigger: Date.now()
+      settingTab: settingMap.bookmarks
     })
     store.setSettingItem(getInitItem([], settingMap.bookmarks))
     store.openSettingModal()

@@ -11,7 +11,6 @@ const e = window.translate
 const FormItem = Form.Item
 
 export default function TermInteractive () {
-  const [trigger] = useState(0)
   const [opts, setter] = useState(null)
   const [form] = Form.useForm()
   function updateTab (data) {
@@ -84,7 +83,6 @@ export default function TermInteractive () {
         <FormItem noStyle name={'item' + i}>
           <InputAutoFocus
             type={type}
-            autofocustrigger={trigger}
             placeholder={note}
           />
         </FormItem>

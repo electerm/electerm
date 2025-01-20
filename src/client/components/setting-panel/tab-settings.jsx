@@ -30,7 +30,6 @@ export default auto(function TabSettings (props) {
   if (sid === settingSyncId) {
     const syncProps = pick(store, [
       'config',
-      'autofocustrigger',
       'isSyncingSetting',
       'isSyncDownload',
       'isSyncUpload',
