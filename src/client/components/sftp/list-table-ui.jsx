@@ -6,7 +6,7 @@
  * - click header to sort
  */
 
-import { PureComponent } from 'react'
+import { Component } from 'react'
 import classnames from 'classnames'
 import { isEqual, pick, find, isNull, isArray, isUndefined } from 'lodash-es'
 import generate from '../../common/uid'
@@ -31,7 +31,7 @@ import IconHolder from '../context-menu/icon-holder'
 
 const e = window.translate
 
-export default class FileListTable extends PureComponent {
+export default class FileListTable extends Component {
   constructor (props) {
     super(props)
     this.state = {
