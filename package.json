@@ -92,7 +92,7 @@
     "shelljs": "0.8.5",
     "standard": "^17.1.0",
     "trzsz": "^1.1.3",
-    "vite": "6.0.1",
+    "vite": "6.0.11",
     "vite-plugin-commonjs": "0.10.4",
     "vscode-icons": "vscode-icons/vscode-icons",
     "vscode-icons-js": "11.6.1",
