@@ -35,6 +35,11 @@ import time from '../../common/time'
 import { filesize } from 'filesize'
 import { createTransferProps } from './transfer-common'
 import generate from '../../common/uid'
+import refs from '../common/ref'
+import iconsMap from '../context-menu/icons-map'
+import {
+  Dropdown
+} from 'antd'
 
 const e = window.translate
 
@@ -57,7 +62,8 @@ export default class FileSection extends React.Component {
       file: copy(props.file),
       overwriteStrategy: ''
     }
-    this.id = 'FileSection-' + (props.file?.id || generate())
+    this.id = 'file-' + (props.file?.id || generate())
+    refs.add(this.id, this)
   }
 
   componentDidMount () {
@@ -75,6 +81,7 @@ export default class FileSection extends React.Component {
   }
 
   componentWillUnmount () {
+    refs.remove(this.id)
     clearTimeout(this.timer)
     this.timer = null
     this.dom = null
@@ -925,6 +932,28 @@ export default class FileSection extends React.Component {
     return !isWin
   }
 
+  renderContextMenu = () => {
+    return this.renderContextItems()
+      .map(r => {
+        const {
+          func,
+          text,
+          disabled,
+          icon,
+          subText,
+          requireConfirm
+        } = r
+        return {
+          key: func,
+          label: text,
+          disabled,
+          icon: iconsMap[icon],
+          extra: subText,
+          danger: requireConfirm
+        }
+      })
+  }
+
   renderContextItems () {
     const {
       file: {
@@ -1114,7 +1143,8 @@ export default class FileSection extends React.Component {
     this[func](...args)
   }
 
-  onContextMenu = e => {
+  onContextMenu = (...args) => {
+    console.log('onContextMenu', args)
     e.preventDefault()
     const { file } = this.state
     const selected = this.isSelected(file)
@@ -1222,7 +1252,6 @@ export default class FileSection extends React.Component {
       draggable,
       onDoubleClick: this.transferOrEnterDirectory,
       ...pick(this, [
-        'onContextMenu',
         'onClick',
         'onDrag',
         'onDragEnter',
@@ -1234,21 +1263,30 @@ export default class FileSection extends React.Component {
       ]),
       onDragStart: onDragStart || this.onDragStart
     }
+    const ddProps = {
+      menu: {
+        items: this.renderContextItems()
+      },
+      onClick: this.onContextMenu,
+      trigger: ['contextMenu']
+    }
     return (
-      <div
-        {...props}
-        data-id={id}
-        id={this.id}
-        data-type={type}
-        title={file.name}
-      >
-        <div className='file-bg' />
-        <div className='file-props'>
-          {
-            properties.map(this.renderProp)
-          }
+      <Dropdown {...ddProps}>
+        <div
+          {...props}
+          data-id={id}
+          id={this.id}
+          data-type={type}
+          title={file.name}
+        >
+          <div className='file-bg' />
+          <div className='file-props'>
+            {
+              properties.map(this.renderProp)
+            }
+          </div>
         </div>
-      </div>
+      </Dropdown>
     )
   }
 }
