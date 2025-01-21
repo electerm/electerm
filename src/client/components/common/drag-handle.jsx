@@ -1,10 +1,14 @@
-import { useCallback, useRef, useState, memo } from 'react'
+import { memo } from 'react'
+import {
+  Splitter
+} from 'antd'
 import './drag-handle.styl'
 
+const {
+  Panel
+} = Splitter
+
 export default memo(function DragHandle (props) {
-  const [isDragging, setIsDragging] = useState(false)
-  const dragStartRef = useRef(false)
-  const clientXRef = useRef(0)
   const {
     max,
     min,
@@ -12,49 +16,60 @@ export default memo(function DragHandle (props) {
     left = true
   } = props
 
-  const calc = useCallback((clientX) => {
-    let nw = left
-      ? clientX - clientXRef.current + width
-      : clientXRef.current - clientX + width
-    if (nw < min) {
-      nw = min
-    } else if (nw > max) {
-      nw = max
-    }
-    return nw
-  }, [props.max, props.min, props.left])
-
-  const handleMousedown = useCallback((e) => {
-    e.stopPropagation()
-    setIsDragging(true)
-    dragStartRef.current = true
-    clientXRef.current = e.clientX
-    window.addEventListener('mouseup', handleMouseup)
-    window.addEventListener('mousemove', handleMousemove)
-  }, [])
-
-  const handleMouseup = useCallback((e) => {
-    setIsDragging(false)
-    dragStartRef.current = false
-    const nw = calc(e.clientX)
-    props.onDragEnd(nw)
-    window.store.onResize()
-    window.removeEventListener('mouseup', handleMouseup)
-    window.removeEventListener('mousemove', handleMousemove)
-  }, [])
-
-  const handleMousemove = useCallback((e) => {
-    const nw = calc(e.clientX)
-    props.onDragMove(nw)
-  }, [width])
   const divProps = {
-    className: 'drag-handle' + (isDragging ? ' dragging' : ''),
-    onMouseDown: handleMousedown,
-    draggable: false
+    className: 'drag-handle'
   }
+  const w = max * 2
+  function newSize (sizes) {
+    return left ? sizes[0] : sizes[1]
+  }
+  function onResizeEnd (sizes) {
+    props.onDragEnd(newSize(sizes))
+  }
+  function onResize (sizes) {
+    props.onDragEnd(newSize(sizes))
+  }
+
+  const l = left ? -width : -(w - width)
+  const r = left ? w - width : width
+  const splitProps = {
+    // lazy: true,
+    onResizeEnd,
+    onResize,
+    style: {
+      width: w + 'px',
+      position: 'absolute',
+      left: l + 'px',
+      right: r + 'px',
+      top: 0,
+      bottom: 0
+    }
+  }
+  const panelPropsL = {
+    min,
+    max,
+    size: width
+  }
+  const panelPropsR = {
+    min: max,
+    max: w - min,
+    size: w - width
+  }
+  const panelPropsLeft = left
+    ? panelPropsL
+    : panelPropsR
   return (
     <div
       {...divProps}
-    />
+    >
+      <Splitter
+        {...splitProps}
+      >
+        <Panel
+          {...panelPropsLeft}
+        />
+        <Panel />
+      </Splitter>
+    </div>
   )
 })
