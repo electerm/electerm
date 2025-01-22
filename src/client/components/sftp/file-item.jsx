@@ -38,8 +38,7 @@ import generate from '../../common/uid'
 import refs from '../common/ref'
 import iconsMap from '../context-menu/icons-map'
 import {
-  Dropdown,
-  Modal
+  Dropdown
 } from 'antd'
 
 const e = window.translate
@@ -862,15 +861,25 @@ export default class FileSection extends React.Component {
     this.props.onGoto(this.props.file.type)
   }
 
-  del = async (delSelected) => {
+  shouldShowSelectedMenu = () => {
+    const {
+      file: {
+        id
+      },
+      selectedFiles
+    } = this.props
+    return id &&
+      selectedFiles.length > 1 &&
+      some(selectedFiles, d => d.id === id)
+  }
+
+  del = async () => {
+    const delSelected = this.shouldShowSelectedMenu()
     const { file, selectedFiles } = this.props
     const { type } = file
     const files = delSelected
       ? selectedFiles
       : [file]
-    postMessage({
-      type: commonActions.closeContextMenu
-    })
     await this.props.delFiles(type, files)
   }
 
@@ -1039,10 +1048,7 @@ export default class FileSection extends React.Component {
         func: 'del',
         icon: 'CloseCircleOutlined',
         text: delTxt,
-        noAutoClose: true,
-        requireConfirm: true,
-        confirmTitle: this.renderDelConfirmTitle(shouldShowSelectedMenu),
-        args: [shouldShowSelectedMenu]
+        requireConfirm: true
       })
       res.push({
         func: 'onCopy',
