@@ -1,9 +1,5 @@
 /**
  * file list table
- * features:
- * - drag to resize table
- * - context menu to set props to show
- * - click header to sort
  */
 
 import { Component } from 'react'
@@ -27,6 +23,9 @@ import {
   UpOutlined,
   CheckOutlined
 } from '@ant-design/icons'
+import {
+  Dropdown
+} from 'antd'
 import IconHolder from '../context-menu/icon-holder'
 
 const e = window.translate
@@ -34,14 +33,7 @@ const e = window.translate
 export default class FileListTable extends Component {
   constructor (props) {
     super(props)
-    this.state = {
-      ...this.initFromProps(),
-      showContextMenu: false,
-      contextMenuPos: {
-        left: 0,
-        top: 0
-      }
-    }
+    this.state = this.initFromProps()
   }
 
   componentDidMount () {
@@ -69,34 +61,6 @@ export default class FileListTable extends Component {
 
   componentWillUnmount () {
     window.removeEventListener('message', this.onMsg)
-  }
-
-  setOnCloseEvent = () => {
-    const dom = document
-      .querySelector('.ant-drawer')
-    if (dom) {
-      dom.addEventListener('click', this.onTriggerClose)
-    }
-    document
-      .getElementById('outside-context')
-      .addEventListener('click', this.onTriggerClose)
-  }
-
-  onTriggerClose = (e) => {
-    if (e.target.closest('.context-menu')) {
-      return null
-    }
-    this.setState({
-      showContextMenu: false
-    })
-    const dom = document
-      .querySelector('.ant-drawer')
-    if (dom) {
-      dom.removeEventListener('click', this.onTriggerClose)
-    }
-    document
-      .getElementById('outside-context')
-      .removeEventListener('click', this.onTriggerClose)
   }
 
   toVisible = (prevProps, props) => {
@@ -198,15 +162,23 @@ export default class FileListTable extends Component {
         splitHandles[i]
       ]
     }, []).filter(d => d)
+    const dropdownProps = {
+      menu: {
+        items: this.renderContextMenu(),
+        onClick: this.onContextMenu
+      },
+      trigger: ['contextMenu']
+    }
     return (
-      <div
-        className='sftp-file-table-header relative'
-        onContextMenu={this.handleContextMenu}
-      >
-        {
-          arr.map(this.renderHeaderItem)
-        }
-      </div>
+      <Dropdown {...dropdownProps}>
+        <div
+          className='sftp-file-table-header relative'
+        >
+          {
+            arr.map(this.renderHeaderItem)
+          }
+        </div>
+      </Dropdown>
     )
   }
 
@@ -281,18 +253,6 @@ export default class FileListTable extends Component {
     this.setState(update)
   }
 
-  handleContextMenu = e => {
-    e && e.preventDefault()
-    const pos = e
-      ? this.computePos(e)
-      : this.pos
-    this.setState({
-      contextMenuPos: pos,
-      showContextMenu: true
-    })
-    this.setOnCloseEvent()
-  }
-
   onClickName = (e) => {
     const id = e.target.getAttribute('id')
     const { properties } = this.state
@@ -322,31 +282,20 @@ export default class FileListTable extends Component {
     })
   }
 
-  renderContext = () => {
+  renderContextMenu = () => {
     const { properties } = this.state
     const all = this.getPropsAll()
     const selectedNames = properties.map(d => d.name)
     return all.map((p, i) => {
       const selected = selectedNames.includes(p)
       const disabled = !i
-      const cls = classnames(
-        'context-item',
-        { selected },
-        { unselected: !selected }
-      )
       const icon = disabled || selected ? <CheckOutlined /> : <IconHolder />
-      const obj = {
-        className: cls,
-        onClick: () => this.onToggleProp(p)
+      return {
+        key: p,
+        label: e(p),
+        disabled,
+        icon
       }
-      return (
-        <div
-          {...obj}
-          key={p}
-        >
-          {icon} {e(p)}
-        </div>
-      )
     })
   }
 
@@ -536,38 +485,8 @@ export default class FileListTable extends Component {
     )
   }
 
-  renderContextMenu = () => {
-    const {
-      showContextMenu
-    } = this.state
-    if (!showContextMenu) {
-      return null
-    }
-    const {
-      left,
-      top
-    } = this.state.contextMenuPos
-    const outerProps = {
-      className: 'context-menu file-header-context-menu',
-      style: {
-        left: left + 'px',
-        top: top + 'px'
-      }
-    }
-    const innerProps = {
-      className: 'context-menu-inner'
-    }
-    return (
-      <div
-        {...outerProps}
-      >
-        <div
-          {...innerProps}
-        >
-          {this.renderContext()}
-        </div>
-      </div>
-    )
+  onContextMenu = ({ key }) => {
+    this.onToggleProp(key)
   }
 
   render () {
@@ -587,10 +506,10 @@ export default class FileListTable extends Component {
         'sftp-has-pager': hasPager
       }
     )
+
     return (
       <div className={cls}>
         {this.renderTableHeader()}
-        {this.renderContextMenu()}
         <div
           {...props}
         >
