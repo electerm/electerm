@@ -10,7 +10,8 @@ import {
 import {
   notification,
   Spin,
-  Button
+  Button,
+  Dropdown
 } from 'antd'
 import classnames from 'classnames'
 import './terminal.styl'
@@ -20,7 +21,6 @@ import {
   typeMap,
   isWin,
   transferTypeMap,
-  commonActions,
   rendererTypes,
   cwdId,
   isMac,
@@ -48,22 +48,17 @@ import { getLocalFileInfo } from '../sftp/file-read.js'
 import { CommandTrackerAddon } from './command-tracker-addon.js'
 import { formatBytes } from '../../common/byte-format.js'
 import * as fs from './fs.js'
+import iconsMap from '../context-menu/icons-map.jsx'
 import refs from '../common/ref.js'
 
 const e = window.translate
-
-const computePos = (e) => {
-  return {
-    left: e.clientX,
-    top: e.clientY
-  }
-}
 
 class Term extends Component {
   constructor (props) {
     super(props)
     this.state = {
       loading: false,
+      hasSelection: false,
       saveTerminalLogToFile: !!this.props.config.saveTerminalLogToFile,
       addTimeStampToTermLog: !!this.props.config.addTimeStampToTermLog,
       passType: 'password',
@@ -179,8 +174,6 @@ clear\r`
       'resize',
       this.onResize
     )
-    this.dom.removeEventListener('contextmenu', this.onContextMenu)
-    window.removeEventListener('message', this.onContextAction)
     this.dom = null
     this.attachAddon = null
     this.fitAddon = null
@@ -253,7 +246,6 @@ clear\r`
   initEvt = () => {
     const dom = document.getElementById(this.getDomId())
     this.dom = dom
-    dom.addEventListener('contextmenu', this.onContextMenu)
   }
 
   zoom = (v) => {
@@ -648,29 +640,7 @@ clear\r`
     }
   }
 
-  onContextAction = e => {
-    const {
-      action,
-      id,
-      args = [],
-      func
-    } = e.data || {}
-    if (action === commonActions.closeContextMenuAfter) {
-      window.removeEventListener('message', this.onContextAction)
-      return false
-    }
-    if (
-      action !== commonActions.clickContextMenu ||
-      id !== this.uid ||
-      !this[func]
-    ) {
-      return false
-    }
-    window.removeEventListener('message', this.onContextAction)
-    this[func](...args)
-  }
-
-  onContextMenu = e => {
+  onContextMenuInner = e => {
     e.preventDefault()
     if (this.state.loading) {
       return
@@ -678,14 +648,6 @@ clear\r`
     if (this.props.config.pasteWhenContextMenu) {
       return this.onPaste()
     }
-    const items = this.renderContext()
-    this.uid = generate()
-    window.store.openContextMenu({
-      id: this.uid,
-      items,
-      pos: computePos(e)
-    })
-    window.addEventListener('message', this.onContextAction)
   }
 
   onCopy = () => {
@@ -746,54 +708,52 @@ clear\r`
     )
   }
 
-  renderContext = () => {
-    const hasSlected = this.term.hasSelection()
+  renderContextMenu = () => {
+    const { hasSelection } = this.state
     const copyed = true
     const copyShortcut = this.getShortcut('terminal_copy')
     const pasteShortcut = this.getShortcut('terminal_paste')
     const clearShortcut = this.getShortcut('terminal_clear')
-    // const selectAllShortcut = this.getShortcut('terminal_selectAll')
     const searchShortcut = this.getShortcut('terminal_search')
+
     return [
       {
-        func: 'onCopy',
-        icon: 'CopyOutlined',
-        text: e('copy'),
-        disabled: !hasSlected,
-        subText: copyShortcut
+        key: 'onCopy',
+        icon: <iconsMap.CopyOutlined />,
+        label: e('copy'),
+        disabled: !hasSelection,
+        extra: copyShortcut
       },
       {
-        func: 'onPaste',
-        icon: 'SwitcherOutlined',
-        text: e('paste'),
+        key: 'onPaste',
+        icon: <iconsMap.SwitcherOutlined />,
+        label: e('paste'),
         disabled: !copyed,
-        subText: pasteShortcut
+        extra: pasteShortcut
       },
       {
-        func: 'onPasteSelected',
-        icon: 'SwitcherOutlined',
-        text: e('pasteSelected'),
-        disabled: !hasSlected
+        key: 'onPasteSelected',
+        icon: <iconsMap.SwitcherOutlined />,
+        label: e('pasteSelected'),
+        disabled: !hasSelection
       },
       {
-        func: 'onClear',
-        icon: 'ReloadOutlined',
-        text: e('clear'),
-        subText: clearShortcut
+        key: 'onClear',
+        icon: <iconsMap.ReloadOutlined />,
+        label: e('clear'),
+        extra: clearShortcut
       },
-      // {
-      //   func: 'onSelectAll',
-      //   icon: 'SelectOutlined',
-      //   text: e('selectAll'),
-      //   subText: selectAllShortcut
-      // },
       {
-        func: 'toggleSearch',
-        icon: 'SearchOutlined',
-        text: e('search'),
-        subText: searchShortcut
+        key: 'toggleSearch',
+        icon: <iconsMap.SearchOutlined />,
+        label: e('search'),
+        extra: searchShortcut
       }
     ]
+  }
+
+  onContextMenu = ({ key }) => {
+    this[key]()
   }
 
   notifyOnData = debounce(() => {
@@ -922,8 +882,15 @@ clear\r`
     term.loadAddon(this.cmdAddon)
     term.onData(this.onData)
     this.term = term
+    term.onSelectionChange(this.onSelectionChange)
     term.attachCustomKeyEventHandler(this.handleKeyboardEvent.bind(this))
     await this.remoteInit(term)
+  }
+
+  onSelectionChange = () => {
+    this.setState({
+      hasSelection: this.term.hasSelection()
+    })
   }
 
   setActive = () => {
@@ -1243,7 +1210,8 @@ clear\r`
         top,
         zIndex: 10
       },
-      onDrop: this.onDrop
+      onDrop: this.onDrop,
+      onContextMenu: this.onContextMenuInner
     }
     // const fileProps = {
     //   type: 'file',
@@ -1261,19 +1229,28 @@ clear\r`
         bottom: 0
       }
     }
+    const dropdownProps = {
+      menu: {
+        items: this.renderContextMenu(),
+        onClick: this.onContextMenu
+      },
+      trigger: ['contextMenu']
+    }
     return (
-      <div
-        {...prps1}
-      >
+      <Dropdown {...dropdownProps}>
         <div
-          {...prps3}
-        />
-        <NormalBuffer
-          lines={this.state.lines}
-          close={this.closeNormalBuffer}
-        />
-        <Spin className='loading-wrapper' spinning={loading} />
-      </div>
+          {...prps1}
+        >
+          <div
+            {...prps3}
+          />
+          <NormalBuffer
+            lines={this.state.lines}
+            close={this.closeNormalBuffer}
+          />
+          <Spin className='loading-wrapper' spinning={loading} />
+        </div>
+      </Dropdown>
     )
   }
 }
