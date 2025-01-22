@@ -1,8 +1,8 @@
 import { Component } from 'react'
-import { handleErr } from '../../common/fetch'
-import generate from '../../common/uid'
+import { handleErr } from '../../common/fetch.jsx'
+import generate from '../../common/uid.js'
 import { isEqual, pick, debounce, throttle } from 'lodash-es'
-import clone from '../../common/to-simple-obj'
+import clone from '../../common/to-simple-obj.js'
 // import runIdle from '../../common/run-idle'
 import {
   ReloadOutlined
@@ -25,30 +25,30 @@ import {
   cwdId,
   isMac,
   zmodemTransferPackSize
-} from '../../common/constants'
+} from '../../common/constants.js'
 import deepCopy from 'json-deep-copy'
-import { readClipboardAsync, copy } from '../../common/clipboard'
+import { readClipboardAsync, copy } from '../../common/clipboard.js'
 import { FitAddon } from '@xterm/addon-fit'
-import AttachAddon from './attach-addon-custom'
+import AttachAddon from './attach-addon-custom.js'
 import { SearchAddon } from '@xterm/addon-search'
 import { WebLinksAddon } from '@xterm/addon-web-links'
 import { CanvasAddon } from '@xterm/addon-canvas'
 import { WebglAddon } from '@xterm/addon-webgl'
 import { LigaturesAddon } from '@xterm/addon-ligatures'
-import getProxy from '../../common/get-proxy'
-import { AddonZmodem } from './xterm-zmodem'
+import getProxy from '../../common/get-proxy.js'
+import { AddonZmodem } from './xterm-zmodem.js'
 import { Unicode11Addon } from '@xterm/addon-unicode11'
-import keyControlPressed from '../../common/key-control-pressed'
+import keyControlPressed from '../../common/key-control-pressed.js'
 import { Terminal } from '@xterm/xterm'
-import NormalBuffer from './normal-buffer'
-import { createTerm, resizeTerm } from './terminal-apis'
+import NormalBuffer from './normal-buffer.jsx'
+import { createTerm, resizeTerm } from './terminal-apis.js'
 import { shortcutExtend, shortcutDescExtend } from '../shortcuts/shortcut-handler.js'
 import { KeywordHighlighterAddon } from './highlight-addon.js'
 import { getLocalFileInfo } from '../sftp/file-read.js'
 import { CommandTrackerAddon } from './command-tracker-addon.js'
 import { formatBytes } from '../../common/byte-format.js'
 import * as fs from './fs.js'
-import refs from '../common/ref'
+import refs from '../common/ref.js'
 
 const e = window.translate
 
@@ -254,10 +254,6 @@ clear\r`
     const dom = document.getElementById(this.getDomId())
     this.dom = dom
     dom.addEventListener('contextmenu', this.onContextMenu)
-    window.addEventListener(
-      'resize',
-      this.onResize
-    )
   }
 
   zoom = (v) => {

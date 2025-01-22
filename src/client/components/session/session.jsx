@@ -2,7 +2,7 @@
  * terminal/sftp wrapper
  */
 import { Component } from 'react'
-import Term from '../terminal'
+import Term from '../terminal/terminal.jsx'
 import Sftp from '../sftp/sftp-entry'
 import RdpSession from '../rdp/rdp-session'
 import VncSession from '../vnc/vnc-session'

@@ -81,7 +81,6 @@ export default class FileSection extends React.Component {
     this.dropTarget = null
     this.removeFileEditEvent()
     window.removeEventListener('message', this.changeFileMode)
-    window.removeEventListener('message', this.onContextAction)
   }
 
   applyStyle = () => {
