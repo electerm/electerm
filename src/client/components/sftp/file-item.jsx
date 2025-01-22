@@ -38,17 +38,11 @@ import generate from '../../common/uid'
 import refs from '../common/ref'
 import iconsMap from '../context-menu/icons-map'
 import {
-  Dropdown
+  Dropdown,
+  Modal
 } from 'antd'
 
 const e = window.translate
-
-const computePos = (e) => {
-  return {
-    left: e.clientX,
-    top: e.clientY
-  }
-}
 
 const fileItemCls = 'sftp-item'
 const onDragCls = 'sftp-ondrag'
@@ -943,11 +937,12 @@ export default class FileSection extends React.Component {
           subText,
           requireConfirm
         } = r
+        const IconCom = iconsMap[icon]
         return {
           key: func,
           label: text,
           disabled,
-          icon: iconsMap[icon],
+          icon: <IconCom />,
           extra: subText,
           danger: requireConfirm
         }
@@ -1121,47 +1116,8 @@ export default class FileSection extends React.Component {
     return res
   }
 
-  onContextAction = e => {
-    const {
-      action,
-      id,
-      args = [],
-      func
-    } = e.data || {}
-    if (action === commonActions.closeContextMenuAfter) {
-      window.removeEventListener('message', this.onContextAction)
-      return false
-    }
-    if (
-      action !== commonActions.clickContextMenu ||
-      id !== this.uid ||
-      !this[func]
-    ) {
-      return false
-    }
-    window.removeEventListener('message', this.onContextAction)
-    this[func](...args)
-  }
-
-  onContextMenu = (...args) => {
-    console.log('onContextMenu', args)
-    e.preventDefault()
-    const { file } = this.state
-    const selected = this.isSelected(file)
-    if (!selected) {
-      this.onClick(e)
-    }
-    this.props.modifier({
-      lastClickedFile: file
-    })
-    const items = this.renderContextItems()
-    this.uid = generate()
-    window.store.openContextMenu({
-      items,
-      id: this.uid,
-      pos: computePos(e)
-    })
-    window.addEventListener('message', this.onContextAction)
+  onContextMenu = ({ key }) => {
+    this[key]()
   }
 
   renderEditing (file) {
@@ -1265,9 +1221,9 @@ export default class FileSection extends React.Component {
     }
     const ddProps = {
       menu: {
-        items: this.renderContextItems()
+        items: this.renderContextMenu(),
+        onClick: this.onContextMenu
       },
-      onClick: this.onContextMenu,
       trigger: ['contextMenu']
     }
     return (
