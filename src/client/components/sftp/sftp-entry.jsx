@@ -329,8 +329,25 @@ export default class Sftp extends Component {
     await func(p).catch(window.store.onError)
   }
 
+  confirmDelete = (files) => {
+    return new Promise((resolve) => {
+      Modal.confirm({
+        title: this.renderDelConfirmTitle(files),
+        okText: e('ok'),
+        cancelText: e('cancel'),
+        onOk: () => resolve(true),
+        onCancel: () => resolve(false)
+      })
+    })
+  }
+
   delFiles = async (_type, files = this.state.selectedFiles) => {
+    this.onDelete = true
+    const confirm = await this.confirmDelete(files)
     this.onDelete = false
+    if (!confirm) {
+      return
+    }
     const type = files[0].type || _type
     const func = this[type + 'Del']
     for (const f of files) {
@@ -363,16 +380,6 @@ export default class Sftp extends Component {
         (<b className='mg1x'>{files.length}</b>)
       </div>
     )
-  }
-
-  onDel = (type, files) => {
-    this.onDelete = true
-    Modal.confirm({
-      cancelText: e('cancel'),
-      okText: e('ok'),
-      title: this.renderDelConfirmTitle(files),
-      onOk: () => this.delFiles(type, files)
-    })
   }
 
   enter = (type, e) => {
@@ -443,7 +450,7 @@ export default class Sftp extends Component {
       !inputFocus &&
       !this.state.onEditFile
     ) {
-      this.onDel(type)
+      this.delFiles(type)
     } else if (keyPressed(e, 'enter') && !inputFocus && !onDelete) {
       this.enter(type, e)
     } else if (keyControlPressed(e) && keyPressed(e, 'keyC') && !inputFocus) {

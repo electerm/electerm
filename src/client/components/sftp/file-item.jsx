@@ -35,15 +35,13 @@ import time from '../../common/time'
 import { filesize } from 'filesize'
 import { createTransferProps } from './transfer-common'
 import generate from '../../common/uid'
+import refs from '../common/ref'
+import iconsMap from '../context-menu/icons-map'
+import {
+  Dropdown
+} from 'antd'
 
 const e = window.translate
-
-const computePos = (e) => {
-  return {
-    left: e.clientX,
-    top: e.clientY
-  }
-}
 
 const fileItemCls = 'sftp-item'
 const onDragCls = 'sftp-ondrag'
@@ -57,7 +55,8 @@ export default class FileSection extends React.Component {
       file: copy(props.file),
       overwriteStrategy: ''
     }
-    this.id = 'FileSection-' + (props.file?.id || generate())
+    this.id = 'file-' + (props.file?.id || generate())
+    refs.add(this.id, this)
   }
 
   componentDidMount () {
@@ -75,6 +74,7 @@ export default class FileSection extends React.Component {
   }
 
   componentWillUnmount () {
+    refs.remove(this.id)
     clearTimeout(this.timer)
     this.timer = null
     this.dom = null
@@ -861,15 +861,25 @@ export default class FileSection extends React.Component {
     this.props.onGoto(this.props.file.type)
   }
 
-  del = async (delSelected) => {
+  shouldShowSelectedMenu = () => {
+    const {
+      file: {
+        id
+      },
+      selectedFiles
+    } = this.props
+    return id &&
+      selectedFiles.length > 1 &&
+      some(selectedFiles, d => d.id === id)
+  }
+
+  del = async () => {
+    const delSelected = this.shouldShowSelectedMenu()
     const { file, selectedFiles } = this.props
     const { type } = file
     const files = delSelected
       ? selectedFiles
       : [file]
-    postMessage({
-      type: commonActions.closeContextMenu
-    })
     await this.props.delFiles(type, files)
   }
 
@@ -923,6 +933,29 @@ export default class FileSection extends React.Component {
       return true
     }
     return !isWin
+  }
+
+  renderContextMenu = () => {
+    return this.renderContextItems()
+      .map(r => {
+        const {
+          func,
+          text,
+          disabled,
+          icon,
+          subText,
+          requireConfirm
+        } = r
+        const IconCom = iconsMap[icon]
+        return {
+          key: func,
+          label: text,
+          disabled,
+          icon: <IconCom />,
+          extra: subText,
+          danger: requireConfirm
+        }
+      })
   }
 
   renderContextItems () {
@@ -1015,10 +1048,7 @@ export default class FileSection extends React.Component {
         func: 'del',
         icon: 'CloseCircleOutlined',
         text: delTxt,
-        noAutoClose: true,
-        requireConfirm: true,
-        confirmTitle: this.renderDelConfirmTitle(shouldShowSelectedMenu),
-        args: [shouldShowSelectedMenu]
+        requireConfirm: true
       })
       res.push({
         func: 'onCopy',
@@ -1092,46 +1122,8 @@ export default class FileSection extends React.Component {
     return res
   }
 
-  onContextAction = e => {
-    const {
-      action,
-      id,
-      args = [],
-      func
-    } = e.data || {}
-    if (action === commonActions.closeContextMenuAfter) {
-      window.removeEventListener('message', this.onContextAction)
-      return false
-    }
-    if (
-      action !== commonActions.clickContextMenu ||
-      id !== this.uid ||
-      !this[func]
-    ) {
-      return false
-    }
-    window.removeEventListener('message', this.onContextAction)
-    this[func](...args)
-  }
-
-  onContextMenu = e => {
-    e.preventDefault()
-    const { file } = this.state
-    const selected = this.isSelected(file)
-    if (!selected) {
-      this.onClick(e)
-    }
-    this.props.modifier({
-      lastClickedFile: file
-    })
-    const items = this.renderContextItems()
-    this.uid = generate()
-    window.store.openContextMenu({
-      items,
-      id: this.uid,
-      pos: computePos(e)
-    })
-    window.addEventListener('message', this.onContextAction)
+  onContextMenu = ({ key }) => {
+    this[key]()
   }
 
   renderEditing (file) {
@@ -1222,7 +1214,6 @@ export default class FileSection extends React.Component {
       draggable,
       onDoubleClick: this.transferOrEnterDirectory,
       ...pick(this, [
-        'onContextMenu',
         'onClick',
         'onDrag',
         'onDragEnter',
@@ -1234,21 +1225,30 @@ export default class FileSection extends React.Component {
       ]),
       onDragStart: onDragStart || this.onDragStart
     }
+    const ddProps = {
+      menu: {
+        items: this.renderContextMenu(),
+        onClick: this.onContextMenu
+      },
+      trigger: ['contextMenu']
+    }
     return (
-      <div
-        {...props}
-        data-id={id}
-        id={this.id}
-        data-type={type}
-        title={file.name}
-      >
-        <div className='file-bg' />
-        <div className='file-props'>
-          {
-            properties.map(this.renderProp)
-          }
+      <Dropdown {...ddProps}>
+        <div
+          {...props}
+          data-id={id}
+          id={this.id}
+          data-type={type}
+          title={file.name}
+        >
+          <div className='file-bg' />
+          <div className='file-props'>
+            {
+              properties.map(this.renderProp)
+            }
+          </div>
         </div>
-      </div>
+      </Dropdown>
     )
   }
 }

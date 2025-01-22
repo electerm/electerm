@@ -1,4 +1,3 @@
-import { memo } from 'react'
 import {
   Splitter
 } from 'antd'
@@ -8,7 +7,7 @@ const {
   Panel
 } = Splitter
 
-export default memo(function DragHandle (props) {
+export default function DragHandle (props) {
   const {
     max,
     min,
@@ -72,4 +71,4 @@ export default memo(function DragHandle (props) {
       </Splitter>
     </div>
   )
-})
+}
