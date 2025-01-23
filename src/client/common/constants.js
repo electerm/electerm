@@ -272,8 +272,6 @@ export const srcsSkipUpgradeCheck = [
 ]
 export const termLSPrefix = 'term:sess:'
 export const batchInputLsKey = 'batch-inputs'
-export const copyBookmarkItemPrefix = 'bookmark:'
-export const copyBookmarkGroupItemPrefix = 'bookmarkGroup:'
 export const rendererTypes = {
   dom: 'dom',
   canvas: 'canvas',

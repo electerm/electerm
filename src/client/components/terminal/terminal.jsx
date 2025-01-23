@@ -962,6 +962,21 @@ clear\r`
     this.bufferMode = buf.type
   }
 
+  buildWsUrl = () => {
+    const { host, port, tokenElecterm } = this.props.config
+    const { id } = this.props.tab
+    if (window.et.buildWsUrl) {
+      return window.et.buildWsUrl(
+        host,
+        port,
+        tokenElecterm,
+        id,
+        this.props.sessionId
+      )
+    }
+    return `ws://${host}:${port}/terminals/${id}?sessionId=${this.props.sessionId}&token=${tokenElecterm}`
+  }
+
   remoteInit = async (term = this.term) => {
     this.setState({
       loading: true
@@ -969,11 +984,7 @@ clear\r`
     const { cols, rows } = term
     const { config } = this.props
     const {
-      host,
-      port,
-      tokenElecterm,
-      keywords = [],
-      server = ''
+      keywords = []
     } = config
     const { sessionId, logName } = this.props
     const tab = window.store.applyProfileToTabs(deepCopy(this.props.tab || {}))
@@ -1041,11 +1052,7 @@ clear\r`
     this.setStatus(statusMap.success)
     term.pid = id
     this.pid = id
-    const hs = server
-      ? server.replace(/https?:\/\//, '')
-      : `${host}:${port}`
-    const pre = server.startsWith('https') ? 'wss' : 'ws'
-    const wsUrl = `${pre}://${hs}/terminals/${id}?sessionId=${sessionId}&token=${tokenElecterm}`
+    const wsUrl = this.buildWsUrl()
     const socket = new WebSocket(wsUrl)
     socket.onclose = this.oncloseSocket
     socket.onerror = this.onerrorSocket
