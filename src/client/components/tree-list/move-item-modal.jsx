@@ -9,67 +9,92 @@ export default function MoveItemModal (props) {
   const {
     openMoveModal,
     moveItem,
-    moveItemIsGroup
+    moveItemIsGroup,
+    bookmarkGroups
   } = props
-  const { bookmarkGroups } = window.store
-  const [data, groupMap] = buildGroupData(bookmarkGroups, moveItem.id, true)
+  if (!openMoveModal) {
+    return null
+  }
+  const [data] = buildGroupData(bookmarkGroups, moveItem.id)
   function onSelect () {
+    const {
+      bookmarkGroups
+    } = window.store
+    const groupMap = new Map(bookmarkGroups.map(d => [d.id, d]))
     const group = groupMap.get(groupId)
     if (!group) {
       return
     }
+    // Find and update the original parent group
+    const currentParentGroup = bookmarkGroups.find(bg => {
+      if (moveItemIsGroup) {
+        return (bg.bookmarkGroupIds || []).includes(moveItem.id)
+      }
+      return (bg.bookmarkIds || []).includes(moveItem.id)
+    })
+
+    // Remove from original parent if found
+    if (currentParentGroup) {
+      if (moveItemIsGroup) {
+        currentParentGroup.bookmarkGroupIds = currentParentGroup.bookmarkGroupIds.filter(
+          id => id !== moveItem.id
+        )
+      } else {
+        currentParentGroup.bookmarkIds = currentParentGroup.bookmarkIds.filter(
+          id => id !== moveItem.id
+        )
+      }
+    }
     if (moveItemIsGroup) {
       group.bookmarkGroupIds = [
-        ...(group.bookmarkGroupIds || []),
-        moveItem.id
+        moveItem.id,
+        ...(group.bookmarkGroupIds || [])
       ]
     } else {
       group.bookmarkIds = [
-        ...(group.bookmarkIds || []),
-        moveItem.id
+        moveItem.id,
+        ...(group.bookmarkIds || [])
       ]
     }
-    props.onCancel()
+    props.onCancelMoveItem()
   }
   const modalProps = {
     open: openMoveModal,
     title: e('moveTo'),
     footer: null,
-    onCancel: props.onCancel
+    onCancel: props.onCancelMoveItem
   }
-  if (!openMoveModal) {
-    return null
+  const treeProps = {
+    treeData: data,
+    onChange: setGroupId,
+    placeholder: e('bookmarkGroups'),
+    showSearch: true,
+    value: groupId,
+    popupMatchSelectWidth: false,
+    treeDefaultExpandAll: true,
+    dropdownStyle: { maxHeight: 400, overflow: 'auto', minWidth: 300 }
   }
   return (
     <Modal {...modalProps}>
-      <div>
-        <div className='pd1'>
-          <h3>{e('moveTo')}</h3>
-        </div>
-        <div className='pd1'>
-          <TreeSelect
-            treeData={data}
-            onChange={setGroupId}
-            placeholder={e('bookmarks')}
-            showSearch
-            value={groupId}
-          />
-        </div>
-        <div className='pd1'>
-          <Button
-            type='primary'
-            onClick={onSelect}
-            disabled={!groupId}
-          >
-            {e('ok')}
-          </Button>
-          <Button
-            onClick={props.onCancel}
-            className='mg1l'
-          >
-            {e('cancel')}
-          </Button>
-        </div>
+      <div className='pd1'>
+        <TreeSelect
+          {...treeProps}
+        />
+      </div>
+      <div className='pd1'>
+        <Button
+          type='primary'
+          onClick={onSelect}
+          disabled={!groupId}
+        >
+          {e('ok')}
+        </Button>
+        <Button
+          onClick={props.onCancelMoveItem}
+          className='mg1l'
+        >
+          {e('cancel')}
+        </Button>
       </div>
     </Modal>
   )

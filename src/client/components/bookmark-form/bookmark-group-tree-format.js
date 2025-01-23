@@ -5,7 +5,7 @@
 export default (bookmarkGroups = [], disabledId = '', returnMap = false) => {
   const btree = new Map(bookmarkGroups.map(d => [d.id, d]))
   function buildSubCats (id) {
-    const x = btree[id]
+    const x = btree.get(id)
     if (!x) {
       return ''
     }

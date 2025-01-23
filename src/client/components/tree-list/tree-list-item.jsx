@@ -8,7 +8,7 @@ import {
   EditOutlined,
   FolderAddOutlined,
   FolderOpenOutlined,
-  ScissorOutlined
+  RightSquareOutlined
 } from '@ant-design/icons'
 import {
   Popconfirm,
@@ -53,7 +53,7 @@ export default memo(function TreeListItem (props) {
       return null
     }
     return (
-      <ScissorOutlined
+      <RightSquareOutlined
         className='pointer tree-control-btn'
         onClick={openMoveModal}
       />

@@ -28,7 +28,6 @@ import TreeExpander from './tree-expander'
 import TreeListItem from './tree-list-item'
 import TreeSearch from './tree-search'
 import MoveItemModal from './move-item-modal'
-import { on } from 'events'
 
 export default class ItemListTree extends Component {
   constructor (props) {
@@ -810,6 +809,7 @@ export default class ItemListTree extends Component {
       openMoveModal,
       moveItem,
       moveItemIsGroup,
+      bookmarkGroups,
       onCancelMoveItem: this.onCancelMoveItem
     }
     const level1Bookgroups = ready
