@@ -8,7 +8,7 @@ import {
   EditOutlined,
   FolderAddOutlined,
   FolderOpenOutlined,
-  SettingOutlined
+  ScissorOutlined
 } from '@ant-design/icons'
 import {
   Popconfirm,
@@ -49,13 +49,13 @@ export default memo(function TreeListItem (props) {
   }
 
   const renderOperationBtn = (item, isGroup) => {
-    if (props.staticList) {
+    if (props.staticList || props.item.id === defaultBookmarkGroupId) {
       return null
     }
     return (
-      <SettingOutlined
+      <ScissorOutlined
         className='pointer tree-control-btn'
-        onClick={handleContextMenu}
+        onClick={openMoveModal}
       />
     )
   }
@@ -64,8 +64,8 @@ export default memo(function TreeListItem (props) {
     props.openAll(props.item)
   }
 
-  const handleContextMenu = (e) => {
-    props.onContextMenu(e, props.item, props.isGroup)
+  const openMoveModal = (e) => {
+    props.openMoveModal(e, props.item, props.isGroup)
   }
 
   const handleEditItem = (e) => {
@@ -209,7 +209,6 @@ export default memo(function TreeListItem (props) {
   const propsAll = {
     className: cls,
     title: titleAll,
-    onContextMenu: handleContextMenu,
     draggable: true,
     'data-item-id': item.id,
     'data-parent-id': props.parentId,

@@ -8,21 +8,13 @@ import {
   CloseOutlined,
   LoadingOutlined
 } from '@ant-design/icons'
-import {
-  readClipboard,
-  cut,
-  hasBookmarkOrGroupInClipboardText
-} from '../../common/clipboard'
 import createName from '../../common/create-title'
 import InputAutoFocus from '../common/input-auto-focus'
 import { find, uniq, filter, pick } from 'lodash-es'
 import {
   maxBookmarkGroupTitleLength,
   defaultBookmarkGroupId,
-  settingMap,
-  commonActions,
-  copyBookmarkItemPrefix,
-  copyBookmarkGroupItemPrefix
+  settingMap
 } from '../../common/constants'
 import findParentBySel from '../../common/find-parent'
 import copy, { deepCopy } from 'json-deep-copy'
@@ -35,8 +27,8 @@ import './tree-list.styl'
 import TreeExpander from './tree-expander'
 import TreeListItem from './tree-list-item'
 import TreeSearch from './tree-search'
-
-const e = window.translate
+import MoveItemModal from './move-item-modal'
+import { on } from 'events'
 
 export default class ItemListTree extends Component {
   constructor (props) {
@@ -46,12 +38,19 @@ export default class ItemListTree extends Component {
       keyword: '',
       parentId: '',
       showNewBookmarkGroupForm: false,
+      openMoveModal: false,
+      moveItem: null,
+      moveItemIsGroup: false,
       bookmarkGroupTitle: '',
       categoryTitle: '',
       categoryId: '',
       expandedKeys: props.expandedKeys
     }
   }
+
+  onSubmit = false
+
+  onSubmitEdit = false
 
   componentDidMount () {
     this.timer = setTimeout(() => {
@@ -74,7 +73,14 @@ export default class ItemListTree extends Component {
 
   componentWillUnmount () {
     clearTimeout(this.timer)
-    window.removeEventListener('message', this.onContextAction)
+  }
+
+  onCancelMoveItem = () => {
+    this.setState({
+      openMoveModal: false,
+      moveItem: null,
+      moveItemIsGroup: false
+    })
   }
 
   filter = list => {
@@ -170,9 +176,14 @@ export default class ItemListTree extends Component {
 
   }
 
-  onSubmit = false
-
-  onSubmitEdit = false
+  openMoveModal = (e, item, isGroup) => {
+    e.stopPropagation()
+    this.setState({
+      openMoveModal: true,
+      moveItem: item,
+      moveItemIsGroup: isGroup
+    })
+  }
 
   handleChangeBookmarkGroupTitle = e => {
     let { value } = e.target
@@ -308,137 +319,6 @@ export default class ItemListTree extends Component {
         />
       </div>
     )
-  }
-
-  onCut = (item, isGroup) => {
-    const str = isGroup
-      ? copyBookmarkGroupItemPrefix
-      : copyBookmarkItemPrefix
-    const txt = str + item.id
-    cut(txt, createName(item))
-  }
-
-  onPaste = (item) => {
-    const str = readClipboard()
-    const id = str.split(':')[1]
-    const bookmarkGroups = copy(
-      this.props.bookmarkGroups
-    )
-    const from = bookmarkGroups.find(t => {
-      return t.bookmarkIds.includes(id)
-    })
-    from.bookmarkIds = from.bookmarkIds.filter(d => {
-      return d !== id
-    })
-    const to = bookmarkGroups.find(t => {
-      return t.id === item.id
-    })
-    if (!to.bookmarkIds) {
-      to.bookmarkIds = []
-    }
-    to.bookmarkIds = uniq(
-      [
-        ...to.bookmarkIds,
-        id
-      ]
-    )
-    const { store } = window
-    if (from) {
-      store.editBookmarkGroup(
-        from.id,
-        {
-          bookmarkIds: (from.bookmarkIds || []).filter(d => {
-            return d !== id
-          })
-        }
-      )
-    }
-    store.editBookmarkGroup(
-      item.id,
-      {
-        bookmarkIds: uniq(
-          [
-            ...(item.bookmarkIds || []),
-            id
-          ]
-        )
-      }
-    )
-  }
-
-  computePos = (e) => {
-    return {
-      left: e.clientX,
-      top: e.clientY
-    }
-  }
-
-  onContextAction = e => {
-    const {
-      action,
-      id,
-      args = [],
-      func
-    } = e.data || {}
-    if (action === commonActions.closeContextMenuAfter) {
-      window.removeEventListener('message', this.onContextAction)
-      return false
-    }
-    if (
-      action !== commonActions.clickContextMenu ||
-      id !== this.uid ||
-      !this[func]
-    ) {
-      return false
-    }
-    window.removeEventListener('message', this.onContextAction)
-    this[func](...args)
-  }
-
-  onContextMenu = (e, item, isGroup) => {
-    e.preventDefault()
-    if (this.props.staticList) {
-      return null
-    }
-    const menus = this.renderContextItems(item, isGroup)
-    this.uid = uid()
-    window.store.openContextMenu({
-      items: menus,
-      id: this.uid,
-      pos: this.computePos(e)
-    })
-    window.addEventListener('message', this.onContextAction)
-    this.closeNewGroupForm()
-  }
-
-  renderContextItems (item, isGroup) {
-    const res = []
-    const args = [copy(item), isGroup]
-    if (!isGroup) {
-      // res.push({
-      //   func: 'onCopy',
-      //   icon: 'CopyOutlined',
-      //   text: e('copy'),
-      //   args
-      // })
-      res.push({
-        func: 'onCut',
-        icon: 'FileExcelOutlined',
-        text: e('cut'),
-        args
-      })
-    }
-    const canPaste = hasBookmarkOrGroupInClipboardText()
-    if (isGroup) {
-      res.push({
-        func: 'onPaste',
-        icon: 'CopyOutlined',
-        text: e('paste'),
-        disabled: !canPaste,
-        args
-      })
-    }
-    return res
   }
 
   editItem = (e, item, isGroup) => {
@@ -755,7 +635,7 @@ export default class ItemListTree extends Component {
         [
           'del',
           'openAll',
-          'onContextMenu',
+          'openMoveModal',
           'editItem',
           'addSubCat',
           'onSelect',
@@ -769,13 +649,7 @@ export default class ItemListTree extends Component {
       ...pick(
         this.state,
         [
-          'keyword',
-          'openAll',
-          'onContextMenu',
-          'editItem',
-          'addSubCat',
-          'onSelect',
-          'duplicateItem'
+          'keyword'
         ]
       )
     }
@@ -918,7 +792,7 @@ export default class ItemListTree extends Component {
   }
 
   render () {
-    const { ready } = this.state
+    const { ready, openMoveModal, moveItem, moveItemIsGroup } = this.state
     if (!ready) {
       return (
         <div className='pd3 aligncenter'>
@@ -932,6 +806,12 @@ export default class ItemListTree extends Component {
       staticList,
       listStyle = {}
     } = this.props
+    const moveProps = {
+      openMoveModal,
+      moveItem,
+      moveItemIsGroup,
+      onCancelMoveItem: this.onCancelMoveItem
+    }
     const level1Bookgroups = ready
       ? bookmarkGroups.filter(
         d => !d.level || d.level < 2
@@ -939,6 +819,7 @@ export default class ItemListTree extends Component {
       : []
     return (
       <div className={`tree-list item-type-${type}`}>
+        <MoveItemModal {...moveProps} />
         {
           staticList
             ? null

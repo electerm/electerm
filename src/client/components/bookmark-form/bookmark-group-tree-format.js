@@ -2,14 +2,8 @@
  * create bookmark group tree data
  */
 
-export default (bookmarkGroups = []) => {
-  const btree = bookmarkGroups
-    .reduce((prev, k) => {
-      return {
-        ...prev,
-        [k.id]: k
-      }
-    }, {})
+export default (bookmarkGroups = [], disabledId = '', returnMap = false) => {
+  const btree = new Map(bookmarkGroups.map(d => [d.id, d]))
   function buildSubCats (id) {
     const x = btree[id]
     if (!x) {
@@ -32,9 +26,13 @@ export default (bookmarkGroups = []) => {
         title: d.title,
         value: d.id,
         key: d.id,
+        disabled: d.id === disabledId,
         children: (d.bookmarkGroupIds || []).map(buildSubCats).filter(d => d)
       }
       return r
     }).filter(d => d)
+  if (returnMap) {
+    return [level1, btree]
+  }
   return level1
 }

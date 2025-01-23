@@ -3,9 +3,6 @@
  */
 
 import { message } from 'antd'
-import {
-  copyBookmarkItemPrefix
-} from './constants'
 
 const fileRegWin = /^(remote:)?\w:\\.+/
 const fileReg = /^(remote:)?\/.+/
@@ -43,15 +40,5 @@ export const hasFileInClipboardText = (
   return arr.reduce((prev, t) => {
     return prev &&
       (fileReg.test(t) || fileRegWin.test(t))
-  }, true)
-}
-
-export const hasBookmarkOrGroupInClipboardText = (
-  text = readClipboard()
-) => {
-  const arr = text.split('\n')
-  return arr.reduce((prev, t = '') => {
-    return prev &&
-      t.startsWith(copyBookmarkItemPrefix)
   }, true)
 }
