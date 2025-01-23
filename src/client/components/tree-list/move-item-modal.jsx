@@ -5,7 +5,7 @@ import { TreeSelect, Modal, Button } from 'antd'
 const e = window.translate
 
 export default function MoveItemModal (props) {
-  const [groupId, setGroupId] = useState('')
+  const [groupId, setGroupId] = useState(undefined)
   const {
     openMoveModal,
     moveItem,
@@ -15,7 +15,7 @@ export default function MoveItemModal (props) {
   if (!openMoveModal) {
     return null
   }
-  const [data] = buildGroupData(bookmarkGroups, moveItem.id)
+  const data = buildGroupData(bookmarkGroups, moveItem.id)
   function onSelect () {
     const {
       bookmarkGroups
@@ -67,12 +67,12 @@ export default function MoveItemModal (props) {
   const treeProps = {
     treeData: data,
     onChange: setGroupId,
-    placeholder: e('bookmarkGroups'),
+    placeholder: e('moveTo'),
     showSearch: true,
     value: groupId,
     popupMatchSelectWidth: false,
     treeDefaultExpandAll: true,
-    dropdownStyle: { maxHeight: 400, overflow: 'auto', minWidth: 300 }
+    className: 'width-100'
   }
   return (
     <Modal {...modalProps}>
