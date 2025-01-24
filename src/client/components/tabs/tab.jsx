@@ -9,7 +9,11 @@ import {
   Loading3QuartersOutlined,
   BorderlessTableOutlined
 } from '@ant-design/icons'
-import { Tooltip, message } from 'antd'
+import {
+  Tooltip,
+  message,
+  Dropdown
+} from 'antd'
 import classnames from 'classnames'
 import { pick } from 'lodash-es'
 import Input from '../common/input-auto-focus'
@@ -17,6 +21,7 @@ import createName from '../../common/create-title'
 import { addClass, removeClass } from '../../common/class'
 import isDark from '../../common/is-color-dark'
 import { action } from 'manate'
+import iconsMap from '../context-menu/icons-map'
 import { shortcutDescExtend } from '../shortcuts/shortcut-handler.js'
 
 const e = window.translate
@@ -256,56 +261,60 @@ class Tab extends Component {
     const len = tabs.length
     const index = tabIndex
     const noRight = index >= len - 1
-    const res = []
     const reloadShortcut = this.getShortcut('app_reloadCurrentTab')
     const closeShortcut = this.getShortcut('app_closeCurrentTab')
     const cloneToNextShortcut = this.getShortcut('app_cloneToNextLayout')
-    res.push({
-      func: 'handleClose',
-      icon: 'CloseOutlined',
-      text: e('close'),
-      subText: closeShortcut
-    })
-    res.push({
-      func: 'closeOther',
-      icon: 'CloseOutlined',
-      text: e('closeOtherTabs')
-    })
-    if (!noRight) {
-      res.push({
-        func: 'closeTabsRight',
-        icon: 'CloseOutlined',
-        text: e('closeTabRight')
-      })
-    }
-    res.push({
-      func: 'newTab',
-      icon: 'CodeOutlined',
-      text: e('newTab')
-    })
-    res.push({
-      func: 'handleDup',
-      icon: 'CopyOutlined',
-      text: e('duplicate')
-    })
-    res.push({
-      func: 'cloneToNextLayout',
-      icon: 'CopyOutlined',
-      text: e('cloneToNextLayout'),
-      subText: cloneToNextShortcut
-    })
-    res.push({
-      func: 'doRename',
-      icon: 'EditOutlined',
-      text: e('rename')
-    })
-    res.push({
-      func: 'handleReloadTab',
-      icon: 'Loading3QuartersOutlined',
-      text: e('reload'),
-      subText: reloadShortcut
-    })
-    return res
+
+    const x = [
+      {
+        key: 'handleClose',
+        icon: <iconsMap.CloseCircleOutlined />,
+        label: e('close'),
+        extra: closeShortcut
+      },
+      {
+        key: 'closeOther',
+        icon: <iconsMap.CloseCircleOutlined />,
+        label: e('closeOtherTabs')
+      },
+      !noRight && {
+        key: 'closeTabsRight',
+        icon: <iconsMap.CloseCircleOutlined />,
+        label: e('closeTabRight')
+      },
+      {
+        key: 'newTab',
+        icon: <iconsMap.CodeOutlined />,
+        label: e('newTab')
+      },
+      {
+        key: 'handleDup',
+        icon: <iconsMap.CopyOutlined />,
+        label: e('duplicate')
+      },
+      {
+        key: 'cloneToNextLayout',
+        icon: <iconsMap.CopyOutlined />,
+        label: e('cloneToNextLayout'),
+        extra: cloneToNextShortcut
+      },
+      {
+        key: 'doRename',
+        icon: <iconsMap.EditOutlined />,
+        label: e('rename')
+      },
+      {
+        key: 'handleReloadTab',
+        icon: <iconsMap.ReloadOutlined />,
+        label: e('reload'),
+        extra: reloadShortcut
+      }
+    ].filter(Boolean)
+    return x
+  }
+
+  onContextMenu = ({ key }) => {
+    this[key]()
   }
 
   handleContextMenu = () => {
@@ -415,6 +424,13 @@ class Tab extends Component {
     if (isEditting) {
       return this.renderEditting(tab, cls)
     }
+    const dropdownProps = {
+      menu: {
+        items: this.renderContext(),
+        onClick: this.onContextMenu
+      },
+      trigger: ['contextMenu']
+    }
     const { tabCount, color = '#0088cc' } = tab
     const styleTag = color
       ? {
@@ -443,21 +459,23 @@ class Tab extends Component {
             'onDragEnd'
           ])}
         >
-          <div
-            className='tab-title elli pd1x'
-            onClick={this.handleClick}
-            onDoubleClick={this.handleDup}
-          >
-            <Loading3QuartersOutlined
-              className='pointer tab-reload mg1r'
-              onClick={this.handleReloadTab}
-              title={e('reload')}
-            />
-            <span className='tab-title'>
-              <span className='iblock mg1r tab-count' style={styleTag}>{tabCount}</span>
-              <span className='mg1r'>{title}</span>
-            </span>
-          </div>
+          <Dropdown {...dropdownProps}>
+            <div
+              className='tab-title elli pd1x'
+              onClick={this.handleClick}
+              onDoubleClick={this.handleDup}
+            >
+              <Loading3QuartersOutlined
+                className='pointer tab-reload mg1r'
+                onClick={this.handleReloadTab}
+                title={e('reload')}
+              />
+              <span className='tab-title'>
+                <span className='iblock mg1r tab-count' style={styleTag}>{tabCount}</span>
+                <span className='mg1r'>{title}</span>
+              </span>
+            </div>
+          </Dropdown>
           <div className={'tab-status ' + status} />
           <div className='tab-traffic' />
           <BorderlessTableOutlined className='tab-terminal-feed' />
