@@ -34,7 +34,30 @@ export default function LayoutItem (props) {
     if (!t) {
       return
     }
+
+    // Handle source batch's activeTabId
+    const fromBatch = fromTab.batch
+    if (store[`activeTabId${fromBatch}`] === fromTab.id) {
+      // Find next tab in the source batch
+      const nextTab = tabs.find(tab =>
+        tab.id !== fromTab.id && tab.batch === fromBatch
+      )
+      store[`activeTabId${fromBatch}`] = nextTab ? nextTab.id : ''
+    }
+
+    // Update tab's batch
     t.batch = batch
+
+    // Check if target batch has any tabs (excluding the one being moved)
+    const targetBatchHasTabs = tabs.some(tab =>
+      tab.id !== fromTab.id && tab.batch === batch
+    )
+
+    // If target batch has no other tabs, make the dropped tab active
+    if (!targetBatchHasTabs) {
+      store[`activeTabId${batch}`] = t.id
+    }
+
     clearCls()
   }
 
