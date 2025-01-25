@@ -21,7 +21,7 @@ import createName from '../../common/create-title'
 import { addClass, removeClass } from '../../common/class'
 import isDark from '../../common/is-color-dark'
 import { action } from 'manate'
-import iconsMap from '../context-menu/icons-map'
+import iconsMap from '../sys-menu/icons-map.jsx'
 import { shortcutDescExtend } from '../shortcuts/shortcut-handler.js'
 
 const e = window.translate

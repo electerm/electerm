@@ -36,7 +36,7 @@ import { filesize } from 'filesize'
 import { createTransferProps } from './transfer-common'
 import generate from '../../common/uid'
 import refs from '../common/ref'
-import iconsMap from '../context-menu/icons-map'
+import iconsMap from '../sys-menu/icons-map'
 import {
   Dropdown
 } from 'antd'

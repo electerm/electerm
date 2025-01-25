@@ -12,7 +12,7 @@ import { useRef, memo } from 'react'
 import { Tooltip } from 'antd'
 import SideBarPanel from './sidebar-panel'
 import TransferList from './transfer-list'
-import MenuBtn from '../context-menu/menu-btn'
+import MenuBtn from '../sys-menu/menu-btn'
 import {
   sidebarWidth,
   settingMap,

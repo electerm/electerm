@@ -1,7 +1,6 @@
 import { auto } from 'manate/react'
 import { useEffect } from 'react'
 import Layout from '../layout/layout'
-import ContextMenu from '../context-menu/context-menu'
 import FileInfoModal from '../sftp/file-props-modal'
 import FileModeModal from '../sftp/file-mode-modal'
 import UpdateCheck from './upgrade'
@@ -182,13 +181,7 @@ export default auto(function Index (props) {
     resolutions: deepCopy(store.resolutions),
     openResolutionEdit
   }
-  const contextMenuProps = {
-    ...pick(store, [
-      'history'
-    ]),
-    tabs: store.getTabs(),
-    config
-  }
+
   const rightPanelProps = {
     rightPanelVisible: store.rightPanelVisible,
     rightPanelPinned: store.rightPanelPinned,
@@ -269,7 +262,6 @@ export default auto(function Index (props) {
             store={store}
           />
         </div>
-        <ContextMenu {...contextMenuProps} />
         <ConfirmModalStore
           transferToConfirm={transferToConfirm}
         />

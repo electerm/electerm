@@ -26,7 +26,7 @@ import {
 import {
   Dropdown
 } from 'antd'
-import IconHolder from '../context-menu/icon-holder'
+import IconHolder from '../sys-menu/icon-holder'
 
 const e = window.translate
 

@@ -3,52 +3,20 @@
  */
 
 import { PureComponent } from 'react'
+import {
+  Popover
+} from 'antd'
 import logoRef from '@electerm/electerm-resource/res/imgs/electerm.svg'
-import { commonActions } from '../../common/constants'
 import { shortcutDescExtend } from '../shortcuts/shortcut-handler.js'
-import generate from '../../common/uid'
+import MenuRender from './sys-menu.jsx'
+import refs from '../common/ref.js'
 
 const e = window.translate
 const logo = logoRef.replace(/^\//, '')
 
 class MenuBtn extends PureComponent {
-  state = {
-    opened: false
-  }
-
-  onContextAction = e => {
-    const {
-      action,
-      id,
-      args = [],
-      func
-    } = e.data || {}
-    if (
-      action !== commonActions.clickContextMenu ||
-      id !== this.uid ||
-      !this[func]
-    ) {
-      return false
-    }
-    window.removeEventListener('message', this.onContextAction)
-    this[func](...args)
-  }
-
-  openMenu = () => {
-    const items = this.renderContext()
-    this.uid = generate()
-    window.store.openContextMenu({
-      items,
-      pos: {
-        left: 40,
-        top: 10
-      },
-      id: this.uid
-    })
-    window.addEventListener('message', this.onContextAction)
-    this.setState({
-      opened: true
-    })
+  componentDidMount () {
+    refs.add('menu-btn', this)
   }
 
   onNewSsh = () => {
@@ -201,6 +169,19 @@ class MenuBtn extends PureComponent {
     ]
   }
 
+  renderMenu () {
+    const { store } = window
+    const rprops = {
+      items: this.renderContext(),
+      tabs: store.getTabs(),
+      config: store.config,
+      history: store.history
+    }
+    return (
+      <MenuRender {...rprops} />
+    )
+  }
+
   render () {
     const pops = {
       className: 'menu-control',
@@ -208,13 +189,20 @@ class MenuBtn extends PureComponent {
       onClick: this.openMenu,
       title: e('menu')
     }
+    const popProps = {
+      content: this.renderMenu(),
+      // open: this.state.opened,
+      placement: 'right',
+      trigger: ['click']
+    }
     return (
-      <div
-        key='menu-control'
-        {...pops}
-      >
-        <img src={logo} width={28} height={28} />
-      </div>
+      <Popover {...popProps}>
+        <div
+          {...pops}
+        >
+          <img src={logo} width={28} height={28} />
+        </div>
+      </Popover>
     )
   }
 }

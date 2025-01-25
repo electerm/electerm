@@ -48,7 +48,7 @@ import { getLocalFileInfo } from '../sftp/file-read.js'
 import { CommandTrackerAddon } from './command-tracker-addon.js'
 import { formatBytes } from '../../common/byte-format.js'
 import * as fs from './fs.js'
-import iconsMap from '../context-menu/icons-map.jsx'
+import iconsMap from '../sys-menu/icons-map.jsx'
 import refs from '../common/ref.js'
 
 const e = window.translate
