@@ -240,29 +240,12 @@ export const fileActions = {
 }
 
 export const commonActions = {
-  returnTermLogState: 'return-term-log-state',
-  getTermLogState: 'get-term-log-state',
-  setTermLogState: 'set-term-log-state',
   batchOp: 'batch-op',
-  updateStore: 'update-store',
-  editWithSystemEditorDone: 'edit-with-system-editor-done',
-  editWithSystemEditor: 'edit-with-system-editor',
-  onCloseTextEditor: 'on-close-text-editor',
-  submitTextEditorText: 'submit-text-editor-text',
-  fetchTextEditorText: 'fetch-text-editor-text',
-  loadTextEditorText: 'load-text-editor-text',
-  openTextEditor: 'open-text-editor',
   submitFileModeEdit: 'submit-file-mode-edit',
   submitFileModeClose: 'submit-file-mode-close',
   showFileModeModal: 'show-file-mode-modal',
   showFileInfoModal: 'show-file-info-modal',
-  appUpdateCheck: 'check-app-update',
-  closeContextMenu: 'close-context-menu',
-  closeContextMenuAfter: 'close-context-menu-after',
-  clickContextMenu: 'click-context-menu',
-  openContextMenu: 'open-context-menu',
-  addTransfer: 'add-transfer',
-  sftpList: 'sftp-list'
+  appUpdateCheck: 'check-app-update'
 }
 
 export const srcsSkipUpgradeCheck = [

@@ -19,7 +19,6 @@ import {
   permission2mode
 } from '../../common/mode2permission'
 import wait from '../../common/wait'
-import postMessage from '../../common/post-msg'
 import {
   fileOperationsMap,
   isWin, transferTypeMap, typeMap,
@@ -55,12 +54,13 @@ export default class FileSection extends React.Component {
       file: copy(props.file),
       overwriteStrategy: ''
     }
-    this.id = 'file-' + (props.file?.id || generate())
-    refs.add(this.id, this)
+    // Create ref
+    this.domRef = React.createRef()
   }
 
   componentDidMount () {
-    this.dom = document.getElementById(this.id)
+    this.id = 'file-' + (this.props.file?.id || generate())
+    refs.add(this.id, this)
     this.applyStyle()
   }
 
@@ -77,14 +77,18 @@ export default class FileSection extends React.Component {
     refs.remove(this.id)
     clearTimeout(this.timer)
     this.timer = null
-    this.dom = null
+    this.domRef = null
     this.dropTarget = null
     this.removeFileEditEvent()
     window.removeEventListener('message', this.changeFileMode)
   }
 
+  get editor () {
+    return refs.get('text-editor')
+  }
+
   applyStyle = () => {
-    if (!this.dom) {
+    if (!this.domRef) {
       return
     }
     const {
@@ -94,7 +98,7 @@ export default class FileSection extends React.Component {
     const headers = document.querySelectorAll(
       `#id-${id} .${type} .sftp-file-table-header .sftp-header-box`
     )
-    this.dom.querySelectorAll('.sftp-file-prop').forEach((n, i) => {
+    this.domRef.current?.querySelectorAll('.sftp-file-prop').forEach((n, i) => {
       const h = headers[i]
       if (h) {
         const s = pick(h.style, ['width', 'left'])
@@ -210,7 +214,7 @@ export default class FileSection extends React.Component {
     const cls = this.props.selectedFiles.length > 1
       ? onDragCls + ' ' + onMultiDragCls
       : onDragCls
-    addClass(this.dom, cls)
+    addClass(this.domRef.current, cls)
     e.dataTransfer.setData('fromFile', JSON.stringify(this.props.file))
   }
 
@@ -271,7 +275,7 @@ export default class FileSection extends React.Component {
     this.props.modifier({
       onDrag: false
     })
-    removeClass(this.dom, onDragCls, onMultiDragCls)
+    removeClass(this.domRef.current, onDragCls, onMultiDragCls)
     document.querySelectorAll('.' + onDragOverCls).forEach((d) => {
       removeClass(d, onDragOverCls)
     })
@@ -619,38 +623,10 @@ export default class FileSection extends React.Component {
   }
 
   removeFileEditEvent = () => {
-    delete this.eid
     if (this.watchingFile) {
       window.pre.ipcOffEvent('file-change', this.onFileChange)
       window.pre.runGlobalAsync('unwatchFile', this.watchingFile)
       delete this.watchingFile
-    }
-    window.removeEventListener('message', this.onFileEditEvent)
-  }
-
-  onFileEditEvent = e => {
-    const {
-      action,
-      id,
-      text,
-      path,
-      mode,
-      type,
-      noClose
-    } = e.data || {}
-    if (id !== this.eid) {
-      return false
-    }
-    if (
-      action === commonActions.fetchTextEditorText
-    ) {
-      this.fetchEditorText(path, type)
-    } else if (action === commonActions.submitTextEditorText) {
-      this.onSubmitEditFile(mode, type, path, text, noClose)
-    } else if (action === commonActions.onCloseTextEditor) {
-      this.removeFileEditEvent()
-    } else if (action === commonActions.editWithSystemEditor) {
-      this.editWithSystemEditor(text)
     }
   }
 
@@ -666,7 +642,7 @@ export default class FileSection extends React.Component {
     } else {
       const id = generate()
       tempPath = window.pre.resolve(
-        window.pre.tempDir, `temp-${id}-${name}`
+        window.pre.tempDir, `electerm-temp-${id}-${name}`
       )
       await fs.writeFile(tempPath, text)
     }
@@ -675,12 +651,9 @@ export default class FileSection extends React.Component {
   }
 
   onFileChange = (e, text) => {
-    postMessage({
-      action: commonActions.editWithSystemEditorDone,
-      data: {
-        id: this.eid,
-        text
-      }
+    this.editor.editWithSystemEditorDone({
+      id: this.id,
+      text
     })
   }
 
@@ -713,13 +686,7 @@ export default class FileSection extends React.Component {
     const text = typeMap.remote === type
       ? await this.props.sftp.readFile(path)
       : await fs.readFile(path)
-    postMessage({
-      action: commonActions.loadTextEditorText,
-      data: {
-        text,
-        loading: false
-      }
-    })
+    return text
   }
 
   onSubmitEditFile = async (mode, type, path, text, noClose) => {
@@ -742,25 +709,17 @@ export default class FileSection extends React.Component {
       data.file = null
       data.text = ''
     }
-    postMessage({
-      action: commonActions.openTextEditor,
-      data
-    })
+    this.editor?.setState(data)
     if (r && !noClose) {
       this.props[`${type}List`]()
     }
   }
 
   editFile = () => {
-    this.eid = generate()
-    postMessage({
-      action: commonActions.openTextEditor,
-      data: {
-        id: this.eid,
-        file: this.state.file
-      }
+    this.editor?.openEditor({
+      id: this.id,
+      file: this.state.file
     })
-    window.addEventListener('message', this.onFileEditEvent)
   }
 
   transferOrEnterDirectory = async (e, edit) => {
@@ -1234,6 +1193,7 @@ export default class FileSection extends React.Component {
     return (
       <Dropdown {...ddProps}>
         <div
+          ref={this.domRef}
           {...props}
           data-id={id}
           id={this.id}

@@ -243,7 +243,7 @@ export default auto(function Index (props) {
           buildTheme={store.buildTheme}
         />
         <CustomCss customCss={config.customCss} />
-        <TextEditor customCss={cpConf.customCss} />
+        <TextEditor />
         <UpdateCheck
           skipVersion={cpConf.skipVersion}
           upgradeInfo={upgradeInfo}
