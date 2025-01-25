@@ -11,7 +11,6 @@ import appUpgradeExtend from './app-upgrade'
 import bookmarkGroupExtend from './bookmark-group'
 import bookmarkExtend from './bookmark'
 import commonExtend from './common'
-import contextMenuExtend from './context-menu'
 import itemExtend from './item'
 import quickCommandExtend from './quick-command'
 import sessionExtend from './session'
@@ -277,7 +276,6 @@ appUpgradeExtend(Store)
 bookmarkGroupExtend(Store)
 bookmarkExtend(Store)
 commonExtend(Store)
-contextMenuExtend(Store)
 itemExtend(Store)
 quickCommandExtend(Store)
 sessionExtend(Store)

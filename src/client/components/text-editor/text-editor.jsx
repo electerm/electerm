@@ -6,8 +6,7 @@ import { PureComponent } from 'react'
 import TextEditorForm from './text-editor-form'
 import { Spin, Modal } from 'antd'
 import resolve from '../../common/resolve'
-import { commonActions } from '../../common/constants'
-import postMsg from '../../common/post-msg'
+import refs from '../common/ref'
 
 const e = window.translate
 
@@ -21,7 +20,7 @@ export default class TextEditor extends PureComponent {
   }
 
   componentDidMount () {
-    window.addEventListener('message', this.onEvent)
+    refs.add('text-editor', this)
   }
 
   setStateProxy = (state, cb) => {
@@ -31,30 +30,22 @@ export default class TextEditor extends PureComponent {
     return this.setState(state, cb)
   }
 
-  onEvent = (e) => {
-    const {
-      action,
-      data
-    } = e.data || {}
-    if (
-      action === commonActions.openTextEditor && data
-    ) {
-      this.setStateProxy(data)
-      if (data.id && data.file) {
-        this.fetchText(data)
-      } else if (data.id === '') {
-        this.cancel()
-      }
-    } else if (action === commonActions.loadTextEditorText) {
-      this.setStateProxy(data)
-    } else if (action === commonActions.editWithSystemEditorDone) {
-      let cb = this.doSubmit
-      if (data.text === this.state.text) {
-        delete data.text
-        cb = undefined
-      }
-      this.setStateProxy(data, cb)
+  openEditor = (data) => {
+    this.setStateProxy(data)
+    if (data.id && data.file) {
+      this.fetchText(data)
+    } else if (data.id === '') {
+      this.cancel()
     }
+  }
+
+  editWithSystemEditorDone = (data) => {
+    let cb = this.doSubmit
+    if (data.text === this.state.text) {
+      delete data.text
+      cb = undefined
+    }
+    this.setStateProxy(data, cb)
   }
 
   fetchText = async ({
@@ -72,11 +63,14 @@ export default class TextEditor extends PureComponent {
     this.setStateProxy({
       path: p
     })
-    postMsg({
-      action: commonActions.fetchTextEditorText,
-      id,
-      path: p,
-      type
+    const fileRef = refs.get(id)
+    if (!fileRef) {
+      return
+    }
+    const text = await fileRef.fetchEditorText(p, type)
+    this.setStateProxy({
+      text,
+      loading: false
     })
   }
 
@@ -102,15 +96,11 @@ export default class TextEditor extends PureComponent {
       type,
       mode
     } = file
-    postMsg({
-      id,
-      path,
-      action: commonActions.submitTextEditorText,
-      text: res.text,
-      mode,
-      type,
-      noClose: force
-    })
+    const fileRef = refs.get(id)
+    if (!fileRef) {
+      return
+    }
+    await fileRef.onSubmitEditFile(mode, type, path, res.text, force)
   }
 
   editWith = () => {
@@ -120,11 +110,11 @@ export default class TextEditor extends PureComponent {
     const {
       id, text
     } = this.state
-    postMsg({
-      action: commonActions.editWithSystemEditor,
-      id,
-      text
-    })
+    const fileRef = refs.get(id)
+    if (!fileRef) {
+      return
+    }
+    fileRef.editWithSystemEditor(text)
   }
 
   cancel = () => {
@@ -132,9 +122,8 @@ export default class TextEditor extends PureComponent {
       id: '',
       file: null
     })
-    postMsg({
-      action: commonActions.onCloseTextEditor
-    })
+    const fileRef = refs.get('file-' + this.state.id)
+    fileRef?.removeFileEditEvent()
   }
 
   render () {
