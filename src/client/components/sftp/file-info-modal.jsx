@@ -10,6 +10,13 @@ import { update } from 'lodash-es'
 import { mode2permission, permission2mode } from '../../common/mode2permission'
 import renderPermission from './permission-render'
 import FileIcon from './file-icon'
+import fs from '../../common/fs'
+import { filesize } from 'filesize'
+import { runCmd } from '../terminal/terminal-apis'
+import {
+  isWin,
+  typeMap
+} from '../../common/constants'
 import refs from '../common/ref'
 
 const e = window.translate
@@ -18,13 +25,17 @@ const formatTime = time
 export default class FileMode extends React.PureComponent {
   state = {
     fileId: '',
-    data: {},
-    file: {}
+    loading: false,
+    tab: null,
+    pid: '',
+    sessionId: '',
+    size: 0,
+    file: {},
+    editPermission: false
   }
 
   componentDidMount () {
-    refs.add('file-mode-modal', this)
-    window.addEventListener('message', this.onEvent)
+    refs.add('file-modal', this)
   }
 
   setStateProxy = (state, cb) => {
@@ -34,11 +45,20 @@ export default class FileMode extends React.PureComponent {
     return this.setState(state, cb)
   }
 
+  showFileInfoModal (data) {
+    this.setStateProxy({
+      ...data,
+      size: 0,
+      editPermission: false
+    })
+  }
+
   showFileModeModal = (data, file, fileId) => {
     this.setStateProxy({
-      data,
+      ...data,
       file: this.addPermission(file),
-      fileId
+      fileId,
+      editPermission: true
     })
   }
 
@@ -54,6 +74,9 @@ export default class FileMode extends React.PureComponent {
   }
 
   onChangePermission = (name, permName) => {
+    if (!this.state.editPermission) {
+      return
+    }
     const { file } = this.state
     const perms = mode2permission(file.mode)
     const i = perms.findIndex(p => p.name === name)
@@ -76,7 +99,51 @@ export default class FileMode extends React.PureComponent {
   onClose = () => {
     this.setStateProxy({
       file: {},
-      data: {}
+      visible: false
+    })
+  }
+
+  getSize = (str = '') => {
+    if (isWin) {
+      const s = (str.stdout || '').split('\n').find(s => s.trim().startsWith('Sum'))
+      return s ? filesize(parseInt((s.split(':')[1]).trim(), 10)) : 0
+    } else {
+      return str.split(/\s+/)[0]
+    }
+  }
+
+  calcLocal = async (folder) => {
+    const cmd = isWin
+      ? `Get-ChildItem -Recurse '${folder}' | Measure-Object -Property Length -Sum`
+      : `du -sh '${folder}'`
+    const func = isWin ? 'runWinCmd' : 'run'
+    const res = await fs[func](cmd).catch(window.store.onError)
+    return this.getSize(res)
+  }
+
+  calcRemote = async (folder) => {
+    const cmd = `du -sh '${folder}'`
+    const r = await runCmd(
+      this.state.pid,
+      this.state.sessionId,
+      cmd
+    ).catch(window.store.onError)
+    return r ? r.split(/\s+/)[0] : 0
+  }
+
+  handleCalc = async () => {
+    const { file } = this.state
+    const { type, path, name } = file
+    this.setStateProxy({
+      loading: true
+    })
+    const fp = resolve(path, name)
+    const size = type === typeMap.local
+      ? await this.calcLocal(fp)
+      : await this.calcRemote(fp)
+    this.setState({
+      loading: false,
+      size
     })
   }
 
@@ -86,6 +153,9 @@ export default class FileMode extends React.PureComponent {
   }
 
   renderFooter () {
+    if (!this.state.editPermission) {
+      return null
+    }
     return (
       <Button
         type='primary'
@@ -96,20 +166,64 @@ export default class FileMode extends React.PureComponent {
     )
   }
 
+  getFileSize = () => {
+    const { isDirectory, size } = this.state.file
+    if (isDirectory) {
+      return this.state.size || 0
+    }
+    return size
+  }
+
+  renderSizeRow = () => {
+    console.log('this.state.editPermission', this.state.editPermission)
+    const size = this.getFileSize()
+    if (this.state.editPermission) {
+      return (
+        <>
+          <p className='bold'>{e('size')}:</p>
+          <p className='pd1b'>{size}</p>
+        </>
+      )
+    }
+    return (
+      <>
+        <p className='bold'>{e('size')}:</p>
+        <p className='pd1b'>{this.getFileSize()}{this.renderCalc()}</p>
+      </>
+    )
+  }
+
+  renderCalc () {
+    const { isDirectory } = this.state.file
+    if (isDirectory) {
+      const { loading } = this.state
+      return (
+        <Button
+          onClick={this.handleCalc}
+          loading={loading}
+          disabled={loading}
+          className='mg1l'
+        >
+          {e('calculate')}
+        </Button>
+      )
+    }
+  }
+
   render () {
     const {
       visible,
       tab,
       uidTree,
-      gidTree
-    } = this.state.data
+      gidTree,
+      file,
+      editPermission
+    } = this.state
     if (!visible) {
       return null
     }
-    const { file } = this.state
     const {
       name,
-      size,
       accessTime,
       modifyTime,
       isDirectory,
@@ -126,10 +240,13 @@ export default class FileMode extends React.PureComponent {
       username
     } = tab
     const iconType = isDirectory ? 'folder' : 'file'
+    const title = editPermission
+      ? `${e('edit')} ` + e(iconType) + ` ${e('permission')}`
+      : e(iconType) + ` ${e('attributes')}`
     const ps = {
       open: visible,
       width: 500,
-      title: `${e('edit')} ` + e(iconType) + ` ${e('permission')}`,
+      title,
       footer: this.renderFooter(),
       onCancel: this.onClose
     }
@@ -178,8 +295,7 @@ export default class FileMode extends React.PureComponent {
             <p className='pd1b'>{uidTree['' + owner]}</p>
             <p className='bold'>{e('group')}</p>
             <p className='pd1b'>{gidTree['' + group]}</p>
-            <p className='bold'>{e('size')}:</p>
-            <p className='pd1b'>{size}</p>
+            {this.renderSizeRow()}
             <p className='bold'>{e('accessTime')}:</p>
             <p className='pd1b'>{formatTime(accessTime)}</p>
             <p className='bold'>{e('modifyTime')}:</p>

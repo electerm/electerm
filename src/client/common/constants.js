@@ -241,7 +241,6 @@ export const fileActions = {
 
 export const commonActions = {
   batchOp: 'batch-op',
-  showFileInfoModal: 'show-file-info-modal',
   appUpdateCheck: 'check-app-update'
 }
 

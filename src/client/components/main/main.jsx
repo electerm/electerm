@@ -1,8 +1,7 @@
 import { auto } from 'manate/react'
 import { useEffect } from 'react'
 import Layout from '../layout/layout'
-import FileInfoModal from '../sftp/file-props-modal'
-import FileModeModal from '../sftp/file-mode-modal'
+import FileInfoModal from '../sftp/file-info-modal'
 import UpdateCheck from './upgrade'
 import SettingModal from '../setting-panel/setting-modal'
 import TextEditor from '../text-editor/text-editor'
@@ -250,7 +249,6 @@ export default auto(function Index (props) {
           installSrc={installSrc}
         />
         <FileInfoModal />
-        <FileModeModal />
         <SettingModal store={store} />
         <BatchOp {...batchOpProps} />
         <div

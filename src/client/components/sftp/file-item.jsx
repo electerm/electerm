@@ -382,7 +382,7 @@ export default class FileSection extends React.Component {
 
   showInfo = () => {
     const { type } = this.props
-    window.store.openFileInfoModal({
+    refs.get('file-modal')?.showFileInfoModal({
       file: this.state.file,
       tab: this.props.tab,
       visible: true,
@@ -518,7 +518,7 @@ export default class FileSection extends React.Component {
 
   openFileModeModal = () => {
     const { type } = this.props
-    refs.get('file-mode-modal')?.showFileModeModal(
+    refs.get('file-modal')?.showFileModeModal(
       {
         tab: this.props.tab,
         visible: true,

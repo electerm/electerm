@@ -34,13 +34,6 @@ export default Store => {
     window.store.setConfig(ext)
   }
 
-  Store.prototype.openFileInfoModal = function (data) {
-    postMessage({
-      data,
-      action: commonActions.showFileInfoModal
-    })
-  }
-
   Store.prototype.openInfoPanel = action(function () {
     const { store } = window
     store.rightPanelVisible = true
