@@ -22,8 +22,7 @@ import wait from '../../common/wait'
 import {
   fileOperationsMap,
   isWin, transferTypeMap, typeMap,
-  isMac, maxEditFileSize, ctrlOrCmd,
-  commonActions
+  isMac, maxEditFileSize, ctrlOrCmd
 } from '../../common/constants'
 import findParent from '../../common/find-parent'
 import sorter from '../../common/index-sorter'
@@ -80,7 +79,6 @@ export default class FileSection extends React.Component {
     this.domRef = null
     this.dropTarget = null
     this.removeFileEditEvent()
-    window.removeEventListener('message', this.changeFileMode)
   }
 
   get editor () {
@@ -508,42 +506,28 @@ export default class FileSection extends React.Component {
     })
   }
 
-  changeFileMode = async e => {
-    const {
-      file = {},
-      action
-    } = e.data || {}
-    if (action === commonActions.submitFileModeClose) {
-      window.removeEventListener('message', this.changeFileMode)
-      return false
-    }
-    if (
-      action !== commonActions.submitFileModeEdit ||
-      file.id !== this.state.file.id
-    ) {
-      return false
-    }
+  changeFileMode = async (file) => {
     const { permission, type, path, name } = file
     const func = type === typeMap.local
       ? fs.chmod
       : this.props.sftp.chmod
     const p = resolve(path, name)
     await func(p, permission).catch(window.store.onError)
-    window.removeEventListener('message', this.changeFileMode)
     this.props[type + 'List']()
   }
 
   openFileModeModal = () => {
     const { type } = this.props
-    window.addEventListener(
-      'message', this.changeFileMode
+    refs.get('file-mode-modal')?.showFileModeModal(
+      {
+        tab: this.props.tab,
+        visible: true,
+        uidTree: this.props[`${type}UidTree`],
+        gidTree: this.props[`${type}GidTree`]
+      },
+      this.state.file,
+      this.id
     )
-    window.store.openFileModeModal({
-      tab: this.props.tab,
-      visible: true,
-      uidTree: this.props[`${type}UidTree`],
-      gidTree: this.props[`${type}GidTree`]
-    }, this.state.file)
   }
 
   handleBlur = () => {

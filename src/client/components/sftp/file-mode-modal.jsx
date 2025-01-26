@@ -8,21 +8,22 @@ import resolve from '../../common/resolve'
 import time from '../../common/time'
 import { update } from 'lodash-es'
 import { mode2permission, permission2mode } from '../../common/mode2permission'
-import { commonActions } from '../../common/constants'
 import renderPermission from './permission-render'
-import postMessage from '../../common/post-msg'
 import FileIcon from './file-icon'
+import refs from '../common/ref'
 
 const e = window.translate
 const formatTime = time
 
 export default class FileMode extends React.PureComponent {
   state = {
+    fileId: '',
     data: {},
     file: {}
   }
 
   componentDidMount () {
+    refs.add('file-mode-modal', this)
     window.addEventListener('message', this.onEvent)
   }
 
@@ -33,18 +34,12 @@ export default class FileMode extends React.PureComponent {
     return this.setState(state, cb)
   }
 
-  onEvent = (e) => {
-    const {
-      action,
+  showFileModeModal = (data, file, fileId) => {
+    this.setStateProxy({
       data,
-      file
-    } = e.data || {}
-    if (action === commonActions.showFileModeModal) {
-      this.setStateProxy({
-        data,
-        file
-      })
-    }
+      file: this.addPermission(file),
+      fileId
+    })
   }
 
   addPermission = file => {
@@ -79,9 +74,6 @@ export default class FileMode extends React.PureComponent {
   }
 
   onClose = () => {
-    postMessage({
-      action: commonActions.submitFileModeClose
-    })
     this.setStateProxy({
       file: {},
       data: {}
@@ -89,10 +81,7 @@ export default class FileMode extends React.PureComponent {
   }
 
   handleSubmit = () => {
-    postMessage({
-      action: commonActions.submitFileModeEdit,
-      file: this.state.file
-    })
+    refs.get(this.state.fileId)?.changeFileMode(this.state.file)
     this.onClose()
   }
 

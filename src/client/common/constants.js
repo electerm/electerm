@@ -241,9 +241,6 @@ export const fileActions = {
 
 export const commonActions = {
   batchOp: 'batch-op',
-  submitFileModeEdit: 'submit-file-mode-edit',
-  submitFileModeClose: 'submit-file-mode-close',
-  showFileModeModal: 'show-file-mode-modal',
   showFileInfoModal: 'show-file-info-modal',
   appUpdateCheck: 'check-app-update'
 }

@@ -41,14 +41,6 @@ export default Store => {
     })
   }
 
-  Store.prototype.openFileModeModal = function (data, file) {
-    postMessage({
-      data,
-      file,
-      action: commonActions.showFileModeModal
-    })
-  }
-
   Store.prototype.openInfoPanel = action(function () {
     const { store } = window
     store.rightPanelVisible = true
