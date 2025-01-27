@@ -25,6 +25,8 @@ export default class TransferConflictStore extends PureComponent {
   }
 
   componentDidMount () {
+    this.id = 'transfer-conflict'
+    refs.add(this.id, this)
     this.watchFile()
   }
 
@@ -132,21 +134,15 @@ export default class TransferConflictStore extends PureComponent {
     window.store.transferToConfirm = tr
   }
 
-  onDecision = (event) => {
+  onDecision = (data) => {
     if (
-      event &&
-      event.data &&
-      event.data.id === this.currentId
+      data.id === this.currentId
     ) {
       this.currentId = ''
-      this.updateTransferAction(event.data)
+      this.updateTransferAction(data)
       this.onConfirm = false
       window.removeEventListener('message', this.onDecision)
     }
-  }
-
-  waitForSignal = () => {
-    window.addEventListener('message', this.onDecision)
   }
 
   updateData = () => {
@@ -261,7 +257,6 @@ export default class TransferConflictStore extends PureComponent {
         transfer: tr
       })
     } else if (toFile && !action && !skipConfirm) {
-      this.waitForSignal(id)
       if (!this.onConfirm) {
         this.onConfirm = true
         assign(tr, {
