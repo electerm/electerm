@@ -2,7 +2,6 @@
  * extend store
  */
 
-import postMessage from '../common/post-msg'
 import refs from '../components/common/ref'
 
 export default Store => {
@@ -26,10 +25,7 @@ export default Store => {
     document.activeElement &&
     document.activeElement.select &&
     document.activeElement.select()
-    postMessage({
-      event: 'selectall',
-      id: window.store.activeTabId
-    })
+    refs.get('term-' + window.store.activeTabId)?.term?.selectAll()
   }
 
   Store.prototype.triggerResize = function () {
