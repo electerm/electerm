@@ -17,7 +17,6 @@ import {
 import {
   sidebarWidth,
   statusMap,
-  commonActions,
   batchOpHelpLink,
   modals
 } from '../../common/constants'
@@ -31,6 +30,7 @@ import uid from '../../common/uid'
 import wait from '../../common/wait'
 import { getFolderFromFilePath } from '../sftp/file-read'
 import resolveFilePath from '../../common/resolve'
+import refs from '../common/ref'
 
 const e = window.translate
 
@@ -85,19 +85,8 @@ export default class BatchOp extends PureComponent {
   ]
 
   componentDidMount () {
-    this.watch()
-  }
-
-  componentWillUnmount () {
-    this.unwatch()
-  }
-
-  watch () {
-    window.addEventListener('message', this.handleEvent)
-  }
-
-  unwatch () {
-    window.removeEventListener('message', this.handleEvent)
+    this.id = 'batch-op'
+    refs.add(this.id, this)
   }
 
   handleDownloadExample = () => {
@@ -107,16 +96,6 @@ export default class BatchOp extends PureComponent {
       }).join(',')
     }).join('\n')
     download('batch-op-example.csv', csvText)
-  }
-
-  handleEvent = e => {
-    if (e && e.data && e.data.action === commonActions.batchOp) {
-      const {
-        func,
-        args
-      } = e.data.batchOp
-      this[func](...args)
-    }
   }
 
   handleCancel = () => {

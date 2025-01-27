@@ -5,9 +5,7 @@
 import handleError from '../common/error-handler'
 import { Modal } from 'antd'
 import { debounce, some } from 'lodash-es'
-import postMessage from '../common/post-msg'
 import {
-  commonActions,
   modals,
   leftSidebarWidthKey,
   rightSidebarWidthKey,
@@ -91,35 +89,15 @@ export default Store => {
     window.store.showModal = modals.batchOps
     async function updateText () {
       const text = await window.fs.readFile(path)
-      postMessage({
-        action: commonActions.batchOp,
-        batchOp: {
-          func: 'setState',
-          args: [
-            {
-              text
-            }
-          ]
-        }
+      refs.get('batch-op')?.setState({
+        text
       })
     }
     function queue () {
-      postMessage({
-        action: commonActions.batchOp,
-        batchOp: {
-          func: 'handleClick',
-          args: []
-        }
-      })
+      refs.get('batch-op')?.handleClick()
     }
     function run () {
-      postMessage({
-        action: commonActions.batchOp,
-        batchOp: {
-          func: 'handleExec',
-          args: []
-        }
-      })
+      refs.get('batch-op')?.handleExec()
     }
     try {
       setTimeout(updateText, 2000)

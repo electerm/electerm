@@ -235,10 +235,6 @@ export const fileActions = {
   renameAll: 'renameAll'
 }
 
-export const commonActions = {
-  batchOp: 'batch-op'
-}
-
 export const srcsSkipUpgradeCheck = [
   '.appx',
   '.snap',
