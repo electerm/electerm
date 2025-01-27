@@ -9,7 +9,6 @@ import {
   isMac,
   isWin,
   packInfo,
-  commonActions,
   srcsSkipUpgradeCheck,
   downloadUpgradeTimeout,
   mirrors
@@ -18,6 +17,7 @@ import { debounce } from 'lodash-es'
 import newTerm from '../../common/new-terminal'
 import Markdown from '../common/markdown'
 import downloadMirrors from '../../common/download-mirrors'
+import refs from '../common/ref'
 import './upgrade.styl'
 
 const e = window.translate
@@ -37,30 +37,17 @@ export default class Upgrade extends PureComponent {
     setTimeout(() => {
       getLatestReleaseVersion(1)
     }, 5000)
-    this.watch()
+    this.id = 'upgrade'
+    refs.add(this.id, this)
   }
 
-  componentWillUnmount () {
-    this.unwatch()
-  }
-
-  watch = () => {
-    window.addEventListener('message', this.onEvent)
-  }
-
-  unwatch = () => {
-    window.removeEventListener('message', this.onEvent)
-  }
-
-  onEvent = (e) => {
-    if (e && e.data && e.data.action === commonActions.appUpdateCheck) {
-      this.setState(old => {
-        return {
-          showCount: old.showCount + 1
-        }
-      })
-      this.getLatestRelease(e.data.noSkip)
-    }
+  appUpdateCheck = (noSkip) => {
+    this.setState(old => {
+      return {
+        showCount: old.showCount + 1
+      }
+    })
+    this.getLatestRelease(noSkip)
   }
 
   changeProps = (update) => {

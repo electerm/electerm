@@ -13,7 +13,6 @@ import sorterIndex from '../../common/index-sorter'
 import { getLocalFileInfo, getRemoteFileInfo } from './file-read'
 import {
   typeMap, maxSftpHistory, paneMap,
-  eventTypes,
   fileTypeMap,
   terminalSerialType,
   unexpectedPacketErrorDesc,
@@ -28,7 +27,6 @@ import ListTable from './list-table-ui'
 import deepCopy from 'json-deep-copy'
 import isValidPath from '../../common/is-valid-path'
 import memoizeOne from 'memoize-one'
-import postMessage from '../../common/post-msg'
 import * as owner from './owner-list'
 import AddressBar from './address-bar'
 import getProxy from '../../common/get-proxy'
@@ -249,15 +247,6 @@ export default class Sftp extends Component {
   getIndex = (file) => {
     const { type } = file
     return this.getFileList(type).findIndex(f => f.id === file.id)
-  }
-
-  onResizeDragEnd = () => {
-    postMessage({
-      type: eventTypes.resetFileListTable,
-      data: {
-        id: this.state.id
-      }
-    })
   }
 
   selectAll = (type, e) => {

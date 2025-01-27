@@ -6,8 +6,7 @@ import { Component } from 'react'
 import classnames from 'classnames'
 import { find } from 'lodash-es'
 import {
-  sftpControlHeight,
-  eventTypes
+  sftpControlHeight
 } from '../../common/constants'
 import FileSection from './file-item'
 import PagedList from './paged-list'
@@ -23,54 +22,6 @@ export default class FileListTable extends Component {
   constructor (props) {
     super(props)
     this.state = this.initFromProps()
-  }
-
-  componentDidMount () {
-    // this.saveOldStyle()
-    window.addEventListener('message', this.onMsg)
-  }
-
-  // componentDidUpdate (prevProps, prevState) {
-  //   if (this.state.properties.length < 2) {
-  //     return
-  //   }
-  //   if (
-  //     !isEqual(prevState.properties, this.state.properties) ||
-  //     (
-  //       this.toVisible(prevProps, this.props) &&
-  //       !this.inited
-  //     )
-  //   ) {
-  //     if (!this.inited) {
-  //       this.inited = true
-  //     }
-  //     this.saveOldStyle()
-  //   }
-  // }
-
-  componentWillUnmount () {
-    window.removeEventListener('message', this.onMsg)
-  }
-
-  // toVisible = (prevProps, props) => {
-  //   return (
-  //     prevProps.pane === paneMap.ssh ||
-  //     prevProps.pane === paneMap.terminal
-  //   ) &&
-  //   (
-  //     props.pane === paneMap.sftp ||
-  //     props.pane === paneMap.fileManager
-  //   )
-  // }
-
-  onMsg = e => {
-    const { type, data } = e.data || {}
-    if (
-      type === eventTypes.resetFileListTable &&
-      data.id === this.props.id
-    ) {
-      this.resetWidth()
-    }
   }
 
   initFromProps = (pps = this.getPropsDefault()) => {

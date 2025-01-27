@@ -2,14 +2,11 @@
  * app upgrade
  */
 
-import { commonActions } from '../common/constants'
+import refs from '../components/common/ref'
 
 export default Store => {
   Store.prototype.onCheckUpdate = (noSkip = true) => {
-    window.postMessage({
-      action: commonActions.appUpdateCheck,
-      noSkip
-    }, '*')
+    refs.get('upgrade')?.appUpdateCheck(noSkip)
   }
   Store.prototype.getProxySetting = function () {
     const {

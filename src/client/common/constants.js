@@ -171,10 +171,6 @@ export const defaultTheme = {
   uiThemeConfig: getUiThemeConfig(window.et.stylus)
 }
 
-export const eventTypes = {
-  resetFileListTable: 'reset-file-list-table'
-}
-
 export const commonBaudRates = [
   110,
   300,
@@ -240,8 +236,7 @@ export const fileActions = {
 }
 
 export const commonActions = {
-  batchOp: 'batch-op',
-  appUpdateCheck: 'check-app-update'
+  batchOp: 'batch-op'
 }
 
 export const srcsSkipUpgradeCheck = [
