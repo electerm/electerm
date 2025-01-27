@@ -79,7 +79,8 @@
   top 10px
   font-size 50px
 .file-props
-  margin-left 70px
+  display flex
+  width 100%
 
 .opacity-loop
   opacity 0.3
@@ -97,11 +98,9 @@
 
 //list table
 .sftp-file-prop
+  flex 0 0 auto
   height 32px
   line-height 30px
-  position absolute
-  left 0
-  width 100px
   padding 0 5px
   background main
   overflow hidden
@@ -109,11 +108,8 @@
   text-overflow ellipsis
   pointer-events none
   cursor default
-  z-index 4
   color text
-  &:last-child
-    right 0 !important
-    width auto !important
+
 .file-bg
   position absolute
   left 0
@@ -125,26 +121,13 @@
 .sftp-header-item
   height 28px
   line-height 25px
-  position absolute
-  left 0
-  width 100px
-  border 1px solid main
-  border-right none
   padding 0 5px
   background main
   overflow hidden
   white-space nowrap
   text-overflow ellipsis
   color text
-  &:last-child
-    border-right 1px solid main
-    right 0 !important
-    width auto !important
-.sftp-header-handle
-  z-index 20
-  cursor ew-resize
-  border none
-  background none
+
 .sftp-file-table-header
   height 30px
 .sftp-table

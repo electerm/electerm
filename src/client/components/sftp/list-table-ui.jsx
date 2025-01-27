@@ -4,28 +4,17 @@
 
 import { Component } from 'react'
 import classnames from 'classnames'
-import { isEqual, pick, find, isNull, isArray, isUndefined } from 'lodash-es'
-import generate from '../../common/uid'
-import parseInt10 from '../../common/parse-int10'
+import { find } from 'lodash-es'
 import {
-  splitDraggerWidth,
-  filePropMinWidth,
-  maxDragMove,
   sftpControlHeight,
-  eventTypes,
-  paneMap
+  eventTypes
 } from '../../common/constants'
-import copy from 'json-deep-copy'
 import FileSection from './file-item'
 import PagedList from './paged-list'
+import FileListTableHeader from './file-table-header'
 import {
-  DownOutlined,
-  UpOutlined,
   CheckOutlined
 } from '@ant-design/icons'
-import {
-  Dropdown
-} from 'antd'
 import IconHolder from '../sys-menu/icon-holder'
 
 const e = window.translate
@@ -37,42 +26,42 @@ export default class FileListTable extends Component {
   }
 
   componentDidMount () {
-    this.saveOldStyle()
+    // this.saveOldStyle()
     window.addEventListener('message', this.onMsg)
   }
 
-  componentDidUpdate (prevProps, prevState) {
-    if (this.state.properties.length < 2) {
-      return
-    }
-    if (
-      !isEqual(prevState.properties, this.state.properties) ||
-      (
-        this.toVisible(prevProps, this.props) &&
-        !this.inited
-      )
-    ) {
-      if (!this.inited) {
-        this.inited = true
-      }
-      this.saveOldStyle()
-    }
-  }
+  // componentDidUpdate (prevProps, prevState) {
+  //   if (this.state.properties.length < 2) {
+  //     return
+  //   }
+  //   if (
+  //     !isEqual(prevState.properties, this.state.properties) ||
+  //     (
+  //       this.toVisible(prevProps, this.props) &&
+  //       !this.inited
+  //     )
+  //   ) {
+  //     if (!this.inited) {
+  //       this.inited = true
+  //     }
+  //     this.saveOldStyle()
+  //   }
+  // }
 
   componentWillUnmount () {
     window.removeEventListener('message', this.onMsg)
   }
 
-  toVisible = (prevProps, props) => {
-    return (
-      prevProps.pane === paneMap.ssh ||
-      prevProps.pane === paneMap.terminal
-    ) &&
-    (
-      props.pane === paneMap.sftp ||
-      props.pane === paneMap.fileManager
-    )
-  }
+  // toVisible = (prevProps, props) => {
+  //   return (
+  //     prevProps.pane === paneMap.ssh ||
+  //     prevProps.pane === paneMap.terminal
+  //   ) &&
+  //   (
+  //     props.pane === paneMap.sftp ||
+  //     props.pane === paneMap.fileManager
+  //   )
+  // }
 
   onMsg = e => {
     const { type, data } = e.data || {}
@@ -86,42 +75,20 @@ export default class FileListTable extends Component {
 
   initFromProps = (pps = this.getPropsDefault()) => {
     const { length } = pps
-    const { width } = this.props
-    const padding = 5
-    const w = (width - padding * 2) / length
+    const size = (100 / length)
+    const max = (100 - length * 2)
+    const min = 2
     const properties = pps.map((name, i) => {
       return {
-        name,
-        id: generate(),
-        style: {
-          width: w + 'px',
-          left: (w * i) + 'px',
-          zIndex: 3 + i * 2
-        }
+        id: name,
+        max,
+        min,
+        size
       }
     })
-    const splitHandles = properties.reduce((prev, { name }, i) => {
-      if (i === length - 1) {
-        return prev
-      }
-      return [
-        ...prev,
-        {
-          id: generate(),
-          prevProp: name,
-          nextProp: properties[i + 1].name,
-          style: {
-            left: (w * (i + 1) - (splitDraggerWidth / 2)) + 'px',
-            width: splitDraggerWidth + 'px',
-            zIndex: 4 + i * 2
-          }
-        }
-      ]
-    }, [])
     return {
       pageSize: 100,
-      properties,
-      splitHandles
+      properties
     }
   }
 
@@ -153,84 +120,35 @@ export default class FileListTable extends Component {
       : this.props.directions[0]
   }
 
-  renderTableHeader = () => {
-    const { properties, splitHandles } = this.state
-    const arr = properties.reduce((prev, p, i) => {
-      return [
-        ...prev,
-        p,
-        splitHandles[i]
-      ]
-    }, []).filter(d => d)
-    const dropdownProps = {
-      menu: {
-        items: this.renderContextMenu(),
-        onClick: this.onContextMenu
-      },
-      trigger: ['contextMenu']
-    }
-    return (
-      <Dropdown {...dropdownProps}>
-        <div
-          className='sftp-file-table-header relative'
-        >
-          {
-            arr.map(this.renderHeaderItem)
-          }
-        </div>
-      </Dropdown>
-    )
+  onResize = size => {
+    this.setState(old => {
+      const { properties } = old
+      const total = size.reduce((a, b) => a + b, 0)
+      const newProps = properties.map((d, i) => {
+        return {
+          ...d,
+          size: size[i] * 100 / total
+        }
+      })
+      return {
+        properties: newProps
+      }
+    })
   }
 
-  renderHeaderItem = (item) => {
-    const {
-      name,
-      id,
-      style
-    } = item
-    const isHandle = !name
-    const { sortDirection, sortProp } = this.props
-    const isSorting = !isHandle && sortProp === name
-    const cls = classnames(
-      'sftp-header-item',
-      isHandle ? `shi-${id}` : `sftp-header-box shi-${name}`,
-      {
-        'sftp-header-handle': isHandle
-      },
-      {
-        'sftp-header-name': !isHandle
-      },
-      {
-        'is-sorting': isSorting
-      },
-      isSorting ? sortDirection : ''
-    )
-    const props = isHandle
-      ? pick(this, [
-        'onDoubleClick',
-        'onDrag',
-        'onDragStart',
-        'onDragEnd'
-      ])
-      : {
-          onClick: this.onClickName
-        }
-    const text = e(name || '')
-    const directionIcon = isSorting
-      ? (sortDirection === 'asc' ? <DownOutlined /> : <UpOutlined />)
-      : null
+  renderTableHeader = () => {
+    const headerProps = {
+      renderContextMenu: this.renderContextMenu,
+      onContextMenu: this.onContextMenu,
+      onClickName: this.onClickName,
+      onResize: this.onResize,
+      properties: this.state.properties,
+      sortDirection: this.props.sortDirection,
+      sortProp: this.props.sortProp,
+      maxWidth: this.props.width
+    }
     return (
-      <div
-        className={cls}
-        style={style}
-        id={id}
-        key={id}
-        draggable={isHandle}
-        {...props}
-        title={text}
-      >
-        {directionIcon} {text}
-      </div>
+      <FileListTableHeader {...headerProps} />
     )
   }
 
@@ -240,7 +158,7 @@ export default class FileListTable extends Component {
 
   onToggleProp = name => {
     const { properties } = this.state
-    const names = properties.map(d => d.name)
+    const names = properties.map(d => d.id)
     const all = this.getPropsAll()
     const newProps = names.includes(name)
       ? names.filter(d => d !== name)
@@ -254,7 +172,7 @@ export default class FileListTable extends Component {
   }
 
   onClickName = (e) => {
-    const id = e.target.getAttribute('id')
+    const id = e.target.getAttribute('data-id')
     const { properties } = this.state
     const propObj = find(
       properties,
@@ -263,7 +181,7 @@ export default class FileListTable extends Component {
     if (!propObj) {
       return
     }
-    const { name } = propObj
+    const { id: name } = propObj
     const { sortDirection, sortProp } = this.props
     const sortDirectionNew = sortProp === name
       ? this.otherDirection(sortDirection)
@@ -285,7 +203,7 @@ export default class FileListTable extends Component {
   renderContextMenu = () => {
     const { properties } = this.state
     const all = this.getPropsAll()
-    const selectedNames = properties.map(d => d.name)
+    const selectedNames = properties.map(d => d.id)
     return all.map((p, i) => {
       const selected = selectedNames.includes(p)
       const disabled = !i
@@ -304,124 +222,56 @@ export default class FileListTable extends Component {
     'left'
   ]
 
-  saveOldStyle = () => {
-    const { properties, splitHandles } = this.state
-    const ids = [
-      ...properties,
-      ...splitHandles
-    ]
-    const { type, id } = this.props
-    const parentWidth = document.querySelector(
-      `#id-${id} .tw-${type} .sftp-table`
-    ).clientWidth
-    this.oldStyles = ids.reduce((prev, { id, name }) => {
-      const sel = `.session-current .tw-${type} .sftp-file-table-header .shi-${name || id}`
-      return {
-        ...prev,
-        [name || id]: {
-          style: pick(
-            document.querySelector(sel)?.style || {},
-            this.positionProps
-          ),
-          parentWidth
-        }
-      }
-    }, {})
-  }
+  // saveOldStyle = () => {
+  //   const { properties } = this.state
+  //   const ids = [
+  //     ...properties,
+  //     ...splitHandles
+  //   ]
+  //   const { type, id } = this.props
+  //   const parentWidth = document.querySelector(
+  //     `#id-${id} .tw-${type} .sftp-table`
+  //   ).clientWidth
+  //   this.oldStyles = ids.reduce((prev, { id, name }) => {
+  //     const sel = `.session-current .tw-${type} .sftp-file-table-header .shi-${name || id}`
+  //     return {
+  //       ...prev,
+  //       [name || id]: {
+  //         style: pick(
+  //           document.querySelector(sel)?.style || {},
+  //           this.positionProps
+  //         ),
+  //         parentWidth
+  //       }
+  //     }
+  //   }, {})
+  // }
 
-  onDrag = (e) => {
-    if (isNull(e.pageX)) {
-      return
-    }
-    const dom = e.target
-    const { splitHandles } = this.state
-    const { type } = this.props
-    const id = dom.getAttribute('id')
-    const splitHandle = find(
-      splitHandles,
-      s => s.id === id
-    )
-    const {
-      prevProp,
-      nextProp
-    } = splitHandle
-    const selPrev = `.session-current .tw-${type} .shi-${prevProp}`
-    const selNext = `.session-current .tw-${type} .shi-${nextProp}`
-    const prev = Array.from(document.querySelectorAll(selPrev))
-    const next = Array.from(document.querySelectorAll(selNext))
-    const { startPosition } = this
-    const currentPosition = {
-      x: e.pageX
-    }
-
-    const types = ['dom', 'prev', 'next']
-    const doms = [dom, prev, next]
-    const styles = doms.map(d => {
-      const dd = isArray(d) ? d[0] : d
-      const { style } = dd
-      const rect = dd.getBoundingClientRect()
-      const obj = pick(style, this.positionProps)
-      const res = Object.keys(obj).reduce((prev, k) => {
-        const v = obj[k]
-        return {
-          ...prev,
-          [k]: isUndefined(v)
-            ? v
-            : parseInt10(obj[k].replace('px', ''))
-        }
-      }, {})
-      res.width = rect.right - rect.left
-      return res
-    })
-    let xDiff = currentPosition.x - startPosition.x
-    if (Math.abs(xDiff) > maxDragMove) {
-      return
-    }
-    const prevStyle = styles[1]
-    const nextStyle = styles[2]
-    const minW = filePropMinWidth
-    if (xDiff > 0 && xDiff > nextStyle.width - minW) {
-      xDiff = nextStyle.width - minW
-    } else if (xDiff < 0 && xDiff < -(prevStyle.width - minW)) {
-      xDiff = -(prevStyle.width - minW)
-    }
-    doms.forEach((d, i) => {
-      this.changePosition(d, xDiff, types[i], styles[i])
-    })
-    this.startPosition = currentPosition
-  }
-
-  onDragStart = (e) => {
-    this.startPosition = {
-      x: e.pageX
-    }
-  }
-
-  changePosition = (
-    dom,
-    xDiff,
-    type,
-    style
-  ) => {
-    const realWidth = style.width
-    const realLeft = style.left
-    if (type === 'prev') {
-      dom.forEach(d => {
-        d.style.width = (realWidth + xDiff) + 'px'
-      })
-    } else if (type === 'dom') {
-      dom.style.left = (realLeft + xDiff) + 'px'
-    } else {
-      dom.forEach(d => {
-        d.style.width = (realWidth - xDiff) + 'px'
-        d.style.left = (realLeft + xDiff) + 'px'
-      })
-    }
-  }
+  // changePosition = (
+  //   dom,
+  //   xDiff,
+  //   type,
+  //   style
+  // ) => {
+  //   const realWidth = style.width
+  //   const realLeft = style.left
+  //   if (type === 'prev') {
+  //     dom.forEach(d => {
+  //       d.style.width = (realWidth + xDiff) + 'px'
+  //     })
+  //   } else if (type === 'dom') {
+  //     dom.style.left = (realLeft + xDiff) + 'px'
+  //   } else {
+  //     dom.forEach(d => {
+  //       d.style.width = (realWidth - xDiff) + 'px'
+  //       d.style.left = (realLeft + xDiff) + 'px'
+  //     })
+  //   }
+  // }
 
   // onDragEnd = () => {}
 
-  onDoubleClick = () => this.resetWidth()
+  // onDoubleClick = () => this.resetWidth()
 
   hasPager = () => {
     const {
@@ -434,43 +284,24 @@ export default class FileListTable extends Component {
     return len > pageSize
   }
 
-  rebuildStyle = (name) => {
-    let { style, parentWidth } = this.oldStyles[name]
-    style = copy(style)
-    const {
-      type,
-      id
-    } = this.props
-    const currentParentWidth = document.querySelector(
-      `#id-${id} .tw-${type} .sftp-table`
-    ).clientWidth
-    style.width = (parseFloat(style.width) * currentParentWidth / parentWidth) + 'px'
-    style.left = (parseFloat(style.left) * currentParentWidth / parentWidth) + 'px'
-    return style
-  }
+  // rebuildStyle = (name) => {
+  //   let { style, parentWidth } = this.oldStyles[name]
+  //   style = copy(style)
+  //   const {
+  //     type,
+  //     id
+  //   } = this.props
+  //   const currentParentWidth = document.querySelector(
+  //     `#id-${id} .tw-${type} .sftp-table`
+  //   ).clientWidth
+  //   style.width = (parseFloat(style.width) * currentParentWidth / parentWidth) + 'px'
+  //   style.left = (parseFloat(style.left) * currentParentWidth / parentWidth) + 'px'
+  //   return style
+  // }
 
   // reset
   resetWidth = () => {
-    const { properties, splitHandles } = this.state
-    const ids = [
-      ...properties,
-      ...splitHandles
-    ]
-    const { type } = this.props
-    ids.forEach(({ id, name }) => {
-      const sel = `.session-current .tw-${type} .shi-${name || id}`
-      const arr = Array.from(
-        document.querySelectorAll(sel)
-      )
-      arr.forEach(d => {
-        Object.assign(
-          d.style,
-          this.rebuildStyle(
-            name || id
-          )
-        )
-      })
-    })
+    this.setState(this.initFromProps())
   }
 
   renderItem = (item, i) => {

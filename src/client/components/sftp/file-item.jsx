@@ -1088,27 +1088,27 @@ export default class FileSection extends React.Component {
     )
   }
 
-  renderProp = ({ name, style }) => {
+  renderProp = ({ id, size }) => {
     const { file } = this.state
-    let value = file[name]
+    let value = file[id]
     let typeIcon = null
     let symbolicLinkText = null
     const {
       isDirectory,
       isSymbolicLink
     } = file
-    if (isDirectory && name === 'size') {
+    if (isDirectory && id === 'size') {
       value = null
-    } else if (!isDirectory && name === 'size') {
+    } else if (!isDirectory && id === 'size') {
       value = filesize(value)
-    } else if (name === 'owner') {
+    } else if (id === 'owner') {
       const { type } = this.props
       value = this.props[`${type}UidTree`]['' + value] || value
-    } else if (name === 'group') {
+    } else if (id === 'group') {
       const { type } = this.props
       value = this.props[`${type}GidTree`]['' + value] || value
     }
-    if (name === 'name') {
+    if (id === 'name') {
       // const Icon = isDirectory
       //   ? FolderOutlined
       //   : FileOutlined
@@ -1116,17 +1116,23 @@ export default class FileSection extends React.Component {
       symbolicLinkText = isSymbolicLink
         ? <sup className='color-blue symbolic-link-icon'>*</sup>
         : null
-    } else if (name === 'mode') {
+    } else if (id === 'mode') {
       value = permission2mode(mode2permission(value))
-    } else if (name.toLowerCase().includes('time')) {
+    } else if (id.toLowerCase().includes('time')) {
       value = time(value)
+    }
+    const divProps = {
+      className: `sftp-file-prop noise shi-${id}`,
+      style: {
+        width: size + '%',
+        flexBasis: `${size}%`
+      },
+      title: value,
+      key: id
     }
     return (
       <div
-        key={name}
-        title={value}
-        className={`sftp-file-prop noise shi-${name}`}
-        style={style}
+        {...divProps}
       >
         {typeIcon}
         {symbolicLinkText}
