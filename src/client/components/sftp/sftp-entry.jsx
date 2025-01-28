@@ -21,8 +21,6 @@ import {
 import { hasFileInClipboardText } from '../../common/clipboard'
 import Client from '../../common/sftp'
 import fs from '../../common/fs'
-import keyControlPressed from '../../common/key-control-pressed'
-import keyPressed from '../../common/key-pressed'
 import ListTable from './list-table-ui'
 import deepCopy from 'json-deep-copy'
 import isValidPath from '../../common/is-valid-path'
@@ -60,7 +58,9 @@ export default class Sftp extends Component {
 
   componentDidMount () {
     this.id = 'sftp-' + this.props.sessionId
+    this.tid = 'sftp-' + this.props.tab.id
     refs.add(this.id, this)
+    refs.add(this.tid, this)
   }
 
   componentDidUpdate (prevProps, prevState) {
@@ -76,7 +76,6 @@ export default class Sftp extends Component {
         this.props.enableSftp !== false
       )
     ) {
-      this.initEvent()
       this.initData(true)
     }
     if (
@@ -113,7 +112,7 @@ export default class Sftp extends Component {
 
   componentWillUnmount () {
     refs.remove(this.id)
-    this.destroyEvent()
+    refs.remove(this.tid)
     this.sftp && this.sftp.destroy()
     this.sftp = null
     clearTimeout(this.timer4)
@@ -184,14 +183,6 @@ export default class Sftp extends Component {
       ...l2.sort(sorter)
     ].filter(d => d)
   }, isEqual)
-
-  initEvent () {
-    window.addEventListener('keydown', this.handleEvent)
-  }
-
-  destroyEvent () {
-    window.removeEventListener('keydown', this.handleEvent)
-  }
 
   isActive () {
     return this.props.enableSftp && this.props.currentBatchTabId === this.props.tab.id &&
@@ -416,41 +407,6 @@ export default class Sftp extends Component {
       return
     }
     this[type + 'Dom'].onPaste()
-  }
-
-  handleEvent = (e) => {
-    if (!this.isActive() || window.store.onOperation) {
-      return
-    }
-    const lastClickedFile = this.state.lastClickedFile || {
-      type: typeMap.local
-    }
-    const { type } = lastClickedFile
-    const { inputFocus, onDelete } = this
-    e.stopPropagation()
-    if (keyControlPressed(e) && keyPressed(e, 'keyA') && !inputFocus) {
-      this.selectAll(type, e)
-    } else if (keyPressed(e, 'arrowdown') && !inputFocus) {
-      this.selectNext(type)
-    } else if (keyPressed(e, 'arrowup') && !inputFocus) {
-      this.selectPrev(type)
-    } else if (
-      keyPressed(e, 'delete') &&
-      !inputFocus &&
-      !this.state.onEditFile
-    ) {
-      this.delFiles(type)
-    } else if (keyPressed(e, 'enter') && !inputFocus && !onDelete) {
-      this.enter(type, e)
-    } else if (keyControlPressed(e) && keyPressed(e, 'keyC') && !inputFocus) {
-      this.doCopy(type, e)
-    } else if (keyControlPressed(e) && keyPressed(e, 'keyX') && !inputFocus) {
-      this.doCut(type, e)
-    } else if (keyControlPressed(e) && keyPressed(e, 'keyV') && !inputFocus) {
-      this.doPaste(type, e)
-    } else if (keyPressed(e, 'f5')) {
-      this.onGoto(type)
-    }
   }
 
   initData = async () => {

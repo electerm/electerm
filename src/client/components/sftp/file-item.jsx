@@ -1127,12 +1127,12 @@ export default class FileSection extends React.Component {
         width: size + '%',
         flexBasis: `${size}%`
       },
-      title: value,
-      key: id
+      title: value
     }
     return (
       <div
         {...divProps}
+        key={id}
       >
         {typeIcon}
         {symbolicLinkText}

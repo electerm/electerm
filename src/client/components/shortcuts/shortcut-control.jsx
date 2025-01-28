@@ -6,13 +6,78 @@
 import React from 'react'
 import { shortcutExtend } from './shortcut-handler.js'
 import { throttle } from 'lodash-es'
+import {
+  typeMap
+} from '../../common/constants'
+import refs from '../common/ref'
+import keyControlPressed from '../../common/key-control-pressed'
+import keyPressed from '../../common/key-pressed'
 
 class ShortcutControl extends React.PureComponent {
   componentDidMount () {
     const onEvent = this.handleKeyboardEvent.bind(this)
-    document.addEventListener('keydown', onEvent, true)
+    document.addEventListener('keydown', this.onEvent, true)
     document.addEventListener('mousedown', onEvent)
     document.addEventListener('mousewheel', onEvent)
+  }
+
+  onEvent = (e) => {
+    // First check SFTP shortcuts
+    this.handleSftpKeyboardEvent(e)
+    // Then handle extended shortcuts
+    this.handleKeyboardEvent(e)
+  }
+
+  getActiveSftp = () => {
+    const { activeTabId } = window.store
+    if (!activeTabId) return null
+    const ref = refs.get('sftp-' + activeTabId)
+    if (!ref || !ref.isActive()) return null
+    return ref
+  }
+
+  // SFTP shortcuts handler
+  handleSftpKeyboardEvent = (e) => {
+    console.log('e', e)
+    const activeSftp = this.getActiveSftp()
+    if (!activeSftp || activeSftp.state.onDelete) {
+      return
+    }
+
+    const lastClickedFile = activeSftp.state.lastClickedFile || {
+      type: typeMap.local
+    }
+    const { type } = lastClickedFile
+    const { inputFocus } = activeSftp
+
+    if (keyControlPressed(e) && keyPressed(e, 'keyA') && !inputFocus) {
+      e.stopPropagation()
+      activeSftp.selectAll(type, e)
+    } else if (keyPressed(e, 'arrowdown') && !inputFocus) {
+      e.stopPropagation()
+      activeSftp.selectNext(type)
+    } else if (keyPressed(e, 'arrowup') && !inputFocus) {
+      e.stopPropagation()
+      activeSftp.selectPrev(type)
+    } else if (keyPressed(e, 'delete') && !inputFocus && !activeSftp.state.onEditFile) {
+      e.stopPropagation()
+      activeSftp.delFiles(type)
+    } else if (keyPressed(e, 'enter') && !inputFocus && !activeSftp.state.onDelete) {
+      e.stopPropagation()
+      activeSftp.enter(type, e)
+    } else if (keyControlPressed(e) && keyPressed(e, 'keyC') && !inputFocus) {
+      e.stopPropagation()
+      activeSftp.doCopy(type, e)
+    } else if (keyControlPressed(e) && keyPressed(e, 'keyX') && !inputFocus) {
+      e.stopPropagation()
+      activeSftp.doCut(type, e)
+    } else if (keyControlPressed(e) && keyPressed(e, 'keyV') && !inputFocus) {
+      e.stopPropagation()
+      activeSftp.doPaste(type, e)
+    } else if (keyPressed(e, 'f5')) {
+      e.stopPropagation()
+      activeSftp.onGoto(type)
+    }
   }
 
   closeCurrentTabShortcut = throttle((e) => {
