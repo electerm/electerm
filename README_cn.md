@@ -46,6 +46,7 @@ Powered by [manate](https://github.com/tylerlong/manate)
 - 支持主题
 - 支持同步书签等数据到github/gitee私人gist
 - 支持快速输入命令到一个或者多个终端
+- AI助手集成（支持[DeepSeek](https://www.deepseek.com)、OpenAI等AI API），协助命令建议、脚本编写、以及解释所选终端内容
 - 支持命令行使用: 请参阅[wiki](https://github.com/electerm/electerm/wiki/Command-line-usage)
 - 深度链接支持: 请参阅[wiki](https://github.com/electerm/electerm/wiki/Deep-link-support)
 
