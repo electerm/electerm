@@ -38,7 +38,6 @@ class ShortcutControl extends React.PureComponent {
 
   // SFTP shortcuts handler
   handleSftpKeyboardEvent = (e) => {
-    console.log('e', e)
     const activeSftp = this.getActiveSftp()
     if (!activeSftp || activeSftp.state.onDelete) {
       return
@@ -79,6 +78,11 @@ class ShortcutControl extends React.PureComponent {
       activeSftp.onGoto(type)
     }
   }
+
+  searchShortcut = throttle((e) => {
+    e.stopPropagation()
+    refs.get('term-search')?.toggleSearch()
+  }, 500)
 
   closeCurrentTabShortcut = throttle((e) => {
     e.stopPropagation()

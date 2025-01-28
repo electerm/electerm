@@ -175,7 +175,6 @@ export default class FileMode extends React.PureComponent {
   }
 
   renderSizeRow = () => {
-    console.log('this.state.editPermission', this.state.editPermission)
     const size = this.getFileSize()
     if (this.state.editPermission) {
       return (

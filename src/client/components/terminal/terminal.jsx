@@ -862,7 +862,7 @@ clear\r`
     term.onSelectionChange(this.onSelection)
     term.open(document.getElementById(this.getDomId()), true)
     this.loadRenderer(term, config)
-    term.textarea.addEventListener('click', this.setActive)
+    // term.textarea.addEventListener('click', this.setActive)
     // term.onKey(this.onKey)
     // term.textarea.addEventListener('blur', this.onBlur)
 
@@ -893,14 +893,14 @@ clear\r`
     })
   }
 
-  setActive = () => {
-    const name = `activeTabId${this.props.batch}`
-    const tabId = this.props.tab.id
-    window.store.storeAssign({
-      activeTabId: tabId,
-      [name]: tabId
-    })
-  }
+  // setActive = () => {
+  //   const name = `activeTabId${this.props.batch}`
+  //   const tabId = this.props.tab.id
+  //   window.store.storeAssign({
+  //     activeTabId: tabId,
+  //     [name]: tabId
+  //   })
+  // }
 
   runInitScript = () => {
     window.store.triggerResize()

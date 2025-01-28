@@ -14,13 +14,12 @@ import { MatchWholWordIcon } from '../icons/match-whole-word'
 import { RegularExpIcon } from '../icons/regular-exp'
 import classNames from 'classnames'
 import copy from 'json-deep-copy'
-import { shortcutExtend } from '../shortcuts/shortcut-handler.js'
 import refs from '../common/ref'
 import './term-search.styl'
 
 const e = window.translate
 
-class TermSearch extends PureComponent {
+export default class TermSearch extends PureComponent {
   searchControls = [{
     id: 'matchCase',
     icon: MatchCaseIcon,
@@ -50,7 +49,7 @@ class TermSearch extends PureComponent {
   }]
 
   componentDidMount () {
-    window.addEventListener('keydown', this.handleKeyboardEvent.bind(this))
+    refs.add('term-search', this)
   }
 
   toggleSearch = () => {
@@ -59,11 +58,6 @@ class TermSearch extends PureComponent {
     }
     window.store.toggleTerminalSearch()
     setTimeout(window.store.focus, 200)
-  }
-
-  searchShortcut = (e) => {
-    e.stopPropagation()
-    this.toggleSearch()
   }
 
   prev = () => {
@@ -218,5 +212,3 @@ class TermSearch extends PureComponent {
     )
   }
 }
-
-export default shortcutExtend(TermSearch)
