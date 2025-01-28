@@ -1,5 +1,5 @@
 import { Component } from 'react'
-import refs from '../common/ref'
+import { refs } from '../common/ref'
 import generate from '../../common/uid'
 import runIdle from '../../common/run-idle'
 import { Spin, Modal, notification } from 'antd'

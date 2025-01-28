@@ -7,7 +7,7 @@ import './footer.styl'
 import { paneMap, statusMap } from '../../common/constants'
 import BatchInput from './batch-input'
 import encodes from '../bookmark-form/encodes'
-import refs from '../common/ref'
+import { refs } from '../common/ref'
 import Qm from '../quick-commands/quick-commands-select'
 
 const {

@@ -12,7 +12,7 @@ import {
   fileActions
 } from '../../common/constants'
 import deepCopy from 'json-deep-copy'
-import refs from '../common/ref'
+import { refsStatic } from '../common/ref'
 
 const e = window.translate
 
@@ -34,7 +34,7 @@ export default function ConfirmModalStore (props) {
       id,
       transferGroupId
     } = transferToConfirm
-    refs.get('transfer-conflict')?.onDecision({
+    refsStatic.get('transfer-conflict')?.onDecision({
       transferGroupId,
       fileId,
       id,

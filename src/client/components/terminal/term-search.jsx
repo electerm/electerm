@@ -14,7 +14,7 @@ import { MatchWholWordIcon } from '../icons/match-whole-word'
 import { RegularExpIcon } from '../icons/regular-exp'
 import classNames from 'classnames'
 import copy from 'json-deep-copy'
-import refs from '../common/ref'
+import { refsStatic, refs } from '../common/ref'
 import './term-search.styl'
 
 const e = window.translate
@@ -49,7 +49,7 @@ export default class TermSearch extends PureComponent {
   }]
 
   componentDidMount () {
-    refs.add('term-search', this)
+    refsStatic.add('term-search', this)
   }
 
   toggleSearch = () => {

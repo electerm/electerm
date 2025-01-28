@@ -1,16 +1,24 @@
 // components instance reference holder
 window.refs = new Map()
+window.refsStatic = new Map()
 
-export default class Ref {
-  static add (key, inst) {
-    window.refs.set(key, inst)
+class Ref {
+  constructor (key) {
+    this.key = key
   }
 
-  static get (key) {
-    return window.refs.get(key)
+  add (key, inst) {
+    window[this.key].set(key, inst)
   }
 
-  static remove (key) {
-    window.refs.delete(key)
+  get (key) {
+    return window[this.key].get(key)
+  }
+
+  remove (key) {
+    window[this.key].delete(key)
   }
 }
+
+export const refs = new Ref('refs')
+export const refsStatic = new Ref('refsStatic')

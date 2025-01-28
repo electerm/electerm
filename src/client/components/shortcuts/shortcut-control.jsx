@@ -9,7 +9,7 @@ import { throttle } from 'lodash-es'
 import {
   typeMap
 } from '../../common/constants'
-import refs from '../common/ref'
+import { refs, refsStatic } from '../common/ref'
 import keyControlPressed from '../../common/key-control-pressed'
 import keyPressed from '../../common/key-pressed'
 
@@ -81,7 +81,7 @@ class ShortcutControl extends React.PureComponent {
 
   searchShortcut = throttle((e) => {
     e.stopPropagation()
-    refs.get('term-search')?.toggleSearch()
+    refsStatic.get('term-search')?.toggleSearch()
   }, 500)
 
   closeCurrentTabShortcut = throttle((e) => {

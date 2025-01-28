@@ -3,7 +3,7 @@
  */
 
 import { Component } from 'react'
-import refs from '../common/ref'
+import { refs } from '../common/ref'
 import {
   CloseOutlined,
   Loading3QuartersOutlined,

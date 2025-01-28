@@ -10,7 +10,7 @@ import {
 } from './file-read'
 import resolve from '../../common/resolve'
 import delay from '../../common/wait'
-import refs from '../common/ref'
+import { refs } from '../common/ref'
 import { zipCmd, unzipCmd, rmCmd, mvCmd, mkdirCmd } from './zip'
 import './transfer.styl'
 

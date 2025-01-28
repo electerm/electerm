@@ -2,7 +2,7 @@
  * extend store
  */
 
-import refs from '../components/common/ref'
+import { refs } from '../components/common/ref'
 
 export default Store => {
   Store.prototype.focus = function () {

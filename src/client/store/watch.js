@@ -16,7 +16,7 @@ import {
 import * as ls from '../common/safe-local-storage'
 import { debounce, isEmpty } from 'lodash-es'
 import deepCopy from 'json-deep-copy'
-import refs from '../components/common/ref'
+import { refsStatic } from '../components/common/ref'
 import dataCompare from '../common/data-compare'
 
 export default store => {
@@ -38,7 +38,7 @@ export default store => {
 
   for (const name of dbNamesForWatch) {
     autoRun(async () => {
-      const old = refs.get('oldState-' + name)
+      const old = refsStatic.get('oldState-' + name)
       const n = store.getItems(name)
       const { updated, added, removed } = dataCompare(
         old,
@@ -60,7 +60,7 @@ export default store => {
         `${name}:order`,
         (n || []).map(d => d.id)
       )
-      refs.add('oldState-' + name, deepCopy(n) || [])
+      refsStatic.add('oldState-' + name, deepCopy(n) || [])
       await store.updateLastDataUpdateTime()
       if (store.config.autoSync) {
         await store.uploadSettingAll()

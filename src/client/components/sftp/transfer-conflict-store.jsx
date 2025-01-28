@@ -12,7 +12,7 @@ import {
   getFileExt,
   checkFolderSize
 } from './file-read'
-import refs from '../common/ref'
+import { refsStatic, refs } from '../common/ref'
 import generate from '../../common/uid'
 import resolve from '../../common/resolve'
 import deepCopy from 'json-deep-copy'
@@ -26,7 +26,7 @@ export default class TransferConflictStore extends PureComponent {
 
   componentDidMount () {
     this.id = 'transfer-conflict'
-    refs.add(this.id, this)
+    refsStatic.add(this.id, this)
     this.watchFile()
   }
 

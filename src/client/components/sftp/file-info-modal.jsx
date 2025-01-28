@@ -17,7 +17,7 @@ import {
   isWin,
   typeMap
 } from '../../common/constants'
-import refs from '../common/ref'
+import { refsStatic, refs } from '../common/ref'
 
 const e = window.translate
 const formatTime = time
@@ -35,7 +35,7 @@ export default class FileMode extends React.PureComponent {
   }
 
   componentDidMount () {
-    refs.add('file-modal', this)
+    refsStatic.add('file-modal', this)
   }
 
   setStateProxy = (state, cb) => {

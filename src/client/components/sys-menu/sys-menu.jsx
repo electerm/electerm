@@ -13,7 +13,7 @@ import Bookmark from './boomarks'
 import Tabs from './tabs'
 import Zoom from './zoom'
 import icons from './icons-map'
-import refs from '../common/ref'
+import { refsStatic } from '../common/ref'
 
 const e = window.translate
 
@@ -33,7 +33,7 @@ export default class ContextMenu extends PureComponent {
     if (disabled) {
       return
     }
-    const menu = refs.get('menu-btn')
+    const menu = refsStatic.get('menu-btn')
     if (!menu) {
       return
     }

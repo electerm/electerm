@@ -3,7 +3,7 @@
  */
 
 import { debounce } from 'lodash-es'
-import refs from '../components/common/ref'
+import { refs } from '../components/common/ref'
 
 export default Store => {
   Store.prototype.zoomTerminal = debounce(function (delta) {

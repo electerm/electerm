@@ -13,7 +13,7 @@ import {
   connectionMap
 } from '../common/constants'
 import * as ls from '../common/safe-local-storage'
-import refs from '../components/common/ref'
+import { refs, refsStatic } from '../components/common/ref'
 import { action } from 'manate'
 
 const e = window.translate
@@ -89,15 +89,15 @@ export default Store => {
     window.store.showModal = modals.batchOps
     async function updateText () {
       const text = await window.fs.readFile(path)
-      refs.get('batch-op')?.setState({
+      refsStatic.get('batch-op')?.setState({
         text
       })
     }
     function queue () {
-      refs.get('batch-op')?.handleClick()
+      refsStatic.get('batch-op')?.handleClick()
     }
     function run () {
-      refs.get('batch-op')?.handleExec()
+      refsStatic.get('batch-op')?.handleExec()
     }
     try {
       setTimeout(updateText, 2000)

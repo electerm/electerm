@@ -33,7 +33,7 @@ import time from '../../common/time'
 import { filesize } from 'filesize'
 import { createTransferProps } from './transfer-common'
 import generate from '../../common/uid'
-import refs from '../common/ref'
+import { refsStatic, refs } from '../common/ref'
 import iconsMap from '../sys-menu/icons-map'
 import {
   Dropdown
@@ -73,7 +73,7 @@ export default class FileSection extends React.Component {
   }
 
   componentWillUnmount () {
-    refs.remove(this.id)
+    refsStatic.remove(this.id)
     clearTimeout(this.timer)
     this.timer = null
     this.domRef = null
@@ -82,7 +82,7 @@ export default class FileSection extends React.Component {
   }
 
   get editor () {
-    return refs.get('text-editor')
+    return refsStatic.get('text-editor')
   }
 
   applyStyle = () => {
@@ -382,7 +382,7 @@ export default class FileSection extends React.Component {
 
   showInfo = () => {
     const { type } = this.props
-    refs.get('file-modal')?.showFileInfoModal({
+    refsStatic.get('file-modal')?.showFileInfoModal({
       file: this.state.file,
       tab: this.props.tab,
       visible: true,
@@ -518,7 +518,7 @@ export default class FileSection extends React.Component {
 
   openFileModeModal = () => {
     const { type } = this.props
-    refs.get('file-modal')?.showFileModeModal(
+    refsStatic.get('file-modal')?.showFileModeModal(
       {
         tab: this.props.tab,
         visible: true,
@@ -1191,7 +1191,7 @@ export default class FileSection extends React.Component {
           title={file.name}
         >
           <div className='file-bg' />
-          <div className='file-props'>
+          <div className='file-props-div'>
             {
               properties.map(this.renderProp)
             }

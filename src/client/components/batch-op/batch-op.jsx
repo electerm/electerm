@@ -30,7 +30,7 @@ import uid from '../../common/uid'
 import wait from '../../common/wait'
 import { getFolderFromFilePath } from '../sftp/file-read'
 import resolveFilePath from '../../common/resolve'
-import refs from '../common/ref'
+import { refsStatic } from '../common/ref'
 
 const e = window.translate
 
@@ -86,7 +86,7 @@ export default class BatchOp extends PureComponent {
 
   componentDidMount () {
     this.id = 'batch-op'
-    refs.add(this.id, this)
+    refsStatic.add(this.id, this)
   }
 
   handleDownloadExample = () => {

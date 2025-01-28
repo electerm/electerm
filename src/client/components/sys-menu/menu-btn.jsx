@@ -9,14 +9,14 @@ import {
 import logoRef from '@electerm/electerm-resource/res/imgs/electerm.svg'
 import { shortcutDescExtend } from '../shortcuts/shortcut-handler.js'
 import MenuRender from './sys-menu.jsx'
-import refs from '../common/ref.js'
+import { refsStatic } from '../common/ref.js'
 
 const e = window.translate
 const logo = logoRef.replace(/^\//, '')
 
 class MenuBtn extends PureComponent {
   componentDidMount () {
-    refs.add('menu-btn', this)
+    refsStatic.add('menu-btn', this)
   }
 
   onNewSsh = () => {

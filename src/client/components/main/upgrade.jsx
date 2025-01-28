@@ -17,7 +17,7 @@ import { debounce } from 'lodash-es'
 import newTerm from '../../common/new-terminal'
 import Markdown from '../common/markdown'
 import downloadMirrors from '../../common/download-mirrors'
-import refs from '../common/ref'
+import { refsStatic } from '../common/ref'
 import './upgrade.styl'
 
 const e = window.translate
@@ -38,7 +38,7 @@ export default class Upgrade extends PureComponent {
       getLatestReleaseVersion(1)
     }, 5000)
     this.id = 'upgrade'
-    refs.add(this.id, this)
+    refsStatic.add(this.id, this)
   }
 
   appUpdateCheck = (noSkip) => {

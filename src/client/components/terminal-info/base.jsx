@@ -19,7 +19,7 @@ import {
   ApiOutlined,
   PartitionOutlined
 } from '@ant-design/icons'
-import refs from '../common/ref'
+import { refs } from '../common/ref'
 
 const e = window.translate
 

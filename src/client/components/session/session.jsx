@@ -28,7 +28,7 @@ import {
   terminalVncType,
   terminalWebType
 } from '../../common/constants'
-import refs from '../common/ref'
+import { refs } from '../common/ref'
 import safeName from '../../common/safe-name'
 import './session.styl'
 

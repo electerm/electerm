@@ -6,7 +6,7 @@ import { PureComponent } from 'react'
 import TextEditorForm from './text-editor-form'
 import { Spin, Modal } from 'antd'
 import resolve from '../../common/resolve'
-import refs from '../common/ref'
+import { refsStatic, refs } from '../common/ref'
 
 const e = window.translate
 
@@ -20,7 +20,7 @@ export default class TextEditor extends PureComponent {
   }
 
   componentDidMount () {
-    refs.add('text-editor', this)
+    refsStatic.add('text-editor', this)
   }
 
   setStateProxy = (state, cb) => {
@@ -122,7 +122,7 @@ export default class TextEditor extends PureComponent {
       id: '',
       file: null
     })
-    const fileRef = refs.get('file-' + this.state.id)
+    const fileRef = refs.get(this.state.id)
     fileRef?.removeFileEditEvent()
   }
 
