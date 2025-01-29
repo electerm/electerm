@@ -86,6 +86,7 @@ export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig })
         form={form}
         onFinish={handleSubmit}
         initialValues={initialValues}
+        layout='vertical'
       >
         <Form.Item
           label='API URL'
@@ -105,7 +106,7 @@ export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig })
         </Form.Item>
 
         <Form.Item
-          label='Model'
+          label={e('modelAi')}
           name='modelAI'
           rules={[{ required: true, message: 'Please input or select a model!' }]}
         >
@@ -124,7 +125,7 @@ export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig })
         </Form.Item>
 
         <Form.Item
-          label='System Role'
+          label={e('roleAI')}
           name='roleAI'
           rules={[{ required: true, message: 'Please input the AI role!' }]}
         >
