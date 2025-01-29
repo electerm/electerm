@@ -9,6 +9,7 @@ import BatchInput from './batch-input'
 import encodes from '../bookmark-form/encodes'
 import { refs } from '../common/ref'
 import Qm from '../quick-commands/quick-commands-select'
+import AIIcon from '../icons/ai-icon'
 
 const {
   Option
@@ -76,12 +77,9 @@ export default auto(function FooterEntry (props) {
   function renderAIIcon () {
     return (
       <div className='terminal-footer-unit terminal-footer-ai'>
-        <span
-          className='ai-icon'
+        <AIIcon
           onClick={window.store.handleOpenAIPanel}
-        >
-          AI
-        </span>
+        />
       </div>
     )
   }

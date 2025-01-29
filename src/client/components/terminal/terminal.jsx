@@ -46,6 +46,7 @@ import { shortcutExtend, shortcutDescExtend } from '../shortcuts/shortcut-handle
 import { KeywordHighlighterAddon } from './highlight-addon.js'
 import { getLocalFileInfo } from '../sftp/file-read.js'
 import { CommandTrackerAddon } from './command-tracker-addon.js'
+import AIIcon from '../icons/ai-icon.jsx'
 import { formatBytes } from '../../common/byte-format.js'
 import * as fs from './fs.js'
 import iconsMap from '../sys-menu/icons-map.jsx'
@@ -708,6 +709,12 @@ clear\r`
     )
   }
 
+  explainWithAi = () => {
+    window.store.explainWithAi(
+      this.term.getSelection()
+    )
+  }
+
   renderContextMenu = () => {
     const { hasSelection } = this.state
     const copyed = true
@@ -735,6 +742,12 @@ clear\r`
         key: 'onPasteSelected',
         icon: <iconsMap.SwitcherOutlined />,
         label: e('pasteSelected'),
+        disabled: !hasSelection
+      },
+      {
+        key: 'explainWithAi',
+        icon: <AIIcon />,
+        label: e('explainWithAi'),
         disabled: !hasSelection
       },
       {

@@ -189,6 +189,7 @@ export default auto(function Index (props) {
     rightPanelTab
   }
   const terminalInfoProps = {
+    rightPanelTab,
     ...deepCopy(store.terminalInfoProps),
     ...pick(
       config,
@@ -215,11 +216,9 @@ export default auto(function Index (props) {
     selectedTabIds: store.batchInputSelectedTabIds,
     tabs: store.getTabs(),
     activeTabId: store.activeTabId,
-    showAIConfig: store.showAIConfig
+    showAIConfig: store.showAIConfig,
+    rightPanelTab
   }
-  const rightPanelContent = rightPanelTab === 'ai'
-    ? <AIChat {...aiChatProps} />
-    : <TerminalInfo {...terminalInfoProps} />
   return (
     <ConfigProvider
       theme={uiThemeConfig}
@@ -274,7 +273,8 @@ export default auto(function Index (props) {
         <Resolutions {...resProps} />
         <InfoModal {...infoModalProps} />
         <RightSidePanel {...rightPanelProps}>
-          {rightPanelContent}
+          <AIChat {...aiChatProps} />
+          <TerminalInfo {...terminalInfoProps} />
         </RightSidePanel>
         <SshConfigLoadNotify {...sshConfigProps} />
         <LoadSshConfigs

@@ -242,6 +242,17 @@ export default Store => {
     store.rightPanelTab = 'ai'
   }
 
+  Store.prototype.explainWithAi = function (txt) {
+    const { store } = window
+    store.handleOpenAIPanel()
+    setTimeout(() => {
+      refsStatic.get('AIChat')?.setPrompt(`explain terminal output: ${txt}`)
+    }, 500)
+    setTimeout(() => {
+      refsStatic.get('AIChat')?.handleSubmit()
+    }, 1200)
+  }
+
   Store.prototype.runCommandInTerminal = function (cmd) {
     window.store.batchInputSelectedTabIds.forEach(id => {
       refs.get('term-' + id)?.runQuickCommand(cmd)

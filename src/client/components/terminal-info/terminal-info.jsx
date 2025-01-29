@@ -39,6 +39,9 @@ export default class TerminalInfoContent extends PureComponent {
 
   render () {
     const { props, state } = this
+    if (props.rightPanelTab === 'ai') {
+      return null
+    }
     return (
       <div>
         <TerminalInfoBase {...props} {...state} />

@@ -15,6 +15,7 @@ import {
   aiConfigWikiLink
 } from '../../common/constants'
 import HelpIcon from '../common/help-icon'
+import { refsStatic } from '../common/ref'
 import './ai.styl'
 
 const { TextArea } = Input
@@ -34,7 +35,7 @@ export default function AIChat (props) {
     setPrompt(e.target.value)
   }
 
-  async function handleSubmit () {
+  const handleSubmit = useCallback(async function () {
     if (aiConfigMissing()) {
       window.store.toggleAIConfig()
     }
@@ -72,7 +73,7 @@ export default function AIChat (props) {
     }
     setPrompt('')
     setIsLoading(false)
-  }
+  }, [prompt, isLoading, props.config])
 
   function handleConfigSubmit (values) {
     window.store.updateConfig(values)
@@ -124,10 +125,21 @@ export default function AIChat (props) {
   }
 
   useEffect(() => {
+    refsStatic.add('AIChat', {
+      setPrompt,
+      handleSubmit
+    })
     if (aiConfigMissing()) {
       window.store.toggleAIConfig()
     }
-  }, [])
+    return () => {
+      refsStatic.remove('AIChat')
+    }
+  }, [handleSubmit])
+
+  if (props.rightPanelTab !== 'ai') {
+    return null
+  }
 
   return (
     <Flex vertical className='ai-chat-container'>
