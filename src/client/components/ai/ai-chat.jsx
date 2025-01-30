@@ -35,6 +35,11 @@ export default function AIChat (props) {
     setPrompt(e.target.value)
   }
 
+  function buildRole () {
+    const lang = props.config.languageAI || window.store.getLangName()
+    return props.config.roleAI + `;用[${lang}]回复`
+  }
+
   const handleSubmit = useCallback(async function () {
     if (aiConfigMissing()) {
       window.store.toggleAIConfig()
@@ -45,7 +50,7 @@ export default function AIChat (props) {
       'AIchat',
       prompt,
       props.config.modelAI,
-      props.config.roleAI,
+      buildRole(),
       props.config.baseURLAI,
       props.config.apiKeyAI
     ).catch(
@@ -80,12 +85,19 @@ export default function AIChat (props) {
     message.success('Saved')
   }
 
+  function getInitialValues () {
+    const res = pick(props.config, aiConfigsArr)
+    if (!res.languageAI) {
+      res.languageAI = window.store.getLangName()
+    }
+    return res
+  }
+
   const renderConfig = useCallback(() => {
     if (!props.showAIConfig) return null
-    const aiConfigs = pick(props.config, aiConfigsArr)
     return (
       <AIConfigForm
-        initialValues={aiConfigs}
+        initialValues={getInitialValues()}
         onSubmit={handleConfigSubmit}
         showAIConfig={props.showAIConfig}
       />

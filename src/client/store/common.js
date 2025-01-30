@@ -4,7 +4,7 @@
 
 import handleError from '../common/error-handler'
 import { Modal } from 'antd'
-import { debounce, some } from 'lodash-es'
+import { debounce, some, get } from 'lodash-es'
 import {
   modals,
   leftSidebarWidthKey,
@@ -266,5 +266,15 @@ export default Store => {
       return
     }
     window.store.aiChatHistory.splice(index, 1)
+  }
+
+  Store.prototype.getLangName = function (
+    lang = window.store?.config.language || 'en_us'
+  ) {
+    return get(window.langMap, `[${lang}].name`)
+  }
+
+  Store.prototype.getLangNames = function () {
+    return window.et.langs.map(d => d.name)
   }
 }
