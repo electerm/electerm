@@ -16,6 +16,14 @@ import {
 import providers from './providers'
 
 const e = window.translate
+const defaultRoles = [
+  {
+    value: 'Terminal command expert. Provide safe, efficient commands. Explain usage, warn of risks. Use markdown. Number steps. Specify OS. Include key options.'
+  },
+  {
+    value: '终端命令专家。提供安全高效的命令。解释用法，警示风险。使用markdown格式。步骤编号。指定操作系统。包含重要选项。'
+  }
+]
 
 export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig }) {
   const [form] = Form.useForm()
@@ -68,7 +76,6 @@ export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig })
     return null
   }
   const title = 'AI ' + e('setting')
-  const langs = window.store.getLangNames().map(d => ({ value: d }))
   return (
     <Modal
       title={title}
@@ -130,21 +137,14 @@ export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig })
           name='roleAI'
           rules={[{ required: true, message: 'Please input the AI role!' }]}
         >
-          <Input.TextArea
-            placeholder='Enter AI role/system prompt'
-            rows={4}
-          />
+          <AutoComplete options={defaultRoles} placement='topLeft'>
+            <Input.TextArea
+              placeholder='Enter AI role/system prompt'
+              rows={1}
+            />
+          </AutoComplete>
         </Form.Item>
-        <Form.Item
-          label={e('language')}
-          name='languageAI'
-          rules={[{ required: true, message: 'Please input the response language!' }]}
-        >
-          <AutoComplete
-            placeholder='Response language'
-            options={langs}
-          />
-        </Form.Item>
+
         <Form.Item>
           <Button type='primary' htmlType='submit'>
             {e('save')}
