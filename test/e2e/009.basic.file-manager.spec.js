@@ -50,7 +50,7 @@ describe('local file manager', function () {
 
     // new file
     await delay(200)
-    await client.rightClick('.session-current .file-list.local .sftp-item', 10, 10)
+    await client.rightClick('.session-current .file-list.local .virtual-file')
     await delay(200)
     log('009 -> add file')
     await client.click('.ant-dropdown .anticon-file-add')
