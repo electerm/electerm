@@ -85,7 +85,7 @@ describe('sftp file transfer', function () {
     await delay(2500)
     let localFileList00 = await client.elements('.session-current .file-list.local .sftp-item')
     localFileList00 = await localFileList00.count()
-    expect(localFileList00).equal(2)
+    expect(localFileList00).equal(3)
 
     // remote test
     // make a remote folder

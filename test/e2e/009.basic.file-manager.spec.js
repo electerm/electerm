@@ -44,9 +44,9 @@ describe('local file manager', function () {
     await delay(5000)
     const pathCurrentLocal = await client.getValue('.session-current .sftp-local-section .sftp-title input')
     expect(pathCurrentLocal.includes(fname)).equal(true)
-    let localFileList0 = await client.elements('.session-current .file-list.local .sftp-item')
+    let localFileList0 = await client.elements('.session-current .file-list.local .real-file-item')
     localFileList0 = await localFileList0.count()
-    expect(localFileList0).equal(2)
+    expect(localFileList0).equal(0)
 
     // new file
     await delay(200)
@@ -59,9 +59,9 @@ describe('local file manager', function () {
     await client.setValue('.session-current .sftp-item input', fname00)
     await client.doubleClick('.session-current .sftp-title-wrap')
     await delay(2500)
-    let localFileList00 = await client.elements('.session-current .file-list.local .sftp-item')
+    let localFileList00 = await client.elements('.session-current .file-list.local .real-file-item')
     localFileList00 = await localFileList00.count()
-    expect(localFileList00).equal(2)
+    expect(localFileList00).equal(1)
 
     // select all and del Control
     await client.rightClick('.session-current .file-list.local .parent-file-item', 10, 10)
@@ -73,9 +73,9 @@ describe('local file manager', function () {
     await delay(120)
     await client.keyboard.press('Enter')
     await delay(4000)
-    let localFileList11 = await client.elements('.session-current .file-list.local .sftp-item')
+    let localFileList11 = await client.elements('.session-current .file-list.local .real-file-item')
     localFileList11 = await localFileList11.count()
-    expect(localFileList11).equal(1)
+    expect(localFileList11).equal(0)
 
     // goto parent
     await delay(20)
