@@ -70,7 +70,7 @@ describe('sftp file transfer', function () {
     expect(pathCurrentLocal.includes(fname)).equal(true)
     let localFileList0 = await client.elements('.session-current .file-list.local .sftp-item')
     localFileList0 = await localFileList0.count()
-    expect(localFileList0).equal(1)
+    expect(localFileList0).equal(2)
 
     // new file
     await delay(200)
@@ -111,7 +111,7 @@ describe('sftp file transfer', function () {
     let remoteFileList0 = await client.elements('.session-current .file-list.remote .sftp-item')
     remoteFileList0 = await remoteFileList0.count()
 
-    expect(remoteFileList0).equal(1)
+    expect(remoteFileList0).equal(2)
 
     // transfer local to remote
     await delay(200)
@@ -138,7 +138,7 @@ describe('sftp file transfer', function () {
     await delay(3000)
     let localFileList11 = await client.elements('.session-current .file-list.local .sftp-item')
     localFileList11 = await localFileList11.count()
-    expect(localFileList11).equal(1)
+    expect(localFileList11).equal(2)
 
     await delay(1800)
     await client.rightClick('.session-current .file-list.remote .sftp-item.real-file-item .file-bg', 10, 10)

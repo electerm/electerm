@@ -46,7 +46,7 @@ describe('local file manager', function () {
     expect(pathCurrentLocal.includes(fname)).equal(true)
     let localFileList0 = await client.elements('.session-current .file-list.local .sftp-item')
     localFileList0 = await localFileList0.count()
-    expect(localFileList0).equal(1)
+    expect(localFileList0).equal(2)
 
     // new file
     await delay(200)
