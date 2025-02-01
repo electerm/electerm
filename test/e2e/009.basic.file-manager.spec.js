@@ -51,7 +51,7 @@ describe('local file manager', function () {
     // new file
     await delay(200)
     await client.rightClick('.session-current .file-list.local .parent-file-item', 10, 10)
-    await delay(200)
+    await delay(1200)
     log('009 -> add file')
     await client.click('.ant-dropdown .anticon-file-add')
     await delay(200)
@@ -65,7 +65,7 @@ describe('local file manager', function () {
 
     // select all and del Control
     await client.rightClick('.session-current .file-list.local .parent-file-item', 10, 10)
-    await delay(200)
+    await delay(1200)
     log('009 -> select all')
     await client.click('.ant-dropdown .anticon-check-square')
     await delay(120)

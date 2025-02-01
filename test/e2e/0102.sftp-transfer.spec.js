@@ -75,7 +75,7 @@ describe('sftp file transfer', function () {
     // new file
     await delay(200)
     await client.rightClick('.session-current .file-list.local .parent-file-item', 10, 10)
-    await delay(200)
+    await delay(1200)
     log('add file')
     await client.click('.ant-dropdown .anticon-file-add')
     await delay(200)
@@ -92,7 +92,7 @@ describe('sftp file transfer', function () {
     let remoteFileListBefore = await client.elements('.session-current .file-list.remote .sftp-item')
     remoteFileListBefore = await remoteFileListBefore.count()
     await client.rightClick('.session-current .file-list.remote .parent-file-item', 10, 10)
-    await delay(200)
+    await delay(1200)
     await client.click('.ant-dropdown .anticon-folder-add')
     await delay(200)
     const fname0 = '00000test-electerm-remote' + nanoid()
@@ -116,7 +116,7 @@ describe('sftp file transfer', function () {
     // transfer local to remote
     await delay(200)
     await client.rightClick('.session-current .file-list.local .sftp-item.real-file-item', 3, 3)
-    await delay(200)
+    await delay(1200)
     log('do upload')
     await client.click('.ant-dropdown .anticon-cloud-upload')
 
@@ -128,7 +128,7 @@ describe('sftp file transfer', function () {
 
     // select all and del local file
     await client.rightClick('.session-current .file-list.local .parent-file-item', 10, 10)
-    await delay(200)
+    await delay(1200)
     log('select all')
     await client.click('.ant-dropdown .anticon-check-square')
     await delay(120)
