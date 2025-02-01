@@ -910,11 +910,13 @@ export default class FileSection extends React.Component {
         type,
         isDirectory,
         size,
-        id
+        id,
+        isParent
       },
       selectedFiles,
       tab
     } = this.props
+    const isRealFile = id && !isParent
     const hasHost = !!tab.host
     const { enableSsh } = tab
     const isLocal = type === typeMap.local
@@ -934,7 +936,7 @@ export default class FileSection extends React.Component {
     const showEdit = !isDirectory && id &&
       size < maxEditFileSize
     const res = []
-    if (isDirectory && id) {
+    if (isDirectory && isRealFile) {
       res.push({
         func: 'doEnterDirectory',
         icon: 'EnterOutlined',
@@ -949,7 +951,7 @@ export default class FileSection extends React.Component {
       })
     }
     if (
-      isDirectory && id &&
+      isDirectory && isRealFile &&
       (
         (hasHost && enableSsh !== false && isRemote) ||
         (isLocal && !hasHost)
@@ -961,21 +963,21 @@ export default class FileSection extends React.Component {
         text: e('gotoFolderInTerminal')
       })
     }
-    if (!(!id || !hasHost || shouldShowSelectedMenu)) {
+    if (!(!isRealFile || !hasHost || shouldShowSelectedMenu)) {
       res.push({
         func: 'doTransfer',
         icon: iconType,
         text: transferText
       })
     }
-    if (!isDirectory && id && isLocal) {
+    if (!isDirectory && isRealFile && isLocal) {
       res.push({
         func: 'transferOrEnterDirectory',
         icon: 'ArrowRightOutlined',
         text: e('open')
       })
     }
-    if (id && isLocal) {
+    if (isRealFile && isLocal) {
       res.push({
         func: 'showInDefaultFileManager',
         icon: 'ContainerOutlined',
@@ -989,7 +991,7 @@ export default class FileSection extends React.Component {
         text: e('edit')
       })
     }
-    if (id) {
+    if (isRealFile) {
       res.push({
         func: 'del',
         icon: 'CloseCircleOutlined',
@@ -1016,7 +1018,7 @@ export default class FileSection extends React.Component {
       disabled: !canPaste,
       subText: `${ctrlOrCmd}+v`
     })
-    if (id) {
+    if (isRealFile) {
       res.push({
         func: 'doRename',
         icon: 'EditOutlined',
@@ -1051,14 +1053,14 @@ export default class FileSection extends React.Component {
       icon: 'ReloadOutlined',
       text: e('refresh')
     })
-    if (this.showModeEdit(type, id)) {
+    if (this.showModeEdit(type, isRealFile)) {
       res.push({
         func: 'editPermission',
         icon: 'LockOutlined',
         text: e('editPermission')
       })
     }
-    if (id) {
+    if (isRealFile) {
       res.push({
         func: 'showInfo',
         icon: 'InfoCircleOutlined',
@@ -1195,7 +1197,7 @@ export default class FileSection extends React.Component {
         items: this.renderContextMenu(),
         onClick: this.onContextMenu
       },
-      trigger: isParent ? [] : ['contextMenu']
+      trigger: ['contextMenu']
     }
     return (
       <Dropdown {...ddProps}>

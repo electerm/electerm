@@ -49,7 +49,7 @@ describe('sftp file transfer', function () {
     // make a local folder
     let localFileListBefore = await client.elements('.session-current .file-list.local .sftp-item')
     localFileListBefore = await localFileListBefore.count()
-    await client.rightClick('.session-current .file-list.local .virtual-file', 10, 100)
+    await client.rightClick('.session-current .file-list.local .parent-file-item', 10, 10)
     await delay(3300)
     log('add folder')
 
@@ -74,7 +74,7 @@ describe('sftp file transfer', function () {
 
     // new file
     await delay(200)
-    await client.rightClick('.session-current .file-list.local .virtual-file', 10, 100)
+    await client.rightClick('.session-current .file-list.local .parent-file-item', 10, 10)
     await delay(200)
     log('add file')
     await client.click('.ant-dropdown .anticon-file-add')
@@ -91,7 +91,7 @@ describe('sftp file transfer', function () {
     // make a remote folder
     let remoteFileListBefore = await client.elements('.session-current .file-list.remote .sftp-item')
     remoteFileListBefore = await remoteFileListBefore.count()
-    await client.rightClick('.session-current .file-list.remote .virtual-file', 10, 100)
+    await client.rightClick('.session-current .file-list.remote .parent-file-item', 10, 10)
     await delay(200)
     await client.click('.ant-dropdown .anticon-folder-add')
     await delay(200)
@@ -127,7 +127,7 @@ describe('sftp file transfer', function () {
     await delay(200)
 
     // select all and del local file
-    await client.rightClick('.session-current .file-list.local .real-file-item', 10, 10)
+    await client.rightClick('.session-current .file-list.local .parent-file-item', 10, 10)
     await delay(200)
     log('select all')
     await client.click('.ant-dropdown .anticon-check-square')

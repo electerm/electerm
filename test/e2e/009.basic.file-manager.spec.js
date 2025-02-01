@@ -25,7 +25,7 @@ describe('local file manager', function () {
     // make a local folder
     let localFileListBefore = await client.elements('.session-current .file-list.local .sftp-item')
     localFileListBefore = await localFileListBefore.count()
-    await client.rightClick('.session-current .file-list.local .real-file-item', 10, 100)
+    await client.rightClick('.session-current .file-list.local .parent-file-item', 10, 10)
     await delay(3300)
     log('009 -> add folder')
 
@@ -50,7 +50,7 @@ describe('local file manager', function () {
 
     // new file
     await delay(200)
-    await client.rightClick('.session-current .file-list.local .virtual-file', 40, 10)
+    await client.rightClick('.session-current .file-list.local .parent-file-item', 10, 10)
     await delay(200)
     log('009 -> add file')
     await client.click('.ant-dropdown .anticon-file-add')
@@ -64,7 +64,7 @@ describe('local file manager', function () {
     expect(localFileList00).equal(2)
 
     // select all and del Control
-    await client.rightClick('.session-current .file-list.local .real-file-item', 10, 10)
+    await client.rightClick('.session-current .file-list.local .parent-file-item', 10, 10)
     await delay(200)
     log('009 -> select all')
     await client.click('.ant-dropdown .anticon-check-square')
