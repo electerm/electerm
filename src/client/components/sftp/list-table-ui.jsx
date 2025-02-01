@@ -257,11 +257,13 @@ export default class FileListTable extends Component {
 
   renderItem = (item, i) => {
     const { type } = this.props
+    const cls = item.isParent ? 'parent-file-item' : 'real-file-item'
+    const key = i + '*f*' + item.id
     return (
       <FileSection
         {...this.props.getFileProps(item, type)}
-        key={i + '*f*' + item.id}
-        cls='real-file-item'
+        key={key}
+        cls={cls}
         properties={this.state.properties}
       />
     )
