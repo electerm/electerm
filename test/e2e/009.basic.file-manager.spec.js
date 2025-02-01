@@ -40,7 +40,7 @@ describe('local file manager', function () {
     expect(localFileList).equal(localFileListBefore + 1)
 
     // enter folder
-    await client.doubleClick('.session-current .file-list.local .sftp-item:not(.virtual-file-unit) .file-bg')
+    await client.doubleClick('.session-current .file-list.local .real-file-item .file-bg')
     await delay(5000)
     const pathCurrentLocal = await client.getValue('.session-current .sftp-local-section .sftp-title input')
     expect(pathCurrentLocal.includes(fname)).equal(true)

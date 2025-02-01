@@ -587,13 +587,13 @@ export default class FileSection extends React.Component {
     })
   }
 
-  enterDirectory = (e, file) => {
+  enterDirectory = (e, file = this.state.file) => {
     e && e.stopPropagation && e.stopPropagation()
-    const { type, name } = file || this.state.file
+    const { type, name, isParent } = file
     const n = `${type}Path`
-    const path = this.props[n]
+    const path = isParent ? file.path : this.props[n]
     const np = resolve(path, name)
-    const op = this.props[type + 'Path']
+    const op = isParent ? file.path : this.props[type + 'Path']
     this.props.modifier({
       [n]: np,
       [n + 'Temp']: np

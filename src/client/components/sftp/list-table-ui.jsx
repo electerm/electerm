@@ -274,8 +274,8 @@ export default class FileListTable extends Component {
   }
 
   renderParent = (type) => {
-    const item = this.props.renderParentItem(type)
-    return item ? this.renderItem(item) : null
+    const { parentItem } = this.props
+    return parentItem ? this.renderItem(parentItem) : null
   }
 
   render () {

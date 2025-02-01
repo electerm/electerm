@@ -90,7 +90,7 @@ export default () => {
     sftpSortSetting: ls.getItemJSON(sftpDefaultSortSettingKey, {
       local: {
         prop: 'modifyTime',
-        direction: 'asc'
+        direction: 'desc'
       },
       remote: {
         prop: 'modifyTime',

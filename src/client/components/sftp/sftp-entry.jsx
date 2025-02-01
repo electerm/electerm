@@ -899,18 +899,16 @@ export default class Sftp extends Component {
   renderParentItem = (type) => {
     const currentPath = this.state[`${type}Path`]
     const parentPath = resolve(currentPath, '..')
-
     // Don't render parent item if we're at the root
     if (parentPath === currentPath) {
       return null
     }
 
-    const { sessionId } = this.props.sessionId
-    const uniqueId = `parent-${sessionId}-${type}`
+    const { id } = this.props.tab
+    const uniqueId = `parent-${parentPath}-${id}-${type}`
 
     return {
       type,
-      name: '..',
       isDirectory: true,
       ...getFolderFromFilePath(parentPath, type === typeMap.remote),
       id: uniqueId,
@@ -970,13 +968,13 @@ export default class Sftp extends Component {
       store: window.store,
       id,
       type,
+      parentItem: this.renderParentItem(type),
       ...this.props,
       ...pick(
         this,
         [
           'directions',
           'renderEmptyFile',
-          'renderParentItem',
           'getFileProps',
           'defaultDirection',
           'modifier',
