@@ -271,6 +271,11 @@ export default class FileListTable extends Component {
     this.onToggleProp(key)
   }
 
+  renderParent = (type) => {
+    const item = this.props.renderParentItem(type)
+    return item ? this.renderItem(item) : null
+  }
+
   render () {
     const { fileList, height, type } = this.props
     const tableHeaderHeight = 30
@@ -296,6 +301,7 @@ export default class FileListTable extends Component {
           {...props}
         >
           {this.props.renderEmptyFile(type)}
+          {this.renderParent(type)}
           <PagedList
             list={fileList}
             renderItem={this.renderItem}

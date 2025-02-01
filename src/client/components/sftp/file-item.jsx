@@ -258,7 +258,7 @@ export default class FileSection extends React.Component {
     if (!type) {
       return
     }
-    let toFile = this.props[type + 'FileTree'][id] || {}
+    let toFile = this.props[type + 'FileTree'].get(id) || {}
     if (!toFile.id || !toFile.isDirectory) {
       toFile = {
         type,
@@ -464,8 +464,12 @@ export default class FileSection extends React.Component {
     const { file } = this.state
     const {
       id,
-      type
+      type,
+      isParent
     } = file
+    if (isParent) {
+      return
+    }
     this.props.modifier({
       lastClickedFile: file
     })
@@ -1095,7 +1099,8 @@ export default class FileSection extends React.Component {
     let symbolicLinkText = null
     const {
       isDirectory,
-      isSymbolicLink
+      isSymbolicLink,
+      isParent
     } = file
     if (isDirectory && id === 'size') {
       value = null
@@ -1129,6 +1134,12 @@ export default class FileSection extends React.Component {
       },
       title: value
     }
+    if (isParent && id !== 'name') {
+      value = null
+      divProps.title = ''
+    } else if (isParent && id === 'name') {
+      value = '..'
+    }
     return (
       <div
         {...divProps}
@@ -1147,7 +1158,8 @@ export default class FileSection extends React.Component {
     const {
       isDirectory,
       id,
-      isEditing
+      isEditing,
+      isParent
     } = file
     if (isEditing) {
       return this.renderEditing(file)
@@ -1159,7 +1171,7 @@ export default class FileSection extends React.Component {
     })
     const props = {
       className,
-      draggable,
+      draggable: draggable && !isParent,
       onDoubleClick: this.transferOrEnterDirectory,
       ...pick(this, [
         'onClick',
@@ -1171,24 +1183,25 @@ export default class FileSection extends React.Component {
         'onDrop',
         'onDragEnd'
       ]),
-      onDragStart: onDragStart || this.onDragStart
+      onDragStart: onDragStart || this.onDragStart,
+      'data-id': id,
+      id: this.id,
+      'data-is-parent': isParent ? 'y' : 'n',
+      'data-type': type,
+      title: file.name
     }
     const ddProps = {
       menu: {
         items: this.renderContextMenu(),
         onClick: this.onContextMenu
       },
-      trigger: ['contextMenu']
+      trigger: isParent ? [] : ['contextMenu']
     }
     return (
       <Dropdown {...ddProps}>
         <div
           ref={this.domRef}
           {...props}
-          data-id={id}
-          id={this.id}
-          data-type={type}
-          title={file.name}
         >
           <div className='file-bg' />
           <div className='file-props-div'>

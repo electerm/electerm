@@ -3,14 +3,14 @@ import { refs } from '../common/ref'
 import generate from '../../common/uid'
 import runIdle from '../../common/run-idle'
 import { Spin, Modal, notification } from 'antd'
-import { find, isString, isEqual, last, isNumber, some, isArray, pick, uniq, debounce } from 'lodash-es'
+import { isEqual, last, isNumber, some, isArray, pick, uniq, debounce } from 'lodash-es'
 import FileSection from './file-item'
 import resolve from '../../common/resolve'
 import wait from '../../common/wait'
 import isAbsPath from '../../common/is-absolute-path'
 import classnames from 'classnames'
 import sorterIndex from '../../common/index-sorter'
-import { getLocalFileInfo, getRemoteFileInfo } from './file-read'
+import { getLocalFileInfo, getRemoteFileInfo, getFolderFromFilePath } from './file-read'
 import {
   typeMap, maxSftpHistory, paneMap,
   fileTypeMap,
@@ -31,15 +31,6 @@ import getProxy from '../../common/get-proxy'
 import './sftp.styl'
 
 const e = window.translate
-
-const buildTree = arr => {
-  return arr.reduce((prev, curr) => {
-    return {
-      ...prev,
-      [curr.id]: curr
-    }
-  }, {})
-}
 
 export default class Sftp extends Component {
   constructor (props) {
@@ -155,33 +146,40 @@ export default class Sftp extends Component {
     sortDirection,
     sortProp
   ) => {
-    const l0 = find(list, g => !g.id)
-    const l1 = list.filter(g => g.id && g.isDirectory)
-    const l2 = list.filter(g => g.id && !g.isDirectory)
-    const sorter = (a, b) => {
-      let va = a[sortProp]
-      let vb = b[sortProp]
-      if (isString(va)) {
-        va = va.toLowerCase()
-        vb = vb.toLowerCase()
-      }
-      if (sortDirection === 'desc') {
-        if (isString(va)) {
-          return va.localeCompare(vb, { sensitivity: 'base' })
-        }
-        return va > vb ? -1 : 1
-      } else {
-        if (isString(va)) {
-          return -va.localeCompare(vb, { sensitivity: 'base' })
-        }
-        return va > vb ? 1 : -1
-      }
+    if (!list || !list.length) {
+      return []
     }
-    return [
-      l0,
-      ...l1.sort(sorter),
-      ...l2.sort(sorter)
-    ].filter(d => d)
+
+    const isDesc = sortDirection === 'desc'
+
+    return list.slice().sort((a, b) => {
+      // Handle items with no id first
+      if (!a.id && b.id) return -1
+      if (a.id && !b.id) return 1
+      if (!a.id && !b.id) return 0
+
+      // Sort directories before files
+      if (a.isDirectory !== b.isDirectory) {
+        return a.isDirectory ? -1 : 1
+      }
+
+      // Sort by the specified property
+      let aValue = a[sortProp]
+      let bValue = b[sortProp]
+
+      if (typeof aValue === 'string') {
+        aValue = aValue.toLowerCase()
+        bValue = bValue.toLowerCase()
+        return isDesc
+          ? bValue.localeCompare(aValue, { sensitivity: 'base' })
+          : aValue.localeCompare(bValue, { sensitivity: 'base' })
+      }
+
+      // For non-string values, use simple comparison
+      if (aValue < bValue) return isDesc ? 1 : -1
+      if (aValue > bValue) return isDesc ? -1 : 1
+      return 0
+    })
   }, isEqual)
 
   isActive () {
@@ -474,6 +472,14 @@ export default class Sftp extends Component {
     })
   }
 
+  buildTree = (arr, type) => {
+    const parent = this.renderParentItem(type)
+    return new Map([
+      [parent.id, parent],
+      ...arr.map(d => [d.id, d])
+    ])
+  }
+
   remoteListOwner = async () => {
     const remoteUidTree = await owner.remoteListUsers(
       this.props.pid,
@@ -603,7 +609,7 @@ export default class Sftp extends Component {
       this.sftp = sftp
       const update = {
         remote,
-        remoteFileTree: buildTree(remote),
+        remoteFileTree: this.buildTree(remote, typeMap.remote),
         inited: true,
         remoteLoading: false
       }
@@ -685,7 +691,7 @@ export default class Sftp extends Component {
     }
     const update = {
       remote,
-      remoteFileTree: buildTree(remote)
+      remoteFileTree: this.buildTree(remote, typeMap.remote)
     }
     this.setState(update)
   }
@@ -718,7 +724,7 @@ export default class Sftp extends Component {
       const update = {
         local,
         inited: true,
-        localFileTree: buildTree(local),
+        localFileTree: this.buildTree(local, typeMap.local),
         localLoading: false
       }
       if (!noPathInit) {
@@ -890,6 +896,34 @@ export default class Sftp extends Component {
     )
   }
 
+  renderParentItem = (type) => {
+    const currentPath = this.state[`${type}Path`]
+    const parentPath = resolve(currentPath, '..')
+
+    // Don't render parent item if we're at the root
+    if (parentPath === currentPath) {
+      return null
+    }
+
+    const { sessionId } = this.props.sessionId
+    const uniqueId = `parent-${sessionId}-${type}`
+
+    return {
+      type,
+      name: '..',
+      isDirectory: true,
+      ...getFolderFromFilePath(parentPath, type === typeMap.remote),
+      id: uniqueId,
+      size: 0,
+      modifyTime: 0,
+      accessTime: 0,
+      mode: 0,
+      owner: '',
+      group: '',
+      isParent: true
+    }
+  }
+
   renderHistory = (type) => {
     const currentPath = this.state[type + 'Path']
     const options = this.state[type + 'PathHistory']
@@ -942,6 +976,7 @@ export default class Sftp extends Component {
         [
           'directions',
           'renderEmptyFile',
+          'renderParentItem',
           'getFileProps',
           'defaultDirection',
           'modifier',
