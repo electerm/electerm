@@ -474,10 +474,14 @@ export default class Sftp extends Component {
 
   buildTree = (arr, type) => {
     const parent = this.renderParentItem(type)
-    return new Map([
-      [parent.id, parent],
-      ...arr.map(d => [d.id, d])
-    ])
+    const treeMap = new Map(arr.map(d => [d.id, d]))
+
+    // Only add parent if it exists
+    if (parent) {
+      treeMap.set(parent.id, parent)
+    }
+
+    return treeMap
   }
 
   remoteListOwner = async () => {

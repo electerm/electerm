@@ -92,7 +92,7 @@ describe('sftp file transfer', function () {
     let remoteFileListBefore = await client.elements('.session-current .file-list.remote .sftp-item')
     remoteFileListBefore = await remoteFileListBefore.count()
     await client.rightClick('.session-current .file-list.remote .parent-file-item', 10, 10)
-    await delay(1200)
+    await delay(1600)
     await client.click('.ant-dropdown .anticon-folder-add')
     await delay(200)
     const fname0 = '00000test-electerm-remote' + nanoid()

@@ -593,7 +593,7 @@ export default class FileSection extends React.Component {
     const n = `${type}Path`
     const path = isParent ? file.path : this.props[n]
     const np = resolve(path, name)
-    const op = isParent ? file.path : this.props[type + 'Path']
+    const op = this.props[type + 'Path']
     this.props.modifier({
       [n]: np,
       [n + 'Temp']: np
