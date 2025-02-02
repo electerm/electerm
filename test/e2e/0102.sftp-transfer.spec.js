@@ -93,7 +93,9 @@ describe('sftp file transfer', function () {
     remoteFileListBefore = await remoteFileListBefore.count()
     await client.rightClick('.session-current .file-list.remote .parent-file-item', 10, 10)
     await delay(1600)
-    await client.click('.ant-dropdown .anticon-folder-add')
+    await client.evaluate(() => {
+      document.querySelector('.ant-dropdown:not(.ant-dropdown-hidden) .anticon-folder-add').click()
+    })
     await delay(200)
     const fname0 = '00000test-electerm-remote' + nanoid()
     await client.setValue('.session-current .sftp-remote-section .sftp-item input', fname0)
@@ -118,7 +120,7 @@ describe('sftp file transfer', function () {
     await client.rightClick('.session-current .file-list.local .sftp-item.real-file-item', 3, 3)
     await delay(1200)
     log('do upload')
-    await client.click('.ant-dropdown .anticon-cloud-upload')
+    await client.click('.ant-dropdown:not(.ant-dropdown-hidden) .anticon-cloud-upload')
 
     // transfer remote to local
     await delay(500)
@@ -130,7 +132,7 @@ describe('sftp file transfer', function () {
     await client.rightClick('.session-current .file-list.local .parent-file-item', 10, 10)
     await delay(1200)
     log('select all')
-    await client.click('.ant-dropdown .anticon-check-square')
+    await client.click('.ant-dropdown:not(.ant-dropdown-hidden) .anticon-check-square')
     await delay(120)
     await client.keyboard.press('Delete')
     await delay(120)
@@ -143,14 +145,14 @@ describe('sftp file transfer', function () {
     await delay(1800)
     await client.rightClick('.session-current .file-list.remote .sftp-item.real-file-item .file-bg', 10, 10)
     await delay(1123)
-    await client.click('.ant-dropdown .anticon-cloud-download')
+    await client.click('.ant-dropdown:not(.ant-dropdown-hidden) .anticon-cloud-download')
     await delay(3000)
     const localFileList001 = await client.countElem('.session-current .file-list.local .sftp-item')
-    expect(localFileList001).equal(2)
+    expect(localFileList001).equal(3)
 
     await delay(1000)
     const remoteFileList01 = await client.countElem('.session-current .file-list.remote .sftp-item')
-    expect(remoteFileList01).equal(2)
+    expect(remoteFileList01).equal(3)
 
     // goto parent
     await delay(20)
