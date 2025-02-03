@@ -1,3 +1,4 @@
+import { createRef } from 'react'
 import RdpSession from '../rdp/rdp-session'
 import { createTerm } from '../terminal/terminal-apis'
 import deepCopy from 'json-deep-copy'
@@ -34,6 +35,8 @@ export default class VncSession extends RdpSession {
       ...resObj
     }
   }
+
+  domRef = createRef()
 
   componentDidMount () {
     this.remoteInit()
@@ -203,8 +206,7 @@ export default class VncSession extends RdpSession {
   }
 
   getDom = () => {
-    const id = 'canvas_' + this.props.tab.id
-    return document.getElementById(id)
+    return this.domRef.current
   }
 
   handleReInit = () => {
@@ -282,7 +284,7 @@ export default class VncSession extends RdpSession {
           <div
             {...divProps}
             className='vnc-session-wrap session-v-wrap'
-            id={'canvas_' + this.props.tab.id}
+            ref={this.domRef}
           />
           {this.renderConfirm()}
         </div>

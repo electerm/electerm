@@ -2,7 +2,7 @@
  * file section
  */
 
-import { Component } from 'react'
+import { Component, createRef } from 'react'
 import { refs } from '../common/ref'
 import {
   CloseOutlined,
@@ -33,10 +33,11 @@ class Tab extends Component {
     terminalOnData: false
   }
 
+  tabRef = createRef()
+
   componentDidMount () {
     this.id = 'tab-' + this.props.tab.id
     refs.add(this.id, this)
-    this.dom = document.getElementById(this.id)
     window.addEventListener('message', this.onEvent)
   }
 
@@ -50,7 +51,6 @@ class Tab extends Component {
   }
 
   componentWillUnmount () {
-    this.dom = null
     refs.remove(this.id)
     clearTimeout(this.timer)
     this.timer = null
@@ -106,12 +106,12 @@ class Tab extends Component {
   }
 
   onDrag = () => {
-    addClass(this.dom, onDragCls)
+    addClass(this.tabRef.current, onDragCls)
   }
 
   onDragEnter = () => {
     this.clearCls()
-    addClass(this.dom, onDragOverCls)
+    addClass(this.tabRef.current, onDragOverCls)
   }
 
   onDragExit = () => {
@@ -129,7 +129,7 @@ class Tab extends Component {
   onDragOver = e => {
     // debug('ondragover')
     // debug(e.target)
-    // removeClass(this.dom, 'sftp-dragover')
+    // removeClass(this.tabRef.current, 'sftp-dragover')
     e.preventDefault()
   }
 
@@ -200,7 +200,7 @@ class Tab extends Component {
   }
 
   onDragEnd = e => {
-    removeClass(this.dom, onDragCls)
+    removeClass(this.tabRef.current, onDragCls)
     this.clearCls()
     e && e.dataTransfer && e.dataTransfer.clearData()
   }
@@ -318,7 +318,7 @@ class Tab extends Component {
   }
 
   handleContextMenu = () => {
-    const rect = this.dom.getBoundingClientRect()
+    const rect = this.tabRef.current.getBoundingClientRect()
     const items = this.renderContext()
     window.store.openContextMenu({
       items,
@@ -446,7 +446,7 @@ class Tab extends Component {
         <div
           className={cls}
           draggable
-          id={'tab-' + id}
+          ref={this.tabRef}
           data-id={id}
           {...pick(this, [
             'onDrag',

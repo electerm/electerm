@@ -1,4 +1,4 @@
-import React, { memo } from 'react'
+import React, { memo, useRef } from 'react'
 import DragHandle from '../common/drag-handle'
 import './right-side-panel.styl'
 import {
@@ -22,6 +22,8 @@ export default memo(function RightSidePanel (
     rightPanelTab
   }
 ) {
+  const panelRef = useRef(null)
+
   if (!rightPanelVisible) {
     return null
   }
@@ -34,8 +36,9 @@ export default memo(function RightSidePanel (
   }
 
   function onDragMove (nw) {
-    const el = document.getElementById('right-side-panel')
-    el.style.width = nw + 'px'
+    if (panelRef.current) {
+      panelRef.current.style.width = nw + 'px'
+    }
   }
 
   function onClose () {
@@ -48,7 +51,7 @@ export default memo(function RightSidePanel (
 
   const panelProps = {
     className: 'right-side-panel animate-fast' + (rightPanelPinned ? ' right-side-panel-pinned' : ''),
-    id: 'right-side-panel',
+    ref: panelRef,
     style: {
       width: `${rightPanelWidth}px`
     }

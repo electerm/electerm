@@ -1,4 +1,4 @@
-import { PureComponent } from 'react'
+import { PureComponent, createRef } from 'react'
 import { createTerm } from '../terminal/terminal-apis'
 import deepCopy from 'json-deep-copy'
 import clone from '../../common/to-simple-obj'
@@ -27,6 +27,7 @@ export default class RdpSession extends PureComponent {
     const id = `rdp-reso-${props.tab.host}`
     const resObj = ls.getItemJSON(id, resolutions[0])
     super(props)
+    this.canvasRef = createRef()
     this.state = {
       loading: false,
       bitmapProps: {},
@@ -230,8 +231,7 @@ export default class RdpSession extends PureComponent {
         loading: false
       })
     }
-    const id = 'canvas_' + this.props.tab.id
-    const canvas = document.getElementById(id)
+    const canvas = this.canvasRef.current
     const ctx = canvas.getContext('2d')
     const {
       width,
@@ -418,7 +418,7 @@ export default class RdpSession extends PureComponent {
           {this.renderControl()}
           <canvas
             {...canvasProps}
-            id={'canvas_' + this.props.tab.id}
+            ref={this.canvasRef}
           />
         </div>
       </Spin>

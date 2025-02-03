@@ -1,15 +1,18 @@
-import { useCallback } from 'react'
+import { useCallback, useRef } from 'react'
 import DragHandle from '../common/drag-handle'
 
 export default function SidePanel (props) {
+  const panelRef = useRef(null)
+
   const onDragEnd = useCallback((nw) => {
     props.setLeftSidePanelWidth(nw)
     window.store.onResize()
   }, [props])
 
   const onDragMove = useCallback((nw) => {
-    const el = document.getElementById('side-panel')
-    el.style.width = nw + 'px'
+    if (panelRef.current) {
+      panelRef.current.style.width = nw + 'px'
+    }
     const el1 = document.querySelector('.sessions')
     if (el1) {
       el1.style.left = (nw + 43) + 'px'
@@ -26,7 +29,7 @@ export default function SidePanel (props) {
   return (
     <div
       {...props.sideProps}
-      id='side-panel'
+      ref={panelRef}
       draggable={false}
     >
       <DragHandle

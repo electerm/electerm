@@ -1,4 +1,4 @@
-import { Component } from 'react'
+import { Component, createRef } from 'react'
 import { handleErr } from '../../common/fetch.jsx'
 import generate from '../../common/uid.js'
 import { isEqual, pick, debounce, throttle } from 'lodash-es'
@@ -67,11 +67,12 @@ class Term extends Component {
     }
   }
 
+  domRef = createRef()
+
   componentDidMount () {
     this.id = `term-${this.props.tab.id}`
     refs.add(this.id, this)
     this.initTerminal()
-    this.initEvt()
     if (this.props.tab.enableSsh === false) {
       ;(
         document.querySelector('.session-current .term-sftp-tabs .type-tab.sftp') ||
@@ -175,7 +176,6 @@ clear\r`
       'resize',
       this.onResize
     )
-    this.dom = null
     this.attachAddon = null
     this.fitAddon = null
     this.zmodemAddon = null
@@ -242,11 +242,6 @@ clear\r`
 
   getDomId = () => {
     return `term-${this.props.tab.id}`
-  }
-
-  initEvt = () => {
-    const dom = document.getElementById(this.getDomId())
-    this.dom = dom
   }
 
   zoom = (v) => {
@@ -873,7 +868,7 @@ clear\r`
     // term.onTitleChange(this.onTitleChange)
     term.parent = this
     term.onSelectionChange(this.onSelection)
-    term.open(document.getElementById(this.getDomId()), true)
+    term.open(this.domRef.current, true)
     this.loadRenderer(term, config)
     // term.textarea.addEventListener('click', this.setActive)
     // term.onKey(this.onKey)
@@ -1241,6 +1236,7 @@ clear\r`
     // }
     const prps3 = {
       id: this.getDomId(),
+      ref: this.domRef,
       className: 'absolute term-wrap-2',
       style: {
         left: '10px',

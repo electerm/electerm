@@ -3,17 +3,16 @@
  */
 
 import React from 'react'
-import uid from '../../common/uid'
 import './animate-text.styl'
 
 export default class AnimateText extends React.PureComponent {
   constructor (props) {
     super(props)
-    this.uid = 'AnimateText-' + uid()
+    this.textRef = React.createRef()
   }
 
   componentDidUpdate () {
-    const dom = document.getElementById(this.uid)
+    const dom = this.textRef.current
     dom.className = (this.props.className || 'animate-text-wrap') + ' animated bounceIn'
     this.timer = setTimeout(() => {
       if (dom) {
@@ -29,7 +28,7 @@ export default class AnimateText extends React.PureComponent {
   render () {
     const { children, className } = this.props
     return (
-      <div className={className} id={this.uid}>
+      <div className={className} ref={this.textRef}>
         {children}
       </div>
     )

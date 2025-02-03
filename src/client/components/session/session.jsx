@@ -1,7 +1,7 @@
 /**
  * terminal/sftp wrapper
  */
-import { Component } from 'react'
+import { Component, createRef } from 'react'
 import Term from '../terminal/terminal.jsx'
 import Sftp from '../sftp/sftp-entry'
 import RdpSession from '../rdp/rdp-session'
@@ -37,6 +37,8 @@ const e = window.translate
 export default class SessionWrapper extends Component {
   constructor (props) {
     super(props)
+    // Add ref
+    this.domRef = createRef()
     this.state = {
       enableSftp: false,
       cwd: '',
@@ -58,7 +60,7 @@ export default class SessionWrapper extends Component {
   }
 
   getDom = () => {
-    return document.getElementById(`is-${this.props.tab.id}`)
+    return this.domRef.current
   }
 
   handleClick = () => {
@@ -503,7 +505,7 @@ export default class SessionWrapper extends Component {
   }
 
   render () {
-    const { pane, id } = this.props.tab
+    const { pane } = this.props.tab
     const cls = classnames(
       'term-sftp-box',
       pane,
@@ -516,7 +518,6 @@ export default class SessionWrapper extends Component {
     )
     const divProps = {
       className: cls,
-      id: `is-${id}`,
       onDragEnter: this.onDragEnter,
       onDragLeave: this.onDragLeave,
       onDrop: this.onDrop,
@@ -525,6 +526,7 @@ export default class SessionWrapper extends Component {
     }
     return (
       <div
+        ref={this.domRef}
         {...divProps}
       >
         {this.renderControl()}
