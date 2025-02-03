@@ -1,4 +1,3 @@
-const { spawn } = require('child_process')
 const fss = require('fs/promises')
 const fs = require('fs')
 const log = require('../common/log')
@@ -164,28 +163,26 @@ const unzipFile = (localFilePath, targetFolderPath) => {
 }
 
 async function listWindowsRootPath () {
-  const list = spawn('cmd')
   return new Promise((resolve, reject) => {
-    list.stdout.on('data', function (data) {
-      const output = String(data)
-      const out = output.split('\r\n').map(e => e.trim()).filter(e => e !== '')
-      if (out[0] === 'Name') {
-        resolve(out.slice(1))
+    const { exec } = require('child_process')
+    const command = 'powershell.exe -Command "Get-PSDrive -PSProvider FileSystem | Select-Object -ExpandProperty Root"'
+
+    exec(command, { encoding: 'utf8' }, (error, stdout, stderr) => {
+      if (error) {
+        reject(error)
+        return
       }
-    })
-
-    list.stderr.on('data', function (data) {
-      console.log('stderr: ' + data)
-    })
-
-    list.on('exit', function (code) {
-      if (code !== 0) {
-        reject(code)
+      if (stderr) {
+        reject(new Error(stderr))
+        return
       }
+      const drives = stdout.split('\r\n')
+        .map(line => line.trim())
+        // Accept any valid Windows path that ends with backslash
+        .filter(line => /^[^<>:"/\\|?*]+:\\$/.test(line))
+        .map(drive => drive.slice(0, -1)) // Remove trailing backslash
+      resolve(drives)
     })
-
-    list.stdin.write('wmic logicaldisk get name\n')
-    list.stdin.end()
   })
 }
 
