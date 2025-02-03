@@ -39,11 +39,13 @@ export default Store => {
     store.openInfoPanelAction()
   })
 
-  Store.prototype.openInfoPanelAction = action(function () {
+  Store.prototype.openInfoPanelAction = function () {
     const { store } = window
-    const term = refs.get('term-' + store.activeTabId)
-    term && term.handleShowInfo()
-  })
+    setTimeout(() => {
+      const term = refs.get('term-' + store.activeTabId)
+      term && term.handleShowInfo()
+    }, 300)
+  }
 
   Store.prototype.toggleAIConfig = function () {
     window.store.showAIConfig = !window.store.showAIConfig

@@ -22,7 +22,7 @@ describe('ssh', function () {
     await delay(4500)
     await delay(4500)
     await client.rightClick('.tabs .tab', 10, 10)
-    await client.click('.context-menu.show .anticon-copy')
+    await client.click('.ant-dropdown .anticon-copy')
     await delay(4500)
     const tabsCount = await client.evaluate(() => {
       return window.store.tabs.length

@@ -28,7 +28,7 @@ describe('file info modal', function () {
     await delay(3300)
     log('009 -> add folder')
 
-    await client.click('.context-menu .anticon-folder-add')
+    await client.click('.ant-dropdown .anticon-folder-add')
     await delay(200)
     const fname = '00000test-electerm' + nanoid()
     await client.setValue('.session-current .sftp-item input', fname)
@@ -42,7 +42,7 @@ describe('file info modal', function () {
     await delay(200)
     await client.rightClick('.session-current .file-list.local .real-file-item', 10, 10)
     await delay(200)
-    await client.click('.context-menu .anticon-info-circle')
+    await client.click('.ant-dropdown .anticon-info-circle')
     await delay(1200)
     await client.hasElem('.ant-modal-wrap')
     await electronApp.close().catch(console.log)

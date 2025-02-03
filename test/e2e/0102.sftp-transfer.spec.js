@@ -49,11 +49,11 @@ describe('sftp file transfer', function () {
     // make a local folder
     let localFileListBefore = await client.elements('.session-current .file-list.local .sftp-item')
     localFileListBefore = await localFileListBefore.count()
-    await client.rightClick('.session-current .file-list.local .real-file-item', 10, 10)
+    await client.rightClick('.session-current .file-list.local .parent-file-item', 10, 10)
     await delay(3300)
     log('add folder')
 
-    await client.click('.context-menu .anticon-folder-add')
+    await client.click('.ant-dropdown .anticon-folder-add')
     await delay(200)
     const fname = '00000test-electerm' + nanoid()
     await client.setValue('.session-current .sftp-item input', fname)
@@ -64,20 +64,20 @@ describe('sftp file transfer', function () {
     expect(localFileList).equal(localFileListBefore + 1)
 
     // enter folder
-    await client.doubleClick('.session-current .file-list.local .sftp-item:not(.virtual-file-unit) .file-bg')
+    await client.doubleClick('.session-current .file-list.local .real-file-item .file-bg')
     await delay(5000)
     const pathCurrentLocal = await client.getValue('.session-current .sftp-local-section .sftp-title input')
     expect(pathCurrentLocal.includes(fname)).equal(true)
     let localFileList0 = await client.elements('.session-current .file-list.local .sftp-item')
     localFileList0 = await localFileList0.count()
-    expect(localFileList0).equal(1)
+    expect(localFileList0).equal(2)
 
     // new file
     await delay(200)
-    await client.rightClick('.session-current .file-list.local .sftp-item', 10, 10)
-    await delay(200)
+    await client.rightClick('.session-current .file-list.local .parent-file-item', 10, 10)
+    await delay(1200)
     log('add file')
-    await client.click('.context-menu .anticon-file-add')
+    await client.click('.ant-dropdown .anticon-file-add')
     await delay(200)
     const fname00 = '00000test-electerm' + nanoid()
     await client.setValue('.session-current .sftp-item input', fname00)
@@ -85,15 +85,17 @@ describe('sftp file transfer', function () {
     await delay(2500)
     let localFileList00 = await client.elements('.session-current .file-list.local .sftp-item')
     localFileList00 = await localFileList00.count()
-    expect(localFileList00).equal(2)
+    expect(localFileList00).equal(3)
 
     // remote test
     // make a remote folder
     let remoteFileListBefore = await client.elements('.session-current .file-list.remote .sftp-item')
     remoteFileListBefore = await remoteFileListBefore.count()
-    await client.rightClick('.session-current .file-list.remote .real-file-item', 10, 10)
-    await delay(200)
-    await client.click('.context-menu .anticon-folder-add')
+    await client.rightClick('.session-current .file-list.remote .parent-file-item', 10, 10)
+    await delay(1600)
+    await client.evaluate(() => {
+      document.querySelector('.ant-dropdown:not(.ant-dropdown-hidden) .anticon-folder-add').click()
+    })
     await delay(200)
     const fname0 = '00000test-electerm-remote' + nanoid()
     await client.setValue('.session-current .sftp-remote-section .sftp-item input', fname0)
@@ -111,14 +113,14 @@ describe('sftp file transfer', function () {
     let remoteFileList0 = await client.elements('.session-current .file-list.remote .sftp-item')
     remoteFileList0 = await remoteFileList0.count()
 
-    expect(remoteFileList0).equal(1)
+    expect(remoteFileList0).equal(2)
 
     // transfer local to remote
     await delay(200)
     await client.rightClick('.session-current .file-list.local .sftp-item.real-file-item', 3, 3)
-    await delay(200)
+    await delay(1200)
     log('do upload')
-    await client.click('.context-menu .anticon-cloud-upload')
+    await client.click('.ant-dropdown:not(.ant-dropdown-hidden) .anticon-cloud-upload')
 
     // transfer remote to local
     await delay(500)
@@ -127,10 +129,10 @@ describe('sftp file transfer', function () {
     await delay(200)
 
     // select all and del local file
-    await client.rightClick('.session-current .file-list.local .real-file-item', 10, 10)
-    await delay(200)
+    await client.rightClick('.session-current .file-list.local .parent-file-item', 10, 10)
+    await delay(1200)
     log('select all')
-    await client.click('.context-menu .anticon-check-square')
+    await client.click('.ant-dropdown:not(.ant-dropdown-hidden) .anticon-check-square')
     await delay(120)
     await client.keyboard.press('Delete')
     await delay(120)
@@ -138,19 +140,19 @@ describe('sftp file transfer', function () {
     await delay(3000)
     let localFileList11 = await client.elements('.session-current .file-list.local .sftp-item')
     localFileList11 = await localFileList11.count()
-    expect(localFileList11).equal(1)
+    expect(localFileList11).equal(2)
 
     await delay(1800)
     await client.rightClick('.session-current .file-list.remote .sftp-item.real-file-item .file-bg', 10, 10)
     await delay(1123)
-    await client.click('.context-menu .anticon-cloud-download')
+    await client.click('.ant-dropdown:not(.ant-dropdown-hidden) .anticon-cloud-download')
     await delay(3000)
     const localFileList001 = await client.countElem('.session-current .file-list.local .sftp-item')
-    expect(localFileList001).equal(2)
+    expect(localFileList001).equal(3)
 
     await delay(1000)
     const remoteFileList01 = await client.countElem('.session-current .file-list.remote .sftp-item')
-    expect(remoteFileList01).equal(2)
+    expect(remoteFileList01).equal(3)
 
     // goto parent
     await delay(20)

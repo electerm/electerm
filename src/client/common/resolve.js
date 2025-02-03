@@ -6,31 +6,25 @@
  */
 
 export default (basePath, nameOrDot) => {
-  const sep = (basePath.includes('\\') ||
-  basePath.includes(':\\') ||
-  /^[a-z]+:$/i.test(basePath) ||
-  /^[a-z]+:$/i.test(nameOrDot)
-  )
-    ? '\\'
-    : '/'
+  const isWin = basePath.includes('\\') || nameOrDot.includes('\\')
+  const sep = isWin ? '\\' : '/'
+
+  // Handle absolute paths in nameOrDot
+  if (nameOrDot.startsWith('/') || /^[a-zA-Z]:[/\\]/.test(nameOrDot)) {
+    return nameOrDot.replace(/\\/g, sep)
+  }
+
   if (nameOrDot === '..') {
-    const arr = basePath.split(sep)
-    const { length } = arr
-    if (length === 1) {
-      return '/'
+    const parts = basePath.split(sep)
+    if (parts.length > 1) {
+      parts.pop()
+      return isWin && parts.length === 1 ? '/' : parts.join(sep) || '/'
     }
-    const res = arr.slice(0, length - 1).join(sep)
-    return res || '/'
+    return '/'
   }
-  const pre = (nameOrDot.includes(':\\') || /^[a-z]+:$/i.test(nameOrDot)) && basePath === '/'
-    ? ''
-    : basePath
-  const mid = (basePath.endsWith(sep) ? '' : sep)
-  let ff = pre + mid + nameOrDot
-  if (/^\\[a-z]+:$/i.test(ff)) {
-    ff = ff.slice(1)
-  }
-  return ff
+
+  const result = basePath.endsWith(sep) ? basePath + nameOrDot : basePath + sep + nameOrDot
+  return isWin && result.length === 3 && result.endsWith(':\\') ? '/' : result
 }
 
 export const osResolve = (...args) => {

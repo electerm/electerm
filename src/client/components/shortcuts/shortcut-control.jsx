@@ -61,7 +61,7 @@ class ShortcutControl extends React.PureComponent {
     } else if (keyPressed(e, 'delete') && !inputFocus && !activeSftp.state.onEditFile) {
       e.stopPropagation()
       activeSftp.delFiles(type)
-    } else if (keyPressed(e, 'enter') && !inputFocus && !activeSftp.state.onDelete) {
+    } else if (keyPressed(e, 'enter') && !inputFocus && !activeSftp.onDelete) {
       e.stopPropagation()
       activeSftp.enter(type, e)
     } else if (keyControlPressed(e) && keyPressed(e, 'keyC') && !inputFocus) {
