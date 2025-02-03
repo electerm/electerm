@@ -178,6 +178,9 @@ export default memo(function InfoModal (props) {
             </Link>
           </p>
           <p className='mg1b'>
+            <InfoCircleOutlined /> <b className='mg1r'>{window.store.installSrc}</b>
+          </p>
+          <p className='mg1b'>
             <JavaScriptOutlined /> <b className='mg1r'>Powered by</b>
             <Link to='https://github.com/tylerlong/manate'>
               manate
