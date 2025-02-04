@@ -15,7 +15,6 @@ import TabQuickCommands from './tab-quick-commands'
 import TabSettings from './tab-settings'
 import TabThemes from './tab-themes'
 import TabProfiles from './tab-profiles'
-import deepCopy from 'json-deep-copy'
 
 const e = window.translate
 
@@ -39,8 +38,7 @@ export default auto(function SettingModalWrap (props) {
       shouldConfirmDel: tabsShouldConfirmDel.includes(settingTab),
       list: settingSidebarList
     }
-    const bookmarks = deepCopy(store.bookmarks)
-    const bookmarkGroups = deepCopy(store.bookmarkGroups)
+    const { bookmarks, bookmarkGroups } = store
     const formProps = {
       store,
       formData: settingItem,

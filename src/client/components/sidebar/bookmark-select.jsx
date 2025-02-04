@@ -4,7 +4,6 @@
 
 import { auto } from 'manate/react'
 import TreeList from '../tree-list/tree-list'
-import deepCopy from 'json-deep-copy'
 
 export default auto(function BookmarkSelect (props) {
   const { store, from } = props
@@ -25,7 +24,7 @@ export default auto(function BookmarkSelect (props) {
     store.onSelectBookmark(item.id)
   }
   const base = {
-    bookmarks: deepCopy(bookmarks || []),
+    bookmarks: bookmarks || [],
     type: 'bookmarks',
     onClickItem,
     listStyle,
@@ -34,7 +33,7 @@ export default auto(function BookmarkSelect (props) {
   const propsTree = {
     ...base,
     shouldConfirmDel: true,
-    bookmarkGroups: deepCopy(store.getBookmarkGroupsTotal()),
+    bookmarkGroups: store.getBookmarkGroupsTotal(),
     expandedKeys,
     leftSidebarWidth,
     bookmarkGroupTree: store.bookmarkGroupTree
