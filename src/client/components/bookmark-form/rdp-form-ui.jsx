@@ -7,12 +7,14 @@ import {
   Input,
   Form,
   InputNumber,
-  TreeSelect
+  TreeSelect,
+  Alert
 } from 'antd'
 import { formItemLayout } from '../../common/form-layout'
 import {
   newBookmarkIdPrefix,
-  terminalRdpType
+  terminalRdpType,
+  rdpWikiLink
 } from '../../common/constants'
 import useSubmit from './use-submit'
 import copy from 'json-deep-copy'
@@ -22,6 +24,7 @@ import { getRandomDefaultColor } from '../../common/rand-hex-color.js'
 import formatBookmarkGroups from './bookmark-group-tree-format'
 import findBookmarkGroupId from '../../common/find-bookmark-group-id'
 import ProfileItem from './profile-form-item'
+import Link from '../common/external-link'
 
 const FormItem = Form.Item
 const e = window.translate
@@ -63,8 +66,18 @@ export default function RdpFormUi (props) {
       bookmarkGroups = []
     } = props
     const tree = formatBookmarkGroups(bookmarkGroups)
+    const alertProps = {
+      message: (
+        <Link to={rdpWikiLink}>WIKI: {rdpWikiLink}</Link>
+      ),
+      type: 'warning',
+      className: 'mg2y'
+    }
     return (
       <div className='pd1x'>
+        <Alert
+          {...alertProps}
+        />
         <FormItem
           {...formItemLayout}
           label={e('title')}
