@@ -2,9 +2,8 @@ import {
   CaretDownOutlined,
   CaretRightOutlined
 } from '@ant-design/icons'
-import { memo } from 'react'
 
-export default memo(function TreeExpander (props) {
+export default function TreeExpander (props) {
   function onExpand () {
     props.onExpand(group)
   }
@@ -33,4 +32,4 @@ export default memo(function TreeExpander (props) {
       <Icon />
     </div>
   )
-})
+}

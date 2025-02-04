@@ -47,44 +47,63 @@ export default Store => {
 
   Store.prototype.delBookmarkGroup = action(function ({ id }) {
     const { store } = window
+
+    // Cannot delete default group
     if (id === defaultBookmarkGroupId) {
       return
     }
-    let { bookmarkGroups } = store
-    const tobeDel = find(bookmarkGroups, bg => bg.id === id)
-    if (!tobeDel) {
+
+    const { bookmarkGroups } = store
+    const index = bookmarkGroups.findIndex(bg => bg.id === id)
+
+    // If group not found, return
+    if (index === -1) {
       return
     }
-    const groups = [tobeDel]
-    if (
-      tobeDel.level !== 2 &&
-      tobeDel.bookmarkGroupIds &&
-      tobeDel.bookmarkGroupIds.length > 0
-    ) {
-      const childs = bookmarkGroups.filter(
-        bg => tobeDel.bookmarkGroupIds.includes(bg.id)
+
+    const tobeDel = bookmarkGroups[index]
+
+    // Find parent group
+    let parentGroup = null
+    if (tobeDel.level === 2) {
+      parentGroup = bookmarkGroups.find(bg =>
+        (bg.bookmarkGroupIds || []).includes(tobeDel.id)
       )
-      groups.push(...childs)
     }
-    const groupIds = groups.map(g => g.id)
-    const defaultCatIndex = tobeDel.level !== 2
-      ? bookmarkGroups.findIndex(
-        g => g.id === defaultBookmarkGroupId
-      )
-      : bookmarkGroups.findIndex(
-        g => (g.bookmarkGroupIds || []).includes(tobeDel.id)
-      )
-    for (const g of groups) {
-      if (g.bookmarkIds.length) {
-        const def = bookmarkGroups[defaultCatIndex]
-        def.bookmarkIds.push(...g.bookmarkIds)
-      }
+
+    // If no parent found, use default group
+    if (!parentGroup) {
+      parentGroup = bookmarkGroups.find(bg => bg.id === defaultBookmarkGroupId)
     }
-    bookmarkGroups = bookmarkGroups.filter(t => {
-      return !groupIds.includes(t.id)
-    })
+
+    // Ensure parent group has bookmarkIds and bookmarkGroupIds arrays
+    if (!parentGroup.bookmarkIds) {
+      parentGroup.bookmarkIds = []
+    }
+    if (!parentGroup.bookmarkGroupIds) {
+      parentGroup.bookmarkGroupIds = []
+    }
+
+    // Transfer bookmarkIds to parent
+    if (tobeDel.bookmarkIds && tobeDel.bookmarkIds.length) {
+      parentGroup.bookmarkIds = [
+        ...new Set([...parentGroup.bookmarkIds, ...tobeDel.bookmarkIds])
+      ]
+    }
+
+    // Transfer child groups to parent
+    if (tobeDel.bookmarkGroupIds && tobeDel.bookmarkGroupIds.length) {
+      parentGroup.bookmarkGroupIds = [
+        ...new Set([...parentGroup.bookmarkGroupIds, ...tobeDel.bookmarkGroupIds])
+      ]
+    }
+
+    // Remove the group from bookmarkGroups
+    bookmarkGroups.splice(index, 1)
+
+    // Reset current group if it was deleted
     if (id === store.currentBookmarkGroupId) {
-      store.currentBookmarkGroupId = ''
+      store.currentBookmarkGroupId = parentGroup.id
     }
   })
 

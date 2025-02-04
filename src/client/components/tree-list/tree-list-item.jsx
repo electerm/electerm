@@ -21,12 +21,11 @@ import {
 } from '../../common/constants'
 import highlight from '../common/highlight'
 import uid from '../../common/uid'
-import { memo } from 'react'
 import './tree-list.styl'
 
 const e = window.translate
 
-export default memo(function TreeListItem (props) {
+export default function TreeListItem (props) {
   const handleDel = (e) => {
     props.del(props.item, e)
   }
@@ -254,4 +253,4 @@ export default memo(function TreeListItem (props) {
       {renderEditBtn()}
     </div>
   )
-})
+}

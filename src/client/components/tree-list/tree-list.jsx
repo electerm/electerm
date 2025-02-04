@@ -22,6 +22,7 @@ import NewButtonsGroup from './bookmark-toolbar'
 import findBookmarkGroupId from '../../common/find-bookmark-group-id'
 import getInitItem from '../../common/init-setting-item'
 import uid from '../../common/uid'
+import { action } from 'manate'
 import deepEqual from 'fast-deep-equal'
 import './tree-list.styl'
 import TreeExpander from './tree-expander'
@@ -223,33 +224,36 @@ export default class ItemListTree extends Component {
       return
     }
     this.onSubmit = true
-    const id = this.state.parentId
+    this.parentId = this.state.parentId
     this.setState({
       showNewBookmarkGroupForm: false,
       parentId: ''
-    }, () => {
-      this.onSubmit = false
-      const { bookmarkGroups } = window.store
-      const newCat = {
-        id: uid(),
-        title: this.state.bookmarkGroupTitle,
-        level: 2,
-        bookmarkIds: []
-      }
-      bookmarkGroups.unshift(newCat)
-      const cat = find(
-        bookmarkGroups,
-        d => d.id === id
-      )
-      if (!cat) {
-        return
-      }
-      cat.bookmarkGroupIds = [
-        ...(cat.bookmarkGroupIds || []),
-        newCat.id
-      ]
-    })
+    }, this.afterSubmitSub)
   }
+
+  afterSubmitSub = action(() => {
+    const id = this.parentId
+    this.onSubmit = false
+    const { bookmarkGroups } = window.store
+    const newCat = {
+      id: uid(),
+      title: this.state.bookmarkGroupTitle,
+      level: 2,
+      bookmarkIds: []
+    }
+    bookmarkGroups.unshift(newCat)
+    const cat = find(
+      bookmarkGroups,
+      d => d.id === id
+    )
+    if (!cat) {
+      return
+    }
+    cat.bookmarkGroupIds = [
+      ...(cat.bookmarkGroupIds || []),
+      newCat.id
+    ]
+  })
 
   handleNewBookmarkGroup = () => {
     this.setState({
@@ -391,7 +395,7 @@ export default class ItemListTree extends Component {
     target.classList.add('item-dragover')
   }
 
-  onDrop = e => {
+  onDrop = action(e => {
     e.preventDefault()
     const elems = document.querySelectorAll('.tree-item.item-dragover')
     elems.forEach(elem => {
@@ -533,7 +537,7 @@ export default class ItemListTree extends Component {
         item.level = 2
       }
     }
-  }
+  })
 
   editCategory = () => {
     const {
