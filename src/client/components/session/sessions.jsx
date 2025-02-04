@@ -1,4 +1,4 @@
-import { Component } from 'react'
+import { Component } from '../common/component'
 import Session from './session.jsx'
 
 import { pick } from 'lodash-es'

@@ -13,7 +13,6 @@ import Footer from '../footer/footer-entry'
 import SessionsWrap from '../session/sessions'
 import QuickCommandsFooterBox from '../quick-commands/quick-commands-box'
 import pixed from './pixed'
-import copy from 'json-deep-copy'
 import { pick } from 'lodash-es'
 import './layout.styl'
 
@@ -181,7 +180,7 @@ export default auto(function Layout (props) {
       'openedSideBar',
       'config'
     ]),
-    tabs: copy(store.tabs)
+    tabs: store.tabs
   }
   return [
     <Layouts {...layoutProps} key='layouts'>

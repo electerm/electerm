@@ -2,7 +2,8 @@
  * file section
  */
 
-import { Component, createRef } from 'react'
+import { createRef } from 'react'
+import { Component } from '../common/component'
 import { refs } from '../common/ref'
 import {
   CloseOutlined,

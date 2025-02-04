@@ -2,6 +2,7 @@
  * session tabs component
  */
 
+import { Component } from '../common/component'
 import React from 'react'
 import runIdle from '../../common/run-idle'
 import { throttle } from 'lodash-es'
@@ -43,7 +44,7 @@ import classNames from 'classnames'
 
 const e = window.translate
 
-export default class Tabs extends React.Component {
+export default class Tabs extends Component {
   constructor (props) {
     super(props)
     this.tabsRef = React.createRef()

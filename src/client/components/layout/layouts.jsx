@@ -1,11 +1,10 @@
-import { memo } from 'react'
 import {
   splitConfig
 } from '../../common/constants'
 import LayoutItem from './layout-item'
 import pixed from './pixed'
 
-export default memo(function LayoutWrap (props) {
+export default function LayoutWrap (props) {
   const {
     children,
     layout,
@@ -61,4 +60,4 @@ export default memo(function LayoutWrap (props) {
       }
     </div>
   )
-})
+}
