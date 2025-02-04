@@ -5,7 +5,6 @@ import {
 } from 'antd'
 import { defaultBookmarkGroupId, settingMap } from '../../common/constants'
 import deepCopy from 'json-deep-copy'
-import { action } from 'manate'
 
 const e = window.translate
 
@@ -24,10 +23,8 @@ export default class BookmarkTreeDelete extends StartSessionSelect {
       checkedKeys
     } = this.props
     const arr = checkedKeys.filter(d => d !== defaultBookmarkGroupId)
-    action(() => {
-      store.delItems(arr, settingMap.bookmarks)
-      store.delItems(arr, settingMap.bookmarkGroups)
-    })
+    store.delItems(arr, settingMap.bookmarks)
+    store.delItems(arr, settingMap.bookmarkGroups)
     store.checkedKeys = []
   }
 
