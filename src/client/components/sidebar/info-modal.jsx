@@ -1,4 +1,3 @@
-import { memo } from 'react'
 import {
   GithubOutlined,
   GlobalOutlined,
@@ -16,6 +15,7 @@ import { Modal, Tabs, Button } from 'antd'
 import Link from '../common/external-link'
 import LogoElem from '../common/logo-elem'
 import RunningTime from './app-running-time'
+import { auto } from 'manate/react'
 
 import {
   packInfo,
@@ -26,7 +26,7 @@ import './info.styl'
 
 const e = window.translate
 
-export default memo(function InfoModal (props) {
+export default auto(function InfoModal (props) {
   const handleChangeTab = key => {
     window.store.infoModalTab = key
   }

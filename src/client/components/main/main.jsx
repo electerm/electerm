@@ -165,7 +165,7 @@ export default auto(function Index (props) {
       'commandLineHelp'
     ]),
     installSrc,
-    upgradeInfo
+    upgradeInfo: store.upgradeInfo
   }
   const conflictStoreProps = {
     fileTransferChanged: JSON.stringify(copiedTransfer),

@@ -11,7 +11,7 @@ export default function InputAutoFocus (props) {
     if (inputRef.current) {
       const { value } = props
       if (value && selectall) {
-        inputRef.current.setSelectionRange(0, value.length)
+        inputRef.current.focus()
       } else {
         inputRef.current.focus()
       }
