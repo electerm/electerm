@@ -15,6 +15,7 @@ import {
 import * as ls from '../common/safe-local-storage'
 import { refs, refsStatic } from '../components/common/ref'
 import { action } from 'manate'
+import deepCopy from 'json-deep-copy'
 
 const e = window.translate
 const { assign } = Object
@@ -192,10 +193,11 @@ export default Store => {
     if (!profile || authType !== 'profiles') {
       return tab
     }
-    const p = window.store.profiles.find(x => x.id === profile)
+    let p = window.store.profiles.find(x => x.id === profile)
     if (!p) {
       return tab
     }
+    p = deepCopy(p)
     // delete tab.password
     // delete tab.privateKey
     // delete tab.passphrase
@@ -278,5 +280,27 @@ export default Store => {
 
   Store.prototype.getLangNames = function () {
     return window.et.langs.map(d => d.name)
+  }
+
+  Store.prototype.fixProfiles = function () {
+    const { profiles } = window.store
+    const len = profiles.length
+    let i = len - 1
+    for (;i >= 0; i--) {
+      const f = profiles[i]
+      if (f.name) {
+        continue
+      }
+      let count = 0
+      let id = 'PROFILE' + i
+      while (profiles.find(d => d.id === id)) {
+        count = count + 1
+        id = 'PROFILE' + count
+      }
+      const np = deepCopy(f)
+      np.id = id
+      np.name = id
+      profiles[i] = np
+    }
   }
 }

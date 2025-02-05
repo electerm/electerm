@@ -194,6 +194,7 @@ export default (Store) => {
     ext.lastDataUpdateTime = await getData('lastDataUpdateTime') || 0
     Object.assign(store, ext)
     await store.fixBookmarkGroups()
+    await store.fixProfiles()
 
     store.checkDefaultTheme()
     store.loadFontList()
