@@ -76,6 +76,7 @@ export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig })
     return null
   }
   const title = 'AI ' + e('setting')
+  const defaultLangs = window.store.getLangNames().map(l => ({ value: l }))
   return (
     <Modal
       title={title}
@@ -141,6 +142,18 @@ export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig })
             <Input.TextArea
               placeholder='Enter AI role/system prompt'
               rows={1}
+            />
+          </AutoComplete>
+        </Form.Item>
+
+        <Form.Item
+          label={e('language')}
+          name='languageAI'
+          rules={[{ required: true, message: 'Please input language' }]}
+        >
+          <AutoComplete options={defaultLangs} placement='topLeft'>
+            <Input
+              placeholder={e('language')}
             />
           </AutoComplete>
         </Form.Item>
