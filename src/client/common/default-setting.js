@@ -31,7 +31,7 @@ export default {
   checkUpdateOnStart: true,
   cursorBlink: false,
   cursorStyle: 'block',
-  useSystemTitleBar: window.pre.isLinux || window.et.isLinux || false,
+  useSystemTitleBar: false,
   opacity: 1,
   defaultEditor: '',
   terminalWordSeparator: './\\()"\'-:,.;<>~!@#$%^&*|+=[]{}`~ ?',
