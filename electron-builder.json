@@ -65,5 +65,8 @@
   "snap": {
     "confinement": "classic",
     "publish": ["github"]
+  },
+  "deb": {
+    "afterInstall": "build/bin/linux-deb-after-build.sh"
   }
 }
