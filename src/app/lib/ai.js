@@ -17,11 +17,12 @@ exports.AIchat = async (
   model = defaultSettings.modelAI,
   role = defaultSettings.roleAI,
   baseURL = defaultSettings.baseURLAI,
+  path = defaultSettings.apiPathAI,
   apiKey
 ) => {
   try {
     const client = createAIClient(baseURL, apiKey)
-    const response = await client.post('/chat/completions', {
+    const response = await client.post(path, {
       model,
       messages: [
         {

@@ -24,7 +24,8 @@ const aiConfigsArr = [
   'baseURLAI',
   'modelAI',
   'roleAI',
-  'apiKeyAI'
+  'apiKeyAI',
+  'apiPathAI'
 ]
 
 export default function AIChat (props) {
@@ -52,6 +53,7 @@ export default function AIChat (props) {
       props.config.modelAI,
       buildRole(),
       props.config.baseURLAI,
+      props.config.apiPathAI,
       props.config.apiKeyAI
     ).catch(
       window.store.onError

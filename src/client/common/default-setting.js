@@ -61,5 +61,6 @@ export default {
   dataSyncSelected: 'all',
   baseURLAI: 'https://api.deepseek.com',
   modelAI: 'deepseek-chat',
-  roleAI: '终端专家,提供不同系统下安全命令,解释用法及风险,用markdown格式'
+  roleAI: '终端专家,提供不同系统下安全命令,解释用法及风险,用markdown格式',
+  apiPathAI: '/chat/completions'
 }

@@ -4,7 +4,8 @@ import {
   Button,
   AutoComplete,
   Modal,
-  Alert
+  Alert,
+  Space
 } from 'antd'
 import { useEffect, useState } from 'react'
 import Link from '../common/external-link'
@@ -83,6 +84,7 @@ export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig })
       open
       onCancel={handleCancel}
       footer={null}
+      width='90%'
     >
       <Alert
         message={
@@ -97,23 +99,38 @@ export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig })
         initialValues={initialValues}
         layout='vertical'
       >
-        <Form.Item
-          label='API URL'
-          name='baseURLAI'
-          rules={[
-            { required: true, message: 'Please input or select API provider URL!' },
-            { type: 'url', message: 'Please enter a valid URL!' }
-          ]}
-        >
-          <AutoComplete
-            options={getBaseURLOptions()}
-            placeholder='Enter or select API provider URL'
-            filterOption={filter}
-            onChange={handleChange}
-            allowClear
-          />
+        <Form.Item label='API URL' required>
+          <Space.Compact block>
+            <Form.Item
+              label='API URL'
+              name='baseURLAI'
+              noStyle
+              rules={[
+                { required: true, message: 'Please input or select API provider URL!' },
+                { type: 'url', message: 'Please enter a valid URL!' }
+              ]}
+            >
+              <AutoComplete
+                options={getBaseURLOptions()}
+                placeholder='Enter or select API provider URL'
+                filterOption={filter}
+                onChange={handleChange}
+                allowClear
+                style={{ width: '75%' }}
+              />
+            </Form.Item>
+            <Form.Item
+              label='API PATH'
+              name='apiPathAI'
+              noStyle
+            >
+              <Input
+                placeholder='Enter API path'
+                style={{ width: '25%' }}
+              />
+            </Form.Item>
+          </Space.Compact>
         </Form.Item>
-
         <Form.Item
           label={e('modelAi')}
           name='modelAI'
