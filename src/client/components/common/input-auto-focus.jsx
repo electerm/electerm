@@ -6,17 +6,21 @@ import {
 export default function InputAutoFocus (props) {
   const { type, selectall = false, ...rest } = props
   const inputRef = useRef(null)
+  const isFirstRender = useRef(true)
 
   useEffect(() => {
     if (inputRef.current) {
       const { value } = props
-      if (value && selectall) {
+      if (value && selectall && isFirstRender.current) {
         inputRef.current.focus()
+        inputRef.current.setSelectionRange(0, value.length)
+        isFirstRender.current = false
       } else {
         inputRef.current.focus()
       }
     }
-  }, [props.value, props.selectall]) // Focus when these props change
+  }, [props.value, props.selectall])
+
   let InputComponent
   switch (type) {
     case 'password':
@@ -25,11 +29,11 @@ export default function InputAutoFocus (props) {
     default:
       InputComponent = Input
   }
+
   return (
     <InputComponent
       ref={inputRef}
       {...rest}
     />
-
   )
 }
