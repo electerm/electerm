@@ -2,14 +2,13 @@
  * load data from db
  */
 
-import { dbNames, update, getData, fetchInitData, insert, remove } from '../common/db'
+import { dbNames, getData, fetchInitData } from '../common/db'
 import parseInt10 from '../common/parse-int10'
 import { infoTabs, statusMap, defaultEnvLang } from '../common/constants'
 import fs from '../common/fs'
 import generate from '../common/id-with-stamp'
 import defaultSettings from '../common/default-setting'
 import encodes from '../components/bookmark-form/encodes'
-import runIdle from '../common/run-idle'
 import { initWsCommon } from '../common/fetch-from-server'
 import safeParse from '../common/parse-json-safe'
 import initWatch from './watch'
@@ -107,27 +106,6 @@ export async function addTabFromCommandLine (store, opts) {
 }
 
 export default (Store) => {
-  Store.prototype.batchDbUpdate = async function (updates) {
-    runIdle(() => {
-      for (const u of updates) {
-        update(u.id, u.update, u.db, u.upsert)
-      }
-    })
-  }
-  Store.prototype.batchDbAdd = async function (adds) {
-    runIdle(() => {
-      for (const u of adds) {
-        insert(u.db, u.obj)
-      }
-    })
-  }
-  Store.prototype.batchDbDel = async function (dels) {
-    runIdle(() => {
-      for (const u of dels) {
-        remove(u.db, u.id)
-      }
-    })
-  }
   Store.prototype.openInitSessions = function () {
     const { store } = window
     const arr = store.config.onStartSessions || []

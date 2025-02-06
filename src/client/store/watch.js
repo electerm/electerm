@@ -4,7 +4,7 @@
 
 import createTitle from '../common/create-title'
 import { autoRun } from 'manate'
-import { update, remove, dbNamesForWatch } from '../common/db'
+import { update, remove, insert, dbNamesForWatch } from '../common/db'
 import {
   sftpDefaultSortSettingKey,
   checkedKeysLsKey,
@@ -50,12 +50,9 @@ export default store => {
       for (const item of updated) {
         await update(item.id, item, name, false)
       }
-      store.batchDbAdd(added.map(d => {
-        return {
-          db: name,
-          obj: d
-        }
-      }))
+      for (const item of added) {
+        await insert(name, item)
+      }
       await update(
         `${name}:order`,
         (n || []).map(d => d.id)

@@ -7,7 +7,7 @@ import copy from 'json-deep-copy'
 import {
   settingMap, packInfo, syncTypes, syncDataMaps
 } from '../common/constants'
-import { remove, dbNames, insert, update, getData } from '../common/db'
+import { dbNames, update, getData } from '../common/db'
 import fetch from '../common/fetch-from-server'
 import download from '../common/download'
 import { fixBookmarks } from '../common/db-fix'
@@ -259,7 +259,6 @@ export default (Store) => {
       token,
       store.getProxySetting()
     )
-    const toInsert = []
     const { names, syncConfig } = store.getDataSyncNames()
     for (const n of names) {
       let str = get(gist, `files["${n}.json"].content`)
@@ -290,10 +289,6 @@ export default (Store) => {
           return ai - bi
         })
       }
-      toInsert.push({
-        name: n,
-        value: arr
-      })
       store.setItems(n, arr)
     }
     if (syncConfig) {
@@ -321,10 +316,6 @@ export default (Store) => {
       up[type + 'SyncPassword'] = pass
     }
     store.updateSyncSetting(up)
-    for (const u of toInsert) {
-      await remove(u.name)
-      await insert(u.name, u.value)
-    }
     store.isSyncingSetting = false
     store.isSyncDownload = false
   }
@@ -389,7 +380,6 @@ export default (Store) => {
       .readFile(file.path)
     const { store } = window
     const objs = JSON.parse(txt)
-    const toInsert = []
     const { names } = store.getDataSyncNames(true)
     for (const n of names) {
       let arr = objs[n]
@@ -398,15 +388,7 @@ export default (Store) => {
       } else if (n === settingMap.bookmarks) {
         arr = fixBookmarks(arr)
       }
-      toInsert.push({
-        name: n,
-        value: arr
-      })
       store.setItems(n, objs[n])
-    }
-    for (const u of toInsert) {
-      await remove(u.name)
-      await insert(u.name, u.value)
     }
     store.updateConfig(objs.config)
     store.setTheme(objs.config.theme)
