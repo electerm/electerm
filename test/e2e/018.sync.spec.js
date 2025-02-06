@@ -30,6 +30,11 @@ describe('data sync', function () {
 
     await delay(3500)
 
+    async function checkNoError () {
+      const hasError = await client.elemExist('.common-err-desc')
+      expect(hasError).equal(false)
+    }
+
     log('button:open sync')
     await client.click('.btns .anticon-cloud-sync')
     await delay(500)
@@ -53,6 +58,7 @@ describe('data sync', function () {
       return window.store.bookmarks
     })
     expect(bks.length > 3).equal(true)
+    await checkNoError()
 
     log('save gitee token / id')
 
@@ -73,6 +79,7 @@ describe('data sync', function () {
       return window.store.bookmarks
     })
     expect(bks1.length > 3).equal(true)
+    await checkNoError()
 
     log('save custom props')
 
@@ -94,6 +101,7 @@ describe('data sync', function () {
       return window.store.bookmarks
     })
     expect(bks3.length > 3).equal(true)
+    await checkNoError()
 
     log('save cloud props')
 
