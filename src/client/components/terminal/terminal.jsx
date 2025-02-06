@@ -1250,7 +1250,7 @@ clear\r`
         items: this.renderContextMenu(),
         onClick: this.onContextMenu
       },
-      trigger: ['contextMenu']
+      trigger: this.props.config.pasteWhenContextMenu ? [] : ['contextMenu']
     }
     return (
       <Dropdown {...dropdownProps}>
