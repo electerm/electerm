@@ -69,7 +69,7 @@ export default class SettingTerminal extends Component {
     if (name === 'useSystemTitleBar') {
       message.info(e('useSystemTitleBarTip'), 8)
     } else if (name === 'sftpPathFollowSsh' && value) {
-      message.warn(e('sftpPathFollowSshTip'), 8)
+      message.warning(e('sftpPathFollowSshTip'), 8)
     }
     this.saveConfig({
       [name]: value
