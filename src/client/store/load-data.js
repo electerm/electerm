@@ -193,9 +193,6 @@ export default (Store) => {
       })
     ext.lastDataUpdateTime = await getData('lastDataUpdateTime') || 0
     Object.assign(store, ext)
-    await store.fixBookmarkGroups()
-    await store.fixProfiles()
-
     store.checkDefaultTheme()
     store.loadFontList()
     store.fetchItermThemes()
@@ -203,6 +200,13 @@ export default (Store) => {
     store.fetchSshConfigItems()
     store.initCommandLine().catch(store.onError)
     initWatch(store)
+    setTimeout(
+      () => {
+        store.fixProfiles()
+        store.fixBookmarkGroups()
+      },
+      1000
+    )
     if (store.config.checkUpdateOnStart) {
       store.onCheckUpdate(false)
     }

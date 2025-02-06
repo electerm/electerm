@@ -4,6 +4,9 @@
  * @param {Array} newArr - New array of objects to compare against
  * @returns {Object} Object containing arrays of items to update, add, and remove
  */
+
+import deepCopy from 'json-deep-copy'
+
 export default function compare (oldArr, newArr) {
   if (!oldArr || !newArr) {
     return {
@@ -48,8 +51,8 @@ export default function compare (oldArr, newArr) {
     }
   }
   return {
-    updated,
-    added,
-    removed
+    updated: deepCopy(updated),
+    added: deepCopy(added),
+    removed: deepCopy(removed)
   }
 }

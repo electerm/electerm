@@ -300,7 +300,7 @@ export default Store => {
       const np = deepCopy(f)
       np.id = id
       np.name = id
-      profiles[i] = np
+      profiles.splice(i, 1, np)
     }
   }
 }
