@@ -190,7 +190,7 @@ describe('ssh', function () {
 
     const newTitle2 = 'renamed-tab-2'
     await client.setValue('.tab input', newTitle2)
-    await client.click('.btns .anticon-plus-circle') // Click outside to blur
+    await client.click('.tabs-add-btn') // Click outside to blur
     await delay(1200)
 
     // Verify the title was changed and edit mode is off
