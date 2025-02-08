@@ -52,6 +52,7 @@ export default () => {
     history: ls.getItemJSON('history', []),
     sshConfigs: [],
     bookmarks: [],
+    bookmarksMap: new Map(),
     sidebarPanelTab: 'bookmarks',
     profiles: [],
     bookmarkGroups: getDefaultBookmarkGroups([]),

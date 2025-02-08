@@ -12,7 +12,8 @@ export default auto(function BookmarkSelect (props) {
     openedSideBar,
     leftSidebarWidth,
     expandedKeys,
-    bookmarks
+    bookmarks,
+    bookmarksMap
   } = store
   if (from === 'sidebar' && openedSideBar !== 'bookmarks') {
     return null
@@ -33,6 +34,7 @@ export default auto(function BookmarkSelect (props) {
   const propsTree = {
     ...base,
     shouldConfirmDel: true,
+    bookmarksMap,
     bookmarkGroups: store.getBookmarkGroupsTotal(),
     expandedKeys,
     leftSidebarWidth,

@@ -58,6 +58,11 @@ export default store => {
         (n || []).map(d => d.id)
       )
       refsStatic.add('oldState-' + name, deepCopy(n) || [])
+      if (name === 'bookmarks') {
+        store.bookmarksMap = new Map(
+          n.map(d => [d.id, d])
+        )
+      }
       await store.updateLastDataUpdateTime()
       if (store.config.autoSync) {
         await store.uploadSettingAll()
