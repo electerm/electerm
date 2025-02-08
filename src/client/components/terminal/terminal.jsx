@@ -1105,7 +1105,6 @@ clear\r`
   }, 200)
 
   onerrorSocket = err => {
-    this.setStatus(statusMap.error)
     log.error('onerrorSocket', err)
   }
 
