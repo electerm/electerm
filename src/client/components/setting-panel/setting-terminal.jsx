@@ -520,7 +520,8 @@ export default class SettingTerminal extends Component {
             'pasteWhenContextMenu',
             'copyWhenSelect',
             'ctrlOrMetaOpenTerminalLink',
-            'sftpPathFollowSsh'
+            'sftpPathFollowSsh',
+            'sshSftpSplitView'
           ].map(this.renderToggle)
         }
         <div className='pd1b'>{e('terminalBackSpaceMode')}</div>

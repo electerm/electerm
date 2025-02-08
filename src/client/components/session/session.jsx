@@ -12,7 +12,9 @@ import {
   SearchOutlined,
   FullscreenOutlined,
   PaperClipOutlined,
-  CloseOutlined
+  CloseOutlined,
+  CodeOutlined,
+  FolderOutlined
 } from '@ant-design/icons'
 import {
   Tooltip,
@@ -38,18 +40,21 @@ const e = window.translate
 export default class SessionWrapper extends Component {
   constructor (props) {
     super(props)
-    // Add ref
     this.domRef = createRef()
     this.state = {
       enableSftp: false,
       cwd: '',
       sftpPathFollowSsh: !!props.config.sftpPathFollowSsh,
+      sshSftpSplitView: !!props.config.sshSftpSplitView,
       key: Math.random(),
       sessionOptions: null,
       sessionId: generate(),
       delKeyPressed: false
     }
   }
+
+  minWithForSplit = 640
+  minHeightForSplit = 400
 
   componentDidMount () {
     this.updateTab()
@@ -62,6 +67,39 @@ export default class SessionWrapper extends Component {
 
   getDom = () => {
     return this.domRef.current
+  }
+
+  handleSshSftpSplitView = () => {
+    const nv = !this.state.sshSftpSplitView
+    this.setState({
+      sshSftpSplitView: nv
+    })
+  }
+
+  canSplitView = () => {
+    const {
+      width,
+      height
+    } = this.props
+    return width > this.minWithForSplit ||
+      height > this.minHeightForSplit
+  }
+
+  getSplitDirection = () => {
+    const {
+      sshSftpSplitView
+    } = this.state
+    if (!sshSftpSplitView || !this.canSplitView()) {
+      return 'tabed'
+    }
+    const {
+      width,
+      height
+    } = this.props
+    const ratio = width / height
+    const baseRatio = this.minWithForSplit / this.minHeightForSplit
+    const wider = ratio > baseRatio
+    return wider ? 'leftRight' : 'topDown'
   }
 
   handleClick = () => {
@@ -312,6 +350,13 @@ export default class SessionWrapper extends Component {
     )
   }
 
+  isNotTerminalType = () => {
+    const { type } = this.props.tab
+    return type === terminalRdpType ||
+      type === terminalVncType ||
+      type === terminalWebType
+  }
+
   renderSftp = () => {
     const {
       sessionOptions,
@@ -320,11 +365,9 @@ export default class SessionWrapper extends Component {
       sftpPathFollowSsh,
       cwd
     } = this.state
-    const { pane, type, id } = this.props.tab
+    const { pane, id } = this.props.tab
     if (
-      type === terminalRdpType ||
-      type === terminalVncType ||
-      type === terminalWebType
+      this.isNotTerminalType()
     ) {
       return null
     }
@@ -416,18 +459,35 @@ export default class SessionWrapper extends Component {
     )
   }
 
-  renderControl = () => {
-    const { sftpPathFollowSsh } = this.state
-    const { props } = this
-    const { tab } = props
-    const { pane, enableSsh, type } = tab
-    if (
-      type === terminalRdpType ||
-      type === terminalVncType ||
-      type === terminalWebType
-    ) {
+  renderSplitToggle = () => {
+    if (this.canSplitView()) {
       return null
     }
+    const title = e('sshSftpSplitView')
+    return (
+      <Tooltip title={title} placement='bottomLeft'>
+        <span
+          className='ssh-sftp-split-icon pointer mg1r'
+          onClick={this.handleSshSftpSplitView}
+        >
+          <CodeOutlined className='ssh-sftp-split-icon-1' />
+          <FolderOutlined className='ssh-sftp-split-icon-2' />
+        </span>
+      </Tooltip>
+    )
+  }
+
+  renderPaneControl = () => {
+    const {
+      sftpPathFollowSsh,
+      sshSftpSplitView
+    } = this.state
+    if (sshSftpSplitView && this.canSplitView()) {
+      return null
+    }
+    const { props } = this
+    const { tab } = props
+    const { pane, enableSsh } = tab
     const termType = tab?.type
     const isSsh = tab.authType
     const isLocal = !isSsh && (termType === connectionMap.local || !termType)
@@ -457,9 +517,7 @@ export default class SessionWrapper extends Component {
       [paneMap.ssh]: 'T'
     }
     return (
-      <div
-        className='terminal-control fix'
-      >
+      <>
         <div className='term-sftp-tabs fleft'>
           {
             controls.map((type, i) => {
@@ -500,8 +558,40 @@ export default class SessionWrapper extends Component {
         {
           this.renderDelTip(pane === paneMap.terminal)
         }
+      </>
+    )
+  }
+
+  renderControl = () => {
+    const { props } = this
+    const { tab } = props
+    const { type } = tab
+    if (
+      type === terminalRdpType ||
+      type === terminalVncType ||
+      type === terminalWebType
+    ) {
+      return null
+    }
+    return (
+      <div
+        className='terminal-control fix'
+      >
+        {this.renderPaneControl()}
+        {
+          this.renderSplitToggle()
+        }
         {this.renderTermControls()}
       </div>
+    )
+  }
+
+  renderViews = () => {
+    return (
+      <>
+        {this.renderTerminals()}
+        {this.renderSftp()}
+      </>
     )
   }
 
@@ -531,8 +621,7 @@ export default class SessionWrapper extends Component {
         {...divProps}
       >
         {this.renderControl()}
-        {this.renderTerminals()}
-        {this.renderSftp()}
+        {this.renderViews()}
       </div>
     )
   }
