@@ -54,7 +54,7 @@ async function createServer () {
   })
 
   app.use(
-    logger('tiny')
+    logger('dev')
   )
   app.use(express.json())
   app.use(express.urlencoded({
