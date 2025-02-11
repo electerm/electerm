@@ -219,7 +219,8 @@ export default (Store) => {
         'electerm-status.json': {
           content: JSON.stringify({
             lastSyncTime: Date.now(),
-            electermVersion: packVer
+            electermVersion: packVer,
+            deviceName: window.pre.osInfo().find(r => r.k === 'hostname')?.v || 'unknown'
           })
         }
       }
