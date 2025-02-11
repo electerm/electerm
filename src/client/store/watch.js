@@ -11,6 +11,7 @@ import {
   expandedKeysLsKey,
   resolutionsLsKey,
   localAddrBookmarkLsKey,
+  syncServerDataKey,
   aiChatHistoryKey
 } from '../common/constants'
 import * as ls from '../common/safe-local-storage'
@@ -120,6 +121,11 @@ export default store => {
   autoRun(() => {
     ls.setItemJSON(checkedKeysLsKey, store.checkedKeys)
     return store.checkedKeys
+  }).start()
+
+  autoRun(() => {
+    ls.setItemJSON(syncServerDataKey, store.syncServerStatus)
+    return store.syncServerStatus
   }).start()
 
   autoRun(() => {

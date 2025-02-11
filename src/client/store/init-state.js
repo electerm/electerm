@@ -20,6 +20,7 @@ import {
   qmSortByFrequencyKey,
   resolutionsLsKey,
   aiChatHistoryKey,
+  syncServerDataKey,
   splitMap
 } from '../common/constants'
 import { buildDefaultThemes } from '../common/terminal-theme'
@@ -124,6 +125,8 @@ export default () => {
     isSyncUpload: false,
     isSyncDownload: false,
     syncType: syncTypes.github,
+    // syncServerData: {},
+    syncServerStatus: ls.getItemJSON(syncServerDataKey, {}),
 
     // term search
     termSearchOpen: false,

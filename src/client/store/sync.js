@@ -34,6 +34,13 @@ async function fetchData (type, func, args, token, proxy) {
   return fetch(data)
 }
 
+function updateSyncServerStatusFromGist (store, gist, type) {
+  const status = parseJsonSafe(
+    get(gist, 'files["electerm-status.json"].content')
+  )
+  store.syncServerStatus[type] = status
+}
+
 export default (Store) => {
   Store.prototype.updateSyncSetting = function (data) {
     const { store } = window
@@ -167,6 +174,20 @@ export default (Store) => {
     window[type + 'IsSyncing'] = false
   }
 
+  Store.prototype.previewServerData = async function (type) {
+    const { store } = window
+    const token = store.getSyncToken(type)
+    const gistId = store.getSyncGistId(type)
+    const gist = await fetchData(
+      type,
+      'getOne',
+      [gistId],
+      token,
+      store.getProxySetting()
+    )
+    updateSyncServerStatusFromGist(store, gist, type)
+  }
+
   Store.prototype.uploadSettingAction = async function (type) {
     const { store } = window
     const token = store.getSyncToken(type)
@@ -212,23 +233,33 @@ export default (Store) => {
         }
       }
     }
-    const res = await fetchData(type, 'update', [gistId, {
+    const now = Date.now()
+    const status = {
+      lastSyncTime: now,
+      electermVersion: packVer,
+      deviceName: window.pre.osInfo().find(r => r.k === 'hostname')?.v || 'unknown'
+    }
+    const gistData = {
       description: 'sync electerm data',
       files: {
         ...objs,
         'electerm-status.json': {
-          content: JSON.stringify({
-            lastSyncTime: Date.now(),
-            electermVersion: packVer,
-            deviceName: window.pre.osInfo().find(r => r.k === 'hostname')?.v || 'unknown'
-          })
+          content: JSON.stringify(status)
         }
       }
-    }], token, store.getProxySetting())
+    }
+    const res = await fetchData(
+      type,
+      'update',
+      [gistId, gistData],
+      token,
+      store.getProxySetting()
+    )
     if (res) {
       store.updateSyncSetting({
-        [type + 'LastSyncTime']: Date.now()
+        [type + 'LastSyncTime']: now
       })
+      updateSyncServerStatusFromGist(store, gistData, type)
     }
   }
 
@@ -260,6 +291,9 @@ export default (Store) => {
       token,
       store.getProxySetting()
     )
+    if (gist) {
+      updateSyncServerStatusFromGist(store, gist, type)
+    }
     const { names, syncConfig } = store.getDataSyncNames()
     for (const n of names) {
       let str = get(gist, `files["${n}.json"].content`)

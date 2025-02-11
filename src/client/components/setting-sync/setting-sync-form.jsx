@@ -14,6 +14,7 @@ import eq from 'fast-deep-equal'
 import { syncTokenCreateUrls, syncTypes } from '../../common/constants'
 import './sync.styl'
 import HelpIcon from '../common/help-icon'
+import ServerDataStatus from './server-data-status'
 
 const FormItem = Form.Item
 const e = window.translate
@@ -207,6 +208,10 @@ export default function SyncForm (props) {
       </FormItem>
     )
   }
+  const sprops = {
+    type: syncType,
+    status: props.serverStatus
+  }
   return (
     <Form
       onFinish={save}
@@ -280,6 +285,7 @@ export default function SyncForm (props) {
           >{e('clear')}
           </Button>
         </p>
+        <ServerDataStatus {...sprops} />
         <p>
           {e('lastSyncTime')}: {timeFormatted}
         </p>

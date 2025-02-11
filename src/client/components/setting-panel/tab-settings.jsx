@@ -33,7 +33,8 @@ export default auto(function TabSettings (props) {
       'isSyncingSetting',
       'isSyncDownload',
       'isSyncUpload',
-      'syncType'
+      'syncType',
+      'syncServerStatus'
     ])
     elem = <SyncSetting {...syncProps} />
   } else if (sid === settingTerminalId) {
