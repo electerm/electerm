@@ -13,6 +13,15 @@ import { refs, refsStatic } from '../common/ref'
 import keyControlPressed from '../../common/key-control-pressed'
 import keyPressed from '../../common/key-pressed'
 
+function isInputActive () {
+  const activeElement = document.activeElement
+  return activeElement && (
+    activeElement.tagName === 'INPUT' ||
+    activeElement.tagName === 'TEXTAREA' ||
+    activeElement.isContentEditable
+  )
+}
+
 class ShortcutControl extends React.PureComponent {
   componentDidMount () {
     const onEvent = this.handleKeyboardEvent.bind(this)
@@ -39,7 +48,7 @@ class ShortcutControl extends React.PureComponent {
   // SFTP shortcuts handler
   handleSftpKeyboardEvent = (e) => {
     const activeSftp = this.getActiveSftp()
-    if (!activeSftp || activeSftp.state.onDelete) {
+    if (!activeSftp || activeSftp.state.onDelete || isInputActive()) {
       return
     }
 
