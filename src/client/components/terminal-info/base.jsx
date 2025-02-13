@@ -19,6 +19,7 @@ import {
   ApiOutlined,
   PartitionOutlined
 } from '@ant-design/icons'
+import createDefaultSessionLogPath from '../../common/default-log-path'
 import { refs } from '../common/ref'
 
 const e = window.translate
@@ -153,12 +154,10 @@ export default class TerminalInfoBase extends Component {
     const {
       id,
       logName,
-      appPath
+      config
     } = this.props
     const { saveTerminalLogToFile } = this.state
-    const base = appPath
-      ? osResolve(appPath, 'electerm', 'session_logs')
-      : window.et.sessionLogPath
+    const base = config.sessionLogPath || createDefaultSessionLogPath()
     const path = osResolve(base, logName + '.log')
     const name = e('saveTerminalLogToFile')
     const to = saveTerminalLogToFile
