@@ -18,7 +18,8 @@ import {
 } from '@ant-design/icons'
 import {
   Tooltip,
-  message
+  message,
+  Splitter
 } from 'antd'
 import { pick } from 'lodash-es'
 import generate from '../../common/uid'
@@ -36,6 +37,7 @@ import safeName from '../../common/safe-name'
 import './session.styl'
 
 const e = window.translate
+const SplitterPane = Splitter.Pane
 
 export default class SessionWrapper extends Component {
   constructor (props) {
@@ -47,6 +49,7 @@ export default class SessionWrapper extends Component {
       sftpPathFollowSsh: !!props.config.sftpPathFollowSsh,
       sshSftpSplitView: !!props.config.sshSftpSplitView,
       key: Math.random(),
+      splitSize: [50, 50],
       sessionOptions: null,
       sessionId: generate(),
       delKeyPressed: false
@@ -460,7 +463,7 @@ export default class SessionWrapper extends Component {
   }
 
   renderSplitToggle = () => {
-    if (this.canSplitView()) {
+    if (this.canSplitView() || this.isNotTerminalType()) {
       return null
     }
     const title = e('sshSftpSplitView')
@@ -563,13 +566,8 @@ export default class SessionWrapper extends Component {
   }
 
   renderControl = () => {
-    const { props } = this
-    const { tab } = props
-    const { type } = tab
     if (
-      type === terminalRdpType ||
-      type === terminalVncType ||
-      type === terminalWebType
+      this.isNotTerminalType()
     ) {
       return null
     }
@@ -586,12 +584,58 @@ export default class SessionWrapper extends Component {
     )
   }
 
+  onSplitResize = (sizes) => {
+    const direction = this.getSplitDirection()
+    const {
+      width,
+      height
+    } = this.props
+    const all = direction === 'leftRight' ? width : height
+    const size = sizes.map(d => d * all / 100)
+    this.setState({
+      splitSize: size
+    })
+  }
+
   renderViews = () => {
+    if (this.isNotTerminalType()) {
+      return this.renderTerminals()
+    }
+    if (!this.canSplitView() || !this.state.sshSftpSplitView) {
+      return (
+        <>
+          {this.renderTerminals()}
+          {this.renderSftp()}
+        </>
+      )
+    }
+    const direction = this.getSplitDirection()
+    const layout = direction === 'leftRight' ? 'horizontal' : 'vertical'
+    const [size1, size2] = this.state.splitSize
+    const splitterProps = {
+      layout,
+      onResize: this.onSplitResize,
+      onResizeEnd: this.onSplitResize
+    }
+    const paneProps1 = {
+      min: '20%',
+      max: '80%',
+      size: size1
+    }
+    const paneProps2 = {
+      min: '20%',
+      max: '80%',
+      size: size2
+    }
     return (
-      <>
-        {this.renderTerminals()}
-        {this.renderSftp()}
-      </>
+      <Splitter {...splitterProps}>
+        <SplitterPane {...paneProps1}>
+          {this.renderTerminals()}
+        </SplitterPane>
+        <SplitterPane {...paneProps2}>
+          {this.renderSftp()}
+        </SplitterPane>
+      </Splitter>
     )
   }
 
