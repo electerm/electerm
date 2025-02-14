@@ -8,8 +8,10 @@ import { syncTypes, syncDataMaps } from '../../common/constants'
 import DataTransport from './data-import'
 import DataSelect from './data-select'
 import { pick } from 'lodash-es'
+import { auto } from 'manate/react'
+import deepCopy from 'json-deep-copy'
 
-export default function SyncSettingEntry (props) {
+export default auto(function SyncSettingEntry (props) {
   const handleChange = (key) => {
     window.store.syncType = key
   }
@@ -29,8 +31,10 @@ export default function SyncSettingEntry (props) {
         'isSyncingSetting',
         'isSyncDownload',
         'isSyncUpload',
-        'syncType'
-      ])
+        'syncType',
+        'serverStatus'
+      ]),
+      serverStatus: deepCopy(store.syncServerStatus[props.syncType])
     }
     const type = props.syncType
     const formData = {
@@ -44,7 +48,6 @@ export default function SyncSettingEntry (props) {
     return (
       <SyncForm
         {...syncProps}
-        syncType={type}
         encrypt={syncSetting.syncEncrypt}
         formData={formData}
       />
@@ -86,4 +89,4 @@ export default function SyncSettingEntry (props) {
       </Spin>
     </div>
   )
-}
+})

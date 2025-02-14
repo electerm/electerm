@@ -46,13 +46,15 @@ async function createServer () {
     server: {
       middlewareMode: true,
       hmr: {
-        port: 30085
+        port: 30085,
+        overlay: true
       }
     },
     appType: 'custom'
   })
+
   app.use(
-    logger('tiny')
+    logger('dev')
   )
   app.use(express.json())
   app.use(express.urlencoded({

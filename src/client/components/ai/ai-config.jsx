@@ -19,10 +19,10 @@ import providers from './providers'
 const e = window.translate
 const defaultRoles = [
   {
-    value: 'Terminal expert, provide safe commands for different OS, explain usage and risks, use markdown format'
+    value: 'Terminal expert, provide commands for different OS, explain usage briefly, use markdown format'
   },
   {
-    value: '终端专家,提供不同系统下安全命令,解释用法及风险,用markdown格式'
+    value: '终端专家,提供不同系统下命令,简要解释用法,用markdown格式'
   }
 ]
 

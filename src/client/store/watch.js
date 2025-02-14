@@ -11,6 +11,7 @@ import {
   expandedKeysLsKey,
   resolutionsLsKey,
   localAddrBookmarkLsKey,
+  syncServerDataKey,
   aiChatHistoryKey
 } from '../common/constants'
 import * as ls from '../common/safe-local-storage'
@@ -58,6 +59,11 @@ export default store => {
         (n || []).map(d => d.id)
       )
       refsStatic.add('oldState-' + name, deepCopy(n) || [])
+      if (name === 'bookmarks') {
+        store.bookmarksMap = new Map(
+          n.map(d => [d.id, d])
+        )
+      }
       await store.updateLastDataUpdateTime()
       if (store.config.autoSync) {
         await store.uploadSettingAll()
@@ -115,6 +121,11 @@ export default store => {
   autoRun(() => {
     ls.setItemJSON(checkedKeysLsKey, store.checkedKeys)
     return store.checkedKeys
+  }).start()
+
+  autoRun(() => {
+    ls.setItemJSON(syncServerDataKey, store.syncServerStatus)
+    return store.syncServerStatus
   }).start()
 
   autoRun(() => {

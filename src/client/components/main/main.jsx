@@ -193,11 +193,14 @@ export default auto(function Index (props) {
     ...deepCopy(store.terminalInfoProps),
     ...pick(
       config,
-      ['host', 'port', 'saveTerminalLogToFile', 'terminalInfos']
-    ),
-    ...pick(store, [
-      'appPath'
-    ])
+      [
+        'host',
+        'port',
+        'saveTerminalLogToFile',
+        'terminalInfos',
+        'sessionLogPath'
+      ]
+    )
   }
   const sshConfigProps = {
     ...pick(store, [

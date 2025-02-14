@@ -20,6 +20,7 @@ import {
   qmSortByFrequencyKey,
   resolutionsLsKey,
   aiChatHistoryKey,
+  syncServerDataKey,
   splitMap
 } from '../common/constants'
 import { buildDefaultThemes } from '../common/terminal-theme'
@@ -52,6 +53,7 @@ export default () => {
     history: ls.getItemJSON('history', []),
     sshConfigs: [],
     bookmarks: [],
+    bookmarksMap: new Map(),
     sidebarPanelTab: 'bookmarks',
     profiles: [],
     bookmarkGroups: getDefaultBookmarkGroups([]),
@@ -123,6 +125,8 @@ export default () => {
     isSyncUpload: false,
     isSyncDownload: false,
     syncType: syncTypes.github,
+    // syncServerData: {},
+    syncServerStatus: ls.getItemJSON(syncServerDataKey, {}),
 
     // term search
     termSearchOpen: false,

@@ -24,12 +24,16 @@ import {
 import defaultSettings from '../../common/default-setting'
 import ShowItem from '../common/show-item'
 import { osResolve } from '../../common/resolve'
+import { chooseSaveDirectory } from '../../common/choose-save-folder'
 import { isNumber, isNaN } from 'lodash-es'
 import mapper from '../../common/auto-complete-data-mapper'
 import KeywordForm from './keywords-form'
 import Link from '../common/external-link'
 import HelpIcon from '../common/help-icon'
 import KeywordsTransport from './keywords-transport'
+import fs from '../../common/fs'
+import uid from '../../common/uid'
+import createDefaultSessionLogPath from '../../common/default-log-path'
 import './setting.styl'
 
 const { Option } = Select
@@ -111,18 +115,87 @@ export default class SettingTerminal extends Component {
     return this.saveConfig(data)
   }
 
-  renderToggle = (name, extra = null) => {
+  renderToggle = (name, cls = 'pd2b') => {
     const checked = !!this.props.config[name]
     const txt = e(name)
     return (
-      <div className='pd2b' key={'rt' + name}>
+      <div className={cls} key={'rt' + name}>
         <Switch
           checked={checked}
           checkedChildren={txt}
           unCheckedChildren={txt}
           onChange={v => this.onChangeValue(v, name)}
         />
-        {isNumber(extra) ? null : extra}
+      </div>
+    )
+  }
+
+  testFolderPathCanSaveLog = async (path) => {
+    try {
+      const st = await fs.statCustom(path)
+      if (!st.isD) {
+        message.error('invalid log folder')
+        return false
+      }
+      const testFile = osResolve(path, uid + '.test.log')
+      await fs.touch(testFile)
+      await fs.unlink(testFile)
+      return true
+    } catch (err) {
+      message.error('invalid log folder')
+      return false
+    }
+  }
+
+  handleLogChange = (v) => {
+    if (v && !this.testFolderPathCanSaveLog(v)) {
+      return
+    }
+    this.onChangeValue(v, 'sessionLogPath')
+  }
+
+  handleChooseFolder = async () => {
+    const path = await chooseSaveDirectory()
+    if (path) {
+      this.handleLogChange(path)
+    }
+  }
+
+  renderLogPathControl = () => {
+    const { config } = this.props
+    const { sessionLogPath } = config
+    const path = sessionLogPath || createDefaultSessionLogPath()
+    const inputProps = {
+      value: sessionLogPath,
+      placeholder: path,
+      onChange: (e) => this.handleLogChange(e.target.value),
+      addonAfter: (
+        <>
+          <Button
+            onClick={this.handleChooseFolder}
+            className='mg1r'
+            size='small'
+          >
+            {e('chooseFolder')}
+          </Button>
+          <Button
+            size='small'
+            onClick={() => this.handleLogChange('')}
+          >
+            {e('reset')}
+          </Button>
+        </>
+      ),
+      addonBefore: (
+        <>
+          <span className='mg1r'>{e('terminalLogPath')}</span>
+          <ShowItem to={path} />
+        </>
+      )
+    }
+    return (
+      <div className='pd2b'>
+        <Input {...inputProps} />
       </div>
     )
   }
@@ -346,7 +419,7 @@ export default class SettingTerminal extends Component {
       }
     }
     return (
-      <div className='pd1b'>
+      <div className='pd2b'>
         <span className='inline-title mg1r'>{e('cursorStyle')}</span>
         <Select
           {...props}
@@ -415,7 +488,6 @@ export default class SettingTerminal extends Component {
       keywords = [{ color: 'red' }]
     } = this.props.config
     const {
-      appPath,
       getThemeConfig
     } = this.props.store
     const ps = {
@@ -426,9 +498,6 @@ export default class SettingTerminal extends Component {
       submit: this.handleSubmitKeywords,
       themeConfig: getThemeConfig()
     }
-    const terminalLogPath = appPath
-      ? osResolve(appPath, 'electerm', 'session_logs')
-      : window.et.sessionLogPath
     const tip = (
       <div>
         <span className='mg1r'>{e('supportRegexp')}</span>
@@ -509,9 +578,12 @@ export default class SettingTerminal extends Component {
         {
           this.renderCursorStyleSelect()
         }
-        {this.renderToggle('saveTerminalLogToFile', (
-          <ShowItem to={terminalLogPath} className='mg1l'>{e('open')}</ShowItem>
-        ))}
+        {
+          this.renderLogPathControl()
+        }
+        {
+          this.renderToggle('saveTerminalLogToFile')
+        }
         {this.renderToggle('addTimeStampToTermLog')}
         {
           [
@@ -522,7 +594,7 @@ export default class SettingTerminal extends Component {
             'ctrlOrMetaOpenTerminalLink',
             'sftpPathFollowSsh',
             'sshSftpSplitView'
-          ].map(this.renderToggle)
+          ].map(d => this.renderToggle(d))
         }
         <div className='pd1b'>{e('terminalBackSpaceMode')}</div>
         <Select

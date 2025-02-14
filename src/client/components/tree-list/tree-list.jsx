@@ -17,13 +17,12 @@ import {
   settingMap
 } from '../../common/constants'
 import findParentBySel from '../../common/find-parent'
-import copy, { deepCopy } from 'json-deep-copy'
+import copy from 'json-deep-copy'
 import NewButtonsGroup from './bookmark-toolbar'
 import findBookmarkGroupId from '../../common/find-bookmark-group-id'
 import getInitItem from '../../common/init-setting-item'
 import uid from '../../common/uid'
 import { action } from 'manate'
-import deepEqual from 'fast-deep-equal'
 import './tree-list.styl'
 import TreeExpander from './tree-expander'
 import TreeListItem from './tree-list-item'
@@ -43,8 +42,7 @@ export default class ItemListTree extends Component {
       moveItemIsGroup: false,
       bookmarkGroupTitle: '',
       categoryTitle: '',
-      categoryId: '',
-      expandedKeys: props.expandedKeys
+      categoryId: ''
     }
   }
 
@@ -60,17 +58,6 @@ export default class ItemListTree extends Component {
     }, 100)
   }
 
-  componentDidUpdate (prevProps, prevState) {
-    if (
-      !deepEqual(prevProps.expandedKeys, this.props.expandedKeys) &&
-      !deepEqual(this.props.expandedKeys, this.state.expandedKeys)
-    ) {
-      this.setState({
-        expandedKeys: deepCopy(this.props.expandedKeys)
-      })
-    }
-  }
-
   componentWillUnmount () {
     clearTimeout(this.timer)
   }
@@ -83,7 +70,7 @@ export default class ItemListTree extends Component {
     })
   }
 
-  filter = list => {
+  filter = (list) => {
     const { keyword } = this.state
     return keyword
       ? list.filter(item => {
@@ -92,26 +79,26 @@ export default class ItemListTree extends Component {
       : list
   }
 
-  getBookmarkTree = () => {
-    return this.filter(this.props.bookmarks).reduce((tree, bookmark) => {
-      tree[bookmark.id] = bookmark
-      return tree
-    }, {})
-  }
-
   onExpandKey = group => {
-    const nkeys = [
-      ...this.state.expandedKeys,
-      group.id
-    ]
-    this.onExpand(nkeys)
+    const {
+      expandedKeys
+    } = window.store
+    expandedKeys.push(group.id)
+    this.onExpand()
   }
 
   onUnExpandKey = group => {
-    const nkeys = this.state.expandedKeys.filter(
-      d => d !== group.id
+    const {
+      expandedKeys
+    } = window.store
+    const index = expandedKeys.findIndex(
+      d => d === group.id
     )
-    this.onExpand(nkeys)
+    if (index < 0) {
+      return
+    }
+    expandedKeys.splice(index, 1)
+    this.onExpand(expandedKeys)
   }
 
   handleChange = keyword => {
@@ -280,12 +267,8 @@ export default class ItemListTree extends Component {
     })
   }
 
-  onExpand = (expandedKeys) => {
-    this.setState({
-      expandedKeys
-    })
+  onExpand = () => {
     this.closeNewGroupForm()
-    window.store.expandedKeys = deepCopy(expandedKeys)
   }
 
   onSelect = (
@@ -342,13 +325,10 @@ export default class ItemListTree extends Component {
       return {
         showNewBookmarkGroupForm: true,
         parentId: item.id,
-        bookmarkGroupTitle: '',
-        expandedKeys: uniq([
-          ...old.expandedKeys,
-          item.id
-        ])
+        bookmarkGroupTitle: ''
       }
     })
+    window.store.expandedKeys.push(item.id)
   }
 
   openAll = (item) => {
@@ -745,7 +725,7 @@ export default class ItemListTree extends Component {
       level,
       group,
       keyword: this.state.keyword,
-      expandedKeys: this.state.expandedKeys,
+      expandedKeys: this.props.expandedKeys,
       onExpand: this.onExpandKey,
       onUnExpand: this.onUnExpandKey
     }
@@ -766,7 +746,7 @@ export default class ItemListTree extends Component {
       bookmarkGroupIds = [],
       id
     } = group
-    const shouldRender = this.state.keyword || this.state.expandedKeys.includes(id)
+    const shouldRender = this.state.keyword || this.props.expandedKeys.includes(id)
     if (!shouldRender) {
       return null
     }
@@ -786,8 +766,16 @@ export default class ItemListTree extends Component {
   }
 
   renderChilds = (bookmarkIds, pid) => {
+    const tree = this.props.bookmarksMap
+    const { keyword } = this.state
     const bookmarks = bookmarkIds.map(id => {
-      return this.getBookmarkTree()[id]
+      const item = tree.get(id)
+      if (!item) {
+        return null
+      }
+      return createName(item).toLowerCase().includes(keyword.toLowerCase())
+        ? item
+        : null
     }).filter(d => d)
     return bookmarks.map((node) => {
       return this.renderItemTitle(node, false, pid)

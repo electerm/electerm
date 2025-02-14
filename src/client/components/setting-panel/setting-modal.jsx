@@ -57,6 +57,7 @@ export default auto(function SettingModalWrap (props) {
       ...props0,
       bookmarkSelectMode,
       bookmarkGroups,
+      bookmarksMap: store.bookmarksMap,
       bookmarks,
       ...pick(store, [
         'currentBookmarkGroupId',

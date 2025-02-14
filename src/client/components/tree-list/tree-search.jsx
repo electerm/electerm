@@ -22,6 +22,7 @@ export default memo(function TreeSearchComponent ({ onSearch, keyword }) {
     <Search
       onChange={handleChange}
       value={searchTerm}
+      allowClear
     />
   )
 })

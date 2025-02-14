@@ -51,6 +51,7 @@ import { formatBytes } from '../../common/byte-format.js'
 import * as fs from './fs.js'
 import iconsMap from '../sys-menu/icons-map.jsx'
 import { refs } from '../common/ref.js'
+import createDefaultLogPath from '../../common/default-log-path.js'
 
 const e = window.translate
 
@@ -1014,6 +1015,7 @@ clear\r`
       ...tab,
       ...extra,
       logName,
+      sessionLogPath: config.sessionLogPath || createDefaultLogPath(),
       ...pick(config, [
         'addTimeStampToTermLog',
         'keepaliveInterval',
@@ -1105,7 +1107,6 @@ clear\r`
   }, 200)
 
   onerrorSocket = err => {
-    this.setStatus(statusMap.error)
     log.error('onerrorSocket', err)
   }
 
