@@ -18,6 +18,7 @@ class TerminalBase {
     this.initOptions = initOptions
     if (initOptions.saveTerminalLogToFile) {
       this.sessionLogger = new SessionLog({
+        logDir: initOptions.sessionLogPath,
         fileName: createLogFileName(initOptions.logName)
       })
     }

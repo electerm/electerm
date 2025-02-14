@@ -19,6 +19,7 @@ import {
   ApiOutlined,
   PartitionOutlined
 } from '@ant-design/icons'
+import createDefaultSessionLogPath from '../../common/default-log-path'
 import { refs } from '../common/ref'
 
 const e = window.translate
@@ -40,6 +41,10 @@ export default class TerminalInfoBase extends Component {
 
   componentDidMount () {
     this.getState()
+  }
+
+  componentWillUnmount () {
+    clearTimeout(this.timer)
   }
 
   handleToggleTimestamp = () => {
@@ -102,6 +107,8 @@ export default class TerminalInfoBase extends Component {
         saveTerminalLogToFile: term.state.saveTerminalLogToFile,
         addTimeStampToTermLog: term.state.addTimeStampToTermLog
       })
+    } else {
+      this.timer = setTimeout(this.getState, 100)
     }
   }
 
@@ -153,12 +160,10 @@ export default class TerminalInfoBase extends Component {
     const {
       id,
       logName,
-      appPath
+      sessionLogPath
     } = this.props
     const { saveTerminalLogToFile } = this.state
-    const base = appPath
-      ? osResolve(appPath, 'electerm', 'session_logs')
-      : window.et.sessionLogPath
+    const base = sessionLogPath || createDefaultSessionLogPath()
     const path = osResolve(base, logName + '.log')
     const name = e('saveTerminalLogToFile')
     const to = saveTerminalLogToFile
