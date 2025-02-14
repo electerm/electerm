@@ -20,10 +20,9 @@ describe('ssh', function () {
     const client = await electronApp.firstWindow()
     extendClient(client, electronApp)
     await delay(4500)
-    await delay(4500)
     await client.rightClick('.tabs .tab', 10, 10)
     await client.click('.ant-dropdown .anticon-copy')
-    await delay(4500)
+    await delay(2500)
     const tabsCount = await client.evaluate(() => {
       return window.store.tabs.length
     })
