@@ -134,7 +134,7 @@ export default class SettingTerminal extends Component {
     try {
       const st = await fs.statCustom(path)
       if (!st.isD) {
-        message.error(e('invalidLogPath'))
+        message.error('invalid log folder')
         return false
       }
       const testFile = osResolve(path, uid + '.test.log')
@@ -142,13 +142,15 @@ export default class SettingTerminal extends Component {
       await fs.unlink(testFile)
       return true
     } catch (err) {
-      message.error(e('invalidLogPath'))
+      message.error('invalid log folder')
       return false
     }
   }
 
   handleLogChange = (v) => {
-    if (v && !this.testFolderPathCanSaveLog(v)) return
+    if (v && !this.testFolderPathCanSaveLog(v)) {
+      return
+    }
     this.onChangeValue(v, 'sessionLogPath')
   }
 
@@ -166,25 +168,30 @@ export default class SettingTerminal extends Component {
     const inputProps = {
       value: sessionLogPath,
       placeholder: path,
-      onChange: (v) => this.onChangeValue(v, 'sessionLogPath'),
+      onChange: (e) => this.handleLogChange(e.target.value),
       addonAfter: (
         <>
           <Button
             onClick={this.handleChooseFolder}
             className='mg1r'
+            size='small'
           >
             {e('chooseFolder')}
           </Button>
           <Button
+            size='small'
             onClick={() => this.handleLogChange('')}
-            className='mg1r'
           >
             {e('reset')}
           </Button>
-          <ShowItem to={path}>{path}</ShowItem>
         </>
       ),
-      addonBefore: e('terminalLogPath')
+      addonBefore: (
+        <>
+          <span className='mg1r'>{e('terminalLogPath')}</span>
+          <ShowItem to={path} />
+        </>
+      )
     }
     return (
       <div className='pd2b'>
@@ -412,7 +419,7 @@ export default class SettingTerminal extends Component {
       }
     }
     return (
-      <div className='pd1b'>
+      <div className='pd2b'>
         <span className='inline-title mg1r'>{e('cursorStyle')}</span>
         <Select
           {...props}
@@ -586,7 +593,7 @@ export default class SettingTerminal extends Component {
             'copyWhenSelect',
             'ctrlOrMetaOpenTerminalLink',
             'sftpPathFollowSsh'
-          ].map(this.renderToggle)
+          ].map(d => this.renderToggle(d))
         }
         <div className='pd1b'>{e('terminalBackSpaceMode')}</div>
         <Select

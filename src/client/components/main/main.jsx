@@ -197,7 +197,8 @@ export default auto(function Index (props) {
         'host',
         'port',
         'saveTerminalLogToFile',
-        'terminalInfos'
+        'terminalInfos',
+        'sessionLogPath'
       ]
     )
   }

@@ -43,6 +43,10 @@ export default class TerminalInfoBase extends Component {
     this.getState()
   }
 
+  componentWillUnmount () {
+    clearTimeout(this.timer)
+  }
+
   handleToggleTimestamp = () => {
     const { saveTerminalLogToFile, addTimeStampToTermLog } = this.state
     const {
@@ -103,6 +107,8 @@ export default class TerminalInfoBase extends Component {
         saveTerminalLogToFile: term.state.saveTerminalLogToFile,
         addTimeStampToTermLog: term.state.addTimeStampToTermLog
       })
+    } else {
+      this.timer = setTimeout(this.getState, 100)
     }
   }
 
@@ -154,10 +160,10 @@ export default class TerminalInfoBase extends Component {
     const {
       id,
       logName,
-      config
+      sessionLogPath
     } = this.props
     const { saveTerminalLogToFile } = this.state
-    const base = config.sessionLogPath || createDefaultSessionLogPath()
+    const base = sessionLogPath || createDefaultSessionLogPath()
     const path = osResolve(base, logName + '.log')
     const name = e('saveTerminalLogToFile')
     const to = saveTerminalLogToFile
