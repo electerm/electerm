@@ -1060,6 +1060,7 @@ clear\r`
       return
     }
     this.setStatus(statusMap.success)
+    refs.get('sftp-' + id)?.initData()
     term.pid = id
     this.pid = id
     const wsUrl = this.buildWsUrl()

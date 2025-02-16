@@ -12,9 +12,7 @@ import {
   SearchOutlined,
   FullscreenOutlined,
   PaperClipOutlined,
-  CloseOutlined,
-  CodeOutlined,
-  FolderOutlined
+  CloseOutlined
 } from '@ant-design/icons'
 import {
   Tooltip,
@@ -32,12 +30,13 @@ import {
   terminalVncType,
   terminalWebType
 } from '../../common/constants'
+import { SplitViewIcon } from '../icons/split-view'
 import { refs } from '../common/ref'
 import safeName from '../../common/safe-name'
 import './session.styl'
 
 const e = window.translate
-const SplitterPane = Splitter.Pane
+const SplitterPane = Splitter.Panel
 
 export default class SessionWrapper extends Component {
   constructor (props) {
@@ -75,15 +74,20 @@ export default class SessionWrapper extends Component {
   handleSshSftpSplitView = () => {
     const nv = !this.state.sshSftpSplitView
     this.setState({
-      sshSftpSplitView: nv
+      sshSftpSplitView: nv,
+      enableSftp: true
     })
   }
 
   canSplitView = () => {
     const {
       width,
-      height
+      height,
+      tab
     } = this.props
+    if (tab.enableSsh === false) {
+      return false
+    }
     return width > this.minWithForSplit ||
       height > this.minHeightForSplit
   }
@@ -218,7 +222,7 @@ export default class SessionWrapper extends Component {
     const update = {
       pane
     }
-    if (pane === paneMap.fileManager) {
+    if (pane === paneMap.fileManager || pane === paneMap.sftp) {
       this.setState({
         enableSftp: true
       })
@@ -242,10 +246,6 @@ export default class SessionWrapper extends Component {
   }
 
   getWidth = () => {
-    return this.props.width
-  }
-
-  getWidthSftp = () => {
     return this.props.width
   }
 
@@ -310,13 +310,15 @@ export default class SessionWrapper extends Component {
         />
       )
     }
-    const cls = pane === paneMap.terminal
+
+    const cls = pane === paneMap.terminal ||
+      (this.state.sshSftpSplitView && this.canSplitView())
       ? 'terms-box'
       : 'terms-box hide'
-    const width = this.getWidth()
-    const height = this.props.computeHeight(
-      this.props.height
-    )
+    const {
+      width,
+      height
+    } = this.calcTermWidthHeight()
     const themeConfig = copy(window.store.getThemeConfig())
     const logName = safeName(`${tab.title ? tab.title + '_' : ''}${tab.host ? tab.host + '_' : ''}${tab.id}`)
     const pops = {
@@ -360,6 +362,48 @@ export default class SessionWrapper extends Component {
       type === terminalWebType
   }
 
+  calcSftpWidthHeight = () => {
+    const {
+      width,
+      height
+    } = this.props
+    if (!this.canSplitView() || !this.state.sshSftpSplitView) {
+      return {
+        width,
+        height
+      }
+    }
+    const direction = this.getSplitDirection()
+    const [, size2] = this.state.splitSize
+    const w = direction === 'leftRight' ? size2 * width / 100 : width
+    const h = direction === 'leftRight' ? height : size2 * height / 100
+    return {
+      width: w,
+      height: h
+    }
+  }
+
+  calcTermWidthHeight = () => {
+    const width = this.getWidth()
+    const height = this.props.computeHeight(
+      this.props.height
+    )
+    if (!this.canSplitView() || !this.state.sshSftpSplitView) {
+      return {
+        width,
+        height
+      }
+    }
+    const direction = this.getSplitDirection()
+    const [size1] = this.state.splitSize
+    const w = direction === 'leftRight' ? size1 * width / 100 : width
+    const h = direction === 'leftRight' ? height : size1 * height / 100
+    return {
+      width: w,
+      height: h
+    }
+  }
+
   renderSftp = () => {
     const {
       sessionOptions,
@@ -377,12 +421,14 @@ export default class SessionWrapper extends Component {
     const height = this.props.computeHeight(
       this.props.height
     )
-    const cls = pane === paneMap.terminal
-      ? 'hide'
-      : ''
+    const cls = pane === paneMap.fileManager || paneMap.sftp === pane ||
+    (this.state.sshSftpSplitView && this.canSplitView())
+      ? ''
+      : 'hide'
     const exts = {
       ...this.props,
       sftpPathFollowSsh,
+      sshSftpSplitView: this.state.sshSftpSplitView,
       cwd,
       pid: id,
       enableSftp,
@@ -390,7 +436,7 @@ export default class SessionWrapper extends Component {
       height,
       sessionId,
       pane,
-      width: this.getWidthSftp()
+      ...this.calcSftpWidthHeight()
     }
     return (
       <div className={cls}>
@@ -463,21 +509,25 @@ export default class SessionWrapper extends Component {
   }
 
   renderSplitToggle = () => {
-    if (this.canSplitView() || this.isNotTerminalType()) {
+    if (!this.canSplitView() || this.isNotTerminalType()) {
       return null
     }
     const title = e('sshSftpSplitView')
     return (
       <Tooltip title={title} placement='bottomLeft'>
         <span
-          className='ssh-sftp-split-icon pointer mg1r'
+          className='pointer mg1r'
           onClick={this.handleSshSftpSplitView}
         >
-          <CodeOutlined className='ssh-sftp-split-icon-1' />
-          <FolderOutlined className='ssh-sftp-split-icon-2' />
+          <SplitViewIcon />
         </span>
       </Tooltip>
     )
+  }
+
+  isSsh = () => {
+    const { tab } = this.props
+    return tab.authType
   }
 
   renderPaneControl = () => {
@@ -591,7 +641,7 @@ export default class SessionWrapper extends Component {
       height
     } = this.props
     const all = direction === 'leftRight' ? width : height
-    const size = sizes.map(d => d * all / 100)
+    const size = sizes.map(d => d * 100 / all)
     this.setState({
       splitSize: size
     })
@@ -601,31 +651,46 @@ export default class SessionWrapper extends Component {
     if (this.isNotTerminalType()) {
       return this.renderTerminals()
     }
-    if (!this.canSplitView() || !this.state.sshSftpSplitView) {
-      return (
-        <>
-          {this.renderTerminals()}
-          {this.renderSftp()}
-        </>
-      )
-    }
+    const notSplitVew = !this.canSplitView() || !this.state.sshSftpSplitView
+    const { pane } = this.props.tab
+    const show1 = notSplitVew && (pane === paneMap.terminal || pane === paneMap.ssh)
+    const show2 = notSplitVew && (pane === paneMap.fileManager || pane === paneMap.sftp)
     const direction = this.getSplitDirection()
     const layout = direction === 'leftRight' ? 'horizontal' : 'vertical'
     const [size1, size2] = this.state.splitSize
     const splitterProps = {
       layout,
       onResize: this.onSplitResize,
-      onResizeEnd: this.onSplitResize
+      onResizeEnd: this.onSplitResize,
+      style: {
+        width: this.props.width + 'px',
+        height: this.props.height + 'px'
+      }
     }
-    const paneProps1 = {
+    const paneProps = {
       min: '20%',
       max: '80%',
-      size: size1
+      style: {
+        overflow: 'hidden'
+      }
+    }
+    const s1 = show1
+      ? '100%'
+      : show2
+        ? '0%'
+        : size1 + '%'
+    const s2 = show2
+      ? '100%'
+      : show1
+        ? '0%'
+        : size2 + '%'
+    const paneProps1 = {
+      ...paneProps,
+      size: s1
     }
     const paneProps2 = {
-      min: '20%',
-      max: '80%',
-      size: size2
+      ...paneProps,
+      size: s2
     }
     return (
       <Splitter {...splitterProps}>

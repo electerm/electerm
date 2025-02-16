@@ -58,7 +58,7 @@ export default class BookmarkIndex extends PureComponent {
       this.setState({
         ready: true
       })
-    }, 200)
+    }, 50)
   }
 
   componentWillUnmount () {
