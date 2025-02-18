@@ -169,8 +169,7 @@ export default class Sftp extends Component {
   }, isEqual)
 
   isActive () {
-    return this.props.enableSftp &&
-      this.props.currentBatchTabId === this.props.tab.id &&
+    return this.props.currentBatchTabId === this.props.tab.id &&
       (this.props.pane === paneMap.fileManager ||
       this.props.pane === paneMap.sftp || this.props.sshSftpSplitView)
   }
@@ -423,11 +422,6 @@ export default class Sftp extends Component {
 
   addTransferList = list => {
     window.store.addTransferList(list)
-  }
-
-  computeListHeight = () => {
-    const hasTransports = this.state.transports.length
-    return this.props.height - 15 - (hasTransports ? 300 : 0)
   }
 
   onError = e => {

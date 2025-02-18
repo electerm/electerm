@@ -191,7 +191,8 @@ export default class TermSearch extends PureComponent {
     if (
       !termSearchOpen ||
       !currentTab ||
-      currentTab.pane === paneMap.fileManager
+      currentTab.pane === paneMap.fileManager ||
+      currentTab.pane === paneMap.sftp
     ) {
       return null
     }

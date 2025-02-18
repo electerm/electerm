@@ -4,7 +4,7 @@ import {
 } from 'antd'
 import { InfoCircleOutlined } from '@ant-design/icons'
 import './footer.styl'
-import { paneMap, statusMap } from '../../common/constants'
+import { statusMap } from '../../common/constants'
 import BatchInput from './batch-input'
 import encodes from '../bookmark-form/encodes'
 import { refs } from '../common/ref'
@@ -131,21 +131,7 @@ export default auto(function FooterEntry (props) {
     )
   }
 
-  const { tabs, leftSidebarWidth, openedSideBar, currentTab } = props.store
-  const pane = currentTab?.pane
-  const type = currentTab?.type
-  if (
-    type === 'rdp' ||
-    type === 'web' ||
-    type === 'vnc' ||
-    pane === paneMap.fileManager ||
-    pane === paneMap.sftp ||
-    !tabs.length
-  ) {
-    return (
-      <div className='main-footer' />
-    )
-  }
+  const { leftSidebarWidth, openedSideBar, inActiveTerminal } = props.store
   const w = 43 + leftSidebarWidth
   const sideProps = openedSideBar
     ? {
@@ -157,6 +143,13 @@ export default auto(function FooterEntry (props) {
     : {
         className: 'main-footer'
       }
+  if (
+    !inActiveTerminal
+  ) {
+    return (
+      <div className='main-footer' {...sideProps} />
+    )
+  }
   return (
     <div {...sideProps}>
       <div className='terminal-footer-flex'>

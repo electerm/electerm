@@ -5,9 +5,6 @@
 import { Component } from 'react'
 import classnames from 'classnames'
 import { find } from 'lodash-es'
-import {
-  sftpControlHeight
-} from '../../common/constants'
 import FileSection from './file-item'
 import PagedList from './paged-list'
 import FileListTableHeader from './file-table-header'
@@ -280,11 +277,12 @@ export default class FileListTable extends Component {
 
   render () {
     const { fileList, height, type } = this.props
-    const tableHeaderHeight = 30
+    // const tableHeaderHeight = 30
+    // const sh = sshSftpSplitView ? 0 : 32
     const props = {
       className: 'sftp-table-content overscroll-y relative',
       style: {
-        height: height - sftpControlHeight - tableHeaderHeight
+        height: height - 42 - 30 - 32 - 90
       },
       draggable: false
     }
@@ -302,13 +300,15 @@ export default class FileListTable extends Component {
         <div
           {...props}
         >
-          {this.props.renderEmptyFile(type)}
-          {this.renderParent(type)}
-          <PagedList
-            list={fileList}
-            renderItem={this.renderItem}
-            hasPager={hasPager}
-          />
+          <div>
+            {this.props.renderEmptyFile(type)}
+            {this.renderParent(type)}
+            <PagedList
+              list={fileList}
+              renderItem={this.renderItem}
+              hasPager={hasPager}
+            />
+          </div>
         </div>
       </div>
     )

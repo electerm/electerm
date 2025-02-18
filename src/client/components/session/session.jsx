@@ -43,16 +43,15 @@ export default class SessionWrapper extends Component {
     super(props)
     this.domRef = createRef()
     this.state = {
-      enableSftp: false,
       cwd: '',
       sftpPathFollowSsh: !!props.config.sftpPathFollowSsh,
-      sshSftpSplitView: !!props.config.sshSftpSplitView,
       key: Math.random(),
       splitSize: [50, 50],
       sessionOptions: null,
       sessionId: generate(),
       delKeyPressed: false
     }
+    props.tab.sshSftpSplitView = !!props.config.sshSftpSplitView
   }
 
   minWithForSplit = 640
@@ -72,10 +71,9 @@ export default class SessionWrapper extends Component {
   }
 
   handleSshSftpSplitView = () => {
-    const nv = !this.state.sshSftpSplitView
-    this.setState({
-      sshSftpSplitView: nv,
-      enableSftp: true
+    const nv = !this.props.tab.sshSftpSplitView
+    this.editTab({
+      sshSftpSplitView: nv
     })
   }
 
@@ -95,7 +93,7 @@ export default class SessionWrapper extends Component {
   getSplitDirection = () => {
     const {
       sshSftpSplitView
-    } = this.state
+    } = this.props.tab
     if (!sshSftpSplitView || !this.canSplitView()) {
       return 'tabed'
     }
@@ -259,7 +257,7 @@ export default class SessionWrapper extends Component {
       tab
     } = this.props
     const {
-      pane, type
+      pane, type, sshSftpSplitView
     } = tab
     if (type === terminalWebType) {
       const webProps = {
@@ -312,7 +310,7 @@ export default class SessionWrapper extends Component {
     }
 
     const cls = pane === paneMap.terminal ||
-      (this.state.sshSftpSplitView && this.canSplitView())
+      (sshSftpSplitView && this.canSplitView())
       ? 'terms-box'
       : 'terms-box hide'
     const {
@@ -367,7 +365,7 @@ export default class SessionWrapper extends Component {
       width,
       height
     } = this.props
-    if (!this.canSplitView() || !this.state.sshSftpSplitView) {
+    if (!this.canSplitView() || !this.props.tab.sshSftpSplitView) {
       return {
         width,
         height
@@ -388,7 +386,7 @@ export default class SessionWrapper extends Component {
     const height = this.props.computeHeight(
       this.props.height
     )
-    if (!this.canSplitView() || !this.state.sshSftpSplitView) {
+    if (!this.canSplitView() || !this.props.tab.sshSftpSplitView) {
       return {
         width,
         height
@@ -412,7 +410,7 @@ export default class SessionWrapper extends Component {
       sftpPathFollowSsh,
       cwd
     } = this.state
-    const { pane, id } = this.props.tab
+    const { pane, id, sshSftpSplitView } = this.props.tab
     if (
       this.isNotTerminalType()
     ) {
@@ -422,13 +420,13 @@ export default class SessionWrapper extends Component {
       this.props.height
     )
     const cls = pane === paneMap.fileManager || paneMap.sftp === pane ||
-    (this.state.sshSftpSplitView && this.canSplitView())
+    (sshSftpSplitView && this.canSplitView())
       ? ''
       : 'hide'
     const exts = {
       ...this.props,
       sftpPathFollowSsh,
-      sshSftpSplitView: this.state.sshSftpSplitView,
+      sshSftpSplitView,
       cwd,
       pid: id,
       enableSftp,
@@ -532,15 +530,14 @@ export default class SessionWrapper extends Component {
 
   renderPaneControl = () => {
     const {
-      sftpPathFollowSsh,
       sshSftpSplitView
-    } = this.state
+    } = this.props.tab
     if (sshSftpSplitView && this.canSplitView()) {
       return null
     }
     const { props } = this
     const { tab } = props
-    const { pane, enableSsh } = tab
+    const { pane } = tab
     const termType = tab?.type
     const isSsh = tab.authType
     const isLocal = !isSsh && (termType === connectionMap.local || !termType)
@@ -554,6 +551,51 @@ export default class SessionWrapper extends Component {
     if (isSsh || isLocal) {
       controls.push(isSsh ? paneMap.sftp : paneMap.fileManager)
     }
+    const simpleMapper = {
+      [paneMap.terminal]: 'T',
+      [paneMap.fileManager]: 'F',
+      [paneMap.ssh]: 'T'
+    }
+    return (
+      <div className='term-sftp-tabs fleft'>
+        {
+          controls.map((type, i) => {
+            const cls = classnames(
+              'type-tab',
+              type,
+              {
+                active: types[i] === pane
+              }
+            )
+            return (
+              <span
+                className={cls}
+                key={type + '_' + i}
+                onClick={() => this.onChangePane(types[i])}
+              >
+                <span className='type-tab-txt'>
+                  <span className='w500'>{e(type)}</span>
+                  <span className='l500'>{simpleMapper[type]}</span>
+                  <span className='type-tab-line' />
+                </span>
+              </span>
+            )
+          })
+        }
+      </div>
+    )
+  }
+
+  renderSftpPathFollowControl = () => {
+    const {
+      sftpPathFollowSsh
+    } = this.state
+    const { props } = this
+    const { tab } = props
+    const { pane, enableSsh, sshSftpSplitView } = tab
+    const termType = tab?.type
+    const isSsh = tab.authType
+    const isLocal = !isSsh && (termType === connectionMap.local || !termType)
     const checkTxt = e('sftpPathFollowSsh') + ' [Beta]'
     const checkProps = {
       onClick: this.toggleCheckSftpPathFollowSsh,
@@ -564,39 +606,11 @@ export default class SessionWrapper extends Component {
         }
       )
     }
-    const simpleMapper = {
-      [paneMap.terminal]: 'T',
-      [paneMap.fileManager]: 'F',
-      [paneMap.ssh]: 'T'
-    }
+    const isS = pane === paneMap.terminal ||
+      pane === paneMap.ssh ||
+      sshSftpSplitView
     return (
       <>
-        <div className='term-sftp-tabs fleft'>
-          {
-            controls.map((type, i) => {
-              const cls = classnames(
-                'type-tab',
-                type,
-                {
-                  active: types[i] === pane
-                }
-              )
-              return (
-                <span
-                  className={cls}
-                  key={type + '_' + i}
-                  onClick={() => this.onChangePane(types[i])}
-                >
-                  <span className='type-tab-txt'>
-                    <span className='w500'>{e(type)}</span>
-                    <span className='l500'>{simpleMapper[type]}</span>
-                    <span className='type-tab-line' />
-                  </span>
-                </span>
-              )
-            })
-          }
-        </div>
         {
           (isSsh && enableSsh) || isLocal
             ? (
@@ -609,7 +623,7 @@ export default class SessionWrapper extends Component {
             : null
         }
         {
-          this.renderDelTip(pane === paneMap.terminal)
+          this.renderDelTip(isS)
         }
       </>
     )
@@ -626,9 +640,8 @@ export default class SessionWrapper extends Component {
         className='terminal-control fix'
       >
         {this.renderPaneControl()}
-        {
-          this.renderSplitToggle()
-        }
+        {this.renderSftpPathFollowControl()}
+        {this.renderSplitToggle()}
         {this.renderTermControls()}
       </div>
     )
@@ -651,7 +664,7 @@ export default class SessionWrapper extends Component {
     if (this.isNotTerminalType()) {
       return this.renderTerminals()
     }
-    const notSplitVew = !this.canSplitView() || !this.state.sshSftpSplitView
+    const notSplitVew = !this.canSplitView() || !this.props.tab.sshSftpSplitView
     const { pane } = this.props.tab
     const show1 = notSplitVew && (pane === paneMap.terminal || pane === paneMap.ssh)
     const show2 = notSplitVew && (pane === paneMap.fileManager || pane === paneMap.sftp)
@@ -662,6 +675,7 @@ export default class SessionWrapper extends Component {
       layout,
       onResize: this.onSplitResize,
       onResizeEnd: this.onSplitResize,
+      className: notSplitVew ? 'not-split-view' : '',
       style: {
         width: this.props.width + 'px',
         height: this.props.height + 'px'

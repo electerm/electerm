@@ -66,13 +66,13 @@ class Term extends Component {
       passType: 'password',
       lines: []
     }
+    this.id = `term-${this.props.tab.id}`
+    refs.add(this.id, this)
   }
 
   domRef = createRef()
 
   componentDidMount () {
-    this.id = `term-${this.props.tab.id}`
-    refs.add(this.id, this)
     this.initTerminal()
     if (this.props.tab.enableSsh === false) {
       ;(
@@ -155,6 +155,9 @@ clear\r`
 
   componentWillUnmount () {
     refs.remove(this.id)
+    if (window.store.activeTerminalId === this.props.tab.id) {
+      window.store.activeTerminalId = ''
+    }
     if (this.zsession) {
       this.onZmodemEnd()
     }
@@ -173,10 +176,6 @@ clear\r`
       this.term.dispose()
       this.term = null
     }
-    window.removeEventListener(
-      'resize',
-      this.onResize
-    )
     this.attachAddon = null
     this.fitAddon = null
     this.zmodemAddon = null
