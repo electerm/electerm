@@ -310,6 +310,7 @@ export default class SessionWrapper extends Component {
     }
 
     const cls = pane === paneMap.terminal ||
+      pane === paneMap.ssh ||
       (sshSftpSplitView && this.canSplitView())
       ? 'terms-box'
       : 'terms-box hide'
@@ -514,7 +515,7 @@ export default class SessionWrapper extends Component {
     return (
       <Tooltip title={title} placement='bottomLeft'>
         <span
-          className='pointer mg1r'
+          className='pointer mg1r split-view-toggle'
           onClick={this.handleSshSftpSplitView}
         >
           <SplitViewIcon />

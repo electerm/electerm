@@ -3,7 +3,7 @@ import { handleErr } from '../../common/fetch.jsx'
 import generate from '../../common/uid.js'
 import { isEqual, pick, debounce, throttle } from 'lodash-es'
 import clone from '../../common/to-simple-obj.js'
-// import runIdle from '../../common/run-idle'
+import resolve from '../../common/resolve.js'
 import {
   ReloadOutlined
 } from '@ant-design/icons'
@@ -314,7 +314,23 @@ clear\r`
   }
 
   onDrop = e => {
-    const files = e?.dataTransfer?.files
+    const dt = e.dataTransfer
+    const fromFile = dt.getData('fromFile')
+
+    if (fromFile) {
+      // Handle SFTP file drop
+      try {
+        const fileData = JSON.parse(fromFile)
+        const filePath = resolve(fileData.path, fileData.name)
+        this.attachAddon._sendData(`"${filePath}" `)
+        return
+      } catch (e) {
+        log.error('Failed to parse fromFile data:', e)
+      }
+    }
+
+    // Handle regular file drop
+    const files = dt.files
     if (files && files.length) {
       this.attachAddon._sendData(
         Array.from(files).map(f => `"${f.path}"`).join(' ')
