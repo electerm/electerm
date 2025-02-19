@@ -43,6 +43,7 @@ class TerminalBase {
       delete this.sessionLogger
     } else {
       this.sessionLogger = new SessionLog({
+        logDir: this.initOptions.sessionLogPath,
         fileName: createLogFileName(this.initOptions.logName)
       })
     }

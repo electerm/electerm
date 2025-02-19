@@ -56,20 +56,6 @@ export default class Sftp extends Component {
 
   componentDidUpdate (prevProps, prevState) {
     if (
-      (
-        prevProps.enableSftp !== false &&
-        !prevProps.pid &&
-        this.props.pid
-      ) ||
-      (
-        prevProps.pid &&
-        prevProps.enableSftp === false &&
-        this.props.enableSftp !== false
-      )
-    ) {
-      this.initData(true)
-    }
-    if (
       this.props.config.autoRefreshWhenSwitchToSftp &&
       prevProps.pane !== this.props.pane &&
       (this.props.pane === paneMap.fileManager || this.props.pane.sftp) &&
@@ -183,8 +169,9 @@ export default class Sftp extends Component {
   }, isEqual)
 
   isActive () {
-    return this.props.enableSftp && this.props.currentBatchTabId === this.props.tab.id &&
-      this.props.pane === paneMap.fileManager
+    return this.props.currentBatchTabId === this.props.tab.id &&
+      (this.props.pane === paneMap.fileManager ||
+      this.props.pane === paneMap.sftp || this.props.sshSftpSplitView)
   }
 
   getCwdLocal = () => {
@@ -407,7 +394,7 @@ export default class Sftp extends Component {
     this[type + 'Dom'].onPaste()
   }
 
-  initData = async () => {
+  initData = () => {
     if (this.shouldRenderRemote()) {
       this.initRemoteAll()
     }
@@ -435,11 +422,6 @@ export default class Sftp extends Component {
 
   addTransferList = list => {
     window.store.addTransferList(list)
-  }
-
-  computeListHeight = () => {
-    const hasTransports = this.state.transports.length
-    return this.props.height - 15 - (hasTransports ? 300 : 0)
   }
 
   onError = e => {

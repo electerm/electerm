@@ -30,17 +30,16 @@ const onDragCls = 'ondrag-tab'
 const onDragOverCls = 'dragover-tab'
 
 class Tab extends Component {
-  state = {
-    terminalOnData: false
+  constructor (props) {
+    super(props)
+    this.state = {
+      terminalOnData: false
+    }
+    this.id = 'tab-' + this.props.tab.id
+    refs.add(this.id, this)
   }
 
   tabRef = createRef()
-
-  componentDidMount () {
-    this.id = 'tab-' + this.props.tab.id
-    refs.add(this.id, this)
-    window.addEventListener('message', this.onEvent)
-  }
 
   componentDidUpdate (prevProps) {
     if (this.props.openContextMenu && !prevProps.openContextMenu) {

@@ -31,17 +31,18 @@ import deepCopy from 'json-deep-copy'
 import getBrand from '../components/ai/get-brand'
 import {
   settingMap,
-  paneMap,
   settingSyncId,
   settingShortcutsId,
   settingTerminalId,
-  terminalSshConfigType
+  terminalSshConfigType,
+  paneMap
 } from '../common/constants'
 import getInitItem from '../common/init-setting-item'
 import createTitle from '../common/create-title'
 import {
   theme
 } from 'antd'
+import { refs } from '../components/common/ref'
 
 const e = window.translate
 
@@ -65,7 +66,7 @@ class Store {
     const { currentTab } = this
     const { quickCommands } = window.store
     const currentTabQuickCommands = (
-      currentTab.quickCommands || []
+      currentTab?.quickCommands || []
     ).map((d, i) => {
       return {
         ...d,
@@ -82,12 +83,11 @@ class Store {
     const {
       activeTabId
     } = this
-    const { tabs } = window.store
-    const tab = tabs.find(t => t.id === activeTabId)
+    const tab = refs.get('tab-' + activeTabId)
     if (!tab) {
-      return false
+      return null
     }
-    return tab
+    return tab.props.tab
   }
 
   get batchInputSelectedTabIds () {
@@ -112,21 +112,19 @@ class Store {
     if (store.showModal) {
       return false
     }
-    const {
-      currentTab
-    } = store
+    const { currentTab } = store
     if (!currentTab) {
       return false
     }
     const {
-      type,
-      pane
+      type
     } = currentTab
-    if (type === 'rdp' || type === 'vnc' || type === 'web') {
+    if (type === 'web' || type === 'rdp' || type === 'vnc') {
       return false
     }
-    return pane === paneMap.ssh ||
-        pane === paneMap.terminal
+    return currentTab.sshSftpSplitView ||
+      currentTab.pane === paneMap.terminal ||
+      currentTab.pane === paneMap.ssh
   }
 
   get quickCommandTags () {

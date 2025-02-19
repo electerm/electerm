@@ -99,7 +99,7 @@
     "zmodem-ts": "1.0.4"
   },
   "dependencies": {
-    "@electerm/electerm-locales": "2.0.36",
+    "@electerm/electerm-locales": "2.0.37",
     "@electerm/electerm-themes": "^1.0.1",
     "@electerm/rdpjs": "^1.0.0",
     "@electerm/ssh2": "1.16.1",

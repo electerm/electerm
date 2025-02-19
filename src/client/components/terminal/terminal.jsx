@@ -3,7 +3,7 @@ import { handleErr } from '../../common/fetch.jsx'
 import generate from '../../common/uid.js'
 import { isEqual, pick, debounce, throttle } from 'lodash-es'
 import clone from '../../common/to-simple-obj.js'
-// import runIdle from '../../common/run-idle'
+import resolve from '../../common/resolve.js'
 import {
   ReloadOutlined
 } from '@ant-design/icons'
@@ -66,13 +66,13 @@ class Term extends Component {
       passType: 'password',
       lines: []
     }
+    this.id = `term-${this.props.tab.id}`
+    refs.add(this.id, this)
   }
 
   domRef = createRef()
 
   componentDidMount () {
-    this.id = `term-${this.props.tab.id}`
-    refs.add(this.id, this)
     this.initTerminal()
     if (this.props.tab.enableSsh === false) {
       ;(
@@ -155,6 +155,9 @@ clear\r`
 
   componentWillUnmount () {
     refs.remove(this.id)
+    if (window.store.activeTerminalId === this.props.tab.id) {
+      window.store.activeTerminalId = ''
+    }
     if (this.zsession) {
       this.onZmodemEnd()
     }
@@ -173,10 +176,6 @@ clear\r`
       this.term.dispose()
       this.term = null
     }
-    window.removeEventListener(
-      'resize',
-      this.onResize
-    )
     this.attachAddon = null
     this.fitAddon = null
     this.zmodemAddon = null
@@ -315,7 +314,23 @@ clear\r`
   }
 
   onDrop = e => {
-    const files = e?.dataTransfer?.files
+    const dt = e.dataTransfer
+    const fromFile = dt.getData('fromFile')
+
+    if (fromFile) {
+      // Handle SFTP file drop
+      try {
+        const fileData = JSON.parse(fromFile)
+        const filePath = resolve(fileData.path, fileData.name)
+        this.attachAddon._sendData(`"${filePath}" `)
+        return
+      } catch (e) {
+        log.error('Failed to parse fromFile data:', e)
+      }
+    }
+
+    // Handle regular file drop
+    const files = dt.files
     if (files && files.length) {
       this.attachAddon._sendData(
         Array.from(files).map(f => `"${f.path}"`).join(' ')
@@ -1060,6 +1075,7 @@ clear\r`
       return
     }
     this.setStatus(statusMap.success)
+    refs.get('sftp-' + id)?.initData()
     term.pid = id
     this.pid = id
     const wsUrl = this.buildWsUrl()
