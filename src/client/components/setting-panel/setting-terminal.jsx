@@ -12,7 +12,8 @@ import {
   InputNumber,
   Button,
   AutoComplete,
-  Tooltip
+  Tooltip,
+  Flex
 } from 'antd'
 import deepCopy from 'json-deep-copy'
 import {
@@ -444,9 +445,9 @@ export default class SettingTerminal extends Component {
     const { fontFamily } = this.props.config
     const props = {
       mode: 'multiple',
-      className: 'font-sel',
       onChange: this.handleChangeFont,
-      value: fontFamily.split(/, */g).filter(d => d.trim())
+      value: fontFamily.split(/, */g).filter(d => d.trim()),
+      style: { width: '100%' }
     }
     return (
       <Select
@@ -539,10 +540,10 @@ export default class SettingTerminal extends Component {
           }, `${e('default')} ${e('fontSize')}`, 400)
         }
         <div className='pd2b'>
-          <span className='inline-title mg1r'>{e('default')} {e('fontFamily')}</span>
-          {
-            this.renderFontFamily()
-          }
+          <Flex align='center' gap='middle'>
+            <Flex><div className='inline-title'>{e('default')} {e('fontFamily')}</div></Flex>
+            <Flex flex='auto'>{this.renderFontFamily()}</Flex>
+          </Flex>
         </div>
         <div className='pd2b'>
           <div className='pd1b'>
