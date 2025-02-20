@@ -149,6 +149,8 @@ export default defineConfig({
             }
             // Combine rest of node_modules into one chunk
             return 'vendor'
+          } else if (id.includes('batch-op/batch-op')) {
+            return 'batch-op'
           }
         },
         inlineDynamicImports: false,
