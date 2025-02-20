@@ -115,7 +115,7 @@ export default (Store) => {
     if (!arr.length && store.config.initDefaultTabOnStart) {
       store.initFirstTab()
     }
-    setTimeout(store.confirmLoad, 1300)
+    store.confirmLoad()
     const { initTime, loadTime } = window.pre.runSync('getLoadTime')
     if (loadTime) {
       store.loadTime = loadTime

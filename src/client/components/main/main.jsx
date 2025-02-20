@@ -20,7 +20,6 @@ import ShortcutControl from '../shortcuts/shortcut-control.jsx'
 import { isMac, isWin } from '../../common/constants'
 import TermFullscreenControl from './term-fullscreen-control'
 import TerminalInfo from '../terminal-info/terminal-info'
-import { LoadingUI } from './loading'
 import { ConfigProvider, notification, message } from 'antd'
 import InfoModal from '../sidebar/info-modal.jsx'
 import RightSidePanel from '../side-panel-r/side-panel-r'
@@ -228,9 +227,6 @@ export default auto(function Index (props) {
     >
       <div {...ext1}>
         <ShortcutControl config={config} />
-        <LoadingUI
-          wsInited={wsInited}
-        />
         <TermFullscreenControl
           terminalFullScreen={terminalFullScreen}
         />
