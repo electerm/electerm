@@ -28,7 +28,8 @@ import {
   connectionMap,
   terminalRdpType,
   terminalVncType,
-  terminalWebType
+  terminalWebType,
+  terminalTelnetType
 } from '../../common/constants'
 import { SplitViewIcon } from '../icons/split-view'
 import { refs } from '../common/ref'
@@ -358,7 +359,8 @@ export default class SessionWrapper extends Component {
     const { type } = this.props.tab
     return type === terminalRdpType ||
       type === terminalVncType ||
-      type === terminalWebType
+      type === terminalWebType ||
+      type === terminalTelnetType
   }
 
   calcSftpWidthHeight = () => {
