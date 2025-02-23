@@ -2,7 +2,6 @@
  * common db op
  */
 
-import { find } from 'lodash-es'
 import deepCopy from 'json-deep-copy'
 import {
   settingMap
@@ -23,7 +22,7 @@ export default Store => {
   Store.prototype.editItem = function (id, updates, type) {
     const { store } = window
     const items = store.getItems(type)
-    const item = find(items, t => t.id === id)
+    const item = items.find(t => t.id === id)
     if (!item) {
       return
     }

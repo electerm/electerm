@@ -4,7 +4,6 @@
 
 import { Component } from 'react'
 import classnames from 'classnames'
-import { find } from 'lodash-es'
 import FileSection from './file-item'
 import PagedList from './paged-list'
 import FileListTableHeader from './file-table-header'
@@ -122,8 +121,7 @@ export default class FileListTable extends Component {
   onClickName = (e) => {
     const id = e.target.getAttribute('data-id')
     const { properties } = this.state
-    const propObj = find(
-      properties,
+    const propObj = properties.find(
       p => p.id === id
     )
     if (!propObj) {

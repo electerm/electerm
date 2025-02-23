@@ -10,7 +10,7 @@ import {
 } from '@ant-design/icons'
 import createName from '../../common/create-title'
 import InputAutoFocus from '../common/input-auto-focus'
-import { find, uniq, filter, pick } from 'lodash-es'
+import { uniq, filter, pick } from 'lodash-es'
 import {
   maxBookmarkGroupTitleLength,
   defaultBookmarkGroupId,
@@ -146,8 +146,7 @@ export default class ItemListTree extends Component {
       return
     }
     const { bookmarkGroups } = window.store
-    const obj = find(
-      bookmarkGroups,
+    const obj = bookmarkGroups.find(
       bg => bg.id === categoryId
     )
     if (!obj) {
@@ -229,8 +228,7 @@ export default class ItemListTree extends Component {
       bookmarkIds: []
     }
     bookmarkGroups.unshift(newCat)
-    const cat = find(
-      bookmarkGroups,
+    const cat = bookmarkGroups.find(
       d => d.id === id
     )
     if (!cat) {
@@ -286,8 +284,7 @@ export default class ItemListTree extends Component {
         currentBookmarkGroupId: findBookmarkGroupId(store.bookmarkGroups, id)
       })
       const { bookmarks } = this.props
-      const bookmark = find(
-        bookmarks,
+      const bookmark = bookmarks.find(
         d => d.id === id
       )
       if (bookmark) {

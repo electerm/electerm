@@ -2,7 +2,6 @@
  * setting modal
  */
 
-import { find } from 'lodash-es'
 import {
   message
 } from 'antd'
@@ -66,7 +65,7 @@ export default Store => {
     const { store } = window
     const bookmarks = store.bookmarks
     const item = copy(
-      find(bookmarks, it => it.id === id)
+      bookmarks.find(it => it.id === id)
     )
     if (!item) {
       return

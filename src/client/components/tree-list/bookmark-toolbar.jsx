@@ -10,7 +10,7 @@ import {
 import { Button, Space, Dropdown, Upload } from 'antd'
 import copy from 'json-deep-copy'
 import time from '../../common/time'
-import { find, uniq } from 'lodash-es'
+import { uniq } from 'lodash-es'
 import { fixBookmarks } from '../../common/db-fix'
 import download from '../../common/download'
 import { action } from 'manate'
@@ -59,8 +59,7 @@ export default function BookmarkToolbar (props) {
         if (!bmgTree.has(bg.id)) {
           store.bookmarkGroups.push(bg)
         } else {
-          const bg1 = find(
-            store.bookmarkGroups,
+          const bg1 = store.bookmarkGroups.find(
             b => b.id === bg.id
           )
           bg1.bookmarkIds = uniq(

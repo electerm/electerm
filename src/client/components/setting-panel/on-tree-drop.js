@@ -5,7 +5,7 @@
 import {
   defaultBookmarkGroupId
 } from '../../common/constants'
-import { isEqual, find, last, remove } from 'lodash-es'
+import { isEqual, last, remove } from 'lodash-es'
 import copy from 'json-deep-copy'
 import { action } from 'manate'
 
@@ -25,19 +25,15 @@ export default action((info, props) => {
   const isSameLevel = fromPosesLevel.length === toPosesLevel.length
   const isSameCat = isEqual(fromPosesLevel, toPosesLevel) && dropToGap
   const { bookmarks, bookmarkGroups } = window.store
-  let from = find(
-    bookmarks,
+  let from = bookmarks.find(
     d => d.id === fromId
-  ) || find(
-    bookmarkGroups,
+  ) || bookmarkGroups.find(
     d => d.id === fromId
   )
   const fromLeaf = !!from && !from.bookmarkIds
-  let to = find(
-    bookmarks,
+  let to = bookmarks.find(
     d => d.id === toId
-  ) || find(
-    bookmarkGroups,
+  ) || bookmarkGroups.find(
     d => d.id === toId
   )
   const toLeaf = !!to && !to.bookmarkIds
@@ -87,12 +83,10 @@ export default action((info, props) => {
   let fromGroup = null
   if (fromPoses.length > 2) {
     fromGroup = fromLeaf
-      ? find(
-        bookmarkGroups,
+      ? bookmarkGroups.find(
         d => (d.bookmarkIds || []).includes(fromId)
       )
-      : find(
-        bookmarkGroups,
+      : bookmarkGroups.find(
         d => (d.bookmarkGroupIds || []).includes(fromId)
       )
   }
@@ -100,8 +94,7 @@ export default action((info, props) => {
   const toFirstLevel = toPoses.length === 2 && dropToGap
   if (!toFirstLevel) {
     toGroup = dropToGap
-      ? find(
-        bookmarkGroups,
+      ? bookmarkGroups.find(
         d => {
           const arr = toLeaf
             ? d.bookmarkIds
@@ -111,12 +104,10 @@ export default action((info, props) => {
       )
       : (
           toLeaf
-            ? find(
-              bookmarkGroups,
+            ? bookmarkGroups.find(
               d => (d.bookmarkIds || []).includes(toId)
             )
-            : find(
-              bookmarkGroups,
+            : bookmarkGroups.find(
               d => d.id === toId
             )
         )

@@ -5,10 +5,9 @@
 import {
   defaultBookmarkGroupId
 } from './constants'
-import { find } from 'lodash-es'
 
 export default (bookmarkGroups, id) => {
-  const obj = find(bookmarkGroups, bg => {
+  const obj = bookmarkGroups.find(bg => {
     return bg.bookmarkIds.includes(id)
   })
   return obj ? obj.id : defaultBookmarkGroupId

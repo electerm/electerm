@@ -2,16 +2,11 @@
  * ui theme functions
  */
 
-/**
- * theme related functions
- */
-
-import { escapeRegExp, find } from 'lodash-es'
+import { escapeRegExp } from 'lodash-es'
 import {
   defaultTheme,
   settingMap
 } from '../common/constants'
-// import fetch from '../common/fetch'
 import copy from 'json-deep-copy'
 
 export default Store => {
@@ -51,10 +46,8 @@ export default Store => {
 
   Store.prototype.getUiThemeConfig = function () {
     const { store } = window
-    const theme = find(
-      store.getSidebarList(settingMap.terminalThemes),
-      d => d.id === store.config.theme
-    )
+    const theme = store.getSidebarList(settingMap.terminalThemes)
+      .find(d => d.id === store.config.theme)
     return theme && theme.uiThemeConfig
       ? copy(theme.uiThemeConfig)
       : defaultTheme.uiThemeConfig

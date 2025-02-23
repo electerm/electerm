@@ -2,7 +2,6 @@
  * bookmark group functions
  */
 
-import { find } from 'lodash-es'
 import {
   defaultBookmarkGroupId,
   settingMap
@@ -32,7 +31,7 @@ export default Store => {
     const gids = item.bookmarkGroupIds || []
     const bookmarkGroups = store.bookmarkGroups
     for (const gid of gids) {
-      const g = find(bookmarkGroups, g => g.id === gid)
+      const g = bookmarkGroups.find(g => g.id === gid)
       if (g && g.bookmarkIds && g.bookmarkIds.length) {
         ids = [
           ...ids,

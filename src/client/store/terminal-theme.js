@@ -3,7 +3,7 @@
  */
 
 import { message } from 'antd'
-import { find, isEqual } from 'lodash-es'
+import { isEqual } from 'lodash-es'
 import {
   defaultTheme,
   settingMap,
@@ -42,7 +42,7 @@ export default Store => {
   Store.prototype.getThemeConfig = function () {
     const { store } = window
     const all = store.getSidebarList(settingMap.terminalThemes)
-    return (find(all, d => d.id === store.config.theme) || {}).themeConfig || {}
+    return (all.find(d => d.id === store.config.theme) || {}).themeConfig || {}
   }
 
   Store.prototype.fixThemes = function (themes) {
@@ -82,7 +82,7 @@ export default Store => {
   Store.prototype.checkDefaultTheme = async function (terminalThemes) {
     const { store } = window
     const themeId = defaultTheme.id
-    const currentDefaultTheme = find(store.terminalThemes, d => d.id === themeId)
+    const currentDefaultTheme = store.terminalThemes.find(d => d.id === themeId)
     if (
       currentDefaultTheme &&
       (
@@ -102,7 +102,7 @@ export default Store => {
         `${e('default')} ${e('themeConfig')} ${e('updated')}`
       )
     }
-    const hasLightTheme = find(store.getTerminalThemes(), d => d.id === defaultThemeLight.id)
+    const hasLightTheme = store.getTerminalThemes().find(d => d.id === defaultThemeLight.id)
     if (!hasLightTheme) {
       store.addTheme(defaultThemeLight)
     }
