@@ -134,6 +134,7 @@ export default function AIChat (props) {
       <SendOutlined
         onClick={handleSubmit}
         className='mg1l pointer icon-hover'
+        title='Ctrl+Enter'
       />
     )
   }
@@ -168,6 +169,7 @@ export default function AIChat (props) {
           placeholder='Enter your prompt here'
           autoSize={{ minRows: 3, maxRows: 10 }}
           disabled={isLoading}
+          className='ai-chat-textarea'
         />
         <Flex className='ai-chat-terminals' justify='space-between' align='center'>
           <Flex align='center'>

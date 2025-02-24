@@ -35,6 +35,7 @@ class ShortcutControl extends React.PureComponent {
     this.handleSftpKeyboardEvent(e)
     // Then handle extended shortcuts
     this.handleKeyboardEvent(e)
+    this.handleAiChat(e)
   }
 
   getActiveSftp = () => {
@@ -43,6 +44,25 @@ class ShortcutControl extends React.PureComponent {
     const ref = refs.get('sftp-' + activeTabId)
     if (!ref || !ref.isActive()) return null
     return ref
+  }
+
+  handleAiChat = (e) => {
+    const { rightPanelTab } = window.store
+    if (rightPanelTab !== 'ai') {
+      return
+    }
+    const elem = document.activeElement
+    if (
+      e.ctrlKey &&
+      e.key === 'Enter' &&
+      !e.shiftKey &&
+      !e.altKey &&
+      !e.metaKey &&
+      elem?.tagName === 'TEXTAREA' &&
+      elem?.classList.contains('ai-chat-textarea')
+    ) {
+      refsStatic.get('AIChat')?.handleSubmit()
+    }
   }
 
   // SFTP shortcuts handler
