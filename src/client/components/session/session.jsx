@@ -76,6 +76,7 @@ export default class SessionWrapper extends Component {
     this.editTab({
       sshSftpSplitView: nv
     })
+    window.store.triggerResize()
   }
 
   canSplitView = () => {
