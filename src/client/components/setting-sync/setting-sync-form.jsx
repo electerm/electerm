@@ -19,6 +19,10 @@ import ServerDataStatus from './server-data-status'
 const FormItem = Form.Item
 const e = window.translate
 
+function trim (str) {
+  return str ? str.trim() : ''
+}
+
 export default function SyncForm (props) {
   const [form] = Form.useForm()
   const delta = useDelta(props.formData)
@@ -149,6 +153,7 @@ export default function SyncForm (props) {
       <FormItem
         label={createLabel('API Url')}
         name='apiUrl'
+        normalize={trim}
         rules={[{
           max: 200, message: '200 chars max'
         }]}
@@ -178,6 +183,7 @@ export default function SyncForm (props) {
       <FormItem
         label={gistLabel}
         name='gistId'
+        normalize={trim}
         rules={[{
           max: 100, message: '100 chars max'
         }]}
@@ -198,6 +204,7 @@ export default function SyncForm (props) {
         label={syncPasswordLabel}
         hasFeedback
         name='syncPassword'
+        normalize={trim}
         rules={[{
           max: 100, message: '100 chars max'
         }]}
@@ -226,6 +233,7 @@ export default function SyncForm (props) {
         label={tokenLabel}
         hasFeedback
         name='token'
+        normalize={trim}
         rules={[{
           max: 1100, message: '1100 chars max'
         }, {
