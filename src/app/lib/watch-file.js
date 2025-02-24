@@ -20,13 +20,6 @@ const onWatch = _.debounce(() => {
 
 exports.watchFile = (path) => {
   globalState.set('watchFilePath', path)
-  fs.watch(path, { persistent: true }, (eventType, filename) => {
-    onWatch()
-  })
-}
-
-exports.watchFile = (path) => {
-  globalState.set('watchFilePath', path)
   fs.watchFile(path, onWatch)
 }
 
