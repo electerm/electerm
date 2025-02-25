@@ -515,10 +515,19 @@ export default class SessionWrapper extends Component {
       return null
     }
     const title = e('sshSftpSplitView')
+    const {
+      sshSftpSplitView
+    } = this.props.tab
+    const cls = classnames(
+      'pointer mg1r split-view-toggle',
+      {
+        active: sshSftpSplitView
+      }
+    )
     return (
       <Tooltip title={title} placement='bottomLeft'>
         <span
-          className='pointer mg1r split-view-toggle'
+          className={cls}
           onClick={this.handleSshSftpSplitView}
         >
           <SplitViewIcon />
