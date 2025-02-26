@@ -197,7 +197,7 @@ export default function renderSshTunnels (props) {
   }
 
   return (
-    <div>
+    <>
       <FormItem
         name='sshTunnels'
         className='hide'
@@ -291,6 +291,6 @@ export default function renderSshTunnels (props) {
           </Button>
         </FormItem>
       </Form>
-    </div>
+    </>
   )
 }

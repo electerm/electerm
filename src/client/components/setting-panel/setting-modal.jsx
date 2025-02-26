@@ -104,7 +104,7 @@ export default auto(function SettingModalWrap (props) {
       type: 'card'
     }
     return (
-      <div>
+      <>
         <Tabs
           {...tabsProps}
         />
@@ -141,7 +141,7 @@ export default auto(function SettingModalWrap (props) {
           store={store}
           settingTab={settingTab}
         />
-      </div>
+      </>
     )
   }
 

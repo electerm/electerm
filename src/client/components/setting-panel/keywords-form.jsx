@@ -107,44 +107,42 @@ export default function KeywordForm (props) {
   }, [props.keywordFormReset])
 
   return (
-    <div>
-      <Form
-        form={formChild}
-        onValuesChange={handleTrigger}
-        initialValues={formData}
-        onFinish={handleFinish}
-      >
-        <FormItem {...formItemLayout}>
-          <FormList
-            name='keywords'
-          >
-            {
-              (fields, { add, remove }, { errors }) => {
-                return (
-                  <div>
-                    {
-                      fields.map((field, i) => {
-                        return renderItem(field, i, add, remove)
-                      })
-                    }
-                    <FormItem>
-                      <Button
-                        type='dashed'
-                        onClick={() => add({
-                          color: 'red'
-                        })}
-                        icon={<PlusOutlined />}
-                      >
-                        {e('keyword')}
-                      </Button>
-                    </FormItem>
-                  </div>
-                )
-              }
+    <Form
+      form={formChild}
+      onValuesChange={handleTrigger}
+      initialValues={formData}
+      onFinish={handleFinish}
+    >
+      <FormItem {...formItemLayout}>
+        <FormList
+          name='keywords'
+        >
+          {
+            (fields, { add, remove }, { errors }) => {
+              return (
+                <>
+                  {
+                    fields.map((field, i) => {
+                      return renderItem(field, i, add, remove)
+                    })
+                  }
+                  <FormItem>
+                    <Button
+                      type='dashed'
+                      onClick={() => add({
+                        color: 'red'
+                      })}
+                      icon={<PlusOutlined />}
+                    >
+                      {e('keyword')}
+                    </Button>
+                  </FormItem>
+                </>
+              )
             }
-          </FormList>
-        </FormItem>
-      </Form>
-    </div>
+          }
+        </FormList>
+      </FormItem>
+    </Form>
   )
 }

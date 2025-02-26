@@ -27,7 +27,7 @@ function renderAddonBefore (props, realPath) {
   const title = `${isShow ? e('hide') : e('show')} ${e('hfd')}`
   const Icon = isShow ? EyeFilled : EyeInvisibleFilled
   return (
-    <div>
+    <>
       <Tooltip
         title={title}
         placement='topLeft'
@@ -56,7 +56,7 @@ function renderAddonBefore (props, realPath) {
         type={type}
         onClickHistory={props.onClickHistory}
       />
-    </div>
+    </>
   )
 }
 

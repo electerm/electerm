@@ -15,7 +15,7 @@ const e = window.translate
 export default function renderRunScripts () {
   function renderItem (field, i, add, remove) {
     return (
-      <div>
+      <>
         <Space
           align='center'
           key={field.key}
@@ -51,7 +51,7 @@ export default function renderRunScripts () {
             className='mg24b'
           />
         </Space>
-      </div>
+      </>
     )
   }
 
@@ -63,7 +63,7 @@ export default function renderRunScripts () {
         {
           (fields, { add, remove }, { errors }) => {
             return (
-              <div>
+              <>
                 {
                   fields.map((field, i) => {
                     return renderItem(field, i, add, remove)
@@ -79,7 +79,7 @@ export default function renderRunScripts () {
                     {e('loginScript')}
                   </Button>
                 </FormItem>
-              </div>
+              </>
             )
           }
         }

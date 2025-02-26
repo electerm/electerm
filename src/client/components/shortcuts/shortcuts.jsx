@@ -140,7 +140,7 @@ export default class Shortcuts extends PureComponent {
       rowKey: 'id'
     }
     return (
-      <div>
+      <>
         <Table
           {...props}
         />
@@ -151,7 +151,7 @@ export default class Shortcuts extends PureComponent {
             {e('resetAllToDefault')}
           </Button>
         </div>
-      </div>
+      </>
     )
   }
 }

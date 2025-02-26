@@ -127,14 +127,14 @@ export default class TermSearch extends PureComponent {
 
   renderAfter = () => {
     return (
-      <div>
+      <>
         {
           this.renderMatchData()
         }
         {
           this.searchActions.map(this.renderSearchAction)
         }
-      </div>
+      </>
     )
   }
 
@@ -174,11 +174,11 @@ export default class TermSearch extends PureComponent {
 
   renderSuffix = () => {
     return (
-      <div>
+      <>
         {
           this.searchControls.map(this.renderSearchControl)
         }
-      </div>
+      </>
     )
   }
 

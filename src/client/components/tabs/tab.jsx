@@ -373,10 +373,10 @@ class Tab extends Component {
       return <div key={tunnel}>{tunnel}</div>
     })
     return (
-      <div>
+      <>
         <div>{title}</div>
         {list}
-      </div>
+      </>
     )
   }
 

@@ -25,7 +25,7 @@ function showNotification () {
     placement: 'bottom',
     key: 'sshConfigNotify',
     description: (
-      <div>
+      <>
         <p>{e('sshConfigNotice')}</p>
         <Button type='primary' onClick={handleLoad} className='mg1r mg1b'>
           {e('import')}
@@ -33,7 +33,7 @@ function showNotification () {
         <Button onClick={handleIgnore} className='mg1r mg1b'>
           {e('ignore')}
         </Button>
-      </div>
+      </>
     )
   })
 }

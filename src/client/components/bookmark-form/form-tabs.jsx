@@ -30,12 +30,12 @@ export default function renderTabs (props) {
       label: e('settings'),
       forceRender: true,
       children: (
-        <div>
+        <>
           {props.renderEnableSftp()}
           {props.uis}
           {props.renderProxy(props)}
           {props.renderX11()}
-        </div>
+        </>
       )
     },
     {

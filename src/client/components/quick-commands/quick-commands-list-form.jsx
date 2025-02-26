@@ -113,7 +113,7 @@ export default function renderQm () {
         {
           (fields, { add, remove }, { errors }) => {
             return (
-              <div>
+              <>
                 {
                   fields.map((field, i) => {
                     return renderItem(field, i, add, remove)
@@ -129,7 +129,7 @@ export default function renderQm () {
                     {e('quickCommand')}
                   </Button>
                 </FormItem>
-              </div>
+              </>
             )
           }
         }

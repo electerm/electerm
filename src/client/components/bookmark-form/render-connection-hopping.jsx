@@ -169,7 +169,7 @@ export default function renderConnectionHopping (props) {
     onSelect: handleFinish
   }
   return (
-    <div>
+    <>
       <FormItem
         name='connectionHoppings'
         className='hide'
@@ -269,6 +269,6 @@ export default function renderConnectionHopping (props) {
           </Button>
         </FormItem>
       </Form>
-    </div>
+    </>
   )
 }

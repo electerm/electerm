@@ -20,7 +20,7 @@ export default function ZoomMenu (props) {
       max={500}
       addonAfter='%'
       addonBefore={
-        <div>
+        <>
           <PlusCircleOutlined
             onClick={() => store.zoom(0.25, true)}
             className='mg1r pointer font16'
@@ -29,7 +29,7 @@ export default function ZoomMenu (props) {
             onClick={() => store.zoom(-0.25, true)}
             className='pointer font16'
           />
-        </div>
+        </>
       }
     />
   )

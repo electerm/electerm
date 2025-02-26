@@ -16,10 +16,8 @@ export default function SshConfigItem (props) {
 
   return (
     <Tooltip title={generateTooltipContent(item)}>
-      <div>
-        <div className='elli pd1y pd2x'>
-          ssh {item.title}
-        </div>
+      <div className='elli pd1y pd2x'>
+        ssh {item.title}
       </div>
     </Tooltip>
   )

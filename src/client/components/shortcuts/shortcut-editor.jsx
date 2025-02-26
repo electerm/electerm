@@ -175,7 +175,7 @@ export default class ShortcutEdit extends PureComponent {
       return null
     }
     return (
-      <div>
+      <>
         <CheckOutlined
           onClick={this.handleConfirm}
           className='pointer'
@@ -184,7 +184,7 @@ export default class ShortcutEdit extends PureComponent {
           onClick={this.handleCancel}
           className='pointer mg1l'
         />
-      </div>
+      </>
     )
   }
 

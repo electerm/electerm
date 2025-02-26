@@ -479,7 +479,7 @@ export default class BatchOp extends PureComponent {
     }
 
     return (
-      <div>
+      <>
         <div className='pd1y'>
           <h2>
             {e('batchOperation')}
@@ -555,7 +555,7 @@ export default class BatchOp extends PureComponent {
         <div className='pd1y'>
           {this.renderTables()}
         </div>
-      </div>
+      </>
     )
   }
 

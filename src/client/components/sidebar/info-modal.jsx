@@ -119,7 +119,7 @@ export default auto(function InfoModal (props) {
       key: infoTabs.info,
       label: e('about'),
       children: (
-        <div>
+        <>
           <LogoElem />
           <p className='mg2b'>{e('desc')}</p>
           <RunningTime />
@@ -187,7 +187,7 @@ export default auto(function InfoModal (props) {
             </Link>
           </p>
           {renderCheckUpdate()}
-        </div>
+        </>
       )
     },
     {

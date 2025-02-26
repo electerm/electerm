@@ -298,15 +298,13 @@ export default class FileListTable extends Component {
         <div
           {...props}
         >
-          <div>
-            {this.props.renderEmptyFile(type)}
-            {this.renderParent(type)}
-            <PagedList
-              list={fileList}
-              renderItem={this.renderItem}
-              hasPager={hasPager}
-            />
-          </div>
+          {this.props.renderEmptyFile(type)}
+          {this.renderParent(type)}
+          <PagedList
+            list={fileList}
+            renderItem={this.renderItem}
+            hasPager={hasPager}
+          />
         </div>
       </div>
     )

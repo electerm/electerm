@@ -43,7 +43,7 @@ export default class TerminalInfoContent extends PureComponent {
       return null
     }
     return (
-      <div>
+      <>
         <TerminalInfoBase {...props} {...state} />
         <TerminalInfoUp {...props} {...state} />
         <TerminalInfoResource
@@ -57,7 +57,7 @@ export default class TerminalInfoContent extends PureComponent {
         <TerminalInfoNetwork {...props} {...state} />
         <TerminalInfoDisk {...props} {...state} />
         <RunCmd {...props} setState={this.setStateRef} />
-      </div>
+      </>
     )
   }
 }

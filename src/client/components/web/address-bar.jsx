@@ -17,10 +17,10 @@ export default function AddressBar (props) {
     description
   } = props
   const content = (
-    <div>
+    <>
       <h1>{title}</h1>
       <p>{description}</p>
-    </div>
+    </>
   )
   function handleClick () {
     copy(url)

@@ -19,13 +19,11 @@ export default async function download (filename, text) {
   notification.success({
     message: '',
     description: (
-      <div>
-        <ShowItem
-          to={filePath}
-        >
-          {filePath}
-        </ShowItem>
-      </div>
+      <ShowItem
+        to={filePath}
+      >
+        {filePath}
+      </ShowItem>
     )
   })
 }

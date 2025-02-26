@@ -6,7 +6,7 @@ export const BatchOp = lazy(() => import('./batch-op'))
 // Wrap BatchOp with Suspense
 export default function BatchOpEntry (props) {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={<>Loading...</>}>
       <BatchOp {...props} />
     </Suspense>
   )

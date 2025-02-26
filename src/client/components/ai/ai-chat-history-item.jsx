@@ -17,7 +17,7 @@ export default function AIChatHistoryItem ({ item }) {
   } = item
   const alertProps = {
     message: (
-      <div><UserOutlined />: {prompt}</div>
+      <><UserOutlined />: {prompt}</>
     ),
     type: 'info'
   }

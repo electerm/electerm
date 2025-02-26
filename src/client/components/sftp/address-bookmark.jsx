@@ -62,12 +62,10 @@ export default auto(function AddrBookmark (props) {
     </div>
   )
   const title = (
-    <div>
-      <PlusSquareOutlined
-        className='add-addr-bookmark'
-        onClick={handleAddAddr}
-      />
-    </div>
+    <PlusSquareOutlined
+      className='add-addr-bookmark'
+      onClick={handleAddAddr}
+    />
   )
   return (
     <Popover

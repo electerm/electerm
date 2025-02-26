@@ -57,7 +57,7 @@ export default function useQuickCmds (form, formData) {
       {
         (fields, { add, remove }, { errors }) => {
           return (
-            <div>
+            <>
               {
                 fields.map((field, i) => {
                   return renderItem(field, i, add, remove)
@@ -73,7 +73,7 @@ export default function useQuickCmds (form, formData) {
                   {e('newQuickCommand')}
                 </Button>
               </FormItem>
-            </div>
+            </>
           )
         }
       }

@@ -61,7 +61,7 @@ export default function renderCommon (props) {
     })
   }
   return (
-    <div>
+    <>
       <FormItem
         {...formItemLayout}
         label={e('host')}
@@ -223,6 +223,6 @@ export default function renderCommon (props) {
           }
         </Select>
       </FormItem>
-    </div>
+    </>
   )
 }

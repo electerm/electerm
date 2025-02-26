@@ -137,26 +137,24 @@ export default class TransferModalUI extends Component {
       ...groups
     ]
     return (
-      <div>
-        <Select
-          value={this.state.filter}
-          onChange={this.handleFilter}
-          popupMatchSelectWidth={false}
-        >
-          {
-            all.map(item => {
-              return (
-                <Option
-                  key={item.id}
-                  value={item.id}
-                >
-                  {item.title}
-                </Option>
-              )
-            })
-          }
-        </Select>
-      </div>
+      <Select
+        value={this.state.filter}
+        onChange={this.handleFilter}
+        popupMatchSelectWidth={false}
+      >
+        {
+          all.map(item => {
+            return (
+              <Option
+                key={item.id}
+                value={item.id}
+              >
+                {item.title}
+              </Option>
+            )
+          })
+        }
+      </Select>
     )
   }
 
