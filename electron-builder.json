@@ -22,7 +22,8 @@
   "nsis": {
     "oneClick": false,
     "artifactName": "${productName}-${version}-${os}-${arch}-installer.${ext}",
-    "allowToChangeInstallationDirectory": true
+    "allowToChangeInstallationDirectory": true,
+    "include": "build/bin/nsis.nsh"
   },
   "mac": {
     "category": "public.app-category.developer-tools",
