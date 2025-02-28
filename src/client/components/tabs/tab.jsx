@@ -3,7 +3,7 @@
  */
 
 import { createRef } from 'react'
-import { Component } from '../common/component'
+import { Component } from 'manate/react/class-components'
 import { refs } from '../common/ref'
 import {
   CloseOutlined,

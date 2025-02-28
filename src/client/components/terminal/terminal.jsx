@@ -50,7 +50,7 @@ import AIIcon from '../icons/ai-icon.jsx'
 import { formatBytes } from '../../common/byte-format.js'
 import * as fs from './fs.js'
 import iconsMap from '../sys-menu/icons-map.jsx'
-import { refs } from '../common/ref.js'
+import { refs, refsStatic } from '../common/ref.js'
 import createDefaultLogPath from '../../common/default-log-path.js'
 
 const e = window.translate
@@ -822,14 +822,56 @@ clear\r`
     this.props.setCwd(cwd, this.state.id)
   }
 
+  getSuggestions = (currentCommand) => {
+    // This is a simple example. You should implement more sophisticated suggestion logic.
+    const allCommands = ['ls', 'cd', 'pwd', 'grep', 'cat']
+    return allCommands
+    // return allCommands.filter(cmd => cmd.startsWith(currentCommand))
+  }
+
+  getCursorPosition = () => {
+    if (!this.term) return null
+
+    // Get the active buffer and cursor position
+    const buffer = this.term.buffer.active
+    const cursorRow = buffer.cursorY
+    const cursorCol = buffer.cursorX
+
+    // Get dimensions from term element
+    const termElement = this.term.element
+    if (!termElement) return null
+
+    // Get the exact position of the terminal element
+    const termRect = termElement.getBoundingClientRect()
+
+    // Calculate cell dimensions
+    const cellWidth = termRect.width / this.term.cols
+    const cellHeight = termRect.height / this.term.rows
+
+    // Calculate absolute position relative to terminal element
+    const left = Math.floor(termRect.left + (cursorCol * cellWidth))
+    const top = Math.floor(termRect.top + ((cursorRow + 1) * cellHeight))
+
+    return {
+      left,
+      top
+    }
+  }
+
   onData = (d) => {
     if (this.cmdAddon) {
       this.cmdAddon.handleData(d)
     }
+    const data = this.getCmd().trim()
     if (!d.includes('\r')) {
       delete this.userTypeExit
+      const cursorPos = this.getCursorPosition()
+      refsStatic.get('terminal-suggestions')?.setState({
+        showSuggestions: true,
+        cursorPosition: cursorPos,
+        cmd: data
+      })
     } else {
-      const data = this.getCmd().trim()
       if (this.term.buffer.active.type !== 'alternate') {
         this.timers.getCwd = setTimeout(this.getCwd, 200)
       }
@@ -837,6 +879,7 @@ clear\r`
         'exit',
         'logout'
       ]
+      window.store.terminalCommandHistory.add(data)
       if (exitCmds.includes(data)) {
         this.userTypeExit = true
         this.timers.userTypeExit = setTimeout(() => {

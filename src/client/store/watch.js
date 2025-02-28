@@ -12,7 +12,8 @@ import {
   resolutionsLsKey,
   localAddrBookmarkLsKey,
   syncServerDataKey,
-  aiChatHistoryKey
+  aiChatHistoryKey,
+  cmdHistoryKey
 } from '../common/constants'
 import * as ls from '../common/safe-local-storage'
 import { debounce, isEmpty } from 'lodash-es'
@@ -136,6 +137,11 @@ export default store => {
   autoRun(() => {
     ls.setItemJSON(aiChatHistoryKey, store.aiChatHistory)
     return store.aiChatHistory
+  }).start()
+
+  autoRun(() => {
+    ls.setItemJSON(cmdHistoryKey, Array.from(store.terminalCommandHistory))
+    return store.terminalCommandHistory
   }).start()
 
   autoRun(() => {

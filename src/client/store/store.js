@@ -161,6 +161,10 @@ class Store {
         ]
   }
 
+  get terminalCommandSuggestions () {
+    return Array.from(window.store.terminalCommandHistory)
+  }
+
   get termSearchOptions () {
     const {
       store

@@ -2,7 +2,7 @@
  * tree list for bookmarks
  */
 
-import { Component } from '../common/component'
+import { Component } from 'manate/react/class-components'
 import {
   CheckOutlined,
   CloseOutlined,

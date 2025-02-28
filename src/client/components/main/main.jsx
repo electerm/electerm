@@ -14,6 +14,7 @@ import Resolutions from '../rdp/resolution-edit'
 import TerminalInteractive from '../terminal/terminal-interactive'
 import ConfirmModalStore from '../sftp/confirm-modal-store.jsx'
 import TransferConflictStore from '../sftp/transfer-conflict-store.jsx'
+import TerminalCmdSuggestions from '../terminal/terminal-command-dropdown'
 import TransportsActionStore from '../sftp/transports-action-store.jsx'
 import classnames from 'classnames'
 import ShortcutControl from '../shortcuts/shortcut-control.jsx'
@@ -221,6 +222,9 @@ export default auto(function Index (props) {
     showAIConfig: store.showAIConfig,
     rightPanelTab
   }
+  const cmdSuggestionsProps = {
+    suggestions: store.terminalCommandSuggestions
+  }
   return (
     <ConfigProvider
       theme={uiThemeConfig}
@@ -281,6 +285,7 @@ export default auto(function Index (props) {
           sshConfigs={store.sshConfigs}
         />
         <ConnectionHoppingWarning {...warningProps} />
+        <TerminalCmdSuggestions {...cmdSuggestionsProps} />
       </div>
     </ConfigProvider>
   )
