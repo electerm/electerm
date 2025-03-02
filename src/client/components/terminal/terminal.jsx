@@ -853,6 +853,8 @@ clear\r`
     const top = Math.floor(termRect.top + ((cursorRow + 1) * cellHeight))
 
     return {
+      cellWidth,
+      cellHeight,
       left,
       top
     }
@@ -866,11 +868,9 @@ clear\r`
     if (!d.includes('\r')) {
       delete this.userTypeExit
       const cursorPos = this.getCursorPosition()
-      refsStatic.get('terminal-suggestions')?.setState({
-        showSuggestions: true,
-        cursorPosition: cursorPos,
-        cmd: data
-      })
+      refsStatic
+        .get('terminal-suggestions')
+        ?.openSuggestions(cursorPos, data)
     } else {
       if (this.term.buffer.active.type !== 'alternate') {
         this.timers.getCwd = setTimeout(this.getCwd, 200)

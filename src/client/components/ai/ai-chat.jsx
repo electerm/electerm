@@ -16,17 +16,11 @@ import {
 } from '../../common/constants'
 import HelpIcon from '../common/help-icon'
 import { refsStatic } from '../common/ref'
+import { aiConfigsArr } from './ai-config-props'
 import './ai.styl'
 
 const { TextArea } = Input
 const MAX_HISTORY = 100
-const aiConfigsArr = [
-  'baseURLAI',
-  'modelAI',
-  'roleAI',
-  'apiKeyAI',
-  'apiPathAI'
-]
 
 export default function AIChat (props) {
   const [prompt, setPrompt] = useState('')
@@ -42,7 +36,7 @@ export default function AIChat (props) {
   }
 
   const handleSubmit = useCallback(async function () {
-    if (aiConfigMissing()) {
+    if (window.store.aiConfigMissing()) {
       window.store.toggleAIConfig()
     }
     if (!prompt.trim() || isLoading) return
@@ -122,10 +116,6 @@ export default function AIChat (props) {
     window.store.aiChatHistory = []
   }
 
-  function aiConfigMissing () {
-    return aiConfigsArr.some(k => !props.config[k])
-  }
-
   function renderSendIcon () {
     if (isLoading) {
       return <LoadingOutlined />
@@ -144,7 +134,7 @@ export default function AIChat (props) {
       setPrompt,
       handleSubmit
     })
-    if (aiConfigMissing()) {
+    if (window.store.aiConfigMissing()) {
       window.store.toggleAIConfig()
     }
     return () => {

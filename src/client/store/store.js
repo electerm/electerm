@@ -162,7 +162,25 @@ class Store {
   }
 
   get terminalCommandSuggestions () {
-    return Array.from(window.store.terminalCommandHistory)
+    const { store } = window
+    const historyCommands = Array.from(store.terminalCommandHistory)
+    const batchInputCommands = store.batchInputs
+    const quickCommands = store.quickCommands.reduce(
+      (p, q) => {
+        return [
+          ...p,
+          ...(q.commands || []).map(c => c.command)
+        ]
+      },
+      []
+    )
+
+    // Return raw commands
+    return {
+      history: historyCommands,
+      batch: batchInputCommands,
+      quick: quickCommands
+    }
   }
 
   get termSearchOptions () {

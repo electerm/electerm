@@ -16,6 +16,7 @@ import * as ls from '../common/safe-local-storage'
 import { refs, refsStatic } from '../components/common/ref'
 import { action } from 'manate'
 import deepCopy from 'json-deep-copy'
+import { aiConfigsArr } from '../components/ai/ai-config-props'
 
 const e = window.translate
 const { assign } = Object
@@ -302,5 +303,9 @@ export default Store => {
       np.name = id
       profiles.splice(i, 1, np)
     }
+  }
+
+  Store.prototype.aiConfigMissing = function () {
+    return aiConfigsArr.some(k => !window.store.config[k])
   }
 }
