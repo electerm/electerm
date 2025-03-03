@@ -1,6 +1,5 @@
 import { useState, useCallback, useEffect } from 'react'
-import { Flex, Input, message } from 'antd'
-import AIConfigForm from './ai-config'
+import { Flex, Input } from 'antd'
 import TabSelect from '../footer/tab-select'
 import AiChatHistory from './ai-chat-history'
 import uid from '../../common/uid'
@@ -16,7 +15,6 @@ import {
 } from '../../common/constants'
 import HelpIcon from '../common/help-icon'
 import { refsStatic } from '../common/ref'
-import { aiConfigsArr } from './ai-config-props'
 import './ai.styl'
 
 const { TextArea } = Input
@@ -75,30 +73,6 @@ export default function AIChat (props) {
     setPrompt('')
     setIsLoading(false)
   }, [prompt, isLoading, props.config])
-
-  function handleConfigSubmit (values) {
-    window.store.updateConfig(values)
-    message.success('Saved')
-  }
-
-  function getInitialValues () {
-    const res = pick(props.config, aiConfigsArr)
-    if (!res.languageAI) {
-      res.languageAI = window.store.getLangName()
-    }
-    return res
-  }
-
-  const renderConfig = useCallback(() => {
-    if (!props.showAIConfig) return null
-    return (
-      <AIConfigForm
-        initialValues={getInitialValues()}
-        onSubmit={handleConfigSubmit}
-        showAIConfig={props.showAIConfig}
-      />
-    )
-  }, [props.showAIConfig, props.config])
 
   function renderHistory () {
     return (
@@ -180,7 +154,6 @@ export default function AIChat (props) {
             <HelpIcon
               link={aiConfigWikiLink}
             />
-            {renderConfig()}
           </Flex>
           {renderSendIcon()}
         </Flex>

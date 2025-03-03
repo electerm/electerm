@@ -34,6 +34,7 @@ import {
   settingSyncId,
   settingShortcutsId,
   settingTerminalId,
+  settingAiId,
   terminalSshConfigType,
   paneMap
 } from '../common/constants'
@@ -218,6 +219,10 @@ class Store {
       {
         id: settingSyncId,
         title: e('settingSync')
+      },
+      {
+        id: settingAiId,
+        title: 'AI ' + e('setting')
       }
     ]
   }

@@ -1,6 +1,6 @@
-import { Menu } from 'antd'
 import { Component } from 'manate/react/class-components'
 import { refsStatic, refs } from '../common/ref'
+import SuggestionItem from './cmd-item'
 import uid from '../../common/uid'
 import {
   LoadingOutlined
@@ -28,7 +28,7 @@ export default class TerminalCmdSuggestions extends Component {
       return JSON.parse(aiResponse.response).map(d => {
         return {
           command: d,
-          type: 'ai'
+          type: 'AI'
         }
       })
     } catch (e) {
@@ -83,7 +83,6 @@ export default class TerminalCmdSuggestions extends Component {
 
   openSuggestions = (cursorPosition, cmd) => {
     if (!this.state.showSuggestions) {
-      // Add event listeners when opening
       document.addEventListener('click', this.handleClickOutside)
       document.addEventListener('keydown', this.handleKeyDown)
     }
@@ -95,23 +94,28 @@ export default class TerminalCmdSuggestions extends Component {
     } = cursorPosition
     const w = window.innerWidth
     const h = window.innerHeight
-    const ddw = 300
-    const ddh = 300
-    let l = left
-    let t = top
-    if (left + ddw > w) {
-      l = left - ddw
+
+    const position = {}
+
+    // Use right position if close to right edge
+    if (left > w / 2) {
+      position.right = w - left
+    } else {
+      position.left = left
     }
-    if (top + ddh > h) {
-      t = top - ddh - cellHeight
+
+    // Use bottom position if close to bottom edge
+    if (top > h / 2) {
+      position.bottom = h - top + cellHeight
+    } else {
+      position.top = top
     }
+
+    console.log('openSuggestions', position)
 
     this.setState({
       showSuggestions: true,
-      cursorPosition: {
-        left: l,
-        top: t
-      },
+      cursorPosition: position,
       cmd
     })
   }
@@ -119,7 +123,6 @@ export default class TerminalCmdSuggestions extends Component {
   closeSuggestions = () => {
     // Only remove listeners if we were showing suggestions
     if (this.state.showSuggestions) {
-      console.log('ddd')
       document.removeEventListener('click', this.handleClickOutside)
       document.removeEventListener('keydown', this.handleKeyDown)
 
@@ -131,7 +134,6 @@ export default class TerminalCmdSuggestions extends Component {
 
   handleClickOutside = (event) => {
     const suggestionElement = document.querySelector('.terminal-suggestions-wrap')
-    console.log(event.target, 'event.target')
     if (suggestionElement && !suggestionElement.contains(event.target)) {
       this.closeSuggestions()
     }
@@ -143,26 +145,30 @@ export default class TerminalCmdSuggestions extends Component {
     }
   }
 
-  handleSelect = ({ domEvent }) => {
+  handleDelete = (item) => {
+    window.store.terminalCommandHistory.delete(item.command)
+  }
+
+  handleSelect = (item) => {
     const { activeTabId } = window.store
     const terminal = refs.get('term-' + activeTabId)
     if (!terminal) {
-      console.log('no terminal')
       return
     }
 
     // const titleElement = domEvent.target.closest('.ant-menu-title-content')
     // const command = titleElement?.firstChild?.textContent
-    const command = domEvent.target.firstChild.textContent
-    console.log(command, 'command')
+    const { command } = item
     const { cmd } = this.state
+    let txt = ''
     if (cmd && command.startsWith(cmd)) {
-      const remainingText = command.slice(cmd.length)
-      terminal.attachAddon._sendData(remainingText)
+      txt = command.slice(cmd.length)
     } else {
       const pre = '\b'.repeat(cmd.length)
-      terminal.attachAddon._sendData(pre + command)
+      txt = pre + command
     }
+    terminal.attachAddon._sendData(txt)
+    terminal.term.focus()
     this.closeSuggestions()
   }
 
@@ -189,8 +195,6 @@ export default class TerminalCmdSuggestions extends Component {
       batch = [],
       quick = []
     } = this.props.suggestions
-    console.log(this.props.suggestions, 'suggestions0')
-    // Process all command types
     const res = []
     this.processCommands(history, 'H', uniqueCommands, res)
     this.processCommands(batch, 'B', uniqueCommands, res)
@@ -238,28 +242,21 @@ export default class TerminalCmdSuggestions extends Component {
       return null
     }
     const suggestions = this.getSuggestions()
-    const menuStyle = {
-      left: cursorPosition.left,
-      top: cursorPosition.top
-    }
-
-    const items = suggestions.map((item, index) => {
-      const c = item.command
-      return {
-        key: item.id,
-        label: c,
-        extra: item.type,
-        title: c
-      }
-    })
-
     return (
-      <div className='terminal-suggestions-wrap' style={menuStyle}>
+      <div className='terminal-suggestions-wrap' style={cursorPosition}>
         <div className='terminal-suggestions-list'>
-          <Menu
-            items={items}
-            onClick={this.handleSelect}
-          />
+          {
+            suggestions.map(item => {
+              return (
+                <SuggestionItem
+                  key={item.id}
+                  item={item}
+                  onSelect={this.handleSelect}
+                  onDelete={this.handleDelete}
+                />
+              )
+            })
+          }
         </div>
         <div className='terminal-suggestions-sticky'>
           {this.renderAIIcon()}

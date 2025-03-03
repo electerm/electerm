@@ -3,7 +3,6 @@ import {
   Input,
   Button,
   AutoComplete,
-  Modal,
   Alert,
   Space
 } from 'antd'
@@ -61,10 +60,6 @@ export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig })
     onSubmit(values)
   }
 
-  function handleCancel () {
-    window.store.toggleAIConfig()
-  }
-
   function handleChange (v) {
     const options = getModelOptions(v)
     setModelOptions(options)
@@ -76,16 +71,9 @@ export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig })
   if (!showAIConfig) {
     return null
   }
-  const title = 'AI ' + e('setting')
   const defaultLangs = window.store.getLangNames().map(l => ({ value: l }))
   return (
-    <Modal
-      title={title}
-      open
-      onCancel={handleCancel}
-      footer={null}
-      width='90%'
-    >
+    <>
       <Alert
         message={
           <Link to={aiConfigWikiLink}>WIKI: {aiConfigWikiLink}</Link>
@@ -181,6 +169,6 @@ export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig })
           </Button>
         </Form.Item>
       </Form>
-    </Modal>
+    </>
   )
 }

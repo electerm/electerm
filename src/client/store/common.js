@@ -10,7 +10,9 @@ import {
   leftSidebarWidthKey,
   rightSidebarWidthKey,
   dismissDelKeyTipLsKey,
-  connectionMap
+  connectionMap,
+  settingMap,
+  settingAiId
 } from '../common/constants'
 import * as ls from '../common/safe-local-storage'
 import { refs, refsStatic } from '../components/common/ref'
@@ -50,7 +52,12 @@ export default Store => {
   }
 
   Store.prototype.toggleAIConfig = function () {
-    window.store.showAIConfig = !window.store.showAIConfig
+    const { store } = window
+    store.storeAssign({
+      settingTab: settingMap.setting
+    })
+    store.setSettingItem(deepCopy(store.setting.find(d => d.id === settingAiId)))
+    store.openSettingModal()
   }
 
   Store.prototype.onResize = debounce(async function () {
