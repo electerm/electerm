@@ -23,7 +23,22 @@ export default class TerminalCmdSuggestions extends Component {
     refsStatic.remove('terminal-suggestions')
   }
 
-  getAiSuggestions = async () => {
+  parseAiSuggestions = (aiResponse) => {
+    try {
+      return JSON.parse(aiResponse.response).map(d => {
+        return {
+          command: d,
+          type: 'ai'
+        }
+      })
+    } catch (e) {
+      console.log('parseAiSuggestions error:', e)
+      return []
+    }
+  }
+
+  getAiSuggestions = async (event) => {
+    event.stopPropagation()
     const { cmd } = this.state
     if (window.store.aiConfigMissing()) {
       window.store.toggleAIConfig()
@@ -34,7 +49,7 @@ export default class TerminalCmdSuggestions extends Component {
     const {
       config
     } = window.store
-    const prompt = `give me max 5 command suggestions for user input: "${cmd}", return json format result only, no other words, no md format, like ["ls","ls -al"]`
+    const prompt = `give me max 5 command suggestions for user input: "${cmd}", return pure json format result only, no extra words, no md format, follow this format: ["command1","command2"...]`
     const aiResponse = await window.pre.runGlobalAsync(
       'AIchat',
       prompt,
@@ -47,21 +62,22 @@ export default class TerminalCmdSuggestions extends Component {
       window.store.onError
     )
     if (cmd !== this.state.cmd) {
+      this.setState({
+        loadingAiSuggestions: false
+      })
       return
     }
     if (aiResponse && aiResponse.error) {
+      this.setState({
+        loadingAiSuggestions: false
+      })
       return window.store.onError(
         new Error(aiResponse.error)
       )
     }
     this.setState({
       loadingAiSuggestions: false,
-      aiSuggestions: JSON.parse(aiResponse.response).map(d => {
-        return {
-          command: d,
-          type: 'ai'
-        }
-      })
+      aiSuggestions: this.parseAiSuggestions(aiResponse)
     })
   }
 
@@ -222,7 +238,6 @@ export default class TerminalCmdSuggestions extends Component {
       return null
     }
     const suggestions = this.getSuggestions()
-    console.log(suggestions, 'suggestions')
     const menuStyle = {
       left: cursorPosition.left,
       top: cursorPosition.top

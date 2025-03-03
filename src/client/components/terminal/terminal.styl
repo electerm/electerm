@@ -81,25 +81,27 @@
 .terminal-suggestions-wrap
   position absolute
   z-index 100
-  background main
   color text
   max-height 300px
   max-width 300px
   min-width 200px
   box-shadow 0px 0px 3px 3px alpha(main, .5)
-  padding-bottom 30px
+  display flex
+  flex-direction column
+
   .terminal-suggestions-list
+    flex 1
     overflow-x hidden
-    overflow-y scroll
-    max-height 300px
+    overflow-y auto
+    max-height 268px
     max-width 300px
     border-bottom 1px solid main-light
+
   .terminal-suggestions-sticky
-    position absolute
-    bottom 0
-    right 0
-    left 0
-    height 30px
+    flex-shrink 0
+    height 32px
     padding 0 10px
-    line-height 30px
+    line-height 32px
+    background main-light
+
 
