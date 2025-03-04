@@ -31,10 +31,6 @@ import deepCopy from 'json-deep-copy'
 import getBrand from '../components/ai/get-brand'
 import {
   settingMap,
-  settingSyncId,
-  settingShortcutsId,
-  settingTerminalId,
-  settingAiId,
   terminalSshConfigType,
   paneMap
 } from '../common/constants'
@@ -44,8 +40,6 @@ import {
   theme
 } from 'antd'
 import { refs } from '../components/common/ref'
-
-const e = window.translate
 
 class Store {
   constructor () {
@@ -204,27 +198,6 @@ class Store {
 
   get tabTitles () {
     return window.store.tabs.map(d => d.title).join('#')
-  }
-
-  get setting () {
-    return [
-      {
-        id: settingTerminalId,
-        title: e('terminal')
-      },
-      {
-        id: settingShortcutsId,
-        title: e('settingShortcuts')
-      },
-      {
-        id: settingSyncId,
-        title: e('settingSync')
-      },
-      {
-        id: settingAiId,
-        title: 'AI ' + e('setting')
-      }
-    ]
   }
 
   get onOperation () {

@@ -6,6 +6,7 @@ import deepCopy from 'json-deep-copy'
 import {
   settingMap
 } from '../common/constants'
+import settingList from '../common/setting-list'
 import getInitItem from '../common/init-setting-item'
 
 export default Store => {
@@ -72,7 +73,7 @@ export default Store => {
 
   Store.prototype.getItems = function (type) {
     if (type === 'setting') {
-      return window.store.setting
+      return settingList()
     }
     return window.store[type]
   }

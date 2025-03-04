@@ -115,7 +115,6 @@ export default () => {
     rightPanelWidth: parseInt(ls.getItem(rightSidebarWidthKey), 10) || 500,
 
     // for settings related
-    _setting: '',
     settingItem: initSettingItem([], settingMap.bookmarks),
     settingTab: settingMap.bookmarks, // setting tab
     bookmarkId: undefined,

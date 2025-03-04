@@ -19,6 +19,7 @@ import { refs, refsStatic } from '../components/common/ref'
 import { action } from 'manate'
 import deepCopy from 'json-deep-copy'
 import { aiConfigsArr } from '../components/ai/ai-config-props'
+import settingList from '../common/setting-list'
 
 const e = window.translate
 const { assign } = Object
@@ -56,7 +57,7 @@ export default Store => {
     store.storeAssign({
       settingTab: settingMap.setting
     })
-    store.setSettingItem(deepCopy(store.setting.find(d => d.id === settingAiId)))
+    store.setSettingItem(settingList().find(d => d.id === settingAiId))
     store.openSettingModal()
   }
 
