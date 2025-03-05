@@ -2,7 +2,7 @@
  * terminal/sftp wrapper
  */
 import { createRef } from 'react'
-import { Component } from '../common/component'
+import { Component } from 'manate/react/class-components'
 import Term from '../terminal/terminal.jsx'
 import Sftp from '../sftp/sftp-entry'
 import RdpSession from '../rdp/rdp-session'

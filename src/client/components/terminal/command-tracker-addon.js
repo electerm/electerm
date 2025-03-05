@@ -45,7 +45,9 @@ export class CommandTrackerAddon {
   // This is now our internal handler
   _handleKey = (e) => {
     const { key } = e
-    if (key === 'Enter') {
+    if (e.ctrlKey && key.toLowerCase() === 'c') {
+      this.clearCommand()
+    } else if (key === 'Enter') {
       // Command executed, reset
       this.currentCommand = this.activeCommand
       this.activeCommand = ''

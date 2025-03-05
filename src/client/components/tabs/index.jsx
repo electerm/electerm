@@ -2,7 +2,7 @@
  * session tabs component
  */
 
-import { Component } from '../common/component'
+import { Component } from 'manate/react/class-components'
 import React from 'react'
 import runIdle from '../../common/run-idle'
 import { throttle } from 'lodash-es'

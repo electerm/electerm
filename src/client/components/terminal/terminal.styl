@@ -77,3 +77,61 @@
   background main-light
 .batch-input-wrap
   width calc(100% - 80px)
+
+.terminal-suggestions-wrap
+  position absolute
+  z-index 100
+  color text
+  max-height 300px
+  max-width 300px
+  min-width 200px
+  box-shadow 0px 0px 3px 3px main-light
+  display flex
+  flex-direction column
+  background main
+  border-radius 4px
+  &.reverse .terminal-suggestions-list
+    border-top 1px solid main-light
+    border-bottom none
+
+.terminal-suggestions-list
+  flex 1
+  overflow-x hidden
+  overflow-y auto
+  max-height 268px
+  max-width 300px
+  border-bottom 1px solid main-light
+
+.terminal-suggestions-sticky
+  flex-shrink 0
+  height 32px
+  padding 0 10px
+  line-height 32px
+
+.suggestion-item
+  display flex
+  align-items center
+  padding 5px 10px
+  cursor pointer
+  color text
+  &:hover
+    background-color main-light
+    .suggestion-delete
+      visibility visible
+
+.suggestion-command
+  flex-grow 1
+  white-space nowrap
+  overflow hidden
+  text-overflow ellipsis
+
+.suggestion-type
+  margin-left 5px
+  font-size 0.8em
+  opacity .8
+  &:hover
+    opacity 1
+
+.suggestion-delete
+  margin-left 5px
+  visibility hidden

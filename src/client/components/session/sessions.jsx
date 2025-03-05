@@ -1,4 +1,4 @@
-import { Component } from '../common/component'
+import { Component } from 'manate/react/class-components'
 import Session from './session.jsx'
 
 import { pick } from 'lodash-es'

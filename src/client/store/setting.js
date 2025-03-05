@@ -15,6 +15,7 @@ import {
 import { buildNewTheme } from '../common/terminal-theme'
 import getInitItem from '../common/init-setting-item'
 import newTerm from '../common/new-terminal'
+import settingList from '../common/setting-list'
 
 const e = window.translate
 
@@ -101,7 +102,7 @@ export default Store => {
     const { store } = window
     if (
       store.settingTab === settingMap.setting &&
-      store.settingItem.id === store.setting[0].id &&
+      store.settingItem.id === settingList()[0].id &&
       store.showModal === modals.setting
     ) {
       return store.hideSettingModal()
@@ -109,7 +110,7 @@ export default Store => {
     store.storeAssign({
       settingTab: settingMap.setting
     })
-    store.setSettingItem(copy(store.setting.find(d => d.id === settingSyncId)))
+    store.setSettingItem(settingList().find(d => d.id === settingSyncId))
     store.openSettingModal()
   }
 

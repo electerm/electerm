@@ -21,7 +21,8 @@ import {
   resolutionsLsKey,
   aiChatHistoryKey,
   syncServerDataKey,
-  splitMap
+  splitMap,
+  cmdHistoryKey
 } from '../common/constants'
 import { buildDefaultThemes } from '../common/terminal-theme'
 import * as ls from '../common/safe-local-storage'
@@ -72,6 +73,7 @@ export default () => {
     addressBookmarksLocal: ls.getItemJSON(localAddrBookmarkLsKey, []),
     openResolutionEdit: false,
     resolutions: ls.getItemJSON(resolutionsLsKey, []),
+    terminalCommandHistory: new Set(ls.getItemJSON(cmdHistoryKey, [])),
 
     // init session control
     selectedSessions: [],
@@ -79,7 +81,6 @@ export default () => {
 
     // batch input selected tab ids
     _batchInputSelectedTabIds: new Set(),
-    showAIConfig: false,
     aiChatHistory: ls.getItemJSON(aiChatHistoryKey, []),
 
     // sftp
@@ -114,7 +115,6 @@ export default () => {
     rightPanelWidth: parseInt(ls.getItem(rightSidebarWidthKey), 10) || 500,
 
     // for settings related
-    _setting: '',
     settingItem: initSettingItem([], settingMap.bookmarks),
     settingTab: settingMap.bookmarks, // setting tab
     bookmarkId: undefined,

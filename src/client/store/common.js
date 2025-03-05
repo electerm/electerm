@@ -10,12 +10,16 @@ import {
   leftSidebarWidthKey,
   rightSidebarWidthKey,
   dismissDelKeyTipLsKey,
-  connectionMap
+  connectionMap,
+  settingMap,
+  settingAiId
 } from '../common/constants'
 import * as ls from '../common/safe-local-storage'
 import { refs, refsStatic } from '../components/common/ref'
 import { action } from 'manate'
 import deepCopy from 'json-deep-copy'
+import { aiConfigsArr } from '../components/ai/ai-config-props'
+import settingList from '../common/setting-list'
 
 const e = window.translate
 const { assign } = Object
@@ -49,7 +53,12 @@ export default Store => {
   }
 
   Store.prototype.toggleAIConfig = function () {
-    window.store.showAIConfig = !window.store.showAIConfig
+    const { store } = window
+    store.storeAssign({
+      settingTab: settingMap.setting
+    })
+    store.setSettingItem(settingList().find(d => d.id === settingAiId))
+    store.openSettingModal()
   }
 
   Store.prototype.onResize = debounce(async function () {
@@ -303,4 +312,20 @@ export default Store => {
       profiles.splice(i, 1, np)
     }
   }
+
+  Store.prototype.aiConfigMissing = function () {
+    return aiConfigsArr.some(k => !window.store.config[k])
+  }
+
+  Store.prototype.addCmdHistory = action(function (cmd) {
+    const { terminalCommandHistory } = window.store
+    terminalCommandHistory.add(cmd)
+    if (terminalCommandHistory.size > 100) {
+      // Delete oldest 20 items when history exceeds 100
+      const values = Array.from(terminalCommandHistory.values())
+      for (let i = 0; i < 20 && i < values.length; i++) {
+        terminalCommandHistory.delete(values[i])
+      }
+    }
+  })
 }

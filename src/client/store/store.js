@@ -31,9 +31,6 @@ import deepCopy from 'json-deep-copy'
 import getBrand from '../components/ai/get-brand'
 import {
   settingMap,
-  settingSyncId,
-  settingShortcutsId,
-  settingTerminalId,
   terminalSshConfigType,
   paneMap
 } from '../common/constants'
@@ -43,8 +40,6 @@ import {
   theme
 } from 'antd'
 import { refs } from '../components/common/ref'
-
-const e = window.translate
 
 class Store {
   constructor () {
@@ -161,6 +156,28 @@ class Store {
         ]
   }
 
+  get terminalCommandSuggestions () {
+    const { store } = window
+    const historyCommands = Array.from(store.terminalCommandHistory)
+    const batchInputCommands = store.batchInputs
+    const quickCommands = store.quickCommands.reduce(
+      (p, q) => {
+        return [
+          ...p,
+          ...(q.commands || []).map(c => c.command)
+        ]
+      },
+      []
+    )
+
+    // Return raw commands
+    return {
+      history: historyCommands,
+      batch: batchInputCommands,
+      quick: quickCommands
+    }
+  }
+
   get termSearchOptions () {
     const {
       store
@@ -181,23 +198,6 @@ class Store {
 
   get tabTitles () {
     return window.store.tabs.map(d => d.title).join('#')
-  }
-
-  get setting () {
-    return [
-      {
-        id: settingTerminalId,
-        title: e('terminal')
-      },
-      {
-        id: settingShortcutsId,
-        title: e('settingShortcuts')
-      },
-      {
-        id: settingSyncId,
-        title: e('settingSync')
-      }
-    ]
   }
 
   get onOperation () {

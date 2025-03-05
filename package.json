@@ -79,7 +79,7 @@
     "firacode": "^6.2.0",
     "glob": "^11.0.0",
     "lodash-es": "^4.17.21",
-    "manate": "^2.0.0-beta.6",
+    "manate": "2.0.0-rc.3",
     "memoize-one": "6.0.0",
     "morgan": "1.10.0",
     "pug": "3.0.3",
@@ -99,7 +99,7 @@
     "zmodem-ts": "1.0.4"
   },
   "dependencies": {
-    "@electerm/electerm-locales": "2.0.37",
+    "@electerm/electerm-locales": "2.0.38",
     "@electerm/electerm-themes": "^1.0.1",
     "@electerm/rdpjs": "^1.0.0",
     "@electerm/ssh2": "1.16.2",
