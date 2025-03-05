@@ -822,13 +822,6 @@ clear\r`
     this.props.setCwd(cwd, this.state.id)
   }
 
-  getSuggestions = (currentCommand) => {
-    // This is a simple example. You should implement more sophisticated suggestion logic.
-    const allCommands = ['ls', 'cd', 'pwd', 'grep', 'cat']
-    return allCommands
-    // return allCommands.filter(cmd => cmd.startsWith(currentCommand))
-  }
-
   getCursorPosition = () => {
     if (!this.term) return null
 
@@ -860,6 +853,12 @@ clear\r`
     }
   }
 
+  closeSuggestions = () => {
+    refsStatic
+      .get('terminal-suggestions')
+      ?.closeSuggestions()
+  }
+
   onData = (d) => {
     if (this.cmdAddon) {
       this.cmdAddon.handleData(d)
@@ -872,6 +871,7 @@ clear\r`
         .get('terminal-suggestions')
         ?.openSuggestions(cursorPos, data)
     } else {
+      this.closeSuggestions()
       if (this.term.buffer.active.type !== 'alternate') {
         this.timers.getCwd = setTimeout(this.getCwd, 200)
       }
@@ -879,7 +879,7 @@ clear\r`
         'exit',
         'logout'
       ]
-      window.store.terminalCommandHistory.add(data)
+      window.store.addCmdHistory(data)
       if (exitCmds.includes(data)) {
         this.userTypeExit = true
         this.timers.userTypeExit = setTimeout(() => {

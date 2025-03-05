@@ -85,10 +85,14 @@
   max-height 300px
   max-width 300px
   min-width 200px
-  box-shadow 0px 0px 3px 3px alpha(main, .5)
+  box-shadow 0px 0px 3px 3px main-light
   display flex
   flex-direction column
   background main
+  border-radius 4px
+  &.reverse .terminal-suggestions-list
+    border-top 1px solid main-light
+    border-bottom none
 
 .terminal-suggestions-list
   flex 1

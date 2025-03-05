@@ -1,7 +1,9 @@
 import { Component } from 'manate/react/class-components'
 import { refsStatic, refs } from '../common/ref'
 import SuggestionItem from './cmd-item'
+import { aiCache } from '../../common/cache'
 import uid from '../../common/uid'
+import classnames from 'classnames'
 import {
   LoadingOutlined
 } from '@ant-design/icons'
@@ -12,6 +14,8 @@ export default class TerminalCmdSuggestions extends Component {
     showSuggestions: false,
     loadingAiSuggestions: false,
     aiSuggestions: [],
+    cmdIsDescription: false,
+    reverse: false,
     cmd: ''
   }
 
@@ -49,8 +53,17 @@ export default class TerminalCmdSuggestions extends Component {
     const {
       config
     } = window.store
-    const prompt = `give me max 5 command suggestions for user input: "${cmd}", return pure json format result only, no extra words, no md format, follow this format: ["command1","command2"...]`
-    const aiResponse = await window.pre.runGlobalAsync(
+    const prompt = `give me max 5 command suggestions for user input: "${cmd}", return pure json format result only, no extra words, no markdown format, follow this format: ["command1","command2"...]`
+    const cached = aiCache.get(cmd)
+    if (cached) {
+      this.setState({
+        loadingAiSuggestions: false,
+        aiSuggestions: cached
+      })
+      return
+    }
+
+    const aiResponse = aiCache.get(prompt) || await window.pre.runGlobalAsync(
       'AIchat',
       prompt,
       config.modelAI,
@@ -77,7 +90,7 @@ export default class TerminalCmdSuggestions extends Component {
     }
     this.setState({
       loadingAiSuggestions: false,
-      aiSuggestions: this.parseAiSuggestions(aiResponse)
+      aiSuggestions: this.parseAiSuggestions(aiResponse, cmd)
     })
   }
 
@@ -96,6 +109,7 @@ export default class TerminalCmdSuggestions extends Component {
     const h = window.innerHeight
 
     const position = {}
+    const reverse = top > h / 2
 
     // Use right position if close to right edge
     if (left > w / 2) {
@@ -105,31 +119,35 @@ export default class TerminalCmdSuggestions extends Component {
     }
 
     // Use bottom position if close to bottom edge
-    if (top > h / 2) {
+    if (reverse) {
       position.bottom = h - top + cellHeight
     } else {
       position.top = top
     }
-
-    console.log('openSuggestions', position)
-
     this.setState({
       showSuggestions: true,
       cursorPosition: position,
-      cmd
+      cmd,
+      reverse
     })
   }
 
   closeSuggestions = () => {
-    // Only remove listeners if we were showing suggestions
-    if (this.state.showSuggestions) {
-      document.removeEventListener('click', this.handleClickOutside)
-      document.removeEventListener('keydown', this.handleKeyDown)
-
-      this.setState({
-        showSuggestions: false
+    document.removeEventListener('click', this.handleClickOutside)
+    document.removeEventListener('keydown', this.handleKeyDown)
+    const {
+      aiSuggestions
+    } = this.state
+    if (aiSuggestions.length) {
+      aiCache.set(this.state.cmd, aiSuggestions)
+      aiSuggestions.forEach(item => {
+        window.store.addCmdHistory(item.command, 'aiCmdHistory')
       })
     }
+    this.setState({
+      showSuggestions: false,
+      aiSuggestions: []
+    })
   }
 
   handleClickOutside = (event) => {
@@ -196,9 +214,6 @@ export default class TerminalCmdSuggestions extends Component {
       quick = []
     } = this.props.suggestions
     const res = []
-    this.processCommands(history, 'H', uniqueCommands, res)
-    this.processCommands(batch, 'B', uniqueCommands, res)
-    this.processCommands(quick, 'Q', uniqueCommands, res)
     this.state.aiSuggestions
       .forEach(item => {
         if (!uniqueCommands.has(item.command)) {
@@ -209,8 +224,10 @@ export default class TerminalCmdSuggestions extends Component {
           ...item
         })
       })
-
-    return res
+    this.processCommands(history, 'H', uniqueCommands, res)
+    this.processCommands(batch, 'B', uniqueCommands, res)
+    this.processCommands(quick, 'Q', uniqueCommands, res)
+    return this.state.reverse ? res.reverse() : res
   }
 
   renderAIIcon () {
@@ -236,14 +253,35 @@ export default class TerminalCmdSuggestions extends Component {
     )
   }
 
+  renderSticky (pos) {
+    const {
+      reverse
+    } = this.state
+    if (
+      (pos === 'top' && !reverse) ||
+      (pos === 'bottom' && reverse)
+    ) {
+      return null
+    }
+    return (
+      <div className='terminal-suggestions-sticky'>
+        {this.renderAIIcon()}
+      </div>
+    )
+  }
+
   render () {
-    const { showSuggestions, cursorPosition } = this.state
+    const { showSuggestions, cursorPosition, reverse } = this.state
     if (!showSuggestions) {
       return null
     }
     const suggestions = this.getSuggestions()
+    const cls = classnames('terminal-suggestions-wrap', {
+      reverse
+    })
     return (
-      <div className='terminal-suggestions-wrap' style={cursorPosition}>
+      <div className={cls} style={cursorPosition}>
+        {this.renderSticky('top')}
         <div className='terminal-suggestions-list'>
           {
             suggestions.map(item => {
@@ -258,9 +296,7 @@ export default class TerminalCmdSuggestions extends Component {
             })
           }
         </div>
-        <div className='terminal-suggestions-sticky'>
-          {this.renderAIIcon()}
-        </div>
+        {this.renderSticky('bottom')}
       </div>
     )
   }

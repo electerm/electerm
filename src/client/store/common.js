@@ -316,4 +316,16 @@ export default Store => {
   Store.prototype.aiConfigMissing = function () {
     return aiConfigsArr.some(k => !window.store.config[k])
   }
+
+  Store.prototype.addCmdHistory = action(function (cmd) {
+    const { terminalCommandHistory } = window.store
+    terminalCommandHistory.add(cmd)
+    if (terminalCommandHistory.size > 100) {
+      // Delete oldest 20 items when history exceeds 100
+      const values = Array.from(terminalCommandHistory.values())
+      for (let i = 0; i < 20 && i < values.length; i++) {
+        terminalCommandHistory.delete(values[i])
+      }
+    }
+  })
 }
