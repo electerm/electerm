@@ -255,7 +255,7 @@ clear\r`
 
   isActiveTerminal = () => {
     return this.props.tab.id === this.props.activeTabId &&
-    this.props.pane === paneMap.terminal
+    this.props.tab.pane === paneMap.terminal
   }
 
   clearShortcut = (e) => {
@@ -1126,6 +1126,7 @@ clear\r`
     socket.onclose = this.oncloseSocket
     socket.onerror = this.onerrorSocket
     this.socket = socket
+    this.initSocketEvents()
     this.term = term
     socket.onopen = () => {
       this.initAttachAddon()
@@ -1147,6 +1148,43 @@ clear\r`
     term.loadAddon(
       new KeywordHighlighterAddon(keywords)
     )
+  }
+
+  initSocketEvents = () => {
+    const originalSend = this.socket.send
+    this.socket.send = (data) => {
+      // Call original send first
+      originalSend.call(this.socket, data)
+
+      // Broadcast to other terminals
+      this.broadcastSocketData(data)
+    }
+  }
+
+  canReceiveBroadcast = (termRef) => {
+    const tabId = termRef.props?.tab?.id
+    const isActiveInBatch = termRef.props.currentBatchTabId === tabId
+    return (
+      isActiveInBatch &&
+      termRef.socket &&
+      termRef.props?.tab.pane === paneMap.terminal
+    )
+  }
+
+  broadcastSocketData = (data) => {
+    if (!this.isActiveTerminal() || !this.props.broadcastInput) {
+      return
+    }
+
+    window.refs.forEach((termRef, refId) => {
+      if (
+        refId !== this.id &&
+        refId.startsWith('term-') &&
+        this.canReceiveBroadcast(termRef)
+      ) {
+        termRef.socket.send(data)
+      }
+    })
   }
 
   onResize = throttle(() => {

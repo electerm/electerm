@@ -12,7 +12,8 @@ import {
   SearchOutlined,
   FullscreenOutlined,
   PaperClipOutlined,
-  CloseOutlined
+  CloseOutlined,
+  ApartmentOutlined
 } from '@ant-design/icons'
 import {
   Tooltip,
@@ -50,7 +51,8 @@ export default class SessionWrapper extends Component {
       splitSize: [50, 50],
       sessionOptions: null,
       sessionId: generate(),
-      delKeyPressed: false
+      delKeyPressed: false,
+      broadcastInput: false
     }
     props.tab.sshSftpSplitView = !!props.config.sshSftpSplitView
   }
@@ -253,7 +255,8 @@ export default class SessionWrapper extends Component {
     const {
       sessionOptions,
       sessionId,
-      sftpPathFollowSsh
+      sftpPathFollowSsh,
+      broadcastInput
     } = this.state
     const {
       tab
@@ -326,6 +329,7 @@ export default class SessionWrapper extends Component {
       ...this.props,
       sftpPathFollowSsh,
       themeConfig,
+      broadcastInput,
       pane,
       ...pick(
         this,
@@ -453,6 +457,12 @@ export default class SessionWrapper extends Component {
     window.store.toggleTermFullscreen(true)
   }
 
+  toggleBroadcastInput = () => {
+    this.setState({
+      broadcastInput: !this.state.broadcastInput
+    })
+  }
+
   handleOpenSearch = () => {
     refs.get('term-' + this.props.tab.id)?.toggleSearch()
   }
@@ -496,6 +506,23 @@ export default class SessionWrapper extends Component {
     )
   }
 
+  renderBroadcastIcon = () => {
+    const { broadcastInput } = this.state
+    const title = broadcastInput ? 'Disable input broadcast' : 'Enable input broadcast'
+    const iconProps = {
+      className: classnames('mg2l sess-icon pointer broadcast-icon', {
+        active: broadcastInput
+      }),
+      onClick: this.toggleBroadcastInput
+    }
+
+    return (
+      <Tooltip title={title}>
+        <ApartmentOutlined {...iconProps} />
+      </Tooltip>
+    )
+  }
+
   renderTermControls = () => {
     const { props } = this
     const { pane } = props.tab
@@ -519,7 +546,7 @@ export default class SessionWrapper extends Component {
       sshSftpSplitView
     } = this.props.tab
     const cls = classnames(
-      'pointer mg1r split-view-toggle',
+      'pointer mg1r sess-icon split-view-toggle',
       {
         active: sshSftpSplitView
       }
@@ -613,7 +640,7 @@ export default class SessionWrapper extends Component {
     const checkProps = {
       onClick: this.toggleCheckSftpPathFollowSsh,
       className: classnames(
-        'sftp-follow-ssh-icon',
+        'sftp-follow-ssh-icon sess-icon pointer',
         {
           active: sftpPathFollowSsh
         }
@@ -655,6 +682,7 @@ export default class SessionWrapper extends Component {
         {this.renderPaneControl()}
         {this.renderSftpPathFollowControl()}
         {this.renderSplitToggle()}
+        {this.renderBroadcastIcon()}
         {this.renderTermControls()}
       </div>
     )
