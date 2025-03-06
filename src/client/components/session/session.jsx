@@ -472,7 +472,7 @@ export default class SessionWrapper extends Component {
     return (
       <Tooltip title={title} placement='bottomLeft'>
         <SearchOutlined
-          className='mg1r icon-info font16 iblock pointer spliter'
+          className='mg1r icon-info iblock pointer spliter'
           onClick={this.handleOpenSearch}
         />
       </Tooltip>
@@ -484,7 +484,7 @@ export default class SessionWrapper extends Component {
     return (
       <Tooltip title={title} placement='bottomLeft'>
         <FullscreenOutlined
-          className='mg1r icon-info font16 iblock pointer spliter term-fullscreen-control1'
+          className='mg1r icon-info iblock pointer spliter term-fullscreen-control1'
           onClick={this.handleFullscreen}
         />
       </Tooltip>
@@ -510,7 +510,7 @@ export default class SessionWrapper extends Component {
     const { broadcastInput } = this.state
     const title = e('broadcastInput')
     const iconProps = {
-      className: classnames('mg2l sess-icon pointer broadcast-icon', {
+      className: classnames('sess-icon pointer broadcast-icon', {
         active: broadcastInput
       }),
       onClick: this.toggleBroadcastInput
@@ -546,7 +546,7 @@ export default class SessionWrapper extends Component {
       sshSftpSplitView
     } = this.props.tab
     const cls = classnames(
-      'pointer mg1r sess-icon split-view-toggle',
+      'pointer sess-icon split-view-toggle',
       {
         active: sshSftpSplitView
       }

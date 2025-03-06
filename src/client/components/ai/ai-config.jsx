@@ -8,6 +8,7 @@ import {
 } from 'antd'
 import { useEffect, useState } from 'react'
 import Link from '../common/external-link'
+import AiCache from './ai-cache'
 import {
   aiConfigWikiLink
 } from '../../common/constants'
@@ -169,6 +170,7 @@ export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig })
           </Button>
         </Form.Item>
       </Form>
+      <AiCache />
     </>
   )
 }

@@ -1,7 +1,7 @@
 import { Component } from 'manate/react/class-components'
 import { refsStatic, refs } from '../common/ref'
 import SuggestionItem from './cmd-item'
-import { aiCache } from '../../common/cache'
+import { aiSuggestionsCache } from '../../common/cache'
 import uid from '../../common/uid'
 import classnames from 'classnames'
 import {
@@ -54,7 +54,7 @@ export default class TerminalCmdSuggestions extends Component {
       config
     } = window.store
     const prompt = `give me max 5 command suggestions for user input: "${cmd}", return pure json format result only, no extra words, no markdown format, follow this format: ["command1","command2"...]`
-    const cached = aiCache.get(cmd)
+    const cached = aiSuggestionsCache.get(cmd)
     if (cached) {
       this.setState({
         loadingAiSuggestions: false,
@@ -63,7 +63,7 @@ export default class TerminalCmdSuggestions extends Component {
       return
     }
 
-    const aiResponse = aiCache.get(prompt) || await window.pre.runGlobalAsync(
+    const aiResponse = aiSuggestionsCache.get(prompt) || await window.pre.runGlobalAsync(
       'AIchat',
       prompt,
       config.modelAI,
@@ -139,7 +139,7 @@ export default class TerminalCmdSuggestions extends Component {
       aiSuggestions
     } = this.state
     if (aiSuggestions.length) {
-      aiCache.set(this.state.cmd, aiSuggestions)
+      aiSuggestionsCache.set(this.state.cmd, aiSuggestions)
       aiSuggestions.forEach(item => {
         window.store.addCmdHistory(item.command, 'aiCmdHistory')
       })

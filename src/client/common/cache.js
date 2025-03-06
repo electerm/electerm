@@ -53,4 +53,4 @@ class MapCache {
   }
 }
 
-export const aiCache = new MapCache(100, 'ai-cmd-suggestion-cache')
+export const aiSuggestionsCache = new MapCache(100, 'ai-cmd-suggestion-cache')
