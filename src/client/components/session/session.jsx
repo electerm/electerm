@@ -508,7 +508,7 @@ export default class SessionWrapper extends Component {
 
   renderBroadcastIcon = () => {
     const { broadcastInput } = this.state
-    const title = broadcastInput ? 'Disable input broadcast' : 'Enable input broadcast'
+    const title = e('broadcastInput')
     const iconProps = {
       className: classnames('mg2l sess-icon pointer broadcast-icon', {
         active: broadcastInput
