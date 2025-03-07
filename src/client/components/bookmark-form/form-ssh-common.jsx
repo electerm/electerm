@@ -84,7 +84,6 @@ export default function renderCommon (props) {
         }
         <FormItem noStyle name='host'>
           <InputAutoFocus
-            selectall='yes'
             name='host'
             onBlur={props.onBlur}
             onPaste={e => props.onPaste(e, form)}

@@ -4,22 +4,14 @@ import {
 } from 'antd'
 
 export default function InputAutoFocus (props) {
-  const { type, selectall = false, ...rest } = props
+  const { type, ...rest } = props
   const inputRef = useRef(null)
-  const isFirstRender = useRef(true)
 
   useEffect(() => {
     if (inputRef.current) {
-      const { value } = props
-      if (value && selectall && isFirstRender.current) {
-        inputRef.current.focus()
-        inputRef.current.setSelectionRange(0, value.length)
-        isFirstRender.current = false
-      } else {
-        inputRef.current.focus()
-      }
+      inputRef.current.focus()
     }
-  }, [props.value, props.selectall])
+  }, [props.value])
 
   let InputComponent
   switch (type) {

@@ -148,9 +148,7 @@ export default function QuickCommandForm (props) {
         hasFeedback
         name='name'
       >
-        <InputAutoFocus
-          selectall='yes'
-        />
+        <InputAutoFocus />
       </FormItem>
       {renderQm()}
       <FormItem

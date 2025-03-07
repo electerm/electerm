@@ -71,9 +71,7 @@ export default function ProfileFormElem (props) {
         hasFeedback
         name='name'
       >
-        <InputAutoFocus
-          selectall='yes'
-        />
+        <InputAutoFocus />
       </FormItem>
       <ProfileTabs {...tabsProps} />
       <FormItem>
