@@ -87,6 +87,7 @@ export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig })
         onFinish={handleSubmit}
         initialValues={initialValues}
         layout='vertical'
+        className='ai-config-form'
       >
         <Form.Item label='API URL' required>
           <Space.Compact block>
