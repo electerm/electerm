@@ -118,8 +118,7 @@ class Store {
       return false
     }
     return currentTab.sshSftpSplitView ||
-      currentTab.pane === paneMap.terminal ||
-      currentTab.pane === paneMap.ssh
+      currentTab.pane === paneMap.terminal
   }
 
   get quickCommandTags () {

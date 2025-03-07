@@ -58,7 +58,7 @@ export default class Sftp extends Component {
     if (
       this.props.config.autoRefreshWhenSwitchToSftp &&
       prevProps.pane !== this.props.pane &&
-      (this.props.pane === paneMap.fileManager || this.props.pane.sftp) &&
+      this.props.pane === paneMap.fileManager &&
       this.state.inited
     ) {
       this.onGoto(typeMap.local)
@@ -171,7 +171,7 @@ export default class Sftp extends Component {
   isActive () {
     return this.props.currentBatchTabId === this.props.tab.id &&
       (this.props.pane === paneMap.fileManager ||
-      this.props.pane === paneMap.sftp || this.props.sshSftpSplitView)
+      this.props.sshSftpSplitView)
   }
 
   getCwdLocal = () => {

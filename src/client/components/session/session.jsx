@@ -224,7 +224,7 @@ export default class SessionWrapper extends Component {
     const update = {
       pane
     }
-    if (pane === paneMap.fileManager || pane === paneMap.sftp) {
+    if (pane === paneMap.fileManager) {
       this.setState({
         enableSftp: true
       })
@@ -315,7 +315,6 @@ export default class SessionWrapper extends Component {
     }
 
     const cls = pane === paneMap.terminal ||
-      pane === paneMap.ssh ||
       (sshSftpSplitView && this.canSplitView())
       ? 'terms-box'
       : 'terms-box hide'
@@ -427,7 +426,7 @@ export default class SessionWrapper extends Component {
     const height = this.props.computeHeight(
       this.props.height
     )
-    const cls = pane === paneMap.fileManager || paneMap.sftp === pane ||
+    const cls = pane === paneMap.fileManager ||
     (sshSftpSplitView && this.canSplitView())
       ? ''
       : 'hide'
@@ -647,7 +646,6 @@ export default class SessionWrapper extends Component {
       )
     }
     const isS = pane === paneMap.terminal ||
-      pane === paneMap.ssh ||
       sshSftpSplitView
     return (
       <>
@@ -707,8 +705,8 @@ export default class SessionWrapper extends Component {
     }
     const notSplitVew = !this.canSplitView() || !this.props.tab.sshSftpSplitView
     const { pane } = this.props.tab
-    const show1 = notSplitVew && (pane === paneMap.terminal || pane === paneMap.ssh)
-    const show2 = notSplitVew && (pane === paneMap.fileManager || pane === paneMap.sftp)
+    const show1 = notSplitVew && pane === paneMap.terminal
+    const show2 = notSplitVew && pane === paneMap.fileManager
     const direction = this.getSplitDirection()
     const layout = direction === 'leftRight' ? 'horizontal' : 'vertical'
     const [size1, size2] = this.state.splitSize
