@@ -120,7 +120,8 @@ export default class Sftp extends Component {
         [`${k}PathTemp`]: '',
         [`${k}PathHistory`]: [],
         [`${k}GidTree`]: {},
-        [`${k}UidTree`]: {}
+        [`${k}UidTree`]: {},
+        [`${k}Keyword`]: ''
       })
       return prev
     }, {})
@@ -172,6 +173,12 @@ export default class Sftp extends Component {
     return this.props.currentBatchTabId === this.props.tab.id &&
       (this.props.pane === paneMap.fileManager ||
       this.props.sshSftpSplitView)
+  }
+
+  updateKeyword = (keyword, type) => {
+    this.setState({
+      [`${type}Keyword`]: keyword
+    })
   }
 
   getCwdLocal = () => {
@@ -417,6 +424,20 @@ export default class Sftp extends Component {
   }
 
   modifier = (...args) => {
+    // Check if first argument is an object and contains path changes
+    if (args[0] && typeof args[0] === 'object') {
+      const updates = args[0]
+
+      // Clear respective keyword if path changes
+      if (updates.localPath !== undefined) {
+        updates.localKeyword = ''
+      }
+      if (updates.remotePath !== undefined) {
+        updates.remoteKeyword = ''
+      }
+    }
+
+    // Call setState with the modified arguments
     runIdle(() => this.setState(...args))
   }
 
@@ -433,11 +454,24 @@ export default class Sftp extends Component {
 
   getFileList = type => {
     const showHide = this.state[`${type}ShowHiddenFile`]
+    const keyword = this.state[`${type}Keyword`]
     let list = this.state[type]
     list = isArray(list) ? list : []
-    if (!showHide) {
-      list = list.filter(f => !/^\./.test(f.name))
+
+    // Combine filtering for showHide and keyword in one loop
+    if (!showHide || keyword) {
+      const lowerKeyword = keyword.toLowerCase()
+      list = list.filter(f => {
+        if (!showHide && f.name.startsWith('.')) {
+          return false
+        }
+        if (keyword && !f.name.toLowerCase().includes(lowerKeyword)) {
+          return false
+        }
+        return true
+      })
     }
+
     return this.sort(
       list,
       type,
@@ -795,7 +829,8 @@ export default class Sftp extends Component {
       })
     }
     this.setState({
-      [n]: np
+      [n]: np,
+      [`${type}Keyword`]: ''
     }, () => this[`${type}List`](undefined, undefined, oldPath))
   }
 
@@ -984,7 +1019,8 @@ export default class Sftp extends Component {
           'onInputBlur',
           'toggleShowHiddenFile',
           'goParent',
-          'onClickHistory'
+          'onClickHistory',
+          'updateKeyword'
         ]
       ),
       ...pick(
@@ -996,7 +1032,8 @@ export default class Sftp extends Component {
           `${type}Path`,
           `${type}PathHistory`,
           `${type}InputFocus`,
-          'loadingSftp'
+          'loadingSftp',
+          `${type}Keyword`
         ]
       )
     }

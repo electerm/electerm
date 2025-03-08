@@ -15,6 +15,7 @@ import {
 } from '../../common/constants'
 import classnames from 'classnames'
 import AddrBookmark from './address-bookmark'
+import KeywordFilter from './keyword-filter'
 
 const e = window.translate
 
@@ -26,6 +27,11 @@ function renderAddonBefore (props, realPath) {
   const isShow = props[`${type}ShowHiddenFile`]
   const title = `${isShow ? e('hide') : e('show')} ${e('hfd')}`
   const Icon = isShow ? EyeFilled : EyeInvisibleFilled
+  const keywordProps = {
+    keyword: props[`${type}Keyword`],
+    type,
+    updateKeyword: props.updateKeyword
+  }
   return (
     <>
       <Tooltip
@@ -49,6 +55,7 @@ function renderAddonBefore (props, realPath) {
           className='mg1r'
         />
       </Tooltip>
+      <KeywordFilter {...keywordProps} />
       <AddrBookmark
         store={window.store}
         realPath={realPath}
