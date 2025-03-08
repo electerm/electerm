@@ -9,7 +9,6 @@ import classnames from 'classnames'
 const e = window.translate
 
 export default function KeywordFilter ({ keyword, type, updateKeyword }) {
-  console.log(keyword, type, updateKeyword)
   const [text, setText] = useState(keyword)
   const inputRef = useRef(null)
 
