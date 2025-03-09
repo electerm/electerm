@@ -336,7 +336,7 @@ export default class FileSection extends React.Component {
       const { name, path } = file
       const info = await getLocalFileInfo(
         resolve(path, name)
-      )
+      ).catch(console.log)
       if (info) {
         res.push(info)
       }

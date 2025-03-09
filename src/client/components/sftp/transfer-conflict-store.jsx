@@ -39,7 +39,7 @@ export default class TransferConflictStore extends PureComponent {
   }
 
   localCheckExist = (path) => {
-    return getLocalFileInfo(path)
+    return getLocalFileInfo(path).catch(console.log)
   }
 
   remoteCheckExist = (path, sessionId) => {

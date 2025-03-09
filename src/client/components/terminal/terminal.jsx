@@ -560,7 +560,7 @@ clear\r`
     }
     const r = []
     for (const filePath of files) {
-      const stat = await getLocalFileInfo(filePath)
+      const stat = await getLocalFileInfo(filePath).catch(console.log)
       r.push({ ...stat, filePath })
     }
     return r

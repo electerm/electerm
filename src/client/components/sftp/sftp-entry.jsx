@@ -736,7 +736,7 @@ export default class Sftp extends Component {
       const local = []
       for (const name of locals) {
         const p = resolve(localPath, name)
-        const fileObj = await getLocalFileInfo(p)
+        const fileObj = await getLocalFileInfo(p).catch(console.log)
         if (fileObj) {
           local.push(fileObj)
         }

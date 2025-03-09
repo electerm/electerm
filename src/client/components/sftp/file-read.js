@@ -43,25 +43,20 @@ export const getFolderFromFilePath = (filePath, isRemote) => {
 }
 
 export const getLocalFileInfo = async (filePath) => {
-  try {
-    const statr = await fs.statAsync(filePath)
-    const stat = await fs.lstatAsync(filePath)
-    return {
-      size: stat.size,
-      accessTime: stat.atime,
-      modifyTime: stat.mtime,
-      mode: stat.mode,
-      owner: stat.uid,
-      group: stat.gid,
-      type: 'local',
-      ...getFolderFromFilePath(filePath, false),
-      id: generate(),
-      isDirectory: statr.isDirectory,
-      isSymbolicLink: stat.isSymbolicLink
-    }
-  } catch (e) {
-    log.debug(e)
-    return null
+  const statr = await fs.statAsync(filePath)
+  const stat = await fs.lstatAsync(filePath)
+  return {
+    size: stat.size,
+    accessTime: stat.atime,
+    modifyTime: stat.mtime,
+    mode: stat.mode,
+    owner: stat.uid,
+    group: stat.gid,
+    type: 'local',
+    ...getFolderFromFilePath(filePath, false),
+    id: generate(),
+    isDirectory: statr.isDirectory,
+    isSymbolicLink: stat.isSymbolicLink
   }
 }
 
