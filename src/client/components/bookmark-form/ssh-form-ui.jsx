@@ -65,6 +65,7 @@ export default function BookmarkFormUI (props) {
     encode: encodes[0],
     envLang: defaultEnvLang,
     enableSsh: true,
+    enableSftp: true,
     sshTunnels: [],
     runScripts: [{}],
     category: initBookmarkGroupId,

@@ -7,6 +7,7 @@ import {
   termControlHeight
 } from '../../common/constants.js'
 import pixed from '../layout/pixed'
+import layout from '../layout/layout.jsx'
 
 export default class Sessions extends Component {
   // Function to reload a tab using store.reloadTab
@@ -62,6 +63,7 @@ export default class Sessions extends Component {
       }
       const sessProps = {
         activeTabId,
+        layout: this.props.layout,
         tab,
         width,
         height,

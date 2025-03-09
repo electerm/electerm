@@ -356,7 +356,7 @@ class TerminalSshBase extends TerminalBase {
         sftps: {},
         terminals: {}
       })
-      return
+      return this
     }
     const { sshTunnels = [] } = initOptions
     const sshTunnelResults = []
@@ -752,7 +752,7 @@ class TerminalSshBase extends TerminalBase {
   }
 
   resize (cols, rows) {
-    this.channel.setWindow(rows, cols)
+    this.channel?.setWindow(rows, cols)
   }
 
   on (event, cb) {

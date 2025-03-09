@@ -30,7 +30,8 @@ import {
   terminalRdpType,
   terminalVncType,
   terminalWebType,
-  terminalTelnetType
+  terminalTelnetType,
+  splitMap
 } from '../../common/constants'
 import { SplitViewIcon } from '../icons/split-view'
 import { refs } from '../common/ref'
@@ -73,6 +74,19 @@ export default class SessionWrapper extends Component {
     return this.domRef.current
   }
 
+  isDisabled = () => {
+    const { enableSsh, enableSftp } = this.props.tab
+    return enableSsh === false || enableSftp === false
+  }
+
+  isSshDisabled = () => {
+    return this.props.tab.enableSsh === false
+  }
+
+  isSftpDisabled = () => {
+    return this.props.tab.enableSftp === false
+  }
+
   handleSshSftpSplitView = () => {
     const nv = !this.props.tab.sshSftpSplitView
     this.editTab({
@@ -84,10 +98,9 @@ export default class SessionWrapper extends Component {
   canSplitView = () => {
     const {
       width,
-      height,
-      tab
+      height
     } = this.props
-    if (tab.enableSsh === false) {
+    if (this.isDisabled()) {
       return false
     }
     return width > this.minWithForSplit ||
@@ -419,7 +432,8 @@ export default class SessionWrapper extends Component {
     } = this.state
     const { pane, id, sshSftpSplitView } = this.props.tab
     if (
-      this.isNotTerminalType()
+      this.isNotTerminalType() ||
+      this.isSftpDisabled()
     ) {
       return null
     }
@@ -506,6 +520,13 @@ export default class SessionWrapper extends Component {
   }
 
   renderBroadcastIcon = () => {
+    console.log(this.props.layout, 'SessionsWrap')
+    if (
+      this.props.layout === splitMap.c1 ||
+      this.isSshDisabled()
+    ) {
+      return null
+    }
     const { broadcastInput } = this.state
     const title = e('broadcastInput')
     const iconProps = {
@@ -571,6 +592,9 @@ export default class SessionWrapper extends Component {
     const {
       sshSftpSplitView
     } = this.props.tab
+    if (this.isDisabled()) {
+      return null
+    }
     if (sshSftpSplitView && this.canSplitView()) {
       return null
     }
@@ -626,6 +650,9 @@ export default class SessionWrapper extends Component {
   }
 
   renderSftpPathFollowControl = () => {
+    if (this.isDisabled()) {
+      return null
+    }
     const {
       sftpPathFollowSsh
     } = this.state

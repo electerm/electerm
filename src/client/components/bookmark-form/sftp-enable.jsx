@@ -21,6 +21,15 @@ export default function renderEnableSftp () {
     </FormItem>,
     <FormItem
       {...formItemLayout}
+      label='SFTP'
+      name='enableSftp'
+      key='sftp'
+      valuePropName='checked'
+    >
+      <Switch />
+    </FormItem>,
+    <FormItem
+      {...formItemLayout}
       label={e('ignoreKeyboardInteractive')}
       name='ignoreKeyboardInteractive'
       key='ignoreKeyboardInteractive'

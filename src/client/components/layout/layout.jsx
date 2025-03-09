@@ -180,7 +180,8 @@ export default auto(function Layout (props) {
       'openedSideBar',
       'config'
     ]),
-    tabs: store.tabs
+    tabs: store.tabs,
+    layout
   }
   return [
     <Layouts {...layoutProps} key='layouts'>

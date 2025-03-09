@@ -237,6 +237,9 @@ export default class BookmarkForm extends PureComponent {
   }
 
   handleSubmit = async (evt, res, isTest = false) => {
+    if (res.enableSsh === false && res.enableSftp === false) {
+      return message.warning('SSH and SFTP all disabled')
+    }
     const obj = {
       ...this.props.formData,
       ...res
