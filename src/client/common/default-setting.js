@@ -64,5 +64,6 @@ export default {
   roleAI: '终端专家,提供不同系统下命令,简要解释用法,用markdown格式',
   apiPathAI: '/chat/completions',
   sessionLogPath: '',
-  sshSftpSplitView: false
+  sshSftpSplitView: false,
+  showCmdSuggestions: true
 }

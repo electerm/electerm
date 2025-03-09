@@ -864,9 +864,11 @@ clear\r`
     if (!d.includes('\r')) {
       delete this.userTypeExit
       const cursorPos = this.getCursorPosition()
-      refsStatic
-        .get('terminal-suggestions')
-        ?.openSuggestions(cursorPos, data)
+      if (this.props.config.showCmdSuggestions) {
+        refsStatic
+          .get('terminal-suggestions')
+          ?.openSuggestions(cursorPos, data)
+      }
     } else {
       this.closeSuggestions()
       if (this.term.buffer.active.type !== 'alternate') {
