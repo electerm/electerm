@@ -520,7 +520,6 @@ export default class SessionWrapper extends Component {
   }
 
   renderBroadcastIcon = () => {
-    console.log(this.props.layout, 'SessionsWrap')
     if (
       this.props.layout === splitMap.c1 ||
       this.isSshDisabled()
