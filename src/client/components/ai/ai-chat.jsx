@@ -72,7 +72,7 @@ export default function AIChat (props) {
     }
     setPrompt('')
     setIsLoading(false)
-  }, [prompt, isLoading, props.config])
+  }, [prompt, isLoading])
 
   function renderHistory () {
     return (
