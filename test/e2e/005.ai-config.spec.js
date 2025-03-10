@@ -39,6 +39,11 @@ describe('AI Config and Suggestions', function () {
 
   it('should open AI setting page and fill configuration', async function () {
     // Click AI button to open settings
+    await client.evaluate(() => {
+      return window.store.setConfig({
+        showCmdSuggestions: true
+      })
+    })
     await client.click('.terminal-footer-ai .ai-icon')
     await delay(1000)
 
