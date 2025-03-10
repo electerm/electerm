@@ -559,13 +559,20 @@ class TerminalSshBase extends TerminalBase {
 
   getShareOptions () {
     const { initOptions } = this
-    return {
+    const all = {
       tryKeyboard: true,
       readyTimeout: initOptions.readyTimeout,
       keepaliveCountMax: initOptions.keepaliveCountMax,
       keepaliveInterval: initOptions.keepaliveInterval,
-      algorithms: alg
+      algorithms: deepCopy(alg)
     }
+    if (initOptions.serverHostKey && initOptions.serverHostKey.length) {
+      all.algorithms.serverHostKey = deepCopy(initOptions.serverHostKey)
+    }
+    if (initOptions.cipher && initOptions.cipher.length) {
+      all.algorithms.cipher = deepCopy(initOptions.cipher)
+    }
+    return all
   }
 
   buildConnectOptions () {

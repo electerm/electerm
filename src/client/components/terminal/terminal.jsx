@@ -864,7 +864,7 @@ clear\r`
     if (!d.includes('\r')) {
       delete this.userTypeExit
       const cursorPos = this.getCursorPosition()
-      if (this.props.config.showCmdSuggestions) {
+      if (this.props.config.showCmdSuggestions && data.length > 1) {
         refsStatic
           .get('terminal-suggestions')
           ?.openSuggestions(cursorPos, data)

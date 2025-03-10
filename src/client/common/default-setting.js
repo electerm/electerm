@@ -65,5 +65,5 @@ export default {
   apiPathAI: '/chat/completions',
   sessionLogPath: '',
   sshSftpSplitView: false,
-  showCmdSuggestions: true
+  showCmdSuggestions: false
 }

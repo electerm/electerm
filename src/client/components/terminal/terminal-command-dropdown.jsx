@@ -190,10 +190,10 @@ export default class TerminalCmdSuggestions extends Component {
     this.closeSuggestions()
   }
 
-  processCommands = (commands, type, uniqueCommands, res) => {
+  processCommands = (commands = [], type, uniqueCommands, res) => {
     const { cmd } = this.state
     commands
-      .filter(command => command.startsWith(cmd))
+      .filter(command => command && command.startsWith(cmd))
       .forEach(command => {
         if (!uniqueCommands.has(command)) {
           uniqueCommands.add(command)
