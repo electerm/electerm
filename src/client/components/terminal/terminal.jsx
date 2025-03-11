@@ -52,6 +52,7 @@ import * as fs from './fs.js'
 import iconsMap from '../sys-menu/icons-map.jsx'
 import { refs, refsStatic } from '../common/ref.js'
 import createDefaultLogPath from '../../common/default-log-path.js'
+import SearchResultBar from './terminal-search-bar'
 
 const e = window.translate
 
@@ -64,7 +65,10 @@ class Term extends Component {
       saveTerminalLogToFile: !!this.props.config.saveTerminalLogToFile,
       addTimeStampToTermLog: !!this.props.config.addTimeStampToTermLog,
       passType: 'password',
-      lines: []
+      lines: [],
+      searchResults: [],
+      matchIndex: -1,
+      totalLines: 0
     }
     this.id = `term-${this.props.tab.id}`
     refs.add(this.id, this)
@@ -702,6 +706,20 @@ clear\r`
     window.store.storeAssign({
       termSearchMatchCount: resultCount,
       termSearchMatchIndex: resultIndex
+    })
+
+    this.updateSearchResults(resultIndex)
+  }
+
+  updateSearchResults = (resultIndex) => {
+    const matches = this.searchAddon._highlightDecorations.map((highlight, i) => {
+      return highlight.match.row
+    })
+
+    this.setState({
+      searchResults: matches,
+      matchIndex: resultIndex,
+      totalLines: this.term.buffer.active.length
     })
   }
 
@@ -1349,6 +1367,12 @@ clear\r`
       },
       trigger: this.props.config.pasteWhenContextMenu ? [] : ['contextMenu']
     }
+    const barProps = {
+      matchIndex: this.state.matchIndex,
+      matches: this.state.searchResults,
+      totalLines: this.state.totalLines,
+      height
+    }
     return (
       <Dropdown {...dropdownProps}>
         <div
@@ -1361,6 +1385,7 @@ clear\r`
             lines={this.state.lines}
             close={this.closeNormalBuffer}
           />
+          <SearchResultBar {...barProps} />
           <Spin className='loading-wrapper' spinning={loading} />
         </div>
       </Dropdown>

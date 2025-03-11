@@ -60,15 +60,14 @@ export default class TermSearch extends PureComponent {
     setTimeout(window.store.focus, 200)
   }
 
-  prev = () => {
+  prev = (v = this.props.termSearch) => {
     const {
       activeTabId,
-      termSearch,
       termSearchOptions
     } = this.props
     refs.get('term-' + activeTabId)
       ?.searchPrev(
-        termSearch,
+        v,
         copy(termSearchOptions)
       )
   }
@@ -82,13 +81,18 @@ export default class TermSearch extends PureComponent {
   }
 
   handleChange = e => {
-    window.store.termSearch = e.target.value
-    this.prev()
+    const v = e.target.value
+    window.store.termSearch = v
+    this.prev(v)
   }
 
   clearSearch = () => {
-    refs.get('term-' + this.props.activeTabId)
-      ?.searchAddon.clearDecorations()
+    const term = refs.get('term-' + this.props.activeTabId)
+    term?.searchAddon.clearDecorations()
+    term.setState({
+      searchResults: [],
+      matchIndex: -1
+    })
   }
 
   close = () => {
@@ -201,7 +205,8 @@ export default class TermSearch extends PureComponent {
       onChange: this.handleChange,
       suffix: this.renderSuffix(),
       onPressEnter: this.next,
-      addonAfter: this.renderAfter()
+      addonAfter: this.renderAfter(),
+      selectall: true
     }
     return (
       <div className='term-search-wrap'>
