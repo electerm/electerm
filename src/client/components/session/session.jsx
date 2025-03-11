@@ -30,8 +30,7 @@ import {
   terminalRdpType,
   terminalVncType,
   terminalWebType,
-  terminalTelnetType,
-  splitMap
+  terminalTelnetType
 } from '../../common/constants'
 import { SplitViewIcon } from '../icons/split-view'
 import { refs } from '../common/ref'
@@ -521,7 +520,6 @@ export default class SessionWrapper extends Component {
 
   renderBroadcastIcon = () => {
     if (
-      this.props.layout === splitMap.c1 ||
       this.isSshDisabled()
     ) {
       return null

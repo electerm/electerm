@@ -1179,10 +1179,7 @@ clear\r`
   }
 
   canReceiveBroadcast = (termRef) => {
-    const tabId = termRef.props?.tab?.id
-    const isActiveInBatch = termRef.props.currentBatchTabId === tabId
     return (
-      isActiveInBatch &&
       termRef.socket &&
       termRef.props?.tab.pane === paneMap.terminal
     )
