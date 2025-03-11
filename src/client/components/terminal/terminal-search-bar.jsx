@@ -1,42 +1,39 @@
 import React, { useEffect, useRef } from 'react'
 
-export const SearchResultBar = ({ matches, totalLines, matchIndex }) => {
+export default function SearchResultBar ({
+  matches,
+  totalLines,
+  matchIndex,
+  height
+}) {
   const canvasRef = useRef(null)
-
-  useEffect(() => {
-    drawSearchResults()
-  }, [matches, totalLines, matchIndex])
-
   const drawSearchResults = () => {
     const canvas = canvasRef.current
     if (!canvas) return
 
+    const container = canvas.parentElement
+    const containerHeight = container.clientHeight
+    const dpr = window.devicePixelRatio || 1
+
+    // Set both canvas dimensions and style
+    canvas.height = containerHeight * dpr
+    canvas.width = 16 * dpr
+
     const ctx = canvas.getContext('2d')
-    const barHeight = canvas.height
-    const barWidth = canvas.width
+    // Scale the context to account for the pixel ratio
+    ctx.scale(dpr, dpr)
 
-    ctx.clearRect(0, 0, barWidth, barHeight)
-
+    ctx.clearRect(0, 0, canvas.width, canvas.height)
     matches.forEach((match, index) => {
-      const y = (match.row / totalLines) * barHeight
-      ctx.fillStyle = index === matchIndex ? '#ff0000' : '#0000ff'
-      ctx.fillRect(0, y, barWidth, 2)
+      const y = (match / totalLines) * containerHeight
+      ctx.fillStyle = index === matchIndex ? 'rgba(243, 67, 9, 0.5)' : 'rgba(243, 196, 9, 0.5)'
+      ctx.fillRect(0, y, 16, 2)
     })
   }
 
-  // const handleClick = (event) => {
-  //   const canvas = canvasRef.current;
-  //   if (!canvas) return;
-
-  //   const rect = canvas.getBoundingClientRect();
-  //   const y = event.clientY - rect.top;
-  //   const clickedLine = Math.floor((y / canvas.height) * totalLines);
-
-  //   const clickedMatchIndex = matches.findIndex(match => match.row === clickedLine);
-  //   if (clickedMatchIndex !== -1) {
-  //     onSelectMatch(clickedMatchIndex);
-  //   }
-  // };
+  useEffect(() => {
+    drawSearchResults()
+  }, [matches, totalLines, matchIndex])
 
   if (!matches.length) {
     return null
@@ -45,15 +42,7 @@ export const SearchResultBar = ({ matches, totalLines, matchIndex }) => {
   return (
     <canvas
       ref={canvasRef}
-      width={20}
-      height={300}
-      style={{
-        position: 'absolute',
-        right: 0,
-        top: 0,
-        backgroundColor: 'rgba(240, 240, 240, 0.8)',
-        borderLeft: '1px solid #ccc'
-      }}
+      className='term-search-bar'
     />
   )
 }

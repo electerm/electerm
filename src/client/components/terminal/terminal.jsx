@@ -52,7 +52,7 @@ import * as fs from './fs.js'
 import iconsMap from '../sys-menu/icons-map.jsx'
 import { refs, refsStatic } from '../common/ref.js'
 import createDefaultLogPath from '../../common/default-log-path.js'
-import SearchResultBar from './terminal-search-bar.jsx'
+import SearchResultBar from './terminal-search-bar'
 
 const e = window.translate
 
@@ -712,21 +712,15 @@ clear\r`
   }
 
   updateSearchResults = (resultIndex) => {
-    if (this.searchAddon) {
-      const matches = this.searchAddon._highlightDecorations.map((highlight, i) => {
-        console.log('highlight', highlight)
-        const { match } = highlight
-        return {
-          row: match.row
-        }
-      })
+    const matches = this.searchAddon._highlightDecorations.map((highlight, i) => {
+      return highlight.match.row
+    })
 
-      this.setState({
-        searchMatches: matches,
-        matchIndex: resultIndex,
-        totalLines: this.term.buffer.active.length
-      })
-    }
+    this.setState({
+      searchResults: matches,
+      matchIndex: resultIndex,
+      totalLines: this.term.buffer.active.length
+    })
   }
 
   searchPrev = (searchInput, options) => {
@@ -1375,8 +1369,9 @@ clear\r`
     }
     const barProps = {
       matchIndex: this.state.matchIndex,
-      searchResults: this.state.searchResults,
-      totalLines: this.state.totalLines
+      matches: this.state.searchResults,
+      totalLines: this.state.totalLines,
+      height
     }
     return (
       <Dropdown {...dropdownProps}>
