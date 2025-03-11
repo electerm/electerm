@@ -614,6 +614,7 @@ export default class FileSection extends React.Component {
     if (this.watchingFile) {
       window.pre.ipcOffEvent('file-change', this.onFileChange)
       window.pre.runGlobalAsync('unwatchFile', this.watchingFile)
+      fs.unlink(this.watchingFile).catch(console.log)
       delete this.watchingFile
     }
   }
