@@ -97,7 +97,7 @@ export default function AIChat (props) {
     return (
       <SendOutlined
         onClick={handleSubmit}
-        className='mg1l pointer icon-hover'
+        className='mg1l pointer icon-hover send-to-ai-icon'
         title='Ctrl+Enter'
       />
     )
