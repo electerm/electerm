@@ -54,7 +54,7 @@ describe('AI Config and Suggestions', function () {
 
     // Submit the prompt
     await client.click('.ai-chat-terminals .anticon-send')
-    
+
     // Wait for response (adjust delay if needed)
     await delay(5000)
 
