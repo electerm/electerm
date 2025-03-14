@@ -1,6 +1,5 @@
-const { expect } = require('../common/expect')
 const {
-  test: it
+  test: it, expect
 } = require('@playwright/test')
 const { describe } = it
 it.setTimeout(100000)
