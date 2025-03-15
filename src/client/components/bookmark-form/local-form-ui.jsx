@@ -147,7 +147,7 @@ export default function LocalFormUi (props) {
       initialValues={initialValues}
       name='local-form'
     >
-      {renderTabs()}
+      {renderTabs({ form })}
       {submitUi}
     </Form>
   )

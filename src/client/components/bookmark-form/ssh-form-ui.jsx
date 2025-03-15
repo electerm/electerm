@@ -69,7 +69,9 @@ export default function BookmarkFormUI (props) {
     sshTunnels: [],
     runScripts: [{}],
     category: initBookmarkGroupId,
-    connectionHoppings: []
+    connectionHoppings: [],
+    serverHostKey: [],
+    cipher: []
   }
   initialValues = defaultsDeep(initialValues, defaultValues)
   function onChangeAuthType (e) {

@@ -34,7 +34,7 @@ export default function renderTabs (props) {
           {props.renderEnableSftp()}
           {props.uis}
           {props.renderProxy(props)}
-          {props.renderX11()}
+          {props.renderX11(props.form)}
         </>
       )
     },
