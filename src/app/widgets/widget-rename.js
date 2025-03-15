@@ -25,20 +25,7 @@ const widgetInfo = {
         {ext} - File extension
         {date} - File creation date (YYYY-MM-DD)
         {time} - File creation time (HH-mm-ss)
-        {random} - Random string
-        {parent} - Parent folder name`
-    },
-    {
-      name: 'startNumber',
-      type: 'number',
-      default: 1,
-      description: 'Starting number for sequential numbering'
-    },
-    {
-      name: 'padWidth',
-      type: 'number',
-      default: 3,
-      description: 'Width to pad numbers with zeros (1 to 10)'
+        {random} - Random string`
     },
     {
       name: 'includeSubfolders',
@@ -51,12 +38,6 @@ const widgetInfo = {
       type: 'string',
       default: '*',
       description: 'Comma-separated list of file extensions (e.g., jpg,png,gif) or * for all'
-    },
-    {
-      name: 'preserveCase',
-      type: 'boolean',
-      default: true,
-      description: 'Preserve original filename case'
     }
   ]
 }
