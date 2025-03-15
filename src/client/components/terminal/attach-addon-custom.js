@@ -10,6 +10,13 @@ export default class AttachAddonCustom extends AttachAddon {
     this.term = term
     this.socket = socket
     this.isWindowsShell = isWindowsShell
+    this.encoder = null
+  }
+
+  switchEncoding = (encode) => {
+    this.decoder = new TextDecoder(encode)
+    // Add encoder initialization
+    this.encoder = new TextEncoder(encode)
   }
 
   activate (terminal = this.term) {
@@ -84,7 +91,9 @@ export default class AttachAddonCustom extends AttachAddon {
   }
 
   sendToServer = (data) => {
-    this._sendData(data)
+    this._sendData(
+      data
+    )
   }
 
   addSocketListener = (socket, type, handler) => {
