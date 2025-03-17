@@ -9,7 +9,6 @@ import {
   Switch,
   Input,
   Upload,
-  InputNumber,
   Button,
   AutoComplete,
   Tooltip,
@@ -26,7 +25,6 @@ import defaultSettings from '../../common/default-setting'
 import ShowItem from '../common/show-item'
 import { osResolve } from '../../common/resolve'
 import { chooseSaveDirectory } from '../../common/choose-save-folder'
-import { isNumber, isNaN } from 'lodash-es'
 import mapper from '../../common/auto-complete-data-mapper'
 import KeywordForm from './keywords-form'
 import Link from '../common/external-link'
@@ -35,6 +33,8 @@ import KeywordsTransport from './keywords-transport'
 import fs from '../../common/fs'
 import uid from '../../common/uid'
 import createDefaultSessionLogPath from '../../common/default-log-path'
+import TerminalBackgroundConfig from './terminal-bg-config'
+import NumberConfig from './number-config'
 import './setting.styl'
 
 const { Option } = Select
@@ -211,40 +211,23 @@ export default class SettingTerminal extends Component {
       step = 1,
       min,
       max,
-      cls,
-      onChange = (v) => {
-        this.onChangeValue(v, name)
-      }
+      cls
     } = options
     const opts = {
-      step,
       value,
       min,
       max,
-      onChange,
-      placeholder: defaultValue
-    }
-    if (title) {
-      opts.formatter = v => `${title}${options.extraDesc || ''}: ${v}`
-      opts.parser = (v) => {
-        let vv = isNumber(v)
-          ? v
-          : Number(v.split(': ')[1], 10)
-        if (isNaN(vv)) {
-          vv = defaultValue
-        }
-        return vv
-      }
-      opts.style = {
-        width: width + 'px'
-      }
+      onChange: (v) => {
+        this.onChangeValue(v, name)
+      },
+      defaultValue,
+      title,
+      width,
+      step,
+      cls
     }
     return (
-      <div className={`pd2b ${cls || ''}`}>
-        <InputNumber
-          {...opts}
-        />
-      </div>
+      <NumberConfig {...opts} />
     )
   }
 
@@ -499,6 +482,11 @@ export default class SettingTerminal extends Component {
       submit: this.handleSubmitKeywords,
       themeConfig: getThemeConfig()
     }
+    const bgProps = {
+      onChangeValue: this.onChangeValue,
+      name: 'terminalBackgroundImagePath',
+      config: this.props.config
+    }
     const tip = (
       <div>
         <span className='mg1r'>{e('supportRegexp')}</span>
@@ -569,9 +557,7 @@ export default class SettingTerminal extends Component {
           }
         </div>
         <div className='pd1b'>{e('terminalBackgroundImage')}</div>
-        {
-          this.renderTerminalBgSelect('terminalBackgroundImagePath')
-        }
+        <TerminalBackgroundConfig {...bgProps} />
         <div className='pd1b'>{e('terminalWordSeparator')}</div>
         {
           this.renderText('terminalWordSeparator', e('terminalWordSeparator'))
