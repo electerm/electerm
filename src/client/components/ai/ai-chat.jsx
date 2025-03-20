@@ -108,13 +108,13 @@ export default function AIChat (props) {
       setPrompt,
       handleSubmit
     })
-    if (window.store.aiConfigMissing()) {
+    if (props.rightPanelTab === 'ai' && window.store.aiConfigMissing()) {
       window.store.toggleAIConfig()
     }
     return () => {
       refsStatic.remove('AIChat')
     }
-  }, [handleSubmit])
+  }, [])
 
   if (props.rightPanelTab !== 'ai') {
     return null
