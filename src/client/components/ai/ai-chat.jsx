@@ -114,7 +114,7 @@ export default function AIChat (props) {
     return () => {
       refsStatic.remove('AIChat')
     }
-  }, [])
+  }, [handleSubmit])
 
   if (props.rightPanelTab !== 'ai') {
     return null
