@@ -8,8 +8,12 @@ import { noTerminalBgValue } from '../../common/constants'
 export default class CssOverwrite extends PureComponent {
   static styleTag = null
 
-  shouldComponentUpdate(nextProps) {
-    // Check global background settings
+  shouldComponentUpdate (nextProps) {
+    // Add wsInited check
+    if (!this.props.wsInited && nextProps.wsInited) {
+      return true
+    }
+
     const bgProps = [
       'terminalBackgroundImagePath',
       'terminalBackgroundFilterBlur',
@@ -43,30 +47,57 @@ export default class CssOverwrite extends PureComponent {
     return false
   }
 
-  componentDidUpdate() {
+  componentDidUpdate (prevProps) {
+    // Add wsInited check
+    if (!prevProps.wsInited && this.props.wsInited) {
+      this.writeCss()
+      return
+    }
     this.updateCss()
   }
 
-  createStyleForTab = async (tab) => {
-    if (!tab.terminalBackgroundImagePath || tab.terminalBackgroundImagePath === '') {
+  // Common function to handle background image style creation
+  createBackgroundStyle = async (imagePath, fs) => {
+    if (!imagePath || imagePath === '') {
       return ''
     }
 
     let content = ''
     let st = ''
-    const isWebImg = /^https?:\/\//.test(tab.terminalBackgroundImagePath)
-    
-    if (noTerminalBgValue === tab.terminalBackgroundImagePath) {
+    const isWebImg = /^https?:\/\//.test(imagePath)
+
+    if (noTerminalBgValue === imagePath) {
       st = 'none'
-    } else if (tab.terminalBackgroundImagePath && !isWebImg) {
-      content = await fs.readFileAsBase64(tab.terminalBackgroundImagePath)
+    } else if (imagePath && !isWebImg) {
+      content = await fs.readFileAsBase64(imagePath)
         .catch(log.error)
       if (content) {
         st = `url(data:image;base64,${content})`
       }
-    } else if (tab.terminalBackgroundImagePath && isWebImg) {
-      st = `url(${tab.terminalBackgroundImagePath})`
+    } else if (imagePath && isWebImg) {
+      st = `url(${imagePath})`
     }
+
+    return st
+  }
+
+  // Common function to create filter styles
+  createFilterStyle = (props, tabProps = null) => {
+    return `blur(${
+      (tabProps?.terminalBackgroundFilterBlur || props.terminalBackgroundFilterBlur)
+  }px) opacity(${
+    +(tabProps?.terminalBackgroundFilterOpacity || props.terminalBackgroundFilterOpacity)
+  }) brightness(${
+    +(tabProps?.terminalBackgroundFilterBrightness || props.terminalBackgroundFilterBrightness)
+  }) contrast(${
+    +(tabProps?.terminalBackgroundFilterContrast || props.terminalBackgroundFilterContrast)
+  }) grayscale(${
+    +(tabProps?.terminalBackgroundFilterGrayscale || props.terminalBackgroundFilterGrayscale)
+  })`
+  }
+
+  createStyleForTab = async (tab) => {
+    const st = await this.createBackgroundStyle(tab.terminalBackgroundImagePath, fs)
 
     if (!st) {
       return ''
@@ -74,78 +105,40 @@ export default class CssOverwrite extends PureComponent {
 
     const selector = `#container > .sessions .session-${tab.id} .xterm-screen::before`
     const styles = [
-      `background-image: ${st}`,
-      'background-position: center'
+    `background-image: ${st}`,
+    'background-position: center'
     ]
 
     if (st !== 'none') {
-      styles.push(`filter: blur(${
-        tab.terminalBackgroundFilterBlur || this.props.terminalBackgroundFilterBlur
-      }px) opacity(${
-        +(tab.terminalBackgroundFilterOpacity || this.props.terminalBackgroundFilterOpacity)
-      }) brightness(${
-        +(tab.terminalBackgroundFilterBrightness || this.props.terminalBackgroundFilterBrightness)
-      }) contrast(${
-        +(tab.terminalBackgroundFilterContrast || this.props.terminalBackgroundFilterContrast)
-      }) grayscale(${
-        +(tab.terminalBackgroundFilterGrayscale || this.props.terminalBackgroundFilterGrayscale)
-      })`)
+      styles.push(`filter: ${this.createFilterStyle(this.props, tab)}`)
     }
 
     return `${selector} {
-      ${styles.join(';')};
-    }`
+    ${styles.join(';')};
+  }`
   }
 
   createGlobalStyle = async () => {
-    if (!this.props.terminalBackgroundImagePath || this.props.terminalBackgroundImagePath === '') {
-      return ''
-    }
-
-    let content = ''
-    let st = ''
-    const isWebImg = /^https?:\/\//.test(this.props.terminalBackgroundImagePath)
-    
-    if (noTerminalBgValue === this.props.terminalBackgroundImagePath) {
-      st = 'none'
-    } else if (this.props.terminalBackgroundImagePath && !isWebImg) {
-      content = await fs.readFileAsBase64(this.props.terminalBackgroundImagePath)
-        .catch(log.error)
-      if (content) {
-        st = `url(data:image;base64,${content})`
-      }
-    } else if (this.props.terminalBackgroundImagePath && isWebImg) {
-      st = `url(${this.props.terminalBackgroundImagePath})`
-    }
+    const st = await this.createBackgroundStyle(this.props.terminalBackgroundImagePath, fs)
 
     if (!st) {
-      return `#container .session-batch-active .xterm-screen::before {
-        background-image: url("./images/electerm-watermark.png");
-      }`
+      return '#container .session-batch-active .xterm-screen::before {' +
+      'background-image: url("./images/electerm-watermark.png");' +
+      '}'
     }
 
     const styles = [
-      `background-image: ${st}`,
-      'background-position: center'
+    `background-image: ${st}`,
+    'background-position: center'
     ]
 
     if (st !== 'none') {
-      styles.push(`filter: blur(${
-        this.props.terminalBackgroundFilterBlur
-      }px) opacity(${
-        +this.props.terminalBackgroundFilterOpacity
-      }) brightness(${
-        +this.props.terminalBackgroundFilterBrightness
-      }) contrast(${
-        +this.props.terminalBackgroundFilterContrast
-      }) grayscale(${
-        +this.props.terminalBackgroundFilterGrayscale
-      })`)
+      styles.push(`filter: ${this.createFilterStyle(this.props)}`)
     }
 
     return `#container .session-batch-active .xterm-screen::before {
-      ${styles.join(';')};
-    }`
+    ${styles.join(';')};
+  }`
   }
 
   writeCss = async () => {
@@ -157,7 +150,7 @@ export default class CssOverwrite extends PureComponent {
     }
 
     const { tabs = [] } = this.props
-    
+
     // Generate styles for tabs with custom backgrounds
     const tabStyles = await Promise.all(
       tabs
