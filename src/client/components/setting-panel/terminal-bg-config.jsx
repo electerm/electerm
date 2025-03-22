@@ -16,7 +16,8 @@ const e = window.translate
 export default function TerminalBackgroundConfig ({
   onChangeValue,
   name,
-  config
+  config,
+  isGlobal = false
 }) {
   const value = config[name]
   const defaultValue = defaultSettings[name]
@@ -42,6 +43,12 @@ export default function TerminalBackgroundConfig ({
       desc: e('noTerminalBg')
     }
   ]
+  if (isGlobal) {
+    dataSource.push({
+      value: 'index',
+      desc: e('index')
+    })
+  }
   const numberOpts = { step: 0.05, min: 0, max: 1, cls: 'bg-img-setting' }
 
   function renderNumber (name, options, title = '', width = 136) {
@@ -75,7 +82,7 @@ export default function TerminalBackgroundConfig ({
   }
 
   const renderFilter = () => {
-    if (config[name] === noTerminalBgValue) return
+    if (config[name] === noTerminalBgValue || config[name] === 'index') return
 
     return (
       <div>

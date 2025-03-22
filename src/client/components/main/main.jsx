@@ -117,16 +117,26 @@ export default auto(function Index (props) {
   const ext1 = {
     className: cls
   }
-  const cpConf = config
-  const confsCss = Object
-    .keys((cpConf))
-    .filter(d => d.startsWith('terminalBackground'))
-    .reduce((p, k) => {
-      return {
+  const bgTabs = config.terminalBackgroundImagePath === 'index'
+    ? store.getTabs()
+    : store.getTabs().filter(tab =>
+      tab.terminalBackground?.terminalBackgroundImagePath
+    )
+  const confsCss = {
+    ...Object.keys(config)
+      .filter(d => d.startsWith('terminalBackground'))
+      .reduce((p, k) => ({
         ...p,
-        [k]: cpConf[k]
+        [k]: config[k]
+      }), {}),
+    tabs: bgTabs.map(tab => {
+      return {
+        tabCount: tab.tabCount,
+        terminalBackground: tab.terminalBackground,
+        id: tab.id
       }
-    }, {})
+    })
+  }
   const themeProps = {
     themeConfig: store.getUiThemeConfig()
   }
@@ -246,7 +256,7 @@ export default auto(function Index (props) {
         <CustomCss customCss={config.customCss} />
         <TextEditor />
         <UpdateCheck
-          skipVersion={cpConf.skipVersion}
+          skipVersion={config.skipVersion}
           upgradeInfo={upgradeInfo}
           installSrc={installSrc}
         />
