@@ -1,15 +1,14 @@
 /**
 * btns
 */
-import { PureComponent } from 'react'
+import { Component } from 'react'
 import fs from '../../common/fs'
 import { noTerminalBgValue } from '../../common/constants'
 
-export default class CssOverwrite extends PureComponent {
+export default class CssOverwrite extends Component {
   static styleTag = null
 
   shouldComponentUpdate (nextProps) {
-    // Add wsInited check
     if (!this.props.wsInited && nextProps.wsInited) {
       return true
     }
@@ -22,22 +21,25 @@ export default class CssOverwrite extends PureComponent {
       'terminalBackgroundFilterContrast',
       'terminalBackgroundFilterGrayscale'
     ]
-
-    // Check if global settings changed
     const globalChanged = bgProps.some(prop => this.props[prop] !== nextProps[prop])
-    if (globalChanged) return true
+    if (globalChanged) {
+      return true
+    }
 
     const currentTabs = this.props.tabs || []
     const nextTabs = nextProps.tabs || []
+    if (currentTabs.length !== nextTabs.length) {
+      return true
+    }
 
     // If no tabs in both cases
-    if (!currentTabs.length && !nextTabs.length) return false
+    if (!currentTabs.length && !nextTabs.length) {
+      return false
+    }
 
     // Since tab bg settings never change, we only need to compare tab IDs
     const currentIds = new Set(currentTabs.map(t => t.id))
     const nextIds = new Set(nextTabs.map(t => t.id))
-
-    if (currentIds.size !== nextIds.size) return true
 
     // Check if all current IDs exist in next IDs
     for (const id of currentIds) {
@@ -48,7 +50,6 @@ export default class CssOverwrite extends PureComponent {
   }
 
   componentDidUpdate (prevProps) {
-    // Add wsInited check
     if (!prevProps.wsInited && this.props.wsInited) {
       this.writeCss()
       return
@@ -57,7 +58,7 @@ export default class CssOverwrite extends PureComponent {
   }
 
   // Common function to handle background image style creation
-  createBackgroundStyle = async (imagePath, fs) => {
+  createBackgroundStyle = async (imagePath) => {
     if (!imagePath || imagePath === '') {
       return ''
     }
@@ -65,8 +66,9 @@ export default class CssOverwrite extends PureComponent {
     let content = ''
     let st = ''
     const isWebImg = /^https?:\/\//.test(imagePath)
-
-    if (noTerminalBgValue === imagePath) {
+    if (imagePath === 'index') {
+      st = 'index'
+    } else if (noTerminalBgValue === imagePath) {
       st = 'none'
     } else if (imagePath && !isWebImg) {
       content = await fs.readFileAsBase64(imagePath)
@@ -77,7 +79,6 @@ export default class CssOverwrite extends PureComponent {
     } else if (imagePath && isWebImg) {
       st = `url(${imagePath})`
     }
-
     return st
   }
 
@@ -97,43 +98,46 @@ export default class CssOverwrite extends PureComponent {
   }
 
   createStyleForTab = async (tab) => {
-    const st = await this.createBackgroundStyle(tab.terminalBackgroundImagePath, fs)
+    const bg = tab.terminalBackground || {}
+    const img = bg.terminalBackgroundImagePath || this.props.terminalBackgroundImagePath
+    const st = await this.createBackgroundStyle(img)
 
     if (!st) {
       return ''
     }
 
-    const selector = `#container > .sessions .session-${tab.id} .xterm-screen::before`
-    const styles = [
-    `background-image: ${st}`,
-    'background-position: center'
-    ]
-
-    if (st !== 'none') {
-      styles.push(`filter: ${this.createFilterStyle(this.props, tab)}`)
+    const selector = `#container .sessions .session-${tab.id} .xterm-screen::before`
+    const styles = []
+    if (st === 'index') {
+      styles.push(`content: '${tab.tabCount}'`)
+    } else if (st !== 'none') {
+      styles.push(
+        `background-image: ${st}`,
+        'background-position: center',
+        `filter: ${this.createFilterStyle(this.props, tab)}`
+      )
     }
-
     return `${selector} {
     ${styles.join(';')};
   }`
   }
 
   createGlobalStyle = async () => {
-    const st = await this.createBackgroundStyle(this.props.terminalBackgroundImagePath, fs)
-
+    const st = await this.createBackgroundStyle(this.props.terminalBackgroundImagePath)
     if (!st) {
       return '#container .session-batch-active .xterm-screen::before {' +
       'background-image: url("./images/electerm-watermark.png");' +
       '}'
     }
 
-    const styles = [
-    `background-image: ${st}`,
-    'background-position: center'
-    ]
+    const styles = []
 
-    if (st !== 'none') {
-      styles.push(`filter: ${this.createFilterStyle(this.props)}`)
+    if (st !== 'none' && st !== 'index') {
+      styles.push(
+        `background-image: ${st}`,
+        'background-position: center',
+        `filter: ${this.createFilterStyle(this.props)}`
+      )
     }
 
     return `#container .session-batch-active .xterm-screen::before {
@@ -150,24 +154,15 @@ export default class CssOverwrite extends PureComponent {
     }
 
     const { tabs = [] } = this.props
-
-    // Generate styles for tabs with custom backgrounds
     const tabStyles = await Promise.all(
       tabs
-        .filter(tab => tab.terminalBackgroundImagePath)
         .map(tab => this.createStyleForTab(tab))
     )
-
-    // Generate global style if exists
     const globalStyle = await this.createGlobalStyle()
-
-    // Combine all styles
     const allStyles = [
       globalStyle,
       ...tabStyles
     ].filter(Boolean).join('\n')
-
-    // Update style tag content
     CssOverwrite.styleTag.innerHTML = allStyles
   }
 

@@ -16,16 +16,18 @@ import useSubmit from './use-submit'
 import useUI from './use-ui'
 import useQm from './use-quick-commands'
 import copy from 'json-deep-copy'
-import { defaultsDeep } from 'lodash-es'
+import { defaultsDeep, pick } from 'lodash-es'
 import renderTabs from './form-tabs'
 import renderCommon from './form-ssh-common'
 import renderEnableSftp from './sftp-enable'
 import renderProxy from './proxy'
 import renderX11 from './x11'
 import renderAuth from './render-auth-ssh'
+import renderTermBg from './render-bg'
 import renderSshTunnel from './render-ssh-tunnel'
 import renderConnectionHopping from './render-connection-hopping'
 import { getRandomDefaultColor } from '../../common/rand-hex-color.js'
+import defaultSetting from '../../common/default-setting'
 import './bookmark-form.styl'
 
 export default function BookmarkFormUI (props) {
@@ -71,7 +73,15 @@ export default function BookmarkFormUI (props) {
     category: initBookmarkGroupId,
     connectionHoppings: [],
     serverHostKey: [],
-    cipher: []
+    cipher: [],
+    terminalBackground: pick(defaultSetting, [
+      'terminalBackgroundImagePath',
+      'terminalBackgroundFilterOpacity',
+      'terminalBackgroundFilterBlur',
+      'terminalBackgroundFilterBrightness',
+      'terminalBackgroundFilterGrayscale',
+      'terminalBackgroundFilterContrast'
+    ])
   }
   initialValues = defaultsDeep(initialValues, defaultValues)
   function onChangeAuthType (e) {
@@ -90,7 +100,8 @@ export default function BookmarkFormUI (props) {
     renderX11,
     renderAuth,
     renderSshTunnel,
-    renderConnectionHopping
+    renderConnectionHopping,
+    renderTermBg
   }
   return (
     <Form

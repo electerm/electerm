@@ -485,7 +485,8 @@ export default class SettingTerminal extends Component {
     const bgProps = {
       onChangeValue: this.onChangeValue,
       name: 'terminalBackgroundImagePath',
-      config: this.props.config
+      config: this.props.config,
+      isGlobal: true
     }
     const tip = (
       <div>
