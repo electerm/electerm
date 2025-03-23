@@ -117,7 +117,7 @@ export default auto(function Index (props) {
   const ext1 = {
     className: cls
   }
-  const bgTabs = config.terminalBackgroundImagePath === 'index'
+  const bgTabs = config.terminalBackgroundImagePath === 'index' || config.terminalBackgroundImagePath === 'randomShape'
     ? store.getTabs()
     : store.getTabs().filter(tab =>
       tab.terminalBackground?.terminalBackgroundImagePath

@@ -44,10 +44,16 @@ export default function TerminalBackgroundConfig ({
     }
   ]
   if (isGlobal) {
-    dataSource.push({
-      value: 'index',
-      desc: e('index')
-    })
+    dataSource.push(
+      {
+        value: 'index',
+        desc: e('index')
+      },
+      {
+        value: 'randomShape',
+        desc: e('randomCats')
+      }
+    )
   }
   const numberOpts = { step: 0.05, min: 0, max: 1, cls: 'bg-img-setting' }
 

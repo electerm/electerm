@@ -5,6 +5,91 @@ import { Component } from 'react'
 import fs from '../../common/fs'
 import { noTerminalBgValue } from '../../common/constants'
 
+function generateMosaicBackground (size = 200) {
+  const canvas = document.createElement('canvas')
+  canvas.width = size
+  canvas.height = size
+  const ctx = canvas.getContext('2d')
+
+  // Cat patterns
+  const cats = [
+    [
+      '   /\\___/\\',
+      '  (  ・ω・)',
+      '  (  つ♥️ つ',
+      '   |    　|',
+      '   U    U',
+      ' ========'
+    ],
+    [
+      '    /\\___/\\',
+      '   ( ^ . ^ )',
+      '    >  ω  <',
+      '   /     \\ ',
+      '  |  |~|  |',
+      '   \\___|_/'
+    ],
+    [
+      '   /\\___/\\',
+      '  (=^.^=) ',
+      '   (u u)ノ',
+      '  (,,,),,,'
+    ],
+    [
+      '    /\\___/\\',
+      '   (=^･^=)',
+      '    (｡･ω･｡)',
+      '   (,,◕‿◕,,)',
+      '    (=^･^=)',
+      '     |   |',
+      '   （_＿_）'
+    ]
+  ]
+
+  // Randomly select a cat pattern
+  const selectedCat = cats[Math.floor(Math.random() * cats.length)]
+
+  // Generate a random pastel color
+  const hue = Math.floor(Math.random() * 360)
+  const catColor = `hsl(${hue}, 70%, 80%, 0.3)`
+
+  // Calculate text size and position
+  const lineHeight = size / (selectedCat.length + 2) // +2 for margin
+  const fontSize = Math.floor(lineHeight * 0.9)
+  const startY = (size - lineHeight * selectedCat.length) / 2
+
+  // Create a temporary canvas for measuring text
+  const tempCanvas = document.createElement('canvas')
+  const tempCtx = tempCanvas.getContext('2d')
+  tempCtx.font = `${fontSize}px "Courier New", monospace`
+
+  // Find the widest line to center the cat
+  let maxWidth = 0
+  selectedCat.forEach(line => {
+    const width = tempCtx.measureText(line).width
+    if (width > maxWidth) maxWidth = width
+  })
+
+  // Draw cat
+  ctx.font = `${fontSize}px "Courier New", monospace`
+  ctx.fillStyle = catColor
+
+  selectedCat.forEach((line, index) => {
+    const lineWidth = tempCtx.measureText(line).width
+    const x = (size - lineWidth) / 2
+    const y = startY + lineHeight * (index + 1)
+
+    // Draw each character separately to remove spaces
+    for (let i = 0; i < line.length; i++) {
+      if (line[i] !== ' ') {
+        ctx.fillText(line[i], x + tempCtx.measureText(line.substring(0, i)).width, y)
+      }
+    }
+  })
+
+  return canvas.toDataURL()
+}
+
 export default class CssOverwrite extends Component {
   static styleTag = null
 
@@ -66,7 +151,9 @@ export default class CssOverwrite extends Component {
     let content = ''
     let st = ''
     const isWebImg = /^https?:\/\//.test(imagePath)
-    if (imagePath === 'index') {
+    if (imagePath === 'randomShape') {
+      st = `url(${generateMosaicBackground()})`
+    } else if (imagePath === 'index') {
       st = 'index'
     } else if (noTerminalBgValue === imagePath) {
       st = 'none'
