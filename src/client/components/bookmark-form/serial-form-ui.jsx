@@ -31,6 +31,7 @@ import useSubmit from './use-submit'
 import useUI from './use-ui'
 import useQm from './use-quick-commands'
 import copy from 'json-deep-copy'
+import renderTermBg from './render-bg'
 import { defaults } from 'lodash-es'
 import { getRandomDefaultColor } from '../../common/rand-hex-color.js'
 import { ColorPickerItem } from './color-picker-item.jsx'
@@ -283,7 +284,12 @@ export default function SerialFormUi (props) {
         key: 'settings',
         label: e('settings'),
         forceRender: true,
-        children: uis
+        children: (
+          <>
+            {uis}
+            {renderTermBg(form)}
+          </>
+        )
       },
       {
         key: 'quickCommands',

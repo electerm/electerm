@@ -6,7 +6,7 @@ on:
     branches: [ test-npm ]
 jobs:
   release-npm:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     environment: build
     if: "!contains(github.event.head_commit.message, '[skip ci]') && !contains(github.event.head_commit.message, '[skip npm]')"
     steps:
@@ -15,9 +15,9 @@ jobs:
       - name: Setup node and npm
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20'
           registry-url: https://registry.npmjs.org/
       - run: npm i
-      - uses: JS-DevTools/npm-publish@v3
+      - uses: JS-DevTools/npm-publish@v4
         with:
           token: ${{secrets.NPM_TOKEN}}
