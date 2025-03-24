@@ -3,7 +3,11 @@
  * Handles single file upload/download with conflict resolution
  */
 import { Component } from 'react'
-import { typeMap, transferTypeMap } from '../../common/constants'
+import {
+  typeMap,
+  fileOperationsMap,
+  transferTypeMap
+} from '../../common/constants'
 import { getLocalFileInfo, getRemoteFileInfo } from './file-read'
 import format, { computeLeftTime, computePassedTime } from './transfer-speed-format'
 import { refs } from '../common/ref'
@@ -14,13 +18,13 @@ import fs from '../../common/fs'
 export default class TransferFile extends Component {
   constructor(props) {
     super(props)
-    this.state = {
-      status: 'init', // init, checking, transferring, paused, finished, error
-      conflictResolution: '', // '', 'rename', 'overwrite', 'skip'
-      transferred: 0,
-      speed: 0,
-      startTime: 0
-    }
+    // this.state = {
+    //   status: 'init', // init, checking, transferring, paused, finished, error
+    //   conflictResolution: '', // '', 'rename', 'overwrite', 'skip'
+    //   transferred: 0,
+    //   speed: 0,
+    //   startTime: 0
+    // }
     this.sessionId = props.transfer.sessionId
   }
 
@@ -46,9 +50,90 @@ export default class TransferFile extends Component {
     this.destroy()
   }
 
-  start = async () => {
+  update = (up) => {
     const { transfer } = this.props
-    this.setState({ 
+    const {
+      store
+    } = window
+    store.updateTransfer(
+      transfer.id,
+      up
+    )
+  }
+
+  localCheckExist = (path) => {
+    return getLocalFileInfo(path).catch(console.log)
+  }
+
+  remoteCheckExist = (path, sessionId) => {
+    const sftp = refs.get('sftp-' + sessionId).sftp
+    return getRemoteFileInfo(sftp, path)
+      .then(r => r)
+      .catch(() => false)
+  }
+
+  checkExist = (type, path, sessionId) => {
+    return this[type + 'CheckExist'](path, sessionId)
+  }
+
+  tagTransferError = (id, errorMsg) => {
+    this.clear()
+    const { store } = window
+    const { fileTransfers } = store
+    const index = fileTransfers.findIndex(d => d.id === id)
+    if (index < 0) {
+      return
+    }
+
+    const [tr] = fileTransfers.splice(index, 1)
+    assign(tr, {
+      host: tr.host,
+      error: errorMsg,
+      finishTime: Date.now()
+    })
+    store.addTransferHistory(tr)
+  }
+
+  start = async () => {
+    if (this.started) {
+      return
+    }
+    const { transfer } = this.props
+    const {
+      typeFrom,
+      typeTo,
+      fromPath,
+      toPath,
+      fromFile: {
+        isDirectory
+      },
+      action,
+      inited,
+      operation
+    } = transfer
+    if (
+      typeFrom === typeTo &&
+      fromPath === toPath &&
+      operation === fileOperationsMap.mv
+    ) {
+      return this.destroy()
+    }
+    const t = Date.now()
+    this.update({
+      startTime: t
+    })
+    this.startTime = t
+    this.started = true
+
+    const fromFile = tr.fromFile
+      ? tr.fromFile
+      : await this.checkExist(typeFrom, fromPath, sessionId)
+    if (!fromFile) {
+      return this.tagTransferError(id, 'file not exist')
+    }
+
+    const { transfer } = this.props
+    this.setState({
       status: 'checking',
       startTime: Date.now()
     })
