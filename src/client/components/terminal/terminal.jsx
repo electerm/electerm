@@ -322,6 +322,7 @@ clear\r`
   onDrop = e => {
     const dt = e.dataTransfer
     const fromFile = dt.getData('fromFile')
+    const notSafeMsg = 'File name contains unsafe characters'
 
     if (fromFile) {
       // Handle SFTP file drop
@@ -329,7 +330,7 @@ clear\r`
         const fileData = JSON.parse(fromFile)
         const filePath = resolve(fileData.path, fileData.name)
         if (this.isUnsafeFilename(filePath)) {
-          message.error('file name not safe')
+          message.error(notSafeMsg)
           return
         }
         this.attachAddon._sendData(`"${filePath}" `)
@@ -344,7 +345,7 @@ clear\r`
     if (files && files.length) {
       const filesAll = Array.from(files).map(f => `"${f.path}"`).join(' ')
       if (this.isUnsafeFilename(filesAll)) {
-        message.error('file name not safe')
+        message.error(notSafeMsg)
         return
       }
       this.attachAddon._sendData(
