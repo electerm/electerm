@@ -11,7 +11,8 @@ import {
   notification,
   Spin,
   Button,
-  Dropdown
+  Dropdown,
+  message
 } from 'antd'
 import classnames from 'classnames'
 import './terminal.styl'
@@ -314,6 +315,12 @@ clear\r`
     this.term.focus()
   }
 
+  isUnsafeFilename = (filename) => {
+    // Check for newlines, control characters, or shell metacharacters
+    return /[\x00-\x1F\x7F-\x9F\n\r&|;$`()]/.test(filename)
+  }
+
+
   onDrop = e => {
     const dt = e.dataTransfer
     const fromFile = dt.getData('fromFile')
@@ -323,6 +330,10 @@ clear\r`
       try {
         const fileData = JSON.parse(fromFile)
         const filePath = resolve(fileData.path, fileData.name)
+        if (this.isUnsafeFilename(filePath)) {
+          message.error('file name not safe')
+          return
+        }
         this.attachAddon._sendData(`"${filePath}" `)
         return
       } catch (e) {
@@ -333,6 +344,11 @@ clear\r`
     // Handle regular file drop
     const files = dt.files
     if (files && files.length) {
+      const filesAll = Array.from(files).map(f => `"${f.path}"`).join(' ')
+      if (this.isUnsafeFilename(filesAll)) {
+        message.error('file name not safe')
+        return
+      }
       this.attachAddon._sendData(
         Array.from(files).map(f => `"${f.path}"`).join(' ')
       )
