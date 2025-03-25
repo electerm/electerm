@@ -316,10 +316,8 @@ clear\r`
   }
 
   isUnsafeFilename = (filename) => {
-    // Check for newlines, control characters, or shell metacharacters
-    return /[\x00-\x1F\x7F-\x9F\n\r&|;$`()]/.test(filename)
+    return /["'\n\r]/.test(filename)
   }
-
 
   onDrop = e => {
     const dt = e.dataTransfer
