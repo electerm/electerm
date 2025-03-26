@@ -5,17 +5,17 @@ const ftp = require('basic-ftp')
 const { TerminalBase } = require('./session-base')
 const { readRemoteFile, writeRemoteFile } = require('./ftp-file')
 const globalState = require('./global-state')
-const { Readable } = require('stream');
+const { Readable } = require('stream')
 
 class Ftp extends TerminalBase {
-  constructor(initOptions) {
+  constructor (initOptions) {
     super(initOptions)
     this.client = new ftp.Client()
     this.client.ftp.verbose = false
     this.transfers = {}
   }
 
-  async connect() {
+  async connect () {
     try {
       await this.client.access({
         host: this.initOptions.host,
@@ -24,7 +24,7 @@ class Ftp extends TerminalBase {
         password: this.initOptions.password,
         secure: this.initOptions.secure
       })
-      
+
       this.sftp = this.client // For API compatibility
       globalState.ftpSessions = globalState.ftpSessions || {}
       globalState.ftpSessions[this.pid] = this
@@ -35,7 +35,7 @@ class Ftp extends TerminalBase {
     }
   }
 
-  kill() {
+  kill () {
     const keys = Object.keys(this.transfers || {})
     for (const k of keys) {
       const jj = this.transfers[k]
@@ -49,27 +49,27 @@ class Ftp extends TerminalBase {
     }
   }
 
-  async getHomeDir() {
+  async getHomeDir () {
     return await this.client.pwd()
   }
 
-  async rmdir(remotePath) {
+  async rmdir (remotePath) {
     await this.client.removeDir(remotePath)
     return 1
   }
 
-  async touch(remotePath) {
-    const stream = Readable.from(Buffer.from(''));
-    await this.client.uploadFrom(stream, remotePath);
-    return 1;
+  async touch (remotePath) {
+    const stream = Readable.from(Buffer.from(''))
+    await this.client.uploadFrom(stream, remotePath)
+    return 1
   }
 
-  async mkdir(remotePath) {
+  async mkdir (remotePath) {
     await this.client.ensureDir(remotePath)
     return 1
   }
 
-  async stat(remotePath) {
+  async stat (remotePath) {
     const list = await this.client.list(remotePath)
     if (!list || !list.length) {
       throw new Error('stat failed')
@@ -84,12 +84,12 @@ class Ftp extends TerminalBase {
     }
   }
 
-  async readlink(remotePath) {
+  async readlink (remotePath) {
     // FTP doesn't support symlinks directly
     return remotePath
   }
 
-  async realpath(remotePath) {
+  async realpath (remotePath) {
     const currentPath = await this.client.pwd()
     await this.client.cd(remotePath)
     const realPath = await this.client.pwd()
@@ -97,31 +97,31 @@ class Ftp extends TerminalBase {
     return realPath
   }
 
-  async lstat(remotePath) {
+  async lstat (remotePath) {
     return this.stat(remotePath)
   }
 
-  async chmod(remotePath, mode) {
+  async chmod (remotePath, mode) {
     // FTP doesn't support chmod
     return 1
   }
 
-  async rename(remotePath, remotePathNew) {
+  async rename (remotePath, remotePathNew) {
     await this.client.rename(remotePath, remotePathNew)
     return 1
   }
 
-  async rmFolder(remotePath) {
+  async rmFolder (remotePath) {
     await this.client.removeDir(remotePath)
     return 1
   }
 
-  async rm(remotePath) {
+  async rm (remotePath) {
     await this.client.remove(remotePath)
     return 1
   }
 
-  async list(remotePath) {
+  async list (remotePath) {
     const list = await this.client.list(remotePath)
     return list.map(item => ({
       type: item.type === 2 ? 'd' : '-',
@@ -140,18 +140,18 @@ class Ftp extends TerminalBase {
     }))
   }
 
-  async readFile(remotePath) {
+  async readFile (remotePath) {
     return readRemoteFile(this.client, remotePath)
   }
 
-  async writeFile(remotePath, str, mode) {
+  async writeFile (remotePath, str, mode) {
     return writeRemoteFile(this.client, remotePath, str, mode)
   }
 
-  async getFolderSize(folderPath) {
+  async getFolderSize (folderPath) {
     let size = 0
     let count = 0
-    
+
     const processDir = async (dirPath) => {
       const list = await this.list(dirPath)
       for (const item of list) {
@@ -163,7 +163,7 @@ class Ftp extends TerminalBase {
         }
       }
     }
-    
+
     await processDir(folderPath)
     return {
       size,
