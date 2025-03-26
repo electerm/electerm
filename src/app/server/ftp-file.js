@@ -1,27 +1,33 @@
 const { Readable, Writable } = require('stream')
 
-exports.writeRemoteFile = async function (client, remotePath, str, options = {}) {
-  const stream = Readable.from(Buffer.isBuffer(str) ? str : Buffer.from(str))
-  await client.uploadFrom(stream, remotePath)
-  if (options.mode && client.chmod) {
-    await client.chmod(remotePath, options.mode)
-  }
-}
-
-exports.readRemoteFile = async function (client, remotePath) {
+async function readRemoteFile (client, remotePath) {
   return new Promise((resolve, reject) => {
-    const chunks = []
-    const writableStream = new Writable({
+    let data = ''
+    const writable = new Writable({
       write (chunk, encoding, callback) {
-        chunks.push(chunk)
+        data += chunk.toString()
         callback()
       }
     })
 
-    client.downloadTo(writableStream, remotePath)
-      .then(() => {
-        resolve(Buffer.concat(chunks))
-      })
+    client.downloadTo(writable, remotePath)
+      .then(() => resolve(data))
       .catch(reject)
   })
+}
+
+async function writeRemoteFile (client, remotePath, str) {
+  const readable = new Readable({
+    read () {
+      this.push(str)
+      this.push(null)
+    }
+  })
+
+  return client.uploadFrom(readable, remotePath)
+}
+
+module.exports = {
+  readRemoteFile,
+  writeRemoteFile
 }

@@ -1,66 +1,71 @@
-/**
- * terminal/ftp class
- */
 const ftp = require('basic-ftp')
 const { TerminalBase } = require('./session-base')
+const { commonExtends } = require('./session-common')
 const { readRemoteFile, writeRemoteFile } = require('./ftp-file')
-const globalState = require('./global-state')
 const { Readable } = require('stream')
 
 class Ftp extends TerminalBase {
   constructor (initOptions) {
-    super(initOptions)
-    this.client = new ftp.Client()
-    this.client.ftp.verbose = false
+    super({
+      ...initOptions,
+      type: 'ftp' // Explicitly set the type
+    })
     this.transfers = {}
   }
 
-  async connect () {
-    try {
-      await this.client.access({
-        host: this.initOptions.host,
-        port: this.initOptions.port || 21,
-        user: this.initOptions.username,
-        password: this.initOptions.password,
-        secure: this.initOptions.secure
-      })
-
-      this.sftp = this.client // For API compatibility
-      globalState.ftpSessions = globalState.ftpSessions || {}
-      globalState.ftpSessions[this.pid] = this
-      return 'ok'
-    } catch (err) {
-      console.error('FTP connection error:', err)
-      throw err
-    }
+  async connect (initOptions) {
+    this.client = new ftp.Client()
+    this.client.ftp.verbose = false
+    await this.client.access({
+      host: initOptions.host,
+      port: initOptions.port || 21,
+      user: initOptions.username,
+      password: initOptions.password,
+      secure: initOptions.secure
+    })
+    this.sftp = this.client // For API compatibility
+    return 'ok'
   }
 
   kill () {
-    const keys = Object.keys(this.transfers || {})
-    for (const k of keys) {
-      const jj = this.transfers[k]
-      jj && jj.destroy && jj.destroy()
-      delete this.transfers[k]
-    }
-    this.client && this.client.close()
+    Object.values(this.transfers).forEach(transfer => {
+      transfer?.destroy?.()
+    })
+    this.transfers = {}
+    this.client?.close()
     delete this.sftp
-    if (globalState.ftpSessions && globalState.ftpSessions[this.pid]) {
-      delete globalState.ftpSessions[this.pid]
-    }
+    super.onEndConn()
   }
 
   async getHomeDir () {
-    return await this.client.pwd()
+    return this.client.pwd()
   }
 
   async rmdir (remotePath) {
-    await this.client.removeDir(remotePath)
+    await this.removeDirectoryRecursively(remotePath)
     return 1
   }
 
+  async removeDirectoryRecursively (remotePath) {
+    const contents = await this.list(remotePath)
+    for (const item of contents) {
+      const itemPath = `${remotePath}/${item.name}`
+      if (item.type === 'd') {
+        await this.removeDirectoryRecursively(itemPath)
+      } else {
+        await this.rm(itemPath)
+      }
+    }
+    await this.rmFolder(remotePath)
+  }
+
   async touch (remotePath) {
-    const stream = Readable.from(Buffer.from(''))
-    await this.client.uploadFrom(stream, remotePath)
+    const emptyStream = new Readable({
+      read () {
+        this.push(null)
+      }
+    })
+    await this.client.uploadFrom(emptyStream, remotePath)
     return 1
   }
 
@@ -85,7 +90,6 @@ class Ftp extends TerminalBase {
   }
 
   async readlink (remotePath) {
-    // FTP doesn't support symlinks directly
     return remotePath
   }
 
@@ -101,7 +105,7 @@ class Ftp extends TerminalBase {
     return this.stat(remotePath)
   }
 
-  async chmod (remotePath, mode) {
+  async chmod () {
     // FTP doesn't support chmod
     return 1
   }
@@ -151,7 +155,6 @@ class Ftp extends TerminalBase {
   async getFolderSize (folderPath) {
     let size = 0
     let count = 0
-
     const processDir = async (dirPath) => {
       const list = await this.list(dirPath)
       for (const item of list) {
@@ -163,13 +166,9 @@ class Ftp extends TerminalBase {
         }
       }
     }
-
     await processDir(folderPath)
-    return {
-      size,
-      count
-    }
+    return { size, count }
   }
 }
 
-exports.Ftp = Ftp
+exports.Ftp = commonExtends(Ftp)
