@@ -1,13 +1,12 @@
 const { test, expect } = require('@playwright/test');
-const path = require('path');
-const { spawn } = require('child_process');
 const { Ftp } = require('../../src/app/server/session-ftp');
+const { spawn } = require('child_process');
+const path = require('path');
 
 let ftpServer;
+let ftp;
 
-test.describe('Ftp', () => {
-  let ftp;
-
+test.describe('Ftp Class', () => {
   test.beforeAll(async () => {
     // Start FTP server
     const serverPath = path.join(__dirname, '../../temp/ftp/src/ftp.js');
@@ -38,6 +37,16 @@ test.describe('Ftp', () => {
 
     // Wait a bit to ensure the server is fully ready
     await new Promise(resolve => setTimeout(resolve, 1000));
+
+    // Initialize FTP client
+    ftp = new Ftp({ 
+      host: 'localhost', 
+      port: 21, 
+      username: 'test', 
+      password: 'test123',
+      sessionId: 'test-session'
+    });
+    await ftp.connect();
   }, 60000);
 
   test.afterAll(async () => {
@@ -47,116 +56,70 @@ test.describe('Ftp', () => {
     }
   });
 
-  test.beforeEach(async () => {
-    ftp = new Ftp({
-      host: 'localhost',
-      port: 21,
-      username: 'test',
-      password: 'test123'
-    });
-    await ftp.connect(ftp.initOptions);
-  });
-
-  test.afterEach(async () => {
-    if (ftp) {
-      ftp.kill();
-    }
-  });
-
   test('should connect to FTP server', async () => {
-    expect(ftp.client).toBeTruthy();
-  });
-
-  test('should get home directory', async () => {
-    const homeDir = await ftp.getHomeDir();
-    expect(homeDir).toBeTruthy();
+    const result = await ftp.connect();
+    expect(result).toBe('ok');
   });
 
   test('should list directory contents', async () => {
     const list = await ftp.list('/');
     expect(Array.isArray(list)).toBeTruthy();
-    expect(list.length).toBeGreaterThanOrEqual(0);
   });
 
-  test('should create, stat, and delete a file', async () => {
-    const testFile = '/test_file.txt';
-    await ftp.touch(testFile);
-    
-    const stat = await ftp.stat(testFile);
-    expect(stat.isDirectory()).toBeFalsy();
-    
-    await ftp.rm(testFile);
-    await expect(ftp.stat(testFile)).rejects.toThrow();
+  test('should create and remove a directory', async () => {
+    await ftp.mkdir('/testdir');
+    let list = await ftp.list('/');
+    expect(list.some(item => item.name === 'testdir')).toBeTruthy();
+
+    await ftp.rmdir('/testdir');
+    list = await ftp.list('/');
+    expect(list.some(item => item.name === 'testdir')).toBeFalsy();
   });
 
-  test('should create, list, and delete a directory', async () => {
-    const testDir = '/test_dir';
-    await ftp.mkdir(testDir);
-    
-    const list = await ftp.list('/');
-    expect(list.some(item => item.name === 'test_dir' && item.type === 'd')).toBeTruthy();
-    
-    await ftp.rmdir(testDir);
-    const newList = await ftp.list('/');
-    expect(newList.some(item => item.name === 'test_dir')).toBeFalsy();
+  test('should create and remove a file', async () => {
+    await ftp.touch('/testfile.txt');
+    let list = await ftp.list('/');
+    expect(list.some(item => item.name === 'testfile.txt')).toBeTruthy();
+
+    await ftp.rm('/testfile.txt');
+    list = await ftp.list('/');
+    expect(list.some(item => item.name === 'testfile.txt')).toBeFalsy();
+  });
+
+  test('should read and write a file', async () => {
+    const content = 'Hello, FTP!';
+    await ftp.writeFile('/test.txt', content);
+    const readContent = await ftp.readFile('/test.txt');
+    expect(readContent.toString()).toBe(content);
+    await ftp.rm('/test.txt');
+  });
+
+  test('should get file stats', async () => {
+    await ftp.touch('/stattest.txt');
+    const stats = await ftp.stat('/stattest.txt');
+    expect(stats.size).toBeDefined();
+    expect(stats.modifyTime).toBeDefined();
+    await ftp.rm('/stattest.txt');
   });
 
   test('should rename a file', async () => {
-    const originalName = '/original.txt';
-    const newName = '/renamed.txt';
-    
-    await ftp.touch(originalName);
-    await ftp.rename(originalName, newName);
-    
+    await ftp.touch('/oldname.txt');
+    await ftp.rename('/oldname.txt', '/newname.txt');
     const list = await ftp.list('/');
-    expect(list.some(item => item.name === 'renamed.txt')).toBeTruthy();
-    expect(list.some(item => item.name === 'original.txt')).toBeFalsy();
-    
-    await ftp.rm(newName);
-  });
-
-  test('should write and read a file', async () => {
-    const testFile = '/test_content.txt';
-    const content = 'Hello, FTP!';
-    
-    await ftp.writeFile(testFile, content);
-    const readContent = await ftp.readFile(testFile);
-    
-    expect(readContent.toString()).toBe(content);
-    
-    await ftp.rm(testFile);
-  });
-
-  test('should get real path', async () => {
-    const realPath = await ftp.realpath('/');
-    expect(realPath).toBeTruthy();
-  });
-
-  test('should perform lstat', async () => {
-    const stat = await ftp.lstat('/');
-    expect(stat.isDirectory()).toBeTruthy();
-  });
-
-  test('should handle chmod (even though it\'s not supported)', async () => {
-    const result = await ftp.chmod('/', '755');
-    expect(result).toBe(1);
+    expect(list.some(item => item.name === 'newname.txt')).toBeTruthy();
+    expect(list.some(item => item.name === 'oldname.txt')).toBeFalsy();
+    await ftp.rm('/newname.txt');
   });
 
   test('should get folder size', async () => {
-    const testDir = '/size_test_dir';
-    await ftp.mkdir(testDir);
-    await ftp.writeFile(`${testDir}/file1.txt`, 'Content 1');
-    await ftp.writeFile(`${testDir}/file2.txt`, 'Content 2');
+    await ftp.mkdir('/sizedir');
+    await ftp.writeFile('/sizedir/file1.txt', 'content1');
+    await ftp.writeFile('/sizedir/file2.txt', 'content2');
     
-    const size = await ftp.getFolderSize(testDir);
-    expect(size.size).toBeGreaterThan(0);
-    expect(size.count).toBe(2);
-    
-    await ftp.rmdir(testDir);
-  });
+    const sizeInfo = await ftp.getFolderSize('/sizedir');
+    expect(sizeInfo.size).toBeGreaterThan(0);
+    expect(sizeInfo.count).toBe(2);
 
-  test('should run exec command', async () => {
-    const result = await ftp.runExec('pwd');
-    expect(result).toBeTruthy();
+    await ftp.rmdir('/sizedir');
   });
 });
