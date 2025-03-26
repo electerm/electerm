@@ -15,8 +15,10 @@ import resolve from '../../common/resolve'
 import generate from '../../common/uid'
 import fs from '../../common/fs'
 
+const { assign } = Object
+
 export default class TransferFile extends Component {
-  constructor(props) {
+  constructor (props) {
     super(props)
     // this.state = {
     //   status: 'init', // init, checking, transferring, paused, finished, error
@@ -25,7 +27,17 @@ export default class TransferFile extends Component {
     //   speed: 0,
     //   startTime: 0
     // }
-    this.sessionId = props.transfer.sessionId
+    const {
+      transfer
+    } = props
+    const {
+      sessionId,
+      id,
+      transferBatch
+    } = transfer
+    this.sessionId = sessionId
+    const uid = `tr:${transferBatch}:${id}`
+    refs.set(uid, this)
   }
 
   componentDidMount() {
@@ -94,21 +106,45 @@ export default class TransferFile extends Component {
     store.addTransferHistory(tr)
   }
 
+  mvOrCp = () => {
+    const {
+      transfer
+    } = this.props
+    const {
+      fromPath,
+      toPath,
+      typeFrom,
+      sessionId,
+      operation // 'mv' or 'cp'
+    } = transfer
+    if (typeFrom === typeMap.local) {
+      return fs[operation](fromPath, toPath)
+        .then(this.onEnd)
+        .catch(e => {
+          this.onEnd()
+          this.onError(e)
+        })
+    }
+    const sftp = refs.get('sftp-' + sessionId).sftp
+    return sftp[operation](fromPath, toPath)
+      .then(this.onEnd)
+      .catch(e => {
+        this.onEnd()
+        this.onError(e)
+      })
+  }
+
   start = async () => {
     if (this.started) {
       return
     }
     const { transfer } = this.props
     const {
+      id,
       typeFrom,
       typeTo,
       fromPath,
       toPath,
-      fromFile: {
-        isDirectory
-      },
-      action,
-      inited,
       operation
     } = transfer
     if (
@@ -125,18 +161,18 @@ export default class TransferFile extends Component {
     this.startTime = t
     this.started = true
 
-    const fromFile = tr.fromFile
-      ? tr.fromFile
-      : await this.checkExist(typeFrom, fromPath, sessionId)
+    const fromFile = transfer.fromFile
+      ? transfer.fromFile
+      : await this.checkExist(typeFrom, fromPath, this.sessionId)
     if (!fromFile) {
       return this.tagTransferError(id, 'file not exist')
     }
 
-    const { transfer } = this.props
-    this.setState({
-      status: 'checking',
-      startTime: Date.now()
-    })
+    if (
+      typeFrom === typeTo
+    ) {
+      return this.mvOrCp()
+    }
 
     // Check for conflict before starting transfer
     const hasConflict = await this.checkConflict()
@@ -283,6 +319,41 @@ export default class TransferFile extends Component {
       this.transfer.destroy()
       this.transfer = null
     }
+  }
+
+  onEnd = (update = {}) => {
+    if (this.onCancel) {
+      return
+    }
+    const {
+      transfer,
+      config
+    } = this.props
+    const {
+      typeTo
+    } = transfer
+    const finishTime = Date.now()
+    if (!config.disableTransferHistory) {
+      const r = copy(transfer)
+      delete transfer.next
+      Object.assign(r, update, {
+        finishTime,
+        startTime: this.startTime,
+        size: transfer.fromFile.size,
+        next: null,
+        speed: format(transfer.fromFile.size, this?.startTime)
+      })
+      window.store.addTransferHistory(
+        r
+      )
+    }
+    const cbs = [
+      this[typeTo + 'List']
+    ]
+    const cb = () => {
+      cbs.forEach(cb => cb())
+    }
+    this.cancel(cb)
   }
 
   render() {
