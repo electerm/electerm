@@ -8,7 +8,7 @@ let ftpServer
 test.describe('Ftp Class', () => {
   test.beforeAll(async () => {
     // Start the FTP test server
-    const serverPath = path.join(__dirname, '../../temp/ftp/src/ftp.js')
+    const serverPath = path.join(__dirname, '../e2e/common/ftp.js')
     ftpServer = spawn('node', [serverPath])
 
     await new Promise((resolve, reject) => {
