@@ -110,10 +110,5 @@ class Transfer {
 }
 
 module.exports = {
-  Transfer,
-  transferKeys: [
-    'pause',
-    'resume',
-    'destroy'
-  ]
+  Transfer
 }
