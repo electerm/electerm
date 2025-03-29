@@ -21,6 +21,14 @@ function sftp (id, sessionId, inst) {
   return ss.sftps[id]
 }
 
+function ftp (id, inst) {
+  if (inst) {
+    globalState.ftps[id] = inst
+    return inst
+  }
+  return globalState.ftps[id]
+}
+
 function terminals (id, sessionId, inst) {
   const ss = session(sessionId)
   if (!ss) {
@@ -46,8 +54,22 @@ function transfer (id, sftpId, sessionId, inst) {
   return ss.transfers[id]
 }
 
+function ftpTransfer (id, sftpId, inst) {
+  const ss = sftp(sftpId)
+  if (inst) {
+    ss.transfers[id] = inst
+    return inst
+  }
+  return ss.transfers[id]
+}
+
 function onDestroySftp (id, sessionId) {
   const inst = sftp(id, sessionId)
+  inst && inst.kill && inst.kill()
+}
+
+function onDestroyFtp (id) {
+  const inst = ftp(id)
   inst && inst.kill && inst.kill()
 }
 
@@ -58,12 +80,23 @@ function onDestroyTransfer (id, sftpId, sessionId) {
   sftpInst && delete sftpInst.transfers[id]
 }
 
+function onDestroyFtpTransfer (id, sftpId, sessionId) {
+  const sftpInst = ftp(sftpId)
+  const inst = ftpTransfer(id, sftpId)
+  inst && inst.destroy && inst.destroy()
+  sftpInst && delete sftpInst.transfers[id]
+}
+
 module.exports = {
   session,
   sftp,
+  ftp,
   transfer,
+  ftpTransfer,
   onDestroySftp,
+  onDestroyFtp,
   onDestroyTerminal: onDestroySftp,
   onDestroyTransfer,
+  onDestroyFtpTransfer,
   terminals
 }

@@ -4,13 +4,19 @@
  */
 
 const { Sftp } = require('./session-sftp')
+const { Ftp } = require('./session-ftp')
 const {
   sftp,
+  ftp,
   transfer,
+  ftpTransfer,
   onDestroySftp,
-  onDestroyTransfer
+  onDestroyFtp,
+  onDestroyTransfer,
+  onDestroyFtpTransfer
 } = require('./remote-common')
 const { Transfer } = require('./transfer')
+const { Transfer: FtpTransfer } = require('./ftp-transfer')
 const fs = require('./fs')
 const log = require('../common/log')
 const { Upgrade } = require('./download-upgrade')
@@ -145,6 +151,87 @@ const initWs = function (app) {
           return onDestroyTransfer(id, sftpId, sessionId)
         }
         transfer(id, sftpId, sessionId)[func](...args)
+      }
+    })
+    // end
+  })
+
+  // sftp function
+  app.ws('/ftp/:id', (ws, req) => {
+    verify(req)
+    wsDec(ws)
+    const { id } = req.params
+    ws.on('close', () => {
+      onDestroyFtp(id)
+    })
+    ws.on('message', (message) => {
+      const msg = JSON.parse(message)
+      const { action } = msg
+
+      if (action === 'sftp-new') {
+        const { id } = msg
+        sftp(id, new Ftp({
+          uid: id,
+          type: 'ftp'
+        }))
+      } else if (action === 'sftp-func') {
+        const { id, args, func } = msg
+        const uid = func + ':' + id
+        const inst = sftp(id)
+        if (inst) {
+          inst[func](...args)
+            .then(data => {
+              ws.s({
+                id: uid,
+                data
+              })
+            })
+            .catch(err => {
+              ws.s({
+                id: uid,
+                error: {
+                  message: err.message,
+                  stack: err.stack
+                }
+              })
+            })
+        }
+      } else if (action === 'sftp-destroy') {
+        const { id } = msg
+        ws.close()
+        onDestroyFtp(id)
+      }
+    })
+    // end
+  })
+
+  // transfer function
+  app.ws('/ftp-transfer/:id', (ws, req) => {
+    verify(req)
+    wsDec(ws)
+    const { id } = req.params
+    const { sftpId } = req.query
+    ws.on('close', () => {
+      onDestroyFtpTransfer(id, sftpId)
+    })
+    ws.on('message', (message) => {
+      const msg = JSON.parse(message)
+      const { action } = msg
+
+      if (action === 'transfer-new') {
+        const { sftpId, id } = msg
+        const opts = Object.assign({}, msg, {
+          sftp: ftp(sftpId),
+          sftpId,
+          ws
+        })
+        ftpTransfer(id, sftpId, new FtpTransfer(opts))
+      } else if (action === 'transfer-func') {
+        const { id, func, args, sftpId } = msg
+        if (func === 'destroy') {
+          return onDestroyFtpTransfer(id, sftpId)
+        }
+        ftpTransfer(id, sftpId)[func](...args)
       }
     })
     // end
