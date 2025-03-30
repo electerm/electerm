@@ -1187,10 +1187,10 @@ clear\r`
     this.socket.send = (data) => {
       console.log('beore000', data)
       // Call original send first
-      let encodedData;
+      // let encodedData;
       if (data instanceof Uint8Array) {
         // If it's already a Uint8Array, we need to decode and re-encode
-        data = new TextDecoder('utf-8').decode(data);
+        data = new TextDecoder('utf-8').decode(data)
       }
       if (
         this.attachAddon.encoder &&
