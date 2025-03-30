@@ -467,7 +467,11 @@ export default Store => {
       'status',
       'pane',
       'batch',
-      'tabCount'
+      'tabCount',
+      'sftpCreated',
+      'sshSftpSplitView',
+      'sshTunnelResults',
+      'displayRaw'
     ]
     const { history } = store
     const index = history.findIndex(d => {
