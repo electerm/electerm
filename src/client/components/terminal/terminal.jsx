@@ -319,6 +319,13 @@ clear\r`
     return /["'\n\r]/.test(filename)
   }
 
+  cd = (p) => {
+    if (this.isUnsafeFilename(p)) {
+      return message.error('File name contains unsafe characters')
+    }
+    this.runQuickCommand(`cd "${p}"`)
+  }
+
   onDrop = e => {
     const dt = e.dataTransfer
     const fromFile = dt.getData('fromFile')
