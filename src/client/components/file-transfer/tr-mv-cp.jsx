@@ -6,7 +6,7 @@ import resolve from '../../common/resolve'
 import { refsStatic } from '../common/ref'
 
 export default class TransferMvCp extends TransferFile {
-  constructor(props) {
+  constructor (props) {
     super(props)
     this.id = 'tr-mv-cp-' + props.transfer.id
   }
@@ -17,7 +17,7 @@ export default class TransferMvCp extends TransferFile {
       this.setState({ status: 'conflict' })
       return
     }
-    
+
     this.setState({ status: 'transferring' })
     this.startTime = Date.now()
 
@@ -71,7 +71,7 @@ export default class TransferMvCp extends TransferFile {
     // So we'll just update the state to show it's in progress
     this.setState({
       status: 'transferring',
-      percent: 50  // Use an arbitrary value to show progress
+      percent: 50 // Use an arbitrary value to show progress
     })
     this.props.onProgress && this.props.onProgress(this.id, this.state)
   }
