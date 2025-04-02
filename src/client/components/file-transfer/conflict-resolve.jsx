@@ -68,15 +68,15 @@ export default class ConfirmModalStore extends Component {
   }
 
   act (action) {
-    const { id, transferGroupId } = this.state.transferToConfirm
+    const { id, transferBatch } = this.state.transferToConfirm
     const { resolve } = this
     const toAll = action.includes('All')
     const policy = toAll ? action.replace('All', '') : action
-    const trid = `tr-${transferGroupId}-${id}`
-    if (toAll && transferGroupId) {
+    const trid = `tr-${transferBatch}-${id}`
+    if (toAll && transferBatch) {
       Object.keys(refs)
         .filter(k => {
-          return k.startsWith(`tr-${transferGroupId}-`)
+          return k.startsWith(`tr-${transferBatch}-`)
         })
         .forEach(k => {
           refs.get(k)?.setState({
