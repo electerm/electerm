@@ -2,7 +2,7 @@ import { Component } from 'react'
 import copy from 'json-deep-copy'
 import { isFunction } from 'lodash-es'
 import generate from '../../common/uid'
-import { typeMap, transferTypeMap, fileOperationsMap } from '../../common/constants'
+import { typeMap, transferTypeMap, fileOperationsMap, fileActions } from '../../common/constants'
 import fs from '../../common/fs'
 import format, { computeLeftTime, computePassedTime } from './transfer-speed-format'
 import {
@@ -24,6 +24,12 @@ export default class TransportAction extends Component {
       conflictPolicy: '', //  could be skip, overwriteOrMerge, rename,
       conflictPolicyToAll: false
     }
+    const {
+      id,
+      transferGroupId = ''
+    } = props.transfer
+    this.id = `tr-${transferGroupId}-${id}`
+    refs.add(this.id, this)
   }
 
   componentDidMount () {
@@ -413,6 +419,23 @@ export default class TransportAction extends Component {
     }
   }
 
+  onDecision = (policy) => {
+    if (policy === fileActions.skip) {
+      return this.onEnd()
+    }
+    if (policy === fileActions.rename) {
+      const {
+        typeTo,
+        toPath
+      } = this.props.transfer
+      const newPath = this.handleRename(toPath, typeTo === typeMap.remote)
+      this.update({
+        toPath: newPath
+      })
+    }
+    this.startTransfer()
+  }
+
   startTransfer = async () => {
     const { fromFile } = this.state
     if (!fromFile.isDirectory) {
@@ -424,6 +447,12 @@ export default class TransportAction extends Component {
   list = async (type, path, sessionId) => {
     const sftp = refs.get('sftp-' + sessionId)
     return sftp[type + 'List'](path)
+  }
+
+  handleRename = (fromPath, isRemote) => {
+    const { base, ext } = getFolderFromFilePath(fromPath, isRemote)
+    const newName = `${base}(rename-${generate()})${ext ? '.' + ext : ''}`
+    return resolve(base, newName)
   }
 
   transferFolderRecursive = async (transfer = this.props.transfer) => {
@@ -462,13 +491,6 @@ export default class TransportAction extends Component {
         })
       }
 
-      // Handle rename operation
-      const handleRename = (path) => {
-        const { base, ext } = getFolderFromFilePath(item.name)
-        const newName = `${base}(rename-${generate()})${ext ? '.' + ext : ''}`
-        return resolve(toPath, newName)
-      }
-
       // Check for conflicts
       let resolution
       const fileExists = await this.checkExist(typeTo, toItemPath, sessionId)
@@ -477,7 +499,7 @@ export default class TransportAction extends Component {
         if (resolution === 'skip') {
           continue
         } else if (resolution === 'rename') {
-          itemTransfer.toPath = handleRename(toItemPath)
+          itemTransfer.toPath = this.handleRename(toItemPath, typeTo === typeMap.remote)
         }
         // For overwriteOrMerge, we continue with the original path
       }
