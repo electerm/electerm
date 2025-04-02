@@ -112,10 +112,13 @@ export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig })
             <Form.Item
               label='API PATH'
               name='apiPathAI'
+              rules={[
+                { required: true, message: 'Please input API PATH' }
+              ]}
               noStyle
             >
               <Input
-                placeholder='Enter API path'
+                placeholder='/chat/completions'
                 style={{ width: '25%' }}
               />
             </Form.Item>
