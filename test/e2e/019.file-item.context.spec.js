@@ -52,11 +52,11 @@ describe('file-item-context-menu', function () {
     await client.click('.session-current .term-sftp-tabs .type-tab', 1) // Switch back to file manager
     await delay(1000)
     await client.click(`.file-list.local .sftp-item[title="${folderName}"]`)
-    await delay(200)
+    await delay(400)
     await client.keyboard.press('Delete')
-    await delay(200)
+    await delay(400)
     await client.keyboard.press('Enter')
-    await delay(2000)
+    await delay(4000)
 
     await electronApp.close()
   })
@@ -124,19 +124,78 @@ describe('file-item-context-menu', function () {
 
     // Delete local folder
     await client.click(`.file-list.local .sftp-item[title="${localFolderName}"]`)
-    await delay(200)
+    await delay(400)
     await client.keyboard.press('Delete')
-    await delay(200)
+    await delay(400)
     await client.keyboard.press('Enter')
-    await delay(2000)
+    await delay(4000)
 
     // Delete remote folder
     await client.click(`.file-list.remote .sftp-item[title="${remoteFolderName}"]`)
-    await delay(200)
+    await delay(400)
     await client.keyboard.press('Delete')
-    await delay(200)
+    await delay(400)
     await client.keyboard.press('Enter')
+    await delay(4000)
+
+    await electronApp.close()
+  })
+
+  it('should test rename function for a folder', async function () {
+    const electronApp = await electron.launch(appOptions)
+    const client = await electronApp.firstWindow()
+    extendClient(client, electronApp)
+    await delay(3500)
+
+    // Click sftp tab
+    await client.click('.session-current .term-sftp-tabs .type-tab', 1)
+    await delay(3500)
+
+    // Create a new folder
+    await client.rightClick('.session-current .file-list.local .parent-file-item', 10, 10)
+    await delay(500)
+    const folderName = 'test-folder-' + Date.now()
+    await client.click('.ant-dropdown:not(.ant-dropdown-hidden) .ant-dropdown-menu-item:has-text("New Folder")')
+    await delay(200)
+    await client.setValue('.session-current .sftp-item input', folderName)
+    await client.click('.session-current .sftp-title-wrap')
+    await delay(2500)
+
+    // Verify the folder was created
+    const createdFolder = await client.locator(`.file-list.local .sftp-item[title="${folderName}"]`)
+    expect(await createdFolder.count()).toBe(1)
+
+    // Right click on the folder and select "Rename"
+    await client.rightClick(`.file-list.local .sftp-item[title="${folderName}"]`, 10, 10)
+    await delay(500)
+    await client.click('.ant-dropdown:not(.ant-dropdown-hidden) .ant-dropdown-menu-item:has-text("Rename")')
+    await delay(1000)
+
+    // Rename the folder
+    const newFolderName = 'renamed-folder-' + Date.now()
+    await client.setValue('.session-current .sftp-item input', newFolderName)
+    await client.click('.session-current .sftp-title-wrap')
+    await delay(2500)
+
+    // Verify the folder has been renamed
+    const renamedFolder = await client.locator(`.file-list.local .sftp-item[title="${newFolderName}"]`)
+    expect(await renamedFolder.count()).toBe(1)
+
+    // Clean up - delete the test folder
+    await client.rightClick(`.file-list.local .sftp-item[title="${newFolderName}"]`, 10, 10)
+    await delay(500)
+    await client.click('.ant-dropdown:not(.ant-dropdown-hidden) .ant-dropdown-menu-item:has-text("Delete")')
+    await delay(1000)
+    await client.keyboard.press('Enter')
+    await delay(5000) // Increase delay to allow for deletion process
+
+    // Refresh the file list
+    await client.click('.session-current .sftp-title-wrap')
     await delay(2000)
+
+    // Verify the folder has been deleted
+    const deletedFolder = await client.locator(`.file-list.local .sftp-item[title="${newFolderName}"]`)
+    expect(await deletedFolder.count()).toBe(0)
 
     await electronApp.close()
   })
