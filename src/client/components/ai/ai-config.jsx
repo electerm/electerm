@@ -82,6 +82,9 @@ export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig })
         type='info'
         className='mg2y'
       />
+      <p>
+        Full Url: {initialValues?.baseURLAI}{initialValues?.apiPathAI}
+      </p>
       <Form
         form={form}
         onFinish={handleSubmit}
