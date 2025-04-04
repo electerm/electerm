@@ -82,6 +82,9 @@ export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig })
         type='info'
         className='mg2y'
       />
+      <p>
+        Full Url: {initialValues?.baseURLAI}{initialValues?.apiPathAI}
+      </p>
       <Form
         form={form}
         onFinish={handleSubmit}
@@ -112,10 +115,13 @@ export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig })
             <Form.Item
               label='API PATH'
               name='apiPathAI'
+              rules={[
+                { required: true, message: 'Please input API PATH' }
+              ]}
               noStyle
             >
               <Input
-                placeholder='Enter API path'
+                placeholder='/chat/completions'
                 style={{ width: '25%' }}
               />
             </Form.Item>
