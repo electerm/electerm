@@ -330,4 +330,77 @@ describe('file-item-context-menu', function () {
 
     await electronApp.close()
   })
+
+  it('should test selectAll context menu function for both local and remote', async function () {
+    const electronApp = await electron.launch(appOptions)
+    const client = await electronApp.firstWindow()
+    extendClient(client, electronApp)
+    await delay(3500)
+
+    // Create SSH connection
+    await client.click('.btns .anticon-plus-circle')
+    await delay(500)
+    await client.setValue('#ssh-form_host', TEST_HOST)
+    await client.setValue('#ssh-form_username', TEST_USER)
+    await client.setValue('#ssh-form_password', TEST_PASS)
+    await client.click('.setting-wrap .ant-btn-primary')
+    await delay(3500)
+
+    // Click sftp tab
+    await client.click('.session-current .term-sftp-tabs .type-tab', 1)
+    await delay(3500)
+
+    // Test local file list
+    await testSelectAll(client, 'local')
+
+    // Test remote file list
+    await testSelectAll(client, 'remote')
+
+    await electronApp.close()
+  })
 })
+
+async function testSelectAll (client, type) {
+  // Create a test folder
+  const folderName = `test-folder-${Date.now()}`
+  await client.rightClick(`.session-current .file-list.${type} .real-file-item`, 10, 10)
+  await delay(500)
+  await client.click('.ant-dropdown:not(.ant-dropdown-hidden) .ant-dropdown-menu-item:has-text("New Folder")')
+  await delay(200)
+  await client.setValue('.session-current .sftp-item input', folderName)
+  await client.click('.session-current .sftp-title-wrap')
+  await delay(2500)
+
+  // Right click on any real file item to open context menu
+  await client.rightClick(`.session-current .file-list.${type} .real-file-item`, 10, 10)
+  await delay(500)
+
+  // Click on "Select All" in the context menu
+  await client.click('.ant-dropdown:not(.ant-dropdown-hidden) .ant-dropdown-menu-item:has-text("Select All")')
+  await delay(1000)
+
+  // Check if all real file items have the 'selected' class
+  const fileItems = await client.locator(`.session-current .file-list.${type} .real-file-item`)
+  const count = await fileItems.count()
+
+  if (count > 0) {
+    for (let i = 0; i < count; i++) {
+      const hasSelectedClass = await fileItems.nth(i).evaluate(el => el.classList.contains('selected'))
+      expect(hasSelectedClass).toBe(true)
+    }
+  } else {
+    console.log(`No real file items found in ${type} file list`)
+  }
+
+  // Deselect all for the next test
+  await client.click(`.session-current .file-list.${type}`)
+  await delay(500)
+
+  // Clean up - delete the test folder
+  await client.rightClick(`.session-current .file-list.${type} .real-file-item[title="${folderName}"]`, 10, 10)
+  await delay(500)
+  await client.click('.ant-dropdown:not(.ant-dropdown-hidden) .ant-dropdown-menu-item:has-text("Delete")')
+  await delay(200)
+  await client.keyboard.press('Enter')
+  await delay(1000)
+}
