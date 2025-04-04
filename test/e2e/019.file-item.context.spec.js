@@ -380,8 +380,8 @@ async function testSelectAll (client, type) {
   await delay(1000)
 
   // Check if all real file items have the 'selected' class
-  const fileItems = await client.locator(`.session-current .file-list.${type} .real-file-item`)
-  const count = await fileItems.count()
+  let fileItems = await client.locator(`.session-current .file-list.${type} .real-file-item`)
+  let count = await fileItems.count()
 
   if (count > 0) {
     for (let i = 0; i < count; i++) {
@@ -391,6 +391,24 @@ async function testSelectAll (client, type) {
   } else {
     console.log(`No real file items found in ${type} file list`)
   }
+
+  // Click on a single file item
+  await client.click(`.session-current .file-list.${type} .real-file-item`)
+  await delay(500)
+
+  // Check that only the clicked item has the 'selected' class
+  fileItems = await client.locator(`.session-current .file-list.${type} .real-file-item`)
+  count = await fileItems.count()
+
+  let selectedCount = 0
+  for (let i = 0; i < count; i++) {
+    const hasSelectedClass = await fileItems.nth(i).evaluate(el => el.classList.contains('selected'))
+    if (hasSelectedClass) {
+      selectedCount++
+    }
+  }
+
+  expect(selectedCount).toBe(1)
 
   // Deselect all for the next test
   await client.click(`.session-current .file-list.${type}`)
