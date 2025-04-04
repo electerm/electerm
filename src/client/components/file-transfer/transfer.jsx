@@ -30,6 +30,8 @@ export default class TransportAction extends Component {
     } = props.transfer
     this.id = `tr-${transferGroupId}-${id}`
     refs.add(this.id, this)
+    this.total = 0
+    this.transferred = 0
   }
 
   componentDidMount () {
@@ -441,7 +443,11 @@ export default class TransportAction extends Component {
     if (!fromFile.isDirectory) {
       return this.transferFile()
     }
-    this.transferFolder()
+    await this.transferFolder()
+    this.onEnd({
+      transferred: this.transferred,
+      size: this.total
+    })
   }
 
   list = async (type, path, sessionId) => {
@@ -453,6 +459,29 @@ export default class TransportAction extends Component {
     const { base, ext } = getFolderFromFilePath(fromPath, isRemote)
     const newName = `${base}(rename-${generate()})${ext ? '.' + ext : ''}`
     return resolve(base, newName)
+  }
+
+  onFolderData = (transferred) => {
+    if (this.onCancel) {
+      return
+    }
+    this.transferred += transferred
+    const up = {}
+    let percent = this.total === 0
+      ? 0
+      : Math.floor(100 * this.transferred / this.total)
+    percent = percent >= 100 ? 99 : percent
+    up.percent = percent
+    up.status = 'active'
+    up.transferred = this.transferred
+    up.startTime = this.startTime
+    up.speed = format(this.transferred, up.startTime)
+    Object.assign(
+      up,
+      computeLeftTime(this.transferred, this.total, up.startTime)
+    )
+    up.passedTime = computePassedTime(up.startTime)
+    this.update(up)
   }
 
   transferFolderRecursive = async (transfer = this.props.transfer) => {
@@ -470,6 +499,9 @@ export default class TransportAction extends Component {
 
     // Process each item in the folder
     for (const item of list) {
+      if (!item.isDirectory) {
+        this.total += item.size
+      }
       const fromItemPath = resolve(fromPath, item.name)
       const toItemPath = resolve(toPath, item.name)
 
