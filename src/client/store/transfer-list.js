@@ -1,6 +1,9 @@
 /**
  * file transfer list related functions
  */
+
+import uid from '../common/uid'
+
 const { assign } = Object
 
 export default Store => {
@@ -18,8 +21,13 @@ export default Store => {
   }
 
   Store.prototype.addTransferList = function (items) {
+    console.log('addTransferList', JSON.stringify(items, null, 2))
     const { fileTransfers } = window.store
-    fileTransfers.push(...items)
+    const transferBatch = uid()
+    fileTransfers.push(...items.map(t => {
+      t.transferBatch = transferBatch
+      return t
+    }))
   }
 
   Store.prototype.toggleTransfer = function (itemId) {
