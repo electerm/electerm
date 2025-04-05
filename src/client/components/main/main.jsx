@@ -12,10 +12,10 @@ import UiTheme from './ui-theme'
 import CustomCss from './custom-css.jsx'
 import Resolutions from '../rdp/resolution-edit'
 import TerminalInteractive from '../terminal/terminal-interactive'
-import ConfirmModalStore from '../sftp/confirm-modal-store.jsx'
-import TransferConflictStore from '../sftp/transfer-conflict-store.jsx'
+import ConfirmModalStore from '../file-transfer/conflict-resolve.jsx'
+// import TransferConflictStore from '../sftp/transfer-conflict-store.jsx'
 import TerminalCmdSuggestions from '../terminal/terminal-command-dropdown'
-import TransportsActionStore from '../sftp/transports-action-store.jsx'
+import TransportsActionStore from '../file-transfer/transports-action-store.jsx'
 import classnames from 'classnames'
 import ShortcutControl from '../shortcuts/shortcut-control.jsx'
 import { isMac, isWin } from '../../common/constants'
@@ -177,6 +177,7 @@ export default auto(function Index (props) {
     installSrc,
     upgradeInfo: store.upgradeInfo
   }
+  console.log('copiedTransfer', copiedTransfer)
   const conflictStoreProps = {
     fileTransferChanged: JSON.stringify(copiedTransfer),
     fileTransfers: copiedTransfer
@@ -273,10 +274,6 @@ export default auto(function Index (props) {
           />
         </div>
         <ConfirmModalStore
-          transferToConfirm={transferToConfirm}
-        />
-        <TransferConflictStore
-          {...conflictStoreProps}
           transferToConfirm={transferToConfirm}
         />
         <TransportsActionStore

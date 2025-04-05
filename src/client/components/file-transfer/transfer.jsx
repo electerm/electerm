@@ -35,6 +35,7 @@ export default class TransportAction extends Component {
   }
 
   componentDidMount () {
+    console.log('componentDidMount', this.props.transfer)
     if (this.props.inited) {
       this.initTransfer()
     }
@@ -61,7 +62,6 @@ export default class TransportAction extends Component {
   componentWillUnmount () {
     this.transport && this.transport.destroy()
     this.transport = null
-    this.inst = null
   }
 
   localCheckExist = (path) => {
@@ -362,7 +362,9 @@ export default class TransportAction extends Component {
   }
 
   initTransfer = async () => {
+    console.log('Starting initTransfer')
     if (this.started) {
+      console.log('Transfer already started, returning')
       return
     }
     const { transfer } = this.props
@@ -374,36 +376,49 @@ export default class TransportAction extends Component {
       toPath,
       operation
     } = transfer
+    console.log('Transfer details:', { id, typeFrom, typeTo, fromPath, toPath, operation })
+
     if (
       typeFrom === typeTo &&
       fromPath === toPath &&
       operation === fileOperationsMap.mv
     ) {
+      console.log('Same source and destination with move operation, cancelling')
       return this.cancel()
     }
+
     const t = Date.now()
+    console.log('Setting start time:', t)
     this.update({
       startTime: t
     })
     this.startTime = t
     this.started = true
+
+    console.log('Checking file existence')
     const fromFile = transfer.fromFile
       ? transfer.fromFile
       : await this.checkExist(typeFrom, fromPath, this.sessionId)
+
     if (!fromFile) {
+      console.log('Source file does not exist')
       return this.tagTransferError(id, 'file not exist')
     }
-    // Check for conflict before starting transfer
+    console.log('Source file found:', fromFile)
+
+    console.log('Checking for conflicts')
     const hasConflict = await this.checkConflict()
     if (hasConflict) {
+      console.log('Conflict detected, returning')
       return
     }
 
-    if (
-      typeFrom === typeTo
-    ) {
+    if (typeFrom === typeTo) {
+      console.log('Same source and destination types, performing mvOrCp')
       return this.mvOrCp()
     }
+
+    console.log('Starting transfer between different types')
     this.startTransfer()
   }
 

@@ -6,6 +6,7 @@
 import { Component } from 'react'
 import Transports from './transports-ui-store'
 import { maxTransport } from '../../common/constants'
+// import { action } from 'manate'
 
 export default class TransportsActionStore extends Component {
   componentDidMount () {
@@ -21,23 +22,27 @@ export default class TransportsActionStore extends Component {
   }
 
   control = async () => {
+    console.log('control')
     const { store } = window
     const {
       fileTransfers
     } = store
-
-    fileTransfers.forEach(t => {
+    for (const t of fileTransfers) {
       const {
         typeTo,
         typeFrom,
-        fromFile,
         inited
       } = t
-      const ready = !!fromFile
-      if (typeTo === typeFrom && ready && !inited) {
-        t.inited = true
+      console.log('t', JSON.stringify(t, null, 2))
+      if (typeTo === typeFrom && !inited) {
+        console.log('t21', t)
+        // t.inited = true
+        setTimeout(() => {
+          console.log('t22', t)
+          t.inited = true
+        }, 100)
       }
-    })
+    }
     // if (pauseAllTransfer) {
     //   return store.setFileTransfers(fileTransfers)
     // }
@@ -61,16 +66,13 @@ export default class TransportsActionStore extends Component {
         typeTo,
         typeFrom,
         inited,
-        fromFile,
         action
       } = tr
       // if (!error) {
       //   ids.push(id)
       // }
       const isTransfer = typeTo !== typeFrom
-      const ready = (
-        action && fromFile
-      )
+      const ready = !!action
       if (
         !ready ||
         inited ||
@@ -83,7 +85,7 @@ export default class TransportsActionStore extends Component {
       //   continue
       // }
       if (
-        fromFile && count < maxTransport
+        count < maxTransport
       ) {
         count++
         tr.inited = true

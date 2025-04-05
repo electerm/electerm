@@ -2,9 +2,10 @@
  * transporter UI component
  */
 
-import Transport from './transport-action-store'
+import Transport from './transfer'
 
 export default function TransportsUI (props) {
+  console.log('ptopds', props)
   const { fileTransfers } = props
   if (!fileTransfers.length) {
     return null
@@ -19,6 +20,7 @@ export default function TransportsUI (props) {
       pausing: t.pausing,
       config: props.config
     }
+    console.log('trProps', trProps)
     return (
       <Transport
         {...trProps}
