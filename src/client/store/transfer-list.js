@@ -72,7 +72,6 @@ export default Store => {
     if (index < 0) {
       return
     }
-    fileTransfers[index].cancel = true
     fileTransfers.splice(index, 1)
   }
 

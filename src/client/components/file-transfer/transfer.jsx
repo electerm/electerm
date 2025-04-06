@@ -14,6 +14,8 @@ import resolve from '../../common/resolve'
 import { refs, refsStatic } from '../common/ref'
 import './transfer.styl'
 
+const { assign } = Object
+
 export default class TransportAction extends Component {
   constructor (props) {
     super(props)
@@ -90,6 +92,24 @@ export default class TransportAction extends Component {
     )
   }
 
+  tagTransferError = (id, errorMsg) => {
+    this.clear()
+    const { store } = window
+    const { fileTransfers } = store
+    const index = fileTransfers.findIndex(d => d.id === id)
+    if (index < 0) {
+      return
+    }
+
+    const [tr] = fileTransfers.splice(index, 1)
+    assign(tr, {
+      host: tr.host,
+      error: errorMsg,
+      finishTime: Date.now()
+    })
+    store.addTransferHistory(tr)
+  }
+
   insert = (insts) => {
     const { fileTransfers } = window.store
     const { index } = this.props
@@ -118,8 +138,7 @@ export default class TransportAction extends Component {
     const finishTime = Date.now()
     if (!config.disableTransferHistory) {
       const r = copy(transfer)
-      delete transfer.next
-      Object.assign(r, update, {
+      assign(r, update, {
         finishTime,
         startTime: this.startTime,
         size: transfer.fromFile.size,
@@ -155,7 +174,7 @@ export default class TransportAction extends Component {
     up.transferred = transferred
     up.startTime = this.startTime
     up.speed = format(transferred, up.startTime)
-    Object.assign(
+    assign(
       up,
       computeLeftTime(transferred, total, up.startTime)
     )
@@ -170,9 +189,7 @@ export default class TransportAction extends Component {
     this.onCancel = true
     this.transport && this.transport.destroy()
     this.transport = null
-    window.store.fileTransfers.splice(
-      this.props.index, 1
-    )
+    window.store.cancelTransfer(this.props.transfer.id)
     if (isFunction(callback)) {
       callback()
     }
@@ -362,11 +379,13 @@ export default class TransportAction extends Component {
   }
 
   initTransfer = async () => {
+    console.log('===========', this.props.transfer.id)
     console.log('Starting initTransfer')
     if (this.started) {
       console.log('Transfer already started, returning')
       return
     }
+    this.started = true
     const { transfer } = this.props
     const {
       id,
@@ -393,7 +412,6 @@ export default class TransportAction extends Component {
       startTime: t
     })
     this.startTime = t
-    this.started = true
 
     console.log('Checking file existence')
     const fromFile = transfer.fromFile
@@ -404,6 +422,9 @@ export default class TransportAction extends Component {
       console.log('Source file does not exist')
       return this.tagTransferError(id, 'file not exist')
     }
+    this.update({
+      fromFile
+    })
     console.log('Source file found:', fromFile)
 
     console.log('Checking for conflicts')
@@ -428,10 +449,27 @@ export default class TransportAction extends Component {
       toPath,
       sessionId
     } = transfer
+    const transferStillExists = window.store.fileTransfers.some(t => t.id === transfer.id)
+    if (!transferStillExists) {
+      return false
+    }
+    // Get the target file information if it exists
+    const toFile = await this.checkExist(typeTo, toPath, sessionId)
 
-    const fileExists = await this.checkExist(typeTo, toPath, sessionId)
-    if (fileExists) {
-      refsStatic.get('transfer-conflict')?.addConflict(transfer, resolve)
+    if (toFile) {
+      // Update the transfer object with the target file information
+      const transferWithToFile = {
+        ...transfer,
+        toFile
+      }
+
+      // Update the state with toFile information
+      this.update({
+        toFile
+      })
+
+      // Pass the updated transfer object with toFile to the conflict handler
+      refsStatic.get('transfer-conflict')?.addConflict(transferWithToFile, resolve)
       return true
     }
   }
@@ -491,7 +529,7 @@ export default class TransportAction extends Component {
     up.transferred = this.transferred
     up.startTime = this.startTime
     up.speed = format(this.transferred, up.startTime)
-    Object.assign(
+    assign(
       up,
       computeLeftTime(this.transferred, this.total, up.startTime)
     )
@@ -540,8 +578,9 @@ export default class TransportAction extends Component {
 
       // Check for conflicts
       let resolution
-      const fileExists = await this.checkExist(typeTo, toItemPath, sessionId)
-      if (fileExists) {
+      const toFile = await this.checkExist(typeTo, toItemPath, sessionId)
+      if (toFile) {
+        itemTransfer.toFile = toFile
         resolution = await handleConflict()
         if (resolution === 'skip') {
           continue
@@ -553,7 +592,7 @@ export default class TransportAction extends Component {
 
       if (item.isDirectory) {
         // For directories, only create if not overwriteOrMerge
-        if (!(fileExists && (conflictPolicy === 'overwriteOrMerge' || resolution === 'overwriteOrMerge'))) {
+        if (!(toFile && (conflictPolicy === 'overwriteOrMerge' || resolution === 'overwriteOrMerge'))) {
           await this.mkdir(itemTransfer)
         }
         await this.transferFolderRecursive(itemTransfer)
