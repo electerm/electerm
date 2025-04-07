@@ -6,6 +6,7 @@
 import { Component } from 'react'
 import Transports from './transports-ui-store'
 import { maxTransport } from '../../common/constants'
+import { refsStatic } from '../common/ref'
 // import { action } from 'manate'
 
 export default class TransportsActionStore extends Component {
@@ -31,16 +32,19 @@ export default class TransportsActionStore extends Component {
       const {
         typeTo,
         typeFrom,
-        inited
+        inited,
+        id
       } = t
       console.log('t', JSON.stringify(t, null, 2))
       if (typeTo === typeFrom && !inited) {
         console.log('t21', t)
-        // t.inited = true
-        setTimeout(() => {
-          console.log('t22', t)
-          t.inited = true
-        }, 100)
+        refsStatic.get('transfer-queue')?.addToQueue(
+          'update',
+          id,
+          {
+            inited: true
+          }
+        )
       }
     }
     // if (pauseAllTransfer) {
