@@ -38,12 +38,22 @@ export default class QuickCommandsList extends List {
   }
 
   handleDragStart = e => {
-    e.dataTransfer.setData('idDragged', e.target.getAttribute('data-id'))
+    const dragElement = e.target.closest('.item-list-unit')
+    if (dragElement) {
+      e.dataTransfer.setData('idDragged', dragElement.getAttribute('data-id'))
+    }
   }
 
-  // adjust window.store.quickCommands array order when drop, so that the dragged item will be placed at the right position, e.target.getAttribute('data-id') would target item id, e.dataTransfer.getData('idDragged') would target dragged item id
+  handleDragEnter = e => {
+    e.target.closest('.item-list-unit').classList.add('dragover')
+  }
+
+  handleDragLeave = e => {
+    e.target.closest('.item-list-unit').classList.remove('dragover')
+  }
+
   handleDrop = e => {
-    onDrop(e)
+    onDrop(e, '.item-list-unit')
   }
 
   renderItem = (item, i) => {
@@ -73,6 +83,8 @@ export default class QuickCommandsList extends List {
         onDragOver={this.handleDragOver}
         onDragStart={this.handleDragStart}
         onDrop={this.handleDrop}
+        onDragEnter={this.handleDragEnter}
+        onDragLeave={this.handleDragLeave}
       >
         <div className='elli pd1y pd2x' title={name}>
           {

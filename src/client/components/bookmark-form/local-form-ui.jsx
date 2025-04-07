@@ -20,6 +20,7 @@ import useSubmit from './use-submit'
 import useUI from './use-ui'
 import useQm from './use-quick-commands'
 import copy from 'json-deep-copy'
+import renderTermBg from './render-bg'
 import { defaults } from 'lodash-es'
 import renderRunScripts from './render-delayed-scripts.jsx'
 import { ColorPickerItem } from './color-picker-item.jsx'
@@ -124,7 +125,12 @@ export default function LocalFormUi (props) {
         key: 'settings',
         label: e('settings'),
         forceRender: true,
-        children: uis
+        children: (
+          <>
+            {uis}
+            {renderTermBg(form)}
+          </>
+        )
       },
       {
         key: 'quickCommands',
@@ -147,7 +153,7 @@ export default function LocalFormUi (props) {
       initialValues={initialValues}
       name='local-form'
     >
-      {renderTabs()}
+      {renderTabs({ form })}
       {submitUi}
     </Form>
   )

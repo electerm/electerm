@@ -36,3 +36,19 @@
   .loading-data
     display none
 
+#container
+  .session-batch-active
+    .xterm-screen
+      &::before
+        font-size 30vmin
+        font-weight bold
+        color alpha(text, 0.15)
+        display flex
+        justify-content center
+        align-items center
+        position absolute
+        top 0
+        left 0
+        right 0
+        bottom 0
+        z-index -1
