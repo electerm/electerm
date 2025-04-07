@@ -22,6 +22,7 @@ import wait from '../../common/wait'
 import {
   fileOperationsMap,
   isWin, transferTypeMap, typeMap,
+  paneMap,
   isMac, maxEditFileSize, ctrlOrCmd
 } from '../../common/constants'
 import findParent from '../../common/find-parent'
@@ -614,6 +615,7 @@ export default class FileSection extends React.Component {
     if (this.watchingFile) {
       window.pre.ipcOffEvent('file-change', this.onFileChange)
       window.pre.runGlobalAsync('unwatchFile', this.watchingFile)
+      fs.unlink(this.watchingFile).catch(console.log)
       delete this.watchingFile
     }
   }
@@ -658,15 +660,8 @@ export default class FileSection extends React.Component {
       path, name
     } = this.state.file
     const rp = resolve(path, name)
-    ;(
-      document.querySelector('.session-current .term-sftp-tabs .type-tab.terminal') ||
-      document.querySelector('.session-current .term-sftp-tabs .type-tab.ssh')
-    ).click()
-    this.timer = setTimeout(() => {
-      window.store.runQuickCommand(
-        `cd "${rp}"`
-      )
-    }, 500)
+    this.props.tab.pane = paneMap.terminal
+    refs.get('term-' + this.props.tab.id)?.cd(rp)
   }
 
   fetchEditorText = async (path, type) => {

@@ -20,6 +20,7 @@ import useSubmit from './use-submit'
 import useUI from './use-ui'
 import useQm from './use-quick-commands'
 import renderCommon from './form-ssh-common'
+import renderTermBg from './render-bg'
 import { getRandomDefaultColor } from '../../common/rand-hex-color.js'
 import copy from 'json-deep-copy'
 import { defaultsDeep, isEmpty } from 'lodash-es'
@@ -104,7 +105,12 @@ export default function TelnetFormUI (props) {
         key: 'settings',
         label: e('settings'),
         forceRender: true,
-        children: uis
+        children: (
+          <>
+            {uis}
+            {renderTermBg(form)}
+          </>
+        )
       },
       {
         key: 'quickCommands',

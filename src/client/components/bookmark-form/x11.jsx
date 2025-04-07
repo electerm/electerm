@@ -4,6 +4,7 @@
 import {
   Switch,
   Form,
+  Button,
   Select
 } from 'antd'
 import { formItemLayout } from '../../common/form-layout'
@@ -46,7 +47,48 @@ const serverHostKeyOptions = [
   'rsa-sha2-256'
 ]
 
-export default function renderX11 () {
+const defaultCipherOptions = [
+  'aes128-ctr',
+  'aes192-ctr',
+  'aes256-ctr',
+  'aes128-gcm',
+  'aes128-gcm@openssh.com',
+  'aes256-gcm',
+  'aes256-gcm@openssh.com',
+  'aes256-cbc',
+  'aes192-cbc',
+  'aes128-cbc',
+  'blowfish-cbc',
+  '3des-cbc',
+  'arcfour256',
+  'arcfour128',
+  'cast128-cbc',
+  'arcfour'
+]
+
+const defaultServerHostKeyOptions = [
+  'ssh-rsa',
+  'ssh-ed25519',
+  'ecdsa-sha2-nistp256',
+  'ecdsa-sha2-nistp384',
+  'ecdsa-sha2-nistp521',
+  'ssh-dss',
+  'rsa-sha2-512',
+  'rsa-sha2-256'
+]
+
+export default function renderX11 (form) {
+  function setDefaults () {
+    // form.setFieldsValue({
+    //   cipher: defaultCipherOptions
+    // })
+
+    // form.setFieldsValue({
+    //   serverHostKey: defaultServerHostKeyOptions
+    // })
+    form.setFieldValue('cipher', defaultCipherOptions)
+    form.setFieldValue('serverHostKey', defaultServerHostKeyOptions)
+  }
   return (
     <>
       <FormItem
@@ -67,17 +109,31 @@ export default function renderX11 () {
       <FormItem
         {...formItemLayout}
         label='serverHostKey'
-        name='serverHostKey'
       >
-        <Select
-          mode='multiple'
+        <FormItem
+          {...formItemLayout}
+          noStyle
+          name='serverHostKey'
         >
-          {serverHostKeyOptions.map(key => (
-            <Option key={key} value={key}>
-              {key}
-            </Option>
-          ))}
-        </Select>
+          <Select
+            mode='multiple'
+          >
+            {serverHostKeyOptions.map(key => (
+              <Option key={key} value={key}>
+                {key}
+              </Option>
+            ))}
+          </Select>
+        </FormItem>
+        <div className='mg1t'>
+          <Button
+            type='dashed'
+            onClick={setDefaults}
+            size='small'
+          >
+            Set default cipher and serverHostKey
+          </Button>
+        </div>
       </FormItem>
       <FormItem
         {...formItemLayout}

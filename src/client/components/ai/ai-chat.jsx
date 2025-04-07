@@ -97,7 +97,7 @@ export default function AIChat (props) {
     return (
       <SendOutlined
         onClick={handleSubmit}
-        className='mg1l pointer icon-hover'
+        className='mg1l pointer icon-hover send-to-ai-icon'
         title='Ctrl+Enter'
       />
     )
@@ -108,7 +108,7 @@ export default function AIChat (props) {
       setPrompt,
       handleSubmit
     })
-    if (window.store.aiConfigMissing()) {
+    if (props.rightPanelTab === 'ai' && window.store.aiConfigMissing()) {
       window.store.toggleAIConfig()
     }
     return () => {
