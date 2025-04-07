@@ -68,7 +68,8 @@ export const connectionMap = buildConst([
   'local',
   'web',
   'rdp',
-  'vnc'
+  'vnc',
+  'ftp'
 ])
 
 export const authTypeMap = buildConst([

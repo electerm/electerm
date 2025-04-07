@@ -158,6 +158,7 @@ const initWs = function (app) {
 
   // sftp function
   app.ws('/ftp/:id', (ws, req) => {
+    console.log('ftp')
     verify(req)
     wsDec(ws)
     const { id } = req.params
@@ -170,14 +171,14 @@ const initWs = function (app) {
 
       if (action === 'sftp-new') {
         const { id } = msg
-        sftp(id, new Ftp({
+        ftp(id, new Ftp({
           uid: id,
           type: 'ftp'
         }))
       } else if (action === 'sftp-func') {
         const { id, args, func } = msg
         const uid = func + ':' + id
-        const inst = sftp(id)
+        const inst = ftp(id)
         if (inst) {
           inst[func](...args)
             .then(data => {

@@ -15,6 +15,7 @@ import {
   typeMap, maxSftpHistory, paneMap,
   fileTypeMap,
   terminalSerialType,
+  terminalFtpType,
   unexpectedPacketErrorDesc,
   sftpRetryInterval
 } from '../../common/constants'
@@ -52,6 +53,12 @@ export default class Sftp extends Component {
     this.tid = 'sftp-' + this.props.tab.id
     refs.add(this.id, this)
     refs.add(this.tid, this)
+    const { tab } = this.props
+    console.log('tab', tab)
+    if (tab.type === terminalFtpType) {
+      console.log('init ftp')
+      this.initData()
+    }
   }
 
   componentDidUpdate (prevProps, prevState) {
@@ -170,9 +177,11 @@ export default class Sftp extends Component {
   }, isEqual)
 
   isActive () {
-    return this.props.currentBatchTabId === this.props.tab.id &&
-      (this.props.pane === paneMap.fileManager ||
-      this.props.sshSftpSplitView)
+    const { currentBatchTabId, pane, sshSftpSplitView } = this.props
+    const { tab } = this.props
+    const isFtp = tab.type === terminalFtpType
+
+    return (currentBatchTabId === tab.id && (pane === paneMap.fileManager || sshSftpSplitView)) || isFtp
   }
 
   updateKeyword = (keyword, type) => {
@@ -567,7 +576,8 @@ export default class Sftp extends Component {
     let sftp = this.sftp
     try {
       if (!this.sftp) {
-        sftp = await Client(sessionId)
+        const type = tab.type = tab.type === terminalFtpType ? 'ftp' : 'sftp'
+        sftp = await Client(sessionId, type)
         if (!sftp) {
           return
         }
@@ -717,6 +727,7 @@ export default class Sftp extends Component {
   }
 
   localList = async (returnList = false, localPathReal, oldPath) => {
+    console.log('local list')
     if (!fs) return
     if (!returnList) {
       this.setState({
@@ -726,6 +737,7 @@ export default class Sftp extends Component {
     const oldLocal = deepCopy(
       this.state.local
     )
+    console.log('local list1')
     try {
       const noPathInit = localPathReal || this.state.localPath
       const localPath = noPathInit ||
@@ -762,6 +774,7 @@ export default class Sftp extends Component {
           ...this.state.localPathHistory
         ]).slice(0, maxSftpHistory)
       }
+      console.log('local list2', update)
       this.setState(update)
     } catch (e) {
       const update = {
