@@ -57,6 +57,25 @@ function stopWidget (instanceId) {
     })
 }
 
+async function runWidgetFunc (instanceId, funcName, ...args) {
+  const instance = runningInstances.get(instanceId)
+  if (!instance) {
+    throw new Error(`No running instance found for instanceId: ${instanceId}`)
+  }
+
+  if (typeof instance[funcName] !== 'function') {
+    throw new Error(`Function ${funcName} not found in widget instance`)
+  }
+
+  try {
+    const result = await instance[funcName](...args)
+    return result
+  } catch (error) {
+    console.error(`Error executing ${funcName} on widget instance ${instanceId}:`, error)
+    throw error
+  }
+}
+
 async function cleanup () {
   if (runningInstances.size === 0) {
     return
@@ -103,5 +122,6 @@ registerCleanupHandlers()
 module.exports = {
   listWidgets,
   runWidget,
-  stopWidget
+  stopWidget,
+  runWidgetFunc
 }

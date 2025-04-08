@@ -1,5 +1,11 @@
+// widget-ping.js
 const axios = require('axios')
-const EventEmitter = require('events')
+
+// Define defaults in one place
+const DEFAULTS = {
+  url: 'https://www.example.com',
+  timeout: 5000
+}
 
 const widgetInfo = {
   name: 'URL Ping Tool',
@@ -10,45 +16,40 @@ const widgetInfo = {
     {
       name: 'url',
       type: 'string',
-      default: 'https://www.example.com',
+      default: DEFAULTS.url,
       description: 'The URL to ping'
     },
     {
       name: 'timeout',
       type: 'number',
-      default: 5000,
+      default: DEFAULTS.timeout,
       description: 'Timeout in milliseconds'
     }
   ]
 }
 
-class URLPingTool extends EventEmitter {
-  constructor (config) {
-    super()
-    this.config = config
+class URLPingTool {
+  constructor () {
     this.isRunning = false
   }
 
-  async pingURL () {
-    this.isRunning = true
-    const { url, timeout } = this.config
-
+  async pingURL (url = DEFAULTS.url, timeout = DEFAULTS.timeout) {
     try {
       const startTime = Date.now()
       const response = await axios.get(url, { timeout })
       const endTime = Date.now()
 
-      const result = {
+      return {
+        success: true,
         url,
         status: response.status,
         statusText: response.statusText,
         responseTime: endTime - startTime,
         headers: response.headers
       }
-
-      this.emit('pingComplete', result)
     } catch (error) {
       let errorMessage = 'An error occurred'
+
       if (error.response) {
         errorMessage = `HTTP error! status: ${error.response.status}`
       } else if (error.request) {
@@ -57,29 +58,23 @@ class URLPingTool extends EventEmitter {
         errorMessage = error.message
       }
 
-      this.emit('error', { url, error: errorMessage })
-    } finally {
-      this.isRunning = false
+      return {
+        success: false,
+        url,
+        error: errorMessage
+      }
     }
-  }
-
-  async start () {
-    if (this.isRunning) {
-      throw new Error('URL ping is already in progress')
-    }
-    await this.pingURL()
   }
 
   getStatus () {
     return {
-      status: this.isRunning ? 'running' : 'idle',
-      config: this.config
+      status: this.isRunning ? 'running' : 'idle'
     }
   }
 }
 
-function widgetRun (config) {
-  return new URLPingTool(config)
+function widgetRun () {
+  return new URLPingTool()
 }
 
 module.exports = {
