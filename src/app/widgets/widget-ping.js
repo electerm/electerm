@@ -1,5 +1,6 @@
-// widget-ping.js
 const axios = require('axios')
+const uid = require('../common/uid')
+
 // Define defaults in one place
 const DEFAULTS = {
   url: 'https://www.example.com',
@@ -34,8 +35,8 @@ class URLPingTool {
       ...DEFAULTS,
       ...config
     }
-    // Generate a unique instance ID
-    this.instanceId = 'ping-' + Date.now() + '-' + Math.floor(Math.random() * 1000)
+    // Use the uid module to generate a unique instance ID
+    this.instanceId = uid()
   }
 
   start () {
@@ -69,20 +70,32 @@ class URLPingTool {
         }
       })
       .catch(error => {
-        let errorMessage = 'An error occurred'
-
         if (error.response) {
-          errorMessage = `HTTP error! status: ${error.response.status}`
+          // We got a response, so the request technically succeeded
+          // but with an error status code (e.g. 404, 500)
+          const endTime = Date.now()
+          return {
+            success: true, // Mark as successful since we got a response
+            url,
+            status: error.response.status,
+            statusText: error.response.statusText,
+            responseTime: endTime - startTime,
+            headers: error.response.headers
+          }
         } else if (error.request) {
-          errorMessage = 'No response received'
+          // We made the request but got no response
+          return {
+            success: false,
+            url,
+            error: 'No response received'
+          }
         } else {
-          errorMessage = error.message
-        }
-
-        return {
-          success: false,
-          url,
-          error: errorMessage
+          // Something else went wrong
+          return {
+            success: false,
+            url,
+            error: error.message
+          }
         }
       })
   }

@@ -113,8 +113,8 @@ describe('widget-ping', function () {
 
     const pingResult = await runWidgetFunc(widgetInstance, 'pingURL', `${testUrl}/error`)
     expect(pingResult).toBeTruthy()
-    expect(pingResult.success).toBe(false) // HTTP error should be treated as unsuccessful
-    expect(pingResult.error).toContain('500') // Error message should contain the status code
+    expect(pingResult.success).toBe(true) // Request succeeds but with error status
+    expect(pingResult.status).toBe(500)
   })
 
   // Test timeout
