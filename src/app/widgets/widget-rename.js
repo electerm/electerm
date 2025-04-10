@@ -1,6 +1,16 @@
 const fs = require('fs').promises
 const path = require('path')
-const EventEmitter = require('events')
+const uid = require('../common/uid')
+
+// Define defaults in one place
+const DEFAULTS = {
+  directory: '',
+  template: '{name}-{n}.{ext}',
+  includeSubfolders: false,
+  fileTypes: '*',
+  startNumber: 1,
+  preserveCase: true
+}
 
 const widgetInfo = {
   name: 'File Renamer',
@@ -11,48 +21,52 @@ const widgetInfo = {
     {
       name: 'directory',
       type: 'string',
-      default: '',
+      default: DEFAULTS.directory,
       description: 'The directory containing files to rename'
     },
     {
       name: 'template',
       type: 'string',
-      default: '{name}-{n}.{ext}',
-      description: `Template for new file names. Available tags:
-        {n} - Sequential number (e.g., 1, 2, 3)
-        {n:padding} - Padded number (e.g., {n:3} => 001, 002)
-        {name} - Original filename without extension
-        {ext} - File extension
-        {date} - File creation date (YYYY-MM-DD)
-        {time} - File creation time (HH-mm-ss)
-        {random} - Random string`
+      default: DEFAULTS.template,
+      description: 'Template for new file names. Available tags:\n{n} - Sequential number (e.g., 1, 2, 3)\n{n:padding} - Padded number (e.g., {n:3} => 001, 002)\n{name} - Original filename without extension\n{ext} - File extension\n{date} - File creation date (YYYY-MM-DD)\n{time} - File creation time (HH-mm-ss)\n{random} - Random string'
     },
     {
       name: 'includeSubfolders',
       type: 'boolean',
-      default: false,
+      default: DEFAULTS.includeSubfolders,
       description: 'Process files in subfolders'
     },
     {
       name: 'fileTypes',
       type: 'string',
-      default: '*',
+      default: DEFAULTS.fileTypes,
       description: 'Comma-separated list of file extensions (e.g., jpg,png,gif) or * for all'
+    },
+    {
+      name: 'startNumber',
+      type: 'number',
+      default: DEFAULTS.startNumber,
+      description: 'Starting number for sequential naming'
+    },
+    {
+      name: 'preserveCase',
+      type: 'boolean',
+      default: DEFAULTS.preserveCase,
+      description: 'Preserve case of original filenames'
     }
   ]
 }
 
-class FileRenamer extends EventEmitter {
-  constructor (config) {
-    super()
-    this.config = config
+class FileRenamer {
+  constructor(config = {}) {
     this.isRunning = false
+    this.instanceId = uid()
+    // We don't need to store config since we accept live parameters in rename()
   }
 
-  async getFiles (dir, fileTypes, includeSubfolders) {
+  async getFiles(dir, fileTypes, includeSubfolders) {
     const files = await fs.readdir(dir, { withFileTypes: true })
     let results = []
-
     for (const file of files) {
       const fullPath = path.join(dir, file.name)
       if (file.isDirectory() && includeSubfolders) {
@@ -67,83 +81,106 @@ class FileRenamer extends EventEmitter {
     return results
   }
 
-  async processTemplate (template, filePath, index) {
+  async processTemplate(template, filePath, index, startNumber, preserveCase) {
     const stats = await fs.stat(filePath)
     const parsedPath = path.parse(filePath)
     const date = new Date(stats.birthtime)
-
     const replacements = {
       n: (padding) => {
-        const num = this.config.startNumber + index
-        return padding
-          ? String(num).padStart(parseInt(padding), '0')
-          : String(num)
+        const num = startNumber + index
+        return padding ? String(num).padStart(parseInt(padding), '0') : String(num)
       },
-      name: () => this.config.preserveCase ? parsedPath.name : parsedPath.name.toLowerCase(),
+      name: () => preserveCase ? parsedPath.name : parsedPath.name.toLowerCase(),
       ext: () => parsedPath.ext.slice(1),
       date: () => date.toISOString().split('T')[0],
       time: () => date.toTimeString().split(' ')[0].replace(/:/g, '-'),
       random: () => Math.random().toString(36).substring(2, 8),
       parent: () => parsedPath.dir.split(path.sep).pop()
     }
-
     let result = template
     for (const [tag, func] of Object.entries(replacements)) {
       // Handle tags with parameters like {n:3}
       result = result.replace(new RegExp(`{${tag}(?::([^}]+))?}`, 'g'), (match, param) => func(param))
     }
-
     return result
   }
 
-  async renameFiles () {
-    this.isRunning = true
-    const { directory, template, includeSubfolders, fileTypes } = this.config
+  async rename(params = {}) {
+    const config = {
+      ...DEFAULTS,
+      ...params
+    }
+    
+    const { 
+      directory, 
+      template, 
+      includeSubfolders, 
+      fileTypes, 
+      startNumber, 
+      preserveCase 
+    } = config
+    
+    if (!directory) {
+      return {
+        success: false,
+        error: 'Directory must be specified'
+      }
+    }
 
     try {
       const files = await this.getFiles(directory, fileTypes, includeSubfolders)
+      const results = []
 
       for (let i = 0; i < files.length; i++) {
         const filePath = files[i]
         const dir = path.dirname(filePath)
-        const newName = await this.processTemplate(template, filePath, i)
+        const newName = await this.processTemplate(template, filePath, i, startNumber, preserveCase)
         const newPath = path.join(dir, newName)
-
         await fs.rename(filePath, newPath)
-        this.emit('fileRenamed', {
+        
+        results.push({
           oldPath: filePath,
           newPath,
-          progress: {
-            current: i + 1,
-            total: files.length
-          }
+          success: true
         })
       }
 
-      this.emit('complete', { totalRenamed: files.length })
+      return {
+        success: true,
+        totalRenamed: files.length,
+        results
+      }
     } catch (error) {
-      this.emit('error', error)
-    } finally {
-      this.isRunning = false
+      return {
+        success: false,
+        error: error.message,
+        details: error
+      }
     }
   }
 
-  async start () {
-    if (this.isRunning) {
-      throw new Error('File renaming is already in progress')
-    }
-    await this.renameFiles()
+  start() {
+    this.isRunning = true
+    return Promise.resolve({
+      status: 'started'
+    })
   }
 
-  getStatus () {
+  stop() {
+    this.isRunning = false
+    return Promise.resolve({
+      status: 'stopped'
+    })
+  }
+
+  getStatus() {
     return {
-      status: this.isRunning ? 'running' : 'idle',
-      config: this.config
+      status: this.isRunning ? 'running' : 'idle'
     }
   }
 }
 
-function widgetRun (config) {
+function widgetRun(config = {}) {
   return new FileRenamer(config)
 }
 
