@@ -3,7 +3,8 @@
  */
 
 import { useEffect } from 'react'
-import { Input, Form, Button } from 'antd'
+import { Form, Button } from 'antd'
+import SimpleEditor from './simple-editor'
 
 const FormItem = Form.Item
 const e = window.translate
@@ -23,9 +24,9 @@ export default function TextEditorForm (props) {
     props.submit(res)
   }
 
-  function onPressEnter (e) {
-    e.stopPropagation()
-  }
+  // function onPressEnter (e) {
+  //   e.stopPropagation()
+  // }
 
   function reset () {
     form.resetFields()
@@ -58,11 +59,7 @@ export default function TextEditorForm (props) {
       <FormItem
         name='text'
       >
-        <Input.TextArea
-          rows={20}
-          onPressEnter={onPressEnter}
-        >{text}
-        </Input.TextArea>
+        <SimpleEditor />
       </FormItem>
       <div className='pd1t pd2b'>
         <Button
