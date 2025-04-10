@@ -58,13 +58,13 @@ const widgetInfo = {
 }
 
 class FileRenamer {
-  constructor(config = {}) {
+  constructor (config = {}) {
     this.isRunning = false
     this.instanceId = uid()
     // We don't need to store config since we accept live parameters in rename()
   }
 
-  async getFiles(dir, fileTypes, includeSubfolders) {
+  async getFiles (dir, fileTypes, includeSubfolders) {
     const files = await fs.readdir(dir, { withFileTypes: true })
     let results = []
     for (const file of files) {
@@ -81,7 +81,7 @@ class FileRenamer {
     return results
   }
 
-  async processTemplate(template, filePath, index, startNumber, preserveCase) {
+  async processTemplate (template, filePath, index, startNumber, preserveCase) {
     const stats = await fs.stat(filePath)
     const parsedPath = path.parse(filePath)
     const date = new Date(stats.birthtime)
@@ -105,21 +105,21 @@ class FileRenamer {
     return result
   }
 
-  async rename(params = {}) {
+  async rename (params = {}) {
     const config = {
       ...DEFAULTS,
       ...params
     }
-    
-    const { 
-      directory, 
-      template, 
-      includeSubfolders, 
-      fileTypes, 
-      startNumber, 
-      preserveCase 
+
+    const {
+      directory,
+      template,
+      includeSubfolders,
+      fileTypes,
+      startNumber,
+      preserveCase
     } = config
-    
+
     if (!directory) {
       return {
         success: false,
@@ -137,7 +137,7 @@ class FileRenamer {
         const newName = await this.processTemplate(template, filePath, i, startNumber, preserveCase)
         const newPath = path.join(dir, newName)
         await fs.rename(filePath, newPath)
-        
+
         results.push({
           oldPath: filePath,
           newPath,
@@ -159,28 +159,28 @@ class FileRenamer {
     }
   }
 
-  start() {
+  start () {
     this.isRunning = true
     return Promise.resolve({
       status: 'started'
     })
   }
 
-  stop() {
+  stop () {
     this.isRunning = false
     return Promise.resolve({
       status: 'stopped'
     })
   }
 
-  getStatus() {
+  getStatus () {
     return {
       status: this.isRunning ? 'running' : 'idle'
     }
   }
 }
 
-function widgetRun(config = {}) {
+function widgetRun (config = {}) {
   return new FileRenamer(config)
 }
 
