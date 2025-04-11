@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { Input, Button, Flex, Space } from 'antd'
-import { SearchOutlined } from '@ant-design/icons'
-import './simple-editor.styl'
+import { Input, Button } from 'antd'
+import { ArrowUpOutlined, ArrowDownOutlined, SearchOutlined } from '@ant-design/icons'
 
 export default function SimpleEditor (props) {
   const [searchKeyword, setSearchKeyword] = useState('')
@@ -93,10 +92,14 @@ export default function SimpleEditor (props) {
       return null
     }
     return (
-      <Space>
-        <Button onClick={goToPrevMatch}>↑</Button>
-        <Button onClick={goToNextMatch}>↓</Button>
-      </Space>
+      <>
+        <Button onClick={goToPrevMatch}>
+          <ArrowUpOutlined />
+        </Button>
+        <Button onClick={goToNextMatch}>
+          <ArrowDownOutlined />
+        </Button>
+      </>
     )
   }
 
@@ -107,11 +110,18 @@ export default function SimpleEditor (props) {
       : '0/0'
   }
 
+  function renderAfter () {
+    return (
+      <>
+        <b className='pd1x'>{renderSearchCounter()}</b>
+        {renderNavigationButtons()}
+      </>
+    )
+  }
+
   return (
-
     <div>
-
-      <Flex>
+      <div className='mg1b'>
         <Input.Search
           value={searchKeyword}
           onChange={e => setSearchKeyword(e.target.value)}
@@ -119,12 +129,10 @@ export default function SimpleEditor (props) {
           allowClear
           enterButton={<SearchOutlined />}
           onSearch={handleSearch}
-          addonAfter={renderSearchCounter()}
-          style={{ flex: 1 }}
+          onPressEnter={handleSearch}
+          addonAfter={renderAfter()}
         />
-        {renderNavigationButtons()}
-      </Flex>
-
+      </div>
       <Input.TextArea
         ref={editorRef}
         value={props.value}
