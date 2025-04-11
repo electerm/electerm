@@ -82,18 +82,16 @@ export default class TransportAction extends Component {
   }
 
   update = (up) => {
-    const { transfer } = this.props
-    const {
-      store
-    } = window
-    store.updateTransfer(
-      transfer.id,
+    const { id } = this.props.transfer
+    refsStatic.get('transfer-queue')?.addToQueue(
+      'update',
+      id,
       up
     )
   }
 
   tagTransferError = (id, errorMsg) => {
-    this.clear()
+    // this.clear()
     const { store } = window
     const { fileTransfers } = store
     const index = fileTransfers.findIndex(d => d.id === id)
@@ -101,20 +99,24 @@ export default class TransportAction extends Component {
       return
     }
 
-    const [tr] = fileTransfers.splice(index, 1)
+    const tr = copy(fileTransfers[index])
     assign(tr, {
       host: tr.host,
       error: errorMsg,
       finishTime: Date.now()
     })
     store.addTransferHistory(tr)
+    refsStatic.get('transfer-queue')?.addToQueue(
+      'delete',
+      id
+    )
   }
 
-  insert = (insts) => {
-    const { fileTransfers } = window.store
-    const { index } = this.props
-    fileTransfers.splice(index, 1, ...insts)
-  }
+  // insert = (insts) => {
+  //   const { fileTransfers } = window.store
+  //   const { index } = this.props
+  //   fileTransfers.splice(index, 1, ...insts)
+  // }
 
   remoteList = () => {
     window.store.remoteList(this.sessionId)
@@ -189,7 +191,11 @@ export default class TransportAction extends Component {
     this.onCancel = true
     this.transport && this.transport.destroy()
     this.transport = null
-    window.store.cancelTransfer(this.props.transfer.id)
+    // window.store.cancelTransfer(this.props.transfer.id)
+    refsStatic.get('transfer-queue')?.addToQueue(
+      'delete',
+      this.props.transfer.id
+    )
     if (isFunction(callback)) {
       callback()
     }

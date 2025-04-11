@@ -6,8 +6,7 @@ export default class Queue extends Component {
   constructor (props) {
     super(props)
     this.state = {
-      queue: [],
-      isProcessing: false
+      queue: []
     }
     this.currentRun = null
     this.id = 'transfer-queue'
@@ -21,17 +20,16 @@ export default class Queue extends Component {
   }
 
   addToQueue = (operation, ...args) => {
+    console.log('Adding to queue:', operation, args)
     this.setState(prevState => ({
       queue: [...prevState.queue, { operation, args }]
     }), this.processQueue)
   }
 
   processQueue = async () => {
-    if (this.state.isProcessing || this.state.queue.length === 0) {
+    if (this.state.queue.length === 0) {
       return
     }
-
-    this.setState({ isProcessing: true })
 
     const { operation, args } = this.state.queue[0]
 
@@ -42,45 +40,48 @@ export default class Queue extends Component {
     }
 
     this.setState(prevState => ({
-      queue: prevState.queue.slice(1),
-      isProcessing: false
+      queue: prevState.queue.slice(1)
     }), this.processQueue)
   }
 
   executeOperation = (operation, ...args) => {
+    console.log('Executing operation:', operation, args)
     return new Promise((resolve, reject) => {
       const { fileTransfers } = window.store
       const [id, updateObj] = args
-      switch (operation) {
-        case 'delete':
-          fileTransfers.splice(
-            fileTransfers.findIndex(t => t.id === id),
-            1
-          )
-          break
-        case 'insert':
-          fileTransfers.push(id)
-          break
-        case 'update':
-          Object.assign(
-            fileTransfers[
-              fileTransfers.findIndex(t => t.id === id)
-            ], updateObj)
-          break
-        case 'custom':
-          id(fileTransfers)
-          break
-        default:
-          throw new Error(`Unknown operation: ${operation}`)
-      }
-
-      // Start watching for changes
       this.currentRun = autoRun(() => {
         this.currentRun.stop()
         resolve()
         return window.store.fileTransfers
       })
       this.currentRun.start()
+      function end () {
+        this.currentRun.stop()
+        resolve()
+      }
+      if (operation === 'update') {
+        const index = fileTransfers.findIndex(t => t.id === id)
+        if (index < 0) {
+          return end()
+        }
+        Object.assign(
+          fileTransfers[
+            index
+          ], updateObj)
+      } else if (operation === 'delete') {
+        const index = fileTransfers.findIndex(t => t.id === id)
+        if (index < 0) {
+          return end()
+        }
+        fileTransfers.splice(
+          index,
+          1
+        )
+      } else if (operation === 'insert') {
+        fileTransfers.push(id)
+      } else if (operation === 'custom') {
+        id(fileTransfers)
+      }
 
       // Set a timeout to stop watching if no changes occur
       setTimeout(() => {

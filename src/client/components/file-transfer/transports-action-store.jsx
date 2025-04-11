@@ -37,7 +37,7 @@ export default class TransportsActionStore extends Component {
       } = t
       console.log('t', JSON.stringify(t, null, 2))
       if (typeTo === typeFrom && !inited) {
-        console.log('t21', t)
+        console.log('t21', t, refsStatic.get('transfer-queue'))
         refsStatic.get('transfer-queue')?.addToQueue(
           'update',
           id,
