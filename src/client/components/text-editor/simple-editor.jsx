@@ -1,6 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { Input, Button } from 'antd'
-import { ArrowUpOutlined, ArrowDownOutlined, SearchOutlined } from '@ant-design/icons'
+import { Input, Button, Flex } from 'antd'
+import {
+  ArrowUpOutlined,
+  ArrowDownOutlined,
+  SearchOutlined,
+  CopyOutlined
+} from '@ant-design/icons'
+import { copy } from '../../common/clipboard'
 
 export default function SimpleEditor (props) {
   const [searchKeyword, setSearchKeyword] = useState('')
@@ -37,6 +43,10 @@ export default function SimpleEditor (props) {
     // Reset navigating flag after using it
     setIsNavigating(false)
   }, [currentMatch, occurrences])
+  // Copy the editor content to clipboard
+  const copyEditorContent = () => {
+    copy(props.value || '')
+  }
 
   // Find all matches of the search keyword in text
   const findMatches = () => {
@@ -62,7 +72,9 @@ export default function SimpleEditor (props) {
   }
 
   // Handle search action when user presses enter or clicks the search button
-  const handleSearch = () => {
+  const handleSearch = (e) => {
+    e.stopPropagation()
+    e.preventDefault()
     findMatches()
   }
 
@@ -121,7 +133,7 @@ export default function SimpleEditor (props) {
 
   return (
     <div>
-      <div className='mg1b'>
+      <Flex className='mg1b' justify='space-between'>
         <Input.Search
           value={searchKeyword}
           onChange={e => setSearchKeyword(e.target.value)}
@@ -131,8 +143,15 @@ export default function SimpleEditor (props) {
           onSearch={handleSearch}
           onPressEnter={handleSearch}
           addonAfter={renderAfter()}
+          style={{ width: 'auto' }}
         />
-      </div>
+        <Button
+          onClick={copyEditorContent}
+          className='mg3l'
+        >
+          <CopyOutlined />
+        </Button>
+      </Flex>
       <Input.TextArea
         ref={editorRef}
         value={props.value}
