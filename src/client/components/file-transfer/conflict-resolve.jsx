@@ -67,34 +67,43 @@ export default class ConfirmModalStore extends Component {
     this.resolve = next.resolve
   }
 
-  act (action) {
+  act = (action) => {
     const { id, transferBatch } = this.state.transferToConfirm
     const { resolve } = this
     const toAll = action.includes('All')
     const policy = toAll ? action.replace('All', '') : action
     const trid = `tr-${transferBatch}-${id}`
+
+    // Apply policy to current transfer item
+    refs.get(trid)?.setState({
+      conflictPolicy: policy,
+      conflictPolicyToAll: toAll
+    })
+
+    // For "All" actions, update all existing transfers in the same batch
     if (toAll && transferBatch) {
+      // Update all existing transfers with same batch ID in DOM
       Object.keys(refs)
-        .filter(k => {
-          return k.startsWith(`tr-${transferBatch}-`)
-        })
+        .filter(k => k.startsWith(`tr-${transferBatch}-`))
         .forEach(k => {
           refs.get(k)?.setState({
             conflictPolicy: policy,
             conflictPolicyToAll: toAll
           })
         })
-    } else {
-      refs.get(trid)?.setState({
-        conflictPolicy: policy,
-        conflictPolicyToAll: toAll
-      })
+
+      // Also update any pending conflict items in the queue with same batch ID
+      this.updateQueueWithPolicy(transferBatch, policy)
     }
+
+    // Resolve current conflict
     if (resolve) {
       resolve(policy)
     } else {
       refs.get(trid)?.onDecision(policy)
     }
+
+    // Move to the next item
     this.setState({
       transferToConfirm: null
     }, this.showNext)

@@ -502,7 +502,7 @@ export default class TransportAction extends Component {
     if (!fromFile.isDirectory) {
       return this.transferFile()
     }
-    await this.transferFolder()
+    await this.transferFolderRecursive()
     this.onEnd({
       transferred: this.transferred,
       size: this.total
@@ -511,7 +511,7 @@ export default class TransportAction extends Component {
 
   list = async (type, path, sessionId) => {
     const sftp = refs.get('sftp-' + sessionId)
-    return sftp[type + 'List'](path)
+    return sftp[type + 'List'](true, path)
   }
 
   handleRename = (fromPath, isRemote) => {
@@ -544,6 +544,10 @@ export default class TransportAction extends Component {
   }
 
   transferFolderRecursive = async (transfer = this.props.transfer) => {
+    if (this.onCancel) {
+      return
+    }
+    console.log('transferFolderRecursive: Starting new folder transfer')
     const {
       fromPath,
       toPath,
@@ -552,17 +556,26 @@ export default class TransportAction extends Component {
       sessionId
     } = transfer
     const { conflictPolicy, conflictPolicyToAll } = this.state
-
+    const folderCreated = await this.mkdir(transfer)
+    if (!folderCreated) {
+      console.error(`transferFolderRecursive: Failed to create destination folder: ${toPath}`)
+      return false
+    }
     // Get list of items in the source folder
+    console.log('transferFolderRecursive: Getting list from source folder:', fromPath)
     const list = await this.list(typeFrom, fromPath, sessionId)
+    console.log('transferFolderRecursive: Found', list, 'items')
 
     // Process each item in the folder
     for (const item of list) {
+      console.log('transferFolderRecursive: Processing item:', item.name)
       if (!item.isDirectory) {
         this.total += item.size
+        console.log('transferFolderRecursive: Added to total size:', { file: item.name, size: item.size, total: this.total })
       }
       const fromItemPath = resolve(fromPath, item.name)
       const toItemPath = resolve(toPath, item.name)
+      console.log('transferFolderRecursive: Paths resolved:', { from: fromItemPath, to: toItemPath })
 
       // Create a new transfer object for this item
       const itemTransfer = {
@@ -571,9 +584,11 @@ export default class TransportAction extends Component {
         toPath: toItemPath,
         fromFile: item
       }
+      console.log('transferFolderRecursive: Created transfer object for:', item.name)
 
       // Handle conflicts
       const handleConflict = async () => {
+        console.log('transferFolderRecursive: Handling conflict with policy:', { conflictPolicy, conflictPolicyToAll })
         if (conflictPolicyToAll) {
           return conflictPolicy
         }
@@ -586,26 +601,35 @@ export default class TransportAction extends Component {
       let resolution
       const toFile = await this.checkExist(typeTo, toItemPath, sessionId)
       if (toFile) {
+        console.log('transferFolderRecursive: Conflict detected for:', item.name)
         itemTransfer.toFile = toFile
         resolution = await handleConflict()
+        console.log('transferFolderRecursive: Conflict resolution:', resolution)
         if (resolution === 'skip') {
+          console.log('transferFolderRecursive: Skipping:', item.name)
           continue
         } else if (resolution === 'rename') {
           itemTransfer.toPath = this.handleRename(toItemPath, typeTo === typeMap.remote)
+          console.log('transferFolderRecursive: Renamed to:', itemTransfer.toPath)
         }
         // For overwriteOrMerge, we continue with the original path
       }
 
       if (item.isDirectory) {
+        console.log('transferFolderRecursive: Processing directory:', item.name)
         // For directories, only create if not overwriteOrMerge
-        if (!(toFile && (conflictPolicy === 'overwriteOrMerge' || resolution === 'overwriteOrMerge'))) {
-          await this.mkdir(itemTransfer)
-        }
+        // if (!(toFile && (conflictPolicy === 'overwriteOrMerge' || resolution === 'overwriteOrMerge'))) {
+        //   console.log('transferFolderRecursive: Creating directory:', item.name)
+        //   await this.mkdir(itemTransfer)
+        // }
+        console.log('transferFolderRecursive: Starting recursive transfer for directory:', item.name)
         await this.transferFolderRecursive(itemTransfer)
       } else {
+        console.log('transferFolderRecursive: Transferring file:', item.name)
         await this.transferFile(itemTransfer)
       }
     }
+    console.log('transferFolderRecursive: Completed folder transfer for:', fromPath)
   }
 
   onError = (e) => {
