@@ -498,7 +498,7 @@ export default class TransportAction extends Component {
   }
 
   startTransfer = async () => {
-    const { fromFile } = this.state
+    const { fromFile } = this.props.transfer
     if (!fromFile.isDirectory) {
       return this.transferFile()
     }
