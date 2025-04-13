@@ -130,6 +130,7 @@ export default class TransportAction extends Component {
     if (this.onCancel) {
       return
     }
+    console.log('onEnd------')
     const {
       transfer,
       config
@@ -139,13 +140,14 @@ export default class TransportAction extends Component {
     } = transfer
     const finishTime = Date.now()
     if (!config.disableTransferHistory) {
+      const size = update.size || transfer.fromFile.size
       const r = copy(transfer)
-      assign(r, update, {
+      assign(r, {
         finishTime,
         startTime: this.startTime,
-        size: transfer.fromFile.size,
+        size,
         next: null,
-        speed: format(transfer.fromFile.size, this?.startTime)
+        speed: format(size, this?.startTime)
       })
       window.store.addTransferHistory(
         r
@@ -188,6 +190,7 @@ export default class TransportAction extends Component {
     if (this.onCancel) {
       return
     }
+    console.log('onCancel------')
     this.onCancel = true
     this.transport && this.transport.destroy()
     this.transport = null
@@ -503,6 +506,7 @@ export default class TransportAction extends Component {
       return this.transferFile()
     }
     await this.transferFolderRecursive()
+    console.log('Folder transfer completed')
     this.onEnd({
       transferred: this.transferred,
       size: this.total
@@ -543,6 +547,63 @@ export default class TransportAction extends Component {
     this.update(up)
   }
 
+  // Simplified sub-file transfer function for use within folder transfers
+  transferFileAsSubTransfer = async (transfer) => {
+    const {
+      fromPath,
+      toPath,
+      typeFrom,
+      fromFile: {
+        mode: fromMode,
+        size: fileSize
+      },
+      toFile = {}
+    } = transfer
+
+    const transferType = typeFrom === typeMap.local ? transferTypeMap.upload : transferTypeMap.download
+    const isDown = transferType === transferTypeMap.download
+    const localPath = isDown ? toPath : fromPath
+    const remotePath = isDown ? fromPath : toPath
+    const mode = toFile.mode || fromMode
+    const sftp = refs.get('sftp-' + this.sessionId).sftp
+
+    return new Promise((resolve, reject) => {
+      let transport
+
+      const onSubEnd = () => {
+      // Only update progress when the file transfer completes
+        if (fileSize) {
+          this.onFolderData(fileSize)
+        }
+        if (transport) {
+          transport.destroy()
+          transport = null
+        }
+        resolve(fileSize)
+      }
+
+      const onSubError = (error) => {
+        console.error(`Error transferring ${fromPath} to ${toPath}:`, error.message)
+        if (transport) {
+          transport.destroy()
+          transport = null
+        }
+        reject(error)
+      }
+
+      sftp[transferType]({
+        remotePath,
+        localPath,
+        options: { mode },
+        onData: () => {}, // We can ignore per-chunk data updates
+        onError: onSubError,
+        onEnd: onSubEnd
+      }).then(transportInstance => {
+        transport = transportInstance
+      }).catch(onSubError)
+    })
+  }
+
   transferFolderRecursive = async (transfer = this.props.transfer) => {
     if (this.onCancel) {
       return
@@ -564,7 +625,7 @@ export default class TransportAction extends Component {
     // Get list of items in the source folder
     console.log('transferFolderRecursive: Getting list from source folder:', fromPath)
     const list = await this.list(typeFrom, fromPath, sessionId)
-    console.log('transferFolderRecursive: Found', list, 'items')
+    console.log('transferFolderRecursive: Found', list.map(item => item.name).join(','), 'items')
 
     // Process each item in the folder
     for (const item of list) {
@@ -626,7 +687,7 @@ export default class TransportAction extends Component {
         await this.transferFolderRecursive(itemTransfer)
       } else {
         console.log('transferFolderRecursive: Transferring file:', item.name)
-        await this.transferFile(itemTransfer)
+        await this.transferFileAsSubTransfer(itemTransfer)
       }
     }
     console.log('transferFolderRecursive: Completed folder transfer for:', fromPath)
@@ -649,11 +710,11 @@ export default class TransportAction extends Component {
     } = transfer
     if (typeTo === typeMap.local) {
       return fs.mkdir(toPath)
-        .catch(this.onError)
+        .catch(console.log)
     }
     const sftp = refs.get('sftp-' + sessionId).sftp
     return sftp.mkdir(toPath)
-      .catch(this.onError)
+      .catch(console.log)
   }
 
   render () {
