@@ -21,8 +21,6 @@ export default class TransportAction extends Component {
     super(props)
     this.sessionId = props.transfer.sessionId
     this.state = {
-      transfer: copy(props.transfer),
-      fromFile: null,
       conflictPolicy: '', //  could be skip, overwriteOrMerge, rename,
       conflictPolicyToAll: false
     }
@@ -64,6 +62,7 @@ export default class TransportAction extends Component {
   componentWillUnmount () {
     this.transport && this.transport.destroy()
     this.transport = null
+    this.fromFile = null
   }
 
   localCheckExist = (path) => {
@@ -140,7 +139,8 @@ export default class TransportAction extends Component {
     } = transfer
     const finishTime = Date.now()
     if (!config.disableTransferHistory) {
-      const size = update.size || transfer.fromFile.size
+      const fromFile = transfer.fromFile || this.fromFile
+      const size = update.size || fromFile.size
       const r = copy(transfer)
       assign(r, {
         finishTime,
@@ -404,7 +404,7 @@ export default class TransportAction extends Component {
       toPath,
       operation
     } = transfer
-    console.log('Transfer details:', { id, typeFrom, typeTo, fromPath, toPath, operation })
+    console.log('Transfer details:', transfer)
 
     if (
       typeFrom === typeTo &&
@@ -426,11 +426,12 @@ export default class TransportAction extends Component {
     const fromFile = transfer.fromFile
       ? transfer.fromFile
       : await this.checkExist(typeFrom, fromPath, this.sessionId)
-
+    console.log('=======file from', fromFile)
     if (!fromFile) {
       console.log('Source file does not exist')
       return this.tagTransferError(id, 'file not exist')
     }
+    this.fromFile = fromFile
     this.update({
       fromFile
     })
@@ -501,7 +502,7 @@ export default class TransportAction extends Component {
   }
 
   startTransfer = async () => {
-    const { fromFile } = this.props.transfer
+    const { fromFile = this.fromFile } = this.props.transfer
     if (!fromFile.isDirectory) {
       return this.transferFile()
     }
