@@ -470,7 +470,8 @@ export default class TransportAction extends Component {
       // Update the transfer object with the target file information
       const transferWithToFile = {
         ...transfer,
-        toFile
+        toFile,
+        fromFile: copy(transfer.fromFile || this.fromFile)
       }
 
       // Update the state with toFile information
@@ -711,10 +712,12 @@ export default class TransportAction extends Component {
     } = transfer
     if (typeTo === typeMap.local) {
       return fs.mkdir(toPath)
+        .then(() => true)
         .catch(console.log)
     }
     const sftp = refs.get('sftp-' + sessionId).sftp
     return sftp.mkdir(toPath)
+      .then(() => true)
       .catch(console.log)
   }
 
