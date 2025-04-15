@@ -40,7 +40,7 @@ class Sftp {
           ws.s({
             action: 'sftp-func',
             id,
-            fid,
+            uid,
             func,
             args,
             sessionId
