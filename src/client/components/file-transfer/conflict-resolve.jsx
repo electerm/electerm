@@ -109,6 +109,21 @@ export default class ConfirmModalStore extends Component {
     }, this.showNext)
   }
 
+  updateQueueWithPolicy = (transferBatch, policy) => {
+  // Remove items with the same batch ID from the queue
+    this.setState(prevState => {
+    // Filter out any items that have the same transferBatch
+      const filteredQueue = prevState.queue.filter(item =>
+        item.transfer.transferBatch !== transferBatch
+      )
+
+      // Return updated state with filtered queue
+      return {
+        queue: filteredQueue
+      }
+    })
+  }
+
   renderContent () {
     const {
       transferToConfirm

@@ -26,9 +26,9 @@ export default class TransportAction extends Component {
     }
     const {
       id,
-      transferGroupId = ''
+      transferBatch = ''
     } = props.transfer
-    this.id = `tr-${transferGroupId}-${id}`
+    this.id = `tr-${transferBatch}-${id}`
     refs.add(this.id, this)
     this.total = 0
     this.transferred = 0
@@ -70,10 +70,18 @@ export default class TransportAction extends Component {
   }
 
   remoteCheckExist = (path, sessionId) => {
-    const sftp = refs.get('sftp-' + sessionId).sftp
+    // return true
+    const sftp = refs.get('sftp-' + sessionId)?.sftp
+    if (!sftp) {
+      console.log('remoteCheckExist error', 'sftp not exist')
+      return false
+    }
     return getRemoteFileInfo(sftp, path)
       .then(r => r)
-      .catch(() => false)
+      .catch((e) => {
+        console.log('remoteCheckExist error', e)
+        return false
+      })
   }
 
   checkExist = (type, path, sessionId) => {
@@ -213,6 +221,7 @@ export default class TransportAction extends Component {
   }
 
   mvOrCp = () => {
+    console.log('mv or cp')
     const {
       transfer
     } = this.props
@@ -223,16 +232,34 @@ export default class TransportAction extends Component {
       sessionId,
       operation // 'mv' or 'cp'
     } = transfer
+
+    let finalToPath = toPath
+
+    // Check if it's a copy operation to the same path
+    if (fromPath === toPath && operation === fileOperationsMap.cp) {
+      console.log('Same folder copy operation detected, automatically renaming')
+      finalToPath = this.handleRename(toPath, typeFrom === typeMap.remote)
+      console.log('Generated new path:', finalToPath)
+
+      // Update the transfer object directly
+      transfer.toPath = finalToPath
+
+      // Also update through the queue for persistence
+      this.update({
+        toPath: finalToPath
+      })
+    }
+    console.log('finalToPath', finalToPath)
     if (typeFrom === typeMap.local) {
-      return fs[operation](fromPath, toPath)
+      return fs[operation](fromPath, finalToPath)
         .then(this.onEnd)
         .catch(e => {
           this.onEnd()
           this.onError(e)
         })
     }
-    const sftp = refs.get('sftp-' + sessionId).sftp
-    return sftp[operation](fromPath, toPath)
+    const sftp = refs.get('sftp-' + sessionId)?.sftp
+    return sftp[operation](fromPath, finalToPath)
       .then(this.onEnd)
       .catch(e => {
         this.onEnd()
@@ -438,6 +465,10 @@ export default class TransportAction extends Component {
     console.log('Source file found:', fromFile)
 
     console.log('Checking for conflicts')
+    if (fromPath === toPath && typeFrom === typeTo) {
+      console.log('Same source and destination, skipping conflict check')
+      return this.mvOrCp()
+    }
     const hasConflict = await this.checkConflict()
     if (hasConflict) {
       console.log('Conflict detected, returning')
@@ -486,29 +517,53 @@ export default class TransportAction extends Component {
   }
 
   onDecision = (policy) => {
+    console.log('onDecision: Starting with policy:', policy)
+
     if (policy === fileActions.skip) {
+      console.log('onDecision: Policy is skip, ending transfer')
       return this.onEnd()
     }
+
     if (policy === fileActions.rename) {
+      console.log('onDecision: Policy is rename, handling rename operation')
       const {
         typeTo,
         toPath
       } = this.props.transfer
+      console.log('onDecision: Current path:', toPath)
       const newPath = this.handleRename(toPath, typeTo === typeMap.remote)
+      console.log('onDecision: Generated new path:', newPath)
       this.update({
         toPath: newPath
       })
     }
+
+    console.log('onDecision: Starting transfer with policy:', policy)
     this.startTransfer()
   }
 
   startTransfer = async () => {
+    console.log('startTransfer: Beginning transfer process')
+
     const { fromFile = this.fromFile } = this.props.transfer
+    console.log('startTransfer: Source file details:', {
+      isDirectory: fromFile.isDirectory,
+      name: fromFile.name
+    })
+
     if (!fromFile.isDirectory) {
+      console.log('startTransfer: Source is a file, initiating file transfer')
       return this.transferFile()
     }
+
+    console.log('startTransfer: Source is a directory, starting recursive folder transfer')
     await this.transferFolderRecursive()
-    console.log('Folder transfer completed')
+    console.log('startTransfer: Folder transfer completed')
+
+    console.log('startTransfer: Ending transfer with stats:', {
+      transferred: this.transferred,
+      totalSize: this.total
+    })
     this.onEnd({
       transferred: this.transferred,
       size: this.total
@@ -521,9 +576,9 @@ export default class TransportAction extends Component {
   }
 
   handleRename = (fromPath, isRemote) => {
-    const { base, ext } = getFolderFromFilePath(fromPath, isRemote)
+    const { path, base, ext } = getFolderFromFilePath(fromPath, isRemote)
     const newName = `${base}(rename-${generate()})${ext ? '.' + ext : ''}`
-    return resolve(base, newName)
+    return resolve(path, newName)
   }
 
   onFolderData = (transferred) => {
