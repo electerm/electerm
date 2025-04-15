@@ -33,12 +33,14 @@ class Sftp {
             type: func
           })
         }
-        const uid = func + ':' + id
+        const fid = generate()
+        const uid = func + ':' + fid
         // let ws = await initWs()
         return new Promise((resolve, reject) => {
           ws.s({
             action: 'sftp-func',
             id,
+            fid,
             func,
             args,
             sessionId

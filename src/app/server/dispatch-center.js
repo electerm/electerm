@@ -87,8 +87,7 @@ const initWs = function (app) {
           type: 'sftp'
         }))
       } else if (action === 'sftp-func') {
-        const { id, args, func, sessionId } = msg
-        const uid = func + ':' + id
+        const { id, args, func, sessionId, uid } = msg
         const inst = sftp(id, sessionId)
         if (inst) {
           inst[func](...args)
