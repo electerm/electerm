@@ -30,7 +30,8 @@ import {
   terminalRdpType,
   terminalVncType,
   terminalWebType,
-  terminalTelnetType
+  terminalTelnetType,
+  terminalFtpType
 } from '../../common/constants'
 import { SplitViewIcon } from '../icons/split-view'
 import { refs } from '../common/ref'
@@ -319,9 +320,27 @@ export default class SessionWrapper extends Component {
           />
         )
       }
+
       return (
         <RdpSession
           {...rdpProps}
+        />
+      )
+    }
+
+    if (type === terminalFtpType) {
+      console.log('ftp type')
+      const ftpProps = {
+        ...this.props,
+        sessionId,
+        ...pick(this, [
+          'onChangePane',
+          'setCwd'
+        ])
+      }
+      return (
+        <Sftp
+          {...ftpProps}
         />
       )
     }
@@ -376,7 +395,8 @@ export default class SessionWrapper extends Component {
     return type === terminalRdpType ||
       type === terminalVncType ||
       type === terminalWebType ||
-      type === terminalTelnetType
+      type === terminalTelnetType ||
+      type === terminalFtpType
   }
 
   calcSftpWidthHeight = () => {
@@ -725,6 +745,7 @@ export default class SessionWrapper extends Component {
 
   renderViews = () => {
     if (this.isNotTerminalType()) {
+      console.log('not terminal type')
       return this.renderTerminals()
     }
     const notSplitVew = !this.canSplitView() || !this.props.tab.sshSftpSplitView
