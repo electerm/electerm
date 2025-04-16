@@ -88,7 +88,7 @@ export default class Queue extends Component {
       this.currentRun = autoRun(() => {
         console.log('========auto run', operation, id)
         checkCompletion()
-        // return window.store.fileTransfers
+        return JSON.stringify(window.store.fileTransfers)
       })
       this.currentRun.start()
       setTimeout(() => {
