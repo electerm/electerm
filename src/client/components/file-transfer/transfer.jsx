@@ -386,11 +386,10 @@ export default class TransportAction extends Component {
       fromPath,
       toPath,
       typeFrom,
-      fromFile: {
-        mode: fromMode
-      },
       toFile = {}
     } = transfer
+    const fromFile = transfer.fromFile || this.fromFile
+    const fromMode = fromFile.mode
     const transferType = typeFrom === typeMap.local ? transferTypeMap.upload : transferTypeMap.download
     const isDown = transferType === transferTypeMap.download
     const localPath = isDown

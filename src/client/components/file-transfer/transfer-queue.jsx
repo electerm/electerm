@@ -103,48 +103,34 @@ export default class Queue extends Component {
         // return JSON.stringify(window.store.fileTransfers)
       })
       this.currentRun.start()
-      if (operation === 'update') {
-        const index = fileTransfers.findIndex(t => t.id === id)
-        console.log('update', index, updateObj, id, fileTransfers)
-        if (index < 0) {
-          return end()
+      setTimeout(() => {
+        if (operation === 'update') {
+          const index = fileTransfers.findIndex(t => t.id === id)
+          console.log('update', index, updateObj, id, fileTransfers)
+          if (index < 0) {
+            return end()
+          }
+          Object.assign(
+            fileTransfers[
+              index
+            ], updateObj)
+        } else if (operation === 'delete') {
+          const index = fileTransfers.findIndex(t => t.id === id)
+          if (index < 0) {
+            return end()
+          }
+          fileTransfers.splice(
+            index,
+            1
+          )
+        } else if (operation === 'insert') {
+          fileTransfers.push(id)
         }
-        Object.assign(
-          fileTransfers[
-            index
-          ], updateObj)
-      } else if (operation === 'delete') {
-        const index = fileTransfers.findIndex(t => t.id === id)
-        if (index < 0) {
-          return end()
-        }
-        fileTransfers.splice(
-          index,
-          1
-        )
-      } else if (operation === 'insert') {
-        fileTransfers.push(id)
-      }
+      }, 1)
 
       // // Set a timeout to stop watching if no changes occur
       // this.tm = setTimeout(end, 1000) // 5 second timeout
     })
-  }
-
-  delete = (index) => {
-    this.addToQueue('delete', index)
-  }
-
-  insert = (index, item) => {
-    this.addToQueue('insert', index, item)
-  }
-
-  update = (index, updateObj) => {
-    this.addToQueue('update', index, updateObj)
-  }
-
-  custom = (customFunction) => {
-    this.addToQueue('custom', customFunction)
   }
 
   render () {
