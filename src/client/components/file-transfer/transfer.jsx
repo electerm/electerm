@@ -42,6 +42,7 @@ export default class TransportAction extends Component {
   }
 
   componentDidUpdate (prevProps) {
+    console.log('componentDidUpdate', this.props.transfer)
     if (
       prevProps.inited !== this.props.inited &&
       this.props.inited === true
