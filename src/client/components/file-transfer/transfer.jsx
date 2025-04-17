@@ -384,10 +384,10 @@ export default class TransportAction extends Component {
   transferFile = async (transfer = this.props.transfer) => {
     const {
       fromPath,
-      toPath,
       typeFrom,
       toFile = {}
     } = transfer
+    const toPath = this.newPath || transfer.toPath
     const fromFile = transfer.fromFile || this.fromFile
     const fromMode = fromFile.mode
     const transferType = typeFrom === typeMap.local ? transferTypeMap.upload : transferTypeMap.download
@@ -536,9 +536,9 @@ export default class TransportAction extends Component {
       this.update({
         toPath: newPath
       })
+      this.newPath = newPath
     }
 
-    console.log('onDecision: Starting transfer with policy:', policy)
     this.startTransfer()
   }
 
@@ -661,7 +661,32 @@ export default class TransportAction extends Component {
     })
   }
 
-  transferFolderRecursive = async (transfer = this.props.transfer) => {
+  getDefaultTransfer = () => {
+    // Start with the original transfer from props
+    const transfer = this.props.transfer
+
+    // If we have a renamed path, create a modified transfer object
+    if (this.newPath) {
+      // Create a new object with the renamed path
+      const modifiedTransfer = {
+        ...transfer,
+        toPath: this.newPath
+      }
+
+      // Log the renamed path for debugging
+      console.log('Using renamed path:', this.newPath)
+
+      // Clear newPath so it doesn't affect subsequent operations
+      this.newPath = null
+
+      return modifiedTransfer
+    }
+
+    // If no renaming needed, return the original transfer
+    return transfer
+  }
+
+  transferFolderRecursive = async (transfer = this.getDefaultTransfer()) => {
     if (this.onCancel) {
       return
     }
