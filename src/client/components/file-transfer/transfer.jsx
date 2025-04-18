@@ -20,10 +20,6 @@ export default class TransportAction extends Component {
   constructor (props) {
     super(props)
     this.sessionId = props.transfer.sessionId
-    this.state = {
-      conflictPolicy: '', //  could be skip, overwriteOrMerge, rename,
-      conflictPolicyToAll: false
-    }
     const {
       id,
       transferBatch = ''
@@ -484,7 +480,7 @@ export default class TransportAction extends Component {
     this.startTransfer()
   }
 
-  checkConflict = async (transfer = this.props.transfer, resolve) => {
+  checkConflict = async (transfer = this.props.transfer) => {
     const {
       typeTo,
       toPath,
@@ -500,7 +496,7 @@ export default class TransportAction extends Component {
     if (toFile) {
       // Update the transfer object with the target file information
       const transferWithToFile = {
-        ...transfer,
+        ...copy(transfer),
         toFile,
         fromFile: copy(transfer.fromFile || this.fromFile)
       }
@@ -510,8 +506,12 @@ export default class TransportAction extends Component {
         toFile
       })
 
+      if (this.resolvePolicy) {
+        return this.onDecision(this.resolvePolicy)
+      }
+
       // Pass the updated transfer object with toFile to the conflict handler
-      refsStatic.get('transfer-conflict')?.addConflict(transferWithToFile, resolve)
+      refsStatic.get('transfer-conflict')?.addConflict(transferWithToFile)
       return true
     }
   }
@@ -519,7 +519,7 @@ export default class TransportAction extends Component {
   onDecision = (policy) => {
     console.log('onDecision: Starting with policy:', policy)
 
-    if (policy === fileActions.skip) {
+    if (policy === fileActions.skip || policy === fileActions.cancel) {
       console.log('onDecision: Policy is skip, ending transfer')
       return this.onEnd()
     }
@@ -696,13 +696,14 @@ export default class TransportAction extends Component {
       toPath,
       typeFrom,
       typeTo,
-      sessionId
+      sessionId,
+      toFile
     } = transfer
-    const { conflictPolicy, conflictPolicyToAll } = this.state
-    const folderCreated = await this.mkdir(transfer)
-    if (!folderCreated) {
-      console.error(`transferFolderRecursive: Failed to create destination folder: ${toPath}`)
-      return false
+    if (!toFile) {
+      const folderCreated = await this.mkdir(transfer)
+      if (!folderCreated) {
+        console.error(`transferFolderRecursive: Failed to create destination folder: ${toPath}`)
+      }
     }
     // Get list of items in the source folder
     console.log('transferFolderRecursive: Getting list from source folder:', fromPath)
@@ -729,35 +730,8 @@ export default class TransportAction extends Component {
       }
       console.log('transferFolderRecursive: Created transfer object for:', item.name)
 
-      // Handle conflicts
-      const handleConflict = async () => {
-        console.log('transferFolderRecursive: Handling conflict with policy:', { conflictPolicy, conflictPolicyToAll })
-        if (conflictPolicyToAll) {
-          return conflictPolicy
-        }
-        return new Promise(resolve => {
-          refsStatic.get('transfer-conflict')?.addConflict(itemTransfer, resolve)
-        })
-      }
-
-      // Check for conflicts
-      let resolution
       const toFile = await this.checkExist(typeTo, toItemPath, sessionId)
-      if (toFile) {
-        console.log('transferFolderRecursive: Conflict detected for:', item.name)
-        itemTransfer.toFile = toFile
-        resolution = await handleConflict()
-        console.log('transferFolderRecursive: Conflict resolution:', resolution)
-        if (resolution === 'skip') {
-          console.log('transferFolderRecursive: Skipping:', item.name)
-          continue
-        } else if (resolution === 'rename') {
-          itemTransfer.toPath = this.handleRename(toItemPath, typeTo === typeMap.remote)
-          console.log('transferFolderRecursive: Renamed to:', itemTransfer.toPath)
-        }
-        // For overwriteOrMerge, we continue with the original path
-      }
-
+      itemTransfer.toFile = toFile
       if (item.isDirectory) {
         console.log('transferFolderRecursive: Processing directory:', item.name)
         // For directories, only create if not overwriteOrMerge

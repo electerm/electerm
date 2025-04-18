@@ -34,15 +34,12 @@ export default class ConfirmModalStore extends Component {
     refsStatic.add(this.id, this)
   }
 
-  addConflict = (transfer, resolve) => {
+  addConflict = (transfer) => {
     this.setState(old => {
       return {
         queue: [
           ...old.queue,
-          {
-            transfer,
-            resolve
-          }
+          transfer
         ]
       }
     }, this.showNext)
@@ -61,24 +58,16 @@ export default class ConfirmModalStore extends Component {
       return
     }
     this.setState({
-      transferToConfirm: next.transfer,
+      transferToConfirm: next,
       queue: queue.slice(1)
     })
-    this.resolve = next.resolve
   }
 
   act = (action) => {
     const { id, transferBatch } = this.state.transferToConfirm
-    const { resolve } = this
     const toAll = action.includes('All')
     const policy = toAll ? action.replace('All', '') : action
     const trid = `tr-${transferBatch}-${id}`
-
-    // Apply policy to current transfer item
-    refs.get(trid)?.setState({
-      conflictPolicy: policy,
-      conflictPolicyToAll: toAll
-    })
 
     // For "All" actions, update all existing transfers in the same batch
     if (toAll && transferBatch) {
@@ -86,10 +75,11 @@ export default class ConfirmModalStore extends Component {
       Object.keys(refs)
         .filter(k => k.startsWith(`tr-${transferBatch}-`))
         .forEach(k => {
-          refs.get(k)?.setState({
-            conflictPolicy: policy,
-            conflictPolicyToAll: toAll
-          })
+          const r = refs.get(k)
+          if (!r) {
+            return
+          }
+          r.resolvePolicy = policy
         })
 
       // Also update any pending conflict items in the queue with same batch ID
@@ -97,11 +87,7 @@ export default class ConfirmModalStore extends Component {
     }
 
     // Resolve current conflict
-    if (resolve) {
-      resolve(policy)
-    } else {
-      refs.get(trid)?.onDecision(policy)
-    }
+    refs.get(trid)?.onDecision(policy)
 
     // Move to the next item
     this.setState({
