@@ -99,9 +99,9 @@ export default class Queue extends Component {
         }
 
         // For non-transfer operations, check immediately
-        if (!isTransferInit) {
-          checkCompletion()
-        }
+        // if (!isTransferInit) {
+        //   checkCompletion()
+        // }
       }
 
       function checkCompletion () {
