@@ -11,7 +11,7 @@ import {
   getFolderFromFilePath
 } from '../sftp/file-read'
 import resolve from '../../common/resolve'
-import { refs, refsStatic } from '../common/ref'
+import { refsTransfers, refsStatic, refs } from '../common/ref'
 import './transfer.styl'
 
 const { assign } = Object
@@ -25,7 +25,7 @@ export default class TransportAction extends Component {
       transferBatch = ''
     } = props.transfer
     this.id = `tr-${transferBatch}-${id}`
-    refs.add(this.id, this)
+    refsTransfers.add(this.id, this)
     this.total = 0
     this.transferred = 0
   }
@@ -60,6 +60,7 @@ export default class TransportAction extends Component {
     this.transport && this.transport.destroy()
     this.transport = null
     this.fromFile = null
+    refsTransfers.remove(this.id)
   }
 
   localCheckExist = (path) => {
@@ -494,22 +495,18 @@ export default class TransportAction extends Component {
     const toFile = await this.checkExist(typeTo, toPath, sessionId)
 
     if (toFile) {
+      this.update({
+        toFile
+      })
+      if (this.resolvePolicy) {
+        return this.onDecision(this.resolvePolicy)
+      }
       // Update the transfer object with the target file information
       const transferWithToFile = {
         ...copy(transfer),
         toFile,
         fromFile: copy(transfer.fromFile || this.fromFile)
       }
-
-      // Update the state with toFile information
-      this.update({
-        toFile
-      })
-
-      if (this.resolvePolicy) {
-        return this.onDecision(this.resolvePolicy)
-      }
-
       // Pass the updated transfer object with toFile to the conflict handler
       refsStatic.get('transfer-conflict')?.addConflict(transferWithToFile)
       return true
@@ -670,14 +667,15 @@ export default class TransportAction extends Component {
       // Create a new object with the renamed path
       const modifiedTransfer = {
         ...transfer,
-        toPath: this.newPath
+        toPath: this.newPath,
+        isRenamed: true
       }
 
       // Log the renamed path for debugging
       console.log('Using renamed path:', this.newPath)
 
       // Clear newPath so it doesn't affect subsequent operations
-      this.newPath = null
+      // this.newPath = null
 
       return modifiedTransfer
     }
@@ -690,16 +688,17 @@ export default class TransportAction extends Component {
     if (this.onCancel) {
       return
     }
-    console.log('transferFolderRecursive: Starting new folder transfer')
+    console.log('transferFolderRecursive: Starting new folder transfer', transfer)
     const {
       fromPath,
       toPath,
       typeFrom,
       typeTo,
       sessionId,
-      toFile
+      toFile,
+      isRenamed
     } = transfer
-    if (!toFile) {
+    if (!toFile || isRenamed) {
       const folderCreated = await this.mkdir(transfer)
       if (!folderCreated) {
         console.error(`transferFolderRecursive: Failed to create destination folder: ${toPath}`)
@@ -764,6 +763,7 @@ export default class TransportAction extends Component {
       toPath,
       sessionId
     } = transfer
+    console.log('mkdir: Creating directory:', toPath)
     if (typeTo === typeMap.local) {
       return fs.mkdir(toPath)
         .then(() => true)

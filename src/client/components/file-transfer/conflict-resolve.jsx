@@ -12,7 +12,7 @@ import { FolderOutlined, FileOutlined } from '@ant-design/icons'
 import {
   fileActions
 } from '../../common/constants'
-import { refsStatic, refs } from '../common/ref'
+import { refsStatic, refsTransfers } from '../common/ref'
 
 const e = window.translate
 
@@ -27,39 +27,26 @@ export default class ConfirmModalStore extends Component {
   constructor (props) {
     super(props)
     this.state = {
-      queue: [],
       transferToConfirm: null
     }
+    this.queue = []
     this.id = 'transfer-conflict'
     refsStatic.add(this.id, this)
   }
 
   addConflict = (transfer) => {
-    this.setState(old => {
-      return {
-        queue: [
-          ...old.queue,
-          transfer
-        ]
-      }
-    }, this.showNext)
+    console.log('addConflict', transfer)
+    this.queue.push(transfer)
+    if (!this.state.transferToConfirm) {
+      this.showNext()
+    }
   }
 
   showNext = () => {
-    const {
-      queue,
-      transferToConfirm
-    } = this.state
-    if (transferToConfirm) {
-      return
-    }
-    const [next] = queue
-    if (!next) {
-      return
-    }
+    const next = this.queue.shift()
+    console.log('showNext', next)
     this.setState({
-      transferToConfirm: next,
-      queue: queue.slice(1)
+      transferToConfirm: next
     })
   }
 
@@ -68,26 +55,42 @@ export default class ConfirmModalStore extends Component {
     const toAll = action.includes('All')
     const policy = toAll ? action.replace('All', '') : action
     const trid = `tr-${transferBatch}-${id}`
+    const doFilter = toAll && transferBatch
 
     // For "All" actions, update all existing transfers in the same batch
-    if (toAll && transferBatch) {
+    if (doFilter) {
       // Update all existing transfers with same batch ID in DOM
-      Object.keys(refs)
-        .filter(k => k.startsWith(`tr-${transferBatch}-`))
-        .forEach(k => {
-          const r = refs.get(k)
-          if (!r) {
-            return
+      const prefix = `tr-${transferBatch}-`
+      for (const [key, r] of window.refsTransfers.entries()) {
+        if (key.startsWith(prefix)) {
+          if (key !== trid) {
+            r.resolvePolicy = policy
+            r.onDecision(policy)
           }
-          r.resolvePolicy = policy
-        })
+        }
+      }
+      // Object.keys(window.refs)
+      //   .filter(k => k.startsWith(`tr-${transferBatch}-`))
+      //   .forEach(k => {
+      //     console.log('act:Updating transfer:', k)
+      //     const r = refsTransfers.get(k)
+      //     if (!r) {
+      //       return
+      //     }
+      //     // Set the policy and call onDecision if it's not the current one
+      //     if (k !== trid) {
+      //       r.resolvePolicy = policy
+      //       r.onDecision(policy)
+      //     }
+      //   })
+      this.queue = this.queue.filter(d => d.transferBatch !== transferBatch)
 
-      // Also update any pending conflict items in the queue with same batch ID
-      this.updateQueueWithPolicy(transferBatch, policy)
+      // // Also update any pending conflict items in the queue with same batch ID
+      // this.updateQueueWithPolicy(transferBatch, policy)
     }
 
     // Resolve current conflict
-    refs.get(trid)?.onDecision(policy)
+    refsTransfers.get(trid)?.onDecision(policy)
 
     // Move to the next item
     this.setState({
@@ -95,20 +98,21 @@ export default class ConfirmModalStore extends Component {
     }, this.showNext)
   }
 
-  updateQueueWithPolicy = (transferBatch, policy) => {
-  // Remove items with the same batch ID from the queue
-    this.setState(prevState => {
-    // Filter out any items that have the same transferBatch
-      const filteredQueue = prevState.queue.filter(item =>
-        item.transfer.transferBatch !== transferBatch
-      )
+  // updateQueueWithPolicy = (transferBatch, policy) => {
+  // // Remove items with the same batch ID from the queue
+  //   this.setState(prevState => {
+  //   // Filter out any items that have the same transferBatch
+  //     const filteredQueue = prevState.queue.filter(item =>
+  //       item.transferBatch !== transferBatch
+  //     )
 
-      // Return updated state with filtered queue
-      return {
-        queue: filteredQueue
-      }
-    })
-  }
+  //     // Return updated state with filtered queue
+  //     console.log('Updated queue:', filteredQueue)
+  //     return {
+  //       queue: filteredQueue
+  //     }
+  //   })
+  // }
 
   renderContent () {
     const {
