@@ -1,6 +1,7 @@
 // components instance reference holder
 window.refs = new Map()
 window.refsStatic = new Map()
+window.refsTransfers = new Map()
 
 class Ref {
   constructor (key) {
@@ -21,4 +22,5 @@ class Ref {
 }
 
 export const refs = new Ref('refs')
+export const refsTransfers = new Ref('refsTransfers')
 export const refsStatic = new Ref('refsStatic')
