@@ -51,28 +51,72 @@ export default class Queue extends Component {
       const { fileTransfers } = window.store
       const [id, updateObj] = args
       const end = () => {
-        this.currentRun.stop()
-        clearTimeout(this.tm)
+        this.currentRun && this.currentRun.stop()
         resolve()
       }
-      const checkCompletion = () => {
+
+      // Determine if this is a simple operation (same-side cp) vs a file transfer
+      const isTransferInit = updateObj && updateObj.inited === true
+
+      // For file transfers, set up autoRun before modifying data
+      if (isTransferInit) {
+        this.currentRun = autoRun(() => {
+          checkCompletion()
+        })
+        this.currentRun.start()
+
+        // Use setTimeout for transfer operations to give autoRun time to initialize
+        setTimeout(() => {
+          applyChanges()
+        }, 1)
+      } else {
+        // For same-side operations, just apply changes immediately
+        applyChanges()
+
+        // Still set up autoRun as a safety net, but we won't need it usually
+        this.currentRun = autoRun(() => {
+          checkCompletion()
+        })
+        this.currentRun.start()
+      }
+
+      function applyChanges () {
+        if (operation === 'update') {
+          const index = fileTransfers.findIndex(t => t.id === id)
+          console.log('update', index, updateObj, id, fileTransfers)
+          if (index < 0) {
+            return end()
+          }
+          Object.assign(fileTransfers[index], updateObj)
+        } else if (operation === 'delete') {
+          const index = fileTransfers.findIndex(t => t.id === id)
+          if (index < 0) {
+            return end()
+          }
+          fileTransfers.splice(index, 1)
+        } else if (operation === 'insert') {
+          fileTransfers.push(id)
+        }
+
+        // For non-transfer operations, check immediately
+        if (!isTransferInit) {
+          checkCompletion()
+        }
+      }
+
+      function checkCompletion () {
         if (operation === 'update') {
           const index = window.store.fileTransfers.findIndex(t => t.id === id)
-          // Check if update was successful
           const updatedTransfer = index >= 0 ? window.store.fileTransfers[index] : null
 
           if (updatedTransfer && updateObj) {
-            // Check if all properties were updated
             const allUpdated = Object.keys(updateObj).every(key => {
               const updatedValue = updatedTransfer[key]
               const expectedValue = updateObj[key]
 
-              // If expectedValue is an object, just check if the property exists
               if (expectedValue && typeof expectedValue === 'object') {
-                return updatedValue !== undefined && updatedValue !== undefined
+                return updatedValue !== undefined
               }
-
-              // For primitive values, do direct comparison
               return updatedValue === expectedValue
             })
 
@@ -82,14 +126,12 @@ export default class Queue extends Component {
             }
           }
         } else if (operation === 'delete') {
-          // Check if delete was successful
           const stillExists = window.store.fileTransfers.some(t => t.id === id)
           if (!stillExists) {
             console.log('Delete confirmed for:', id)
             end()
           }
         } else if (operation === 'insert') {
-          // Check if insert was successful
           const exists = window.store.fileTransfers.some(t => t.id === id)
           if (exists) {
             console.log('Insert confirmed for:', id)
@@ -97,39 +139,6 @@ export default class Queue extends Component {
           }
         }
       }
-      this.currentRun = autoRun(() => {
-        // console.log('========auto run', operation, id)
-        checkCompletion()
-        // return JSON.stringify(window.store.fileTransfers)
-      })
-      this.currentRun.start()
-      setTimeout(() => {
-        if (operation === 'update') {
-          const index = fileTransfers.findIndex(t => t.id === id)
-          console.log('update', index, updateObj, id, fileTransfers)
-          if (index < 0) {
-            return end()
-          }
-          Object.assign(
-            fileTransfers[
-              index
-            ], updateObj)
-        } else if (operation === 'delete') {
-          const index = fileTransfers.findIndex(t => t.id === id)
-          if (index < 0) {
-            return end()
-          }
-          fileTransfers.splice(
-            index,
-            1
-          )
-        } else if (operation === 'insert') {
-          fileTransfers.push(id)
-        }
-      }, 1)
-
-      // // Set a timeout to stop watching if no changes occur
-      // this.tm = setTimeout(end, 1000) // 5 second timeout
     })
   }
 
