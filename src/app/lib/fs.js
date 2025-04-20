@@ -2,9 +2,7 @@ const fss = require('fs/promises')
 const fs = require('fs')
 const log = require('../common/log')
 
-const { isWin, isMac, tempDir } = require('../common/runtime-constants')
-const uid = require('../common/uid')
-const path = require('path')
+const { isWin, isMac } = require('../common/runtime-constants')
 const { promisify } = require('util')
 const execAsync = promisify(
   require('child_process').exec
@@ -122,46 +120,6 @@ const openFile = (localFilePath) => {
   return run(cmd)
 }
 
-/**
- * zip file
- * @param {string} localFolerPath absolute path of a folder
- */
-const zipFolder = (localFolerPath) => {
-  const n = uid()
-  const p = path.resolve(tempDir, `electerm-temp-${n}.tar`)
-  const cwd = path.dirname(localFolerPath)
-  const file = path.basename(localFolerPath)
-  const tar = require('tar')
-  return tar.c({
-    gzip: false,
-    file: p,
-    cwd
-  }, [file])
-    .then(() => p)
-}
-
-/**
- * unzip file
- * @param {string} localFilePath absolute path of a zip file
- * @param {string} targetFolderPath absolute path of unzip target folder
- */
-const unzipFile = (localFilePath, targetFolderPath) => {
-  return new Promise((resolve, reject) => {
-    const tar = require('tar')
-    try {
-      tar.x({
-        file: localFilePath,
-        C: targetFolderPath
-      }, () => {
-        resolve(1)
-      })
-    } catch (e) {
-      log.error(e)
-      reject(e)
-    }
-  })
-}
-
 async function listWindowsRootPath () {
   return new Promise((resolve, reject) => {
     const { exec } = require('child_process')
@@ -250,8 +208,6 @@ const fsExport = Object.assign(
     cp,
     mv,
     openFile,
-    zipFolder,
-    unzipFile,
     readCustom,
     statCustom,
     openCustom,

@@ -28,7 +28,7 @@ export default memo(function TransferHistoryModal (props) {
   const {
     clearTransferHistory
   } = window.store
-  const transferHistory = props.transferHistory.filter(d => !d.unzip)
+  const transferHistory = props.transferHistory
   const columns = [{
     title: e('startTime'),
     dataIndex: 'startTime',
