@@ -59,8 +59,6 @@ export default class FileSection extends React.Component {
   }
 
   componentDidMount () {
-    this.id = 'file-' + (this.props.file?.id || generate())
-    refs.add(this.id, this)
     this.applyStyle()
   }
 
@@ -74,7 +72,6 @@ export default class FileSection extends React.Component {
   }
 
   componentWillUnmount () {
-    refsStatic.remove(this.id)
     clearTimeout(this.timer)
     this.timer = null
     this.domRef = null
