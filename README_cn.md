@@ -155,7 +155,7 @@ npm run fix
 ## 测试
 
 ```bash
-npm run prepare-build
+npm run b
 npm run prepare-test
 cp .sample.env .env
 
@@ -172,7 +172,7 @@ npm run test
 
 # Build linux only with -l
 npm i
-npm run prepare-build
+npm run b
 ./node_modules/.bin/electron-builder --linux tar.gz
 # or replace tar.gz to rpm/deb/AppImage
 # check dist/ folder
