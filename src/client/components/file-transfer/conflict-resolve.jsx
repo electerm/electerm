@@ -35,7 +35,6 @@ export default class ConfirmModalStore extends Component {
   }
 
   addConflict = (transfer) => {
-    console.log('addConflict', transfer)
     this.queue.push(transfer)
     if (!this.state.transferToConfirm) {
       this.showNext()
@@ -44,7 +43,6 @@ export default class ConfirmModalStore extends Component {
 
   showNext = () => {
     const next = this.queue.shift()
-    console.log('showNext', next)
     this.setState({
       transferToConfirm: next
     })

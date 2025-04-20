@@ -21,7 +21,7 @@ export default Store => {
   }
 
   Store.prototype.addTransferList = function (items) {
-    console.log('addTransferList', JSON.stringify(items, null, 2))
+    // console.log('addTransferList', JSON.stringify(items, null, 2))
     const { fileTransfers } = window.store
     const transferBatch = uid()
     fileTransfers.push(...items.map(t => {

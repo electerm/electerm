@@ -177,7 +177,6 @@ export default auto(function Index (props) {
     installSrc,
     upgradeInfo: store.upgradeInfo
   }
-  console.log('copiedTransfer', copiedTransfer)
   const conflictStoreProps = {
     fileTransferChanged: JSON.stringify(copiedTransfer),
     fileTransfers: copiedTransfer

@@ -159,10 +159,4 @@ export default store => {
     }
     return store.activeTabId
   }).start()
-
-  // // to del
-  // autoRun(() => {
-  //   console.log('0000000000000000000===store.fileTransfers', '----', store.fileTransfers.length, '------', JSON.stringify(store.fileTransfers, null, 2))
-  //   return store.fileTransfers
-  // }).start()
 }
