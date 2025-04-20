@@ -30,15 +30,6 @@ export default Store => {
     }))
   }
 
-  Store.prototype.toggleTransfer = function (itemId) {
-    const { fileTransfers } = window.store
-    const index = fileTransfers.findIndex(t => t.id === itemId)
-    if (index < 0) {
-      return
-    }
-    fileTransfers[index].pausing = !fileTransfers[index].pausing
-  }
-
   Store.prototype.pauseAll = function () {
     const { fileTransfers } = window.store
     window.store.pauseAllTransfer = true
@@ -58,45 +49,6 @@ export default Store => {
   }
 
   Store.prototype.cancelAll = function () {
-    const { fileTransfers } = window.store
-    const len = fileTransfers.length
-    for (let i = len - 1; i >= 0; i--) {
-      fileTransfers[i].cancel = true
-      fileTransfers.splice(i, 1)
-    }
-  }
-
-  Store.prototype.cancelTransfer = function (itemId) {
-    const { fileTransfers } = window.store
-    const index = fileTransfers.findIndex(t => t.id === itemId)
-    if (index < 0) {
-      return
-    }
-    fileTransfers.splice(index, 1)
-  }
-
-  Store.prototype.skipAllTransfersSinceIndex = function (index) {
-    window.store.fileTransfers.splice(index)
-  }
-
-  Store.prototype.updateTransfersFromIndex = function (index, update) {
-    const { fileTransfers } = window.store
-    if (index < 0 || index >= fileTransfers.length) {
-      return
-    }
-    const len = fileTransfers.length
-    for (let i = index; i < len; i++) {
-      assign(fileTransfers[i], update)
-    }
-  }
-
-  // Add a new method to find index by ID and then update
-  Store.prototype.updateTransfersFromId = function (id, update) {
-    const { fileTransfers } = window.store
-    const index = fileTransfers.findIndex(t => t.id === id)
-    if (index < 0) {
-      return
-    }
-    window.store.updateTransfersFromIndex(index, update)
+    window.store.fileTransfers = []
   }
 }

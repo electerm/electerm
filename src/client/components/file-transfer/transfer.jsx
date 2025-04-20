@@ -31,14 +31,12 @@ export default class TransportAction extends Component {
   }
 
   componentDidMount () {
-    console.log('componentDidMount', this.props.transfer)
     if (this.props.inited) {
       this.initTransfer()
     }
   }
 
   componentDidUpdate (prevProps) {
-    console.log('componentDidUpdate', this.props.transfer)
     if (
       prevProps.inited !== this.props.inited &&
       this.props.inited === true
@@ -135,7 +133,6 @@ export default class TransportAction extends Component {
     if (this.onCancel) {
       return
     }
-    console.log('onEnd------')
     const {
       transfer,
       config
@@ -196,7 +193,6 @@ export default class TransportAction extends Component {
     if (this.onCancel) {
       return
     }
-    console.log('onCancel------')
     this.onCancel = true
     this.transport && this.transport.destroy()
     this.transport = null
@@ -219,7 +215,6 @@ export default class TransportAction extends Component {
   }
 
   mvOrCp = () => {
-    console.log('mv or cp')
     const {
       transfer
     } = this.props
@@ -235,19 +230,12 @@ export default class TransportAction extends Component {
 
     // Check if it's a copy operation to the same path
     if (fromPath === toPath && operation === fileOperationsMap.cp) {
-      console.log('Same folder copy operation detected, automatically renaming')
       finalToPath = this.handleRename(toPath, typeFrom === typeMap.remote)
-      console.log('Generated new path:', finalToPath)
-
-      // Update the transfer object directly
       transfer.toPath = finalToPath
-
-      // Also update through the queue for persistence
       this.update({
         toPath: finalToPath
       })
     }
-    console.log('finalToPath', finalToPath)
     if (typeFrom === typeMap.local) {
       return fs[operation](fromPath, finalToPath)
         .then(this.onEnd)
@@ -412,10 +400,7 @@ export default class TransportAction extends Component {
   }
 
   initTransfer = async () => {
-    console.log('===========', this.props.transfer.id)
-    console.log('Starting initTransfer')
     if (this.started) {
-      console.log('Transfer already started, returning')
       return
     }
     this.started = true
@@ -428,56 +413,42 @@ export default class TransportAction extends Component {
       toPath,
       operation
     } = transfer
-    console.log('Transfer details:', transfer)
 
     if (
       typeFrom === typeTo &&
       fromPath === toPath &&
       operation === fileOperationsMap.mv
     ) {
-      console.log('Same source and destination with move operation, cancelling')
       return this.cancel()
     }
 
     const t = Date.now()
-    console.log('Setting start time:', t)
     this.update({
       startTime: t
     })
     this.startTime = t
 
-    console.log('Checking file existence')
     const fromFile = transfer.fromFile
       ? transfer.fromFile
       : await this.checkExist(typeFrom, fromPath, this.sessionId)
-    console.log('=======file from', fromFile)
     if (!fromFile) {
-      console.log('Source file does not exist')
       return this.tagTransferError(id, 'file not exist')
     }
     this.fromFile = fromFile
     this.update({
       fromFile
     })
-    console.log('Source file found:', fromFile)
-
-    console.log('Checking for conflicts')
     if (fromPath === toPath && typeFrom === typeTo) {
-      console.log('Same source and destination, skipping conflict check')
       return this.mvOrCp()
     }
     const hasConflict = await this.checkConflict()
     if (hasConflict) {
-      console.log('Conflict detected, returning')
       return
     }
 
     if (typeFrom === typeTo) {
-      console.log('Same source and destination types, performing mvOrCp')
       return this.mvOrCp()
     }
-
-    console.log('Starting transfer between different types')
     this.startTransfer()
   }
 
@@ -491,7 +462,6 @@ export default class TransportAction extends Component {
     if (!transferStillExists) {
       return false
     }
-    // Get the target file information if it exists
     const toFile = await this.checkExist(typeTo, toPath, sessionId)
 
     if (toFile) {
@@ -501,35 +471,27 @@ export default class TransportAction extends Component {
       if (this.resolvePolicy) {
         return this.onDecision(this.resolvePolicy)
       }
-      // Update the transfer object with the target file information
       const transferWithToFile = {
         ...copy(transfer),
         toFile,
         fromFile: copy(transfer.fromFile || this.fromFile)
       }
-      // Pass the updated transfer object with toFile to the conflict handler
       refsStatic.get('transfer-conflict')?.addConflict(transferWithToFile)
       return true
     }
   }
 
   onDecision = (policy) => {
-    console.log('onDecision: Starting with policy:', policy)
-
     if (policy === fileActions.skip || policy === fileActions.cancel) {
-      console.log('onDecision: Policy is skip, ending transfer')
       return this.onEnd()
     }
 
     if (policy === fileActions.rename) {
-      console.log('onDecision: Policy is rename, handling rename operation')
       const {
         typeTo,
         toPath
       } = this.props.transfer
-      console.log('onDecision: Current path:', toPath)
       const newPath = this.handleRename(toPath, typeTo === typeMap.remote)
-      console.log('onDecision: Generated new path:', newPath)
       this.update({
         toPath: newPath
       })
@@ -540,27 +502,12 @@ export default class TransportAction extends Component {
   }
 
   startTransfer = async () => {
-    console.log('startTransfer: Beginning transfer process')
-
     const { fromFile = this.fromFile } = this.props.transfer
-    console.log('startTransfer: Source file details:', {
-      isDirectory: fromFile.isDirectory,
-      name: fromFile.name
-    })
 
     if (!fromFile.isDirectory) {
-      console.log('startTransfer: Source is a file, initiating file transfer')
       return this.transferFile()
     }
-
-    console.log('startTransfer: Source is a directory, starting recursive folder transfer')
     await this.transferFolderRecursive()
-    console.log('startTransfer: Folder transfer completed')
-
-    console.log('startTransfer: Ending transfer with stats:', {
-      transferred: this.transferred,
-      totalSize: this.total
-    })
     this.onEnd({
       transferred: this.transferred,
       size: this.total
@@ -601,7 +548,6 @@ export default class TransportAction extends Component {
     this.update(up)
   }
 
-  // Simplified sub-file transfer function for use within folder transfers
   transferFileAsSubTransfer = async (transfer) => {
     const {
       fromPath,
@@ -625,7 +571,6 @@ export default class TransportAction extends Component {
       let transport
 
       const onSubEnd = () => {
-      // Only update progress when the file transfer completes
         if (fileSize) {
           this.onFolderData(fileSize)
         }
@@ -637,7 +582,6 @@ export default class TransportAction extends Component {
       }
 
       const onSubError = (error) => {
-        console.error(`Error transferring ${fromPath} to ${toPath}:`, error.message)
         if (transport) {
           transport.destroy()
           transport = null
@@ -649,7 +593,7 @@ export default class TransportAction extends Component {
         remotePath,
         localPath,
         options: { mode },
-        onData: () => {}, // We can ignore per-chunk data updates
+        onData: () => {},
         onError: onSubError,
         onEnd: onSubEnd
       }).then(transportInstance => {
@@ -659,28 +603,15 @@ export default class TransportAction extends Component {
   }
 
   getDefaultTransfer = () => {
-    // Start with the original transfer from props
     const transfer = this.props.transfer
-
-    // If we have a renamed path, create a modified transfer object
     if (this.newPath) {
-      // Create a new object with the renamed path
       const modifiedTransfer = {
         ...transfer,
         toPath: this.newPath,
         isRenamed: true
       }
-
-      // Log the renamed path for debugging
-      console.log('Using renamed path:', this.newPath)
-
-      // Clear newPath so it doesn't affect subsequent operations
-      // this.newPath = null
-
       return modifiedTransfer
     }
-
-    // If no renaming needed, return the original transfer
     return transfer
   }
 
@@ -688,7 +619,6 @@ export default class TransportAction extends Component {
     if (this.onCancel) {
       return
     }
-    console.log('transferFolderRecursive: Starting new folder transfer', transfer)
     const {
       fromPath,
       toPath,
@@ -701,51 +631,33 @@ export default class TransportAction extends Component {
     if (!toFile || isRenamed) {
       const folderCreated = await this.mkdir(transfer)
       if (!folderCreated) {
-        console.error(`transferFolderRecursive: Failed to create destination folder: ${toPath}`)
+        return
       }
     }
-    // Get list of items in the source folder
-    console.log('transferFolderRecursive: Getting list from source folder:', fromPath)
     const list = await this.list(typeFrom, fromPath, sessionId)
-    console.log('transferFolderRecursive: Found', list.map(item => item.name).join(','), 'items')
 
-    // Process each item in the folder
     for (const item of list) {
-      console.log('transferFolderRecursive: Processing item:', item.name)
       if (!item.isDirectory) {
         this.total += item.size
-        console.log('transferFolderRecursive: Added to total size:', { file: item.name, size: item.size, total: this.total })
       }
       const fromItemPath = resolve(fromPath, item.name)
       const toItemPath = resolve(toPath, item.name)
-      console.log('transferFolderRecursive: Paths resolved:', { from: fromItemPath, to: toItemPath })
 
-      // Create a new transfer object for this item
       const itemTransfer = {
         ...transfer,
         fromPath: fromItemPath,
         toPath: toItemPath,
         fromFile: item
       }
-      console.log('transferFolderRecursive: Created transfer object for:', item.name)
 
       const toFile = await this.checkExist(typeTo, toItemPath, sessionId)
       itemTransfer.toFile = toFile
       if (item.isDirectory) {
-        console.log('transferFolderRecursive: Processing directory:', item.name)
-        // For directories, only create if not overwriteOrMerge
-        // if (!(toFile && (conflictPolicy === 'overwriteOrMerge' || resolution === 'overwriteOrMerge'))) {
-        //   console.log('transferFolderRecursive: Creating directory:', item.name)
-        //   await this.mkdir(itemTransfer)
-        // }
-        console.log('transferFolderRecursive: Starting recursive transfer for directory:', item.name)
         await this.transferFolderRecursive(itemTransfer)
       } else {
-        console.log('transferFolderRecursive: Transferring file:', item.name)
         await this.transferFileAsSubTransfer(itemTransfer)
       }
     }
-    console.log('transferFolderRecursive: Completed folder transfer for:', fromPath)
   }
 
   onError = (e) => {
@@ -763,16 +675,15 @@ export default class TransportAction extends Component {
       toPath,
       sessionId
     } = transfer
-    console.log('mkdir: Creating directory:', toPath)
     if (typeTo === typeMap.local) {
       return fs.mkdir(toPath)
         .then(() => true)
-        .catch(console.log)
+        .catch(() => false)
     }
     const sftp = refs.get('sftp-' + sessionId).sftp
     return sftp.mkdir(toPath)
       .then(() => true)
-      .catch(console.log)
+      .catch(() => false)
   }
 
   render () {

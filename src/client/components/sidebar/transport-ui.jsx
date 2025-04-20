@@ -12,6 +12,7 @@ import {
 } from '@ant-design/icons'
 import { action } from 'manate'
 import { addClass, removeClass } from '../../common/class'
+import { refsStatic } from '../common/ref'
 import './transfer.styl'
 
 const e = window.translate
@@ -38,19 +39,25 @@ export default function Transporter (props) {
   const onDragCls = 'ondrag-tr'
   const onDragOverCls = 'dragover-tr'
   function moveToTop () {
-    action(function () {
-      const arr = window.store.fileTransfers
-      if (index > 0) {
-        const [item] = arr.splice(index, 1)
-        arr.unshift(item)
-      }
-    })()
+    refsStatic.get('transfer-queue')?.addToQueue(
+      'moveTop',
+      id
+    )
   }
   function cancel () {
-    window.store.cancelTransfer(id)
+    refsStatic.get('transfer-queue')?.addToQueue(
+      'delete',
+      id
+    )
   }
   function handlePauseOrResume () {
-    window.store.toggleTransfer(id)
+    refsStatic.get('transfer-queue')?.addToQueue(
+      'update',
+      id,
+      {
+        pausing: !pausing
+      }
+    )
   }
 
   function clearCls () {

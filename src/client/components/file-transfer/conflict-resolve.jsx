@@ -69,24 +69,7 @@ export default class ConfirmModalStore extends Component {
           }
         }
       }
-      // Object.keys(window.refs)
-      //   .filter(k => k.startsWith(`tr-${transferBatch}-`))
-      //   .forEach(k => {
-      //     console.log('act:Updating transfer:', k)
-      //     const r = refsTransfers.get(k)
-      //     if (!r) {
-      //       return
-      //     }
-      //     // Set the policy and call onDecision if it's not the current one
-      //     if (k !== trid) {
-      //       r.resolvePolicy = policy
-      //       r.onDecision(policy)
-      //     }
-      //   })
       this.queue = this.queue.filter(d => d.transferBatch !== transferBatch)
-
-      // // Also update any pending conflict items in the queue with same batch ID
-      // this.updateQueueWithPolicy(transferBatch, policy)
     }
 
     // Resolve current conflict
@@ -97,22 +80,6 @@ export default class ConfirmModalStore extends Component {
       transferToConfirm: null
     }, this.showNext)
   }
-
-  // updateQueueWithPolicy = (transferBatch, policy) => {
-  // // Remove items with the same batch ID from the queue
-  //   this.setState(prevState => {
-  //   // Filter out any items that have the same transferBatch
-  //     const filteredQueue = prevState.queue.filter(item =>
-  //       item.transferBatch !== transferBatch
-  //     )
-
-  //     // Return updated state with filtered queue
-  //     console.log('Updated queue:', filteredQueue)
-  //     return {
-  //       queue: filteredQueue
-  //     }
-  //   })
-  // }
 
   renderContent () {
     const {

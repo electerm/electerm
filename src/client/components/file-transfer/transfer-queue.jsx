@@ -1,5 +1,5 @@
 import { Component } from 'react'
-import { autoRun } from 'manate'
+import { autoRun, action } from 'manate'
 import { refsStatic } from '../common/ref'
 
 export default class Queue extends Component {
@@ -18,10 +18,6 @@ export default class Queue extends Component {
   }
 
   addToQueue = (operation, ...args) => {
-    console.log('Adding to queue:', operation, args)
-    // this.setState(prevState => ({
-    //   queue: [...prevState.queue, { operation, args }]
-    // }), this.processQueue)
     this.queue.push({ operation, args })
     this.processQueue()
   }
@@ -32,12 +28,8 @@ export default class Queue extends Component {
     }
     this.processing = true
     const { operation, args } = this.queue.shift()
-    console.log('Processing queue:', operation, ...args)
 
     await this.executeOperation(operation, ...args)
-      .then(() => {
-        console.log('Operation completed:', operation, ...args)
-      })
       .catch((error) => {
         console.error('Error processing operation:', error)
       })
@@ -46,7 +38,6 @@ export default class Queue extends Component {
   }
 
   executeOperation = (operation, ...args) => {
-    console.log('Executing operation:', operation, args)
     return new Promise((resolve, reject) => {
       const { fileTransfers } = window.store
       const [id, updateObj] = args
@@ -83,7 +74,6 @@ export default class Queue extends Component {
       function applyChanges () {
         if (operation === 'update') {
           const index = fileTransfers.findIndex(t => t.id === id)
-          console.log('update', index, updateObj, id, fileTransfers)
           if (index < 0) {
             return end()
           }
@@ -96,6 +86,17 @@ export default class Queue extends Component {
           fileTransfers.splice(index, 1)
         } else if (operation === 'insert') {
           fileTransfers.push(id)
+        } else if (operation === 'moveTop') {
+          // New moveTop operation - wrapped with action
+          action(() => {
+            const index = fileTransfers.findIndex(t => t.id === id)
+            if (index < 0 || index === 0) {
+              return end() // Already at top or doesn't exist
+            }
+            const transfer = fileTransfers[index]
+            fileTransfers.splice(index, 1) // Remove from current position
+            fileTransfers.unshift(transfer) // Add to the beginning
+          })()
         }
 
         // For non-transfer operations, check immediately
@@ -121,20 +122,22 @@ export default class Queue extends Component {
             })
 
             if (allUpdated) {
-              console.log('Update confirmed for:', id)
               end()
             }
           }
         } else if (operation === 'delete') {
           const stillExists = window.store.fileTransfers.some(t => t.id === id)
           if (!stillExists) {
-            console.log('Delete confirmed for:', id)
             end()
           }
         } else if (operation === 'insert') {
           const exists = window.store.fileTransfers.some(t => t.id === id)
           if (exists) {
-            console.log('Insert confirmed for:', id)
+            end()
+          }
+        } else if (operation === 'moveTop') {
+          const index = window.store.fileTransfers.findIndex(t => t.id === id)
+          if (index === 0) {
             end()
           }
         }
