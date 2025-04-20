@@ -27,7 +27,7 @@ import {
 } from '../../common/constants'
 import findParent from '../../common/find-parent'
 import sorter from '../../common/index-sorter'
-import { getFolderFromFilePath, getLocalFileInfo, checkFolderSize } from './file-read'
+import { getFolderFromFilePath, getLocalFileInfo } from './file-read'
 import { readClipboard, copy as copyToClipboard, hasFileInClipboardText } from '../../common/clipboard'
 import fs from '../../common/fs'
 import time from '../../common/time'
@@ -59,8 +59,6 @@ export default class FileSection extends React.Component {
   }
 
   componentDidMount () {
-    this.id = 'file-' + (this.props.file?.id || generate())
-    refs.add(this.id, this)
     this.applyStyle()
   }
 
@@ -74,7 +72,6 @@ export default class FileSection extends React.Component {
   }
 
   componentWillUnmount () {
-    refsStatic.remove(this.id)
     clearTimeout(this.timer)
     this.timer = null
     this.domRef = null
@@ -735,7 +732,7 @@ export default class FileSection extends React.Component {
     _typeTo,
     operation
   ) => {
-    const { name, path, type, isDirectory } = file
+    const { name, path, type } = file
     const isLocal = type === typeMap.local
     let typeTo = isLocal
       ? typeMap.remote
@@ -759,13 +756,6 @@ export default class FileSection extends React.Component {
       id: generate(),
       ...createTransferProps(this.props),
       operation
-    }
-    if (isDirectory) {
-      const zip = await checkFolderSize(this.props, file)
-      Object.assign(obj, {
-        zip,
-        skipExpand: zip
-      })
     }
     return [obj]
   }

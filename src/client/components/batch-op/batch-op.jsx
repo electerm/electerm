@@ -217,7 +217,6 @@ export default class BatchOp extends PureComponent {
         typeFrom: isDown ? 'remote' : 'local',
         typeTo: isDown ? 'local' : 'remote',
         skipExpand: true,
-        zip: true,
         skipConfirm: true
       }
       const { store } = window
@@ -229,7 +228,7 @@ export default class BatchOp extends PureComponent {
       this.ref1 = autoRun(() => {
         const { transferHistory } = store
         const first = transferHistory.find(t => {
-          return (t.id === obj.id || t.originalId === obj.id) && t.unzip
+          return t.id === obj.id || t.originalId === obj.id
         })
         if (first && first.sessionId === tab.sessionId) {
           this.ref1 && this.ref1.stop()

@@ -12,10 +12,10 @@ import UiTheme from './ui-theme'
 import CustomCss from '../bg/custom-css.jsx'
 import Resolutions from '../rdp/resolution-edit'
 import TerminalInteractive from '../terminal/terminal-interactive'
-import ConfirmModalStore from '../sftp/confirm-modal-store.jsx'
-import TransferConflictStore from '../sftp/transfer-conflict-store.jsx'
+import ConfirmModalStore from '../file-transfer/conflict-resolve.jsx'
+import TransferQueue from '../file-transfer/transfer-queue'
 import TerminalCmdSuggestions from '../terminal/terminal-command-dropdown'
-import TransportsActionStore from '../sftp/transports-action-store.jsx'
+import TransportsActionStore from '../file-transfer/transports-action-store.jsx'
 import classnames from 'classnames'
 import ShortcutControl from '../shortcuts/shortcut-control.jsx'
 import { isMac, isWin } from '../../common/constants'
@@ -275,10 +275,6 @@ export default auto(function Index (props) {
         <ConfirmModalStore
           transferToConfirm={transferToConfirm}
         />
-        <TransferConflictStore
-          {...conflictStoreProps}
-          transferToConfirm={transferToConfirm}
-        />
         <TransportsActionStore
           {...conflictStoreProps}
           config={config}
@@ -296,6 +292,7 @@ export default auto(function Index (props) {
         />
         <ConnectionHoppingWarning {...warningProps} />
         <TerminalCmdSuggestions {...cmdSuggestionsProps} />
+        <TransferQueue />
       </div>
     </ConfigProvider>
   )

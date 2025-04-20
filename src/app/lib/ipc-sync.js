@@ -123,8 +123,6 @@ module.exports = {
         'readFileAsBase64',
         'writeFile',
         'openFile',
-        'zipFolder',
-        'unzipFile',
         'readCustom',
         'exists',
         'readdir',

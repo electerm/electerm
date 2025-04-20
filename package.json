@@ -131,8 +131,7 @@
     "socks-proxy-agent": "8.0.1",
     "socksv5-electron": "^0.0.6",
     "ssh-config": "5.0.1",
-    "stylus": "0.64.0",
-    "tar": "7.4.3"
+    "stylus": "0.64.0"
   },
   "files": [
     "npm",
