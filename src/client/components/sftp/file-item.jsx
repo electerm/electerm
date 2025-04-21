@@ -52,7 +52,8 @@ export default class FileSection extends React.Component {
     super(props)
     this.state = {
       file: copy(props.file),
-      overwriteStrategy: ''
+      overwriteStrategy: '',
+      dropdownOpen: false
     }
     // Create ref
     this.domRef = React.createRef()
@@ -81,6 +82,12 @@ export default class FileSection extends React.Component {
 
   get editor () {
     return refsStatic.get('text-editor')
+  }
+
+  handleDropdownOpenChange = (open) => {
+    if (open) {
+      this.forceUpdate()
+    }
   }
 
   applyStyle = () => {
@@ -1182,7 +1189,8 @@ export default class FileSection extends React.Component {
         items: this.renderContextMenu(),
         onClick: this.onContextMenu
       },
-      trigger: ['contextMenu']
+      trigger: ['contextMenu'],
+      onOpenChange: this.handleDropdownOpenChange
     }
     return (
       <Dropdown {...ddProps}>
