@@ -113,7 +113,7 @@ export default class ItemList extends React.PureComponent {
     const isGroup = false
     return (
       <div
-        key={i + '__' + id}
+        key={id}
         className={cls}
         onClick={() => onClickItem(item, type)}
       >
