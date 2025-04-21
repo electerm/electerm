@@ -9,11 +9,6 @@ const appOptions = require('./common/app-options')
 const extendClient = require('./common/client-extend')
 const { expect } = require('./common/expect')
 const {
-  TEST_HOST,
-  TEST_PASS,
-  TEST_USER
-} = require('./common/env')
-const {
   setupSftpConnection,
   createFile,
   createFolder,
@@ -30,7 +25,7 @@ describe('file-copy-paste-operation-keyboard', function () {
     extendClient(client, electronApp)
     await delay(3500)
 
-    await setupSftpConnection(client, { TEST_HOST, TEST_USER, TEST_PASS })
+    await setupSftpConnection(client)
 
     // Test for both local and remote
     await testCopyPasteOperationWithKeyboard(client, 'local')

@@ -9,18 +9,14 @@ const appOptions = require('./common/app-options')
 const extendClient = require('./common/client-extend')
 const { expect } = require('./common/expect')
 const {
-  TEST_HOST,
-  TEST_PASS,
-  TEST_USER
-} = require('./common/env')
-const {
   setupSftpConnection,
   createFile,
   createFolder,
   deleteItem,
   copyItem,
   pasteItem,
-  enterFolder
+  enterFolder,
+  navigateToParentFolder
 } = require('./common/common')
 
 describe('file-copy-paste-operation', function () {
@@ -30,7 +26,7 @@ describe('file-copy-paste-operation', function () {
     extendClient(client, electronApp)
     await delay(3500)
 
-    await setupSftpConnection(client, { TEST_HOST, TEST_USER, TEST_PASS })
+    await setupSftpConnection(client)
 
     // Test for both local and remote
     await testCopyPasteOperation(client, 'local')
@@ -89,7 +85,7 @@ async function testCopyPasteOperation (client, type) {
   expect(copiedCount).toBe(1)
 
   // Navigate back to parent folder
-  await client.doubleClick(`.session-current .file-list.${type} .parent-file-item`)
+  await navigateToParentFolder(client, type)
 
   // Clean up - delete all test files and folders
   // Delete the renamed file in the root folder
