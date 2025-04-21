@@ -4,45 +4,52 @@ const {
   TEST_PASS,
   TEST_USER
 } = require('./env')
+const {
+  expect
+} = require('./expect')
 
 /**
  * Common file and folder operations for electerm SFTP tests
  */
-
 /**
  * Creates a new file in the specified type of file list (local/remote)
+ * Always uses the parent-file-item which is guaranteed to be present
  *
  * @param {Object} client - The Playwright client
  * @param {string} type - The type of file list ('local' or 'remote')
  * @param {string} fileName - The name of the file to create
  */
 async function createFile (client, type, fileName) {
-  await client.rightClick(`.session-current .file-list.${type} .real-file-item`, 10, 10)
+  // Always use the parent-file-item for right-click context menu
+  await client.rightClick(`.session-current .file-list.${type} .parent-file-item`, 10, 10)
+
   await delay(500)
   await client.click('.ant-dropdown:not(.ant-dropdown-hidden) .ant-dropdown-menu-item:has-text("New File")')
   await delay(400)
   await client.setValue('.session-current .sftp-item input', fileName)
   await client.click('.session-current .sftp-title-wrap')
-  await delay(3500) // Increased delay to ensure file creation completes
+  await delay(3500) // Ensure file creation completes
 }
 
 /**
  * Creates a new folder in the specified type of file list (local/remote)
+ * Always uses the parent-file-item which is guaranteed to be present
  *
  * @param {Object} client - The Playwright client
  * @param {string} type - The type of file list ('local' or 'remote')
  * @param {string} folderName - The name of the folder to create
  */
 async function createFolder (client, type, folderName) {
-  await client.rightClick(`.session-current .file-list.${type} .real-file-item`, 10, 10)
+  // Always use the parent-file-item for right-click context menu
+  await client.rightClick(`.session-current .file-list.${type} .parent-file-item`, 10, 10)
+
   await delay(500)
   await client.click('.ant-dropdown:not(.ant-dropdown-hidden) .ant-dropdown-menu-item:has-text("New Folder")')
   await delay(400)
   await client.setValue('.session-current .sftp-item input', folderName)
   await client.click('.session-current .sftp-title-wrap')
-  await delay(3500) // Increased delay to ensure folder creation completes
+  await delay(3500) // Ensure folder creation completes
 }
-
 /**
  * Deletes an item (file or folder) from the specified type of file list
  *
@@ -323,6 +330,19 @@ async function countFileListItems (client, type, selector) {
   return await items.count()
 }
 
+/**
+ * Verifies the number of selected items
+ *
+ * @param {Object} client - The Playwright client
+ * @param {string} type - The type of file list ('local' or 'remote')
+ * @param {number} expectedCount - The expected number of selected items
+ */
+async function verifySelectionCount (client, type, expectedCount) {
+  const selectedItems = await client.locator(`.session-current .file-list.${type} .sftp-item.selected`)
+  const count = await selectedItems.count()
+  expect(count).toBe(expectedCount, `Expected ${expectedCount} items to be selected, found ${count}`)
+}
+
 module.exports = {
   createFile,
   createFolder,
@@ -343,5 +363,6 @@ module.exports = {
   selectItemsWithCtrlOrCmd,
   verifyCurrentPath,
   clickSftpTab,
-  countFileListItems
+  countFileListItems,
+  verifySelectionCount
 }
