@@ -17,14 +17,14 @@ const {
   setupSftpConnection,
   createFile,
   createFolder,
-  deleteItem,
+  enterFolder,
   copyItem,
   pasteItem,
-  enterFolder
+  deleteItem
 } = require('./common/common')
 
-describe('file-copy-paste-operation', function () {
-  it('should test file copy and paste operations', async function () {
+describe('file-copy-paste-operation-keyboard', function () {
+  it('should test file copy and paste operations using keyboard shortcuts', async function () {
     const electronApp = await electron.launch(appOptions)
     const client = await electronApp.firstWindow()
     extendClient(client, electronApp)
@@ -33,25 +33,25 @@ describe('file-copy-paste-operation', function () {
     await setupSftpConnection(client, { TEST_HOST, TEST_USER, TEST_PASS })
 
     // Test for both local and remote
-    await testCopyPasteOperation(client, 'local')
-    await testCopyPasteOperation(client, 'remote')
+    await testCopyPasteOperationWithKeyboard(client, 'local')
+    await testCopyPasteOperationWithKeyboard(client, 'remote')
 
     await electronApp.close()
   })
 })
 
-async function testCopyPasteOperation (client, type) {
+async function testCopyPasteOperationWithKeyboard (client, type) {
   // Create a test file
-  const fileName = `original-file-${Date.now()}.js`
+  const fileName = `keyboard-copy-file-${Date.now()}.js`
   await createFile(client, type, fileName)
 
-  // Copy the file
+  // Copy the file using keyboard shortcut - only need to copy once
   await copyItem(client, type, fileName)
 
-  // Give more time for the clipboard to update
+  // Give time for the clipboard to update
   await delay(2000)
 
-  // Test 1: Paste in the same directory
+  // Test 1: Paste in the same directory using keyboard shortcut
   await pasteItem(client, type)
 
   // Verify that a renamed file was created
@@ -61,23 +61,16 @@ async function testCopyPasteOperation (client, type) {
 
   // Verify the renamed file follows the pattern
   const renamedFileName = await renamedFiles.first().getAttribute('title')
-  expect(renamedFileName).toMatch(/^original-file-\d+\([\w\d-]+\)\.js$/)
+  expect(renamedFileName).toMatch(/^keyboard-copy-file-\d+\([\w\d-]+\)\.js$/)
 
-  // Test 2: Create folder, paste into subfolder
-  // Create a folder
-  const folderName = `test-folder-${Date.now()}`
+  // Test 2: Create folder, paste into subfolder using keyboard shortcuts
+  const folderName = `keyboard-test-folder-${Date.now()}`
   await createFolder(client, type, folderName)
-
-  // Copy the original file again
-  await copyItem(client, type, fileName)
-
-  // Give more time for the clipboard to update
-  await delay(2000)
 
   // Enter the folder
   await enterFolder(client, type, folderName)
 
-  // Paste the file in the subfolder
+  // Paste the file in the subfolder using keyboard shortcut
   await pasteItem(client, type)
 
   // Give time for the paste to complete
@@ -90,14 +83,10 @@ async function testCopyPasteOperation (client, type) {
 
   // Navigate back to parent folder
   await client.doubleClick(`.session-current .file-list.${type} .parent-file-item`)
+  await delay(3000)
 
   // Clean up - delete all test files and folders
-  // Delete the renamed file in the root folder
   await deleteItem(client, type, renamedFileName)
-
-  // Delete the original file
   await deleteItem(client, type, fileName)
-
-  // Delete the folder (no need to delete the file inside)
   await deleteItem(client, type, folderName)
 }
