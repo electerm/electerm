@@ -57,6 +57,7 @@ export default class FileSection extends React.Component {
     }
     // Create ref
     this.domRef = React.createRef()
+    this.id = 'file-' + this.props.file.id
   }
 
   componentDidMount () {
@@ -78,6 +79,10 @@ export default class FileSection extends React.Component {
     this.domRef = null
     this.dropTarget = null
     this.removeFileEditEvent()
+  }
+
+  clearRef = () => {
+    refs.remove(this.id)
   }
 
   get editor () {
@@ -516,6 +521,7 @@ export default class FileSection extends React.Component {
   }
 
   changeFileMode = async (file) => {
+    this.clearRef()
     const { permission, type, path, name } = file
     const func = type === typeMap.local
       ? fs.chmod
@@ -527,6 +533,7 @@ export default class FileSection extends React.Component {
 
   openFileModeModal = () => {
     const { type } = this.props
+    refs.add(this.id, this)
     refsStatic.get('file-modal')?.showFileModeModal(
       {
         tab: this.props.tab,
@@ -616,6 +623,7 @@ export default class FileSection extends React.Component {
   }
 
   removeFileEditEvent = () => {
+    this.clearRef()
     if (this.watchingFile) {
       window.pre.ipcOffEvent('file-change', this.onFileChange)
       window.pre.runGlobalAsync('unwatchFile', this.watchingFile)
@@ -696,6 +704,7 @@ export default class FileSection extends React.Component {
       data.file = null
       data.text = ''
     }
+    this.clearRef()
     this.editor?.setState(data)
     if (r && !noClose) {
       this.props[`${type}List`]()
@@ -703,6 +712,7 @@ export default class FileSection extends React.Component {
   }
 
   editFile = () => {
+    refs.add(this.id, this)
     this.editor?.openEditor({
       id: this.id,
       file: this.state.file
