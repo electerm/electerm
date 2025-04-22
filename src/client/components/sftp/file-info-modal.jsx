@@ -101,6 +101,9 @@ export default class FileMode extends React.PureComponent {
       file: {},
       visible: false
     })
+    if (this.state.fileId) {
+      refs.get(this.state.fileId)?.clearRef()
+    }
   }
 
   getSize = (str = '') => {
