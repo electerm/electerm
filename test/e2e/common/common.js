@@ -343,6 +343,18 @@ async function verifySelectionCount (client, type, expectedCount) {
   expect(count).toBe(expectedCount, `Expected ${expectedCount} items to be selected, found ${count}`)
 }
 
+/**
+ * Verifies that the fileTransfers array in window.store is empty
+ *
+ * @param {Object} client - The Playwright client
+ */
+async function verifyFileTransfersComplete (client) {
+  const isEmpty = await client.evaluate(() => {
+    return window.store.fileTransfers.length === 0
+  })
+  expect(isEmpty).toBe(true, 'Expected fileTransfers array to be empty after operations complete')
+}
+
 module.exports = {
   createFile,
   createFolder,
@@ -364,5 +376,6 @@ module.exports = {
   verifyCurrentPath,
   clickSftpTab,
   countFileListItems,
-  verifySelectionCount
+  verifySelectionCount,
+  verifyFileTransfersComplete
 }
