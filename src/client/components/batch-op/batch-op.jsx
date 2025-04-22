@@ -18,7 +18,8 @@ import {
   sidebarWidth,
   statusMap,
   batchOpHelpLink,
-  modals
+  modals,
+  fileActions
 } from '../../common/constants'
 import HelpIcon from '../common/help-icon'
 import download from '../../common/download'
@@ -216,8 +217,7 @@ export default class BatchOp extends PureComponent {
         toPath: resolveFilePath(isDown ? conf.localPath : conf.remotePath, name),
         typeFrom: isDown ? 'remote' : 'local',
         typeTo: isDown ? 'local' : 'remote',
-        skipExpand: true,
-        skipConfirm: true
+        resolvePolicy: fileActions.mergeOrOverwrite
       }
       const { store } = window
       store.addTransferList([obj])

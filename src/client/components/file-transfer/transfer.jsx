@@ -355,6 +355,9 @@ export default class TransportAction extends Component {
       this.update({
         toFile
       })
+      if (transfer.resolvePolicy) {
+        return this.onDecision(transfer.resolvePolicy)
+      }
       if (this.resolvePolicy) {
         return this.onDecision(this.resolvePolicy)
       }
