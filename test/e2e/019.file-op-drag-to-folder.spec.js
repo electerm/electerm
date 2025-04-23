@@ -117,6 +117,70 @@ async function testMultiFileDragDrop (client, type) {
     expect(await verifyFileExists(client, type, fileName)).toBe(true)
   }
 
+  // Test dragging files back to parent folder using parent-file-item
+  // Select all three files again by clicking first and shift-clicking last
+  await client.click(`.session-current .file-list.${type} .sftp-item[title="${fileNames[0]}"]`)
+  await delay(500)
+
+  const lastFileElement = await client.locator(`.session-current .file-list.${type} .sftp-item[title="${fileNames[2]}"]`)
+  await lastFileElement.click({
+    modifiers: ['Shift']
+  })
+  await delay(1000)
+
+  // Verify all three files are selected
+  for (const fileName of fileNames) {
+    const item = await client.locator(`.session-current .file-list.${type} .sftp-item[title="${fileName}"]`)
+    const isSelected = await item.evaluate(el => el.classList.contains('selected'))
+    expect(isSelected).toBe(true)
+  }
+
+  // Perform drag-drop operation to parent-file-item
+  const dragSourceElement = await client.locator(`.session-current .file-list.${type} .sftp-item[title="${fileNames[0]}"]`)
+  const parentFileElement = await client.locator(`.session-current .file-list.${type} .parent-file-item`)
+
+  // Get bounding boxes for drag source and parent-file-item
+  const dragSourceBound = await dragSourceElement.boundingBox()
+  const parentFileBound = await parentFileElement.boundingBox()
+
+  // Drag from first file to parent-file-item
+  await client.mouse.move(
+    dragSourceBound.x + dragSourceBound.width / 2,
+    dragSourceBound.y + dragSourceBound.height / 2
+  )
+  await client.mouse.down()
+  await delay(500)
+
+  await client.mouse.move(
+    parentFileBound.x + parentFileBound.width / 2,
+    parentFileBound.y + parentFileBound.height / 2,
+    { steps: 20 } // Move in steps for smoother drag
+  )
+  await delay(500)
+
+  await client.mouse.up()
+  await delay(3000) // Wait for drag-drop operation to complete
+
+  // Verify fileTransfers array is empty after the operation
+  await verifyFileTransfersComplete(client)
+
+  // Go back to parent folder to verify files were moved
+  await navigateToParentFolder(client, type)
+  await delay(2000)
+
+  // Verify all three files exist in the parent folder (original location)
+  for (const fileName of fileNames) {
+    expect(await verifyFileExists(client, type, fileName)).toBe(true)
+  }
+
+  // Verify target folder is empty
+  await enterFolder(client, type, targetFolderName)
+  await delay(2000)
+
+  // The target folder should only have the parent-file-item and hidden-file-item
+  const itemCount = await client.locator(`.session-current .file-list.${type} .sftp-item`).count()
+  expect(itemCount).toBe(2) // Only parent-file-item and hidden-file-item
+
   // Go back to main test folder
   await navigateToParentFolder(client, type)
   await delay(2000)
