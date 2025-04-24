@@ -52,10 +52,10 @@ export default class CssOverwrite extends Component {
 
   componentDidUpdate (prevProps) {
     if (!prevProps.wsInited && this.props.wsInited) {
-      this.writeCss()
+      setTimeout(this.writeCss, 1500)
       return
     }
-    this.updateCss()
+    setTimeout(this.updateCss, 1000)
   }
 
   // Common function to handle background image style creation
