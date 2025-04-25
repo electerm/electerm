@@ -28,6 +28,7 @@ export default class TransportAction extends Component {
     refsTransfers.add(this.id, this)
     this.total = 0
     this.transferred = 0
+    this.currentProgress = 1
   }
 
   componentDidMount () {
@@ -421,11 +422,11 @@ export default class TransportAction extends Component {
     }
     this.transferred += transferred
     const up = {}
-    let percent = this.total === 0
-      ? 0
-      : Math.floor(100 * this.transferred / this.total)
-    percent = percent >= 100 ? 99 : percent
-    up.percent = percent
+
+    // Increment progress slightly with each file/folder (but never exceed 99%)
+    this.currentProgress = Math.min(this.currentProgress + 0.2, 99)
+
+    up.percent = Math.floor(this.currentProgress)
     up.status = 'active'
     up.transferred = this.transferred
     up.startTime = this.startTime
