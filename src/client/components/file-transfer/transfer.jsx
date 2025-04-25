@@ -506,49 +506,157 @@ export default class TransportAction extends Component {
     return transfer
   }
 
-  transferFolderRecursive = async (transfer = this.getDefaultTransfer()) => {
+  // Handle file transfers in parallel batches
+  transferFiles = async (files, batch, transfer) => {
     if (this.onCancel) {
       return
     }
-    const {
-      fromPath,
-      toPath,
-      typeFrom,
-      typeTo,
-      sessionId,
-      toFile,
-      isRenamed
-    } = transfer
-    if (!toFile || isRenamed) {
-      const folderCreated = await this.mkdir(transfer)
-      if (!folderCreated) {
+
+    const { fromPath, toPath } = transfer
+
+    // Process files in batches
+    for (let i = 0; i < files.length; i += batch) {
+      if (this.onCancel) {
         return
       }
-    }
-    const list = await this.list(typeFrom, fromPath, sessionId)
 
-    for (const item of list) {
-      if (!item.isDirectory) {
-        this.total += item.size
+      const batchFiles = files.slice(i, i + batch)
+      const promises = batchFiles.map(file => {
+        if (this.onCancel) {
+          return Promise.resolve(0)
+        }
+
+        const fromItemPath = resolve(fromPath, file.name)
+        const toItemPath = resolve(toPath, file.name)
+
+        const itemTransfer = {
+          ...transfer,
+          fromPath: fromItemPath,
+          toPath: toItemPath,
+          fromFile: file
+        }
+
+        return this.transferFileAsSubTransfer(itemTransfer)
+      })
+
+      // Wait for all files in batch to complete
+      const results = await Promise.all(promises)
+
+      // Update progress once for the entire batch
+      const batchTotalSize = results.reduce((sum, size) => sum + size, 0)
+      if (batchTotalSize > 0) {
+        this.onFolderData(batchTotalSize)
       }
-      const fromItemPath = resolve(fromPath, item.name)
-      const toItemPath = resolve(toPath, item.name)
+    }
+  }
+
+  // Handle folder transfers sequentially to prevent concurrency explosion
+  transferFolders = async (folders, batch, transfer) => {
+    if (this.onCancel) {
+      return
+    }
+
+    const { fromPath, toPath } = transfer
+
+    // Step 1: Create all folders concurrently in batches
+    for (let i = 0; i < folders.length; i += batch) {
+      if (this.onCancel) {
+        return
+      }
+
+      const batchFolders = folders.slice(i, i + batch)
+      const createFolderPromises = batchFolders.map(folder => {
+        const toItemPath = resolve(toPath, folder.name)
+
+        // Create folder itself (don't process contents)
+        const createTransfer = {
+          ...transfer,
+          toPath: toItemPath,
+          fromFile: folder
+        }
+
+        return this.mkdir(createTransfer)
+      })
+
+      // Create all folders in this batch concurrently
+      await Promise.all(createFolderPromises)
+    }
+
+    // Step 2: Process contents of each folder sequentially
+    for (const folder of folders) {
+      if (this.onCancel) {
+        return
+      }
+
+      const fromItemPath = resolve(fromPath, folder.name)
+      const toItemPath = resolve(toPath, folder.name)
 
       const itemTransfer = {
         ...transfer,
         fromPath: fromItemPath,
         toPath: toItemPath,
-        fromFile: item
+        fromFile: folder
       }
 
-      const toFile = await this.checkExist(typeTo, toItemPath, sessionId)
-      itemTransfer.toFile = toFile
-      if (item.isDirectory) {
-        await this.transferFolderRecursive(itemTransfer)
-      } else {
-        await this.transferFileAsSubTransfer(itemTransfer)
+      // Transfer folder contents (set createFolder = false since we already created it)
+      await this.transferFolderRecursive(itemTransfer, false)
+    }
+  }
+
+  // Main recursive function using the separate handlers
+  transferFolderRecursive = async (transfer = this.getDefaultTransfer(), createFolder = true) => {
+    if (this.onCancel) {
+      return
+    }
+    const {
+      fromPath,
+      typeFrom,
+      sessionId,
+      toFile,
+      isRenamed
+    } = transfer
+
+    if (createFolder && (!toFile || isRenamed)) {
+      const folderCreated = await this.mkdir(transfer)
+      if (!folderCreated) {
+        return
       }
     }
+
+    const list = await this.list(typeFrom, fromPath, sessionId)
+    const bigFileSize = 1024 * 1024
+    const smallFilesBatch = 30
+    const BigFilesBatch = 3
+    const foldersBatch = 50
+
+    const {
+      folders,
+      smallFiles,
+      largeFiles
+    } = list.reduce((p, c) => {
+      if (c.isDirectory) {
+        p.folders.push(c)
+      } else {
+        this.total += c.size
+        if (c.size < bigFileSize) {
+          p.smallFiles.push(c)
+        } else {
+          p.largeFiles.push(c)
+        }
+      }
+      return p
+    }, {
+      folders: [],
+      smallFiles: [],
+      largeFiles: []
+    })
+
+    // Process files with parallel batching
+    await this.transferFiles(smallFiles, smallFilesBatch, transfer)
+    await this.transferFiles(largeFiles, BigFilesBatch, transfer)
+
+    // Process folders sequentially
+    await this.transferFolders(folders, foldersBatch, transfer)
   }
 
   onError = (e) => {
