@@ -4,7 +4,6 @@
 const generate = require('../common/uid')
 const { createLogFileName } = require('../common/create-session-log-file-path')
 const SessionLog = require('./session-log')
-const _ = require('lodash')
 const time = require('../common/time.js')
 const globalState = require('./global-state')
 
@@ -83,25 +82,18 @@ class TerminalBase {
   }
 
   onEndConn () {
-    const inst = globalState.getSession(this.initOptions.sessionId)
-    if (!inst) {
-      return
+    const inst = globalState.getSession(this.pid)
+    if (inst) {
+      globalState.removeSession(this.pid)
     }
     if (this.ws) {
-      delete this.ws
+      this.ws = null
     }
-    delete inst.sftps[this.pid]
-    delete inst.terminals[this.pid]
     if (this.server && this.server.end) {
       this.server.end()
     }
-    if (
-      _.isEmpty(inst.sftps) &&
-      _.isEmpty(inst.terminals)
-    ) {
-      this.endConns && this.endConns()
-      globalState.removeSession(this.initOptions.sessionId)
-    }
+    this.endConns && this.endConns()
+    globalState.removeSession(this.pid)
   }
 }
 

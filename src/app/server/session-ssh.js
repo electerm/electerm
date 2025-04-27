@@ -10,9 +10,6 @@ const net = require('net')
 const { exec } = require('child_process')
 const log = require('../common/log')
 const alg = require('./ssh2-alg')
-const {
-  session
-} = require('./remote-common')
 const sshTunnelFuncs = require('./ssh-tunnel')
 const deepCopy = require('json-deep-copy')
 const { TerminalBase } = require('./session-base')
@@ -57,16 +54,7 @@ class TerminalSshBase extends TerminalBase {
   }
 
   init () {
-    const {
-      isTest,
-      initOptions
-    } = this
-    const { sessionId } = initOptions
-    if (isTest || !sessionId || !globalState.getSession(sessionId)) {
-      return this.remoteInitProcess()
-    } else {
-      return this.remoteInitTerminal()
-    }
+    return this.remoteInitProcess()
   }
 
   getShellWindow (initOptions = this.initOptions) {
@@ -93,37 +81,6 @@ class TerminalSshBase extends TerminalBase {
     const [firstHopping, ...restHoppings] = initOptions.connectionHoppings
     Object.assign(initOptions, firstHopping)
     initOptions.connectionHoppings = [...restHoppings, currentHostHopping]
-  }
-
-  remoteInitTerminal () {
-    const {
-      initOptions
-    } = this
-    const connInst = session(initOptions.sessionId)
-    const {
-      conn,
-      shellOpts
-    } = connInst
-    if (initOptions.enableSsh === false) {
-      this.conn = conn
-      connInst.terminals[this.pid] = this
-      return Promise.resolve(this)
-    }
-    return new Promise((resolve, reject) => {
-      conn.shell(
-        this.getShellWindow(),
-        shellOpts,
-        (err, channel) => {
-          if (err) {
-            return reject(err)
-          }
-          this.channel = channel
-          this.conn = conn
-          connInst.terminals[this.pid] = this
-          resolve(this)
-        }
-      )
-    })
   }
 
   onKeyboardEvent (options) {
@@ -348,15 +305,6 @@ class TerminalSshBase extends TerminalBase {
     if (isTest) {
       this.endConns()
       return
-    } else if (initOptions.enableSsh === false) {
-      globalState.setSession(initOptions.sessionId, {
-        conn: this.conn,
-        id: initOptions.sessionId,
-        shellOpts,
-        sftps: {},
-        terminals: {}
-      })
-      return this
     }
     const { sshTunnels = [] } = initOptions
     const sshTunnelResults = []
@@ -405,15 +353,7 @@ class TerminalSshBase extends TerminalBase {
             return reject(err)
           }
           this.channel = channel
-          globalState.setSession(initOptions.sessionId, {
-            conn: this.conn,
-            id: initOptions.sessionId,
-            shellOpts,
-            sftps: {},
-            terminals: {
-              [this.pid]: this
-            }
-          })
+          globalState.setSession(this.pid, this)
           resolve(this)
         }
       )
@@ -777,11 +717,12 @@ class TerminalSshBase extends TerminalBase {
   }
 
   kill () {
+    this.shellOpts = null
     if (this.sessionLogger) {
       this.sessionLogger.destroy()
     }
     this.channel && this.channel.end()
-    delete this.channel
+    this.channel = null
     this.onEndConn()
   }
 }

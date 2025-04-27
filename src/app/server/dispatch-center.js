@@ -3,7 +3,6 @@
  * run functions in seprate process, avoid using electron.remote directly
  */
 
-const { Sftp } = require('./session-sftp')
 const {
   sftp,
   transfer,
@@ -72,6 +71,7 @@ const initWs = function (app) {
     wsDec(ws)
     const { id } = req.params
     const { sessionId } = req.query
+
     ws.on('close', () => {
       onDestroySftp(id, sessionId)
     })
@@ -79,14 +79,7 @@ const initWs = function (app) {
       const msg = JSON.parse(message)
       const { action } = msg
 
-      if (action === 'sftp-new') {
-        const { id, sessionId } = msg
-        sftp(id, sessionId, new Sftp({
-          uid: id,
-          sessionId,
-          type: 'sftp'
-        }))
-      } else if (action === 'sftp-func') {
+      if (action === 'sftp-func') {
         const { id, args, func, sessionId, uid } = msg
         const inst = sftp(id, sessionId)
         if (inst) {

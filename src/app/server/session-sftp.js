@@ -11,16 +11,14 @@ const { getSizeCount } = require('../common/get-folder-size-and-file-count.js')
 const globalState = require('./global-state')
 
 class Sftp extends TerminalBase {
-  connect (initOptions) {
+  init (initOptions, ws) {
     return this.remoteInitSftp(initOptions)
   }
 
   remoteInitSftp (initOptions) {
     this.transfers = {}
-    const connInst = globalState.getSession(initOptions.sessionId)
-    const {
-      conn
-    } = connInst
+    const { Client } = require('@electerm/ssh2')
+    const conn = new Client()
     this.client = conn
     this.enableSsh = initOptions.enableSsh
     return new Promise((resolve, reject) => {
@@ -29,7 +27,7 @@ class Sftp extends TerminalBase {
           return reject(err)
         }
         this.sftp = sftp
-        connInst.sftps[this.pid] = this
+        globalState.setSession(this.pid, this)
         resolve('ok')
       })
     })
@@ -499,4 +497,22 @@ class Sftp extends TerminalBase {
   // end
 }
 
-exports.Sftp = commonExtends(Sftp)
+const SftpExt = commonExtends(Sftp)
+
+exports.sftp = function (initOptions, ws) {
+  return (new SftpExt(initOptions, ws)).init()
+}
+
+/**
+ * test ssh connection
+ * @param {object} options
+ */
+exports.testConnectionSftp = (options) => {
+  return (new SftpExt(options, undefined, true))
+    .init()
+    .then(() => true)
+    .catch((err) => {
+      log.error('test ssh error', err)
+      return false
+    })
+}
