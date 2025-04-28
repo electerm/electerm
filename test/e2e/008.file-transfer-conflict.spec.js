@@ -31,72 +31,69 @@ describe('file-transfer-conflict-resolution', function () {
     await setupSftpConnection(client)
     await delay(2000)
 
-    // Setup test structure in local only, then transfer to remote
+    // Create a single test folder structure for all tests
     const timestamp = Date.now()
-    const mainFolder = `conflict-test-${timestamp}`
+    const testFolder = `conflict-test-${timestamp}`
 
-    // Create and prepare test structure efficiently
-    await createTestStructureEfficiently(client, mainFolder)
+    try {
+      // Create and prepare test environment
+      await prepareTestEnvironment(client, testFolder)
 
-    // Test different conflict resolution policies in both directions
-    await testConflictResolution(client, 'skip', 'local', 'remote')
-    await testConflictResolution(client, 'overwrite', 'remote', 'local')
-    await testConflictResolution(client, 'rename', 'local', 'remote')
-
-    // Clean up - delete the test folder from both locations
-    await navigateToParentFolder(client, 'local')
-    await delay(2000)
-    await navigateToParentFolder(client, 'remote')
-    await delay(2000)
-
-    await deleteItem(client, 'local', mainFolder)
-    await delay(2000)
-    await deleteItem(client, 'remote', mainFolder)
-    await delay(2000)
+      // Test conflict policies in both directions
+      await testAllConflictPolicies(client, testFolder)
+    } finally {
+      // Clean up test folders once at the end
+      await cleanupTestFolders(client, testFolder)
+    }
 
     await electronApp.close()
   })
 })
 
-async function createTestStructureEfficiently (client, mainFolder) {
-  // Create main folder in local only
-  await createFolder(client, 'local', mainFolder)
-  await delay(2000)
-  await enterFolder(client, 'local', mainFolder)
-  await delay(2000)
+async function prepareTestEnvironment (client, testFolder) {
+  // Create main test folder in both locations
+  await createFolder(client, 'local', testFolder)
+  await delay(1000)
+  await createFolder(client, 'remote', testFolder)
+  await delay(1000)
 
-  // Create test files and folders only in local
+  // Enter both folders
+  await enterFolder(client, 'local', testFolder)
+  await delay(1000)
+  await enterFolder(client, 'remote', testFolder)
+  await delay(1000)
+
+  // Create test files and folders in local only
   const testFiles = [
-    'file-1.txt',
-    'file-2.txt',
-    'file-3.txt'
+    'test-file-1.txt',
+    'test-file-2.txt',
+    'test-file-3.txt'
   ]
 
   const testFolders = [
-    'folder-1',
-    'folder-2',
-    'folder-3'
+    'test-folder-1',
+    'test-folder-2',
+    'test-folder-3'
   ]
 
-  // Create items in local
+  // Create files in local
   for (const fileName of testFiles) {
     await createFile(client, 'local', fileName)
-    await delay(800)
+    await delay(500)
   }
 
+  // Create folders in local
   for (const folderName of testFolders) {
     await createFolder(client, 'local', folderName)
-    await delay(800)
+    await delay(500)
   }
 
-  // Create main folder in remote
-  await createFolder(client, 'remote', mainFolder)
-  await delay(2000)
-  await enterFolder(client, 'remote', mainFolder)
-  await delay(2000)
+  // Now upload everything to the remote to create identical structure
+  await uploadAllToRemote(client)
+}
 
-  // First transfer everything from local to remote without conflicts
-  // to set up identical environments
+async function uploadAllToRemote (client) {
+  // Select all local items
   await selectAllContextMenu(client, 'local')
   await delay(1000)
 
@@ -104,56 +101,51 @@ async function createTestStructureEfficiently (client, mainFolder) {
   await client.rightClick('.session-current .file-list.local .sftp-item.selected', 10, 10)
   await delay(1000)
   await client.click('.ant-dropdown:not(.ant-dropdown-hidden) .ant-dropdown-menu-item .anticon.anticon-cloud-upload')
-  await delay(5000)
+  await delay(3000)
 
-  // Wait for initial setup transfer to complete
+  // Wait for transfers to complete
   await verifyFileTransfersComplete(client)
-  await delay(2000)
+  await delay(1000)
 }
 
-// In testConflictResolution function, update the skip case:
+async function testAllConflictPolicies (client, testFolder) {
+  // Test each policy for local to remote transfers
+  await testConflictResolution(client, 'overwrite', 'local', 'remote')
+  await testConflictResolution(client, 'rename', 'local', 'remote')
+  await testConflictResolution(client, 'skip', 'local', 'remote')
+
+  // Test each policy for remote to local transfers
+  await testConflictResolution(client, 'overwrite', 'remote', 'local')
+  await testConflictResolution(client, 'rename', 'remote', 'local')
+  await testConflictResolution(client, 'skip', 'remote', 'local')
+}
+
 async function testConflictResolution (client, policy, fromType, toType) {
-  // Select all items in source
-  await selectAllContextMenu(client, fromType)
-  await delay(2000)
+  // Select all items in the source panel
+  const selectedItems = await selectAllItems(client, fromType)
+  await delay(1000)
 
   // Initiate transfer
+  const isUpload = fromType === 'local'
   await client.rightClick(`.session-current .file-list.${fromType} .sftp-item.selected`, 10, 10)
-  await delay(2000)
+  await delay(1000)
 
   // Click appropriate transfer menu item
-  const menuIconClass = fromType === 'local' ? 'cloud-upload' : 'cloud-download'
+  const menuIconClass = isUpload ? 'cloud-upload' : 'cloud-download'
   await client.click(`.ant-dropdown:not(.ant-dropdown-hidden) .ant-dropdown-menu-item .anticon.anticon-${menuIconClass}`)
-  await delay(5000)
-
-  // We know we have 6 items (3 files + 3 folders) that will all have conflicts
-  const expectedConflicts = 6
+  await delay(3000)
 
   // Handle conflict resolution based on policy
   if (policy === 'skip') {
-    // Click skip for each expected conflict
-    for (let i = 0; i < expectedConflicts; i++) {
-      // Wait for the modal to be visible
-      await client.locator('.ant-modal-footer button:has-text("Skip")').waitFor({
-        state: 'visible',
-        timeout: 5000
-      })
-
-      // Click skip
-      await client.click('.ant-modal-footer button:has-text("Skip")')
-
-      // Wait for the modal to disappear and next one to appear (or transfers to complete)
-      await delay(1500)
-    }
+    // Skip each conflict, with the expected number equal to the selected items
+    await handleSkipForEachItem(client, selectedItems)
   } else if (policy === 'overwrite') {
-    // Try merge all first (for folders), if not found, use overwrite all (for files)
-    const mergeAllButton = await client.locator('.ant-modal-footer button:has-text("Merge all")')
-    const overwriteAllButton = await client.locator('.ant-modal-footer button:has-text("Overwrite all")')
-
-    if (await mergeAllButton.count() > 0) {
-      await mergeAllButton.click()
+    // Check for first conflict item type (file vs folder) and click appropriate button
+    const isFolderConflict = await client.elemExist('.ant-modal-footer button:has-text("Merge all")')
+    if (isFolderConflict) {
+      await client.click('.ant-modal-footer button:has-text("Merge all")')
     } else {
-      await overwriteAllButton.click()
+      await client.click('.ant-modal-footer button:has-text("Overwrite all")')
     }
   } else if (policy === 'rename') {
     await client.click('.ant-modal-footer button:has-text("Rename all")')
@@ -161,27 +153,107 @@ async function testConflictResolution (client, policy, fromType, toType) {
     throw new Error(`Unsupported policy: ${policy}`)
   }
 
-  // For all policies, wait for transfers to complete
   await delay(5000)
 
-  // Final verification that transfers are complete
-  await verifyFileTransfersComplete(client)
-  await delay(2000)
+  // Wait for transfers to complete for overwrite and rename
+  if (policy !== 'skip') {
+    await verifyFileTransfersComplete(client)
+  } else {
+    // For skip, we've already handled each conflict manually
+    await delay(2000)
+  }
 
   // Verify results based on policy
   if (policy === 'rename') {
-    // Verify renamed items exist in destination
+    // Verify renamed items exist in destination (with rename- pattern)
     const renamedItems = await client.locator(`.session-current .file-list.${toType} .sftp-item[title*="(rename-"]`)
     const count = await renamedItems.count()
     expect(count).toBeGreaterThan(0, `Expected to find renamed items from ${fromType} to ${toType} with policy ${policy}`)
   } else if (policy === 'overwrite') {
-    // Check all original items still exist in destination (were overwritten)
-    const testFiles = ['file-1.txt', 'file-2.txt', 'file-3.txt']
-    const testFolders = ['folder-1', 'folder-2', 'folder-3']
+    // For overwrite, just verify the original count of items is maintained
+    const items = await client.locator(`.session-current .file-list.${toType} .real-file-item`)
+    const count = await items.count()
+    expect(count).toBe(selectedItems, `Expected to find ${selectedItems} items in ${toType} after overwrite`)
+  }
+}
 
-    for (const item of [...testFiles, ...testFolders]) {
-      const itemExists = await client.locator(`.session-current .file-list.${toType} .sftp-item[title="${item}"]`).count() > 0
-      expect(itemExists).toBe(true, `Expected ${item} to exist in ${toType} after overwrite`)
+async function selectAllItems (client, type) {
+  // First deselect everything by clicking empty space
+  await client.click(`.session-current .file-list.${type}`)
+  await delay(500)
+
+  // Use selection context menu to select all real file items
+  await selectAllContextMenu(client, type)
+  await delay(1000)
+
+  // Count and return the number of selected items
+  const selectedItems = await client.locator(`.session-current .file-list.${type} .sftp-item.selected`).count()
+  expect(selectedItems).toBeGreaterThan(0, `Expected to select items in ${type}`)
+
+  return selectedItems
+}
+
+async function handleSkipForEachItem (client, expectedItemCount) {
+  // For folders with files inside, we may have more conflicts than the base item count
+  // To handle this, we'll track the current conflict index and click Skip until all are done
+  let conflictsHandled = 0
+  let timeWithoutConflict = 0
+  const waitInterval = 1000 // Time to wait between checks
+
+  // Continue until we have no more conflicts for a reasonable time
+  while (timeWithoutConflict < 5000) {
+    // Check if conflict modal is visible
+    const modalVisible = await client.elemExist('.ant-modal-footer button:has-text("Skip")')
+
+    if (modalVisible) {
+      // Reset the time without conflict
+      timeWithoutConflict = 0
+
+      // Click Skip button
+      await client.click('.ant-modal-footer button:has-text("Skip")')
+      conflictsHandled++
+
+      console.log(`Handled conflict #${conflictsHandled}`)
+
+      // Wait before checking for the next conflict
+      await delay(waitInterval)
+    } else {
+      // No visible conflict, increment our wait time
+      timeWithoutConflict += waitInterval
+      await delay(waitInterval)
     }
+  }
+
+  console.log(`Total conflicts skipped: ${conflictsHandled}`)
+
+  // We should have at least as many conflicts as selected items
+  expect(conflictsHandled).toBeGreaterThanOrEqual(expectedItemCount,
+    `Expected at least ${expectedItemCount} conflicts to be skipped, but only skipped ${conflictsHandled}`)
+}
+
+async function cleanupTestFolders (client, testFolder) {
+  // Navigate back to parent folders (if not already there)
+  try {
+    // Check if we need to navigate back
+    const localPathInput = await client.getValue('.session-current .sftp-local-section .sftp-title input')
+    if (localPathInput.includes(testFolder)) {
+      await navigateToParentFolder(client, 'local')
+      await delay(1000)
+    }
+
+    const remotePathInput = await client.getValue('.session-current .sftp-remote-section .sftp-title input')
+    if (remotePathInput.includes(testFolder)) {
+      await navigateToParentFolder(client, 'remote')
+      await delay(1000)
+    }
+
+    // Delete test folders
+    await deleteItem(client, 'local', testFolder)
+    await delay(1000)
+    await deleteItem(client, 'remote', testFolder)
+    await delay(1000)
+  } catch (error) {
+    console.error('Error during cleanup:', error)
+    // Continue with test completion even if cleanup fails
   }
 }
