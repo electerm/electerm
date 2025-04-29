@@ -153,7 +153,7 @@ export default class ConfirmModalStore extends Component {
         <Button
           type='dashed'
           className='mg1l'
-          onClick={() => this.act(fileActions.cancel)}
+          onClick={() => this.act(fileActions.skipAll)}
         >
           {e('cancel')}
         </Button>
@@ -207,6 +207,16 @@ export default class ConfirmModalStore extends Component {
             }
           >
             {e('renameAll')}
+          </Button>
+          <Button
+            type='primary'
+            className='mg1l'
+            title={e('skipAll')}
+            onClick={
+              () => this.act(fileActions.skipAll)
+            }
+          >
+            {e('skipAll')}
           </Button>
         </div>
       </div>
