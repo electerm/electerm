@@ -671,7 +671,7 @@ export default class FileSection extends React.Component {
     const {
       path, name
     } = this.state.file
-    const rp = resolve(path, name)
+    const rp = path ? resolve(path, name) : this.props[`${this.props.type}Path`]
     this.props.tab.pane = paneMap.terminal
     refs.get('term-' + this.props.tab.id)?.cd(rp)
   }
@@ -953,7 +953,7 @@ export default class FileSection extends React.Component {
       })
     }
     if (
-      isDirectory && isRealFile &&
+      isDirectory &&
       (
         (hasHost && enableSsh !== false && isRemote) ||
         (isLocal && !hasHost)
