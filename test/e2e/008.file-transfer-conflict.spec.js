@@ -201,7 +201,7 @@ async function handleSkipForEachItem (client, expectedItemCount) {
   const waitInterval = 2000 // Time to wait between checks
   // Continue until we have no more conflicts for a reasonable time
   while (conflictsHandled < expectedItemCount) {
-    await client.click('.ant-modal-footer .ant-btn-dashed:has-text("Skip")')
+    await client.click('.ant-modal-footer button span:text-is("Skip")')
     conflictsHandled++
 
     // Wait for a short time before checking again
