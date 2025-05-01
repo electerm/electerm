@@ -179,7 +179,7 @@ async function testConflictResolution (client, policy, fromType, toType) {
 
 async function selectAllItems (client, type) {
   // First deselect everything by clicking empty space
-  await client.click(`.session-current .file-list.${type}`)
+  await client.click(`.session-current .file-list.${type} .sftp-item`)
   await delay(500)
 
   // Use selection context menu to select all real file items
