@@ -138,7 +138,7 @@ async function testConflictResolution (client, policy, fromType, toType) {
   // Handle conflict resolution based on policy
   if (policy === 'skip') {
     // Skip each conflict, with the expected number equal to the selected items
-    await handleSkipForEachItem(client, selectedItems)
+    await client.click('.ant-modal-footer button:has-text("Skip all")')
   } else if (policy === 'overwrite') {
     // Check for first conflict item type (file vs folder) and click appropriate button
     const isFolderConflict = await client.elemExist('.ant-modal-footer button:has-text("Merge all")')
@@ -193,27 +193,27 @@ async function selectAllItems (client, type) {
   return selectedItems
 }
 
-async function handleSkipForEachItem (client, expectedItemCount) {
-  // For folders with files inside, we may have more conflicts than the base item count
-  // To handle this, we'll track the current conflict index and click Skip until all are done
-  let conflictsHandled = 0
-  // let timeWithoutConflict = 0
-  const waitInterval = 2000 // Time to wait between checks
-  // Continue until we have no more conflicts for a reasonable time
-  while (conflictsHandled < expectedItemCount) {
-    await client.click('.ant-modal-footer button span:text-is("Skip")')
-    conflictsHandled++
+// async function handleSkipForEachItem (client, expectedItemCount) {
+//   // For folders with files inside, we may have more conflicts than the base item count
+//   // To handle this, we'll track the current conflict index and click Skip until all are done
+//   let conflictsHandled = 0
+//   // let timeWithoutConflict = 0
+//   const waitInterval = 2000 // Time to wait between checks
+//   // Continue until we have no more conflicts for a reasonable time
+//   while (conflictsHandled < expectedItemCount) {
+//     await client.click('.ant-modal-footer button span:text-is("Skip")')
+//     conflictsHandled++
 
-    // Wait for a short time before checking again
-    await delay(waitInterval)
-  }
+//     // Wait for a short time before checking again
+//     await delay(waitInterval)
+//   }
 
-  console.log(`Total conflicts skipped: ${conflictsHandled}`)
+//   console.log(`Total conflicts skipped: ${conflictsHandled}`)
 
-  // We should have at least as many conflicts as selected items
-  expect(conflictsHandled).toBeGreaterThanOrEqual(expectedItemCount,
-    `Expected at least ${expectedItemCount} conflicts to be skipped, but only skipped ${conflictsHandled}`)
-}
+//   // We should have at least as many conflicts as selected items
+//   expect(conflictsHandled).toBeGreaterThanOrEqual(expectedItemCount,
+//     `Expected at least ${expectedItemCount} conflicts to be skipped, but only skipped ${conflictsHandled}`)
+// }
 
 async function cleanupTestFolders (client, testFolder) {
   // Navigate back to parent folders (if not already there)
