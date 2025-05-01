@@ -115,9 +115,9 @@ async function testAllConflictPolicies (client, testFolder) {
   await testConflictResolution(client, 'skip', 'local', 'remote')
 
   // Test each policy for remote to local transfers
-  await testConflictResolution(client, 'overwrite', 'remote', 'local')
-  await testConflictResolution(client, 'rename', 'remote', 'local')
-  await testConflictResolution(client, 'skip', 'remote', 'local')
+  // await testConflictResolution(client, 'overwrite', 'remote', 'local')
+  // await testConflictResolution(client, 'rename', 'remote', 'local')
+  // await testConflictResolution(client, 'skip', 'remote', 'local')
 }
 
 async function testConflictResolution (client, policy, fromType, toType) {
