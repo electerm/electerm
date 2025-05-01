@@ -199,7 +199,7 @@ async function handleSkipForEachItem (client, expectedItemCount) {
   let conflictsHandled = 0
   // let timeWithoutConflict = 0
   const waitInterval = 2000 // Time to wait between checks
-  await delay(waitInterval)
+  await delay(waitInterval * 2)
   // Continue until we have no more conflicts for a reasonable time
   while (conflictsHandled < expectedItemCount) {
     await client.click('.ant-modal-footer button:has-text("Skip")')
