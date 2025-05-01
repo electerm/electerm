@@ -123,12 +123,12 @@ async function testAllConflictPolicies (client, testFolder) {
 async function testConflictResolution (client, policy, fromType, toType) {
   // Select all items in the source panel
   const selectedItems = await selectAllItems(client, fromType)
-  await delay(1000)
+  await delay(1500)
 
   // Initiate transfer
   const isUpload = fromType === 'local'
   await client.rightClick(`.session-current .file-list.${fromType} .sftp-item.selected`, 10, 10)
-  await delay(1000)
+  await delay(1500)
 
   // Click appropriate transfer menu item
   const menuIconClass = isUpload ? 'cloud-upload' : 'cloud-download'
