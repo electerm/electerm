@@ -16,7 +16,8 @@ const {
   enterFolder,
   navigateToParentFolder,
   verifyFileExists,
-  verifyFileTransfersComplete
+  verifyFileTransfersComplete,
+  selectAllContextMenu // Added missing import
 } = require('./common/common')
 
 describe('file-transfer-local-remote', function () {
@@ -136,18 +137,13 @@ async function testFileTransfer (client) {
   await client.mouse.up()
   await delay(3000) // Wait for drag-drop operation to complete
 
-  // PART 1: LOCAL TO REMOTE TRANSFER (using shift-select)
+  // PART 1: LOCAL TO REMOTE TRANSFER (using context menu select all)
 
   // Since one file is now in a folder, combine remaining visible items
   const localVisibleItems = [localFiles[1], localFiles[2], ...localFolders]
 
-  // Use shift-select for local items
-  await client.click(`.session-current .file-list.local .sftp-item[title="${localVisibleItems[0]}"]`)
-  await delay(500)
-
-  // Shift+click the last item
-  const lastLocalItem = await client.locator(`.session-current .file-list.local .sftp-item[title="${localVisibleItems[localVisibleItems.length - 1]}"]`)
-  await lastLocalItem.click({ modifiers: ['Shift'] })
+  // Use context menu to select all visible items in local
+  await selectAllContextMenu(client, 'local')
   await delay(1000)
 
   // Verify we selected the correct number of items

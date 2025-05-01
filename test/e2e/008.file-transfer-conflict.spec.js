@@ -197,31 +197,16 @@ async function handleSkipForEachItem (client, expectedItemCount) {
   // For folders with files inside, we may have more conflicts than the base item count
   // To handle this, we'll track the current conflict index and click Skip until all are done
   let conflictsHandled = 0
-  let timeWithoutConflict = 0
-  const waitInterval = 1000 // Time to wait between checks
+  // let timeWithoutConflict = 0
+  const waitInterval = 2000 // Time to wait between checks
 
   // Continue until we have no more conflicts for a reasonable time
-  while (timeWithoutConflict < 5000) {
-    // Check if conflict modal is visible
-    const modalVisible = await client.elemExist('.ant-modal-footer button:has-text("Skip")')
+  while (conflictsHandled < expectedItemCount) {
+    await client.click('.ant-modal-footer button:has-text("Skip")')
+    conflictsHandled++
 
-    if (modalVisible) {
-      // Reset the time without conflict
-      timeWithoutConflict = 0
-
-      // Click Skip button
-      await client.click('.ant-modal-footer button:has-text("Skip")')
-      conflictsHandled++
-
-      console.log(`Handled conflict #${conflictsHandled}`)
-
-      // Wait before checking for the next conflict
-      await delay(waitInterval)
-    } else {
-      // No visible conflict, increment our wait time
-      timeWithoutConflict += waitInterval
-      await delay(waitInterval)
-    }
+    // Wait for a short time before checking again
+    await delay(waitInterval)
   }
 
   console.log(`Total conflicts skipped: ${conflictsHandled}`)
