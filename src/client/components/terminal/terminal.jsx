@@ -336,6 +336,7 @@ clear\r`
       try {
         const fileData = JSON.parse(fromFile)
         const filePath = resolve(fileData.path, fileData.name)
+        console.log('filePath', filePath)
         if (this.isUnsafeFilename(filePath)) {
           message.error(notSafeMsg)
           return
@@ -350,14 +351,15 @@ clear\r`
     // Handle regular file drop
     const files = dt.files
     if (files && files.length) {
-      const filesAll = Array.from(files).map(f => `"${f.path}"`).join(' ')
-      if (this.isUnsafeFilename(filesAll)) {
+      const arr = Array.from(files)
+      // Check each file path individually
+      const hasUnsafeFilename = arr.some(f => this.isUnsafeFilename(f.path))
+      if (hasUnsafeFilename) {
         message.error(notSafeMsg)
         return
       }
-      this.attachAddon._sendData(
-        Array.from(files).map(f => `"${f.path}"`).join(' ')
-      )
+      const filesAll = arr.map(f => `"${f.path}"`).join(' ')
+      this.attachAddon._sendData(filesAll)
     }
   }
 
