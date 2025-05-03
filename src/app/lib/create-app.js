@@ -32,22 +32,16 @@ exports.createApp = function () {
   const progs = initCommandLine()
   const opts = progs?.options
   globalState.set('serverPort', opts?.serverPort)
-  const useStandAloneWindow = opts?.newWindow
-  let gotTheLock = false
-  if (!useStandAloneWindow) {
-    gotTheLock = app.requestSingleInstanceLock(progs)
-  }
-  if (
-    !gotTheLock &&
-    !useStandAloneWindow &&
-    opts &&
-    Object.keys(opts).length
-  ) {
+
+  // Always request single instance lock
+  const gotTheLock = app.requestSingleInstanceLock(progs)
+
+  // If this is a second instance, quit immediately
+  if (!gotTheLock) {
     app.quit()
-  } else if (!gotTheLock) {
-    globalState.set('isSecondInstance', true)
-    app.isSecondInstance = true
+    return app
   }
+
   app.on('second-instance', (event, argv, wd, opts) => {
     const win = globalState.get('win')
     if (win) {
