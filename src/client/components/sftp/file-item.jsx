@@ -6,7 +6,8 @@ import React from 'react'
 import ExtIcon from './file-icon'
 import {
   FolderOutlined,
-  FileOutlined
+  FileOutlined,
+  ArrowRightOutlined
 } from '@ant-design/icons'
 import classnames from 'classnames'
 import copy from 'json-deep-copy'
@@ -883,27 +884,55 @@ export default class FileSection extends React.Component {
     return !isWin
   }
 
+  handleContextMenuCapture = (e) => {
+    this.contextMenuPosition = {
+      clientY: e.clientY
+    }
+  }
+
+  itemToMenuFormat = (r) => {
+    const { func, text, disabled, icon, subText, requireConfirm } = r
+    const IconCom = iconsMap[icon]
+    return {
+      key: func,
+      label: text,
+      disabled,
+      icon: <IconCom />,
+      extra: subText,
+      danger: requireConfirm
+    }
+  }
+
   renderContextMenu = () => {
-    return this.renderContextItems()
-      .map(r => {
-        const {
-          func,
-          text,
-          disabled,
-          icon,
-          subText,
-          requireConfirm
-        } = r
-        const IconCom = iconsMap[icon]
-        return {
-          key: func,
-          label: text,
-          disabled,
-          icon: <IconCom />,
-          extra: subText,
-          danger: requireConfirm
+    const items = this.renderContextItems()
+
+    // Check if we need to split the menu
+    if (this.contextMenuPosition) {
+      const windowHeight = window.innerHeight
+      const { clientY } = this.contextMenuPosition
+      const estimatedMenuHeight = items.length * 32 // Approximate height per menu item
+      const availableHeight = windowHeight - clientY
+
+      // If menu would extend beyond window, split into two parts
+      if (estimatedMenuHeight > availableHeight && items.length > 6) {
+        const firstHalf = items.slice(0, Math.ceil(items.length / 2))
+        const secondHalf = items.slice(Math.ceil(items.length / 2))
+
+        // Create "More..." submenu with second half of items
+        const moreSubmenu = {
+          key: 'more-submenu',
+          label: '…',
+          icon: <ArrowRightOutlined />,
+          children: secondHalf.map(this.itemToMenuFormat)
         }
-      })
+
+        // Return first half + "More..." submenu
+        return [...firstHalf.map(this.itemToMenuFormat), moreSubmenu]
+      }
+    }
+
+    // Otherwise return normal menu
+    return items.map(this.itemToMenuFormat)
   }
 
   renderContextItems () {
@@ -1073,7 +1102,10 @@ export default class FileSection extends React.Component {
   }
 
   onContextMenu = ({ key }) => {
-    this[key]()
+    // If it's not the submenu itself
+    if (key !== 'more-submenu') {
+      this[key]()
+    }
   }
 
   renderEditing (file) {
@@ -1207,6 +1239,7 @@ export default class FileSection extends React.Component {
         <div
           ref={this.domRef}
           {...props}
+          onContextMenu={this.handleContextMenuCapture}
         >
           <div className='file-bg' />
           <div className='file-props-div'>
