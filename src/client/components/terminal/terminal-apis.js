@@ -11,37 +11,33 @@ export function createTerm (body) {
   })
 }
 
-export function runCmd (pid, sessionId, cmd) {
+export function runCmd (pid, cmd) {
   return fetch({
     pid,
-    sessionId,
     cmd,
     action: 'run-cmd'
   })
 }
 
-export function resizeTerm (pid, sessionId, cols, rows) {
+export function resizeTerm (pid, cols, rows) {
   return fetch({
     pid,
-    sessionId,
     cols,
     rows,
     action: 'resize-terminal'
   })
 }
 
-export function toggleTerminalLog (pid, sessionId) {
+export function toggleTerminalLog (pid) {
   return fetch({
     pid,
-    sessionId,
     action: 'toggle-terminal-log'
   })
 }
 
-export function toggleTerminalLogTimestamp (pid, sessionId) {
+export function toggleTerminalLogTimestamp (pid) {
   return fetch({
     pid,
-    sessionId,
     action: 'toggle-terminal-log-timestamp'
   })
 }

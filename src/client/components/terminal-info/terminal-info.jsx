@@ -30,11 +30,10 @@ export default class TerminalInfoContent extends PureComponent {
 
   killProcess = async (id) => {
     const {
-      pid,
-      sessionId
+      pid
     } = this.props
     const cmd = `kill ${id}`
-    runCmd(pid, sessionId, cmd)
+    runCmd(pid, cmd)
   }
 
   render () {

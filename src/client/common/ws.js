@@ -140,7 +140,7 @@ function onEvent (e) {
 
 window.worker.addEventListener('message', onEvent)
 
-export default (type, id, sessionId = '', sftpId = '', persist) => {
+export default (type, id, sftpId = '', persist) => {
   return new Promise((resolve) => {
     send({
       id,
@@ -150,7 +150,6 @@ export default (type, id, sessionId = '', sftpId = '', persist) => {
       args: [
         type,
         id,
-        sessionId,
         sftpId,
         pick(window.store.config, [
           'host',

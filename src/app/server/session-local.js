@@ -47,14 +47,7 @@ class TerminalLocal extends TerminalBase {
       env: process.env
     })
     this.term.termType = termType
-    const { sessionId } = this.initOptions
-    globalState.setSession(sessionId, {
-      id: sessionId,
-      sftps: {},
-      terminals: {
-        [this.pid]: this
-      }
-    })
+    globalState.setSession(this.pid, this)
     return Promise.resolve(this)
   }
 

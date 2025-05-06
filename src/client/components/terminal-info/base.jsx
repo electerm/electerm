@@ -50,12 +50,10 @@ export default class TerminalInfoBase extends Component {
   handleToggleTimestamp = () => {
     const { saveTerminalLogToFile, addTimeStampToTermLog } = this.state
     const {
-      pid,
-      sessionId
+      pid
     } = this.props
     toggleTerminalLogTimestamp(
-      pid,
-      sessionId
+      pid
     )
     const nv = !addTimeStampToTermLog
     this.setState({
@@ -80,12 +78,10 @@ export default class TerminalInfoBase extends Component {
   handleToggle = () => {
     const { saveTerminalLogToFile, addTimeStampToTermLog } = this.state
     const {
-      pid,
-      sessionId
+      pid
     } = this.props
     toggleTerminalLog(
-      pid,
-      sessionId
+      pid
     )
     const nv = !saveTerminalLogToFile
     this.setState({

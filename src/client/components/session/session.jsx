@@ -21,7 +21,6 @@ import {
   Splitter
 } from 'antd'
 import { pick } from 'lodash-es'
-import generate from '../../common/uid'
 import copy from 'json-deep-copy'
 import classnames from 'classnames'
 import {
@@ -50,7 +49,6 @@ export default class SessionWrapper extends Component {
       key: Math.random(),
       splitSize: [50, 50],
       sessionOptions: null,
-      sessionId: generate(),
       delKeyPressed: false,
       broadcastInput: false
     }
@@ -59,11 +57,6 @@ export default class SessionWrapper extends Component {
 
   minWithForSplit = 640
   minHeightForSplit = 400
-
-  componentDidMount () {
-    this.updateTab()
-    // this.initEvent()
-  }
 
   componentWillUnmount () {
     clearTimeout(this.backspaceKeyPressedTimer)
@@ -244,14 +237,6 @@ export default class SessionWrapper extends Component {
     this.editTab(update)
   }
 
-  updateTab = () => {
-    this.editTab(
-      {
-        sessionId: this.state.sessionId
-      }
-    )
-  }
-
   computePosition = (index) => {
     return {
       left: 0,
@@ -266,7 +251,6 @@ export default class SessionWrapper extends Component {
   renderTerminals = () => {
     const {
       sessionOptions,
-      sessionId,
       sftpPathFollowSsh,
       broadcastInput
     } = this.state
@@ -292,7 +276,6 @@ export default class SessionWrapper extends Component {
     if (type === terminalRdpType || type === terminalVncType) {
       const rdpProps = {
         tab: this.props.tab,
-        sessionId,
         ...pick(this.props, [
           'resolutions',
           'height',
@@ -363,7 +346,6 @@ export default class SessionWrapper extends Component {
       >
         <Term
           logName={logName}
-          sessionId={sessionId}
           sessionOptions={sessionOptions}
           {...pops}
         />
@@ -424,7 +406,6 @@ export default class SessionWrapper extends Component {
   renderSftp = () => {
     const {
       sessionOptions,
-      sessionId,
       enableSftp,
       sftpPathFollowSsh,
       cwd
@@ -452,7 +433,6 @@ export default class SessionWrapper extends Component {
       enableSftp,
       sessionOptions,
       height,
-      sessionId,
       pane,
       ...this.calcSftpWidthHeight()
     }

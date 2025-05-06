@@ -45,13 +45,7 @@ class TerminalTelnet extends TerminalBase {
       this.kill()
       return true
     }
-    globalState.setSession(this.initOptions.sessionId, {
-      id: this.initOptions.sessionId,
-      sftps: {},
-      terminals: {
-        [this.pid]: this
-      }
-    })
+    globalState.setSession(this.pid, this)
     return Promise.resolve(this)
   }
 
@@ -81,16 +75,7 @@ class TerminalTelnet extends TerminalBase {
     if (this.sessionLogger) {
       this.sessionLogger.destroy()
     }
-    const inst = globalState.getSession(this.initOptions.sessionId)
-    if (!inst) {
-      return
-    }
-    delete inst.terminals[this.pid]
-    if (
-      _.isEmpty(inst.terminals)
-    ) {
-      globalState.removeSession(this.initOptions.sessionId)
-    }
+    globalState.removeSession(this.pid)
   }
 }
 

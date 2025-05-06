@@ -50,13 +50,7 @@ class TerminalSerial extends TerminalBase {
       this.kill()
       return true
     }
-    globalState.setSession(this.initOptions.sessionId, {
-      id: this.initOptions.sessionId,
-      sftps: {},
-      terminals: {
-        [this.pid]: this
-      }
-    })
+    globalState.setSession(this.pid, this)
     return Promise.resolve(this)
   }
 

@@ -17,10 +17,10 @@ class Sftp extends TerminalBase {
 
   remoteInitSftp (initOptions) {
     this.transfers = {}
-    const connInst = globalState.getSession(initOptions.sessionId)
+    const terminalInst = globalState.getSession(initOptions.terminalId)
     const {
       conn
-    } = connInst
+    } = terminalInst
     this.client = conn
     this.enableSsh = initOptions.enableSsh
     return new Promise((resolve, reject) => {
@@ -29,7 +29,7 @@ class Sftp extends TerminalBase {
           return reject(err)
         }
         this.sftp = sftp
-        connInst.sftps[this.pid] = this
+        globalState.setSession(this.pid, this)
         resolve('ok')
       })
     })

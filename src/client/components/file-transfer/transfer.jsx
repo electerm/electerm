@@ -19,12 +19,13 @@ const { assign } = Object
 export default class TransportAction extends Component {
   constructor (props) {
     super(props)
-    this.sessionId = props.transfer.sessionId
     const {
       id,
-      transferBatch = ''
+      transferBatch = '',
+      tabId
     } = props.transfer
     this.id = `tr-${transferBatch}-${id}`
+    this.tabId = tabId
     refsTransfers.add(this.id, this)
     this.total = 0
     this.transferred = 0
@@ -66,9 +67,9 @@ export default class TransportAction extends Component {
     return getLocalFileInfo(path).catch(console.log)
   }
 
-  remoteCheckExist = (path, sessionId) => {
+  remoteCheckExist = (path, tabId) => {
     // return true
-    const sftp = refs.get('sftp-' + sessionId)?.sftp
+    const sftp = refs.get('sftp-' + tabId)?.sftp
     if (!sftp) {
       console.log('remoteCheckExist error', 'sftp not exist')
       return false
@@ -81,8 +82,8 @@ export default class TransportAction extends Component {
       })
   }
 
-  checkExist = (type, path, sessionId) => {
-    return this[type + 'CheckExist'](path, sessionId)
+  checkExist = (type, path, tabId) => {
+    return this[type + 'CheckExist'](path, tabId)
   }
 
   update = (up) => {
@@ -123,11 +124,11 @@ export default class TransportAction extends Component {
   // }
 
   remoteList = () => {
-    window.store.remoteList(this.sessionId)
+    window.store.remoteList(this.tabId)
   }
 
   localList = () => {
-    window.store.localList(this.sessionId)
+    window.store.localList(this.tabId)
   }
 
   onEnd = (update = {}) => {
@@ -223,7 +224,7 @@ export default class TransportAction extends Component {
       fromPath,
       toPath,
       typeFrom,
-      sessionId,
+      tabId,
       operation // 'mv' or 'cp'
     } = transfer
 
@@ -245,7 +246,7 @@ export default class TransportAction extends Component {
           this.onError(e)
         })
     }
-    const sftp = refs.get('sftp-' + sessionId)?.sftp
+    const sftp = refs.get('sftp-' + tabId)?.sftp
     return sftp[operation](fromPath, finalToPath)
       .then(this.onEnd)
       .catch(e => {
@@ -272,7 +273,7 @@ export default class TransportAction extends Component {
       ? fromPath
       : toPath
     const mode = toFile.mode || fromMode
-    const sftp = refs.get('sftp-' + this.sessionId).sftp
+    const sftp = refs.get('sftp-' + this.tabId).sftp
     this.transport = await sftp[transferType]({
       remotePath,
       localPath,
@@ -318,7 +319,7 @@ export default class TransportAction extends Component {
 
     const fromFile = transfer.fromFile
       ? transfer.fromFile
-      : await this.checkExist(typeFrom, fromPath, this.sessionId)
+      : await this.checkExist(typeFrom, fromPath, this.tabId)
     if (!fromFile) {
       return this.tagTransferError(id, 'file not exist')
     }
@@ -344,13 +345,13 @@ export default class TransportAction extends Component {
     const {
       typeTo,
       toPath,
-      sessionId
+      tabId
     } = transfer
     const transferStillExists = window.store.fileTransfers.some(t => t.id === transfer.id)
     if (!transferStillExists) {
       return false
     }
-    const toFile = await this.checkExist(typeTo, toPath, sessionId)
+    const toFile = await this.checkExist(typeTo, toPath, tabId)
 
     if (toFile) {
       this.update({
@@ -405,8 +406,8 @@ export default class TransportAction extends Component {
     })
   }
 
-  list = async (type, path, sessionId) => {
-    const sftp = refs.get('sftp-' + sessionId)
+  list = async (type, path, tabId) => {
+    const sftp = refs.get('sftp-' + tabId)
     return sftp[type + 'List'](true, path)
   }
 
@@ -456,7 +457,7 @@ export default class TransportAction extends Component {
     const localPath = isDown ? toPath : fromPath
     const remotePath = isDown ? fromPath : toPath
     const mode = toFile.mode || fromMode
-    const sftp = refs.get('sftp-' + this.sessionId).sftp
+    const sftp = refs.get('sftp-' + this.tabId).sftp
 
     return new Promise((resolve, reject) => {
       let transport
@@ -611,7 +612,7 @@ export default class TransportAction extends Component {
     const {
       fromPath,
       typeFrom,
-      sessionId,
+      tabId,
       toFile,
       isRenamed
     } = transfer
@@ -623,7 +624,7 @@ export default class TransportAction extends Component {
       }
     }
 
-    const list = await this.list(typeFrom, fromPath, sessionId)
+    const list = await this.list(typeFrom, fromPath, tabId)
     const bigFileSize = 1024 * 1024
     const smallFilesBatch = 30
     const BigFilesBatch = 3
@@ -672,14 +673,14 @@ export default class TransportAction extends Component {
     const {
       typeTo,
       toPath,
-      sessionId
+      tabId
     } = transfer
     if (typeTo === typeMap.local) {
       return fs.mkdir(toPath)
         .then(() => true)
         .catch(() => false)
     }
-    const sftp = refs.get('sftp-' + sessionId).sftp
+    const sftp = refs.get('sftp-' + tabId).sftp
     return sftp.mkdir(toPath)
       .then(() => true)
       .catch(() => false)

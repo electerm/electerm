@@ -8,8 +8,8 @@ const {
 const { terminal, testConnection } = require('./session')
 
 async function runCmd (ws, msg) {
-  const { id, pid, sessionId, cmd } = msg
-  const term = terminals(pid, sessionId)
+  const { id, pid, cmd } = msg
+  const term = terminals(pid)
   let txt = ''
   if (term) {
     txt = await term.runCmd(cmd)
@@ -21,8 +21,8 @@ async function runCmd (ws, msg) {
 }
 
 function resize (ws, msg) {
-  const { id, pid, sessionId, cols, rows } = msg
-  const term = terminals(pid, sessionId)
+  const { id, pid, cols, rows } = msg
+  const term = terminals(pid)
   if (term) {
     term.resize(cols, rows)
   }
@@ -33,8 +33,8 @@ function resize (ws, msg) {
 }
 
 function toggleTerminalLog (ws, msg) {
-  const { id, pid, sessionId } = msg
-  const term = terminals(pid, sessionId)
+  const { id, pid } = msg
+  const term = terminals(pid)
   if (term) {
     term.toggleTerminalLog()
   }
@@ -45,8 +45,8 @@ function toggleTerminalLog (ws, msg) {
 }
 
 function toggleTerminalLogTimestamp (ws, msg) {
-  const { id, pid, sessionId } = msg
-  const term = terminals(pid, sessionId)
+  const { id, pid } = msg
+  const term = terminals(pid)
   if (term) {
     term.toggleTerminalLogTimestamp()
   }

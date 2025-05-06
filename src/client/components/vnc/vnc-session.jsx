@@ -73,7 +73,7 @@ export default class VncSession extends RdpSession {
       tokenElecterm,
       server = ''
     } = config
-    const { sessionId, id } = this.props
+    const { id } = this.props
     const tab = window.store.applyProfile(deepCopy(this.props.tab || {}))
     const {
       type,
@@ -85,7 +85,6 @@ export default class VncSession extends RdpSession {
     } = tab
     const opts = clone({
       term: terminalType || config.terminalType,
-      sessionId,
       tabId: id,
       srcTabId: tab.id,
       termType: type,
@@ -111,7 +110,7 @@ export default class VncSession extends RdpSession {
       : `${host}:${port}`
     const pre = server.startsWith('https') ? 'wss' : 'ws'
     const { width, height } = this.state
-    const wsUrl = `${pre}://${hs}/vnc/${pid}?sessionId=${sessionId}&token=${tokenElecterm}&width=${width}&height=${height}`
+    const wsUrl = `${pre}://${hs}/vnc/${pid}?token=${tokenElecterm}&width=${width}&height=${height}`
     const vncOpts = {
       scaleViewport,
       viewOnly,

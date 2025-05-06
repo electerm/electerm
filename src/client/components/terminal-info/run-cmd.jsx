@@ -148,12 +148,11 @@ function formatNetwork (traffic, ips) {
 
 export async function runCmds (props, cmds) {
   const {
-    pid,
-    sessionId
+    pid
   } = props
   const ress = []
   for (const cmd of cmds) {
-    const res = await runCmd(pid, sessionId, cmd)
+    const res = await runCmd(pid, cmd)
     ress.push(res || '')
   }
   return ress
