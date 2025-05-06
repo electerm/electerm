@@ -565,15 +565,15 @@ export default Store => {
     }
   }
 
-  Store.prototype.remoteList = function (sessionId) {
-    const sftp = refs.get('sftp-' + sessionId)
+  Store.prototype.remoteList = function (tabId) {
+    const sftp = refs.get('sftp-' + tabId)
     if (sftp) {
       sftp.remoteListDebounce()
     }
   }
 
-  Store.prototype.localList = function (sessionId) {
-    const sftp = refs.get('sftp-' + sessionId)
+  Store.prototype.localList = function (tabId) {
+    const sftp = refs.get('sftp-' + tabId)
     if (sftp) {
       sftp.localListDebounce()
     }

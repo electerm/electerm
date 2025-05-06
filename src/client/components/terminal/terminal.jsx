@@ -1078,11 +1078,10 @@ clear\r`
         host,
         port,
         tokenElecterm,
-        id,
-        this.props.sessionId
+        id
       )
     }
-    return `ws://${host}:${port}/terminals/${id}?sessionId=${this.props.sessionId}&token=${tokenElecterm}`
+    return `ws://${host}:${port}/terminals/${id}?token=${tokenElecterm}`
   }
 
   remoteInit = async (term = this.term) => {
@@ -1094,7 +1093,7 @@ clear\r`
     const {
       keywords = []
     } = config
-    const { sessionId, logName } = this.props
+    const { logName } = this.props
     const tab = window.store.applyProfileToTabs(deepCopy(this.props.tab || {}))
     const {
       srcId, from = 'bookmarks',
@@ -1128,7 +1127,6 @@ clear\r`
         'debug'
       ]),
       keepaliveInterval: tab.keepaliveInterval === undefined ? config.keepaliveInterval : tab.keepaliveInterval,
-      sessionId,
       tabId: id,
       uid: id,
       srcTabId: tab.id,
@@ -1159,7 +1157,7 @@ clear\r`
       return
     }
     this.setStatus(statusMap.success)
-    refs.get('sftp-' + id)?.initData()
+    refs.get('sftp-' + id)?.initData(id)
     term.pid = id
     this.pid = id
     const wsUrl = this.buildWsUrl()
@@ -1300,7 +1298,7 @@ clear\r`
 
   onResizeTerminal = size => {
     const { cols, rows } = size
-    resizeTerm(this.pid, this.props.sessionId, cols, rows)
+    resizeTerm(this.pid, cols, rows)
   }
 
   handleCancel = () => {
@@ -1309,12 +1307,11 @@ clear\r`
   }
 
   handleShowInfo = () => {
-    const { sessionId, logName, tab } = this.props
+    const { logName, tab } = this.props
     const infoProps = {
       logName,
       id: tab.id,
       pid: tab.id,
-      sessionId,
       isRemote: this.isRemote(),
       isActive: this.isActiveTerminal()
     }

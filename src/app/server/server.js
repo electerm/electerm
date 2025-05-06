@@ -43,9 +43,8 @@ require('express-ws')(app, undefined, {
 })
 
 app.ws('/terminals/:pid', function (ws, req) {
-  const { sessionId } = req.query
   verifyWs(req)
-  const term = terminals(req.params.pid, sessionId)
+  const term = terminals(req.params.pid)
   const { pid } = term
   log.debug('ws: connected to terminal ->', pid)
 
@@ -85,9 +84,9 @@ app.ws('/terminals/:pid', function (ws, req) {
 })
 
 app.ws('/rdp/:pid', function (ws, req) {
-  const { sessionId, width, height } = req.query
+  const { width, height } = req.query
   verifyWs(req)
-  const term = terminals(req.params.pid, sessionId)
+  const term = terminals(req.params.pid)
   term.ws = ws
   term.start(width, height)
   const { pid } = term
@@ -96,12 +95,12 @@ app.ws('/rdp/:pid', function (ws, req) {
 })
 
 app.ws('/vnc/:pid', function (ws, req) {
-  const { sessionId, ...rest } = req.query
+  const { query } = req
   verifyWs(req)
-  const term = terminals(req.params.pid, sessionId)
+  const { pid } = req.params
+  const term = terminals(pid)
   term.ws = ws
-  term.start(rest)
-  const { pid } = term
+  term.start(query)
   log.debug('ws: connected to vnc session ->', pid)
   ws.on('error', log.error)
 })

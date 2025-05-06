@@ -48,10 +48,8 @@ export default class Sftp extends Component {
   }
 
   componentDidMount () {
-    this.id = 'sftp-' + this.props.sessionId
-    this.tid = 'sftp-' + this.props.tab.id
+    this.id = 'sftp-' + this.props.tab.id
     refs.add(this.id, this)
-    refs.add(this.tid, this)
   }
 
   componentDidUpdate (prevProps, prevState) {
@@ -89,7 +87,6 @@ export default class Sftp extends Component {
 
   componentWillUnmount () {
     refs.remove(this.id)
-    refs.remove(this.tid)
     this.sftp && this.sftp.destroy()
     this.sftp = null
     clearTimeout(this.timer4)
@@ -401,7 +398,8 @@ export default class Sftp extends Component {
     this[type + 'Dom'].onPaste()
   }
 
-  initData = () => {
+  initData = (terminalId) => {
+    this.terminalId = terminalId
     if (this.shouldRenderRemote()) {
       this.initRemoteAll()
     }
@@ -502,12 +500,10 @@ export default class Sftp extends Component {
 
   remoteListOwner = async () => {
     const remoteUidTree = await owner.remoteListUsers(
-      this.props.pid,
-      this.props.sessionId
+      this.props.pid
     )
     const remoteGidTree = await owner.remoteListGroups(
-      this.props.pid,
-      this.props.sessionId
+      this.props.pid
     )
     this.setState({
       remoteGidTree,
@@ -549,7 +545,7 @@ export default class Sftp extends Component {
     remotePathReal,
     oldPath
   ) => {
-    const { tab, sessionOptions, sessionId } = this.props
+    const { tab, sessionOptions } = this.props
     const { username, startDirectory } = tab
     let remotePath
     const noPathInit = remotePathReal || this.state.remotePath
@@ -567,7 +563,7 @@ export default class Sftp extends Component {
     let sftp = this.sftp
     try {
       if (!this.sftp) {
-        sftp = await Client(sessionId)
+        sftp = await Client(this.terminalId)
         if (!sftp) {
           return
         }
@@ -580,7 +576,7 @@ export default class Sftp extends Component {
         const opts = deepCopy({
           ...tab,
           readyTimeout: config.sshReadyTimeout,
-          sessionId,
+          terminalId: this.terminalId,
           keepaliveInterval: config.keepaliveInterval,
           proxy: getProxy(tab, config),
           ...sessionOptions

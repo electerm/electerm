@@ -398,7 +398,6 @@ export default class FileSection extends React.Component {
       tab: this.props.tab,
       visible: true,
       pid: this.props.pid,
-      sessionId: this.props.sessionId,
       uidTree: this.props[`${type}UidTree`],
       gidTree: this.props[`${type}GidTree`]
     })

@@ -28,7 +28,6 @@ export default class FileMode extends React.PureComponent {
     loading: false,
     tab: null,
     pid: '',
-    sessionId: '',
     size: 0,
     file: {},
     editPermission: false
@@ -128,7 +127,6 @@ export default class FileMode extends React.PureComponent {
     const cmd = `du -sh '${folder}'`
     const r = await runCmd(
       this.state.pid,
-      this.state.sessionId,
       cmd
     ).catch(window.store.onError)
     return r ? r.split(/\s+/)[0] : 0

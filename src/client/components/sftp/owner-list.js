@@ -27,8 +27,8 @@ function parseNames (str) {
 const linuxListUser = 'cat /etc/passwd'
 const linuxListGroup = 'cat /etc/group'
 
-export async function remoteListUsers (pid, sessionId) {
-  const users = await runCmd(pid, sessionId, linuxListUser)
+export async function remoteListUsers (pid) {
+  const users = await runCmd(pid, linuxListUser)
     .catch(log.error)
   if (users) {
     return parseNames(users)
@@ -36,8 +36,8 @@ export async function remoteListUsers (pid, sessionId) {
   return {}
 }
 
-export async function remoteListGroups (pid, sessionId) {
-  const groups = await runCmd(pid, sessionId, linuxListGroup)
+export async function remoteListGroups (pid) {
+  const groups = await runCmd(pid, linuxListGroup)
     .catch(log.error)
   if (groups) {
     return parseNames(groups)
