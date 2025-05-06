@@ -5,13 +5,14 @@ const {
   readRemoteFile,
   writeRemoteFile
 } = require('./sftp-file')
-const { commonExtends } = require('./session-common.js')
-const { TerminalBase } = require('./session-base.js')
+const {
+  TerminalBase
+} = require('./session-base.js')
 const { getSizeCount } = require('../common/get-folder-size-and-file-count.js')
 const globalState = require('./global-state')
 
 class Sftp extends TerminalBase {
-  init (initOptions, ws) {
+  connect (initOptions) {
     return this.remoteInitSftp(initOptions)
   }
 
@@ -497,22 +498,4 @@ class Sftp extends TerminalBase {
   // end
 }
 
-const SftpExt = commonExtends(Sftp)
-
-exports.sftp = function (initOptions, ws) {
-  return (new SftpExt(initOptions, ws)).init()
-}
-
-/**
- * test ssh connection
- * @param {object} options
- */
-exports.testConnectionSftp = (options) => {
-  return (new SftpExt(options, undefined, true))
-    .init()
-    .then(() => true)
-    .catch((err) => {
-      log.error('test ssh error', err)
-      return false
-    })
-}
+exports.Sftp = Sftp

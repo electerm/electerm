@@ -728,6 +728,7 @@ class TerminalSshBase extends TerminalBase {
 }
 
 const TerminalSsh = commonExtends(TerminalSshBase)
+exports.TerminalSsh = TerminalSsh
 
 exports.terminalSsh = function (initOptions, ws) {
   return (new TerminalSsh(initOptions, ws)).init()

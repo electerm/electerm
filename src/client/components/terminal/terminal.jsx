@@ -1078,11 +1078,10 @@ clear\r`
         host,
         port,
         tokenElecterm,
-        id,
-        this.props.sessionId
+        id
       )
     }
-    return `ws://${host}:${port}/terminals/${id}?sessionId=${this.props.sessionId}&token=${tokenElecterm}`
+    return `ws://${host}:${port}/terminals/${id}?token=${tokenElecterm}`
   }
 
   remoteInit = async (term = this.term) => {
@@ -1131,7 +1130,7 @@ clear\r`
       sessionId,
       tabId: id,
       uid: id,
-      srcTabId: tab.id,
+      srcTabId: id,
       termType,
       readyTimeout: config.sshReadyTimeout,
       proxy: getProxy(tab, config),
@@ -1159,9 +1158,9 @@ clear\r`
       return
     }
     this.setStatus(statusMap.success)
-    refs.get('sftp-' + id)?.initData()
     term.pid = id
     this.pid = id
+    refs.get('sftp-' + id)?.initData(id)
     const wsUrl = this.buildWsUrl()
     const socket = new WebSocket(wsUrl)
     socket.onclose = this.oncloseSocket

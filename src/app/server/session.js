@@ -10,10 +10,6 @@ const {
   testConnectionSsh
 } = require('./session-ssh')
 const {
-  sftp,
-  testConnectionSftp
-} = require('./session-sftp')
-const {
   terminalLocal,
   testConnectionLocal
 } = require('./session-local')
@@ -44,8 +40,6 @@ exports.terminal = async function (initOptions, ws) {
     return terminalVnc(initOptions, ws)
   } else if (type === 'ssh') {
     return terminalSsh(initOptions, ws)
-  } else if (type === 'sftp') {
-    return sftp(initOptions, ws)
   }
 }
 
@@ -67,7 +61,5 @@ exports.testConnection = (initOptions) => {
     return testConnectionVnc(initOptions)
   } else if (type === 'ssh') {
     return testConnectionSsh(initOptions)
-  } else if (type === 'sftp') {
-    return testConnectionSftp(initOptions)
   }
 }

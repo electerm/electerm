@@ -7,13 +7,13 @@ self.insts = {}
 function createWs (
   type,
   id,
-  sessionId = '',
   sftpId = '',
+  terminalPid,
   config
 ) {
   // init gloabl ws
   const { host, port, tokenElecterm } = config
-  const wsUrl = `ws://${host}:${port}/${type}/${id}?sessionId=${sessionId}&sftpId=${sftpId}&token=${tokenElecterm}`
+  const wsUrl = `ws://${host}:${port}/${type}/${id}?sftpId=${sftpId}&terminalPid=${terminalPid}&token=${tokenElecterm}`
   const ws = new WebSocket(wsUrl)
   ws.s = msg => {
     try {

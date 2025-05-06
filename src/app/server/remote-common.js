@@ -5,37 +5,16 @@
 
 const globalState = require('./global-state')
 
-function session (sessionId) {
-  return globalState.getSession(sessionId)
-}
-
-function sftp (id, sessionId, inst) {
-  const ss = session(sessionId)
-  if (!ss) {
-    return
-  }
+function session (id, inst) {
   if (inst) {
-    ss.sftps[id] = inst
+    globalState.setSession(id, inst)
     return inst
   }
-  return ss.sftps[id]
+  return globalState.getSession(id)
 }
 
-function terminals (id, sessionId, inst) {
-  const ss = session(sessionId)
-  if (!ss) {
-    return
-  }
-  const tid = id || Object.keys(ss.terminals)[0]
-  if (inst) {
-    ss.terminals[tid] = inst
-    return inst
-  }
-  return ss.terminals[tid]
-}
-
-function transfer (id, sftpId, sessionId, inst) {
-  const ss = sftp(sftpId, sessionId)
+function transfer (id, sftpId, inst) {
+  const ss = session(sftpId)
   if (!ss) {
     return
   }
@@ -46,24 +25,22 @@ function transfer (id, sftpId, sessionId, inst) {
   return ss.transfers[id]
 }
 
-function onDestroySftp (id, sessionId) {
-  const inst = sftp(id, sessionId)
+function onDestroySftp (id) {
+  const inst = session(id)
   inst && inst.kill && inst.kill()
 }
 
-function onDestroyTransfer (id, sftpId, sessionId) {
-  const sftpInst = sftp(sftpId, sessionId)
-  const inst = transfer(id, sftpId, sessionId)
+function onDestroyTransfer (id, sftpId) {
+  const sftpInst = session(sftpId)
+  const inst = transfer(id, sftpId)
   inst && inst.destroy && inst.destroy()
   sftpInst && delete sftpInst.transfers[id]
 }
 
 module.exports = {
   session,
-  sftp,
   transfer,
   onDestroySftp,
   onDestroyTerminal: onDestroySftp,
-  onDestroyTransfer,
-  terminals
+  onDestroyTransfer
 }

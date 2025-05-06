@@ -12,7 +12,9 @@ import classnames from 'classnames'
 import sorterIndex from '../../common/index-sorter'
 import { getLocalFileInfo, getRemoteFileInfo, getFolderFromFilePath } from './file-read'
 import {
-  typeMap, maxSftpHistory, paneMap,
+  typeMap,
+  maxSftpHistory,
+  paneMap,
   fileTypeMap,
   terminalSerialType,
   unexpectedPacketErrorDesc,
@@ -401,7 +403,8 @@ export default class Sftp extends Component {
     this[type + 'Dom'].onPaste()
   }
 
-  initData = () => {
+  initData = (terminalPid) => {
+    this.terminalPid = terminalPid
     if (this.shouldRenderRemote()) {
       this.initRemoteAll()
     }
@@ -549,7 +552,8 @@ export default class Sftp extends Component {
     remotePathReal,
     oldPath
   ) => {
-    const { tab, sessionOptions, sessionId } = this.props
+    const { tab, sessionOptions } = this.props
+    const { terminalPid } = this
     const { username, startDirectory } = tab
     let remotePath
     const noPathInit = remotePathReal || this.state.remotePath
@@ -567,7 +571,7 @@ export default class Sftp extends Component {
     let sftp = this.sftp
     try {
       if (!this.sftp) {
-        sftp = await Client(sessionId)
+        sftp = await Client(terminalPid)
         if (!sftp) {
           return
         }
