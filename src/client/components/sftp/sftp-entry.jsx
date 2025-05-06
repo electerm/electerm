@@ -584,7 +584,6 @@ export default class Sftp extends Component {
         const opts = deepCopy({
           ...tab,
           readyTimeout: config.sshReadyTimeout,
-          sessionId,
           keepaliveInterval: config.keepaliveInterval,
           proxy: getProxy(tab, config),
           ...sessionOptions
