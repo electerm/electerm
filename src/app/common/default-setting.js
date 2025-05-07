@@ -8,7 +8,7 @@ module.exports = exports.default = {
   scrollback: 3000,
   onStartSessions: [],
   fontSize: 16,
-  fontFamily: 'Fira Code, mono, courier-new, courier, monospace',
+  fontFamily: 'Maple Mono, mono, courier-new, courier, monospace',
   execWindows: 'System32/WindowsPowerShell/v1.0/powershell.exe',
   execMac: 'zsh',
   execLinux: 'bash',

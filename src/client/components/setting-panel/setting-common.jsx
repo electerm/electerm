@@ -587,30 +587,32 @@ export default class SettingCommon extends Component {
             value={theme}
           >
             {
-              terminalThemes.map(l => {
-                const { id, name, uiThemeConfig } = l
-                const { main, text } = uiThemeConfig
-                const isDark = isColorDark(main)
-                const txt = isDark ? <MoonOutlined /> : <SunOutlined />
-                const tag = (
-                  <Tag
-                    color={main}
-                    className='mg1l'
-                    style={
-                      {
-                        color: text
+              terminalThemes
+                .filter(d => d.id && d.name && d.uiThemeConfig)
+                .map(l => {
+                  const { id, name, uiThemeConfig } = l
+                  const { main, text } = uiThemeConfig
+                  const isDark = isColorDark(main)
+                  const txt = isDark ? <MoonOutlined /> : <SunOutlined />
+                  const tag = (
+                    <Tag
+                      color={main}
+                      className='mg1l'
+                      style={
+                        {
+                          color: text
+                        }
                       }
-                    }
-                  >
-                    {txt}
-                  </Tag>
-                )
-                return (
-                  <Option key={id} value={id}>
-                    {tag} {name}
-                  </Option>
-                )
-              })
+                    >
+                      {txt}
+                    </Tag>
+                  )
+                  return (
+                    <Option key={id} value={id}>
+                      {tag} {name}
+                    </Option>
+                  )
+                })
             }
           </Select>
         </div>

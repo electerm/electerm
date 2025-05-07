@@ -6,7 +6,7 @@ on:
     branches: [ test-npm2 ]
 jobs:
   release-npm:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     environment: build
     if: "!contains(github.event.head_commit.message, '[skip ci]') && !contains(github.event.head_commit.message, '[skip npm]')"
     steps:

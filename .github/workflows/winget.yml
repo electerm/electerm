@@ -6,7 +6,7 @@ on:
     branches: [ test-winget ]
 jobs:
   publish:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     environment: build
     steps:
       - uses: vedantmgoyal2009/winget-releaser@v2

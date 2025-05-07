@@ -36,7 +36,7 @@ jobs:
     - run: npm i -S -E serialport@13.0.0
 
     # script:
-    - run: npm run prepare-build
+    - run: npm run b
 
     - name: build
       if: "!contains(github.event.head_commit.message, 'skip build')"

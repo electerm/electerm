@@ -77,25 +77,23 @@ const initWs = function (app) {
     verify(req)
     wsDec(ws)
     const { id } = req.params
-    const { sessionId } = req.query
     ws.on('close', () => {
-      onDestroySftp(id, sessionId)
+      onDestroySftp(id)
     })
     ws.on('message', (message) => {
       const msg = JSON.parse(message)
       const { action } = msg
 
       if (action === 'sftp-new') {
-        const { id, sessionId } = msg
-        sftp(id, sessionId, new Sftp({
+        const { id, terminalId } = msg
+        sftp(id, new Sftp({
           uid: id,
-          sessionId,
+          terminalId,
           type: 'sftp'
         }))
       } else if (action === 'sftp-func') {
-        const { id, args, func, sessionId } = msg
-        const uid = func + ':' + id
-        const inst = sftp(id, sessionId)
+        const { id, args, func, uid } = msg
+        const inst = sftp(id)
         if (inst) {
           inst[func](...args)
             .then(data => {
@@ -115,9 +113,9 @@ const initWs = function (app) {
             })
         }
       } else if (action === 'sftp-destroy') {
-        const { id, sessionId } = msg
+        const { id } = msg
         ws.close()
-        onDestroySftp(id, sessionId)
+        onDestroySftp(id)
       }
     })
     // end
@@ -128,29 +126,28 @@ const initWs = function (app) {
     verify(req)
     wsDec(ws)
     const { id } = req.params
-    const { sessionId, sftpId } = req.query
+    const { sftpId } = req.query
     ws.on('close', () => {
-      onDestroyTransfer(id, sftpId, sessionId)
+      onDestroyTransfer(id, sftpId)
     })
     ws.on('message', (message) => {
       const msg = JSON.parse(message)
       const { action } = msg
 
       if (action === 'transfer-new') {
-        const { sftpId, id, sessionId } = msg
+        const { sftpId, id } = msg
         const opts = Object.assign({}, msg, {
-          sftp: sftp(sftpId, sessionId).sftp,
+          sftp: sftp(sftpId).sftp,
           sftpId,
-          sessionId,
           ws
         })
-        transfer(id, sftpId, sessionId, new Transfer(opts))
+        transfer(id, sftpId, new Transfer(opts))
       } else if (action === 'transfer-func') {
-        const { id, func, args, sftpId, sessionId } = msg
+        const { id, func, args, sftpId } = msg
         if (func === 'destroy') {
-          return onDestroyTransfer(id, sftpId, sessionId)
+          return onDestroyTransfer(id, sftpId)
         }
-        transfer(id, sftpId, sessionId)[func](...args)
+        transfer(id, sftpId)[func](...args)
       }
     })
     // end

@@ -33,7 +33,7 @@ Powered by [manate](https://github.com/tylerlong/manate)
 - 支持ssh,telnet,serialport,RDP,VNC,本地和远程文件管理，sftp文件传输，以及作为本地终端使用
 - 全局快捷键切换隐藏显示窗口(类似guake, 默认快捷键`ctrl + 2`)
 - 多平台支持(linux, mac, win)
-- 🇺🇸 🇨🇳 🇧🇷 🇷🇺 🇪🇸 🇫🇷 🇹🇷 🇭🇰 🇯🇵 🇸🇦 🇩🇪 🇰🇷 多国语言支持([electerm-locales](https://github.com/electerm/electerm-locales), 欢迎提交代码)
+- 🇺🇸 🇨🇳 🇧🇷 🇷🇺 🇪🇸 🇫🇷 🇹🇷 🇭🇰 🇯🇵 🇸🇦 🇩🇪 🇰🇷 🇮🇩 🇵🇱 多国语言支持([electerm-locales](https://github.com/electerm/electerm-locales), 欢迎提交代码)
 - 双击直接编辑远程文件.
 - 支持密码或者密匙登录.
 - 支持Zmodem(rz, sz).
@@ -155,7 +155,7 @@ npm run fix
 ## 测试
 
 ```bash
-npm run prepare-build
+npm run b
 npm run prepare-test
 cp .sample.env .env
 
@@ -172,7 +172,7 @@ npm run test
 
 # Build linux only with -l
 npm i
-npm run prepare-build
+npm run b
 ./node_modules/.bin/electron-builder --linux tar.gz
 # or replace tar.gz to rpm/deb/AppImage
 # check dist/ folder

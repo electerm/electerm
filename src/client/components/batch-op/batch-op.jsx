@@ -18,7 +18,8 @@ import {
   sidebarWidth,
   statusMap,
   batchOpHelpLink,
-  modals
+  modals,
+  fileActions
 } from '../../common/constants'
 import HelpIcon from '../common/help-icon'
 import download from '../../common/download'
@@ -167,7 +168,7 @@ export default class BatchOp extends PureComponent {
     this.updateState('tab created', index)
     if (conf.cmd) {
       this.updateState('running cmd', index)
-      await runCmd(tab.id, tab.sessionId, conf.cmd)
+      await runCmd(tab.id, conf.cmd)
       this.updateState('running cmd done', index)
     }
     if (conf.remotePath) {
@@ -192,7 +193,7 @@ export default class BatchOp extends PureComponent {
       this.updateState('run cmd2', index)
       document.querySelector('.session-current .type-tab.ssh').click()
       await wait(200)
-      await runCmd(tab.id, tab.sessionId, conf.cmdAfterTransfer)
+      await runCmd(tab.id, conf.cmdAfterTransfer)
       this.updateState('run cmd2 done', index)
     }
     this.updateState(e('finished'), index)
@@ -210,15 +211,12 @@ export default class BatchOp extends PureComponent {
         fromPath: fp,
         id: uid(),
         operation: '',
-        sessionId: tab.sessionId,
         tabId: tab.id,
         title: 'batch operation',
         toPath: resolveFilePath(isDown ? conf.localPath : conf.remotePath, name),
         typeFrom: isDown ? 'remote' : 'local',
         typeTo: isDown ? 'local' : 'remote',
-        skipExpand: true,
-        zip: true,
-        skipConfirm: true
+        resolvePolicy: fileActions.mergeOrOverwrite
       }
       const { store } = window
       store.addTransferList([obj])
@@ -229,9 +227,9 @@ export default class BatchOp extends PureComponent {
       this.ref1 = autoRun(() => {
         const { transferHistory } = store
         const first = transferHistory.find(t => {
-          return (t.id === obj.id || t.originalId === obj.id) && t.unzip
+          return t.id === obj.id || t.originalId === obj.id
         })
-        if (first && first.sessionId === tab.sessionId) {
+        if (first && first.id === tab.id) {
           this.ref1 && this.ref1.stop()
           delete this.ref1
           clearTimeout(this.tm)

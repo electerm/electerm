@@ -15,7 +15,6 @@ class Transfer {
     type = 'download',
     sftp,
     sftpId,
-    sessionId,
     ws
   }) {
     this.id = id
@@ -23,7 +22,6 @@ class Transfer {
     this.src = isd ? sftp : fs
     this.dst = isd ? fs : sftp
     this.sftpId = sftpId
-    this.sessionId = sessionId
     this.srcPath = isd ? remotePath : localPath
     this.dstPath = !isd ? remotePath : localPath
     this.pausing = false

@@ -1,7 +1,7 @@
 /**
  * terminal/sftp/serial class
  */
-const _ = require('lodash')
+
 const log = require('../common/log')
 const { TerminalBase } = require('./session-base')
 const net = require('net')
@@ -24,13 +24,7 @@ function getPort (fromPort = 120023) {
 
 class TerminalVnc extends TerminalBase {
   init = async () => {
-    globalState.setSession(this.initOptions.sessionId, {
-      id: this.initOptions.sessionId,
-      sftps: {},
-      terminals: {
-        [this.pid]: this
-      }
-    })
+    globalState.setSession(this.pid, this)
     return Promise.resolve(this)
   }
 
@@ -97,7 +91,6 @@ class TerminalVnc extends TerminalBase {
       encode: 'utf-8',
       envLang: 'en_US.UTF-8',
       proxy,
-      sessionId: uid(),
       sshTunnels: [
         {
           sshTunnel: 'dynamicForward',
@@ -172,16 +165,7 @@ class TerminalVnc extends TerminalBase {
     if (this.sessionLogger) {
       this.sessionLogger.destroy()
     }
-    const inst = globalState.getSession(this.initOptions.sessionId)
-    if (!inst) {
-      return
-    }
-    delete inst.terminals[this.pid]
-    if (
-      _.isEmpty(inst.terminals)
-    ) {
-      globalState.removeSession(this.initOptions.sessionId)
-    }
+    globalState.removeSession(this.pid)
   }
 }
 

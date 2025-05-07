@@ -30,7 +30,7 @@ jobs:
     - run: PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm i -D -E playwright@1.49.1 && npm i -D -E @playwright/test@1.49.1
 
     # script:
-    - run: npm run prepare-build
+    - run: npm run b
     - name: test
       uses: GabrielBB/xvfb-action@v1
       with:

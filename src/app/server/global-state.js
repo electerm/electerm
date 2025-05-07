@@ -6,16 +6,16 @@ class GlobalState {
   #authed = false
 
   // Sessions management
-  getSession (sessionId) {
-    return this.#sessions[sessionId]
+  getSession (id) {
+    return this.#sessions[id]
   }
 
-  setSession (sessionId, data) {
-    this.#sessions[sessionId] = data
+  setSession (id, data) {
+    this.#sessions[id] = data
   }
 
-  removeSession (sessionId) {
-    delete this.#sessions[sessionId]
+  removeSession (id) {
+    delete this.#sessions[id]
   }
 
   // Upgrade instances management

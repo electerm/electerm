@@ -6,7 +6,8 @@ import React from 'react'
 import ExtIcon from './file-icon'
 import {
   FolderOutlined,
-  FileOutlined
+  FileOutlined,
+  ArrowRightOutlined
 } from '@ant-design/icons'
 import classnames from 'classnames'
 import copy from 'json-deep-copy'
@@ -27,7 +28,7 @@ import {
 } from '../../common/constants'
 import findParent from '../../common/find-parent'
 import sorter from '../../common/index-sorter'
-import { getFolderFromFilePath, getLocalFileInfo, checkFolderSize } from './file-read'
+import { getFolderFromFilePath, getLocalFileInfo } from './file-read'
 import { readClipboard, copy as copyToClipboard, hasFileInClipboardText } from '../../common/clipboard'
 import fs from '../../common/fs'
 import time from '../../common/time'
@@ -52,15 +53,15 @@ export default class FileSection extends React.Component {
     super(props)
     this.state = {
       file: copy(props.file),
-      overwriteStrategy: ''
+      overwriteStrategy: '',
+      dropdownOpen: false
     }
     // Create ref
     this.domRef = React.createRef()
+    this.id = 'file-' + this.props.file.id
   }
 
   componentDidMount () {
-    this.id = 'file-' + (this.props.file?.id || generate())
-    refs.add(this.id, this)
     this.applyStyle()
   }
 
@@ -74,7 +75,6 @@ export default class FileSection extends React.Component {
   }
 
   componentWillUnmount () {
-    refsStatic.remove(this.id)
     clearTimeout(this.timer)
     this.timer = null
     this.domRef = null
@@ -82,8 +82,18 @@ export default class FileSection extends React.Component {
     this.removeFileEditEvent()
   }
 
+  clearRef = () => {
+    refs.remove(this.id)
+  }
+
   get editor () {
     return refsStatic.get('text-editor')
+  }
+
+  handleDropdownOpenChange = (open) => {
+    if (open) {
+      this.forceUpdate()
+    }
   }
 
   applyStyle = () => {
@@ -388,7 +398,6 @@ export default class FileSection extends React.Component {
       tab: this.props.tab,
       visible: true,
       pid: this.props.pid,
-      sessionId: this.props.sessionId,
       uidTree: this.props[`${type}UidTree`],
       gidTree: this.props[`${type}GidTree`]
     })
@@ -512,6 +521,7 @@ export default class FileSection extends React.Component {
   }
 
   changeFileMode = async (file) => {
+    this.clearRef()
     const { permission, type, path, name } = file
     const func = type === typeMap.local
       ? fs.chmod
@@ -523,6 +533,7 @@ export default class FileSection extends React.Component {
 
   openFileModeModal = () => {
     const { type } = this.props
+    refs.add(this.id, this)
     refsStatic.get('file-modal')?.showFileModeModal(
       {
         tab: this.props.tab,
@@ -612,6 +623,7 @@ export default class FileSection extends React.Component {
   }
 
   removeFileEditEvent = () => {
+    this.clearRef()
     if (this.watchingFile) {
       window.pre.ipcOffEvent('file-change', this.onFileChange)
       window.pre.runGlobalAsync('unwatchFile', this.watchingFile)
@@ -659,7 +671,7 @@ export default class FileSection extends React.Component {
     const {
       path, name
     } = this.state.file
-    const rp = resolve(path, name)
+    const rp = path ? resolve(path, name) : this.props[`${this.props.type}Path`]
     this.props.tab.pane = paneMap.terminal
     refs.get('term-' + this.props.tab.id)?.cd(rp)
   }
@@ -692,6 +704,7 @@ export default class FileSection extends React.Component {
       data.file = null
       data.text = ''
     }
+    this.clearRef()
     this.editor?.setState(data)
     if (r && !noClose) {
       this.props[`${type}List`]()
@@ -699,6 +712,7 @@ export default class FileSection extends React.Component {
   }
 
   editFile = () => {
+    refs.add(this.id, this)
     this.editor?.openEditor({
       id: this.id,
       file: this.state.file
@@ -735,7 +749,7 @@ export default class FileSection extends React.Component {
     _typeTo,
     operation
   ) => {
-    const { name, path, type, isDirectory } = file
+    const { name, path, type } = file
     const isLocal = type === typeMap.local
     let typeTo = isLocal
       ? typeMap.remote
@@ -759,13 +773,6 @@ export default class FileSection extends React.Component {
       id: generate(),
       ...createTransferProps(this.props),
       operation
-    }
-    if (isDirectory) {
-      const zip = await checkFolderSize(this.props, file)
-      Object.assign(obj, {
-        zip,
-        skipExpand: zip
-      })
     }
     return [obj]
   }
@@ -876,27 +883,55 @@ export default class FileSection extends React.Component {
     return !isWin
   }
 
+  handleContextMenuCapture = (e) => {
+    this.contextMenuPosition = {
+      clientY: e.clientY
+    }
+  }
+
+  itemToMenuFormat = (r) => {
+    const { func, text, disabled, icon, subText, requireConfirm } = r
+    const IconCom = iconsMap[icon]
+    return {
+      key: func,
+      label: text,
+      disabled,
+      icon: <IconCom />,
+      extra: subText,
+      danger: requireConfirm
+    }
+  }
+
   renderContextMenu = () => {
-    return this.renderContextItems()
-      .map(r => {
-        const {
-          func,
-          text,
-          disabled,
-          icon,
-          subText,
-          requireConfirm
-        } = r
-        const IconCom = iconsMap[icon]
-        return {
-          key: func,
-          label: text,
-          disabled,
-          icon: <IconCom />,
-          extra: subText,
-          danger: requireConfirm
+    const items = this.renderContextItems()
+
+    // Check if we need to split the menu
+    if (this.contextMenuPosition) {
+      const windowHeight = window.innerHeight
+      const { clientY } = this.contextMenuPosition
+      const estimatedMenuHeight = items.length * 32 // Approximate height per menu item
+      const availableHeight = windowHeight - clientY
+
+      // If menu would extend beyond window, split into two parts
+      if (estimatedMenuHeight > availableHeight && items.length > 6) {
+        const firstHalf = items.slice(0, Math.ceil(items.length / 2))
+        const secondHalf = items.slice(Math.ceil(items.length / 2))
+
+        // Create "More..." submenu with second half of items
+        const moreSubmenu = {
+          key: 'more-submenu',
+          label: '…',
+          icon: <ArrowRightOutlined />,
+          children: secondHalf.map(this.itemToMenuFormat)
         }
-      })
+
+        // Return first half + "More..." submenu
+        return [...firstHalf.map(this.itemToMenuFormat), moreSubmenu]
+      }
+    }
+
+    // Otherwise return normal menu
+    return items.map(this.itemToMenuFormat)
   }
 
   renderContextItems () {
@@ -946,7 +981,7 @@ export default class FileSection extends React.Component {
       })
     }
     if (
-      isDirectory && isRealFile &&
+      isDirectory &&
       (
         (hasHost && enableSsh !== false && isRemote) ||
         (isLocal && !hasHost)
@@ -1066,7 +1101,10 @@ export default class FileSection extends React.Component {
   }
 
   onContextMenu = ({ key }) => {
-    this[key]()
+    // If it's not the submenu itself
+    if (key !== 'more-submenu') {
+      this[key]()
+    }
   }
 
   renderEditing (file) {
@@ -1192,13 +1230,15 @@ export default class FileSection extends React.Component {
         items: this.renderContextMenu(),
         onClick: this.onContextMenu
       },
-      trigger: ['contextMenu']
+      trigger: ['contextMenu'],
+      onOpenChange: this.handleDropdownOpenChange
     }
     return (
       <Dropdown {...ddProps}>
         <div
           ref={this.domRef}
           {...props}
+          onContextMenu={this.handleContextMenuCapture}
         >
           <div className='file-bg' />
           <div className='file-props-div'>
