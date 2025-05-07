@@ -315,7 +315,6 @@ export default class SessionWrapper extends Component {
       console.log('ftp type')
       const ftpProps = {
         ...this.props,
-        sessionId,
         ...pick(this, [
           'onChangePane',
           'setCwd'
