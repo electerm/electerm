@@ -318,7 +318,8 @@ export default class SessionWrapper extends Component {
         ...pick(this, [
           'onChangePane',
           'setCwd'
-        ])
+        ]),
+        type: 'ftp'
       }
       return (
         <Sftp

@@ -19,6 +19,7 @@ class Sftp {
     ws.s({
       action: 'sftp-new',
       id,
+      type: this.type,
       terminalId
     })
     const th = this
@@ -28,6 +29,7 @@ class Sftp {
         if (transferKeys.includes(func)) {
           return Transfer({
             sftpId: id,
+            isFtp: this.type === 'ftp',
             ...args[0],
             terminalId,
             type: func
@@ -43,7 +45,8 @@ class Sftp {
             uid,
             func,
             args,
-            terminalId
+            terminalId,
+            type: this.type
           })
           ws.once((arg) => {
             if (arg.error) {
@@ -68,8 +71,9 @@ class Sftp {
   }
 }
 
-export default async (terminalId) => {
+export default async (terminalId, type = 'sftp') => {
   const sftp = new Sftp()
+  sftp.type = type
   await sftp.init(terminalId)
   return sftp
 }

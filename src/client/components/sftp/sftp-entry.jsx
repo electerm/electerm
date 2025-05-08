@@ -51,6 +51,10 @@ export default class Sftp extends Component {
   componentDidMount () {
     this.id = 'sftp-' + this.props.tab.id
     refs.add(this.id, this)
+    if (this.props.type === 'ftp') {
+      this.type = 'ftp'
+      this.initData()
+    }
   }
 
   componentDidUpdate (prevProps, prevState) {
@@ -566,7 +570,7 @@ export default class Sftp extends Component {
     let sftp = this.sftp
     try {
       if (!this.sftp) {
-        sftp = await Client(this.terminalId)
+        sftp = await Client(this.terminalId, this.type)
         if (!sftp) {
           return
         }

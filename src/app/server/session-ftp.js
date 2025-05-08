@@ -3,6 +3,7 @@ const { TerminalBase } = require('./session-base')
 const { commonExtends } = require('./session-common')
 const { readRemoteFile, writeRemoteFile } = require('./ftp-file')
 const { Readable } = require('stream')
+const globalState = require('./global-state')
 
 class Ftp extends TerminalBase {
   constructor (initOptions) {
@@ -15,14 +16,16 @@ class Ftp extends TerminalBase {
 
   async connect (initOptions) {
     this.client = new ftp.Client()
-    this.client.ftp.verbose = false
+    this.client.ftp.verbose = initOptions.debug
+    console.log('connect', initOptions)
     await this.client.access({
       host: initOptions.host,
       port: initOptions.port || 21,
-      user: initOptions.username,
+      user: initOptions.user,
       password: initOptions.password,
       secure: initOptions.secure
     })
+    globalState.setSession(this.pid, this)
     this.sftp = this.client // For API compatibility
     return 'ok'
   }

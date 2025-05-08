@@ -17,6 +17,7 @@ const ftpServer = new FtpSrv({
 // Handle user login
 ftpServer.on('login', ({ username, password }, resolve, reject) => {
   // Simple authentication
+  console.log('login', username, password)
   if (username === 'test' && password === 'test123') {
     return resolve({ root: ftpRoot })
   }

@@ -41,7 +41,7 @@ test.describe('Ftp Class', () => {
     const initOptions = {
       host: 'localhost',
       port: 21,
-      username: 'test',
+      user: 'test',
       password: 'test123'
     }
     ftp = new Ftp(initOptions)

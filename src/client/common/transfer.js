@@ -18,7 +18,8 @@ class Transfer {
     this.id = id
     const th = this
     const {
-      sftpId
+      sftpId,
+      isFtp
     } = rest
     const ws = await initWs('transfer', id, sftpId)
     ws.s({
@@ -31,6 +32,7 @@ class Transfer {
         ws.s({
           action: 'transfer-func',
           id: th.id,
+          isFtp,
           func,
           sftpId,
           args

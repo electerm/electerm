@@ -7,13 +7,9 @@ const { Sftp } = require('./session-sftp')
 const { Ftp } = require('./session-ftp')
 const {
   sftp,
-  ftp,
   transfer,
-  ftpTransfer,
   onDestroySftp,
-  onDestroyFtp,
-  onDestroyTransfer,
-  onDestroyFtpTransfer
+  onDestroyTransfer
 } = require('./remote-common')
 const { Transfer } = require('./transfer')
 const { Transfer: FtpTransfer } = require('./ftp-transfer')
@@ -85,11 +81,12 @@ const initWs = function (app) {
       const { action } = msg
 
       if (action === 'sftp-new') {
-        const { id, terminalId } = msg
-        sftp(id, new Sftp({
+        const { id, terminalId, type } = msg
+        const Cls = type === 'ftp' ? Ftp : Sftp
+        sftp(id, new Cls({
           uid: id,
           terminalId,
-          type: 'sftp'
+          type
         }))
       } else if (action === 'sftp-func') {
         const { id, args, func, uid } = msg
@@ -135,13 +132,14 @@ const initWs = function (app) {
       const { action } = msg
 
       if (action === 'transfer-new') {
-        const { sftpId, id } = msg
+        const { sftpId, id, isFtp } = msg
         const opts = Object.assign({}, msg, {
           sftp: sftp(sftpId).sftp,
           sftpId,
           ws
         })
-        transfer(id, sftpId, new Transfer(opts))
+        const Cls = isFtp ? FtpTransfer : Transfer
+        transfer(id, sftpId, new Cls(opts))
       } else if (action === 'transfer-func') {
         const { id, func, args, sftpId } = msg
         if (func === 'destroy') {
@@ -154,86 +152,86 @@ const initWs = function (app) {
   })
 
   // sftp function
-  app.ws('/ftp/:id', (ws, req) => {
-    console.log('ftp')
-    verify(req)
-    wsDec(ws)
-    const { id } = req.params
-    ws.on('close', () => {
-      onDestroyFtp(id)
-    })
-    ws.on('message', (message) => {
-      const msg = JSON.parse(message)
-      const { action } = msg
+  // app.ws('/ftp/:id', (ws, req) => {
+  //   console.log('ftp')
+  //   verify(req)
+  //   wsDec(ws)
+  //   const { id } = req.params
+  //   ws.on('close', () => {
+  //     onDestroyFtp(id)
+  //   })
+  //   ws.on('message', (message) => {
+  //     const msg = JSON.parse(message)
+  //     const { action } = msg
 
-      if (action === 'sftp-new') {
-        const { id } = msg
-        ftp(id, new Ftp({
-          uid: id,
-          type: 'ftp'
-        }))
-      } else if (action === 'sftp-func') {
-        const { id, args, func } = msg
-        const uid = func + ':' + id
-        const inst = ftp(id)
-        if (inst) {
-          inst[func](...args)
-            .then(data => {
-              ws.s({
-                id: uid,
-                data
-              })
-            })
-            .catch(err => {
-              ws.s({
-                id: uid,
-                error: {
-                  message: err.message,
-                  stack: err.stack
-                }
-              })
-            })
-        }
-      } else if (action === 'sftp-destroy') {
-        const { id } = msg
-        ws.close()
-        onDestroyFtp(id)
-      }
-    })
-    // end
-  })
+  //     if (action === 'sftp-new') {
+  //       const { id } = msg
+  //       ftp(id, new Ftp({
+  //         uid: id,
+  //         type: 'ftp'
+  //       }))
+  //     } else if (action === 'sftp-func') {
+  //       const { id, args, func } = msg
+  //       const uid = func + ':' + id
+  //       const inst = ftp(id)
+  //       if (inst) {
+  //         inst[func](...args)
+  //           .then(data => {
+  //             ws.s({
+  //               id: uid,
+  //               data
+  //             })
+  //           })
+  //           .catch(err => {
+  //             ws.s({
+  //               id: uid,
+  //               error: {
+  //                 message: err.message,
+  //                 stack: err.stack
+  //               }
+  //             })
+  //           })
+  //       }
+  //     } else if (action === 'sftp-destroy') {
+  //       const { id } = msg
+  //       ws.close()
+  //       onDestroyFtp(id)
+  //     }
+  //   })
+  //   // end
+  // })
 
   // transfer function
-  app.ws('/ftp-transfer/:id', (ws, req) => {
-    verify(req)
-    wsDec(ws)
-    const { id } = req.params
-    const { sftpId } = req.query
-    ws.on('close', () => {
-      onDestroyFtpTransfer(id, sftpId)
-    })
-    ws.on('message', (message) => {
-      const msg = JSON.parse(message)
-      const { action } = msg
+  // app.ws('/ftp-transfer/:id', (ws, req) => {
+  //   verify(req)
+  //   wsDec(ws)
+  //   const { id } = req.params
+  //   const { sftpId } = req.query
+  //   ws.on('close', () => {
+  //     onDestroyFtpTransfer(id, sftpId)
+  //   })
+  //   ws.on('message', (message) => {
+  //     const msg = JSON.parse(message)
+  //     const { action } = msg
 
-      if (action === 'transfer-new') {
-        const { sftpId, id } = msg
-        const opts = Object.assign({}, msg, {
-          sftp: ftp(sftpId),
-          sftpId,
-          ws
-        })
-        ftpTransfer(id, sftpId, new FtpTransfer(opts))
-      } else if (action === 'transfer-func') {
-        const { id, func, args, sftpId } = msg
-        if (func === 'destroy') {
-          return onDestroyFtpTransfer(id, sftpId)
-        }
-        ftpTransfer(id, sftpId)[func](...args)
-      }
-    })
-    // end
-  })
+  //     if (action === 'transfer-new') {
+  //       const { sftpId, id } = msg
+  //       const opts = Object.assign({}, msg, {
+  //         sftp: ftp(sftpId),
+  //         sftpId,
+  //         ws
+  //       })
+  //       ftpTransfer(id, sftpId, new FtpTransfer(opts))
+  //     } else if (action === 'transfer-func') {
+  //       const { id, func, args, sftpId } = msg
+  //       if (func === 'destroy') {
+  //         return onDestroyFtpTransfer(id, sftpId)
+  //       }
+  //       ftpTransfer(id, sftpId)[func](...args)
+  //     }
+  //   })
+  //   // end
+  // })
 
   // upgrade
   app.ws('/upgrade/:id', (ws, req) => {
