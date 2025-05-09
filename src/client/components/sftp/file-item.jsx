@@ -985,7 +985,8 @@ export default class FileSection extends React.Component {
       (
         (hasHost && enableSsh !== false && isRemote) ||
         (isLocal && !hasHost)
-      )
+      ) &&
+      !this.props.isFtp
     ) {
       res.push({
         func: 'gotoFolderInTerminal',
@@ -1083,7 +1084,10 @@ export default class FileSection extends React.Component {
       icon: 'ReloadOutlined',
       text: e('refresh')
     })
-    if (this.showModeEdit(type, isRealFile)) {
+    if (
+      this.showModeEdit(type, isRealFile) &&
+      !this.props.isFtp
+    ) {
       res.push({
         func: 'editPermission',
         icon: 'LockOutlined',
