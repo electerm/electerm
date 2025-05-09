@@ -81,7 +81,7 @@ test.describe('FtpTransfer Class', () => {
         close: () => {}
       }
     })
-
+    console.log('transfer', transfer)
     await transfer.start()
     await new Promise(resolve => setTimeout(resolve, 1000))
 

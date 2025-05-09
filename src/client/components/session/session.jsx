@@ -312,14 +312,13 @@ export default class SessionWrapper extends Component {
     }
 
     if (type === terminalFtpType) {
-      console.log('ftp type')
       const ftpProps = {
         ...this.props,
         ...pick(this, [
           'onChangePane',
           'setCwd'
         ]),
-        type: 'ftp'
+        isFtp: true
       }
       return (
         <Sftp
@@ -725,7 +724,6 @@ export default class SessionWrapper extends Component {
 
   renderViews = () => {
     if (this.isNotTerminalType()) {
-      console.log('not terminal type')
       return this.renderTerminals()
     }
     const notSplitVew = !this.canSplitView() || !this.props.tab.sshSftpSplitView

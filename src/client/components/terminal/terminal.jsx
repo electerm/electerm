@@ -336,7 +336,6 @@ clear\r`
       try {
         const fileData = JSON.parse(fromFile)
         const filePath = resolve(fileData.path, fileData.name)
-        console.log('filePath', filePath)
         if (this.isUnsafeFilename(filePath)) {
           message.error(notSafeMsg)
           return

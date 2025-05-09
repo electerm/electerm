@@ -17,7 +17,6 @@ class Ftp extends TerminalBase {
   async connect (initOptions) {
     this.client = new ftp.Client()
     this.client.ftp.verbose = initOptions.debug
-    console.log('connect', initOptions)
     await this.client.access({
       host: initOptions.host,
       port: initOptions.port || 21,
@@ -78,17 +77,24 @@ class Ftp extends TerminalBase {
   }
 
   async stat (remotePath) {
-    const list = await this.client.list(remotePath)
+    const pathParts = remotePath.split('/')
+    const fileName = pathParts.pop()
+    const parentPath = pathParts.join('/') || '/'
+    const list = await this.client.list(parentPath)
     if (!list || !list.length) {
-      throw new Error('stat failed')
+      throw new Error('stat failed: parent directory listing empty')
     }
-    const item = list[0]
+
+    const item = list.find(item => item.name === fileName)
+    if (!item) {
+      throw new Error(`stat failed: ${fileName} not found in ${parentPath}`)
+    }
     return {
       size: item.size,
       accessTime: new Date(item.modifiedAt).getTime(),
       modifyTime: new Date(item.modifiedAt).getTime(),
       mode: 0o777, // Default permissions since FTP doesn't provide this
-      isDirectory: () => item.type === 2
+      isDirectory: item.type === 2
     }
   }
 

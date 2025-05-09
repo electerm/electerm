@@ -51,7 +51,7 @@ export default class Sftp extends Component {
   componentDidMount () {
     this.id = 'sftp-' + this.props.tab.id
     refs.add(this.id, this)
-    if (this.props.type === 'ftp') {
+    if (this.props.isFtp) {
       this.type = 'ftp'
       this.initData()
     }
@@ -96,6 +96,8 @@ export default class Sftp extends Component {
     this.sftp = null
     clearTimeout(this.timer4)
     this.timer4 = null
+    clearTimeout(this.timer5)
+    this.timer5 = null
   }
 
   directions = [
@@ -114,15 +116,15 @@ export default class Sftp extends Component {
         [`sortProp.${k}`]: window.store.sftpSortSetting[k].prop,
         [`sortDirection.${k}`]: window.store.sftpSortSetting[k].direction,
         [k]: [],
-        [`${k}FileTree`]: {},
+        [`${k}FileTree`]: new Map(),
         [`${k}Loading`]: false,
         [`${k}InputFocus`]: false,
         [`${k}ShowHiddenFile`]: def,
         [`${k}Path`]: '',
         [`${k}PathTemp`]: '',
         [`${k}PathHistory`]: [],
-        [`${k}GidTree`]: {},
-        [`${k}UidTree`]: {},
+        [`${k}GidTree`]: new Map(),
+        [`${k}UidTree`]: new Map(),
         [`${k}Keyword`]: ''
       })
       return prev
@@ -652,11 +654,21 @@ export default class Sftp extends Component {
         ]).slice(0, maxSftpHistory)
       }
       this.setState(update, () => {
-        this.updateRemoteList(remote, remotePath, sftp)
+        if (this.type !== 'ftp') {
+          this.updateRemoteList(remote, remotePath, sftp)
+        }
         this.props.editTab(tab.id, {
           sftpCreated: true
         })
       })
+      this.timer5 = setTimeout(() => {
+        if (this.type !== 'ftp') {
+          this.updateRemoteList(remote, remotePath, sftp)
+        }
+        this.props.editTab(tab.id, {
+          sftpCreated: true
+        })
+      }, 1000)
     } catch (e) {
       const update = {
         remoteLoading: false,
@@ -720,7 +732,6 @@ export default class Sftp extends Component {
   }
 
   localList = async (returnList = false, localPathReal, oldPath) => {
-    console.log('local list')
     if (!fs) return
     if (!returnList) {
       this.setState({
@@ -730,7 +741,6 @@ export default class Sftp extends Component {
     const oldLocal = deepCopy(
       this.state.local
     )
-    console.log('local list1')
     try {
       const noPathInit = localPathReal || this.state.localPath
       const localPath = noPathInit ||
@@ -767,7 +777,6 @@ export default class Sftp extends Component {
           ...this.state.localPathHistory
         ]).slice(0, maxSftpHistory)
       }
-      console.log('local list2', update)
       this.setState(update)
     } catch (e) {
       const update = {

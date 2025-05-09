@@ -27,6 +27,7 @@ class Transfer {
     this.total = 0
     this.src = type === 'download' ? sftp : null
     this.dst = type === 'download' ? null : sftp
+    this.start()
   }
 
   handleProgress = (info) => {
