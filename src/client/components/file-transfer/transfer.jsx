@@ -30,6 +30,7 @@ export default class TransportAction extends Component {
     this.total = 0
     this.transferred = 0
     this.currentProgress = 1
+    this.isFtp = refs.get('sftp-' + tabId)?.type === 'ftp'
   }
 
   componentDidMount () {
@@ -626,9 +627,9 @@ export default class TransportAction extends Component {
 
     const list = await this.list(typeFrom, fromPath, tabId)
     const bigFileSize = 1024 * 1024
-    const smallFilesBatch = 30
-    const BigFilesBatch = 3
-    const foldersBatch = 50
+    const smallFilesBatch = this.isFtp ? 1 : 30
+    const BigFilesBatch = this.isFtp ? 1 : 3
+    const foldersBatch = this.isFtp ? 1 : 50
 
     const {
       folders,

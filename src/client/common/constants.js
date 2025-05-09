@@ -68,7 +68,8 @@ export const connectionMap = buildConst([
   'local',
   'web',
   'rdp',
-  'vnc'
+  'vnc',
+  'ftp'
 ])
 
 export const authTypeMap = buildConst([
@@ -135,6 +136,7 @@ export const terminalVncType = 'vnc'
 export const terminalSerialType = 'serial'
 export const terminalTelnetType = 'telnet'
 export const terminalLocalType = 'local'
+export const terminalFtpType = 'ftp'
 export const openedSidebarKey = 'opened-sidebar'
 export const sidebarPinnedKey = 'sidebar-pinned'
 export const leftSidebarWidthKey = 'left-sidebar-width'

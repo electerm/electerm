@@ -116,3 +116,5 @@ dist
 /*.gz
 .vscode
 /test-results
+
+ftp-root

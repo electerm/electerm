@@ -15,6 +15,7 @@ import {
   typeMap, maxSftpHistory, paneMap,
   fileTypeMap,
   terminalSerialType,
+  terminalFtpType,
   unexpectedPacketErrorDesc,
   sftpRetryInterval
 } from '../../common/constants'
@@ -50,6 +51,10 @@ export default class Sftp extends Component {
   componentDidMount () {
     this.id = 'sftp-' + this.props.tab.id
     refs.add(this.id, this)
+    if (this.props.isFtp) {
+      this.type = 'ftp'
+      this.initData()
+    }
   }
 
   componentDidUpdate (prevProps, prevState) {
@@ -91,6 +96,8 @@ export default class Sftp extends Component {
     this.sftp = null
     clearTimeout(this.timer4)
     this.timer4 = null
+    clearTimeout(this.timer5)
+    this.timer5 = null
   }
 
   directions = [
@@ -109,15 +116,15 @@ export default class Sftp extends Component {
         [`sortProp.${k}`]: window.store.sftpSortSetting[k].prop,
         [`sortDirection.${k}`]: window.store.sftpSortSetting[k].direction,
         [k]: [],
-        [`${k}FileTree`]: {},
+        [`${k}FileTree`]: new Map(),
         [`${k}Loading`]: false,
         [`${k}InputFocus`]: false,
         [`${k}ShowHiddenFile`]: def,
         [`${k}Path`]: '',
         [`${k}PathTemp`]: '',
         [`${k}PathHistory`]: [],
-        [`${k}GidTree`]: {},
-        [`${k}UidTree`]: {},
+        [`${k}GidTree`]: new Map(),
+        [`${k}UidTree`]: new Map(),
         [`${k}Keyword`]: ''
       })
       return prev
@@ -167,9 +174,11 @@ export default class Sftp extends Component {
   }, isEqual)
 
   isActive () {
-    return this.props.currentBatchTabId === this.props.tab.id &&
-      (this.props.pane === paneMap.fileManager ||
-      this.props.sshSftpSplitView)
+    const { currentBatchTabId, pane, sshSftpSplitView } = this.props
+    const { tab } = this.props
+    const isFtp = tab.type === terminalFtpType
+
+    return (currentBatchTabId === tab.id && (pane === paneMap.fileManager || sshSftpSplitView)) || isFtp
   }
 
   updateKeyword = (keyword, type) => {
@@ -563,7 +572,7 @@ export default class Sftp extends Component {
     let sftp = this.sftp
     try {
       if (!this.sftp) {
-        sftp = await Client(this.terminalId)
+        sftp = await Client(this.terminalId, this.type)
         if (!sftp) {
           return
         }
@@ -645,11 +654,21 @@ export default class Sftp extends Component {
         ]).slice(0, maxSftpHistory)
       }
       this.setState(update, () => {
-        this.updateRemoteList(remote, remotePath, sftp)
+        if (this.type !== 'ftp') {
+          this.updateRemoteList(remote, remotePath, sftp)
+        }
         this.props.editTab(tab.id, {
           sftpCreated: true
         })
       })
+      this.timer5 = setTimeout(() => {
+        if (this.type !== 'ftp') {
+          this.updateRemoteList(remote, remotePath, sftp)
+        }
+        this.props.editTab(tab.id, {
+          sftpCreated: true
+        })
+      }, 1000)
     } catch (e) {
       const update = {
         remoteLoading: false,
