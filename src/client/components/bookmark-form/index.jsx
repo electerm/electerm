@@ -101,8 +101,9 @@ export default class BookmarkIndex extends PureComponent {
         {
           keys.map(k => {
             const v = connectionMap[k]
+            const txt = v === 'ssh' ? 'Ssh/Sftp' : e(v)
             return (
-              <Radio.Button key={v} value={v}>{e(v)}</Radio.Button>
+              <Radio.Button key={v} value={v}>{txt}</Radio.Button>
             )
           })
         }
