@@ -197,6 +197,26 @@ export default class Sftp extends Component {
     }
   }
 
+  gotoHome = async (type) => {
+    const n = `${type}Path`
+    const nt = n + 'Temp'
+    let path
+
+    if (type === typeMap.remote) {
+      path = this.props.tab.startDirectoryRemote
+      if (!path && this.sftp) {
+        path = await this.getPwd(this.props.tab.username)
+      }
+    } else {
+      path = this.props.tab.startDirectoryLocal || window.pre.homeOrTmp
+    }
+
+    this.setState({
+      [n]: path,
+      [nt]: path
+    }, () => this[`${type}List`]())
+  }
+
   updateCwd = (cwd) => {
     if (!this.state.inited) {
       return
@@ -1030,6 +1050,7 @@ export default class Sftp extends Component {
         [
           'onChange',
           'onGoto',
+          'gotoHome',
           'onInputFocus',
           'onInputBlur',
           'toggleShowHiddenFile',
