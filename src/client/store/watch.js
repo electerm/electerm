@@ -145,7 +145,6 @@ export default store => {
   }).start()
 
   autoRun(() => {
-    store.updateBatchInputSelectedTabIds()
     const tabs = store.getTabs()
     const { activeTabId } = store
     const tab = tabs.find(t => t.id === activeTabId)

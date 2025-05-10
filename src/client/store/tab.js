@@ -509,11 +509,6 @@ export default Store => {
     })()
   }
 
-  Store.prototype.updateBatchInputSelectedTabIds = function () {
-    const { store } = window
-    store._batchInputSelectedTabIds = new Set([store.activeTabId])
-  }
-
   Store.prototype.onSelectBatchInputSelectedTabId = action(function (id) {
     const { store } = window
     const { _batchInputSelectedTabIds } = store
