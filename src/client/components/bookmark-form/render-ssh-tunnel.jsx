@@ -27,6 +27,7 @@ export default function renderSshTunnels (props) {
   } = props
   const [formChild] = Form.useForm()
   const [initialValues] = useState({
+    sshTunnel: 'forwardRemoteToLocal',
     sshTunnelLocalPort: 12200,
     sshTunnelLocalHost: '127.0.0.1',
     sshTunnelRemotePort: 12300,
@@ -214,6 +215,7 @@ export default function renderSshTunnels (props) {
           label={e('sshTunnel')}
           name='sshTunnel'
           {...formItemLayout}
+          defaultValue='forwardRemoteToLocal'
           required
         >
           <RadioGroup onChange={onChange}>
