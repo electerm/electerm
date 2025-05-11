@@ -8,7 +8,7 @@ import {
   SunOutlined,
   MoonOutlined
 } from '@ant-design/icons'
-import { Tooltip, Tag } from 'antd'
+import { Tag } from 'antd'
 import classnames from 'classnames'
 import { defaultTheme } from '../../common/constants'
 import highlight from '../common/highlight'
@@ -29,38 +29,21 @@ export default function ThemeListItem (props) {
     store.setTheme(item.id)
   }
 
-  function renderPreview () {
-    const {
-      main,
-      text
-    } = item.uiThemeConfig
-    const arr = [
-      'error',
-      'success',
-      'warn',
-      'info',
-      'primary'
-    ]
-    return (
-      <div
-        className='theme-preview pd2'
-        style={{ background: main, color: text }}
-      >
-        {
-          arr.map(k => {
-            return (
-              <Tag
-                color={item.uiThemeConfig[k]}
-                key={k}
-                className='mg1l mg1b'
-              >
-                {e(k)}
-              </Tag>
-            )
-          })
-        }
-      </div>
-    )
+  function handleMouseEnter () {
+    if (!item.id) return
+    // Store current theme ID before changing
+    const currentTheme = window.store.config.theme
+    window.originalTheme = currentTheme
+    // Apply the hovered theme
+    store.setTheme(item.id)
+  }
+
+  function handleMouseLeave () {
+    if (!window.originalTheme) return
+    // Restore the original theme
+    store.setTheme(window.originalTheme)
+    // Clean up
+    delete window.originalTheme
   }
 
   function renderApplyBtn () {
@@ -68,15 +51,12 @@ export default function ThemeListItem (props) {
       return null
     }
     return (
-      <Tooltip
-        title={renderPreview()}
-        placement='topLeft'
-      >
-        <CheckCircleOutlined
-          className='pointer list-item-apply'
-          onClick={handleClickApply}
-        />
-      </Tooltip>
+      <CheckCircleOutlined
+        className='pointer list-item-apply'
+        onClick={handleClickApply}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+      />
     )
   }
 

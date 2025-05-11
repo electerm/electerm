@@ -38,7 +38,7 @@ export default Store => {
   }
 
   Store.prototype.sortTheme = function (a, b) {
-    const { theme } = window.store.config
+    const theme = window.originalTheme || window.store.config.theme
     const ax = a.id === theme ? -1 : 1
     const bx = b.id === theme ? -1 : 1
     return ax - bx
