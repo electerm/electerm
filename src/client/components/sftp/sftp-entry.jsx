@@ -208,7 +208,7 @@ export default class Sftp extends Component {
         path = await this.getPwd(this.props.tab.username)
       }
     } else {
-      path = this.props.tab.startDirectoryLocal || window.pre.homeOrTmp
+      path = this.getLocalHome()
     }
 
     this.setState({
@@ -751,6 +751,12 @@ export default class Sftp extends Component {
     this.setState(update)
   }
 
+  getLocalHome = () => {
+    return this.props.tab.startDirectoryLocal ||
+    this.props.config.startDirectoryLocal ||
+    window.pre.homeOrTmp
+  }
+
   localList = async (returnList = false, localPathReal, oldPath) => {
     if (!fs) return
     if (!returnList) {
@@ -765,8 +771,7 @@ export default class Sftp extends Component {
       const noPathInit = localPathReal || this.state.localPath
       const localPath = noPathInit ||
         this.getCwdLocal() ||
-        this.props.tab.startDirectoryLocal ||
-        window.pre.homeOrTmp
+        this.getLocalHome()
       const locals = await fs.readdirAsync(localPath)
       const local = []
       for (const name of locals) {

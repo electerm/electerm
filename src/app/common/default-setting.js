@@ -64,5 +64,6 @@ module.exports = exports.default = {
   apiPathAI: '/chat/completions',
   sessionLogPath: '',
   sshSftpSplitView: false,
-  showCmdSuggestions: false
+  showCmdSuggestions: false,
+  startDirectoryLocal: ''
 }

@@ -494,6 +494,7 @@ export default class SettingTerminal extends Component {
         <Link to={regexHelpLink}>wiki</Link>
       </div>
     )
+    const startDirectoryLocalTxt = `${e('startDirectory')}:${e('local')}`
     return (
       <div className='form-wrap pd1y pd2x'>
         <div className='pd1y font16 bold'>
@@ -559,6 +560,10 @@ export default class SettingTerminal extends Component {
         </div>
         <div className='pd1b'>{e('terminalBackgroundImage')}</div>
         <TerminalBackgroundConfig {...bgProps} />
+        <div className='pd1b'>{startDirectoryLocalTxt}</div>
+        {
+          this.renderText('startDirectoryLocal', startDirectoryLocalTxt)
+        }
         <div className='pd1b'>{e('terminalWordSeparator')}</div>
         {
           this.renderText('terminalWordSeparator', e('terminalWordSeparator'))
