@@ -9,52 +9,34 @@ const { resolve: pathResolve } = require('path')
 const net = require('net')
 const { exec } = require('child_process')
 const log = require('../common/log')
-const alg = require('./ssh2-alg')
+const { algDefault, algAlt } = require('./ssh2-alg')
 const sshTunnelFuncs = require('./ssh-tunnel')
 const deepCopy = require('json-deep-copy')
 const { TerminalBase } = require('./session-base')
 const { commonExtends } = require('./session-common')
-const failMsg = 'All configured authentication methods failed'
 const globalState = require('./global-state')
 
+const failMsg = 'All configured authentication methods failed'
+const csFailMsg = 'no matching C->S cipher'
+
 class TerminalSshBase extends TerminalBase {
-  getLocalEnv () {
-    return {
-      env: process.env
-    }
+  async remoteInitProcess () {
+    this.adjustConnectionOrder()
+    const {
+      initOptions
+    } = this
+    const hasX11 = initOptions.x11 === true
+    this.display = hasX11 ? await this.getDisplay() : undefined
+    this.x11Cookie = hasX11 ? await this.getX11Cookie() : undefined
+    return this.sshConnect()
   }
 
-  getDisplay () {
-    return new Promise((resolve) => {
-      exec('echo $DISPLAY', this.getLocalEnv(), (err, out, e) => {
-        if (err || e) {
-          resolve('')
-        } else {
-          resolve((out || '').trim())
-        }
-      })
-    })
-  }
-
-  getX11Cookie () {
-    return new Promise((resolve) => {
-      exec('xauth list :0', this.getLocalEnv(), (err, out, e) => {
-        if (err || e) {
-          resolve('')
-        } else {
-          const s = out || ''
-          const reg = /MIT-MAGIC-COOKIE-1 +([\d\w]{1,38})/
-          const arr = s.match(reg)
-          resolve(
-            arr ? arr[1] || '' : ''
-          )
-        }
-      })
-    })
-  }
-
-  init () {
-    return this.remoteInitProcess()
+  reTryAltAlg () {
+    log.log('retry with default ciphers/server hosts')
+    this.doKill()
+    this.connectOptions.algorithms = algAlt()
+    this.altAlg = true
+    return this.sshConnect()
   }
 
   getShellWindow (initOptions = this.initOptions) {
@@ -506,7 +488,7 @@ class TerminalSshBase extends TerminalBase {
       readyTimeout: initOptions.readyTimeout,
       keepaliveCountMax: initOptions.keepaliveCountMax,
       keepaliveInterval: initOptions.keepaliveInterval,
-      algorithms: deepCopy(alg)
+      algorithms: algDefault()
     }
     if (initOptions.serverHostKey && initOptions.serverHostKey.length) {
       all.algorithms.serverHostKey = deepCopy(initOptions.serverHostKey)
@@ -669,6 +651,11 @@ class TerminalSshBase extends TerminalBase {
             log.error('errored get password for', err)
             throw err
           })
+      } else if (
+        err.message.includes(csFailMsg) &&
+        !this.altAlg
+      ) {
+        return this.reTryAltAlg()
       }
       return this.nextTry(err)
     })
@@ -687,17 +674,6 @@ class TerminalSshBase extends TerminalBase {
     } else {
       throw err
     }
-  }
-
-  async remoteInitProcess () {
-    this.adjustConnectionOrder()
-    const {
-      initOptions
-    } = this
-    const hasX11 = initOptions.x11 === true
-    this.display = hasX11 ? await this.getDisplay() : undefined
-    this.x11Cookie = hasX11 ? await this.getX11Cookie() : undefined
-    return this.sshConnect()
   }
 
   resize (cols, rows) {
@@ -719,12 +695,71 @@ class TerminalSshBase extends TerminalBase {
   }
 
   kill () {
+    this.initOptions = null
+    this.connectOptions = null
+    this.alg = null
+    this.shellWindow = null
+    this.shellOpts = null
+    this.conn = null
+    this.sshKeys = null
+    this.privateKeyPath = null
+    this.display = null
+    this.x11Cookie = null
+    this.conns = null
+    this.jumpSshKeys = null
+    this.jumpPrivateKeyPathFrom = null
+    this.hoppingOptions = null
+    this.initHoppingOptions = null
+    this.nextConn = null
+    this.doKill()
+  }
+
+  doKill () {
     if (this.sessionLogger) {
       this.sessionLogger.destroy()
     }
     this.channel && this.channel.end()
     delete this.channel
     this.onEndConn()
+  }
+
+  getLocalEnv () {
+    return {
+      env: process.env
+    }
+  }
+
+  getDisplay () {
+    return new Promise((resolve) => {
+      exec('echo $DISPLAY', this.getLocalEnv(), (err, out, e) => {
+        if (err || e) {
+          resolve('')
+        } else {
+          resolve((out || '').trim())
+        }
+      })
+    })
+  }
+
+  getX11Cookie () {
+    return new Promise((resolve) => {
+      exec('xauth list :0', this.getLocalEnv(), (err, out, e) => {
+        if (err || e) {
+          resolve('')
+        } else {
+          const s = out || ''
+          const reg = /MIT-MAGIC-COOKIE-1 +([\d\w]{1,38})/
+          const arr = s.match(reg)
+          resolve(
+            arr ? arr[1] || '' : ''
+          )
+        }
+      })
+    })
+  }
+
+  init () {
+    return this.remoteInitProcess()
   }
 }
 
