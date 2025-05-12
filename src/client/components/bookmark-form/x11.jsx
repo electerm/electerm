@@ -79,13 +79,6 @@ const defaultServerHostKeyOptions = [
 
 export default function renderX11 (form) {
   function setDefaults () {
-    // form.setFieldsValue({
-    //   cipher: defaultCipherOptions
-    // })
-
-    // form.setFieldsValue({
-    //   serverHostKey: defaultServerHostKeyOptions
-    // })
     form.setFieldValue('cipher', defaultCipherOptions)
     form.setFieldValue('serverHostKey', defaultServerHostKeyOptions)
   }
@@ -97,12 +90,11 @@ export default function renderX11 (form) {
         name='cipher'
       >
         <Select
-          mode='multiple'
+          mode='tags'
+          style={{ width: '100%' }}
         >
           {cipherOptions.map(cipher => (
-            <Option key={cipher} value={cipher}>
-              {cipher}
-            </Option>
+            <Option key={cipher} value={cipher}>{cipher}</Option>
           ))}
         </Select>
       </FormItem>
@@ -116,12 +108,11 @@ export default function renderX11 (form) {
           name='serverHostKey'
         >
           <Select
-            mode='multiple'
+            mode='tags'
+            style={{ width: '100%' }}
           >
             {serverHostKeyOptions.map(key => (
-              <Option key={key} value={key}>
-                {key}
-              </Option>
+              <Option key={key} value={key}>{key}</Option>
             ))}
           </Select>
         </FormItem>
