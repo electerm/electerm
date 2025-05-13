@@ -1,8 +1,8 @@
 import {
   BookOutlined,
   FolderOutlined,
-  UploadOutlined,
-  DownloadOutlined,
+  ImportOutlined,
+  ExportOutlined,
   CodeOutlined,
   MenuOutlined,
   EditOutlined
@@ -108,12 +108,12 @@ export default function BookmarkToolbar (props) {
     {
       label: e('import'),
       onClick: onImport,
-      icon: <UploadOutlined />
+      icon: <ImportOutlined />
     },
     {
       label: e('export'),
       onClick: onExport,
-      icon: <DownloadOutlined />
+      icon: <ExportOutlined />
     },
     {
       label: e('loadSshConfigs'),
@@ -146,7 +146,7 @@ export default function BookmarkToolbar (props) {
               title={e('edit')}
             />
             <Button
-              icon={<DownloadOutlined />}
+              icon={<ExportOutlined />}
               onClick={handleDownload}
               title={e('export')}
               className='download-bookmark-icon'
@@ -157,7 +157,7 @@ export default function BookmarkToolbar (props) {
               className='upload-bookmark-icon'
             >
               <Button
-                icon={<UploadOutlined />}
+                icon={<ImportOutlined />}
                 title={e('importFromFile')}
               />
             </Upload>
