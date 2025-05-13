@@ -600,7 +600,12 @@ class TerminalSshBase extends TerminalBase {
       skipX11
     ).catch(err => {
       log.error('error when do sshConnect', err, this.privateKeyPath)
-      if (err.message.includes('passphrase')) {
+      if (
+        err.message.includes(csFailMsg) &&
+        !this.altAlg
+      ) {
+        return this.reTryAltAlg()
+      } else if (err.message.includes('passphrase')) {
         const options = {
           name: `passphase for ${this.privateKeyPath || 'privateKey'}`,
           instructions: [''],
@@ -651,11 +656,6 @@ class TerminalSshBase extends TerminalBase {
             log.error('errored get password for', err)
             throw err
           })
-      } else if (
-        err.message.includes(csFailMsg) &&
-        !this.altAlg
-      ) {
-        return this.reTryAltAlg()
       }
       return this.nextTry(err)
     })

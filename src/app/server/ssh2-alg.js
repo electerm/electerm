@@ -66,7 +66,7 @@ exports.algAlt = () => ({
     '3des-cbc',
     'arcfour256',
     'arcfour128',
-    'cast128-cbc',
+    // 'cast128-cbc',
     'arcfour'
   ],
   serverHostKey: [
