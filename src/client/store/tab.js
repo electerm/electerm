@@ -509,6 +509,13 @@ export default Store => {
     })()
   }
 
+  Store.prototype.updateBatchInputSelectedTabIds = function () {
+    const { store } = window
+    if (!store._batchInputSelectedTabIds.has(store.activeTabId)) {
+      store._batchInputSelectedTabIds = new Set([store.activeTabId])
+    }
+  }
+
   Store.prototype.onSelectBatchInputSelectedTabId = action(function (id) {
     const { store } = window
     const { _batchInputSelectedTabIds } = store
