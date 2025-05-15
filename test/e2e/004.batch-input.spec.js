@@ -39,10 +39,10 @@ describe('batch input', function () {
 
     // Enter ls command
     await client.setValue('.terminal-footer-flex .bi-full .ant-input', 'ls')
-    await delay(500)
+    await delay(1500)
 
     await client.keyboard.press('Enter')
-    await delay(500)
+    await delay(1000)
 
     // Check first tab output
     await client.click('.tabs .tab', 0)
