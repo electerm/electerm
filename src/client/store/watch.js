@@ -39,7 +39,7 @@ export default store => {
   // })
 
   for (const name of dbNamesForWatch) {
-    autoRun(async () => {
+    window[`watch${name}`] = autoRun(async () => {
       const old = refsStatic.get('oldState-' + name)
       const n = store.getItems(name)
       const { updated, added, removed } = dataCompare(
@@ -70,7 +70,8 @@ export default store => {
         await store.uploadSettingAll()
       }
       return store[name]
-    }).start()
+    })
+    window[`watch${name}`].start()
   }
 
   autoRun(async () => {
