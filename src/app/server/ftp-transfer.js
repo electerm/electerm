@@ -13,7 +13,6 @@ class Transfer {
     type = 'download',
     sftp,
     sftpId,
-    sessionId,
     ws
   }) {
     this.id = id

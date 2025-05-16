@@ -1,7 +1,6 @@
 // global-state.js
 class GlobalState {
   #sessions = {}
-  #ftps
   #upgradeInsts = {}
   #authed = false
 
