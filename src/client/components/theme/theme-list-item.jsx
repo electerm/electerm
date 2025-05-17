@@ -26,11 +26,11 @@ export default function ThemeListItem (props) {
   const { store } = window
 
   function handleClickApply () {
+    delete window.originalTheme
     store.setTheme(item.id)
   }
 
   function handleMouseEnter () {
-    if (!item.id) return
     // Store current theme ID before changing
     const currentTheme = window.store.config.theme
     window.originalTheme = currentTheme

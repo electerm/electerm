@@ -3,11 +3,14 @@
  */
 
 import List from '../setting-panel/list'
-import { LoadingOutlined } from '@ant-design/icons'
+import { LoadingOutlined, CheckCircleOutlined } from '@ant-design/icons'
 import { pick } from 'lodash-es'
 import { Pagination } from 'antd'
 import ThemeListItem from './theme-list-item'
+import { defaultTheme } from '../../common/constants'
 import './terminal-theme-list.styl'
+
+const e = window.translate
 
 export default class ThemeList extends List {
   handlePager = page => {
@@ -34,6 +37,24 @@ export default class ThemeList extends List {
     }
     return (
       <ThemeListItem key={item.id} {...itemProps} />
+    )
+  }
+
+  renderCurrentTheme () {
+    const { theme, list } = this.props
+    const item = list.find(d => d.id === theme)
+    if (!item) {
+      return null
+    }
+    const { name, id } = item
+    const title = id === defaultTheme.id
+      ? e(id)
+      : name
+    return (
+      <div className='pd2'>
+        <CheckCircleOutlined className='mg1r' />
+        {title}
+      </div>
     )
   }
 
@@ -69,6 +90,7 @@ export default class ThemeList extends List {
         {this.renderTransport ? this.renderTransport() : null}
         {this.renderLabels ? this.renderLabels() : null}
         {this.renderSearch()}
+        {this.renderCurrentTheme()}
         <div className='item-list-wrap' style={listStyle}>
           {
             list.map(this.renderItem)
