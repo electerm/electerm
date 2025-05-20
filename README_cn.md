@@ -16,7 +16,7 @@
 [![Get it from the Microsoft Store](https://img.shields.io/badge/Microsoft-Store-blue)](https://www.microsoft.com/store/apps/9NCN7272GTFF)
 [![GitHub Sponsors](https://img.shields.io/github/sponsors/electerm?label=Sponsors)](https://github.com/sponsors/electerm)
 
-开源终端/ssh/telnet/serialport/RDP/VNC/sftp客户端(linux, mac, win)。
+开源终端/ssh/telnet/serialport/RDP/VNC/sftp/ftp客户端(linux, mac, win)。
 
 Powered by [manate](https://github.com/tylerlong/manate)
 
