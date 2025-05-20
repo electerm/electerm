@@ -181,9 +181,10 @@ npm run b
 ./node_modules/.bin/electron-builder --linux --arm64
 ```
 
-## Use
+## Video guides
 
-- [Set autorun when login to os](https://github.com/electerm/electerm/wiki/Autorun-electerm-when-login-to-os)
+- [bilibili](https://space.bilibili.com/14001525/channel/series?sid=5461229&spm_id_from=333.788.0.0)
+- [youtube](https://www.youtube.com/watch?v=3_jLMZQwoXw&list=PLF_esXiQYSpHAQwH-J-2O1IKPGHrMxVvU)
 
 ## Change log
 
