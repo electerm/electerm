@@ -12,7 +12,8 @@ import {
   Spin,
   Button,
   Dropdown,
-  message
+  message,
+  Modal
 } from 'antd'
 import classnames from 'classnames'
 import './terminal.styl'
@@ -28,7 +29,7 @@ import {
   zmodemTransferPackSize
 } from '../../common/constants.js'
 import deepCopy from 'json-deep-copy'
-import { readClipboardAsync, copy } from '../../common/clipboard.js'
+import { readClipboardAsync, readClipboard, copy } from '../../common/clipboard.js'
 import { FitAddon } from '@xterm/addon-fit'
 import AttachAddon from './attach-addon-custom.js'
 import { SearchAddon } from '@xterm/addon-search'
@@ -289,7 +290,39 @@ clear\r`
     this.tryInsertSelected()
   }
 
+  pasteTextTooLong = () => {
+    if (window.et.isWebApp) {
+      return false
+    }
+    const text = readClipboard()
+    return text.length > 500
+  }
+
+  askUserConfirm = () => {
+    Modal.confirm({
+      title: e('paste'),
+      content: (
+        <div>
+          <p>{e('paste')}:</p>
+          <div className='paste-text'>
+            {readClipboard()}
+          </div>
+        </div>
+      ),
+      okText: e('ok'),
+      cancelText: e('cancel'),
+      onOk: () => this.onPaste(true),
+      onCancel: Modal.destroyAll
+    })
+  }
+
   pasteShortcut = (e) => {
+    if (this.pasteTextTooLong()) {
+      this.askUserConfirm()
+      e.preventDefault()
+      e.stopPropagation()
+      return false
+    }
     if (isMac) {
       return true
     }
@@ -706,8 +739,11 @@ clear\r`
     return this.props.tab?.host
   }
 
-  onPaste = async () => {
+  onPaste = async (skipTextLengthCheck) => {
     let selected = await readClipboardAsync()
+    if (!skipTextLengthCheck && selected.length > 500) {
+      return this.askUserConfirm()
+    }
     if (isWin && this.isRemote()) {
       selected = selected.replace(/\r\n/g, '\n')
     }
