@@ -23,7 +23,8 @@ import {
   InfoCircleOutlined,
   LockOutlined,
   ReloadOutlined,
-  FileZipOutlined
+  FileZipOutlined,
+  AppstoreOutlined
 } from '@ant-design/icons'
 import IconHolder from './icon-holder'
 
@@ -50,5 +51,6 @@ export default {
   InfoCircleOutlined,
   LockOutlined,
   ReloadOutlined,
-  FileZipOutlined
+  FileZipOutlined,
+  AppstoreOutlined
 }

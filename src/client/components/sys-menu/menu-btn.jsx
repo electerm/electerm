@@ -106,6 +106,11 @@ class MenuBtn extends PureComponent {
         text: e('sessions'),
         submenu: 'Tabs'
       },
+      {
+        icon: 'AppstoreOutlined',
+        text: e('layout'),
+        submenu: 'Layout'
+      },
       // {
       //   type: 'hr'
       // },
