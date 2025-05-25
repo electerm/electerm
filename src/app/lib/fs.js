@@ -139,26 +139,38 @@ const zipFolder = (localFolerPath) => {
     .then(() => p)
 }
 
+const handleWindowsDrive = async (localFilePath, targetFolderPath) => {
+  const tar = require('tar')
+  const tempExtractDir = path.join(tempDir, `electerm-unzip-${uid()}`)
+  await fss.mkdir(tempExtractDir, { recursive: true })
+
+  try {
+    await tar.x({ file: localFilePath, C: tempExtractDir })
+    const items = await fss.readdir(tempExtractDir)
+
+    await Promise.all(items.map(async (item) => {
+      const from = path.join(tempExtractDir, item)
+      const to = path.join(targetFolderPath, item)
+      await mv(from, to)
+    }))
+  } finally {
+    await rmrf(tempExtractDir).catch(log.error)
+  }
+}
+
 /**
  * unzip file
  * @param {string} localFilePath absolute path of a zip file
  * @param {string} targetFolderPath absolute path of unzip target folder
  */
-const unzipFile = (localFilePath, targetFolderPath) => {
-  return new Promise((resolve, reject) => {
-    const tar = require('tar')
-    try {
-      tar.x({
-        file: localFilePath,
-        C: targetFolderPath
-      }, () => {
-        resolve(1)
-      })
-    } catch (e) {
-      log.error(e)
-      reject(e)
-    }
-  })
+const unzipFile = async (localFilePath, targetFolderPath) => {
+  const tar = require('tar')
+  if (isWin && isWinDrive(targetFolderPath)) {
+    await handleWindowsDrive(localFilePath, targetFolderPath)
+  } else {
+    await tar.x({ file: localFilePath, C: targetFolderPath })
+  }
+  return 1
 }
 
 async function listWindowsRootPath () {

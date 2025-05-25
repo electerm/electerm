@@ -19,7 +19,6 @@ import {
   mvCmd,
   mkdirCmd
 } from './zip'
-import delay from '../../common/wait'
 import './transfer.styl'
 
 const { assign } = Object
@@ -441,7 +440,6 @@ export default class TransportAction extends Component {
   }
 
   unzipFile = async () => {
-    await delay(1000)
     const { transfer } = this.props
     const {
       typeTo
