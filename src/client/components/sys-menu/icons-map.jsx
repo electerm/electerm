@@ -22,7 +22,8 @@ import {
   FolderAddOutlined,
   InfoCircleOutlined,
   LockOutlined,
-  ReloadOutlined
+  ReloadOutlined,
+  FileZipOutlined
 } from '@ant-design/icons'
 import IconHolder from './icon-holder'
 
@@ -48,5 +49,6 @@ export default {
   FolderAddOutlined,
   InfoCircleOutlined,
   LockOutlined,
-  ReloadOutlined
+  ReloadOutlined,
+  FileZipOutlined
 }
