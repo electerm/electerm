@@ -12,6 +12,14 @@ import {
 } from '../sftp/file-read'
 import resolve from '../../common/resolve'
 import { refsTransfers, refsStatic, refs } from '../common/ref'
+import {
+  zipCmd,
+  unzipCmd,
+  rmCmd,
+  mvCmd,
+  mkdirCmd
+} from './zip'
+import delay from '../../common/wait'
 import './transfer.styl'
 
 const { assign } = Object
@@ -24,13 +32,15 @@ export default class TransportAction extends Component {
       transferBatch = '',
       tabId
     } = props.transfer
+    const sftp = refs.get('sftp-' + tabId)
     this.id = `tr-${transferBatch}-${id}`
     this.tabId = tabId
     refsTransfers.add(this.id, this)
     this.total = 0
     this.transferred = 0
     this.currentProgress = 1
-    this.isFtp = refs.get('sftp-' + tabId)?.type === 'ftp'
+    this.isFtp = sftp?.type === 'ftp'
+    this.terminalId = sftp?.terminalId
   }
 
   componentDidMount () {
@@ -233,7 +243,7 @@ export default class TransportAction extends Component {
 
     // Check if it's a copy operation to the same path
     if (fromPath === toPath && operation === fileOperationsMap.cp) {
-      finalToPath = this.handleRename(toPath, typeFrom === typeMap.remote)
+      finalToPath = this.handleRename(toPath, typeFrom === typeMap.remote).newPath
       transfer.toPath = finalToPath
       this.update({
         toPath: finalToPath
@@ -256,13 +266,15 @@ export default class TransportAction extends Component {
       })
   }
 
-  transferFile = async (transfer = this.props.transfer) => {
+  transferFile = async (transfer = this.props.transfer, onEnd = this.onEnd) => {
     const {
       fromPath,
       typeFrom,
       toFile = {}
     } = transfer
-    const toPath = this.newPath || transfer.toPath
+    const toPath = transfer.zip
+      ? transfer.toPath
+      : this.newPath || transfer.toPath
     const fromFile = transfer.fromFile || this.fromFile
     const fromMode = fromFile.mode
     const transferType = typeFrom === typeMap.local ? transferTypeMap.upload : transferTypeMap.download
@@ -281,7 +293,7 @@ export default class TransportAction extends Component {
       options: { mode },
       onData: this.onData,
       onError: this.onError,
-      onEnd: this.onEnd
+      onEnd
     })
   }
 
@@ -384,23 +396,133 @@ export default class TransportAction extends Component {
         typeTo,
         toPath
       } = this.props.transfer
-      const newPath = this.handleRename(toPath, typeTo === typeMap.remote)
+      this.oldPath = toPath
+      const { newPath, newName } = this.handleRename(toPath, typeTo === typeMap.remote)
       this.update({
         toPath: newPath
       })
       this.newPath = newPath
+      this.newName = newName
     }
 
     this.startTransfer()
   }
 
+  zipTransferFolder = async () => {
+    const {
+      transfer
+    } = this.props
+    const {
+      fromPath,
+      typeFrom
+    } = transfer
+    const toPath = this.oldPath || transfer.toPath
+    let p
+    let isFromRemote
+    if (typeFrom === typeMap.local) {
+      isFromRemote = false
+      p = await fs.zipFolder(fromPath)
+    } else {
+      isFromRemote = true
+      const terminalId = refs.get('sftp-' + this.tabId)?.terminalId
+      p = await zipCmd(terminalId, fromPath)
+    }
+    this.zipSrc = p
+    const { name } = getFolderFromFilePath(p, isFromRemote)
+    const { path } = getFolderFromFilePath(toPath, !isFromRemote)
+    const nTo = resolve(path, name)
+    this.zipPath = nTo
+    const newTrans1 = {
+      ...copy(transfer),
+      toPath: nTo,
+      fromPath: p
+    }
+    this.transferFile(newTrans1, this.unzipFile)
+  }
+
+  unzipFile = async () => {
+    await delay(1000)
+    const { transfer } = this.props
+    const {
+      typeTo
+    } = transfer
+    const toPath = this.zipPath
+    const fromPath = this.zipSrc
+    const isToRemote = typeTo === typeMap.remote
+    const {
+      path,
+      name,
+      targetPath
+    } = this.buildUnzipPath(transfer)
+    const {
+      newName,
+      terminalId
+    } = this
+    if (isToRemote) {
+      if (newName) {
+        await mkdirCmd(terminalId, path)
+      }
+      await unzipCmd(terminalId, toPath, path)
+      if (newName) {
+        const mvFrom = resolve(path, name)
+        const mvTo = resolve(targetPath, newName)
+        await mvCmd(terminalId, mvFrom, mvTo)
+      }
+    } else {
+      if (newName) {
+        await fs.mkdir(path)
+      }
+      await fs.unzipFile(toPath, path)
+      if (newName) {
+        const mvFrom = resolve(path, name)
+        const mvTo = resolve(targetPath, newName)
+        await fs.mv(mvFrom, mvTo)
+      }
+    }
+    await rmCmd(terminalId, !isToRemote ? fromPath : toPath)
+    await fs.rmrf(!isToRemote ? toPath : fromPath)
+    if (newName) {
+      if (isToRemote) {
+        await rmCmd(terminalId, path)
+      } else {
+        await fs.rmrf(path)
+      }
+    }
+    this.onEnd()
+  }
+
+  buildUnzipPath = (transfer) => {
+    const {
+      typeTo
+    } = transfer
+    const isToRemote = typeTo === typeMap.remote
+    const toPath = this.oldPath || transfer.toPath
+    const {
+      newName
+    } = this
+    const { path } = getFolderFromFilePath(toPath, isToRemote)
+    const oldName = getFolderFromFilePath(toPath, isToRemote).name
+    const np = newName
+      ? resolve(path, 'temp-' + newName)
+      : path
+    return {
+      targetPath: path,
+      path: np,
+      name: oldName
+    }
+  }
+
   startTransfer = async () => {
-    const { fromFile = this.fromFile } = this.props.transfer
+    const { fromFile = this.fromFile, zip } = this.props.transfer
 
     if (!fromFile.isDirectory) {
       return this.transferFile()
     }
-    await this.transferFolderRecursive()
+    if (zip) {
+      return this.zipTransferFolder()
+    } else {
+      await this.transferFolderRecursive()
+    }
     this.onEnd({
       transferred: this.transferred,
       size: this.total
@@ -415,7 +537,10 @@ export default class TransportAction extends Component {
   handleRename = (fromPath, isRemote) => {
     const { path, base, ext } = getFolderFromFilePath(fromPath, isRemote)
     const newName = `${base}(rename-${generate()})${ext ? '.' + ext : ''}`
-    return resolve(path, newName)
+    return {
+      newPath: resolve(path, newName),
+      newName
+    }
   }
 
   onFolderData = (transferred) => {
