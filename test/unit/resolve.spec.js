@@ -4,19 +4,21 @@ function resolve (basePath, nameOrDot) {
   const hasWinDrive = (path) => /^[a-zA-Z]:/.test(path)
   const isWin = basePath.includes('\\') || nameOrDot.includes('\\') || hasWinDrive(basePath) || hasWinDrive(nameOrDot)
   const sep = isWin ? '\\' : '/'
-  // Handle Windows drive letters (with or without initial slash)
   if (/^[a-zA-Z]:/.test(nameOrDot)) {
     return nameOrDot.replace(/^\//, '').replace(/\//g, sep)
   }
-  // Handle absolute paths
   if (nameOrDot.startsWith('/')) {
     return nameOrDot.replace(/\\/g, sep)
   }
   if (nameOrDot === '..') {
+    const baseEndsWithSep = basePath.endsWith(sep)
     const parts = basePath.split(sep)
     if (parts.length > 1) {
       parts.pop()
-      return isWin && parts.length === 1 ? '/' : parts.join(sep) || '/'
+      if (isWin && parts.length === 1) {
+        return baseEndsWithSep ? '/' : parts.join(sep)
+      }
+      return parts.join(sep) || '/'
     }
     return '/'
   }
@@ -38,7 +40,7 @@ function runTests () {
     { args: ['C:\\foo\\bar', 'baz'], expected: 'C:\\foo\\bar\\baz' },
     { args: ['C:\\foo\\bar\\', 'baz'], expected: 'C:\\foo\\bar\\baz' },
     { args: ['C:\\foo\\bar', '..'], expected: 'C:\\foo' },
-    { args: ['C:\\foo', '..'], expected: '/' },
+    { args: ['C:\\foo', '..'], expected: 'C:' },
     { args: ['C:\\', '..'], expected: '/' },
     { args: ['C:\\', 'foo'], expected: 'C:\\foo' },
     { args: ['C:', 'foo'], expected: 'C:\\foo' },
