@@ -184,7 +184,7 @@ npm run b
 ## Video guides
 
 - [bilibili](https://space.bilibili.com/14001525/channel/series?sid=5461229&spm_id_from=333.788.0.0)
-- [youtube](https://www.youtube.com/watch?v=3_jLMZQwoXw&list=PLF_esXiQYSpHAQwH-J-2O1IKPGHrMxVvU)
+- [youtube](https://www.youtube.com/playlist?list=PLDPaKwC8l2SNq0uc6bB1Hehkk0Xh_H2RF)
 
 ## Change log
 
