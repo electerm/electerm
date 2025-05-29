@@ -8,11 +8,9 @@ const {
 } = require('electron')
 const globalState = require('./glob-state')
 const {
-  packInfo,
-  isMac
+  packInfo
 } = require('../common/runtime-constants')
 const buildMenu = require('./menu')
-const { buildDocMenu } = require('./dock-menu')
 
 function capitalizeFirstLetter (string) {
   return string.charAt(0).toUpperCase() + string.slice(1)
@@ -32,10 +30,6 @@ function initApp (langMap, config) {
     }
     return globalState.get('getLang')()[txt] || txt
   })
-  if (isMac) {
-    const dockMenu = buildDocMenu()
-    globalState.get('app').dock.setMenu(dockMenu)
-  }
   const menu = buildMenu()
   Menu.setApplicationMenu(menu)
   const e = globalState.get('translate')

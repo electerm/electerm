@@ -27,10 +27,6 @@ class MenuBtn extends PureComponent {
     window.store.addTab()
   }
 
-  onNewWindow = () => {
-    window.store.onNewWindow()
-  }
-
   openAbout = () => {
     window.store.openAbout()
   }
@@ -79,11 +75,6 @@ class MenuBtn extends PureComponent {
         func: 'addTab',
         icon: 'RightSquareFilled',
         text: e('newTab')
-      },
-      {
-        func: 'onNewWindow',
-        icon: 'WindowsOutlined',
-        text: e('newWindow')
       },
       // {
       //   type: 'hr'

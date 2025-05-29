@@ -61,10 +61,6 @@ export default Store => {
     store.openSettingModal()
   }
 
-  Store.prototype.onNewWindow = async function () {
-    window.pre.runGlobalAsync('openNewInstance')
-  }
-
   Store.prototype.confirmExit = function (type) {
     const { store } = window
     let mod = null
