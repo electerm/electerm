@@ -512,7 +512,9 @@ export default (Store) => {
       'dataSyncSelected',
       'baseURLAI',
       'modelAI',
-      'roleAI'
+      'roleAI',
+      'languageAI',
+      'proxyAI'
     ]
     return pick(store.config, configSyncKeys)
   }

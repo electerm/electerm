@@ -26,6 +26,12 @@ const defaultRoles = [
   }
 ]
 
+const proxyOptions = [
+  { value: 'socks5://127.0.0.1:1080' },
+  { value: 'http://127.0.0.1:8080' },
+  { value: 'https://proxy.example.com:3128' }
+]
+
 export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig }) {
   const [form] = Form.useForm()
   const [modelOptions, setModelOptions] = useState([])
@@ -168,6 +174,21 @@ export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig })
             <Input
               placeholder={e('language')}
             />
+          </AutoComplete>
+        </Form.Item>
+
+        <Form.Item
+          label={e('proxy')}
+          name='proxyAI'
+          tooltip='Proxy for AI API requests (e.g., socks5://127.0.0.1:1080)'
+        >
+          <AutoComplete
+            options={proxyOptions}
+            placeholder='Enter proxy URL (optional)'
+            filterOption={filter}
+            allowClear
+          >
+            <Input />
           </AutoComplete>
         </Form.Item>
 

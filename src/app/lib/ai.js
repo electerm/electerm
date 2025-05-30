@@ -1,15 +1,25 @@
 const axios = require('axios')
 const log = require('../common/log')
 const defaultSettings = require('../common/config-default')
+const { createProxyAgent } = require('./proxy-agent')
 
-const createAIClient = (baseURL, apiKey) => {
-  return axios.create({
+const createAIClient = (baseURL, apiKey, proxy) => {
+  const config = {
     baseURL,
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${apiKey}`
     }
-  })
+  }
+
+  // Add proxy agent if proxy is provided
+  const agent = proxy ? createProxyAgent(proxy) : null
+  if (agent) {
+    config.httpsAgent = agent
+    config.proxy = false // Disable default proxy behavior when using agent
+  }
+
+  return axios.create(config)
 }
 
 exports.AIchat = async (
@@ -18,10 +28,11 @@ exports.AIchat = async (
   role = defaultSettings.roleAI,
   baseURL = defaultSettings.baseURLAI,
   path = defaultSettings.apiPathAI,
-  apiKey
+  apiKey,
+  proxy = defaultSettings.proxyAI
 ) => {
   try {
-    const client = createAIClient(baseURL, apiKey)
+    const client = createAIClient(baseURL, apiKey, proxy)
     const response = await client.post(path, {
       model,
       messages: [

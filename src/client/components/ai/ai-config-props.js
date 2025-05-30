@@ -3,5 +3,7 @@ export const aiConfigsArr = [
   'modelAI',
   'roleAI',
   'apiKeyAI',
-  'apiPathAI'
+  'apiPathAI',
+  'languageAI',
+  'proxyAI'
 ]
