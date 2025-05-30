@@ -21,7 +21,8 @@ function buildTreeData (bookmarkGroups, tree) {
     const y = {
       key: x.id,
       value: x.id,
-      title: x.title
+      title: x.title,
+      selectable: false // Make categories non-selectable
     }
     y.children = [
       ...(x.bookmarkGroupIds || []).map(buildSubCats),
@@ -49,6 +50,7 @@ function buildTreeData (bookmarkGroups, tree) {
         title: d.title,
         value: d.id,
         key: d.id,
+        selectable: false, // Make categories non-selectable
         children: [
           ...(d.bookmarkGroupIds || []).map(buildSubCats),
           ...(d.bookmarkIds || []).map(buildLeaf)
@@ -82,13 +84,26 @@ export default function BookmarkSelect (props) {
       props.onSelect(item)
     }
   }
+
+  // Custom filter function to only match leaf nodes
+  function filterTreeNode (inputValue, treeNode) {
+    // Skip filtering for category nodes
+    if (treeNode.selectable === false) {
+      return false
+    }
+
+    // Match against searchText which includes both title and host
+    return treeNode.title && treeNode.title.toLowerCase().includes(inputValue.toLowerCase())
+  }
+
   const treeData = buildTreeData(bookmarkGroups, tree)
   const treeProps = {
     treeData,
     onChange: onSelect,
     placeholder: e('chooseFromBookmarks'),
     showSearch: true,
-    value: undefined
+    value: undefined,
+    filterTreeNode
   }
   return (
     <TreeSelect {...treeProps} />
