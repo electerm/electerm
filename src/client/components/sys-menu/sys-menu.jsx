@@ -77,9 +77,12 @@ export default class ContextMenu extends PureComponent {
     if (type === 'hr') {
       return <hr />
     }
-    const baseCls = 'context-item'
+    let baseCls = 'context-item'
     if (module && this.modules[module]) {
       const Mod = this.modules[module]
+      if (module === 'Zoom') {
+        baseCls = 'context-item zoom-item'
+      }
       return (
         <div className={baseCls}>
           <Mod {...this.props} />
