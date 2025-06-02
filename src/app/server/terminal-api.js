@@ -6,6 +6,7 @@ const {
   terminals
 } = require('./remote-common')
 const { terminal, testConnection } = require('./session')
+const sessionProcess = require('./session-process')
 
 async function runCmd (ws, msg) {
   const { id, pid, cmd } = msg

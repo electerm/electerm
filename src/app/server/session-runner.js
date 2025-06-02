@@ -1,5 +1,4 @@
 const { fork } = require('child_process')
-const { resolve } = require('path')
 
 function getPort (fromPort = 30975) {
   return new Promise((resolve, reject) => {
@@ -15,21 +14,4 @@ function getPort (fromPort = 30975) {
 
 module.exports = async () => {
   const port = await getPort()
-
-  // start server
-  const child = fork(resolve(__dirname, './server.js'), {
-    env: Object.assign(
-      {
-        wsPort: port
-      },
-      process.env
-    ),
-    cwd: process.cwd()
-  }, (error, stdout, stderr) => {
-    if (error || stderr) {
-      throw error || stderr
-    }
-    log.info(stdout)
-  })
-  return child
 }
