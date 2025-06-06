@@ -1177,6 +1177,7 @@ clear\r`
         const text = err.message
         handleErr({ message: text })
       })
+    console.log('error', r)
     r = r || ''
     if (r.includes('fail')) {
       return this.promote()

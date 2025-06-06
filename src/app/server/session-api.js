@@ -2,7 +2,10 @@
  * run cmd with terminal
  */
 
-const { testConnection, terminal, terminals } = require('./session-process')
+const {
+  terminals
+} = require('./remote-common')
+const { testConnection, terminal } = require('./session')
 
 async function runCmd (ws, msg) {
   const { id, pid, cmd } = msg
@@ -59,7 +62,7 @@ function createTerm (ws, msg) {
     .then(data => {
       ws.s({
         id,
-        data
+        data: data.pid
       })
     })
     .catch(err => {
