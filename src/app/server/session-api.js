@@ -60,6 +60,7 @@ function createTerm (ws, msg) {
   const { id, body } = msg
   terminal(body, ws)
     .then(data => {
+      console.log('8888888888888createTerm', data)
       ws.s({
         id,
         data: data.pid

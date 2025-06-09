@@ -32,6 +32,7 @@ function verify (req) {
 }
 
 const initWs = function (app) {
+  console.log('Initializing WebSocket connections')
   // upgrade
   app.ws('/upgrade/:id', (ws, req) => {
     verify(req)

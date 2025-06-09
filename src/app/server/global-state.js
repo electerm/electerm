@@ -37,6 +37,14 @@ class GlobalState {
   set authed (val) {
     this.#authed = val
   }
+
+  get data () {
+    return {
+      sessions: this.#sessions,
+      upgradeInsts: this.#upgradeInsts,
+      authed: this.#authed
+    }
+  }
 }
 
 // Export a singleton instance

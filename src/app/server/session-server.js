@@ -35,13 +35,13 @@ const {
 } = process.env
 
 function verify (req) {
-  console.log('Verifying request:', req.query)
+  console.log('session-server.js: Verifying request:', req.query)
   const { token: to } = req.query
   if (to !== tokenElecterm) {
-    console.log('Invalid token:', to)
+    console.log('session-server.js: Invalid token:', to)
     throw new Error('not valid request')
   }
-  console.log('Request verified successfully')
+  console.log('session-server.js: Request verified successfully')
 }
 
 // parse application/x-www-form-urlencoded
@@ -75,65 +75,66 @@ require('express-ws')(app, undefined, {
 })
 if (type === 'rdp') {
   app.ws('/rdp/:pid', function (ws, req) {
-    console.log('RDP connection request received for pid:', req.params.pid)
+    console.log('session-server.js: RDP connection request received for pid:', req.params.pid)
     const { width, height } = req.query
     verify(req)
     const term = terminals(req.params.pid)
-    console.log('RDP terminal found:', term.pid)
+    console.log('session-server.js: RDP terminal found:', term.pid)
     term.ws = ws
     term.start(width, height)
     const { pid } = term
     log.debug('ws: connected to rdp session ->', pid)
-    console.log('RDP session started for pid:', pid)
+    console.log('session-server.js: RDP session started for pid:', pid)
     ws.on('error', (err) => {
-      console.log('RDP websocket error:', err)
+      console.log('session-server.js: RDP websocket error:', err)
       log.error(err)
     })
   })
 } else if (type === 'vnc') {
   app.ws('/vnc/:pid', function (ws, req) {
-    console.log('VNC connection request received for pid:', req.params.pid)
+    console.log('session-server.js: VNC connection request received for pid:', req.params.pid)
     const { query } = req
     verify(req)
     const { pid } = req.params
     const term = terminals(pid)
-    console.log('VNC terminal found:', term.pid)
+    console.log('session-server.js: VNC terminal found:', term.pid)
     term.ws = ws
     term.start(query)
     log.debug('ws: connected to vnc session ->', pid)
-    console.log('VNC session started for pid:', pid)
+    console.log('session-server.js: VNC session started for pid:', pid)
     ws.on('error', (err) => {
-      console.log('VNC websocket error:', err)
+      console.log('session-server.js: VNC websocket error:', err)
       log.error(err)
     })
   })
 } else {
   app.ws('/terminals/:pid', function (ws, req) {
-    console.log('Terminal connection request received for pid:', req.params.pid)
+    console.log('session-server.js: Terminal connection request received for pid:', req.params.pid)
     verify(req)
     const term = terminals(req.params.pid)
     const { pid } = term
-    console.log('Terminal found:', pid)
+    console.log('session-server.js: Terminal found:', pid)
     log.debug('ws: connected to terminal ->', pid)
 
     term.on('data', function (data) {
       try {
-        console.log(`Terminal ${pid} data received:`, data.length, 'bytes')
+        console.log(`session-server.js: Terminal ${pid} data received:`, data.length, 'bytes')
         term.writeLog(data)
         ws.send(Buffer.from(data))
       } catch (ex) {
-        console.log('Error sending terminal data:', ex)
+        console.log('session-server.js: Error sending terminal data:', ex)
         // The WebSocket is not open, ignore
       }
     })
 
     function onClose () {
-      console.log(`Closing terminal ${pid}`)
+      console.log(`session-server.js: Closing terminal ${pid}`)
       term.kill()
       log.debug('Closed terminal ' + pid)
       // Clean things up
       ws.close && ws.close()
-      console.log(`Terminal ${pid} closed`)
+      console.log(`session-server.js: Terminal ${pid} closed`)
+      process.exit()
     }
 
     term.on('close', onClose)
@@ -143,16 +144,16 @@ if (type === 'rdp') {
 
     ws.on('message', function (msg) {
       try {
-        console.log(`Terminal ${pid} received message:`, msg.length, 'bytes')
+        console.log(`session-server.js: Terminal ${pid} received message:`, msg.length, 'bytes')
         term.write(msg)
       } catch (ex) {
-        console.log('Error writing to terminal:', ex)
+        console.log('session-server.js: Error writing to terminal:', ex)
         log.error(ex)
       }
     })
 
     ws.on('error', (err) => {
-      console.log('Terminal websocket error:', err)
+      console.log('session-server.js: Terminal websocket error:', err)
       log.error(err)
     })
 
@@ -161,45 +162,45 @@ if (type === 'rdp') {
 
   // sftp function
   app.ws('/sftp/:id', (ws, req) => {
-    console.log('SFTP connection request received for id:', req.params.id)
+    console.log('session-server.js: SFTP connection request received for id:', req.params.id)
     verify(req)
     wsDec(ws)
     const { id } = req.params
     ws.on('close', () => {
-      console.log(`SFTP connection ${id} closed`)
+      console.log(`session-server.js: sessionSFTP connection ${id} closed`)
       onDestroySftp(id)
     })
     ws.on('message', (message) => {
-      console.log(`SFTP ${id} received message`)
+      console.log(`session-server.js: SFTP ${id} received message`)
       const msg = JSON.parse(message)
       const { action } = msg
-      console.log(`SFTP ${id} action:`, action)
+      console.log(`session-server.js: SFTP ${id} action:`, action)
 
       if (action === 'sftp-new') {
         const { id, terminalId, type } = msg
-        console.log(`Creating new ${type} connection for id:`, id)
+        console.log(`session-server.js: Creating new ${type} connection for id:`, id)
         const Cls = type === 'ftp' ? Ftp : Sftp
         sftp(id, new Cls({
           uid: id,
           terminalId,
           type
         }))
-        console.log(`${type} connection created for id:`, id)
+        console.log(`session-server.js: ${type} connection created for id:`, id)
       } else if (action === 'sftp-func') {
         const { id, args, func, uid } = msg
-        console.log(`SFTP ${id} executing function:`, func)
+        console.log(`session-server.js: SFTP ${id} executing function:`, func)
         const inst = sftp(id)
         if (inst) {
           inst[func](...args)
             .then(data => {
-              console.log(`SFTP ${id} function ${func} completed successfully`)
+              console.log(`session-server.js: SFTP ${id} function ${func} completed successfully`)
               ws.s({
                 id: uid,
                 data
               })
             })
             .catch(err => {
-              console.log(`SFTP ${id} function ${func} failed:`, err.message)
+              console.log(`session-server.js: SFTP ${id} function ${func} failed:`, err.message)
               ws.s({
                 id: uid,
                 error: {
@@ -211,7 +212,7 @@ if (type === 'rdp') {
         }
       } else if (action === 'sftp-destroy') {
         const { id } = msg
-        console.log(`Destroying SFTP connection ${id}`)
+        console.log(`session-server.js: Destroying SFTP connection ${id}`)
         ws.close()
         onDestroySftp(id)
       }
@@ -221,27 +222,27 @@ if (type === 'rdp') {
 
   // transfer function
   app.ws('/transfer/:id', (ws, req) => {
-    console.log('Transfer connection request received for id:', req.params.id)
+    console.log('session-server.js: Transfer connection request received for id:', req.params.id)
     verify(req)
     wsDec(ws)
     const { id } = req.params
     const { sftpId } = req.query
-    console.log(`Transfer ${id} associated with SFTP ${sftpId}`)
+    console.log(`session-server.js: Transfer ${id} associated with SFTP ${sftpId}`)
 
     ws.on('close', () => {
-      console.log(`Transfer connection ${id} closed`)
+      console.log(`session-server.js: Transfer connection ${id} closed`)
       onDestroyTransfer(id, sftpId)
     })
 
     ws.on('message', (message) => {
-      console.log(`Transfer ${id} received message`)
+      console.log(`session-server.js: Transfer ${id} received message`)
       const msg = JSON.parse(message)
       const { action } = msg
-      console.log(`Transfer ${id} action:`, action)
+      console.log(`session-server.js: Transfer ${id} action:`, action)
 
       if (action === 'transfer-new') {
         const { sftpId, id, isFtp } = msg
-        console.log(`Creating new ${isFtp ? 'FTP' : 'SFTP'} transfer for id:`, id)
+        console.log(`session-server.js: Creating new ${isFtp ? 'FTP' : 'SFTP'} transfer for id:`, id)
         const opts = Object.assign({}, msg, {
           sftp: sftp(sftpId).sftp,
           sftpId,
@@ -249,16 +250,16 @@ if (type === 'rdp') {
         })
         const Cls = isFtp ? FtpTransfer : Transfer
         transfer(id, sftpId, new Cls(opts))
-        console.log(`Transfer ${id} created`)
+        console.log(`session-server.js: Transfer ${id} created`)
       } else if (action === 'transfer-func') {
         const { id, func, args, sftpId } = msg
-        console.log(`Transfer ${id} executing function:`, func)
+        console.log(`session-server.js: Transfer ${id} executing function:`, func)
         if (func === 'destroy') {
-          console.log(`Destroying transfer ${id}`)
+          console.log(`session-server.js: Destroying transfer ${id}`)
           return onDestroyTransfer(id, sftpId)
         }
         transfer(id, sftpId)[func](...args)
-        console.log(`Transfer ${id} function ${func} executed`)
+        console.log(`session-server.js: Transfer ${id} function ${func} executed`)
       }
     })
     // end
@@ -266,47 +267,47 @@ if (type === 'rdp') {
 }
 
 app.ws('/common/s', (ws, req) => {
-  console.log('Common socket connection request received')
+  console.log('session-server.js: Common socket connection request received')
   verify(req)
   wsDec(ws)
   ws.on('message', async (message) => {
-    console.log('Common socket received message')
+    console.log('session-server.js: Common socket received message')
     try {
       const msg = JSON.parse(message)
       const { action } = msg
-      console.log('Common socket action:', action)
+      console.log('session-server.js: Common socket action:', msg, typeof msg)
 
       if (action === 'create-terminal') {
-        console.log('Creating terminal:', msg.id)
+        console.log('session-server.js: Creating terminal:', msg.body.uid, msg.body)
         createTerm(ws, msg)
       } else if (action === 'test-terminal') {
-        console.log('Testing terminal connection')
+        console.log('session-server.js: Testing terminal connection')
         testTerm(ws, msg)
       } else if (action === 'resize-terminal') {
-        console.log(`Resizing terminal ${msg.pid} to ${msg.cols}x${msg.rows}`)
+        console.log(`session-server.js: Resizing terminal ${msg.pid} to ${msg.cols}x${msg.rows}`)
         resize(ws, msg)
       } else if (action === 'toggle-terminal-log') {
-        console.log(`Toggling terminal log for ${msg.pid}`)
+        console.log(`session-server.js: Toggling terminal log for ${msg.pid}`)
         toggleTerminalLog(ws, msg)
       } else if (action === 'toggle-terminal-log-timestamp') {
-        console.log(`Toggling terminal log timestamp for ${msg.pid}`)
+        console.log(`session-server.js: Toggling terminal log timestamp for ${msg.pid}`)
         toggleTerminalLogTimestamp(ws, msg)
       } else if (action === 'run-cmd') {
-        console.log(`Running command in terminal ${msg.pid}:`, msg.cmd)
+        console.log(`session-server.js: Running command in terminal ${msg.pid}:`, msg.cmd)
         runCmd(ws, msg)
       }
     } catch (err) {
-      console.log('Error processing common socket message:', err)
+      console.log('session-server.js: Error processing common socket message:', err)
       log.error('common ws error', err)
     }
   })
 })
 
 const runServer = function () {
-  console.log('Starting session server on', electermHost, wsPort)
+  console.log('session-server.js: Starting session server on', electermHost, wsPort)
   return new Promise((resolve) => {
     app.listen(wsPort, electermHost, () => {
-      console.log('Session server started successfully')
+      console.log('session-server.js: Session server started successfully')
       log.info('session server', 'runs on', electermHost, wsPort)
       resolve()
     })
@@ -314,24 +315,24 @@ const runServer = function () {
 }
 
 async function main () {
-  console.log('Initializing session server')
+  console.log('session-server.js: Initializing session server')
   await runServer()
-  console.log('Sending server initialized message to parent process')
+  console.log('session-server.js: Sending server initialized message to parent process')
   process.send({ serverInited: true })
 }
 
 main()
 
 process.on('uncaughtException', (err) => {
-  console.log('Uncaught exception:', err)
+  console.log('session-server.js: Uncaught exception:', err)
   log.error('uncaughtException', err)
 })
 process.on('unhandledRejection', (err) => {
-  console.log('Unhandled rejection:', err)
+  console.log('session-server.js: Unhandled rejection:', err)
   log.error('unhandledRejection', err)
 })
 
 process.on('SIGTERM', () => {
-  console.log('SIGTERM received, exiting')
+  console.log('session-server.js: SIGTERM received, exiting')
   process.exit(0)
 })

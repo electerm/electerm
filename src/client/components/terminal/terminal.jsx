@@ -1105,8 +1105,8 @@ clear\r`
     this.bufferMode = buf.type
   }
 
-  buildWsUrl = () => {
-    const { host, port, tokenElecterm } = this.props.config
+  buildWsUrl = (port) => {
+    const { host, tokenElecterm } = this.props.config
     const { id } = this.props.tab
     if (window.et.buildWsUrl) {
       return window.et.buildWsUrl(
@@ -1172,14 +1172,13 @@ clear\r`
         ? typeMap.remote
         : typeMap.local
     })
-    let r = await createTerm(opts)
+    const r = await createTerm(opts)
       .catch(err => {
         const text = err.message
         handleErr({ message: text })
       })
-    console.log('error', r)
-    r = r || ''
-    if (r.includes('fail')) {
+    console.log('r', r)
+    if (typeof r === 'string' && r.includes('fail')) {
       return this.promote()
     }
     if (savePassword) {
@@ -1196,7 +1195,7 @@ clear\r`
     refs.get('sftp-' + id)?.initData(id)
     term.pid = id
     this.pid = id
-    const wsUrl = this.buildWsUrl()
+    const wsUrl = this.buildWsUrl(r.port)
     const socket = new WebSocket(wsUrl)
     socket.onclose = this.oncloseSocket
     socket.onerror = this.onerrorSocket

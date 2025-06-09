@@ -18,6 +18,7 @@ function terminals (id, inst) {
     globalState.setSession(id, inst)
     return inst
   }
+  console.log('000Getting terminal instance for PID:', id, globalState.data)
   return globalState.getSession(id)
 }
 

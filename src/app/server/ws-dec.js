@@ -2,6 +2,9 @@
  * add ws.s function
  * @param {*} ws
  */
+
+const log = require('../common/log')
+
 const wsDec = (ws) => {
   ws.s = msg => {
     try {
