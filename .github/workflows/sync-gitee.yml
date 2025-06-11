@@ -1,0 +1,50 @@
+name: Sync Master to Gitee
+
+on:
+  release:
+    types: [published]
+jobs:
+  sync-master:
+    runs-on: ubuntu-latest
+    environment: build
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.GITEE_PRIVATE_SSH_TOKEN }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan gitee.com >> ~/.ssh/known_hosts
+
+      - name: Configure Git
+        run: |
+          git config --global user.name "ZHAO Xudong"
+          git config --global user.email "zxdong@gmail.com"
+          git remote add gitee git@gitee.com:github-zxdong262/electerm.git
+
+      - name: Push to Gitee
+        run: git push -f gitee HEAD:master
+
+      - name: Update version.html in gh-pages
+        run: |
+          # Get version from package.json using standard grep and sed
+          VERSION=$(curl -s https://raw.githubusercontent.com/electerm/electerm/master/package.json | grep '"version":' | sed 's/.*"version": "\([^"]*\).*/\1/')
+          
+          # Checkout gh-pages branch
+          git fetch origin gh-pages:gh-pages
+          git checkout gh-pages
+
+          # Update version.html
+          echo "v$VERSION" > version.html
+          
+          # Commit and push changes
+          git add version.html
+          git commit -m "Update version to v$VERSION"
+          git push origin gh-pages
+          
+          # Also push to Gitee
+          git push gitee gh-pages
