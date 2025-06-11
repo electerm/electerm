@@ -22,6 +22,21 @@ jobs:
           ssh-add ~/.ssh/gitee_key
           ssh -T git@gitee.com || true
 
+      - name: Debug SSH Key
+        run: |
+          # Check if file exists and its permissions
+          ls -la ~/.ssh/gitee_key
+
+          # Show first/last 3 lines (redacted in logs)
+          echo "First 3 lines:"
+          head -3 ~/.ssh/gitee_key
+          echo "Last 3 lines:"
+          tail -3 ~/.ssh/gitee_key
+
+          # Verify key format
+          ssh-keygen -l -f ~/.ssh/gitee_key || echo "Key validation failed"
+
+
       - name: Configure Git
         run: |
           git config --global user.name "ZHAO Xudong"
