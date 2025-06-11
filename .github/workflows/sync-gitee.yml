@@ -11,9 +11,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Push to Gitee (SSH)
+      - name: Set up SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.GITEE_SSH_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan gitee.com >> ~/.ssh/known_hosts
+
+      - name: Push to Gitee
         run: |
           git remote add gitee git@gitee.com:github-zxdong262/electerm.git
           git push gitee HEAD:master
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.GITEE_PRIVATE_SSH_TOKEN }}
