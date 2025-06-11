@@ -30,3 +30,23 @@ jobs:
 
       - name: Push to Gitee
         run: git push -f gitee HEAD:master
+
+      - name: Update version.html in gh-pages
+        run: |
+          # Get version from package.json using standard grep and sed
+          VERSION=$(curl -s https://raw.githubusercontent.com/electerm/electerm/master/package.json | grep '"version":' | sed 's/.*"version": "\([^"]*\).*/\1/')
+          
+          # Checkout gh-pages branch
+          git fetch origin gh-pages:gh-pages
+          git checkout gh-pages
+
+          # Update version.html
+          echo "v$VERSION" > version.html
+          
+          # Commit and push changes
+          git add version.html
+          git commit -m "Update version to v$VERSION"
+          git push origin gh-pages
+          
+          # Also push to Gitee
+          git push gitee gh-pages
