@@ -20,6 +20,15 @@ jobs:
           ssh-keyscan gitee.com >> ~/.ssh/known_hosts
           eval $(ssh-agent)
           ssh-add ~/.ssh/gitee_key
+          ls -la ~/.ssh/gitee_key
+
+          # Show first/last 3 lines (redacted in logs)
+          echo "First 3 lines:"
+          head -3 ~/.ssh/gitee_key
+          echo "Last 3 lines:"
+          tail -3 ~/.ssh/gitee_key
+
+          ssh-keygen -l -f ~/.ssh/gitee_key || echo "Key validation failed"
           ssh -T git@gitee.com || true
 
       - name: Debug SSH Key
