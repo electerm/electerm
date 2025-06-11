@@ -2,7 +2,7 @@ name: Sync Master to Gitee
 
 on:
   push:
-    branches: [ master ]  # Only trigger when master is updated
+    branches: [ master ]
 
 jobs:
   sync-master:
@@ -14,11 +14,13 @@ jobs:
       - name: Setup SSH
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.GITEE_PRIVATE_SSH_TOKEN }}" > ~/.ssh/id_ed25519
-          chmod 600 ~/.ssh/id_ed25519
+          echo "${{ secrets.GITEE_PRIVATE_SSH_TOKEN }}" > ~/.ssh/gitee_key
+          # Ensure proper key format
+          chmod 600 ~/.ssh/gitee_key
           ssh-keyscan gitee.com >> ~/.ssh/known_hosts
-          # Verify key is properly loaded
-          ssh -T git@gitee.com || true  # This may fail but helps verify connection
+          eval $(ssh-agent)
+          ssh-add ~/.ssh/gitee_key
+          ssh -T git@gitee.com || true
 
       - name: Configure Git
         run: |
