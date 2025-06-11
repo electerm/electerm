@@ -7,6 +7,7 @@ on:
 jobs:
   sync-master:
     runs-on: ubuntu-latest
+    environment: build
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -14,45 +15,15 @@ jobs:
       - name: Setup SSH
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.GITEE_PRIVATE_SSH_TOKEN }}" > ~/.ssh/gitee_key
-          # Ensure proper key format
-          chmod 600 ~/.ssh/gitee_key
+          echo "${{ secrets.GITEE_PRIVATE_SSH_TOKEN }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
           ssh-keyscan gitee.com >> ~/.ssh/known_hosts
-
-          ls -la ~/.ssh/gitee_key
-
-          # Show first/last 3 lines (redacted in logs)
-          echo "First 3 lines:"
-          head -3 ~/.ssh/gitee_key
-          echo "Last 3 lines:"
-          tail -3 ~/.ssh/gitee_key
-
-          ssh-keygen -l -f ~/.ssh/gitee_key || echo "Key validation failed"
-
-          ssh-add ~/.ssh/gitee_key
-          ssh -T git@gitee.com || true
-
-      - name: Debug SSH Key
-        run: |
-          # Check if file exists and its permissions
-          ls -la ~/.ssh/gitee_key
-
-          # Show first/last 3 lines (redacted in logs)
-          echo "First 3 lines:"
-          head -3 ~/.ssh/gitee_key
-          echo "Last 3 lines:"
-          tail -3 ~/.ssh/gitee_key
-
-          # Verify key format
-          ssh-keygen -l -f ~/.ssh/gitee_key || echo "Key validation failed"
-
 
       - name: Configure Git
         run: |
           git config --global user.name "ZHAO Xudong"
           git config --global user.email "zxdong@gmail.com"
           git remote add gitee git@gitee.com:github-zxdong262/electerm.git
-          git remote -v  # Verify remotes
 
       - name: Push to Gitee
-        run: git push gitee HEAD:master
+        run: git push -f gitee HEAD:master
