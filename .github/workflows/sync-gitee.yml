@@ -11,7 +11,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Push Master to Gitee
+      - name: Push to Gitee (SSH)
         run: |
-          git remote add gitee https://${{ secrets.GITEE_USER }}:${{ secrets.GITEE_TOKEN_PUSH }}@gitee.com/github-zxdong262/electerm.git
-          git push gitee HEAD:master  # Push only the latest master branch
+          git remote add gitee git@gitee.com:github-zxdong262/electerm.git
+          git push gitee HEAD:master
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.GITEE_PRIVATE_SSH_TOKEN }}
