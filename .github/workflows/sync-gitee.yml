@@ -1,9 +1,10 @@
 name: Sync Master to Gitee
 
 on:
+  push:
+    branches: [ master ]
   release:
     types: [published]
-
 jobs:
   sync-master:
     runs-on: ubuntu-latest
