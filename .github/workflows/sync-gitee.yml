@@ -11,14 +11,21 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up SSH
+      - name: Setup SSH
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.GITEE_PRIVATE_SSH_TOKEN }}" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
           ssh-keyscan gitee.com >> ~/.ssh/known_hosts
+          # Verify key is properly loaded
+          ssh -T git@gitee.com || true  # This may fail but helps verify connection
+
+      - name: Configure Git
+        run: |
+          git config --global user.name "ZHAO Xudong"
+          git config --global user.email "zxdong@gmail.com"
+          git remote add gitee git@gitee.com:github-zxdong262/electerm.git
+          git remote -v  # Verify remotes
 
       - name: Push to Gitee
-        run: |
-          git remote add gitee git@gitee.com:github-zxdong262/electerm.git
-          git push gitee HEAD:master
+        run: git push gitee HEAD:master
