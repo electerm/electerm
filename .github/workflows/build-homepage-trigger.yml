@@ -1,0 +1,18 @@
+name: Trigger Website Update
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+jobs:
+  trigger-website-update:
+    runs-on: ubuntu-latest
+    environment: build
+    steps:
+      - name: Trigger website repository workflow
+        uses: peter-evans/repository-dispatch@v2
+        with:
+          token: ${{ secrets.PAT_REPO_TOKEN }}
+          repository: electerm/electerm.html5beta.com
+          event-type: electerm-release

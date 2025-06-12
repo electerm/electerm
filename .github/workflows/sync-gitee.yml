@@ -3,6 +3,7 @@ name: Sync Master to Gitee
 on:
   release:
     types: [published]
+  workflow_dispatch:
 jobs:
   sync-master:
     runs-on: ubuntu-latest
