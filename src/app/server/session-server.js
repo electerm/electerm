@@ -266,41 +266,58 @@ if (type === 'rdp') {
   })
 }
 
-app.ws('/common/s', (ws, req) => {
-  console.log('session-server.js: Common socket connection request received')
-  verify(req)
-  wsDec(ws)
-  ws.on('message', async (message) => {
-    console.log('session-server.js: Common socket received message')
-    try {
-      const msg = JSON.parse(message)
-      const { action } = msg
-      console.log('session-server.js: Common socket action:', msg, typeof msg)
+// Add a process message handler instead
+process.on('message', async (message) => {
+  if (message.type === 'common') {
+    console.log('session-server.js: Common message received from parent process')
 
-      if (action === 'create-terminal') {
-        console.log('session-server.js: Creating terminal:', msg.body.uid, msg.body)
-        createTerm(ws, msg)
-      } else if (action === 'test-terminal') {
-        console.log('session-server.js: Testing terminal connection')
-        testTerm(ws, msg)
-      } else if (action === 'resize-terminal') {
-        console.log(`session-server.js: Resizing terminal ${msg.pid} to ${msg.cols}x${msg.rows}`)
-        resize(ws, msg)
-      } else if (action === 'toggle-terminal-log') {
-        console.log(`session-server.js: Toggling terminal log for ${msg.pid}`)
-        toggleTerminalLog(ws, msg)
-      } else if (action === 'toggle-terminal-log-timestamp') {
-        console.log(`session-server.js: Toggling terminal log timestamp for ${msg.pid}`)
-        toggleTerminalLogTimestamp(ws, msg)
-      } else if (action === 'run-cmd') {
-        console.log(`session-server.js: Running command in terminal ${msg.pid}:`, msg.cmd)
-        runCmd(ws, msg)
-      }
-    } catch (err) {
-      console.log('session-server.js: Error processing common socket message:', err)
-      log.error('common ws error', err)
+    const msg = message.data
+    const { action, id } = msg
+    console.log('session-server.js: Common action:', action)
+
+    let promise
+
+    if (action === 'create-terminal') {
+      console.log('session-server.js: Creating terminal:', msg.body.uid, msg.body)
+      promise = createTerm(msg)
+    } else if (action === 'test-terminal') {
+      console.log('session-server.js: Testing terminal connection')
+      promise = testTerm(msg)
+    } else if (action === 'resize-terminal') {
+      console.log(`session-server.js: Resizing terminal ${msg.pid} to ${msg.cols}x${msg.rows}`)
+      promise = resize(msg)
+    } else if (action === 'toggle-terminal-log') {
+      console.log(`session-server.js: Toggling terminal log for ${msg.pid}`)
+      promise = toggleTerminalLog(msg)
+    } else if (action === 'toggle-terminal-log-timestamp') {
+      console.log(`session-server.js: Toggling terminal log timestamp for ${msg.pid}`)
+      promise = toggleTerminalLogTimestamp(msg)
+    } else if (action === 'run-cmd') {
+      console.log(`session-server.js: Running command in terminal ${msg.pid}:`, msg.cmd)
+      promise = runCmd(msg)
     }
-  })
+
+    const result = await promise
+      .then(r => {
+        return {
+          id,
+          data: r
+        }
+      })
+      .catch(err => {
+        log.error('common message error', err)
+        return {
+          id,
+          error: {
+            message: err.message,
+            stack: err.stack
+          }
+        }
+      })
+
+    // Send the result back to the parent process
+    process.send(result)
+  }
 })
 
 const runServer = function () {

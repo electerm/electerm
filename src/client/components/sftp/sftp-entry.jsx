@@ -427,8 +427,9 @@ export default class Sftp extends Component {
     this[type + 'Dom'].onPaste()
   }
 
-  initData = (terminalId) => {
+  initData = (terminalId, port) => {
     this.terminalId = terminalId
+    this.port = port
     if (this.shouldRenderRemote()) {
       this.initRemoteAll()
     }
@@ -592,7 +593,7 @@ export default class Sftp extends Component {
     let sftp = this.sftp
     try {
       if (!this.sftp) {
-        sftp = await Client(this.terminalId, this.type)
+        sftp = await Client(this.terminalId, this.type, this.port)
         if (!sftp) {
           return
         }

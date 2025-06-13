@@ -1177,7 +1177,6 @@ clear\r`
         const text = err.message
         handleErr({ message: text })
       })
-    console.log('r', r)
     if (typeof r === 'string' && r.includes('fail')) {
       return this.promote()
     }
@@ -1191,8 +1190,9 @@ clear\r`
       this.setStatus(statusMap.error)
       return
     }
+    this.port = r.port
     this.setStatus(statusMap.success)
-    refs.get('sftp-' + id)?.initData(id)
+    refs.get('sftp-' + id)?.initData(id, r.port)
     term.pid = id
     this.pid = id
     const wsUrl = this.buildWsUrl(r.port)

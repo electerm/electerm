@@ -48,62 +48,31 @@ async function runSessionServer (type, port) {
   })
 }
 
-async function createWs (port, ws, pid) {
-  const WebSocket = require('ws')
-  const { tokenElecterm } = process.env
-  const wsUrl = `ws://127.0.0.1:${port}/common/s?token=${tokenElecterm}`
-  console.log('WebSocket URL:', wsUrl)
-  const socket = new WebSocket(wsUrl)
-
-  socket.s = msg => {
-    try {
-      socket.send(JSON.stringify(msg))
-    } catch (e) {
-      console.error('ws send error')
-      console.error(e)
-    }
+async function sendMsgToChildProcess (pid, msg) {
+  console.log('Sending message to child process:', pid, msg)
+  const child = typeof pid === 'object' ? pid : activeTerminals.get(pid)?.child
+  if (!child) {
+    console.error('No terminal found for PID:', pid)
+    throw new Error(`Terminal with PID ${pid} not found`)
   }
-  websockets.set(pid, socket)
 
   return new Promise((resolve, reject) => {
-    socket.on('open', () => {
-      resolve(socket)
-    })
-    socket.on('error', (err) => {
-      console.error('WebSocket connection error:', err)
-      reject(err)
-    })
-  })
-}
-
-function sendMsgToWs (socketOrPid, msg) {
-  console.log('websockets',websockets.keys())
-  console.log('sendMsgToWs', socketOrPid, msg)
-  const socket = typeof socketOrPid === 'string'
-    ? websockets.get(socketOrPid)
-    : socketOrPid
-  return new Promise((resolve, reject) => {
-    const onMsg = (data) => {
-      try {
-        const response = JSON.parse(data)
-        console.log('9999WebSocket response received:', response)
-        if (response.id !== msg.id) {
-          console.log('99999WebSocket response received for different message id:', response.id, '!=', msg.id)
-          return
-        }
+    const responseHandler = (response) => {
+      if (response.id === msg.id) {
+        child.removeListener('message', responseHandler)
         if (response.error) {
-          console.error('Error in WebSocket response:', response.error)
-          return reject(response.error)
+          reject(response.error)
+        } else {
+          resolve(response.data)
         }
-        console.log('Parsed response data:', response.data)
-        resolve(response.data)
-      } catch (err) {
-        console.error('Error parsing WebSocket response:', err)
-        reject(new Error('Invalid response format'))
       }
     }
-    socket.on('message', onMsg)
-    socket.s(msg)
+
+    child.on('message', responseHandler)
+    child.send({
+      type: 'common',
+      data: msg
+    })
   })
 }
 
@@ -118,8 +87,8 @@ exports.terminal = async function (initOptions, ws, uid) {
 
   console.log('Sending create-terminal message to WebSocket')
   const pid = initOptions.uid
-  const socket = await createWs(port, ws, pid)
-  await sendMsgToWs(socket, {
+
+  await sendMsgToChildProcess(child, {
     id: uid,
     action: 'create-terminal',
     body: initOptions
@@ -149,9 +118,7 @@ exports.testConnection = async function (initOptions, ws, uid) {
   console.log('Session server started for test with child process:', child.pid)
 
   console.log('Sending test-terminal message to WebSocket')
-  const pid = initOptions.uid
-  const socket = await createWs(port, ws, pid)
-  const res = await sendMsgToWs(socket, {
+  const res = await sendMsgToChildProcess(child, {
     id: uid,
     action: 'test-terminal',
     body: initOptions
@@ -180,7 +147,7 @@ exports.terminals = function (pid) {
   return {
     runCmd: async (cmd, id) => {
       console.log(`Running command in terminal ${pid}:`, cmd)
-      return sendMsgToWs(pid, {
+      return sendMsgToChildProcess(pid, {
         id,
         action: 'run-cmd',
         body: { cmd, pid }
@@ -188,32 +155,26 @@ exports.terminals = function (pid) {
     },
     resize: (cols, rows, id) => {
       console.log(`Resizing terminal ${pid} to ${cols}x${rows}`)
-      sendMsgToWs(pid, {
+      sendMsgToChildProcess(pid, {
         id,
         action: 'resize-terminal',
         body: { cols, rows, pid }
-      }).catch((err) => {
-        console.error('Error resizing terminal:', err)
-      }) // Ignore errors for resize
+      })// Ignore errors for resize
     },
     toggleTerminalLog: (id) => {
       console.log(`Toggling terminal log for ${pid}`)
-      sendMsgToWs(pid, {
+      sendMsgToChildProcess(pid, {
         id,
         action: 'toggle-terminal-log',
         body: { pid }
-      }).catch((err) => {
-        console.error('Error toggling terminal log:', err)
       })
     },
     toggleTerminalLogTimestamp: (id) => {
       console.log(`Toggling terminal log timestamp for ${pid}`)
-      sendMsgToWs(pid, {
+      sendMsgToChildProcess(pid, {
         id,
         action: 'toggle-terminal-log-timestamp',
         body: { pid }
-      }).catch((err) => {
-        console.error('Error toggling terminal log timestamp:', err)
       })
     }
   }

@@ -7,95 +7,57 @@ const {
 } = require('./remote-common')
 const { testConnection, terminal } = require('./session')
 
-async function runCmd (ws, msg) {
-  const { id, pid, cmd } = msg
+async function runCmd (msg) {
+  const { pid, cmd } = msg
   const term = terminals(pid)
   let txt = ''
   if (term) {
     txt = await term.runCmd(cmd)
   }
-  ws.s({
-    id,
-    data: txt
-  })
+  return txt
 }
 
-function resize (ws, msg) {
-  const { id, pid, cols, rows } = msg
+async function resize (msg) {
+  const { pid, cols, rows } = msg
   const term = terminals(pid)
   if (term) {
     term.resize(cols, rows)
   }
-  ws.s({
-    id,
-    data: 'ok'
-  })
+  return 'ok'
 }
 
-function toggleTerminalLog (ws, msg) {
-  const { id, pid } = msg
+async function toggleTerminalLog (msg) {
+  const { pid } = msg
   const term = terminals(pid)
   if (term) {
     term.toggleTerminalLog()
   }
-  ws.s({
-    id,
-    data: 'ok'
-  })
+  return 'ok'
 }
 
-function toggleTerminalLogTimestamp (ws, msg) {
-  const { id, pid } = msg
+async function toggleTerminalLogTimestamp (msg) {
+  const { pid } = msg
   const term = terminals(pid)
   if (term) {
     term.toggleTerminalLogTimestamp()
   }
-  ws.s({
-    id,
-    data: 'ok'
-  })
+  return 'ok'
 }
 
-function createTerm (ws, msg) {
-  const { id, body } = msg
-  terminal(body, ws)
-    .then(data => {
-      console.log('8888888888888createTerm', data)
-      ws.s({
-        id,
-        data: data.pid
-      })
-    })
-    .catch(err => {
-      ws.s({
-        id,
-        error: {
-          message: err.message,
-          stack: err.stack
-        }
-      })
-    })
+async function createTerm (msg) {
+  const { body } = msg
+  const t = await terminal(body)
+  return t.pid
 }
 
-function testTerm (ws, msg) {
-  const { id, body } = msg
-  testConnection(body)
-    .then(data => {
-      if (data) {
-        ws.s({
-          id,
-          data
-        })
-      } else {
-        ws.s({
-          id,
-          error: {
-            message: 'test failed',
-            stack: 'test failed'
-          }
-        })
-      }
-    })
+async function testTerm (ws, msg) {
+  const { body } = msg
+  const r = await testConnection(body)
+  if (r) {
+    return r
+  } else {
+    throw new Error('test failed')
+  }
 }
 
 exports.createTerm = createTerm
