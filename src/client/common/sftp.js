@@ -16,6 +16,7 @@ class Sftp {
     this.ws = ws
     this.id = id
     this.terminalId = terminalId
+    this.port = port
     ws.s({
       action: 'sftp-new',
       id,
@@ -32,7 +33,8 @@ class Sftp {
             isFtp: this.type === 'ftp',
             ...args[0],
             terminalId,
-            type: func
+            type: func,
+            port
           })
         }
         const fid = generate()

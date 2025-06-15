@@ -7,8 +7,8 @@ const {
 } = require('./remote-common')
 const { testConnection, terminal } = require('./session')
 
-async function runCmd (msg) {
-  const { pid, cmd } = msg
+async function runCmd (body) {
+  const { pid, cmd } = body
   const term = terminals(pid)
   let txt = ''
   if (term) {
@@ -17,8 +17,8 @@ async function runCmd (msg) {
   return txt
 }
 
-async function resize (msg) {
-  const { pid, cols, rows } = msg
+async function resize (body) {
+  const { pid, cols, rows } = body
   const term = terminals(pid)
   if (term) {
     term.resize(cols, rows)
@@ -26,8 +26,8 @@ async function resize (msg) {
   return 'ok'
 }
 
-async function toggleTerminalLog (msg) {
-  const { pid } = msg
+async function toggleTerminalLog (body) {
+  const { pid } = body
   const term = terminals(pid)
   if (term) {
     term.toggleTerminalLog()
@@ -35,8 +35,8 @@ async function toggleTerminalLog (msg) {
   return 'ok'
 }
 
-async function toggleTerminalLogTimestamp (msg) {
-  const { pid } = msg
+async function toggleTerminalLogTimestamp (body) {
+  const { pid } = body
   const term = terminals(pid)
   if (term) {
     term.toggleTerminalLogTimestamp()
@@ -44,14 +44,12 @@ async function toggleTerminalLogTimestamp (msg) {
   return 'ok'
 }
 
-async function createTerm (msg) {
-  const { body } = msg
-  const t = await terminal(body)
+async function createTerm (body, ws) {
+  const t = await terminal(body, ws)
   return t.pid
 }
 
-async function testTerm (ws, msg) {
-  const { body } = msg
+async function testTerm (body) {
   const r = await testConnection(body)
   if (r) {
     return r

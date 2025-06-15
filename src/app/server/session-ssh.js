@@ -337,7 +337,6 @@ class TerminalSshBase extends TerminalBase {
             return reject(err)
           }
           this.channel = channel
-          console.log('ssh connected', this.pid)
           globalState.setSession(this.pid, this)
           resolve(this)
         }
