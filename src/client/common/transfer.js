@@ -19,9 +19,10 @@ class Transfer {
     const th = this
     const {
       sftpId,
-      isFtp
+      isFtp,
+      port
     } = rest
-    const ws = await initWs('transfer', id, sftpId)
+    const ws = await initWs('transfer', id, sftpId, undefined, port)
     ws.s({
       action: 'transfer-new',
       ...rest,

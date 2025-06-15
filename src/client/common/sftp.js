@@ -10,12 +10,13 @@ import initWs from './ws'
 const transferKeys = Object.keys(transferTypeMap)
 
 class Sftp {
-  async init (terminalId) {
+  async init (terminalId, port) {
     const id = generate()
-    const ws = await initWs('sftp', id, terminalId)
+    const ws = await initWs('sftp', id, terminalId, undefined, port)
     this.ws = ws
     this.id = id
     this.terminalId = terminalId
+    this.port = port
     ws.s({
       action: 'sftp-new',
       id,
@@ -32,7 +33,8 @@ class Sftp {
             isFtp: this.type === 'ftp',
             ...args[0],
             terminalId,
-            type: func
+            type: func,
+            port
           })
         }
         const fid = generate()
@@ -71,9 +73,9 @@ class Sftp {
   }
 }
 
-export default async (terminalId, type = 'sftp') => {
+export default async (terminalId, type = 'sftp', port) => {
   const sftp = new Sftp()
   sftp.type = type
-  await sftp.init(terminalId)
+  await sftp.init(terminalId, port)
   return sftp
 }
