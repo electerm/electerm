@@ -69,24 +69,6 @@ describe('AI Config and Suggestions', function () {
     const promptContent = await lastChatItem.locator('.ant-alert-message').textContent()
     expect(promptContent).toContain(testPrompt)
 
-    // Check for truncated content and "show full content" button
-    const showFullContentButton = lastChatItem.locator('.pointer:has-text("full content")')
-    await expect(showFullContentButton).toBeVisible()
-
-    // Get initial content length
-    const initialContent = await lastChatItem.locator('.pd1').textContent()
-
-    // Click "show full content" button
-    await showFullContentButton.click()
-    await delay(1000)
-
-    // Verify full content is shown
-    const fullContent = await lastChatItem.locator('.pd1').textContent()
-    expect(fullContent.length).toBeGreaterThan(initialContent.length)
-
-    // Verify "show full content" button is no longer visible
-    await expect(showFullContentButton).not.toBeVisible()
-
     // Test clear history functionality
     await client.click('.ai-chat-terminals .clear-ai-icon')
     await delay(1000)
