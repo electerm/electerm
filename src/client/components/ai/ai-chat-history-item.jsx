@@ -7,17 +7,31 @@ import {
 import {
   UserOutlined,
   CopyOutlined,
-  CloseOutlined
+  CloseOutlined,
+  CaretDownOutlined,
+  CaretRightOutlined
 } from '@ant-design/icons'
 import { copy } from '../../common/clipboard'
+import { useState } from 'react'
 
 export default function AIChatHistoryItem ({ item }) {
+  const [showOutput, setShowOutput] = useState(true)
   const {
     prompt
   } = item
+
+  function toggleOutput () {
+    setShowOutput(!showOutput)
+  }
+
   const alertProps = {
     message: (
-      <><UserOutlined />: {prompt}</>
+      <>
+        <span className='pointer mg1r' onClick={toggleOutput}>
+          {showOutput ? <CaretDownOutlined /> : <CaretRightOutlined />}
+        </span>
+        <UserOutlined />: {prompt}
+      </>
     ),
     type: 'info'
   }
@@ -63,7 +77,7 @@ export default function AIChatHistoryItem ({ item }) {
           <Alert {...alertProps} />
         </Tooltip>
       </div>
-      <AIOutput item={item} />
+      {showOutput && <AIOutput item={item} />}
     </div>
   )
 }
