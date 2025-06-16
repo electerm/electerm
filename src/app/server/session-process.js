@@ -4,12 +4,22 @@ const path = require('path')
 // Map to store active terminal processes (pid -> {child, port, ws})
 const activeTerminals = new Map()
 
-function getPort (fromPort = 30975) {
+// Track the last port assigned
+let lastPort = 30975
+const MIN_PORT = 30975
+const MAX_PORT = 65534
+
+function getPort (fromPort = MIN_PORT) {
+  // Use the last port + 1 or start over if we've reached MAX_PORT
+  const startPort = lastPort >= MAX_PORT ? MIN_PORT : lastPort + 1
+
   return new Promise((resolve, reject) => {
-    require('find-free-port')(fromPort, '127.0.0.1', function (err, freePort) {
+    require('find-free-port')(startPort, '127.0.0.1', function (err, freePort) {
       if (err) {
         reject(err)
       } else {
+        // Remember this port for next time
+        lastPort = freePort
         resolve(freePort)
       }
     })
