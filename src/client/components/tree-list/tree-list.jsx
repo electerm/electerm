@@ -385,6 +385,7 @@ export default class ItemListTree extends Component {
     if (tar) {
       target = tar
     }
+    console.log('tar', target, tar)
     const dataDragged = e.dataTransfer.getData('idDragged')
     const [idDragged, pidDrags, isGroupDragged] = dataDragged.split('@')
     const isGroupDrag = isGroupDragged === 'true'
@@ -395,7 +396,6 @@ export default class ItemListTree extends Component {
     const pidDrops = target.getAttribute('data-parent-id') || ''
     const pidDropsArr = pidDrops.split('#')
     const pidDrop = pidDropsArr[pidDropsArr.length - 1]
-
     // can not drag item to its own children
     if (
       (idDragged === 'default' &&
@@ -404,7 +404,8 @@ export default class ItemListTree extends Component {
         pidDrop &&
         pidDrags !== pidDrops &&
         pidDrops.includes(idDragged)
-      )
+      ) ||
+      idDragged === idDrop
     ) {
       return
     }
