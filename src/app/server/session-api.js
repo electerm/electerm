@@ -5,7 +5,7 @@
 const {
   terminals
 } = require('./remote-common')
-const { testConnection, terminal } = require('./session')
+const { startSession } = require('./session')
 
 async function runCmd (body) {
   const { pid, cmd } = body
@@ -45,12 +45,12 @@ async function toggleTerminalLogTimestamp (body) {
 }
 
 async function createTerm (body, ws) {
-  const t = await terminal(body, ws)
+  const t = await startSession(body, ws)
   return t.pid
 }
 
 async function testTerm (body) {
-  const r = await testConnection(body)
+  const r = await startSession(body, undefined, 'test')
   if (r) {
     return r
   } else {

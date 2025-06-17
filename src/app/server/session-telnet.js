@@ -79,7 +79,7 @@ class TerminalTelnet extends TerminalBase {
   }
 }
 
-exports.terminalTelnet = async function (initOptions, ws) {
+exports.session = async function (initOptions, ws) {
   const term = new TerminalTelnet(initOptions, ws)
   await term.init()
   return term
@@ -89,7 +89,7 @@ exports.terminalTelnet = async function (initOptions, ws) {
  * test ssh connection
  * @param {object} options
  */
-exports.testConnectionTelnet = (options) => {
+exports.test = (options) => {
   return (new TerminalTelnet(options, undefined, true))
     .init()
     .then(() => true)

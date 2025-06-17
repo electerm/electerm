@@ -1,65 +1,33 @@
 /**
  * terminal/sftp/serial class
  */
-const {
-  terminalTelnet,
-  testConnectionTelnet
-} = require('./session-telnet')
-const {
-  terminalSsh,
-  testConnectionSsh
-} = require('./session-ssh')
-const {
-  terminalLocal,
-  testConnectionLocal
-} = require('./session-local')
-const {
-  terminalSerial,
-  testConnectionSerial
-} = require('./session-serial')
-const {
-  terminalRdp,
-  testConnectionRdp
-} = require('./session-rdp')
-const {
-  terminalVnc,
-  testConnectionVnc
-} = require('./session-vnc')
 
-exports.terminal = async function (initOptions, ws) {
-  const type = initOptions.termType || initOptions.type
-  if (type === 'telnet') {
-    return terminalTelnet(initOptions, ws)
-  } else if (type === 'serial') {
-    return terminalSerial(initOptions, ws)
-  } else if (type === 'local') {
-    return terminalLocal(initOptions, ws)
-  } else if (type === 'rdp') {
-    return terminalRdp(initOptions, ws)
-  } else if (type === 'vnc') {
-    return terminalVnc(initOptions, ws)
-  } else {
-    return terminalSsh(initOptions, ws)
-  }
+/**
+ * Dynamically load a module based on terminal type
+ * @param {string} type - Terminal type
+ * @returns {Object} The loaded module
+ */
+function loadModule (type) {
+  return require(`./session-${type}`)
 }
 
 /**
- * test ssh connection
- * @param {object} options
+ * Create a terminal session
+ * @param {object} initOptions - Terminal initialization options
+ * @param {object} ws - WebSocket connection
+ * @returns {Promise} Terminal session
  */
-exports.testConnection = (initOptions) => {
-  const type = initOptions.termType || initOptions.type
-  if (type === 'telnet') {
-    return testConnectionTelnet(initOptions)
-  } else if (type === 'local') {
-    return testConnectionLocal(initOptions)
-  } else if (type === 'serial') {
-    return testConnectionSerial(initOptions)
-  } else if (type === 'rdp') {
-    return testConnectionRdp(initOptions)
-  } else if (type === 'vnc') {
-    return testConnectionVnc(initOptions)
-  } else {
-    return testConnectionSsh(initOptions)
-  }
+exports.startSession = async function (initOptions, ws, func = 'session') {
+  const type = initOptions.termType || initOptions.type || 'ssh'
+  const tail = [
+    'telnet',
+    'serial',
+    'local',
+    'rdp',
+    'vnc'
+  ].includes(type)
+    ? type
+    : 'ssh'
+  const module = loadModule(tail)
+  return module[func](initOptions, ws)
 }

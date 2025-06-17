@@ -163,7 +163,7 @@ class TerminalRdp extends TerminalBase {
   }
 }
 
-exports.terminalRdp = async function (initOptions, ws) {
+exports.session = async function (initOptions, ws) {
   const term = new TerminalRdp(initOptions, ws)
   await term.init()
   return term
@@ -173,7 +173,7 @@ exports.terminalRdp = async function (initOptions, ws) {
  * test ssh connection
  * @param {object} options
  */
-exports.testConnectionRdp = (options) => {
+exports.test = (options) => {
   return (new TerminalRdp(options, undefined, true))
     .test()
     .then((res) => {

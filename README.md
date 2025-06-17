@@ -48,7 +48,6 @@ Online demo: [https://electerm-demo.html5beta.com](https://electerm-demo.html5be
 - Quick input to one or all terminals.
 - AI assistant integration (supporting [DeepSeek](https://www.deepseek.com), OpenAI, and other AI APIs) to help with command suggestions, script writing, and explaining selected terminal content
 - Command line usage: check [wiki](https://github.com/electerm/electerm/wiki/Command-line-usage)
-- Deep link support: check [wiki](https://github.com/electerm/electerm/wiki/Deep-link-support)
 
 ## Download
 

@@ -765,7 +765,7 @@ class TerminalSshBase extends TerminalBase {
 
 const TerminalSsh = commonExtends(TerminalSshBase)
 
-exports.terminalSsh = function (initOptions, ws) {
+exports.session = function (initOptions, ws) {
   return (new TerminalSsh(initOptions, ws)).init()
 }
 
@@ -773,7 +773,7 @@ exports.terminalSsh = function (initOptions, ws) {
  * test ssh connection
  * @param {object} options
  */
-exports.testConnectionSsh = (options) => {
+exports.test = (options) => {
   return (new TerminalSsh(options, undefined, true))
     .init()
     .then(() => true)

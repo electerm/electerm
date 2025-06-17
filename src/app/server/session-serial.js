@@ -81,7 +81,7 @@ class TerminalSerial extends TerminalBase {
   }
 }
 
-exports.terminalSerial = async function (initOptions, ws) {
+exports.session = async function (initOptions, ws) {
   const term = new TerminalSerial(initOptions, ws)
   await term.init()
   return term
@@ -91,7 +91,7 @@ exports.terminalSerial = async function (initOptions, ws) {
  * test ssh connection
  * @param {object} options
  */
-exports.testConnectionSerial = (initOptions) => {
+exports.test = (initOptions) => {
   return (new TerminalSerial(initOptions, undefined, true))
     .init()
     .then(() => true)

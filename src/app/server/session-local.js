@@ -77,7 +77,7 @@ class TerminalLocal extends TerminalBase {
   }
 }
 
-exports.terminalLocal = function (initOptions, ws) {
+exports.session = function (initOptions, ws) {
   return (new TerminalLocal(initOptions, ws)).init()
 }
 
@@ -85,6 +85,6 @@ exports.terminalLocal = function (initOptions, ws) {
  * test ssh connection
  * @param {object} options
  */
-exports.testConnectionLocal = (initOptions) => {
+exports.test = (initOptions) => {
   return Promise.resolve(true)
 }

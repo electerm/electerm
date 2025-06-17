@@ -7,7 +7,7 @@ const { TerminalBase } = require('./session-base')
 const net = require('net')
 const proxySock = require('./socks')
 const uid = require('../common/uid')
-const { terminalSsh } = require('./session-ssh')
+const { session } = require('./session-ssh')
 const globalState = require('./global-state')
 
 function getPort (fromPort = 120023) {
@@ -100,7 +100,7 @@ class TerminalVnc extends TerminalBase {
         }
       ]
     }
-    this.ssh = await terminalSsh(initOpts)
+    this.ssh = await session(initOpts)
     const proxyA = `socks5://127.0.0.1:${fp}`
     return proxySock({
       readyTimeout,
@@ -169,7 +169,7 @@ class TerminalVnc extends TerminalBase {
   }
 }
 
-exports.terminalVnc = async function (initOptions, ws) {
+exports.session = async function (initOptions, ws) {
   const term = new TerminalVnc(initOptions, ws)
   await term.init()
   return term
@@ -179,7 +179,7 @@ exports.terminalVnc = async function (initOptions, ws) {
  * test ssh connection
  * @param {object} options
  */
-exports.testConnectionVnc = (options) => {
+exports.test = (options) => {
   const inst = new TerminalVnc(options, undefined, true)
   return inst.test()
     .then(() => {
