@@ -118,6 +118,9 @@ export default class Sftp extends Component {
         const text = err.message
         handleErr({ message: text })
       })
+    if (!r) {
+      return
+    }
     const {
       port
     } = r
