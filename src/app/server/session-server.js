@@ -281,9 +281,11 @@ main()
 
 process.on('uncaughtException', (err) => {
   log.error('uncaughtException', err)
+  process.exit(0)
 })
 process.on('unhandledRejection', (err) => {
   log.error('unhandledRejection', err)
+  process.exit(0)
 })
 
 process.on('SIGTERM', () => {

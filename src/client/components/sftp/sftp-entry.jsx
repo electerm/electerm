@@ -3,6 +3,7 @@ import { refs } from '../common/ref'
 import generate from '../../common/uid'
 import runIdle from '../../common/run-idle'
 import { Spin, Modal, notification } from 'antd'
+import clone from '../../common/to-simple-obj'
 import { isEqual, last, isNumber, some, isArray, pick, uniq, debounce } from 'lodash-es'
 import FileSection from './file-item'
 import resolve from '../../common/resolve'
@@ -10,6 +11,7 @@ import wait from '../../common/wait'
 import isAbsPath from '../../common/is-absolute-path'
 import classnames from 'classnames'
 import sorterIndex from '../../common/index-sorter'
+import { handleErr } from '../../common/fetch'
 import { getLocalFileInfo, getRemoteFileInfo, getFolderFromFilePath } from './file-read'
 import {
   typeMap, maxSftpHistory, paneMap,
@@ -29,6 +31,7 @@ import memoizeOne from 'memoize-one'
 import * as owner from './owner-list'
 import AddressBar from './address-bar'
 import getProxy from '../../common/get-proxy'
+import { createTerm } from '../terminal/terminal-apis'
 import './sftp.styl'
 
 const e = window.translate
@@ -52,8 +55,7 @@ export default class Sftp extends Component {
     this.id = 'sftp-' + this.props.tab.id
     refs.add(this.id, this)
     if (this.props.isFtp) {
-      this.type = 'ftp'
-      this.initData()
+      this.initFtpData()
     }
   }
 
@@ -98,6 +100,28 @@ export default class Sftp extends Component {
     this.timer4 = null
     clearTimeout(this.timer5)
     this.timer5 = null
+  }
+
+  initFtpData = async () => {
+    this.type = 'ftp'
+    const { tab } = this.props
+    const { id } = tab
+    const opts = clone({
+      tabId: id,
+      uid: tab.id,
+      srcTabId: tab.id,
+      termType: 'ftp',
+      ...tab
+    })
+    const r = await createTerm(opts)
+      .catch(err => {
+        const text = err.message
+        handleErr({ message: text })
+      })
+    const {
+      port
+    } = r
+    this.initData(undefined, port)
   }
 
   directions = [

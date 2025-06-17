@@ -97,11 +97,13 @@ exports.terminal = async function (initOptions, ws, uid) {
     activeTerminals.delete(pid)
   })
 
-  await sendMsgToChildProcess(child, {
-    id: uid,
-    action: 'create-terminal',
-    body: initOptions
-  })
+  if (initOptions.termType !== 'ftp') {
+    await sendMsgToChildProcess(child, {
+      id: uid,
+      action: 'create-terminal',
+      body: initOptions
+    })
+  }
 
   // Store the terminal process in the map
   activeTerminals.set(pid, {
