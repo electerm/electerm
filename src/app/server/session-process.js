@@ -82,22 +82,29 @@ exports.terminal = async function (initOptions, ws, uid) {
   const port = await getPort()
   const child = await runSessionServer(type, port)
   const pid = initOptions.uid
-
-  child.on('message', (m) => {
-    const { type, data } = m
-    if (type === 'common') {
-      ws.s(data)
-      ws.once((data) => {
-        child.send(data)
-      }, data.id)
-    }
-  })
-
+  const isSsh = ![
+    'telnet',
+    'serial',
+    'local',
+    'rdp',
+    'vnc',
+    'ftp'
+  ].includes(type)
+  if (isSsh) {
+    child.on('message', (m) => {
+      const { type, data } = m
+      if (type === 'common') {
+        ws.s(data)
+        ws.once((data) => {
+          child.send(data)
+        }, data.id)
+      }
+    })
+  }
   child.on('exit', () => {
     activeTerminals.delete(pid)
   })
-
-  if (initOptions.termType !== 'ftp') {
+  if (type !== 'ftp') {
     await sendMsgToChildProcess(child, {
       id: uid,
       action: 'create-terminal',
