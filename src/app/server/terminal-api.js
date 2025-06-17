@@ -2,17 +2,14 @@
  * run cmd with terminal
  */
 
-const {
-  terminals
-} = require('./remote-common')
-const { terminal, testConnection } = require('./session')
+const { testConnection, terminal, terminals } = require('./session-process')
 
 async function runCmd (ws, msg) {
   const { id, pid, cmd } = msg
   const term = terminals(pid)
   let txt = ''
   if (term) {
-    txt = await term.runCmd(cmd)
+    txt = await term.runCmd(cmd, id)
   }
   ws.s({
     id,
@@ -24,7 +21,7 @@ function resize (ws, msg) {
   const { id, pid, cols, rows } = msg
   const term = terminals(pid)
   if (term) {
-    term.resize(cols, rows)
+    term.resize(cols, rows, id)
   }
   ws.s({
     id,
@@ -36,7 +33,7 @@ function toggleTerminalLog (ws, msg) {
   const { id, pid } = msg
   const term = terminals(pid)
   if (term) {
-    term.toggleTerminalLog()
+    term.toggleTerminalLog(id)
   }
   ws.s({
     id,
@@ -48,7 +45,7 @@ function toggleTerminalLogTimestamp (ws, msg) {
   const { id, pid } = msg
   const term = terminals(pid)
   if (term) {
-    term.toggleTerminalLogTimestamp()
+    term.toggleTerminalLogTimestamp(id)
   }
   ws.s({
     id,
@@ -58,11 +55,11 @@ function toggleTerminalLogTimestamp (ws, msg) {
 
 function createTerm (ws, msg) {
   const { id, body } = msg
-  terminal(body, ws)
+  terminal(body, ws, id)
     .then(data => {
       ws.s({
         id,
-        data: data.pid
+        data
       })
     })
     .catch(err => {
@@ -78,7 +75,7 @@ function createTerm (ws, msg) {
 
 function testTerm (ws, msg) {
   const { id, body } = msg
-  testConnection(body)
+  testConnection(body, id)
     .then(data => {
       if (data) {
         ws.s({
