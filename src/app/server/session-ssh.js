@@ -721,6 +721,11 @@ class TerminalSshBase extends TerminalBase {
     this.channel && this.channel.end()
     delete this.channel
     this.onEndConn()
+    // Clean up any remaining connection
+    if (this.conn) {
+      this.conn.end()
+      this.conn = null
+    }
   }
 
   getLocalEnv () {
