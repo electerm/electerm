@@ -669,6 +669,7 @@ export default class SettingCommon extends Component {
             'useSystemTitleBar',
             'confirmBeforeExit',
             'hideIP',
+            'allowMultiInstance',
             'debug'
           ].map(this.renderToggle)
         }

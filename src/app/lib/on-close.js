@@ -53,5 +53,5 @@ exports.onClose = async function (e) {
   clearTimeout(globalState.get('timer'))
   globalState.set('win', null)
   const app = globalState.get('app')
-  app.quit()
+  app.quit && app.quit()
 }
