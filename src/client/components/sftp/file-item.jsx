@@ -224,7 +224,13 @@ export default class FileSection extends React.Component {
       ? onDragCls + ' ' + onMultiDragCls
       : onDragCls
     addClass(this.domRef.current, cls)
-    e.dataTransfer.setData('fromFile', JSON.stringify(this.props.file))
+    e.dataTransfer.setData(
+      'fromFile',
+      JSON.stringify(
+        Object.assign({}, this.props.file, {
+          host: this.props.tab?.host
+        })
+      ))
   }
 
   getDropFileList = data => {
@@ -274,7 +280,8 @@ export default class FileSection extends React.Component {
       toFile = {
         type,
         ...getFolderFromFilePath(this.props[type + 'Path']),
-        isDirectory: false
+        isDirectory: false,
+        host: this.props.tab?.host
       }
     }
     this.onDropFile(fromFiles, toFile, fromFileManager)
@@ -301,16 +308,24 @@ export default class FileSection extends React.Component {
   }
 
   onDropFile = async (fromFiles, toFile, fromFileManager) => {
-    const { type: fromType } = fromFiles[0]
+    const {
+      type: fromType,
+      host: fromHost
+    } = fromFiles[0]
     const {
       id,
       type: toType,
-      isDirectory: isDirectoryTo
+      isDirectory: isDirectoryTo,
+      host: toHost
     } = toFile
-
     let operation = ''
     // same side and drop to file = drop to folder
-    if (!fromFileManager && fromType === toType && !isDirectoryTo) {
+    if (
+      !fromFileManager &&
+      fromType === toType &&
+      !isDirectoryTo &&
+      fromHost === toHost
+    ) {
       return
     }
 
@@ -329,7 +344,12 @@ export default class FileSection extends React.Component {
     }
 
     // same side and drop to folder, do mv
-    if (fromType === toType && isDirectoryTo && !fromFileManager) {
+    if (
+      fromType === toType &&
+      isDirectoryTo &&
+      !fromFileManager &&
+      fromHost === toHost
+    ) {
       operation = fileOperationsMap.mv
     }
 
@@ -749,7 +769,7 @@ export default class FileSection extends React.Component {
     _typeTo,
     operation
   ) => {
-    const { name, path, type } = file
+    const { name, path, type, host } = file
     const isLocal = type === typeMap.local
     let typeTo = isLocal
       ? typeMap.remote
@@ -766,6 +786,7 @@ export default class FileSection extends React.Component {
     toPath = resolve(toPath, name)
     const obj = {
       host: this.props.tab?.host,
+      fromHost: host,
       typeFrom: type,
       typeTo,
       fromPath: resolve(path, name),
@@ -784,13 +805,10 @@ export default class FileSection extends React.Component {
     typeTo,
     operation
   ) => {
-    let all = []
+    const all = []
     for (const f of selectedFiles) {
       const arr = await this.getTransferList(f, toPathBase, typeTo, operation)
-      all = [
-        ...all,
-        ...arr
-      ]
+      all.push(...arr)
     }
     this.props.addTransferList(all)
   }
