@@ -312,7 +312,9 @@ export default class TransportAction extends Component {
       typeTo,
       fromPath,
       toPath,
-      operation
+      operation,
+      host,
+      fromHost
     } = transfer
 
     if (
@@ -347,10 +349,16 @@ export default class TransportAction extends Component {
       return
     }
 
-    if (typeFrom === typeTo) {
+    if (typeFrom === typeTo && host !== fromHost && host && fromHost) {
+      return this.remoteToRemote()
+    } if (typeFrom === typeTo) {
       return this.mvOrCp()
     }
     this.startTransfer()
+  }
+
+  remoteToRemote = () => {
+
   }
 
   checkConflict = async (transfer = this.props.transfer) => {

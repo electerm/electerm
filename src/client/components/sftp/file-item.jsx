@@ -228,7 +228,8 @@ export default class FileSection extends React.Component {
       'fromFile',
       JSON.stringify(
         Object.assign({}, this.props.file, {
-          host: this.props.tab?.host
+          host: this.props.tab?.host,
+          tabId: this.props.tab?.id
         })
       ))
   }
@@ -769,7 +770,7 @@ export default class FileSection extends React.Component {
     _typeTo,
     operation
   ) => {
-    const { name, path, type, host } = file
+    const { name, path, type, host, tabId } = file
     const isLocal = type === typeMap.local
     let typeTo = isLocal
       ? typeMap.remote
@@ -787,6 +788,7 @@ export default class FileSection extends React.Component {
     const obj = {
       host: this.props.tab?.host,
       fromHost: host,
+      fromTabId: tabId,
       typeFrom: type,
       typeTo,
       fromPath: resolve(path, name),
