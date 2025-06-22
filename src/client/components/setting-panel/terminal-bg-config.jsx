@@ -51,7 +51,7 @@ export default function TerminalBackgroundConfig ({
       },
       {
         value: 'randomShape',
-        desc: e('randomCats')
+        desc: e('randomShape')
       }
     )
   }

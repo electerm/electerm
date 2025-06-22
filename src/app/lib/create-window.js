@@ -13,14 +13,12 @@ const {
 } = require('./window-control')
 const { onClose } = require('./on-close')
 const { initIpc, initAppServer } = require('./ipc')
-const { getDbConfig } = require('./get-config')
 const { disableShortCuts } = require('./key-bind')
 const _ = require('lodash')
 const getPort = require('./get-port')
 const globalState = require('./glob-state')
 
-exports.createWindow = async function () {
-  const userConfig = await getDbConfig() || {}
+exports.createWindow = async function (userConfig) {
   globalState.set('closeAction', 'closeApp')
   globalState.set('requireAuth', !!userConfig.hashedPassword)
   const { width, height, x, y } = await getWindowSize()

@@ -66,5 +66,6 @@ module.exports = exports.default = {
   sessionLogPath: '',
   sshSftpSplitView: false,
   showCmdSuggestions: false,
-  startDirectoryLocal: ''
+  startDirectoryLocal: '',
+  allowMultiInstance: false
 }
