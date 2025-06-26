@@ -16,5 +16,5 @@ module.exports = exports.default = {
     autoSync: false
   },
 
-  host: '127.0.0.1'
+  host: 'localhost'
 }

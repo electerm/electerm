@@ -12,7 +12,7 @@ const globalState = require('./global-state')
 
 function getPort (fromPort = 120023) {
   return new Promise((resolve, reject) => {
-    require('find-free-port')(fromPort, '127.0.0.1', function (err, freePort) {
+    require('find-free-port')(fromPort, 'localhost', function (err, freePort) {
       if (err) {
         reject(err)
       } else {
@@ -94,14 +94,14 @@ class TerminalVnc extends TerminalBase {
       sshTunnels: [
         {
           sshTunnel: 'dynamicForward',
-          sshTunnelLocalHost: '127.0.0.1',
+          sshTunnelLocalHost: 'localhost',
           sshTunnelLocalPort: fp,
           id: uid()
         }
       ]
     }
     this.ssh = await session(initOpts)
-    const proxyA = `socks5://127.0.0.1:${fp}`
+    const proxyA = `socks5://localhost:${fp}`
     return proxySock({
       readyTimeout,
       host,

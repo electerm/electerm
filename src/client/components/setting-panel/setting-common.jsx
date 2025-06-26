@@ -434,7 +434,7 @@ export default class SettingCommon extends Component {
           />
         </div>
         {
-          this.renderText('proxy', 'socks5://127.0.0.1:1080')
+          this.renderText('proxy', 'socks5://localhost:1080')
         }
       </div>
     )

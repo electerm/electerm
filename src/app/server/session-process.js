@@ -14,7 +14,7 @@ function getPort (fromPort = MIN_PORT) {
   const startPort = lastPort >= MAX_PORT ? MIN_PORT : lastPort + 1
 
   return new Promise((resolve, reject) => {
-    require('find-free-port')(startPort, '127.0.0.1', function (err, freePort) {
+    require('find-free-port')(startPort, 'localhost', function (err, freePort) {
       if (err) {
         reject(err)
       } else {
