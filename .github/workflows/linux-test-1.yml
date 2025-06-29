@@ -28,6 +28,7 @@ jobs:
     - run: npm install -g yarn
     - run: npm i
     - run: PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm i -D -E playwright@1.49.1 && npm i -D -E @playwright/test@1.49.1
+    - run: ./node_modules/.bin/playwright install-deps
 
     # script:
     - run: npm run b
@@ -35,6 +36,7 @@ jobs:
       uses: GabrielBB/xvfb-action@v1
       with:
         run: npm run test1
+        args: "-screen 0 1280x1024x24"
       env:
         NODE_TEST: 1
         TEST_HOST: ${{ secrets.TEST_HOST }}
