@@ -23,7 +23,7 @@ jobs:
     - name: Install Electron dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y libgtk-3-dev libgbm-dev libasound2-dev libgconf-2-4 libnss3-dev libx11-xcb1 libxcomposite1 libxcursor1 libxdamage1 libxi6 libxtst6 libatk1.0-0 libatk-bridge2.0-0 libpango-1.0-0 libpangocairo-1.0-0 libcups2 libxrandr2 libxss1
+        sudo apt-get install -y libgtk-3-dev libgbm-dev libasound2-dev libnss3-dev libx11-xcb1 libxcomposite1 libxcursor1 libxdamage1 libxi6 libxtst6 libatk1.0-0 libatk-bridge2.0-0 libpango-1.0-0 libpangocairo-1.0-0 libcups2 libxrandr2 libxss1
     # before_install:
     - run: pip install setuptools
     - run: npm install -g yarn
