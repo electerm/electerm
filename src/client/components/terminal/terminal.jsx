@@ -58,6 +58,19 @@ import SearchResultBar from './terminal-search-bar'
 
 const e = window.translate
 
+const PS1_SETUP_CMD = `\recho $0|grep csh >/dev/null && set prompt_bak="$prompt" && set prompt="$prompt${cwdId}%/${cwdId}"\r
+echo $0|grep zsh >/dev/null && PS1_bak=$PS1&&PS1=$PS1'${cwdId}%d${cwdId}'\r
+echo $0|grep ash >/dev/null && PS1_bak=$PS1&&PS1=$PS1'\`echo ${cwdId}$PWD${cwdId}\`'\r
+echo $0|grep ksh >/dev/null && PS1_bak=$PS1&&PS1=$PS1'\`echo ${cwdId}$PWD${cwdId}\`'\r
+echo $0|grep '^sh' >/dev/null && PS1_bak=$PS1&&PS1=$PS1'\`echo ${cwdId}$PWD${cwdId}\`'\r
+clear\r`
+
+const PS1_RESTORE_CMD = `\recho $0|grep csh >/dev/null && set prompt="$prompt_bak"\r
+echo $0|grep zsh >/dev/null && PS1="$PS1_bak"\r
+echo $0|grep ash >/dev/null && PS1="$PS1_bak"\r
+echo $0|grep ksh >/dev/null && PS1="$PS1_bak"\r
+echo $0|grep '^sh' >/dev/null && PS1="$PS1_bak"\r
+clear\r`
 class Term extends Component {
   constructor (props) {
     super(props)
@@ -133,25 +146,20 @@ class Term extends Component {
     )
 
     if (sftpPathFollowSshChanged) {
-      const ps1Cmd = `\recho $0|grep csh >/dev/null && set prompt_bak="$prompt" && set prompt="$prompt${cwdId}%/${cwdId}"\r
-echo $0|grep zsh >/dev/null && PS1_bak=$PS1&&PS1=$PS1'${cwdId}%d${cwdId}'\r
-echo $0|grep ash >/dev/null && PS1_bak=$PS1&&PS1=$PS1'\`echo ${cwdId}$PWD${cwdId}\`'\r
-echo $0|grep ksh >/dev/null && PS1_bak=$PS1&&PS1=$PS1'\`echo ${cwdId}$PWD${cwdId}\`'\r
-echo $0|grep '^sh' >/dev/null && PS1_bak=$PS1&&PS1=$PS1'\`echo ${cwdId}$PWD${cwdId}\`'\r
-clear\r`
-      const ps1RestoreCmd = `\recho $0|grep csh >/dev/null && set prompt="$prompt_bak"\r
-echo $0|grep zsh >/dev/null && PS1="$PS1_bak"\r
-echo $0|grep ash >/dev/null && PS1="$PS1_bak"\r
-echo $0|grep ksh >/dev/null && PS1="$PS1_bak"\r
-echo $0|grep '^sh' >/dev/null && PS1="$PS1_bak"\r
-clear\r`
-
       if (this.props.sftpPathFollowSsh) {
-        this.socket.send(ps1Cmd)
-        this.term.cwdId = cwdId
+        if (this.attachAddon && this.term) {
+          this.attachAddon._sendData(PS1_SETUP_CMD)
+          this.term.cwdId = cwdId
+        } else {
+          log.warn('Term or attachAddon not ready for PS1_SETUP_CMD in componentDidUpdate')
+        }
       } else {
-        this.socket.send(ps1RestoreCmd)
-        delete this.term.cwdId
+        if (this.attachAddon) {
+          this.attachAddon._sendData(PS1_RESTORE_CMD)
+        }
+        if (this.term) {
+          delete this.term.cwdId
+        }
       }
     }
   }
@@ -878,17 +886,17 @@ clear\r`
   getCwd = () => {
     if (
       this.props.sftpPathFollowSsh &&
+      this.term &&
       this.term.buffer.active.type !== 'alternate' && !this.term.cwdId
     ) {
+      // This block should ideally not be hit for initial setup if runInitScript works.
+      // It acts as a fallback.
       this.term.cwdId = cwdId
-
-      const ps1Cmd = `\recho $0|grep csh >/dev/null && set prompt_bak="$prompt" && set prompt="$prompt${cwdId}%/${cwdId}"\r
-echo $0|grep zsh >/dev/null && PS1_bak=$PS1&&PS1=$PS1'${cwdId}%d${cwdId}'\r
-echo $0|grep ash >/dev/null && PS1_bak=$PS1&&PS1=$PS1'\`echo ${cwdId}$PWD${cwdId}\`'\r
-echo $0|grep ksh >/dev/null && PS1_bak=$PS1&&PS1=$PS1'\`echo ${cwdId}$PWD${cwdId}\`'\r
-clear\r`
-
-      this.socket.send(ps1Cmd)
+      if (this.attachAddon) {
+        this.attachAddon._sendData(PS1_SETUP_CMD)
+      } else {
+        log.warn('attachAddon not ready for PS1_SETUP_CMD in getCwd fallback')
+      }
     }
   }
 
@@ -1053,9 +1061,23 @@ clear\r`
     } = this.props.tab
     const startFolder = startDirectory || window.initFolder
     if (startFolder) {
-      const cmd = `cd "${startFolder}"\r`
-      this.attachAddon._sendData(cmd)
+      if (this.attachAddon) {
+        const cmd = `cd "${startFolder}"\r`
+        this.attachAddon._sendData(cmd)
+      } else {
+        log.warn('attachAddon not ready for cd command in runInitScript')
+      }
     }
+
+    if (this.props.sftpPathFollowSsh) {
+      if (this.term && this.attachAddon) {
+        this.attachAddon._sendData(PS1_SETUP_CMD)
+        this.term.cwdId = cwdId
+      } else {
+        log.warn('Term or attachAddon not ready for PS1_SETUP_CMD in runInitScript')
+      }
+    }
+
     if (runScripts && runScripts.length) {
       this.delayedScripts = deepCopy(runScripts)
       this.timers.timerDelay = setTimeout(this.runDelayedScripts, this.delayedScripts[0].delay || 0)

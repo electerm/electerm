@@ -10,7 +10,6 @@ const globalState = require('./glob-state')
 const { getDbConfig } = require('./get-config')
 
 exports.createApp = async function () {
-  const conf = await getDbConfig()
   app.setName(packInfo.name)
   if (process.platform === 'linux') {
     app.commandLine.appendSwitch('--enable-transparent-visuals')
@@ -33,6 +32,7 @@ exports.createApp = async function () {
   }
   const progs = initCommandLine()
   const opts = progs?.options
+  const conf = await getDbConfig()
   globalState.set('serverPort', opts?.serverPort)
 
   const { allowMultiInstance = false } = conf
