@@ -37,11 +37,20 @@ export default class AddrBookmarkItem extends Component {
   handleDrop = e => {
     e.preventDefault()
     const { store } = window
-    const [host, idDragged] = e.dataTransfer.getData('idDragged').split('#')
+    const { item } = this.props
+    const draggedData = e.dataTransfer.getData('idDragged')
+    const [hostOrGlobal, idDragged] = draggedData.split('#')
     const idDrop = e.target.getAttribute('data-id').split('#')[1]
-    const dataName = host
-      ? 'addressBookmarks'
-      : 'addressBookmarksLocal'
+    
+    let dataName
+    if (hostOrGlobal === 'global') {
+      dataName = 'addressBookmarksGlobal'
+    } else if (!hostOrGlobal) {
+      dataName = 'addressBookmarksLocal'
+    } else {
+      dataName = 'addressBookmarks'
+    }
+    
     store.adjustOrder(dataName, idDragged, idDrop)
   }
 
@@ -49,7 +58,7 @@ export default class AddrBookmarkItem extends Component {
     const {
       item
     } = this.props
-    const id = `${item.host}#${item.id}`
+    const id = item.isGlobal ? `global#${item.id}` : `${item.host}#${item.id}`
     return (
       <div
         key={item.id}

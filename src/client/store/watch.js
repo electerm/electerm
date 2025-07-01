@@ -11,6 +11,7 @@ import {
   expandedKeysLsKey,
   resolutionsLsKey,
   localAddrBookmarkLsKey,
+  globalAddrBookmarkLsKey,
   syncServerDataKey,
   aiChatHistoryKey,
   cmdHistoryKey
@@ -118,6 +119,11 @@ export default store => {
   autoRun(() => {
     ls.setItemJSON(localAddrBookmarkLsKey, store.addressBookmarksLocal)
     return store.addressBookmarksLocal
+  }).start()
+
+  autoRun(() => {
+    ls.setItemJSON(globalAddrBookmarkLsKey, store.addressBookmarksGlobal)
+    return store.addressBookmarksGlobal
   }).start()
 
   autoRun(() => {
