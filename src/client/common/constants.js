@@ -359,7 +359,7 @@ export const syncDataMaps = {
   terminalThemes: ['terminalThemes'],
   quickCommands: ['quickCommands'],
   profiles: ['profiles'],
-  addressBookmarks: ['addressBookmarks']
+  addressBookmarks: ['addressBookmarks', 'addressBookmarksGlobal']
 }
 export const terminalTypes = [
   'xterm-256color',
