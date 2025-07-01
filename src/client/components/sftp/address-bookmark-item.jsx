@@ -39,9 +39,14 @@ export default class AddrBookmarkItem extends Component {
     const { store } = window
     const [host, idDragged] = e.dataTransfer.getData('idDragged').split('#')
     const idDrop = e.target.getAttribute('data-id').split('#')[1]
-    const dataName = host
-      ? 'addressBookmarks'
-      : 'addressBookmarksLocal'
+    let dataName
+    if (host === 'global') {
+      dataName = 'addressBookmarksGlobal'
+    } else if (host) {
+      dataName = 'addressBookmarks'
+    } else {
+      dataName = 'addressBookmarksLocal'
+    }
     store.adjustOrder(dataName, idDragged, idDrop)
   }
 
@@ -49,7 +54,11 @@ export default class AddrBookmarkItem extends Component {
     const {
       item
     } = this.props
-    const id = `${item.host}#${item.id}`
+    let hostKey = item.host
+    if (item.global) {
+      hostKey = 'global'
+    }
+    const id = `${hostKey}#${item.id}`
     return (
       <div
         key={item.id}

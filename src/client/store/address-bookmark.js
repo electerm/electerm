@@ -1,4 +1,7 @@
 function getType (item) {
+  if (item.global) {
+    return 'addressBookmarksGlobal'
+  }
   return item.host
     ? 'addressBookmarks'
     : 'addressBookmarksLocal'
@@ -17,6 +20,7 @@ export default Store => {
     const { store } = window
     return [
       ...store.addressBookmarksLocal,
+      ...store.addressBookmarksGlobal,
       ...store.addressBookmarks.sort((a, b) => {
         return a.host > b.host ? 1 : -1
       })
