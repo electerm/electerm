@@ -4,7 +4,8 @@ import {
   PlusSquareOutlined
 } from '@ant-design/icons'
 import {
-  Popover
+  Popover,
+  Button
 } from 'antd'
 import AddrBookmarkItem from './address-bookmark-item'
 import { typeMap } from '../../common/constants'
@@ -16,7 +17,7 @@ export default auto(function AddrBookmark (props) {
     window.store.delAddressBookmark(item)
   }
 
-  function handleAddAddr () {
+  function handleAddAddrAct (isGlobal = false) {
     const {
       host, realPath, type
     } = props
@@ -24,9 +25,18 @@ export default auto(function AddrBookmark (props) {
       {
         addr: realPath,
         host: type === typeMap.local ? '' : host,
+        isGlobal,
         id: uid()
       }
     )
+  }
+
+  function handleAddAddr () {
+    handleAddAddrAct(false)
+  }
+
+  function handleAddAddrGlob () {
+    handleAddAddrAct(true)
   }
 
   const { type, onClickHistory, host } = props
@@ -36,10 +46,13 @@ export default auto(function AddrBookmark (props) {
   //   'animated',
   //   `sftp-history-${type}`
   // )
-  const addrs = type === typeMap.local
+  const isLocal = type === typeMap.local
+  const addrs = isLocal
     ? store.addressBookmarksLocal
     : store.addressBookmarks.filter(
-      g => g.host === host
+      g => {
+        return g.isGlobal || g.host === host
+      }
     )
   const inner = addrs.length
     ? addrs.map(o => {
@@ -61,11 +74,25 @@ export default auto(function AddrBookmark (props) {
       {inner}
     </div>
   )
+  const globButton = isLocal
+    ? null
+    : (
+      <Button
+        onClick={handleAddAddrGlob}
+        icon={<PlusSquareOutlined />}
+      >
+        {window.translate('global')}
+      </Button>
+      )
   const title = (
-    <PlusSquareOutlined
-      className='add-addr-bookmark'
-      onClick={handleAddAddr}
-    />
+    <div>
+      <Button
+        className='add-addr-bookmark mg1r'
+        onClick={handleAddAddr}
+        icon={<PlusSquareOutlined />}
+      />
+      {globButton}
+    </div>
   )
   return (
     <Popover
