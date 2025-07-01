@@ -221,7 +221,7 @@ class Term extends Component {
       this.socket,
       isWin && !this.isRemote()
     )
-    this.attachAddon.decoder = new TextDecoder(
+    this.attachAddon.switchEncoding(
       this.encode || this.props.tab.encode || 'utf-8'
     )
     this.term.loadAddon(this.attachAddon)
@@ -1249,7 +1249,23 @@ class Term extends Component {
   initSocketEvents = () => {
     const originalSend = this.socket.send
     this.socket.send = (data) => {
+      console.log('beore000', data)
       // Call original send first
+      // let encodedData;
+      if (data instanceof Uint8Array) {
+        // If it's already a Uint8Array, we need to decode and re-encode
+        data = new TextDecoder('utf-8').decode(data)
+      }
+      if (
+        this.attachAddon.encoder &&
+        typeof data === 'string' &&
+        this.encode.toLowerCase() !== 'utf-8'
+      ) {
+        console.log('beore', data)
+
+        data = this.attachAddon.encoder.encode(data)
+        console.log('after', data)
+      }
       originalSend.call(this.socket, data)
 
       // Broadcast to other terminals
@@ -1391,7 +1407,7 @@ class Term extends Component {
 
   switchEncoding = encode => {
     this.encode = encode
-    this.attachAddon.decoder = new TextDecoder(encode)
+    this.attachAddon.switchEncoding(encode)
   }
 
   render () {
