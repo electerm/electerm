@@ -2,6 +2,9 @@ import { Component } from 'react'
 import {
   CloseCircleOutlined
 } from '@ant-design/icons'
+import {
+  Tag
+} from 'antd'
 
 export default class AddrBookmarkItem extends Component {
   handleClick = () => {
@@ -50,6 +53,9 @@ export default class AddrBookmarkItem extends Component {
       item
     } = this.props
     const id = `${item.host}#${item.id}`
+    const globTag = item.isGlobal
+      ? <Tag color='green'>G</Tag>
+      : null
     return (
       <div
         key={item.id}
@@ -61,7 +67,8 @@ export default class AddrBookmarkItem extends Component {
         onDragStart={this.handleDragStart}
         onDrop={this.handleDrop}
       >
-        {item.addr}
+        {globTag}
+        <b>{item.addr}</b>
         <CloseCircleOutlined
           className='del-addr-bookmark'
           onClick={this.handleDel}
