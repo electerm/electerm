@@ -65,7 +65,7 @@ Online demo: [https://electerm-demo.html5beta.com](https://electerm-demo.html5be
 
 ```powershell
 # winget https://github.com/microsoft/winget-cli
-winget install electerm
+winget install electerm.electerm
 
 # scoop https://github.com/lukesampson/scoop
 scoop bucket add dorado https://github.com/chawyehsu/dorado

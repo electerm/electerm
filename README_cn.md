@@ -66,7 +66,7 @@ Powered by [manate](https://github.com/tylerlong/manate)
 
 ```powershell
 # winget https://github.com/microsoft/winget-cli
-winget install electerm
+winget install electerm.electerm
 
 # scoop https://github.com/lukesampson/scoop
 scoop bucket add dorado https://github.com/chawyehsu/dorado
