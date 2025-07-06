@@ -52,7 +52,7 @@ export default class FileSection extends React.Component {
   constructor (props) {
     super(props)
     this.state = {
-      file: copy(props.file),
+      file: props.file,
       overwriteStrategy: '',
       dropdownOpen: false
     }
@@ -122,7 +122,7 @@ export default class FileSection extends React.Component {
     const files = targetFiles ||
       (
         selected
-          ? this.props.selectedFiles
+          ? this.props.getSelectedFiles()
           : [file]
       )
     const prefix = file.type === typeMap.remote
@@ -141,7 +141,7 @@ export default class FileSection extends React.Component {
     const files = targetFiles ||
       (
         selected
-          ? this.props.selectedFiles
+          ? this.props.getSelectedFiles()
           : [file]
       )
     const textToCopy = files.map(f => {
@@ -220,7 +220,7 @@ export default class FileSection extends React.Component {
     this.props.modifier({
       onDrag: true
     })
-    const cls = this.props.selectedFiles.length > 1
+    const cls = this.props.selectedFiles.size > 1
       ? onDragCls + ' ' + onMultiDragCls
       : onDragCls
     addClass(this.domRef.current, cls)
@@ -357,7 +357,7 @@ export default class FileSection extends React.Component {
 
   transferDrop = (fromFiles, toFile, operation) => {
     const files = this.isSelected(fromFiles[0])
-      ? this.props.selectedFiles
+      ? this.props.getSelectedFiles()
       : fromFiles
     return this.doTransferSelected(
       null,
@@ -369,10 +369,7 @@ export default class FileSection extends React.Component {
   }
 
   isSelected = file => {
-    return some(
-      this.props.selectedFiles,
-      f => f.id === file.id
-    )
+    return this.props.selectedFiles.has(file.id)
   }
 
   doRename = () => {
@@ -453,7 +450,7 @@ export default class FileSection extends React.Component {
   }
 
   getShiftSelected (file, type) {
-    const indexs = this.props.selectedFiles.map(
+    const indexs = this.props.getSelectedFiles().map(
       this.props.getIndex
     )
     const i = this.props.getIndex(file)
@@ -486,12 +483,10 @@ export default class FileSection extends React.Component {
     this.onDragEnd(e)
     if (!id) {
       return this.props.modifier({
-        selectedFiles: []
+        selectedFiles: new Set()
       })
     }
-    const selectedFilesOld = copy(
-      this.props.selectedFiles
-    )
+    const selectedFilesOld = this.props.getSelectedFiles()
     const isSameSide = selectedFilesOld.length &&
       type === selectedFilesOld[0].type
     let selectedFiles = [file]
@@ -515,7 +510,8 @@ export default class FileSection extends React.Component {
       }
     }
     this.props.modifier({
-      selectedFiles,
+      selectedFiles: new Set(selectedFiles.map(f => f.id)),
+      selectedType: type,
       lastClickedFile: file
     })
   }
@@ -779,7 +775,7 @@ export default class FileSection extends React.Component {
 
   doTransferSelected = async (
     e,
-    selectedFiles = this.props.selectedFiles,
+    selectedFiles = this.props.getSelectedFiles(),
     toPathBase,
     typeTo,
     operation
@@ -820,16 +816,16 @@ export default class FileSection extends React.Component {
       selectedFiles
     } = this.props
     return id &&
-      selectedFiles.length > 1 &&
-      some(selectedFiles, d => d.id === id)
+      selectedFiles.size > 1 &&
+      selectedFiles.has(id)
   }
 
   del = async () => {
     const delSelected = this.shouldShowSelectedMenu()
-    const { file, selectedFiles } = this.props
+    const { file } = this.props
     const { type } = file
     const files = delSelected
-      ? selectedFiles
+      ? this.props.getSelectedFiles()
       : [file]
     await this.props.delFiles(type, files)
   }
@@ -875,9 +871,9 @@ export default class FileSection extends React.Component {
   }
 
   renderDelConfirmTitle (shouldShowSelectedMenu) {
-    const { file, selectedFiles } = this.props
+    const { file } = this.props
     const files = shouldShowSelectedMenu
-      ? selectedFiles
+      ? this.props.getSelectedFiles()
       : [file]
     return this.props.renderDelConfirmTitle(files, true)
   }
@@ -966,10 +962,10 @@ export default class FileSection extends React.Component {
     const iconType = isLocal
       ? 'CloudUploadOutlined'
       : 'CloudDownloadOutlined'
-    const len = selectedFiles.length
+    const len = selectedFiles.size
     const shouldShowSelectedMenu = id &&
       len > 1 &&
-      some(selectedFiles, d => d.id === id)
+      selectedFiles.has(id)
     const delTxt = shouldShowSelectedMenu ? `${e('deleteAll')}(${len})` : e('del')
     const canPaste = hasFileInClipboardText()
     const showEdit = !isDirectory && id &&
@@ -1219,7 +1215,7 @@ export default class FileSection extends React.Component {
     if (isEditing) {
       return this.renderEditing(file)
     }
-    const selected = some(selectedFiles.filter(d => d), s => s.id === id)
+    const selected = selectedFiles.has(id)
     const className = classnames('sftp-item', cls, type, {
       directory: isDirectory,
       selected

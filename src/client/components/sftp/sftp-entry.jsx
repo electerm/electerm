@@ -41,7 +41,8 @@ export default class Sftp extends Component {
     super(props)
     this.state = {
       id: props.id || generate(),
-      selectedFiles: [],
+      selectedFiles: new Set(),
+      selectedType: '',
       lastClickedFile: null,
       onEditFile: false,
       ...this.defaultState(),
@@ -71,17 +72,17 @@ export default class Sftp extends Component {
     }
     if (
       prevState.remotePath !== this.state.remotePath &&
-      this.state.selectedFiles.some(f => f.type === typeMap.remote)
+      this.state.selectedType === typeMap.remote
     ) {
       this.setState({
-        selectedFiles: []
+        selectedFiles: new Set()
       })
     } else if (
       prevState.localPath !== this.state.localPath &&
-      this.state.selectedFiles.some(f => f.type === typeMap.local)
+      this.state.selectedType === typeMap.local
     ) {
       this.setState({
-        selectedFiles: []
+        selectedFiles: new Set()
       })
     }
     if (
@@ -134,6 +135,14 @@ export default class Sftp extends Component {
 
   defaultDirection = (i = 0) => {
     return this.directions[i]
+  }
+
+  getFileItemById = (id, type) => {
+    if (type) {
+      return this.state[`${type}FileTree`].get(id)
+    }
+    return this.getFileItemById(id, typeMap.local) ||
+      this.getFileItemById(id, typeMap.remote)
   }
 
   defaultState = () => {
@@ -288,49 +297,61 @@ export default class Sftp extends Component {
   selectAll = (type, e) => {
     e && e.preventDefault && e.preventDefault()
     this.setState({
-      selectedFiles: this.getFileList(type)
+      selectedFiles: new Set(this.getFileList(type).map(f => f.id))
     })
   }
 
   selectNext = type => {
     const { selectedFiles } = this.state
-    const sorted = selectedFiles.map(f => this.getIndex(f))
-      .sort(sorterIndex)
-    const lastOne = last(sorted)
-    const list = this.getFileList(type)
-    if (!list.length) {
+    const fileList = this.getFileList(type)
+    if (!fileList.length) {
       return
     }
+
+    // Convert Set of IDs to array of indices
+    const fileIndices = Array.from(selectedFiles)
+      .map(id => fileList.findIndex(f => f.id === id))
+      .filter(index => index !== -1)
+      .sort(sorterIndex)
+
+    const lastOne = last(fileIndices)
     let next = 0
     if (isNumber(lastOne)) {
-      next = (lastOne + 1) % list.length
+      next = (lastOne + 1) % fileList.length
     }
-    const nextFile = list[next]
+
+    const nextFile = fileList[next]
     if (nextFile) {
       this.setState({
-        selectedFiles: [nextFile]
+        selectedFiles: new Set([nextFile.id])
       })
     }
   }
 
   selectPrev = type => {
     const { selectedFiles } = this.state
-    const sorted = selectedFiles.map(f => this.getIndex(f))
-      .sort(sorterIndex)
-    const lastOne = sorted[0]
-    const list = this.getFileList(type)
-    if (!list.length) {
+    const fileList = this.getFileList(type)
+    if (!fileList.length) {
       return
     }
+
+    // Convert Set of IDs to array of indices
+    const fileIndices = Array.from(selectedFiles)
+      .map(id => fileList.findIndex(f => f.id === id))
+      .filter(index => index !== -1)
+      .sort(sorterIndex)
+
+    const firstOne = fileIndices[0]
     let next = 0
-    const len = list.length
-    if (isNumber(lastOne)) {
-      next = (lastOne - 1 + len) % len
+    const len = fileList.length
+    if (isNumber(firstOne)) {
+      next = (firstOne - 1 + len) % len
     }
-    const nextFile = list[next]
+
+    const nextFile = fileList[next]
     if (nextFile) {
       this.setState({
-        selectedFiles: [nextFile]
+        selectedFiles: new Set([nextFile.id])
       })
     }
   }
@@ -366,14 +387,23 @@ export default class Sftp extends Component {
     })
   }
 
-  delFiles = async (_type, files = this.state.selectedFiles) => {
+  getSelectedFiles = (selectedFiles = this.state.selectedFiles) => {
+    // Convert Set of IDs to array of file objects
+    return Array.isArray(selectedFiles)
+      ? selectedFiles
+      : Array.from(selectedFiles)
+        .map(id => this.getFileItemById(id))
+        .filter(Boolean) // Filter out any undefined items
+  }
+
+  delFiles = async (_type, files = this.getSelectedFiles()) => {
     this.onDelete = true
     const confirm = await this.confirmDelete(files)
     this.onDelete = false
     if (!confirm) {
       return
     }
-    const type = files[0].type || _type
+    const type = files[0]?.type || _type
     const func = this[type + 'Del']
     for (const f of files) {
       await func(f)
@@ -384,7 +414,7 @@ export default class Sftp extends Component {
     this[type + 'List']()
   }
 
-  renderDelConfirmTitle (files = this.state.selectedFiles, pureText) {
+  renderDelConfirmTitle (files = this.getSelectedFiles(), pureText) {
     const hasDirectory = some(files, f => f.isDirectory)
     const names = hasDirectory ? e('filesAndFolders') : e('files')
     if (pureText) {
@@ -409,10 +439,14 @@ export default class Sftp extends Component {
 
   enter = (type, e) => {
     const { selectedFiles, onEditFile } = this.state
-    if (onEditFile || selectedFiles.length !== 1) {
+    if (onEditFile || selectedFiles.size !== 1) {
       return
     }
-    const file = selectedFiles[0]
+    const fileId = Array.from(selectedFiles)[0]
+    const file = this.getFileItemById(fileId)
+    if (!file) {
+      return
+    }
     const { isDirectory } = file
     if (isDirectory) {
       this[type + 'Dom'].enterDirectory(e, file)
@@ -440,11 +474,13 @@ export default class Sftp extends Component {
   }
 
   doCopy = (type, e) => {
-    this[type + 'Dom'].onCopy(this.state.selectedFiles)
+    const selectedFiles = this.getSelectedFiles()
+    this[type + 'Dom'].onCopy(selectedFiles)
   }
 
   doCut = (type, e) => {
-    this[type + 'Dom'].onCut(this.state.selectedFiles)
+    const selectedFiles = this.getSelectedFiles()
+    this[type + 'Dom'].onCut(selectedFiles)
   }
 
   doPaste = (type) => {
@@ -937,7 +973,9 @@ export default class Sftp extends Component {
         'getFileList',
         'onGoto',
         'addTransferList',
-        'renderDelConfirmTitle'
+        'renderDelConfirmTitle',
+        'getSelectedFiles',
+        'getFileItemById'
       ]),
       ...pick(this.state, [
         'id',
