@@ -52,7 +52,7 @@ export default function TabSelect (props) {
   }
   function renderContent () {
     return (
-      <div className='pd1x'>
+      <div className='pd1x alignright'>
         {renderBtns()}
         {renderTabs()}
       </div>

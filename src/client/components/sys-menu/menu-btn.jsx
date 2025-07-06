@@ -27,10 +27,6 @@ class MenuBtn extends PureComponent {
     window.store.addTab()
   }
 
-  onNewWindow = () => {
-    window.store.onNewWindow()
-  }
-
   openAbout = () => {
     window.store.openAbout()
   }
@@ -80,11 +76,6 @@ class MenuBtn extends PureComponent {
         icon: 'RightSquareFilled',
         text: e('newTab')
       },
-      {
-        func: 'onNewWindow',
-        icon: 'WindowsOutlined',
-        text: e('newWindow')
-      },
       // {
       //   type: 'hr'
       // },
@@ -105,6 +96,11 @@ class MenuBtn extends PureComponent {
         icon: 'BarsOutlined',
         text: e('sessions'),
         submenu: 'Tabs'
+      },
+      {
+        icon: 'AppstoreOutlined',
+        text: e('layout'),
+        submenu: 'Layout'
       },
       // {
       //   type: 'hr'

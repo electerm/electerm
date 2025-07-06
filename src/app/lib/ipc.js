@@ -30,7 +30,6 @@ const {
   getLang,
   loadLocales
 } = require('./locales')
-const openNewInstance = require('./open-new-instance')
 const { saveUserConfig } = require('./user-config-controller')
 const { changeHotkeyReg, initShortCut } = require('./shortcut')
 const lastStateManager = require('./last-state')
@@ -121,7 +120,6 @@ function initIpc () {
     checkPassword,
     lookup,
     loadSshConfig,
-    openNewInstance,
     init,
     listSerialPorts,
     toCss,

@@ -6,7 +6,8 @@ import React from 'react'
 import ExtIcon from './file-icon'
 import {
   FolderOutlined,
-  FileOutlined
+  FileOutlined,
+  ArrowRightOutlined
 } from '@ant-design/icons'
 import classnames from 'classnames'
 import copy from 'json-deep-copy'
@@ -27,7 +28,7 @@ import {
 } from '../../common/constants'
 import findParent from '../../common/find-parent'
 import sorter from '../../common/index-sorter'
-import { getFolderFromFilePath, getLocalFileInfo, checkFolderSize } from './file-read'
+import { getFolderFromFilePath, getLocalFileInfo } from './file-read'
 import { readClipboard, copy as copyToClipboard, hasFileInClipboardText } from '../../common/clipboard'
 import fs from '../../common/fs'
 import time from '../../common/time'
@@ -51,16 +52,16 @@ export default class FileSection extends React.Component {
   constructor (props) {
     super(props)
     this.state = {
-      file: copy(props.file),
-      overwriteStrategy: ''
+      file: props.file,
+      overwriteStrategy: '',
+      dropdownOpen: false
     }
     // Create ref
     this.domRef = React.createRef()
+    this.id = 'file-' + this.props.file.id
   }
 
   componentDidMount () {
-    this.id = 'file-' + (this.props.file?.id || generate())
-    refs.add(this.id, this)
     this.applyStyle()
   }
 
@@ -74,7 +75,6 @@ export default class FileSection extends React.Component {
   }
 
   componentWillUnmount () {
-    refsStatic.remove(this.id)
     clearTimeout(this.timer)
     this.timer = null
     this.domRef = null
@@ -82,8 +82,18 @@ export default class FileSection extends React.Component {
     this.removeFileEditEvent()
   }
 
+  clearRef = () => {
+    refs.remove(this.id)
+  }
+
   get editor () {
     return refsStatic.get('text-editor')
+  }
+
+  handleDropdownOpenChange = (open) => {
+    if (open) {
+      this.forceUpdate()
+    }
   }
 
   applyStyle = () => {
@@ -112,7 +122,7 @@ export default class FileSection extends React.Component {
     const files = targetFiles ||
       (
         selected
-          ? this.props.selectedFiles
+          ? this.props.getSelectedFiles()
           : [file]
       )
     const prefix = file.type === typeMap.remote
@@ -131,7 +141,7 @@ export default class FileSection extends React.Component {
     const files = targetFiles ||
       (
         selected
-          ? this.props.selectedFiles
+          ? this.props.getSelectedFiles()
           : [file]
       )
     const textToCopy = files.map(f => {
@@ -210,7 +220,7 @@ export default class FileSection extends React.Component {
     this.props.modifier({
       onDrag: true
     })
-    const cls = this.props.selectedFiles.length > 1
+    const cls = this.props.selectedFiles.size > 1
       ? onDragCls + ' ' + onMultiDragCls
       : onDragCls
     addClass(this.domRef.current, cls)
@@ -347,7 +357,7 @@ export default class FileSection extends React.Component {
 
   transferDrop = (fromFiles, toFile, operation) => {
     const files = this.isSelected(fromFiles[0])
-      ? this.props.selectedFiles
+      ? this.props.getSelectedFiles()
       : fromFiles
     return this.doTransferSelected(
       null,
@@ -359,10 +369,7 @@ export default class FileSection extends React.Component {
   }
 
   isSelected = file => {
-    return some(
-      this.props.selectedFiles,
-      f => f.id === file.id
-    )
+    return this.props.selectedFiles.has(file.id)
   }
 
   doRename = () => {
@@ -388,7 +395,6 @@ export default class FileSection extends React.Component {
       tab: this.props.tab,
       visible: true,
       pid: this.props.pid,
-      sessionId: this.props.sessionId,
       uidTree: this.props[`${type}UidTree`],
       gidTree: this.props[`${type}GidTree`]
     })
@@ -444,7 +450,7 @@ export default class FileSection extends React.Component {
   }
 
   getShiftSelected (file, type) {
-    const indexs = this.props.selectedFiles.map(
+    const indexs = this.props.getSelectedFiles().map(
       this.props.getIndex
     )
     const i = this.props.getIndex(file)
@@ -477,12 +483,10 @@ export default class FileSection extends React.Component {
     this.onDragEnd(e)
     if (!id) {
       return this.props.modifier({
-        selectedFiles: []
+        selectedFiles: new Set()
       })
     }
-    const selectedFilesOld = copy(
-      this.props.selectedFiles
-    )
+    const selectedFilesOld = this.props.getSelectedFiles()
     const isSameSide = selectedFilesOld.length &&
       type === selectedFilesOld[0].type
     let selectedFiles = [file]
@@ -506,12 +510,14 @@ export default class FileSection extends React.Component {
       }
     }
     this.props.modifier({
-      selectedFiles,
+      selectedFiles: new Set(selectedFiles.map(f => f.id)),
+      selectedType: type,
       lastClickedFile: file
     })
   }
 
   changeFileMode = async (file) => {
+    this.clearRef()
     const { permission, type, path, name } = file
     const func = type === typeMap.local
       ? fs.chmod
@@ -523,6 +529,7 @@ export default class FileSection extends React.Component {
 
   openFileModeModal = () => {
     const { type } = this.props
+    refs.add(this.id, this)
     refsStatic.get('file-modal')?.showFileModeModal(
       {
         tab: this.props.tab,
@@ -612,6 +619,7 @@ export default class FileSection extends React.Component {
   }
 
   removeFileEditEvent = () => {
+    this.clearRef()
     if (this.watchingFile) {
       window.pre.ipcOffEvent('file-change', this.onFileChange)
       window.pre.runGlobalAsync('unwatchFile', this.watchingFile)
@@ -659,7 +667,7 @@ export default class FileSection extends React.Component {
     const {
       path, name
     } = this.state.file
-    const rp = resolve(path, name)
+    const rp = path ? resolve(path, name) : this.props[`${this.props.type}Path`]
     this.props.tab.pane = paneMap.terminal
     refs.get('term-' + this.props.tab.id)?.cd(rp)
   }
@@ -692,6 +700,7 @@ export default class FileSection extends React.Component {
       data.file = null
       data.text = ''
     }
+    this.clearRef()
     this.editor?.setState(data)
     if (r && !noClose) {
       this.props[`${type}List`]()
@@ -699,6 +708,7 @@ export default class FileSection extends React.Component {
   }
 
   editFile = () => {
+    refs.add(this.id, this)
     this.editor?.openEditor({
       id: this.id,
       file: this.state.file
@@ -735,7 +745,7 @@ export default class FileSection extends React.Component {
     _typeTo,
     operation
   ) => {
-    const { name, path, type, isDirectory } = file
+    const { name, path, type } = file
     const isLocal = type === typeMap.local
     let typeTo = isLocal
       ? typeMap.remote
@@ -760,19 +770,12 @@ export default class FileSection extends React.Component {
       ...createTransferProps(this.props),
       operation
     }
-    if (isDirectory) {
-      const zip = await checkFolderSize(this.props, file)
-      Object.assign(obj, {
-        zip,
-        skipExpand: zip
-      })
-    }
     return [obj]
   }
 
   doTransferSelected = async (
     e,
-    selectedFiles = this.props.selectedFiles,
+    selectedFiles = this.props.getSelectedFiles(),
     toPathBase,
     typeTo,
     operation
@@ -788,9 +791,12 @@ export default class FileSection extends React.Component {
     this.props.addTransferList(all)
   }
 
-  transfer = async () => {
+  transfer = async (mapper) => {
     const { file } = this.state
     const arr = await this.getTransferList(file)
+    if (mapper) {
+      arr.forEach(mapper)
+    }
     this.props.addTransferList(arr)
   }
 
@@ -810,22 +816,28 @@ export default class FileSection extends React.Component {
       selectedFiles
     } = this.props
     return id &&
-      selectedFiles.length > 1 &&
-      some(selectedFiles, d => d.id === id)
+      selectedFiles.size > 1 &&
+      selectedFiles.has(id)
   }
 
   del = async () => {
     const delSelected = this.shouldShowSelectedMenu()
-    const { file, selectedFiles } = this.props
+    const { file } = this.props
     const { type } = file
     const files = delSelected
-      ? selectedFiles
+      ? this.props.getSelectedFiles()
       : [file]
     await this.props.delFiles(type, files)
   }
 
   doTransfer = () => {
     this.transfer()
+  }
+
+  zipAndTransfer = async () => {
+    this.transfer(transfer => {
+      transfer.zip = true
+    })
   }
 
   newFile = () => {
@@ -859,9 +871,9 @@ export default class FileSection extends React.Component {
   }
 
   renderDelConfirmTitle (shouldShowSelectedMenu) {
-    const { file, selectedFiles } = this.props
+    const { file } = this.props
     const files = shouldShowSelectedMenu
-      ? selectedFiles
+      ? this.props.getSelectedFiles()
       : [file]
     return this.props.renderDelConfirmTitle(files, true)
   }
@@ -876,27 +888,55 @@ export default class FileSection extends React.Component {
     return !isWin
   }
 
+  handleContextMenuCapture = (e) => {
+    this.contextMenuPosition = {
+      clientY: e.clientY
+    }
+  }
+
+  itemToMenuFormat = (r) => {
+    const { func, text, disabled, icon, subText, requireConfirm } = r
+    const IconCom = iconsMap[icon]
+    return {
+      key: func,
+      label: text,
+      disabled,
+      icon: <IconCom />,
+      extra: subText,
+      danger: requireConfirm
+    }
+  }
+
   renderContextMenu = () => {
-    return this.renderContextItems()
-      .map(r => {
-        const {
-          func,
-          text,
-          disabled,
-          icon,
-          subText,
-          requireConfirm
-        } = r
-        const IconCom = iconsMap[icon]
-        return {
-          key: func,
-          label: text,
-          disabled,
-          icon: <IconCom />,
-          extra: subText,
-          danger: requireConfirm
+    const items = this.renderContextItems()
+
+    // Check if we need to split the menu
+    if (this.contextMenuPosition) {
+      const windowHeight = window.innerHeight
+      const { clientY } = this.contextMenuPosition
+      const estimatedMenuHeight = items.length * 32 // Approximate height per menu item
+      const availableHeight = windowHeight - clientY
+
+      // If menu would extend beyond window, split into two parts
+      if (estimatedMenuHeight > availableHeight && items.length > 6) {
+        const firstHalf = items.slice(0, Math.ceil(items.length / 2))
+        const secondHalf = items.slice(Math.ceil(items.length / 2))
+
+        // Create "More..." submenu with second half of items
+        const moreSubmenu = {
+          key: 'more-submenu',
+          label: '…',
+          icon: <ArrowRightOutlined />,
+          children: secondHalf.map(this.itemToMenuFormat)
         }
-      })
+
+        // Return first half + "More..." submenu
+        return [...firstHalf.map(this.itemToMenuFormat), moreSubmenu]
+      }
+    }
+
+    // Otherwise return normal menu
+    return items.map(this.itemToMenuFormat)
   }
 
   renderContextItems () {
@@ -922,10 +962,10 @@ export default class FileSection extends React.Component {
     const iconType = isLocal
       ? 'CloudUploadOutlined'
       : 'CloudDownloadOutlined'
-    const len = selectedFiles.length
+    const len = selectedFiles.size
     const shouldShowSelectedMenu = id &&
       len > 1 &&
-      some(selectedFiles, d => d.id === id)
+      selectedFiles.has(id)
     const delTxt = shouldShowSelectedMenu ? `${e('deleteAll')}(${len})` : e('del')
     const canPaste = hasFileInClipboardText()
     const showEdit = !isDirectory && id &&
@@ -946,11 +986,12 @@ export default class FileSection extends React.Component {
       })
     }
     if (
-      isDirectory && isRealFile &&
+      isDirectory &&
       (
         (hasHost && enableSsh !== false && isRemote) ||
         (isLocal && !hasHost)
-      )
+      ) &&
+      !this.props.isFtp
     ) {
       res.push({
         func: 'gotoFolderInTerminal',
@@ -964,6 +1005,13 @@ export default class FileSection extends React.Component {
         icon: iconType,
         text: transferText
       })
+      if (isDirectory && !this.props.isFtp) {
+        res.push({
+          func: 'zipAndTransfer',
+          icon: 'FileZipOutlined',
+          text: e('compressAndTransfer')
+        })
+      }
     }
     if (!isDirectory && isRealFile && isLocal) {
       res.push({
@@ -1048,7 +1096,10 @@ export default class FileSection extends React.Component {
       icon: 'ReloadOutlined',
       text: e('refresh')
     })
-    if (this.showModeEdit(type, isRealFile)) {
+    if (
+      this.showModeEdit(type, isRealFile) &&
+      !this.props.isFtp
+    ) {
       res.push({
         func: 'editPermission',
         icon: 'LockOutlined',
@@ -1066,7 +1117,10 @@ export default class FileSection extends React.Component {
   }
 
   onContextMenu = ({ key }) => {
-    this[key]()
+    // If it's not the submenu itself
+    if (key !== 'more-submenu') {
+      this[key]()
+    }
   }
 
   renderEditing (file) {
@@ -1161,7 +1215,7 @@ export default class FileSection extends React.Component {
     if (isEditing) {
       return this.renderEditing(file)
     }
-    const selected = some(selectedFiles.filter(d => d), s => s.id === id)
+    const selected = selectedFiles.has(id)
     const className = classnames('sftp-item', cls, type, {
       directory: isDirectory,
       selected
@@ -1192,13 +1246,15 @@ export default class FileSection extends React.Component {
         items: this.renderContextMenu(),
         onClick: this.onContextMenu
       },
-      trigger: ['contextMenu']
+      trigger: ['contextMenu'],
+      onOpenChange: this.handleDropdownOpenChange
     }
     return (
       <Dropdown {...ddProps}>
         <div
           ref={this.domRef}
           {...props}
+          onContextMenu={this.handleContextMenuCapture}
         >
           <div className='file-bg' />
           <div className='file-props-div'>

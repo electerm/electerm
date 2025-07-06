@@ -27,10 +27,11 @@ export default function renderSshTunnels (props) {
   } = props
   const [formChild] = Form.useForm()
   const [initialValues] = useState({
+    sshTunnel: 'forwardRemoteToLocal',
     sshTunnelLocalPort: 12200,
-    sshTunnelLocalHost: '127.0.0.1',
+    sshTunnelLocalHost: 'localhost',
     sshTunnelRemotePort: 12300,
-    sshTunnelRemoteHost: '127.0.0.1'
+    sshTunnelRemoteHost: 'localhost'
   })
   const [isDynamic, setter] = useState(formData.sshTunnel === 'dynamicForward')
   const [list, setList] = useState(formData.sshTunnels || [])
@@ -84,9 +85,9 @@ export default function renderSshTunnels (props) {
         // sshTunnel is forwardRemoteToLocal or forwardLocalToRemote or dynamicForward
         const {
           sshTunnel,
-          sshTunnelRemoteHost = '127.0.0.1',
+          sshTunnelRemoteHost = 'localhost',
           sshTunnelRemotePort = '',
-          sshTunnelLocalHost = '127.0.0.1',
+          sshTunnelLocalHost = 'localhost',
           sshTunnelLocalPort = '',
           name
         } = item
@@ -214,6 +215,7 @@ export default function renderSshTunnels (props) {
           label={e('sshTunnel')}
           name='sshTunnel'
           {...formItemLayout}
+          defaultValue='forwardRemoteToLocal'
           required
         >
           <RadioGroup onChange={onChange}>

@@ -53,21 +53,24 @@ export default class TermSearch extends PureComponent {
   }
 
   toggleSearch = () => {
-    if (this.props.termSearchOpen) {
+    const isClosing = this.props.termSearchOpen
+    if (isClosing) {
       this.clearSearch()
     }
     window.store.toggleTerminalSearch()
-    setTimeout(window.store.focus, 200)
+    if (isClosing) {
+      setTimeout(window.store.focus, 200)
+    }
   }
 
-  prev = (v = this.props.termSearch) => {
+  prev = () => {
     const {
       activeTabId,
       termSearchOptions
     } = this.props
     refs.get('term-' + activeTabId)
       ?.searchPrev(
-        v,
+        this.props.termSearch,
         copy(termSearchOptions)
       )
   }

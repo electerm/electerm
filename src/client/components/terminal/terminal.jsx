@@ -12,7 +12,8 @@ import {
   Spin,
   Button,
   Dropdown,
-  message
+  message,
+  Modal
 } from 'antd'
 import classnames from 'classnames'
 import './terminal.styl'
@@ -28,7 +29,7 @@ import {
   zmodemTransferPackSize
 } from '../../common/constants.js'
 import deepCopy from 'json-deep-copy'
-import { readClipboardAsync, copy } from '../../common/clipboard.js'
+import { readClipboardAsync, readClipboard, copy } from '../../common/clipboard.js'
 import { FitAddon } from '@xterm/addon-fit'
 import AttachAddon from './attach-addon-custom.js'
 import { SearchAddon } from '@xterm/addon-search'
@@ -57,6 +58,19 @@ import SearchResultBar from './terminal-search-bar'
 
 const e = window.translate
 
+const PS1_SETUP_CMD = `\recho $0|grep csh >/dev/null && set prompt_bak="$prompt" && set prompt="$prompt${cwdId}%/${cwdId}"\r
+echo $0|grep zsh >/dev/null && PS1_bak=$PS1&&PS1=$PS1'${cwdId}%d${cwdId}'\r
+echo $0|grep ash >/dev/null && PS1_bak=$PS1&&PS1=$PS1'\`echo ${cwdId}$PWD${cwdId}\`'\r
+echo $0|grep ksh >/dev/null && PS1_bak=$PS1&&PS1=$PS1'\`echo ${cwdId}$PWD${cwdId}\`'\r
+echo $0|grep '^sh' >/dev/null && PS1_bak=$PS1&&PS1=$PS1'\`echo ${cwdId}$PWD${cwdId}\`'\r
+clear\r`
+
+const PS1_RESTORE_CMD = `\recho $0|grep csh >/dev/null && set prompt="$prompt_bak"\r
+echo $0|grep zsh >/dev/null && PS1="$PS1_bak"\r
+echo $0|grep ash >/dev/null && PS1="$PS1_bak"\r
+echo $0|grep ksh >/dev/null && PS1="$PS1_bak"\r
+echo $0|grep '^sh' >/dev/null && PS1="$PS1_bak"\r
+clear\r`
 class Term extends Component {
   constructor (props) {
     super(props)
@@ -132,25 +146,20 @@ class Term extends Component {
     )
 
     if (sftpPathFollowSshChanged) {
-      const ps1Cmd = `\recho $0|grep csh >/dev/null && set prompt_bak="$prompt" && set prompt="$prompt${cwdId}%/${cwdId}"\r
-echo $0|grep zsh >/dev/null && PS1_bak=$PS1&&PS1=$PS1'${cwdId}%d${cwdId}'\r
-echo $0|grep ash >/dev/null && PS1_bak=$PS1&&PS1=$PS1'\`echo ${cwdId}$PWD${cwdId}\`'\r
-echo $0|grep ksh >/dev/null && PS1_bak=$PS1&&PS1=$PS1'\`echo ${cwdId}$PWD${cwdId}\`'\r
-echo $0|grep '^sh' >/dev/null && PS1_bak=$PS1&&PS1=$PS1'\`echo ${cwdId}$PWD${cwdId}\`'\r
-clear\r`
-      const ps1RestoreCmd = `\recho $0|grep csh >/dev/null && set prompt="$prompt_bak"\r
-echo $0|grep zsh >/dev/null && PS1="$PS1_bak"\r
-echo $0|grep ash >/dev/null && PS1="$PS1_bak"\r
-echo $0|grep ksh >/dev/null && PS1="$PS1_bak"\r
-echo $0|grep '^sh' >/dev/null && PS1="$PS1_bak"\r
-clear\r`
-
       if (this.props.sftpPathFollowSsh) {
-        this.socket.send(ps1Cmd)
-        this.term.cwdId = cwdId
+        if (this.attachAddon && this.term) {
+          this.attachAddon._sendData(PS1_SETUP_CMD)
+          this.term.cwdId = cwdId
+        } else {
+          log.warn('Term or attachAddon not ready for PS1_SETUP_CMD in componentDidUpdate')
+        }
       } else {
-        this.socket.send(ps1RestoreCmd)
-        delete this.term.cwdId
+        if (this.attachAddon) {
+          this.attachAddon._sendData(PS1_RESTORE_CMD)
+        }
+        if (this.term) {
+          delete this.term.cwdId
+        }
       }
     }
   }
@@ -289,7 +298,39 @@ clear\r`
     this.tryInsertSelected()
   }
 
+  pasteTextTooLong = () => {
+    if (window.et.isWebApp) {
+      return false
+    }
+    const text = readClipboard()
+    return text.length > 500
+  }
+
+  askUserConfirm = () => {
+    Modal.confirm({
+      title: e('paste'),
+      content: (
+        <div>
+          <p>{e('paste')}:</p>
+          <div className='paste-text'>
+            {readClipboard()}
+          </div>
+        </div>
+      ),
+      okText: e('ok'),
+      cancelText: e('cancel'),
+      onOk: () => this.onPaste(true),
+      onCancel: Modal.destroyAll
+    })
+  }
+
   pasteShortcut = (e) => {
+    if (this.pasteTextTooLong()) {
+      this.askUserConfirm()
+      e.preventDefault()
+      e.stopPropagation()
+      return false
+    }
     if (isMac) {
       return true
     }
@@ -350,14 +391,15 @@ clear\r`
     // Handle regular file drop
     const files = dt.files
     if (files && files.length) {
-      const filesAll = Array.from(files).map(f => `"${f.path}"`).join(' ')
-      if (this.isUnsafeFilename(filesAll)) {
+      const arr = Array.from(files)
+      // Check each file path individually
+      const hasUnsafeFilename = arr.some(f => this.isUnsafeFilename(f.path))
+      if (hasUnsafeFilename) {
         message.error(notSafeMsg)
         return
       }
-      this.attachAddon._sendData(
-        Array.from(files).map(f => `"${f.path}"`).join(' ')
-      )
+      const filesAll = arr.map(f => `"${f.path}"`).join(' ')
+      this.attachAddon._sendData(filesAll)
     }
   }
 
@@ -705,8 +747,11 @@ clear\r`
     return this.props.tab?.host
   }
 
-  onPaste = async () => {
+  onPaste = async (skipTextLengthCheck) => {
     let selected = await readClipboardAsync()
+    if (!skipTextLengthCheck && selected.length > 500) {
+      return this.askUserConfirm()
+    }
     if (isWin && this.isRemote()) {
       selected = selected.replace(/\r\n/g, '\n')
     }
@@ -841,17 +886,17 @@ clear\r`
   getCwd = () => {
     if (
       this.props.sftpPathFollowSsh &&
+      this.term &&
       this.term.buffer.active.type !== 'alternate' && !this.term.cwdId
     ) {
+      // This block should ideally not be hit for initial setup if runInitScript works.
+      // It acts as a fallback.
       this.term.cwdId = cwdId
-
-      const ps1Cmd = `\recho $0|grep csh >/dev/null && set prompt_bak="$prompt" && set prompt="$prompt${cwdId}%/${cwdId}"\r
-echo $0|grep zsh >/dev/null && PS1_bak=$PS1&&PS1=$PS1'${cwdId}%d${cwdId}'\r
-echo $0|grep ash >/dev/null && PS1_bak=$PS1&&PS1=$PS1'\`echo ${cwdId}$PWD${cwdId}\`'\r
-echo $0|grep ksh >/dev/null && PS1_bak=$PS1&&PS1=$PS1'\`echo ${cwdId}$PWD${cwdId}\`'\r
-clear\r`
-
-      this.socket.send(ps1Cmd)
+      if (this.attachAddon) {
+        this.attachAddon._sendData(PS1_SETUP_CMD)
+      } else {
+        log.warn('attachAddon not ready for PS1_SETUP_CMD in getCwd fallback')
+      }
     }
   }
 
@@ -1016,9 +1061,23 @@ clear\r`
     } = this.props.tab
     const startFolder = startDirectory || window.initFolder
     if (startFolder) {
-      const cmd = `cd "${startFolder}"\r`
-      this.attachAddon._sendData(cmd)
+      if (this.attachAddon) {
+        const cmd = `cd "${startFolder}"\r`
+        this.attachAddon._sendData(cmd)
+      } else {
+        log.warn('attachAddon not ready for cd command in runInitScript')
+      }
     }
+
+    if (this.props.sftpPathFollowSsh) {
+      if (this.term && this.attachAddon) {
+        this.attachAddon._sendData(PS1_SETUP_CMD)
+        this.term.cwdId = cwdId
+      } else {
+        log.warn('Term or attachAddon not ready for PS1_SETUP_CMD in runInitScript')
+      }
+    }
+
     if (runScripts && runScripts.length) {
       this.delayedScripts = deepCopy(runScripts)
       this.timers.timerDelay = setTimeout(this.runDelayedScripts, this.delayedScripts[0].delay || 0)
@@ -1068,19 +1127,18 @@ clear\r`
     this.bufferMode = buf.type
   }
 
-  buildWsUrl = () => {
-    const { host, port, tokenElecterm } = this.props.config
+  buildWsUrl = (port) => {
+    const { host, tokenElecterm } = this.props.config
     const { id } = this.props.tab
     if (window.et.buildWsUrl) {
       return window.et.buildWsUrl(
         host,
         port,
         tokenElecterm,
-        id,
-        this.props.sessionId
+        id
       )
     }
-    return `ws://${host}:${port}/terminals/${id}?sessionId=${this.props.sessionId}&token=${tokenElecterm}`
+    return `ws://${host}:${port}/terminals/${id}?token=${tokenElecterm}`
   }
 
   remoteInit = async (term = this.term) => {
@@ -1092,7 +1150,7 @@ clear\r`
     const {
       keywords = []
     } = config
-    const { sessionId, logName } = this.props
+    const { logName } = this.props
     const tab = window.store.applyProfileToTabs(deepCopy(this.props.tab || {}))
     const {
       srcId, from = 'bookmarks',
@@ -1126,7 +1184,6 @@ clear\r`
         'debug'
       ]),
       keepaliveInterval: tab.keepaliveInterval === undefined ? config.keepaliveInterval : tab.keepaliveInterval,
-      sessionId,
       tabId: id,
       uid: id,
       srcTabId: tab.id,
@@ -1137,13 +1194,12 @@ clear\r`
         ? typeMap.remote
         : typeMap.local
     })
-    let r = await createTerm(opts)
+    const r = await createTerm(opts)
       .catch(err => {
         const text = err.message
         handleErr({ message: text })
       })
-    r = r || ''
-    if (r.includes('fail')) {
+    if (typeof r === 'string' && r.includes('fail')) {
       return this.promote()
     }
     if (savePassword) {
@@ -1156,11 +1212,12 @@ clear\r`
       this.setStatus(statusMap.error)
       return
     }
+    this.port = r.port
     this.setStatus(statusMap.success)
-    refs.get('sftp-' + id)?.initData()
+    refs.get('sftp-' + id)?.initData(id, r.port)
     term.pid = id
     this.pid = id
-    const wsUrl = this.buildWsUrl()
+    const wsUrl = this.buildWsUrl(r.port)
     const socket = new WebSocket(wsUrl)
     socket.onclose = this.oncloseSocket
     socket.onerror = this.onerrorSocket
@@ -1298,7 +1355,7 @@ clear\r`
 
   onResizeTerminal = size => {
     const { cols, rows } = size
-    resizeTerm(this.pid, this.props.sessionId, cols, rows)
+    resizeTerm(this.pid, cols, rows)
   }
 
   handleCancel = () => {
@@ -1307,12 +1364,11 @@ clear\r`
   }
 
   handleShowInfo = () => {
-    const { sessionId, logName, tab } = this.props
+    const { logName, tab } = this.props
     const infoProps = {
       logName,
       id: tab.id,
       pid: tab.id,
-      sessionId,
       isRemote: this.isRemote(),
       isActive: this.isActiveTerminal()
     }

@@ -6,7 +6,6 @@ const {
   Menu,
   shell
 } = require('electron')
-const openNewInstance = require('./open-new-instance')
 const { packInfo } = require('../common/runtime-constants')
 const globalState = require('./glob-state')
 
@@ -21,12 +20,6 @@ function buildMenu () {
           label: e('newBookmark'),
           click () {
             globalState.get('win').webContents.send('new-ssh', null)
-          }
-        },
-        {
-          label: e('newWindow'),
-          click () {
-            openNewInstance()
           }
         },
         {

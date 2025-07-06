@@ -7,8 +7,9 @@ const {
 } = require('../common/runtime-constants')
 const { initCommandLine } = require('./command-line')
 const globalState = require('./glob-state')
+const { getDbConfig } = require('./get-config')
 
-exports.createApp = function () {
+exports.createApp = async function () {
   app.setName(packInfo.name)
   if (process.platform === 'linux') {
     app.commandLine.appendSwitch('--enable-transparent-visuals')
@@ -31,41 +32,40 @@ exports.createApp = function () {
   }
   const progs = initCommandLine()
   const opts = progs?.options
+  const conf = await getDbConfig()
   globalState.set('serverPort', opts?.serverPort)
-  const useStandAloneWindow = opts?.newWindow
-  let gotTheLock = false
-  if (!useStandAloneWindow) {
-    gotTheLock = app.requestSingleInstanceLock(progs)
-  }
-  if (
-    !gotTheLock &&
-    !useStandAloneWindow &&
-    opts &&
-    Object.keys(opts).length
-  ) {
-    app.quit()
-  } else if (!gotTheLock) {
-    globalState.set('isSecondInstance', true)
-    app.isSecondInstance = true
-  }
-  app.on('second-instance', (event, argv, wd, opts) => {
-    const win = globalState.get('win')
-    if (win) {
-      if (win.isMinimized()) {
-        win.restore()
-      }
-      win.focus()
-      if (opts) {
-        win.webContents.send('add-tab-from-command-line', opts)
-      }
+
+  const { allowMultiInstance = false } = conf
+
+  // Only request single instance lock if multi-instance is not allowed
+  if (!allowMultiInstance) {
+    const gotTheLock = app.requestSingleInstanceLock(progs)
+
+    // If this is a second instance, quit immediately
+    if (!gotTheLock) {
+      app.quit()
+      return app
     }
-  })
-  app.whenReady().then(createWindow)
+  }
+
+  // app.on('second-instance', (event, argv, wd, opts) => {
+  //   const win = globalState.get('win')
+  //   if (win) {
+  //     if (win.isMinimized()) {
+  //       win.restore()
+  //     }
+  //     win.focus()
+  //     if (opts) {
+  //       win.webContents.send('add-tab-from-command-line', opts)
+  //     }
+  //   }
+  // })
+  app.whenReady().then(() => createWindow(conf))
   app.on('activate', () => {
     // On macOS it's common to re-create a window in the app when the
     // dock icon is clicked and there are no other windows open.
     if (globalState.get('win') === null) {
-      app.once('ready', createWindow)
+      app.once('ready', () => createWindow(conf))
     }
   })
   return app

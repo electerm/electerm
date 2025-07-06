@@ -511,7 +511,9 @@ export default Store => {
 
   Store.prototype.updateBatchInputSelectedTabIds = function () {
     const { store } = window
-    store._batchInputSelectedTabIds = new Set([store.activeTabId])
+    if (!store._batchInputSelectedTabIds.has(store.activeTabId)) {
+      store._batchInputSelectedTabIds = new Set([store.activeTabId])
+    }
   }
 
   Store.prototype.onSelectBatchInputSelectedTabId = action(function (id) {
@@ -565,15 +567,15 @@ export default Store => {
     }
   }
 
-  Store.prototype.remoteList = function (sessionId) {
-    const sftp = refs.get('sftp-' + sessionId)
+  Store.prototype.remoteList = function (tabId) {
+    const sftp = refs.get('sftp-' + tabId)
     if (sftp) {
       sftp.remoteListDebounce()
     }
   }
 
-  Store.prototype.localList = function (sessionId) {
-    const sftp = refs.get('sftp-' + sessionId)
+  Store.prototype.localList = function (tabId) {
+    const sftp = refs.get('sftp-' + tabId)
     if (sftp) {
       sftp.localListDebounce()
     }

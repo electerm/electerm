@@ -55,7 +55,6 @@ PROXY_PAC_URL="http://proxy.example.com/pac" electerm
 PROXY_SERVER="socks5://127.0.0.1:1080" electerm
 `)
     .option('-t, --title [Tab Name]', 'Specify the title of the new tab')
-    .option('-nw, --new-window', 'Open this connection using standalone window')
     .option('-l, --user <user>', 'specify a login name')
     .option('-P, --port <port>', 'specify ssh port')
     .option('-bo, --batch-op <batchOpFile>', 'load and run batch operation from csv file')

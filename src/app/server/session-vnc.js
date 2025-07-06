@@ -1,18 +1,18 @@
 /**
  * terminal/sftp/serial class
  */
-const _ = require('lodash')
+
 const log = require('../common/log')
 const { TerminalBase } = require('./session-base')
 const net = require('net')
 const proxySock = require('./socks')
 const uid = require('../common/uid')
-const { terminalSsh } = require('./session-ssh')
+const { session } = require('./session-ssh')
 const globalState = require('./global-state')
 
 function getPort (fromPort = 120023) {
   return new Promise((resolve, reject) => {
-    require('find-free-port')(fromPort, '127.0.0.1', function (err, freePort) {
+    require('find-free-port')(fromPort, 'localhost', function (err, freePort) {
       if (err) {
         reject(err)
       } else {
@@ -24,13 +24,7 @@ function getPort (fromPort = 120023) {
 
 class TerminalVnc extends TerminalBase {
   init = async () => {
-    globalState.setSession(this.initOptions.sessionId, {
-      id: this.initOptions.sessionId,
-      sftps: {},
-      terminals: {
-        [this.pid]: this
-      }
-    })
+    globalState.setSession(this.pid, this)
     return Promise.resolve(this)
   }
 
@@ -97,18 +91,17 @@ class TerminalVnc extends TerminalBase {
       encode: 'utf-8',
       envLang: 'en_US.UTF-8',
       proxy,
-      sessionId: uid(),
       sshTunnels: [
         {
           sshTunnel: 'dynamicForward',
-          sshTunnelLocalHost: '127.0.0.1',
+          sshTunnelLocalHost: 'localhost',
           sshTunnelLocalPort: fp,
           id: uid()
         }
       ]
     }
-    this.ssh = await terminalSsh(initOpts)
-    const proxyA = `socks5://127.0.0.1:${fp}`
+    this.ssh = await session(initOpts)
+    const proxyA = `socks5://localhost:${fp}`
     return proxySock({
       readyTimeout,
       host,
@@ -172,20 +165,11 @@ class TerminalVnc extends TerminalBase {
     if (this.sessionLogger) {
       this.sessionLogger.destroy()
     }
-    const inst = globalState.getSession(this.initOptions.sessionId)
-    if (!inst) {
-      return
-    }
-    delete inst.terminals[this.pid]
-    if (
-      _.isEmpty(inst.terminals)
-    ) {
-      globalState.removeSession(this.initOptions.sessionId)
-    }
+    globalState.removeSession(this.pid)
   }
 }
 
-exports.terminalVnc = async function (initOptions, ws) {
+exports.session = async function (initOptions, ws) {
   const term = new TerminalVnc(initOptions, ws)
   await term.init()
   return term
@@ -195,7 +179,7 @@ exports.terminalVnc = async function (initOptions, ws) {
  * test ssh connection
  * @param {object} options
  */
-exports.testConnectionVnc = (options) => {
+exports.test = (options) => {
   const inst = new TerminalVnc(options, undefined, true)
   return inst.test()
     .then(() => {

@@ -4,8 +4,8 @@ function forwardRemoteToLocal ({
   conn,
   sshTunnelRemotePort,
   sshTunnelLocalPort,
-  sshTunnelRemoteHost = '127.0.0.1',
-  sshTunnelLocalHost = '127.0.0.1'
+  sshTunnelRemoteHost = 'localhost',
+  sshTunnelLocalHost = 'localhost'
 }) {
   return new Promise((resolve, reject) => {
     const result = `remote:${sshTunnelRemoteHost}:${sshTunnelRemotePort} => local:${sshTunnelLocalHost}:${sshTunnelLocalPort}`
@@ -37,8 +37,8 @@ function forwardLocalToRemote ({
   conn,
   sshTunnelRemotePort,
   sshTunnelLocalPort,
-  sshTunnelRemoteHost = '127.0.0.1',
-  sshTunnelLocalHost = '127.0.0.1'
+  sshTunnelRemoteHost = 'localhost',
+  sshTunnelLocalHost = 'localhost'
 }) {
   return new Promise((resolve, reject) => {
     const localServer = require('net').createServer((socket) => {
@@ -69,7 +69,7 @@ function forwardLocalToRemote ({
 function dynamicForward ({
   conn,
   sshTunnelLocalPort,
-  sshTunnelLocalHost = '127.0.0.1'
+  sshTunnelLocalHost = 'localhost'
 }) {
   const socks = require('socksv5-electron')
   return new Promise((resolve, reject) => {

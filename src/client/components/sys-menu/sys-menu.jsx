@@ -10,6 +10,7 @@ import {
 import { noop } from 'lodash-es'
 import History from './history'
 import Bookmark from './boomarks'
+import Layout from './layoout-changer'
 import Tabs from './tabs'
 import Zoom from './zoom'
 import icons from './icons-map'
@@ -22,7 +23,8 @@ export default class ContextMenu extends PureComponent {
     History,
     Bookmark,
     Tabs,
-    Zoom
+    Zoom,
+    Layout
   }
 
   onClick = (e, item) => {
@@ -75,9 +77,12 @@ export default class ContextMenu extends PureComponent {
     if (type === 'hr') {
       return <hr />
     }
-    const baseCls = 'context-item'
+    let baseCls = 'context-item'
     if (module && this.modules[module]) {
       const Mod = this.modules[module]
+      if (module === 'Zoom') {
+        baseCls = 'context-item zoom-item'
+      }
       return (
         <div className={baseCls}>
           <Mod {...this.props} />

@@ -9,64 +9,34 @@ const { resolve: pathResolve } = require('path')
 const net = require('net')
 const { exec } = require('child_process')
 const log = require('../common/log')
-const alg = require('./ssh2-alg')
-const {
-  session
-} = require('./remote-common')
+const { algDefault, algAlt } = require('./ssh2-alg')
 const sshTunnelFuncs = require('./ssh-tunnel')
 const deepCopy = require('json-deep-copy')
 const { TerminalBase } = require('./session-base')
 const { commonExtends } = require('./session-common')
-const failMsg = 'All configured authentication methods failed'
 const globalState = require('./global-state')
 
+const failMsg = 'All configured authentication methods failed'
+const csFailMsg = 'no matching C->S cipher'
+
 class TerminalSshBase extends TerminalBase {
-  getLocalEnv () {
-    return {
-      env: process.env
-    }
-  }
-
-  getDisplay () {
-    return new Promise((resolve) => {
-      exec('echo $DISPLAY', this.getLocalEnv(), (err, out, e) => {
-        if (err || e) {
-          resolve('')
-        } else {
-          resolve((out || '').trim())
-        }
-      })
-    })
-  }
-
-  getX11Cookie () {
-    return new Promise((resolve) => {
-      exec('xauth list :0', this.getLocalEnv(), (err, out, e) => {
-        if (err || e) {
-          resolve('')
-        } else {
-          const s = out || ''
-          const reg = /MIT-MAGIC-COOKIE-1 +([\d\w]{1,38})/
-          const arr = s.match(reg)
-          resolve(
-            arr ? arr[1] || '' : ''
-          )
-        }
-      })
-    })
-  }
-
-  init () {
+  async remoteInitProcess () {
+    this.adjustConnectionOrder()
     const {
-      isTest,
       initOptions
     } = this
-    const { sessionId } = initOptions
-    if (isTest || !sessionId || !globalState.getSession(sessionId)) {
-      return this.remoteInitProcess()
-    } else {
-      return this.remoteInitTerminal()
-    }
+    const hasX11 = initOptions.x11 === true
+    this.display = hasX11 ? await this.getDisplay() : undefined
+    this.x11Cookie = hasX11 ? await this.getX11Cookie() : undefined
+    return this.sshConnect()
+  }
+
+  reTryAltAlg () {
+    log.log('retry with default ciphers/server hosts')
+    this.doKill()
+    this.connectOptions.algorithms = algAlt()
+    this.altAlg = true
+    return this.sshConnect()
   }
 
   getShellWindow (initOptions = this.initOptions) {
@@ -95,37 +65,6 @@ class TerminalSshBase extends TerminalBase {
     initOptions.connectionHoppings = [...restHoppings, currentHostHopping]
   }
 
-  remoteInitTerminal () {
-    const {
-      initOptions
-    } = this
-    const connInst = session(initOptions.sessionId)
-    const {
-      conn,
-      shellOpts
-    } = connInst
-    if (initOptions.enableSsh === false) {
-      this.conn = conn
-      connInst.terminals[this.pid] = this
-      return Promise.resolve(this)
-    }
-    return new Promise((resolve, reject) => {
-      conn.shell(
-        this.getShellWindow(),
-        shellOpts,
-        (err, channel) => {
-          if (err) {
-            return reject(err)
-          }
-          this.channel = channel
-          this.conn = conn
-          connInst.terminals[this.pid] = this
-          resolve(this)
-        }
-      )
-    })
-  }
-
   onKeyboardEvent (options) {
     if (this.initOptions.interactiveValues) {
       return Promise.resolve(this.initOptions.interactiveValues.split('\n'))
@@ -136,7 +75,6 @@ class TerminalSshBase extends TerminalBase {
       action: 'session-interactive',
       ..._.pick(this.initOptions, [
         'interactiveValues',
-        'sessionId',
         'tabId'
       ]),
       options
@@ -277,7 +215,7 @@ class TerminalSshBase extends TerminalBase {
 
   forwardOut (conn, hopping) {
     return new Promise((resolve, reject) => {
-      conn.forwardOut('127.0.0.1', 0, hopping.host, hopping.port, async (err, stream) => {
+      conn.forwardOut('localhost', 0, hopping.host, hopping.port, async (err, stream) => {
         if (err) {
           log.error(`forwardOut to ${hopping.host}:${hopping.port} error: ` + err)
           this.endConns()
@@ -349,13 +287,7 @@ class TerminalSshBase extends TerminalBase {
       this.endConns()
       return
     } else if (initOptions.enableSsh === false) {
-      globalState.setSession(initOptions.sessionId, {
-        conn: this.conn,
-        id: initOptions.sessionId,
-        shellOpts,
-        sftps: {},
-        terminals: {}
-      })
+      globalState.setSession(this.pid, this)
       return this
     }
     const { sshTunnels = [] } = initOptions
@@ -405,15 +337,7 @@ class TerminalSshBase extends TerminalBase {
             return reject(err)
           }
           this.channel = channel
-          globalState.setSession(initOptions.sessionId, {
-            conn: this.conn,
-            id: initOptions.sessionId,
-            shellOpts,
-            sftps: {},
-            terminals: {
-              [this.pid]: this
-            }
-          })
+          globalState.setSession(this.pid, this)
           resolve(this)
         }
       )
@@ -542,7 +466,7 @@ class TerminalSshBase extends TerminalBase {
                 : `/tmp/.X11-unix/X${start}`
               xserversock.connect(addr)
             } else {
-              xserversock.connect(start, '127.0.0.1')
+              xserversock.connect(start, 'localhost')
             }
           }
           retry()
@@ -564,7 +488,7 @@ class TerminalSshBase extends TerminalBase {
       readyTimeout: initOptions.readyTimeout,
       keepaliveCountMax: initOptions.keepaliveCountMax,
       keepaliveInterval: initOptions.keepaliveInterval,
-      algorithms: deepCopy(alg)
+      algorithms: algDefault()
     }
     if (initOptions.serverHostKey && initOptions.serverHostKey.length) {
       all.algorithms.serverHostKey = deepCopy(initOptions.serverHostKey)
@@ -676,7 +600,12 @@ class TerminalSshBase extends TerminalBase {
       skipX11
     ).catch(err => {
       log.error('error when do sshConnect', err, this.privateKeyPath)
-      if (err.message.includes('passphrase')) {
+      if (
+        err.message.includes(csFailMsg) &&
+        !this.altAlg
+      ) {
+        return this.reTryAltAlg()
+      } else if (err.message.includes('passphrase')) {
         const options = {
           name: `passphase for ${this.privateKeyPath || 'privateKey'}`,
           instructions: [''],
@@ -747,17 +676,6 @@ class TerminalSshBase extends TerminalBase {
     }
   }
 
-  async remoteInitProcess () {
-    this.adjustConnectionOrder()
-    const {
-      initOptions
-    } = this
-    const hasX11 = initOptions.x11 === true
-    this.display = hasX11 ? await this.getDisplay() : undefined
-    this.x11Cookie = hasX11 ? await this.getX11Cookie() : undefined
-    return this.sshConnect()
-  }
-
   resize (cols, rows) {
     this.channel?.setWindow(rows, cols)
   }
@@ -777,18 +695,82 @@ class TerminalSshBase extends TerminalBase {
   }
 
   kill () {
+    this.initOptions = null
+    this.connectOptions = null
+    this.alg = null
+    this.shellWindow = null
+    this.shellOpts = null
+    this.conn = null
+    this.sshKeys = null
+    this.privateKeyPath = null
+    this.display = null
+    this.x11Cookie = null
+    this.conns = null
+    this.jumpSshKeys = null
+    this.jumpPrivateKeyPathFrom = null
+    this.hoppingOptions = null
+    this.initHoppingOptions = null
+    this.nextConn = null
+    this.doKill()
+  }
+
+  doKill () {
     if (this.sessionLogger) {
       this.sessionLogger.destroy()
     }
     this.channel && this.channel.end()
     delete this.channel
     this.onEndConn()
+    // Clean up any remaining connection
+    if (this.conn) {
+      this.conn.end()
+      this.conn = null
+    }
+  }
+
+  getLocalEnv () {
+    return {
+      env: process.env
+    }
+  }
+
+  getDisplay () {
+    return new Promise((resolve) => {
+      exec('echo $DISPLAY', this.getLocalEnv(), (err, out, e) => {
+        if (err || e) {
+          resolve('')
+        } else {
+          resolve((out || '').trim())
+        }
+      })
+    })
+  }
+
+  getX11Cookie () {
+    return new Promise((resolve) => {
+      exec('xauth list :0', this.getLocalEnv(), (err, out, e) => {
+        if (err || e) {
+          resolve('')
+        } else {
+          const s = out || ''
+          const reg = /MIT-MAGIC-COOKIE-1 +([\d\w]{1,38})/
+          const arr = s.match(reg)
+          resolve(
+            arr ? arr[1] || '' : ''
+          )
+        }
+      })
+    })
+  }
+
+  init () {
+    return this.remoteInitProcess()
   }
 }
 
 const TerminalSsh = commonExtends(TerminalSshBase)
 
-exports.terminalSsh = function (initOptions, ws) {
+exports.session = function (initOptions, ws) {
   return (new TerminalSsh(initOptions, ws)).init()
 }
 
@@ -796,7 +778,7 @@ exports.terminalSsh = function (initOptions, ws) {
  * test ssh connection
  * @param {object} options
  */
-exports.testConnectionSsh = (options) => {
+exports.test = (options) => {
   return (new TerminalSsh(options, undefined, true))
     .init()
     .then(() => true)

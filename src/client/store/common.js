@@ -314,7 +314,7 @@ export default Store => {
   }
 
   Store.prototype.aiConfigMissing = function () {
-    return aiConfigsArr.some(k => !window.store.config[k])
+    return aiConfigsArr.slice(0, -1).some(k => !window.store.config[k])
   }
 
   Store.prototype.addCmdHistory = action(function (cmd) {

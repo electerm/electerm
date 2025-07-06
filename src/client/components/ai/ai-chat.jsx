@@ -46,7 +46,8 @@ export default function AIChat (props) {
       buildRole(),
       props.config.baseURLAI,
       props.config.apiPathAI,
-      props.config.apiKeyAI
+      props.config.apiKeyAI,
+      props.config.proxyAI
     ).catch(
       window.store.onError
     )

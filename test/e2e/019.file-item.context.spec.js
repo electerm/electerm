@@ -11,10 +11,18 @@ const extendClient = require('./common/client-extend')
 const { expect } = require('./common/expect')
 
 const {
-  TEST_HOST,
-  TEST_PASS,
-  TEST_USER
-} = require('./common/env')
+  setupSftpConnection,
+  createFolder,
+  deleteItem,
+  accessFolderFromTerminal,
+  renameItem,
+  enterFolder,
+  navigateToParentFolder,
+  verifyFileExists,
+  verifyCurrentPath,
+  clickSftpTab,
+  countFileListItems
+} = require('./common/common')
 
 describe('file-item-context-menu', function () {
   it('should test gotoFolderInTerminal function', async function () {
@@ -24,24 +32,14 @@ describe('file-item-context-menu', function () {
     await delay(3500)
 
     // Click sftp tab first
-    await client.click('.session-current .term-sftp-tabs .type-tab', 1)
-    await delay(3500)
+    await clickSftpTab(client)
 
     // Create a new folder
-    await client.rightClick('.session-current .file-list.local .parent-file-item', 10, 10)
-    await delay(500)
     const folderName = 'test-folder-' + Date.now()
-    await client.click('.ant-dropdown:not(.ant-dropdown-hidden) .ant-dropdown-menu-item:has-text("New Folder")')
-    await delay(400)
-    await client.setValue('.session-current .sftp-item input', folderName)
-    await client.click('.session-current .sftp-title-wrap')
-    await delay(2500)
+    await createFolder(client, 'local', folderName)
 
-    // Right click on the folder and select "Access this folder from the terminal"
-    await client.rightClick(`.file-list.local .sftp-item[title="${folderName}"]`, 10, 10)
-    await delay(500)
-    await client.click('.ant-dropdown:not(.ant-dropdown-hidden) .ant-dropdown-menu-item:has-text("Access this folder from the terminal")')
-    await delay(1000)
+    // Access folder from terminal
+    await accessFolderFromTerminal(client, 'local', folderName)
 
     // Verify terminal has cd command and folder name
     const terminalContent = await getTerminalContent(client)
@@ -49,14 +47,8 @@ describe('file-item-context-menu', function () {
     expect(terminalContent.includes(folderName)).toBe(true)
 
     // Clean up - delete the test folder
-    await client.click('.session-current .term-sftp-tabs .type-tab', 1) // Switch back to file manager
-    await delay(1000)
-    await client.click(`.file-list.local .sftp-item[title="${folderName}"]`)
-    await delay(400)
-    await client.keyboard.press('Delete')
-    await delay(400)
-    await client.keyboard.press('Enter')
-    await delay(4000)
+    await clickSftpTab(client)
+    await deleteItem(client, 'local', folderName)
 
     await electronApp.close()
   })
@@ -67,38 +59,16 @@ describe('file-item-context-menu', function () {
     extendClient(client, electronApp)
     await delay(3500)
 
-    // Create SSH connection
-    await client.click('.btns .anticon-plus-circle')
-    await delay(500)
-    await client.setValue('#ssh-form_host', TEST_HOST)
-    await client.setValue('#ssh-form_username', TEST_USER)
-    await client.setValue('#ssh-form_password', TEST_PASS)
-    await client.click('.setting-wrap .ant-btn-primary')
-    await delay(3500)
-
-    // Click sftp tab
-    await client.click('.session-current .term-sftp-tabs .type-tab', 1)
-    await delay(3500)
+    // Set up SSH connection
+    await setupSftpConnection(client)
 
     // Create a new folder in local first
-    await client.rightClick('.session-current .file-list.local .parent-file-item', 10, 10)
-    await delay(500)
     const localFolderName = 'test-local-folder-' + Date.now()
-    await client.click('.ant-dropdown:not(.ant-dropdown-hidden) .ant-dropdown-menu-item:has-text("New Folder")')
-    await delay(400)
-    await client.setValue('.session-current .sftp-item input', localFolderName)
-    await client.click('.session-current .sftp-title-wrap')
-    await delay(2500)
+    await createFolder(client, 'local', localFolderName)
 
     // Create a new folder in remote
-    await client.rightClick('.session-current .file-list.remote .parent-file-item', 10, 10)
-    await delay(500)
     const remoteFolderName = 'test-ssh-folder-' + Date.now()
-    await client.click('.ant-dropdown:not(.ant-dropdown-hidden) .ant-dropdown-menu-item:has-text("New Folder")')
-    await delay(400)
-    await client.setValue('.session-current .sftp-remote-section .sftp-item input', remoteFolderName)
-    await client.click('.session-current .sftp-title-wrap')
-    await delay(2500)
+    await createFolder(client, 'remote', remoteFolderName)
 
     // Verify local folder does not have "Access this folder from terminal" option
     await client.rightClick(`.file-list.local .sftp-item[title="${localFolderName}"]`, 10, 10)
@@ -106,12 +76,12 @@ describe('file-item-context-menu', function () {
     const localContextMenu = await client.locator('.ant-dropdown:not(.ant-dropdown-hidden)')
     const localHasTerminalAccess = await localContextMenu.locator('.ant-dropdown-menu-item:has-text("Access this folder from the terminal")').count()
     expect(localHasTerminalAccess).toBe(0)
-
-    // Right click on remote folder and verify it has the terminal access option
-    await client.rightClick(`.file-list.remote .sftp-item[title="${remoteFolderName}"]`, 10, 10)
+    // Close context menu
+    await client.click('.session-current .sftp-title-wrap')
     await delay(500)
-    await client.click('.ant-dropdown:not(.ant-dropdown-hidden) .ant-dropdown-menu-item:has-text("Access this folder from the terminal")')
-    await delay(1000)
+
+    // Access remote folder from terminal
+    await accessFolderFromTerminal(client, 'remote', remoteFolderName)
 
     // Verify terminal has cd command and folder name
     const terminalContent = await getTerminalContent(client)
@@ -119,24 +89,9 @@ describe('file-item-context-menu', function () {
     expect(terminalContent.includes(remoteFolderName)).toBe(true)
 
     // Clean up - delete both test folders
-    await client.click('.session-current .term-sftp-tabs .type-tab', 1)
-    await delay(1000)
-
-    // Delete local folder
-    await client.click(`.file-list.local .sftp-item[title="${localFolderName}"]`)
-    await delay(400)
-    await client.keyboard.press('Delete')
-    await delay(400)
-    await client.keyboard.press('Enter')
-    await delay(4000)
-
-    // Delete remote folder
-    await client.click(`.file-list.remote .sftp-item[title="${remoteFolderName}"]`)
-    await delay(400)
-    await client.keyboard.press('Delete')
-    await delay(400)
-    await client.keyboard.press('Enter')
-    await delay(4000)
+    await clickSftpTab(client)
+    await deleteItem(client, 'local', localFolderName)
+    await deleteItem(client, 'remote', remoteFolderName)
 
     await electronApp.close()
   })
@@ -147,79 +102,30 @@ describe('file-item-context-menu', function () {
     extendClient(client, electronApp)
     await delay(3500)
 
-    // Create SSH connection
-    await client.click('.btns .anticon-plus-circle')
-    await delay(500)
-    await client.setValue('#ssh-form_host', TEST_HOST)
-    await client.setValue('#ssh-form_username', TEST_USER)
-    await client.setValue('#ssh-form_password', TEST_PASS)
-    await client.click('.setting-wrap .ant-btn-primary')
-    await delay(3500)
-
-    // Click sftp tab
-    await client.click('.session-current .term-sftp-tabs .type-tab', 1)
-    await delay(3500)
+    // Set up SSH connection
+    await setupSftpConnection(client)
 
     // Test local folder rename
     const localFolderName = 'test-local-rename-folder-' + Date.now()
-    await client.rightClick('.session-current .file-list.local .parent-file-item', 10, 10)
-    await delay(500)
-    await client.click('.ant-dropdown:not(.ant-dropdown-hidden) .ant-dropdown-menu-item:has-text("New Folder")')
-    await delay(400)
-    await client.setValue('.session-current .sftp-item input', localFolderName)
-    await client.click('.session-current .sftp-title-wrap')
-    await delay(2500)
-
-    await client.rightClick(`.file-list.local .sftp-item[title="${localFolderName}"]`, 10, 10)
-    await delay(500)
-    await client.click('.ant-dropdown:not(.ant-dropdown-hidden) .ant-dropdown-menu-item:has-text("Rename")')
-    await delay(1000)
+    await createFolder(client, 'local', localFolderName)
 
     const newLocalFolderName = 'renamed-' + localFolderName
-    await client.setValue('.session-current .sftp-item input', newLocalFolderName)
-    await client.click('.session-current .sftp-title-wrap')
-    await delay(2500)
+    await renameItem(client, 'local', localFolderName, newLocalFolderName)
 
-    const renamedLocalFolder = await client.locator(`.file-list.local .sftp-item[title="${newLocalFolderName}"]`)
-    expect(await renamedLocalFolder.count()).toBe(1)
+    expect(await verifyFileExists(client, 'local', newLocalFolderName)).toBe(true)
 
     // Test remote folder rename
     const remoteFolderName = 'test-remote-rename-folder-' + Date.now()
-    await client.rightClick('.session-current .file-list.remote .parent-file-item', 10, 10)
-    await delay(500)
-    await client.click('.ant-dropdown:not(.ant-dropdown-hidden) .ant-dropdown-menu-item:has-text("New Folder")')
-    await delay(400)
-    await client.setValue('.session-current .sftp-remote-section .sftp-item input', remoteFolderName)
-    await client.click('.session-current .sftp-title-wrap')
-    await delay(2500)
-
-    await client.rightClick(`.file-list.remote .sftp-item[title="${remoteFolderName}"]`, 10, 10)
-    await delay(500)
-    await client.click('.ant-dropdown:not(.ant-dropdown-hidden) .ant-dropdown-menu-item:has-text("Rename")')
-    await delay(1000)
+    await createFolder(client, 'remote', remoteFolderName)
 
     const newRemoteFolderName = 'renamed-' + remoteFolderName
-    await client.setValue('.session-current .sftp-remote-section .sftp-item input', newRemoteFolderName)
-    await client.click('.session-current .sftp-title-wrap')
-    await delay(2500)
+    await renameItem(client, 'remote', remoteFolderName, newRemoteFolderName)
 
-    const renamedRemoteFolder = await client.locator(`.file-list.remote .sftp-item[title="${newRemoteFolderName}"]`)
-    expect(await renamedRemoteFolder.count()).toBe(1)
+    expect(await verifyFileExists(client, 'remote', newRemoteFolderName)).toBe(true)
 
     // Clean up - delete the test folders
-    await client.click(`.file-list.local .sftp-item[title="${newLocalFolderName}"]`)
-    await delay(400)
-    await client.keyboard.press('Delete')
-    await delay(400)
-    await client.keyboard.press('Enter')
-    await delay(2000)
-
-    await client.click(`.file-list.remote .sftp-item[title="${newRemoteFolderName}"]`)
-    await delay(400)
-    await client.keyboard.press('Delete')
-    await delay(400)
-    await client.keyboard.press('Enter')
-    await delay(2000)
+    await deleteItem(client, 'local', newLocalFolderName)
+    await deleteItem(client, 'remote', newRemoteFolderName)
 
     await electronApp.close()
   })
@@ -230,103 +136,44 @@ describe('file-item-context-menu', function () {
     extendClient(client, electronApp)
     await delay(3500)
 
-    // Create SSH connection
-    await client.click('.btns .anticon-plus-circle')
-    await delay(500)
-    await client.setValue('#ssh-form_host', TEST_HOST)
-    await client.setValue('#ssh-form_username', TEST_USER)
-    await client.setValue('#ssh-form_password', TEST_PASS)
-    await client.click('.setting-wrap .ant-btn-primary')
-    await delay(3500)
-
-    // Click sftp tab
-    await client.click('.session-current .term-sftp-tabs .type-tab', 1)
-    await delay(3500)
+    // Set up SSH connection
+    await setupSftpConnection(client)
 
     // Test remote file system
     const remoteFolderName = 'test-remote-enter-folder-' + Date.now()
-    await client.rightClick('.session-current .file-list.remote .parent-file-item', 10, 10)
-    await delay(500)
-    await client.click('.ant-dropdown:not(.ant-dropdown-hidden) .ant-dropdown-menu-item:has-text("New Folder")')
-    await delay(400)
-    await client.setValue('.session-current .sftp-remote-section .sftp-item input', remoteFolderName)
-    await client.click('.session-current .sftp-title-wrap')
-    await delay(2500)
+    await createFolder(client, 'remote', remoteFolderName)
 
     // Enter remote folder
-    await client.rightClick(`.file-list.remote .sftp-item[title="${remoteFolderName}"]`, 10, 10)
-    await delay(500)
-    await client.click('.ant-dropdown:not(.ant-dropdown-hidden) .ant-dropdown-menu-item:has-text("Enter")')
-    await delay(2000)
+    await enterFolder(client, 'remote', remoteFolderName)
 
     // Verify remote folder content
-    const remoteCurrentPath = await client.getValue('.session-current .sftp-remote-section .sftp-title input')
-    expect(remoteCurrentPath.endsWith(remoteFolderName)).toBe(true)
-
-    const remoteItems = await client.locator('.session-current .file-list.remote .sftp-item')
-    const remoteItemCount = await remoteItems.count()
-    expect(remoteItemCount).toBe(2)
-
-    const remoteParentItem = await client.locator('.session-current .file-list.remote .parent-file-item')
-    const remoteParentItemCount = await remoteParentItem.count()
-    expect(remoteParentItemCount).toBe(1)
+    expect(await verifyCurrentPath(client, 'remote', remoteFolderName)).toBe(true)
+    expect(await countFileListItems(client, 'remote', '.sftp-item')).toBe(2)
+    expect(await countFileListItems(client, 'remote', '.parent-file-item')).toBe(1)
 
     // Go back to remote parent directory
-    await client.doubleClick('.session-current .file-list.remote .parent-file-item')
-    await delay(2000)
-
-    const remoteParentPath = await client.getValue('.session-current .sftp-remote-section .sftp-title input')
-    expect(remoteParentPath.endsWith(remoteFolderName)).toBe(false)
+    await navigateToParentFolder(client, 'remote')
+    expect(await verifyCurrentPath(client, 'remote', remoteFolderName)).toBe(false)
 
     // Test local file system
     const localFolderName = 'test-local-enter-folder-' + Date.now()
-    await client.rightClick('.session-current .file-list.local .parent-file-item', 10, 10)
-    await delay(500)
-    await client.click('.ant-dropdown:not(.ant-dropdown-hidden) .ant-dropdown-menu-item:has-text("New Folder")')
-    await delay(400)
-    await client.setValue('.session-current .sftp-local-section .sftp-item input', localFolderName)
-    await client.click('.session-current .sftp-title-wrap')
-    await delay(2500)
+    await createFolder(client, 'local', localFolderName)
 
     // Enter local folder
-    await client.rightClick(`.file-list.local .sftp-item[title="${localFolderName}"]`, 10, 10)
-    await delay(500)
-    await client.click('.ant-dropdown:not(.ant-dropdown-hidden) .ant-dropdown-menu-item:has-text("Enter")')
-    await delay(2000)
+    await enterFolder(client, 'local', localFolderName)
 
     // Verify local folder content
-    const localCurrentPath = await client.getValue('.session-current .sftp-local-section .sftp-title input')
-    expect(localCurrentPath.endsWith(localFolderName)).toBe(true)
-
-    const localItems = await client.locator('.session-current .file-list.local .sftp-item')
-    const localItemCount = await localItems.count()
-    expect(localItemCount).toBe(2)
-
-    const localParentItem = await client.locator('.session-current .file-list.local .parent-file-item')
-    const localParentItemCount = await localParentItem.count()
-    expect(localParentItemCount).toBe(1)
+    expect(await verifyCurrentPath(client, 'local', localFolderName)).toBe(true)
+    expect(await countFileListItems(client, 'local', '.sftp-item')).toBe(2)
+    expect(await countFileListItems(client, 'local', '.parent-file-item')).toBe(1)
 
     // Go back to local parent directory
-    await client.doubleClick('.session-current .file-list.local .parent-file-item')
-    await delay(2000)
-
-    const localParentPath = await client.getValue('.session-current .sftp-local-section .sftp-title input')
-    expect(localParentPath.endsWith(localFolderName)).toBe(false)
+    await navigateToParentFolder(client, 'local')
+    expect(await verifyCurrentPath(client, 'local', localFolderName)).toBe(false)
 
     // Clean up - delete the test folders
-    await client.click(`.file-list.remote .sftp-item[title="${remoteFolderName}"]`)
-    await delay(400)
-    await client.keyboard.press('Delete')
-    await delay(400)
-    await client.keyboard.press('Enter')
-    await delay(2000)
-
-    await client.click(`.file-list.local .sftp-item[title="${localFolderName}"]`)
-    await delay(400)
-    await client.keyboard.press('Delete')
-    await delay(400)
-    await client.keyboard.press('Enter')
-    await delay(2000)
+    await deleteItem(client, 'remote', remoteFolderName)
+    await deleteItem(client, 'local', localFolderName)
 
     await electronApp.close()
   })

@@ -350,10 +350,10 @@ class Tab extends Component {
     const list = sshTunnelResults.map(({ sshTunnel: obj, error }, i) => {
       const {
         sshTunnelLocalPort,
-        sshTunnelRemoteHost = '127.0.0.1',
+        sshTunnelRemoteHost = 'localhost',
         sshTunnelRemotePort,
         sshTunnel,
-        sshTunnelLocalHost = '127.0.0.1',
+        sshTunnelLocalHost = 'localhost',
         name
       } = obj
       let tunnel

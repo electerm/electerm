@@ -66,7 +66,7 @@ export default Store => {
       return deepCopy([
         ...store.getTerminalThemes(),
         ...store.itermThemes
-      ]).sort(window.store.sortTheme)
+      ])
     }
     return deepCopy(store.getItems(type))
   }

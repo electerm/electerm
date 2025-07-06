@@ -14,7 +14,7 @@ export default function FileIcon ({ file, ...extra }) {
   return (
     <img
       src={extIconPath + name}
-      height={12}
+      height={16}
       alt=''
       {...extra}
     />

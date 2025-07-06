@@ -49,7 +49,7 @@ export default class FileListTableHeader extends Component {
     }
     const text = e(id || '')
     const directionIcon = isSorting
-      ? (sortDirection === 'asc' ? <DownOutlined /> : <UpOutlined />)
+      ? (sortDirection === 'asc' ? <UpOutlined /> : <DownOutlined />)
       : null
     const itemProps = {
       onClick: this.props.onClickName,

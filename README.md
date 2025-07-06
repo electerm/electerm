@@ -16,7 +16,7 @@
 [![Get it from the Microsoft Store](https://img.shields.io/badge/Microsoft-Store-blue)](https://www.microsoft.com/store/apps/9NCN7272GTFF)
 [![GitHub Sponsors](https://img.shields.io/github/sponsors/electerm?label=Sponsors)](https://github.com/sponsors/electerm)
 
-Open-sourced terminal/ssh/telnet/serialport/RDP/VNC/sftp client(linux, mac, win).
+Open-sourced terminal/ssh/telnet/serialport/RDP/VNC/sftp/ftp client(linux, mac, win).
 
 Powered by [manate](https://github.com/tylerlong/manate)
 
@@ -30,10 +30,10 @@ Online demo: [https://electerm-demo.html5beta.com](https://electerm-demo.html5be
 
 ## Features
 
-- Works as a terminal/file manager or ssh/telnet/serialport/RDP/VNC/sftp client
+- Works as a terminal/file manager or ssh/sftp/ftp/telnet/serialport/RDP/VNC client
 - Global hotkey to toggle window visibility (similar to guake, default is `ctrl + 2`)
 - Multi platform(linux, mac, win)
-- 🇺🇸 🇨🇳 🇧🇷 🇷🇺 🇪🇸 🇫🇷 🇹🇷 🇭🇰 🇯🇵 🇸🇦 🇩🇪 🇰🇷 Multi-language support([electerm-locales](https://github.com/electerm/electerm-locales), contributions/fixes welcome)
+- 🇺🇸 🇨🇳 🇧🇷 🇷🇺 🇪🇸 🇫🇷 🇹🇷 🇭🇰 🇯🇵 🇸🇦 🇩🇪 🇰🇷 🇮🇩 🇵🇱 Multi-language support([electerm-locales](https://github.com/electerm/electerm-locales), contributions/fixes welcome)
 - Double click to directly edit (small) remote files.
 - Auth with publicKey + password.
 - Support Zmodem(rz, sz).
@@ -48,7 +48,6 @@ Online demo: [https://electerm-demo.html5beta.com](https://electerm-demo.html5be
 - Quick input to one or all terminals.
 - AI assistant integration (supporting [DeepSeek](https://www.deepseek.com), OpenAI, and other AI APIs) to help with command suggestions, script writing, and explaining selected terminal content
 - Command line usage: check [wiki](https://github.com/electerm/electerm/wiki/Command-line-usage)
-- Deep link support: check [wiki](https://github.com/electerm/electerm/wiki/Deep-link-support)
 
 ## Download
 
@@ -66,7 +65,7 @@ Online demo: [https://electerm-demo.html5beta.com](https://electerm-demo.html5be
 
 ```powershell
 # winget https://github.com/microsoft/winget-cli
-winget install electerm
+winget install electerm.electerm
 
 # scoop https://github.com/lukesampson/scoop
 scoop bucket add dorado https://github.com/chawyehsu/dorado
@@ -155,7 +154,7 @@ npm run fix
 ## Test
 
 ```bash
-npm run prepare-build
+npm run b
 npm run prepare-test
 cp .sample.env .env
 
@@ -172,7 +171,7 @@ npm run test
 
 # Build linux only with -l
 npm i
-npm run prepare-build
+npm run b
 ./node_modules/.bin/electron-builder --linux tar.gz
 # or replace tar.gz to rpm/deb/AppImage
 # check dist/ folder
@@ -181,9 +180,9 @@ npm run prepare-build
 ./node_modules/.bin/electron-builder --linux --arm64
 ```
 
-## Use
+## Video guides
 
-- [Set autorun when login to os](https://github.com/electerm/electerm/wiki/Autorun-electerm-when-login-to-os)
+- [bilibili](https://space.bilibili.com/14001525/channel/series?sid=5461229&spm_id_from=333.788.0.0)
 
 ## Change log
 
@@ -192,3 +191,7 @@ Visit [Releases](https://github.com/electerm/electerm/releases).
 ## License
 
 MIT
+
+[![DigitalOcean Referral Badge](https://web-platforms.sfo2.cdn.digitaloceanspaces.com/WWW/Badge%202.svg)](https://www.digitalocean.com/?refcode=c10bcb28b846&utm_campaign=Referral_Invite&utm_medium=Referral_Program&utm_source=badge)
+
+[![Powered by DartNode](https://dartnode.com/branding/DN-Open-Source-sm.png)](https://dartnode.com?aff=NuttyMonkey521 "Powered by DartNode - Free VPS for Open Source")

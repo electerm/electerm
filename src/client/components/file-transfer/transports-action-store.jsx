@@ -6,6 +6,8 @@
 import { Component } from 'react'
 import Transports from './transports-ui-store'
 import { maxTransport } from '../../common/constants'
+import { refsStatic } from '../common/ref'
+// import { action } from 'manate'
 
 export default class TransportsActionStore extends Component {
   componentDidMount () {
@@ -26,21 +28,26 @@ export default class TransportsActionStore extends Component {
       fileTransfers
     } = store
 
-    fileTransfers.forEach(t => {
+    // First loop: Handle same type transfers
+    for (const t of fileTransfers) {
       const {
         typeTo,
         typeFrom,
-        fromFile,
-        inited
+        inited,
+        id
       } = t
-      const ready = !!fromFile
-      if (typeTo === typeFrom && ready && !inited) {
-        t.inited = true
+      if (typeTo === typeFrom && !inited) {
+        refsStatic.get('transfer-queue')?.addToQueue(
+          'update',
+          id,
+          {
+            inited: true
+          }
+        )
       }
-    })
-    // if (pauseAllTransfer) {
-    //   return store.setFileTransfers(fileTransfers)
-    // }
+    }
+
+    // Count active transfers
     let count = fileTransfers.filter(t => {
       const {
         typeTo,
@@ -50,44 +57,40 @@ export default class TransportsActionStore extends Component {
       } = t
       return typeTo !== typeFrom && inited && pausing !== true
     }).length
+
     if (count >= maxTransport) {
       return
     }
+
+    // Second loop: Process pending transfers
     const len = fileTransfers.length
-    // const ids = []
+
     for (let i = 0; i < len; i++) {
       const tr = fileTransfers[i]
       const {
         typeTo,
         typeFrom,
         inited,
-        fromFile,
-        action
+        id
       } = tr
-      // if (!error) {
-      //   ids.push(id)
-      // }
+
       const isTransfer = typeTo !== typeFrom
-      const ready = (
-        action && fromFile
-      )
-      if (
-        !ready ||
-        inited ||
-        !isTransfer
-      ) {
+
+      if (inited || !isTransfer) {
         continue
       }
-      // if (isTransfer && tr.fromFile.isDirectory) {
-      //   i = len
-      //   continue
-      // }
-      if (
-        fromFile && count < maxTransport
-      ) {
+
+      if (count < maxTransport) {
         count++
-        tr.inited = true
+        refsStatic.get('transfer-queue')?.addToQueue(
+          'update',
+          id,
+          {
+            inited: true
+          }
+        )
       }
+
       if (count >= maxTransport) {
         break
       }

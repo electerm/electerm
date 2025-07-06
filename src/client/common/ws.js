@@ -140,7 +140,17 @@ function onEvent (e) {
 
 window.worker.addEventListener('message', onEvent)
 
-export default (type, id, sessionId = '', sftpId = '', persist) => {
+export default (type, id, sftpId = '', persist, port) => {
+  const opts = pick(window.store.config, [
+    'host',
+    'port',
+    'tokenElecterm',
+    'server',
+    'urlPath'
+  ])
+  if (port) {
+    opts.port = port
+  }
   return new Promise((resolve) => {
     send({
       id,
@@ -150,15 +160,8 @@ export default (type, id, sessionId = '', sftpId = '', persist) => {
       args: [
         type,
         id,
-        sessionId,
         sftpId,
-        pick(window.store.config, [
-          'host',
-          'port',
-          'tokenElecterm',
-          'server',
-          'urlPath'
-        ])
+        opts
       ]
     })
     onces[id] = {

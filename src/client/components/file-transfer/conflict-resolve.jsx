@@ -3,6 +3,7 @@
  *
  */
 
+import { Component } from 'react'
 import { Modal, Button } from 'antd'
 import { isString } from 'lodash-es'
 import AnimateText from '../common/animate-text'
@@ -11,8 +12,7 @@ import { FolderOutlined, FileOutlined } from '@ant-design/icons'
 import {
   fileActions
 } from '../../common/constants'
-import deepCopy from 'json-deep-copy'
-import { refsStatic } from '../common/ref'
+import { refsStatic, refsTransfers } from '../common/ref'
 
 const e = window.translate
 
@@ -23,30 +23,66 @@ function formatTimeAuto (strOrDigit) {
   return formatTime(strOrDigit * 1000)
 }
 
-export default function ConfirmModalStore (props) {
-  function act (action) {
-    const { transferToConfirm } = props
-    window.store.transferToConfirm = {}
-    const {
-      fromFile: {
-        id: fileId
-      },
-      id,
-      transferGroupId
-    } = transferToConfirm
-    refsStatic.get('transfer-conflict')?.onDecision({
-      transferGroupId,
-      fileId,
-      id,
-      transfer: deepCopy(transferToConfirm),
-      action
+export default class ConfirmModalStore extends Component {
+  constructor (props) {
+    super(props)
+    this.state = {
+      transferToConfirm: null
+    }
+    this.queue = []
+    this.id = 'transfer-conflict'
+    refsStatic.add(this.id, this)
+  }
+
+  addConflict = (transfer) => {
+    this.queue.push(transfer)
+    if (!this.state.transferToConfirm) {
+      this.showNext()
+    }
+  }
+
+  showNext = () => {
+    const next = this.queue.shift()
+    this.setState({
+      transferToConfirm: next
     })
   }
 
-  function renderContent () {
+  act = (action) => {
+    const { id, transferBatch } = this.state.transferToConfirm
+    const toAll = action.includes('All')
+    const policy = toAll ? action.replace('All', '') : action
+    const trid = `tr-${transferBatch}-${id}`
+    const doFilter = toAll && transferBatch
+
+    // For "All" actions, update all existing transfers in the same batch
+    if (doFilter) {
+      // Update all existing transfers with same batch ID in DOM
+      const prefix = `tr-${transferBatch}-`
+      for (const [key, r] of window.refsTransfers.entries()) {
+        if (key.startsWith(prefix)) {
+          if (key !== trid) {
+            r.resolvePolicy = policy
+            r.onDecision(policy)
+          }
+        }
+      }
+      this.queue = this.queue.filter(d => d.transferBatch !== transferBatch)
+    }
+
+    // Resolve current conflict
+    refsTransfers.get(trid)?.onDecision(policy)
+
+    // Move to the next item
+    this.setState({
+      transferToConfirm: null
+    }, this.showNext)
+  }
+
+  renderContent () {
     const {
       transferToConfirm
-    } = props
+    } = this.state
     const {
       fromPath,
       toPath,
@@ -100,10 +136,10 @@ export default function ConfirmModalStore (props) {
     )
   }
 
-  function renderFooter () {
+  renderFooter () {
     const {
       transferToConfirm
-    } = props
+    } = this.state
     if (!transferToConfirm) {
       return null
     }
@@ -117,14 +153,14 @@ export default function ConfirmModalStore (props) {
         <Button
           type='dashed'
           className='mg1l'
-          onClick={() => act(fileActions.cancel)}
+          onClick={() => this.act(fileActions.skipAll)}
         >
           {e('cancel')}
         </Button>
         <Button
           type='dashed'
           className='mg1l'
-          onClick={() => act(fileActions.skip)}
+          onClick={() => this.act(fileActions.skip)}
         >
           {e('skip')}
         </Button>
@@ -132,7 +168,7 @@ export default function ConfirmModalStore (props) {
           danger
           className='mg1l'
           onClick={
-            () => act(fileActions.mergeOrOverwrite)
+            () => this.act(fileActions.mergeOrOverwrite)
           }
         >
           {isDirectory ? e('merge') : e('overwrite')}
@@ -141,7 +177,7 @@ export default function ConfirmModalStore (props) {
           type='primary'
           className='mg1l'
           onClick={
-            () => act(fileActions.rename)
+            () => this.act(fileActions.rename)
           }
         >
           {e('rename')}
@@ -157,7 +193,7 @@ export default function ConfirmModalStore (props) {
                 : e('overwriteDesc')
             }
             onClick={
-              () => act(fileActions.mergeOrOverwriteAll)
+              () => this.act(fileActions.mergeOrOverwriteAll)
             }
           >
             {isDirectory ? e('mergeAll') : e('overwriteAll')}
@@ -167,34 +203,46 @@ export default function ConfirmModalStore (props) {
             className='mg1l'
             title={e('renameDesc')}
             onClick={
-              () => act(fileActions.renameAll)
+              () => this.act(fileActions.renameAll)
             }
           >
             {e('renameAll')}
+          </Button>
+          <Button
+            type='primary'
+            className='mg1l'
+            title={e('skipAll')}
+            onClick={
+              () => this.act(fileActions.skipAll)
+            }
+          >
+            {e('skipAll')}
           </Button>
         </div>
       </div>
     )
   }
 
-  const {
-    transferToConfirm
-  } = props
-  if (!transferToConfirm.id) {
-    return null
+  render () {
+    const {
+      transferToConfirm
+    } = this.state
+    if (!transferToConfirm?.id) {
+      return null
+    }
+    const modalProps = {
+      open: true,
+      width: 500,
+      title: e('fileConflict'),
+      footer: this.renderFooter(),
+      onCancel: () => this.act(fileActions.cancel)
+    }
+    return (
+      <Modal
+        {...modalProps}
+      >
+        {this.renderContent()}
+      </Modal>
+    )
   }
-  const modalProps = {
-    open: true,
-    width: 500,
-    title: e('fileConflict'),
-    footer: renderFooter(),
-    onCancel: () => act(fileActions.cancel)
-  }
-  return (
-    <Modal
-      {...modalProps}
-    >
-      {renderContent()}
-    </Modal>
-  )
 }

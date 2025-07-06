@@ -14,6 +14,7 @@ import {
   terminalVncType,
   terminalLocalType,
   terminalTelnetType,
+  terminalFtpType,
   newBookmarkIdPrefix
 } from '../../common/constants'
 import SshForm from './ssh-form'
@@ -23,6 +24,7 @@ import TelnetForm from './telnet-form'
 import WebForm from './web-form'
 import RdpForm from './rdp-form'
 import VncForm from './vnc-form'
+import FtpForm from './ftp-form'
 import { createTitleWithTag } from '../../common/create-title'
 import {
   LoadingOutlined,
@@ -42,7 +44,8 @@ export default class BookmarkIndex extends PureComponent {
         terminalLocalType,
         terminalSerialType,
         terminalRdpType,
-        terminalVncType
+        terminalVncType,
+        terminalFtpType
       ].includes(initType)
     ) {
       initType = connectionMap.ssh
@@ -72,7 +75,8 @@ export default class BookmarkIndex extends PureComponent {
     [connectionMap.local]: LocalForm,
     [connectionMap.web]: WebForm,
     [connectionMap.rdp]: RdpForm,
-    [connectionMap.vnc]: VncForm
+    [connectionMap.vnc]: VncForm,
+    [connectionMap.ftp]: FtpForm
   }
 
   handleChange = (e) => {
@@ -97,8 +101,9 @@ export default class BookmarkIndex extends PureComponent {
         {
           keys.map(k => {
             const v = connectionMap[k]
+            const txt = v === 'ssh' ? 'Ssh/Sftp' : e(v)
             return (
-              <Radio.Button key={v} value={v}>{e(v)}</Radio.Button>
+              <Radio.Button key={v} value={v}>{txt}</Radio.Button>
             )
           })
         }

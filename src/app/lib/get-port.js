@@ -15,7 +15,7 @@ function getPort (fromPort = 30975) {
     )
   }
   return new Promise((resolve, reject) => {
-    require('find-free-port')(fromPort, '127.0.0.1', function (err, freePort) {
+    require('find-free-port')(fromPort, 'localhost', function (err, freePort) {
       if (err) {
         reject(err)
       } else {

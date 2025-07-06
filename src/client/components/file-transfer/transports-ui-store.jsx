@@ -2,7 +2,7 @@
  * transporter UI component
  */
 
-import Transport from './transport-action-store'
+import Transport from './transfer'
 
 export default function TransportsUI (props) {
   const { fileTransfers } = props
@@ -22,7 +22,7 @@ export default function TransportsUI (props) {
     return (
       <Transport
         {...trProps}
-        key={id + ':tr:' + i}
+        key={id}
       />
     )
   })

@@ -8,7 +8,7 @@ module.exports = exports.default = {
   scrollback: 3000,
   onStartSessions: [],
   fontSize: 16,
-  fontFamily: 'Fira Code, mono, courier-new, courier, monospace',
+  fontFamily: 'Maple Mono, mono, courier-new, courier, monospace',
   execWindows: 'System32/WindowsPowerShell/v1.0/powershell.exe',
   execMac: 'zsh',
   execLinux: 'bash',
@@ -62,7 +62,10 @@ module.exports = exports.default = {
   modelAI: 'deepseek-chat',
   roleAI: '终端专家,提供不同系统下命令,简要解释用法,用markdown格式',
   apiPathAI: '/chat/completions',
+  proxyAI: '',
   sessionLogPath: '',
   sshSftpSplitView: false,
-  showCmdSuggestions: false
+  showCmdSuggestions: false,
+  startDirectoryLocal: '',
+  allowMultiInstance: false
 }

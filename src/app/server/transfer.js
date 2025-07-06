@@ -15,7 +15,6 @@ class Transfer {
     type = 'download',
     sftp,
     sftpId,
-    sessionId,
     ws
   }) {
     this.id = id
@@ -23,7 +22,6 @@ class Transfer {
     this.src = isd ? sftp : fs
     this.dst = isd ? fs : sftp
     this.sftpId = sftpId
-    this.sessionId = sessionId
     this.srcPath = isd ? remotePath : localPath
     this.dstPath = !isd ? remotePath : localPath
     this.pausing = false
@@ -54,7 +52,7 @@ class Transfer {
   }
 
   // from https://github.com/mscdex/ssh2-streams/blob/master/lib/sftp.js
-  fastXfer = () => {
+  fastXfer () {
     const { src, srcPath } = this
     src.open(srcPath, 'r', this.onSrcOpen)
   }
@@ -277,10 +275,10 @@ class Transfer {
   }
 
   kill = () => {
-    if (this.src && this.srcHandle) {
+    if (this.src && this.srcHandle && this.src.close) {
       this.src.close(this.srcHandle, log.error)
     }
-    if (this.dst && this.dstHandle) {
+    if (this.dst && this.dstHandle && this.dst.close) {
       this.dst.close(this.dstHandle, log.error)
     }
     this.src = null

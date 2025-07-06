@@ -4,7 +4,8 @@ import {
   EyeFilled,
   ReloadOutlined,
   ArrowRightOutlined,
-  LoadingOutlined
+  LoadingOutlined,
+  HomeOutlined
 } from '@ant-design/icons'
 import {
   Input,
@@ -55,6 +56,10 @@ function renderAddonBefore (props, realPath) {
           className='mg1r'
         />
       </Tooltip>
+      <HomeOutlined
+        onClick={() => props.gotoHome(type)}
+        className='mg1r'
+      />
       <KeywordFilter {...keywordProps} />
       <AddrBookmark
         store={window.store}

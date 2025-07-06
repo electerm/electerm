@@ -13,7 +13,7 @@ export const initWsCommon = async () => {
   if (window.et.wsOpened) {
     return
   }
-  const ws = await initWs('common', id, undefined, undefined, true)
+  const ws = await initWs('common', id, undefined, true)
   if (!ws) {
     return
   }

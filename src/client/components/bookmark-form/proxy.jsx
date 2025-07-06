@@ -25,7 +25,7 @@ export default function renderProxy (props) {
           value: d
         }
       }),
-    placeholder: 'socks5://127.0.0.1:1080',
+    placeholder: 'socks5://localhost:1080',
     allowClear: true
   }
   return (

@@ -5,23 +5,25 @@
  * @return {String}
  */
 
-export default (basePath, nameOrDot) => {
+export default function resolve (basePath, nameOrDot) {
   const hasWinDrive = (path) => /^[a-zA-Z]:/.test(path)
   const isWin = basePath.includes('\\') || nameOrDot.includes('\\') || hasWinDrive(basePath) || hasWinDrive(nameOrDot)
   const sep = isWin ? '\\' : '/'
-  // Handle Windows drive letters (with or without initial slash)
   if (/^[a-zA-Z]:/.test(nameOrDot)) {
     return nameOrDot.replace(/^\//, '').replace(/\//g, sep)
   }
-  // Handle absolute paths
   if (nameOrDot.startsWith('/')) {
     return nameOrDot.replace(/\\/g, sep)
   }
   if (nameOrDot === '..') {
+    const baseEndsWithSep = basePath.endsWith(sep)
     const parts = basePath.split(sep)
     if (parts.length > 1) {
       parts.pop()
-      return isWin && parts.length === 1 ? '/' : parts.join(sep) || '/'
+      if (isWin && parts.length === 1) {
+        return baseEndsWithSep ? '/' : parts.join(sep)
+      }
+      return parts.join(sep) || '/'
     }
     return '/'
   }

@@ -69,11 +69,10 @@ export default class VncSession extends RdpSession {
     const { config } = this.props
     const {
       host,
-      port,
       tokenElecterm,
       server = ''
     } = config
-    const { sessionId, id } = this.props
+    const { id } = this.props
     const tab = window.store.applyProfile(deepCopy(this.props.tab || {}))
     const {
       type,
@@ -85,33 +84,34 @@ export default class VncSession extends RdpSession {
     } = tab
     const opts = clone({
       term: terminalType || config.terminalType,
-      sessionId,
       tabId: id,
+      uid: tab.id,
       srcTabId: tab.id,
       termType: type,
       ...tab
     })
-    let pid = await createTerm(opts)
+    const r = await createTerm(opts)
       .catch(err => {
         const text = err.message
         handleErr({ message: text })
       })
-    pid = pid || ''
     this.setState({
       loading: false
     })
-    if (!pid) {
+    if (!r) {
       this.setStatus(statusMap.error)
       return
     }
     this.setStatus(statusMap.success)
+    const { pid, port } = r
     this.pid = pid
+    this.port = port
     const hs = server
       ? server.replace(/https?:\/\//, '')
       : `${host}:${port}`
     const pre = server.startsWith('https') ? 'wss' : 'ws'
     const { width, height } = this.state
-    const wsUrl = `${pre}://${hs}/vnc/${pid}?sessionId=${sessionId}&token=${tokenElecterm}&width=${width}&height=${height}`
+    const wsUrl = `${pre}://${hs}/vnc/${pid}?token=${tokenElecterm}&width=${width}&height=${height}`
     const vncOpts = {
       scaleViewport,
       viewOnly,

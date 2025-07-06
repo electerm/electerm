@@ -10,13 +10,7 @@ const globalState = require('./global-state')
 
 class TerminalRdp extends TerminalBase {
   init = async () => {
-    globalState.setSession(this.initOptions.sessionId, {
-      id: this.initOptions.sessionId,
-      sftps: {},
-      terminals: {
-        [this.pid]: this
-      }
-    })
+    globalState.setSession(this.pid, this)
     return Promise.resolve(this)
   }
 
@@ -103,7 +97,6 @@ class TerminalRdp extends TerminalBase {
           {
             action: 'session-rdp-connected',
             ..._.pick(this.initOptions, [
-              'sessionId',
               'tabId'
             ])
           }
@@ -159,20 +152,18 @@ class TerminalRdp extends TerminalBase {
     if (this.sessionLogger) {
       this.sessionLogger.destroy()
     }
-    const inst = globalState.getSession(this.initOptions.sessionId)
+    const {
+      pid
+    } = this
+    const inst = globalState.getSession(pid)
     if (!inst) {
       return
     }
-    delete inst.terminals[this.pid]
-    if (
-      _.isEmpty(inst.terminals)
-    ) {
-      globalState.removeSession(this.initOptions.sessionId)
-    }
+    globalState.removeSession(pid)
   }
 }
 
-exports.terminalRdp = async function (initOptions, ws) {
+exports.session = async function (initOptions, ws) {
   const term = new TerminalRdp(initOptions, ws)
   await term.init()
   return term
@@ -182,7 +173,7 @@ exports.terminalRdp = async function (initOptions, ws) {
  * test ssh connection
  * @param {object} options
  */
-exports.testConnectionRdp = (options) => {
+exports.test = (options) => {
   return (new TerminalRdp(options, undefined, true))
     .test()
     .then((res) => {

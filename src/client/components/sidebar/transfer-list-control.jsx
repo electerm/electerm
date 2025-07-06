@@ -37,15 +37,15 @@ export default class TransferModalUI extends Component {
       const {
         id,
         title,
-        sessionId
+        tabId
       } = k
-      if (!p[sessionId]) {
-        p[sessionId] = {
+      if (!p[tabId]) {
+        p[tabId] = {
           title,
           transfers: []
         }
       }
-      p[sessionId].transfers.push(id)
+      p[tabId].transfers.push(id)
       return p
     }, {})
     return Object.keys(tree)
@@ -72,7 +72,7 @@ export default class TransferModalUI extends Component {
     const fileTransfers = this.props.fileTransfers
     return filter === 'all'
       ? fileTransfers
-      : fileTransfers.filter(d => d.sessionId === filter)
+      : fileTransfers.filter(d => d.tabId === filter)
   }
 
   computePercent = () => {
@@ -118,7 +118,7 @@ export default class TransferModalUI extends Component {
               <Transport
                 transfer={t}
                 index={i}
-                key={id + ':tr:' + i}
+                key={id}
               />
             )
           })

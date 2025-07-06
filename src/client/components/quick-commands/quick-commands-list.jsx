@@ -75,7 +75,7 @@ export default class QuickCommandsList extends List {
     )
     return (
       <div
-        key={i + id}
+        key={id}
         className={cls}
         onClick={() => this.onClickItem(item)}
         data-id={id}

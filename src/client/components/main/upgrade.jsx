@@ -34,6 +34,9 @@ export default class Upgrade extends PureComponent {
   downloadTimer = null
 
   componentDidMount () {
+    if (window.et.isWebApp) {
+      return
+    }
     setTimeout(() => {
       getLatestReleaseVersion(1)
     }, 5000)

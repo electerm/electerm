@@ -38,7 +38,7 @@ export const contextMenuPaddingTop = 10
 export const sftpControlHeight = 42 + 30
 export const sidebarWidth = 43
 export const maxHistory = 50
-export const maxTransport = 1
+export const maxTransport = 5
 export const maxSftpHistory = 20
 export const maxZoom = 8
 export const minZoom = 0.5
@@ -68,7 +68,8 @@ export const connectionMap = buildConst([
   'local',
   'web',
   'rdp',
-  'vnc'
+  'vnc',
+  'ftp'
 ])
 
 export const authTypeMap = buildConst([
@@ -135,6 +136,7 @@ export const terminalVncType = 'vnc'
 export const terminalSerialType = 'serial'
 export const terminalTelnetType = 'telnet'
 export const terminalLocalType = 'local'
+export const terminalFtpType = 'ftp'
 export const openedSidebarKey = 'opened-sidebar'
 export const sidebarPinnedKey = 'sidebar-pinned'
 export const leftSidebarWidthKey = 'left-sidebar-width'

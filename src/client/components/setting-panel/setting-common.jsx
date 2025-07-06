@@ -434,7 +434,7 @@ export default class SettingCommon extends Component {
           />
         </div>
         {
-          this.renderText('proxy', 'socks5://127.0.0.1:1080')
+          this.renderText('proxy', 'socks5://localhost:1080')
         }
       </div>
     )
@@ -587,30 +587,32 @@ export default class SettingCommon extends Component {
             value={theme}
           >
             {
-              terminalThemes.map(l => {
-                const { id, name, uiThemeConfig } = l
-                const { main, text } = uiThemeConfig
-                const isDark = isColorDark(main)
-                const txt = isDark ? <MoonOutlined /> : <SunOutlined />
-                const tag = (
-                  <Tag
-                    color={main}
-                    className='mg1l'
-                    style={
-                      {
-                        color: text
+              terminalThemes
+                .filter(d => d.id && d.name && d.uiThemeConfig)
+                .map(l => {
+                  const { id, name, uiThemeConfig } = l
+                  const { main, text } = uiThemeConfig
+                  const isDark = isColorDark(main)
+                  const txt = isDark ? <MoonOutlined /> : <SunOutlined />
+                  const tag = (
+                    <Tag
+                      color={main}
+                      className='mg1l'
+                      style={
+                        {
+                          color: text
+                        }
                       }
-                    }
-                  >
-                    {txt}
-                  </Tag>
-                )
-                return (
-                  <Option key={id} value={id}>
-                    {tag} {name}
-                  </Option>
-                )
-              })
+                    >
+                      {txt}
+                    </Tag>
+                  )
+                  return (
+                    <Option key={id} value={id}>
+                      {tag} {name}
+                    </Option>
+                  )
+                })
             }
           </Select>
         </div>
@@ -667,6 +669,7 @@ export default class SettingCommon extends Component {
             'useSystemTitleBar',
             'confirmBeforeExit',
             'hideIP',
+            'allowMultiInstance',
             'debug'
           ].map(this.renderToggle)
         }

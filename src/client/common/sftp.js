@@ -10,16 +10,18 @@ import initWs from './ws'
 const transferKeys = Object.keys(transferTypeMap)
 
 class Sftp {
-  async init (sessionId) {
+  async init (terminalId, port) {
     const id = generate()
-    const ws = await initWs('sftp', id, sessionId)
+    const ws = await initWs('sftp', id, terminalId, undefined, port)
     this.ws = ws
     this.id = id
-    this.sessionId = sessionId
+    this.terminalId = terminalId
+    this.port = port
     ws.s({
       action: 'sftp-new',
       id,
-      sessionId
+      type: this.type,
+      terminalId
     })
     const th = this
     this.ws = ws
@@ -28,20 +30,25 @@ class Sftp {
         if (transferKeys.includes(func)) {
           return Transfer({
             sftpId: id,
+            isFtp: this.type === 'ftp',
             ...args[0],
-            sessionId,
-            type: func
+            terminalId,
+            type: func,
+            port
           })
         }
-        const uid = func + ':' + id
+        const fid = generate()
+        const uid = func + ':' + fid
         // let ws = await initWs()
         return new Promise((resolve, reject) => {
           ws.s({
             action: 'sftp-func',
             id,
+            uid,
             func,
             args,
-            sessionId
+            terminalId,
+            type: this.type
           })
           ws.once((arg) => {
             if (arg.error) {
@@ -60,14 +67,15 @@ class Sftp {
     ws.s({
       action: 'sftp-destroy',
       id: this.id,
-      sessionId: this.sessionId
+      terminalId: this.terminalId
     })
     ws.close()
   }
 }
 
-export default async (sessionId) => {
+export default async (terminalId, type = 'sftp', port) => {
   const sftp = new Sftp()
-  await sftp.init(sessionId)
+  sftp.type = type
+  await sftp.init(terminalId, port)
   return sftp
 }
