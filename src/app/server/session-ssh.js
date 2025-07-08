@@ -237,7 +237,13 @@ class TerminalSshBase extends TerminalBase {
       sock,
       ...hopping
     }
-    const { Client } = require('@electerm/ssh2')
+    let Client
+    try {
+      Client = require('@electerm/ssh2').Client
+    } catch (err) {
+      console.error('Failed to load @electerm/ssh2:', err.message)
+      throw new Error('SSH module loading failed. Please reinstall electerm.')
+    }
     this.nextConn = new Client()
     await this.jumpConnect()
     return this.nextConn
@@ -567,7 +573,13 @@ class TerminalSshBase extends TerminalBase {
 
   async sshConnect () {
     const { initOptions } = this
-    const { Client } = require('@electerm/ssh2')
+    let Client
+    try {
+      Client = require('@electerm/ssh2').Client
+    } catch (err) {
+      console.error('Failed to load @electerm/ssh2:', err.message)
+      throw new Error('SSH module loading failed. Please reinstall electerm.')
+    }
     this.conn = new Client()
     this.connectOptions = this.connectOptions || this.buildConnectOptions()
     const {

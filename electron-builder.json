@@ -7,6 +7,9 @@
   },
   "electronLanguages": ["en-US"],
   "asar": true,
+  "asarUnpack": [
+    "node_modules/@electerm/**"
+  ],
   "artifactName": "${productName}-${version}-${os}-${arch}.${ext}",
   "win": {
     "target": ["tar.gz", "appx", "nsis"],

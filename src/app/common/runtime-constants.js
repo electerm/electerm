@@ -36,6 +36,36 @@ const extIconPath = isDev
 
 const defaultUserName = require('./default-user-name')
 
+const getPackInfo = () => {
+  if (isDev) {
+    return require('../../../package.json')
+  }
+  
+  // In production, try multiple possible paths
+  const possiblePaths = [
+    '../package.json',
+    './package.json',
+    '../../../package.json'
+  ]
+  
+  for (const path of possiblePaths) {
+    try {
+      return require(path)
+    } catch (e) {
+      // Continue to next path
+    }
+  }
+  
+  // Fallback: return minimal package info
+  console.warn('Could not load package.json, using fallback')
+  return {
+    name: 'electerm',
+    version: '1.100.8',
+    description: 'Terminal/SSH/SFTP client',
+    homepage: 'https://electerm.github.io/electerm'
+  }
+}
+
 module.exports = {
   isTest: !!NODE_TEST,
   isDev,
@@ -52,5 +82,5 @@ module.exports = {
   defaultLang: 'en_us',
   tempDir: require('os').tmpdir(),
   homeOrTmp: os.homedir() || os.tmpdir(),
-  packInfo: require(isDev ? '../../../package.json' : '../package.json')
+  packInfo: getPackInfo()
 }
