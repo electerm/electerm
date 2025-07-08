@@ -40,14 +40,14 @@ const getPackInfo = () => {
   if (isDev) {
     return require('../../../package.json')
   }
-  
+
   // In production, try multiple possible paths
   const possiblePaths = [
     '../package.json',
     './package.json',
     '../../../package.json'
   ]
-  
+
   for (const path of possiblePaths) {
     try {
       return require(path)
@@ -55,7 +55,7 @@ const getPackInfo = () => {
       // Continue to next path
     }
   }
-  
+
   // Fallback: return minimal package info
   console.warn('Could not load package.json, using fallback')
   return {
