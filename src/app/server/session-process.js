@@ -8,18 +8,32 @@ const activeTerminals = new Map()
 let lastPort = 30975
 const MIN_PORT = 30975
 const MAX_PORT = 65534
+// Add a set to track ports that are currently being assigned
+const pendingPorts = new Set()
 
 function getPort (fromPort = MIN_PORT) {
   // Use the last port + 1 or start over if we've reached MAX_PORT
-  const startPort = lastPort >= MAX_PORT ? MIN_PORT : lastPort + 1
+  let startPort = lastPort >= MAX_PORT ? MIN_PORT : lastPort + 1
+
+  // Skip ports that are currently being assigned
+  while (pendingPorts.has(startPort)) {
+    startPort = startPort >= MAX_PORT ? MIN_PORT : startPort + 1
+  }
+
+  // Mark this port as pending
+  pendingPorts.add(startPort)
 
   return new Promise((resolve, reject) => {
     require('find-free-port')(startPort, 'localhost', function (err, freePort) {
       if (err) {
+        // Remove from pending set on error
+        pendingPorts.delete(startPort)
         reject(err)
       } else {
         // Remember this port for next time
         lastPort = freePort
+        // Remove from pending set when done
+        pendingPorts.delete(startPort)
         resolve(freePort)
       }
     })
