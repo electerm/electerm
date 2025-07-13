@@ -73,7 +73,7 @@
     "classnames": "2.5.1",
     "cross-env": "7.0.3",
     "dotenv": "16.4.5",
-    "electron": "30.5.1",
+    "electron": "35.7.0",
     "electron-builder": "25.1.8",
     "filesize": "10.1.6",
     "filesize-parser": "1.5.1",

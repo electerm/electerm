@@ -3,7 +3,8 @@ const {
 } = require('electron')
 const { createWindow } = require('./create-window')
 const {
-  packInfo
+  packInfo,
+  isDev
 } = require('../common/runtime-constants')
 const { initCommandLine } = require('./command-line')
 const globalState = require('./glob-state')
@@ -11,6 +12,9 @@ const { getDbConfig } = require('./get-config')
 
 exports.createApp = async function () {
   app.setName(packInfo.name)
+  if (isDev) {
+    app.disableHardwareAcceleration()
+  }
   if (process.platform === 'linux') {
     app.commandLine.appendSwitch('--enable-transparent-visuals')
     app.commandLine.appendSwitch('--disable-gpu')
