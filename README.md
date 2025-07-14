@@ -129,10 +129,9 @@ wechat donate
 ## Dev
 
 ```bash
-# tested in ubuntu16.04+/mac os 10.13+ only
-# needs nodejs/npm, suggest using nvm to install nodejs/npm
-# https://github.com/creationix/nvm
-# with nodejs 18.x
+# tested in ubuntu20.04+/mac os 10.13+ only
+# needs nodejs/npm, suggest using fnm to install nodejs/npm
+# with nodejs 22.x
 
 git clone git@github.com:electerm/electerm.git
 cd electerm
