@@ -81,17 +81,22 @@ export async function addTabFromCommandLine (store, opts) {
     const opts = safeParse(options.opts)
     if (opts !== options.opts) {
       Object.assign(update, opts)
+      update.fromCmdLine = true
     }
   }
-  if (options.type) {
-    update.type = options.type
+  if (options.tp) {
+    update.type = options.tp
+    update.fromCmdLine = true
   }
   Object.assign(conf, update)
   if (options.privateKeyPath) {
     conf.privateKey = await fs.readFile(options.privateKeyPath)
   }
   log.debug('command line opts', conf)
-  if (conf.username && conf.host) {
+  if (
+    (conf.username && conf.host) ||
+    conf.fromCmdLine
+  ) {
     store.addTab(conf)
   } else if (
     options.initFolder &&

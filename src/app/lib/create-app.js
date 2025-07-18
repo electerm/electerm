@@ -52,18 +52,18 @@ exports.createApp = async function () {
     }
   }
 
-  // app.on('second-instance', (event, argv, wd, opts) => {
-  //   const win = globalState.get('win')
-  //   if (win) {
-  //     if (win.isMinimized()) {
-  //       win.restore()
-  //     }
-  //     win.focus()
-  //     if (opts) {
-  //       win.webContents.send('add-tab-from-command-line', opts)
-  //     }
-  //   }
-  // })
+  app.on('second-instance', (event, argv, wd, opts) => {
+    const win = globalState.get('win')
+    if (win) {
+      if (win.isMinimized()) {
+        win.restore()
+      }
+      win.focus()
+      if (opts) {
+        win.webContents.send('add-tab-from-command-line', opts)
+      }
+    }
+  })
   app.whenReady().then(() => createWindow(conf))
   app.on('activate', () => {
     // On macOS it's common to re-create a window in the app when the
