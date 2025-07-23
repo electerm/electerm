@@ -7,7 +7,6 @@ import {
   Input,
   Form,
   InputNumber,
-  TreeSelect,
   Alert
 } from 'antd'
 import { formItemLayout } from '../../common/form-layout'
@@ -20,11 +19,11 @@ import useSubmit from './use-submit'
 import copy from 'json-deep-copy'
 import { defaults, isEmpty } from 'lodash-es'
 import { ColorPickerItem } from './color-picker-item.jsx'
-import { getRandomDefaultColor } from '../../common/rand-hex-color.js'
-import formatBookmarkGroups from './bookmark-group-tree-format'
+import { getColorFromCategory } from '../../common/get-category-color.js'
 import findBookmarkGroupId from '../../common/find-bookmark-group-id'
 import ProfileItem from './profile-form-item'
 import Link from '../common/external-link'
+import BookmarkCategorySelect from './bookmark-category-select.jsx'
 
 const FormItem = Form.Item
 const e = window.translate
@@ -57,7 +56,7 @@ export default function RdpFormUi (props) {
     type: terminalRdpType,
     port: 3389,
     category: initBookmarkGroupId,
-    color: getRandomDefaultColor()
+    color: getColorFromCategory(bookmarkGroups, currentBookmarkGroupId)
 
   }
   initialValues = defaults(initialValues, defaultValues)
@@ -65,7 +64,6 @@ export default function RdpFormUi (props) {
     const {
       bookmarkGroups = []
     } = props
-    const tree = formatBookmarkGroups(bookmarkGroups)
     const alertProps = {
       message: (
         <Link to={rdpWikiLink}>WIKI: {rdpWikiLink}</Link>
@@ -150,17 +148,10 @@ export default function RdpFormUi (props) {
         >
           <Input />
         </FormItem>
-        <FormItem
-          {...formItemLayout}
-          label={e('bookmarkCategory')}
-          name='category'
-        >
-          <TreeSelect
-            treeData={tree}
-            treeDefaultExpandAll
-            showSearch
-          />
-        </FormItem>
+        <BookmarkCategorySelect
+          bookmarkGroups={bookmarkGroups}
+          form={form}
+        />
         <FormItem
           {...formItemLayout}
           label='type'

@@ -7,7 +7,6 @@ import {
   Input,
   Form,
   InputNumber,
-  TreeSelect,
   Switch,
   Tabs
 } from 'antd'
@@ -20,12 +19,12 @@ import useSubmit from './use-submit'
 import copy from 'json-deep-copy'
 import { defaults, isEmpty } from 'lodash-es'
 import { ColorPickerItem } from './color-picker-item.jsx'
-import { getRandomDefaultColor } from '../../common/rand-hex-color.js'
-import formatBookmarkGroups from './bookmark-group-tree-format'
+import { getColorFromCategory } from '../../common/get-category-color.js'
 import findBookmarkGroupId from '../../common/find-bookmark-group-id'
 import renderProxy from './proxy'
 import ConnectionHopping from './render-connection-hopping.jsx'
 import ProfileItem from './profile-form-item'
+import BookmarkCategorySelect from './bookmark-category-select.jsx'
 
 const FormItem = Form.Item
 const e = window.translate
@@ -58,7 +57,7 @@ export default function VncFormUi (props) {
     type: terminalVncType,
     port: 5900,
     category: initBookmarkGroupId,
-    color: getRandomDefaultColor(),
+    color: getColorFromCategory(bookmarkGroups, currentBookmarkGroupId),
     viewOnly: false,
     scaleViewport: true,
     connectionHoppings: []
@@ -100,7 +99,6 @@ export default function VncFormUi (props) {
     const {
       bookmarkGroups = []
     } = props
-    const tree = formatBookmarkGroups(bookmarkGroups)
     return (
       <div className='pd1x'>
         <FormItem
@@ -181,17 +179,10 @@ export default function VncFormUi (props) {
         >
           <Input.TextArea autoSize={{ minRows: 1 }} />
         </FormItem>
-        <FormItem
-          {...formItemLayout}
-          label={e('bookmarkCategory')}
-          name='category'
-        >
-          <TreeSelect
-            treeData={tree}
-            treeDefaultExpandAll
-            showSearch
-          />
-        </FormItem>
+        <BookmarkCategorySelect
+          bookmarkGroups={bookmarkGroups}
+          form={form}
+        />
         {
           renderProxy(props)
         }

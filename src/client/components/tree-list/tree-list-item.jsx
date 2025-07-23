@@ -195,6 +195,16 @@ export default function TreeListItem (props) {
     }
   )
   const tag = isGroup ? '' : createTitleTag(item)
+  const colorTag = isGroup && item.color
+    ? (
+      <span
+        className='category-color-tag'
+        style={{
+          backgroundColor: item.color
+        }}
+      />
+      )
+    : null
   const title = isGroup
     ? item.title
     : createName(item)
@@ -236,7 +246,7 @@ export default function TreeListItem (props) {
       <div
         {...titleProps}
       >
-        {tag}{titleHighlight}
+        {colorTag}{tag}{titleHighlight}
       </div>
       {
         isGroup

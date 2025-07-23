@@ -6,7 +6,6 @@ import { useEffect } from 'react'
 import {
   Input,
   Form,
-  TreeSelect,
   Switch
 } from 'antd'
 import { formItemLayout } from '../../common/form-layout'
@@ -18,9 +17,9 @@ import useSubmit from './use-submit'
 import copy from 'json-deep-copy'
 import { defaults } from 'lodash-es'
 import { ColorPickerItem } from './color-picker-item.jsx'
-import { getRandomDefaultColor } from '../../common/rand-hex-color.js'
-import formatBookmarkGroups from './bookmark-group-tree-format'
+import { getColorFromCategory } from '../../common/get-category-color.js'
 import findBookmarkGroupId from '../../common/find-bookmark-group-id'
+import BookmarkCategorySelect from './bookmark-category-select.jsx'
 
 const FormItem = Form.Item
 const e = window.translate
@@ -52,14 +51,13 @@ export default function LocalFormUi (props) {
   const defaultValues = {
     type: terminalWebType,
     category: initBookmarkGroupId,
-    color: getRandomDefaultColor()
+    color: getColorFromCategory(bookmarkGroups, currentBookmarkGroupId)
   }
   initialValues = defaults(initialValues, defaultValues)
   function renderCommon () {
     const {
       bookmarkGroups = []
     } = props
-    const tree = formatBookmarkGroups(bookmarkGroups)
     return (
       <div className='pd1x'>
         <FormItem
@@ -100,17 +98,10 @@ export default function LocalFormUi (props) {
         >
           <Input.TextArea autoSize={{ minRows: 1 }} />
         </FormItem>
-        <FormItem
-          {...formItemLayout}
-          label={e('bookmarkCategory')}
-          name='category'
-        >
-          <TreeSelect
-            treeData={tree}
-            treeDefaultExpandAll
-            showSearch
-          />
-        </FormItem>
+        <BookmarkCategorySelect
+          bookmarkGroups={bookmarkGroups}
+          form={form}
+        />
         <FormItem
           {...formItemLayout}
           label={e('useragent')}

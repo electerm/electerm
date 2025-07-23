@@ -6,7 +6,6 @@ import { useEffect } from 'react'
 import {
   Tabs,
   Input,
-  TreeSelect,
   Form
 } from 'antd'
 import { formItemLayout } from '../../common/form-layout'
@@ -14,7 +13,6 @@ import {
   newBookmarkIdPrefix,
   terminalLocalType
 } from '../../common/constants'
-import formatBookmarkGroups from './bookmark-group-tree-format'
 import findBookmarkGroupId from '../../common/find-bookmark-group-id'
 import useSubmit from './use-submit'
 import useUI from './use-ui'
@@ -24,7 +22,8 @@ import renderTermBg from './render-bg'
 import { defaults } from 'lodash-es'
 import renderRunScripts from './render-delayed-scripts.jsx'
 import { ColorPickerItem } from './color-picker-item.jsx'
-import { getRandomDefaultColor } from '../../common/rand-hex-color.js'
+import { getColorFromCategory } from '../../common/get-category-color.js'
+import BookmarkCategorySelect from './bookmark-category-select.jsx'
 
 const FormItem = Form.Item
 const e = window.translate
@@ -60,7 +59,7 @@ export default function LocalFormUi (props) {
     term: props.store.config.terminalType,
     displayRaw: false,
     type: terminalLocalType,
-    color: getRandomDefaultColor(),
+    color: getColorFromCategory(bookmarkGroups, currentBookmarkGroupId),
     runScripts: [{}],
     enableSsh: true
   }
@@ -69,7 +68,6 @@ export default function LocalFormUi (props) {
     const {
       bookmarkGroups = []
     } = props
-    const tree = formatBookmarkGroups(bookmarkGroups)
     return (
       <div className='pd1x'>
         {renderRunScripts()}
@@ -90,17 +88,10 @@ export default function LocalFormUi (props) {
         >
           <Input.TextArea autoSize={{ minRows: 1 }} />
         </FormItem>
-        <FormItem
-          {...formItemLayout}
-          label={e('bookmarkCategory')}
-          name='category'
-        >
-          <TreeSelect
-            treeData={tree}
-            treeDefaultExpandAll
-            showSearch
-          />
-        </FormItem>
+        <BookmarkCategorySelect
+          bookmarkGroups={bookmarkGroups}
+          form={form}
+        />
         <FormItem
           {...formItemLayout}
           label='type'

@@ -5,7 +5,6 @@ import {
   Input,
   InputNumber,
   Radio,
-  TreeSelect,
   Select,
   Form
 } from 'antd'
@@ -15,9 +14,9 @@ import {
 import { formItemLayout, tailFormItemLayout } from '../../common/form-layout'
 import InputAutoFocus from '../common/input-auto-focus'
 import encodes from './encodes'
-import formatBookmarkGroups from './bookmark-group-tree-format'
 import renderRunScripts from './render-delayed-scripts.jsx'
 import { ColorPickerItem } from './color-picker-item.jsx'
+import BookmarkCategorySelect from './bookmark-category-select.jsx'
 
 import './bookmark-form.styl'
 
@@ -38,7 +37,6 @@ export default function renderCommon (props) {
     onChangeAuthType,
     filterAuthType = a => a
   } = props
-  const tree = formatBookmarkGroups(bookmarkGroups)
   const authTypesFiltered = authTypes.filter(filterAuthType)
 
   // ips is ipaddress string[]
@@ -140,17 +138,11 @@ export default function renderCommon (props) {
           step={1}
         />
       </FormItem>
-      <FormItem
-        {...formItemLayout}
-        label={e('bookmarkCategory')}
-        name='category'
-      >
-        <TreeSelect
-          treeData={tree}
-          treeDefaultExpandAll
-          showSearch
-        />
-      </FormItem>
+      <BookmarkCategorySelect
+        bookmarkGroups={bookmarkGroups}
+        form={form}
+        formItemLayout={formItemLayout}
+      />
       <FormItem
         {...formItemLayout}
         label={e('title')}

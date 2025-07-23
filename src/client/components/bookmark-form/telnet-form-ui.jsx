@@ -21,7 +21,7 @@ import useUI from './use-ui'
 import useQm from './use-quick-commands'
 import renderCommon from './form-ssh-common'
 import renderTermBg from './render-bg'
-import { getRandomDefaultColor } from '../../common/rand-hex-color.js'
+import { getColorFromCategory } from '../../common/get-category-color.js'
 import copy from 'json-deep-copy'
 import { defaultsDeep, isEmpty } from 'lodash-es'
 import renderAuth from './render-auth-ssh'
@@ -65,7 +65,7 @@ export default function TelnetFormUI (props) {
     id: '',
     username: 'root',
     password: 'guest',
-    color: getRandomDefaultColor(),
+    color: getColorFromCategory(bookmarkGroups, currentBookmarkGroupId),
     runScripts: [{}],
     term: defaultSettings.terminalType,
     displayRaw: false,

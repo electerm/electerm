@@ -11,8 +11,7 @@ import {
   Select,
   Switch,
   AutoComplete,
-  Form,
-  TreeSelect
+  Form
 } from 'antd'
 import { formItemLayout } from '../../common/form-layout'
 import parseInt10 from '../../common/parse-int10'
@@ -24,7 +23,6 @@ import {
   terminalSerialType,
   newBookmarkIdPrefix
 } from '../../common/constants'
-import formatBookmarkGroups from './bookmark-group-tree-format'
 import defaultSettings from '../../common/default-setting'
 import findBookmarkGroupId from '../../common/find-bookmark-group-id'
 import useSubmit from './use-submit'
@@ -33,8 +31,9 @@ import useQm from './use-quick-commands'
 import copy from 'json-deep-copy'
 import renderTermBg from './render-bg'
 import { defaults } from 'lodash-es'
-import { getRandomDefaultColor } from '../../common/rand-hex-color.js'
+import { getColorFromCategory } from '../../common/get-category-color.js'
 import { ColorPickerItem } from './color-picker-item.jsx'
+import BookmarkCategorySelect from './bookmark-category-select.jsx'
 
 const FormItem = Form.Item
 const { Option } = Select
@@ -67,7 +66,7 @@ export default function SerialFormUi (props) {
     : currentBookmarkGroupId
   let initialValues = copy(props.formData)
   const defaultValues = {
-    color: getRandomDefaultColor(),
+    color: getColorFromCategory(bookmarkGroups, currentBookmarkGroupId),
     baudRate: 9600,
     dataBits: 8,
     lock: true,
@@ -91,7 +90,6 @@ export default function SerialFormUi (props) {
       serials = [],
       loaddingSerials
     } = props
-    const tree = formatBookmarkGroups(bookmarkGroups)
     return (
       <div className='pd1x'>
         <FormItem
@@ -257,17 +255,11 @@ export default function SerialFormUi (props) {
         >
           <Input />
         </FormItem>
-        <FormItem
-          {...formItemLayout}
-          label={e('bookmarkCategory')}
-          name='category'
-        >
-          <TreeSelect
-            treeData={tree}
-            treeDefaultExpandAll
-            showSearch
-          />
-        </FormItem>
+        <BookmarkCategorySelect
+          bookmarkGroups={bookmarkGroups}
+          form={form}
+          formItemLayout={formItemLayout}
+        />
       </div>
     )
   }

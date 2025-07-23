@@ -28,6 +28,8 @@ import TreeExpander from './tree-expander'
 import TreeListItem from './tree-list-item'
 import TreeSearch from './tree-search'
 import MoveItemModal from './move-item-modal'
+import { CategoryColorPicker } from './category-color-picker.jsx'
+import { getRandomDefaultColor } from '../../common/rand-hex-color.js'
 
 export default class ItemListTree extends Component {
   constructor (props) {
@@ -41,7 +43,9 @@ export default class ItemListTree extends Component {
       moveItem: null,
       moveItemIsGroup: false,
       bookmarkGroupTitle: '',
+      bookmarkGroupColor: '',
       categoryTitle: '',
+      categoryColor: '',
       categoryId: ''
     }
   }
@@ -110,7 +114,8 @@ export default class ItemListTree extends Component {
   handleCancelNew = () => {
     this.setState({
       showNewBookmarkGroupForm: false,
-      bookmarkGroupTitle: ''
+      bookmarkGroupTitle: '',
+      bookmarkGroupColor: ''
     })
   }
 
@@ -123,7 +128,8 @@ export default class ItemListTree extends Component {
   handleCancelEdit = () => {
     this.setState({
       categoryId: '',
-      categoryTitle: ''
+      categoryTitle: '',
+      categoryColor: ''
     })
   }
 
@@ -140,6 +146,7 @@ export default class ItemListTree extends Component {
   handleSubmitEdit = () => {
     const {
       categoryTitle,
+      categoryColor,
       categoryId
     } = this.state
     if (!categoryTitle) {
@@ -153,6 +160,9 @@ export default class ItemListTree extends Component {
       return this.handleCancelEdit()
     }
     obj.title = categoryTitle
+    if (categoryColor) {
+      obj.color = categoryColor
+    }
     this.setState({
       categoryId: ''
     })
@@ -181,6 +191,18 @@ export default class ItemListTree extends Component {
     })
   }
 
+  handleChangeBookmarkGroupColor = color => {
+    this.setState({
+      bookmarkGroupColor: color
+    })
+  }
+
+  handleChangeCategoryColor = color => {
+    this.setState({
+      categoryColor: color
+    })
+  }
+
   handleNewBookmark = () => {
     this.props.onClickItem(getInitItem([], settingMap.bookmarks))
   }
@@ -197,11 +219,15 @@ export default class ItemListTree extends Component {
       showNewBookmarkGroupForm: false
     }, () => {
       this.onSubmit = false
-      window.store.addBookmarkGroup({
+      const newGroup = {
         id: uid(),
         title: this.state.bookmarkGroupTitle,
         bookmarkIds: []
-      })
+      }
+      if (this.state.bookmarkGroupColor) {
+        newGroup.color = this.state.bookmarkGroupColor
+      }
+      window.store.addBookmarkGroup(newGroup)
     })
   }
 
@@ -227,6 +253,9 @@ export default class ItemListTree extends Component {
       level: 2,
       bookmarkIds: []
     }
+    if (this.state.bookmarkGroupColor) {
+      newCat.color = this.state.bookmarkGroupColor
+    }
     bookmarkGroups.unshift(newCat)
     const cat = bookmarkGroups.find(
       d => d.id === id
@@ -244,6 +273,7 @@ export default class ItemListTree extends Component {
     this.setState({
       showNewBookmarkGroupForm: true,
       bookmarkGroupTitle: '',
+      bookmarkGroupColor: getRandomDefaultColor(),
       parentId: ''
     })
   }
@@ -309,6 +339,7 @@ export default class ItemListTree extends Component {
     if (isGroup) {
       this.setState({
         categoryTitle: '' + item.title,
+        categoryColor: item.color || '',
         categoryId: item.id,
         bookmarkGroupSubParentId: ''
       })
@@ -322,7 +353,8 @@ export default class ItemListTree extends Component {
       return {
         showNewBookmarkGroupForm: true,
         parentId: item.id,
-        bookmarkGroupTitle: ''
+        bookmarkGroupTitle: '',
+        bookmarkGroupColor: ''
       }
     })
     window.store.expandedKeys.push(item.id)
@@ -519,7 +551,8 @@ export default class ItemListTree extends Component {
 
   editCategory = () => {
     const {
-      categoryTitle
+      categoryTitle,
+      categoryColor
     } = this.state
     const confirm = (
       <span>
@@ -527,11 +560,18 @@ export default class ItemListTree extends Component {
         <CloseOutlined className='mg1l pointer' onClick={this.handleCancelEdit} />
       </span>
     )
+    const colorPicker = (
+      <CategoryColorPicker
+        value={categoryColor || getRandomDefaultColor()}
+        onChange={this.handleChangeCategoryColor}
+      />
+    )
     return (
       <InputAutoFocus
         value={categoryTitle}
         onChange={this.handleChangeEdit}
         onPressEnter={this.handleSubmitEdit}
+        addonBefore={colorPicker}
         addonAfter={confirm}
       />
     )
@@ -693,6 +733,7 @@ export default class ItemListTree extends Component {
   renderNewCat = (group) => {
     const {
       bookmarkGroupTitle,
+      bookmarkGroupColor,
       parentId,
       showNewBookmarkGroupForm
     } = this.state
@@ -705,12 +746,19 @@ export default class ItemListTree extends Component {
         <CloseOutlined className='mg1l pointer' onClick={this.handleCancelNew} />
       </span>
     )
+    const colorPicker = (
+      <CategoryColorPicker
+        value={bookmarkGroupColor || getRandomDefaultColor()}
+        onChange={this.handleChangeBookmarkGroupColor}
+      />
+    )
     return (
       <div className='pd1y'>
         <InputAutoFocus
           value={bookmarkGroupTitle}
           onPressEnter={this.handleSubmit}
           onChange={this.handleChangeBookmarkGroupTitle}
+          addonBefore={colorPicker}
           addonAfter={confirm}
           onBlur={this.handleBlurBookmarkGroupTitle}
         />

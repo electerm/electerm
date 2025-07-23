@@ -7,7 +7,6 @@ import {
   Input,
   Form,
   InputNumber,
-  TreeSelect,
   Switch
 } from 'antd'
 import { formItemLayout } from '../../common/form-layout'
@@ -19,10 +18,10 @@ import useSubmit from './use-submit'
 import copy from 'json-deep-copy'
 import { defaults, isEmpty } from 'lodash-es'
 import { ColorPickerItem } from './color-picker-item.jsx'
-import { getRandomDefaultColor } from '../../common/rand-hex-color.js'
-import formatBookmarkGroups from './bookmark-group-tree-format'
+import { getColorFromCategory } from '../../common/get-category-color.js'
 import findBookmarkGroupId from '../../common/find-bookmark-group-id'
 import ProfileItem from './profile-form-item'
+import BookmarkCategorySelect from './bookmark-category-select.jsx'
 
 const FormItem = Form.Item
 const e = window.translate
@@ -55,7 +54,7 @@ export default function FtpFormUi (props) {
     type: terminalFtpType,
     port: 21,
     category: initBookmarkGroupId,
-    color: getRandomDefaultColor(),
+    color: getColorFromCategory(bookmarkGroups, currentBookmarkGroupId),
     user: '',
     password: '',
     secure: false
@@ -66,7 +65,6 @@ export default function FtpFormUi (props) {
     const {
       bookmarkGroups = []
     } = props
-    const tree = formatBookmarkGroups(bookmarkGroups)
     return (
       <div className='pd1x'>
         <FormItem
@@ -131,17 +129,10 @@ export default function FtpFormUi (props) {
         >
           <Switch />
         </FormItem>
-        <FormItem
-          {...formItemLayout}
-          label={e('bookmarkCategory')}
-          name='category'
-        >
-          <TreeSelect
-            treeData={tree}
-            treeDefaultExpandAll
-            showSearch
-          />
-        </FormItem>
+        <BookmarkCategorySelect
+          bookmarkGroups={bookmarkGroups}
+          form={form}
+        />
         <FormItem
           {...formItemLayout}
           label='type'
