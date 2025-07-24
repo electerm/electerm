@@ -670,6 +670,7 @@ export default class SettingCommon extends Component {
             'confirmBeforeExit',
             'hideIP',
             'allowMultiInstance',
+            'disableDeveloperTool',
             'debug'
           ].map(this.renderToggle)
         }

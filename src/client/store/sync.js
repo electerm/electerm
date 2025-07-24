@@ -514,7 +514,8 @@ export default (Store) => {
       'modelAI',
       'roleAI',
       'languageAI',
-      'proxyAI'
+      'proxyAI',
+      'disableDeveloperTool'
     ]
     return pick(store.config, configSyncKeys)
   }

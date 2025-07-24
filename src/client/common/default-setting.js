@@ -68,5 +68,6 @@ export default {
   sshSftpSplitView: false,
   showCmdSuggestions: false,
   startDirectoryLocal: '',
-  allowMultiInstance: false
+  allowMultiInstance: false,
+  disableDeveloperTool: false
 }

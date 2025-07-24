@@ -40,7 +40,8 @@ exports.createWindow = async function (userConfig) {
       nodeIntegration: false,
       enableRemoteModule: false,
       preload: resolve(__dirname, '../preload/preload.js'),
-      webviewTag: true
+      webviewTag: true,
+      devTools: !userConfig.disableDeveloperTool
     },
     titleBarStyle: useSystemTitleBar ? 'default' : 'hidden',
     icon: iconPath
@@ -61,7 +62,7 @@ exports.createWindow = async function (userConfig) {
 
   win.loadURL(opts)
   win.webContents.once('dom-ready', () => {
-    if (isDev) {
+    if (isDev && !userConfig.disableDeveloperTool) {
       win.webContents.openDevTools()
     }
     win.on('unmaximize', () => {
