@@ -526,9 +526,14 @@ export default class Sftp extends Component {
       if (updates.remotePath !== undefined) {
         updates.remoteKeyword = ''
       }
+
+      // For selectedFiles updates, call setState immediately for better responsiveness
+      if (updates.selectedFiles !== undefined) {
+        return this.setState(...args)
+      }
     }
 
-    // Call setState with the modified arguments
+    // For other updates, use runIdle to avoid blocking the UI
     runIdle(() => this.setState(...args))
   }
 
