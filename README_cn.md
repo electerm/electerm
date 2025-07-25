@@ -28,6 +28,13 @@ Powered by [manate](https://github.com/tylerlong/manate)
   <img src="https://github.com/electerm/electerm-resource/raw/master/static/images/electerm.gif", alt="" />
 </div>
 
+
+[![DigitalOcean Referral Badge](https://web-platforms.sfo2.cdn.digitaloceanspaces.com/WWW/Badge%202.svg)](https://www.digitalocean.com/?refcode=c10bcb28b846&utm_campaign=Referral_Invite&utm_medium=Referral_Program&utm_source=badge)
+
+[![Powered by DartNode](https://dartnode.com/branding/DN-Open-Source-sm.png)](https://dartnode.com?aff=NuttyMonkey521 "Powered by DartNode - Free VPS for Open Source")
+
+[![Vercel OSS Program](https://vercel.com/oss/program-badge.svg)](https://vercel.com/oss)
+
 ## 功能特性
 
 - 支持ssh,telnet,serialport,RDP,VNC,本地和远程文件管理，sftp/ftp文件传输，以及作为本地终端使用
@@ -192,9 +199,3 @@ Visit [Releases](https://github.com/electerm/electerm/releases).
 ## 许可证
 
 MIT
-
-[![DigitalOcean Referral Badge](https://web-platforms.sfo2.cdn.digitaloceanspaces.com/WWW/Badge%202.svg)](https://www.digitalocean.com/?refcode=c10bcb28b846&utm_campaign=Referral_Invite&utm_medium=Referral_Program&utm_source=badge)
-
-[![Powered by DartNode](https://dartnode.com/branding/DN-Open-Source-sm.png)](https://dartnode.com?aff=NuttyMonkey521 "Powered by DartNode - Free VPS for Open Source")
-
-[![Vercel OSS Program](https://vercel.com/oss/program-badge.svg)](https://vercel.com/oss)
