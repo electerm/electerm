@@ -151,7 +151,7 @@ class Term extends Component {
           this.attachAddon._sendData(PS1_SETUP_CMD)
           this.term.cwdId = cwdId
         } else {
-          log.warn('Term or attachAddon not ready for PS1_SETUP_CMD in componentDidUpdate')
+          console.warn('Term or attachAddon not ready for PS1_SETUP_CMD in componentDidUpdate')
         }
       } else {
         if (this.attachAddon) {
@@ -895,7 +895,7 @@ class Term extends Component {
       if (this.attachAddon) {
         this.attachAddon._sendData(PS1_SETUP_CMD)
       } else {
-        log.warn('attachAddon not ready for PS1_SETUP_CMD in getCwd fallback')
+        console.warn('attachAddon not ready for PS1_SETUP_CMD in getCwd fallback')
       }
     }
   }
@@ -1065,7 +1065,7 @@ class Term extends Component {
         const cmd = `cd "${startFolder}"\r`
         this.attachAddon._sendData(cmd)
       } else {
-        log.warn('attachAddon not ready for cd command in runInitScript')
+        console.warn('attachAddon not ready for cd command in runInitScript')
       }
     }
 
@@ -1074,7 +1074,7 @@ class Term extends Component {
         this.attachAddon._sendData(PS1_SETUP_CMD)
         this.term.cwdId = cwdId
       } else {
-        log.warn('Term or attachAddon not ready for PS1_SETUP_CMD in runInitScript')
+        console.warn('Term or attachAddon not ready for PS1_SETUP_CMD in runInitScript')
       }
     }
 
