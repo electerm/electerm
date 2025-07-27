@@ -1,6 +1,6 @@
 {
   "name": "electerm",
-  "version": "1.100.30",
+  "version": "1.100.31",
   "description": "Terminal/ssh/telnet/serialport/sftp client(linux, mac, win)",
   "main": "app.js",
   "bin": "npm/electerm",
@@ -49,7 +49,7 @@
   "homepage": "https://electerm.html5beta.com",
   "releases": "https://github.com/electerm/electerm/releases",
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=22.0.0"
   },
   "preferGlobal": true,
   "devDependencies": {
@@ -73,7 +73,7 @@
     "classnames": "2.5.1",
     "cross-env": "7.0.3",
     "dotenv": "16.4.5",
-    "electron": "30.5.1",
+    "electron": "32.3.3",
     "electron-builder": "25.1.8",
     "filesize": "10.1.6",
     "filesize-parser": "1.5.1",

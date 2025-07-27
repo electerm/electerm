@@ -15,7 +15,7 @@ jobs:
       - name: Setup node and npm
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
           registry-url: https://registry.npmjs.org/
       - run: npm install shelljs
       - run: npm install -g @jsdevtools/npm-publish
