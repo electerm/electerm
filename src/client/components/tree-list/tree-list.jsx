@@ -354,7 +354,7 @@ export default class ItemListTree extends Component {
         showNewBookmarkGroupForm: true,
         parentId: item.id,
         bookmarkGroupTitle: '',
-        bookmarkGroupColor: ''
+        bookmarkGroupColor: getRandomDefaultColor()
       }
     })
     window.store.expandedKeys.push(item.id)
@@ -417,7 +417,6 @@ export default class ItemListTree extends Component {
     if (tar) {
       target = tar
     }
-    console.log('tar', target, tar)
     const dataDragged = e.dataTransfer.getData('idDragged')
     const [idDragged, pidDrags, isGroupDragged] = dataDragged.split('@')
     const isGroupDrag = isGroupDragged === 'true'
