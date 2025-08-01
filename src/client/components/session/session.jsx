@@ -465,7 +465,9 @@ export default class SessionWrapper extends Component {
   }
 
   handleFullscreen = () => {
-    window.store.toggleTermFullscreen(true)
+    // Make this tab the active tab before fullscreening
+    window.store.activeTabId = this.props.tab.id
+    window.store.toggleTermFullscreen(true, this.props.tab.id)
   }
 
   toggleBroadcastInput = () => {

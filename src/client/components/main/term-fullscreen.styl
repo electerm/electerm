@@ -14,17 +14,28 @@
     position fixed
     z-index 100
     background rgba(45, 245, 108, 0.8)
-  .term-wrap
-  .session-v-wrap
+  // Hide all sessions first
+  .session-wrap
+    display none
+  // Only show the session that matches the fullscreen tab ID
+  .session-wrap.session-current
+    display block !important
     position fixed
     left 0 !important
     top 0 !important
     height 100% !important
     width 100% !important
-  .term-wrap-1
-    left 10px !important
-    top 10px !important
-    right 10px !important
-    bottom 10px !important
+    .term-wrap
+    .session-v-wrap
+      position fixed
+      left 0 !important
+      top 0 !important
+      height 100% !important
+      width 100% !important
+    .term-wrap-1
+      left 10px !important
+      top 10px !important
+      right 10px !important
+      bottom 10px !important
 .term-fullscreen-control
   display none
