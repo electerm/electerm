@@ -18,7 +18,7 @@ import TerminalCmdSuggestions from '../terminal/terminal-command-dropdown'
 import TransportsActionStore from '../file-transfer/transports-action-store.jsx'
 import classnames from 'classnames'
 import ShortcutControl from '../shortcuts/shortcut-control.jsx'
-import { isMac, isWin } from '../../common/constants'
+import { isMac, isWin, textTerminalBgValue } from '../../common/constants'
 import TermFullscreenControl from './term-fullscreen-control'
 import TerminalInfo from '../terminal-info/terminal-info'
 import { ConfigProvider, notification, message } from 'antd'
@@ -117,7 +117,9 @@ export default auto(function Index (props) {
   const ext1 = {
     className: cls
   }
-  const bgTabs = config.terminalBackgroundImagePath === 'index' || config.terminalBackgroundImagePath === 'randomShape'
+  const bgTabs = config.terminalBackgroundImagePath === 'index' ||
+                  config.terminalBackgroundImagePath === 'randomShape' ||
+                  config.terminalBackgroundImagePath === textTerminalBgValue
     ? store.getTabs()
     : store.getTabs().filter(tab =>
       tab.terminalBackground?.terminalBackgroundImagePath

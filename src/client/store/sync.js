@@ -515,7 +515,11 @@ export default (Store) => {
       'roleAI',
       'languageAI',
       'proxyAI',
-      'disableDeveloperTool'
+      'disableDeveloperTool',
+      'terminalBackgroundText',
+      'terminalBackgroundTextSize',
+      'terminalBackgroundTextColor',
+      'terminalBackgroundTextFontFamily'
     ]
     return pick(store.config, configSyncKeys)
   }

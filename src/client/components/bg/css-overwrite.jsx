@@ -3,7 +3,7 @@
 */
 import { Component } from 'react'
 import fs from '../../common/fs'
-import { noTerminalBgValue } from '../../common/constants'
+import { noTerminalBgValue, textTerminalBgValue } from '../../common/constants'
 import { generateMosaicBackground } from './shapes'
 
 export default class CssOverwrite extends Component {
@@ -20,7 +20,11 @@ export default class CssOverwrite extends Component {
       'terminalBackgroundFilterOpacity',
       'terminalBackgroundFilterBrightness',
       'terminalBackgroundFilterContrast',
-      'terminalBackgroundFilterGrayscale'
+      'terminalBackgroundFilterGrayscale',
+      'terminalBackgroundText',
+      'terminalBackgroundTextSize',
+      'terminalBackgroundTextColor',
+      'terminalBackgroundTextFontFamily'
     ]
     const globalChanged = bgProps.some(prop => this.props[prop] !== nextProps[prop])
     if (globalChanged) {
@@ -59,7 +63,7 @@ export default class CssOverwrite extends Component {
   }
 
   // Common function to handle background image style creation
-  createBackgroundStyle = async (imagePath) => {
+  createBackgroundStyle = async (imagePath, textBgProps = null) => {
     if (!imagePath || imagePath === '') {
       return ''
     }
@@ -73,6 +77,8 @@ export default class CssOverwrite extends Component {
       st = 'index'
     } else if (noTerminalBgValue === imagePath) {
       st = 'none'
+    } else if (textTerminalBgValue === imagePath) {
+      st = 'text'
     } else if (imagePath && !isWebImg) {
       content = await fs.readFileAsBase64(imagePath)
         .catch(log.error)
@@ -113,6 +119,27 @@ export default class CssOverwrite extends Component {
     const styles = []
     if (st === 'index') {
       styles.push(`content: '${tab.tabCount}'`)
+    } else if (st === 'text') {
+      const text = bg.terminalBackgroundText || this.props.terminalBackgroundText || ''
+      const size = bg.terminalBackgroundTextSize || this.props.terminalBackgroundTextSize || 48
+      const color = bg.terminalBackgroundTextColor || this.props.terminalBackgroundTextColor || '#ffffff'
+      const fontFamily = bg.terminalBackgroundTextFontFamily || this.props.terminalBackgroundTextFontFamily || 'monospace'
+      if (text) {
+        styles.push(
+          `content: '${text.replace(/'/g, "\\'").replace(/\n/g, '\\A ')}'`,
+          `font-size: ${size}px`,
+          `color: ${color}`,
+          'white-space: pre-wrap',
+          'word-wrap: break-word',
+          'text-align: center',
+          'display: flex',
+          'align-items: center',
+          'justify-content: center',
+          `font-family: ${fontFamily}`,
+          'opacity: 0.3',
+          'background-image: none' // Override default background when text is set
+        )
+      }
     } else if (st !== 'none') {
       styles.push(
         `background-image: ${st}`,
@@ -135,7 +162,28 @@ export default class CssOverwrite extends Component {
 
     const styles = []
 
-    if (st !== 'none' && st !== 'index') {
+    if (st === 'text') {
+      const text = this.props.terminalBackgroundText || ''
+      const size = this.props.terminalBackgroundTextSize || 48
+      const color = this.props.terminalBackgroundTextColor || '#ffffff'
+      const fontFamily = this.props.terminalBackgroundTextFontFamily || 'monospace'
+      if (text) {
+        styles.push(
+          `content: '${text.replace(/'/g, "\\'").replace(/\n/g, '\\A ')}'`,
+          `font-size: ${size}px`,
+          `color: ${color}`,
+          'white-space: pre-wrap',
+          'word-wrap: break-word',
+          'text-align: center',
+          'display: flex',
+          'align-items: center',
+          'justify-content: center',
+          `font-family: ${fontFamily}`,
+          'opacity: 0.3',
+          'background-image: none' // Override default background when text is set
+        )
+      }
+    } else if (st !== 'none' && st !== 'index') {
       styles.push(
         `background-image: ${st}`,
         'background-position: center',

@@ -80,7 +80,11 @@ export default function BookmarkFormUI (props) {
       'terminalBackgroundFilterBlur',
       'terminalBackgroundFilterBrightness',
       'terminalBackgroundFilterGrayscale',
-      'terminalBackgroundFilterContrast'
+      'terminalBackgroundFilterContrast',
+      'terminalBackgroundText',
+      'terminalBackgroundTextSize',
+      'terminalBackgroundTextColor',
+      'terminalBackgroundTextFontFamily'
     ])
   }
   initialValues = defaultsDeep(initialValues, defaultValues)
