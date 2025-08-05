@@ -55,7 +55,7 @@ const { encryptAsync, decryptAsync } = require('./enc')
 const { initCommandLine } = require('./command-line')
 const { watchFile, unwatchFile } = require('./watch-file')
 const lookup = require('../common/lookup')
-const { AIchat } = require('./ai')
+const { AIchat, getStreamContent } = require('./ai')
 
 async function initAppServer () {
   const {
@@ -165,6 +165,7 @@ function initIpc () {
     },
     saveUserConfig,
     AIchat,
+    getStreamContent,
     setTitle: (title) => {
       const win = globalState.get('win')
       win && win.setTitle(packInfo.name + ' - ' + title)

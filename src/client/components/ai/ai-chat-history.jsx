@@ -10,7 +10,7 @@ export default auto(function AIChatHistory ({ history }) {
     if (historyRef.current) {
       historyRef.current.scrollTop = historyRef.current.scrollHeight
     }
-  }, [history.length])
+  }, [history])
   if (!history.length) {
     return <div />
   }
