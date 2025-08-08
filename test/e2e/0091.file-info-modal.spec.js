@@ -75,7 +75,7 @@ async function testEditFolderPermission (client, folderType) {
   await client.click('.ant-dropdown-menu-item:has-text("New Folder")')
   await delay(200)
   await client.setValue('.session-current .sftp-item input', folderName)
-  await client.click('.session-current .sftp-title-wrap')
+  await client.click('.session-current .sftp-panel-title')
   await delay(2500)
 
   // Right-click on the folder and select "Edit Permission"
@@ -152,7 +152,7 @@ async function testFileInfoModal (client, fileType, closeMethod) {
   await client.click('.ant-dropdown .anticon-folder-add')
   await delay(200)
   await client.setValue('.session-current .sftp-item input', fname)
-  await client.click('.session-current .sftp-title-wrap')
+  await client.click('.session-current .sftp-panel-title')
   await delay(2500)
 
   // Verify folder was created

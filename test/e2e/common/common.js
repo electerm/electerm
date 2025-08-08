@@ -27,7 +27,7 @@ async function createFile (client, type, fileName) {
   await client.click('.ant-dropdown:not(.ant-dropdown-hidden) .ant-dropdown-menu-item:has-text("New File")')
   await delay(400)
   await client.setValue('.session-current .sftp-item input', fileName)
-  await client.click('.session-current .sftp-title-wrap')
+  await client.click('.session-current .sftp-panel-title')
   await delay(3500) // Ensure file creation completes
 }
 
@@ -47,7 +47,7 @@ async function createFolder (client, type, folderName) {
   await client.click('.ant-dropdown:not(.ant-dropdown-hidden) .ant-dropdown-menu-item:has-text("New Folder")')
   await delay(400)
   await client.setValue('.session-current .sftp-item input', folderName)
-  await client.click('.session-current .sftp-title-wrap')
+  await client.click('.session-current .sftp-panel-title')
   await delay(3500) // Ensure folder creation completes
 }
 /**
@@ -123,7 +123,7 @@ async function pasteItem (client, type) {
   const realFileSelector = `.session-current .file-list.${type} .real-file-item`
 
   // Click elsewhere to ensure the previous context menu is closed
-  await client.click('.session-current .sftp-title-wrap')
+  await client.click('.session-current .sftp-panel-title')
   await delay(1000) // Increased delay
 
   // Try to right click on the parent file item first (for empty folders)
@@ -174,7 +174,7 @@ async function renameItem (client, type, oldName, newName) {
   await client.click('.ant-dropdown:not(.ant-dropdown-hidden) .ant-dropdown-menu-item:has-text("Rename")')
   await delay(400)
   await client.setValue('.session-current .sftp-item input', newName)
-  await client.click('.session-current .sftp-title-wrap')
+  await client.click('.session-current .sftp-panel-title')
   await delay(2500)
 }
 

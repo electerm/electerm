@@ -1161,12 +1161,12 @@ export default class Sftp extends Component {
             {
               type === typeMap.remote
                 ? (
-                  <div className='pd1t pd1b pd1x alignright'>
+                  <div className='sftp-panel-title pd1t pd1b pd1x alignright'>
                     {e('remote')}: {username}@{host}
                   </div>
                   )
                 : (
-                  <div className='pd1t pd1b pd1x'>
+                  <div className='sftp-panel-title pd1t pd1b pd1x'>
                     {e('local')}
                   </div>
                   )
