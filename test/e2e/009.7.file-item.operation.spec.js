@@ -37,6 +37,13 @@ describe('file-copy-paste-operation', function () {
 })
 
 async function testCopyPasteOperation (client, type) {
+  // Create a main test folder to contain all test operations
+  const mainTestFolderName = `test-copy-paste-${Date.now()}`
+  await createFolder(client, type, mainTestFolderName)
+
+  // Enter the main test folder
+  await enterFolder(client, type, mainTestFolderName)
+
   // Create a test file
   const fileName = `original-file-${Date.now()}.js`
   await createFile(client, type, fileName)
@@ -60,9 +67,9 @@ async function testCopyPasteOperation (client, type) {
   expect(renamedFileName).toMatch(/^original-file-\d+\([\w\d-]+\)\.js$/)
 
   // Test 2: Create folder, paste into subfolder
-  // Create a folder
-  const folderName = `test-folder-${Date.now()}`
-  await createFolder(client, type, folderName)
+  // Create a subfolder
+  const subFolderName = `sub-folder-${Date.now()}`
+  await createFolder(client, type, subFolderName)
 
   // Copy the original file again
   await copyItem(client, type, fileName)
@@ -70,8 +77,8 @@ async function testCopyPasteOperation (client, type) {
   // Give more time for the clipboard to update
   await delay(2000)
 
-  // Enter the folder
-  await enterFolder(client, type, folderName)
+  // Enter the subfolder
+  await enterFolder(client, type, subFolderName)
 
   // Paste the file in the subfolder
   await pasteItem(client, type)
@@ -84,16 +91,12 @@ async function testCopyPasteOperation (client, type) {
   const copiedCount = await copiedFiles.count()
   expect(copiedCount).toBe(1)
 
-  // Navigate back to parent folder
+  // Navigate back to main test folder
   await navigateToParentFolder(client, type)
 
-  // Clean up - delete all test files and folders
-  // Delete the renamed file in the root folder
-  await deleteItem(client, type, renamedFileName)
+  // Navigate back to the parent folder (outside the main test folder)
+  await navigateToParentFolder(client, type)
 
-  // Delete the original file
-  await deleteItem(client, type, fileName)
-
-  // Delete the folder (no need to delete the file inside)
-  await deleteItem(client, type, folderName)
+  // Clean up - delete the entire main test folder with all its contents
+  await deleteItem(client, type, mainTestFolderName)
 }

@@ -36,6 +36,13 @@ describe('file-copy-paste-operation-keyboard', function () {
 })
 
 async function testCopyPasteOperationWithKeyboard (client, type) {
+  // Create a main test folder to contain all test operations
+  const mainTestFolderName = `test-keyboard-copy-paste-${Date.now()}`
+  await createFolder(client, type, mainTestFolderName)
+
+  // Enter the main test folder
+  await enterFolder(client, type, mainTestFolderName)
+
   // Create a test file
   const fileName = `keyboard-copy-file-${Date.now()}.js`
   await createFile(client, type, fileName)
@@ -59,11 +66,11 @@ async function testCopyPasteOperationWithKeyboard (client, type) {
   expect(renamedFileName).toMatch(/^keyboard-copy-file-\d+\([\w\d-]+\)\.js$/)
 
   // Test 2: Create folder, paste into subfolder using keyboard shortcuts
-  const folderName = `keyboard-test-folder-${Date.now()}`
-  await createFolder(client, type, folderName)
+  const subFolderName = `keyboard-sub-folder-${Date.now()}`
+  await createFolder(client, type, subFolderName)
 
-  // Enter the folder
-  await enterFolder(client, type, folderName)
+  // Enter the subfolder
+  await enterFolder(client, type, subFolderName)
 
   // Paste the file in the subfolder using keyboard shortcut
   await pasteItem(client, type)
@@ -76,12 +83,14 @@ async function testCopyPasteOperationWithKeyboard (client, type) {
   const copiedCount = await copiedFiles.count()
   expect(copiedCount).toBe(1)
 
-  // Navigate back to parent folder
+  // Navigate back to main test folder
   await client.doubleClick(`.session-current .file-list.${type} .parent-file-item`)
   await delay(3000)
 
-  // Clean up - delete all test files and folders
-  await deleteItem(client, type, renamedFileName)
-  await deleteItem(client, type, fileName)
-  await deleteItem(client, type, folderName)
+  // Navigate back to the parent folder (outside the main test folder)
+  await client.doubleClick(`.session-current .file-list.${type} .parent-file-item`)
+  await delay(3000)
+
+  // Clean up - delete the entire main test folder with all its contents
+  await deleteItem(client, type, mainTestFolderName)
 }

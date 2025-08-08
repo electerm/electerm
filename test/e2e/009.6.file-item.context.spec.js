@@ -77,7 +77,7 @@ describe('file-item-context-menu', function () {
     const localHasTerminalAccess = await localContextMenu.locator('.ant-dropdown-menu-item:has-text("Access this folder from the terminal")').count()
     expect(localHasTerminalAccess).toBe(0)
     // Close context menu
-    await client.click('.session-current .sftp-title-wrap')
+    await client.click('.session-current .sftp-panel-title')
     await delay(500)
 
     // Access remote folder from terminal
