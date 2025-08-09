@@ -2,12 +2,20 @@
  * preload
  */
 
-const { ipcRenderer, contextBridge, webFrame } = require('electron')
+const { ipcRenderer, contextBridge, webFrame, webUtils } = require('electron')
 
 contextBridge.exposeInMainWorld(
   'api', {
     getZoomFactor: () => webFrame.getZoomFactor(),
     setZoomFactor: (nl) => webFrame.setZoomFactor(nl),
+    getPathForFile: (file) => {
+      try {
+        return webUtils.getPathForFile(file)
+      } catch (error) {
+        console.warn('webUtils.getPathForFile failed:', error)
+        return null
+      }
+    },
     openDialog: (opts) => {
       return ipcRenderer.invoke('show-open-dialog-sync', opts)
     },

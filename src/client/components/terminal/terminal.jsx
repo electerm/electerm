@@ -367,6 +367,17 @@ class Term extends Component {
     this.runQuickCommand(`cd "${p}"`)
   }
 
+  getFilePath = (file) => {
+    if (file.path) {
+      return file.path
+    }
+    // Try the official Electron 32+ method first if available
+    if (window.api && window.api.getPathForFile) {
+      return window.api.getPathForFile(file)
+    }
+    return file.name
+  }
+
   onDrop = e => {
     const dt = e.dataTransfer
     const fromFile = dt.getData('fromFile')
@@ -392,13 +403,16 @@ class Term extends Component {
     const files = dt.files
     if (files && files.length) {
       const arr = Array.from(files)
+      const filePaths = arr.map(f => this.getFilePath(f))
+
       // Check each file path individually
-      const hasUnsafeFilename = arr.some(f => this.isUnsafeFilename(f.path))
+      const hasUnsafeFilename = filePaths.some(path => this.isUnsafeFilename(path))
       if (hasUnsafeFilename) {
         message.error(notSafeMsg)
         return
       }
-      const filesAll = arr.map(f => `"${f.path}"`).join(' ')
+
+      const filesAll = filePaths.map(path => `"${path}"`).join(' ')
       this.attachAddon._sendData(filesAll)
     }
   }
