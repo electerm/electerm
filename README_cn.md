@@ -196,5 +196,3 @@ Visit [Releases](https://github.com/electerm/electerm/releases).
 ## 许可证
 
 MIT
-
-[![Powered by DartNode](https://dartnode.com/branding/DN-Open-Source-sm.png)](https://dartnode.com?aff=NuttyMonkey521 "Powered by DartNode - Free VPS for Open Source")
