@@ -24,7 +24,7 @@ function getPort (fromPort = MIN_PORT) {
   pendingPorts.add(startPort)
 
   return new Promise((resolve, reject) => {
-    require('find-free-port')(startPort, 'localhost', function (err, freePort) {
+    require('find-free-port')(startPort, '127.0.0.1', function (err, freePort) {
       if (err) {
         // Remove from pending set on error
         pendingPorts.delete(startPort)

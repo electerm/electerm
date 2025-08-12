@@ -58,7 +58,7 @@ exports.createWindow = async function (userConfig) {
   const port = isDev
     ? process.env.devPort || 5570
     : await getPort()
-  const opts = `http://localhost:${port}/index.html?v=${packInfo.version}`
+  const opts = `http://127.0.0.1:${port}/index.html?v=${packInfo.version}`
 
   win.loadURL(opts)
   win.webContents.once('dom-ready', () => {

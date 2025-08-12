@@ -49,7 +49,7 @@ class Telnet extends EventEmitter {
   constructor (options = {}) {
     super()
     this.options = {
-      host: 'localhost',
+      host: '127.0.0.1',
       port: 23,
       timeout: 5000,
       negotiationMandatory: false,

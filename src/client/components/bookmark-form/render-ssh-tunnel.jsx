@@ -29,9 +29,9 @@ export default function renderSshTunnels (props) {
   const [initialValues] = useState({
     sshTunnel: 'forwardRemoteToLocal',
     sshTunnelLocalPort: 12200,
-    sshTunnelLocalHost: 'localhost',
+    sshTunnelLocalHost: '127.0.0.1',
     sshTunnelRemotePort: 12300,
-    sshTunnelRemoteHost: 'localhost'
+    sshTunnelRemoteHost: '127.0.0.1'
   })
   const [isDynamic, setter] = useState(formData.sshTunnel === 'dynamicForward')
   const [list, setList] = useState(formData.sshTunnels || [])
@@ -85,9 +85,9 @@ export default function renderSshTunnels (props) {
         // sshTunnel is forwardRemoteToLocal or forwardLocalToRemote or dynamicForward
         const {
           sshTunnel,
-          sshTunnelRemoteHost = 'localhost',
+          sshTunnelRemoteHost = '127.0.0.1',
           sshTunnelRemotePort = '',
-          sshTunnelLocalHost = 'localhost',
+          sshTunnelLocalHost = '127.0.0.1',
           sshTunnelLocalPort = '',
           name
         } = item
