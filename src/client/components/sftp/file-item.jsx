@@ -30,6 +30,7 @@ import findParent from '../../common/find-parent'
 import sorter from '../../common/index-sorter'
 import { getFolderFromFilePath, getLocalFileInfo } from './file-read'
 import { readClipboard, copy as copyToClipboard, hasFileInClipboardText } from '../../common/clipboard'
+import { getDropFileList } from '../../common/file-drop-utils'
 import fs from '../../common/fs'
 import time from '../../common/time'
 import { filesize } from 'filesize'
@@ -228,26 +229,7 @@ export default class FileSection extends React.Component {
   }
 
   getDropFileList = data => {
-    const fromFile = data.getData('fromFile')
-    if (fromFile) {
-      return [JSON.parse(fromFile)]
-    }
-    const { files } = data
-    const res = []
-    for (let i = 0, len = files.length; i < len; i++) {
-      const item = files[i]
-      if (!item) {
-        continue
-      }
-      // let file = item.getAsFile()
-      const isRemote = false
-      const fileObj = getFolderFromFilePath(item.path, isRemote)
-      res.push({
-        ...fileObj,
-        type: typeMap.local
-      })
-    }
-    return res
+    return getDropFileList(data)
   }
 
   onDrop = async e => {
@@ -261,6 +243,7 @@ export default class FileSection extends React.Component {
     if (!fromFiles) {
       return
     }
+
     while (!target.className.includes(fileItemCls)) {
       target = target.parentNode
     }

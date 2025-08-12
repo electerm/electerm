@@ -47,6 +47,7 @@ import { createTerm, resizeTerm } from './terminal-apis.js'
 import { shortcutExtend, shortcutDescExtend } from '../shortcuts/shortcut-handler.js'
 import { KeywordHighlighterAddon } from './highlight-addon.js'
 import { getLocalFileInfo } from '../sftp/file-read.js'
+import { getFilePath, isUnsafeFilename } from '../../common/file-drop-utils.js'
 import { CommandTrackerAddon } from './command-tracker-addon.js'
 import AIIcon from '../icons/ai-icon.jsx'
 import { formatBytes } from '../../common/byte-format.js'
@@ -356,26 +357,11 @@ class Term extends Component {
     this.term.focus()
   }
 
-  isUnsafeFilename = (filename) => {
-    return /["'\n\r]/.test(filename)
-  }
-
   cd = (p) => {
-    if (this.isUnsafeFilename(p)) {
+    if (isUnsafeFilename(p)) {
       return message.error('File name contains unsafe characters')
     }
     this.runQuickCommand(`cd "${p}"`)
-  }
-
-  getFilePath = (file) => {
-    if (file.path) {
-      return file.path
-    }
-    // Try the official Electron 32+ method first if available
-    if (window.api && window.api.getPathForFile) {
-      return window.api.getPathForFile(file)
-    }
-    return file.name
   }
 
   onDrop = e => {
@@ -388,7 +374,7 @@ class Term extends Component {
       try {
         const fileData = JSON.parse(fromFile)
         const filePath = resolve(fileData.path, fileData.name)
-        if (this.isUnsafeFilename(filePath)) {
+        if (isUnsafeFilename(filePath)) {
           message.error(notSafeMsg)
           return
         }
@@ -403,10 +389,10 @@ class Term extends Component {
     const files = dt.files
     if (files && files.length) {
       const arr = Array.from(files)
-      const filePaths = arr.map(f => this.getFilePath(f))
+      const filePaths = arr.map(f => getFilePath(f))
 
       // Check each file path individually
-      const hasUnsafeFilename = filePaths.some(path => this.isUnsafeFilename(path))
+      const hasUnsafeFilename = filePaths.some(path => isUnsafeFilename(path))
       if (hasUnsafeFilename) {
         message.error(notSafeMsg)
         return
