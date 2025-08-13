@@ -19,9 +19,9 @@ import { auto } from 'manate/react'
 
 import {
   packInfo,
-  infoTabs,
-  srcsSkipUpgradeCheck
+  infoTabs
 } from '../../common/constants'
+import { checkSkipSrc } from '../../common/check-skip-src'
 import './info.styl'
 
 const e = window.translate
@@ -32,7 +32,7 @@ export default auto(function InfoModal (props) {
   }
 
   const renderCheckUpdate = () => {
-    if (window.et.isWebApp || srcsSkipUpgradeCheck.includes(props.installSrc)) {
+    if (window.et.isWebApp || checkSkipSrc(props.installSrc)) {
       return null
     }
     const {
