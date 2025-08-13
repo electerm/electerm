@@ -18,6 +18,7 @@ import {
 import useSubmit from './use-submit'
 import copy from 'json-deep-copy'
 import { defaults, isEmpty } from 'lodash-es'
+import Password from '../common/password'
 import { ColorPickerItem } from './color-picker-item.jsx'
 import { getColorFromCategory } from '../../common/get-category-color.js'
 import findBookmarkGroupId from '../../common/find-bookmark-group-id'
@@ -130,7 +131,7 @@ export default function RdpFormUi (props) {
           name='password'
           required
         >
-          <Input.Password />
+          <Password />
         </FormItem>
         <FormItem
           {...formItemLayout}

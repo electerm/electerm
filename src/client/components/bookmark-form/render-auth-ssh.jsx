@@ -12,6 +12,7 @@ import {
 import { formItemLayout } from '../../common/form-layout'
 import { uniqBy } from 'lodash-es'
 import './bookmark-form.styl'
+import Password from '../common/password'
 
 const { TextArea } = Input
 const FormItem = Form.Item
@@ -61,7 +62,7 @@ export default function renderAuth (props) {
         <AutoComplete
           {...opts}
         >
-          <Input.Password />
+          <Password />
         </AutoComplete>
       </FormItem>
     )
@@ -131,7 +132,7 @@ export default function renderAuth (props) {
         max: 1024, message: '1024 chars max'
       }]}
     >
-      <Input.Password
+      <Password
         placeholder={e('passphraseDesc')}
       />
     </FormItem>

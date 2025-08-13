@@ -18,6 +18,7 @@ import {
   Tag
 } from 'antd'
 import deepCopy from 'json-deep-copy'
+import Password from '../common/password'
 import {
   settingMap,
   proxyHelpLink
@@ -483,7 +484,7 @@ export default class SettingCommon extends Component {
       <div>
         <div className='pd1b'>{e('loginPassword')}</div>
         <div className='pd2b'>
-          <Input.Password
+          <Password
             {...props}
           />
         </div>

@@ -12,6 +12,7 @@ import AiCache from './ai-cache'
 import {
   aiConfigWikiLink
 } from '../../common/constants'
+import Password from '../common/password'
 
 // Comprehensive API provider configurations
 import providers from './providers'
@@ -149,7 +150,7 @@ export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig })
           label='API Key'
           name='apiKeyAI'
         >
-          <Input.Password placeholder='Enter your API key' />
+          <Password placeholder='Enter your API key' />
         </Form.Item>
 
         <Form.Item

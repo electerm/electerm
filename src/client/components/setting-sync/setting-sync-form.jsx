@@ -15,6 +15,7 @@ import { syncTokenCreateUrls, syncTypes } from '../../common/constants'
 import './sync.styl'
 import HelpIcon from '../common/help-icon'
 import ServerDataStatus from './server-data-status'
+import Password from '../common/password'
 
 const FormItem = Form.Item
 const e = window.translate
@@ -209,7 +210,7 @@ export default function SyncForm (props) {
           max: 100, message: '100 chars max'
         }]}
       >
-        <Input.Password
+        <Password
           placeholder={syncType + ' ' + syncPasswordName}
         />
       </FormItem>
@@ -240,7 +241,7 @@ export default function SyncForm (props) {
           required: true, message: createPlaceHolder('token') + ' required'
         }]}
       >
-        <Input.Password
+        <Password
           placeholder={createPlaceHolder('token')}
           id={createId('token')}
         />

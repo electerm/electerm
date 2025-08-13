@@ -8,6 +8,7 @@ import {
   Button
 } from 'antd'
 import { formItemLayout, tailFormItemLayout } from '../../common/form-layout'
+import Password from '../common/password'
 
 const FormItem = Form.Item
 const e = window.translate
@@ -24,7 +25,7 @@ export default function VncForm (props) {
       types
     } = props
     return types.map((type, index) => {
-      const Elem = type === 'password' ? Input.Password : Input
+      const Elem = type === 'password' ? Password : Input
       return (
         <FormItem
           {...formItemLayout}
