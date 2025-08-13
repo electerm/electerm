@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, forwardRef } from 'react'
 import {
   Input,
   Tag
@@ -8,7 +8,7 @@ import {
  * Password component that extends Ant Design's Password component
  * with caps lock detection and visual indicator
  */
-export default function Password (props) {
+export default forwardRef(function Password (props, ref) {
   const [isCapsLockOn, setIsCapsLockOn] = useState(false)
 
   // Check caps lock state from keyboard event
@@ -66,6 +66,7 @@ export default function Password (props) {
   return (
     <Input.Password
       {...props}
+      ref={ref}
       addonBefore={addonBefore}
       onKeyDown={handleKeyEvent}
       onKeyUp={handleKeyEvent}
@@ -73,4 +74,4 @@ export default function Password (props) {
       onBlur={handleBlur}
     />
   )
-}
+})
