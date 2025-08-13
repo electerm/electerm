@@ -13,6 +13,7 @@ import { formItemLayout } from '../../common/form-layout'
 import { uniqBy } from 'lodash-es'
 import './bookmark-form.styl'
 import Password from '../common/password'
+import { getFilePath } from '../../common/file-drop-utils'
 
 const { TextArea } = Input
 const FormItem = Form.Item
@@ -27,7 +28,8 @@ export default function renderAuth (props) {
     profileFilter = (d) => d
   } = props
   const beforeUpload = async (file) => {
-    const privateKey = await window.fs.readFile(file.path)
+    const filePath = getFilePath(file)
+    const privateKey = await window.fs.readFile(filePath)
     form.setFieldsValue({
       privateKey
     })

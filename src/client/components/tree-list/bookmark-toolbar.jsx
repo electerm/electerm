@@ -13,6 +13,7 @@ import time from '../../common/time'
 import { uniq } from 'lodash-es'
 import { fixBookmarks } from '../../common/db-fix'
 import download from '../../common/download'
+import { getFilePath } from '../../common/file-drop-utils'
 import delay from '../../common/wait'
 import { action } from 'manate'
 
@@ -30,7 +31,8 @@ export default function BookmarkToolbar (props) {
   } = props
   const upload = action(async (file) => {
     const { store } = window
-    const txt = await window.fs.readFile(file.path)
+    const filePath = getFilePath(file)
+    const txt = await window.fs.readFile(filePath)
 
     const content = JSON.parse(txt)
     const {

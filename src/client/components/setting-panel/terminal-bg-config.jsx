@@ -12,6 +12,7 @@ import {
 import defaultSettings from '../../common/default-setting'
 import NumberConfig from './number-config'
 import TextBgModal from './text-bg-modal.jsx'
+import { getFilePath } from '../../common/file-drop-utils'
 
 const e = window.translate
 
@@ -28,7 +29,8 @@ export default function TerminalBackgroundConfig ({
   const after = (
     <Upload
       beforeUpload={(file) => {
-        onChangeValue(file.path, name)
+        const filePath = getFilePath(file)
+        onChangeValue(filePath, name)
         return false
       }}
       showUploadList={false}

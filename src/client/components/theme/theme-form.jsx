@@ -6,6 +6,7 @@ import generate from '../../common/uid'
 import Link from '../common/external-link'
 import InputAutoFocus from '../common/input-auto-focus'
 import ThemePicker from './theme-editor'
+import { getFilePath } from '../../common/file-drop-utils'
 // import './theme-form.styl'
 
 const { TextArea } = Input
@@ -146,7 +147,8 @@ export default function ThemeForm (props) {
   }
 
   async function beforeUpload (file) {
-    const txt = await window.fs.readFile(file.path)
+    const filePath = getFilePath(file)
+    const txt = await window.fs.readFile(filePath)
     const { name, themeConfig, uiThemeConfig } = convertTheme(txt)
     const tt = convertThemeToText({
       themeConfig, uiThemeConfig
