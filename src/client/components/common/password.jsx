@@ -49,25 +49,34 @@ export default forwardRef(function Password (props, ref) {
     }
   }, [props.onBlur])
 
-  // Caps lock indicator icon
-  const capsLockIcon = isCapsLockOn
-    ? (
-      <Tag
-        color='red'
-      >
-        A
-      </Tag>
-      )
-    : null
+  // Keep addonBefore as-is from props; must be null when caps lock is off
+  const addonBefore = props.addonBefore ?? null
 
-  // Merge addonBefore with caps lock indicator
-  const addonBefore = capsLockIcon || props.addonBefore || null
+  // Show caps lock indicator inside prefix to avoid remounting the input wrapper
+  let capsPrefix = null
+  if (isCapsLockOn) {
+    capsPrefix = (
+      <Tag color='orange' style={{ marginRight: 4 }}>CAPS</Tag>
+    )
+  }
+
+  // Merge any existing prefix from props with our caps indicator
+  let prefix = capsPrefix
+  if (props.prefix) {
+    prefix = (
+      <>
+        {capsPrefix}
+        {props.prefix}
+      </>
+    )
+  }
 
   return (
     <Input.Password
       {...props}
       ref={ref}
       addonBefore={addonBefore}
+      prefix={prefix}
       onKeyDown={handleKeyEvent}
       onKeyUp={handleKeyEvent}
       onFocus={handleFocus}
