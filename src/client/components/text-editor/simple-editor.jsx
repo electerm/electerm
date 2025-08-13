@@ -43,6 +43,12 @@ export default function SimpleEditor (props) {
     // Reset navigating flag after using it
     setIsNavigating(false)
   }, [currentMatch, occurrences])
+
+  // Auto-search when keyword changes
+  useEffect(() => {
+    findMatches()
+  }, [searchKeyword, props.value])
+
   // Copy the editor content to clipboard
   const copyEditorContent = () => {
     copy(props.value || '')
@@ -73,8 +79,10 @@ export default function SimpleEditor (props) {
 
   // Handle search action when user presses enter or clicks the search button
   const handleSearch = (e) => {
-    e.stopPropagation()
-    e.preventDefault()
+    if (e && e.stopPropagation) {
+      e.stopPropagation()
+      e.preventDefault()
+    }
     findMatches()
   }
 
