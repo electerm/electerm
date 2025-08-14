@@ -63,7 +63,7 @@ jobs:
     - name: Generate Packages files
       run: |
         cd deb
-        
+
         # Generate Packages file for amd64
         dpkg-scanpackages --arch amd64 pool/main/ > dists/stable/main/binary-amd64/Packages
         gzip -c dists/stable/main/binary-amd64/Packages > dists/stable/main/binary-amd64/Packages.gz
@@ -112,7 +112,17 @@ jobs:
 
     - name: Create repository index
       run: |
-        cat > deb/index.html << 'EOF'
+        # Check out the main branch to get the comprehensive HTML file
+        git fetch origin
+        git checkout origin/main -- build/deb/index.html
+        
+        # Copy the comprehensive HTML file to the deb directory
+        if [ -f "build/deb/index.html" ]; then
+          echo "Copying comprehensive repository homepage from build/deb/index.html"
+          cp build/deb/index.html deb/index.html
+        else
+          echo "Warning: Comprehensive index.html not found, creating basic version"
+          cat > deb/index.html << 'EOF'
         <!DOCTYPE html>
         <html>
         <head>
@@ -157,6 +167,7 @@ jobs:
         </body>
         </html>
         EOF
+        fi
 
     - name: Commit and push changes
       run: |

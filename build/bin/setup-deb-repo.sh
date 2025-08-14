@@ -5,6 +5,9 @@
 
 set -e
 
+cd `dirname $0`
+cd ../../
+
 echo "Setting up Electerm Debian Repository..."
 
 # Colors for output
@@ -87,6 +90,17 @@ print_status "Setting up deb folder in gh-pages branch..."
 # Store current branch
 CURRENT_BRANCH=$(git branch --show-current)
 
+# First, copy the comprehensive HTML file from the current branch before switching
+print_status "Copying comprehensive repository homepage from current branch..."
+TEMP_HTML_FILE="/tmp/electerm-deb-index.html"
+if [ -f "build/deb/index.html" ]; then
+    cp "build/deb/index.html" "$TEMP_HTML_FILE"
+    print_status "Comprehensive HTML file copied to temporary location"
+else
+    print_warning "Comprehensive index.html not found in build/deb/index.html"
+    TEMP_HTML_FILE=""
+fi
+
 # Check if gh-pages branch exists
 if ! git show-ref --verify --quiet refs/heads/gh-pages; then
     print_status "Creating gh-pages branch..."
@@ -110,7 +124,13 @@ mkdir -p deb/dists/stable/main/source
 
 # Create initial deb repository files if they don't exist
 if [ ! -f "deb/index.html" ]; then
-    cat > deb/index.html << 'EOF'
+    if [ -n "$TEMP_HTML_FILE" ] && [ -f "$TEMP_HTML_FILE" ]; then
+        print_status "Using comprehensive repository homepage from original branch"
+        cp "$TEMP_HTML_FILE" deb/index.html
+        rm "$TEMP_HTML_FILE"
+    else
+        print_warning "Comprehensive index.html not found, creating basic version"
+        cat > deb/index.html << 'EOF'
 <!DOCTYPE html>
 <html>
 <head>
@@ -155,6 +175,7 @@ sudo apt install electerm</pre>
 </body>
 </html>
 EOF
+    fi
 fi
 
 # Add GPG public key to deb folder

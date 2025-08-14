@@ -5,6 +5,9 @@
 
 set -e
 
+cd `dirname $0`
+cd ../../
+
 REPO_DIR="deb"
 POOL_DIR="$REPO_DIR/pool/main"
 DISTS_DIR="$REPO_DIR/dists/stable"
@@ -26,7 +29,7 @@ download_latest_debs() {
     
     # Clean old files
     rm -f "$POOL_DIR"/*.deb
-    
+
     # Download DEB files
     gh release download "$LATEST_TAG" --pattern "*.deb" --dir "$POOL_DIR/" || {
         echo "Error downloading DEB files. Make sure GitHub CLI is authenticated."
@@ -119,7 +122,13 @@ export_public_key() {
 create_index() {
     echo "Creating repository index page..."
     
-    cat > "$REPO_DIR/index.html" << 'EOF'
+    # Try to copy the comprehensive HTML file from the repository
+    if [ -f "../deb/index.html" ]; then
+        echo "Copying comprehensive repository homepage from ../deb/index.html"
+        cp "../deb/index.html" "$REPO_DIR/index.html"
+    else
+        echo "Warning: Comprehensive index.html not found at ../deb/index.html, creating basic version"
+        cat > "$REPO_DIR/index.html" << 'EOF'
 <!DOCTYPE html>
 <html>
 <head>
@@ -167,20 +176,21 @@ sudo apt install electerm</pre>
         <ul>
 EOF
 
-    # Add package list
-    for deb in "$POOL_DIR"/*.deb; do
-        if [ -f "$deb" ]; then
-            basename=$(basename "$deb")
-            echo "            <li>$basename</li>" >> "$REPO_DIR/index.html"
-        fi
-    done
-    
-    cat >> "$REPO_DIR/index.html" << 'EOF'
+        # Add package list
+        for deb in "$POOL_DIR"/*.deb; do
+            if [ -f "$deb" ]; then
+                basename=$(basename "$deb")
+                echo "            <li>$basename</li>" >> "$REPO_DIR/index.html"
+            fi
+        done
+        
+        cat >> "$REPO_DIR/index.html" << 'EOF'
         </ul>
     </div>
 </body>
 </html>
 EOF
+    fi
 }
 
 # Main execution
