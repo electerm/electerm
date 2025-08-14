@@ -27,7 +27,9 @@
     "r": "./build/bin/release",
     "w": "./build/bin/web-release",
     "t": "./node_modules/.bin/electron work/app/app.js",
-    "lock": "npm i --package-lock-only"
+    "lock": "npm i --package-lock-only",
+    "setup-deb-repo": "bash build/bin/setup-deb-repo.sh",
+    "update-deb-repo": "bash build/bin/update-deb-repo.sh"
   },
   "license": "MIT",
   "langugeRepo": "https://github.com/electerm/electerm-locales",
