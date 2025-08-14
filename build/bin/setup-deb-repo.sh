@@ -133,19 +133,9 @@ else
 fi
 
 # Check if gh-pages branch exists
-if ! git show-ref --verify --quiet refs/heads/gh-pages; then
-    print_status "Creating gh-pages branch..."
-    git checkout --orphan gh-pages
-    git rm -rf .
-    echo "# GitHub Pages" > README.md
-    git add README.md
-    git commit -m "Initial commit for GitHub Pages"
-    git push origin gh-pages
-else
-    print_status "Switching to existing gh-pages branch..."
-    git checkout gh-pages
-    git pull origin gh-pages || true
-fi
+print_status "Switching to existing gh-pages branch..."
+git checkout gh-pages
+git pull origin gh-pages || true
 
 # Create deb directory structure (without affecting other files)
 print_status "Creating deb repository structure..."
