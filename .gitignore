@@ -63,3 +63,4 @@ docs/esdoc
 yarn.lock
 *.txt
 .npmignore
+*.asc
