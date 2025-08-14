@@ -124,11 +124,11 @@ CURRENT_BRANCH=$(git branch --show-current)
 # First, copy the comprehensive HTML file from the current branch before switching
 print_status "Copying comprehensive repository homepage from current branch..."
 TEMP_HTML_FILE="/tmp/electerm-deb-index.html"
-if [ -f "build/deb/index.html" ]; then
-    cp "build/deb/index.html" "$TEMP_HTML_FILE"
+if [ -f "build/deb-build/index.html" ]; then
+    cp "build/deb-build/index.html" "$TEMP_HTML_FILE"
     print_status "Comprehensive HTML file copied to temporary location"
 else
-    print_warning "Comprehensive index.html not found in build/deb/index.html"
+    print_warning "Comprehensive index.html not found in build/deb-build/index.html"
     TEMP_HTML_FILE=""
 fi
 
