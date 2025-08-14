@@ -803,9 +803,6 @@
     "zwitch": "^2.0.4"
   },
   "devDependencies": {},
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/electerm/electerm.git"
