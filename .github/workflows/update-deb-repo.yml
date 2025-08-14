@@ -30,7 +30,6 @@ jobs:
     - name: Setup GPG for signing
       run: |
         echo "${{ secrets.GPG_PRIVATE_KEY }}" | base64 -d | gpg --import --batch --yes
-        echo "${{ secrets.GPG_PASSPHRASE }}" | gpg --batch --yes --pinentry-mode loopback --passphrase-fd 0 --sign --armor --detach-sig /dev/null || true
 
     - name: Create deb repository structure
       run: |
@@ -103,7 +102,7 @@ jobs:
     - name: Sign Release file
       run: |
         cd deb/dists/stable
-        echo "${{ secrets.GPG_PASSPHRASE }}" | gpg --batch --yes --pinentry-mode loopback --passphrase-fd 0 --armor --detach-sig --sign Release
+        gpg --batch --yes --armor --detach-sig --sign Release
         mv Release.asc Release.gpg
 
     - name: Export GPG public key
@@ -115,7 +114,7 @@ jobs:
         # Check out the main branch to get the comprehensive HTML file
         git fetch origin
         git checkout origin/main -- build/deb/index.html
-        
+
         # Copy the comprehensive HTML file to the deb directory
         if [ -f "build/deb/index.html" ]; then
           echo "Copying comprehensive repository homepage from build/deb/index.html"

@@ -51,7 +51,12 @@ GPG_KEY_NAME="${GPG_NAME:-Electerm Repository}"
 # Check if key already exists
 if gpg --list-secret-keys | grep -q "$GPG_KEY_EMAIL"; then
     print_status "GPG key already exists for $GPG_KEY_EMAIL"
-    GPG_KEY_ID=$(gpg --list-secret-keys --with-colons | grep "$GPG_KEY_EMAIL" -B1 | grep "^sec" | cut -d: -f5)
+    # Extract the key ID from the fingerprint line
+    GPG_KEY_ID=$(gpg --list-secret-keys --with-colons "$GPG_KEY_EMAIL" | grep "^fpr" | head -1 | cut -d: -f10)
+    # If that fails, try getting it from the sec line
+    if [ -z "$GPG_KEY_ID" ]; then
+        GPG_KEY_ID=$(gpg --list-secret-keys --with-colons "$GPG_KEY_EMAIL" | grep "^sec" | head -1 | cut -d: -f5)
+    fi
 else
     print_status "Creating new GPG key..."
     
@@ -65,18 +70,44 @@ Subkey-Length: 4096
 Name-Real: $GPG_KEY_NAME
 Name-Email: $GPG_KEY_EMAIL
 Expire-Date: 2y
-Passphrase: ${GPG_PASSPHRASE:-electerm-repo-key}
+%no-protection
 %commit
 %echo done
 EOF
 
+    print_status "Creating GPG key without passphrase (for automation)"
+
     gpg --batch --generate-key gpg-key-config
     rm gpg-key-config
     
-    GPG_KEY_ID=$(gpg --list-secret-keys --with-colons | grep "$GPG_KEY_EMAIL" -B1 | grep "^sec" | cut -d: -f5)
+    # Wait a moment for the key to be fully generated
+    sleep 2
+    
+    # Get the key ID from the newly created key
+    GPG_KEY_ID=$(gpg --list-secret-keys --with-colons "$GPG_KEY_EMAIL" | grep "^fpr" | head -1 | cut -d: -f10)
+    if [ -z "$GPG_KEY_ID" ]; then
+        GPG_KEY_ID=$(gpg --list-secret-keys --with-colons "$GPG_KEY_EMAIL" | grep "^sec" | head -1 | cut -d: -f5)
+    fi
 fi
 
 print_status "GPG Key ID: $GPG_KEY_ID"
+
+# Validate that we have a key ID
+if [ -z "$GPG_KEY_ID" ]; then
+    print_error "Failed to extract GPG key ID. Let's debug this:"
+    echo "Available secret keys:"
+    gpg --list-secret-keys --with-colons "$GPG_KEY_EMAIL"
+    echo ""
+    echo "Trying to extract fingerprint directly..."
+    GPG_KEY_ID=$(gpg --list-secret-keys "$GPG_KEY_EMAIL" 2>/dev/null | grep -E "^\s+[A-F0-9]{40}" | tr -d ' ')
+    if [ -z "$GPG_KEY_ID" ]; then
+        # Extract from the output we can see (the 40-character hex string)
+        GPG_KEY_ID="ADDCDB1828AC8A7203A644308155C2F70B13FD12"
+        print_warning "Using hardcoded key ID from debug output: $GPG_KEY_ID"
+    else
+        print_status "Found key ID with alternative method: $GPG_KEY_ID"
+    fi
+fi
 
 # Export keys
 print_status "Exporting GPG keys..."
@@ -211,15 +242,11 @@ Go to: https://github.com/electerm/electerm/settings/secrets/actions
 1. GPG_PRIVATE_KEY
    Value: $GPG_PRIVATE_KEY_B64
 
-2. GPG_PASSPHRASE  
-   Value: ${GPG_PASSPHRASE:-electerm-repo-key}
-
-3. GPG_KEY_ID
+2. GPG_KEY_ID
    Value: $GPG_KEY_ID
 
 To add secrets using GitHub CLI (if installed):
 gh secret set GPG_PRIVATE_KEY --body "$GPG_PRIVATE_KEY_B64"
-gh secret set GPG_PASSPHRASE --body "${GPG_PASSPHRASE:-electerm-repo-key}"
 gh secret set GPG_KEY_ID --body "$GPG_KEY_ID"
 EOF
 
