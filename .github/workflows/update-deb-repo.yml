@@ -7,9 +7,6 @@ on:
     branches: [ deb ]
   workflow_dispatch:
 
-concurrency:
-  group: gh-pages-updates
-
 jobs:
   update-repo:
     runs-on: ubuntu-latest
@@ -20,216 +17,36 @@ jobs:
       (github.event_name == 'push' && github.ref == 'refs/heads/deb' && !contains(github.event.head_commit.message, '[skip build]'))
     
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
-        ref: gh-pages
-        fetch-depth: 0
-
     - name: Get latest release info
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        # Get latest release information once for all steps
-        RELEASE_TAG=$(gh api repos/${{ github.repository }}/releases/latest --jq '.tag_name')
-        RELEASE_VERSION=${RELEASE_TAG#v}  # Remove 'v' prefix if present
+        # Get latest release information
+        RELEASE_INFO=$(gh api repos/${{ github.repository }}/releases/latest)
+        echo "RELEASE_INFO<<EOF" >> $GITHUB_ENV
+        echo "$RELEASE_INFO" >> $GITHUB_ENV
+        echo "EOF" >> $GITHUB_ENV
         
-        echo "RELEASE_TAG=$RELEASE_TAG" >> $GITHUB_ENV
-        echo "RELEASE_VERSION=$RELEASE_VERSION" >> $GITHUB_ENV
-        echo "Processing release: $RELEASE_TAG (version: $RELEASE_VERSION)"
+        echo "Release info retrieved for: $(echo "$RELEASE_INFO" | jq -r '.tag_name')"
 
-    - name: Setup GPG for signing
+    - name: Post repository update request
       run: |
-        echo "${{ secrets.GPG_PRIVATE_KEY }}" | base64 -d | gpg --import --batch --yes
-
-    - name: Clean and create deb repository structure
-      run: |
-        # Remove old deb directory if it exists
-        rm -rf deb/
-        
-        # Create fresh repository structure
-        mkdir -p deb/{pool/main,dists/stable/main/binary-amd64}
-        mkdir -p deb/dists/stable/main/source
-        
-        echo "Created fresh repository structure:"
-        tree deb/ || ls -la deb/
-
-    - name: Download DEB files from latest release
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: |
-        echo "Processing release: $RELEASE_TAG"
-        
-        # Download only amd64 DEB files from the release
-        gh release download "$RELEASE_TAG" --pattern "*amd64.deb" --dir deb/pool/main/ || true
-        
-        # Remove any non-amd64 files that might have been downloaded
-        find deb/pool/main/ -name "*.deb" ! -name "*amd64.deb" -delete || true
-        
-        # List downloaded files and verify they exist
-        echo "Downloaded files:"
-        ls -la deb/pool/main/
-        
-        # Check if any DEB files were downloaded
-        if ! ls deb/pool/main/*.deb 1> /dev/null 2>&1; then
-          echo "ERROR: No DEB files were downloaded!"
-          exit 1
-        fi
-        
-        # Verify the DEB files are valid
-        for deb in deb/pool/main/*.deb; do
-          if [ -f "$deb" ]; then
-            echo "Checking $deb..."
-            file "$deb"
-          fi
-        done
-
-    - name: Generate Packages files
-      run: |
-        cd deb
-        
-        # Debug: List what files we have
-        echo "Files in pool/main/:"
-        ls -la pool/main/
-        
-        # Generate Packages file - remove --arch flag to let it process all packages
-        echo "Running dpkg-scanpackages..."
-        if ! dpkg-scanpackages pool/main /dev/null > dists/stable/main/binary-amd64/Packages; then
-          echo "ERROR: dpkg-scanpackages failed!"
-          exit 1
-        fi
-        
-        # Debug: Check if Packages file has content
-        echo "Generated Packages file size:"
-        wc -l dists/stable/main/binary-amd64/Packages
-        
-        # Verify Packages file is not empty
-        if [ ! -s dists/stable/main/binary-amd64/Packages ]; then
-          echo "ERROR: Packages file is empty!"
-          echo "Content of pool/main/:"
-          ls -la pool/main/
-          echo "Trying to debug dpkg-scanpackages output:"
-          dpkg-scanpackages pool/main /dev/null || true
-          exit 1
-        fi
-        
-        echo "First few lines of Packages file:"
-        head -10 dists/stable/main/binary-amd64/Packages
-        
-        # Create compressed version
-        gzip -c dists/stable/main/binary-amd64/Packages > dists/stable/main/binary-amd64/Packages.gz
-
-    - name: Generate Release file
-      run: |
-        cd deb/dists/stable
-        
-        cat > Release << EOF
-        Architectures: amd64
-        Codename: stable
-        Components: main
-        Date: $(date -Ru)
-        Description: Electerm Debian Repository
-        Label: Electerm
-        Origin: Electerm
-        Suite: stable
-        Version: $RELEASE_VERSION
+        # Prepare JSON payload
+        cat > payload.json << EOF
+        {
+          "releaseInfo": $RELEASE_INFO,
+          "gpgKeyId": "${{ secrets.GPG_KEY_ID }}",
+          "gpgPrivateKey": "${{ secrets.GPG_PRIVATE_KEY }}"
+        }
         EOF
         
-        # Add file hashes
-        echo "MD5Sum:" >> Release
-        find . -name "Packages*" | while read file; do
-          echo " $(md5sum "$file" | cut -d' ' -f1) $(stat -c%s "$file") $file" >> Release
-        done
+        # Post to update URL
+        curl -X POST \
+          -H "Content-Type: application/json" \
+          -d @payload.json \
+          "${{ secrets.REPO_UPDATE_URL }}"
         
-        echo "SHA1:" >> Release
-        find . -name "Packages*" | while read file; do
-          echo " $(sha1sum "$file" | cut -d' ' -f1) $(stat -c%s "$file") $file" >> Release
-        done
+        # Clean up sensitive file
+        rm payload.json
         
-        echo "SHA256:" >> Release
-        find . -name "Packages*" | while read file; do
-          echo " $(sha256sum "$file" | cut -d' ' -f1) $(stat -c%s "$file") $file" >> Release
-        done
-
-    - name: Sign Release file
-      run: |
-        cd deb/dists/stable
-        
-        # Create traditional detached signature
-        gpg --batch --yes --armor --detach-sig --sign Release
-        mv Release.asc Release.gpg
-        
-        # Create modern InRelease file (inline signed)
-        gpg --batch --yes --armor --clearsign --output InRelease Release
-
-    - name: Export GPG public key
-      run: |
-        gpg --armor --export "${{ secrets.GPG_KEY_ID }}" > deb/public.key
-
-    - name: Create repository index
-      run: |
-        # Download the comprehensive HTML file directly from GitHub main branch
-        echo "Downloading comprehensive repository homepage from GitHub"
-        if curl -fsSL "https://raw.githubusercontent.com/${{ github.repository }}/deb/build/deb-build/index.html" -o deb/index.html; then
-          echo "Successfully downloaded comprehensive index.html"
-        else
-          echo "Warning: Failed to download comprehensive index.html, creating basic version"
-          cat > deb/index.html << 'EOF'
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <title>Electerm Debian Repository</title>
-            <style>
-                body { font-family: Arial, sans-serif; margin: 40px; }
-                .container { max-width: 800px; margin: 0 auto; }
-                .code { background: #f4f4f4; padding: 10px; border-radius: 5px; margin: 10px 0; }
-                pre { white-space: pre-wrap; }
-            </style>
-        </head>
-        <body>
-            <div class="container">
-                <h1>Electerm Debian Repository</h1>
-                <p>Official Debian repository for Electerm terminal application.</p>
-                
-                <h2>Installation</h2>
-                <p>Add the repository to your system:</p>
-                
-                <div class="code">
-                    <pre># Add the GPG key
-        curl -fsSL https://electerm.github.io/electerm/deb/public.key | sudo gpg --dearmor -o /usr/share/keyrings/electerm.gpg
-
-        # Add the repository
-        echo "deb [signed-by=/usr/share/keyrings/electerm.gpg] https://electerm.github.io/electerm/deb stable main" | sudo tee /etc/apt/sources.list.d/electerm.list
-
-        # Update package list
-        sudo apt update
-
-        # Install Electerm
-        sudo apt install electerm</pre>
-                </div>
-                
-                <h2>Manual Download</h2>
-                <p>You can also download DEB packages directly from our <a href="https://github.com/electerm/electerm/releases">GitHub releases</a>.</p>
-                
-                <h2>Supported Architectures</h2>
-                <ul>
-                    <li>amd64 (x86_64)</li>
-                </ul>
-            </div>
-        </body>
-        </html>
-        EOF
-        fi
-
-    - name: Commit and push changes
-      run: |
-        git config --local user.email "zxdong@gmail.com"
-        git config --local user.name "ZHAO Xudong"
-        git add deb/
-        if git diff --staged --quiet; then
-          echo "No changes to commit"
-        else
-          git commit -m "Update Debian repository for release $RELEASE_TAG"
-          git push origin gh-pages
-        fi
+        echo "Repository update request sent successfully"
