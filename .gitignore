@@ -118,3 +118,4 @@ dist
 /test-results
 
 ftp-root
+*.asc
