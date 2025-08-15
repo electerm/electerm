@@ -155,8 +155,13 @@ jobs:
     - name: Sign Release file
       run: |
         cd deb/dists/stable
+        
+        # Create traditional detached signature
         gpg --batch --yes --armor --detach-sig --sign Release
         mv Release.asc Release.gpg
+        
+        # Create modern InRelease file (inline signed)
+        gpg --batch --yes --armor --clearsign --output InRelease Release
 
     - name: Export GPG public key
       run: |
@@ -166,7 +171,7 @@ jobs:
       run: |
         # Download the comprehensive HTML file directly from GitHub main branch
         echo "Downloading comprehensive repository homepage from GitHub"
-        if curl -fsSL "https://raw.githubusercontent.com/${{ github.repository }}/main/build/deb-build/index.html" -o deb/index.html; then
+        if curl -fsSL "https://raw.githubusercontent.com/${{ github.repository }}/deb/build/deb-build/index.html" -o deb/index.html; then
           echo "Successfully downloaded comprehensive index.html"
         else
           echo "Warning: Failed to download comprehensive index.html, creating basic version"
