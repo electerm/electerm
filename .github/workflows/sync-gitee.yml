@@ -5,9 +5,6 @@ on:
     types: [published]
   workflow_dispatch:
 
-concurrency:
-  group: gh-pages-updates
-
 jobs:
   sync-master:
     runs-on: ubuntu-latest
