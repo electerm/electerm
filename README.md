@@ -76,19 +76,9 @@ scoop bucket add dorado https://github.com/chawyehsu/dorado
 scoop install dorado/electerm
 ```
 
-- Install from Debian repository (for Debian/Ubuntu-based systems)
+- Install from Debian repository (for Debian/Ubuntu-based systems) with `apt` command
 
-```bash
-# Add the GPG key
-curl -fsSL https://electerm-repos.html5beta.com/deb/public.key | sudo gpg --dearmor -o /usr/share/keyrings/electerm.gpg
-
-# Add the repository
-echo "deb [signed-by=/usr/share/keyrings/electerm.gpg] https://electerm-repos.html5beta.com/deb stable main" | sudo tee /etc/apt/sources.list.d/electerm.list
-
-# Update package list and install
-sudo apt update
-sudo apt install electerm
-```
+Check [https://electerm-repos.html5beta.com/deb](https://electerm-repos.html5beta.com/deb)
 
 - Install from npm
 
