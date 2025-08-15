@@ -43,10 +43,17 @@ jobs:
       run: |
         echo "${{ secrets.GPG_PRIVATE_KEY }}" | base64 -d | gpg --import --batch --yes
 
-    - name: Create deb repository structure
+    - name: Clean and create deb repository structure
       run: |
+        # Remove old deb directory if it exists
+        rm -rf deb/
+        
+        # Create fresh repository structure
         mkdir -p deb/{pool/main,dists/stable/main/binary-amd64}
         mkdir -p deb/dists/stable/main/source
+        
+        echo "Created fresh repository structure:"
+        tree deb/ || ls -la deb/
 
     - name: Download DEB files from latest release
       env:
@@ -56,6 +63,9 @@ jobs:
         
         # Download only amd64 DEB files from the release
         gh release download "$RELEASE_TAG" --pattern "*amd64.deb" --dir deb/pool/main/ || true
+        
+        # Remove any non-amd64 files that might have been downloaded
+        find deb/pool/main/ -name "*.deb" ! -name "*amd64.deb" -delete || true
         
         # List downloaded files and verify they exist
         echo "Downloaded files:"
@@ -83,8 +93,9 @@ jobs:
         echo "Files in pool/main/:"
         ls -la pool/main/
         
-        # Generate Packages file for amd64 with proper parameters
-        if ! dpkg-scanpackages --arch amd64 pool/main /dev/null > dists/stable/main/binary-amd64/Packages; then
+        # Generate Packages file - remove --arch flag to let it process all packages
+        echo "Running dpkg-scanpackages..."
+        if ! dpkg-scanpackages pool/main /dev/null > dists/stable/main/binary-amd64/Packages; then
           echo "ERROR: dpkg-scanpackages failed!"
           exit 1
         fi
@@ -98,6 +109,8 @@ jobs:
           echo "ERROR: Packages file is empty!"
           echo "Content of pool/main/:"
           ls -la pool/main/
+          echo "Trying to debug dpkg-scanpackages output:"
+          dpkg-scanpackages pool/main /dev/null || true
           exit 1
         fi
         
