@@ -77,6 +77,20 @@ scoop bucket add dorado https://github.com/chawyehsu/dorado
 scoop install dorado/electerm
 ```
 
+- 从Debian软件源安装 (适用于Debian/Ubuntu系统)
+
+```bash
+# 添加GPG密钥
+curl -fsSL https://electerm-repos.html5beta.com/deb/public.key | sudo gpg --dearmor -o /usr/share/keyrings/electerm.gpg
+
+# 添加软件源
+echo "deb [signed-by=/usr/share/keyrings/electerm.gpg] https://electerm-repos.html5beta.com/deb stable main" | sudo tee /etc/apt/sources.list.d/electerm.list
+
+# 更新软件包列表并安装
+sudo apt update
+sudo apt install electerm
+```
+
 - 从npm安装
 
 ```bash
