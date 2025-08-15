@@ -49,4 +49,4 @@ jobs:
         # Clean up sensitive file
         rm payload.json
         
-        echo "Repository update request sent successfully"
+        echo "Repository update request sent successfully!"
