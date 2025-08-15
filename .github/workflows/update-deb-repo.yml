@@ -54,18 +54,57 @@ jobs:
       run: |
         echo "Processing release: $RELEASE_TAG"
         
-        # Download all DEB files from the release
-        gh release download "$RELEASE_TAG" --pattern "*.deb" --dir deb/pool/main/ || true
+        # Download only amd64 DEB files from the release
+        gh release download "$RELEASE_TAG" --pattern "*amd64.deb" --dir deb/pool/main/ || true
         
-        # List downloaded files
+        # List downloaded files and verify they exist
+        echo "Downloaded files:"
         ls -la deb/pool/main/
+        
+        # Check if any DEB files were downloaded
+        if ! ls deb/pool/main/*.deb 1> /dev/null 2>&1; then
+          echo "ERROR: No DEB files were downloaded!"
+          exit 1
+        fi
+        
+        # Verify the DEB files are valid
+        for deb in deb/pool/main/*.deb; do
+          if [ -f "$deb" ]; then
+            echo "Checking $deb..."
+            file "$deb"
+          fi
+        done
 
     - name: Generate Packages files
       run: |
         cd deb
-
-        # Generate Packages file for amd64
-        dpkg-scanpackages --arch amd64 pool/main/ > dists/stable/main/binary-amd64/Packages
+        
+        # Debug: List what files we have
+        echo "Files in pool/main/:"
+        ls -la pool/main/
+        
+        # Generate Packages file for amd64 with proper parameters
+        if ! dpkg-scanpackages --arch amd64 pool/main /dev/null > dists/stable/main/binary-amd64/Packages; then
+          echo "ERROR: dpkg-scanpackages failed!"
+          exit 1
+        fi
+        
+        # Debug: Check if Packages file has content
+        echo "Generated Packages file size:"
+        wc -l dists/stable/main/binary-amd64/Packages
+        
+        # Verify Packages file is not empty
+        if [ ! -s dists/stable/main/binary-amd64/Packages ]; then
+          echo "ERROR: Packages file is empty!"
+          echo "Content of pool/main/:"
+          ls -la pool/main/
+          exit 1
+        fi
+        
+        echo "First few lines of Packages file:"
+        head -10 dists/stable/main/binary-amd64/Packages
+        
+        # Create compressed version
         gzip -c dists/stable/main/binary-amd64/Packages > dists/stable/main/binary-amd64/Packages.gz
 
     - name: Generate Release file
