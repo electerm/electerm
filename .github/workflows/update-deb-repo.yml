@@ -3,6 +3,9 @@ name: Update Debian Repository
 on:
   release:
     types: [published]
+
+  push:
+    branches: [ deb ]
   workflow_dispatch:
     inputs:
       version:
@@ -71,6 +74,20 @@ jobs:
       run: |
         cd deb/dists/stable
         
+        # Get the release version
+        if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+          if [ "${{ github.event.inputs.version }}" = "latest" ]; then
+            RELEASE_VERSION=$(gh api repos/${{ github.repository }}/releases/latest --jq '.tag_name')
+          else
+            RELEASE_VERSION="${{ github.event.inputs.version }}"
+          fi
+        else
+          RELEASE_VERSION="${{ github.event.release.tag_name }}"
+        fi
+        
+        # Remove 'v' prefix if present
+        RELEASE_VERSION=${RELEASE_VERSION#v}
+        
         cat > Release << EOF
         Architectures: amd64
         Codename: stable
@@ -80,7 +97,7 @@ jobs:
         Label: Electerm
         Origin: Electerm
         Suite: stable
-        Version: 1.0
+        Version: $RELEASE_VERSION
         EOF
         
         # Add file hashes
@@ -111,16 +128,12 @@ jobs:
 
     - name: Create repository index
       run: |
-        # Check out the main branch to get the comprehensive HTML file
-        git fetch origin
-        git checkout origin/main -- build/deb/index.html
-
-        # Copy the comprehensive HTML file to the deb directory
-        if [ -f "build/deb/index.html" ]; then
-          echo "Copying comprehensive repository homepage from build/deb/index.html"
-          cp build/deb/index.html deb/index.html
+        # Download the comprehensive HTML file directly from GitHub main branch
+        echo "Downloading comprehensive repository homepage from GitHub"
+        if curl -fsSL "https://raw.githubusercontent.com/${{ github.repository }}/main/build/deb-build/index.html" -o deb/index.html; then
+          echo "Successfully downloaded comprehensive index.html"
         else
-          echo "Warning: Comprehensive index.html not found, creating basic version"
+          echo "Warning: Failed to download comprehensive index.html, creating basic version"
           cat > deb/index.html << 'EOF'
         <!DOCTYPE html>
         <html>
