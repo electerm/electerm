@@ -3,15 +3,9 @@ name: Update Debian Repository
 on:
   release:
     types: [published]
-
   push:
     branches: [ deb ]
   workflow_dispatch:
-    inputs:
-      version:
-        description: 'Version to update repository for'
-        required: true
-        default: 'latest'
 
 concurrency:
   group: gh-pages-updates
@@ -20,7 +14,10 @@ jobs:
   update-repo:
     runs-on: ubuntu-latest
     environment: build
-    if: contains(github.event.release.assets.*.name, '.deb') || github.event_name == 'workflow_dispatch'
+    if: |
+      github.event_name == 'release' ||
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'push' && github.ref == 'refs/heads/deb' && !contains(github.event.head_commit.message, '[skip build]'))
     
     steps:
     - name: Checkout repository
@@ -29,6 +26,18 @@ jobs:
         token: ${{ secrets.GITHUB_TOKEN }}
         ref: gh-pages
         fetch-depth: 0
+
+    - name: Get latest release info
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        # Get latest release information once for all steps
+        RELEASE_TAG=$(gh api repos/${{ github.repository }}/releases/latest --jq '.tag_name')
+        RELEASE_VERSION=${RELEASE_TAG#v}  # Remove 'v' prefix if present
+        
+        echo "RELEASE_TAG=$RELEASE_TAG" >> $GITHUB_ENV
+        echo "RELEASE_VERSION=$RELEASE_VERSION" >> $GITHUB_ENV
+        echo "Processing release: $RELEASE_TAG (version: $RELEASE_VERSION)"
 
     - name: Setup GPG for signing
       run: |
@@ -43,17 +52,6 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        # Get the latest release or specified version
-        if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-          if [ "${{ github.event.inputs.version }}" = "latest" ]; then
-            RELEASE_TAG=$(gh api repos/${{ github.repository }}/releases/latest --jq '.tag_name')
-          else
-            RELEASE_TAG="${{ github.event.inputs.version }}"
-          fi
-        else
-          RELEASE_TAG="${{ github.event.release.tag_name }}"
-        fi
-        
         echo "Processing release: $RELEASE_TAG"
         
         # Download all DEB files from the release
@@ -73,20 +71,6 @@ jobs:
     - name: Generate Release file
       run: |
         cd deb/dists/stable
-        
-        # Get the release version
-        if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-          if [ "${{ github.event.inputs.version }}" = "latest" ]; then
-            RELEASE_VERSION=$(gh api repos/${{ github.repository }}/releases/latest --jq '.tag_name')
-          else
-            RELEASE_VERSION="${{ github.event.inputs.version }}"
-          fi
-        else
-          RELEASE_VERSION="${{ github.event.release.tag_name }}"
-        fi
-        
-        # Remove 'v' prefix if present
-        RELEASE_VERSION=${RELEASE_VERSION#v}
         
         cat > Release << EOF
         Architectures: amd64
@@ -189,6 +173,6 @@ jobs:
         if git diff --staged --quiet; then
           echo "No changes to commit"
         else
-          git commit -m "Update Debian repository for release ${{ github.event.release.tag_name || github.event.inputs.version }}"
+          git commit -m "Update Debian repository for release $RELEASE_TAG"
           git push origin gh-pages
         fi
