@@ -201,3 +201,7 @@ Visit [Releases](https://github.com/electerm/electerm/releases).
 ## 许可证
 
 MIT
+
+## 收藏历史
+
+[![Star History Chart](https://api.star-history.com/svg?repos=electerm/electerm&type=Date)](https://www.star-history.com/#electerm/electerm&Date)

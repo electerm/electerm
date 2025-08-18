@@ -199,3 +199,7 @@ Visit [Releases](https://github.com/electerm/electerm/releases).
 ## License
 
 MIT
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=electerm/electerm&type=Date)](https://www.star-history.com/#electerm/electerm&Date)
