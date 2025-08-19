@@ -9,7 +9,7 @@ const replace = require('replace-in-file')
 
 exports.run = function (cmd) {
   return new Promise((resolve, reject) => {
-    exec(cmd, { 
+    exec(cmd, {
       env: { ...process.env, DEBUG: 'electron-builder:*' },
       maxBuffer: 1024 * 1024 * 10 // 10MB buffer
     }, (err, stdout, stderr) => {
