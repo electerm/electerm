@@ -44,6 +44,7 @@ rm('-rf', 'work/app/localstorage.json')
 rm('-rf', 'work/app/nohup.out')
 rm('-rf', 'work/app/assets/js/index*')
 rm('-rf', 'work/app/assets/js/*.txt')
+rm('-rf', 'work/app/node_modules/cpu-features')
 require('fs').writeFileSync(
   resolve(__dirname, '../../work/app/package.json'),
   JSON.stringify(
