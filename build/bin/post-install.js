@@ -24,7 +24,7 @@ try {
     resolve(__dirname, '../../node_modules/cpu-features'),
     resolve(__dirname, '../../work/app/node_modules/cpu-features')
   ]
-  
+
   cpuFeaturesPaths.forEach(cpuFeaturesPath => {
     if (existsSync(cpuFeaturesPath)) {
       rm('-rf', cpuFeaturesPath)
