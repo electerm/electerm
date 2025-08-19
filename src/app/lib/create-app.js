@@ -15,6 +15,8 @@ exports.createApp = async function () {
     app.commandLine.appendSwitch('--enable-transparent-visuals')
     app.commandLine.appendSwitch('--disable-gpu')
     app.commandLine.appendSwitch('--in-process-gpu')
+  }
+  if (process.platform === 'linux' || process.env.DISABLE_HARDWARE_ACCELERATION) {
     app.disableHardwareAcceleration()
   }
   // Handle proxy-related command-line arguments

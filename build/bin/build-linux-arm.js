@@ -99,7 +99,7 @@ async function main () {
     }
   )
   writeSrc('linux-armv7l.AppImage')
-  await run(`${pb} --linux --armv7l`)
+  await run(`DEBUG=* ${pb} --linux --armv7l`)
 }
 
 main()
