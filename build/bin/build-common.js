@@ -9,22 +9,54 @@ const replace = require('replace-in-file')
 
 exports.run = function (cmd) {
   return new Promise((resolve, reject) => {
-    exec(cmd, {
-      env: { ...process.env, DEBUG: 'electron-builder:*' },
-      maxBuffer: 1024 * 1024 * 10 // 10MB buffer
+    console.log('Executing command:', cmd)
+    const childProcess = exec(cmd, {
+      env: { 
+        ...process.env, 
+        DEBUG: 'electron-builder:*',
+        ELECTRON_BUILDER_CACHE: process.env.ELECTRON_BUILDER_CACHE || '',
+        CSC_IDENTITY_AUTO_DISCOVERY: 'false' // Disable auto-discovery for clearer errors
+      },
+      maxBuffer: 1024 * 1024 * 50 // 50MB buffer for large debug output
     }, (err, stdout, stderr) => {
-      if (err) {
-        console.error('Command failed:', cmd)
-        console.error('Error:', err.message)
-        console.error('Stderr:', stderr)
-        return reject(err)
+      // Always log stdout and stderr regardless of success/failure
+      if (stdout) {
+        console.log('=== STDOUT ===')
+        console.log(stdout)
       }
       if (stderr) {
-        console.log('Stderr output:', stderr)
+        console.log('=== STDERR ===')
+        console.log(stderr)
       }
+      
+      if (err) {
+        console.error('=== COMMAND FAILED ===')
+        console.error('Command:', cmd)
+        console.error('Exit code:', err.code)
+        console.error('Signal:', err.signal)
+        console.error('Error message:', err.message)
+        
+        // Create a more detailed error message
+        const detailedError = new Error(`Command failed with exit code ${err.code}: ${cmd}`)
+        detailedError.originalError = err
+        detailedError.stdout = stdout
+        detailedError.stderr = stderr
+        detailedError.command = cmd
+        return reject(detailedError)
+      }
+      
       resolve(stdout)
     })
-  }).then(console.log).catch(console.error)
+    
+    // Also pipe output in real-time for long-running commands
+    childProcess.stdout.on('data', (data) => {
+      process.stdout.write(data)
+    })
+    
+    childProcess.stderr.on('data', (data) => {
+      process.stderr.write(data)
+    })
+  })
 }
 
 exports.writeSrc = function (src) {
@@ -51,6 +83,7 @@ exports.replaceArr = function (froms, tos) {
 }
 
 exports.changeTeamId = function () {
+  console.log('Setting APPLE_TEAM_ID:', process.env.APPLE_TEAM_ID ? 'SET' : 'NOT SET')
   exports.replaceArr(['__teamId'], [process.env.APPLE_TEAM_ID])
 }
 
