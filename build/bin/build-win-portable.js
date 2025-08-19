@@ -31,7 +31,7 @@ async function main () {
   await replaceRun()
   rm('-rf', 'dist')
   writeSrc('win-x64-portable.tar.gz')
-  await run(`${pb} --win tar.gz`)
+  await run(`cross-env DEBUG=* ${pb} --win tar.gz`)
 }
 
 main()

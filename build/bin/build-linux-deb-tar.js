@@ -12,12 +12,12 @@ async function main () {
   echo('build tar.gz')
   rm('-rf', 'dist')
   writeSrc('linux-x64.tar.gz')
-  await run(`${pb} --linux tar.gz`)
+  await run(`DEBUG=* ${pb} --linux tar.gz`)
 
   echo('build deb')
   rm('-rf', 'dist')
   writeSrc('linux-x64.deb')
-  await run(`${pb} --linux deb`)
+  await run(`DEBUG=* ${pb} --linux deb`)
 
   echo('build linux-x86_64.AppImage')
   rm('-rf', 'dist')
@@ -27,7 +27,7 @@ async function main () {
       data.linux.target = ['AppImage']
     }
   )
-  await run(`${pb} --linux`)
+  await run(`DEBUG=* ${pb} --linux`)
 }
 
 main()

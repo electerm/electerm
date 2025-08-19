@@ -1,5 +1,4 @@
 const { rm, echo } = require('shelljs')
-const { upload } = require('./custom-upload')
 const {
   run,
   writeSrc,
@@ -13,8 +12,7 @@ async function main () {
   await replaceRun()
   rm('-rf', 'dist')
   writeSrc('win-x64-loose.tar.gz')
-  await run(`${pb} --win tar.gz`)
-  await upload()
+  await run(`cross-env DEBUG=* ${pb} --win tar.gz`)
 }
 
 main()

@@ -1,6 +1,5 @@
 const { rm, echo } = require('shelljs')
 const { resolve } = require('path')
-const { upload } = require('./custom-upload')
 const fs = require('fs')
 const {
   run,
@@ -17,8 +16,7 @@ async function main () {
   fs.writeFileSync(p, JSON.stringify(txt, null, 2))
   rm('-rf', 'dist')
   writeSrc('win-x64.appx')
-  await run(`${pb} --win appx`)
-  await upload()
+  await run(`cross-env DEBUG=* ${pb} --win appx`)
 }
 
 main()
