@@ -10,15 +10,13 @@ const { echo, rm } = require('shelljs')
 const {
   run,
   writeSrc,
-  builder: pb,
-  changeTeamId
+  builder: pb
 } = require('./build-common')
 
 async function main () {
   echo('running build for mac')
 
   echo('build dmg')
-  changeTeamId()
   rm('-rf', 'dist')
   writeSrc('mac-x64.dmg')
   await run(`${pb} --mac`)

@@ -30,7 +30,7 @@ async function main () {
   await replaceRun()
   rm('-rf', 'dist')
   writeSrc('win7.tar.gz')
-  await run(`cross-env ${pb} --win tar.gz`)
+  await run(`${pb} --win tar.gz`)
 }
 
 main()

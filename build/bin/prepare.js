@@ -44,6 +44,7 @@ rm('-rf', 'work/app/localstorage.json')
 rm('-rf', 'work/app/nohup.out')
 rm('-rf', 'work/app/assets/js/index*')
 rm('-rf', 'work/app/assets/js/*.txt')
+rm('-rf', 'node_modules/cpu-features')
 rm('-rf', 'work/app/node_modules/cpu-features')
 require('fs').writeFileSync(
   resolve(__dirname, '../../work/app/package.json'),
@@ -53,6 +54,10 @@ require('fs').writeFileSync(
 )
 
 exec(`cd work/app && npm prune --production && cd ${cwd}`)
+
+// Remove cpu-features after npm prune to prevent rebuild issues
+rm('-rf', 'node_modules/cpu-features')
+rm('-rf', 'work/app/node_modules/cpu-features')
 
 // yarn auto clean
 cp('-r', 'build/bin/.yarnclean', 'work/app/')

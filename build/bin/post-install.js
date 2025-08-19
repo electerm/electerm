@@ -19,11 +19,18 @@ if (isWin && process.env.CI) {
 
 // Remove optional native module that may fail to rebuild
 try {
-  const cpuFeaturesPath = resolve(__dirname, '../../node_modules/cpu-features')
-  if (existsSync(cpuFeaturesPath)) {
-    rm('-rf', cpuFeaturesPath)
-    console.log('Removed optional module:', cpuFeaturesPath)
-  }
+  // Check multiple potential locations for cpu-features
+  const cpuFeaturesPaths = [
+    resolve(__dirname, '../../node_modules/cpu-features'),
+    resolve(__dirname, '../../work/app/node_modules/cpu-features')
+  ]
+  
+  cpuFeaturesPaths.forEach(cpuFeaturesPath => {
+    if (existsSync(cpuFeaturesPath)) {
+      rm('-rf', cpuFeaturesPath)
+      console.log('Removed optional module:', cpuFeaturesPath)
+    }
+  })
 } catch (e) {
   console.warn('Failed to remove cpu-features:', e?.message || e)
 }
