@@ -28,7 +28,7 @@ async function main () {
     }
   )
   await run(`${reBuild} --arch arm64 -f work/app`)
-  await run(`DEBUG=* ${pb} --linux --arm64`)
+  await run(`DEBUG=electron-builder:* ${pb} --linux --arm64`)
 
   echo('build linux.arm64.deb')
   renameDist()
@@ -38,7 +38,7 @@ async function main () {
       data.linux.target = ['deb']
     }
   )
-  await run(`DEBUG=* ${pb} --linux --arm64`)
+  await run(`DEBUG=electron-builder:* ${pb} --linux --arm64`)
 
   echo('build linux.aarch64.rpm')
   renameDist()
@@ -48,7 +48,7 @@ async function main () {
       data.linux.target = ['rpm']
     }
   )
-  await run(`DEBUG=* ${pb} --linux --arm64`)
+  await run(`DEBUG=electron-builder:* ${pb} --linux --arm64`)
 
   echo('build linux.arm64.AppImage')
   renameDist()
@@ -58,7 +58,7 @@ async function main () {
       data.linux.target = ['AppImage']
     }
   )
-  await run(`DEBUG=* ${pb} --linux --arm64`)
+  await run(`DEBUG=electron-builder:* ${pb} --linux --arm64`)
 
   echo('build linux.armv7l.tar.gz')
   renameDist()
@@ -69,7 +69,7 @@ async function main () {
     }
   )
   await run(`${reBuild} --arch armv7l -f work/app`)
-  await run(`DEBUG=* ${pb} --linux --armv7l`)
+  await run(`DEBUG=electron-builder:* ${pb} --linux --armv7l`)
 
   echo('build linux.armv7l.deb')
   renameDist()
@@ -79,7 +79,7 @@ async function main () {
       data.linux.target = ['deb']
     }
   )
-  await run(`DEBUG=* ${pb} --linux --armv7l`)
+  await run(`DEBUG=electron-builder:* ${pb} --linux --armv7l`)
 
   echo('build linux.armv7l.rpm')
   renameDist()
@@ -89,7 +89,7 @@ async function main () {
     }
   )
   writeSrc('linux-armv7l.rpm')
-  await run(`DEBUG=* ${pb} --linux --armv7l`)
+  await run(`DEBUG=electron-builder:* ${pb} --linux --armv7l`)
 
   echo('build linux.armv7l.AppImage')
   renameDist()
@@ -99,7 +99,7 @@ async function main () {
     }
   )
   writeSrc('linux-armv7l.AppImage')
-  await run(`DEBUG=* ${pb} --linux --armv7l`)
+  await run(`DEBUG=electron-builder:* ${pb} --linux --armv7l`)
 }
 
 main()

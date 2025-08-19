@@ -11,12 +11,12 @@ async function main () {
   echo('build rpm')
   rm('-rf', 'dist')
   writeSrc('linux-x86_64.rpm')
-  await run(`DEBUG=* ${pb} --linux rpm`)
+  await run(`DEBUG=electron-builder:* ${pb} --linux rpm`)
 
   echo('build snap')
   rm('-rf', 'dist')
   writeSrc('linux-amd64.snap')
-  await run(`DEBUG=* ${pb} --linux snap -p always`)
+  await run(`DEBUG=electron-builder:* ${pb} --linux snap -p always`)
 }
 
 main()

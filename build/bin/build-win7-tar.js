@@ -30,7 +30,7 @@ async function main () {
   await replaceRun()
   rm('-rf', 'dist')
   writeSrc('win7.tar.gz')
-  await run(`cross-env DEBUG=* ${pb} --win tar.gz`)
+  await run(`cross-env DEBUG=electron-builder:* ${pb} --win tar.gz`)
 }
 
 main()

@@ -12,7 +12,7 @@ async function main () {
   echo('build tar.gz')
   rm('-rf', 'dist')
   writeSrc('win-x64.tar.gz')
-  await run(`cross-env DEBUG=* ${pb} --win tar.gz`)
+  await run(`cross-env DEBUG=electron-builder:* ${pb} --win tar.gz`)
 }
 
 main()

@@ -16,7 +16,7 @@ async function main () {
   fs.writeFileSync(p, JSON.stringify(txt, null, 2))
   rm('-rf', 'dist')
   writeSrc('win-x64.appx')
-  await run(`cross-env DEBUG=* ${pb} --win appx`)
+  await run(`cross-env DEBUG=electron-builder:* ${pb} --win appx`)
 }
 
 main()
