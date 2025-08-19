@@ -9,9 +9,18 @@ const replace = require('replace-in-file')
 
 exports.run = function (cmd) {
   return new Promise((resolve, reject) => {
-    exec(cmd, (err, stdout, stderr) => {
-      if (err || stderr) {
-        return reject(err || stderr)
+    exec(cmd, { 
+      env: { ...process.env, DEBUG: 'electron-builder:*' },
+      maxBuffer: 1024 * 1024 * 10 // 10MB buffer
+    }, (err, stdout, stderr) => {
+      if (err) {
+        console.error('Command failed:', cmd)
+        console.error('Error:', err.message)
+        console.error('Stderr:', stderr)
+        return reject(err)
+      }
+      if (stderr) {
+        console.log('Stderr output:', stderr)
       }
       resolve(stdout)
     })

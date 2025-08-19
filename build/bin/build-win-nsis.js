@@ -12,7 +12,7 @@ async function main () {
   echo('build nsis')
   rm('-rf', 'dist')
   writeSrc('win-x64-installer.exe')
-  await run(`cross-env DEBUG=electron-builder:* ${pb} --win nsis`)
+  await run(`${pb} --win nsis`)
 }
 
 main()

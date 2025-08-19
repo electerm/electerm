@@ -12,12 +12,12 @@ async function main () {
   echo('build tar.gz')
   rm('-rf', 'dist')
   writeSrc('linux-x64.tar.gz')
-  await run(`DEBUG=electron-builder:* ${pb} --linux tar.gz`)
+  await run(`${pb} --linux tar.gz`)
 
   echo('build deb')
   rm('-rf', 'dist')
   writeSrc('linux-x64.deb')
-  await run(`DEBUG=electron-builder:* ${pb} --linux deb`)
+  await run(`${pb} --linux deb`)
 
   echo('build linux-x86_64.AppImage')
   rm('-rf', 'dist')
@@ -27,7 +27,7 @@ async function main () {
       data.linux.target = ['AppImage']
     }
   )
-  await run(`DEBUG=electron-builder:* ${pb} --linux`)
+  await run(`${pb} --linux`)
 }
 
 main()
