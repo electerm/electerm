@@ -11,8 +11,8 @@ exports.run = function (cmd) {
   return new Promise((resolve, reject) => {
     console.log('Executing command:', cmd)
     const childProcess = exec(cmd, {
-      env: { 
-        ...process.env, 
+      env: {
+        ...process.env,
         DEBUG: 'electron-builder:*',
         ELECTRON_BUILDER_CACHE: process.env.ELECTRON_BUILDER_CACHE || '',
         CSC_IDENTITY_AUTO_DISCOVERY: 'false' // Disable auto-discovery for clearer errors
@@ -28,14 +28,14 @@ exports.run = function (cmd) {
         console.log('=== STDERR ===')
         console.log(stderr)
       }
-      
+
       if (err) {
         console.error('=== COMMAND FAILED ===')
         console.error('Command:', cmd)
         console.error('Exit code:', err.code)
         console.error('Signal:', err.signal)
         console.error('Error message:', err.message)
-        
+
         // Create a more detailed error message
         const detailedError = new Error(`Command failed with exit code ${err.code}: ${cmd}`)
         detailedError.originalError = err
@@ -44,15 +44,15 @@ exports.run = function (cmd) {
         detailedError.command = cmd
         return reject(detailedError)
       }
-      
+
       resolve(stdout)
     })
-    
+
     // Also pipe output in real-time for long-running commands
     childProcess.stdout.on('data', (data) => {
       process.stdout.write(data)
     })
-    
+
     childProcess.stderr.on('data', (data) => {
       process.stderr.write(data)
     })
