@@ -5,7 +5,7 @@ name: linux-rpm-snap
 
 on:
   push:
-    branches: [ build, test ]
+    branches: [ build, test, build-only ]
 
 jobs:
   build:
@@ -38,7 +38,7 @@ jobs:
     # before_install:
     - run: npm install -g yarn
     - run: npm i
-    - run: npm i -D -E electron-builder@24.9.1
+    # - run: npm i -D -E electron-builder@24.9.1
 
     # script:
     - run: npm run b

@@ -33,9 +33,7 @@
     "gatekeeperAssess": false,
     "entitlements": "./build/entitlements.plist",
     "entitlementsInherit": "./build/entitlements.plist",
-    "notarize": {
-      "teamId": "__teamId"
-    }
+    "notarize": true
   },
   "dmg": {
     "contents": [
