@@ -117,12 +117,20 @@ export default auto(function Index (props) {
   const ext1 = {
     className: cls
   }
+  // Get active tab IDs
+  const activeTabIds = [
+    store.activeTabId0,
+    store.activeTabId1,
+    store.activeTabId2,
+    store.activeTabId3
+  ].filter(Boolean) // Remove empty strings
+
   const bgTabs = config.terminalBackgroundImagePath === 'index' ||
                   config.terminalBackgroundImagePath === 'randomShape' ||
                   config.terminalBackgroundImagePath === textTerminalBgValue
-    ? store.getTabs()
+    ? store.getTabs().filter(tab => activeTabIds.includes(tab.id))
     : store.getTabs().filter(tab =>
-      tab.terminalBackground?.terminalBackgroundImagePath
+      activeTabIds.includes(tab.id) && tab.terminalBackground?.terminalBackgroundImagePath
     )
   const confsCss = {
     ...Object.keys(config)
@@ -131,6 +139,7 @@ export default auto(function Index (props) {
         ...p,
         [k]: config[k]
       }), {}),
+    activeTabIds,
     tabs: bgTabs.map(tab => {
       return {
         tabCount: tab.tabCount,
