@@ -2,6 +2,7 @@ import { Tabs } from 'antd'
 import ProfileFormSsh from './profile-form-ssh'
 import ProfileFormRdp from './profile-form-rdp'
 import ProfileFormVnc from './profile-form-vnc'
+import ProfileFormFtp from './profile-form-ftp'
 import ProfileFormTelnet from './profile-form-telnet'
 
 const { TabPane } = Tabs
@@ -25,6 +26,9 @@ export default function ProfileTabs (props) {
       </TabPane>
       <TabPane tab='rdp' key='rdp' forceRender>
         <ProfileFormRdp />
+      </TabPane>
+      <TabPane tab='ftp' key='ftp' forceRender>
+        <ProfileFormFtp />
       </TabPane>
     </Tabs>
 

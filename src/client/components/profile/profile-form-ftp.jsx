@@ -2,40 +2,34 @@ import {
   Form,
   Input
 } from 'antd'
-import renderAuth from '../bookmark-form/common/render-auth-ssh'
 import { formItemLayout } from '../../common/form-layout'
+import Password from '../common/password'
 
 const FormItem = Form.Item
 const e = window.translate
 
 export default function ProfileFormSsh (props) {
-  const { form } = props
   return (
     <>
       <FormItem
         {...formItemLayout}
         label={e('username')}
         hasFeedback
-        name='username'
+        name={['ftp', 'user']}
         rules={[{
           max: 128, message: '128 chars max'
         }]}
       >
         <Input />
       </FormItem>
-      {
-        renderAuth({
-          store: window.store,
-          form,
-          authType: 'password'
-        })
-      }
-      {
-        renderAuth({
-          store: window.store,
-          form
-        })
-      }
+      <FormItem
+        {...formItemLayout}
+        label={e('password')}
+        hasFeedback
+        name={['rdp', 'password']}
+      >
+        <Password />
+      </FormItem>
     </>
   )
 }
