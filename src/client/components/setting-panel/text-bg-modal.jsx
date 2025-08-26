@@ -7,7 +7,7 @@ import {
   Typography,
   Select
 } from 'antd'
-import { ColorPicker } from '../bookmark-form/color-picker.jsx'
+import { ColorPicker } from '../bookmark-form/common/color-picker.jsx'
 
 const { TextArea } = Input
 const { Title } = Typography

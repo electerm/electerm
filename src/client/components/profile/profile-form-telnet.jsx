@@ -3,7 +3,7 @@ import {
   Input
 } from 'antd'
 import { formItemLayout } from '../../common/form-layout'
-import renderAuth from '../bookmark-form/render-auth-ssh'
+import renderAuth from '../bookmark-form/common/render-auth-ssh'
 
 const FormItem = Form.Item
 const e = window.translate

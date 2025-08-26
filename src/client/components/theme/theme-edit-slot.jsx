@@ -1,4 +1,4 @@
-import { ColorPicker } from '../bookmark-form/color-picker'
+import { ColorPicker } from '../bookmark-form/common/color-picker'
 
 export default function ThemeEditSlot (props) {
   const {
