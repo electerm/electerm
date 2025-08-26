@@ -38,18 +38,6 @@ export default function FormRenderer ({ config, props }) {
     config.key
   ])
 
-  // Keep authType in sync when switching items/types
-  useEffect(() => {
-    if (props.formData?.authType) {
-      setAuthType(props.formData.authType)
-      form.setFieldsValue({ authType: props.formData.authType })
-    }
-  }, [props.formData?.authType])
-
-  useEffect(() => {
-    window.store.handleGetSerials()
-  }, [])
-
   const updateBookmarkGroups = manateAction((bookmark, categoryId) => {
     const {
       bookmarkGroups
@@ -273,6 +261,11 @@ export default function FormRenderer ({ config, props }) {
     setIps(ips || [])
   }
 
+  function onChangeAuthType (e) {
+    const newAuthType = e.target.value
+    setAuthType(newAuthType)
+  }
+
   // Context props for specialized components
   const ctxProps = {
     ...props,
@@ -283,11 +276,7 @@ export default function FormRenderer ({ config, props }) {
     loaddingSerials: props.loaddingSerials || false,
     trim,
     onSelectProxy,
-    onChangeAuthType: (e) => {
-      const newAuthType = e.target.value
-      setAuthType(newAuthType)
-      form.setFieldsValue({ authType: newAuthType })
-    },
+    onChangeAuthType,
     handleBlur: onBlur,
     onPaste,
     useIp

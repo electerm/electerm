@@ -79,6 +79,7 @@ export default auto(function Index (props) {
     store.isSecondInstance = window.pre.runSync('isSecondInstance')
     store.initData()
     store.checkForDbUpgrade()
+    store.handleGetSerials()
     // window.pre.runGlobalAsync('registerDeepLink')
   }, [])
 

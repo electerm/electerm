@@ -10,9 +10,8 @@ const RadioGroup = Radio.Group
 const e = window.translate
 const FormItem = Form.Item
 
-export default function SshAuthTypeSelector ({ onChangeAuthType, filterAuthType = a => a, value, ...props }) {
+export default function SshAuthTypeSelector ({ handleChangeAuthType, filterAuthType = a => a, value, ...props }) {
   const authTypesFiltered = authTypes.filter(filterAuthType)
-
   return (
     <FormItem
       {...tailFormItemLayout}
@@ -21,7 +20,7 @@ export default function SshAuthTypeSelector ({ onChangeAuthType, filterAuthType 
     >
       <RadioGroup
         size='small'
-        onChange={onChangeAuthType}
+        onChange={handleChangeAuthType}
         buttonStyle='solid'
       >
         {

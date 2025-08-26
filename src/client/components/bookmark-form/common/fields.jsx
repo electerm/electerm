@@ -22,6 +22,8 @@ import SshAuthSelector from './ssh-auth-selector.jsx'
 import CategorySelect from './category-select.jsx'
 import RdpAlert from './rdp-alert.jsx'
 
+const Fragment = React.Fragment
+
 const { TextArea } = Input
 const commonRenderTypes = new Set([
   'input',
@@ -147,9 +149,9 @@ export function renderFormItem (item, formItemLayout, form, ctxProps, index) {
     case 'profileItem':
       return <ProfileItem key={name} store={ctxProps.store} profileFilter={item.profileFilter} />
     case 'quickCommands':
-      return <React.Fragment key={name}>{useQuickCmds(form, ctxProps.formData || {})}</React.Fragment>
+      return <Fragment key={name}>{useQuickCmds(form, ctxProps.formData || {})}</Fragment>
     case 'runScripts':
-      return <React.Fragment key={name}>{renderRunScripts()}</React.Fragment>
+      return <Fragment key={name}>{renderRunScripts()}</Fragment>
     case 'serialPathSelector':
       return (
         <SerialPathSelector
