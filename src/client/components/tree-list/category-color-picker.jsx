@@ -1,5 +1,5 @@
 import React from 'react'
-import { ColorPicker } from '../bookmark-form/color-picker.jsx'
+import { ColorPicker } from '../bookmark-form/common/color-picker.jsx'
 
 export function CategoryColorPicker ({ value, onChange }) {
   return (

@@ -1,6 +1,6 @@
 // render bookmark select, use antd tree select
 import { useState } from 'react'
-import buildGroupData from '../bookmark-form/bookmark-group-tree-format'
+import buildGroupData from '../bookmark-form/common/bookmark-group-tree-format'
 import { TreeSelect, Modal, Button } from 'antd'
 const e = window.translate
 
