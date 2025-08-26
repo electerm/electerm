@@ -308,9 +308,14 @@ export default function FormRenderer ({ config, props }) {
     }))
     content = <Tabs items={items} />
   }
-
+  const formName = `${config.key}-form`
   return (
-    <Form form={form} onFinish={handleFinish} initialValues={initialValues}>
+    <Form
+      form={form}
+      onFinish={handleFinish}
+      initialValues={initialValues}
+      name={formName}
+    >
       {content}
       <SubmitButtons
         onSave={save}
