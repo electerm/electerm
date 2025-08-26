@@ -54,7 +54,7 @@ export default function TextBgModal ({
       onOk={handleOk}
       onCancel={handleCancel}
       width={500}
-      destroyOnClose
+      destroyOnHidden
     >
       <div className='pd1'>
         <Space direction='vertical' size='large' style={{ width: '100%' }}>

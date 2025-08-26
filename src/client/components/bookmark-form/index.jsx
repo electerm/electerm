@@ -42,7 +42,7 @@ export default class BookmarkIndex2 extends PureComponent {
   }
 
   componentDidMount () {
-    this.timer = setTimeout(() => this.setState({ ready: true }), 100)
+    this.timer = setTimeout(() => this.setState({ ready: true }), 75)
   }
 
   componentWillUnmount () {
