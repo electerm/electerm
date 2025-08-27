@@ -36,7 +36,7 @@ const serialConfig = {
         commonFields.category,
         commonFields.colorTitle,
         { type: 'serialPathSelector', name: 'path', label: 'path', rules: [{ required: true, message: 'path required' }] },
-        { type: 'autocomplete', name: 'baudRate', label: 'baudRate', options: commonBaudRates.map(d => ({ value: String(d) })) },
+        { type: 'autocomplete', name: 'baudRate', label: 'baudRate', options: commonBaudRates.map(d => ({ value: d })) },
         { type: 'select', name: 'dataBits', label: 'dataBits', options: commonDataBits.map(d => ({ value: d, label: d })) },
         { type: 'select', name: 'stopBits', label: 'stopBits', options: commonStopBits.map(d => ({ value: d, label: d })) },
         { type: 'select', name: 'parity', label: 'parity', options: commonParities.map(d => ({ value: d, label: d })) },

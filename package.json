@@ -1,6 +1,6 @@
 {
   "name": "electerm",
-  "version": "1.101.10",
+  "version": "1.101.16",
   "description": "Terminal/ssh/telnet/serialport/sftp client(linux, mac, win)",
   "main": "app.js",
   "bin": "npm/electerm",
@@ -58,7 +58,6 @@
     "@electron/rebuild": "4.0.1",
     "@fontsource/maple-mono": "^5.2.5",
     "@novnc/novnc": "1.4.0",
-    "@playwright/test": "1.49.1",
     "@types/node": "22.9.3",
     "@vitejs/plugin-react": "4.3.4",
     "@xterm/addon-attach": "0.11.0",
@@ -85,7 +84,6 @@
     "manate": "2.0.0",
     "memoize-one": "6.0.0",
     "morgan": "1.10.0",
-    "playwright": "1.49.1",
     "pug": "3.0.3",
     "react": "18.3.1",
     "react-colorful": "^5.6.1",
