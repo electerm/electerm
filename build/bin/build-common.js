@@ -14,8 +14,7 @@ exports.run = function (cmd) {
       env: {
         ...process.env,
         DEBUG: 'electron-builder:*',
-        ELECTRON_BUILDER_CACHE: process.env.ELECTRON_BUILDER_CACHE || '',
-        CSC_IDENTITY_AUTO_DISCOVERY: 'false' // Disable auto-discovery for clearer errors
+        ELECTRON_BUILDER_CACHE: process.env.ELECTRON_BUILDER_CACHE || ''
       },
       maxBuffer: 1024 * 1024 * 50 // 50MB buffer for large debug output
     }, (err, stdout, stderr) => {
