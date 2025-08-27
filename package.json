@@ -106,7 +106,7 @@
     "@electerm/rdpjs": "^1.0.0",
     "@electerm/ssh2": "1.16.2",
     "@electerm/strip-ansi": "1.0.0",
-    "@seald-io/nedb": "^4.1.2",
+    "@yetzt/nedb": "1.8.0",
     "axios": "^1.7.7",
     "basic-ftp": "^5.0.5",
     "commander": "12.1.0",
