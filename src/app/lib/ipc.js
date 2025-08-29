@@ -13,7 +13,7 @@ const {
 } = require('electron')
 const globalState = require('./glob-state')
 const ipcSyncFuncs = require('./ipc-sync')
-const { dbAction } = require('./nedb')
+const { dbAction } = require('./db')
 const { listItermThemes } = require('./iterm-theme')
 const installSrc = require('./install-src')
 const { getConfig } = require('./get-config')
