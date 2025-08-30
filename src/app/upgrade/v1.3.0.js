@@ -4,7 +4,7 @@
  */
 
 const { resolve } = require('path')
-const { dbAction, tables } = require('../lib/nedb')
+const { dbAction, tables } = require('../lib/db')
 const { appPath } = require('../common/app-props')
 const userConfigPath = resolve(appPath, 'electerm-user-config.json')
 const savePath = resolve(appPath, 'electerm-localstorage.json')

@@ -2,7 +2,7 @@
  * on close app
  */
 
-const { dbAction } = require('./nedb')
+const { dbAction } = require('./db')
 const log = require('../common/log')
 const globalState = require('./glob-state')
 

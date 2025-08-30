@@ -2,7 +2,7 @@
  * user-controll.json controll
  */
 
-const { dbAction } = require('./nedb')
+const { dbAction } = require('./db')
 const { userConfigId } = require('../common/constants')
 const { getDbConfig } = require('./get-config')
 const globalState = require('./glob-state')

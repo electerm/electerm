@@ -2,7 +2,7 @@
  * set/get app last state
  */
 
-const { dbAction } = require('./nedb')
+const { dbAction } = require('./db')
 const log = require('../common/log')
 let count = 0
 const set = (key, value) => {

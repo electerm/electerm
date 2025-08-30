@@ -1,4 +1,4 @@
-const { dbAction } = require('./nedb')
+const { dbAction } = require('./db')
 const defaultSetting = require('../common/config-default')
 const getPort = require('./get-port')
 const { userConfigId } = require('../common/constants')
