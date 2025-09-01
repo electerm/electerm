@@ -17,6 +17,8 @@ const { disableShortCuts } = require('./key-bind')
 const _ = require('lodash')
 const getPort = require('./get-port')
 const globalState = require('./glob-state')
+const net = require('net')
+const generateErrorHtml = require('./error-page')
 
 exports.createWindow = async function (userConfig) {
   globalState.set('closeAction', 'closeApp')
@@ -59,8 +61,20 @@ exports.createWindow = async function (userConfig) {
     ? process.env.devPort || 5570
     : await getPort()
   const opts = `http://127.0.0.1:${port}/index.html?v=${packInfo.version}`
+  // Test raw TCP connection to verify localhost accessibility
+  const client = net.createConnection({ port, host: '127.0.0.1' }, () => {
+    client.end() // Close the test connection
+    win.loadURL(opts)
+  })
 
-  win.loadURL(opts)
+  client.on('error', (err) => {
+    // Failure: Likely proxy interference, load error page
+    console.error('Localhost connection test failed:', err.message)
+    const htmlContent = generateErrorHtml(port)
+    const dataUrl = `data:text/html;charset=utf-8,${encodeURIComponent(htmlContent)}`
+    win.loadURL(dataUrl)
+  })
+  // win.loadURL(opts)
   win.webContents.once('dom-ready', () => {
     if (isDev && !userConfig.disableDeveloperTool) {
       win.webContents.openDevTools()
