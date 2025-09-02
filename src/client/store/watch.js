@@ -40,6 +40,9 @@ export default store => {
 
   for (const name of dbNamesForWatch) {
     window[`watch${name}`] = autoRun(async () => {
+      if (window.migrating) {
+        return
+      }
       const old = refsStatic.get('oldState-' + name)
       const n = store.getItems(name)
       const { updated, added, removed } = dataCompare(
@@ -55,9 +58,10 @@ export default store => {
       for (const item of added) {
         await insert(name, item)
       }
+      const newOrder = (n || []).map(d => d.id)
       await update(
         `${name}:order`,
-        (n || []).map(d => d.id)
+        newOrder
       )
       refsStatic.add('oldState-' + name, deepCopy(n) || [])
       if (name === 'bookmarks') {

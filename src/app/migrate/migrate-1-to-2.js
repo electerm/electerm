@@ -73,24 +73,18 @@ async function migrate () {
 
         // Insert/update data into SQLite using upsert to avoid conflicts
         for (const record of nedbData) {
-          try {
-            // Ensure record has an _id field
-            const recordId = record._id || record.id
-            if (!recordId) {
-              log.warn(`Record in ${table} has no _id or id field, skipping:`, record)
-              continue
-            }
-
-            // Use update with upsert option to handle existing records gracefully
-            await sqliteModule.dbAction(table, 'update',
-              { _id: recordId },
-              { $set: record },
-              { upsert: true }
-            )
-          } catch (upsertError) {
-            log.error(`Error upserting record ${record._id || record.id} into ${table}:`, upsertError)
-            // Continue with other records
+          // Ensure record has an _id field
+          const recordId = record._id || record.id
+          if (!recordId) {
+            log.warn(`Record in ${table} has no _id or id field, skipping:`, record)
+            continue
           }
+          // Use update with upsert option to handle existing records gracefully
+          await sqliteModule.dbAction(table, 'update',
+            { _id: recordId },
+            { $set: record },
+            { upsert: true }
+          )
         }
 
         log.info(`Successfully migrated ${nedbData.length} records from ${table}`)

@@ -14,19 +14,24 @@ export default (Store) => {
     const shouldUpgrade = await window.pre.runGlobalAsync('checkDbUpgrade')
     const shouldMigrate = await window.pre.runGlobalAsync('checkMigrate')
     if (!shouldUpgrade && !shouldMigrate) {
+      window.migrating = false
       return false
     }
+    window.migrating = true
     let mod
+    const commonProps = {
+      keyboard: false,
+      okButtonProps: {
+        style: {
+          display: 'none'
+        }
+      }
+    }
     if (shouldMigrate) {
       mod = Modal.info({
         title: 'Migrating database',
         content: 'Migrating database... please wait',
-        keyboard: false,
-        okButtonProps: {
-          style: {
-            display: 'none'
-          }
-        }
+        ...commonProps
       })
       await window.pre.runGlobalAsync('migrate')
       mod.update({
@@ -45,12 +50,7 @@ export default (Store) => {
       mod = Modal.info({
         title: 'Upgrading database',
         content: `Upgrading database... from v${dbVersion} to v${packVersion} please wait`,
-        keyboard: false,
-        okButtonProps: {
-          style: {
-            display: 'none'
-          }
-        }
+        ...commonProps
       })
       await window.pre.runGlobalAsync('doUpgrade')
       mod.update({
