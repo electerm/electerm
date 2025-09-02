@@ -3,7 +3,7 @@
  * migrate old file based db to nedb
  */
 
-const { dbAction, tables } = require('../lib/db')
+const { dbAction, tables } = require('../lib/nedb')
 const { updateDBVersion } = require('./version-upgrade')
 const log = require('../common/log')
 

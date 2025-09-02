@@ -19,6 +19,10 @@ const installSrc = require('./install-src')
 const { getConfig } = require('./get-config')
 const loadSshConfig = require('./ssh-config')
 const {
+  checkMigrate,
+  migrate
+} = require('../migrate/migrate-1-to-2')
+const {
   setPassword,
   checkPassword
 } = require('./auth')
@@ -126,6 +130,8 @@ function initIpc () {
     loadFontList,
     doUpgrade,
     checkDbUpgrade,
+    checkMigrate,
+    migrate,
     getExitStatus: () => globalState.get('exitStatus'),
     setExitStatus: (status) => {
       globalState.set('exitStatus', status)

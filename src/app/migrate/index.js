@@ -10,9 +10,8 @@ const { resolve } = require('path')
 const fs = require('fs')
 const log = require('../common/log')
 const compare = require('../common/version-compare')
-const { dbAction } = require('../lib/db')
+const { dbAction } = require('../lib/nedb')
 const _ = require('lodash')
-const initData = require('./init-db')
 const { updateDBVersion } = require('./version-upgrade')
 const emptyVersion = '0.0.0'
 const versionQuery = {
@@ -58,8 +57,6 @@ async function shouldUpgrade () {
   const dbVersion = await getDBVersion()
   log.info('dbVersion', dbVersion)
   if (dbVersion === emptyVersion) {
-    await initData()
-    await updateDBVersion(packVersion)
     return false
   }
   const list = await getUpgradeVersionList()

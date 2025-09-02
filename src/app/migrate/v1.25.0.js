@@ -1,47 +1,38 @@
 /**
- * upgrade database to v1.5.13
+ * upgrade database to v1.7.0
  */
 
 const { userConfigId } = require('../common/constants')
-const { dbAction } = require('../lib/db')
+const { dbAction } = require('../lib/nedb')
 const { updateDBVersion } = require('./version-upgrade')
 const log = require('../common/log')
-const { decrypt } = require('../lib/enc')
 
 async function fixAll () {
   const q = {
     _id: userConfigId
   }
   const conf = await dbAction('data', 'findOne', q)
+  if (!conf) {
+    return
+  }
   if (!conf.syncSetting) {
     conf.syncSetting = {}
   }
   const {
-    encrypted,
-    gistId,
+    syncEncrypt,
     githubAccessToken,
-    lastSyncTime
+    giteeAccessToken
   } = conf.syncSetting
-  if (lastSyncTime) {
-    conf.syncSetting.githubLastSyncTime = lastSyncTime
+  if (!syncEncrypt) {
+    return
   }
-  if (gistId) {
-    conf.syncSetting.githubGistId = gistId
+  if (githubAccessToken) {
+    conf.syncSetting.githubSyncPassword = githubAccessToken
   }
-  if (
-    encrypted &&
-    gistId &&
-    githubAccessToken
-  ) {
-    const nt = decrypt(
-      conf.syncSetting.githubAccessToken,
-      conf.syncSetting.gistId
-    )
-    conf.syncSetting.githubAccessToken = nt
+  if (giteeAccessToken) {
+    conf.syncSetting.giteeSyncPassword = giteeAccessToken
   }
-  delete conf.syncSetting.encrypted
-  delete conf.syncSetting.lastSyncTime
-  delete conf.syncSetting.gistId
+  delete conf.syncSetting.syncEncrypt
   await dbAction('data', 'update', q, {
     ...q,
     ...conf
@@ -49,7 +40,7 @@ async function fixAll () {
 }
 
 module.exports = async () => {
-  const versionTo = '1.5.13'
+  const versionTo = '1.25.0'
   log.info(`Start: upgrading to v${versionTo}`)
   await fixAll()
   await updateDBVersion(versionTo)

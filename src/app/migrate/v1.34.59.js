@@ -2,7 +2,7 @@
  * upgrade database to v1.34.20
  */
 
-const { dbAction } = require('../lib/db')
+const { dbAction } = require('../lib/nedb')
 const { userConfigId } = require('../common/constants')
 const { updateDBVersion } = require('./version-upgrade')
 const log = require('../common/log')

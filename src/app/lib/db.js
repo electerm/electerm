@@ -1,11 +1,8 @@
 /**
  * db loader
  */
-
-try {
-  module.exports = require('./sqlite')
-} catch (error) {
-  console.error('Failed to load SQLite module:', error)
-  console.log('Falling back to NeDB')
+if (process.versions.node < '22.0.0') {
   module.exports = require('./nedb')
+} else {
+  module.exports = require('./sqlite')
 }
