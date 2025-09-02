@@ -3,7 +3,7 @@
  * just need init db
  */
 
-const { dbAction } = require('../lib/nedb')
+const { dbAction } = require('../lib/db')
 const log = require('../common/log')
 const defaults = require('./db-defaults')
 

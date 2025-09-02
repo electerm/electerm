@@ -1,5 +1,5 @@
 const { userConfigId } = require('../common/constants')
-const { dbAction } = require('./nedb')
+const { dbAction } = require('./db')
 const getPort = require('./get-port')
 
 function hashPassword (password) {

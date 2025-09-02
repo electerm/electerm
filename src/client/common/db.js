@@ -115,6 +115,11 @@ export async function findOne (dbName, id) {
  * @param {string} dbName
  */
 export async function find (dbName) {
+  console.log('==================== dbAction START ====================')
+  console.log('Parameters:')
+  console.log('dbName:', dbName)
+  console.log('op:', 'find')
+  console.log('args:', [{}])
   const res = await dbAction(dbName, 'find', {}) || []
   return res.map(r => {
     const { _id, ...rest } = r
