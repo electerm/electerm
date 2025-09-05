@@ -35,7 +35,25 @@ export default function AIOutput ({ item }) {
     }
 
     const runInTerminal = () => {
-      window.store.runCommandInTerminal(code)
+      // Filter out comments from the code before running
+      const filteredCode = code
+        .split('\n')
+        .map(line => line.trim())
+        .filter(line => {
+          // Remove empty lines and comments
+          if (!line) {
+            return false
+          }
+          if (line.startsWith('#')) {
+            return false
+          }
+          return true
+        })
+        .join('\n') // Join multiple commands with &&
+
+      if (filteredCode) {
+        window.store.runCommandInTerminal(filteredCode)
+      }
     }
 
     return (

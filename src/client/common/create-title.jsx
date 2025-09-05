@@ -42,7 +42,7 @@ export default function createTitle (res, hide = true) {
   ) {
     f = `[T]${f}`
   }
-  if (type) {
+  if (type && type !== 'ssh') {
     f = `[${type}]${f}`
   }
   return f || e(terminalLocalType)
