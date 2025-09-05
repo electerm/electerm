@@ -13,11 +13,15 @@ const {
 } = require('electron')
 const globalState = require('./glob-state')
 const ipcSyncFuncs = require('./ipc-sync')
-const { dbAction } = require('./nedb')
+const { dbAction } = require('./db')
 const { listItermThemes } = require('./iterm-theme')
 const installSrc = require('./install-src')
 const { getConfig } = require('./get-config')
 const loadSshConfig = require('./ssh-config')
+const {
+  checkMigrate,
+  migrate
+} = require('../migrate/migrate-1-to-2')
 const {
   setPassword,
   checkPassword
@@ -126,6 +130,8 @@ function initIpc () {
     loadFontList,
     doUpgrade,
     checkDbUpgrade,
+    checkMigrate,
+    migrate,
     getExitStatus: () => globalState.get('exitStatus'),
     setExitStatus: (status) => {
       globalState.set('exitStatus', status)

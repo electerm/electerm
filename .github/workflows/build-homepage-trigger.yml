@@ -9,10 +9,15 @@ jobs:
   trigger-website-update:
     runs-on: ubuntu-latest
     environment: build
+    strategy:
+      matrix:
+        repository:
+          - electerm/electerm.html5beta.com
+          - electerm/electerm-data-tool
     steps:
-      - name: Trigger website repository workflow
+      - name: Trigger ${{ matrix.repository }} repository workflow
         uses: peter-evans/repository-dispatch@v2
         with:
           token: ${{ secrets.PAT_REPO_TOKEN }}
-          repository: electerm/electerm.html5beta.com
+          repository: ${{ matrix.repository }}
           event-type: electerm-release
