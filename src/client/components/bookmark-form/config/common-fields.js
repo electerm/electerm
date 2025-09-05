@@ -270,12 +270,13 @@ export const sshAuthFields = [
 // Telnet auth fields - similar to SSH but with filtered auth types (no privateKey)
 export const telnetAuthFields = [
   commonFields.category,
+  commonFields.title,
   commonFields.host,
   commonFields.username,
   commonFields.password,
   { type: 'profileItem', name: '__profile__', label: '', profileFilter: d => !isEmpty(d.telnet) },
   commonFields.port,
-  commonFields.title,
+  commonFields.runScripts,
   commonFields.description,
   commonFields.setEnv,
   commonFields.startDirectoryLocal,

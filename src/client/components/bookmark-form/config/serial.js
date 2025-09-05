@@ -45,6 +45,7 @@ const serialConfig = {
         { type: 'switch', name: 'xon', label: 'xon', valuePropName: 'checked' },
         { type: 'switch', name: 'xoff', label: 'xoff', valuePropName: 'checked' },
         { type: 'switch', name: 'xany', label: 'xany', valuePropName: 'checked' },
+        commonFields.runScripts,
         commonFields.description,
         { type: 'input', name: 'type', label: 'type', hidden: true }
       ]
