@@ -5,13 +5,19 @@
 
 const { appPath, defaultUserName } = require('../common/app-props')
 const { resolve } = require('path')
+const fs = require('fs')
 const uid = require('../common/uid')
 const { DatabaseSync } = require('node:sqlite')
 
-// Define paths for two database files
-const mainDbPath = resolve(appPath, 'electerm', 'users', defaultUserName, 'electerm.db')
-const dataDbPath = resolve(appPath, 'electerm', 'users', defaultUserName, 'electerm_data.db')
+// Define database folder and paths for two database files
+const dbFolder = resolve(appPath, 'electerm', 'users', defaultUserName)
+const mainDbPath = resolve(dbFolder, 'electerm.db')
+const dataDbPath = resolve(dbFolder, 'electerm_data.db')
 
+// Ensure parent directory exists
+if (!fs.existsSync(dbFolder)) {
+  fs.mkdirSync(dbFolder, { recursive: true })
+}
 // Create two database instances
 const mainDb = new DatabaseSync(mainDbPath)
 const dataDb = new DatabaseSync(dataDbPath)
