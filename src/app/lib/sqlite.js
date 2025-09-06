@@ -4,7 +4,7 @@
  */
 
 const { appPath, defaultUserName } = require('../common/app-props')
-const { resolve, dirname } = require('path')
+const { resolve } = require('path')
 const fs = require('fs')
 const uid = require('../common/uid')
 const { DatabaseSync } = require('node:sqlite')
