@@ -17,7 +17,6 @@ function renameDist () {
 }
 
 async function main () {
-
   echo('running build for linux part 3 arm64/armv7l')
 
   echo('build linux.arm64.tar.gz')
