@@ -19,7 +19,7 @@ jobs:
     - name: Use Node.js 22.x
       uses: actions/setup-node@v4
       with:
-        node-version: 22.x
+        node-version: 16.x
     # - name: xvfb
     #   uses: GabrielBB/xvfb-action@v1
 
@@ -35,6 +35,10 @@ jobs:
     # before_install:
     - run: npm install -g yarn
     - run: npm i
+    - run: npm i -D electron@22.3.27
+    - run: npm i -S -E node-pty@1.1.0-beta14
+    - run: npm i -S -E serialport@13.0.0
+    - run: npm i -D vite@4
 
     # script:
     - run: npm run b
