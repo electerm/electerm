@@ -10,6 +10,7 @@ import {
   maxHistory
 } from '../common/constants'
 import { refs } from '../components/common/ref'
+import { message } from 'antd'
 import * as ls from '../common/safe-local-storage'
 import deepCopy from 'json-deep-copy'
 import generate from '../common/id-with-stamp'
@@ -312,6 +313,16 @@ export default Store => {
     index,
     batch
   ) {
+    if (
+      (!newTab.type || newTab.type === 'local') &&
+      !newTab.host &&
+      !window.store.hasNodePty
+    ) {
+      return message.warning(
+        'local terminal is not supported, due to node-pty not working in this build'
+      )
+    }
+    console.log('addTab', newTab, index, batch)
     const { store } = window
     const { tabs } = store
     newTab.tabCount = store.nextTabCount()
