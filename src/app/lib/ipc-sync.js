@@ -36,6 +36,14 @@ const isMaximized = () => {
 }
 
 module.exports = {
+  nodePtyCheck: () => {
+    try {
+      return !!require('node-pty')
+    } catch (err) {
+      log.error('Failed to load node-pty:', err)
+      return false
+    }
+  },
   windowMove,
   debug: (...args) => log.debug(...args),
   log: (...args) => log.log(...args),

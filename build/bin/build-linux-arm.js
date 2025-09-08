@@ -100,6 +100,12 @@ async function main () {
   )
   writeSrc('linux-armv7l.AppImage')
   await run(`${pb} --linux --armv7l`)
+
+  echo('✅ All Linux ARM builds completed successfully')
 }
 
-main()
+main().catch(error => {
+  echo('❌ Fatal error in main():')
+  console.error(error)
+  process.exit(1)
+})

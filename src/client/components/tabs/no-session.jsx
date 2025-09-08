@@ -13,8 +13,8 @@ export default function NoSessionPanel ({ height, onNewTab, onNewSsh, batch }) {
   const handleClick = () => {
     window.openTabBatch = batch
   }
-  return (
-    <div className='no-sessions electerm-logo-bg' {...props}>
+  const newTabDom = window.store.hasNodePty
+    ? (
       <Button
         onClick={onNewTab}
         size='large'
@@ -22,6 +22,11 @@ export default function NoSessionPanel ({ height, onNewTab, onNewSsh, batch }) {
       >
         {e('newTab')}
       </Button>
+      )
+    : null
+  return (
+    <div className='no-sessions electerm-logo-bg' {...props}>
+      {newTabDom}
       <Button
         onClick={onNewSsh}
         size='large'

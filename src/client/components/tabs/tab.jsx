@@ -220,7 +220,11 @@ class Tab extends Component {
   }
 
   newTab = () => {
-    this.props.addTab()
+    if (window.store.hasNodePty) {
+      this.props.addTab()
+    } else {
+      window.store.onNewSsh()
+    }
   }
 
   doRename = () => {

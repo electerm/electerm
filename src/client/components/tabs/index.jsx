@@ -124,6 +124,10 @@ export default class Tabs extends Component {
   }
 
   handleTabAdd = () => {
+    if (!window.store.hasNodePty) {
+      window.store.onNewSsh()
+      return
+    }
     window.store.addTab(
       undefined, undefined,
       this.props.batch
@@ -195,6 +199,16 @@ export default class Tabs extends Component {
   renderMenus () {
     const { onNewSsh } = window.store
     const cls = 'pd2x pd1y context-item pointer'
+    const addTabBtn = window.store.hasNodePty
+      ? (
+        <div
+          className={cls}
+          onClick={this.handleTabAdd}
+        >
+          <RightSquareFilled /> {e('newTab')}
+        </div>
+        )
+      : null
     return (
       <div
         className='add-menu-wrap' style={{
@@ -207,12 +221,7 @@ export default class Tabs extends Component {
         >
           <CodeFilled /> {e('newBookmark')}
         </div>
-        <div
-          className={cls}
-          onClick={this.handleTabAdd}
-        >
-          <RightSquareFilled /> {e('newTab')}
-        </div>
+        {addTabBtn}
         <BookmarksList
           store={window.store}
         />
