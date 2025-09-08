@@ -146,7 +146,7 @@ git clone git@github.com:electerm/electerm.git
 cd electerm
 npm i
 
-# start webpack dev server, requires port 5570
+# start vite dev server, requires port 5570
 npm start
 
 # in a separate terminal session run app
