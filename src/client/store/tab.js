@@ -322,7 +322,6 @@ export default Store => {
         'local terminal is not supported, due to node-pty not working in this build'
       )
     }
-    console.log('addTab', newTab, index, batch)
     const { store } = window
     const { tabs } = store
     newTab.tabCount = store.nextTabCount()

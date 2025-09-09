@@ -3,5 +3,10 @@
  */
 
 exports.listSerialPorts = function () {
-  return require('serialport').SerialPort.list()
+  try {
+    return require('serialport').SerialPort.list()
+  } catch (error) {
+    console.error('Error listing serial ports:', error)
+    return Promise.resolve([]) // Return an empty array on error
+  }
 }
