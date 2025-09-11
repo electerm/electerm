@@ -309,6 +309,10 @@ export default class ItemListTree extends Component {
       store.storeAssign({
         currentBookmarkGroupId: id
       })
+      const func = this.props.expandedKeys.includes(id)
+        ? this.onUnExpandKey
+        : this.onExpandKey
+      func({ id })
     } else {
       store.storeAssign({
         currentBookmarkGroupId: findBookmarkGroupId(store.bookmarkGroups, id)
