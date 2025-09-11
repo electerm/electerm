@@ -77,6 +77,13 @@ export default class ThemeList extends List {
 
   render () {
     const { ready, page, pageSize } = this.state
+    if (!ready) {
+      return (
+        <div className='pd3 aligncenter'>
+          <LoadingOutlined />
+        </div>
+      )
+    }
     let {
       list = [],
       type,
@@ -101,17 +108,10 @@ export default class ThemeList extends List {
           total={all}
           current={page}
           pageSize={pageSize}
+          showLessItems
+          simple
           onShowSizeChange={this.handlePageSizeChange}
         />
-        {
-          ready
-            ? null
-            : (
-              <div className='pd3 aligncenter'>
-                <LoadingOutlined />
-              </div>
-              )
-        }
       </div>
     )
   }
