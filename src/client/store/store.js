@@ -149,10 +149,12 @@ class Store {
     const initItem = getInitItem(arr, settingTab)
     return settingTab === settingMap.history
       ? arr
-      : [
-          deepCopy(initItem),
-          ...arr
-        ]
+      : settingTab === settingMap.terminalThemes
+        ? arr // Don't add initItem for themes, it will be handled separately
+        : [
+            deepCopy(initItem),
+            ...arr
+          ]
   }
 
   get terminalCommandSuggestions () {
