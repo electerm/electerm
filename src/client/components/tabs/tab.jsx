@@ -268,6 +268,7 @@ class Tab extends Component {
     const reloadShortcut = this.getShortcut('app_reloadCurrentTab')
     const closeShortcut = this.getShortcut('app_closeCurrentTab')
     const cloneToNextShortcut = this.getShortcut('app_cloneToNextLayout')
+    const duplicateShortcut = this.getShortcut('app_duplicateTab')
 
     const x = [
       {
@@ -294,7 +295,8 @@ class Tab extends Component {
       {
         key: 'handleDup',
         icon: <iconsMap.CopyOutlined />,
-        label: e('duplicate')
+        label: e('duplicate'),
+        extra: duplicateShortcut
       },
       {
         key: 'cloneToNextLayout',
