@@ -24,7 +24,7 @@ export default (arr, tab) => {
   } else if (tab === settingMap.quickCommands) {
     return {
       id: '',
-      name: encodeURIComponent(newQuickCommand)
+      name: e(newQuickCommand)
     }
   } else if (tab === settingMap.profiles) {
     return {

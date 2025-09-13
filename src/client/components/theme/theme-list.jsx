@@ -59,7 +59,7 @@ export default class ThemeList extends List {
     )
   }
 
-  renderNewThemeItem () {
+  renderNewItem () {
     const newThemeItem = getInitItem([], settingMap.terminalThemes)
     const itemProps = {
       item: newThemeItem,
@@ -120,7 +120,7 @@ export default class ThemeList extends List {
         {this.renderSearch()}
         {this.renderCurrentTheme()}
         <div className='item-list-wrap' style={listStyle}>
-          {this.renderNewThemeItem()}
+          {this.renderNewItem()}
           {
             list.map(this.renderItem)
           }

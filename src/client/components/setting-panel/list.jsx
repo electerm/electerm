@@ -9,7 +9,8 @@ import createName, { createTitleTag } from '../../common/create-title'
 import classnames from 'classnames'
 import { noop } from 'lodash-es'
 import highlight from '../common/highlight'
-import { settingSyncId, settingCommonId } from '../../common/constants'
+import { settingSyncId, settingCommonId, staticNewItemTabs } from '../../common/constants'
+import getInitItem from '../../common/init-setting-item'
 import './list.styl'
 
 const e = window.translate
@@ -95,6 +96,17 @@ export default class ItemList extends React.PureComponent {
     return icon
   }
 
+  renderNewItem () {
+    const { type } = this.props
+
+    if (!staticNewItemTabs.has(type)) {
+      return null
+    }
+
+    const newItem = getInitItem([], type)
+    return this.renderItem(newItem, -1)
+  }
+
   renderItem = (item, i) => {
     const { onClickItem, type, activeItemId } = this.props
     const { id } = item
@@ -175,6 +187,7 @@ export default class ItemList extends React.PureComponent {
         {this.renderLabels ? this.renderLabels() : null}
         {this.renderSearch()}
         <div className='item-list-wrap' style={listStyle}>
+          {this.renderNewItem()}
           {
             list.map(this.renderItem)
           }

@@ -138,13 +138,6 @@ export default function QuickCommandForm (props) {
   const wiki = 'https://github.com/electerm/electerm/wiki/quick-command-templates'
   return (
     <>
-      <p>
-        <b className='mg1r'>{e('templates')}:</b>
-        <span className='mg1r'>{templatesStr}</span>
-        <HelpIcon
-          link={wiki}
-        />
-      </p>
       <Form
         form={form}
         onFinish={handleSubmit}
@@ -210,6 +203,13 @@ export default function QuickCommandForm (props) {
             </Button>
           </p>
         </FormItem>
+        <p>
+          <b className='mg1r'>{e('templates')}:</b>
+          <span className='mg1r'>{templatesStr}</span>
+          <HelpIcon
+            link={wiki}
+          />
+        </p>
       </Form>
     </>
   )

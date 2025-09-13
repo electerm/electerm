@@ -32,7 +32,8 @@ import getBrand from '../components/ai/get-brand'
 import {
   settingMap,
   terminalSshConfigType,
-  paneMap
+  paneMap,
+  staticNewItemTabs
 } from '../common/constants'
 import getInitItem from '../common/init-setting-item'
 import createTitle from '../common/create-title'
@@ -149,8 +150,8 @@ class Store {
     const initItem = getInitItem(arr, settingTab)
     return settingTab === settingMap.history
       ? arr
-      : settingTab === settingMap.terminalThemes
-        ? arr // Don't add initItem for themes, it will be handled separately
+      : staticNewItemTabs.has(settingTab)
+        ? arr // Don't add initItem for these tabs, they will be handled separately
         : [
             deepCopy(initItem),
             ...arr
