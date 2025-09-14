@@ -157,6 +157,9 @@ export default function FormRenderer ({ config, props }) {
       ...props.formData,
       ...res
     }
+    if (!obj.terminalBackground?.terminalBackgroundImagePath) {
+      delete obj.terminalBackground
+    }
     if (isTest) {
       return test(obj)
     }
