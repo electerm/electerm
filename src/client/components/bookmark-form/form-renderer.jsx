@@ -22,9 +22,10 @@ import { isValidIP } from '../../common/is-ip'
 import { action as manateAction } from 'manate'
 
 export default function FormRenderer ({ config, props }) {
+  const initialValues = config.initValues(props)
   const [form] = Form.useForm()
   const [ips, setIps] = useState([])
-  const [authType, setAuthType] = useState(props.formData.authType || authTypeMap.password)
+  const [authType, setAuthType] = useState(initialValues.authType || authTypeMap.password)
   const [testing, setTesting] = useState(false)
   const action = useRef('submit')
 
@@ -266,7 +267,6 @@ export default function FormRenderer ({ config, props }) {
     setAuthType(newAuthType)
   }
 
-  // Context props for specialized components
   const ctxProps = {
     ...props,
     form,
@@ -282,7 +282,6 @@ export default function FormRenderer ({ config, props }) {
     useIp
   }
 
-  const initialValues = config.initValues(props)
   const tabs = typeof config.tabs === 'function' ? (config.tabs() || []) : (config.tabs || [])
   let content = null
 

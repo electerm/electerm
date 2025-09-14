@@ -1,7 +1,7 @@
 /**
  * Common utilities for config initValues
  */
-import { newBookmarkIdPrefix } from '../../../common/constants.js'
+import { newBookmarkIdPrefix, authTypeMap } from '../../../common/constants.js'
 import { getColorFromCategory } from '../../../common/get-category-color.js'
 import findBookmarkGroupId from '../../../common/find-bookmark-group-id.js'
 import deepCopy from 'json-deep-copy'
@@ -80,4 +80,13 @@ export function getTerminalBackgroundDefaults (defaultSetting) {
       terminalBackgroundTextFontFamily: defaultSetting.terminalBackgroundTextFontFamily
     }
   }
+}
+
+export function getAuthTypeDefault (props) {
+  const r = {}
+  if (window.store.defaultProfileId) {
+    r.profile = window.store.defaultProfileId
+    r.authType = authTypeMap.profiles
+  }
+  return r
 }

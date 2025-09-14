@@ -122,6 +122,12 @@ class Store {
       currentTab.pane === paneMap.terminal
   }
 
+  get defaultProfileId () {
+    const { profiles } = window.store
+    const defaultProfile = profiles.find(p => p.isDefault)
+    return defaultProfile?.id || ''
+  }
+
   get quickCommandTags () {
     const { quickCommands } = window.store
     return uniq(

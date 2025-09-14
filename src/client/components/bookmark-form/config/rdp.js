@@ -1,6 +1,6 @@
 import { formItemLayout } from '../../../common/form-layout.js'
 import { terminalRdpType } from '../../../common/constants.js'
-import { createBaseInitValues } from '../common/init-values.js'
+import { createBaseInitValues, getAuthTypeDefault } from '../common/init-values.js'
 import { isEmpty } from 'lodash-es'
 import { commonFields } from './common-fields.js'
 
@@ -11,7 +11,8 @@ const rdpConfig = {
   type: terminalRdpType,
   initValues: (props) => {
     return createBaseInitValues(props, terminalRdpType, {
-      port: 3389
+      port: 3389,
+      ...getAuthTypeDefault(props)
     })
   },
   layout: formItemLayout,

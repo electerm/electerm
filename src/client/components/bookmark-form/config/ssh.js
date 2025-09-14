@@ -2,7 +2,7 @@
 import { formItemLayout } from '../../../common/form-layout.js'
 import { connectionMap, authTypeMap, defaultEnvLang } from '../../../common/constants.js'
 import defaultSetting from '../../../common/default-setting.js'
-import { createBaseInitValues, getTerminalDefaults, getSshDefaults, getTerminalBackgroundDefaults } from '../common/init-values.js'
+import { createBaseInitValues, getTerminalDefaults, getSshDefaults, getTerminalBackgroundDefaults, getAuthTypeDefault } from '../common/init-values.js'
 import { sshAuthFields, sshSettings, quickCommandsTab, sshTunnelTab, connectionHoppingTab } from './common-fields.js'
 
 const e = window.translate
@@ -24,7 +24,8 @@ const sshConfig = {
       cipher: [],
       ...getTerminalDefaults(store),
       ...getSshDefaults(),
-      ...getTerminalBackgroundDefaults(defaultSetting)
+      ...getTerminalBackgroundDefaults(defaultSetting),
+      ...getAuthTypeDefault(props)
     })
   },
   layout: formItemLayout,

@@ -1,7 +1,12 @@
 import { formItemLayout } from '../../../common/form-layout.js'
 import { terminalTelnetType, authTypeMap } from '../../../common/constants.js'
 import defaultSettings from '../../../common/default-setting.js'
-import { createBaseInitValues, getSshDefaults, getTerminalBackgroundDefaults } from '../common/init-values.js'
+import {
+  createBaseInitValues,
+  getSshDefaults,
+  getTerminalBackgroundDefaults,
+  getAuthTypeDefault
+} from '../common/init-values.js'
 import { telnetAuthFields, terminalSettings, quickCommandsTab } from './common-fields.js'
 
 const e = window.translate
@@ -18,7 +23,8 @@ const telnetConfig = {
       authType: authTypeMap.password,
       term: defaultSettings.terminalType,
       ...getSshDefaults(),
-      ...getTerminalBackgroundDefaults(defaultSettings)
+      ...getTerminalBackgroundDefaults(defaultSettings),
+      ...getAuthTypeDefault(props)
     })
   },
   layout: formItemLayout,

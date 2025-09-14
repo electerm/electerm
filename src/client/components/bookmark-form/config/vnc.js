@@ -1,6 +1,6 @@
 import { formItemLayout } from '../../../common/form-layout.js'
 import { terminalVncType } from '../../../common/constants.js'
-import { createBaseInitValues } from '../common/init-values.js'
+import { createBaseInitValues, getAuthTypeDefault } from '../common/init-values.js'
 import { isEmpty } from 'lodash-es'
 import { commonFields, connectionHoppingTab } from './common-fields.js'
 
@@ -14,7 +14,8 @@ const vncConfig = {
       port: 5900,
       viewOnly: false,
       scaleViewport: true,
-      connectionHoppings: []
+      connectionHoppings: [],
+      ...getAuthTypeDefault(props)
     })
   },
   layout: formItemLayout,

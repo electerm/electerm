@@ -313,6 +313,15 @@ export default Store => {
     }
   }
 
+  Store.prototype.makeSureProfileDefault = function (defaultId) {
+    const { profiles } = window.store
+    for (const p of profiles) {
+      if (p.id !== defaultId) {
+        delete p.isDefault
+      }
+    }
+  }
+
   Store.prototype.aiConfigMissing = function () {
     return aiConfigsArr.slice(0, -1).some(k => !window.store.config[k])
   }

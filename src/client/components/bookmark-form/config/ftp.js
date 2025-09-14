@@ -1,6 +1,6 @@
 import { formItemLayout } from '../../../common/form-layout.js'
 import { terminalFtpType } from '../../../common/constants.js'
-import { createBaseInitValues } from '../common/init-values.js'
+import { createBaseInitValues, getAuthTypeDefault } from '../common/init-values.js'
 import { commonFields } from './common-fields.js'
 import { isEmpty } from 'lodash-es'
 
@@ -14,7 +14,8 @@ const ftpConfig = {
       port: 21,
       user: '',
       password: '',
-      secure: false
+      secure: false,
+      ...getAuthTypeDefault(props)
     })
   },
   layout: formItemLayout,
