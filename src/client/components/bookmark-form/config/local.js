@@ -1,6 +1,11 @@
 import { formItemLayout } from '../../../common/form-layout.js'
 import { terminalLocalType, terminalTypes } from '../../../common/constants.js'
-import { createBaseInitValues, getTerminalDefaults, getSshDefaults } from '../common/init-values.js'
+import {
+  createBaseInitValues,
+  getTerminalDefaults,
+  getSshDefaults,
+  getTerminalBackgroundDefaults
+} from '../common/init-values.js'
 import defaultSettings from '../../../common/default-setting.js'
 import { commonFields } from './common-fields.js'
 
@@ -13,7 +18,8 @@ const localConfig = {
     const { store } = props
     return createBaseInitValues(props, terminalLocalType, {
       ...getTerminalDefaults(store),
-      ...getSshDefaults()
+      ...getSshDefaults(),
+      ...getTerminalBackgroundDefaults(defaultSettings)
     })
   },
   layout: formItemLayout,
