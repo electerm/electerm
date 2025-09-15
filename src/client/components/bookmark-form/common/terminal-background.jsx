@@ -11,7 +11,7 @@ const FormItem = Form.Item
 const e = window.translate
 
 // Custom form control that implements the antd form control interface
-const TerminalBgControl = ({ value = {}, onChange }) => {
+const TerminalBgControl = ({ value, onChange }) => {
   const handleChange = (newValue, name) => {
     const updatedValue = {
       ...value,
@@ -20,16 +20,25 @@ const TerminalBgControl = ({ value = {}, onChange }) => {
     onChange(updatedValue)
   }
 
+  const handleBatchUpdate = (updates) => {
+    const updatedValue = {
+      ...value,
+      ...updates
+    }
+    onChange(updatedValue)
+  }
+
   return (
     <TerminalBackgroundConfig
       config={value}
       onChangeValue={handleChange}
+      batchUpdate={handleBatchUpdate}
       name='terminalBackgroundImagePath'
     />
   )
 }
 
-export default function renderTermBg (form) {
+export default function renderTermBg () {
   const formProps = {
     ...formItemLayout,
     name: 'terminalBackground',

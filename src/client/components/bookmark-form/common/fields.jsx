@@ -145,7 +145,7 @@ export function renderFormItem (item, formItemLayout, form, ctxProps, index) {
         />
       )
     case 'terminalBackground':
-      return <TerminalBackgroundField key={name} form={form} />
+      return <TerminalBackgroundField key={name} />
     case 'profileItem':
       return <ProfileItem key={name} store={ctxProps.store} profileFilter={item.profileFilter} />
     case 'quickCommands':

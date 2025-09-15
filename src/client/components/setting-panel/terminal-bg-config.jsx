@@ -20,7 +20,8 @@ export default function TerminalBackgroundConfig ({
   onChangeValue,
   name,
   config,
-  isGlobal = false
+  isGlobal = false,
+  batchUpdate
 }) {
   const [showTextModal, setShowTextModal] = useState(false)
   const value = config[name]
@@ -71,7 +72,7 @@ export default function TerminalBackgroundConfig ({
     // Show helpful text when text background is selected but no text is configured
     dataSource[2] = {
       value: textTerminalBgValue,
-      desc: `📝 ${e('clickToConfigureText') || 'Click to configure text'}`
+      desc: '📝 Click to configure text'
     }
   }
 
@@ -93,12 +94,24 @@ export default function TerminalBackgroundConfig ({
   }
 
   const handleTextBgModalOk = (textConfig) => {
-    // Store text configuration in the config
-    onChangeValue(textConfig.text, 'terminalBackgroundText')
-    onChangeValue(textConfig.fontSize, 'terminalBackgroundTextSize')
-    onChangeValue(textConfig.color, 'terminalBackgroundTextColor')
-    onChangeValue(textConfig.fontFamily, 'terminalBackgroundTextFontFamily')
-    onChange(textTerminalBgValue)
+    if (batchUpdate) {
+      // Use batch update if available
+      const updates = {
+        terminalBackgroundText: textConfig.text,
+        terminalBackgroundTextSize: textConfig.fontSize,
+        terminalBackgroundTextColor: textConfig.color,
+        terminalBackgroundTextFontFamily: textConfig.fontFamily,
+        [name]: textTerminalBgValue
+      }
+      batchUpdate(updates)
+    } else {
+      // Fall back to sequential updates
+      onChangeValue(textConfig.text, 'terminalBackgroundText')
+      onChangeValue(textConfig.fontSize, 'terminalBackgroundTextSize')
+      onChangeValue(textConfig.color, 'terminalBackgroundTextColor')
+      onChangeValue(textConfig.fontFamily, 'terminalBackgroundTextFontFamily')
+      onChange(textTerminalBgValue)
+    }
     setShowTextModal(false)
   }
 
@@ -204,7 +217,6 @@ export default function TerminalBackgroundConfig ({
       label: item.desc
     }
   }
-
   return (
     <div className='pd2b'>
       <div className='pd1b'>
