@@ -424,7 +424,7 @@ export default class SettingCommon extends Component {
             {e('global')} {e('proxy')}
             <HelpIcon
               title={table}
-              overlayInnerStyle={style}
+              style={{ body: { style } }}
             />
           </span>
           <Switch
