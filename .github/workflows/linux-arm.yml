@@ -13,6 +13,7 @@ jobs:
     # Use GitHub's ARM64 runners when available
     # Fallback to ubuntu-latest with manual arch specification
     runs-on: ${{ matrix.runner }}
+    container: node:16-alpine
     environment: build
     if: "!contains(github.event.head_commit.message, '[skip build]') && !contains(github.event.head_commit.message, '[skip ci]') && !contains(github.event.head_commit.message, '[skip arm-linux]') && !contains(github.event.head_commit.message, '[skip linux3]')"
     
@@ -29,6 +30,12 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     
+    # Install basic tools needed in the container
+    - name: Install basic tools
+      run: |
+        apt-get update
+        apt-get install -y curl wget gnupg2 software-properties-common
+    
     - name: Set up Node.js 22.x
       uses: actions/setup-node@v4
       with:
@@ -42,8 +49,8 @@ jobs:
     # Install system dependencies for ARM64 builds
     - name: Install system dependencies
       run: |
-        sudo apt-get update
-        sudo apt-get install -y \
+        apt-get update
+        apt-get install -y \
           python3-dev \
           build-essential \
           libnss3-dev \
