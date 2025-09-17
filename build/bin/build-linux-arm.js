@@ -60,46 +60,46 @@ async function main () {
   )
   await run(`${pb} --linux --arm64`)
 
-  echo('build linux.armv7l.tar.gz')
-  renameDist()
-  writeSrc('linux-armv7l.tar.gz')
-  replaceJSON(
-    (data) => {
-      data.linux.target = ['tar.gz']
-    }
-  )
-  await run(`${reBuild} --arch armv7l -f work/app`)
-  await run(`${pb} --linux --armv7l`)
+  // echo('build linux.armv7l.tar.gz')
+  // renameDist()
+  // writeSrc('linux-armv7l.tar.gz')
+  // replaceJSON(
+  //   (data) => {
+  //     data.linux.target = ['tar.gz']
+  //   }
+  // )
+  // await run(`${reBuild} --arch armv7l -f work/app`)
+  // await run(`${pb} --linux --armv7l`)
 
-  echo('build linux.armv7l.deb')
-  renameDist()
-  writeSrc('linux-armv7l.deb')
-  replaceJSON(
-    (data) => {
-      data.linux.target = ['deb']
-    }
-  )
-  await run(`${pb} --linux --armv7l`)
+  // echo('build linux.armv7l.deb')
+  // renameDist()
+  // writeSrc('linux-armv7l.deb')
+  // replaceJSON(
+  //   (data) => {
+  //     data.linux.target = ['deb']
+  //   }
+  // )
+  // await run(`${pb} --linux --armv7l`)
 
-  echo('build linux.armv7l.rpm')
-  renameDist()
-  replaceJSON(
-    (data) => {
-      data.linux.target = ['rpm']
-    }
-  )
-  writeSrc('linux-armv7l.rpm')
-  await run(`${pb} --linux --armv7l`)
+  // echo('build linux.armv7l.rpm')
+  // renameDist()
+  // replaceJSON(
+  //   (data) => {
+  //     data.linux.target = ['rpm']
+  //   }
+  // )
+  // writeSrc('linux-armv7l.rpm')
+  // await run(`${pb} --linux --armv7l`)
 
-  echo('build linux.armv7l.AppImage')
-  renameDist()
-  replaceJSON(
-    (data) => {
-      data.linux.target = ['AppImage']
-    }
-  )
-  writeSrc('linux-armv7l.AppImage')
-  await run(`${pb} --linux --armv7l`)
+  // echo('build linux.armv7l.AppImage')
+  // renameDist()
+  // replaceJSON(
+  //   (data) => {
+  //     data.linux.target = ['AppImage']
+  //   }
+  // )
+  // writeSrc('linux-armv7l.AppImage')
+  // await run(`${pb} --linux --armv7l`)
 
   echo('✅ All Linux ARM builds completed successfully')
 }
