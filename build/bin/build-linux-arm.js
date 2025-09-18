@@ -27,8 +27,11 @@ async function main () {
       data.linux.target = ['tar.gz']
     }
   )
-  await run(`${reBuild} --arch arm64 -f work/app`)
-  await run(`${pb} --linux --arm64`)
+  // await run(`${reBuild} --arch arm64 -f work/app`)
+  await run(`${pb} --linux --arm64`).catch(error => {
+    echo('❌ Fatal error in build linux.arm64.tar.gz:')
+    console.error(error)
+  })
 
   echo('build linux.arm64.deb')
   renameDist()
@@ -38,7 +41,10 @@ async function main () {
       data.linux.target = ['deb']
     }
   )
-  await run(`${pb} --linux --arm64`)
+  await run(`${pb} --linux --arm64`).catch(error => {
+    echo('❌ Fatal error in build linux.arm64.deb:')
+    console.error(error)
+  })
 
   echo('build linux.aarch64.rpm')
   renameDist()
@@ -48,7 +54,10 @@ async function main () {
       data.linux.target = ['rpm']
     }
   )
-  await run(`${pb} --linux --arm64`)
+  await run(`${pb} --linux --arm64`).catch(error => {
+    echo('❌ Fatal error in build linux.aarch64.rpm:')
+    console.error(error)
+  })
 
   echo('build linux.arm64.AppImage')
   renameDist()
@@ -58,54 +67,65 @@ async function main () {
       data.linux.target = ['AppImage']
     }
   )
-  await run(`${pb} --linux --arm64`)
+  await run(`${pb} --linux --arm64`).catch(error => {
+    echo('❌ Fatal error in build linux.arm64.AppImage:')
+    console.error(error)
+  })
 
-  // echo('build linux.armv7l.tar.gz')
-  // renameDist()
-  // writeSrc('linux-armv7l.tar.gz')
-  // replaceJSON(
-  //   (data) => {
-  //     data.linux.target = ['tar.gz']
-  //   }
-  // )
-  // await run(`${reBuild} --arch armv7l -f work/app`)
-  // await run(`${pb} --linux --armv7l`)
+  echo('build linux.armv7l.tar.gz')
+  renameDist()
+  writeSrc('linux-armv7l.tar.gz')
+  replaceJSON(
+    (data) => {
+      data.linux.target = ['tar.gz']
+    }
+  )
+  await run(`${reBuild} --arch armv7l -f work/app`)
+  await run(`${pb} --linux --armv7l`).catch(error => {
+    echo('❌ Fatal error in build linux.armv7l:')
+    console.error(error)
+  })
 
-  // echo('build linux.armv7l.deb')
-  // renameDist()
-  // writeSrc('linux-armv7l.deb')
-  // replaceJSON(
-  //   (data) => {
-  //     data.linux.target = ['deb']
-  //   }
-  // )
-  // await run(`${pb} --linux --armv7l`)
+  echo('build linux.armv7l.deb')
+  renameDist()
+  writeSrc('linux-armv7l.deb')
+  replaceJSON(
+    (data) => {
+      data.linux.target = ['deb']
+    }
+  )
+  await run(`${pb} --linux --armv7l`).catch(error => {
+    echo('❌ Fatal error in build linux.armv7l.deb:')
+    console.error(error)
+  })
 
-  // echo('build linux.armv7l.rpm')
-  // renameDist()
-  // replaceJSON(
-  //   (data) => {
-  //     data.linux.target = ['rpm']
-  //   }
-  // )
-  // writeSrc('linux-armv7l.rpm')
-  // await run(`${pb} --linux --armv7l`)
+  echo('build linux.armv7l.rpm')
+  renameDist()
+  replaceJSON(
+    (data) => {
+      data.linux.target = ['rpm']
+    }
+  )
+  writeSrc('linux-armv7l.rpm')
+  await run(`${pb} --linux --armv7l`).catch(error => {
+    echo('❌ Fatal error in build linux.armv7l.rpm:')
+    console.error(error)
+  })
 
-  // echo('build linux.armv7l.AppImage')
-  // renameDist()
-  // replaceJSON(
-  //   (data) => {
-  //     data.linux.target = ['AppImage']
-  //   }
-  // )
-  // writeSrc('linux-armv7l.AppImage')
-  // await run(`${pb} --linux --armv7l`)
+  echo('build linux.armv7l.AppImage')
+  renameDist()
+  replaceJSON(
+    (data) => {
+      data.linux.target = ['AppImage']
+    }
+  )
+  writeSrc('linux-armv7l.AppImage')
+  await run(`${pb} --linux --armv7l`).catch(error => {
+    echo('❌ Fatal error in build linux.armv7l.AppImage:')
+    console.error(error)
+  })
 
   echo('✅ All Linux ARM builds completed successfully')
 }
 
-main().catch(error => {
-  echo('❌ Fatal error in main():')
-  console.error(error)
-  process.exit(1)
-})
+main()
