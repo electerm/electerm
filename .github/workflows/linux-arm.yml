@@ -35,9 +35,6 @@ jobs:
           libsecret-1-dev \
           fakeroot \
           rpm \
-          ruby \
-          ruby-dev \
-          rubygems \
           libgtk-3-0 \
           libnotify4 \
           libnss3 \
@@ -48,12 +45,6 @@ jobs:
           libuuid1 \
           libsecret-1-0 \
           libappindicator3-1
-
-    - name: Install fpm for ARM64
-      run: |
-        sudo gem install --no-document fpm
-        # Verify fpm installation
-        fpm --version
 
     - name: Install yarn
       run: npm install -g yarn
