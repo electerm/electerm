@@ -12,30 +12,13 @@ jobs:
   build:
     # Use GitHub's ARM64 runners when available
     # Fallback to ubuntu-latest with manual arch specification
-    runs-on: ${{ matrix.runner }}
-    container: node:16-alpine
+    runs-on: ubuntu-22.04
     environment: build
     if: "!contains(github.event.head_commit.message, '[skip build]') && !contains(github.event.head_commit.message, '[skip ci]') && !contains(github.event.head_commit.message, '[skip arm-linux]') && !contains(github.event.head_commit.message, '[skip linux3]')"
-    
-    strategy:
-      matrix:
-        include:
-          # Try ARM64 runner first (if available in your GitHub plan)
-          # - runner: [self-hosted, linux, ARM64]
-          #   arch: arm64
-          # Fallback to emulation on x64
-          - runner: ubuntu-22.04
-            arch: arm64
 
     steps:
     - uses: actions/checkout@v4
-    
-    # Install basic tools needed in the container
-    - name: Install basic tools
-      run: |
-        apt-get update
-        apt-get install -y curl wget gnupg2 software-properties-common
-    
+
     - name: Set up Node.js 22.x
       uses: actions/setup-node@v4
       with:
@@ -49,8 +32,8 @@ jobs:
     # Install system dependencies for ARM64 builds
     - name: Install system dependencies
       run: |
-        apt-get update
-        apt-get install -y \
+        sudo apt-get update
+        sudo apt-get install -y \
           python3-dev \
           build-essential \
           libnss3-dev \
