@@ -3,7 +3,6 @@ const {
   run,
   writeSrc,
   builder: pb,
-  reBuild,
   replaceJSON
 } = require('./build-common')
 
@@ -27,7 +26,6 @@ async function main () {
       data.linux.target = ['tar.gz']
     }
   )
-  await run(`${reBuild} --arch arm64 -f work/app`)
   await run(`${pb} --linux --arm64`)
 
   echo('build linux.arm64.deb')
