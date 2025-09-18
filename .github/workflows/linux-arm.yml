@@ -17,8 +17,23 @@ jobs:
       options: --privileged
 
     steps:
+    - name: Configure timezone and prevent interactive prompts
+      run: |
+        # Prevent interactive prompts during package installation
+        export DEBIAN_FRONTEND=noninteractive
+        export TZ=UTC
+        
+        # Preconfigure tzdata
+        echo 'tzdata tzdata/Areas select Etc' | debconf-set-selections
+        echo 'tzdata tzdata/Zones/Etc select UTC' | debconf-set-selections
+        
+        # Set timezone
+        ln -snf /usr/share/zoneinfo/UTC /etc/localtime
+        echo UTC > /etc/timezone
+
     - name: Install Git and basic tools
       run: |
+        export DEBIAN_FRONTEND=noninteractive
         apt-get update
         apt-get install -y git curl wget gnupg2 software-properties-common
 
@@ -26,15 +41,18 @@ jobs:
 
     - name: Set up Node.js 16.x
       run: |
+        export DEBIAN_FRONTEND=noninteractive
         curl -fsSL https://deb.nodesource.com/setup_16.x | bash -
         apt-get install -y nodejs
 
     - name: Set up Python
       run: |
+        export DEBIAN_FRONTEND=noninteractive
         apt-get install -y python3 python3-pip python3-dev
 
     - name: Install system dependencies for ARM64 builds
       run: |
+        export DEBIAN_FRONTEND=noninteractive
         apt-get update
         apt-get install -y \
           build-essential \
