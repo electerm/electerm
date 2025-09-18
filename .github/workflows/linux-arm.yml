@@ -51,7 +51,46 @@ jobs:
           fakeroot \
           rpm \
           gcc-aarch64-linux-gnu \
-          g++-aarch64-linux-gnu
+          g++-aarch64-linux-gnu \
+          wget \
+          xz-utils
+
+    # Downgrade glibc to 2.34 for better compatibility
+    - name: Install glibc 2.34
+      run: |
+        # Create a temporary directory for glibc build
+        mkdir -p /tmp/glibc-build
+        cd /tmp/glibc-build
+        
+        # Download glibc 2.34 source
+        wget https://ftp.gnu.org/gnu/glibc/glibc-2.34.tar.xz
+        tar -xf glibc-2.34.tar.xz
+        cd glibc-2.34
+        
+        # Configure and build glibc 2.34
+        mkdir build
+        cd build
+        ../configure \
+          --prefix=/usr/local/glibc-2.34 \
+          --enable-kernel=3.2 \
+          --enable-shared \
+          --disable-profile \
+          --disable-timezone-tools \
+          --disable-multilib
+        
+        # Build and install
+        make -j$(nproc)
+        sudo make install
+        
+        # Create symlinks to override system glibc
+        sudo ln -sf /usr/local/glibc-2.34/lib/libc.so.6 /lib/x86_64-linux-gnu/libc.so.6
+        sudo ln -sf /usr/local/glibc-2.34/lib/ld-linux-x86-64.so.2 /lib64/ld-linux-x86-64.so.2
+        
+        # Update library cache
+        sudo ldconfig
+        
+        # Verify glibc version
+        ldd --version
 
     # Set up cross-compilation environment for native modules
     - name: Configure cross-compilation environment
