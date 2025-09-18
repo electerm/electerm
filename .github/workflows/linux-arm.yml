@@ -1,5 +1,3 @@
-# Alternative workflow using native ARM64 runners (when available)
-# This provides better performance and reliability than emulation
 
 name: linux-arm-native
 
@@ -10,7 +8,7 @@ on:
 
 jobs:
   build:
-    # Use Ubuntu 20.04 which has glibc 2.31 for better compatibility
+    # Use Ubuntu 22.04 as host (glibc 2.35), but custom glibc 2.34 for build
     runs-on: ubuntu-22.04
     environment: build
     if: "!contains(github.event.head_commit.message, '[skip build]') && !contains(github.event.head_commit.message, '[skip ci]') && !contains(github.event.head_commit.message, '[skip arm-linux]') && !contains(github.event.head_commit.message, '[skip linux3]')"
@@ -18,22 +16,17 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Check glibc version
-      run: |
-        ldd --version
-        echo "Using glibc version from Ubuntu 20.04 for better compatibility"
-
     - name: Set up Node.js 16.x
       uses: actions/setup-node@v4
       with:
         node-version: 16.x
-        
+
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
         python-version: '3.8'
-    
-    # Install system dependencies for ARM64 builds
+
+    # Install system dependencies for ARM64 builds, plus glibc build tools
     - name: Install system dependencies
       run: |
         sudo apt-get update
@@ -55,38 +48,62 @@ jobs:
           fakeroot \
           rpm \
           gcc-aarch64-linux-gnu \
-          g++-aarch64-linux-gnu
+          g++-aarch64-linux-gnu \
+          gawk \
+          bison \
+          wget \
+          make \
+          tar \
+          gzip
 
-    # Check glibc version (Ubuntu 20.04 has glibc 2.31 which is compatible)
+    # Build and install glibc 2.34 in custom prefix
+    - name: Install glibc 2.34
+      run: |
+        wget -c https://ftp.gnu.org/gnu/glibc/glibc-2.34.tar.gz
+        tar -zxvf glibc-2.34.tar.gz
+        cd glibc-2.34
+        mkdir build && cd build
+        ../configure --prefix=/opt/glibc-2.34
+        make -j$(nproc)
+        make install
+        echo "GLIBC_2_34=/opt/glibc-2.34" >> $GITHUB_ENV
+        cd ../.. && rm -rf glibc-2.34  # Cleanup
+
+    # Check glibc version
     - name: Check glibc version
       run: |
-        ldd --version
-        echo "Using glibc version from Ubuntu 20.04 for better compatibility"
+        /opt/glibc-2.34/lib/ld-2.34.so --version  # Custom glibc
+        ldd --version  # Host (2.35) for comparison
+        echo "Using custom glibc 2.34 for cross-compilation"
 
     # Set up cross-compilation environment for native modules
     - name: Configure cross-compilation environment
       run: |
-        # Set environment variables for cross-compilation
-        echo "CC=aarch64-linux-gnu-gcc" >> $GITHUB_ENV
-        echo "CXX=aarch64-linux-gnu-g++" >> $GITHUB_ENV
+        # Point cross-compiler to custom glibc sysroot
+        echo "CC=aarch64-linux-gnu-gcc --sysroot=/opt/glibc-2.34" >> $GITHUB_ENV
+        echo "CXX=aarch64-linux-gnu-g++ --sysroot=/opt/glibc-2.34" >> $GITHUB_ENV
         echo "AR=aarch64-linux-gnu-ar" >> $GITHUB_ENV
-        echo "STRIP=aarch64-linux-gnu-strip" >> $GITHUB_ENV
-        echo "LINK=aarch64-linux-gnu-g++" >> $GITHUB_ENV
-        
+        echo "STRIP=aarch64-linux-gnu-strip --sysroot=/opt/glibc-2.34" >> $GITHUB_ENV
+        echo "LINK=aarch64-linux-gnu-g++ --sysroot=/opt/glibc-2.34" >> $GITHUB_ENV
+        # For npm/electron rebuild: Set library paths
+        export LD_LIBRARY_PATH=/opt/glibc-2.34/lib:$LD_LIBRARY_PATH
+        echo "LD_LIBRARY_PATH=/opt/glibc-2.34/lib:\$LD_LIBRARY_PATH" >> $GITHUB_ENV
         # Set npm configuration for cross-compilation
         npm config set target_arch arm64
         npm config set target_platform linux
         npm config set cache /tmp/.npm
         npm config set python python3
 
-    # before_install:
-    - run: npm install -g yarn
-    - run: npm i
-    - run: npm i -D electron@22.3.27
-    - run: npm i -S -E node-pty@1.1.0-beta14
-    - run: npm i -S -E serialport@13.0.0
-    - run: npm i -D vite@4
-    - run: npm i -D @electron/rebuild@3.7.2
+    # Install dependencies
+    - name: Install Yarn and project dependencies
+      run: |
+        npm install -g yarn
+        npm install
+        npm install -D electron@22.3.27
+        npm install -S -E node-pty@1.1.0-beta14
+        npm install -S -E serialport@13.0.0
+        npm install -D vite@4
+        npm install -D @electron/rebuild@3.7.2
 
     - name: Build application
       run: npm run b
@@ -96,3 +113,10 @@ jobs:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         BUILD_NUMBER: ${{ secrets.BUILD_NUMBER }}
       run: node build/bin/build-linux-arm
+
+    # # Optional: Verify glibc in built binary
+    # - name: Verify glibc version in built binary
+    #   run: |
+    #     # Replace 'your-binary' with actual path (e.g., from build output)
+    #     find . -name "*.so" -o -name "your-binary" | head -5 | xargs -I {} aarch64-linux-gnu-objdump -p {} | grep GLIBC || echo "No GLIBC symbols found; adjust path"
+    #     # Should show ≤ GLIBC_2.34 symbols
