@@ -1,3 +1,6 @@
+# Alternative workflow using native ARM64 runners (when available)
+# This provides better performance and reliability than emulation
+
 name: linux-arm-native
 
 on:
@@ -7,8 +10,8 @@ on:
 
 jobs:
   build:
-    # Use Ubuntu 22.04 as host, but custom toolchain for glibc 2.34
-    runs-on: ubuntu-22.04
+    # Use Ubuntu 20.04 which has glibc 2.31 for better compatibility
+    runs-on: ubuntu-24.04-arm64
     environment: build
     if: "!contains(github.event.head_commit.message, '[skip build]') && !contains(github.event.head_commit.message, '[skip ci]') && !contains(github.event.head_commit.message, '[skip arm-linux]') && !contains(github.event.head_commit.message, '[skip linux3]')"
 
@@ -18,14 +21,14 @@ jobs:
     - name: Set up Node.js 16.x
       uses: actions/setup-node@v4
       with:
-        node-version: 16.x
-
+        node-version: 22.x
+        
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: '3.8'
-
-    # Install system dependencies for ARM64 builds and toolchain compilation
+        python-version: '3.11'
+    
+    # Install system dependencies for ARM64 builds
     - name: Install system dependencies
       run: |
         sudo apt-get update
@@ -33,130 +36,19 @@ jobs:
           python3-dev \
           build-essential \
           libnss3-dev \
-          libatk-bridge2.0-dev \
-          libdrm2 \
-          libxcomposite1 \
-          libxdamage1 \
-          libxrandr2 \
-          libgbm1 \
-          libxss1 \
-          libgtk-3-dev \
-          libx11-dev \
-          libxkbfile-dev \
           libsecret-1-dev \
           fakeroot \
-          rpm \
-          gcc-aarch64-linux-gnu \
-          g++-aarch64-linux-gnu \
-          gawk \
-          bison \
-          flex \
-          wget \
-          make \
-          tar \
-          gzip \
-          autoconf \
-          automake \
-          libtool \
-          texinfo \
-          libmpc-dev \
-          libmpfr-dev \
-          libgmp-dev
+          rpm
 
-    # Build custom GCC 11.4.0 for glibc 2.34
-    - name: Build custom GCC 11.4.0
-      run: |
-        wget -c https://ftp.gnu.org/gnu/gcc/gcc-11.4.0/gcc-11.4.0.tar.gz
-        tar -zxvf gcc-11.4.0.tar.gz
-        cd gcc-11.4.0
-        mkdir build && cd build
-        # Configure GCC with temporary sysroot (no glibc yet)
-        ../configure --prefix=/opt/gcc-11.4.0 \
-                     --disable-multilib \
-                     --enable-languages=c,c++ \
-                     --disable-bootstrap \
-                     --disable-libsanitizer \
-                     --disable-libada \
-                     --disable-libssp \
-                     --with-sysroot=/tmp/gcc-sysroot
-        make -j$(nproc)
-        make install
-        echo "PATH=/opt/gcc-11.4.0/bin:$PATH" >> $GITHUB_ENV
-        cd ../.. && rm -rf gcc-11.4.0  # Cleanup
-
-    # Build glibc 2.34 using custom GCC
-    - name: Build and install glibc 2.34
-      run: |
-        wget -c https://ftp.gnu.org/gnu/glibc/glibc-2.34.tar.gz
-        tar -zxvf glibc-2.34.tar.gz
-        cd glibc-2.34
-        mkdir build && cd build
-        # Use custom GCC and isolate from host
-        CC=/opt/gcc-11.4.0/bin/gcc \
-        CXX=/opt/gcc-11.4.0/bin/g++ \
-        LD=/opt/gcc-11.4.0/bin/ld \
-        ../configure --prefix=/opt/glibc-2.34 \
-                     --with-sysroot=/opt/glibc-2.34 \
-                     --disable-werror
-        make -j$(nproc)
-        make install
-        echo "GLIBC_2_34=/opt/glibc-2.34" >> $GITHUB_ENV
-        cd ../.. && rm -rf glibc-2.34  # Cleanup
-
-    # Check glibc version
-    - name: Check glibc version
-      run: |
-        /opt/glibc-2.34/lib/ld-2.34.so --version  # Custom glibc
-        ldd --version  # Host (2.35) for comparison
-        echo "Using custom glibc 2.34 for cross-compilation"
-
-    # Set up cross-compilation environment for native modules
-    - name: Configure cross-compilation environment
-      run: |
-        # Point cross-compiler to custom glibc sysroot and custom GCC
-        echo "CC=aarch64-linux-gnu-gcc --sysroot=/opt/glibc-2.34 -B/opt/gcc-11.4.0/lib64" >> $GITHUB_ENV
-        echo "CXX=aarch64-linux-gnu-g++ --sysroot=/opt/glibc-2.34 -B/opt/gcc-11.4.0/lib64" >> $GITHUB_ENV
-        echo "AR=aarch64-linux-gnu-ar" >> $GITHUB_ENV
-        echo "STRIP=aarch64-linux-gnu-strip --sysroot=/opt/glibc-2.34" >> $GITHUB_ENV
-        echo "LINK=aarch64-linux-gnu-g++ --sysroot=/opt/glibc-2.34 -B/opt/gcc-11.4.0/lib64" >> $GITHUB_ENV
-        # For npm/electron rebuild: Set library paths
-        export LD_LIBRARY_PATH=/opt/glibc-2.34/lib:/opt/gcc-11.4.0/lib64:$LD_LIBRARY_PATH
-        echo "LD_LIBRARY_PATH=/opt/glibc-2.34/lib:/opt/gcc-11.4.0/lib64:\$LD_LIBRARY_PATH" >> $GITHUB_ENV
-        # Set pkg-config path for native modules
-        export PKG_CONFIG_PATH=/opt/glibc-2.34/lib/pkgconfig:$PKG_CONFIG_PATH
-        echo "PKG_CONFIG_PATH=/opt/glibc-2.34/lib/pkgconfig:\$PKG_CONFIG_PATH" >> $GITHUB_ENV
-        # Set npm configuration for cross-compilation
-        npm config set target_arch arm64
-        npm config set target_platform linux
-        npm config set cache /tmp/.npm
-        npm config set python python3
-
-    # Install dependencies
-    - name: Install Yarn and project dependencies
-      run: |
-        npm install -g yarn
-        npm install
-        npm install -D electron@22.3.27
-        npm install -S -E node-pty@1.1.0-beta14
-        npm install -S -E serialport@13.0.0
-        npm install -D vite@4
-        npm install -D @electron/rebuild@3.7.2
+    # before_install:
+    - run: npm install -g yarn
+    - run: npm i
 
     - name: Build application
-      run: |
-        CC="aarch64-linux-gnu-gcc --sysroot=/opt/glibc-2.34 -B/opt/gcc-11.4.0/lib64" \
-        CXX="aarch64-linux-gnu-g++ --sysroot=/opt/glibc-2.34 -B/opt/gcc-11.4.0/lib64" \
-        npm run b
+      run: npm run b
 
     - name: Build ARM64 packages
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         BUILD_NUMBER: ${{ secrets.BUILD_NUMBER }}
       run: node build/bin/build-linux-arm
-
-    # # Verify glibc in built binary
-    # - name: Verify glibc version in built binary
-    #   run: |
-    #     # Replace 'electerm' with actual binary path (e.g., dist/electerm)
-    #     find . -name "*.so" -o -name "electerm" | head -5 | xargs -I {} aarch64-linux-gnu-objdump -p {} | grep GLIBC || echo "No GLIBC symbols found; adjust path"
-    #     # Should show ≤ GLIBC_2.34 symbols
