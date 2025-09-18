@@ -59,6 +59,4 @@ jobs:
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         BUILD_NUMBER: ${{ secrets.BUILD_NUMBER }}
-        # Ensure electron-builder uses the system fpm
-        FPM_PATH: /usr/local/bin/fpm
       run: node build/bin/build-linux-arm
