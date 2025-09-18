@@ -1,6 +1,4 @@
-# Alternative workflow using native ARM64 runners (when available)
-# This provides better performance and reliability than emulation
-
+# Alternative workflow using native ARM64 runners
 name: linux-arm-native
 
 on:
@@ -10,7 +8,6 @@ on:
 
 jobs:
   build:
-    # Use Ubuntu 24.04 ARM64 for native ARM64 builds
     runs-on: ubuntu-24.04-arm
     environment: build
     if: "!contains(github.event.head_commit.message, '[skip build]') && !contains(github.event.head_commit.message, '[skip ci]') && !contains(github.event.head_commit.message, '[skip arm-linux]') && !contains(github.event.head_commit.message, '[skip linux3]')"
@@ -22,13 +19,12 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: 22.x
-        
+
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
         python-version: '3.11'
-    
-    # Install system dependencies for ARM64 builds
+
     - name: Install system dependencies
       run: |
         sudo apt-get update
@@ -41,16 +37,29 @@ jobs:
           rpm \
           ruby \
           ruby-dev \
-          rubygems
+          rubygems \
+          libgtk-3-0 \
+          libnotify4 \
+          libnss3 \
+          libxss1 \
+          libxtst6 \
+          xdg-utils \
+          libatspi2.0-0 \
+          libuuid1 \
+          libsecret-1-0 \
+          libappindicator3-1
 
-    # Install native fpm for ARM64
     - name: Install fpm for ARM64
       run: |
         sudo gem install --no-document fpm
+        # Verify fpm installation
+        fpm --version
 
-    # before_install:
-    - run: npm install -g yarn
-    - run: npm i
+    - name: Install yarn
+      run: npm install -g yarn
+
+    - name: Install npm dependencies
+      run: npm ci
 
     - name: Build application
       run: npm run b
@@ -59,4 +68,6 @@ jobs:
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         BUILD_NUMBER: ${{ secrets.BUILD_NUMBER }}
+        # Ensure electron-builder uses the system fpm
+        FPM_PATH: /usr/local/bin/fpm
       run: node build/bin/build-linux-arm
