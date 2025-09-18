@@ -11,7 +11,7 @@ on:
 jobs:
   build:
     # Use Ubuntu 20.04 which has glibc 2.31 for better compatibility
-    runs-on: ubuntu-24.04-arm64
+    runs-on: ubuntu-24.04-arm
     environment: build
     if: "!contains(github.event.head_commit.message, '[skip build]') && !contains(github.event.head_commit.message, '[skip ci]') && !contains(github.event.head_commit.message, '[skip arm-linux]') && !contains(github.event.head_commit.message, '[skip linux3]')"
 
