@@ -53,6 +53,9 @@ jobs:
     - name: Install yarn
       run: npm install -g yarn
 
+    - name: Clear electron-builder cache
+      run: rm -rf ~/.cache/electron-builder
+
     - name: Install npm dependencies
       run: npm ci
 
