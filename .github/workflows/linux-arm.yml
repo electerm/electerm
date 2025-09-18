@@ -12,85 +12,83 @@ jobs:
     environment: build
     if: "!contains(github.event.head_commit.message, '[skip build]') && !contains(github.event.head_commit.message, '[skip ci]') && !contains(github.event.head_commit.message, '[skip arm-linux]') && !contains(github.event.head_commit.message, '[skip linux3]')"
 
-    container:
-      image: arm64v8/ubuntu:20.04
-      options: --privileged
-
     steps:
-    - name: Configure timezone and prevent interactive prompts
-      run: |
-        # Prevent interactive prompts during package installation
-        export DEBIAN_FRONTEND=noninteractive
-        export TZ=UTC
-        
-        # Preconfigure tzdata
-        echo 'tzdata tzdata/Areas select Etc' | debconf-set-selections
-        echo 'tzdata tzdata/Zones/Etc select UTC' | debconf-set-selections
-        
-        # Set timezone
-        ln -snf /usr/share/zoneinfo/UTC /etc/localtime
-        echo UTC > /etc/timezone
+    - name: Set up QEMU for ARM64 emulation
+      uses: docker/setup-qemu-action@v3
+      with:
+        platforms: arm64
 
-    - name: Install Git and basic tools
-      run: |
-        export DEBIAN_FRONTEND=noninteractive
-        apt-get update
-        apt-get install -y git curl wget gnupg2 software-properties-common
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
 
     - uses: actions/checkout@v4
 
-    - name: Set up Node.js 16.x
-      run: |
-        export DEBIAN_FRONTEND=noninteractive
-        curl -fsSL https://deb.nodesource.com/setup_16.x | bash -
-        apt-get install -y nodejs
+    - name: Run ARM64 build in container
+      uses: addnab/docker-run-action@v3
+      with:
+        image: arm64v8/ubuntu:20.04
+        options: --platform linux/arm64 -v ${{ github.workspace }}:/workspace -w /workspace
+        run: |
+          # Configure timezone and prevent interactive prompts
+          export DEBIAN_FRONTEND=noninteractive
+          export TZ=UTC
+          
+          # Preconfigure tzdata
+          echo 'tzdata tzdata/Areas select Etc' | debconf-set-selections
+          echo 'tzdata tzdata/Zones/Etc select UTC' | debconf-set-selections
+          
+          # Set timezone
+          ln -snf /usr/share/zoneinfo/UTC /etc/localtime
+          echo UTC > /etc/timezone
 
-    - name: Set up Python
-      run: |
-        export DEBIAN_FRONTEND=noninteractive
-        apt-get install -y python3 python3-pip python3-dev
+          # Install Git and basic tools
+          apt-get update
+          apt-get install -y git curl wget gnupg2 software-properties-common
 
-    - name: Install system dependencies
-      run: |
-        export DEBIAN_FRONTEND=noninteractive
-        apt-get update
-        apt-get install -y \
-          build-essential \
-          libnss3-dev \
-          libatk-bridge2.0-dev \
-          libdrm2 \
-          libxcomposite1 \
-          libxdamage1 \
-          libxrandr2 \
-          libgbm1 \
-          libxss1 \
-          libgtk-3-dev \
-          libx11-dev \
-          libxkbfile-dev \
-          libsecret-1-dev \
-          fakeroot \
-          rpm
+          # Set up Node.js 16.x
+          curl -fsSL https://deb.nodesource.com/setup_16.x | bash -
+          apt-get install -y nodejs
 
-    - name: Check architecture and glibc version
-      run: |
-        uname -m
-        ldd --version
-        echo "Running natively on ARM64 with glibc from Ubuntu 20.04"
+          # Set up Python
+          apt-get install -y python3 python3-pip python3-dev
 
-    # before_install:
-    - run: npm install -g yarn
-    - run: npm i
-    - run: npm i -D electron@22.3.27
-    - run: npm i -S -E node-pty@1.1.0-beta14
-    - run: npm i -S -E serialport@13.0.0
-    - run: npm i -D vite@4
-    - run: npm i -D @electron/rebuild@3.7.2
+          # Install system dependencies
+          apt-get install -y \
+            build-essential \
+            libnss3-dev \
+            libatk-bridge2.0-dev \
+            libdrm2 \
+            libxcomposite1 \
+            libxdamage1 \
+            libxrandr2 \
+            libgbm1 \
+            libxss1 \
+            libgtk-3-dev \
+            libx11-dev \
+            libxkbfile-dev \
+            libsecret-1-dev \
+            fakeroot \
+            rpm
 
-    - name: Build application
-      run: npm run b
+          # Check architecture and glibc version
+          uname -m
+          ldd --version
+          echo "Running on ARM64 with glibc from Ubuntu 20.04"
 
-    - name: Build ARM64 packages
-      env:
-        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        BUILD_NUMBER: ${{ secrets.BUILD_NUMBER }}
-      run: node build/bin/build-linux-arm
+          # Install dependencies and build
+          npm install -g yarn
+          npm i
+          npm i -D electron@22.3.27
+          npm i -S -E node-pty@1.1.0-beta14
+          npm i -S -E serialport@13.0.0
+          npm i -D vite@4
+          npm i -D @electron/rebuild@3.7.2
+
+          # Build application
+          npm run b
+
+          # Build ARM64 packages
+          node build/bin/build-linux-arm
+        env: |
+          GH_TOKEN=${{ secrets.GITHUB_TOKEN }}
+          BUILD_NUMBER=${{ secrets.BUILD_NUMBER }}
