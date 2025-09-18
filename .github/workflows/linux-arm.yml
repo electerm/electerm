@@ -24,7 +24,7 @@ jobs:
           # - runner: [self-hosted, linux, ARM64]
           #   arch: arm64
           # Fallback to emulation on x64
-          - runner: ubuntu-24.04
+          - runner: ubuntu-22.04
             arch: arm64
 
     steps:
