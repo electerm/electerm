@@ -44,7 +44,11 @@ jobs:
           libatspi2.0-0 \
           libuuid1 \
           libsecret-1-0 \
-          libappindicator3-1
+          libappindicator3-1 \
+          ruby-full
+
+    - name: Install FPM
+      run: sudo gem install fpm
 
     - name: Install yarn
       run: npm install -g yarn
