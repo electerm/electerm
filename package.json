@@ -74,7 +74,7 @@
     "cross-env": "7.0.3",
     "dotenv": "16.4.5",
     "electron": "35.7.4",
-    "electron-builder": "26.0.12",
+    "electron-builder": "26.0.20",
     "filesize": "10.1.6",
     "filesize-parser": "1.5.1",
     "firacode": "^6.2.0",
