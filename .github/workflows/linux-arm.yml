@@ -1,5 +1,5 @@
-# Alternative workflow using Docker with Ubuntu 20.04 for glibc compatibility
-name: linux-arm-docker
+# Native ARM64 build using ARM64 container for better compatibility
+name: linux-arm-native
 
 on:
   push:
@@ -8,12 +8,12 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     environment: build
     if: "!contains(github.event.head_commit.message, '[skip build]') && !contains(github.event.head_commit.message, '[skip ci]') && !contains(github.event.head_commit.message, '[skip arm-linux]') && !contains(github.event.head_commit.message, '[skip linux3]')"
 
     container:
-      image: ubuntu:20.04
+      image: arm64v8/ubuntu:20.04
       options: --privileged
 
     steps:
@@ -50,7 +50,7 @@ jobs:
         export DEBIAN_FRONTEND=noninteractive
         apt-get install -y python3 python3-pip python3-dev
 
-    - name: Install system dependencies for ARM64 builds
+    - name: Install system dependencies
       run: |
         export DEBIAN_FRONTEND=noninteractive
         apt-get update
@@ -69,30 +69,13 @@ jobs:
           libxkbfile-dev \
           libsecret-1-dev \
           fakeroot \
-          rpm \
-          gcc-aarch64-linux-gnu \
-          g++-aarch64-linux-gnu
+          rpm
 
-    - name: Check glibc version
+    - name: Check architecture and glibc version
       run: |
+        uname -m
         ldd --version
-        echo "Using glibc from Ubuntu 20.04 container for better compatibility"
-
-    # Set up cross-compilation environment for native modules
-    - name: Configure cross-compilation environment
-      run: |
-        # Set environment variables for cross-compilation
-        echo "CC=aarch64-linux-gnu-gcc" >> $GITHUB_ENV
-        echo "CXX=aarch64-linux-gnu-g++" >> $GITHUB_ENV
-        echo "AR=aarch64-linux-gnu-ar" >> $GITHUB_ENV
-        echo "STRIP=aarch64-linux-gnu-strip" >> $GITHUB_ENV
-        echo "LINK=aarch64-linux-gnu-g++" >> $GITHUB_ENV
-        
-        # Set npm configuration for cross-compilation
-        npm config set target_arch arm64
-        npm config set target_platform linux
-        npm config set cache /tmp/.npm
-        npm config set python python3
+        echo "Running natively on ARM64 with glibc from Ubuntu 20.04"
 
     # before_install:
     - run: npm install -g yarn
