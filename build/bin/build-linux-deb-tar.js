@@ -3,7 +3,8 @@ const {
   run,
   writeSrc,
   builder: pb,
-  replaceJSON
+  replaceJSON,
+  renameDist
 } = require('./build-common')
 
 async function main () {
@@ -13,11 +14,13 @@ async function main () {
   rm('-rf', 'dist')
   writeSrc('linux-x64.tar.gz')
   await run(`${pb} --linux tar.gz`)
+  renameDist()
 
   echo('build deb')
   rm('-rf', 'dist')
   writeSrc('linux-x64.deb')
   await run(`${pb} --linux deb`)
+  renameDist()
 
   echo('build linux-x86_64.AppImage')
   rm('-rf', 'dist')
@@ -28,6 +31,7 @@ async function main () {
     }
   )
   await run(`${pb} --linux`)
+  renameDist()
 }
 
 main()

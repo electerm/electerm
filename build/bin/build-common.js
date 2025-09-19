@@ -6,6 +6,7 @@ const { exec } = require('child_process')
 const { resolve } = require('path')
 const { writeFileSync, readFileSync } = require('fs')
 const replace = require('replace-in-file')
+const { rm, mv } = require('shelljs')
 
 exports.run = function (cmd) {
   return new Promise((resolve, reject) => {
@@ -104,4 +105,13 @@ exports.replaceRun = function () {
       resolve()
     })
   })
+}
+
+const shouldKeepFile = !!process.env.KEEP_FILE
+
+exports.renameDist = function renameDist () {
+  if (!shouldKeepFile) {
+    return rm('-rf', 'dist')
+  }
+  mv('dist', 'dist' + new Date().getTime())
 }
