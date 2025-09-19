@@ -20,7 +20,6 @@ jobs:
         git clone https://github.com/electerm/electerm.git electerm_source
         cd electerm_source
         git checkout ${{ github.sha }}
-        echo "WORKSPACE_DIR=/tmp/electerm_source" >> $GITHUB_ENV
 
     - name: Verify pre-installed versions
       working-directory: /tmp/electerm_source
