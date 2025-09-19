@@ -1,20 +1,12 @@
-const { echo, rm, mv } = require('shelljs')
+const { echo } = require('shelljs')
 const {
   run,
   writeSrc,
   builder: pb,
   reBuild,
-  replaceJSON
+  replaceJSON,
+  renameDist
 } = require('./build-common')
-
-const shouldKeepFile = !!process.env.KEEP_FILE
-
-function renameDist () {
-  if (!shouldKeepFile) {
-    return rm('-rf', 'dist')
-  }
-  mv('dist', 'dist' + new Date().getTime())
-}
 
 async function main () {
   echo('running build for linux part 3 arm64/armv7l')
