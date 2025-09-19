@@ -80,4 +80,5 @@ jobs:
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         BUILD_NUMBER: ${{ secrets.BUILD_NUMBER }}
+        USE_SYSTEM_FPM: true
       run: node build/bin/build-linux-legacy
