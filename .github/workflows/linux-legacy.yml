@@ -16,6 +16,7 @@ jobs:
     steps:
     - name: Clone repository
       run: |
+        rm -rf .git
         git clone https://github.com/electerm/electerm.git .
         git checkout ${{ github.sha }}
 
