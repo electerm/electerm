@@ -1,5 +1,5 @@
-# Legacy workflow using Ubuntu 18.04 container
-name: linux-legacy
+# Simplified workflow using custom electerm-builder Docker image
+name: linux-legacy-docker
 
 on:
   push:
@@ -9,104 +9,24 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    container: ubuntu:18.04
+    container: zxdong262/electerm-builder-legacy:latest  # This will be our custom image
     environment: build
     if: ${{ !contains(github.event.head_commit.message, '[skip build]') && !contains(github.event.head_commit.message, '[skip ci]') && !contains(github.event.head_commit.message, '[skip legacy]') && !contains(github.event.head_commit.message, '[skip linux-legacy]') }}
 
     steps:
-    - name: Install git and curl
+    - uses: actions/checkout@v4
+
+    - name: Verify pre-installed versions
       run: |
-        apt-get update
-        apt-get install -y git curl
-
-    - name: Add NodeSource repository
-      run: |
-        curl -fsSL https://deb.nodesource.com/setup_16.x | bash -
-
-    - name: Install Node.js 16.x
-      run: |
-        apt-get install -y nodejs
-
-    - uses: actions/checkout@v3
-
-    - name: Install system dependencies
-      run: |
-        apt-get update
-        apt-get install -y \
-          software-properties-common \
-          wget \
-          gnupg \
-          lsb-release
-
-    - name: Install Python 3.8
-      run: |
-        add-apt-repository ppa:deadsnakes/ppa -y
-        apt-get update
-        apt-get install -y \
-          python3.8 \
-          python3.8-dev \
-          python3.8-distutils \
-          python3-pip
-
-    - name: Set Python 3.8 as default
-      run: |
-        update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.8 1
-        update-alternatives --install /usr/bin/python python /usr/bin/python3.8 1
-
-    - name: Install GCC 8
-      run: |
-        apt-get install -y \
-          gcc-8 \
-          g++-8
-
-    - name: Set GCC 8 as default
-      run: |
-        update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 100
-        update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-8 100
-
-    - name: Install build dependencies
-      run: |
-        apt-get install -y \
-          build-essential \
-          libnss3-dev \
-          libsecret-1-dev \
-          fakeroot \
-          rpm \
-          libgtk-3-0 \
-          libnotify4 \
-          libnss3 \
-          libxss1 \
-          libxtst6 \
-          xdg-utils \
-          libatspi2.0-0 \
-          libuuid1 \
-          libsecret-1-0 \
-          libappindicator3-1 \
-          ruby-full \
-          libgconf-2-4 \
-          libxrandr2 \
-          libasound2 \
-          libpangocairo-1.0-0 \
-          libatk1.0-0 \
-          libcairo-gobject2 \
-          libgtk-3-0 \
-          libgdk-pixbuf2.0-0
-
-    - name: Install FPM
-      run: gem install fpm
-
-    - name: Verify versions
-      run: |
+        echo "=== Pre-installed versions ==="
         node --version
         npm --version
+        yarn --version
         python3 --version
+        python --version
         gcc --version
         g++ --version
-        which fpm
         fpm --version
-
-    - name: Install yarn
-      run: npm install -g yarn
 
     - name: Clear electron-builder cache
       run: rm -rf ~/.cache/electron-builder
@@ -126,4 +46,5 @@ jobs:
     - name: Build legacy packages
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        BUILD_NUMBER: ${{ secrets.BUILD_NUMBER }}
       run: node build/bin/build-linux-legacy
