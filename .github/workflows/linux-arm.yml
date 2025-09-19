@@ -18,10 +18,10 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Set up Node.js 22.x
+    - name: Set up Node.js 16.x
       uses: actions/setup-node@v4
       with:
-        node-version: 22.x
+        node-version: 16.x
 
     - name: Set up Python
       uses: actions/setup-python@v5
@@ -66,6 +66,12 @@ jobs:
 
     - name: Clear electron-builder cache
       run: rm -rf ~/.cache/electron-builder
+
+    - run: npm i -D electron@22.3.27
+    - run: npm i -S -E node-pty@1.1.0-beta14
+    - run: npm i -S -E serialport@13.0.0
+    - run: npm i -D vite@4
+    - run: npm i -D @electron/rebuild@3.7.2
 
     - name: Install npm dependencies
       run: npm ci
