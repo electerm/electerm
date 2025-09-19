@@ -16,14 +16,15 @@ jobs:
     steps:
     - name: Clone repository
       run: |
-        rm -rf .git .github
-        git clone https://github.com/electerm/electerm.git temp_repo
-        cd temp_repo
+        cd /tmp
+        git clone https://github.com/electerm/electerm.git electerm_source
+        cd electerm_source
         git checkout ${{ github.sha }}
-        cd ..
-        mv temp_repo/* .
-        mv temp_repo/.* . 2>/dev/null || true
-        rm -rf temp_repo
+        cd /github/workspace
+        rm -rf .git .github 2>/dev/null || true
+        cp -r /tmp/electerm_source/* .
+        cp -r /tmp/electerm_source/.* . 2>/dev/null || true
+        rm -rf /tmp/electerm_source
 
     - name: Verify pre-installed versions
       run: |
