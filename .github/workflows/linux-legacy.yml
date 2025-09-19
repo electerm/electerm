@@ -14,15 +14,12 @@ jobs:
     if: ${{ !contains(github.event.head_commit.message, '[skip build]') && !contains(github.event.head_commit.message, '[skip ci]') && !contains(github.event.head_commit.message, '[skip legacy]') && !contains(github.event.head_commit.message, '[skip linux-legacy]') }}
 
     steps:
-    - name: Clone repository and setup workspace
+    - name: Clone repository
       run: |
-        cd /tmp
-        git clone https://github.com/electerm/electerm.git electerm_source
-        cd electerm_source
+        git clone https://github.com/electerm/electerm.git .
         git checkout ${{ github.sha }}
 
     - name: Verify pre-installed versions
-      working-directory: /tmp/electerm_source
       run: |
         echo "=== Pre-installed versions ==="
         node --version
@@ -35,39 +32,21 @@ jobs:
         fpm --version
 
     - name: Clear electron-builder cache
-      working-directory: /tmp/electerm_source
       run: rm -rf ~/.cache/electron-builder
 
-    - name: Install electron
-      working-directory: /tmp/electerm_source
-      run: npm i -D electron@22.3.27
-      
-    - name: Install node-pty
-      working-directory: /tmp/electerm_source
-      run: npm i -S -E node-pty@0.10.1
-      
-    - name: Install serialport
-      working-directory: /tmp/electerm_source
-      run: npm i -S -E serialport@10.5.0
-      
-    - name: Install vite
-      working-directory: /tmp/electerm_source
-      run: npm i -D vite@4
-      
-    - name: Install electron rebuild
-      working-directory: /tmp/electerm_source
-      run: npm i -D @electron/rebuild@3.7.2
+    - run: npm i -D electron@22.3.27
+    - run: npm i -S -E node-pty@0.10.1
+    - run: npm i -S -E serialport@10.5.0
+    - run: npm i -D vite@4
+    - run: npm i -D @electron/rebuild@3.7.2
 
     - name: Install npm dependencies
-      working-directory: /tmp/electerm_source
       run: npm ci
 
     - name: Build application
-      working-directory: /tmp/electerm_source
       run: npm run b
 
     - name: Build legacy packages
-      working-directory: /tmp/electerm_source
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         BUILD_NUMBER: ${{ secrets.BUILD_NUMBER }}
