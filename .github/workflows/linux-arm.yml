@@ -1,54 +1,86 @@
-# This workflow will do a clean install of node dependencies, build the source code and run tests across different versions of node
-# For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
-
-name: linux-arm
+# Alternative workflow using native ARM64 runners
+name: linux-arm-native
 
 on:
   push:
     branches: [ build, test, build-only ]
+  workflow_dispatch:
 
 jobs:
   build:
-
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-24.04-arm
     environment: build
     if: "!contains(github.event.head_commit.message, '[skip build]') && !contains(github.event.head_commit.message, '[skip ci]') && !contains(github.event.head_commit.message, '[skip arm-linux]') && !contains(github.event.head_commit.message, '[skip linux3]')"
+    env:
+      # Force electron-builder to use the system fpm (ARM native) instead of downloading x86 prebuilt bundle
+      USE_SYSTEM_FPM: true
 
     steps:
     - uses: actions/checkout@v4
-    - name: Use Node.js 22.x
+
+    - name: Set up Node.js 16.x
       uses: actions/setup-node@v4
       with:
         node-version: 16.x
-    # - name: xvfb
-    #   uses: GabrielBB/xvfb-action@v1
 
-    # before_script:
-    # - run: export DISPLAY=:99.0
-    # - run: sh -e /etc/init.d/xvfb start &
-    # - run: sleep 3
-    - name: Build for Linux arm64
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Install system dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y libgtk-3-dev libx11-dev libxkbfile-dev libsecret-1-dev fakeroot rpm
+        sudo apt-get install -y \
+          python3-dev \
+          build-essential \
+          libnss3-dev \
+          libsecret-1-dev \
+          fakeroot \
+          rpm \
+          libgtk-3-0 \
+          libnotify4 \
+          libnss3 \
+          libxss1 \
+          libxtst6 \
+          xdg-utils \
+          libatspi2.0-0 \
+          libuuid1 \
+          libsecret-1-0 \
+          libappindicator3-1 \
+          ruby-full
 
-    # before_install:
-    - run: npm install -g yarn
-    - run: npm i
+    - name: Install FPM
+      run: sudo gem install fpm
+
+    - name: Verify glibc version
+      run: ldd --version
+
+    - name: Verify fpm
+      run: |
+        which fpm
+        fpm --version
+
+    - name: Install yarn
+      run: npm install -g yarn
+
+    - name: Clear electron-builder cache
+      run: rm -rf ~/.cache/electron-builder
+
     - run: npm i -D electron@22.3.27
     - run: npm i -S -E node-pty@1.1.0-beta14
     - run: npm i -S -E serialport@13.0.0
     - run: npm i -D vite@4
     - run: npm i -D @electron/rebuild@3.7.2
 
-    # script:
-    - run: npm run b
+    - name: Install npm dependencies
+      run: npm ci
 
-    - name: build
-      if: "!contains(github.event.head_commit.message, 'skip build')"
+    - name: Build application
+      run: npm run b
+
+    - name: Build ARM64 packages
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         BUILD_NUMBER: ${{ secrets.BUILD_NUMBER }}
-
       run: node build/bin/build-linux-arm
-
