@@ -14,7 +14,10 @@ jobs:
     if: ${{ !contains(github.event.head_commit.message, '[skip build]') && !contains(github.event.head_commit.message, '[skip ci]') && !contains(github.event.head_commit.message, '[skip legacy]') && !contains(github.event.head_commit.message, '[skip linux-legacy]') }}
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v2
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        fetch-depth: 0
 
     - name: Verify pre-installed versions
       run: |
