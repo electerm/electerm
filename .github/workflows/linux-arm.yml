@@ -8,17 +8,20 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-24.04-arm
+    runs-on: ubuntu-22.04-arm
     environment: build
     if: "!contains(github.event.head_commit.message, '[skip build]') && !contains(github.event.head_commit.message, '[skip ci]') && !contains(github.event.head_commit.message, '[skip arm-linux]') && !contains(github.event.head_commit.message, '[skip linux3]')"
+    env:
+      # Force electron-builder to use the system fpm (ARM native) instead of downloading x86 prebuilt bundle
+      USE_SYSTEM_FPM: true
 
     steps:
     - uses: actions/checkout@v4
 
-    - name: Set up Node.js 22.x
+    - name: Set up Node.js 16.x
       uses: actions/setup-node@v4
       with:
-        node-version: 22.x
+        node-version: 16.x
 
     - name: Set up Python
       uses: actions/setup-python@v5
@@ -50,11 +53,25 @@ jobs:
     - name: Install FPM
       run: sudo gem install fpm
 
+    - name: Verify glibc version
+      run: ldd --version
+
+    - name: Verify fpm
+      run: |
+        which fpm
+        fpm --version
+
     - name: Install yarn
       run: npm install -g yarn
 
     - name: Clear electron-builder cache
       run: rm -rf ~/.cache/electron-builder
+
+    - run: npm i -D electron@22.3.27
+    - run: npm i -S -E node-pty@1.1.0-beta14
+    - run: npm i -S -E serialport@13.0.0
+    - run: npm i -D vite@4
+    - run: npm i -D @electron/rebuild@3.7.2
 
     - name: Install npm dependencies
       run: npm ci

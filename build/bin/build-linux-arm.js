@@ -21,21 +21,21 @@ async function main () {
   echo('==== Start: running build for linux part 3 arm64/armv7l ====')
   echo('============================================')
 
-  // echo('============================================')
-  // echo('==== Start: build linux.arm64.tar.gz ====')
-  // echo('============================================')
-  // renameDist()
-  // writeSrc('linux-arm64.tar.gz')
-  // replaceJSON(
-  //   (data) => {
-  //     data.linux.target = ['tar.gz']
-  //   }
-  // )
-  // // await run(`${reBuild} --arch arm64 -f work/app`)
-  // await run(`${pb} --linux --arm64`).catch(error => {
-  //   echo('❌ Fatal error in build linux.arm64.tar.gz:')
-  //   console.error(error)
-  // })
+  echo('============================================')
+  echo('==== Start: build linux.arm64.tar.gz ====')
+  echo('============================================')
+  renameDist()
+  writeSrc('linux-arm64.tar.gz')
+  replaceJSON(
+    (data) => {
+      data.linux.target = ['tar.gz']
+    }
+  )
+  // await run(`${reBuild} --arch arm64 -f work/app`)
+  await run(`${pb} --linux --arm64`).catch(error => {
+    echo('❌ Fatal error in build linux.arm64.tar.gz:')
+    console.error(error)
+  })
 
   echo('============================================')
   echo('==== Start: build linux.arm64.deb ====')
@@ -67,20 +67,20 @@ async function main () {
     console.error(error)
   })
 
-  // echo('============================================')
-  // echo('==== Start: build linux.arm64.AppImage ====')
-  // echo('============================================')
-  // renameDist()
-  // writeSrc('linux-arm64.AppImage')
-  // replaceJSON(
-  //   (data) => {
-  //     data.linux.target = ['AppImage']
-  //   }
-  // )
-  // await run(`${pb} --linux --arm64`).catch(error => {
-  //   echo('❌ Fatal error in build linux.arm64.AppImage:')
-  //   console.error(error)
-  // })
+  echo('============================================')
+  echo('==== Start: build linux.arm64.AppImage ====')
+  echo('============================================')
+  renameDist()
+  writeSrc('linux-arm64.AppImage')
+  replaceJSON(
+    (data) => {
+      data.linux.target = ['AppImage']
+    }
+  )
+  await run(`${pb} --linux --arm64`).catch(error => {
+    echo('❌ Fatal error in build linux.arm64.AppImage:')
+    console.error(error)
+  })
 
   // echo('============================================')
   // echo('==== Start: build linux.armv7l.tar.gz ====')
