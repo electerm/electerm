@@ -1,0 +1,84 @@
+# Simplified workflow using custom electerm-builder Docker image
+name: linux-legacy-docker
+
+on:
+  push:
+    branches: [ build, test, build-only, linux-legacy ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: zxdong262/electerm-builder-legacy:latest  # This will be our custom image
+    environment: build
+    if: ${{ !contains(github.event.head_commit.message, '[skip build]') && !contains(github.event.head_commit.message, '[skip ci]') && !contains(github.event.head_commit.message, '[skip legacy]') && !contains(github.event.head_commit.message, '[skip linux-legacy]') }}
+
+    steps:
+    - name: Clone repository to /tmp and setup
+      run: |
+        cd /tmp
+        git clone https://github.com/electerm/electerm.git electerm_build
+        cd electerm_build
+        git checkout ${{ github.sha }}
+        
+        # Configure npm to use /tmp for cache and global packages
+        mkdir -p /tmp/.npm /tmp/.npm-global
+        npm config set cache /tmp/.npm
+        npm config set prefix /tmp/.npm-global
+        export PATH="/tmp/.npm-global/bin:$PATH"
+        echo "PATH=/tmp/.npm-global/bin:$PATH" >> $GITHUB_ENV
+        echo "npm_config_cache=/tmp/.npm" >> $GITHUB_ENV
+        echo "npm_config_prefix=/tmp/.npm-global" >> $GITHUB_ENV
+
+    - name: Verify pre-installed versions
+      working-directory: /tmp/electerm_build
+      run: |
+        echo "=== Pre-installed versions ==="
+        node --version
+        npm --version
+        yarn --version
+        python3 --version
+        python --version
+        gcc --version
+        g++ --version
+        fpm --version
+
+    - name: Clear electron-builder cache
+      working-directory: /tmp/electerm_build
+      run: rm -rf ~/.cache/electron-builder
+
+    - name: Install electron
+      working-directory: /tmp/electerm_build
+      run: npm i -D electron@22.3.27
+      
+    - name: Install node-pty
+      working-directory: /tmp/electerm_build
+      run: npm i -S -E node-pty@0.10.1
+      
+    - name: Install serialport
+      working-directory: /tmp/electerm_build
+      run: npm i -S -E serialport@10.5.0
+      
+    - name: Install vite
+      working-directory: /tmp/electerm_build
+      run: npm i -D vite@4
+      
+    - name: Install electron rebuild
+      working-directory: /tmp/electerm_build
+      run: npm i -D @electron/rebuild@3.7.2
+
+    - name: Install npm dependencies
+      working-directory: /tmp/electerm_build
+      run: npm ci
+
+    - name: Build application
+      working-directory: /tmp/electerm_build
+      run: npm run b
+
+    - name: Build legacy packages
+      working-directory: /tmp/electerm_build
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        BUILD_NUMBER: ${{ secrets.BUILD_NUMBER }}
+        USE_SYSTEM_FPM: true
+      run: node build/bin/build-linux-legacy
