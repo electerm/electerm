@@ -16,11 +16,12 @@ jobs:
     steps:
     - name: Clone repository
       run: |
+        WORKSPACE_DIR=$(pwd)
         cd /tmp
         git clone https://github.com/electerm/electerm.git electerm_source
         cd electerm_source
         git checkout ${{ github.sha }}
-        cd /github/workspace
+        cd "$WORKSPACE_DIR"
         rm -rf .git .github 2>/dev/null || true
         cp -r /tmp/electerm_source/* .
         cp -r /tmp/electerm_source/.* . 2>/dev/null || true
