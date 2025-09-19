@@ -2,7 +2,7 @@
  * file/folder icon by ext or name
  */
 
-import { getIconForFile, getIconForFolder } from 'vscode-icons-js'
+import { getIconForFile, getIconForFolder } from 'electerm-icons'
 // import Icon from '@ant-design/icons'
 
 export default function FileIcon ({ file, ...extra }) {

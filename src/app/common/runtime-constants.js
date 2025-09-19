@@ -31,7 +31,7 @@ const trayIconPath = resolve(
   )
 )
 const extIconPath = isDev
-  ? '/node_modules/vscode-icons/icons/'
+  ? '/node_modules/electerm-icons/icons/'
   : 'icons/'
 
 const defaultUserName = require('./default-user-name')

@@ -13,7 +13,7 @@ export const version = pack.version
 export const viewPath = resolve(cwd, '../../src/client/views')
 export const staticPaths = [
   {
-    dir: resolve(cwd, '../../node_modules/vscode-icons/icons'),
+    dir: resolve(cwd, '../../node_modules/electerm-icons/icons'),
     path: '/icons'
   },
   {
