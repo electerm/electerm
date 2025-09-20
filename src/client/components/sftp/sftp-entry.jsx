@@ -1064,7 +1064,6 @@ export default class Sftp extends Component {
     }
     const cls = classnames(
       'sftp-history',
-      'animated',
       `sftp-history-${type}`,
       { focused }
     )

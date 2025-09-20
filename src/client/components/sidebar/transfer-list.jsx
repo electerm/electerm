@@ -23,7 +23,6 @@ export default memo(function TransferList (props) {
   }
   const color = fileTransfers.some(item => item.error) ? 'red' : 'green'
   const bdProps = {
-    className: len ? 'hvr-bob hvr-bob-fast' : '',
     count: len,
     size: 'small',
     offset: [-10, -5],

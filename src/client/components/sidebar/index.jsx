@@ -189,7 +189,7 @@ export default memo(function Sidebar (props) {
                   className='control-icon-wrap'
                 >
                   <UpCircleOutlined
-                    className='iblock font18 control-icon hvr-bob upgrade-icon'
+                    className='iblock font18 control-icon upgrade-icon'
                     onClick={handleShowUpgrade}
                   />
                 </div>

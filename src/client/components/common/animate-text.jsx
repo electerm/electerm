@@ -3,7 +3,6 @@
  */
 
 import React from 'react'
-import './animate-text.styl'
 
 export default class AnimateText extends React.PureComponent {
   constructor (props) {
@@ -13,7 +12,7 @@ export default class AnimateText extends React.PureComponent {
 
   componentDidUpdate () {
     const dom = this.textRef.current
-    dom.className = (this.props.className || 'animate-text-wrap') + ' animated bounceIn'
+    dom.className = (this.props.className || 'animate-text-wrap')
     this.timer = setTimeout(() => {
       if (dom) {
         dom.className = this.props.className || 'animate-text-wrap'
