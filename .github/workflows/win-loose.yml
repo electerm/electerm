@@ -12,7 +12,7 @@ jobs:
 
     runs-on: windows-2022
     environment: build
-    if: "!contains(github.event.head_commit.message, '[skip build]') && !contains(github.event.head_commit.message, '[skip ci]') && !contains(github.event.head_commit.message, '[skip win]') && !contains(github.event.head_commit.message, '[skip loose]')"
+    if: ${{ !contains(github.event.head_commit.message, '[skip build]') && !contains(github.event.head_commit.message, '[skip ci]') && !contains(github.event.head_commit.message, '[skip win]') && !contains(github.event.head_commit.message, '[skip loose]') }}
 
     steps:
     - uses: actions/checkout@v4

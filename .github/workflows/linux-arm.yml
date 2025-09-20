@@ -10,7 +10,7 @@ jobs:
   build:
     runs-on: ubuntu-24.04-arm
     environment: build
-    if: "!contains(github.event.head_commit.message, '[skip build]') && !contains(github.event.head_commit.message, '[skip ci]') && !contains(github.event.head_commit.message, '[skip arm-linux]') && !contains(github.event.head_commit.message, '[skip linux3]')"
+    if: ${{ !contains(github.event.head_commit.message, '[skip build]') && !contains(github.event.head_commit.message, '[skip ci]') && !contains(github.event.head_commit.message, '[skip arm-linux]') && !contains(github.event.head_commit.message, '[skip linux3]') }}
     env:
       # Force electron-builder to use the system fpm (ARM native) instead of downloading x86 prebuilt bundle
       USE_SYSTEM_FPM: true

@@ -12,7 +12,7 @@ jobs:
 
     runs-on: macos-13
     environment: build
-    if: "!contains(github.event.head_commit.message, '[skip build]') && !contains(github.event.head_commit.message, '[skip ci]') && !contains(github.event.head_commit.message, '[skip mac]')"
+    if: ${{ !contains(github.event.head_commit.message, '[skip build]') && !contains(github.event.head_commit.message, '[skip ci]') && !contains(github.event.head_commit.message, '[skip mac]') }}
 
     steps:
     - uses: actions/checkout@v4
