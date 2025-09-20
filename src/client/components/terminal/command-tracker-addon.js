@@ -71,6 +71,12 @@ export class CommandTrackerAddon {
     }
   }
 
+  clearCommand () {
+    this.activeCommand = ''
+    this.currentCommand = ''
+    this.cursorPosition = 0
+  }
+
   getCurrentCommand () {
     return this.activeCommand || this.currentCommand
   }
