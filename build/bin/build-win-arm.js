@@ -3,7 +3,8 @@ const {
   run,
   writeSrc,
   builder: pb,
-  reBuild
+  reBuild,
+  replaceJSON
 } = require('./build-common')
 
 async function main () {
@@ -12,8 +13,13 @@ async function main () {
   echo('build tar.gz for Windows ARM64')
   rm('-rf', 'dist')
   writeSrc('win-arm64.tar.gz')
+  replaceJSON(
+    (data) => {
+      data.win.target = ['tar.gz']
+    }
+  )
   await run(`${reBuild} --arch arm64 -f work/app`)
-  await run(`${pb} --win --arm64 tar.gz`)
+  await run(`${pb} --win --arm64`)
 }
 
 main()
