@@ -1,0 +1,46 @@
+# This workflow will do a clean install of node dependencies, build the source code and run tests across different versions of node
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
+
+name: win-arm
+
+on:
+  push:
+    branches: [ build, test, build-only, win-arm ]
+
+jobs:
+  build:
+
+    runs-on: windows-2022
+    environment: build
+    if: ${{ !contains(github.event.head_commit.message, '[skip build]') && !contains(github.event.head_commit.message, '[skip ci]') && !contains(github.event.head_commit.message, '[skip win]') && !contains(github.event.head_commit.message, '[skip win-arm]') }}
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Use Node.js 22.x
+      uses: actions/setup-node@v4
+      with:
+        node-version: 22.x
+
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    - run: npm install -g node-gyp
+
+    # before_install:
+    # - run: npm install --global --production windows-build-tools --vs2015
+    - run: npm install -g yarn
+    - run: npm un node-pty serialport
+    - run: npm i
+    - run: npm i -S -E node-pty@1.1.0-beta14
+    - run: npm i -S -E serialport@13.0.0
+
+    # script:
+    - run: npm run b
+
+    - name: build
+      if: ${{ !contains(github.event.head_commit.message, 'skip build') }}
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        BUILD_NUMBER: ${{ secrets.BUILD_NUMBER }}
+      run: node build/bin/build-win-arm
+
