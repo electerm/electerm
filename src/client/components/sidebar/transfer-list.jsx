@@ -35,16 +35,19 @@ export default memo(function TransferList (props) {
     transferHistory,
     transferTab
   }
+  const popProps = {
+    placement: 'right',
+    destroyOnHidden: true,
+    overlayClassName: 'transfer-list-card',
+    content: <TransferModal {...transferModalProps} />
+  }
   return (
     <div
       className='control-icon-wrap'
       title={e('fileTransfers')}
     >
       <Popover
-        placement='right'
-        destroyTooltipOnHide
-        overlayClassName='transfer-list-card'
-        content={<TransferModal {...transferModalProps} />}
+        {...popProps}
       >
         <Badge
           {...bdProps}
