@@ -3,7 +3,7 @@
  */
 
 const fs = require('original-fs')
-const _ = require('lodash')
+const _ = require('../lib/lodash.js')
 const log = require('../common/log')
 
 class Transfer {

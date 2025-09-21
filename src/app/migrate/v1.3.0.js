@@ -10,7 +10,7 @@ const userConfigPath = resolve(appPath, 'electerm-user-config.json')
 const savePath = resolve(appPath, 'electerm-localstorage.json')
 const { existsSync, unlinkSync, writeFileSync } = require('fs')
 const log = require('../common/log')
-const _ = require('lodash')
+const _ = require('../lib/lodash.js')
 const { userConfigId } = require('../common/constants')
 const { updateDBVersion } = require('./version-upgrade')
 

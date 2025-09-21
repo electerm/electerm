@@ -1,7 +1,7 @@
 /**
  * terminal/sftp/serial class
  */
-const _ = require('lodash')
+const _ = require('../lib/lodash.js')
 const log = require('../common/log')
 const { Telnet } = require('./telnet')
 const { TerminalBase } = require('./session-base')

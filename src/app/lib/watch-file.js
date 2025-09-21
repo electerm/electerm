@@ -1,6 +1,6 @@
 const fs = require('original-fs')
 const globalState = require('./glob-state')
-const _ = require('lodash')
+const _ = require('./lodash.js')
 
 const onWatch = _.debounce(() => {
   try {

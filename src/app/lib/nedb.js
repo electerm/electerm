@@ -4,7 +4,7 @@
 
 const { appPath, defaultUserName } = require('../common/app-props')
 const { resolve } = require('path')
-const Datastore = require('@yetzt/nedb')
+const Datastore = require('@electerm/nedb')
 const db = {}
 
 const reso = (name) => {
