@@ -37,6 +37,15 @@ jobs:
     # script:
     - run: npm run b
 
+    # check work/app/node_modules size in windows arm
+    - name: Check node_modules size
+      shell: powershell
+      run: |
+        $size = (Get-ChildItem -Path "work/app/node_modules" -Recurse | Measure-Object -Property Length -Sum).Sum
+        $sizeInMB = [math]::Round($size / 1MB, 2)
+        $sizeInGB = [math]::Round($size / 1GB, 2)
+        Write-Host "work/app/node_modules size: $sizeInMB MB ($sizeInGB GB)"
+
     - name: build
       if: ${{ !contains(github.event.head_commit.message, 'skip build') }}
       env:
