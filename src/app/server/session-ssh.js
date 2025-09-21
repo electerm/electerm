@@ -3,7 +3,7 @@
  */
 
 const proxySock = require('./socks')
-const _ = require('lodash')
+const _ = require('../lib/lodash.js')
 const generate = require('../common/uid')
 const { resolve: pathResolve } = require('path')
 const net = require('net')

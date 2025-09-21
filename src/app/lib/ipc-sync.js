@@ -18,7 +18,7 @@ const {
 const {
   getScreenSize
 } = require('./window-control')
-const _ = require('lodash')
+const _ = require('./lodash.js')
 
 const isMaximized = () => {
   const {

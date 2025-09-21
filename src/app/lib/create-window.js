@@ -14,7 +14,7 @@ const {
 const { onClose } = require('./on-close')
 const { initIpc, initAppServer } = require('./ipc')
 const { disableShortCuts } = require('./key-bind')
-const _ = require('lodash')
+const _ = require('./lodash.js')
 const getPort = require('./get-port')
 const globalState = require('./glob-state')
 const net = require('net')

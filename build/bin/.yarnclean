@@ -19,6 +19,8 @@ CONTRIBUTORS
 .yarn-integrity
 *.md
 *.ts
+*.js.map
+*.ts.map
 *.jst
 *.coffee
 
@@ -36,6 +38,6 @@ example
 examples
 coverage
 .nyc_output
-
+dist/esm
 # ignores
-!*.d.ts
+<!-- !*.d.ts -->
