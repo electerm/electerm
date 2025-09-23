@@ -10,10 +10,13 @@ const globalState = require('./glob-state')
 const { getDbConfig } = require('./get-config')
 
 exports.createApp = async function () {
+  app.commandLine.appendSwitch('--disable-gpu')
   app.setName(packInfo.name)
+  if (process.platform === 'linux' || process.env.DISABLE_GPU) {
+    app.commandLine.appendSwitch('--disable-gpu')
+  }
   if (process.platform === 'linux') {
     app.commandLine.appendSwitch('--enable-transparent-visuals')
-    app.commandLine.appendSwitch('--disable-gpu')
     app.commandLine.appendSwitch('--in-process-gpu')
   }
   if (process.platform === 'linux' || process.env.DISABLE_HARDWARE_ACCELERATION) {
