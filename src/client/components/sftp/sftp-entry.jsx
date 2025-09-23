@@ -27,7 +27,7 @@ import fs from '../../common/fs'
 import ListTable from './list-table-ui'
 import deepCopy from 'json-deep-copy'
 import isValidPath from '../../common/is-valid-path'
-import memoizeOne from 'memoize-one'
+
 import * as owner from './owner-list'
 import AddressBar from './address-bar'
 import getProxy from '../../common/get-proxy'
@@ -101,6 +101,9 @@ export default class Sftp extends Component {
     this.timer4 = null
     clearTimeout(this.timer5)
     this.timer5 = null
+    // Clear sort cache to prevent memory leaks
+    this._sortCache?.clear()
+    this._lastSortArgs = null
   }
 
   initFtpData = async () => {
@@ -167,19 +170,36 @@ export default class Sftp extends Component {
     }, {})
   }
 
-  sort = memoizeOne((
-    list,
-    type,
-    sortDirection,
-    sortProp
-  ) => {
+  // Cache for memoized sort results
+  _sortCache = new Map()
+  _lastSortArgs = null
+
+  sort = (list, type, sortDirection, sortProp) => {
+    // Create a cache key from the arguments
+    const cacheKey = JSON.stringify({
+      listLength: list?.length || 0,
+      listHash: this._hashList(list),
+      type,
+      sortDirection,
+      sortProp
+    })
+
+    // Check if we have a cached result and if args haven't changed
+    if (this._lastSortArgs && isEqual(this._lastSortArgs, [list, type, sortDirection, sortProp])) {
+      const cached = this._sortCache.get(cacheKey)
+      if (cached) {
+        return cached
+      }
+    }
+
+    // Compute the result
     if (!list || !list.length) {
       return []
     }
 
     const isDesc = sortDirection === 'desc'
 
-    return list.slice().sort((a, b) => {
+    const result = list.slice().sort((a, b) => {
       // Handle items with no id first
       if (!a.id && b.id) return -1
       if (a.id && !b.id) return 1
@@ -207,7 +227,28 @@ export default class Sftp extends Component {
       if (aValue > bValue) return isDesc ? -1 : 1
       return 0
     })
-  }, isEqual)
+
+    // Cache the result
+    this._lastSortArgs = [list, type, sortDirection, sortProp]
+    this._sortCache.set(cacheKey, result)
+
+    // Limit cache size to prevent memory leaks
+    if (this._sortCache.size > 10) {
+      const firstKey = this._sortCache.keys().next().value
+      this._sortCache.delete(firstKey)
+    }
+
+    return result
+  }
+
+  // Helper method to create a simple hash of the list for cache key
+  _hashList = (list) => {
+    if (!list || !list.length) return 0
+    return list.reduce((hash, item, index) => {
+      const str = `${item.id || ''}${item.name || ''}${item.modifyTime || ''}${index}`
+      return hash + str.length
+    }, 0)
+  }
 
   isActive () {
     const { currentBatchTabId, pane, sshSftpSplitView } = this.props
