@@ -28,6 +28,7 @@ import ConnectionHoppingWarning from './connection-hopping-warnning'
 import SshConfigLoadNotify from '../ssh-config/ssh-config-load-notify'
 import LoadSshConfigs from '../ssh-config/load-ssh-configs'
 import AIChat from '../ai/ai-chat'
+import Opacity from '../common/opacity'
 import { pick } from 'lodash-es'
 import deepCopy from 'json-deep-copy'
 import './wrapper.styl'
@@ -153,11 +154,6 @@ export default auto(function Index (props) {
   const themeProps = {
     themeConfig: store.getUiThemeConfig()
   }
-  const outerProps = {
-    style: {
-      opacity: config.opacity
-    }
-  }
   const copiedTransfer = deepCopy(fileTransfers)
   const copiedHistory = deepCopy(transferHistory)
   const sidebarProps = {
@@ -261,6 +257,7 @@ export default auto(function Index (props) {
           {...confsCss}
           wsInited={wsInited}
         />
+        <Opacity opacity={config.opacity} />
         <TerminalInteractive />
         <UiTheme
           {...themeProps}
@@ -278,7 +275,6 @@ export default auto(function Index (props) {
         <BatchOp {...batchOpProps} />
         <div
           id='outside-context'
-          {...outerProps}
         >
           <Sidebar {...sidebarProps} />
           <Layout
