@@ -26,7 +26,7 @@ export default function SearchResultBar ({
     ctx.clearRect(0, 0, canvas.width, canvas.height)
     matches.forEach((match, index) => {
       const y = (match / totalLines) * containerHeight
-      ctx.fillStyle = index === matchIndex ? 'rgba(243, 67, 9, 0.5)' : 'rgba(243, 196, 9, 0.5)'
+      ctx.fillStyle = index === matchIndex ? '#f34309' : '#f3c409'
       ctx.fillRect(0, y, 16, 2)
     })
   }

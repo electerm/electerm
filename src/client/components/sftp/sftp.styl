@@ -41,7 +41,7 @@
   &.focused
     height auto
     border 1px solid main-dark
-    box-shadow 0px 0px 3px 3px alpha(main, .05)
+    box-shadow 0px 0px 3px 3px lighten(main, 5%)
 
 .sftp-history-item
   padding 5px 10px
@@ -72,7 +72,6 @@
     top 0
     z-index 1
     height 100%
-    opacity 0
     padding 0
     margin 0
 
@@ -86,13 +85,6 @@
   width 100%
 .file-props
   margin-left 70px
-.opacity-loop
-  opacity 0.3
-  animation blinker 5s linear infinite
-
-@keyframes blinker
-  50%
-    opacity .8
 
 .sftp-sort-btn
   color text

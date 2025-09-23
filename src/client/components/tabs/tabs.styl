@@ -71,11 +71,11 @@
       color text-light
 @keyframes blink
   0%
-    opacity 0.3
+    background-color #e0e0e0
   50%
-    opacity 1
+    background-color #ffffff
   100%
-    opacity 0.3
+    background-color #e0e0e0
 
 .tab-terminal-feed
 .tab-traffic
@@ -96,6 +96,7 @@
 .is-transporting .tab-traffic
   display block
   animation blink 2s infinite
+  /* Remove opacity animation, use background-color */
 .tab-traffic
   display none
   left 10px
@@ -105,6 +106,7 @@
 .is-terminal-active .tab-terminal-feed
   display block
   animation blink 2s infinite
+  /* Remove opacity animation, use background-color */
 .tab-terminal-feed
   display none
   left 20px
@@ -231,7 +233,6 @@
   padding 0 4px
   height 20px
   line-height 21px
-  opacity 0.8
 .no-session-history
   position absolute
   top 280px
