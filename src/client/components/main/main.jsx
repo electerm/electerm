@@ -80,6 +80,7 @@ export default auto(function Index (props) {
     store.initData()
     store.checkForDbUpgrade()
     store.handleGetSerials()
+    window.pre.runGlobalAsync('setBackgroundColor')
     // window.pre.runGlobalAsync('registerDeepLink')
   }, [])
 

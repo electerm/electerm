@@ -176,6 +176,10 @@ function initIpc () {
       const win = globalState.get('win')
       win && win.setTitle(packInfo.name + ' - ' + title)
     },
+    setBackgroundColor: (color = '#33333300') => {
+      const win = globalState.get('win')
+      win && win.setBackgroundColor(color)
+    },
     changeHotkey: changeHotkeyReg(globalShortcut, globalState.get('win')),
     initCommandLine,
     watchFile,

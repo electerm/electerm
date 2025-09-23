@@ -36,7 +36,7 @@ exports.createWindow = async function (userConfig) {
     title: packInfo.name,
     frame: useSystemTitleBar,
     transparent: !useSystemTitleBar,
-    backgroundColor: '#33333300',
+    backgroundColor: '#333333',
     webPreferences: {
       contextIsolation: true,
       nodeIntegration: false,
