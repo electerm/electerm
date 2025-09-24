@@ -29,7 +29,9 @@ export default function Opacity ({ opacity }) {
     // Update style content based on opacity value
     if (currentOpacity === 1) {
       styleElement.innerHTML = ''
+      window.pre.runGlobalAsync('setBackgroundColor', '#333333')
     } else {
+      window.pre.runGlobalAsync('setBackgroundColor', '#33333300')
       styleElement.innerHTML = `
         html {
           background: transparent !important;
