@@ -16,6 +16,7 @@ async function main () {
   replaceJSON(
     (data) => {
       data.win.target = ['nsis']
+      data.afterAllArtifactBuild = 'build/bin/clean-yml.js'
     }
   )
   await run(`${reBuild} --arch arm64 -f work/app`)
