@@ -29,6 +29,7 @@ import SshConfigLoadNotify from '../ssh-config/ssh-config-load-notify'
 import LoadSshConfigs from '../ssh-config/load-ssh-configs'
 import AIChat from '../ai/ai-chat'
 import Opacity from '../common/opacity'
+import InputContextMenu from '../common/input-context-menu'
 import { pick } from 'lodash-es'
 import deepCopy from 'json-deep-copy'
 import './wrapper.styl'
@@ -248,6 +249,7 @@ export default auto(function Index (props) {
       theme={uiThemeConfig}
     >
       <div {...ext1}>
+        <InputContextMenu />
         <ShortcutControl config={config} />
         <TermFullscreenControl
           terminalFullScreen={terminalFullScreen}
