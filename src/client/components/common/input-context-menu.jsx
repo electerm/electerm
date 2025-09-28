@@ -55,7 +55,6 @@ function handleCopy (element) {
   const selectedText = element.value.substring(element.selectionStart, element.selectionEnd)
   if (selectedText) {
     copy(selectedText)
-    console.log('Copied text:', selectedText.substring(0, 50))
   }
 }
 
