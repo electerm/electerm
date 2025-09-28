@@ -38,7 +38,8 @@ function buildTheme (themeConfig) {
       return `--${key}-contrast: ${contrast};\n--${key}: ${val};`
     } else if (key === 'main') {
       const darkerMain = darker(val, 0.3)
-      return `--${key}-darker: ${darkerMain};\n--${key}: ${val};`
+      const lighterMain = darker(val, -0.3)
+      return `--${key}-darker: ${darkerMain};\n--${key}-lighter: ${lighterMain};\n--${key}: ${val};`
     }
     return `--${key}: ${val};`
   }).join('\n')

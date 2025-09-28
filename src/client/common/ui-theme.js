@@ -20,7 +20,8 @@ const defaultUiThemeStylus = `
 export function getUiThemeConfig (stylus = defaultUiThemeStylus) {
   const lines = stylus.split('\n').filter(line => line.trim())
   return lines.reduce((p, line) => {
-    const [k, v] = line.trim().split(' ')
+    const [k, v] = line.trim().replace('--', '').split(' ')
+    console.log('theme line', k, v)
     if (k && v) {
       return {
         ...p,

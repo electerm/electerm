@@ -24,10 +24,10 @@
 
 .vertical
   .term-wrap.not-first-term
-    border-top 1px solid var(--main-light)
+    border-top 1px solid var(--main-lighter)
 .horizontal
   .term-wrap.not-first-term
-    border-left 1px solid var(--main-light)
+    border-left 1px solid var(--main-lighter)
 .term-sftp-tabs
   margin-left 5px
 
@@ -50,7 +50,7 @@
   width 100%
   background var(--main)
   color var(--text)
-  box-shadow 0px 3px 3px 0px var(--main-light)
+  box-shadow 0px 3px 3px 0px var(--main-lighter)
   z-index 66
   padding-bottom 32px
 .terminal-normal-buffer-body
@@ -70,24 +70,23 @@
   height 32px
   line-height 32px
   box-shadow 0px -3px 3px 0px var(--main)
-  background var(--main-light)
+  background var(--main-lighter)
 .batch-input-wrap
   width calc(100% - 80px)
 
 .terminal-suggestions-wrap
   position absolute
   z-index 100
-  color text
   max-height 300px
   max-width 300px
   min-width 200px
-  box-shadow 0px 0px 3px 3px var(--main-light)
+  box-shadow 0px 0px 3px 3px var(--main-lighter)
   display flex
   flex-direction column
   background var(--main)
   border-radius 4px
   &.reverse .terminal-suggestions-list
-    border-top 1px solid var(--main-light)
+    border-top 1px solid var(--main-lighter)
     border-bottom none
 
 .terminal-suggestions-list
@@ -96,7 +95,7 @@
   overflow-y auto
   max-height 268px
   max-width 300px
-  border-bottom 1px solid var(--main-light)
+  border-bottom 1px solid var(--main-lighter)
 
 .terminal-suggestions-sticky
   flex-shrink 0
@@ -111,7 +110,7 @@
   cursor pointer
   color var(--text)
   &:hover
-    background-color var(--main-light)
+    background-color var(--main-lighter)
     .suggestion-delete
       visibility visible
 

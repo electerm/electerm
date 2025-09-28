@@ -38,15 +38,15 @@
   border-radius 3px
   &.focused
     height auto
-    border 1px solid var(--main-dark)
-    box-shadow 0px 0px 3px 3px var(--main-light)
+    border 1px solid var(--main-darker)
+    box-shadow 0px 0px 3px 3px var(--main-lighter)
 
 .sftp-history-item
   padding 5px 10px
   cursor pointer
-  border-bottom 1px solid var(--main-dark)
+  border-bottom 1px solid var(--main-darker)
   &:hover
-    background var(--main-dark)
+    background var(--main-darker)
 
 .sftp-item-title
   width 100%
@@ -119,7 +119,6 @@
   overflow hidden
   white-space nowrap
   text-overflow ellipsis
-  color text
 
 .sftp-file-table-header
   height 30px
@@ -141,7 +140,7 @@
       top 2px
       width 100%
       height 100%
-      background var(--main-light)
+      background var(--main-lighter)
       content ''
       z-index -1
     &:after
