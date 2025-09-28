@@ -1429,8 +1429,8 @@ class Term extends Component {
       ref: this.domRef,
       className: 'absolute term-wrap-2',
       style: {
-        left: '10px',
-        top: '10px',
+        left: 0,
+        top: 0,
         right: 0,
         bottom: 0
       }
