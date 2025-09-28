@@ -872,6 +872,7 @@ export default class FileSection extends React.Component {
   }
 
   handleContextMenuCapture = (e) => {
+    this.onClick(e)
     this.contextMenuPosition = {
       clientY: e.clientY
     }
