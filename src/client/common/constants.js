@@ -177,7 +177,7 @@ export const defaultTheme = {
     brightCyan: '#BCAAFE',
     brightWhite: '#E6E6E6'
   },
-  uiThemeConfig: getUiThemeConfig(window.et.stylus)
+  uiThemeConfig: getUiThemeConfig()
 }
 
 export const commonBaudRates = [

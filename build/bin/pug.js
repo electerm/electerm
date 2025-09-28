@@ -6,7 +6,6 @@ const fs = require('fs')
 const pug = require('pug')
 const { resolve } = require('path')
 const pack = require('../../package.json')
-const { loadDevStylus } = require('./style')
 const deepCopy = require('json-deep-copy')
 
 const entryPug = resolve(
@@ -18,12 +17,10 @@ const targetFilePath = resolve(
   '../../work/app/assets/index.html'
 )
 const pugContent = fs.readFileSync(entryPug, 'utf-8')
-const stylusString = loadDevStylus()
 const data = {
   version: pack.version,
   siteName: pack.name,
-  isDev: false,
-  stylus: stylusString
+  isDev: false
 }
 const htmlContent = pug.render(pugContent, {
   filename: entryPug,

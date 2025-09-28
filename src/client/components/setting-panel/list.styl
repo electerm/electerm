@@ -1,4 +1,4 @@
-@require '../../css/includes/theme-default'
+
 .item-list-wrap
   overflow-y scroll
   &::-webkit-scrollbar
@@ -22,13 +22,13 @@
   cursor pointer
   line-height 1.8
   &.active
-    background primary
-    color contrastColor(primary)
+    background var(--primary)
+    color var(--primary-contrast)
   &.current
     font-weight bold
   &:hover
-    background darken(primary, 30%)
-    color contrastColor(darken(primary, 30%))
+    background var(--primary)
+    color var(--primary-contrast)
     .list-item-apply
     .list-item-edit
     .list-item-remove

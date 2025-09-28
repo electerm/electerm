@@ -52,7 +52,6 @@ require('fs').writeFileSync(
 
 exec(`cd work/app && npm i --omit=dev && cd ${cwd}`)
 rm('-rf', 'work/app/node_modules/.bin')
-rm('-rf', 'work/app/node_modules/stylus/bin')
 rm('-rf', 'work/app/node_modules/node-gyp-build')
 // Remove axios browser/ESM builds and unnecessary files (keep only lib/ and node CJS)
 rm('-rf', 'work/app/node_modules/axios/dist/esm')

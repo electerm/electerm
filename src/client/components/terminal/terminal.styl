@@ -1,6 +1,6 @@
-@require '../../css/includes/theme-default'
+
 .terms-box
-  background main
+  background var(--main)
   position relative
 .loading-wrapper
   padding 30px
@@ -12,22 +12,22 @@
   z-index 30
 
 .terminal-control
-  background main
+  background var(--main)
   line-height 32px
   padding 0 10px
 
 .terms-box
   position relative
 .term-wrap
-  background main
+  background var(--main)
   position absolute
 
 .vertical
   .term-wrap.not-first-term
-    border-top 1px solid main-light
+    border-top 1px solid var(--main-lighter)
 .horizontal
   .term-wrap.not-first-term
-    border-left 1px solid main-light
+    border-left 1px solid var(--main-lighter)
 .term-sftp-tabs
   margin-left 5px
 
@@ -48,9 +48,9 @@
   left 0
   top 0
   width 100%
-  background main
-  color text
-  box-shadow 0px 3px 3px 0px lighten(main, 25%)
+  background var(--main)
+  color var(--text)
+  box-shadow 0px 3px 3px 0px var(--main-lighter)
   z-index 66
   padding-bottom 32px
 .terminal-normal-buffer-body
@@ -59,9 +59,9 @@
 .terminal-normal-buffer-close
   cursor pointer
   font-size 14px
-  color text
+  color var(--text)
   &:hover
-    color text-light
+    color var(--text-light)
 .terminal-normal-buffer-footer
   position absolute
   left 0
@@ -69,25 +69,24 @@
   width 100%
   height 32px
   line-height 32px
-  box-shadow 0px -3px 3px 0px lighten(main, 25%)
-  background main-light
+  box-shadow 0px -3px 3px 0px var(--main)
+  background var(--main-lighter)
 .batch-input-wrap
   width calc(100% - 80px)
 
 .terminal-suggestions-wrap
   position absolute
   z-index 100
-  color text
   max-height 300px
   max-width 300px
   min-width 200px
-  box-shadow 0px 0px 3px 3px main-light
+  box-shadow 0px 0px 3px 3px var(--main-lighter)
   display flex
   flex-direction column
-  background main
+  background var(--main)
   border-radius 4px
   &.reverse .terminal-suggestions-list
-    border-top 1px solid main-light
+    border-top 1px solid var(--main-lighter)
     border-bottom none
 
 .terminal-suggestions-list
@@ -96,7 +95,7 @@
   overflow-y auto
   max-height 268px
   max-width 300px
-  border-bottom 1px solid main-light
+  border-bottom 1px solid var(--main-lighter)
 
 .terminal-suggestions-sticky
   flex-shrink 0
@@ -109,9 +108,9 @@
   align-items center
   padding 5px 10px
   cursor pointer
-  color text
+  color var(--text)
   &:hover
-    background-color main-light
+    background-color var(--main-lighter)
     .suggestion-delete
       visibility visible
 
@@ -124,9 +123,9 @@
 .suggestion-type
   margin-left 5px
   font-size 0.8em
-  color lighten(text, 20%)
+  color var(--text)
   &:hover
-    color text
+    color var(--success)
 
 .suggestion-delete
   margin-left 5px

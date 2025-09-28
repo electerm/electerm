@@ -26,9 +26,6 @@ const {
   setPassword,
   checkPassword
 } = require('./auth')
-const {
-  toCss
-} = require('./style')
 const initServer = require('./init-server')
 const {
   getLang,
@@ -126,7 +123,6 @@ function initIpc () {
     loadSshConfig,
     init,
     listSerialPorts,
-    toCss,
     loadFontList,
     doUpgrade,
     checkDbUpgrade,

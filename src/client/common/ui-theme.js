@@ -2,19 +2,32 @@
  * ui theme related
  */
 
-export function getUiThemeConfig (stylus) {
-  const reg = /[^\n]+ = [^\n]+\n/g
-  const arr = stylus.match(reg)
-  const sep = ' = '
-  return arr.reduce((p, x) => {
-    if (!x.includes(sep)) {
-      return p
+const defaultUiThemeStylus = `
+  --main #141314
+  --main-dark #000
+  --main-light #2E3338
+  --text #ddd
+  --text-light #fff
+  --text-dark #888
+  --text-disabled #777
+  --primary #08c
+  --info #FFD166
+  --success #06D6A0
+  --error #EF476F
+  --warn #E55934
+`
+
+export function getUiThemeConfig (conf = defaultUiThemeStylus) {
+  const lines = conf.split('\n').filter(line => line.trim())
+  return lines.reduce((p, line) => {
+    const [k, v] = line.trim().replace('--', '').split(' ')
+    if (k && v) {
+      return {
+        ...p,
+        [k]: v
+      }
     }
-    const [k, v] = x.split(sep)
-    return {
-      ...p,
-      [k.trim()]: v.trim()
-    }
+    return p
   }, {})
 }
 

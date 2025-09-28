@@ -14,8 +14,8 @@ export default function CustomCss (props) {
   const delta = useDelta(customCss)
 
   async function applyTheme () {
-    const stylus = document.getElementById(themeDomId)
-    stylus.innerHTML = customCss
+    const style = document.getElementById(themeDomId)
+    style.innerHTML = customCss
   }
 
   useEffect(() => {
