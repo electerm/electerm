@@ -17,8 +17,8 @@ const defaultUiThemeStylus = `
   --warn #E55934
 `
 
-export function getUiThemeConfig (stylus = defaultUiThemeStylus) {
-  const lines = stylus.split('\n').filter(line => line.trim())
+export function getUiThemeConfig (conf = defaultUiThemeStylus) {
+  const lines = conf.split('\n').filter(line => line.trim())
   return lines.reduce((p, line) => {
     const [k, v] = line.trim().replace('--', '').split(' ')
     if (k && v) {

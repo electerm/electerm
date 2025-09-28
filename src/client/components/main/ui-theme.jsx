@@ -56,9 +56,9 @@ export default function UiTheme (props) {
   const delta = useDelta(themeConfig)
 
   async function applyTheme () {
-    const stylus = document.getElementById(themeDomId)
+    const style = document.getElementById(themeDomId)
     const css = await buildTheme(themeConfig)
-    stylus.innerHTML = css
+    style.innerHTML = css
   }
 
   useEffect(() => {
