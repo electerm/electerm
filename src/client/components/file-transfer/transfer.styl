@@ -1,11 +1,10 @@
-@require '../../css/includes/theme-default'
 .transports-wrap
   position absolute
   left 60px
   top 3px
   right 60px
   height 36px
-  color text
+
 .transports-circle-wrap
   text-align center
   position relative
@@ -16,7 +15,7 @@
   right 0
   overflow-y scroll
   z-index 11
-  background main
+  background var(--main)
 
 .transports-wrap
   .transports-dd
@@ -25,7 +24,7 @@
     display block
 
 .transports-title
-  border-bottom 1px solid primary
+  border-bottom 1px solid var(--primary)
   padding 10px 15px
 .transports-content
   max-height 200px
@@ -34,11 +33,9 @@
   display flex
   padding 8px 5px
   &:hover
-    background main-dark
+    background var(--main-dark)
 .sftp-transport .transfer-control-icon:hover
-  color primary
-.transports-count
-  color text
+  color var(--primary)
 
 .flex-child + .flex-child
   margin-left 5px

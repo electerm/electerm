@@ -262,7 +262,6 @@ export default auto(function Index (props) {
         <TerminalInteractive />
         <UiTheme
           {...themeProps}
-          buildTheme={store.buildTheme}
         />
         <CustomCss customCss={config.customCss} />
         <TextEditor />

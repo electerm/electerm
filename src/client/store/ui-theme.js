@@ -2,7 +2,6 @@
  * ui theme functions
  */
 
-import { escapeRegExp } from 'lodash-es'
 import {
   defaultTheme,
   settingMap
@@ -25,24 +24,6 @@ export default Store => {
       }
     }, {})
   }
-
-  Store.prototype.buildTheme = function (config) {
-    let { stylus } = window.et
-    const keys = Object.keys(config)
-    for (const key of keys) {
-      const reg = new RegExp(escapeRegExp(key) + ' = [^\\n]+\\n')
-      const v = config[key]
-      stylus = stylus.replace(reg, `${key} = ${v}\n`)
-    }
-    return window.pre.runGlobalAsync('toCss', stylus)
-  }
-
-  // Store.prototype.sortTheme = function (a, b) {
-  //   const theme = window.originalTheme || window.store.config.theme
-  //   const ax = a.id === theme ? -1 : 1
-  //   const bx = b.id === theme ? -1 : 1
-  //   return ax > bx ? 1 : -1
-  // }
 
   Store.prototype.getUiThemeConfig = function () {
     const { store } = window

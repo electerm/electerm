@@ -1,4 +1,4 @@
-@require '../../css/includes/theme-default'
+
 .animate-fast
   animation-duration .2s
 .sidebar-panel
@@ -9,8 +9,7 @@
   z-index 200
   width 0
   overflow-y scroll
-  background main
-  color text
+  background var(--main)
   .item-list-unit:hover
     .list-item-remove
       display none !important
@@ -22,7 +21,7 @@
   width 36px
   z-index 100
   bottom 0
-  background main-dark
+  background var(--main-dark)
 
   .item-list
     padding-right 0
@@ -52,20 +51,20 @@
   .history-panel
     width 100%
 .control-icon-text
-  color text
+  color var(--text)
   &:hover
-    color text-light
+    color var(--success)
 .control-icon-wrap
   padding 14px 0
   text-align center
   &.active
     .control-icon
-      color text-light
+      color var(--text-light)
   .control-icon
-    color text-dark
+    color var(--text-dark)
     cursor pointer
     &:hover
-      color text-light
+      color var(--text-light)
 .sidebar-list
   position absolute
   left 43px
@@ -84,22 +83,22 @@
     display block
   .sidebar-panel
     .pinned
-      color success
+      color var(--success)
 //btns
 .btns
-  background main-dark
-  border-color primary
+  background var(--main-dark)
+  border-color var(--primary)
   .open-about-icon
-    color text-dark
+    color var(--text-dark)
     &:hover
-      color text-light
+      color var(--text-light)
 
 .btns .upgrade-icon
-  color success
+  color var(--success)
 .close-info-modal
   cursor pointer
   &:hover
-    color text-light
+    color var(--text-light)
 .logo-filter
   filter invert(80%)
 .sidebar-inner

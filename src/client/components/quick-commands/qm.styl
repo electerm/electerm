@@ -1,13 +1,11 @@
-@require '../../css/includes/theme-default'
 .qm-list-wrap
   max-height calc(100vh - 100px)
   overflow-y scroll
 .qm-wrap-tooltip
-  background main
+  background var(--main)
   position absolute
   left 43px
   right 0
-  color text
   z-index 89
   height auto
   bottom 36px
@@ -21,7 +19,7 @@
 .fil-keyword
 .fil-label
   .qm-item
-    color lighten(text, 30%)
+    color var(--text-light)
   .qm-item
     &.name-match
     &.label-match
@@ -31,4 +29,4 @@
     width 100px
 
 .item-list-unit.dragover
-  border: 1px dashed primary
+  border: 1px dashed var(--primary)

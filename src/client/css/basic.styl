@@ -1,6 +1,5 @@
 @require './includes'
-@require './antd-overwrite'
-@require './includes/theme-default'
+@require './includes/theme'
 
 body
   color text
@@ -10,6 +9,7 @@ body
   line-height 1.5715
   font-family -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'
   font-variant: tabular-nums
+  color var(--text)
 
 ::-webkit-scrollbar
   background transparent
@@ -23,7 +23,7 @@ body
   -webkit-box-shadow none
 
 ::-webkit-scrollbar-thumb
-  background-color primary
+  background-color var(--primary)
   outline none
 
 .common-err
@@ -31,11 +31,9 @@ body
   overflow-y scroll
   overflow-x hidden
   word-break break-all
-.hide-resize-observer
-  display: none !important
 
 a
-  color primary
+  color var(--primary)
 
 .cap
   text-transform capitalize

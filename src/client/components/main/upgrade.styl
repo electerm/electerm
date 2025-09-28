@@ -1,13 +1,11 @@
-@require '../../css/includes/theme-default'
 .upgrade-panel
   position fixed
   right 10px
   bottom 10px
   z-index 9999
-  background main
-  color text
+  background var(--main)
   border-radius 5px
-  border 1px solid darken(main, 30%)
+  border 1px solid var(--main-dark)
   padding 0
   width 440px
 .upgrade-panel-hide
@@ -17,12 +15,12 @@
   bottom auto
 .close-upgrade-panel
   &:hover
-    color success
+    color var(--success)
 .upgrade-panel-title
 .upgrade-panel-body
   padding 10px 15px
 .upgrade-panel-title
-  border-bottom 1px solid darken(main, 30%)
+  border-bottom 1px solid var(--main-dark)
 .markdown-wrap
   max-height 40vh
   overflow-y auto

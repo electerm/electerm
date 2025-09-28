@@ -1,19 +1,19 @@
-@require '../../css/includes/theme-default'
+
 .terminal-info-icon
-  color text-dark
+  color var(--text-dark)
   &:hover
-    color text
+    color var(--text)
 .info-panel-wrap
   position fixed
   right 0
   top 100px
   bottom 0
   width 500px
-  background main
-  border 1px solid darken(main, 30%)
+  background var(--main)
+  border 1px solid var(--main-dark)
   border-radius 5px 0 0 5px
   border-right none
-  color text
+  color var(--text)
   z-index 100
   overflow-y scroll
 
@@ -36,4 +36,4 @@
     max-height none
 .info-panel-wrap-pin
   .toggle-info-panel-wrap
-    color success
+    color var(--success)

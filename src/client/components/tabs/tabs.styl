@@ -1,9 +1,9 @@
-@require '../../css/includes/theme-default'
+
 .tabs
   position relative
   height 36px
   overflow hidden
-  background main-dark
+  background var(--main-dark)
   z-index 12
   ::-webkit-scrollbar
     width 0
@@ -41,17 +41,17 @@
   line-height 36px
   margin 0 1px 0 0
   border-radius 3px 3px 0 0
-  background main-dark
+  background var(--main-dark)
   text-align center
-  color text-dark
+  color var(--text-dark)
   &.tab-last
     margin-right 5px
   .tab-reload
   .tab-close
     display none
   &.active
-    color text
-    background main
+    color var(--text)
+    background var(--main)
     .tab-count
       opacity 1
   &:hover
@@ -63,12 +63,12 @@
     left -2px
     top 0
     width 1px
-    border 1px dashed text-dark
+    border 1px dashed var(--text-dark)
     height 36px
   &.error
     .tab-reload
       display inline-block
-      color text-light
+      color var(--text-light)
 @keyframes blink
   0%
     background-color #e0e0e0
@@ -86,13 +86,13 @@
   width 5px
   height 5px
   border-radius 5px
-  background-color text-dark
+  background-color var(--text-dark)
   &.success
-    background-color success
+    background-color var(--success)
   &.error
-    background-color error
+    background-color var(--error)
   &.processing
-    background-color primary
+    background-color var(--primary)
 .is-transporting .tab-traffic
   display block
   animation blink 2s infinite
@@ -102,7 +102,7 @@
   left 10px
   width 5px
   border-radius 0
-  background-color success
+  background-color var(--success)
 .is-terminal-active .tab-terminal-feed
   display block
   animation blink 2s infinite
@@ -111,7 +111,7 @@
   display none
   left 20px
   border-radius 0
-  color success
+  color var(--success)
   background none
   font-size 8px
   left 2px
@@ -122,16 +122,16 @@
   cursor pointer
   top 50%
   margin-top -8px
-  background text-dark
+  background var(--text-dark)
   border-radius 100%
-  color text
+  color var(--text)
   height 16px
   width 16px
   text-align center
   line-height 16px
   font-size 10px
   &:hover
-    color text-light
+    color var(--text-light)
 
 .tabs-add-btn
   display inline-block
@@ -143,7 +143,7 @@
     margin-left 20px
     margin-top 10px
   &:hover
-    color text-light
+    color var(--text-light)
 .tabs-extra
   position absolute
   height 40px
@@ -165,21 +165,21 @@
   z-index 900
   border-radius 0 0 3px 3px
   padding 0
-  background main-light
+  background var(--main-light)
 
 .window-control-box
   display inline-block
   padding 5px 10px
-  color text
+  color var(--text)
   &:hover
-    color primary
+    color var(--primary)
     cursor pointer
     .icon-maximize
-      border-color primary
+      border-color var(--primary)
 .icon-maximize
   width 10px
   height 7px
-  border 1px solid text
+  border 1px solid var(--text)
   cursor pointer
   &.is-max
     height 6px
@@ -196,11 +196,11 @@
       border-right none
 
 .control-icon:hover
-  color text-light
+  color var(--text-light)
 .tab-scroll-icon
-  color text-dark
+  color var(--text-dark)
   &:hover
-    color text
+    color var(--text)
 
 .add-menu-wrap
   overflow-y scroll
@@ -208,9 +208,9 @@
   .window-control-minimize
   .window-control-maximize
     &:hover
-      background main-dark
+      background var(--main-dark)
   .window-control-close:hover
-    background error
+    background var(--error)
 
 .system-ui
   .window-controls
@@ -219,7 +219,7 @@
   margin-right 5px
   font-size 14px
 .no-sessions
-  background main
+  background var(--main)
   text-align center
   padding 50px 0
   position absolute

@@ -1,5 +1,3 @@
-@require '../../css/includes/theme-default'
-
 .sftp-wrap
   display flex
   flex-direction row
@@ -17,15 +15,15 @@
   margin-bottom 4px
   &:nth-child(even)
     .sftp-file-prop
-      background main
+      background var(--main)
   &:hover
     .sftp-file-prop
-      background-color primary
-      color contrastColor(primary)
+      background-color var(--primary)
+      color var(--primary-contrast)
   &.selected
     .sftp-file-prop
-      background-color darken(primary, 30%)
-      color contrastColor(primary)
+      background-color var(--primary)
+      color var(--primary-contrast)
 .sftp-history
   position absolute
   left 0
@@ -40,15 +38,15 @@
   border-radius 3px
   &.focused
     height auto
-    border 1px solid main-dark
-    box-shadow 0px 0px 3px 3px lighten(main, 5%)
+    border 1px solid var(--main-dark)
+    box-shadow 0px 0px 3px 3px var(--main-light)
 
 .sftp-history-item
   padding 5px 10px
   cursor pointer
-  border-bottom 1px solid primary
+  border-bottom 1px solid var(--main-dark)
   &:hover
-    background main-dark
+    background var(--main-dark)
 
 .sftp-item-title
   width 100%
@@ -57,11 +55,11 @@
 .sftp-item-size
   width 24%
 .sftp-status-success
-  color success
+  color var(--success)
 .sftp-status-exception
-  color error
+  color var(--error)
 .sftp-status-active
-  color primary
+  color var(--primary)
 
 .virtual-file
   .sftp-item
@@ -87,10 +85,9 @@
   margin-left 70px
 
 .sftp-sort-btn
-  color text
   &.active
     font-weight bold
-    color text-light
+    color var(--text-light)
 
 //list table
 .sftp-file-prop
@@ -98,13 +95,13 @@
   height 32px
   line-height 30px
   padding 0 5px
-  background main
+  background var(--main)
   overflow hidden
   white-space nowrap
   text-overflow ellipsis
   pointer-events none
   cursor default
-  color text
+  color var(--text)
 
 .file-bg
   position absolute
@@ -134,8 +131,8 @@
 .sftp-item
   &.sftp-dragover
     .sftp-file-prop
-      background primary !important
-      color text-light !important
+      background var(--primary) !important
+      color var(--text) !important
   &.sftp-dragover-multi
     &:after
     &:before
@@ -144,7 +141,7 @@
       top 2px
       width 100%
       height 100%
-      background main-light
+      background var(--main-light)
       content ''
       z-index -1
     &:after
@@ -158,12 +155,11 @@
 
 //sftp
 .sftp-panel
-  background main
-  color text
+  background var(--main)
 
 .file-list
   ::-webkit-scrollbar-thumb
-    background-color primary !important
+    background-color var(--primary) !important
 
 .pager-wrap
   z-index 4
@@ -175,4 +171,4 @@
 .keyword-filter-icon
   &:hover
   &.active
-    color success
+    color var(--success)
