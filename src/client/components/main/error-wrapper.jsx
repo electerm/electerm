@@ -20,9 +20,9 @@ const troubleshootContent = {
     windows: 'path\\to\\electerm.exe'
   },
   clearConfig: {
-    mac: 'rm -rf ~/Library/Application\\ Support/electerm/users/default_user/electerm.data.nedb',
-    linux: 'rm -rf ~/.config/electerm/users/default_user/electerm.data.nedb',
-    windows: 'Delete C:\\Users\\your-user-name\\AppData\\Roaming\\electerm\\users\\default_user\\electerm.data.nedb'
+    mac: 'rm -rf ~/Library/Application\\ Support/electerm/users/default_user/electerm_data.db',
+    linux: 'rm -rf ~/.config/electerm/users/default_user/electerm_data.db',
+    windows: 'Delete C:\\Users\\your-user-name\\AppData\\Roaming\\electerm\\users\\default_user\\electerm_data.db'
   },
   clearData: {
     mac: 'rm -rf ~/Library/Application\\ Support/electerm*',
