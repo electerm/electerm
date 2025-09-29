@@ -23,6 +23,9 @@ export default function TerminalBackgroundConfig ({
   isGlobal = false,
   batchUpdate
 }) {
+  if (!config) {
+    return null
+  }
   const [showTextModal, setShowTextModal] = useState(false)
   const value = config[name]
   const defaultValue = defaultSettings[name]
