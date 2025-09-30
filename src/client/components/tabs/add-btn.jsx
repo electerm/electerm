@@ -3,6 +3,7 @@
  */
 
 import React, { Component } from 'react'
+import { createPortal } from 'react-dom'
 import {
   CodeFilled,
   PlusOutlined,
@@ -27,6 +28,16 @@ export default class AddBtn extends Component {
     this.addBtnRef = React.createRef()
     this.menuRef = React.createRef()
     this.hideTimeout = null
+    this.portalContainer = null
+  }
+
+  getPortalContainer = () => {
+    if (!this.portalContainer) {
+      this.portalContainer = document.createElement('div')
+      this.portalContainer.className = 'add-btn-menu-portal'
+      document.body.appendChild(this.portalContainer)
+    }
+    return this.portalContainer
   }
 
   componentDidMount () {
@@ -42,6 +53,11 @@ export default class AddBtn extends Component {
     document.removeEventListener('ant-dropdown-hide', this.handleDropdownHide)
     if (this.hideTimeout) {
       clearTimeout(this.hideTimeout)
+    }
+    // Clean up portal container
+    if (this.portalContainer) {
+      document.body.removeChild(this.portalContainer)
+      this.portalContainer = null
     }
   }
 
@@ -192,7 +208,7 @@ export default class AddBtn extends Component {
         ref={this.menuRef}
         className={`add-menu-wrap add-menu-${menuPosition}`}
         style={{
-          maxHeight: window.innerHeight - 200,
+          maxHeight: window.innerHeight - menuTop - 50,
           top: menuTop,
           left: menuLeft
         }}
@@ -235,7 +251,7 @@ export default class AddBtn extends Component {
           onMouseLeave={this.handleMouseLeave}
           ref={this.addBtnRef}
         />
-        {open && this.renderMenus()}
+        {open && createPortal(this.renderMenus(), this.getPortalContainer())}
       </>
     )
   }
