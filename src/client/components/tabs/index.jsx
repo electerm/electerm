@@ -8,12 +8,9 @@ import runIdle from '../../common/run-idle'
 import { throttle } from 'lodash-es'
 import TabTitle from './tab-title'
 import {
-  CodeFilled,
   DownOutlined,
   LeftOutlined,
-  PlusOutlined,
-  RightOutlined,
-  RightSquareFilled
+  RightOutlined
 } from '@ant-design/icons'
 import {
   SingleIcon,
@@ -25,7 +22,7 @@ import {
   TwoRowsRightIcon,
   TwoColumnsBottomIcon
 } from '../icons/split-icons'
-import { Dropdown, Popover } from 'antd'
+import { Dropdown } from 'antd'
 import Tab from './tab'
 import './tabs.styl'
 import {
@@ -37,7 +34,7 @@ import {
   splitMapDesc
 } from '../../common/constants'
 import WindowControl from './window-control'
-import BookmarksList from '../sidebar/bookmark-select'
+import AddBtn from './add-btn'
 import AppDrag from './app-drag'
 import NoSession from './no-session'
 import classNames from 'classnames'
@@ -190,45 +187,6 @@ export default class Tabs extends Component {
     window.store.setLayout(key)
   }
 
-  handleOpenChange = (open) => {
-    if (open) {
-      window.openTabBatch = this.props.batch
-    }
-  }
-
-  renderMenus () {
-    const { onNewSsh } = window.store
-    const cls = 'pd2x pd1y context-item pointer'
-    const addTabBtn = window.store.hasNodePty
-      ? (
-        <div
-          className={cls}
-          onClick={this.handleTabAdd}
-        >
-          <RightSquareFilled /> {e('newTab')}
-        </div>
-        )
-      : null
-    return (
-      <div
-        className='add-menu-wrap' style={{
-          maxHeight: window.innerHeight - 200
-        }}
-      >
-        <div
-          className={cls}
-          onClick={onNewSsh}
-        >
-          <CodeFilled /> {e('newBookmark')}
-        </div>
-        {addTabBtn}
-        <BookmarksList
-          store={window.store}
-        />
-      </div>
-    )
-  }
-
   renderAddBtn = () => {
     const cls = classNames(
       'pointer tabs-add-btn font16',
@@ -237,17 +195,11 @@ export default class Tabs extends Component {
       }
     )
     return (
-      <Popover
-        content={this.renderMenus()}
-        onOpenChange={this.handleOpenChange}
-        placement='bottomRight'
-      >
-        <PlusOutlined
-          title={e('openNewTerm')}
-          className={cls}
-          onClick={this.handleTabAdd}
-        />
-      </Popover>
+      <AddBtn
+        className={cls}
+        empty={!this.props.tabs?.length}
+        batch={this.props.batch}
+      />
     )
   }
 

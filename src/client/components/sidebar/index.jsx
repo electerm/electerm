@@ -20,6 +20,7 @@ import {
 } from '../../common/constants'
 import SideIcon from './side-icon'
 import SidePanel from './side-panel'
+import hasActiveInput from '../../common/has-active-input'
 import './sidebar.styl'
 
 const e = window.translate
@@ -50,6 +51,11 @@ export default memo(function Sidebar (props) {
     if (pinned) {
       return false
     }
+
+    if (hasActiveInput()) {
+      return false
+    }
+
     handler.current = setTimeout(
       () => store.setOpenedSideBar(''),
       400
