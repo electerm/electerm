@@ -27,7 +27,7 @@ import fs from '../../common/fs'
 import ListTable from './list-table-ui'
 import deepCopy from 'json-deep-copy'
 import isValidPath from '../../common/is-valid-path'
-
+import { LoadingOutlined } from '@ant-design/icons'
 import * as owner from './owner-list'
 import AddressBar from './address-bar'
 import getProxy from '../../common/get-proxy'
@@ -47,7 +47,8 @@ export default class Sftp extends Component {
       onEditFile: false,
       ...this.defaultState(),
       loadingSftp: false,
-      inited: false
+      inited: false,
+      ready: false
     }
     this.retryCount = 0
   }
@@ -58,6 +59,11 @@ export default class Sftp extends Component {
     if (this.props.isFtp) {
       this.initFtpData()
     }
+    this.timer = setTimeout(() => {
+      this.setState({
+        ready: true
+      })
+    }, 100)
   }
 
   componentDidUpdate (prevProps, prevState) {
@@ -1261,10 +1267,18 @@ export default class Sftp extends Component {
   }
 
   render () {
-    const { height } = this.props
     const {
-      id
+      id,
+      ready
     } = this.state
+    if (!ready) {
+      return (
+        <div className='pd3 aligncenter'>
+          <LoadingOutlined />
+        </div>
+      )
+    }
+    const { height } = this.props
     const all = {
       className: 'sftp-wrap overhide relative',
       id: `id-${id}`,
