@@ -119,7 +119,7 @@ export default class FileSection extends React.Component {
 
   onCopy = (targetFiles, isCut) => {
     const { file } = this.state
-    const selected = this.isSelected(file)
+    const selected = this.isSelected(file.id)
     const files = targetFiles ||
       (
         selected
@@ -138,7 +138,7 @@ export default class FileSection extends React.Component {
 
   onCopyPath = (targetFiles) => {
     const { file } = this.state
-    const selected = this.isSelected(file)
+    const selected = this.isSelected(file.id)
     const files = targetFiles ||
       (
         selected
@@ -339,7 +339,7 @@ export default class FileSection extends React.Component {
   }
 
   transferDrop = (fromFiles, toFile, operation) => {
-    const files = this.isSelected(fromFiles[0])
+    const files = this.isSelected(fromFiles[0]?.id)
       ? this.props.getSelectedFiles()
       : fromFiles
     return this.doTransferSelected(
@@ -351,8 +351,8 @@ export default class FileSection extends React.Component {
     )
   }
 
-  isSelected = file => {
-    return this.props.selectedFiles.has(file.id)
+  isSelected = (fileId = '') => {
+    return this.props.selectedFiles.has(fileId)
   }
 
   doRename = () => {
@@ -872,7 +872,7 @@ export default class FileSection extends React.Component {
   }
 
   handleContextMenuCapture = (e) => {
-    if (!this.isSelected(this.state.file)) {
+    if (!this.isSelected(this.state.file.id)) {
       this.onClick(e)
     }
     this.contextMenuPosition = {
