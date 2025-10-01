@@ -23,6 +23,7 @@ import CategorySelect from './category-select.jsx'
 import RdpAlert from './rdp-alert.jsx'
 
 const Fragment = React.Fragment
+const FormItem = Form.Item
 
 const { TextArea } = Input
 const commonRenderTypes = new Set([
@@ -47,7 +48,7 @@ const commonRenderTypes = new Set([
  * @returns {JSX.Element|null} Rendered form item
  */
 export function renderFormItem (item, formItemLayout, form, ctxProps, index) {
-  const { type, name, label, rules, valuePropName, hidden } = item
+  const { type, name, label, rules, valuePropName, hidden, normalize } = item
 
   // Render simple AntD controls directly inside Form.Item
   if (commonRenderTypes.has(type)) {
@@ -93,18 +94,22 @@ export function renderFormItem (item, formItemLayout, form, ctxProps, index) {
         control = null
     }
     if (!control) return null
+    const formItemProps = {
+      ...formItemLayout,
+      className: cls,
+      label,
+      name,
+      rules,
+      valuePropName,
+      normalize
+    }
     return (
-      <Form.Item
+      <FormItem
         key={name}
-        {...formItemLayout}
-        className={cls}
-        label={label}
-        name={name}
-        rules={rules}
-        valuePropName={valuePropName}
+        {...formItemProps}
       >
         {control}
-      </Form.Item>
+      </FormItem>
     )
   }
 
