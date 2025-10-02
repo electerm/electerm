@@ -45,11 +45,20 @@ function onDestroyTransfer (id, sftpId) {
   sftpInst && delete sftpInst.transfers[id]
 }
 
+function cleanAllSessions () {
+  const { sessions } = globalState.data
+  for (const id in sessions) {
+    const inst = sessions[id]
+    inst && inst.kill && inst.kill()
+  }
+}
+
 module.exports = {
   sftp,
   transfer,
   onDestroySftp,
   onDestroyTerminal: onDestroySftp,
   onDestroyTransfer,
-  terminals
+  terminals,
+  cleanAllSessions
 }
