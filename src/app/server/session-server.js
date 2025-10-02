@@ -5,7 +5,9 @@ const {
   sftp,
   transfer,
   onDestroySftp,
-  onDestroyTransfer
+  onDestroyTransfer,
+  terminals,
+  cleanAllSessions
 } = require('./remote-common')
 const { Transfer } = require('./transfer')
 const { Transfer: FtpTransfer } = require('./ftp-transfer')
@@ -20,9 +22,6 @@ const {
   toggleTerminalLog,
   toggleTerminalLogTimestamp
 } = require('./session-api')
-const {
-  terminals
-} = require('./remote-common')
 const {
   isWin
 } = require('../common/runtime-constants')
@@ -56,6 +55,9 @@ if (type === 'rdp') {
     ws.on('error', (err) => {
       log.error(err)
     })
+    ws.on('close', () => {
+      cleanup()
+    })
   })
 } else if (type === 'vnc') {
   app.ws('/vnc/:pid', function (ws, req) {
@@ -68,6 +70,9 @@ if (type === 'rdp') {
     log.debug('ws: connected to vnc session ->', pid)
     ws.on('error', (err) => {
       log.error(err)
+    })
+    ws.on('close', () => {
+      cleanup()
     })
   })
 } else {
@@ -91,7 +96,7 @@ if (type === 'rdp') {
       log.debug('Closed terminal ' + pid)
       // Clean things up
       ws.close && ws.close()
-      process.exit()
+      cleanup()
     }
 
     term.on('close', onClose)
@@ -279,15 +284,20 @@ async function main () {
 
 main()
 
+function cleanup () {
+  cleanAllSessions()
+  setTimeout(() => {
+    process.exit(0)
+  }, 2000)
+}
+
 process.on('uncaughtException', (err) => {
   log.error('uncaughtException', err)
-  process.exit(0)
+  cleanup()
 })
 process.on('unhandledRejection', (err) => {
   log.error('unhandledRejection', err)
-  process.exit(0)
+  cleanup()
 })
 
-process.on('SIGTERM', () => {
-  process.exit(0)
-})
+process.on('SIGTERM', cleanup)

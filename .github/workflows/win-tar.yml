@@ -5,7 +5,7 @@ name: win-tar
 
 on:
   push:
-    branches: [ build, test, build-only ]
+    branches: [ build, test, build-only, win-tar ]
 
 jobs:
   build:

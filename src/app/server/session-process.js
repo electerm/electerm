@@ -208,12 +208,11 @@ exports.cleanupTerminals = function () {
 }
 
 // Clean up on process exit
-process.on('exit', () => {
-  exports.cleanupTerminals()
-})
 process.on('SIGINT', () => {
   exports.cleanupTerminals()
+  process.exit()
 })
 process.on('SIGTERM', () => {
   exports.cleanupTerminals()
+  process.exit()
 })

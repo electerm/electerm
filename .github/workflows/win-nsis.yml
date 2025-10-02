@@ -5,7 +5,7 @@ name: win-nsis
 
 on:
   push:
-    branches: [ build, test, build-only ]
+    branches: [ build, test, build-only, win-nsis ]
 
 jobs:
   build:
