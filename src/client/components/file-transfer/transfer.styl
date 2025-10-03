@@ -33,10 +33,15 @@
   display flex
   padding 8px 5px
   &:hover
-    background var(--primary)
-    color var(--primary-contrast)
-.sftp-transport .transfer-control-icon:hover
-  color var(--primary)
+    font-weight bold
+  .transfer-control-icon
+    padding-right 5px
+    padding-left 5px
+    margin-top -2px
+    &:hover
+      color var(--primary-contrast)
+      background var(--primary)
+      border-radius 20px
 
 .flex-child + .flex-child
   margin-left 5px
