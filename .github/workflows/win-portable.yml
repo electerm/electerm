@@ -39,7 +39,6 @@ jobs:
     - run: npm run b
 
     - name: build
-      if: "!contains(github.event.head_commit.message, 'skip build')"
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         BUILD_NUMBER: ${{ secrets.BUILD_NUMBER }}
