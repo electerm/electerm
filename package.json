@@ -9,7 +9,6 @@
     "build": "npm run vite-build",
     "start": "node build/bin/start.js",
     "icon": "node build/bin/icon",
-    "ver": "node build/bin/generate-version",
     "clean": "node build/bin/clean",
     "compile": "node build/bin/build",
     "vite-build": "node build/bin/vite-build.js",
