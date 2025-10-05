@@ -7,7 +7,8 @@ import { LoadingOutlined, CheckCircleOutlined } from '@ant-design/icons'
 import { pick } from 'lodash-es'
 import { Pagination } from 'antd'
 import ThemeListItem from './theme-list-item'
-import { defaultTheme, settingMap } from '../../common/constants'
+import { settingMap } from '../../common/constants'
+import { defaultTheme } from '../../common/theme-defaults'
 import getInitItem from '../../common/init-setting-item'
 import './terminal-theme-list.styl'
 
@@ -48,7 +49,7 @@ export default class ThemeList extends List {
       return null
     }
     const { name, id } = item
-    const title = id === defaultTheme.id
+    const title = id === defaultTheme().id
       ? e(id)
       : name
     return (

@@ -3,9 +3,12 @@
  */
 
 import {
-  defaultTheme,
   settingMap
 } from '../common/constants'
+import {
+  defaultTheme
+} from '../common/theme-defaults'
+
 import copy from 'json-deep-copy'
 
 export default Store => {
@@ -15,6 +18,6 @@ export default Store => {
       .find(d => d.id === store.config.theme)
     return theme && theme.uiThemeConfig
       ? copy(theme.uiThemeConfig)
-      : defaultTheme.uiThemeConfig
+      : defaultTheme().uiThemeConfig
   }
 }

@@ -1,7 +1,13 @@
 import { useRef, useState } from 'react'
 import { Button, Input, message, Upload, Form, Space } from 'antd'
-import { convertTheme, convertThemeToText, exportTheme, validThemeProps, requiredThemeProps } from '../../common/terminal-theme'
-import { defaultTheme, defaultThemeLight } from '../../common/constants'
+import {
+  convertTheme,
+  convertThemeToText,
+  exportTheme,
+  validThemeProps,
+  requiredThemeProps
+} from '../../common/terminal-theme'
+import { defaultTheme, defaultThemeLight } from '../../common/theme-defaults'
 import generate from '../../common/uid'
 import Link from '../common/external-link'
 import InputAutoFocus from '../common/input-auto-focus'
@@ -229,7 +235,7 @@ export default function ThemeForm (props) {
     themeName,
     themeText: convertThemeToText(props.formData)
   }
-  const isDefaultTheme = id === defaultTheme.id || id === defaultThemeLight.id
+  const isDefaultTheme = id === defaultTheme().id || id === defaultThemeLight().id
   const disabled = readonly || isDefaultTheme
   const switchTxt = editor === 'theme-editor-txt' ? e('editWithColorPicker') : e('editWithTextEditor')
   const pickerProps = {

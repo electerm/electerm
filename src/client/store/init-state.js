@@ -24,7 +24,6 @@ import {
   splitMap,
   cmdHistoryKey
 } from '../common/constants'
-import { buildDefaultThemes } from '../common/terminal-theme'
 import * as ls from '../common/safe-local-storage'
 import { exclude } from 'manate'
 import initSettingItem from '../common/init-setting-item'
@@ -61,9 +60,7 @@ export default () => {
     profiles: [],
     bookmarkGroups: getDefaultBookmarkGroups([]),
     _config: {},
-    terminalThemes: [
-      buildDefaultThemes()
-    ],
+    terminalThemes: [],
     itermThemes: exclude([]),
     currentBookmarkGroupId: defaultBookmarkGroupId,
     expandedKeys: ls.getItemJSON(expandedKeysLsKey, [

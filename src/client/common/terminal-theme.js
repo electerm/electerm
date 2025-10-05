@@ -2,9 +2,12 @@
  * theme control
  */
 
-import { defaultTheme, settingMap } from '../common/constants'
+import { settingMap } from '../common/constants'
 import download from '../common/download'
-import copy from 'json-deep-copy'
+import {
+  defaultTheme
+} from './theme-defaults'
+
 const e = window.translate
 const terminalPrefix = 'terminal:'
 export const requiredThemeProps = [
@@ -46,21 +49,13 @@ export const validThemeProps = [
   ...requiredThemeProps,
   'name'
 ]
-/**
- * build default themes
- */
-export const buildDefaultThemes = () => {
-  return {
-    [defaultTheme.id]: defaultTheme
-  }
-}
 
 /**
  * build new theme
  */
-export const buildNewTheme = (theme = defaultTheme) => {
+export const buildNewTheme = (theme = defaultTheme()) => {
   return Object.assign(
-    copy(theme),
+    theme,
     {
       id: '',
       name: e('newTheme')
@@ -132,7 +127,7 @@ export const convertTheme = (themeTxt) => {
  * @return {array} extra keys
  */
 export const verifyTheme = (themeConfig) => {
-  const keysRight = Object.keys(defaultTheme.themeConfig)
+  const keysRight = Object.keys(defaultTheme().themeConfig)
   const keys = Object.keys(themeConfig)
   const extraKeys = keys.filter(k => !keysRight.includes(k))
   return extraKeys

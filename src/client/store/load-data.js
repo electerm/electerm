@@ -181,7 +181,6 @@ export default (Store) => {
       })
     ext.lastDataUpdateTime = await getData('lastDataUpdateTime') || 0
     Object.assign(store, ext)
-    store.checkDefaultTheme()
     store.loadFontList()
     store.fetchItermThemes()
     store.openInitSessions()
