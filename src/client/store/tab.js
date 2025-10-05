@@ -9,7 +9,7 @@ import {
   paneMap,
   maxHistory
 } from '../common/constants'
-import { refs } from '../components/common/ref'
+import { refs, refsTabs } from '../components/common/ref'
 import { message } from 'antd'
 import * as ls from '../common/safe-local-storage'
 import deepCopy from 'json-deep-copy'
@@ -571,7 +571,7 @@ export default Store => {
   })
 
   Store.prototype.notifyTabOnData = function (tabId) {
-    const tab = refs.get('tab-' + tabId)
+    const tab = refsTabs.get('tab-' + tabId)
     if (tab) {
       tab.notifyOnData()
     }

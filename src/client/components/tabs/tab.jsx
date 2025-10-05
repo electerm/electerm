@@ -4,7 +4,7 @@
 
 import { createRef } from 'react'
 import { Component } from 'manate/react/class-components'
-import { refs } from '../common/ref'
+import { refsTabs } from '../common/ref'
 import {
   CloseOutlined,
   Loading3QuartersOutlined,
@@ -36,22 +36,13 @@ class Tab extends Component {
       terminalOnData: false
     }
     this.id = 'tab-' + this.props.tab.id
-    refs.add(this.id, this)
+    refsTabs.add(this.id, this)
   }
 
   tabRef = createRef()
 
-  componentDidUpdate (prevProps) {
-    if (this.props.openContextMenu && !prevProps.openContextMenu) {
-      this.handleContextMenu()
-    }
-    if (this.props.contextFunc && !prevProps.contextFunc) {
-      this[this.props.contextFunc](...this.props.contextArgs)
-    }
-  }
-
   componentWillUnmount () {
-    refs.remove(this.id)
+    refsTabs.remove(this.id)
     clearTimeout(this.timer)
     this.timer = null
   }
