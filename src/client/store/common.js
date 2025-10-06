@@ -326,6 +326,10 @@ export default Store => {
     return aiConfigsArr.slice(0, -1).some(k => !window.store.config[k])
   }
 
+  Store.prototype.clearHistory = function () {
+    window.store.history = []
+  }
+
   Store.prototype.addCmdHistory = action(function (cmd) {
     const { terminalCommandHistory } = window.store
     terminalCommandHistory.add(cmd)

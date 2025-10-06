@@ -106,23 +106,18 @@ class Store {
   get inActiveTerminal () {
     const { store } = window
     if (store.showModal) {
-      console.log('inActiveTerminal because showModal')
       return false
     }
     const { currentTab } = store
     if (!currentTab) {
-      console.log('inActiveTerminal because no currentTab')
       return false
     }
     const {
       type
     } = currentTab
     if (type === 'web' || type === 'rdp' || type === 'vnc') {
-      console.log('inActiveTerminal because type', type)
       return false
     }
-    console.log('currentTab.sshSftpSplitView', currentTab.sshSftpSplitView)
-    console.log('currentTab.pane', currentTab.pane)
     return currentTab.sshSftpSplitView ||
       currentTab.pane === paneMap.terminal
   }

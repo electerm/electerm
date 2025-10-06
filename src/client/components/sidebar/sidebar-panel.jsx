@@ -7,7 +7,14 @@ import BookmarkWrap from './bookmark'
 import History from './history'
 import { pick } from 'lodash-es'
 import { Tabs, Tooltip } from 'antd'
-import { ArrowsAltOutlined, EditOutlined, PlusCircleOutlined, ShrinkOutlined, PushpinOutlined } from '@ant-design/icons'
+import {
+  ArrowsAltOutlined,
+  EditOutlined,
+  PlusCircleOutlined,
+  ShrinkOutlined,
+  PushpinOutlined,
+  UnorderedListOutlined
+} from '@ant-design/icons'
 
 const e = window.translate
 
@@ -20,9 +27,21 @@ export default memo(function SidebarPanel (props) {
   const prps1 = {
     className: prps.className + (pinned ? ' pinned' : '')
   }
+  const props2 = {
+    onClick: store.clearHistory,
+    className: 'mg2x pointer clear-ai-icon icon-hover'
+  }
+  const tabBarExtraContent = sidebarPanelTab === 'history'
+    ? (
+      <UnorderedListOutlined
+        {...props2}
+      />
+      )
+    : null
   const tabsProps = {
     activeKey: sidebarPanelTab,
     onChange: store.handleSidebarPanelTab,
+    tabBarExtraContent,
     items: [
       {
         key: 'bookmarks',
