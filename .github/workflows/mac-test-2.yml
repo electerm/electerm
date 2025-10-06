@@ -10,7 +10,7 @@ on:
 jobs:
   build:
 
-    runs-on: macos-15
+    runs-on: macos-15-intel
     environment: build
     if: ${{ !contains(github.event.head_commit.message, '[skip test]') && !contains(github.event.head_commit.message, '[skip ci]') && !contains(github.event.head_commit.message, '[skip mac]') && !contains(github.event.head_commit.message, '[skip test2]') }}
 
