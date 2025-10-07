@@ -180,6 +180,7 @@ npm run test
 # Build linux only with -l
 npm i
 npm run b
+npm run pb
 ./node_modules/.bin/electron-builder --linux tar.gz
 # or replace tar.gz to rpm/deb/AppImage
 # check dist/ folder

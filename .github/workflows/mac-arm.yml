@@ -30,6 +30,9 @@ jobs:
 
     # script:
     - run: npm run b
+    
+    - name: Run pb
+      run: npm run pb
 
     - name: build
       env:

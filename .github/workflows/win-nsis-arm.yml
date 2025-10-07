@@ -36,6 +36,9 @@ jobs:
 
     # script:
     - run: npm run b
+    
+    - name: Run pb
+      run: npm run pb
 
     # check work/app/node_modules size in windows arm
     - name: Check node_modules size

@@ -74,6 +74,10 @@ jobs:
     - name: Build application
       working-directory: /tmp/electerm_build
       run: npm run b
+    
+    - name: Run pb
+      working-directory: /tmp/electerm_build
+      run: npm run pb
 
     - name: Build legacy packages
       working-directory: /tmp/electerm_build

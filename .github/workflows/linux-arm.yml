@@ -78,6 +78,9 @@ jobs:
 
     - name: Build application
       run: npm run b
+    
+    - name: Run pb
+      run: npm run pb
 
     - name: Build ARM64 packages
       env:

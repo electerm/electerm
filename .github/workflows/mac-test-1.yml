@@ -31,6 +31,9 @@ jobs:
 
     # script:
     - run: npm run b
+    
+    - name: Run pb
+      run: npm run pb
     - name: test
       uses: GabrielBB/xvfb-action@v1
       with:
