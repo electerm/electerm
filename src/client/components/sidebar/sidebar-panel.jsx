@@ -5,7 +5,6 @@
 import { memo } from 'react'
 import BookmarkWrap from './bookmark'
 import History from './history'
-import { pick } from 'lodash-es'
 import { Tabs, Tooltip } from 'antd'
 import {
   ArrowsAltOutlined,
@@ -88,7 +87,6 @@ export default memo(function SidebarPanel (props) {
   return (
     <div
       className='sidebar-panel bookmarks-panel animate-fast'
-      {...pick(props, ['onMouseEnter', 'onMouseLeave'])}
     >
       <div className='sidebar-pin-top'>
         <div className='pd1y pd2t pd2x sidebar-panel-control alignright'>

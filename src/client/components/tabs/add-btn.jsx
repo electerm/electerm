@@ -27,7 +27,6 @@ export default class AddBtn extends Component {
     }
     this.addBtnRef = React.createRef()
     this.menuRef = React.createRef()
-    this.hideTimeout = null
     this.portalContainer = null
   }
 
@@ -40,19 +39,9 @@ export default class AddBtn extends Component {
     return this.portalContainer
   }
 
-  componentDidMount () {
-    document.addEventListener('click', this.handleDocumentClick)
-    // Listen for dropdown events to prevent menu closing
-    document.addEventListener('ant-dropdown-show', this.handleDropdownShow)
-    document.addEventListener('ant-dropdown-hide', this.handleDropdownHide)
-  }
-
   componentWillUnmount () {
-    document.removeEventListener('click', this.handleDocumentClick)
-    document.removeEventListener('ant-dropdown-show', this.handleDropdownShow)
-    document.removeEventListener('ant-dropdown-hide', this.handleDropdownHide)
-    if (this.hideTimeout) {
-      clearTimeout(this.hideTimeout)
+    if (this.state.open) {
+      document.removeEventListener('click', this.handleDocumentClick)
     }
     // Clean up portal container
     if (this.portalContainer) {
@@ -61,17 +50,13 @@ export default class AddBtn extends Component {
     }
   }
 
-  handleDropdownShow = () => {
-    // Cancel any pending hide timeout when dropdown shows
-    if (this.hideTimeout) {
-      clearTimeout(this.hideTimeout)
-      this.hideTimeout = null
+  componentDidUpdate (prevProps, prevState) {
+    // Attach or detach document click listener only when menu open state changes
+    if (this.state.open && !prevState.open) {
+      document.addEventListener('click', this.handleDocumentClick)
+    } else if (!this.state.open && prevState.open) {
+      document.removeEventListener('click', this.handleDocumentClick)
     }
-  }
-
-  handleDropdownHide = () => {
-    // Small delay after dropdown hides before allowing menu to close
-    // This prevents flicker when dropdown closes
   }
 
   handleDocumentClick = (e) => {
@@ -89,86 +74,6 @@ export default class AddBtn extends Component {
     }
 
     this.setState({ open: false })
-  }
-
-  handleMouseEnter = () => {
-    if (this.hideTimeout) {
-      clearTimeout(this.hideTimeout)
-      this.hideTimeout = null
-    }
-
-    // Calculate menu position
-    if (this.addBtnRef.current) {
-      const rect = this.addBtnRef.current.getBoundingClientRect()
-      const windowWidth = window.innerWidth
-      const windowHeight = window.innerHeight
-
-      // Estimate menu width and height
-      const estimatedMenuWidth = Math.min(300, windowWidth - 40) // Responsive width
-      const estimatedMenuHeight = 400 // Rough estimate
-
-      // Calculate fixed position coordinates
-      let menuTop = rect.bottom + 4 // 4px margin
-      let menuLeft = rect.left
-      let menuPosition = 'right'
-
-      // Check if menu would overflow bottom of screen
-      if (menuTop + estimatedMenuHeight > windowHeight - 20) {
-        menuTop = rect.top - estimatedMenuHeight - 4 // Show above button
-      }
-
-      // If aligning right would cause overflow, align left instead
-      if (rect.left + estimatedMenuWidth > windowWidth - 20) {
-        menuPosition = 'left'
-        menuLeft = rect.right - estimatedMenuWidth
-      }
-
-      // If aligning left would cause overflow (negative position), force right
-      if (menuLeft < 20) {
-        menuPosition = 'right'
-        menuLeft = Math.max(20, rect.left) // Ensure at least 20px from edge
-      }
-
-      // Final check to ensure menu doesn't go off screen
-      if (menuLeft + estimatedMenuWidth > windowWidth - 20) {
-        menuLeft = windowWidth - estimatedMenuWidth - 20
-      }
-
-      this.setState({
-        open: true,
-        menuPosition,
-        menuTop,
-        menuLeft
-      })
-
-      if (!this.state.open) {
-        window.openTabBatch = this.props.batch
-      }
-    }
-  }
-
-  handleMouseLeave = () => {
-    this.hideTimeout = setTimeout(() => {
-      this.setState({ open: false })
-    }, 200)
-  }
-
-  handleMenuMouseEnter = () => {
-    if (this.hideTimeout) {
-      clearTimeout(this.hideTimeout)
-      this.hideTimeout = null
-    }
-  }
-
-  handleMenuMouseLeave = () => {
-    // Don't close if there's an active input or dropdown
-    if (hasActiveInput()) {
-      return
-    }
-
-    this.hideTimeout = setTimeout(() => {
-      this.setState({ open: false })
-    }, 200)
   }
 
   handleMenuScroll = (e) => {
@@ -212,8 +117,6 @@ export default class AddBtn extends Component {
           top: menuTop,
           left: menuLeft
         }}
-        onMouseEnter={this.handleMenuMouseEnter}
-        onMouseLeave={this.handleMenuMouseLeave}
         onScroll={this.handleMenuScroll}
       >
         <div
@@ -228,6 +131,59 @@ export default class AddBtn extends Component {
         />
       </div>
     )
+  }
+
+  handleAddBtnClick = () => {
+    if (this.state.open) {
+      this.setState({ open: false })
+    } else {
+      // Calculate menu position and open the menu
+      if (this.addBtnRef.current) {
+        const rect = this.addBtnRef.current.getBoundingClientRect()
+        const windowWidth = window.innerWidth
+        const windowHeight = window.innerHeight
+
+        // Estimate menu width and height
+        const estimatedMenuWidth = Math.min(300, windowWidth - 40) // Responsive width
+        const estimatedMenuHeight = 400 // Rough estimate
+
+        // Calculate fixed position coordinates
+        let menuTop = rect.bottom + 4 // 4px margin
+        let menuLeft = rect.left
+        let menuPosition = 'right'
+
+        // Check if menu would overflow bottom of screen
+        if (menuTop + estimatedMenuHeight > windowHeight - 20) {
+          menuTop = rect.top - estimatedMenuHeight - 4 // Show above button
+        }
+
+        // If aligning right would cause overflow, align left instead
+        if (rect.left + estimatedMenuWidth > windowWidth - 20) {
+          menuPosition = 'left'
+          menuLeft = rect.right - estimatedMenuWidth
+        }
+
+        // If aligning left would cause overflow (negative position), force right
+        if (menuLeft < 20) {
+          menuPosition = 'right'
+          menuLeft = Math.max(20, rect.left) // Ensure at least 20px from edge
+        }
+
+        // Final check to ensure menu doesn't go off screen
+        if (menuLeft + estimatedMenuWidth > windowWidth - 20) {
+          menuLeft = windowWidth - estimatedMenuWidth - 20
+        }
+
+        this.setState({
+          open: true,
+          menuPosition,
+          menuTop,
+          menuLeft
+        })
+
+        window.openTabBatch = this.props.batch
+      }
+    }
   }
 
   render () {
@@ -246,9 +202,7 @@ export default class AddBtn extends Component {
         <PlusOutlined
           title={e('openNewTerm')}
           className={cls}
-          onClick={this.handleTabAdd}
-          onMouseEnter={this.handleMouseEnter}
-          onMouseLeave={this.handleMouseLeave}
+          onClick={this.handleAddBtnClick}
           ref={this.addBtnRef}
         />
         {open && createPortal(this.renderMenus(), this.getPortalContainer())}
