@@ -26,10 +26,6 @@ export default Store => {
     store.pinned = current
   }
 
-  Store.prototype.onClickBookmark = function () {
-    window.store.onNewSsh()
-  }
-
   Store.prototype.handleSidebarPanelTab = function (tab) {
     window.store.sidebarPanelTab = tab
   }
