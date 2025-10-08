@@ -9,8 +9,14 @@ const fs = require('fs')
 const uid = require('../common/uid')
 const { DatabaseSync } = require('node:sqlite')
 
+const appDataPath = process.env.DATA_PATH || resolve(appPath, 'electerm')
+
+if (!fs.existsSync(appDataPath)) {
+  fs.mkdirSync(appDataPath, { recursive: true })
+}
+
 // Define database folder and paths for two database files
-const dbFolder = resolve(appPath, 'electerm', 'users', defaultUserName)
+const dbFolder = resolve(appDataPath, 'users', defaultUserName)
 const mainDbPath = resolve(dbFolder, 'electerm.db')
 const dataDbPath = resolve(dbFolder, 'electerm_data.db')
 

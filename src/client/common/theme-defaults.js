@@ -17,18 +17,18 @@ function parsor (themeTxt) {
 
 const defaultThemeDark = () => {
   return parsor(`
-    main = #20111b
-    main-dark = #000
-    main-light = #2E3338
-    text = #ddd
-    text-light = #fff
-    text-dark = #888
-    text-disabled = #777
-    primary = #08c
-    info = #FFD166
-    success = #06D6A0
-    error = #EF476F
-    warn = #E55934
+main-dark=#000
+main-light=#2E3338
+text=#ddd
+text-light=#fff
+text-dark=#888
+text-disabled=#777
+primary=#08c
+info=#FFD166
+success=#06D6A0
+error=#EF476F
+warn=#E55934
+main=#121214
   `)
 }
 const defaultThemeLightFunc = () => {
@@ -50,27 +50,27 @@ const defaultThemeLightFunc = () => {
 
 const defaultThemeLightTerminal = () => {
   return parsor(`
-    foreground=#333333
-    background=#ededed
-    cursor=#b5bd68
-    cursorAccent=#1d1f21
-    selectionBackground=rgba(0, 0, 0, 0.3)
-    black=#575757
-    red=#FF2C6D
-    green=#19f9d8
-    yellow=#FFB86C
-    blue=#45A9F9
-    magenta=#FF75B5
-    cyan=#B084EB
-      white=#CDCDCD
-    brightBlack=#757575
-    brightRed=#FF2C6D
-    brightGreen=#19f9d8
-    brightYellow=#FFCC95
-    brightBlue=#6FC1FF
-    brightMagenta=#FF9AC1
-    brightCyan=#BCAAFE
-    brightWhite=#E6E6E6
+background=#121214
+foreground=#af9a91
+cursor=#af9a91
+selectionBackground=#575256
+cursorAccent=#121214
+black=#572100
+red=#ba3934
+green=#91773f
+yellow=#b55600
+blue=#5f63b4
+magenta=#a17c7b
+cyan=#8faea9
+white=#af9a91
+brightBlack=#4e4b61
+brightRed=#d9443f
+brightGreen=#d6b04e
+brightYellow=#f66813
+brightBlue=#8086ef
+brightMagenta=#e2c2bb
+brightCyan=#a4dce7
+brightWhite=#d2c7a9
     `
   )
 }

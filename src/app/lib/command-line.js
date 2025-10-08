@@ -39,8 +39,8 @@ electerm -tp "telnet" -opts '{"host":"192.168.1.1","port":21","username":"root",
 - local: electerm -tp "local" -opts '{"title": "local terminal"}'
 
 ### Environment variables:
-- DB_PATH:
-DB_PATH=/custom/path/to/electerm/db electerm
+- DATA_PATH:
+DATA_PATH=/custom/path/to/electerm-data electerm
 
 - NO_PROXY_SERVER:
 NO_PROXY_SERVER=1 electerm
