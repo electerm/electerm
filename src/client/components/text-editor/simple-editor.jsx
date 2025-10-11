@@ -84,6 +84,13 @@ export default function SimpleEditor (props) {
       e.preventDefault()
     }
     findMatches()
+    goToNextMatch()
+  }
+
+  function handleChange (e) {
+    setSearchKeyword(e.target.value)
+    findMatches()
+    goToNextMatch()
   }
 
   // Navigate to next match
@@ -144,7 +151,7 @@ export default function SimpleEditor (props) {
       <Flex className='mg1b' justify='space-between'>
         <Input.Search
           value={searchKeyword}
-          onChange={e => setSearchKeyword(e.target.value)}
+          onChange={handleChange}
           placeholder='Search in text...'
           allowClear
           enterButton={<SearchOutlined />}
