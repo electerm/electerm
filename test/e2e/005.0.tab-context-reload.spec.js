@@ -22,7 +22,7 @@ describe('tab reload', function () {
     // Create 2 tabs
     await client.click('.tabs-add-btn')
     await delay(500)
-    await client.click('.add-menu-wrap context-item:has-text("New tab")')
+    await client.click('.add-menu-wrap .context-item:has-text("New tab")')
     await client.click('.tabs .tabs-add-btn')
     await delay(2000)
 

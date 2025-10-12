@@ -97,8 +97,8 @@ describe('ssh', function () {
     // Create two more tabs for testing
     await client.click('.tabs-add-btn')
     await delay(500)
-    await client.click('.add-menu-wrap context-item:has-text("New tab")')
-    await client.click('.add-menu-wrap context-item:has-text("New tab")')
+    await client.click('.add-menu-wrap .context-item:has-text("New tab")')
+    await client.click('.add-menu-wrap .context-item:has-text("New tab")')
     await client.click('.tabs .tabs-add-btn')
     await delay(1000)
 
@@ -153,7 +153,7 @@ describe('ssh', function () {
     // Create a new tab for rename testing
     await client.click('.tabs-add-btn')
     await delay(500)
-    await client.click('.add-menu-wrap context-item:has-text("New tab")')
+    await client.click('.add-menu-wrap .context-item:has-text("New tab")')
     await client.click('.tabs .tabs-add-btn')
     await delay(1000)
 

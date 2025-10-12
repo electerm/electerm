@@ -29,7 +29,7 @@ describe('tabs', function () {
     log('click add tab icon')
     await client.click('.tabs .tabs-add-btn')
     await delay(500)
-    await client.click('.add-menu-wrap context-item:has-text("New tab")')
+    await client.click('.add-menu-wrap .context-item:has-text("New tab")')
     await client.click('.tabs .tabs-add-btn')
     const tabs1 = await client.countElem('.tabs .tab')
     expect(tabs1).equal(tabsLenBefore + 2)
