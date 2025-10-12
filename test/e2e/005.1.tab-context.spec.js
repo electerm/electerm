@@ -96,8 +96,10 @@ describe('ssh', function () {
     // close tab context menu
     // Create two more tabs for testing
     await client.click('.tabs-add-btn')
-    await delay(1000)
-    await client.click('.tabs-add-btn')
+    await delay(500)
+    await client.click('.add-menu-wrap .context-item:has-text("New tab")')
+    await client.click('.add-menu-wrap .context-item:has-text("New tab")')
+    await client.click('.tabs .tabs-add-btn')
     await delay(1000)
 
     // Test closing a non-active tab
@@ -150,6 +152,9 @@ describe('ssh', function () {
     // Test rename tab from context menu
     // Create a new tab for rename testing
     await client.click('.tabs-add-btn')
+    await delay(500)
+    await client.click('.add-menu-wrap .context-item:has-text("New tab")')
+    await client.click('.tabs .tabs-add-btn')
     await delay(1000)
 
     const tabInfo = await client.evaluate(() => {

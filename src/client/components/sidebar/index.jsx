@@ -46,7 +46,7 @@ export default function Sidebar (props) {
 
   const handleClickOutside = (event) => {
     // Don't close if pinned or has active input
-    if (pinned || hasActiveInput()) {
+    if (store.pinned || hasActiveInput()) {
       return
     }
 
