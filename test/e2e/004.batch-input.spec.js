@@ -20,6 +20,9 @@ describe('batch input', function () {
 
     // Create a new tab first so we have 2 tabs
     await client.click('.tabs .tabs-add-btn')
+    await delay(500)
+    await client.click('.add-menu-wrap context-item:has-text("New tab")')
+    await client.click('.tabs .tabs-add-btn')
     await delay(1500)
 
     // Get initial tab count
