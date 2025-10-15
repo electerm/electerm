@@ -20,7 +20,11 @@ import SshHostSelector from './ssh-host-selector.jsx'
 import SshAuthTypeSelector from './ssh-auth-type-selector.jsx'
 import SshAuthSelector from './ssh-auth-selector.jsx'
 import CategorySelect from './category-select.jsx'
-import RdpAlert from './rdp-alert.jsx'
+import WikiAlert from './wiki-alert.jsx'
+import {
+  rdpWikiLink,
+  vncWikiLink
+} from '../../../common/constants.js'
 
 const Fragment = React.Fragment
 const FormItem = Form.Item
@@ -122,7 +126,9 @@ export function renderFormItem (item, formItemLayout, form, ctxProps, index) {
     case 'warning':
       return <Alert key={name} type='warning' {...item.props} />
     case 'rdpWarning':
-      return <RdpAlert key={name} />
+      return <WikiAlert key={name} wikiUrl={rdpWikiLink} />
+    case 'vncWarning':
+      return <WikiAlert key={name} wikiUrl={vncWikiLink} />
     case 'categorySelect':
       return (
         <CategorySelect

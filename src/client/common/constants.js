@@ -239,6 +239,7 @@ export const regexHelpLink = 'https://github.com/electerm/electerm/wiki/Terminal
 export const connectionHoppingWikiLink = 'https://github.com/electerm/electerm/wiki/Connection-Hopping-Behavior-Change-in-electerm-since-v1.50.65'
 export const aiConfigWikiLink = 'https://github.com/electerm/electerm/wiki/AI-model-config-guide'
 export const rdpWikiLink = 'https://github.com/electerm/electerm/wiki/RDP-session-known-issues'
+export const vncWikiLink = 'https://github.com/electerm/electerm/wiki/VNC-session-known-issues'
 export const modals = {
   hide: 0,
   setting: 1,
