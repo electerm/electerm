@@ -1,6 +1,8 @@
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 
 export default function AppDrag (props) {
+  const isDraggingRef = useRef(false)
+
   function canOperate (e) {
     const {
       target
@@ -20,12 +22,16 @@ export default function AppDrag (props) {
   function onMouseDown (e) {
     // e.stopPropagation()
     if (canOperate(e)) {
+      isDraggingRef.current = true
       window.pre.runSync('windowMove', true)
     }
   }
 
   function onMouseUp (e) {
-    window.pre.runSync('windowMove', false)
+    if (isDraggingRef.current) {
+      isDraggingRef.current = false
+      window.pre.runSync('windowMove', false)
+    }
   }
 
   function onDoubleClick (e) {
@@ -44,7 +50,14 @@ export default function AppDrag (props) {
   }
 
   useEffect(() => {
+    // Listen for mouseup at document level to catch mouseup outside window
+    document.addEventListener('mouseup', onMouseUp)
     window.addEventListener('contextmenu', onMouseUp)
+
+    return () => {
+      document.removeEventListener('mouseup', onMouseUp)
+      window.removeEventListener('contextmenu', onMouseUp)
+    }
   }, [])
   return (
     <div
