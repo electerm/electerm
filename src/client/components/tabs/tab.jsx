@@ -367,12 +367,14 @@ class Tab extends Component {
       if (name) {
         tunnel = `[${name}] ${tunnel}`
       }
-      return <div key={tunnel}>{tunnel}</div>
+      return <div key={tunnel + '-' + i} className='ssh-tunnel-item'>{tunnel}</div>
     })
     return (
       <>
         <div>{title}</div>
-        {list}
+        <div className='ssh-tunnel-list-wrapper'>
+          {list}
+        </div>
       </>
     )
   }
