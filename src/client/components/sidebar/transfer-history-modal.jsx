@@ -61,7 +61,10 @@ export default memo(function TransferHistoryModal (props) {
     dataIndex: 'fromPath',
     key: 'fromPath',
     render: (txt, inst) => {
-      return inst.fromPathReal || txt
+      const t = inst.fromPathReal || txt
+      return (
+        <div className='sftp-file history-file' title={t}>{t}</div>
+      )
     },
     sorter: sorterFactory('fromPath')
   }, {
@@ -69,7 +72,10 @@ export default memo(function TransferHistoryModal (props) {
     dataIndex: 'toPath',
     key: 'toPath',
     render: (txt, inst) => {
-      return inst.toPathReal || txt
+      const t = inst.toPathReal || txt
+      return (
+        <div className='sftp-file history-file' title={t}>{t}</div>
+      )
     },
     sorter: sorterFactory('toPath')
   }, {
