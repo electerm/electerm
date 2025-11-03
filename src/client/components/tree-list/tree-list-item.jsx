@@ -188,7 +188,7 @@ export default function TreeListItem (props) {
     {
       selected: selectedItemId === item.id
     },
-    'tree-item elli',
+    'tree-item',
     {
       'is-category': isGroup,
       level2: item.level === 2
@@ -232,10 +232,7 @@ export default function TreeListItem (props) {
     onClick: onSelect,
     'data-item-id': item.id,
     'data-is-group': isGroup ? 'true' : 'false',
-    'data-parent-id': props.parentId,
-    style: props.staticList
-      ? { maxWidth: (props.leftSidebarWidth - 110) + 'px' }
-      : undefined
+    'data-parent-id': props.parentId
   }
   const key = item.id || uid()
   return (
