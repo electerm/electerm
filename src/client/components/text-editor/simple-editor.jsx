@@ -20,24 +20,32 @@ export default function SimpleEditor (props) {
     if (currentMatch >= 0 && occurrences.length > 0) {
       const match = occurrences[currentMatch]
       if (editorRef.current) {
+        const textarea = editorRef.current.resizableTextArea.textArea
+
         // Set selection range to select the matched text
-        editorRef.current.resizableTextArea.textArea.setSelectionRange(match.start, match.end)
+        textarea.setSelectionRange(match.start, match.end)
 
         // Only focus the textarea when explicitly navigating between matches
         if (isNavigating) {
-          editorRef.current.resizableTextArea.textArea.focus()
+          textarea.focus()
         }
 
         // Scroll to the selection position
-        const textarea = editorRef.current.resizableTextArea.textArea
-        const textBeforeSelection = props.value.substring(0, match.start)
-        const lineBreaks = textBeforeSelection.split('\n').length - 1
+        // Use setTimeout to ensure the selection is rendered before scrolling
+        setTimeout(() => {
+          const textBeforeSelection = props.value.substring(0, match.start)
+          const lineBreaks = textBeforeSelection.split('\n').length - 1
 
-        // Estimate the scroll position
-        const lineHeight = 20 // Approximate line height in pixels
-        const scrollPosition = lineHeight * lineBreaks
+          // Estimate the scroll position
+          const lineHeight = parseInt(window.getComputedStyle(textarea).lineHeight) || 20
+          const scrollPosition = lineHeight * lineBreaks
 
-        textarea.scrollTop = Math.max(0, scrollPosition - textarea.clientHeight / 2)
+          // Scroll to center the match, but ensure we can scroll to the bottom
+          const targetScroll = scrollPosition - textarea.clientHeight / 2
+          const maxScroll = textarea.scrollHeight - textarea.clientHeight
+
+          textarea.scrollTop = Math.max(0, Math.min(targetScroll, maxScroll))
+        }, 0)
       }
     }
     // Reset navigating flag after using it
@@ -89,8 +97,6 @@ export default function SimpleEditor (props) {
 
   function handleChange (e) {
     setSearchKeyword(e.target.value)
-    findMatches()
-    goToNextMatch()
   }
 
   // Navigate to next match
