@@ -12,6 +12,7 @@ function generateErrorHtml (port) {
           font-family: Arial, sans-serif;
           margin: 40px;
           line-height: 1.6;
+          background: #fff;
           color: #333;
         }
         h1 {
