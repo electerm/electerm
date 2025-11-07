@@ -4,8 +4,8 @@
 
 import { PureComponent } from 'react'
 import {
-  DownloadOutlined,
-  UploadOutlined,
+  ExportOutlined,
+  ImportOutlined,
   EditOutlined
 } from '@ant-design/icons'
 import { Upload, Button } from 'antd'
@@ -36,7 +36,7 @@ export default class BookmarkTransport extends PureComponent {
     return [
       this.renderEdit(),
       <Button
-        icon={<DownloadOutlined />}
+        icon={<ExportOutlined />}
         onClick={this.handleDownload}
         title={e('export')}
         className='download-bookmark-icon'
@@ -49,7 +49,7 @@ export default class BookmarkTransport extends PureComponent {
         key='Upload'
       >
         <Button
-          icon={<UploadOutlined />}
+          icon={<ImportOutlined />}
           title={e('importFromFile')}
         />
       </Upload>
