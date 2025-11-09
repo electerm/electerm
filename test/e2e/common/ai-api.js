@@ -33,13 +33,14 @@ function generateTestCommands (userInput) {
 
 // Chat completions endpoint
 app.post('/chat/completions', (req, res) => {
-  const { messages } = req.body
+  const { messages, stream } = req.body
   const lastMessage = messages[messages.length - 1].content
 
   if (lastMessage.includes('give me max 5 command suggestions for user input')) {
     const userInput = extractUserInput(lastMessage)
     const mockSuggestions = generateTestCommands(userInput)
 
+    // Command suggestions are always non-streaming
     res.json({
       choices: [{
         message: {
@@ -47,8 +48,54 @@ app.post('/chat/completions', (req, res) => {
         }
       }]
     })
+  } else if (stream) {
+    // Handle streaming response
+    res.writeHead(200, {
+      'Content-Type': 'text/plain',
+      'Transfer-Encoding': 'chunked'
+    })
+
+    const mockResponse = '# Response to your query\n\n' +
+      'Here is a sample response with different markdown elements:\n\n' +
+      '## Code Example\n' +
+      '```javascript\n' +
+      'console.log("Hello World!");\n' +
+      '```\n\n' +
+      '## List Example\n' +
+      '- Item 1\n' +
+      '- Item 2\n' +
+      '- Item 3\n\n' +
+      '## Text Formatting\n' +
+      '**Bold text** and *italic text*\n\n' +
+      '> This is a blockquote\n\n' +
+      '[This is a link](https://example.com)'
+
+    // Split response into chunks and send as streaming data
+    const chunks = mockResponse.split(' ')
+    let index = 0
+
+    const sendChunk = () => {
+      if (index < chunks.length) {
+        const content = chunks[index] + (index < chunks.length - 1 ? ' ' : '')
+        const streamData = {
+          choices: [{
+            delta: {
+              content
+            }
+          }]
+        }
+        res.write(`data: ${JSON.stringify(streamData)}\n\n`)
+        index++
+        setTimeout(sendChunk, 50) // Simulate streaming delay
+      } else {
+        res.write('data: [DONE]\n\n')
+        res.end()
+      }
+    }
+
+    sendChunk()
   } else {
-    // Mock response for regular chat in markdown format
+    // Handle non-streaming response
     const mockResponse = '# Response to your query\n\n' +
       'Here is a sample response with different markdown elements:\n\n' +
       '## Code Example\n' +

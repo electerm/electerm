@@ -2,14 +2,16 @@ import { useState } from 'react'
 import {
   Form,
   message,
+  Switch,
   Button
 } from 'antd'
 import InputAutoFocus from '../common/input-auto-focus'
 import { formItemLayout } from '../../common/form-layout'
+import HelpIcon from '../common/help-icon'
 import {
   settingMap
 } from '../../common/constants'
-
+import { action } from 'manate'
 import ProfileTabs from './profile-tabs'
 
 const FormItem = Form.Item
@@ -28,13 +30,15 @@ export default function ProfileFormElem (props) {
     }
     return id
   }
-  async function handleSubmit (res) {
+  const handleSubmit = action(async function (res) {
     const { formData } = props
     const update1 = {
       ...res,
       id: genId()
     }
+    let defaultId = update1.id
     if (formData.id) {
+      defaultId = formData.id
       props.store.editItem(formData.id, res, settingMap.profiles)
     } else {
       props.store.addItem(update1, settingMap.profiles)
@@ -43,14 +47,21 @@ export default function ProfileFormElem (props) {
         name: e('profile')
       })
     }
+    window.store.makeSureProfileDefault(defaultId)
     message.success(e('saved'))
-  }
+  })
   const tabsProps = {
     activeTab,
     onChangeTab: setActiveTab,
     form,
     store: props.store
   }
+  const profileDefaultWikiLink = 'https://github.com/electerm/electerm/wiki/Default-Profile'
+  const defaultLabel = (
+    <span>
+      {e('default')} <HelpIcon link={profileDefaultWikiLink} />
+    </span>
+  )
   return (
     <Form
       form={form}
@@ -72,6 +83,14 @@ export default function ProfileFormElem (props) {
         name='name'
       >
         <InputAutoFocus />
+      </FormItem>
+      <FormItem
+        {...formItemLayout}
+        label={defaultLabel}
+        name='isDefault'
+        valuePropName='checked'
+      >
+        <Switch />
       </FormItem>
       <ProfileTabs {...tabsProps} />
       <FormItem>

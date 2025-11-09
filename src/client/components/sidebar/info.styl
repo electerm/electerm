@@ -1,24 +1,11 @@
-@require '../../css/includes/theme-default'
 
 // from https://freefrontend.com/css-border-animations/
 .morph-shape
- 	background linear-gradient(45deg, primary 0%, success 100%)
-  animation morph 8s ease-in-out infinite
+ 	background linear-gradient(45deg, #08c 0%, #09c 100%)
   border-radius 60% 40% 30% 70% / 60% 30% 70% 40%
   transition all 1s ease-in-out
   z-index 5
 
-@keyframes morph
-  0%
-    border-radius 60% 40% 30% 70% / 60% 30% 70% 40%
-    background linear-gradient(45deg, primary 0%, success 100%)
-  50%
-    border-radius  30% 60% 70% 40% / 50% 60% 30% 60%
-    background linear-gradient(45deg, main 0%, success 100%)
-
-  100%
-    border-radius 60% 40% 30% 70% / 60% 30% 70% 40%
-    background linear-gradient(45deg, primary 0%, success 100%)
 .info-modal
   .ant-modal-header
     border none

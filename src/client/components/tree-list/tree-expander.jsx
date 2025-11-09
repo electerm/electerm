@@ -4,10 +4,12 @@ import {
 } from '@ant-design/icons'
 
 export default function TreeExpander (props) {
-  function onExpand () {
+  function onExpand (e) {
+    e.stopPropagation()
     props.onExpand(group)
   }
-  function onUnExpand () {
+  function onUnExpand (e) {
+    e.stopPropagation()
     props.onUnExpand(group)
   }
   const { group } = props

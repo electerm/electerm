@@ -12,6 +12,9 @@ let dragCount = 0
 
 function windowMove (canMoving) {
   const win = globalState.get('win')
+  if (!win) {
+    return
+  }
   const size = win.getBounds()
   const scr = screen.getDisplayNearestPoint(size)
 

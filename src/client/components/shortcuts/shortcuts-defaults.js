@@ -22,6 +22,11 @@ export default () => {
       shortcutMac: 'meta+/'
     },
     {
+      name: 'app_duplicateTab',
+      shortcut: 'alt+c',
+      shortcutMac: 'alt+c'
+    },
+    {
       name: 'app_newBookmark',
       shortcut: 'ctrl+n',
       shortcutMac: 'meta+n'

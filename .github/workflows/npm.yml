@@ -8,14 +8,14 @@ jobs:
   release-npm:
     runs-on: ubuntu-24.04
     environment: build
-    if: "!contains(github.event.head_commit.message, '[skip ci]') && !contains(github.event.head_commit.message, '[skip npm]')"
+    if: ${{ !contains(github.event.head_commit.message, '[skip ci]') && !contains(github.event.head_commit.message, '[skip npm]') }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Setup node and npm
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
           registry-url: https://registry.npmjs.org/
       - run: npm i
       - uses: JS-DevTools/npm-publish@v3

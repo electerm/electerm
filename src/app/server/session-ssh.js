@@ -3,7 +3,7 @@
  */
 
 const proxySock = require('./socks')
-const _ = require('lodash')
+const _ = require('../lib/lodash.js')
 const generate = require('../common/uid')
 const { resolve: pathResolve } = require('path')
 const net = require('net')
@@ -215,7 +215,7 @@ class TerminalSshBase extends TerminalBase {
 
   forwardOut (conn, hopping) {
     return new Promise((resolve, reject) => {
-      conn.forwardOut('localhost', 0, hopping.host, hopping.port, async (err, stream) => {
+      conn.forwardOut('127.0.0.1', 0, hopping.host, hopping.port, async (err, stream) => {
         if (err) {
           log.error(`forwardOut to ${hopping.host}:${hopping.port} error: ` + err)
           this.endConns()
@@ -466,7 +466,7 @@ class TerminalSshBase extends TerminalBase {
                 : `/tmp/.X11-unix/X${start}`
               xserversock.connect(addr)
             } else {
-              xserversock.connect(start, 'localhost')
+              xserversock.connect(start, '127.0.0.1')
             }
           }
           retry()

@@ -13,11 +13,14 @@ function loadSshConfig () {
   let config = []
   try {
     const configStr = require('fs').readFileSync(
-      resolve(home, '.ssh', 'config')
-    ).toString()
+      resolve(home, '.ssh', 'config'), 'utf-8'
+    )
     const sshConf = sshConfig.parse(configStr)
     config = sshConf.map((c, i) => {
       const { value } = c
+      if (!value) {
+        return null
+      }
       const obj = sshConf.compute(value.split(/\s/g)[0])
       const { HostName, User, Port = defaultPort, Host } = obj
       if (!Host) {
@@ -34,7 +37,7 @@ function loadSshConfig () {
     }).filter(d => d)
   } catch (e) {
     log.debug('error parsing $HOME/.ssh/config')
-    log.debug('maybe no $HOME/.ssh/config, it is ok')
+    log.debug('maybe no $HOME/.ssh/config, it is ok', e)
   }
   return config
 }

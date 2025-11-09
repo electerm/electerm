@@ -2,7 +2,7 @@ import {
   Form,
   Input
 } from 'antd'
-import renderAuth from '../bookmark-form/render-auth-ssh'
+import renderAuth from '../bookmark-form/common/render-auth-ssh'
 import { formItemLayout } from '../../common/form-layout'
 
 const FormItem = Form.Item
@@ -25,14 +25,14 @@ export default function ProfileFormSsh (props) {
       </FormItem>
       {
         renderAuth({
-          store: props.store,
+          store: window.store,
           form,
           authType: 'password'
         })
       }
       {
         renderAuth({
-          store: props.store,
+          store: window.store,
           form
         })
       }

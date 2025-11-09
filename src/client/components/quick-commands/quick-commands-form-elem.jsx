@@ -16,6 +16,8 @@ import deepCopy from 'json-deep-copy'
 import {
   isMacJs as isMac
 } from '../../common/constants.js'
+import templates from './templates'
+import HelpIcon from '../common/help-icon'
 
 const FormItem = Form.Item
 const { Option } = Select
@@ -130,72 +132,85 @@ export default function QuickCommandForm (props) {
     handleClear,
     renderClear: true
   }
+  const templatesStr = templates.map(t => {
+    return `{{${t}}}`
+  }).join(', ')
+  const wiki = 'https://github.com/electerm/electerm/wiki/quick-command-templates'
   return (
-    <Form
-      form={form}
-      onFinish={handleSubmit}
-      className='form-wrap pd2l'
-      layout='vertical'
-      initialValues={initialValues}
-    >
-      <FormItem
-        label={e('quickCommandName')}
-        rules={[{
-          max: 60, message: '60 chars max'
-        }, {
-          required: true, message: 'Name required'
-        }]}
-        hasFeedback
-        name='name'
+    <>
+      <Form
+        form={form}
+        onFinish={handleSubmit}
+        className='form-wrap pd2l'
+        layout='vertical'
+        initialValues={initialValues}
       >
-        <InputAutoFocus />
-      </FormItem>
-      {renderQm()}
-      <FormItem
-        name='labels'
-        label={e('label')}
-      >
-        <Select
-          mode='tags'
+        <FormItem
+          label={e('quickCommandName')}
+          rules={[{
+            max: 60, message: '60 chars max'
+          }, {
+            required: true, message: 'Name required'
+          }]}
+          hasFeedback
+          name='name'
         >
-          {
-            quickCommandTags.map(q => {
-              return (
-                <Option value={q} key={'qmt-' + q}>
-                  {q}
-                </Option>
-              )
-            })
-          }
-        </Select>
-      </FormItem>
-      <FormItem
-        label={e('settingShortcuts')}
-        name='shortcut'
-      >
-        <div>
-          <Input className='hide' />
-          <ShortcutEdit
-            {...editorProps}
-          />
-        </div>
-      </FormItem>
-      <FormItem
-        label={e('inputOnly')}
-        name='inputOnly'
-        valuePropName='checked'
-      >
-        <Switch />
-      </FormItem>
-      <FormItem>
+          <InputAutoFocus />
+        </FormItem>
+        {renderQm()}
+        <FormItem
+          name='labels'
+          label={e('label')}
+        >
+          <Select
+            mode='tags'
+          >
+            {
+              quickCommandTags.map(q => {
+                return (
+                  <Option value={q} key={'qmt-' + q}>
+                    {q}
+                  </Option>
+                )
+              })
+            }
+          </Select>
+        </FormItem>
+        <FormItem
+          label={e('settingShortcuts')}
+          name='shortcut'
+        >
+          <div>
+            <Input className='hide' />
+            <ShortcutEdit
+              {...editorProps}
+            />
+          </div>
+        </FormItem>
+        <FormItem
+          label={e('inputOnly')}
+          name='inputOnly'
+          valuePropName='checked'
+        >
+          <Switch />
+        </FormItem>
+        <FormItem>
+          <p>
+            <Button
+              type='primary'
+              htmlType='submit'
+            >{e('save')}
+            </Button>
+          </p>
+        </FormItem>
         <p>
-          <Button
-            type='primary'
-            htmlType='submit'
-          >{e('save')}
-          </Button>
+          <b className='mg1r'>{e('templates')}:</b>
+          <span className='mg1r'>{templatesStr}</span>
+          <HelpIcon
+            link={wiki}
+          />
         </p>
-      </FormItem>
-    </Form>
+      </Form>
+    </>
   )
 }

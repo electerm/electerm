@@ -11,6 +11,9 @@
   line-height 26px
   padding-left 5px
   border-radius 3px
+  overflow hidden
+  white-space nowrap
+  text-overflow ellipsis
   &.is-category
     .tree-item-title
       font-weight bold
@@ -30,13 +33,12 @@
 .tree-item-title
   flex-grow 1
   line-height 26px
-  max-width 300px
   overflow hidden
   white-space nowrap
   text-overflow ellipsis
 
 .sidebar-panel .tree-item-title
-  max-width 180px
+   max-width 100%
 .with-plus
   &:after
     content '+'
@@ -68,3 +70,12 @@
   width 12px
   font-size 11px
   line-height 30px
+
+.category-color-tag
+  display inline-block
+  width 12px
+  height 12px
+  margin-right 6px
+  border-radius 2px
+  border 1px solid #1a1a1a
+  vertical-align middle

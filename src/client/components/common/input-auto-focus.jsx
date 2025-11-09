@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react'
 import {
   Input
 } from 'antd'
+import Password from './password'
 
 export default function InputAutoFocus (props) {
   const { type, selectall = false, ...rest } = props
@@ -24,7 +25,7 @@ export default function InputAutoFocus (props) {
   let InputComponent
   switch (type) {
     case 'password':
-      InputComponent = Input.Password
+      InputComponent = Password
       break
     default:
       InputComponent = Input

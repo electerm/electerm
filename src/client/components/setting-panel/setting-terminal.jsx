@@ -33,6 +33,7 @@ import KeywordsTransport from './keywords-transport'
 import fs from '../../common/fs'
 import uid from '../../common/uid'
 import createDefaultSessionLogPath from '../../common/default-log-path'
+import { getFilePath } from '../../common/file-drop-utils'
 import TerminalBackgroundConfig from './terminal-bg-config'
 import NumberConfig from './number-config'
 import './setting.styl'
@@ -260,7 +261,8 @@ export default class SettingTerminal extends Component {
     const after = (
       <Upload
         beforeUpload={(file) => {
-          this.onChangeValue(file.path, name)
+          const filePath = getFilePath(file)
+          this.onChangeValue(filePath, name)
           return false
         }}
         showUploadList={false}

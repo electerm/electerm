@@ -8,7 +8,6 @@ import {
   UpCircleOutlined,
   BarsOutlined
 } from '@ant-design/icons'
-import { useRef, memo } from 'react'
 import { Tooltip } from 'antd'
 import SideBarPanel from './sidebar-panel'
 import TransferList from './transfer-list'
@@ -20,13 +19,12 @@ import {
 } from '../../common/constants'
 import SideIcon from './side-icon'
 import SidePanel from './side-panel'
+import hasActiveInput from '../../common/has-active-input'
 import './sidebar.styl'
 
 const e = window.translate
 
-export default memo(function Sidebar (props) {
-  const handler = useRef(null)
-
+export default function Sidebar (props) {
   const {
     height,
     upgradeInfo,
@@ -46,22 +44,35 @@ export default memo(function Sidebar (props) {
 
   const { store } = window
 
-  const handleMouseLeave = () => {
-    if (pinned) {
-      return false
+  const handleClickOutside = (event) => {
+    // Don't close if pinned or has active input
+    if (store.pinned || hasActiveInput()) {
+      return
     }
-    handler.current = setTimeout(
-      () => store.setOpenedSideBar(''),
-      400
-    )
+
+    // Check if click is outside the sidebar panel
+    const sidebarPanel = document.querySelector('.sidebar-panel')
+    if (sidebarPanel && !sidebarPanel.contains(event.target)) {
+      store.setOpenedSideBar('')
+      document.removeEventListener('click', handleClickOutside)
+    }
   }
 
-  const handleMouseEnterBookmark = () => {
+  const handleClickBookmark = () => {
     if (pinned) {
-      return false
+      return
     }
-    clearTimeout(handler.current)
-    store.setOpenedSideBar('bookmarks')
+    if (openedSideBar === 'bookmarks') {
+      // Remove listener when closing
+      document.removeEventListener('click', handleClickOutside)
+      store.setOpenedSideBar('')
+    } else {
+      // Add listener when opening, with slight delay to avoid conflict with this click
+      setTimeout(() => {
+        document.addEventListener('click', handleClickOutside)
+      }, 0)
+      store.setOpenedSideBar('bookmarks')
+    }
   }
 
   const handleShowUpgrade = () => {
@@ -74,7 +85,6 @@ export default memo(function Sidebar (props) {
     openAbout,
     openSettingSync,
     openTerminalThemes,
-    onClickBookmark,
     toggleBatchOp,
     setLeftSidePanelWidth
   } = store
@@ -131,9 +141,7 @@ export default memo(function Sidebar (props) {
           active={bookmarksActive}
         >
           <BookOutlined
-            onMouseEnter={handleMouseEnterBookmark}
-            onMouseLeave={handleMouseLeave}
-            onClick={onClickBookmark}
+            onClick={handleClickBookmark}
             className='font20 iblock control-icon'
           />
         </SideIcon>
@@ -189,7 +197,7 @@ export default memo(function Sidebar (props) {
                   className='control-icon-wrap'
                 >
                   <UpCircleOutlined
-                    className='iblock font18 control-icon hvr-bob upgrade-icon'
+                    className='iblock font18 control-icon upgrade-icon'
                     onClick={handleShowUpgrade}
                   />
                 </div>
@@ -206,10 +214,8 @@ export default memo(function Sidebar (props) {
         <SideBarPanel
           pinned={pinned}
           sidebarPanelTab={sidebarPanelTab}
-          onMouseEnter={handleMouseEnterBookmark}
-          onMouseLeave={handleMouseLeave}
         />
       </SidePanel>
     </div>
   )
-})
+}

@@ -145,9 +145,19 @@ export default class QuickCommandsList extends List {
     const f = keyword
       ? list.filter((item) => {
         const n = (item.name || '').toLowerCase()
-        const c = (item.command || '').toLowerCase()
         const k = keyword.toLowerCase()
-        return n.includes(k) || c.includes(k)
+
+        // Check if item has commands array
+        if (item.commands && Array.isArray(item.commands)) {
+          // Search in each command in the commands array
+          return n.includes(k) || item.commands.some(cmd =>
+            (cmd.command || '').toLowerCase().includes(k)
+          )
+        } else {
+          // Fallback to the old behavior for backward compatibility
+          const c = (item.command || '').toLowerCase()
+          return n.includes(k) || c.includes(k)
+        }
       })
       : list
     return labels.length

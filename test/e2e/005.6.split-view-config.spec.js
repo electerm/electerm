@@ -26,6 +26,9 @@ it('should respect default split view setting when creating new tabs', async () 
 
   // Create new tab
   await client.click('.tabs-add-btn')
+  await delay(500)
+  await client.click('.add-menu-wrap .context-item:has-text("New tab")')
+  await client.click('.tabs .tabs-add-btn')
   await delay(1000)
 
   // New tab should open with split view enabled
@@ -40,6 +43,9 @@ it('should respect default split view setting when creating new tabs', async () 
 
   // Create another new tab
   await client.click('.tabs-add-btn')
+  await delay(500)
+  await client.click('.add-menu-wrap .context-item:has-text("New tab")')
+  await client.click('.tabs .tabs-add-btn')
   await delay(1000)
 
   // New tab should open with split view disabled

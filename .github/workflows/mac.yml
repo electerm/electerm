@@ -5,21 +5,21 @@ name: mac-x64
 
 on:
   push:
-    branches: [ build, test ]
+    branches: [ build, test, build-only ]
 
 jobs:
   build:
 
-    runs-on: macos-13
+    runs-on: macos-15-intel
     environment: build
-    if: "!contains(github.event.head_commit.message, '[skip build]') && !contains(github.event.head_commit.message, '[skip ci]') && !contains(github.event.head_commit.message, '[skip mac]')"
+    if: ${{ !contains(github.event.head_commit.message, '[skip build]') && !contains(github.event.head_commit.message, '[skip ci]') && !contains(github.event.head_commit.message, '[skip mac]') }}
 
     steps:
     - uses: actions/checkout@v4
-    - name: Use Node.js 18.x
+    - name: Use Node.js 22.x
       uses: actions/setup-node@v4
       with:
-        node-version: 20.x
+        node-version: 22.x
     - uses: actions/setup-python@v5
       with:
         python-version: '3.10'
@@ -29,9 +29,11 @@ jobs:
 
     # script:
     - run: npm run b
+    
+    - name: Run pb
+      run: npm run pb
 
     - name: build
-      if: "!contains(github.event.head_commit.message, 'skip build')"
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         BUILD_NUMBER: ${{ secrets.BUILD_NUMBER }}
@@ -40,6 +42,5 @@ jobs:
         APPLE_ID: ${{ secrets.APPLEID }}
         APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLEIDPASS }}
         APPLE_TEAM_ID: ${{secrets.APPLE_TEAM_ID}}
-        CUSTOM_UPLOAD_URL: ${{ secrets.CUSTOM_UPLOAD_URL }}
       run: node build/bin/build-mac
 

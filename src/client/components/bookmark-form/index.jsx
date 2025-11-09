@@ -1,10 +1,8 @@
 /**
- * bookmark form
+ * Config-driven bookmark form (drop-in replacement)
  */
 import { PureComponent } from 'react'
-import {
-  Radio
-} from 'antd'
+import { Radio } from 'antd'
 import {
   settingMap,
   connectionMap,
@@ -17,78 +15,46 @@ import {
   terminalFtpType,
   newBookmarkIdPrefix
 } from '../../common/constants'
-import SshForm from './ssh-form'
-import SerialForm from './serial-form'
-import LocalForm from './local-form'
-import TelnetForm from './telnet-form'
-import WebForm from './web-form'
-import RdpForm from './rdp-form'
-import VncForm from './vnc-form'
-import FtpForm from './ftp-form'
 import { createTitleWithTag } from '../../common/create-title'
-import {
-  LoadingOutlined,
-  BookOutlined
-} from '@ant-design/icons'
+import { LoadingOutlined, BookOutlined } from '@ant-design/icons'
+import sessionConfig from './config/session-config'
+import renderForm from './render-form'
+import './bookmark-form.styl'
 
 const e = window.translate
 
-export default class BookmarkIndex extends PureComponent {
+export default class BookmarkIndex2 extends PureComponent {
   constructor (props) {
     super(props)
     let initType = props.formData.type
-    if (
-      ![
-        terminalTelnetType,
-        terminalWebType,
-        terminalLocalType,
-        terminalSerialType,
-        terminalRdpType,
-        terminalVncType,
-        terminalFtpType
-      ].includes(initType)
-    ) {
+    if (![
+      terminalTelnetType,
+      terminalWebType,
+      terminalLocalType,
+      terminalSerialType,
+      terminalRdpType,
+      terminalVncType,
+      terminalFtpType
+    ].includes(initType)) {
       initType = connectionMap.ssh
     }
-    this.state = {
-      ready: false,
-      bookmarkType: initType
-    }
+    this.state = { ready: false, bookmarkType: initType }
   }
 
   componentDidMount () {
-    this.timer = setTimeout(() => {
-      this.setState({
-        ready: true
-      })
-    }, 50)
+    this.timer = setTimeout(() => this.setState({ ready: true }), 75)
   }
 
   componentWillUnmount () {
     clearTimeout(this.timer)
   }
 
-  static mapper = {
-    [connectionMap.ssh]: SshForm,
-    [connectionMap.telnet]: TelnetForm,
-    [connectionMap.serial]: SerialForm,
-    [connectionMap.local]: LocalForm,
-    [connectionMap.web]: WebForm,
-    [connectionMap.rdp]: RdpForm,
-    [connectionMap.vnc]: VncForm,
-    [connectionMap.ftp]: FtpForm
-  }
-
   handleChange = (e) => {
-    this.setState({
-      bookmarkType: e.target.value
-    })
+    this.setState({ bookmarkType: e.target.value })
   }
 
   renderTypes (bookmarkType, isNew, keys) {
-    if (!isNew) {
-      return null
-    }
+    if (!isNew) return null
     return (
       <Radio.Group
         buttonStyle='solid'
@@ -98,23 +64,20 @@ export default class BookmarkIndex extends PureComponent {
         disabled={!isNew}
         onChange={this.handleChange}
       >
-        {
-          keys.map(k => {
-            const v = connectionMap[k]
-            const txt = v === 'ssh' ? 'Ssh/Sftp' : e(v)
-            return (
-              <Radio.Button key={v} value={v}>{txt}</Radio.Button>
-            )
-          })
-        }
+        {keys.map(v => {
+          const txt = v === 'ssh' ? 'Ssh/Sftp' : e(v)
+          let sup = null
+          if (v === connectionMap.vnc || v === connectionMap.rdp) {
+            sup = <sup className='color-red'>Beta</sup>
+          }
+          return (<Radio.Button key={v} value={v}>{txt}{sup}</Radio.Button>)
+        })}
       </Radio.Group>
     )
   }
 
   renderTitle (formData, isNew) {
-    if (isNew) {
-      return null
-    }
+    if (isNew) return null
     return (
       <b className='mg1x'>
         {createTitleWithTag(formData)}
@@ -124,16 +87,10 @@ export default class BookmarkIndex extends PureComponent {
 
   render () {
     const { formData } = this.props
-    const {
-      id = ''
-    } = formData
-    const {
-      type
-    } = this.props
-    if (type !== settingMap.bookmarks) {
-      return null
-    }
-    const { ready } = this.state
+    const { id = '' } = formData
+    const { type } = this.props
+    if (type !== settingMap.bookmarks) return null
+    const { ready, bookmarkType } = this.state
     if (!ready) {
       return (
         <div className='pd3 aligncenter'>
@@ -141,31 +98,19 @@ export default class BookmarkIndex extends PureComponent {
         </div>
       )
     }
-    const {
-      bookmarkType
-    } = this.state
-    const Form = BookmarkIndex.mapper[bookmarkType]
     const isNew = id.startsWith(newBookmarkIdPrefix)
-    const keys = Object.keys(connectionMap)
-    // if (isWin) {
-    //   keys = keys.filter(k => k !== connectionMap.serial)
-    // }
+    const keys = Object.keys(sessionConfig)
     return (
       <div className='form-wrap pd1x'>
         <div className='form-title pd1t pd1x pd2b'>
           <BookOutlined className='mg1r' />
           <span>
-            {
-              (!isNew
-                ? e('edit')
-                : e('new')
-              ) + ' ' + e(settingMap.bookmarks)
-            }
+            {((!isNew ? e('edit') : e('new')) + ' ' + e(settingMap.bookmarks))}
           </span>
           {this.renderTitle(formData, isNew)}
           {this.renderTypes(bookmarkType, isNew, keys)}
         </div>
-        <Form {...this.props} />
+        {renderForm(bookmarkType, this.props)}
       </div>
     )
   }

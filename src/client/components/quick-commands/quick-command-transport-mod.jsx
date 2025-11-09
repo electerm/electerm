@@ -2,12 +2,14 @@ import BookmarkTransport from '../tree-list/bookmark-transport'
 import download from '../../common/download'
 import time from '../../common/time'
 import copy from 'json-deep-copy'
+import { getFilePath } from '../../common/file-drop-utils'
 
 export default class QmTransport extends BookmarkTransport {
   name = 'quickCommands'
   beforeUpload = async (file) => {
     const { store } = this.props
-    const txt = await window.fs.readFile(file.path)
+    const filePath = getFilePath(file)
+    const txt = await window.fs.readFile(filePath)
     try {
       const arr = JSON.parse(txt)
       const state = store[this.name]

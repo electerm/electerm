@@ -9,10 +9,10 @@ import {
   isMac,
   isWin,
   packInfo,
-  srcsSkipUpgradeCheck,
   downloadUpgradeTimeout,
   mirrors
 } from '../../common/constants'
+import { checkSkipSrc } from '../../common/check-skip-src'
 import { debounce } from 'lodash-es'
 import newTerm from '../../common/new-terminal'
 import Markdown from '../common/markdown'
@@ -146,7 +146,7 @@ export default class Upgrade extends PureComponent {
 
   getLatestRelease = async (noSkipVersion = false) => {
     const { installSrc } = this.props
-    if (srcsSkipUpgradeCheck.includes(installSrc)) {
+    if (checkSkipSrc(installSrc)) {
       return
     }
     this.changeProps({
@@ -305,7 +305,7 @@ export default class Upgrade extends PureComponent {
         {this.renderChangeLog()}
       </div>
     )
-    const skip = srcsSkipUpgradeCheck.includes(installSrc)
+    const skip = checkSkipSrc(installSrc)
     return (
       <div className={cls}>
         <div className='upgrade-panel-title fix'>

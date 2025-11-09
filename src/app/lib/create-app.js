@@ -10,11 +10,16 @@ const globalState = require('./glob-state')
 const { getDbConfig } = require('./get-config')
 
 exports.createApp = async function () {
+  app.commandLine.appendSwitch('--disable-gpu')
   app.setName(packInfo.name)
+  if (process.platform === 'linux' || process.env.DISABLE_GPU) {
+    app.commandLine.appendSwitch('--disable-gpu')
+  }
   if (process.platform === 'linux') {
     app.commandLine.appendSwitch('--enable-transparent-visuals')
-    app.commandLine.appendSwitch('--disable-gpu')
     app.commandLine.appendSwitch('--in-process-gpu')
+  }
+  if (process.platform === 'linux' || process.env.DISABLE_HARDWARE_ACCELERATION) {
     app.disableHardwareAcceleration()
   }
   // Handle proxy-related command-line arguments
@@ -48,18 +53,18 @@ exports.createApp = async function () {
     }
   }
 
-  // app.on('second-instance', (event, argv, wd, opts) => {
-  //   const win = globalState.get('win')
-  //   if (win) {
-  //     if (win.isMinimized()) {
-  //       win.restore()
-  //     }
-  //     win.focus()
-  //     if (opts) {
-  //       win.webContents.send('add-tab-from-command-line', opts)
-  //     }
-  //   }
-  // })
+  app.on('second-instance', (event, argv, wd, opts) => {
+    const win = globalState.get('win')
+    if (win) {
+      if (win.isMinimized()) {
+        win.restore()
+      }
+      win.focus()
+      if (opts) {
+        win.webContents.send('add-tab-from-command-line', opts)
+      }
+    }
+  })
   app.whenReady().then(() => createWindow(conf))
   app.on('activate', () => {
     // On macOS it's common to re-create a window in the app when the

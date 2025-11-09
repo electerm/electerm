@@ -28,6 +28,7 @@ import { pick } from 'lodash-es'
 import { runCmd } from '../terminal/terminal-apis'
 import deepCopy from 'json-deep-copy'
 import uid from '../../common/uid'
+import { getFilePath } from '../../common/file-drop-utils'
 import wait from '../../common/wait'
 import { getFolderFromFilePath } from '../sftp/file-read'
 import resolveFilePath from '../../common/resolve'
@@ -406,7 +407,8 @@ export default class BatchOp extends PureComponent {
   }
 
   beforeUpload = async (file) => {
-    const text = await window.fs.readFile(file.path)
+    const filePath = getFilePath(file)
+    const text = await window.fs.readFile(filePath)
     this.setState({
       text
     })

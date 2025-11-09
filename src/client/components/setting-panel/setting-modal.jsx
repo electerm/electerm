@@ -99,7 +99,7 @@ export default auto(function SettingModalWrap (props) {
       animated: false,
       items,
       onChange: store.handleChangeSettingTab,
-      destroyInactiveTabPane: true,
+      destroyOnHidden: true,
       className: 'setting-tabs',
       type: 'card'
     }

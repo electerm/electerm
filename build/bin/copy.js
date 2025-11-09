@@ -6,7 +6,7 @@ const from = resolve(
 )
 const from0 = resolve(
   __dirname,
-  '../../node_modules/vscode-icons/icons'
+  '../../node_modules/electerm-icons/icons'
 )
 const from1 = resolve(
   __dirname,

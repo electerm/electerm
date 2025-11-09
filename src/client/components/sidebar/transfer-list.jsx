@@ -23,7 +23,6 @@ export default memo(function TransferList (props) {
   }
   const color = fileTransfers.some(item => item.error) ? 'red' : 'green'
   const bdProps = {
-    className: len ? 'hvr-bob hvr-bob-fast' : '',
     count: len,
     size: 'small',
     offset: [-10, -5],
@@ -35,16 +34,19 @@ export default memo(function TransferList (props) {
     transferHistory,
     transferTab
   }
+  const popProps = {
+    placement: 'right',
+    destroyOnHidden: true,
+    overlayClassName: 'transfer-list-card',
+    content: <TransferModal {...transferModalProps} />
+  }
   return (
     <div
       className='control-icon-wrap'
       title={e('fileTransfers')}
     >
       <Popover
-        placement='right'
-        destroyTooltipOnHide
-        overlayClassName='transfer-list-card'
-        content={<TransferModal {...transferModalProps} />}
+        {...popProps}
       >
         <Badge
           {...bdProps}

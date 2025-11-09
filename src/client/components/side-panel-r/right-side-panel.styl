@@ -1,14 +1,12 @@
-@require '../../css/includes/theme-default'
-
 .right-side-panel
   position absolute
   right 0
   top 36px
   bottom 0
   z-index 200
-  background main
-  color text-light
-  border-left 1px solid darken(main, 30%)
+  background var(--main)
+  color var(--text)
+  border-left 1px solid var(--main-darker)
   &.right-side-panel-pinned
     top 0
 
@@ -17,16 +15,16 @@
     right auto
     display block
 .right-panel-title
-  border-bottom 1px solid darken(main, 30%)
+  border-bottom 1px solid var(--main-darker)
 .right-side-panel-controls
-  color text-dark
+  color var(--text)
   font-size 16px
   &:hover
-    color text
+    color var(--success)
     cursor pointer
   &.right-side-panel-pin
     &.pinned
-      color success
+      color var(--success)
 .right-side-panel-content
   padding 10px
   overflow-y scroll

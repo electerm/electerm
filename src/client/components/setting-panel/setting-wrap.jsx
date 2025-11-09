@@ -24,7 +24,7 @@ export default class SettingWrap extends Component {
       width: this.props.innerWidth - sidebarWidth,
       zIndex: 888,
       placement: 'left',
-      destroyOnClose: true,
+      destroyOnHidden: true,
       styles: {
         header: {
           display: 'none'

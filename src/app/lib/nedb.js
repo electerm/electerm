@@ -4,11 +4,18 @@
 
 const { appPath, defaultUserName } = require('../common/app-props')
 const { resolve } = require('path')
-const Datastore = require('@yetzt/nedb')
+const fs = require('fs')
+const Datastore = require('@electerm/nedb')
 const db = {}
 
+const appDataPath = process.env.DATA_PATH || resolve(appPath, 'electerm')
+
+if (!fs.existsSync(appDataPath)) {
+  fs.mkdirSync(appDataPath, { recursive: true })
+}
+
 const reso = (name) => {
-  return resolve(appPath, 'electerm', 'users', defaultUserName, `electerm.${name}.nedb`)
+  return resolve(appDataPath, 'users', defaultUserName, `electerm.${name}.nedb`)
 }
 const tables = [
   'bookmarks',

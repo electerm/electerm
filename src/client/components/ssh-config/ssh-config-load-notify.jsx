@@ -49,7 +49,8 @@ export default function SshConfigLoadNotify (props) {
       ignoreSshConfig !== 'yes' &&
       settingTab === 'bookmarks' &&
       showModal &&
-      sshConfigLoaded !== 'yes'
+      sshConfigLoaded !== 'yes' &&
+      window.store.hasNodePty
 
     if (shouldShow) {
       showNotification()

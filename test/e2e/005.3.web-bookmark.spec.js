@@ -23,7 +23,7 @@ describe('Web session', function () {
     await delay(500)
 
     // Select web bookmark type
-    await client.click('.setting-wrap .ant-radio-button-wrapper', 4)
+    await client.click('.setting-wrap .ant-radio-button-wrapper:has-text("Web")')
     await delay(500)
 
     // Generate test data

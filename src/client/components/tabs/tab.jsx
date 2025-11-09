@@ -4,7 +4,7 @@
 
 import { createRef } from 'react'
 import { Component } from 'manate/react/class-components'
-import { refs } from '../common/ref'
+import { refsTabs } from '../common/ref'
 import {
   CloseOutlined,
   Loading3QuartersOutlined,
@@ -36,22 +36,13 @@ class Tab extends Component {
       terminalOnData: false
     }
     this.id = 'tab-' + this.props.tab.id
-    refs.add(this.id, this)
+    refsTabs.add(this.id, this)
   }
 
   tabRef = createRef()
 
-  componentDidUpdate (prevProps) {
-    if (this.props.openContextMenu && !prevProps.openContextMenu) {
-      this.handleContextMenu()
-    }
-    if (this.props.contextFunc && !prevProps.contextFunc) {
-      this[this.props.contextFunc](...this.props.contextArgs)
-    }
-  }
-
   componentWillUnmount () {
-    refs.remove(this.id)
+    refsTabs.remove(this.id)
     clearTimeout(this.timer)
     this.timer = null
   }
@@ -220,7 +211,11 @@ class Tab extends Component {
   }
 
   newTab = () => {
-    this.props.addTab()
+    if (window.store.hasNodePty) {
+      this.props.addTab()
+    } else {
+      window.store.onNewSsh()
+    }
   }
 
   doRename = () => {
@@ -264,6 +259,7 @@ class Tab extends Component {
     const reloadShortcut = this.getShortcut('app_reloadCurrentTab')
     const closeShortcut = this.getShortcut('app_closeCurrentTab')
     const cloneToNextShortcut = this.getShortcut('app_cloneToNextLayout')
+    const duplicateShortcut = this.getShortcut('app_duplicateTab')
 
     const x = [
       {
@@ -290,7 +286,8 @@ class Tab extends Component {
       {
         key: 'handleDup',
         icon: <iconsMap.CopyOutlined />,
-        label: e('duplicate')
+        label: e('duplicate'),
+        extra: duplicateShortcut
       },
       {
         key: 'cloneToNextLayout',
@@ -350,10 +347,10 @@ class Tab extends Component {
     const list = sshTunnelResults.map(({ sshTunnel: obj, error }, i) => {
       const {
         sshTunnelLocalPort,
-        sshTunnelRemoteHost = 'localhost',
+        sshTunnelRemoteHost = '127.0.0.1',
         sshTunnelRemotePort,
         sshTunnel,
-        sshTunnelLocalHost = 'localhost',
+        sshTunnelLocalHost = '127.0.0.1',
         name
       } = obj
       let tunnel
@@ -370,12 +367,14 @@ class Tab extends Component {
       if (name) {
         tunnel = `[${name}] ${tunnel}`
       }
-      return <div key={tunnel}>{tunnel}</div>
+      return <div key={tunnel + '-' + i} className='ssh-tunnel-item'>{tunnel}</div>
     })
     return (
       <>
         <div>{title}</div>
-        {list}
+        <div className='ssh-tunnel-list-wrapper'>
+          {list}
+        </div>
       </>
     )
   }

@@ -2,15 +2,17 @@
  * theme list render
  */
 
+import { useState } from 'react'
 import {
   CheckCircleOutlined,
   PlusOutlined,
   SunOutlined,
-  MoonOutlined
+  MoonOutlined,
+  EyeOutlined
 } from '@ant-design/icons'
-import { Tag } from 'antd'
+import { Tag, Tooltip, Button, Space } from 'antd'
 import classnames from 'classnames'
-import { defaultTheme } from '../../common/constants'
+import { defaultTheme } from '../../common/theme-defaults'
 import highlight from '../common/highlight'
 import isColorDark from '../../common/is-color-dark'
 
@@ -25,25 +27,60 @@ export default function ThemeListItem (props) {
   } = props
   const { store } = window
 
+  const [tooltipVisible, setTooltipVisible] = useState(false)
+  const [isPreviewing, setIsPreviewing] = useState(false)
+
   function handleClickApply () {
+    setTooltipVisible(false)
+    setIsPreviewing(false)
     delete window.originalTheme
     store.setTheme(item.id)
   }
 
-  function handleMouseEnter () {
-    // Store current theme ID before changing
-    const currentTheme = window.store.config.theme
-    window.originalTheme = currentTheme
-    // Apply the hovered theme
-    store.setTheme(item.id)
+  function handleClickPreview () {
+    if (!isPreviewing) {
+      // Store current theme ID before changing
+      const currentTheme = window.store.config.theme
+      window.originalTheme = currentTheme
+      // Apply the preview theme
+      store.setTheme(item.id)
+      setIsPreviewing(true)
+    }
   }
 
-  function handleMouseLeave () {
-    if (!window.originalTheme) return
-    // Restore the original theme
-    store.setTheme(window.originalTheme)
-    // Clean up
-    delete window.originalTheme
+  function handleTooltipVisibleChange (visible) {
+    setTooltipVisible(visible)
+    if (!visible && isPreviewing) {
+      // Restore original theme when tooltip closes during preview
+      if (window.originalTheme) {
+        store.setTheme(window.originalTheme)
+        delete window.originalTheme
+      }
+      setIsPreviewing(false)
+    }
+  }
+
+  function renderTooltipContent () {
+    return (
+      <Space>
+        <Button
+          size='small'
+          icon={<EyeOutlined />}
+          onClick={handleClickPreview}
+          type={isPreviewing ? 'primary' : 'default'}
+        >
+          {e('preview')}
+        </Button>
+        <Button
+          size='small'
+          icon={<CheckCircleOutlined />}
+          onClick={handleClickApply}
+          type='primary'
+        >
+          {e('apply')}
+        </Button>
+      </Space>
+    )
   }
 
   function renderApplyBtn () {
@@ -51,12 +88,17 @@ export default function ThemeListItem (props) {
       return null
     }
     return (
-      <CheckCircleOutlined
-        className='pointer list-item-apply'
-        onClick={handleClickApply}
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
-      />
+      <Tooltip
+        title={renderTooltipContent()}
+        trigger='click'
+        open={tooltipVisible}
+        onOpenChange={handleTooltipVisibleChange}
+        placement='top'
+      >
+        <CheckCircleOutlined
+          className='pointer list-item-apply'
+        />
+      </Tooltip>
     )
   }
 
@@ -96,7 +138,7 @@ export default function ThemeListItem (props) {
       active: activeItemId === id
     }
   )
-  let title = id === defaultTheme.id
+  let title = id === defaultTheme().id
     ? e(id)
     : name
   title = highlight(
@@ -118,7 +160,7 @@ export default function ThemeListItem (props) {
         {renderTag()}{title}
       </div>
       {
-        id === defaultTheme.id || type === 'iterm'
+        id === defaultTheme().id || type === 'iterm'
           ? null
           : props.renderDelBtn(item)
       }

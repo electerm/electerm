@@ -1,4 +1,3 @@
-@require '../../css/includes/theme-default'
 @keyframes rotate
   from
     background-position -3000px
@@ -10,7 +9,7 @@
   left 0
   width 100%
   height 1px
-  background text-dark
+  background var(--text-dark)
   display none
 .type-tab-txt
   position relative
@@ -20,14 +19,13 @@
   display inline-block
   vertical-align middle
   line-height 30px
-  color text-dark
   padding 0 20px 0 0
   margin-right 0px
   font-size 14px
   cursor pointer
   &:hover
   &.active
-    color text
+    color var(--text-light)
   &.active
     .type-tab-line
       display inline-block
@@ -36,34 +34,34 @@
   .type-tab.sftp
     .type-tab-line
       display inline-block
-      background linear-gradient(to right, success 0%, main 25%, error 50%, primary 75%, success 100%)
+      background linear-gradient(to right, var(--success) 0%, var(--main) 25%, var(--error) 50%, var(--primary) 75%, var(--success) 100%)
       animation: rotate 60s infinite linear
 .disable-ssh
   .type-tab.ssh
     display none
 .spliter
-  color text
+  color var(--text)
   &:hover
-    color text-light
+    color var(--text-light)
 
 .sessions
   position absolute
-  background main
+  background var(--main)
 .session-wrap
   display none
   position absolute
   overflow hidden
   z-index 3
   padding-top 36px
-  box-shadow 0px 0px 1px 1px alpha(main, .3)
+  box-shadow 0px 0px 1px 1px var(--main-darker)
   &.session-batch-active
     display block
 
 .web-session-wrap
   height 100vh
-  background main
+  background var(--main)
 .session-v-wrap
-  background main
+  background var(--main)
   overflow scroll
   z-index 99
 .vnc-session-wrap > div
@@ -76,8 +74,8 @@
 .sess-icon
   margin-right 10px
   &.active
-    color warn
+    color var(--warn)
 
 .split-view-toggle
   &.active
-    color success
+    color var(--success)

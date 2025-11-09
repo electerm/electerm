@@ -1,5 +1,5 @@
 const { userConfigId } = require('../common/constants')
-const { dbAction } = require('./nedb')
+const { dbAction } = require('./db')
 const getPort = require('./get-port')
 
 function hashPassword (password) {
@@ -56,7 +56,7 @@ exports.checkPassword = async function checkPassword (password) {
   const r = comparePasswords(password, salt, hashedPassword)
   if (r) {
     const port = await getPort()
-    await axios.post(`http://localhost:${port}/auth`, {
+    await axios.post(`http://127.0.0.1:${port}/auth`, {
       token: hashedPassword
     })
   }

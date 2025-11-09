@@ -39,41 +39,127 @@ export default function AIChat (props) {
     }
     if (!prompt.trim() || isLoading) return
     setIsLoading(true)
-    const aiResponse = await window.pre.runGlobalAsync(
-      'AIchat',
+
+    // Create a placeholder entry for the streaming response
+    const chatId = uid()
+    const chatEntry = {
       prompt,
-      props.config.modelAI,
-      buildRole(),
-      props.config.baseURLAI,
-      props.config.apiPathAI,
-      props.config.apiKeyAI,
-      props.config.proxyAI
-    ).catch(
-      window.store.onError
-    )
-    if (aiResponse && aiResponse.error) {
-      return window.store.onError(
-        new Error(aiResponse.error)
-      )
-    }
-    window.store.aiChatHistory.push({
-      prompt,
-      response: aiResponse.response,
+      response: '', // Will be updated as stream arrives
+      isStreaming: false,
+      sessionId: null,
       ...pick(props.config, [
         'modelAI',
         'roleAI',
         'baseURLAI'
       ]),
       timestamp: Date.now(),
-      id: uid()
-    })
+      id: chatId
+    }
+
+    window.store.aiChatHistory.push(chatEntry)
+
+    try {
+      const aiResponse = await window.pre.runGlobalAsync(
+        'AIchat',
+        prompt,
+        props.config.modelAI,
+        buildRole(),
+        props.config.baseURLAI,
+        props.config.apiPathAI,
+        props.config.apiKeyAI,
+        props.config.proxyAI,
+        true // Enable streaming for chat
+      )
+
+      if (aiResponse && aiResponse.error) {
+        // Remove the placeholder entry and show error
+        const index = window.store.aiChatHistory.findIndex(item => item.id === chatId)
+        if (index !== -1) {
+          window.store.aiChatHistory.splice(index, 1)
+        }
+        setIsLoading(false)
+        return window.store.onError(
+          new Error(aiResponse.error)
+        )
+      }
+
+      if (aiResponse && aiResponse.isStream && aiResponse.sessionId) {
+        // Handle streaming response with polling
+        const index = window.store.aiChatHistory.findIndex(item => item.id === chatId)
+        if (index !== -1) {
+          window.store.aiChatHistory[index].isStreaming = true
+          window.store.aiChatHistory[index].sessionId = aiResponse.sessionId
+          window.store.aiChatHistory[index].response = aiResponse.content || ''
+        }
+
+        // Start polling for updates
+        pollStreamContent(aiResponse.sessionId, chatId)
+      } else if (aiResponse && aiResponse.response) {
+        // Handle non-streaming response (fallback)
+        const index = window.store.aiChatHistory.findIndex(item => item.id === chatId)
+        if (index !== -1) {
+          window.store.aiChatHistory[index].response = aiResponse.response
+          window.store.aiChatHistory[index].isStreaming = false
+        }
+        setIsLoading(false)
+      }
+    } catch (error) {
+      // Remove the placeholder entry and show error
+      const index = window.store.aiChatHistory.findIndex(item => item.id === chatId)
+      if (index !== -1) {
+        window.store.aiChatHistory.splice(index, 1)
+      }
+      setIsLoading(false)
+      window.store.onError(error)
+    }
 
     if (window.store.aiChatHistory.length > MAX_HISTORY) {
       window.store.aiChatHistory.splice(MAX_HISTORY)
     }
     setPrompt('')
-    setIsLoading(false)
   }, [prompt, isLoading])
+
+  // Function to poll for streaming content updates
+  const pollStreamContent = async (sessionId, chatId) => {
+    try {
+      const streamResponse = await window.pre.runGlobalAsync('getStreamContent', sessionId)
+
+      if (streamResponse && streamResponse.error) {
+        // Remove the entry and show error
+        const index = window.store.aiChatHistory.findIndex(item => item.id === chatId)
+        if (index !== -1) {
+          window.store.aiChatHistory.splice(index, 1)
+        }
+        setIsLoading(false)
+        return window.store.onError(new Error(streamResponse.error))
+      }
+
+      // Update the chat entry with new content
+      const index = window.store.aiChatHistory.findIndex(item => item.id === chatId)
+      if (index !== -1) {
+        window.store.aiChatHistory[index].response = streamResponse.content || ''
+        window.store.aiChatHistory[index].isStreaming = streamResponse.hasMore
+
+        // Force re-render by updating the array reference
+        window.store.aiChatHistory = [...window.store.aiChatHistory]
+
+        // Continue polling if there's more content
+        if (streamResponse.hasMore) {
+          setTimeout(() => pollStreamContent(sessionId, chatId), 200) // Poll every 200ms
+        } else {
+          setIsLoading(false)
+        }
+      }
+    } catch (error) {
+      // Remove the entry and show error
+      const index = window.store.aiChatHistory.findIndex(item => item.id === chatId)
+      if (index !== -1) {
+        window.store.aiChatHistory.splice(index, 1)
+      }
+      setIsLoading(false)
+      window.store.onError(error)
+    }
+  }
 
   function renderHistory () {
     return (

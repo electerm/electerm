@@ -7,7 +7,9 @@ import { LoadingOutlined, CheckCircleOutlined } from '@ant-design/icons'
 import { pick } from 'lodash-es'
 import { Pagination } from 'antd'
 import ThemeListItem from './theme-list-item'
-import { defaultTheme } from '../../common/constants'
+import { settingMap } from '../../common/constants'
+import { defaultTheme } from '../../common/theme-defaults'
+import getInitItem from '../../common/init-setting-item'
 import './terminal-theme-list.styl'
 
 const e = window.translate
@@ -47,7 +49,7 @@ export default class ThemeList extends List {
       return null
     }
     const { name, id } = item
-    const title = id === defaultTheme.id
+    const title = id === defaultTheme().id
       ? e(id)
       : name
     return (
@@ -58,13 +60,33 @@ export default class ThemeList extends List {
     )
   }
 
+  renderNewItem () {
+    const newThemeItem = getInitItem([], settingMap.terminalThemes)
+    const itemProps = {
+      item: newThemeItem,
+      renderDelBtn: this.renderDelBtn,
+      activeItemId: this.props.activeItemId,
+      ...pick(
+        this.props,
+        [
+          'onClickItem',
+          'theme',
+          'keyword'
+        ]
+      )
+    }
+    return (
+      <ThemeListItem key='new-theme' {...itemProps} />
+    )
+  }
+
   filter = list => {
-    const { keyword, ready } = this.state
+    const { keyword } = this.state
     return keyword
-      ? list.slice(0, ready ? list.length : 2).filter(item => {
+      ? list.filter(item => {
         return item.name.toLowerCase().includes(keyword.toLowerCase())
       })
-      : list.slice(0, ready ? list.length : 2)
+      : list
   }
 
   paged = list => {
@@ -77,6 +99,13 @@ export default class ThemeList extends List {
 
   render () {
     const { ready, page, pageSize } = this.state
+    if (!ready) {
+      return (
+        <div className='pd3 aligncenter'>
+          <LoadingOutlined />
+        </div>
+      )
+    }
     let {
       list = [],
       type,
@@ -92,6 +121,7 @@ export default class ThemeList extends List {
         {this.renderSearch()}
         {this.renderCurrentTheme()}
         <div className='item-list-wrap' style={listStyle}>
+          {this.renderNewItem()}
           {
             list.map(this.renderItem)
           }
@@ -101,17 +131,10 @@ export default class ThemeList extends List {
           total={all}
           current={page}
           pageSize={pageSize}
+          showLessItems
+          simple
           onShowSizeChange={this.handlePageSizeChange}
         />
-        {
-          ready
-            ? null
-            : (
-              <div className='pd3 aligncenter'>
-                <LoadingOutlined />
-              </div>
-              )
-        }
       </div>
     )
   }

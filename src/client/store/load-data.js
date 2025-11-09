@@ -8,7 +8,7 @@ import { infoTabs, statusMap, defaultEnvLang } from '../common/constants'
 import fs from '../common/fs'
 import generate from '../common/id-with-stamp'
 import defaultSettings from '../common/default-setting'
-import encodes from '../components/bookmark-form/encodes'
+import encodes from '../components/bookmark-form/common/encodes'
 import { initWsCommon } from '../common/fetch-from-server'
 import safeParse from '../common/parse-json-safe'
 import initWatch from './watch'
@@ -81,17 +81,22 @@ export async function addTabFromCommandLine (store, opts) {
     const opts = safeParse(options.opts)
     if (opts !== options.opts) {
       Object.assign(update, opts)
+      update.fromCmdLine = true
     }
   }
-  if (options.type) {
-    update.type = options.type
+  if (options.tp) {
+    update.type = options.tp
+    update.fromCmdLine = true
   }
   Object.assign(conf, update)
   if (options.privateKeyPath) {
     conf.privateKey = await fs.readFile(options.privateKeyPath)
   }
   log.debug('command line opts', conf)
-  if (conf.username && conf.host) {
+  if (
+    (conf.username && conf.host) ||
+    conf.fromCmdLine
+  ) {
     store.addTab(conf)
   } else if (
     options.initFolder &&
@@ -176,7 +181,6 @@ export default (Store) => {
       })
     ext.lastDataUpdateTime = await getData('lastDataUpdateTime') || 0
     Object.assign(store, ext)
-    store.checkDefaultTheme()
     store.loadFontList()
     store.fetchItermThemes()
     store.openInitSessions()

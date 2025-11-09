@@ -5,21 +5,21 @@ name: win-nsis
 
 on:
   push:
-    branches: [ build, test ]
+    branches: [ build, test, build-only, win-nsis ]
 
 jobs:
   build:
 
     runs-on: windows-2022
     environment: build
-    if: "!contains(github.event.head_commit.message, '[skip build]') && !contains(github.event.head_commit.message, '[skip ci]') && !contains(github.event.head_commit.message, '[skip win]') && !contains(github.event.head_commit.message, '[skip nsis]')"
+    if: ${{ !contains(github.event.head_commit.message, '[skip build]') && !contains(github.event.head_commit.message, '[skip ci]') && !contains(github.event.head_commit.message, '[skip win]') && !contains(github.event.head_commit.message, '[skip nsis]') }}
 
     steps:
     - uses: actions/checkout@v4
-    - name: Use Node.js 18.x
+    - name: Use Node.js 22.x
       uses: actions/setup-node@v4
       with:
-        node-version: 20.x
+        node-version: 22.x
 
     - uses: actions/setup-python@v5
       with:
@@ -37,12 +37,14 @@ jobs:
 
     # script:
     - run: npm run b
+    
+    - name: Run pb
+      run: npm run pb
 
     - name: build
-      if: "!contains(github.event.head_commit.message, 'skip build')"
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         BUILD_NUMBER: ${{ secrets.BUILD_NUMBER }}
-        CUSTOM_UPLOAD_URL: ${{ secrets.CUSTOM_UPLOAD_URL }}
+
       run: node build/bin/build-win-nsis
 

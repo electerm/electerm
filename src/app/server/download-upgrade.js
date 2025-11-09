@@ -4,7 +4,7 @@
 
 const fs = require('fs')
 const { resolve } = require('path')
-const _ = require('lodash')
+const _ = require('../lib/lodash.js')
 const rp = require('axios')
 const { packInfo, tempDir } = require('../common/runtime-constants')
 const installSrc = require('../lib/install-src')

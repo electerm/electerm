@@ -110,7 +110,6 @@ dist
 /work/
 /version
 /*.txt
-/build/iTerm2-Color-Schemes
 /build/web-app/client
 /*.tar
 /*.gz
@@ -118,3 +117,5 @@ dist
 /test-results
 
 ftp-root
+*.asc
+/electron-builder.json

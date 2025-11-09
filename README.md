@@ -14,7 +14,12 @@
 [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
 [![Get it from the Snap Store](https://img.shields.io/badge/Snap-Store-green)](https://snapcraft.io/electerm)
 [![Get it from the Microsoft Store](https://img.shields.io/badge/Microsoft-Store-blue)](https://www.microsoft.com/store/apps/9NCN7272GTFF)
+[![Debian Repository](https://img.shields.io/badge/Debian-Repository-red)](https://electerm-repos.html5beta.com/deb)
 [![GitHub Sponsors](https://img.shields.io/github/sponsors/electerm?label=Sponsors)](https://github.com/sponsors/electerm)
+
+[![DigitalOcean Referral Badge](https://web-platforms.sfo2.cdn.digitaloceanspaces.com/WWW/Badge%202.svg)](https://www.digitalocean.com/?refcode=c10bcb28b846&utm_campaign=Referral_Invite&utm_medium=Referral_Program&utm_source=badge)
+
+[![Vercel OSS Program](https://vercel.com/oss/program-badge.svg)](https://vercel.com/oss)
 
 Open-sourced terminal/ssh/telnet/serialport/RDP/VNC/sftp/ftp client(linux, mac, win).
 
@@ -60,7 +65,7 @@ Online demo: [https://electerm-demo.html5beta.com](https://electerm-demo.html5be
 - For Mac user: `brew install --cask electerm`
 - With snap: `sudo snap install electerm --classic`
 - For some Linux distribution, you can find it from OS default App store(Ubuntu, Deepin, Mint...).
-- For some linux OS, the `rpm`, `deb`, or `snap` release may not work, you can try the `tar.gz` release.
+- For some linux OS, the `rpm`, `deb`, or `snap` release may not work, you can try the `tar.gz` or `.appImage` release.
 - For Windows users, you can install it from [windows store](https://www.microsoft.com/store/apps/9NCN7272GTFF), command-line installer [winget](https://github.com/microsoft/winget-cli) and [scoop](https://github.com/lukesampson/scoop) is also recommended:
 
 ```powershell
@@ -71,6 +76,10 @@ winget install electerm.electerm
 scoop bucket add dorado https://github.com/chawyehsu/dorado
 scoop install dorado/electerm
 ```
+
+- Install from Debian repository (for Debian/Ubuntu-based systems) with `apt` command
+
+Check [https://electerm-repos.html5beta.com/deb](https://electerm-repos.html5beta.com/deb)
 
 - Install from npm
 
@@ -129,16 +138,15 @@ wechat donate
 ## Dev
 
 ```bash
-# tested in ubuntu16.04+/mac os 10.13+ only
-# needs nodejs/npm, suggest using nvm to install nodejs/npm
-# https://github.com/creationix/nvm
-# with nodejs 18.x
+# tested in ubuntu20.04+/mac os 10.13+ only
+# needs nodejs/npm, suggest using fnm to install nodejs/npm
+# with nodejs 22.x
 
 git clone git@github.com:electerm/electerm.git
 cd electerm
 npm i
 
-# start webpack dev server, requires port 5570
+# start vite dev server, requires port 5570
 npm start
 
 # in a separate terminal session run app
@@ -172,6 +180,7 @@ npm run test
 # Build linux only with -l
 npm i
 npm run b
+npm run pb
 ./node_modules/.bin/electron-builder --linux tar.gz
 # or replace tar.gz to rpm/deb/AppImage
 # check dist/ folder
@@ -192,6 +201,6 @@ Visit [Releases](https://github.com/electerm/electerm/releases).
 
 MIT
 
-[![DigitalOcean Referral Badge](https://web-platforms.sfo2.cdn.digitaloceanspaces.com/WWW/Badge%202.svg)](https://www.digitalocean.com/?refcode=c10bcb28b846&utm_campaign=Referral_Invite&utm_medium=Referral_Program&utm_source=badge)
+## Star History
 
-[![Powered by DartNode](https://dartnode.com/branding/DN-Open-Source-sm.png)](https://dartnode.com?aff=NuttyMonkey521 "Powered by DartNode - Free VPS for Open Source")
+[![Star History Chart](https://api.star-history.com/svg?repos=electerm/electerm&type=Date)](https://www.star-history.com/#electerm/electerm&Date)

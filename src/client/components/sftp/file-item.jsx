@@ -30,6 +30,7 @@ import findParent from '../../common/find-parent'
 import sorter from '../../common/index-sorter'
 import { getFolderFromFilePath, getLocalFileInfo } from './file-read'
 import { readClipboard, copy as copyToClipboard, hasFileInClipboardText } from '../../common/clipboard'
+import { getDropFileList } from '../../common/file-drop-utils'
 import fs from '../../common/fs'
 import time from '../../common/time'
 import { filesize } from 'filesize'
@@ -118,7 +119,7 @@ export default class FileSection extends React.Component {
 
   onCopy = (targetFiles, isCut) => {
     const { file } = this.state
-    const selected = this.isSelected(file)
+    const selected = this.isSelected(file.id)
     const files = targetFiles ||
       (
         selected
@@ -137,7 +138,7 @@ export default class FileSection extends React.Component {
 
   onCopyPath = (targetFiles) => {
     const { file } = this.state
-    const selected = this.isSelected(file)
+    const selected = this.isSelected(file.id)
     const files = targetFiles ||
       (
         selected
@@ -228,26 +229,7 @@ export default class FileSection extends React.Component {
   }
 
   getDropFileList = data => {
-    const fromFile = data.getData('fromFile')
-    if (fromFile) {
-      return [JSON.parse(fromFile)]
-    }
-    const { files } = data
-    const res = []
-    for (let i = 0, len = files.length; i < len; i++) {
-      const item = files[i]
-      if (!item) {
-        continue
-      }
-      // let file = item.getAsFile()
-      const isRemote = false
-      const fileObj = getFolderFromFilePath(item.path, isRemote)
-      res.push({
-        ...fileObj,
-        type: typeMap.local
-      })
-    }
-    return res
+    return getDropFileList(data)
   }
 
   onDrop = async e => {
@@ -261,6 +243,7 @@ export default class FileSection extends React.Component {
     if (!fromFiles) {
       return
     }
+
     while (!target.className.includes(fileItemCls)) {
       target = target.parentNode
     }
@@ -356,7 +339,7 @@ export default class FileSection extends React.Component {
   }
 
   transferDrop = (fromFiles, toFile, operation) => {
-    const files = this.isSelected(fromFiles[0])
+    const files = this.isSelected(fromFiles[0]?.id)
       ? this.props.getSelectedFiles()
       : fromFiles
     return this.doTransferSelected(
@@ -368,8 +351,8 @@ export default class FileSection extends React.Component {
     )
   }
 
-  isSelected = file => {
-    return this.props.selectedFiles.has(file.id)
+  isSelected = (fileId = '') => {
+    return this.props.selectedFiles.has(fileId)
   }
 
   doRename = () => {
@@ -889,6 +872,9 @@ export default class FileSection extends React.Component {
   }
 
   handleContextMenuCapture = (e) => {
+    if (!this.isSelected(this.state.file.id)) {
+      this.onClick(e)
+    }
     this.contextMenuPosition = {
       clientY: e.clientY
     }

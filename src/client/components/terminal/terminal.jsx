@@ -47,6 +47,7 @@ import { createTerm, resizeTerm } from './terminal-apis.js'
 import { shortcutExtend, shortcutDescExtend } from '../shortcuts/shortcut-handler.js'
 import { KeywordHighlighterAddon } from './highlight-addon.js'
 import { getLocalFileInfo } from '../sftp/file-read.js'
+import { getFilePath, isUnsafeFilename } from '../../common/file-drop-utils.js'
 import { CommandTrackerAddon } from './command-tracker-addon.js'
 import AIIcon from '../icons/ai-icon.jsx'
 import { formatBytes } from '../../common/byte-format.js'
@@ -151,7 +152,7 @@ class Term extends Component {
           this.attachAddon._sendData(PS1_SETUP_CMD)
           this.term.cwdId = cwdId
         } else {
-          log.warn('Term or attachAddon not ready for PS1_SETUP_CMD in componentDidUpdate')
+          console.warn('Term or attachAddon not ready for PS1_SETUP_CMD in componentDidUpdate')
         }
       } else {
         if (this.attachAddon) {
@@ -356,12 +357,8 @@ class Term extends Component {
     this.term.focus()
   }
 
-  isUnsafeFilename = (filename) => {
-    return /["'\n\r]/.test(filename)
-  }
-
   cd = (p) => {
-    if (this.isUnsafeFilename(p)) {
+    if (isUnsafeFilename(p)) {
       return message.error('File name contains unsafe characters')
     }
     this.runQuickCommand(`cd "${p}"`)
@@ -377,7 +374,7 @@ class Term extends Component {
       try {
         const fileData = JSON.parse(fromFile)
         const filePath = resolve(fileData.path, fileData.name)
-        if (this.isUnsafeFilename(filePath)) {
+        if (isUnsafeFilename(filePath)) {
           message.error(notSafeMsg)
           return
         }
@@ -392,13 +389,16 @@ class Term extends Component {
     const files = dt.files
     if (files && files.length) {
       const arr = Array.from(files)
+      const filePaths = arr.map(f => getFilePath(f))
+
       // Check each file path individually
-      const hasUnsafeFilename = arr.some(f => this.isUnsafeFilename(f.path))
+      const hasUnsafeFilename = filePaths.some(path => isUnsafeFilename(path))
       if (hasUnsafeFilename) {
         message.error(notSafeMsg)
         return
       }
-      const filesAll = arr.map(f => `"${f.path}"`).join(' ')
+
+      const filesAll = filePaths.map(path => `"${path}"`).join(' ')
       this.attachAddon._sendData(filesAll)
     }
   }
@@ -895,7 +895,7 @@ class Term extends Component {
       if (this.attachAddon) {
         this.attachAddon._sendData(PS1_SETUP_CMD)
       } else {
-        log.warn('attachAddon not ready for PS1_SETUP_CMD in getCwd fallback')
+        console.warn('attachAddon not ready for PS1_SETUP_CMD in getCwd fallback')
       }
     }
   }
@@ -1065,7 +1065,7 @@ class Term extends Component {
         const cmd = `cd "${startFolder}"\r`
         this.attachAddon._sendData(cmd)
       } else {
-        log.warn('attachAddon not ready for cd command in runInitScript')
+        console.warn('attachAddon not ready for cd command in runInitScript')
       }
     }
 
@@ -1074,7 +1074,7 @@ class Term extends Component {
         this.attachAddon._sendData(PS1_SETUP_CMD)
         this.term.cwdId = cwdId
       } else {
-        log.warn('Term or attachAddon not ready for PS1_SETUP_CMD in runInitScript')
+        console.warn('Term or attachAddon not ready for PS1_SETUP_CMD in runInitScript')
       }
     }
 
@@ -1429,8 +1429,8 @@ class Term extends Component {
       ref: this.domRef,
       className: 'absolute term-wrap-2',
       style: {
-        left: '10px',
-        top: '10px',
+        left: 0,
+        top: 0,
         right: 0,
         bottom: 0
       }

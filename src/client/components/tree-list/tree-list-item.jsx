@@ -188,13 +188,23 @@ export default function TreeListItem (props) {
     {
       selected: selectedItemId === item.id
     },
-    'tree-item elli',
+    'tree-item',
     {
       'is-category': isGroup,
       level2: item.level === 2
     }
   )
   const tag = isGroup ? '' : createTitleTag(item)
+  const colorTag = isGroup && item.color
+    ? (
+      <span
+        className='category-color-tag'
+        style={{
+          backgroundColor: item.color
+        }}
+      />
+      )
+    : null
   const title = isGroup
     ? item.title
     : createName(item)
@@ -222,10 +232,7 @@ export default function TreeListItem (props) {
     onClick: onSelect,
     'data-item-id': item.id,
     'data-is-group': isGroup ? 'true' : 'false',
-    'data-parent-id': props.parentId,
-    style: props.staticList
-      ? { maxWidth: (props.leftSidebarWidth - 110) + 'px' }
-      : undefined
+    'data-parent-id': props.parentId
   }
   const key = item.id || uid()
   return (
@@ -236,7 +243,7 @@ export default function TreeListItem (props) {
       <div
         {...titleProps}
       >
-        {tag}{titleHighlight}
+        {colorTag}{tag}{titleHighlight}
       </div>
       {
         isGroup

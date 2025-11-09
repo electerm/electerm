@@ -32,14 +32,15 @@ import getBrand from '../components/ai/get-brand'
 import {
   settingMap,
   terminalSshConfigType,
-  paneMap
+  paneMap,
+  staticNewItemTabs
 } from '../common/constants'
 import getInitItem from '../common/init-setting-item'
 import createTitle from '../common/create-title'
 import {
   theme
 } from 'antd'
-import { refs } from '../components/common/ref'
+import { refsTabs } from '../components/common/ref'
 
 class Store {
   constructor () {
@@ -78,7 +79,7 @@ class Store {
     const {
       activeTabId
     } = this
-    const tab = refs.get('tab-' + activeTabId)
+    const tab = refsTabs.get('tab-' + activeTabId)
     if (!tab) {
       return null
     }
@@ -121,6 +122,12 @@ class Store {
       currentTab.pane === paneMap.terminal
   }
 
+  get defaultProfileId () {
+    const { profiles } = window.store
+    const defaultProfile = profiles.find(p => p.isDefault)
+    return defaultProfile?.id || ''
+  }
+
   get quickCommandTags () {
     const { quickCommands } = window.store
     return uniq(
@@ -149,10 +156,12 @@ class Store {
     const initItem = getInitItem(arr, settingTab)
     return settingTab === settingMap.history
       ? arr
-      : [
-          deepCopy(initItem),
-          ...arr
-        ]
+      : staticNewItemTabs.has(settingTab)
+        ? arr // Don't add initItem for these tabs, they will be handled separately
+        : [
+            deepCopy(initItem),
+            ...arr
+          ]
   }
 
   get terminalCommandSuggestions () {

@@ -10,16 +10,16 @@ on:
 jobs:
   build:
 
-    runs-on: macos-13
+    runs-on: macos-15-intel
     environment: build
-    if: "!contains(github.event.head_commit.message, '[skip test]') && !contains(github.event.head_commit.message, '[skip ci]') && !contains(github.event.head_commit.message, '[skip mac]') && !contains(github.event.head_commit.message, '[skip test1]')"
+    if: ${{ !contains(github.event.head_commit.message, '[skip test]') && !contains(github.event.head_commit.message, '[skip ci]') && !contains(github.event.head_commit.message, '[skip mac]') && !contains(github.event.head_commit.message, '[skip test1]') }}
 
     steps:
     - uses: actions/checkout@v4
-    - name: Use Node.js 18.x
+    - name: Use Node.js 22.x
       uses: actions/setup-node@v4
       with:
-        node-version: 20.x
+        node-version: 22.x
     - uses: actions/setup-python@v5
       with:
         python-version: '3.10'
@@ -31,6 +31,9 @@ jobs:
 
     # script:
     - run: npm run b
+    
+    - name: Run pb
+      run: npm run pb
     - name: test
       uses: GabrielBB/xvfb-action@v1
       with:
@@ -38,8 +41,8 @@ jobs:
       env:
         NODE_TEST: 1
         TEST_HOST: ${{ secrets.TEST_HOST }}
-        TEST_USER: ${{ secrets.TEST_USER_LINUX }}
-        TEST_PASS: ${{ secrets.TEST_PASS_LINUX }}
+        TEST_USER: ${{ secrets.TEST_USER_DARWIN1 }}
+        TEST_PASS: ${{ secrets.TEST_PASS_DARWIN1 }}
         GIST_TOKEN: ${{ secrets.GIST_TOKEN }}
         GIST_ID: ${{ secrets.GIST_ID }}
         GITEE_TOKEN: ${{ secrets.GITEE_TOKEN }}

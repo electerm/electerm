@@ -24,6 +24,10 @@ export default {
   terminalBackgroundFilterBrightness: 1,
   terminalBackgroundFilterGrayscale: 0,
   terminalBackgroundFilterContrast: 1,
+  terminalBackgroundText: '',
+  terminalBackgroundTextSize: 48,
+  terminalBackgroundTextColor: '#ffffff',
+  terminalBackgroundTextFontFamily: 'Maple Mono',
   rendererType: 'canvas',
   terminalType: 'xterm-256color',
   keepaliveCountMax: 10,
@@ -68,5 +72,6 @@ export default {
   sshSftpSplitView: false,
   showCmdSuggestions: false,
   startDirectoryLocal: '',
-  allowMultiInstance: false
+  allowMultiInstance: false,
+  disableDeveloperTool: false
 }

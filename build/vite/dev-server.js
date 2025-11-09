@@ -3,7 +3,6 @@ import { viewPath, env, staticPaths, pack, isProd, cwd } from './common.js'
 import express from 'express'
 import { createServer as createViteServer } from 'vite'
 import conf from './conf.js'
-import { loadDevStylus } from './style.js'
 import copy from 'json-deep-copy'
 
 const devPort = env.DEV_PORT || 5570
@@ -12,8 +11,7 @@ const h = `http://${host}:${devPort}`
 const base = {
   version: pack.version,
   isDev: !isProd,
-  siteName: pack.name,
-  stylus: loadDevStylus()
+  siteName: pack.name
 }
 
 function handleIndex (req, res) {

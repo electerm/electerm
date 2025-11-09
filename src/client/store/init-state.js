@@ -24,10 +24,10 @@ import {
   splitMap,
   cmdHistoryKey
 } from '../common/constants'
-import { buildDefaultThemes } from '../common/terminal-theme'
 import * as ls from '../common/safe-local-storage'
 import { exclude } from 'manate'
 import initSettingItem from '../common/init-setting-item'
+import { getRandomDefaultColor } from '../common/rand-hex-color'
 
 const e = window.translate
 
@@ -36,7 +36,8 @@ function getDefaultBookmarkGroups (bookmarks) {
     JSON.stringify({
       title: e(defaultBookmarkGroupId),
       id: defaultBookmarkGroupId,
-      bookmarkIds: bookmarks.map(d => d.id)
+      bookmarkIds: bookmarks.map(d => d.id),
+      color: getRandomDefaultColor()
     })
   ]
 }
@@ -59,9 +60,7 @@ export default () => {
     profiles: [],
     bookmarkGroups: getDefaultBookmarkGroups([]),
     _config: {},
-    terminalThemes: [
-      buildDefaultThemes()
-    ],
+    terminalThemes: [],
     itermThemes: exclude([]),
     currentBookmarkGroupId: defaultBookmarkGroupId,
     expandedKeys: ls.getItemJSON(expandedKeysLsKey, [
@@ -186,6 +185,7 @@ export default () => {
     innerWidth: window.innerWidth,
     height: 500,
     isMaximized: window.pre.runSync('isMaximized'),
+    hasNodePty: window.pre.runSync('nodePtyCheck'),
     terminalFullScreen: false,
     hideDelKeyTip: ls.getItem(dismissDelKeyTipLsKey) === 'y',
     tabsHeight: 36

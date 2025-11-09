@@ -14,7 +14,12 @@
 [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
 [![Get it from the Snap Store](https://img.shields.io/badge/Snap-Store-green)](https://snapcraft.io/electerm)
 [![Get it from the Microsoft Store](https://img.shields.io/badge/Microsoft-Store-blue)](https://www.microsoft.com/store/apps/9NCN7272GTFF)
+[![Debian Repository](https://img.shields.io/badge/Debian-Repository-red)](https://electerm-repos.html5beta.com/deb)
 [![GitHub Sponsors](https://img.shields.io/github/sponsors/electerm?label=Sponsors)](https://github.com/sponsors/electerm)
+
+[![DigitalOcean Referral Badge](https://web-platforms.sfo2.cdn.digitaloceanspaces.com/WWW/Badge%202.svg)](https://www.digitalocean.com/?refcode=c10bcb28b846&utm_campaign=Referral_Invite&utm_medium=Referral_Program&utm_source=badge)
+
+[![Vercel OSS Program](https://vercel.com/oss/program-badge.svg)](https://vercel.com/oss)
 
 开源终端/ssh/telnet/serialport/RDP/VNC/sftp/ftp客户端(linux, mac, win)。
 
@@ -73,6 +78,10 @@ scoop bucket add dorado https://github.com/chawyehsu/dorado
 scoop install dorado/electerm
 ```
 
+- 从Debian软件源安装 (适用于Debian/Ubuntu系统) 使用 `apt` 命令
+
+查看 [https://electerm-repos.html5beta.com/deb](https://electerm-repos.html5beta.com/deb)
+
 - 从npm安装
 
 ```bash
@@ -130,16 +139,15 @@ kofi
 ## 开发
 
 ```bash
-# tested in ubuntu16.04+/mac os 10.13+ only
-# needs nodejs/npm, suggest using nvm to install nodejs/npm
-# https://github.com/creationix/nvm
-# with nodejs 18.x
+# tested in ubuntu20.04+/mac os 10.13+ only
+# needs nodejs/npm, suggest using fnm to install nodejs/npm
+# with nodejs 22.x
 
 git clone git@github.com:electerm/electerm.git
 cd electerm
 npm i
 
-# start webpack dev server, requires port 5570
+# start vite dev server, requires port 5570
 npm start
 
 # in a separate terminal session run app
@@ -194,6 +202,6 @@ Visit [Releases](https://github.com/electerm/electerm/releases).
 
 MIT
 
-[![DigitalOcean Referral Badge](https://web-platforms.sfo2.cdn.digitaloceanspaces.com/WWW/Badge%202.svg)](https://www.digitalocean.com/?refcode=c10bcb28b846&utm_campaign=Referral_Invite&utm_medium=Referral_Program&utm_source=badge)
+## 收藏历史
 
-[![Powered by DartNode](https://dartnode.com/branding/DN-Open-Source-sm.png)](https://dartnode.com?aff=NuttyMonkey521 "Powered by DartNode - Free VPS for Open Source")
+[![Star History Chart](https://api.star-history.com/svg?repos=electerm/electerm&type=Date)](https://www.star-history.com/#electerm/electerm&Date)

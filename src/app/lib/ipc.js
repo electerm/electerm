@@ -13,18 +13,19 @@ const {
 } = require('electron')
 const globalState = require('./glob-state')
 const ipcSyncFuncs = require('./ipc-sync')
-const { dbAction } = require('./nedb')
+const { dbAction } = require('./db')
 const { listItermThemes } = require('./iterm-theme')
 const installSrc = require('./install-src')
 const { getConfig } = require('./get-config')
 const loadSshConfig = require('./ssh-config')
 const {
+  checkMigrate,
+  migrate
+} = require('../migrate/migrate-1-to-2')
+const {
   setPassword,
   checkPassword
 } = require('./auth')
-const {
-  toCss
-} = require('./style')
 const initServer = require('./init-server')
 const {
   getLang,
@@ -55,7 +56,7 @@ const { encryptAsync, decryptAsync } = require('./enc')
 const { initCommandLine } = require('./command-line')
 const { watchFile, unwatchFile } = require('./watch-file')
 const lookup = require('../common/lookup')
-const { AIchat } = require('./ai')
+const { AIchat, getStreamContent } = require('./ai')
 
 async function initAppServer () {
   const {
@@ -122,10 +123,11 @@ function initIpc () {
     loadSshConfig,
     init,
     listSerialPorts,
-    toCss,
     loadFontList,
     doUpgrade,
     checkDbUpgrade,
+    checkMigrate,
+    migrate,
     getExitStatus: () => globalState.get('exitStatus'),
     setExitStatus: (status) => {
       globalState.set('exitStatus', status)
@@ -165,9 +167,14 @@ function initIpc () {
     },
     saveUserConfig,
     AIchat,
+    getStreamContent,
     setTitle: (title) => {
       const win = globalState.get('win')
       win && win.setTitle(packInfo.name + ' - ' + title)
+    },
+    setBackgroundColor: (color = '#33333300') => {
+      const win = globalState.get('win')
+      win && win.setBackgroundColor(color)
     },
     changeHotkey: changeHotkeyReg(globalShortcut, globalState.get('win')),
     initCommandLine,

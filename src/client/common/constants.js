@@ -1,12 +1,9 @@
 /**
  * constants
  */
-import { getUiThemeConfig } from './ui-theme'
 import logoPath1Ref from '@electerm/electerm-resource/res/imgs/electerm-round-128x128.png'
 import logoPath2Ref from '@electerm/electerm-resource/res/imgs/electerm.png'
 import logoPath3Ref from '@electerm/electerm-resource/res/imgs/electerm-watermark.png'
-import dbDefaults from './db-defaults'
-import { get as _get } from 'lodash-es'
 export const packInfo = typeof window.et.packInfo === 'undefined' ? window.pre.packInfo : window.et.packInfo
 const buildConst = (props) => {
   return props.reduce((prev, key) => {
@@ -24,7 +21,8 @@ export const maxEditFileSize = 1024 * 3000
 export const defaultBookmarkGroupId = 'default'
 export const newBookmarkIdPrefix = 'new-bookmark'
 export const unexpectedPacketErrorDesc = 'Unexpected packet'
-export const noTerminalBgValue = 'no-termimal-bg'
+export const noTerminalBgValue = '[🚫]'
+export const textTerminalBgValue = '[📝]'
 export const sftpRetryInterval = 3000
 export const maxBookmarkGroupTitleLength = 33
 export const termControlHeight = 32
@@ -106,6 +104,12 @@ export const settingMap = buildConst([
   'profiles'
 ])
 
+export const staticNewItemTabs = new Set([
+  'terminalThemes',
+  'quickCommands',
+  'profiles'
+])
+
 export const infoTabs = buildConst([
   'info',
   'deps',
@@ -143,35 +147,6 @@ export const leftSidebarWidthKey = 'left-sidebar-width'
 export const rightSidebarWidthKey = 'right-sidebar-width'
 export const sftpDefaultSortSettingKey = 'sftp-default-sort'
 export const qmSortByFrequencyKey = 'qm-sort-by-frequency'
-// https://github.com/tinkertrain/panda-syntax-vscode/blob/master/themes/workbench.yaml
-export const defaultTheme = {
-  id: 'default',
-  name: 'default',
-  themeConfig: {
-    foreground: '#bbbbbb',
-    background: '#141314',
-    cursor: '#b5bd68',
-    cursorAccent: '#1d1f21',
-    selectionBackground: 'rgba(255, 255, 255, 0.3)',
-    black: '#575757',
-    red: '#FF2C6D',
-    green: '#19f9d8',
-    yellow: '#FFB86C',
-    blue: '#45A9F9',
-    magenta: '#FF75B5',
-    cyan: '#B084EB',
-    white: '#CDCDCD',
-    brightBlack: '#757575',
-    brightRed: '#FF2C6D',
-    brightGreen: '#19f9d8',
-    brightYellow: '#FFCC95',
-    brightBlue: '#6FC1FF',
-    brightMagenta: '#FF9AC1',
-    brightCyan: '#BCAAFE',
-    brightWhite: '#E6E6E6'
-  },
-  uiThemeConfig: getUiThemeConfig(window.et.stylus)
-}
 
 export const commonBaudRates = [
   110,
@@ -223,11 +198,6 @@ export const settingShortcutsId = 'setting-shortcuts'
 export const settingAiId = 'setting-ai'
 export const settingCommonId = 'setting-common'
 export const defaultEnvLang = 'en_US.UTF-8'
-const defaultThemeLightConf = _get(
-  dbDefaults, '[0].data[1]'
-)
-defaultThemeLightConf.id = defaultThemeLightConf._id
-export const defaultThemeLight = defaultThemeLightConf
 export const fileActions = {
   cancel: 'cancel',
   skip: 'skip',
@@ -269,6 +239,7 @@ export const regexHelpLink = 'https://github.com/electerm/electerm/wiki/Terminal
 export const connectionHoppingWikiLink = 'https://github.com/electerm/electerm/wiki/Connection-Hopping-Behavior-Change-in-electerm-since-v1.50.65'
 export const aiConfigWikiLink = 'https://github.com/electerm/electerm/wiki/AI-model-config-guide'
 export const rdpWikiLink = 'https://github.com/electerm/electerm/wiki/RDP-session-known-issues'
+export const vncWikiLink = 'https://github.com/electerm/electerm/wiki/VNC-session-known-issues'
 export const modals = {
   hide: 0,
   setting: 1,

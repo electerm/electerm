@@ -1,21 +1,17 @@
 @require './includes'
-@require './antd-overwrite'
-@require './includes/theme-default'
-
-html
-  background rgba(0,0,0,.01)
+@require './includes/theme'
 
 body
-  color text
   overflow hidden
-  background alpha(main, .3)
+  background var(--main)
   font-size 12px
   line-height 1.5715
   font-family -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'
   font-variant: tabular-nums
+  color var(--text)
 
 ::-webkit-scrollbar
-  background alpha(main, .5)
+  background transparent
   width 7px
 
 .term-wrap:hover
@@ -26,7 +22,7 @@ body
   -webkit-box-shadow none
 
 ::-webkit-scrollbar-thumb
-  background-color primary
+  background-color var(--primary)
   outline none
 
 .common-err
@@ -34,11 +30,9 @@ body
   overflow-y scroll
   overflow-x hidden
   word-break break-all
-.hide-resize-observer
-  display: none !important
 
 a
-  color primary
+  color var(--primary)
 
 .cap
   text-transform capitalize

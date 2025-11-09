@@ -12,6 +12,7 @@ import AiCache from './ai-cache'
 import {
   aiConfigWikiLink
 } from '../../common/constants'
+import Password from '../common/password'
 
 // Comprehensive API provider configurations
 import providers from './providers'
@@ -27,8 +28,8 @@ const defaultRoles = [
 ]
 
 const proxyOptions = [
-  { value: 'socks5://localhost:1080' },
-  { value: 'http://localhost:8080' },
+  { value: 'socks5://127.0.0.1:1080' },
+  { value: 'http://127.0.0.1:8080' },
   { value: 'https://proxy.example.com:3128' }
 ]
 
@@ -149,7 +150,7 @@ export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig })
           label='API Key'
           name='apiKeyAI'
         >
-          <Input.Password placeholder='Enter your API key' />
+          <Password placeholder='Enter your API key' />
         </Form.Item>
 
         <Form.Item
@@ -180,7 +181,7 @@ export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig })
         <Form.Item
           label={e('proxy')}
           name='proxyAI'
-          tooltip='Proxy for AI API requests (e.g., socks5://localhost:1080)'
+          tooltip='Proxy for AI API requests (e.g., socks5://127.0.0.1:1080)'
         >
           <AutoComplete
             options={proxyOptions}

@@ -2,21 +2,26 @@
  * theme related functions
  */
 
-import { message } from 'antd'
-import { isEqual } from 'lodash-es'
+import {
+  settingMap
+} from '../common/constants'
+import { convertTheme } from '../common/terminal-theme'
 import {
   defaultTheme,
-  settingMap,
   defaultThemeLight
-} from '../common/constants'
-import copy from 'json-deep-copy'
-import { convertTheme } from '../common/terminal-theme'
-
-const e = window.translate
+} from '../common/theme-defaults'
 
 export default Store => {
   Store.prototype.getTerminalThemes = function () {
-    return window.store.getItems(settingMap.terminalThemes)
+    const t1 = defaultTheme()
+    const t2 = defaultThemeLight()
+    return [
+      t1,
+      t2,
+      ...window.store.getItems(settingMap.terminalThemes).filter(d => {
+        return d && d.id !== t1.id && d.id !== t2.id
+      })
+    ]
   }
 
   Store.prototype.setTheme = function (id) {
@@ -47,14 +52,16 @@ export default Store => {
 
   Store.prototype.fixThemes = function (themes) {
     return themes.map(t => {
-      const isDefaultTheme = t.id === defaultTheme.id
-      const isDefaultThemeLight = t.id === defaultThemeLight.id
+      const d1 = defaultTheme()
+      const d2 = defaultThemeLight()
+      const isDefaultTheme = t.id === d1.id
+      const isDefaultThemeLight = t.id === d2.id
       if (isDefaultTheme) {
-        Object.assign(t, defaultTheme)
+        Object.assign(t, d1)
       } else if (isDefaultThemeLight) {
-        Object.assign(t, defaultThemeLight)
+        Object.assign(t, d2)
       } else if (!t.uiThemeConfig) {
-        t.uiThemeConfig = copy(defaultTheme.uiThemeConfig)
+        t.uiThemeConfig = d1.uiThemeConfig
       }
       return t
     })
@@ -77,34 +84,5 @@ export default Store => {
         }
       })
     )
-  }
-
-  Store.prototype.checkDefaultTheme = async function (terminalThemes) {
-    const { store } = window
-    const themeId = defaultTheme.id
-    const currentDefaultTheme = store.terminalThemes.find(d => d.id === themeId)
-    if (
-      currentDefaultTheme &&
-      (
-        !isEqual(currentDefaultTheme.themeConfig, defaultTheme.themeConfig) || !isEqual(currentDefaultTheme.uiThemeConfig, defaultTheme.uiThemeConfig) ||
-        currentDefaultTheme.name !== defaultTheme.name
-      )
-    ) {
-      store.editTheme(
-        themeId,
-        {
-          name: defaultTheme.name,
-          themeConfig: defaultTheme.themeConfig,
-          uiThemeConfig: defaultTheme.uiThemeConfig
-        }
-      )
-      message.info(
-        `${e('default')} ${e('themeConfig')} ${e('updated')}`
-      )
-    }
-    const hasLightTheme = store.getTerminalThemes().find(d => d.id === defaultThemeLight.id)
-    if (!hasLightTheme) {
-      store.addTheme(defaultThemeLight)
-    }
   }
 }

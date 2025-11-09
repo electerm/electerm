@@ -14,9 +14,11 @@ const {
 const { onClose } = require('./on-close')
 const { initIpc, initAppServer } = require('./ipc')
 const { disableShortCuts } = require('./key-bind')
-const _ = require('lodash')
+const _ = require('./lodash.js')
 const getPort = require('./get-port')
 const globalState = require('./glob-state')
+const net = require('net')
+const generateErrorHtml = require('./error-page')
 
 exports.createWindow = async function (userConfig) {
   globalState.set('closeAction', 'closeApp')
@@ -34,13 +36,14 @@ exports.createWindow = async function (userConfig) {
     title: packInfo.name,
     frame: useSystemTitleBar,
     transparent: !useSystemTitleBar,
-    backgroundColor: '#33333300',
+    backgroundColor: '#333333',
     webPreferences: {
       contextIsolation: true,
       nodeIntegration: false,
       enableRemoteModule: false,
       preload: resolve(__dirname, '../preload/preload.js'),
-      webviewTag: true
+      webviewTag: true,
+      devTools: !userConfig.disableDeveloperTool
     },
     titleBarStyle: useSystemTitleBar ? 'default' : 'hidden',
     icon: iconPath
@@ -57,11 +60,23 @@ exports.createWindow = async function (userConfig) {
   const port = isDev
     ? process.env.devPort || 5570
     : await getPort()
-  const opts = `http://localhost:${port}/index.html?v=${packInfo.version}`
+  const opts = `http://127.0.0.1:${port}/index.html?v=${packInfo.version}`
+  // Test raw TCP connection to verify localhost accessibility
+  const client = net.createConnection({ port, host: '127.0.0.1' }, () => {
+    client.end() // Close the test connection
+    win.loadURL(opts)
+  })
 
-  win.loadURL(opts)
+  client.on('error', (err) => {
+    // Failure: Likely proxy interference, load error page
+    console.error('Localhost connection test failed:', err.message)
+    const htmlContent = generateErrorHtml(port)
+    const dataUrl = `data:text/html;charset=utf-8,${encodeURIComponent(htmlContent)}`
+    win.loadURL(dataUrl)
+  })
+  // win.loadURL(opts)
   win.webContents.once('dom-ready', () => {
-    if (isDev) {
+    if (isDev && !userConfig.disableDeveloperTool) {
       win.webContents.openDevTools()
     }
     win.on('unmaximize', () => {

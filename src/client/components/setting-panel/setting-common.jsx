@@ -18,6 +18,7 @@ import {
   Tag
 } from 'antd'
 import deepCopy from 'json-deep-copy'
+import Password from '../common/password'
 import {
   settingMap,
   proxyHelpLink
@@ -423,7 +424,7 @@ export default class SettingCommon extends Component {
             {e('global')} {e('proxy')}
             <HelpIcon
               title={table}
-              overlayInnerStyle={style}
+              style={{ body: { style } }}
             />
           </span>
           <Switch
@@ -434,7 +435,7 @@ export default class SettingCommon extends Component {
           />
         </div>
         {
-          this.renderText('proxy', 'socks5://localhost:1080')
+          this.renderText('proxy', 'socks5://127.0.0.1:1080')
         }
       </div>
     )
@@ -483,7 +484,7 @@ export default class SettingCommon extends Component {
       <div>
         <div className='pd1b'>{e('loginPassword')}</div>
         <div className='pd2b'>
-          <Input.Password
+          <Password
             {...props}
           />
         </div>
@@ -670,6 +671,7 @@ export default class SettingCommon extends Component {
             'confirmBeforeExit',
             'hideIP',
             'allowMultiInstance',
+            'disableDeveloperTool',
             'debug'
           ].map(this.renderToggle)
         }

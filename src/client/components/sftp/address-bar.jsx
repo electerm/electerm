@@ -90,7 +90,6 @@ function renderHistory (props, type) {
   }
   const cls = classnames(
     'sftp-history',
-    'animated',
     `sftp-history-${type}`,
     { focused }
   )

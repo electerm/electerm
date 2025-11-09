@@ -34,9 +34,9 @@ describe('Telnet bookmark', function () {
     const type = 'telnet'
 
     // Fill in bookmark details using SSH form IDs
-    await client.setValue('#ssh-form_host', testHost)
-    await client.setValue('#ssh-form_title', bookmarkTitle)
-    await client.setValue('#ssh-form_port', testPort)
+    await client.setValue('#telnet-form_host', testHost)
+    await client.setValue('#telnet-form_title', bookmarkTitle)
+    await client.setValue('#telnet-form_port', testPort)
 
     // Save and connect
     await client.click('.setting-wrap .ant-btn-primary')

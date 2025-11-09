@@ -18,7 +18,7 @@ import TerminalCmdSuggestions from '../terminal/terminal-command-dropdown'
 import TransportsActionStore from '../file-transfer/transports-action-store.jsx'
 import classnames from 'classnames'
 import ShortcutControl from '../shortcuts/shortcut-control.jsx'
-import { isMac, isWin } from '../../common/constants'
+import { isMac, isWin, textTerminalBgValue } from '../../common/constants'
 import TermFullscreenControl from './term-fullscreen-control'
 import TerminalInfo from '../terminal-info/terminal-info'
 import { ConfigProvider, notification, message } from 'antd'
@@ -28,6 +28,8 @@ import ConnectionHoppingWarning from './connection-hopping-warnning'
 import SshConfigLoadNotify from '../ssh-config/ssh-config-load-notify'
 import LoadSshConfigs from '../ssh-config/load-ssh-configs'
 import AIChat from '../ai/ai-chat'
+import Opacity from '../common/opacity'
+import InputContextMenu from '../common/input-context-menu'
 import { pick } from 'lodash-es'
 import deepCopy from 'json-deep-copy'
 import './wrapper.styl'
@@ -79,6 +81,7 @@ export default auto(function Index (props) {
     store.isSecondInstance = window.pre.runSync('isSecondInstance')
     store.initData()
     store.checkForDbUpgrade()
+    store.handleGetSerials()
     // window.pre.runGlobalAsync('registerDeepLink')
   }, [])
 
@@ -117,10 +120,20 @@ export default auto(function Index (props) {
   const ext1 = {
     className: cls
   }
-  const bgTabs = config.terminalBackgroundImagePath === 'index' || config.terminalBackgroundImagePath === 'randomShape'
-    ? store.getTabs()
+  // Get active tab IDs
+  const activeTabIds = [
+    store.activeTabId0,
+    store.activeTabId1,
+    store.activeTabId2,
+    store.activeTabId3
+  ].filter(Boolean) // Remove empty strings
+
+  const bgTabs = config.terminalBackgroundImagePath === 'index' ||
+                  config.terminalBackgroundImagePath === 'randomShape' ||
+                  config.terminalBackgroundImagePath === textTerminalBgValue
+    ? store.getTabs().filter(tab => activeTabIds.includes(tab.id))
     : store.getTabs().filter(tab =>
-      tab.terminalBackground?.terminalBackgroundImagePath
+      activeTabIds.includes(tab.id) && tab.terminalBackground?.terminalBackgroundImagePath
     )
   const confsCss = {
     ...Object.keys(config)
@@ -129,6 +142,7 @@ export default auto(function Index (props) {
         ...p,
         [k]: config[k]
       }), {}),
+    activeTabIds,
     tabs: bgTabs.map(tab => {
       return {
         tabCount: tab.tabCount,
@@ -139,11 +153,6 @@ export default auto(function Index (props) {
   }
   const themeProps = {
     themeConfig: store.getUiThemeConfig()
-  }
-  const outerProps = {
-    style: {
-      opacity: config.opacity
-    }
   }
   const copiedTransfer = deepCopy(fileTransfers)
   const copiedHistory = deepCopy(transferHistory)
@@ -240,6 +249,7 @@ export default auto(function Index (props) {
       theme={uiThemeConfig}
     >
       <div {...ext1}>
+        <InputContextMenu />
         <ShortcutControl config={config} />
         <TermFullscreenControl
           terminalFullScreen={terminalFullScreen}
@@ -248,10 +258,10 @@ export default auto(function Index (props) {
           {...confsCss}
           wsInited={wsInited}
         />
+        <Opacity opacity={config.opacity} />
         <TerminalInteractive />
         <UiTheme
           {...themeProps}
-          buildTheme={store.buildTheme}
         />
         <CustomCss customCss={config.customCss} />
         <TextEditor />
@@ -265,7 +275,6 @@ export default auto(function Index (props) {
         <BatchOp {...batchOpProps} />
         <div
           id='outside-context'
-          {...outerProps}
         >
           <Sidebar {...sidebarProps} />
           <Layout

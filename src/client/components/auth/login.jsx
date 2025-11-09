@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react'
 import LogoElem from '../common/logo-elem.jsx'
 import store from '../../store'
 import {
-  Input,
   message,
   Spin
 } from 'antd'
@@ -13,6 +12,7 @@ import Main from '../main/main.jsx'
 import AppDrag from '../tabs/app-drag'
 import WindowControl from '../tabs/window-control'
 import './login.styl'
+import Password from '../common/password'
 
 const e = window.translate
 
@@ -81,7 +81,7 @@ export default function Login () {
         <div className='pd3 aligncenter'>
           <LogoElem />
           <div className='pd3 aligncenter'>
-            <Input.Password
+            <Password
               value={pass}
               readOnly={loading}
               onChange={handlePassChange}
