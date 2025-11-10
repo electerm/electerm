@@ -2,6 +2,10 @@
  * widgets related functions
  */
 
+import {
+  message
+} from 'antd'
+
 export default Store => {
   Store.prototype.listWidgets = async () => {
     const {
@@ -17,11 +21,29 @@ export default Store => {
     return store.pre.runGlobalAsync('runWidget', widgetId, config)
   }
 
+  Store.prototype.deleteWidggetInstance = (instanceId) => {
+    const {
+      widgetInstances
+    } = window.store
+    const index = widgetInstances.findIndex(w => w.id === instanceId)
+    if (index > -1) {
+      widgetInstances.splice(index, 1)
+    }
+  }
+
   Store.prototype.stopWidget = async (instanceId) => {
     const {
       store
     } = window
-    return store.pre.runGlobalAsync('stopWidget', instanceId)
+    const r = await store.pre.runGlobalAsync('stopWidget', instanceId)
+      .catch(err => {
+        console.error('stopWidget error', err)
+        message.error(window.translate('stopWidgetFailed') + ': ' + err.message)
+        return false
+      })
+    if (r) {
+      store.deleteWidggetInstance(instanceId)
+    }
   }
 
   Store.prototype.runWidgetFunc = async (instanceId, funcName, ...args) => {
