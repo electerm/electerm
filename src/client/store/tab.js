@@ -227,9 +227,13 @@ export default Store => {
     const removedSet = new Set(removedIds)
     const batchFirstTabs = {}
     const currentIdNeedFix = removedSet.has(store.activeTabId)
-
+    const copiedTabs = remainingTabs.map(t => ({
+      id: t.id,
+      batch: t.batch,
+      tabCount: t.tabCount
+    })).sort((a, b) => b.tabCount - a.tabCount)
     // Get first valid tab for each batch
-    for (const tab of remainingTabs) {
+    for (const tab of copiedTabs) {
       if (!batchFirstTabs[tab.batch]) {
         batchFirstTabs[tab.batch] = tab.id
       }
