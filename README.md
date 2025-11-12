@@ -98,11 +98,6 @@ npm i -g electerm
 - Npm: If you install from npm, just run `npm i -g electerm` again.
 - If use Snap or some other distribution system, these systems may provide upgrades.
 
-## Themes
-
-- https://github.com/mbadolato/iTerm2-Color-Schemes/tree/master/electerm
-- https://github.com/Hope-IT-Works/electerm-theme-termius
-
 ## Known issues
 
 [https://github.com/electerm/electerm/wiki/Know-issues](https://github.com/electerm/electerm/wiki/Know-issues)

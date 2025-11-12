@@ -99,11 +99,6 @@ npm i -g electerm
 - Npm: 如果是从npm安装 再次运行`npm i -g electerm` 即可.
 - 如果从Linux发行版软件商店或者Snap安装，可能有自动升级机制.
 
-## 主题配色
-
-- https://github.com/mbadolato/iTerm2-Color-Schemes/tree/master/electerm
-- https://github.com/Hope-IT-Works/electerm-theme-termius
-
 ## 已知问题
 
 [https://github.com/electerm/electerm/wiki/Know-issues](https://github.com/electerm/electerm/wiki/Know-issues)
