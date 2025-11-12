@@ -41,18 +41,16 @@ class TerminalTelnet extends TerminalBase {
         'timeout',
         'username',
         'password',
-        'loginPrompt',
-        'passwordPrompt',
         'terminalWidth',
         'terminalHeight'
       ]
     )
     // Convert string regex patterns to RegExp objects
-    if (typeof params.loginPrompt === 'string') {
-      params.loginPrompt = stringToRegExp(params.loginPrompt)
+    if (typeof initOptions.loginPrompt === 'string') {
+      params.loginPrompt = stringToRegExp(initOptions.loginPrompt)
     }
-    if (typeof params.passwordPrompt === 'string') {
-      params.passwordPrompt = stringToRegExp(params.passwordPrompt)
+    if (typeof initOptions.passwordPrompt === 'string') {
+      params.passwordPrompt = stringToRegExp(initOptions.passwordPrompt)
     }
     Object.assign(
       params,
