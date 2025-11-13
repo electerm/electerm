@@ -82,12 +82,29 @@ if (type === 'rdp') {
     const { pid } = term
     log.debug('ws: connected to terminal ->', pid)
 
+    const dataBuffer = []
+    let sendTimeout = null
+
+    // In the WebSocket setup, replace the data handler:
     term.on('data', function (data) {
-      try {
-        term.writeLog(data)
-        ws.send(Buffer.from(data))
-      } catch (err) {
-        log.error(err)
+      // Buffer incoming data instead of sending immediately
+      dataBuffer.push(data)
+
+      // If no timeout is pending, schedule a batched send
+      if (!sendTimeout) {
+        sendTimeout = setTimeout(() => {
+          // Combine buffered data (optional: limit size to avoid memory issues)
+          const combinedData = dataBuffer.splice(0).join('')
+
+          // Write to log (keep this)
+          term.writeLog(combinedData)
+
+          // Send to WebSocket
+          ws.send(combinedData)
+
+          // Reset timeout
+          sendTimeout = null
+        }, 10) // Small delay (10ms) to throttle; adjust based on testing
       }
     })
 

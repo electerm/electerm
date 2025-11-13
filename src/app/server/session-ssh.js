@@ -686,12 +686,7 @@ class TerminalSshBase extends TerminalBase {
   }
 
   write (data) {
-    try {
-      this.channel.write(data)
-      // this.writeLog(data)
-    } catch (e) {
-      log.error(e)
-    }
+    this.channel.write(data)
   }
 
   kill () {
