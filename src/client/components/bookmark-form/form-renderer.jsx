@@ -281,7 +281,7 @@ export default function FormRenderer ({ config, props }) {
     onSelectProxy,
     onChangeAuthType,
     handleBlur: onBlur,
-    onPaste,
+    handlePaste: onPaste,
     useIp
   }
 
