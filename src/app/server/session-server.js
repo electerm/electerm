@@ -94,7 +94,7 @@ if (type === 'rdp') {
       if (!sendTimeout) {
         sendTimeout = setTimeout(() => {
           // Combine buffered data
-          const combinedData = Buffer.concat(dataBuffer.splice(0))
+          const combinedData = Buffer.concat(dataBuffer.splice(0).map(d => Buffer.isBuffer(d) ? d : Buffer.from(d)))
 
           // Write to log (keep this)
           term.writeLog(combinedData)
