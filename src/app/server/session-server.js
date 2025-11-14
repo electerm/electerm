@@ -93,8 +93,8 @@ if (type === 'rdp') {
       // If no timeout is pending, schedule a batched send
       if (!sendTimeout) {
         sendTimeout = setTimeout(() => {
-          // Combine buffered data (optional: limit size to avoid memory issues)
-          const combinedData = dataBuffer.splice(0).join('')
+          // Combine buffered data
+          const combinedData = Buffer.concat(dataBuffer.splice(0))
 
           // Write to log (keep this)
           term.writeLog(combinedData)
