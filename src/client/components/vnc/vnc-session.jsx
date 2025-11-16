@@ -79,9 +79,11 @@ export default class VncSession extends RdpSession {
       term: terminalType,
       viewOnly = false,
       scaleViewport = true,
+      clipViewport = false,
       username,
       password
     } = tab
+    console.log('vnc tab', tab)
     const opts = clone({
       term: terminalType || config.terminalType,
       tabId: id,
@@ -113,6 +115,7 @@ export default class VncSession extends RdpSession {
     const { width, height } = this.state
     const wsUrl = `${pre}://${hs}/vnc/${pid}?token=${tokenElecterm}&width=${width}&height=${height}`
     const vncOpts = {
+      clipViewport,
       scaleViewport,
       viewOnly,
       style: {

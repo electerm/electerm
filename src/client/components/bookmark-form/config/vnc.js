@@ -13,6 +13,7 @@ const vncConfig = {
     return createBaseInitValues(props, terminalVncType, {
       port: 5900,
       viewOnly: false,
+      clipViewport: true,
       scaleViewport: true,
       connectionHoppings: [],
       ...getAuthTypeDefault(props)
@@ -30,6 +31,7 @@ const vncConfig = {
         { type: 'input', name: 'host', label: e('host'), rules: [{ required: true, message: e('host') + ' required' }] },
         commonFields.port,
         { type: 'switch', name: 'viewOnly', label: e('viewOnly'), valuePropName: 'checked' },
+        { type: 'switch', name: 'clipViewport', label: e('clipViewport'), valuePropName: 'checked' },
         { type: 'switch', name: 'scaleViewport', label: e('scaleViewport'), valuePropName: 'checked' },
         { type: 'profileItem', name: '__profile__', label: '', profileFilter: d => !isEmpty(d.vnc) },
         commonFields.username,
