@@ -34,7 +34,7 @@ const {
 const { saveUserConfig } = require('./user-config-controller')
 const { changeHotkeyReg, initShortCut } = require('./shortcut')
 const lastStateManager = require('./last-state')
-// const { registerDeepLink } = require('./deep-link')
+const { registerDeepLink, getPendingDeepLink } = require('./deep-link')
 const {
   packInfo,
   appPath,
@@ -179,7 +179,9 @@ function initIpc () {
     changeHotkey: changeHotkeyReg(globalShortcut, globalState.get('win')),
     initCommandLine,
     watchFile,
-    unwatchFile
+    unwatchFile,
+    registerDeepLink,
+    getPendingDeepLink
   }
   ipcMain.handle('async', (event, { name, args }) => {
     return asyncGlobals[name](...args)

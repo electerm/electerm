@@ -13,6 +13,28 @@
     "icon": "node_modules/@electerm/electerm-resource/build/icons-win.ico",
     "publish": ["github"]
   },
+  "protocols": [
+    {
+      "name": "SSH Protocol",
+      "schemes": ["ssh"]
+    },
+    {
+      "name": "Telnet Protocol",
+      "schemes": ["telnet"]
+    },
+    {
+      "name": "RDP Protocol",
+      "schemes": ["rdp"]
+    },
+    {
+      "name": "VNC Protocol",
+      "schemes": ["vnc"]
+    },
+    {
+      "name": "Serial Protocol",
+      "schemes": ["serial"]
+    }
+  ],
   "appx": {
     "applicationId": "electerm",
     "identityName": "64159ZHAOXudong.electerm",

@@ -52,6 +52,7 @@ Online demo: [https://electerm-demo.html5beta.com](https://electerm-demo.html5be
 - Sync bookmarks/themes/quick commands to github/gitee secret gist
 - Quick input to one or all terminals.
 - AI assistant integration (supporting [DeepSeek](https://www.deepseek.com), OpenAI, and other AI APIs) to help with command suggestions, script writing, and explaining selected terminal content
+- Deep link support: Open connections with URLs like `telnet://192.168.2.31:34554` or `ssh://user@host:22` - see [DEEP_LINK_SUPPORT.md](DEEP_LINK_SUPPORT.md)
 - Command line usage: check [wiki](https://github.com/electerm/electerm/wiki/Command-line-usage)
 
 ## Download

@@ -8,6 +8,11 @@ const {
 const { initCommandLine } = require('./command-line')
 const globalState = require('./glob-state')
 const { getDbConfig } = require('./get-config')
+const {
+  registerDeepLink,
+  setupDeepLinkHandlers,
+  parseProtocolUrl
+} = require('./deep-link')
 
 exports.createApp = async function () {
   app.commandLine.appendSwitch('--disable-gpu')
@@ -42,6 +47,12 @@ exports.createApp = async function () {
 
   const { allowMultiInstance = false } = conf
 
+  // Register deep link protocols
+  registerDeepLink()
+
+  // Setup deep link handlers (open-url for macOS, etc.)
+  setupDeepLinkHandlers()
+
   // Only request single instance lock if multi-instance is not allowed
   if (!allowMultiInstance) {
     const gotTheLock = app.requestSingleInstanceLock(progs)
@@ -60,7 +71,20 @@ exports.createApp = async function () {
         win.restore()
       }
       win.focus()
-      if (opts) {
+
+      // Check if there's a protocol URL in the command line
+      const protocolUrl = argv.find(arg =>
+        /^(ssh|telnet|rdp|vnc|serial):\/\//i.test(arg)
+      )
+
+      if (protocolUrl) {
+        // Handle deep link
+        const deepLinkOpts = parseProtocolUrl(protocolUrl)
+        if (deepLinkOpts) {
+          win.webContents.send('add-tab-from-command-line', { options: deepLinkOpts })
+        }
+      } else if (opts) {
+        // Handle regular command line options
         win.webContents.send('add-tab-from-command-line', opts)
       }
     }
