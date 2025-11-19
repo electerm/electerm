@@ -145,6 +145,7 @@ export const openedSidebarKey = 'opened-sidebar'
 export const sidebarPinnedKey = 'sidebar-pinned'
 export const leftSidebarWidthKey = 'left-sidebar-width'
 export const rightSidebarWidthKey = 'right-sidebar-width'
+export const addPanelWidthLsKey = 'addPanelWidth'
 export const sftpDefaultSortSettingKey = 'sftp-default-sort'
 export const qmSortByFrequencyKey = 'qm-sort-by-frequency'
 

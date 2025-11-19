@@ -199,6 +199,7 @@ export default class Tabs extends Component {
         className={cls}
         empty={!this.props.tabs?.length}
         batch={this.props.batch}
+        addPanelWidth={this.props.addPanelWidth}
       />
     )
   }
