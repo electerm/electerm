@@ -116,6 +116,7 @@ export default auto(function Layout (props) {
           'tabsHeight',
           'appPath',
           'leftSidebarWidth',
+          'addPanelWidth',
           'pinned',
           'openedSideBar'
         ])

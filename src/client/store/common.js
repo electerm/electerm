@@ -9,6 +9,7 @@ import {
   modals,
   leftSidebarWidthKey,
   rightSidebarWidthKey,
+  addPanelWidthLsKey,
   dismissDelKeyTipLsKey,
   connectionMap,
   settingMap,
@@ -131,6 +132,11 @@ export default Store => {
   Store.prototype.setLeftSidePanelWidth = function (v) {
     ls.setItem(leftSidebarWidthKey, v)
     window.store.leftSidebarWidth = v
+  }
+
+  Store.prototype.setAddPanelWidth = function (v) {
+    ls.setItem(addPanelWidthLsKey, v)
+    window.store.addPanelWidth = v
   }
 
   Store.prototype.setRightSidePanelWidth = function (v) {
