@@ -247,7 +247,7 @@ class Transfer {
   }
 
   onEnd = (id = this.id, ws = this.ws) => {
-    ws.s({
+    ws?.s({
       id: 'transfer:end:' + id,
       data: null
     })
