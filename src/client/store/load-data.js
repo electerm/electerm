@@ -45,7 +45,9 @@ export async function addTabFromCommandLine (store, opts) {
     options,
     argv
   } = opts
-  store.commandLineHelp = helpInfo
+  if (helpInfo) {
+    store.commandLineHelp = helpInfo
+  }
   if (isHelp) {
     return store.openAbout(infoTabs.cmd)
   }

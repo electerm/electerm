@@ -20,7 +20,8 @@ class GlobalState {
       watchFilePath: '',
       oldRectangle: null,
       serverPort: null,
-      isSecondInstance: false
+      isSecondInstance: false,
+      pendingDeepLink: null
     }
   }
 

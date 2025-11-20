@@ -9,9 +9,7 @@ const { initCommandLine } = require('./command-line')
 const globalState = require('./glob-state')
 const { getDbConfig } = require('./get-config')
 const {
-  registerDeepLink,
-  setupDeepLinkHandlers,
-  parseProtocolUrl
+  setupDeepLinkHandlers
 } = require('./deep-link')
 
 exports.createApp = async function () {
@@ -47,9 +45,6 @@ exports.createApp = async function () {
 
   const { allowMultiInstance = false } = conf
 
-  // Register deep link protocols
-  registerDeepLink()
-
   // Setup deep link handlers (open-url for macOS, etc.)
   setupDeepLinkHandlers()
 
@@ -72,19 +67,7 @@ exports.createApp = async function () {
       }
       win.focus()
 
-      // Check if there's a protocol URL in the command line
-      const protocolUrl = argv.find(arg =>
-        /^(ssh|telnet|rdp|vnc|serial):\/\//i.test(arg)
-      )
-
-      if (protocolUrl) {
-        // Handle deep link
-        const deepLinkOpts = parseProtocolUrl(protocolUrl)
-        if (deepLinkOpts) {
-          win.webContents.send('add-tab-from-command-line', { options: deepLinkOpts })
-        }
-      } else if (opts) {
-        // Handle regular command line options
+      if (opts) {
         win.webContents.send('add-tab-from-command-line', opts)
       }
     }

@@ -5,12 +5,15 @@
 
 const { app } = require('electron')
 const log = require('../common/log')
+const {
+  isMac
+} = require('../common/runtime-constants')
 const globalState = require('./glob-state')
 
 /**
  * Parse a protocol URL and convert it to electerm options
  * @param {string} url - The protocol URL (e.g., telnet://192.168.2.31:34554)
- * @returns {object|null} - Parsed options or null if invalid
+ * @returns {object|null} - Parsed options in the same format as initCommandLine or null if invalid
  */
 function parseProtocolUrl (url) {
   if (!url || typeof url !== 'string') {
@@ -80,7 +83,13 @@ function parseProtocolUrl (url) {
     }
 
     log.info('Parsed deep link options:', options)
-    return options
+
+    // Return in the same format as initCommandLine: { options, argv }
+    // No helpInfo since this is not a command line action
+    return {
+      options,
+      argv: []
+    }
   } catch (error) {
     log.error('Error parsing protocol URL:', error)
     return null
@@ -188,9 +197,9 @@ function unregisterDeepLink (protocols = ['ssh', 'telnet', 'rdp', 'vnc', 'serial
  * @param {string} url - The protocol URL
  */
 function handleDeepLink (url) {
-  const options = parseProtocolUrl(url)
+  const parsed = parseProtocolUrl(url)
 
-  if (!options) {
+  if (!parsed) {
     log.warn('Could not parse deep link URL:', url)
     return
   }
@@ -203,22 +212,22 @@ function handleDeepLink (url) {
       win.restore()
     }
     win.focus()
-    win.webContents.send('add-tab-from-command-line', { options })
+    win.webContents.send('add-tab-from-command-line', parsed)
   } else {
     // Store the URL to open when window is ready
-    globalState.set('pendingDeepLink', options)
+    globalState.set('pendingDeepLink', parsed)
   }
 }
 
 /**
  * Check if there's a pending deep link to open
- * @returns {object|null} - Pending options or null
+ * @returns {object|null} - Pending deep link in the same format as initCommandLine or null
  */
 function getPendingDeepLink () {
   const pending = globalState.get('pendingDeepLink')
   if (pending) {
     globalState.set('pendingDeepLink', null)
-    return { options: pending }
+    return pending
   }
   return null
 }
@@ -228,13 +237,15 @@ function getPendingDeepLink () {
  */
 function setupDeepLinkHandlers () {
   // Handle deep links on macOS (open-url event)
-  app.on('open-url', (event, url) => {
-    event.preventDefault()
-    log.info('open-url event:', url)
-    handleDeepLink(url)
-  })
+  if (isMac) {
+    app.on('open-url', (event, url) => {
+      event.preventDefault()
+      log.info('open-url event:', url)
+      handleDeepLink(url)
+    })
+  }
 
-  // Handle deep links on Windows/Linux via second-instance
+  // Handle deep links via second-instance (when app is already running)
   // (already handled in create-app.js, but we can add additional parsing here)
   app.on('second-instance', (event, commandLine, workingDirectory) => {
     log.info('second-instance event:', commandLine)
@@ -249,8 +260,10 @@ function setupDeepLinkHandlers () {
     }
   })
 
-  // On Windows, handle protocol URLs passed as command line arguments at startup
-  if (process.platform === 'win32' && process.argv.length >= 2) {
+  // Handle protocol URLs passed as command line arguments at startup (all platforms)
+  // Note: macOS also fires 'open-url' event when using `open` command or clicking links,
+  // but when running `electerm ssh://...` directly in terminal, it comes through argv
+  if (process.argv.length >= 2) {
     const protocolUrl = process.argv.find(arg =>
       /^(ssh|telnet|rdp|vnc|serial):\/\//i.test(arg)
     )
