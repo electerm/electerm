@@ -676,7 +676,9 @@ export default class SettingCommon extends Component {
             'debug'
           ].map(this.renderToggle)
         }
-        <DeepLinkControl />
+        {
+          window.et.isWebApp ? null : <DeepLinkControl />
+        }
         {this.renderLoginPass()}
         {this.renderReset()}
       </div>
