@@ -85,4 +85,5 @@ jobs:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         BUILD_NUMBER: ${{ secrets.BUILD_NUMBER }}
         USE_SYSTEM_FPM: true
+        WORKFLOW_NAME: ${{ github.workflow }}
       run: node build/bin/build-linux-arm-legacy
