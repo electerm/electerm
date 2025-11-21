@@ -7,12 +7,14 @@
   },
   "electronLanguages": ["en-US"],
   "asar": true,
-  "channel": "${env.WORKFLOW_NAME}",
   "artifactName": "${productName}-${version}-${os}-${arch}.${ext}",
   "win": {
     "target": ["tar.gz", "appx", "nsis"],
     "icon": "node_modules/@electerm/electerm-resource/build/icons-win.ico",
-    "publish": ["github"]
+    "publish": {
+      "provider": "github",
+      "channel": "${env.WORKFLOW_NAME}"
+    }
   },
   "protocols": [
     {
@@ -51,7 +53,10 @@
     "category": "public.app-category.developer-tools",
     "target": "dmg",
     "icon": "node_modules/@electerm/electerm-resource/build/icons.icns",
-    "publish": ["github"],
+    "publish": {
+      "provider": "github",
+      "channel": "${env.WORKFLOW_NAME}"
+    },
     "hardenedRuntime": true,
     "gatekeeperAssess": false,
     "entitlements": "./build/entitlements.plist",
@@ -81,11 +86,17 @@
       "tar.gz",
       "snap"
     ],
-    "publish": ["github"]
+    "publish": {
+      "provider": "github",
+      "channel": "${env.WORKFLOW_NAME}"
+    }
   },
   "snap": {
     "confinement": "classic",
-    "publish": ["github"]
+    "publish": {
+      "provider": "github",
+      "channel": "${env.WORKFLOW_NAME}"
+    }
   },
   "deb": {
     "afterInstall": "build/bin/linux-deb-after-build.sh"
