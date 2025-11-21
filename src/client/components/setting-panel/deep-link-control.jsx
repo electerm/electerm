@@ -58,6 +58,11 @@ export default function DeepLinkControl () {
     return Object.values(registrationStatus).some(status => status === true)
   }
 
+  const isAllProtocolsRegistered = () => {
+    if (!registrationStatus) return false
+    return Object.values(registrationStatus).every(status => status === true)
+  }
+
   const renderTooltipContent = () => {
     const protocols = ['ssh', 'telnet', 'rdp', 'vnc', 'serial']
 
@@ -95,27 +100,16 @@ export default function DeepLinkControl () {
   }
 
   const isRegistered = isAnyProtocolRegistered()
+  const isAllRegistered = isAllProtocolsRegistered()
 
   return (
     <div className='pd2b'>
       <Tooltip
         title={renderTooltipContent()}
-        placement='right'
-        overlayStyle={{ maxWidth: 400 }}
       >
-        {
-          isRegistered
-            ? (
-              <Button
-                type='danger'
-                danger
-                onClick={handleUnregister}
-                loading={loading}
-              >
-                {e('unregisterDeepLink')}
-              </Button>
-              )
-            : (
+        <Space>
+          {
+            !isAllRegistered && (
               <Button
                 type='primary'
                 onClick={handleRegister}
@@ -123,8 +117,21 @@ export default function DeepLinkControl () {
               >
                 {e('registerDeepLink')}
               </Button>
-              )
-        }
+            )
+          }
+          {
+            isRegistered && (
+              <Button
+                color='danger'
+                variant='solid'
+                onClick={handleUnregister}
+                loading={loading}
+              >
+                {e('unregisterDeepLink')}
+              </Button>
+            )
+          }
+        </Space>
       </Tooltip>
     </div>
   )
