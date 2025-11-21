@@ -31,6 +31,7 @@ import StartSession from './start-session-select'
 import HelpIcon from '../common/help-icon'
 import delay from '../../common/wait.js'
 import isColorDark from '../../common/is-color-dark'
+import DeepLinkControl from './deep-link-control'
 import './setting.styl'
 
 const { Option } = Select
@@ -675,6 +676,7 @@ export default class SettingCommon extends Component {
             'debug'
           ].map(this.renderToggle)
         }
+        <DeepLinkControl />
         {this.renderLoginPass()}
         {this.renderReset()}
       </div>

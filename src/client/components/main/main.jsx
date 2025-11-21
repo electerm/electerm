@@ -82,7 +82,6 @@ export default auto(function Index (props) {
     store.initData()
     store.checkForDbUpgrade()
     store.handleGetSerials()
-    window.pre.runGlobalAsync('registerDeepLink')
     store.checkPendingDeepLink()
   }, [])
 

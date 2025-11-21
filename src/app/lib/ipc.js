@@ -34,7 +34,12 @@ const {
 const { saveUserConfig } = require('./user-config-controller')
 const { changeHotkeyReg, initShortCut } = require('./shortcut')
 const lastStateManager = require('./last-state')
-const { registerDeepLink, getPendingDeepLink } = require('./deep-link')
+const {
+  registerDeepLink,
+  unregisterDeepLink,
+  checkProtocolRegistration,
+  getPendingDeepLink
+} = require('./deep-link')
 const {
   packInfo,
   appPath,
@@ -181,6 +186,8 @@ function initIpc () {
     watchFile,
     unwatchFile,
     registerDeepLink,
+    unregisterDeepLink,
+    checkProtocolRegistration,
     getPendingDeepLink
   }
   ipcMain.handle('async', (event, { name, args }) => {
