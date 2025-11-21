@@ -8,6 +8,9 @@ const {
 const { initCommandLine } = require('./command-line')
 const globalState = require('./glob-state')
 const { getDbConfig } = require('./get-config')
+const {
+  setupDeepLinkHandlers
+} = require('./deep-link')
 
 exports.createApp = async function () {
   app.commandLine.appendSwitch('--disable-gpu')
@@ -42,6 +45,9 @@ exports.createApp = async function () {
 
   const { allowMultiInstance = false } = conf
 
+  // Setup deep link handlers (open-url for macOS, etc.)
+  setupDeepLinkHandlers()
+
   // Only request single instance lock if multi-instance is not allowed
   if (!allowMultiInstance) {
     const gotTheLock = app.requestSingleInstanceLock(progs)
@@ -60,6 +66,7 @@ exports.createApp = async function () {
         win.restore()
       }
       win.focus()
+
       if (opts) {
         win.webContents.send('add-tab-from-command-line', opts)
       }

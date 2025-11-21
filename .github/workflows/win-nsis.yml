@@ -45,6 +45,7 @@ jobs:
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         BUILD_NUMBER: ${{ secrets.BUILD_NUMBER }}
+        WORKFLOW_NAME: ${{ github.workflow }}
 
       run: node build/bin/build-win-nsis
 
