@@ -28,6 +28,9 @@ function generateErrorHtml (port) {
         .chinese {
           font-family: 'Noto Sans SC', sans-serif;
         }
+        img {
+          max-width: 200px;
+        }
       </style>
     </head>
     <body>
@@ -53,6 +56,11 @@ function generateErrorHtml (port) {
           <li>检查防火墙规则或防病毒软件是否阻止了本地端口。</li>
         </ul>
         <p>更改设置后重启应用程序。如果问题仍然存在，请联系技术支持。</p>
+        <p>
+          <img
+            src='https://electerm.html5beta.com/electerm-wechat-group-qr.jpg'
+          />
+        </p>
       </div>
     </body>
     </html>
