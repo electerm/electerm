@@ -11,7 +11,17 @@ function forwardRemoteToLocal ({
     const result = `remote:${sshTunnelRemoteHost}:${sshTunnelRemotePort} => local:${sshTunnelLocalHost}:${sshTunnelLocalPort}`
 
     const handleTcpConnection = (info, accept, rejectConn) => {
+      // Check if this connection is for this tunnel
+      if (info.destPort !== sshTunnelRemotePort && info.destPort !== Number(sshTunnelRemotePort)) {
+        return
+      }
+
       const srcStream = accept() // Source stream for forwarding
+
+      if (!srcStream) {
+        log.error(`Failed to accept connection for tunnel ${result}`)
+        return
+      }
 
       // Add error handling for source stream immediately
       srcStream.on('error', (err) => {
