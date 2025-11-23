@@ -9,36 +9,50 @@ function forwardRemoteToLocal ({
 }) {
   return new Promise((resolve, reject) => {
     const result = `remote:${sshTunnelRemoteHost}:${sshTunnelRemotePort} => local:${sshTunnelLocalHost}:${sshTunnelLocalPort}`
-    let server = null
-    conn.on('tcp connection', (info, accept, reject) => {
+
+    const handleTcpConnection = (info, accept, rejectConn) => {
       const srcStream = accept() // Source stream for forwarding
 
-      // Add error handling for source stream
+      // Add error handling for source stream immediately
       srcStream.on('error', (err) => {
-        log.error('Source stream error:', err)
+        log.error(`Source stream error for tunnel ${result}:`, err)
       })
 
-      conn.emit('forwardIn', srcStream)
-    }).on('forwardIn', (srcStream) => {
       // Connect the local machine source stream to the local port
-      server = require('net').connect(sshTunnelLocalPort, sshTunnelLocalHost)
+      // Create a NEW server connection for each forwarded connection
+      const server = require('net').connect(sshTunnelLocalPort, sshTunnelLocalHost)
 
-      // Add error handling for server connection
+      // CRITICAL: Add error handling IMMEDIATELY before any async operations
+      // This prevents unhandled errors from crashing the SSH session
       server.on('error', (err) => {
-        log.error('Server connection error:', err)
-        srcStream.end()
+        log.error(`Server connection error for tunnel ${result}:`, err.message)
+        // Just close this specific connection, don't break the tunnel
+        srcStream.destroy()
+        server.destroy()
       })
 
       server.on('close', () => {
-        log.log('Local server connection closed')
+        log.log(`Local server connection closed for tunnel ${result}`)
         srcStream.end()
       })
 
+      srcStream.on('close', () => {
+        server.destroy()
+      })
+
       srcStream.pipe(server).pipe(srcStream)
-    }).on('close', () => {
-      server && server.close && server.close()
-      log.log('SSH connection closed')
-    })
+    }
+
+    conn.on('tcp connection', handleTcpConnection)
+
+    const handleClose = () => {
+      log.log(`SSH connection closed for tunnel ${result}`)
+      conn.removeListener('tcp connection', handleTcpConnection)
+      conn.removeListener('close', handleClose)
+    }
+
+    conn.on('close', handleClose)
+
     // Forward the remote server's port to the local machine's port
     conn.forwardIn(sshTunnelRemoteHost, sshTunnelRemotePort, (err) => {
       if (err) {
@@ -75,13 +89,20 @@ function forwardLocalToRemote ({
       conn.forwardOut(sshTunnelLocalHost, sshTunnelLocalPort, sshTunnelRemoteHost, sshTunnelRemotePort, (err, remoteSocket) => {
         if (err) {
           log.error('Error forwarding connection:', err)
-          socket.end()
-          return reject(err)
+          socket.destroy()
+          // Don't reject - just close this connection
+          // Rejecting would break the entire tunnel
+          return
         }
 
+        // Add error handlers immediately
         remoteSocket.on('error', (err) => {
           log.error('Remote socket error:', err)
-          socket.end()
+          socket.destroy()
+        })
+
+        socket.on('close', () => {
+          remoteSocket.destroy()
         })
 
         socket.pipe(remoteSocket).pipe(socket)
@@ -123,21 +144,32 @@ function dynamicForward ({
         info.dstPort,
         (err, stream) => {
           if (err) {
+            log.error('SOCKS forward error:', err)
             deny()
-            return reject(err)
+            // Don't reject - just deny this connection
+            // Rejecting would break the entire tunnel
+            return
           }
           const clientSocket = accept(true)
           if (clientSocket) {
-            // Add error handling for stream
+            // Add error handling for stream immediately
             stream.on('error', (err) => {
               log.error('SOCKS stream error:', err)
-              // clientSocket.end()
+              clientSocket.destroy()
             })
 
-            // Add error handling for client socket
+            // Add error handling for client socket immediately
             clientSocket.on('error', (err) => {
               log.error('SOCKS client socket error:', err)
-              stream.end()
+              stream.destroy()
+            })
+
+            stream.on('close', () => {
+              clientSocket.destroy()
+            })
+
+            clientSocket.on('close', () => {
+              stream.destroy()
             })
 
             stream.pipe(clientSocket).pipe(stream)
