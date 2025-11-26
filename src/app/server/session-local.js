@@ -3,7 +3,6 @@
  */
 
 const { resolve: pathResolve } = require('path')
-const log = require('../common/log')
 const { TerminalBase } = require('./session-base')
 const globalState = require('./global-state')
 
@@ -60,12 +59,7 @@ class TerminalLocal extends TerminalBase {
   }
 
   write (data) {
-    try {
-      this.term.write(data)
-      // this.writeLog(data)
-    } catch (e) {
-      log.error(e)
-    }
+    this.term.write(data)
   }
 
   kill () {

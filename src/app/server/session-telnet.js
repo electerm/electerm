@@ -7,6 +7,24 @@ const { Telnet } = require('./telnet')
 const { TerminalBase } = require('./session-base')
 const globalState = require('./global-state')
 
+// Helper function to convert regex string to RegExp object
+function stringToRegExp (regexString) {
+  // Check if it's already a RegExp
+  if (regexString instanceof RegExp) {
+    return regexString
+  }
+
+  // Parse string format like /pattern/flags
+  const match = regexString.match(/^\/(.+)\/([gimsuy]*)$/)
+  if (match) {
+    const [, pattern, flags] = match
+    return new RegExp(pattern, flags)
+  }
+
+  // If no slashes, treat as plain pattern
+  return new RegExp(regexString)
+}
+
 class TerminalTelnet extends TerminalBase {
   init = async () => {
     const connection = new Telnet()
@@ -27,6 +45,13 @@ class TerminalTelnet extends TerminalBase {
         'terminalHeight'
       ]
     )
+    // Convert string regex patterns to RegExp objects
+    if (typeof initOptions.loginPrompt === 'string') {
+      params.loginPrompt = stringToRegExp(initOptions.loginPrompt)
+    }
+    if (typeof initOptions.passwordPrompt === 'string') {
+      params.passwordPrompt = stringToRegExp(initOptions.passwordPrompt)
+    }
     Object.assign(
       params,
       {

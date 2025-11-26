@@ -271,16 +271,7 @@ export default class FileSection extends React.Component {
     document.querySelectorAll('.' + onDragOverCls).forEach((d) => {
       removeClass(d, onDragOverCls)
     })
-    if (e && e.dataTransfer) {
-      const dt = e.dataTransfer
-      if (dt.items) {
-        // Use DataTransferItemList interface to remove the drag data
-        for (let i = 0, len = dt.items.length; i < len; i++) {
-          dt.items.remove(i)
-        }
-      }
-      dt.clearData()
-    }
+    e && e.dataTransfer && e.dataTransfer.clearData()
   }
 
   onDropFile = async (fromFiles, toFile, fromFileManager) => {

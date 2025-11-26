@@ -4,26 +4,25 @@
     </a>
 </h1>
 
-[中文](README_cn.md)
+# electerm [![Tweet](https://badgers.space/badge/Tweet/Tweet/social)](https://twitter.com/intent/tweet?text=Open%20sourced%20terminal%2Fssh%2Fsftp%20client(linux%2C%20mac%2C%20win)&url=https%3A%2F%2Fgithub.com%2Felecterm%2Felecterm&hashtags=electerm,ssh,terminal,sftp)
 
-# electerm [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=Open%20sourced%20terminal%2Fssh%2Fsftp%20client(linux%2C%20mac%2C%20win)&url=https%3A%2F%2Fgithub.com%2Felecterm%2Felecterm&hashtags=electerm,ssh,terminal,sftp)
-
-[![GitHub version](https://img.shields.io/github/release/electerm/electerm/all.svg)](https://github.com/electerm/electerm/releases)
+[![GitHub version](https://badgers.space/github/release/electerm/electerm?corner_radius=m)](https://github.com/electerm/electerm/releases)
 [![Build Status](https://github.com/electerm/electerm/actions/workflows/mac-test-1.yml/badge.svg)](https://github.com/electerm/electerm/actions)
-[![license](https://img.shields.io/github/license/electerm/electerm.svg)](https://github.com/electerm/electerm/blob/master/LICENSE)
+[![license](https://img.shields.io/github/license/electerm/electerm)](https://github.com/electerm/electerm/blob/master/LICENSE)
 [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
 [![Get it from the Snap Store](https://img.shields.io/badge/Snap-Store-green)](https://snapcraft.io/electerm)
 [![Get it from the Microsoft Store](https://img.shields.io/badge/Microsoft-Store-blue)](https://www.microsoft.com/store/apps/9NCN7272GTFF)
 [![Debian Repository](https://img.shields.io/badge/Debian-Repository-red)](https://electerm-repos.html5beta.com/deb)
 [![GitHub Sponsors](https://img.shields.io/github/sponsors/electerm?label=Sponsors)](https://github.com/sponsors/electerm)
+[![Powered by manate](https://img.shields.io/badge/Powered%20by-manate-blue)](https://github.com/tylerlong/manate)
+
+[![English](https://img.shields.io/badge/English-EN-blue)](README.md) [![中文](https://img.shields.io/badge/中文-Chinese-blue)](README_cn.md)
 
 [![DigitalOcean Referral Badge](https://web-platforms.sfo2.cdn.digitaloceanspaces.com/WWW/Badge%202.svg)](https://www.digitalocean.com/?refcode=c10bcb28b846&utm_campaign=Referral_Invite&utm_medium=Referral_Program&utm_source=badge)
 
 [![Vercel OSS Program](https://vercel.com/oss/program-badge.svg)](https://vercel.com/oss)
 
 Open-sourced terminal/ssh/telnet/serialport/RDP/VNC/sftp/ftp client(linux, mac, win).
-
-Powered by [manate](https://github.com/tylerlong/manate)
 
 For experienced developers, you may try the web app version running in browser(including mobile device): [electerm-web](https://github.com/electerm/electerm-web) or [docker image for electerm-web](https://github.com/electerm/electerm-web-docker)
 
@@ -52,6 +51,7 @@ Online demo: [https://electerm-demo.html5beta.com](https://electerm-demo.html5be
 - Sync bookmarks/themes/quick commands to github/gitee secret gist
 - Quick input to one or all terminals.
 - AI assistant integration (supporting [DeepSeek](https://www.deepseek.com), OpenAI, and other AI APIs) to help with command suggestions, script writing, and explaining selected terminal content
+- Deep link support: Open connections with URLs like `telnet://192.168.2.31:34554` or `ssh://user@host:22` - see [Deep link support wiki](https://github.com/electerm/electerm/wiki/Deep-link-support)
 - Command line usage: check [wiki](https://github.com/electerm/electerm/wiki/Command-line-usage)
 
 ## Download
@@ -97,11 +97,6 @@ npm i -g electerm
 - Download: Just download the latest edition, reinstall.
 - Npm: If you install from npm, just run `npm i -g electerm` again.
 - If use Snap or some other distribution system, these systems may provide upgrades.
-
-## Themes
-
-- https://github.com/mbadolato/iTerm2-Color-Schemes/tree/master/electerm
-- https://github.com/Hope-IT-Works/electerm-theme-termius
 
 ## Known issues
 

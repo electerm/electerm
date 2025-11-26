@@ -45,7 +45,9 @@ export async function addTabFromCommandLine (store, opts) {
     options,
     argv
   } = opts
-  store.commandLineHelp = helpInfo
+  if (helpInfo) {
+    store.commandLineHelp = helpInfo
+  }
   if (isHelp) {
     return store.openAbout(infoTabs.cmd)
   }
@@ -204,5 +206,11 @@ export default (Store) => {
   }
   Store.prototype.addTabFromCommandLine = (event, opts) => {
     addTabFromCommandLine(window.store, opts)
+  }
+  Store.prototype.checkPendingDeepLink = async function () {
+    const pending = await window.pre.runGlobalAsync('getPendingDeepLink')
+    if (pending) {
+      addTabFromCommandLine(window.store, pending)
+    }
   }
 }

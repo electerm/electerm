@@ -43,6 +43,20 @@ export const commonFields = {
     label: e('password')
   },
 
+  loginPrompt: {
+    type: 'input',
+    name: 'loginPrompt',
+    label: e('loginPrompt'),
+    props: { placeholder: '/login[: ]*$/i' }
+  },
+
+  passwordPrompt: {
+    type: 'input',
+    name: 'passwordPrompt',
+    label: e('passwordPrompt'),
+    props: { placeholder: '/password[: ]*$/i' }
+  },
+
   port: {
     type: 'number',
     name: 'port',
@@ -274,6 +288,8 @@ export const telnetAuthFields = [
   commonFields.host,
   commonFields.username,
   commonFields.password,
+  commonFields.loginPrompt,
+  commonFields.passwordPrompt,
   { type: 'profileItem', name: '__profile__', label: '', profileFilter: d => !isEmpty(d.telnet) },
   commonFields.port,
   commonFields.runScripts,

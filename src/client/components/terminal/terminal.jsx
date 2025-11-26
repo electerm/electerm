@@ -314,7 +314,9 @@ class Term extends Component {
         <div>
           <p>{e('paste')}:</p>
           <div className='paste-text'>
-            {readClipboard()}
+            <pre>
+              <code>{readClipboard()}</code>
+            </pre>
           </div>
         </div>
       ),

@@ -5,11 +5,9 @@
 import React, { Component } from 'react'
 import { createPortal } from 'react-dom'
 import {
-  CodeFilled,
-  PlusOutlined,
-  RightSquareFilled
+  PlusOutlined
 } from '@ant-design/icons'
-import BookmarksList from '../sidebar/bookmark-select'
+import AddBtnMenu from './add-btn-menu'
 import classNames from 'classnames'
 import hasActiveInput from '../../common/has-active-input'
 import './add-btn.styl'
@@ -93,43 +91,23 @@ export default class AddBtn extends Component {
   }
 
   renderMenus = () => {
-    const { onNewSsh } = window.store
-    const cls = 'pd2x pd1y context-item pointer'
-    const addTabBtn = window.store.hasNodePty
-      ? (
-        <div
-          className={cls}
-          onClick={this.handleTabAdd}
-        >
-          <RightSquareFilled /> {e('newTab')}
-        </div>
-        )
-      : null
-
     const { menuPosition, menuTop, menuLeft } = this.state
+    const addBtnMenuProps = {
+      menuRef: this.menuRef,
+      menuPosition,
+      menuTop,
+      menuLeft,
+      onMenuScroll: this.handleMenuScroll,
+      onTabAdd: this.handleTabAdd,
+      batch: this.props.batch,
+      addPanelWidth: this.props.addPanelWidth,
+      setAddPanelWidth: window.store.setAddPanelWidth
+    }
 
     return (
-      <div
-        ref={this.menuRef}
-        className={`add-menu-wrap add-menu-${menuPosition}`}
-        style={{
-          maxHeight: window.innerHeight - menuTop - 50,
-          top: menuTop,
-          left: menuLeft
-        }}
-        onScroll={this.handleMenuScroll}
-      >
-        <div
-          className={cls}
-          onClick={onNewSsh}
-        >
-          <CodeFilled /> {e('newBookmark')}
-        </div>
-        {addTabBtn}
-        <BookmarksList
-          store={window.store}
-        />
-      </div>
+      <AddBtnMenu
+        {...addBtnMenuProps}
+      />
     )
   }
 
