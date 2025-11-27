@@ -2,13 +2,27 @@
 
 const fs = require('fs')
 const path = require('path')
+const {
+  appPath
+} = require('../common/app-props')
+const log = require('../common/log')
+const userWidgetsDir = path.resolve(
+  appPath, 'widgets'
+)
+// Ensure user widgets directory exists when app starts
+try {
+  if (!fs.existsSync(userWidgetsDir)) {
+    fs.mkdirSync(userWidgetsDir, { recursive: true })
+  }
+} catch (err) {
+  log.error(`Failed to create user widgets directory ${userWidgetsDir}:`, err)
+}
 // const { app } = require('electron')
 
 // Store running widget instances
 const runningInstances = new Map()
 
-function listWidgets () {
-  const widgetDirectory = __dirname
+function listWidgetsFromFolder (widgetDirectory = __dirname) {
   const widgetFiles = fs.readdirSync(widgetDirectory).filter(file => file.startsWith('widget-') && file.endsWith('.js'))
   const res = []
   for (const file of widgetFiles) {
@@ -24,6 +38,17 @@ function listWidgets () {
     }
   }
   return res
+}
+
+function listWidgets () {
+  const widgets1 = listWidgetsFromFolder()
+  const widgets2 = listWidgetsFromFolder(
+    userWidgetsDir
+  )
+  return [
+    ...widgets1,
+    ...widgets2
+  ]
 }
 
 function runWidget (widgetId, config) {
