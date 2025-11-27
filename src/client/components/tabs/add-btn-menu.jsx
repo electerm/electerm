@@ -57,8 +57,6 @@ export default function AddBtnMenu ({
     left: menuPosition === 'right'
   }
 
-  console.log('render add btn menu', dragProps)
-
   return (
     <div
       ref={menuRef}

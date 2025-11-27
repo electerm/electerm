@@ -83,7 +83,6 @@ export default class VncSession extends RdpSession {
       username,
       password
     } = tab
-    console.log('vnc tab', tab)
     const opts = clone({
       term: terminalType || config.terminalType,
       tabId: id,
