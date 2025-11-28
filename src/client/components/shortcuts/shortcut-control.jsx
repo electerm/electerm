@@ -167,6 +167,16 @@ class ShortcutControl extends React.PureComponent {
     window.store.onNewSsh()
   }, 500)
 
+  toggleAddBtnShortcut = throttle((e) => {
+    e.stopPropagation()
+    const { currentLayoutBatch } = window.store
+    // Find the add button for the active layout (batch)
+    const addBtnElement = document.querySelector(`.v${currentLayoutBatch + 1} .tabs-add-btn`)
+    if (addBtnElement) {
+      addBtnElement.click()
+    }
+  }, 500)
+
   togglefullscreenShortcut = throttle((e) => {
     e.stopPropagation()
     const x = document.querySelector('.term-fullscreen-control') ||
