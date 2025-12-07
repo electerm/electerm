@@ -120,9 +120,9 @@ export default class TerminalCmdSuggestions extends Component {
 
     // Use bottom position if close to bottom edge
     if (reverse) {
-      position.bottom = h - top + cellHeight
+      position.bottom = h - top + cellHeight * 1.5
     } else {
-      position.top = top
+      position.top = top + cellHeight
     }
     this.setState({
       showSuggestions: true,
