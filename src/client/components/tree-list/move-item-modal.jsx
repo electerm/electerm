@@ -1,5 +1,5 @@
 // render bookmark select, use antd tree select
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import buildGroupData from '../bookmark-form/common/bookmark-group-tree-format'
 import { TreeSelect, Modal, Button } from 'antd'
 const e = window.translate
@@ -12,10 +12,29 @@ export default function MoveItemModal (props) {
     moveItemIsGroup,
     bookmarkGroups
   } = props
+
+  // Reset groupId when modal opens
+  useEffect(() => {
+    if (openMoveModal) {
+      setGroupId(undefined)
+    }
+  }, [openMoveModal])
+
   if (!openMoveModal) {
     return null
   }
-  const data = buildGroupData(bookmarkGroups, moveItem.id)
+
+  // Find current parent folder
+  const currentParent = bookmarkGroups.find(bg => {
+    if (moveItemIsGroup) {
+      return (bg.bookmarkGroupIds || []).includes(moveItem.id)
+    }
+    return (bg.bookmarkIds || []).includes(moveItem.id)
+  })
+  const currentParentId = currentParent?.id
+
+  // Build tree data with disabled folder for self and current parent
+  const data = buildGroupData(bookmarkGroups, moveItemIsGroup ? moveItem.id : null, false, currentParentId)
   function onSelect () {
     const {
       bookmarkGroups
