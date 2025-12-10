@@ -32,6 +32,11 @@ export default () => {
       shortcutMac: 'meta+n'
     },
     {
+      name: 'app_toggleAddBtn',
+      shortcut: 'alt+n',
+      shortcutMac: 'alt+n'
+    },
+    {
       name: 'app_togglefullscreen',
       shortcut: 'alt+f',
       shortcutMac: 'alt+f'

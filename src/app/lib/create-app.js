@@ -11,6 +11,7 @@ const { getDbConfig } = require('./get-config')
 const {
   setupDeepLinkHandlers
 } = require('./deep-link')
+const { handleSingleInstance } = require('./single-instance')
 
 exports.createApp = async function () {
   app.commandLine.appendSwitch('--disable-gpu')
@@ -50,26 +51,27 @@ exports.createApp = async function () {
 
   // Only request single instance lock if multi-instance is not allowed
   if (!allowMultiInstance) {
-    const gotTheLock = app.requestSingleInstanceLock(progs)
+    // Use socket-based single instance lock for compatibility with Electron 22
+    // where additionalData doesn't work in the second-instance event
+    const isPrimaryInstance = await handleSingleInstance(progs)
 
-    // If this is a second instance, quit immediately
-    if (!gotTheLock) {
+    if (!isPrimaryInstance) {
       app.quit()
       return app
     }
+
+    // Also use Electron's built-in lock as a fallback
+    app.requestSingleInstanceLock()
   }
 
-  app.on('second-instance', (event, argv, wd, opts) => {
+  app.on('second-instance', () => {
+    // Just focus the window - data is handled via socket
     const win = globalState.get('win')
     if (win) {
       if (win.isMinimized()) {
         win.restore()
       }
       win.focus()
-
-      if (opts) {
-        win.webContents.send('add-tab-from-command-line', opts)
-      }
     }
   })
   app.whenReady().then(() => createWindow(conf))

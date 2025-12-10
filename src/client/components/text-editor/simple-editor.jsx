@@ -7,6 +7,7 @@ import {
   CopyOutlined
 } from '@ant-design/icons'
 import { copy } from '../../common/clipboard'
+import { escapeRegExp } from 'lodash-es'
 
 export default function SimpleEditor (props) {
   const [searchKeyword, setSearchKeyword] = useState('')
@@ -72,7 +73,8 @@ export default function SimpleEditor (props) {
 
     const matches = []
     const text = props.value || ''
-    const regex = new RegExp(searchKeyword, 'gi')
+    const escapedKeyword = escapeRegExp(searchKeyword)
+    const regex = new RegExp(escapedKeyword, 'gi')
     let match
 
     while ((match = regex.exec(text)) !== null) {
