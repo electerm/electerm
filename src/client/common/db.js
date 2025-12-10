@@ -25,7 +25,8 @@ const dbAction = (...args) => {
  */
 export const dbNames = without(
   Object.keys(settingMap),
-  settingMap.setting
+  settingMap.setting,
+  settingMap.widgets
 )
 
 export const dbNamesForWatch = without(

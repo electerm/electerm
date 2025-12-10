@@ -5,13 +5,14 @@
 import {
   message
 } from 'antd'
+import {
+  settingMap
+} from '../common/constants'
+import getInitItem from '../common/init-setting-item'
 
 export default Store => {
   Store.prototype.listWidgets = async () => {
-    const {
-      store
-    } = window
-    return store.pre.runGlobalAsync('listWidgets')
+    return window.pre.runGlobalAsync('listWidgets')
   }
 
   Store.prototype.runWidget = async (widgetId, config) => {
@@ -63,5 +64,14 @@ export default Store => {
       throw new Error(`No widget info found for instanceId: ${instanceId}`)
     }
     return store.runWidget(widgetInfo.widgetId, widgetInfo.config)
+  }
+
+  Store.prototype.openWidgetsModal = () => {
+    const {
+      store
+    } = window
+    store.setSettingItem(getInitItem([], settingMap.widgets))
+    store.settingTab = settingMap.widgets
+    store.openSettingModal()
   }
 }
