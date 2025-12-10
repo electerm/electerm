@@ -61,6 +61,24 @@ function buildInput () {
   }
 }
 
+// Custom plugin to replace window.et.isWebApp with false
+function replaceWebAppPlugin () {
+  return {
+    name: 'replace-webapp',
+    renderChunk (code, chunk) {
+      // Replace window.et.isWebApp with false in the bundled code
+      const newCode = code.replace(/window\.et\.isWebApp/g, 'false')
+      if (newCode !== code) {
+        return {
+          code: newCode,
+          map: null
+        }
+      }
+      return null
+    }
+  }
+}
+
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
@@ -71,7 +89,8 @@ export default defineConfig({
     //   'react-dom': 'ReactDOM'
     // }),
     react({ include: /\.(mdx|js|jsx|ts|tsx|mjs)$/ }),
-    combineCSSPlugin()
+    combineCSSPlugin(),
+    replaceWebAppPlugin()
   ],
   // optimizeDeps: {
   //   esbuildOptions: {
