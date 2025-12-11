@@ -26,7 +26,7 @@ jobs:
     # before_install:
     - run: pip install setuptools
     - run: npm install -g yarn
-    - run: npm i
+    - run: npm i --legacy-peer-deps
     - run: PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm i -D -E playwright@1.49.1 && npm i -D -E @playwright/test@1.49.1
 
     # script:
