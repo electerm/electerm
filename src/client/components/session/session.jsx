@@ -736,7 +736,7 @@ export default class SessionWrapper extends Component {
     const layout = direction === 'leftRight' ? 'horizontal' : 'vertical'
     const [size1, size2] = this.state.splitSize
     const splitterProps = {
-      layout,
+      orientation: layout,
       onResize: this.onSplitResize,
       onResizeEnd: this.onSplitResize,
       className: notSplitVew ? 'not-split-view' : '',

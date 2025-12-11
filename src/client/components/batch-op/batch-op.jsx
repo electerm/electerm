@@ -673,7 +673,7 @@ export default class BatchOp extends PureComponent {
       open: showBatchOp,
       onClose: this.handleCancel,
       className: 'setting-wrap',
-      width: innerWidth - sidebarWidth,
+      size: innerWidth - sidebarWidth,
       zIndex: 888,
       placement: 'left',
       styles: {
