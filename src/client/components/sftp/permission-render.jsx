@@ -23,7 +23,7 @@ export default (perm, _onClick) => {
           Object.keys(permission).map(n => {
             const type = permission[n]
               ? 'primary'
-              : 'ghost'
+              : 'dashed'
             return (
               <Button
                 key={n + 'permi'}

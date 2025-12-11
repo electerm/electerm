@@ -5,7 +5,7 @@ import {
 import Password from './password'
 
 export default function InputAutoFocus (props) {
-  const { type, selectall = false, ...rest } = props
+  const { type, selectall = false, ref, ...rest } = props
   const inputRef = useRef(null)
   const isFirstRender = useRef(true)
 
@@ -14,7 +14,11 @@ export default function InputAutoFocus (props) {
       const { value } = props
       if (value && selectall && isFirstRender.current) {
         inputRef.current.focus()
-        inputRef.current.setSelectionRange(0, value.length)
+        if (inputRef.current.setSelectionRange) {
+          inputRef.current.setSelectionRange(0, value.length)
+        } else if (inputRef.current.select) {
+          inputRef.current.select()
+        }
         isFirstRender.current = false
       } else {
         inputRef.current.focus()
@@ -31,9 +35,18 @@ export default function InputAutoFocus (props) {
       InputComponent = Input
   }
 
+  const handleRef = (node) => {
+    inputRef.current = node
+    if (typeof ref === 'function') {
+      ref(node)
+    } else if (ref) {
+      ref.current = node
+    }
+  }
+
   return (
     <InputComponent
-      ref={inputRef}
+      ref={handleRef}
       {...rest}
     />
   )

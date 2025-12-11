@@ -1,6 +1,7 @@
 .qm-list-wrap
   max-height calc(100vh - 100px)
   overflow-y scroll
+  padding 20px 0 10px 0
 .qm-wrap-tooltip
   background var(--main)
   position absolute
@@ -24,9 +25,27 @@
     &.name-match
     &.label-match
       font-weight bold
+
+.qm-search-input
+  max-width 200px
 @media (max-width: 500px)
   .qm-search-input
     width 100px
 
 .item-list-unit.dragover
   border: 1px dashed var(--primary)
+.qm-label-select
+  min-width 120px
+
+.qm-flex
+  gap 8px
+
+@media (max-width: 768px)
+  .qm-flex
+    flex-direction column
+    align-items flex-start
+  .qm-search-input
+    max-width none
+    width 100%
+  .qm-label-select
+    width 100%
