@@ -31,6 +31,6 @@ export default function AiCache () {
     </>
   )
   return (
-    <Alert message={msg} type='info' className='mg2y' />
+    <Alert title={msg} type='info' className='mg2y' />
   )
 }

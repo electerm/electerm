@@ -24,6 +24,7 @@ jobs:
     - uses: actions/setup-python@v5
       with:
         python-version: '3.12'
+    - run: npm config set legacy-peer-deps true
     - run: npm install -g node-gyp
 
     # before_install:

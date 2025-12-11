@@ -29,6 +29,7 @@ jobs:
     # - run: sleep 3
 
     # before_install:
+    - run: npm config set legacy-peer-deps true
     - run: npm install -g yarn
     - run: npm i
 

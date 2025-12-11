@@ -86,7 +86,7 @@ async function testEditFolderPermission (client, folderType) {
 
   // Verify that the edit permission modal is open
   await client.hasElem('.ant-modal-wrap')
-  await client.hasElem('.ant-modal-content')
+  await client.hasElem('.ant-modal-container')
 
   // Check if the modal title is "Edit Folder Permission"
   const modalTitle = await client.getText('.ant-modal-title')
@@ -95,7 +95,7 @@ async function testEditFolderPermission (client, folderType) {
   // Change a specific permission (e.g., 'other' 'write')
   const targetGroup = 'other'
   const targetPermission = 'write'
-  const buttonSelector = `.ant-modal-content .pd1b:has-text("${targetGroup}") .ant-btn:has-text("${targetPermission}")`
+  const buttonSelector = `.ant-modal-container .pd1b:has-text("${targetGroup}") .ant-btn:has-text("${targetPermission}")`
 
   const initialClass = await client.getAttribute(buttonSelector, 'class')
   const initiallyActive = initialClass.includes('ant-btn-primary')
@@ -166,7 +166,7 @@ async function testFileInfoModal (client, fileType, closeMethod) {
 
   // Verify modal content and visibility
   await client.hasElem('.ant-modal-wrap')
-  await client.hasElem('.ant-modal-content')
+  await client.hasElem('.ant-modal-container')
   await client.hasElem('.ant-modal .file-props')
 
   // Close modal using different methods

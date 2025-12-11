@@ -139,6 +139,7 @@ kofi
 
 git clone git@github.com:electerm/electerm.git
 cd electerm
+npm config set legacy-peer-deps true
 npm i
 
 # start vite dev server, requires port 5570
