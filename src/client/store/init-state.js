@@ -190,6 +190,11 @@ export default () => {
     hasNodePty: window.pre.runSync('nodePtyCheck'),
     terminalFullScreen: false,
     hideDelKeyTip: ls.getItem(dismissDelKeyTipLsKey) === 'y',
-    tabsHeight: 36
+    tabsHeight: 36,
+
+    // move item
+    openMoveModal: false,
+    moveItem: null,
+    moveItemIsGroup: false
   }
 }

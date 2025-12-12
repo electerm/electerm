@@ -27,7 +27,6 @@ import './tree-list.styl'
 import TreeExpander from './tree-expander'
 import TreeListItem from './tree-list-item'
 import TreeSearch from './tree-search'
-import MoveItemModal from './move-item-modal'
 import { CategoryColorPicker } from './category-color-picker.jsx'
 import { getRandomDefaultColor } from '../../common/rand-hex-color.js'
 
@@ -39,9 +38,6 @@ export default class ItemListTree extends Component {
       keyword: '',
       parentId: '',
       showNewBookmarkGroupForm: false,
-      openMoveModal: false,
-      moveItem: null,
-      moveItemIsGroup: false,
       bookmarkGroupTitle: '',
       bookmarkGroupColor: '',
       categoryTitle: '',
@@ -174,7 +170,7 @@ export default class ItemListTree extends Component {
 
   openMoveModal = (e, item, isGroup) => {
     e.stopPropagation()
-    this.setState({
+    window.store.storeAssign({
       openMoveModal: true,
       moveItem: item,
       moveItemIsGroup: isGroup
@@ -832,7 +828,7 @@ export default class ItemListTree extends Component {
   }
 
   render () {
-    const { ready, openMoveModal, moveItem, moveItemIsGroup } = this.state
+    const { ready } = this.state
     if (!ready) {
       return (
         <div className='pd3 aligncenter'>
@@ -846,13 +842,6 @@ export default class ItemListTree extends Component {
       staticList,
       listStyle = {}
     } = this.props
-    const moveProps = {
-      openMoveModal,
-      moveItem,
-      moveItemIsGroup,
-      bookmarkGroups,
-      onCancelMoveItem: this.onCancelMoveItem
-    }
     const level1Bookgroups = ready
       ? bookmarkGroups.filter(
         d => !d.level || d.level < 2
@@ -860,7 +849,6 @@ export default class ItemListTree extends Component {
       : []
     return (
       <div className={`tree-list item-type-${type}`}>
-        <MoveItemModal {...moveProps} />
         {
           staticList
             ? null

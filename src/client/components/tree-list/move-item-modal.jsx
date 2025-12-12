@@ -5,18 +5,27 @@ import {
 } from '@ant-design/icons'
 import buildGroupData from '../bookmark-form/common/bookmark-group-tree-format'
 import { TreeSelect, Modal, Button } from 'antd'
+import { auto } from 'manate/react'
 const e = window.translate
 
 const rootId = '__root__'
 
-export default function MoveItemModal (props) {
+export default auto(function MoveItemModal (props) {
   const [groupId, setGroupId] = useState(undefined)
   const {
     openMoveModal,
     moveItem,
     moveItemIsGroup,
     bookmarkGroups
-  } = props
+  } = props.store
+
+  function onCancelMoveItem () {
+    window.store.storeAssign({
+      openMoveModal: false,
+      moveItem: null,
+      moveItemIsGroup: false
+    })
+  }
 
   // Reset groupId when modal opens
   useEffect(() => {
@@ -83,7 +92,7 @@ export default function MoveItemModal (props) {
     }
     if (groupId === rootId) {
       delete moveItem.level
-      return props.onCancelMoveItem()
+      return onCancelMoveItem()
     }
 
     if (moveItemIsGroup) {
@@ -98,13 +107,13 @@ export default function MoveItemModal (props) {
         ...(group.bookmarkIds || [])
       ]
     }
-    props.onCancelMoveItem()
+    onCancelMoveItem()
   }
   const modalProps = {
     open: openMoveModal,
     title: e('moveTo'),
     footer: null,
-    onCancel: props.onCancelMoveItem
+    onCancel: onCancelMoveItem
   }
   const treeProps = {
     treeData: data,
@@ -132,7 +141,7 @@ export default function MoveItemModal (props) {
           {e('ok')}
         </Button>
         <Button
-          onClick={props.onCancelMoveItem}
+          onClick={onCancelMoveItem}
           className='mg1l'
         >
           {e('cancel')}
@@ -140,4 +149,4 @@ export default function MoveItemModal (props) {
       </div>
     </Modal>
   )
-}
+})
