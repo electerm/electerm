@@ -5,7 +5,7 @@
 import { useState, useRef } from 'react'
 import { quickCommandLabelsLsKey } from '../../common/constants'
 import { sortBy } from 'lodash-es'
-import { Button, Input, Select, Space } from 'antd'
+import { Button, Input, Select, Space, Flex } from 'antd'
 import * as ls from '../../common/safe-local-storage'
 import CmdItem from './quick-command-item'
 import {
@@ -169,14 +169,11 @@ export default function QuickCommandsFooterBox (props) {
     mode: 'multiple',
     onChange: handleChangeLabels,
     placeholder: e('labels'),
-    className: 'iblock',
-    style: {
-      minWidth: '100px'
-    }
+    className: 'qm-label-select'
   }
   const tp = pinnedQuickCommandBar
     ? 'primary'
-    : 'ghost'
+    : 'text'
   const cls = classNames(
     'qm-list-wrap',
     { 'fil-label': !!labels.length },
@@ -197,16 +194,14 @@ export default function QuickCommandsFooterBox (props) {
       {...qmProps}
     >
       <div className='pd2'>
-        <div className='pd2b fix'>
-          <span className='fleft'>
-            <Input.Search
-              value={keyword}
-              onChange={handleChange}
-              placeholder=''
-              className='iblock qm-search-input'
-            />
-          </span>
-          <span className='fleft mg1l'>
+        <Flex justify='space-between' className='qm-flex'>
+          <Input.Search
+            value={keyword}
+            onChange={handleChange}
+            placeholder=''
+            className='qm-search-input'
+          />
+          <Flex gap='small'>
             <Select
               {...sprops}
             >
@@ -215,31 +210,28 @@ export default function QuickCommandsFooterBox (props) {
               )}
             </Select>
             <Button
-              className='mg1l iblock'
               type={type}
               onClick={window.store.handleSortByFrequency}
             >
               {e('sortByFrequency')}
             </Button>
-          </span>
-          <span className='fright'>
-            <Space.Compact>
-              <Button
-                onClick={handleTogglePinned}
-                icon={<PushpinOutlined />}
-                type={tp}
-              />
-              <Button
-                onClick={window.store.handleOpenQuickCommandsSetting}
-                icon={<EditOutlined />}
-              />
-              <Button
-                onClick={handleClose}
-                icon={<CloseCircleOutlined />}
-              />
-            </Space.Compact>
-          </span>
-        </div>
+          </Flex>
+          <Space.Compact className='mg2l'>
+            <Button
+              onClick={handleTogglePinned}
+              icon={<PushpinOutlined />}
+              type={tp}
+            />
+            <Button
+              onClick={window.store.handleOpenQuickCommandsSetting}
+              icon={<EditOutlined />}
+            />
+            <Button
+              onClick={handleClose}
+              icon={<CloseCircleOutlined />}
+            />
+          </Space.Compact>
+        </Flex>
         <div className={cls}>
           {filtered.map(renderItem)}
         </div>

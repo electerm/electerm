@@ -49,7 +49,7 @@ jobs:
 
     - name: Install electron
       working-directory: /tmp/electerm_build
-      run: npm i -D electron@22.3.27
+      run: npm config set legacy-peer-deps true && npm i -D electron@22.3.27
       
     - name: Install node-pty
       working-directory: /tmp/electerm_build

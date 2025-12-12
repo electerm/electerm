@@ -25,6 +25,7 @@ jobs:
         python-version: '3.10'
     # before_install:
     - run: pip install setuptools
+    - run: npm config set legacy-peer-deps true
     - run: npm install -g yarn
     - run: npm i
     - run: PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm i -D -E playwright@1.49.1 && npm i -D -E @playwright/test@1.49.1

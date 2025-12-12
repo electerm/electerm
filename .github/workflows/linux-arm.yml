@@ -62,7 +62,7 @@ jobs:
         fpm --version
 
     - name: Install yarn
-      run: npm install -g yarn
+      run: npm config set legacy-peer-deps true &&npm install -g yarn
 
     - name: Clear electron-builder cache
       run: rm -rf ~/.cache/electron-builder

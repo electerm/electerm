@@ -17,6 +17,7 @@ jobs:
         with:
           node-version: '22'
           registry-url: https://registry.npmjs.org/
+      - run: npm config set legacy-peer-deps true
       - run: npm install shelljs
       - run: npm install -g @jsdevtools/npm-publish
       - name: build

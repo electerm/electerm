@@ -35,7 +35,7 @@ export default class QuickCommandsFooter extends PureComponent {
       >
         <Button
           size='small'
-          type='ghost'
+          type='text'
         >
           <span className='w500'>{e('quickCommands')}</span>
           <span className='l500'>Q</span>
