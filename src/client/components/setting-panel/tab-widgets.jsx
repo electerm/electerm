@@ -1,5 +1,5 @@
 import SettingCol from './col'
-import WidgetForm from '../widgets/widget-form'
+import WidgetControl from '../widgets/widget-control'
 import WdigetList from '../widgets/widgets-list'
 import {
   settingMap
@@ -25,7 +25,7 @@ export default function TabWidgets (props) {
         <WdigetList
           {...listProps}
         />
-        <WidgetForm
+        <WidgetControl
           {...formProps}
           key={settingItem.id}
         />
