@@ -1,8 +1,13 @@
 // render bookmark select, use antd tree select
 import { useState, useEffect } from 'react'
+import {
+  MergeOutlined
+} from '@ant-design/icons'
 import buildGroupData from '../bookmark-form/common/bookmark-group-tree-format'
 import { TreeSelect, Modal, Button } from 'antd'
 const e = window.translate
+
+const rootId = '__root__'
 
 export default function MoveItemModal (props) {
   const [groupId, setGroupId] = useState(undefined)
@@ -35,13 +40,25 @@ export default function MoveItemModal (props) {
 
   // Build tree data with disabled folder for self and current parent
   const data = buildGroupData(bookmarkGroups, moveItemIsGroup ? moveItem.id : null, false, currentParentId)
+
+  // if it is a group and can move to root, add root option
+  if (moveItemIsGroup && currentParentId) {
+    const title = <span><MergeOutlined /> {e('ROOT')}</span>
+    data.unshift({
+      title,
+      value: rootId,
+      key: rootId,
+      disabled: false
+    })
+  }
   function onSelect () {
     const {
       bookmarkGroups
     } = window.store
+
     const groupMap = new Map(bookmarkGroups.map(d => [d.id, d]))
     const group = groupMap.get(groupId)
-    if (!group) {
+    if (!group && groupId !== rootId) {
       return
     }
     // Find and update the original parent group
@@ -64,7 +81,13 @@ export default function MoveItemModal (props) {
         )
       }
     }
+    if (groupId === rootId) {
+      delete moveItem.level
+      return props.onCancelMoveItem()
+    }
+
     if (moveItemIsGroup) {
+      moveItem.level = (group.level || 1) + 1
       group.bookmarkGroupIds = [
         moveItem.id,
         ...(group.bookmarkGroupIds || [])
