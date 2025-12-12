@@ -1,7 +1,8 @@
 import StartSessionSelect from '../setting-panel/start-session-select'
 import {
   Tree,
-  Button
+  Button,
+  Space
 } from 'antd'
 import { defaultBookmarkGroupId, settingMap } from '../../common/constants'
 import deepCopy from 'json-deep-copy'
@@ -48,21 +49,23 @@ export default class BookmarkTreeDelete extends StartSessionSelect {
     const len = checkedKeys.length
     return (
       <div>
-        <div className='pd1'>
-          <Button
-            type='primary'
-            disabled={!len}
-            onClick={this.handleDel}
-          >
-            {e('delSelected')} ({len})
-          </Button>
-          <Button
-            onClick={this.handleCancel}
-          >
-            {e('cancel')}
-          </Button>
+        <div className='pd2'>
+          <Space.Compact>
+            <Button
+              type='primary'
+              disabled={!len}
+              onClick={this.handleDel}
+            >
+              {e('delSelected')} ({len})
+            </Button>
+            <Button
+              onClick={this.handleCancel}
+            >
+              {e('cancel')}
+            </Button>
+          </Space.Compact>
+          <Tree {...rProps} />
         </div>
-        <Tree {...rProps} />
       </div>
     )
   }
