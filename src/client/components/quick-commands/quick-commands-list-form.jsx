@@ -88,6 +88,7 @@ export default function renderQm () {
     return (
       <Tag
         title={c.desc}
+        variant='solid'
         key={c.cmd}
         onClick={() => {
           copy(c.cmd)

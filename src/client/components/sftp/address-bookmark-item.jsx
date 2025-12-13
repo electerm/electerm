@@ -54,7 +54,7 @@ export default class AddrBookmarkItem extends Component {
     } = this.props
     const id = `${item.host}#${item.id}`
     const globTag = item.isGlobal
-      ? <Tag color='green'>G</Tag>
+      ? <Tag color='green' variant='solid'>G</Tag>
       : null
     return (
       <div

@@ -17,7 +17,7 @@ export default function LogoElem () {
       <sup>
         <img src={logoPath1} className='iblock mwm-100 mg1r logo-img-small' />
       </sup>
-      <Tag color='#08c'>{packInfo.version}</Tag>
+      <Tag color='#08c' variant='solid'>{packInfo.version}</Tag>
     </h1>
   )
 }

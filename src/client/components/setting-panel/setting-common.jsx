@@ -600,6 +600,7 @@ export default class SettingCommon extends Component {
                     <Tag
                       color={main}
                       className='mg1l'
+                      variant='solid'
                       style={
                         {
                           color: text

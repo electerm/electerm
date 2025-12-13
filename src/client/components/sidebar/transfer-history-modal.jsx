@@ -48,7 +48,7 @@ export default memo(function TransferHistoryModal (props) {
     sorter: sorterFactory('typeFrom'),
     render: (type, inst) => {
       return (
-        <Tag transfer={inst} />
+        <Tag transfer={inst} variant='solid' />
       )
     }
   }, {
