@@ -3,7 +3,7 @@
  */
 import React from 'react'
 import { Form, Input, InputNumber, Switch, Select, Button, message } from 'antd'
-import { formItemLayout } from '../../common/form-layout'
+import { formItemLayout, tailFormItemLayout } from '../../common/form-layout'
 
 export default function WidgetForm ({ widget, onSubmit, loading }) {
   const [form] = Form.useForm()
@@ -25,7 +25,7 @@ export default function WidgetForm ({ widget, onSubmit, loading }) {
   }
 
   const renderFormItem = (config) => {
-    const { name, type, default: defaultValue, description, choices } = config
+    const { name, type, description, choices } = config
     let control = null
 
     switch (type) {
@@ -71,7 +71,6 @@ export default function WidgetForm ({ widget, onSubmit, loading }) {
         label={name}
         name={name}
         tooltip={description}
-        initialValue={defaultValue}
       >
         {control}
       </Form.Item>
@@ -97,11 +96,7 @@ export default function WidgetForm ({ widget, onSubmit, loading }) {
       >
         {configs.map(renderFormItem)}
         <Form.Item
-          {...formItemLayout}
-          wrapperCol={{
-            offset: formItemLayout.labelCol.span,
-            span: formItemLayout.wrapperCol.span
-          }}
+          {...tailFormItemLayout}
         >
           <Button
             type='primary'

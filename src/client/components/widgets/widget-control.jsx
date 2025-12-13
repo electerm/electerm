@@ -4,12 +4,12 @@
 import React, { useState } from 'react'
 import WidgetForm from './widget-form'
 
-export default function WidgetControl ({ widget, onInstanceCreated }) {
+export default function WidgetControl ({ formData }) {
   const [loading, setLoading] = useState(false)
-
-  if (!widget) {
+  const widget = formData
+  if (!widget.id) {
     return (
-      <div className='widget-control-empty'>
+      <div className='widget-control-empty aligncenter pd3'>
         <p>Select a widget to configure</p>
       </div>
     )
@@ -28,9 +28,8 @@ export default function WidgetControl ({ widget, onInstanceCreated }) {
         config
       }
       window.store.widgetInstances.push(instance)
-      if (onInstanceCreated) {
-        onInstanceCreated(instance)
-      }
+    } catch (err) {
+      console.error('Failed to run widget:', err)
     } finally {
       setLoading(false)
     }

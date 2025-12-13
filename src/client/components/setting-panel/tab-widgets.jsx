@@ -1,6 +1,6 @@
 import SettingCol from './col'
 import WidgetControl from '../widgets/widget-control'
-import WdigetList from '../widgets/widgets-list'
+import WidgetList from '../widgets/widgets-list'
 import {
   settingMap
 } from '../../common/constants'
@@ -22,7 +22,7 @@ export default function TabWidgets (props) {
       className='setting-tabs-profile'
     >
       <SettingCol>
-        <WdigetList
+        <WidgetList
           {...listProps}
         />
         <WidgetControl

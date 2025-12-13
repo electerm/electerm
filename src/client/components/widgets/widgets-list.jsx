@@ -1,65 +1,65 @@
 /**
  * widgets list
  */
-import React from 'react'
+import React, { useState, useEffect } from 'react'
+import {
+  Input,
+  Tabs
+} from 'antd'
 import WidgetInstances from './widget-instances'
-import WidgetControl from './widget-control'
 import classnames from 'classnames'
 import highlight from '../common/highlight'
+import {
+  auto
+} from 'manate/react'
 
 const e = window.translate
 
-export default class WidgetsList extends React.PureComponent {
-  state = {
-    tab: 'widgets', // or instances
-    selectedWidget: null,
-    widgets: [],
-    keyword: '',
-    ready: false
-  }
+export default auto(function WidgetsList ({ activeItemId, store }) {
+  const { widgetInstances } = store
+  const [tab, setTab] = useState('widgets') // or instances
+  const [widgets, setWidgets] = useState([])
+  const [keyword, setKeyword] = useState('')
+  const [ready, setReady] = useState(false)
 
-  componentDidMount () {
-    this.timer = setTimeout(() => {
-      this.setState({
-        ready: true
-      })
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setReady(true)
     }, 200)
-    this.loadWidgets()
-  }
+    loadWidgets()
+    return () => {
+      clearTimeout(timer)
+    }
+  }, [])
 
-  componentWillUnmount () {
-    clearTimeout(this.timer)
-  }
-
-  async loadWidgets () {
+  const loadWidgets = async () => {
     try {
       const widgets = await window.store.listWidgets()
-      this.setState({ widgets })
+      setWidgets(widgets)
     } catch (error) {
       console.error('Failed to load widgets:', error)
     }
   }
 
-  handleSearch = (e) => {
-    this.setState({
-      keyword: e.target.value
-    })
+  const handleSearch = (e) => {
+    setKeyword(e.target.value)
   }
 
-  onClickWidget = (widget) => {
-    this.setState({
-      selectedWidget: widget
-    })
+  const handleTabChange = (key) => {
+    setTab(key)
   }
 
-  renderWidgetItem = (widget, i) => {
-    const { keyword } = this.state
+  const onClickWidget = (widget) => {
+    window.store.setSettingItem(widget)
+  }
+
+  const renderWidgetItem = (widget, i) => {
     const title = widget.info.name
     const tag = ''
     const cls = classnames(
       'item-list-unit',
       {
-        active: false
+        active: activeItemId === widget.id
       }
     )
     const titleHighlight = highlight(
@@ -70,7 +70,7 @@ export default class WidgetsList extends React.PureComponent {
       <div
         key={widget.id}
         className={cls}
-        onClick={() => this.onClickWidget(widget)}
+        onClick={() => onClickWidget(widget)}
       >
         <div
           title={title}
@@ -82,30 +82,7 @@ export default class WidgetsList extends React.PureComponent {
     )
   }
 
-  renderWidgetControl = () => {
-    const { selectedWidget } = this.state
-    return (
-      <div className='widget-control-container'>
-        <div className='widget-control-header'>
-          <button
-            className='btn btn-default'
-            onClick={() => this.setState({ selectedWidget: null })}
-          >
-            ← Back to Widgets
-          </button>
-        </div>
-        <WidgetControl
-          widget={selectedWidget}
-          onInstanceCreated={() => {
-            // Could switch to instances tab or refresh
-          }}
-        />
-      </div>
-    )
-  }
-
-  renderWidgetsList = () => {
-    const { widgets, keyword } = this.state
+  const renderWidgetsList = () => {
     const filteredWidgets = keyword
       ? widgets.filter(widget => widget.info.name.toLowerCase().includes(keyword.toLowerCase()))
       : widgets
@@ -113,50 +90,66 @@ export default class WidgetsList extends React.PureComponent {
     return (
       <div className='item-list item-type-widgets'>
         <div className='pd1y'>
-          <input
+          <Input.Search
             type='text'
             placeholder='Search widgets...'
             value={keyword}
-            onChange={this.handleSearch}
+            onChange={handleSearch}
             className='form-control'
           />
         </div>
-        <div className='item-list-wrap'>
-          {filteredWidgets.map(this.renderWidgetItem)}
+        <div className='item-list-wrap pd1y'>
+          {filteredWidgets.map(renderWidgetItem)}
         </div>
       </div>
     )
   }
 
-  render () {
-    if (!this.state.ready) {
-      return null
-    }
-
-    const { selectedWidget, tab } = this.state
-
-    if (selectedWidget) {
-      return this.renderWidgetControl()
-    }
-
-    if (tab === 'widgets') {
-      return (
-        <div>
-          {this.renderWidgetsList()}
-          <div className='widget-instances-section'>
-            <h3>Running Instances</h3>
-            <WidgetInstances
-              widgetInstances={this.props.widgetInstances || []}
-            />
-          </div>
-        </div>
-      )
-    }
-
+  const renderTabs = () => {
+    const instancesTag = e('runningInstances') + ` (${widgetInstances.length})`
+    const items = [
+      {
+        key: 'widgets',
+        label: e('widgets'),
+        children: null
+      },
+      {
+        key: 'instances',
+        label: instancesTag,
+        children: null
+      }
+    ]
     return (
-      <WidgetInstances
-        widgetInstances={this.props.widgetInstances || []}
+      <Tabs
+        activeKey={tab}
+        onChange={handleTabChange}
+        items={items}
       />
     )
   }
-}
+
+  const renderInstancesSection = () => {
+    return (
+      <WidgetInstances
+        widgetInstances={widgetInstances}
+      />
+    )
+  }
+
+  if (!ready) {
+    return null
+  }
+
+  return (
+    <div>
+      {renderTabs()}
+      <div className='pd2x pd1y'>
+        {
+          tab === 'widgets'
+            ? renderWidgetsList()
+            : renderInstancesSection()
+        }
+      </div>
+    </div>
+  )
+})

@@ -16,10 +16,7 @@ export default Store => {
   }
 
   Store.prototype.runWidget = async (widgetId, config) => {
-    const {
-      store
-    } = window
-    return store.pre.runGlobalAsync('runWidget', widgetId, config)
+    return window.pre.runGlobalAsync('runWidget', widgetId, config)
   }
 
   Store.prototype.deleteWidggetInstance = (instanceId) => {
@@ -36,7 +33,7 @@ export default Store => {
     const {
       store
     } = window
-    const r = await store.pre.runGlobalAsync('stopWidget', instanceId)
+    const r = await window.pre.runGlobalAsync('stopWidget', instanceId)
       .catch(err => {
         console.error('stopWidget error', err)
         message.error(window.translate('stopWidgetFailed') + ': ' + err.message)
@@ -48,10 +45,7 @@ export default Store => {
   }
 
   Store.prototype.runWidgetFunc = async (instanceId, funcName, ...args) => {
-    const {
-      store
-    } = window
-    return store.pre.runGlobalAsync('runWidgetFunc', instanceId, funcName, ...args)
+    return window.pre.runGlobalAsync('runWidgetFunc', instanceId, funcName, ...args)
   }
 
   Store.prototype.restartWidget = async (instanceId) => {

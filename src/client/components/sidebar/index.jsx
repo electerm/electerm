@@ -40,8 +40,8 @@ export default function Sidebar (props) {
     transferTab,
     showModal,
     showInfoModal,
-    openWidgetsModal,
-    sidebarPanelTab
+    sidebarPanelTab,
+    openWidgetsModal
   } = props
 
   const { store } = window
