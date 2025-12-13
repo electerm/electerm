@@ -84,6 +84,7 @@ export default function DeepLinkControl () {
                   return (
                     <Tag
                       key={protocol}
+                      variant='solid'
                       icon={isRegistered ? <CheckCircleOutlined /> : <CloseCircleOutlined />}
                       color={isRegistered ? 'success' : 'default'}
                     >

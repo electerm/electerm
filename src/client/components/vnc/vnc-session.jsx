@@ -235,7 +235,7 @@ export default class VncSession extends RdpSession {
 
   renderHelp = () => {
     return (
-      <Tag color='red' className='mg1l'>Beta</Tag>
+      <Tag color='red' className='mg1l' variant='solid'>Beta</Tag>
     )
   }
 

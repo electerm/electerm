@@ -62,7 +62,7 @@ export default function ThemeListItem (props) {
 
   function renderTooltipContent () {
     return (
-      <Space>
+      <Space.Compact>
         <Button
           size='small'
           icon={<EyeOutlined />}
@@ -79,7 +79,7 @@ export default function ThemeListItem (props) {
         >
           {e('apply')}
         </Button>
-      </Space>
+      </Space.Compact>
     )
   }
 
@@ -116,7 +116,8 @@ export default function ThemeListItem (props) {
     return (
       <Tag
         color={main}
-        className='mg1l'
+        className='mg1r'
+        variant='solid'
         style={
           {
             color: text

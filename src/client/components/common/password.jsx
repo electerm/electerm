@@ -56,7 +56,7 @@ export default forwardRef(function Password (props, ref) {
   let capsPrefix = null
   if (isCapsLockOn) {
     capsPrefix = (
-      <Tag color='orange' style={{ marginRight: 4 }}>CAPS</Tag>
+      <Tag color='orange' className='mg1r' variant='solid'>CAPS</Tag>
     )
   }
 
