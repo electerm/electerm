@@ -15,6 +15,7 @@ import TabQuickCommands from './tab-quick-commands'
 import TabSettings from './tab-settings'
 import TabThemes from './tab-themes'
 import TabProfiles from './tab-profiles'
+import TabWidgets from './tab-widgets'
 
 const e = window.translate
 
@@ -92,6 +93,11 @@ export default auto(function SettingModalWrap (props) {
         key: settingMap.profiles,
         label: e(settingMap.profiles),
         children: null
+      },
+      {
+        key: settingMap.widgets,
+        label: e(settingMap.widgets),
+        children: null
       }
     ]
     const tabsProps = {
@@ -135,6 +141,13 @@ export default auto(function SettingModalWrap (props) {
           settingTab={settingTab}
         />
         <TabProfiles
+          listProps={props0}
+          settingItem={settingItem}
+          formProps={formProps}
+          store={store}
+          settingTab={settingTab}
+        />
+        <TabWidgets
           listProps={props0}
           settingItem={settingItem}
           formProps={formProps}

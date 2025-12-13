@@ -101,7 +101,8 @@ export const settingMap = buildConst([
   'bookmarkGroups',
   'quickCommands',
   'addressBookmarks',
-  'profiles'
+  'profiles',
+  'widgets'
 ])
 
 export const staticNewItemTabs = new Set([

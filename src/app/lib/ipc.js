@@ -19,6 +19,12 @@ const installSrc = require('./install-src')
 const { getConfig } = require('./get-config')
 const loadSshConfig = require('./ssh-config')
 const {
+  listWidgets,
+  runWidget,
+  stopWidget,
+  runWidgetFunc
+} = require('../widgets/load-widget')
+const {
   checkMigrate,
   migrate
 } = require('../migrate/migrate-1-to-2')
@@ -185,6 +191,10 @@ function initIpc () {
     initCommandLine,
     watchFile,
     unwatchFile,
+    listWidgets,
+    runWidget,
+    stopWidget,
+    runWidgetFunc,
     registerDeepLink,
     unregisterDeepLink,
     checkProtocolRegistration,
