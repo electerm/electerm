@@ -29,6 +29,7 @@ import SshConfigLoadNotify from '../ssh-config/ssh-config-load-notify'
 import LoadSshConfigs from '../ssh-config/load-ssh-configs'
 import AIChat from '../ai/ai-chat'
 import Opacity from '../common/opacity'
+import MoveItemModal from '../tree-list/move-item-modal'
 import InputContextMenu from '../common/input-context-menu'
 import { pick } from 'lodash-es'
 import deepCopy from 'json-deep-copy'
@@ -273,6 +274,7 @@ export default auto(function Index (props) {
         <FileInfoModal />
         <SettingModal store={store} />
         <BatchOp {...batchOpProps} />
+        <MoveItemModal store={store} />
         <div
           id='outside-context'
         >

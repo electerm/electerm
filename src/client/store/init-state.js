@@ -194,6 +194,10 @@ export default () => {
 
     // widgets
     widgets: [],
-    widgetInstances: []
+    widgetInstances: [],
+    // move item
+    openMoveModal: false,
+    moveItem: null,
+    moveItemIsGroup: false
   }
 }

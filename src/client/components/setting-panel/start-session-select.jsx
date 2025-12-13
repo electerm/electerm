@@ -64,9 +64,9 @@ export default class StartSessionSelect extends PureComponent {
             ...(d.bookmarkIds || []).map(buildLeaf)
           ].filter(d => d)
         }
-        if (!r.children.length) {
-          return ''
-        }
+        // if (!r.children.length) {
+        //   return ''
+        // }
         return r
       }).filter(d => d)
     return level1

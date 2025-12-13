@@ -52,7 +52,7 @@ export default function SshHostSelector ({ ips = [], useIp, form, onBlur, onPast
         <InputAutoFocus
           name='host'
           onBlur={props.onBlur}
-          onPaste={e => props.onPaste(e, form)}
+          onPaste={e => onPaste(e, form)}
           addonBefore={<ColorPickerItem />}
         />
       </FormItem>
