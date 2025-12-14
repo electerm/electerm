@@ -13,7 +13,9 @@ export default function WidgetForm ({ widget, onSubmit, loading }) {
   }
 
   const { info } = widget
-  const { configs } = info
+  const { configs, type } = info
+  const isInstanceWidget = type === 'instance'
+  const txt = isInstanceWidget ? 'Start widget' : 'Run widget'
 
   const handleSubmit = async (values) => {
     try {
@@ -102,8 +104,9 @@ export default function WidgetForm ({ widget, onSubmit, loading }) {
             type='primary'
             htmlType='submit'
             loading={loading}
+            disabled={loading}
           >
-            Start Widget
+            {txt}
           </Button>
         </Form.Item>
       </Form>

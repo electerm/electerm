@@ -3,6 +3,9 @@
  */
 import React, { useState } from 'react'
 import WidgetForm from './widget-form'
+import {
+  message
+} from 'antd'
 
 export default function WidgetControl ({ formData }) {
   const [loading, setLoading] = useState(false)
@@ -19,6 +22,20 @@ export default function WidgetControl ({ formData }) {
     setLoading(true)
     try {
       const result = await window.store.runWidget(widget.id, config)
+      const {
+        instanceId,
+        success,
+        error,
+        msg
+      } = result
+      if (!instanceId) {
+        if (success === false) {
+          message.error('Failed to run widget', error || '')
+        } else {
+          message.success(msg || 'Widget run successfully')
+        }
+        return
+      }
       // Add instance to the store
       const instance = {
         id: result.instanceId,

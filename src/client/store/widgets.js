@@ -19,7 +19,7 @@ export default Store => {
     return window.pre.runGlobalAsync('runWidget', widgetId, config)
   }
 
-  Store.prototype.deleteWidggetInstance = (instanceId) => {
+  Store.prototype.deleteWidgetInstance = (instanceId) => {
     const {
       widgetInstances
     } = window.store
@@ -40,24 +40,12 @@ export default Store => {
         return false
       })
     if (r) {
-      store.deleteWidggetInstance(instanceId)
+      store.deleteWidgetInstance(instanceId)
     }
   }
 
   Store.prototype.runWidgetFunc = async (instanceId, funcName, ...args) => {
     return window.pre.runGlobalAsync('runWidgetFunc', instanceId, funcName, ...args)
-  }
-
-  Store.prototype.restartWidget = async (instanceId) => {
-    const {
-      store
-    } = window
-    await store.stopWidget(instanceId)
-    const widgetInfo = store.runningWidgets.find(w => w.instanceId === instanceId)
-    if (!widgetInfo) {
-      throw new Error(`No widget info found for instanceId: ${instanceId}`)
-    }
-    return store.runWidget(widgetInfo.widgetId, widgetInfo.config)
   }
 
   Store.prototype.openWidgetsModal = () => {

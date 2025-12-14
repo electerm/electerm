@@ -15,9 +15,12 @@ export default function WidgetInstance ({ item }) {
       {...delProps}
     />
   )
+  function onConfirm () {
+    window.store.stopWidget(id)
+  }
   const popProps = {
     title: e('del') + '?',
-    onConfirm: window.store.stopWidget,
+    onConfirm,
     okText: e('del'),
     cancelText: e('cancel'),
     placement: 'top'

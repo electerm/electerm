@@ -1,6 +1,5 @@
 const fs = require('fs').promises
 const path = require('path')
-const uid = require('../common/uid')
 
 // Define defaults in one place
 const DEFAULTS = {
@@ -17,6 +16,8 @@ const widgetInfo = {
   description: 'Batch rename files in a folder using customizable templates',
   version: '1.0.0',
   author: 'ZHAO Xudong',
+  type: 'once',
+  builtin: true,
   configs: [
     {
       name: 'directory',
@@ -57,131 +58,101 @@ const widgetInfo = {
   ]
 }
 
-class FileRenamer {
-  constructor (config = {}) {
-    this.isRunning = false
-    this.instanceId = uid()
-    // We don't need to store config since we accept live parameters in rename()
-  }
-
-  async getFiles (dir, fileTypes, includeSubfolders) {
-    const files = await fs.readdir(dir, { withFileTypes: true })
-    let results = []
-    for (const file of files) {
-      const fullPath = path.join(dir, file.name)
-      if (file.isDirectory() && includeSubfolders) {
-        results = results.concat(await this.getFiles(fullPath, fileTypes, includeSubfolders))
-      } else if (file.isFile()) {
-        const ext = path.extname(file.name).toLowerCase().slice(1)
-        if (fileTypes === '*' || fileTypes.split(',').map(t => t.trim().toLowerCase()).includes(ext)) {
-          results.push(fullPath)
-        }
-      }
-    }
-    return results
-  }
-
-  async processTemplate (template, filePath, index, startNumber, preserveCase) {
-    const stats = await fs.stat(filePath)
-    const parsedPath = path.parse(filePath)
-    const date = new Date(stats.birthtime)
-    const replacements = {
-      n: (padding) => {
-        const num = startNumber + index
-        return padding ? String(num).padStart(parseInt(padding), '0') : String(num)
-      },
-      name: () => preserveCase ? parsedPath.name : parsedPath.name.toLowerCase(),
-      ext: () => parsedPath.ext.slice(1),
-      date: () => date.toISOString().split('T')[0],
-      time: () => date.toTimeString().split(' ')[0].replace(/:/g, '-'),
-      random: () => Math.random().toString(36).substring(2, 8),
-      parent: () => parsedPath.dir.split(path.sep).pop()
-    }
-    let result = template
-    for (const [tag, func] of Object.entries(replacements)) {
-      // Handle tags with parameters like {n:3}
-      result = result.replace(new RegExp(`{${tag}(?::([^}]+))?}`, 'g'), (match, param) => func(param))
-    }
-    return result
-  }
-
-  async rename (params = {}) {
-    const config = {
-      ...DEFAULTS,
-      ...params
-    }
-
-    const {
-      directory,
-      template,
-      includeSubfolders,
-      fileTypes,
-      startNumber,
-      preserveCase
-    } = config
-
-    if (!directory) {
-      return {
-        success: false,
-        error: 'Directory must be specified'
-      }
-    }
-
-    try {
-      const files = await this.getFiles(directory, fileTypes, includeSubfolders)
-      const results = []
-
-      for (let i = 0; i < files.length; i++) {
-        const filePath = files[i]
-        const dir = path.dirname(filePath)
-        const newName = await this.processTemplate(template, filePath, i, startNumber, preserveCase)
-        const newPath = path.join(dir, newName)
-        await fs.rename(filePath, newPath)
-
-        results.push({
-          oldPath: filePath,
-          newPath,
-          success: true
-        })
-      }
-
-      return {
-        success: true,
-        totalRenamed: files.length,
-        results
-      }
-    } catch (error) {
-      return {
-        success: false,
-        error: error.message,
-        details: error
+async function getFiles (dir, fileTypes, includeSubfolders) {
+  const files = await fs.readdir(dir, { withFileTypes: true })
+  let results = []
+  for (const file of files) {
+    const fullPath = path.join(dir, file.name)
+    if (file.isDirectory() && includeSubfolders) {
+      results = results.concat(await getFiles(fullPath, fileTypes, includeSubfolders))
+    } else if (file.isFile()) {
+      const ext = path.extname(file.name).toLowerCase().slice(1)
+      if (fileTypes === '*' || fileTypes.split(',').map(t => t.trim().toLowerCase()).includes(ext)) {
+        results.push(fullPath)
       }
     }
   }
-
-  start () {
-    this.isRunning = true
-    return Promise.resolve({
-      status: 'started'
-    })
-  }
-
-  stop () {
-    this.isRunning = false
-    return Promise.resolve({
-      status: 'stopped'
-    })
-  }
-
-  getStatus () {
-    return {
-      status: this.isRunning ? 'running' : 'idle'
-    }
-  }
+  return results
 }
 
-function widgetRun (config = {}) {
-  return new FileRenamer(config)
+async function processTemplate (template, filePath, index, startNumber, preserveCase) {
+  const stats = await fs.stat(filePath)
+  const parsedPath = path.parse(filePath)
+  const date = new Date(stats.birthtime)
+  const replacements = {
+    n: (padding) => {
+      const num = startNumber + index
+      return padding ? String(num).padStart(parseInt(padding), '0') : String(num)
+    },
+    name: () => preserveCase ? parsedPath.name : parsedPath.name.toLowerCase(),
+    ext: () => parsedPath.ext.slice(1),
+    date: () => date.toISOString().split('T')[0],
+    time: () => date.toTimeString().split(' ')[0].replace(/:/g, '-'),
+    random: () => Math.random().toString(36).substring(2, 8),
+    parent: () => parsedPath.dir.split(path.sep).pop()
+  }
+
+  let result = template
+  for (const [tag, func] of Object.entries(replacements)) {
+    // Handle tags with parameters like {n:3}
+    result = result.replace(new RegExp(`{${tag}(?::([^}]+))?}`, 'g'), (match, param) => func(param))
+  }
+  return result
+}
+
+async function widgetRun (params = {}) {
+  const config = {
+    ...DEFAULTS,
+    ...params
+  }
+
+  const {
+    directory,
+    template,
+    includeSubfolders,
+    fileTypes,
+    startNumber,
+    preserveCase
+  } = config
+
+  if (!directory) {
+    return {
+      success: false,
+      error: 'Directory must be specified'
+    }
+  }
+
+  try {
+    const files = await getFiles(directory, fileTypes, includeSubfolders)
+    const results = []
+
+    for (let i = 0; i < files.length; i++) {
+      const filePath = files[i]
+      const dir = path.dirname(filePath)
+      const newName = await processTemplate(template, filePath, i, startNumber, preserveCase)
+      const newPath = path.join(dir, newName)
+      await fs.rename(filePath, newPath)
+
+      results.push({
+        oldPath: filePath,
+        newPath,
+        success: true
+      })
+    }
+
+    return {
+      success: true,
+      totalRenamed: files.length,
+      msg: `Renamed ${files.length} files successfully`,
+      details: results
+    }
+  } catch (error) {
+    return {
+      success: false,
+      error: error.message,
+      details: error
+    }
+  }
 }
 
 module.exports = {

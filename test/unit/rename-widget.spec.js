@@ -2,7 +2,8 @@ const {
   test: it, expect
 } = require('@playwright/test')
 const { describe } = it
-const { listWidgets, runWidget, stopWidget, runWidgetFunc } = require('../../src/app/widgets/load-widget')
+const { listWidgets } = require('../../src/app/widgets/load-widget')
+const { widgetRun } = require('../../src/app/widgets/widget-rename')
 const fs = require('fs/promises')
 const path = require('path')
 
@@ -10,7 +11,6 @@ it.setTimeout(100000)
 
 describe('rename-widget', function () {
   let testDir = null
-  let widgetInstance = null
 
   async function createTestFiles () {
     testDir = path.join(process.cwd(), 'temp-rename-test-' + Date.now())
@@ -28,10 +28,6 @@ describe('rename-widget', function () {
   }
 
   async function cleanup () {
-    if (widgetInstance) {
-      await stopWidget(widgetInstance)
-      widgetInstance = null
-    }
     if (testDir) {
       try {
         await fs.rm(testDir, { recursive: true, force: true })
@@ -58,24 +54,8 @@ describe('rename-widget', function () {
     expect(renameWidget.info.name).toBe('File Renamer')
   })
 
-  it('should run and stop the rename widget', async function () {
-    const result = await runWidget('rename', {})
-    expect(result).toBeTruthy()
-    expect(result.instanceId).toBeTruthy()
-
-    widgetInstance = result.instanceId
-
-    const stopResult = await stopWidget(widgetInstance)
-    expect(stopResult).toBeTruthy()
-    expect(stopResult.status).toBe('stopped')
-    widgetInstance = null
-  })
-
   it('should rename files with simple pattern', async function () {
-    const result = await runWidget('rename', {})
-    widgetInstance = result.instanceId
-
-    const renameResult = await runWidgetFunc(widgetInstance, 'rename', {
+    const renameResult = await widgetRun({
       directory: testDir,
       template: '{name}-renamed.{ext}',
       fileTypes: '*',
@@ -93,10 +73,7 @@ describe('rename-widget', function () {
   })
 
   it('should rename with sequential numbers', async function () {
-    const result = await runWidget('rename', {})
-    widgetInstance = result.instanceId
-
-    const renameResult = await runWidgetFunc(widgetInstance, 'rename', {
+    const renameResult = await widgetRun({
       directory: testDir,
       template: 'myfile-{n:3}.{ext}',
       fileTypes: '*',
@@ -113,10 +90,7 @@ describe('rename-widget', function () {
   })
 
   it('should filter by file type', async function () {
-    const result = await runWidget('rename', {})
-    widgetInstance = result.instanceId
-
-    const renameResult = await runWidgetFunc(widgetInstance, 'rename', {
+    const renameResult = await widgetRun({
       directory: testDir,
       template: '{name}-{n}.{ext}',
       fileTypes: 'txt',
@@ -132,10 +106,7 @@ describe('rename-widget', function () {
   })
 
   it('should include subfolders when enabled', async function () {
-    const result = await runWidget('rename', {})
-    widgetInstance = result.instanceId
-
-    const renameResult = await runWidgetFunc(widgetInstance, 'rename', {
+    const renameResult = await widgetRun({
       directory: testDir,
       template: '{parent}-{name}-{n}.{ext}',
       fileTypes: '*',
@@ -151,10 +122,7 @@ describe('rename-widget', function () {
   })
 
   it('should handle template with dates and random', async function () {
-    const result = await runWidget('rename', {})
-    widgetInstance = result.instanceId
-
-    const renameResult = await runWidgetFunc(widgetInstance, 'rename', {
+    const renameResult = await widgetRun({
       directory: testDir,
       template: '{name}-{date}-{random}.{ext}',
       fileTypes: '*',
@@ -182,10 +150,7 @@ describe('rename-widget', function () {
     // Create a file with mixed case
     await fs.writeFile(path.join(testDir, 'MixedCase.txt'), 'Mixed case content')
 
-    const result = await runWidget('rename', {})
-    widgetInstance = result.instanceId
-
-    const renameResult = await runWidgetFunc(widgetInstance, 'rename', {
+    const renameResult = await widgetRun({
       directory: testDir,
       template: '{name}-renamed.{ext}',
       fileTypes: '*',
@@ -200,10 +165,7 @@ describe('rename-widget', function () {
   })
 
   it('should handle error when directory does not exist', async function () {
-    const result = await runWidget('rename', {})
-    widgetInstance = result.instanceId
-
-    const renameResult = await runWidgetFunc(widgetInstance, 'rename', {
+    const renameResult = await widgetRun({
       directory: '/path/that/does/not/exist',
       template: '{name}-renamed.{ext}',
       fileTypes: '*'
@@ -211,17 +173,5 @@ describe('rename-widget', function () {
 
     expect(renameResult.success).toBe(false)
     expect(renameResult.error).toBeTruthy()
-  })
-
-  it('should return widget status', async function () {
-    const result = await runWidget('rename', {})
-    widgetInstance = result.instanceId
-
-    const status = await runWidgetFunc(widgetInstance, 'getStatus')
-    expect(status).toBeTruthy()
-    expect(status.status).toBe('running')
-
-    await stopWidget(widgetInstance)
-    widgetInstance = null
   })
 })

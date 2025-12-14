@@ -2,22 +2,7 @@
 
 const fs = require('fs')
 const path = require('path')
-const {
-  appPath
-} = require('../common/app-props')
-const log = require('../common/log')
-const userWidgetsDir = path.resolve(
-  appPath, 'widgets'
-)
-// Ensure user widgets directory exists when app starts
-try {
-  if (!fs.existsSync(userWidgetsDir)) {
-    fs.mkdirSync(userWidgetsDir, { recursive: true })
-  }
-} catch (err) {
-  log.error(`Failed to create user widgets directory ${userWidgetsDir}:`, err)
-}
-// const { app } = require('electron')
+// const log = require('../common/log')
 
 // Store running widget instances
 const runningInstances = new Map()
@@ -42,18 +27,41 @@ function listWidgetsFromFolder (widgetDirectory = __dirname) {
 
 function listWidgets () {
   const widgets1 = listWidgetsFromFolder()
-  const widgets2 = listWidgetsFromFolder(
-    userWidgetsDir
-  )
-  return [
-    ...widgets1,
-    ...widgets2
-  ]
+  return widgets1
+  // if (process.versions.electron === undefined) {
+  //   return widgets1
+  // }
+  // const {
+  //   appPath
+  // } = require('../common/app-props')
+  // const userWidgetsDir = path.resolve(
+  //   appPath, 'widgets'
+  // )
+  // // Ensure user widgets directory exists when app starts
+  // try {
+  //   if (!fs.existsSync(userWidgetsDir)) {
+  //     fs.mkdirSync(userWidgetsDir, { recursive: true })
+  //   }
+  // } catch (err) {
+  //   log.error(`Failed to create user widgets directory ${userWidgetsDir}:`, err)
+  // }
+  // const widgets2 = listWidgetsFromFolder(
+  //   userWidgetsDir
+  // )
+  // return [
+  //   ...widgets1,
+  //   ...widgets2
+  // ]
 }
 
 function runWidget (widgetId, config) {
   const file = `widget-${widgetId}.js`
   const widget = require(path.join(__dirname, file))
+
+  const { type } = widget.widgetInfo
+  if (type !== 'instance') {
+    return widget.widgetRun(config)
+  }
 
   const instance = widget.widgetRun(config)
   runningInstances.set(instance.instanceId, instance)
