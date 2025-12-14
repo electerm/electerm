@@ -209,6 +209,7 @@ export default function renderSshTunnels (props) {
         form={formChild}
         onFinish={handleFinish}
         initialValues={initialValues}
+        component='div'
       >
         {renderList()}
         <FormItem
