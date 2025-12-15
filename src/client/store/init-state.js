@@ -192,6 +192,9 @@ export default () => {
     hideDelKeyTip: ls.getItem(dismissDelKeyTipLsKey) === 'y',
     tabsHeight: 36,
 
+    // widgets
+    widgets: [],
+    widgetInstances: [],
     // move item
     openMoveModal: false,
     moveItem: null,

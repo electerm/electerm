@@ -91,9 +91,7 @@ export default Store => {
     ) {
       return store.hideSettingModal()
     }
-    store.storeAssign({
-      settingTab: settingMap.setting
-    })
+    store.settingTab = settingMap.setting
     store.setSettingItem(getInitItem([], settingMap.setting))
     store.openSettingModal()
   }

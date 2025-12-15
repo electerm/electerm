@@ -170,7 +170,8 @@ export default auto(function Index (props) {
       'isSyncingSetting',
       'leftSidebarWidth',
       'transferTab',
-      'sidebarPanelTab'
+      'sidebarPanelTab',
+      'openWidgetsModal'
     ]),
     fileTransfers: copiedTransfer,
     transferHistory: copiedHistory,

@@ -6,7 +6,8 @@ import {
   PlusCircleOutlined,
   SettingOutlined,
   UpCircleOutlined,
-  BarsOutlined
+  BarsOutlined,
+  AppstoreOutlined
 } from '@ant-design/icons'
 import { Tooltip } from 'antd'
 import SideBarPanel from './sidebar-panel'
@@ -39,7 +40,8 @@ export default function Sidebar (props) {
     transferTab,
     showModal,
     showInfoModal,
-    sidebarPanelTab
+    sidebarPanelTab,
+    openWidgetsModal
   } = props
 
   const { store } = window
@@ -100,6 +102,7 @@ export default function Sidebar (props) {
   const syncActive = showSetting && settingTab === settingMap.setting && settingItem.id === 'setting-sync'
   const themeActive = showSetting && settingTab === settingMap.terminalThemes
   const bookmarksActive = showSetting && settingTab === settingMap.bookmarks
+  const widgetsActive = showSetting && settingTab === settingMap.widgets
   const sideProps = openedSideBar
     ? {
         className: 'sidebar-list',
@@ -177,6 +180,13 @@ export default function Sidebar (props) {
         >
           <BarsOutlined className='iblock font20 control-icon' onClick={toggleBatchOp} />
         </SideIcon>
+        <SideIcon
+          title={e('widgets')}
+          active={widgetsActive}
+        >
+          <AppstoreOutlined className='iblock font20 control-icon' onClick={openWidgetsModal} />
+        </SideIcon>
+
         <SideIcon
           title={e('about')}
           active={showInfoModal}
