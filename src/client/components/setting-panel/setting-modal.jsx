@@ -96,7 +96,7 @@ export default auto(function SettingModalWrap (props) {
       },
       {
         key: settingMap.widgets,
-        label: e(settingMap.widgets),
+        label: <>{e(settingMap.widgets)} <sup>Beta</sup></>,
         children: null
       }
     ]
