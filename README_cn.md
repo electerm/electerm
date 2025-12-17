@@ -133,7 +133,7 @@ kofi
 ## 开发
 
 ```bash
-# tested in ubuntu20.04+/mac os 10.13+ only
+# May only works in Linux
 # needs nodejs/npm, suggest using fnm to install nodejs/npm
 # with nodejs 22.x
 
@@ -169,7 +169,7 @@ npm run test
 ## 测试构建
 
 ```bash
-# Tested only in ubuntu 20.04+ x64
+# May only works in Linux
 # Install yarn first(to do yarn autoclean)
 # See https://yarnpkg.com/en/docs/install
 

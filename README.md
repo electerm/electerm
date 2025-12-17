@@ -133,8 +133,8 @@ wechat donate
 ## Dev
 
 ```bash
-# tested in ubuntu20.04+/mac os 10.13+ only
-# needs nodejs/npm, suggest using fnm to install nodejs/npm
+# May only works in Linux
+# needs nodejs/npm, suggest using nvm to install nodejs/npm
 # with nodejs 22.x
 
 git clone git@github.com:electerm/electerm.git
@@ -169,7 +169,7 @@ npm run test
 ## Test build
 
 ```bash
-# Tested only in ubuntu 16.04 x64+
+# May only works in Linux
 # Install yarn first(to do yarn autoclean)
 # See https://yarnpkg.com/en/docs/install
 
