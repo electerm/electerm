@@ -185,9 +185,9 @@ npm run pb
 ./node_modules/.bin/electron-builder --linux --arm64
 ```
 
-## Video guides
+## Video guide
 
-- [bilibili](https://space.bilibili.com/14001525/channel/series?sid=5461229&spm_id_from=333.788.0.0)
+- [https://electerm.html5beta.com/videos](https://electerm.html5beta.com/videos)
 
 ## Change log
 

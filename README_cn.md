@@ -186,8 +186,7 @@ npm run b
 
 ## 使用视频
 
-- [bilibili](https://space.bilibili.com/14001525/channel/series?sid=5461229&spm_id_from=333.788.0.0)
-
+- [https://electerm.html5beta.com/videos](https://electerm.html5beta.com/videos)
 
 ## 变更历史
 
