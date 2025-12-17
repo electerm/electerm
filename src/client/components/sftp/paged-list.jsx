@@ -37,8 +37,9 @@ export default class ScrollFiles extends Component {
       current: this.state.page,
       pageSize: this.state.pageSize,
       total: this.props.list.length,
+      showLessItems: true,
       showSizeChanger: false,
-      simple: true,
+      simple: false,
       onChange: this.onChange
     }
     return (
