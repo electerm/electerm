@@ -42,7 +42,8 @@ class TerminalTelnet extends TerminalBase {
         'username',
         'password',
         'terminalWidth',
-        'terminalHeight'
+        'terminalHeight',
+        'proxy'
       ]
     )
     // Convert string regex patterns to RegExp objects

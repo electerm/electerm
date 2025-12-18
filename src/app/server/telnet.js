@@ -3,6 +3,7 @@
 const { EventEmitter } = require('events')
 const { Socket } = require('net')
 const { Duplex } = require('stream')
+const proxySock = require('./socks')
 
 const TelnetCommands = {
   SUBOPTION_END: 240,
@@ -72,10 +73,26 @@ class Telnet extends EventEmitter {
     this.passwordAttempted = false
   }
 
-  connect (options = {}) {
-    return new Promise((resolve, reject) => {
-      Object.assign(this.options, options)
+  async connect (options = {}) {
+    Object.assign(this.options, options)
 
+    // If proxy is specified, establish proxied connection first
+    if (this.options.proxy) {
+      try {
+        const info = await proxySock({
+          readyTimeout: this.options.timeout,
+          host: this.options.host,
+          port: this.options.port,
+          proxy: this.options.proxy
+        })
+        this.options.sock = info.socket
+      } catch (error) {
+        this.emit('error', error)
+        throw error
+      }
+    }
+
+    return new Promise((resolve, reject) => {
       if (this.options.sock) {
         this.socket = this.options.sock
       } else {
@@ -117,7 +134,16 @@ class Telnet extends EventEmitter {
         }
       })
 
-      if (!this.options.sock) {
+      // If sock was provided (including from proxy), emit connect event
+      // Otherwise, create a new connection
+      if (this.options.sock) {
+        // Socket already connected via proxy
+        this.state = 'connected'
+        this.emit('connect')
+        if (!this.options.negotiationMandatory) {
+          resolve()
+        }
+      } else {
         this.socket.connect({
           host: this.options.host,
           port: this.options.port

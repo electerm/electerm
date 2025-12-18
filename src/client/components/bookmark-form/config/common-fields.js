@@ -219,6 +219,7 @@ export const commonFields = {
 export const terminalSettings = [
   commonFields.envLang,
   commonFields.terminalType,
+  commonFields.proxy,
   commonFields.displayRaw,
   commonFields.fontFamily,
   commonFields.fontSize,
