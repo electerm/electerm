@@ -3,7 +3,7 @@
  */
 
 import { Component } from 'react'
-import { Drawer } from 'antd'
+import Drawer from '../common/drawer'
 import { CloseCircleOutlined } from '@ant-design/icons'
 import { sidebarWidth } from '../../common/constants'
 import AppDrag from '../tabs/app-drag'
@@ -23,13 +23,7 @@ export default class SettingWrap extends Component {
       className: 'setting-wrap',
       size: this.props.innerWidth - sidebarWidth,
       zIndex: 888,
-      placement: 'left',
-      destroyOnHidden: true,
-      styles: {
-        header: {
-          display: 'none'
-        }
-      }
+      placement: 'left'
     }
     return (
       <Drawer
@@ -40,13 +34,13 @@ export default class SettingWrap extends Component {
           onClick={this.props.onCancel}
         />
         <CloseCircleOutlined
-          className='close-setting-wrap-icon alt-close-setting-wrap'
+          className='close-setting-wrap alt-close-setting-wrap'
           onClick={this.props.onCancel}
         />
         {
           this.props.useSystemTitleBar ? null : <AppDrag />
         }
-        {this.props.visible ? this.props.children : null}
+        {this.props.children}
       </Drawer>
     )
   }

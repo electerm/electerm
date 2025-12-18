@@ -11,9 +11,9 @@ import {
   Input,
   Button,
   Table,
-  Drawer,
   Tabs
 } from 'antd'
+import Drawer from '../common/drawer'
 import {
   sidebarWidth,
   statusMap,
@@ -672,15 +672,10 @@ export default class BatchOp extends PureComponent {
     const pops = {
       open: showBatchOp,
       onClose: this.handleCancel,
-      className: 'setting-wrap',
+      className: 'setting-wrap batch-op-wrap',
       size: innerWidth - sidebarWidth,
       zIndex: 888,
-      placement: 'left',
-      styles: {
-        header: {
-          display: 'none'
-        }
-      }
+      placement: 'left'
     }
     return (
       <Drawer
