@@ -124,7 +124,6 @@ export default defineConfig({
               return 'react-vendor'
             }
             if (
-              id.includes('react-colorful') ||
               id.includes('react-delta-hooks') ||
               id.includes('react-markdown')
             ) {

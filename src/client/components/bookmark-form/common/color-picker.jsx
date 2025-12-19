@@ -1,6 +1,5 @@
 import React, { useState } from 'react'
-import { Popover } from 'antd'
-import { HexColorPicker, RgbaColorPicker } from 'react-colorful'
+import { Popover, ColorPicker as AntColorPicker } from 'antd'
 import { defaultColors, getRandomHexColor } from '../../../common/rand-hex-color.js'
 import { HexInput } from './hex-input.jsx'
 import './color-picker.styl'
@@ -18,8 +17,11 @@ export const ColorPicker = React.forwardRef((props, ref) => {
     setVisible(vis)
   }
 
+  function onColorChange (color) {
+    handleChange(props.isRgba ? color.toRgbString() : color.toHexString())
+  }
+
   function renderContent () {
-    const Picker = props.isRgba ? RgbaColorPicker : HexColorPicker
     return (
       <div className='color-picker-box'>
         <div className='fix'>
@@ -40,7 +42,10 @@ export const ColorPicker = React.forwardRef((props, ref) => {
             }
           </div>
           <div className='fright'>
-            <Picker color={value} onChange={handleChange} />
+            <AntColorPicker
+              value={value}
+              onChange={onColorChange}
+            />
           </div>
         </div>
         <div className='pd1y'>
@@ -57,7 +62,13 @@ export const ColorPicker = React.forwardRef((props, ref) => {
   if (props.disabled) return inner
 
   return (
-    <Popover content={renderContent()} trigger='click' open={visible} placement='bottomLeft' onOpenChange={handleVisibleChange}>
+    <Popover
+      content={renderContent()}
+      trigger='click'
+      open={visible}
+      placement='bottomLeft'
+      onOpenChange={handleVisibleChange}
+    >
       {inner}
     </Popover>
   )
