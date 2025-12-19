@@ -14,7 +14,6 @@ const {
 const { handleSingleInstance } = require('./single-instance')
 
 exports.createApp = async function () {
-  app.commandLine.appendSwitch('--disable-gpu')
   app.setName(packInfo.name)
   if (process.platform === 'linux' || process.env.DISABLE_GPU) {
     app.commandLine.appendSwitch('--disable-gpu')
