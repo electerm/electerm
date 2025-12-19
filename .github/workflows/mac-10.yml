@@ -22,11 +22,10 @@ jobs:
         node-version: 16.x
     - uses: actions/setup-python@v5
       with:
-        python-version: '3.7'
+        python-version: '3.10'
     # before_install:
     - run: npm config set legacy-peer-deps true
     - run: npm install -g yarn
-    - run: npm un vite node-pty serialport electron
     - run: npm i
     - run: npm i -D electron@22.3.27
     - run: npm i -S -E node-pty@1.1.0-beta14
