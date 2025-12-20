@@ -243,121 +243,126 @@ describe('npm/install.js', () => {
   })
 
   describe('Pattern matching with actual release filenames', () => {
-    // Release files with sample version for testing
-    const releaseFiles = [
-      `electerm-${sampleVersion}-linux-aarch64-legacy.rpm`,
-      `electerm-${sampleVersion}-linux-aarch64.rpm`,
-      `electerm-${sampleVersion}-linux-amd64-legacy.deb`,
-      `electerm-${sampleVersion}-linux-amd64.deb`,
-      `electerm-${sampleVersion}-linux-amd64.snap`,
-      `electerm-${sampleVersion}-linux-arm64-legacy.AppImage`,
-      `electerm-${sampleVersion}-linux-arm64-legacy.deb`,
-      `electerm-${sampleVersion}-linux-arm64-legacy.tar.gz`,
-      `electerm-${sampleVersion}-linux-arm64.AppImage`,
-      `electerm-${sampleVersion}-linux-arm64.deb`,
-      `electerm-${sampleVersion}-linux-arm64.tar.gz`,
-      `electerm-${sampleVersion}-linux-armv7l-legacy.AppImage`,
-      `electerm-${sampleVersion}-linux-armv7l-legacy.deb`,
-      `electerm-${sampleVersion}-linux-armv7l-legacy.rpm`,
-      `electerm-${sampleVersion}-linux-armv7l-legacy.tar.gz`,
-      `electerm-${sampleVersion}-linux-armv7l.AppImage`,
-      `electerm-${sampleVersion}-linux-armv7l.deb`,
-      `electerm-${sampleVersion}-linux-armv7l.rpm`,
-      `electerm-${sampleVersion}-linux-armv7l.tar.gz`,
-      `electerm-${sampleVersion}-linux-x64-legacy.tar.gz`,
-      `electerm-${sampleVersion}-linux-x64.tar.gz`,
-      `electerm-${sampleVersion}-linux-x86_64-legacy.AppImage`,
-      `electerm-${sampleVersion}-linux-x86_64-legacy.rpm`,
-      `electerm-${sampleVersion}-linux-x86_64.AppImage`,
-      `electerm-${sampleVersion}-linux-x86_64.rpm`,
-      `electerm-${sampleVersion}-mac-arm64.dmg`,
-      `electerm-${sampleVersion}-mac-arm64.dmg.blockmap`,
-      `electerm-${sampleVersion}-mac-x64.dmg`,
-      `electerm-${sampleVersion}-mac-x64.dmg.blockmap`,
-      `electerm-${sampleVersion}-mac10-x64.dmg`,
-      `electerm-${sampleVersion}-mac10-x64.dmg.blockmap`,
-      `electerm-${sampleVersion}-win-arm64-installer.exe`,
-      `electerm-${sampleVersion}-win-arm64-installer.exe.blockmap`,
-      `electerm-${sampleVersion}-win-arm64.tar.gz`,
-      `electerm-${sampleVersion}-win-x64-installer.exe`,
-      `electerm-${sampleVersion}-win-x64-installer.exe.blockmap`,
-      `electerm-${sampleVersion}-win-x64-loose.tar.gz`,
-      `electerm-${sampleVersion}-win-x64-portable.tar.gz`,
-      `electerm-${sampleVersion}-win-x64.appx`,
-      `electerm-${sampleVersion}-win-x64.tar.gz`,
-      `electerm-${sampleVersion}-win7.tar.gz`
-    ]
+    // Release files with current version from website
+    let releaseFiles = []
+
+    beforeAll(() => {
+      const v = cachedVersion
+      releaseFiles = [
+        `electerm-${v}-linux-aarch64-legacy.rpm`,
+        `electerm-${v}-linux-aarch64.rpm`,
+        `electerm-${v}-linux-amd64-legacy.deb`,
+        `electerm-${v}-linux-amd64.deb`,
+        `electerm-${v}-linux-amd64.snap`,
+        `electerm-${v}-linux-arm64-legacy.AppImage`,
+        `electerm-${v}-linux-arm64-legacy.deb`,
+        `electerm-${v}-linux-arm64-legacy.tar.gz`,
+        `electerm-${v}-linux-arm64.AppImage`,
+        `electerm-${v}-linux-arm64.deb`,
+        `electerm-${v}-linux-arm64.tar.gz`,
+        `electerm-${v}-linux-armv7l-legacy.AppImage`,
+        `electerm-${v}-linux-armv7l-legacy.deb`,
+        `electerm-${v}-linux-armv7l-legacy.rpm`,
+        `electerm-${v}-linux-armv7l-legacy.tar.gz`,
+        `electerm-${v}-linux-armv7l.AppImage`,
+        `electerm-${v}-linux-armv7l.deb`,
+        `electerm-${v}-linux-armv7l.rpm`,
+        `electerm-${v}-linux-armv7l.tar.gz`,
+        `electerm-${v}-linux-x64-legacy.tar.gz`,
+        `electerm-${v}-linux-x64.tar.gz`,
+        `electerm-${v}-linux-x86_64-legacy.AppImage`,
+        `electerm-${v}-linux-x86_64-legacy.rpm`,
+        `electerm-${v}-linux-x86_64.AppImage`,
+        `electerm-${v}-linux-x86_64.rpm`,
+        `electerm-${v}-mac-arm64.dmg`,
+        `electerm-${v}-mac-arm64.dmg.blockmap`,
+        `electerm-${v}-mac-x64.dmg`,
+        `electerm-${v}-mac-x64.dmg.blockmap`,
+        `electerm-${v}-mac10-x64.dmg`,
+        `electerm-${v}-mac10-x64.dmg.blockmap`,
+        `electerm-${v}-win-arm64-installer.exe`,
+        `electerm-${v}-win-arm64-installer.exe.blockmap`,
+        `electerm-${v}-win-arm64.tar.gz`,
+        `electerm-${v}-win-x64-installer.exe`,
+        `electerm-${v}-win-x64-installer.exe.blockmap`,
+        `electerm-${v}-win-x64-loose.tar.gz`,
+        `electerm-${v}-win-x64-portable.tar.gz`,
+        `electerm-${v}-win-x64.appx`,
+        `electerm-${v}-win-x64.tar.gz`,
+        `electerm-${v}-win7.tar.gz`
+      ]
+    })
 
     it('should match exactly one tar.gz file for win-x64', () => {
       const { pattern } = getDownloadPattern('win32', 'x64', {})
       const matches = releaseFiles.filter(f => pattern.test(f))
-      expect(matches).toEqual([`electerm-${sampleVersion}-win-x64.tar.gz`])
+      expect(matches).toEqual([`electerm-${cachedVersion}-win-x64.tar.gz`])
     })
 
     it('should match exactly one tar.gz file for win-arm64', () => {
       const { pattern } = getDownloadPattern('win32', 'arm64', {})
       const matches = releaseFiles.filter(f => pattern.test(f))
-      expect(matches).toEqual([`electerm-${sampleVersion}-win-arm64.tar.gz`])
+      expect(matches).toEqual([`electerm-${cachedVersion}-win-arm64.tar.gz`])
     })
 
     it('should match exactly one tar.gz file for win7', () => {
       const { pattern } = getDownloadPattern('win32', 'x64', { win7: true })
       const matches = releaseFiles.filter(f => pattern.test(f))
-      expect(matches).toEqual([`electerm-${sampleVersion}-win7.tar.gz`])
+      expect(matches).toEqual([`electerm-${cachedVersion}-win7.tar.gz`])
     })
 
     it('should match exactly one dmg file for mac-x64', () => {
       const { pattern } = getDownloadPattern('darwin', 'x64', {})
       const matches = releaseFiles.filter(f => pattern.test(f))
-      expect(matches).toEqual([`electerm-${sampleVersion}-mac-x64.dmg`])
+      expect(matches).toEqual([`electerm-${cachedVersion}-mac-x64.dmg`])
     })
 
     it('should match exactly one dmg file for mac-arm64', () => {
       const { pattern } = getDownloadPattern('darwin', 'arm64', {})
       const matches = releaseFiles.filter(f => pattern.test(f))
-      expect(matches).toEqual([`electerm-${sampleVersion}-mac-arm64.dmg`])
+      expect(matches).toEqual([`electerm-${cachedVersion}-mac-arm64.dmg`])
     })
 
     it('should match exactly one dmg file for mac10-x64', () => {
       const { pattern } = getDownloadPattern('darwin', 'x64', { mac10: true })
       const matches = releaseFiles.filter(f => pattern.test(f))
-      expect(matches).toEqual([`electerm-${sampleVersion}-mac10-x64.dmg`])
+      expect(matches).toEqual([`electerm-${cachedVersion}-mac10-x64.dmg`])
     })
 
     it('should match exactly one tar.gz file for linux-x64', () => {
       const { pattern } = getDownloadPattern('linux', 'x64', {})
       const matches = releaseFiles.filter(f => pattern.test(f))
-      expect(matches).toEqual([`electerm-${sampleVersion}-linux-x64.tar.gz`])
+      expect(matches).toEqual([`electerm-${cachedVersion}-linux-x64.tar.gz`])
     })
 
     it('should match exactly one tar.gz file for linux-x64-legacy', () => {
       const { pattern } = getDownloadPattern('linux', 'x64', { linuxLegacy: true })
       const matches = releaseFiles.filter(f => pattern.test(f))
-      expect(matches).toEqual([`electerm-${sampleVersion}-linux-x64-legacy.tar.gz`])
+      expect(matches).toEqual([`electerm-${cachedVersion}-linux-x64-legacy.tar.gz`])
     })
 
     it('should match exactly one tar.gz file for linux-arm64', () => {
       const { pattern } = getDownloadPattern('linux', 'arm64', {})
       const matches = releaseFiles.filter(f => pattern.test(f))
-      expect(matches).toEqual([`electerm-${sampleVersion}-linux-arm64.tar.gz`])
+      expect(matches).toEqual([`electerm-${cachedVersion}-linux-arm64.tar.gz`])
     })
 
     it('should match exactly one tar.gz file for linux-arm64-legacy', () => {
       const { pattern } = getDownloadPattern('linux', 'arm64', { linuxLegacy: true })
       const matches = releaseFiles.filter(f => pattern.test(f))
-      expect(matches).toEqual([`electerm-${sampleVersion}-linux-arm64-legacy.tar.gz`])
+      expect(matches).toEqual([`electerm-${cachedVersion}-linux-arm64-legacy.tar.gz`])
     })
 
     it('should match exactly one tar.gz file for linux-armv7l', () => {
       const { pattern } = getDownloadPattern('linux', 'arm', {})
       const matches = releaseFiles.filter(f => pattern.test(f))
-      expect(matches).toEqual([`electerm-${sampleVersion}-linux-armv7l.tar.gz`])
+      expect(matches).toEqual([`electerm-${cachedVersion}-linux-armv7l.tar.gz`])
     })
 
     it('should match exactly one tar.gz file for linux-armv7l-legacy', () => {
       const { pattern } = getDownloadPattern('linux', 'arm', { linuxLegacy: true })
       const matches = releaseFiles.filter(f => pattern.test(f))
-      expect(matches).toEqual([`electerm-${sampleVersion}-linux-armv7l-legacy.tar.gz`])
+      expect(matches).toEqual([`electerm-${cachedVersion}-linux-armv7l-legacy.tar.gz`])
     })
   })
 })
