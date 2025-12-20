@@ -66,7 +66,7 @@ export default class SettingCommon extends Component {
       this.setState({
         ready: true
       })
-    }, 200)
+    }, 0)
   }
 
   componentWillUnmount () {

@@ -12,7 +12,7 @@ export default class ProfleFormIndex extends PureComponent {
       this.setState({
         ready: true
       })
-    }, 200)
+    }, 0)
   }
 
   componentWillUnmount () {

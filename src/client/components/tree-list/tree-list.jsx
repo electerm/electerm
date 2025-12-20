@@ -55,7 +55,7 @@ export default class ItemListTree extends Component {
       this.setState({
         ready: true
       })
-    }, 100)
+    }, 0)
   }
 
   componentWillUnmount () {

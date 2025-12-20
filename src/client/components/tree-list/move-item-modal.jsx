@@ -1,17 +1,62 @@
-// render bookmark select, use antd tree select
+// render bookmark select, use antd tree
 import { useState, useEffect } from 'react'
 import {
-  MergeOutlined
+  MergeOutlined,
+  SearchOutlined
 } from '@ant-design/icons'
 import buildGroupData from '../bookmark-form/common/bookmark-group-tree-format'
-import { TreeSelect, Modal, Button } from 'antd'
+import { Tree, Modal, Button, Input } from 'antd'
 import { auto } from 'manate/react'
 const e = window.translate
 
 const rootId = '__root__'
 
+// Helper function to filter tree data based on search text
+function filterTreeData (data, searchText) {
+  if (!searchText) {
+    return data
+  }
+  const lowerSearch = searchText.toLowerCase()
+
+  function filterNodes (nodes) {
+    return nodes.reduce((acc, node) => {
+      const titleText = typeof node.title === 'string'
+        ? node.title
+        : (node.title?.props?.children?.[1] || node.title?.props?.children || '')
+      const titleStr = String(titleText).toLowerCase()
+      const children = node.children ? filterNodes(node.children) : []
+
+      if (titleStr.includes(lowerSearch) || children.length > 0) {
+        acc.push({
+          ...node,
+          children: children.length > 0 ? children : node.children
+        })
+      }
+      return acc
+    }, [])
+  }
+
+  return filterNodes(data)
+}
+
+// Helper function to get all keys from tree data
+function getAllKeys (data) {
+  const keys = []
+  function traverse (nodes) {
+    for (const node of nodes) {
+      keys.push(node.key)
+      if (node.children) {
+        traverse(node.children)
+      }
+    }
+  }
+  traverse(data)
+  return keys
+}
+
 export default auto(function MoveItemModal (props) {
   const [groupId, setGroupId] = useState(undefined)
+  const [searchText, setSearchText] = useState('')
   const {
     openMoveModal,
     moveItem,
@@ -27,10 +72,11 @@ export default auto(function MoveItemModal (props) {
     })
   }
 
-  // Reset groupId when modal opens
+  // Reset groupId and search when modal opens
   useEffect(() => {
     if (openMoveModal) {
       setGroupId(undefined)
+      setSearchText('')
     }
   }, [openMoveModal])
 
@@ -60,6 +106,31 @@ export default auto(function MoveItemModal (props) {
       disabled: false
     })
   }
+
+  // Filter tree data based on search
+  const filteredData = filterTreeData(data, searchText)
+  const expandedKeys = getAllKeys(filteredData)
+
+  function onTreeSelect (selectedKeys) {
+    if (selectedKeys.length > 0) {
+      // Find the node to check if it's disabled
+      const findNode = (nodes, key) => {
+        for (const node of nodes) {
+          if (node.key === key) return node
+          if (node.children) {
+            const found = findNode(node.children, key)
+            if (found) return found
+          }
+        }
+        return null
+      }
+      const node = findNode(data, selectedKeys[0])
+      if (node && !node.disabled) {
+        setGroupId(selectedKeys[0])
+      }
+    }
+  }
+
   function onSelect () {
     const {
       bookmarkGroups
@@ -109,43 +180,56 @@ export default auto(function MoveItemModal (props) {
     }
     onCancelMoveItem()
   }
+
+  const footer = (
+    <>
+      <Button
+        type='primary'
+        onClick={onSelect}
+        disabled={!groupId}
+      >
+        {e('ok')}
+      </Button>
+      <Button
+        onClick={onCancelMoveItem}
+        className='mg1l'
+      >
+        {e('cancel')}
+      </Button>
+    </>
+  )
+
   const modalProps = {
     open: openMoveModal,
     title: e('moveTo'),
-    footer: null,
+    footer,
     onCancel: onCancelMoveItem
   }
+
   const treeProps = {
-    treeData: data,
-    onChange: setGroupId,
-    placeholder: e('moveTo'),
-    showSearch: true,
-    value: groupId,
-    popupMatchSelectWidth: false,
-    treeDefaultExpandAll: true,
-    className: 'width-100'
+    treeData: filteredData,
+    onSelect: onTreeSelect,
+    selectedKeys: groupId ? [groupId] : [],
+    expandedKeys,
+    autoExpandParent: true,
+    className: 'width-100 move-item-tree'
   }
+
   return (
     <Modal {...modalProps}>
-      <div className='pd1'>
-        <TreeSelect
-          {...treeProps}
+      <div className='pd1b'>
+        <Input
+          placeholder={e('search')}
+          prefix={<SearchOutlined />}
+          value={searchText}
+          onChange={e => setSearchText(e.target.value)}
+          allowClear
         />
       </div>
-      <div className='pd1'>
-        <Button
-          type='primary'
-          onClick={onSelect}
-          disabled={!groupId}
-        >
-          {e('ok')}
-        </Button>
-        <Button
-          onClick={onCancelMoveItem}
-          className='mg1l'
-        >
-          {e('cancel')}
-        </Button>
+      <div className='move-item-tree-wrap'>
+        <Tree
+          {...treeProps}
+        />
       </div>
     </Modal>
   )

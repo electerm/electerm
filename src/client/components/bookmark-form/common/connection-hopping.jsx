@@ -180,6 +180,7 @@ export default function renderConnectionHopping (props) {
         form={formChild}
         onFinish={handleFinish}
         initialValues={initialValues}
+        component='div'
       >
         {renderList()}
         {renderWarn()}

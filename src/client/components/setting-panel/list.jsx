@@ -29,7 +29,7 @@ export default class ItemList extends React.PureComponent {
       this.setState({
         ready: true
       })
-    }, 200)
+    }, 0)
   }
 
   componentWillUnmount () {

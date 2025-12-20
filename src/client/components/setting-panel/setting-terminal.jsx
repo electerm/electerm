@@ -52,7 +52,7 @@ export default class SettingTerminal extends Component {
       this.setState({
         ready: true
       })
-    }, 200)
+    }, 0)
   }
 
   componentWillUnmount () {

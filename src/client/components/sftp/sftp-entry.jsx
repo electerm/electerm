@@ -63,7 +63,7 @@ export default class Sftp extends Component {
       this.setState({
         ready: true
       })
-    }, 100)
+    }, 0)
   }
 
   componentDidUpdate (prevProps, prevState) {
