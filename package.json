@@ -12,7 +12,6 @@
     "clean": "node build/bin/clean",
     "compile": "node build/bin/build",
     "vite-build": "node build/bin/vite-build.js",
-    "prepublishOnly": "node build/bin/prepublish",
     "postpublish": "node build/bin/postpublish",
     "prepare-file": "node build/bin/prepare",
     "pb": "node build/bin/prepare-electron-build.js",
