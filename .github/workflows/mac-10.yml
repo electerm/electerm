@@ -1,0 +1,51 @@
+# This workflow will do a clean install of node dependencies, build the source code and run tests across different versions of node
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
+
+name: mac-10
+
+on:
+  push:
+    branches: [ build, test, build-only, mac-10 ]
+
+jobs:
+  build:
+
+    runs-on: macos-15-intel
+    environment: build
+    if: ${{ !contains(github.event.head_commit.message, '[skip build]') && !contains(github.event.head_commit.message, '[skip ci]') && !contains(github.event.head_commit.message, '[skip mac]') && !contains(github.event.head_commit.message, '[skip mac-10]') }}
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Use Node.js 16.x
+      uses: actions/setup-node@v4
+      with:
+        node-version: 16.x
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+    # before_install:
+    - run: npm config set legacy-peer-deps true
+    - run: npm install -g yarn
+    - run: npm i
+    - run: npm i -D electron@22.3.27
+    - run: npm i -S -E node-pty@1.1.0-beta14
+    - run: npm i -S -E serialport@13.0.0
+    - run: npm i -D vite@4
+
+    # script:
+    - run: npm run b
+    
+    - name: Run pb
+      run: npm run pb
+
+    - name: build
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        BUILD_NUMBER: ${{ secrets.BUILD_NUMBER }}
+        CSC_LINK: ${{ secrets.CSC_LINK }}
+        CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+        APPLE_ID: ${{ secrets.APPLEID }}
+        APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLEIDPASS }}
+        APPLE_TEAM_ID: ${{secrets.APPLE_TEAM_ID}}
+        WORKFLOW_NAME: ${{ github.workflow }}
+      run: node build/bin/build-mac-10
