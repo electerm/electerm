@@ -17,7 +17,8 @@ jobs:
         with:
           node-version: '22'
           registry-url: https://registry.npmjs.org/
-      - run: npm i
+      - run: node build/bin/prepublish.js
+      - run: npm config set legacy-peer-deps true && npm i
       - uses: JS-DevTools/npm-publish@v3
         with:
           token: ${{secrets.NPM_TOKEN}}

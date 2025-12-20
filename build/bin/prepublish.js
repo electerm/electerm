@@ -6,7 +6,6 @@ const savedPackage = [
 const pack = require('../../package.json')
 const fs = require('fs')
 const { resolve } = require('path')
-const { cp, rm } = require('shelljs')
 
 delete pack.devDependencies
 pack.dependencies = savedPackage.reduce((prev, p) => {
@@ -17,8 +16,14 @@ pack.scripts = {
   postinstall: 'node npm/install.js',
   postpublish: 'node bin/postpublish.js'
 }
+delete pack.langugeRepo
+delete pack.privacyNoticeLink
+delete pack.knownIssuesLink
+delete pack.sponsorLink
+delete pack.releases
+delete pack.standard
 const from = resolve(__dirname, '../../package.json')
 const to = resolve(__dirname, '../../package-bak.json')
-cp(from, to)
-rm(from)
+fs.copyFileSync(from, to)
+fs.unlinkSync(from)
 fs.writeFileSync(from, JSON.stringify(pack, null, 2))
