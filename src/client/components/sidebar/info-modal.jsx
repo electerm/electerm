@@ -8,8 +8,7 @@ import {
   InfoCircleOutlined,
   AlignLeftOutlined,
   BugOutlined,
-  HeartOutlined,
-  JavaScriptOutlined
+  HeartOutlined
 } from '@ant-design/icons'
 import { Modal, Tabs, Button } from 'antd'
 import Link from '../common/external-link'
@@ -124,15 +123,15 @@ export default auto(function InfoModal (props) {
           <p className='mg2b'>{e('desc')}</p>
           <RunningTime />
           <p className='mg1b'>
-            <UserOutlined /> <b className='mg1r'>{e('author')} ➾</b>
-            <Link to={authorUrl} className='mg1l'>
-              {authorName} ({email})
-            </Link>
-          </p>
-          <p className='mg1b'>
             <HomeOutlined /> <b>{e('homepage')}/{e('download')} ➾</b>
             <Link to={homepage} className='mg1l'>
               {homepage}
+            </Link>
+          </p>
+          <p className='mg1b'>
+            <UserOutlined /> <b className='mg1r'>{e('author')} ➾</b>
+            <Link to={authorUrl} className='mg1l'>
+              {authorName} ({email})
             </Link>
           </p>
           <p className='mg1b'>
@@ -179,12 +178,6 @@ export default auto(function InfoModal (props) {
           </p>
           <p className='mg1b'>
             <InfoCircleOutlined /> <b className='mg1r'>{window.store.installSrc}</b>
-          </p>
-          <p className='mg1b'>
-            <JavaScriptOutlined /> <b className='mg1r'>Powered by</b>
-            <Link to='https://github.com/tylerlong/manate'>
-              manate
-            </Link>
           </p>
           {renderCheckUpdate()}
         </>
