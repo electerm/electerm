@@ -54,8 +54,48 @@ export default auto(function InfoModal (props) {
     )
   }
 
-  const formatJSON = (jsonStr) => {
-    return JSON.stringify(JSON.parse(jsonStr), null, 2)
+  const renderParsed = (obj, depth = 0) => {
+    if (Array.isArray(obj)) {
+      return (
+        <ul className='pd2l'>
+          {obj.map((item, i) => (
+            <li key={i}>{renderParsed(item, depth + 1)}</li>
+          ))}
+        </ul>
+      )
+    } else if (typeof obj === 'object' && obj !== null) {
+      return (
+        <div className={depth > 0 ? 'pd2l' : ''}>
+          {Object.entries(obj).map(([k, v]) => (
+            <div key={k} className='pd1b'>
+              <b>{k}:</b> {renderParsed(v, depth + 1)}
+            </div>
+          ))}
+        </div>
+      )
+    } else {
+      return <span>{String(obj)}</span>
+    }
+  }
+
+  const renderValue = (v) => {
+    try {
+      const parsed = JSON.parse(v)
+      return renderParsed(parsed)
+    } catch {
+      return <span>{v}</span>
+    }
+  }
+
+  const renderOSInfo = () => {
+    return window.pre.osInfo().map(({ k, v }, i) => (
+      <div className='pd1b' key={i + '_os_' + k}>
+        <b className='bold'>{k}:</b>
+        <span className='mg1l'>
+          {renderValue(v)}
+        </span>
+      </div>
+    ))
   }
 
   const { infoModalTab, commandLineHelp } = props
@@ -216,20 +256,7 @@ export default auto(function InfoModal (props) {
     {
       key: infoTabs.os,
       label: e('os'),
-      children: window.pre.osInfo().map(({ k, v }, i) => {
-        return (
-          <div className='pd1b' key={i + '_os_' + k}>
-            <b className='bold'>{k}</b>:
-            <span className='mg1l'>
-              {
-                v.length > 30
-                  ? <pre>{formatJSON(v)}</pre>
-                  : v
-              }
-            </span>
-          </div>
-        )
-      })
+      children: <div>{renderOSInfo()}</div>
     }
   ]
 
