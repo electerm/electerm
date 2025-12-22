@@ -3,9 +3,7 @@
  */
 import React, { useState } from 'react'
 import WidgetForm from './widget-form'
-import {
-  message
-} from 'antd'
+import { showMsg } from './widget-notification-with-details'
 
 export default function WidgetControl ({ formData }) {
   const [loading, setLoading] = useState(false)
@@ -30,9 +28,9 @@ export default function WidgetControl ({ formData }) {
       } = result
       if (!instanceId) {
         if (success === false) {
-          message.error('Failed to run widget', error || '')
+          showMsg('Failed to run widget', 'error', null, 10, error || '')
         } else {
-          message.success(msg || 'Widget run successfully')
+          showMsg(msg, 'success', null, 10)
         }
         return
       }
@@ -45,6 +43,7 @@ export default function WidgetControl ({ formData }) {
         config
       }
       window.store.widgetInstances.push(instance)
+      showMsg(msg, 'success', result.serverInfo, 10)
     } catch (err) {
       console.error('Failed to run widget:', err)
     } finally {

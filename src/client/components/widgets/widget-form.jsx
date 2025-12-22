@@ -2,7 +2,7 @@
  * Widget form component
  */
 import React from 'react'
-import { Form, Input, InputNumber, Switch, Select, Button, message } from 'antd'
+import { Form, Input, InputNumber, Switch, Select, Button } from 'antd'
 import { formItemLayout, tailFormItemLayout } from '../../common/form-layout'
 
 export default function WidgetForm ({ widget, onSubmit, loading }) {
@@ -18,12 +18,7 @@ export default function WidgetForm ({ widget, onSubmit, loading }) {
   const txt = isInstanceWidget ? 'Start widget' : 'Run widget'
 
   const handleSubmit = async (values) => {
-    try {
-      await onSubmit(values)
-      message.success('Widget started successfully')
-    } catch (error) {
-      message.error('Failed to start widget: ' + error.message)
-    }
+    onSubmit(values)
   }
 
   const renderFormItem = (config) => {
@@ -86,7 +81,7 @@ export default function WidgetForm ({ widget, onSubmit, loading }) {
 
   return (
     <div className='widget-form'>
-      <div className='pd1b'>
+      <div className='pd1b alignright'>
         <h4>{info.name}</h4>
         <p>{info.description}</p>
       </div>

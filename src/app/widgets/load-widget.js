@@ -67,11 +67,11 @@ function runWidget (widgetId, config) {
   runningInstances.set(instance.instanceId, instance)
 
   return instance.start()
-    .then(serverInfo => {
+    .then((result) => {
       return {
         instanceId: instance.instanceId,
         widgetId: widget.id,
-        serverInfo
+        ...result
       }
     })
 }

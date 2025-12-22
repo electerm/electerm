@@ -141,9 +141,10 @@ function widgetRun (instanceConfig) {
             url: `http://${host}:${port}`,
             path: directory
           }
-          console.log(`${widgetInfo.name} is running at ${serverInfo.url}`)
+          const msg = `${widgetInfo.name} is running at ${serverInfo.url}`
+          console.log(msg)
           console.log(`Serving files from: ${serverInfo.path}`)
-          resolve(serverInfo)
+          resolve({ serverInfo, msg, success: true })
         }
       })
 
