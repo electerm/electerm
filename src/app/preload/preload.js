@@ -36,6 +36,9 @@ contextBridge.exposeInMainWorld(
         name,
         args
       })
+    },
+    sendMcpResponse: (response) => {
+      ipcRenderer.send('mcp-response', response)
     }
   }
 )

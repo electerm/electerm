@@ -16,6 +16,10 @@ export default Store => {
   }
 
   Store.prototype.runWidget = async (widgetId, config) => {
+    // If this is MCP server widget, initialize MCP handler first
+    if (widgetId === 'mcp-server') {
+      window.store.initMcpHandler()
+    }
     return window.pre.runGlobalAsync('runWidget', widgetId, config)
   }
 
