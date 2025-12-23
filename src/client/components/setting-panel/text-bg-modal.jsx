@@ -1,12 +1,13 @@
 import React, { useState } from 'react'
 import {
-  Modal,
   Input,
   InputNumber,
   Space,
   Typography,
-  Select
+  Select,
+  Button
 } from 'antd'
+import Modal from '../common/modal'
 import { ColorPicker } from '../bookmark-form/common/color-picker.jsx'
 
 const { TextArea } = Input
@@ -47,14 +48,24 @@ export default function TextBgModal ({
     setFontFamily(initialFontFamily)
   }
 
+  const footer = (
+    <>
+      <Button onClick={handleCancel}>
+        {e('cancel')}
+      </Button>
+      <Button type='primary' onClick={handleOk} className='mg1l'>
+        {e('ok')}
+      </Button>
+    </>
+  )
+
   return (
     <Modal
       title={e('terminalBackgroundText')}
       open={visible}
-      onOk={handleOk}
       onCancel={handleCancel}
       width={500}
-      destroyOnHidden
+      footer={footer}
     >
       <div className='pd1'>
         <Space direction='vertical' size='large' style={{ width: '100%' }}>

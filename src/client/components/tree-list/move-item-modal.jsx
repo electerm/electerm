@@ -5,7 +5,8 @@ import {
   SearchOutlined
 } from '@ant-design/icons'
 import buildGroupData from '../bookmark-form/common/bookmark-group-tree-format'
-import { Tree, Modal, Button, Input } from 'antd'
+import { Tree, Button, Input } from 'antd'
+import Modal from '../common/modal'
 import { auto } from 'manate/react'
 const e = window.translate
 

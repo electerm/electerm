@@ -10,9 +10,9 @@ import {
 import {
   Spin,
   message,
-  Modal,
   Tag
 } from 'antd'
+import Modal from '../common/modal'
 import * as ls from '../../common/safe-local-storage'
 import { copy } from '../../common/clipboard'
 import resolutions from '../rdp/resolutions'
@@ -250,7 +250,7 @@ export default class VncSession extends RdpSession {
       title: e('credentialsRequired'),
       content: this.renderForm(['password']),
       footer: null,
-      visible: true
+      open: true
     }
     return (
       <Modal

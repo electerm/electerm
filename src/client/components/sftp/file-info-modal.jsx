@@ -3,7 +3,8 @@
  */
 
 import React from 'react'
-import { Modal, Button } from 'antd'
+import { Button } from 'antd'
+import Modal from '../common/modal'
 import resolve from '../../common/resolve'
 import time from '../../common/time'
 import { update } from 'lodash-es'
