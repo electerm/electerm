@@ -34,7 +34,13 @@ export default class AttachAddonCustom extends AttachAddon {
   }
 
   onMsg = (ev) => {
-    this.trzsz.processServerOutput(ev.data)
+    // When in alternate screen mode (like vim, less, or TUI apps like Claude Code),
+    // bypass trzsz processing to avoid interference with the application's display
+    if (this.term?.buffer?.active?.type === 'alternate') {
+      this.writeToTerminal(ev.data)
+    } else {
+      this.trzsz.processServerOutput(ev.data)
+    }
   }
 
   writeToTerminal = (data) => {
