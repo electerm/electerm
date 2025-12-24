@@ -29,8 +29,6 @@ import AppDrag from './app-drag'
 import NoSession from './no-session'
 import classNames from 'classnames'
 
-const e = window.translate
-
 export default class Tabs extends Component {
   constructor (props) {
     super(props)
