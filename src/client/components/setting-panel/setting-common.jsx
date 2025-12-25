@@ -518,6 +518,7 @@ export default class SettingCommon extends Component {
       onStartSessions: props.config.onStartSessions,
       bookmarks: props.bookmarks,
       bookmarkGroups: props.bookmarkGroups,
+      workspaces: props.store.workspaces,
       onChangeStartSessions: this.onChangeStartSessions
     }
     return (

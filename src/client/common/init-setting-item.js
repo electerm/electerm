@@ -36,5 +36,12 @@ export default (arr, tab) => {
       id: '',
       name: e(settingMap.widgets)
     }
+  } else if (tab === settingMap.workspaces) {
+    return {
+      id: '',
+      name: e(settingMap.workspaces),
+      layout: 'default',
+      tabsByBatch: {}
+    }
   }
 }

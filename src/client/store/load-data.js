@@ -115,13 +115,22 @@ export async function addTabFromCommandLine (store, opts) {
 export default (Store) => {
   Store.prototype.openInitSessions = function () {
     const { store } = window
-    const arr = store.config.onStartSessions || []
-    for (const s of arr) {
-      store.onSelectBookmark(s)
+    const onStartSessions = store.config.onStartSessions
+
+    // If onStartSessions is a string, it's a workspace ID
+    if (typeof onStartSessions === 'string' && onStartSessions) {
+      store.loadWorkspace(onStartSessions)
+    } else {
+      // Otherwise, it's an array of bookmark IDs
+      const arr = Array.isArray(onStartSessions) ? onStartSessions : []
+      for (const s of arr) {
+        store.onSelectBookmark(s)
+      }
+      if (!arr.length && store.config.initDefaultTabOnStart) {
+        store.initFirstTab()
+      }
     }
-    if (!arr.length && store.config.initDefaultTabOnStart) {
-      store.initFirstTab()
-    }
+
     store.confirmLoad()
     const { initTime, loadTime } = window.pre.runSync('getLoadTime')
     if (loadTime) {

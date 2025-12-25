@@ -244,3 +244,67 @@
   max-height 300px
   overflow-y auto
 
+// Layout and Workspace dropdown styles
+.layout-workspace-dropdown
+  background var(--main)
+  border-radius 4px
+  box-shadow 0 2px 8px rgba(0, 0, 0, 0.15)
+  min-width 200px
+  padding 8px
+  .ant-tabs-nav
+    margin-bottom 8px
+
+.layout-menu-content
+  max-height 300px
+  overflow-y auto
+
+.layout-menu-item
+  padding 6px 12px
+  cursor pointer
+  border-radius 4px
+  display flex
+  align-items center
+  gap 8px
+  color var(--text)
+  &:hover
+    background var(--main-dark)
+  &.active
+    background var(--primary)
+    color #fff
+
+.workspace-menu-content
+  max-height 300px
+  overflow-y auto
+
+.workspace-save-btn
+  margin-bottom 8px
+
+.workspace-list
+  display flex
+  flex-direction column
+  gap 4px
+
+.workspace-item
+  padding 6px 12px
+  cursor pointer
+  border-radius 4px
+  display flex
+  align-items center
+  justify-content space-between
+  color var(--text)
+  &:hover
+    background var(--main-dark)
+  .workspace-delete-icon
+    opacity 0
+    color var(--text-dark)
+    &:hover
+      color var(--error)
+  &:hover .workspace-delete-icon
+    opacity 1
+
+.workspace-name
+  flex 1
+  overflow hidden
+  text-overflow ellipsis
+  white-space nowrap
+

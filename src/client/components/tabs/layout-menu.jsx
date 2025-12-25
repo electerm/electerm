@@ -1,71 +1,71 @@
 /**
- * Layout menu dropdown component
+ * Layout and Workspace menu dropdown component
  */
 
-import React from 'react'
-import { Dropdown } from 'antd'
-import { DownOutlined } from '@ant-design/icons'
+import React, { useState } from 'react'
+import { Dropdown, Tabs } from 'antd'
 import {
-  SingleIcon,
-  TwoColumnsIcon,
-  ThreeColumnsIcon,
-  TwoRowsIcon,
-  ThreeRowsIcon,
-  Grid2x2Icon,
-  TwoRowsRightIcon,
-  TwoColumnsBottomIcon
-} from '../icons/split-icons'
+  DownOutlined,
+  AppstoreOutlined,
+  LayoutOutlined
+} from '@ant-design/icons'
 import { splitMapDesc } from '../../common/constants'
+import LayoutSelect, { getLayoutIcon } from './layout-select'
+import WorkspaceSelect from './workspace-select'
+import HelpIcon from '../common/help-icon'
 
 const e = window.translate
 
-const iconMaps = {
-  single: SingleIcon,
-  twoColumns: TwoColumnsIcon,
-  threeColumns: ThreeColumnsIcon,
-  twoRows: TwoRowsIcon,
-  threeRows: ThreeRowsIcon,
-  grid2x2: Grid2x2Icon,
-  twoRowsRight: TwoRowsRightIcon,
-  twoColumnsBottom: TwoColumnsBottomIcon
-}
-
-function getLayoutIcon (layout) {
-  return iconMaps[layout]
-}
-
 export default function LayoutMenu (props) {
   const { layout, visible } = props
+  const [activeTab, setActiveTab] = useState('layout')
 
   if (!visible) {
     return null
   }
 
-  function handleChangeLayout ({ key }) {
-    window.store.setLayout(key)
-  }
-
-  const items = Object.keys(splitMapDesc).map((t) => {
-    const v = splitMapDesc[t]
-    const Icon = getLayoutIcon(v)
-    return {
-      key: t,
+  const tabItems = [
+    {
+      key: 'layout',
       label: (
         <span>
-          <Icon /> {e(v)}
+          <LayoutOutlined /> {e('layout')}
         </span>
-      ),
-      onClick: () => handleChangeLayout({ key: t })
+      )
+    },
+    {
+      key: 'workspace',
+      label: (
+        <span>
+          <AppstoreOutlined /> {e('workspace')}
+          <HelpIcon link='https://github.com/electerm/electerm/wiki/Workspace-Feature' />
+        </span>
+      )
     }
-  })
+  ]
 
   const v = splitMapDesc[layout]
   const Icon = getLayoutIcon(v)
 
+  const dropdownContent = (
+    <div className='layout-workspace-dropdown'>
+      <Tabs
+        items={tabItems}
+        size='small'
+        activeKey={activeTab}
+        onChange={setActiveTab}
+      />
+      {activeTab === 'layout'
+        ? <LayoutSelect layout={layout} />
+        : <WorkspaceSelect store={window.store} />}
+    </div>
+  )
+
   return (
     <Dropdown
-      menu={{ items }}
+      popupRender={() => dropdownContent}
       placement='bottomRight'
+      trigger={['click']}
     >
       <span className='tabs-dd-icon layout-dd-icon mg1l'>
         <Icon /> <DownOutlined />
