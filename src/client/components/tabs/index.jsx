@@ -12,34 +12,22 @@ import {
   LeftOutlined,
   RightOutlined
 } from '@ant-design/icons'
-import {
-  SingleIcon,
-  TwoColumnsIcon,
-  ThreeColumnsIcon,
-  TwoRowsIcon,
-  ThreeRowsIcon,
-  Grid2x2Icon,
-  TwoRowsRightIcon,
-  TwoColumnsBottomIcon
-} from '../icons/split-icons'
 import { Dropdown } from 'antd'
 import Tab from './tab'
+import LayoutMenu from './layout-menu'
 import './tabs.styl'
 import {
   tabWidth,
   tabMargin,
   extraTabWidth,
   windowControlWidth,
-  isMacJs,
-  splitMapDesc
+  isMacJs
 } from '../../common/constants'
 import WindowControl from './window-control'
 import AddBtn from './add-btn'
 import AppDrag from './app-drag'
 import NoSession from './no-session'
 import classNames from 'classnames'
-
-const e = window.translate
 
 export default class Tabs extends Component {
   constructor (props) {
@@ -183,10 +171,6 @@ export default class Tabs extends Component {
     window.store['activeTabId' + this.props.batch] = id
   }
 
-  handleChangeLayout = ({ key }) => {
-    window.store.setLayout(key)
-  }
-
   renderAddBtn = () => {
     const cls = classNames(
       'pointer tabs-add-btn font16',
@@ -324,48 +308,12 @@ export default class Tabs extends Component {
     )
   }
 
-  getLayoutIcon = (layout) => {
-    const iconMaps = {
-      single: SingleIcon,
-      twoColumns: TwoColumnsIcon,
-      threeColumns: ThreeColumnsIcon,
-      twoRows: TwoRowsIcon,
-      threeRows: ThreeRowsIcon,
-      grid2x2: Grid2x2Icon,
-      twoRowsRight: TwoRowsRightIcon,
-      twoColumnsBottom: TwoColumnsBottomIcon
-    }
-    return iconMaps[layout]
-  }
-
   renderLayoutMenu = () => {
-    if (!this.shouldRenderWindowControl()) {
-      return null
-    }
-    const items = Object.keys(splitMapDesc).map((t) => {
-      const v = splitMapDesc[t]
-      const Icon = this.getLayoutIcon(v)
-      return {
-        key: t,
-        label: (
-          <span>
-            <Icon /> {e(v)}
-          </span>
-        ),
-        onClick: () => this.handleChangeLayout({ key: t })
-      }
-    })
-    const v = splitMapDesc[this.props.layout]
-    const Icon = this.getLayoutIcon(v)
     return (
-      <Dropdown
-        menu={{ items }}
-        placement='bottomRight'
-      >
-        <span className='tabs-dd-icon layout-dd-icon mg1l'>
-          <Icon /> <DownOutlined />
-        </span>
-      </Dropdown>
+      <LayoutMenu
+        layout={this.props.layout}
+        visible={this.shouldRenderWindowControl()}
+      />
     )
   }
 

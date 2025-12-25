@@ -25,6 +25,7 @@ import batchInputHistory from './batch-input-history'
 import transferExtend from './transfer-list'
 import addressBookmarkExtend from './address-bookmark'
 import widgetsExtend from './widgets'
+import workspaceExtend from './workspace'
 import isColorDark from '../common/is-color-dark'
 import { getReverseColor } from '../common/reverse-color'
 import { uniq } from 'lodash-es'
@@ -297,5 +298,6 @@ batchInputHistory(Store)
 transferExtend(Store)
 addressBookmarkExtend(Store)
 widgetsExtend(Store)
+workspaceExtend(Store)
 
 export const StateStore = Store

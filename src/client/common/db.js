@@ -31,7 +31,8 @@ export const dbNames = without(
 
 export const dbNamesForWatch = without(
   Object.keys(settingMap),
-  settingMap.setting
+  settingMap.setting,
+  settingMap.widgets
 )
 
 /**
