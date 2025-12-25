@@ -26,14 +26,14 @@ export default auto(function WorkspaceSaveModal ({ store }) {
   function handleSave () {
     if (saveMode === 'new') {
       if (!name.trim()) {
-        message.error(e('pleaseInputName'))
+        message.error(e('name needed'))
         return
       }
       window.store.saveWorkspace(name.trim())
       message.success(e('saved'))
     } else {
       if (!selectedId) {
-        message.error(e('pleaseSelectWorkspace'))
+        message.error('please Select Workspace')
         return
       }
       const ws = workspaces.find(w => w.id === selectedId)
@@ -60,7 +60,7 @@ export default auto(function WorkspaceSaveModal ({ store }) {
 
   return (
     <Modal
-      title={e('saveWorkspace')}
+      title={e('save')}
       open={workspaceSaveModalVisible}
       onCancel={handleCancel}
       footer={null}
@@ -85,7 +85,7 @@ export default auto(function WorkspaceSaveModal ({ store }) {
           {saveMode === 'new'
             ? (
               <Input
-                placeholder={e('workspaceName')}
+                placeholder={e('name')}
                 value={name}
                 onChange={e => setName(e.target.value)}
                 onPressEnter={handleSave}
@@ -93,7 +93,7 @@ export default auto(function WorkspaceSaveModal ({ store }) {
               )
             : (
               <Select
-                placeholder={e('selectWorkspace')}
+                placeholder={e('workspaces')}
                 value={selectedId}
                 onChange={setSelectedId}
                 options={options}

@@ -34,10 +34,10 @@ export default function LayoutMenu (props) {
       )
     },
     {
-      key: 'workspace',
+      key: 'workspaces',
       label: (
         <span>
-          <AppstoreOutlined /> {e('workspace')}
+          <AppstoreOutlined /> {e('workspaces')}
           <HelpIcon link='https://github.com/electerm/electerm/wiki/Workspace-Feature' />
         </span>
       )

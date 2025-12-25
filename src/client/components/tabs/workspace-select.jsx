@@ -39,14 +39,14 @@ export default auto(function WorkspaceSelect (props) {
           onClick={handleSaveClick}
           block
         >
-          {e('saveWorkspace')}
+          {e('save')}
         </Button>
       </div>
       {workspaces.length === 0
         ? (
           <Empty
             image={Empty.PRESENTED_IMAGE_SIMPLE}
-            description={e('noWorkspaces')}
+            description='No items'
           />
           )
         : (
@@ -59,7 +59,7 @@ export default auto(function WorkspaceSelect (props) {
               >
                 <span className='workspace-name'>{ws.name}</span>
                 <Popconfirm
-                  title={e('deleteWorkspace')}
+                  title={e('del') + '?'}
                   onConfirm={(ev) => handleDeleteWorkspace(ws.id, ev)}
                   onCancel={(ev) => ev.stopPropagation()}
                   okText={e('ok')}

@@ -123,7 +123,7 @@ function WorkspaceSelect (props) {
     <Select
       value={value}
       onChange={onChangeStartSessions}
-      placeholder={e('selectWorkspace')}
+      placeholder={e('workspaces')}
       style={{ width: '100%' }}
       allowClear
     >
@@ -149,7 +149,7 @@ export default function StartSessionSelect (props) {
   // string = workspace, array = bookmarks
   const getInitialTab = () => {
     if (typeof onStartSessions === 'string' && onStartSessions) {
-      return 'workspace'
+      return 'workspaces'
     }
     return 'bookmarks'
   }
@@ -162,7 +162,7 @@ export default function StartSessionSelect (props) {
     // Reset to appropriate default when switching
     if (key === 'bookmarks' && typeof onStartSessions === 'string') {
       onChangeStartSessions([])
-    } else if (key === 'workspace' && Array.isArray(onStartSessions)) {
+    } else if (key === 'workspaces' && Array.isArray(onStartSessions)) {
       onChangeStartSessions(undefined)
     }
   }
@@ -177,10 +177,10 @@ export default function StartSessionSelect (props) {
       )
     },
     {
-      key: 'workspace',
+      key: 'workspaces',
       label: (
         <span>
-          <AppstoreOutlined /> {e('workspace')}
+          <AppstoreOutlined /> {e('workspaces')}
           <HelpIcon link='https://github.com/electerm/electerm/wiki/Workspace-Feature' />
         </span>
       )
