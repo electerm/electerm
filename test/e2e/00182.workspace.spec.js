@@ -64,21 +64,21 @@ describe('workspace', function () {
     log('Test 6: Opening save modal')
     await client.click('.workspace-save-btn button')
     await delay(300)
-    const saveModal = await client.countElem('.ant-modal')
+    const saveModal = await client.countElem('.custom-modal-close')
     expect(saveModal).equal(1)
 
     // Test 7: Verify save modal has name input
     log('Test 7: Verifying save modal input')
-    const nameInput = await client.countElem('.ant-modal input')
+    const nameInput = await client.countElem('.custom-modal-wrap input')
     expect(nameInput).greaterThan(0)
 
     // Test 8: Enter a workspace name and save
     log('Test 8: Saving workspace')
     const workspaceName = 'Test Workspace ' + Date.now()
-    await client.setValue('.ant-modal input', workspaceName)
+    await client.setValue('.custom-modal-wrap input', workspaceName)
     await delay(200)
     await client.evaluate(() => {
-      const btns = document.querySelectorAll('.ant-modal .ant-btn-primary')
+      const btns = document.querySelectorAll('.custom-modal-wrap .ant-btn-primary')
       for (const btn of btns) {
         if (btn.textContent.includes('Save')) {
           btn.click()
@@ -90,7 +90,7 @@ describe('workspace', function () {
 
     // Test 9: Verify modal is closed
     log('Test 9: Verifying modal closed')
-    const modalAfterSave = await client.countElem('.ant-modal')
+    const modalAfterSave = await client.countElem('.custom-modal-close')
     expect(modalAfterSave).equal(0)
 
     // Test 10: Verify workspace was saved in store

@@ -85,17 +85,16 @@ async function testEditFolderPermission (client, folderType) {
   await delay(1000)
 
   // Verify that the edit permission modal is open
-  await client.hasElem('.ant-modal-wrap')
-  await client.hasElem('.ant-modal-container')
+  await client.hasElem('.custom-modal-container')
 
   // Check if the modal title is "Edit Folder Permission"
-  const modalTitle = await client.getText('.ant-modal-title')
+  const modalTitle = await client.getText('.custom-modal-title')
   expect(modalTitle).toBe('Edit Folder Permission')
 
   // Change a specific permission (e.g., 'other' 'write')
   const targetGroup = 'other'
   const targetPermission = 'write'
-  const buttonSelector = `.ant-modal-container .pd1b:has-text("${targetGroup}") .ant-btn:has-text("${targetPermission}")`
+  const buttonSelector = `.custom-modal-container .pd1b:has-text("${targetGroup}") .ant-btn:has-text("${targetPermission}")`
 
   const initialClass = await client.getAttribute(buttonSelector, 'class')
   const initiallyActive = initialClass.includes('ant-btn-primary')
@@ -110,11 +109,11 @@ async function testEditFolderPermission (client, folderType) {
   expect(nowActive).not.toBe(initiallyActive)
 
   // Save the changes
-  await client.click('.ant-modal-footer .ant-btn-primary')
+  await client.click('.custom-modal-footer .ant-btn-primary')
   await delay(2000)
 
   // Verify that the modal is closed
-  await client.hasElem('.ant-modal-wrap', false)
+  await client.hasElem('.custom-modal-container', false)
 
   // Open folder properties to check if permissions were updated
   await client.rightClick(`.session-current .file-list.${folderType} .sftp-item[title="${folderName}"]`, 10, 10)
@@ -128,7 +127,7 @@ async function testEditFolderPermission (client, folderType) {
   expect(infoButtonActive).toBe(nowActive)
 
   // Close the folder properties modal
-  await client.click('.ant-modal-close')
+  await client.click('.custom-modal-close-close')
   await delay(300)
 
   // Clean up - delete the test folder
@@ -165,20 +164,20 @@ async function testFileInfoModal (client, fileType, closeMethod) {
   await delay(1200)
 
   // Verify modal content and visibility
-  await client.hasElem('.ant-modal-wrap')
-  await client.hasElem('.ant-modal-container')
-  await client.hasElem('.ant-modal .file-props')
+  await client.hasElem('.custom-modal-container')
+  await client.hasElem('.custom-modal-container')
+  await client.hasElem('.custom-modal-wrap .file-props')
 
   // Close modal using different methods
   if (closeMethod === 'click') {
-    await client.click('.ant-modal-close')
+    await client.click('.custom-modal-close-close')
   } else {
     await client.keyboard.press('Escape')
   }
   await delay(300)
 
   // Verify modal is closed
-  await client.hasElem('.ant-modal-wrap', false)
+  await client.hasElem('.custom-modal-container', false)
 
   // Delete the test folder
   await client.click(`.session-current .file-list.${fileType} .sftp-item[title="${fname}"]`)
