@@ -140,7 +140,7 @@ export default auto(function InfoModal (props) {
     ...env
   }
   const title = (
-    <div className='ant-modal-confirm-title font16'>
+    <div className='custom-modal-close-confirm-title font16'>
       <InfoCircleOutlined className='font20 mg1r' /> {e('about')} {name}
     </div>
   )

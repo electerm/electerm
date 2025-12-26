@@ -138,17 +138,17 @@ async function testConflictResolution (client, policy, fromType, toType) {
   // Handle conflict resolution based on policy
   if (policy === 'skip') {
     // Skip each conflict, with the expected number equal to the selected items
-    await client.click('.ant-modal-footer button:has-text("Skip all")')
+    await client.click('.custom-modal-footer button:has-text("Skip all")')
   } else if (policy === 'overwrite') {
     // Check for first conflict item type (file vs folder) and click appropriate button
-    const isFolderConflict = await client.elemExist('.ant-modal-footer button:has-text("Merge all")')
+    const isFolderConflict = await client.elemExist('.custom-modal-footer button:has-text("Merge all")')
     if (isFolderConflict) {
-      await client.click('.ant-modal-footer button:has-text("Merge all")')
+      await client.click('.custom-modal-footer button:has-text("Merge all")')
     } else {
-      await client.click('.ant-modal-footer button:has-text("Overwrite all")')
+      await client.click('.custom-modal-footer button:has-text("Overwrite all")')
     }
   } else if (policy === 'rename') {
-    await client.click('.ant-modal-footer button:has-text("Rename all")')
+    await client.click('.custom-modal-footer button:has-text("Rename all")')
   } else {
     throw new Error(`Unsupported policy: ${policy}`)
   }
@@ -201,7 +201,7 @@ async function selectAllItems (client, type) {
 //   const waitInterval = 2000 // Time to wait between checks
 //   // Continue until we have no more conflicts for a reasonable time
 //   while (conflictsHandled < expectedItemCount) {
-//     await client.click('.ant-modal-footer button span:text-is("Skip")')
+//     await client.click('.custom-modal-footer button span:text-is("Skip")')
 //     conflictsHandled++
 
 //     // Wait for a short time before checking again
