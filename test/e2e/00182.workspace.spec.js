@@ -94,7 +94,9 @@ describe('workspace', function () {
     await client.click('.layout-menu-item:nth-child(2)') // select c2 layout
     await delay(500)
 
-    // Switch back to Workspaces tab
+    // Reopen dropdown and switch back to Workspaces tab
+    await client.click('.tabs .layout-dd-icon')
+    await delay(300)
     await client.click('.layout-workspace-dropdown .ant-tabs-tab:has-text("Workspaces")')
     await delay(300)
 
