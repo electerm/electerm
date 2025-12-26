@@ -53,13 +53,13 @@ describe('workspace', function () {
 
     // Test 7: Verify save modal has name input
     log('Test 7: Verifying save modal input')
-    const nameInput = await client.countElem('.custom-modal-wrap input')
+    const nameInput = await client.countElem('.custom-modal-wrap .ant-input')
     expect(nameInput).greaterThan(0)
 
     // Test 8: Enter a workspace name and save
     log('Test 8: Saving workspace')
     const workspaceName = 'Test Workspace ' + Date.now()
-    await client.setValue('.custom-modal-wrap input', workspaceName)
+    await client.setValue('.custom-modal-wrap .ant-input', workspaceName)
     await delay(200)
     await client.click('.custom-modal-wrap .ant-btn-primary:has-text("Save")')
     await delay(500)
