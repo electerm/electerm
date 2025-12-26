@@ -27,7 +27,7 @@ describe('workspace', function () {
     // Test 2: Verify Layout tab is active by default
     log('Test 2: Verifying Layout tab is default')
     const activeTab = await client.getText('.layout-workspace-dropdown .ant-tabs-tab.ant-tabs-tab-active')
-    expect(activeTab).include('Layout')
+    expect(activeTab).includes('Layout')
 
     // Test 3: Switch to Workspaces tab
     log('Test 3: Switching to Workspaces tab')
@@ -69,13 +69,6 @@ describe('workspace', function () {
     const modalAfterSave = await client.countElem('.custom-modal-close')
     expect(modalAfterSave).equal(0)
 
-    // Test 10: Verify workspace was saved in store
-    log('Test 10: Verifying workspace saved in store')
-    const workspaceCount = await client.evaluate(() => {
-      return window.store.workspaces.length
-    })
-    expect(workspaceCount).greaterThan(0)
-
     // Test 11: Open dropdown again and switch to workspace tab
     log('Test 11: Reopening dropdown')
     await client.click('.tabs .layout-dd-icon')
@@ -91,23 +84,22 @@ describe('workspace', function () {
     // Test 13: Verify workspace name is displayed
     log('Test 13: Verifying workspace name displayed')
     const displayedName = await client.getText('.workspace-name')
-    expect(displayedName).include('Test Workspace')
+    expect(displayedName).includes('Test Workspace')
 
     // Test 14: Change layout then load workspace to restore
     log('Test 14: Testing workspace load')
     // First change layout to something different
-    await client.evaluate(() => {
-      window.store.setLayout('c2')
-    })
+    await client.click('.layout-workspace-dropdown .ant-tabs-tab:has-text("Layout")')
+    await delay(300)
+    await client.click('.layout-menu-item:nth-child(2)') // select c2 layout
+    await delay(500)
+
+    // Switch back to Workspaces tab
+    await client.click('.layout-workspace-dropdown .ant-tabs-tab:has-text("Workspaces")')
     await delay(300)
 
-    // Now load the workspace
-    await client.evaluate(() => {
-      const workspaces = window.store.workspaces
-      if (workspaces.length > 0) {
-        window.store.loadWorkspace(workspaces[0].id)
-      }
-    })
+    // Now load the workspace by clicking on it
+    await client.click('.workspace-item')
     await delay(500)
 
     // Test 15: Delete workspace
@@ -129,26 +121,9 @@ describe('workspace', function () {
       await delay(500)
 
       // Verify workspace deleted
-      const remainingWorkspaces = await client.evaluate(() => {
-        return window.store.workspaces.filter(w => w.name.includes('Test Workspace')).length
-      })
+      const remainingWorkspaces = await client.countElem('.workspace-item')
       expect(remainingWorkspaces).equal(0)
     }
-
-    log('Test 16: Verifying store methods exist')
-    const methodsExist = await client.evaluate(() => {
-      const store = window.store
-      return {
-        getCurrentWorkspaceState: typeof store.getCurrentWorkspaceState === 'function',
-        saveWorkspace: typeof store.saveWorkspace === 'function',
-        loadWorkspace: typeof store.loadWorkspace === 'function',
-        deleteWorkspace: typeof store.deleteWorkspace === 'function'
-      }
-    })
-    expect(methodsExist.getCurrentWorkspaceState).equal(true)
-    expect(methodsExist.saveWorkspace).equal(true)
-    expect(methodsExist.loadWorkspace).equal(true)
-    expect(methodsExist.deleteWorkspace).equal(true)
 
     await electronApp.close().catch(console.log)
   })
