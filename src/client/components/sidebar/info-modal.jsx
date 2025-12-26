@@ -10,7 +10,8 @@ import {
   BugOutlined,
   HeartOutlined
 } from '@ant-design/icons'
-import { Modal, Tabs, Button } from 'antd'
+import { Tabs, Button } from 'antd'
+import Modal from '../common/modal'
 import Link from '../common/external-link'
 import LogoElem from '../common/logo-elem'
 import RunningTime from './app-running-time'
@@ -139,7 +140,7 @@ export default auto(function InfoModal (props) {
     ...env
   }
   const title = (
-    <div className='ant-modal-confirm-title font16'>
+    <div className='custom-modal-close-confirm-title font16'>
       <InfoCircleOutlined className='font20 mg1r' /> {e('about')} {name}
     </div>
   )
@@ -147,9 +148,7 @@ export default auto(function InfoModal (props) {
     title,
     width: window.innerWidth - 100,
     maskClosable: true,
-    okText: e('ok'),
     onCancel: onCloseAbout,
-    footer: null,
     open: true,
     wrapClassName: 'info-modal'
   }

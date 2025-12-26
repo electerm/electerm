@@ -31,6 +31,7 @@ import AIChat from '../ai/ai-chat'
 import Opacity from '../common/opacity'
 import MoveItemModal from '../tree-list/move-item-modal'
 import InputContextMenu from '../common/input-context-menu'
+import WorkspaceSaveModal from '../tabs/workspace-save-modal'
 import { pick } from 'lodash-es'
 import deepCopy from 'json-deep-copy'
 import './wrapper.styl'
@@ -305,6 +306,7 @@ export default auto(function Index (props) {
         <ConnectionHoppingWarning {...warningProps} />
         <TerminalCmdSuggestions {...cmdSuggestionsProps} />
         <TransferQueue />
+        <WorkspaceSaveModal store={store} />
       </div>
     </ConfigProvider>
   )

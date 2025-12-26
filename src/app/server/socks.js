@@ -36,6 +36,7 @@ module.exports = (initOptions) => {
     port,
     proxy
   } = initOptions
+  console.log('socks proxy init options:', initOptions)
   const proxyURL = parseUrl(proxy)
   if (!proxyURL) {
     throw new Error('proxy format not right:', proxy)
@@ -59,10 +60,12 @@ module.exports = (initOptions) => {
         host: proxyHost,
         path: `${host}:${port}`,
         method: 'CONNECT',
-        timeout: readyTimeout
+        timeout: readyTimeout,
+        headers: {}
       }
       if (username) {
-        opts.auth = `${username}:${password}`
+        const auth = Buffer.from(`${username}:${password}`).toString('base64')
+        opts.headers['Proxy-Authorization'] = `Basic ${auth}`
       }
       request(opts)
         .on('error', (e) => {

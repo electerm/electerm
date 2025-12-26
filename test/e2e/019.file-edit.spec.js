@@ -62,7 +62,7 @@ async function testFileEdit (client, type, testDoubleClick = false) {
   await delay(3000) // Wait for editor modal to open
 
   // Verify the editor modal is open
-  await client.hasElem('.ant-modal .ant-modal-body textarea')
+  await client.hasElem('.custom-modal-wrap .custom-modal-body textarea')
 
   // Type multiline test content with repeating keywords for search testing
   const testContent = `This is a ${type} test content for the file editor!
@@ -72,13 +72,13 @@ Fourth line with keyword appearing again.
 Fifth line is the last example line.
 Keyword appears one final time here.`
 
-  await client.setValue('.ant-modal .ant-modal-body textarea', testContent)
+  await client.setValue('.custom-modal-wrap .custom-modal-body textarea', testContent)
   await delay(1000)
 
   // Test 2: Test search functionality
   // Set a search term that appears multiple times - use the correct input selector
   const searchKeyword = 'keyword'
-  await client.setValue('.ant-modal .ant-modal-body .ant-input-search input.ant-input', searchKeyword)
+  await client.setValue('.custom-modal-wrap .custom-modal-body .ant-input-search input.ant-input', searchKeyword)
   await delay(500)
 
   // Press Enter to trigger search
@@ -86,24 +86,24 @@ Keyword appears one final time here.`
   await delay(1000)
 
   // Verify that search found some matches (counter should show "1/3" or similar)
-  const searchCounterText = await client.getText('.ant-modal .ant-modal-body .pd1x')
+  const searchCounterText = await client.getText('.custom-modal-wrap .custom-modal-body .pd1x')
   expect(searchCounterText).not.toBe('0/0')
 
   // Test next/previous navigation buttons
   // Click "next" button - use a more specific selector
-  await client.click('.ant-modal .ant-modal-body button:has(.anticon-arrow-down)')
+  await client.click('.custom-modal-wrap .custom-modal-body button:has(.anticon-arrow-down)')
   await delay(500)
 
   // Verify the counter incremented (should now be at "2/3" or similar)
-  const nextSearchCounterText = await client.getText('.ant-modal .ant-modal-body .pd1x')
+  const nextSearchCounterText = await client.getText('.custom-modal-wrap .custom-modal-body .pd1x')
   expect(nextSearchCounterText).not.toBe(searchCounterText)
 
   // Click "previous" button - use a more specific selector
-  await client.click('.ant-modal .ant-modal-body button:has(.anticon-arrow-up)')
+  await client.click('.custom-modal-wrap .custom-modal-body button:has(.anticon-arrow-up)')
   await delay(500)
 
   // Verify counter went back to original value
-  const prevSearchCounterText = await client.getText('.ant-modal .ant-modal-body .pd1x')
+  const prevSearchCounterText = await client.getText('.custom-modal-wrap .custom-modal-body .pd1x')
   expect(prevSearchCounterText).toBe(searchCounterText)
 
   // Test 3: Test the copy button
@@ -112,7 +112,7 @@ Keyword appears one final time here.`
   await delay(500)
 
   // Click the copy button - use a more specific selector
-  await client.click('.ant-modal .ant-modal-body button:has(.anticon-copy)')
+  await client.click('.custom-modal-wrap .custom-modal-body button:has(.anticon-copy)')
   await delay(1000)
 
   // Read clipboard content and verify it matches our test content
@@ -120,7 +120,7 @@ Keyword appears one final time here.`
   expect(clipboardContent).toBe(testContent)
 
   // Click the save button
-  await client.click('.ant-modal .ant-modal-body button:has-text("save")')
+  await client.click('.custom-modal-wrap .custom-modal-body button:has-text("save")')
   await delay(5000) // Wait for save operation to complete
 
   // For remote files, also test double-click to open editor
@@ -130,15 +130,15 @@ Keyword appears one final time here.`
     await delay(3000) // Wait for editor modal to open
 
     // Verify the editor modal is open
-    await client.hasElem('.ant-modal .ant-modal-body textarea')
+    await client.hasElem('.custom-modal-wrap .custom-modal-body textarea')
 
     // Get the value from the editor to verify it contains our test content
-    const editorValue = await client.getValue('.ant-modal .ant-modal-body textarea')
+    const editorValue = await client.getValue('.custom-modal-wrap .custom-modal-body textarea')
     expect(editorValue).toBe(testContent)
 
     // Test search with a different keyword
     const altSearchKeyword = 'example'
-    await client.setValue('.ant-modal .ant-modal-body .ant-input-search input.ant-input', altSearchKeyword)
+    await client.setValue('.custom-modal-wrap .custom-modal-body .ant-input-search input.ant-input', altSearchKeyword)
     await delay(500)
 
     // Press Enter to trigger search
@@ -146,16 +146,16 @@ Keyword appears one final time here.`
     await delay(1000)
 
     // Verify that search found matches
-    const altSearchCounterText = await client.getText('.ant-modal .ant-modal-body .pd1x')
+    const altSearchCounterText = await client.getText('.custom-modal-wrap .custom-modal-body .pd1x')
     expect(altSearchCounterText).not.toBe('0/0')
 
     // Add more content and save (to verify double-click editing works)
     const additionalContent = '\nAdded through double-click access.'
-    await client.setValue('.ant-modal .ant-modal-body textarea', testContent + additionalContent)
+    await client.setValue('.custom-modal-wrap .custom-modal-body textarea', testContent + additionalContent)
     await delay(1000)
 
     // Save the updated content
-    await client.click('.ant-modal .ant-modal-body button:has-text("save")')
+    await client.click('.custom-modal-wrap .custom-modal-body button:has-text("save")')
     await delay(5000)
   }
 
@@ -166,7 +166,7 @@ Keyword appears one final time here.`
   await delay(3000)
 
   // Get the value from the editor to verify the content
-  const editorValue = await client.getValue('.ant-modal .ant-modal-body textarea')
+  const editorValue = await client.getValue('.custom-modal-wrap .custom-modal-body textarea')
   if (type === 'remote' && testDoubleClick) {
     expect(editorValue).toBe(testContent + '\nAdded through double-click access.')
   } else {
@@ -174,7 +174,7 @@ Keyword appears one final time here.`
   }
 
   // Close the editor using cancel button
-  await client.click('.ant-modal .ant-modal-body button:has-text("cancel")')
+  await client.click('.custom-modal-wrap .custom-modal-body button:has-text("cancel")')
   await delay(2000)
 
   // Navigate back to the parent folder

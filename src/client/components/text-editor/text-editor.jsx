@@ -4,7 +4,8 @@
 
 import { PureComponent } from 'react'
 import TextEditorForm from './text-editor-form'
-import { Spin, Modal } from 'antd'
+import { Spin } from 'antd'
+import Modal from '../common/modal'
 import resolve from '../../common/resolve'
 import { refsStatic, refs } from '../common/ref'
 

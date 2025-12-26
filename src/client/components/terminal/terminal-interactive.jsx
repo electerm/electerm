@@ -3,7 +3,8 @@
  */
 
 import { useEffect, useState } from 'react'
-import { Modal, Form, Button } from 'antd'
+import { Form, Button } from 'antd'
+import Modal from '../common/modal'
 import InputAutoFocus from '../common/input-auto-focus'
 import wait from '../../common/wait'
 

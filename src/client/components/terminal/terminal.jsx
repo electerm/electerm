@@ -178,7 +178,6 @@ class Term extends Component {
       clearTimeout(this.timers[k])
       this.timers[k] = null
     })
-    this.timers = null
     this.onClose = true
     if (this.socket) {
       this.socket.close()

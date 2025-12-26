@@ -518,6 +518,7 @@ export default class SettingCommon extends Component {
       onStartSessions: props.config.onStartSessions,
       bookmarks: props.bookmarks,
       bookmarkGroups: props.bookmarkGroups,
+      workspaces: props.store.workspaces,
       onChangeStartSessions: this.onChangeStartSessions
     }
     return (
@@ -528,7 +529,7 @@ export default class SettingCommon extends Component {
           <Select
             value={modifier}
             onChange={this.handleChangeModifier}
-            className='iblock width100'
+            className='width100'
             popupMatchSelectWidth={false}
             showSearch
           >
@@ -536,10 +537,10 @@ export default class SettingCommon extends Component {
               modifiers.map(this.renderOption)
             }
           </Select>
-          <span className='iblock mg1x'>+</span>
+          <span className='mg1x'>+</span>
           <Select
             value={key}
-            className='iblock width100'
+            className='width100'
             onChange={this.handleChangeKey}
             popupMatchSelectWidth={false}
             showSearch

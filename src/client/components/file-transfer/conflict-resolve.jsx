@@ -4,7 +4,8 @@
  */
 
 import { Component } from 'react'
-import { Modal, Button } from 'antd'
+import { Button } from 'antd'
+import Modal from '../common/modal'
 import { isString } from 'lodash-es'
 import AnimateText from '../common/animate-text'
 import formatTime from '../../common/time'

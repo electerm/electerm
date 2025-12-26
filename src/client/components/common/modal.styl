@@ -1,0 +1,77 @@
+.custom-modal-wrap
+  position fixed
+  top 0
+  left 0
+  right 0
+  bottom 0
+  overflow auto
+  outline 0
+
+.custom-modal-mask
+  position fixed
+  top 0
+  left 0
+  right 0
+  bottom 0
+  background rgba(0, 0, 0, 0.45)
+
+.custom-modal-container
+  position relative
+  display flex
+  align-items flex-start
+  justify-content center
+  min-height 100%
+  padding 24px
+
+.custom-modal-content
+  position relative
+  background var(--main)
+  border-radius 8px
+  box-shadow 0 6px 16px 0 rgba(0, 0, 0, 0.08), 0 3px 6px -4px rgba(0, 0, 0, 0.12), 0 9px 28px 8px rgba(0, 0, 0, 0.05)
+  margin-top 50px
+  max-width calc(100vw - 48px)
+
+.custom-modal-header
+  display flex
+  align-items center
+  justify-content space-between
+  padding 16px 24px
+  border-bottom 1px solid var(--main-darker)
+
+.custom-modal-title
+  font-size 16px
+  font-weight 600
+  color var(--text)
+  line-height 1.5
+  flex 1
+  overflow hidden
+  text-overflow ellipsis
+  white-space nowrap
+
+.custom-modal-close
+  display flex
+  align-items center
+  justify-content center
+  width 32px
+  height 32px
+  padding 0
+  margin-left 8px
+  background transparent
+  border none
+  border-radius 4px
+  color var(--text)
+  cursor pointer
+  transition background-color 0.2s
+  &:hover
+    background var(--main-darker)
+  &:focus
+    outline none
+
+.custom-modal-body
+  padding 0 24px 24px 24px
+  color var(--text)
+
+.custom-modal-footer
+  padding 12px 24px
+  border-top 1px solid var(--main-darker)
+  text-align right

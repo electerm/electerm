@@ -75,6 +75,10 @@ export default () => {
     resolutions: ls.getItemJSON(resolutionsLsKey, []),
     terminalCommandHistory: new Set(ls.getItemJSON(cmdHistoryKey, [])),
 
+    // workspaces
+    workspaces: [],
+    workspaceSaveModalVisible: false,
+
     // init session control
     selectedSessions: [],
     sessionModalVisible: false,
