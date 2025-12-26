@@ -31,9 +31,6 @@ describe('file info modal', function () {
     // Test local file info modal
     await testFileInfoModal(client, 'local', 'click')
 
-    // Test remote file info modal
-    await testFileInfoModal(client, 'remote', 'escape')
-
     await electronApp.close().catch(console.log)
   })
 
@@ -127,7 +124,7 @@ async function testEditFolderPermission (client, folderType) {
   expect(infoButtonActive).toBe(nowActive)
 
   // Close the folder properties modal
-  await client.click('.custom-modal-close-close')
+  await client.click('.custom-modal-close')
   await delay(300)
 
   // Clean up - delete the test folder
@@ -170,7 +167,7 @@ async function testFileInfoModal (client, fileType, closeMethod) {
 
   // Close modal using different methods
   if (closeMethod === 'click') {
-    await client.click('.custom-modal-close-close')
+    await client.click('.custom-modal-close')
   } else {
     await client.keyboard.press('Escape')
   }

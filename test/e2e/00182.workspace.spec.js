@@ -26,28 +26,12 @@ describe('workspace', function () {
 
     // Test 2: Verify Layout tab is active by default
     log('Test 2: Verifying Layout tab is default')
-    const activeTab = await client.evaluate(() => {
-      const tabs = document.querySelectorAll('.layout-workspace-dropdown .ant-tabs-tab')
-      for (const tab of tabs) {
-        if (tab.classList.contains('ant-tabs-tab-active')) {
-          return tab.textContent
-        }
-      }
-      return ''
-    })
+    const activeTab = await client.getText('.layout-workspace-dropdown .ant-tabs-tab.ant-tabs-tab-active')
     expect(activeTab).include('Layout')
 
     // Test 3: Switch to Workspaces tab
     log('Test 3: Switching to Workspaces tab')
-    await client.evaluate(() => {
-      const tabs = document.querySelectorAll('.layout-workspace-dropdown .ant-tabs-tab')
-      for (const tab of tabs) {
-        if (tab.textContent.includes('Workspaces')) {
-          tab.click()
-          break
-        }
-      }
-    })
+    await client.click('.layout-workspace-dropdown .ant-tabs-tab:has-text("Workspaces")')
     await delay(300)
 
     // Test 4: Verify workspace content is shown
@@ -77,15 +61,7 @@ describe('workspace', function () {
     const workspaceName = 'Test Workspace ' + Date.now()
     await client.setValue('.custom-modal-wrap input', workspaceName)
     await delay(200)
-    await client.evaluate(() => {
-      const btns = document.querySelectorAll('.custom-modal-wrap .ant-btn-primary')
-      for (const btn of btns) {
-        if (btn.textContent.includes('Save')) {
-          btn.click()
-          break
-        }
-      }
-    })
+    await client.click('.custom-modal-wrap .ant-btn-primary:has-text("Save")')
     await delay(500)
 
     // Test 9: Verify modal is closed
@@ -104,15 +80,7 @@ describe('workspace', function () {
     log('Test 11: Reopening dropdown')
     await client.click('.tabs .layout-dd-icon')
     await delay(300)
-    await client.evaluate(() => {
-      const tabs = document.querySelectorAll('.layout-workspace-dropdown .ant-tabs-tab')
-      for (const tab of tabs) {
-        if (tab.textContent.includes('Workspaces')) {
-          tab.click()
-          break
-        }
-      }
-    })
+    await client.click('.layout-workspace-dropdown .ant-tabs-tab:has-text("Workspaces")')
     await delay(300)
 
     // Test 12: Verify workspace appears in the list
@@ -122,15 +90,7 @@ describe('workspace', function () {
 
     // Test 13: Verify workspace name is displayed
     log('Test 13: Verifying workspace name displayed')
-    const displayedName = await client.evaluate((name) => {
-      const items = document.querySelectorAll('.workspace-name')
-      for (const item of items) {
-        if (item.textContent.includes('Test Workspace')) {
-          return item.textContent
-        }
-      }
-      return ''
-    }, workspaceName)
+    const displayedName = await client.getText('.workspace-name')
     expect(displayedName).include('Test Workspace')
 
     // Test 14: Change layout then load workspace to restore
@@ -155,15 +115,7 @@ describe('workspace', function () {
     // Reopen dropdown
     await client.click('.tabs .layout-dd-icon')
     await delay(300)
-    await client.evaluate(() => {
-      const tabs = document.querySelectorAll('.layout-workspace-dropdown .ant-tabs-tab')
-      for (const tab of tabs) {
-        if (tab.textContent.includes('Workspaces')) {
-          tab.click()
-          break
-        }
-      }
-    })
+    await client.click('.layout-workspace-dropdown .ant-tabs-tab:has-text("Workspaces")')
     await delay(300)
 
     // Click delete icon
@@ -173,12 +125,7 @@ describe('workspace', function () {
       await delay(300)
 
       // Confirm delete
-      await client.evaluate(() => {
-        const okBtn = document.querySelector('.ant-popconfirm .ant-btn-primary')
-        if (okBtn) {
-          okBtn.click()
-        }
-      })
+      await client.click('.ant-popconfirm .ant-btn-primary')
       await delay(500)
 
       // Verify workspace deleted
