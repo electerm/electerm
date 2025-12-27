@@ -47,6 +47,12 @@ export const computePassedTime = (startTime) => {
 }
 
 export const computeLeftTime = (bytes, total, startTime) => {
+  if (total === 0) {
+    return {
+      leftTime: '0s',
+      leftTimeInt: 0
+    }
+  }
   let now = Date.now()
   if (now <= startTime) {
     now = startTime + 1
