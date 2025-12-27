@@ -71,6 +71,9 @@ export default class TransportAction extends Component {
     this.transport = null
     this.fromFile = null
     refsTransfers.remove(this.id)
+    if (this.isFtp) {
+      window.initingFtpTabIds?.delete(this.tabId)
+    }
   }
 
   localCheckExist = (path) => {

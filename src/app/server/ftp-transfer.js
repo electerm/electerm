@@ -76,6 +76,7 @@ class Transfer {
       }
       this.trackProgress()
       if (!this.isUpload) {
+        console.log('start download', this.srcPath, this.dstPath, this.ftpClient)
         await this.ftpClient.downloadTo(this.dstPath, this.srcPath)
       } else {
         await this.ftpClient.uploadFrom(this.srcPath, this.dstPath)
