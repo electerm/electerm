@@ -1,4 +1,4 @@
-const ftp = require('basic-ftp')
+const FtpClientWrapper = require('./ftp-client')
 const { TerminalBase } = require('./session-base')
 const { commonExtends } = require('./session-common')
 const { readRemoteFile, writeRemoteFile } = require('./ftp-file')
@@ -15,8 +15,8 @@ class Ftp extends TerminalBase {
   }
 
   async connect (initOptions) {
-    this.client = new ftp.Client()
-    this.client.ftp.verbose = initOptions.debug
+    this.client = new FtpClientWrapper()
+    this.client.verbose = initOptions.debug
     await this.client.access({
       host: initOptions.host,
       port: initOptions.port || 21,

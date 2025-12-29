@@ -71,6 +71,9 @@ export default class TransportAction extends Component {
     this.transport = null
     this.fromFile = null
     refsTransfers.remove(this.id)
+    if (this.isFtp) {
+      window.initingFtpTabIds?.delete(this.tabId)
+    }
   }
 
   localCheckExist = (path) => {
@@ -185,9 +188,9 @@ export default class TransportAction extends Component {
     const up = {}
     const total = transfer.fromFile.size
     let percent = total === 0
-      ? 0
+      ? 100
       : Math.floor(100 * transferred / total)
-    percent = percent >= 100 ? 99 : percent
+    percent = percent >= 100 ? 100 : percent
     up.percent = percent
     up.status = 'active'
     up.transferred = transferred

@@ -36,7 +36,6 @@ module.exports = (initOptions) => {
     port,
     proxy
   } = initOptions
-  console.log('socks proxy init options:', initOptions)
   const proxyURL = parseUrl(proxy)
   if (!proxyURL) {
     throw new Error('proxy format not right:', proxy)

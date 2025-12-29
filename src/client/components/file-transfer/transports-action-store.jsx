@@ -9,6 +9,8 @@ import { maxTransport } from '../../common/constants'
 import { refsStatic } from '../common/ref'
 // import { action } from 'manate'
 
+window.initingFtpTabIds = new Set()
+
 export default class TransportsActionStore extends Component {
   componentDidMount () {
     this.control()
@@ -71,13 +73,24 @@ export default class TransportsActionStore extends Component {
         typeTo,
         typeFrom,
         inited,
-        id
+        id,
+        tabType,
+        tabId
       } = tr
 
       const isTransfer = typeTo !== typeFrom
 
       if (inited || !isTransfer) {
         continue
+      }
+
+      // For ftp transfers, ensure only one per tabId is inited
+      if (tabType === 'ftp') {
+        const hasInited = fileTransfers.some(t => t.tabId === tabId && t.inited && t.id !== id)
+        if (hasInited || window.initingFtpTabIds.has(tabId)) {
+          continue
+        }
+        window.initingFtpTabIds.add(tabId)
       }
 
       if (count < maxTransport) {
