@@ -20,7 +20,7 @@ export default (e) => {
     </div>
   )
   notification.error({
-    message: msg,
+    title: msg,
     description,
     duration: 55
   })

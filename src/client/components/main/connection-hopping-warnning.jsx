@@ -27,7 +27,7 @@ export default function ConnectionHoppingWarning (props) {
       return
     }
     notification.info({
-      message: e('connectionHopping'),
+      title: e('connectionHopping'),
       duration: 0,
       placement: 'bottom',
       key: connectionHoppingWarnKey,
