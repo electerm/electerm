@@ -9,9 +9,11 @@ import { settingMap } from '../common/constants'
 export default Store => {
   // Initialize MCP handler - called when MCP widget is started
   Store.prototype.initMcpHandler = function () {
+    console.log('MCP: Initializing MCP handler')
     const { ipcOnEvent } = window.pre
     // Listen for MCP requests from main process
     ipcOnEvent('mcp-request', (event, request) => {
+      console.log('MCP: Received MCP request:', request)
       const { requestId, action, data } = request
       if (action === 'tool-call') {
         window.store.handleMcpToolCall(requestId, data.toolName, data.args)
@@ -21,6 +23,7 @@ export default Store => {
 
   // Handle individual tool calls
   Store.prototype.handleMcpToolCall = async function (requestId, toolName, args) {
+    console.log('MCP: Handling tool call:', toolName, 'with args:', args)
     const { store } = window
 
     try {
@@ -135,7 +138,9 @@ export default Store => {
         requestId,
         result
       })
+      console.log('MCP: Sent successful response for tool:', toolName, 'result:', result)
     } catch (error) {
+      console.log('MCP: Error handling tool call:', toolName, 'error:', error)
       window.api.sendMcpResponse({
         requestId,
         error: error.message

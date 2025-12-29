@@ -128,7 +128,7 @@ class ElectermMCPServer {
     server.tool(
       'list_tabs',
       'List all open terminal tabs',
-      {},
+      z.object({}),
       async () => {
         const result = await self.sendToRenderer('tool-call', { toolName: 'list_tabs', args: {} })
         return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
@@ -138,7 +138,7 @@ class ElectermMCPServer {
     server.tool(
       'get_active_tab',
       'Get the currently active tab',
-      {},
+      z.object({}),
       async () => {
         const result = await self.sendToRenderer('tool-call', { toolName: 'get_active_tab', args: {} })
         return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
@@ -148,7 +148,7 @@ class ElectermMCPServer {
     server.tool(
       'switch_tab',
       'Switch to a specific tab',
-      { tabId: z.string().describe('Tab ID to switch to') },
+      z.object({ tabId: z.string().describe('Tab ID to switch to') }),
       async ({ tabId }) => {
         const result = await self.sendToRenderer('tool-call', { toolName: 'switch_tab', args: { tabId } })
         return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
@@ -158,7 +158,7 @@ class ElectermMCPServer {
     server.tool(
       'close_tab',
       'Close a specific tab',
-      { tabId: z.string().describe('Tab ID to close') },
+      z.object({ tabId: z.string().describe('Tab ID to close') }),
       async ({ tabId }) => {
         const result = await self.sendToRenderer('tool-call', { toolName: 'close_tab', args: { tabId } })
         return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
@@ -168,7 +168,7 @@ class ElectermMCPServer {
     server.tool(
       'reload_tab',
       'Reload/reconnect a tab',
-      { tabId: z.string().optional().describe('Tab ID to reload (default: active tab)') },
+      z.object({ tabId: z.string().optional().describe('Tab ID to reload (default: active tab)') }),
       async ({ tabId }) => {
         const result = await self.sendToRenderer('tool-call', { toolName: 'reload_tab', args: { tabId } })
         return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
@@ -178,7 +178,7 @@ class ElectermMCPServer {
     server.tool(
       'duplicate_tab',
       'Duplicate a tab',
-      { tabId: z.string().describe('Tab ID to duplicate') },
+      z.object({ tabId: z.string().describe('Tab ID to duplicate') }),
       async ({ tabId }) => {
         const result = await self.sendToRenderer('tool-call', { toolName: 'duplicate_tab', args: { tabId } })
         return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
@@ -188,7 +188,7 @@ class ElectermMCPServer {
     server.tool(
       'open_local_terminal',
       'Open a new local terminal tab',
-      {},
+      z.object({}),
       async () => {
         const result = await self.sendToRenderer('tool-call', { toolName: 'open_local_terminal', args: {} })
         return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
@@ -198,11 +198,11 @@ class ElectermMCPServer {
     server.tool(
       'send_terminal_command',
       'Send a command to the active terminal',
-      {
+      z.object({
         command: z.string().describe('Command to send'),
         tabId: z.string().optional().describe('Optional: specific tab ID'),
         inputOnly: z.boolean().optional().describe('Input only mode (no enter key)')
-      },
+      }),
       async ({ command, tabId, inputOnly }) => {
         const result = await self.sendToRenderer('tool-call', {
           toolName: 'send_terminal_command',
@@ -215,7 +215,7 @@ class ElectermMCPServer {
     server.tool(
       'get_terminal_selection',
       'Get the current text selection in terminal',
-      { tabId: z.string().optional().describe('Optional: specific tab ID') },
+      z.object({ tabId: z.string().optional().describe('Optional: specific tab ID') }),
       async ({ tabId }) => {
         const result = await self.sendToRenderer('tool-call', { toolName: 'get_terminal_selection', args: { tabId } })
         return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
@@ -227,7 +227,7 @@ class ElectermMCPServer {
       server.tool(
         'list_bookmarks',
         'List all SSH/terminal bookmarks',
-        { groupId: z.string().optional().describe('Optional: Filter by bookmark group ID') },
+        z.object({ groupId: z.string().optional().describe('Optional: Filter by bookmark group ID') }),
         async ({ groupId }) => {
           const result = await self.sendToRenderer('tool-call', { toolName: 'list_bookmarks', args: { groupId } })
           return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
@@ -237,7 +237,7 @@ class ElectermMCPServer {
       server.tool(
         'get_bookmark',
         'Get a specific bookmark by ID',
-        { id: z.string().describe('Bookmark ID') },
+        z.object({ id: z.string().describe('Bookmark ID') }),
         async ({ id }) => {
           const result = await self.sendToRenderer('tool-call', { toolName: 'get_bookmark', args: { id } })
           return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
@@ -247,14 +247,14 @@ class ElectermMCPServer {
       server.tool(
         'add_bookmark',
         'Add a new SSH/terminal bookmark',
-        {
+        z.object({
           title: z.string().describe('Bookmark title'),
           host: z.string().optional().describe('SSH host address'),
           port: z.number().optional().describe('SSH port (default 22)'),
           username: z.string().optional().describe('SSH username'),
           password: z.string().optional().describe('SSH password (optional)'),
           type: z.enum(['ssh', 'local', 'serial', 'telnet']).optional().describe('Connection type')
-        },
+        }),
         async (args) => {
           const result = await self.sendToRenderer('tool-call', { toolName: 'add_bookmark', args })
           return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
@@ -264,10 +264,10 @@ class ElectermMCPServer {
       server.tool(
         'edit_bookmark',
         'Edit an existing bookmark',
-        {
+        z.object({
           id: z.string().describe('Bookmark ID to edit'),
           updates: z.record(z.any()).describe('Fields to update')
-        },
+        }),
         async ({ id, updates }) => {
           const result = await self.sendToRenderer('tool-call', { toolName: 'edit_bookmark', args: { id, updates } })
           return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
@@ -277,7 +277,7 @@ class ElectermMCPServer {
       server.tool(
         'delete_bookmark',
         'Delete a bookmark',
-        { id: z.string().describe('Bookmark ID to delete') },
+        z.object({ id: z.string().describe('Bookmark ID to delete') }),
         async ({ id }) => {
           const result = await self.sendToRenderer('tool-call', { toolName: 'delete_bookmark', args: { id } })
           return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
@@ -287,7 +287,7 @@ class ElectermMCPServer {
       server.tool(
         'open_bookmark',
         'Open a bookmark in a new tab',
-        { id: z.string().describe('Bookmark ID to open') },
+        z.object({ id: z.string().describe('Bookmark ID to open') }),
         async ({ id }) => {
           const result = await self.sendToRenderer('tool-call', { toolName: 'open_bookmark', args: { id } })
           return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
@@ -300,7 +300,7 @@ class ElectermMCPServer {
       server.tool(
         'list_bookmark_groups',
         'List all bookmark groups/folders',
-        {},
+        z.object({}),
         async () => {
           const result = await self.sendToRenderer('tool-call', { toolName: 'list_bookmark_groups', args: {} })
           return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
@@ -310,10 +310,10 @@ class ElectermMCPServer {
       server.tool(
         'add_bookmark_group',
         'Add a new bookmark group',
-        {
+        z.object({
           title: z.string().describe('Group title'),
           parentId: z.string().optional().describe('Optional parent group ID')
-        },
+        }),
         async ({ title, parentId }) => {
           const result = await self.sendToRenderer('tool-call', { toolName: 'add_bookmark_group', args: { title, parentId } })
           return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
@@ -326,7 +326,7 @@ class ElectermMCPServer {
       server.tool(
         'list_quick_commands',
         'List all quick commands',
-        {},
+        z.object({}),
         async () => {
           const result = await self.sendToRenderer('tool-call', { toolName: 'list_quick_commands', args: {} })
           return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
@@ -336,12 +336,12 @@ class ElectermMCPServer {
       server.tool(
         'add_quick_command',
         'Add a new quick command',
-        {
+        z.object({
           name: z.string().describe('Quick command name'),
           command: z.string().describe('Command to execute'),
           inputOnly: z.boolean().optional().describe('Input only mode (no enter)'),
           labels: z.array(z.string()).optional().describe('Tags/labels for the command')
-        },
+        }),
         async (args) => {
           const result = await self.sendToRenderer('tool-call', { toolName: 'add_quick_command', args })
           return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
@@ -351,7 +351,7 @@ class ElectermMCPServer {
       server.tool(
         'run_quick_command',
         'Run a quick command in the active terminal',
-        { id: z.string().describe('Quick command ID to run') },
+        z.object({ id: z.string().describe('Quick command ID to run') }),
         async ({ id }) => {
           const result = await self.sendToRenderer('tool-call', { toolName: 'run_quick_command', args: { id } })
           return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
@@ -361,7 +361,7 @@ class ElectermMCPServer {
       server.tool(
         'delete_quick_command',
         'Delete a quick command',
-        { id: z.string().describe('Quick command ID to delete') },
+        z.object({ id: z.string().describe('Quick command ID to delete') }),
         async ({ id }) => {
           const result = await self.sendToRenderer('tool-call', { toolName: 'delete_quick_command', args: { id } })
           return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
@@ -374,7 +374,7 @@ class ElectermMCPServer {
       server.tool(
         'list_history',
         'List connection history',
-        { limit: z.number().optional().describe('Max number of entries (default 50)') },
+        z.object({ limit: z.number().optional().describe('Max number of entries (default 50)') }),
         async ({ limit }) => {
           const result = await self.sendToRenderer('tool-call', { toolName: 'list_history', args: { limit } })
           return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
@@ -384,7 +384,7 @@ class ElectermMCPServer {
       server.tool(
         'clear_history',
         'Clear connection history',
-        {},
+        z.object({}),
         async () => {
           const result = await self.sendToRenderer('tool-call', { toolName: 'clear_history', args: {} })
           return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
@@ -397,7 +397,7 @@ class ElectermMCPServer {
       server.tool(
         'list_transfers',
         'List active file transfers',
-        {},
+        z.object({}),
         async () => {
           const result = await self.sendToRenderer('tool-call', { toolName: 'list_transfers', args: {} })
           return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
@@ -407,7 +407,7 @@ class ElectermMCPServer {
       server.tool(
         'list_transfer_history',
         'List file transfer history',
-        { limit: z.number().optional().describe('Max number of entries') },
+        z.object({ limit: z.number().optional().describe('Max number of entries') }),
         async ({ limit }) => {
           const result = await self.sendToRenderer('tool-call', { toolName: 'list_transfer_history', args: { limit } })
           return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
@@ -420,7 +420,7 @@ class ElectermMCPServer {
       server.tool(
         'get_settings',
         'Get current application settings',
-        {},
+        undefined,
         async () => {
           const result = await self.sendToRenderer('tool-call', { toolName: 'get_settings', args: {} })
           return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
@@ -430,7 +430,7 @@ class ElectermMCPServer {
       server.tool(
         'list_terminal_themes',
         'List available terminal themes',
-        {},
+        z.object({}),
         async () => {
           const result = await self.sendToRenderer('tool-call', { toolName: 'list_terminal_themes', args: {} })
           return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
@@ -440,7 +440,7 @@ class ElectermMCPServer {
       server.tool(
         'list_ui_themes',
         'List available UI themes',
-        {},
+        z.object({}),
         async () => {
           const result = await self.sendToRenderer('tool-call', { toolName: 'list_ui_themes', args: {} })
           return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
@@ -451,7 +451,9 @@ class ElectermMCPServer {
 
   // Start the MCP server
   async start () {
+    console.log('MCP: Starting MCP server widget')
     const { host, port } = this.config
+    console.log('MCP: Config - host:', host, 'port:', port)
 
     // Set up IPC response handler
     this.ipcHandler = (event, response) => {
@@ -576,7 +578,7 @@ class ElectermMCPServer {
           version: '2024-11-05'
         }
         const msg = `MCP Server is running at ${serverInfo.url}`
-        console.log(msg)
+        console.log('MCP:', msg)
         resolve({
           serverInfo,
           msg,
