@@ -32,7 +32,7 @@ export default async function download (filename, text) {
     return
   }
   notification.success({
-    message: '',
+    title: '',
     description: (
       <ShowItem
         to={filePath}

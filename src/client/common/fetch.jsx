@@ -30,7 +30,7 @@ export async function handleErr (res) {
   }
   log.debug(text, 'fetch err info')
   notification.error({
-    message: 'error',
+    title: 'error',
     description: (
       <div className='common-err'>
         {text}

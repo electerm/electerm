@@ -20,7 +20,7 @@ function handleIgnore () {
 
 function showNotification () {
   notification.info({
-    message: e('loadSshConfigs'),
+    title: e('loadSshConfigs'),
     duration: 0,
     placement: 'bottom',
     key: 'sshConfigNotify',
