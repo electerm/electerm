@@ -18,17 +18,14 @@ export default class QuickCommandsItem extends PureComponent {
   }
 
   render () {
-    const { name, id, nameMatch, labelMatch, shortcut } = this.props.item
+    const { name, id, shortcut } = this.props.item
     const {
       draggable,
       handleDragOver,
       handleDragStart,
       handleDrop
     } = this.props
-    const cls = classNames('qm-item mg1r mg1b', {
-      'name-match': nameMatch,
-      'label-match': labelMatch
-    })
+    const cls = classNames('qm-item mg1r mg1b')
     const btnProps = {
       className: cls,
       onClick: this.handleSelect,

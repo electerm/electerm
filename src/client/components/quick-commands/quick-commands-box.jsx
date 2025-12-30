@@ -129,15 +129,12 @@ export default function QuickCommandsFooterBox (props) {
     )
   }
 
-  function sortArray (array, keyword, labels, qmSortByFrequency) {
-    const sorters = [
-      (obj) => !(keyword && obj.name.toLowerCase().includes(keyword)),
-      (obj) => !labels.some((label) => (obj.labels || []).includes(label))
-    ]
-    if (qmSortByFrequency) {
-      sorters.push((obj) => -(obj.clickCount || 0))
-    }
-    return sortBy(array, sorters)
+  function filterArray (array, keyword, labels) {
+    return array.filter(obj => {
+      const nameMatches = !keyword || obj.name.toLowerCase().includes(keyword)
+      const labelMatches = !labels.length || labels.some((label) => (obj.labels || []).includes(label))
+      return nameMatches && labelMatches
+    })
   }
 
   const {
@@ -156,14 +153,10 @@ export default function QuickCommandsFooterBox (props) {
     return renderNoCmd()
   }
   const keyword0 = keyword.toLowerCase()
-  const filtered = sortArray(all, keyword0, labels, qmSortByFrequency)
-    .map(d => {
-      return {
-        ...d,
-        nameMatch: keyword && d.name.toLowerCase().includes(keyword),
-        labelMatch: labels.some((label) => (d.labels || []).includes(label))
-      }
-    })
+  const filtered = filterArray(all, keyword0, labels)
+  const sorted = qmSortByFrequency
+    ? sortBy(filtered, (obj) => -(obj.clickCount || 0))
+    : filtered
   const sprops = {
     value: labels,
     mode: 'multiple',
@@ -174,11 +167,7 @@ export default function QuickCommandsFooterBox (props) {
   const tp = pinnedQuickCommandBar
     ? 'primary'
     : 'text'
-  const cls = classNames(
-    'qm-list-wrap',
-    { 'fil-label': !!labels.length },
-    { 'fil-keyword': !!keyword }
-  )
+  const cls = classNames('qm-list-wrap')
   const type = qmSortByFrequency ? 'primary' : 'default'
   const w = openedSideBar ? 43 + leftSidebarWidth : 43
   const qmProps = {
@@ -233,7 +222,7 @@ export default function QuickCommandsFooterBox (props) {
           </Space.Compact>
         </Flex>
         <div className={cls}>
-          {filtered.map(renderItem)}
+          {sorted.map(renderItem)}
         </div>
       </div>
     </div>
