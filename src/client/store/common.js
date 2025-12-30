@@ -4,7 +4,7 @@
 
 import handleError from '../common/error-handler'
 import { Modal } from 'antd'
-import { debounce, some, get } from 'lodash-es'
+import { debounce, some, get, pickBy } from 'lodash-es'
 import {
   modals,
   leftSidebarWidthKey,
@@ -219,27 +219,31 @@ export default Store => {
     delete p.name
     delete p.id
     if (type === connectionMap.rdp) {
+      const filtered = pickBy(p.rdp, (value) => value !== undefined && value !== '')
       return {
         ...tab,
-        ...p.rdp
+        ...filtered
       }
     } else if (type === connectionMap.vnc) {
+      const filtered = pickBy(p.vnc, (value) => value !== undefined && value !== '')
       return {
         ...tab,
-        ...p.vnc
+        ...filtered
       }
     } else if (type === connectionMap.telnet) {
+      const filtered = pickBy(p.telnet, (value) => value !== undefined && value !== '')
       return {
         ...tab,
-        ...p.telnet
+        ...filtered
       }
     }
     delete p.rdp
     delete p.vnc
     delete p.telnet
+    const filtered = pickBy(p, (value) => value !== undefined && value !== '')
     return {
       ...tab,
-      ...p
+      ...filtered
     }
   }
   Store.prototype.applyProfileToTabs = function (tab) {
