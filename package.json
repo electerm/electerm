@@ -104,6 +104,7 @@
     "@electerm/rdpjs": "^1.0.0",
     "@electerm/ssh2": "1.16.2",
     "@electerm/strip-ansi": "1.0.0",
+    "@modelcontextprotocol/sdk": "^1.25.1",
     "axios": "1.12.2",
     "basic-ftp": "^5.0.5",
     "commander": "12.1.0",
@@ -129,7 +130,8 @@
     "socks-proxy-agent": "8.0.1",
     "socksv5-electron": "^0.0.6",
     "ssh-config": "5.0.1",
-    "tar": "7.4.3"
+    "tar": "7.4.3",
+    "zod": "^4.2.1"
   },
   "files": [
     "npm",

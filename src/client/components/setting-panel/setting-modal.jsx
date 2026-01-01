@@ -39,7 +39,7 @@ export default auto(function SettingModalWrap (props) {
       shouldConfirmDel: tabsShouldConfirmDel.includes(settingTab),
       list: settingSidebarList
     }
-    const { bookmarks, bookmarkGroups } = store
+    const { bookmarks, bookmarkGroups, widgetInstances } = store
     const formProps = {
       store,
       formData: settingItem,
@@ -51,6 +51,7 @@ export default auto(function SettingModalWrap (props) {
       ]),
       bookmarkGroups,
       bookmarks,
+      widgetInstancesLength: widgetInstances.length,
       serials: store.serials,
       loaddingSerials: store.loaddingSerials
     }
